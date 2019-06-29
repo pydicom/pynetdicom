@@ -62,6 +62,16 @@ class TestEncode(object):
         ds_enc = encode(ds, False, False)
         assert ds_enc is None
 
+    def test_encode_none(self):
+        """Test encoding None."""
+        out = encode(None, True, True)
+        assert out is None
+
+    def test_encode_empty(self):
+        """Test encoding an empty dataset."""
+        out = encode(Dataset(), True, True)
+        assert out == b''
+
 
 class TestDecode(object):
     """Test dsutils.decode(bytes, is_implicit_vr, is_little_endian)."""

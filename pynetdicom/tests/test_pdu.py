@@ -1399,7 +1399,7 @@ class TestEventHandlingAcceptor(object):
         assert isinstance(event, Event)
         assert isinstance(event.assoc, Association)
         assert isinstance(event.timestamp, datetime)
-        assert event.name == 'EVT_PDU_SENT'
+        assert event.event.name == 'EVT_PDU_SENT'
 
         assert isinstance(triggered[0].pdu, A_ASSOCIATE_AC)
         assert isinstance(triggered[1].pdu, A_RELEASE_RP)
@@ -1441,7 +1441,7 @@ class TestEventHandlingAcceptor(object):
         assert isinstance(event, Event)
         assert isinstance(event.assoc, Association)
         assert isinstance(event.timestamp, datetime)
-        assert event.name == 'EVT_PDU_SENT'
+        assert event.event.name == 'EVT_PDU_SENT'
 
         assert isinstance(triggered[0].pdu, A_RELEASE_RP)
 
@@ -1544,7 +1544,7 @@ class TestEventHandlingAcceptor(object):
         assert isinstance(event.timestamp, datetime)
         assert isinstance(triggered[0].pdu, A_ASSOCIATE_RQ)
         assert isinstance(triggered[1].pdu, A_RELEASE_RQ)
-        assert event.name == 'EVT_PDU_RECV'
+        assert event.event.name == 'EVT_PDU_RECV'
 
         scp.shutdown()
 
@@ -1583,7 +1583,7 @@ class TestEventHandlingAcceptor(object):
         assert isinstance(event.assoc, Association)
         assert isinstance(event.timestamp, datetime)
         assert isinstance(triggered[0].pdu, A_RELEASE_RQ)
-        assert event.name == 'EVT_PDU_RECV'
+        assert event.event.name == 'EVT_PDU_RECV'
 
         scp.shutdown()
 
@@ -1623,7 +1623,7 @@ class TestEventHandlingAcceptor(object):
         assert isinstance(event.assoc, Association)
         assert isinstance(event.timestamp, datetime)
         assert isinstance(triggered[0].pdu, A_ASSOCIATE_RQ)
-        assert event.name == 'EVT_PDU_RECV'
+        assert event.event.name == 'EVT_PDU_RECV'
 
         scp.shutdown()
 
@@ -1725,7 +1725,7 @@ class TestEventHandlingRequestor(object):
         assert isinstance(event, Event)
         assert isinstance(event.assoc, Association)
         assert isinstance(event.timestamp, datetime)
-        assert event.name == 'EVT_PDU_SENT'
+        assert event.event.name == 'EVT_PDU_SENT'
 
         assert isinstance(triggered[0].pdu, A_ASSOCIATE_RQ)
         assert isinstance(triggered[1].pdu, A_RELEASE_RQ)
@@ -1798,7 +1798,7 @@ class TestEventHandlingRequestor(object):
         assert isinstance(event, Event)
         assert isinstance(event.assoc, Association)
         assert isinstance(event.timestamp, datetime)
-        assert event.name == 'EVT_PDU_SENT'
+        assert event.event.name == 'EVT_PDU_SENT'
 
         assert isinstance(triggered[0].pdu, A_RELEASE_RQ)
 
@@ -1901,7 +1901,7 @@ class TestEventHandlingRequestor(object):
         assert isinstance(event.timestamp, datetime)
         assert isinstance(triggered[0].pdu, A_ASSOCIATE_AC)
         assert isinstance(triggered[1].pdu, A_RELEASE_RP)
-        assert event.name == 'EVT_PDU_RECV'
+        assert event.event.name == 'EVT_PDU_RECV'
 
         scp.shutdown()
 
@@ -1970,7 +1970,7 @@ class TestEventHandlingRequestor(object):
         assert isinstance(event.assoc, Association)
         assert isinstance(event.timestamp, datetime)
         assert isinstance(triggered[0].pdu, A_RELEASE_RP)
-        assert event.name == 'EVT_PDU_RECV'
+        assert event.event.name == 'EVT_PDU_RECV'
 
         scp.shutdown()
 
@@ -2011,7 +2011,7 @@ class TestEventHandlingRequestor(object):
         assert isinstance(event.assoc, Association)
         assert isinstance(event.timestamp, datetime)
         assert isinstance(triggered[0].pdu, A_ASSOCIATE_AC)
-        assert event.name == 'EVT_PDU_RECV'
+        assert event.event.name == 'EVT_PDU_RECV'
 
         scp.shutdown()
 

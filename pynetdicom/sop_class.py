@@ -7,23 +7,30 @@ import sys
 from pydicom.uid import UID
 
 from pynetdicom.service_class import (
-    ServiceClass,
-    VerificationServiceClass,
-    StorageServiceClass,
-    QueryRetrieveServiceClass,
     BasicWorklistManagementServiceClass,
-    RelevantPatientInformationQueryServiceClass,
-    SubstanceAdministrationQueryServiceClass,
-    NonPatientObjectStorageServiceClass,
-    HangingProtocolQueryRetrieveServiceClass,
-    DefinedProcedureProtocolQueryRetrieveServiceClass,
     ColorPaletteQueryRetrieveServiceClass,
+    DefinedProcedureProtocolQueryRetrieveServiceClass,
+    HangingProtocolQueryRetrieveServiceClass,
     ImplantTemplateQueryRetrieveServiceClass,
+    NonPatientObjectStorageServiceClass,
     ProtocolApprovalQueryRetrieveServiceClass,
+    QueryRetrieveServiceClass,
+    RelevantPatientInformationQueryServiceClass,
+    ServiceClass,
+    StorageServiceClass,
+    SubstanceAdministrationQueryServiceClass,
+    VerificationServiceClass,
 )
 from pynetdicom.service_class_n import (
+    ApplicationEventLoggingServiceClass,
     DisplaySystemManagementServiceClass,
-    ModalityPerformedProcedureStepServiceClass
+    InstanceAvailabilityNotificationServiceClass,
+    MediaCreationManagementServiceClass,
+    PrintManagementServiceClass,
+    ProcedureStepServiceClass,
+    RTMachineVerificationServiceClass,
+    StorageCommitmentServiceClass,
+    UnifiedProcedureStepServiceClass,
 )
 
 
@@ -47,42 +54,50 @@ def uid_to_service_class(uid):
     """
     if uid in _SERVICE_CLASSES:
         return _SERVICE_CLASSES[uid]
-    elif uid in _VERIFICATION_CLASSES.values():
-        return VerificationServiceClass
-    elif uid in _STORAGE_CLASSES.values():
-        return StorageServiceClass
-    elif uid in _QR_CLASSES.values():
-        return QueryRetrieveServiceClass
+    elif uid in _APPLICATION_EVENT_CLASSES.values():
+        return ApplicationEventLoggingServiceClass
     elif uid in _BASIC_WORKLIST_CLASSES.values():
         return BasicWorklistManagementServiceClass
-    elif uid in _RELEVANT_PATIENT_QUERY_CLASSES.values():
-        return RelevantPatientInformationQueryServiceClass
-    elif uid in _SUBSTANCE_ADMINISTRATION_CLASSES.values():
-        return SubstanceAdministrationQueryServiceClass
-    elif uid in _NON_PATIENT_OBJECT_CLASSES.values():
-        return NonPatientObjectStorageServiceClass
-    elif uid in _HANGING_PROTOCOL_CLASSES.values():
-        return HangingProtocolQueryRetrieveServiceClass
-    elif uid in _DEFINED_PROCEDURE_CLASSES.values():
-        return DefinedProcedureProtocolQueryRetrieveServiceClass
     elif uid in _COLOR_PALETTE_CLASSES.values():
         return ColorPaletteQueryRetrieveServiceClass
-    elif uid in _IMPLANT_TEMPLATE_CLASSES.values():
-        return ImplantTemplateQueryRetrieveServiceClass
+    elif uid in _DEFINED_PROCEDURE_CLASSES.values():
+        return DefinedProcedureProtocolQueryRetrieveServiceClass
     elif uid in _DISPLAY_SYSTEM_CLASSES.values():
         return DisplaySystemManagementServiceClass
-    elif uid in _PRINT_MANAGEMENT_CLASSES.values():
-        return ServiceClass  # Not yet implemented
-    elif uid in _PROCEDURE_STEP_CLASSES.values():
-        return ModalityPerformedProcedureStepServiceClass
+    elif uid in _HANGING_PROTOCOL_CLASSES.values():
+        return HangingProtocolQueryRetrieveServiceClass
+    elif uid in _IMPLANT_TEMPLATE_CLASSES.values():
+        return ImplantTemplateQueryRetrieveServiceClass
+    elif uid in _INSTANCE_AVAILABILITY_CLASSES.values():
+        return InstanceAvailabilityNotificationServiceClass
+    elif uid in _MEDIA_CREATION_CLASSES.values():
+        return MediaCreationManagementServiceClass
     elif uid in _MEDIA_STORAGE_CLASSES.values():
         return ServiceClass  # Not yet implemented
-    elif uid in _UNIFIED_PROCEDURE_STEP_CLASSES.values():
-        return ServiceClass  # Not yet implemented
-    elif uid in _RT_MACHINE_VERIFICATION_CLASSES.values():
-        return ServiceClass  # Not yet implemented
-    elif uid in _PROTOCOL_APPROVAL_SOP_CLASSES.values():
+    elif uid in _NON_PATIENT_OBJECT_CLASSES.values():
+        return NonPatientObjectStorageServiceClass
+    elif uid in _PRINT_MANAGEMENT_CLASSES.values():
+        return PrintManagementServiceClass
+    elif uid in _PROCEDURE_STEP_CLASSES.values():
+        return ProcedureStepServiceClass
+    elif uid in _PROTOCOL_APPROVAL_CLASSES.values():
         return ProtocolApprovalQueryRetrieveServiceClass
+    elif uid in _QR_CLASSES.values():
+        return QueryRetrieveServiceClass
+    elif uid in _RELEVANT_PATIENT_QUERY_CLASSES.values():
+        return RelevantPatientInformationQueryServiceClass
+    elif uid in _RT_MACHINE_VERIFICATION_CLASSES.values():
+        return RTMachineVerificationServiceClass
+    elif uid in _STORAGE_CLASSES.values():
+        return StorageServiceClass
+    elif uid in _STORAGE_COMMITMENT_CLASSES.values():
+        return StorageCommitmentServiceClass
+    elif uid in _SUBSTANCE_ADMINISTRATION_CLASSES.values():
+        return SubstanceAdministrationQueryServiceClass
+    elif uid in _UNIFIED_PROCEDURE_STEP_CLASSES.values():
+        return UnifiedProcedureStepServiceClass
+    elif uid in _VERIFICATION_CLASSES.values():
+        return VerificationServiceClass
 
     # No SCP implemented
     return ServiceClass
@@ -118,15 +133,114 @@ def _generate_sop_classes(sop_class_dict):
 # Table of service classes with assigned UIDs
 _SERVICE_CLASSES = {
     '1.2.840.10008.4.2' : StorageServiceClass,
-    #'1.2.840.10008.5.1.4.34.6', UnifiedProcedureStepServiceClass,
+    '1.2.840.10008.5.1.4.34.6' : UnifiedProcedureStepServiceClass,
 }
 
 # Generate the various SOP classes
-_VERIFICATION_CLASSES = {
-    'VerificationSOPClass' : '1.2.840.10008.1.1',
-}
-
 # pylint: disable=line-too-long
+_APPLICATION_EVENT_CLASSES = {
+    'ProceduralEventLoggingSOPClass' : '1.2.840.10008.1.40',
+    'SubstanceAdministrationLoggingSOPClass' : '1.2.840.10008.1.42',
+}
+_BASIC_WORKLIST_CLASSES = {
+    'ModalityWorklistInformationFind' : '1.2.840.10008.5.1.4.31',
+}
+_COLOR_PALETTE_CLASSES = {
+    'ColorPaletteInformationModelFind' : '1.2.840.10008.5.1.4.39.2',
+    'ColorPaletteInformationModelMove' : '1.2.840.10008.5.1.4.39.3',
+    'ColorPaletteInformationModelGet' : '1.2.840.10008.5.1.4.39.4',
+}
+_DEFINED_PROCEDURE_CLASSES = {
+    'DefinedProcedureProtocolInformationModelFind' : '1.2.840.10008.5.1.4.20.1',
+    'DefinedProcedureProtocolInformationModelMove' : '1.2.840.10008.5.1.4.20.2',
+    'DefinedProcedureProtocolInformationModelGet' : '1.2.840.10008.5.1.4.20.3',
+}
+_DISPLAY_SYSTEM_CLASSES = {
+    'DisplaySystemSOPClass' : '1.2.840.10008.5.1.1.40',
+}
+_HANGING_PROTOCOL_CLASSES = {
+    'HangingProtocolInformationModelFind' : '1.2.840.10008.5.1.4.38.2',
+    'HangingProtocolInformationModelMove' : '1.2.840.10008.5.1.4.38.3',
+    'HangingProtocolInformationModelGet' : '1.2.840.10008.5.1.4.38.4',
+}
+_IMPLANT_TEMPLATE_CLASSES = {
+    'GenericImplantTemplateInformationModelFind' : '1.2.840.10008.5.1.4.43.2',
+    'GenericImplantTemplateInformationModelMove' : '1.2.840.10008.5.1.4.43.3',
+    'GenericImplantTemplateInformationModelGet' : '1.2.840.10008.5.1.4.43.4',
+    'ImplantAssemblyTemplateInformationModelFind' : '1.2.840.10008.5.1.4.44.2',
+    'ImplantAssemblyTemplateInformationModelMove' : '1.2.840.10008.5.1.4.44.3',
+    'ImplantAssemblyTemplateInformationModelGet' : '1.2.840.10008.5.1.4.44.4',
+    'ImplantTemplateGroupInformationModelFind' : '1.2.840.10008.5.1.4.45.2',
+    'ImplantTemplateGroupInformationModelMove' : '1.2.840.10008.5.1.4.45.3',
+    'ImplantTemplateGroupInformationModelGet' : '1.2.840.10008.5.1.4.45.4',
+}
+_INSTANCE_AVAILABILITY_CLASSES = {
+    'InstanceAvailabilityNotificationSOPClass' : '1.2.840.10008.5.1.4.33',
+}
+_MEDIA_CREATION_CLASSES = {
+    'MediaCreationManagementSOPClass' : '1.2.840.10008.5.1.1.33',
+}
+_MEDIA_STORAGE_CLASSES = {
+    'MediaStorageDirectoryStorage' : '1.2.840.10008.1.3.10',
+}
+_NON_PATIENT_OBJECT_CLASSES = {
+    'HangingProtocolStorage' : '1.2.840.10008.5.1.4.38.1',
+    'ColorPaletteStorage' : '1.2.840.10008.5.1.4.39.1',
+    'GenericImplantTemplateStorage' : '1.2.840.10008.5.1.4.43.1',
+    'ImplantAssemblyTemplateStorage' : '1.2.840.10008.5.1.4.44.1',
+    'ImplantTemplateGroupStorage' : '1.2.840.10008.5.1.4.45.1',
+    'CTDefinedProcedureProtocolStorage' : '1.2.840.10008.5.1.4.1.1.200.1',
+    'ProtocolApprovalStorage' : '1.2.840.10008.5.1.4.1.1.200.3',
+}
+_PRINT_MANAGEMENT_CLASSES = {
+    'BasicFilmSessionSOPClass' : '1.2.840.10008.5.1.1.1',
+    'BasicFilmBoxSOPClass' : '1.2.840.10008.5.1.1.2',
+    'BasicGrayscaleImageBoxSOPClass' : '1.2.840.10008.5.1.1.4',
+    'BasicColorImageBoxSOPClass' : '1.2.840.10008.5.1.1.4.1',
+    'PrintJobSOPClass' : '1.2.840.10008.5.1.1.14',
+    'BasicAnnotationBoxSOPClass' : '1.2.840.10008.5.1.1.15',
+    'PrinterSOPClass' : '1.2.840.10008.5.1.1.16',
+    'PrinterConfigurationRetrievalSOPClass' : '1.2.840.10008.5.1.1.16.376',
+    'PresentationLUTSOPClass' : '1.2.840.10008.5.1.1.23',
+    # Print Management Meta SOP Classes
+    # Basic Film Session, Basic Film Box, Basic Grayscale, Printer
+    'BasicGrayscalePrintManagementMetaSOPClass' : '1.2.840.10008.5.1.1.9',
+    # Basic Film Session, Basic Film Box, Basic Color, Printer
+    'BasicColorPrintManagementMetaSOPClass' : '1.2.840.10008.5.1.1.18',
+}
+_PROCEDURE_STEP_CLASSES = {
+    'ModalityPerformedProcedureStepSOPClass' : '1.2.840.10008.3.1.2.3.3',
+    'ModalityPerformedProcedureStepRetrieveSOPClass' : '1.2.840.10008.3.1.2.3.4',
+    'ModalityPerformedProcedureStepNotificationSOPClass' : '1.2.840.10008.3.1.2.3.5',
+}
+_PROTOCOL_APPROVAL_CLASSES = {
+    'ProtocolApprovalInformationModelFind' : '1.2.840.10008.5.1.4.1.1.200.4',
+    'ProtocolApprovalInformationModelMove' : '1.2.840.10008.5.1.4.1.1.200.5',
+    'ProtocolApprovalInformationModelGet' : '1.2.840.10008.5.1.4.1.1.200.6'
+}
+_QR_CLASSES = {
+    'PatientRootQueryRetrieveInformationModelFind' : '1.2.840.10008.5.1.4.1.2.1.1',
+    'PatientRootQueryRetrieveInformationModelMove' : '1.2.840.10008.5.1.4.1.2.1.2',
+    'PatientRootQueryRetrieveInformationModelGet' : '1.2.840.10008.5.1.4.1.2.1.3',
+    'StudyRootQueryRetrieveInformationModelFind' : '1.2.840.10008.5.1.4.1.2.2.1',
+    'StudyRootQueryRetrieveInformationModelMove' : '1.2.840.10008.5.1.4.1.2.2.2',
+    'StudyRootQueryRetrieveInformationModelGet' : '1.2.840.10008.5.1.4.1.2.2.3',
+    'PatientStudyOnlyQueryRetrieveInformationModelFind' : '1.2.840.10008.5.1.4.1.2.3.1',
+    'PatientStudyOnlyQueryRetrieveInformationModelMove' : '1.2.840.10008.5.1.4.1.2.3.2',
+    'PatientStudyOnlyQueryRetrieveInformationModelGet' : '1.2.840.10008.5.1.4.1.2.3.3',
+    'CompositeInstanceRootRetrieveMove' : '1.2.840.10008.5.1.4.1.2.4.2',
+    'CompositeInstanceRootRetrieveGet' : '1.2.840.10008.5.1.4.1.2.4.3',
+    'CompositeInstanceRetrieveWithoutBulkDataGet' : '1.2.840.10008.5.1.4.1.2.5.3',
+}
+_RELEVANT_PATIENT_QUERY_CLASSES = {
+    'GeneralRelevantPatientInformationQuery' : '1.2.840.10008.5.1.4.37.1',
+    'BreastImagingRelevantPatientInformationQuery' : '1.2.840.10008.5.1.4.37.2',
+    'CardiacRelevantPatientInformationQuery' : '1.2.840.10008.5.1.4.37.3',
+}
+_RT_MACHINE_VERIFICATION_CLASSES = {
+    'RTConventionalMachineVerification' : '1.2.840.10008.5.1.4.34.8',
+    'RTIonMachineVerification' : '1.2.840.10008.5.1.4.34.9',
+}
 _STORAGE_CLASSES = {
     'ComputedRadiographyImageStorage' : '1.2.840.10008.5.1.4.1.1.1',  # A.2
     'DigitalXRayImagePresentationStorage' : '1.2.840.10008.5.1.4.1.1.1.1',  # A.26
@@ -259,140 +373,46 @@ _STORAGE_CLASSES = {
     'RTBeamsDeliveryInstructionStorage' : '1.2.840.10008.5.1.4.34.7',  # A.64
     'RTBrachyApplicationSetupDeliveryInstructionsStorage' : '1.2.840.10008.5.1.4.34.10',  # A.79
 }
-
-_QR_CLASSES = {
-    'PatientRootQueryRetrieveInformationModelFind' : '1.2.840.10008.5.1.4.1.2.1.1',
-    'PatientRootQueryRetrieveInformationModelMove' : '1.2.840.10008.5.1.4.1.2.1.2',
-    'PatientRootQueryRetrieveInformationModelGet' : '1.2.840.10008.5.1.4.1.2.1.3',
-    'StudyRootQueryRetrieveInformationModelFind' : '1.2.840.10008.5.1.4.1.2.2.1',
-    'StudyRootQueryRetrieveInformationModelMove' : '1.2.840.10008.5.1.4.1.2.2.2',
-    'StudyRootQueryRetrieveInformationModelGet' : '1.2.840.10008.5.1.4.1.2.2.3',
-    'PatientStudyOnlyQueryRetrieveInformationModelFind' : '1.2.840.10008.5.1.4.1.2.3.1',
-    'PatientStudyOnlyQueryRetrieveInformationModelMove' : '1.2.840.10008.5.1.4.1.2.3.2',
-    'PatientStudyOnlyQueryRetrieveInformationModelGet' : '1.2.840.10008.5.1.4.1.2.3.3',
-    'CompositeInstanceRootRetrieveMove' : '1.2.840.10008.5.1.4.1.2.4.2',
-    'CompositeInstanceRootRetrieveGet' : '1.2.840.10008.5.1.4.1.2.4.3',
-    'CompositeInstanceRetrieveWithoutBulkDataGet' : '1.2.840.10008.5.1.4.1.2.5.3',
+_STORAGE_COMMITMENT_CLASSES = {
+    'StorageCommitmentPushModelSOPClass' : '1.2.840.10008.1.20.1',
 }
-
-_BASIC_WORKLIST_CLASSES = {
-    'ModalityWorklistInformationFind' : '1.2.840.10008.5.1.4.31',
-}
-
-_RELEVANT_PATIENT_QUERY_CLASSES = {
-    'GeneralRelevantPatientInformationQuery' : '1.2.840.10008.5.1.4.37.1',
-    'BreastImagingRelevantPatientInformationQuery' : '1.2.840.10008.5.1.4.37.2',
-    'CardiacRelevantPatientInformationQuery' : '1.2.840.10008.5.1.4.37.3',
-}
-
 _SUBSTANCE_ADMINISTRATION_CLASSES = {
     'ProductCharacteristicsQueryInformationModelFind' : '1.2.840.10008.5.1.4.41',
     'SubstanceApprovalQueryInformationModelFind' : '1.2.840.10008.5.1.4.42'
 }
-
-_NON_PATIENT_OBJECT_CLASSES = {
-    'HangingProtocolStorage' : '1.2.840.10008.5.1.4.38.1',
-    'ColorPaletteStorage' : '1.2.840.10008.5.1.4.39.1',
-    'GenericImplantTemplateStorage' : '1.2.840.10008.5.1.4.43.1',
-    'ImplantAssemblyTemplateStorage' : '1.2.840.10008.5.1.4.44.1',
-    'ImplantTemplateGroupStorage' : '1.2.840.10008.5.1.4.45.1',
-    'CTDefinedProcedureProtocolStorage' : '1.2.840.10008.5.1.4.1.1.200.1',
-    'ProtocolApprovalStorage' : '1.2.840.10008.5.1.4.1.1.200.3',
-}
-
-_HANGING_PROTOCOL_CLASSES = {
-    'HangingProtocolInformationModelFind' : '1.2.840.10008.5.1.4.38.2',
-    'HangingProtocolInformationModelMove' : '1.2.840.10008.5.1.4.38.3',
-    'HangingProtocolInformationModelGet' : '1.2.840.10008.5.1.4.38.4',
-}
-
-_DEFINED_PROCEDURE_CLASSES = {
-    'DefinedProcedureProtocolInformationModelFind' : '1.2.840.10008.5.1.4.20.1',
-    'DefinedProcedureProtocolInformationModelMove' : '1.2.840.10008.5.1.4.20.2',
-    'DefinedProcedureProtocolInformationModelGet' : '1.2.840.10008.5.1.4.20.3',
-}
-
-_COLOR_PALETTE_CLASSES = {
-    'ColorPaletteInformationModelFind' : '1.2.840.10008.5.1.4.39.2',
-    'ColorPaletteInformationModelMove' : '1.2.840.10008.5.1.4.39.3',
-    'ColorPaletteInformationModelGet' : '1.2.840.10008.5.1.4.39.4',
-}
-
-_IMPLANT_TEMPLATE_CLASSES = {
-    'GenericImplantTemplateInformationModelFind' : '1.2.840.10008.5.1.4.43.2',
-    'GenericImplantTemplateInformationModelMove' : '1.2.840.10008.5.1.4.43.3',
-    'GenericImplantTemplateInformationModelGet' : '1.2.840.10008.5.1.4.43.4',
-    'ImplantAssemblyTemplateInformationModelFind' : '1.2.840.10008.5.1.4.44.2',
-    'ImplantAssemblyTemplateInformationModelMove' : '1.2.840.10008.5.1.4.44.3',
-    'ImplantAssemblyTemplateInformationModelGet' : '1.2.840.10008.5.1.4.44.4',
-    'ImplantTemplateGroupInformationModelFind' : '1.2.840.10008.5.1.4.45.2',
-    'ImplantTemplateGroupInformationModelMove' : '1.2.840.10008.5.1.4.45.3',
-    'ImplantTemplateGroupInformationModelGet' : '1.2.840.10008.5.1.4.45.4',
-}
-
-_DISPLAY_SYSTEM_CLASSES = {
-    'DisplaySystemSOPClass' : '1.2.840.10008.5.1.1.40',
-}
-
-_PRINT_MANAGEMENT_CLASSES = {
-    'BasicFilmSessionSOPClass' : '1.2.840.10008.5.1.1.1',
-    'BasicFilmBoxSOPClass' : '1.2.840.10008.5.1.1.2',
-    'BasicGrayscaleImageBoxSOPClass' : '1.2.840.10008.5.1.1.4',
-    'BasicColourImageBoxSOPClass' : '1.2.840.10008.5.1.1.4.1',
-    'PrintJobSOPClass' : '1.2.840.10008.5.1.1.14',
-    'BasicAnnotationBoxSOPClass' : '1.2.840.10008.5.1.1.15',
-    'PrinterSOPClass' : '1.2.840.10008.5.1.1.16',
-    'PrinterConfigurationRetrievalSOPClass' : '1.2.840.10008.5.1.1.16.376',
-    'PresentationLUTSOPClass' : '1.2.840.10008.5.1.1.23',
-}
-
-_PROCEDURE_STEP_CLASSES = {
-    'ModalityPerformedProcedureStepSOPClass' : '1.2.840.10008.3.1.2.3.3',
-    'ModalityPerformedProcedureStepRetrieveSOPClass' : '1.2.840.10008.3.1.2.3.4',
-    'ModalityPerformedProcedureStepNotificationSOPClass' : '1.2.840.10008.3.1.2.3.5',
-}
-
-_MEDIA_STORAGE_CLASSES = {
-    'MediaStorageDirectoryStorage' : '1.2.840.10008.1.3.10',
-}
-
 _UNIFIED_PROCEDURE_STEP_CLASSES = {
-    'UnifiedProcedureStepPush' : '1.2.840.10008.5.1.4.34.6.1',
-    'UnifiedProcedureStepWatch' : '1.2.840.10008.5.1.4.34.6.2',
-    'UnifiedProcedureStepPull' : '1.2.840.10008.5.1.4.34.6.3',
-    'UnifiedProcedureStepEvent' : '1.2.840.10008.5.1.4.34.6.4',
+    'UnifiedProcedureStepPushSOPClass' : '1.2.840.10008.5.1.4.34.6.1',
+    'UnifiedProcedureStepWatchSOPClass' : '1.2.840.10008.5.1.4.34.6.2',
+    'UnifiedProcedureStepPullSOPClass' : '1.2.840.10008.5.1.4.34.6.3',
+    'UnifiedProcedureStepEventSOPClass' : '1.2.840.10008.5.1.4.34.6.4',
 }
-
-_RT_MACHINE_VERIFICATION_CLASSES = {
-    'RTConventionalMachineVerification' : '1.2.840.10008.5.1.4.34.8',
-    'RTIonMachineVerification' : '1.2.840.10008.5.1.4.34.9',
-}
-
-_PROTOCOL_APPROVAL_SOP_CLASSES = {
-    'ProtocolApprovalInformationModelFind' : '1.2.840.10008.5.1.4.1.1.200.4',
-    'ProtocolApprovalInformationModelMove' : '1.2.840.10008.5.1.4.1.1.200.5',
-    'ProtocolApprovalInformationModelGet' : '1.2.840.10008.5.1.4.1.1.200.6'
+_VERIFICATION_CLASSES = {
+    'VerificationSOPClass' : '1.2.840.10008.1.1',
 }
 
 # pylint: enable=line-too-long
-_generate_sop_classes(_VERIFICATION_CLASSES)
-_generate_sop_classes(_STORAGE_CLASSES)
-_generate_sop_classes(_QR_CLASSES)
+_generate_sop_classes(_APPLICATION_EVENT_CLASSES)
 _generate_sop_classes(_BASIC_WORKLIST_CLASSES)
-_generate_sop_classes(_RELEVANT_PATIENT_QUERY_CLASSES)
-_generate_sop_classes(_SUBSTANCE_ADMINISTRATION_CLASSES)
-_generate_sop_classes(_NON_PATIENT_OBJECT_CLASSES)
-_generate_sop_classes(_HANGING_PROTOCOL_CLASSES)
-_generate_sop_classes(_DEFINED_PROCEDURE_CLASSES)
 _generate_sop_classes(_COLOR_PALETTE_CLASSES)
-_generate_sop_classes(_IMPLANT_TEMPLATE_CLASSES)
+_generate_sop_classes(_DEFINED_PROCEDURE_CLASSES)
 _generate_sop_classes(_DISPLAY_SYSTEM_CLASSES)
+_generate_sop_classes(_HANGING_PROTOCOL_CLASSES)
+_generate_sop_classes(_IMPLANT_TEMPLATE_CLASSES)
+_generate_sop_classes(_INSTANCE_AVAILABILITY_CLASSES)
+_generate_sop_classes(_MEDIA_CREATION_CLASSES)
+_generate_sop_classes(_MEDIA_STORAGE_CLASSES)
+_generate_sop_classes(_NON_PATIENT_OBJECT_CLASSES)
 _generate_sop_classes(_PRINT_MANAGEMENT_CLASSES)
 _generate_sop_classes(_PROCEDURE_STEP_CLASSES)
-_generate_sop_classes(_MEDIA_STORAGE_CLASSES)
-_generate_sop_classes(_UNIFIED_PROCEDURE_STEP_CLASSES)
+_generate_sop_classes(_PROTOCOL_APPROVAL_CLASSES)
+_generate_sop_classes(_QR_CLASSES)
+_generate_sop_classes(_RELEVANT_PATIENT_QUERY_CLASSES)
 _generate_sop_classes(_RT_MACHINE_VERIFICATION_CLASSES)
-_generate_sop_classes(_PROTOCOL_APPROVAL_SOP_CLASSES)
+_generate_sop_classes(_STORAGE_CLASSES)
+_generate_sop_classes(_STORAGE_COMMITMENT_CLASSES)
+_generate_sop_classes(_SUBSTANCE_ADMINISTRATION_CLASSES)
+_generate_sop_classes(_UNIFIED_PROCEDURE_STEP_CLASSES)
+_generate_sop_classes(_VERIFICATION_CLASSES)
 
 
 def uid_to_sop_class(uid):

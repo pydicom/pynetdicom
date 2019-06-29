@@ -240,20 +240,18 @@ NON_PATIENT_SERVICE_CLASS_STATUS = {
 NON_PATIENT_SERVICE_CLASS_STATUS.update(GENERAL_STATUS)
 
 
-# Procedure Step SOP Class specific status code values - WIP
-#   PS3.4 Annex F
-_PROCEDURE_STEP_STATUS = {
+# Procedure Step SOP Class specific status code values
+PROCEDURE_STEP_STATUS = {
     0x0001 : (STATUS_WARNING,
               "Requested optional attributes are not supported"),
     0x0110 : (STATUS_FAILURE,
               "Performed Procedure Step object may no longer be updated"),
 }
-_PROCEDURE_STEP_STATUS.update(GENERAL_STATUS)
+PROCEDURE_STEP_STATUS.update(GENERAL_STATUS)
 
 
-# Print Job Management Service Class specific status code values - WIP
-#   PS3.4 Annex H
-_PRINT_JOB_MANAGEMENT_SERVICE_CLASS_STATUS = {
+# Print Job Management Service Class specific status code values
+PRINT_JOB_MANAGEMENT_SERVICE_CLASS_STATUS = {
     0xB600 : (STATUS_WARNING, "Memory allocation not supported"),
     0xB601 : (STATUS_WARNING,
               "Film session printing (collation) is not supported"),
@@ -295,17 +293,15 @@ _PRINT_JOB_MANAGEMENT_SERVICE_CLASS_STATUS = {
               "film box will not be created when a previous film box has not "
               "been printed"),
 }
-_PRINT_JOB_MANAGEMENT_SERVICE_CLASS_STATUS.update(GENERAL_STATUS)
+PRINT_JOB_MANAGEMENT_SERVICE_CLASS_STATUS.update(GENERAL_STATUS)
 
 
-# Storage Commitment Service Class specific status code values - WIP
-#   PS3.4 Annex J
-_STORAGE_COMMITMENT_SERVICE_CLASS_STATUS = GENERAL_STATUS
+# Storage Commitment Service Class specific status code values
+STORAGE_COMMITMENT_SERVICE_CLASS_STATUS = GENERAL_STATUS
 
 
-# Application Event Logging Service Class specific status code values - WIP
-#   PS3.4 Annex N
-_APPLICATION_EVENT_LOGGING_SERVICE_CLASS_STATUS = {
+# Application Event Logging Service Class specific status code values
+APPLICATION_EVENT_LOGGING_SERVICE_CLASS_STATUS = {
     0xB101 : (STATUS_WARNING,
               "Specified Synchronisation Frame of Reference UID doesn't "
               "match SCP Synchronization Frame of Reference"),
@@ -331,32 +327,40 @@ _APPLICATION_EVENT_LOGGING_SERVICE_CLASS_STATUS = {
     0xC111 : (STATUS_FAILURE,
               "Update of Medication Administration Record failed"),
 }
-_APPLICATION_EVENT_LOGGING_SERVICE_CLASS_STATUS.update(GENERAL_STATUS)
+APPLICATION_EVENT_LOGGING_SERVICE_CLASS_STATUS.update(GENERAL_STATUS)
 
 
-# Media Creation Management Service Class specific status code values - WIP
-_MEDIA_CREATION_MANAGEMENT_SERVICE_CLASS_STATUS = {
+# Media Creation Management Service Class specific status code values
+MEDIA_CREATION_MANAGEMENT_SERVICE_CLASS_STATUS = {
     0x0001 : (STATUS_WARNING,
-              "Requested optional attributes are not supported"),
+              "Requested optional Attributes are not supported"),
     0xA510 : (STATUS_FAILURE,
-              "Refused because an Initiate Media Creation action has already "
-              "been received for this SOP Instance"),
+              "An Initiate Media Creation action has already been received "
+              "for this SOP Instance"),
     0xC201 : (STATUS_FAILURE, "Media creation request already completed"),
     0xC202 : (STATUS_FAILURE,
               "Media creation request already in progress and cannot be "
               "interrupted"),
     0xC203 : (STATUS_FAILURE, "Cancellation denied for unspecified reason"),
 }
-_MEDIA_CREATION_MANAGEMENT_SERVICE_CLASS_STATUS.update(GENERAL_STATUS)
+MEDIA_CREATION_MANAGEMENT_SERVICE_CLASS_STATUS.update(GENERAL_STATUS)
 
 
-# Unified Procedure Step Service specific status code values - WIP
-_UNIFIED_PROCEDURE_STEP_SERVICE_CLASS_STATUS = {
+# Unified Procedure Step Service specific status code values
+UNIFIED_PROCEDURE_STEP_SERVICE_CLASS_STATUS = {}
+# Ranged values
+for _code in range(0xC000, 0xCFFF + 1):
+    UNIFIED_PROCEDURE_STEP_SERVICE_CLASS_STATUS[_code] = (
+        STATUS_FAILURE, 'Unable to Process'
+    )
+
+UNIFIED_PROCEDURE_STEP_SERVICE_CLASS_STATUS.update({
     0x0001 : (STATUS_WARNING,
               "Requested optional attributes are not supported"),
     0xA700 : (STATUS_FAILURE, "Out of resources"),
     0xA900 : (STATUS_FAILURE, "Identifier doesn't match SOP Class"),
     0xB300 : (STATUS_WARNING, "The UPS was created with modifications"),
+    0xB301 : (STATUS_WARNING, "Deletion lock not granted"),
     0xB304 : (STATUS_WARNING,
               "The UPS is already in the requested state of CANCELED"),
     0xB305 : (STATUS_WARNING, "Coerced invalid values to valid values"),
@@ -392,19 +396,12 @@ _UNIFIED_PROCEDURE_STEP_SERVICE_CLASS_STATUS = {
               "Matches are continuing - current match is supplied an any "
               "Optional Keys were not supported for existence for this "
               "Identifier"),
-}
-
-# Ranged values
-for _code in range(0xC000, 0xCFFF + 1):
-    _UNIFIED_PROCEDURE_STEP_SERVICE_CLASS_STATUS[_code] = (
-        STATUS_FAILURE, 'Unable to Process'
-    )
-
-_UNIFIED_PROCEDURE_STEP_SERVICE_CLASS_STATUS.update(GENERAL_STATUS)
+})
+UNIFIED_PROCEDURE_STEP_SERVICE_CLASS_STATUS.update(GENERAL_STATUS)
 
 
-# RT Machine Verification Service Class specific status code values - WIP
-_RT_MACHINE_VERIFICATION_SERVICE_CLASS_STATUS = {
+# RT Machine Verification Service Class specific status code values
+RT_MACHINE_VERIFICATION_SERVICE_CLASS_STATUS = {
     0xC112 : (STATUS_FAILURE,
               "No such object instance - applicable Machine Verification "
               "instance not found"),
@@ -427,7 +424,7 @@ _RT_MACHINE_VERIFICATION_SERVICE_CLASS_STATUS = {
     0xC227 : (STATUS_FAILURE,
               "No such object instance - Referenced RT Plan not found"),
 }
-_RT_MACHINE_VERIFICATION_SERVICE_CLASS_STATUS.update(GENERAL_STATUS)
+RT_MACHINE_VERIFICATION_SERVICE_CLASS_STATUS.update(GENERAL_STATUS)
 
 
 def code_to_status(code):

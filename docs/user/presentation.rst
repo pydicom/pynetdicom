@@ -124,8 +124,8 @@ In *pynetdicom* this is accomplished through one of the following methods:
     assoc = ae.associate('127.0.0.1', 11112, contexts=requested)
 
 
-The abstract syntaxes you propose should match the (0008,0016) *SOP Class UID*
-of the SOP classes related to the service you wish to use. For example, if
+The abstract syntaxes you propose should match the SOP Class that corresponds
+to the service you wish to use. For example, if
 you're intending to use the storage service then you'd propose one or more
 abstract syntaxes from the `corresponding SOP Class UIDs
 <http://dicom.nema.org/medical/dicom/current/output/chtml/part04/sect_B.5.html>`_.

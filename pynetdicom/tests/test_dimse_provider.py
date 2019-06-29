@@ -11,13 +11,14 @@ except ImportError:
 from io import BytesIO
 import logging
 import sys
+import threading
 import time
 
 import pytest
 
 from pydicom.dataset import Dataset
 
-from pynetdicom import evt, AE, Association, _config
+from pynetdicom import evt, AE, Association, _config, debug_logger
 from pynetdicom.association import ServiceUser
 from pynetdicom.dimse import DIMSEServiceProvider
 from pynetdicom.dimse_messages import (
@@ -41,10 +42,13 @@ from .encoded_dimse_n_msg import (
     n_action_rq_ds, n_action_rsp_ds, n_create_rq_ds, n_create_rsp_ds
 )
 from .encoded_pdu_items import p_data_tf
-from pynetdicom.sop_class import VerificationSOPClass
+from pynetdicom.sop_class import (
+    VerificationSOPClass, BasicGrayscalePrintManagementMetaSOPClass,
+    PrinterSOPClass
+)
 
-LOGGER = logging.getLogger('pynetdicom')
-LOGGER.setLevel(logging.CRITICAL)
+
+#debug_logger()
 
 
 class DummyAssociation(object):
@@ -249,7 +253,7 @@ class TestEventHandlingAcceptor(object):
         assert isinstance(event, Event)
         assert isinstance(event.assoc, Association)
         assert isinstance(event.timestamp, datetime)
-        assert event.name == 'EVT_DIMSE_SENT'
+        assert event.event.name == 'EVT_DIMSE_SENT'
 
         assert isinstance(triggered[0].message, C_ECHO_RSP)
 
@@ -294,7 +298,7 @@ class TestEventHandlingAcceptor(object):
         assert isinstance(event, Event)
         assert isinstance(event.assoc, Association)
         assert isinstance(event.timestamp, datetime)
-        assert event.name == 'EVT_DIMSE_SENT'
+        assert event.event.name == 'EVT_DIMSE_SENT'
 
         assert isinstance(triggered[0].message, C_ECHO_RSP)
         assert triggered[0].message.command_set.MessageIDBeingRespondedTo == 21
@@ -344,7 +348,7 @@ class TestEventHandlingAcceptor(object):
         assert isinstance(event, Event)
         assert isinstance(event.assoc, Association)
         assert isinstance(event.timestamp, datetime)
-        assert event.name == 'EVT_DIMSE_SENT'
+        assert event.event.name == 'EVT_DIMSE_SENT'
 
         assert isinstance(triggered[0].message, C_ECHO_RSP)
         assert triggered[0].message.command_set.MessageIDBeingRespondedTo == 12
@@ -416,7 +420,7 @@ class TestEventHandlingAcceptor(object):
         assert isinstance(event.assoc, Association)
         assert isinstance(event.timestamp, datetime)
         assert isinstance(triggered[0].message, C_ECHO_RQ)
-        assert event.name == 'EVT_DIMSE_RECV'
+        assert event.event.name == 'EVT_DIMSE_RECV'
 
         scp.shutdown()
 
@@ -459,7 +463,7 @@ class TestEventHandlingAcceptor(object):
         assert isinstance(event.assoc, Association)
         assert isinstance(event.timestamp, datetime)
         assert isinstance(triggered[0].message, C_ECHO_RQ)
-        assert event.name == 'EVT_DIMSE_RECV'
+        assert event.event.name == 'EVT_DIMSE_RECV'
         assert triggered[0].message.command_set.MessageID == 21
 
         scp.shutdown()
@@ -507,7 +511,7 @@ class TestEventHandlingAcceptor(object):
         assert isinstance(event.assoc, Association)
         assert isinstance(event.timestamp, datetime)
         assert isinstance(triggered[0].message, C_ECHO_RQ)
-        assert event.name == 'EVT_DIMSE_RECV'
+        assert event.event.name == 'EVT_DIMSE_RECV'
         assert triggered[0].message.command_set.MessageID == 12
 
         scp.shutdown()
@@ -612,7 +616,7 @@ class TestEventHandlingRequestor(object):
         assert isinstance(event, Event)
         assert isinstance(event.assoc, Association)
         assert isinstance(event.timestamp, datetime)
-        assert event.name == 'EVT_DIMSE_SENT'
+        assert event.event.name == 'EVT_DIMSE_SENT'
 
         assert isinstance(triggered[0].message, C_ECHO_RQ)
 
@@ -657,7 +661,7 @@ class TestEventHandlingRequestor(object):
         assert isinstance(event, Event)
         assert isinstance(event.assoc, Association)
         assert isinstance(event.timestamp, datetime)
-        assert event.name == 'EVT_DIMSE_SENT'
+        assert event.event.name == 'EVT_DIMSE_SENT'
 
         assert isinstance(triggered[0].message, C_ECHO_RQ)
         assert triggered[0].message.command_set.MessageID == 21
@@ -768,7 +772,7 @@ class TestEventHandlingRequestor(object):
         assert isinstance(event.assoc, Association)
         assert isinstance(event.timestamp, datetime)
         assert isinstance(triggered[0].message, C_ECHO_RSP)
-        assert event.name == 'EVT_DIMSE_RECV'
+        assert event.event.name == 'EVT_DIMSE_RECV'
 
         scp.shutdown()
 
@@ -811,7 +815,7 @@ class TestEventHandlingRequestor(object):
         assert isinstance(event.assoc, Association)
         assert isinstance(event.timestamp, datetime)
         assert isinstance(triggered[0].message, C_ECHO_RSP)
-        assert event.name == 'EVT_DIMSE_RECV'
+        assert event.event.name == 'EVT_DIMSE_RECV'
         assert triggered[0].message.command_set.MessageIDBeingRespondedTo == 21
 
         scp.shutdown()
@@ -856,7 +860,7 @@ class TestEventHandlingRequestor(object):
         assert isinstance(event.assoc, Association)
         assert isinstance(event.timestamp, datetime)
         assert isinstance(triggered[0].message, C_ECHO_RSP)
-        assert event.name == 'EVT_DIMSE_RECV'
+        assert event.event.name == 'EVT_DIMSE_RECV'
         assert triggered[0].message.command_set.MessageIDBeingRespondedTo == 12
 
         scp.shutdown()

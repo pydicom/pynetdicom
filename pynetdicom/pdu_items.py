@@ -856,9 +856,11 @@ class PresentationContextItemAC(PDUItem):
         primitive = PresentationContext()
         primitive.context_id = self.presentation_context_id
         primitive.result = self.result_reason
-        primitive.add_transfer_syntax(
-            self.transfer_syntax_sub_item[0].transfer_syntax_name
-        )
+        # May be `None` if context is rejected
+        if self.transfer_syntax_sub_item[0].transfer_syntax_name:
+            primitive.add_transfer_syntax(
+                self.transfer_syntax_sub_item[0].transfer_syntax_name
+            )
 
         return primitive
 
@@ -1611,7 +1613,7 @@ class TransferSyntaxSubItem(PDUItem):
             LOGGER.error("Transfer Syntax Name is an invalid UID")
             raise ValueError("Transfer Syntax Name is an invalid UID")
 
-        self._transfer_syntax_name = value
+        self._transfer_syntax_name = value or None
 
 
 ## User Information Item sub-items
