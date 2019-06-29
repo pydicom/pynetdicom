@@ -1,0 +1,967 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>Storage Service Class &mdash; pynetdicom 1.4.0.dev0 documentation</title>
+  
+
+  
+  
+    <link rel="shortcut icon" href="../_static/favicon.ico"/>
+  
+  
+  
+
+  
+  <script type="text/javascript" src="../_static/js/modernizr.min.js"></script>
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+        <script type="text/javascript" src="../_static/jquery.js"></script>
+        <script type="text/javascript" src="../_static/underscore.js"></script>
+        <script type="text/javascript" src="../_static/doctools.js"></script>
+        <script type="text/javascript" src="../_static/language_data.js"></script>
+    
+    <script type="text/javascript" src="../_static/js/theme.js"></script>
+
+    
+
+  
+  <link rel="stylesheet" href="../_static/css/pynetdicom.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/css/pynetdicom.css" type="text/css" />
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Storage Commitment Service Class" href="storage_commitment.html" />
+    <link rel="prev" title="RT Machine Verification Service Class" href="rt_machine.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="../index.html" class="icon icon-home"> pynetdicom
+          
+
+          
+            
+            <img src="../_static/pydicom_flat_black.svg" class="logo" alt="Logo"/>
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                1.4.0.dev0
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <ul class="current">
+<li class="toctree-l1 current"><a class="reference internal" href="index.html">Supported Service Classes</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="application_event.html">Application Event Logging Service Class</a></li>
+<li class="toctree-l2"><a class="reference internal" href="basic_worklist_service_class.html">Basic Worklist Management Service Class</a></li>
+<li class="toctree-l2"><a class="reference internal" href="color_palette_service_class.html">Color Palette Query/Retrieve Service Class</a></li>
+<li class="toctree-l2"><a class="reference internal" href="defined_procedure_service_class.html">Defined Procedure Protocol Query/Retrieve Service Class</a></li>
+<li class="toctree-l2"><a class="reference internal" href="display_system_service_class.html">Display System Management Service Class</a></li>
+<li class="toctree-l2"><a class="reference internal" href="hanging_protocol_service_class.html">Hanging Protocol Query/Retrieve Service Class</a></li>
+<li class="toctree-l2"><a class="reference internal" href="implant_template_service_class.html">Implant Template Query/Retrieve Service Class</a></li>
+<li class="toctree-l2"><a class="reference internal" href="instance_availability.html">Instance Availability Notification Service Class</a></li>
+<li class="toctree-l2"><a class="reference internal" href="media_creation.html">Media Creation Management Service Class</a></li>
+<li class="toctree-l2"><a class="reference internal" href="modality_performed_procedure_step.html">Modality Performed Procedure Step Management</a></li>
+<li class="toctree-l2"><a class="reference internal" href="non_patient_service_class.html">Non-Patient Object Storage Service Class</a></li>
+<li class="toctree-l2"><a class="reference internal" href="print_management.html">Print Management Service Class</a></li>
+<li class="toctree-l2"><a class="reference internal" href="protocol_approval_service_class.html">Protocol Approval Query/Retrieve Service Class</a></li>
+<li class="toctree-l2"><a class="reference internal" href="query_retrieve_service_class.html">Query/Retrieve Service Class</a></li>
+<li class="toctree-l2"><a class="reference internal" href="relevant_patient_service_class.html">Relevant Patient Information Query Service Class</a></li>
+<li class="toctree-l2"><a class="reference internal" href="rt_machine.html">RT Machine Verification Service Class</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">Storage Service Class</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#supported-sop-classes">Supported SOP Classes</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#dimse-services">DIMSE Services</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#statuses">Statuses</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#c-store-statuses">C-STORE Statuses</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#storage-service-statuses">Storage Service Statuses</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#pynetdicom-statuses">pynetdicom Statuses</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#references">References</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="storage_commitment.html">Storage Commitment Service Class</a></li>
+<li class="toctree-l2"><a class="reference internal" href="substance_admin_service_class.html">Substance Administration Query Service Class</a></li>
+<li class="toctree-l2"><a class="reference internal" href="ups.html">Unified Procedure Step Service Class</a></li>
+<li class="toctree-l2"><a class="reference internal" href="verification_service_class.html">Verification Service Class</a></li>
+</ul>
+</li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../user/index.html">User Guide</a></li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../examples/index.html">Examples</a></li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../reference/index.html">API Reference</a></li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../apps/index.html">Applications</a></li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../changelog/index.html">Release Notes</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">pynetdicom</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../index.html">Docs</a> &raquo;</li>
+        
+          <li><a href="index.html">Supported Service Classes</a> &raquo;</li>
+        
+      <li>Storage Service Class</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+            <a href="../_sources/service_classes/storage_service_class.rst.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="storage-service-class">
+<h1>Storage Service Class<a class="headerlink" href="#storage-service-class" title="Permalink to this headline">¶</a></h1>
+<p>The <a class="reference external" href="http://dicom.nema.org/medical/dicom/current/output/html/part04.html#chapter_B">Storage Service Class</a>
+defines a service that facilitates the simple
+transfer of DICOM SOP Instances. It allows one DICOM Application Entity
+to send images, waveforms, reports, etc., to another using the DIMSE C-STORE
+service.</p>
+<div class="section" id="supported-sop-classes">
+<span id="storage-sops"></span><h2>Supported SOP Classes<a class="headerlink" href="#supported-sop-classes" title="Permalink to this headline">¶</a></h2>
+<table class="docutils align-default">
+<colgroup>
+<col style="width: 31%" />
+<col style="width: 61%" />
+<col style="width: 8%" />
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"><p>UID</p></th>
+<th class="head"><p>SOP Class</p></th>
+<th class="head"><p>Part 3
+Annex</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>1.2.840.10008.5.1.4.1.1.1</p></td>
+<td><p>ComputedRadiographyImageStorage</p></td>
+<td><p>A.2</p></td>
+</tr>
+<tr class="row-odd"><td><p>1.2.840.10008.5.1.4.1.1.1.1</p></td>
+<td><p>DigitalXRayImagePresentationStorage</p></td>
+<td><p>A.26</p></td>
+</tr>
+<tr class="row-even"><td><p>1.2.840.10008.5.1.4.1.1.1.1.1.1</p></td>
+<td><p>DigitalXRayImageProcessingStorage</p></td>
+<td><p>A.26</p></td>
+</tr>
+<tr class="row-odd"><td><p>1.2.840.10008.5.1.4.1.1.1.2</p></td>
+<td><p>DigitalMammographyXRayImagePresentationStorage</p></td>
+<td><p>A.27</p></td>
+</tr>
+<tr class="row-even"><td><p>1.2.840.10008.5.1.4.1.1.1.2.1</p></td>
+<td><p>DigitalMammographyXRayImageProcessingStorage</p></td>
+<td><p>A.27</p></td>
+</tr>
+<tr class="row-odd"><td><p>1.2.840.10008.5.1.4.1.1.1.3</p></td>
+<td><p>DigitalIntraOralXRayImagePresentationStorage</p></td>
+<td><p>A.28</p></td>
+</tr>
+<tr class="row-even"><td><p>1.2.840.10008.5.1.1.4.1.1.3.1</p></td>
+<td><p>DigitalIntraOralXRayImageProcessingStorage</p></td>
+<td><p>A.28</p></td>
+</tr>
+<tr class="row-odd"><td><p>1.2.840.10008.5.1.4.1.1.2</p></td>
+<td><p>CTImageStorage</p></td>
+<td><p>A.3</p></td>
+</tr>
+<tr class="row-even"><td><p>1.2.840.10008.5.1.4.1.1.2.1</p></td>
+<td><p>EnhancedCTImageStorage</p></td>
+<td><p>A.38</p></td>
+</tr>
+<tr class="row-odd"><td><p>1.2.840.10008.5.1.4.1.1.2.2</p></td>
+<td><p>LegacyConvertedEnhancedCTImageStorage</p></td>
+<td><p>A.70</p></td>
+</tr>
+<tr class="row-even"><td><p>1.2.840.10008.5.1.4.1.1.3.1</p></td>
+<td><p>UltrasoundMultiframeImageStorage</p></td>
+<td><p>A.7</p></td>
+</tr>
+<tr class="row-odd"><td><p>1.2.840.10008.5.1.4.1.1.4</p></td>
+<td><p>MRImageStorage</p></td>
+<td><p>A.4</p></td>
+</tr>
+<tr class="row-even"><td><p>1.2.840.10008.5.1.4.1.1.4.1</p></td>
+<td><p>EnhancedMRImageStorage</p></td>
+<td><p>A.36.2</p></td>
+</tr>
+<tr class="row-odd"><td><p>1.2.840.10008.5.1.4.1.1.4.2</p></td>
+<td><p>MRSpectroscopyStorage</p></td>
+<td><p>A.36.3</p></td>
+</tr>
+<tr class="row-even"><td><p>1.2.840.10008.5.1.4.1.1.4.3</p></td>
+<td><p>EnhancedMRColorImageStorage</p></td>
+<td><p>A.36.4</p></td>
+</tr>
+<tr class="row-odd"><td><p>1.2.840.10008.5.1.4.1.1.4.4</p></td>
+<td><p>LegacyConvertedEnhancedMRImageStorage</p></td>
+<td><p>A.71</p></td>
+</tr>
+<tr class="row-even"><td><p>1.2.840.10008.5.1.4.1.1.6.1</p></td>
+<td><p>UltrasoundImageStorage</p></td>
+<td><p>A.6</p></td>
+</tr>
+<tr class="row-odd"><td><p>1.2.840.10008.5.1.4.1.1.6.2</p></td>
+<td><p>EnhancedUSVolumeStorage</p></td>
+<td><p>A.59</p></td>
+</tr>
+<tr class="row-even"><td><p>1.2.840.10008.5.1.4.1.1.7</p></td>
+<td><p>SecondaryCaptureImageStorage</p></td>
+<td><p>A.8.1</p></td>
+</tr>
+<tr class="row-odd"><td><p>1.2.840.10008.5.1.4.1.1.7.1</p></td>
+<td><p>MultiframeSingleBitSecondaryCaptureImageStorage</p></td>
+<td><p>A.8.2</p></td>
+</tr>
+<tr class="row-even"><td><p>1.2.840.10008.5.1.4.1.1.7.2</p></td>
+<td><p>MultiframeGrayscaleByteSecondaryCaptureImageStorage</p></td>
+<td><p>A.8.3</p></td>
+</tr>
+<tr class="row-odd"><td><p>1.2.840.10008.5.1.4.1.1.7.3</p></td>
+<td><p>MultiframeGrayscaleWordSecondaryCaptureImageStorage</p></td>
+<td><p>A.8.4</p></td>
+</tr>
+<tr class="row-even"><td><p>1.2.840.10008.5.1.4.1.1.7.4</p></td>
+<td><p>MultiframeTrueColorSecondaryCaptureImageStorage</p></td>
+<td><p>A.8.5</p></td>
+</tr>
+<tr class="row-odd"><td><p>1.2.840.10008.5.1.4.1.1.9.1.1</p></td>
+<td><p>TwelveLeadECGWaveformStorage</p></td>
+<td><p>A.34.3</p></td>
+</tr>
+<tr class="row-even"><td><p>1.2.840.10008.5.1.4.1.1.9.1.2</p></td>
+<td><p>GeneralECGWaveformStorage</p></td>
+<td><p>A.34.4</p></td>
+</tr>
+<tr class="row-odd"><td><p>1.2.840.10008.5.1.4.1.1.9.1.3</p></td>
+<td><p>AmbulatoryECGWaveformStorage</p></td>
+<td><p>A.34.5</p></td>
+</tr>
+<tr class="row-even"><td><p>1.2.840.10008.5.1.4.1.1.9.2.1</p></td>
+<td><p>HemodynamicWaveformStorage</p></td>
+<td><p>A.34.6</p></td>
+</tr>
+<tr class="row-odd"><td><p>1.2.840.10008.5.1.4.1.1.9.3.1</p></td>
+<td><p>CardiacElectrophysiologyWaveformStorage</p></td>
+<td><p>A.34.7</p></td>
+</tr>
+<tr class="row-even"><td><p>1.2.840.10008.5.1.4.1.1.9.4.1</p></td>
+<td><p>BasicVoiceAudioWaveformStorage</p></td>
+<td><p>A.34.2</p></td>
+</tr>
+<tr class="row-odd"><td><p>1.2.840.10008.5.1.4.1.1.9.4.2</p></td>
+<td><p>GeneralAudioWaveformStorage</p></td>
+<td><p>A.34.10</p></td>
+</tr>
+<tr class="row-even"><td><p>1.2.840.10008.5.1.4.1.1.9.5.1</p></td>
+<td><p>ArterialPulseWaveformStorage</p></td>
+<td><p>A.34.8</p></td>
+</tr>
+<tr class="row-odd"><td><p>1.2.840.10008.5.1.4.1.1.9.6.1</p></td>
+<td><p>RespiratoryWaveformStorage</p></td>
+<td><p>A.34.9</p></td>
+</tr>
+<tr class="row-even"><td><p>1.2.840.10008.5.1.4.1.1.11.1</p></td>
+<td><p>GrayscaleSoftcopyPresentationStateStorage</p></td>
+<td><p>A.33.1</p></td>
+</tr>
+<tr class="row-odd"><td><p>1.2.840.10008.5.1.4.1.1.11.2</p></td>
+<td><p>ColorSoftcopyPresentationStateStorage</p></td>
+<td><p>A.33.2</p></td>
+</tr>
+<tr class="row-even"><td><p>1.2.840.10008.5.1.4.1.1.11.3</p></td>
+<td><p>PseudocolorSoftcopyPresentationStageStorage</p></td>
+<td><p>A.33.3</p></td>
+</tr>
+<tr class="row-odd"><td><p>1.2.840.10008.5.1.4.1.1.11.4</p></td>
+<td><p>BlendingSoftcopyPresentationStateStorage</p></td>
+<td><p>A.33.4</p></td>
+</tr>
+<tr class="row-even"><td><p>1.2.840.10008.5.1.4.1.1.11.5</p></td>
+<td><p>XAXRFGrayscaleSoftcopyPresentationStateStorage</p></td>
+<td><p>A.33.6</p></td>
+</tr>
+<tr class="row-odd"><td><p>1.2.840.10008.5.1.4.1.1.11.6</p></td>
+<td><p>GrayscalePlanarMPRVolumetricPresentationStateStorage</p></td>
+<td><p>A.80.1</p></td>
+</tr>
+<tr class="row-even"><td><p>1.2.840.10008.5.1.4.1.1.11.7</p></td>
+<td><p>CompositingPlanarMPRVolumetricPresentationStateStorage</p></td>
+<td><p>A.80.1</p></td>
+</tr>
+<tr class="row-odd"><td><p>1.2.840.10008.5.1.4.1.1.11.8</p></td>
+<td><p>AdvancedBlendingPresentationStateStorage</p></td>
+<td><p>A.33.7</p></td>
+</tr>
+<tr class="row-even"><td><p>1.2.840.10008.5.1.4.1.1.11.9</p></td>
+<td><p>VolumeRenderingVolumetricPresentationStateStorage</p></td>
+<td><p>A.80.2</p></td>
+</tr>
+<tr class="row-odd"><td><p>1.2.840.10008.5.1.4.1.1.11.10</p></td>
+<td><p>SegmentatedVolumeRenderingVolumetricPresentationStateStorage</p></td>
+<td><p>A.80.2</p></td>
+</tr>
+<tr class="row-even"><td><p>1.2.840.10008.5.1.4.1.1.11.11</p></td>
+<td><p>MultipleVolumeRenderingVolumetricPresentationStateStorage</p></td>
+<td><p>A.80.2</p></td>
+</tr>
+<tr class="row-odd"><td><p>1.2.840.10008.5.1.4.1.1.12.1</p></td>
+<td><p>XRayAngiographicImageStorage</p></td>
+<td><p>A.14</p></td>
+</tr>
+<tr class="row-even"><td><p>1.2.840.10008.5.1.4.1.1.12.1.1</p></td>
+<td><p>EnhancedXAImageStorage</p></td>
+<td><p>A.47</p></td>
+</tr>
+<tr class="row-odd"><td><p>1.2.840.10008.5.1.4.1.1.12.2</p></td>
+<td><p>XRayRadiofluoroscopicImageStorage</p></td>
+<td><p>A.16</p></td>
+</tr>
+<tr class="row-even"><td><p>1.2.840.10008.5.1.4.1.1.12.2.1</p></td>
+<td><p>EnhancedXRFImageStorage</p></td>
+<td><p>A.48</p></td>
+</tr>
+<tr class="row-odd"><td><p>1.2.840.10008.5.1.4.1.1.13.1.1</p></td>
+<td><p>XRay3DAngiographicImageStorage</p></td>
+<td><p>A.53</p></td>
+</tr>
+<tr class="row-even"><td><p>1.2.840.10008.5.1.4.1.1.13.1.2</p></td>
+<td><p>XRay3DCraniofacialImageStorage</p></td>
+<td><p>A.54</p></td>
+</tr>
+<tr class="row-odd"><td><p>1.2.840.10008.5.1.4.1.1.13.1.3</p></td>
+<td><p>BreastTomosynthesisImageStorage</p></td>
+<td><p>A.55</p></td>
+</tr>
+<tr class="row-even"><td><p>1.2.840.10008.5.1.4.1.1.13.1.4</p></td>
+<td><p>BreastProjectionXRayImagePresentationStorage</p></td>
+<td><p>A.74</p></td>
+</tr>
+<tr class="row-odd"><td><p>1.2.840.10008.5.1.4.1.1.13.1.5</p></td>
+<td><p>BreastProjectionXRayImageProcessingStorage</p></td>
+<td><p>A.74</p></td>
+</tr>
+<tr class="row-even"><td><p>1.2.840.10008.5.1.4.1.1.14.1</p></td>
+<td><p>IntravascularOpticalCoherenceTomographyImagePresentationStorage</p></td>
+<td><p>A.66</p></td>
+</tr>
+<tr class="row-odd"><td><p>1.2.840.10008.5.1.4.1.1.14.2</p></td>
+<td><p>IntravascularOpticalCoherenceTomographyImageProcessingStorage</p></td>
+<td><p>A.66</p></td>
+</tr>
+<tr class="row-even"><td><p>1.2.840.10008.5.1.4.1.1.20</p></td>
+<td><p>NuclearMedicineImageStorage</p></td>
+<td><p>A.5</p></td>
+</tr>
+<tr class="row-odd"><td><p>1.2.840.10008.5.1.4.1.1.30</p></td>
+<td><p>ParametricMapStorage</p></td>
+<td><p>A.75</p></td>
+</tr>
+<tr class="row-even"><td><p>1.2.840.10008.5.1.4.1.1.66</p></td>
+<td><p>RawDataStorage</p></td>
+<td><p>A.37</p></td>
+</tr>
+<tr class="row-odd"><td><p>1.2.840.10008.5.1.4.1.1.66.1</p></td>
+<td><p>SpatialRegistrationStorage</p></td>
+<td><p>A.39.1</p></td>
+</tr>
+<tr class="row-even"><td><p>1.2.840.10008.5.1.4.1.1.66.2</p></td>
+<td><p>SpatialFiducialsStorage</p></td>
+<td><p>A.40</p></td>
+</tr>
+<tr class="row-odd"><td><p>1.2.840.10008.5.1.4.1.1.66.3</p></td>
+<td><p>DeformableSpatialRegistrationStorage</p></td>
+<td><p>A.39.2</p></td>
+</tr>
+<tr class="row-even"><td><p>1.2.840.10008.5.1.4.1.1.66.4</p></td>
+<td><p>SegmentationStorage</p></td>
+<td><p>A.51</p></td>
+</tr>
+<tr class="row-odd"><td><p>1.2.840.10008.5.1.4.1.1.66.5</p></td>
+<td><p>SurfaceSegmentationStorage</p></td>
+<td><p>A.57</p></td>
+</tr>
+<tr class="row-even"><td><p>1.2.840.10008.5.1.4.1.1.66.6</p></td>
+<td><p>TractographyResultsStorage</p></td>
+<td><p>A.78</p></td>
+</tr>
+<tr class="row-odd"><td><p>1.2.840.10008.5.1.4.1.1.67</p></td>
+<td><p>RealWorldValueMappingStorage</p></td>
+<td><p>A.46</p></td>
+</tr>
+<tr class="row-even"><td><p>1.2.840.10008.5.1.4.1.1.68.1</p></td>
+<td><p>SurfaceScanMeshStorage</p></td>
+<td><p>A.68</p></td>
+</tr>
+<tr class="row-odd"><td><p>1.2.840.10008.5.1.4.1.1.68.2</p></td>
+<td><p>SurfaceScanPointCloudStorage</p></td>
+<td><p>A.69</p></td>
+</tr>
+<tr class="row-even"><td><p>1.2.840.10008.5.1.4.1.1.77.1.1</p></td>
+<td><p>VLEndoscopicImageStorage</p></td>
+<td><p>A.32.1</p></td>
+</tr>
+<tr class="row-odd"><td><p>1.2.840.10008.5.1.4.1.1.77.1.1.1</p></td>
+<td><p>VideoEndoscopicImageStorage</p></td>
+<td><p>A.32.5</p></td>
+</tr>
+<tr class="row-even"><td><p>1.2.840.10008.5.1.4.1.1.77.1.2</p></td>
+<td><p>VLMicroscopicImageStorage</p></td>
+<td><p>A.32.2</p></td>
+</tr>
+<tr class="row-odd"><td><p>1.2.840.10008.5.1.4.1.1.77.1.2.1</p></td>
+<td><p>VideoMicroscopicImageStorage</p></td>
+<td><p>A.32.6</p></td>
+</tr>
+<tr class="row-even"><td><p>1.2.840.10008.5.1.4.1.1.77.1.3</p></td>
+<td><p>VLSlideCoordinatesMicroscopicImageStorage</p></td>
+<td><p>A.32.3</p></td>
+</tr>
+<tr class="row-odd"><td><p>1.2.840.10008.5.1.4.1.1.77.1.4</p></td>
+<td><p>VLPhotographicImageStorage</p></td>
+<td><p>A.32.4</p></td>
+</tr>
+<tr class="row-even"><td><p>1.2.840.10008.5.1.4.1.1.77.1.4.1</p></td>
+<td><p>VideoPhotographicImageStorage</p></td>
+<td><p>A.32.7</p></td>
+</tr>
+<tr class="row-odd"><td><p>1.2.840.10008.5.1.4.1.1.77.1.5.1</p></td>
+<td><p>OphthalmicPhotography8BitImageStorage</p></td>
+<td><p>A.41</p></td>
+</tr>
+<tr class="row-even"><td><p>1.2.840.10008.5.1.4.1.1.77.1.5.2</p></td>
+<td><p>OphthalmicPhotography16BitImageStorage</p></td>
+<td><p>A.42</p></td>
+</tr>
+<tr class="row-odd"><td><p>1.2.840.10008.5.1.4.1.1.77.1.5.3</p></td>
+<td><p>StereometricRelationshipStorage</p></td>
+<td><p>A.43</p></td>
+</tr>
+<tr class="row-even"><td><p>1.2.840.10008.5.1.4.1.1.77.1.5.4</p></td>
+<td><p>OphthalmicTomographyImageStorage</p></td>
+<td><p>A.52</p></td>
+</tr>
+<tr class="row-odd"><td><p>1.2.840.10008.5.1.4.1.1.77.1.5.5</p></td>
+<td><p>WideFieldOphthalmicPhotographyStereographicProjectionImageStorage</p></td>
+<td><p>A.76</p></td>
+</tr>
+<tr class="row-even"><td><p>1.2.840.10008.5.1.4.1.1.77.1.5.6</p></td>
+<td><p>WideFieldOphthalmicPhotography3DCoordinatesImageStorage</p></td>
+<td><p>A.77</p></td>
+</tr>
+<tr class="row-odd"><td><p>1.2.840.10008.5.1.4.1.1.77.1.5.7</p></td>
+<td><p>OphthalmicOpticalCoherenceTomographyEnFaceImageStorage</p></td>
+<td><p>A.83</p></td>
+</tr>
+<tr class="row-even"><td><p>1.2.840.10008.5.1.4.1.1.77.1.5.8</p></td>
+<td><p>OphthlamicOpticalCoherenceTomographyBScanVolumeAnalysisStorage</p></td>
+<td><p>A.84</p></td>
+</tr>
+<tr class="row-odd"><td><p>1.2.840.10008.5.1.4.1.1.77.1.6</p></td>
+<td><p>VLWholeSlideMicroscopyImageStorage</p></td>
+<td><p>A.32.8</p></td>
+</tr>
+<tr class="row-even"><td><p>1.2.840.10008.5.1.4.1.1.78.1</p></td>
+<td><p>LensometryMeasurementsStorage</p></td>
+<td><p>A.60.1</p></td>
+</tr>
+<tr class="row-odd"><td><p>1.2.840.10008.5.1.4.1.1.78.2</p></td>
+<td><p>AutorefractionMeasurementsStorage</p></td>
+<td><p>A.60.2</p></td>
+</tr>
+<tr class="row-even"><td><p>1.2.840.10008.5.1.4.1.1.78.3</p></td>
+<td><p>KeratometryMeasurementsStorage</p></td>
+<td><p>A.60.3</p></td>
+</tr>
+<tr class="row-odd"><td><p>1.2.840.10008.5.1.4.1.1.78.4</p></td>
+<td><p>SubjectiveRefractionMeasurementsStorage</p></td>
+<td><p>A.60.4</p></td>
+</tr>
+<tr class="row-even"><td><p>1.2.840.10008.5.1.4.1.1.78.5</p></td>
+<td><p>VisualAcuityMeasurementsStorage</p></td>
+<td><p>A.60.5</p></td>
+</tr>
+<tr class="row-odd"><td><p>1.2.840.10008.5.1.4.1.1.78.6</p></td>
+<td><p>SpectaclePrescriptionReportStorage</p></td>
+<td><p>A.35.9</p></td>
+</tr>
+<tr class="row-even"><td><p>1.2.840.10008.5.1.4.1.1.78.7</p></td>
+<td><p>OphthalmicAxialMeasurementsStorage</p></td>
+<td><p>A.60.6</p></td>
+</tr>
+<tr class="row-odd"><td><p>1.2.840.10008.5.1.4.1.1.78.8</p></td>
+<td><p>IntraocularLensCalculationsStorage</p></td>
+<td><p>A.60.7</p></td>
+</tr>
+<tr class="row-even"><td><p>1.2.840.10008.5.1.4.1.1.79.1</p></td>
+<td><p>MacularGridThicknessAndVolumeReport</p></td>
+<td><p>A.35.11</p></td>
+</tr>
+<tr class="row-odd"><td><p>1.2.840.10008.5.1.4.1.1.80.1</p></td>
+<td><p>OphthalmicVisualFieldStaticPerimetryMeasurementsStorage</p></td>
+<td><p>A.65</p></td>
+</tr>
+<tr class="row-even"><td><p>1.2.840.10008.5.1.4.1.1.81.1</p></td>
+<td><p>OphthalmicThicknessMapStorage</p></td>
+<td><p>A.67</p></td>
+</tr>
+<tr class="row-odd"><td><p>1.2.840.10008.5.1.4.1.1.82.1</p></td>
+<td><p>CornealTopographyMapStorage</p></td>
+<td><p>A.73</p></td>
+</tr>
+<tr class="row-even"><td><p>1.2.840.10008.5.1.4.1.1.88.11</p></td>
+<td><p>BasicTextSRStorage</p></td>
+<td><p>A.35.1</p></td>
+</tr>
+<tr class="row-odd"><td><p>1.2.840.10008.5.1.4.1.1.88.22</p></td>
+<td><p>EnhancedSRStorage</p></td>
+<td><p>A.35.2</p></td>
+</tr>
+<tr class="row-even"><td><p>1.2.840.10008.5.1.4.1.1.88.33</p></td>
+<td><p>ComprehensiveSRStorage</p></td>
+<td><p>A.35.3</p></td>
+</tr>
+<tr class="row-odd"><td><p>1.2.840.10008.5.1.4.1.1.88.34</p></td>
+<td><p>Comprehensive3DSRStorage</p></td>
+<td><p>A.35.13</p></td>
+</tr>
+<tr class="row-even"><td><p>1.2.840.10008.5.1.4.1.1.88.35</p></td>
+<td><p>ExtensibleSRStorage</p></td>
+<td><p>A.35.15</p></td>
+</tr>
+<tr class="row-odd"><td><p>1.2.840.10008.5.1.4.1.1.88.40</p></td>
+<td><p>ProcedureSRStorage</p></td>
+<td><p>A.35.7</p></td>
+</tr>
+<tr class="row-even"><td><p>1.2.840.10008.5.1.4.1.1.88.50</p></td>
+<td><p>MammographyCADSRStorage</p></td>
+<td><p>A.35.5</p></td>
+</tr>
+<tr class="row-odd"><td><p>1.2.840.10008.5.1.4.1.1.88.59</p></td>
+<td><p>KeyObjectSelectionStorage</p></td>
+<td><p>A.35.4</p></td>
+</tr>
+<tr class="row-even"><td><p>1.2.840.10008.5.1.4.1.1.88.65</p></td>
+<td><p>ChestCADSRStorage</p></td>
+<td><p>A.35.6</p></td>
+</tr>
+<tr class="row-odd"><td><p>1.2.840.10008.5.1.4.1.1.88.67</p></td>
+<td><p>XRayRadiationDoseSRStorage</p></td>
+<td><p>A.35.8</p></td>
+</tr>
+<tr class="row-even"><td><p>1.2.840.10008.5.1.4.1.1.88.68</p></td>
+<td><p>RadiopharmaceuticalRadiationDoseSRStorage</p></td>
+<td><p>A.35.14</p></td>
+</tr>
+<tr class="row-odd"><td><p>1.2.840.10008.5.1.4.1.1.88.69</p></td>
+<td><p>ColonCADSRStorage</p></td>
+<td><p>A.35.10</p></td>
+</tr>
+<tr class="row-even"><td><p>1.2.840.10008.5.1.4.1.1.88.70</p></td>
+<td><p>ImplantationPlanSRDocumentStorage</p></td>
+<td><p>A.35.12</p></td>
+</tr>
+<tr class="row-odd"><td><p>1.2.840.10008.5.1.4.1.1.88.71</p></td>
+<td><p>AcquisitionContextSRStorage</p></td>
+<td><p>A.35.16</p></td>
+</tr>
+<tr class="row-even"><td><p>1.2.840.10008.5.1.4.1.1.88.72</p></td>
+<td><p>SimplifiedAdultEchoSRStorage</p></td>
+<td><p>A.35.17</p></td>
+</tr>
+<tr class="row-odd"><td><p>1.2.840.10008.5.1.4.1.1.88.73</p></td>
+<td><p>PatientRadiationDoseSRStorage</p></td>
+<td><p>A.35.18</p></td>
+</tr>
+<tr class="row-even"><td><p>1.2.840.10008.5.1.4.1.1.90.1</p></td>
+<td><p>ContentAssessmentResultsStorage</p></td>
+<td><p>A.81</p></td>
+</tr>
+<tr class="row-odd"><td><p>1.2.840.10008.5.1.4.1.1.104.1</p></td>
+<td><p>EncapsulatedPDFStorage</p></td>
+<td><p>A.45.1</p></td>
+</tr>
+<tr class="row-even"><td><p>1.2.840.10008.5.1.4.1.1.104.2</p></td>
+<td><p>EncapsulatedCDAStorage</p></td>
+<td><p>A.45.2</p></td>
+</tr>
+<tr class="row-odd"><td><p>1.2.840.10008.5.1.4.1.1.104.3</p></td>
+<td><p>EncapsulatedSTLStorage</p></td>
+<td><p>A.85.1</p></td>
+</tr>
+<tr class="row-even"><td><p>1.2.840.10008.5.1.4.1.1.128</p></td>
+<td><p>PositronEmissionTomographyImageStorage</p></td>
+<td><p>A.21</p></td>
+</tr>
+<tr class="row-odd"><td><p>1.2.840.10008.5.1.4.1.1.130</p></td>
+<td><p>EnhancedPETImageStorage</p></td>
+<td><p>A.56</p></td>
+</tr>
+<tr class="row-even"><td><p>1.2.840.10008.5.1.4.1.1.128.1</p></td>
+<td><p>LegacyConvertedEnhancedPETImageStorage</p></td>
+<td><p>A.72</p></td>
+</tr>
+<tr class="row-odd"><td><p>1.2.840.10008.5.1.4.1.1.131</p></td>
+<td><p>BasicStructuredDisplayStorage</p></td>
+<td><p>A.33.5</p></td>
+</tr>
+<tr class="row-even"><td><p>1.2.840.10008.5.1.4.1.1.200.2</p></td>
+<td><p>CTPerformedProcedureProtocolStorage</p></td>
+<td><p>A.82.1</p></td>
+</tr>
+<tr class="row-odd"><td><p>1.2.840.10008.5.1.4.1.1.481.1</p></td>
+<td><p>RTImageStorage</p></td>
+<td><p>A.17</p></td>
+</tr>
+<tr class="row-even"><td><p>1.2.840.10008.5.1.4.1.1.481.2</p></td>
+<td><p>RTDoseStorage</p></td>
+<td><p>A.18</p></td>
+</tr>
+<tr class="row-odd"><td><p>1.2.840.10008.5.1.4.1.1.481.3</p></td>
+<td><p>RTStructureSetStorage</p></td>
+<td><p>A.19</p></td>
+</tr>
+<tr class="row-even"><td><p>1.2.840.10008.5.1.4.1.1.481.4</p></td>
+<td><p>RTBeamsTreatmentRecordStorage</p></td>
+<td><p>A.29</p></td>
+</tr>
+<tr class="row-odd"><td><p>1.2.840.10008.5.1.4.1.1.481.5</p></td>
+<td><p>RTPlanStorage</p></td>
+<td><p>A.20</p></td>
+</tr>
+<tr class="row-even"><td><p>1.2.840.10008.5.1.4.1.1.481.6</p></td>
+<td><p>RTBrachyTreatmentRecordStorage</p></td>
+<td><p>A.20</p></td>
+</tr>
+<tr class="row-odd"><td><p>1.2.840.10008.5.1.4.1.1.481.7</p></td>
+<td><p>RTTreatmentSummaryRecordStorage</p></td>
+<td><p>A.31</p></td>
+</tr>
+<tr class="row-even"><td><p>1.2.840.10008.5.1.4.1.1.481.8</p></td>
+<td><p>RTIonPlanStorage</p></td>
+<td><p>A.49</p></td>
+</tr>
+<tr class="row-odd"><td><p>1.2.840.10008.5.1.4.1.1.481.9</p></td>
+<td><p>RTIonBeamsTreatmentRecordStorage</p></td>
+<td><p>A.50</p></td>
+</tr>
+<tr class="row-even"><td><p>1.2.840.10008.5.1.4.34.7</p></td>
+<td><p>RTBeamsDeliveryInstructionStorage</p></td>
+<td><p>A.64</p></td>
+</tr>
+<tr class="row-odd"><td><p>1.2.840.10008.5.1.4.34.10</p></td>
+<td><p>RTBrachyApplicationSetupDeliveryInstructionsStorage</p></td>
+<td><p>A.79</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="section" id="dimse-services">
+<h2>DIMSE Services<a class="headerlink" href="#dimse-services" title="Permalink to this headline">¶</a></h2>
+<table class="docutils align-default">
+<colgroup>
+<col style="width: 33%" />
+<col style="width: 67%" />
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"><p>DIMSE Service</p></th>
+<th class="head"><p>Usage SCU/SCP</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>C-STORE</p></td>
+<td><p>Mandatory/Mandatory</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="section" id="statuses">
+<span id="storage-statuses"></span><h2>Statuses<a class="headerlink" href="#statuses" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="c-store-statuses">
+<h3>C-STORE Statuses<a class="headerlink" href="#c-store-statuses" title="Permalink to this headline">¶</a></h3>
+<table class="docutils align-default">
+<colgroup>
+<col style="width: 21%" />
+<col style="width: 18%" />
+<col style="width: 61%" />
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"><p>Code (hex)</p></th>
+<th class="head"><p>Category</p></th>
+<th class="head"><p>Description</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>0x0000</p></td>
+<td><p>Success</p></td>
+<td><p>Success</p></td>
+</tr>
+<tr class="row-odd"><td><p>0x0112</p></td>
+<td><p>Failure</p></td>
+<td><p>SOP Class not supported</p></td>
+</tr>
+<tr class="row-even"><td><p>0x0117</p></td>
+<td><p>Failure</p></td>
+<td><p>Invalid object instance</p></td>
+</tr>
+<tr class="row-odd"><td><p>0x0124</p></td>
+<td><p>Failure</p></td>
+<td><p>Not authorised</p></td>
+</tr>
+<tr class="row-even"><td><p>0x0210</p></td>
+<td><p>Failure</p></td>
+<td><p>Duplicate invocation</p></td>
+</tr>
+<tr class="row-odd"><td><p>0x0211</p></td>
+<td><p>Failure</p></td>
+<td><p>Unrecognised operation</p></td>
+</tr>
+<tr class="row-even"><td><p>0x0212</p></td>
+<td><p>Failure</p></td>
+<td><p>Mistyped argument</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="section" id="storage-service-statuses">
+<h3>Storage Service Statuses<a class="headerlink" href="#storage-service-statuses" title="Permalink to this headline">¶</a></h3>
+<table class="docutils align-default">
+<colgroup>
+<col style="width: 29%" />
+<col style="width: 16%" />
+<col style="width: 55%" />
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"><p>Code (hex)</p></th>
+<th class="head"><p>Category</p></th>
+<th class="head"><p>Description</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>0xA700 to 0xA7FF</p></td>
+<td><p>Failure</p></td>
+<td><p>Out of resources</p></td>
+</tr>
+<tr class="row-odd"><td><p>0xA900 to 0xA9FF</p></td>
+<td><p>Failure</p></td>
+<td><p>Dataset doesn’t match SOP Class</p></td>
+</tr>
+<tr class="row-even"><td><p>0xB000</p></td>
+<td><p>Warning</p></td>
+<td><p>Coercion of data elements</p></td>
+</tr>
+<tr class="row-odd"><td><p>0xB006</p></td>
+<td><p>Warning</p></td>
+<td><p>Dataset doesn’t match SOP Class</p></td>
+</tr>
+<tr class="row-even"><td><p>0xB007</p></td>
+<td><p>Warning</p></td>
+<td><p>Elements discarded</p></td>
+</tr>
+<tr class="row-odd"><td><p>0xC000 to 0xCFFF</p></td>
+<td><p>Failure</p></td>
+<td><p>Cannot understand</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="section" id="pynetdicom-statuses">
+<h3>pynetdicom Statuses<a class="headerlink" href="#pynetdicom-statuses" title="Permalink to this headline">¶</a></h3>
+<p>When pynetdicom is acting as a Storage SCP it uses the following status codes
+values to indicate the corresponding issue has occurred to help aid in
+debugging.</p>
+<table class="docutils align-default">
+<colgroup>
+<col style="width: 24%" />
+<col style="width: 13%" />
+<col style="width: 63%" />
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"><p>Code (hex)</p></th>
+<th class="head"><p>Category</p></th>
+<th class="head"><p>Description</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>0xC001</p></td>
+<td><p>Failure</p></td>
+<td><p>Handler bound to <code class="docutils literal notranslate"><span class="pre">evt.EVT_C_STORE</span></code> returned
+a status Dataset with no (0000,0900) <em>Status</em>
+element</p></td>
+</tr>
+<tr class="row-odd"><td><p>0xC002</p></td>
+<td><p>Failure</p></td>
+<td><p>Handler bound to <code class="docutils literal notranslate"><span class="pre">evt.EVT_C_STORE</span></code> returned
+an invalid status object (not a pydicom
+Dataset or an int)</p></td>
+</tr>
+<tr class="row-even"><td><p>0xC210</p></td>
+<td><p>Failure</p></td>
+<td><p>Failed to decode the dataset received from
+the peer</p></td>
+</tr>
+<tr class="row-odd"><td><p>0xC211</p></td>
+<td><p>Failure</p></td>
+<td><p>Unhandled exception raised by the handler
+bound to <code class="docutils literal notranslate"><span class="pre">evt.EVT_C_STORE</span></code></p></td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+<div class="section" id="references">
+<h2>References<a class="headerlink" href="#references" title="Permalink to this headline">¶</a></h2>
+<ul class="simple">
+<li><p>DICOM Standard, Part 4, <a class="reference external" href="http://dicom.nema.org/medical/dicom/current/output/html/part04.html#chapter_B">Annex B</a></p></li>
+<li><p>DICOM Standard, Part 7, <a class="reference external" href="http://dicom.nema.org/medical/dicom/current/output/chtml/part07/chapter_9.html#sect_9.1.1.1.9">Section 9.1.1.1.9</a></p></li>
+</ul>
+</div>
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="storage_commitment.html" class="btn btn-neutral float-right" title="Storage Commitment Service Class" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
+      
+      
+        <a href="rt_machine.html" class="btn btn-neutral float-left" title="RT Machine Verification Service Class" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2018-19, pynetdicom contributors
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>

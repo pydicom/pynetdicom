@@ -10,5 +10,6 @@ peer AE.
 
 .. toctree::
    :maxdepth: 2
+   :includehidden:
 
    acse.provider

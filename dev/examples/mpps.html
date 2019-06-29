@@ -37,7 +37,9 @@
   <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
   <link rel="stylesheet" href="../_static/css/pynetdicom.css" type="text/css" />
     <link rel="index" title="Index" href="../genindex.html" />
-    <link rel="search" title="Search" href="../search.html" /> 
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Query/Retrieve (Find) Service Examples" href="qr_find.html" />
+    <link rel="prev" title="Display System Management Service Examples" href="display.html" /> 
 </head>
 
 <body class="wy-body-for-nav">
@@ -89,30 +91,39 @@
             
             
               <ul>
-<li class="toctree-l1"><a class="reference internal" href="../verification_service_class.html">Verification Service Class</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../storage_service_class.html">Storage Service Class</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../query_retrieve_service_class.html">Query/Retrieve Service Class</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../basic_worklist_service_class.html">Basic Worklist Management Service Class</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../relevant_patient_service_class.html">Relevant Patient Information Query Service Class</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../substance_admin_service_class.html">Substance Administration Query Service Class</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../non_patient_service_class.html">Non-Patient Object Storage Service Class</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../color_palette_service_class.html">Color Palette Query/Retrieve Service Class</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../defined_procedure_service_class.html">Defined Procedure Protocol Query/Retrieve Service Class</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../hanging_protocol_service_class.html">Hanging Protocol Query/Retrieve Service Class</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../implant_template_service_class.html">Implant Template Query/Retrieve Service Class</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../display_system_service_class.html">Display System Management Service Class</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../modality_performed_procedure_step.html">Modality Performed Procedure Step Management</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../protocol_approval_service_class.html">Protocol Approval Query/Retrieve Service Class</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../service_classes/index.html">Supported Service Classes</a></li>
 </ul>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="../user/index.html">User Guide</a></li>
 </ul>
+<ul class="current">
+<li class="toctree-l1 current"><a class="reference internal" href="index.html">Examples</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="basic_worklist.html">Basic Worklist Management Service Examples</a></li>
+<li class="toctree-l2"><a class="reference internal" href="display.html">Display System Management Service Examples</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">Modality Performed Procedure Step Management Service Examples</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#mpps-create-scu">MPPS - Create SCU</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#mpps-set-scu">MPPS - Set SCU</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#mpps-scp">MPPS SCP</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="qr_find.html">Query/Retrieve (Find) Service Examples</a></li>
+<li class="toctree-l2"><a class="reference internal" href="qr_get.html">Query/Retrieve (Get) Service Examples</a></li>
+<li class="toctree-l2"><a class="reference internal" href="qr_move.html">Query/Retrieve (Move) Service Examples</a></li>
+<li class="toctree-l2"><a class="reference internal" href="relevant_patient.html">Relevant Patient Information Query Service Examples</a></li>
+<li class="toctree-l2"><a class="reference internal" href="print.html">Print Management Service Examples</a></li>
+<li class="toctree-l2"><a class="reference internal" href="storage.html">Storage Service Examples</a></li>
+<li class="toctree-l2"><a class="reference internal" href="verification.html">Verification Service Examples</a></li>
+</ul>
+</li>
+</ul>
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="../release_notes.html">1.4.0</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../release_notes.html#v1-3-0">1.3.0</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../release_notes.html#v1-2-0">1.2.0</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../release_notes.html#v1-1-0">1.1.0</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../release_notes.html#v1-0-0">1.0.0</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../reference/index.html">API Reference</a></li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../apps/index.html">Applications</a></li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../changelog/index.html">Release Notes</a></li>
 </ul>
 
             
@@ -158,6 +169,8 @@
     
       <li><a href="../index.html">Docs</a> &raquo;</li>
         
+          <li><a href="index.html">Examples</a> &raquo;</li>
+        
       <li>Modality Performed Procedure Step Management Service Examples</li>
     
     
@@ -182,7 +195,7 @@
 <p>The DICOM <a class="reference external" href="http://dicom.nema.org/medical/dicom/current/output/html/part04.html#chapter_F">Modality Performed Procedure Step Management (MPPS) service</a>
 allows an Application Entity to log or track procedures performed by a
 modality through the N-CREATE, N-SET, N-EVENT-REPORT and N-GET services. It
-has <a class="reference internal" href="../display_system_service_class.html#display-sops"><span class="std std-ref">three SOP Classes</span></a>:</p>
+has <a class="reference internal" href="../service_classes/display_system_service_class.html#display-sops"><span class="std std-ref">three SOP Classes</span></a>:</p>
 <ul class="simple">
 <li><p><em>Modality Performed Procedure Step SOP Class</em>, used with N-CREATE and N-SET
 to create and set the SOP Instance’s attribute values</p></li>
@@ -299,8 +312,8 @@ request is sent containing a <em>Modification List</em> with an (0040,0252) <em>
 Procedure Step Status</em> of <code class="docutils literal notranslate"><span class="pre">&quot;COMPLETED&quot;</span></code>.</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># Continuing on from the previous example...</span>
 <span class="c1"># Modality performs the procedure, update the MPPS SCP</span>
-<span class="c1"># In performing the procedure a series with two CT Image Storage</span>
-<span class="c1"># SOP Instances are generated</span>
+<span class="c1"># In performing the procedure a series with ten CT Image Storage</span>
+<span class="c1"># SOP Instances is generated</span>
 <span class="n">ct_series_uid</span> <span class="o">=</span> <span class="n">generate_uid</span><span class="p">()</span>
 <span class="n">ct_instance_uids</span> <span class="o">=</span> <span class="p">[</span><span class="n">generate_uid</span><span class="p">()</span> <span class="k">for</span> <span class="n">ii</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">10</span><span class="p">)]</span>
 
@@ -461,6 +474,15 @@ handlers.</p>
            
           </div>
           <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="qr_find.html" class="btn btn-neutral float-right" title="Query/Retrieve (Find) Service Examples" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
+      
+      
+        <a href="display.html" class="btn btn-neutral float-left" title="Display System Management Service Examples" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
   
 
   <hr/>

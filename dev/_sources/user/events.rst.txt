@@ -7,7 +7,7 @@ Events
 data exchanged between different services within an AE as well as the PDUs
 and data sent between the local and peer AEs. Two different types of events
 are used: *notification events* and *intervention events*. Events are imported
-using ``from pynetdicom import evt``.
+using ``from pynetdicom import evt``
 
 .. _events_notification:
 
@@ -62,6 +62,18 @@ notification events.
 +----------------------------+-----------------------------------+
 | ``evt.EVT_REQUESTED``      | Association requested             |
 +----------------------------+-----------------------------------+
+
+By default a number of notification handlers are bound for logging purposes.
+If you wish to remove these then you can do the following before creating any
+associations:
+
+::
+
+    from pynetdicom import _config
+
+    # Don't bind any of the default notification handlers
+    _config.LOG_HANDLER_LEVEL = 'none'
+
 
 .. _events_intervention:
 
@@ -123,17 +135,17 @@ table below lists the possible intervention events.
 Event Handlers
 ..............
 
-All handlers bound to an event are passed a single parameter *event* which is
-an :py:class:`Event <pynetdicom.events.Event>` instance. All ``Event`` objects
-come with at least four attributes:
+Event handlers are callable functions bound to an event that get passed a single
+parameter, *event*, which is an :py:class:`Event <pynetdicom.events.Event>`
+instance. All ``Event`` instances come with at least three attributes:
 
 * ``Event.assoc`` - the
   :py:class:`Association <pynetdicom.association.Association>` in which the
   event occurred
-* ``Event.description`` - a str description of the event
-* ``Event.name`` - the name of the event
-* ``Event.timestamp`` - the date and time the event occurred at (as a python
-  `datetime <https://docs.python.org/3/library/datetime.html#datetime-objects>`_).
+* ``Event.event`` - the corresponding event, as a python
+  `namedtuple <https://docs.python.org/3/library/collections.html#collections.namedtuple>`_
+* ``Event.timestamp`` - the date and time the event occurred at, as a python
+  `datetime <https://docs.python.org/3/library/datetime.html#datetime-objects>`_
 
 Additional attributes and properties are available depending on the event type,
 see the `handler implementation documentation
@@ -141,7 +153,7 @@ see the `handler implementation documentation
 
 Handlers can be bound to events through the ``bind(event, handler)`` methods
 in the ``Association`` and ``AssociationServer`` classes or by using the
-``evt_handlers`` keyword parameter to ``AE.associate()`` and
+``evt_handlers`` keyword argument to ``AE.associate()`` and
 ``AE.start_server()``. Handlers can be unbound with the
 ``unbind(event, handler)`` methods in the ``Association`` and
 ``AssociationServer`` classes. See the :ref:`Association<association>`

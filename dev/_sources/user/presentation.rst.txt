@@ -21,15 +21,15 @@ main parts; a *Context ID*, an *Abstract Syntax* and one or more
   a DICOM SOP Class UID (however private abstract syntaxes are also allowed)
   such as:
 
-  - 1.2.840.10008.1.1 - *Verification SOP Class*
-  - 1.2.840.10008.5.1.4.1.1 - *CT Image Storage*
+  - ``1.2.840.10008.1.1`` - *Verification SOP Class*
+  - ``1.2.840.10008.5.1.4.1.1`` - *CT Image Storage*
 * The `Transfer Syntax <http://dicom.nema.org/medical/dicom/current/output/chtml/part05/chapter_10.html>`_
   defines how the data is encoded, usually identified by
   a DICOM transfer syntax UID (however private transfer syntaxes are also
   allowed) such as:
 
-  - 1.2.840.10008.1.2 - *Implicit VR Little Endian*
-  - 1.2.840.10008.1.2.4.50 - *JPEG Baseline*
+  - ``1.2.840.10008.1.2`` - *Implicit VR Little Endian*
+  - ``1.2.840.10008.1.2.4.50`` - *JPEG Baseline*
 
 
 Representation in pynetdicom
@@ -124,8 +124,8 @@ In *pynetdicom* this is accomplished through one of the following methods:
     assoc = ae.associate('127.0.0.1', 11112, contexts=requested)
 
 
-The abstract syntaxes you propose should match the SOP Class that corresponds
-to the service you wish to use. For example, if
+The abstract syntaxes you propose should match the SOP Class or Meta SOP Class
+that corresponds to the service you wish to use. For example, if
 you're intending to use the storage service then you'd propose one or more
 abstract syntaxes from the `corresponding SOP Class UIDs
 <http://dicom.nema.org/medical/dicom/current/output/chtml/part04/sect_B.5.html>`_.
@@ -139,8 +139,8 @@ transfer syntax.
 
 .. note::
    Uncompressed transfer syntaxes are the exception to this rule as
-   *pydicom* is able to freely convert between these, provided the endianness
-   remains the same.
+   *pydicom* is able to freely convert between these (provided the endianness
+   remains the same).
 
 If you have data encoded in a variety of transfer syntaxes then you can propose
 multiple presentation contexts with the same abstract syntax but different

@@ -21,31 +21,33 @@ for the *Identifier*.
 
     from pydicom.dataset import Dataset
 
-    from pynetdicom import AE, BasicWorklistManagementPresentationContexts
+    from pynetdicom import AE
+    from pynetdicom.sop_class import ModalityWorklistInformationFind
 
     # Initialise the Application Entity
     ae = AE()
 
     # Add a requested presentation context
-    ae.requested_contexts = BasicWorklistManagementPresentationContexts
+    ae.add_requested_context(ModalityWorklistInformationFind)
 
     # Create our Identifier (query) dataset
     ds = Dataset()
     ds.PatientName = '*'
-
-    proc_seq = Dataset()
-    proc_seq.ScheduledStationAETitle = 'CTSCANNER'
-    proc_seq.ScheduledProcedureStepStartDate = '20181005'
-    proc_seq.Modality = 'CT'
-
-    ds.ScheduledProcedureStepSequence = [proc_seq]
+    ds.ScheduledProcedureStepSequence = [Dataset()]
+    item = ds.ScheduledProcedureStepSequence[0]
+    item.ScheduledStationAETitle = 'CTSCANNER'
+    item.ScheduledProcedureStepStartDate = '20181005'
+    item.Modality = 'CT'
 
     # Associate with peer AE at IP 127.0.0.1 and port 11112
     assoc = ae.associate('127.0.0.1', 11112)
 
     if assoc.is_established:
         # Use the C-FIND service to send the identifier
-        responses = assoc.send_c_find(ds, BasicWorklistManagementPresentationContexts)
+        responses = assoc.send_c_find(
+            ds,
+            ModalityWorklistInformationFind
+        )
 
         for (status, identifier) in responses:
             if status:

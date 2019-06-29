@@ -37,7 +37,9 @@
   <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
   <link rel="stylesheet" href="../../_static/css/pynetdicom.css" type="text/css" />
     <link rel="index" title="Index" href="../../genindex.html" />
-    <link rel="search" title="Search" href="../../search.html" /> 
+    <link rel="search" title="Search" href="../../search.html" />
+    <link rel="next" title="pynetdicom.pdu_items.ImplementationClassUIDSubItem" href="pynetdicom.pdu_items.ImplementationClassUIDSubItem.html" />
+    <link rel="prev" title="pynetdicom.pdu_items.TransferSyntaxSubItem" href="pynetdicom.pdu_items.TransferSyntaxSubItem.html" /> 
 </head>
 
 <body class="wy-body-for-nav">
@@ -89,30 +91,64 @@
             
             
               <ul>
-<li class="toctree-l1"><a class="reference internal" href="../../verification_service_class.html">Verification Service Class</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../storage_service_class.html">Storage Service Class</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../query_retrieve_service_class.html">Query/Retrieve Service Class</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../basic_worklist_service_class.html">Basic Worklist Management Service Class</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../relevant_patient_service_class.html">Relevant Patient Information Query Service Class</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../substance_admin_service_class.html">Substance Administration Query Service Class</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../non_patient_service_class.html">Non-Patient Object Storage Service Class</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../color_palette_service_class.html">Color Palette Query/Retrieve Service Class</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../defined_procedure_service_class.html">Defined Procedure Protocol Query/Retrieve Service Class</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../hanging_protocol_service_class.html">Hanging Protocol Query/Retrieve Service Class</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../implant_template_service_class.html">Implant Template Query/Retrieve Service Class</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../display_system_service_class.html">Display System Management Service Class</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../modality_performed_procedure_step.html">Modality Performed Procedure Step Management</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../protocol_approval_service_class.html">Protocol Approval Query/Retrieve Service Class</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../service_classes/index.html">Supported Service Classes</a></li>
 </ul>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="../../user/index.html">User Guide</a></li>
 </ul>
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="../../release_notes.html">1.4.0</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../release_notes.html#v1-3-0">1.3.0</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../release_notes.html#v1-2-0">1.2.0</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../release_notes.html#v1-1-0">1.1.0</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../release_notes.html#v1-0-0">1.0.0</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../examples/index.html">Examples</a></li>
+</ul>
+<ul class="current">
+<li class="toctree-l1 current"><a class="reference internal" href="../index.html">API Reference</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="../acse.html">ACSE Service (<code class="xref py py-mod docutils literal notranslate"><span class="pre">pynetdicom.acse</span></code>)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../ae.html">Application Entity (<code class="xref py py-mod docutils literal notranslate"><span class="pre">pynetdicom.ae</span></code>)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../association.html">Association (<code class="xref py py-mod docutils literal notranslate"><span class="pre">pynetdicom.association</span></code>)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../dimse.html">DIMSE Service</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../dsutils.html">Dataset Utilities (<code class="xref py py-mod docutils literal notranslate"><span class="pre">pynetdicom.dsutils</span></code>)</a></li>
+<li class="toctree-l2 current"><a class="reference internal" href="../dul.html">DICOM Upper Layer</a><ul class="current">
+<li class="toctree-l3"><a class="reference internal" href="../dul.provider.html">DUL Service Provider (<code class="xref py py-mod docutils literal notranslate"><span class="pre">pynetdicom.dul</span></code>)</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../dul.pdu_primitives.html">Service Primitives (<code class="xref py py-mod docutils literal notranslate"><span class="pre">pynetdicom.pdu_primitives</span></code>)</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../dul.pdu.html">PDUs (<code class="xref py py-mod docutils literal notranslate"><span class="pre">pynetdicom.pdu</span></code>)</a></li>
+<li class="toctree-l3 current"><a class="reference internal" href="../dul.pdu_items.html">PDU Items and Sub-items (<code class="xref py py-mod docutils literal notranslate"><span class="pre">pynetdicom.pdu_items</span></code>)</a><ul class="current">
+<li class="toctree-l4"><a class="reference internal" href="pynetdicom.pdu_items.ApplicationContextItem.html">pynetdicom.pdu_items.ApplicationContextItem</a></li>
+<li class="toctree-l4"><a class="reference internal" href="pynetdicom.pdu_items.PresentationContextItemRQ.html">pynetdicom.pdu_items.PresentationContextItemRQ</a></li>
+<li class="toctree-l4"><a class="reference internal" href="pynetdicom.pdu_items.PresentationContextItemAC.html">pynetdicom.pdu_items.PresentationContextItemAC</a></li>
+<li class="toctree-l4"><a class="reference internal" href="pynetdicom.pdu_items.UserInformationItem.html">pynetdicom.pdu_items.UserInformationItem</a></li>
+<li class="toctree-l4"><a class="reference internal" href="pynetdicom.pdu_items.AbstractSyntaxSubItem.html">pynetdicom.pdu_items.AbstractSyntaxSubItem</a></li>
+<li class="toctree-l4"><a class="reference internal" href="pynetdicom.pdu_items.TransferSyntaxSubItem.html">pynetdicom.pdu_items.TransferSyntaxSubItem</a></li>
+<li class="toctree-l4 current"><a class="current reference internal" href="#">pynetdicom.pdu_items.MaximumLengthSubItem</a></li>
+<li class="toctree-l4"><a class="reference internal" href="pynetdicom.pdu_items.ImplementationClassUIDSubItem.html">pynetdicom.pdu_items.ImplementationClassUIDSubItem</a></li>
+<li class="toctree-l4"><a class="reference internal" href="pynetdicom.pdu_items.ImplementationVersionNameSubItem.html">pynetdicom.pdu_items.ImplementationVersionNameSubItem</a></li>
+<li class="toctree-l4"><a class="reference internal" href="pynetdicom.pdu_items.SCP_SCU_RoleSelectionSubItem.html">pynetdicom.pdu_items.SCP_SCU_RoleSelectionSubItem</a></li>
+<li class="toctree-l4"><a class="reference internal" href="pynetdicom.pdu_items.AsynchronousOperationsWindowSubItem.html">pynetdicom.pdu_items.AsynchronousOperationsWindowSubItem</a></li>
+<li class="toctree-l4"><a class="reference internal" href="pynetdicom.pdu_items.UserIdentitySubItemRQ.html">pynetdicom.pdu_items.UserIdentitySubItemRQ</a></li>
+<li class="toctree-l4"><a class="reference internal" href="pynetdicom.pdu_items.UserIdentitySubItemAC.html">pynetdicom.pdu_items.UserIdentitySubItemAC</a></li>
+<li class="toctree-l4"><a class="reference internal" href="pynetdicom.pdu_items.SOPClassExtendedNegotiationSubItem.html">pynetdicom.pdu_items.SOPClassExtendedNegotiationSubItem</a></li>
+<li class="toctree-l4"><a class="reference internal" href="pynetdicom.pdu_items.SOPClassCommonExtendedNegotiationSubItem.html">pynetdicom.pdu_items.SOPClassCommonExtendedNegotiationSubItem</a></li>
+<li class="toctree-l4"><a class="reference internal" href="pynetdicom.pdu_items.PresentationDataValueItem.html">pynetdicom.pdu_items.PresentationDataValueItem</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../dul.pdu_items.html#references">References</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../events.html">Events and Handlers (<code class="xref py py-mod docutils literal notranslate"><span class="pre">pynetdicom.events</span></code>)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../fsm.html">State Machine (<code class="xref py py-mod docutils literal notranslate"><span class="pre">pynetdicom.fsm</span></code>)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../presentation.html">Presentation Service (<code class="xref py py-mod docutils literal notranslate"><span class="pre">pynetdicom.presentation</span></code>)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../service_classes.html">Service Classes (<code class="xref py py-mod docutils literal notranslate"><span class="pre">pynetdicom.service_class</span></code>)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../sop_classes.html">SOP Classes (<code class="xref py py-mod docutils literal notranslate"><span class="pre">pynetdicom.sop_class</span></code>)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../status.html">Statuses (<code class="xref py py-mod docutils literal notranslate"><span class="pre">pynetdicom.status</span></code>)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../timer.html">Timer (<code class="xref py py-mod docutils literal notranslate"><span class="pre">pynetdicom.timer</span></code>)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../transport.html">Transport Service (<code class="xref py py-mod docutils literal notranslate"><span class="pre">pynetdicom.transport</span></code>)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../utils.html">Utilities (<code class="xref py py-mod docutils literal notranslate"><span class="pre">pynetdicom.utils</span></code>)</a></li>
+</ul>
+</li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../apps/index.html">Applications</a></li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../changelog/index.html">Release Notes</a></li>
 </ul>
 
             
@@ -158,6 +194,14 @@
     
       <li><a href="../../index.html">Docs</a> &raquo;</li>
         
+          <li><a href="../index.html">API Reference</a> &raquo;</li>
+        
+          <li><a href="../dul.html">DICOM Upper Layer</a> &raquo;</li>
+        
+          <li><a href="../dul.pdu.html">PDUs (<code class="xref py py-mod docutils literal notranslate"><span class="pre">pynetdicom.pdu</span></code>)</a> &raquo;</li>
+        
+          <li><a href="../dul.pdu.a_associate_rq.html">A-ASSOCIATE-RQ PDU</a> &raquo;</li>
+        
       <li>pynetdicom.pdu_items.MaximumLengthSubItem</li>
     
     
@@ -181,7 +225,7 @@
 <h1>pynetdicom.pdu_items.MaximumLengthSubItem<a class="headerlink" href="#pynetdicom-pdu-items-maximumlengthsubitem" title="Permalink to this headline">¶</a></h1>
 <dl class="class">
 <dt id="pynetdicom.pdu_items.MaximumLengthSubItem">
-<em class="property">class </em><code class="sig-prename descclassname">pynetdicom.pdu_items.</code><code class="sig-name descname">MaximumLengthSubItem</code><a class="reference internal" href="../../_modules/pynetdicom/pdu_items.html#MaximumLengthSubItem"><span class="viewcode-link">[source]</span></a><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/e513c95c/pynetdicom/pdu_items.py#L1620"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom.pdu_items.MaximumLengthSubItem" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="sig-prename descclassname">pynetdicom.pdu_items.</code><code class="sig-name descname">MaximumLengthSubItem</code><a class="reference internal" href="../../_modules/pynetdicom/pdu_items.html#MaximumLengthSubItem"><span class="viewcode-link">[source]</span></a><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/3c7a859a/pynetdicom/pdu_items.py#L1620"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom.pdu_items.MaximumLengthSubItem" title="Permalink to this definition">¶</a></dt>
 <dd><p>A Maximum Length Sub-item.</p>
 <p>The Maximum Length Sub-item allows the receivers to limit the size of the
 Presentation Data Values List parameters of each P-DATA PDU.</p>
@@ -276,7 +320,7 @@ always encoded using Big Endian <a class="footnote-reference brackets" href="#id
 </dl>
 <dl class="method">
 <dt id="pynetdicom.pdu_items.MaximumLengthSubItem.__init__">
-<code class="sig-name descname">__init__</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/pynetdicom/pdu_items.html#MaximumLengthSubItem.__init__"><span class="viewcode-link">[source]</span></a><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/e513c95c/pynetdicom/pdu_items.py#L1670"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom.pdu_items.MaximumLengthSubItem.__init__" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">__init__</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/pynetdicom/pdu_items.html#MaximumLengthSubItem.__init__"><span class="viewcode-link">[source]</span></a><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/3c7a859a/pynetdicom/pdu_items.py#L1670"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom.pdu_items.MaximumLengthSubItem.__init__" title="Permalink to this definition">¶</a></dt>
 <dd><p>Initialise a new Maximum Length Item.</p>
 </dd></dl>
 
@@ -321,7 +365,7 @@ always encoded using Big Endian <a class="footnote-reference brackets" href="#id
 </table>
 <dl class="method">
 <dt id="pynetdicom.pdu_items.MaximumLengthSubItem.decode">
-<code class="sig-name descname">decode</code><span class="sig-paren">(</span><em class="sig-param">bytestream</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/e513c95c/pynetdicom/pdu_items.py#L77"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom.pdu_items.MaximumLengthSubItem.decode" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">decode</code><span class="sig-paren">(</span><em class="sig-param">bytestream</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/3c7a859a/pynetdicom/pdu_items.py#L77"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom.pdu_items.MaximumLengthSubItem.decode" title="Permalink to this definition">¶</a></dt>
 <dd><p>Decode <cite>bytestream</cite> and use the result to set the field values of
 the PDU item.</p>
 <dl class="field-list simple">
@@ -333,7 +377,7 @@ the PDU item.</p>
 
 <dl class="method">
 <dt id="pynetdicom.pdu_items.MaximumLengthSubItem.encode">
-<code class="sig-name descname">encode</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/e513c95c/pynetdicom/pdu_items.py#L100"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom.pdu_items.MaximumLengthSubItem.encode" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">encode</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/3c7a859a/pynetdicom/pdu_items.py#L100"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom.pdu_items.MaximumLengthSubItem.encode" title="Permalink to this definition">¶</a></dt>
 <dd><p>Return the encoded PDU as bytes.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Returns</dt>
@@ -347,7 +391,7 @@ the PDU item.</p>
 
 <dl class="method">
 <dt id="pynetdicom.pdu_items.MaximumLengthSubItem.from_primitive">
-<code class="sig-name descname">from_primitive</code><span class="sig-paren">(</span><em class="sig-param">primitive</em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/pynetdicom/pdu_items.html#MaximumLengthSubItem.from_primitive"><span class="viewcode-link">[source]</span></a><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/e513c95c/pynetdicom/pdu_items.py#L1674"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom.pdu_items.MaximumLengthSubItem.from_primitive" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">from_primitive</code><span class="sig-paren">(</span><em class="sig-param">primitive</em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/pynetdicom/pdu_items.html#MaximumLengthSubItem.from_primitive"><span class="viewcode-link">[source]</span></a><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/3c7a859a/pynetdicom/pdu_items.py#L1674"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom.pdu_items.MaximumLengthSubItem.from_primitive" title="Permalink to this definition">¶</a></dt>
 <dd><p>Set the item’s values using a Maximum Length <cite>primitive</cite>.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -370,7 +414,7 @@ the PDU item.</p>
 
 <dl class="method">
 <dt id="pynetdicom.pdu_items.MaximumLengthSubItem.to_primitive">
-<code class="sig-name descname">to_primitive</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/pynetdicom/pdu_items.html#MaximumLengthSubItem.to_primitive"><span class="viewcode-link">[source]</span></a><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/e513c95c/pynetdicom/pdu_items.py#L1684"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom.pdu_items.MaximumLengthSubItem.to_primitive" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">to_primitive</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/pynetdicom/pdu_items.html#MaximumLengthSubItem.to_primitive"><span class="viewcode-link">[source]</span></a><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/3c7a859a/pynetdicom/pdu_items.py#L1684"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom.pdu_items.MaximumLengthSubItem.to_primitive" title="Permalink to this definition">¶</a></dt>
 <dd><p>Return a Maximum Length primitive from the current Item.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Returns</dt>
@@ -391,6 +435,15 @@ the PDU item.</p>
            
           </div>
           <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="pynetdicom.pdu_items.ImplementationClassUIDSubItem.html" class="btn btn-neutral float-right" title="pynetdicom.pdu_items.ImplementationClassUIDSubItem" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
+      
+      
+        <a href="pynetdicom.pdu_items.TransferSyntaxSubItem.html" class="btn btn-neutral float-left" title="pynetdicom.pdu_items.TransferSyntaxSubItem" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
   
 
   <hr/>

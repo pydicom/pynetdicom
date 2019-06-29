@@ -1,0 +1,609 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>Print Management Service Examples &mdash; pynetdicom 1.4.0.dev0 documentation</title>
+  
+
+  
+  
+    <link rel="shortcut icon" href="../_static/favicon.ico"/>
+  
+  
+  
+
+  
+  <script type="text/javascript" src="../_static/js/modernizr.min.js"></script>
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+        <script type="text/javascript" src="../_static/jquery.js"></script>
+        <script type="text/javascript" src="../_static/underscore.js"></script>
+        <script type="text/javascript" src="../_static/doctools.js"></script>
+        <script type="text/javascript" src="../_static/language_data.js"></script>
+    
+    <script type="text/javascript" src="../_static/js/theme.js"></script>
+
+    
+
+  
+  <link rel="stylesheet" href="../_static/css/pynetdicom.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/css/pynetdicom.css" type="text/css" />
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Storage Service Examples" href="storage.html" />
+    <link rel="prev" title="Relevant Patient Information Query Service Examples" href="relevant_patient.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="../index.html" class="icon icon-home"> pynetdicom
+          
+
+          
+            
+            <img src="../_static/pydicom_flat_black.svg" class="logo" alt="Logo"/>
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                1.4.0.dev0
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <ul>
+<li class="toctree-l1"><a class="reference internal" href="../service_classes/index.html">Supported Service Classes</a></li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../user/index.html">User Guide</a></li>
+</ul>
+<ul class="current">
+<li class="toctree-l1 current"><a class="reference internal" href="index.html">Examples</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="basic_worklist.html">Basic Worklist Management Service Examples</a></li>
+<li class="toctree-l2"><a class="reference internal" href="display.html">Display System Management Service Examples</a></li>
+<li class="toctree-l2"><a class="reference internal" href="mpps.html">Modality Performed Procedure Step Management Service Examples</a></li>
+<li class="toctree-l2"><a class="reference internal" href="qr_find.html">Query/Retrieve (Find) Service Examples</a></li>
+<li class="toctree-l2"><a class="reference internal" href="qr_get.html">Query/Retrieve (Get) Service Examples</a></li>
+<li class="toctree-l2"><a class="reference internal" href="qr_move.html">Query/Retrieve (Move) Service Examples</a></li>
+<li class="toctree-l2"><a class="reference internal" href="relevant_patient.html">Relevant Patient Information Query Service Examples</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">Print Management Service Examples</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#grayscale-print-scu">Grayscale Print SCU</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#overview">Overview</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#dimse-services-available">DIMSE Services Available</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#example">Example</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="storage.html">Storage Service Examples</a></li>
+<li class="toctree-l2"><a class="reference internal" href="verification.html">Verification Service Examples</a></li>
+</ul>
+</li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../reference/index.html">API Reference</a></li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../apps/index.html">Applications</a></li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../changelog/index.html">Release Notes</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">pynetdicom</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../index.html">Docs</a> &raquo;</li>
+        
+          <li><a href="index.html">Examples</a> &raquo;</li>
+        
+      <li>Print Management Service Examples</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+            <a href="../_sources/examples/print.rst.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="print-management-service-examples">
+<h1>Print Management Service Examples<a class="headerlink" href="#print-management-service-examples" title="Permalink to this headline">¶</a></h1>
+<p>The DICOM <a class="reference external" href="http://dicom.nema.org/medical/dicom/current/output/html/part04.html#chapter_H">Print Management service</a>
+facilitates print of images and image related data. There are two Basic Print
+Management Meta SOP Classes which correspond with the minimum functionality
+that an implementation of the Print Management service class shall support (i.e
+at a minimum one of the two Meta SOP Classes must be supported):</p>
+<ul class="simple">
+<li><p><em>Basic Grayscale Print Management Meta SOP Class</em> which is defined by support
+of</p>
+<ul>
+<li><p><em>Basic Film Session SOP Class</em></p></li>
+<li><p><em>Basic Film Box SOP Class</em></p></li>
+<li><p><em>Basic Greyscale Image Box SOP Class</em></p></li>
+<li><p><em>Printer SOP Class</em>.</p></li>
+</ul>
+</li>
+<li><p><em>Basic Color Print Management Meta SOP Class</em> which is defined by support
+of</p>
+<ul>
+<li><p><em>Basic Film Session SOP Class</em></p></li>
+<li><p><em>Basic Film Box SOP Class</em></p></li>
+<li><p><em>Basic Color Image Box SOP Class</em></p></li>
+<li><p><em>Printer SOP Class</em>.</p></li>
+</ul>
+</li>
+</ul>
+<p>Which utilise the following SOP Classes:</p>
+<ul class="simple">
+<li><p><em>Basic Film Session SOP Class</em>, used with N-CREATE, N-SET, N-DELETE and
+N-ACTION to describe the presentation parameters that are common for all
+the films of a film session (e.g. all films to be printed)</p></li>
+<li><p><em>Basic Film Box SOP Class</em> used with N-CREATE, N-ACTION, N-DELETE and N-SET
+to describe the presentation parameters that are common for all images
+on a given sheet of film (e.g. for a single film).</p></li>
+<li><p><em>Basic Greyscale Image Box SOP Class</em> used with N-SET to describe the
+presentation of an image and image related data in the image area of a film.</p></li>
+<li><p><em>Basic Colour Image Box SOP Class</em> used with N-SET to describe the
+presentation of an image and image related data in the image area of a film.</p></li>
+<li><p><em>Printer SOP Class</em> used with N-EVENT-REPORT and N-GET to monitor the status
+of the printer.</p></li>
+</ul>
+<p>There are also the following SOP Classes that are not included under
+the Meta Print Mangement SOP Classes and which may optionally be supported:</p>
+<ul class="simple">
+<li><p><em>Basic Annotation Box SOP Class</em> used with N-SET to describe the presentation
+of an annotation on a film.</p></li>
+<li><p><em>Print Job SOP Class</em> used with N-EVENT-REPORT and N-GET to monitor the
+execution of the print process. Receiving N-EVENT-REPORT requests from the
+SCP when acting as an SCU is not supported and any such requests will
+automatically be responded to with a <code class="docutils literal notranslate"><span class="pre">0x0000</span></code> - Success status.</p></li>
+<li><p><em>Printer Configuration Retrieval SOP Class</em> used with N-GET to retrieve key
+imaging characteristics of the printer.</p></li>
+<li><p><em>Presentation LUT SOP Class</em> used with N-CREATE and N-DELETE to prepare image
+pixel data for display on devices that conform to the Grayscale Standard
+Display Function defined in Part 14 of the DICOM Standard.</p></li>
+</ul>
+<div class="section" id="grayscale-print-scu">
+<h2>Grayscale Print SCU<a class="headerlink" href="#grayscale-print-scu" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="overview">
+<h3>Overview<a class="headerlink" href="#overview" title="Permalink to this headline">¶</a></h3>
+<p>Over a single association:</p>
+<ol class="arabic simple">
+<li><p>Send an N-GET request to check the status of the printer.</p></li>
+<li><p>Send an N-CREATE request to create a <em>Basic Film Session SOP Class</em>
+Instance.</p></li>
+<li><p>Send an N-CREATE request to create a <em>Basic Film Box SOP Class</em> Instance
+within the <em>Film Session</em>. The SCP will also create one or more of the
+appropriate <em>Image Box SOP Class</em> Instances (<em>Basic Grayscale</em> or <em>Basic
+Color</em>) depending on the Meta SOP Class used to create the <em>Film Session</em>.</p></li>
+<li><p>For each of the <em>Image Box SOP Class</em> Instances use N-SET to update its
+attributes with the image data and image attributes that are to be printed.</p></li>
+<li><p>Use N-ACTION to command the <em>Film Box</em> to be printed or N-DELETE to delete
+the <em>Film Box</em>.</p></li>
+<li><p>Repeat steps 2-4 as required.</p></li>
+<li><p>Terminate the association to delete the <em>Film Session</em> hierarchy.</p></li>
+</ol>
+</div>
+<div class="section" id="dimse-services-available">
+<h3>DIMSE Services Available<a class="headerlink" href="#dimse-services-available" title="Permalink to this headline">¶</a></h3>
+<div class="admonition warning">
+<p class="admonition-title">Warning</p>
+<p>The use of asynchronous N-EVENT-REPORT requests sent by the SCP to the SCU
+with the <em>Printer SOP Class</em> is not currently supported. Any N-EVENT-REPORT
+requests that are received when acting as the SCU will automatically be
+responded to with a status of <code class="docutils literal notranslate"><span class="pre">0x0000</span></code> - Success. In order to get the
+printer’s current status send an N-GET request with the <em>Printer SOP Class</em>.</p>
+</div>
+<table class="docutils align-default">
+<colgroup>
+<col style="width: 40%" />
+<col style="width: 60%" />
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"><p>DIMSE-N Service</p></th>
+<th class="head"><p>Usage SCU/SCP</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td colspan="2"><p><em>Basic Film Session SOP Class</em></p></td>
+</tr>
+<tr class="row-odd"><td><p>N-CREATE</p></td>
+<td><p>Mandatory/Mandatory</p></td>
+</tr>
+<tr class="row-even"><td><p>N-SET</p></td>
+<td><p>Optional/Mandatory</p></td>
+</tr>
+<tr class="row-odd"><td><p>N-DELETE</p></td>
+<td><p>Optional/Mandatory</p></td>
+</tr>
+<tr class="row-even"><td><p>N-ACTION</p></td>
+<td><p>Optional/Optional</p></td>
+</tr>
+<tr class="row-odd"><td colspan="2"><p><em>Basic Film Box SOP Class</em></p></td>
+</tr>
+<tr class="row-even"><td><p>N-CREATE</p></td>
+<td><p>Mandatory/Mandatory</p></td>
+</tr>
+<tr class="row-odd"><td><p>N-ACTION</p></td>
+<td><p>Mandatory/Mandatory</p></td>
+</tr>
+<tr class="row-even"><td><p>N-DELETE</p></td>
+<td><p>Optional/Mandatory</p></td>
+</tr>
+<tr class="row-odd"><td><p>N-SET</p></td>
+<td><p>Optional/Optional</p></td>
+</tr>
+<tr class="row-even"><td colspan="2"><p><em>Basic Grayscale Image Box SOP Class</em></p></td>
+</tr>
+<tr class="row-odd"><td><p>N-SET</p></td>
+<td><p>Mandatory/Mandatory</p></td>
+</tr>
+<tr class="row-even"><td colspan="2"><p><em>Printer SOP Class</em></p></td>
+</tr>
+<tr class="row-odd"><td><p>N-EVENT-REPORT</p></td>
+<td><p>Mandatory/Mandatory</p></td>
+</tr>
+<tr class="row-even"><td><p>N-GET</p></td>
+<td><p>Optional/Mandatory</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="section" id="example">
+<h3>Example<a class="headerlink" href="#example" title="Permalink to this headline">¶</a></h3>
+<p>Print the image data from a SOP Instance onto a single A4 page. For a real-life
+Print SCP you would need to check its conformance statement to see what
+print options (medium types, page sizes, layouts, etc) are supported. This
+example assumes that the Film Session’s and Film Box’s
+N-CREATE responses include conformant <em>Basic Film Session SOP Class</em> and
+<em>Basic Film Box SOP Class</em> instances (which may not always be the case).</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">sys</span>
+
+<span class="kn">from</span> <span class="nn">pydicom</span> <span class="kn">import</span> <span class="n">dcmread</span>
+<span class="kn">from</span> <span class="nn">pydicom.dataset</span> <span class="kn">import</span> <span class="n">Dataset</span>
+<span class="kn">from</span> <span class="nn">pydicom.uid</span> <span class="kn">import</span> <span class="n">generate_uid</span>
+
+<span class="kn">from</span> <span class="nn">pynetdicom</span> <span class="kn">import</span> <span class="n">AE</span>
+<span class="kn">from</span> <span class="nn">pynetdicom.sop_class</span> <span class="kn">import</span> <span class="p">(</span>
+    <span class="n">BasicGrayscalePrintManagementMetaSOPClass</span><span class="p">,</span>
+    <span class="n">BasicFilmSessionSOPClass</span><span class="p">,</span>
+    <span class="n">BasicFilmBoxSOPClass</span><span class="p">,</span>
+    <span class="n">BasicGrayscaleImageBoxSOPClass</span><span class="p">,</span>
+    <span class="n">PrinterSOPClass</span><span class="p">,</span>
+<span class="p">)</span>
+
+<span class="c1"># The SOP Instance containing the grayscale image data to be printed</span>
+<span class="n">DATASET</span> <span class="o">=</span> <span class="n">dcmread</span><span class="p">(</span><span class="s1">&#39;path/to/file.dcm&#39;</span><span class="p">)</span>
+
+
+<span class="k">def</span> <span class="nf">build_session</span><span class="p">():</span>
+    <span class="sd">&quot;&quot;&quot;Return an N-CREATE *Attribute List* for creating a Basic Film Session</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    pydicom.dataset.Dataset</span>
+<span class="sd">        An N-CREATE *Attribute List* dataset that can be used to create a</span>
+<span class="sd">        *Basic Film Session SOP Class* instance.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">attr_list</span> <span class="o">=</span> <span class="n">Dataset</span><span class="p">()</span>
+    <span class="n">attr_list</span><span class="o">.</span><span class="n">NumberOfCopies</span> <span class="o">=</span> <span class="s1">&#39;1&#39;</span>  <span class="c1"># IS</span>
+    <span class="n">attr_list</span><span class="o">.</span><span class="n">PrintPriority</span> <span class="o">=</span> <span class="s1">&#39;LOW&#39;</span>  <span class="c1"># CS</span>
+    <span class="n">attr_list</span><span class="o">.</span><span class="n">MediumType</span> <span class="o">=</span> <span class="s1">&#39;PAPER&#39;</span>  <span class="c1"># CS</span>
+    <span class="n">attr_list</span><span class="o">.</span><span class="n">FilmDestination</span> <span class="o">=</span> <span class="s1">&#39;SOMEWHERE&#39;</span>  <span class="c1"># CS</span>
+    <span class="n">attr_list</span><span class="o">.</span><span class="n">FilmSessionLabel</span> <span class="o">=</span> <span class="s1">&#39;TEST JOB&#39;</span>  <span class="c1"># LO</span>
+    <span class="n">attr_list</span><span class="o">.</span><span class="n">MemoryAllocation</span> <span class="o">=</span> <span class="s1">&#39;&#39;</span>  <span class="c1"># IS</span>
+    <span class="n">attr_list</span><span class="o">.</span><span class="n">OwnerID</span> <span class="o">=</span> <span class="s1">&#39;PYNETDICOM&#39;</span>  <span class="c1"># SH</span>
+
+    <span class="k">return</span> <span class="n">attr_list</span>
+
+
+<span class="k">def</span> <span class="nf">build_film_box</span><span class="p">(</span><span class="n">session</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Return an N-CREATE *Attribute List* for creating a Basic Film Box.</span>
+
+<span class="sd">    In this example we just have a single Image Box.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    session : pydicom.dataset.Dataset</span>
+<span class="sd">        The *Basic Film Session SOP Class* instance returned by SCP in</span>
+<span class="sd">        response to the N-CREATE request that created it.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    pydicom.dataset.Dataset</span>
+<span class="sd">        An N-CREATE *Attribute List* dataset that can be used to create a</span>
+<span class="sd">        *Basic Film Box SOP Class* instance.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="c1"># The &quot;film&quot; consists of a single Image Box</span>
+    <span class="n">attr_list</span> <span class="o">=</span> <span class="n">Dataset</span><span class="p">()</span>
+    <span class="n">attr_list</span><span class="o">.</span><span class="n">ImageDisplayFormat</span> <span class="o">=</span> <span class="s1">&#39;STANDARD</span><span class="se">\1</span><span class="s1">,1&#39;</span>
+    <span class="n">attr_list</span><span class="o">.</span><span class="n">FilmOrientation</span> <span class="o">=</span> <span class="s1">&#39;PORTRAIT&#39;</span>
+    <span class="n">attr_list</span><span class="o">.</span><span class="n">FilmSizeID</span> <span class="o">=</span> <span class="s1">&#39;A4&#39;</span>
+
+    <span class="c1"># Can only contain a single item, is a reference to the *Film Session*</span>
+    <span class="n">attr_list</span><span class="o">.</span><span class="n">ReferencedFilmSessionSequence</span> <span class="o">=</span> <span class="p">[</span><span class="n">Dataset</span><span class="p">]</span>
+    <span class="n">item</span> <span class="o">=</span> <span class="n">attr_list</span><span class="o">.</span><span class="n">ReferencedFilmSessionSequence</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+    <span class="n">item</span><span class="o">.</span><span class="n">ReferencedSOPClassUID</span> <span class="o">=</span> <span class="n">session</span><span class="o">.</span><span class="n">SOPClassUID</span>
+    <span class="n">item</span><span class="o">.</span><span class="n">ReferencedSOPInstanceUID</span> <span class="o">=</span> <span class="n">session</span><span class="o">.</span><span class="n">SOPInstanceUID</span>
+
+    <span class="k">return</span> <span class="n">attr_list</span>
+
+
+<span class="k">def</span> <span class="nf">build_image_box</span><span class="p">(</span><span class="n">im</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Return an N-SET *Attribute List* for updating a Basic Grayscale Image Box</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    im : pydicom.dataset.Dataset</span>
+<span class="sd">        The SOP Instance containing the pixel data that is to be printed.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    pydicom.dataset.Dataset</span>
+<span class="sd">        An N-SET *Attribute List* dataset that can be used to update the</span>
+<span class="sd">        *Basic Grayscale Image Box SOP Class* instance.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">attr_list</span> <span class="o">=</span> <span class="n">Dataset</span><span class="p">()</span>
+    <span class="n">attr_list</span><span class="o">.</span><span class="n">ImageBoxPosition</span> <span class="o">=</span> <span class="mi">1</span>  <span class="c1"># US</span>
+
+    <span class="c1"># Zero or one item only</span>
+    <span class="n">attr_list</span><span class="o">.</span><span class="n">ReferencedImageBoxSequence</span> <span class="o">=</span> <span class="p">[</span><span class="n">Dataset</span><span class="p">()]</span>
+    <span class="n">item</span> <span class="o">=</span> <span class="n">attr_list</span><span class="o">.</span><span class="n">ReferencedImageBoxSequence</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+    <span class="n">item</span><span class="o">.</span><span class="n">SamplesPerPixel</span> <span class="o">=</span> <span class="n">im</span><span class="o">.</span><span class="n">SamplesPerPixel</span>
+    <span class="n">item</span><span class="o">.</span><span class="n">PhotometricInterpretation</span> <span class="o">=</span> <span class="n">im</span><span class="o">.</span><span class="n">PhotometricInterpretation</span>
+    <span class="n">item</span><span class="o">.</span><span class="n">Rows</span> <span class="o">=</span> <span class="n">im</span><span class="o">.</span><span class="n">Rows</span>
+    <span class="n">item</span><span class="o">.</span><span class="n">Columns</span> <span class="o">=</span> <span class="n">im</span><span class="o">.</span><span class="n">Columns</span>
+    <span class="n">item</span><span class="o">.</span><span class="n">BitsAllocated</span> <span class="o">=</span> <span class="n">im</span><span class="o">.</span><span class="n">BitsAllocated</span>
+    <span class="n">item</span><span class="o">.</span><span class="n">BitsStored</span> <span class="o">=</span> <span class="n">im</span><span class="o">.</span><span class="n">BitsStored</span>
+    <span class="n">item</span><span class="o">.</span><span class="n">HighBit</span> <span class="o">=</span> <span class="n">im</span><span class="o">.</span><span class="n">HighBit</span>
+    <span class="n">item</span><span class="o">.</span><span class="n">PixelRepresentation</span> <span class="o">=</span> <span class="n">im</span><span class="o">.</span><span class="n">PixelRepresentation</span>
+    <span class="n">item</span><span class="o">.</span><span class="n">PixelData</span> <span class="o">=</span> <span class="n">im</span><span class="o">.</span><span class="n">PixelData</span>
+
+    <span class="k">return</span> <span class="n">attr_list</span>
+
+<span class="n">ae</span> <span class="o">=</span> <span class="n">AE</span><span class="p">()</span>
+<span class="n">ae</span><span class="o">.</span><span class="n">add_requested_context</span><span class="p">(</span><span class="n">BasicGrayscalePrintManagementMetaSOPClass</span><span class="p">)</span>
+<span class="n">assoc</span> <span class="o">=</span> <span class="n">ae</span><span class="o">.</span><span class="n">associate</span><span class="p">(</span><span class="s1">&#39;localhost&#39;</span><span class="p">,</span> <span class="mi">11112</span><span class="p">)</span>
+
+<span class="k">if</span> <span class="n">assoc</span><span class="o">.</span><span class="n">is_established</span><span class="p">:</span>
+    <span class="c1"># Step 1: Check the status of the printer</span>
+    <span class="c1"># (2110,0010) Printer Status</span>
+    <span class="c1"># (2110,0020) Printer Status Info</span>
+    <span class="c1"># Because the association was negotiated using a presentation context</span>
+    <span class="c1">#   with a Meta SOP Class we need to use the `meta_uid` keyword</span>
+    <span class="c1">#   parameter to ensure we use the correct context</span>
+    <span class="n">status</span><span class="p">,</span> <span class="n">attr_list</span> <span class="o">=</span> <span class="n">assoc</span><span class="o">.</span><span class="n">send_n_get</span><span class="p">(</span>
+        <span class="p">[</span><span class="mh">0x21100010</span><span class="p">,</span> <span class="mh">0x21100020</span><span class="p">],</span>  <span class="c1"># Attribute Identifier List</span>
+        <span class="n">PrinterSOPClass</span><span class="p">,</span>  <span class="c1"># Affected SOP Class UID</span>
+        <span class="s1">&#39;1.2.840.10008.5.1.1.17&#39;</span><span class="p">,</span>  <span class="c1"># (Well-known Printer SOP Instance)</span>
+        <span class="n">meta_uid</span><span class="o">=</span><span class="n">BasicGrayscalePrintManagementMetaSOPClass</span>
+    <span class="p">)</span>
+    <span class="k">if</span> <span class="n">status</span> <span class="ow">and</span> <span class="n">status</span><span class="o">.</span><span class="n">Status</span> <span class="o">==</span> <span class="mh">0x0000</span><span class="p">:</span>
+        <span class="k">if</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">attr_list</span><span class="p">,</span> <span class="s1">&#39;PrinterStatus&#39;</span><span class="p">,</span> <span class="bp">None</span><span class="p">)</span> <span class="o">!=</span> <span class="s2">&quot;NORMAL&quot;</span><span class="p">:</span>
+            <span class="k">print</span><span class="p">(</span><span class="s2">&quot;Printer status is not &#39;NORMAL&#39;&quot;</span><span class="p">)</span>
+            <span class="n">assoc</span><span class="o">.</span><span class="n">release</span><span class="p">()</span>
+            <span class="n">sys</span><span class="o">.</span><span class="n">exit</span><span class="p">()</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">print</span><span class="p">(</span><span class="s2">&quot;Failed to get the printer status&quot;</span><span class="p">)</span>
+            <span class="n">assoc</span><span class="o">.</span><span class="n">release</span><span class="p">()</span>
+            <span class="n">sys</span><span class="o">.</span><span class="n">exit</span><span class="p">()</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">print</span><span class="p">(</span><span class="s2">&quot;Failed to get the printer status&quot;</span><span class="p">)</span>
+        <span class="n">assoc</span><span class="o">.</span><span class="n">release</span><span class="p">()</span>
+        <span class="n">sys</span><span class="o">.</span><span class="n">exit</span><span class="p">()</span>
+
+    <span class="k">print</span><span class="p">(</span><span class="s1">&#39;Printer ready&#39;</span><span class="p">)</span>
+
+    <span class="c1"># Step 2: Create *Film Session* instance</span>
+    <span class="n">status</span><span class="p">,</span> <span class="n">film_session</span> <span class="o">=</span> <span class="n">assoc</span><span class="o">.</span><span class="n">send_n_create</span><span class="p">(</span>
+        <span class="n">build_session</span><span class="p">(),</span>  <span class="c1"># Attribute List</span>
+        <span class="n">BasicFilmSessionSOPClass</span><span class="p">,</span>  <span class="c1"># Affected SOP Class UID</span>
+        <span class="n">generate_uid</span><span class="p">(),</span>  <span class="c1"># Affected SOP Instance UID</span>
+        <span class="n">meta_uid</span><span class="o">=</span><span class="n">BasicGrayscalePrintManagementMetaSOPClass</span>
+    <span class="p">)</span>
+
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">status</span> <span class="ow">or</span> <span class="n">status</span><span class="o">.</span><span class="n">Status</span> <span class="o">!=</span> <span class="mh">0x0000</span><span class="p">:</span>
+        <span class="k">print</span><span class="p">(</span><span class="s1">&#39;Creation of Film Session failed, releasing association&#39;</span><span class="p">)</span>
+        <span class="n">assoc</span><span class="o">.</span><span class="n">release</span><span class="p">()</span>
+        <span class="n">sys</span><span class="o">.</span><span class="n">exit</span><span class="p">()</span>
+
+    <span class="k">print</span><span class="p">(</span><span class="s1">&#39;Film Session created&#39;</span><span class="p">)</span>
+
+    <span class="c1"># Step 3: Create *Film Box* and *Image Box(es)*</span>
+    <span class="n">status</span><span class="p">,</span> <span class="n">film_box</span> <span class="o">=</span> <span class="n">assoc</span><span class="o">.</span><span class="n">send_n_create</span><span class="p">(</span>
+        <span class="n">build_film_box</span><span class="p">(</span><span class="n">film_session</span><span class="p">),</span>
+        <span class="n">BasicFilmBoxSOPClass</span><span class="p">,</span>
+        <span class="n">generate_uid</span><span class="p">(),</span>
+        <span class="n">meta_uid</span><span class="o">=</span><span class="n">BasicGrayscalePrintManagementMetaSOPClass</span>
+    <span class="p">)</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">status</span> <span class="ow">or</span> <span class="n">status</span><span class="o">.</span><span class="n">Status</span> <span class="o">!=</span> <span class="mh">0x0000</span><span class="p">:</span>
+        <span class="k">print</span><span class="p">(</span><span class="s1">&#39;Creation of the Film Box failed, releasing association&#39;</span><span class="p">)</span>
+        <span class="n">assoc</span><span class="o">.</span><span class="n">release</span><span class="p">()</span>
+        <span class="n">sys</span><span class="o">.</span><span class="n">exit</span><span class="p">()</span>
+
+    <span class="k">print</span><span class="p">(</span><span class="s1">&#39;Film Box created&#39;</span><span class="p">)</span>
+
+    <span class="c1"># Step 4: Update the *Image Box* with the image data</span>
+    <span class="c1"># In this example we only have one *Image Box* per *Film Box*</span>
+    <span class="c1"># Get the Image Box&#39;s SOP Class and SOP Instance UIDs</span>
+    <span class="n">item</span> <span class="o">=</span> <span class="n">film_box</span><span class="o">.</span><span class="n">ReferencedImageBoxSequence</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+    <span class="n">status</span><span class="p">,</span> <span class="n">image_box</span> <span class="o">=</span> <span class="n">assoc</span><span class="o">.</span><span class="n">send_n_set</span><span class="p">(</span>
+        <span class="n">build_image_box</span><span class="p">(</span><span class="n">DATASET</span><span class="p">),</span>
+        <span class="n">item</span><span class="o">.</span><span class="n">ReferencedSOPClassUID</span><span class="p">,</span>
+        <span class="n">item</span><span class="o">.</span><span class="n">ReferencedSOPInstanceUID</span><span class="p">,</span>
+        <span class="n">meta_uid</span><span class="o">=</span><span class="n">BasicGrayscalePrintManagementMetaSOPClass</span>
+    <span class="p">)</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">status</span> <span class="ow">or</span> <span class="n">status</span><span class="o">.</span><span class="n">Status</span> <span class="o">!=</span> <span class="mh">0x0000</span><span class="p">:</span>
+        <span class="k">print</span><span class="p">(</span><span class="s1">&#39;Updating the Image Box failed, releasing association&#39;</span><span class="p">)</span>
+        <span class="n">assoc</span><span class="o">.</span><span class="n">release</span><span class="p">()</span>
+        <span class="n">sys</span><span class="o">.</span><span class="n">exit</span><span class="p">()</span>
+
+    <span class="k">print</span><span class="p">(</span><span class="s1">&#39;Updated the Image Box with the image data&#39;</span><span class="p">)</span>
+
+    <span class="c1"># Step 5: Print the *Film Box*</span>
+    <span class="n">status</span><span class="p">,</span> <span class="n">action_reply</span> <span class="o">=</span> <span class="n">assoc</span><span class="o">.</span><span class="n">send_n_action</span><span class="p">(</span>
+        <span class="bp">None</span><span class="p">,</span>  <span class="c1"># No *Action Information* needed</span>
+        <span class="mi">1</span><span class="p">,</span>  <span class="c1"># Print the Film Box</span>
+        <span class="n">film_box</span><span class="o">.</span><span class="n">SOPClassUID</span><span class="p">,</span>
+        <span class="n">film_box</span><span class="o">.</span><span class="n">SOPInstanceUID</span><span class="p">,</span>
+        <span class="n">meta_uid</span><span class="o">=</span><span class="n">BasicGrayscalePrintManagementMetaSOPClass</span>
+    <span class="p">)</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">status</span> <span class="ow">or</span> <span class="n">status</span><span class="o">.</span><span class="n">Status</span> <span class="o">!=</span> <span class="mh">0x0000</span><span class="p">:</span>
+        <span class="k">print</span><span class="p">(</span><span class="s1">&#39;Printing the Film Box failed, releasing association&#39;</span><span class="p">)</span>
+        <span class="n">assoc</span><span class="o">.</span><span class="n">release</span><span class="p">()</span>
+        <span class="n">sys</span><span class="o">.</span><span class="n">exit</span><span class="p">()</span>
+
+    <span class="c1"># The actual printing may occur after association release/abort</span>
+    <span class="k">print</span><span class="p">(</span><span class="s1">&#39;Print command sent successfully&#39;</span><span class="p">)</span>
+
+    <span class="c1"># Optional - Delete the Film Box</span>
+    <span class="n">status</span> <span class="o">=</span> <span class="n">assoc</span><span class="o">.</span><span class="n">send_n_delete</span><span class="p">(</span>
+        <span class="n">film_box</span><span class="o">.</span><span class="n">SOPClassUID</span><span class="p">,</span>
+        <span class="n">film_box</span><span class="o">.</span><span class="n">SOPInstanceUID</span>
+    <span class="p">)</span>
+
+    <span class="c1"># Release the association</span>
+    <span class="n">assoc</span><span class="o">.</span><span class="n">release</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+</div>
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="storage.html" class="btn btn-neutral float-right" title="Storage Service Examples" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
+      
+      
+        <a href="relevant_patient.html" class="btn btn-neutral float-left" title="Relevant Patient Information Query Service Examples" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2018-19, pynetdicom contributors
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>

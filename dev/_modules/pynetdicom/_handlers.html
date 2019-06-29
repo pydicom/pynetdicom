@@ -89,30 +89,22 @@
             
             
               <ul>
-<li class="toctree-l1"><a class="reference internal" href="../../verification_service_class.html">Verification Service Class</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../storage_service_class.html">Storage Service Class</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../query_retrieve_service_class.html">Query/Retrieve Service Class</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../basic_worklist_service_class.html">Basic Worklist Management Service Class</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../relevant_patient_service_class.html">Relevant Patient Information Query Service Class</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../substance_admin_service_class.html">Substance Administration Query Service Class</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../non_patient_service_class.html">Non-Patient Object Storage Service Class</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../color_palette_service_class.html">Color Palette Query/Retrieve Service Class</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../defined_procedure_service_class.html">Defined Procedure Protocol Query/Retrieve Service Class</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../hanging_protocol_service_class.html">Hanging Protocol Query/Retrieve Service Class</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../implant_template_service_class.html">Implant Template Query/Retrieve Service Class</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../display_system_service_class.html">Display System Management Service Class</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../modality_performed_procedure_step.html">Modality Performed Procedure Step Management</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../protocol_approval_service_class.html">Protocol Approval Query/Retrieve Service Class</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../service_classes/index.html">Supported Service Classes</a></li>
 </ul>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="../../user/index.html">User Guide</a></li>
 </ul>
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="../../release_notes.html">1.4.0</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../release_notes.html#v1-3-0">1.3.0</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../release_notes.html#v1-2-0">1.2.0</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../release_notes.html#v1-1-0">1.1.0</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../release_notes.html#v1-0-0">1.0.0</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../examples/index.html">Examples</a></li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../reference/index.html">API Reference</a></li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../apps/index.html">Applications</a></li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../changelog/index.html">Release Notes</a></li>
 </ul>
 
             
@@ -2207,13 +2199,13 @@
 <span class="sd">    **Status**</span>
 
 <span class="sd">    Success</span>
-<span class="sd">      | ``0x0000`` Success</span>
+<span class="sd">      | ``0x0000`` - Success</span>
 
 <span class="sd">    Failure</span>
-<span class="sd">      | ``0x0122`` Refused: SOP Class Not Supported</span>
-<span class="sd">      | ``0x0210`` Refused: Duplicate Invocation</span>
-<span class="sd">      | ``0x0211`` Refused: Unrecognised Operation</span>
-<span class="sd">      | ``0x0212`` Refused: Mistyped Argument</span>
+<span class="sd">      | ``0x0122`` - SOP Class Not Supported</span>
+<span class="sd">      | ``0x0210`` - Duplicate Invocation</span>
+<span class="sd">      | ``0x0211`` - Unrecognised Operation</span>
+<span class="sd">      | ``0x0212`` - Mistyped Argument</span>
 
 <span class="sd">    Parameters</span>
 <span class="sd">    ----------</span>
@@ -2291,21 +2283,21 @@
 <span class="sd">    **Status**</span>
 
 <span class="sd">    Success</span>
-<span class="sd">      | ``0x0000`` Success</span>
+<span class="sd">      | ``0x0000`` - Success</span>
 
 <span class="sd">    Failure</span>
-<span class="sd">      | ``0xA700`` Out of resources</span>
-<span class="sd">      | ``0xA900`` Identifier does not match SOP class</span>
-<span class="sd">      | ``0xC000`` to ``0xCFFF`` Unable to process</span>
+<span class="sd">      | ``0xA700`` - Out of resources</span>
+<span class="sd">      | ``0xA900`` - Identifier does not match SOP class</span>
+<span class="sd">      | ``0xC000`` to ``0xCFFF`` - Unable to process</span>
 
 <span class="sd">    Cancel</span>
-<span class="sd">      | ``0xFE00`` Matching terminated due to Cancel request</span>
+<span class="sd">      | ``0xFE00`` - Matching terminated due to Cancel request</span>
 
 <span class="sd">    Pending</span>
-<span class="sd">      | ``0xFF00`` Matches are continuing: current match is supplied and</span>
+<span class="sd">      | ``0xFF00`` - Matches are continuing: current match is supplied and</span>
 <span class="sd">         any Optional Keys were supported in the same manner as Required</span>
 <span class="sd">         Keys</span>
-<span class="sd">      | ``0xFF01`` Matches are continuing: warning that one or more Optional</span>
+<span class="sd">      | ``0xFF01`` - Matches are continuing: warning that one or more Optional</span>
 <span class="sd">        Keys were not supported for existence and/or matching for this</span>
 <span class="sd">        Identifier</span>
 
@@ -2327,7 +2319,7 @@
 <span class="sd">          `date and time &lt;https://docs.python.org/3/library/datetime.html#datetime-objects&gt;`_</span>
 <span class="sd">          that the C-FIND request was processed by the service.</span>
 
-<span class="sd">        Event properties are:</span>
+<span class="sd">        ``Event`` properties are:</span>
 
 <span class="sd">        * ``identifier`` : the decoded</span>
 <span class="sd">          :py:class:`Dataset &lt;pydicom.dataset.Dataset&gt;` contained within the</span>
@@ -2419,31 +2411,31 @@
 <span class="sd">    **Status**</span>
 
 <span class="sd">    Success</span>
-<span class="sd">      | ``0x0000`` Sub-operations complete, no failures or warnings</span>
+<span class="sd">      | ``0x0000`` - Sub-operations complete, no failures or warnings</span>
 
 <span class="sd">    Failure</span>
-<span class="sd">      | ``0xA701`` Out of resources: unable to calculate the number of</span>
+<span class="sd">      | ``0xA701`` - Out of resources: unable to calculate the number of</span>
 <span class="sd">        matches</span>
-<span class="sd">      | ``0xA702`` Out of resources: unable to perform sub-operations</span>
-<span class="sd">      | ``0xA900`` Identifier does not match SOP class</span>
-<span class="sd">      | ``0xAA00`` None of the frames requested were found in the SOP</span>
+<span class="sd">      | ``0xA702`` - Out of resources: unable to perform sub-operations</span>
+<span class="sd">      | ``0xA900`` - Identifier does not match SOP class</span>
+<span class="sd">      | ``0xAA00`` - None of the frames requested were found in the SOP</span>
 <span class="sd">        instance</span>
-<span class="sd">      | ``0xAA01`` Unable to create new object for this SOP class</span>
-<span class="sd">      | ``0xAA02`` Unable to extract frames</span>
-<span class="sd">      | ``0xAA03`` Time-based request received for a non-time-based</span>
+<span class="sd">      | ``0xAA01`` - Unable to create new object for this SOP class</span>
+<span class="sd">      | ``0xAA02`` - Unable to extract frames</span>
+<span class="sd">      | ``0xAA03`` - Time-based request received for a non-time-based</span>
 <span class="sd">        original SOP Instance</span>
-<span class="sd">      | ``0xAA04`` Invalid request</span>
-<span class="sd">      | ``0xC000`` to ``0xCFFF`` Unable to process</span>
+<span class="sd">      | ``0xAA04`` - Invalid request</span>
+<span class="sd">      | ``0xC000`` to ``0xCFFF`` - Unable to process</span>
 
 <span class="sd">    Cancel</span>
-<span class="sd">      | ``0xFE00`` Sub-operations terminated due to Cancel request</span>
+<span class="sd">      | ``0xFE00`` - Sub-operations terminated due to Cancel request</span>
 
 <span class="sd">    Warning</span>
-<span class="sd">      | ``0xB000`` Sub-operations complete, one or more failures or</span>
+<span class="sd">      | ``0xB000`` - Sub-operations complete, one or more failures or</span>
 <span class="sd">        warnings</span>
 
 <span class="sd">    Pending</span>
-<span class="sd">      | ``0xFF00`` Matches are continuing - Current Match is supplied and</span>
+<span class="sd">      | ``0xFF00`` - Matches are continuing - Current Match is supplied and</span>
 <span class="sd">        any Optional Keys were supported in the same manner as Required</span>
 <span class="sd">        Keys</span>
 
@@ -2465,7 +2457,7 @@
 <span class="sd">          `date and time &lt;https://docs.python.org/3/library/datetime.html#datetime-objects&gt;`_</span>
 <span class="sd">          that the C-GET request was processed by the service.</span>
 
-<span class="sd">        Event properties are:</span>
+<span class="sd">        ``Event`` properties are:</span>
 
 <span class="sd">        * ``identifier`` : the decoded</span>
 <span class="sd">          :py:class:`Dataset &lt;pydicom.dataset.Dataset&gt;` contained within the</span>
@@ -2564,32 +2556,32 @@
 <span class="sd">    **Status**</span>
 
 <span class="sd">    Success</span>
-<span class="sd">      | ``0x0000`` Sub-operations complete, no failures</span>
+<span class="sd">      | ``0x0000`` - Sub-operations complete, no failures</span>
 
 <span class="sd">    Pending</span>
-<span class="sd">      | ``0xFF00`` Sub-operations are continuing</span>
+<span class="sd">      | ``0xFF00`` - Sub-operations are continuing</span>
 
 <span class="sd">    Cancel</span>
-<span class="sd">      | ``0xFE00`` Sub-operations terminated due to Cancel indication</span>
+<span class="sd">      | ``0xFE00`` - Sub-operations terminated due to Cancel indication</span>
 
 <span class="sd">    Failure</span>
-<span class="sd">      | ``0x0122`` SOP class not supported</span>
-<span class="sd">      | ``0x0124`` Not authorised</span>
-<span class="sd">      | ``0x0210`` Duplicate invocation</span>
-<span class="sd">      | ``0x0211`` Unrecognised operation</span>
-<span class="sd">      | ``0x0212`` Mistyped argument</span>
-<span class="sd">      | ``0xA701`` Out of resources: unable to calculate number of matches</span>
-<span class="sd">      | ``0xA702`` Out of resources: unable to perform sub-operations</span>
-<span class="sd">      | ``0xA801`` Move destination unknown</span>
-<span class="sd">      | ``0xA900`` Identifier does not match SOP class</span>
-<span class="sd">      | ``0xAA00`` None of the frames requested were found in the SOP</span>
+<span class="sd">      | ``0x0122`` - SOP class not supported</span>
+<span class="sd">      | ``0x0124`` - Not authorised</span>
+<span class="sd">      | ``0x0210`` - Duplicate invocation</span>
+<span class="sd">      | ``0x0211`` - Unrecognised operation</span>
+<span class="sd">      | ``0x0212`` - Mistyped argument</span>
+<span class="sd">      | ``0xA701`` - Out of resources: unable to calculate number of matches</span>
+<span class="sd">      | ``0xA702`` - Out of resources: unable to perform sub-operations</span>
+<span class="sd">      | ``0xA801`` - Move destination unknown</span>
+<span class="sd">      | ``0xA900`` - Identifier does not match SOP class</span>
+<span class="sd">      | ``0xAA00`` - None of the frames requested were found in the SOP</span>
 <span class="sd">        instance</span>
-<span class="sd">      | ``0xAA01`` Unable to create new object for this SOP class</span>
-<span class="sd">      | ``0xAA02`` Unable to extract frames</span>
-<span class="sd">      | ``0xAA03`` Time-based request received for a non-time-based</span>
+<span class="sd">      | ``0xAA01`` - Unable to create new object for this SOP class</span>
+<span class="sd">      | ``0xAA02`` - Unable to extract frames</span>
+<span class="sd">      | ``0xAA03`` - Time-based request received for a non-time-based</span>
 <span class="sd">        original SOP Instance</span>
-<span class="sd">      | ``0xAA04`` Invalid request</span>
-<span class="sd">      | ``0xC000`` to ``0xCFFF`` Unable to process</span>
+<span class="sd">      | ``0xAA04`` - Invalid request</span>
+<span class="sd">      | ``0xC000`` to ``0xCFFF`` - Unable to process</span>
 
 
 <span class="sd">    Parameters</span>
@@ -2610,7 +2602,7 @@
 <span class="sd">          `date and time &lt;https://docs.python.org/3/library/datetime.html#datetime-objects&gt;`_</span>
 <span class="sd">          that the C-MOVE request was processed by the service.</span>
 
-<span class="sd">        Event properties are:</span>
+<span class="sd">        ``Event`` properties are:</span>
 
 <span class="sd">        * ``identifier`` : the decoded</span>
 <span class="sd">          :py:class:`Dataset &lt;pydicom.dataset.Dataset&gt;` contained within the</span>
@@ -2618,11 +2610,11 @@
 <span class="sd">          a deferred read when decoding data, if the decode fails the returned</span>
 <span class="sd">          ``Dataset`` will only raise an exception at the time of use.</span>
 <span class="sd">        * ``is_cancelled`` : returns ``True`` if a</span>
-<span class="sd">          C-CANCEL request has been received, ``False`` otherwise. If a</span>
-<span class="sd">          C-CANCEL is received then the handler should yield a ``(0xFE00,</span>
-<span class="sd">          None)`` status/dataset pair and return.</span>
-<span class="sd">        * ``move_destination`` : returns the request&#39;s (0000,0600) *Move</span>
-<span class="sd">          Destination* AE title as a length 16 ``bytes``.</span>
+<span class="sd">          C-CANCEL request has been received, False otherwise. If a C-CANCEL</span>
+<span class="sd">          is received then the handler should yield a ``(0xFE00, None)``</span>
+<span class="sd">          status/dataset pair and return.</span>
+<span class="sd">        * ``move_destination`` : returns the C-MOVE request&#39;s *Move</span>
+<span class="sd">          Destination* value as ``bytes``.</span>
 
 <span class="sd">    Yields</span>
 <span class="sd">    ------</span>
@@ -2711,20 +2703,20 @@
 <span class="sd">      | ``0x0000`` - Success</span>
 
 <span class="sd">    Warning</span>
-<span class="sd">      | ``0xB000`` Coercion of data elements</span>
-<span class="sd">      | ``0xB006`` Elements discarded</span>
-<span class="sd">      | ``0xB007`` Dataset does not match SOP class</span>
+<span class="sd">      | ``0xB000`` - Coercion of data elements</span>
+<span class="sd">      | ``0xB006`` - Elements discarded</span>
+<span class="sd">      | ``0xB007`` - Dataset does not match SOP class</span>
 
 <span class="sd">    Failure</span>
-<span class="sd">      | ``0x0117`` Invalid SOP instance</span>
-<span class="sd">      | ``0x0122`` SOP class not supported</span>
-<span class="sd">      | ``0x0124`` Not authorised</span>
-<span class="sd">      | ``0x0210`` Duplicate invocation</span>
-<span class="sd">      | ``0x0211`` Unrecognised operation</span>
-<span class="sd">      | ``0x0212`` Mistyped argument</span>
-<span class="sd">      | ``0xA700`` to ``0xA7FF`` Out of resources</span>
-<span class="sd">      | ``0xA900`` to ``0xA9FF`` Dataset does not match SOP class</span>
-<span class="sd">      | ``0xC000`` to ``0xCFFF`` Cannot understand</span>
+<span class="sd">      | ``0x0117`` - Invalid SOP instance</span>
+<span class="sd">      | ``0x0122`` - SOP class not supported</span>
+<span class="sd">      | ``0x0124`` - Not authorised</span>
+<span class="sd">      | ``0x0210`` - Duplicate invocation</span>
+<span class="sd">      | ``0x0211`` - Unrecognised operation</span>
+<span class="sd">      | ``0x0212`` - Mistyped argument</span>
+<span class="sd">      | ``0xA700`` to ``0xA7FF`` - Out of resources</span>
+<span class="sd">      | ``0xA900`` to ``0xA9FF`` - Dataset does not match SOP class</span>
+<span class="sd">      | ``0xC000`` to ``0xCFFF`` - Cannot understand</span>
 
 <span class="sd">    Parameters</span>
 <span class="sd">    ----------</span>
@@ -2744,7 +2736,7 @@
 <span class="sd">          `date and time &lt;https://docs.python.org/3/library/datetime.html#datetime-objects&gt;`_</span>
 <span class="sd">          that the C-STORE request was processed by the service.</span>
 
-<span class="sd">        Event properties are:</span>
+<span class="sd">        ``Event`` properties are:</span>
 
 <span class="sd">        * ``dataset`` : the decoded</span>
 <span class="sd">          :py:class:`Dataset &lt;pydicom.dataset.Dataset&gt;` contained within the</span>
@@ -2800,12 +2792,11 @@
 <div class="viewcode-block" id="doc_handle_action"><a class="viewcode-back" href="../../reference/generated/pynetdicom._handlers.doc_handle_action.html#pynetdicom._handlers.doc_handle_action">[docs]</a><span class="k">def</span> <span class="nf">doc_handle_action</span><span class="p">(</span><span class="n">event</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;Documentation for handlers bound to ``evt.EVT_N_ACTION``.</span>
 
-<span class="sd">    Use of handlers for ``evt.EVT_N_ACTION`` is not yet supported.</span>
-
 <span class="sd">    User implementation of this event handler is required if one or more</span>
 <span class="sd">    services that use N-ACTION are to be supported. If a handler is</span>
 <span class="sd">    not implemented and bound to ``evt.EVT_N_ACTION`` then the N-ACTION request</span>
-<span class="sd">    will be responded to using a  *Status* value of FIXME.</span>
+<span class="sd">    will be responded to using a  *Status* value of ``0x0110`` - Processing</span>
+<span class="sd">    failure.</span>
 
 <span class="sd">    **Event**</span>
 
@@ -2813,7 +2804,89 @@
 
 <span class="sd">    **Supported Service Classes**</span>
 
+<span class="sd">    * *Print Management*</span>
+<span class="sd">    * *Storage Commitment*</span>
+<span class="sd">    * *Application Event Logging*</span>
+<span class="sd">    * *Media Creation Management*</span>
+<span class="sd">    * *Unified Procedure Step*</span>
+<span class="sd">    * *RT Machine Verification*</span>
+
 <span class="sd">    **Status**</span>
+
+<span class="sd">    Success</span>
+<span class="sd">      | ``0x0000`` - Success</span>
+
+<span class="sd">    Failure</span>
+<span class="sd">      | ``0x0112`` - No such SOP Instance</span>
+<span class="sd">      | ``0x0114`` - No such argument</span>
+<span class="sd">      | ``0x0115`` - Invalid argument value</span>
+<span class="sd">      | ``0x0117`` - Invalid object instance</span>
+<span class="sd">      | ``0x0118`` - No such SOP Class</span>
+<span class="sd">      | ``0x0119`` - Class-Instance conflict</span>
+<span class="sd">      | ``0x0123`` - No such action</span>
+<span class="sd">      | ``0x0124`` - Refused: not authorised</span>
+<span class="sd">      | ``0x0210`` - Duplicate invocation</span>
+<span class="sd">      | ``0x0211`` - Unrecognised operation</span>
+<span class="sd">      | ``0x0212`` - Mistyped argument</span>
+<span class="sd">      | ``0x0213`` - Resource limitation</span>
+<span class="sd">      | ``0xC101`` - Procedural Logging not available for specified Study</span>
+<span class="sd">        Instance UID</span>
+<span class="sd">      | ``0xC102`` - Event Information does not match Template</span>
+<span class="sd">      | ``0xC103`` - Cannot match event to a current study</span>
+<span class="sd">      | ``0xC104`` - IDs inconsistent in matching a current study; Event not</span>
+<span class="sd">        logged</span>
+<span class="sd">      | ``0xC10E`` - Operator not authorised to add entry to Medication</span>
+<span class="sd">        Administration Record</span>
+<span class="sd">      | ``0xC110`` - Patient cannot be identified from Patient ID (0010,0020)</span>
+<span class="sd">        or Admission ID (0038,0010)</span>
+<span class="sd">      | ``0xC111`` - Update of Medication Administration Record failed</span>
+<span class="sd">      | ``0xC112`` - Machine Verification requested instance not found</span>
+<span class="sd">      | ``0xC300`` - The UPS may no longer be updated</span>
+<span class="sd">      | ``0xC301`` - The correct Transaction UID was not provided</span>
+<span class="sd">      | ``0xC302`` - The UPS is already IN PROGRESS</span>
+<span class="sd">      | ``0xC303`` - The UPS may only become SCHEDULED via N-CREATE, not N-SET</span>
+<span class="sd">        or N-ACTION</span>
+<span class="sd">      | ``0xC304`` - The UPS has not met final state requirements for the</span>
+<span class="sd">        requested state change</span>
+<span class="sd">      | ``0xC307`` - Specified SOP Instance UID does not exist or is not a UPS</span>
+<span class="sd">        Instance managed by this SCP</span>
+<span class="sd">      | ``0xC308`` - Receiving AE-TITLE is Unknown to this SCP</span>
+<span class="sd">      | ``0xC310`` - The UPS is not yet in the IN PROGRESS state</span>
+<span class="sd">      | ``0xC311`` - The UPS is already COMPLETED</span>
+<span class="sd">      | ``0xC312`` - The performer cannot be contacted</span>
+<span class="sd">      | ``0xC313`` - Performer chooses not to cancel</span>
+<span class="sd">      | ``0xC314`` - Specified action not appropriate for specified instance</span>
+<span class="sd">      | ``0xC315`` - SCP does not support Event Reports</span>
+<span class="sd">      | ``0xC600`` - Film Session SOP Instance hierarchy does not contain Film</span>
+<span class="sd">        Box SOP Instances</span>
+<span class="sd">      | ``0xC601`` - Unable to create Print Job SOP Instance; print queue is</span>
+<span class="sd">        full</span>
+<span class="sd">      | ``0xC602`` - Unable to create Print Job SOP Instance; print queue is</span>
+<span class="sd">        full</span>
+<span class="sd">      | ``0xC603`` - Image size is larger than image box size</span>
+<span class="sd">      | ``0xC613`` - Combined Print Image size is larger than Image Box size</span>
+
+<span class="sd">    Warning</span>
+<span class="sd">      | ``0xB101`` - Specified Synchronisation Frame of Reference UID does not</span>
+<span class="sd">        match SOP Synchronisation Frame of Reference</span>
+<span class="sd">      | ``0xB102`` - Study Instance UID coercion; Event logged under a</span>
+<span class="sd">        different Study Instance UID</span>
+<span class="sd">      | ``0xB104`` - IDs inconsistent in matching a current study; Event logged</span>
+<span class="sd">      | ``0xB301`` - Deletion Lock not granted</span>
+<span class="sd">      | ``0xB304`` - The UPS is already in the requested state of CANCELED</span>
+<span class="sd">      | ``0xB306`` - The UPS is already in the requested state of COMPLETED</span>
+<span class="sd">      | ``0xB601`` - Film session printing (collation) is not supported</span>
+<span class="sd">      | ``0xB602`` - Film Session SOP Instance hierarchy does not contain</span>
+<span class="sd">        Image Box SOP Instances (empty page)</span>
+<span class="sd">      | ``0xB603`` - Film Box SOP Instance hierarchy does not contain Image</span>
+<span class="sd">        Box SOP Instances (empty page)</span>
+<span class="sd">      | ``0xB604`` - Image size is larger than Image Box size, the image has</span>
+<span class="sd">        been demagnified</span>
+<span class="sd">      | ``0xB609`` - Image size is larger than Image Box size, the image has</span>
+<span class="sd">        been cropped to fit.</span>
+<span class="sd">      | ``0xB60A`` - Image size or Combined Print Image size is larger than the</span>
+<span class="sd">        Image Box size. Image or Combined Print Image has been decimated to</span>
+<span class="sd">        fit.</span>
 
 <span class="sd">    Parameters</span>
 <span class="sd">    ----------</span>
@@ -2833,7 +2906,7 @@
 <span class="sd">          `date and time &lt;https://docs.python.org/3/library/datetime.html#datetime-objects&gt;`_</span>
 <span class="sd">          that the N-ACTION request was processed by the service.</span>
 
-<span class="sd">        Event properties are:</span>
+<span class="sd">        ``Event`` properties are:</span>
 
 <span class="sd">        * ``action_information`` : the decoded</span>
 <span class="sd">          :py:class:`Dataset &lt;pydicom.dataset.Dataset&gt;` contained within the</span>
@@ -2955,7 +3028,7 @@
 <span class="sd">          `date and time &lt;https://docs.python.org/3/library/datetime.html#datetime-objects&gt;`_</span>
 <span class="sd">          that the N-CREATE request was processed by the service.</span>
 
-<span class="sd">        Event properties are:</span>
+<span class="sd">        ``Event`` properties are:</span>
 
 <span class="sd">        * ``attribute_list`` : the decoded</span>
 <span class="sd">          :py:class:`Dataset &lt;pydicom.dataset.Dataset&gt;` contained within the</span>
@@ -2999,12 +3072,11 @@
 <div class="viewcode-block" id="doc_handle_delete"><a class="viewcode-back" href="../../reference/generated/pynetdicom._handlers.doc_handle_delete.html#pynetdicom._handlers.doc_handle_delete">[docs]</a><span class="k">def</span> <span class="nf">doc_handle_delete</span><span class="p">(</span><span class="n">event</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;Documentation for handlers bound to ``evt.EVT_N_DELETE``.</span>
 
-<span class="sd">    Use of handlers for ``evt.EVT_N_DELETE`` is not yet supported.</span>
-
 <span class="sd">    User implementation of this event handler is required if one or more</span>
 <span class="sd">    services that use N-DELETE are to be supported. If a handler is</span>
 <span class="sd">    not implemented and bound to ``evt.EVT_N_DELETE`` then the N-DELETE request</span>
-<span class="sd">    will be responded to using a  *Status* value of FIXME.</span>
+<span class="sd">    will be responded to using a  *Status* value of ``0x0110`` - Processing</span>
+<span class="sd">    failure.</span>
 
 <span class="sd">    **Event**</span>
 
@@ -3012,7 +3084,25 @@
 
 <span class="sd">    **Supported Service Classes**</span>
 
+<span class="sd">    * *Print Management*</span>
+<span class="sd">    * *RT Machine Verification*</span>
+
 <span class="sd">    **Status**</span>
+
+<span class="sd">    Success</span>
+<span class="sd">      | ``0x0000`` - Success</span>
+
+<span class="sd">    Failure</span>
+<span class="sd">      | ``0x0110`` - Processing failure</span>
+<span class="sd">      | ``0x0112`` - No such SOP Instance</span>
+<span class="sd">      | ``0x0117`` - Invalid object Instance</span>
+<span class="sd">      | ``0x0118`` - Not such SOP Class</span>
+<span class="sd">      | ``0x0119`` - Class-Instance conflict</span>
+<span class="sd">      | ``0x0124`` - Not authorised</span>
+<span class="sd">      | ``0x0210`` - Duplicate invocation</span>
+<span class="sd">      | ``0x0211`` - Unrecognised operation</span>
+<span class="sd">      | ``0x0212`` - Mistyped argument</span>
+<span class="sd">      | ``0x0213`` - Resource limitation</span>
 
 <span class="sd">    Parameters</span>
 <span class="sd">    ----------</span>
@@ -3079,21 +3169,21 @@
 <span class="sd">    **Status**</span>
 
 <span class="sd">    Success</span>
-<span class="sd">      | ``0x0000`` Success</span>
+<span class="sd">      | ``0x0000`` - Success</span>
 
 <span class="sd">    Failure</span>
-<span class="sd">      | ``0x0110`` Processing failure</span>
-<span class="sd">      | ``0x0112`` No such SOP Instance</span>
-<span class="sd">      | ``0x0113`` No such event type</span>
-<span class="sd">      | ``0x0114`` No such argument</span>
-<span class="sd">      | ``0x0115`` Invalid argument value</span>
-<span class="sd">      | ``0x0117`` Invalid object Instance</span>
-<span class="sd">      | ``0x0118`` No such SOP Class</span>
-<span class="sd">      | ``0x0119`` Class-Instance conflict</span>
-<span class="sd">      | ``0x0210`` Duplicate invocation</span>
-<span class="sd">      | ``0x0211`` Unrecognised operation</span>
-<span class="sd">      | ``0x0212`` Mistyped argument</span>
-<span class="sd">      | ``0x0213`` Resource limitation</span>
+<span class="sd">      | ``0x0110`` - Processing failure</span>
+<span class="sd">      | ``0x0112`` - No such SOP Instance</span>
+<span class="sd">      | ``0x0113`` - No such event type</span>
+<span class="sd">      | ``0x0114`` - No such argument</span>
+<span class="sd">      | ``0x0115`` - Invalid argument value</span>
+<span class="sd">      | ``0x0117`` - Invalid object Instance</span>
+<span class="sd">      | ``0x0118`` - No such SOP Class</span>
+<span class="sd">      | ``0x0119`` - Class-Instance conflict</span>
+<span class="sd">      | ``0x0210`` - Duplicate invocation</span>
+<span class="sd">      | ``0x0211`` - Unrecognised operation</span>
+<span class="sd">      | ``0x0212`` - Mistyped argument</span>
+<span class="sd">      | ``0x0213`` - Resource limitation</span>
 
 <span class="sd">    Parameters</span>
 <span class="sd">    ----------</span>
@@ -3113,7 +3203,7 @@
 <span class="sd">          `date and time &lt;https://docs.python.org/3/library/datetime.html#datetime-objects&gt;`_</span>
 <span class="sd">          that the N-EVENT-REPORT request was processed by the service.</span>
 
-<span class="sd">        Event properties are:</span>
+<span class="sd">        ``Event`` properties are:</span>
 
 <span class="sd">        * ``event_information`` : the decoded</span>
 <span class="sd">          :py:class:`Dataset &lt;pydicom.dataset.Dataset&gt;` contained within the</span>
@@ -3197,7 +3287,7 @@
 
 <span class="sd">    Warning</span>
 <span class="sd">      | ``0x0001`` - Requested optional Attributes are not supported</span>
-<span class="sd">      | ``0x0107`` Attribute list error</span>
+<span class="sd">      | ``0x0107`` - Attribute list error</span>
 
 <span class="sd">    Parameters</span>
 <span class="sd">    ----------</span>
@@ -3349,7 +3439,7 @@
 <span class="sd">          `date and time &lt;https://docs.python.org/3/library/datetime.html#datetime-objects&gt;`_</span>
 <span class="sd">          that the N-SET request was processed by the service.</span>
 
-<span class="sd">        Event properties are:</span>
+<span class="sd">        ``Event`` properties are:</span>
 
 <span class="sd">        * ``modification_list`` : the decoded</span>
 <span class="sd">          :py:class:`Dataset &lt;pydicom.dataset.Dataset&gt;` contained within the</span>

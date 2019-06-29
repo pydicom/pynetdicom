@@ -10,6 +10,7 @@ has been established.
 
 .. toctree::
    :maxdepth: 3
+   :includehidden:
 
    dimse.provider
    dimse.primitives

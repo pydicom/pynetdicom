@@ -13,6 +13,7 @@ The DICOM Upper Layer protocol consists of seven Protocol Data Units:
 
 .. toctree::
    :maxdepth: 1
+   :includehidden:
 
    dul.pdu.a_associate_rq
    dul.pdu.a_associate_ac

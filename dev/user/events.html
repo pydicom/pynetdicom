@@ -91,20 +91,7 @@
             
             
               <ul>
-<li class="toctree-l1"><a class="reference internal" href="../verification_service_class.html">Verification Service Class</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../storage_service_class.html">Storage Service Class</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../query_retrieve_service_class.html">Query/Retrieve Service Class</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../basic_worklist_service_class.html">Basic Worklist Management Service Class</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../relevant_patient_service_class.html">Relevant Patient Information Query Service Class</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../substance_admin_service_class.html">Substance Administration Query Service Class</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../non_patient_service_class.html">Non-Patient Object Storage Service Class</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../color_palette_service_class.html">Color Palette Query/Retrieve Service Class</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../defined_procedure_service_class.html">Defined Procedure Protocol Query/Retrieve Service Class</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../hanging_protocol_service_class.html">Hanging Protocol Query/Retrieve Service Class</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../implant_template_service_class.html">Implant Template Query/Retrieve Service Class</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../display_system_service_class.html">Display System Management Service Class</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../modality_performed_procedure_step.html">Modality Performed Procedure Step Management</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../protocol_approval_service_class.html">Protocol Approval Query/Retrieve Service Class</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../service_classes/index.html">Supported Service Classes</a></li>
 </ul>
 <ul class="current">
 <li class="toctree-l1 current"><a class="reference internal" href="index.html">User Guide</a><ul class="current">
@@ -123,11 +110,16 @@
 </li>
 </ul>
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="../release_notes.html">1.4.0</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../release_notes.html#v1-3-0">1.3.0</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../release_notes.html#v1-2-0">1.2.0</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../release_notes.html#v1-1-0">1.1.0</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../release_notes.html#v1-0-0">1.0.0</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../examples/index.html">Examples</a></li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../reference/index.html">API Reference</a></li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../apps/index.html">Applications</a></li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../changelog/index.html">Release Notes</a></li>
 </ul>
 
             
@@ -200,7 +192,7 @@
 data exchanged between different services within an AE as well as the PDUs
 and data sent between the local and peer AEs. Two different types of events
 are used: <em>notification events</em> and <em>intervention events</em>. Events are imported
-using <code class="docutils literal notranslate"><span class="pre">from</span> <span class="pre">pynetdicom</span> <span class="pre">import</span> <span class="pre">evt</span></code>.</p>
+using <code class="docutils literal notranslate"><span class="pre">from</span> <span class="pre">pynetdicom</span> <span class="pre">import</span> <span class="pre">evt</span></code></p>
 <div class="section" id="notification-events">
 <span id="events-notification"></span><h2>Notification Events<a class="headerlink" href="#notification-events" title="Permalink to this headline">¶</a></h2>
 <p>Notification events are those events where bound event handlers don’t need
@@ -277,6 +269,15 @@ sent a message</p></td>
 </tr>
 </tbody>
 </table>
+<p>By default a number of notification handlers are bound for logging purposes.
+If you wish to remove these then you can do the following before creating any
+associations:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">pynetdicom</span> <span class="k">import</span> <span class="n">_config</span>
+
+<span class="c1"># Don&#39;t bind any of the default notification handlers</span>
+<span class="n">_config</span><span class="o">.</span><span class="n">LOG_HANDLER_LEVEL</span> <span class="o">=</span> <span class="s1">&#39;none&#39;</span>
+</pre></div>
+</div>
 </div>
 <div class="section" id="intervention-events">
 <span id="events-intervention"></span><h2>Intervention Events<a class="headerlink" href="#intervention-events" title="Permalink to this headline">¶</a></h2>
@@ -364,23 +365,23 @@ N-GET request</p></td>
 </div>
 <div class="section" id="event-handlers">
 <h2>Event Handlers<a class="headerlink" href="#event-handlers" title="Permalink to this headline">¶</a></h2>
-<p>All handlers bound to an event are passed a single parameter <em>event</em> which is
-an <a class="reference internal" href="../reference/generated/pynetdicom.events.Event.html#pynetdicom.events.Event" title="pynetdicom.events.Event"><code class="xref py py-class docutils literal notranslate"><span class="pre">Event</span></code></a> instance. All <code class="docutils literal notranslate"><span class="pre">Event</span></code> objects
-come with at least four attributes:</p>
+<p>Event handlers are callable functions bound to an event that get passed a single
+parameter, <em>event</em>, which is an <a class="reference internal" href="../reference/generated/pynetdicom.events.Event.html#pynetdicom.events.Event" title="pynetdicom.events.Event"><code class="xref py py-class docutils literal notranslate"><span class="pre">Event</span></code></a>
+instance. All <code class="docutils literal notranslate"><span class="pre">Event</span></code> instances come with at least three attributes:</p>
 <ul class="simple">
 <li><p><code class="docutils literal notranslate"><span class="pre">Event.assoc</span></code> - the
 <a class="reference internal" href="../reference/generated/pynetdicom.association.Association.html#pynetdicom.association.Association" title="pynetdicom.association.Association"><code class="xref py py-class docutils literal notranslate"><span class="pre">Association</span></code></a> in which the
 event occurred</p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">Event.description</span></code> - a str description of the event</p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">Event.name</span></code> - the name of the event</p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">Event.timestamp</span></code> - the date and time the event occurred at (as a python
-<a class="reference external" href="https://docs.python.org/3/library/datetime.html#datetime-objects">datetime</a>).</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">Event.event</span></code> - the corresponding event, as a python
+<a class="reference external" href="https://docs.python.org/3/library/collections.html#collections.namedtuple">namedtuple</a></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">Event.timestamp</span></code> - the date and time the event occurred at, as a python
+<a class="reference external" href="https://docs.python.org/3/library/datetime.html#datetime-objects">datetime</a></p></li>
 </ul>
 <p>Additional attributes and properties are available depending on the event type,
 see the <a class="reference external" href="../reference/events.html">handler implementation documentation</a> for more information.</p>
 <p>Handlers can be bound to events through the <code class="docutils literal notranslate"><span class="pre">bind(event,</span> <span class="pre">handler)</span></code> methods
 in the <code class="docutils literal notranslate"><span class="pre">Association</span></code> and <code class="docutils literal notranslate"><span class="pre">AssociationServer</span></code> classes or by using the
-<code class="docutils literal notranslate"><span class="pre">evt_handlers</span></code> keyword parameter to <code class="docutils literal notranslate"><span class="pre">AE.associate()</span></code> and
+<code class="docutils literal notranslate"><span class="pre">evt_handlers</span></code> keyword argument to <code class="docutils literal notranslate"><span class="pre">AE.associate()</span></code> and
 <code class="docutils literal notranslate"><span class="pre">AE.start_server()</span></code>. Handlers can be unbound with the
 <code class="docutils literal notranslate"><span class="pre">unbind(event,</span> <span class="pre">handler)</span></code> methods in the <code class="docutils literal notranslate"><span class="pre">Association</span></code> and
 <code class="docutils literal notranslate"><span class="pre">AssociationServer</span></code> classes. See the <a class="reference internal" href="association.html#association"><span class="std std-ref">Association</span></a>

@@ -25,25 +25,44 @@ AEs and using or providing the services available to the association.
 
 Supported Service Classes
 -------------------------
-*pynetdicom* currently supports the following DICOM service classes:
+*pynetdicom* currently supports the following `DICOM service classes
+<http://dicom.nema.org/medical/dicom/current/output/chtml/part04/PS3.4.html>`_:
 
 .. toctree::
-   :maxdepth: 1
+   :maxdepth: 2
+   :hidden:
 
-   verification_service_class
-   storage_service_class
-   query_retrieve_service_class
-   basic_worklist_service_class
-   relevant_patient_service_class
-   substance_admin_service_class
-   non_patient_service_class
-   color_palette_service_class
-   defined_procedure_service_class
-   hanging_protocol_service_class
-   implant_template_service_class
-   display_system_service_class
-   modality_performed_procedure_step
-   protocol_approval_service_class
+   service_classes/index
+
+* :doc:`Application Event Logging <service_classes/application_event>`
+* :doc:`Basic Worklist Management<service_classes/basic_worklist_service_class>`
+* :doc:`Color Palette Query/Retrieve <service_classes/color_palette_service_class>`
+* :doc:`Defined Procedure Protocol Query/Retrieve <service_classes/defined_procedure_service_class>`
+* :doc:`Display System Management <service_classes/display_system_service_class>`
+* :doc:`Hanging Protocol Query/Retrieve <service_classes/hanging_protocol_service_class>`
+* :doc:`Implant Template Query/Retrieve <service_classes/implant_template_service_class>`
+* :doc:`Instance Availability Notification <service_classes/instance_availability>`
+* :doc:`Media Creation Management <service_classes/media_creation>`
+* :doc:`Non-Patient Object Storage <service_classes/non_patient_service_class>`
+* :doc:`Print Management <service_classes/print_management>` (partial)
+* :doc:`Procedure Step <service_classes/modality_performed_procedure_step>` (partial)
+* :doc:`Protocol Approval Query/Retrieve <service_classes/protocol_approval_service_class>`
+* :doc:`Query/Retrieve <service_classes/query_retrieve_service_class>`
+
+  * Composite Instance Retrieve Without Bulk Data
+  * Instance and Frame Level Retrieve
+* :doc:`Relevant Patient Information Query <service_classes/relevant_patient_service_class>`
+* :doc:`RT Machine Verification <service_classes/rt_machine>` (partial)
+* :doc:`Storage <service_classes/storage_service_class>`
+
+  * Ophthalmic Refractive Measurements
+  * Softcopy Presentation State
+  * Structured Reporting
+  * Volumetric Presentation State
+* :doc:`Storage Commitment <service_classes/storage_commitment>` (partial)
+* :doc:`Substance Administration Query <service_classes/substance_admin_service_class>`
+* :doc:`Unified Procedure Step <service_classes/ups>` (partial)
+* :doc:`Verification <service_classes/verification_service_class>`
 
 
 User Guide
@@ -63,25 +82,51 @@ documentation of the functions and classes see the
 Examples
 ========
 
-* :doc:`Verification Service Examples <examples/verification>`
-* :doc:`Storage Service Examples <examples/storage>`
-* :doc:`Query/Retrieve (Find) Service Examples <examples/qr_find>`
-* :doc:`Query/Retrieve (Get) Service Examples <examples/qr_get>`
-* :doc:`Query/Retrieve (Move) Service Examples <examples/qr_move>`
-* :doc:`Basic Worklist Management Service Examples <examples/basic_worklist>`
-* :doc:`Relevant Patient Information Query Service Examples <examples/relevant_patient>`
-* :doc:`Display System Management Service Examples <examples/display>`
-* :doc:`Modality Performed Procedure Step Management Service Examples <examples/mpps>`
+.. toctree::
+   :maxdepth: 2
+   :hidden:
+
+   examples/index
+
+* :doc:`Basic Worklist Management (C-FIND) <examples/basic_worklist>`
+* :doc:`Display System Management (N-GET) <examples/display>`
+* Modality Performed Procedure Step Management
+
+  * :doc:`MPPS (N-CREATE and N-SET) <examples/mpps>`
+* Print Management
+
+  * :doc:`Basic Grayscale Print Management (N-CREATE, N-SET, N-GET, N-DELETE, N-ACTION) <examples/print>`
+* Query/Retrieve
+
+  * :doc:`Query/Retrieve - Find (C-FIND) <examples/qr_find>`
+  * :doc:`Query/Retrieve - Get (C-GET and C-STORE) <examples/qr_get>`
+  * :doc:`Query/Retrieve - Move (C-MOVE and C-STORE) <examples/qr_move>`
+* :doc:`Relevant Patient Information Query (C-FIND) <examples/relevant_patient>`
+* :doc:`Storage (C-STORE) <examples/storage>`
+* :doc:`Verification (C-ECHO) <examples/verification>`
 
 
 API Reference
 =============
 
+.. toctree::
+   :maxdepth: 3
+   :hidden:
+
+   reference/index
+
 The :doc:`API Reference <reference/index>` provides documentation of the
 important functions and classes.
 
+
 Applications
 ============
+
+.. toctree::
+   :maxdepth: 1
+   :hidden:
+
+   apps/index
 
 * :doc:`echoscu <apps/echoscu>`
 * :doc:`echoscp <apps/echoscp>`
@@ -93,5 +138,13 @@ Release Notes
 
 .. toctree::
    :maxdepth: 1
+   :hidden:
 
-   release_notes
+   changelog/index
+
+* `v1.4.0 <changelog/index.html#v1-4-0>`_
+* `v1.3.1 <changelog/index.html#v1-3-1>`_
+* `v1.3.0 <changelog/index.html#v1-3-0>`_
+* `v1.2.0 <changelog/index.html#v1-2-0>`_
+* `v1.1.0 <changelog/index.html#v1-1-0>`_
+* `v1.0.0 <changelog/index.html#v1-0-0>`_
