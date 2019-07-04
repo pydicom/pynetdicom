@@ -67,7 +67,7 @@ Supported Service Classes
 - `Implant Template Query/Retrieve Service Class <http://dicom.nema.org/medical/dicom/current/output/html/part04.html#chapter_BB>`_
 - `Instance Availability Notification Service Class <http://dicom.nema.org/medical/dicom/current/output/html/part04.html#chapter_R>`_
 - `Media Creation Management Service Class <http://dicom.nema.org/medical/dicom/current/output/html/part04.html#chapter_S>`_
-- `Modality Performed Procedure Step Management <http://dicom.nema.org/medical/dicom/current/output/html/part04.html#chapter_F>`_ (excluding *MPPS Notification SOP Class*
+- `Modality Performed Procedure Step Management <http://dicom.nema.org/medical/dicom/current/output/html/part04.html#chapter_F>`_ (excluding *MPPS Notification SOP Class*)
 - `Non-Patient Object Storage Service Class <http://dicom.nema.org/medical/dicom/current/output/html/part04.html#chapter_GG>`_
 - `Protocol Approval Query/Retrieve Service Class <http://dicom.nema.org/medical/dicom/current/output/html/part04.html#chapter_II>`_
 - `Query/Retrieve Service Class <http://dicom.nema.org/medical/dicom/current/output/html/part04.html#chapter_C>`_
