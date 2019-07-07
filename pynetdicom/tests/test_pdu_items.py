@@ -45,7 +45,7 @@ from .encoded_pdu_items import (
     maximum_length_received, implementation_class_uid,
     implementation_version_name, role_selection, role_selection_odd,
     user_information, extended_negotiation, common_extended_negotiation,
-    p_data_tf, a_associate_ac_zero_ts, a_associate_ac_no_ts
+    p_data_tf, a_associate_ac_zero_ts
 )
 
 LOGGER = logging.getLogger('pynetdicom')

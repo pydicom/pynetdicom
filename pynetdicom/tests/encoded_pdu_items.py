@@ -328,7 +328,7 @@ a_associate_ac_zero_ts = (
 #   Presentation Context ID: 1
 #       Abstract Syntax: Verification SOP Class
 #       SCP/SCU Role: Default
-#       Result: Refeject
+#       Result: Reject
 #       Transfer Syntax: (no Transfer Syntax Sub-Item)
 # User Information
 #   Max Length Received: 16382
