@@ -553,6 +553,38 @@ class TestAssociation(object):
         assert evt.EVT_C_STORE in assoc.get_events()
         assert evt.EVT_USER_ID in assoc.get_events()
 
+    # Regression tests
+    def test_acceptor_rejected_abstract(self):
+        """Test for #361 - context rejected due to abs. syntax."""
+
+        from pynetdicom.utils import pretty_bytes
+
+        def handle_data(event):
+            print('Received data...')
+            slist = pretty_bytes(event.data, prefix='', max_size=None)
+
+            if slist[0][0:2] == '02':
+                for ss in slist:
+                    print(ss)
+
+        self.ae = ae = AE()
+        ae.acse_timeout = 5
+        ae.dimse_timeout = 5
+        ae.network_timeout = 5
+        ae.add_supported_context(CTImageStorage)
+
+        handlers = [(evt.EVT_DATA_RECV, handle_data)]
+
+        scp = ae.start_server(('', 11112), block=False)
+
+        ae.add_requested_context(VerificationSOPClass)
+        assoc = ae.associate('localhost', 11112, evt_handlers=handlers)
+
+        #assert assoc.is_rejected
+
+        scp.shutdown()
+
+
 
 class TestCStoreSCP(object):
     """Tests for Association._c_store_scp()."""

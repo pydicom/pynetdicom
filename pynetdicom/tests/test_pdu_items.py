@@ -45,7 +45,7 @@ from .encoded_pdu_items import (
     maximum_length_received, implementation_class_uid,
     implementation_version_name, role_selection, role_selection_odd,
     user_information, extended_negotiation, common_extended_negotiation,
-    p_data_tf, a_associate_ac_zero_ts
+    p_data_tf, a_associate_ac_zero_ts, a_associate_ac_no_ts
 )
 
 LOGGER = logging.getLogger('pynetdicom')
@@ -626,6 +626,12 @@ class TestPresentationContextAC(object):
         assert item.result == 1
         assert len(item) == 12
         assert item.transfer_syntax is None
+
+        # Confirm we can still convert the PDU into a PresentationContext
+        primitive = item.to_primitive()
+        assert primitive.context_id == 1
+        assert primitive.transfer_syntax == []
+        assert primitive.result == 1
 
         assert "Item length: 8 bytes" in item.__str__()
 

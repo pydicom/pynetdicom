@@ -28,12 +28,12 @@ Enhancements
 * Added event-handler system as a replacement for the callback
   system
 
-  * Added `events.py` module with the defined events, `Event` class and
-    event-related support functions.
-  * Added `_handlers.py` module with standard logging handlers
-  * Added ``bind()``, ``unbind()``, ``get_handlers()`` and ``get_events()``
-    to ``Association`` and ``AssociationServer`` classes.
-  * Add ``assoc`` properties to ``DIMSEServiceProvider`` and ``ACSE`` classes
+   * Added `events.py` module with the defined events, `Event` class and
+     event-related support functions.
+   * Added `_handlers.py` module with standard logging handlers
+   * Added ``bind()``, ``unbind()``, ``get_handlers()`` and ``get_events()``
+     to ``Association`` and ``AssociationServer`` classes.
+   * Add ``assoc`` properties to ``DIMSEServiceProvider`` and ``ACSE`` classes
 * ``_config.ENFORCE_UID_CONFORMANCE`` added which determines the level of
   conformance required for UIDs. If ``True`` then all UIDs are required to
   meet the UID rules in the DICOM Standard, if ``False`` (default) then UIDs
@@ -47,10 +47,10 @@ Changes
 
 * The following have been removed as per planned deprecation:
 
-  * ``AE.start()``, ``AE.stop()``, ``AE.address``, ``AE.bind_address``,
-    ``AE.local_socket``, ``AE.port``
-  * ``Association.send_c_cancel_find()``, ``Association.send_c_cancel_get()``,
-    ``Association.send_c_cancel_move()``
+   * ``AE.start()``, ``AE.stop()``, ``AE.address``, ``AE.bind_address``,
+     ``AE.local_socket``, ``AE.port``
+   * ``Association.send_c_cancel_find()``, ``Association.send_c_cancel_get()``,
+     ``Association.send_c_cancel_move()``
 * All callback related class methods are deprecated and will be removed in
   v1.4. Use the event-handler system instead.
 * ``_config.DECODE_STORE_DATASETS`` is deprecated and will be removed in v1.4.

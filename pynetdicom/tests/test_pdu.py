@@ -37,7 +37,7 @@ from pynetdicom.pdu_primitives import (
 from .encoded_pdu_items import (
     a_associate_rq, a_associate_ac, a_associate_rj, a_release_rq, a_release_rq,
     a_release_rp, a_abort, a_p_abort, p_data_tf,
-    a_associate_rq_user_id_ext_neg
+    a_associate_rq_user_id_ext_neg, a_associate_ac_no_ts
 )
 from pynetdicom.sop_class import VerificationSOPClass
 from pynetdicom.utils import pretty_bytes
@@ -659,6 +659,24 @@ class TestASSOC_AC(object):
         new.from_primitive(primitive)
 
         assert new == orig
+
+    def test_no_transfer_syntax(self):
+        """Regression test for #361 - ASSOC-AC has no transfer syntax"""
+        pdu = A_ASSOCIATE_AC()
+        pdu.decode(a_associate_ac_no_ts)
+
+        assert pdu.pdu_type == 0x02
+        assert pdu.pdu_length == 167
+        assert pdu.protocol_version == 0x0001
+        assert isinstance(pdu.pdu_type, int)
+        assert isinstance(pdu.pdu_length, int)
+        assert isinstance(pdu.protocol_version, int)
+
+        item = pdu.variable_items[1]
+        cx = item.to_primitive()
+        assert cx.transfer_syntax == []
+        assert cx.result == 3
+        assert cx.context_id == 1
 
 
 class TestASSOC_AC_ApplicationContext(object):
