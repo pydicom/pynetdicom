@@ -17,7 +17,7 @@ import time
 
 import pytest
 
-from pynetdicom import AE, evt, _config
+from pynetdicom import AE, evt, _config, debug_logger
 from pynetdicom.association import Association
 from pynetdicom.events import Event
 from pynetdicom._globals import MODE_REQUESTOR, MODE_ACCEPTOR
@@ -42,9 +42,7 @@ CLIENT_CERT, CLIENT_KEY = (
 )
 
 
-LOGGER = logging.getLogger('pynetdicom')
-LOGGER.setLevel(logging.CRITICAL)
-LOGGER.setLevel(logging.DEBUG)
+debug_logger()
 
 
 class TestAssociationSocket(object):
@@ -231,8 +229,11 @@ class TestTLS(object):
         assert len(server.active_associations) == 0
 
     def test_tls_yes_server_yes_client(self, server_context, client_context):
-        """Test associating with no TLS on either end."""
+        """Test associating with TLS on either end."""
         self.ae = ae = AE()
+        ae.acse_timeout = 5
+        ae.dimse_timeout = 5
+        ae.network_timeout = 5
         ae.add_supported_context('1.2.840.10008.1.1')
         server = ae.start_server(
             ('', 11112),
