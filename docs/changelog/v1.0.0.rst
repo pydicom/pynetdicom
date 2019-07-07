@@ -20,20 +20,19 @@ Changes
 * ``applicationentity`` module renamed ``ae``
 * ``ApplicationEntity`` interface updated
 
-   - Removed the following: ``AE.scu_supported_sop``, ``AE.scp_supported_sop``,
-     ``AE.transfer_syntax``, ``AE.presentation_contexts_scu``,
-     ``AE.presentation_contexts_scp``.
-   - ``scu_sop_class``, ``scp_sop_class``, ``transfer_syntax`` and ``bind_addr``
-     arguments removed from ``AE`` initialisation.
-   - Added ``AE.bind_addr`` attribute to allow the user to specify the network
-     adapter.
-   - Added ``AE.add_supported_context()``, ``AE.supported_contexts``,
-     ``AE.remove_supported_context()`` for adding and removing the presentation
-     contexts supported as an SCP.
-   - Added ``AE.add_requested_context()``, ``AE.requested_contexts``,
-     ``AE.remove_requested_context()`` for adding and removing the presentation
-     contexts requested as an SCU.
-
+  - Removed the following: ``AE.scu_supported_sop``, ``AE.scp_supported_sop``,
+    ``AE.transfer_syntax``, ``AE.presentation_contexts_scu``,
+    ``AE.presentation_contexts_scp``.
+  - ``scu_sop_class``, ``scp_sop_class``, ``transfer_syntax`` and ``bind_addr``
+    arguments removed from ``AE`` initialisation.
+  - Added ``AE.bind_addr`` attribute to allow the user to specify the network
+    adapter.
+  - Added ``AE.add_supported_context()``, ``AE.supported_contexts``,
+    ``AE.remove_supported_context()`` for adding and removing the presentation
+    contexts supported as an SCP.
+  - Added ``AE.add_requested_context()``, ``AE.requested_contexts``,
+    ``AE.remove_requested_context()`` for adding and removing the presentation
+    contexts requested as an SCU.
 * Removed ``VerificationSOPClass``, ``StorageSOPClassList`` and
   ``QueryRetrieveSOPClassList``.
 * Added ``VerificationPresentationContexts``, ``StoragePresentationContexts``,
@@ -54,17 +53,17 @@ Changes
 * ``ACSE`` refactored to do more of the association negotiation work and to
   operate independently of the Association instance.
 
-   - Added ``send_abort``, ``send_ap_abort``, ``send_reject``, ``send_release``
-     ``send_request``, ``send_accept`` methods
-   - Added ``negotiate_association`` method
-   - Added ``release_association`` method
+  - Added ``send_abort``, ``send_ap_abort``, ``send_reject``, ``send_release``
+    ``send_request``, ``send_accept`` methods
+  - Added ``negotiate_association`` method
+  - Added ``release_association`` method
 * Added ``association.ServiceUser`` class
 * ``Association`` refactored to do less association negotiation work and to
   operate independently of the ACSE instance.
 
-   - Added ``Association.requestor`` and ``Association.acceptor`` attributes
-     which are ``ServiceUser`` instances that track the association requestor
-     and acceptor.
+  - Added ``Association.requestor`` and ``Association.acceptor`` attributes
+    which are ``ServiceUser`` instances that track the association requestor
+    and acceptor.
 * Project named changed from pynetdicom3 to pynetdicom
 
 

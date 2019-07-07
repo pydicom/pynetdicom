@@ -26,26 +26,26 @@ Enhancements
 * Consolidated and improved the robustness of the transport related code
   (:issue:`42`):
 
-   * Added ``transport`` module
-   * Added ``AssociationSocket`` class that wraps a client ``socket.socket`` to
-     provide integration with the Association state machine. In particular all
-     receive and send operations should emit state machine event 'Evt17' when
-     the connection is closed. (:issue:`204`)
-   * Added ``AssociationServer``, and ``ThreadedAssociationServer`` classes
-     to provide association acceptor services.
-   * ``fsm.AE_1`` is now properly implemented and state machine event 'Evt2' is
-     now emitted in a non-trivial manner.
-   * Added ``AE.start_server()`` which allows operation in both blocking and
-     non-blocking modes.
-   * Added ``AE.shutdown()`` which allows the user to shutdown all non-blocking
-     association servers that may be running.
-   * Support for TLS added via the ``tls_args`` keyword parameter for
-     ``AE.associate()`` and ``ssl_context`` keyword parameter for
-     ``AE.start_server()`` (:pull_request:`175`, :pull_request:`71`)
-   * It should now be possible to both request a C-MOVE operation and act as the
-     destination for the request's C-STORE sub-operations over a new association
-     within the same AE instance by running a non-blocking Storage SCP.
-     (:issue:`5`, :issue:`181`)
+  * Added ``transport`` module
+  * Added ``AssociationSocket`` class that wraps a client ``socket.socket`` to
+    provide integration with the Association state machine. In particular all
+    receive and send operations should emit state machine event 'Evt17' when
+    the connection is closed. (:issue:`204`)
+  * Added ``AssociationServer``, and ``ThreadedAssociationServer`` classes
+    to provide association acceptor services.
+  * ``fsm.AE_1`` is now properly implemented and state machine event 'Evt2' is
+    now emitted in a non-trivial manner.
+  * Added ``AE.start_server()`` which allows operation in both blocking and
+    non-blocking modes.
+  * Added ``AE.shutdown()`` which allows the user to shutdown all non-blocking
+    association servers that may be running.
+  * Support for TLS added via the ``tls_args`` keyword parameter for
+    ``AE.associate()`` and ``ssl_context`` keyword parameter for
+    ``AE.start_server()`` (:pull_request:`175`, :pull_request:`71`)
+  * It should now be possible to both request a C-MOVE operation and act as the
+    destination for the request's C-STORE sub-operations over a new association
+    within the same AE instance by running a non-blocking Storage SCP.
+    (:issue:`5`, :issue:`181`)
 * Received P-DATA primitives are now processed when received rather than when
   processing is requested.
 * Added ``DIMSEServiceProvider.get_msg()``,
@@ -55,14 +55,14 @@ Enhancements
 * Time required to start an association improved significantly.
 * Implemented C-CANCEL support
 
-   * Added ``ServiceClass.is_cancelled()`` method to allow
-     checking whether a C-CANCEL message corresponding to a message ID value
-     has been received.
-   * Added 'cancelled' key to the ``info`` parameter passed to
-     ``AE.on_c_get()``, ``AE.on_c_find()`` and ``AE.on_c_move()``. The
-     corresponding value is a callable function (``is_cancelled()``) that
-     takes a *Message ID* value and and returns True if a C-CANCEL message with
-     a corresponding *Message ID Being Responded To* value has been received.
+  * Added ``ServiceClass.is_cancelled()`` method to allow
+    checking whether a C-CANCEL message corresponding to a message ID value
+    has been received.
+  * Added 'cancelled' key to the ``info`` parameter passed to
+    ``AE.on_c_get()``, ``AE.on_c_find()`` and ``AE.on_c_move()``. The
+    corresponding value is a callable function (``is_cancelled()``) that
+    takes a *Message ID* value and and returns True if a C-CANCEL message with
+    a corresponding *Message ID Being Responded To* value has been received.
 * Added thread names ('threadtype@timestamp').
 * Added ``build_role()`` to simplify creating SCP/SCU Role Selection
   Negotiation items.
