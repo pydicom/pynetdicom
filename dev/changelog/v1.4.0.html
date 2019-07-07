@@ -184,8 +184,6 @@ race condition when acting as the Acceptor and calling one of the
 <div class="section" id="enhancements">
 <h2>Enhancements<a class="headerlink" href="#enhancements" title="Permalink to this headline">¶</a></h2>
 <ul class="simple">
-<li><p>Added support for Protocol Approval Query Retrieve service class
-(<a class="reference external" href="https://github.com/pydicom/pynetdicom/issues/327">#327</a>)</p></li>
 <li><p>Added <code class="docutils literal notranslate"><span class="pre">Event.move_destination</span></code> and <code class="docutils literal notranslate"><span class="pre">Event.event</span></code> properties
 (<a class="reference external" href="https://github.com/pydicom/pynetdicom/issues/353">#353</a>)</p></li>
 <li><p>Added <code class="docutils literal notranslate"><span class="pre">meta_uid</span></code> keyword parameters to the <code class="docutils literal notranslate"><span class="pre">Association.send_n_*()</span></code>
@@ -193,6 +191,24 @@ methods to allow the use of Meta SOP Classes (such as those used in the
 Print Management service class)</p></li>
 <li><p>Added <em>Basic Grayscale Print Management Meta SOP Class</em> and <em>Basic Color
 Print Management Meta SOP Class</em> to <code class="docutils literal notranslate"><span class="pre">sop_class</span></code>.</p></li>
+<li><p>Added full support for the following service classes:</p>
+<ul>
+<li><p>Protocol Approval Query Retrieve (<a class="reference external" href="https://github.com/pydicom/pynetdicom/issues/327">#327</a>)</p></li>
+<li><p>Application Event Logging</p></li>
+<li><p>Instance Availability Notification</p></li>
+<li><p>Media Creation Management</p></li>
+</ul>
+</li>
+<li><p>Added partial support for the following service classes:</p>
+<ul>
+<li><p>Print Management</p></li>
+<li><p>Unified Procedure Step</p></li>
+<li><p>RT Machine Verification</p></li>
+<li><p>Storage Commitment</p></li>
+</ul>
+</li>
+<li><p>Added handling of non-conformant Presentation Context AC (reject) PDUs which
+contain no Transfer Syntax Sub-item (<a class="reference external" href="https://github.com/pydicom/pynetdicom/issues/361">#361</a>)</p></li>
 </ul>
 </div>
 <div class="section" id="changes">

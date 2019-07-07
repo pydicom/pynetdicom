@@ -19,8 +19,6 @@ Fixes
 Enhancements
 ............
 
-* Added support for Protocol Approval Query Retrieve service class
-  (:issue:`327`)
 * Added ``Event.move_destination`` and ``Event.event`` properties
   (:issue:`353`)
 * Added ``meta_uid`` keyword parameters to the ``Association.send_n_*()``
@@ -28,6 +26,20 @@ Enhancements
   Print Management service class)
 * Added *Basic Grayscale Print Management Meta SOP Class* and *Basic Color
   Print Management Meta SOP Class* to ``sop_class``.
+* Added full support for the following service classes:
+
+  * Protocol Approval Query Retrieve (:issue:`327`)
+  * Application Event Logging
+  * Instance Availability Notification
+  * Media Creation Management
+* Added partial support for the following service classes:
+
+  * Print Management
+  * Unified Procedure Step
+  * RT Machine Verification
+  * Storage Commitment
+* Added handling of non-conformant Presentation Context AC (reject) PDUs which
+  contain no Transfer Syntax Sub-item (:issue:`361`)
 
 
 Changes
