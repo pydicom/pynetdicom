@@ -627,6 +627,12 @@ class TestPresentationContextAC(object):
         assert len(item) == 12
         assert item.transfer_syntax is None
 
+        # Confirm we can still convert the PDU into a PresentationContext
+        primitive = item.to_primitive()
+        assert primitive.context_id == 1
+        assert primitive.transfer_syntax == []
+        assert primitive.result == 1
+
         assert "Item length: 8 bytes" in item.__str__()
 
         item = item.transfer_syntax_sub_item[0]

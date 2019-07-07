@@ -33,7 +33,6 @@ Changes
   - Added ``AE.add_requested_context()``, ``AE.requested_contexts``,
     ``AE.remove_requested_context()`` for adding and removing the presentation
     contexts requested as an SCU.
-
 * Removed ``VerificationSOPClass``, ``StorageSOPClassList`` and
   ``QueryRetrieveSOPClassList``.
 * Added ``VerificationPresentationContexts``, ``StoragePresentationContexts``,

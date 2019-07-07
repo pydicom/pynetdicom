@@ -856,11 +856,8 @@ class PresentationContextItemAC(PDUItem):
         primitive = PresentationContext()
         primitive.context_id = self.presentation_context_id
         primitive.result = self.result_reason
-        # May be `None` if context is rejected
-        if self.transfer_syntax_sub_item[0].transfer_syntax_name:
-            primitive.add_transfer_syntax(
-                self.transfer_syntax_sub_item[0].transfer_syntax_name
-            )
+        if self.transfer_syntax:
+            primitive.add_transfer_syntax(self.transfer_syntax)
 
         return primitive
 
@@ -976,6 +973,9 @@ class PresentationContextItemAC(PDUItem):
         Returns
         -------
         pydicom.uid.UID or None
+            If no Transfer Syntax Sub-item or an empty Transfer Syntax Sub-item
+            has been sent by the Acceptor then returns None, otherwise returns
+            the Transfer Syntax Sub-item's transfer syntax UID.
         """
         if self.transfer_syntax_sub_item:
             return self.transfer_syntax_sub_item[0].transfer_syntax_name

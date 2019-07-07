@@ -283,7 +283,9 @@ class PresentationContext(object):
         elif isinstance(syntax, bytes):
             syntax = UID(syntax.decode('ascii'))
         else:
-            LOGGER.error("Attempted to add an invalid transfer syntax")
+            if syntax is not None:
+                LOGGER.error("Attempted to add an invalid transfer syntax")
+
             return
 
         if syntax is not None and not validate_uid(syntax):
