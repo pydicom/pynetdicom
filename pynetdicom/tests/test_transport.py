@@ -259,10 +259,13 @@ class TestTLS(object):
         assert len(server.active_associations) == 0
 
     def test_tls_transfer(self, server_cx, client_cx):
-        """Test transferring data after associating."""
+        """Test transferring data after associating with TLS."""
+        ds = []
         def handle_store(event):
-            print(event.dataset)
+            ds.append(event.dataset)
             return 0x0000
+
+        handlers = [(evt.EVT_C_STORE, handle_store)]
 
         self.ae = ae = AE()
         ae.acse_timeout = 5
@@ -274,6 +277,7 @@ class TestTLS(object):
             ('', 11112),
             block=False,
             ssl_context=server_context,
+            evt_handlers=handlers
         )
 
         ae.add_requested_context('1.2.840.10008.1.1')
@@ -282,12 +286,12 @@ class TestTLS(object):
         assert assoc.is_established
         status = assoc.send_c_store(DATASET)
         assert status.Status == 0x0000
-
         assoc.release()
         assert assoc.is_released
 
         server.shutdown()
 
+        assert len(ds[0].PixelData) == 2097152
 
 
 class TestAssociationServer(object):
