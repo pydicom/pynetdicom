@@ -17,6 +17,8 @@ import time
 
 import pytest
 
+from pydicom import dcmread
+
 from pynetdicom import AE, evt, _config
 from pynetdicom.association import Association
 from pynetdicom.events import Event
@@ -30,6 +32,7 @@ from pynetdicom.sop_class import VerificationSOPClass
 # This is the directory that contains test data
 TEST_ROOT = os.path.abspath(os.path.dirname(__file__))
 CERT_DIR = os.path.join(TEST_ROOT, 'cert_files')
+DCM_DIR = os.path.join(TEST_ROOT, 'dicom_files')
 
 # SSL Testing
 SERVER_CERT, SERVER_KEY = (
@@ -40,6 +43,8 @@ CLIENT_CERT, CLIENT_KEY = (
     os.path.join(CERT_DIR, 'client.crt'),
     os.path.join(CERT_DIR, 'client.key')
 )
+
+DATASET = dcmread(os.path.join(DCM_DIR, 'RTImageStorage.dcm'))
 
 
 LOGGER = logging.getLogger('pynetdicom')
@@ -233,6 +238,9 @@ class TestTLS(object):
     def test_tls_yes_server_yes_client(self, server_context, client_context):
         """Test associating with no TLS on either end."""
         self.ae = ae = AE()
+        ae.acse_timeout = 5
+        ae.dimse_timeout = 5
+        ae.network_timeout = 5
         ae.add_supported_context('1.2.840.10008.1.1')
         server = ae.start_server(
             ('', 11112),
@@ -249,6 +257,37 @@ class TestTLS(object):
         server.shutdown()
 
         assert len(server.active_associations) == 0
+
+    def test_tls_transfer(self, server_cx, client_cx):
+        """Test transferring data after associating."""
+        def handle_store(event):
+            print(event.dataset)
+            return 0x0000
+
+        self.ae = ae = AE()
+        ae.acse_timeout = 5
+        ae.dimse_timeout = 5
+        ae.network_timeout = 5
+        ae.add_supported_context('1.2.840.10008.1.1')
+        ae.add_supported_context(RTImageStorage)
+        server = ae.start_server(
+            ('', 11112),
+            block=False,
+            ssl_context=server_context,
+        )
+
+        ae.add_requested_context('1.2.840.10008.1.1')
+        ae.add_requested_context(RTImageStorage)
+        assoc = ae.associate('', 11112, tls_args=(client_context, None))
+        assert assoc.is_established
+        status = assoc.send_c_store(DATASET)
+        assert status.Status == 0x0000
+
+        assoc.release()
+        assert assoc.is_released
+
+        server.shutdown()
+
 
 
 class TestAssociationServer(object):
