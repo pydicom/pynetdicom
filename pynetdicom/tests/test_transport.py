@@ -258,7 +258,7 @@ class TestTLS(object):
 
         assert len(server.active_associations) == 0
 
-    def test_tls_transfer(self, server_cx, client_cx):
+    def test_tls_transfer(self, server_context, client_context):
         """Test transferring data after associating with TLS."""
         ds = []
         def handle_store(event):
