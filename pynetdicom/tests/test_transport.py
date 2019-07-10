@@ -26,7 +26,7 @@ from pynetdicom._globals import MODE_REQUESTOR, MODE_ACCEPTOR
 from pynetdicom.transport import (
     AssociationSocket, AssociationServer, ThreadedAssociationServer
 )
-from pynetdicom.sop_class import VerificationSOPClass
+from pynetdicom.sop_class import VerificationSOPClass, RTImageStorage
 
 
 # This is the directory that contains test data
