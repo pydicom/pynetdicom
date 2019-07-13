@@ -63,7 +63,7 @@ class DIMSEPrimitive(object):
             raise TypeError("Affected SOP Class UID must be a "
                             "pydicom.uid.UID, str or bytes")
 
-        if value is not None and not validate_uid(value):
+        if value and not validate_uid(value):
             LOGGER.error("Affected SOP Class UID is an invalid UID")
             raise ValueError("Affected SOP Class UID is an invalid UID")
 
@@ -73,7 +73,51 @@ class DIMSEPrimitive(object):
                 .format(value)
             )
 
-        self._affected_sop_class_uid = value
+        if value:
+            self._affected_sop_class_uid = value
+        else:
+            self._affected_sop_class_uid = None
+
+    @property
+    def _AffectedSOPInstanceUID(self):
+        """Return the *Affected SOP Instance UID*."""
+        return self._affected_sop_instance_uid
+
+    @_AffectedSOPInstanceUID.setter
+    def _AffectedSOPInstanceUID(self, value):
+        """Set the *Affected SOP Instance UID*.
+
+        Parameters
+        ----------
+        value : pydicom.uid.UID, bytes or str
+            The value for the Affected SOP Class UID
+        """
+        if isinstance(value, UID):
+            pass
+        elif isinstance(value, str):
+            value = UID(value)
+        elif isinstance(value, bytes):
+            value = UID(value.decode('ascii'))
+        elif value is None:
+            pass
+        else:
+            raise TypeError("Affected SOP Instance UID must be a "
+                            "pydicom.uid.UID, str or bytes")
+
+        if value and not validate_uid(value):
+            LOGGER.error("Affected SOP Instance UID is an invalid UID")
+            raise ValueError("Affected SOP Instance UID is an invalid UID")
+
+        if value and not value.is_valid:
+            LOGGER.warning(
+                "The Affected SOP Instance UID '{}' is non-conformant"
+                .format(value)
+            )
+
+        if value:
+            self._affected_sop_instance_uid = value
+        else:
+            self._affected_sop_instance_uid = None
 
     @property
     def _dataset_variant(self):
@@ -167,6 +211,179 @@ class DIMSEPrimitive(object):
             self._message_id_being_responded_to = value
         else:
             raise TypeError("Message ID Being Responded To must be an int")
+
+    @property
+    def _NumberOfCompletedSuboperations(self):
+        """Return the *Number of Completed Suboperations*."""
+        return self._number_of_completed_suboperations
+
+    @_NumberOfCompletedSuboperations.setter
+    def _NumberOfCompletedSuboperations(self, value):
+        """Set the *Number of Completed Suboperations*."""
+        if isinstance(value, int):
+            if value >= 0:
+                self._number_of_completed_suboperations = value
+            else:
+                raise ValueError("Number of Completed Suboperations must be "
+                                 "greater than or equal to 0")
+        elif value is None:
+            self._number_of_completed_suboperations = value
+        else:
+            raise TypeError("Number of Completed Suboperations must be an int")
+
+    @property
+    def _NumberOfFailedSuboperations(self):
+        """Return the *Number of Failed Suboperations*."""
+        return self._number_of_failed_suboperations
+
+    @_NumberOfFailedSuboperations.setter
+    def _NumberOfFailedSuboperations(self, value):
+        """Set the *Number of Failed Suboperations*."""
+        if isinstance(value, int):
+            if value >= 0:
+                self._number_of_failed_suboperations = value
+            else:
+                raise ValueError("Number of Failed Suboperations must be "
+                                 "greater than or equal to 0")
+        elif value is None:
+            self._number_of_failed_suboperations = value
+        else:
+            raise TypeError("Number of Failed Suboperations must be an int")
+
+    @property
+    def _NumberOfRemainingSuboperations(self):
+        """Return the *Number of Remaining Suboperations*."""
+        return self._number_of_remaining_suboperations
+
+    @_NumberOfRemainingSuboperations.setter
+    def _NumberOfRemainingSuboperations(self, value):
+        """Set the *Number of Remaining Suboperations*."""
+        if isinstance(value, int):
+            if value >= 0:
+                self._number_of_remaining_suboperations = value
+            else:
+                raise ValueError("Number of Remaining Suboperations must be "
+                                 "greater than or equal to 0")
+        elif value is None:
+            self._number_of_remaining_suboperations = value
+        else:
+            raise TypeError("Number of Remaining Suboperations must be an int")
+
+    @property
+    def _NumberOfWarningSuboperations(self):
+        """Return the *Number of Warning Suboperations*."""
+        return self._number_of_warning_suboperations
+
+    @_NumberOfWarningSuboperations.setter
+    def _NumberOfWarningSuboperations(self, value):
+        """Set the *Number of Warning Suboperations*."""
+        if isinstance(value, int):
+            if value >= 0:
+                self._number_of_warning_suboperations = value
+            else:
+                raise ValueError("Number of Warning Suboperations must be "
+                                 "greater than or equal to 0")
+        elif value is None:
+            self._number_of_warning_suboperations = value
+        else:
+            raise TypeError("Number of Warning Suboperations must be an int")
+
+    @property
+    def _Priority(self):
+        """Return the *Priority*."""
+        return self._priority
+
+    @_Priority.setter
+    def _Priority(self, value):
+        """Set the *Priority*."""
+        if value in [0, 1, 2]:
+            self._priority = value
+        else:
+            LOGGER.warning("Attempted to set Priority parameter to "
+                           "an invalid value")
+            raise ValueError("Priority must be 0, 1, or 2")
+
+    @property
+    def _RequestedSOPClassUID(self):
+        """Return the *Requested SOP Class UID*."""
+        return self._requested_sop_class_uid
+
+    @_RequestedSOPClassUID.setter
+    def _RequestedSOPClassUID(self, value):
+        """Set the *Requested SOP Class UID*.
+
+        Parameters
+        ----------
+        value : pydicom.uid.UID, bytes or str
+            The value for the Requested SOP Class UID
+        """
+        if isinstance(value, UID):
+            pass
+        elif isinstance(value, str):
+            value = UID(value)
+        elif isinstance(value, bytes):
+            value = UID(value.decode('ascii'))
+        elif value is None:
+            pass
+        else:
+            raise TypeError("Requested SOP Class UID must be a "
+                            "pydicom.uid.UID, str or bytes")
+
+        if value and not validate_uid(value):
+            LOGGER.error("Requested SOP Class UID is an invalid UID")
+            raise ValueError("Requested SOP Class UID is an invalid UID")
+
+        if value and not value.is_valid:
+            LOGGER.warning(
+                "The Requested SOP Class UID '{}' is non-conformant"
+                .format(value)
+            )
+
+        if value:
+            self._requested_sop_class_uid = value
+        else:
+            self._requested_sop_class_uid = None
+
+    @property
+    def _RequestedSOPInstanceUID(self):
+        """Return the *Requested SOP Instance UID*."""
+        return self._requested_sop_instance_uid
+
+    @_RequestedSOPInstanceUID.setter
+    def _RequestedSOPInstanceUID(self, value):
+        """Set the *Requested SOP Instance UID*.
+
+        Parameters
+        ----------
+        value : pydicom.uid.UID, bytes or str
+            The value for the Requested SOP Instance UID
+        """
+        if isinstance(value, UID):
+            pass
+        elif isinstance(value, str):
+            value = UID(value)
+        elif isinstance(value, bytes):
+            value = UID(value.decode('ascii'))
+        elif value is None:
+            pass
+        else:
+            raise TypeError("Requested SOP Instance UID must be a "
+                            "pydicom.uid.UID, str or bytes")
+
+        if value and not validate_uid(value):
+            LOGGER.error("Requested SOP Instance UID is an invalid UID")
+            raise ValueError("Requested SOP Instance UID is an invalid UID")
+
+        if value and not value.is_valid:
+            LOGGER.warning(
+                "The Requested SOP Instance UID '{}' is non-conformant"
+                .format(value)
+            )
+
+        if value:
+            self._requested_sop_instance_uid = value
+        else:
+            self._requested_sop_instance_uid = None
 
     @property
     def Status(self):
@@ -298,7 +515,7 @@ class C_STORE(DIMSEPrimitive):
     @property
     def AffectedSOPInstanceUID(self):
         """Return the *Affected SOP Instance UID*."""
-        return self._affected_sop_instance_uid
+        return self._AffectedSOPInstanceUID
 
     @AffectedSOPInstanceUID.setter
     def AffectedSOPInstanceUID(self, value):
@@ -309,29 +526,7 @@ class C_STORE(DIMSEPrimitive):
         value : pydicom.uid.UID, bytes or str
             The value for the Affected SOP Class UID
         """
-        if isinstance(value, UID):
-            pass
-        elif isinstance(value, str):
-            value = UID(value)
-        elif isinstance(value, bytes):
-            value = UID(value.decode('ascii'))
-        elif value is None:
-            pass
-        else:
-            raise TypeError("Affected SOP Instance UID must be a "
-                            "pydicom.uid.UID, str or bytes")
-
-        if value is not None and not validate_uid(value):
-            LOGGER.error("Affected SOP Instance UID is an invalid UID")
-            raise ValueError("Affected SOP Instance UID is an invalid UID")
-
-        if value and not value.is_valid:
-            LOGGER.warning(
-                "The Affected SOP Instance UID '{}' is non-conformant"
-                .format(value)
-            )
-
-        self._affected_sop_instance_uid = value
+        self._AffectedSOPInstanceUID = value
 
     @property
     def DataSet(self):
@@ -399,17 +594,12 @@ class C_STORE(DIMSEPrimitive):
     @property
     def Priority(self):
         """Return the *Priority*."""
-        return self._priority
+        return self._Priority
 
     @Priority.setter
     def Priority(self, value):
         """Set the *Priority*."""
-        if value in [0, 1, 2]:
-            self._priority = value
-        else:
-            LOGGER.warning("Attempted to set C-STORE Priority parameter to "
-                           "an invalid value")
-            raise ValueError("C-STORE Priority must be 0, 1, or 2")
+        self._Priority = value
 
 
 class C_FIND(DIMSEPrimitive):
@@ -514,17 +704,12 @@ class C_FIND(DIMSEPrimitive):
     @property
     def Priority(self):
         """Return the *Priority*."""
-        return self._priority
+        return self._Priority
 
     @Priority.setter
     def Priority(self, value):
         """Set the *Priority*."""
-        if value in [0, 1, 2]:
-            self._priority = value
-        else:
-            LOGGER.warning("Attempted to set C-FIND Priority parameter to an "
-                           "invalid value")
-            raise ValueError("Priority must be 0, 1, or 2")
+        self._Priority = value
 
 
 class C_GET(DIMSEPrimitive):
@@ -664,93 +849,52 @@ class C_GET(DIMSEPrimitive):
     @property
     def NumberOfCompletedSuboperations(self):
         """Return the *Number of Completed Suboperations*."""
-        return self._number_of_completed_suboperations
+        return self._NumberOfCompletedSuboperations
 
     @NumberOfCompletedSuboperations.setter
     def NumberOfCompletedSuboperations(self, value):
         """Set the *Number of Completed Suboperations*."""
-        if isinstance(value, int):
-            if value >= 0:
-                self._number_of_completed_suboperations = value
-            else:
-                raise ValueError("Number of Completed Suboperations must be "
-                                 "greater than or equal to 0")
-        elif value is None:
-            self._number_of_completed_suboperations = value
-        else:
-            raise TypeError("Number of Completed Suboperations must be an int")
+        self._NumberOfCompletedSuboperations = value
 
     @property
     def NumberOfFailedSuboperations(self):
         """Return the *Number of Failed Suboperations*."""
-        return self._number_of_failed_suboperations
+        return self._NumberOfFailedSuboperations
 
     @NumberOfFailedSuboperations.setter
     def NumberOfFailedSuboperations(self, value):
         """Set the *Number of Failed Suboperations*."""
-        if isinstance(value, int):
-            if value >= 0:
-                self._number_of_failed_suboperations = value
-            else:
-                raise ValueError("Number of Failed Suboperations must be "
-                                 "greater than or equal to 0")
-        elif value is None:
-            self._number_of_failed_suboperations = value
-        else:
-            raise TypeError("Number of Failed Suboperations must be an int")
+        self._NumberOfFailedSuboperations = value
 
     @property
     def NumberOfRemainingSuboperations(self):
         """Return the *Number of Remaining Suboperations*."""
-        return self._number_of_remaining_suboperations
+        return self._NumberOfRemainingSuboperations
 
     @NumberOfRemainingSuboperations.setter
     def NumberOfRemainingSuboperations(self, value):
         """Set the *Number of Remaining Suboperations*."""
-        if isinstance(value, int):
-            if value >= 0:
-                self._number_of_remaining_suboperations = value
-            else:
-                raise ValueError("Number of Remaining Suboperations must be "
-                                 "greater than or equal to 0")
-        elif value is None:
-            self._number_of_remaining_suboperations = value
-        else:
-            raise TypeError("Number of Remaining Suboperations must be an int")
+        self._NumberOfRemainingSuboperations = value
 
     @property
     def NumberOfWarningSuboperations(self):
         """Return the *Number of Warning Suboperations*."""
-        return self._number_of_warning_suboperations
+        return self._NumberOfWarningSuboperations
 
     @NumberOfWarningSuboperations.setter
     def NumberOfWarningSuboperations(self, value):
         """Set the *Number of Warning Suboperations*."""
-        if isinstance(value, int):
-            if value >= 0:
-                self._number_of_warning_suboperations = value
-            else:
-                raise ValueError("Number of Warning Suboperations must be "
-                                 "greater than or equal to 0")
-        elif value is None:
-            self._number_of_warning_suboperations = value
-        else:
-            raise TypeError("Number of Warning Suboperations must be an int")
+        self._NumberOfWarningSuboperations = value
 
     @property
     def Priority(self):
         """Return the *Priority*."""
-        return self._priority
+        return self._Priority
 
     @Priority.setter
     def Priority(self, value):
         """Set the *Priority*."""
-        if value in [0, 1, 2]:
-            self._priority = value
-        else:
-            LOGGER.warning("Attempted to set C-FIND Priority parameter to an "
-                           "invalid value")
-            raise ValueError("Priority must be 0, 1, or 2")
+        self._Priority = value
 
 
 class C_MOVE(DIMSEPrimitive):
@@ -918,93 +1062,52 @@ class C_MOVE(DIMSEPrimitive):
     @property
     def NumberOfCompletedSuboperations(self):
         """Return the *Number of Completed Suboperations*."""
-        return self._number_of_completed_suboperations
+        return self._NumberOfCompletedSuboperations
 
     @NumberOfCompletedSuboperations.setter
     def NumberOfCompletedSuboperations(self, value):
         """Set the *Number of Completed Suboperations*."""
-        if isinstance(value, int):
-            if value >= 0:
-                self._number_of_completed_suboperations = value
-            else:
-                raise ValueError("Number of Completed Suboperations must be "
-                                 "greater than or equal to 0")
-        elif value is None:
-            self._number_of_completed_suboperations = value
-        else:
-            raise TypeError("Number of Completed Suboperations must be an int")
+        self._NumberOfCompletedSuboperations = value
 
     @property
     def NumberOfFailedSuboperations(self):
         """Return the *Number of Failed Suboperations*."""
-        return self._number_of_failed_suboperations
+        return self._NumberOfFailedSuboperations
 
     @NumberOfFailedSuboperations.setter
     def NumberOfFailedSuboperations(self, value):
         """Set the *Number of Failed Suboperations*."""
-        if isinstance(value, int):
-            if value >= 0:
-                self._number_of_failed_suboperations = value
-            else:
-                raise ValueError("Number of Failed Suboperations must be "
-                                 "greater than or equal to 0")
-        elif value is None:
-            self._number_of_failed_suboperations = value
-        else:
-            raise TypeError("Number of Failed Suboperations must be an int")
+        self._NumberOfFailedSuboperations = value
 
     @property
     def NumberOfRemainingSuboperations(self):
         """Return the *Number of Remaining Suboperations*."""
-        return self._number_of_remaining_suboperations
+        return self._NumberOfRemainingSuboperations
 
     @NumberOfRemainingSuboperations.setter
     def NumberOfRemainingSuboperations(self, value):
         """Set the *Number of Remaining Suboperations*."""
-        if isinstance(value, int):
-            if value >= 0:
-                self._number_of_remaining_suboperations = value
-            else:
-                raise ValueError("Number of Remaining Suboperations must be "
-                                 "greater than or equal to 0")
-        elif value is None:
-            self._number_of_remaining_suboperations = value
-        else:
-            raise TypeError("Number of Remaining Suboperations must be an int")
+        self._NumberOfRemainingSuboperations = value
 
     @property
     def NumberOfWarningSuboperations(self):
         """Return the *Number of Warning Suboperations*."""
-        return self._number_of_warning_suboperations
+        return self._NumberOfWarningSuboperations
 
     @NumberOfWarningSuboperations.setter
     def NumberOfWarningSuboperations(self, value):
         """Set the *Number of Warning Suboperations*."""
-        if isinstance(value, int):
-            if value >= 0:
-                self._number_of_warning_suboperations = value
-            else:
-                raise ValueError("Number of Warning Suboperations must be "
-                                 "greater than or equal to 0")
-        elif value is None:
-            self._number_of_warning_suboperations = value
-        else:
-            raise TypeError("Number of Warning Suboperations must be an int")
+        self._NumberOfWarningSuboperations = value
 
     @property
     def Priority(self):
         """Return the *Priority*."""
-        return self._priority
+        return self._Priority
 
     @Priority.setter
     def Priority(self, value):
         """Set the *Priority*."""
-        if value in [0, 1, 2]:
-            self._priority = value
-        else:
-            LOGGER.warning("Attempted to set C-FIND Priority parameter to an "
-                           "invalid value")
-            raise ValueError("Priority must be 0, 1, or 2")
+        self._Priority = value
 
 
 class C_ECHO(DIMSEPrimitive):
@@ -1127,7 +1230,6 @@ class C_CANCEL(object):
             raise TypeError("Message ID Being Responded To must be an int")
 
 
-
 # DIMSE-N Service Primitives
 class N_EVENT_REPORT(DIMSEPrimitive):
     """Represents a N-EVENT-REPORT primitive.
@@ -1218,7 +1320,7 @@ class N_EVENT_REPORT(DIMSEPrimitive):
     @property
     def AffectedSOPInstanceUID(self):
         """Return the *Affected SOP Instance UID*."""
-        return self._affected_sop_instance_uid
+        return self._AffectedSOPInstanceUID
 
     @AffectedSOPInstanceUID.setter
     def AffectedSOPInstanceUID(self, value):
@@ -1229,29 +1331,7 @@ class N_EVENT_REPORT(DIMSEPrimitive):
         value : pydicom.uid.UID, bytes or str
             The value for the Affected SOP Instance UID
         """
-        if isinstance(value, UID):
-            pass
-        elif isinstance(value, str):
-            value = UID(value)
-        elif isinstance(value, bytes):
-            value = UID(value.decode('ascii'))
-        elif value is None:
-            pass
-        else:
-            raise TypeError("Affected SOP Instance UID must be a "
-                            "pydicom.uid.UID, str or bytes")
-
-        if value is not None and not validate_uid(value):
-            LOGGER.error("Affected SOP Instance UID is an invalid UID")
-            raise ValueError("Affected SOP Instance UID is an invalid UID")
-
-        if value and not value.is_valid:
-            LOGGER.warning(
-                "The Affected SOP Instance UID '{}' is non-conformant"
-                .format(value)
-            )
-
-        self._affected_sop_instance_uid = value
+        self._AffectedSOPInstanceUID = value
 
     @property
     def EventInformation(self):
@@ -1372,7 +1452,7 @@ class N_GET(DIMSEPrimitive):
     @property
     def AffectedSOPInstanceUID(self):
         """Return the *Affected SOP Instance UID*."""
-        return self._affected_sop_instance_uid
+        return self._AffectedSOPInstanceUID
 
     @AffectedSOPInstanceUID.setter
     def AffectedSOPInstanceUID(self, value):
@@ -1383,29 +1463,7 @@ class N_GET(DIMSEPrimitive):
         value : pydicom.uid.UID, bytes or str
             The value for the Affected SOP Instance UID
         """
-        if isinstance(value, UID):
-            pass
-        elif isinstance(value, str):
-            value = UID(value)
-        elif isinstance(value, bytes):
-            value = UID(value.decode('ascii'))
-        elif value is None:
-            pass
-        else:
-            raise TypeError("Affected SOP Instance UID must be a "
-                            "pydicom.uid.UID, str or bytes")
-
-        if value is not None and not validate_uid(value):
-            LOGGER.error("Affected SOP Instance UID is an invalid UID")
-            raise ValueError("Affected SOP Instance UID is an invalid UID")
-
-        if value and not value.is_valid:
-            LOGGER.warning(
-                "The Affected SOP Instance UID '{}' is non-conformant"
-                .format(value)
-            )
-
-        self._affected_sop_instance_uid = value
+        self._AffectedSOPInstanceUID = value
 
     @property
     def AttributeIdentifierList(self):
@@ -1456,7 +1514,7 @@ class N_GET(DIMSEPrimitive):
     @property
     def RequestedSOPClassUID(self):
         """Return the *Requested SOP Class UID*."""
-        return self._requested_sop_class_uid
+        return self._RequestedSOPClassUID
 
     @RequestedSOPClassUID.setter
     def RequestedSOPClassUID(self, value):
@@ -1467,34 +1525,12 @@ class N_GET(DIMSEPrimitive):
         value : pydicom.uid.UID, bytes or str
             The value for the Requested SOP Class UID
         """
-        if isinstance(value, UID):
-            pass
-        elif isinstance(value, str):
-            value = UID(value)
-        elif isinstance(value, bytes):
-            value = UID(value.decode('ascii'))
-        elif value is None:
-            pass
-        else:
-            raise TypeError("Requested SOP Class UID must be a "
-                            "pydicom.uid.UID, str or bytes")
-
-        if value is not None and not validate_uid(value):
-            LOGGER.error("Requested SOP Class UID is an invalid UID")
-            raise ValueError("Requested SOP Class UID is an invalid UID")
-
-        if value and not value.is_valid:
-            LOGGER.warning(
-                "The Requested SOP Class UID '{}' is non-conformant"
-                .format(value)
-            )
-
-        self._requested_sop_class_uid = value
+        self._RequestedSOPClassUID = value
 
     @property
     def RequestedSOPInstanceUID(self):
         """Return the *Requested SOP Instance UID*."""
-        return self._requested_sop_instance_uid
+        return self._RequestedSOPInstanceUID
 
     @RequestedSOPInstanceUID.setter
     def RequestedSOPInstanceUID(self, value):
@@ -1505,29 +1541,7 @@ class N_GET(DIMSEPrimitive):
         value : pydicom.uid.UID, bytes or str
             The value for the Requested SOP Instance UID
         """
-        if isinstance(value, UID):
-            pass
-        elif isinstance(value, str):
-            value = UID(value)
-        elif isinstance(value, bytes):
-            value = UID(value.decode('ascii'))
-        elif value is None:
-            pass
-        else:
-            raise TypeError("Requested SOP Instance UID must be a "
-                            "pydicom.uid.UID, str or bytes")
-
-        if value is not None and not validate_uid(value):
-            LOGGER.error("Requested SOP Instance UID is an invalid UID")
-            raise ValueError("Requested SOP Instance UID is an invalid UID")
-
-        if value and not value.is_valid:
-            LOGGER.warning(
-                "The Requested SOP Instance UID '{}' is non-conformant"
-                .format(value)
-            )
-
-        self._requested_sop_instance_uid = value
+        self._RequestedSOPInstanceUID = value
 
 
 class N_SET(DIMSEPrimitive):
@@ -1618,7 +1632,7 @@ class N_SET(DIMSEPrimitive):
     @property
     def AffectedSOPInstanceUID(self):
         """Return the *Affected SOP Instance UID*."""
-        return self._affected_sop_instance_uid
+        return self._AffectedSOPInstanceUID
 
     @AffectedSOPInstanceUID.setter
     def AffectedSOPInstanceUID(self, value):
@@ -1629,29 +1643,7 @@ class N_SET(DIMSEPrimitive):
         value : pydicom.uid.UID, bytes or str
             The value for the Affected SOP Instance UID
         """
-        if isinstance(value, UID):
-            pass
-        elif isinstance(value, str):
-            value = UID(value)
-        elif isinstance(value, bytes):
-            value = UID(value.decode('ascii'))
-        elif value is None:
-            pass
-        else:
-            raise TypeError("Affected SOP Instance UID must be a "
-                            "pydicom.uid.UID, str or bytes")
-
-        if value is not None and not validate_uid(value):
-            LOGGER.error("Affected SOP Instance UID is an invalid UID")
-            raise ValueError("Affected SOP Instance UID is an invalid UID")
-
-        if value and not value.is_valid:
-            LOGGER.warning(
-                "The Affected SOP Instance UID '{}' is non-conformant"
-                .format(value)
-            )
-
-        self._affected_sop_instance_uid = value
+        self._AffectedSOPInstanceUID = value
 
     @property
     def AttributeList(self):
@@ -1676,7 +1668,7 @@ class N_SET(DIMSEPrimitive):
     @property
     def RequestedSOPClassUID(self):
         """Return the *Requested SOP Class UID*."""
-        return self._requested_sop_class_uid
+        return self._RequestedSOPClassUID
 
     @RequestedSOPClassUID.setter
     def RequestedSOPClassUID(self, value):
@@ -1687,34 +1679,12 @@ class N_SET(DIMSEPrimitive):
         value : pydicom.uid.UID, bytes or str
             The value for the Requested SOP Class UID
         """
-        if isinstance(value, UID):
-            pass
-        elif isinstance(value, str):
-            value = UID(value)
-        elif isinstance(value, bytes):
-            value = UID(value.decode('ascii'))
-        elif value is None:
-            pass
-        else:
-            raise TypeError("Requested SOP Class UID must be a "
-                            "pydicom.uid.UID, str or bytes")
-
-        if value is not None and not validate_uid(value):
-            LOGGER.error("Requested SOP Class UID is an invalid UID")
-            raise ValueError("Requested SOP Class UID is an invalid UID")
-
-        if value and not value.is_valid:
-            LOGGER.warning(
-                "The Requested SOP Class UID '{}' is non-conformant"
-                .format(value)
-            )
-
-        self._requested_sop_class_uid = value
+        self._RequestedSOPClassUID = value
 
     @property
     def RequestedSOPInstanceUID(self):
         """Return the *Requested SOP Instance UID*."""
-        return self._requested_sop_instance_uid
+        return self._RequestedSOPInstanceUID
 
     @RequestedSOPInstanceUID.setter
     def RequestedSOPInstanceUID(self, value):
@@ -1725,29 +1695,7 @@ class N_SET(DIMSEPrimitive):
         value : pydicom.uid.UID, bytes or str
             The value for the Requested SOP Instance UID
         """
-        if isinstance(value, UID):
-            pass
-        elif isinstance(value, str):
-            value = UID(value)
-        elif isinstance(value, bytes):
-            value = UID(value.decode('ascii'))
-        elif value is None:
-            pass
-        else:
-            raise TypeError("Requested SOP Instance UID must be a "
-                            "pydicom.uid.UID, str or bytes")
-
-        if value is not None and not validate_uid(value):
-            LOGGER.error("Requested SOP Instance UID is an invalid UID")
-            raise ValueError("Requested SOP Instance UID is an invalid UID")
-
-        if value and not value.is_valid:
-            LOGGER.warning(
-                "The Requested SOP Instance UID '{}' is non-conformant"
-                .format(value)
-            )
-
-        self._requested_sop_instance_uid = value
+        self._RequestedSOPInstanceUID = value
 
 
 class N_ACTION(DIMSEPrimitive):
@@ -1876,7 +1824,7 @@ class N_ACTION(DIMSEPrimitive):
     @property
     def AffectedSOPInstanceUID(self):
         """Return the *Affected SOP Instance UID*."""
-        return self._affected_sop_instance_uid
+        return self._AffectedSOPInstanceUID
 
     @AffectedSOPInstanceUID.setter
     def AffectedSOPInstanceUID(self, value):
@@ -1887,34 +1835,12 @@ class N_ACTION(DIMSEPrimitive):
         value : pydicom.uid.UID, bytes or str
             The value for the Affected SOP Instance UID
         """
-        if isinstance(value, UID):
-            pass
-        elif isinstance(value, str):
-            value = UID(value)
-        elif isinstance(value, bytes):
-            value = UID(value.decode('ascii'))
-        elif value is None:
-            pass
-        else:
-            raise TypeError("Affected SOP Instance UID must be a "
-                            "pydicom.uid.UID, str or bytes")
-
-        if value is not None and not validate_uid(value):
-            LOGGER.error("Affected SOP Instance UID is an invalid UID")
-            raise ValueError("Affected SOP Instance UID is an invalid UID")
-
-        if value and not value.is_valid:
-            LOGGER.warning(
-                "The Affected SOP Instance UID '{}' is non-conformant"
-                .format(value)
-            )
-
-        self._affected_sop_instance_uid = value
+        self._AffectedSOPInstanceUID = value
 
     @property
     def RequestedSOPClassUID(self):
         """Return the *Requested SOP Class UID*."""
-        return self._requested_sop_class_uid
+        return self._RequestedSOPClassUID
 
     @RequestedSOPClassUID.setter
     def RequestedSOPClassUID(self, value):
@@ -1925,34 +1851,12 @@ class N_ACTION(DIMSEPrimitive):
         value : pydicom.uid.UID, bytes or str
             The value for the Requested SOP Class UID
         """
-        if isinstance(value, UID):
-            pass
-        elif isinstance(value, str):
-            value = UID(value)
-        elif isinstance(value, bytes):
-            value = UID(value.decode('ascii'))
-        elif value is None:
-            pass
-        else:
-            raise TypeError("Requested SOP Class UID must be a "
-                            "pydicom.uid.UID, str or bytes")
-
-        if value is not None and not validate_uid(value):
-            LOGGER.error("Requested SOP Class UID is an invalid UID")
-            raise ValueError("Requested SOP Class UID is an invalid UID")
-
-        if value and not value.is_valid:
-            LOGGER.warning(
-                "The Requested SOP Class UID '{}' is non-conformant"
-                .format(value)
-            )
-
-        self._requested_sop_class_uid = value
+        self._RequestedSOPClassUID = value
 
     @property
     def RequestedSOPInstanceUID(self):
         """Return the *Requested SOP Instance UID*."""
-        return self._requested_sop_instance_uid
+        return self._RequestedSOPInstanceUID
 
     @RequestedSOPInstanceUID.setter
     def RequestedSOPInstanceUID(self, value):
@@ -1963,29 +1867,7 @@ class N_ACTION(DIMSEPrimitive):
         value : pydicom.uid.UID, bytes or str
             The value for the Requested SOP Instance UID
         """
-        if isinstance(value, UID):
-            pass
-        elif isinstance(value, str):
-            value = UID(value)
-        elif isinstance(value, bytes):
-            value = UID(value.decode('ascii'))
-        elif value is None:
-            pass
-        else:
-            raise TypeError("Requested SOP Instance UID must be a "
-                            "pydicom.uid.UID, str or bytes")
-
-        if value is not None and not validate_uid(value):
-            LOGGER.error("Requested SOP Instance UID is an invalid UID")
-            raise ValueError("Requested SOP Instance UID is an invalid UID")
-
-        if value and not value.is_valid:
-            LOGGER.warning(
-                "The Requested SOP Instance UID '{}' is non-conformant"
-                .format(value)
-            )
-
-        self._requested_sop_instance_uid = value
+        self._RequestedSOPInstanceUID = value
 
 
 class N_CREATE(DIMSEPrimitive):
@@ -2058,7 +1940,7 @@ class N_CREATE(DIMSEPrimitive):
     @property
     def AffectedSOPInstanceUID(self):
         """Return the *Affected SOP Instance UID*."""
-        return self._affected_sop_instance_uid
+        return self._AffectedSOPInstanceUID
 
     @AffectedSOPInstanceUID.setter
     def AffectedSOPInstanceUID(self, value):
@@ -2069,29 +1951,7 @@ class N_CREATE(DIMSEPrimitive):
         value : pydicom.uid.UID, bytes or str
             The value for the Affected SOP Instance UID
         """
-        if isinstance(value, UID):
-            pass
-        elif isinstance(value, str):
-            value = UID(value)
-        elif isinstance(value, bytes):
-            value = UID(value.decode('ascii'))
-        elif value is None:
-            pass
-        else:
-            raise TypeError("Affected SOP Instance UID must be a "
-                            "pydicom.uid.UID, str or bytes")
-
-        if value is not None and not validate_uid(value):
-            LOGGER.error("Affected SOP Instance UID is an invalid UID")
-            raise ValueError("Affected SOP Instance UID is an invalid UID")
-
-        if value and not value.is_valid:
-            LOGGER.warning(
-                "The Affected SOP Instance UID '{}' is non-conformant"
-                .format(value)
-            )
-
-        self._affected_sop_instance_uid = value
+        self._AffectedSOPInstanceUID = value
 
     @property
     def AttributeList(self):
@@ -2179,7 +2039,7 @@ class N_DELETE(DIMSEPrimitive):
     @property
     def AffectedSOPInstanceUID(self):
         """Return the *Affected SOP Instance UID*."""
-        return self._affected_sop_instance_uid
+        return self._AffectedSOPInstanceUID
 
     @AffectedSOPInstanceUID.setter
     def AffectedSOPInstanceUID(self, value):
@@ -2190,34 +2050,12 @@ class N_DELETE(DIMSEPrimitive):
         value : pydicom.uid.UID, bytes or str
             The value for the Affected SOP Instance UID
         """
-        if isinstance(value, UID):
-            pass
-        elif isinstance(value, str):
-            value = UID(value)
-        elif isinstance(value, bytes):
-            value = UID(value.decode('ascii'))
-        elif value is None:
-            pass
-        else:
-            raise TypeError("Affected SOP Instance UID must be a "
-                            "pydicom.uid.UID, str or bytes")
-
-        if value is not None and not validate_uid(value):
-            LOGGER.error("Affected SOP Instance UID is an invalid UID")
-            raise ValueError("Affected SOP Instance UID is an invalid UID")
-
-        if value and not value.is_valid:
-            LOGGER.warning(
-                "The Affected SOP Instance UID '{}' is non-conformant"
-                .format(value)
-            )
-
-        self._affected_sop_instance_uid = value
+        self._AffectedSOPInstanceUID = value
 
     @property
     def RequestedSOPClassUID(self):
         """Return the *Requested SOP Class UID*."""
-        return self._requested_sop_class_uid
+        return self._RequestedSOPClassUID
 
     @RequestedSOPClassUID.setter
     def RequestedSOPClassUID(self, value):
@@ -2228,34 +2066,12 @@ class N_DELETE(DIMSEPrimitive):
         value : pydicom.uid.UID, bytes or str
             The value for the Requested SOP Class UID
         """
-        if isinstance(value, UID):
-            pass
-        elif isinstance(value, str):
-            value = UID(value)
-        elif isinstance(value, bytes):
-            value = UID(value.decode('ascii'))
-        elif value is None:
-            pass
-        else:
-            raise TypeError("Requested SOP Class UID must be a "
-                            "pydicom.uid.UID, str or bytes")
-
-        if value is not None and not validate_uid(value):
-            LOGGER.error("Requested SOP Class UID is an invalid UID")
-            raise ValueError("Requested SOP Class UID is an invalid UID")
-
-        if value and not value.is_valid:
-            LOGGER.warning(
-                "The Requested SOP Class UID '{}' is non-conformant"
-                .format(value)
-            )
-
-        self._requested_sop_class_uid = value
+        self._RequestedSOPClassUID = value
 
     @property
     def RequestedSOPInstanceUID(self):
         """Return the *Requested SOP Instance UID*."""
-        return self._requested_sop_instance_uid
+        return self._RequestedSOPInstanceUID
 
     @RequestedSOPInstanceUID.setter
     def RequestedSOPInstanceUID(self, value):
@@ -2266,26 +2082,4 @@ class N_DELETE(DIMSEPrimitive):
         value : pydicom.uid.UID, bytes or str
             The value for the Requested SOP Instance UID
         """
-        if isinstance(value, UID):
-            pass
-        elif isinstance(value, str):
-            value = UID(value)
-        elif isinstance(value, bytes):
-            value = UID(value.decode('ascii'))
-        elif value is None:
-            pass
-        else:
-            raise TypeError("Requested SOP Instance UID must be a "
-                            "pydicom.uid.UID, str or bytes")
-
-        if value is not None and not validate_uid(value):
-            LOGGER.error("Requested SOP Instance UID is an invalid UID")
-            raise ValueError("Requested SOP Instance UID is an invalid UID")
-
-        if value and not value.is_valid:
-            LOGGER.warning(
-                "The Requested SOP Instance UID '{}' is non-conformant"
-                .format(value)
-            )
-
-        self._requested_sop_instance_uid = value
+        self._RequestedSOPInstanceUID = value

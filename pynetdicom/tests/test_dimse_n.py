@@ -1333,7 +1333,7 @@ class TestPrimitive_N_CREATE(object):
             primitive.Status = 19.4
 
     def test_conversion_rq(self):
-        """ Check conversion to a -RQ PDU produces the correct output """
+        """Check conversion to a -RQ PDU produces the correct output."""
         primitive = N_CREATE()
         primitive.MessageID = 7
         primitive.AffectedSOPClassUID = '1.2.840.10008.5.1.4.1.1.2'
@@ -1396,7 +1396,7 @@ class TestPrimitive_N_CREATE(object):
         primitive.AffectedSOPClassUID = '1.2'
         assert primitive.is_valid_request
 
-    def test_is_valid_resposne(self):
+    def test_is_valid_response(self):
         """Test N_CREATE.is_valid_response."""
         primitive = N_CREATE()
         assert not primitive.is_valid_response

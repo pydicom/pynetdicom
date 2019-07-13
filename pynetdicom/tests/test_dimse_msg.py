@@ -34,7 +34,8 @@ from .encoded_dimse_n_msg import (
     n_delete_rq_cmd, n_delete_rsp_cmd,
     n_action_rq_cmd, n_action_rq_ds, n_action_rsp_cmd, n_action_rsp_ds,
     n_create_rq_cmd, n_create_rq_ds, n_create_rsp_cmd, n_create_rsp_ds,
-    n_set_rq_cmd, n_set_rq_ds, n_set_rsp_cmd, n_set_rsp_ds
+    n_set_rq_cmd, n_set_rq_ds, n_set_rsp_cmd, n_set_rsp_ds,
+    n_create_rq_cmd_empty, n_set_rq_cmd_empty
 )
 
 
@@ -619,6 +620,34 @@ class TestDIMSEMessage(object):
         assert primitive.AffectedSOPInstanceUID == UID('1.2.4.5.7.8')
         assert primitive.MessageIDBeingRespondedTo == 5
         assert primitive.Status == 0xC201
+
+    def test_empty_uid_n_create(self):
+        """Test converting N_CREATE_RQ with empty UID value."""
+        msg = N_CREATE_RQ()
+        for data in [n_create_rq_cmd_empty]:
+            p_data = P_DATA()
+            p_data.presentation_data_value_list.append([0, data])
+            msg.decode_msg(p_data)
+
+        primitive = msg.message_to_primitive()
+        assert isinstance(primitive, N_CREATE)
+        assert primitive.AffectedSOPClassUID == UID('1.2.3.4')
+        assert primitive.MessageID == 7
+        assert primitive.AffectedSOPInstanceUID is None
+
+    def test_empty_uid_n_set(self):
+        """Test converting N_CREATE_RQ with empty UID value."""
+        msg = N_SET_RQ()
+        for data in [n_set_rq_cmd_empty]:
+            p_data = P_DATA()
+            p_data.presentation_data_value_list.append([0, data])
+            msg.decode_msg(p_data)
+
+        primitive = msg.message_to_primitive()
+        assert isinstance(primitive, N_SET)
+        assert primitive.RequestedSOPClassUID is None
+        assert primitive.MessageID == 7
+        assert primitive.RequestedSOPInstanceUID is None
 
 
 class TestThreadSafety(object):

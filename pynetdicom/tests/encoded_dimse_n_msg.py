@@ -171,6 +171,22 @@ n_set_rq_cmd = (
     b'\x34\x38'
 )
 
+n_set_rq_cmd_empty = (
+    b'\x03'
+    # Command Group Length, length 4, value 46
+    b'\x00\x00\x00\x00\x04\x00\x00\x00\x2e\x00\x00\x00'
+    # Requested SOP Class UID, length 0
+    b'\x00\x00\x03\x00\x00\x00\x00\x00'
+    # Command Field   | length 2      | value 0x0120
+    b'\x00\x00\x00\x01\x02\x00\x00\x00\x20\x01'
+    # Message ID      | length 2      | value 7
+    b'\x00\x00\x10\x01\x02\x00\x00\x00\x07\x00'
+    # Command Data Set Type, length 2 | value 0x0101
+    b'\x00\x00\x00\x08\x02\x00\x00\x00\x01\x01'
+    # Requested SOP Instance UID, length 0
+    b'\x00\x00\x01\x10\x00\x00\x00\x00'
+)
+
 n_set_rq_ds = (
     # Message control header byte: dataset, last fragment
     b'\x02'
@@ -290,6 +306,23 @@ n_create_rq_cmd = (
     b'\x00\x00\x00\x10\x1c\x00\x00\x00\x31\x2e\x32\x2e\x33\x39\x32\x2e\x32'
     b'\x30\x30\x30\x33\x36\x2e\x39\x31\x31\x36\x2e\x32\x2e\x36\x2e\x31\x2e'
     b'\x34\x38'
+)
+
+n_create_rq_cmd_empty = (
+    # Message control header byte: command set, last fragment
+    b'\x03'
+    # Command Group Length, length 4, value
+    b'\x00\x00\x00\x00\x04\x00\x00\x00\x36\x00\x00\x00'
+    # Affected SOP Class UID, length 8, value 1.2.3.4
+    b'\x00\x00\x02\x00\x08\x00\x00\x00\x31\x2e\x32\x2e\x33\x2e\x34\x00'
+    # Command Field   | length 2      | value 0x0140
+    b'\x00\x00\x00\x01\x02\x00\x00\x00\x40\x01'
+    # Message ID      | length 2      | value 7
+    b'\x00\x00\x10\x01\x02\x00\x00\x00\x07\x00'
+    # Command Data Set Type, length 2 | value 0x0101
+    b'\x00\x00\x00\x08\x02\x00\x00\x00\x01\x01'
+    # Affected SOP Instance UID, length 0
+    b'\x00\x00\x00\x10\x00\x00\x00\x00'
 )
 
 n_create_rq_ds = (
