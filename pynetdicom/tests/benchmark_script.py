@@ -188,7 +188,7 @@ def receive_store_simultaneous(nr_assoc, ds_per_assoc, use_yappi=False):
     Parameters
     ----------
     nr_assoc : int
-        The total number of (sequential) associations that will be made.
+        The number of simultaneous associations that will be made.
     ds_per_assoc : int
         The number of C-STORE requests sent per successful association.
     use_yappi : bool, optional
@@ -326,7 +326,7 @@ if __name__ == "__main__":
     bench_index = input()
 
     if bench_index == "1":
-        send_store(1, 100, use_yappi)
+        send_store(1, 1000, use_yappi)
     elif bench_index == "2":
         send_store(1000, 1, use_yappi)
     elif bench_index == "3":

@@ -516,11 +516,11 @@ class A_ASSOCIATE(object):
             1 : {
                 1 : 'No reason given',
                 2 : 'Application context name not supported',
-                3 : 'Called AE title not recognised',
+                3 : 'Calling AE title not recognised',
                 4 : 'Reserved',
                 5 : 'Reserved',
                 6 : 'Reserved',
-                7 : 'Calling AE title not recognised',
+                7 : 'Called AE title not recognised',
                 8 : 'Reserved',
                 9 : 'Reserved',
                 10 : 'Reserved',
