@@ -14,6 +14,9 @@ Fixes
 * Checkpoint added to the reactor in ``Association`` to prevent a possible
   race condition when acting as the Acceptor and calling one of the
   ``Association.send_*()`` methods.
+* Fixed log messages for A-ASSOCIATE-RJ having the rejection reasons for
+  Calling AE title not recognised and Called AE title no recognised being
+  swapped around
 
 
 Enhancements
@@ -40,6 +43,8 @@ Enhancements
   * Storage Commitment
 * Added handling of non-conformant Presentation Context AC (reject) PDUs which
   contain no Transfer Syntax Sub-item (:issue:`361`)
+* ``ae_title`` and ``contexts`` keyword arguments added to
+  ``AE.start_server()``
 
 
 Changes

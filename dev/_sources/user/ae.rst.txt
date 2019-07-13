@@ -47,6 +47,10 @@ b'MY_AE_TITLE     '
 >>> len(ae.ae_title)
 16
 
+When creating SCPs its also possible to give each SCP its own AE title by
+specifying the ``ae_title`` keyword argument in
+:py:meth:`AE.start_server() <pynetdicom.ae.ApplicationEntity.start_server>`.
+
 .. _ae_create_scu:
 
 Creating an SCU
@@ -348,6 +352,15 @@ Abstract Syntax: CT Image Storage
 Transfer Syntax(es):
     =Implicit VR Little Endian
     =Explicit VR Little Endian
+
+
+All the above examples set the supported presentation contexts on the
+Application Entity level, i.e. the same contexts will be used for all
+SCPs. To set the supported presentation contexts on a
+per-SCP basis (i.e. each SCP can have different
+supported contexts) you can use the ``context`` keyword argument when calling
+:py:meth:`AE.start_server() <pynetdicom.ae.ApplicationEntity.start_server>` (see
+the :ref:`Association <association>` page for more information).
 
 
 Handling SCP/SCU Role Selection Negotiation

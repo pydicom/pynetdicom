@@ -116,6 +116,8 @@
 </li>
 <li class="toctree-l3"><a class="reference internal" href="#accessing-user-identity-responses">Accessing User Identity Responses</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#listening-for-association-requests-scp">Listening for Association Requests (SCP)</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#specifying-the-ae-title">Specifying the AE Title</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#specifying-presentation-contexts-for-each-scp">Specifying Presentation Contexts for each SCP</a></li>
 <li class="toctree-l4"><a class="reference internal" href="#id2">Binding Event Handlers</a></li>
 <li class="toctree-l4"><a class="reference internal" href="#id3">TLS</a></li>
 </ul>
@@ -531,6 +533,26 @@ non-blocking modes:</p>
 <a class="reference internal" href="../reference/generated/pynetdicom.transport.ThreadedAssociationServer.html#pynetdicom.transport.ThreadedAssociationServer" title="pynetdicom.transport.ThreadedAssociationServer"><code class="xref py py-class docutils literal notranslate"><span class="pre">ThreadedAssociationServer</span></code></a>
 instances can be stopped using <code class="docutils literal notranslate"><span class="pre">shutdown()</span></code> and all active associations
 can be stopped using <code class="docutils literal notranslate"><span class="pre">AE.shutdown()</span></code>.</p>
+<div class="section" id="specifying-the-ae-title">
+<h3>Specifying the AE Title<a class="headerlink" href="#specifying-the-ae-title" title="Permalink to this headline">¶</a></h3>
+<p>The AE title for each SCP can be set using the <code class="docutils literal notranslate"><span class="pre">ae_title</span></code> keyword argument.
+If no value is set then the AE title of the parent AE will be used instead:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">ae</span><span class="o">.</span><span class="n">start_server</span><span class="p">((</span><span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="mi">11112</span><span class="p">),</span> <span class="n">ae_title</span><span class="o">=</span><span class="sa">b</span><span class="s1">&#39;STORE_SCP&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="specifying-presentation-contexts-for-each-scp">
+<h3>Specifying Presentation Contexts for each SCP<a class="headerlink" href="#specifying-presentation-contexts-for-each-scp" title="Permalink to this headline">¶</a></h3>
+<p>To support presentation contexts on a per-SCP basis you can use the
+<code class="docutils literal notranslate"><span class="pre">contexts</span></code> keyword argument:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">pynetdicom</span> <span class="k">import</span> <span class="n">AE</span><span class="p">,</span> <span class="n">build_context</span>
+
+<span class="n">ae</span> <span class="o">=</span> <span class="n">AE</span><span class="p">()</span>
+<span class="n">supported_cx</span> <span class="o">=</span> <span class="p">[</span><span class="n">build_context</span><span class="p">(</span><span class="s1">&#39;1.2.840.10008.1.1&#39;</span><span class="p">)]</span>
+<span class="n">ae</span><span class="o">.</span><span class="n">start_server</span><span class="p">((</span><span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="mi">11112</span><span class="p">),</span> <span class="n">contexts</span><span class="o">=</span><span class="p">[</span><span class="n">supported_cx</span><span class="p">])</span>
+</pre></div>
+</div>
+</div>
 <div class="section" id="id2">
 <h3>Binding Event Handlers<a class="headerlink" href="#id2" title="Permalink to this headline">¶</a></h3>
 <p>If you want to bind handlers to any

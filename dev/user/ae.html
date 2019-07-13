@@ -243,6 +243,9 @@ value that gets stored.</p>
 <span class="go">16</span>
 </pre></div>
 </div>
+<p>When creating SCPs its also possible to give each SCP its own AE title by
+specifying the <code class="docutils literal notranslate"><span class="pre">ae_title</span></code> keyword argument in
+<a class="reference internal" href="../reference/generated/pynetdicom.ae.ApplicationEntity.html#pynetdicom.ae.ApplicationEntity.start_server" title="pynetdicom.ae.ApplicationEntity.start_server"><code class="xref py py-meth docutils literal notranslate"><span class="pre">AE.start_server()</span></code></a>.</p>
 <div class="section" id="creating-an-scu">
 <span id="ae-create-scu"></span><h2>Creating an SCU<a class="headerlink" href="#creating-an-scu" title="Permalink to this headline">¶</a></h2>
 <div class="section" id="adding-requested-presentation-contexts">
@@ -555,6 +558,13 @@ transfer syntaxes will be combined with the pre-existing context:</p>
 <span class="go">    =Explicit VR Little Endian</span>
 </pre></div>
 </div>
+<p>All the above examples set the supported presentation contexts on the
+Application Entity level, i.e. the same contexts will be used for all
+SCPs. To set the supported presentation contexts on a
+per-SCP basis (i.e. each SCP can have different
+supported contexts) you can use the <code class="docutils literal notranslate"><span class="pre">context</span></code> keyword argument when calling
+<a class="reference internal" href="../reference/generated/pynetdicom.ae.ApplicationEntity.html#pynetdicom.ae.ApplicationEntity.start_server" title="pynetdicom.ae.ApplicationEntity.start_server"><code class="xref py py-meth docutils literal notranslate"><span class="pre">AE.start_server()</span></code></a> (see
+the <a class="reference internal" href="association.html#association"><span class="std std-ref">Association</span></a> page for more information).</p>
 </div>
 <div class="section" id="handling-scp-scu-role-selection-negotiation">
 <h3>Handling SCP/SCU Role Selection Negotiation<a class="headerlink" href="#handling-scp-scu-role-selection-negotiation" title="Permalink to this headline">¶</a></h3>

@@ -218,6 +218,9 @@ presentation context when the transfer syntax value is empty (<a class="referenc
 <li><p>Checkpoint added to the reactor in <code class="docutils literal notranslate"><span class="pre">Association</span></code> to prevent a possible
 race condition when acting as the Acceptor and calling one of the
 <code class="docutils literal notranslate"><span class="pre">Association.send_*()</span></code> methods.</p></li>
+<li><p>Fixed log messages for A-ASSOCIATE-RJ having the rejection reasons for
+Calling AE title not recognised and Called AE title no recognised being
+swapped around</p></li>
 </ul>
 </div>
 <div class="section" id="enhancements">
@@ -248,6 +251,8 @@ Print Management Meta SOP Class</em> to <code class="docutils literal notranslat
 </li>
 <li><p>Added handling of non-conformant Presentation Context AC (reject) PDUs which
 contain no Transfer Syntax Sub-item (<a class="reference external" href="https://github.com/pydicom/pynetdicom/issues/361">#361</a>)</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">ae_title</span></code> and <code class="docutils literal notranslate"><span class="pre">contexts</span></code> keyword arguments added to
+<code class="docutils literal notranslate"><span class="pre">AE.start_server()</span></code></p></li>
 </ul>
 </div>
 <div class="section" id="changes">

@@ -364,6 +364,30 @@ instances can be stopped using ``shutdown()`` and all active associations
 can be stopped using ``AE.shutdown()``.
 
 
+Specifying the AE Title
+.......................
+The AE title for each SCP can be set using the ``ae_title`` keyword argument.
+If no value is set then the AE title of the parent AE will be used instead:
+
+::
+
+    ae.start_server(('', 11112), ae_title=b'STORE_SCP')
+
+
+Specifying Presentation Contexts for each SCP
+.............................................
+To support presentation contexts on a per-SCP basis you can use the
+``contexts`` keyword argument:
+
+::
+
+    from pynetdicom import AE, build_context
+
+    ae = AE()
+    supported_cx = [build_context('1.2.840.10008.1.1')]
+    ae.start_server(('', 11112), contexts=[supported_cx])
+
+
 Binding Event Handlers
 ......................
 
