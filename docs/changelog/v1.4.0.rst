@@ -48,6 +48,7 @@ Enhancements
 * Invalid (0000,1030) *Move Originator Application Entity Title* values
   received in C-STORE service requests are now logged and ignored rather than
   raising an exception and aborting the association.
+* Improved handling of DIMSE service messages with empty element values.
 
 
 Changes
