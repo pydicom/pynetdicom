@@ -205,7 +205,7 @@
 <h1>pynetdicom.dimse_primitives.C_GET<a class="headerlink" href="#pynetdicom-dimse-primitives-c-get" title="Permalink to this headline">¶</a></h1>
 <dl class="class">
 <dt id="pynetdicom.dimse_primitives.C_GET">
-<em class="property">class </em><code class="sig-prename descclassname">pynetdicom.dimse_primitives.</code><code class="sig-name descname">C_GET</code><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/b73bb985/pynetdicom/dimse_primitives.py#L530"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom.dimse_primitives.C_GET" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="sig-prename descclassname">pynetdicom.dimse_primitives.</code><code class="sig-name descname">C_GET</code><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/b6c80ed3/pynetdicom/dimse_primitives.py#L759"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom.dimse_primitives.C_GET" title="Permalink to this definition">¶</a></dt>
 <dd><p>Represents a C-GET primitive.</p>
 <table class="docutils align-default">
 <colgroup>
@@ -437,7 +437,7 @@ description of the error detected. 64 characters maximum.</p>
 
 <dl class="method">
 <dt id="pynetdicom.dimse_primitives.C_GET.__init__">
-<code class="sig-name descname">__init__</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/b73bb985/pynetdicom/dimse_primitives.py#L628"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom.dimse_primitives.C_GET.__init__" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">__init__</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/b6c80ed3/pynetdicom/dimse_primitives.py#L857"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom.dimse_primitives.C_GET.__init__" title="Permalink to this definition">¶</a></dt>
 <dd><p>Initialize self.  See help(type(self)) for accurate signature.</p>
 </dd></dl>
 
@@ -461,31 +461,31 @@ description of the error detected. 64 characters maximum.</p>
 </colgroup>
 <tbody>
 <tr class="row-odd"><td><p><a class="reference internal" href="#pynetdicom.dimse_primitives.C_GET.AffectedSOPClassUID" title="pynetdicom.dimse_primitives.C_GET.AffectedSOPClassUID"><code class="xref py py-obj docutils literal notranslate"><span class="pre">AffectedSOPClassUID</span></code></a></p></td>
-<td><p>Return the <em>Affected SOP Class UID</em>.</p></td>
+<td><p>Return the <em>Affected SOP Class UID</em> as a UID.</p></td>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="#pynetdicom.dimse_primitives.C_GET.Identifier" title="pynetdicom.dimse_primitives.C_GET.Identifier"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Identifier</span></code></a></p></td>
-<td><p>Return the <em>Identifier</em>.</p></td>
+<td><p>Return the <em>Identifier</em> as io.BytesIO.</p></td>
 </tr>
 <tr class="row-odd"><td><p><a class="reference internal" href="#pynetdicom.dimse_primitives.C_GET.MessageID" title="pynetdicom.dimse_primitives.C_GET.MessageID"><code class="xref py py-obj docutils literal notranslate"><span class="pre">MessageID</span></code></a></p></td>
-<td><p>Return the DIMSE <em>Message ID</em>.</p></td>
+<td><p>Return the <em>Message ID</em> value as an int.</p></td>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="#pynetdicom.dimse_primitives.C_GET.MessageIDBeingRespondedTo" title="pynetdicom.dimse_primitives.C_GET.MessageIDBeingRespondedTo"><code class="xref py py-obj docutils literal notranslate"><span class="pre">MessageIDBeingRespondedTo</span></code></a></p></td>
-<td><p>Return the <em>Message ID Being Responded To</em>.</p></td>
+<td><p>Return the <em>Message ID Being Responded To</em> as an int.</p></td>
 </tr>
 <tr class="row-odd"><td><p><a class="reference internal" href="#pynetdicom.dimse_primitives.C_GET.NumberOfCompletedSuboperations" title="pynetdicom.dimse_primitives.C_GET.NumberOfCompletedSuboperations"><code class="xref py py-obj docutils literal notranslate"><span class="pre">NumberOfCompletedSuboperations</span></code></a></p></td>
-<td><p>Return the <em>Number of Completed Suboperations</em>.</p></td>
+<td><p>Return the <em>Number of Completed Suboperations</em> as int.</p></td>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="#pynetdicom.dimse_primitives.C_GET.NumberOfFailedSuboperations" title="pynetdicom.dimse_primitives.C_GET.NumberOfFailedSuboperations"><code class="xref py py-obj docutils literal notranslate"><span class="pre">NumberOfFailedSuboperations</span></code></a></p></td>
-<td><p>Return the <em>Number of Failed Suboperations</em>.</p></td>
+<td><p>Return the <em>Number of Failed Suboperations</em> as int.</p></td>
 </tr>
 <tr class="row-odd"><td><p><a class="reference internal" href="#pynetdicom.dimse_primitives.C_GET.NumberOfRemainingSuboperations" title="pynetdicom.dimse_primitives.C_GET.NumberOfRemainingSuboperations"><code class="xref py py-obj docutils literal notranslate"><span class="pre">NumberOfRemainingSuboperations</span></code></a></p></td>
-<td><p>Return the <em>Number of Remaining Suboperations</em>.</p></td>
+<td><p>Return the <em>Number of Remaining Suboperations</em> as int.</p></td>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="#pynetdicom.dimse_primitives.C_GET.NumberOfWarningSuboperations" title="pynetdicom.dimse_primitives.C_GET.NumberOfWarningSuboperations"><code class="xref py py-obj docutils literal notranslate"><span class="pre">NumberOfWarningSuboperations</span></code></a></p></td>
-<td><p>Return the <em>Number of Warning Suboperations</em>.</p></td>
+<td><p>Return the <em>Number of Warning Suboperations</em> as int.</p></td>
 </tr>
 <tr class="row-odd"><td><p><a class="reference internal" href="#pynetdicom.dimse_primitives.C_GET.Priority" title="pynetdicom.dimse_primitives.C_GET.Priority"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Priority</span></code></a></p></td>
-<td><p>Return the <em>Priority</em>.</p></td>
+<td><p>Return the <em>Priority</em> as an int.</p></td>
 </tr>
 <tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">REQUEST_KEYWORDS</span></code></p></td>
 <td><p></p></td>
@@ -497,7 +497,7 @@ description of the error detected. 64 characters maximum.</p>
 <td><p></p></td>
 </tr>
 <tr class="row-odd"><td><p><a class="reference internal" href="#pynetdicom.dimse_primitives.C_GET.Status" title="pynetdicom.dimse_primitives.C_GET.Status"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Status</span></code></a></p></td>
-<td><p>Return the <em>Status</em>.</p></td>
+<td><p>Return the <em>Status</em> as an int.</p></td>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="#pynetdicom.dimse_primitives.C_GET.is_valid_request" title="pynetdicom.dimse_primitives.C_GET.is_valid_request"><code class="xref py py-obj docutils literal notranslate"><span class="pre">is_valid_request</span></code></a></p></td>
 <td><p>Return True if the request is valid, False otherwise.</p></td>
@@ -510,61 +510,61 @@ description of the error detected. 64 characters maximum.</p>
 <dl class="method">
 <dt>
 <em class="property">property </em><code class="sig-name descname">AffectedSOPClassUID</code></dt>
-<dd><p>Return the <em>Affected SOP Class UID</em>.</p>
+<dd><p>Return the <em>Affected SOP Class UID</em> as a UID.</p>
 </dd></dl>
 
 <dl class="method">
 <dt>
 <em class="property">property </em><code class="sig-name descname">Identifier</code></dt>
-<dd><p>Return the <em>Identifier</em>.</p>
+<dd><p>Return the <em>Identifier</em> as io.BytesIO.</p>
 </dd></dl>
 
 <dl class="method">
 <dt>
 <em class="property">property </em><code class="sig-name descname">MessageID</code></dt>
-<dd><p>Return the DIMSE <em>Message ID</em>.</p>
+<dd><p>Return the <em>Message ID</em> value as an int.</p>
 </dd></dl>
 
 <dl class="method">
 <dt>
 <em class="property">property </em><code class="sig-name descname">MessageIDBeingRespondedTo</code></dt>
-<dd><p>Return the <em>Message ID Being Responded To</em>.</p>
+<dd><p>Return the <em>Message ID Being Responded To</em> as an int.</p>
 </dd></dl>
 
 <dl class="method">
 <dt>
 <em class="property">property </em><code class="sig-name descname">NumberOfCompletedSuboperations</code></dt>
-<dd><p>Return the <em>Number of Completed Suboperations</em>.</p>
+<dd><p>Return the <em>Number of Completed Suboperations</em> as int.</p>
 </dd></dl>
 
 <dl class="method">
 <dt>
 <em class="property">property </em><code class="sig-name descname">NumberOfFailedSuboperations</code></dt>
-<dd><p>Return the <em>Number of Failed Suboperations</em>.</p>
+<dd><p>Return the <em>Number of Failed Suboperations</em> as int.</p>
 </dd></dl>
 
 <dl class="method">
 <dt>
 <em class="property">property </em><code class="sig-name descname">NumberOfRemainingSuboperations</code></dt>
-<dd><p>Return the <em>Number of Remaining Suboperations</em>.</p>
+<dd><p>Return the <em>Number of Remaining Suboperations</em> as int.</p>
 </dd></dl>
 
 <dl class="method">
 <dt>
 <em class="property">property </em><code class="sig-name descname">NumberOfWarningSuboperations</code></dt>
-<dd><p>Return the <em>Number of Warning Suboperations</em>.</p>
+<dd><p>Return the <em>Number of Warning Suboperations</em> as int.</p>
 </dd></dl>
 
 <dl class="method">
 <dt>
 <em class="property">property </em><code class="sig-name descname">Priority</code></dt>
-<dd><p>Return the <em>Priority</em>.</p>
+<dd><p>Return the <em>Priority</em> as an int.</p>
 </dd></dl>
 
 <dl class="method">
 <dt>
 <em class="property">property </em><code class="sig-name descname">Status</code></dt>
-<dd><p>Return the <em>Status</em>.</p>
+<dd><p>Return the <em>Status</em> as an int.</p>
 </dd></dl>
 
 <dl class="method">

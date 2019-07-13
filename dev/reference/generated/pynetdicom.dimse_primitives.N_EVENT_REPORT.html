@@ -205,7 +205,7 @@
 <h1>pynetdicom.dimse_primitives.N_EVENT_REPORT<a class="headerlink" href="#pynetdicom-dimse-primitives-n-event-report" title="Permalink to this headline">¶</a></h1>
 <dl class="class">
 <dt id="pynetdicom.dimse_primitives.N_EVENT_REPORT">
-<em class="property">class </em><code class="sig-prename descclassname">pynetdicom.dimse_primitives.</code><code class="sig-name descname">N_EVENT_REPORT</code><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/b73bb985/pynetdicom/dimse_primitives.py#L1132"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom.dimse_primitives.N_EVENT_REPORT" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="sig-prename descclassname">pynetdicom.dimse_primitives.</code><code class="sig-name descname">N_EVENT_REPORT</code><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/b6c80ed3/pynetdicom/dimse_primitives.py#L1364"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom.dimse_primitives.N_EVENT_REPORT" title="Permalink to this definition">¶</a></dt>
 <dd><p>Represents a N-EVENT-REPORT primitive.</p>
 <table class="docutils align-default">
 <colgroup>
@@ -365,7 +365,7 @@ dataset containing additional Service Class specific information.</p>
 
 <dl class="method">
 <dt id="pynetdicom.dimse_primitives.N_EVENT_REPORT.__init__">
-<code class="sig-name descname">__init__</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/b73bb985/pynetdicom/dimse_primitives.py#L1204"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom.dimse_primitives.N_EVENT_REPORT.__init__" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">__init__</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/b6c80ed3/pynetdicom/dimse_primitives.py#L1436"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom.dimse_primitives.N_EVENT_REPORT.__init__" title="Permalink to this definition">¶</a></dt>
 <dd><p>Initialize self.  See help(type(self)) for accurate signature.</p>
 </dd></dl>
 
@@ -389,25 +389,25 @@ dataset containing additional Service Class specific information.</p>
 </colgroup>
 <tbody>
 <tr class="row-odd"><td><p><a class="reference internal" href="#pynetdicom.dimse_primitives.N_EVENT_REPORT.AffectedSOPClassUID" title="pynetdicom.dimse_primitives.N_EVENT_REPORT.AffectedSOPClassUID"><code class="xref py py-obj docutils literal notranslate"><span class="pre">AffectedSOPClassUID</span></code></a></p></td>
-<td><p>Return the <em>Affected SOP Class UID</em>.</p></td>
+<td><p>Return the <em>Affected SOP Class UID</em> as a UID.</p></td>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="#pynetdicom.dimse_primitives.N_EVENT_REPORT.AffectedSOPInstanceUID" title="pynetdicom.dimse_primitives.N_EVENT_REPORT.AffectedSOPInstanceUID"><code class="xref py py-obj docutils literal notranslate"><span class="pre">AffectedSOPInstanceUID</span></code></a></p></td>
-<td><p>Return the <em>Affected SOP Instance UID</em>.</p></td>
+<td><p>Return the <em>Affected SOP Instance UID</em> as UID.</p></td>
 </tr>
 <tr class="row-odd"><td><p><a class="reference internal" href="#pynetdicom.dimse_primitives.N_EVENT_REPORT.EventInformation" title="pynetdicom.dimse_primitives.N_EVENT_REPORT.EventInformation"><code class="xref py py-obj docutils literal notranslate"><span class="pre">EventInformation</span></code></a></p></td>
-<td><p>Return the <em>Event Information</em>.</p></td>
+<td><p>Return the <em>Event Information</em> as io.BytesIO.</p></td>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="#pynetdicom.dimse_primitives.N_EVENT_REPORT.EventReply" title="pynetdicom.dimse_primitives.N_EVENT_REPORT.EventReply"><code class="xref py py-obj docutils literal notranslate"><span class="pre">EventReply</span></code></a></p></td>
-<td><p>Return the <em>Event Reply</em>.</p></td>
+<td><p>Return the <em>Event Reply</em> as io.BytesIO.</p></td>
 </tr>
 <tr class="row-odd"><td><p><a class="reference internal" href="#pynetdicom.dimse_primitives.N_EVENT_REPORT.EventTypeID" title="pynetdicom.dimse_primitives.N_EVENT_REPORT.EventTypeID"><code class="xref py py-obj docutils literal notranslate"><span class="pre">EventTypeID</span></code></a></p></td>
-<td><p>Return the <em>Event Type ID</em>.</p></td>
+<td><p>Return the <em>Event Type ID</em> as int.</p></td>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="#pynetdicom.dimse_primitives.N_EVENT_REPORT.MessageID" title="pynetdicom.dimse_primitives.N_EVENT_REPORT.MessageID"><code class="xref py py-obj docutils literal notranslate"><span class="pre">MessageID</span></code></a></p></td>
-<td><p>Return the DIMSE <em>Message ID</em>.</p></td>
+<td><p>Return the <em>Message ID</em> value as an int.</p></td>
 </tr>
 <tr class="row-odd"><td><p><a class="reference internal" href="#pynetdicom.dimse_primitives.N_EVENT_REPORT.MessageIDBeingRespondedTo" title="pynetdicom.dimse_primitives.N_EVENT_REPORT.MessageIDBeingRespondedTo"><code class="xref py py-obj docutils literal notranslate"><span class="pre">MessageIDBeingRespondedTo</span></code></a></p></td>
-<td><p>Return the <em>Message ID Being Responded To</em>.</p></td>
+<td><p>Return the <em>Message ID Being Responded To</em> as an int.</p></td>
 </tr>
 <tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">REQUEST_KEYWORDS</span></code></p></td>
 <td><p></p></td>
@@ -419,7 +419,7 @@ dataset containing additional Service Class specific information.</p>
 <td><p></p></td>
 </tr>
 <tr class="row-odd"><td><p><a class="reference internal" href="#pynetdicom.dimse_primitives.N_EVENT_REPORT.Status" title="pynetdicom.dimse_primitives.N_EVENT_REPORT.Status"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Status</span></code></a></p></td>
-<td><p>Return the <em>Status</em>.</p></td>
+<td><p>Return the <em>Status</em> as an int.</p></td>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="#pynetdicom.dimse_primitives.N_EVENT_REPORT.is_valid_request" title="pynetdicom.dimse_primitives.N_EVENT_REPORT.is_valid_request"><code class="xref py py-obj docutils literal notranslate"><span class="pre">is_valid_request</span></code></a></p></td>
 <td><p>Return True if the request is valid, False otherwise.</p></td>
@@ -432,49 +432,49 @@ dataset containing additional Service Class specific information.</p>
 <dl class="method">
 <dt>
 <em class="property">property </em><code class="sig-name descname">AffectedSOPClassUID</code></dt>
-<dd><p>Return the <em>Affected SOP Class UID</em>.</p>
+<dd><p>Return the <em>Affected SOP Class UID</em> as a UID.</p>
 </dd></dl>
 
 <dl class="method">
 <dt>
 <em class="property">property </em><code class="sig-name descname">AffectedSOPInstanceUID</code></dt>
-<dd><p>Return the <em>Affected SOP Instance UID</em>.</p>
+<dd><p>Return the <em>Affected SOP Instance UID</em> as UID.</p>
 </dd></dl>
 
 <dl class="method">
 <dt>
 <em class="property">property </em><code class="sig-name descname">EventInformation</code></dt>
-<dd><p>Return the <em>Event Information</em>.</p>
+<dd><p>Return the <em>Event Information</em> as io.BytesIO.</p>
 </dd></dl>
 
 <dl class="method">
 <dt>
 <em class="property">property </em><code class="sig-name descname">EventReply</code></dt>
-<dd><p>Return the <em>Event Reply</em>.</p>
+<dd><p>Return the <em>Event Reply</em> as io.BytesIO.</p>
 </dd></dl>
 
 <dl class="method">
 <dt>
 <em class="property">property </em><code class="sig-name descname">EventTypeID</code></dt>
-<dd><p>Return the <em>Event Type ID</em>.</p>
+<dd><p>Return the <em>Event Type ID</em> as int.</p>
 </dd></dl>
 
 <dl class="method">
 <dt>
 <em class="property">property </em><code class="sig-name descname">MessageID</code></dt>
-<dd><p>Return the DIMSE <em>Message ID</em>.</p>
+<dd><p>Return the <em>Message ID</em> value as an int.</p>
 </dd></dl>
 
 <dl class="method">
 <dt>
 <em class="property">property </em><code class="sig-name descname">MessageIDBeingRespondedTo</code></dt>
-<dd><p>Return the <em>Message ID Being Responded To</em>.</p>
+<dd><p>Return the <em>Message ID Being Responded To</em> as an int.</p>
 </dd></dl>
 
 <dl class="method">
 <dt>
 <em class="property">property </em><code class="sig-name descname">Status</code></dt>
-<dd><p>Return the <em>Status</em>.</p>
+<dd><p>Return the <em>Status</em> as an int.</p>
 </dd></dl>
 
 <dl class="method">

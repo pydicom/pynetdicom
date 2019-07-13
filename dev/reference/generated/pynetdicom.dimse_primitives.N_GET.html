@@ -205,7 +205,7 @@
 <h1>pynetdicom.dimse_primitives.N_GET<a class="headerlink" href="#pynetdicom-dimse-primitives-n-get" title="Permalink to this headline">¶</a></h1>
 <dl class="class">
 <dt id="pynetdicom.dimse_primitives.N_GET">
-<em class="property">class </em><code class="sig-prename descclassname">pynetdicom.dimse_primitives.</code><code class="sig-name descname">N_GET</code><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/b73bb985/pynetdicom/dimse_primitives.py#L1290"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom.dimse_primitives.N_GET" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="sig-prename descclassname">pynetdicom.dimse_primitives.</code><code class="sig-name descname">N_GET</code><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/b6c80ed3/pynetdicom/dimse_primitives.py#L1518"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom.dimse_primitives.N_GET" title="Permalink to this definition">¶</a></dt>
 <dd><p>Represents an N-GET primitive.</p>
 <table class="docutils align-default">
 <colgroup>
@@ -376,7 +376,7 @@ Attribute Identifier List.</p>
 
 <dl class="method">
 <dt id="pynetdicom.dimse_primitives.N_GET.__init__">
-<code class="sig-name descname">__init__</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/b73bb985/pynetdicom/dimse_primitives.py#L1357"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom.dimse_primitives.N_GET.__init__" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">__init__</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/b6c80ed3/pynetdicom/dimse_primitives.py#L1585"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom.dimse_primitives.N_GET.__init__" title="Permalink to this definition">¶</a></dt>
 <dd><p>Initialize self.  See help(type(self)) for accurate signature.</p>
 </dd></dl>
 
@@ -400,22 +400,22 @@ Attribute Identifier List.</p>
 </colgroup>
 <tbody>
 <tr class="row-odd"><td><p><a class="reference internal" href="#pynetdicom.dimse_primitives.N_GET.AffectedSOPClassUID" title="pynetdicom.dimse_primitives.N_GET.AffectedSOPClassUID"><code class="xref py py-obj docutils literal notranslate"><span class="pre">AffectedSOPClassUID</span></code></a></p></td>
-<td><p>Return the <em>Affected SOP Class UID</em>.</p></td>
+<td><p>Return the <em>Affected SOP Class UID</em> as a UID.</p></td>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="#pynetdicom.dimse_primitives.N_GET.AffectedSOPInstanceUID" title="pynetdicom.dimse_primitives.N_GET.AffectedSOPInstanceUID"><code class="xref py py-obj docutils literal notranslate"><span class="pre">AffectedSOPInstanceUID</span></code></a></p></td>
-<td><p>Return the <em>Affected SOP Instance UID</em>.</p></td>
+<td><p>Return the <em>Affected SOP Instance UID</em> as UID.</p></td>
 </tr>
 <tr class="row-odd"><td><p><a class="reference internal" href="#pynetdicom.dimse_primitives.N_GET.AttributeIdentifierList" title="pynetdicom.dimse_primitives.N_GET.AttributeIdentifierList"><code class="xref py py-obj docutils literal notranslate"><span class="pre">AttributeIdentifierList</span></code></a></p></td>
-<td><p>Return the value of (0000,1005) <em>Attribute Identifier List</em>.</p></td>
+<td><p>Return the <em>Attribute Identifier List</em> as a list of pydicom.tag.Tag.</p></td>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="#pynetdicom.dimse_primitives.N_GET.AttributeList" title="pynetdicom.dimse_primitives.N_GET.AttributeList"><code class="xref py py-obj docutils literal notranslate"><span class="pre">AttributeList</span></code></a></p></td>
-<td><p>Return the <em>Attribute List</em>.</p></td>
+<td><p>Return the <em>Attribute List</em> as io.BytesIO.</p></td>
 </tr>
 <tr class="row-odd"><td><p><a class="reference internal" href="#pynetdicom.dimse_primitives.N_GET.MessageID" title="pynetdicom.dimse_primitives.N_GET.MessageID"><code class="xref py py-obj docutils literal notranslate"><span class="pre">MessageID</span></code></a></p></td>
-<td><p>Return the DIMSE <em>Message ID</em>.</p></td>
+<td><p>Return the <em>Message ID</em> value as an int.</p></td>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="#pynetdicom.dimse_primitives.N_GET.MessageIDBeingRespondedTo" title="pynetdicom.dimse_primitives.N_GET.MessageIDBeingRespondedTo"><code class="xref py py-obj docutils literal notranslate"><span class="pre">MessageIDBeingRespondedTo</span></code></a></p></td>
-<td><p>Return the <em>Message ID Being Responded To</em>.</p></td>
+<td><p>Return the <em>Message ID Being Responded To</em> as an int.</p></td>
 </tr>
 <tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">REQUEST_KEYWORDS</span></code></p></td>
 <td><p></p></td>
@@ -424,16 +424,16 @@ Attribute Identifier List.</p>
 <td><p></p></td>
 </tr>
 <tr class="row-odd"><td><p><a class="reference internal" href="#pynetdicom.dimse_primitives.N_GET.RequestedSOPClassUID" title="pynetdicom.dimse_primitives.N_GET.RequestedSOPClassUID"><code class="xref py py-obj docutils literal notranslate"><span class="pre">RequestedSOPClassUID</span></code></a></p></td>
-<td><p>Return the <em>Requested SOP Class UID</em>.</p></td>
+<td><p>Return the <em>Requested SOP Class UID</em> as UID.</p></td>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="#pynetdicom.dimse_primitives.N_GET.RequestedSOPInstanceUID" title="pynetdicom.dimse_primitives.N_GET.RequestedSOPInstanceUID"><code class="xref py py-obj docutils literal notranslate"><span class="pre">RequestedSOPInstanceUID</span></code></a></p></td>
-<td><p>Return the <em>Requested SOP Instance UID</em>.</p></td>
+<td><p>Return the <em>Requested SOP Instance UID</em> as UID.</p></td>
 </tr>
 <tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">STATUS_OPTIONAL_KEYWORDS</span></code></p></td>
 <td><p></p></td>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="#pynetdicom.dimse_primitives.N_GET.Status" title="pynetdicom.dimse_primitives.N_GET.Status"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Status</span></code></a></p></td>
-<td><p>Return the <em>Status</em>.</p></td>
+<td><p>Return the <em>Status</em> as an int.</p></td>
 </tr>
 <tr class="row-odd"><td><p><a class="reference internal" href="#pynetdicom.dimse_primitives.N_GET.is_valid_request" title="pynetdicom.dimse_primitives.N_GET.is_valid_request"><code class="xref py py-obj docutils literal notranslate"><span class="pre">is_valid_request</span></code></a></p></td>
 <td><p>Return True if the request is valid, False otherwise.</p></td>
@@ -446,55 +446,56 @@ Attribute Identifier List.</p>
 <dl class="method">
 <dt>
 <em class="property">property </em><code class="sig-name descname">AffectedSOPClassUID</code></dt>
-<dd><p>Return the <em>Affected SOP Class UID</em>.</p>
+<dd><p>Return the <em>Affected SOP Class UID</em> as a UID.</p>
 </dd></dl>
 
 <dl class="method">
 <dt>
 <em class="property">property </em><code class="sig-name descname">AffectedSOPInstanceUID</code></dt>
-<dd><p>Return the <em>Affected SOP Instance UID</em>.</p>
+<dd><p>Return the <em>Affected SOP Instance UID</em> as UID.</p>
 </dd></dl>
 
 <dl class="method">
 <dt>
 <em class="property">property </em><code class="sig-name descname">AttributeIdentifierList</code></dt>
-<dd><p>Return the value of (0000,1005) <em>Attribute Identifier List</em>.</p>
+<dd><p>Return the <em>Attribute Identifier List</em> as a list of
+pydicom.tag.Tag.</p>
 </dd></dl>
 
 <dl class="method">
 <dt>
 <em class="property">property </em><code class="sig-name descname">AttributeList</code></dt>
-<dd><p>Return the <em>Attribute List</em>.</p>
+<dd><p>Return the <em>Attribute List</em> as io.BytesIO.</p>
 </dd></dl>
 
 <dl class="method">
 <dt>
 <em class="property">property </em><code class="sig-name descname">MessageID</code></dt>
-<dd><p>Return the DIMSE <em>Message ID</em>.</p>
+<dd><p>Return the <em>Message ID</em> value as an int.</p>
 </dd></dl>
 
 <dl class="method">
 <dt>
 <em class="property">property </em><code class="sig-name descname">MessageIDBeingRespondedTo</code></dt>
-<dd><p>Return the <em>Message ID Being Responded To</em>.</p>
+<dd><p>Return the <em>Message ID Being Responded To</em> as an int.</p>
 </dd></dl>
 
 <dl class="method">
 <dt>
 <em class="property">property </em><code class="sig-name descname">RequestedSOPClassUID</code></dt>
-<dd><p>Return the <em>Requested SOP Class UID</em>.</p>
+<dd><p>Return the <em>Requested SOP Class UID</em> as UID.</p>
 </dd></dl>
 
 <dl class="method">
 <dt>
 <em class="property">property </em><code class="sig-name descname">RequestedSOPInstanceUID</code></dt>
-<dd><p>Return the <em>Requested SOP Instance UID</em>.</p>
+<dd><p>Return the <em>Requested SOP Instance UID</em> as UID.</p>
 </dd></dl>
 
 <dl class="method">
 <dt>
 <em class="property">property </em><code class="sig-name descname">Status</code></dt>
-<dd><p>Return the <em>Status</em>.</p>
+<dd><p>Return the <em>Status</em> as an int.</p>
 </dd></dl>
 
 <dl class="method">
