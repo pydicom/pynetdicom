@@ -199,7 +199,7 @@
 <h1>pynetdicom.events.Event<a class="headerlink" href="#pynetdicom-events-event" title="Permalink to this headline">¶</a></h1>
 <dl class="class">
 <dt id="pynetdicom.events.Event">
-<em class="property">class </em><code class="sig-prename descclassname">pynetdicom.events.</code><code class="sig-name descname">Event</code><span class="sig-paren">(</span><em class="sig-param">assoc</em>, <em class="sig-param">event</em>, <em class="sig-param">attrs=None</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/fc81ccb8/pynetdicom/events.py#L181"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom.events.Event" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="sig-prename descclassname">pynetdicom.events.</code><code class="sig-name descname">Event</code><span class="sig-paren">(</span><em class="sig-param">assoc</em>, <em class="sig-param">event</em>, <em class="sig-param">attrs=None</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/cc223f29/pynetdicom/events.py#L181"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom.events.Event" title="Permalink to this definition">¶</a></dt>
 <dd><p>Representation of an event.</p>
 <dl class="attribute">
 <dt id="pynetdicom.events.Event.assoc">
@@ -238,7 +238,7 @@ the actual event that this object represents.</p>
 
 <dl class="method">
 <dt id="pynetdicom.events.Event.__init__">
-<code class="sig-name descname">__init__</code><span class="sig-paren">(</span><em class="sig-param">assoc</em>, <em class="sig-param">event</em>, <em class="sig-param">attrs=None</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/fc81ccb8/pynetdicom/events.py#L195"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom.events.Event.__init__" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">__init__</code><span class="sig-paren">(</span><em class="sig-param">assoc</em>, <em class="sig-param">event</em>, <em class="sig-param">attrs=None</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/cc223f29/pynetdicom/events.py#L195"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom.events.Event.__init__" title="Permalink to this definition">¶</a></dt>
 <dd><p>Create a new Event.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -320,7 +320,7 @@ that uses the returned <code class="docutils literal notranslate"><span class="p
 <dd class="field-odd"><p>The decoded <em>Action Information</em> dataset.</p>
 </dd>
 <dt class="field-even">Return type</dt>
-<dd class="field-even"><p><a class="reference external" href="https://pydicom.github.io/pydicom/stable/api_ref.html#pydicom.dataset.Dataset" title="(in pydicom v1.2.0rc1)">pydicom.dataset.Dataset</a></p>
+<dd class="field-even"><p><a class="reference external" href="https://pydicom.github.io/pydicom/stable/api_ref.html#pydicom.dataset.Dataset" title="(in pydicom v1.3.0)">pydicom.dataset.Dataset</a></p>
 </dd>
 <dt class="field-odd">Raises</dt>
 <dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/exceptions.html#AttributeError" title="(in Python v3.7)"><strong>AttributeError</strong></a> – If the corresponding event is not an N-ACTION request.</p>
@@ -363,7 +363,7 @@ that uses the returned <code class="docutils literal notranslate"><span class="p
 <dd class="field-odd"><p>The decoded <em>Attribute List</em> dataset.</p>
 </dd>
 <dt class="field-even">Return type</dt>
-<dd class="field-even"><p><a class="reference external" href="https://pydicom.github.io/pydicom/stable/api_ref.html#pydicom.dataset.Dataset" title="(in pydicom v1.2.0rc1)">pydicom.dataset.Dataset</a></p>
+<dd class="field-even"><p><a class="reference external" href="https://pydicom.github.io/pydicom/stable/api_ref.html#pydicom.dataset.Dataset" title="(in pydicom v1.3.0)">pydicom.dataset.Dataset</a></p>
 </dd>
 <dt class="field-odd">Raises</dt>
 <dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/exceptions.html#AttributeError" title="(in Python v3.7)"><strong>AttributeError</strong></a> – If the corresponding event is not an N-CREATE request.</p>
@@ -385,7 +385,7 @@ that uses the returned <code class="docutils literal notranslate"><span class="p
 <dd class="field-odd"><p>The decoded <em>Data Set</em> dataset.</p>
 </dd>
 <dt class="field-even">Return type</dt>
-<dd class="field-even"><p><a class="reference external" href="https://pydicom.github.io/pydicom/stable/api_ref.html#pydicom.dataset.Dataset" title="(in pydicom v1.2.0rc1)">pydicom.dataset.Dataset</a></p>
+<dd class="field-even"><p><a class="reference external" href="https://pydicom.github.io/pydicom/stable/api_ref.html#pydicom.dataset.Dataset" title="(in pydicom v1.3.0)">pydicom.dataset.Dataset</a></p>
 </dd>
 <dt class="field-odd">Raises</dt>
 <dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/exceptions.html#AttributeError" title="(in Python v3.7)"><strong>AttributeError</strong></a> – If the corresponding event is not a C-STORE request.</p>
@@ -422,7 +422,7 @@ that uses the returned <code class="docutils literal notranslate"><span class="p
 <dd class="field-odd"><p>The decoded <em>Event Information</em> dataset.</p>
 </dd>
 <dt class="field-even">Return type</dt>
-<dd class="field-even"><p><a class="reference external" href="https://pydicom.github.io/pydicom/stable/api_ref.html#pydicom.dataset.Dataset" title="(in pydicom v1.2.0rc1)">pydicom.dataset.Dataset</a></p>
+<dd class="field-even"><p><a class="reference external" href="https://pydicom.github.io/pydicom/stable/api_ref.html#pydicom.dataset.Dataset" title="(in pydicom v1.3.0)">pydicom.dataset.Dataset</a></p>
 </dd>
 <dt class="field-odd">Raises</dt>
 <dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/exceptions.html#AttributeError" title="(in Python v3.7)"><strong>AttributeError</strong></a> – If the corresponding event is not an N-EVENT-REPORT request.</p>
@@ -457,7 +457,7 @@ the DICOM File Format.</p>
 request’s <em>Data Set</em>.</p>
 </dd>
 <dt class="field-even">Return type</dt>
-<dd class="field-even"><p><a class="reference external" href="https://pydicom.github.io/pydicom/stable/api_ref.html#pydicom.dataset.Dataset" title="(in pydicom v1.2.0rc1)">pydicom.dataset.Dataset</a></p>
+<dd class="field-even"><p><a class="reference external" href="https://pydicom.github.io/pydicom/stable/api_ref.html#pydicom.dataset.Dataset" title="(in pydicom v1.3.0)">pydicom.dataset.Dataset</a></p>
 </dd>
 <dt class="field-odd">Raises</dt>
 <dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/exceptions.html#AttributeError" title="(in Python v3.7)"><strong>AttributeError</strong></a> – If the corresponding event is not a C-STORE request.</p>
@@ -480,7 +480,7 @@ uses the returned <code class="docutils literal notranslate"><span class="pre">D
 <dd class="field-odd"><p>The decoded <em>Identifier</em> dataset.</p>
 </dd>
 <dt class="field-even">Return type</dt>
-<dd class="field-even"><p><a class="reference external" href="https://pydicom.github.io/pydicom/stable/api_ref.html#pydicom.dataset.Dataset" title="(in pydicom v1.2.0rc1)">pydicom.dataset.Dataset</a></p>
+<dd class="field-even"><p><a class="reference external" href="https://pydicom.github.io/pydicom/stable/api_ref.html#pydicom.dataset.Dataset" title="(in pydicom v1.3.0)">pydicom.dataset.Dataset</a></p>
 </dd>
 <dt class="field-odd">Raises</dt>
 <dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/exceptions.html#AttributeError" title="(in Python v3.7)"><strong>AttributeError</strong></a> – If the corresponding event is not a C-FIND, C-GET or C-MOVE
@@ -524,7 +524,7 @@ that uses the returned <code class="docutils literal notranslate"><span class="p
 <dd class="field-odd"><p>The decoded <em>Modification List</em> dataset.</p>
 </dd>
 <dt class="field-even">Return type</dt>
-<dd class="field-even"><p><a class="reference external" href="https://pydicom.github.io/pydicom/stable/api_ref.html#pydicom.dataset.Dataset" title="(in pydicom v1.2.0rc1)">pydicom.dataset.Dataset</a></p>
+<dd class="field-even"><p><a class="reference external" href="https://pydicom.github.io/pydicom/stable/api_ref.html#pydicom.dataset.Dataset" title="(in pydicom v1.3.0)">pydicom.dataset.Dataset</a></p>
 </dd>
 <dt class="field-odd">Raises</dt>
 <dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/exceptions.html#AttributeError" title="(in Python v3.7)"><strong>AttributeError</strong></a> – If the corresponding event is not an N-SET request.</p>

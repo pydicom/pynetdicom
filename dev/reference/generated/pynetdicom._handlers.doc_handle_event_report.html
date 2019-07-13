@@ -216,7 +216,7 @@
 <h1>pynetdicom._handlers.doc_handle_event_report<a class="headerlink" href="#pynetdicom-handlers-doc-handle-event-report" title="Permalink to this headline">¶</a></h1>
 <dl class="function">
 <dt id="pynetdicom._handlers.doc_handle_event_report">
-<code class="sig-prename descclassname">pynetdicom._handlers.</code><code class="sig-name descname">doc_handle_event_report</code><span class="sig-paren">(</span><em class="sig-param">event</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/fc81ccb8/pynetdicom/_handlers.py#L2982"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom._handlers.doc_handle_event_report" title="Permalink to this definition">¶</a></dt>
+<code class="sig-prename descclassname">pynetdicom._handlers.</code><code class="sig-name descname">doc_handle_event_report</code><span class="sig-paren">(</span><em class="sig-param">event</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/cc223f29/pynetdicom/_handlers.py#L2982"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom._handlers.doc_handle_event_report" title="Permalink to this definition">¶</a></dt>
 <dd><p>Documentation for handlers bound to <code class="docutils literal notranslate"><span class="pre">evt.EVT_N_EVENT_REPORT</span></code>.</p>
 <p>User implementation of this event handler is required if one or more
 services that use N-EVENT-REPORT are to be supported. If a handler is
@@ -271,7 +271,7 @@ that the N-EVENT-REPORT request was processed by the service.</p></li>
 <p><code class="docutils literal notranslate"><span class="pre">Event</span></code> properties are:</p>
 <ul class="simple">
 <li><p><code class="docutils literal notranslate"><span class="pre">event_information</span></code> : the decoded
-<a class="reference external" href="https://pydicom.github.io/pydicom/stable/api_ref.html#pydicom.dataset.Dataset" title="(in pydicom v1.2.0rc1)"><code class="xref py py-class docutils literal notranslate"><span class="pre">Dataset</span></code></a> contained within the
+<a class="reference external" href="https://pydicom.github.io/pydicom/stable/api_ref.html#pydicom.dataset.Dataset" title="(in pydicom v1.3.0)"><code class="xref py py-class docutils literal notranslate"><span class="pre">Dataset</span></code></a> contained within the
 N-EVENT-REPORT request’s <em>Event Information</em> parameter. Because
 <em>pydicom</em> uses a deferred read when decoding data, if the decode
 fails the returned <code class="docutils literal notranslate"><span class="pre">Dataset</span></code> will only raise an exception at the

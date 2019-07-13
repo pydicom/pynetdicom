@@ -216,7 +216,7 @@
 <h1>pynetdicom._handlers.doc_handle_store<a class="headerlink" href="#pynetdicom-handlers-doc-handle-store" title="Permalink to this headline">¶</a></h1>
 <dl class="function">
 <dt id="pynetdicom._handlers.doc_handle_store">
-<code class="sig-prename descclassname">pynetdicom._handlers.</code><code class="sig-name descname">doc_handle_store</code><span class="sig-paren">(</span><em class="sig-param">event</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/fc81ccb8/pynetdicom/_handlers.py#L2509"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom._handlers.doc_handle_store" title="Permalink to this definition">¶</a></dt>
+<code class="sig-prename descclassname">pynetdicom._handlers.</code><code class="sig-name descname">doc_handle_store</code><span class="sig-paren">(</span><em class="sig-param">event</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/cc223f29/pynetdicom/_handlers.py#L2509"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom._handlers.doc_handle_store" title="Permalink to this definition">¶</a></dt>
 <dd><p>Documentation for handlers bound to <code class="docutils literal notranslate"><span class="pre">evt.EVT_C_STORE</span></code>.</p>
 <p>User implementation of this event handler is required if one or more
 services that use C-STORE are to be supported. If a handler is
@@ -277,12 +277,12 @@ that the C-STORE request was processed by the service.</p></li>
 <p><code class="docutils literal notranslate"><span class="pre">Event</span></code> properties are:</p>
 <ul class="simple">
 <li><p><code class="docutils literal notranslate"><span class="pre">dataset</span></code> : the decoded
-<a class="reference external" href="https://pydicom.github.io/pydicom/stable/api_ref.html#pydicom.dataset.Dataset" title="(in pydicom v1.2.0rc1)"><code class="xref py py-class docutils literal notranslate"><span class="pre">Dataset</span></code></a> contained within the
+<a class="reference external" href="https://pydicom.github.io/pydicom/stable/api_ref.html#pydicom.dataset.Dataset" title="(in pydicom v1.3.0)"><code class="xref py py-class docutils literal notranslate"><span class="pre">Dataset</span></code></a> contained within the
 C-STORE request’s <em>Data Set</em> parameter. Because <em>pydicom</em> uses
 a deferred read when decoding data, if the decode fails the returned
 <code class="docutils literal notranslate"><span class="pre">Dataset</span></code> will only raise an exception at the time of use.</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">file_meta</span></code> : a
-<a class="reference external" href="https://pydicom.github.io/pydicom/stable/api_ref.html#pydicom.dataset.Dataset" title="(in pydicom v1.2.0rc1)"><code class="xref py py-class docutils literal notranslate"><span class="pre">Dataset</span></code></a> containing DICOM
+<a class="reference external" href="https://pydicom.github.io/pydicom/stable/api_ref.html#pydicom.dataset.Dataset" title="(in pydicom v1.3.0)"><code class="xref py py-class docutils literal notranslate"><span class="pre">Dataset</span></code></a> containing DICOM
 conformant File Meta Information that can be used with the decoded
 dataset when saving to file: <cite>event.dataset.file_meta =
 event.file_meta</cite>.</p></li>
@@ -298,7 +298,7 @@ object then it may also contain optional elements related to the
 <em>Status</em> (as in the DICOM Standard Part 7, Annex C).</p>
 </dd>
 <dt class="field-odd">Return type</dt>
-<dd class="field-odd"><p><a class="reference external" href="https://pydicom.github.io/pydicom/stable/api_ref.html#pydicom.dataset.Dataset" title="(in pydicom v1.2.0rc1)">pydicom.dataset.Dataset</a> or <a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.7)">int</a></p>
+<dd class="field-odd"><p><a class="reference external" href="https://pydicom.github.io/pydicom/stable/api_ref.html#pydicom.dataset.Dataset" title="(in pydicom v1.3.0)">pydicom.dataset.Dataset</a> or <a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.7)">int</a></p>
 </dd>
 <dt class="field-even">Raises</dt>
 <dd class="field-even"><p><a class="reference external" href="https://docs.python.org/3/library/exceptions.html#NotImplementedError" title="(in Python v3.7)"><strong>NotImplementedError</strong></a> – If the handler has not been implemented and bound to

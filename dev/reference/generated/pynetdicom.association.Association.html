@@ -198,7 +198,7 @@
 <h1>pynetdicom.association.Association<a class="headerlink" href="#pynetdicom-association-association" title="Permalink to this headline">¶</a></h1>
 <dl class="class">
 <dt id="pynetdicom.association.Association">
-<em class="property">class </em><code class="sig-prename descclassname">pynetdicom.association.</code><code class="sig-name descname">Association</code><span class="sig-paren">(</span><em class="sig-param">ae</em>, <em class="sig-param">mode</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/fc81ccb8/pynetdicom/association.py#L92"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom.association.Association" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="sig-prename descclassname">pynetdicom.association.</code><code class="sig-name descname">Association</code><span class="sig-paren">(</span><em class="sig-param">ae</em>, <em class="sig-param">mode</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/cc223f29/pynetdicom/association.py#L92"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom.association.Association" title="Permalink to this definition">¶</a></dt>
 <dd><p>Manage an Association with a peer AE.</p>
 <dl class="attribute">
 <dt id="pynetdicom.association.Association.acceptor">
@@ -324,7 +324,7 @@ association ‘acceptor’.</p>
 
 <dl class="method">
 <dt id="pynetdicom.association.Association.__init__">
-<code class="sig-name descname">__init__</code><span class="sig-paren">(</span><em class="sig-param">ae</em>, <em class="sig-param">mode</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/fc81ccb8/pynetdicom/association.py#L121"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom.association.Association.__init__" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">__init__</code><span class="sig-paren">(</span><em class="sig-param">ae</em>, <em class="sig-param">mode</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/cc223f29/pynetdicom/association.py#L121"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom.association.Association.__init__" title="Permalink to this definition">¶</a></dt>
 <dd><p>Create a new <code class="docutils literal notranslate"><span class="pre">Association</span></code> instance.</p>
 <p>The association starts in State 1 (idle). Association negotiation
 won’t begin until an <code class="docutils literal notranslate"><span class="pre">AssociationSocket</span></code> is assigned using
@@ -494,7 +494,7 @@ won’t begin until an <code class="docutils literal notranslate"><span class="p
 </table>
 <dl class="method">
 <dt id="pynetdicom.association.Association.abort">
-<code class="sig-name descname">abort</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/fc81ccb8/pynetdicom/association.py#L184"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom.association.Association.abort" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">abort</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/cc223f29/pynetdicom/association.py#L184"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom.association.Association.abort" title="Permalink to this definition">¶</a></dt>
 <dd><p>Send an A-ABORT to the remote AE and kill the <code class="docutils literal notranslate"><span class="pre">Association</span></code>.</p>
 </dd></dl>
 
@@ -518,7 +518,7 @@ won’t begin until an <code class="docutils literal notranslate"><span class="p
 
 <dl class="method">
 <dt id="pynetdicom.association.Association.bind">
-<code class="sig-name descname">bind</code><span class="sig-paren">(</span><em class="sig-param">event</em>, <em class="sig-param">handler</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/fc81ccb8/pynetdicom/association.py#L221"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom.association.Association.bind" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">bind</code><span class="sig-paren">(</span><em class="sig-param">event</em>, <em class="sig-param">handler</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/cc223f29/pynetdicom/association.py#L221"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom.association.Association.bind" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bind a callable <cite>handler</cite> to an <cite>event</cite>.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -550,13 +550,13 @@ left.</p>
 
 <dl class="method">
 <dt id="pynetdicom.association.Association.get_events">
-<code class="sig-name descname">get_events</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/fc81ccb8/pynetdicom/association.py#L309"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom.association.Association.get_events" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">get_events</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/cc223f29/pynetdicom/association.py#L309"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom.association.Association.get_events" title="Permalink to this definition">¶</a></dt>
 <dd><p>Return a list of currently bound events.</p>
 </dd></dl>
 
 <dl class="method">
 <dt id="pynetdicom.association.Association.get_handlers">
-<code class="sig-name descname">get_handlers</code><span class="sig-paren">(</span><em class="sig-param">event</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/fc81ccb8/pynetdicom/association.py#L313"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom.association.Association.get_handlers" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">get_handlers</code><span class="sig-paren">(</span><em class="sig-param">event</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/cc223f29/pynetdicom/association.py#L313"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom.association.Association.get_handlers" title="Permalink to this definition">¶</a></dt>
 <dd><p>Return handlers bound to a specific <cite>event</cite>.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -585,7 +585,7 @@ created. The identifier is available even after the thread has exited.</p>
 
 <dl class="method">
 <dt id="pynetdicom.association.Association.isAlive">
-<code class="sig-name descname">isAlive</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/fc81ccb8/pynetdicom/../../../../usr/local/lib/python3.6/threading.py#L1104"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom.association.Association.isAlive" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">isAlive</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/cc223f29/pynetdicom/../../../../usr/local/lib/python3.6/threading.py#L1104"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom.association.Association.isAlive" title="Permalink to this definition">¶</a></dt>
 <dd><p>Return whether the thread is alive.</p>
 <p>This method returns True just before the run() method starts until just
 after the run() method terminates. The module function enumerate()
@@ -600,7 +600,7 @@ returns a list of all alive threads.</p>
 
 <dl class="method">
 <dt id="pynetdicom.association.Association.is_alive">
-<code class="sig-name descname">is_alive</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/fc81ccb8/pynetdicom/../../../../usr/local/lib/python3.6/threading.py#L1104"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom.association.Association.is_alive" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">is_alive</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/cc223f29/pynetdicom/../../../../usr/local/lib/python3.6/threading.py#L1104"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom.association.Association.is_alive" title="Permalink to this definition">¶</a></dt>
 <dd><p>Return whether the thread is alive.</p>
 <p>This method returns True just before the run() method starts until just
 after the run() method terminates. The module function enumerate()
@@ -615,7 +615,7 @@ returns a list of all alive threads.</p>
 
 <dl class="method">
 <dt id="pynetdicom.association.Association.join">
-<code class="sig-name descname">join</code><span class="sig-paren">(</span><em class="sig-param">timeout=None</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/fc81ccb8/pynetdicom/../../../../usr/local/lib/python3.6/threading.py#L1024"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom.association.Association.join" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">join</code><span class="sig-paren">(</span><em class="sig-param">timeout=None</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/cc223f29/pynetdicom/../../../../usr/local/lib/python3.6/threading.py#L1024"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom.association.Association.join" title="Permalink to this definition">¶</a></dt>
 <dd><p>Wait until the thread terminates.</p>
 <p>This blocks the calling thread until the thread whose join() method is
 called terminates – either normally or through an unhandled exception
@@ -636,7 +636,7 @@ exception.</p>
 
 <dl class="method">
 <dt id="pynetdicom.association.Association.kill">
-<code class="sig-name descname">kill</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/fc81ccb8/pynetdicom/association.py#L411"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom.association.Association.kill" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">kill</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/cc223f29/pynetdicom/association.py#L411"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom.association.Association.kill" title="Permalink to this definition">¶</a></dt>
 <dd><p>Kill the <code class="docutils literal notranslate"><span class="pre">Association</span></code> thread.</p>
 </dd></dl>
 
@@ -674,7 +674,7 @@ initial name is set by the constructor.</p>
 
 <dl class="method">
 <dt id="pynetdicom.association.Association.release">
-<code class="sig-name descname">release</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/fc81ccb8/pynetdicom/association.py#L473"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom.association.Association.release" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">release</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/cc223f29/pynetdicom/association.py#L473"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom.association.Association.release" title="Permalink to this definition">¶</a></dt>
 <dd><p>Send an A-RELEASE request and initiate association release.</p>
 </dd></dl>
 
@@ -686,7 +686,7 @@ initial name is set by the constructor.</p>
 
 <dl class="method">
 <dt id="pynetdicom.association.Association.request">
-<code class="sig-name descname">request</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/fc81ccb8/pynetdicom/association.py#L489"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom.association.Association.request" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">request</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/cc223f29/pynetdicom/association.py#L489"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom.association.Association.request" title="Permalink to this definition">¶</a></dt>
 <dd><p>Request an association with a peer.</p>
 <p>A request can only be made once the <code class="docutils literal notranslate"><span class="pre">Association</span></code> instance has been
 configured for requestor mode and been assigned an
@@ -695,13 +695,13 @@ configured for requestor mode and been assigned an
 
 <dl class="method">
 <dt id="pynetdicom.association.Association.run">
-<code class="sig-name descname">run</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/fc81ccb8/pynetdicom/association.py#L505"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom.association.Association.run" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">run</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/cc223f29/pynetdicom/association.py#L505"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom.association.Association.run" title="Permalink to this definition">¶</a></dt>
 <dd><p>The main <code class="docutils literal notranslate"><span class="pre">Association</span></code> reactor.</p>
 </dd></dl>
 
 <dl class="method">
 <dt id="pynetdicom.association.Association.send_c_cancel">
-<code class="sig-name descname">send_c_cancel</code><span class="sig-paren">(</span><em class="sig-param">msg_id</em>, <em class="sig-param">context_id</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/fc81ccb8/pynetdicom/association.py#L838"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom.association.Association.send_c_cancel" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">send_c_cancel</code><span class="sig-paren">(</span><em class="sig-param">msg_id</em>, <em class="sig-param">context_id</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/cc223f29/pynetdicom/association.py#L838"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom.association.Association.send_c_cancel" title="Permalink to this definition">¶</a></dt>
 <dd><p>Send a C-CANCEL request to the peer AE.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -717,7 +717,7 @@ service request.</p></li>
 
 <dl class="method">
 <dt id="pynetdicom.association.Association.send_c_echo">
-<code class="sig-name descname">send_c_echo</code><span class="sig-paren">(</span><em class="sig-param">msg_id=1</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/fc81ccb8/pynetdicom/association.py#L866"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom.association.Association.send_c_echo" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">send_c_echo</code><span class="sig-paren">(</span><em class="sig-param">msg_id=1</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/cc223f29/pynetdicom/association.py#L866"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom.association.Association.send_c_echo" title="Permalink to this definition">¶</a></dt>
 <dd><p>Send a C-ECHO request to the peer AE.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -753,7 +753,7 @@ assumed that it will be one of these.</p>
 </p>
 </dd>
 <dt class="field-odd">Return type</dt>
-<dd class="field-odd"><p><a class="reference external" href="https://pydicom.github.io/pydicom/stable/api_ref.html#pydicom.dataset.Dataset" title="(in pydicom v1.2.0rc1)">pydicom.dataset.Dataset</a></p>
+<dd class="field-odd"><p><a class="reference external" href="https://pydicom.github.io/pydicom/stable/api_ref.html#pydicom.dataset.Dataset" title="(in pydicom v1.3.0)">pydicom.dataset.Dataset</a></p>
 </dd>
 <dt class="field-even">Raises</dt>
 <dd class="field-even"><ul class="simple">
@@ -779,16 +779,16 @@ and <a class="reference external" href="http://dicom.nema.org/medical/dicom/curr
 
 <dl class="method">
 <dt id="pynetdicom.association.Association.send_c_find">
-<code class="sig-name descname">send_c_find</code><span class="sig-paren">(</span><em class="sig-param">dataset</em>, <em class="sig-param">query_model</em>, <em class="sig-param">msg_id=1</em>, <em class="sig-param">priority=2</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/fc81ccb8/pynetdicom/association.py#L963"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom.association.Association.send_c_find" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">send_c_find</code><span class="sig-paren">(</span><em class="sig-param">dataset</em>, <em class="sig-param">query_model</em>, <em class="sig-param">msg_id=1</em>, <em class="sig-param">priority=2</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/cc223f29/pynetdicom/association.py#L963"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom.association.Association.send_c_find" title="Permalink to this definition">¶</a></dt>
 <dd><p>Send a C-FIND request to the peer AE.</p>
 <p>Yields <code class="docutils literal notranslate"><span class="pre">(status,</span> <span class="pre">identifier)</span></code> pairs.</p>
 <dl class="field-list">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>dataset</strong> (<a class="reference external" href="https://pydicom.github.io/pydicom/stable/api_ref.html#pydicom.dataset.Dataset" title="(in pydicom v1.2.0rc1)"><em>pydicom.dataset.Dataset</em></a>) – The C-FIND request’s <em>Identifier</em> dataset. The exact requirements
+<li><p><strong>dataset</strong> (<a class="reference external" href="https://pydicom.github.io/pydicom/stable/api_ref.html#pydicom.dataset.Dataset" title="(in pydicom v1.3.0)"><em>pydicom.dataset.Dataset</em></a>) – The C-FIND request’s <em>Identifier</em> dataset. The exact requirements
 for the <em>Identifier</em> dataset are Service Class specific (see the
 DICOM Standard, Part 4).</p></li>
-<li><p><strong>query_model</strong> (<a class="reference external" href="https://pydicom.github.io/pydicom/stable/api_ref.html#pydicom.uid.UID" title="(in pydicom v1.2.0rc1)"><em>pydicom.uid.UID</em></a><em> or </em><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.7)"><em>str</em></a>) – <p>The value to use for the C-FIND request’s (0000,0002) <em>Affected
+<li><p><strong>query_model</strong> (<a class="reference external" href="https://pydicom.github.io/pydicom/stable/api_ref.html#pydicom.uid.UID" title="(in pydicom v1.3.0)"><em>pydicom.uid.UID</em></a><em> or </em><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.7)"><em>str</em></a>) – <p>The value to use for the C-FIND request’s (0000,0002) <em>Affected
 SOP Class UID</em> parameter, which usually corresponds to the
 Information Model that is to be used. If supplying a <code class="docutils literal notranslate"><span class="pre">str</span></code> key
 (deprecated, to be removed in v1.5.0) then one of the following:</p>
@@ -949,7 +949,7 @@ and <a class="reference external" href="http://dicom.nema.org/medical/dicom/curr
 
 <dl class="method">
 <dt id="pynetdicom.association.Association.send_c_get">
-<code class="sig-name descname">send_c_get</code><span class="sig-paren">(</span><em class="sig-param">dataset</em>, <em class="sig-param">query_model</em>, <em class="sig-param">msg_id=1</em>, <em class="sig-param">priority=2</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/fc81ccb8/pynetdicom/association.py#L1220"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom.association.Association.send_c_get" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">send_c_get</code><span class="sig-paren">(</span><em class="sig-param">dataset</em>, <em class="sig-param">query_model</em>, <em class="sig-param">msg_id=1</em>, <em class="sig-param">priority=2</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/cc223f29/pynetdicom/association.py#L1220"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom.association.Association.send_c_get" title="Permalink to this definition">¶</a></dt>
 <dd><p>Send a C-GET request to the peer AE.</p>
 <p>Yields <code class="docutils literal notranslate"><span class="pre">(status,</span> <span class="pre">identifier)</span></code> pairs.</p>
 <p>A <a class="reference internal" href="pynetdicom._handlers.doc_handle_store.html#pynetdicom._handlers.doc_handle_store" title="pynetdicom._handlers.doc_handle_store"><code class="xref py py-meth docutils literal notranslate"><span class="pre">handler</span></code></a>
@@ -961,10 +961,10 @@ Association.</p>
 <dl class="field-list">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>dataset</strong> (<a class="reference external" href="https://pydicom.github.io/pydicom/stable/api_ref.html#pydicom.dataset.Dataset" title="(in pydicom v1.2.0rc1)"><em>pydicom.dataset.Dataset</em></a>) – The C-GET request’s <em>Identifier</em> <code class="docutils literal notranslate"><span class="pre">Dataset</span></code>. The exact
+<li><p><strong>dataset</strong> (<a class="reference external" href="https://pydicom.github.io/pydicom/stable/api_ref.html#pydicom.dataset.Dataset" title="(in pydicom v1.3.0)"><em>pydicom.dataset.Dataset</em></a>) – The C-GET request’s <em>Identifier</em> <code class="docutils literal notranslate"><span class="pre">Dataset</span></code>. The exact
 requirements for the <em>Identifier</em> are Service Class specific (see
 the DICOM Standard, Part 4).</p></li>
-<li><p><strong>query_model</strong> (<a class="reference external" href="https://pydicom.github.io/pydicom/stable/api_ref.html#pydicom.uid.UID" title="(in pydicom v1.2.0rc1)"><em>pydicom.uid.UID</em></a><em> or </em><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.7)"><em>str</em></a>) – <p>The value to use for the C-GET request’s (0000,0002) <em>Affected
+<li><p><strong>query_model</strong> (<a class="reference external" href="https://pydicom.github.io/pydicom/stable/api_ref.html#pydicom.uid.UID" title="(in pydicom v1.3.0)"><em>pydicom.uid.UID</em></a><em> or </em><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.7)"><em>str</em></a>) – <p>The value to use for the C-GET request’s (0000,0002) <em>Affected
 SOP Class UID</em> parameter, which usually corresponds to the
 Information Model that is to be used. If supplying a <code class="docutils literal notranslate"><span class="pre">str</span></code> key
 (deprecated, to be removed in v1.5.0) then one of the following:</p>
@@ -1108,7 +1108,7 @@ and <a class="reference external" href="http://dicom.nema.org/medical/dicom/curr
 
 <dl class="method">
 <dt id="pynetdicom.association.Association.send_c_move">
-<code class="sig-name descname">send_c_move</code><span class="sig-paren">(</span><em class="sig-param">dataset</em>, <em class="sig-param">move_aet</em>, <em class="sig-param">query_model</em>, <em class="sig-param">msg_id=1</em>, <em class="sig-param">priority=2</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/fc81ccb8/pynetdicom/association.py#L1461"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom.association.Association.send_c_move" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">send_c_move</code><span class="sig-paren">(</span><em class="sig-param">dataset</em>, <em class="sig-param">move_aet</em>, <em class="sig-param">query_model</em>, <em class="sig-param">msg_id=1</em>, <em class="sig-param">priority=2</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/cc223f29/pynetdicom/association.py#L1461"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom.association.Association.send_c_move" title="Permalink to this definition">¶</a></dt>
 <dd><p>Send a C-MOVE request to the peer AE.</p>
 <p>Yields <code class="docutils literal notranslate"><span class="pre">(status,</span> <span class="pre">identifier)</span></code> pairs.</p>
 <p>The peer will attempt to start a new association with the AE with
@@ -1118,13 +1118,13 @@ send any matching datasets.</p>
 <dl class="field-list">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>dataset</strong> (<a class="reference external" href="https://pydicom.github.io/pydicom/stable/api_ref.html#pydicom.dataset.Dataset" title="(in pydicom v1.2.0rc1)"><em>pydicom.dataset.Dataset</em></a>) – The C-MOVE request’s <em>Identifier</em> <code class="docutils literal notranslate"><span class="pre">Dataset</span></code>. The exact
+<li><p><strong>dataset</strong> (<a class="reference external" href="https://pydicom.github.io/pydicom/stable/api_ref.html#pydicom.dataset.Dataset" title="(in pydicom v1.3.0)"><em>pydicom.dataset.Dataset</em></a>) – The C-MOVE request’s <em>Identifier</em> <code class="docutils literal notranslate"><span class="pre">Dataset</span></code>. The exact
 requirements for the <em>Identifier</em> are Service Class specific (see
 the DICOM Standard, Part 4).</p></li>
 <li><p><strong>move_aet</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#bytes" title="(in Python v3.7)"><em>bytes</em></a>) – The value of the <em>Move Destination</em> parameter for the C-MOVE
 request, should be the AE title of the Storage SCP for the
 C-STORE sub-operations performed by the peer.</p></li>
-<li><p><strong>query_model</strong> (<a class="reference external" href="https://pydicom.github.io/pydicom/stable/api_ref.html#pydicom.uid.UID" title="(in pydicom v1.2.0rc1)"><em>pydicom.uid.UID</em></a><em> or </em><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.7)"><em>str</em></a>) – <p>The value to use for the C-MOVE request’s (0000,0002) <em>Affected
+<li><p><strong>query_model</strong> (<a class="reference external" href="https://pydicom.github.io/pydicom/stable/api_ref.html#pydicom.uid.UID" title="(in pydicom v1.3.0)"><em>pydicom.uid.UID</em></a><em> or </em><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.7)"><em>str</em></a>) – <p>The value to use for the C-MOVE request’s (0000,0002) <em>Affected
 SOP Class UID</em> parameter, which usually corresponds to the
 Information Model that is to be used. If supplying a <code class="docutils literal notranslate"><span class="pre">str</span></code> key
 (deprecated, to be removed in v1.5.0) then one of the following:</p>
@@ -1253,12 +1253,12 @@ and <a class="reference external" href="http://dicom.nema.org/medical/dicom/curr
 
 <dl class="method">
 <dt id="pynetdicom.association.Association.send_c_store">
-<code class="sig-name descname">send_c_store</code><span class="sig-paren">(</span><em class="sig-param">dataset</em>, <em class="sig-param">msg_id=1</em>, <em class="sig-param">priority=2</em>, <em class="sig-param">originator_aet=None</em>, <em class="sig-param">originator_id=None</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/fc81ccb8/pynetdicom/association.py#L1689"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom.association.Association.send_c_store" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">send_c_store</code><span class="sig-paren">(</span><em class="sig-param">dataset</em>, <em class="sig-param">msg_id=1</em>, <em class="sig-param">priority=2</em>, <em class="sig-param">originator_aet=None</em>, <em class="sig-param">originator_id=None</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/cc223f29/pynetdicom/association.py#L1689"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom.association.Association.send_c_store" title="Permalink to this definition">¶</a></dt>
 <dd><p>Send a C-STORE request to the peer AE.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>dataset</strong> (<a class="reference external" href="https://pydicom.github.io/pydicom/stable/api_ref.html#pydicom.dataset.Dataset" title="(in pydicom v1.2.0rc1)"><em>pydicom.dataset.Dataset</em></a>) – The DICOM dataset to send to the peer.</p></li>
+<li><p><strong>dataset</strong> (<a class="reference external" href="https://pydicom.github.io/pydicom/stable/api_ref.html#pydicom.dataset.Dataset" title="(in pydicom v1.3.0)"><em>pydicom.dataset.Dataset</em></a>) – The DICOM dataset to send to the peer.</p></li>
 <li><p><strong>msg_id</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.7)"><em>int</em></a><em>, </em><em>optional</em>) – The DIMSE <em>Message ID</em>, must be between 0 and 65535, inclusive,
 (default <code class="docutils literal notranslate"><span class="pre">1</span></code>).</p></li>
 <li><p><strong>priority</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.7)"><em>int</em></a><em>, </em><em>optional</em>) – <p>The C-STORE operation <em>Priority</em> (may not be supported by the
@@ -1335,7 +1335,7 @@ Annex GG.4.2)</p>
 </p>
 </dd>
 <dt class="field-odd">Return type</dt>
-<dd class="field-odd"><p><a class="reference external" href="https://pydicom.github.io/pydicom/stable/api_ref.html#pydicom.dataset.Dataset" title="(in pydicom v1.2.0rc1)">pydicom.dataset.Dataset</a></p>
+<dd class="field-odd"><p><a class="reference external" href="https://pydicom.github.io/pydicom/stable/api_ref.html#pydicom.dataset.Dataset" title="(in pydicom v1.3.0)">pydicom.dataset.Dataset</a></p>
 </dd>
 <dt class="field-even">Raises</dt>
 <dd class="field-even"><ul class="simple">
@@ -1365,21 +1365,21 @@ and <a class="reference external" href="http://dicom.nema.org/medical/dicom/curr
 
 <dl class="method">
 <dt id="pynetdicom.association.Association.send_n_action">
-<code class="sig-name descname">send_n_action</code><span class="sig-paren">(</span><em class="sig-param">dataset</em>, <em class="sig-param">action_type</em>, <em class="sig-param">class_uid</em>, <em class="sig-param">instance_uid</em>, <em class="sig-param">msg_id=1</em>, <em class="sig-param">meta_uid=None</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/fc81ccb8/pynetdicom/association.py#L2127"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom.association.Association.send_n_action" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">send_n_action</code><span class="sig-paren">(</span><em class="sig-param">dataset</em>, <em class="sig-param">action_type</em>, <em class="sig-param">class_uid</em>, <em class="sig-param">instance_uid</em>, <em class="sig-param">msg_id=1</em>, <em class="sig-param">meta_uid=None</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/cc223f29/pynetdicom/association.py#L2127"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom.association.Association.send_n_action" title="Permalink to this definition">¶</a></dt>
 <dd><p>Send an N-ACTION request message to the peer AE.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>dataset</strong> (<a class="reference external" href="https://pydicom.github.io/pydicom/stable/api_ref.html#pydicom.dataset.Dataset" title="(in pydicom v1.2.0rc1)"><em>pydicom.dataset.Dataset</em></a><em> or </em><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.7)"><em>None</em></a>) – The dataset that will be sent as the <em>Action Information</em>
+<li><p><strong>dataset</strong> (<a class="reference external" href="https://pydicom.github.io/pydicom/stable/api_ref.html#pydicom.dataset.Dataset" title="(in pydicom v1.3.0)"><em>pydicom.dataset.Dataset</em></a><em> or </em><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.7)"><em>None</em></a>) – The dataset that will be sent as the <em>Action Information</em>
 parameter in the N-ACTION request, or <code class="docutils literal notranslate"><span class="pre">None</span></code> if not required.</p></li>
 <li><p><strong>action_type</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.7)"><em>int</em></a>) – The value of the request’s (0000,1008) <em>Action Type ID</em> parameter.</p></li>
-<li><p><strong>class_uid</strong> (<a class="reference external" href="https://pydicom.github.io/pydicom/stable/api_ref.html#pydicom.uid.UID" title="(in pydicom v1.2.0rc1)"><em>pydicom.uid.UID</em></a>) – The UID to be sent for the request’s (0000,0003) <em>Requested SOP
+<li><p><strong>class_uid</strong> (<a class="reference external" href="https://pydicom.github.io/pydicom/stable/api_ref.html#pydicom.uid.UID" title="(in pydicom v1.3.0)"><em>pydicom.uid.UID</em></a>) – The UID to be sent for the request’s (0000,0003) <em>Requested SOP
 Class UID</em> parameter.</p></li>
-<li><p><strong>instance_uid</strong> (<a class="reference external" href="https://pydicom.github.io/pydicom/stable/api_ref.html#pydicom.uid.UID" title="(in pydicom v1.2.0rc1)"><em>pydicom.uid.UID</em></a>) – The UID to be sent for the request’s (0000,1001) <em>Requested SOP
+<li><p><strong>instance_uid</strong> (<a class="reference external" href="https://pydicom.github.io/pydicom/stable/api_ref.html#pydicom.uid.UID" title="(in pydicom v1.3.0)"><em>pydicom.uid.UID</em></a>) – The UID to be sent for the request’s (0000,1001) <em>Requested SOP
 Instance UID</em> parameter.</p></li>
 <li><p><strong>msg_id</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.7)"><em>int</em></a><em>, </em><em>optional</em>) – The request’s <em>Message ID</em> parameter value, must be between 0 and
 65535, inclusive, (default 1).</p></li>
-<li><p><strong>meta_uid</strong> (<a class="reference external" href="https://pydicom.github.io/pydicom/stable/api_ref.html#pydicom.uid.UID" title="(in pydicom v1.2.0rc1)"><em>pydicom.uid.UID</em></a><em>, </em><em>optional</em>) – If the service class operates under a presentation context
+<li><p><strong>meta_uid</strong> (<a class="reference external" href="https://pydicom.github.io/pydicom/stable/api_ref.html#pydicom.uid.UID" title="(in pydicom v1.3.0)"><em>pydicom.uid.UID</em></a><em>, </em><em>optional</em>) – If the service class operates under a presentation context
 negotiated using a <em>Meta SOP Class</em> rather than a standard <em>SOP
 Class</em> (such as with <em>Print Management</em> service class and its
 <em>Basic Grayscale Print Management Meta SOP Class</em>) then this
@@ -1450,20 +1450,20 @@ and <a class="reference external" href="http://dicom.nema.org/medical/dicom/curr
 
 <dl class="method">
 <dt id="pynetdicom.association.Association.send_n_create">
-<code class="sig-name descname">send_n_create</code><span class="sig-paren">(</span><em class="sig-param">dataset</em>, <em class="sig-param">class_uid</em>, <em class="sig-param">instance_uid=None</em>, <em class="sig-param">msg_id=1</em>, <em class="sig-param">meta_uid=None</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/fc81ccb8/pynetdicom/association.py#L2304"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom.association.Association.send_n_create" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">send_n_create</code><span class="sig-paren">(</span><em class="sig-param">dataset</em>, <em class="sig-param">class_uid</em>, <em class="sig-param">instance_uid=None</em>, <em class="sig-param">msg_id=1</em>, <em class="sig-param">meta_uid=None</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/cc223f29/pynetdicom/association.py#L2304"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom.association.Association.send_n_create" title="Permalink to this definition">¶</a></dt>
 <dd><p>Send an N-CREATE request message to the peer AE.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>dataset</strong> (<a class="reference external" href="https://pydicom.github.io/pydicom/stable/api_ref.html#pydicom.dataset.Dataset" title="(in pydicom v1.2.0rc1)"><em>pydicom.dataset.Dataset</em></a><em> or </em><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.7)"><em>None</em></a>) – The dataset that will be sent as the <em>Attribute List</em>
+<li><p><strong>dataset</strong> (<a class="reference external" href="https://pydicom.github.io/pydicom/stable/api_ref.html#pydicom.dataset.Dataset" title="(in pydicom v1.3.0)"><em>pydicom.dataset.Dataset</em></a><em> or </em><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.7)"><em>None</em></a>) – The dataset that will be sent as the <em>Attribute List</em>
 parameter in the N-CREATE request, or <code class="docutils literal notranslate"><span class="pre">None</span></code> if not required.</p></li>
-<li><p><strong>class_uid</strong> (<a class="reference external" href="https://pydicom.github.io/pydicom/stable/api_ref.html#pydicom.uid.UID" title="(in pydicom v1.2.0rc1)"><em>pydicom.uid.UID</em></a>) – The UID to be sent for the request’s (0000,0002) <em>Affected SOP
+<li><p><strong>class_uid</strong> (<a class="reference external" href="https://pydicom.github.io/pydicom/stable/api_ref.html#pydicom.uid.UID" title="(in pydicom v1.3.0)"><em>pydicom.uid.UID</em></a>) – The UID to be sent for the request’s (0000,0002) <em>Affected SOP
 Class UID</em> parameter.</p></li>
-<li><p><strong>instance_uid</strong> (<a class="reference external" href="https://pydicom.github.io/pydicom/stable/api_ref.html#pydicom.uid.UID" title="(in pydicom v1.2.0rc1)"><em>pydicom.uid.UID</em></a><em>, </em><em>optional</em>) – The UID to be sent for the request’s (0000,1000) <em>Affected SOP
+<li><p><strong>instance_uid</strong> (<a class="reference external" href="https://pydicom.github.io/pydicom/stable/api_ref.html#pydicom.uid.UID" title="(in pydicom v1.3.0)"><em>pydicom.uid.UID</em></a><em>, </em><em>optional</em>) – The UID to be sent for the request’s (0000,1000) <em>Affected SOP
 Instance UID</em> parameter.</p></li>
 <li><p><strong>msg_id</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.7)"><em>int</em></a><em>, </em><em>optional</em>) – The request’s <em>Message ID</em> parameter value, must be between 0 and
 65535, inclusive, (default 1).</p></li>
-<li><p><strong>meta_uid</strong> (<a class="reference external" href="https://pydicom.github.io/pydicom/stable/api_ref.html#pydicom.uid.UID" title="(in pydicom v1.2.0rc1)"><em>pydicom.uid.UID</em></a><em>, </em><em>optional</em>) – If the service class operates under a presentation context
+<li><p><strong>meta_uid</strong> (<a class="reference external" href="https://pydicom.github.io/pydicom/stable/api_ref.html#pydicom.uid.UID" title="(in pydicom v1.3.0)"><em>pydicom.uid.UID</em></a><em>, </em><em>optional</em>) – If the service class operates under a presentation context
 negotiated using a <em>Meta SOP Class</em> rather than a standard <em>SOP
 Class</em> (such as with <em>Print Management</em> service class and its
 <em>Basic Grayscale Print Management Meta SOP Class</em>) then this
@@ -1586,18 +1586,18 @@ and <a class="reference external" href="http://dicom.nema.org/medical/dicom/curr
 
 <dl class="method">
 <dt id="pynetdicom.association.Association.send_n_delete">
-<code class="sig-name descname">send_n_delete</code><span class="sig-paren">(</span><em class="sig-param">class_uid</em>, <em class="sig-param">instance_uid</em>, <em class="sig-param">msg_id=1</em>, <em class="sig-param">meta_uid=None</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/fc81ccb8/pynetdicom/association.py#L2517"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom.association.Association.send_n_delete" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">send_n_delete</code><span class="sig-paren">(</span><em class="sig-param">class_uid</em>, <em class="sig-param">instance_uid</em>, <em class="sig-param">msg_id=1</em>, <em class="sig-param">meta_uid=None</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/cc223f29/pynetdicom/association.py#L2517"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom.association.Association.send_n_delete" title="Permalink to this definition">¶</a></dt>
 <dd><p>Send an N-DELETE request message to the peer AE.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>class_uid</strong> (<a class="reference external" href="https://pydicom.github.io/pydicom/stable/api_ref.html#pydicom.uid.UID" title="(in pydicom v1.2.0rc1)"><em>pydicom.uid.UID</em></a>) – The UID to be sent for the request’s (0000,0003) <em>Requested SOP
+<li><p><strong>class_uid</strong> (<a class="reference external" href="https://pydicom.github.io/pydicom/stable/api_ref.html#pydicom.uid.UID" title="(in pydicom v1.3.0)"><em>pydicom.uid.UID</em></a>) – The UID to be sent for the request’s (0000,0003) <em>Requested SOP
 Class UID</em> parameter.</p></li>
-<li><p><strong>instance_uid</strong> (<a class="reference external" href="https://pydicom.github.io/pydicom/stable/api_ref.html#pydicom.uid.UID" title="(in pydicom v1.2.0rc1)"><em>pydicom.uid.UID</em></a>) – The UID to be sent for the request’s (0000,1001) <em>Requested SOP
+<li><p><strong>instance_uid</strong> (<a class="reference external" href="https://pydicom.github.io/pydicom/stable/api_ref.html#pydicom.uid.UID" title="(in pydicom v1.3.0)"><em>pydicom.uid.UID</em></a>) – The UID to be sent for the request’s (0000,1001) <em>Requested SOP
 Instance UID</em> parameter.</p></li>
 <li><p><strong>msg_id</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.7)"><em>int</em></a><em>, </em><em>optional</em>) – The request’s <em>Message ID</em> parameter value, must be between 0 and
 65535, inclusive, (default 1).</p></li>
-<li><p><strong>meta_uid</strong> (<a class="reference external" href="https://pydicom.github.io/pydicom/stable/api_ref.html#pydicom.uid.UID" title="(in pydicom v1.2.0rc1)"><em>pydicom.uid.UID</em></a><em>, </em><em>optional</em>) – If the service class operates under a presentation context
+<li><p><strong>meta_uid</strong> (<a class="reference external" href="https://pydicom.github.io/pydicom/stable/api_ref.html#pydicom.uid.UID" title="(in pydicom v1.3.0)"><em>pydicom.uid.UID</em></a><em>, </em><em>optional</em>) – If the service class operates under a presentation context
 negotiated using a <em>Meta SOP Class</em> rather than a standard <em>SOP
 Class</em> (such as with <em>Print Management</em> service class and its
 <em>Basic Grayscale Print Management Meta SOP Class</em>) then this
@@ -1636,7 +1636,7 @@ Annex C)</p>
 </p>
 </dd>
 <dt class="field-odd">Return type</dt>
-<dd class="field-odd"><p><a class="reference external" href="https://pydicom.github.io/pydicom/stable/api_ref.html#pydicom.dataset.Dataset" title="(in pydicom v1.2.0rc1)">pydicom.dataset.Dataset</a></p>
+<dd class="field-odd"><p><a class="reference external" href="https://pydicom.github.io/pydicom/stable/api_ref.html#pydicom.dataset.Dataset" title="(in pydicom v1.3.0)">pydicom.dataset.Dataset</a></p>
 </dd>
 </dl>
 <div class="admonition seealso">
@@ -1656,23 +1656,23 @@ and <a class="reference external" href="http://dicom.nema.org/medical/dicom/curr
 
 <dl class="method">
 <dt id="pynetdicom.association.Association.send_n_event_report">
-<code class="sig-name descname">send_n_event_report</code><span class="sig-paren">(</span><em class="sig-param">dataset</em>, <em class="sig-param">event_type</em>, <em class="sig-param">class_uid</em>, <em class="sig-param">instance_uid</em>, <em class="sig-param">msg_id=1</em>, <em class="sig-param">meta_uid=None</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/fc81ccb8/pynetdicom/association.py#L2625"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom.association.Association.send_n_event_report" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">send_n_event_report</code><span class="sig-paren">(</span><em class="sig-param">dataset</em>, <em class="sig-param">event_type</em>, <em class="sig-param">class_uid</em>, <em class="sig-param">instance_uid</em>, <em class="sig-param">msg_id=1</em>, <em class="sig-param">meta_uid=None</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/cc223f29/pynetdicom/association.py#L2625"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom.association.Association.send_n_event_report" title="Permalink to this definition">¶</a></dt>
 <dd><p>Send an N-EVENT-REPORT request message to the peer AE.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>dataset</strong> (<a class="reference external" href="https://pydicom.github.io/pydicom/stable/api_ref.html#pydicom.dataset.Dataset" title="(in pydicom v1.2.0rc1)"><em>pydicom.dataset.Dataset</em></a><em> or </em><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.7)"><em>None</em></a>) – The dataset that will be sent as the <em>Event Information</em> parameter
+<li><p><strong>dataset</strong> (<a class="reference external" href="https://pydicom.github.io/pydicom/stable/api_ref.html#pydicom.dataset.Dataset" title="(in pydicom v1.3.0)"><em>pydicom.dataset.Dataset</em></a><em> or </em><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.7)"><em>None</em></a>) – The dataset that will be sent as the <em>Event Information</em> parameter
 in the N-EVENT-REPORT request, if no <em>Event Information</em> parameter
 is needed then <code class="docutils literal notranslate"><span class="pre">None</span></code>.</p></li>
 <li><p><strong>event_type</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.7)"><em>int</em></a>) – The value to be sent for the request’s (0000,1002) <em>Event Type ID</em>
 parameter.</p></li>
-<li><p><strong>class_uid</strong> (<a class="reference external" href="https://pydicom.github.io/pydicom/stable/api_ref.html#pydicom.uid.UID" title="(in pydicom v1.2.0rc1)"><em>pydicom.uid.UID</em></a>) – The UID to be sent for the request’s (0000,0003) <em>Affected SOP
+<li><p><strong>class_uid</strong> (<a class="reference external" href="https://pydicom.github.io/pydicom/stable/api_ref.html#pydicom.uid.UID" title="(in pydicom v1.3.0)"><em>pydicom.uid.UID</em></a>) – The UID to be sent for the request’s (0000,0003) <em>Affected SOP
 Class UID</em> parameter.</p></li>
-<li><p><strong>instance_uid</strong> (<a class="reference external" href="https://pydicom.github.io/pydicom/stable/api_ref.html#pydicom.uid.UID" title="(in pydicom v1.2.0rc1)"><em>pydicom.uid.UID</em></a>) – The UID to be sent for the request’s (0000,1000) <em>Affected SOP
+<li><p><strong>instance_uid</strong> (<a class="reference external" href="https://pydicom.github.io/pydicom/stable/api_ref.html#pydicom.uid.UID" title="(in pydicom v1.3.0)"><em>pydicom.uid.UID</em></a>) – The UID to be sent for the request’s (0000,1000) <em>Affected SOP
 Instance UID</em> parameter.</p></li>
 <li><p><strong>msg_id</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.7)"><em>int</em></a><em>, </em><em>optional</em>) – The request’s <em>Message ID</em> parameter value, must be between 0 and
 65535, inclusive, (default 1).</p></li>
-<li><p><strong>meta_uid</strong> (<a class="reference external" href="https://pydicom.github.io/pydicom/stable/api_ref.html#pydicom.uid.UID" title="(in pydicom v1.2.0rc1)"><em>pydicom.uid.UID</em></a><em>, </em><em>optional</em>) – If the service class operates under a presentation context
+<li><p><strong>meta_uid</strong> (<a class="reference external" href="https://pydicom.github.io/pydicom/stable/api_ref.html#pydicom.uid.UID" title="(in pydicom v1.3.0)"><em>pydicom.uid.UID</em></a><em>, </em><em>optional</em>) – If the service class operates under a presentation context
 negotiated using a <em>Meta SOP Class</em> rather than a standard <em>SOP
 Class</em> (such as with <em>Print Management</em> service class and its
 <em>Basic Grayscale Print Management Meta SOP Class</em>) then this
@@ -1743,7 +1743,7 @@ and <a class="reference external" href="http://dicom.nema.org/medical/dicom/curr
 
 <dl class="method">
 <dt id="pynetdicom.association.Association.send_n_get">
-<code class="sig-name descname">send_n_get</code><span class="sig-paren">(</span><em class="sig-param">identifier_list</em>, <em class="sig-param">class_uid</em>, <em class="sig-param">instance_uid</em>, <em class="sig-param">msg_id=1</em>, <em class="sig-param">meta_uid=None</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/fc81ccb8/pynetdicom/association.py#L2804"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom.association.Association.send_n_get" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">send_n_get</code><span class="sig-paren">(</span><em class="sig-param">identifier_list</em>, <em class="sig-param">class_uid</em>, <em class="sig-param">instance_uid</em>, <em class="sig-param">msg_id=1</em>, <em class="sig-param">meta_uid=None</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/cc223f29/pynetdicom/association.py#L2804"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom.association.Association.send_n_get" title="Permalink to this definition">¶</a></dt>
 <dd><p>Send an N-GET request message to the peer AE.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -1752,13 +1752,13 @@ and <a class="reference external" href="http://dicom.nema.org/medical/dicom/curr
 (0000,1005) <em>Attribute Identifier List</em> parameter. Should either be
 a list of pydicom <code class="docutils literal notranslate"><span class="pre">Tag</span></code> objects or a list of values that is
 acceptable for creating pydicom <code class="docutils literal notranslate"><span class="pre">Tag</span></code> objects.</p></li>
-<li><p><strong>class_uid</strong> (<a class="reference external" href="https://pydicom.github.io/pydicom/stable/api_ref.html#pydicom.uid.UID" title="(in pydicom v1.2.0rc1)"><em>pydicom.uid.UID</em></a>) – The UID to be sent for the request’s (0000,0003) <em>Requested SOP
+<li><p><strong>class_uid</strong> (<a class="reference external" href="https://pydicom.github.io/pydicom/stable/api_ref.html#pydicom.uid.UID" title="(in pydicom v1.3.0)"><em>pydicom.uid.UID</em></a>) – The UID to be sent for the request’s (0000,0003) <em>Requested SOP
 Class UID</em> parameter.</p></li>
-<li><p><strong>instance_uid</strong> (<a class="reference external" href="https://pydicom.github.io/pydicom/stable/api_ref.html#pydicom.uid.UID" title="(in pydicom v1.2.0rc1)"><em>pydicom.uid.UID</em></a>) – The UID to be sent for the request’s (0000,1001) <em>Requested SOP
+<li><p><strong>instance_uid</strong> (<a class="reference external" href="https://pydicom.github.io/pydicom/stable/api_ref.html#pydicom.uid.UID" title="(in pydicom v1.3.0)"><em>pydicom.uid.UID</em></a>) – The UID to be sent for the request’s (0000,1001) <em>Requested SOP
 Instance UID</em> parameter.</p></li>
 <li><p><strong>msg_id</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.7)"><em>int</em></a><em>, </em><em>optional</em>) – The request’s <em>Message ID</em> parameter value, must be between 0 and
 65535, inclusive, (default 1).</p></li>
-<li><p><strong>meta_uid</strong> (<a class="reference external" href="https://pydicom.github.io/pydicom/stable/api_ref.html#pydicom.uid.UID" title="(in pydicom v1.2.0rc1)"><em>pydicom.uid.UID</em></a><em>, </em><em>optional</em>) – If the service class operates under a presentation context
+<li><p><strong>meta_uid</strong> (<a class="reference external" href="https://pydicom.github.io/pydicom/stable/api_ref.html#pydicom.uid.UID" title="(in pydicom v1.3.0)"><em>pydicom.uid.UID</em></a><em>, </em><em>optional</em>) – If the service class operates under a presentation context
 negotiated using a <em>Meta SOP Class</em> rather than a standard <em>SOP
 Class</em> (such as with <em>Print Management</em> service class and its
 <em>Basic Grayscale Print Management Meta SOP Class</em>) then this
@@ -1862,20 +1862,20 @@ and <a class="reference external" href="http://dicom.nema.org/medical/dicom/curr
 
 <dl class="method">
 <dt id="pynetdicom.association.Association.send_n_set">
-<code class="sig-name descname">send_n_set</code><span class="sig-paren">(</span><em class="sig-param">dataset</em>, <em class="sig-param">class_uid</em>, <em class="sig-param">instance_uid</em>, <em class="sig-param">msg_id=1</em>, <em class="sig-param">meta_uid=None</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/fc81ccb8/pynetdicom/association.py#L2989"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom.association.Association.send_n_set" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">send_n_set</code><span class="sig-paren">(</span><em class="sig-param">dataset</em>, <em class="sig-param">class_uid</em>, <em class="sig-param">instance_uid</em>, <em class="sig-param">msg_id=1</em>, <em class="sig-param">meta_uid=None</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/cc223f29/pynetdicom/association.py#L2989"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom.association.Association.send_n_set" title="Permalink to this definition">¶</a></dt>
 <dd><p>Send an N-SET request message to the peer AE.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>dataset</strong> (<a class="reference external" href="https://pydicom.github.io/pydicom/stable/api_ref.html#pydicom.dataset.Dataset" title="(in pydicom v1.2.0rc1)"><em>pydicom.dataset.Dataset</em></a>) – The dataset that will be sent as the <em>Modification List</em> parameter
+<li><p><strong>dataset</strong> (<a class="reference external" href="https://pydicom.github.io/pydicom/stable/api_ref.html#pydicom.dataset.Dataset" title="(in pydicom v1.3.0)"><em>pydicom.dataset.Dataset</em></a>) – The dataset that will be sent as the <em>Modification List</em> parameter
 in the N-SET request.</p></li>
-<li><p><strong>class_uid</strong> (<a class="reference external" href="https://pydicom.github.io/pydicom/stable/api_ref.html#pydicom.uid.UID" title="(in pydicom v1.2.0rc1)"><em>pydicom.uid.UID</em></a>) – The UID to be sent for the request’s (0000,0003) <em>Requested SOP
+<li><p><strong>class_uid</strong> (<a class="reference external" href="https://pydicom.github.io/pydicom/stable/api_ref.html#pydicom.uid.UID" title="(in pydicom v1.3.0)"><em>pydicom.uid.UID</em></a>) – The UID to be sent for the request’s (0000,0003) <em>Requested SOP
 Class UID</em> parameter.</p></li>
-<li><p><strong>instance_uid</strong> (<a class="reference external" href="https://pydicom.github.io/pydicom/stable/api_ref.html#pydicom.uid.UID" title="(in pydicom v1.2.0rc1)"><em>pydicom.uid.UID</em></a>) – The UID to be sent for the request’s (0000,1001) <em>Requested SOP
+<li><p><strong>instance_uid</strong> (<a class="reference external" href="https://pydicom.github.io/pydicom/stable/api_ref.html#pydicom.uid.UID" title="(in pydicom v1.3.0)"><em>pydicom.uid.UID</em></a>) – The UID to be sent for the request’s (0000,1001) <em>Requested SOP
 Instance UID</em> parameter.</p></li>
 <li><p><strong>msg_id</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.7)"><em>int</em></a><em>, </em><em>optional</em>) – The request’s <em>Message ID</em> parameter value, must be between 0 and
 65535, inclusive, (default 1).</p></li>
-<li><p><strong>meta_uid</strong> (<a class="reference external" href="https://pydicom.github.io/pydicom/stable/api_ref.html#pydicom.uid.UID" title="(in pydicom v1.2.0rc1)"><em>pydicom.uid.UID</em></a><em>, </em><em>optional</em>) – If the service class operates under a presentation context
+<li><p><strong>meta_uid</strong> (<a class="reference external" href="https://pydicom.github.io/pydicom/stable/api_ref.html#pydicom.uid.UID" title="(in pydicom v1.3.0)"><em>pydicom.uid.UID</em></a><em>, </em><em>optional</em>) – If the service class operates under a presentation context
 negotiated using a <em>Meta SOP Class</em> rather than a standard <em>SOP
 Class</em> (such as with <em>Print Management</em> service class and its
 <em>Basic Grayscale Print Management Meta SOP Class</em>) then this
@@ -2010,7 +2010,7 @@ and <a class="reference external" href="http://dicom.nema.org/medical/dicom/curr
 
 <dl class="method">
 <dt id="pynetdicom.association.Association.set_socket">
-<code class="sig-name descname">set_socket</code><span class="sig-paren">(</span><em class="sig-param">socket</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/fc81ccb8/pynetdicom/association.py#L697"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom.association.Association.set_socket" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">set_socket</code><span class="sig-paren">(</span><em class="sig-param">socket</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/cc223f29/pynetdicom/association.py#L697"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom.association.Association.set_socket" title="Permalink to this definition">¶</a></dt>
 <dd><p>Set the socket to use for communicating with the peer.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -2024,7 +2024,7 @@ and <a class="reference external" href="http://dicom.nema.org/medical/dicom/curr
 
 <dl class="method">
 <dt id="pynetdicom.association.Association.start">
-<code class="sig-name descname">start</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/fc81ccb8/pynetdicom/../../../../usr/local/lib/python3.6/threading.py#L828"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom.association.Association.start" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">start</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/cc223f29/pynetdicom/../../../../usr/local/lib/python3.6/threading.py#L828"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom.association.Association.start" title="Permalink to this definition">¶</a></dt>
 <dd><p>Start the thread’s activity.</p>
 <p>It must be called at most once per thread object. It arranges for the
 object’s run() method to be invoked in a separate thread of control.</p>
@@ -2034,7 +2034,7 @@ same thread object.</p>
 
 <dl class="method">
 <dt id="pynetdicom.association.Association.unbind">
-<code class="sig-name descname">unbind</code><span class="sig-paren">(</span><em class="sig-param">event</em>, <em class="sig-param">handler</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/fc81ccb8/pynetdicom/association.py#L715"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom.association.Association.unbind" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">unbind</code><span class="sig-paren">(</span><em class="sig-param">event</em>, <em class="sig-param">handler</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/cc223f29/pynetdicom/association.py#L715"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom.association.Association.unbind" title="Permalink to this definition">¶</a></dt>
 <dd><p>Unbind a callable <cite>func</cite> from an <cite>event</cite>.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>

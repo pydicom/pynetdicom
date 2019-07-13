@@ -201,7 +201,7 @@
 <h1>pynetdicom.presentation.PresentationContext<a class="headerlink" href="#pynetdicom-presentation-presentationcontext" title="Permalink to this headline">¶</a></h1>
 <dl class="class">
 <dt id="pynetdicom.presentation.PresentationContext">
-<em class="property">class </em><code class="sig-prename descclassname">pynetdicom.presentation.</code><code class="sig-name descname">PresentationContext</code><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/fc81ccb8/pynetdicom/presentation.py#L112"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom.presentation.PresentationContext" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="sig-prename descclassname">pynetdicom.presentation.</code><code class="sig-name descname">PresentationContext</code><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/cc223f29/pynetdicom/presentation.py#L112"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom.presentation.PresentationContext" title="Permalink to this definition">¶</a></dt>
 <dd><p>A Presentation Context primitive.</p>
 <p><strong>Rules</strong></p>
 <ul class="simple">
@@ -345,7 +345,7 @@ proposed (i.e. cannot return 1 when the proposed value is 0).</p></li>
 <dd><p>The Presentation Context’s <em>Abstract Syntax</em>.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Type</dt>
-<dd class="field-odd"><p><a class="reference external" href="https://pydicom.github.io/pydicom/stable/api_ref.html#pydicom.uid.UID" title="(in pydicom v1.2.0rc1)">pydicom.uid.UID</a> or <a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.7)">None</a></p>
+<dd class="field-odd"><p><a class="reference external" href="https://pydicom.github.io/pydicom/stable/api_ref.html#pydicom.uid.UID" title="(in pydicom v1.3.0)">pydicom.uid.UID</a> or <a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.7)">None</a></p>
 </dd>
 </dl>
 </dd></dl>
@@ -450,7 +450,7 @@ and <a class="reference external" href="http://dicom.nema.org/medical/dicom/curr
 </ul>
 <dl class="method">
 <dt id="pynetdicom.presentation.PresentationContext.__init__">
-<code class="sig-name descname">__init__</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/fc81ccb8/pynetdicom/presentation.py#L221"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom.presentation.PresentationContext.__init__" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">__init__</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/cc223f29/pynetdicom/presentation.py#L221"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom.presentation.PresentationContext.__init__" title="Permalink to this definition">¶</a></dt>
 <dd><p>Create a new PresentationContext.</p>
 </dd></dl>
 
@@ -514,18 +514,18 @@ and <a class="reference external" href="http://dicom.nema.org/medical/dicom/curr
 <dd class="field-odd"><p></p>
 </dd>
 <dt class="field-even">Return type</dt>
-<dd class="field-even"><p><a class="reference external" href="https://pydicom.github.io/pydicom/stable/api_ref.html#pydicom.uid.UID" title="(in pydicom v1.2.0rc1)">pydicom.uid.UID</a></p>
+<dd class="field-even"><p><a class="reference external" href="https://pydicom.github.io/pydicom/stable/api_ref.html#pydicom.uid.UID" title="(in pydicom v1.3.0)">pydicom.uid.UID</a></p>
 </dd>
 </dl>
 </dd></dl>
 
 <dl class="method">
 <dt id="pynetdicom.presentation.PresentationContext.add_transfer_syntax">
-<code class="sig-name descname">add_transfer_syntax</code><span class="sig-paren">(</span><em class="sig-param">syntax</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/fc81ccb8/pynetdicom/presentation.py#L273"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom.presentation.PresentationContext.add_transfer_syntax" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">add_transfer_syntax</code><span class="sig-paren">(</span><em class="sig-param">syntax</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/cc223f29/pynetdicom/presentation.py#L273"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom.presentation.PresentationContext.add_transfer_syntax" title="Permalink to this definition">¶</a></dt>
 <dd><p>Append a transfer syntax to the presentation context.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>syntax</strong> (<a class="reference external" href="https://pydicom.github.io/pydicom/stable/api_ref.html#pydicom.uid.UID" title="(in pydicom v1.2.0rc1)"><em>pydicom.uid.UID</em></a><em>, </em><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#bytes" title="(in Python v3.7)"><em>bytes</em></a><em> or </em><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.7)"><em>str</em></a>) – The transfer syntax to add to the presentation context.</p>
+<dd class="field-odd"><p><strong>syntax</strong> (<a class="reference external" href="https://pydicom.github.io/pydicom/stable/api_ref.html#pydicom.uid.UID" title="(in pydicom v1.3.0)"><em>pydicom.uid.UID</em></a><em>, </em><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#bytes" title="(in Python v3.7)"><em>bytes</em></a><em> or </em><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.7)"><em>str</em></a>) – The transfer syntax to add to the presentation context.</p>
 </dd>
 </dl>
 </dd></dl>
