@@ -93,6 +93,14 @@ class TestPrimitive_C_STORE(object):
         assert primitive.MoveOriginatorApplicationEntityTitle == b'UNITTEST_SCP    '
         primitive.MoveOriginatorApplicationEntityTitle = b'UNITTEST_SCP'
         assert primitive.MoveOriginatorApplicationEntityTitle == b'UNITTEST_SCP    '
+        primitive.MoveOriginatorApplicationEntityTitle = ''
+        assert primitive.MoveOriginatorApplicationEntityTitle is None
+        primitive.MoveOriginatorApplicationEntityTitle = b''
+        assert primitive.MoveOriginatorApplicationEntityTitle is None
+        primitive.MoveOriginatorApplicationEntityTitle = '         '
+        assert primitive.MoveOriginatorApplicationEntityTitle is None
+        primitive.MoveOriginatorApplicationEntityTitle = b'         '
+        assert primitive.MoveOriginatorApplicationEntityTitle is None
 
         primitive.MoveOriginatorMessageID = 15
         assert primitive.MoveOriginatorMessageID == 15
@@ -209,9 +217,8 @@ class TestPrimitive_C_STORE(object):
         primitive.MoveOriginatorApplicationEntityTitle = ''
         assert primitive.MoveOriginatorApplicationEntityTitle is None
 
-
-        with pytest.raises(ValueError):
-            primitive.MoveOriginatorApplicationEntityTitle = '    '
+        #with pytest.raises(ValueError):
+        #    primitive.MoveOriginatorApplicationEntityTitle = '    '
 
         # MoveOriginatorMessageID
         with pytest.raises(TypeError):
