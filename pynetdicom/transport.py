@@ -353,7 +353,7 @@ class RequestHandler(BaseRequestHandler):
 
         # Association Acceptor object -> local AE
         assoc.acceptor.maximum_length = self.ae.maximum_pdu_size
-        assoc.acceptor.ae_title = self.ae.ae_title
+        assoc.acceptor.ae_title = self.server.ae_title
         assoc.acceptor.address = self.local[0]
         assoc.acceptor.port = self.local[1]
         assoc.acceptor.implementation_class_uid = (
@@ -362,9 +362,7 @@ class RequestHandler(BaseRequestHandler):
         assoc.acceptor.implementation_version_name = (
             self.ae.implementation_version_name
         )
-        assoc.acceptor.supported_contexts = deepcopy(
-            self.ae.supported_contexts
-        )
+        assoc.acceptor.supported_contexts = deepcopy(self.server.contexts)
 
         # Association Requestor object -> remote AE
         assoc.requestor.address = self.remote[0]
@@ -419,7 +417,8 @@ class AssociationServer(TCPServer):
         The ``SSLContext`` used to wrap client sockets, or ``None`` if no TLS
         is required (default).
     """
-    def __init__(self, ae, address, ssl_context=None, evt_handlers=None):
+    def __init__(self, ae, address, ae_title, contexts, ssl_context=None,
+                 evt_handlers=None):
         """Create a new AssociationServer, bind a socket and start listening.
 
         Parameters
@@ -428,6 +427,10 @@ class AssociationServer(TCPServer):
             The parent AE that's running the server.
         address : 2-tuple
             The ``(host, port)`` that the server should run on.
+        ae_title : bytes
+            The AE title of the SCP.
+        contexts : list of presentation.PresentationContext
+            The SCPs supported presentation contexts.
         ssl_context : ssl.SSLContext, optional
             If TLS is to be used then this should be the ``ssl.SSLContext``
             used to wrap the client sockets, otherwise if ``None`` then no
@@ -437,6 +440,8 @@ class AssociationServer(TCPServer):
             when *event* occurs.
         """
         self.ae = ae
+        self.ae_title = ae_title
+        self.contexts = contexts
         self.ssl_context = ssl_context
         self.allow_reuse_address = True
 

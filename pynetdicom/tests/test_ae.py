@@ -12,7 +12,7 @@ from pydicom.dataset import Dataset
 from pydicom.uid import UID, ImplicitVRLittleEndian
 
 from pynetdicom import (
-    AE, evt, debug_logger,
+    AE, evt, debug_logger, build_context,
     DEFAULT_TRANSFER_SYNTAXES,
     StoragePresentationContexts,
     VerificationPresentationContexts,
@@ -52,6 +52,66 @@ def test_blocking_handler():
     time.sleep(0.1)
 
     ae.shutdown()
+
+
+class TestStartServer(object):
+    """Tests for AE.start_server()"""
+    def setup(self):
+        """Run prior to each test"""
+        self.ae = None
+
+    def teardown(self):
+        """Clear any active threads"""
+        if self.ae:
+            self.ae.shutdown()
+
+    def test_ae_title(self):
+        """Test the `ae_title` keyword parameter."""
+        self.ae = ae = AE()
+        ae.acse_timeout = 5
+        ae.dimse_timeout = 5
+        ae.network_timeout = 5
+        ae.ae_title = b'TESTAET'
+        assert ae.ae_title == b'TESTAET         '
+
+        ae.add_supported_context(VerificationSOPClass)
+        server = ae.start_server(('', 11112), block=False)
+        assert server.ae_title == ae.ae_title
+
+        server.shutdown()
+
+        server = ae.start_server(('', 11112), block=False, ae_title=b'MYAE')
+        assert server.ae_title == b'MYAE            '
+        ae.require_called_aet = True
+
+        ae.add_requested_context(VerificationSOPClass)
+        assoc = ae.associate('', 11112, ae_title=b'MYAE')
+        assert assoc.is_established
+        assoc.release()
+        assert assoc.is_released
+
+        server.shutdown()
+
+    def test_contexts(self):
+        """Test the `contexts` keyword parameter."""
+        self.ae = ae = AE()
+        ae.acse_timeout = 5
+        ae.dimse_timeout = 5
+        ae.network_timeout = 5
+        ae.ae_title = b'TESTAET'
+        assert ae.ae_title == b'TESTAET         '
+
+        cx = build_context(VerificationSOPClass)
+        server = ae.start_server(('', 11112), block=False, contexts=[cx])
+
+        ae.add_requested_context(VerificationSOPClass)
+        assoc = ae.associate('', 11112, ae_title=b'MYAE')
+        assert assoc.is_established
+        assert assoc.accepted_contexts[0].abstract_syntax == VerificationSOPClass
+        assoc.release()
+        assert assoc.is_released
+
+        server.shutdown()
 
 
 class TestAEVerificationSCP(object):

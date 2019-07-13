@@ -19,7 +19,7 @@ import pytest
 
 from pydicom import dcmread
 
-from pynetdicom import AE, evt, _config
+from pynetdicom import AE, evt, _config, debug_logger
 from pynetdicom.association import Association
 from pynetdicom.events import Event
 from pynetdicom._globals import MODE_REQUESTOR, MODE_ACCEPTOR
@@ -47,9 +47,7 @@ CLIENT_CERT, CLIENT_KEY = (
 DATASET = dcmread(os.path.join(DCM_DIR, 'RTImageStorage.dcm'))
 
 
-LOGGER = logging.getLogger('pynetdicom')
-LOGGER.setLevel(logging.CRITICAL)
-LOGGER.setLevel(logging.DEBUG)
+#debug_logger()
 
 
 class TestAssociationSocket(object):
@@ -443,7 +441,7 @@ class TestAssociationServer(object):
             _servers = []
 
         dummy = DummyAE()
-        server = ThreadedAssociationServer(dummy, ('', 11112))
+        server = ThreadedAssociationServer(dummy, ('', 11112), b'a', [])
         dummy._servers.append(server)
         thread = threading.Thread(target=server.serve_forever)
         thread.daemon = True

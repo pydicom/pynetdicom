@@ -523,10 +523,8 @@ class ApplicationEntity(object):
             assoc.requestor.add_negotiation_item(item)
 
         # Requestor's presentation contexts
-        if contexts is None:
-            contexts = self.requested_contexts
-        else:
-            self._validate_requested_contexts(contexts)
+        contexts = contexts or self.requested_contexts
+        self._validate_requested_contexts(contexts)
 
         # PS3.8 Table 9.11, an A-ASSOCIATE-RQ must contain one or more
         #   Presentation Context items
@@ -1042,7 +1040,7 @@ class ApplicationEntity(object):
         ]
 
     def start_server(self, address, block=True, ssl_context=None,
-                     evt_handlers=None):
+                     evt_handlers=None, ae_title=None, contexts=None):
         """Start the AE as an association acceptor.
 
         If set to non-blocking then a running ``ThreadedAssociationServer``
@@ -1067,6 +1065,15 @@ class ApplicationEntity(object):
             parameter and may return or yield objects depending on the exact
             event that the handler is bound to. For more information see the
             :ref:`documentation<user_events>`.
+        ae_title : bytes, optional
+            The AE title to use for the local SCP. Leading and trailing spaces
+            are non-significant. If this keyword parameter is not used then
+            the AE title from the ``AE.ae_title`` property will be used instead
+            (default).
+        contexts : list of presentation.PresentationContext, optional
+            The presentation contexts that will be supported by the SCP. If
+            not used then the presentation contexts in the
+            ``AE.supported_contexts`` property will be used instead (default).
 
         Returns
         -------
@@ -1076,13 +1083,20 @@ class ApplicationEntity(object):
         """
         # If the SCP has no supported SOP Classes then there's no point
         #   running as a server
-        if not self.supported_contexts:
+        if not contexts and not self.supported_contexts:
             msg = "No supported Presentation Contexts have been defined"
             LOGGER.error(msg)
             raise ValueError(msg)
 
+        if ae_title:
+            ae_title = validate_ae_title(ae_title)
+        else:
+            ae_title = self.ae_title
+
+        contexts = contexts or self.supported_contexts
+
         bad_contexts = []
-        for cx in self.supported_contexts:
+        for cx in contexts:
             roles = (cx.scu_role, cx.scp_role)
             if None in roles and roles != (None, None):
                 bad_contexts.append(cx.abstract_syntax)
@@ -1100,7 +1114,8 @@ class ApplicationEntity(object):
         if block:
             # Blocking server
             server = AssociationServer(
-                self, address, ssl_context, evt_handlers=evt_handlers
+                self, address, ae_title, contexts, ssl_context,
+                evt_handlers=evt_handlers,
             )
             self._servers.append(server)
 
@@ -1113,7 +1128,8 @@ class ApplicationEntity(object):
             # Non-blocking server
             timestamp = datetime.strftime(datetime.now(), "%Y%m%d%H%M%S")
             server = ThreadedAssociationServer(
-                self, address, ssl_context, evt_handlers=evt_handlers
+                self, address, ae_title, contexts, ssl_context,
+                evt_handlers=evt_handlers,
             )
 
             thread = threading.Thread(
