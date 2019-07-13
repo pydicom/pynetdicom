@@ -356,15 +356,23 @@ class C_STORE(DIMSEPrimitive):
         ----------
         value : str or bytes
             The Move Originator AE Title as a string or bytes object. Cannot be
-            an empty string and will be truncated to 16 characters long
+            an empty string and will be truncated to 16 characters long.
+            Invalid values will be ignored.
         """
         if isinstance(value, str):
             value = codecs.encode(value, 'ascii')
 
         if value:
-            self._move_originator_application_entity_title = (
-                validate_ae_title(value)
-            )
+            try:
+                self._move_originator_application_entity_title = (
+                    validate_ae_title(value)
+                )
+            except ValueError as exc:
+                LOGGER.error(
+                    "C-STORE request primitive contains an invalid "
+                    "'Move Originator AE Title'"
+                )
+                self._move_originator_application_entity_title = None
         else:
             self._move_originator_application_entity_title = None
 
@@ -1988,13 +1996,13 @@ class N_CREATE(DIMSEPrimitive):
     +==========================================+=========+==========+
     | Message ID                               | M       | \-       |
     +------------------------------------------+---------+----------+
-    +------------------------------------------+---------+----------+
     | Message ID Being Responded To            | \-      | M        |
+    +------------------------------------------+---------+----------+
     | Affected SOP Class UID                   | M       | U(=)     |
     +------------------------------------------+---------+----------+
     | Affected SOP Instance UID                | U       | C        |
     +------------------------------------------+---------+----------+
-    | Affected SOP Instance UID                | U       | U        |
+    | Attribute List                           | U       | U        |
     +------------------------------------------+---------+----------+
     | Status                                   | \-      | M        |
     +------------------------------------------+---------+----------+
