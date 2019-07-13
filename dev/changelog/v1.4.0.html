@@ -214,6 +214,9 @@ Print Management Meta SOP Class</em> to <code class="docutils literal notranslat
 contain no Transfer Syntax Sub-item (<a class="reference external" href="https://github.com/pydicom/pynetdicom/issues/361">#361</a>)</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">ae_title</span></code> and <code class="docutils literal notranslate"><span class="pre">contexts</span></code> keyword arguments added to
 <code class="docutils literal notranslate"><span class="pre">AE.start_server()</span></code></p></li>
+<li><p>Invalid (0000,1030) <em>Move Originator Application Entity Title</em> values
+received in C-STORE service requests are now logged and ignored rather than
+raising an exception and aborting the association.</p></li>
 </ul>
 </div>
 <div class="section" id="changes">

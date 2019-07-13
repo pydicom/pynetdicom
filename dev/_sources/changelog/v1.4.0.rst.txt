@@ -45,6 +45,9 @@ Enhancements
   contain no Transfer Syntax Sub-item (:issue:`361`)
 * ``ae_title`` and ``contexts`` keyword arguments added to
   ``AE.start_server()``
+* Invalid (0000,1030) *Move Originator Application Entity Title* values
+  received in C-STORE service requests are now logged and ignored rather than
+  raising an exception and aborting the association.
 
 
 Changes
