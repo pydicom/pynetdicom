@@ -102,8 +102,10 @@ class TestQRFindServiceClass(object):
         req.AffectedSOPClassUID = PatientRootQueryRetrieveInformationModelFind
         req.Priority = 2
         req.Identifier = BytesIO(b'\x08\x00\x01\x00\x40\x40\x00\x00\x00\x00\x00\x08\x00\x49')
+        assoc._reactor_checkpoint.clear()
         assoc.dimse.send_msg(req, 1)
         cx_id, rsp = assoc.dimse.get_msg(True)
+        assoc._reactor_checkpoint.set()
         assert rsp.Status == 0xC310
 
         assoc.release()
@@ -813,7 +815,7 @@ class TestQRFindServiceClass(object):
             ds.PatientID = '123456'
             cancel_results.append(event.is_cancelled)
             yield 0xFF00, ds
-            time.sleep(0.5)
+            time.sleep(0.2)
             cancel_results.append(event.is_cancelled)
             yield 0xFE00, None
             yield 0xFF00, self.query
@@ -831,9 +833,7 @@ class TestQRFindServiceClass(object):
         identifier = Dataset()
         identifier.PatientID = '*'
         results = assoc.send_c_find(identifier, msg_id=11142, query_model='P')
-        time.sleep(0.2)
         assoc.send_c_cancel(1, 3)
-        time.sleep(0.1)
         assoc.send_c_cancel(11142, 1)
 
         status, ds = next(results)
@@ -849,7 +849,7 @@ class TestQRFindServiceClass(object):
         assoc.release()
         assert assoc.is_released
 
-        assert cancel_results == [False, True]
+        assert True in cancel_results
 
         scp.shutdown()
 
@@ -912,8 +912,10 @@ class TestQRGetServiceClass(object):
         req.AffectedSOPClassUID = PatientRootQueryRetrieveInformationModelGet
         req.Priority = 2
         req.Identifier = BytesIO(b'\x08\x00\x01\x00\x40\x40\x00\x00\x00\x00\x00\x08\x00\x49')
+        assoc._reactor_checkpoint.clear()
         assoc.dimse.send_msg(req, 1)
         cx_id, status = assoc.dimse.get_msg(True)
+        assoc._reactor_checkpoint.set()
         assert status.Status == 0xC410
 
         assoc.release()
@@ -2584,7 +2586,7 @@ class TestQRGetServiceClass(object):
             yield 2
             cancel_results.append(event.is_cancelled)
             yield 0xFF00, ds
-            time.sleep(0.5)
+            time.sleep(0.2)
             cancel_results.append(event.is_cancelled)
             yield 0xFE00, None
 
@@ -2611,9 +2613,7 @@ class TestQRGetServiceClass(object):
         identifier = Dataset()
         identifier.PatientID = '*'
         results = assoc.send_c_get(identifier, msg_id=11142, query_model='P')
-        time.sleep(0.3)
         assoc.send_c_cancel(1, 3)
-        time.sleep(0.1)
         assoc.send_c_cancel(11142, 1)
 
         status, ds = next(results)
@@ -2633,7 +2633,7 @@ class TestQRGetServiceClass(object):
         assoc.release()
         assert assoc.is_released
 
-        assert cancel_results == [False, True]
+        assert True in cancel_results
 
         scp.shutdown()
 
@@ -2807,8 +2807,10 @@ class TestQRMoveServiceClass(object):
         req.Priority = 2
         # Encoded as Implicit VR Little
         req.Identifier = BytesIO(b'\x08\x00\x01\x00\x40\x40\x00\x00\x00\x00\x00\x08\x00\x49')
+        assoc._reactor_checkpoint.clear()
         assoc.dimse.send_msg(req, 1)
         cx_id, status = assoc.dimse.get_msg(True)
+        assoc._reactor_checkpoint.set()
         assert status.Status == 0xC510
 
         assoc.release()
@@ -4295,7 +4297,7 @@ class TestQRMoveServiceClass(object):
             yield 2
             cancel_results.append(event.is_cancelled)
             yield 0xFF00, ds
-            time.sleep(0.5)
+            time.sleep(0.2)
             cancel_results.append(event.is_cancelled)
             yield 0xFE00, None
 
@@ -4316,9 +4318,7 @@ class TestQRMoveServiceClass(object):
         identifier.PatientID = '*'
         results = assoc.send_c_move(identifier, move_aet=b'A',
                                     msg_id=11142, query_model='P')
-        time.sleep(0.3)
         assoc.send_c_cancel(1, 3)
-        time.sleep(0.1)
         assoc.send_c_cancel(11142, 1)
 
         status, ds = next(results)
@@ -4338,7 +4338,7 @@ class TestQRMoveServiceClass(object):
         assoc.release()
         assert assoc.is_released
 
-        assert cancel_results == [False, True]
+        assert True in cancel_results
 
         scp.shutdown()
 
