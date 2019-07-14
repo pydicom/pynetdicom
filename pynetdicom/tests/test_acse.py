@@ -1970,7 +1970,6 @@ class TestNegotiateRelease(object):
         commands = [
             ('recv', None),
             ('send', a_associate_ac),
-            ('wait', 0.3),  # Ensure enough time for association to complete
             ('recv', None),  # a-release-rq
             ('send', a_release_rq),  # Cause collision
             ('recv', None),  # a-release-rp
@@ -1978,12 +1977,12 @@ class TestNegotiateRelease(object):
         ]
         self.scp = scp = self.start_server(commands)
 
-        assoc = self.create_assoc()
-        assoc.start()
-        while not assoc.is_established:
-            time.sleep(0.05)
-
         with caplog.at_level(logging.DEBUG, logger='pynetdicom'):
+            assoc = self.create_assoc()
+            assoc.start()
+            while not assoc.is_established:
+                time.sleep(0.05)
+
             assoc.release()
             time.sleep(0.1)
             assert assoc.is_released
@@ -1999,9 +1998,8 @@ class TestNegotiateRelease(object):
         commands = [
             ('recv', None),
             ('send', a_associate_ac),
-            ('wait', 0.3),
-            ('recv', None),
-            ('recv', None),
+            ('recv', None),  # a-release-rq
+            ('recv', None),  # a-p-abort
         ]
         self.scp = scp = self.start_server(commands)
 
@@ -2024,7 +2022,6 @@ class TestNegotiateRelease(object):
         commands = [
             ('recv', None),
             ('send', a_associate_ac),
-            ('wait', 0.3),
             ('recv', None),  # a_release_rq
             ('send', p_data_tf),
             ('send', a_release_rp)
@@ -2097,7 +2094,6 @@ class TestNegotiateRelease(object):
         commands = [
             ('recv', None),
             ('send', a_associate_ac),
-            ('wait', 0.3),
             ('recv', None),  # a-release-rq
             ('send', a_release_rq),  # Cause collision
             ('recv', None),  # a-release-rp
@@ -2105,12 +2101,12 @@ class TestNegotiateRelease(object):
         ]
         self.scp = scp = self.start_server(commands)
 
-        assoc = self.create_assoc()
-        assoc.start()
-        while not assoc.is_established:
-            time.sleep(0.05)
-
         with caplog.at_level(logging.DEBUG, logger='pynetdicom'):
+            assoc = self.create_assoc()
+            assoc.start()
+            while not assoc.is_established:
+                time.sleep(0.05)
+
             assoc.release()
             assert assoc.is_aborted
             assert "An A-RELEASE collision has occurred" in caplog.text
@@ -2126,7 +2122,6 @@ class TestNegotiateRelease(object):
         commands = [
             ('recv', None),
             ('send', a_associate_ac),
-            ('wait', 0.3),
             ('recv', None),  # a-release-rq
             ('send', a_release_rq),  # Cause collision
             ('recv', None),  # a-release-rp
@@ -2134,12 +2129,12 @@ class TestNegotiateRelease(object):
         ]
         self.scp = scp = self.start_server(commands)
 
-        assoc = self.create_assoc()
-        assoc.start()
-        while not assoc.is_established:
-            time.sleep(0.05)
-
         with caplog.at_level(logging.DEBUG, logger='pynetdicom'):
+            assoc = self.create_assoc()
+            assoc.start()
+            while not assoc.is_established:
+                time.sleep(0.05)
+
             assoc.release()
             assert assoc.is_aborted
             assert "An A-RELEASE collision has occurred" in caplog.text
