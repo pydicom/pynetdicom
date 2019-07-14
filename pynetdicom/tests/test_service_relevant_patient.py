@@ -71,8 +71,10 @@ class TestRelevantPatientServiceClass(object):
         req.AffectedSOPClassUID = GeneralRelevantPatientInformationQuery
         req.Priority = 2
         req.Identifier = BytesIO(b'\x08\x00\x01\x00\x40\x40\x00\x00\x00\x00\x00\x08\x00\x49')
+        assoc._reactor_checkpoint.clear()
         assoc.dimse.send_msg(req, 1)
         cx_id, rsp = assoc.dimse.get_msg(True)
+        assoc._reactor_checkpoint.set()
         assert rsp.Status == 0xC310
 
         assoc.release()
@@ -532,11 +534,10 @@ class TestRelevantPatientServiceClass(object):
         status, identifier = next(result)
         assert status.Status == 0x0000
 
-        assoc = attrs['assoc']
-        assert assoc == scp.active_associations[0]
-
-        assoc.release()
-        assert assoc.is_released
+        scp_assoc = attrs['assoc']
+        assert scp_assoc == scp.active_associations[0]
+        scp_assoc.release()
+        assert scp_assoc.is_released
 
         scp.shutdown()
 

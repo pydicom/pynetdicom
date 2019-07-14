@@ -473,10 +473,13 @@ class Association(threading.Thread):
     def release(self):
         """Send an A-RELEASE request and initiate association release."""
         if self.is_established:
-            # Ensure the reactor is running
-            self._reactor_checkpoint.set()
+            # Ensure the reactor is paused so it doesn't
+            #   steal incoming ACSE messages
+            self._reactor_checkpoint.clear()
             LOGGER.info('Releasing Association')
             self.acse.negotiate_release(self)
+            # Restart reactor
+            self._reactor_checkpoint.set()
 
     @property
     def remote(self):
@@ -525,7 +528,7 @@ class Association(threading.Thread):
 
             self.acse.negotiate_association(self)
             if self.is_established:
-                self._run_as_acceptor()
+                self._run_reactor()
         else:
             # Association requestor
             # Allow non-blocking negotiation
@@ -534,9 +537,9 @@ class Association(threading.Thread):
                 self.acse.negotiate_association(self)
 
             if self.is_established:
-                self._run_as_requestor()
+                self._run_reactor()
 
-    def _run_as_acceptor(self):
+    def _run_reactor(self):
         """Run the ``Association`` acceptor reactor loop.
 
         Main acceptor run loop
@@ -567,7 +570,12 @@ class Association(threading.Thread):
             msg_context_id, msg = self.dimse.get_msg(block=False)
 
             # DIMSE message received, should be a service request
-            if msg:
+            if msg and not msg.is_valid_request:
+                LOGGER.warning(
+                    "Received unexpected {} service message"
+                    .format(msg.msg_type)
+                )
+            elif msg:
                 # Use the Message's Affected SOP Class UID or Requested SOP
                 #   Class UID to determine which service to use
                 # If there's no AffectedSOPClassUID or RequestedSOPClassUID
@@ -645,45 +653,6 @@ class Association(threading.Thread):
 
             # Check if the DULServiceProvider thread is still running
             #   DUL.is_alive() is inherited from threading.thread
-            if not self.dul.is_alive():
-                self.kill()
-                return
-
-            # Check if idle timer has expired
-            if self.dul.idle_timer_expired():
-                self.abort()
-                self.kill()
-                return
-
-    def _run_as_requestor(self):
-        """Run the association as the requestor."""
-        # Listen for further messages from the peer
-        while not self._kill:
-            time.sleep(0.1)
-
-            # Check for release request
-            if self.acse.is_release_requested(self):
-                # Send A-RELEASE response
-                self.acse.send_release(self, is_response=True)
-                LOGGER.info('Association Released')
-                self.is_released = True
-                self.is_established = False
-                evt.trigger(self, evt.EVT_RELEASED, {})
-                self.kill()
-                return
-
-            # Check for abort
-            if self.acse.is_aborted(self):
-                LOGGER.info('Association Aborted')
-                self.is_aborted = True
-                self.is_established = False
-                evt.trigger(self, evt.EVT_ABORTED, {})
-                self.kill()
-                return
-
-            # Check if the DULServiceProvider thread is
-            #   still running. DUL.is_alive() is inherited from
-            #   threading.thread
             if not self.dul.is_alive():
                 self.kill()
                 return

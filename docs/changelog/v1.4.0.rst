@@ -11,12 +11,12 @@ Fixes
   if no matches were yielded by the C-FIND request handler.
 * Fixed association being aborted due to failure to decode a rejected
   presentation context when the transfer syntax value is empty (:issue:`342`)
-* Checkpoint added to the reactor in ``Association`` to prevent a possible
-  race condition when acting as the Acceptor and calling one of the
-  ``Association.send_*()`` methods.
-* Fixed log messages for A-ASSOCIATE-RJ having the rejection reasons for
-  Calling AE title not recognised and Called AE title no recognised being
-  swapped around
+* Checkpoint added to the reactor in ``Association`` to prevent possible
+  race conditions:
+
+  * When acting as the Acceptor and calling one of the ``Association.send_*()``
+    methods.
+  * During an A-RELEASE collision.
 
 
 Enhancements
@@ -49,6 +49,8 @@ Enhancements
   received in C-STORE service requests are now logged and ignored rather than
   raising an exception and aborting the association.
 * Improved handling of DIMSE service messages with empty element values.
+* Added handling for DIMSE service requests when the acting as the association
+  Requestor
 
 
 Changes
