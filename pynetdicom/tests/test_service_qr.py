@@ -102,8 +102,10 @@ class TestQRFindServiceClass(object):
         req.AffectedSOPClassUID = PatientRootQueryRetrieveInformationModelFind
         req.Priority = 2
         req.Identifier = BytesIO(b'\x08\x00\x01\x00\x40\x40\x00\x00\x00\x00\x00\x08\x00\x49')
+        assoc._reactor_checkpoint.clear()
         assoc.dimse.send_msg(req, 1)
         cx_id, rsp = assoc.dimse.get_msg(True)
+        assoc._reactor_checkpoint.set()
         assert rsp.Status == 0xC310
 
         assoc.release()
@@ -912,8 +914,10 @@ class TestQRGetServiceClass(object):
         req.AffectedSOPClassUID = PatientRootQueryRetrieveInformationModelGet
         req.Priority = 2
         req.Identifier = BytesIO(b'\x08\x00\x01\x00\x40\x40\x00\x00\x00\x00\x00\x08\x00\x49')
+        assoc._reactor_checkpoint.clear()
         assoc.dimse.send_msg(req, 1)
         cx_id, status = assoc.dimse.get_msg(True)
+        assoc._reactor_checkpoint.set()
         assert status.Status == 0xC410
 
         assoc.release()
@@ -2807,8 +2811,10 @@ class TestQRMoveServiceClass(object):
         req.Priority = 2
         # Encoded as Implicit VR Little
         req.Identifier = BytesIO(b'\x08\x00\x01\x00\x40\x40\x00\x00\x00\x00\x00\x08\x00\x49')
+        assoc._reactor_checkpoint.clear()
         assoc.dimse.send_msg(req, 1)
         cx_id, status = assoc.dimse.get_msg(True)
+        assoc._reactor_checkpoint.set()
         assert status.Status == 0xC510
 
         assoc.release()

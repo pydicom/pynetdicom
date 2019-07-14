@@ -412,6 +412,11 @@ class DIMSEPrimitive(object):
         else:
             raise TypeError("DIMSE primitive's 'Status' must be an int")
 
+    @property
+    def msg_type(self):
+        """Return the DIMSE message type as str."""
+        return self.__class__.__name__.replace('_', '-')
+
 
 # DIMSE-C Service Primitives
 class C_STORE(DIMSEPrimitive):

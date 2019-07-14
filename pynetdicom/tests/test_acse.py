@@ -17,7 +17,8 @@ import pytest
 
 from pynetdicom import (
     AE, VerificationPresentationContexts, PYNETDICOM_IMPLEMENTATION_UID,
-    PYNETDICOM_IMPLEMENTATION_VERSION, build_context, evt, _config
+    PYNETDICOM_IMPLEMENTATION_VERSION, build_context, evt, _config,
+    debug_logger
 )
 from pynetdicom.acse import ACSE
 from pynetdicom.association import Association, ServiceUser
@@ -44,9 +45,7 @@ from .encoded_pdu_items import (
 )
 
 
-LOGGER = logging.getLogger('pynetdicom')
-LOGGER.setLevel(logging.CRITICAL)
-LOGGER.setLevel(logging.DEBUG)
+debug_logger()
 
 
 class DummyDUL(object):
@@ -2126,6 +2125,9 @@ class TestNegotiateRelease(object):
             scp.start()
 
             ae = AE()
+            ae.acse_timeout = 5
+            ae.dimse_timeout = 5
+            ae.network_timeout = 5
             ae.add_requested_context(VerificationSOPClass)
             assoc = ae.associate('localhost', 11112)
             assert assoc.is_established
@@ -2150,6 +2152,8 @@ class TestNegotiateRelease(object):
         scp.start()
 
         ae = AE()
+        ae.dimse_timeout = 5
+        ae.network_timeout = 5
         ae.acse_timeout = 1
         ae.add_requested_context(VerificationSOPClass)
         assoc = ae.associate('localhost', 11112)
@@ -2180,6 +2184,8 @@ class TestNegotiateRelease(object):
 
             ae = AE()
             ae.acse_timeout = 2
+            ae.dimse_timeout = 5
+            ae.network_timeout = 5
             ae.add_requested_context(VerificationSOPClass)
             assoc = ae.associate('localhost', 11112)
             assert assoc.is_established
@@ -2272,6 +2278,9 @@ class TestNegotiateRelease(object):
             scp.start()
 
             ae = AE()
+            ae.acse_timeout = 5
+            ae.dimse_timeout = 5
+            ae.network_timeout = 5
             ae.add_requested_context(VerificationSOPClass)
             assoc = ae.associate('localhost', 11112)
             assert assoc.is_established
@@ -2300,6 +2309,9 @@ class TestNegotiateRelease(object):
             scp.start()
 
             ae = AE()
+            ae.acse_timeout = 5
+            ae.dimse_timeout = 5
+            ae.network_timeout = 5
             ae.add_requested_context(VerificationSOPClass)
             assoc = ae.associate('localhost', 11112)
             assert assoc.is_established

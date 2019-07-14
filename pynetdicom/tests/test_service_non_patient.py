@@ -79,8 +79,11 @@ class TestNonPatientObjectStorageServiceClass(object):
         req.DataSet = BytesIO(b'\x08\x00\x01\x00\x40\x40\x00\x00\x00\x00\x00\x08\x00\x49')
 
         # Send C-STORE request to DIMSE and get response
+        # Need to manually hit the checkpoint
+        assoc._reactor_checkpoint.clear()
         assoc.dimse.send_msg(req, 1)
         cx_id, rsp = assoc.dimse.get_msg(True)
+        assoc._reactor_checkpoint.set()
 
         assert rsp.Status == 0xC210
         assert rsp.ErrorComment == 'Unable to decode the dataset'

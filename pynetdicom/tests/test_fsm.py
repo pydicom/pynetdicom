@@ -11,7 +11,7 @@ import time
 
 import pytest
 
-from pynetdicom import AE, build_context, evt
+from pynetdicom import AE, build_context, evt, debug_logger
 from pynetdicom.association import Association
 from pynetdicom import fsm as FINITE_STATE
 from pynetdicom.fsm import *
@@ -32,9 +32,7 @@ from .encoded_pdu_items import (
 from .parrot import ThreadedParrot
 
 
-LOGGER = logging.getLogger("pynetdicom")
-LOGGER.setLevel(logging.CRITICAL)
-#LOGGER.setLevel(logging.DEBUG)
+#debug_logger()
 
 
 REFERENCE_BAD_EVENTS = [
@@ -3128,6 +3126,7 @@ class TestState06(TestStateBase):
         commands = [
             ('recv', None),
             ('send', a_associate_ac),
+            ('wait', 0.1),
             ('send', a_associate_ac),
             ('recv', None),
         ]
@@ -3136,7 +3135,7 @@ class TestState06(TestStateBase):
         self.assoc.start()
 
         while not self.assoc.is_established:
-            time.sleep(0.05)
+            time.sleep(0.01)
         time.sleep(0.2)
 
         #self.print_fsm_scp(self.fsm, scp)
@@ -3165,6 +3164,7 @@ class TestState06(TestStateBase):
         commands = [
             ('recv', None),
             ('send', a_associate_ac),
+            ('wait', 0.1),
             ('send', a_associate_rj),
             ('recv', None),
         ]
@@ -3209,6 +3209,7 @@ class TestState06(TestStateBase):
         commands = [
             ('recv', None),
             ('send', a_associate_ac),
+            ('wait', 0.1),
             ('send', a_associate_rq),
             ('recv', None),
         ]
@@ -3338,6 +3339,7 @@ class TestState06(TestStateBase):
         commands = [
             ('recv', None),
             ('send', a_associate_ac),
+            ('wait', 0.1),
             ('send', p_data_tf),
         ]
         scp = self.start_server(commands)
@@ -3399,6 +3401,7 @@ class TestState06(TestStateBase):
         commands = [
             ('recv', None),
             ('send', a_associate_ac),
+            ('wait', 0.1),
             ('send', a_release_rq),
         ]
         scp = self.start_server(commands)
@@ -3430,6 +3433,7 @@ class TestState06(TestStateBase):
         commands = [
             ('recv', None),
             ('send', a_associate_ac),
+            ('wait', 0.1),
             ('send', a_release_rp),
             ('recv', None),
         ]
@@ -3534,6 +3538,7 @@ class TestState06(TestStateBase):
         commands = [
             ('recv', None),
             ('send', a_associate_ac),
+            ('wait', 0.1),
             ('send', a_abort),
         ]
         scp = self.start_server(commands)
@@ -3565,6 +3570,7 @@ class TestState06(TestStateBase):
         commands = [
             ('recv', None),
             ('send', a_associate_ac),
+            ('wait', 0.1),
         ]
         scp = self.start_server(commands)
 
@@ -3627,6 +3633,7 @@ class TestState06(TestStateBase):
         commands = [
             ('recv', None),
             ('send', a_associate_ac),
+            ('wait', 0.1),
             ('send', b'\x08\x00\x00\x00\x00\x00'),
             ('recv', None),
         ]
@@ -4281,6 +4288,7 @@ class TestState08(TestStateBase):
         commands = [
             ('recv', None),
             ('send', a_associate_ac),
+            ('wait', 0.1),
             ('send', a_release_rq),
             ('wait', 0.3),
         ]
@@ -4327,6 +4335,7 @@ class TestState08(TestStateBase):
         commands = [
             ('recv', None),
             ('send', a_associate_ac),
+            ('wait', 0.1),
             ('send', a_release_rq),
             ('send', a_associate_ac),
             ('wait', 0.3),
@@ -4366,6 +4375,7 @@ class TestState08(TestStateBase):
         commands = [
             ('recv', None),
             ('send', a_associate_ac),
+            ('wait', 0.1),
             ('send', a_release_rq),
             ('send', a_associate_rj),
             ('wait', 0.3),
@@ -4412,6 +4422,7 @@ class TestState08(TestStateBase):
         commands = [
             ('recv', None),
             ('send', a_associate_ac),
+            ('wait', 0.1),
             ('send', a_release_rq),
             ('send', a_associate_rq),
             ('wait', 0.3),
@@ -4450,6 +4461,7 @@ class TestState08(TestStateBase):
         commands = [
             ('recv', None),
             ('send', a_associate_ac),
+            ('wait', 0.1),
             ('send', a_release_rq),
             ('wait', 0.3),
         ]
@@ -4487,6 +4499,7 @@ class TestState08(TestStateBase):
         commands = [
             ('recv', None),
             ('send', a_associate_ac),
+            ('wait', 0.1),
             ('send', a_release_rq),
             ('wait', 0.3),
         ]
@@ -4525,6 +4538,7 @@ class TestState08(TestStateBase):
         commands = [
             ('recv', None),
             ('send', a_associate_ac),
+            ('wait', 0.1),
             ('send', a_release_rq),
             ('wait', 0.3),
         ]
@@ -4563,6 +4577,7 @@ class TestState08(TestStateBase):
         commands = [
             ('recv', None),
             ('send', a_associate_ac),
+            ('wait', 0.1),
             ('send', a_release_rq),
             ('send', p_data_tf),
             ('wait', 0.3),
@@ -4601,6 +4616,7 @@ class TestState08(TestStateBase):
         commands = [
             ('recv', None),
             ('send', a_associate_ac),
+            ('wait', 0.1),
             ('send', a_release_rq),
             ('wait', 0.3),
         ]
@@ -4639,6 +4655,7 @@ class TestState08(TestStateBase):
         commands = [
             ('recv', None),  # get a_assoc_rq
             ('send', a_associate_ac),
+            ('wait', 0.1),
             ('send', a_release_rq),
             ('send', a_release_rq),
             ('wait', 0.3),
@@ -4678,6 +4695,7 @@ class TestState08(TestStateBase):
         commands = [
             ('recv', None),
             ('send', a_associate_ac),
+            ('wait', 0.1),
             ('send', a_release_rq),
             ('send', a_release_rp),
             ('wait', 0.3),
@@ -4717,6 +4735,7 @@ class TestState08(TestStateBase):
         commands = [
             ('recv', None),
             ('send', a_associate_ac),
+            ('wait', 0.1),
             ('send', a_release_rq),
             ('wait', 0.3),
         ]
@@ -4755,6 +4774,7 @@ class TestState08(TestStateBase):
         commands = [
             ('recv', None),
             ('send', a_associate_ac),
+            ('wait', 0.1),
             ('send', a_release_rq),
             ('wait', 0.3),
         ]
@@ -4793,6 +4813,7 @@ class TestState08(TestStateBase):
         commands = [
             ('recv', None),
             ('send', a_associate_ac),
+            ('wait', 0.1),
             ('send', a_release_rq),
             ('send', a_abort),
             ('wait', 0.3),
@@ -4832,6 +4853,7 @@ class TestState08(TestStateBase):
         commands = [
             ('recv', None),
             ('send', a_associate_ac),
+            ('wait', 0.1),
             ('send', a_release_rq),
         ]
         scp = self.start_server(commands)
@@ -4868,6 +4890,7 @@ class TestState08(TestStateBase):
         commands = [
             ('recv', None),
             ('send', a_associate_ac),
+            ('wait', 0.1),
             ('send', a_release_rq),
             ('wait', 0.3),
         ]
@@ -4908,6 +4931,7 @@ class TestState08(TestStateBase):
         commands = [
             ('recv', None),
             ('send', a_associate_ac),
+            ('wait', 0.1),
             ('send', a_release_rq),
             ('send', b'\x08\x00\x00\x00\x00\x00'),
         ]
@@ -8452,6 +8476,7 @@ class TestState13(TestStateBase):
         commands = [
             ('recv', None),
             ('send', a_associate_ac),
+            ('wait', 0.1),
             ('send', a_associate_ac),
             ('send', a_associate_ac),
             ('wait', 0.1),
@@ -8490,6 +8515,7 @@ class TestState13(TestStateBase):
         commands = [
             ('recv', None),
             ('send', a_associate_ac),
+            ('wait', 0.1),
             ('send', a_associate_ac),
             ('send', a_associate_rj),
             ('wait', 0.1),
@@ -8535,6 +8561,7 @@ class TestState13(TestStateBase):
         commands = [
             ('recv', None),
             ('send', a_associate_ac),
+            ('wait', 0.1),
             ('send', a_associate_ac),
             ('send', a_associate_rq),
             ('wait', 0.1),
@@ -8705,6 +8732,7 @@ class TestState13(TestStateBase):
         commands = [
             ('recv', None),
             ('send', a_associate_ac),
+            ('wait', 0.1),
             ('send', a_associate_ac),
             ('send', p_data_tf),
             ('wait', 0.1),
@@ -8787,6 +8815,7 @@ class TestState13(TestStateBase):
         commands = [
             ('recv', None),
             ('send', a_associate_ac),
+            ('wait', 0.1),
             ('send', a_associate_ac),
             ('send', a_release_rq),
             ('wait', 0.1),
@@ -8825,6 +8854,7 @@ class TestState13(TestStateBase):
         commands = [
             ('recv', None),  # recv a-associate-rq
             ('send', a_associate_ac),
+            ('wait', 0.1),
             ('send', a_associate_ac),
             ('send', a_release_rp),
             ('wait', 0.1),
@@ -8951,6 +8981,7 @@ class TestState13(TestStateBase):
         commands = [
             ('recv', None),
             ('send', a_associate_ac),
+            ('wait', 0.1),
             ('send', a_associate_ac),
             ('send', a_abort),
             ('wait', 0.1),
@@ -8989,6 +9020,7 @@ class TestState13(TestStateBase):
         commands = [
             ('recv', None),
             ('send', a_associate_ac),
+            ('wait', 0.1),
             ('send', a_associate_ac),
         ]
         scp = self.start_server(commands)
@@ -9076,6 +9108,7 @@ class TestState13(TestStateBase):
         commands = [
             ('recv', None),
             ('send', a_associate_ac),
+            ('wait', 0.1),
             ('send', a_associate_ac),
             ('send', b'\x08\x00\x00\x00\x00\x00\x00\x00'),
             ('wait', 0.1),
@@ -9147,7 +9180,8 @@ class TestParrotAttack(TestStateBase):
             ('Sta6', 'Evt10', 'DT-2'),
             ('Sta6', 'Evt10', 'DT-2'),
             ('Sta6', 'Evt12', 'AR-2'),
-            ('Sta8', 'Evt17', 'AA-4'),
+            ('Sta8', 'Evt14', 'AR-4'),
+            ('Sta13', 'Evt17', 'AR-5'),
         ]
 
     def test_acceptor(self):
