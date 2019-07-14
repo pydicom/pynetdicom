@@ -37,6 +37,16 @@ class ACSE(object):
         self._assoc = assoc
 
     @property
+    def acceptor(self):
+        """Return the Association's Acceptor ServiceUser."""
+        return self.assoc.acceptor
+
+    @property
+    def acse_timeout(self):
+        """Return the ACSE timeout."""
+        return self.assoc.acse_timeout
+
+    @property
     def assoc(self):
         """Return the Association to provide ACSE services for."""
         return self._assoc
@@ -55,7 +65,7 @@ class ACSE(object):
         # pylint: disable=broad-except
         try:
             # Response is always ignored as async ops is not supported
-            inv, perf = self.assoc.requestor.asynchronous_operations
+            inv, perf = self.requestor.asynchronous_operations
             _ = evt.trigger(
                 self.assoc,
                 evt.EVT_ASYNC_OPS,
@@ -89,7 +99,7 @@ class ACSE(object):
             rsp = evt.trigger(
                 self.assoc,
                 evt.EVT_SOP_COMMON,
-                {'items' : self.assoc.requestor.sop_class_common_extended}
+                {'items' : self.requestor.sop_class_common_extended}
             )
         except Exception as exc:
             LOGGER.error(
@@ -126,7 +136,7 @@ class ACSE(object):
             user_response = evt.trigger(
                 self.assoc,
                 evt.EVT_SOP_EXTENDED,
-                {'app_info' : self.assoc.requestor.sop_class_extended}
+                {'app_info' : self.requestor.sop_class_extended}
             )
         except Exception as exc:
             user_response = {}
@@ -175,7 +185,7 @@ class ACSE(object):
         """
         # pylint: disable=broad-except
         # The UserIdentityNegotiation (request) item
-        req = self.assoc.requestor.user_identity
+        req = self.requestor.user_identity
         try:
             identity_verified, response = evt.trigger(
                 self.assoc,
@@ -220,17 +230,20 @@ class ACSE(object):
 
         return True, None
 
-    @staticmethod
-    def is_aborted(assoc):
+    @property
+    def dul(self):
+        """Return the Association's DUL instance."""
+        return self.assoc.dul
+
+    def is_aborted(self):
         """Return True if an A-ABORT or A-P-ABORT request has been received."""
-        primitive = assoc.dul.peek_next_pdu()
+        primitive = self.dul.peek_next_pdu()
         if primitive.__class__ in (A_ABORT, A_P_ABORT):
             return True
 
         return False
 
-    @staticmethod
-    def is_release_requested(assoc):
+    def is_release_requested(self):
         """Return True if an A-RELEASE request has been received.
 
         Parameters
@@ -239,14 +252,14 @@ class ACSE(object):
             The Association instance that wants to know if an A-RELEASE
             request has been received.
         """
-        primitive = assoc.dul.peek_next_pdu()
+        primitive = self.dul.peek_next_pdu()
         if isinstance(primitive, A_RELEASE) and primitive.result is None:
-            _ = assoc.dul.receive_pdu(wait=False)
+            _ = self.dul.receive_pdu(wait=False)
             return True
 
         return False
 
-    def negotiate_association(self, assoc):
+    def negotiate_association(self):
         """Perform an association negotiation as either the requestor or
         acceptor.
 
@@ -255,12 +268,12 @@ class ACSE(object):
         assoc : association.Association
             The Association instance to perform the negotiation for.
         """
-        if assoc.is_requestor:
-            self._negotiate_as_requestor(assoc)
-        elif assoc.is_acceptor:
-            self._negotiate_as_acceptor(assoc)
+        if self.assoc.is_requestor:
+            self._negotiate_as_requestor()
+        elif self.assoc.is_acceptor:
+            self._negotiate_as_acceptor()
 
-    def _negotiate_as_acceptor(self, assoc):
+    def _negotiate_as_acceptor(self):
         """Perform an association negotiation as the association acceptor.
 
         Parameters
@@ -269,26 +282,26 @@ class ACSE(object):
             The Association instance to perform the negotiation for.
         """
         # For convenience
-        assoc_rq = assoc.requestor.primitive
+        assoc_rq = self.requestor.primitive
         # Set the Requestor's AE Title
-        assoc.requestor.ae_title = assoc_rq.calling_ae_title
+        self.requestor.ae_title = assoc_rq.calling_ae_title
 
         # If we reject association -> [result, source, diagnostic]
         reject_assoc_rsd = []
 
         # Calling AE Title not recognised
-        if (assoc.ae.require_calling_aet and assoc_rq.calling_ae_title
-                not in assoc.ae.require_calling_aet):
+        if (self.assoc.ae.require_calling_aet and assoc_rq.calling_ae_title
+                not in self.assoc.ae.require_calling_aet):
             reject_assoc_rsd = [0x01, 0x01, 0x03]
 
         # Called AE Title not recognised
-        if (assoc.ae.require_called_aet and assoc_rq.called_ae_title
-                != assoc.acceptor.ae_title):
+        if (self.assoc.ae.require_called_aet and assoc_rq.called_ae_title
+                != self.acceptor.ae_title):
             reject_assoc_rsd = [0x01, 0x01, 0x07]
 
         ## Extended Negotiation items
         # User Identity Negotiation items
-        if assoc.requestor.user_identity:
+        if self.requestor.user_identity:
             is_valid, id_response = self._check_user_identity()
 
             if not is_valid:
@@ -298,42 +311,40 @@ class ACSE(object):
 
             if id_response:
                 # Add the User Identity Negotiation (response) item
-                assoc.acceptor.add_negotiation_item(id_response)
+                self.acceptor.add_negotiation_item(id_response)
 
         # SOP Class Extended Negotiation items
         for item in self._check_sop_class_extended():
-            assoc.acceptor.add_negotiation_item(item)
+            self.acceptor.add_negotiation_item(item)
 
         # SOP Class Common Extended Negotiation items
         #   Note: No response items are allowed
         # pylint: disable=protected-access
-        assoc.acceptor._common_ext = (
-            self._check_sop_class_common_extended()
-        )
+        self.acceptor._common_ext = self._check_sop_class_common_extended()
         # pylint: enable=protected-access
 
         # Asynchronous Operations Window Negotiation items
-        if assoc.requestor.asynchronous_operations != (1, 1):
+        if self.requestor.asynchronous_operations != (1, 1):
             async_rsp = self._check_async_ops()
 
             # Add any Async Ops (response) item
             if async_rsp:
-                assoc.acceptor.add_negotiation_item(async_rsp)
+                self.acceptor.add_negotiation_item(async_rsp)
 
         ## DUL Presentation Related Rejections
         # Maximum number of associations reached (local-limit-exceeded)
         active_acceptors = [
-            tt for tt in assoc.ae.active_associations if tt.is_acceptor
+            tt for tt in self.assoc.ae.active_associations if tt.is_acceptor
         ]
-        if len(active_acceptors) > assoc.ae.maximum_associations:
+        if len(active_acceptors) > self.assoc.ae.maximum_associations:
             reject_assoc_rsd = [0x02, 0x03, 0x02]
 
         if reject_assoc_rsd:
             # pylint: disable=no-value-for-parameter
             LOGGER.info("Rejecting Association")
-            self.send_reject(assoc, *reject_assoc_rsd)
+            self.send_reject(*reject_assoc_rsd)
             evt.trigger(self.assoc, evt.EVT_REJECTED, {})
-            assoc.kill()
+            self.assoc.kill()
             return
 
         ## Negotiate Presentation Contexts
@@ -341,64 +352,58 @@ class ACSE(object):
         # {SOP Class UID : (SCU role, SCP role)}
         rq_roles = {
             uid:(item.scu_role, item.scp_role)
-            for uid, item in assoc.requestor.role_selection.items()
+            for uid, item in self.requestor.role_selection.items()
         }
 
         result, ac_roles = negotiate_as_acceptor(
             assoc_rq.presentation_context_definition_list,
-            assoc.acceptor.supported_contexts,
+            self.acceptor.supported_contexts,
             rq_roles
         )
 
         # pylint: disable=protected-access
         # Accepted contexts are stored as {context ID : context}
-        assoc._accepted_cx = {
+        self.assoc._accepted_cx = {
             cx.context_id:cx for cx in result if cx.result == 0x00
         }
-        assoc._rejected_cx = [cx for cx in result if cx.result != 0x00]
+        self.assoc._rejected_cx = [cx for cx in result if cx.result != 0x00]
         # pylint: enable=protected-access
 
         # Add any SCP/SCU Role Selection Negotiation response items
         for item in ac_roles:
-            assoc.acceptor.add_negotiation_item(item)
+            self.acceptor.add_negotiation_item(item)
 
         # Send the A-ASSOCIATE (accept) primitive
         LOGGER.info("Accepting Association")
-        self.send_accept(assoc)
+        self.send_accept()
 
         # Callbacks/Logging
         evt.trigger(self.assoc, evt.EVT_ACCEPTED, {})
 
         # Assocation established OK
-        assoc.is_established = True
+        self.assoc.is_established = True
         evt.trigger(self.assoc, evt.EVT_ESTABLISHED, {})
 
-    def _negotiate_as_requestor(self, assoc):
-        """Perform an association negotiation as the association requestor.
-
-        Parameters
-        ----------
-        assoc : association.Association
-            The Association instance to perform the negotiation for.
-        """
-        if not assoc.requestor.requested_contexts:
+    def _negotiate_as_requestor(self):
+        """Perform an association negotiation as the association requestor."""
+        if not self.requestor.requested_contexts:
             LOGGER.error(
                 "One or more requested presentation contexts must be set "
                 "prior to association negotiation"
             )
-            assoc.kill()
+            self.assoc.kill()
             return
 
         # Build and send an A-ASSOCIATE (request) PDU to the peer
-        self.send_request(assoc)
+        self.send_request()
         evt.trigger(self.assoc, evt.EVT_REQUESTED, {})
 
         # Wait for response
-        rsp = assoc.dul.receive_pdu(wait=True, timeout=assoc.acse_timeout)
+        rsp = self.dul.receive_pdu(wait=True, timeout=self.acse_timeout)
 
         # Association accepted or rejected
         if isinstance(rsp, A_ASSOCIATE):
-            assoc.acceptor.primitive = rsp
+            self.acceptor.primitive = rsp
             # Accepted
             if rsp.result == 0x00:
                 ## Handle SCP/SCU Role Selection response
@@ -406,10 +411,10 @@ class ACSE(object):
                 #   to the requested contexts
                 rq_roles = {
                     uid:(ii.scu_role, ii.scp_role)
-                    for uid, ii in assoc.requestor.role_selection.items()
+                    for uid, ii in self.requestor.role_selection.items()
                 }
                 if rq_roles:
-                    for cx in assoc.requestor.requested_contexts:
+                    for cx in self.requestor.requested_contexts:
                         try:
                             (cx.scu_role, cx.scp_role) = rq_roles[
                                 cx.abstract_syntax
@@ -424,24 +429,24 @@ class ACSE(object):
                 # Collate the acceptor's SCP/SCU role selection responses
                 ac_roles = {
                     uid:(ii.scu_role, ii.scp_role)
-                    for uid, ii in assoc.acceptor.role_selection.items()
+                    for uid, ii in self.acceptor.role_selection.items()
                 }
 
                 # Check the negotiated presentation contexts results and
                 #   determine their agreed upon SCP/SCU roles
                 negotiated_contexts = negotiate_as_requestor(
-                    assoc.requestor.requested_contexts,
+                    self.requestor.requested_contexts,
                     rsp.presentation_context_definition_results_list,
                     ac_roles
                 )
 
                 # pylint: disable=protected-access
                 # Accepted contexts are stored as {context ID : context}
-                assoc._accepted_cx = {
+                self.assoc._accepted_cx = {
                     cx.context_id:cx
                     for cx in negotiated_contexts if cx.result == 0x00
                 }
-                assoc._rejected_cx = [
+                self.assoc._rejected_cx = [
                     cx for cx in negotiated_contexts if cx.result != 0x00
                 ]
                 # pylint: enable=protected-access
@@ -449,16 +454,16 @@ class ACSE(object):
                 evt.trigger(self.assoc, evt.EVT_ACCEPTED, {})
 
                 # No acceptable presentation contexts
-                if not assoc.accepted_contexts:
+                if not self.assoc.accepted_contexts:
                     LOGGER.error("No accepted presentation contexts")
-                    self.send_abort(assoc, 0x02)
-                    assoc.is_aborted = True
-                    assoc.is_established = False
+                    self.send_abort(0x02)
+                    self.assoc.is_aborted = True
+                    self.assoc.is_established = False
                     evt.trigger(self.assoc, evt.EVT_ABORTED, {})
-                    assoc.kill()
+                    self.assoc.kill()
                 else:
                     LOGGER.info('Association Accepted')
-                    assoc.is_established = True
+                    self.assoc.is_established = True
                     evt.trigger(self.assoc, evt.EVT_ESTABLISHED, {})
 
             elif hasattr(rsp, 'result') and rsp.result in [0x01, 0x02]:
@@ -470,49 +475,43 @@ class ACSE(object):
                     .format(rsp.result_str, rsp.source_str)
                 )
                 LOGGER.info('Reason: {}'.format(rsp.reason_str))
-                assoc.is_rejected = True
-                assoc.is_established = False
+                self.assoc.is_rejected = True
+                self.assoc.is_established = False
                 evt.trigger(self.assoc, evt.EVT_REJECTED, {})
-                assoc.dul.kill_dul()
+                self.dul.kill_dul()
             else:
                 LOGGER.warning(
                     "Received an invalid A-ASSOCIATE response from the peer"
                 )
                 LOGGER.info("Aborting Association")
-                self.send_abort(assoc, 0x02)
-                assoc.is_aborted = True
-                assoc.is_established = False
+                self.send_abort(0x02)
+                self.assoc.is_aborted = True
+                self.assoc.is_established = False
                 # Event handler - association aborted
                 evt.trigger(self.assoc, evt.EVT_ABORTED, {})
-                assoc.kill()
+                self.assoc.kill()
 
         # Association aborted
         elif isinstance(rsp, (A_ABORT, A_P_ABORT)):
             LOGGER.info("Association Aborted")
-            assoc.is_established = False
-            assoc.is_aborted = True
+            self.assoc.is_established = False
+            self.assoc.is_aborted = True
             evt.trigger(self.assoc, evt.EVT_ABORTED, {})
-            assoc.dul.kill_dul()
+            self.dul.kill_dul()
         else:
-            assoc.is_established = False
-            assoc.dul.kill_dul()
+            self.assoc.is_established = False
+            self.dul.kill_dul()
 
-    def negotiate_release(self, assoc):
+    def negotiate_release(self):
         """Negotiate association release.
 
         Once an A-RELEASE request has been sent any received P-DATA PDUs will
         be ignored.
-
-        Parameters
-        ----------
-        assoc : association.Association
-            The association instance that wants to initiate association
-            release.
         """
         # Send A-RELEASE request
         # Only an A-ABORT request primitive is allowed after A-RELEASE starts
         # (Part 8, Section 7.2.2)
-        self.send_release(assoc, is_response=False)
+        self.send_release(is_response=False)
 
         # We need to wait for a reply and need to handle:
         #   P-DATA primitives
@@ -520,25 +519,26 @@ class ACSE(object):
         #   A-RELEASE collisions
         is_collision = False
         while True:
-            primitive = assoc.dul.receive_pdu(wait=True,
-                                              timeout=assoc.acse_timeout)
+            primitive = self.dul.receive_pdu(
+                wait=True, timeout=self.acse_timeout
+            )
             if primitive is None:
                 # No response received within timeout window
                 LOGGER.info("Aborting Association")
-                self.send_abort(assoc, 0x02)
-                assoc.is_aborted = True
-                assoc.is_established = False
+                self.send_abort(0x02)
+                self.assoc.is_aborted = True
+                self.assoc.is_established = False
                 evt.trigger(self.assoc, evt.EVT_ABORTED, {})
-                assoc.kill()
+                self.assoc.kill()
                 return
 
             if isinstance(primitive, (A_ABORT, A_P_ABORT)):
                 # Received A-ABORT/A-P-ABORT during association release
                 LOGGER.info("Association Aborted")
-                assoc.is_aborted = True
-                assoc.is_established = False
+                self.assoc.is_aborted = True
+                self.assoc.is_established = False
                 evt.trigger(self.assoc, evt.EVT_ABORTED, {})
-                assoc.kill()
+                self.assoc.kill()
                 return
 
             # Any other primitive besides A_RELEASE gets trashed
@@ -556,9 +556,9 @@ class ACSE(object):
                 # A-RELEASE collision has occurred (Part 8, Section 7.2.2.7)
                 LOGGER.debug("An A-RELEASE collision has occurred")
                 is_collision = True
-                if assoc.is_requestor:
+                if self.assoc.is_requestor:
                     # Send A-RELEASE response
-                    self.send_release(assoc, is_response=True)
+                    self.send_release(is_response=True)
                     # Wait for A-RELEASE response
                     continue
                 # Acceptor waits for A-RELEASE response before
@@ -567,23 +567,25 @@ class ACSE(object):
                 # A-RELEASE (response) received
                 # If collision and we are the acceptor then we need to send
                 #   the A-RELEASE (response) to the requestor
-                if assoc.is_acceptor and is_collision:
-                    self.send_release(assoc, is_response=True)
+                if self.assoc.is_acceptor and is_collision:
+                    self.send_release(is_response=True)
 
-                assoc.is_released = True
-                assoc.is_established = False
+                self.assoc.is_released = True
+                self.assoc.is_established = False
                 evt.trigger(self.assoc, evt.EVT_RELEASED, {})
-                assoc.kill()
+                self.assoc.kill()
                 return
 
-    @staticmethod
-    def send_abort(assoc, source):
+    @property
+    def requestor(self):
+        """Return the Association's Requestor ServiceUser."""
+        return self.assoc.requestor
+
+    def send_abort(self, source):
         """Send an A-ABORT request to the peer.
 
         Parameters
         ----------
-        assoc : pynetdicom.association.Association
-            The association that is sending the A-ABORT.
         source : int
             The source of the abort request
 
@@ -605,19 +607,12 @@ class ACSE(object):
         primitive = A_ABORT()
         primitive.abort_source = source
 
-        assoc.dul.send_pdu(primitive)
-        assoc.is_aborted = True
-        assoc.is_established = False
+        self.dul.send_pdu(primitive)
+        self.assoc.is_aborted = True
+        self.assoc.is_established = False
 
-    @staticmethod
-    def send_accept(assoc):
-        """Send an A-ASSOCIATE (accept) to the peer.
-
-        Parameters
-        ----------
-        assoc : pynetdicom.association.Association
-            The association that is sending the A-ASSOCIATE (accept).
-        """
+    def send_accept(self):
+        """Send an A-ASSOCIATE (accept) to the peer."""
         # The following parameters must be set for an A-ASSOCIATE (accept)
         # primitive (* sent in A-ASSOCIATE-AC PDU):
         #   Application Context Name*
@@ -631,29 +626,26 @@ class ACSE(object):
         #   Presentation Context Definition List Result*
         primitive = A_ASSOCIATE()
         primitive.application_context_name = APPLICATION_CONTEXT_NAME
-        primitive.calling_ae_title = assoc.requestor.primitive.calling_ae_title
-        primitive.called_ae_title = assoc.requestor.primitive.called_ae_title
+        primitive.calling_ae_title = self.requestor.primitive.calling_ae_title
+        primitive.called_ae_title = self.requestor.primitive.called_ae_title
         primitive.result = 0x00
         primitive.result_source = 0x01
 
         primitive.presentation_context_definition_results_list = (
-            assoc.accepted_contexts + assoc.rejected_contexts
+            self.assoc.accepted_contexts + self.assoc.rejected_contexts
         )
 
         ## User Information - PS3.7 Annex D.3.3
-        primitive.user_information = assoc.acceptor.user_information
+        primitive.user_information = self.acceptor.user_information
 
-        assoc.acceptor.primitive = primitive
-        assoc.dul.send_pdu(primitive)
+        self.acceptor.primitive = primitive
+        self.dul.send_pdu(primitive)
 
-    @staticmethod
-    def send_ap_abort(assoc, reason):
+    def send_ap_abort(self, reason):
         """Send an A-P-ABORT to the peer.
 
         Parameters
         ----------
-        assoc : pynetdicom.association.Association
-            The association that is sending the A-P-ABORT.
         reason : int
             The reason for aborting the association, one of the following:
 
@@ -679,18 +671,15 @@ class ACSE(object):
         primitive = A_P_ABORT()
         primitive.provider_reason = reason
 
-        assoc.dul.send_pdu(primitive)
-        assoc.is_aborted = True
-        assoc.is_established = False
+        self.dul.send_pdu(primitive)
+        self.assoc.is_aborted = True
+        self.assoc.is_established = False
 
-    @staticmethod
-    def send_reject(assoc, result, source, diagnostic):
+    def send_reject(self, result, source, diagnostic):
         """Send an A-ASSOCIATE (reject) to the peer.
 
         Parameters
         ----------
-        assoc : pynetdicom.association.Association
-            The association that is sending the A-ASSOCIATE (reject).
         result : int
             The association rejection:
 
@@ -747,19 +736,16 @@ class ACSE(object):
         primitive.result_source = source
         primitive.diagnostic = diagnostic
 
-        assoc.acceptor.primitive = primitive
-        assoc.dul.send_pdu(primitive)
-        assoc.is_rejected = True
-        assoc.is_established = False
+        self.acceptor.primitive = primitive
+        self.dul.send_pdu(primitive)
+        self.assoc.is_rejected = True
+        self.assoc.is_established = False
 
-    @staticmethod
-    def send_release(assoc, is_response=False):
+    def send_release(self, is_response=False):
         """Send an A-RELEASE (request or response) to the peer.
 
         Parameters
         ----------
-        assoc : pynetdicom.association.Association
-            The association that is sending the A-RELEASE.
         is_response : bool, optional
             True to send an A-RELEASE (response) to the peer, False
             to send an A-RELEASE (request) to the peer (default).
@@ -769,17 +755,10 @@ class ACSE(object):
         if is_response:
             primitive.result = "affirmative"
 
-        assoc.dul.send_pdu(primitive)
+        self.dul.send_pdu(primitive)
 
-    @staticmethod
-    def send_request(assoc):
-        """Send an A-ASSOCIATE (request) to the peer.
-
-        Parameters
-        ----------
-        assoc : pynetdicom.association.Association
-            The association that is sending the A-ASSOCIATE (request).
-        """
+    def send_request(self):
+        """Send an A-ASSOCIATE (request) to the peer."""
         # The following parameters must be set for a request primitive
         # (* sent in A-ASSOCIATE-RQ PDU)
         #   Application Context Name*
@@ -795,20 +774,20 @@ class ACSE(object):
         # DICOM Application Context Name, see PS3.7 Annex A.2.1
         primitive.application_context_name = APPLICATION_CONTEXT_NAME
         # Calling AE Title is the source DICOM AE title
-        primitive.calling_ae_title = assoc.requestor.ae_title
+        primitive.calling_ae_title = self.requestor.ae_title
         # Called AE Title is the destination DICOM AE title
-        primitive.called_ae_title = assoc.acceptor.ae_title
+        primitive.called_ae_title = self.acceptor.ae_title
         # The TCP/IP address of the source, pynetdicom includes port too
         primitive.calling_presentation_address = (
-            assoc.requestor.address, assoc.requestor.port
+            self.requestor.address, self.requestor.port
         )
         # The TCP/IP address of the destination, pynetdicom includes port too
         primitive.called_presentation_address = (
-            assoc.acceptor.address, assoc.acceptor.port
+            self.acceptor.address, self.acceptor.port
         )
         # Proposed presentation contexts
         primitive.presentation_context_definition_list = (
-            assoc.requestor.requested_contexts
+            self.requestor.requested_contexts
         )
 
         ## User Information - PS3.7 Annex D.3.3
@@ -823,10 +802,10 @@ class ACSE(object):
         #   SOP Class Extended Negotiation (0 or N)
         #   SOP Class Common Extended Negotiation (0 or N)
         #   User Identity Negotiation (0 or 1)
-        primitive.user_information = assoc.requestor.user_information
+        primitive.user_information = self.requestor.user_information
 
         # Save the request primitive
-        assoc.requestor.primitive = primitive
+        self.requestor.primitive = primitive
 
         # Send the A-ASSOCIATE request primitive to the peer
-        assoc.dul.send_pdu(primitive)
+        self.dul.send_pdu(primitive)

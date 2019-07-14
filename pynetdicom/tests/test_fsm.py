@@ -1312,7 +1312,7 @@ class TestState03(TestStateBase):
 
         assoc, fsm = self.get_acceptor_assoc()
 
-        def _neg_as_acc(assoc):
+        def _neg_as_acc():
             """Override ACSE._negotiate_as_acceptor so no A-ASSOCIATE (rsp)."""
             pass
 
@@ -1359,11 +1359,11 @@ class TestState03(TestStateBase):
         assoc, fsm = self.get_acceptor_assoc()
 
         orig = assoc.acse._negotiate_as_acceptor
-        def _neg_as_acc(assoc):
+        def _neg_as_acc():
             """Override ACSE._negotiate_as_acceptor so no A-ASSOCIATE (rsp)."""
             # Keep the state machine in Sta3 for 0.5 s
             time.sleep(0.5)
-            orig(assoc)
+            orig()
 
         assoc.acse._negotiate_as_acceptor = _neg_as_acc
         assoc.start()
@@ -1398,11 +1398,11 @@ class TestState03(TestStateBase):
         assoc, fsm = self.get_acceptor_assoc()
 
         orig = assoc.acse._negotiate_as_acceptor
-        def _neg_as_acc(assoc):
+        def _neg_as_acc():
             """Override ACSE._negotiate_as_acceptor so no A-ASSOCIATE (rsp)."""
             # Keep the state machine in Sta3 for 0.5 s
             time.sleep(0.5)
-            orig(assoc)
+            orig()
 
         assoc.acse._negotiate_as_acceptor = _neg_as_acc
         assoc.start()
@@ -1444,11 +1444,11 @@ class TestState03(TestStateBase):
         assoc, fsm = self.get_acceptor_assoc()
 
         orig = assoc.acse._negotiate_as_acceptor
-        def _neg_as_acc(assoc):
+        def _neg_as_acc():
             """Override ACSE._negotiate_as_acceptor so no A-ASSOCIATE (rsp)."""
             # Keep the state machine in Sta3 for 0.5 s
             time.sleep(0.5)
-            orig(assoc)
+            orig()
 
         assoc.acse._negotiate_as_acceptor = _neg_as_acc
         assoc.start()
@@ -1511,7 +1511,7 @@ class TestState03(TestStateBase):
         assoc, fsm = self.get_acceptor_assoc()
 
         orig = assoc.acse._negotiate_as_acceptor
-        def _neg_as_acc(assoc):
+        def _neg_as_acc():
             """Override ACSE._negotiate_as_acceptor so no A-ASSOCIATE (rsp)."""
             assoc.dul.send_pdu(self.get_associate('reject'))
 
@@ -1546,7 +1546,7 @@ class TestState03(TestStateBase):
         assoc, fsm = self.get_acceptor_assoc()
 
         orig = assoc.acse._negotiate_as_acceptor
-        def _neg_as_acc(assoc):
+        def _neg_as_acc():
             """Override ACSE._negotiate_as_acceptor so no A-ASSOCIATE (rsp)."""
             assoc.dul.send_pdu(self.get_pdata())
 
@@ -1582,7 +1582,7 @@ class TestState03(TestStateBase):
         assoc, fsm = self.get_acceptor_assoc()
 
         orig = assoc.acse._negotiate_as_acceptor
-        def _neg_as_acc(assoc):
+        def _neg_as_acc():
             """Override ACSE._negotiate_as_acceptor so no A-ASSOCIATE (rsp)."""
             # Keep the state machine in Sta3 for 0.5 s
             time.sleep(0.5)
@@ -1619,7 +1619,7 @@ class TestState03(TestStateBase):
         assoc, fsm = self.get_acceptor_assoc()
 
         orig = assoc.acse._negotiate_as_acceptor
-        def _neg_as_acc(assoc):
+        def _neg_as_acc():
             """Override ACSE._negotiate_as_acceptor so no A-ASSOCIATE (rsp)."""
             assoc.dul.send_pdu(self.get_release(False))
 
@@ -1655,11 +1655,11 @@ class TestState03(TestStateBase):
         assoc, fsm = self.get_acceptor_assoc()
 
         orig = assoc.acse._negotiate_as_acceptor
-        def _neg_as_acc(assoc):
+        def _neg_as_acc():
             """Override ACSE._negotiate_as_acceptor so no A-ASSOCIATE (rsp)."""
             # Keep the state machine in Sta3 for 0.5 s
             time.sleep(0.5)
-            orig(assoc)
+            orig()
 
         assoc.acse._negotiate_as_acceptor = _neg_as_acc
         assoc.start()
@@ -1694,11 +1694,11 @@ class TestState03(TestStateBase):
         assoc, fsm = self.get_acceptor_assoc()
 
         orig = assoc.acse._negotiate_as_acceptor
-        def _neg_as_acc(assoc):
+        def _neg_as_acc():
             """Override ACSE._negotiate_as_acceptor so no A-ASSOCIATE (rsp)."""
             # Keep the state machine in Sta3 for 0.5 s
             time.sleep(0.5)
-            orig(assoc)
+            orig()
 
         assoc.acse._negotiate_as_acceptor = _neg_as_acc
         assoc.start()
@@ -1731,7 +1731,7 @@ class TestState03(TestStateBase):
         assoc, fsm = self.get_acceptor_assoc()
 
         orig = assoc.acse._negotiate_as_acceptor
-        def _neg_as_acc(assoc):
+        def _neg_as_acc():
             """Override ACSE._negotiate_as_acceptor so no A-ASSOCIATE (rsp)."""
             assoc.dul.send_pdu(self.get_release(True))
 
@@ -1766,7 +1766,7 @@ class TestState03(TestStateBase):
         assoc, fsm = self.get_acceptor_assoc()
 
         orig = assoc.acse._negotiate_as_acceptor
-        def _neg_as_acc(assoc):
+        def _neg_as_acc():
             """Override ACSE._negotiate_as_acceptor so no A-ASSOCIATE (rsp)."""
             assoc.dul.send_pdu(self.get_abort())
 
@@ -1803,11 +1803,11 @@ class TestState03(TestStateBase):
         assoc, fsm = self.get_acceptor_assoc()
 
         orig = assoc.acse._negotiate_as_acceptor
-        def _neg_as_acc(assoc):
+        def _neg_as_acc():
             """Override ACSE._negotiate_as_acceptor so no A-ASSOCIATE (rsp)."""
             # Keep the state machine in Sta3 for 0.5 s
             time.sleep(0.5)
-            orig(assoc)
+            orig()
 
         assoc.acse._negotiate_as_acceptor = _neg_as_acc
         assoc.start()
@@ -1840,11 +1840,11 @@ class TestState03(TestStateBase):
         assoc, fsm = self.get_acceptor_assoc()
 
         orig = assoc.acse._negotiate_as_acceptor
-        def _neg_as_acc(assoc):
+        def _neg_as_acc():
             """Override ACSE._negotiate_as_acceptor so no A-ASSOCIATE (rsp)."""
             # Keep the state machine in Sta3 for 0.5 s
             time.sleep(0.5)
-            orig(assoc)
+            orig()
 
         assoc.acse._negotiate_as_acceptor = _neg_as_acc
         assoc.start()
@@ -1877,13 +1877,13 @@ class TestState03(TestStateBase):
         assoc, fsm = self.get_acceptor_assoc()
 
         orig = assoc.acse._negotiate_as_acceptor
-        def _neg_as_acc(assoc):
+        def _neg_as_acc():
             """Override ACSE._negotiate_as_acceptor so no A-ASSOCIATE (rsp)."""
             # Keep the state machine in Sta3 for 0.5 s
             assoc.dul.artim_timer.timeout = 0.05
             assoc.dul.artim_timer.start()
             time.sleep(0.2)
-            orig(assoc)
+            orig()
 
         assoc.acse._negotiate_as_acceptor = _neg_as_acc
         assoc.start()
@@ -1917,11 +1917,11 @@ class TestState03(TestStateBase):
         assoc, fsm = self.get_acceptor_assoc()
 
         orig = assoc.acse._negotiate_as_acceptor
-        def _neg_as_acc(assoc):
+        def _neg_as_acc():
             """Override ACSE._negotiate_as_acceptor so no A-ASSOCIATE (rsp)."""
             # Keep the state machine in Sta3 for 0.5 s
             time.sleep(0.5)
-            orig(assoc)
+            orig()
 
         assoc.acse._negotiate_as_acceptor = _neg_as_acc
         assoc.start()
@@ -7754,7 +7754,7 @@ class TestState12(TestStateBase):
         # Evt7: Receive A-ASSOCIATE (accept) primitive from <local user>
         commands = [
             ('send', a_associate_rq),
-            ('recv', None),  # recv a-associate-rq
+            ('recv', None),  # recv a-associate-ac
             ('recv', None),  # recv a-release-rq
             ('send', a_release_rq),  # collide
             ('send', a_release_rp),
@@ -7763,7 +7763,7 @@ class TestState12(TestStateBase):
         scp = self.start_server(commands)
 
         assoc, fsm = self.get_acceptor_assoc()
-        def is_release_requested(assoc):
+        def is_release_requested():
             """Override ACSE.is_release_requested."""
             return False
 
@@ -8426,9 +8426,9 @@ class TestState13(TestStateBase):
         ]
         scp = self.start_server(commands)
 
-        def patch_neg_rq(assoc):
+        def patch_neg_rq():
             """Override ACSE._negotiate_as_requestor"""
-            assoc.acse.send_request(assoc)
+            self.assoc.acse.send_request()
 
         self.assoc.acse._negotiate_as_requestor = patch_neg_rq
 
@@ -8602,9 +8602,9 @@ class TestState13(TestStateBase):
         ]
         scp = self.start_server(commands)
 
-        def patch_neg_rq(assoc):
+        def patch_neg_rq():
             """Override ACSE._negotiate_as_requestor"""
-            assoc.acse.send_request(assoc)
+            self.assoc.acse.send_request()
 
         self.assoc.acse._negotiate_as_requestor = patch_neg_rq
 
@@ -8646,9 +8646,9 @@ class TestState13(TestStateBase):
         ]
         scp = self.start_server(commands)
 
-        def patch_neg_rq(assoc):
+        def patch_neg_rq():
             """Override ACSE._negotiate_as_requestor"""
-            assoc.acse.send_request(assoc)
+            self.assoc.acse.send_request()
 
         self.assoc.acse._negotiate_as_requestor = patch_neg_rq
 
@@ -8690,9 +8690,9 @@ class TestState13(TestStateBase):
         ]
         scp = self.start_server(commands)
 
-        def patch_neg_rq(assoc):
+        def patch_neg_rq():
             """Override ACSE._negotiate_as_requestor"""
-            assoc.acse.send_request(assoc)
+            self.assoc.acse.send_request()
 
         self.assoc.acse._negotiate_as_requestor = patch_neg_rq
 
@@ -8773,9 +8773,9 @@ class TestState13(TestStateBase):
         ]
         scp = self.start_server(commands)
 
-        def patch_neg_rq(assoc):
+        def patch_neg_rq():
             """Override ACSE._negotiate_as_requestor"""
-            assoc.acse.send_request(assoc)
+            self.assoc.acse.send_request()
 
         self.assoc.acse._negotiate_as_requestor = patch_neg_rq
 
@@ -8895,9 +8895,9 @@ class TestState13(TestStateBase):
         ]
         scp = self.start_server(commands)
 
-        def patch_neg_rq(assoc):
+        def patch_neg_rq():
             """Override ACSE._negotiate_as_requestor"""
-            assoc.acse.send_request(assoc)
+            self.assoc.acse.send_request()
 
         self.assoc.acse._negotiate_as_requestor = patch_neg_rq
 
@@ -8939,9 +8939,9 @@ class TestState13(TestStateBase):
         ]
         scp = self.start_server(commands)
 
-        def patch_neg_rq(assoc):
+        def patch_neg_rq():
             """Override ACSE._negotiate_as_requestor"""
-            assoc.acse.send_request(assoc)
+            self.assoc.acse.send_request()
 
         self.assoc.acse._negotiate_as_requestor = patch_neg_rq
 
@@ -9060,9 +9060,9 @@ class TestState13(TestStateBase):
         ]
         scp = self.start_server(commands)
 
-        def patch_neg_rq(assoc):
+        def patch_neg_rq():
             """Override ACSE._negotiate_as_requestor"""
-            assoc.acse.send_request(assoc)
+            self.assoc.acse.send_request()
 
         self.assoc.acse._negotiate_as_requestor = patch_neg_rq
 

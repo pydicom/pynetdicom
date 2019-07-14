@@ -134,41 +134,41 @@ class TestACSE(object):
     def test_default(self):
         """Test default initialisation"""
         acse = ACSE(self.assoc)
-        assert hasattr(acse, 'acse_timeout') is False
+        assert hasattr(acse, 'acse_timeout') is True
 
     def test_is_aborted(self):
         """Test ACSE.is_aborted"""
         acse = ACSE(self.assoc)
-        assert acse.is_aborted(self.assoc) is False
+        assert acse.is_aborted() is False
         # "Received" A-ABORT
-        acse.send_abort(self.assoc, 0x02)
-        assert acse.is_aborted(self.assoc) is True
+        acse.send_abort(0x02)
+        assert acse.is_aborted() is True
         self.assoc.dul.queue.get()
         with pytest.raises(queue.Empty):
             self.assoc.dul.queue.get(block=False)
-        assert acse.is_aborted(self.assoc) is False
+        assert acse.is_aborted() is False
 
         # "Received" A-P-ABORT
-        acse.send_ap_abort(self.assoc, 0x02)
-        assert acse.is_aborted(self.assoc) is True
+        acse.send_ap_abort(0x02)
+        assert acse.is_aborted() is True
 
     def test_is_release_requested(self):
         """Test ACSE.is_release_requested"""
         acse = ACSE(self.assoc)
-        assert acse.is_release_requested(self.assoc) is False
+        assert acse.is_release_requested() is False
 
-        acse.send_release(self.assoc)
-        assert acse.is_release_requested(self.assoc) is True
+        acse.send_release()
+        assert acse.is_release_requested() is True
         with pytest.raises(queue.Empty):
             self.assoc.dul.queue.get(block=False)
-        assert acse.is_release_requested(self.assoc) is False
+        assert acse.is_release_requested() is False
 
-        acse.send_release(self.assoc, is_response=True)
-        assert acse.is_release_requested(self.assoc) is False
+        acse.send_release(is_response=True)
+        assert acse.is_release_requested() is False
         self.assoc.dul.queue.get()
         with pytest.raises(queue.Empty):
             self.assoc.dul.queue.get(block=False)
-        assert acse.is_release_requested(self.assoc) is False
+        assert acse.is_release_requested() is False
 
 
 class TestNegotiationRequestor(object):
@@ -206,7 +206,7 @@ class TestNegotiationRequestor(object):
         assert assoc.requestor.requested_contexts == []
 
         with caplog.at_level(logging.WARNING, logger='pynetdicom'):
-            assoc.acse._negotiate_as_requestor(assoc)
+            assoc.acse._negotiate_as_requestor()
 
             msg = (
                 "One or more requested presentation contexts must be set "
@@ -223,10 +223,7 @@ class TestNegotiationRequestor(object):
         assert self.assoc.is_killed is False
 
         acse = ACSE(self.assoc)
-        acse._negotiate_as_requestor(self.assoc)
-        #assert isinstance(self.assoc.dul.queue.get(), A_ASSOCIATE)
-        #with pytest.raises(queue.Empty):
-        #    self.assoc.dul.queue.get(block=False)
+        acse._negotiate_as_requestor()
         assert self.assoc.is_aborted is True
         assert self.assoc.dul.is_killed is True
 
@@ -244,7 +241,7 @@ class TestNegotiationRequestor(object):
         assert self.assoc.is_killed is False
 
         acse = ACSE(self.assoc)
-        acse._negotiate_as_requestor(self.assoc)
+        acse._negotiate_as_requestor()
         assert self.assoc.is_aborted is True
         assert self.assoc.dul.is_killed is True
 
@@ -262,7 +259,7 @@ class TestNegotiationRequestor(object):
         assert self.assoc.is_killed is False
 
         acse = ACSE(self.assoc)
-        acse._negotiate_as_requestor(self.assoc)
+        acse._negotiate_as_requestor()
         assert self.assoc.is_aborted is False
         assert self.assoc.dul.is_killed is True
 
@@ -281,7 +278,7 @@ class TestNegotiationRequestor(object):
         assert self.assoc.is_killed is False
 
         acse = ACSE(self.assoc)
-        acse._negotiate_as_requestor(self.assoc)
+        acse._negotiate_as_requestor()
         primitive = self.assoc.dul.queue.get(block=False)
         assert isinstance(primitive, A_ASSOCIATE)
         assert self.assoc.is_aborted is True
@@ -306,7 +303,7 @@ class TestNegotiationRequestor(object):
         assert self.assoc.is_rejected is False
 
         acse = ACSE(self.assoc)
-        acse._negotiate_as_requestor(self.assoc)
+        acse._negotiate_as_requestor()
         primitive = self.assoc.dul.queue.get(block=False)
         assert isinstance(primitive, A_ASSOCIATE)
         assert self.assoc.is_aborted is False
@@ -390,7 +387,7 @@ class TestPrimitiveConstruction(object):
         role.scu_role = True
         role.scp_role = False
         self.assoc.requestor.add_negotiation_item(role)
-        acse.send_request(self.assoc)
+        acse.send_request()
 
         primitive = self.assoc.dul.queue.get()
         with pytest.raises(queue.Empty):
@@ -430,7 +427,7 @@ class TestPrimitiveConstruction(object):
     def test_send_abort(self, source):
         """Test A-ABORT construction and sending"""
         acse = ACSE(self.assoc)
-        acse.send_abort(self.assoc, source)
+        acse.send_abort(source)
 
         primitive = self.assoc.dul.queue.get()
         with pytest.raises(queue.Empty):
@@ -444,13 +441,13 @@ class TestPrimitiveConstruction(object):
         acse = ACSE(self.assoc)
         msg = r"Invalid 'source' parameter value"
         with pytest.raises(ValueError, match=msg):
-            acse.send_abort(self.assoc, 0x01)
+            acse.send_abort(0x01)
 
     @pytest.mark.parametrize('reason', (0x00, 0x01, 0x02, 0x04, 0x05, 0x06))
     def test_send_ap_abort(self, reason):
         """Test A-P-ABORT construction and sending"""
         acse = ACSE(self.assoc)
-        acse.send_ap_abort(self.assoc, reason)
+        acse.send_ap_abort(reason)
 
         primitive = self.assoc.dul.queue.get()
         with pytest.raises(queue.Empty):
@@ -464,14 +461,14 @@ class TestPrimitiveConstruction(object):
         acse = ACSE(self.assoc)
         msg = r"Invalid 'reason' parameter value"
         with pytest.raises(ValueError, match=msg):
-            acse.send_ap_abort(self.assoc, 0x03)
+            acse.send_ap_abort(0x03)
 
     @pytest.mark.parametrize('result, source, reasons', REFERENCE_REJECT_GOOD)
     def test_send_reject(self, result, source, reasons):
         """Test A-ASSOCIATE (rj) construction and sending"""
         acse = ACSE(self.assoc)
         for reason in reasons:
-            acse.send_reject(self.assoc, result, source, reason)
+            acse.send_reject(result, source, reason)
 
             primitive = self.assoc.dul.queue.get()
             with pytest.raises(queue.Empty):
@@ -487,20 +484,20 @@ class TestPrimitiveConstruction(object):
         acse = ACSE(self.assoc)
         msg = r"Invalid 'result' parameter value"
         with pytest.raises(ValueError, match=msg):
-            acse.send_reject(self.assoc, 0x00, 0x00, 0x00)
+            acse.send_reject(0x00, 0x00, 0x00)
 
         msg = r"Invalid 'source' parameter value"
         with pytest.raises(ValueError, match=msg):
-            acse.send_reject(self.assoc, 0x01, 0x00, 0x00)
+            acse.send_reject(0x01, 0x00, 0x00)
 
         msg = r"Invalid 'diagnostic' parameter value"
         with pytest.raises(ValueError, match=msg):
-            acse.send_reject(self.assoc, 0x01, 0x01, 0x00)
+            acse.send_reject(0x01, 0x01, 0x00)
 
     def test_send_release(self):
         """Test A-RELEASE construction and sending"""
         acse = ACSE(self.assoc)
-        acse.send_release(self.assoc, is_response=False)
+        acse.send_release(is_response=False)
 
         primitive = self.assoc.dul.queue.get()
         with pytest.raises(queue.Empty):
@@ -509,7 +506,7 @@ class TestPrimitiveConstruction(object):
         assert isinstance(primitive, A_RELEASE)
         assert primitive.result is None
 
-        acse.send_release(self.assoc, is_response=True)
+        acse.send_release(is_response=True)
 
         primitive = self.assoc.dul.queue.get()
         with pytest.raises(queue.Empty):
@@ -522,10 +519,10 @@ class TestPrimitiveConstruction(object):
         """Test A-ASSOCIATE (ac) construction and sending"""
         acse = ACSE(self.assoc)
         # So we have the request available
-        acse.send_request(self.assoc)
+        acse.send_request()
         self.assoc.accepted_contexts = [build_context('1.2.840.10008.1.1')]
         self.assoc.rejected_contexts = []
-        acse.send_accept(self.assoc)
+        acse.send_accept()
 
         self.assoc.dul.queue.get()  # The request
         primitive = self.assoc.dul.queue.get()
@@ -2610,7 +2607,7 @@ class TestEventHandlingRequestor(object):
         child = scp.active_associations[0]
         assert child.get_handlers(evt.EVT_ACSE_SENT) == []
 
-        assoc.acse.send_ap_abort(assoc, 0x00)
+        assoc.acse.send_ap_abort(0x00)
 
         while scp.active_associations:
             time.sleep(0.05)
