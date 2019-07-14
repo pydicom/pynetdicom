@@ -187,7 +187,7 @@ class Association(threading.Thread):
             # Ensure the reactor is running so it can be exited
             self._reactor_checkpoint.set()
             LOGGER.info('Aborting Association')
-            self.acse.send_abort(self, 0x00)
+            self.acse.send_abort(0x00)
             # Event handler - association aborted
             evt.trigger(self, evt.EVT_ABORTED, {})
             self.kill()
@@ -476,7 +476,7 @@ class Association(threading.Thread):
             # Ensure the reactor is running
             self._reactor_checkpoint.set()
             LOGGER.info('Releasing Association')
-            self.acse.negotiate_release(self)
+            self.acse.negotiate_release()
 
     @property
     def remote(self):
@@ -500,7 +500,7 @@ class Association(threading.Thread):
         self._dul_ready.wait()
         # Start association negotiation
         LOGGER.info("Requesting Association")
-        self.acse.negotiate_association(self)
+        self.acse.negotiate_association()
 
     def run(self):
         """The main ``Association`` reactor."""
@@ -523,7 +523,7 @@ class Association(threading.Thread):
             self.requestor.primitive = primitive
             evt.trigger(self, evt.EVT_REQUESTED, {})
 
-            self.acse.negotiate_association(self)
+            self.acse.negotiate_association()
             if self.is_established:
                 self._run_as_acceptor()
         else:
@@ -531,7 +531,7 @@ class Association(threading.Thread):
             # Allow non-blocking negotiation
             if (not self.is_established and not self.is_aborted
                     and not self.is_released and not self.is_rejected):
-                self.acse.negotiate_association(self)
+                self.acse.negotiate_association()
 
             if self.is_established:
                 self._run_as_requestor()
@@ -624,9 +624,9 @@ class Association(threading.Thread):
                     return
 
             # Check for release request
-            if self.acse.is_release_requested(self):
+            if self.acse.is_release_requested():
                 # Send A-RELEASE response
-                self.acse.send_release(self, is_response=True)
+                self.acse.send_release(is_response=True)
                 LOGGER.info('Association Released')
                 self.is_released = True
                 self.is_established = False
@@ -635,7 +635,7 @@ class Association(threading.Thread):
                 return
 
             # Check for abort
-            if self.acse.is_aborted(self):
+            if self.acse.is_aborted():
                 LOGGER.info('Association Aborted')
                 self.is_aborted = True
                 self.is_established = False
@@ -662,9 +662,9 @@ class Association(threading.Thread):
             time.sleep(0.1)
 
             # Check for release request
-            if self.acse.is_release_requested(self):
+            if self.acse.is_release_requested():
                 # Send A-RELEASE response
-                self.acse.send_release(self, is_response=True)
+                self.acse.send_release(is_response=True)
                 LOGGER.info('Association Released')
                 self.is_released = True
                 self.is_established = False
@@ -673,7 +673,7 @@ class Association(threading.Thread):
                 return
 
             # Check for abort
-            if self.acse.is_aborted(self):
+            if self.acse.is_aborted():
                 LOGGER.info('Association Aborted')
                 self.is_aborted = True
                 self.is_established = False
