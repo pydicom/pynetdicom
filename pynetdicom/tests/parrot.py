@@ -154,7 +154,6 @@ class ParrotRequest(BaseRequestHandler):
         self.received = []
         self.sent = []
         for (cmd, data) in self.commands:
-            pass
             if cmd == 'recv':
                 self.kill_read = False
                 while not self.kill_read:
@@ -195,6 +194,10 @@ class Parrot(AssociationServer):
 
         self.timeout = 60
         self.handlers = []
+
+    @property
+    def received(self):
+        return self.handlers[0].received
 
     def server_bind(self):
         """Bind the socket and set the socket options.

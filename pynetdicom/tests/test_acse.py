@@ -37,15 +37,17 @@ from pynetdicom.pdu_primitives import (
 )
 from pynetdicom.pdu import P_DATA_TF
 from pynetdicom.sop_class import VerificationSOPClass, CTImageStorage
-
+from pynetdicom.transport import AssociationSocket
+from pynetdicom.utils import validate_ae_title
 from .dummy_c_scp import DummyBaseSCP
 from .encoded_pdu_items import (
     a_associate_rq, a_associate_ac, a_release_rq, a_release_rp, p_data_tf,
     a_abort, a_p_abort,
 )
+from .parrot import ThreadedParrot
 
 
-debug_logger()
+#debug_logger()
 
 
 class DummyDUL(object):
@@ -1870,229 +1872,6 @@ class TestAsyncOpsNegotiation(object):
         scp.shutdown()
 
 
-class SmallReleaseCollider(threading.Thread):
-    def __init__(self, port=11112):
-        self.queue = queue.Queue()
-        self._kill = False
-        self.socket = socket.socket
-        self.address = ''
-        self.local_port = port
-        self.remote_port = None
-        self.received = []
-        self.mode = 'requestor'
-        self._step = 0
-        self._event = threading.Event()
-
-        threading.Thread.__init__(self)
-        self.daemon = True
-
-    def bind_socket(self):
-        sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-
-        # SOL_SOCKET: the level, SO_REUSEADDR: allow reuse of a port
-        #   stuck in TIME_WAIT, 1: set SO_REUSEADDR to 1
-        # This must be called prior to socket.bind()
-        sock.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
-        sock.setsockopt(
-            socket.SOL_SOCKET, socket.SO_RCVTIMEO, pack('ll', 10, 0)
-        )
-
-        # Bind the socket to an address and port
-        #   If self.bind_addr is '' then the socket is reachable by any
-        #   address the machine may have, otherwise is visible only on that
-        #   address
-        sock.bind(('', self.local_port))
-
-        # Listen for connections made to the socket
-        # socket.listen() says to queue up to as many as N connect requests
-        #   before refusing outside connections
-        sock.listen(1)
-        return sock
-
-    def run(self):
-        if self.mode == 'acceptor':
-            self.run_as_acceptor()
-        elif self.mode == 'requestor':
-            self.run_as_requestor()
-
-    def run_as_acceptor(self):
-        """Run the Collider as an association requestor.
-
-        1. Open a list socket on self.local_port
-        2. Wait for a connection request, when connected GOTO 3
-        3. Check self.queue for an item:
-            a. If the item is None then GOTO 4
-            b. If the item is singleton then send it to the peer and GOTO 4
-            c. If the item is a list then send each item in the list to the
-               peer, then GOTO 4. if one of the items is 'shutdown' then exit
-            d. If the item is 'shutdown' then exit
-        4. Block the connection until data appears, then append the data to
-           self.received.
-        """
-        sock = self.bind_socket()
-        self.sock = sock
-
-        # Wait for a connection
-        while not self._kill:
-            ready, _, _ = select.select([sock], [], [], 0.5)
-            if ready:
-                conn, _ = sock.accept()
-                break
-
-        # Send and receive data
-        while not self._kill:
-            to_send = self.queue.get()
-            if to_send == 'shutdown':
-                # 'shutdown'
-                self.sock.shutdown(socket.SHUT_RDWR)
-                self.sock.close()
-                self._kill = True
-                return
-            elif to_send is not None:
-                # item or [item, item]
-                if isinstance(to_send, list):
-                    for item in to_send:
-                        if item == 'shutdown':
-                            self.sock.shutdown(socket.SHUT_RDWR)
-                            self.sock.close()
-                            self._kill = True
-                            return
-                        elif item == None:
-                            continue
-                        else:
-                            conn.send(item)
-                else:
-                    conn.send(to_send)
-            elif to_send == 'skip':
-                continue
-            else:
-                # None
-                pass
-
-            # Block until ready to read
-            ready, _, _ = select.select([conn], [], [])
-            if ready:
-                data_received = self.read_stream(conn)
-                self.received.append(data_received)
-
-    def run_as_requestor(self):
-        """Run the Collider as an association requestor.
-
-        1. Open a connection to the peer at (self.address, self.remote_port)
-        2. Check self.queue for an item:
-            a. If the item is None then GOTO 3
-            b. If the item is singleton then send it to the peer and GOTO 3
-            c. If the item is a list then send each item in the list to the
-               peer, then GOTO 3
-            d. If the item is 'shutdown' then exit
-        3. Block the connection until data appears, then append the data to
-           self.received.
-        """
-        # Make the connection
-        while not self._kill:
-            try:
-                self.sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-                self.sock.connect((self.address, self.remote_port))
-                break
-            except:
-                pass
-
-        # Send and receive data
-        while not self._kill:
-            to_send = self.queue.get()
-            if to_send == 'shutdown':
-                # 'shutdown'
-                self.sock.shutdown(socket.SHUT_RDWR)
-                self.sock.close()
-                self._kill = True
-                return
-            elif to_send is not None:
-                # item or [item, item]
-                if isinstance(to_send, list):
-                    for item in to_send:
-                        self.sock.send(item)
-                else:
-                    self.sock.send(to_send)
-            else:
-                # None
-                pass
-
-            # Block until ready
-            # When the timeout argument is omitted the function blocks until
-            #   at least one file descriptor is ready
-            ready, _, _ = select.select([self.sock], [], [])
-            if ready:
-                data_received = self.read_stream(self.sock)
-                self.received.append(data_received)
-
-    def read_stream(self, sock):
-        bytestream = bytes()
-
-        # Try and read data from the socket
-        try:
-            # Get the data from the socket
-            bytestream = sock.recv(1)
-        except socket.error:
-            self._kill = True
-            sock.close()
-            return
-
-        pdu_type = unpack('B', bytestream)[0]
-
-        # Byte 2 is Reserved
-        result = self._recvn(sock, 1)
-        bytestream += result
-
-        # Bytes 3-6 is the PDU length
-        result = unpack('B', result)
-        length = self._recvn(sock, 4)
-
-        bytestream += length
-        length = unpack('>L', length)
-
-        # Bytes 7-xxxx is the rest of the PDU
-        result = self._recvn(sock, length[0])
-        bytestream += result
-
-        return bytestream
-
-    @staticmethod
-    def _recvn(sock, n_bytes):
-        """Read `n_bytes` from a socket.
-
-        Parameters
-        ----------
-        sock : socket.socket
-            The socket to read from
-        n_bytes : int
-            The number of bytes to read
-        """
-        ret = b''
-        read_length = 0
-        while read_length < n_bytes:
-            tmp = sock.recv(n_bytes - read_length)
-
-            if not tmp:
-                return ret
-
-            ret += tmp
-            read_length += len(tmp)
-
-        if read_length != n_bytes:
-            raise RuntimeError("_recvn(socket, {}) - Error reading data from "
-                               "socket.".format(n_bytes))
-
-        return ret
-
-    def stop(self):
-        self._kill = True
-
-    def shutdown_sockets(self):
-        """Close the sockets."""
-        self.sock.shutdown(socket.SHUT_RDWR)
-        self.sock.close()
-
-
 class TestNegotiateRelease(object):
     """Tests for ACSE.negotiate_release."""
     def setup(self):
@@ -2111,220 +1890,274 @@ class TestNegotiateRelease(object):
                 thread.abort()
                 thread.stop()
 
-    @pytest.mark.skipif(sys.version_info[:2] == (3, 4), reason='no caplog')
-    def test_collision_requestor(self, caplog):
-        """Test a simulated A-RELEASE collision on the requestor side."""
-        with caplog.at_level(logging.DEBUG, logger='pynetdicom'):
-            scp = SmallReleaseCollider()
-            scp.mode = 'acceptor'
-            scp_messages = [
-                None, a_associate_ac, a_release_rq, [a_release_rp, 'shutdown']
-            ]
-            for item in scp_messages:
-                scp.queue.put(item)
-            scp.start()
+    def create_assoc(self):
+        ae = AE()
+        ae.add_requested_context(VerificationSOPClass)
+        ae.acse_timeout = 2
+        ae.dimse_timeout = 5
 
-            ae = AE()
-            ae.acse_timeout = 5
-            ae.dimse_timeout = 5
-            ae.network_timeout = 5
-            ae.add_requested_context(VerificationSOPClass)
-            assoc = ae.associate('localhost', 11112)
-            assert assoc.is_established
-            assoc.release()
-            assert assoc.is_released
-            assert not assoc.is_established
+        assoc = Association(ae, mode='requestor')
 
-            scp.stop()
+        assoc.set_socket(AssociationSocket(assoc))
 
-            assert scp.received[1] == a_release_rq
-            assert scp.received[2] == a_release_rp
+        # Association Acceptor object -> remote AE
+        assoc.acceptor.ae_title = validate_ae_title(b'ANY_SCU')
+        assoc.acceptor.address = 'localhost'
+        assoc.acceptor.port = 11112
 
-            assert "An A-RELEASE collision has occurred" in caplog.text
+        # Association Requestor object -> local AE
+        assoc.requestor.address = ''
+        assoc.requestor.port = 11113
+        assoc.requestor.ae_title = ae.ae_title
+        assoc.requestor.maximum_length = 16382
+        assoc.requestor.implementation_class_uid = (
+            ae.implementation_class_uid
+        )
+        assoc.requestor.implementation_version_name = (
+            ae.implementation_version_name
+        )
 
-    def test_release_no_response(self):
-        """Test a simulated A-RELEASE collision on the requestor side."""
-        scp = SmallReleaseCollider()
-        scp.mode = 'acceptor'
-        scp_messages = [None, a_associate_ac, None, 'shutdown']
-        for item in scp_messages:
-            scp.queue.put(item)
-        scp.start()
+        cx = build_context(VerificationSOPClass)
+        cx.context_id = 1
+        assoc.requestor.requested_contexts = [cx]
+
+        return assoc
+
+    def create_assoc_acc(self):
+        # AF_INET: IPv4, SOCK_STREAM: TCP socket
+        sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        sock.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
+        sock.setsockopt(
+                socket.SOL_SOCKET,
+                socket.SO_RCVTIMEO,
+                pack('ll', 1, 0)
+            )
+        sock.connect(('', 11112))
 
         ae = AE()
+        ae.add_supported_context(VerificationSOPClass)
+        ae.acse_timeout = 5
         ae.dimse_timeout = 5
-        ae.network_timeout = 5
-        ae.acse_timeout = 1
-        ae.add_requested_context(VerificationSOPClass)
-        assoc = ae.associate('localhost', 11112)
-        assert assoc.is_established
+
+        assoc = Association(ae, mode='acceptor')
+
+        assoc.set_socket(AssociationSocket(assoc, client_socket=sock))
+
+        # Association Acceptor object -> remote AE
+        assoc.acceptor.ae_title = validate_ae_title(b'ANY_SCU')
+        assoc.acceptor.address = 'localhost'
+        assoc.acceptor.port = 11112
+
+        # Association Requestor object -> local AE
+        assoc.requestor.address = ''
+        assoc.requestor.port = 11113
+        assoc.requestor.ae_title = ae.ae_title
+        assoc.requestor.maximum_length = 16382
+        assoc.requestor.implementation_class_uid = (
+            ae.implementation_class_uid
+        )
+        assoc.requestor.implementation_version_name = (
+            ae.implementation_version_name
+        )
+
+        cx = build_context(VerificationSOPClass)
+        cx.context_id = 1
+        assoc.acceptor.supported_contexts = [cx]
+
+        return assoc
+
+    def start_server(self, commands):
+        """Start the receiving server."""
+        server = ThreadedParrot(('', 11112), commands)
+        thread = threading.Thread(target=server.serve_forever)
+        thread.daemon = True
+        thread.start()
+
+        return server
+
+    @pytest.mark.skipif(sys.version_info[:2] == (3, 4), reason='no caplog')
+    def test_collision_req(self, caplog):
+        """Test a simulated A-RELEASE collision on the requestor side."""
+        commands = [
+            ('recv', None),
+            ('send', a_associate_ac),
+            ('wait', 0.3),
+            ('recv', None),
+            ('send', a_release_rq),  # Cause collision
+            ('send', a_release_rp),
+            ('recv', None),
+        ]
+        scp = self.start_server(commands)
+
+        assoc = self.create_assoc()
+        assoc.start()
+        while not assoc.is_established:
+            time.sleep(0.05)
+
+        with caplog.at_level(logging.DEBUG, logger='pynetdicom'):
+            assoc.release()
+            assert assoc.is_released
+            assert "An A-RELEASE collision has occurred" in caplog.text
+
+        scp.shutdown()
+
+        assert scp.received[1] == a_release_rq
+        assert scp.received[2] == a_release_rp
+
+    def test_release_no_response(self):
+        """Test a requestor aborts if no response."""
+        commands = [
+            ('recv', None),
+            ('send', a_associate_ac),
+            ('wait', 0.3),
+            ('recv', None),
+            ('recv', None),
+        ]
+        scp = self.start_server(commands)
+
+        assoc = self.create_assoc()
+        assoc.start()
+        while not assoc.is_established:
+            time.sleep(0.05)
+
         assoc.release()
         assert assoc.is_aborted
-        assert not assoc.is_established
 
-        time.sleep(0.5)
+        scp.shutdown()
 
         assert scp.received[1] == a_release_rq
         assert scp.received[2] == a_p_abort[:-1] + b'\x00'
 
-        scp.stop()
-
     @pytest.mark.skipif(sys.version_info[:2] == (3, 4), reason='no caplog')
     def test_release_p_data(self, caplog):
-        """Test a receiving P-DATA-TF after release."""
-        with caplog.at_level(logging.WARNING, logger='pynetdicom'):
-            scp = SmallReleaseCollider()
-            scp.mode = 'acceptor'
-            scp_messages = [
-                None, a_associate_ac, [p_data_tf, a_release_rp , 'shutdown'],
-            ]
-            for item in scp_messages:
-                scp.queue.put(item)
-            scp.start()
+        """Test receiving P-DATA-TF after release."""
+        commands = [
+            ('recv', None),
+            ('send', a_associate_ac),
+            ('wait', 0.3),
+            ('recv', None),  # a_release_rq
+            ('send', p_data_tf),
+            ('send', a_release_rp)
+        ]
+        scp = self.start_server(commands)
 
-            ae = AE()
-            ae.acse_timeout = 2
-            ae.dimse_timeout = 5
-            ae.network_timeout = 5
-            ae.add_requested_context(VerificationSOPClass)
-            assoc = ae.associate('localhost', 11112)
-            assert assoc.is_established
+        assoc = self.create_assoc()
+        assoc.start()
+        while not assoc.is_established:
+            time.sleep(0.05)
+
+        with caplog.at_level(logging.DEBUG, logger='pynetdicom'):
             assoc.release()
             assert assoc.is_released
-            assert not assoc.is_established
-
-            assert scp.received[1] == a_release_rq
-
-            scp._kill = True
-            scp.queue.put(None)
-            scp.stop()
-
             assert (
                 "P-DATA received after Association release, data has been lost"
             ) in caplog.text
 
+        scp.shutdown()
+
+        assert scp.received[1] == a_release_rq
+
     @pytest.mark.skipif(sys.version_info[:2] == (3, 4), reason='no caplog')
-    def test_collision_acceptor(self, caplog):
+    def test_coll_acc(self, caplog):
         """Test a simulated A-RELEASE collision on the acceptor side."""
-        # Listening on port 11112
+        def handle(event):
+            event.assoc.release()
+            return 0x0000
+
+        # C-ECHO-RQ
+        # 80 total length
+        p_data_tf = (
+            b"\x04\x00\x00\x00\x00\x4a" # P-DATA-TF 74
+            b"\x00\x00\x00\x46\x01" # PDV Item 70
+            b"\x03"  # PDV: 2 -> 69
+            b"\x00\x00\x00\x00\x04\x00\x00\x00\x42\x00\x00\x00"  # 12 Command Group Length
+            b"\x00\x00\x02\x00\x12\x00\x00\x00\x31\x2e\x32\x2e\x38\x34\x30\x2e\x31\x30\x30\x30\x38\x2e\x31\x2e\x31\x00"  # 26
+            b"\x00\x00\x00\x01\x02\x00\x00\x00\x30\x00"  # 10 Command Field
+            b"\x00\x00\x10\x01\x02\x00\x00\x00\x01\x00"  # 10 Message ID
+            b"\x00\x00\x00\x08\x02\x00\x00\x00\x01\x01"  # 10 Command Data Set Type
+        )
+
+        commands = [
+            ('send', a_associate_rq),
+            ('recv', None),
+            ('send', p_data_tf),
+            ('recv', None),  # a_release_rq
+            ('send', a_release_rq),
+            ('send', a_release_rp),
+            ('recv', None),  # a_release_rp
+        ]
+        scu = self.start_server(commands)  # Requestor
+
         with caplog.at_level(logging.DEBUG, logger='pynetdicom'):
-            def handle(event):
-                event.assoc.release()
-                return 0x0000
-
-            self.ae = ae = AE()
-            ae.acse_timeout = 1
-            ae.dimse_timeout = 5
-            ae.network_timeout = 5
-            ae.add_supported_context(VerificationSOPClass)
-            scp = ae.start_server(
-                ('', 11112), block=False, evt_handlers=[(evt.EVT_C_ECHO, handle)]
-            )
-
-            # C-ECHO-RQ
-            # 80 total length
-            p_data_tf = (
-                b"\x04\x00\x00\x00\x00\x4a" # P-DATA-TF 74
-                b"\x00\x00\x00\x46\x01" # PDV Item 70
-                b"\x03"  # PDV: 2 -> 69
-                b"\x00\x00\x00\x00\x04\x00\x00\x00\x42\x00\x00\x00"  # 12 Command Group Length
-                b"\x00\x00\x02\x00\x12\x00\x00\x00\x31\x2e\x32\x2e\x38\x34\x30\x2e\x31\x30\x30\x30\x38\x2e\x31\x2e\x31\x00"  # 26
-                b"\x00\x00\x00\x01\x02\x00\x00\x00\x30\x00"  # 10 Command Field
-                b"\x00\x00\x10\x01\x02\x00\x00\x00\x01\x00"  # 10 Message ID
-                b"\x00\x00\x00\x08\x02\x00\x00\x00\x01\x01"  # 10 Command Data Set Type
-            )
-
-            scu = SmallReleaseCollider()
-            scu.mode = 'requestor'
-            scu.address = 'localhost'
-            scu.local_port = 0
-            scu.remote_port = 11112
-            msgs = [
-                a_associate_rq,
-                p_data_tf,
-                [a_release_rq, a_release_rp],
-                'shutdown'
-            ]
-            for msg in msgs:
-                scu.queue.put(msg)
-
-            # Blocking
-            scu.run_as_requestor()
-
-            scp.shutdown()
-
+            assoc = self.create_assoc_acc()  # Acceptor
+            assoc.bind(evt.EVT_C_ECHO, handle)
+            assoc.start()
+            time.sleep(0.5)
             assert "An A-RELEASE collision has occurred" in caplog.text
+            assert assoc.is_released
 
-            # A-ASSOCIATE-RQ
-            assert scu.received[1] == (
-                b'\x05\x00\x00\x00\x00\x04\x00\x00\x00\x00'
-            )
-            # A-ASSOCIATE-RP
-            assert scu.received[2] == (
-                b'\x06\x00\x00\x00\x00\x04\x00\x00\x00\x00'
-            )
+        scu.shutdown()
+
+        assert scu.received[1] == a_release_rq
+        assert scu.received[2] == a_release_rp
 
     @pytest.mark.skipif(sys.version_info[:2] == (3, 4), reason='no caplog')
-    def test_collision_requestor_abort(self, caplog):
-        """Test a simulated A-RELEASE collision on the requestor side."""
-        with caplog.at_level(logging.DEBUG, logger='pynetdicom'):
-            scp = SmallReleaseCollider()
-            scp.mode = 'acceptor'
-            scp_messages = [
-                None, a_associate_ac, a_release_rq, a_abort, 'shutdown'
-            ]
-            for item in scp_messages:
-                scp.queue.put(item)
-            scp.start()
+    def test_collision_req_abort(self, caplog):
+        """Test release collision with acceptor abort."""
+        commands = [
+            ('recv', None),
+            ('send', a_associate_ac),
+            ('wait', 0.3),
+            ('recv', None),
+            ('send', a_release_rq),  # Cause collision
+            ('recv', None),
+            ('send', a_abort),
+        ]
+        scp = self.start_server(commands)
 
-            ae = AE()
-            ae.acse_timeout = 5
-            ae.dimse_timeout = 5
-            ae.network_timeout = 5
-            ae.add_requested_context(VerificationSOPClass)
-            assoc = ae.associate('localhost', 11112)
-            assert assoc.is_established
+        assoc = self.create_assoc()
+        assoc.start()
+        while not assoc.is_established:
+            time.sleep(0.05)
+
+        with caplog.at_level(logging.DEBUG, logger='pynetdicom'):
             assoc.release()
             assert assoc.is_aborted
-            assert not assoc.is_established
-
-            scp.stop()
-
-            assert scp.received[1] == a_release_rq
-            assert scp.received[2] == a_release_rp
-
             assert "An A-RELEASE collision has occurred" in caplog.text
+
+        scp.shutdown()
+
+        assert scp.received[1] == a_release_rq
+        assert scp.received[2] == a_release_rp
 
     @pytest.mark.skipif(sys.version_info[:2] == (3, 4), reason='no caplog')
-    def test_collision_requestor_ap_abort(self, caplog):
-        """Test a simulated A-RELEASE collision on the requestor side."""
-        with caplog.at_level(logging.DEBUG, logger='pynetdicom'):
-            scp = SmallReleaseCollider()
-            scp.mode = 'acceptor'
-            scp_messages = [
-                None, a_associate_ac, a_release_rq, a_p_abort, 'shutdown'
-            ]
-            for item in scp_messages:
-                scp.queue.put(item)
-            scp.start()
+    def test_collision_req_ap_abort(self, caplog):
+        """Test release collision with acceptor abort."""
+        commands = [
+            ('recv', None),
+            ('send', a_associate_ac),
+            ('wait', 0.3),
+            ('recv', None),
+            ('send', a_release_rq),  # Cause collision
+            ('recv', None),
+            ('send', a_p_abort),
+        ]
+        scp = self.start_server(commands)
 
-            ae = AE()
-            ae.acse_timeout = 5
-            ae.dimse_timeout = 5
-            ae.network_timeout = 5
-            ae.add_requested_context(VerificationSOPClass)
-            assoc = ae.associate('localhost', 11112)
-            assert assoc.is_established
+        assoc = self.create_assoc()
+        assoc.start()
+        while not assoc.is_established:
+            time.sleep(0.05)
+
+        with caplog.at_level(logging.DEBUG, logger='pynetdicom'):
             assoc.release()
             assert assoc.is_aborted
-            assert not assoc.is_established
-
-            scp.stop()
-
-            assert scp.received[1] == a_release_rq
-            assert scp.received[2] == a_release_rp
-
             assert "An A-RELEASE collision has occurred" in caplog.text
+
+        scp.shutdown()
+
+        assert scp.received[1] == a_release_rq
+        assert scp.received[2] == a_release_rp
 
 
 class TestEventHandlingAcceptor(object):

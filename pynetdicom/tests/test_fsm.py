@@ -399,7 +399,6 @@ class TestStateBase(object):
         cx.context_id = 1
         assoc.acceptor.supported_contexts = [cx]
 
-
         fsm = self.monkey_patch(assoc.dul.state_machine)
         return assoc, fsm
 
