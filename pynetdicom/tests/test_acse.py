@@ -364,7 +364,6 @@ class TestNegotiationAcceptor(object):
         scp.shutdown()
 
 
-
 REFERENCE_REJECT_GOOD = [
     (0x01, 0x01, (0x01, 0x02, 0x03, 0x07)),
     (0x02, 0x01, (0x01, 0x02, 0x03, 0x07)),
@@ -1018,7 +1017,6 @@ class TestUserIdentityNegotiation(object):
         scp.shutdown()
 
 
-
 class TestSOPClassExtendedNegotiation(object):
     """Tests for SOP Class Extended Negotiation."""
     def setup(self):
@@ -1424,7 +1422,6 @@ class TestSOPClassExtendedNegotiation(object):
         scp.shutdown()
 
 
-
 class TestSOPClassCommonExtendedNegotiation(object):
     """Tests for SOP Class Extended Negotiation."""
     def setup(self):
@@ -1699,7 +1696,6 @@ class TestSOPClassCommonExtendedNegotiation(object):
         scp.shutdown()
 
 
-
 class TestAsyncOpsNegotiation(object):
     """Tests for Asynchronous Operations Window Negotiation."""
     def setup(self):
@@ -1881,14 +1877,7 @@ class TestNegotiateRelease(object):
     def teardown(self):
         """Clear any active threads"""
         if self.scp:
-            self.scp.abort()
-
-        time.sleep(0.1)
-
-        for thread in threading.enumerate():
-            if isinstance(thread, DummyBaseSCP):
-                thread.abort()
-                thread.stop()
+            self.scp.shutdown()
 
     def create_assoc(self):
         ae = AE()
@@ -1981,13 +1970,13 @@ class TestNegotiateRelease(object):
         commands = [
             ('recv', None),
             ('send', a_associate_ac),
-            ('wait', 0.3),
-            ('recv', None),
+            ('wait', 0.3),  # Ensure enough time for association to complete
+            ('recv', None),  # a-release-rq
             ('send', a_release_rq),  # Cause collision
+            ('recv', None),  # a-release-rp
             ('send', a_release_rp),
-            ('recv', None),
         ]
-        scp = self.start_server(commands)
+        self.scp = scp = self.start_server(commands)
 
         assoc = self.create_assoc()
         assoc.start()
@@ -1996,6 +1985,7 @@ class TestNegotiateRelease(object):
 
         with caplog.at_level(logging.DEBUG, logger='pynetdicom'):
             assoc.release()
+            time.sleep(0.1)
             assert assoc.is_released
             assert "An A-RELEASE collision has occurred" in caplog.text
 
@@ -2013,7 +2003,7 @@ class TestNegotiateRelease(object):
             ('recv', None),
             ('recv', None),
         ]
-        scp = self.start_server(commands)
+        self.scp = scp = self.start_server(commands)
 
         assoc = self.create_assoc()
         assoc.start()
@@ -2039,7 +2029,7 @@ class TestNegotiateRelease(object):
             ('send', p_data_tf),
             ('send', a_release_rp)
         ]
-        scp = self.start_server(commands)
+        self.scp = scp = self.start_server(commands)
 
         assoc = self.create_assoc()
         assoc.start()
@@ -2086,7 +2076,7 @@ class TestNegotiateRelease(object):
             ('send', a_release_rp),
             ('recv', None),  # a_release_rp
         ]
-        scu = self.start_server(commands)  # Requestor
+        self.scp = scu = self.start_server(commands)  # Requestor
 
         with caplog.at_level(logging.DEBUG, logger='pynetdicom'):
             assoc = self.create_assoc_acc()  # Acceptor
@@ -2108,12 +2098,12 @@ class TestNegotiateRelease(object):
             ('recv', None),
             ('send', a_associate_ac),
             ('wait', 0.3),
-            ('recv', None),
+            ('recv', None),  # a-release-rq
             ('send', a_release_rq),  # Cause collision
-            ('recv', None),
+            ('recv', None),  # a-release-rp
             ('send', a_abort),
         ]
-        scp = self.start_server(commands)
+        self.scp = scp = self.start_server(commands)
 
         assoc = self.create_assoc()
         assoc.start()
@@ -2137,12 +2127,12 @@ class TestNegotiateRelease(object):
             ('recv', None),
             ('send', a_associate_ac),
             ('wait', 0.3),
-            ('recv', None),
+            ('recv', None),  # a-release-rq
             ('send', a_release_rq),  # Cause collision
-            ('recv', None),
+            ('recv', None),  # a-release-rp
             ('send', a_p_abort),
         ]
-        scp = self.start_server(commands)
+        self.scp = scp = self.start_server(commands)
 
         assoc = self.create_assoc()
         assoc.start()
