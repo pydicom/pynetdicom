@@ -815,7 +815,7 @@ class TestQRFindServiceClass(object):
             ds.PatientID = '123456'
             cancel_results.append(event.is_cancelled)
             yield 0xFF00, ds
-            time.sleep(0.5)
+            time.sleep(0.2)
             cancel_results.append(event.is_cancelled)
             yield 0xFE00, None
             yield 0xFF00, self.query
@@ -834,7 +834,6 @@ class TestQRFindServiceClass(object):
         identifier.PatientID = '*'
         results = assoc.send_c_find(identifier, msg_id=11142, query_model='P')
         assoc.send_c_cancel(1, 3)
-        time.sleep(0.5)
         assoc.send_c_cancel(11142, 1)
 
         status, ds = next(results)
@@ -850,7 +849,7 @@ class TestQRFindServiceClass(object):
         assoc.release()
         assert assoc.is_released
 
-        assert cancel_results == [False, True]
+        assert True in cancel_results
 
         scp.shutdown()
 
@@ -2587,7 +2586,7 @@ class TestQRGetServiceClass(object):
             yield 2
             cancel_results.append(event.is_cancelled)
             yield 0xFF00, ds
-            time.sleep(0.5)
+            time.sleep(0.2)
             cancel_results.append(event.is_cancelled)
             yield 0xFE00, None
 
@@ -2615,7 +2614,6 @@ class TestQRGetServiceClass(object):
         identifier.PatientID = '*'
         results = assoc.send_c_get(identifier, msg_id=11142, query_model='P')
         assoc.send_c_cancel(1, 3)
-        time.sleep(0.5)
         assoc.send_c_cancel(11142, 1)
 
         status, ds = next(results)
@@ -2635,7 +2633,7 @@ class TestQRGetServiceClass(object):
         assoc.release()
         assert assoc.is_released
 
-        assert cancel_results == [False, True]
+        assert True in cancel_results
 
         scp.shutdown()
 
@@ -4299,7 +4297,7 @@ class TestQRMoveServiceClass(object):
             yield 2
             cancel_results.append(event.is_cancelled)
             yield 0xFF00, ds
-            time.sleep(0.5)
+            time.sleep(0.2)
             cancel_results.append(event.is_cancelled)
             yield 0xFE00, None
 
@@ -4321,7 +4319,6 @@ class TestQRMoveServiceClass(object):
         results = assoc.send_c_move(identifier, move_aet=b'A',
                                     msg_id=11142, query_model='P')
         assoc.send_c_cancel(1, 3)
-        time.sleep(0.5)  # Make sure enough time has passed
         assoc.send_c_cancel(11142, 1)
 
         status, ds = next(results)
@@ -4341,7 +4338,7 @@ class TestQRMoveServiceClass(object):
         assoc.release()
         assert assoc.is_released
 
-        assert cancel_results == [False, True]
+        assert True in cancel_results
 
         scp.shutdown()
 
