@@ -833,9 +833,8 @@ class TestQRFindServiceClass(object):
         identifier = Dataset()
         identifier.PatientID = '*'
         results = assoc.send_c_find(identifier, msg_id=11142, query_model='P')
-        time.sleep(0.2)
         assoc.send_c_cancel(1, 3)
-        time.sleep(0.1)
+        time.sleep(0.5)
         assoc.send_c_cancel(11142, 1)
 
         status, ds = next(results)
@@ -2615,9 +2614,8 @@ class TestQRGetServiceClass(object):
         identifier = Dataset()
         identifier.PatientID = '*'
         results = assoc.send_c_get(identifier, msg_id=11142, query_model='P')
-        time.sleep(0.3)
         assoc.send_c_cancel(1, 3)
-        time.sleep(0.1)
+        time.sleep(0.5)
         assoc.send_c_cancel(11142, 1)
 
         status, ds = next(results)
@@ -4322,9 +4320,8 @@ class TestQRMoveServiceClass(object):
         identifier.PatientID = '*'
         results = assoc.send_c_move(identifier, move_aet=b'A',
                                     msg_id=11142, query_model='P')
-        time.sleep(0.3)
         assoc.send_c_cancel(1, 3)
-        time.sleep(0.1)
+        time.sleep(0.5)  # Make sure enough time has passed
         assoc.send_c_cancel(11142, 1)
 
         status, ds = next(results)
