@@ -1882,7 +1882,7 @@ class TestNegotiateRelease(object):
     def create_assoc(self):
         ae = AE()
         ae.add_requested_context(VerificationSOPClass)
-        ae.acse_timeout = 2
+        ae.acse_timeout = 5
         ae.dimse_timeout = 5
 
         assoc = Association(ae, mode='requestor')
@@ -1984,7 +1984,6 @@ class TestNegotiateRelease(object):
                 time.sleep(0.05)
 
             assoc.release()
-            time.sleep(0.1)
             assert assoc.is_released
             assert "An A-RELEASE collision has occurred" in caplog.text
 

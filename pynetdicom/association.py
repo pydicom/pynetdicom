@@ -473,10 +473,13 @@ class Association(threading.Thread):
     def release(self):
         """Send an A-RELEASE request and initiate association release."""
         if self.is_established:
-            # Ensure the reactor is running
-            self._reactor_checkpoint.set()
+            # Ensure the reactor is paused so it doesn't
+            #   steal incoming ACSE messages
+            self._reactor_checkpoint.clear()
             LOGGER.info('Releasing Association')
             self.acse.negotiate_release(self)
+            # Restart reactor
+            self._reactor_checkpoint.set()
 
     @property
     def remote(self):
