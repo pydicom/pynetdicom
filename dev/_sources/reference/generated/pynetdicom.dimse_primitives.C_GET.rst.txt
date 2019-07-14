@@ -38,5 +38,6 @@ pynetdicom.dimse\_primitives.C\_GET
       ~C_GET.Status
       ~C_GET.is_valid_request
       ~C_GET.is_valid_response
+      ~C_GET.msg_type
    
    

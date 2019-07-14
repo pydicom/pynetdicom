@@ -32,5 +32,6 @@ pynetdicom.dimse\_primitives.C\_ECHO
       ~C_ECHO.Status
       ~C_ECHO.is_valid_request
       ~C_ECHO.is_valid_response
+      ~C_ECHO.msg_type
    
    

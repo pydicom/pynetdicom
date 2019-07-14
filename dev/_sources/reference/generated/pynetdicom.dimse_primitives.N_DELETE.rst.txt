@@ -35,5 +35,6 @@ pynetdicom.dimse\_primitives.N\_DELETE
       ~N_DELETE.Status
       ~N_DELETE.is_valid_request
       ~N_DELETE.is_valid_response
+      ~N_DELETE.msg_type
    
    

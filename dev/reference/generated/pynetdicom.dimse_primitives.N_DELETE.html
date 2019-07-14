@@ -205,7 +205,7 @@
 <h1>pynetdicom.dimse_primitives.N_DELETE<a class="headerlink" href="#pynetdicom-dimse-primitives-n-delete" title="Permalink to this headline">¶</a></h1>
 <dl class="class">
 <dt id="pynetdicom.dimse_primitives.N_DELETE">
-<em class="property">class </em><code class="sig-prename descclassname">pynetdicom.dimse_primitives.</code><code class="sig-name descname">N_DELETE</code><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/da923e5a/pynetdicom/dimse_primitives.py#L2161"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom.dimse_primitives.N_DELETE" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="sig-prename descclassname">pynetdicom.dimse_primitives.</code><code class="sig-name descname">N_DELETE</code><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/2ab479ec/pynetdicom/dimse_primitives.py#L2166"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom.dimse_primitives.N_DELETE" title="Permalink to this definition">¶</a></dt>
 <dd><p>Represents a N-DELETE primitive.</p>
 <table class="docutils align-default">
 <colgroup>
@@ -346,7 +346,7 @@ to the value in the request/indication</p>
 
 <dl class="method">
 <dt id="pynetdicom.dimse_primitives.N_DELETE.__init__">
-<code class="sig-name descname">__init__</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/da923e5a/pynetdicom/dimse_primitives.py#L2220"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom.dimse_primitives.N_DELETE.__init__" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">__init__</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/2ab479ec/pynetdicom/dimse_primitives.py#L2225"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom.dimse_primitives.N_DELETE.__init__" title="Permalink to this definition">¶</a></dt>
 <dd><p>Initialize self.  See help(type(self)) for accurate signature.</p>
 </dd></dl>
 
@@ -405,6 +405,9 @@ to the value in the request/indication</p>
 <tr class="row-even"><td><p><a class="reference internal" href="#pynetdicom.dimse_primitives.N_DELETE.is_valid_response" title="pynetdicom.dimse_primitives.N_DELETE.is_valid_response"><code class="xref py py-obj docutils literal notranslate"><span class="pre">is_valid_response</span></code></a></p></td>
 <td><p>Return True if the response is valid, False otherwise.</p></td>
 </tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pynetdicom.dimse_primitives.N_DELETE.msg_type" title="pynetdicom.dimse_primitives.N_DELETE.msg_type"><code class="xref py py-obj docutils literal notranslate"><span class="pre">msg_type</span></code></a></p></td>
+<td><p>Return the DIMSE message type as str.</p></td>
+</tr>
 </tbody>
 </table>
 <dl class="method">
@@ -459,6 +462,12 @@ to the value in the request/indication</p>
 <dt id="pynetdicom.dimse_primitives.N_DELETE.is_valid_response">
 <em class="property">property </em><code class="sig-name descname">is_valid_response</code><a class="headerlink" href="#pynetdicom.dimse_primitives.N_DELETE.is_valid_response" title="Permalink to this definition">¶</a></dt>
 <dd><p>Return True if the response is valid, False otherwise.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pynetdicom.dimse_primitives.N_DELETE.msg_type">
+<em class="property">property </em><code class="sig-name descname">msg_type</code><a class="headerlink" href="#pynetdicom.dimse_primitives.N_DELETE.msg_type" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return the DIMSE message type as str.</p>
 </dd></dl>
 
 </dd></dl>

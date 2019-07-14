@@ -36,5 +36,6 @@ pynetdicom.dimse\_primitives.N\_EVENT\_REPORT
       ~N_EVENT_REPORT.Status
       ~N_EVENT_REPORT.is_valid_request
       ~N_EVENT_REPORT.is_valid_response
+      ~N_EVENT_REPORT.msg_type
    
    

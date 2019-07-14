@@ -39,5 +39,6 @@ pynetdicom.dimse\_primitives.C\_MOVE
       ~C_MOVE.Status
       ~C_MOVE.is_valid_request
       ~C_MOVE.is_valid_response
+      ~C_MOVE.msg_type
    
    

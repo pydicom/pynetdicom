@@ -34,5 +34,6 @@ pynetdicom.dimse\_primitives.N\_CREATE
       ~N_CREATE.Status
       ~N_CREATE.is_valid_request
       ~N_CREATE.is_valid_response
+      ~N_CREATE.msg_type
    
    

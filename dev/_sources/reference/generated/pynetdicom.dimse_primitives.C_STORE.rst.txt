@@ -37,5 +37,6 @@ pynetdicom.dimse\_primitives.C\_STORE
       ~C_STORE.Status
       ~C_STORE.is_valid_request
       ~C_STORE.is_valid_response
+      ~C_STORE.msg_type
    
    

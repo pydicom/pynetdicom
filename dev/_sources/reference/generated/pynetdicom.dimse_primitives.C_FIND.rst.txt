@@ -34,5 +34,6 @@ pynetdicom.dimse\_primitives.C\_FIND
       ~C_FIND.Status
       ~C_FIND.is_valid_request
       ~C_FIND.is_valid_response
+      ~C_FIND.msg_type
    
    

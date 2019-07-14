@@ -37,5 +37,6 @@ pynetdicom.dimse\_primitives.N\_SET
       ~N_SET.Status
       ~N_SET.is_valid_request
       ~N_SET.is_valid_response
+      ~N_SET.msg_type
    
    

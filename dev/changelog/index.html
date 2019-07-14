@@ -215,12 +215,14 @@
 if no matches were yielded by the C-FIND request handler.</p></li>
 <li><p>Fixed association being aborted due to failure to decode a rejected
 presentation context when the transfer syntax value is empty (<a class="reference external" href="https://github.com/pydicom/pynetdicom/issues/342">#342</a>)</p></li>
-<li><p>Checkpoint added to the reactor in <code class="docutils literal notranslate"><span class="pre">Association</span></code> to prevent a possible
-race condition when acting as the Acceptor and calling one of the
-<code class="docutils literal notranslate"><span class="pre">Association.send_*()</span></code> methods.</p></li>
-<li><p>Fixed log messages for A-ASSOCIATE-RJ having the rejection reasons for
-Calling AE title not recognised and Called AE title no recognised being
-swapped around</p></li>
+<li><p>Checkpoint added to the reactor in <code class="docutils literal notranslate"><span class="pre">Association</span></code> to prevent possible
+race conditions:</p>
+<ul>
+<li><p>When acting as the Acceptor and calling one of the <code class="docutils literal notranslate"><span class="pre">Association.send_*()</span></code>
+methods.</p></li>
+<li><p>During an A-RELEASE collision.</p></li>
+</ul>
+</li>
 </ul>
 </div>
 <div class="section" id="enhancements">
@@ -257,6 +259,8 @@ contain no Transfer Syntax Sub-item (<a class="reference external" href="https:/
 received in C-STORE service requests are now logged and ignored rather than
 raising an exception and aborting the association.</p></li>
 <li><p>Improved handling of DIMSE service messages with empty element values.</p></li>
+<li><p>Added handling for DIMSE service requests when the acting as the association
+Requestor</p></li>
 </ul>
 </div>
 <div class="section" id="changes">
