@@ -1901,8 +1901,9 @@ class Association(threading.Thread):
                 if self.is_established:
                     LOGGER.error("Connection closed or timed-out")
                     self.abort()
-                yield Dataset(), None
+
                 self._reactor_checkpoint.set()
+                yield Dataset(), None
                 return
 
             if not isinstance(rsp, C_FIND):
@@ -1911,8 +1912,8 @@ class Association(threading.Thread):
                     .format(rsp.__class__.__name__.replace('_', '-'))
                 )
                 self.abort()
-                yield Dataset(), None
                 self._reactor_checkpoint.set()
+                yield Dataset(), None
                 return
 
             if not rsp.is_valid_response:
@@ -1920,8 +1921,8 @@ class Association(threading.Thread):
                     'Received an invalid C-FIND response from the peer'
                 )
                 self.abort()
-                yield Dataset(), None
                 self._reactor_checkpoint.set()
+                yield Dataset(), None
                 return
 
             # Status may be 'Failure', 'Cancel', 'Warning', 'Success'
@@ -1977,6 +1978,7 @@ class Association(threading.Thread):
 
             # Only reach this point if status is Sucess, Warning, Failure
             #   or Cancel
+            self._reactor_checkpoint.set()
             yield status, identifier
             break
 
@@ -2016,8 +2018,9 @@ class Association(threading.Thread):
                 if self.is_established:
                     LOGGER.error("Connection closed or timed-out")
                     self.abort()
-                yield Dataset(), None
+
                 self._reactor_checkpoint.set()
+                yield Dataset(), None
                 return
 
             if not isinstance(rsp, (C_STORE, C_GET, C_MOVE)):
@@ -2026,8 +2029,8 @@ class Association(threading.Thread):
                     .format(rsp_type)
                 )
                 self.abort()
-                yield Dataset(), None
                 self._reactor_checkpoint.set()
+                yield Dataset(), None
                 return
 
             if isinstance(rsp, C_STORE):
@@ -2042,8 +2045,8 @@ class Association(threading.Thread):
                     .format(rsp_type)
                 )
                 self.abort()
-                yield Dataset(), None
                 self._reactor_checkpoint.set()
+                yield Dataset(), None
                 return
 
             # Status may be 'Failure', 'Cancel', 'Warning', 'Success'
@@ -2117,6 +2120,7 @@ class Association(threading.Thread):
 
             # Only reach this point if status is Sucess, Warning, Failure
             #   or Cancel
+            self._reactor_checkpoint.set()
             yield status, identifier
             break
 
