@@ -75,16 +75,30 @@ Over a single association:
 6. Repeat steps 2-4 as required.
 7. Terminate the association to delete the *Film Session* hierarchy.
 
+A Print SCP may send N-EVENT-REPORT service requests to the Print SCU (under
+the Printer SOP Class) using one of the following methods,
+depending on the implementation (check the conformance statement):
+
+1. Over the same association as the Print SCU service request
+2. Over a new association initiated by the Print SCP, which requires the SCP be
+  configured with the details of the SCU
+3. The next time the SCU associates with the SCP
+
+Depending on which method the Print SCP uses you should:
+
+* For methods 1 and 2, simply bind a handler for ``evt.EVT_N_REPORT``
+  to the ``assoc`` instance returned by ``AE.associate()``
+* For method 3, start an AssociationServer instance with
+  ``AE.start_server((addr, port), block=False)`` with a handler bound to
+  ``evt.EVT_N_EVENT_REPORT``
+
+To support minimal conformance for a Print SCU you can just use the handler
+to return a status of ``0x0000`` and get the printer's current status manually
+by sending an N-GET request.
+
 
 DIMSE Services Available
 ........................
-
-.. warning::
-   The use of asynchronous N-EVENT-REPORT requests sent by the SCP to the SCU
-   with the *Printer SOP Class* is not currently supported. Any N-EVENT-REPORT
-   requests that are received when acting as the SCU will automatically be
-   responded to with a status of ``0x0000`` - Success. In order to get the
-   printer's current status send an N-GET request with the *Printer SOP Class*.
 
 +-----------------+-------------------------+
 | DIMSE-N Service | Usage SCU/SCP           |
@@ -129,6 +143,9 @@ print options (medium types, page sizes, layouts, etc) are supported. This
 example assumes that the Film Session's and Film Box's
 N-CREATE responses include conformant *Basic Film Session SOP Class* and
 *Basic Film Box SOP Class* instances (which may not always be the case).
+
+We also assume that the Print SCP sends the Printer SOP Class' N-EVENT-REPORT
+service requests over the same association (and we ignore them).
 
 .. code-block:: python
 
@@ -236,9 +253,15 @@ N-CREATE responses include conformant *Basic Film Session SOP Class* and
 
         return attr_list
 
+    def handle_n_er(event):
+        """Ignore the N-EVENT-REPORT notification"""
+        return 0x0000
+
+    handlers = [(evt.EVT_N_EVENT_REPORT, handle_n_er)]
+
     ae = AE()
     ae.add_requested_context(BasicGrayscalePrintManagementMetaSOPClass)
-    assoc = ae.associate('localhost', 11112)
+    assoc = ae.associate('localhost', 11112, evt_handlers=handlers)
 
     if assoc.is_established:
         # Step 1: Check the status of the printer

@@ -29,14 +29,12 @@ Enhancements
   Print Management service class)
 * Added *Basic Grayscale Print Management Meta SOP Class* and *Basic Color
   Print Management Meta SOP Class* to ``sop_class``.
-* Added full support for the following service classes:
+* Added support for the following service classes:
 
   * Protocol Approval Query Retrieve (:issue:`327`)
   * Application Event Logging
   * Instance Availability Notification
   * Media Creation Management
-* Added partial support for the following service classes:
-
   * Print Management
   * Unified Procedure Step
   * RT Machine Verification
