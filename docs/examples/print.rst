@@ -72,7 +72,7 @@ Over a single association:
    attributes with the image data and image attributes that are to be printed.
 5. Use N-ACTION to command the *Film Box* to be printed or N-DELETE to delete
    the *Film Box*.
-6. Repeat steps 2-4 as required.
+6. Repeat steps 1-5 as required.
 7. Terminate the association to delete the *Film Session* hierarchy.
 
 A Print SCP may send N-EVENT-REPORT service requests to the Print SCU (under
@@ -81,14 +81,14 @@ depending on the implementation (check the conformance statement):
 
 1. Over the same association as the Print SCU service request
 2. Over a new association initiated by the Print SCP, which requires the SCP be
-  configured with the details of the SCU
+   configured with the details of the SCU
 3. The next time the SCU associates with the SCP
 
 Depending on which method the Print SCP uses you should:
 
-* For methods 1 and 2, simply bind a handler for ``evt.EVT_N_REPORT``
-  to the ``assoc`` instance returned by ``AE.associate()``
-* For method 3, start an AssociationServer instance with
+* For methods 1 and 2, simply bind a handler to ``evt.EVT_N_REPORT``
+  when calling ``AE.associate()``
+* For method 3, start an ``AssociationServer`` instance with
   ``AE.start_server((addr, port), block=False)`` with a handler bound to
   ``evt.EVT_N_EVENT_REPORT``
 
@@ -145,7 +145,7 @@ N-CREATE responses include conformant *Basic Film Session SOP Class* and
 *Basic Film Box SOP Class* instances (which may not always be the case).
 
 We also assume that the Print SCP sends the Printer SOP Class' N-EVENT-REPORT
-service requests over the same association (and we ignore them).
+notifications over the same association (and ignore them).
 
 .. code-block:: python
 
@@ -155,7 +155,7 @@ service requests over the same association (and we ignore them).
     from pydicom.dataset import Dataset
     from pydicom.uid import generate_uid
 
-    from pynetdicom import AE
+    from pynetdicom import AE, evt
     from pynetdicom.sop_class import (
         BasicGrayscalePrintManagementMetaSOPClass,
         BasicFilmSessionSOPClass,
