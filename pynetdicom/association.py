@@ -343,8 +343,9 @@ class Association(threading.Thread):
             the transfer syntax will not be used for matching. If the value
             corresponds to an uncompressed syntax then matches will be made
             with any uncompressed transfer syntaxes.
-        role : str
-            One of 'scu' or 'scp', the required role of the context.
+        role : str or None
+            One of 'scu' or 'scp', the required role of the context. If None
+            then the accepted role will be ignored.
         context_id : int or None
             If not None then the ID of the presentation context to use. It will
             be checked against the available parameter values.
@@ -387,6 +388,7 @@ class Association(threading.Thread):
             # Only a valid presentation context can reach this point
             return cx
 
+        role = role or 'scu'
         msg = (
             "No suitable presentation context for the {} role has been "
             "accepted by the peer for the SOP Class '{}'"
@@ -2630,7 +2632,10 @@ class Association(threading.Thread):
 
         # Determine the Presentation Context we are operating under
         #   and hence the transfer syntax to use for encoding `dataset`
-        context = self._get_valid_context(meta_uid or class_uid, '', 'scu')
+        # As far as I can tell, N-EVENT-REPORT doesn't use SCP/SCU Role
+        #   selection negotiation, so we need to ignore the negotiate role
+        #   since the SCP will be sending requests to the SCU
+        context = self._get_valid_context(meta_uid or class_uid, '', None)
         transfer_syntax = context.transfer_syntax[0]
 
         # Build N-EVENT-REPORT request primitive
