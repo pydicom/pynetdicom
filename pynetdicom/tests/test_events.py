@@ -167,6 +167,20 @@ class TestEvent(object):
         with pytest.raises(AttributeError, match=msg):
             event.attribute_identifiers
 
+        msg = (
+            r"The corresponding event is not an N-ACTION request and has no "
+            r"'Action Type ID' parameter"
+        )
+        with pytest.raises(AttributeError, match=msg):
+            event.action_type
+
+        msg = (
+            r"The corresponding event is not an N-EVENT-REPORT request and "
+            r"has no 'Event Type ID' parameter"
+        )
+        with pytest.raises(AttributeError, match=msg):
+            event.event_type
+
     def test_is_cancelled_non(self):
         """Test Event.is_cancelled with wrong event type."""
         event = evt.Event(None, evt.EVT_DATA_RECV)
@@ -361,6 +375,30 @@ class TestEvent(object):
         assert tags[0] == 0x00100010
         assert isinstance(tags[1], BaseTag)
         assert tags[1] == 0x00100020
+
+    def test_action_type(self):
+        """Test with action_type."""
+        request = N_ACTION()
+        request.ActionTypeID = 2
+        event = Event(
+            None,
+            evt.EVT_N_ACTION,
+            {'request' : request, 'context' : self.context.as_tuple}
+        )
+
+        assert event.action_type == 2
+
+    def test_event_type(self):
+        """Test with event_type."""
+        request = N_EVENT_REPORT()
+        request.EventTypeID = 2
+        event = Event(
+            None,
+            evt.EVT_N_EVENT_REPORT,
+            {'request' : request, 'context' : self.context.as_tuple}
+        )
+
+        assert event.event_type == 2
 
 
 # TODO: Should be able to remove in v1.4

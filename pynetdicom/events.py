@@ -249,6 +249,28 @@ class Event(object):
         return self._get_dataset("ActionInformation", msg)
 
     @property
+    def action_type(self):
+        """Return an N-ACTION request's `Action Type ID` as an int.
+
+        Returns
+        -------
+        int
+            The request's (0000,1008) *Action Type ID* value.
+
+        Raises
+        ------
+        AttributeError
+            If the corresponding event is not an N-ACTION request.
+        """
+        try:
+            return self.request.ActionTypeID
+        except AttributeError:
+            raise AttributeError(
+                "The corresponding event is not an N-ACTION request and has "
+                "no 'Action Type ID' parameter"
+            )
+
+    @property
     def attribute_identifiers(self):
         """Return an N-GET request's `Attribute Identifier List` as a list of
         *pydicom* Tags.
@@ -369,6 +391,28 @@ class Event(object):
             "no 'Event Information' parameter"
         )
         return self._get_dataset("EventInformation", msg)
+
+    @property
+    def event_type(self):
+        """Return an N-EVENT-REPORT request's `Event Type ID` as an int.
+
+        Returns
+        -------
+        int
+            The request's (0000,1002) *Event Type ID* value.
+
+        Raises
+        ------
+        AttributeError
+            If the corresponding event is not an N-EVENT-REPORT request.
+        """
+        try:
+            return self.request.EventTypeID
+        except AttributeError:
+            raise AttributeError(
+                "The corresponding event is not an N-EVENT-REPORT request "
+                "and has no 'Event Type ID' parameter"
+            )
 
     @property
     def file_meta(self):

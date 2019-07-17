@@ -2426,6 +2426,8 @@ def doc_handle_move(event):
         * ``context`` : the presentation context the request was sent under
           as a ``presentation.PresentationContextTuple``.
         * ``event`` : the event that occurred as ``namedtuple``.
+        * ``move_destination`` : the C-MOVE request's *Move Destination*
+          value as ``bytes``.
         * ``request`` : the received
           :py:class:`C-MOVE request <pynetdicom.dimse_primitives.C_MOVE>`
         * ``timestamp`` : the
@@ -2443,8 +2445,7 @@ def doc_handle_move(event):
           C-CANCEL request has been received, False otherwise. If a C-CANCEL
           is received then the handler should yield a ``(0xFE00, None)``
           status/dataset pair and return.
-        * ``move_destination`` : returns the C-MOVE request's *Move
-          Destination* value as ``bytes``.
+
 
     Yields
     ------
@@ -2724,6 +2725,8 @@ def doc_handle_action(event):
         The event representing a service class receiving a N-ACTION
         request message. ``Event`` attributes are:
 
+        * ``action_type`` : the N-ACTION request's *Action Type
+          ID* parameter value as ``int``.
         * ``assoc`` : the
           :py:class:`association <pynetdicom.association.Association>`
           that is running the service that received the N-ACTION request.
@@ -3027,6 +3030,8 @@ def doc_handle_event_report(event):
         * ``context`` : the presentation context the request was sent under
           as a ``presentation.PresentationContextTuple``.
         * ``event`` : the event that occurred as ``namedtuple``.
+        * ``event_type`` : the N-EVENT-REPORT request's *Event Type
+          ID* parameter value as ``int``.
         * ``request`` : the received
           :py:class:`N-EVENT-REPORT request <pynetdicom.dimse_primitives.N_EVENT_REPORT>`
         * ``timestamp`` : the

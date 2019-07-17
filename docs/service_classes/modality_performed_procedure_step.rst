@@ -9,10 +9,6 @@ by a modality.
 Supported SOP Classes
 ---------------------
 
-.. warning::
-   The use of asynchronous N-EVENT-REPORT requests sent by the SCP to the SCU
-   is not currently supported.
-
 +-----------------------------+----------------------------------------------------+
 | UID                         | SOP Class                                          |
 +=============================+====================================================+

@@ -343,8 +343,9 @@ class Association(threading.Thread):
             the transfer syntax will not be used for matching. If the value
             corresponds to an uncompressed syntax then matches will be made
             with any uncompressed transfer syntaxes.
-        role : str
-            One of 'scu' or 'scp', the required role of the context.
+        role : str or None
+            One of 'scu' or 'scp', the required role of the context. If None
+            then the accepted role will be ignored.
         context_id : int or None
             If not None then the ID of the presentation context to use. It will
             be checked against the available parameter values.
@@ -387,6 +388,7 @@ class Association(threading.Thread):
             # Only a valid presentation context can reach this point
             return cx
 
+        role = role or 'scu'
         msg = (
             "No suitable presentation context for the {} role has been "
             "accepted by the peer for the SOP Class '{}'"
@@ -567,69 +569,9 @@ class Association(threading.Thread):
 
             # Check with the DIMSE provider to see if a completely decoded
             #   message is available
-            msg_context_id, msg = self.dimse.get_msg(block=False)
-
-            # DIMSE message received, should be a service request
-            if msg and not msg.is_valid_request:
-                LOGGER.warning(
-                    "Received unexpected {} service message"
-                    .format(msg.msg_type)
-                )
-            elif msg:
-                # Use the Message's Affected SOP Class UID or Requested SOP
-                #   Class UID to determine which service to use
-                # If there's no AffectedSOPClassUID or RequestedSOPClassUID
-                #   then we received a C-CANCEL request
-                class_uid = ''
-                if getattr(msg, 'AffectedSOPClassUID', None) is not None:
-                    # DIMSE-C, N-EVENT-REPORT, N-CREATE use AffectedSOPClassUID
-                    class_uid = msg.AffectedSOPClassUID
-                elif getattr(msg, 'RequestedSOPClassUID', None) is not None:
-                    # N-GET, N-SET, N-ACTION, N-DELETE use RequestedSOPClassUID
-                    class_uid = msg.RequestedSOPClassUID
-
-                # SOP Class Common Extended Negotiation
-                try:
-                    # The service class UID
-                    class_uid = (
-                        self.acceptor.accepted_common_extended[class_uid][0]
-                    )
-                except KeyError:
-                    pass
-
-                # Convert the SOP/Service UID to the corresponding service
-                service_class = uid_to_service_class(class_uid)(self)
-
-                try:
-                    context = self._accepted_cx[msg_context_id]
-                except KeyError:
-                    LOGGER.info(
-                        "Received DIMSE message with invalid or rejected "
-                        "context ID: %d", msg_context_id
-                    )
-                    LOGGER.debug("%s", msg)
-                    self.abort()
-                    return
-
-                # Run corresponding Service Class in SCP mode
-                try:
-                    # Clear out any C-CANCEL requests received beforehand
-                    self.dimse.cancel_req = {}
-                    service_class.SCP(msg, context)
-                    # Clear out any unacted upon requests received during
-                    self.dimse.cancel_req = {}
-                except NotImplementedError:
-                    # SCP isn't implemented
-                    LOGGER.error(
-                        "No supported service class available for the SOP "
-                        "Class UID '{}'".format(class_uid)
-                    )
-                    self.abort()
-                    return
-                except Exception as exc:
-                    LOGGER.exception(exc)
-                    self.abort()
-                    return
+            context_id, msg = self.dimse.get_msg(block=False)
+            if msg:
+                self._serve_request(msg, context_id)
 
             # Check for release request
             if self.acse.is_release_requested():
@@ -2690,7 +2632,10 @@ class Association(threading.Thread):
 
         # Determine the Presentation Context we are operating under
         #   and hence the transfer syntax to use for encoding `dataset`
-        context = self._get_valid_context(meta_uid or class_uid, '', 'scu')
+        # As far as I can tell, N-EVENT-REPORT doesn't use SCP/SCU Role
+        #   selection negotiation, so we need to ignore the negotiate role
+        #   since the SCP will be sending requests to the SCU
+        context = self._get_valid_context(meta_uid or class_uid, '', None)
         transfer_syntax = context.transfer_syntax[0]
 
         # Build N-EVENT-REPORT request primitive
@@ -3182,6 +3127,75 @@ class Association(threading.Thread):
                 attribute_list = Dataset()
 
         return status, attribute_list
+
+    def _serve_request(self, msg, context_id):
+        """Handle a DIMSE service request.
+
+        Parameters
+        ----------
+        msg : dimse_primitives.DIMSEPrimitive subclass
+            The DIMSE service request primitive.
+        context_id : int
+            The ID of the presentation context that the request is being
+            made under.
+        """
+        # No message or not a service request
+        if not msg.is_valid_request:
+            LOGGER.warning(
+                "Received unexpected {} service message".format(msg.msg_type)
+            )
+            return
+
+        # Use the Message's Affected SOP Class UID or Requested SOP
+        #   Class UID to determine which service to use
+        class_uid = ''
+        if getattr(msg, 'AffectedSOPClassUID', None) is not None:
+            # DIMSE-C, N-EVENT-REPORT, N-CREATE use AffectedSOPClassUID
+            class_uid = msg.AffectedSOPClassUID
+        elif getattr(msg, 'RequestedSOPClassUID', None) is not None:
+            # N-GET, N-SET, N-ACTION, N-DELETE use RequestedSOPClassUID
+            class_uid = msg.RequestedSOPClassUID
+
+        # SOP Class Common Extended Negotiation
+        try:
+            # The service class UID
+            class_uid = self.acceptor.accepted_common_extended[class_uid][0]
+        except KeyError:
+            pass
+
+        # Convert the SOP/Service UID to the corresponding service
+        service_class = uid_to_service_class(class_uid)(self)
+
+        try:
+            context = self._accepted_cx[context_id]
+        except KeyError:
+            LOGGER.info(
+                "Received DIMSE message with invalid or rejected "
+                "context ID: %d", context_id
+            )
+            LOGGER.debug("%s", msg)
+            self.abort()
+            return
+
+        # Run corresponding Service Class in SCP mode
+        try:
+            # Clear out any C-CANCEL requests received beforehand
+            self.dimse.cancel_req = {}
+            service_class.SCP(msg, context)
+            # Clear out any unacted upon requests received during
+            self.dimse.cancel_req = {}
+        except NotImplementedError:
+            # SCP isn't implemented
+            LOGGER.error(
+                "No supported service class available for the SOP "
+                "Class UID '{}'".format(class_uid)
+            )
+            self.abort()
+            return
+        except Exception as exc:
+            LOGGER.exception(exc)
+            self.abort()
+            return
 
 
 class ServiceUser(object):

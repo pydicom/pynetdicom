@@ -288,6 +288,10 @@ class DIMSEServiceProvider(object):
             if isinstance(primitive, C_CANCEL) and len(self.cancel_req) < 10:
                 msg_id = primitive.MessageIDBeingRespondedTo
                 self.cancel_req[msg_id] = primitive
+            elif (isinstance(primitive, N_EVENT_REPORT) and
+                                                primitive.is_valid_request):
+                # N-EVENT-REPORT service requests are handled immediately
+                self.assoc._serve_request(primitive, context_id)
             else:
                 self.msg_queue.put((context_id, primitive))
 

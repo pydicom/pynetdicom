@@ -1932,3 +1932,117 @@ class TestUPSFindServiceClass(object):
         assert cancel_results == [False, True]
 
         scp.shutdown()
+
+
+class TestNEventReport(object):
+    """Functional tests for N-EVENT-REPORT services."""
+    def setup(self):
+        """Run prior to each test"""
+        self.ae = None
+
+    def teardown(self):
+        """Clear any active threads"""
+        if self.ae:
+            self.ae.shutdown()
+
+    def test_same_assoc(self):
+        """Test SCP sending over the same association."""
+        def trigger_ner(event):
+            ds = Dataset()
+            ds.PatientName = 'Test2'
+            event.assoc.send_n_event_report(
+                ds,
+                1,
+                PrintJobSOPClass,
+                '1.2.3'
+            )
+
+            ds = Dataset()
+            ds.PatientName = 'Test'
+            return 0x0000, ds
+
+        scp_hh = [(evt.EVT_N_GET, trigger_ner)]
+
+        self.ae = ae = AE()
+        ae.acse_timeout = 5
+        ae.dimse_timeout = 5
+        ae.network_timeout = 5
+        ae.add_supported_context(PrintJobSOPClass)
+        scp = ae.start_server(('', 11112), block=False, evt_handlers=scp_hh)
+
+        events = []
+        def handle_ner(event):
+            events.append(event)
+            ds = Dataset()
+            ds.PatientName = 'Test3'
+            return 0x0000, ds
+
+        scu_hh = [(evt.EVT_N_EVENT_REPORT, handle_ner)]
+
+        ae.add_requested_context(PrintJobSOPClass)
+        assoc = ae.associate('', 11112, evt_handlers=scu_hh)
+        assert assoc.is_established
+
+        status, attr = assoc.send_n_get(
+            [(0x00080008)],
+            PrintJobSOPClass,
+            '1.2.3.4'
+        )
+
+        assoc.release()
+        assert assoc.is_released
+
+        scp.shutdown()
+
+        e = events[0]
+        assert e.event == evt.EVT_N_EVENT_REPORT
+        assert e.event_type == 1
+        assert e.event_information.PatientName == 'Test2'
+
+    def test_new_assoc(self):
+        """Test SCP sending over a new association."""
+        def trigger_ner(event):
+            ds = Dataset()
+            ds.PatientName = 'Test2'
+
+            assoc = event.assoc.ae.associate('', 11113)
+            assoc.send_n_event_report(
+                ds,
+                1,
+                PrintJobSOPClass,
+                '1.2.3'
+            )
+            assoc.release()
+
+        scp_hh = [(evt.EVT_ESTABLISHED, trigger_ner)]
+
+        self.ae = ae = AE()
+        ae.acse_timeout = 5
+        ae.dimse_timeout = 5
+        ae.network_timeout = 5
+        ae.add_supported_context(PrintJobSOPClass)
+        scp = ae.start_server(('', 11112), block=False, evt_handlers=scp_hh)
+
+        events = []
+        def handle_ner(event):
+            events.append(event)
+            ds = Dataset()
+            ds.PatientName = 'Test3'
+            return 0x0000, ds
+
+        scu_hh = [(evt.EVT_N_EVENT_REPORT, handle_ner)]
+        ner_scp = ae.start_server(('', 11113), block=False, evt_handlers=scu_hh)
+
+        ae.add_requested_context(PrintJobSOPClass)
+        assoc = ae.associate('', 11112)
+        assert assoc.is_established
+
+        assoc.release()
+        assert assoc.is_released
+
+        scp.shutdown()
+
+        e = events[0]
+        assert e.event == evt.EVT_N_EVENT_REPORT
+        assert e.event_type == 1
+        assert e.event_information.PatientName == 'Test2'
