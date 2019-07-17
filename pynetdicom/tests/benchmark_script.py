@@ -29,7 +29,7 @@ from pynetdicom import AE, evt, build_context, debug_logger
 #debug_logger()
 
 
-TEST_DS_DIR = os.path.join(os.path.dirname(__file__), '..', 'dicom_files')
+TEST_DS_DIR = os.path.join(os.path.dirname(__file__), 'dicom_files')
 #DATASET = dcmread(os.path.join(TEST_DS_DIR, 'RTImageStorage.dcm')) # 2.1 MB
 DATASET = dcmread(os.path.join(TEST_DS_DIR, 'CTImageStorage.dcm')) # 39 kB
 
