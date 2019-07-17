@@ -1,0 +1,33 @@
+pynetdicom.pdu.A\_RELEASE\_RQ
+=============================
+
+.. currentmodule:: pynetdicom.pdu
+
+.. autoclass:: A_RELEASE_RQ
+
+   
+   .. automethod:: __init__
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+   
+      ~A_RELEASE_RQ.__init__
+      ~A_RELEASE_RQ.decode
+      ~A_RELEASE_RQ.encode
+      ~A_RELEASE_RQ.from_primitive
+      ~A_RELEASE_RQ.to_primitive
+   
+   
+
+   
+   
+   .. rubric:: Attributes
+
+   .. autosummary::
+   
+      ~A_RELEASE_RQ.pdu_length
+      ~A_RELEASE_RQ.pdu_type
+   
+   

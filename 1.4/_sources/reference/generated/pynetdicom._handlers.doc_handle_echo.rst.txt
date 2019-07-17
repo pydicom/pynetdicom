@@ -1,0 +1,6 @@
+pynetdicom.\_handlers.doc\_handle\_echo
+=======================================
+
+.. currentmodule:: pynetdicom._handlers
+
+.. autofunction:: doc_handle_echo

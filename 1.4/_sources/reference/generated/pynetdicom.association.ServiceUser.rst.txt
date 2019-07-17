@@ -1,0 +1,49 @@
+pynetdicom.association.ServiceUser
+==================================
+
+.. currentmodule:: pynetdicom.association
+
+.. autoclass:: ServiceUser
+
+   
+   .. automethod:: __init__
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+   
+      ~ServiceUser.__init__
+      ~ServiceUser.add_negotiation_item
+      ~ServiceUser.get_contexts
+      ~ServiceUser.remove_negotiation_item
+      ~ServiceUser.reset_negotiation_items
+   
+   
+
+   
+   
+   .. rubric:: Attributes
+
+   .. autosummary::
+   
+      ~ServiceUser.accepted_common_extended
+      ~ServiceUser.asynchronous_operations
+      ~ServiceUser.extended_negotiation
+      ~ServiceUser.implementation_class_uid
+      ~ServiceUser.implementation_version_name
+      ~ServiceUser.info
+      ~ServiceUser.is_acceptor
+      ~ServiceUser.is_requestor
+      ~ServiceUser.maximum_length
+      ~ServiceUser.mode
+      ~ServiceUser.requested_contexts
+      ~ServiceUser.role_selection
+      ~ServiceUser.sop_class_common_extended
+      ~ServiceUser.sop_class_extended
+      ~ServiceUser.supported_contexts
+      ~ServiceUser.user_identity
+      ~ServiceUser.user_information
+      ~ServiceUser.writeable
+   
+   

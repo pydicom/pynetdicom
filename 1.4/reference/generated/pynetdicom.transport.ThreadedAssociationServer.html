@@ -1,0 +1,567 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>pynetdicom.transport.ThreadedAssociationServer &mdash; pynetdicom 1.4.0 documentation</title>
+  
+
+  
+  
+    <link rel="shortcut icon" href="../../_static/favicon.ico"/>
+  
+  
+  
+
+  
+  <script type="text/javascript" src="../../_static/js/modernizr.min.js"></script>
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../../" src="../../_static/documentation_options.js"></script>
+        <script type="text/javascript" src="../../_static/jquery.js"></script>
+        <script type="text/javascript" src="../../_static/underscore.js"></script>
+        <script type="text/javascript" src="../../_static/doctools.js"></script>
+        <script type="text/javascript" src="../../_static/language_data.js"></script>
+    
+    <script type="text/javascript" src="../../_static/js/theme.js"></script>
+
+    
+
+  
+  <link rel="stylesheet" href="../../_static/css/pynetdicom.css" type="text/css" />
+  <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="../../_static/css/pynetdicom.css" type="text/css" />
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" />
+    <link rel="next" title="Utilities (pynetdicom.utils)" href="../utils.html" />
+    <link rel="prev" title="pynetdicom.transport.AssociationServer" href="pynetdicom.transport.AssociationServer.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="../../index.html" class="icon icon-home"> pynetdicom
+          
+
+          
+            
+            <img src="../../_static/pydicom_flat_black.svg" class="logo" alt="Logo"/>
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                1.4.0
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <ul>
+<li class="toctree-l1"><a class="reference internal" href="../../service_classes/index.html">Supported Service Classes</a></li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../user/index.html">User Guide</a></li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../examples/index.html">Examples</a></li>
+</ul>
+<ul class="current">
+<li class="toctree-l1 current"><a class="reference internal" href="../index.html">API Reference</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="../acse.html">ACSE Service (<code class="xref py py-mod docutils literal notranslate"><span class="pre">pynetdicom.acse</span></code>)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../ae.html">Application Entity (<code class="xref py py-mod docutils literal notranslate"><span class="pre">pynetdicom.ae</span></code>)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../association.html">Association (<code class="xref py py-mod docutils literal notranslate"><span class="pre">pynetdicom.association</span></code>)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../dimse.html">DIMSE Service</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../dsutils.html">Dataset Utilities (<code class="xref py py-mod docutils literal notranslate"><span class="pre">pynetdicom.dsutils</span></code>)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../dul.html">DICOM Upper Layer</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../events.html">Events and Handlers (<code class="xref py py-mod docutils literal notranslate"><span class="pre">pynetdicom.events</span></code>)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../fsm.html">State Machine (<code class="xref py py-mod docutils literal notranslate"><span class="pre">pynetdicom.fsm</span></code>)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../presentation.html">Presentation Service (<code class="xref py py-mod docutils literal notranslate"><span class="pre">pynetdicom.presentation</span></code>)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../service_classes.html">Service Classes (<code class="xref py py-mod docutils literal notranslate"><span class="pre">pynetdicom.service_class</span></code>)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../sop_classes.html">SOP Classes (<code class="xref py py-mod docutils literal notranslate"><span class="pre">pynetdicom.sop_class</span></code>)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../status.html">Statuses (<code class="xref py py-mod docutils literal notranslate"><span class="pre">pynetdicom.status</span></code>)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../timer.html">Timer (<code class="xref py py-mod docutils literal notranslate"><span class="pre">pynetdicom.timer</span></code>)</a></li>
+<li class="toctree-l2 current"><a class="reference internal" href="../transport.html">Transport Service (<code class="xref py py-mod docutils literal notranslate"><span class="pre">pynetdicom.transport</span></code>)</a><ul class="current">
+<li class="toctree-l3"><a class="reference internal" href="pynetdicom.transport.AssociationSocket.html">pynetdicom.transport.AssociationSocket</a></li>
+<li class="toctree-l3"><a class="reference internal" href="pynetdicom.transport.AssociationServer.html">pynetdicom.transport.AssociationServer</a></li>
+<li class="toctree-l3 current"><a class="current reference internal" href="#">pynetdicom.transport.ThreadedAssociationServer</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../utils.html">Utilities (<code class="xref py py-mod docutils literal notranslate"><span class="pre">pynetdicom.utils</span></code>)</a></li>
+</ul>
+</li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../apps/index.html">Applications</a></li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../changelog/index.html">Release Notes</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../index.html">pynetdicom</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../../index.html">Docs</a> &raquo;</li>
+        
+          <li><a href="../index.html">API Reference</a> &raquo;</li>
+        
+          <li><a href="../transport.html">Transport Service (<code class="xref py py-mod docutils literal notranslate"><span class="pre">pynetdicom.transport</span></code>)</a> &raquo;</li>
+        
+      <li>pynetdicom.transport.ThreadedAssociationServer</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="pynetdicom-transport-threadedassociationserver">
+<h1>pynetdicom.transport.ThreadedAssociationServer<a class="headerlink" href="#pynetdicom-transport-threadedassociationserver" title="Permalink to this headline">¶</a></h1>
+<dl class="class">
+<dt id="pynetdicom.transport.ThreadedAssociationServer">
+<em class="property">class </em><code class="sig-prename descclassname">pynetdicom.transport.</code><code class="sig-name descname">ThreadedAssociationServer</code><span class="sig-paren">(</span><em class="sig-param">ae</em>, <em class="sig-param">address</em>, <em class="sig-param">ae_title</em>, <em class="sig-param">contexts</em>, <em class="sig-param">ssl_context=None</em>, <em class="sig-param">evt_handlers=None</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/9b965431/pynetdicom/transport.py#L644"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom.transport.ThreadedAssociationServer" title="Permalink to this definition">¶</a></dt>
+<dd><p>An <code class="docutils literal notranslate"><span class="pre">AssociationServer</span></code> suitable for threading.</p>
+<dl class="method">
+<dt id="pynetdicom.transport.ThreadedAssociationServer.__init__">
+<code class="sig-name descname">__init__</code><span class="sig-paren">(</span><em class="sig-param">ae</em>, <em class="sig-param">address</em>, <em class="sig-param">ae_title</em>, <em class="sig-param">contexts</em>, <em class="sig-param">ssl_context=None</em>, <em class="sig-param">evt_handlers=None</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/9b965431/pynetdicom/transport.py#L420"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom.transport.ThreadedAssociationServer.__init__" title="Permalink to this definition">¶</a></dt>
+<dd><p>Create a new AssociationServer, bind a socket and start listening.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>ae</strong> (<a class="reference internal" href="pynetdicom.ae.ApplicationEntity.html#pynetdicom.ae.ApplicationEntity" title="pynetdicom.ae.ApplicationEntity"><em>ae.ApplicationEntity</em></a>) – The parent AE that’s running the server.</p></li>
+<li><p><strong>address</strong> (<em>2-tuple</em>) – The <code class="docutils literal notranslate"><span class="pre">(host,</span> <span class="pre">port)</span></code> that the server should run on.</p></li>
+<li><p><strong>ae_title</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#bytes" title="(in Python v3.7)"><em>bytes</em></a>) – The AE title of the SCP.</p></li>
+<li><p><strong>contexts</strong> (<em>list of presentation.PresentationContext</em>) – The SCPs supported presentation contexts.</p></li>
+<li><p><strong>ssl_context</strong> (<a class="reference external" href="https://docs.python.org/3/library/ssl.html#ssl.SSLContext" title="(in Python v3.7)"><em>ssl.SSLContext</em></a><em>, </em><em>optional</em>) – If TLS is to be used then this should be the <code class="docutils literal notranslate"><span class="pre">ssl.SSLContext</span></code>
+used to wrap the client sockets, otherwise if <code class="docutils literal notranslate"><span class="pre">None</span></code> then no
+TLS will beused (default).</p></li>
+<li><p><strong>evt_handlers</strong> (<em>list of 2-tuple</em><em>, </em><em>optional</em>) – A list of <code class="docutils literal notranslate"><span class="pre">(event,</span> <span class="pre">callable)</span></code>, the <em>callable</em> function to run
+when <em>event</em> occurs.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<p class="rubric">Methods</p>
+<table class="longtable docutils align-default">
+<colgroup>
+<col style="width: 10%" />
+<col style="width: 90%" />
+</colgroup>
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pynetdicom.transport.ThreadedAssociationServer.__init__" title="pynetdicom.transport.ThreadedAssociationServer.__init__"><code class="xref py py-obj docutils literal notranslate"><span class="pre">__init__</span></code></a>(ae, address, ae_title, contexts[, …])</p></td>
+<td><p>Create a new AssociationServer, bind a socket and start listening.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#pynetdicom.transport.ThreadedAssociationServer.bind" title="pynetdicom.transport.ThreadedAssociationServer.bind"><code class="xref py py-obj docutils literal notranslate"><span class="pre">bind</span></code></a>(event, handler)</p></td>
+<td><p>Bind a callable <cite>handler</cite> to an <cite>event</cite>.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pynetdicom.transport.ThreadedAssociationServer.close_request" title="pynetdicom.transport.ThreadedAssociationServer.close_request"><code class="xref py py-obj docutils literal notranslate"><span class="pre">close_request</span></code></a>(request)</p></td>
+<td><p>Called to clean up an individual request.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#pynetdicom.transport.ThreadedAssociationServer.fileno" title="pynetdicom.transport.ThreadedAssociationServer.fileno"><code class="xref py py-obj docutils literal notranslate"><span class="pre">fileno</span></code></a>()</p></td>
+<td><p>Return socket file number.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pynetdicom.transport.ThreadedAssociationServer.finish_request" title="pynetdicom.transport.ThreadedAssociationServer.finish_request"><code class="xref py py-obj docutils literal notranslate"><span class="pre">finish_request</span></code></a>(request, client_address)</p></td>
+<td><p>Finish one request by instantiating RequestHandlerClass.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#pynetdicom.transport.ThreadedAssociationServer.get_events" title="pynetdicom.transport.ThreadedAssociationServer.get_events"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_events</span></code></a>()</p></td>
+<td><p>Return a list of currently bound events.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pynetdicom.transport.ThreadedAssociationServer.get_handlers" title="pynetdicom.transport.ThreadedAssociationServer.get_handlers"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_handlers</span></code></a>(event)</p></td>
+<td><p>Return handlers bound to a specific <cite>event</cite>.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#pynetdicom.transport.ThreadedAssociationServer.get_request" title="pynetdicom.transport.ThreadedAssociationServer.get_request"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_request</span></code></a>()</p></td>
+<td><p>Handle a connection request.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pynetdicom.transport.ThreadedAssociationServer.handle_error" title="pynetdicom.transport.ThreadedAssociationServer.handle_error"><code class="xref py py-obj docutils literal notranslate"><span class="pre">handle_error</span></code></a>(request, client_address)</p></td>
+<td><p>Handle an error gracefully.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#pynetdicom.transport.ThreadedAssociationServer.handle_request" title="pynetdicom.transport.ThreadedAssociationServer.handle_request"><code class="xref py py-obj docutils literal notranslate"><span class="pre">handle_request</span></code></a>()</p></td>
+<td><p>Handle one request, possibly blocking.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pynetdicom.transport.ThreadedAssociationServer.handle_timeout" title="pynetdicom.transport.ThreadedAssociationServer.handle_timeout"><code class="xref py py-obj docutils literal notranslate"><span class="pre">handle_timeout</span></code></a>()</p></td>
+<td><p>Called if no new request arrives within self.timeout.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#pynetdicom.transport.ThreadedAssociationServer.process_request" title="pynetdicom.transport.ThreadedAssociationServer.process_request"><code class="xref py py-obj docutils literal notranslate"><span class="pre">process_request</span></code></a>(request, client_address)</p></td>
+<td><p>Start a new thread to process the request.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pynetdicom.transport.ThreadedAssociationServer.process_request_thread" title="pynetdicom.transport.ThreadedAssociationServer.process_request_thread"><code class="xref py py-obj docutils literal notranslate"><span class="pre">process_request_thread</span></code></a>(request, client_address)</p></td>
+<td><p>Process a connection request.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#pynetdicom.transport.ThreadedAssociationServer.serve_forever" title="pynetdicom.transport.ThreadedAssociationServer.serve_forever"><code class="xref py py-obj docutils literal notranslate"><span class="pre">serve_forever</span></code></a>([poll_interval])</p></td>
+<td><p>Handle one request at a time until shutdown.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pynetdicom.transport.ThreadedAssociationServer.server_activate" title="pynetdicom.transport.ThreadedAssociationServer.server_activate"><code class="xref py py-obj docutils literal notranslate"><span class="pre">server_activate</span></code></a>()</p></td>
+<td><p>Called by constructor to activate the server.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#pynetdicom.transport.ThreadedAssociationServer.server_bind" title="pynetdicom.transport.ThreadedAssociationServer.server_bind"><code class="xref py py-obj docutils literal notranslate"><span class="pre">server_bind</span></code></a>()</p></td>
+<td><p>Bind the socket and set the socket options.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">server_close</span></code>()</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#pynetdicom.transport.ThreadedAssociationServer.service_actions" title="pynetdicom.transport.ThreadedAssociationServer.service_actions"><code class="xref py py-obj docutils literal notranslate"><span class="pre">service_actions</span></code></a>()</p></td>
+<td><p>Called by the serve_forever() loop.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pynetdicom.transport.ThreadedAssociationServer.shutdown" title="pynetdicom.transport.ThreadedAssociationServer.shutdown"><code class="xref py py-obj docutils literal notranslate"><span class="pre">shutdown</span></code></a>()</p></td>
+<td><p>Completely shutdown the server and close it’s socket.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#pynetdicom.transport.ThreadedAssociationServer.shutdown_request" title="pynetdicom.transport.ThreadedAssociationServer.shutdown_request"><code class="xref py py-obj docutils literal notranslate"><span class="pre">shutdown_request</span></code></a>(request)</p></td>
+<td><p>Called to shutdown and close an individual request.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pynetdicom.transport.ThreadedAssociationServer.unbind" title="pynetdicom.transport.ThreadedAssociationServer.unbind"><code class="xref py py-obj docutils literal notranslate"><span class="pre">unbind</span></code></a>(event, handler)</p></td>
+<td><p>Unbind a callable <cite>handler</cite> from an <cite>event</cite>.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#pynetdicom.transport.ThreadedAssociationServer.verify_request" title="pynetdicom.transport.ThreadedAssociationServer.verify_request"><code class="xref py py-obj docutils literal notranslate"><span class="pre">verify_request</span></code></a>(request, client_address)</p></td>
+<td><p>Verify the request.</p></td>
+</tr>
+</tbody>
+</table>
+<p class="rubric">Attributes</p>
+<table class="longtable docutils align-default">
+<colgroup>
+<col style="width: 10%" />
+<col style="width: 90%" />
+</colgroup>
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pynetdicom.transport.ThreadedAssociationServer.active_associations" title="pynetdicom.transport.ThreadedAssociationServer.active_associations"><code class="xref py py-obj docutils literal notranslate"><span class="pre">active_associations</span></code></a></p></td>
+<td><p>Return the server’s running <code class="docutils literal notranslate"><span class="pre">Association</span></code> acceptor instances</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">address_family</span></code></p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">allow_reuse_address</span></code></p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">daemon_threads</span></code></p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">request_queue_size</span></code></p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">socket_type</span></code></p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">timeout</span></code></p></td>
+<td><p></p></td>
+</tr>
+</tbody>
+</table>
+<dl class="method">
+<dt id="pynetdicom.transport.ThreadedAssociationServer.active_associations">
+<em class="property">property </em><code class="sig-name descname">active_associations</code><a class="headerlink" href="#pynetdicom.transport.ThreadedAssociationServer.active_associations" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return the server’s running <code class="docutils literal notranslate"><span class="pre">Association</span></code> acceptor instances</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pynetdicom.transport.ThreadedAssociationServer.bind">
+<code class="sig-name descname">bind</code><span class="sig-paren">(</span><em class="sig-param">event</em>, <em class="sig-param">handler</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/9b965431/pynetdicom/transport.py#L463"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom.transport.ThreadedAssociationServer.bind" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bind a callable <cite>handler</cite> to an <cite>event</cite>.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>event</strong> (<em>3-tuple</em>) – The event to bind the function to.</p></li>
+<li><p><strong>handler</strong> (<em>callable</em>) – The function that will be called if the event occurs.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="pynetdicom.transport.ThreadedAssociationServer.close_request">
+<code class="sig-name descname">close_request</code><span class="sig-paren">(</span><em class="sig-param">request</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/9b965431/pynetdicom/../../../../usr/local/lib/python3.6/socketserver.py#L515"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom.transport.ThreadedAssociationServer.close_request" title="Permalink to this definition">¶</a></dt>
+<dd><p>Called to clean up an individual request.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pynetdicom.transport.ThreadedAssociationServer.fileno">
+<code class="sig-name descname">fileno</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/9b965431/pynetdicom/../../../../usr/local/lib/python3.6/socketserver.py#L489"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom.transport.ThreadedAssociationServer.fileno" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return socket file number.</p>
+<p>Interface required by selector.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pynetdicom.transport.ThreadedAssociationServer.finish_request">
+<code class="sig-name descname">finish_request</code><span class="sig-paren">(</span><em class="sig-param">request</em>, <em class="sig-param">client_address</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/9b965431/pynetdicom/../../../../usr/local/lib/python3.6/socketserver.py#L362"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom.transport.ThreadedAssociationServer.finish_request" title="Permalink to this definition">¶</a></dt>
+<dd><p>Finish one request by instantiating RequestHandlerClass.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pynetdicom.transport.ThreadedAssociationServer.get_events">
+<code class="sig-name descname">get_events</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/9b965431/pynetdicom/transport.py#L516"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom.transport.ThreadedAssociationServer.get_events" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return a list of currently bound events.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pynetdicom.transport.ThreadedAssociationServer.get_handlers">
+<code class="sig-name descname">get_handlers</code><span class="sig-paren">(</span><em class="sig-param">event</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/9b965431/pynetdicom/transport.py#L520"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom.transport.ThreadedAssociationServer.get_handlers" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return handlers bound to a specific <cite>event</cite>.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>event</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#tuple" title="(in Python v3.7)"><em>tuple</em></a>) – The event bound to the handlers.</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>If the event is a notification event then returns a list of
+callable functions bound to <code class="docutils literal notranslate"><span class="pre">event</span></code>, if the event is an
+intervention event then returns either a callable function if a
+handler is bound to the event or <code class="docutils literal notranslate"><span class="pre">None</span></code> if no handler has been
+bound.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>callable, list of callable or <a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.7)">None</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="pynetdicom.transport.ThreadedAssociationServer.get_request">
+<code class="sig-name descname">get_request</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/9b965431/pynetdicom/transport.py#L542"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom.transport.ThreadedAssociationServer.get_request" title="Permalink to this definition">¶</a></dt>
+<dd><p>Handle a connection request.</p>
+<p>If <code class="docutils literal notranslate"><span class="pre">ssl_context</span></code> is set then the client socket will be wrapped using
+<code class="docutils literal notranslate"><span class="pre">ssl_context.wrap_socket()</span></code>.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p><ul class="simple">
+<li><p><strong>client_socket</strong> (<em>socket._socket</em>) – The connection request.</p></li>
+<li><p><strong>address</strong> (<em>2-tuple</em>) – The client’s address as <code class="docutils literal notranslate"><span class="pre">(host,</span> <span class="pre">port)</span></code>.</p></li>
+</ul>
+</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="pynetdicom.transport.ThreadedAssociationServer.handle_error">
+<code class="sig-name descname">handle_error</code><span class="sig-paren">(</span><em class="sig-param">request</em>, <em class="sig-param">client_address</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/9b965431/pynetdicom/../../../../usr/local/lib/python3.6/socketserver.py#L374"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom.transport.ThreadedAssociationServer.handle_error" title="Permalink to this definition">¶</a></dt>
+<dd><p>Handle an error gracefully.  May be overridden.</p>
+<p>The default is to print a traceback and continue.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pynetdicom.transport.ThreadedAssociationServer.handle_request">
+<code class="sig-name descname">handle_request</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/9b965431/pynetdicom/../../../../usr/local/lib/python3.6/socketserver.py#L277"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom.transport.ThreadedAssociationServer.handle_request" title="Permalink to this definition">¶</a></dt>
+<dd><p>Handle one request, possibly blocking.</p>
+<p>Respects self.timeout.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pynetdicom.transport.ThreadedAssociationServer.handle_timeout">
+<code class="sig-name descname">handle_timeout</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/9b965431/pynetdicom/../../../../usr/local/lib/python3.6/socketserver.py#L330"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom.transport.ThreadedAssociationServer.handle_timeout" title="Permalink to this definition">¶</a></dt>
+<dd><p>Called if no new request arrives within self.timeout.</p>
+<p>Overridden by ForkingMixIn.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pynetdicom.transport.ThreadedAssociationServer.process_request">
+<code class="sig-name descname">process_request</code><span class="sig-paren">(</span><em class="sig-param">request</em>, <em class="sig-param">client_address</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/9b965431/pynetdicom/../../../../usr/local/lib/python3.6/socketserver.py#L660"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom.transport.ThreadedAssociationServer.process_request" title="Permalink to this definition">¶</a></dt>
+<dd><p>Start a new thread to process the request.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pynetdicom.transport.ThreadedAssociationServer.process_request_thread">
+<code class="sig-name descname">process_request_thread</code><span class="sig-paren">(</span><em class="sig-param">request</em>, <em class="sig-param">client_address</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/9b965431/pynetdicom/transport.py#L646"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom.transport.ThreadedAssociationServer.process_request_thread" title="Permalink to this definition">¶</a></dt>
+<dd><p>Process a connection request.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pynetdicom.transport.ThreadedAssociationServer.serve_forever">
+<code class="sig-name descname">serve_forever</code><span class="sig-paren">(</span><em class="sig-param">poll_interval=0.5</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/9b965431/pynetdicom/../../../../usr/local/lib/python3.6/socketserver.py#L219"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom.transport.ThreadedAssociationServer.serve_forever" title="Permalink to this definition">¶</a></dt>
+<dd><p>Handle one request at a time until shutdown.</p>
+<p>Polls for shutdown every poll_interval seconds. Ignores
+self.timeout. If you need to do periodic tasks, do them in
+another thread.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pynetdicom.transport.ThreadedAssociationServer.server_activate">
+<code class="sig-name descname">server_activate</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/9b965431/pynetdicom/../../../../usr/local/lib/python3.6/socketserver.py#L473"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom.transport.ThreadedAssociationServer.server_activate" title="Permalink to this definition">¶</a></dt>
+<dd><p>Called by constructor to activate the server.</p>
+<p>May be overridden.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pynetdicom.transport.ThreadedAssociationServer.server_bind">
+<code class="sig-name descname">server_bind</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/9b965431/pynetdicom/transport.py#L566"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom.transport.ThreadedAssociationServer.server_bind" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bind the socket and set the socket options.</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">socket.SO_REUSEADDR</span></code> is set to 1</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">socket.SO_RCVTIMEO</span></code> is set to <code class="docutils literal notranslate"><span class="pre">AE.network_timeout</span></code> unless the
+value is <code class="docutils literal notranslate"><span class="pre">None</span></code> in which case it will be left unset.</p></li>
+</ul>
+</dd></dl>
+
+<dl class="method">
+<dt id="pynetdicom.transport.ThreadedAssociationServer.service_actions">
+<code class="sig-name descname">service_actions</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/9b965431/pynetdicom/../../../../usr/local/lib/python3.6/socketserver.py#L258"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom.transport.ThreadedAssociationServer.service_actions" title="Permalink to this definition">¶</a></dt>
+<dd><p>Called by the serve_forever() loop.</p>
+<p>May be overridden by a subclass / Mixin to implement any code that
+needs to be run during the loop.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pynetdicom.transport.ThreadedAssociationServer.shutdown">
+<code class="sig-name descname">shutdown</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/9b965431/pynetdicom/transport.py#L607"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom.transport.ThreadedAssociationServer.shutdown" title="Permalink to this definition">¶</a></dt>
+<dd><p>Completely shutdown the server and close it’s socket.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pynetdicom.transport.ThreadedAssociationServer.shutdown_request">
+<code class="sig-name descname">shutdown_request</code><span class="sig-paren">(</span><em class="sig-param">request</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/9b965431/pynetdicom/../../../../usr/local/lib/python3.6/socketserver.py#L505"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom.transport.ThreadedAssociationServer.shutdown_request" title="Permalink to this definition">¶</a></dt>
+<dd><p>Called to shutdown and close an individual request.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pynetdicom.transport.ThreadedAssociationServer.unbind">
+<code class="sig-name descname">unbind</code><span class="sig-paren">(</span><em class="sig-param">event</em>, <em class="sig-param">handler</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/9b965431/pynetdicom/transport.py#L613"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom.transport.ThreadedAssociationServer.unbind" title="Permalink to this definition">¶</a></dt>
+<dd><p>Unbind a callable <cite>handler</cite> from an <cite>event</cite>.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>event</strong> (<em>3-tuple</em>) – The event to unbind the function from.</p></li>
+<li><p><strong>handler</strong> (<em>callable</em>) – The function that will no longer be called if the event occurs.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="pynetdicom.transport.ThreadedAssociationServer.verify_request">
+<code class="sig-name descname">verify_request</code><span class="sig-paren">(</span><em class="sig-param">request</em>, <em class="sig-param">client_address</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/9b965431/pynetdicom/../../../../usr/local/lib/python3.6/socketserver.py#L337"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom.transport.ThreadedAssociationServer.verify_request" title="Permalink to this definition">¶</a></dt>
+<dd><p>Verify the request.  May be overridden.</p>
+<p>Return True if we should proceed with this request.</p>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="../utils.html" class="btn btn-neutral float-right" title="Utilities (pynetdicom.utils)" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
+      
+      
+        <a href="pynetdicom.transport.AssociationServer.html" class="btn btn-neutral float-left" title="pynetdicom.transport.AssociationServer" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2018-19, pynetdicom contributors
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>

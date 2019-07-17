@@ -1,0 +1,40 @@
+pynetdicom.pdu\_items.UserIdentitySubItemRQ
+===========================================
+
+.. currentmodule:: pynetdicom.pdu_items
+
+.. autoclass:: UserIdentitySubItemRQ
+
+   
+   .. automethod:: __init__
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+   
+      ~UserIdentitySubItemRQ.__init__
+      ~UserIdentitySubItemRQ.decode
+      ~UserIdentitySubItemRQ.encode
+      ~UserIdentitySubItemRQ.from_primitive
+      ~UserIdentitySubItemRQ.to_primitive
+   
+   
+
+   
+   
+   .. rubric:: Attributes
+
+   .. autosummary::
+   
+      ~UserIdentitySubItemRQ.id_type
+      ~UserIdentitySubItemRQ.id_type_str
+      ~UserIdentitySubItemRQ.item_length
+      ~UserIdentitySubItemRQ.item_type
+      ~UserIdentitySubItemRQ.primary
+      ~UserIdentitySubItemRQ.primary_field_length
+      ~UserIdentitySubItemRQ.response_requested
+      ~UserIdentitySubItemRQ.secondary
+      ~UserIdentitySubItemRQ.secondary_field_length
+   
+   

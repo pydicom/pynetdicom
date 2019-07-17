@@ -1,0 +1,35 @@
+pynetdicom.service\_class.QueryRetrieveServiceClass
+===================================================
+
+.. currentmodule:: pynetdicom.service_class
+
+.. autoclass:: QueryRetrieveServiceClass
+
+   
+   .. automethod:: __init__
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+   
+      ~QueryRetrieveServiceClass.SCP
+      ~QueryRetrieveServiceClass.__init__
+      ~QueryRetrieveServiceClass.is_cancelled
+      ~QueryRetrieveServiceClass.is_valid_status
+      ~QueryRetrieveServiceClass.validate_status
+   
+   
+
+   
+   
+   .. rubric:: Attributes
+
+   .. autosummary::
+   
+      ~QueryRetrieveServiceClass.BULK_DATA_KEYWORDS
+      ~QueryRetrieveServiceClass.ae
+      ~QueryRetrieveServiceClass.dimse
+      ~QueryRetrieveServiceClass.statuses
+   
+   

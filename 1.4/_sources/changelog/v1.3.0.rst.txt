@@ -1,0 +1,60 @@
+.. _v1.3.0:
+
+1.3.0
+=====
+
+
+Fixes
+.....
+
+* Exceptions raised during generator operation for C-GET and C-MOVE services
+  now handled properly.
+* ``fsm.AA_4`` and ``fsm.AA_8`` now send A-P-ABORT to the service user rather
+  than an A-ABORT
+* Fixed rejected contexts not being included in the Presentation Context
+  Definition Results List when acting as the association Acceptor.
+* The Message ID values for C-MOVE and C-GET sub-operations now iterate instead
+  of just re-using 1. (:issue:`315`)
+* The default ``logging`` configuration no longer uses a non-NullHandler
+  (:issue:`321`)
+* Fixed Unified Procedure Step's SOP Class UID variable names
+* Fixed memory leak caused by keeping old ``Association`` threads around after
+  they died (:issue:`328`)
+
+
+Enhancements
+............
+
+* Added event-handler system as a replacement for the callback
+  system
+
+  * Added `events.py` module with the defined events, `Event` class and
+    event-related support functions.
+  * Added `_handlers.py` module with standard logging handlers
+  * Added ``bind()``, ``unbind()``, ``get_handlers()`` and ``get_events()``
+    to ``Association`` and ``AssociationServer`` classes.
+  * Add ``assoc`` properties to ``DIMSEServiceProvider`` and ``ACSE`` classes
+* ``_config.ENFORCE_UID_CONFORMANCE`` added which determines the level of
+  conformance required for UIDs. If ``True`` then all UIDs are required to
+  meet the UID rules in the DICOM Standard, if ``False`` (default) then UIDs
+  only need to meet the length requirement. (:issue:`316`, :issue:`322`)
+* Support added for Modality Performed Procedure Step Management - only with
+  the event-handler system. (:issue:`56`)
+
+
+Changes
+.......
+
+* The following have been removed as per planned deprecation:
+
+  * ``AE.start()``, ``AE.stop()``, ``AE.address``, ``AE.bind_address``,
+    ``AE.local_socket``, ``AE.port``
+  * ``Association.send_c_cancel_find()``, ``Association.send_c_cancel_get()``,
+    ``Association.send_c_cancel_move()``
+* All callback related class methods are deprecated and will be removed in
+  v1.4. Use the event-handler system instead.
+* ``_config.DECODE_STORE_DATASETS`` is deprecated and will be removed in v1.4.
+  Use the event-handler system instead.
+* ``DIMSEServiceProvider`` init now takes the ``Association`` as its only
+  parameter. ``dul``, ``dimse_timeout`` and ``maximum_pdu_size`` properties
+  added instead.

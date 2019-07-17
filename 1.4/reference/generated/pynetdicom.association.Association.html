@@ -1,0 +1,2102 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>pynetdicom.association.Association &mdash; pynetdicom 1.4.0 documentation</title>
+  
+
+  
+  
+    <link rel="shortcut icon" href="../../_static/favicon.ico"/>
+  
+  
+  
+
+  
+  <script type="text/javascript" src="../../_static/js/modernizr.min.js"></script>
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../../" src="../../_static/documentation_options.js"></script>
+        <script type="text/javascript" src="../../_static/jquery.js"></script>
+        <script type="text/javascript" src="../../_static/underscore.js"></script>
+        <script type="text/javascript" src="../../_static/doctools.js"></script>
+        <script type="text/javascript" src="../../_static/language_data.js"></script>
+    
+    <script type="text/javascript" src="../../_static/js/theme.js"></script>
+
+    
+
+  
+  <link rel="stylesheet" href="../../_static/css/pynetdicom.css" type="text/css" />
+  <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="../../_static/css/pynetdicom.css" type="text/css" />
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" />
+    <link rel="next" title="pynetdicom.association.ServiceUser" href="pynetdicom.association.ServiceUser.html" />
+    <link rel="prev" title="Association (pynetdicom.association)" href="../association.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="../../index.html" class="icon icon-home"> pynetdicom
+          
+
+          
+            
+            <img src="../../_static/pydicom_flat_black.svg" class="logo" alt="Logo"/>
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                1.4.0
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <ul>
+<li class="toctree-l1"><a class="reference internal" href="../../service_classes/index.html">Supported Service Classes</a></li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../user/index.html">User Guide</a></li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../examples/index.html">Examples</a></li>
+</ul>
+<ul class="current">
+<li class="toctree-l1 current"><a class="reference internal" href="../index.html">API Reference</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="../acse.html">ACSE Service (<code class="xref py py-mod docutils literal notranslate"><span class="pre">pynetdicom.acse</span></code>)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../ae.html">Application Entity (<code class="xref py py-mod docutils literal notranslate"><span class="pre">pynetdicom.ae</span></code>)</a></li>
+<li class="toctree-l2 current"><a class="reference internal" href="../association.html">Association (<code class="xref py py-mod docutils literal notranslate"><span class="pre">pynetdicom.association</span></code>)</a><ul class="current">
+<li class="toctree-l3 current"><a class="current reference internal" href="#">pynetdicom.association.Association</a></li>
+<li class="toctree-l3"><a class="reference internal" href="pynetdicom.association.ServiceUser.html">pynetdicom.association.ServiceUser</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../dimse.html">DIMSE Service</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../dsutils.html">Dataset Utilities (<code class="xref py py-mod docutils literal notranslate"><span class="pre">pynetdicom.dsutils</span></code>)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../dul.html">DICOM Upper Layer</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../events.html">Events and Handlers (<code class="xref py py-mod docutils literal notranslate"><span class="pre">pynetdicom.events</span></code>)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../fsm.html">State Machine (<code class="xref py py-mod docutils literal notranslate"><span class="pre">pynetdicom.fsm</span></code>)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../presentation.html">Presentation Service (<code class="xref py py-mod docutils literal notranslate"><span class="pre">pynetdicom.presentation</span></code>)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../service_classes.html">Service Classes (<code class="xref py py-mod docutils literal notranslate"><span class="pre">pynetdicom.service_class</span></code>)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../sop_classes.html">SOP Classes (<code class="xref py py-mod docutils literal notranslate"><span class="pre">pynetdicom.sop_class</span></code>)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../status.html">Statuses (<code class="xref py py-mod docutils literal notranslate"><span class="pre">pynetdicom.status</span></code>)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../timer.html">Timer (<code class="xref py py-mod docutils literal notranslate"><span class="pre">pynetdicom.timer</span></code>)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../transport.html">Transport Service (<code class="xref py py-mod docutils literal notranslate"><span class="pre">pynetdicom.transport</span></code>)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../utils.html">Utilities (<code class="xref py py-mod docutils literal notranslate"><span class="pre">pynetdicom.utils</span></code>)</a></li>
+</ul>
+</li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../apps/index.html">Applications</a></li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../changelog/index.html">Release Notes</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../index.html">pynetdicom</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../../index.html">Docs</a> &raquo;</li>
+        
+          <li><a href="../index.html">API Reference</a> &raquo;</li>
+        
+          <li><a href="../association.html">Association (<code class="xref py py-mod docutils literal notranslate"><span class="pre">pynetdicom.association</span></code>)</a> &raquo;</li>
+        
+      <li>pynetdicom.association.Association</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="pynetdicom-association-association">
+<h1>pynetdicom.association.Association<a class="headerlink" href="#pynetdicom-association-association" title="Permalink to this headline">¶</a></h1>
+<dl class="class">
+<dt id="pynetdicom.association.Association">
+<em class="property">class </em><code class="sig-prename descclassname">pynetdicom.association.</code><code class="sig-name descname">Association</code><span class="sig-paren">(</span><em class="sig-param">ae</em>, <em class="sig-param">mode</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/9b965431/pynetdicom/association.py#L92"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom.association.Association" title="Permalink to this definition">¶</a></dt>
+<dd><p>Manage an Association with a peer AE.</p>
+<dl class="attribute">
+<dt id="pynetdicom.association.Association.acceptor">
+<code class="sig-name descname">acceptor</code><a class="headerlink" href="#pynetdicom.association.Association.acceptor" title="Permalink to this definition">¶</a></dt>
+<dd><p>Representation of the association’s acceptor AE.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p><a class="reference internal" href="pynetdicom.association.ServiceUser.html#pynetdicom.association.ServiceUser" title="pynetdicom.association.ServiceUser">association.ServiceUser</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pynetdicom.association.Association.acse">
+<code class="sig-name descname">acse</code><a class="headerlink" href="#pynetdicom.association.Association.acse" title="Permalink to this definition">¶</a></dt>
+<dd><p>The Association Control Service Element provider.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p><a class="reference internal" href="pynetdicom.acse.ACSE.html#pynetdicom.acse.ACSE" title="pynetdicom.acse.ACSE">acse.ACSE</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pynetdicom.association.Association.ae">
+<code class="sig-name descname">ae</code><a class="headerlink" href="#pynetdicom.association.Association.ae" title="Permalink to this definition">¶</a></dt>
+<dd><p>The local AE.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p><a class="reference internal" href="pynetdicom.ae.ApplicationEntity.html#pynetdicom.ae.ApplicationEntity" title="pynetdicom.ae.ApplicationEntity">ae.ApplicationEntity</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pynetdicom.association.Association.dimse">
+<code class="sig-name descname">dimse</code><a class="headerlink" href="#pynetdicom.association.Association.dimse" title="Permalink to this definition">¶</a></dt>
+<dd><p>The DICOM Message Service Element provider.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p><a class="reference internal" href="pynetdicom.dimse.DIMSEServiceProvider.html#pynetdicom.dimse.DIMSEServiceProvider" title="pynetdicom.dimse.DIMSEServiceProvider">dimse.DIMSEServiceProvider</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pynetdicom.association.Association.dul">
+<code class="sig-name descname">dul</code><a class="headerlink" href="#pynetdicom.association.Association.dul" title="Permalink to this definition">¶</a></dt>
+<dd><p>The DICOM Upper Layer service provider.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p><a class="reference internal" href="pynetdicom.dul.DULServiceProvider.html#pynetdicom.dul.DULServiceProvider" title="pynetdicom.dul.DULServiceProvider">dul.DULServiceProvider</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pynetdicom.association.Association.is_aborted">
+<code class="sig-name descname">is_aborted</code><a class="headerlink" href="#pynetdicom.association.Association.is_aborted" title="Permalink to this definition">¶</a></dt>
+<dd><p><code class="docutils literal notranslate"><span class="pre">True</span></code> if the association has been aborted, <code class="docutils literal notranslate"><span class="pre">False</span></code> otherwise.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.7)">bool</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pynetdicom.association.Association.is_established">
+<code class="sig-name descname">is_established</code><a class="headerlink" href="#pynetdicom.association.Association.is_established" title="Permalink to this definition">¶</a></dt>
+<dd><p><code class="docutils literal notranslate"><span class="pre">True</span></code> if the association has been established, <code class="docutils literal notranslate"><span class="pre">False</span></code> otherwise.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.7)">bool</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pynetdicom.association.Association.is_rejected">
+<code class="sig-name descname">is_rejected</code><a class="headerlink" href="#pynetdicom.association.Association.is_rejected" title="Permalink to this definition">¶</a></dt>
+<dd><p><code class="docutils literal notranslate"><span class="pre">True</span></code> if the association was rejected, <code class="docutils literal notranslate"><span class="pre">False</span></code> otherwise.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.7)">bool</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pynetdicom.association.Association.is_released">
+<code class="sig-name descname">is_released</code><a class="headerlink" href="#pynetdicom.association.Association.is_released" title="Permalink to this definition">¶</a></dt>
+<dd><p><code class="docutils literal notranslate"><span class="pre">True</span></code> if the association has been released, <code class="docutils literal notranslate"><span class="pre">False</span></code> otherwise.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.7)">bool</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pynetdicom.association.Association.mode">
+<code class="sig-name descname">mode</code><a class="headerlink" href="#pynetdicom.association.Association.mode" title="Permalink to this definition">¶</a></dt>
+<dd><p>The mode of the local AE, either the association ‘requestor’ or
+association ‘acceptor’.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.7)">str</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pynetdicom.association.Association.requestor">
+<code class="sig-name descname">requestor</code><a class="headerlink" href="#pynetdicom.association.Association.requestor" title="Permalink to this definition">¶</a></dt>
+<dd><p>Representation of the association’s requestor AE.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p><a class="reference internal" href="pynetdicom.association.ServiceUser.html#pynetdicom.association.ServiceUser" title="pynetdicom.association.ServiceUser">association.ServiceUser</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="pynetdicom.association.Association.__init__">
+<code class="sig-name descname">__init__</code><span class="sig-paren">(</span><em class="sig-param">ae</em>, <em class="sig-param">mode</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/9b965431/pynetdicom/association.py#L121"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom.association.Association.__init__" title="Permalink to this definition">¶</a></dt>
+<dd><p>Create a new <code class="docutils literal notranslate"><span class="pre">Association</span></code> instance.</p>
+<p>The association starts in State 1 (idle). Association negotiation
+won’t begin until an <code class="docutils literal notranslate"><span class="pre">AssociationSocket</span></code> is assigned using
+<code class="docutils literal notranslate"><span class="pre">set_socket()</span></code> and <code class="docutils literal notranslate"><span class="pre">Association.start_server()</span></code> is called.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>ae</strong> (<a class="reference internal" href="pynetdicom.ae.ApplicationEntity.html#pynetdicom.ae.ApplicationEntity" title="pynetdicom.ae.ApplicationEntity"><em>ae.ApplicationEntity</em></a>) – The local AE.</p></li>
+<li><p><strong>mode</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.7)"><em>str</em></a>) – Must be <code class="docutils literal notranslate"><span class="pre">&quot;requestor&quot;</span></code> or <code class="docutils literal notranslate"><span class="pre">&quot;acceptor&quot;</span></code>.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<p class="rubric">Methods</p>
+<table class="longtable docutils align-default">
+<colgroup>
+<col style="width: 10%" />
+<col style="width: 90%" />
+</colgroup>
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pynetdicom.association.Association.__init__" title="pynetdicom.association.Association.__init__"><code class="xref py py-obj docutils literal notranslate"><span class="pre">__init__</span></code></a>(ae, mode)</p></td>
+<td><p>Create a new <code class="docutils literal notranslate"><span class="pre">Association</span></code> instance.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#pynetdicom.association.Association.abort" title="pynetdicom.association.Association.abort"><code class="xref py py-obj docutils literal notranslate"><span class="pre">abort</span></code></a>()</p></td>
+<td><p>Send an A-ABORT to the remote AE and kill the <code class="docutils literal notranslate"><span class="pre">Association</span></code>.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pynetdicom.association.Association.bind" title="pynetdicom.association.Association.bind"><code class="xref py py-obj docutils literal notranslate"><span class="pre">bind</span></code></a>(event, handler)</p></td>
+<td><p>Bind a callable <cite>handler</cite> to an <cite>event</cite>.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">getName</span></code>()</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pynetdicom.association.Association.get_events" title="pynetdicom.association.Association.get_events"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_events</span></code></a>()</p></td>
+<td><p>Return a list of currently bound events.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#pynetdicom.association.Association.get_handlers" title="pynetdicom.association.Association.get_handlers"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_handlers</span></code></a>(event)</p></td>
+<td><p>Return handlers bound to a specific <cite>event</cite>.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pynetdicom.association.Association.isAlive" title="pynetdicom.association.Association.isAlive"><code class="xref py py-obj docutils literal notranslate"><span class="pre">isAlive</span></code></a>()</p></td>
+<td><p>Return whether the thread is alive.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">isDaemon</span></code>()</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pynetdicom.association.Association.is_alive" title="pynetdicom.association.Association.is_alive"><code class="xref py py-obj docutils literal notranslate"><span class="pre">is_alive</span></code></a>()</p></td>
+<td><p>Return whether the thread is alive.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#pynetdicom.association.Association.join" title="pynetdicom.association.Association.join"><code class="xref py py-obj docutils literal notranslate"><span class="pre">join</span></code></a>([timeout])</p></td>
+<td><p>Wait until the thread terminates.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pynetdicom.association.Association.kill" title="pynetdicom.association.Association.kill"><code class="xref py py-obj docutils literal notranslate"><span class="pre">kill</span></code></a>()</p></td>
+<td><p>Kill the <code class="docutils literal notranslate"><span class="pre">Association</span></code> thread.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#pynetdicom.association.Association.release" title="pynetdicom.association.Association.release"><code class="xref py py-obj docutils literal notranslate"><span class="pre">release</span></code></a>()</p></td>
+<td><p>Send an A-RELEASE request and initiate association release.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pynetdicom.association.Association.request" title="pynetdicom.association.Association.request"><code class="xref py py-obj docutils literal notranslate"><span class="pre">request</span></code></a>()</p></td>
+<td><p>Request an association with a peer.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#pynetdicom.association.Association.run" title="pynetdicom.association.Association.run"><code class="xref py py-obj docutils literal notranslate"><span class="pre">run</span></code></a>()</p></td>
+<td><p>The main <code class="docutils literal notranslate"><span class="pre">Association</span></code> reactor.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pynetdicom.association.Association.send_c_cancel" title="pynetdicom.association.Association.send_c_cancel"><code class="xref py py-obj docutils literal notranslate"><span class="pre">send_c_cancel</span></code></a>(msg_id, context_id)</p></td>
+<td><p>Send a C-CANCEL request to the peer AE.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#pynetdicom.association.Association.send_c_echo" title="pynetdicom.association.Association.send_c_echo"><code class="xref py py-obj docutils literal notranslate"><span class="pre">send_c_echo</span></code></a>([msg_id])</p></td>
+<td><p>Send a C-ECHO request to the peer AE.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pynetdicom.association.Association.send_c_find" title="pynetdicom.association.Association.send_c_find"><code class="xref py py-obj docutils literal notranslate"><span class="pre">send_c_find</span></code></a>(dataset, query_model[, msg_id, …])</p></td>
+<td><p>Send a C-FIND request to the peer AE.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#pynetdicom.association.Association.send_c_get" title="pynetdicom.association.Association.send_c_get"><code class="xref py py-obj docutils literal notranslate"><span class="pre">send_c_get</span></code></a>(dataset, query_model[, msg_id, …])</p></td>
+<td><p>Send a C-GET request to the peer AE.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pynetdicom.association.Association.send_c_move" title="pynetdicom.association.Association.send_c_move"><code class="xref py py-obj docutils literal notranslate"><span class="pre">send_c_move</span></code></a>(dataset, move_aet, query_model)</p></td>
+<td><p>Send a C-MOVE request to the peer AE.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#pynetdicom.association.Association.send_c_store" title="pynetdicom.association.Association.send_c_store"><code class="xref py py-obj docutils literal notranslate"><span class="pre">send_c_store</span></code></a>(dataset[, msg_id, priority, …])</p></td>
+<td><p>Send a C-STORE request to the peer AE.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pynetdicom.association.Association.send_n_action" title="pynetdicom.association.Association.send_n_action"><code class="xref py py-obj docutils literal notranslate"><span class="pre">send_n_action</span></code></a>(dataset, action_type, …[, …])</p></td>
+<td><p>Send an N-ACTION request message to the peer AE.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#pynetdicom.association.Association.send_n_create" title="pynetdicom.association.Association.send_n_create"><code class="xref py py-obj docutils literal notranslate"><span class="pre">send_n_create</span></code></a>(dataset, class_uid[, …])</p></td>
+<td><p>Send an N-CREATE request message to the peer AE.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pynetdicom.association.Association.send_n_delete" title="pynetdicom.association.Association.send_n_delete"><code class="xref py py-obj docutils literal notranslate"><span class="pre">send_n_delete</span></code></a>(class_uid, instance_uid[, …])</p></td>
+<td><p>Send an N-DELETE request message to the peer AE.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#pynetdicom.association.Association.send_n_event_report" title="pynetdicom.association.Association.send_n_event_report"><code class="xref py py-obj docutils literal notranslate"><span class="pre">send_n_event_report</span></code></a>(dataset, event_type, …)</p></td>
+<td><p>Send an N-EVENT-REPORT request message to the peer AE.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pynetdicom.association.Association.send_n_get" title="pynetdicom.association.Association.send_n_get"><code class="xref py py-obj docutils literal notranslate"><span class="pre">send_n_get</span></code></a>(identifier_list, class_uid, …)</p></td>
+<td><p>Send an N-GET request message to the peer AE.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#pynetdicom.association.Association.send_n_set" title="pynetdicom.association.Association.send_n_set"><code class="xref py py-obj docutils literal notranslate"><span class="pre">send_n_set</span></code></a>(dataset, class_uid, instance_uid)</p></td>
+<td><p>Send an N-SET request message to the peer AE.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">setDaemon</span></code>(daemonic)</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">setName</span></code>(name)</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pynetdicom.association.Association.set_socket" title="pynetdicom.association.Association.set_socket"><code class="xref py py-obj docutils literal notranslate"><span class="pre">set_socket</span></code></a>(socket)</p></td>
+<td><p>Set the socket to use for communicating with the peer.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#pynetdicom.association.Association.start" title="pynetdicom.association.Association.start"><code class="xref py py-obj docutils literal notranslate"><span class="pre">start</span></code></a>()</p></td>
+<td><p>Start the thread’s activity.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pynetdicom.association.Association.unbind" title="pynetdicom.association.Association.unbind"><code class="xref py py-obj docutils literal notranslate"><span class="pre">unbind</span></code></a>(event, handler)</p></td>
+<td><p>Unbind a callable <cite>func</cite> from an <cite>event</cite>.</p></td>
+</tr>
+</tbody>
+</table>
+<p class="rubric">Attributes</p>
+<table class="longtable docutils align-default">
+<colgroup>
+<col style="width: 10%" />
+<col style="width: 90%" />
+</colgroup>
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pynetdicom.association.Association.accepted_contexts" title="pynetdicom.association.Association.accepted_contexts"><code class="xref py py-obj docutils literal notranslate"><span class="pre">accepted_contexts</span></code></a></p></td>
+<td><p>Return a list of accepted <code class="docutils literal notranslate"><span class="pre">PresentationContexts</span></code>.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#pynetdicom.association.Association.acse_timeout" title="pynetdicom.association.Association.acse_timeout"><code class="xref py py-obj docutils literal notranslate"><span class="pre">acse_timeout</span></code></a></p></td>
+<td><p>Return the ACSE timeout in seconds.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pynetdicom.association.Association.ae" title="pynetdicom.association.Association.ae"><code class="xref py py-obj docutils literal notranslate"><span class="pre">ae</span></code></a></p></td>
+<td><p>Return the Association’s parent <code class="docutils literal notranslate"><span class="pre">ApplicationEntity</span></code>.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#pynetdicom.association.Association.daemon" title="pynetdicom.association.Association.daemon"><code class="xref py py-obj docutils literal notranslate"><span class="pre">daemon</span></code></a></p></td>
+<td><p>A boolean value indicating whether this thread is a daemon thread.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pynetdicom.association.Association.dimse_timeout" title="pynetdicom.association.Association.dimse_timeout"><code class="xref py py-obj docutils literal notranslate"><span class="pre">dimse_timeout</span></code></a></p></td>
+<td><p>Return the DIMSE timeout in seconds.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#pynetdicom.association.Association.ident" title="pynetdicom.association.Association.ident"><code class="xref py py-obj docutils literal notranslate"><span class="pre">ident</span></code></a></p></td>
+<td><p>Thread identifier of this thread or None if it has not been started.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pynetdicom.association.Association.is_acceptor" title="pynetdicom.association.Association.is_acceptor"><code class="xref py py-obj docutils literal notranslate"><span class="pre">is_acceptor</span></code></a></p></td>
+<td><p>Return <code class="docutils literal notranslate"><span class="pre">True</span></code> if the local AE is the association <em>Acceptor</em>.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#pynetdicom.association.Association.is_requestor" title="pynetdicom.association.Association.is_requestor"><code class="xref py py-obj docutils literal notranslate"><span class="pre">is_requestor</span></code></a></p></td>
+<td><p>Return <code class="docutils literal notranslate"><span class="pre">True</span></code> if the local AE is the association <em>Requestor</em>.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pynetdicom.association.Association.local" title="pynetdicom.association.Association.local"><code class="xref py py-obj docutils literal notranslate"><span class="pre">local</span></code></a></p></td>
+<td><p>Return a dict with information about the local AE.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#pynetdicom.association.Association.mode" title="pynetdicom.association.Association.mode"><code class="xref py py-obj docutils literal notranslate"><span class="pre">mode</span></code></a></p></td>
+<td><p>Return the Association’s <cite>mode</cite> as a str.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pynetdicom.association.Association.name" title="pynetdicom.association.Association.name"><code class="xref py py-obj docutils literal notranslate"><span class="pre">name</span></code></a></p></td>
+<td><p>A string used for identification purposes only.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#pynetdicom.association.Association.network_timeout" title="pynetdicom.association.Association.network_timeout"><code class="xref py py-obj docutils literal notranslate"><span class="pre">network_timeout</span></code></a></p></td>
+<td><p>Return the network timeout in seconds.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pynetdicom.association.Association.rejected_contexts" title="pynetdicom.association.Association.rejected_contexts"><code class="xref py py-obj docutils literal notranslate"><span class="pre">rejected_contexts</span></code></a></p></td>
+<td><p>Return a list of rejected <code class="docutils literal notranslate"><span class="pre">PresentationContext</span></code>.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#pynetdicom.association.Association.remote" title="pynetdicom.association.Association.remote"><code class="xref py py-obj docutils literal notranslate"><span class="pre">remote</span></code></a></p></td>
+<td><p>Return a dict with information about the peer AE.</p></td>
+</tr>
+</tbody>
+</table>
+<dl class="method">
+<dt id="pynetdicom.association.Association.abort">
+<code class="sig-name descname">abort</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/9b965431/pynetdicom/association.py#L184"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom.association.Association.abort" title="Permalink to this definition">¶</a></dt>
+<dd><p>Send an A-ABORT to the remote AE and kill the <code class="docutils literal notranslate"><span class="pre">Association</span></code>.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pynetdicom.association.Association.accepted_contexts">
+<em class="property">property </em><code class="sig-name descname">accepted_contexts</code><a class="headerlink" href="#pynetdicom.association.Association.accepted_contexts" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return a list of accepted <code class="docutils literal notranslate"><span class="pre">PresentationContexts</span></code>.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pynetdicom.association.Association.acse_timeout">
+<em class="property">property </em><code class="sig-name descname">acse_timeout</code><a class="headerlink" href="#pynetdicom.association.Association.acse_timeout" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return the ACSE timeout in seconds.</p>
+</dd></dl>
+
+<dl class="method">
+<dt>
+<em class="property">property </em><code class="sig-name descname">ae</code></dt>
+<dd><p>Return the Association’s parent <code class="docutils literal notranslate"><span class="pre">ApplicationEntity</span></code>.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pynetdicom.association.Association.bind">
+<code class="sig-name descname">bind</code><span class="sig-paren">(</span><em class="sig-param">event</em>, <em class="sig-param">handler</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/9b965431/pynetdicom/association.py#L221"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom.association.Association.bind" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bind a callable <cite>handler</cite> to an <cite>event</cite>.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>event</strong> (<em>namedtuple</em>) – The event to bind the function to.</p></li>
+<li><p><strong>handler</strong> (<em>callable</em>) – The function that will be called if the event occurs.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="pynetdicom.association.Association.daemon">
+<em class="property">property </em><code class="sig-name descname">daemon</code><a class="headerlink" href="#pynetdicom.association.Association.daemon" title="Permalink to this definition">¶</a></dt>
+<dd><p>A boolean value indicating whether this thread is a daemon thread.</p>
+<p>This must be set before start() is called, otherwise RuntimeError is
+raised. Its initial value is inherited from the creating thread; the
+main thread is not a daemon thread and therefore all threads created in
+the main thread default to daemon = False.</p>
+<p>The entire Python program exits when no alive non-daemon threads are
+left.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pynetdicom.association.Association.dimse_timeout">
+<em class="property">property </em><code class="sig-name descname">dimse_timeout</code><a class="headerlink" href="#pynetdicom.association.Association.dimse_timeout" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return the DIMSE timeout in seconds.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pynetdicom.association.Association.get_events">
+<code class="sig-name descname">get_events</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/9b965431/pynetdicom/association.py#L309"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom.association.Association.get_events" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return a list of currently bound events.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pynetdicom.association.Association.get_handlers">
+<code class="sig-name descname">get_handlers</code><span class="sig-paren">(</span><em class="sig-param">event</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/9b965431/pynetdicom/association.py#L313"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom.association.Association.get_handlers" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return handlers bound to a specific <cite>event</cite>.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>event</strong> (<em>namedtuple</em>) – The event bound to the handlers.</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>If the event is a notification event then returns a list of
+callable functions bound to <cite>event</cite>, if the event is an
+intervention event then returns either a callable function if a
+handler is bound to the event or None if no handler has been bound.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>callable, list of callable or <a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.7)">None</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="pynetdicom.association.Association.ident">
+<em class="property">property </em><code class="sig-name descname">ident</code><a class="headerlink" href="#pynetdicom.association.Association.ident" title="Permalink to this definition">¶</a></dt>
+<dd><p>Thread identifier of this thread or None if it has not been started.</p>
+<p>This is a nonzero integer. See the get_ident() function. Thread
+identifiers may be recycled when a thread exits and another thread is
+created. The identifier is available even after the thread has exited.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pynetdicom.association.Association.isAlive">
+<code class="sig-name descname">isAlive</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/9b965431/pynetdicom/../../../../usr/local/lib/python3.6/threading.py#L1104"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom.association.Association.isAlive" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return whether the thread is alive.</p>
+<p>This method returns True just before the run() method starts until just
+after the run() method terminates. The module function enumerate()
+returns a list of all alive threads.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pynetdicom.association.Association.is_acceptor">
+<em class="property">property </em><code class="sig-name descname">is_acceptor</code><a class="headerlink" href="#pynetdicom.association.Association.is_acceptor" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return <code class="docutils literal notranslate"><span class="pre">True</span></code> if the local AE is the association <em>Acceptor</em>.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pynetdicom.association.Association.is_alive">
+<code class="sig-name descname">is_alive</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/9b965431/pynetdicom/../../../../usr/local/lib/python3.6/threading.py#L1104"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom.association.Association.is_alive" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return whether the thread is alive.</p>
+<p>This method returns True just before the run() method starts until just
+after the run() method terminates. The module function enumerate()
+returns a list of all alive threads.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pynetdicom.association.Association.is_requestor">
+<em class="property">property </em><code class="sig-name descname">is_requestor</code><a class="headerlink" href="#pynetdicom.association.Association.is_requestor" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return <code class="docutils literal notranslate"><span class="pre">True</span></code> if the local AE is the association <em>Requestor</em>.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pynetdicom.association.Association.join">
+<code class="sig-name descname">join</code><span class="sig-paren">(</span><em class="sig-param">timeout=None</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/9b965431/pynetdicom/../../../../usr/local/lib/python3.6/threading.py#L1024"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom.association.Association.join" title="Permalink to this definition">¶</a></dt>
+<dd><p>Wait until the thread terminates.</p>
+<p>This blocks the calling thread until the thread whose join() method is
+called terminates – either normally or through an unhandled exception
+or until the optional timeout occurs.</p>
+<p>When the timeout argument is present and not None, it should be a
+floating point number specifying a timeout for the operation in seconds
+(or fractions thereof). As join() always returns None, you must call
+isAlive() after join() to decide whether a timeout happened – if the
+thread is still alive, the join() call timed out.</p>
+<p>When the timeout argument is not present or None, the operation will
+block until the thread terminates.</p>
+<p>A thread can be join()ed many times.</p>
+<p>join() raises a RuntimeError if an attempt is made to join the current
+thread as that would cause a deadlock. It is also an error to join() a
+thread before it has been started and attempts to do so raises the same
+exception.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pynetdicom.association.Association.kill">
+<code class="sig-name descname">kill</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/9b965431/pynetdicom/association.py#L413"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom.association.Association.kill" title="Permalink to this definition">¶</a></dt>
+<dd><p>Kill the <code class="docutils literal notranslate"><span class="pre">Association</span></code> thread.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pynetdicom.association.Association.local">
+<em class="property">property </em><code class="sig-name descname">local</code><a class="headerlink" href="#pynetdicom.association.Association.local" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return a dict with information about the local AE.</p>
+</dd></dl>
+
+<dl class="method">
+<dt>
+<em class="property">property </em><code class="sig-name descname">mode</code></dt>
+<dd><p>Return the Association’s <cite>mode</cite> as a str.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pynetdicom.association.Association.name">
+<em class="property">property </em><code class="sig-name descname">name</code><a class="headerlink" href="#pynetdicom.association.Association.name" title="Permalink to this definition">¶</a></dt>
+<dd><p>A string used for identification purposes only.</p>
+<p>It has no semantics. Multiple threads may be given the same name. The
+initial name is set by the constructor.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pynetdicom.association.Association.network_timeout">
+<em class="property">property </em><code class="sig-name descname">network_timeout</code><a class="headerlink" href="#pynetdicom.association.Association.network_timeout" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return the network timeout in seconds.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pynetdicom.association.Association.rejected_contexts">
+<em class="property">property </em><code class="sig-name descname">rejected_contexts</code><a class="headerlink" href="#pynetdicom.association.Association.rejected_contexts" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return a list of rejected <code class="docutils literal notranslate"><span class="pre">PresentationContext</span></code>.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pynetdicom.association.Association.release">
+<code class="sig-name descname">release</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/9b965431/pynetdicom/association.py#L475"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom.association.Association.release" title="Permalink to this definition">¶</a></dt>
+<dd><p>Send an A-RELEASE request and initiate association release.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pynetdicom.association.Association.remote">
+<em class="property">property </em><code class="sig-name descname">remote</code><a class="headerlink" href="#pynetdicom.association.Association.remote" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return a dict with information about the peer AE.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pynetdicom.association.Association.request">
+<code class="sig-name descname">request</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/9b965431/pynetdicom/association.py#L494"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom.association.Association.request" title="Permalink to this definition">¶</a></dt>
+<dd><p>Request an association with a peer.</p>
+<p>A request can only be made once the <code class="docutils literal notranslate"><span class="pre">Association</span></code> instance has been
+configured for requestor mode and been assigned an
+<code class="docutils literal notranslate"><span class="pre">AssociationSocket</span></code>.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pynetdicom.association.Association.run">
+<code class="sig-name descname">run</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/9b965431/pynetdicom/association.py#L510"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom.association.Association.run" title="Permalink to this definition">¶</a></dt>
+<dd><p>The main <code class="docutils literal notranslate"><span class="pre">Association</span></code> reactor.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pynetdicom.association.Association.send_c_cancel">
+<code class="sig-name descname">send_c_cancel</code><span class="sig-paren">(</span><em class="sig-param">msg_id</em>, <em class="sig-param">context_id</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/9b965431/pynetdicom/association.py#L749"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom.association.Association.send_c_cancel" title="Permalink to this definition">¶</a></dt>
+<dd><p>Send a C-CANCEL request to the peer AE.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>msg_id</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.7)"><em>int</em></a>) – The <em>Message ID</em> of the C-GET/C-MOVE/C-FIND operation to be
+cancelled. Must be between 0 and 65535, inclusive.</p></li>
+<li><p><strong>context_id</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.7)"><em>int</em></a>) – The presentation context ID of the original C-GET/C-MOVE/C-FIND
+service request.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="pynetdicom.association.Association.send_c_echo">
+<code class="sig-name descname">send_c_echo</code><span class="sig-paren">(</span><em class="sig-param">msg_id=1</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/9b965431/pynetdicom/association.py#L777"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom.association.Association.send_c_echo" title="Permalink to this definition">¶</a></dt>
+<dd><p>Send a C-ECHO request to the peer AE.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>msg_id</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.7)"><em>int</em></a><em>, </em><em>optional</em>) – The DIMSE <em>Message ID</em>, must be between 0 and 65535, inclusive,
+(default 1).</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><p><strong>status</strong> – If the peer timed out, aborted or sent an invalid response then
+returns an empty <code class="docutils literal notranslate"><span class="pre">Dataset</span></code>. If a valid response was received from
+the peer then returns a <code class="docutils literal notranslate"><span class="pre">Dataset</span></code> containing at least a
+(0000,0900) <em>Status</em> element, and, depending on the returned
+<em>Status</em> value, may optionally contain additional elements (see
+DICOM Standard Part 7, Annex C).</p>
+<p>The DICOM Standard Part 7, Table 9.3-13 indicates that the Status
+value of a C-ECHO response “shall have a value of Success”. However
+Section 9.1.5.1.4 indicates it may have any of the following
+values:</p>
+<dl>
+<dt>Success</dt><dd><div class="line-block">
+<div class="line"><code class="docutils literal notranslate"><span class="pre">0x0000</span></code> - Success</div>
+</div>
+</dd>
+<dt>Failure</dt><dd><div class="line-block">
+<div class="line"><code class="docutils literal notranslate"><span class="pre">0x0122</span></code> - SOP class not supported</div>
+<div class="line"><code class="docutils literal notranslate"><span class="pre">0x0210</span></code> - Duplicate invocation</div>
+<div class="line"><code class="docutils literal notranslate"><span class="pre">0x0211</span></code> - Unrecognised operation</div>
+<div class="line"><code class="docutils literal notranslate"><span class="pre">0x0212</span></code> - Mistyped argument</div>
+</div>
+</dd>
+</dl>
+<p>As the actual status depends on the peer SCP, it shouldn’t be
+assumed that it will be one of these.</p>
+</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p><a class="reference external" href="https://pydicom.github.io/pydicom/stable/api_ref.html#pydicom.dataset.Dataset" title="(in pydicom v1.3.0)">pydicom.dataset.Dataset</a></p>
+</dd>
+<dt class="field-even">Raises</dt>
+<dd class="field-even"><ul class="simple">
+<li><p><a class="reference external" href="https://docs.python.org/3/library/exceptions.html#RuntimeError" title="(in Python v3.7)"><strong>RuntimeError</strong></a> – If called without an association to a peer SCP.</p></li>
+<li><p><a class="reference external" href="https://docs.python.org/3/library/exceptions.html#ValueError" title="(in Python v3.7)"><strong>ValueError</strong></a> – If the association has no accepted Presentation Context for
+    ‘Verification SOP Class’.</p></li>
+</ul>
+</dd>
+</dl>
+<div class="admonition seealso">
+<p class="admonition-title">See also</p>
+<p><code class="xref py py-meth docutils literal notranslate"><span class="pre">dimse_primitives.C_ECHO()</span></code>, <code class="xref py py-meth docutils literal notranslate"><span class="pre">service_class.VerificationServiceClass()</span></code></p>
+</div>
+<p class="rubric">References</p>
+<ul class="simple">
+<li><p>DICOM Standard Part 4, <a class="reference external" href="http://dicom.nema.org/medical/dicom/current/output/html/part04.html#chapter_A">Annex A</a></p></li>
+<li><p>DICOM Standard Part 7, Sections
+<a class="reference external" href="http://dicom.nema.org/medical/dicom/current/output/html/part07.html#sect_9.1.5">9.1.5</a>,
+<a class="reference external" href="http://dicom.nema.org/medical/dicom/current/output/html/part07.html#sect_9.3.5">9.3.5</a>,
+and <a class="reference external" href="http://dicom.nema.org/medical/dicom/current/output/html/part07.html#chapter_C">Annex C</a></p></li>
+</ul>
+</dd></dl>
+
+<dl class="method">
+<dt id="pynetdicom.association.Association.send_c_find">
+<code class="sig-name descname">send_c_find</code><span class="sig-paren">(</span><em class="sig-param">dataset</em>, <em class="sig-param">query_model</em>, <em class="sig-param">msg_id=1</em>, <em class="sig-param">priority=2</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/9b965431/pynetdicom/association.py#L874"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom.association.Association.send_c_find" title="Permalink to this definition">¶</a></dt>
+<dd><p>Send a C-FIND request to the peer AE.</p>
+<p>Yields <code class="docutils literal notranslate"><span class="pre">(status,</span> <span class="pre">identifier)</span></code> pairs.</p>
+<dl class="field-list">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>dataset</strong> (<a class="reference external" href="https://pydicom.github.io/pydicom/stable/api_ref.html#pydicom.dataset.Dataset" title="(in pydicom v1.3.0)"><em>pydicom.dataset.Dataset</em></a>) – The C-FIND request’s <em>Identifier</em> dataset. The exact requirements
+for the <em>Identifier</em> dataset are Service Class specific (see the
+DICOM Standard, Part 4).</p></li>
+<li><p><strong>query_model</strong> (<a class="reference external" href="https://pydicom.github.io/pydicom/stable/api_ref.html#pydicom.uid.UID" title="(in pydicom v1.3.0)"><em>pydicom.uid.UID</em></a><em> or </em><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.7)"><em>str</em></a>) – <p>The value to use for the C-FIND request’s (0000,0002) <em>Affected
+SOP Class UID</em> parameter, which usually corresponds to the
+Information Model that is to be used. If supplying a <code class="docutils literal notranslate"><span class="pre">str</span></code> key
+(deprecated, to be removed in v1.5.0) then one of the following:</p>
+<ul>
+<li><p><code class="docutils literal notranslate"><span class="pre">P</span></code> - 1.2.840.10008.5.1.4.1.2.1.1  -
+<em>Patient Root Information Model - FIND</em></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">S</span></code> - 1.2.840.10008.5.1.4.1.2.2.1 -
+<em>Study Root Information Model - FIND</em></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">O</span></code> - 1.2.840.10008.5.1.4.1.2.3.1 -
+<em>Patient Study Only Information Model - FIND</em></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">W</span></code> - 1.2.840.10008.5.1.4.31 -
+<em>Modality Worklist Information - FIND</em></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">G</span></code> - 1.2.840.10008.5.1.4.37.1 -
+<em>General Relevant Patient Information Query</em></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">B</span></code> - 1.2.840.10008.5.1.4.37.2 -
+<em>Breast Imaging Relevant Patient Information Query</em></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">C</span></code> - 1.2.840.10008.5.1.4.37.3 -
+<em>Cardiac Relevant Patient Information Query</em></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">PC</span></code> - 1.2.840.10008.5.1.4.41 -
+<em>Product Characteristics Query Information Model - FIND</em></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">SA</span></code> - 1.2.840.10008.5.1.4.42 -
+<em>Substance Approval Query Information Model - FIND</em></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">H</span></code> - 1.2.840.10008.5.1.4.38.2 -
+<em>Hanging Protocol Information Model - FIND</em></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">D</span></code> - 1.2.840.10008.5.1.4.20.1 -
+<em>Defined Procedure Protocol Information Model - FIND</em></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">CP</span></code> - 1.2.840.10008.5.1.4.39.2 -
+<em>Color Palette Information Model - FIND</em></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">IG</span></code> - 1.2.840.10008.5.1.4.43.2 -
+<em>Generic Implant Template Information Model - FIND</em></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">IA</span></code> - 1.2.840.10008.5.1.4.44.2 -
+<em>Implant Assembly Template Information Model - FIND</em></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">IT</span></code> - 1.2.840.10008.5.1.4.44.2 -
+<em>Implant Template Group Information Model - FIND</em></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">PA</span></code> - 1.2.840.10008.5.1.4.1.1.200.4 -
+<em>Protocol Approval Information Model - FIND</em></p></li>
+</ul>
+</p></li>
+<li><p><strong>msg_id</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.7)"><em>int</em></a><em>, </em><em>optional</em>) – The DIMSE <em>Message ID</em>, must be between 0 and 65535, inclusive,
+(default 1).</p></li>
+<li><p><strong>priority</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.7)"><em>int</em></a><em>, </em><em>optional</em>) – <p>The C-FIND operation <em>Priority</em> (may not be supported by the peer),
+one of:</p>
+<ul>
+<li><p><code class="docutils literal notranslate"><span class="pre">0</span></code> - Medium</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">1</span></code> - High</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">2</span></code> - Low (default)</p></li>
+</ul>
+</p></li>
+</ul>
+</dd>
+<dt class="field-even">Yields</dt>
+<dd class="field-even"><ul>
+<li><p><strong>status</strong> (<em>pydicom.dataset.Dataset</em>) – If the peer timed out, aborted or sent an invalid response then
+yields an empty <code class="docutils literal notranslate"><span class="pre">Dataset</span></code>. If a response was received from the
+peer then yields a <code class="docutils literal notranslate"><span class="pre">Dataset</span></code> containing at least a (0000,0900)
+<em>Status</em> element, and depending on the returned value, may
+optionally contain additional elements (see the DICOM Standard,
+Part 7, Section 9.1.2.1.5 and Annex C).</p>
+<p>The status for the requested C-FIND operation should be one of the
+following values, but as the value depends
+on the peer this can’t be assumed:</p>
+<p><em>General C-FIND</em> (Part 7, Section 9.1.2.1.5 and Annex C)</p>
+<dl>
+<dt>Cancel</dt><dd><div class="line-block">
+<div class="line"><code class="docutils literal notranslate"><span class="pre">0xFE00</span></code> - Matching terminated due to Cancel request</div>
+</div>
+</dd>
+<dt>Success</dt><dd><div class="line-block">
+<div class="line"><code class="docutils literal notranslate"><span class="pre">0x0000</span></code> - Matching is complete: no final Identifier is
+supplied</div>
+</div>
+</dd>
+<dt>Failure</dt><dd><div class="line-block">
+<div class="line"><code class="docutils literal notranslate"><span class="pre">0x0122</span></code> - SOP class not supported</div>
+</div>
+</dd>
+</dl>
+<p><em>Query/Retrieve Service, Basic Worklist Management Service,
+Hanging Protocol Query/Retrieve Service, Defined Procedure Protocol
+Query/Retrieve Service, Substance Administration Query Service,
+Color Palette Query/Retrieve Service</em>, <em>Implant Template
+Query/Retrieve Service</em>, <em>Protocol Approval Query/Retrieve
+Service</em> and <em>Unified Protocol Step Service</em> specific
+(DICOM Standard Part 4, Annexes C.4.1, K.4.1.1.4, U.4.1, HH,
+V.4.1.1.4, X, BB, II and CC):</p>
+<dl>
+<dt>Failure</dt><dd><div class="line-block">
+<div class="line"><code class="docutils literal notranslate"><span class="pre">0xA700</span></code> - Out of resources</div>
+<div class="line"><code class="docutils literal notranslate"><span class="pre">0xA900</span></code> - Identifier does not match SOP Class</div>
+<div class="line"><code class="docutils literal notranslate"><span class="pre">0xC000</span></code> to <code class="docutils literal notranslate"><span class="pre">0xCFFF</span></code> - Unable to process</div>
+</div>
+</dd>
+<dt>Pending</dt><dd><div class="line-block">
+<div class="line"><code class="docutils literal notranslate"><span class="pre">0xFF00</span></code> - Matches are continuing: current match is supplied
+and any Optional Keys were supported in the same manner as
+Required Keys</div>
+<div class="line"><code class="docutils literal notranslate"><span class="pre">0xFF01</span></code> - Matches are continuing: warning that one or more
+Optional Keys were not supported for existence and/or matching
+for this Identifier)</div>
+</div>
+</dd>
+</dl>
+<p><em>Relevant Patient Information Query Service</em> specific (DICOM
+Standard Part 4, Annex Q.2.1.1.4):</p>
+<dl>
+<dt>Failure</dt><dd><div class="line-block">
+<div class="line"><code class="docutils literal notranslate"><span class="pre">0xA700</span></code> - Out of resources</div>
+<div class="line"><code class="docutils literal notranslate"><span class="pre">0xA900</span></code> - Identifier does not match SOP Class</div>
+<div class="line"><code class="docutils literal notranslate"><span class="pre">0xC000</span></code> - Unable to process</div>
+<div class="line"><code class="docutils literal notranslate"><span class="pre">0xC100</span></code> - More than one match found</div>
+<div class="line"><code class="docutils literal notranslate"><span class="pre">0xC200</span></code> - Unable to support requested template</div>
+</div>
+</dd>
+<dt>Pending</dt><dd><div class="line-block">
+<div class="line"><code class="docutils literal notranslate"><span class="pre">0xFF00</span></code> - Matches are continuing: current match is supplied
+and any Optional Keys were supported in the same manner as
+Required Keys</div>
+</div>
+</dd>
+</dl>
+</li>
+<li><p><strong>identifier</strong> (<em>pydicom.dataset.Dataset or None</em>) – If the status category is ‘Pending’ then the C-FIND response’s
+<em>Identifier</em> <code class="docutils literal notranslate"><span class="pre">Dataset</span></code>. If the status category is not ‘Pending’
+this will be <code class="docutils literal notranslate"><span class="pre">None</span></code>. The exact contents of the response
+<em>Identifier</em> are Service Class specific (see the DICOM Standard,
+Part 4).</p></li>
+</ul>
+</dd>
+<dt class="field-odd">Raises</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><a class="reference external" href="https://docs.python.org/3/library/exceptions.html#RuntimeError" title="(in Python v3.7)"><strong>RuntimeError</strong></a> – If <code class="docutils literal notranslate"><span class="pre">send_c_find</span></code> is called with no established association.</p></li>
+<li><p><a class="reference external" href="https://docs.python.org/3/library/exceptions.html#ValueError" title="(in Python v3.7)"><strong>ValueError</strong></a> – If no accepted Presentation Context for <cite>dataset</cite> exists or if
+    unable to encode the <em>Identifier</em> <cite>dataset</cite>.</p></li>
+</ul>
+</dd>
+</dl>
+<div class="admonition seealso">
+<p class="admonition-title">See also</p>
+<p><code class="xref py py-meth docutils literal notranslate"><span class="pre">dimse_primitives.C_FIND()</span></code>, <code class="xref py py-meth docutils literal notranslate"><span class="pre">service_class.ColorPaletteQueryRetrieveServiceClass()</span></code>, <code class="xref py py-meth docutils literal notranslate"><span class="pre">service_class.DefinedProcedureProtocolQueryRetrieveServiceClass()</span></code>, <code class="xref py py-meth docutils literal notranslate"><span class="pre">service_class.HangingProtocolQueryRetrieveServiceClass()</span></code>, <code class="xref py py-meth docutils literal notranslate"><span class="pre">service_class.ImplantTemplateQueryRetrieveServiceClass()</span></code>, <code class="xref py py-meth docutils literal notranslate"><span class="pre">service_class.ProtocolApprovalQueryRetrieveServiceClass()</span></code>, <code class="xref py py-meth docutils literal notranslate"><span class="pre">service_class.QueryRetrieveFindServiceClass()</span></code>, <code class="xref py py-meth docutils literal notranslate"><span class="pre">service_class.RelevantPatientInformationQueryServiceClass()</span></code>, <code class="xref py py-meth docutils literal notranslate"><span class="pre">service_class.SubstanceAdministrationQueryServiceClass()</span></code>, <code class="xref py py-meth docutils literal notranslate"><span class="pre">service_class.UnifiedProcedureStepServiceClass()</span></code></p>
+</div>
+<p class="rubric">References</p>
+<ul class="simple">
+<li><p>DICOM Standard Part 4, <a class="reference external" href="http://dicom.nema.org/medical/dicom/current/output/html/part04.html#chapter_C">Annex C</a></p></li>
+<li><p>DICOM Standard Part 4, <a class="reference external" href="http://dicom.nema.org/medical/dicom/current/output/html/part04.html#chapter_Q">Annex Q</a></p></li>
+<li><p>DICOM Standard Part 4, <a class="reference external" href="http://dicom.nema.org/medical/dicom/current/output/html/part04.html#chapter_U">Annex U</a></p></li>
+<li><p>DICOM Standard Part 4, <a class="reference external" href="http://dicom.nema.org/medical/dicom/current/output/html/part04.html#chapter_V">Annex V</a></p></li>
+<li><p>DICOM Standard Part 4, <a class="reference external" href="http://dicom.nema.org/medical/dicom/current/output/html/part04.html#chapter_X">Annex X</a></p></li>
+<li><p>DICOM Standard Part 4, <a class="reference external" href="http://dicom.nema.org/medical/dicom/current/output/html/part04.html#chapter_BB">Annex BB</a></p></li>
+<li><p>DICOM Standard Part 4, <a class="reference external" href="http://dicom.nema.org/medical/dicom/current/output/html/part04.html#chapter_HH">Annex HH</a></p></li>
+<li><p>DICOM Standard Part 4, <a class="reference external" href="http://dicom.nema.org/medical/dicom/current/output/html/part04.html#chapter_II">Annex II</a></p></li>
+<li><p>DICOM Standard Part 7, Sections
+<a class="reference external" href="http://dicom.nema.org/medical/dicom/current/output/html/part07.html#sect_9.1.2">9.1.2</a>,
+<a class="reference external" href="http://dicom.nema.org/medical/dicom/current/output/html/part07.html#sect_9.3.2">9.3.2</a>,
+Annexes <a class="reference external" href="http://dicom.nema.org/medical/dicom/current/output/html/part07.html#chapter_C">C</a>
+and <a class="reference external" href="http://dicom.nema.org/medical/dicom/current/output/html/part07.html#chapter_K">K</a></p></li>
+</ul>
+</dd></dl>
+
+<dl class="method">
+<dt id="pynetdicom.association.Association.send_c_get">
+<code class="sig-name descname">send_c_get</code><span class="sig-paren">(</span><em class="sig-param">dataset</em>, <em class="sig-param">query_model</em>, <em class="sig-param">msg_id=1</em>, <em class="sig-param">priority=2</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/9b965431/pynetdicom/association.py#L1131"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom.association.Association.send_c_get" title="Permalink to this definition">¶</a></dt>
+<dd><p>Send a C-GET request to the peer AE.</p>
+<p>Yields <code class="docutils literal notranslate"><span class="pre">(status,</span> <span class="pre">identifier)</span></code> pairs.</p>
+<p>A <a class="reference internal" href="pynetdicom._handlers.doc_handle_store.html#pynetdicom._handlers.doc_handle_store" title="pynetdicom._handlers.doc_handle_store"><code class="xref py py-meth docutils literal notranslate"><span class="pre">handler</span></code></a>
+should be implemented and bound to <code class="docutils literal notranslate"><span class="pre">evt.EVT_C_STORE</span></code>
+prior to calling <code class="docutils literal notranslate"><span class="pre">send_c_get</span></code> as the peer will return any matches
+via a C-STORE sub-operation over the current association. In addition,
+SCP/SCU Role Selection Negotiation must be supported by the
+Association.</p>
+<dl class="field-list">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>dataset</strong> (<a class="reference external" href="https://pydicom.github.io/pydicom/stable/api_ref.html#pydicom.dataset.Dataset" title="(in pydicom v1.3.0)"><em>pydicom.dataset.Dataset</em></a>) – The C-GET request’s <em>Identifier</em> <code class="docutils literal notranslate"><span class="pre">Dataset</span></code>. The exact
+requirements for the <em>Identifier</em> are Service Class specific (see
+the DICOM Standard, Part 4).</p></li>
+<li><p><strong>query_model</strong> (<a class="reference external" href="https://pydicom.github.io/pydicom/stable/api_ref.html#pydicom.uid.UID" title="(in pydicom v1.3.0)"><em>pydicom.uid.UID</em></a><em> or </em><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.7)"><em>str</em></a>) – <p>The value to use for the C-GET request’s (0000,0002) <em>Affected
+SOP Class UID</em> parameter, which usually corresponds to the
+Information Model that is to be used. If supplying a <code class="docutils literal notranslate"><span class="pre">str</span></code> key
+(deprecated, to be removed in v1.5.0) then one of the following:</p>
+<ul>
+<li><p><code class="docutils literal notranslate"><span class="pre">P</span></code> - 1.2.840.10008.5.1.4.1.2.1.3 -
+<em>Patient Root Information Model - GET</em></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">S</span></code> - 1.2.840.10008.5.1.4.1.2.2.3 -
+<em>Study Root Information Model - GET</em></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">O</span></code> - 1.2.840.10008.5.1.4.1.2.3.3 -
+<em>Patient Study Only Information Model - GET</em></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">C</span></code> - 1.2.840.10008.5.1.4.1.2.4.3 -
+<em>Composite Instance Root Retrieve - GET</em></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">CB</span></code> - 1.2.840.10008.5.1.4.1.2.5.3 -
+<em>Composite Instance Retrieve Without Bulk Data - GET</em></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">H</span></code> - 1.2.840.10008.5.1.4.38.4 -
+<em>Hanging Protocol Information Model - GET</em></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">D</span></code> - 1.2.840.10008.5.1.4.20.3 -
+<em>Defined Procedure  Protocol Information Model - GET</em></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">CP</span></code> - 1.2.840.10008.5.1.4.39.4 -
+<em>Palette Color Information Model - GET</em></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">IG</span></code> - 1.2.840.10008.5.1.4.43.4 -
+<em>Generic Implant Template Information Model - GET</em></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">IA</span></code> - 1.2.840.10008.5.1.4.44.4 -
+<em>Implant Assembly Template Information Model - GET</em></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">IT</span></code> - 1.2.840.10008.5.1.4.44.4 -
+<em>Implant Template Group Information Model - GET</em></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">PA</span></code> - 1.2.840.10008.5.1.4.1.1.200.6 -
+<em>Protocol Approval Information Model - GET</em></p></li>
+</ul>
+</p></li>
+<li><p><strong>msg_id</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.7)"><em>int</em></a><em>, </em><em>optional</em>) – The DIMSE <em>Message ID</em>, must be between 0 and 65535, inclusive,
+(default 1).</p></li>
+<li><p><strong>priority</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.7)"><em>int</em></a><em>, </em><em>optional</em>) – <p>The C-GET operation <em>Priority</em> (may not be supported by the peer),
+one of:</p>
+<ul>
+<li><p><code class="docutils literal notranslate"><span class="pre">0</span></code> - Medium</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">1</span></code> - High</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">2</span></code> - Low (default)</p></li>
+</ul>
+</p></li>
+</ul>
+</dd>
+<dt class="field-even">Yields</dt>
+<dd class="field-even"><ul>
+<li><p><strong>status</strong> (<em>pydicom.dataset.Dataset</em>) – If the peer timed out, aborted or sent an invalid response then
+yields an empty <code class="docutils literal notranslate"><span class="pre">Dataset</span></code>. If a response was received from the
+peer then yields a <code class="docutils literal notranslate"><span class="pre">Dataset</span></code> containing at least a (0000,0900)
+<em>Status</em> element, and depending on the returned value may
+optionally contain additional elements (see DICOM Standard Part 7,
+Section 9.1.2.1.5 and Annex C).</p>
+<p>The status for the requested C-GET operation should be one of the
+following values, but as the value depends on the peer this
+can’t be assumed:</p>
+<p><em>General C-GET</em> (DICOM Standard Part 7, Section 9.1.3 and Annex C)</p>
+<dl>
+<dt>Success</dt><dd><div class="line-block">
+<div class="line"><code class="docutils literal notranslate"><span class="pre">0x0000</span></code> - Sub-operations complete: no failures or warnings</div>
+</div>
+</dd>
+<dt>Failure</dt><dd><div class="line-block">
+<div class="line"><code class="docutils literal notranslate"><span class="pre">0x0122</span></code> - SOP class not supported</div>
+<div class="line"><code class="docutils literal notranslate"><span class="pre">0x0124</span></code> - Not authorised</div>
+<div class="line"><code class="docutils literal notranslate"><span class="pre">0x0210</span></code> - Duplicate invocation</div>
+<div class="line"><code class="docutils literal notranslate"><span class="pre">0x0211</span></code> - Unrecognised operation</div>
+<div class="line"><code class="docutils literal notranslate"><span class="pre">0x0212</span></code> - Mistyped argument</div>
+</div>
+</dd>
+</dl>
+<p><em>Query/Retrieve Service, Hanging Protocol Query/Retrieve Service,
+Defined Procedure Protocol Query/Retrieve Service, Color Palette
+Query/Retrieve Service</em>, <em>Implant Template Query/Retrieve
+Service</em> and <em>Protocol Approval Query/Retrieve Service</em> specific
+(DICOM Standard Part 4, Annexes C.4.3,
+Y.C.4.2.1.4, Z.4.2.1.4, U.4.3, X, BB, HH and II):</p>
+<dl>
+<dt>Pending</dt><dd><div class="line-block">
+<div class="line"><code class="docutils literal notranslate"><span class="pre">0xFF00</span></code> - Sub-operations are continuing</div>
+</div>
+</dd>
+<dt>Cancel</dt><dd><div class="line-block">
+<div class="line"><code class="docutils literal notranslate"><span class="pre">0xFE00</span></code> - Sub-operations terminated due to Cancel indication</div>
+</div>
+</dd>
+<dt>Failure</dt><dd><div class="line-block">
+<div class="line"><code class="docutils literal notranslate"><span class="pre">0xA701</span></code> - Out of resources: unable to calculate number of
+matches</div>
+<div class="line"><code class="docutils literal notranslate"><span class="pre">0xA702</span></code> - Out of resources: unable to perform sub-operations</div>
+<div class="line"><code class="docutils literal notranslate"><span class="pre">0xA900</span></code> - Identifier does not match SOP class</div>
+<div class="line"><code class="docutils literal notranslate"><span class="pre">0xAA00</span></code> - None of the frames requested were found in the SOP
+instance</div>
+<div class="line"><code class="docutils literal notranslate"><span class="pre">0xAA01</span></code> - Unable to create new object for this SOP class</div>
+<div class="line"><code class="docutils literal notranslate"><span class="pre">0xAA02</span></code> - Unable to extract frames</div>
+<div class="line"><code class="docutils literal notranslate"><span class="pre">0xAA03</span></code> - Time-based request received for a non-time-based
+original SOP Instance</div>
+<div class="line"><code class="docutils literal notranslate"><span class="pre">0xAA04</span></code> - Invalid request</div>
+<div class="line"><code class="docutils literal notranslate"><span class="pre">0xC000</span></code> to <code class="docutils literal notranslate"><span class="pre">0xCFFF</span></code> - Unable to process</div>
+</div>
+</dd>
+<dt>Warning</dt><dd><div class="line-block">
+<div class="line"><code class="docutils literal notranslate"><span class="pre">0xB000</span></code> - Sub-operations completed: one or more failures or
+warnings</div>
+</div>
+</dd>
+</dl>
+</li>
+<li><p><strong>identifier</strong> (<em>pydicom.dataset.Dataset or None</em>) – If the status category is ‘Pending’ or ‘Success’ then yields
+<code class="docutils literal notranslate"><span class="pre">None</span></code>. If the status category is ‘Warning’, ‘Failure’ or
+‘Cancel’ then yields a <code class="docutils literal notranslate"><span class="pre">Dataset</span></code> which should contain an
+(0008,0058) <em>Failed SOP Instance UID List</em> element, however this
+is not guaranteed and may instead be an empty <code class="docutils literal notranslate"><span class="pre">Dataset</span></code>.</p></li>
+</ul>
+</dd>
+<dt class="field-odd">Raises</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><a class="reference external" href="https://docs.python.org/3/library/exceptions.html#RuntimeError" title="(in Python v3.7)"><strong>RuntimeError</strong></a> – If <code class="docutils literal notranslate"><span class="pre">send_c_get</span></code> is called with no established association.</p></li>
+<li><p><a class="reference external" href="https://docs.python.org/3/library/exceptions.html#ValueError" title="(in Python v3.7)"><strong>ValueError</strong></a> – If no accepted Presentation Context for <cite>dataset</cite> exists or if
+    unable to encode the <em>Identifier</em> <cite>dataset</cite>.</p></li>
+</ul>
+</dd>
+</dl>
+<div class="admonition seealso">
+<p class="admonition-title">See also</p>
+<p><code class="xref py py-meth docutils literal notranslate"><span class="pre">service_class.QueryRetrieveGetServiceClass()</span></code>, <code class="xref py py-meth docutils literal notranslate"><span class="pre">service_class.HangingProtocolQueryRetrieveServiceClass()</span></code>, <code class="xref py py-meth docutils literal notranslate"><span class="pre">service_class.DefinedProcedureProtocolQueryRetrieveServiceClass()</span></code>, <code class="xref py py-meth docutils literal notranslate"><span class="pre">service_class.ColorPaletteQueryRetrieveServiceClass()</span></code>, <code class="xref py py-meth docutils literal notranslate"><span class="pre">service_class.ImplantTemplateQueryRetrieveServiceClass()</span></code>, <code class="xref py py-meth docutils literal notranslate"><span class="pre">service_class.ProtocolApprovalQueryRetrieveServiceClass()</span></code>, <code class="xref py py-meth docutils literal notranslate"><span class="pre">dimse_primitives.C_GET()</span></code></p>
+</div>
+<p class="rubric">References</p>
+<ul class="simple">
+<li><p>DICOM Standard Part 4, <a class="reference external" href="http://dicom.nema.org/medical/dicom/current/output/html/part04.html#chapter_C">Annex C</a></p></li>
+<li><p>DICOM Standard Part 4, <a class="reference external" href="http://dicom.nema.org/medical/dicom/current/output/html/part04.html#chapter_U">Annex U</a></p></li>
+<li><p>DICOM Standard Part 4, <a class="reference external" href="http://dicom.nema.org/medical/dicom/current/output/html/part04.html#chapter_X">Annex X</a></p></li>
+<li><p>DICOM Standard Part 4, <a class="reference external" href="http://dicom.nema.org/medical/dicom/current/output/html/part04.html#chapter_Y">Annex Y</a></p></li>
+<li><p>DICOM Standard Part 4, <a class="reference external" href="http://dicom.nema.org/medical/dicom/current/output/html/part04.html#chapter_Z">Annex Z</a></p></li>
+<li><p>DICOM Standard Part 4, <a class="reference external" href="http://dicom.nema.org/medical/dicom/current/output/html/part04.html#chapter_BB">Annex BB</a></p></li>
+<li><p>DICOM Standard Part 4, <a class="reference external" href="http://dicom.nema.org/medical/dicom/current/output/html/part04.html#chapter_HH">Annex HH</a></p></li>
+<li><p>DICOM Standard Part 4, <a class="reference external" href="http://dicom.nema.org/medical/dicom/current/output/html/part04.html#chapter_II">Annex II</a></p></li>
+<li><p>DICOM Standard Part 7, Sections
+<a class="reference external" href="http://dicom.nema.org/medical/dicom/current/output/html/part07.html#sect_9.1.3">9.1.3</a>,
+<a class="reference external" href="http://dicom.nema.org/medical/dicom/current/output/html/part07.html#sect_9.3.3">9.3.3</a>
+and <a class="reference external" href="http://dicom.nema.org/medical/dicom/current/output/html/part07.html#chapter_C">Annex C</a></p></li>
+</ul>
+</dd></dl>
+
+<dl class="method">
+<dt id="pynetdicom.association.Association.send_c_move">
+<code class="sig-name descname">send_c_move</code><span class="sig-paren">(</span><em class="sig-param">dataset</em>, <em class="sig-param">move_aet</em>, <em class="sig-param">query_model</em>, <em class="sig-param">msg_id=1</em>, <em class="sig-param">priority=2</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/9b965431/pynetdicom/association.py#L1372"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom.association.Association.send_c_move" title="Permalink to this definition">¶</a></dt>
+<dd><p>Send a C-MOVE request to the peer AE.</p>
+<p>Yields <code class="docutils literal notranslate"><span class="pre">(status,</span> <span class="pre">identifier)</span></code> pairs.</p>
+<p>The peer will attempt to start a new association with the AE with
+<em>AE Title</em> <code class="docutils literal notranslate"><span class="pre">move_aet</span></code> and hence must be known to the SCP. Once the
+association has been established it will use the C-STORE service to
+send any matching datasets.</p>
+<dl class="field-list">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>dataset</strong> (<a class="reference external" href="https://pydicom.github.io/pydicom/stable/api_ref.html#pydicom.dataset.Dataset" title="(in pydicom v1.3.0)"><em>pydicom.dataset.Dataset</em></a>) – The C-MOVE request’s <em>Identifier</em> <code class="docutils literal notranslate"><span class="pre">Dataset</span></code>. The exact
+requirements for the <em>Identifier</em> are Service Class specific (see
+the DICOM Standard, Part 4).</p></li>
+<li><p><strong>move_aet</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#bytes" title="(in Python v3.7)"><em>bytes</em></a>) – The value of the <em>Move Destination</em> parameter for the C-MOVE
+request, should be the AE title of the Storage SCP for the
+C-STORE sub-operations performed by the peer.</p></li>
+<li><p><strong>query_model</strong> (<a class="reference external" href="https://pydicom.github.io/pydicom/stable/api_ref.html#pydicom.uid.UID" title="(in pydicom v1.3.0)"><em>pydicom.uid.UID</em></a><em> or </em><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.7)"><em>str</em></a>) – <p>The value to use for the C-MOVE request’s (0000,0002) <em>Affected
+SOP Class UID</em> parameter, which usually corresponds to the
+Information Model that is to be used. If supplying a <code class="docutils literal notranslate"><span class="pre">str</span></code> key
+(deprecated, to be removed in v1.5.0) then one of the following:</p>
+<ul>
+<li><p><code class="docutils literal notranslate"><span class="pre">P</span></code> - 1.2.840.10008.5.1.4.1.2.1.2 -
+<em>Patient Root Information Model - MOVE</em></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">S</span></code> - 1.2.840.10008.5.1.4.1.2.2.2 -
+<em>Study Root Information Model - MOVE</em></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">O</span></code> - 1.2.840.10008.5.1.4.1.2.3.2 -
+<em>Patient Study Only Information Model - MOVE</em></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">C</span></code> - 1.2.840.10008.5.1.4.1.2.4.2 -
+<em>Composite Instance Root Retrieve - MOVE</em></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">H</span></code> - 1.2.840.10008.5.1.4.38.3 -
+<em>Hanging Protocol Information Model - MOVE</em></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">D</span></code> - 1.2.840.10008.5.1.4.20.2 -
+<em>Defined Procedure Protocol Information Model - MOVE</em></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">CP</span></code> - 1.2.840.10008.5.1.4.39.3 -
+<em>Color Palette Information Model - MOVE</em></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">IG</span></code> - 1.2.840.10008.5.1.4.43.3 -
+<em>Generic Implant Template Information Model - MOVE</em></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">IA</span></code> - 1.2.840.10008.5.1.4.44.3 -
+<em>Implant Assembly Template Information Model - MOVE</em></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">IT</span></code> - 1.2.840.10008.5.1.4.44.3 -
+<em>Implant Template Group Information Model - MOVE</em></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">PA</span></code> - 1.2.840.10008.5.1.4.1.1.200.5 -
+<em>Protocol Approval Information Model - MOVE</em></p></li>
+</ul>
+</p></li>
+<li><p><strong>msg_id</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.7)"><em>int</em></a><em>, </em><em>optional</em>) – The DIMSE <em>Message ID</em>, must be between 0 and 65535, inclusive,
+(default 1).</p></li>
+<li><p><strong>priority</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.7)"><em>int</em></a><em>, </em><em>optional</em>) – <p>The value of the <em>Priority</em> parameter (if supported by the peer),
+one of:</p>
+<ul>
+<li><p><code class="docutils literal notranslate"><span class="pre">0</span></code> - Medium</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">1</span></code> - High</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">2</span></code> - Low (default)</p></li>
+</ul>
+</p></li>
+</ul>
+</dd>
+<dt class="field-even">Yields</dt>
+<dd class="field-even"><ul>
+<li><p><strong>status</strong> (<em>pydicom.dataset.Dataset</em>) – If the peer timed out, aborted or sent an invalid response then
+yields an empty <code class="docutils literal notranslate"><span class="pre">Dataset</span></code>. If a response was received from the
+peer then yields a <code class="docutils literal notranslate"><span class="pre">Dataset</span></code> containing at least a (0000,0900)
+<em>Status</em> element, and depending on the returned value, may
+optionally contain additional elements (see DICOM Standard Part 7,
+Section 9.1.4 and Annex C).</p>
+<p>The status for the requested C-MOVE operation should be one of the
+following values, but as the value depends
+on the peer this can’t be assumed:</p>
+<p><em>General C-MOVE</em> (DICOM Standard Part 7, 9.1.4.1.7 and Annex C)</p>
+<dl>
+<dt>Cancel</dt><dd><div class="line-block">
+<div class="line"><code class="docutils literal notranslate"><span class="pre">0xFE00</span></code> - Sub-operations terminated due to Cancel indication</div>
+</div>
+</dd>
+<dt>Success</dt><dd><div class="line-block">
+<div class="line"><code class="docutils literal notranslate"><span class="pre">0x0000</span></code> - Sub-operations complete: no failures</div>
+</div>
+</dd>
+<dt>Failure</dt><dd><div class="line-block">
+<div class="line"><code class="docutils literal notranslate"><span class="pre">0x0122</span></code> - SOP class not supported</div>
+</div>
+</dd>
+</dl>
+<p><em>Query/Retrieve Service, Hanging Protocol Query/Retrieve Service,
+Defined Procedure Protocol Query/Retrieve Service, Color Palette
+Query/Retrieve Service</em> , <em>Implant Template Query/Retreive
+Service</em> and <em>Protocol Approval Query/Retrieve Service</em>
+specific (DICOM Standard Part 4, Annexes C, U, Y, X, BB and HH):</p>
+<dl>
+<dt>Failure</dt><dd><div class="line-block">
+<div class="line"><code class="docutils literal notranslate"><span class="pre">0xA701</span></code> - Out of resources: unable to calculate number of
+matches</div>
+<div class="line"><code class="docutils literal notranslate"><span class="pre">0xA702</span></code> - Out of resources: unable to perform sub-operations</div>
+<div class="line"><code class="docutils literal notranslate"><span class="pre">0xA801</span></code> - Move destination unknown</div>
+<div class="line"><code class="docutils literal notranslate"><span class="pre">0xA900</span></code> - Identifier does not match SOP Class</div>
+<div class="line"><code class="docutils literal notranslate"><span class="pre">0xAA00</span></code> - None of the frames requested were found in the SOP
+instance</div>
+<div class="line"><code class="docutils literal notranslate"><span class="pre">0xAA01</span></code> - Unable to create new object for this SOP class</div>
+<div class="line"><code class="docutils literal notranslate"><span class="pre">0xAA02</span></code> - Unable to extract frames</div>
+<div class="line"><code class="docutils literal notranslate"><span class="pre">0xAA03</span></code> - Time-based request received for a non-time-based
+original SOP Instance</div>
+<div class="line"><code class="docutils literal notranslate"><span class="pre">0xAA04</span></code> - Invalid request</div>
+<div class="line"><code class="docutils literal notranslate"><span class="pre">0xC000</span></code> to <code class="docutils literal notranslate"><span class="pre">0xCFFF</span></code> - Unable to process</div>
+</div>
+</dd>
+<dt>Pending</dt><dd><div class="line-block">
+<div class="line"><code class="docutils literal notranslate"><span class="pre">0xFF00</span></code> - Sub-operations are continuing</div>
+</div>
+</dd>
+<dt>Warning</dt><dd><div class="line-block">
+<div class="line"><code class="docutils literal notranslate"><span class="pre">0xB000</span></code> - Sub-operations complete: one or more failures</div>
+</div>
+</dd>
+</dl>
+</li>
+<li><p><strong>identifier</strong> (<em>pydicom.dataset.Dataset or None</em>) – If the status category is ‘Pending’ or ‘Success’ then yields
+<code class="docutils literal notranslate"><span class="pre">None</span></code>. If the status category is ‘Warning’, ‘Failure’ or
+‘Cancel’ then yields a <code class="docutils literal notranslate"><span class="pre">Dataset</span></code> which should contain an
+(0008,0058) <em>Failed SOP Instance UID List</em> element, however this
+is not guaranteed and may instead be an empty <code class="docutils literal notranslate"><span class="pre">Dataset</span></code>.</p></li>
+</ul>
+</dd>
+</dl>
+<div class="admonition seealso">
+<p class="admonition-title">See also</p>
+<p><code class="xref py py-meth docutils literal notranslate"><span class="pre">dimse_primitives.C_MOVE()</span></code>, <code class="xref py py-meth docutils literal notranslate"><span class="pre">service_class.QueryRetrieveMoveServiceClass()</span></code>, <code class="xref py py-meth docutils literal notranslate"><span class="pre">service_class.HangingProtocolQueryRetrieveServiceClass()</span></code>, <code class="xref py py-meth docutils literal notranslate"><span class="pre">service_class.ColorPaletteQueryRetrieveServiceClass()</span></code>, <code class="xref py py-meth docutils literal notranslate"><span class="pre">service_class.ImplantTemplateQueryRetrieveServiceClass()</span></code>, <code class="xref py py-meth docutils literal notranslate"><span class="pre">service_class.ProtocolApprovalQueryRetrieveServiceClass()</span></code></p>
+</div>
+<p class="rubric">References</p>
+<ul class="simple">
+<li><p>DICOM Standard Part 4, <a class="reference external" href="http://dicom.nema.org/medical/dicom/current/output/html/part04.html#chapter_C">Annex C</a></p></li>
+<li><p>DICOM Standard Part 4, <a class="reference external" href="http://dicom.nema.org/medical/dicom/current/output/html/part04.html#chapter_U">Annex U</a></p></li>
+<li><p>DICOM Standard Part 4, <a class="reference external" href="http://dicom.nema.org/medical/dicom/current/output/html/part04.html#chapter_X">Annex X</a></p></li>
+<li><p>DICOM Standard Part 4, <a class="reference external" href="http://dicom.nema.org/medical/dicom/current/output/html/part04.html#chapter_Y">Annex Y</a></p></li>
+<li><p>DICOM Standard Part 4, <a class="reference external" href="http://dicom.nema.org/medical/dicom/current/output/html/part04.html#chapter_BB">Annex BB</a></p></li>
+<li><p>DICOM Standard Part 4, <a class="reference external" href="http://dicom.nema.org/medical/dicom/current/output/html/part04.html#chapter_HH">Annex HH</a></p></li>
+<li><p>DICOM Standard Part 4, <a class="reference external" href="http://dicom.nema.org/medical/dicom/current/output/html/part04.html#chapter_II">Annex II</a></p></li>
+<li><p>DICOM Standard Part 7, Sections
+<a class="reference external" href="http://dicom.nema.org/medical/dicom/current/output/html/part07.html#sect_9.1.4">9.1.4</a>,
+<a class="reference external" href="http://dicom.nema.org/medical/dicom/current/output/html/part07.html#sect_9.3.4">9.3.4</a>
+and <a class="reference external" href="http://dicom.nema.org/medical/dicom/current/output/html/part07.html#chapter_C">Annex C</a></p></li>
+</ul>
+</dd></dl>
+
+<dl class="method">
+<dt id="pynetdicom.association.Association.send_c_store">
+<code class="sig-name descname">send_c_store</code><span class="sig-paren">(</span><em class="sig-param">dataset</em>, <em class="sig-param">msg_id=1</em>, <em class="sig-param">priority=2</em>, <em class="sig-param">originator_aet=None</em>, <em class="sig-param">originator_id=None</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/9b965431/pynetdicom/association.py#L1600"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom.association.Association.send_c_store" title="Permalink to this definition">¶</a></dt>
+<dd><p>Send a C-STORE request to the peer AE.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>dataset</strong> (<a class="reference external" href="https://pydicom.github.io/pydicom/stable/api_ref.html#pydicom.dataset.Dataset" title="(in pydicom v1.3.0)"><em>pydicom.dataset.Dataset</em></a>) – The DICOM dataset to send to the peer.</p></li>
+<li><p><strong>msg_id</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.7)"><em>int</em></a><em>, </em><em>optional</em>) – The DIMSE <em>Message ID</em>, must be between 0 and 65535, inclusive,
+(default <code class="docutils literal notranslate"><span class="pre">1</span></code>).</p></li>
+<li><p><strong>priority</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.7)"><em>int</em></a><em>, </em><em>optional</em>) – <p>The C-STORE operation <em>Priority</em> (may not be supported by the
+peer), one of:</p>
+<ul>
+<li><p><code class="docutils literal notranslate"><span class="pre">0</span></code> - Medium</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">1</span></code> - High</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">2</span></code> - Low (default)</p></li>
+</ul>
+</p></li>
+<li><p><strong>originator_aet</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#bytes" title="(in Python v3.7)"><em>bytes</em></a><em>, </em><em>optional</em>) – The value of the <em>Move Originator Application Entity Title</em>
+parameter for the C-STORE request. This is the AE title of the
+peer that invoked the C-MOVE operation for
+which this C-STORE sub-operation is being performed (default
+<code class="docutils literal notranslate"><span class="pre">None</span></code>).</p></li>
+<li><p><strong>originator_id</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.7)"><em>int</em></a><em>, </em><em>optional</em>) – The value of the <em>Move Originator Message ID</em> parameter for the
+C-STORE request. This is the original <em>Message ID</em> parameter value
+for the C-MOVE request primitive for which the
+C-STORE sub-operation is being performed (default <code class="docutils literal notranslate"><span class="pre">None</span></code>).</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><p><strong>status</strong> – If the peer timed out, aborted or sent an invalid response then
+returns an empty <code class="docutils literal notranslate"><span class="pre">Dataset</span></code>. If a valid response was received
+from the peer then returns a <code class="docutils literal notranslate"><span class="pre">Dataset</span></code> containing at least a
+(0000,0900) <em>Status</em> element, and, depending on the returned
+value, may optionally contain additional elements (see DICOM
+Standard Part 7, Annex C).</p>
+<p>The status for the requested C-STORE operation should be one of the
+following, but as the value depends on the peer SCP this can’t be
+assumed:</p>
+<p><em>General C-STORE</em> (DICOM Standard Part 7, 9.1.1.1.9 and Annex C):</p>
+<dl>
+<dt>Success</dt><dd><div class="line-block">
+<div class="line"><code class="docutils literal notranslate"><span class="pre">0x0000</span></code> - Success</div>
+</div>
+</dd>
+<dt>Failure</dt><dd><div class="line-block">
+<div class="line"><code class="docutils literal notranslate"><span class="pre">0x0117</span></code> - Invalid SOP instance</div>
+<div class="line"><code class="docutils literal notranslate"><span class="pre">0x0122</span></code> - SOP class not supported</div>
+<div class="line"><code class="docutils literal notranslate"><span class="pre">0x0124</span></code> - Not authorised</div>
+<div class="line"><code class="docutils literal notranslate"><span class="pre">0x0210</span></code> - Duplicate invocation</div>
+<div class="line"><code class="docutils literal notranslate"><span class="pre">0x0211</span></code> - Unrecognised operation</div>
+<div class="line"><code class="docutils literal notranslate"><span class="pre">0x0212</span></code> - Mistyped argument</div>
+</div>
+</dd>
+</dl>
+<p><em>Storage Service</em> and <em>Non-Patient Object Storage Service</em> specific
+(DICOM Standard Part 4, Annexes B.2.3 and GG):</p>
+<dl>
+<dt>Failure</dt><dd><div class="line-block">
+<div class="line"><code class="docutils literal notranslate"><span class="pre">0xA700</span></code> to <code class="docutils literal notranslate"><span class="pre">0xA7FF</span></code> - Out of resources</div>
+<div class="line"><code class="docutils literal notranslate"><span class="pre">0xA900</span></code> to <code class="docutils literal notranslate"><span class="pre">0xA9FF</span></code> - Data set does not match SOP class</div>
+<div class="line"><code class="docutils literal notranslate"><span class="pre">0xC000</span></code> to <code class="docutils literal notranslate"><span class="pre">0xCFFF</span></code> - Cannot understand</div>
+</div>
+</dd>
+<dt>Warning</dt><dd><div class="line-block">
+<div class="line"><code class="docutils literal notranslate"><span class="pre">0xB000</span></code> - Coercion of data elements</div>
+<div class="line"><code class="docutils literal notranslate"><span class="pre">0xB006</span></code> - Element discarded</div>
+<div class="line"><code class="docutils literal notranslate"><span class="pre">0xB007</span></code> - Data set does not match SOP class</div>
+</div>
+</dd>
+</dl>
+<p><em>Non-Patient Object Service Class</em> specific (DICOM Standard Part 4,
+Annex GG.4.2)</p>
+<dl>
+<dt>Failure</dt><dd><div class="line-block">
+<div class="line"><code class="docutils literal notranslate"><span class="pre">0xA700</span></code> - Out of resources</div>
+<div class="line"><code class="docutils literal notranslate"><span class="pre">0xA900</span></code> - Data set does not match SOP class</div>
+<div class="line"><code class="docutils literal notranslate"><span class="pre">0xC000</span></code> - Cannot understand</div>
+</div>
+</dd>
+</dl>
+</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p><a class="reference external" href="https://pydicom.github.io/pydicom/stable/api_ref.html#pydicom.dataset.Dataset" title="(in pydicom v1.3.0)">pydicom.dataset.Dataset</a></p>
+</dd>
+<dt class="field-even">Raises</dt>
+<dd class="field-even"><ul class="simple">
+<li><p><a class="reference external" href="https://docs.python.org/3/library/exceptions.html#RuntimeError" title="(in Python v3.7)"><strong>RuntimeError</strong></a> – If <code class="docutils literal notranslate"><span class="pre">send_c_store</span></code> is called with no established association.</p></li>
+<li><p><a class="reference external" href="https://docs.python.org/3/library/exceptions.html#AttributeError" title="(in Python v3.7)"><strong>AttributeError</strong></a> – If <cite>dataset</cite> is missing (0008,0016) <em>SOP Class UID</em>,
+    (0008,0018) <em>SOP Instance UID</em> elements or the (0002,0010)
+    <em>Transfer Syntax UID</em> file meta information element.</p></li>
+<li><p><a class="reference external" href="https://docs.python.org/3/library/exceptions.html#ValueError" title="(in Python v3.7)"><strong>ValueError</strong></a> – If no accepted Presentation Context for <cite>dataset</cite> exists or if
+    unable to encode the <cite>dataset</cite>.</p></li>
+</ul>
+</dd>
+</dl>
+<div class="admonition seealso">
+<p class="admonition-title">See also</p>
+<p><code class="xref py py-meth docutils literal notranslate"><span class="pre">dimse_primitives.C_STORE()</span></code>, <code class="xref py py-meth docutils literal notranslate"><span class="pre">service_class.StorageServiceClass()</span></code>, <code class="xref py py-meth docutils literal notranslate"><span class="pre">service_class.NonPatientObjectStorageServiceClass()</span></code></p>
+</div>
+<p class="rubric">References</p>
+<ul class="simple">
+<li><p>DICOM Standard Part 4, Annex <a class="reference external" href="http://dicom.nema.org/medical/dicom/current/output/html/part04.html#chapter_B">B</a></p></li>
+<li><p>DICOM Standard Part 4, Annex <a class="reference external" href="http://dicom.nema.org/medical/dicom/current/output/html/part04.html#chapter_GG">GG</a></p></li>
+<li><p>DICOM Standard Part 7, Sections
+<a class="reference external" href="http://dicom.nema.org/medical/dicom/current/output/html/part07.html#sect_9.1.1">9.1.1</a>,
+<a class="reference external" href="http://dicom.nema.org/medical/dicom/current/output/html/part07.html#sect_9.3.1">9.3.1</a>
+and <a class="reference external" href="http://dicom.nema.org/medical/dicom/current/output/html/part07.html#chapter_C">Annex C</a></p></li>
+</ul>
+</dd></dl>
+
+<dl class="method">
+<dt id="pynetdicom.association.Association.send_n_action">
+<code class="sig-name descname">send_n_action</code><span class="sig-paren">(</span><em class="sig-param">dataset</em>, <em class="sig-param">action_type</em>, <em class="sig-param">class_uid</em>, <em class="sig-param">instance_uid</em>, <em class="sig-param">msg_id=1</em>, <em class="sig-param">meta_uid=None</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/9b965431/pynetdicom/association.py#L2042"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom.association.Association.send_n_action" title="Permalink to this definition">¶</a></dt>
+<dd><p>Send an N-ACTION request message to the peer AE.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>dataset</strong> (<a class="reference external" href="https://pydicom.github.io/pydicom/stable/api_ref.html#pydicom.dataset.Dataset" title="(in pydicom v1.3.0)"><em>pydicom.dataset.Dataset</em></a><em> or </em><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.7)"><em>None</em></a>) – The dataset that will be sent as the <em>Action Information</em>
+parameter in the N-ACTION request, or <code class="docutils literal notranslate"><span class="pre">None</span></code> if not required.</p></li>
+<li><p><strong>action_type</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.7)"><em>int</em></a>) – The value of the request’s (0000,1008) <em>Action Type ID</em> parameter.</p></li>
+<li><p><strong>class_uid</strong> (<a class="reference external" href="https://pydicom.github.io/pydicom/stable/api_ref.html#pydicom.uid.UID" title="(in pydicom v1.3.0)"><em>pydicom.uid.UID</em></a>) – The UID to be sent for the request’s (0000,0003) <em>Requested SOP
+Class UID</em> parameter.</p></li>
+<li><p><strong>instance_uid</strong> (<a class="reference external" href="https://pydicom.github.io/pydicom/stable/api_ref.html#pydicom.uid.UID" title="(in pydicom v1.3.0)"><em>pydicom.uid.UID</em></a>) – The UID to be sent for the request’s (0000,1001) <em>Requested SOP
+Instance UID</em> parameter.</p></li>
+<li><p><strong>msg_id</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.7)"><em>int</em></a><em>, </em><em>optional</em>) – The request’s <em>Message ID</em> parameter value, must be between 0 and
+65535, inclusive, (default 1).</p></li>
+<li><p><strong>meta_uid</strong> (<a class="reference external" href="https://pydicom.github.io/pydicom/stable/api_ref.html#pydicom.uid.UID" title="(in pydicom v1.3.0)"><em>pydicom.uid.UID</em></a><em>, </em><em>optional</em>) – If the service class operates under a presentation context
+negotiated using a <em>Meta SOP Class</em> rather than a standard <em>SOP
+Class</em> (such as with <em>Print Management</em> service class and its
+<em>Basic Grayscale Print Management Meta SOP Class</em>) then this
+value will be used to determine the corresponding presentation
+context.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><ul>
+<li><p><strong>status</strong> (<em>pydicom.dataset.Dataset</em>) – If the peer timed out, aborted or sent an invalid response then
+returns an empty <code class="docutils literal notranslate"><span class="pre">Dataset</span></code>. If a response was received from the
+peer then returns a <code class="docutils literal notranslate"><span class="pre">Dataset</span></code> containing at least a (0000,0900)
+<em>Status</em> element, and depending on the returned value, may
+optionally contain additional elements (see the DICOM Standard,
+Part 7, Section 9.1.2.1.5 and Annex C).</p>
+<p><em>General N-ACTION</em> (DICOM Standard Part 7, Section 10.1.4 and
+Annex C)</p>
+<dl>
+<dt>Success</dt><dd><div class="line-block">
+<div class="line"><code class="docutils literal notranslate"><span class="pre">0x0000</span></code> - Successful operation</div>
+</div>
+</dd>
+<dt>Failure</dt><dd><div class="line-block">
+<div class="line"><code class="docutils literal notranslate"><span class="pre">0x0110</span></code> - Processing failure</div>
+<div class="line"><code class="docutils literal notranslate"><span class="pre">0x0112</span></code> - No such SOP Instance</div>
+<div class="line"><code class="docutils literal notranslate"><span class="pre">0x0114</span></code> - No such argument</div>
+<div class="line"><code class="docutils literal notranslate"><span class="pre">0x0115</span></code> - Invalid argument value</div>
+<div class="line"><code class="docutils literal notranslate"><span class="pre">0x0117</span></code> - Invalid object instance</div>
+<div class="line"><code class="docutils literal notranslate"><span class="pre">0x0118</span></code> - No such SOP Class</div>
+<div class="line"><code class="docutils literal notranslate"><span class="pre">0x0119</span></code> - Class-Instance conflict</div>
+<div class="line"><code class="docutils literal notranslate"><span class="pre">0x0123</span></code> - No such action</div>
+<div class="line"><code class="docutils literal notranslate"><span class="pre">0x0124</span></code> - Not authorised</div>
+<div class="line"><code class="docutils literal notranslate"><span class="pre">0x0210</span></code> - Duplicate invocation</div>
+<div class="line"><code class="docutils literal notranslate"><span class="pre">0x0211</span></code> - Unrecognised operation</div>
+<div class="line"><code class="docutils literal notranslate"><span class="pre">0x0212</span></code> - Mistyped argument</div>
+<div class="line"><code class="docutils literal notranslate"><span class="pre">0x0213</span></code> - Resource limitation</div>
+</div>
+</dd>
+</dl>
+</li>
+<li><p><strong>action_reply</strong> (<em>pydicom.dataset.Dataset or None</em>) – If the status category is ‘Success’ or ‘Warning’ then a <code class="docutils literal notranslate"><span class="pre">Dataset</span></code>
+containing attributes corresponding to those supplied in the
+<em>Action Reply</em>. Because <em>Action Reply</em> is optional the returned
+<code class="docutils literal notranslate"><span class="pre">Dataset</span></code> may be empty.</p>
+<p>If the status category is ‘Failure’ or if the peer timed-out,
+aborted, or sent an invalid response then returns <code class="docutils literal notranslate"><span class="pre">None</span></code>.</p>
+</li>
+</ul>
+</p>
+</dd>
+</dl>
+<div class="admonition seealso">
+<p class="admonition-title">See also</p>
+<p><code class="xref py py-meth docutils literal notranslate"><span class="pre">dimse_primitives.N_ACTION()</span></code></p>
+</div>
+<p class="rubric">References</p>
+<ul class="simple">
+<li><p>DICOM Standart Part 4, <a class="reference external" href="http://dicom.nema.org/medical/dicom/current/output/html/part04.html#chapter_F">Annex F</a></p></li>
+<li><p>DICOM Standart Part 4, <a class="reference external" href="http://dicom.nema.org/medical/dicom/current/output/html/part04.html#chapter_H">Annex H</a></p></li>
+<li><p>DICOM Standard Part 4, <a class="reference external" href="http://dicom.nema.org/medical/dicom/current/output/html/part04.html#chapter_CC">Annex CC</a></p></li>
+<li><p>DICOM Standard Part 4, <a class="reference external" href="http://dicom.nema.org/medical/dicom/current/output/html/part04.html#chapter_DD">Annex DD</a></p></li>
+<li><p>DICOM Standard Part 7, Sections
+<a class="reference external" href="http://dicom.nema.org/medical/dicom/current/output/html/part07.html#sect_10.1.3">10.1.3</a>,
+<a class="reference external" href="http://dicom.nema.org/medical/dicom/current/output/html/part07.html#sect_10.3.3">10.3.3</a>
+and <a class="reference external" href="http://dicom.nema.org/medical/dicom/current/output/html/part07.html#chapter_C">Annex C</a></p></li>
+</ul>
+</dd></dl>
+
+<dl class="method">
+<dt id="pynetdicom.association.Association.send_n_create">
+<code class="sig-name descname">send_n_create</code><span class="sig-paren">(</span><em class="sig-param">dataset</em>, <em class="sig-param">class_uid</em>, <em class="sig-param">instance_uid=None</em>, <em class="sig-param">msg_id=1</em>, <em class="sig-param">meta_uid=None</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/9b965431/pynetdicom/association.py#L2219"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom.association.Association.send_n_create" title="Permalink to this definition">¶</a></dt>
+<dd><p>Send an N-CREATE request message to the peer AE.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>dataset</strong> (<a class="reference external" href="https://pydicom.github.io/pydicom/stable/api_ref.html#pydicom.dataset.Dataset" title="(in pydicom v1.3.0)"><em>pydicom.dataset.Dataset</em></a><em> or </em><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.7)"><em>None</em></a>) – The dataset that will be sent as the <em>Attribute List</em>
+parameter in the N-CREATE request, or <code class="docutils literal notranslate"><span class="pre">None</span></code> if not required.</p></li>
+<li><p><strong>class_uid</strong> (<a class="reference external" href="https://pydicom.github.io/pydicom/stable/api_ref.html#pydicom.uid.UID" title="(in pydicom v1.3.0)"><em>pydicom.uid.UID</em></a>) – The UID to be sent for the request’s (0000,0002) <em>Affected SOP
+Class UID</em> parameter.</p></li>
+<li><p><strong>instance_uid</strong> (<a class="reference external" href="https://pydicom.github.io/pydicom/stable/api_ref.html#pydicom.uid.UID" title="(in pydicom v1.3.0)"><em>pydicom.uid.UID</em></a><em>, </em><em>optional</em>) – The UID to be sent for the request’s (0000,1000) <em>Affected SOP
+Instance UID</em> parameter.</p></li>
+<li><p><strong>msg_id</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.7)"><em>int</em></a><em>, </em><em>optional</em>) – The request’s <em>Message ID</em> parameter value, must be between 0 and
+65535, inclusive, (default 1).</p></li>
+<li><p><strong>meta_uid</strong> (<a class="reference external" href="https://pydicom.github.io/pydicom/stable/api_ref.html#pydicom.uid.UID" title="(in pydicom v1.3.0)"><em>pydicom.uid.UID</em></a><em>, </em><em>optional</em>) – If the service class operates under a presentation context
+negotiated using a <em>Meta SOP Class</em> rather than a standard <em>SOP
+Class</em> (such as with <em>Print Management</em> service class and its
+<em>Basic Grayscale Print Management Meta SOP Class</em>) then this
+value will be used to determine the corresponding presentation
+context.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><ul>
+<li><p><strong>status</strong> (<em>pydicom.dataset.Dataset</em>) – If the peer timed out, aborted or sent an invalid response then
+returns an empty <code class="docutils literal notranslate"><span class="pre">Dataset</span></code>. If a response was received from the
+peer then returns a <code class="docutils literal notranslate"><span class="pre">Dataset</span></code> containing at least a (0000,0900)
+<em>Status</em> element, and depending on the returned value, may
+optionally contain additional elements (see the DICOM Standard,
+Part 7, Section 9.1.2.1.5 and Annex C).</p>
+<p><em>General N-CREATE</em> (DICOM Standard Part 7, Section 10.1.5 and
+Annex C)</p>
+<dl>
+<dt>Success</dt><dd><div class="line-block">
+<div class="line"><code class="docutils literal notranslate"><span class="pre">0x0000</span></code> - Successful operation</div>
+</div>
+</dd>
+<dt>Failure</dt><dd><div class="line-block">
+<div class="line"><code class="docutils literal notranslate"><span class="pre">0x0110</span></code> - Processing failure</div>
+<div class="line"><code class="docutils literal notranslate"><span class="pre">0x0112</span></code> - No such SOP Instance</div>
+<div class="line"><code class="docutils literal notranslate"><span class="pre">0x0114</span></code> - No such argument</div>
+<div class="line"><code class="docutils literal notranslate"><span class="pre">0x0115</span></code> - Invalid argument value</div>
+<div class="line"><code class="docutils literal notranslate"><span class="pre">0x0117</span></code> - Invalid object instance</div>
+<div class="line"><code class="docutils literal notranslate"><span class="pre">0x0118</span></code> - No such SOP Class</div>
+<div class="line"><code class="docutils literal notranslate"><span class="pre">0x0119</span></code> - Class-Instance conflict</div>
+<div class="line"><code class="docutils literal notranslate"><span class="pre">0x0123</span></code> - No such action</div>
+<div class="line"><code class="docutils literal notranslate"><span class="pre">0x0124</span></code> - Not authorised</div>
+<div class="line"><code class="docutils literal notranslate"><span class="pre">0x0210</span></code> - Duplicate invocation</div>
+<div class="line"><code class="docutils literal notranslate"><span class="pre">0x0211</span></code> - Unrecognised operation</div>
+<div class="line"><code class="docutils literal notranslate"><span class="pre">0x0212</span></code> - Mistyped argument</div>
+<div class="line"><code class="docutils literal notranslate"><span class="pre">0x0213</span></code> - Resource limitation</div>
+</div>
+</dd>
+</dl>
+<p><em>Print Management Service</em> specific (DICOM
+Standard Part 4, Annex H.4.1.2.1.2, H.4.2.2.1.2 and H.4.9.2.1.2):</p>
+<dl>
+<dt>Warning</dt><dd><div class="line-block">
+<div class="line"><code class="docutils literal notranslate"><span class="pre">0xB600</span></code> - Memory allocation not supported</div>
+<div class="line"><code class="docutils literal notranslate"><span class="pre">0xB605</span></code> - Requested Min Density or Max Density outside of
+printer’s operating range. The printer will use its respective
+minimum or maximum density value instead</div>
+</div>
+</dd>
+<dt>Failure</dt><dd><div class="line-block">
+<div class="line"><code class="docutils literal notranslate"><span class="pre">0xC616</span></code> - There is an existing Film Box that has not been
+printed and N-ACTION at the Film Session level is not supported.
+A new Film Box will not be created when a previous Film Box has
+not been printed</div>
+</div>
+</dd>
+</dl>
+<p><em>Media Creation Management Service</em> specific (DICOM
+Standard Part 4, Annex S.3.2.1.4):</p>
+<dl>
+<dt>Failure</dt><dd><div class="line-block">
+<div class="line"><code class="docutils literal notranslate"><span class="pre">0xA510</span></code> - Failed: an initiate media creation action has already been
+received for this SOP Instance</div>
+</div>
+</dd>
+</dl>
+<p><em>Unified Procedure Step Service</em> specific (DICOM
+Standard Part 4, Annex CC.2.5.4):</p>
+<dl>
+<dt>Warning</dt><dd><div class="line-block">
+<div class="line"><code class="docutils literal notranslate"><span class="pre">0xB300</span></code> - THE UPS was created with modifications</div>
+</div>
+</dd>
+<dt>Failure</dt><dd><div class="line-block">
+<div class="line"><code class="docutils literal notranslate"><span class="pre">0xC309</span></code> - The provided value of UPS State was not ‘SCHEDULED’</div>
+</div>
+</dd>
+</dl>
+<p><em>RT Machine Verification Service</em> specific (DICOM
+Standard Part 4, Annex DD.3.2.1.2):</p>
+<dl>
+<dt>Failure</dt><dd><div class="line-block">
+<div class="line"><code class="docutils literal notranslate"><span class="pre">0xC221</span></code> - The Referenced Fraction Group Number does not exist in the
+referenced plan</div>
+<div class="line"><code class="docutils literal notranslate"><span class="pre">0xC222</span></code> - No beams exist within the referenced fraction group</div>
+<div class="line"><code class="docutils literal notranslate"><span class="pre">0xC223</span></code> - SCU already verifying and cannot currently process this
+request</div>
+<div class="line"><code class="docutils literal notranslate"><span class="pre">0xC227</span></code> - No such object instance - Referenced RT Plan not found</div>
+</div>
+</dd>
+</dl>
+</li>
+<li><p><strong>attribute_list</strong> (<em>pydicom.dataset.Dataset or None</em>) – If the status category is ‘Success’ or ‘Warning’ then a <code class="docutils literal notranslate"><span class="pre">Dataset</span></code>
+containing attributes corresponding to those supplied in the
+<em>Attribute List</em>. Because <em>Attribute List</em> is optional the returned
+<code class="docutils literal notranslate"><span class="pre">Dataset</span></code> may be empty.</p>
+<p>If the status category is ‘Failure’ or if the peer timed-out,
+aborted, or sent an invalid response then returns <code class="docutils literal notranslate"><span class="pre">None</span></code>.</p>
+</li>
+</ul>
+</p>
+</dd>
+</dl>
+<div class="admonition seealso">
+<p class="admonition-title">See also</p>
+<p><code class="xref py py-meth docutils literal notranslate"><span class="pre">dimse_primitives.N_CREATE()</span></code></p>
+</div>
+<p class="rubric">References</p>
+<ul class="simple">
+<li><p>DICOM Standart Part 4, <a class="reference external" href="http://dicom.nema.org/medical/dicom/current/output/html/part04.html#chapter_F">Annex F</a></p></li>
+<li><p>DICOM Standart Part 4, <a class="reference external" href="http://dicom.nema.org/medical/dicom/current/output/html/part04.html#chapter_H">Annex H</a></p></li>
+<li><p>DICOM Standard Part 4, <a class="reference external" href="http://dicom.nema.org/medical/dicom/current/output/html/part04.html#chapter_CC">Annex CC</a></p></li>
+<li><p>DICOM Standard Part 4, <a class="reference external" href="http://dicom.nema.org/medical/dicom/current/output/html/part04.html#chapter_DD">Annex DD</a></p></li>
+<li><p>DICOM Standard Part 7, Sections
+<a class="reference external" href="http://dicom.nema.org/medical/dicom/current/output/html/part07.html#sect_10.1.5">10.1.5</a>,
+<a class="reference external" href="http://dicom.nema.org/medical/dicom/current/output/html/part07.html#sect_10.3.5">10.3.5</a>
+and <a class="reference external" href="http://dicom.nema.org/medical/dicom/current/output/html/part07.html#chapter_C">Annex C</a></p></li>
+</ul>
+</dd></dl>
+
+<dl class="method">
+<dt id="pynetdicom.association.Association.send_n_delete">
+<code class="sig-name descname">send_n_delete</code><span class="sig-paren">(</span><em class="sig-param">class_uid</em>, <em class="sig-param">instance_uid</em>, <em class="sig-param">msg_id=1</em>, <em class="sig-param">meta_uid=None</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/9b965431/pynetdicom/association.py#L2432"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom.association.Association.send_n_delete" title="Permalink to this definition">¶</a></dt>
+<dd><p>Send an N-DELETE request message to the peer AE.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>class_uid</strong> (<a class="reference external" href="https://pydicom.github.io/pydicom/stable/api_ref.html#pydicom.uid.UID" title="(in pydicom v1.3.0)"><em>pydicom.uid.UID</em></a>) – The UID to be sent for the request’s (0000,0003) <em>Requested SOP
+Class UID</em> parameter.</p></li>
+<li><p><strong>instance_uid</strong> (<a class="reference external" href="https://pydicom.github.io/pydicom/stable/api_ref.html#pydicom.uid.UID" title="(in pydicom v1.3.0)"><em>pydicom.uid.UID</em></a>) – The UID to be sent for the request’s (0000,1001) <em>Requested SOP
+Instance UID</em> parameter.</p></li>
+<li><p><strong>msg_id</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.7)"><em>int</em></a><em>, </em><em>optional</em>) – The request’s <em>Message ID</em> parameter value, must be between 0 and
+65535, inclusive, (default 1).</p></li>
+<li><p><strong>meta_uid</strong> (<a class="reference external" href="https://pydicom.github.io/pydicom/stable/api_ref.html#pydicom.uid.UID" title="(in pydicom v1.3.0)"><em>pydicom.uid.UID</em></a><em>, </em><em>optional</em>) – If the service class operates under a presentation context
+negotiated using a <em>Meta SOP Class</em> rather than a standard <em>SOP
+Class</em> (such as with <em>Print Management</em> service class and its
+<em>Basic Grayscale Print Management Meta SOP Class</em>) then this
+value will be used to determine the corresponding presentation
+context.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><p><strong>status</strong> – If the peer timed out, aborted or sent an invalid response then
+returns an empty <code class="docutils literal notranslate"><span class="pre">Dataset</span></code>. If a response was received from the
+peer then returns a <code class="docutils literal notranslate"><span class="pre">Dataset</span></code> containing at least a (0000,0900)
+<em>Status</em> element, and depending on the returned value, may
+optionally contain additional elements (see the DICOM Standard,
+Part 7, Section 9.1.2.1.5 and Annex C).</p>
+<p>General N-DELETE (DICOM Standard Part 7, Section 10.1.6 and
+Annex C)</p>
+<dl>
+<dt>Success</dt><dd><div class="line-block">
+<div class="line"><code class="docutils literal notranslate"><span class="pre">0x0000</span></code> - Successful operation</div>
+</div>
+</dd>
+<dt>Failure</dt><dd><div class="line-block">
+<div class="line"><code class="docutils literal notranslate"><span class="pre">0x0110</span></code> - Processing failure</div>
+<div class="line"><code class="docutils literal notranslate"><span class="pre">0x0112</span></code> - No such SOP Instance</div>
+<div class="line"><code class="docutils literal notranslate"><span class="pre">0x0117</span></code> - Invalid object instance</div>
+<div class="line"><code class="docutils literal notranslate"><span class="pre">0x0118</span></code> - No such SOP Class</div>
+<div class="line"><code class="docutils literal notranslate"><span class="pre">0x0119</span></code> - Class-Instance conflict</div>
+<div class="line"><code class="docutils literal notranslate"><span class="pre">0x0124</span></code> - Not authorised</div>
+<div class="line"><code class="docutils literal notranslate"><span class="pre">0x0210</span></code> - Duplicate invocation</div>
+<div class="line"><code class="docutils literal notranslate"><span class="pre">0x0211</span></code> - Unrecognised operation</div>
+<div class="line"><code class="docutils literal notranslate"><span class="pre">0x0212</span></code> - Mistyped argument</div>
+<div class="line"><code class="docutils literal notranslate"><span class="pre">0x0213</span></code> - Resource limitation</div>
+</div>
+</dd>
+</dl>
+</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p><a class="reference external" href="https://pydicom.github.io/pydicom/stable/api_ref.html#pydicom.dataset.Dataset" title="(in pydicom v1.3.0)">pydicom.dataset.Dataset</a></p>
+</dd>
+</dl>
+<div class="admonition seealso">
+<p class="admonition-title">See also</p>
+<p><code class="xref py py-meth docutils literal notranslate"><span class="pre">dimse_primitives.N_DELETE()</span></code></p>
+</div>
+<p class="rubric">References</p>
+<ul class="simple">
+<li><p>DICOM Standart Part 4, <a class="reference external" href="http://dicom.nema.org/medical/dicom/current/output/html/part04.html#chapter_H">Annex H</a></p></li>
+<li><p>DICOM Standard Part 4, <a class="reference external" href="http://dicom.nema.org/medical/dicom/current/output/html/part04.html#chapter_DD">Annex DD</a></p></li>
+<li><p>DICOM Standard Part 7, Sections
+<a class="reference external" href="http://dicom.nema.org/medical/dicom/current/output/html/part07.html#sect_10.1.6">10.1.6</a>,
+<a class="reference external" href="http://dicom.nema.org/medical/dicom/current/output/html/part07.html#sect_10.3.6">10.3.6</a>
+and <a class="reference external" href="http://dicom.nema.org/medical/dicom/current/output/html/part07.html#chapter_C">Annex C</a></p></li>
+</ul>
+</dd></dl>
+
+<dl class="method">
+<dt id="pynetdicom.association.Association.send_n_event_report">
+<code class="sig-name descname">send_n_event_report</code><span class="sig-paren">(</span><em class="sig-param">dataset</em>, <em class="sig-param">event_type</em>, <em class="sig-param">class_uid</em>, <em class="sig-param">instance_uid</em>, <em class="sig-param">msg_id=1</em>, <em class="sig-param">meta_uid=None</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/9b965431/pynetdicom/association.py#L2540"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom.association.Association.send_n_event_report" title="Permalink to this definition">¶</a></dt>
+<dd><p>Send an N-EVENT-REPORT request message to the peer AE.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>dataset</strong> (<a class="reference external" href="https://pydicom.github.io/pydicom/stable/api_ref.html#pydicom.dataset.Dataset" title="(in pydicom v1.3.0)"><em>pydicom.dataset.Dataset</em></a><em> or </em><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.7)"><em>None</em></a>) – The dataset that will be sent as the <em>Event Information</em> parameter
+in the N-EVENT-REPORT request, if no <em>Event Information</em> parameter
+is needed then <code class="docutils literal notranslate"><span class="pre">None</span></code>.</p></li>
+<li><p><strong>event_type</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.7)"><em>int</em></a>) – The value to be sent for the request’s (0000,1002) <em>Event Type ID</em>
+parameter.</p></li>
+<li><p><strong>class_uid</strong> (<a class="reference external" href="https://pydicom.github.io/pydicom/stable/api_ref.html#pydicom.uid.UID" title="(in pydicom v1.3.0)"><em>pydicom.uid.UID</em></a>) – The UID to be sent for the request’s (0000,0003) <em>Affected SOP
+Class UID</em> parameter.</p></li>
+<li><p><strong>instance_uid</strong> (<a class="reference external" href="https://pydicom.github.io/pydicom/stable/api_ref.html#pydicom.uid.UID" title="(in pydicom v1.3.0)"><em>pydicom.uid.UID</em></a>) – The UID to be sent for the request’s (0000,1000) <em>Affected SOP
+Instance UID</em> parameter.</p></li>
+<li><p><strong>msg_id</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.7)"><em>int</em></a><em>, </em><em>optional</em>) – The request’s <em>Message ID</em> parameter value, must be between 0 and
+65535, inclusive, (default 1).</p></li>
+<li><p><strong>meta_uid</strong> (<a class="reference external" href="https://pydicom.github.io/pydicom/stable/api_ref.html#pydicom.uid.UID" title="(in pydicom v1.3.0)"><em>pydicom.uid.UID</em></a><em>, </em><em>optional</em>) – If the service class operates under a presentation context
+negotiated using a <em>Meta SOP Class</em> rather than a standard <em>SOP
+Class</em> (such as with <em>Print Management</em> service class and its
+<em>Basic Grayscale Print Management Meta SOP Class</em>) then this
+value will be used to determine the corresponding presentation
+context.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><ul>
+<li><p><strong>status</strong> (<em>pydicom.dataset.Dataset</em>) – If the peer timed out, aborted or sent an invalid response then
+returns an empty <code class="docutils literal notranslate"><span class="pre">Dataset</span></code>. If a response was received from the
+peer then returns a <code class="docutils literal notranslate"><span class="pre">Dataset</span></code> containing at least a (0000,0900)
+<em>Status</em> element, and depending on the returned value, may
+optionally contain additional elements (see the DICOM Standard,
+Part 7, Section 9.1.2.1.5 and Annex C).</p>
+<p><em>General N-EVENT-REPORT</em> (DICOM Standard Part 7, Section 10.1.1
+and Annex C)</p>
+<dl>
+<dt>Success</dt><dd><div class="line-block">
+<div class="line"><code class="docutils literal notranslate"><span class="pre">0x0000</span></code> - Successful operation</div>
+</div>
+</dd>
+<dt>Failure</dt><dd><div class="line-block">
+<div class="line"><code class="docutils literal notranslate"><span class="pre">0x0110</span></code> - Processing failure</div>
+<div class="line"><code class="docutils literal notranslate"><span class="pre">0x0112</span></code> - No such SOP Instance</div>
+<div class="line"><code class="docutils literal notranslate"><span class="pre">0x0113</span></code> - No such event type</div>
+<div class="line"><code class="docutils literal notranslate"><span class="pre">0x0114</span></code> - No such argument</div>
+<div class="line"><code class="docutils literal notranslate"><span class="pre">0x0115</span></code> - Invalid argument value</div>
+<div class="line"><code class="docutils literal notranslate"><span class="pre">0x0117</span></code> - Invalid object instance</div>
+<div class="line"><code class="docutils literal notranslate"><span class="pre">0x0118</span></code> - No such SOP Class</div>
+<div class="line"><code class="docutils literal notranslate"><span class="pre">0x0119</span></code> - Class-Instance conflict</div>
+<div class="line"><code class="docutils literal notranslate"><span class="pre">0x0210</span></code> - Duplicate invocation</div>
+<div class="line"><code class="docutils literal notranslate"><span class="pre">0x0211</span></code> - Unrecognised operation</div>
+<div class="line"><code class="docutils literal notranslate"><span class="pre">0x0212</span></code> - Mistyped argument</div>
+<div class="line"><code class="docutils literal notranslate"><span class="pre">0x0213</span></code> - Resource limitation</div>
+</div>
+</dd>
+</dl>
+</li>
+<li><p><strong>event_reply</strong> (<em>pydicom.dataset.Dataset or None</em>) – If the status category is ‘Success’ or ‘Warning’ then a <code class="docutils literal notranslate"><span class="pre">Dataset</span></code>
+containing attributes corresponding to those supplied in the
+<em>Event Reply</em>. Because <em>Event Reply</em> is optional the returned
+<code class="docutils literal notranslate"><span class="pre">Dataset</span></code> may be empty.</p>
+<p>If the status category is ‘Failure’ or if the peer timed-out,
+aborted, or sent an invalid response then returns <code class="docutils literal notranslate"><span class="pre">None</span></code>.</p>
+</li>
+</ul>
+</p>
+</dd>
+</dl>
+<div class="admonition seealso">
+<p class="admonition-title">See also</p>
+<p><code class="xref py py-meth docutils literal notranslate"><span class="pre">dimse_primitives.N_EVENT_REPORT()</span></code></p>
+</div>
+<p class="rubric">References</p>
+<ul class="simple">
+<li><p>DICOM Standart Part 4, <a class="reference external" href="http://dicom.nema.org/medical/dicom/current/output/html/part04.html#chapter_F">Annex F</a></p></li>
+<li><p>DICOM Standart Part 4, <a class="reference external" href="http://dicom.nema.org/medical/dicom/current/output/html/part04.html#chapter_H">Annex H</a></p></li>
+<li><p>DICOM Standart Part 4, <a class="reference external" href="http://dicom.nema.org/medical/dicom/current/output/html/part04.html#chapter_J">Annex J</a></p></li>
+<li><p>DICOM Standard Part 4, <a class="reference external" href="http://dicom.nema.org/medical/dicom/current/output/html/part04.html#chapter_CC">Annex CC</a></p></li>
+<li><p>DICOM Standard Part 4, <a class="reference external" href="http://dicom.nema.org/medical/dicom/current/output/html/part04.html#chapter_DD">Annex DD</a></p></li>
+<li><p>DICOM Standard Part 7, Sections
+<a class="reference external" href="http://dicom.nema.org/medical/dicom/current/output/html/part07.html#sect_10.1.1">10.1.1</a>,
+<a class="reference external" href="http://dicom.nema.org/medical/dicom/current/output/html/part07.html#sect_10.3.1">10.3.1</a>
+and <a class="reference external" href="http://dicom.nema.org/medical/dicom/current/output/html/part07.html#chapter_C">Annex C</a></p></li>
+</ul>
+</dd></dl>
+
+<dl class="method">
+<dt id="pynetdicom.association.Association.send_n_get">
+<code class="sig-name descname">send_n_get</code><span class="sig-paren">(</span><em class="sig-param">identifier_list</em>, <em class="sig-param">class_uid</em>, <em class="sig-param">instance_uid</em>, <em class="sig-param">msg_id=1</em>, <em class="sig-param">meta_uid=None</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/9b965431/pynetdicom/association.py#L2722"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom.association.Association.send_n_get" title="Permalink to this definition">¶</a></dt>
+<dd><p>Send an N-GET request message to the peer AE.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>identifier_list</strong> (<em>list of pydicom.tag.Tag</em>) – A list of DICOM Data Element tags to be sent for the request’s
+(0000,1005) <em>Attribute Identifier List</em> parameter. Should either be
+a list of pydicom <code class="docutils literal notranslate"><span class="pre">Tag</span></code> objects or a list of values that is
+acceptable for creating pydicom <code class="docutils literal notranslate"><span class="pre">Tag</span></code> objects.</p></li>
+<li><p><strong>class_uid</strong> (<a class="reference external" href="https://pydicom.github.io/pydicom/stable/api_ref.html#pydicom.uid.UID" title="(in pydicom v1.3.0)"><em>pydicom.uid.UID</em></a>) – The UID to be sent for the request’s (0000,0003) <em>Requested SOP
+Class UID</em> parameter.</p></li>
+<li><p><strong>instance_uid</strong> (<a class="reference external" href="https://pydicom.github.io/pydicom/stable/api_ref.html#pydicom.uid.UID" title="(in pydicom v1.3.0)"><em>pydicom.uid.UID</em></a>) – The UID to be sent for the request’s (0000,1001) <em>Requested SOP
+Instance UID</em> parameter.</p></li>
+<li><p><strong>msg_id</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.7)"><em>int</em></a><em>, </em><em>optional</em>) – The request’s <em>Message ID</em> parameter value, must be between 0 and
+65535, inclusive, (default 1).</p></li>
+<li><p><strong>meta_uid</strong> (<a class="reference external" href="https://pydicom.github.io/pydicom/stable/api_ref.html#pydicom.uid.UID" title="(in pydicom v1.3.0)"><em>pydicom.uid.UID</em></a><em>, </em><em>optional</em>) – If the service class operates under a presentation context
+negotiated using a <em>Meta SOP Class</em> rather than a standard <em>SOP
+Class</em> (such as with <em>Print Management</em> service class and its
+<em>Basic Grayscale Print Management Meta SOP Class</em>) then this
+value will be used to determine the corresponding presentation
+context.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><ul>
+<li><p><strong>status</strong> (<em>pydicom.dataset.Dataset</em>) – If the peer timed out, aborted or sent an invalid response then
+returns an empty <code class="docutils literal notranslate"><span class="pre">Dataset</span></code>. If a response was received from the
+peer then returns a <code class="docutils literal notranslate"><span class="pre">Dataset</span></code> containing at least a (0000,0900)
+<em>Status</em> element, and depending on the returned value, may
+optionally contain additional elements (see the DICOM Standard,
+Part 7, Section 9.1.2.1.5 and Annex C).</p>
+<p><em>General N-GET</em> (DICOM Standard Part 7, Section 10.1.2 and Annex C)</p>
+<dl>
+<dt>Success</dt><dd><div class="line-block">
+<div class="line"><code class="docutils literal notranslate"><span class="pre">0x0000</span></code> - Successful operation</div>
+</div>
+</dd>
+<dt>Warning</dt><dd><div class="line-block">
+<div class="line"><code class="docutils literal notranslate"><span class="pre">0x0107</span></code> - Attribute list error</div>
+</div>
+</dd>
+<dt>Failure</dt><dd><div class="line-block">
+<div class="line"><code class="docutils literal notranslate"><span class="pre">0x0110</span></code> - Processing failure</div>
+<div class="line"><code class="docutils literal notranslate"><span class="pre">0x0112</span></code> - No such SOP Instance</div>
+<div class="line"><code class="docutils literal notranslate"><span class="pre">0x0117</span></code> - Invalid object instance</div>
+<div class="line"><code class="docutils literal notranslate"><span class="pre">0x0118</span></code> - No such SOP Class</div>
+<div class="line"><code class="docutils literal notranslate"><span class="pre">0x0119</span></code> - Class-Instance conflict</div>
+<div class="line"><code class="docutils literal notranslate"><span class="pre">0x0122</span></code> - SOP class not supported</div>
+<div class="line"><code class="docutils literal notranslate"><span class="pre">0x0124</span></code> - Not authorised</div>
+<div class="line"><code class="docutils literal notranslate"><span class="pre">0x0210</span></code> - Duplicate invocation</div>
+<div class="line"><code class="docutils literal notranslate"><span class="pre">0x0211</span></code> - Unrecognised operation</div>
+<div class="line"><code class="docutils literal notranslate"><span class="pre">0x0212</span></code> - Mistyped argument</div>
+<div class="line"><code class="docutils literal notranslate"><span class="pre">0x0213</span></code> - Resource limitation</div>
+</div>
+</dd>
+</dl>
+<p><em>Modality Performed Procedure Step Management Service</em> and <em>Media
+Creation Management Service</em> specific
+(DICOM Standard Part 4, Annex F.8.2.1.4 and Annex S.3.2.4.4):</p>
+<dl>
+<dt>Warning</dt><dd><div class="line-block">
+<div class="line"><code class="docutils literal notranslate"><span class="pre">0x0001</span></code> - Requested optional Attributes are not supported</div>
+</div>
+</dd>
+</dl>
+<p><em>Unified Procedure Step Service</em> specific
+(DICOM Standard Part 4, Annex CC.2.7.4):</p>
+<dl>
+<dt>Warning</dt><dd><div class="line-block">
+<div class="line"><code class="docutils literal notranslate"><span class="pre">0x0001</span></code> - Requested optional Attributes are not supported</div>
+</div>
+</dd>
+<dt>Failure</dt><dd><div class="line-block">
+<div class="line"><code class="docutils literal notranslate"><span class="pre">0xC307</span></code> - Specified SOP Instance UID doesn’t exist or is not
+a UPS Instance managed by this SCP</div>
+</div>
+</dd>
+</dl>
+<p><em>RT Machine Verification Service</em> specific
+(DICOM Standard Part 4, Annex DD.3.2.2.3):</p>
+<dl>
+<dt>Failure</dt><dd><div class="line-block">
+<div class="line"><code class="docutils literal notranslate"><span class="pre">0xC112</span></code> - Applicable Machine Verification Instance not found</div>
+</div>
+</dd>
+</dl>
+</li>
+<li><p><strong>attribute_list</strong> (<em>pydicom.dataset.Dataset or None</em>) – If the status category is ‘Success’ or ‘Warning’ then a <code class="docutils literal notranslate"><span class="pre">Dataset</span></code>
+containing attributes corresponding to those supplied in the
+<em>Attribute List</em>. Because <em>Attribute List</em> is optional the returned
+<code class="docutils literal notranslate"><span class="pre">Dataset</span></code> may be empty.</p>
+<p>If the status category is ‘Failure’ or if the peer timed-out,
+aborted, or sent an invalid response then returns <code class="docutils literal notranslate"><span class="pre">None</span></code>.</p>
+</li>
+</ul>
+</p>
+</dd>
+</dl>
+<div class="admonition seealso">
+<p class="admonition-title">See also</p>
+<p><code class="xref py py-meth docutils literal notranslate"><span class="pre">dimse_primitives.N_GET()</span></code>, <code class="xref py py-meth docutils literal notranslate"><span class="pre">service_class.DisplaySystemManagementServiceClass()</span></code></p>
+</div>
+<p class="rubric">References</p>
+<ul class="simple">
+<li><p>DICOM Standart Part 4, <a class="reference external" href="http://dicom.nema.org/medical/dicom/current/output/html/part04.html#chapter_F">Annex F</a></p></li>
+<li><p>DICOM Standart Part 4, <a class="reference external" href="http://dicom.nema.org/medical/dicom/current/output/html/part04.html#chapter_H">Annex H</a></p></li>
+<li><p>DICOM Standard Part 4, <a class="reference external" href="http://dicom.nema.org/medical/dicom/current/output/html/part04.html#chapter_S">Annex S</a></p></li>
+<li><p>DICOM Standard Part 4, <a class="reference external" href="http://dicom.nema.org/medical/dicom/current/output/html/part04.html#chapter_CC">Annex CC</a></p></li>
+<li><p>DICOM Standard Part 4, <a class="reference external" href="http://dicom.nema.org/medical/dicom/current/output/html/part04.html#chapter_DD">Annex DD</a></p></li>
+<li><p>DICOM Standard Part 4, <a class="reference external" href="http://dicom.nema.org/medical/dicom/current/output/html/part04.html#chapter_EE">Annex EE</a></p></li>
+<li><p>DICOM Standard Part 7, Sections
+<a class="reference external" href="http://dicom.nema.org/medical/dicom/current/output/html/part07.html#sect_10.1.2">10.1.2</a>,
+<a class="reference external" href="http://dicom.nema.org/medical/dicom/current/output/html/part07.html#sect_10.3.2">10.3.2</a>
+and <a class="reference external" href="http://dicom.nema.org/medical/dicom/current/output/html/part07.html#chapter_C">Annex C</a></p></li>
+</ul>
+</dd></dl>
+
+<dl class="method">
+<dt id="pynetdicom.association.Association.send_n_set">
+<code class="sig-name descname">send_n_set</code><span class="sig-paren">(</span><em class="sig-param">dataset</em>, <em class="sig-param">class_uid</em>, <em class="sig-param">instance_uid</em>, <em class="sig-param">msg_id=1</em>, <em class="sig-param">meta_uid=None</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/9b965431/pynetdicom/association.py#L2907"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom.association.Association.send_n_set" title="Permalink to this definition">¶</a></dt>
+<dd><p>Send an N-SET request message to the peer AE.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>dataset</strong> (<a class="reference external" href="https://pydicom.github.io/pydicom/stable/api_ref.html#pydicom.dataset.Dataset" title="(in pydicom v1.3.0)"><em>pydicom.dataset.Dataset</em></a>) – The dataset that will be sent as the <em>Modification List</em> parameter
+in the N-SET request.</p></li>
+<li><p><strong>class_uid</strong> (<a class="reference external" href="https://pydicom.github.io/pydicom/stable/api_ref.html#pydicom.uid.UID" title="(in pydicom v1.3.0)"><em>pydicom.uid.UID</em></a>) – The UID to be sent for the request’s (0000,0003) <em>Requested SOP
+Class UID</em> parameter.</p></li>
+<li><p><strong>instance_uid</strong> (<a class="reference external" href="https://pydicom.github.io/pydicom/stable/api_ref.html#pydicom.uid.UID" title="(in pydicom v1.3.0)"><em>pydicom.uid.UID</em></a>) – The UID to be sent for the request’s (0000,1001) <em>Requested SOP
+Instance UID</em> parameter.</p></li>
+<li><p><strong>msg_id</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.7)"><em>int</em></a><em>, </em><em>optional</em>) – The request’s <em>Message ID</em> parameter value, must be between 0 and
+65535, inclusive, (default 1).</p></li>
+<li><p><strong>meta_uid</strong> (<a class="reference external" href="https://pydicom.github.io/pydicom/stable/api_ref.html#pydicom.uid.UID" title="(in pydicom v1.3.0)"><em>pydicom.uid.UID</em></a><em>, </em><em>optional</em>) – If the service class operates under a presentation context
+negotiated using a <em>Meta SOP Class</em> rather than a standard <em>SOP
+Class</em> (such as with <em>Print Management</em> service class and its
+<em>Basic Grayscale Print Management Meta SOP Class</em>) then this
+value will be used to determine the corresponding presentation
+context.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><ul>
+<li><p><strong>status</strong> (<em>pydicom.dataset.Dataset</em>) – If the peer timed out, aborted or sent an invalid response then
+returns an empty <code class="docutils literal notranslate"><span class="pre">Dataset</span></code>. If a response was received from the
+peer then returns a <code class="docutils literal notranslate"><span class="pre">Dataset</span></code> containing at least a (0000,0900)
+<em>Status</em> element, and depending on the returned value, may
+optionally contain additional elements (see the DICOM Standard,
+Part 7, Section 9.1.2.1.5 and Annex C).</p>
+<p><em>General N-SET</em> (DICOM Standard Part 7, Section 10.1.3 and Annex C)</p>
+<dl>
+<dt>Success</dt><dd><div class="line-block">
+<div class="line"><code class="docutils literal notranslate"><span class="pre">0x0000</span></code> - Successful operation</div>
+</div>
+</dd>
+<dt>Warning</dt><dd><div class="line-block">
+<div class="line"><code class="docutils literal notranslate"><span class="pre">0x0107</span></code> - Attribute list error</div>
+<div class="line"><code class="docutils literal notranslate"><span class="pre">0x0116</span></code> - Attribute value out of range</div>
+</div>
+</dd>
+<dt>Failure</dt><dd><div class="line-block">
+<div class="line"><code class="docutils literal notranslate"><span class="pre">0x0105</span></code> - No such attribute</div>
+<div class="line"><code class="docutils literal notranslate"><span class="pre">0x0106</span></code> - Invalid attribute value</div>
+<div class="line"><code class="docutils literal notranslate"><span class="pre">0x0110</span></code> - Processing failure</div>
+<div class="line"><code class="docutils literal notranslate"><span class="pre">0x0112</span></code> - No such SOP Instance</div>
+<div class="line"><code class="docutils literal notranslate"><span class="pre">0x0117</span></code> - Invalid object instance</div>
+<div class="line"><code class="docutils literal notranslate"><span class="pre">0x0118</span></code> - No such SOP Class</div>
+<div class="line"><code class="docutils literal notranslate"><span class="pre">0x0119</span></code> - Class-Instance conflict</div>
+<div class="line"><code class="docutils literal notranslate"><span class="pre">0x0121</span></code> - Missing attribute value</div>
+<div class="line"><code class="docutils literal notranslate"><span class="pre">0x0122</span></code> - SOP class not supported</div>
+<div class="line"><code class="docutils literal notranslate"><span class="pre">0x0124</span></code> - Not authorised</div>
+<div class="line"><code class="docutils literal notranslate"><span class="pre">0x0210</span></code> - Duplicate invocation</div>
+<div class="line"><code class="docutils literal notranslate"><span class="pre">0x0211</span></code> - Unrecognised operation</div>
+<div class="line"><code class="docutils literal notranslate"><span class="pre">0x0212</span></code> - Mistyped argument</div>
+<div class="line"><code class="docutils literal notranslate"><span class="pre">0x0213</span></code> - Resource limitation</div>
+</div>
+</dd>
+</dl>
+<p><em>Print Management Service</em> specific (DICOM
+Standard Part 4, Annex H.4.1.2.1.2, H.4.2.2.1.2, H.4.3.1.2.1.2 and
+H.4.3.2.2.1.2):</p>
+<dl>
+<dt>Warning</dt><dd><div class="line-block">
+<div class="line"><code class="docutils literal notranslate"><span class="pre">0xB600</span></code> - Memory allocation not supported</div>
+<div class="line"><code class="docutils literal notranslate"><span class="pre">0xB604</span></code> - Image size larger than image box size, the image
+has been demagnified</div>
+<div class="line"><code class="docutils literal notranslate"><span class="pre">0xB605</span></code> - Requested Min Density or Max Density outside of
+printer’s operating range. The printer will use its respective
+minimum or maximum density value instead</div>
+<div class="line"><code class="docutils literal notranslate"><span class="pre">0xB609</span></code> - Image size is larger than the Image Box. The Image
+has been cropped to fit</div>
+<div class="line"><code class="docutils literal notranslate"><span class="pre">0xB60A</span></code> - Image size or Combined Print Image size is larger
+than the Image Box size. The Image or Combined Print Image has
+been decimated to fit</div>
+</div>
+</dd>
+<dt>Failure</dt><dd><div class="line-block">
+<div class="line"><code class="docutils literal notranslate"><span class="pre">0xC603</span></code> - Image size is larger than image box size</div>
+<div class="line"><code class="docutils literal notranslate"><span class="pre">0xC605</span></code> - Insufficient memory in printer to store the image</div>
+<div class="line"><code class="docutils literal notranslate"><span class="pre">0xC613</span></code> - Combined Print Image size is larger than the Image
+Box size</div>
+<div class="line"><code class="docutils literal notranslate"><span class="pre">0xC616</span></code> - There is an existing Film Box that has not been
+printed and N-ACTION at the Film Session level is not
+supported. A new Film Box will not be created when a previous
+Film Box has not been printed</div>
+</div>
+</dd>
+</dl>
+<p><em>Unified Procedure Step Service</em> specific (DICOM Standard Part 4,
+Annex CC.2.6.4):</p>
+<dl>
+<dt>Warning</dt><dd><div class="line-block">
+<div class="line"><code class="docutils literal notranslate"><span class="pre">0x0001</span></code> - Requested optional attributes are not supported</div>
+<div class="line"><code class="docutils literal notranslate"><span class="pre">0xB305</span></code> - Coerced invalid values to valid values</div>
+</div>
+</dd>
+<dt>Failure</dt><dd><div class="line-block">
+<div class="line"><code class="docutils literal notranslate"><span class="pre">0xC300</span></code> - The UPS may no longer be updated</div>
+<div class="line"><code class="docutils literal notranslate"><span class="pre">0xC301</span></code> - The correct Transaction UID was not provided</div>
+<div class="line"><code class="docutils literal notranslate"><span class="pre">0xC307</span></code> - Specified SOP Instance UID does not exist or is
+not a UPS Instance managed by this SCP</div>
+<div class="line"><code class="docutils literal notranslate"><span class="pre">0xC310</span></code> - The UPS is not in the ‘IN PROGRESS’ state</div>
+</div>
+</dd>
+</dl>
+<p><em>RT Machine Verification Service</em> specific (DICOM Standard Part 4,
+Annex DD.3.2.1.2):</p>
+<dl>
+<dt>Failure</dt><dd><div class="line-block">
+<div class="line"><code class="docutils literal notranslate"><span class="pre">0xC224</span></code> - Reference Beam Number not found within the
+referenced Fraction Group</div>
+<div class="line"><code class="docutils literal notranslate"><span class="pre">0xC225</span></code> - Referenced device or accessory not supported</div>
+<div class="line"><code class="docutils literal notranslate"><span class="pre">0xC226</span></code> - Referenced device or accessory not found with the
+referenced beam</div>
+</div>
+</dd>
+</dl>
+</li>
+<li><p><strong>attribute_list</strong> (<em>pydicom.dataset.Dataset or None</em>) – If the status category is ‘Success’ or ‘Warning’ then a <code class="docutils literal notranslate"><span class="pre">Dataset</span></code>
+containing attributes corresponding to those supplied in the
+<em>Attribute List</em>. Because <em>Attribute List</em> is optional the returned
+<code class="docutils literal notranslate"><span class="pre">Dataset</span></code> may be empty.</p>
+<p>If the status category is ‘Failure’ or if the peer timed-out,
+aborted, or sent an invalid response then returns <code class="docutils literal notranslate"><span class="pre">None</span></code>.</p>
+</li>
+</ul>
+</p>
+</dd>
+</dl>
+<div class="admonition seealso">
+<p class="admonition-title">See also</p>
+<p><code class="xref py py-meth docutils literal notranslate"><span class="pre">dimse_primitives.N_SET()</span></code></p>
+</div>
+<p class="rubric">References</p>
+<ul class="simple">
+<li><p>DICOM Standart Part 4, <a class="reference external" href="http://dicom.nema.org/medical/dicom/current/output/html/part04.html#chapter_F">Annex F</a></p></li>
+<li><p>DICOM Standart Part 4, <a class="reference external" href="http://dicom.nema.org/medical/dicom/current/output/html/part04.html#chapter_H">Annex H</a></p></li>
+<li><p>DICOM Standard Part 4, <a class="reference external" href="http://dicom.nema.org/medical/dicom/current/output/html/part04.html#chapter_CC">Annex CC</a></p></li>
+<li><p>DICOM Standard Part 4, <a class="reference external" href="http://dicom.nema.org/medical/dicom/current/output/html/part04.html#chapter_DD">Annex DD</a></p></li>
+<li><p>DICOM Standard Part 7, Sections
+<a class="reference external" href="http://dicom.nema.org/medical/dicom/current/output/html/part07.html#sect_10.1.3">10.1.3</a>,
+<a class="reference external" href="http://dicom.nema.org/medical/dicom/current/output/html/part07.html#sect_10.3.3">10.3.3</a>
+and <a class="reference external" href="http://dicom.nema.org/medical/dicom/current/output/html/part07.html#chapter_C">Annex C</a></p></li>
+</ul>
+</dd></dl>
+
+<dl class="method">
+<dt id="pynetdicom.association.Association.set_socket">
+<code class="sig-name descname">set_socket</code><span class="sig-paren">(</span><em class="sig-param">socket</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/9b965431/pynetdicom/association.py#L608"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom.association.Association.set_socket" title="Permalink to this definition">¶</a></dt>
+<dd><p>Set the socket to use for communicating with the peer.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>socket</strong> (<a class="reference internal" href="pynetdicom.transport.AssociationSocket.html#pynetdicom.transport.AssociationSocket" title="pynetdicom.transport.AssociationSocket"><em>transport.AssociationSocket</em></a>) – The socket to use.</p>
+</dd>
+<dt class="field-even">Raises</dt>
+<dd class="field-even"><p><a class="reference external" href="https://docs.python.org/3/library/exceptions.html#RuntimeError" title="(in Python v3.7)"><strong>RuntimeError</strong></a> – If the Association already has a socket set.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="pynetdicom.association.Association.start">
+<code class="sig-name descname">start</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/9b965431/pynetdicom/../../../../usr/local/lib/python3.6/threading.py#L828"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom.association.Association.start" title="Permalink to this definition">¶</a></dt>
+<dd><p>Start the thread’s activity.</p>
+<p>It must be called at most once per thread object. It arranges for the
+object’s run() method to be invoked in a separate thread of control.</p>
+<p>This method will raise a RuntimeError if called more than once on the
+same thread object.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pynetdicom.association.Association.unbind">
+<code class="sig-name descname">unbind</code><span class="sig-paren">(</span><em class="sig-param">event</em>, <em class="sig-param">handler</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/9b965431/pynetdicom/association.py#L626"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom.association.Association.unbind" title="Permalink to this definition">¶</a></dt>
+<dd><p>Unbind a callable <cite>func</cite> from an <cite>event</cite>.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>event</strong> (<em>namedtuple</em>) – The event to unbind the function from.</p></li>
+<li><p><strong>handler</strong> (<em>callable</em>) – The function that will no longer be called if the event occurs.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="pynetdicom.association.ServiceUser.html" class="btn btn-neutral float-right" title="pynetdicom.association.ServiceUser" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
+      
+      
+        <a href="../association.html" class="btn btn-neutral float-left" title="Association (pynetdicom.association)" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2018-19, pynetdicom contributors
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>

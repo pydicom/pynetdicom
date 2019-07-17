@@ -1,0 +1,407 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>pynetdicom.service_class_n.ProcedureStepServiceClass &mdash; pynetdicom 1.4.0 documentation</title>
+  
+
+  
+  
+    <link rel="shortcut icon" href="../../_static/favicon.ico"/>
+  
+  
+  
+
+  
+  <script type="text/javascript" src="../../_static/js/modernizr.min.js"></script>
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../../" src="../../_static/documentation_options.js"></script>
+        <script type="text/javascript" src="../../_static/jquery.js"></script>
+        <script type="text/javascript" src="../../_static/underscore.js"></script>
+        <script type="text/javascript" src="../../_static/doctools.js"></script>
+        <script type="text/javascript" src="../../_static/language_data.js"></script>
+    
+    <script type="text/javascript" src="../../_static/js/theme.js"></script>
+
+    
+
+  
+  <link rel="stylesheet" href="../../_static/css/pynetdicom.css" type="text/css" />
+  <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="../../_static/css/pynetdicom.css" type="text/css" />
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" />
+    <link rel="next" title="pynetdicom.service_class_n.RTMachineVerificationServiceClass" href="pynetdicom.service_class_n.RTMachineVerificationServiceClass.html" />
+    <link rel="prev" title="pynetdicom.service_class_n.PrintManagementServiceClass" href="pynetdicom.service_class_n.PrintManagementServiceClass.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="../../index.html" class="icon icon-home"> pynetdicom
+          
+
+          
+            
+            <img src="../../_static/pydicom_flat_black.svg" class="logo" alt="Logo"/>
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                1.4.0
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <ul>
+<li class="toctree-l1"><a class="reference internal" href="../../service_classes/index.html">Supported Service Classes</a></li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../user/index.html">User Guide</a></li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../examples/index.html">Examples</a></li>
+</ul>
+<ul class="current">
+<li class="toctree-l1 current"><a class="reference internal" href="../index.html">API Reference</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="../acse.html">ACSE Service (<code class="xref py py-mod docutils literal notranslate"><span class="pre">pynetdicom.acse</span></code>)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../ae.html">Application Entity (<code class="xref py py-mod docutils literal notranslate"><span class="pre">pynetdicom.ae</span></code>)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../association.html">Association (<code class="xref py py-mod docutils literal notranslate"><span class="pre">pynetdicom.association</span></code>)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../dimse.html">DIMSE Service</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../dsutils.html">Dataset Utilities (<code class="xref py py-mod docutils literal notranslate"><span class="pre">pynetdicom.dsutils</span></code>)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../dul.html">DICOM Upper Layer</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../events.html">Events and Handlers (<code class="xref py py-mod docutils literal notranslate"><span class="pre">pynetdicom.events</span></code>)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../fsm.html">State Machine (<code class="xref py py-mod docutils literal notranslate"><span class="pre">pynetdicom.fsm</span></code>)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../presentation.html">Presentation Service (<code class="xref py py-mod docutils literal notranslate"><span class="pre">pynetdicom.presentation</span></code>)</a></li>
+<li class="toctree-l2 current"><a class="reference internal" href="../service_classes.html">Service Classes (<code class="xref py py-mod docutils literal notranslate"><span class="pre">pynetdicom.service_class</span></code>)</a><ul class="current">
+<li class="toctree-l3"><a class="reference internal" href="pynetdicom.service_class.BasicWorklistManagementServiceClass.html">pynetdicom.service_class.BasicWorklistManagementServiceClass</a></li>
+<li class="toctree-l3"><a class="reference internal" href="pynetdicom.service_class.ColorPaletteQueryRetrieveServiceClass.html">pynetdicom.service_class.ColorPaletteQueryRetrieveServiceClass</a></li>
+<li class="toctree-l3"><a class="reference internal" href="pynetdicom.service_class.DefinedProcedureProtocolQueryRetrieveServiceClass.html">pynetdicom.service_class.DefinedProcedureProtocolQueryRetrieveServiceClass</a></li>
+<li class="toctree-l3"><a class="reference internal" href="pynetdicom.service_class.HangingProtocolQueryRetrieveServiceClass.html">pynetdicom.service_class.HangingProtocolQueryRetrieveServiceClass</a></li>
+<li class="toctree-l3"><a class="reference internal" href="pynetdicom.service_class.ImplantTemplateQueryRetrieveServiceClass.html">pynetdicom.service_class.ImplantTemplateQueryRetrieveServiceClass</a></li>
+<li class="toctree-l3"><a class="reference internal" href="pynetdicom.service_class.NonPatientObjectStorageServiceClass.html">pynetdicom.service_class.NonPatientObjectStorageServiceClass</a></li>
+<li class="toctree-l3"><a class="reference internal" href="pynetdicom.service_class.ProtocolApprovalQueryRetrieveServiceClass.html">pynetdicom.service_class.ProtocolApprovalQueryRetrieveServiceClass</a></li>
+<li class="toctree-l3"><a class="reference internal" href="pynetdicom.service_class.QueryRetrieveServiceClass.html">pynetdicom.service_class.QueryRetrieveServiceClass</a></li>
+<li class="toctree-l3"><a class="reference internal" href="pynetdicom.service_class.RelevantPatientInformationQueryServiceClass.html">pynetdicom.service_class.RelevantPatientInformationQueryServiceClass</a></li>
+<li class="toctree-l3"><a class="reference internal" href="pynetdicom.service_class.StorageServiceClass.html">pynetdicom.service_class.StorageServiceClass</a></li>
+<li class="toctree-l3"><a class="reference internal" href="pynetdicom.service_class.SubstanceAdministrationQueryServiceClass.html">pynetdicom.service_class.SubstanceAdministrationQueryServiceClass</a></li>
+<li class="toctree-l3"><a class="reference internal" href="pynetdicom.service_class.VerificationServiceClass.html">pynetdicom.service_class.VerificationServiceClass</a></li>
+<li class="toctree-l3"><a class="reference internal" href="pynetdicom.service_class_n.ApplicationEventLoggingServiceClass.html">pynetdicom.service_class_n.ApplicationEventLoggingServiceClass</a></li>
+<li class="toctree-l3"><a class="reference internal" href="pynetdicom.service_class_n.DisplaySystemManagementServiceClass.html">pynetdicom.service_class_n.DisplaySystemManagementServiceClass</a></li>
+<li class="toctree-l3"><a class="reference internal" href="pynetdicom.service_class_n.InstanceAvailabilityNotificationServiceClass.html">pynetdicom.service_class_n.InstanceAvailabilityNotificationServiceClass</a></li>
+<li class="toctree-l3"><a class="reference internal" href="pynetdicom.service_class_n.MediaCreationManagementServiceClass.html">pynetdicom.service_class_n.MediaCreationManagementServiceClass</a></li>
+<li class="toctree-l3"><a class="reference internal" href="pynetdicom.service_class_n.PrintManagementServiceClass.html">pynetdicom.service_class_n.PrintManagementServiceClass</a></li>
+<li class="toctree-l3 current"><a class="current reference internal" href="#">pynetdicom.service_class_n.ProcedureStepServiceClass</a></li>
+<li class="toctree-l3"><a class="reference internal" href="pynetdicom.service_class_n.RTMachineVerificationServiceClass.html">pynetdicom.service_class_n.RTMachineVerificationServiceClass</a></li>
+<li class="toctree-l3"><a class="reference internal" href="pynetdicom.service_class_n.StorageCommitmentServiceClass.html">pynetdicom.service_class_n.StorageCommitmentServiceClass</a></li>
+<li class="toctree-l3"><a class="reference internal" href="pynetdicom.service_class_n.UnifiedProcedureStepServiceClass.html">pynetdicom.service_class_n.UnifiedProcedureStepServiceClass</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../sop_classes.html">SOP Classes (<code class="xref py py-mod docutils literal notranslate"><span class="pre">pynetdicom.sop_class</span></code>)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../status.html">Statuses (<code class="xref py py-mod docutils literal notranslate"><span class="pre">pynetdicom.status</span></code>)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../timer.html">Timer (<code class="xref py py-mod docutils literal notranslate"><span class="pre">pynetdicom.timer</span></code>)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../transport.html">Transport Service (<code class="xref py py-mod docutils literal notranslate"><span class="pre">pynetdicom.transport</span></code>)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../utils.html">Utilities (<code class="xref py py-mod docutils literal notranslate"><span class="pre">pynetdicom.utils</span></code>)</a></li>
+</ul>
+</li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../apps/index.html">Applications</a></li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../changelog/index.html">Release Notes</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../index.html">pynetdicom</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../../index.html">Docs</a> &raquo;</li>
+        
+          <li><a href="../index.html">API Reference</a> &raquo;</li>
+        
+          <li><a href="../service_classes.html">Service Classes (<code class="xref py py-mod docutils literal notranslate"><span class="pre">pynetdicom.service_class</span></code>)</a> &raquo;</li>
+        
+      <li>pynetdicom.service_class_n.ProcedureStepServiceClass</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="pynetdicom-service-class-n-procedurestepserviceclass">
+<h1>pynetdicom.service_class_n.ProcedureStepServiceClass<a class="headerlink" href="#pynetdicom-service-class-n-procedurestepserviceclass" title="Permalink to this headline">¶</a></h1>
+<dl class="class">
+<dt id="pynetdicom.service_class_n.ProcedureStepServiceClass">
+<em class="property">class </em><code class="sig-prename descclassname">pynetdicom.service_class_n.</code><code class="sig-name descname">ProcedureStepServiceClass</code><span class="sig-paren">(</span><em class="sig-param">assoc</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/9b965431/pynetdicom/service_class_n.py#L154"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom.service_class_n.ProcedureStepServiceClass" title="Permalink to this definition">¶</a></dt>
+<dd><p>Implementation of the Modality Performed Procedure Step Service Class</p>
+<dl class="method">
+<dt id="pynetdicom.service_class_n.ProcedureStepServiceClass.__init__">
+<code class="sig-name descname">__init__</code><span class="sig-paren">(</span><em class="sig-param">assoc</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/9b965431/pynetdicom/service_class.py#L47"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom.service_class_n.ProcedureStepServiceClass.__init__" title="Permalink to this definition">¶</a></dt>
+<dd><p>Create a new ServiceClass.</p>
+</dd></dl>
+
+<p class="rubric">Methods</p>
+<table class="longtable docutils align-default">
+<colgroup>
+<col style="width: 10%" />
+<col style="width: 90%" />
+</colgroup>
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pynetdicom.service_class_n.ProcedureStepServiceClass.SCP" title="pynetdicom.service_class_n.ProcedureStepServiceClass.SCP"><code class="xref py py-obj docutils literal notranslate"><span class="pre">SCP</span></code></a>(req, context)</p></td>
+<td><p>The SCP implementation for Modality Performed Procedure Step.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#pynetdicom.service_class_n.ProcedureStepServiceClass.__init__" title="pynetdicom.service_class_n.ProcedureStepServiceClass.__init__"><code class="xref py py-obj docutils literal notranslate"><span class="pre">__init__</span></code></a>(assoc)</p></td>
+<td><p>Create a new ServiceClass.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pynetdicom.service_class_n.ProcedureStepServiceClass.is_cancelled" title="pynetdicom.service_class_n.ProcedureStepServiceClass.is_cancelled"><code class="xref py py-obj docutils literal notranslate"><span class="pre">is_cancelled</span></code></a>(msg_id)</p></td>
+<td><p>Return True if a C-CANCEL message with <cite>msg_id</cite> has been received.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#pynetdicom.service_class_n.ProcedureStepServiceClass.is_valid_status" title="pynetdicom.service_class_n.ProcedureStepServiceClass.is_valid_status"><code class="xref py py-obj docutils literal notranslate"><span class="pre">is_valid_status</span></code></a>(status)</p></td>
+<td><p>Return True if <cite>status</cite> is valid for the service class.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pynetdicom.service_class_n.ProcedureStepServiceClass.validate_status" title="pynetdicom.service_class_n.ProcedureStepServiceClass.validate_status"><code class="xref py py-obj docutils literal notranslate"><span class="pre">validate_status</span></code></a>(status, rsp)</p></td>
+<td><p>Validate <cite>status</cite> and set <cite>rsp.Status</cite> accordingly.</p></td>
+</tr>
+</tbody>
+</table>
+<p class="rubric">Attributes</p>
+<table class="longtable docutils align-default">
+<colgroup>
+<col style="width: 10%" />
+<col style="width: 90%" />
+</colgroup>
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pynetdicom.service_class_n.ProcedureStepServiceClass.ae" title="pynetdicom.service_class_n.ProcedureStepServiceClass.ae"><code class="xref py py-obj docutils literal notranslate"><span class="pre">ae</span></code></a></p></td>
+<td><p>Return the AE.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#pynetdicom.service_class_n.ProcedureStepServiceClass.dimse" title="pynetdicom.service_class_n.ProcedureStepServiceClass.dimse"><code class="xref py py-obj docutils literal notranslate"><span class="pre">dimse</span></code></a></p></td>
+<td><p>Return the DIMSE service provider.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">statuses</span></code></p></td>
+<td><p></p></td>
+</tr>
+</tbody>
+</table>
+<dl class="method">
+<dt id="pynetdicom.service_class_n.ProcedureStepServiceClass.SCP">
+<code class="sig-name descname">SCP</code><span class="sig-paren">(</span><em class="sig-param">req</em>, <em class="sig-param">context</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/9b965431/pynetdicom/service_class_n.py#L158"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom.service_class_n.ProcedureStepServiceClass.SCP" title="Permalink to this definition">¶</a></dt>
+<dd><p>The SCP implementation for Modality Performed Procedure Step.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>req</strong> (<a class="reference internal" href="pynetdicom.dimse_primitives.N_CREATE.html#pynetdicom.dimse_primitives.N_CREATE" title="pynetdicom.dimse_primitives.N_CREATE"><em>dimse_primitives.N_CREATE</em></a><em> or </em><a class="reference internal" href="pynetdicom.dimse_primitives.N_SET.html#pynetdicom.dimse_primitives.N_SET" title="pynetdicom.dimse_primitives.N_SET"><em>N_SET</em></a><em> or </em><a class="reference internal" href="pynetdicom.dimse_primitives.N_GET.html#pynetdicom.dimse_primitives.N_GET" title="pynetdicom.dimse_primitives.N_GET"><em>N_GET</em></a><em> or </em><a class="reference internal" href="pynetdicom.dimse_primitives.N_EVENT_REPORT.html#pynetdicom.dimse_primitives.N_EVENT_REPORT" title="pynetdicom.dimse_primitives.N_EVENT_REPORT"><em>N_EVENT_REPORT</em></a>) – The N-CREATE, N-SET, N-GET or N-EVENT-REPORT request primitive
+sent by the peer.</p></li>
+<li><p><strong>context</strong> (<a class="reference internal" href="pynetdicom.presentation.PresentationContext.html#pynetdicom.presentation.PresentationContext" title="pynetdicom.presentation.PresentationContext"><em>presentation.PresentationContext</em></a>) – The presentation context that the service is operating under.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="pynetdicom.service_class_n.ProcedureStepServiceClass.ae">
+<em class="property">property </em><code class="sig-name descname">ae</code><a class="headerlink" href="#pynetdicom.service_class_n.ProcedureStepServiceClass.ae" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return the AE.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pynetdicom.service_class_n.ProcedureStepServiceClass.dimse">
+<em class="property">property </em><code class="sig-name descname">dimse</code><a class="headerlink" href="#pynetdicom.service_class_n.ProcedureStepServiceClass.dimse" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return the DIMSE service provider.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pynetdicom.service_class_n.ProcedureStepServiceClass.is_cancelled">
+<code class="sig-name descname">is_cancelled</code><span class="sig-paren">(</span><em class="sig-param">msg_id</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/9b965431/pynetdicom/service_class.py#L245"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom.service_class_n.ProcedureStepServiceClass.is_cancelled" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return True if a C-CANCEL message with <cite>msg_id</cite> has been received.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>msg_id</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.7)"><em>int</em></a>) – The (0000,0120) <em>Message ID Being Responded To</em> value to use to
+match against.</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>True if a C-CANCEL message has been received with a <em>Message ID
+Being Responded To</em> corresponding to <cite>msg_id</cite>, False otherwise.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.7)">bool</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="pynetdicom.service_class_n.ProcedureStepServiceClass.is_valid_status">
+<code class="sig-name descname">is_valid_status</code><span class="sig-paren">(</span><em class="sig-param">status</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/9b965431/pynetdicom/service_class.py#L266"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom.service_class_n.ProcedureStepServiceClass.is_valid_status" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return True if <cite>status</cite> is valid for the service class.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>status</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.7)"><em>int</em></a>) – The Status value to check for validity.</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>True if the status is valid, False otherwise.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.7)">bool</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="pynetdicom.service_class_n.ProcedureStepServiceClass.validate_status">
+<code class="sig-name descname">validate_status</code><span class="sig-paren">(</span><em class="sig-param">status</em>, <em class="sig-param">rsp</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/9b965431/pynetdicom/service_class.py#L1162"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom.service_class_n.ProcedureStepServiceClass.validate_status" title="Permalink to this definition">¶</a></dt>
+<dd><p>Validate <cite>status</cite> and set <cite>rsp.Status</cite> accordingly.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>status</strong> (<a class="reference external" href="https://pydicom.github.io/pydicom/stable/api_ref.html#pydicom.dataset.Dataset" title="(in pydicom v1.3.0)"><em>pydicom.dataset.Dataset</em></a><em> or </em><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.7)"><em>int</em></a>) – A Dataset containing a Status element or an int.</p></li>
+<li><p><strong>rsp</strong> (<em>dimse_primitive</em>) – The response primitive to be sent to the peer.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><strong>rsp</strong> – The response primitie to be sent to the peer (containing a valid
+Status parameter).</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>dimse_primitive</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="pynetdicom.service_class_n.RTMachineVerificationServiceClass.html" class="btn btn-neutral float-right" title="pynetdicom.service_class_n.RTMachineVerificationServiceClass" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
+      
+      
+        <a href="pynetdicom.service_class_n.PrintManagementServiceClass.html" class="btn btn-neutral float-left" title="pynetdicom.service_class_n.PrintManagementServiceClass" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2018-19, pynetdicom contributors
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>
