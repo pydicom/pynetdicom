@@ -1586,7 +1586,7 @@ class TestState03(TestStateBase):
             """Override ACSE._negotiate_as_acceptor so no A-ASSOCIATE (rsp)."""
             # Keep the state machine in Sta3 for 0.5 s
             time.sleep(0.5)
-            orig(assoc)
+            orig()
 
         assoc.acse._negotiate_as_acceptor = _neg_as_acc
         assoc.start()
@@ -4293,7 +4293,7 @@ class TestState08(TestStateBase):
         ]
         scp = self.start_server(commands)
 
-        def is_release_requested(assoc):
+        def is_release_requested():
             """Override ACSE.is_release_requested."""
             return False
 
@@ -4341,7 +4341,7 @@ class TestState08(TestStateBase):
         ]
         scp = self.start_server(commands)
 
-        def is_release_requested(assoc):
+        def is_release_requested():
             """Override ACSE.is_release_requested."""
             return False
 
@@ -4381,7 +4381,7 @@ class TestState08(TestStateBase):
         ]
         scp = self.start_server(commands)
 
-        def is_release_requested(assoc):
+        def is_release_requested():
             """Override ACSE.is_release_requested."""
             return False
 
@@ -4428,7 +4428,7 @@ class TestState08(TestStateBase):
         ]
         scp = self.start_server(commands)
 
-        def is_release_requested(assoc):
+        def is_release_requested():
             """Override ACSE.is_release_requested."""
             return False
 
@@ -4466,7 +4466,7 @@ class TestState08(TestStateBase):
         ]
         scp = self.start_server(commands)
 
-        def is_release_requested(assoc):
+        def is_release_requested():
             """Override ACSE.is_release_requested."""
             return False
 
@@ -4504,7 +4504,7 @@ class TestState08(TestStateBase):
         ]
         scp = self.start_server(commands)
 
-        def is_release_requested(assoc):
+        def is_release_requested():
             """Override ACSE.is_release_requested."""
             return False
 
@@ -4543,7 +4543,7 @@ class TestState08(TestStateBase):
         ]
         scp = self.start_server(commands)
 
-        def is_release_requested(assoc):
+        def is_release_requested():
             """Override ACSE.is_release_requested."""
             return False
 
@@ -4583,7 +4583,7 @@ class TestState08(TestStateBase):
         ]
         scp = self.start_server(commands)
 
-        def is_release_requested(assoc):
+        def is_release_requested():
             """Override ACSE.is_release_requested."""
             return False
 
@@ -4621,7 +4621,7 @@ class TestState08(TestStateBase):
         ]
         scp = self.start_server(commands)
 
-        def is_release_requested(assoc):
+        def is_release_requested():
             """Override ACSE.is_release_requested."""
             return False
 
@@ -4661,7 +4661,7 @@ class TestState08(TestStateBase):
         ]
         scp = self.start_server(commands)
 
-        def is_release_requested(assoc):
+        def is_release_requested():
             """Override ACSE.is_release_requested."""
             return False
 
@@ -4701,7 +4701,7 @@ class TestState08(TestStateBase):
         ]
         scp = self.start_server(commands)
 
-        def is_release_requested(assoc):
+        def is_release_requested():
             """Override ACSE.is_release_requested."""
             return False
 
@@ -4740,7 +4740,7 @@ class TestState08(TestStateBase):
         ]
         scp = self.start_server(commands)
 
-        def is_release_requested(assoc):
+        def is_release_requested():
             """Override ACSE.is_release_requested."""
             return False
 
@@ -4779,7 +4779,7 @@ class TestState08(TestStateBase):
         ]
         scp = self.start_server(commands)
 
-        def is_release_requested(assoc):
+        def is_release_requested():
             """Override ACSE.is_release_requested."""
             return False
 
@@ -4819,7 +4819,7 @@ class TestState08(TestStateBase):
         ]
         scp = self.start_server(commands)
 
-        def is_release_requested(assoc):
+        def is_release_requested():
             """Override ACSE.is_release_requested."""
             return False
 
@@ -4857,7 +4857,7 @@ class TestState08(TestStateBase):
         ]
         scp = self.start_server(commands)
 
-        def is_release_requested(assoc):
+        def is_release_requested():
             """Override ACSE.is_release_requested."""
             return False
 
@@ -4895,7 +4895,7 @@ class TestState08(TestStateBase):
         ]
         scp = self.start_server(commands)
 
-        def is_release_requested(assoc):
+        def is_release_requested():
             """Override ACSE.is_release_requested."""
             return False
 
@@ -4936,7 +4936,7 @@ class TestState08(TestStateBase):
         ]
         scp = self.start_server(commands)
 
-        def is_release_requested(assoc):
+        def is_release_requested():
             """Override ACSE.is_release_requested."""
             return False
 
@@ -4977,7 +4977,7 @@ class TestState09(TestStateBase):
         ]
         scp = self.start_server(commands)
 
-        def is_release_requested(assoc):
+        def is_release_requested():
             """Override ACSE.is_release_requested."""
             return False
 
@@ -5032,7 +5032,7 @@ class TestState09(TestStateBase):
         ]
         scp = self.start_server(commands)
 
-        def is_release_requested(assoc):
+        def is_release_requested():
             """Override ACSE.is_release_requested."""
             return False
 
@@ -5082,7 +5082,7 @@ class TestState09(TestStateBase):
         ]
         scp = self.start_server(commands)
 
-        def is_release_requested(assoc):
+        def is_release_requested():
             """Override ACSE.is_release_requested."""
             return False
 
@@ -5139,7 +5139,7 @@ class TestState09(TestStateBase):
         ]
         scp = self.start_server(commands)
 
-        def is_release_requested(assoc):
+        def is_release_requested():
             """Override ACSE.is_release_requested."""
             return False
 
@@ -5187,7 +5187,7 @@ class TestState09(TestStateBase):
         ]
         scp = self.start_server(commands)
 
-        def is_release_requested(assoc):
+        def is_release_requested():
             """Override ACSE.is_release_requested."""
             return False
 
@@ -5233,7 +5233,7 @@ class TestState09(TestStateBase):
         ]
         scp = self.start_server(commands)
 
-        def is_release_requested(assoc):
+        def is_release_requested():
             """Override ACSE.is_release_requested."""
             return False
 
@@ -5279,7 +5279,7 @@ class TestState09(TestStateBase):
         ]
         scp = self.start_server(commands)
 
-        def is_release_requested(assoc):
+        def is_release_requested():
             """Override ACSE.is_release_requested."""
             return False
 
@@ -5327,7 +5327,7 @@ class TestState09(TestStateBase):
         ]
         scp = self.start_server(commands)
 
-        def is_release_requested(assoc):
+        def is_release_requested():
             """Override ACSE.is_release_requested."""
             return False
 
@@ -5375,7 +5375,7 @@ class TestState09(TestStateBase):
         ]
         scp = self.start_server(commands)
 
-        def is_release_requested(assoc):
+        def is_release_requested():
             """Override ACSE.is_release_requested."""
             return False
 
@@ -5423,7 +5423,7 @@ class TestState09(TestStateBase):
         ]
         scp = self.start_server(commands)
 
-        def is_release_requested(assoc):
+        def is_release_requested():
             """Override ACSE.is_release_requested."""
             return False
 
@@ -5473,7 +5473,7 @@ class TestState09(TestStateBase):
         ]
         scp = self.start_server(commands)
 
-        def is_release_requested(assoc):
+        def is_release_requested():
             """Override ACSE.is_release_requested."""
             return False
 
@@ -5522,7 +5522,7 @@ class TestState09(TestStateBase):
         ]
         scp = self.start_server(commands)
 
-        def is_release_requested(assoc):
+        def is_release_requested():
             """Override ACSE.is_release_requested."""
             return False
 
@@ -5572,7 +5572,7 @@ class TestState09(TestStateBase):
         ]
         scp = self.start_server(commands)
 
-        def is_release_requested(assoc):
+        def is_release_requested():
             """Override ACSE.is_release_requested."""
             return False
 
@@ -5623,7 +5623,7 @@ class TestState09(TestStateBase):
         ]
         scp = self.start_server(commands)
 
-        def is_release_requested(assoc):
+        def is_release_requested():
             """Override ACSE.is_release_requested."""
             return False
 
@@ -5668,7 +5668,7 @@ class TestState09(TestStateBase):
         ]
         scp = self.start_server(commands)
 
-        def is_release_requested(assoc):
+        def is_release_requested():
             """Override ACSE.is_release_requested."""
             return False
 
@@ -5713,7 +5713,7 @@ class TestState09(TestStateBase):
         ]
         scp = self.start_server(commands)
 
-        def is_release_requested(assoc):
+        def is_release_requested():
             """Override ACSE.is_release_requested."""
             return False
 
@@ -5762,7 +5762,7 @@ class TestState09(TestStateBase):
         ]
         scp = self.start_server(commands)
 
-        def is_release_requested(assoc):
+        def is_release_requested():
             """Override ACSE.is_release_requested."""
             return False
 
@@ -5814,7 +5814,7 @@ class TestState10(TestStateBase):
         scp = self.start_server(commands)
 
         assoc, fsm = self.get_acceptor_assoc()
-        def is_release_requested(assoc):
+        def is_release_requested():
             """Override ACSE.is_release_requested."""
             return False
 
@@ -5869,7 +5869,7 @@ class TestState10(TestStateBase):
         scp = self.start_server(commands)
 
         assoc, fsm = self.get_acceptor_assoc()
-        def is_release_requested(assoc):
+        def is_release_requested():
             """Override ACSE.is_release_requested."""
             return False
 
@@ -5919,7 +5919,7 @@ class TestState10(TestStateBase):
         scp = self.start_server(commands)
 
         assoc, fsm = self.get_acceptor_assoc()
-        def is_release_requested(assoc):
+        def is_release_requested():
             """Override ACSE.is_release_requested."""
             return False
 
@@ -5976,7 +5976,7 @@ class TestState10(TestStateBase):
         scp = self.start_server(commands)
 
         assoc, fsm = self.get_acceptor_assoc()
-        def is_release_requested(assoc):
+        def is_release_requested():
             """Override ACSE.is_release_requested."""
             return False
 
@@ -6025,7 +6025,7 @@ class TestState10(TestStateBase):
 
         assoc, fsm = self.get_acceptor_assoc()
 
-        def is_release_requested(assoc):
+        def is_release_requested():
             """Override ACSE.is_release_requested."""
             return False
 
@@ -6072,7 +6072,7 @@ class TestState10(TestStateBase):
 
         assoc, fsm = self.get_acceptor_assoc()
 
-        def is_release_requested(assoc):
+        def is_release_requested():
             """Override ACSE.is_release_requested."""
             return False
 
@@ -6119,7 +6119,7 @@ class TestState10(TestStateBase):
 
         assoc, fsm = self.get_acceptor_assoc()
 
-        def is_release_requested(assoc):
+        def is_release_requested():
             """Override ACSE.is_release_requested."""
             return False
 
@@ -6167,7 +6167,7 @@ class TestState10(TestStateBase):
         scp = self.start_server(commands)
 
         assoc, fsm = self.get_acceptor_assoc()
-        def is_release_requested(assoc):
+        def is_release_requested():
             """Override ACSE.is_release_requested."""
             return False
 
@@ -6216,7 +6216,7 @@ class TestState10(TestStateBase):
 
         assoc, fsm = self.get_acceptor_assoc()
 
-        def is_release_requested(assoc):
+        def is_release_requested():
             """Override ACSE.is_release_requested."""
             return False
 
@@ -6264,7 +6264,7 @@ class TestState10(TestStateBase):
         scp = self.start_server(commands)
 
         assoc, fsm = self.get_acceptor_assoc()
-        def is_release_requested(assoc):
+        def is_release_requested():
             """Override ACSE.is_release_requested."""
             return False
 
@@ -6313,7 +6313,7 @@ class TestState10(TestStateBase):
         scp = self.start_server(commands)
 
         assoc, fsm = self.get_acceptor_assoc()
-        def is_release_requested(assoc):
+        def is_release_requested():
             """Override ACSE.is_release_requested."""
             return False
 
@@ -6359,7 +6359,7 @@ class TestState10(TestStateBase):
 
         assoc, fsm = self.get_acceptor_assoc()
 
-        def is_release_requested(assoc):
+        def is_release_requested():
             """Override ACSE.is_release_requested."""
             return False
 
@@ -6408,7 +6408,7 @@ class TestState10(TestStateBase):
 
         assoc, fsm = self.get_acceptor_assoc()
 
-        def is_release_requested(assoc):
+        def is_release_requested():
             """Override ACSE.is_release_requested."""
             return False
 
@@ -6460,7 +6460,7 @@ class TestState10(TestStateBase):
         scp = self.start_server(commands)
 
         assoc, fsm = self.get_acceptor_assoc()
-        def is_release_requested(assoc):
+        def is_release_requested():
             """Override ACSE.is_release_requested."""
             return False
 
@@ -6506,7 +6506,7 @@ class TestState10(TestStateBase):
         scp = self.start_server(commands)
 
         assoc, fsm = self.get_acceptor_assoc()
-        def is_release_requested(assoc):
+        def is_release_requested():
             """Override ACSE.is_release_requested."""
             return False
 
@@ -6553,7 +6553,7 @@ class TestState10(TestStateBase):
 
         assoc, fsm = self.get_acceptor_assoc()
 
-        def is_release_requested(assoc):
+        def is_release_requested():
             """Override ACSE.is_release_requested."""
             return False
 
@@ -6605,7 +6605,7 @@ class TestState10(TestStateBase):
         scp = self.start_server(commands)
 
         assoc, fsm = self.get_acceptor_assoc()
-        def is_release_requested(assoc):
+        def is_release_requested():
             """Override ACSE.is_release_requested."""
             return False
 
@@ -6657,7 +6657,7 @@ class TestState11(TestStateBase):
         ]
         scp = self.start_server(commands)
 
-        def is_release_requested(assoc):
+        def is_release_requested():
             """Override ACSE.is_release_requested."""
             return False
 
@@ -6717,7 +6717,7 @@ class TestState11(TestStateBase):
         ]
         scp = self.start_server(commands)
 
-        def is_release_requested(assoc):
+        def is_release_requested():
             """Override ACSE.is_release_requested."""
             return False
 
@@ -6769,7 +6769,7 @@ class TestState11(TestStateBase):
         ]
         scp = self.start_server(commands)
 
-        def is_release_requested(assoc):
+        def is_release_requested():
             """Override ACSE.is_release_requested."""
             return False
 
@@ -6828,7 +6828,7 @@ class TestState11(TestStateBase):
         ]
         scp = self.start_server(commands)
 
-        def is_release_requested(assoc):
+        def is_release_requested():
             """Override ACSE.is_release_requested."""
             return False
 
@@ -6877,7 +6877,7 @@ class TestState11(TestStateBase):
         ]
         scp = self.start_server(commands)
 
-        def is_release_requested(assoc):
+        def is_release_requested():
             """Override ACSE.is_release_requested."""
             return False
 
@@ -6927,7 +6927,7 @@ class TestState11(TestStateBase):
         ]
         scp = self.start_server(commands)
 
-        def is_release_requested(assoc):
+        def is_release_requested():
             """Override ACSE.is_release_requested."""
             return False
 
@@ -6977,7 +6977,7 @@ class TestState11(TestStateBase):
         ]
         scp = self.start_server(commands)
 
-        def is_release_requested(assoc):
+        def is_release_requested():
             """Override ACSE.is_release_requested."""
             return False
 
@@ -7030,7 +7030,7 @@ class TestState11(TestStateBase):
         ]
         scp = self.start_server(commands)
 
-        def is_release_requested(assoc):
+        def is_release_requested():
             """Override ACSE.is_release_requested."""
             return False
 
@@ -7079,7 +7079,7 @@ class TestState11(TestStateBase):
         ]
         scp = self.start_server(commands)
 
-        def is_release_requested(assoc):
+        def is_release_requested():
             """Override ACSE.is_release_requested."""
             return False
 
@@ -7132,7 +7132,7 @@ class TestState11(TestStateBase):
         ]
         scp = self.start_server(commands)
 
-        def is_release_requested(assoc):
+        def is_release_requested():
             """Override ACSE.is_release_requested."""
             return False
 
@@ -7183,7 +7183,7 @@ class TestState11(TestStateBase):
         ]
         scp = self.start_server(commands)
 
-        def is_release_requested(assoc):
+        def is_release_requested():
             """Override ACSE.is_release_requested."""
             return False
 
@@ -7232,7 +7232,7 @@ class TestState11(TestStateBase):
         ]
         scp = self.start_server(commands)
 
-        def is_release_requested(assoc):
+        def is_release_requested():
             """Override ACSE.is_release_requested."""
             return False
 
@@ -7284,7 +7284,7 @@ class TestState11(TestStateBase):
         ]
         scp = self.start_server(commands)
 
-        def is_release_requested(assoc):
+        def is_release_requested():
             """Override ACSE.is_release_requested."""
             return False
 
@@ -7336,7 +7336,7 @@ class TestState11(TestStateBase):
         ]
         scp = self.start_server(commands)
 
-        def is_release_requested(assoc):
+        def is_release_requested():
             """Override ACSE.is_release_requested."""
             return False
 
@@ -7385,7 +7385,7 @@ class TestState11(TestStateBase):
         ]
         scp = self.start_server(commands)
 
-        def is_release_requested(assoc):
+        def is_release_requested():
             """Override ACSE.is_release_requested."""
             return False
 
@@ -7434,7 +7434,7 @@ class TestState11(TestStateBase):
         ]
         scp = self.start_server(commands)
 
-        def is_release_requested(assoc):
+        def is_release_requested():
             """Override ACSE.is_release_requested."""
             return False
 
@@ -7488,7 +7488,7 @@ class TestState11(TestStateBase):
         ]
         scp = self.start_server(commands)
 
-        def is_release_requested(assoc):
+        def is_release_requested():
             """Override ACSE.is_release_requested."""
             return False
 
@@ -7541,7 +7541,7 @@ class TestState12(TestStateBase):
         scp = self.start_server(commands)
 
         assoc, fsm = self.get_acceptor_assoc()
-        def is_release_requested(assoc):
+        def is_release_requested():
             """Override ACSE.is_release_requested."""
             return False
 
@@ -7598,7 +7598,7 @@ class TestState12(TestStateBase):
         scp = self.start_server(commands)
 
         assoc, fsm = self.get_acceptor_assoc()
-        def is_release_requested(assoc):
+        def is_release_requested():
             """Override ACSE.is_release_requested."""
             return False
 
@@ -7650,7 +7650,7 @@ class TestState12(TestStateBase):
         scp = self.start_server(commands)
 
         assoc, fsm = self.get_acceptor_assoc()
-        def is_release_requested(assoc):
+        def is_release_requested():
             """Override ACSE.is_release_requested."""
             return False
 
@@ -7710,7 +7710,7 @@ class TestState12(TestStateBase):
         scp = self.start_server(commands)
 
         assoc, fsm = self.get_acceptor_assoc()
-        def is_release_requested(assoc):
+        def is_release_requested():
             """Override ACSE.is_release_requested."""
             return False
 
@@ -7812,7 +7812,7 @@ class TestState12(TestStateBase):
         scp = self.start_server(commands)
 
         assoc, fsm = self.get_acceptor_assoc()
-        def is_release_requested(assoc):
+        def is_release_requested():
             """Override ACSE.is_release_requested."""
             return False
 
@@ -7861,7 +7861,7 @@ class TestState12(TestStateBase):
         scp = self.start_server(commands)
 
         assoc, fsm = self.get_acceptor_assoc()
-        def is_release_requested(assoc):
+        def is_release_requested():
             """Override ACSE.is_release_requested."""
             return False
 
@@ -7912,7 +7912,7 @@ class TestState12(TestStateBase):
         scp = self.start_server(commands)
 
         assoc, fsm = self.get_acceptor_assoc()
-        def is_release_requested(assoc):
+        def is_release_requested():
             """Override ACSE.is_release_requested."""
             return False
 
@@ -7965,7 +7965,7 @@ class TestState12(TestStateBase):
         scp = self.start_server(commands)
 
         assoc, fsm = self.get_acceptor_assoc()
-        def is_release_requested(assoc):
+        def is_release_requested():
             """Override ACSE.is_release_requested."""
             return False
 
@@ -8016,7 +8016,7 @@ class TestState12(TestStateBase):
         scp = self.start_server(commands)
 
         assoc, fsm = self.get_acceptor_assoc()
-        def is_release_requested(assoc):
+        def is_release_requested():
             """Override ACSE.is_release_requested."""
             return False
 
@@ -8069,7 +8069,7 @@ class TestState12(TestStateBase):
         scp = self.start_server(commands)
 
         assoc, fsm = self.get_acceptor_assoc()
-        def is_release_requested(assoc):
+        def is_release_requested():
             """Override ACSE.is_release_requested."""
             return False
 
@@ -8121,7 +8121,7 @@ class TestState12(TestStateBase):
         scp = self.start_server(commands)
 
         assoc, fsm = self.get_acceptor_assoc()
-        def is_release_requested(assoc):
+        def is_release_requested():
             """Override ACSE.is_release_requested."""
             return False
 
@@ -8175,7 +8175,7 @@ class TestState12(TestStateBase):
         scp = self.start_server(commands)
 
         assoc, fsm = self.get_acceptor_assoc()
-        def is_release_requested(assoc):
+        def is_release_requested():
             """Override ACSE.is_release_requested."""
             return False
 
@@ -8229,7 +8229,7 @@ class TestState12(TestStateBase):
         scp = self.start_server(commands)
 
         assoc, fsm = self.get_acceptor_assoc()
-        def is_release_requested(assoc):
+        def is_release_requested():
             """Override ACSE.is_release_requested."""
             return False
 
@@ -8277,7 +8277,7 @@ class TestState12(TestStateBase):
         scp = self.start_server(commands)
 
         assoc, fsm = self.get_acceptor_assoc()
-        def is_release_requested(assoc):
+        def is_release_requested():
             """Override ACSE.is_release_requested."""
             return False
 
@@ -8325,7 +8325,7 @@ class TestState12(TestStateBase):
         scp = self.start_server(commands)
 
         assoc, fsm = self.get_acceptor_assoc()
-        def is_release_requested(assoc):
+        def is_release_requested():
             """Override ACSE.is_release_requested."""
             return False
 
@@ -8376,7 +8376,7 @@ class TestState12(TestStateBase):
         scp = self.start_server(commands)
 
         assoc, fsm = self.get_acceptor_assoc()
-        def is_release_requested(assoc):
+        def is_release_requested():
             """Override ACSE.is_release_requested."""
             return False
 
