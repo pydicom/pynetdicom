@@ -1,13 +1,10 @@
 """Association testing"""
 
-from copy import deepcopy
 from datetime import datetime
 from io import BytesIO
 import logging
 import os
-import select
 import socket
-from struct import pack
 import sys
 import time
 import threading
@@ -43,44 +40,10 @@ from pynetdicom.sop_class import (
     VerificationSOPClass,
     CTImageStorage, MRImageStorage, RTImageStorage,
     PatientRootQueryRetrieveInformationModelFind,
-    StudyRootQueryRetrieveInformationModelFind,
-    ModalityWorklistInformationFind,
-    PatientStudyOnlyQueryRetrieveInformationModelFind,
     PatientRootQueryRetrieveInformationModelGet,
-    PatientStudyOnlyQueryRetrieveInformationModelGet,
-    StudyRootQueryRetrieveInformationModelGet,
     PatientRootQueryRetrieveInformationModelMove,
     PatientStudyOnlyQueryRetrieveInformationModelMove,
     StudyRootQueryRetrieveInformationModelMove,
-    GeneralRelevantPatientInformationQuery,
-    BreastImagingRelevantPatientInformationQuery,
-    CardiacRelevantPatientInformationQuery,
-    ProductCharacteristicsQueryInformationModelFind,
-    SubstanceApprovalQueryInformationModelFind,
-    CompositeInstanceRootRetrieveGet,
-    CompositeInstanceRootRetrieveMove,
-    CompositeInstanceRetrieveWithoutBulkDataGet,
-    HangingProtocolInformationModelGet,
-    HangingProtocolInformationModelFind,
-    HangingProtocolInformationModelMove,
-    DefinedProcedureProtocolInformationModelGet,
-    DefinedProcedureProtocolInformationModelFind,
-    DefinedProcedureProtocolInformationModelMove,
-    ColorPaletteInformationModelGet,
-    ColorPaletteInformationModelFind,
-    ColorPaletteInformationModelMove,
-    GenericImplantTemplateInformationModelGet,
-    GenericImplantTemplateInformationModelFind,
-    GenericImplantTemplateInformationModelMove,
-    ImplantAssemblyTemplateInformationModelGet,
-    ImplantAssemblyTemplateInformationModelFind,
-    ImplantAssemblyTemplateInformationModelMove,
-    ImplantTemplateGroupInformationModelFind,
-    ImplantTemplateGroupInformationModelGet,
-    ImplantTemplateGroupInformationModelMove,
-    ProtocolApprovalInformationModelFind,
-    ProtocolApprovalInformationModelGet,
-    ProtocolApprovalInformationModelMove,
 )
 from .dummy_c_scp import (
     DummyVerificationSCP, DummyStorageSCP, DummyFindSCP, DummyGetSCP,
@@ -1665,7 +1628,10 @@ class TestAssociationSendCFind(object):
         assert assoc.is_established
 
         def test():
-            next(assoc.send_c_find(self.ds, PatientRootQueryRetrieveInformationModelFind))
+            next(assoc.send_c_find(
+                self.ds,
+                PatientRootQueryRetrieveInformationModelFind)
+            )
 
         with pytest.raises(ValueError):
             test()
@@ -1689,64 +1655,6 @@ class TestAssociationSendCFind(object):
         assert assoc.is_released
         scp.stop()
 
-    def test_good_query_model(self):
-        """Test good query_model values"""
-        def handle(event):
-            yield 0x0000, None
-
-        self.ae = ae = AE()
-        ae.acse_timeout = 5
-        ae.dimse_timeout = 5
-        ae.network_timeout = 5
-        ae.add_supported_context(PatientRootQueryRetrieveInformationModelFind)
-        ae.add_supported_context(StudyRootQueryRetrieveInformationModelFind)
-        ae.add_supported_context(PatientStudyOnlyQueryRetrieveInformationModelFind)
-        ae.add_supported_context(ModalityWorklistInformationFind)
-        ae.add_supported_context(GeneralRelevantPatientInformationQuery)
-        ae.add_supported_context(BreastImagingRelevantPatientInformationQuery)
-        ae.add_supported_context(CardiacRelevantPatientInformationQuery)
-        ae.add_supported_context(ProductCharacteristicsQueryInformationModelFind)
-        ae.add_supported_context(SubstanceApprovalQueryInformationModelFind)
-        ae.add_supported_context(HangingProtocolInformationModelFind)
-        ae.add_supported_context(DefinedProcedureProtocolInformationModelFind)
-        ae.add_supported_context(ColorPaletteInformationModelFind)
-        ae.add_supported_context(GenericImplantTemplateInformationModelFind)
-        ae.add_supported_context(ImplantAssemblyTemplateInformationModelFind)
-        ae.add_supported_context(ImplantTemplateGroupInformationModelFind)
-        ae.add_supported_context(ProtocolApprovalInformationModelFind)
-        scp = ae.start_server(
-            ('', 11112), block=False, evt_handlers=[(evt.EVT_C_FIND, handle)]
-        )
-
-        ae.add_requested_context(PatientRootQueryRetrieveInformationModelFind)
-        ae.add_requested_context(StudyRootQueryRetrieveInformationModelFind)
-        ae.add_requested_context(PatientStudyOnlyQueryRetrieveInformationModelFind)
-        ae.add_requested_context(ModalityWorklistInformationFind)
-        ae.add_requested_context(GeneralRelevantPatientInformationQuery)
-        ae.add_requested_context(BreastImagingRelevantPatientInformationQuery)
-        ae.add_requested_context(CardiacRelevantPatientInformationQuery)
-        ae.add_requested_context(ProductCharacteristicsQueryInformationModelFind)
-        ae.add_requested_context(SubstanceApprovalQueryInformationModelFind)
-        ae.add_requested_context(HangingProtocolInformationModelFind)
-        ae.add_requested_context(DefinedProcedureProtocolInformationModelFind)
-        ae.add_requested_context(ColorPaletteInformationModelFind)
-        ae.add_requested_context(GenericImplantTemplateInformationModelFind)
-        ae.add_requested_context(ImplantAssemblyTemplateInformationModelFind)
-        ae.add_requested_context(ImplantTemplateGroupInformationModelFind)
-        ae.add_requested_context(ProtocolApprovalInformationModelFind)
-        assoc = ae.associate('localhost', 11112)
-        assert assoc.is_established
-
-        for qm in ['P', 'S', 'O', 'W', 'G', 'B', 'C', 'PC', 'SA', 'H',
-                   'D', 'CP', 'IG', 'IA', 'IT', 'PA']:
-            for (status, ds) in assoc.send_c_find(self.ds, query_model=qm):
-                assert status.Status == 0x0000
-
-        assoc.release()
-        assert assoc.is_released
-
-        scp.shutdown()
-
     def test_fail_encode_identifier(self):
         """Test a failure in encoding the Identifier dataset"""
         self.scp = DummyFindSCP()
@@ -1761,7 +1669,7 @@ class TestAssociationSendCFind(object):
         DATASET.PerimeterValue = b'\x00\x01'
 
         def test():
-            next(assoc.send_c_find(DATASET, query_model='P'))
+            next(assoc.send_c_find(DATASET, PatientRootQueryRetrieveInformationModelFind))
         with pytest.raises(ValueError):
             test()
         assoc.release()
@@ -1787,7 +1695,8 @@ class TestAssociationSendCFind(object):
         assoc = ae.associate('localhost', 11112)
         assert assoc.is_established
 
-        for (status, ds) in assoc.send_c_find(self.ds, query_model='P'):
+        for (status, ds) in assoc.send_c_find(
+                self.ds, PatientRootQueryRetrieveInformationModelFind):
             assert status.Status == 0xA700
             assert ds is None
         assoc.release()
@@ -1813,7 +1722,7 @@ class TestAssociationSendCFind(object):
         assoc = ae.associate('localhost', 11112)
         assert assoc.is_established
 
-        result = assoc.send_c_find(self.ds, query_model='P')
+        result = assoc.send_c_find(self.ds, PatientRootQueryRetrieveInformationModelFind)
         (status, ds) = next(result)
         assert status.Status == 0xFF00
         assert 'PatientName' in ds
@@ -1843,7 +1752,7 @@ class TestAssociationSendCFind(object):
         assoc = ae.associate('localhost', 11112)
         assert assoc.is_established
 
-        for (status, ds) in assoc.send_c_find(self.ds, query_model='P'):
+        for (status, ds) in assoc.send_c_find(self.ds, PatientRootQueryRetrieveInformationModelFind):
             assert status.Status == 0x0000
             assert ds is None
         assoc.release()
@@ -1870,7 +1779,7 @@ class TestAssociationSendCFind(object):
         assoc = ae.associate('localhost', 11112)
         assert assoc.is_established
 
-        for (status, ds) in assoc.send_c_find(self.ds, query_model='P'):
+        for (status, ds) in assoc.send_c_find(self.ds, PatientRootQueryRetrieveInformationModelFind):
             assert status.Status == 0x0000
             assert ds is None
         assoc.release()
@@ -1896,7 +1805,7 @@ class TestAssociationSendCFind(object):
         assoc = ae.associate('localhost', 11112)
         assert assoc.is_established
 
-        for (status, ds) in assoc.send_c_find(self.ds, query_model='P'):
+        for (status, ds) in assoc.send_c_find(self.ds, PatientRootQueryRetrieveInformationModelFind):
             assert status.Status == 0xFE00
             assert ds is None
         assoc.release()
@@ -1923,7 +1832,7 @@ class TestAssociationSendCFind(object):
 
         assoc.dimse = DummyDIMSE()
         assert assoc.is_established
-        for (_, _) in assoc.send_c_find(self.ds, query_model='P'):
+        for (_, _) in assoc.send_c_find(self.ds, PatientRootQueryRetrieveInformationModelFind):
             pass
 
         assert assoc.is_aborted
@@ -1948,7 +1857,7 @@ class TestAssociationSendCFind(object):
         assoc = ae.associate('localhost', 11112)
         assert assoc.is_established
 
-        for (status, ds) in assoc.send_c_find(self.ds, query_model='P'):
+        for (status, ds) in assoc.send_c_find(self.ds, PatientRootQueryRetrieveInformationModelFind):
             assert status.Status == 0xFFF0
         assoc.release()
         assert assoc.is_released
@@ -1977,7 +1886,7 @@ class TestAssociationSendCFind(object):
                                  ExplicitVRLittleEndian)
         assoc = ae.associate('localhost', 11112)
         assert assoc.is_established
-        for (status, ds) in assoc.send_c_find(self.ds, query_model='P'):
+        for (status, ds) in assoc.send_c_find(self.ds, PatientRootQueryRetrieveInformationModelFind):
             assert status.Status in range(0xC000, 0xD000)
         assoc.release()
         assert assoc.is_released
@@ -2012,7 +1921,7 @@ class TestAssociationSendCFind(object):
         assoc.dimse = DummyDIMSE()
         assert assoc.is_established
 
-        results = assoc.send_c_find(self.ds, query_model='P')
+        results = assoc.send_c_find(self.ds, PatientRootQueryRetrieveInformationModelFind)
         assert next(results) == (Dataset(), None)
         with pytest.raises(StopIteration):
             next(results)
@@ -2052,7 +1961,7 @@ class TestAssociationSendCFind(object):
         assoc.dimse = DummyDIMSE()
         assert assoc.is_established
 
-        results = assoc.send_c_find(self.ds, query_model='P')
+        results = assoc.send_c_find(self.ds, PatientRootQueryRetrieveInformationModelFind)
         status, ds = next(results)
 
         assert status.Status == 0xFF00
@@ -2076,7 +1985,7 @@ class TestAssociationSendCFind(object):
             identifier = Dataset()
             identifier.PatientID = '*'
             assoc.is_established = True
-            results = assoc.send_c_find(identifier, query_model='P')
+            results = assoc.send_c_find(identifier, PatientRootQueryRetrieveInformationModelFind)
             status, ds = next(results)
             assert status == Dataset()
             assert ds is None
@@ -2103,7 +2012,7 @@ class TestAssociationSendCFind(object):
             identifier = Dataset()
             identifier.PatientID = '*'
             assoc.is_established = True
-            results = assoc.send_c_find(identifier, query_model='P')
+            results = assoc.send_c_find(identifier, PatientRootQueryRetrieveInformationModelFind)
             status, ds = next(results)
             assert status == Dataset()
             assert ds is None
@@ -2113,33 +2022,6 @@ class TestAssociationSendCFind(object):
                 'Received an invalid C-FIND response from the peer'
             ) in caplog.text
             assert assoc.is_aborted
-
-    def test_deprecation_warning(self):
-        """Test the deprecation warning works OK"""
-        with pytest.deprecated_call():
-            def handle(event):
-                yield 0x0000, None
-
-            self.ae = ae = AE()
-            ae.acse_timeout = 5
-            ae.dimse_timeout = 5
-            ae.network_timeout = 5
-            ae.add_supported_context(PatientRootQueryRetrieveInformationModelFind)
-            scp = ae.start_server(
-                ('', 11112), block=False, evt_handlers=[(evt.EVT_C_FIND, handle)]
-            )
-
-            ae.add_requested_context(PatientRootQueryRetrieveInformationModelFind)
-            assoc = ae.associate('localhost', 11112)
-            assert assoc.is_established
-
-            for (status, ds) in assoc.send_c_find(self.ds, query_model='P'):
-                assert status.Status == 0x0000
-                assert ds is None
-            assoc.release()
-            assert assoc.is_released
-
-            scp.shutdown()
 
     def test_query_uid_public(self):
         """Test using a public UID for the query model"""
@@ -2336,7 +2218,7 @@ class TestAssociationSendCGet(object):
         )
         assert assoc.is_established
 
-        result = assoc.send_c_get(self.ds, query_model='P')
+        result = assoc.send_c_get(self.ds, PatientRootQueryRetrieveInformationModelGet)
         (status, ds) = next(result)
         assert status.Status == 0xff00
         assert ds is None
@@ -2388,69 +2270,6 @@ class TestAssociationSendCGet(object):
         assert assoc.is_released
         self.scp.stop()
 
-    def test_good_query_model(self):
-        """Test all the query models"""
-        store_pname = []
-
-        def handle_store(event):
-            store_pname.append(event.dataset.PatientName)
-            return 0x0000
-
-        def handle_get(event):
-            yield 0
-
-        self.ae = ae = AE()
-        ae.acse_timeout = 5
-        ae.dimse_timeout = 5
-        ae.network_timeout = 5
-        ae.add_supported_context(PatientRootQueryRetrieveInformationModelGet)
-        ae.add_supported_context(StudyRootQueryRetrieveInformationModelGet)
-        ae.add_supported_context(PatientStudyOnlyQueryRetrieveInformationModelGet)
-        ae.add_supported_context(CompositeInstanceRootRetrieveGet)
-        ae.add_supported_context(CompositeInstanceRetrieveWithoutBulkDataGet)
-        ae.add_supported_context(HangingProtocolInformationModelGet)
-        ae.add_supported_context(DefinedProcedureProtocolInformationModelGet)
-        ae.add_supported_context(ColorPaletteInformationModelGet)
-        ae.add_supported_context(GenericImplantTemplateInformationModelGet)
-        ae.add_supported_context(ImplantAssemblyTemplateInformationModelGet)
-        ae.add_supported_context(ImplantTemplateGroupInformationModelGet)
-        ae.add_supported_context(ProtocolApprovalInformationModelGet)
-        ae.add_supported_context(CTImageStorage, scu_role=True, scp_role=True)
-        scp = ae.start_server(
-            ('', 11112), block=False, evt_handlers=[(evt.EVT_C_GET, handle_get)]
-        )
-
-        ae.add_requested_context(PatientRootQueryRetrieveInformationModelGet)
-        ae.add_requested_context(StudyRootQueryRetrieveInformationModelGet)
-        ae.add_requested_context(PatientStudyOnlyQueryRetrieveInformationModelGet)
-        ae.add_requested_context(CompositeInstanceRootRetrieveGet)
-        ae.add_requested_context(CompositeInstanceRetrieveWithoutBulkDataGet)
-        ae.add_requested_context(HangingProtocolInformationModelGet)
-        ae.add_requested_context(DefinedProcedureProtocolInformationModelGet)
-        ae.add_requested_context(ColorPaletteInformationModelGet)
-        ae.add_requested_context(GenericImplantTemplateInformationModelGet)
-        ae.add_requested_context(ImplantAssemblyTemplateInformationModelGet)
-        ae.add_requested_context(ImplantTemplateGroupInformationModelGet)
-        ae.add_requested_context(ProtocolApprovalInformationModelGet)
-        ae.add_requested_context(CTImageStorage)
-
-        role = build_role(CTImageStorage, scu_role=True, scp_role=True)
-        assoc = ae.associate(
-            'localhost', 11112, ext_neg=[role],
-            evt_handlers=[(evt.EVT_C_STORE, handle_store)]
-        )
-        assert assoc.is_established
-
-        for qm in ['P', 'S', 'O', 'C', 'CB', 'H', 'D', 'CP', 'IG', 'IA', 'IT',
-                   'PA']:
-            for (status, ds) in assoc.send_c_get(self.ds, query_model=qm):
-                assert status.Status == 0x0000
-
-        assoc.release()
-        assert assoc.is_released
-
-        scp.shutdown()
-
     def test_fail_encode_identifier(self):
         """Test a failure in encoding the Identifier dataset"""
         self.scp = DummyGetSCP()
@@ -2465,7 +2284,7 @@ class TestAssociationSendCGet(object):
         DATASET.PerimeterValue = b'\x00\x01'
 
         def test():
-            next(assoc.send_c_get(DATASET, query_model='P'))
+            next(assoc.send_c_get(DATASET, PatientRootQueryRetrieveInformationModelGet))
         with pytest.raises(ValueError):
             test()
         assoc.release()
@@ -2505,7 +2324,7 @@ class TestAssociationSendCGet(object):
         )
         assert assoc.is_established
 
-        for (status, ds) in assoc.send_c_get(self.ds, query_model='P'):
+        for (status, ds) in assoc.send_c_get(self.ds, PatientRootQueryRetrieveInformationModelGet):
             assert status.Status == 0xA701
         assoc.release()
         assert assoc.is_released
@@ -2548,7 +2367,7 @@ class TestAssociationSendCGet(object):
 
         assert assoc.is_established
 
-        result = assoc.send_c_get(self.ds, query_model='P')
+        result = assoc.send_c_get(self.ds, PatientRootQueryRetrieveInformationModelGet)
         (status, ds) = next(result)
         assert status.Status == 0xff00
         assert ds is None
@@ -2601,7 +2420,7 @@ class TestAssociationSendCGet(object):
 
         assert assoc.is_established
 
-        result = assoc.send_c_get(self.ds, query_model='P')
+        result = assoc.send_c_get(self.ds, PatientRootQueryRetrieveInformationModelGet)
         (status, ds) = next(result)
         assert status.Status == 0xff00
         assert ds is None
@@ -2652,7 +2471,7 @@ class TestAssociationSendCGet(object):
         )
         assert assoc.is_established
 
-        result = assoc.send_c_get(self.ds, query_model='P')
+        result = assoc.send_c_get(self.ds, PatientRootQueryRetrieveInformationModelGet)
         # We have 2 status, ds and 1 success
         (status, ds) = next(result)
         assert status.Status == 0xFF00
@@ -2704,7 +2523,7 @@ class TestAssociationSendCGet(object):
         )
         assert assoc.is_established
 
-        result = assoc.send_c_get(self.ds, query_model='P')
+        result = assoc.send_c_get(self.ds, PatientRootQueryRetrieveInformationModelGet)
         # We have 2 status, ds and 1 success
         (status, ds) = next(result)
         assert status.Status == 0xFF00
@@ -2754,7 +2573,7 @@ class TestAssociationSendCGet(object):
         )
         assert assoc.is_established
 
-        for (status, ds) in assoc.send_c_get(self.ds, query_model='P'):
+        for (status, ds) in assoc.send_c_get(self.ds, PatientRootQueryRetrieveInformationModelGet):
             assert status.Status == 0xFE00
         assoc.release()
         assert assoc.is_released
@@ -2795,7 +2614,7 @@ class TestAssociationSendCGet(object):
         )
         assert assoc.is_established
 
-        result = assoc.send_c_get(self.ds, query_model='P')
+        result = assoc.send_c_get(self.ds, PatientRootQueryRetrieveInformationModelGet)
         (status, ds) = next(result)
         assert status.Status == 0xff00
         assert ds is None
@@ -2844,7 +2663,7 @@ class TestAssociationSendCGet(object):
         )
         assert assoc.is_established
 
-        for (status, ds) in assoc.send_c_get(self.ds, query_model='P'):
+        for (status, ds) in assoc.send_c_get(self.ds, PatientRootQueryRetrieveInformationModelGet):
             assert status.Status == 0xFFF0
         assoc.release()
         assert assoc.is_released
@@ -2888,7 +2707,7 @@ class TestAssociationSendCGet(object):
         assoc.dimse = DummyDIMSE()
         assert assoc.is_established
 
-        results = assoc.send_c_get(self.ds, query_model='P')
+        results = assoc.send_c_get(self.ds, PatientRootQueryRetrieveInformationModelGet)
         assert next(results) == (Dataset(), None)
         with pytest.raises(StopIteration):
             next(results)
@@ -2941,7 +2760,7 @@ class TestAssociationSendCGet(object):
         assoc.dimse = DummyDIMSE()
         assert assoc.is_established
 
-        results = assoc.send_c_get(self.ds, query_model='P')
+        results = assoc.send_c_get(self.ds, PatientRootQueryRetrieveInformationModelGet)
         status, ds = next(results)
 
         assert status.Status == 0xC000
@@ -2965,7 +2784,7 @@ class TestAssociationSendCGet(object):
             identifier = Dataset()
             identifier.PatientID = '*'
             assoc.is_established = True
-            results = assoc.send_c_get(identifier, query_model='P')
+            results = assoc.send_c_get(identifier, PatientRootQueryRetrieveInformationModelGet)
             status, ds = next(results)
             assert status == Dataset()
             assert ds is None
@@ -2992,7 +2811,7 @@ class TestAssociationSendCGet(object):
             identifier = Dataset()
             identifier.PatientID = '*'
             assoc.is_established = True
-            results = assoc.send_c_get(identifier, query_model='P')
+            results = assoc.send_c_get(identifier, PatientRootQueryRetrieveInformationModelGet)
             status, ds = next(results)
             assert status == Dataset()
             assert ds is None
@@ -3002,34 +2821,6 @@ class TestAssociationSendCGet(object):
                 'Received an invalid C-GET response from the peer'
             ) in caplog.text
             assert assoc.is_aborted
-
-    def test_deprecation_warning(self):
-        """Test the deprecation warning works OK"""
-        with pytest.deprecated_call():
-            def handle(event):
-                yield 0
-                yield 0x0000, None
-
-            self.ae = ae = AE()
-            ae.acse_timeout = 5
-            ae.dimse_timeout = 5
-            ae.network_timeout = 5
-            ae.add_supported_context(PatientRootQueryRetrieveInformationModelGet)
-            scp = ae.start_server(
-                ('', 11112), block=False, evt_handlers=[(evt.EVT_C_GET, handle)]
-            )
-
-            ae.add_requested_context(PatientRootQueryRetrieveInformationModelGet)
-            assoc = ae.associate('localhost', 11112)
-            assert assoc.is_established
-
-            for (status, ds) in assoc.send_c_get(self.ds, query_model='P'):
-                assert status.Status == 0x0000
-                assert ds is None
-            assoc.release()
-            assert assoc.is_released
-
-            scp.shutdown()
 
     def test_query_uid_public(self):
         """Test using a public UID for the query model"""
@@ -3183,79 +2974,6 @@ class TestAssociationSendCMove(object):
         assert assoc.is_released
         self.scp.stop()
 
-    def test_good_query_model(self):
-        """Test all the query models"""
-
-        def handle_store(event):
-            return 0x0000
-
-        self.ae = ae = AE()
-        ae.acse_timeout = 5
-        ae.dimse_timeout = 5
-        ae.network_timeout = 5
-
-        # Storage SCP
-        ae.add_supported_context(CTImageStorage)
-        store_scp = ae.start_server(
-            ('', 11112), block=False, evt_handlers=[(evt.EVT_C_STORE, handle_store)]
-        )
-
-        # Move SCP
-        def handle_move(event):
-            yield 'localhost', 11112
-            yield 2
-            yield 0xff00, self.good
-            yield 0xff00, self.good
-
-        ae.add_requested_context(CTImageStorage)
-        ae.add_supported_context(PatientRootQueryRetrieveInformationModelMove)
-        ae.add_supported_context(StudyRootQueryRetrieveInformationModelMove)
-        ae.add_supported_context(PatientStudyOnlyQueryRetrieveInformationModelMove)
-        ae.add_supported_context(CompositeInstanceRootRetrieveMove)
-        ae.add_supported_context(HangingProtocolInformationModelMove)
-        ae.add_supported_context(DefinedProcedureProtocolInformationModelMove)
-        ae.add_supported_context(ColorPaletteInformationModelMove)
-        ae.add_supported_context(GenericImplantTemplateInformationModelMove)
-        ae.add_supported_context(ImplantAssemblyTemplateInformationModelMove)
-        ae.add_supported_context(ImplantTemplateGroupInformationModelMove)
-        ae.add_supported_context(ProtocolApprovalInformationModelMove)
-        move_scp = ae.start_server(
-            ('', 11113), block=False, evt_handlers=[(evt.EVT_C_MOVE, handle_move)]
-        )
-
-        # Move SCU
-        ae.add_requested_context(PatientRootQueryRetrieveInformationModelMove)
-        ae.add_requested_context(StudyRootQueryRetrieveInformationModelMove)
-        ae.add_requested_context(PatientStudyOnlyQueryRetrieveInformationModelMove)
-        ae.add_requested_context(CompositeInstanceRootRetrieveMove)
-        ae.add_requested_context(HangingProtocolInformationModelMove)
-        ae.add_requested_context(DefinedProcedureProtocolInformationModelMove)
-        ae.add_requested_context(ColorPaletteInformationModelMove)
-        ae.add_requested_context(GenericImplantTemplateInformationModelMove)
-        ae.add_requested_context(ImplantAssemblyTemplateInformationModelMove)
-        ae.add_requested_context(ImplantTemplateGroupInformationModelMove)
-        ae.add_requested_context(ProtocolApprovalInformationModelMove)
-
-        assoc = ae.associate('localhost', 11113)
-        assert assoc.is_established
-
-        for qm in ['P', 'S', 'O', 'C', 'H', 'D', 'CP', 'IG', 'IA', 'IT', 'PA']:
-            result = assoc.send_c_move(self.ds, b'TESTMOVE', query_model=qm)
-            (status, ds) = next(result)
-            assert status.Status == 0xFF00
-            (status, ds) = next(result)
-            assert status.Status == 0xFF00
-            (status, ds) = next(result)
-            assert status.Status == 0x0000
-            with pytest.raises(StopIteration):
-                next(result)
-
-        assoc.release()
-        assert assoc.is_released
-
-        store_scp.shutdown()
-        move_scp.shutdown()
-
     def test_fail_encode_identifier(self):
         """Test a failure in encoding the Identifier dataset"""
         self.scp = DummyMoveSCP()
@@ -3270,7 +2988,10 @@ class TestAssociationSendCMove(object):
         DATASET.PerimeterValue = b'\x00\x01'
 
         def test():
-            next(assoc.send_c_move(DATASET, b'SOMEPLACE', query_model='P'))
+            next(assoc.send_c_move(
+                DATASET, b'SOMEPLACE',
+                PatientRootQueryRetrieveInformationModelMove)
+            )
         with pytest.raises(ValueError):
             test()
         assoc.release()
@@ -3297,7 +3018,9 @@ class TestAssociationSendCMove(object):
         ae.add_requested_context(PatientRootQueryRetrieveInformationModelMove)
         assoc = ae.associate('localhost', 11112)
         assert assoc.is_established
-        for (status, ds) in assoc.send_c_move(self.ds, b'TESTMOVE', query_model='P'):
+        for (status, ds) in assoc.send_c_move(
+                    self.ds, b'TESTMOVE',
+                    PatientRootQueryRetrieveInformationModelMove):
             assert status.Status == 0xa801
         assoc.release()
         assert assoc.is_released
@@ -3324,7 +3047,9 @@ class TestAssociationSendCMove(object):
         assoc = ae.associate('localhost', 11112)
         assert assoc.is_established
 
-        for (status, ds) in assoc.send_c_move(self.ds, b'UNKNOWN', query_model='P'):
+        for (status, ds) in assoc.send_c_move(
+                    self.ds, b'UNKNOWN',
+                    PatientRootQueryRetrieveInformationModelMove):
             assert status.Status == 0xa801
         assoc.release()
         assert assoc.is_released
@@ -3360,7 +3085,9 @@ class TestAssociationSendCMove(object):
         assoc = ae.associate('localhost', 11112)
         assert assoc.is_established
 
-        result = assoc.send_c_move(self.ds, b'TESTMOVE', query_model='P')
+        result = assoc.send_c_move(
+            self.ds, b'TESTMOVE', PatientRootQueryRetrieveInformationModelMove
+        )
         (status, ds) = next(result)
         assert status.Status == 0xFF00
         (status, ds) = next(result)
@@ -3405,7 +3132,9 @@ class TestAssociationSendCMove(object):
         assoc = ae.associate('localhost', 11112)
         assert assoc.is_established
 
-        result = assoc.send_c_move(self.ds, b'TESTMOVE', query_model='P')
+        result = assoc.send_c_move(
+            self.ds, b'TESTMOVE', PatientRootQueryRetrieveInformationModelMove
+        )
         (status, ds) = next(result)
         assert status.Status == 0xFF00
         (status, ds) = next(result)
@@ -3448,7 +3177,9 @@ class TestAssociationSendCMove(object):
         assoc = ae.associate('localhost', 11112)
         assert assoc.is_established
 
-        result = assoc.send_c_move(self.ds, b'TESTMOVE', query_model='P')
+        result = assoc.send_c_move(
+            self.ds, b'TESTMOVE', PatientRootQueryRetrieveInformationModelMove
+        )
         (status, ds) = next(result)
         assert status.Status == 0xC000
         assert 'FailedSOPInstanceUIDList' in ds
@@ -3490,7 +3221,9 @@ class TestAssociationSendCMove(object):
         assoc = ae.associate('localhost', 11112)
         assert assoc.is_established
 
-        result = assoc.send_c_move(self.ds, b'TESTMOVE', query_model='P')
+        result = assoc.send_c_move(
+            self.ds, b'TESTMOVE', PatientRootQueryRetrieveInformationModelMove
+        )
         (status, ds) = next(result)
         assert status.Status == 0xFF00
         assert ds is None
@@ -3538,7 +3271,9 @@ class TestAssociationSendCMove(object):
         assoc = ae.associate('localhost', 11112)
         assert assoc.is_established
 
-        result = assoc.send_c_move(self.ds, b'TESTMOVE', query_model='P')
+        result = assoc.send_c_move(
+            self.ds, b'TESTMOVE', PatientRootQueryRetrieveInformationModelMove
+        )
         (status, ds) = next(result)
         assert status.Status == 0xFE00
 
@@ -3587,7 +3322,9 @@ class TestAssociationSendCMove(object):
         assoc = ae.associate('localhost', 11113)
         assert assoc.is_established
 
-        result = assoc.send_c_move(self.ds, b'TESTMOVE', query_model='P')
+        result = assoc.send_c_move(
+            self.ds, b'TESTMOVE', PatientRootQueryRetrieveInformationModelMove
+        )
         (status, ds) = next(result)
         assert status.Status == 0xFF00
         assert ds is None
@@ -3632,7 +3369,9 @@ class TestAssociationSendCMove(object):
         assoc = ae.associate('localhost', 11112)
         assert assoc.is_established
 
-        for (status, ds) in assoc.send_c_move(self.ds, b'TESTMOVE', query_model='P'):
+        for (status, ds) in assoc.send_c_move(
+                    self.ds, b'TESTMOVE',
+                    PatientRootQueryRetrieveInformationModelMove):
             assert status.Status == 0xFFF0
         assoc.release()
         assert assoc.is_released
@@ -3680,7 +3419,11 @@ class TestAssociationSendCMove(object):
             assoc = ae.associate('localhost', 11113)
             assert assoc.is_established
             assert not assoc.is_released
-            result = assoc.send_c_move(self.ds, b'TESTMOVE', query_model='P')
+            result = assoc.send_c_move(
+                self.ds,
+                b'TESTMOVE',
+                PatientRootQueryRetrieveInformationModelMove
+            )
             (status, ds) = next(result)
             assert status.Status == 0xFF00
             (status, ds) = next(result)
@@ -3728,7 +3471,9 @@ class TestAssociationSendCMove(object):
         assoc.dimse = DummyDIMSE()
         assert assoc.is_established
 
-        results = assoc.send_c_move(self.ds, b'TEST', query_model='P')
+        results = assoc.send_c_move(
+            self.ds, b'TEST', PatientRootQueryRetrieveInformationModelMove
+        )
         assert next(results) == (Dataset(), None)
         with pytest.raises(StopIteration):
             next(results)
@@ -3776,7 +3521,9 @@ class TestAssociationSendCMove(object):
         assoc.dimse = DummyDIMSE()
         assert assoc.is_established
 
-        results = assoc.send_c_move(self.ds, b'TEST', query_model='P')
+        results = assoc.send_c_move(
+            self.ds, b'TEST', PatientRootQueryRetrieveInformationModelMove
+        )
         status, ds = next(results)
 
         assert status.Status == 0xC000
@@ -3800,7 +3547,9 @@ class TestAssociationSendCMove(object):
             identifier = Dataset()
             identifier.PatientID = '*'
             assoc.is_established = True
-            results = assoc.send_c_move(identifier, move_aet=b'A', query_model='P')
+            results = assoc.send_c_move(
+                identifier, b'A', PatientRootQueryRetrieveInformationModelMove
+            )
             status, ds = next(results)
             assert status == Dataset()
             assert ds is None
@@ -3827,7 +3576,9 @@ class TestAssociationSendCMove(object):
             identifier = Dataset()
             identifier.PatientID = '*'
             assoc.is_established = True
-            results = assoc.send_c_move(identifier, move_aet=b'A', query_model='P')
+            results = assoc.send_c_move(
+                identifier, b'A', PatientRootQueryRetrieveInformationModelMove
+            )
             status, ds = next(results)
             assert status == Dataset()
             assert ds is None
@@ -3837,61 +3588,6 @@ class TestAssociationSendCMove(object):
                 'Received an invalid C-MOVE response from the peer'
             ) in caplog.text
             assert assoc.is_aborted
-
-    def test_deprecation_warning(self):
-        """Test the deprecation warning works OK"""
-        with pytest.deprecated_call():
-            def handle_store(event):
-                return 0x0000
-
-            self.ae = ae = AE()
-            ae.acse_timeout = 5
-            ae.dimse_timeout = 5
-            ae.network_timeout = 5
-
-            # Storage SCP
-            ae.add_supported_context(CTImageStorage)
-            store_scp = ae.start_server(
-                ('', 11112), block=False, evt_handlers=[(evt.EVT_C_STORE, handle_store)]
-            )
-
-            # Move SCP
-            def handle_move(event):
-                yield 'localhost', 11112
-                yield 2
-                yield 0xff00, self.good
-
-            ae.add_requested_context(CTImageStorage)
-            ae.add_supported_context(PatientRootQueryRetrieveInformationModelMove)
-            ae.add_supported_context(StudyRootQueryRetrieveInformationModelMove)
-            ae.add_supported_context(PatientStudyOnlyQueryRetrieveInformationModelMove)
-            move_scp = ae.start_server(
-                ('', 11113), block=False, evt_handlers=[(evt.EVT_C_MOVE, handle_move)]
-            )
-
-            # Move SCU
-            ae.add_requested_context(PatientRootQueryRetrieveInformationModelMove)
-            ae.add_requested_context(StudyRootQueryRetrieveInformationModelMove)
-            ae.add_requested_context(PatientStudyOnlyQueryRetrieveInformationModelMove)
-
-            assoc = ae.associate('localhost', 11113)
-            assert assoc.is_established
-
-            result = assoc.send_c_move(self.ds, b'TESTMOVE', 'P')
-            (status, ds) = next(result)
-            assert status.Status == 0xFF00
-            assert ds is None
-            (status, ds) = next(result)
-            assert status.Status == 0x0000
-            assert ds is None
-            with pytest.raises(StopIteration):
-                next(result)
-
-            assoc.release()
-            assert assoc.is_released
-
-            store_scp.shutdown()
-            move_scp.shutdown()
 
     def test_query_uid_public(self):
         """Test using a public UID for the query model"""

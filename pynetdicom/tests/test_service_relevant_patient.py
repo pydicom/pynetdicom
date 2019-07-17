@@ -101,7 +101,7 @@ class TestRelevantPatientServiceClass(object):
         ae.dimse_timeout = 5
         assoc = ae.associate('localhost', 11112)
         assert assoc.is_established
-        result = assoc.send_c_find(self.query, query_model='G')
+        result = assoc.send_c_find(self.query, GeneralRelevantPatientInformationQuery)
         status, identifier = next(result)
         assert status.Status == 0xFF00
         status, identifier = next(result)
@@ -130,7 +130,7 @@ class TestRelevantPatientServiceClass(object):
         ae.dimse_timeout = 5
         assoc = ae.associate('localhost', 11112)
         assert assoc.is_established
-        result = assoc.send_c_find(self.query, query_model='G')
+        result = assoc.send_c_find(self.query, GeneralRelevantPatientInformationQuery)
         status, identifier = next(result)
         assert status.Status == 0xFF00
         assert status.ErrorComment == 'Test'
@@ -157,7 +157,7 @@ class TestRelevantPatientServiceClass(object):
         ae.dimse_timeout = 5
         assoc = ae.associate('localhost', 11112)
         assert assoc.is_established
-        result = assoc.send_c_find(self.query, query_model='G')
+        result = assoc.send_c_find(self.query, GeneralRelevantPatientInformationQuery)
         status, identifier = next(result)
         assert status.Status == 0xFF00
         status, identifier = next(result)
@@ -182,7 +182,7 @@ class TestRelevantPatientServiceClass(object):
         ae.dimse_timeout = 5
         assoc = ae.associate('localhost', 11112)
         assert assoc.is_established
-        result = assoc.send_c_find(self.query, query_model='G')
+        result = assoc.send_c_find(self.query, GeneralRelevantPatientInformationQuery)
         status, identifier = next(result)
         assert status.Status == 0xFFF0
         pytest.raises(StopIteration, next, result)
@@ -205,7 +205,7 @@ class TestRelevantPatientServiceClass(object):
         ae.dimse_timeout = 5
         assoc = ae.associate('localhost', 11112)
         assert assoc.is_established
-        result = assoc.send_c_find(self.query, query_model='G')
+        result = assoc.send_c_find(self.query, GeneralRelevantPatientInformationQuery)
         status, identifier = next(result)
         assert status.Status == 0xC002
         pytest.raises(StopIteration, next, result)
@@ -228,7 +228,7 @@ class TestRelevantPatientServiceClass(object):
         ae.dimse_timeout = 5
         assoc = ae.associate('localhost', 11112)
         assert assoc.is_established
-        result = assoc.send_c_find(self.query, query_model='G')
+        result = assoc.send_c_find(self.query, GeneralRelevantPatientInformationQuery)
         status, identifier = next(result)
         assert status.Status == 0xC002
         pytest.raises(StopIteration, next, result)
@@ -252,7 +252,7 @@ class TestRelevantPatientServiceClass(object):
         ae.dimse_timeout = 5
         assoc = ae.associate('localhost', 11112)
         assert assoc.is_established
-        result = assoc.send_c_find(self.query, query_model='G')
+        result = assoc.send_c_find(self.query, GeneralRelevantPatientInformationQuery)
         status, identifier = next(result)
         assert status.Status == 0xC311
         pytest.raises(StopIteration, next, result)
@@ -275,7 +275,7 @@ class TestRelevantPatientServiceClass(object):
         ae.dimse_timeout = 5
         assoc = ae.associate('localhost', 11112)
         assert assoc.is_established
-        result = assoc.send_c_find(self.query, query_model='G')
+        result = assoc.send_c_find(self.query, GeneralRelevantPatientInformationQuery)
         status, identifier = next(result)
         assert status.Status == 0xC312
         pytest.raises(StopIteration, next, result)
@@ -301,7 +301,7 @@ class TestRelevantPatientServiceClass(object):
         ae.dimse_timeout = 5
         assoc = ae.associate('localhost', 11112)
         assert assoc.is_established
-        result = assoc.send_c_find(self.query, query_model='G')
+        result = assoc.send_c_find(self.query, GeneralRelevantPatientInformationQuery)
         status, identifier = next(result)
         assert status.Status == 0xFF00
         assert identifier == self.query
@@ -330,7 +330,7 @@ class TestRelevantPatientServiceClass(object):
         ae.dimse_timeout = 5
         assoc = ae.associate('localhost', 11112)
         assert assoc.is_established
-        result = assoc.send_c_find(self.query, query_model='G')
+        result = assoc.send_c_find(self.query, GeneralRelevantPatientInformationQuery)
         status, identifier = next(result)
         assert status.Status == 0xFF00
         assert identifier == self.query
@@ -359,7 +359,7 @@ class TestRelevantPatientServiceClass(object):
         ae.dimse_timeout = 5
         assoc = ae.associate('localhost', 11112)
         assert assoc.is_established
-        result = assoc.send_c_find(self.query, query_model='G')
+        result = assoc.send_c_find(self.query, GeneralRelevantPatientInformationQuery)
         status, identifier = next(result)
         assert status.Status == 0xFF00
         assert identifier == self.query
@@ -387,7 +387,7 @@ class TestRelevantPatientServiceClass(object):
         ae.dimse_timeout = 5
         assoc = ae.associate('localhost', 11112)
         assert assoc.is_established
-        result = assoc.send_c_find(self.query, query_model='G')
+        result = assoc.send_c_find(self.query, GeneralRelevantPatientInformationQuery)
         status, identifier = next(result)
         assert status.Status == 0xFE00
         assert identifier is None
@@ -412,7 +412,7 @@ class TestRelevantPatientServiceClass(object):
         ae.dimse_timeout = 5
         assoc = ae.associate('localhost', 11112)
         assert assoc.is_established
-        result = assoc.send_c_find(self.query, query_model='G')
+        result = assoc.send_c_find(self.query, GeneralRelevantPatientInformationQuery)
         status, identifier = next(result)
         assert status.Status == 0xA700
         assert identifier is None
@@ -437,7 +437,7 @@ class TestRelevantPatientServiceClass(object):
         ae.dimse_timeout = 5
         assoc = ae.associate('localhost', 11112)
         assert assoc.is_established
-        result = assoc.send_c_find(self.query, query_model='G')
+        result = assoc.send_c_find(self.query, GeneralRelevantPatientInformationQuery)
         status, identifier = next(result)
         assert status.Status == 0x0000
         assert identifier is None
@@ -462,7 +462,7 @@ class TestRelevantPatientServiceClass(object):
         ae.dimse_timeout = 5
         assoc = ae.associate('localhost', 11112)
         assert assoc.is_established
-        result = assoc.send_c_find(self.query, query_model='G')
+        result = assoc.send_c_find(self.query, GeneralRelevantPatientInformationQuery)
         status, identifier = next(result)
         assert status.Status == 0x0000
         assert identifier is None
@@ -492,7 +492,7 @@ class TestRelevantPatientServiceClass(object):
         ae.dimse_timeout = 5
         assoc = ae.associate('localhost', 11112)
         assert assoc.is_established
-        result = assoc.send_c_find(self.query, query_model='G')
+        result = assoc.send_c_find(self.query, GeneralRelevantPatientInformationQuery)
         status, identifier = next(result)
         assert status.Status == 0xFF00
         status, identifier = next(result)
@@ -528,7 +528,7 @@ class TestRelevantPatientServiceClass(object):
         ae.dimse_timeout = 5
         assoc = ae.associate('localhost', 11112)
         assert assoc.is_established
-        result = assoc.send_c_find(self.query, query_model='G')
+        result = assoc.send_c_find(self.query, GeneralRelevantPatientInformationQuery)
         status, identifier = next(result)
         assert status.Status == 0xFF00
         status, identifier = next(result)
@@ -562,7 +562,7 @@ class TestRelevantPatientServiceClass(object):
         ae.dimse_timeout = 5
         assoc = ae.associate('localhost', 11112)
         assert assoc.is_established
-        result = assoc.send_c_find(self.query, query_model='G')
+        result = assoc.send_c_find(self.query, GeneralRelevantPatientInformationQuery)
         status, identifier = next(result)
         assert status.Status == 0xFF00
         status, identifier = next(result)
@@ -596,7 +596,7 @@ class TestRelevantPatientServiceClass(object):
         ae.dimse_timeout = 5
         assoc = ae.associate('localhost', 11112)
         assert assoc.is_established
-        result = assoc.send_c_find(self.query, query_model='G')
+        result = assoc.send_c_find(self.query, GeneralRelevantPatientInformationQuery)
         status, identifier = next(result)
         assert status.Status == 0xFF00
         status, identifier = next(result)

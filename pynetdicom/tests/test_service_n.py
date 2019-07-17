@@ -1116,7 +1116,7 @@ class TestUPSFindServiceClass(object):
         assert assoc.is_established
         result = assoc.send_c_find(
             self.query,
-            query_model=UnifiedProcedureStepPullSOPClass
+            UnifiedProcedureStepPullSOPClass
         )
         status, identifier = next(result)
         assert status.Status == 0xFF00
