@@ -32,6 +32,7 @@ from pynetdicom.service_class import (
 )
 from pynetdicom.sop_class import (
     CTImageStorage,
+    ModalityWorklistInformationFind,
     PatientRootQueryRetrieveInformationModelFind,
     PatientRootQueryRetrieveInformationModelGet,
     PatientRootQueryRetrieveInformationModelMove,
@@ -4707,6 +4708,19 @@ class TestQRCompositeInstanceWithoutBulk(object):
 
 class TestBasicWorklistServiceClass(object):
     """Tests for BasicWorklistManagementServiceClass."""
+    def setup(self):
+        """Run prior to each test"""
+        self.query = Dataset()
+        self.query.QueryRetrieveLevel = "PATIENT"
+        self.query.PatientName = '*'
+
+        self.ae = None
+
+    def teardown(self):
+        """Clear any active threads"""
+        if self.ae:
+            self.ae.shutdown()
+
     def test_bad_abstract_syntax_raises(self):
         """Test calling the BWM SCP with an unknown UID raises exception."""
         msg = r'The supplied abstract syntax is not valid'
@@ -4714,3 +4728,35 @@ class TestBasicWorklistServiceClass(object):
             bwm = BasicWorklistManagementServiceClass(None)
             context = build_context('1.2.3.4')
             bwm.SCP(None, context)
+
+    def test_pending_success(self):
+        """Test handler yielding pending then success status"""
+        def handle(event):
+            yield 0xFF01,  self.query
+            yield 0x0000, None
+            yield 0xA700, None
+
+        handlers = [(evt.EVT_C_FIND, handle)]
+
+        self.ae = ae = AE()
+        ae.add_supported_context(ModalityWorklistInformationFind)
+        ae.add_requested_context(ModalityWorklistInformationFind)
+        scp = ae.start_server(('', 11112), block=False, evt_handlers=handlers)
+
+        ae.acse_timeout = 5
+        ae.dimse_timeout = 5
+        assoc = ae.associate('localhost', 11112)
+        assert assoc.is_established
+        result = assoc.send_c_find(self.query, ModalityWorklistInformationFind)
+        status, identifier = next(result)
+        assert status.Status == 0xFF01
+        assert identifier == self.query
+        status, identifier = next(result)
+        assert status.Status == 0x0000
+        assert identifier is None
+        with pytest.raises(StopIteration):
+            next(result)
+
+        assoc.release()
+        assert assoc.is_released
+        scp.shutdown()
