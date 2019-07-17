@@ -90,46 +90,61 @@ or extended negotiation ignored). The sole exception is the default handler
 for ``evt.EVT_C_ECHO`` which returns an ``0x0000`` *Success* status. The
 table below lists the possible intervention events.
 
-+----------------------------+--------------------------------+------------------------------------------------------------------------------+
-| Event                      | Description                    |                                                                              |
-+============================+================================+==============================================================================+
-| Association request includes extended negotiation items                                                                                    |
-+----------------------------+--------------------------------+------------------------------------------------------------------------------+
-| ``evt.EVT_ASYNC_OPS``      | Association request includes   | `Handler documentation                                                       |
-|                            | Asynchronous Operations Window | <../reference/generated/pynetdicom._handlers.doc_handle_async.html>`_        |
-|                            | negotiation item               |                                                                              |
-+----------------------------+--------------------------------+------------------------------------------------------------------------------+
-| ``evt.EVT_SOP_COMMON``     | Association request includes   | `Handler documentation                                                       |
-|                            | SOP Class Common Extended      | <../reference/generated/pynetdicom._handlers.doc_handle_sop_common.html>`_   |
-|                            | negotiation item(s)            |                                                                              |
-+----------------------------+--------------------------------+------------------------------------------------------------------------------+
-| ``evt.EVT_SOP_EXTENDED``   | Association request includes   | `Handler documentation                                                       |
-|                            | SOP Class Extended negotiation | <../reference/generated/pynetdicom._handlers.doc_handle_sop_extended.html>`_ |
-|                            | item(s)                        |                                                                              |
-+----------------------------+--------------------------------+------------------------------------------------------------------------------+
-| ``evt.EVT_USER_ID``        | Association request includes   | `Handler documentation                                                       |
-|                            | User Identity negotiation item | <../reference/generated/pynetdicom._handlers.doc_handle_userid.html>`_       |
-+----------------------------+--------------------------------+------------------------------------------------------------------------------+
-| Service class received a DIMSE service request                                                                                             |
-+----------------------------+--------------------------------+------------------------------------------------------------------------------+
-| ``evt.EVT_C_ECHO``         | Service class received         | `Handler documentation                                                       |
-|                            | C-ECHO request                 | <../reference/generated/pynetdicom._handlers.doc_handle_echo.html>`_         |
-+----------------------------+--------------------------------+------------------------------------------------------------------------------+
-| ``evt.EVT_C_FIND``         | Service class received         | `Handler documentation                                                       |
-|                            | C-FIND request                 | <../reference/generated/pynetdicom._handlers.doc_handle_find.html>`_         |
-+----------------------------+--------------------------------+------------------------------------------------------------------------------+
-| ``evt.EVT_C_GET``          | Service class received         | `Handler documentation                                                       |
-|                            | C-GET request                  | <../reference/generated/pynetdicom._handlers.doc_handle_c_get.html>`_        |
-+----------------------------+--------------------------------+------------------------------------------------------------------------------+
-| ``evt.EVT_C_MOVE``         | Service class received         | `Handler documentation                                                       |
-|                            | C-MOVE request                 | <../reference/generated/pynetdicom._handlers.doc_handle_move.html>`_         |
-+----------------------------+--------------------------------+------------------------------------------------------------------------------+
-| ``evt.EVT_C_STORE``        | Service class received         | `Handler documentation                                                       |
-|                            | C-STORE request                | <../reference/generated/pynetdicom._handlers.doc_handle_store.html>`_        |
-+----------------------------+--------------------------------+------------------------------------------------------------------------------+
-| ``evt.EVT_N_GET``          | Service class received         | `Handler documentation                                                       |
-|                            | N-GET request                  | <../reference/generated/pynetdicom._handlers.doc_handle_n_get.html>`_        |
-+----------------------------+--------------------------------+------------------------------------------------------------------------------+
++----------------------------+--------------------------------+--------------------------------------------------------------------------------+
+| Event                      | Description                    |                                                                                |
++============================+================================+================================================================================+
+| Association request includes extended negotiation items                                                                                      |
++----------------------------+--------------------------------+--------------------------------------------------------------------------------+
+| ``evt.EVT_ASYNC_OPS``      | Association request includes   | `Handler documentation                                                         |
+|                            | Asynchronous Operations Window | <../reference/generated/pynetdicom._handlers.doc_handle_async.html>`_          |
+|                            | negotiation item               |                                                                                |
++----------------------------+--------------------------------+--------------------------------------------------------------------------------+
+| ``evt.EVT_SOP_COMMON``     | Association request includes   | `Handler documentation                                                         |
+|                            | SOP Class Common Extended      | <../reference/generated/pynetdicom._handlers.doc_handle_sop_common.html>`_     |
+|                            | negotiation item(s)            |                                                                                |
++----------------------------+--------------------------------+--------------------------------------------------------------------------------+
+| ``evt.EVT_SOP_EXTENDED``   | Association request includes   | `Handler documentation                                                         |
+|                            | SOP Class Extended negotiation | <../reference/generated/pynetdicom._handlers.doc_handle_sop_extended.html>`_   |
+|                            | item(s)                        |                                                                                |
++----------------------------+--------------------------------+--------------------------------------------------------------------------------+
+| ``evt.EVT_USER_ID``        | Association request includes   | `Handler documentation                                                         |
+|                            | User Identity negotiation item | <../reference/generated/pynetdicom._handlers.doc_handle_userid.html>`_         |
++----------------------------+--------------------------------+--------------------------------------------------------------------------------+
+| Service class received a DIMSE service request                                                                                               |
++----------------------------+--------------------------------+--------------------------------------------------------------------------------+
+| ``evt.EVT_C_ECHO``         | Service class received         | `Handler documentation                                                         |
+|                            | C-ECHO request                 | <../reference/generated/pynetdicom._handlers.doc_handle_echo.html>`_           |
++----------------------------+--------------------------------+--------------------------------------------------------------------------------+
+| ``evt.EVT_C_FIND``         | Service class received         | `Handler documentation                                                         |
+|                            | C-FIND request                 | <../reference/generated/pynetdicom._handlers.doc_handle_find.html>`_           |
++----------------------------+--------------------------------+--------------------------------------------------------------------------------+
+| ``evt.EVT_C_GET``          | Service class received         | `Handler documentation                                                         |
+|                            | C-GET request                  | <../reference/generated/pynetdicom._handlers.doc_handle_c_get.html>`_          |
++----------------------------+--------------------------------+--------------------------------------------------------------------------------+
+| ``evt.EVT_C_MOVE``         | Service class received         | `Handler documentation                                                         |
+|                            | C-MOVE request                 | <../reference/generated/pynetdicom._handlers.doc_handle_move.html>`_           |
++----------------------------+--------------------------------+--------------------------------------------------------------------------------+
+| ``evt.EVT_C_STORE``        | Service class received         | `Handler documentation                                                         |
+|                            | C-STORE request                | <../reference/generated/pynetdicom._handlers.doc_handle_store.html>`_          |
++----------------------------+--------------------------------+--------------------------------------------------------------------------------+
+| ``evt.EVT_N_ACTION``       | Service class received         | `Handler documentation                                                         |
+|                            | N-ACTION request               | <../reference/generated/pynetdicom._handlers.doc_handle_n_action.html>`_       |
++----------------------------+--------------------------------+--------------------------------------------------------------------------------+
+| ``evt.EVT_N_CREATE``       | Service class received         | `Handler documentation                                                         |
+|                            | N-CREATE request               | <../reference/generated/pynetdicom._handlers.doc_handle_n_create.html>`_       |
++----------------------------+--------------------------------+--------------------------------------------------------------------------------+
+| ``evt.EVT_N_DELETE``       | Service class received         | `Handler documentation                                                         |
+|                            | N-DELETE request               | <../reference/generated/pynetdicom._handlers.doc_handle_n_delete.html>`_       |
++----------------------------+--------------------------------+--------------------------------------------------------------------------------+
+| ``evt.EVT_N_EVENT_REPORT`` | Service class received         | `Handler documentation                                                         |
+|                            | N-EVENT-REPORT request         | <../reference/generated/pynetdicom._handlers.doc_handle_n_event_report.html>`_ |
++----------------------------+--------------------------------+--------------------------------------------------------------------------------+
+| ``evt.EVT_N_GET``          | Service class received         | `Handler documentation                                                         |
+|                            | N-GET request                  | <../reference/generated/pynetdicom._handlers.doc_handle_n_get.html>`_          |
++----------------------------+--------------------------------+--------------------------------------------------------------------------------+
+| ``evt.EVT_N_SET``          | Service class received         | `Handler documentation                                                         |
+|                            | N-SET request                  | <../reference/generated/pynetdicom._handlers.doc_handle_n_set.html>`_          |
++----------------------------+--------------------------------+--------------------------------------------------------------------------------+
 
 
 Event Handlers

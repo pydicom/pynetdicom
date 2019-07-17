@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>pynetdicom._handlers.doc_handle_move &mdash; pynetdicom 1.4.0.dev0 documentation</title>
+  <title>pynetdicom._handlers.doc_handle_move &mdash; pynetdicom 1.4.0 documentation</title>
   
 
   
@@ -66,7 +66,7 @@
             
             
               <div class="version">
-                1.4.0.dev0
+                1.4.0
               </div>
             
           
@@ -216,7 +216,7 @@
 <h1>pynetdicom._handlers.doc_handle_move<a class="headerlink" href="#pynetdicom-handlers-doc-handle-move" title="Permalink to this headline">¶</a></h1>
 <dl class="function">
 <dt id="pynetdicom._handlers.doc_handle_move">
-<code class="sig-prename descclassname">pynetdicom._handlers.</code><code class="sig-name descname">doc_handle_move</code><span class="sig-paren">(</span><em class="sig-param">event</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/329f1796/pynetdicom/_handlers.py#L2357"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom._handlers.doc_handle_move" title="Permalink to this definition">¶</a></dt>
+<code class="sig-prename descclassname">pynetdicom._handlers.</code><code class="sig-name descname">doc_handle_move</code><span class="sig-paren">(</span><em class="sig-param">event</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/9b965431/pynetdicom/_handlers.py#L2357"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom._handlers.doc_handle_move" title="Permalink to this definition">¶</a></dt>
 <dd><p>Documentation for handlers bound to <code class="docutils literal notranslate"><span class="pre">evt.EVT_C_MOVE</span></code>.</p>
 <p>User implementation of this event handler is required if one or more
 services that use C-MOVE are to be supported. If a handler is
@@ -285,6 +285,8 @@ that is running the service that received the C-MOVE request.</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">context</span></code> : the presentation context the request was sent under
 as a <code class="docutils literal notranslate"><span class="pre">presentation.PresentationContextTuple</span></code>.</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">event</span></code> : the event that occurred as <code class="docutils literal notranslate"><span class="pre">namedtuple</span></code>.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">move_destination</span></code> : the C-MOVE request’s <em>Move Destination</em>
+value as <code class="docutils literal notranslate"><span class="pre">bytes</span></code>.</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">request</span></code> : the received
 <a class="reference internal" href="pynetdicom.dimse_primitives.C_MOVE.html#pynetdicom.dimse_primitives.C_MOVE" title="pynetdicom.dimse_primitives.C_MOVE"><code class="xref py py-class docutils literal notranslate"><span class="pre">C-MOVE</span> <span class="pre">request</span></code></a></p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">timestamp</span></code> : the
@@ -302,8 +304,6 @@ a deferred read when decoding data, if the decode fails the returned
 C-CANCEL request has been received, False otherwise. If a C-CANCEL
 is received then the handler should yield a <code class="docutils literal notranslate"><span class="pre">(0xFE00,</span> <span class="pre">None)</span></code>
 status/dataset pair and return.</p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">move_destination</span></code> : returns the C-MOVE request’s <em>Move
-Destination</em> value as <code class="docutils literal notranslate"><span class="pre">bytes</span></code>.</p></li>
 </ul>
 </p>
 </dd>

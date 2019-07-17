@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>Print Management Service Examples &mdash; pynetdicom 1.4.0.dev0 documentation</title>
+  <title>Print Management Service Examples &mdash; pynetdicom 1.4.0 documentation</title>
   
 
   
@@ -66,7 +66,7 @@
             
             
               <div class="version">
-                1.4.0.dev0
+                1.4.0
               </div>
             
           
@@ -265,20 +265,32 @@ Color</em>) depending on the Meta SOP Class used to create the <em>Film Session<
 attributes with the image data and image attributes that are to be printed.</p></li>
 <li><p>Use N-ACTION to command the <em>Film Box</em> to be printed or N-DELETE to delete
 the <em>Film Box</em>.</p></li>
-<li><p>Repeat steps 2-4 as required.</p></li>
+<li><p>Repeat steps 1-5 as required.</p></li>
 <li><p>Terminate the association to delete the <em>Film Session</em> hierarchy.</p></li>
 </ol>
+<p>A Print SCP may send N-EVENT-REPORT service requests to the Print SCU (under
+the Printer SOP Class) using one of the following methods,
+depending on the implementation (check the conformance statement):</p>
+<ol class="arabic simple">
+<li><p>Over the same association as the Print SCU service request</p></li>
+<li><p>Over a new association initiated by the Print SCP, which requires the SCP be
+configured with the details of the SCU</p></li>
+<li><p>The next time the SCU associates with the SCP</p></li>
+</ol>
+<p>Depending on which method the Print SCP uses you should:</p>
+<ul class="simple">
+<li><p>For methods 1 and 2, simply bind a handler to <code class="docutils literal notranslate"><span class="pre">evt.EVT_N_REPORT</span></code>
+when calling <code class="docutils literal notranslate"><span class="pre">AE.associate()</span></code></p></li>
+<li><p>For method 3, start an <code class="docutils literal notranslate"><span class="pre">AssociationServer</span></code> instance with
+<code class="docutils literal notranslate"><span class="pre">AE.start_server((addr,</span> <span class="pre">port),</span> <span class="pre">block=False)</span></code> with a handler bound to
+<code class="docutils literal notranslate"><span class="pre">evt.EVT_N_EVENT_REPORT</span></code></p></li>
+</ul>
+<p>To support minimal conformance for a Print SCU you can just use the handler
+to return a status of <code class="docutils literal notranslate"><span class="pre">0x0000</span></code> and get the printer’s current status manually
+by sending an N-GET request.</p>
 </div>
 <div class="section" id="dimse-services-available">
 <h3>DIMSE Services Available<a class="headerlink" href="#dimse-services-available" title="Permalink to this headline">¶</a></h3>
-<div class="admonition warning">
-<p class="admonition-title">Warning</p>
-<p>The use of asynchronous N-EVENT-REPORT requests sent by the SCP to the SCU
-with the <em>Printer SOP Class</em> is not currently supported. Any N-EVENT-REPORT
-requests that are received when acting as the SCU will automatically be
-responded to with a status of <code class="docutils literal notranslate"><span class="pre">0x0000</span></code> - Success. In order to get the
-printer’s current status send an N-GET request with the <em>Printer SOP Class</em>.</p>
-</div>
 <table class="docutils align-default">
 <colgroup>
 <col style="width: 40%" />
@@ -342,13 +354,15 @@ print options (medium types, page sizes, layouts, etc) are supported. This
 example assumes that the Film Session’s and Film Box’s
 N-CREATE responses include conformant <em>Basic Film Session SOP Class</em> and
 <em>Basic Film Box SOP Class</em> instances (which may not always be the case).</p>
+<p>We also assume that the Print SCP sends the Printer SOP Class’ N-EVENT-REPORT
+notifications over the same association (and ignore them).</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">sys</span>
 
 <span class="kn">from</span> <span class="nn">pydicom</span> <span class="kn">import</span> <span class="n">dcmread</span>
 <span class="kn">from</span> <span class="nn">pydicom.dataset</span> <span class="kn">import</span> <span class="n">Dataset</span>
 <span class="kn">from</span> <span class="nn">pydicom.uid</span> <span class="kn">import</span> <span class="n">generate_uid</span>
 
-<span class="kn">from</span> <span class="nn">pynetdicom</span> <span class="kn">import</span> <span class="n">AE</span>
+<span class="kn">from</span> <span class="nn">pynetdicom</span> <span class="kn">import</span> <span class="n">AE</span><span class="p">,</span> <span class="n">evt</span>
 <span class="kn">from</span> <span class="nn">pynetdicom.sop_class</span> <span class="kn">import</span> <span class="p">(</span>
     <span class="n">BasicGrayscalePrintManagementMetaSOPClass</span><span class="p">,</span>
     <span class="n">BasicFilmSessionSOPClass</span><span class="p">,</span>
@@ -446,9 +460,15 @@ N-CREATE responses include conformant <em>Basic Film Session SOP Class</em> and
 
     <span class="k">return</span> <span class="n">attr_list</span>
 
+<span class="k">def</span> <span class="nf">handle_n_er</span><span class="p">(</span><span class="n">event</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Ignore the N-EVENT-REPORT notification&quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="mh">0x0000</span>
+
+<span class="n">handlers</span> <span class="o">=</span> <span class="p">[(</span><span class="n">evt</span><span class="o">.</span><span class="n">EVT_N_EVENT_REPORT</span><span class="p">,</span> <span class="n">handle_n_er</span><span class="p">)]</span>
+
 <span class="n">ae</span> <span class="o">=</span> <span class="n">AE</span><span class="p">()</span>
 <span class="n">ae</span><span class="o">.</span><span class="n">add_requested_context</span><span class="p">(</span><span class="n">BasicGrayscalePrintManagementMetaSOPClass</span><span class="p">)</span>
-<span class="n">assoc</span> <span class="o">=</span> <span class="n">ae</span><span class="o">.</span><span class="n">associate</span><span class="p">(</span><span class="s1">&#39;localhost&#39;</span><span class="p">,</span> <span class="mi">11112</span><span class="p">)</span>
+<span class="n">assoc</span> <span class="o">=</span> <span class="n">ae</span><span class="o">.</span><span class="n">associate</span><span class="p">(</span><span class="s1">&#39;localhost&#39;</span><span class="p">,</span> <span class="mi">11112</span><span class="p">,</span> <span class="n">evt_handlers</span><span class="o">=</span><span class="n">handlers</span><span class="p">)</span>
 
 <span class="k">if</span> <span class="n">assoc</span><span class="o">.</span><span class="n">is_established</span><span class="p">:</span>
     <span class="c1"># Step 1: Check the status of the printer</span>

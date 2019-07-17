@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>pynetdicom.events.Event &mdash; pynetdicom 1.4.0.dev0 documentation</title>
+  <title>pynetdicom.events.Event &mdash; pynetdicom 1.4.0 documentation</title>
   
 
   
@@ -66,7 +66,7 @@
             
             
               <div class="version">
-                1.4.0.dev0
+                1.4.0
               </div>
             
           
@@ -199,7 +199,7 @@
 <h1>pynetdicom.events.Event<a class="headerlink" href="#pynetdicom-events-event" title="Permalink to this headline">¶</a></h1>
 <dl class="class">
 <dt id="pynetdicom.events.Event">
-<em class="property">class </em><code class="sig-prename descclassname">pynetdicom.events.</code><code class="sig-name descname">Event</code><span class="sig-paren">(</span><em class="sig-param">assoc</em>, <em class="sig-param">event</em>, <em class="sig-param">attrs=None</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/329f1796/pynetdicom/events.py#L181"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom.events.Event" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="sig-prename descclassname">pynetdicom.events.</code><code class="sig-name descname">Event</code><span class="sig-paren">(</span><em class="sig-param">assoc</em>, <em class="sig-param">event</em>, <em class="sig-param">attrs=None</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/9b965431/pynetdicom/events.py#L181"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom.events.Event" title="Permalink to this definition">¶</a></dt>
 <dd><p>Representation of an event.</p>
 <dl class="attribute">
 <dt id="pynetdicom.events.Event.assoc">
@@ -238,7 +238,7 @@ the actual event that this object represents.</p>
 
 <dl class="method">
 <dt id="pynetdicom.events.Event.__init__">
-<code class="sig-name descname">__init__</code><span class="sig-paren">(</span><em class="sig-param">assoc</em>, <em class="sig-param">event</em>, <em class="sig-param">attrs=None</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/329f1796/pynetdicom/events.py#L195"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom.events.Event.__init__" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">__init__</code><span class="sig-paren">(</span><em class="sig-param">assoc</em>, <em class="sig-param">event</em>, <em class="sig-param">attrs=None</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/9b965431/pynetdicom/events.py#L195"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom.events.Event.__init__" title="Permalink to this definition">¶</a></dt>
 <dd><p>Create a new Event.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -273,20 +273,26 @@ the actual event that this object represents.</p>
 <tr class="row-odd"><td><p><a class="reference internal" href="#pynetdicom.events.Event.action_information" title="pynetdicom.events.Event.action_information"><code class="xref py py-obj docutils literal notranslate"><span class="pre">action_information</span></code></a></p></td>
 <td><p>Return an N-ACTION request’s <cite>Action Information</cite> as a <em>pydicom</em> Dataset.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#pynetdicom.events.Event.attribute_identifiers" title="pynetdicom.events.Event.attribute_identifiers"><code class="xref py py-obj docutils literal notranslate"><span class="pre">attribute_identifiers</span></code></a></p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#pynetdicom.events.Event.action_type" title="pynetdicom.events.Event.action_type"><code class="xref py py-obj docutils literal notranslate"><span class="pre">action_type</span></code></a></p></td>
+<td><p>Return an N-ACTION request’s <cite>Action Type ID</cite> as an int.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pynetdicom.events.Event.attribute_identifiers" title="pynetdicom.events.Event.attribute_identifiers"><code class="xref py py-obj docutils literal notranslate"><span class="pre">attribute_identifiers</span></code></a></p></td>
 <td><p>Return an N-GET request’s <cite>Attribute Identifier List</cite> as a list of <em>pydicom</em> Tags.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#pynetdicom.events.Event.attribute_list" title="pynetdicom.events.Event.attribute_list"><code class="xref py py-obj docutils literal notranslate"><span class="pre">attribute_list</span></code></a></p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#pynetdicom.events.Event.attribute_list" title="pynetdicom.events.Event.attribute_list"><code class="xref py py-obj docutils literal notranslate"><span class="pre">attribute_list</span></code></a></p></td>
 <td><p>Return an N-CREATE request’s <cite>Attribute List</cite> as a <em>pydicom</em> Dataset.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#pynetdicom.events.Event.dataset" title="pynetdicom.events.Event.dataset"><code class="xref py py-obj docutils literal notranslate"><span class="pre">dataset</span></code></a></p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pynetdicom.events.Event.dataset" title="pynetdicom.events.Event.dataset"><code class="xref py py-obj docutils literal notranslate"><span class="pre">dataset</span></code></a></p></td>
 <td><p>Return a C-STORE request’s <cite>Data Set</cite> as a <em>pydicom</em> Dataset.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#pynetdicom.events.Event.event" title="pynetdicom.events.Event.event"><code class="xref py py-obj docutils literal notranslate"><span class="pre">event</span></code></a></p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#pynetdicom.events.Event.event" title="pynetdicom.events.Event.event"><code class="xref py py-obj docutils literal notranslate"><span class="pre">event</span></code></a></p></td>
 <td><p>Return the corresponding event.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#pynetdicom.events.Event.event_information" title="pynetdicom.events.Event.event_information"><code class="xref py py-obj docutils literal notranslate"><span class="pre">event_information</span></code></a></p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pynetdicom.events.Event.event_information" title="pynetdicom.events.Event.event_information"><code class="xref py py-obj docutils literal notranslate"><span class="pre">event_information</span></code></a></p></td>
 <td><p>Return an N-EVENT-REPORT request’s <cite>Event Information</cite> as a <em>pydicom</em> Dataset.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#pynetdicom.events.Event.event_type" title="pynetdicom.events.Event.event_type"><code class="xref py py-obj docutils literal notranslate"><span class="pre">event_type</span></code></a></p></td>
+<td><p>Return an N-EVENT-REPORT request’s <cite>Event Type ID</cite> as an int.</p></td>
 </tr>
 <tr class="row-odd"><td><p><a class="reference internal" href="#pynetdicom.events.Event.file_meta" title="pynetdicom.events.Event.file_meta"><code class="xref py py-obj docutils literal notranslate"><span class="pre">file_meta</span></code></a></p></td>
 <td><p>Return a <em>pydicom</em> Dataset with the File Meta Information for a C-STORE request’s <cite>Data Set</cite>.</p></td>
@@ -321,6 +327,23 @@ that uses the returned <code class="docutils literal notranslate"><span class="p
 </dd>
 <dt class="field-even">Return type</dt>
 <dd class="field-even"><p><a class="reference external" href="https://pydicom.github.io/pydicom/stable/api_ref.html#pydicom.dataset.Dataset" title="(in pydicom v1.3.0)">pydicom.dataset.Dataset</a></p>
+</dd>
+<dt class="field-odd">Raises</dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/exceptions.html#AttributeError" title="(in Python v3.7)"><strong>AttributeError</strong></a> – If the corresponding event is not an N-ACTION request.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="pynetdicom.events.Event.action_type">
+<em class="property">property </em><code class="sig-name descname">action_type</code><a class="headerlink" href="#pynetdicom.events.Event.action_type" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return an N-ACTION request’s <cite>Action Type ID</cite> as an int.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>The request’s (0000,1008) <em>Action Type ID</em> value.</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.7)">int</a></p>
 </dd>
 <dt class="field-odd">Raises</dt>
 <dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/exceptions.html#AttributeError" title="(in Python v3.7)"><strong>AttributeError</strong></a> – If the corresponding event is not an N-ACTION request.</p>
@@ -423,6 +446,23 @@ that uses the returned <code class="docutils literal notranslate"><span class="p
 </dd>
 <dt class="field-even">Return type</dt>
 <dd class="field-even"><p><a class="reference external" href="https://pydicom.github.io/pydicom/stable/api_ref.html#pydicom.dataset.Dataset" title="(in pydicom v1.3.0)">pydicom.dataset.Dataset</a></p>
+</dd>
+<dt class="field-odd">Raises</dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/exceptions.html#AttributeError" title="(in Python v3.7)"><strong>AttributeError</strong></a> – If the corresponding event is not an N-EVENT-REPORT request.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="pynetdicom.events.Event.event_type">
+<em class="property">property </em><code class="sig-name descname">event_type</code><a class="headerlink" href="#pynetdicom.events.Event.event_type" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return an N-EVENT-REPORT request’s <cite>Event Type ID</cite> as an int.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>The request’s (0000,1002) <em>Event Type ID</em> value.</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.7)">int</a></p>
 </dd>
 <dt class="field-odd">Raises</dt>
 <dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/exceptions.html#AttributeError" title="(in Python v3.7)"><strong>AttributeError</strong></a> – If the corresponding event is not an N-EVENT-REPORT request.</p>

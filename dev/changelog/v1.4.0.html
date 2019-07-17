@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>1.4.0 &mdash; pynetdicom 1.4.0.dev0 documentation</title>
+  <title>1.4.0 &mdash; pynetdicom 1.4.0 documentation</title>
   
 
   
@@ -64,7 +64,7 @@
             
             
               <div class="version">
-                1.4.0.dev0
+                1.4.0
               </div>
             
           
@@ -189,23 +189,20 @@ methods.</p></li>
 <div class="section" id="enhancements">
 <h2>Enhancements<a class="headerlink" href="#enhancements" title="Permalink to this headline">¶</a></h2>
 <ul class="simple">
-<li><p>Added <code class="docutils literal notranslate"><span class="pre">Event.move_destination</span></code> and <code class="docutils literal notranslate"><span class="pre">Event.event</span></code> properties
-(<a class="reference external" href="https://github.com/pydicom/pynetdicom/issues/353">#353</a>)</p></li>
+<li><p>Added <code class="docutils literal notranslate"><span class="pre">Event.move_destination</span></code> (for <code class="docutils literal notranslate"><span class="pre">evt.EVT_C_MOVE</span></code>),
+<code class="docutils literal notranslate"><span class="pre">Event.action_type</span></code> (for <code class="docutils literal notranslate"><span class="pre">evt.EVT_N_ACTION</span></code>), <code class="docutils literal notranslate"><span class="pre">Event.event_type</span></code> (for
+<code class="docutils literal notranslate"><span class="pre">evt.EVT_N_EVENT_REPORT</span></code>) and <code class="docutils literal notranslate"><span class="pre">Event.event</span></code> properties (<a class="reference external" href="https://github.com/pydicom/pynetdicom/issues/353">#353</a>)</p></li>
 <li><p>Added <code class="docutils literal notranslate"><span class="pre">meta_uid</span></code> keyword parameters to the <code class="docutils literal notranslate"><span class="pre">Association.send_n_*()</span></code>
 methods to allow the use of Meta SOP Classes (such as those used in the
 Print Management service class)</p></li>
 <li><p>Added <em>Basic Grayscale Print Management Meta SOP Class</em> and <em>Basic Color
 Print Management Meta SOP Class</em> to <code class="docutils literal notranslate"><span class="pre">sop_class</span></code>.</p></li>
-<li><p>Added full support for the following service classes:</p>
+<li><p>Added support for the following service classes:</p>
 <ul>
 <li><p>Protocol Approval Query Retrieve (<a class="reference external" href="https://github.com/pydicom/pynetdicom/issues/327">#327</a>)</p></li>
 <li><p>Application Event Logging</p></li>
 <li><p>Instance Availability Notification</p></li>
 <li><p>Media Creation Management</p></li>
-</ul>
-</li>
-<li><p>Added partial support for the following service classes:</p>
-<ul>
 <li><p>Print Management</p></li>
 <li><p>Unified Procedure Step</p></li>
 <li><p>RT Machine Verification</p></li>
@@ -220,7 +217,7 @@ contain no Transfer Syntax Sub-item (<a class="reference external" href="https:/
 received in C-STORE service requests are now logged and ignored rather than
 raising an exception and aborting the association.</p></li>
 <li><p>Improved handling of DIMSE service messages with empty element values.</p></li>
-<li><p>Added handling for DIMSE service requests when the acting as the association
+<li><p>Added handling for DIMSE service requests when acting as the association
 Requestor</p></li>
 </ul>
 </div>

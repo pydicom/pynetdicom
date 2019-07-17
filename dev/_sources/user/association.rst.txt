@@ -518,10 +518,6 @@ implementation that always returns a 0x0000 *Success* response):
 | N-SET          | ``evt.EVT_N_SET``          |
 +----------------+----------------------------+
 
-.. warning::
-   The use of asynchronous N-EVENT-REPORT requests sent by the SCP to the SCU
-   is not currently supported.
-
 For instance, if your SCP is to support the Storage Service then you would
 implement and bind a handler for the ``evt.EVT_C_STORE`` event in manner
 similar to:

@@ -22,21 +22,20 @@ Fixes
 Enhancements
 ............
 
-* Added ``Event.move_destination`` and ``Event.event`` properties
-  (:issue:`353`)
+* Added ``Event.move_destination`` (for ``evt.EVT_C_MOVE``),
+  ``Event.action_type`` (for ``evt.EVT_N_ACTION``), ``Event.event_type`` (for
+  ``evt.EVT_N_EVENT_REPORT``) and ``Event.event`` properties (:issue:`353`)
 * Added ``meta_uid`` keyword parameters to the ``Association.send_n_*()``
   methods to allow the use of Meta SOP Classes (such as those used in the
   Print Management service class)
 * Added *Basic Grayscale Print Management Meta SOP Class* and *Basic Color
   Print Management Meta SOP Class* to ``sop_class``.
-* Added full support for the following service classes:
+* Added support for the following service classes:
 
   * Protocol Approval Query Retrieve (:issue:`327`)
   * Application Event Logging
   * Instance Availability Notification
   * Media Creation Management
-* Added partial support for the following service classes:
-
   * Print Management
   * Unified Procedure Step
   * RT Machine Verification
@@ -49,7 +48,7 @@ Enhancements
   received in C-STORE service requests are now logged and ignored rather than
   raising an exception and aborting the association.
 * Improved handling of DIMSE service messages with empty element values.
-* Added handling for DIMSE service requests when the acting as the association
+* Added handling for DIMSE service requests when acting as the association
   Requestor
 
 

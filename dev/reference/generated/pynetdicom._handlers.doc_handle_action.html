@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>pynetdicom._handlers.doc_handle_action &mdash; pynetdicom 1.4.0.dev0 documentation</title>
+  <title>pynetdicom._handlers.doc_handle_action &mdash; pynetdicom 1.4.0 documentation</title>
   
 
   
@@ -66,7 +66,7 @@
             
             
               <div class="version">
-                1.4.0.dev0
+                1.4.0
               </div>
             
           
@@ -216,7 +216,7 @@
 <h1>pynetdicom._handlers.doc_handle_action<a class="headerlink" href="#pynetdicom-handlers-doc-handle-action" title="Permalink to this headline">¶</a></h1>
 <dl class="function">
 <dt id="pynetdicom._handlers.doc_handle_action">
-<code class="sig-prename descclassname">pynetdicom._handlers.</code><code class="sig-name descname">doc_handle_action</code><span class="sig-paren">(</span><em class="sig-param">event</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/329f1796/pynetdicom/_handlers.py#L2622"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom._handlers.doc_handle_action" title="Permalink to this definition">¶</a></dt>
+<code class="sig-prename descclassname">pynetdicom._handlers.</code><code class="sig-name descname">doc_handle_action</code><span class="sig-paren">(</span><em class="sig-param">event</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/9b965431/pynetdicom/_handlers.py#L2623"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom._handlers.doc_handle_action" title="Permalink to this definition">¶</a></dt>
 <dd><p>Documentation for handlers bound to <code class="docutils literal notranslate"><span class="pre">evt.EVT_N_ACTION</span></code>.</p>
 <p>User implementation of this event handler is required if one or more
 services that use N-ACTION are to be supported. If a handler is
@@ -320,6 +320,8 @@ fit.</div>
 <dd class="field-odd"><p><strong>event</strong> (<a class="reference internal" href="pynetdicom.events.Event.html#pynetdicom.events.Event" title="pynetdicom.events.Event"><em>events.Event</em></a>) – <p>The event representing a service class receiving a N-ACTION
 request message. <code class="docutils literal notranslate"><span class="pre">Event</span></code> attributes are:</p>
 <ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">action_type</span></code> : the N-ACTION request’s <em>Action Type
+ID</em> parameter value as <code class="docutils literal notranslate"><span class="pre">int</span></code>.</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">assoc</span></code> : the
 <a class="reference internal" href="pynetdicom.association.Association.html#pynetdicom.association.Association" title="pynetdicom.association.Association"><code class="xref py py-class docutils literal notranslate"><span class="pre">association</span></code></a>
 that is running the service that received the N-ACTION request.</p></li>

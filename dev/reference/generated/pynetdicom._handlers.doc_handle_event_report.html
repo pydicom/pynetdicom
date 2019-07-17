@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>pynetdicom._handlers.doc_handle_event_report &mdash; pynetdicom 1.4.0.dev0 documentation</title>
+  <title>pynetdicom._handlers.doc_handle_event_report &mdash; pynetdicom 1.4.0 documentation</title>
   
 
   
@@ -66,7 +66,7 @@
             
             
               <div class="version">
-                1.4.0.dev0
+                1.4.0
               </div>
             
           
@@ -216,7 +216,7 @@
 <h1>pynetdicom._handlers.doc_handle_event_report<a class="headerlink" href="#pynetdicom-handlers-doc-handle-event-report" title="Permalink to this headline">¶</a></h1>
 <dl class="function">
 <dt id="pynetdicom._handlers.doc_handle_event_report">
-<code class="sig-prename descclassname">pynetdicom._handlers.</code><code class="sig-name descname">doc_handle_event_report</code><span class="sig-paren">(</span><em class="sig-param">event</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/329f1796/pynetdicom/_handlers.py#L2982"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom._handlers.doc_handle_event_report" title="Permalink to this definition">¶</a></dt>
+<code class="sig-prename descclassname">pynetdicom._handlers.</code><code class="sig-name descname">doc_handle_event_report</code><span class="sig-paren">(</span><em class="sig-param">event</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/9b965431/pynetdicom/_handlers.py#L2985"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom._handlers.doc_handle_event_report" title="Permalink to this definition">¶</a></dt>
 <dd><p>Documentation for handlers bound to <code class="docutils literal notranslate"><span class="pre">evt.EVT_N_EVENT_REPORT</span></code>.</p>
 <p>User implementation of this event handler is required if one or more
 services that use N-EVENT-REPORT are to be supported. If a handler is
@@ -262,6 +262,8 @@ that is running the service that received the N-EVENT-REPORT request.</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">context</span></code> : the presentation context the request was sent under
 as a <code class="docutils literal notranslate"><span class="pre">presentation.PresentationContextTuple</span></code>.</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">event</span></code> : the event that occurred as <code class="docutils literal notranslate"><span class="pre">namedtuple</span></code>.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">event_type</span></code> : the N-EVENT-REPORT request’s <em>Event Type
+ID</em> parameter value as <code class="docutils literal notranslate"><span class="pre">int</span></code>.</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">request</span></code> : the received
 <a class="reference internal" href="pynetdicom.dimse_primitives.N_EVENT_REPORT.html#pynetdicom.dimse_primitives.N_EVENT_REPORT" title="pynetdicom.dimse_primitives.N_EVENT_REPORT"><code class="xref py py-class docutils literal notranslate"><span class="pre">N-EVENT-REPORT</span> <span class="pre">request</span></code></a></p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">timestamp</span></code> : the
