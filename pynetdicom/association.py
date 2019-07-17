@@ -29,49 +29,7 @@ from pynetdicom._handlers import (
     standard_dimse_recv_handler, standard_dimse_sent_handler,
     standard_pdu_recv_handler, standard_pdu_sent_handler,
 )
-from pynetdicom.sop_class import (
-    uid_to_service_class,
-    VerificationSOPClass,
-    ModalityWorklistInformationFind,
-    PatientRootQueryRetrieveInformationModelFind,
-    StudyRootQueryRetrieveInformationModelFind,
-    PatientStudyOnlyQueryRetrieveInformationModelFind,
-    PatientRootQueryRetrieveInformationModelMove,
-    StudyRootQueryRetrieveInformationModelMove,
-    PatientStudyOnlyQueryRetrieveInformationModelMove,
-    PatientRootQueryRetrieveInformationModelGet,
-    StudyRootQueryRetrieveInformationModelGet,
-    PatientStudyOnlyQueryRetrieveInformationModelGet,
-    CompositeInstanceRetrieveWithoutBulkDataGet,
-    GeneralRelevantPatientInformationQuery,
-    BreastImagingRelevantPatientInformationQuery,
-    CardiacRelevantPatientInformationQuery,
-    ProductCharacteristicsQueryInformationModelFind,
-    SubstanceApprovalQueryInformationModelFind,
-    CompositeInstanceRootRetrieveGet,
-    CompositeInstanceRootRetrieveMove,
-    HangingProtocolInformationModelGet,
-    HangingProtocolInformationModelFind,
-    HangingProtocolInformationModelMove,
-    DefinedProcedureProtocolInformationModelGet,
-    DefinedProcedureProtocolInformationModelFind,
-    DefinedProcedureProtocolInformationModelMove,
-    ColorPaletteInformationModelGet,
-    ColorPaletteInformationModelFind,
-    ColorPaletteInformationModelMove,
-    GenericImplantTemplateInformationModelGet,
-    GenericImplantTemplateInformationModelFind,
-    GenericImplantTemplateInformationModelMove,
-    ImplantAssemblyTemplateInformationModelGet,
-    ImplantAssemblyTemplateInformationModelFind,
-    ImplantAssemblyTemplateInformationModelMove,
-    ImplantTemplateGroupInformationModelFind,
-    ImplantTemplateGroupInformationModelGet,
-    ImplantTemplateGroupInformationModelMove,
-    ProtocolApprovalInformationModelFind,
-    ProtocolApprovalInformationModelGet,
-    ProtocolApprovalInformationModelMove,
-)
+from pynetdicom.sop_class import uid_to_service_class, VerificationSOPClass
 from pynetdicom.pdu_primitives import (
     UserIdentityNegotiation,
     MaximumLengthNotification,
@@ -885,41 +843,7 @@ class Association(threading.Thread):
         query_model : pydicom.uid.UID or str
             The value to use for the C-FIND request's (0000,0002) *Affected
             SOP Class UID* parameter, which usually corresponds to the
-            Information Model that is to be used. If supplying a ``str`` key
-            (deprecated, to be removed in v1.5.0) then one of the following:
-
-            - ``P`` - 1.2.840.10008.5.1.4.1.2.1.1  -
-              *Patient Root Information Model - FIND*
-            - ``S`` - 1.2.840.10008.5.1.4.1.2.2.1 -
-              *Study Root Information Model - FIND*
-            - ``O`` - 1.2.840.10008.5.1.4.1.2.3.1 -
-              *Patient Study Only Information Model - FIND*
-            - ``W`` - 1.2.840.10008.5.1.4.31 -
-              *Modality Worklist Information - FIND*
-            - ``G`` - 1.2.840.10008.5.1.4.37.1 -
-              *General Relevant Patient Information Query*
-            - ``B`` - 1.2.840.10008.5.1.4.37.2 -
-              *Breast Imaging Relevant Patient Information Query*
-            - ``C`` - 1.2.840.10008.5.1.4.37.3 -
-              *Cardiac Relevant Patient Information Query*
-            - ``PC`` - 1.2.840.10008.5.1.4.41 -
-              *Product Characteristics Query Information Model - FIND*
-            - ``SA`` - 1.2.840.10008.5.1.4.42 -
-              *Substance Approval Query Information Model - FIND*
-            - ``H`` - 1.2.840.10008.5.1.4.38.2 -
-              *Hanging Protocol Information Model - FIND*
-            - ``D`` - 1.2.840.10008.5.1.4.20.1 -
-              *Defined Procedure Protocol Information Model - FIND*
-            - ``CP`` - 1.2.840.10008.5.1.4.39.2 -
-              *Color Palette Information Model - FIND*
-            - ``IG`` - 1.2.840.10008.5.1.4.43.2 -
-              *Generic Implant Template Information Model - FIND*
-            - ``IA`` - 1.2.840.10008.5.1.4.44.2 -
-              *Implant Assembly Template Information Model - FIND*
-            - ``IT`` - 1.2.840.10008.5.1.4.44.2 -
-              *Implant Template Group Information Model - FIND*
-            - ``PA`` - 1.2.840.10008.5.1.4.1.1.200.4 -
-              *Protocol Approval Information Model - FIND*
+            Information Model that is to be used.
         msg_id : int, optional
             The DIMSE *Message ID*, must be between 0 and 65535, inclusive,
             (default 1).
@@ -1044,47 +968,9 @@ class Association(threading.Thread):
             raise RuntimeError("The association with a peer SCP must be "
                                "established before sending a C-FIND request")
 
-        # TODO: refactor in v1.5
-        # Try the UID first
-        sop_class = UID(query_model)
-        if not sop_class.is_valid:
-            # Try the str
-            _sop_classes = {
-                'W' : ModalityWorklistInformationFind,
-                "P" : PatientRootQueryRetrieveInformationModelFind,
-                "S" : StudyRootQueryRetrieveInformationModelFind,
-                "O" : PatientStudyOnlyQueryRetrieveInformationModelFind,
-                "G" : GeneralRelevantPatientInformationQuery,
-                "B" : BreastImagingRelevantPatientInformationQuery,
-                "C" : CardiacRelevantPatientInformationQuery,
-                "PC" : ProductCharacteristicsQueryInformationModelFind,
-                "SA" : SubstanceApprovalQueryInformationModelFind,
-                "H" : HangingProtocolInformationModelFind,
-                "D" : DefinedProcedureProtocolInformationModelFind,
-                "CP" : ColorPaletteInformationModelFind,
-                "IG" : GenericImplantTemplateInformationModelFind,
-                "IA" : ImplantAssemblyTemplateInformationModelFind,
-                "IT" : ImplantTemplateGroupInformationModelFind,
-                "PA" : ProtocolApprovalInformationModelFind,
-            }
-
-            try:
-                sop_class = _sop_classes[query_model]
-                warnings.warn(
-                    "Using `query_model` with a key that corresponds to a "
-                    "given UID is deprecated and will be removed in v1.5. "
-                    "Pass the required UID directly instead.",
-                    DeprecationWarning
-                )
-            except KeyError:
-                raise ValueError(
-                    "Unsupported value for `query_model`: {}"
-                    .format(query_model)
-                )
-
         # Determine the Presentation Context we are operating under
         #   and hence the transfer syntax to use for encoding `dataset`
-        context = self._get_valid_context(sop_class, '', 'scu')
+        context = self._get_valid_context(query_model, '', 'scu')
 
         # Build C-FIND request primitive
         #   (M) Message ID
@@ -1093,7 +979,7 @@ class Association(threading.Thread):
         #   (M) Identifier
         req = C_FIND()
         req.MessageID = msg_id
-        req.AffectedSOPClassUID = sop_class
+        req.AffectedSOPClassUID = query_model
         req.Priority = priority
 
         # Encode the Identifier `dataset` using the agreed transfer syntax
@@ -1149,33 +1035,7 @@ class Association(threading.Thread):
         query_model : pydicom.uid.UID or str
             The value to use for the C-GET request's (0000,0002) *Affected
             SOP Class UID* parameter, which usually corresponds to the
-            Information Model that is to be used. If supplying a ``str`` key
-            (deprecated, to be removed in v1.5.0) then one of the following:
-
-            - ``P`` - 1.2.840.10008.5.1.4.1.2.1.3 -
-              *Patient Root Information Model - GET*
-            - ``S`` - 1.2.840.10008.5.1.4.1.2.2.3 -
-              *Study Root Information Model - GET*
-            - ``O`` - 1.2.840.10008.5.1.4.1.2.3.3 -
-              *Patient Study Only Information Model - GET*
-            - ``C`` - 1.2.840.10008.5.1.4.1.2.4.3 -
-              *Composite Instance Root Retrieve - GET*
-            - ``CB`` - 1.2.840.10008.5.1.4.1.2.5.3 -
-              *Composite Instance Retrieve Without Bulk Data - GET*
-            - ``H`` - 1.2.840.10008.5.1.4.38.4 -
-              *Hanging Protocol Information Model - GET*
-            - ``D`` - 1.2.840.10008.5.1.4.20.3 -
-              *Defined Procedure  Protocol Information Model - GET*
-            - ``CP`` - 1.2.840.10008.5.1.4.39.4 -
-              *Palette Color Information Model - GET*
-            - ``IG`` - 1.2.840.10008.5.1.4.43.4 -
-              *Generic Implant Template Information Model - GET*
-            - ``IA`` - 1.2.840.10008.5.1.4.44.4 -
-              *Implant Assembly Template Information Model - GET*
-            - ``IT`` - 1.2.840.10008.5.1.4.44.4 -
-              *Implant Template Group Information Model - GET*
-            - ``PA`` - 1.2.840.10008.5.1.4.1.1.200.6 -
-              *Protocol Approval Information Model - GET*
+            Information Model that is to be used.
         msg_id : int, optional
             The DIMSE *Message ID*, must be between 0 and 65535, inclusive,
             (default 1).
@@ -1290,41 +1150,9 @@ class Association(threading.Thread):
             raise RuntimeError("The association with a peer SCP must be "
                                "established before sending a C-GET request")
 
-        # TODO: refactor in v1.5
-        sop_class = UID(query_model)
-        if not sop_class.is_valid:
-            _sop_classes = {
-                "P" : PatientRootQueryRetrieveInformationModelGet,
-                "S" : StudyRootQueryRetrieveInformationModelGet,
-                "O" : PatientStudyOnlyQueryRetrieveInformationModelGet,
-                "C" : CompositeInstanceRootRetrieveGet,
-                "CB" : CompositeInstanceRetrieveWithoutBulkDataGet,
-                "H" : HangingProtocolInformationModelGet,
-                "D" : DefinedProcedureProtocolInformationModelGet,
-                "CP" : ColorPaletteInformationModelGet,
-                "IG" : GenericImplantTemplateInformationModelGet,
-                "IA" : ImplantAssemblyTemplateInformationModelGet,
-                "IT" : ImplantTemplateGroupInformationModelGet,
-                "PA" : ProtocolApprovalInformationModelGet,
-            }
-
-            try:
-                sop_class = _sop_classes[query_model]
-                warnings.warn(
-                    "Using `query_model` with a key that corresponds to a "
-                    "given UID is deprecated and will be removed in v1.5. "
-                    "Pass the required UID directly instead.",
-                    DeprecationWarning
-                )
-            except KeyError:
-                raise ValueError(
-                    "Unsupported value for `query_model`: {}"
-                    .format(query_model)
-                )
-
         # Determine the Presentation Context we are operating under
         #   and hence the transfer syntax to use for encoding `dataset`
-        context = self._get_valid_context(sop_class, '', 'scu')
+        context = self._get_valid_context(query_model, '', 'scu')
 
         # Build C-GET request primitive
         #   (M) Message ID
@@ -1333,7 +1161,7 @@ class Association(threading.Thread):
         #   (M) Identifier
         req = C_GET()
         req.MessageID = msg_id
-        req.AffectedSOPClassUID = sop_class
+        req.AffectedSOPClassUID = query_model
         req.Priority = priority
 
         # Encode the Identifier `dataset` using the agreed transfer syntax
@@ -1393,31 +1221,7 @@ class Association(threading.Thread):
         query_model : pydicom.uid.UID or str
             The value to use for the C-MOVE request's (0000,0002) *Affected
             SOP Class UID* parameter, which usually corresponds to the
-            Information Model that is to be used. If supplying a ``str`` key
-            (deprecated, to be removed in v1.5.0) then one of the following:
-
-            - ``P`` - 1.2.840.10008.5.1.4.1.2.1.2 -
-              *Patient Root Information Model - MOVE*
-            - ``S`` - 1.2.840.10008.5.1.4.1.2.2.2 -
-              *Study Root Information Model - MOVE*
-            - ``O`` - 1.2.840.10008.5.1.4.1.2.3.2 -
-              *Patient Study Only Information Model - MOVE*
-            - ``C`` - 1.2.840.10008.5.1.4.1.2.4.2 -
-              *Composite Instance Root Retrieve - MOVE*
-            - ``H`` - 1.2.840.10008.5.1.4.38.3 -
-              *Hanging Protocol Information Model - MOVE*
-            - ``D`` - 1.2.840.10008.5.1.4.20.2 -
-              *Defined Procedure Protocol Information Model - MOVE*
-            - ``CP`` - 1.2.840.10008.5.1.4.39.3 -
-              *Color Palette Information Model - MOVE*
-            - ``IG`` - 1.2.840.10008.5.1.4.43.3 -
-              *Generic Implant Template Information Model - MOVE*
-            - ``IA`` - 1.2.840.10008.5.1.4.44.3 -
-              *Implant Assembly Template Information Model - MOVE*
-            - ``IT`` - 1.2.840.10008.5.1.4.44.3 -
-              *Implant Template Group Information Model - MOVE*
-            - ``PA`` - 1.2.840.10008.5.1.4.1.1.200.5 -
-              *Protocol Approval Information Model - MOVE*
+            Information Model that is to be used.
         msg_id : int, optional
             The DIMSE *Message ID*, must be between 0 and 65535, inclusive,
             (default 1).
@@ -1517,40 +1321,9 @@ class Association(threading.Thread):
             raise RuntimeError("The association with a peer SCP must be "
                                "established before sending a C-MOVE request")
 
-        # TODO: refactor in v1.5
-        sop_class = UID(query_model)
-        if not sop_class.is_valid:
-            _sop_classes = {
-                "P" : PatientRootQueryRetrieveInformationModelMove,
-                "S" : StudyRootQueryRetrieveInformationModelMove,
-                "O" : PatientStudyOnlyQueryRetrieveInformationModelMove,
-                "C" : CompositeInstanceRootRetrieveMove,
-                "H" : HangingProtocolInformationModelMove,
-                "D" : DefinedProcedureProtocolInformationModelMove,
-                "CP" : ColorPaletteInformationModelMove,
-                "IG" : GenericImplantTemplateInformationModelMove,
-                "IA" : ImplantAssemblyTemplateInformationModelMove,
-                "IT" : ImplantTemplateGroupInformationModelMove,
-                "PA" : ProtocolApprovalInformationModelMove,
-            }
-
-            try:
-                sop_class = _sop_classes[query_model]
-                warnings.warn(
-                    "Using `query_model` with a key that corresponds to a "
-                    "given UID is deprecated and will be removed in v1.5. "
-                    "Pass the required UID directly instead.",
-                    DeprecationWarning
-                )
-            except KeyError:
-                raise ValueError(
-                    "Unsupported value for `query_model`: {}"
-                    .format(query_model)
-                )
-
         # Determine the Presentation Context we are operating under
         #   and hence the transfer syntax to use for encoding `dataset`
-        context = self._get_valid_context(sop_class, '', 'scu')
+        context = self._get_valid_context(query_model, '', 'scu')
 
         # Build C-MOVE request primitive
         #   (M) Message ID
@@ -1560,7 +1333,7 @@ class Association(threading.Thread):
         #   (M) Identifier
         req = C_MOVE()
         req.MessageID = msg_id
-        req.AffectedSOPClassUID = sop_class
+        req.AffectedSOPClassUID = query_model
         req.Priority = priority
         req.MoveDestination = move_aet
 

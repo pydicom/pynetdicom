@@ -109,7 +109,7 @@ class TestSubstanceAdministrationQueryServiceClass(object):
 
         assoc = ae.associate('localhost', 11112)
         assert assoc.is_established
-        result = assoc.send_c_find(self.query, query_model='PC')
+        result = assoc.send_c_find(self.query, ProductCharacteristicsQueryInformationModelFind)
         status, identifier = next(result)
         assert status.Status == 0xFF00
         status, identifier = next(result)
@@ -145,7 +145,7 @@ class TestSubstanceAdministrationQueryServiceClass(object):
         ae.dimse_timeout = 5
         assoc = ae.associate('localhost', 11112)
         assert assoc.is_established
-        result = assoc.send_c_find(self.query, query_model='PC')
+        result = assoc.send_c_find(self.query, ProductCharacteristicsQueryInformationModelFind)
         status, identifier = next(result)
         assert status.Status == 0xFF00
         assert status.ErrorComment == 'Test'
@@ -178,7 +178,7 @@ class TestSubstanceAdministrationQueryServiceClass(object):
         ae.dimse_timeout = 5
         assoc = ae.associate('localhost', 11112)
         assert assoc.is_established
-        result = assoc.send_c_find(self.query, query_model='PC')
+        result = assoc.send_c_find(self.query, ProductCharacteristicsQueryInformationModelFind)
         status, identifier = next(result)
         assert status.Status == 0xFF00
         status, identifier = next(result)
@@ -209,7 +209,7 @@ class TestSubstanceAdministrationQueryServiceClass(object):
         ae.dimse_timeout = 5
         assoc = ae.associate('localhost', 11112)
         assert assoc.is_established
-        result = assoc.send_c_find(self.query, query_model='PC')
+        result = assoc.send_c_find(self.query, ProductCharacteristicsQueryInformationModelFind)
         status, identifier = next(result)
         assert status.Status == 0xFFF0
         with pytest.raises(StopIteration):
@@ -238,7 +238,7 @@ class TestSubstanceAdministrationQueryServiceClass(object):
         ae.dimse_timeout = 5
         assoc = ae.associate('localhost', 11112)
         assert assoc.is_established
-        result = assoc.send_c_find(self.query, query_model='PC')
+        result = assoc.send_c_find(self.query, ProductCharacteristicsQueryInformationModelFind)
         status, identifier = next(result)
         assert status.Status == 0xC002
         with pytest.raises(StopIteration):
@@ -267,7 +267,7 @@ class TestSubstanceAdministrationQueryServiceClass(object):
         ae.dimse_timeout = 5
         assoc = ae.associate('localhost', 11112)
         assert assoc.is_established
-        result = assoc.send_c_find(self.query, query_model='PC')
+        result = assoc.send_c_find(self.query, ProductCharacteristicsQueryInformationModelFind)
         status, identifier = next(result)
         assert status.Status == 0xC002
         with pytest.raises(StopIteration):
@@ -297,7 +297,7 @@ class TestSubstanceAdministrationQueryServiceClass(object):
         ae.dimse_timeout = 5
         assoc = ae.associate('localhost', 11112)
         assert assoc.is_established
-        result = assoc.send_c_find(self.query, query_model='PC')
+        result = assoc.send_c_find(self.query, ProductCharacteristicsQueryInformationModelFind)
         status, identifier = next(result)
         assert status.Status == 0xC311
         assert identifier is None
@@ -322,7 +322,7 @@ class TestSubstanceAdministrationQueryServiceClass(object):
         ae.dimse_timeout = 5
         assoc = ae.associate('localhost', 11112)
         assert assoc.is_established
-        result = assoc.send_c_find(self.query, query_model='PC')
+        result = assoc.send_c_find(self.query, ProductCharacteristicsQueryInformationModelFind)
         status, identifier = next(result)
         assert status.Status == 0xC311
         assert identifier is None
@@ -353,7 +353,7 @@ class TestSubstanceAdministrationQueryServiceClass(object):
         ae.dimse_timeout = 5
         assoc = ae.associate('localhost', 11112)
         assert assoc.is_established
-        result = assoc.send_c_find(self.query, query_model='PC')
+        result = assoc.send_c_find(self.query, ProductCharacteristicsQueryInformationModelFind)
         status, identifier = next(result)
         assert status.Status == 0xFF00
         assert identifier == self.query
@@ -387,7 +387,7 @@ class TestSubstanceAdministrationQueryServiceClass(object):
         ae.dimse_timeout = 5
         assoc = ae.associate('localhost', 11112)
         assert assoc.is_established
-        result = assoc.send_c_find(self.query, query_model='PC')
+        result = assoc.send_c_find(self.query, ProductCharacteristicsQueryInformationModelFind)
         status, identifier = next(result)
         assert status.Status == 0xC312
         with pytest.raises(StopIteration):
@@ -417,7 +417,7 @@ class TestSubstanceAdministrationQueryServiceClass(object):
         ae.dimse_timeout = 5
         assoc = ae.associate('localhost', 11112)
         assert assoc.is_established
-        result = assoc.send_c_find(self.query, query_model='PC')
+        result = assoc.send_c_find(self.query, ProductCharacteristicsQueryInformationModelFind)
         status, identifier = next(result)
         assert status.Status == 0xFF00
         assert identifier == self.query
@@ -452,7 +452,7 @@ class TestSubstanceAdministrationQueryServiceClass(object):
         ae.dimse_timeout = 5
         assoc = ae.associate('localhost', 11112)
         assert assoc.is_established
-        result = assoc.send_c_find(self.query, query_model='PC')
+        result = assoc.send_c_find(self.query, ProductCharacteristicsQueryInformationModelFind)
         status, identifier = next(result)
         assert status.Status == 0xFF01
         assert identifier == self.query
@@ -487,7 +487,7 @@ class TestSubstanceAdministrationQueryServiceClass(object):
         ae.dimse_timeout = 5
         assoc = ae.associate('localhost', 11112)
         assert assoc.is_established
-        result = assoc.send_c_find(self.query, query_model='PC')
+        result = assoc.send_c_find(self.query, ProductCharacteristicsQueryInformationModelFind)
         status, identifier = next(result)
         assert status.Status == 0xFF00
         assert identifier == self.query
@@ -524,7 +524,7 @@ class TestSubstanceAdministrationQueryServiceClass(object):
         ae.dimse_timeout = 5
         assoc = ae.associate('localhost', 11112)
         assert assoc.is_established
-        result = assoc.send_c_find(self.query, query_model='PC')
+        result = assoc.send_c_find(self.query, ProductCharacteristicsQueryInformationModelFind)
         status, identifier = next(result)
         assert status.Status == 0xFF00
         assert identifier == self.query
@@ -567,7 +567,7 @@ class TestSubstanceAdministrationQueryServiceClass(object):
         ae.dimse_timeout = 5
         assoc = ae.associate('localhost', 11112)
         assert assoc.is_established
-        result = assoc.send_c_find(self.query, query_model='PC')
+        result = assoc.send_c_find(self.query, ProductCharacteristicsQueryInformationModelFind)
         status, identifier = next(result)
         assert status.Status == 0xFF00
         assert identifier == self.query
@@ -610,7 +610,7 @@ class TestSubstanceAdministrationQueryServiceClass(object):
         ae.dimse_timeout = 5
         assoc = ae.associate('localhost', 11112)
         assert assoc.is_established
-        result = assoc.send_c_find(self.query, query_model='PC')
+        result = assoc.send_c_find(self.query, ProductCharacteristicsQueryInformationModelFind)
         status, identifier = next(result)
         assert status.Status == 0xFF00
         assert identifier == self.query
@@ -651,7 +651,7 @@ class TestSubstanceAdministrationQueryServiceClass(object):
         ae.dimse_timeout = 5
         assoc = ae.associate('localhost', 11112)
         assert assoc.is_established
-        result = assoc.send_c_find(self.query, query_model='PC')
+        result = assoc.send_c_find(self.query, ProductCharacteristicsQueryInformationModelFind)
         status, identifier = next(result)
         assert status.Status == 0xFF00
         status, identifier = next(result)
@@ -690,7 +690,7 @@ class TestSubstanceAdministrationQueryServiceClass(object):
         ae.dimse_timeout = 5
         assoc = ae.associate('localhost', 11112)
         assert assoc.is_established
-        result = assoc.send_c_find(self.query, query_model='PC')
+        result = assoc.send_c_find(self.query, ProductCharacteristicsQueryInformationModelFind)
         status, identifier = next(result)
         assert status.Status == 0xFF00
         status, identifier = next(result)
@@ -727,7 +727,7 @@ class TestSubstanceAdministrationQueryServiceClass(object):
         ae.dimse_timeout = 5
         assoc = ae.associate('localhost', 11112)
         assert assoc.is_established
-        result = assoc.send_c_find(self.query, query_model='PC')
+        result = assoc.send_c_find(self.query, ProductCharacteristicsQueryInformationModelFind)
         status, identifier = next(result)
         assert status.Status == 0xFF00
         status, identifier = next(result)
@@ -765,7 +765,7 @@ class TestSubstanceAdministrationQueryServiceClass(object):
         ae.dimse_timeout = 5
         assoc = ae.associate('localhost', 11112)
         assert assoc.is_established
-        result = assoc.send_c_find(self.query, query_model='PC')
+        result = assoc.send_c_find(self.query, ProductCharacteristicsQueryInformationModelFind)
         status, identifier = next(result)
         assert status.Status == 0xFF00
         status, identifier = next(result)
@@ -807,7 +807,9 @@ class TestSubstanceAdministrationQueryServiceClass(object):
 
         identifier = Dataset()
         identifier.PatientID = '*'
-        results = assoc.send_c_find(identifier, msg_id=11142, query_model='PC')
+        results = assoc.send_c_find(
+            identifier, ProductCharacteristicsQueryInformationModelFind, msg_id=11142
+        )
         time.sleep(0.2)
         assoc.send_c_cancel(1, 3)
         assoc.send_c_cancel(11142, 1)
