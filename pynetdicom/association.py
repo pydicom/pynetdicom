@@ -96,6 +96,9 @@ class Association(threading.Thread):
         # If acceptor this is the parent AssociationServer, used to identify
         #   the thread when updating bound event-handlers
         self._server = None
+        # If acceptor this is the RequestHandler that started the Association
+        #   reactor, used to shut down the connection properly
+        self._request = None
 
         # Represents the association requestor and acceptor users
         self.requestor = ServiceUser(self, MODE_REQUESTOR)
@@ -489,6 +492,9 @@ class Association(threading.Thread):
             self.acse.negotiate_association()
             if self.is_established:
                 self._run_reactor()
+
+            # Ensure the connection is shutdown properly
+            self._request.shutdown()
         else:
             # Association requestor
             # Allow non-blocking negotiation
