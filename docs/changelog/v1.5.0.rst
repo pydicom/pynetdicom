@@ -6,8 +6,7 @@
 Fixes
 .....
 
-* Fixed the AssociationServer not sending [FIN,ACK] when closing the socket
-  (:issue:``)
+* Fixed the AssociationServer not properly closing its sockets (:issue:`382`)
 
 Changes
 .......
