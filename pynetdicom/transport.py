@@ -343,7 +343,6 @@ class RequestHandler(BaseRequestHandler):
 
         assoc = Association(self.ae, MODE_ACCEPTOR)
         assoc._server = self.server
-        assoc._request = self
 
         # Set the thread name
         timestamp = datetime.strftime(datetime.now(), "%Y%m%d%H%M%S")
@@ -394,10 +393,6 @@ class RequestHandler(BaseRequestHandler):
     def remote(self):
         """Return a 2-tuple of the remote client's ``(host, port)`` address."""
         return self.client_address
-
-    def shutdown(self):
-        """Shutdown the socket."""
-        self.server.shutdown_request(self.request)
 
 
 class AssociationServer(TCPServer):
