@@ -997,7 +997,7 @@ class Association(threading.Thread):
 
         LOGGER.info('Sending Find Request: MsgID {}'.format(msg_id))
         LOGGER.info('')
-        LOGGER.info('# Identifier DICOM Dataset')
+        LOGGER.info('# Request Identifier DICOM Dataset')
         for elem in dataset:
             LOGGER.info(elem)
         LOGGER.info('')
@@ -1646,11 +1646,11 @@ class Association(threading.Thread):
                     identifier = decode(rsp.Identifier,
                                         transfer_syntax.is_implicit_VR,
                                         transfer_syntax.is_little_endian)
-                    LOGGER.debug('')
-                    LOGGER.debug('# Identifier DICOM Dataset')
+                    LOGGER.info('')
+                    LOGGER.info('# Response Identifier DICOM Dataset')
                     for elem in identifier:
-                        LOGGER.debug(elem)
-                    LOGGER.debug('')
+                        LOGGER.info(elem)
+                    LOGGER.info('')
                 except Exception:
                     LOGGER.error(
                         "Failed to decode the received Identifier dataset"

@@ -23,48 +23,6 @@ Users* (SCUs) and *Service Class Providers* (SCPs) by associating with other
 AEs and using or providing the services available to the association.
 
 
-Supported Service Classes
--------------------------
-*pynetdicom* currently supports the following `DICOM service classes
-<http://dicom.nema.org/medical/dicom/current/output/chtml/part04/PS3.4.html>`_:
-
-.. toctree::
-   :maxdepth: 2
-   :hidden:
-
-   service_classes/index
-
-* :doc:`Application Event Logging <service_classes/application_event>`
-* :doc:`Basic Worklist Management<service_classes/basic_worklist_service_class>`
-* :doc:`Color Palette Query/Retrieve <service_classes/color_palette_service_class>`
-* :doc:`Defined Procedure Protocol Query/Retrieve <service_classes/defined_procedure_service_class>`
-* :doc:`Display System Management <service_classes/display_system_service_class>`
-* :doc:`Hanging Protocol Query/Retrieve <service_classes/hanging_protocol_service_class>`
-* :doc:`Implant Template Query/Retrieve <service_classes/implant_template_service_class>`
-* :doc:`Instance Availability Notification <service_classes/instance_availability>`
-* :doc:`Media Creation Management <service_classes/media_creation>`
-* :doc:`Non-Patient Object Storage <service_classes/non_patient_service_class>`
-* :doc:`Print Management <service_classes/print_management>`
-* :doc:`Procedure Step <service_classes/modality_performed_procedure_step>`
-* :doc:`Protocol Approval Query/Retrieve <service_classes/protocol_approval_service_class>`
-* :doc:`Query/Retrieve <service_classes/query_retrieve_service_class>`
-
-  * Composite Instance Retrieve Without Bulk Data
-  * Instance and Frame Level Retrieve
-* :doc:`Relevant Patient Information Query <service_classes/relevant_patient_service_class>`
-* :doc:`RT Machine Verification <service_classes/rt_machine>`
-* :doc:`Storage <service_classes/storage_service_class>`
-
-  * Ophthalmic Refractive Measurements
-  * Softcopy Presentation State
-  * Structured Reporting
-  * Volumetric Presentation State
-* :doc:`Storage Commitment <service_classes/storage_commitment>`
-* :doc:`Substance Administration Query <service_classes/substance_admin_service_class>`
-* :doc:`Unified Procedure Step <service_classes/ups>`
-* :doc:`Verification <service_classes/verification_service_class>`
-
-
 User Guide
 ==========
 The :ref:`user_guide` is intended as an introduction to *pynetdicom* and
@@ -117,6 +75,48 @@ API Reference
 
 The :doc:`API Reference <reference/index>` provides documentation of the
 important functions and classes.
+
+
+Supported Service Classes
+=========================
+*pynetdicom* currently supports the following `DICOM service classes
+<http://dicom.nema.org/medical/dicom/current/output/chtml/part04/PS3.4.html>`_:
+
+.. toctree::
+   :maxdepth: 2
+   :hidden:
+
+   service_classes/index
+
+* :doc:`Application Event Logging <service_classes/application_event>`
+* :doc:`Basic Worklist Management<service_classes/basic_worklist_service_class>`
+* :doc:`Color Palette Query/Retrieve <service_classes/color_palette_service_class>`
+* :doc:`Defined Procedure Protocol Query/Retrieve <service_classes/defined_procedure_service_class>`
+* :doc:`Display System Management <service_classes/display_system_service_class>`
+* :doc:`Hanging Protocol Query/Retrieve <service_classes/hanging_protocol_service_class>`
+* :doc:`Implant Template Query/Retrieve <service_classes/implant_template_service_class>`
+* :doc:`Instance Availability Notification <service_classes/instance_availability>`
+* :doc:`Media Creation Management <service_classes/media_creation>`
+* :doc:`Non-Patient Object Storage <service_classes/non_patient_service_class>`
+* :doc:`Print Management <service_classes/print_management>`
+* :doc:`Procedure Step <service_classes/modality_performed_procedure_step>`
+* :doc:`Protocol Approval Query/Retrieve <service_classes/protocol_approval_service_class>`
+* :doc:`Query/Retrieve <service_classes/query_retrieve_service_class>`
+
+  * Composite Instance Retrieve Without Bulk Data
+  * Instance and Frame Level Retrieve
+* :doc:`Relevant Patient Information Query <service_classes/relevant_patient_service_class>`
+* :doc:`RT Machine Verification <service_classes/rt_machine>`
+* :doc:`Storage <service_classes/storage_service_class>`
+
+  * Ophthalmic Refractive Measurements
+  * Softcopy Presentation State
+  * Structured Reporting
+  * Volumetric Presentation State
+* :doc:`Storage Commitment <service_classes/storage_commitment>`
+* :doc:`Substance Administration Query <service_classes/substance_admin_service_class>`
+* :doc:`Unified Procedure Step <service_classes/ups>`
+* :doc:`Verification <service_classes/verification_service_class>`
 
 
 Applications
