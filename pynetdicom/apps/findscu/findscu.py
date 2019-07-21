@@ -3,27 +3,6 @@
 """
 A findscu application.
 
-"ScheduledProcedureStepSequence[0].Modality=CT"
-"ScheduledProcedureStepSequence[0].BeamSequence[0].BeamName=Beam1"
-"(0010,0010)='SOME VALUE'"
-"PatientID='12345678'"
-"(0020,0020)=12345"
-"(0020,0020)="
-
-{sequence[item-number].}*element
-
-TODO: use regex instead
-
-BWM:
-ds = Dataset()
-ds.PatientName = '*'
-ds.ScheduledProcedureStepSequence = [Dataset()]
-item = ds.ScheduledProcedureStepSequence[0]
-item.ScheduledStationAETitle = 'CTSCANNER'
-item.ScheduledProcedureStepStartDate = '20181005'
-item.Modality = 'CT'
-
-Interpret unknown VR as bytes
 """
 
 import argparse
@@ -33,9 +12,6 @@ import os
 import sys
 
 from pydicom import dcmread
-from pydicom.dataset import Dataset
-from pydicom.datadict import tag_for_keyword, get_entry
-from pydicom.tag import Tag
 from pydicom.uid import (
     ExplicitVRLittleEndian, ImplicitVRLittleEndian, ExplicitVRBigEndian
 )
@@ -51,6 +27,7 @@ from pynetdicom.sop_class import (
     StudyRootQueryRetrieveInformationModelFind,
     PatientStudyOnlyQueryRetrieveInformationModelFind,
 )
+from pynetdicom.apps.common import create_query
 
 
 VERSION = '0.2.0'
@@ -205,80 +182,6 @@ def _dev_setup_logging(args):
         fileConfig(args.log_config)
 
 
-def create_query(args):
-    """
-    """
-    query = Dataset()
-
-    # Import query dataset
-    if args.file:
-        # Check file exists and is readable and DICOM
-        try:
-            with open(args.file, 'rb') as fp:
-                query = dcmread(fp, force=True)
-                # Only way to check for a bad decode is to iterate the dataset
-                query.iterall()
-        except IOError as exc:
-            APP_LOGGER.error(
-                'Unable to read the file: {}'.format(args.file)
-            )
-            APP_LOGGER.exception(exc)
-            sys.exit()
-        except Exception as exc:
-            APP_LOGGER.error(
-                'Exception raised decoding the file, the file may be '
-                'corrupt, non-conformant or may not be DICOM {}'
-                .format(args.file)
-            )
-            APP_LOGGER.exception(exc)
-            sys.exit()
-
-    if args.keyword:
-        _VR_STR = [
-            'AE', 'AS', 'AT', 'CS', 'DA', 'DS', 'DT', 'IS', 'LO', 'LT',
-            'PN', 'SH', 'ST', 'TM', 'UC', 'UI', 'UR', 'UT'
-        ]
-        _VR_INT = ['SL', 'SS', 'UL', 'US']
-        _VR_FLOAT = ['FD', 'FL', ]
-        _VR_BYTE = ['OB', 'OD', 'OF', 'OL', 'OW', 'OV', 'UN', ]
-        for kw in args.keyword:
-            # Only split at the first occurrence
-            tag, value = kw.split('=', 1)
-
-            components = tag.split(',', 1)
-            if len(components) == 2:
-                # Element tag
-                tag = Tag(components)
-            elif len(components) == 1:
-                # Element keyword
-                tag = Tag(tag_for_keyword(components[0]))
-            else:
-                APP_LOGGER.error("Unable to parse '{}'".format(kw))
-
-            vr, vm, name, is_retired, keyword = get_entry(tag)
-
-            # Try to convert value to appropriate type
-            try:
-                if vr in _VR_STR:
-                    pass
-                elif vr in _VR_INT and value:
-                    value = int(value)
-                elif vr in _VR_FLOAT and value:
-                    value = float(value)
-            except Exception as exc:
-                APP_LOGGER.error(
-                    "Unable to convert the value '{}' for element {} with VR "
-                    "{} to an appropriate type"
-                    .format(value, tag, entry[0])
-                )
-                APP_LOGGER.exception(exc)
-                continue
-
-            query.add_new(tag, vr, value)
-
-    return query
-
-
 if __name__ == '__main__':
     args = _setup_argparser()
 
@@ -289,7 +192,7 @@ if __name__ == '__main__':
     APP_LOGGER.debug('')
 
     # Create query (identifier) dataset
-    identifier = create_query(args)
+    identifier = create_query(args, APP_LOGGER)
 
     # Create application entity
     # Binding to port 0 lets the OS pick an available port

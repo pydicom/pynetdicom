@@ -7,6 +7,7 @@ from datetime import datetime
 import inspect
 import logging
 import sys
+import threading
 
 from pydicom.dataset import Dataset
 
@@ -159,8 +160,9 @@ def trigger(assoc, event, attrs=None):
 
     try:
         # Intervention event - only single handler allowed
-        if event.is_intervention:
-            return handlers(evt)
+        with assoc.lock:
+            if event.is_intervention:
+                return handlers(evt)
 
         # Notification event - multiple handlers are allowed
         for func in handlers:

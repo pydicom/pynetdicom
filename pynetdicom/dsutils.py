@@ -1,259 +1,15 @@
-"""
-DICOM Dataset utility functions.
-"""
+"""DICOM dataset utility functions."""
+
 import logging
 
 from pydicom.filebase import DicomBytesIO
 from pydicom.filereader import read_dataset
 from pydicom.filewriter import write_dataset, write_data_element
-from pydicom.datadict import (
-    tag_for_keyword, repeater_has_keyword, get_entry
-)
-from pydicom.dataset import Dataset
-from pydicom.tag import Tag
-
+from pydicom.tag import tag_in_exception
+from pydicom.uid import UID
 
 
 LOGGER = logging.getLogger('pynetdicom.dsutils')
-
-
-class ElementPath(object):
-    """Class for parsing DICOM data elements defined using strings."""
-    def __init__(self, elem_path, parent=None):
-        """Initialise a new ElementPath.
-
-        Parameters
-        ----------
-        elem_path : str
-            The string describing the complete path of a DICOM data element.
-        parent : ElementPath or None
-            The parent of the current ElementPath (if there is one) or None.
-        """
-        self._child = None
-        self._value = None
-
-        self.path = elem_path
-        self.components = elem_path
-        self._parent = parent
-
-    @property
-    def child(self):
-        """Return the current object's child ElementPath (or None)."""
-        return self._child
-
-    @property
-    def parent(self):
-        """Return the current object's parent ElementPath (or None)."""
-        return self._parent
-
-    @property
-    def value(self):
-        """Return the value assigned to the data element."""
-        if self.parent is None:
-            return self._value
-
-        parent = self.parent
-        while parent.parent:
-            parent = parent.parent
-
-        return parent._value
-
-    @property
-    def components(self):
-        """Return the element's component str."""
-        return self._components
-
-    @components.setter
-    def components(self, value):
-        """Set the element's component str."""
-        elem_path = value
-        if '=' in value:
-            elem_path, elem_value = value.split('=', 1)
-            self._value = elem_value
-
-        self._components = elem_path.split('.')
-
-        if len(self._components) > 1:
-            self._child = ElementPath('.'.join(self._components[1:]), self)
-
-        # Parse current component
-        tag = self.tag
-        try:
-            # Try DICOM dictionary
-            self._entry = get_entry(tag)
-        except Exception as exc:
-            # Private element
-            self._entry = ('UN', '1', 'Unknown', False, 'Unknown')
-
-    @property
-    def is_private(self):
-        pass
-
-    @property
-    def is_sequence(self):
-        """Return True if the element component is a sequence."""
-        start = self.components[0].find('[')
-        end = self.components[0].find(']')
-        if start >= 0 or end >= 0:
-            if not (start >= 0 and end >= 0):
-                raise ValueError(
-                    'Invalid element component: missing item bracket'
-                )
-
-            if start + 1 == end:
-                raise ValueError(
-                    'Invalid element component: missing item number'
-                )
-
-            self._item_nr = int(self.components[0][start + 1:end])
-            return True
-
-        return False
-
-    @property
-    def item_nr(self):
-        """Return the element's sequence item number.
-
-        Returns
-        -------
-        int or None
-            TODO
-        """
-        if self.is_sequence:
-            return self._item_nr
-
-        return None
-
-    @property
-    def keyword(self):
-        """Return the element's keyword as a str."""
-        return self._entry[4]
-
-    @property
-    def tag(self):
-        """Return the element's tag as a pydicom.tag.Tag."""
-        tag = self.components[0]
-        if self.is_sequence:
-            tag = tag.split('[')[0]
-
-        # (gggg,eeee) based tag
-        if ',' in tag:
-            tag_g, tag_e = tag.split(',')
-            if '(' in tag_g:
-                tag_g = tag_g[1:]
-            if ')' in tag_e:
-                tag_e = tag_e[:4]
-
-            return Tag(tag_g, tag_e)
-
-        # Keyword based tag - private keywords not allowed
-        if repeater_has_keyword(tag):
-            raise ValueError("repeater elements must be specified using (gggg,eeee)")
-
-        tag = tag_for_keyword(tag)
-        # Test against None as 0x00000000 is a valid tag
-        if tag is not None:
-            return Tag(tag)
-
-        raise ValueError("Unknown keyword")
-
-    @property
-    def VR(self):
-        """Return the element's VR as str."""
-        return self._entry[0]
-
-    @property
-    def VM(self):
-        """Return the element's VM as str."""
-        return self._entry[1]
-
-
-def as_dataset(items):
-    """
-
-    * VR for private elements will be set to UN
-
-    Parameters
-    ----------
-    items : list of str
-        A list of strings describing the elements that are to be converted
-        to a DICOM dataset.
-
-    Returns
-    -------
-    pydicom.dataset.Dataset
-        The DICOM dataset created using the list of element descriptions.
-    """
-    def recursive_add(ds, elem):
-        """
-        Parameters
-        ----------
-        ElementPath
-            A list of components describing the path to the element.
-        value
-            The value of the element.
-
-        Returns
-        -------
-        pydicom.dataset.Dataset
-            A DICOM dataset representation of `elements`.
-        """
-        if elem.tag not in ds:
-            # Add new element or sequence to dataset
-            if elem.is_sequence:
-                # Add empty sequence
-                ds.add_new(elem.tag, elem.VR, [])
-
-                # SequenceElement=
-                if elem.child is None:
-                    return ds
-            else:
-                # Element=(value)
-                ds.add_new(elem.tag, elem.VR, elem.value)
-                return ds
-
-            nr_items = len(ds[elem.tag].value)
-            if nr_items - elem.item_nr == 0:
-                # SequenceElement[0]
-                ds[elem.tag].value.append(Dataset())
-            else:
-                # New SequenceElement[N > 0] not allowed
-                raise ValueError(
-                    "Unable to create a dataset with non-sequential indexing "
-                    "of Sequence items (i.e. SequenceElement[1] must be "
-                    "preceeded by SequenceElement[0])"
-                )
-
-        else:
-            # Either update or add new item
-            if not elem.is_sequence:
-                # Update Element=(value)
-                ds[elem.tag].value = elem.value
-                return ds
-
-            # Check if we need to add a new item to an existing sequence
-            # SequenceElement currently has N items
-            nr_items = len(ds[elem.tag].value)
-            if nr_items - elem.item_nr == 0:
-                # New SequenceElement[N + 1] item
-                ds[elem.tag].value.append(Dataset())
-            elif nr_items - 1 != elem.item_nr:
-                # New SequenceElement[N + more than 1]
-                raise ValueError(
-                    "Unable to create a dataset with non-sequential indexing "
-                    "of Sequence items (i.e. SequenceElement[1] must be "
-                    "preceeded by SequenceElement[0])"
-                )
-
-        # Current SequenceElement[N]
-        current = ds[elem.tag].value[elem.item_nr]
-        current.update(recursive_add(current, elem.child))
-
-        return ds
-
-    elements = [ElementPath(ii) for ii in items]
-    for elem in elements:
-        yield recursive_add(Dataset(), elem)
 
 
 def decode(bytestring, is_implicit_vr, is_little_endian):
@@ -350,3 +106,62 @@ def encode_element(elem, is_implicit_vr=True, is_little_endian=True):
     fp.close()
 
     return bytestring
+
+
+def prettify(ds, indent=''):
+    """Return a list of pretty str for all the elements in ds."""
+    def _value(elem):
+        _byte = [
+            'OB', 'OW', 'OW/OB', 'OW or OB', 'OB or OW', 'US or SS or OW',
+            'US or SS'
+        ]
+
+        if not elem.value:
+            return "(no value available)"
+        elif (elem.VR in _byte and len(elem.value) > 41):
+            return "Array of {} bytes".format(elem.value)
+        elif isinstance(elem.value, UID):
+            return elem.value.name
+        elif elem.VM > 1:
+            return '{}'.format([x for x in elem.value])
+
+        return '[{}]'.format(elem.value)
+
+    out = []
+
+    for elem in ds:
+        with tag_in_exception(elem.tag):
+            tag = elem.tag
+            if elem.VR == "SQ":
+                out.append(
+                    "{}{} {} {:<42} # {} {} {}"
+                    .format(
+                        indent,
+                        "({0:04x},{1:04x})".format(tag.group, tag.element),
+                        elem.VR,
+                        '(Sequence with {} item(s))'.format(len(elem.value)),
+                        '',
+                        elem.VM,
+                        elem.keyword,
+                    )
+                )
+                for ds in elem.value:
+                    indent += '  '
+                    out.extend(prettify(ds, indent))
+            else:
+                out.append(
+                    "{}{} {} {:<42} # {} {} {}"
+                    .format(
+                        indent,
+                        "({0:04x},{1:04x})".format(tag.group, tag.element),
+                        elem.VR,
+                        _value(elem),
+                        '',
+                        elem.VM,
+                        elem.keyword,
+                    )
+                )
+
+            indent = ''
+
+    return out
