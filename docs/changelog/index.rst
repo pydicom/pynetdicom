@@ -4,6 +4,7 @@
 Release Notes
 #############
 
+.. include:: v1.4.1.rst
 .. include:: v1.4.0.rst
 .. include:: v1.3.1.rst
 .. include:: v1.3.0.rst
