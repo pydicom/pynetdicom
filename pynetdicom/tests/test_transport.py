@@ -149,6 +149,29 @@ class TestAssociationSocket(object):
         sock = AssociationSocket(self.assoc)
         assert sock.__str__() == sock.socket.__str__()
 
+    def test_close_socket_none(self):
+        """Test trying to close a closed socket."""
+        def handle_close(event):
+            event.assoc.dul.socket.socket = None
+
+        hh = [(evt.EVT_CONN_CLOSE, handle_close)]
+
+        self.ae = ae = AE()
+        ae.acse_timeout = 5
+        ae.dimse_timeout = 5
+        ae.network_timeout = 5
+        ae.add_supported_context(VerificationSOPClass)
+        scp = ae.start_server(('', 11113), block=False, evt_handlers=hh)
+
+        ae.add_requested_context(VerificationSOPClass)
+        assoc = ae.associate('', 11113)
+        assert assoc.is_established
+
+        assoc.release()
+        assert assoc.is_released
+
+        scp.shutdown()
+
 
 @pytest.fixture
 def server_context(request):
