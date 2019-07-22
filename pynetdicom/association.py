@@ -491,7 +491,7 @@ class Association(threading.Thread):
                 self._run_reactor()
 
             # Ensure the connection is shutdown properly
-            self.dul.socket.close()
+            self._server.shutdown_request(self.dul.socket.socket)
         else:
             # Association requestor
             # Allow non-blocking negotiation
