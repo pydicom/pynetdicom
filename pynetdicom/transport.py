@@ -606,6 +606,7 @@ class AssociationServer(TCPServer):
 
     def shutdown(self):
         """Completely shutdown the server and close it's socket."""
+        # Can't use super() due to Python 2.7 compatibility
         TCPServer.shutdown(self)
         self.server_close()
         self.ae._servers.remove(self)

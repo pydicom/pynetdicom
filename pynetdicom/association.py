@@ -489,6 +489,9 @@ class Association(threading.Thread):
             self.acse.negotiate_association()
             if self.is_established:
                 self._run_reactor()
+
+            # Ensure the connection is shutdown properly
+            self._server.shutdown_request(self.dul.socket.socket)
         else:
             # Association requestor
             # Allow non-blocking negotiation
