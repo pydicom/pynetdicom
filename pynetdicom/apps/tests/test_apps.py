@@ -8,11 +8,11 @@ import pytest
 from pydicom.dataset import Dataset
 from pydicom.tag import Tag
 
-from pynetdicom.apps.common import ElementPath, create_query
+from pynetdicom.apps.common import ElementPath, create_dataset
 
 
-class TestCreateQuery(object):
-    """Tests for pynetdicom.apps.common.create_query()."""
+class TestCreateDataset(object):
+    """Tests for pynetdicom.apps.common.create_dataset()."""
     def setup(self):
         self.logger = logger = logging.Logger('findscu')
         handler = logging.StreamHandler()
@@ -24,7 +24,7 @@ class TestCreateQuery(object):
     def test_sequence_new(self):
         Args = namedtuple('args', ['keyword', 'file'])
         args = Args(['BeamSequence[0].PatientName=*'], None)
-        ds = create_query(args, self.logger)
+        ds = create_dataset(args, self.logger)
         print(ds)
 
 

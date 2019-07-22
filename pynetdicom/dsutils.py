@@ -115,11 +115,13 @@ def prettify(ds, indent=''):
             'OB', 'OW', 'OW/OB', 'OW or OB', 'OB or OW', 'US or SS or OW',
             'US or SS'
         ]
+        print(elem.value, type(elem.value))
+        print(elem.value is False)
 
         if not elem.value:
             return "(no value available)"
-        elif (elem.VR in _byte and len(elem.value) > 41):
-            return "Array of {} bytes".format(elem.value)
+        elif (elem.VR in _byte and len(str(elem.value)) > 41):
+            return "Array of {} bytes".format(len(elem.value))
         elif isinstance(elem.value, UID):
             return elem.value.name
         elif elem.VM > 1:
@@ -134,7 +136,7 @@ def prettify(ds, indent=''):
             tag = elem.tag
             if elem.VR == "SQ":
                 out.append(
-                    "{}{} {} {:<42} # {} {} {}"
+                    "{}{} {} {:<42} # {}{} {}"
                     .format(
                         indent,
                         "({0:04x},{1:04x})".format(tag.group, tag.element),
@@ -150,7 +152,7 @@ def prettify(ds, indent=''):
                     out.extend(prettify(ds, indent))
             else:
                 out.append(
-                    "{}{} {} {:<42} # {} {} {}"
+                    "{}{} {} {:<42} # {}{} {}"
                     .format(
                         indent,
                         "({0:04x},{1:04x})".format(tag.group, tag.element),

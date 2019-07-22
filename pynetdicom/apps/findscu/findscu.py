@@ -27,7 +27,7 @@ from pynetdicom.sop_class import (
     StudyRootQueryRetrieveInformationModelFind,
     PatientStudyOnlyQueryRetrieveInformationModelFind,
 )
-from pynetdicom.apps.common import create_query
+from pynetdicom.apps.common import create_dataset
 
 
 VERSION = '0.2.0'
@@ -188,11 +188,15 @@ if __name__ == '__main__':
     APP_LOGGER = setup_logger()
     _dev_setup_logging(args)
 
-    APP_LOGGER.debug('$findscu.py v{0!s}'.format(VERSION))
+    APP_LOGGER.debug('findscu.py v{0!s}'.format(VERSION))
     APP_LOGGER.debug('')
 
     # Create query (identifier) dataset
-    identifier = create_query(args, APP_LOGGER)
+    try:
+        identifier = create_dataset(args, APP_LOGGER)
+    except Exception as exc:
+        APP_LOGGER.exception(exc)
+        sys.exit()
 
     # Create application entity
     # Binding to port 0 lets the OS pick an available port
@@ -216,12 +220,11 @@ if __name__ == '__main__':
 
     # Request association with remote
     assoc = ae.associate(args.peer, args.port, ae_title=args.called_aet)
-
     if assoc.is_established:
-        # Send query, yields (status, identifier)
-        # If `status` is one of the 'Pending' statuses then `identifier` is the
-        #   C-FIND response's Identifier dataset, otherwise `identifier` is None
+        # Send C-FIND request
         responses = assoc.send_c_find(identifier, query_model)
+        # If `status` is one of the 'Pending' statuses then `ds` is the
+        #   C-FIND response's Identifier dataset
         for status, ds in responses:
             if status and status.Status in [0xFF00, 0xFF01]:
                 # Pending responses should return matching datasets

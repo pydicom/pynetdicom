@@ -1,55 +1,70 @@
 """Utility classes and functions for the apps."""
 
+import logging
+import os
 from struct import pack
 
+from pydicom import dcmread
 from pydicom.datadict import tag_for_keyword, repeater_has_keyword, get_entry
 from pydicom.dataset import Dataset
 from pydicom.tag import Tag
 
 
-def create_query(args, logger):
-    """
+def create_dataset(args, logger=None):
+    """Return a new or updated dataset.
+
+    The DICOM dataset at ``args.file='path/to/file'`` will be read and updated
+    using the values in ``args.keyword`` (if specified). If ``args.file=None``
+    then a new dataset will be created using the values in ``args.keyword``.
+
     Parameters
     ----------
-    args:
-    logger
+    args : argparse.Namespace
+        The namespace containing the keywords and/or dataset file to use.
+        The namespace should contain ``args.keyword=['list', 'of', 'str']``
+        and ``file='path/to/dataset'`` attributes.
+    logger : logging.Logger or None, optional
+        If ``None`` (default) no logging will be performed, otherwise the
+        logger to use for logging.
+
+    Returns
+    -------
+    pydicom.dataset.Dataset
+        The created and/or updated dataset.
     """
     query = Dataset()
 
-    # Import query dataset
     if args.file:
-        # Check file exists and is readable and DICOM
         try:
             with open(args.file, 'rb') as fp:
                 query = dcmread(fp, force=True)
                 # Only way to check for a bad decode is to iterate the dataset
                 query.iterall()
         except IOError as exc:
-            logger.error(
-                'Unable to read the file: {}'.format(args.file)
-            )
-            logger.exception(exc)
-            sys.exit()
+            if logger:
+                logger.error(
+                    'Unable to read the file: {}'.format(args.file)
+                )
+            raise exc
         except Exception as exc:
-            logger.error(
-                'Exception raised decoding the file, the file may be '
-                'corrupt, non-conformant or may not be DICOM {}'
-                .format(args.file)
-            )
-            logger.exception(exc)
-            sys.exit()
+            if logger:
+                logger.error(
+                    'Exception raised decoding the file, the file may be '
+                    'corrupt, non-conformant or may not be DICOM'
+                )
+            raise exc
 
     if args.keyword:
         try:
-            elements = [ElementPath(ii) for ii in args.keyword]
-
+            elements = [ElementPath(path) for path in args.keyword]
             for elem in elements:
                 query = elem.update(query)
         except Exception as exc:
-            logger.error(
-                'Exception raised trying to parse the supplied keywords'
-            )
-            logger.exception(exc)
+            if logger:
+                logger.error(
+                    'Exception raised trying to parse the supplied keywords'
+                )
+            raise exc
 
     return query
 
@@ -302,7 +317,7 @@ class ElementPath(object):
         )
 
     def update(self, ds):
-        """Update a dataset with the element.
+        """Return a pydicom Dataset after updating it.
 
         Parameters
         ----------

@@ -1,4 +1,4 @@
-"""Unit tests for the Dataset utilities."""
+"""Unit tests for the dataset utilities."""
 
 from copy import deepcopy
 from io import BytesIO
@@ -10,7 +10,7 @@ from pydicom.dataset import Dataset
 from pydicom.dataelem import DataElement
 
 from pynetdicom import debug_logger
-from pynetdicom.dsutils import decode, encode, encode_element
+from pynetdicom.dsutils import decode, encode, encode_element, prettify
 
 
 #debug_logger()
@@ -143,3 +143,26 @@ class TestDecodeFailure(object):
         def dummy(): pass
         with pytest.raises(AttributeError):
             print(decode(dummy, False, True))
+
+
+class TestPrettify(object):
+    """Tests for dsutils.prettify()."""
+    def setup(self):
+        self.ds = Dataset()
+
+    def test_element(self):
+        """Test output for various elements."""
+        assert [] == prettify(self.ds)
+
+        # AE
+        self.ds.PatientName = None
+        ss = '(0010,0010) PN (no value available)' + ' ' * 23 + '# 1 PatientName'
+
+        assert [ss] == prettify(self.ds)
+        self.ds.PatientName = "Test^A^b^C"
+        ss = '(0010,0010) PN [Test^A^b^C]' + ' ' * 31 + '# 1 PatientName'
+        assert [ss] == prettify(self.ds)
+
+        self.ds.PatientName = ['Test^A', 'Test^B']
+        ss = "(0010,0010) PN ['Test^A', 'Test^B']" + ' ' * 23 + "# 2 PatientName"
+        assert [ss] == prettify(self.ds)

@@ -962,7 +962,7 @@ def _send_c_find_rsp(event):
         s.append('Affected SOP Class UID        : {0!s}'
                  .format(cs.AffectedSOPClassUID.name))
     s.append('Identifier                    : {0!s}'.format(dataset))
-    s.append('DIMSE Status                  : 0x{0:04x}'.format(cs.Status))
+    s.append('Status                        : 0x{0:04x}'.format(cs.Status))
     s.append('{:=^76}'.format(' END DIMSE MESSAGE '))
 
     for line in s:
@@ -1045,7 +1045,7 @@ def _send_c_get_rsp(event):
         s.append('Affected SOP Class UID        : {0!s}'
                  .format(affected_sop))
     s.append('Identifier                    : {0!s}'.format(dataset))
-    s.append('DIMSE Status                  : 0x{0:04x}'.format(cs.Status))
+    s.append('Status                        : 0x{0:04x}'.format(cs.Status))
     s.append('{:=^76}'.format(' END DIMSE MESSAGE '))
 
     for line in s:
@@ -1302,7 +1302,7 @@ def _recv_c_store_rsp(event):
     if 'AffectedSOPInstanceUID' in cs:
         s.append('Affected SOP Instance UID     : {0!s}'
                  .format(cs.AffectedSOPInstanceUID))
-    s.append('DIMSE Status                  : {0!s}'.format(status_str))
+    s.append('Status                        : {0!s}'.format(status_str))
     s.append('{:=^76}'.format(' END DIMSE MESSAGE '))
 
     for line in s:
@@ -1382,7 +1382,7 @@ def _recv_c_find_rsp(event):
         s.append('Affected SOP Class UID        : {0!s}'
                  .format(cs.AffectedSOPClassUID.name))
     s.append('Identifier                    : {0!s}'.format(dataset))
-    s.append('DIMSE Status                  : 0x{0:04x}'.format(cs.Status))
+    s.append('Status                        : 0x{0:04x}'.format(cs.Status))
     s.append('{:=^76}'.format(' END DIMSE MESSAGE '))
 
     for line in s:
@@ -1501,7 +1501,7 @@ def _recv_c_get_rsp(event):
         s.append('Warning Sub-operations        : {0!s}'
                  .format(cs.NumberOfWarningSuboperations))
     s.append('Identifier                    : {0!s}'.format(dataset))
-    s.append('DIMSE Status                  : 0x{0:04x}'.format(cs.Status))
+    s.append('Status                        : 0x{0:04x}'.format(cs.Status))
     s.append('{:=^76}'.format(' END DIMSE MESSAGE '))
 
     for line in s:
@@ -1573,7 +1573,7 @@ def _recv_c_move_rsp(event):
         s.append('Warning Sub-operations        : {0!s}'
                  .format(cs.NumberOfWarningSuboperations))
     s.append('Identifier                    : {0!s}'.format(identifier))
-    s.append('DIMSE Status                  : 0x{0:04x}'.format(cs.Status))
+    s.append('Status                        : 0x{0:04x}'.format(cs.Status))
     s.append('{:=^76}'.format(' END DIMSE MESSAGE '))
 
     for line in s:
