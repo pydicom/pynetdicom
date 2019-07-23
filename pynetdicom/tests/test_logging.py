@@ -261,7 +261,6 @@ class TestStandardDIMSE(object):
         scp.shutdown()
 
 
-@pytest.mark.skipif(sys.version_info[:2] == (3, 4), reason='no caplog')
 class TestStandardLogging(object):
     """Tests for standard logging handlers."""
     def setup(self):

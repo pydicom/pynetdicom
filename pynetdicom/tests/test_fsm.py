@@ -10076,7 +10076,6 @@ class TestEventHandling(object):
 
         scp.shutdown()
 
-    @pytest.mark.skipif(sys.version_info[:2] == (3, 4), reason='no caplog')
     def test_transition_raises(self, caplog):
         """Test the handler for EVT_FSM_TRANSITION raising exception."""
         def handle(event):

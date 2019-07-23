@@ -1499,7 +1499,6 @@ class TestEventHandlingAcceptor(object):
 
         scp.shutdown()
 
-    @pytest.mark.skipif(sys.version_info[:2] == (3, 4), reason='no caplog')
     def test_pdu_sent_raises(self, caplog):
         """Test the handler for EVT_PDU_SENT raising exception."""
         def handle(event):
@@ -1645,7 +1644,6 @@ class TestEventHandlingAcceptor(object):
 
         scp.shutdown()
 
-    @pytest.mark.skipif(sys.version_info[:2] == (3, 4), reason='no caplog')
     def test_pdu_recv_raises(self, caplog):
         """Test the handler for EVT_PDU_RECV raising exception."""
         def handle(event):
@@ -1856,7 +1854,6 @@ class TestEventHandlingRequestor(object):
 
         scp.shutdown()
 
-    @pytest.mark.skipif(sys.version_info[:2] == (3, 4), reason='no caplog')
     def test_pdu_sent_raises(self, caplog):
         """Test the handler for EVT_PDU_SENT raising exception."""
         def handle(event):
@@ -2033,7 +2030,6 @@ class TestEventHandlingRequestor(object):
 
         scp.shutdown()
 
-    @pytest.mark.skipif(sys.version_info[:2] == (3, 4), reason='no caplog')
     def test_pdu_recv_raises(self, caplog):
         """Test the handler for EVT_PDU_RECV raising exception."""
         def handle(event):

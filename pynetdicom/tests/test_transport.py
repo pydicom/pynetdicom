@@ -108,7 +108,6 @@ class TestAssociationSocket(object):
 
         assert sock.event_queue.get(block=False) == "Evt5"
 
-    @pytest.mark.skipif(sys.version_info[:2] == (3, 4), reason='no caplog')
     def test_init_raises(self, caplog):
         """Test exception is raised if init with client_socket and address."""
         msg = (
@@ -695,7 +694,6 @@ class TestEventHandlingAcceptor(object):
 
         scp.shutdown()
 
-    @pytest.mark.skipif(sys.version_info[:2] == (3, 4), reason='no caplog')
     def test_conn_open_raises(self, caplog):
         """Test the handler for EVT_CONN_OPEN raising exception."""
         def handle(event):
@@ -872,7 +870,6 @@ class TestEventHandlingAcceptor(object):
 
         scp.shutdown()
 
-    @pytest.mark.skipif(sys.version_info[:2] == (3, 4), reason='no caplog')
     def test_conn_close_raises(self, caplog):
         """Test the handler for EVT_CONN_CLOSE raising exception."""
         def handle(event):
@@ -1019,7 +1016,6 @@ class TestEventHandlingAcceptor(object):
 
         scp.shutdown()
 
-    @pytest.mark.skipif(sys.version_info[:2] == (3, 4), reason='no caplog')
     def test_data_sent_raises(self, caplog):
         """Test the handler for EVT_DATA_SENT raising exception."""
         def handle(event):
@@ -1168,7 +1164,6 @@ class TestEventHandlingAcceptor(object):
 
         scp.shutdown()
 
-    @pytest.mark.skipif(sys.version_info[:2] == (3, 4), reason='no caplog')
     def test_data_recv_raises(self, caplog):
         """Test the handler for EVT_DATA_RECV raising exception."""
         def handle(event):
@@ -1401,7 +1396,6 @@ class TestEventHandlingRequestor(object):
 
         scp.shutdown()
 
-    @pytest.mark.skipif(sys.version_info[:2] == (3, 4), reason='no caplog')
     def test_connection_failure_log(self, caplog):
         """Test that a connection failure is logged."""
         self.ae = ae = AE()
