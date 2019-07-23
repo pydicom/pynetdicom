@@ -16,7 +16,7 @@ involved in some way.
 pynetdicom
 ----------
 `pynetdicom <https://github.com/pydicom/pynetdicom>`_ is a pure Python
-2.7/3.4+ package that implements the DICOM networking protocol. Working with
+2.7/3.5+ package that implements the DICOM networking protocol. Working with
 `pydicom <https://github.com/pydicom/pydicom>`_, it allows the easy creation
 of DICOM Application Entities (AEs), which can then act as *Service Class
 Users* (SCUs) and *Service Class Providers* (SCPs) by associating with other
