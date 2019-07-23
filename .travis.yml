@@ -1,3 +1,4 @@
+dist: xenial
 language: python
 
 # Build against pydicom master and current release
@@ -6,20 +7,17 @@ matrix:
         - name: "python 2.7, pydicom master"
           python: "2.7"
           env: TEST_SUITE=pydicom_master
-        - name: "python 3.4, pydicom master"
-          python: "3.4"
-          env: TEST_SUITE=pydicom_master
         - name: "python 3.5, pydicom master"
           python: "3.5"
           env: TEST_SUITE=pydicom_master
         - name: "python 3.6, pydicom master"
           python: "3.6"
           env: TEST_SUITE=pydicom_master
+        - name: "python 3.7, pydicom master"
+          python: "3.7"
+          env: TEST_SUITE=pydicom_master
         - name: "python 2.7, pydicom release"
           python: "2.7"
-          env: TEST_SUITE=pydicom_release
-        - name: "python 3.4, pydicom release"
-          python: "3.4"
           env: TEST_SUITE=pydicom_release
         - name: "python 3.5, pydicom release"
           python: "3.5"
@@ -27,13 +25,16 @@ matrix:
         - name: "python 3.6, pydicom release"
           python: "3.6"
           env: TEST_SUITE=pydicom_release
+        - name: "python 3.7, pydicom release"
+          python: "3.7"
+          env: TEST_SUITE=pydicom_release
 
 # Install dependencies and pynetdicom
 install: source build_tools/travis/install.sh
 
 # Command to run tests
 script:
-    - pytest --cov=pynetdicom --pyargs pynetdicom --ignore=pydicom-master,pydicom 
+    - pytest --cov=pynetdicom --pyargs pynetdicom --ignore=pydicom-master,pydicom
 
 # Upload coverage results to codecov.io
 after_success:
