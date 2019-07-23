@@ -95,8 +95,6 @@ class TestPresentationContext(object):
         pc.add_transfer_syntax(1234)
         assert 1234 not in pc.transfer_syntax
 
-    @pytest.mark.skipif(sys.version_info[:2] == (3, 4),
-                        reason='pytest missing caplog')
     def test_add_transfer_syntax_nonconformant(self, caplog):
         """Test adding non-conformant transfer syntaxes"""
         _config.ENFORCE_UID_CONFORMANCE = True
@@ -236,8 +234,6 @@ class TestPresentationContext(object):
         with pytest.raises(TypeError):
             pc.abstract_syntax = 1234
 
-    @pytest.mark.skipif(sys.version_info[:2] == (3, 4),
-                        reason='pytest missing caplog')
     def test_abstract_syntax_nonconformant(self, caplog):
         """Test adding non-conformant abstract syntaxes"""
         _config.ENFORCE_UID_CONFORMANCE = True
@@ -284,8 +280,6 @@ class TestPresentationContext(object):
         pc.transfer_syntax = ['1.3', '1.3']
         assert pc.transfer_syntax == ['1.3']
 
-    @pytest.mark.skipif(sys.version_info[:2] == (3, 4),
-                        reason='pytest missing caplog')
     def test_transfer_syntax_nonconformant(self, caplog):
         """Test setting non-conformant transfer syntaxes"""
         caplog.set_level(logging.DEBUG, logger='pynetdicom.presentation')

@@ -24,3 +24,4 @@ elif [[ "$TEST_SUITE" == "pydicom_release" ]]; then
 fi
 
 python --version
+python -c "import ssl; print(ssl.OPENSSL_VERSION)"

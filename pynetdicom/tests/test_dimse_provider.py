@@ -355,7 +355,6 @@ class TestEventHandlingAcceptor(object):
 
         scp.shutdown()
 
-    @pytest.mark.skipif(sys.version_info[:2] == (3, 4), reason='no caplog')
     def test_dimse_sent_raises(self, caplog):
         """Test the handler for EVT_DIMSE_SENT raising exception."""
         def handle(event):
@@ -516,7 +515,6 @@ class TestEventHandlingAcceptor(object):
 
         scp.shutdown()
 
-    @pytest.mark.skipif(sys.version_info[:2] == (3, 4), reason='no caplog')
     def test_dimse_recv_raises(self, caplog):
         """Test the handler for EVT_DIMSE_RECV raising exception."""
         def handle(event):
@@ -707,7 +705,6 @@ class TestEventHandlingRequestor(object):
 
         scp.shutdown()
 
-    @pytest.mark.skipif(sys.version_info[:2] == (3, 4), reason='no caplog')
     def test_dimse_sent_raises(self, caplog):
         """Test the handler for EVT_DIMSE_SENT raising exception."""
         def handle(event):
@@ -865,7 +862,6 @@ class TestEventHandlingRequestor(object):
 
         scp.shutdown()
 
-    @pytest.mark.skipif(sys.version_info[:2] == (3, 4), reason='no caplog')
     def test_dimse_recv_raises(self, caplog):
         """Test the handler for EVT_DIMSE_RECV raising exception."""
         def handle(event):
