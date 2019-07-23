@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>1.5.0 &mdash; pynetdicom 1.5.0.dev0 documentation</title>
+  <title>1.4.1 &mdash; pynetdicom 1.5.0.dev0 documentation</title>
   
 
   
@@ -150,7 +150,7 @@
     
       <li><a href="../index.html">Docs</a> &raquo;</li>
         
-      <li>1.5.0</li>
+      <li>1.4.1</li>
     
     
       <li class="wy-breadcrumbs-aside">
@@ -167,23 +167,13 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
             
-  <div class="section" id="v1-5-0">
-<span id="id1"></span><h1>1.5.0<a class="headerlink" href="#v1-5-0" title="Permalink to this headline">¶</a></h1>
+  <div class="section" id="v1-4-1">
+<span id="id1"></span><h1>1.4.1<a class="headerlink" href="#v1-4-1" title="Permalink to this headline">¶</a></h1>
 <div class="section" id="fixes">
 <h2>Fixes<a class="headerlink" href="#fixes" title="Permalink to this headline">¶</a></h2>
 <ul class="simple">
-<li><p>Fixed the AssociationServer not properly closing its sockets (<a class="reference external" href="https://github.com/pydicom/pynetdicom/issues/382">#382</a>)</p></li>
-</ul>
-</div>
-<div class="section" id="changes">
-<h2>Changes<a class="headerlink" href="#changes" title="Permalink to this headline">¶</a></h2>
-<ul class="simple">
-<li><p>Using a key that corresponds to a given UID with
-<code class="docutils literal notranslate"><span class="pre">Association.send_c_find()</span></code>, <code class="docutils literal notranslate"><span class="pre">Association.send_c_get()</span></code> and
-<code class="docutils literal notranslate"><span class="pre">Association.send_c_move()</span></code> removed as per planned deprecation. Use the
-UID directly instead.</p></li>
-<li><p>Python 3.4 is no longer officially supported, Python 3.7 is now officially
-supported</p></li>
+<li><p>Fixed server socket not closing properly after association release
+(<a class="reference external" href="https://github.com/pydicom/pynetdicom/issues/382">#382</a>)</p></li>
 </ul>
 </div>
 </div>
