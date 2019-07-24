@@ -39,12 +39,6 @@ def create_dataset(args, logger=None):
                 query = dcmread(fp, force=True)
                 # Only way to check for a bad decode is to iterate the dataset
                 query.iterall()
-        except IOError as exc:
-            if logger:
-                logger.error(
-                    'Unable to read the file: {}'.format(args.file)
-                )
-            raise exc
         except Exception as exc:
             if logger:
                 logger.error(

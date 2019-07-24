@@ -13,20 +13,47 @@ from pynetdicom.apps.common import ElementPath, create_dataset
 
 class TestCreateDataset(object):
     """Tests for pynetdicom.apps.common.create_dataset()."""
-    def setup(self):
-        self.logger = logger = logging.Logger('findscu')
-        handler = logging.StreamHandler()
-        formatter = logging.Formatter('%(levelname).1s: %(message)s')
-        handler.setFormatter(formatter)
-        logger.addHandler(handler)
-        logger.setLevel(logging.ERROR)
+    def test_element_new(self):
+        """Test creating an element using keywords."""
+        Args = namedtuple('args', ['keyword', 'file'])
+        args = Args(['PatientName=*'], None)
+        ds = create_dataset(args)
+
+        ref = Dataset()
+        ref.PatientName = '*'
+
+        assert ds == ref
 
     def test_sequence_new(self):
+        """Test creating a sequence using keywords."""
         Args = namedtuple('args', ['keyword', 'file'])
         args = Args(['BeamSequence[0].PatientName=*'], None)
-        ds = create_dataset(args, self.logger)
-        print(ds)
+        ds = create_dataset(args)
 
+        ref = Dataset()
+        ref.BeamSequence = [Dataset()]
+        ref.BeamSequence[0].PatientName = '*'
+
+        assert ds == ref
+
+    def test_keyword_exception(self):
+        """Test exception is raised by bad keyword."""
+        Args = namedtuple('args', ['keyword', 'file'])
+        args = Args(['BadPatientName=*'], None)
+
+        msg = r"Unable to parse element path component"
+        with pytest.raises(ValueError, match=msg):
+            create_dataset(args)
+
+    def test_file_read_exception(self):
+        """Test exception is raised by bad file read."""
+        Args = namedtuple('args', ['keyword', 'file'])
+        args = Args([], 'no_such_file')
+
+        # General exception
+        msg = r"No such file or directory"
+        with pytest.raises(FileNotFoundError, match=msg):
+            create_dataset(args)
 
 
 class TestElementPath(object):
@@ -281,7 +308,10 @@ class TestElementPath(object):
         assert elem.item_nr is None
         assert elem.is_sequence is False
 
-        with pytest.raises(ValueError, match=r''):
+        msg = (
+            r"Unable to parse element path component: 'UnknownPrivateElement'"
+        )
+        with pytest.raises(ValueError, match=msg):
             ElementPath('UnknownPrivateElement')
 
     def test_sequence(self):
@@ -318,34 +348,35 @@ class TestElementPath(object):
 
     def test_sequence_raises(self):
         """Test ElementPath using bad sequence component raises."""
-        with pytest.raises(ValueError, match=r''):
+        msg = r'Element path contains an invalid component:'
+        with pytest.raises(ValueError, match=msg):
             ElementPath('(300a,00b0)[')
 
-        with pytest.raises(ValueError, match=r''):
+        with pytest.raises(ValueError, match=msg):
             ElementPath('(300a,00b0)]')
 
-        with pytest.raises(ValueError, match=r''):
+        with pytest.raises(ValueError, match=msg):
             ElementPath('(300a,00b0)[]')
 
-        with pytest.raises(ValueError, match=r''):
+        with pytest.raises(ValueError, match=msg):
             ElementPath('300a,00b0[')
 
-        with pytest.raises(ValueError, match=r''):
+        with pytest.raises(ValueError, match=msg):
             ElementPath('300a,00b0]')
 
-        with pytest.raises(ValueError, match=r''):
+        with pytest.raises(ValueError, match=msg):
             ElementPath('300a,00b0[]')
 
-        with pytest.raises(ValueError, match=r''):
+        with pytest.raises(ValueError, match=msg):
             ElementPath('BeamSequence[')
 
-        with pytest.raises(ValueError, match=r''):
+        with pytest.raises(ValueError, match=msg):
             ElementPath('BeamSequence]')
 
-        with pytest.raises(ValueError, match=r''):
+        with pytest.raises(ValueError, match=msg):
             ElementPath('BeamSequence[]')
 
-        with pytest.raises(ValueError, match=r''):
+        with pytest.raises(ValueError, match=msg):
             ElementPath('BeamSequence[-1]')
 
     def test_tag(self):
