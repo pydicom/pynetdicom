@@ -21,13 +21,13 @@ from pynetdicom import (
     QueryRetrievePresentationContexts,
     BasicWorklistManagementPresentationContexts
 )
+from pynetdicom.apps.common import create_dataset
 from pynetdicom.sop_class import (
     ModalityWorklistInformationFind,
     PatientRootQueryRetrieveInformationModelFind,
     StudyRootQueryRetrieveInformationModelFind,
     PatientStudyOnlyQueryRetrieveInformationModelFind,
 )
-from pynetdicom.apps.common import create_dataset
 
 
 VERSION = '0.2.0'

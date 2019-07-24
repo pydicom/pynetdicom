@@ -31,40 +31,123 @@ class TestCreateDataset(object):
 
 class TestElementPath(object):
     """Tests for utils.ElementPath."""
+    def test_child(self):
+        """Tests for ElementPath.child."""
+        elem = ElementPath('(0000,0000)')
+        assert elem.child is None
+        elem = ElementPath('CommandGroupLength')
+        assert elem.child is None
+        elem = ElementPath('(0000,0000).(0000,0002)')
+        assert elem.child is not None
+        assert elem.components == ['(0000,0000)', '(0000,0002)']
+        child = elem.child
+        assert child.child is None
+        assert child.components == ['(0000,0002)']
+
+    def test_parent(self):
+        """Tests for ElementPath.parent."""
+        elem = ElementPath('(0000,0000)')
+        assert elem.parent is None
+        elem = ElementPath('CommandGroupLength')
+        assert elem.parent is None
+        elem = ElementPath('(0000,0000).(0000,0002)')
+        assert elem.child is not None
+        assert elem.parent is None
+        assert elem.components == ['(0000,0000)', '(0000,0002)']
+        child = elem.child
+        assert child.parent == elem
+        assert child.child is None
+
+    def test_item_nr(self):
+        """Tests for ElementPath.item_nr."""
+        elem = ElementPath('PatientName')
+        assert elem.is_sequence is False
+        assert elem.item_nr is None
+
+        elem = ElementPath('PatientName[0]')
+        assert elem.is_sequence
+        assert elem.item_nr == 0
+
+        elem = ElementPath('PatientName[12]')
+        assert elem.is_sequence
+        assert elem.item_nr == 12
+
+    def test_is_sequence(self):
+        """Tests for ElementPath.is_sequence."""
+        elem = ElementPath('PatientName[0]')
+        assert elem.is_sequence
+        assert elem.item_nr == 0
+
+        elem = ElementPath('PatientName[12]')
+        assert elem.is_sequence
+        assert elem.item_nr == 12
+
+    def test_is_sequence_raises(self):
+        """Tests for ElementPath.is_sequence with invalid values."""
+        msg = r'Element path contains an invalid component:'
+        with pytest.raises(ValueError, match=msg):
+            ElementPath('PatientName[')
+
+        with pytest.raises(ValueError, match=msg):
+            ElementPath('PatientName]')
+
+        with pytest.raises(ValueError, match=msg):
+            ElementPath('PatientName][')
+
+        with pytest.raises(ValueError, match=msg):
+            ElementPath('PatientName[]')
+
+        with pytest.raises(ValueError, match=msg):
+            ElementPath('PatientName[-1]')
+
+        with pytest.raises(ValueError, match=msg):
+            ElementPath('PatientName[-10]')
+
+        with pytest.raises(ValueError, match=msg):
+            ElementPath('PatientName[as]')
+
+    def test_keyword(self):
+        """Tests for ElementPath.keyword."""
+        elem = ElementPath('PatientName')
+        assert elem.keyword == 'PatientName'
+        elem = ElementPath('0020,0020')
+        assert elem.keyword == 'PatientOrientation'
+        elem = ElementPath('7ffe,0020')
+        assert elem.keyword == 'VariableCoefficientsSDVN'
+        elem = ElementPath('0009,0020')
+        assert elem.keyword == 'Unknown'
+
     def test_non_sequence(self):
         """Test ElementPath using a non-sequence component."""
         elem = ElementPath('(0000,0000)')
         assert elem.tag == Tag(0x0000,0x0000)
         assert elem.keyword == 'CommandGroupLength'
         assert elem.VR == 'UL'
-        assert elem.VM == '1'
         assert elem.item_nr is None
         assert elem.is_sequence is False
         assert elem.child is None
         assert elem.parent is None
-        assert elem.value is None
+        assert elem.value is ''
 
         elem = ElementPath('0000,0000')
         assert elem.tag == Tag(0x0000,0x0000)
         assert elem.keyword == 'CommandGroupLength'
         assert elem.VR == 'UL'
-        assert elem.VM == '1'
         assert elem.item_nr is None
         assert elem.is_sequence is False
         assert elem.child is None
         assert elem.parent is None
-        assert elem.value is None
+        assert elem.value is ''
 
         elem = ElementPath('CommandGroupLength')
         assert elem.tag == Tag(0x0000,0x0000)
         assert elem.keyword == 'CommandGroupLength'
         assert elem.VR == 'UL'
-        assert elem.VM == '1'
         assert elem.item_nr is None
         assert elem.is_sequence is False
         assert elem.child is None
         assert elem.parent is None
-        assert elem.value is None
+        assert elem.value is ''
 
     def test_pathing(self):
         """Test ElementPath using normal pathing."""
@@ -76,12 +159,11 @@ class TestElementPath(object):
             assert elem.tag == Tag(0x0000,0x0000)
             assert elem.keyword == 'CommandGroupLength'
             assert elem.VR == 'UL'
-            assert elem.VM == '1'
             assert elem.item_nr is None
             assert elem.is_sequence is False
             assert elem.child is None
             assert elem.parent is None
-            assert elem.value is None
+            assert elem.value == ''
 
         paths = [
             "(0000,0000)=120", "0000,0000=120", "CommandGroupLength=120"
@@ -91,7 +173,6 @@ class TestElementPath(object):
             assert elem.tag == Tag(0x0000,0x0000)
             assert elem.keyword == 'CommandGroupLength'
             assert elem.VR == 'UL'
-            assert elem.VM == '1'
             assert elem.item_nr is None
             assert elem.is_sequence is False
             assert elem.child is None
@@ -106,7 +187,6 @@ class TestElementPath(object):
             assert elem.tag == Tag(0x300a,0x00b0)
             assert elem.keyword == 'BeamSequence'
             assert elem.VR == 'SQ'
-            assert elem.VM == '1'
             assert elem.item_nr == 0
             assert elem.is_sequence is True
             assert elem.child is None
@@ -117,7 +197,6 @@ class TestElementPath(object):
         assert elem.tag == Tag(0x300a,0x00b0)
         assert elem.keyword == 'BeamSequence'
         assert elem.VR == 'SQ'
-        assert elem.VM == '1'
         assert elem.item_nr == 0
         assert elem.is_sequence is True
         assert elem.parent is None
@@ -127,7 +206,6 @@ class TestElementPath(object):
         assert child.tag == Tag(0x300a,0x00c2)
         assert child.keyword == 'BeamName'
         assert child.VR == 'LO'
-        assert child.VM == '1'
         assert child.item_nr is None
         assert child.is_sequence is False
         assert child.parent is elem
@@ -137,7 +215,6 @@ class TestElementPath(object):
         assert elem.tag == Tag(0x300a,0x00b0)
         assert elem.keyword == 'BeamSequence'
         assert elem.VR == 'SQ'
-        assert elem.VM == '1'
         assert elem.item_nr == 0
         assert elem.is_sequence is True
         assert elem.parent is None
@@ -147,7 +224,6 @@ class TestElementPath(object):
         assert child.tag == Tag(0x300a,0x00c2)
         assert child.keyword == 'BeamName'
         assert child.VR == 'LO'
-        assert child.VM == '1'
         assert child.item_nr is None
         assert child.is_sequence is False
         assert child.parent is elem
@@ -157,7 +233,6 @@ class TestElementPath(object):
         assert elem.tag == Tag(0x300a,0x00b0)
         assert elem.keyword == 'BeamSequence'
         assert elem.VR == 'SQ'
-        assert elem.VM == '1'
         assert elem.item_nr == 5
         assert elem.is_sequence is True
         assert elem.parent is None
@@ -167,7 +242,6 @@ class TestElementPath(object):
         assert child.tag == Tag(0x300a,0x00b0)
         assert child.keyword == 'BeamSequence'
         assert child.VR == 'SQ'
-        assert child.VM == '1'
         assert child.item_nr == 13
         assert child.is_sequence is True
         assert child.parent is elem
@@ -177,55 +251,33 @@ class TestElementPath(object):
         assert subchild.tag == Tag(0x300a,0x00c2)
         assert subchild.keyword == 'BeamName'
         assert subchild.VR == 'LO'
-        assert subchild.VM == '1'
         assert subchild.item_nr is None
         assert subchild.is_sequence is False
         assert subchild.parent is child
         assert subchild.value == 'Test'
 
-    @pytest.mark.skip()
     def test_non_sequence_repeater(self):
         """Test ElementPath using a non-sequence component."""
-        elem = ElementPath('(0000,0000)')
-        assert elem.tag == Tag(0x0000,0x0000)
-        assert elem.keyword == 'CommandGroupLength'
-        assert elem.VR == 'UL'
-        assert elem.VM == '1'
+        elem = ElementPath('(0020,3100)')
+        assert elem.tag == Tag(0x0020,0x3100)
+        assert elem.keyword == 'SourceImageIDs'
+        assert elem.VR == 'CS'
         assert elem.item_nr is None
         assert elem.is_sequence is False
 
-        elem = ElementPath('0000,0000')
-        assert elem.tag == Tag(0x0000,0x0000)
-        assert elem.keyword == 'CommandGroupLength'
-        assert elem.VR == 'UL'
-        assert elem.VM == '1'
-        assert elem.item_nr is None
-        assert elem.is_sequence is False
-
-        elem = ElementPath('CommandGroupLength')
-        assert elem.tag == Tag(0x0000,0x0000)
-        assert elem.keyword == 'CommandGroupLength'
-        assert elem.VR == 'UL'
-        assert elem.VM == '1'
+        elem = ElementPath('7Ffe,0040')
+        assert elem.tag == Tag(0x7ffe,0x0040)
+        assert elem.keyword == 'VariableCoefficientsSDDN'
+        assert elem.VR == 'OW'
         assert elem.item_nr is None
         assert elem.is_sequence is False
 
     def test_private(self):
-        """Test using a known private non-sequence component."""
-        # '1.2.840.113663.1': {'0029xx00': ('US', '1', 'Unknown', ''),
+        """Test using private non-sequence component."""
         elem = ElementPath('(0029,0100)')
         assert elem.tag == Tag(0x0029,0x0100)
         assert elem.keyword == 'Unknown'
         assert elem.VR == 'UN'
-        assert elem.VM == '1'
-        assert elem.item_nr is None
-        assert elem.is_sequence is False
-
-        elem = ElementPath('0029,0100')
-        assert elem.tag == Tag(0x0029,0x0100)
-        assert elem.keyword == 'Unknown'
-        assert elem.VR == 'UN'
-        assert elem.VM == '1'
         assert elem.item_nr is None
         assert elem.is_sequence is False
 
@@ -238,34 +290,31 @@ class TestElementPath(object):
         assert elem.tag == Tag(0x300a,0x00b0)
         assert elem.keyword == 'BeamSequence'
         assert elem.VR == 'SQ'
-        assert elem.VM == '1'
         assert elem.item_nr == 13
         assert elem.is_sequence is True
         assert elem.child is None
         assert elem.parent is None
-        assert elem.value is None
+        assert elem.value is ''
 
         elem = ElementPath('300a,00b0[13]')
         assert elem.tag == Tag(0x300a,0x00b0)
         assert elem.keyword == 'BeamSequence'
         assert elem.VR == 'SQ'
-        assert elem.VM == '1'
         assert elem.item_nr == 13
         assert elem.is_sequence is True
         assert elem.child is None
         assert elem.parent is None
-        assert elem.value is None
+        assert elem.value is ''
 
         elem = ElementPath('BeamSequence[13]')
         assert elem.tag == Tag(0x300a,0x00b0)
         assert elem.keyword == 'BeamSequence'
         assert elem.VR == 'SQ'
-        assert elem.VM == '1'
         assert elem.item_nr == 13
         assert elem.is_sequence is True
         assert elem.child is None
         assert elem.parent is None
-        assert elem.value is None
+        assert elem.value is ''
 
     def test_sequence_raises(self):
         """Test ElementPath using bad sequence component raises."""
@@ -299,6 +348,42 @@ class TestElementPath(object):
         with pytest.raises(ValueError, match=r''):
             ElementPath('BeamSequence[-1]')
 
+    def test_tag(self):
+        """Tests for ElementPath.tag."""
+        elem = ElementPath('0000,0000')
+        assert elem.tag == Tag(0x0000, 0x0000)
+        elem = ElementPath('(0000,0000')
+        assert elem.tag == Tag(0x0000, 0x0000)
+        elem = ElementPath('0000,0000)')
+        assert elem.tag == Tag(0x0000, 0x0000)
+        elem = ElementPath('00(00,0000)')
+        assert elem.tag == Tag(0x0000, 0x0000)
+        elem = ElementPath('(00(00,00)00)')
+        assert elem.tag == Tag(0x0000, 0x0000)
+
+        # Private elements
+        elem = ElementPath('(0009,0010)')
+        assert elem.tag == Tag(0x0009, 0x0010)
+
+        # Keywords
+        elem = ElementPath('PatientName')
+        assert elem.tag == Tag(0x0010, 0x0010)
+        elem = ElementPath('CommandGroupLength')
+        assert elem.tag == Tag(0x0000, 0x0000)
+
+        # Repeater
+        msg = (
+            r'Repeating group elements must be specified using '
+            r'\(gggg,eeee\)'
+        )
+        with pytest.raises(ValueError, match=msg):
+            elem = ElementPath('SourceImageIDs')
+
+        # Unknown
+        msg = r'Unable to parse element path component:'
+        with pytest.raises(ValueError, match=msg):
+            elem = ElementPath('abcdefgh')
+
     def test_update_new(self):
         """Tests for parsing non-sequence strings."""
         ds = ElementPath('BeamSequence[0].PatientName=*').update(Dataset())
@@ -331,17 +416,60 @@ class TestElementPath(object):
 
         assert ref == ds
 
-    def test_update_new_raises(self):
-        """Test that updating new dataset raises."""
-        badness = [
-            'BeamSequence[4]=',
-            'BeamSequence[0].BeamSequence[4]=',
-            'BeamSequence[0].BeamSequence[0].BeamSequence[3]='
+    def test_update_repeater(self):
+        """Test updating using repeater elements."""
+        paths = [
+            'PatientName=Test^Name',
+            'BeamSequence[0].(0020,3100)=2',
+        ]
+        ds = Dataset()
+        for elem in [ElementPath(pp) for pp in paths]:
+            elem.update(ds)
+
+        ref = Dataset()
+        ref.PatientName = "Test^Name"
+        ref.BeamSequence = [Dataset()]
+        ref.BeamSequence[0].add_new(0x00203100, 'CS', '2')
+
+        assert ref == ds
+
+    def test_update_private(self):
+        """Test updating using private elements."""
+        paths = [
+            'PatientName=Test^Name',
+            'BeamSequence[0].(0029,0100)=2',
+        ]
+        ds = Dataset()
+        for elem in [ElementPath(pp) for pp in paths]:
+            elem.update(ds)
+
+        ref = Dataset()
+        ref.PatientName = "Test^Name"
+        ref.BeamSequence = [Dataset()]
+        ref.BeamSequence[0].add_new(0x00290100, 'UN', '2')
+
+        assert ref == ds
+
+    def test_update_non_sequential(self):
+        """Test that updating new dataset with non-sequential items."""
+        paths = [
+            'BeamSequence[3]=',
+            'BeamSequence[0].DACSequence[2]=',
+            'BeamSequence[0].DACSequence[0].BeamSequence[1]=',
+            'BeamSequence[0].DACSequence[1].BeamName=23',
         ]
 
-        for bad in badness:
-            with pytest.raises(ValueError):
-                ElementPath(bad).update(Dataset())
+        ds = Dataset()
+        for elem in [ElementPath(pp) for pp in paths]:
+            elem.update(ds)
+
+        ref = Dataset()
+        ref.BeamSequence = [Dataset(), Dataset(), Dataset(), Dataset()]
+        ref.BeamSequence[0].DACSequence = [Dataset(), Dataset(), Dataset()]
+        ref.BeamSequence[0].DACSequence[0].BeamSequence = [Dataset(), Dataset()]
+        ref.BeamSequence[0].DACSequence[1].BeamName = '23'
+
+        assert ref == ds
 
     def test_update_existing(self):
         """Tests for parsing non-sequence strings."""
@@ -354,28 +482,61 @@ class TestElementPath(object):
             'BeamSequence[1].DACSequence[1].BeamNumber=5',
         ]
         ds = Dataset()
+        ds.PatientName = 'Test^Name^2'
+        ds.BeamSequence = [Dataset()]
+        ds.BeamSequence[0].DACSequence = [Dataset()]
+        ds.BeamSequence[0].DACSequence[0].BeamNumber = '100'
+
         for elem in [ElementPath(pp) for pp in paths]:
             elem.update(ds)
-
-        ds.BeamSequence[0].DACSequence.append(Dataset())
-
-        ElementPath('BeamSequence[0].DACSequence[4]=').update(ds)
-
-        with pytest.raises(ValueError):
-            ElementPath('BeamSequence[0].DACSequence[6]=').update(ds)
 
         ref = Dataset()
         ref.PatientName = "Test^Name"
         ref.BeamSequence = [Dataset(), Dataset()]
-        ref.BeamSequence[0].DACSequence = [
-            Dataset(), Dataset(), Dataset(), Dataset(), Dataset()
-        ]
+        ref.BeamSequence[0].DACSequence = [Dataset(), Dataset(), Dataset()]
         ref.BeamSequence[0].DACSequence[0].BeamNumber = 1
         ref.BeamSequence[0].DACSequence[1].BeamNumber = 2
         ref.BeamSequence[0].DACSequence[2].BeamNumber = 3
         ref.BeamSequence[1].DACSequence = [Dataset(), Dataset()]
         ref.BeamSequence[1].DACSequence[0].BeamNumber = 4
         ref.BeamSequence[1].DACSequence[1].BeamNumber = 5
+
+        assert ref == ds
+
+    def test_update_existing_non_sequential(self):
+        """Test that updating existing dataset with non-sequential items."""
+        paths = [
+            'PatientName=Test^Name',
+            'BeamSequence[1].DACSequence[3]=',
+            'BeamSequence[0].DACSequence[2]=',
+            'BeamSequence[0].DACSequence[0].BeamNumber=1',
+            'BeamSequence[0].DACSequence[2].BeamNumber=3',
+            'BeamSequence[1].DACSequence[3].BeamNumber=4',
+        ]
+        ds = Dataset()
+        ds.PatientName = 'Test^Name^2'
+        ds.BeamSequence = [Dataset(), Dataset()]
+        ds.BeamSequence[0].DACSequence = [Dataset()]
+        ds.BeamSequence[0].DACSequence[0].BeamNumber = '100'
+        ds.BeamSequence[1].DACSequence = [Dataset(), Dataset()]
+        ds.BeamSequence[1].DACSequence[1].BeamNumber = '101'
+        ds.BeamSequence[1].DACSequence[0].BeamName = 'Beam'
+
+        for elem in [ElementPath(pp) for pp in paths]:
+            elem.update(ds)
+
+        ref = Dataset()
+        ref.PatientName = "Test^Name"
+        ref.BeamSequence = [Dataset(), Dataset()]
+        ref.BeamSequence[0].DACSequence = [Dataset(), Dataset(), Dataset()]
+        ref.BeamSequence[0].DACSequence[0].BeamNumber = 1
+        ref.BeamSequence[0].DACSequence[2].BeamNumber = 3
+        ref.BeamSequence[1].DACSequence = [
+            Dataset(), Dataset(), Dataset(), Dataset()
+        ]
+        ref.BeamSequence[1].DACSequence[3].BeamNumber = 4
+        ref.BeamSequence[1].DACSequence[0].BeamName = 'Beam'
+        ref.BeamSequence[1].DACSequence[1].BeamNumber = '101'
 
         assert ref == ds
 
@@ -465,7 +626,7 @@ class TestElementPath(object):
         }
         for vr, kw in keywords.items():
             ds = ElementPath('{}='.format(kw)).update(Dataset())
-            assert getattr(ds, kw) is None
+            assert getattr(ds, kw) == ''
 
     def test_int_types(self):
         """Test that non-empty element values get converted correctly."""
@@ -511,7 +672,7 @@ class TestElementPath(object):
         }
         for vr, kw in keywords.items():
             ds = ElementPath('{}='.format(kw)).update(Dataset())
-            assert getattr(ds, kw) is None
+            assert getattr(ds, kw) == ''
 
     def test_float_types(self):
         """Test that non-empty element values get converted correctly."""
@@ -550,7 +711,7 @@ class TestElementPath(object):
         }
         for vr, kw in keywords.items():
             ds = ElementPath('{}='.format(kw)).update(Dataset())
-            assert getattr(ds, kw) is None
+            assert getattr(ds, kw) == ''
 
     def test_byte_types(self):
         """Test that non-empty element values get converted correctly."""

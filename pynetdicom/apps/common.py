@@ -23,9 +23,8 @@ def create_dataset(args, logger=None):
         The namespace containing the keywords and/or dataset file to use.
         The namespace should contain ``args.keyword=['list', 'of', 'str']``
         and ``file='path/to/dataset'`` attributes.
-    logger : logging.Logger or None, optional
-        If ``None`` (default) no logging will be performed, otherwise the
-        logger to use for logging.
+    logger : logging.Logger, optional
+        The logger to use for logging.
 
     Returns
     -------
@@ -70,74 +69,300 @@ def create_dataset(args, logger=None):
 
 
 class ElementPath(object):
-    """Class for parsing DICOM data elements defined using strings.
+    """Class for parsing DICOM data elements defined using a string path.
 
-    *Format*
+    **Path Format**
 
-    "ElementKeyword="
-    "ElementKeyword=some text value"
-    "ElementKeyword=some\\text\\values"
-    "ElementKeyword=10023"
-    "ElementKeyword=10023\\100029"
-    "ElementKeyword=-1.45"
-    "ElementKeyword=-1.45\\1.928"
+    The path for the element is defined as
+    ``{element(item number).}*element=value``.
 
-    "SequenceKeyword="
-    "SequenceKeyword[0]="
-    "SequenceKeyword[0].ElementKeyword="
-    "SequenceKeyword[0].ElementKeyword=value"
-    "SequenceKeyword[0].SequenceKeyword2="
-    "SequenceKeyword[0].SequenceKeyword2[0]="
-    "SequenceKeyword[0].SequenceKeyword2[0].ElementKeyword="
-    "SequenceKeyword[0].SequenceKeyword2[0].ElementKeyword=value"
+    Examples
+    --------
 
-    and so on...
+    Empty (0010,0010) *Patient Name* element
 
-    When specifying sequence items, new items can only be added if the previous
-    item(s) in the sequence already exist. For example the following is
-    invalid:
+    >>> ElementPath('PatientName=')
+    >>> ElementPath('(0010,0010)=')
 
-    "Sequence[1].Element=1"
+    *Patient Name* set to ``CITIZEN^Jan``
 
-    While this is valid:
+    >>> ElementPath('PatientName=CITIZEN^Jan')
+    >>> ElementPath('(0010,0010)=CITIZEN^Jan')
 
-    "Sequence[0].Element=1"
-    "Sequence[1].Element=2"
+    Numeric VRs like (0028,0011) *Columns* are converted to either ``int``
+    or ``float``.
 
-    The element tag as "(gggg,eeee)" can be used instead of the keyword,
-    where gggg is the tag's group and eeee is the tag's element. Its also
-    possible to mix keywords and tags:
+    >>> ElementPath('Columns=1024')
 
-    "(gggg,eeee)="
-    "(gggg,eeee)[0].Element=1"
-    "SequenceElement[0].(gggg,eeee)=2"
+    Byte VRs like (7fe0,0010) *Pixel Data* are converted to bytes
+
+    >>> ElementPath('PixelData=00ffea08')
+
+    Elements with VM > 1 can be set by using '\' (where appropriate)
+
+    >>> ElementPath('AcquisitionIndex=1\2\3\4')
+
+    Empty (300a,00b0) *Beam Sequence*
+
+    >>> ElementPath('BeamSequence=')
+    >>> ElementPath('(300a,00b0)=')
+
+    *Beam Sequence* with one empty item
+
+    >>> ElementPath('BeamSequence[0]=')
+
+    *Beam Sequence* with one non-empty item
+
+    >>> ElementPath('BeamSequence[0].PatientName=CITIZEN^Jan')
+
+    Nested sequence items
+
+    >>> ElementPath('BeamSequence[0].BeamLimitingDeviceSequence[0].NumberOfLeafJawPairs=1')
+
+    *Beam Sequence* with 4 empty items
+
+    >>> ElementPath('BeamSequence[3]=')
     """
-    def __init__(self, elem_path, parent=None):
+    def __init__(self, path, parent=None):
         """Initialise a new ElementPath.
 
         Parameters
         ----------
-        elem_path : str
+        path : str
             The string describing the complete path of a DICOM data element.
         parent : ElementPath or None
-            The parent of the current ElementPath (if there is one) or None.
+            The parent of the current ``ElementPath`` (if there is one) or
+            ``None``.
         """
-        self._child = None
-        self._value = None
+        # Default pydicom empty value
+        self._value = ''
 
-        self.path = elem_path
-        self.components = elem_path
+        self.components = path
         self._parent = parent
 
     @property
     def child(self):
-        """Return the current object's child ElementPath (or None)."""
-        return self._child
+        """Return the current object's child ElementPath (or None).
+
+        Returns
+        -------
+        ElementPath or None
+            If the path ends with the current object then returns ``None``,
+            otherwise returns an ``ElementPath`` instance for the next
+            component of the path.
+        """
+        if len(self.components) == 1:
+            return None
+
+        return ElementPath('.'.join(self.components[1:]), self)
+
+    @property
+    def components(self):
+        """Return the current Element's components as list of str.
+
+        Returns
+        -------
+        list of str
+            The path starting from the current object.
+        """
+        return self._components
+
+    @components.setter
+    def components(self, path):
+        """Set the element's components str.
+
+        Parameters
+        ----------
+        str
+            The path to use for the current object.
+        """
+        value = ''
+        if '=' in path:
+            path, value = path.split('=', 1)
+
+        self._components = path.split('.')
+
+        # Parse current component and set attributes accordingly
+        tag = self.tag
+        try:
+            # Try DICOM dictionary for public elements
+            self._entry = get_entry(tag)
+        except Exception as exc:
+            # Private element
+            self._entry = ('UN', '1', 'Unknown', False, 'Unknown')
+
+        # Try to convert value to appropriate type
+        self.value = value
+
+    @property
+    def is_sequence(self):
+        """Return True if the current component is a sequence."""
+        start = self.components[0].find('[')
+        end = self.components[0].find(']')
+        if start >= 0 or end >= 0:
+            is_valid = True
+            if not (start >= 0 and end >= 0):
+                is_valid = False
+            if start > end:
+                is_valid = False
+            if start + 1 == end:
+                is_valid = False
+
+            if is_valid:
+                try:
+                    item_nr = int(self.components[0][start + 1:end])
+                    if item_nr < 0:
+                        is_valid = False
+                except:
+                    is_valid = False
+
+            if not is_valid:
+                raise ValueError(
+                    "Element path contains an invalid component: '{}'"
+                    .format(self.components[0])
+                )
+            self._item_nr = item_nr
+
+            return True
+
+        return False
+
+    @property
+    def item_nr(self):
+        """Return the element's sequence item number.
+
+        Returns
+        -------
+        int or None
+            If the current component of the path is a sequence then returns
+            the item number, otherwise returns ``None``.
+        """
+        if self.is_sequence:
+            return self._item_nr
+
+        return None
+
+    @property
+    def keyword(self):
+        """Return the element's keyword as a str.
+
+        Returns
+        -------
+        str
+            The element's keyword if an official DICOM element, otherwise
+            'Unknown'.
+        """
+        return self._entry[4]
 
     @property
     def parent(self):
-        """Return the current object's parent ElementPath (or None)."""
+        """Return the current object's parent ElementPath.
+
+        Returns
+        -------
+        ElementPath or None
+            If the current component was part of a larger path then returns
+            the previous component as an ``ElementPath``, otherwise returns
+            ``None``.
+        """
         return self._parent
+
+    @property
+    def tag(self):
+        """Return the element's tag as a pydicom.tag.Tag."""
+        tag = self.components[0]
+        if self.is_sequence:
+            tag = tag.split('[')[0]
+
+        # (gggg,eeee) based tag
+        if ',' in tag:
+            group, element = tag.split(',')
+            if '(' in group:
+                group = group.replace('(', '')
+            if ')' in element:
+                element = element.replace(')', '')
+
+            if len(group) != 4 or len(element) != 4:
+                raise ValueError(
+                    "Unable to parse element path component: '{}'"
+                    .format(self.components[0])
+                )
+
+            return Tag(group, element)
+
+        # From this point on we assume that a keyword was supplied
+        kw = tag
+        # Keyword based tag - private keywords not allowed
+        if repeater_has_keyword(kw):
+            raise ValueError(
+                "Repeating group elements must be specified using "
+                "(gggg,eeee): '{}'".format(self.components[0])
+            )
+
+        tag = tag_for_keyword(kw)
+        # Test against None as 0x00000000 is a valid tag
+        if tag is not None:
+            return Tag(tag)
+
+        raise ValueError(
+            "Unable to parse element path component: '{}'"
+            .format(self.components[0])
+        )
+
+    def update(self, ds):
+        """Return a pydicom Dataset after updating it.
+
+        Parameters
+        ----------
+        ds : pydicom.dataset.Dataset
+            The dataset to update.
+
+        Returns
+        -------
+        pydicom.dataset.Dataset
+            The updated dataset.
+        """
+        if self.tag not in ds:
+            # Add new element or sequence to dataset
+            if self.is_sequence:
+                # Add new SequenceElement with no items
+                ds.add_new(self.tag, self.VR, [])
+
+                # Add [N] empty items
+                if self.item_nr is not None:
+                    for ii in range(self.item_nr + 1):
+                        ds[self.tag].value.append(Dataset())
+
+                # SequenceElement=
+                if self.child is None:
+                    return ds
+            else:
+                # Element=(value)
+                ds.add_new(self.tag, self.VR, self.value)
+                return ds
+
+        else:
+            elem = ds[self.tag]
+            # Either update or add new item
+            if not self.is_sequence:
+                # Update Element=(value)
+                elem.value = self.value
+                return ds
+
+            # Check if we need to add a new item to an existing sequence
+            # SequenceElement currently has N items
+            nr_items = len(elem.value)
+            if nr_items - self.item_nr == 0:
+                # New SequenceElement[N + 1] item
+                elem.value.append(Dataset())
+            elif nr_items < self.item_nr:
+                for ii in range(self.item_nr - nr_items):
+                    elem.value.append(Dataset())
+
+        if self.child:
+            self.child.update(ds[self.tag].value[self.item_nr])
+
+        return ds
 
     @property
     def value(self):
@@ -173,8 +398,8 @@ class ElementPath(object):
               '0aff00f0ec').
         """
         _str = [
-            'AE', 'AS', 'AT', 'CS', 'DA', 'DS', 'DT', 'IS', 'LO', 'LT', 'PN',
-            'SH', 'ST', 'TM', 'UC', 'UI', 'UR', 'UT'
+            'AE', 'AS', 'AT', 'CS', 'DA', 'DS', 'DT', 'IS', 'LO',
+            'LT', 'PN', 'SH', 'ST', 'TM', 'UC', 'UI', 'UR', 'UT'
         ]
         _int = ['SL', 'SS', 'UL', 'US']
         _float = ['FD', 'FL']
@@ -196,7 +421,7 @@ class ElementPath(object):
             else:
                 value = float(value)
         elif not value:
-            value = None
+            value = ''
         else:
             # Convert to byte, assuming str is in hex
             value = [
@@ -208,193 +433,6 @@ class ElementPath(object):
         self._value = value
 
     @property
-    def components(self):
-        """Return the element's component str."""
-        return self._components
-
-    @components.setter
-    def components(self, value):
-        """Set the element's component str."""
-        elem_path = value
-        if '=' in value:
-            elem_path, elem_value = value.split('=', 1)
-
-        self._components = elem_path.split('.')
-
-        if len(self._components) > 1:
-            self._child = ElementPath('.'.join(self._components[1:]), self)
-
-        # Parse current component
-        tag = self.tag
-        try:
-            # Try DICOM dictionary
-            self._entry = get_entry(tag)
-        except Exception as exc:
-            # Private element
-            self._entry = ('UN', '1', 'Unknown', False, 'Unknown')
-
-        if '=' in value:
-            self.value = elem_value
-
-    @property
-    def is_private(self):
-        pass
-
-    @property
-    def is_sequence(self):
-        """Return True if the element component is a sequence."""
-        start = self.components[0].find('[')
-        end = self.components[0].find(']')
-        if start >= 0 or end >= 0:
-            if not (start >= 0 and end >= 0):
-                raise ValueError(
-                    'Invalid element component: missing item bracket'
-                )
-
-            if start + 1 == end:
-                raise ValueError(
-                    'Invalid element component: missing item number'
-                )
-
-            item_nr = int(self.components[0][start + 1:end])
-            if item_nr < 0:
-                raise ValueError(
-                    'Invalid element component: sequence item index must be '
-                    'at least 0'
-                )
-            self._item_nr = item_nr
-            return True
-
-        return False
-
-    @property
-    def item_nr(self):
-        """Return the element's sequence item number.
-
-        Returns
-        -------
-        int or None
-            TODO
-        """
-        if self.is_sequence:
-            return self._item_nr
-
-        return None
-
-    @property
-    def keyword(self):
-        """Return the element's keyword as a str."""
-        return self._entry[4]
-
-    @property
-    def tag(self):
-        """Return the element's tag as a pydicom.tag.Tag."""
-        tag = self.components[0]
-        if self.is_sequence:
-            tag = tag.split('[')[0]
-
-        # (gggg,eeee) based tag
-        if ',' in tag:
-            tag_g, tag_e = tag.split(',')
-            if '(' in tag_g:
-                tag_g = tag_g[1:]
-            if ')' in tag_e:
-                tag_e = tag_e[:4]
-
-            return Tag(tag_g, tag_e)
-
-        # Keyword based tag - private keywords not allowed
-        if repeater_has_keyword(tag):
-            raise ValueError("repeater elements must be specified using (gggg,eeee)")
-
-        tag = tag_for_keyword(tag)
-        # Test against None as 0x00000000 is a valid tag
-        if tag is not None:
-            return Tag(tag)
-
-        raise ValueError(
-            "Unable to parse element '{}'".format(self.components[0])
-        )
-
-    def update(self, ds):
-        """Return a pydicom Dataset after updating it.
-
-        Parameters
-        ----------
-        ds : pydicom.dataset.Dataset
-            The dataset to update.
-
-        Returns
-        -------
-        pydicom.dataset.Dataset
-            The updated dataset.
-
-        Raises
-        ------
-        ValueError
-            If unable to update the dataset.
-        """
-        exc_nonseq = ValueError(
-            "Unable to update a dataset with non-sequential indexing of "
-            "Sequence items (e.g. SequenceElement[1] must be preceeded by "
-            "SequenceElement[0])"
-        )
-
-        if self.tag not in ds:
-            # Add new element or sequence to dataset
-            if self.is_sequence:
-                if self.item_nr == 0:
-                    # Add empty sequence
-                    ds.add_new(self.tag, self.VR, [])
-                else:
-                    # SequenceElement[N > 0]
-                    raise exc_nonseq
-
-                # SequenceElement=
-                if self.child is None:
-                    return ds
-            else:
-                # Element=(value)
-                ds.add_new(self.tag, self.VR, self.value)
-                return ds
-
-            nr_items = len(ds[self.tag].value)
-            if nr_items - self.item_nr == 0:
-                # SequenceElement[0]
-                ds[self.tag].value.append(Dataset())
-            else:
-                # New SequenceElement[N > 0] not allowed
-                raise exc_nonseq
-
-        else:
-            elem = ds[self.tag]
-            # Either update or add new item
-            if not self.is_sequence:
-                # Update Element=(value)
-                elem.value = self.value
-                return ds
-
-            # Check if we need to add a new item to an existing sequence
-            # SequenceElement currently has N items
-            nr_items = len(elem.value)
-            if nr_items - self.item_nr == 0:
-                # New SequenceElement[N + 1] item
-                elem.value.append(Dataset())
-            elif nr_items < self.item_nr:
-                # New SequenceElement[N + more than 1]
-                raise exc_nonseq
-
-        if self.child:
-            self.child.update(ds[self.tag].value[self.item_nr])
-
-        return ds
-
-    @property
     def VR(self):
         """Return the element's VR as str."""
         return self._entry[0]
-
-    @property
-    def VM(self):
-        """Return the element's VM as str."""
-        return self._entry[1]

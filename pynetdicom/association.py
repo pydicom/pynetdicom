@@ -19,7 +19,7 @@ from pynetdicom.dimse_primitives import (
     C_ECHO, C_MOVE, C_STORE, C_GET, C_FIND, C_CANCEL,
     N_EVENT_REPORT, N_GET, N_SET, N_CREATE, N_ACTION, N_DELETE
 )
-from pynetdicom.dsutils import decode, encode, prettify
+from pynetdicom.dsutils import decode, encode
 from pynetdicom.dul import DULServiceProvider
 from pynetdicom._globals import (
     MODE_REQUESTOR, MODE_ACCEPTOR, DEFAULT_MAX_LENGTH, STATUS_WARNING,
@@ -43,7 +43,6 @@ from pynetdicom.pdu_primitives import (
 from pynetdicom.status import code_to_category, STORAGE_SERVICE_CLASS_STATUS
 
 
-global GLOBAL_LOCK
 # pylint: enable=no-name-in-module
 LOGGER = logging.getLogger('pynetdicom.assoc')
 
@@ -139,7 +138,6 @@ class Association(threading.Thread):
         # Thread setup
         threading.Thread.__init__(self)
         self.daemon = True
-        self.lock = threading.Lock()
 
     def abort(self):
         """Send an A-ABORT to the remote AE and kill the ``Association``."""
@@ -1000,8 +998,8 @@ class Association(threading.Thread):
         LOGGER.info('Sending Find Request: MsgID {}'.format(msg_id))
         LOGGER.info('')
         LOGGER.info('# Request Identifier')
-        for pretty_str in prettify(dataset):
-            LOGGER.info(pretty_str)
+        for elem in dataset:
+            LOGGER.info(elem)
         LOGGER.info('')
 
         # Pause the reactor to prevent a race condition
@@ -1356,8 +1354,8 @@ class Association(threading.Thread):
         LOGGER.info('Sending Move Request: MsgID {}'.format(msg_id))
         LOGGER.info('')
         LOGGER.info('# Request Identifier')
-        for pretty_str in prettify(dataset):
-            LOGGER.info(pretty_str)
+        for elem in dataset:
+            LOGGER.info(elem)
         LOGGER.info('')
 
         # Pause the reactor to prevent a race condition
@@ -1644,24 +1642,23 @@ class Association(threading.Thread):
             if category in [STATUS_PENDING]:
                 operation_no += 1
 
-                with self.lock:
-                    try:
-                        identifier = decode(rsp.Identifier,
-                                            transfer_syntax.is_implicit_VR,
-                                            transfer_syntax.is_little_endian)
-                        LOGGER.info('')
-                        LOGGER.info('# Response Identifier')
-                        for pretty_str in prettify(identifier):
-                            LOGGER.info(pretty_str)
-                        LOGGER.info('')
-                    except Exception:
-                        LOGGER.error(
-                            "Failed to decode the received Identifier dataset"
-                        )
-                        yield status, None
+                try:
+                    identifier = decode(rsp.Identifier,
+                                        transfer_syntax.is_implicit_VR,
+                                        transfer_syntax.is_little_endian)
+                    LOGGER.info('')
+                    LOGGER.info('# Response Identifier')
+                    for elem in identifier:
+                        LOGGER.info(elem)
+                    LOGGER.info('')
+                except Exception:
+                    LOGGER.error(
+                        "Failed to decode the received Identifier dataset"
+                    )
+                    yield status, None
 
-                    yield status, identifier
-                    continue
+                yield status, identifier
+                continue
 
             # Only reach this point if status is Sucess, Warning, Failure
             #   or Cancel
@@ -1788,23 +1785,22 @@ class Association(threading.Thread):
                 #   with a (0008,0058) Failed SOP Instance UID List
                 #    element however this can't be assumed
                 # pylint: disable=broad-except
-                with self.lock:
-                    try:
-                        identifier = decode(rsp.Identifier,
-                                            transfer_syntax.is_implicit_VR,
-                                            transfer_syntax.is_little_endian)
-                        if identifier:
-                            LOGGER.debug('')
-                            LOGGER.debug('# Response Identifier')
-                            for pretty_str in prettify(identifier):
-                                LOGGER.debug(pretty_str)
-                            LOGGER.debug('')
-                    except Exception as ex:
-                        LOGGER.error(
-                            "Failed to decode the received Identifier dataset"
-                        )
-                        LOGGER.exception(ex)
-                        identifier = None
+                try:
+                    identifier = decode(rsp.Identifier,
+                                        transfer_syntax.is_implicit_VR,
+                                        transfer_syntax.is_little_endian)
+                    if identifier:
+                        LOGGER.debug('')
+                        LOGGER.debug('# Response Identifier')
+                        for elem in identifier:
+                            LOGGER.info(elem)
+                        LOGGER.debug('')
+                except Exception as ex:
+                    LOGGER.error(
+                        "Failed to decode the received Identifier dataset"
+                    )
+                    LOGGER.exception(ex)
+                    identifier = None
 
             # Only reach this point if status is Sucess, Warning, Failure
             #   or Cancel
