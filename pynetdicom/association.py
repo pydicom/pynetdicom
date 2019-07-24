@@ -1180,7 +1180,7 @@ class Association(threading.Thread):
 
         LOGGER.info('Sending Get Request: MsgID {}'.format(msg_id))
         LOGGER.info('')
-        LOGGER.info('# Identifier DICOM Dataset')
+        LOGGER.info('# Request Identifier')
         for elem in dataset:
             LOGGER.info(elem)
         LOGGER.info('')

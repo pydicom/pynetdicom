@@ -31,14 +31,14 @@ def create_dataset(args, logger=None):
     pydicom.dataset.Dataset
         The created and/or updated dataset.
     """
-    query = Dataset()
+    ds = Dataset()
 
     if args.file:
         try:
             with open(args.file, 'rb') as fp:
-                query = dcmread(fp, force=True)
+                ds = dcmread(fp, force=True)
                 # Only way to check for a bad decode is to iterate the dataset
-                query.iterall()
+                ds.iterall()
         except Exception as exc:
             if logger:
                 logger.error(
@@ -51,7 +51,7 @@ def create_dataset(args, logger=None):
         try:
             elements = [ElementPath(path) for path in args.keyword]
             for elem in elements:
-                query = elem.update(query)
+                ds = elem.update(ds)
         except Exception as exc:
             if logger:
                 logger.error(
@@ -59,7 +59,7 @@ def create_dataset(args, logger=None):
                 )
             raise exc
 
-    return query
+    return ds
 
 
 class ElementPath(object):

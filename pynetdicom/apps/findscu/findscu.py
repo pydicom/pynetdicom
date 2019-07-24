@@ -108,10 +108,10 @@ def _setup_argparser():
     qr_query = parser.add_argument_group('Query Options')
     qr_query.add_argument(
         '-k', '--keyword',
-        metavar='[k]eyword: gggg,eeee="str", keyword="str"',
+        metavar='[k]eyword: "gggg,eeee=str", "keyword=str"',
         help=(
             "add or override a query element using either an element tag as "
-            "group,element or the element's keyword (such as PatientName)",
+            "(group,element) or the element's keyword (such as PatientName)",
         ),
         type=str,
         action='append',
