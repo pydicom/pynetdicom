@@ -52,7 +52,7 @@ class TestCreateDataset(object):
 
         # General exception
         msg = r"No such file or directory"
-        with pytest.raises(FileNotFoundError, match=msg):
+        with pytest.raises(Exception, match=msg):
             create_dataset(args)
 
 
