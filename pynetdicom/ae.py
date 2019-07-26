@@ -101,6 +101,7 @@ class ApplicationEntity(object):
         self.require_called_aet = False
 
         self._servers = []
+        self._lock = threading.Lock()
 
     @property
     def acse_timeout(self):

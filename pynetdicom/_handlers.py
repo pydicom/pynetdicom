@@ -56,7 +56,7 @@ def standard_pdu_recv_handler(event):
         A_ABORT_RQ : _receive_abort_pdu,
         P_DATA_TF : _receive_data_tf,
     }
-    if handlers[type(pdu)]:
+    with event.assoc.lock:
         handlers[type(pdu)](event)
 
 def standard_pdu_sent_handler(event):
@@ -90,7 +90,7 @@ def standard_pdu_sent_handler(event):
         A_ABORT_RQ : _send_abort,
         P_DATA_TF : _send_data_tf,
     }
-    if handlers[type(pdu)]:
+    with event.assoc.lock:
         handlers[type(pdu)](event)
 
 def standard_dimse_recv_handler(event):
@@ -136,7 +136,8 @@ def standard_dimse_recv_handler(event):
         N_DELETE_RSP: _recv_n_delete_rsp
     }
 
-    handlers[type(event.message)](event)
+    with event.assoc.lock:
+        handlers[type(event.message)](event)
 
 def standard_dimse_sent_handler(event):
     """Standard handler for the ACSE receiving a primitive from the DUL.
@@ -181,7 +182,8 @@ def standard_dimse_sent_handler(event):
         N_DELETE_RSP: _send_n_delete_rsp
     }
 
-    handlers[type(event.message)](event)
+    with event.assoc.lock:
+        handlers[type(event.message)](event)
 
 
 # PDU sub-handlers
