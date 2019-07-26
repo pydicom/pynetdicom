@@ -47,7 +47,7 @@ CLIENT_CERT, CLIENT_KEY = (
 DATASET = dcmread(os.path.join(DCM_DIR, 'RTImageStorage.dcm'))
 
 
-debug_logger()
+#debug_logger()
 
 
 class TestAssociationSocket(object):
