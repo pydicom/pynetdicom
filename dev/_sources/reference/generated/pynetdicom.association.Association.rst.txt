@@ -62,6 +62,7 @@ pynetdicom.association.Association
       ~Association.is_acceptor
       ~Association.is_requestor
       ~Association.local
+      ~Association.lock
       ~Association.mode
       ~Association.name
       ~Association.network_timeout
