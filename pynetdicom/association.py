@@ -386,6 +386,11 @@ class Association(threading.Thread):
         return self.requestor.info
 
     @property
+    def lock(self):
+        """Return the AE's threading.Lock() instance."""
+        return self.ae._lock
+
+    @property
     def mode(self):
         """Return the Association's `mode` as a str."""
         return self._mode
@@ -491,7 +496,8 @@ class Association(threading.Thread):
                 self._run_reactor()
 
             # Ensure the connection is shutdown properly
-            self._server.shutdown_request(self.dul.socket.socket)
+            if self.dul.socket.socket:
+                self._server.shutdown_request(self.dul.socket.socket)
         else:
             # Association requestor
             # Allow non-blocking negotiation
@@ -1645,20 +1651,21 @@ class Association(threading.Thread):
             if category in [STATUS_PENDING]:
                 operation_no += 1
 
-                try:
-                    identifier = decode(rsp.Identifier,
-                                        transfer_syntax.is_implicit_VR,
-                                        transfer_syntax.is_little_endian)
-                    LOGGER.debug('')
-                    LOGGER.debug('# Identifier DICOM Dataset')
-                    for elem in identifier:
-                        LOGGER.debug(elem)
-                    LOGGER.debug('')
-                except Exception:
-                    LOGGER.error(
-                        "Failed to decode the received Identifier dataset"
-                    )
-                    yield status, None
+                with self.lock:
+                    try:
+                        identifier = decode(rsp.Identifier,
+                                            transfer_syntax.is_implicit_VR,
+                                            transfer_syntax.is_little_endian)
+                        LOGGER.debug('')
+                        LOGGER.debug('# Identifier DICOM Dataset')
+                        for elem in identifier:
+                            LOGGER.debug(elem)
+                        LOGGER.debug('')
+                    except Exception:
+                        LOGGER.error(
+                            "Failed to decode the received Identifier dataset"
+                        )
+                        yield status, None
 
                 yield status, identifier
                 continue
@@ -1788,22 +1795,23 @@ class Association(threading.Thread):
                 #   with a (0008,0058) Failed SOP Instance UID List
                 #    element however this can't be assumed
                 # pylint: disable=broad-except
-                try:
-                    identifier = decode(rsp.Identifier,
-                                        transfer_syntax.is_implicit_VR,
-                                        transfer_syntax.is_little_endian)
-                    if identifier:
-                        LOGGER.debug('')
-                        LOGGER.debug('# Identifier DICOM Dataset')
-                        for elem in identifier:
-                            LOGGER.debug(elem)
-                        LOGGER.debug('')
-                except Exception as ex:
-                    LOGGER.error(
-                        "Failed to decode the received Identifier dataset"
-                    )
-                    LOGGER.exception(ex)
-                    identifier = None
+                with self.lock:
+                    try:
+                        identifier = decode(rsp.Identifier,
+                                            transfer_syntax.is_implicit_VR,
+                                            transfer_syntax.is_little_endian)
+                        if identifier:
+                            LOGGER.debug('')
+                            LOGGER.debug('# Identifier DICOM Dataset')
+                            for elem in identifier:
+                                LOGGER.debug(elem)
+                            LOGGER.debug('')
+                    except Exception as ex:
+                        LOGGER.error(
+                            "Failed to decode the received Identifier dataset"
+                        )
+                        LOGGER.exception(ex)
+                        identifier = None
 
             # Only reach this point if status is Sucess, Warning, Failure
             #   or Cancel
