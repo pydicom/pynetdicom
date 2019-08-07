@@ -213,6 +213,27 @@ class AssociationSocket(object):
         """Return the Association's event queue."""
         return self.assoc.dul.event_queue
 
+    def get_addr(self, host=('10.255.255.255', 1)):
+        """Return an address for the local computer as str.
+
+        Parameters
+        ----------
+        host : tuple
+            The host's (addr, port) when trying to determine the local address.
+        """
+        # Solution from https://stackoverflow.com/a/28950776
+        temp = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+        try:
+            # We use `host` to allow unit testing
+            temp.connect(host)
+            addr = temp.getsockname()[0]
+        except:
+            addr = '127.0.0.1'
+        finally:
+            temp.close()
+
+        return addr
+
     @property
     def ready(self):
         """Return ``True`` if there is data available to be read.

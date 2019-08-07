@@ -171,6 +171,22 @@ class TestAssociationSocket(object):
 
         scp.shutdown()
 
+    def test_get_addr(self):
+        """Test get_addr()."""
+        # Normal use
+        self.ae = ae = AE()
+        ae.acse_timeout = 5
+        ae.dimse_timeout = 5
+        ae.network_timeout = 5
+        ae.add_requested_context(VerificationSOPClass)
+        assoc = ae.associate('', 11113)
+        assert not assoc.is_established
+        assert isinstance(assoc.requestor.address, str)
+        # Exceptional use
+        assert not assoc.is_established
+        addr = assoc.dul.socket.get_addr(('', 111111))
+        assert '127.0.0.1' == addr
+
 
 @pytest.fixture
 def server_context(request):
