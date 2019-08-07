@@ -523,8 +523,11 @@ class DIMSEMessage(object):
         #   from the Message's Command Set elements
         for elem in self.command_set:
             if hasattr(primitive, elem.keyword):
-                setattr(primitive, elem.keyword,
-                        self.command_set.__getattr__(elem.keyword))
+                setattr(
+                    primitive,
+                    elem.keyword,
+                    self.command_set.__getattr__(elem.keyword)
+                )
 
         # Datasets
         # Set the primitive's DataSet/Identifier/etc attribute

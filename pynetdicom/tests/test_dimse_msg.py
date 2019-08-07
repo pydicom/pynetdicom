@@ -665,12 +665,12 @@ class TestThreadSafety(object):
         cs = msg.command_set
         ds = msg.data_set
         assert cs.CommandGroupLength is None
-        assert cs.AffectedSOPClassUID == ''
+        assert cs.AffectedSOPClassUID in ['', None] # pydicom upstream change
         assert cs.CommandField is None
         assert cs.MessageID is None
         assert cs.Priority is None
         assert cs.CommandDataSetType is None
-        assert cs.AffectedSOPInstanceUID == ''
+        assert cs.AffectedSOPInstanceUID in ['', None]
         assert cs.MoveOriginatorApplicationEntityTitle is None
         assert cs.MoveOriginatorMessageID is None
         assert ds.getvalue() == b''
@@ -707,12 +707,12 @@ class TestThreadSafety(object):
         cs = msg.command_set
         ds = msg.data_set
         assert cs.CommandGroupLength is None
-        assert cs.AffectedSOPClassUID == ''
+        assert cs.AffectedSOPClassUID in ['', None] # pydicom upstream change
         assert cs.CommandField is None
         assert cs.MessageID is None
         assert cs.Priority is None
         assert cs.CommandDataSetType is None
-        assert cs.AffectedSOPInstanceUID == ''
+        assert cs.AffectedSOPInstanceUID in ['', None]
         assert cs.MoveOriginatorApplicationEntityTitle is None
         assert cs.MoveOriginatorMessageID is None
         assert ds.getvalue() == b''
