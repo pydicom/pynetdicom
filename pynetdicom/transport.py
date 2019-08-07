@@ -213,7 +213,7 @@ class AssociationSocket(object):
         """Return the Association's event queue."""
         return self.assoc.dul.event_queue
 
-    def get_addr(self, host=('10.255.255.255', 1)):
+    def get_local_addr(self, host=('10.255.255.255', 1)):
         """Return an address for the local computer as str.
 
         Parameters

@@ -510,7 +510,7 @@ class ApplicationEntity(object):
         assoc.acceptor.port = port
 
         # Association Requestor object -> local AE
-        assoc.requestor.address = sock.get_addr()
+        assoc.requestor.address = sock.get_local_addr()
         assoc.requestor.port = bind_address[1]
         assoc.requestor.ae_title = self.ae_title
         assoc.requestor.maximum_length = max_pdu

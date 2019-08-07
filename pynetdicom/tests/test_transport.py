@@ -171,8 +171,8 @@ class TestAssociationSocket(object):
 
         scp.shutdown()
 
-    def test_get_addr(self):
-        """Test get_addr()."""
+    def test_get_local_addr(self):
+        """Test get_local_addr()."""
         # Normal use
         self.ae = ae = AE()
         ae.acse_timeout = 5
@@ -184,7 +184,7 @@ class TestAssociationSocket(object):
         assert isinstance(assoc.requestor.address, str)
         # Exceptional use
         assert not assoc.is_established
-        addr = assoc.dul.socket.get_addr(('', 111111))
+        addr = assoc.dul.socket.get_local_addr(('', 111111))
         assert '127.0.0.1' == addr
 
 
