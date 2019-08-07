@@ -16,6 +16,7 @@ pynetdicom.transport.AssociationSocket
       ~AssociationSocket.__init__
       ~AssociationSocket.close
       ~AssociationSocket.connect
+      ~AssociationSocket.get_local_addr
       ~AssociationSocket.recv
       ~AssociationSocket.send
    
