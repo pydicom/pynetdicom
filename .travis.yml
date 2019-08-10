@@ -38,7 +38,7 @@ script:
 
 # Upload coverage results to codecov.io
 after_success:
-    - codecov
+    - bash <(curl -s https://codecov.io/bash)
 
 notifications:
     email: false
