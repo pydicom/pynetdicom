@@ -2,7 +2,6 @@
 
 set -e
 
-pip install codecov
 pip install coverage
 pip install pytest-cov
 pip install pytest
