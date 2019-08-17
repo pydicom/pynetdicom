@@ -962,6 +962,7 @@ class Association(threading.Thread):
         .. currentmodule:: pynetdicom.service_class
 
         :class:`~pynetdicom.dimse_primitives.C_FIND`
+        :class:`BasicWorklistManagementServiceClass`
         :class:`ColorPaletteQueryRetrieveServiceClass`
         :class:`DefinedProcedureProtocolQueryRetrieveServiceClass`
         :class:`HangingProtocolQueryRetrieveServiceClass`
@@ -976,11 +977,13 @@ class Association(threading.Thread):
         ----------
 
         * DICOM Standard, Part 4, :dcm:`Annex C<part04/chapter_C.html>`
+        * DICOM Standard, Part 4, :dcm:`Annex K<part04/chapter_K.html>`
         * DICOM Standard, Part 4, :dcm:`Annex Q<part04/chapter_Q.html>`
         * DICOM Standard, Part 4, :dcm:`Annex U<part04/chapter_U.html>`
         * DICOM Standard, Part 4, :dcm:`Annex V<part04/chapter_V.html>`
         * DICOM Standard, Part 4, :dcm:`Annex X<part04/chapter_X.html>`
         * DICOM Standard, Part 4, :dcm:`Annex BB<part04/chapter_BB.html>`
+        * DICOM Standard, Part 4, :dcm:`Annex CC<part04/chapter_CC.html>`
         * DICOM Standard, Part 4, :dcm:`Annex HH<part04/chapter_HH.html>`
         * DICOM Standard, Part 4, :dcm:`Annex II<part04/chapter_II.html>`
         * DICOM Standard, Part 7, Sections

@@ -126,8 +126,7 @@ class PrintManagementServiceClass(ServiceClass):
 
         Parameters
         ----------
-        req : dimse_primitives.N_CREATE or N_SET or N_DELETE or N_GET or
-        N_EVENT_REPORT or N_ACTION
+        req : dimse_primitives.N_CREATE or N_SET or N_DELETE or N_GET or N_EVENT_REPORT or N_ACTION
             The N-CREATE, N-SET, N-GET, N-DELETE, N-ACTION or N-EVENT-REPORT
             request primitive sent by the peer.
         context : presentation.PresentationContext
@@ -196,8 +195,7 @@ class RTMachineVerificationServiceClass(ServiceClass):
 
         Parameters
         ----------
-        req : dimse_primitives.N_CREATE or N_SET or N_DELETE or N_GET
-        or N_EVENT_REPORT or N_ACTION
+        req : dimse_primitives.N_CREATE or N_SET or N_DELETE or N_GET or N_EVENT_REPORT or N_ACTION
             The N-CREATE, N-SET, N-GET, N-DELETE, N-ACTION or N-EVENT-REPORT
             request primitive sent by the peer.
         context : presentation.PresentationContext

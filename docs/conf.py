@@ -75,7 +75,10 @@ extensions = [
 
 autosummary_generate = True
 
-autodoc_default_flags = ['members', 'inherited-members']
+autodoc_default_options = {
+    'members': None,
+    'no-inherited-members': None,
+}
 
 # Shortcuts for sphinx.ext.extlinks
 extlinks = {

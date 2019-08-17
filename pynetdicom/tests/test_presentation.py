@@ -368,6 +368,13 @@ class TestPresentationContext(object):
         with pytest.raises(TypeError, match=r"`scp_role` must be a bool"):
             context.scp_role = 1
 
+    def test_repr(self):
+        """Test PresentationContext.__repr__"""
+        cx = build_context('1.2.3')
+        assert '1.2.3' == repr(cx)
+        cx = build_context('1.2.840.10008.1.1')
+        assert 'Verification SOP Class' == repr(cx)
+
 
 class TestNegotiateAsAcceptor(object):
     """Tests negotiation_as_acceptor."""
