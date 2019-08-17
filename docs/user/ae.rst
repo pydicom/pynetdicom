@@ -1,43 +1,46 @@
-.. currentmodule:: pynetdicom.AE
+.. currentmodule:: pynetdicom.ae
 
 Application Entity
 ------------------
+
 The first step in DICOM networking with *pynetdicom* is the creation of an
-:ref:`Application Entity <concepts_ae>` (or AE). A minimal initialisation of
-``AE`` requires no arguments.
+:ref:`Application Entity <concepts_ae>` which is done using the
+:class:`AE<ApplicationEntity>` class. A minimal initialisation of
+:class:`AE<ApplicationEntity>` requires no arguments.
 
 >>> from pynetdicom import AE
 >>> ae = AE()
 
-This will create an AE with an *AE Title* of ``b'PYNETDICOM      '``. The AE
-title can set by supplying the ``ae_title`` parameter during initialisation:
+This will create an :class:`AE<ApplicationEntity>` with an AE title of
+``b'PYNETDICOM      '``. The AE title can set by supplying the *ae_title*
+keyword argument during initialisation:
 
 >>> from pynetdicom import AE
 >>> ae = AE(ae_title=b'MY_AE_TITLE')
 
-Or afterwards with the ``AE.ae_title`` property:
+Or afterwards with the :attr:`~ApplicationEntity.ae_title` property:
 
 >>> from pynetdicom import AE
 >>> ae = AE()
 >>> ae.ae_title = b'MY_AE_TITLE'
 
 AE titles must meet the conditions of a DICOM data element with a
-`Value Representation <http://dicom.nema.org/medical/dicom/current/output/chtml/part05/sect_6.2.html>`_
-of **AE** [1]_:
+:dcm:`Value Representation <part05/sect_6.2.html>` of **AE**:
 
-* Leading and trailing spaces (``0x20``) are non-significant
-* Maximum 16 characters (once non-significant characters are removed)
-* Valid characters belong to the DICOM `Default Character Repertoire <http://dicom.nema.org/medical/dicom/current/output/chtml/part05/chapter_E.html>`_
-  [2]_, which is the basic G0 Set of the ISO646:1990 [5]_ (ASCII) standard
-  excluding backslash ('\\ ' ``0x5c``) and all control characters [3]_.
-* An AE title made entirely of spaces is not allowed [4]_
+* Leading and trailing spaces (``0x20``) are non-significant.
+* Maximum 16 characters (once non-significant characters are removed).
+* Valid characters belong to the DICOM :dcm:`Default Character Repertoire
+  <part05/chapter_E.html>`, which is the basic G0 Set of the
+  `ISO/IEC 646:1991 <https://www.iso.org/standard/4777.html>`_
+  (ASCII) standard excluding backslash (``\`` - hex ``0x5C``) and all control
+  characters.
+* An AE title made entirely of spaces is not allowed.
 
 AE titles in *pynetdicom* are checked for validity (using
-:py:meth:`utils.validate_ae_title() <pynetdicom.utils.validate_ae_title>`)
-and then stored as length 16 ``bytes``, with
-trailing spaces added as padding if required. This can be important to
-remember when dealing with AE titles as the value you set may not be the
-value that gets stored.
+:func:`~pynetdicom.utils.validate_ae_title`) and then stored as length 16
+:class:`bytes`, with trailing spaces added as padding if required. This can
+be important to remember when dealing with AE titles as the value you set may
+not be the value that gets stored.
 
 >>> ae.ae_title = b'MY_AE_TITLE'
 >>> ae.ae_title == b'MY_AE_TITLE'
@@ -49,7 +52,7 @@ b'MY_AE_TITLE     '
 
 When creating SCPs its also possible to give each SCP its own AE title by
 specifying the ``ae_title`` keyword argument in
-:py:meth:`AE.start_server() <pynetdicom.ae.ApplicationEntity.start_server>`.
+:meth:`AE.start_server()<pynetdicom.ae.ApplicationEntity.start_server>`.
 
 .. _ae_create_scu:
 
@@ -65,11 +68,12 @@ that will be *requested* during
 Association negotiation. This can be done in two ways:
 
 * You can add requested contexts on a one-by-one basis using the
-  :py:meth:`AE.add_requested_context() <pynetdicom.ae.ApplicationEntity.add_requested_context>`
+  :meth:`AE.add_requested_context() <ApplicationEntity.add_requested_context>`
   method.
 * You can set all the requested contexts at once using the
-  :py:obj:`AE.requested_contexts <pynetdicom.ae.ApplicationEntity.requested_contexts>`
-  property. Additional contexts can still be added on a one-by-one basis afterwards.
+  :attr:`AE.requested_contexts <ApplicationEntity.requested_contexts>`
+  property. Additional contexts can still be added on a one-by-one basis
+  afterwards.
 
 Adding presentation contexts one-by-one:
 
@@ -87,15 +91,14 @@ Adding presentation contexts all at once:
 >>> ae = AE()
 >>> ae.requested_contexts = StoragePresentationContexts
 
-Here ``StoragePresentationContexts`` is a prebuilt list of presentation
-contexts containing (almost) all the Storage Service Class'
-`supported SOP Classes <http://dicom.nema.org/medical/dicom/current/output/chtml/part04/sect_B.5.html>`_,
-and there's a similar list for
-all the supported service classes. Alternatively you can build your own list
-of presentation contexts, either through creating new
-:py:class:`PresentationContext <pynetdicom.presentation.PresentationContext>`
-instances or by using the
-:py:meth:`build_context <pynetdicom.presentation.build_context>`
+Here :attr:`~pynetdicom.presentation.StoragePresentationContexts` is a
+prebuilt list of presentation contexts containing (almost) all the Storage
+Service Class' :dcm:`supported SOP Classes <part04/sect_B.5.html>`,
+and there's a :ref:`similar list<api_presentation_prebuilt>` for all
+the supported service classes.
+Alternatively you can build your own list of presentation contexts, either
+through creating new :class:`~pynetdicom.presentation.PresentationContext`
+instances or by using the :func:`~pynetdicom.presentation.build_context`
 convenience function:
 
 >>> from pynetdicom import AE, build_context
@@ -117,7 +120,7 @@ Combining the all-at-once and one-by-one approaches:
 
 As the association *Requestor* you're limited to a total of 128 requested
 presentation contexts, so attempting to add more than 128 contexts will raise
-a ``ValueError`` exception.
+a :class:`ValueError` exception.
 
 When you add presentation contexts as shown above, the following transfer
 syntaxes are used by default for each context:
@@ -131,7 +134,8 @@ syntaxes are used by default for each context:
 +---------------------+------------------------------+
 
 Specifying your own transfer syntax(es) can be done with the
-``transfer_syntax`` parameter as either a single str/UID or a list of str/UIDs:
+*transfer_syntax* keyword argument as either a single str/UID or a list of
+str/UIDs:
 
 >>> from pydicom.uid import ImplicitVRLittleEndian, ExplicitVRLittleEndian
 >>> from pynetdicom import AE
@@ -151,7 +155,7 @@ Specifying your own transfer syntax(es) can be done with the
 >>> ae.requested_contexts = [context_a, context_b]
 
 The requested presentation contexts can be accessed with the
-:py:obj:`AE.requested_contexts <pynetdicom.ae.ApplicationEntity.requested_contexts>`
+:attr:`AE.requested_contexts<ApplicationEntity.requested_contexts>`
 property and they are returned in the order they were added:
 
 >>> from pynetdicom import AE
@@ -195,16 +199,16 @@ All the above examples set the requested presentation contexts on the
 Application Entity level, i.e. the same contexts will be used for all
 association requests. To set the requested presentation contexts on a
 per-association basis (i.e. each association request can have different
-requested contexts) you can use the ``context`` keyword argument when calling
-:py:meth:`AE.associate() <pynetdicom.ae.ApplicationEntity.associate>` (see
+requested contexts) you can use the *context* keyword argument when calling
+:meth:`AE.associate()<ApplicationEntity.associate>` (see
 the :ref:`Association <association>` page for more information).
 
 Specifying the network port
 ...........................
 In general it shouldn't be necessary to specify the port when acting as an SCU.
 By default *pynetdicom* will use the first available port to communicate with a
-peer AE. To specify the port number you can use the ``bind_address`` keyword
-parameter when requesting an association, which takes a 2-tuple of
+peer AE. To specify the port number you can use the *bind_address* keyword
+argument when requesting an association, which takes a 2-tuple of
 (str *host*, int *port*):
 
 >>> from pynetdicom import AE
@@ -231,10 +235,10 @@ that will be *supported* during
 Association negotiation. This can be done in two ways:
 
 * You can add supported contexts on a one-by-one basis using the
-  :py:meth:`AE.add_supported_context() <pynetdicom.ae.ApplicationEntity.add_supported_context>`
+  :meth:`AE.add_supported_context()<ApplicationEntity.add_supported_context>`
   method.
 * You can set all the supported contexts at once using the
-  :py:obj:`AE.supported_contexts <pynetdicom.ae.ApplicationEntity.supported_contexts>`
+  :attr:`AE.supported_contexts<ApplicationEntity.supported_contexts>`
   property. Additional contexts can still be added on a one-by-one basis
   afterwards.
 
@@ -254,16 +258,14 @@ Adding presentation contexts all at once:
 >>> ae = AE()
 >>> ae.supported_contexts = StoragePresentationContexts
 
-Here ``StoragePresentationContexts`` is a prebuilt list of presentation
-contexts containing (almost) all the Storage Service Class'
-`supported SOP Classes <http://dicom.nema.org/medical/dicom/current/output/chtml/part04/sect_B.5.html>`_,
-and there's a similar list for
+Here :attr:`~pynetdicom.presentation.StoragePresentationContexts` is a prebuilt
+:class:`list` of presentation contexts containing (almost) all the Storage
+Service Class' :dcm:`supported SOP Classes<part04/sect_B.5.html>`,
+and there's a :ref:`similar list<api_presentation_prebuilt>` for
 all the supported service classes. Alternatively you can build your own list
 of presentation contexts, either through creating new
-:py:class:`PresentationContext <pynetdicom.presentation.PresentationContext>`
-instances or by using the
-:py:meth:`build_context <pynetdicom.presentation.build_context>`
-convenience function:
+:class:`~pynetdicom.presentation.PresentationContext` instances or by using the
+:func:`~pynetdicom.presentation.build_context` convenience function:
 
 >>> from pynetdicom import AE, build_context
 >>> from pynetdicom.sop_class import CTImageStorage
@@ -297,7 +299,8 @@ syntaxes are used by default for each context:
 +---------------------+------------------------------+
 
 Specifying your own transfer syntax(es) can be done with the
-``transfer_syntax`` parameter as either a single str/UID or a list of str/UIDs:
+*transfer_syntax* keyword argument parameter as either a single str/UID or a
+list of str/UIDs:
 
 >>> from pydicom.uid import ImplicitVRLittleEndian, ExplicitVRLittleEndian
 >>> from pynetdicom import AE
@@ -317,7 +320,7 @@ Specifying your own transfer syntax(es) can be done with the
 >>> ae.supported_contexts = [context_a, context_b]
 
 The supported presentation contexts can be accessed with the
-:py:obj:`AE.supported_contexts <pynetdicom.ae.ApplicationEntity.supported_contexts>`
+:attr:`AE.supported_contexts<ApplicationEntity.supported_contexts>`
 property and they are returned in order of their abstract syntax UID value:
 
 >>> from pynetdicom import AE
@@ -358,10 +361,12 @@ All the above examples set the supported presentation contexts on the
 Application Entity level, i.e. the same contexts will be used for all
 SCPs. To set the supported presentation contexts on a
 per-SCP basis (i.e. each SCP can have different
-supported contexts) you can use the ``context`` keyword argument when calling
-:py:meth:`AE.start_server() <pynetdicom.ae.ApplicationEntity.start_server>` (see
+supported contexts) you can use the *context* keyword argument when calling
+:meth:`AE.start_server()<ApplicationEntity.start_server>` (see
 the :ref:`Association <association>` page for more information).
 
+
+.. _user_ae_role_negotiation:
 
 Handling SCP/SCU Role Selection Negotiation
 ...........................................
@@ -371,7 +376,7 @@ may include
 `SCP/SCU Role Selection Negotiation <http://dicom.nema.org/medical/dicom/current/output/chtml/part07/sect_D.3.3.4.html>`_
 items in the association request and it's up to the association *Acceptor*
 to decide whether or not to accept the proposed roles. This can be done
-through the ``scu_role`` and ``scp_role`` parameters, which control whether
+through the *scu_role* and *scp_role* keyword arguments, which control whether
 or not the association *Acceptor* will accept or reject the proposal:
 
 >>> from pynetdicom import AE
@@ -379,7 +384,7 @@ or not the association *Acceptor* will accept or reject the proposal:
 >>> ae = AE()
 >>> ae.add_supported_context(CTImageStorage, scu_role=False, scp_role=True)
 
-If either ``scu_role`` or ``scp_role`` is None (the default) then no response
+If either *scu_role* or *scp_role* is ``None`` (the default) then no response
 to the role selection will be sent and the default roles assumed. If you wish
 to accept a proposed role then set the corresponding parameter to ``True``. In
 the above example if the *Requestor* proposes the SCP role then the *Acceptor*
@@ -387,7 +392,7 @@ will accept it while rejecting the proposed SCU role (and therefore the
 *Acceptor* will be SCU and *Requestor* SCP).
 
 To reiterate, if you wish to respond to the proposed role selection then
-**both** ``scu_role`` and ``scp_role`` must be set, and the value you set
+**both** *scu_role* and *scp_role* must be set, and the value you set
 indicates whether or not to accept or reject the proposal.
 
 There are :ref:`four possible outcomes <role_selection_negotiation>`
@@ -403,7 +408,7 @@ Handling User Identity Negotiation
 ..................................
 
 An association *Requestor* may include a
-`User Identity Negotiation <http://dicom.nema.org/medical/dicom/current/output/chtml/part07/sect_D.3.3.7.html>`_
+:dcm:`User Identity Negotiation <part07/sect_D.3.3.7.html>`
 item in the association request with the aim of providing the *Acceptor* a
 method of verifying its identity. Possible forms of identity confirmation
 methods are:
@@ -432,7 +437,7 @@ to see the requirements for implementations of the ``evt.EVT_USER_ID`` handler.
     def handle_user_id(event):
         """Handle evt.EVT_USER_ID."""
         # Identity verification code is outside the scope of pynetdicom
-        is_verified, response = some_user_function()
+        is_verified, response = some_user_function(event)
 
         return is_verified, response
 
@@ -445,8 +450,8 @@ to see the requirements for implementations of the ``evt.EVT_USER_ID`` handler.
 
 Specifying the bind address
 ...........................
-The bind address for the server socket is specified by the ``address``
-parameter to ``start_server()`` as (str *host*, int *port*).
+The bind address for the server socket is specified by the *address*
+argument to ``start_server()`` as (str *host*, int *port*).
 
 >>> from pynetdicom import AE
 >>> ae = AE()
@@ -464,16 +469,9 @@ AEs and how to handle their service requests see the
 References
 ..........
 
-.. [1] DICOM Standard, Part 5
-   `Section 6.2 <http://dicom.nema.org/medical/dicom/current/output/html/part05.html#sect_6.2>`_
-.. [2] DICOM Standard, Part 5
-   `Section 6.1.2.1 <http://dicom.nema.org/medical/dicom/current/output/html/part05.html#sect_6.1.3>`_
-.. [3] DICOM Standard, Part 5
-   `Section 6.1.3 <http://dicom.nema.org/medical/dicom/current/output/html/part05.html#sect_6.1.3>`_
-.. [4] DICOM Standard, Part 8
-   `Section 9.3.2 <http://dicom.nema.org/medical/dicom/current/output/html/part08.html#sect_9.3.2>`_
-.. [5] `ISO/IEC 646:1991 <https://www.iso.org/standard/4777.html>`_
-.. DICOM Standard, Part 8
-   `Annex B.1 <http://dicom.nema.org/medical/dicom/current/output/html/part08.html#sect_B.1>`_
-.. DICOM Standard, Part 8
-   `Annex B.2 <http://dicom.nema.org/medical/dicom/current/output/html/part08.html#sect_B.2>`_
+* DICOM Standard, Part 5 :dcm:`Section 6.2<part05.html#sect_6.2>`
+* DICOM Standard, Part 5 :dcm:`Section 6.1.2.1<part05.html#sect_6.1.3>`
+* DICOM Standard, Part 5 :dcm:`Section 6.1.3<part05.html#sect_6.1.3>`
+* DICOM Standard, Part 8 :dcm:`Section 9.3.2<part08.html#sect_9.3.2>`
+* DICOM Standard, Part 8 :dcm:`Annex B.1<part08.html#sect_B.1>`
+* DICOM Standard, Part 8 :dcm:`Annex B.2<part08.html#sect_B.2>`

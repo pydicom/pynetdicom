@@ -38,29 +38,33 @@ class ACSE(object):
 
     @property
     def acceptor(self):
-        """Return the Association's Acceptor ServiceUser."""
+        """Return the *Acceptor* :class:`~pynetdicom.association.ServiceUser`.
+        """
         return self.assoc.acceptor
 
     @property
     def acse_timeout(self):
-        """Return the ACSE timeout."""
+        """Return the ACSE timeout (in seconds)."""
         return self.assoc.acse_timeout
 
     @property
     def assoc(self):
-        """Return the Association to provide ACSE services for."""
+        """Return the parent :class:`~pynetdicom.association.Association`."""
         return self._assoc
 
     def _check_async_ops(self):
         """Check the user's response to an Asynchronous Operations request.
 
+        .. currentmodule:: pynetdicom.pdu_primitives
+
         Returns
         -------
         pdu_primitives.AsynchronousOperationsWindowNegotiation or None
-            If the `evt.EVT_ASYNC_OPS` callback hasn't been implemented
-            then returns None, otherwise returns an
-            AsynchronousOperationsWindowNegotiation item with the default
-            values for the number of operations invoked/performed (1, 1).
+            If the ``evt.EVT_ASYNC_OPS`` handler hasn't been implemented
+            then returns ``None``, otherwise returns an
+            :class:`AsynchronousOperationsWindowNegotiation` item with the
+            default values for the number of operations invoked/performed
+            (1, 1).
         """
         # pylint: disable=broad-except
         try:
@@ -232,11 +236,13 @@ class ACSE(object):
 
     @property
     def dul(self):
-        """Return the Association's DUL instance."""
+        """Return the :class:`~pynetdicom.dul.DULServiceProvider`."""
         return self.assoc.dul
 
     def is_aborted(self):
-        """Return True if an A-ABORT or A-P-ABORT request has been received."""
+        """Return ``True`` if an A-ABORT or A-P-ABORT request has been
+        received.
+        """
         primitive = self.dul.peek_next_pdu()
         if primitive.__class__ in (A_ABORT, A_P_ABORT):
             return True
@@ -244,14 +250,7 @@ class ACSE(object):
         return False
 
     def is_release_requested(self):
-        """Return True if an A-RELEASE request has been received.
-
-        Parameters
-        ----------
-        assoc : association.Association
-            The Association instance that wants to know if an A-RELEASE
-            request has been received.
-        """
+        """Return ``True`` if an A-RELEASE request has been received."""
         primitive = self.dul.peek_next_pdu()
         if isinstance(primitive, A_RELEASE) and primitive.result is None:
             _ = self.dul.receive_pdu(wait=False)
@@ -262,11 +261,6 @@ class ACSE(object):
     def negotiate_association(self):
         """Perform an association negotiation as either the requestor or
         acceptor.
-
-        Parameters
-        ----------
-        assoc : association.Association
-            The Association instance to perform the negotiation for.
         """
         if self.assoc.is_requestor:
             self._negotiate_as_requestor()
@@ -275,11 +269,6 @@ class ACSE(object):
 
     def _negotiate_as_acceptor(self):
         """Perform an association negotiation as the association acceptor.
-
-        Parameters
-        ----------
-        assoc : association.Association
-            The Association instance to perform the negotiation for.
         """
         # For convenience
         assoc_rq = self.requestor.primitive
@@ -578,7 +567,8 @@ class ACSE(object):
 
     @property
     def requestor(self):
-        """Return the Association's Requestor ServiceUser."""
+        """Return the *Requestor* :class:`~pynetdicom.association.ServiceUser`.
+        """
         return self.assoc.requestor
 
     def send_abort(self, source):
@@ -589,8 +579,8 @@ class ACSE(object):
         source : int
             The source of the abort request
 
-            - 0x00 - the DUL service user
-            - 0x02 - the DUL service provider
+            - ``0x00`` - the DUL service user
+            - ``0x02`` - the DUL service provider
 
         Raises
         ------
@@ -649,12 +639,12 @@ class ACSE(object):
         reason : int
             The reason for aborting the association, one of the following:
 
-            - 0x00 - reason not specified
-            - 0x01 - unrecognised PDU
-            - 0x02 - unexpected PDU
-            - 0x04 - unrecognised PDU parameter
-            - 0x05 - unexpected PDU parameter
-            - 0x06 - invalid PDU parameter value
+            - ``0x00`` - reason not specified
+            - ``0x01`` - unrecognised PDU
+            - ``0x02`` - unexpected PDU
+            - ``0x04`` - unrecognised PDU parameter
+            - ``0x05`` - unexpected PDU parameter
+            - ``0x06`` - invalid PDU parameter value
 
         Raises
         ------
@@ -683,31 +673,31 @@ class ACSE(object):
         result : int
             The association rejection:
 
-            - 0x01 - rejected permanent
-            - 0x02 - rejected transient
+            - ``0x01`` - rejected permanent
+            - ``0x02`` - rejected transient
         source : int
             The source of the rejection:
 
-            - 0x01 - DUL service user
-            - 0x02 - DUL service provider (ACSE related)
-            - 0x03 - DUL service provider (presentation related)
+            - ``0x01`` - DUL service user
+            - ``0x02`` - DUL service provider (ACSE related)
+            - ``0x03`` - DUL service provider (presentation related)
         diagnostic : int
-            The reason for the rejection, if the source is 0x01:
+            The reason for the rejection, if the `source` is ``0x01``:
 
-            - 0x01 - no reason given
-            - 0x02 - application context name not supported
-            - 0x03 - calling AE title not recognised
-            - 0x07 - called AE title not recognised
+            - ``0x01`` - no reason given
+            - ``0x02`` - application context name not supported
+            - ``0x03`` - calling AE title not recognised
+            - ``0x07`` - called AE title not recognised
 
-            If the source is 0x02:
+            If the `source` is ``0x02``:
 
-            - 0x01 - no reason given
-            - 0x02 - protocol version not supported
+            - ``0x01`` - no reason given
+            - ``0x02`` - protocol version not supported
 
-            If the source is 0x03:
+            If the `source` is ``0x03``:
 
-            - 0x01 - temporary congestion
-            - 0x02 - local limit exceeded
+            - ``0x01`` - temporary congestion
+            - ``0x02`` - local limit exceeded
         """
         if result not in [0x01, 0x02]:
             raise ValueError("Invalid 'result' parameter value")
@@ -747,7 +737,7 @@ class ACSE(object):
         Parameters
         ----------
         is_response : bool, optional
-            True to send an A-RELEASE (response) to the peer, False
+            ``True`` to send an A-RELEASE (response) to the peer, ``False``
             to send an A-RELEASE (request) to the peer (default).
         """
         primitive = A_RELEASE()

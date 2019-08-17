@@ -1,3 +1,5 @@
+.. _api_dul_provider:
+
 DUL Service Provider (:mod:`pynetdicom.dul`)
 =============================================
 

@@ -1,3 +1,5 @@
+.. _api_dul_primitives_arelease:
+
 A-RELEASE
 =========
 
@@ -11,9 +13,3 @@ confirmation primitives.
    :toctree: generated/
 
    A_RELEASE
-
-References
-----------
-
-1. DICOM Standard, Part 8, Section
-   `7.2 <http://dicom.nema.org/medical/dicom/current/output/html/part08.html#sect_7.2>`_

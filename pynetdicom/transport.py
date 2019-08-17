@@ -25,37 +25,42 @@ LOGGER = logging.getLogger('pynetdicom.transport')
 
 
 class AssociationSocket(object):
-    """A wrapper for a ``socket.socket`` object.
+    """A wrapper for a :pyd:`socket<3/library/socket.html#socket-objects>`
+    object.
 
-    Provides an interface for ``socket.socket`` that is integrated nicely with
-    an ``Association`` instance and the state machine.
+    Provides an interface for :pyd:`socket
+    <3/library/socket.html#socket-objects>` that is integrated nicely
+    with an :class:`~pynetdicom.association.Association` instance and the
+    state machine.
 
     Attributes
     ----------
     select_timeout : float or None
-        The timeout (in seconds) that ``select.select()`` calls in :meth:`ready`
-        will block for (default ``0.5``). A value of ``0`` specifies a poll and never
-        blocks. A value of ``None`` blocks until a connection is ready.
+        The timeout (in seconds) that :func:`select.select` calls in
+        :meth:`ready` will block for (default ``0.5``). A value of ``0``
+        specifies a poll and never blocks. A value of ``None`` blocks until a
+        connection is ready.
     socket : socket.socket or None
-        The wrapped socket, will be ``None``if :meth:`close()` is called.
+        The wrapped socket, will be ``None`` if :meth:`close` is called.
     tls_args : 2-tuple or None
         If the socket should be wrapped by TLS then this is
-        ``(context, hostname)``, where *context* is a ``ssl.SSLContext`` that
-        will be used to wrap the socket and *hostname* is the value to use for
-        the *server_hostname* keyword argument for ``SSLContext.wrap_socket()``
-        If TLS is not to be used then ``None`` (default).
+        ``(context, hostname)``, where *context* is a :class:`ssl.SSLContext`
+        that will be used to wrap the socket and *hostname* is the value to
+        use for the *server_hostname* keyword argument for
+        :meth:`SSLContext.wrap_socket()<ssl.SSLContext.wrap_socket>`. If TLS
+        is not to be used then ``None`` (default).
     """
     def __init__(self, assoc, client_socket=None, address=('', 0)):
-        """Create a new AssociationSocket.
+        """Create a new :class:`AssociationSocket`.
 
         Parameters
         ----------
         assoc : association.Association
-            The ``Association`` instance that will be using the socket to
-            communicate.
+            The :class:`~pynetdicom.association.Association` instance that will
+            be using the socket to communicate.
         client_socket : socket.socket, optional
-            The ``socket`` to wrap, if not supplied then a new socket will be
-            created instead.
+            The :pyd:`socket<3/library/socket.html#socket-objects>` to wrap,
+            if not supplied then a new socket will be created instead.
         address : 2-tuple, optional
             If *client_socket* is ``None`` then this is the ``(host, port)`` to
             bind the newly created socket to, which by default will be
@@ -83,13 +88,15 @@ class AssociationSocket(object):
 
     @property
     def assoc(self):
-        """Return the socket's parent ``Association`` instance."""
+        """Return the parent :class:`~pynetdicom.association.Association`
+        instance.
+        """
         return self._assoc
 
     def close(self):
         """Close the connection to the peer and shutdown the socket.
 
-        Sets ``AssociationSocket.socket`` to ``None`` once complete.
+        Sets :attr:`AssociationSocket.socket` to ``None`` once complete.
 
         **Events Emitted**
 
@@ -210,16 +217,19 @@ class AssociationSocket(object):
 
     @property
     def event_queue(self):
-        """Return the Association's event queue."""
+        """Return the :class:`~pynetdicom.association.Association`'s event
+        queue.
+        """
         return self.assoc.dul.event_queue
 
     def get_local_addr(self, host=('10.255.255.255', 1)):
-        """Return an address for the local computer as str.
+        """Return an address for the local computer as :class:`str`.
 
         Parameters
         ----------
         host : tuple
-            The host's (addr, port) when trying to determine the local address.
+            The host's (*addr*, *port*) when trying to determine the local
+            address.
         """
         # Solution from https://stackoverflow.com/a/28950776
         temp = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)

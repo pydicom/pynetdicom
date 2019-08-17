@@ -1,4 +1,4 @@
-.. _dul:
+.. _api_dul:
 
 *****************
 DICOM Upper Layer

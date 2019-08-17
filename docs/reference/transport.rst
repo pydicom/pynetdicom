@@ -1,4 +1,4 @@
-.. _transport:
+.. _api_transport:
 
 Transport Service (:mod:`pynetdicom.transport`)
 ===============================================

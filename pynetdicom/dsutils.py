@@ -1,25 +1,28 @@
-"""
-DICOM Dataset utility functions.
-"""
+"""DICOM Dataset utility functions."""
+
 import logging
 
 from pydicom.filebase import DicomBytesIO
 from pydicom.filereader import read_dataset
 from pydicom.filewriter import write_dataset, write_data_element
 
+
 LOGGER = logging.getLogger('pynetdicom.dsutils')
 
+
 def decode(bytestring, is_implicit_vr, is_little_endian):
-    """Decode `bytestring` to a pydicom Dataset.
+    """Decode `bytestring` to a *pydicom* :class:`~pydicom.dataset.Dataset`.
 
     Parameters
     ----------
     byestring : io.BytesIO
         The encoded dataset in the DIMSE Message sent from the peer AE.
     is_implicit_vr : bool
-        The dataset is encoded as implicit or explicit VR.
+        The dataset is encoded as implicit (``True``) or explicit VR
+        (``False``).
     is_little_endian : bool
-        The byte ordering of the encoded dataset, little or big endian.
+        The byte ordering of the encoded dataset, ``True`` for little endian,
+        ``False`` for big endian.
 
     Returns
     -------
@@ -40,23 +43,26 @@ def decode(bytestring, is_implicit_vr, is_little_endian):
     bytestring.seek(0)
     return read_dataset(bytestring, is_implicit_vr, is_little_endian)
 
+
 def encode(ds, is_implicit_vr, is_little_endian):
-    """Encode a pydicom Dataset `ds` to bytes.
+    """Encode a *pydicom* :class:`~pydicom.dataset.Dataset` `ds`.
 
     Parameters
     ----------
     ds : pydicom.dataset.Dataset
         The dataset to encode
     is_implicit_vr : bool
-        The element encoding scheme the dataset will be encoded with.
+        The element encoding scheme the dataset will be encoded with, ``True``
+        for implicit VR, ``False`` for explicit VR.
     is_little_endian : bool
-        The byte ordering the dataset will be encoded in.
+        The byte ordering the dataset will be encoded in, ``True`` for little
+        endian, ``False`` for big endian.
 
     Returns
     -------
     bytes or None
-        The encoded dataset as ``bytes`` (if successful) or ``None`` if the
-        encoding failed.
+        The encoded dataset as :class:`bytes` (if successful) or ``None`` if
+        the encoding failed.
     """
     # pylint: disable=broad-except
     fp = DicomBytesIO()
@@ -75,18 +81,20 @@ def encode(ds, is_implicit_vr, is_little_endian):
 
     return bytestring
 
+
 def encode_element(elem, is_implicit_vr=True, is_little_endian=True):
-    """Encode a pydicom DataElement `elem` to bytes.
+    """Encode a *pydicom* :class:`~pydicom.dataelem.DataElement` `elem`.
 
     Parameters
     ----------
     elem : pydicom.dataelem.DataElement
         The element to encode.
     is_implicit_vr : bool, optional
-        The element encoding scheme the element will be encoded with, default
-        True.
+        The element encoding scheme the element will be encoded with, ``True``
+        for implicit VR (default), ``False`` for explicit VR.
     is_little_endian : bool, optional
-        The byte ordering the element will be encoded in, default True.
+        The byte ordering the element will be encoded in, ``True`` for little
+        endian (default), ``False`` for big endian.
 
     Returns
     -------

@@ -38,7 +38,8 @@ LOGGER = logging.getLogger('pynetdicom.sop')
 
 
 def uid_to_service_class(uid):
-    """Return the ServiceClass object corresponding to `uid`.
+    """Return the :class:`~pynetdicom.service_class.ServiceClass` object
+    corresponding to `uid`.
 
     Parameters
     ----------
@@ -48,7 +49,7 @@ def uid_to_service_class(uid):
 
     Returns
     -------
-    service_class.ServiceClass
+    subclass of service_class.ServiceClass
         The Service Class corresponding to the SOP Class UID or the base class
         if support for the SOP Class isn't implemented.
     """
@@ -104,7 +105,10 @@ def uid_to_service_class(uid):
 
 
 class SOPClass(UID):
-    """Extend pydicom's UID to include the corresponding Service Class."""
+    """Extend :class:`~pydicom.uid.UID` to include the corresponding Service
+    Class.
+
+    """
     _service_class = None
 
     def __new__(cls, val):
@@ -125,8 +129,10 @@ class SOPClass(UID):
 def _generate_sop_classes(sop_class_dict):
     """Generate the SOP Classes."""
     for name in sop_class_dict:
-        sop_class = SOPClass(sop_class_dict[name])
-        sop_class._service_class = uid_to_service_class(sop_class_dict[name])
+        uid = sop_class_dict[name]
+        sop_class = SOPClass(uid)
+        sop_class._service_class = uid_to_service_class(uid)
+        sop_class.__doc__ = "``{}``".format(uid)
         globals()[name] = sop_class
 
 
@@ -416,11 +422,12 @@ _generate_sop_classes(_VERIFICATION_CLASSES)
 
 
 def uid_to_sop_class(uid):
-    """Return the SOPClass object corresponding to `uid`.
+    """Return the :class:`SOPClass` object corresponding to `uid`.
 
     Parameters
     ----------
     uid : pydicom.uid.UID
+        Return the corresponding object for this UID.
 
     Returns
     -------

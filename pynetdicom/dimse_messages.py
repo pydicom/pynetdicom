@@ -217,12 +217,14 @@ class DIMSEMessage(object):
         self.data_set = BytesIO()
 
     def decode_msg(self, primitive):
-        """Converts P-DATA primitives into a DIMSEMessage sub-class.
+        """Converts P-DATA primitives into a ``DIMSEMessage`` sub-class.
 
         Decodes the data from the P-DATA service primitive (which
         may contain the results of one or more P-DATA-TF PDUs) into the
-        `command_set` and `data_set` attributes. Also sets the `ID` and
-        `encoded_command_set` attributes of the DIMSEMessage sub-class object.
+        :attr:`~DIMSEMessage.command_set` and :attr:`~DIMSEMessage.data_set`
+        attributes. Also sets the :attr:`~DIMSEMessage.context_id` and
+        :attr:`~DIMSEMessage.encoded_command_set` attributes of the
+        ``DIMSEMessage`` sub-class object.
 
         Parameters
         ----------
@@ -232,12 +234,13 @@ class DIMSEMessage(object):
         Returns
         -------
         bool
-            True when the DIMSE message is completely decoded, False otherwise.
+            ``True`` when the DIMSE message is completely decoded, ``False``
+            otherwise.
 
         References
         ----------
 
-        * DICOM Standard, Part 8, Annex E
+        * DICOM Standard, Part 8, :dcm:`Annex E<part08/chapter_E.html>`
         """
         # Make sure this is a P-DATA primitive
         if primitive.__class__ != P_DATA or primitive is None:
@@ -328,15 +331,15 @@ class DIMSEMessage(object):
         return False
 
     def encode_msg(self, context_id, max_pdu_length):
-        """Yield P-DATA primitive(s) for the current DIMSE Message.
+        """Yield P-DATA primitives for the current DIMSE Message.
 
         **Encoding**
 
-        The encoding of the Command Set shall be Little Endian Implicit VR,
-        while the Data Set will be encoded as per the agreed presentation
+        The encoding of the Command Set shall be *Little Endian Implicit VR*,
+        while the *Data Set* will be encoded as per the agreed presentation
         context.
 
-        A P-DATA request PDV List parameter shall contain one or more PDVs.
+        A P-DATA request's PDV List parameter shall contain one or more PDVs.
         Each PDV is wholly contained in a given P-DATA request and doesn't
         span across several P-DATA request primitives.
 
@@ -349,9 +352,9 @@ class DIMSEMessage(object):
         Parameters
         ----------
         context_id : int
-            The ID of the agreed presentation context.
+            The *ID* of the agreed presentation context.
         max_pdu_length : int
-            The maximum PDV length in bytes.
+            The maximum PDV length (in bytes).
 
         Yields
         ------
@@ -362,8 +365,9 @@ class DIMSEMessage(object):
         References
         ----------
 
-        * DICOM Standard, Part 7, Section 6.3.1
-        * DICOM Standard, Part 8, Annex E
+        * DICOM Standard, Part 7,
+          :dcm:`Section 6.3.1<part07/sect_6.3.html#sect_6.3.1>`
+        * DICOM Standard, Part 8, :dcm:`Annex E<part08/chapter_E.html>`
         """
         self.context_id = context_id
 
@@ -482,14 +486,14 @@ class DIMSEMessage(object):
             offset += fragment_length
 
     def message_to_primitive(self):
-        """Convert the DIMSEMessage class to a DIMSE primitive.
+        """Convert the ``DIMSEMessage`` class to a DIMSE primitive.
 
         Returns
         -------
-        DIMSE message primitive
+        DIMSEPrimitive sub-class
             One of the DIMSE message primitives from
-            pynetdicom.dimse_primitives generated from
-            the current DIMSEMessage.
+            :ref:`pynetdicom.dimse_primitives<api_dimse_primitives>` generated
+            from the current ``DIMSEMessage`` sub-class object.
         """
         # pylint: disable=too-many-branches
         cls_type_name = self.__class__.__name__
@@ -543,13 +547,14 @@ class DIMSEMessage(object):
         return primitive
 
     def primitive_to_message(self, primitive):
-        """Convert a DIMSE `primitive` to the current DIMSEMessage object.
+        """Convert a DIMSE `primitive` to the current ``DIMSEMessage`` object.
 
         Parameters
         ----------
-        primitive
-            A DIMSE message primitive from pynetdicom.dimse_primitives
-            to convert to the current DIMSEMessage object.
+        DIMSEPrimitive sub-class
+            A DIMSE message primitive from
+            :ref:`pynetdicom.dimse_primitives<api_dimse_primitives>`
+            to convert to the current ``DIMSEMessage`` object.
         """
         # pylint: disable=too-many-branches,too-many-statements
         cls_type_name = self.__class__.__name__.replace('_', '-')

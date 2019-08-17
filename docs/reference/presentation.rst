@@ -1,4 +1,4 @@
-.. _presentation:
+.. _api_presentation:
 
 Presentation Service (:mod:`pynetdicom.presentation`)
 ======================================================
@@ -8,19 +8,55 @@ Presentation Service (:mod:`pynetdicom.presentation`)
 The Presentation Service supports the creation of Presentation Contexts and
 their negotiation during association.
 
-Creation
+Presentation Contexts
+---------------------
 
 .. autosummary::
    :toctree: generated/
 
-   PresentationContext
    build_context
    build_role
+   PresentationContext
+   PresentationContextTuple
 
-Negotiation
+Presentation Context Negotiation
+--------------------------------
 
 .. autosummary::
    :toctree: generated/
 
    negotiate_as_acceptor
    negotiate_as_requestor
+
+
+.. _api_presentation_prebuilt:
+
+Pre-built Presentation Contexts
+-------------------------------
+
+.. autosummary::
+   :toctree: generated/
+
+   ApplicationEventLoggingPresentationContexts
+   BasicWorklistManagementPresentationContexts
+   ColorPalettePresentationContexts
+   DefinedProcedureProtocolPresentationContexts
+   DisplaySystemPresentationContexts
+   HangingProtocolPresentationContexts
+   ImplantTemplatePresentationContexts
+   InstanceAvailabilityPresentationContexts
+   MediaCreationManagementPresentationContexts
+   MediaStoragePresentationContexts
+   ModalityPerformedPresentationContexts
+   NonPatientObjectPresentationContexts
+   PrintManagementPresentationContexts
+   ProcedureStepPresentationContexts
+   ProtocolApprovalPresentationContexts
+   QueryRetrievePresentationContexts
+   RelevantPatientInformationPresentationContexts
+   RTMachineVerificationPresentationContexts
+   StoragePresentationContexts
+   StorageCommitmentPresentationContexts
+   SubstanceAdministrationPresentationContexts
+   UnifiedProcedurePresentationContexts
+   VerificationPresentationContexts

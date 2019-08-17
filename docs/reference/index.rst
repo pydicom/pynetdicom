@@ -1,4 +1,4 @@
-.. _reference:
+.. _api:
 
 #############
 API Reference
@@ -19,6 +19,7 @@ pynetdicom.
    acse
    ae
    association
+   config
    dimse
    dsutils
    dul

@@ -1,4 +1,4 @@
-.. _acse:
+.. _api_acse:
 
 ACSE Service (:mod:`pynetdicom.acse`)
 ======================================

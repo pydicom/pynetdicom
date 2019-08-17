@@ -1,4 +1,4 @@
-.. _dsutils:
+.. _api_dsutils:
 
 Dataset Utilities (:mod:`pynetdicom.dsutils`)
 ==============================================
