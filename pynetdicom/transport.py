@@ -431,10 +431,12 @@ class AssociationServer(TCPServer):
 
     Any attempts to connect will be assumed to be from association requestors.
 
-    The server should be started with ``serve_forever(poll_interval)``, where
-    ``poll_interval`` is the timeout (in seconds) that the ``select.select()``
-    call will block for (default ``0.5``). A value of ``0`` specifies a poll
-    and never blocks. A value of ``None`` blocks until a connection is ready.
+    The server should be started with
+    :meth:`serve_forever(poll_interval)<AssociationServer.serve_forever>`,
+    where *poll_interval* is the timeout (in seconds) that the
+    :func:`select.select` call will block for (default ``0.5``). A value of
+    ``0`` specifies a poll and never blocks. A value of ``None`` blocks until
+    a connection is ready.
 
     Attributes
     ----------
@@ -445,12 +447,13 @@ class AssociationServer(TCPServer):
     server_address : 2-tuple
         The ``(host, port)`` that the server is running on.
     ssl_context : ssl.SSLContext or None
-        The ``SSLContext`` used to wrap client sockets, or ``None`` if no TLS
-        is required (default).
+        The :class:`ssl.SSLContext` used to wrap client sockets, or ``None`` if
+        no TLS is required (default).
     """
     def __init__(self, ae, address, ae_title, contexts, ssl_context=None,
                  evt_handlers=None):
-        """Create a new AssociationServer, bind a socket and start listening.
+        """Create a new :class:`AssociationServer`, bind a socket and start
+        listening.
 
         Parameters
         ----------
@@ -463,9 +466,9 @@ class AssociationServer(TCPServer):
         contexts : list of presentation.PresentationContext
             The SCPs supported presentation contexts.
         ssl_context : ssl.SSLContext, optional
-            If TLS is to be used then this should be the ``ssl.SSLContext``
-            used to wrap the client sockets, otherwise if ``None`` then no
-            TLS will beused (default).
+            If TLS is to be used then this should be the
+            :class:`ssl.SSLContext` used to wrap the client sockets, otherwise
+            if ``None`` then no TLS will be used (default).
         evt_handlers : list of 2-tuple, optional
             A list of ``(event, callable)``, the *callable* function to run
             when *event* occurs.
@@ -537,7 +540,9 @@ class AssociationServer(TCPServer):
 
     @property
     def active_associations(self):
-        """Return the server's running ``Association`` acceptor instances"""
+        """Return the server's running
+        :class:`~pynetdicom.association.Association` acceptor instances
+        """
         # Find all AcceptorThreads with `_server` as self
         threads = [
             tt for tt in threading.enumerate() if 'AcceptorThread' in tt.name
@@ -560,7 +565,7 @@ class AssociationServer(TCPServer):
         -------
         callable, list of callable or None
             If the event is a notification event then returns a list of
-            callable functions bound to ``event``, if the event is an
+            callable functions bound to *event*, if the event is an
             intervention event then returns either a callable function if a
             handler is bound to the event or ``None`` if no handler has been
             bound.
@@ -573,12 +578,13 @@ class AssociationServer(TCPServer):
     def get_request(self):
         """Handle a connection request.
 
-        If ``ssl_context`` is set then the client socket will be wrapped using
-        ``ssl_context.wrap_socket()``.
+        If :attr:`~AssociationServer.ssl_context` is set then the client socket
+        will be wrapped using
+        :meth:`SSLContext.wrap_socket()<ssl.SSLContext.wrap_socket>`.
 
         Returns
         -------
-        client_socket : socket._socket
+        client_socket : socket.socket
             The connection request.
         address : 2-tuple
             The client's address as ``(host, port)``.
@@ -597,8 +603,10 @@ class AssociationServer(TCPServer):
     def server_bind(self):
         """Bind the socket and set the socket options.
 
-        - ``socket.SO_REUSEADDR`` is set to 1
-        - ``socket.SO_RCVTIMEO`` is set to ``AE.network_timeout`` unless the
+        - ``socket.SO_REUSEADDR`` is set to ``1``
+        - ``socket.SO_RCVTIMEO`` is set to
+          :attr:`AE.network_timeout
+          <pynetdicom.ae.ApplicationEntity.network_timeout>` unless the
           value is ``None`` in which case it will be left unset.
         """
         # SO_REUSEADDR: reuse the socket in TIME_WAIT state without
@@ -674,7 +682,7 @@ class AssociationServer(TCPServer):
 
 
 class ThreadedAssociationServer(ThreadingMixIn, AssociationServer):
-    """An ``AssociationServer`` suitable for threading."""
+    """An :class:`AssociationServer` suitable for threading."""
     def process_request_thread(self, request, client_address):
         """Process a connection request."""
         # pylint: disable=broad-except
