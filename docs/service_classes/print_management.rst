@@ -1,7 +1,8 @@
+.. _service_print:
+
 Print Management Service Class
 ==============================
-The `Print Management Service Class
-<http://dicom.nema.org/medical/dicom/current/output/html/part04.html#chapter_H>`_
+The :dcm:`Print Management Service Class<part04/chapter_H.html>`
 defines a service that uses the DIMSE N-CREATE, N-SET, N-DELETE, N-ACTION,
 N-EVENT-REPORT and N-GET services to
 facilitate the print of images and image related data.
@@ -433,16 +434,3 @@ Print Management N-SET Service Statuses
 |                  |          | not be created when a previous Film Box has   |
 |                  |          | not been printed                              |
 +------------------+----------+-----------------------------------------------+
-
-
-
-References
-----------
-
-* DICOM Standard, Part 4, `Annex S <http://dicom.nema.org/medical/dicom/current/output/html/part04.html#chapter_S>`_
-* DICOM Standard, Part 7, `Section 10.1.4.1.10 <http://dicom.nema.org/medical/dicom/current/output/chtml/part07/chapter_10.html#sect_10.1.4.1.10>`_
-* DICOM Standard, Part 7, `Section 10.1.5.1.6 <http://dicom.nema.org/medical/dicom/current/output/chtml/part07/chapter_10.html#sect_10.1.5.1.6>`_
-* DICOM Standard, Part 7, `Section 10.1.6.1.7 <http://dicom.nema.org/medical/dicom/current/output/chtml/part07/chapter_10.html#sect_10.1.6.1.7>`_
-* DICOM Standard, Part 7, `Section 10.1.1.1.8 <http://dicom.nema.org/medical/dicom/current/output/chtml/part07/chapter_10.html#sect_10.1.1.1.8>`_
-* DICOM Standard, Part 7, `Section 10.1.2.1.9 <http://dicom.nema.org/medical/dicom/current/output/chtml/part07/chapter_10.html#sect_10.1.2.1.9>`_
-* DICOM Standard, Part 7, `Section 10.1.3.1.9 <http://dicom.nema.org/medical/dicom/current/output/chtml/part07/chapter_10.html#sect_10.1.3.1.9>`_

@@ -1,6 +1,8 @@
+.. _service_bwm:
+
 Basic Worklist Management Service Class
 =======================================
-The `Basic Worklist Management Service Class <http://dicom.nema.org/medical/dicom/current/output/html/part04.html#chapter_K>`_
+The :dcm:`Basic Worklist Management Service Class <part04/chapter_K.html>`
 defines a service that facilitates
 access to worklists, where a worklist is a structure that presents information
 related to a particular set of tasks and the particular details of each task.
@@ -89,10 +91,3 @@ to help aid in debugging.
 | 0xC312           | Failure  | Failed to encode the dataset received from    |
 |                  |          | the handler bound to ``evt.EVT_C_FIND``       |
 +------------------+----------+-----------------------------------------------+
-
-References
-----------
-
-* DICOM Standard, Part 4, `Annex K <http://dicom.nema.org/medical/dicom/current/output/html/part04.html#chapter_K>`_
-* DICOM Standard, Part 7, Sections
-  `9.1.2.1.5 <http://dicom.nema.org/medical/dicom/current/output/chtml/part07/chapter_9.html#sect_9.1.2.1.5>`_,

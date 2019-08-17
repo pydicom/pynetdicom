@@ -1,9 +1,9 @@
-.. _relpat_service:
+.. _service_relpat:
 
 Relevant Patient Information Query Service Class
 ================================================
-The `Relevant Patient Information Query Service Class
-<http://dicom.nema.org/medical/dicom/current/output/html/part04.html#chapter_Q>`_
+The :dcm:`Relevant Patient Information Query Service Class
+<part04/chapter_Q.html>`
 defines a service that facilitates querying of stored Instances for specific
 information from a single patient.
 
@@ -97,12 +97,3 @@ to help aid in debugging.
 | 0xC312           | Failure  | Failed to encode the dataset received from    |
 |                  |          | the handler bound to ``evt.EVT_C_FIND``       |
 +------------------+----------+-----------------------------------------------+
-
-
-References
-----------
-
-* DICOM Standard, Part 4, `Annex Q <http://dicom.nema.org/medical/dicom/current/output/html/part04.html#chapter_Q>`_
-* DICOM Standard, Part 7, Section
-  `9.1.2.1.5 <http://dicom.nema.org/medical/dicom/current/output/chtml/part07/chapter_9.html#sect_9.1.2.1.5>`_
-* DICOM Standard, Part 16, Annex A, `TIDs 9000-9007 <http://dicom.nema.org/medical/dicom/current/output/chtml/part16/sect_RelevantPatientInformationTemplates.html>`_

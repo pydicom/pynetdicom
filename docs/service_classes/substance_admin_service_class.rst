@@ -1,9 +1,8 @@
-.. _subadm_service:
+.. _service_subadmin:
 
 Substance Administration Query Service Class
 ============================================
-The `Substance Administration Query Service Class
-<http://dicom.nema.org/medical/dicom/current/output/html/part04.html#chapter_V>`_
+The :dcm:`Substance Administration Query Service Class<part04/chapter_V.html>`
 defines a service that facilitates obtaining information about substances or
 devices used in imaging, image-guided treatment and related procedures.
 
@@ -93,11 +92,3 @@ to help aid in debugging.
 | 0xC312           | Failure  | Failed to encode the dataset received from    |
 |                  |          | the handler bound to ``evt.EVT_C_FIND``       |
 +------------------+----------+-----------------------------------------------+
-
-
-References
-----------
-
-* DICOM Standard, Part 4, `Annex V <http://dicom.nema.org/medical/dicom/current/output/html/part04.html#chapter_V>`_
-* DICOM Standard, Part 7, Section
-  `9.1.2.1.5 <http://dicom.nema.org/medical/dicom/current/output/chtml/part07/chapter_9.html#sect_9.1.2.1.5>`_
