@@ -1,7 +1,7 @@
 Query/Retrieve (Find) Service Examples
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-The DICOM `Query/Retrieve Service <http://dicom.nema.org/medical/dicom/current/output/html/part04.html#chapter_C>`_
+The DICOM :dcm:`Query/Retrieve Service <part04/chapter_C.html>`
 provides a mechanism for a service user to query the SOP Instances managed
 by a QR SCP. The QR (Find) SOP classes allow an SCU to receive a list of
 attributes matching the requested query. This is accomplished through the
@@ -89,8 +89,8 @@ probably best to store the instance attributes in a database and run the
 query against that.
 
 Check the
-`handler implementation documentation
-<../reference/generated/pynetdicom._handlers.doc_handle_find.html>`_
+:func:`handler implementation documentation
+<pynetdicom._handlers.doc_handle_find>`
 to see the requirements for the ``evt.EVT_C_FIND`` handler.
 
 .. code-block:: python

@@ -97,7 +97,7 @@ Create an :class:`AE <pynetdicom.ae.ApplicationEntity>` that supports the
 Storage Service and then listen for association requests on port ``11112``.
 When a storage request is
 received over the association we write the dataset to file and then return
-a 0x0000 *Success* :ref:`status <storage_statuses>`.
+``a 0x0000`` *Success* :ref:`status <storage_statuses>`.
 
 If you're going to write SOP instances (datasets) to file it's recommended
 that you ensure the file is conformant with the

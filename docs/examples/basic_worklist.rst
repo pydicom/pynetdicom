@@ -1,7 +1,7 @@
 Basic Worklist Management Service Examples
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-The DICOM `Basic Worklist Management Service <http://dicom.nema.org/medical/dicom/current/output/html/part04.html#chapter_K>`_
+The DICOM :dcm:`Basic Worklist Management Service <part04/chapter_K.html>`
 provides a mechanism for a service user to access worklists on another AE.
 Querying of the SCP for worklists is accomplished by utilising the DIMSE
 C-FIND service.
@@ -14,8 +14,8 @@ Associate with a peer DICOM Application Entity and request the
 worklist for the application with AE title ``CTSCANNER`` for the 5th October
 2018. The approach is very similar to that of a Query/Retrieve (Find) SCU,
 however BWM uses a different
-`set of attributes <http://dicom.nema.org/medical/dicom/current/output/chtml/part04/sect_K.6.html#sect_K.6.1.2>`_
-for the *Identifier*.
+:dcm:`set of attributes <part04/sect_K.6.html#sect_K.6.1.2>` for the
+*Identifier*.
 
 .. code-block:: python
 
@@ -68,4 +68,5 @@ for the *Identifier*.
 Basic Worklist Management SCP
 -----------------------------
 
-The approach will be similar to the :doc:`Query/Retrieve (Find) SCP example <qr_find>`.
+The approach will be similar to the
+:doc:`Query/Retrieve (Find) SCP example <qr_find>`.

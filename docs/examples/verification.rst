@@ -77,7 +77,7 @@ Create an :class:`AE <pynetdicom.ae.ApplicationEntity>` that supports the
 Verification Service and then listen for
 association requests on port 11112. When a verification request is received
 over the association we rely on the default handler bound to ``evt.EVT_C_ECHO``
-to return an 0x0000 *Success* :ref:`status <verification_statuses>`.
+to return an ``0x0000`` *Success* :ref:`status <verification_statuses>`.
 
 .. code-block:: python
 
