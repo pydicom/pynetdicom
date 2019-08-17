@@ -1,0 +1,294 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>pynetdicom.events.trigger &mdash; pynetdicom 1.5.0.dev0 documentation</title>
+  
+
+  
+  
+    <link rel="shortcut icon" href="../../_static/favicon.ico"/>
+  
+  
+  
+
+  
+  <script type="text/javascript" src="../../_static/js/modernizr.min.js"></script>
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../../" src="../../_static/documentation_options.js"></script>
+        <script type="text/javascript" src="../../_static/jquery.js"></script>
+        <script type="text/javascript" src="../../_static/underscore.js"></script>
+        <script type="text/javascript" src="../../_static/doctools.js"></script>
+        <script type="text/javascript" src="../../_static/language_data.js"></script>
+    
+    <script type="text/javascript" src="../../_static/js/theme.js"></script>
+
+    
+
+  
+  <link rel="stylesheet" href="../../_static/css/pynetdicom.css" type="text/css" />
+  <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="../../_static/css/pynetdicom.css" type="text/css" />
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" />
+    <link rel="next" title="pynetdicom._handlers.doc_handle_echo" href="pynetdicom._handlers.doc_handle_echo.html" />
+    <link rel="prev" title="pynetdicom.events.NotificationEvent" href="pynetdicom.events.NotificationEvent.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="../../index.html" class="icon icon-home"> pynetdicom
+          
+
+          
+            
+            <img src="../../_static/pydicom_flat_black.svg" class="logo" alt="Logo"/>
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                1.5.0.dev0
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <p class="caption"><span class="caption-text">Documentation</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../../user/index.html">User Guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../service_classes/index.html">Supported Service Classes</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="../index.html">API Reference</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="../acse.html">ACSE Service (<code class="xref py py-mod docutils literal notranslate"><span class="pre">pynetdicom.acse</span></code>)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../ae.html">Application Entity (<code class="xref py py-mod docutils literal notranslate"><span class="pre">pynetdicom.ae</span></code>)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../association.html">Association (<code class="xref py py-mod docutils literal notranslate"><span class="pre">pynetdicom.association</span></code>)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../config.html">Configuration Options (<code class="xref py py-mod docutils literal notranslate"><span class="pre">pynetdicom._config</span></code>)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../dimse.html">DIMSE Service</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../dsutils.html">Dataset Utilities (<code class="xref py py-mod docutils literal notranslate"><span class="pre">pynetdicom.dsutils</span></code>)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../dul.html">DICOM Upper Layer</a></li>
+<li class="toctree-l2 current"><a class="reference internal" href="../events.html">Events and Handlers (<code class="xref py py-mod docutils literal notranslate"><span class="pre">pynetdicom.events</span></code>)</a><ul class="current">
+<li class="toctree-l3"><a class="reference internal" href="pynetdicom.events.Event.html">pynetdicom.events.Event</a></li>
+<li class="toctree-l3"><a class="reference internal" href="pynetdicom.events.InterventionEvent.html">pynetdicom.events.InterventionEvent</a></li>
+<li class="toctree-l3"><a class="reference internal" href="pynetdicom.events.NotificationEvent.html">pynetdicom.events.NotificationEvent</a></li>
+<li class="toctree-l3 current"><a class="current reference internal" href="#">pynetdicom.events.trigger</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../events.html#documentation-for-intervention-event-handlers">Documentation for Intervention Event Handlers</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../events.html#documentation-for-notification-event-handlers">Documentation for Notification Event Handlers</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../fsm.html">State Machine (<code class="xref py py-mod docutils literal notranslate"><span class="pre">pynetdicom.fsm</span></code>)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../presentation.html">Presentation Service (<code class="xref py py-mod docutils literal notranslate"><span class="pre">pynetdicom.presentation</span></code>)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../service_classes.html">Service Classes (<code class="xref py py-mod docutils literal notranslate"><span class="pre">pynetdicom.service_class</span></code>)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../sop_classes.html">SOP Classes (<code class="xref py py-mod docutils literal notranslate"><span class="pre">pynetdicom.sop_class</span></code>)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../status.html">Statuses (<code class="xref py py-mod docutils literal notranslate"><span class="pre">pynetdicom.status</span></code>)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../timer.html">Timer (<code class="xref py py-mod docutils literal notranslate"><span class="pre">pynetdicom.timer</span></code>)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../transport.html">Transport Service (<code class="xref py py-mod docutils literal notranslate"><span class="pre">pynetdicom.transport</span></code>)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../utils.html">Utilities (<code class="xref py py-mod docutils literal notranslate"><span class="pre">pynetdicom.utils</span></code>)</a></li>
+</ul>
+</li>
+</ul>
+<p class="caption"><span class="caption-text">Examples</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../examples/index.html">Examples</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Additional Information</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../apps/index.html">Applications</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../changelog/index.html">Release Notes</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../index.html">pynetdicom</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../../index.html">Docs</a> &raquo;</li>
+        
+          <li><a href="../index.html">API Reference</a> &raquo;</li>
+        
+          <li><a href="../events.html">Events and Handlers (<code class="xref py py-mod docutils literal notranslate"><span class="pre">pynetdicom.events</span></code>)</a> &raquo;</li>
+        
+      <li>pynetdicom.events.trigger</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="pynetdicom-events-trigger">
+<h1>pynetdicom.events.trigger<a class="headerlink" href="#pynetdicom-events-trigger" title="Permalink to this headline">¶</a></h1>
+<dl class="function">
+<dt id="pynetdicom.events.trigger">
+<code class="sig-prename descclassname">pynetdicom.events.</code><code class="sig-name descname">trigger</code><span class="sig-paren">(</span><em class="sig-param">assoc</em>, <em class="sig-param">event</em>, <em class="sig-param">attrs=None</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/da5a1652/pynetdicom/events.py#L143"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom.events.trigger" title="Permalink to this definition">¶</a></dt>
+<dd><p>Trigger an <cite>event</cite> and call any bound handler(s).</p>
+<p>Notification events can be bound to multiple handlers, intervention events
+can only be bound to a single handler.</p>
+<p><strong>Special Attributes</strong></p>
+<p>If <cite>attrs</cite> contains:</p>
+<ul class="simple">
+<li><p><cite>_is_cancelled</cite> key then <a class="reference internal" href="pynetdicom.events.Event.html#pynetdicom.events.Event.is_cancelled" title="pynetdicom.events.Event.is_cancelled"><code class="xref py py-attr docutils literal notranslate"><span class="pre">Event.is_cancelled</span></code></a> will be hooked into
+the value’s callable function.</p></li>
+<li><p>a C-FIND, C-GET or C-MOVE <cite>request</cite> key then <a class="reference internal" href="pynetdicom.events.Event.html#pynetdicom.events.Event.identifier" title="pynetdicom.events.Event.identifier"><code class="xref py py-attr docutils literal notranslate"><span class="pre">Event.identifier</span></code></a>
+will return the decoded <em>Identifier</em> parameter value.</p></li>
+<li><p>a C-STORE <cite>request</cite> key then <a class="reference internal" href="pynetdicom.events.Event.html#pynetdicom.events.Event.dataset" title="pynetdicom.events.Event.dataset"><code class="xref py py-attr docutils literal notranslate"><span class="pre">Event.dataset</span></code></a> will return the
+decoded <em>Data Set</em> parameter value.</p></li>
+<li><p>an N-ACTION <cite>request</cite> key then <a class="reference internal" href="pynetdicom.events.Event.html#pynetdicom.events.Event.action_information" title="pynetdicom.events.Event.action_information"><code class="xref py py-attr docutils literal notranslate"><span class="pre">Event.action_information</span></code></a> will
+return the decoded <em>Action Information</em> parameter value.</p></li>
+<li><p>an N-CREATE <cite>request</cite> key then <a class="reference internal" href="pynetdicom.events.Event.html#pynetdicom.events.Event.attribute_list" title="pynetdicom.events.Event.attribute_list"><code class="xref py py-attr docutils literal notranslate"><span class="pre">Event.attribute_list</span></code></a> will return
+the decoded <em>Attribute List</em> parameter value.</p></li>
+<li><p>an N-EVENT-REPORT <cite>request</cite> key then <a class="reference internal" href="pynetdicom.events.Event.html#pynetdicom.events.Event.event_information" title="pynetdicom.events.Event.event_information"><code class="xref py py-attr docutils literal notranslate"><span class="pre">Event.event_information</span></code></a> will
+return the decoded <em>Event Information</em> parameter value.</p></li>
+<li><p>an N-SET <cite>request</cite> key then <a class="reference internal" href="pynetdicom.events.Event.html#pynetdicom.events.Event.modification_list" title="pynetdicom.events.Event.modification_list"><code class="xref py py-attr docutils literal notranslate"><span class="pre">Event.modification_list</span></code></a> will return
+the decoded <em>Modification List</em> parameter value.</p></li>
+</ul>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>assoc</strong> (<em>assoc.Association</em>) – The association in which the event occurred.</p></li>
+<li><p><strong>event</strong> (<a class="reference internal" href="pynetdicom.events.NotificationEvent.html#pynetdicom.events.NotificationEvent" title="pynetdicom.events.NotificationEvent"><em>events.NotificationEvent</em></a><em> or </em><a class="reference internal" href="pynetdicom.events.InterventionEvent.html#pynetdicom.events.InterventionEvent" title="pynetdicom.events.InterventionEvent"><em>events.InterventionEvent</em></a>) – The event to trigger.</p></li>
+<li><p><strong>attrs</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.7)"><em>dict</em></a><em>, </em><em>optional</em>) – The attributes to set in the <a class="reference internal" href="pynetdicom.events.Event.html#pynetdicom.events.Event" title="pynetdicom.events.Event"><code class="xref py py-class docutils literal notranslate"><span class="pre">Event</span></code></a> instance that is passed to
+the event’s corresponding handler functions as
+<code class="docutils literal notranslate"><span class="pre">{attribute</span> <span class="pre">name</span> <span class="pre">:</span> <span class="pre">value}</span></code>, default <code class="docutils literal notranslate"><span class="pre">{}</span></code>.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Raises</dt>
+<dd class="field-even"><p><a class="reference external" href="https://docs.python.org/3/library/exceptions.html#Exception" title="(in Python v3.7)"><strong>Exception</strong></a> – If an exception occurs in an intervention event handler then the
+    exception will be raised. If an exception occurs in a notification
+    handler then the exception will be caught and logged instead.</p>
+</dd>
+</dl>
+</dd></dl>
+
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="pynetdicom._handlers.doc_handle_echo.html" class="btn btn-neutral float-right" title="pynetdicom._handlers.doc_handle_echo" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
+      
+      
+        <a href="pynetdicom.events.NotificationEvent.html" class="btn btn-neutral float-left" title="pynetdicom.events.NotificationEvent" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2018-19, pynetdicom contributors
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>

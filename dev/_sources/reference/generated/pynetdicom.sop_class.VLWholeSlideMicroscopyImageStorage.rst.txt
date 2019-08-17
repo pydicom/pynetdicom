@@ -1,0 +1,6 @@
+pynetdicom.sop\_class.VLWholeSlideMicroscopyImageStorage
+========================================================
+
+.. currentmodule:: pynetdicom.sop_class
+
+.. autodata:: VLWholeSlideMicroscopyImageStorage

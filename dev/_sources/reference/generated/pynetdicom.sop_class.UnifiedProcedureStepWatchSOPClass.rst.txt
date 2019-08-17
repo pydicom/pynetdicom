@@ -1,0 +1,6 @@
+pynetdicom.sop\_class.UnifiedProcedureStepWatchSOPClass
+=======================================================
+
+.. currentmodule:: pynetdicom.sop_class
+
+.. autodata:: UnifiedProcedureStepWatchSOPClass

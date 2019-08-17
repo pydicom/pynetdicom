@@ -1,7 +1,7 @@
 Storage Service Examples
 ~~~~~~~~~~~~~~~~~~~~~~~~
 
-The DICOM `Storage Service <http://dicom.nema.org/medical/dicom/current/output/html/part04.html#chapter_B>`_
+The DICOM :dcm:`Storage Service <part04/chapter_B.html>`
 provides a mechanism for an SCU to request the transfer
 of supported :ref:`Storage SOP Class <storage_sops>` instances to
 the service provider. Transfer is accomplished by utilising the
@@ -54,7 +54,8 @@ single CT dataset.
         print('Association rejected, aborted or never connected')
 
 Of course it's rarely the case that someone wants to store just CT images,
-so you can also use the inbuilt ``StoragePresentationContexts`` when setting
+so you can also use the inbuilt
+:attr:`~pynetdicom.presentation.StoragePresentationContexts` when setting
 the requested contexts or just add as many contexts as you need.
 
 .. code-block:: python
@@ -92,19 +93,20 @@ You can also set the requested contexts on a per association basis.
 Storage SCP
 ...........
 
-Create an :ref:`AE <ae>` that supports the Storage Service and then
-listen for association requests on port 11112. When a storage request is
+Create an :class:`AE <pynetdicom.ae.ApplicationEntity>` that supports the
+Storage Service and then listen for association requests on port ``11112``.
+When a storage request is
 received over the association we write the dataset to file and then return
-a 0x0000 *Success* :ref:`status <storage_statuses>`.
+``a 0x0000`` *Success* :ref:`status <storage_statuses>`.
 
 If you're going to write SOP instances (datasets) to file it's recommended
 that you ensure the file is conformant with the
-`DICOM File Format <http://dicom.nema.org/medical/dicom/current/output/html/part10.html#chapter_7>`_,
+:dcm:`DICOM File Format <part10/chapter_7.html>`,
 which requires adding the File Meta Information.
 
 Check the
-`handler implementation documentation
-<../reference/generated/pynetdicom._handlers.doc_handle_store.html>`_
+:func:`handler implementation documentation
+<pynetdicom._handlers.doc_handle_store>`
 to see the requirements for the ``evt.EVT_C_STORE`` handler.
 
 .. code-block:: python

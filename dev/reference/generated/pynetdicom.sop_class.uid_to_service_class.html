@@ -38,7 +38,7 @@
   <link rel="stylesheet" href="../../_static/css/pynetdicom.css" type="text/css" />
     <link rel="index" title="Index" href="../../genindex.html" />
     <link rel="search" title="Search" href="../../search.html" />
-    <link rel="next" title="Statuses (pynetdicom.status)" href="../status.html" />
+    <link rel="next" title="pynetdicom.sop_class.ProceduralEventLoggingSOPClass" href="pynetdicom.sop_class.ProceduralEventLoggingSOPClass.html" />
     <link rel="prev" title="pynetdicom.sop_class.uid_to_sop_class" href="pynetdicom.sop_class.uid_to_sop_class.html" /> 
 </head>
 
@@ -90,20 +90,15 @@
               
             
             
-              <ul>
-<li class="toctree-l1"><a class="reference internal" href="../../service_classes/index.html">Supported Service Classes</a></li>
-</ul>
-<ul>
-<li class="toctree-l1"><a class="reference internal" href="../../user/index.html">User Guide</a></li>
-</ul>
-<ul>
-<li class="toctree-l1"><a class="reference internal" href="../../examples/index.html">Examples</a></li>
-</ul>
+              <p class="caption"><span class="caption-text">Documentation</span></p>
 <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../../user/index.html">User Guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../service_classes/index.html">Supported Service Classes</a></li>
 <li class="toctree-l1 current"><a class="reference internal" href="../index.html">API Reference</a><ul class="current">
 <li class="toctree-l2"><a class="reference internal" href="../acse.html">ACSE Service (<code class="xref py py-mod docutils literal notranslate"><span class="pre">pynetdicom.acse</span></code>)</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../ae.html">Application Entity (<code class="xref py py-mod docutils literal notranslate"><span class="pre">pynetdicom.ae</span></code>)</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../association.html">Association (<code class="xref py py-mod docutils literal notranslate"><span class="pre">pynetdicom.association</span></code>)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../config.html">Configuration Options (<code class="xref py py-mod docutils literal notranslate"><span class="pre">pynetdicom._config</span></code>)</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../dimse.html">DIMSE Service</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../dsutils.html">Dataset Utilities (<code class="xref py py-mod docutils literal notranslate"><span class="pre">pynetdicom.dsutils</span></code>)</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../dul.html">DICOM Upper Layer</a></li>
@@ -112,9 +107,13 @@
 <li class="toctree-l2"><a class="reference internal" href="../presentation.html">Presentation Service (<code class="xref py py-mod docutils literal notranslate"><span class="pre">pynetdicom.presentation</span></code>)</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../service_classes.html">Service Classes (<code class="xref py py-mod docutils literal notranslate"><span class="pre">pynetdicom.service_class</span></code>)</a></li>
 <li class="toctree-l2 current"><a class="reference internal" href="../sop_classes.html">SOP Classes (<code class="xref py py-mod docutils literal notranslate"><span class="pre">pynetdicom.sop_class</span></code>)</a><ul class="current">
-<li class="toctree-l3"><a class="reference internal" href="pynetdicom.sop_class.SOPClass.html">pynetdicom.sop_class.SOPClass</a></li>
-<li class="toctree-l3"><a class="reference internal" href="pynetdicom.sop_class.uid_to_sop_class.html">pynetdicom.sop_class.uid_to_sop_class</a></li>
-<li class="toctree-l3 current"><a class="current reference internal" href="#">pynetdicom.sop_class.uid_to_service_class</a></li>
+<li class="toctree-l3 current"><a class="reference internal" href="../sop_classes.html#sop-class-utilities">SOP Class Utilities</a><ul class="current">
+<li class="toctree-l4"><a class="reference internal" href="pynetdicom.sop_class.SOPClass.html">pynetdicom.sop_class.SOPClass</a></li>
+<li class="toctree-l4"><a class="reference internal" href="pynetdicom.sop_class.uid_to_sop_class.html">pynetdicom.sop_class.uid_to_sop_class</a></li>
+<li class="toctree-l4 current"><a class="current reference internal" href="#">pynetdicom.sop_class.uid_to_service_class</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../sop_classes.html#sop-classes">SOP Classes</a></li>
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="../status.html">Statuses (<code class="xref py py-mod docutils literal notranslate"><span class="pre">pynetdicom.status</span></code>)</a></li>
@@ -124,10 +123,13 @@
 </ul>
 </li>
 </ul>
+<p class="caption"><span class="caption-text">Examples</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../examples/index.html">Examples</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Additional Information</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="../../apps/index.html">Applications</a></li>
-</ul>
-<ul>
 <li class="toctree-l1"><a class="reference internal" href="../../changelog/index.html">Release Notes</a></li>
 </ul>
 
@@ -199,8 +201,9 @@
 <h1>pynetdicom.sop_class.uid_to_service_class<a class="headerlink" href="#pynetdicom-sop-class-uid-to-service-class" title="Permalink to this headline">¶</a></h1>
 <dl class="function">
 <dt id="pynetdicom.sop_class.uid_to_service_class">
-<code class="sig-prename descclassname">pynetdicom.sop_class.</code><code class="sig-name descname">uid_to_service_class</code><span class="sig-paren">(</span><em class="sig-param">uid</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/8ef6857f/pynetdicom/sop_class.py#L40"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom.sop_class.uid_to_service_class" title="Permalink to this definition">¶</a></dt>
-<dd><p>Return the ServiceClass object corresponding to <cite>uid</cite>.</p>
+<code class="sig-prename descclassname">pynetdicom.sop_class.</code><code class="sig-name descname">uid_to_service_class</code><span class="sig-paren">(</span><em class="sig-param">uid</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/da5a1652/pynetdicom/sop_class.py#L40"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom.sop_class.uid_to_service_class" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return the <code class="xref py py-class docutils literal notranslate"><span class="pre">ServiceClass</span></code> object
+corresponding to <cite>uid</cite>.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><p><strong>uid</strong> (<a class="reference external" href="https://pydicom.github.io/pydicom/stable/api_ref.html#pydicom.uid.UID" title="(in pydicom v1.3.0)"><em>pydicom.uid.UID</em></a>) – The SOP or Service Class UID to use to find the corresponding Service
@@ -211,7 +214,7 @@ Class.</p>
 if support for the SOP Class isn’t implemented.</p>
 </dd>
 <dt class="field-odd">Return type</dt>
-<dd class="field-odd"><p>service_class.ServiceClass</p>
+<dd class="field-odd"><p>subclass of service_class.ServiceClass</p>
 </dd>
 </dl>
 </dd></dl>
@@ -226,7 +229,7 @@ if support for the SOP Class isn’t implemented.</p>
   
     <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
       
-        <a href="../status.html" class="btn btn-neutral float-right" title="Statuses (pynetdicom.status)" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
+        <a href="pynetdicom.sop_class.ProceduralEventLoggingSOPClass.html" class="btn btn-neutral float-right" title="pynetdicom.sop_class.ProceduralEventLoggingSOPClass" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
       
       
         <a href="pynetdicom.sop_class.uid_to_sop_class.html" class="btn btn-neutral float-left" title="pynetdicom.sop_class.uid_to_sop_class" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>

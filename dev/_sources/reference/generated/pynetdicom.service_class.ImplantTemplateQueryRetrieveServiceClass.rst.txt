@@ -27,7 +27,6 @@ pynetdicom.service\_class.ImplantTemplateQueryRetrieveServiceClass
 
    .. autosummary::
    
-      ~ImplantTemplateQueryRetrieveServiceClass.BULK_DATA_KEYWORDS
       ~ImplantTemplateQueryRetrieveServiceClass.ae
       ~ImplantTemplateQueryRetrieveServiceClass.dimse
       ~ImplantTemplateQueryRetrieveServiceClass.statuses

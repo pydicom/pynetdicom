@@ -90,20 +90,15 @@
               
             
             
-              <ul>
-<li class="toctree-l1"><a class="reference internal" href="../service_classes/index.html">Supported Service Classes</a></li>
-</ul>
-<ul>
-<li class="toctree-l1"><a class="reference internal" href="../user/index.html">User Guide</a></li>
-</ul>
-<ul>
-<li class="toctree-l1"><a class="reference internal" href="../examples/index.html">Examples</a></li>
-</ul>
+              <p class="caption"><span class="caption-text">Documentation</span></p>
 <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../user/index.html">User Guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../service_classes/index.html">Supported Service Classes</a></li>
 <li class="toctree-l1 current"><a class="reference internal" href="index.html">API Reference</a><ul class="current">
 <li class="toctree-l2"><a class="reference internal" href="acse.html">ACSE Service (<code class="xref py py-mod docutils literal notranslate"><span class="pre">pynetdicom.acse</span></code>)</a></li>
 <li class="toctree-l2"><a class="reference internal" href="ae.html">Application Entity (<code class="xref py py-mod docutils literal notranslate"><span class="pre">pynetdicom.ae</span></code>)</a></li>
 <li class="toctree-l2"><a class="reference internal" href="association.html">Association (<code class="xref py py-mod docutils literal notranslate"><span class="pre">pynetdicom.association</span></code>)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="config.html">Configuration Options (<code class="xref py py-mod docutils literal notranslate"><span class="pre">pynetdicom._config</span></code>)</a></li>
 <li class="toctree-l2"><a class="reference internal" href="dimse.html">DIMSE Service</a></li>
 <li class="toctree-l2"><a class="reference internal" href="dsutils.html">Dataset Utilities (<code class="xref py py-mod docutils literal notranslate"><span class="pre">pynetdicom.dsutils</span></code>)</a></li>
 <li class="toctree-l2 current"><a class="reference internal" href="dul.html">DICOM Upper Layer</a><ul class="current">
@@ -117,7 +112,6 @@
 <li class="toctree-l4"><a class="reference internal" href="dul.pdu.a_release_rq.html">A-RELEASE-RQ PDU</a></li>
 <li class="toctree-l4"><a class="reference internal" href="dul.pdu.a_release_rp.html">A-RELEASE-RP PDU</a></li>
 <li class="toctree-l4"><a class="reference internal" href="dul.pdu.a_abort_rq.html">A-ABORT-RQ PDU</a></li>
-<li class="toctree-l4"><a class="reference internal" href="#references">References</a></li>
 </ul>
 </li>
 <li class="toctree-l3"><a class="reference internal" href="dul.pdu_items.html">PDU Items and Sub-items (<code class="xref py py-mod docutils literal notranslate"><span class="pre">pynetdicom.pdu_items</span></code>)</a></li>
@@ -135,10 +129,13 @@
 </ul>
 </li>
 </ul>
+<p class="caption"><span class="caption-text">Examples</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../examples/index.html">Examples</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Additional Information</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="../apps/index.html">Applications</a></li>
-</ul>
-<ul>
 <li class="toctree-l1"><a class="reference internal" href="../changelog/index.html">Release Notes</a></li>
 </ul>
 
@@ -207,7 +204,7 @@
            <div itemprop="articleBody">
             
   <div class="section" id="pdus-pynetdicom-pdu">
-<h1>PDUs (<code class="xref py py-mod docutils literal notranslate"><span class="pre">pynetdicom.pdu</span></code>)<a class="headerlink" href="#pdus-pynetdicom-pdu" title="Permalink to this headline">¶</a></h1>
+<span id="api-dul-pdu"></span><h1>PDUs (<code class="xref py py-mod docutils literal notranslate"><span class="pre">pynetdicom.pdu</span></code>)<a class="headerlink" href="#pdus-pynetdicom-pdu" title="Permalink to this headline">¶</a></h1>
 <p>Protocol Data Units (PDUs) are the message formats exchanged between peer
 application entities within a layer. A PDU consists of protocol control
 information and user data and are constructed using mandatory fixed fields
@@ -237,16 +234,7 @@ as its first byte value a corresponding <em>PDU Type</em>:</p>
 <div class="line"><code class="docutils literal notranslate"><span class="pre">0x06</span></code> - A-RELEASE-RP</div>
 <div class="line"><code class="docutils literal notranslate"><span class="pre">0x07</span></code> - A-ABORT</div>
 </div>
-<p>The encoding of DICOM Upper Layer PDUs is always Big Endian byte ordering <a class="footnote-reference brackets" href="#id2" id="id1">1</a>.</p>
-<div class="section" id="references">
-<h2>References<a class="headerlink" href="#references" title="Permalink to this headline">¶</a></h2>
-<dl class="footnote brackets">
-<dt class="label" id="id2"><span class="brackets"><a class="fn-backref" href="#id1">1</a></span></dt>
-<dd><p>DICOM Standard, Part 8, Section
-<a class="reference external" href="http://dicom.nema.org/medical/dicom/current/output/html/part08.html#sect_9.3.1">9.3.1</a></p>
-</dd>
-</dl>
-</div>
+<p>The encoding of DICOM Upper Layer PDUs is always Big Endian byte ordering.</p>
 </div>
 
 

@@ -1,0 +1,6 @@
+pynetdicom.sop\_class.ArterialPulseWaveformStorage
+==================================================
+
+.. currentmodule:: pynetdicom.sop_class
+
+.. autodata:: ArterialPulseWaveformStorage

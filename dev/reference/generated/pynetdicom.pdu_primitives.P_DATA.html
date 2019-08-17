@@ -90,20 +90,15 @@
               
             
             
-              <ul>
-<li class="toctree-l1"><a class="reference internal" href="../../service_classes/index.html">Supported Service Classes</a></li>
-</ul>
-<ul>
-<li class="toctree-l1"><a class="reference internal" href="../../user/index.html">User Guide</a></li>
-</ul>
-<ul>
-<li class="toctree-l1"><a class="reference internal" href="../../examples/index.html">Examples</a></li>
-</ul>
+              <p class="caption"><span class="caption-text">Documentation</span></p>
 <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../../user/index.html">User Guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../service_classes/index.html">Supported Service Classes</a></li>
 <li class="toctree-l1 current"><a class="reference internal" href="../index.html">API Reference</a><ul class="current">
 <li class="toctree-l2"><a class="reference internal" href="../acse.html">ACSE Service (<code class="xref py py-mod docutils literal notranslate"><span class="pre">pynetdicom.acse</span></code>)</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../ae.html">Application Entity (<code class="xref py py-mod docutils literal notranslate"><span class="pre">pynetdicom.ae</span></code>)</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../association.html">Association (<code class="xref py py-mod docutils literal notranslate"><span class="pre">pynetdicom.association</span></code>)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../config.html">Configuration Options (<code class="xref py py-mod docutils literal notranslate"><span class="pre">pynetdicom._config</span></code>)</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../dimse.html">DIMSE Service</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../dsutils.html">Dataset Utilities (<code class="xref py py-mod docutils literal notranslate"><span class="pre">pynetdicom.dsutils</span></code>)</a></li>
 <li class="toctree-l2 current"><a class="reference internal" href="../dul.html">DICOM Upper Layer</a><ul class="current">
@@ -114,7 +109,6 @@
 <li class="toctree-l4"><a class="reference internal" href="../dul.pdu_primitives.a_abort.html">A-ABORT</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../dul.pdu_primitives.a_p_abort.html">A-P-ABORT</a></li>
 <li class="toctree-l4 current"><a class="reference internal" href="../dul.pdu_primitives.p_data.html">P-DATA</a></li>
-<li class="toctree-l4"><a class="reference internal" href="../dul.pdu_primitives.html#references">References</a></li>
 </ul>
 </li>
 <li class="toctree-l3"><a class="reference internal" href="../dul.pdu.html">PDUs (<code class="xref py py-mod docutils literal notranslate"><span class="pre">pynetdicom.pdu</span></code>)</a></li>
@@ -133,10 +127,13 @@
 </ul>
 </li>
 </ul>
+<p class="caption"><span class="caption-text">Examples</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../examples/index.html">Examples</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Additional Information</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="../../apps/index.html">Applications</a></li>
-</ul>
-<ul>
 <li class="toctree-l1"><a class="reference internal" href="../../changelog/index.html">Release Notes</a></li>
 </ul>
 
@@ -212,7 +209,7 @@
 <h1>pynetdicom.pdu_primitives.P_DATA<a class="headerlink" href="#pynetdicom-pdu-primitives-p-data" title="Permalink to this headline">¶</a></h1>
 <dl class="class">
 <dt id="pynetdicom.pdu_primitives.P_DATA">
-<em class="property">class </em><code class="sig-prename descclassname">pynetdicom.pdu_primitives.</code><code class="sig-name descname">P_DATA</code><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/8ef6857f/pynetdicom/pdu_primitives.py#L1010"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom.pdu_primitives.P_DATA" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="sig-prename descclassname">pynetdicom.pdu_primitives.</code><code class="sig-name descname">P_DATA</code><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/da5a1652/pynetdicom/pdu_primitives.py#L930"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom.pdu_primitives.P_DATA" title="Permalink to this definition">¶</a></dt>
 <dd><p>A P-DATA primitive.</p>
 <table class="docutils align-default">
 <colgroup>
@@ -247,7 +244,7 @@
 a Presentation Context ID and User Data values. The User Data values
 are taken from the Abstract Syntax and encoded in the Transfer Syntax
 identified by the Presentation Context ID. Each item in the list is
-[Context ID, PDV Data]</p>
+<code class="docutils literal notranslate"><span class="pre">[Context</span> <span class="pre">ID,</span> <span class="pre">PDV</span> <span class="pre">Data]</span></code></p>
 <dl class="field-list simple">
 <dt class="field-odd">Type</dt>
 <dd class="field-odd"><p>list of [<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.7)">int</a>, <a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#bytes" title="(in Python v3.7)">bytes</a>]</p>
@@ -257,11 +254,11 @@ identified by the Presentation Context ID. Each item in the list is
 
 <p class="rubric">References</p>
 <ul class="simple">
-<li><p>DICOM Standard, Part 8, Section 7.6.1</p></li>
+<li><p>DICOM Standard, Part 8, <a class="reference external" href="http://dicom.nema.org/medical/dicom/current/output/chtml/part08/sect_7.6.html">Section 7.6</a></p></li>
 </ul>
 <dl class="method">
 <dt id="pynetdicom.pdu_primitives.P_DATA.__init__">
-<code class="sig-name descname">__init__</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/8ef6857f/pynetdicom/pdu_primitives.py#L1042"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom.pdu_primitives.P_DATA.__init__" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">__init__</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/da5a1652/pynetdicom/pdu_primitives.py#L962"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom.pdu_primitives.P_DATA.__init__" title="Permalink to this definition">¶</a></dt>
 <dd><p>Initialize self.  See help(type(self)) for accurate signature.</p>
 </dd></dl>
 

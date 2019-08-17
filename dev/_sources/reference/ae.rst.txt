@@ -1,4 +1,4 @@
-.. _ae:
+.. _api_ae:
 
 Application Entity (:mod:`pynetdicom.ae`)
 =========================================================

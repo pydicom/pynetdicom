@@ -1,4 +1,4 @@
-.. _utils:
+.. _api_utils:
 
 Utilities (:mod:`pynetdicom.utils`)
 ====================================

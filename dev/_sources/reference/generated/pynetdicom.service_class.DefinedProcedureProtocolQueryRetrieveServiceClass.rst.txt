@@ -27,7 +27,6 @@ pynetdicom.service\_class.DefinedProcedureProtocolQueryRetrieveServiceClass
 
    .. autosummary::
    
-      ~DefinedProcedureProtocolQueryRetrieveServiceClass.BULK_DATA_KEYWORDS
       ~DefinedProcedureProtocolQueryRetrieveServiceClass.ae
       ~DefinedProcedureProtocolQueryRetrieveServiceClass.dimse
       ~DefinedProcedureProtocolQueryRetrieveServiceClass.statuses

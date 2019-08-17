@@ -1,0 +1,6 @@
+pynetdicom.sop\_class.VLSlideCoordinatesMicroscopicImageStorage
+===============================================================
+
+.. currentmodule:: pynetdicom.sop_class
+
+.. autodata:: VLSlideCoordinatesMicroscopicImageStorage

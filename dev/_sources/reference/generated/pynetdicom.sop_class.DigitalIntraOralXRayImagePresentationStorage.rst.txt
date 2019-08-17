@@ -1,0 +1,6 @@
+pynetdicom.sop\_class.DigitalIntraOralXRayImagePresentationStorage
+==================================================================
+
+.. currentmodule:: pynetdicom.sop_class
+
+.. autodata:: DigitalIntraOralXRayImagePresentationStorage

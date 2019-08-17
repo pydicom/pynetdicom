@@ -1,8 +1,8 @@
 Modality Performed Procedure Step Management Service Examples
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-The DICOM `Modality Performed Procedure Step Management (MPPS) service
-<http://dicom.nema.org/medical/dicom/current/output/html/part04.html#chapter_F>`_
+The DICOM :dcm:`Modality Performed Procedure Step Management (MPPS) service
+<part04/chapter_F.html>`
 allows an Application Entity to log or track procedures performed by a
 modality through the N-CREATE, N-SET, N-EVENT-REPORT and N-GET services. It
 has :ref:`three SOP Classes <display_sops>`:
@@ -204,8 +204,8 @@ The following represents a toy implementation of an MPPS SCP (Modality
 Performed Procedure Step SOP Class only).
 
 Check the
-`handler implementation documentation
-<../reference/generated/pynetdicom._handlers.doc_handle_n_get.html>`_
+:func:`handler implementation documentation
+<pynetdicom._handlers.doc_handle_n_get>`
 to see the requirements for the ``evt.EVT_N_CREATE`` and ``evt.EVT_N_SET``
 handlers.
 

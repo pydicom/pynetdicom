@@ -1,7 +1,8 @@
+.. _service_storecommit:
+
 Storage Commitment Service Class
 ================================
-The `Storage Commitment Service Class
-<http://dicom.nema.org/medical/dicom/current/output/html/part04.html#chapter_J>`_
+The :dcm:`Storage Commitment Service Class<part04/chapter_J.html>`
 defines a service that uses the DIMSE N-ACTION and N-EVENT-REPORT services to
 provide a mechanism for the SCU to request the SCP make a commitment for the
 safekeeping of SOP Instances.
@@ -100,11 +101,3 @@ N-EVENT-REPORT Statuses
 +------------------+----------+----------------------------------+
 | 0x0213           | Failure  | Resource limitation              |
 +------------------+----------+----------------------------------+
-
-
-References
-----------
-
-* DICOM Standard, Part 4, `Annex J <http://dicom.nema.org/medical/dicom/current/output/html/part04.html#chapter_J>`_
-* DICOM Standard, Part 7, `Section 10.1.4.1.10 <http://dicom.nema.org/medical/dicom/current/output/chtml/part07/chapter_10.html#sect_10.1.4.1.10>`_
-* DICOM Standard, Part 7, `Section 10.1.1.1.8 <http://dicom.nema.org/medical/dicom/current/output/chtml/part07/chapter_10.html#sect_10.1.1.1.8>`_

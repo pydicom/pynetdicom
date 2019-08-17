@@ -1,0 +1,6 @@
+pynetdicom.sop\_class.VLEndoscopicImageStorage
+==============================================
+
+.. currentmodule:: pynetdicom.sop_class
+
+.. autodata:: VLEndoscopicImageStorage

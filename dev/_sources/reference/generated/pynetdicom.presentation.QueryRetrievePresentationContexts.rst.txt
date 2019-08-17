@@ -1,0 +1,6 @@
+pynetdicom.presentation.QueryRetrievePresentationContexts
+=========================================================
+
+.. currentmodule:: pynetdicom.presentation
+
+.. autodata:: QueryRetrievePresentationContexts

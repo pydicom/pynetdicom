@@ -90,20 +90,15 @@
               
             
             
-              <ul>
-<li class="toctree-l1"><a class="reference internal" href="../../service_classes/index.html">Supported Service Classes</a></li>
-</ul>
-<ul>
-<li class="toctree-l1"><a class="reference internal" href="../../user/index.html">User Guide</a></li>
-</ul>
-<ul>
-<li class="toctree-l1"><a class="reference internal" href="../../examples/index.html">Examples</a></li>
-</ul>
+              <p class="caption"><span class="caption-text">Documentation</span></p>
 <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../../user/index.html">User Guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../service_classes/index.html">Supported Service Classes</a></li>
 <li class="toctree-l1 current"><a class="reference internal" href="../index.html">API Reference</a><ul class="current">
 <li class="toctree-l2"><a class="reference internal" href="../acse.html">ACSE Service (<code class="xref py py-mod docutils literal notranslate"><span class="pre">pynetdicom.acse</span></code>)</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../ae.html">Application Entity (<code class="xref py py-mod docutils literal notranslate"><span class="pre">pynetdicom.ae</span></code>)</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../association.html">Association (<code class="xref py py-mod docutils literal notranslate"><span class="pre">pynetdicom.association</span></code>)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../config.html">Configuration Options (<code class="xref py py-mod docutils literal notranslate"><span class="pre">pynetdicom._config</span></code>)</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../dimse.html">DIMSE Service</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../dsutils.html">Dataset Utilities (<code class="xref py py-mod docutils literal notranslate"><span class="pre">pynetdicom.dsutils</span></code>)</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../dul.html">DICOM Upper Layer</a></li>
@@ -122,10 +117,13 @@
 </ul>
 </li>
 </ul>
+<p class="caption"><span class="caption-text">Examples</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../examples/index.html">Examples</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Additional Information</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="../../apps/index.html">Applications</a></li>
-</ul>
-<ul>
 <li class="toctree-l1"><a class="reference internal" href="../../changelog/index.html">Release Notes</a></li>
 </ul>
 
@@ -197,37 +195,40 @@
 <h1>pynetdicom.timer.Timer<a class="headerlink" href="#pynetdicom-timer-timer" title="Permalink to this headline">¶</a></h1>
 <dl class="class">
 <dt id="pynetdicom.timer.Timer">
-<em class="property">class </em><code class="sig-prename descclassname">pynetdicom.timer.</code><code class="sig-name descname">Timer</code><span class="sig-paren">(</span><em class="sig-param">timeout</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/8ef6857f/pynetdicom/timer.py#L11"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom.timer.Timer" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="sig-prename descclassname">pynetdicom.timer.</code><code class="sig-name descname">Timer</code><span class="sig-paren">(</span><em class="sig-param">timeout</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/da5a1652/pynetdicom/timer.py#L11"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom.timer.Timer" title="Permalink to this definition">¶</a></dt>
 <dd><p>A generic timer.</p>
 <p>Implementation of the DICOM Upper Layer’s ARTIM timer. The ARTIM timer is
 used by the state machine to monitor connection and response timeouts.
 This class may also be used as a general purpose expiry timer.</p>
-<p>A <cite>timeout</cite> of None implies that <cite>expired</cite> always returns False and
-<cite>remaining</cite> always returns 1.
-A <cite>timeout</cite> of float implies that:</p>
+<p>A <a class="reference internal" href="#pynetdicom.timer.Timer.timeout" title="pynetdicom.timer.Timer.timeout"><code class="xref py py-attr docutils literal notranslate"><span class="pre">timeout</span></code></a> of <code class="docutils literal notranslate"><span class="pre">None</span></code> implies that <a class="reference internal" href="#pynetdicom.timer.Timer.expired" title="pynetdicom.timer.Timer.expired"><code class="xref py py-attr docutils literal notranslate"><span class="pre">expired</span></code></a>
+always returns <code class="docutils literal notranslate"><span class="pre">False</span></code> and <a class="reference internal" href="#pynetdicom.timer.Timer.remaining" title="pynetdicom.timer.Timer.remaining"><code class="xref py py-attr docutils literal notranslate"><span class="pre">remaining</span></code></a> always returns <code class="docutils literal notranslate"><span class="pre">1</span></code>.
+A <a class="reference internal" href="#pynetdicom.timer.Timer.timeout" title="pynetdicom.timer.Timer.timeout"><code class="xref py py-attr docutils literal notranslate"><span class="pre">timeout</span></code></a> of <a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.7)"><code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code></a> implies that:</p>
 <ul class="simple">
-<li><p>If not yet started, <cite>expired</cite> returns False and remaining returns
-<cite>timeout</cite></p></li>
-<li><p>If started then <cite>expired</cite> returns False until the time since starting
-is greater than <cite>timeout</cite> after which it returns True. <cite>remaining</cite>
-returns the number of seconds until <cite>expired</cite> returns True (will
-return negative value after expiry)</p></li>
-<li><p>If started then stopped before the timeout then <cite>expired</cite> returns
-False, if stopped after the time since starting is greater than <cite>timeout</cite>
-then returns True. <cite>remaining</cite> always returns the number of seconds
-until <cite>expired</cite> returns True.</p></li>
+<li><p>If not yet started, <a class="reference internal" href="#pynetdicom.timer.Timer.expired" title="pynetdicom.timer.Timer.expired"><code class="xref py py-attr docutils literal notranslate"><span class="pre">expired</span></code></a> returns <code class="docutils literal notranslate"><span class="pre">False</span></code> and
+<a class="reference internal" href="#pynetdicom.timer.Timer.remaining" title="pynetdicom.timer.Timer.remaining"><code class="xref py py-attr docutils literal notranslate"><span class="pre">remaining</span></code></a> returns <a class="reference internal" href="#pynetdicom.timer.Timer.timeout" title="pynetdicom.timer.Timer.timeout"><code class="xref py py-attr docutils literal notranslate"><span class="pre">timeout</span></code></a></p></li>
+<li><p>If started then <a class="reference internal" href="#pynetdicom.timer.Timer.expired" title="pynetdicom.timer.Timer.expired"><code class="xref py py-attr docutils literal notranslate"><span class="pre">expired</span></code></a> returns <code class="docutils literal notranslate"><span class="pre">False</span></code> until the time
+since starting is greater than <a class="reference internal" href="#pynetdicom.timer.Timer.timeout" title="pynetdicom.timer.Timer.timeout"><code class="xref py py-attr docutils literal notranslate"><span class="pre">timeout</span></code></a> after which it
+returns <code class="docutils literal notranslate"><span class="pre">True</span></code>. <a class="reference internal" href="#pynetdicom.timer.Timer.remaining" title="pynetdicom.timer.Timer.remaining"><code class="xref py py-attr docutils literal notranslate"><span class="pre">remaining</span></code></a> returns the number of seconds
+until <a class="reference internal" href="#pynetdicom.timer.Timer.expired" title="pynetdicom.timer.Timer.expired"><code class="xref py py-attr docutils literal notranslate"><span class="pre">expired</span></code></a> returns <code class="docutils literal notranslate"><span class="pre">True</span></code> (will return negative
+value after expiry)</p></li>
+<li><p>If started then stopped before the timeout then <a class="reference internal" href="#pynetdicom.timer.Timer.expired" title="pynetdicom.timer.Timer.expired"><code class="xref py py-attr docutils literal notranslate"><span class="pre">expired</span></code></a>
+returns <code class="docutils literal notranslate"><span class="pre">False</span></code>, if stopped after the time since starting is greater
+than <a class="reference internal" href="#pynetdicom.timer.Timer.timeout" title="pynetdicom.timer.Timer.timeout"><code class="xref py py-attr docutils literal notranslate"><span class="pre">timeout</span></code></a> then returns <code class="docutils literal notranslate"><span class="pre">True</span></code>.
+<a class="reference internal" href="#pynetdicom.timer.Timer.remaining" title="pynetdicom.timer.Timer.remaining"><code class="xref py py-attr docutils literal notranslate"><span class="pre">remaining</span></code></a> always returns the number of seconds until
+<a class="reference internal" href="#pynetdicom.timer.Timer.expired" title="pynetdicom.timer.Timer.expired"><code class="xref py py-attr docutils literal notranslate"><span class="pre">expired</span></code></a> returns <code class="docutils literal notranslate"><span class="pre">True</span></code>.</p></li>
 </ul>
 <p class="rubric">References</p>
 <ul class="simple">
-<li><p>DICOM Standard, Part 8, Section 9.1.5.</p></li>
+<li><p>DICOM Standard, Part 8,
+<a class="reference external" href="http://dicom.nema.org/medical/dicom/current/output/chtml/part08/chapter_9.html#sect_9.1.5">Section 9.1.5</a>.</p></li>
 </ul>
 <dl class="method">
 <dt id="pynetdicom.timer.Timer.__init__">
-<code class="sig-name descname">__init__</code><span class="sig-paren">(</span><em class="sig-param">timeout</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/8ef6857f/pynetdicom/timer.py#L38"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom.timer.Timer.__init__" title="Permalink to this definition">¶</a></dt>
-<dd><p>Create a new Timer.</p>
+<code class="sig-name descname">__init__</code><span class="sig-paren">(</span><em class="sig-param">timeout</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/da5a1652/pynetdicom/timer.py#L41"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom.timer.Timer.__init__" title="Permalink to this definition">¶</a></dt>
+<dd><p>Create a new <a class="reference internal" href="#pynetdicom.timer.Timer" title="pynetdicom.timer.Timer"><code class="xref py py-class docutils literal notranslate"><span class="pre">Timer</span></code></a>.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>timeout</strong> (<em>numeric</em><em> or </em><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.7)"><em>None</em></a>) – The number of seconds before the timer expires. A value of None
+<dd class="field-odd"><p><strong>timeout</strong> (<em>numeric</em><em> or </em><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.7)"><em>None</em></a>) – The number of seconds before the timer expires. A value of <code class="docutils literal notranslate"><span class="pre">None</span></code>
 means the timer never expires.</p>
 </dd>
 </dl>
@@ -241,7 +242,7 @@ means the timer never expires.</p>
 </colgroup>
 <tbody>
 <tr class="row-odd"><td><p><a class="reference internal" href="#pynetdicom.timer.Timer.__init__" title="pynetdicom.timer.Timer.__init__"><code class="xref py py-obj docutils literal notranslate"><span class="pre">__init__</span></code></a>(timeout)</p></td>
-<td><p>Create a new Timer.</p></td>
+<td><p>Create a new <a class="reference internal" href="#pynetdicom.timer.Timer" title="pynetdicom.timer.Timer"><code class="xref py py-class docutils literal notranslate"><span class="pre">Timer</span></code></a>.</p></td>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="#pynetdicom.timer.Timer.restart" title="pynetdicom.timer.Timer.restart"><code class="xref py py-obj docutils literal notranslate"><span class="pre">restart</span></code></a>()</p></td>
 <td><p>Restart the timer.</p></td>
@@ -268,7 +269,7 @@ means the timer never expires.</p>
 <td><p>Return the number of seconds remaining until timeout.</p></td>
 </tr>
 <tr class="row-odd"><td><p><a class="reference internal" href="#pynetdicom.timer.Timer.timeout" title="pynetdicom.timer.Timer.timeout"><code class="xref py py-obj docutils literal notranslate"><span class="pre">timeout</span></code></a></p></td>
-<td><p>Return the number of seconds set for timeout.</p></td>
+<td><p>Return the number of seconds set for <a class="reference internal" href="#pynetdicom.timer.Timer.timeout" title="pynetdicom.timer.Timer.timeout"><code class="xref py py-attr docutils literal notranslate"><span class="pre">timeout</span></code></a>.</p></td>
 </tr>
 </tbody>
 </table>
@@ -278,7 +279,7 @@ means the timer never expires.</p>
 <dd><p>Check if the timer has expired.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Returns</dt>
-<dd class="field-odd"><p>True if the timer has expired, False otherwise</p>
+<dd class="field-odd"><p><code class="docutils literal notranslate"><span class="pre">True</span></code> if the timer has expired, <code class="docutils literal notranslate"><span class="pre">False</span></code> otherwise</p>
 </dd>
 <dt class="field-even">Return type</dt>
 <dd class="field-even"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.7)">bool</a></p>
@@ -290,31 +291,31 @@ means the timer never expires.</p>
 <dt id="pynetdicom.timer.Timer.remaining">
 <em class="property">property </em><code class="sig-name descname">remaining</code><a class="headerlink" href="#pynetdicom.timer.Timer.remaining" title="Permalink to this definition">¶</a></dt>
 <dd><p>Return the number of seconds remaining until timeout.</p>
-<p>Returns 1 if the timer is set to never expire.</p>
+<p>Returns <code class="docutils literal notranslate"><span class="pre">1</span></code> if the timer is set to never expire.</p>
 </dd></dl>
 
 <dl class="method">
 <dt id="pynetdicom.timer.Timer.restart">
-<code class="sig-name descname">restart</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/8ef6857f/pynetdicom/timer.py#L95"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom.timer.Timer.restart" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">restart</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/da5a1652/pynetdicom/timer.py#L98"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom.timer.Timer.restart" title="Permalink to this definition">¶</a></dt>
 <dd><p>Restart the timer.</p>
 </dd></dl>
 
 <dl class="method">
 <dt id="pynetdicom.timer.Timer.start">
-<code class="sig-name descname">start</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/8ef6857f/pynetdicom/timer.py#L99"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom.timer.Timer.start" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">start</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/da5a1652/pynetdicom/timer.py#L102"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom.timer.Timer.start" title="Permalink to this definition">¶</a></dt>
 <dd><p>Resets and starts the timer running.</p>
 </dd></dl>
 
 <dl class="method">
 <dt id="pynetdicom.timer.Timer.stop">
-<code class="sig-name descname">stop</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/8ef6857f/pynetdicom/timer.py#L104"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom.timer.Timer.stop" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">stop</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/da5a1652/pynetdicom/timer.py#L107"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom.timer.Timer.stop" title="Permalink to this definition">¶</a></dt>
 <dd><p>Stops the timer and resets it.</p>
 </dd></dl>
 
 <dl class="method">
 <dt id="pynetdicom.timer.Timer.timeout">
 <em class="property">property </em><code class="sig-name descname">timeout</code><a class="headerlink" href="#pynetdicom.timer.Timer.timeout" title="Permalink to this definition">¶</a></dt>
-<dd><p>Return the number of seconds set for timeout.</p>
+<dd><p>Return the number of seconds set for <a class="reference internal" href="#pynetdicom.timer.Timer.timeout" title="pynetdicom.timer.Timer.timeout"><code class="xref py py-attr docutils literal notranslate"><span class="pre">timeout</span></code></a>.</p>
 </dd></dl>
 
 </dd></dl>

@@ -1,0 +1,6 @@
+pynetdicom.sop\_class.EnhancedSRStorage
+=======================================
+
+.. currentmodule:: pynetdicom.sop_class
+
+.. autodata:: EnhancedSRStorage

@@ -1,3 +1,5 @@
+.. _api_dimse_primitives:
+
 Service Primitives (:mod:`pynetdicom.dimse_primitives`)
 ========================================================
 

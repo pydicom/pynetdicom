@@ -3,27 +3,29 @@
 Presentation Contexts
 ---------------------
 
+.. currentmodule:: pynetdicom.presentation
+
 Introduction
 ............
 
-`Presentation Contexts <http://dicom.nema.org/medical/dicom/current/output/chtml/part08/chapter_7.html#sect_7.1.1.13>`_
+:dcm:`Presentation Contexts <part08/chapter_7.html#sect_7.1.1.13>`
 are used in DICOM to fully define the content and the
 encoding of a piece of data (typically a DICOM dataset). They consist of three
 main parts; a *Context ID*, an *Abstract Syntax* and one or more
 *Transfer Syntaxes*.
 
-* The `Context ID <http://dicom.nema.org/medical/dicom/current/output/chtml/part08/sect_9.3.2.2.html>`_
+* The :dcm:`Context ID <part08/sect_9.3.2.2.html>`
   is an odd-integer between 1 and 255 (inclusive) and
   identifies the context. With *pynetdicom* this is not something you typically
   have to worry about.
-* The `Abstract Syntax <http://dicom.nema.org/medical/dicom/current/output/chtml/part08/chapter_B.html>`_
+* The :dcm:`Abstract Syntax <part08/chapter_B.html>`
   defines what the data represents, usually identified by
   a DICOM SOP Class UID (however private abstract syntaxes are also allowed)
   such as:
 
   - ``1.2.840.10008.1.1`` - *Verification SOP Class*
   - ``1.2.840.10008.5.1.4.1.1`` - *CT Image Storage*
-* The `Transfer Syntax <http://dicom.nema.org/medical/dicom/current/output/chtml/part05/chapter_10.html>`_
+* The :dcm:`Transfer Syntax <part05/chapter_10.html>`
   defines how the data is encoded, usually identified by
   a DICOM transfer syntax UID (however private transfer syntaxes are also
   allowed) such as:
@@ -36,8 +38,7 @@ Representation in pynetdicom
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 In *pynetdicom* presentation contexts are represented using the
-:py:class:`presentation.PresentationContext <pynetdicom.presentation.PresentationContext>`
-class.
+:class:`presentation.PresentationContext<PresentationContext>` class.
 
 >>> from pynetdicom.presentation import PresentationContext
 >>> cx = PresentationContext()
@@ -51,9 +52,8 @@ Transfer Syntax(es):
     =Implicit VR Little Endian
     =JPEG Baseline (Process 1)
 
-However its easier to use the
-:py:meth:`build_context <pynetdicom.presentation.build_context>`
-convenience function which returns a ``PresentationContext`` instance:
+However its easier to use the :func:`build_context` convenience function which
+returns a :class:`PresentationContext` instance:
 
 >>> from pynetdicom import build_context
 >>> cx = build_context('1.2.840.10008.1.1', ['1.2.840.10008.1.2', '1.2.840.10008.1.2.4.50'])
@@ -83,8 +83,9 @@ association process. There are a couple of simple rules for these:
 
 In *pynetdicom* this is accomplished through one of the following methods:
 
-1. Setting the :py:obj:`AE.requested_contexts <pynetdicom.ae.ApplicationEntity.requested_contexts>`
-   attribute directly using a list of ``PresentationContext`` items.
+1. Setting the :attr:`AE.requested_contexts
+   <pynetdicom.ae.ApplicationEntity.requested_contexts>`
+   attribute directly using a list of :class:`PresentationContext` items.
 
 ::
 
@@ -97,9 +98,11 @@ In *pynetdicom* this is accomplished through one of the following methods:
 
 
 2. Using the
-   :py:meth:`AE.add_requested_context() <pynetdicom.ae.ApplicationEntity.add_requested_context>`
-   method to add a new ``PresentationContext`` to the
-   ``AE.requested_contexts`` attribute.
+   :meth:`AE.add_requested_context()
+   <pynetdicom.ae.ApplicationEntity.add_requested_context>`
+   method to add a new :class:`PresentationContext` to the
+   :attr:`AE.requested_contexts
+   <pynetdicom.ae.ApplicationEntity.requested_contexts>` attribute.
 
 ::
 
@@ -110,9 +113,9 @@ In *pynetdicom* this is accomplished through one of the following methods:
     ae.add_requested_context(VerificationSOPClass)
     assoc = ae.associate('127.0.0.1', 11112)
 
-3. Supplying a list of ``PresentationContext`` items to
-   :py:meth:`AE.associate() <pynetdicom.ae.ApplicationEntity.associate>`
-   via the ``context`` keyword argument.
+3. Supplying a list of :class:`PresentationContext` items to
+   :meth:`AE.associate()<pynetdicom.ae.ApplicationEntity.associate>`
+   via the *context* keyword argument.
 
 ::
 
@@ -127,8 +130,8 @@ In *pynetdicom* this is accomplished through one of the following methods:
 The abstract syntaxes you propose should match the SOP Class or Meta SOP Class
 that corresponds to the service you wish to use. For example, if
 you're intending to use the storage service then you'd propose one or more
-abstract syntaxes from the `corresponding SOP Class UIDs
-<http://dicom.nema.org/medical/dicom/current/output/chtml/part04/sect_B.5.html>`_.
+abstract syntaxes from the :dcm:`corresponding SOP Class UIDs
+<part04/sect_B.5.html>`.
 
 The transfer syntaxes you propose for each abstract syntax should match the
 transfer syntax of the data you wish to send. For example, if you have
@@ -177,8 +180,9 @@ define an unlimited number of supported presentation contexts.
 
 In *pynetdicom* this is accomplished through one of the following methods:
 
-1. Setting the :py:obj:`AE.supported_contexts <pynetdicom.ae.ApplicationEntity.supported_contexts>`
-   attribute directly using a list of ``PresentationContext`` items.
+1. Setting the :attr:`AE.supported_contexts
+   <pynetdicom.ae.ApplicationEntity.supported_contexts>`
+   attribute directly using a list of :class:`PresentationContext` items.
 
 ::
 
@@ -191,9 +195,11 @@ In *pynetdicom* this is accomplished through one of the following methods:
 
 
 2. Using the
-   :py:meth:`AE.add_supported_context() <pynetdicom.ae.ApplicationEntity.add_supported_context>`
-   method to add a new ``PresentationContext`` to the
-   ``AE.supported_contexts`` attribute.
+   :meth:`AE.add_supported_context()
+   <pynetdicom.ae.ApplicationEntity.add_supported_context>`
+   method to add a new :class:`PresentationContext` to the
+   :attr:`AE.supported_contexts
+   <pynetdicom.ae.ApplicationEntity.supported_contexts>` attribute.
 
 ::
 
@@ -205,8 +211,10 @@ In *pynetdicom* this is accomplished through one of the following methods:
     ae.start_server(('', 11112))
 
 The abstract syntaxes you support should correspond to the service classes that
-are being offered. For example, if you offer the Storage Service then you should
-support one or more of the Storage Service's corresponding SOP Classes.
+are being offered. For example, if you offer the
+:dcm:`Storage Service<part04/chapter_B.html>` then you should
+support one or more of the Storage Service's :dcm:`corresponding SOP Classes
+<part04/sect_B.5.html>`.
 
 The transfer syntaxes for each abstract syntax should match the data encoding
 you support.
@@ -274,7 +282,7 @@ Implementation Note
 ~~~~~~~~~~~~~~~~~~~
 
 When acting as an *Acceptor*, *pynetdicom* will choose the first matching
-transfer syntax in ``PresentationContext.transfer_syntax``.  For example, if
+transfer syntax in :attr:`PresentationContext.transfer_syntax`.  For example, if
 the *Requestor* proposes the following:
 
   ::
@@ -301,18 +309,18 @@ Then the accepted transfer syntax will be *Explicit VR Little Endian*.
 SCP/SCU Role Selection
 ......................
 
-The final wrinkle in presentation context negotiation is `SCP/SCU Role
-Selection <http://dicom.nema.org/medical/dicom/current/output/chtml/part07/sect_D.3.3.4.html>`_,
+The final wrinkle in presentation context negotiation is :dcm:`SCP/SCU Role
+Selection <part07/sect_D.3.3.4.html>`,
 which allows an association *Requestor* to propose its role (SCU, SCP, or
 SCU and SCP) for each proposed abstract syntax. Role selection is used for
 services such as the Query/Retrieve Service's C-GET requests, where the
 association *Acceptor* sends data back to the *Requestor*.
 
 To propose SCP/SCU Role Selection as a *Requestor* you should include
-:py:class:`SCP_SCU_RoleSelectionNegotiation <pynetdicom.pdu_primitives.SCP_SCU_RoleSelectionNegotiation>`
+:class:`SCP_SCU_RoleSelectionNegotiation
+<pynetdicom.pdu_primitives.SCP_SCU_RoleSelectionNegotiation>`
 items in the extended negotiation, either by creating them from scratch or
-using the :py:meth:`build_role() <pynetdicom.presentation.build_role>`
-convenience function:
+using the :func:`build_role` convenience function:
 
   ::
 
@@ -333,11 +341,12 @@ convenience function:
 
     assoc = ae.associate('127.0.0.1', 11112, ext_neg=[role_a, role_b])
 
-When acting as the *Requestor* you can set **either or both** of ``scu_role`` and
-``scp_role``, with the non-specified role assumed to be ``False``.
+When acting as the *Requestor* you can set **either or both** of *scu_role* and
+*scp_role*, with the non-specified role assumed to be ``False``.
 
-To support SCP/SCU Role Selection as an *Acceptor* you can use the ``scu_role``
-and ``scp_role`` arguments in ``AE.add_supported_context``:
+To support SCP/SCU Role Selection as an *Acceptor* you can use the *scu_role*
+and *scp_role* arguments in :meth:`AE.add_supported_context()
+<pynetdicom.ae.ApplicationEntity.add_supported_context>`:
 
   ::
 
@@ -349,7 +358,7 @@ and ``scp_role`` arguments in ``AE.add_supported_context``:
     ae.add_supported_context(CTImageStorage, scu_role=True, scp_role=False)
     ae.start_server(('', 11112))
 
-When acting as the *Acceptor* **both** ``scu_role`` and ``scp_role`` must be
+When acting as the *Acceptor* **both** *scu_role* and *scp_role* must be
 specified. A value of ``True`` indicates that the *Acceptor* will accept the
 proposed role. *pynetdicom* uses the following table to decide the outcome
 of role selection negotiation:

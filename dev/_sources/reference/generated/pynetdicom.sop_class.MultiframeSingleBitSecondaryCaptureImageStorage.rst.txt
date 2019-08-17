@@ -1,0 +1,6 @@
+pynetdicom.sop\_class.MultiframeSingleBitSecondaryCaptureImageStorage
+=====================================================================
+
+.. currentmodule:: pynetdicom.sop_class
+
+.. autodata:: MultiframeSingleBitSecondaryCaptureImageStorage

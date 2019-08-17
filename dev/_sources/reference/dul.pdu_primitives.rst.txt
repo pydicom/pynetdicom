@@ -1,3 +1,5 @@
+.. _api_dul_primitives:
+
 Service Primitives (:mod:`pynetdicom.pdu_primitives`)
 ======================================================
 
@@ -19,8 +21,3 @@ The DICOM Upper Layer Services are:
    dul.pdu_primitives.a_abort
    dul.pdu_primitives.a_p_abort
    dul.pdu_primitives.p_data
-
-References
-~~~~~~~~~~
-
-DICOM Standard, Part 8, Section `7 <http://dicom.nema.org/medical/dicom/current/output/html/part08.html#chapter_7>`_

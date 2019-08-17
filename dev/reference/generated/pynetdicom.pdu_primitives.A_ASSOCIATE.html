@@ -90,20 +90,15 @@
               
             
             
-              <ul>
-<li class="toctree-l1"><a class="reference internal" href="../../service_classes/index.html">Supported Service Classes</a></li>
-</ul>
-<ul>
-<li class="toctree-l1"><a class="reference internal" href="../../user/index.html">User Guide</a></li>
-</ul>
-<ul>
-<li class="toctree-l1"><a class="reference internal" href="../../examples/index.html">Examples</a></li>
-</ul>
+              <p class="caption"><span class="caption-text">Documentation</span></p>
 <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../../user/index.html">User Guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../service_classes/index.html">Supported Service Classes</a></li>
 <li class="toctree-l1 current"><a class="reference internal" href="../index.html">API Reference</a><ul class="current">
 <li class="toctree-l2"><a class="reference internal" href="../acse.html">ACSE Service (<code class="xref py py-mod docutils literal notranslate"><span class="pre">pynetdicom.acse</span></code>)</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../ae.html">Application Entity (<code class="xref py py-mod docutils literal notranslate"><span class="pre">pynetdicom.ae</span></code>)</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../association.html">Association (<code class="xref py py-mod docutils literal notranslate"><span class="pre">pynetdicom.association</span></code>)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../config.html">Configuration Options (<code class="xref py py-mod docutils literal notranslate"><span class="pre">pynetdicom._config</span></code>)</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../dimse.html">DIMSE Service</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../dsutils.html">Dataset Utilities (<code class="xref py py-mod docutils literal notranslate"><span class="pre">pynetdicom.dsutils</span></code>)</a></li>
 <li class="toctree-l2 current"><a class="reference internal" href="../dul.html">DICOM Upper Layer</a><ul class="current">
@@ -114,7 +109,6 @@
 <li class="toctree-l4"><a class="reference internal" href="../dul.pdu_primitives.a_abort.html">A-ABORT</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../dul.pdu_primitives.a_p_abort.html">A-P-ABORT</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../dul.pdu_primitives.p_data.html">P-DATA</a></li>
-<li class="toctree-l4"><a class="reference internal" href="../dul.pdu_primitives.html#references">References</a></li>
 </ul>
 </li>
 <li class="toctree-l3"><a class="reference internal" href="../dul.pdu.html">PDUs (<code class="xref py py-mod docutils literal notranslate"><span class="pre">pynetdicom.pdu</span></code>)</a></li>
@@ -133,10 +127,13 @@
 </ul>
 </li>
 </ul>
+<p class="caption"><span class="caption-text">Examples</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../examples/index.html">Examples</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Additional Information</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="../../apps/index.html">Applications</a></li>
-</ul>
-<ul>
 <li class="toctree-l1"><a class="reference internal" href="../../changelog/index.html">Release Notes</a></li>
 </ul>
 
@@ -212,7 +209,7 @@
 <h1>pynetdicom.pdu_primitives.A_ASSOCIATE<a class="headerlink" href="#pynetdicom-pdu-primitives-a-associate" title="Permalink to this headline">¶</a></h1>
 <dl class="class">
 <dt id="pynetdicom.pdu_primitives.A_ASSOCIATE">
-<em class="property">class </em><code class="sig-prename descclassname">pynetdicom.pdu_primitives.</code><code class="sig-name descname">A_ASSOCIATE</code><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/8ef6857f/pynetdicom/pdu_primitives.py#L44"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom.pdu_primitives.A_ASSOCIATE" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="sig-prename descclassname">pynetdicom.pdu_primitives.</code><code class="sig-name descname">A_ASSOCIATE</code><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/da5a1652/pynetdicom/pdu_primitives.py#L44"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom.pdu_primitives.A_ASSOCIATE" title="Permalink to this definition">¶</a></dt>
 <dd><p>An A-ASSOCIATE primitive.</p>
 <p>The establishment of an association between two AEs shall be performed
 through ACSE A-ASSOCIATE request, indication, response and confirmation
@@ -223,15 +220,6 @@ receives the request is the Acceptor.</p>
 information about the association. It gets converted to
 A-ASSOCIATE-RQ, -AC, -RJ PDUs that are sent to the peer DUL provider and
 gets deconverted from -RQ, -AC, -RJ PDUs received from the peer.</p>
-<p>It may be better to simply extend this with methods for containing
-the -rq, -ac, -rj possibilities rather than creating a new
-AssociationInformation class, but it would require maintaining the instance
-across the request-accept/reject path</p>
-<ul class="simple">
-<li><p>-rq = no Result value</p></li>
-<li><p>-ac = Result of 0x00</p></li>
-<li><p>-rj = Result != 0x00</p></li>
-</ul>
 <table class="docutils align-default">
 <colgroup>
 <col style="width: 29%" />
@@ -348,45 +336,10 @@ across the request-accept/reject path</p>
 <div class="line">NU  - Not used</div>
 <div class="line">(=) - shall have same value as request or response</div>
 </div>
-<p>The Requestor sends a request primitive to the local DICOM UL provider =&gt;
-peer UL =&gt; indication primitive to Acceptor.</p>
-<p>Acceptor sends response primitive to peer UL =&gt; local UL =&gt; confirmation
-primitive to Requestor</p>
-<p>The DICOM UL providers communicate with UL users using service primitives
-The DICOM UL providers communicate with each other using PDUs over TCP/IP</p>
-<p><strong>Service Procedure</strong></p>
-<ol class="arabic simple">
-<li><p>An AE (DICOM UL service user) that desires the establish an association
-issues an A-ASSOCIATE request primitive to the DICOM UL service
-provider. The Requestor shall not issue any primitives except the
-A-ABORT request primitive until it receives an A-ASSOCIATE confirmation
-primitive.</p></li>
-<li><p>The DICOM UL service provider issues an A-ASSOCIATE indication primitive
-to the called AE</p></li>
-<li><p>The called AE shall accept or reject the association by sending an
-A-ASSOCIATE response primitive with an appropriate Result parameter. The
-DICOM UL service provider shall issue an A-ASSOCIATE confirmation
-primitive having the same Result parameter. The Result Source parameter
-shall be assigned “UL service-user”</p></li>
-<li><p>If the Acceptor accepts the association, it is established and is
-available for use. DIMSE messages can now be exchanged.</p></li>
-<li><p>If the Acceptor rejects the association, it shall not be established and
-is not available for use</p></li>
-<li><p>If the DICOM UL service provider is not capable of supporting the
-requested association it shall return an A-ASSOCIATE confirmation
-primitive to the Requestor with an appropriate Result parameter
-(rejected). The Result Source parameter shall be assigned either
-UL service provider (ACSE) or UL service provider (Presentation).
-The indication primitive shall not be issued. The association shall not
-be established.</p></li>
-<li><p>Either Requestor or Acceptor may disrupt the Service Procedure by
-issuing an A-ABORT request primitive. The remote AE receives an A-ABORT
-indication primitive. The association shall not be established</p></li>
-</ol>
 <dl class="attribute">
 <dt id="pynetdicom.pdu_primitives.A_ASSOCIATE.mode">
 <code class="sig-name descname">mode</code><a class="headerlink" href="#pynetdicom.pdu_primitives.A_ASSOCIATE.mode" title="Permalink to this definition">¶</a></dt>
-<dd><p>Fixed value of “normal”</p>
+<dd><p>Fixed value of <code class="docutils literal notranslate"><span class="pre">'normal'</span></code>.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Type</dt>
 <dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.7)">str</a></p>
@@ -397,11 +350,12 @@ indication primitive. The association shall not be established</p></li>
 <dl class="attribute">
 <dt id="pynetdicom.pdu_primitives.A_ASSOCIATE.application_context_name">
 <code class="sig-name descname">application_context_name</code><a class="headerlink" href="#pynetdicom.pdu_primitives.A_ASSOCIATE.application_context_name" title="Permalink to this definition">¶</a></dt>
-<dd><p>The application context name proposed by the requestor. Acceptor
+<dd><p>The application context name proposed by the <em>Requestor</em>. <em>Acceptor</em>
 returns either the same or a different name. Returned name specifies
-the application context used for the Association. See PS3.8 Annex A.
+the application context used for the association. See the DICOM
+Standard, Part 8, <a class="reference external" href="http://dicom.nema.org/medical/dicom/current/output/chtml/part08/chapter_A.html">Annex A</a>.
 The application context name shall be a valid UID or UID string and for
-version 3 of the DICOM Standard should be ‘1.2.840.10008.3.1.1.1’</p>
+version 3 of the DICOM Standard should be <code class="docutils literal notranslate"><span class="pre">'1.2.840.10008.3.1.1.1'</span></code></p>
 <dl class="field-list simple">
 <dt class="field-odd">Type</dt>
 <dd class="field-odd"><p><a class="reference external" href="https://pydicom.github.io/pydicom/stable/api_ref.html#pydicom.uid.UID" title="(in pydicom v1.3.0)">pydicom.uid.UID</a>, <a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#bytes" title="(in Python v3.7)">bytes</a> or <a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.7)">str</a></p>
@@ -412,8 +366,8 @@ version 3 of the DICOM Standard should be ‘1.2.840.10008.3.1.1.1’</p>
 <dl class="attribute">
 <dt id="pynetdicom.pdu_primitives.A_ASSOCIATE.calling_ae_title">
 <code class="sig-name descname">calling_ae_title</code><a class="headerlink" href="#pynetdicom.pdu_primitives.A_ASSOCIATE.calling_ae_title" title="Permalink to this definition">¶</a></dt>
-<dd><p>Identifies the Requestor of the A-ASSOCIATE service. Must be a valid
-AE</p>
+<dd><p>Identifies the <em>Requestor</em> of the A-ASSOCIATE service. Must be a valid
+AE title.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Type</dt>
 <dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.7)">str</a> or <a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#bytes" title="(in Python v3.7)">bytes</a></p>
@@ -424,8 +378,8 @@ AE</p>
 <dl class="attribute">
 <dt id="pynetdicom.pdu_primitives.A_ASSOCIATE.called_ae_title">
 <code class="sig-name descname">called_ae_title</code><a class="headerlink" href="#pynetdicom.pdu_primitives.A_ASSOCIATE.called_ae_title" title="Permalink to this definition">¶</a></dt>
-<dd><p>Identifies the intended Acceptor of the A-ASSOCIATE service. Must be a
-valid AE</p>
+<dd><p>Identifies the intended <em>Acceptor</em> of the A-ASSOCIATE service. Must be
+a valid AE title.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Type</dt>
 <dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.7)">str</a> or <a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#bytes" title="(in Python v3.7)">bytes</a></p>
@@ -438,7 +392,7 @@ valid AE</p>
 <code class="sig-name descname">responding_ae_title</code><a class="headerlink" href="#pynetdicom.pdu_primitives.A_ASSOCIATE.responding_ae_title" title="Permalink to this definition">¶</a></dt>
 <dd><p>Identifies the AE that contains the actual acceptor of the
 A-ASSOCIATE service. Shall always contain the same value as the
-Called AE Title of the A-ASSOCIATE indication</p>
+<em>Called AE Title</em> of the A-ASSOCIATE indication</p>
 <dl class="field-list simple">
 <dt class="field-odd">Type</dt>
 <dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.7)">str</a> or <a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#bytes" title="(in Python v3.7)">bytes</a></p>
@@ -449,8 +403,9 @@ Called AE Title of the A-ASSOCIATE indication</p>
 <dl class="attribute">
 <dt id="pynetdicom.pdu_primitives.A_ASSOCIATE.user_information">
 <code class="sig-name descname">user_information</code><a class="headerlink" href="#pynetdicom.pdu_primitives.A_ASSOCIATE.user_information" title="Permalink to this definition">¶</a></dt>
-<dd><p>Used by Requestor and Acceptor to include AE user information. See
-PS3.8 Annex D and PS3.7 Annex D.3</p>
+<dd><p>Used by <em>Requestor</em> and <em>Acceptor</em> to include AE user information. See
+the DICOM Standard, Part 8, <a class="reference external" href="http://dicom.nema.org/medical/dicom/current/output/chtml/part08/chapter_D.html">Annex D</a> and
+Part 7, <a class="reference external" href="http://dicom.nema.org/medical/dicom/current/output/chtml/part07/sect_D.3.html">Annex D.3</a></p>
 <dl class="field-list simple">
 <dt class="field-odd">Type</dt>
 <dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.7)">list</a></p>
@@ -461,14 +416,14 @@ PS3.8 Annex D and PS3.7 Annex D.3</p>
 <dl class="attribute">
 <dt id="pynetdicom.pdu_primitives.A_ASSOCIATE.result">
 <code class="sig-name descname">result</code><a class="headerlink" href="#pynetdicom.pdu_primitives.A_ASSOCIATE.result" title="Permalink to this definition">¶</a></dt>
-<dd><p>Provided either by the Acceptor of the A-ASSOCIATE request, the UL
+<dd><p>Provided either by the <em>Acceptor</em> of the A-ASSOCIATE request, the UL
 service provider (ACSE related) or the UL service provider
 (Presentation related). Indicates the result of the A-ASSOCIATE
 service. Allowed values are:</p>
 <ul class="simple">
-<li><p>0: accepted</p></li>
-<li><p>1: rejected (permanent)</p></li>
-<li><p>2: rejected (transient)</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">0</span></code>: accepted</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">1</span></code>: rejected (permanent)</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">2</span></code>: rejected (transient)</p></li>
 </ul>
 <dl class="field-list simple">
 <dt class="field-odd">Type</dt>
@@ -483,9 +438,9 @@ service. Allowed values are:</p>
 <dd><p>Identifies the creating source of the Result and Diagnostic parameters
 Allowed values are:</p>
 <ul class="simple">
-<li><p>0: UL service-user</p></li>
-<li><p>1: UL service-provider (ACSE related function)</p></li>
-<li><p>2: UL service-provider (presentation related function)</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">0</span></code>: UL service-user</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">1</span></code>: UL service-provider (ACSE related function)</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">2</span></code>: UL service-provider (presentation related function)</p></li>
 </ul>
 <dl class="field-list simple">
 <dt class="field-odd">Type</dt>
@@ -497,31 +452,31 @@ Allowed values are:</p>
 <dl class="attribute">
 <dt id="pynetdicom.pdu_primitives.A_ASSOCIATE.diagnostic">
 <code class="sig-name descname">diagnostic</code><a class="headerlink" href="#pynetdicom.pdu_primitives.A_ASSOCIATE.diagnostic" title="Permalink to this definition">¶</a></dt>
-<dd><p>If the <cite>result</cite> parameter is 0 “rejected (permanent)” or 1 “rejected
-(transient)” then this supplies diagnostic information about the
-result. If <cite>result_source</cite> is 0 “UL service-user” then allowed values
-are:</p>
+<dd><p>If the <cite>result</cite> parameter is <code class="docutils literal notranslate"><span class="pre">0</span></code> “rejected (permanent)” or <code class="docutils literal notranslate"><span class="pre">1</span></code>
+“rejected (transient)” then this supplies diagnostic information about
+the result. If <cite>result_source</cite> is <code class="docutils literal notranslate"><span class="pre">0</span></code> “UL service-user” then allowed
+valuesare:</p>
 <ul class="simple">
-<li><p>0: no reason given</p></li>
-<li><p>1: application context name not supported</p></li>
-<li><p>2: calling AE title not recognised</p></li>
-<li><p>3: called AE title not recognised</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">0</span></code>: no reason given</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">1</span></code>: application context name not supported</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">2</span></code>: calling AE title not recognised</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">3</span></code>: called AE title not recognised</p></li>
 </ul>
-<p>If <cite>result_source</cite> is 1 “UL service-provider (ACSE related function)”
-then allowed values are:</p>
-<ul class="simple">
-<li><p>0: no reason given</p></li>
-<li><p>1: no common UL version</p></li>
-</ul>
-<p>If <cite>result_source</cite> is 2 “UL service-provider (presentation related
+<p>If <cite>result_source</cite> is <code class="docutils literal notranslate"><span class="pre">1</span></code> “UL service-provider (ACSE related
 function)” then allowed values are:</p>
 <ul class="simple">
-<li><p>0: no reason given</p></li>
-<li><p>1: temporary congestion</p></li>
-<li><p>2: local limit exceeded</p></li>
-<li><p>3: called presentation address unknown</p></li>
-<li><p>4: presentation protocol version not supported</p></li>
-<li><p>5: no presentation service access point available</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">0</span></code>: no reason given</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">1</span></code>: no common UL version</p></li>
+</ul>
+<p>If <cite>result_source</cite> is <code class="docutils literal notranslate"><span class="pre">2</span></code> “UL service-provider (presentation related
+function)” then allowed values are:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">0</span></code>: no reason given</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">1</span></code>: temporary congestion</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">2</span></code>: local limit exceeded</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">3</span></code>: called presentation address unknown</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">4</span></code>: presentation protocol version not supported</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">5</span></code>: no presentation service access point available</p></li>
 </ul>
 <dl class="field-list simple">
 <dt class="field-odd">Type</dt>
@@ -533,7 +488,7 @@ function)” then allowed values are:</p>
 <dl class="attribute">
 <dt id="pynetdicom.pdu_primitives.A_ASSOCIATE.calling_presentation_address">
 <code class="sig-name descname">calling_presentation_address</code><a class="headerlink" href="#pynetdicom.pdu_primitives.A_ASSOCIATE.calling_presentation_address" title="Permalink to this definition">¶</a></dt>
-<dd><p>TCP/IP address of the Requestor</p>
+<dd><p>TCP/IP address of the <em>Requestor</em></p>
 <dl class="field-list simple">
 <dt class="field-odd">Type</dt>
 <dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.7)">str</a></p>
@@ -544,7 +499,7 @@ function)” then allowed values are:</p>
 <dl class="attribute">
 <dt id="pynetdicom.pdu_primitives.A_ASSOCIATE.called_presentation_address">
 <code class="sig-name descname">called_presentation_address</code><a class="headerlink" href="#pynetdicom.pdu_primitives.A_ASSOCIATE.called_presentation_address" title="Permalink to this definition">¶</a></dt>
-<dd><p>TCP/IP address of the intended Acceptor</p>
+<dd><p>TCP/IP address of the intended <em>Acceptor</em></p>
 <dl class="field-list simple">
 <dt class="field-odd">Type</dt>
 <dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.7)">str</a></p>
@@ -555,7 +510,8 @@ function)” then allowed values are:</p>
 <dl class="attribute">
 <dt id="pynetdicom.pdu_primitives.A_ASSOCIATE.responding_presentation_address">
 <code class="sig-name descname">responding_presentation_address</code><a class="headerlink" href="#pynetdicom.pdu_primitives.A_ASSOCIATE.responding_presentation_address" title="Permalink to this definition">¶</a></dt>
-<dd><p>Shall always contain the same value as the Called Presentation Address</p>
+<dd><p>Shall always contain the same value as the
+<em>Called Presentation Address</em>.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Type</dt>
 <dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.7)">str</a></p>
@@ -568,8 +524,8 @@ function)” then allowed values are:</p>
 <code class="sig-name descname">presentation_context_definition_list</code><a class="headerlink" href="#pynetdicom.pdu_primitives.A_ASSOCIATE.presentation_context_definition_list" title="Permalink to this definition">¶</a></dt>
 <dd><p>List of one or more presentation contexts, with each item containing
 a presentation context ID, an Abstract Syntax and a list of one or
-more Transfer Syntax Names. Sent by the Requestor during
-request/indication</p>
+more Transfer Syntax Names. Sent by the <em>Requestor</em> during
+request/indication.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Type</dt>
 <dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.7)">list</a></p>
@@ -598,7 +554,7 @@ Only one Transfer Syntax per presentation context shall be agreed to</p>
 <dl class="attribute">
 <dt id="pynetdicom.pdu_primitives.A_ASSOCIATE.presentation_requirements">
 <code class="sig-name descname">presentation_requirements</code><a class="headerlink" href="#pynetdicom.pdu_primitives.A_ASSOCIATE.presentation_requirements" title="Permalink to this definition">¶</a></dt>
-<dd><p>Fixed value of “Presentation Kernel”</p>
+<dd><p>Fixed value of <code class="docutils literal notranslate"><span class="pre">'Presentation</span> <span class="pre">Kernel'</span></code>.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Type</dt>
 <dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.7)">str</a></p>
@@ -609,7 +565,7 @@ Only one Transfer Syntax per presentation context shall be agreed to</p>
 <dl class="attribute">
 <dt id="pynetdicom.pdu_primitives.A_ASSOCIATE.session_requirements">
 <code class="sig-name descname">session_requirements</code><a class="headerlink" href="#pynetdicom.pdu_primitives.A_ASSOCIATE.session_requirements" title="Permalink to this definition">¶</a></dt>
-<dd><p>Fixed value of “” (empty string)</p>
+<dd><p>Fixed value of <code class="docutils literal notranslate"><span class="pre">''</span></code> (empty string).</p>
 <dl class="field-list simple">
 <dt class="field-odd">Type</dt>
 <dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.7)">str</a></p>
@@ -619,11 +575,12 @@ Only one Transfer Syntax per presentation context shall be agreed to</p>
 
 <p class="rubric">References</p>
 <ul class="simple">
-<li><p>DICOM Standard, Part 8, Section 7.1.1</p></li>
+<li><p>DICOM Standard, Part 8,
+<a class="reference external" href="http://dicom.nema.org/medical/dicom/current/output/chtml/part08/chapter_7.html#sect_7.1.1">Section 7.1.1</a></p></li>
 </ul>
 <dl class="method">
 <dt id="pynetdicom.pdu_primitives.A_ASSOCIATE.__init__">
-<code class="sig-name descname">__init__</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/8ef6857f/pynetdicom/pdu_primitives.py#L250"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom.pdu_primitives.A_ASSOCIATE.__init__" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">__init__</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/da5a1652/pynetdicom/pdu_primitives.py#L207"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom.pdu_primitives.A_ASSOCIATE.__init__" title="Permalink to this definition">¶</a></dt>
 <dd><p>Initialize self.  See help(type(self)) for accurate signature.</p>
 </dd></dl>
 

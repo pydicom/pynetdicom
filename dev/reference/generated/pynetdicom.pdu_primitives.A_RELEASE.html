@@ -90,20 +90,15 @@
               
             
             
-              <ul>
-<li class="toctree-l1"><a class="reference internal" href="../../service_classes/index.html">Supported Service Classes</a></li>
-</ul>
-<ul>
-<li class="toctree-l1"><a class="reference internal" href="../../user/index.html">User Guide</a></li>
-</ul>
-<ul>
-<li class="toctree-l1"><a class="reference internal" href="../../examples/index.html">Examples</a></li>
-</ul>
+              <p class="caption"><span class="caption-text">Documentation</span></p>
 <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../../user/index.html">User Guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../service_classes/index.html">Supported Service Classes</a></li>
 <li class="toctree-l1 current"><a class="reference internal" href="../index.html">API Reference</a><ul class="current">
 <li class="toctree-l2"><a class="reference internal" href="../acse.html">ACSE Service (<code class="xref py py-mod docutils literal notranslate"><span class="pre">pynetdicom.acse</span></code>)</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../ae.html">Application Entity (<code class="xref py py-mod docutils literal notranslate"><span class="pre">pynetdicom.ae</span></code>)</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../association.html">Association (<code class="xref py py-mod docutils literal notranslate"><span class="pre">pynetdicom.association</span></code>)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../config.html">Configuration Options (<code class="xref py py-mod docutils literal notranslate"><span class="pre">pynetdicom._config</span></code>)</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../dimse.html">DIMSE Service</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../dsutils.html">Dataset Utilities (<code class="xref py py-mod docutils literal notranslate"><span class="pre">pynetdicom.dsutils</span></code>)</a></li>
 <li class="toctree-l2 current"><a class="reference internal" href="../dul.html">DICOM Upper Layer</a><ul class="current">
@@ -114,7 +109,6 @@
 <li class="toctree-l4"><a class="reference internal" href="../dul.pdu_primitives.a_abort.html">A-ABORT</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../dul.pdu_primitives.a_p_abort.html">A-P-ABORT</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../dul.pdu_primitives.p_data.html">P-DATA</a></li>
-<li class="toctree-l4"><a class="reference internal" href="../dul.pdu_primitives.html#references">References</a></li>
 </ul>
 </li>
 <li class="toctree-l3"><a class="reference internal" href="../dul.pdu.html">PDUs (<code class="xref py py-mod docutils literal notranslate"><span class="pre">pynetdicom.pdu</span></code>)</a></li>
@@ -133,10 +127,13 @@
 </ul>
 </li>
 </ul>
+<p class="caption"><span class="caption-text">Examples</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../examples/index.html">Examples</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Additional Information</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="../../apps/index.html">Applications</a></li>
-</ul>
-<ul>
 <li class="toctree-l1"><a class="reference internal" href="../../changelog/index.html">Release Notes</a></li>
 </ul>
 
@@ -212,45 +209,8 @@
 <h1>pynetdicom.pdu_primitives.A_RELEASE<a class="headerlink" href="#pynetdicom-pdu-primitives-a-release" title="Permalink to this headline">¶</a></h1>
 <dl class="class">
 <dt id="pynetdicom.pdu_primitives.A_RELEASE">
-<em class="property">class </em><code class="sig-prename descclassname">pynetdicom.pdu_primitives.</code><code class="sig-name descname">A_RELEASE</code><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/8ef6857f/pynetdicom/pdu_primitives.py#L789"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom.pdu_primitives.A_RELEASE" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="sig-prename descclassname">pynetdicom.pdu_primitives.</code><code class="sig-name descname">A_RELEASE</code><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/da5a1652/pynetdicom/pdu_primitives.py#L746"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom.pdu_primitives.A_RELEASE" title="Permalink to this definition">¶</a></dt>
 <dd><p>An A-RELEASE primitive.</p>
-<p>The release of an association between two AEs shall be performed through
-ACSE A-RELEASE request, indication, response and confirmation primitives.
-The initiator of the service is called a Requestor and the service-user
-that receives the A-RELEASE indication is called the acceptor.</p>
-<p>Service Procedure</p>
-<ol class="arabic">
-<li><p>The user (Requestor) that desires to end the association issues an
-A-RELEASE request primitive. The Requestor shall not issue any other
-primitives other than A-ABORT until it receives an A-RELEASE
-confirmation primitive.</p></li>
-<li><p>The DUL provider issues an A-RELEASE indication to the Acceptor. The
-Acceptor shall not issue any other primitives other than A-RELEASE
-response, A-ABORT request or P-DATA request.</p></li>
-<li><p>To complete the release, the Acceptor replies using an A-RELEASE
-response primitive, with “affirmative” as the result parameter.</p></li>
-<li><p>After the Acceptor issues the A-RELEASE response it shall not issue any
-more primitives.</p></li>
-<li><p>The Requestor shall issue an A-RELEASE confirmation primitive always
-with an “affirmative” value for the Result parameter.</p></li>
-<li><p>A user may disrupt the release by issuing an A-ABORT request.</p></li>
-<li><p>A collision may occur when both users issue A-RELEASE requests
-simultaneously. In this situation both users receive an unexpect
-A-RELEASE indication primitive (instead of an A-RELEASE acceptance):</p>
-<blockquote>
-<div><ol class="loweralpha simple">
-<li><p>The association requestor issues an A-RELEASE response primitive</p></li>
-<li><p>The association acceptor waits for an A-RELEASE confirmation
-primitive from its peer. When it receives one it issues an
-A-RELEASE response primitive</p></li>
-<li><p>The association requestor receives an A-RELEASE confirmation
-primitive.</p></li>
-</ol>
-</div></blockquote>
-<p>When both ACSE users have received an A-RELEASE confirmation primitive
-the association shall be released.</p>
-</li>
-</ol>
 <table class="docutils align-default">
 <colgroup>
 <col style="width: 29%" />
@@ -298,8 +258,8 @@ the association shall be released.</p>
 <dl class="attribute">
 <dt id="pynetdicom.pdu_primitives.A_RELEASE.reason">
 <code class="sig-name descname">reason</code><a class="headerlink" href="#pynetdicom.pdu_primitives.A_RELEASE.reason" title="Permalink to this definition">¶</a></dt>
-<dd><p>Fixed value of “normal”. Identifies the general level of urgency of the
-request.</p>
+<dd><p>Fixed value of <code class="docutils literal notranslate"><span class="pre">'normal'</span></code>. Identifies the general level of urgency
+of the request.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Type</dt>
 <dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.7)">str</a></p>
@@ -310,8 +270,8 @@ request.</p>
 <dl class="attribute">
 <dt id="pynetdicom.pdu_primitives.A_RELEASE.result">
 <code class="sig-name descname">result</code><a class="headerlink" href="#pynetdicom.pdu_primitives.A_RELEASE.result" title="Permalink to this definition">¶</a></dt>
-<dd><p>Must be None for request and indication, “affirmative” for response
-and confirmation.</p>
+<dd><p>Must be <code class="docutils literal notranslate"><span class="pre">None</span></code> for request and indication, <code class="docutils literal notranslate"><span class="pre">'affirmative'</span></code> for
+response and confirmation.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Type</dt>
 <dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.7)">str</a> or <a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.7)">None</a></p>
@@ -321,11 +281,11 @@ and confirmation.</p>
 
 <p class="rubric">References</p>
 <ul class="simple">
-<li><p>DICOM Standard, Part 8, Section 7.2</p></li>
+<li><p>DICOM Standard, Part 8, <a class="reference external" href="http://dicom.nema.org/medical/dicom/current/output/chtml/part08/sect_7.2.html">Section 7.2</a></p></li>
 </ul>
 <dl class="method">
 <dt id="pynetdicom.pdu_primitives.A_RELEASE.__init__">
-<code class="sig-name descname">__init__</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/8ef6857f/pynetdicom/pdu_primitives.py#L859"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom.pdu_primitives.A_RELEASE.__init__" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">__init__</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/da5a1652/pynetdicom/pdu_primitives.py#L780"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom.pdu_primitives.A_RELEASE.__init__" title="Permalink to this definition">¶</a></dt>
 <dd><p>Initialize self.  See help(type(self)) for accurate signature.</p>
 </dd></dl>
 

@@ -27,7 +27,6 @@ pynetdicom.service\_class.SubstanceAdministrationQueryServiceClass
 
    .. autosummary::
    
-      ~SubstanceAdministrationQueryServiceClass.BULK_DATA_KEYWORDS
       ~SubstanceAdministrationQueryServiceClass.ae
       ~SubstanceAdministrationQueryServiceClass.dimse
       ~SubstanceAdministrationQueryServiceClass.statuses

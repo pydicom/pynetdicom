@@ -1,0 +1,6 @@
+pynetdicom.sop\_class.OphthalmicPhotography16BitImageStorage
+============================================================
+
+.. currentmodule:: pynetdicom.sop_class
+
+.. autodata:: OphthalmicPhotography16BitImageStorage

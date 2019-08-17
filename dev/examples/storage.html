@@ -90,12 +90,13 @@
               
             
             
-              <ul>
-<li class="toctree-l1"><a class="reference internal" href="../service_classes/index.html">Supported Service Classes</a></li>
-</ul>
+              <p class="caption"><span class="caption-text">Documentation</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="../user/index.html">User Guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../service_classes/index.html">Supported Service Classes</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../reference/index.html">API Reference</a></li>
 </ul>
+<p class="caption"><span class="caption-text">Examples</span></p>
 <ul class="current">
 <li class="toctree-l1 current"><a class="reference internal" href="index.html">Examples</a><ul class="current">
 <li class="toctree-l2"><a class="reference internal" href="basic_worklist.html">Basic Worklist Management Service Examples</a></li>
@@ -115,13 +116,9 @@
 </ul>
 </li>
 </ul>
-<ul>
-<li class="toctree-l1"><a class="reference internal" href="../reference/index.html">API Reference</a></li>
-</ul>
+<p class="caption"><span class="caption-text">Additional Information</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="../apps/index.html">Applications</a></li>
-</ul>
-<ul>
 <li class="toctree-l1"><a class="reference internal" href="../changelog/index.html">Release Notes</a></li>
 </ul>
 
@@ -189,7 +186,7 @@
             
   <div class="section" id="storage-service-examples">
 <h1>Storage Service Examples<a class="headerlink" href="#storage-service-examples" title="Permalink to this headline">¶</a></h1>
-<p>The DICOM <a class="reference external" href="http://dicom.nema.org/medical/dicom/current/output/html/part04.html#chapter_B">Storage Service</a>
+<p>The DICOM <a class="reference external" href="http://dicom.nema.org/medical/dicom/current/output/chtml/part04/chapter_B.html">Storage Service</a>
 provides a mechanism for an SCU to request the transfer
 of supported <a class="reference internal" href="../service_classes/storage_service_class.html#storage-sops"><span class="std std-ref">Storage SOP Class</span></a> instances to
 the service provider. Transfer is accomplished by utilising the
@@ -237,7 +234,8 @@ single CT dataset.</p>
 </pre></div>
 </div>
 <p>Of course it’s rarely the case that someone wants to store just CT images,
-so you can also use the inbuilt <code class="docutils literal notranslate"><span class="pre">StoragePresentationContexts</span></code> when setting
+so you can also use the inbuilt
+<a class="reference internal" href="../reference/generated/pynetdicom.presentation.StoragePresentationContexts.html#pynetdicom.presentation.StoragePresentationContexts" title="pynetdicom.presentation.StoragePresentationContexts"><code class="xref py py-attr docutils literal notranslate"><span class="pre">StoragePresentationContexts</span></code></a> when setting
 the requested contexts or just add as many contexts as you need.</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">pynetdicom</span> <span class="kn">import</span> <span class="n">AE</span><span class="p">,</span> <span class="n">StoragePresentationContexts</span>
 
@@ -269,16 +267,17 @@ the requested contexts or just add as many contexts as you need.</p>
 </div>
 <div class="section" id="storage-scp">
 <span id="example-storage-scp"></span><h2>Storage SCP<a class="headerlink" href="#storage-scp" title="Permalink to this headline">¶</a></h2>
-<p>Create an <a class="reference internal" href="../reference/ae.html#ae"><span class="std std-ref">AE</span></a> that supports the Storage Service and then
-listen for association requests on port 11112. When a storage request is
+<p>Create an <a class="reference internal" href="../reference/generated/pynetdicom.ae.ApplicationEntity.html#pynetdicom.ae.ApplicationEntity" title="pynetdicom.ae.ApplicationEntity"><code class="xref py py-class docutils literal notranslate"><span class="pre">AE</span></code></a> that supports the
+Storage Service and then listen for association requests on port <code class="docutils literal notranslate"><span class="pre">11112</span></code>.
+When a storage request is
 received over the association we write the dataset to file and then return
-a 0x0000 <em>Success</em> <a class="reference internal" href="../service_classes/storage_service_class.html#storage-statuses"><span class="std std-ref">status</span></a>.</p>
+<code class="docutils literal notranslate"><span class="pre">a</span> <span class="pre">0x0000</span></code> <em>Success</em> <a class="reference internal" href="../service_classes/storage_service_class.html#storage-statuses"><span class="std std-ref">status</span></a>.</p>
 <p>If you’re going to write SOP instances (datasets) to file it’s recommended
 that you ensure the file is conformant with the
-<a class="reference external" href="http://dicom.nema.org/medical/dicom/current/output/html/part10.html#chapter_7">DICOM File Format</a>,
+<a class="reference external" href="http://dicom.nema.org/medical/dicom/current/output/chtml/part10/chapter_7.html">DICOM File Format</a>,
 which requires adding the File Meta Information.</p>
 <p>Check the
-<a class="reference external" href="../reference/generated/pynetdicom._handlers.doc_handle_store.html">handler implementation documentation</a>
+<a class="reference internal" href="../reference/generated/pynetdicom._handlers.doc_handle_store.html#pynetdicom._handlers.doc_handle_store" title="pynetdicom._handlers.doc_handle_store"><code class="xref py py-func docutils literal notranslate"><span class="pre">handler</span> <span class="pre">implementation</span> <span class="pre">documentation</span></code></a>
 to see the requirements for the <code class="docutils literal notranslate"><span class="pre">evt.EVT_C_STORE</span></code> handler.</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">pydicom.dataset</span> <span class="kn">import</span> <span class="n">Dataset</span>
 

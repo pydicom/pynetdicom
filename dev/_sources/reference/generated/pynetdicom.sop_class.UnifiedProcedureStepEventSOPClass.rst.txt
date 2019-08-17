@@ -1,0 +1,6 @@
+pynetdicom.sop\_class.UnifiedProcedureStepEventSOPClass
+=======================================================
+
+.. currentmodule:: pynetdicom.sop_class
+
+.. autodata:: UnifiedProcedureStepEventSOPClass

@@ -1,7 +1,7 @@
 Query/Retrieve (Get) Service Examples
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-The DICOM `Query/Retrieve Service <http://dicom.nema.org/medical/dicom/current/output/html/part04.html#chapter_C>`_
+The DICOM :dcm:`Query/Retrieve Service <part04/chapter_C.html>`
 provides a mechanism for a service user to query and retrieve the SOP Instances
 managed by a QR SCP. The QR (Get) SOP classes allow an SCU to receive SOP
 Instances that match the requested query. This is accomplished through the
@@ -38,19 +38,19 @@ the SERIES level.
 +--------------------+--------------------------------------------------------+
 
 One extra step needed with the Query/Retrieve (Get) Service is
-that during association we need to include a :py:class:`SCP/SCU Role Selection
+that during association we need to include a :class:`SCP/SCU Role Selection
 Negotation <pynetdicom.pdu_items.SCP_SCU_RoleSelectionSubItem>`
 item for each of the supported presentation contexts that may be used with
 the C-STORE requests.
 
 If you're going to write SOP Instances (datasets) to file it's recommended
 that you ensure the file is conformant with the
-`DICOM File Format <http://dicom.nema.org/medical/dicom/current/output/html/part10.html#chapter_7>`_,
-which requires adding the File Meta Information.
+:dcm:`DICOM File Format <part10/chapter_7.html>`, which requires adding the
+File Meta Information.
 
 Check the
-`handler implementation documentation
-<../reference/generated/pynetdicom._handlers.doc_handle_store.html>`_
+:func:`handler implementation documentation
+<pynetdicom._handlers.doc_handle_store>`
 to see the requirements for the ``evt.EVT_C_STORE`` handler.
 
 .. code-block:: python
@@ -165,9 +165,9 @@ probably best to store the instance attributes in a database and run the
 query against that.
 
 Check the
-`handler implementation documentation
-<../reference/generated/pynetdicom._handlers.doc_handle_c_get.html>`_
-to see the requirements for the ``evt.EVT_C_GET`` handler.
+:func:`handler implementation documentation
+<pynetdicom._handlers.doc_handle_c_get>` to see the requirements for the
+``evt.EVT_C_GET`` handler.
 
 .. code-block:: python
 

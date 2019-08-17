@@ -1,0 +1,6 @@
+pynetdicom.sop\_class.SurfaceScanPointCloudStorage
+==================================================
+
+.. currentmodule:: pynetdicom.sop_class
+
+.. autodata:: SurfaceScanPointCloudStorage

@@ -1,0 +1,6 @@
+pynetdicom.sop\_class.PatientRootQueryRetrieveInformationModelFind
+==================================================================
+
+.. currentmodule:: pynetdicom.sop_class
+
+.. autodata:: PatientRootQueryRetrieveInformationModelFind

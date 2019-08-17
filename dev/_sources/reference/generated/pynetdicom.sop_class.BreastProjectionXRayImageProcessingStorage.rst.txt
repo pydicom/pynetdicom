@@ -1,0 +1,6 @@
+pynetdicom.sop\_class.BreastProjectionXRayImageProcessingStorage
+================================================================
+
+.. currentmodule:: pynetdicom.sop_class
+
+.. autodata:: BreastProjectionXRayImageProcessingStorage

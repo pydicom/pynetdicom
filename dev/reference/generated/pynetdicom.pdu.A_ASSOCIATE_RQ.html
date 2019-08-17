@@ -90,20 +90,15 @@
               
             
             
-              <ul>
-<li class="toctree-l1"><a class="reference internal" href="../../service_classes/index.html">Supported Service Classes</a></li>
-</ul>
-<ul>
-<li class="toctree-l1"><a class="reference internal" href="../../user/index.html">User Guide</a></li>
-</ul>
-<ul>
-<li class="toctree-l1"><a class="reference internal" href="../../examples/index.html">Examples</a></li>
-</ul>
+              <p class="caption"><span class="caption-text">Documentation</span></p>
 <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../../user/index.html">User Guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../service_classes/index.html">Supported Service Classes</a></li>
 <li class="toctree-l1 current"><a class="reference internal" href="../index.html">API Reference</a><ul class="current">
 <li class="toctree-l2"><a class="reference internal" href="../acse.html">ACSE Service (<code class="xref py py-mod docutils literal notranslate"><span class="pre">pynetdicom.acse</span></code>)</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../ae.html">Application Entity (<code class="xref py py-mod docutils literal notranslate"><span class="pre">pynetdicom.ae</span></code>)</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../association.html">Association (<code class="xref py py-mod docutils literal notranslate"><span class="pre">pynetdicom.association</span></code>)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../config.html">Configuration Options (<code class="xref py py-mod docutils literal notranslate"><span class="pre">pynetdicom._config</span></code>)</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../dimse.html">DIMSE Service</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../dsutils.html">Dataset Utilities (<code class="xref py py-mod docutils literal notranslate"><span class="pre">pynetdicom.dsutils</span></code>)</a></li>
 <li class="toctree-l2 current"><a class="reference internal" href="../dul.html">DICOM Upper Layer</a><ul class="current">
@@ -117,7 +112,6 @@
 <li class="toctree-l4"><a class="reference internal" href="../dul.pdu.a_release_rq.html">A-RELEASE-RQ PDU</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../dul.pdu.a_release_rp.html">A-RELEASE-RP PDU</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../dul.pdu.a_abort_rq.html">A-ABORT-RQ PDU</a></li>
-<li class="toctree-l4"><a class="reference internal" href="../dul.pdu.html#references">References</a></li>
 </ul>
 </li>
 <li class="toctree-l3"><a class="reference internal" href="../dul.pdu_items.html">PDU Items and Sub-items (<code class="xref py py-mod docutils literal notranslate"><span class="pre">pynetdicom.pdu_items</span></code>)</a></li>
@@ -135,10 +129,13 @@
 </ul>
 </li>
 </ul>
+<p class="caption"><span class="caption-text">Examples</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../examples/index.html">Examples</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Additional Information</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="../../apps/index.html">Applications</a></li>
-</ul>
-<ul>
 <li class="toctree-l1"><a class="reference internal" href="../../changelog/index.html">Release Notes</a></li>
 </ul>
 
@@ -214,7 +211,7 @@
 <h1>pynetdicom.pdu.A_ASSOCIATE_RQ<a class="headerlink" href="#pynetdicom-pdu-a-associate-rq" title="Permalink to this headline">¶</a></h1>
 <dl class="class">
 <dt id="pynetdicom.pdu.A_ASSOCIATE_RQ">
-<em class="property">class </em><code class="sig-prename descclassname">pynetdicom.pdu.</code><code class="sig-name descname">A_ASSOCIATE_RQ</code><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/8ef6857f/pynetdicom/pdu.py#L327"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom.pdu.A_ASSOCIATE_RQ" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="sig-prename descclassname">pynetdicom.pdu.</code><code class="sig-name descname">A_ASSOCIATE_RQ</code><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/da5a1652/pynetdicom/pdu.py#L327"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom.pdu.A_ASSOCIATE_RQ" title="Permalink to this definition">¶</a></dt>
 <dd><p>An A-ASSOCIATE-RQ PDU.</p>
 <p>An A-ASSOCIATE-RQ PDU is sent by an association requestor to initiate
 association negotiation with an acceptor.</p>
@@ -235,7 +232,7 @@ association negotiation with an acceptor.</p>
 <code class="sig-name descname">called_ae_title</code><a class="headerlink" href="#pynetdicom.pdu.A_ASSOCIATE_RQ.called_ae_title" title="Permalink to this definition">¶</a></dt>
 <dd><p>The <em>Called AE Title</em> field value, which is the destination DICOM
 application name as a fixed length 16-byte value (padded with trailing
-spaces 0x20). Leading and trailing spaces are non-significant and a
+spaces <code class="docutils literal notranslate"><span class="pre">0x20</span></code>). Leading and trailing spaces are non-significant and a
 value of 16 spaces is not allowed.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Type</dt>
@@ -249,7 +246,7 @@ value of 16 spaces is not allowed.</p>
 <code class="sig-name descname">calling_ae_title</code><a class="headerlink" href="#pynetdicom.pdu.A_ASSOCIATE_RQ.calling_ae_title" title="Permalink to this definition">¶</a></dt>
 <dd><p>The <em>Calling AE Title</em> field value, which is the destination DICOM
 application name as a fixed length 16-byte value (padded with trailing
-spaces 0x20). Leading and trailing spaces are non-significant and a
+spaces <code class="docutils literal notranslate"><span class="pre">0x20</span></code>). Leading and trailing spaces are non-significant and a
 value of 16 spaces is not allowed.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Type</dt>
@@ -273,7 +270,7 @@ field to the last byte of the PDU.</p>
 <dl class="attribute">
 <dt id="pynetdicom.pdu.A_ASSOCIATE_RQ.pdu_type">
 <code class="sig-name descname">pdu_type</code><a class="headerlink" href="#pynetdicom.pdu.A_ASSOCIATE_RQ.pdu_type" title="Permalink to this definition">¶</a></dt>
-<dd><p>The <em>PDU Type</em> field value (0x01).</p>
+<dd><p>The <em>PDU Type</em> field value (<code class="docutils literal notranslate"><span class="pre">0x01</span></code>).</p>
 <dl class="field-list simple">
 <dt class="field-odd">Type</dt>
 <dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.7)">int</a></p>
@@ -295,7 +292,7 @@ field to the last byte of the PDU.</p>
 <dl class="attribute">
 <dt id="pynetdicom.pdu.A_ASSOCIATE_RQ.protocol_version">
 <code class="sig-name descname">protocol_version</code><a class="headerlink" href="#pynetdicom.pdu.A_ASSOCIATE_RQ.protocol_version" title="Permalink to this definition">¶</a></dt>
-<dd><p>The <em>Protocol Version</em> field value (default 0x01).</p>
+<dd><p>The <em>Protocol Version</em> field value (<code class="docutils literal notranslate"><span class="pre">0x01</span></code>).</p>
 <dl class="field-list simple">
 <dt class="field-odd">Type</dt>
 <dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.7)">int</a></p>
@@ -331,37 +328,37 @@ guaranteed.</p>
 <p class="rubric">Notes</p>
 <p>An A-ASSOCIATE-RQ PDU requires the following parameters:</p>
 <ul>
-<li><p>PDU type (1, fixed value, 0x01)</p></li>
+<li><p>PDU type (1, fixed value, <code class="docutils literal notranslate"><span class="pre">0x01</span></code>)</p></li>
 <li><p>PDU length (1)</p></li>
-<li><p>Protocol version (1, default value, 0x01)</p></li>
+<li><p>Protocol version (1, default value, <code class="docutils literal notranslate"><span class="pre">0x01</span></code>)</p></li>
 <li><p>Called AE title (1)</p></li>
 <li><p>Calling AE title (1)</p></li>
 <li><p>Variable items (1)</p>
 <ul>
 <li><p>Application Context Item (1)</p>
 <ul class="simple">
-<li><p>Item type (1, fixed value, 0x10)</p></li>
+<li><p>Item type (1, fixed value, <code class="docutils literal notranslate"><span class="pre">0x10</span></code>)</p></li>
 <li><p>Item length (1)</p></li>
 <li><p>Application Context Name (1, fixed in an application)</p></li>
 </ul>
 </li>
 <li><p>Presentation Context Item(s) (1 or more)</p>
 <ul class="simple">
-<li><p>Item type (1, fixed value, 0x21)</p></li>
+<li><p>Item type (1, fixed value, <code class="docutils literal notranslate"><span class="pre">0x21</span></code>)</p></li>
 <li><p>Item length (1)</p></li>
 <li><p>Context ID (1)</p></li>
 <li><p>Abstract/Transfer Syntax Sub-items (1)</p>
 <ul>
 <li><p>Abstract Syntax Sub-item (1)</p>
 <ul>
-<li><p>Item type (1, fixed, 0x30)</p></li>
+<li><p>Item type (1, fixed, <code class="docutils literal notranslate"><span class="pre">0x30</span></code>)</p></li>
 <li><p>Item length (1)</p></li>
 <li><p>Abstract syntax name (1)</p></li>
 </ul>
 </li>
 <li><p>Transfer Syntax Sub-items (1 or more)</p>
 <ul>
-<li><p>Item type (1, fixed, 0x40)</p></li>
+<li><p>Item type (1, fixed, <code class="docutils literal notranslate"><span class="pre">0x40</span></code>)</p></li>
 <li><p>Item length (1)</p></li>
 <li><p>Transfer syntax name(s) (1 or more)</p></li>
 </ul>
@@ -372,7 +369,7 @@ guaranteed.</p>
 </li>
 <li><p>User Information Item (1)</p>
 <ul>
-<li><p>Item type (1, fixed, 0x50)</p></li>
+<li><p>Item type (1, fixed, <code class="docutils literal notranslate"><span class="pre">0x50</span></code>)</p></li>
 <li><p>Item length (1)</p></li>
 <li><p>User data Sub-items (2 or more)</p>
 <blockquote>
@@ -390,8 +387,8 @@ guaranteed.</p>
 </ul>
 <p><strong>Encoding</strong></p>
 <p>When encoded, an A-ASSOCIATE-RQ PDU has the following structure, taken
-from Table 9-11 <a class="footnote-reference brackets" href="#id3" id="id1">1</a> (offsets shown with Python indexing). PDUs are always
-encoded using Big Endian <a class="footnote-reference brackets" href="#id5" id="id2">2</a>.</p>
+from <cite>Table 9-11&lt;part08/sect_9.3.2.html&gt;</cite> (offsets shown with Python
+indexing). PDUs are always encoded using Big Endian.</p>
 <table class="docutils align-default">
 <colgroup>
 <col style="width: 21%" />
@@ -444,19 +441,13 @@ encoded using Big Endian <a class="footnote-reference brackets" href="#id5" id="
 </tbody>
 </table>
 <p class="rubric">References</p>
-<dl class="footnote brackets">
-<dt class="label" id="id3"><span class="brackets"><a class="fn-backref" href="#id1">1</a></span></dt>
-<dd><p>DICOM Standard, Part 8, Section
-<a class="reference external" href="http://dicom.nema.org/medical/dicom/current/output/html/part08.html#sect_9.3.2">9.3.2</a></p>
-</dd>
-<dt class="label" id="id5"><span class="brackets"><a class="fn-backref" href="#id2">2</a></span></dt>
-<dd><p>DICOM Standard, Part 8, Section
-<a class="reference external" href="http://dicom.nema.org/medical/dicom/current/output/html/part08.html#sect_9.3.1">9.3.1</a></p>
-</dd>
-</dl>
+<ul class="simple">
+<li><p>DICOM Standard, Part 8, Sections <a class="reference external" href="http://dicom.nema.org/medical/dicom/current/output/chtml/part08/sect_9.3.2.html">9.3.2</a>
+and <a class="reference external" href="http://dicom.nema.org/medical/dicom/current/output/chtml/part08/sect_9.3.html#sect_9.3.1">9.3.1</a></p></li>
+</ul>
 <dl class="method">
 <dt id="pynetdicom.pdu.A_ASSOCIATE_RQ.__init__">
-<code class="sig-name descname">__init__</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/8ef6857f/pynetdicom/pdu.py#L444"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom.pdu.A_ASSOCIATE_RQ.__init__" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">__init__</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/da5a1652/pynetdicom/pdu.py#L442"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom.pdu.A_ASSOCIATE_RQ.__init__" title="Permalink to this definition">¶</a></dt>
 <dd><p>Initialise a new A-ASSOCIATE-RQ PDU.</p>
 </dd></dl>
 
@@ -470,11 +461,11 @@ encoded using Big Endian <a class="footnote-reference brackets" href="#id5" id="
 <tr class="row-odd"><td><p><a class="reference internal" href="#pynetdicom.pdu.A_ASSOCIATE_RQ.__init__" title="pynetdicom.pdu.A_ASSOCIATE_RQ.__init__"><code class="xref py py-obj docutils literal notranslate"><span class="pre">__init__</span></code></a>()</p></td>
 <td><p>Initialise a new A-ASSOCIATE-RQ PDU.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#pynetdicom.pdu.A_ASSOCIATE_RQ.decode" title="pynetdicom.pdu.A_ASSOCIATE_RQ.decode"><code class="xref py py-obj docutils literal notranslate"><span class="pre">decode</span></code></a>(bytestream)</p></td>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">decode</span></code>(bytestream)</p></td>
 <td><p>Decode <cite>bytestream</cite> and use the result to set the field values of the PDU.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#pynetdicom.pdu.A_ASSOCIATE_RQ.encode" title="pynetdicom.pdu.A_ASSOCIATE_RQ.encode"><code class="xref py py-obj docutils literal notranslate"><span class="pre">encode</span></code></a>()</p></td>
-<td><p>Return the encoded PDU as bytes.</p></td>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">encode</span></code>()</p></td>
+<td><p>Return the encoded PDU as <a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#bytes" title="(in Python v3.7)"><code class="xref py py-class docutils literal notranslate"><span class="pre">bytes</span></code></a>.</p></td>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="#pynetdicom.pdu.A_ASSOCIATE_RQ.from_primitive" title="pynetdicom.pdu.A_ASSOCIATE_RQ.from_primitive"><code class="xref py py-obj docutils literal notranslate"><span class="pre">from_primitive</span></code></a>(primitive)</p></td>
 <td><p>Setup the current PDU using an A-ASSOCIATE (request) primitive.</p></td>
@@ -495,19 +486,19 @@ encoded using Big Endian <a class="footnote-reference brackets" href="#id5" id="
 <td><p>Return the <em>Application Context Name</em>, if available.</p></td>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="#pynetdicom.pdu.A_ASSOCIATE_RQ.called_ae_title" title="pynetdicom.pdu.A_ASSOCIATE_RQ.called_ae_title"><code class="xref py py-obj docutils literal notranslate"><span class="pre">called_ae_title</span></code></a></p></td>
-<td><p>Return the <em>Called AE Title</em> field value as bytes.</p></td>
+<td><p>Return the <em>Called AE Title</em> field value as <a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#bytes" title="(in Python v3.7)"><code class="xref py py-class docutils literal notranslate"><span class="pre">bytes</span></code></a>.</p></td>
 </tr>
 <tr class="row-odd"><td><p><a class="reference internal" href="#pynetdicom.pdu.A_ASSOCIATE_RQ.calling_ae_title" title="pynetdicom.pdu.A_ASSOCIATE_RQ.calling_ae_title"><code class="xref py py-obj docutils literal notranslate"><span class="pre">calling_ae_title</span></code></a></p></td>
-<td><p>Return the <em>Calling AE Title</em> field value as bytes.</p></td>
+<td><p>Return the <em>Calling AE Title</em> field value as <a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#bytes" title="(in Python v3.7)"><code class="xref py py-class docutils literal notranslate"><span class="pre">bytes</span></code></a>.</p></td>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="#pynetdicom.pdu.A_ASSOCIATE_RQ.pdu_length" title="pynetdicom.pdu.A_ASSOCIATE_RQ.pdu_length"><code class="xref py py-obj docutils literal notranslate"><span class="pre">pdu_length</span></code></a></p></td>
-<td><p>Return the <em>PDU Length</em> field value as an int.</p></td>
+<td><p>Return the <em>PDU Length</em> field value as <a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.7)"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></a>.</p></td>
 </tr>
 <tr class="row-odd"><td><p><a class="reference internal" href="#pynetdicom.pdu.A_ASSOCIATE_RQ.pdu_type" title="pynetdicom.pdu.A_ASSOCIATE_RQ.pdu_type"><code class="xref py py-obj docutils literal notranslate"><span class="pre">pdu_type</span></code></a></p></td>
-<td><p>Return the <em>PDU Type</em> field value an int.</p></td>
+<td><p>Return the <em>PDU Type</em> field value as <a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.7)"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></a>.</p></td>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="#pynetdicom.pdu.A_ASSOCIATE_RQ.presentation_context" title="pynetdicom.pdu.A_ASSOCIATE_RQ.presentation_context"><code class="xref py py-obj docutils literal notranslate"><span class="pre">presentation_context</span></code></a></p></td>
-<td><p>Return a list of the Presentation Context Items.</p></td>
+<td><p>Return a list of the Presentation Context items.</p></td>
 </tr>
 <tr class="row-odd"><td><p><a class="reference internal" href="#pynetdicom.pdu.A_ASSOCIATE_RQ.user_information" title="pynetdicom.pdu.A_ASSOCIATE_RQ.user_information"><code class="xref py py-obj docutils literal notranslate"><span class="pre">user_information</span></code></a></p></td>
 <td><p>Return the User Information Item, if available.</p></td>
@@ -532,44 +523,18 @@ available.</p>
 <dl class="method">
 <dt>
 <em class="property">property </em><code class="sig-name descname">called_ae_title</code></dt>
-<dd><p>Return the <em>Called AE Title</em> field value as bytes.</p>
+<dd><p>Return the <em>Called AE Title</em> field value as <a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#bytes" title="(in Python v3.7)"><code class="xref py py-class docutils literal notranslate"><span class="pre">bytes</span></code></a>.</p>
 </dd></dl>
 
 <dl class="method">
 <dt>
 <em class="property">property </em><code class="sig-name descname">calling_ae_title</code></dt>
-<dd><p>Return the <em>Calling AE Title</em> field value as bytes.</p>
-</dd></dl>
-
-<dl class="method">
-<dt id="pynetdicom.pdu.A_ASSOCIATE_RQ.decode">
-<code class="sig-name descname">decode</code><span class="sig-paren">(</span><em class="sig-param">bytestream</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/8ef6857f/pynetdicom/pdu.py#L66"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom.pdu.A_ASSOCIATE_RQ.decode" title="Permalink to this definition">¶</a></dt>
-<dd><p>Decode <cite>bytestream</cite> and use the result to set the field values of
-the PDU.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>bytestream</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#bytes" title="(in Python v3.7)"><em>bytes</em></a>) – The PDU data to be decoded.</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="method">
-<dt id="pynetdicom.pdu.A_ASSOCIATE_RQ.encode">
-<code class="sig-name descname">encode</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/8ef6857f/pynetdicom/pdu.py#L91"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom.pdu.A_ASSOCIATE_RQ.encode" title="Permalink to this definition">¶</a></dt>
-<dd><p>Return the encoded PDU as bytes.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Returns</dt>
-<dd class="field-odd"><p>The encoded PDU.</p>
-</dd>
-<dt class="field-even">Return type</dt>
-<dd class="field-even"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#bytes" title="(in Python v3.7)">bytes</a></p>
-</dd>
-</dl>
+<dd><p>Return the <em>Calling AE Title</em> field value as <a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#bytes" title="(in Python v3.7)"><code class="xref py py-class docutils literal notranslate"><span class="pre">bytes</span></code></a>.</p>
 </dd></dl>
 
 <dl class="method">
 <dt id="pynetdicom.pdu.A_ASSOCIATE_RQ.from_primitive">
-<code class="sig-name descname">from_primitive</code><span class="sig-paren">(</span><em class="sig-param">primitive</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/8ef6857f/pynetdicom/pdu.py#L459"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom.pdu.A_ASSOCIATE_RQ.from_primitive" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">from_primitive</code><span class="sig-paren">(</span><em class="sig-param">primitive</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/da5a1652/pynetdicom/pdu.py#L457"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom.pdu.A_ASSOCIATE_RQ.from_primitive" title="Permalink to this definition">¶</a></dt>
 <dd><p>Setup the current PDU using an A-ASSOCIATE (request) primitive.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -581,22 +546,16 @@ the PDU.</p>
 <dl class="method">
 <dt>
 <em class="property">property </em><code class="sig-name descname">pdu_length</code></dt>
-<dd><p>Return the <em>PDU Length</em> field value as an int.</p>
-</dd></dl>
-
-<dl class="method">
-<dt>
-<em class="property">property </em><code class="sig-name descname">pdu_type</code></dt>
-<dd><p>Return the <em>PDU Type</em> field value an int.</p>
+<dd><p>Return the <em>PDU Length</em> field value as <a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.7)"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></a>.</p>
 </dd></dl>
 
 <dl class="method">
 <dt>
 <em class="property">property </em><code class="sig-name descname">presentation_context</code></dt>
-<dd><p>Return a list of the Presentation Context Items.</p>
+<dd><p>Return a list of the Presentation Context items.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Returns</dt>
-<dd class="field-odd"><p>The Presentation Context Items.</p>
+<dd class="field-odd"><p>The Presentation Context items.</p>
 </dd>
 <dt class="field-even">Return type</dt>
 <dd class="field-even"><p>list of pdu_items.PresentationContextItemRQ</p>
@@ -606,7 +565,7 @@ the PDU.</p>
 
 <dl class="method">
 <dt id="pynetdicom.pdu.A_ASSOCIATE_RQ.to_primitive">
-<code class="sig-name descname">to_primitive</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/8ef6857f/pynetdicom/pdu.py#L488"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom.pdu.A_ASSOCIATE_RQ.to_primitive" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">to_primitive</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/da5a1652/pynetdicom/pdu.py#L486"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom.pdu.A_ASSOCIATE_RQ.to_primitive" title="Permalink to this definition">¶</a></dt>
 <dd><p>Return an A-ASSOCIATE (request) primitive from the current PDU.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Returns</dt>
@@ -624,7 +583,8 @@ the PDU.</p>
 <dd><p>Return the User Information Item, if available.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Returns</dt>
-<dd class="field-odd"><p>The requestor’s User Information object or None, if not available.</p>
+<dd class="field-odd"><p>The requestor’s User Information object or <code class="docutils literal notranslate"><span class="pre">None</span></code>, if not
+available.</p>
 </dd>
 <dt class="field-even">Return type</dt>
 <dd class="field-even"><p><a class="reference internal" href="pynetdicom.pdu_items.UserInformationItem.html#pynetdicom.pdu_items.UserInformationItem" title="pynetdicom.pdu_items.UserInformationItem">pdu_items.UserInformationItem</a> or <a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.7)">None</a></p>

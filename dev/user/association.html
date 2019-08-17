@@ -38,7 +38,7 @@
   <link rel="stylesheet" href="../_static/css/pynetdicom.css" type="text/css" />
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
-    <link rel="next" title="Examples" href="../examples/index.html" />
+    <link rel="next" title="Supported Service Classes" href="../service_classes/index.html" />
     <link rel="prev" title="Application Entity" href="ae.html" /> 
 </head>
 
@@ -90,9 +90,7 @@
               
             
             
-              <ul>
-<li class="toctree-l1"><a class="reference internal" href="../service_classes/index.html">Supported Service Classes</a></li>
-</ul>
+              <p class="caption"><span class="caption-text">Documentation</span></p>
 <ul class="current">
 <li class="toctree-l1 current"><a class="reference internal" href="index.html">User Guide</a><ul class="current">
 <li class="toctree-l2"><a class="reference internal" href="installation.html">Installation</a></li>
@@ -127,17 +125,16 @@
 </li>
 </ul>
 </li>
+<li class="toctree-l1"><a class="reference internal" href="../service_classes/index.html">Supported Service Classes</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../reference/index.html">API Reference</a></li>
 </ul>
+<p class="caption"><span class="caption-text">Examples</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="../examples/index.html">Examples</a></li>
 </ul>
-<ul>
-<li class="toctree-l1"><a class="reference internal" href="../reference/index.html">API Reference</a></li>
-</ul>
+<p class="caption"><span class="caption-text">Additional Information</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="../apps/index.html">Applications</a></li>
-</ul>
-<ul>
 <li class="toctree-l1"><a class="reference internal" href="../changelog/index.html">Release Notes</a></li>
 </ul>
 
@@ -207,12 +204,10 @@
 <span id="id1"></span><h1>Association<a class="headerlink" href="#association" title="Permalink to this headline">¶</a></h1>
 <div class="section" id="requesting-an-association-scu">
 <span id="assoc-scu"></span><h2>Requesting an Association (SCU)<a class="headerlink" href="#requesting-an-association-scu" title="Permalink to this headline">¶</a></h2>
-<p>Assuming you <a class="reference internal" href="ae.html#ae-create-scu"><span class="std std-ref">have an AE</span></a> and have added your requested presentation contexts
-then you can associate with a peer by using the
+<p>Assuming you <a class="reference internal" href="ae.html#ae-create-scu"><span class="std std-ref">have an AE</span></a> and have added your requested
+presentation contexts then you can associate with a peer by using the
 <a class="reference internal" href="../reference/generated/pynetdicom.ae.ApplicationEntity.html#pynetdicom.ae.ApplicationEntity.associate" title="pynetdicom.ae.ApplicationEntity.associate"><code class="xref py py-meth docutils literal notranslate"><span class="pre">AE.associate()</span></code></a>
-method, which returns an
-<a class="reference internal" href="../reference/generated/pynetdicom.association.Association.html#pynetdicom.association.Association" title="pynetdicom.association.Association"><code class="xref py py-class docutils literal notranslate"><span class="pre">Association</span></code></a>
-thread:</p>
+method, which returns an <a class="reference internal" href="../reference/generated/pynetdicom.association.Association.html#pynetdicom.association.Association" title="pynetdicom.association.Association"><code class="xref py py-class docutils literal notranslate"><span class="pre">Association</span></code></a> thread:</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">pynetdicom</span> <span class="k">import</span> <span class="n">AE</span>
 <span class="kn">from</span> <span class="nn">pynetdicom.sop_class</span> <span class="k">import</span> <span class="n">VerificationSOPClass</span>
 
@@ -227,32 +222,31 @@ thread:</p>
     <span class="n">assoc</span><span class="o">.</span><span class="n">release</span><span class="p">()</span>
 </pre></div>
 </div>
-<p>This sends an association request to the IP address <code class="docutils literal notranslate"><span class="pre">127.0.0.1</span></code> on port <code class="docutils literal notranslate"><span class="pre">11112</span></code>
-with the request containing the presentation contexts from
-<a class="reference internal" href="../reference/generated/pynetdicom.ae.ApplicationEntity.html#pynetdicom.ae.ApplicationEntity.requested_contexts" title="pynetdicom.ae.ApplicationEntity.requested_contexts"><code class="xref py py-obj docutils literal notranslate"><span class="pre">AE.requested_contexts</span></code></a>
+<p>This sends an association request to the IP address <code class="docutils literal notranslate"><span class="pre">127.0.0.1</span></code> on port
+<code class="docutils literal notranslate"><span class="pre">11112</span></code> with the request containing the presentation contexts from
+<a class="reference internal" href="../reference/generated/pynetdicom.ae.ApplicationEntity.html#pynetdicom.ae.ApplicationEntity.requested_contexts" title="pynetdicom.ae.ApplicationEntity.requested_contexts"><code class="xref py py-attr docutils literal notranslate"><span class="pre">AE.requested_contexts</span></code></a>
 and the default <em>Called AE Title</em> parameter of <code class="docutils literal notranslate"><span class="pre">b'ANY-SCP</span>&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160; <span class="pre">'</span></code>.</p>
 <p>Established associations should always be released or aborted (using
-<code class="docutils literal notranslate"><span class="pre">Association.release()</span></code> or <code class="docutils literal notranslate"><span class="pre">Associations.abort()</span></code>), otherwise the
+<a class="reference internal" href="../reference/generated/pynetdicom.association.Association.html#pynetdicom.association.Association.release" title="pynetdicom.association.Association.release"><code class="xref py py-func docutils literal notranslate"><span class="pre">Association.release()</span></code></a> or <a class="reference internal" href="../reference/generated/pynetdicom.association.Association.html#pynetdicom.association.Association.abort" title="pynetdicom.association.Association.abort"><code class="xref py py-func docutils literal notranslate"><span class="pre">Association.abort()</span></code></a>), otherwise the
 association will remain open until either the peer or local AE hits a timeout
 and aborts.</p>
 <div class="section" id="specifying-the-called-ae-title">
 <h3>Specifying the Called AE Title<a class="headerlink" href="#specifying-the-called-ae-title" title="Permalink to this headline">¶</a></h3>
 <p>Some SCPs will reject an association request if the <em>Called AE Title</em> parameter
-value doesn’t match its own title, so this can be set using the <code class="docutils literal notranslate"><span class="pre">ae_title</span></code>
-parameter:</p>
+value doesn’t match its own title, so this can be set using the <em>ae_title</em>
+keyword argument:</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">assoc</span> <span class="o">=</span> <span class="n">ae</span><span class="o">.</span><span class="n">associate</span><span class="p">(</span><span class="s1">&#39;127.0.0.1&#39;</span><span class="p">,</span> <span class="mi">11112</span><span class="p">,</span> <span class="n">ae_title</span><span class="o">=</span><span class="sa">b</span><span class="s1">&#39;STORE_SCP&#39;</span><span class="p">)</span>
 </pre></div>
 </div>
 </div>
 <div class="section" id="specifying-presentation-contexts-for-each-association">
 <h3>Specifying Presentation Contexts for each Association<a class="headerlink" href="#specifying-presentation-contexts-for-each-association" title="Permalink to this headline">¶</a></h3>
-<p>Calling
-<a class="reference internal" href="../reference/generated/pynetdicom.ae.ApplicationEntity.html#pynetdicom.ae.ApplicationEntity.associate" title="pynetdicom.ae.ApplicationEntity.associate"><code class="xref py py-meth docutils literal notranslate"><span class="pre">AE.associate()</span></code></a>
-with only the <code class="docutils literal notranslate"><span class="pre">addr</span></code> and <code class="docutils literal notranslate"><span class="pre">port</span></code> parameters means the presentation
+<p>Calling <a class="reference internal" href="../reference/generated/pynetdicom.ae.ApplicationEntity.html#pynetdicom.ae.ApplicationEntity.associate" title="pynetdicom.ae.ApplicationEntity.associate"><code class="xref py py-meth docutils literal notranslate"><span class="pre">AE.associate()</span></code></a>
+with only the <em>addr</em> and <em>port</em> parameters means the presentation
 contexts in
-<a class="reference internal" href="../reference/generated/pynetdicom.ae.ApplicationEntity.html#pynetdicom.ae.ApplicationEntity.requested_contexts" title="pynetdicom.ae.ApplicationEntity.requested_contexts"><code class="xref py py-obj docutils literal notranslate"><span class="pre">AE.requested_contexts</span></code></a>
+<a class="reference internal" href="../reference/generated/pynetdicom.ae.ApplicationEntity.html#pynetdicom.ae.ApplicationEntity.requested_contexts" title="pynetdicom.ae.ApplicationEntity.requested_contexts"><code class="xref py py-attr docutils literal notranslate"><span class="pre">AE.requested_contexts</span></code></a>
 will be used with the association. To propose presentation contexts on a
-per-association basis you can use the <code class="docutils literal notranslate"><span class="pre">contexts</span></code> keyword argument:</p>
+per-association basis you can use the <em>contexts</em> keyword argument:</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">pynetdicom</span> <span class="k">import</span> <span class="n">AE</span><span class="p">,</span> <span class="n">build_context</span>
 
 <span class="n">ae</span> <span class="o">=</span> <span class="n">AE</span><span class="p">()</span>
@@ -267,12 +261,11 @@ per-association basis you can use the <code class="docutils literal notranslate"
 <div class="section" id="using-extended-negotiation">
 <h3>Using Extended Negotiation<a class="headerlink" href="#using-extended-negotiation" title="Permalink to this headline">¶</a></h3>
 <p>If you require the use of <a class="reference internal" href="concepts.html#concepts-negotiation"><span class="std std-ref">extended negotiation</span></a>
-then you can supply the <code class="docutils literal notranslate"><span class="pre">ext_neg</span></code> keyword argument. Some extended negotiation
+then you can supply the <em>ext_neg</em> keyword argument. Some extended negotiation
 items can only be singular and some can occur multiple times depending on the
 service class and intended usage. The following example shows how to add
 <em>SCP/SCU Role Selection Negotiation</em> items using
-<a class="reference internal" href="../reference/generated/pynetdicom.presentation.build_role.html#pynetdicom.presentation.build_role" title="pynetdicom.presentation.build_role"><code class="xref py py-meth docutils literal notranslate"><span class="pre">build_role()</span></code></a>
-when requesting the use of the
+<a class="reference internal" href="../reference/generated/pynetdicom.presentation.build_role.html#pynetdicom.presentation.build_role" title="pynetdicom.presentation.build_role"><code class="xref py py-func docutils literal notranslate"><span class="pre">build_role()</span></code></a> when requesting the use of the
 Query/Retrieve (QR) Service Class’ C-GET service (in this example the QR SCU is
 also acting as a Storage SCP), plus a <em>User Identity Negotiation</em> item:</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">pynetdicom</span> <span class="k">import</span> <span class="p">(</span>
@@ -322,8 +315,8 @@ also acting as a Storage SCP), plus a <em>User Identity Negotiation</em> item:</
 <div class="section" id="binding-event-handlers">
 <h3>Binding Event Handlers<a class="headerlink" href="#binding-event-handlers" title="Permalink to this headline">¶</a></h3>
 <p>If you want to bind handlers to any
-<a class="reference internal" href="events.html#user-events"><span class="std std-ref">events</span></a> within a new <code class="docutils literal notranslate"><span class="pre">Association</span></code> you can
-use the <code class="docutils literal notranslate"><span class="pre">evt_handlers</span></code> keyword argument:</p>
+<a class="reference internal" href="events.html#user-events"><span class="std std-ref">events</span></a> within a new <a class="reference internal" href="../reference/generated/pynetdicom.association.Association.html#pynetdicom.association.Association" title="pynetdicom.association.Association"><code class="xref py py-class docutils literal notranslate"><span class="pre">Association</span></code></a> you can
+use the <em>evt_handlers</em> keyword argument:</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">logging</span>
 
 <span class="kn">from</span> <span class="nn">pynetdicom</span> <span class="k">import</span> <span class="n">AE</span><span class="p">,</span> <span class="n">evt</span>
@@ -347,7 +340,7 @@ use the <code class="docutils literal notranslate"><span class="pre">evt_handler
 </pre></div>
 </div>
 <p>Handlers can also be bound and unbound from events in an existing
-<code class="docutils literal notranslate"><span class="pre">Association</span></code>:</p>
+<a class="reference internal" href="../reference/generated/pynetdicom.association.Association.html#pynetdicom.association.Association" title="pynetdicom.association.Association"><code class="xref py py-class docutils literal notranslate"><span class="pre">Association</span></code></a>:</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">logging</span>
 
 <span class="kn">from</span> <span class="nn">pynetdicom</span> <span class="k">import</span> <span class="n">AE</span><span class="p">,</span> <span class="n">evt</span>
@@ -382,7 +375,8 @@ use the <code class="docutils literal notranslate"><span class="pre">evt_handler
 <div class="section" id="tls">
 <h3>TLS<a class="headerlink" href="#tls" title="Permalink to this headline">¶</a></h3>
 <p>The client socket used for the association can be wrapped in TLS by supplying
-the <code class="docutils literal notranslate"><span class="pre">tls_args</span></code> keyword argument to <code class="docutils literal notranslate"><span class="pre">associate()</span></code>:</p>
+the <em>tls_args</em> keyword argument to
+<a class="reference internal" href="../reference/generated/pynetdicom.ae.ApplicationEntity.html#pynetdicom.ae.ApplicationEntity.associate" title="pynetdicom.ae.ApplicationEntity.associate"><code class="xref py py-meth docutils literal notranslate"><span class="pre">associate()</span></code></a>:</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">ssl</span>
 
 <span class="kn">from</span> <span class="nn">pynetdicom</span> <span class="k">import</span> <span class="n">AE</span>
@@ -402,16 +396,16 @@ the <code class="docutils literal notranslate"><span class="pre">tls_args</span>
     <span class="n">assoc</span><span class="o">.</span><span class="n">release</span><span class="p">()</span>
 </pre></div>
 </div>
-<p><code class="docutils literal notranslate"><span class="pre">tls_args</span></code> is
-(<a class="reference external" href="https://docs.python.org/3/library/ssl.html#ssl.SSLContext.wrap_socket">ssl.SSLContext</a>,
-<em>host</em>), where <em>host</em> is the value of the <code class="docutils literal notranslate"><span class="pre">server_hostname</span></code> keyword argument in <code class="docutils literal notranslate"><span class="pre">SSLContext.wrap_socket()</span></code>.</p>
+<p>Where <em>tls_args</em> is (<a class="reference external" href="https://docs.python.org/3/library/ssl.html#ssl.SSLContext" title="(in Python v3.7)"><code class="xref py py-class docutils literal notranslate"><span class="pre">ssl.SSLContext</span></code></a>, <em>host</em>), where <em>host</em> is the
+value of the <em>server_hostname</em> keyword argument in
+<a class="reference external" href="https://docs.python.org/3/library/ssl.html#ssl.SSLContext.wrap_socket" title="(in Python v3.7)"><code class="xref py py-meth docutils literal notranslate"><span class="pre">wrap_socket()</span></code></a>.</p>
 </div>
 <div class="section" id="outcomes-of-an-association-request">
 <h3>Outcomes of an Association Request<a class="headerlink" href="#outcomes-of-an-association-request" title="Permalink to this headline">¶</a></h3>
 <p>There are four potential outcomes of an association request: acceptance and
 establishment, association rejection, association abort or a connection
-failure, so its a good idea to test for establishment prior to attempting to use
-the Association:</p>
+failure, so its a good idea to test for establishment prior to attempting to
+use the association:</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">pynetdicom</span> <span class="k">import</span> <span class="n">AE</span>
 <span class="kn">from</span> <span class="nn">pynetdicom.sop_class</span> <span class="k">import</span> <span class="n">VerificationSOPClass</span>
 
@@ -437,53 +431,36 @@ the Association:</p>
 set of services are available for use. <em>pynetdicom</em> supports the usage
 of the following DIMSE services:</p>
 <ul class="simple">
-<li><p>C-ECHO, through the
-<a class="reference internal" href="../reference/generated/pynetdicom.association.Association.html#pynetdicom.association.Association.send_c_echo" title="pynetdicom.association.Association.send_c_echo"><code class="xref py py-meth docutils literal notranslate"><span class="pre">Association.send_c_echo()</span></code></a>
-method</p></li>
-<li><p>C-STORE, through the
-<a class="reference internal" href="../reference/generated/pynetdicom.association.Association.html#pynetdicom.association.Association.send_c_store" title="pynetdicom.association.Association.send_c_store"><code class="xref py py-meth docutils literal notranslate"><span class="pre">Association.send_c_store()</span></code></a>
-method</p></li>
-<li><p>C-FIND, through the
-<a class="reference internal" href="../reference/generated/pynetdicom.association.Association.html#pynetdicom.association.Association.send_c_find" title="pynetdicom.association.Association.send_c_find"><code class="xref py py-meth docutils literal notranslate"><span class="pre">Association.send_c_find()</span></code></a>
-method</p></li>
-<li><p>C-GET, through the
-<a class="reference internal" href="../reference/generated/pynetdicom.association.Association.html#pynetdicom.association.Association.send_c_get" title="pynetdicom.association.Association.send_c_get"><code class="xref py py-meth docutils literal notranslate"><span class="pre">Association.send_c_get()</span></code></a>
-method. Any AE that uses the C-GET service will also be providing the C-STORE
+<li><p>C-ECHO, through the <a class="reference internal" href="../reference/generated/pynetdicom.association.Association.html#pynetdicom.association.Association.send_c_echo" title="pynetdicom.association.Association.send_c_echo"><code class="xref py py-meth docutils literal notranslate"><span class="pre">Association.send_c_echo()</span></code></a> method</p></li>
+<li><p>C-STORE, through the <a class="reference internal" href="../reference/generated/pynetdicom.association.Association.html#pynetdicom.association.Association.send_c_store" title="pynetdicom.association.Association.send_c_store"><code class="xref py py-meth docutils literal notranslate"><span class="pre">Association.send_c_store()</span></code></a> method</p></li>
+<li><p>C-FIND, through the <a class="reference internal" href="../reference/generated/pynetdicom.association.Association.html#pynetdicom.association.Association.send_c_find" title="pynetdicom.association.Association.send_c_find"><code class="xref py py-meth docutils literal notranslate"><span class="pre">Association.send_c_find()</span></code></a> method</p></li>
+<li><p>C-GET, through the <a class="reference internal" href="../reference/generated/pynetdicom.association.Association.html#pynetdicom.association.Association.send_c_get" title="pynetdicom.association.Association.send_c_get"><code class="xref py py-meth docutils literal notranslate"><span class="pre">Association.send_c_get()</span></code></a> method.
+Any AE that uses the C-GET service will also be providing the C-STORE
 service and must implement and bind a handler for <code class="docutils literal notranslate"><span class="pre">evt.EVT_C_STORE</span></code> (as
 outlined <a class="reference internal" href="#assoc-scp"><span class="std std-ref">here</span></a>)</p></li>
-<li><p>C-MOVE, through the
-<a class="reference internal" href="../reference/generated/pynetdicom.association.Association.html#pynetdicom.association.Association.send_c_move" title="pynetdicom.association.Association.send_c_move"><code class="xref py py-meth docutils literal notranslate"><span class="pre">Association.send_c_move()</span></code></a>
-method. The move destination can either be a different AE or the AE that made
+<li><p>C-MOVE, through the <a class="reference internal" href="../reference/generated/pynetdicom.association.Association.html#pynetdicom.association.Association.send_c_move" title="pynetdicom.association.Association.send_c_move"><code class="xref py py-meth docutils literal notranslate"><span class="pre">Association.send_c_move()</span></code></a> method.
+The move destination can either be a different AE or the AE that made
 the C-MOVE request (provided a non-blocking Storage SCP has been started).</p></li>
-<li><p>N-ACTION, through the
-<a class="reference internal" href="../reference/generated/pynetdicom.association.Association.html#pynetdicom.association.Association.send_n_action" title="pynetdicom.association.Association.send_n_action"><code class="xref py py-meth docutils literal notranslate"><span class="pre">Association.send_n_action()</span></code></a>
+<li><p>N-ACTION, through the <a class="reference internal" href="../reference/generated/pynetdicom.association.Association.html#pynetdicom.association.Association.send_n_action" title="pynetdicom.association.Association.send_n_action"><code class="xref py py-meth docutils literal notranslate"><span class="pre">Association.send_n_action()</span></code></a>
 method</p></li>
-<li><p>N-CREATE, through the
-<a class="reference internal" href="../reference/generated/pynetdicom.association.Association.html#pynetdicom.association.Association.send_n_create" title="pynetdicom.association.Association.send_n_create"><code class="xref py py-meth docutils literal notranslate"><span class="pre">Association.send_n_create()</span></code></a>
+<li><p>N-CREATE, through the <a class="reference internal" href="../reference/generated/pynetdicom.association.Association.html#pynetdicom.association.Association.send_n_create" title="pynetdicom.association.Association.send_n_create"><code class="xref py py-meth docutils literal notranslate"><span class="pre">Association.send_n_create()</span></code></a>
 method</p></li>
-<li><p>N-DELETE, through the
-<a class="reference internal" href="../reference/generated/pynetdicom.association.Association.html#pynetdicom.association.Association.send_n_delete" title="pynetdicom.association.Association.send_n_delete"><code class="xref py py-meth docutils literal notranslate"><span class="pre">Association.send_n_delete()</span></code></a>
+<li><p>N-DELETE, through the <a class="reference internal" href="../reference/generated/pynetdicom.association.Association.html#pynetdicom.association.Association.send_n_delete" title="pynetdicom.association.Association.send_n_delete"><code class="xref py py-meth docutils literal notranslate"><span class="pre">Association.send_n_delete()</span></code></a>
 method</p></li>
-<li><p>N-EVENT-REPORT, through the
-<a class="reference internal" href="../reference/generated/pynetdicom.association.Association.html#pynetdicom.association.Association.send_n_event_report" title="pynetdicom.association.Association.send_n_event_report"><code class="xref py py-meth docutils literal notranslate"><span class="pre">Association.send_n_event_report()</span></code></a>
-method.</p></li>
-<li><p>N-GET, through the
-<a class="reference internal" href="../reference/generated/pynetdicom.association.Association.html#pynetdicom.association.Association.send_n_get" title="pynetdicom.association.Association.send_n_get"><code class="xref py py-meth docutils literal notranslate"><span class="pre">Association.send_n_get()</span></code></a>
-method.</p></li>
-<li><p>N-SET, through the
-<a class="reference internal" href="../reference/generated/pynetdicom.association.Association.html#pynetdicom.association.Association.send_n_set" title="pynetdicom.association.Association.send_n_set"><code class="xref py py-meth docutils literal notranslate"><span class="pre">Association.send_n_set()</span></code></a>
-method.</p></li>
+<li><p>N-EVENT-REPORT, through the <a class="reference internal" href="../reference/generated/pynetdicom.association.Association.html#pynetdicom.association.Association.send_n_event_report" title="pynetdicom.association.Association.send_n_event_report"><code class="xref py py-meth docutils literal notranslate"><span class="pre">Association.send_n_event_report()</span></code></a> method.</p></li>
+<li><p>N-GET, through the <a class="reference internal" href="../reference/generated/pynetdicom.association.Association.html#pynetdicom.association.Association.send_n_get" title="pynetdicom.association.Association.send_n_get"><code class="xref py py-meth docutils literal notranslate"><span class="pre">Association.send_n_get()</span></code></a> method.</p></li>
+<li><p>N-SET, through the <a class="reference internal" href="../reference/generated/pynetdicom.association.Association.html#pynetdicom.association.Association.send_n_set" title="pynetdicom.association.Association.send_n_set"><code class="xref py py-meth docutils literal notranslate"><span class="pre">Association.send_n_set()</span></code></a> method.</p></li>
 </ul>
 <p>Attempting to use a service without an established association will raise a
-<code class="docutils literal notranslate"><span class="pre">RuntimeError</span></code>, while attempting to use a service that is not supported by
-the association will raise a <code class="docutils literal notranslate"><span class="pre">ValueError</span></code>.</p>
+<a class="reference external" href="https://docs.python.org/3/library/exceptions.html#RuntimeError" title="(in Python v3.7)"><code class="xref py py-class docutils literal notranslate"><span class="pre">RuntimeError</span></code></a>, while attempting to use a service that is not supported
+by the association will raise a <a class="reference external" href="https://docs.python.org/3/library/exceptions.html#ValueError" title="(in Python v3.7)"><code class="xref py py-class docutils literal notranslate"><span class="pre">ValueError</span></code></a>.</p>
 <p>For more information on using the services available to an association please
 read through the <a class="reference internal" href="../index.html#index-examples"><span class="std std-ref">examples</span></a> corresponding to the
 service class you’re interested in.</p>
 <div class="section" id="releasing-an-association">
 <h3>Releasing an Association<a class="headerlink" href="#releasing-an-association" title="Permalink to this headline">¶</a></h3>
 <p>Once your association has been established and you’ve finished using it, its a
-good idea to release the association using <code class="docutils literal notranslate"><span class="pre">Association.release()</span></code>, otherwise
+good idea to release the association using <a class="reference internal" href="../reference/generated/pynetdicom.association.Association.html#pynetdicom.association.Association.release" title="pynetdicom.association.Association.release"><code class="xref py py-meth docutils literal notranslate"><span class="pre">Association.release()</span></code></a>, otherwise
 the association will remain open until the network timeout expires or the
 peer aborts or closes the connection.</p>
 </div>
@@ -494,7 +471,7 @@ peer aborts or closes the connection.</p>
 <a class="reference external" href="http://dicom.nema.org/medical/dicom/current/output/chtml/part07/sect_D.3.3.7.html">User Identity Negotiation</a>
 item as part of the extended negotiation and has requested a response in the
 event of a positive identification then it can be accessed via the
-<code class="xref py py-meth docutils literal notranslate"><span class="pre">Assocation.acceptor.user_identity</span></code>
+<a class="reference internal" href="../reference/generated/pynetdicom.association.ServiceUser.html#pynetdicom.association.ServiceUser.user_identity" title="pynetdicom.association.ServiceUser.user_identity"><code class="xref py py-attr docutils literal notranslate"><span class="pre">Association.acceptor.user_identity</span></code></a>
 property after the association has been established.</p>
 </div>
 <div class="section" id="listening-for-association-requests-scp">
@@ -531,11 +508,13 @@ non-blocking modes:</p>
 </div>
 <p>The returned
 <a class="reference internal" href="../reference/generated/pynetdicom.transport.ThreadedAssociationServer.html#pynetdicom.transport.ThreadedAssociationServer" title="pynetdicom.transport.ThreadedAssociationServer"><code class="xref py py-class docutils literal notranslate"><span class="pre">ThreadedAssociationServer</span></code></a>
-instances can be stopped using <code class="docutils literal notranslate"><span class="pre">shutdown()</span></code> and all active associations
-can be stopped using <code class="docutils literal notranslate"><span class="pre">AE.shutdown()</span></code>.</p>
+instances can be stopped using
+<code class="xref py py-meth docutils literal notranslate"><span class="pre">shutdown()</span></code> and all active
+associations can be stopped using
+<a class="reference internal" href="../reference/generated/pynetdicom.ae.ApplicationEntity.html#pynetdicom.ae.ApplicationEntity.shutdown" title="pynetdicom.ae.ApplicationEntity.shutdown"><code class="xref py py-meth docutils literal notranslate"><span class="pre">AE.shutdown()</span></code></a>.</p>
 <div class="section" id="specifying-the-ae-title">
 <h3>Specifying the AE Title<a class="headerlink" href="#specifying-the-ae-title" title="Permalink to this headline">¶</a></h3>
-<p>The AE title for each SCP can be set using the <code class="docutils literal notranslate"><span class="pre">ae_title</span></code> keyword argument.
+<p>The AE title for each SCP can be set using the <em>ae_title</em> keyword argument.
 If no value is set then the AE title of the parent AE will be used instead:</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">ae</span><span class="o">.</span><span class="n">start_server</span><span class="p">((</span><span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="mi">11112</span><span class="p">),</span> <span class="n">ae_title</span><span class="o">=</span><span class="sa">b</span><span class="s1">&#39;STORE_SCP&#39;</span><span class="p">)</span>
 </pre></div>
@@ -544,7 +523,7 @@ If no value is set then the AE title of the parent AE will be used instead:</p>
 <div class="section" id="specifying-presentation-contexts-for-each-scp">
 <h3>Specifying Presentation Contexts for each SCP<a class="headerlink" href="#specifying-presentation-contexts-for-each-scp" title="Permalink to this headline">¶</a></h3>
 <p>To support presentation contexts on a per-SCP basis you can use the
-<code class="docutils literal notranslate"><span class="pre">contexts</span></code> keyword argument:</p>
+<em>contexts</em> keyword argument:</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">pynetdicom</span> <span class="k">import</span> <span class="n">AE</span><span class="p">,</span> <span class="n">build_context</span>
 
 <span class="n">ae</span> <span class="o">=</span> <span class="n">AE</span><span class="p">()</span>
@@ -556,8 +535,8 @@ If no value is set then the AE title of the parent AE will be used instead:</p>
 <div class="section" id="id2">
 <h3>Binding Event Handlers<a class="headerlink" href="#id2" title="Permalink to this headline">¶</a></h3>
 <p>If you want to bind handlers to any
-<a class="reference internal" href="events.html#user-events"><span class="std std-ref">events</span></a> within any <code class="docutils literal notranslate"><span class="pre">Association</span></code> instances
-generated by the SCP you can use the <code class="docutils literal notranslate"><span class="pre">evt_handlers</span></code> keyword argument:</p>
+<a class="reference internal" href="events.html#user-events"><span class="std std-ref">events</span></a> within any <a class="reference internal" href="../reference/generated/pynetdicom.association.Association.html#pynetdicom.association.Association" title="pynetdicom.association.Association"><code class="xref py py-class docutils literal notranslate"><span class="pre">Association</span></code></a> instances
+generated by the SCP you can use the <em>evt_handlers</em> keyword argument:</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">logging</span>
 
 <span class="kn">from</span> <span class="nn">pynetdicom</span> <span class="k">import</span> <span class="n">AE</span><span class="p">,</span> <span class="n">evt</span>
@@ -578,7 +557,8 @@ generated by the SCP you can use the <code class="docutils literal notranslate">
 </pre></div>
 </div>
 <p>Handlers can also be bound and unbound from events in an existing
-<code class="docutils literal notranslate"><span class="pre">ThreadedAssociationServer</span></code>, provided you run in non-blocking mode:</p>
+<a class="reference internal" href="../reference/generated/pynetdicom.transport.ThreadedAssociationServer.html#pynetdicom.transport.ThreadedAssociationServer" title="pynetdicom.transport.ThreadedAssociationServer"><code class="xref py py-class docutils literal notranslate"><span class="pre">ThreadedAssociationServer</span></code></a>, provided you run in
+non-blocking mode:</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">logging</span>
 
 <span class="kn">from</span> <span class="nn">pynetdicom</span> <span class="k">import</span> <span class="n">AE</span><span class="p">,</span> <span class="n">evt</span>
@@ -612,16 +592,18 @@ generated by the SCP you can use the <code class="docutils literal notranslate">
 <span class="n">scp</span><span class="o">.</span><span class="n">shutdown</span><span class="p">()</span>
 </pre></div>
 </div>
-<p>This will bind/unbind the handler from all currently running <code class="docutils literal notranslate"><span class="pre">Association</span></code>
-instances generated  by the server as well as new <code class="docutils literal notranslate"><span class="pre">Association</span></code> instances
-generated in response to future association requests. <code class="docutils literal notranslate"><span class="pre">Associations</span></code> created
-using <code class="docutils literal notranslate"><span class="pre">AE.associate()</span></code> will be unaffected.</p>
+<p>This will bind/unbind the handler from all currently running
+<a class="reference internal" href="../reference/generated/pynetdicom.association.Association.html#pynetdicom.association.Association" title="pynetdicom.association.Association"><code class="xref py py-class docutils literal notranslate"><span class="pre">Association</span></code></a> instances generated  by the server as well as new
+<a class="reference internal" href="../reference/generated/pynetdicom.association.Association.html#pynetdicom.association.Association" title="pynetdicom.association.Association"><code class="xref py py-class docutils literal notranslate"><span class="pre">Association</span></code></a> instances generated in response to future association
+requests. Associations created using
+<a class="reference internal" href="../reference/generated/pynetdicom.ae.ApplicationEntity.html#pynetdicom.ae.ApplicationEntity.associate" title="pynetdicom.ae.ApplicationEntity.associate"><code class="xref py py-meth docutils literal notranslate"><span class="pre">AE.associate()</span></code></a> will be
+unaffected.</p>
 </div>
 <div class="section" id="id3">
 <h3>TLS<a class="headerlink" href="#id3" title="Permalink to this headline">¶</a></h3>
 <p>The client sockets generated by the association server can also be wrapped in
-TLS by  supplying a <a class="reference external" href="https://docs.python.org/3/library/ssl.html#ssl.SSLContext.wrap_socket">ssl.SSLContext</a>
-instance via the <code class="docutils literal notranslate"><span class="pre">ssl_context</span></code> keyword argument:</p>
+TLS by  supplying a <a class="reference external" href="https://docs.python.org/3/library/ssl.html#ssl.SSLContext" title="(in Python v3.7)"><code class="xref py py-class docutils literal notranslate"><span class="pre">ssl.SSLContext</span></code></a> instance via the <em>ssl_context</em>
+keyword argument:</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">ssl</span>
 
 <span class="kn">from</span> <span class="nn">pynetdicom</span> <span class="k">import</span> <span class="n">AE</span>
@@ -645,7 +627,7 @@ instance via the <code class="docutils literal notranslate"><span class="pre">ss
 <p>If the association supports a service class that uses one or more of the
 DIMSE-C or -N services then a handler must be implemented and bound to the
 event corresponding the the service (excluding C-ECHO which has a default
-implementation that always returns a 0x0000 <em>Success</em> response):</p>
+implementation that always returns a <code class="docutils literal notranslate"><span class="pre">0x0000</span></code> <em>Success</em> response):</p>
 <table class="docutils align-default">
 <colgroup>
 <col style="width: 36%" />
@@ -729,7 +711,7 @@ interested in.</p>
   
     <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
       
-        <a href="../examples/index.html" class="btn btn-neutral float-right" title="Examples" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
+        <a href="../service_classes/index.html" class="btn btn-neutral float-right" title="Supported Service Classes" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
       
       
         <a href="ae.html" class="btn btn-neutral float-left" title="Application Entity" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>

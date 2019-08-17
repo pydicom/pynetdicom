@@ -27,7 +27,6 @@ pynetdicom.service\_class.ProtocolApprovalQueryRetrieveServiceClass
 
    .. autosummary::
    
-      ~ProtocolApprovalQueryRetrieveServiceClass.BULK_DATA_KEYWORDS
       ~ProtocolApprovalQueryRetrieveServiceClass.ae
       ~ProtocolApprovalQueryRetrieveServiceClass.dimse
       ~ProtocolApprovalQueryRetrieveServiceClass.statuses

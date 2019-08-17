@@ -39,7 +39,7 @@
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
     <link rel="next" title="pynetdicom.status.code_to_category" href="generated/pynetdicom.status.code_to_category.html" />
-    <link rel="prev" title="pynetdicom.sop_class.uid_to_service_class" href="generated/pynetdicom.sop_class.uid_to_service_class.html" /> 
+    <link rel="prev" title="pynetdicom.sop_class.VerificationSOPClass" href="generated/pynetdicom.sop_class.VerificationSOPClass.html" /> 
 </head>
 
 <body class="wy-body-for-nav">
@@ -90,20 +90,15 @@
               
             
             
-              <ul>
-<li class="toctree-l1"><a class="reference internal" href="../service_classes/index.html">Supported Service Classes</a></li>
-</ul>
-<ul>
-<li class="toctree-l1"><a class="reference internal" href="../user/index.html">User Guide</a></li>
-</ul>
-<ul>
-<li class="toctree-l1"><a class="reference internal" href="../examples/index.html">Examples</a></li>
-</ul>
+              <p class="caption"><span class="caption-text">Documentation</span></p>
 <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../user/index.html">User Guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../service_classes/index.html">Supported Service Classes</a></li>
 <li class="toctree-l1 current"><a class="reference internal" href="index.html">API Reference</a><ul class="current">
 <li class="toctree-l2"><a class="reference internal" href="acse.html">ACSE Service (<code class="xref py py-mod docutils literal notranslate"><span class="pre">pynetdicom.acse</span></code>)</a></li>
 <li class="toctree-l2"><a class="reference internal" href="ae.html">Application Entity (<code class="xref py py-mod docutils literal notranslate"><span class="pre">pynetdicom.ae</span></code>)</a></li>
 <li class="toctree-l2"><a class="reference internal" href="association.html">Association (<code class="xref py py-mod docutils literal notranslate"><span class="pre">pynetdicom.association</span></code>)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="config.html">Configuration Options (<code class="xref py py-mod docutils literal notranslate"><span class="pre">pynetdicom._config</span></code>)</a></li>
 <li class="toctree-l2"><a class="reference internal" href="dimse.html">DIMSE Service</a></li>
 <li class="toctree-l2"><a class="reference internal" href="dsutils.html">Dataset Utilities (<code class="xref py py-mod docutils literal notranslate"><span class="pre">pynetdicom.dsutils</span></code>)</a></li>
 <li class="toctree-l2"><a class="reference internal" href="dul.html">DICOM Upper Layer</a></li>
@@ -123,10 +118,13 @@
 </ul>
 </li>
 </ul>
+<p class="caption"><span class="caption-text">Examples</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../examples/index.html">Examples</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Additional Information</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="../apps/index.html">Applications</a></li>
-</ul>
-<ul>
 <li class="toctree-l1"><a class="reference internal" href="../changelog/index.html">Release Notes</a></li>
 </ul>
 
@@ -193,7 +191,7 @@
            <div itemprop="articleBody">
             
   <div class="section" id="statuses-pynetdicom-status">
-<span id="status"></span><h1>Statuses (<code class="xref py py-mod docutils literal notranslate"><span class="pre">pynetdicom.status</span></code>)<a class="headerlink" href="#statuses-pynetdicom-status" title="Permalink to this headline">¶</a></h1>
+<span id="api-status"></span><h1>Statuses (<code class="xref py py-mod docutils literal notranslate"><span class="pre">pynetdicom.status</span></code>)<a class="headerlink" href="#statuses-pynetdicom-status" title="Permalink to this headline">¶</a></h1>
 <p>Certain service classes allow assigning custom values to specific general
 status types provided that they lay within a given range. The following status
 codes are used internally within pynetdicom to help aid in debugging.</p>
@@ -289,10 +287,10 @@ failed to yield a valid (address, port) pair</p></td>
 </colgroup>
 <tbody>
 <tr class="row-odd"><td><p><a class="reference internal" href="generated/pynetdicom.status.code_to_category.html#pynetdicom.status.code_to_category" title="pynetdicom.status.code_to_category"><code class="xref py py-obj docutils literal notranslate"><span class="pre">code_to_category</span></code></a>(code)</p></td>
-<td><p>Return a Status’ category as a str or ‘Unknown’ if not recognised.</p></td>
+<td><p>Return a <em>Status</em> category as <a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.7)"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></a> or <code class="docutils literal notranslate"><span class="pre">'Unknown'</span></code> if not recognised.</p></td>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="generated/pynetdicom.status.code_to_status.html#pynetdicom.status.code_to_status" title="pynetdicom.status.code_to_status"><code class="xref py py-obj docutils literal notranslate"><span class="pre">code_to_status</span></code></a>(code)</p></td>
-<td><p>Return a Dataset with a Status element value of <cite>code</cite>.</p></td>
+<td><p>Return a <a class="reference external" href="https://pydicom.github.io/pydicom/stable/api_ref.html#pydicom.dataset.Dataset" title="(in pydicom v1.3.0)"><code class="xref py py-class docutils literal notranslate"><span class="pre">Dataset</span></code></a> with a <em>Status</em> element value of <cite>code</cite>.</p></td>
 </tr>
 </tbody>
 </table>
@@ -309,7 +307,7 @@ failed to yield a valid (address, port) pair</p></td>
         <a href="generated/pynetdicom.status.code_to_category.html" class="btn btn-neutral float-right" title="pynetdicom.status.code_to_category" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
       
       
-        <a href="generated/pynetdicom.sop_class.uid_to_service_class.html" class="btn btn-neutral float-left" title="pynetdicom.sop_class.uid_to_service_class" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+        <a href="generated/pynetdicom.sop_class.VerificationSOPClass.html" class="btn btn-neutral float-left" title="pynetdicom.sop_class.VerificationSOPClass" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
       
     </div>
   

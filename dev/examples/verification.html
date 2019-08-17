@@ -38,7 +38,7 @@
   <link rel="stylesheet" href="../_static/css/pynetdicom.css" type="text/css" />
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
-    <link rel="next" title="API Reference" href="../reference/index.html" />
+    <link rel="next" title="Applications" href="../apps/index.html" />
     <link rel="prev" title="Storage Service Examples" href="storage.html" /> 
 </head>
 
@@ -90,12 +90,13 @@
               
             
             
-              <ul>
-<li class="toctree-l1"><a class="reference internal" href="../service_classes/index.html">Supported Service Classes</a></li>
-</ul>
+              <p class="caption"><span class="caption-text">Documentation</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="../user/index.html">User Guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../service_classes/index.html">Supported Service Classes</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../reference/index.html">API Reference</a></li>
 </ul>
+<p class="caption"><span class="caption-text">Examples</span></p>
 <ul class="current">
 <li class="toctree-l1 current"><a class="reference internal" href="index.html">Examples</a><ul class="current">
 <li class="toctree-l2"><a class="reference internal" href="basic_worklist.html">Basic Worklist Management Service Examples</a></li>
@@ -115,13 +116,9 @@
 </ul>
 </li>
 </ul>
-<ul>
-<li class="toctree-l1"><a class="reference internal" href="../reference/index.html">API Reference</a></li>
-</ul>
+<p class="caption"><span class="caption-text">Additional Information</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="../apps/index.html">Applications</a></li>
-</ul>
-<ul>
 <li class="toctree-l1"><a class="reference internal" href="../changelog/index.html">Release Notes</a></li>
 </ul>
 
@@ -189,7 +186,7 @@
             
   <div class="section" id="verification-service-examples">
 <h1>Verification Service Examples<a class="headerlink" href="#verification-service-examples" title="Permalink to this headline">¶</a></h1>
-<p>The DICOM <a class="reference external" href="http://dicom.nema.org/medical/dicom/current/output/html/part04.html#chapter_A">Verification Service</a>
+<p>The DICOM <a class="reference external" href="http://dicom.nema.org/medical/dicom/current/output/chtml/part04/chapter_A.html">Verification Service</a>
 allows an Application Entity to verify application level communication between
 itself and another AE by using the DIMSE C-ECHO service. It only has a single
 <a class="reference internal" href="../service_classes/verification_service_class.html#verification-sops"><span class="std std-ref">supported SOP Class</span></a>.</p>
@@ -237,7 +234,8 @@ Verification Service.</p>
     <span class="k">print</span><span class="p">(</span><span class="s1">&#39;Association rejected, aborted or never connected&#39;</span><span class="p">)</span>
 </pre></div>
 </div>
-<p>You can also use the inbuilt <code class="docutils literal notranslate"><span class="pre">VerificationPresentationContexts</span></code> when setting
+<p>You can also use the inbuilt
+<a class="reference internal" href="../reference/generated/pynetdicom.presentation.VerificationPresentationContexts.html#pynetdicom.presentation.VerificationPresentationContexts" title="pynetdicom.presentation.VerificationPresentationContexts"><code class="xref py py-attr docutils literal notranslate"><span class="pre">VerificationPresentationContexts</span></code></a> when setting
 the requested contexts.</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">pynetdicom</span> <span class="kn">import</span> <span class="n">AE</span><span class="p">,</span> <span class="n">VerificationPresentationContexts</span>
 
@@ -248,10 +246,11 @@ the requested contexts.</p>
 </div>
 <div class="section" id="verification-scp">
 <span id="example-verification-scp"></span><h2>Verification SCP<a class="headerlink" href="#verification-scp" title="Permalink to this headline">¶</a></h2>
-<p>Create an <a class="reference internal" href="../reference/ae.html#ae"><span class="std std-ref">AE</span></a> that supports the Verification Service and then listen for
+<p>Create an <a class="reference internal" href="../reference/generated/pynetdicom.ae.ApplicationEntity.html#pynetdicom.ae.ApplicationEntity" title="pynetdicom.ae.ApplicationEntity"><code class="xref py py-class docutils literal notranslate"><span class="pre">AE</span></code></a> that supports the
+Verification Service and then listen for
 association requests on port 11112. When a verification request is received
 over the association we rely on the default handler bound to <code class="docutils literal notranslate"><span class="pre">evt.EVT_C_ECHO</span></code>
-to return an 0x0000 <em>Success</em> <a class="reference internal" href="../service_classes/verification_service_class.html#verification-statuses"><span class="std std-ref">status</span></a>.</p>
+to return an <code class="docutils literal notranslate"><span class="pre">0x0000</span></code> <em>Success</em> <a class="reference internal" href="../service_classes/verification_service_class.html#verification-statuses"><span class="std std-ref">status</span></a>.</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span> <span class="kn">from</span> <span class="nn">pynetdicom</span> <span class="kn">import</span> <span class="n">AE</span>
  <span class="kn">from</span> <span class="nn">pynetdicom.sop_class</span> <span class="kn">import</span> <span class="n">VerificationSOPClass</span>
 
@@ -266,7 +265,7 @@ to return an 0x0000 <em>Success</em> <a class="reference internal" href="../serv
 </pre></div>
 </div>
 <p>You can also optionally bind your own handler to <code class="docutils literal notranslate"><span class="pre">evt.EVT_C_ECHO</span></code>. Check the
-<a class="reference external" href="../reference/generated/pynetdicom._handlers.doc_handle_echo.html">handler implementation documentation</a>
+<a class="reference internal" href="../reference/generated/pynetdicom._handlers.doc_handle_echo.html#pynetdicom._handlers.doc_handle_echo" title="pynetdicom._handlers.doc_handle_echo"><code class="xref py py-func docutils literal notranslate"><span class="pre">handler</span> <span class="pre">implementation</span> <span class="pre">documentation</span></code></a>
 to see the requirements for the <code class="docutils literal notranslate"><span class="pre">evt.EVT_C_ECHO</span></code> handler.</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">pynetdicom</span> <span class="kn">import</span> <span class="n">AE</span><span class="p">,</span> <span class="n">evt</span>
 <span class="kn">from</span> <span class="nn">pynetdicom.sop_class</span> <span class="kn">import</span> <span class="n">VerificationSOPClass</span>
@@ -294,7 +293,7 @@ to see the requirements for the <code class="docutils literal notranslate"><span
   
     <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
       
-        <a href="../reference/index.html" class="btn btn-neutral float-right" title="API Reference" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
+        <a href="../apps/index.html" class="btn btn-neutral float-right" title="Applications" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
       
       
         <a href="storage.html" class="btn btn-neutral float-left" title="Storage Service Examples" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>

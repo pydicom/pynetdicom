@@ -90,9 +90,7 @@
               
             
             
-              <ul>
-<li class="toctree-l1"><a class="reference internal" href="../service_classes/index.html">Supported Service Classes</a></li>
-</ul>
+              <p class="caption"><span class="caption-text">Documentation</span></p>
 <ul class="current">
 <li class="toctree-l1 current"><a class="reference internal" href="index.html">User Guide</a><ul class="current">
 <li class="toctree-l2"><a class="reference internal" href="installation.html">Installation</a></li>
@@ -116,17 +114,16 @@
 <li class="toctree-l2"><a class="reference internal" href="association.html">Association</a></li>
 </ul>
 </li>
+<li class="toctree-l1"><a class="reference internal" href="../service_classes/index.html">Supported Service Classes</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../reference/index.html">API Reference</a></li>
 </ul>
+<p class="caption"><span class="caption-text">Examples</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="../examples/index.html">Examples</a></li>
 </ul>
-<ul>
-<li class="toctree-l1"><a class="reference internal" href="../reference/index.html">API Reference</a></li>
-</ul>
+<p class="caption"><span class="caption-text">Additional Information</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="../apps/index.html">Applications</a></li>
-</ul>
-<ul>
 <li class="toctree-l1"><a class="reference internal" href="../changelog/index.html">Release Notes</a></li>
 </ul>
 
@@ -228,8 +225,7 @@ allowed) such as:</p>
 <div class="section" id="representation-in-pynetdicom">
 <h3>Representation in pynetdicom<a class="headerlink" href="#representation-in-pynetdicom" title="Permalink to this headline">¶</a></h3>
 <p>In <em>pynetdicom</em> presentation contexts are represented using the
-<a class="reference internal" href="../reference/generated/pynetdicom.presentation.PresentationContext.html#pynetdicom.presentation.PresentationContext" title="pynetdicom.presentation.PresentationContext"><code class="xref py py-class docutils literal notranslate"><span class="pre">presentation.PresentationContext</span></code></a>
-class.</p>
+<a class="reference internal" href="../reference/generated/pynetdicom.presentation.PresentationContext.html#pynetdicom.presentation.PresentationContext" title="pynetdicom.presentation.PresentationContext"><code class="xref py py-class docutils literal notranslate"><span class="pre">presentation.PresentationContext</span></code></a> class.</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">pynetdicom.presentation</span> <span class="k">import</span> <span class="n">PresentationContext</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">cx</span> <span class="o">=</span> <span class="n">PresentationContext</span><span class="p">()</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">cx</span><span class="o">.</span><span class="n">context_id</span> <span class="o">=</span> <span class="mi">1</span>
@@ -243,9 +239,8 @@ class.</p>
 <span class="go">    =JPEG Baseline (Process 1)</span>
 </pre></div>
 </div>
-<p>However its easier to use the
-<a class="reference internal" href="../reference/generated/pynetdicom.presentation.build_context.html#pynetdicom.presentation.build_context" title="pynetdicom.presentation.build_context"><code class="xref py py-meth docutils literal notranslate"><span class="pre">build_context</span></code></a>
-convenience function which returns a <code class="docutils literal notranslate"><span class="pre">PresentationContext</span></code> instance:</p>
+<p>However its easier to use the <a class="reference internal" href="../reference/generated/pynetdicom.presentation.build_context.html#pynetdicom.presentation.build_context" title="pynetdicom.presentation.build_context"><code class="xref py py-func docutils literal notranslate"><span class="pre">build_context()</span></code></a> convenience function which
+returns a <a class="reference internal" href="../reference/generated/pynetdicom.presentation.PresentationContext.html#pynetdicom.presentation.PresentationContext" title="pynetdicom.presentation.PresentationContext"><code class="xref py py-class docutils literal notranslate"><span class="pre">PresentationContext</span></code></a> instance:</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">pynetdicom</span> <span class="k">import</span> <span class="n">build_context</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">cx</span> <span class="o">=</span> <span class="n">build_context</span><span class="p">(</span><span class="s1">&#39;1.2.840.10008.1.1&#39;</span><span class="p">,</span> <span class="p">[</span><span class="s1">&#39;1.2.840.10008.1.2&#39;</span><span class="p">,</span> <span class="s1">&#39;1.2.840.10008.1.2.4.50&#39;</span><span class="p">])</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="n">cx</span><span class="p">)</span>
@@ -275,8 +270,8 @@ association process. There are a couple of simple rules for these:</p>
 </ul>
 <p>In <em>pynetdicom</em> this is accomplished through one of the following methods:</p>
 <ol class="arabic simple">
-<li><p>Setting the <a class="reference internal" href="../reference/generated/pynetdicom.ae.ApplicationEntity.html#pynetdicom.ae.ApplicationEntity.requested_contexts" title="pynetdicom.ae.ApplicationEntity.requested_contexts"><code class="xref py py-obj docutils literal notranslate"><span class="pre">AE.requested_contexts</span></code></a>
-attribute directly using a list of <code class="docutils literal notranslate"><span class="pre">PresentationContext</span></code> items.</p></li>
+<li><p>Setting the <a class="reference internal" href="../reference/generated/pynetdicom.ae.ApplicationEntity.html#pynetdicom.ae.ApplicationEntity.requested_contexts" title="pynetdicom.ae.ApplicationEntity.requested_contexts"><code class="xref py py-attr docutils literal notranslate"><span class="pre">AE.requested_contexts</span></code></a>
+attribute directly using a list of <a class="reference internal" href="../reference/generated/pynetdicom.presentation.PresentationContext.html#pynetdicom.presentation.PresentationContext" title="pynetdicom.presentation.PresentationContext"><code class="xref py py-class docutils literal notranslate"><span class="pre">PresentationContext</span></code></a> items.</p></li>
 </ol>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">pynetdicom</span> <span class="k">import</span> <span class="n">AE</span>
 <span class="kn">from</span> <span class="nn">pynetdicom.sop_class</span> <span class="k">import</span> <span class="n">VerificationSOPClass</span>
@@ -289,8 +284,8 @@ attribute directly using a list of <code class="docutils literal notranslate"><s
 <ol class="arabic simple" start="2">
 <li><p>Using the
 <a class="reference internal" href="../reference/generated/pynetdicom.ae.ApplicationEntity.html#pynetdicom.ae.ApplicationEntity.add_requested_context" title="pynetdicom.ae.ApplicationEntity.add_requested_context"><code class="xref py py-meth docutils literal notranslate"><span class="pre">AE.add_requested_context()</span></code></a>
-method to add a new <code class="docutils literal notranslate"><span class="pre">PresentationContext</span></code> to the
-<code class="docutils literal notranslate"><span class="pre">AE.requested_contexts</span></code> attribute.</p></li>
+method to add a new <a class="reference internal" href="../reference/generated/pynetdicom.presentation.PresentationContext.html#pynetdicom.presentation.PresentationContext" title="pynetdicom.presentation.PresentationContext"><code class="xref py py-class docutils literal notranslate"><span class="pre">PresentationContext</span></code></a> to the
+<a class="reference internal" href="../reference/generated/pynetdicom.ae.ApplicationEntity.html#pynetdicom.ae.ApplicationEntity.requested_contexts" title="pynetdicom.ae.ApplicationEntity.requested_contexts"><code class="xref py py-attr docutils literal notranslate"><span class="pre">AE.requested_contexts</span></code></a> attribute.</p></li>
 </ol>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">pynetdicom</span> <span class="k">import</span> <span class="n">AE</span>
 <span class="kn">from</span> <span class="nn">pynetdicom.sop_class</span> <span class="k">import</span> <span class="n">VerificationSOPClass</span>
@@ -301,9 +296,9 @@ method to add a new <code class="docutils literal notranslate"><span class="pre"
 </pre></div>
 </div>
 <ol class="arabic simple" start="3">
-<li><p>Supplying a list of <code class="docutils literal notranslate"><span class="pre">PresentationContext</span></code> items to
+<li><p>Supplying a list of <a class="reference internal" href="../reference/generated/pynetdicom.presentation.PresentationContext.html#pynetdicom.presentation.PresentationContext" title="pynetdicom.presentation.PresentationContext"><code class="xref py py-class docutils literal notranslate"><span class="pre">PresentationContext</span></code></a> items to
 <a class="reference internal" href="../reference/generated/pynetdicom.ae.ApplicationEntity.html#pynetdicom.ae.ApplicationEntity.associate" title="pynetdicom.ae.ApplicationEntity.associate"><code class="xref py py-meth docutils literal notranslate"><span class="pre">AE.associate()</span></code></a>
-via the <code class="docutils literal notranslate"><span class="pre">context</span></code> keyword argument.</p></li>
+via the <em>context</em> keyword argument.</p></li>
 </ol>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">pynetdicom</span> <span class="k">import</span> <span class="n">AE</span>
 <span class="kn">from</span> <span class="nn">pynetdicom.sop_class</span> <span class="k">import</span> <span class="n">VerificationSOPClass</span>
@@ -361,8 +356,8 @@ which presentation contexts will be supported. Unlike the <em>Requestor</em> you
 define an unlimited number of supported presentation contexts.</p>
 <p>In <em>pynetdicom</em> this is accomplished through one of the following methods:</p>
 <ol class="arabic simple">
-<li><p>Setting the <a class="reference internal" href="../reference/generated/pynetdicom.ae.ApplicationEntity.html#pynetdicom.ae.ApplicationEntity.supported_contexts" title="pynetdicom.ae.ApplicationEntity.supported_contexts"><code class="xref py py-obj docutils literal notranslate"><span class="pre">AE.supported_contexts</span></code></a>
-attribute directly using a list of <code class="docutils literal notranslate"><span class="pre">PresentationContext</span></code> items.</p></li>
+<li><p>Setting the <a class="reference internal" href="../reference/generated/pynetdicom.ae.ApplicationEntity.html#pynetdicom.ae.ApplicationEntity.supported_contexts" title="pynetdicom.ae.ApplicationEntity.supported_contexts"><code class="xref py py-attr docutils literal notranslate"><span class="pre">AE.supported_contexts</span></code></a>
+attribute directly using a list of <a class="reference internal" href="../reference/generated/pynetdicom.presentation.PresentationContext.html#pynetdicom.presentation.PresentationContext" title="pynetdicom.presentation.PresentationContext"><code class="xref py py-class docutils literal notranslate"><span class="pre">PresentationContext</span></code></a> items.</p></li>
 </ol>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">pynetdicom</span> <span class="k">import</span> <span class="n">AE</span>
 <span class="kn">from</span> <span class="nn">pynetdicom.sop_class</span> <span class="k">import</span> <span class="n">VerificationSOPClass</span>
@@ -375,8 +370,8 @@ attribute directly using a list of <code class="docutils literal notranslate"><s
 <ol class="arabic simple" start="2">
 <li><p>Using the
 <a class="reference internal" href="../reference/generated/pynetdicom.ae.ApplicationEntity.html#pynetdicom.ae.ApplicationEntity.add_supported_context" title="pynetdicom.ae.ApplicationEntity.add_supported_context"><code class="xref py py-meth docutils literal notranslate"><span class="pre">AE.add_supported_context()</span></code></a>
-method to add a new <code class="docutils literal notranslate"><span class="pre">PresentationContext</span></code> to the
-<code class="docutils literal notranslate"><span class="pre">AE.supported_contexts</span></code> attribute.</p></li>
+method to add a new <a class="reference internal" href="../reference/generated/pynetdicom.presentation.PresentationContext.html#pynetdicom.presentation.PresentationContext" title="pynetdicom.presentation.PresentationContext"><code class="xref py py-class docutils literal notranslate"><span class="pre">PresentationContext</span></code></a> to the
+<a class="reference internal" href="../reference/generated/pynetdicom.ae.ApplicationEntity.html#pynetdicom.ae.ApplicationEntity.supported_contexts" title="pynetdicom.ae.ApplicationEntity.supported_contexts"><code class="xref py py-attr docutils literal notranslate"><span class="pre">AE.supported_contexts</span></code></a> attribute.</p></li>
 </ol>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">pynetdicom</span> <span class="k">import</span> <span class="n">AE</span>
 <span class="kn">from</span> <span class="nn">pynetdicom.sop_class</span> <span class="k">import</span> <span class="n">VerificationSOPClass</span>
@@ -387,8 +382,9 @@ method to add a new <code class="docutils literal notranslate"><span class="pre"
 </pre></div>
 </div>
 <p>The abstract syntaxes you support should correspond to the service classes that
-are being offered. For example, if you offer the Storage Service then you should
-support one or more of the Storage Service’s corresponding SOP Classes.</p>
+are being offered. For example, if you offer the
+<a class="reference external" href="http://dicom.nema.org/medical/dicom/current/output/chtml/part04/chapter_B.html">Storage Service</a> then you should
+support one or more of the Storage Service’s <a class="reference external" href="http://dicom.nema.org/medical/dicom/current/output/chtml/part04/sect_B.5.html">corresponding SOP Classes</a>.</p>
 <p>The transfer syntaxes for each abstract syntax should match the data encoding
 you support.</p>
 <div class="admonition note">
@@ -464,7 +460,7 @@ doesn’t support the <em>CR Image Storage</em> abstract syntax.</p></li>
 <div class="section" id="implementation-note">
 <h3>Implementation Note<a class="headerlink" href="#implementation-note" title="Permalink to this headline">¶</a></h3>
 <p>When acting as an <em>Acceptor</em>, <em>pynetdicom</em> will choose the first matching
-transfer syntax in <code class="docutils literal notranslate"><span class="pre">PresentationContext.transfer_syntax</span></code>.  For example, if
+transfer syntax in <a class="reference internal" href="../reference/generated/pynetdicom.presentation.PresentationContext.html#pynetdicom.presentation.PresentationContext.transfer_syntax" title="pynetdicom.presentation.PresentationContext.transfer_syntax"><code class="xref py py-attr docutils literal notranslate"><span class="pre">PresentationContext.transfer_syntax</span></code></a>.  For example, if
 the <em>Requestor</em> proposes the following:</p>
 <blockquote>
 <div><div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">Abstract</span> <span class="n">Syntax</span><span class="p">:</span> <span class="n">Verification</span> <span class="n">SOP</span> <span class="n">Class</span>
@@ -499,8 +495,7 @@ association <em>Acceptor</em> sends data back to the <em>Requestor</em>.</p>
 <p>To propose SCP/SCU Role Selection as a <em>Requestor</em> you should include
 <a class="reference internal" href="../reference/generated/pynetdicom.pdu_primitives.SCP_SCU_RoleSelectionNegotiation.html#pynetdicom.pdu_primitives.SCP_SCU_RoleSelectionNegotiation" title="pynetdicom.pdu_primitives.SCP_SCU_RoleSelectionNegotiation"><code class="xref py py-class docutils literal notranslate"><span class="pre">SCP_SCU_RoleSelectionNegotiation</span></code></a>
 items in the extended negotiation, either by creating them from scratch or
-using the <a class="reference internal" href="../reference/generated/pynetdicom.presentation.build_role.html#pynetdicom.presentation.build_role" title="pynetdicom.presentation.build_role"><code class="xref py py-meth docutils literal notranslate"><span class="pre">build_role()</span></code></a>
-convenience function:</p>
+using the <a class="reference internal" href="../reference/generated/pynetdicom.presentation.build_role.html#pynetdicom.presentation.build_role" title="pynetdicom.presentation.build_role"><code class="xref py py-func docutils literal notranslate"><span class="pre">build_role()</span></code></a> convenience function:</p>
 <blockquote>
 <div><div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">pynetdicom</span> <span class="k">import</span> <span class="n">AE</span><span class="p">,</span> <span class="n">build_role</span>
 <span class="kn">from</span> <span class="nn">pynetdicom.pdu_primitives</span> <span class="k">import</span> <span class="n">SCP_SCU_RoleSelectionNegotiation</span>
@@ -521,10 +516,10 @@ convenience function:</p>
 </pre></div>
 </div>
 </div></blockquote>
-<p>When acting as the <em>Requestor</em> you can set <strong>either or both</strong> of <code class="docutils literal notranslate"><span class="pre">scu_role</span></code> and
-<code class="docutils literal notranslate"><span class="pre">scp_role</span></code>, with the non-specified role assumed to be <code class="docutils literal notranslate"><span class="pre">False</span></code>.</p>
-<p>To support SCP/SCU Role Selection as an <em>Acceptor</em> you can use the <code class="docutils literal notranslate"><span class="pre">scu_role</span></code>
-and <code class="docutils literal notranslate"><span class="pre">scp_role</span></code> arguments in <code class="docutils literal notranslate"><span class="pre">AE.add_supported_context</span></code>:</p>
+<p>When acting as the <em>Requestor</em> you can set <strong>either or both</strong> of <em>scu_role</em> and
+<em>scp_role</em>, with the non-specified role assumed to be <code class="docutils literal notranslate"><span class="pre">False</span></code>.</p>
+<p>To support SCP/SCU Role Selection as an <em>Acceptor</em> you can use the <em>scu_role</em>
+and <em>scp_role</em> arguments in <a class="reference internal" href="../reference/generated/pynetdicom.ae.ApplicationEntity.html#pynetdicom.ae.ApplicationEntity.add_supported_context" title="pynetdicom.ae.ApplicationEntity.add_supported_context"><code class="xref py py-meth docutils literal notranslate"><span class="pre">AE.add_supported_context()</span></code></a>:</p>
 <blockquote>
 <div><div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">pynetdicom</span> <span class="k">import</span> <span class="n">AE</span>
 <span class="kn">from</span> <span class="nn">pynetdicom.pdu_primitives</span> <span class="k">import</span> <span class="n">SCP_SCU_RoleSelectionNegotiation</span>
@@ -536,7 +531,7 @@ and <code class="docutils literal notranslate"><span class="pre">scp_role</span>
 </pre></div>
 </div>
 </div></blockquote>
-<p>When acting as the <em>Acceptor</em> <strong>both</strong> <code class="docutils literal notranslate"><span class="pre">scu_role</span></code> and <code class="docutils literal notranslate"><span class="pre">scp_role</span></code> must be
+<p>When acting as the <em>Acceptor</em> <strong>both</strong> <em>scu_role</em> and <em>scp_role</em> must be
 specified. A value of <code class="docutils literal notranslate"><span class="pre">True</span></code> indicates that the <em>Acceptor</em> will accept the
 proposed role. <em>pynetdicom</em> uses the following table to decide the outcome
 of role selection negotiation:</p>

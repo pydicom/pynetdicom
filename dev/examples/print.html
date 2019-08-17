@@ -90,12 +90,13 @@
               
             
             
-              <ul>
-<li class="toctree-l1"><a class="reference internal" href="../service_classes/index.html">Supported Service Classes</a></li>
-</ul>
+              <p class="caption"><span class="caption-text">Documentation</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="../user/index.html">User Guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../service_classes/index.html">Supported Service Classes</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../reference/index.html">API Reference</a></li>
 </ul>
+<p class="caption"><span class="caption-text">Examples</span></p>
 <ul class="current">
 <li class="toctree-l1 current"><a class="reference internal" href="index.html">Examples</a><ul class="current">
 <li class="toctree-l2"><a class="reference internal" href="basic_worklist.html">Basic Worklist Management Service Examples</a></li>
@@ -119,13 +120,9 @@
 </ul>
 </li>
 </ul>
-<ul>
-<li class="toctree-l1"><a class="reference internal" href="../reference/index.html">API Reference</a></li>
-</ul>
+<p class="caption"><span class="caption-text">Additional Information</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="../apps/index.html">Applications</a></li>
-</ul>
-<ul>
 <li class="toctree-l1"><a class="reference internal" href="../changelog/index.html">Release Notes</a></li>
 </ul>
 
@@ -193,7 +190,7 @@
             
   <div class="section" id="print-management-service-examples">
 <h1>Print Management Service Examples<a class="headerlink" href="#print-management-service-examples" title="Permalink to this headline">¶</a></h1>
-<p>The DICOM <a class="reference external" href="http://dicom.nema.org/medical/dicom/current/output/html/part04.html#chapter_H">Print Management service</a>
+<p>The DICOM <a class="reference external" href="http://dicom.nema.org/medical/dicom/current/output/chtml/part04/chapter_H.html">Print Management service</a>
 facilitates print of images and image related data. There are two Basic Print
 Management Meta SOP Classes which correspond with the minimum functionality
 that an implementation of the Print Management service class shall support (i.e
@@ -280,8 +277,10 @@ configured with the details of the SCU</p></li>
 <p>Depending on which method the Print SCP uses you should:</p>
 <ul class="simple">
 <li><p>For methods 1 and 2, simply bind a handler to <code class="docutils literal notranslate"><span class="pre">evt.EVT_N_REPORT</span></code>
-when calling <code class="docutils literal notranslate"><span class="pre">AE.associate()</span></code></p></li>
-<li><p>For method 3, start an <code class="docutils literal notranslate"><span class="pre">AssociationServer</span></code> instance with
+when calling
+<a class="reference internal" href="../reference/generated/pynetdicom.ae.ApplicationEntity.html#pynetdicom.ae.ApplicationEntity.associate" title="pynetdicom.ae.ApplicationEntity.associate"><code class="xref py py-meth docutils literal notranslate"><span class="pre">AE.associate()</span></code></a></p></li>
+<li><p>For method 3, start an <a class="reference internal" href="../reference/generated/pynetdicom.transport.AssociationServer.html#pynetdicom.transport.AssociationServer" title="pynetdicom.transport.AssociationServer"><code class="xref py py-class docutils literal notranslate"><span class="pre">AssociationServer</span></code></a>
+instance with
 <code class="docutils literal notranslate"><span class="pre">AE.start_server((addr,</span> <span class="pre">port),</span> <span class="pre">block=False)</span></code> with a handler bound to
 <code class="docutils literal notranslate"><span class="pre">evt.EVT_N_EVENT_REPORT</span></code></p></li>
 </ul>

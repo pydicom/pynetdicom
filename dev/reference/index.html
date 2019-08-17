@@ -39,7 +39,7 @@
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
     <link rel="next" title="ACSE Service (pynetdicom.acse)" href="acse.html" />
-    <link rel="prev" title="Verification Service Examples" href="../examples/verification.html" /> 
+    <link rel="prev" title="Verification Service Class" href="../service_classes/verification_service_class.html" /> 
 </head>
 
 <body class="wy-body-for-nav">
@@ -90,20 +90,15 @@
               
             
             
-              <ul>
-<li class="toctree-l1"><a class="reference internal" href="../service_classes/index.html">Supported Service Classes</a></li>
-</ul>
-<ul>
-<li class="toctree-l1"><a class="reference internal" href="../user/index.html">User Guide</a></li>
-</ul>
-<ul>
-<li class="toctree-l1"><a class="reference internal" href="../examples/index.html">Examples</a></li>
-</ul>
+              <p class="caption"><span class="caption-text">Documentation</span></p>
 <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../user/index.html">User Guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../service_classes/index.html">Supported Service Classes</a></li>
 <li class="toctree-l1 current"><a class="current reference internal" href="#">API Reference</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="acse.html">ACSE Service (<code class="xref py py-mod docutils literal notranslate"><span class="pre">pynetdicom.acse</span></code>)</a></li>
 <li class="toctree-l2"><a class="reference internal" href="ae.html">Application Entity (<code class="xref py py-mod docutils literal notranslate"><span class="pre">pynetdicom.ae</span></code>)</a></li>
 <li class="toctree-l2"><a class="reference internal" href="association.html">Association (<code class="xref py py-mod docutils literal notranslate"><span class="pre">pynetdicom.association</span></code>)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="config.html">Configuration Options (<code class="xref py py-mod docutils literal notranslate"><span class="pre">pynetdicom._config</span></code>)</a></li>
 <li class="toctree-l2"><a class="reference internal" href="dimse.html">DIMSE Service</a></li>
 <li class="toctree-l2"><a class="reference internal" href="dsutils.html">Dataset Utilities (<code class="xref py py-mod docutils literal notranslate"><span class="pre">pynetdicom.dsutils</span></code>)</a></li>
 <li class="toctree-l2"><a class="reference internal" href="dul.html">DICOM Upper Layer</a></li>
@@ -119,10 +114,13 @@
 </ul>
 </li>
 </ul>
+<p class="caption"><span class="caption-text">Examples</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../examples/index.html">Examples</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Additional Information</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="../apps/index.html">Applications</a></li>
-</ul>
-<ul>
 <li class="toctree-l1"><a class="reference internal" href="../changelog/index.html">Release Notes</a></li>
 </ul>
 
@@ -187,17 +185,17 @@
            <div itemprop="articleBody">
             
   <div class="section" id="api-reference">
-<span id="reference"></span><h1>API Reference<a class="headerlink" href="#api-reference" title="Permalink to this headline">¶</a></h1>
+<span id="api"></span><h1>API Reference<a class="headerlink" href="#api-reference" title="Permalink to this headline">¶</a></h1>
 <dl class="field-list simple">
 <dt class="field-odd">Release</dt>
 <dd class="field-odd"><p>1.5.0.dev0</p>
 </dd>
 <dt class="field-even">Date</dt>
-<dd class="field-even"><p>Aug 12, 2019</p>
+<dd class="field-even"><p>Aug 17, 2019</p>
 </dd>
 </dl>
 <span class="target" id="module-pynetdicom"></span><p>This API reference guide details the functions, modules and objects included in
-pynetdicom.</p>
+<em>pynetdicom</em>.</p>
 <div class="toctree-wrapper compound">
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="acse.html">ACSE Service (<code class="xref py py-mod docutils literal notranslate"><span class="pre">pynetdicom.acse</span></code>)</a><ul>
@@ -211,6 +209,11 @@ pynetdicom.</p>
 <li class="toctree-l1"><a class="reference internal" href="association.html">Association (<code class="xref py py-mod docutils literal notranslate"><span class="pre">pynetdicom.association</span></code>)</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="generated/pynetdicom.association.Association.html">pynetdicom.association.Association</a></li>
 <li class="toctree-l2"><a class="reference internal" href="generated/pynetdicom.association.ServiceUser.html">pynetdicom.association.ServiceUser</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="config.html">Configuration Options (<code class="xref py py-mod docutils literal notranslate"><span class="pre">pynetdicom._config</span></code>)</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="generated/pynetdicom._config.ENFORCE_UID_CONFORMANCE.html">pynetdicom._config.ENFORCE_UID_CONFORMANCE</a></li>
+<li class="toctree-l2"><a class="reference internal" href="generated/pynetdicom._config.LOG_HANDLER_LEVEL.html">pynetdicom._config.LOG_HANDLER_LEVEL</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="dimse.html">DIMSE Service</a><ul>
@@ -233,6 +236,9 @@ pynetdicom.</p>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="events.html">Events and Handlers (<code class="xref py py-mod docutils literal notranslate"><span class="pre">pynetdicom.events</span></code>)</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="generated/pynetdicom.events.Event.html">pynetdicom.events.Event</a></li>
+<li class="toctree-l2"><a class="reference internal" href="generated/pynetdicom.events.InterventionEvent.html">pynetdicom.events.InterventionEvent</a></li>
+<li class="toctree-l2"><a class="reference internal" href="generated/pynetdicom.events.NotificationEvent.html">pynetdicom.events.NotificationEvent</a></li>
+<li class="toctree-l2"><a class="reference internal" href="generated/pynetdicom.events.trigger.html">pynetdicom.events.trigger</a></li>
 <li class="toctree-l2"><a class="reference internal" href="events.html#documentation-for-intervention-event-handlers">Documentation for Intervention Event Handlers</a></li>
 <li class="toctree-l2"><a class="reference internal" href="events.html#documentation-for-notification-event-handlers">Documentation for Notification Event Handlers</a></li>
 </ul>
@@ -243,11 +249,9 @@ pynetdicom.</p>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="presentation.html">Presentation Service (<code class="xref py py-mod docutils literal notranslate"><span class="pre">pynetdicom.presentation</span></code>)</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="generated/pynetdicom.presentation.PresentationContext.html">pynetdicom.presentation.PresentationContext</a></li>
-<li class="toctree-l2"><a class="reference internal" href="generated/pynetdicom.presentation.build_context.html">pynetdicom.presentation.build_context</a></li>
-<li class="toctree-l2"><a class="reference internal" href="generated/pynetdicom.presentation.build_role.html">pynetdicom.presentation.build_role</a></li>
-<li class="toctree-l2"><a class="reference internal" href="generated/pynetdicom.presentation.negotiate_as_acceptor.html">pynetdicom.presentation.negotiate_as_acceptor</a></li>
-<li class="toctree-l2"><a class="reference internal" href="generated/pynetdicom.presentation.negotiate_as_requestor.html">pynetdicom.presentation.negotiate_as_requestor</a></li>
+<li class="toctree-l2"><a class="reference internal" href="presentation.html#presentation-contexts">Presentation Contexts</a></li>
+<li class="toctree-l2"><a class="reference internal" href="presentation.html#presentation-context-negotiation">Presentation Context Negotiation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="presentation.html#pre-built-presentation-contexts">Pre-built Presentation Contexts</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="service_classes.html">Service Classes (<code class="xref py py-mod docutils literal notranslate"><span class="pre">pynetdicom.service_class</span></code>)</a><ul>
@@ -275,9 +279,8 @@ pynetdicom.</p>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="sop_classes.html">SOP Classes (<code class="xref py py-mod docutils literal notranslate"><span class="pre">pynetdicom.sop_class</span></code>)</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="generated/pynetdicom.sop_class.SOPClass.html">pynetdicom.sop_class.SOPClass</a></li>
-<li class="toctree-l2"><a class="reference internal" href="generated/pynetdicom.sop_class.uid_to_sop_class.html">pynetdicom.sop_class.uid_to_sop_class</a></li>
-<li class="toctree-l2"><a class="reference internal" href="generated/pynetdicom.sop_class.uid_to_service_class.html">pynetdicom.sop_class.uid_to_service_class</a></li>
+<li class="toctree-l2"><a class="reference internal" href="sop_classes.html#sop-class-utilities">SOP Class Utilities</a></li>
+<li class="toctree-l2"><a class="reference internal" href="sop_classes.html#sop-classes">SOP Classes</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="status.html">Statuses (<code class="xref py py-mod docutils literal notranslate"><span class="pre">pynetdicom.status</span></code>)</a><ul>
@@ -316,7 +319,7 @@ pynetdicom.</p>
         <a href="acse.html" class="btn btn-neutral float-right" title="ACSE Service (pynetdicom.acse)" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
       
       
-        <a href="../examples/verification.html" class="btn btn-neutral float-left" title="Verification Service Examples" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+        <a href="../service_classes/verification_service_class.html" class="btn btn-neutral float-left" title="Verification Service Class" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
       
     </div>
   

@@ -1,0 +1,6 @@
+pynetdicom.sop\_class.RTBrachyTreatmentRecordStorage
+====================================================
+
+.. currentmodule:: pynetdicom.sop_class
+
+.. autodata:: RTBrachyTreatmentRecordStorage

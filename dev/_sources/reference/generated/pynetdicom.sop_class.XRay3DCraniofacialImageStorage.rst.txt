@@ -1,0 +1,6 @@
+pynetdicom.sop\_class.XRay3DCraniofacialImageStorage
+====================================================
+
+.. currentmodule:: pynetdicom.sop_class
+
+.. autodata:: XRay3DCraniofacialImageStorage

@@ -90,25 +90,23 @@
               
             
             
-              <ul>
-<li class="toctree-l1"><a class="reference internal" href="../../service_classes/index.html">Supported Service Classes</a></li>
-</ul>
-<ul>
-<li class="toctree-l1"><a class="reference internal" href="../../user/index.html">User Guide</a></li>
-</ul>
-<ul>
-<li class="toctree-l1"><a class="reference internal" href="../../examples/index.html">Examples</a></li>
-</ul>
+              <p class="caption"><span class="caption-text">Documentation</span></p>
 <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../../user/index.html">User Guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../service_classes/index.html">Supported Service Classes</a></li>
 <li class="toctree-l1 current"><a class="reference internal" href="../index.html">API Reference</a><ul class="current">
 <li class="toctree-l2"><a class="reference internal" href="../acse.html">ACSE Service (<code class="xref py py-mod docutils literal notranslate"><span class="pre">pynetdicom.acse</span></code>)</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../ae.html">Application Entity (<code class="xref py py-mod docutils literal notranslate"><span class="pre">pynetdicom.ae</span></code>)</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../association.html">Association (<code class="xref py py-mod docutils literal notranslate"><span class="pre">pynetdicom.association</span></code>)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../config.html">Configuration Options (<code class="xref py py-mod docutils literal notranslate"><span class="pre">pynetdicom._config</span></code>)</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../dimse.html">DIMSE Service</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../dsutils.html">Dataset Utilities (<code class="xref py py-mod docutils literal notranslate"><span class="pre">pynetdicom.dsutils</span></code>)</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../dul.html">DICOM Upper Layer</a></li>
 <li class="toctree-l2 current"><a class="reference internal" href="../events.html">Events and Handlers (<code class="xref py py-mod docutils literal notranslate"><span class="pre">pynetdicom.events</span></code>)</a><ul class="current">
 <li class="toctree-l3"><a class="reference internal" href="pynetdicom.events.Event.html">pynetdicom.events.Event</a></li>
+<li class="toctree-l3"><a class="reference internal" href="pynetdicom.events.InterventionEvent.html">pynetdicom.events.InterventionEvent</a></li>
+<li class="toctree-l3"><a class="reference internal" href="pynetdicom.events.NotificationEvent.html">pynetdicom.events.NotificationEvent</a></li>
+<li class="toctree-l3"><a class="reference internal" href="pynetdicom.events.trigger.html">pynetdicom.events.trigger</a></li>
 <li class="toctree-l3 current"><a class="reference internal" href="../events.html#documentation-for-intervention-event-handlers">Documentation for Intervention Event Handlers</a><ul class="current">
 <li class="toctree-l4"><a class="reference internal" href="pynetdicom._handlers.doc_handle_echo.html">pynetdicom._handlers.doc_handle_echo</a></li>
 <li class="toctree-l4"><a class="reference internal" href="pynetdicom._handlers.doc_handle_find.html">pynetdicom._handlers.doc_handle_find</a></li>
@@ -141,10 +139,13 @@
 </ul>
 </li>
 </ul>
+<p class="caption"><span class="caption-text">Examples</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../examples/index.html">Examples</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Additional Information</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="../../apps/index.html">Applications</a></li>
-</ul>
-<ul>
 <li class="toctree-l1"><a class="reference internal" href="../../changelog/index.html">Release Notes</a></li>
 </ul>
 
@@ -216,10 +217,11 @@
 <h1>pynetdicom._handlers.doc_handle_sop_common<a class="headerlink" href="#pynetdicom-handlers-doc-handle-sop-common" title="Permalink to this headline">¶</a></h1>
 <dl class="function">
 <dt id="pynetdicom._handlers.doc_handle_sop_common">
-<code class="sig-prename descclassname">pynetdicom._handlers.</code><code class="sig-name descname">doc_handle_sop_common</code><span class="sig-paren">(</span><em class="sig-param">event</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/8ef6857f/pynetdicom/_handlers.py#L3373"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom._handlers.doc_handle_sop_common" title="Permalink to this definition">¶</a></dt>
+<code class="sig-prename descclassname">pynetdicom._handlers.</code><code class="sig-name descname">doc_handle_sop_common</code><span class="sig-paren">(</span><em class="sig-param">event</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/da5a1652/pynetdicom/_handlers.py#L3544"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom._handlers.doc_handle_sop_common" title="Permalink to this definition">¶</a></dt>
 <dd><p>Documentation for handlers bound to <code class="docutils literal notranslate"><span class="pre">evt.EVT_SOP_COMMON</span></code>.</p>
-<p>User implementation of this event handler is required only if SOP Class
-Common Extended Negotiation is to be supported by the association.</p>
+<p>User implementation of this event handler is required only if
+<a class="reference external" href="http://dicom.nema.org/medical/dicom/current/output/chtml/part07/sect_D.3.3.6.html">SOP Class Common Extended Negotiation</a>
+is to be supported by the association.</p>
 <p><strong>Event</strong></p>
 <p><code class="docutils literal notranslate"><span class="pre">evt.EVT_SOP_COMMON</span></code></p>
 <dl class="field-list simple">
@@ -228,16 +230,17 @@ Common Extended Negotiation is to be supported by the association.</p>
 contains one or more SOP Class Common Extended Negotiation items. Event
 attributes are:</p>
 <ul class="simple">
-<li><p><code class="docutils literal notranslate"><span class="pre">assoc</span></code> : the
-<a class="reference internal" href="pynetdicom.association.Association.html#pynetdicom.association.Association" title="pynetdicom.association.Association"><code class="xref py py-class docutils literal notranslate"><span class="pre">association</span></code></a>
+<li><p><a class="reference internal" href="pynetdicom.events.Event.html#pynetdicom.events.Event.assoc" title="pynetdicom.events.Event.assoc"><code class="xref py py-attr docutils literal notranslate"><span class="pre">assoc</span></code></a>: the
+<a class="reference internal" href="pynetdicom.association.Association.html#pynetdicom.association.Association" title="pynetdicom.association.Association"><code class="xref py py-class docutils literal notranslate"><span class="pre">Association</span></code></a>
 that received the SOP Class Common Extended Negotiation request.</p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">event</span></code> : the event that occurred as <code class="docutils literal notranslate"><span class="pre">namedtuple</span></code>.</p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">items</span></code> : the {<em>SOP Class UID</em> :
+<li><p><a class="reference internal" href="pynetdicom.events.Event.html#pynetdicom.events.Event.event" title="pynetdicom.events.Event.event"><code class="xref py py-attr docutils literal notranslate"><span class="pre">event</span></code></a>: the event that occurred as
+<a class="reference internal" href="pynetdicom.events.InterventionEvent.html#pynetdicom.events.InterventionEvent" title="pynetdicom.events.InterventionEvent"><code class="xref py py-class docutils literal notranslate"><span class="pre">InterventionEvent</span></code></a>.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">items</span></code>: the {<em>SOP Class UID</em> :
 <a class="reference internal" href="pynetdicom.pdu_primitives.SOPClassCommonExtendedNegotiation.html#pynetdicom.pdu_primitives.SOPClassCommonExtendedNegotiation" title="pynetdicom.pdu_primitives.SOPClassCommonExtendedNegotiation"><code class="xref py py-class docutils literal notranslate"><span class="pre">SOP</span> <span class="pre">Class</span> <span class="pre">Common</span> <span class="pre">Extended</span> <span class="pre">Negotiation</span></code></a>}
 items sent by the requestor.</p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">timestamp</span></code> : the
-<a class="reference external" href="https://docs.python.org/3/library/datetime.html#datetime-objects">date and time</a>
-that the negotiation request was processed by the ACSE.</p></li>
+<li><p><a class="reference internal" href="pynetdicom.events.Event.html#pynetdicom.events.Event.timestamp" title="pynetdicom.events.Event.timestamp"><code class="xref py py-attr docutils literal notranslate"><span class="pre">timestamp</span></code></a>: the date and time
+that the negotiation request was processed as
+<a class="reference external" href="https://docs.python.org/3/library/datetime.html#datetime.datetime" title="(in Python v3.7)"><code class="xref py py-class docutils literal notranslate"><span class="pre">datetime.datetime</span></code></a>.</p></li>
 </ul>
 </p>
 </dd>
@@ -254,7 +257,7 @@ the corresponding Service Class will be used (if available).</p>
 </dl>
 <p class="rubric">References</p>
 <ul class="simple">
-<li><p>DICOM Standard Part 7, <a class="reference external" href="http://dicom.nema.org/medical/dicom/current/output/chtml/part07/sect_D.3.3.6.html">Annex D.3.3.6</a></p></li>
+<li><p>DICOM Standard, Part 7, <a class="reference external" href="http://dicom.nema.org/medical/dicom/current/output/chtml/part07/sect_D.3.3.6.html">Annex D.3.3.6</a></p></li>
 </ul>
 </dd></dl>
 

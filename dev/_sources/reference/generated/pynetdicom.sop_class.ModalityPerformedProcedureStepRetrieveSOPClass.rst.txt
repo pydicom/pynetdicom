@@ -1,0 +1,6 @@
+pynetdicom.sop\_class.ModalityPerformedProcedureStepRetrieveSOPClass
+====================================================================
+
+.. currentmodule:: pynetdicom.sop_class
+
+.. autodata:: ModalityPerformedProcedureStepRetrieveSOPClass

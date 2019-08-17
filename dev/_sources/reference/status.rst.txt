@@ -1,4 +1,4 @@
-.. _status:
+.. _api_status:
 
 Statuses (:mod:`pynetdicom.status`)
 ====================================

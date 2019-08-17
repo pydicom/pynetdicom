@@ -90,12 +90,13 @@
               
             
             
-              <ul>
-<li class="toctree-l1"><a class="reference internal" href="../service_classes/index.html">Supported Service Classes</a></li>
-</ul>
+              <p class="caption"><span class="caption-text">Documentation</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="../user/index.html">User Guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../service_classes/index.html">Supported Service Classes</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../reference/index.html">API Reference</a></li>
 </ul>
+<p class="caption"><span class="caption-text">Examples</span></p>
 <ul class="current">
 <li class="toctree-l1 current"><a class="reference internal" href="index.html">Examples</a><ul class="current">
 <li class="toctree-l2"><a class="reference internal" href="basic_worklist.html">Basic Worklist Management Service Examples</a></li>
@@ -115,13 +116,9 @@
 </ul>
 </li>
 </ul>
-<ul>
-<li class="toctree-l1"><a class="reference internal" href="../reference/index.html">API Reference</a></li>
-</ul>
+<p class="caption"><span class="caption-text">Additional Information</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="../apps/index.html">Applications</a></li>
-</ul>
-<ul>
 <li class="toctree-l1"><a class="reference internal" href="../changelog/index.html">Release Notes</a></li>
 </ul>
 
@@ -189,7 +186,7 @@
             
   <div class="section" id="query-retrieve-get-service-examples">
 <h1>Query/Retrieve (Get) Service Examples<a class="headerlink" href="#query-retrieve-get-service-examples" title="Permalink to this headline">¶</a></h1>
-<p>The DICOM <a class="reference external" href="http://dicom.nema.org/medical/dicom/current/output/html/part04.html#chapter_C">Query/Retrieve Service</a>
+<p>The DICOM <a class="reference external" href="http://dicom.nema.org/medical/dicom/current/output/chtml/part04/chapter_C.html">Query/Retrieve Service</a>
 provides a mechanism for a service user to query and retrieve the SOP Instances
 managed by a QR SCP. The QR (Get) SOP classes allow an SCU to receive SOP
 Instances that match the requested query. This is accomplished through the
@@ -241,10 +238,10 @@ item for each of the supported presentation contexts that may be used with
 the C-STORE requests.</p>
 <p>If you’re going to write SOP Instances (datasets) to file it’s recommended
 that you ensure the file is conformant with the
-<a class="reference external" href="http://dicom.nema.org/medical/dicom/current/output/html/part10.html#chapter_7">DICOM File Format</a>,
-which requires adding the File Meta Information.</p>
+<a class="reference external" href="http://dicom.nema.org/medical/dicom/current/output/chtml/part10/chapter_7.html">DICOM File Format</a>, which requires adding the
+File Meta Information.</p>
 <p>Check the
-<a class="reference external" href="../reference/generated/pynetdicom._handlers.doc_handle_store.html">handler implementation documentation</a>
+<a class="reference internal" href="../reference/generated/pynetdicom._handlers.doc_handle_store.html#pynetdicom._handlers.doc_handle_store" title="pynetdicom._handlers.doc_handle_store"><code class="xref py py-func docutils literal notranslate"><span class="pre">handler</span> <span class="pre">implementation</span> <span class="pre">documentation</span></code></a>
 to see the requirements for the <code class="docutils literal notranslate"><span class="pre">evt.EVT_C_STORE</span></code> handler.</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">pydicom.dataset</span> <span class="kn">import</span> <span class="n">Dataset</span>
 
@@ -350,8 +347,8 @@ Root Query Retrieve Information Model - Get</em> context.</p>
 probably best to store the instance attributes in a database and run the
 query against that.</p>
 <p>Check the
-<a class="reference external" href="../reference/generated/pynetdicom._handlers.doc_handle_c_get.html">handler implementation documentation</a>
-to see the requirements for the <code class="docutils literal notranslate"><span class="pre">evt.EVT_C_GET</span></code> handler.</p>
+<a class="reference internal" href="../reference/generated/pynetdicom._handlers.doc_handle_c_get.html#pynetdicom._handlers.doc_handle_c_get" title="pynetdicom._handlers.doc_handle_c_get"><code class="xref py py-func docutils literal notranslate"><span class="pre">handler</span> <span class="pre">implementation</span> <span class="pre">documentation</span></code></a> to see the requirements for the
+<code class="docutils literal notranslate"><span class="pre">evt.EVT_C_GET</span></code> handler.</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">os</span>
 
 <span class="kn">from</span> <span class="nn">pydicom</span> <span class="kn">import</span> <span class="n">dcmread</span>

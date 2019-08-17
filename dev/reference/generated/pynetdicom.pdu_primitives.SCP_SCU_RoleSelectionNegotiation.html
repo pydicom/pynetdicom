@@ -90,20 +90,15 @@
               
             
             
-              <ul>
-<li class="toctree-l1"><a class="reference internal" href="../../service_classes/index.html">Supported Service Classes</a></li>
-</ul>
-<ul>
-<li class="toctree-l1"><a class="reference internal" href="../../user/index.html">User Guide</a></li>
-</ul>
-<ul>
-<li class="toctree-l1"><a class="reference internal" href="../../examples/index.html">Examples</a></li>
-</ul>
+              <p class="caption"><span class="caption-text">Documentation</span></p>
 <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../../user/index.html">User Guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../service_classes/index.html">Supported Service Classes</a></li>
 <li class="toctree-l1 current"><a class="reference internal" href="../index.html">API Reference</a><ul class="current">
 <li class="toctree-l2"><a class="reference internal" href="../acse.html">ACSE Service (<code class="xref py py-mod docutils literal notranslate"><span class="pre">pynetdicom.acse</span></code>)</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../ae.html">Application Entity (<code class="xref py py-mod docutils literal notranslate"><span class="pre">pynetdicom.ae</span></code>)</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../association.html">Association (<code class="xref py py-mod docutils literal notranslate"><span class="pre">pynetdicom.association</span></code>)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../config.html">Configuration Options (<code class="xref py py-mod docutils literal notranslate"><span class="pre">pynetdicom._config</span></code>)</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../dimse.html">DIMSE Service</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../dsutils.html">Dataset Utilities (<code class="xref py py-mod docutils literal notranslate"><span class="pre">pynetdicom.dsutils</span></code>)</a></li>
 <li class="toctree-l2 current"><a class="reference internal" href="../dul.html">DICOM Upper Layer</a><ul class="current">
@@ -114,7 +109,6 @@
 <li class="toctree-l4"><a class="reference internal" href="../dul.pdu_primitives.a_abort.html">A-ABORT</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../dul.pdu_primitives.a_p_abort.html">A-P-ABORT</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../dul.pdu_primitives.p_data.html">P-DATA</a></li>
-<li class="toctree-l4"><a class="reference internal" href="../dul.pdu_primitives.html#references">References</a></li>
 </ul>
 </li>
 <li class="toctree-l3"><a class="reference internal" href="../dul.pdu.html">PDUs (<code class="xref py py-mod docutils literal notranslate"><span class="pre">pynetdicom.pdu</span></code>)</a></li>
@@ -133,10 +127,13 @@
 </ul>
 </li>
 </ul>
+<p class="caption"><span class="caption-text">Examples</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../examples/index.html">Examples</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Additional Information</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="../../apps/index.html">Applications</a></li>
-</ul>
-<ul>
 <li class="toctree-l1"><a class="reference internal" href="../../changelog/index.html">Release Notes</a></li>
 </ul>
 
@@ -212,29 +209,22 @@
 <h1>pynetdicom.pdu_primitives.SCP_SCU_RoleSelectionNegotiation<a class="headerlink" href="#pynetdicom-pdu-primitives-scp-scu-roleselectionnegotiation" title="Permalink to this headline">¶</a></h1>
 <dl class="class">
 <dt id="pynetdicom.pdu_primitives.SCP_SCU_RoleSelectionNegotiation">
-<em class="property">class </em><code class="sig-prename descclassname">pynetdicom.pdu_primitives.</code><code class="sig-name descname">SCP_SCU_RoleSelectionNegotiation</code><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/8ef6857f/pynetdicom/pdu_primitives.py#L1550"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom.pdu_primitives.SCP_SCU_RoleSelectionNegotiation" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="sig-prename descclassname">pynetdicom.pdu_primitives.</code><code class="sig-name descname">SCP_SCU_RoleSelectionNegotiation</code><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/da5a1652/pynetdicom/pdu_primitives.py#L1471"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom.pdu_primitives.SCP_SCU_RoleSelectionNegotiation" title="Permalink to this definition">¶</a></dt>
 <dd><p>A representation of the SCP/SCU Role Selection Negotiation primitive.</p>
 <p>Allows peer AEs to negotiate the roles in which they will serve for each
-SOP Class or Meta SOP Class supported on the Association. This negotiation
+SOP Class or Meta SOP Class supported on the association. This negotiation
 is optional.</p>
-<p>The Association Requestor may use one SCP/SCU Role Selection item for each
-SOP Class as identified by its corresponding Abstract Syntax Name and shall
-be one of three role values:</p>
+<p>The association <em>Requestor</em> may use one SCP/SCU Role Selection item for
+each SOP Class as identified by its corresponding Abstract Syntax Name and
+shall be one of three role values:</p>
 <ul class="simple">
-<li><p>Requestor is SCU only</p></li>
-<li><p>Requestor is SCP only</p></li>
-<li><p>Requestor is both SCU/SCP</p></li>
+<li><p><em>Requestor</em> is SCU only</p></li>
+<li><p><em>Requestor</em> is SCP only</p></li>
+<li><p><em>Requestor</em> is both SCU/SCP</p></li>
 </ul>
 <p>If the SCP/SCU Role Selection item is absent the default role for a
-Requestor is SCU and for an Acceptor is SCP.</p>
-<p>For a Requestor support for each SOP Class shall be one of the following
-roles:</p>
-<ul class="simple">
-<li><p>Requestor is SCU only</p></li>
-<li><p>Requestor is SCP only</p></li>
-<li><p>Requestor is both SCU and SCP</p></li>
-</ul>
-<p>Identical for both A-ASSOCIATE-RQ and A-ASSOCIATE-AC</p>
+<em>Requestor</em> is SCU and for an <em>Acceptor</em> is SCP.</p>
+<p>Identical for both A-ASSOCIATE-RQ and A-ASSOCIATE-AC.</p>
 <dl class="attribute">
 <dt id="pynetdicom.pdu_primitives.SCP_SCU_RoleSelectionNegotiation.sop_class_uid">
 <code class="sig-name descname">sop_class_uid</code><a class="headerlink" href="#pynetdicom.pdu_primitives.SCP_SCU_RoleSelectionNegotiation.sop_class_uid" title="Permalink to this definition">¶</a></dt>
@@ -249,7 +239,7 @@ roles:</p>
 <dl class="attribute">
 <dt id="pynetdicom.pdu_primitives.SCP_SCU_RoleSelectionNegotiation.scu_role">
 <code class="sig-name descname">scu_role</code><a class="headerlink" href="#pynetdicom.pdu_primitives.SCP_SCU_RoleSelectionNegotiation.scu_role" title="Permalink to this definition">¶</a></dt>
-<dd><p>False for non-support of the SCU role, True for support</p>
+<dd><p><code class="docutils literal notranslate"><span class="pre">False</span></code> for non-support of the SCU role, <code class="docutils literal notranslate"><span class="pre">True</span></code> for support.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Type</dt>
 <dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.7)">bool</a></p>
@@ -260,7 +250,7 @@ roles:</p>
 <dl class="attribute">
 <dt id="pynetdicom.pdu_primitives.SCP_SCU_RoleSelectionNegotiation.scp_role">
 <code class="sig-name descname">scp_role</code><a class="headerlink" href="#pynetdicom.pdu_primitives.SCP_SCU_RoleSelectionNegotiation.scp_role" title="Permalink to this definition">¶</a></dt>
-<dd><p>False for non-support of the SCP role, True for support</p>
+<dd><p><code class="docutils literal notranslate"><span class="pre">False</span></code> for non-support of the SCP role, <code class="docutils literal notranslate"><span class="pre">True</span></code> for support.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Type</dt>
 <dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.7)">bool</a></p>
@@ -278,11 +268,11 @@ roles:</p>
 </div>
 <p class="rubric">References</p>
 <ul class="simple">
-<li><p>DICOM Standard, Part 7, Annex D.3.3.4</p></li>
+<li><p>DICOM Standard, Part 7, <a class="reference external" href="http://dicom.nema.org/medical/dicom/current/output/chtml/part07/sect_D.3.3.4.html">Annex D.3.3.4</a></p></li>
 </ul>
 <dl class="method">
 <dt id="pynetdicom.pdu_primitives.SCP_SCU_RoleSelectionNegotiation.__init__">
-<code class="sig-name descname">__init__</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/8ef6857f/pynetdicom/pdu_primitives.py#L1601"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom.pdu_primitives.SCP_SCU_RoleSelectionNegotiation.__init__" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">__init__</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/da5a1652/pynetdicom/pdu_primitives.py#L1515"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom.pdu_primitives.SCP_SCU_RoleSelectionNegotiation.__init__" title="Permalink to this definition">¶</a></dt>
 <dd><p>Initialize self.  See help(type(self)) for accurate signature.</p>
 </dd></dl>
 
@@ -321,7 +311,7 @@ roles:</p>
 </table>
 <dl class="method">
 <dt id="pynetdicom.pdu_primitives.SCP_SCU_RoleSelectionNegotiation.from_primitive">
-<code class="sig-name descname">from_primitive</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/8ef6857f/pynetdicom/pdu_primitives.py#L1606"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom.pdu_primitives.SCP_SCU_RoleSelectionNegotiation.from_primitive" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">from_primitive</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/da5a1652/pynetdicom/pdu_primitives.py#L1520"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom.pdu_primitives.SCP_SCU_RoleSelectionNegotiation.from_primitive" title="Permalink to this definition">¶</a></dt>
 <dd><p>Convert the primitive to a PDU item ready to be encoded</p>
 <dl class="field-list simple">
 <dt class="field-odd">Returns</dt>

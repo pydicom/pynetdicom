@@ -39,7 +39,7 @@
     <link rel="index" title="Index" href="../../genindex.html" />
     <link rel="search" title="Search" href="../../search.html" />
     <link rel="next" title="pynetdicom.presentation.negotiate_as_requestor" href="pynetdicom.presentation.negotiate_as_requestor.html" />
-    <link rel="prev" title="pynetdicom.presentation.build_role" href="pynetdicom.presentation.build_role.html" /> 
+    <link rel="prev" title="pynetdicom.presentation.PresentationContextTuple" href="pynetdicom.presentation.PresentationContextTuple.html" /> 
 </head>
 
 <body class="wy-body-for-nav">
@@ -90,31 +90,28 @@
               
             
             
-              <ul>
-<li class="toctree-l1"><a class="reference internal" href="../../service_classes/index.html">Supported Service Classes</a></li>
-</ul>
-<ul>
-<li class="toctree-l1"><a class="reference internal" href="../../user/index.html">User Guide</a></li>
-</ul>
-<ul>
-<li class="toctree-l1"><a class="reference internal" href="../../examples/index.html">Examples</a></li>
-</ul>
+              <p class="caption"><span class="caption-text">Documentation</span></p>
 <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../../user/index.html">User Guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../service_classes/index.html">Supported Service Classes</a></li>
 <li class="toctree-l1 current"><a class="reference internal" href="../index.html">API Reference</a><ul class="current">
 <li class="toctree-l2"><a class="reference internal" href="../acse.html">ACSE Service (<code class="xref py py-mod docutils literal notranslate"><span class="pre">pynetdicom.acse</span></code>)</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../ae.html">Application Entity (<code class="xref py py-mod docutils literal notranslate"><span class="pre">pynetdicom.ae</span></code>)</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../association.html">Association (<code class="xref py py-mod docutils literal notranslate"><span class="pre">pynetdicom.association</span></code>)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../config.html">Configuration Options (<code class="xref py py-mod docutils literal notranslate"><span class="pre">pynetdicom._config</span></code>)</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../dimse.html">DIMSE Service</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../dsutils.html">Dataset Utilities (<code class="xref py py-mod docutils literal notranslate"><span class="pre">pynetdicom.dsutils</span></code>)</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../dul.html">DICOM Upper Layer</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../events.html">Events and Handlers (<code class="xref py py-mod docutils literal notranslate"><span class="pre">pynetdicom.events</span></code>)</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../fsm.html">State Machine (<code class="xref py py-mod docutils literal notranslate"><span class="pre">pynetdicom.fsm</span></code>)</a></li>
 <li class="toctree-l2 current"><a class="reference internal" href="../presentation.html">Presentation Service (<code class="xref py py-mod docutils literal notranslate"><span class="pre">pynetdicom.presentation</span></code>)</a><ul class="current">
-<li class="toctree-l3"><a class="reference internal" href="pynetdicom.presentation.PresentationContext.html">pynetdicom.presentation.PresentationContext</a></li>
-<li class="toctree-l3"><a class="reference internal" href="pynetdicom.presentation.build_context.html">pynetdicom.presentation.build_context</a></li>
-<li class="toctree-l3"><a class="reference internal" href="pynetdicom.presentation.build_role.html">pynetdicom.presentation.build_role</a></li>
-<li class="toctree-l3 current"><a class="current reference internal" href="#">pynetdicom.presentation.negotiate_as_acceptor</a></li>
-<li class="toctree-l3"><a class="reference internal" href="pynetdicom.presentation.negotiate_as_requestor.html">pynetdicom.presentation.negotiate_as_requestor</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../presentation.html#presentation-contexts">Presentation Contexts</a></li>
+<li class="toctree-l3 current"><a class="reference internal" href="../presentation.html#presentation-context-negotiation">Presentation Context Negotiation</a><ul class="current">
+<li class="toctree-l4 current"><a class="current reference internal" href="#">pynetdicom.presentation.negotiate_as_acceptor</a></li>
+<li class="toctree-l4"><a class="reference internal" href="pynetdicom.presentation.negotiate_as_requestor.html">pynetdicom.presentation.negotiate_as_requestor</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../presentation.html#pre-built-presentation-contexts">Pre-built Presentation Contexts</a></li>
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="../service_classes.html">Service Classes (<code class="xref py py-mod docutils literal notranslate"><span class="pre">pynetdicom.service_class</span></code>)</a></li>
@@ -126,10 +123,13 @@
 </ul>
 </li>
 </ul>
+<p class="caption"><span class="caption-text">Examples</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../examples/index.html">Examples</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Additional Information</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="../../apps/index.html">Applications</a></li>
-</ul>
-<ul>
 <li class="toctree-l1"><a class="reference internal" href="../../changelog/index.html">Release Notes</a></li>
 </ul>
 
@@ -201,19 +201,20 @@
 <h1>pynetdicom.presentation.negotiate_as_acceptor<a class="headerlink" href="#pynetdicom-presentation-negotiate-as-acceptor" title="Permalink to this headline">¶</a></h1>
 <dl class="function">
 <dt id="pynetdicom.presentation.negotiate_as_acceptor">
-<code class="sig-prename descclassname">pynetdicom.presentation.</code><code class="sig-name descname">negotiate_as_acceptor</code><span class="sig-paren">(</span><em class="sig-param">rq_contexts</em>, <em class="sig-param">ac_contexts</em>, <em class="sig-param">roles=None</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/8ef6857f/pynetdicom/presentation.py#L508"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom.presentation.negotiate_as_acceptor" title="Permalink to this definition">¶</a></dt>
-<dd><p>Process the Presentation Contexts as an Association acceptor.</p>
+<code class="sig-prename descclassname">pynetdicom.presentation.</code><code class="sig-name descname">negotiate_as_acceptor</code><span class="sig-paren">(</span><em class="sig-param">rq_contexts</em>, <em class="sig-param">ac_contexts</em>, <em class="sig-param">roles=None</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/da5a1652/pynetdicom/presentation.py#L516"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom.presentation.negotiate_as_acceptor" title="Permalink to this definition">¶</a></dt>
+<dd><p>Process the Presentation Contexts as an Association <em>Acceptor</em>.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>rq_contexts</strong> (<em>list of PresentationContext</em>) – The Presentation Contexts proposed by the peer. Each item has
 values for Context ID, Abstract Syntax and Transfer Syntax.</p></li>
 <li><p><strong>ac_contexts</strong> (<em>list of PresentationContext</em>) – The Presentation Contexts supported by the local AE when acting
-as an Association acceptor. Each item has values for Context ID
+as an Association <em>Acceptor</em>. Each item has values for Context ID,
 Abstract Syntax and Transfer Syntax.</p></li>
-<li><p><strong>roles</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.7)"><em>dict</em></a><em> or </em><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.7)"><em>None</em></a>) – If the requestor has included one or more SCP/SCU Role Selection
-Negotiation items then this will be a dict of
-{SOP Class UID : (SCU role, SCP role)}, otherwise None (default)</p></li>
+<li><p><strong>roles</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.7)"><em>dict</em></a><em> or </em><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.7)"><em>None</em></a>) – If the <em>Requestor</em> has included one or more SCP/SCU Role Selection
+Negotiation items then this will be a <a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.7)"><code class="xref py py-class docutils literal notranslate"><span class="pre">dict</span></code></a> of
+<code class="docutils literal notranslate"><span class="pre">{'SOP</span> <span class="pre">Class</span> <span class="pre">UID'</span> <span class="pre">:</span> <span class="pre">(SCU</span> <span class="pre">role,</span> <span class="pre">SCP</span> <span class="pre">role)}</span></code>, otherwise <code class="docutils literal notranslate"><span class="pre">None</span></code>
+(default)</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns</dt>
@@ -221,8 +222,8 @@ Negotiation items then this will be a dict of
 <li><p><em>list of PresentationContext</em> – The accepted presentation context items, each with a Result value
 a Context ID, an Abstract Syntax and one Transfer Syntax item.
 Items are sorted in increasing Context ID value.</p></li>
-<li><p><em>list of SCP_SCU_RoleSelectionNegotiation</em> – If <cite>roles</cite> is not None then this is a list of SCP/SCU Role Selection
-Negotiation items that can be sent back to the requestor.</p></li>
+<li><p><em>list of SCP_SCU_RoleSelectionNegotiation</em> – If <cite>roles</cite> is not <code class="docutils literal notranslate"><span class="pre">None</span></code> then this is a <a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.7)"><code class="xref py py-class docutils literal notranslate"><span class="pre">list</span></code></a> of SCP/SCU Role
+Selection Negotiation items that can be sent back to the <em>Requestor</em>.</p></li>
 </ul>
 </p>
 </dd>
@@ -242,7 +243,7 @@ Negotiation items that can be sent back to the requestor.</p></li>
         <a href="pynetdicom.presentation.negotiate_as_requestor.html" class="btn btn-neutral float-right" title="pynetdicom.presentation.negotiate_as_requestor" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
       
       
-        <a href="pynetdicom.presentation.build_role.html" class="btn btn-neutral float-left" title="pynetdicom.presentation.build_role" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+        <a href="pynetdicom.presentation.PresentationContextTuple.html" class="btn btn-neutral float-left" title="pynetdicom.presentation.PresentationContextTuple" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
       
     </div>
   

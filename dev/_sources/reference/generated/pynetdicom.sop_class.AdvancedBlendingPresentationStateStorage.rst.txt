@@ -1,0 +1,6 @@
+pynetdicom.sop\_class.AdvancedBlendingPresentationStateStorage
+==============================================================
+
+.. currentmodule:: pynetdicom.sop_class
+
+.. autodata:: AdvancedBlendingPresentationStateStorage

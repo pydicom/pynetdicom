@@ -1,7 +1,8 @@
+.. _service_rtm:
+
 RT Machine Verification Service Class
 =====================================
-The `RT Machine Verification Service Class
-<http://dicom.nema.org/medical/dicom/current/output/html/part04.html#chapter_DD>`_
+The :dcm:`RT Machine Verification Service Class<part04/chapter_DD.html>`
 defines a service that uses the DIMSE N-CREATE, N-SET, N-DELETE, N-ACTION,
 N-EVENT-REPORT and N-GET services to
 facilitate the independent verification of geometric and dosimetric settings
@@ -310,15 +311,3 @@ RT Machine Verification N-SET Service Statuses
 | 0xC226           | Failure  | Referenced device or accessory not found      |
 |                  |          | within the referenced beam                    |
 +------------------+----------+-----------------------------------------------+
-
-
-References
-----------
-
-* DICOM Standard, Part 4, `Annex DD <http://dicom.nema.org/medical/dicom/current/output/html/part04.html#chapter_DD>`_
-* DICOM Standard, Part 7, `Section 10.1.4.1.10 <http://dicom.nema.org/medical/dicom/current/output/chtml/part07/chapter_10.html#sect_10.1.4.1.10>`_
-* DICOM Standard, Part 7, `Section 10.1.5.1.6 <http://dicom.nema.org/medical/dicom/current/output/chtml/part07/chapter_10.html#sect_10.1.5.1.6>`_
-* DICOM Standard, Part 7, `Section 10.1.6.1.7 <http://dicom.nema.org/medical/dicom/current/output/chtml/part07/chapter_10.html#sect_10.1.6.1.7>`_
-* DICOM Standard, Part 7, `Section 10.1.1.1.8 <http://dicom.nema.org/medical/dicom/current/output/chtml/part07/chapter_10.html#sect_10.1.1.1.8>`_
-* DICOM Standard, Part 7, `Section 10.1.2.1.9 <http://dicom.nema.org/medical/dicom/current/output/chtml/part07/chapter_10.html#sect_10.1.2.1.9>`_
-* DICOM Standard, Part 7, `Section 10.1.3.1.9 <http://dicom.nema.org/medical/dicom/current/output/chtml/part07/chapter_10.html#sect_10.1.3.1.9>`_

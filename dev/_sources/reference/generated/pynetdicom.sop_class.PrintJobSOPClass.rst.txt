@@ -1,0 +1,6 @@
+pynetdicom.sop\_class.PrintJobSOPClass
+======================================
+
+.. currentmodule:: pynetdicom.sop_class
+
+.. autodata:: PrintJobSOPClass

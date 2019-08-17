@@ -38,7 +38,7 @@
   <link rel="stylesheet" href="../../_static/css/pynetdicom.css" type="text/css" />
     <link rel="index" title="Index" href="../../genindex.html" />
     <link rel="search" title="Search" href="../../search.html" />
-    <link rel="next" title="Applications" href="../../apps/index.html" />
+    <link rel="next" title="Examples" href="../../examples/index.html" />
     <link rel="prev" title="pynetdicom.utils.validate_ae_title" href="pynetdicom.utils.validate_ae_title.html" /> 
 </head>
 
@@ -90,20 +90,15 @@
               
             
             
-              <ul>
-<li class="toctree-l1"><a class="reference internal" href="../../service_classes/index.html">Supported Service Classes</a></li>
-</ul>
-<ul>
-<li class="toctree-l1"><a class="reference internal" href="../../user/index.html">User Guide</a></li>
-</ul>
-<ul>
-<li class="toctree-l1"><a class="reference internal" href="../../examples/index.html">Examples</a></li>
-</ul>
+              <p class="caption"><span class="caption-text">Documentation</span></p>
 <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../../user/index.html">User Guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../service_classes/index.html">Supported Service Classes</a></li>
 <li class="toctree-l1 current"><a class="reference internal" href="../index.html">API Reference</a><ul class="current">
 <li class="toctree-l2"><a class="reference internal" href="../acse.html">ACSE Service (<code class="xref py py-mod docutils literal notranslate"><span class="pre">pynetdicom.acse</span></code>)</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../ae.html">Application Entity (<code class="xref py py-mod docutils literal notranslate"><span class="pre">pynetdicom.ae</span></code>)</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../association.html">Association (<code class="xref py py-mod docutils literal notranslate"><span class="pre">pynetdicom.association</span></code>)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../config.html">Configuration Options (<code class="xref py py-mod docutils literal notranslate"><span class="pre">pynetdicom._config</span></code>)</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../dimse.html">DIMSE Service</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../dsutils.html">Dataset Utilities (<code class="xref py py-mod docutils literal notranslate"><span class="pre">pynetdicom.dsutils</span></code>)</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../dul.html">DICOM Upper Layer</a></li>
@@ -124,10 +119,13 @@
 </ul>
 </li>
 </ul>
+<p class="caption"><span class="caption-text">Examples</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../examples/index.html">Examples</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Additional Information</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="../../apps/index.html">Applications</a></li>
-</ul>
-<ul>
 <li class="toctree-l1"><a class="reference internal" href="../../changelog/index.html">Release Notes</a></li>
 </ul>
 
@@ -199,19 +197,19 @@
 <h1>pynetdicom.utils.validate_uid<a class="headerlink" href="#pynetdicom-utils-validate-uid" title="Permalink to this headline">¶</a></h1>
 <dl class="function">
 <dt id="pynetdicom.utils.validate_uid">
-<code class="sig-prename descclassname">pynetdicom.utils.</code><code class="sig-name descname">validate_uid</code><span class="sig-paren">(</span><em class="sig-param">uid</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/8ef6857f/pynetdicom/utils.py#L154"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom.utils.validate_uid" title="Permalink to this definition">¶</a></dt>
+<code class="sig-prename descclassname">pynetdicom.utils.</code><code class="sig-name descname">validate_uid</code><span class="sig-paren">(</span><em class="sig-param">uid</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/da5a1652/pynetdicom/utils.py#L151"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom.utils.validate_uid" title="Permalink to this definition">¶</a></dt>
 <dd><p>Return True if <cite>uid</cite> is considered valid.</p>
-<p>If <code class="docutils literal notranslate"><span class="pre">pynetdicom._config.ENFORCE_UID_CONFORMANCE</span> <span class="pre">=</span> <span class="pre">True</span></code> then the following
-rules apply:</p>
+<p>If <a class="reference internal" href="pynetdicom._config.ENFORCE_UID_CONFORMANCE.html#pynetdicom._config.ENFORCE_UID_CONFORMANCE" title="pynetdicom._config.ENFORCE_UID_CONFORMANCE"><code class="xref py py-attr docutils literal notranslate"><span class="pre">ENFORCE_UID_CONFORMANCE</span></code></a> is <code class="docutils literal notranslate"><span class="pre">True</span></code> then the
+following rules apply:</p>
 <ul class="simple">
 <li><p>1-64 characters, inclusive</p></li>
 <li><p>Each component may not start with 0 unless the component itself is 0</p></li>
-<li><p>Components are separated by ‘.’</p></li>
+<li><p>Components are separated by <code class="docutils literal notranslate"><span class="pre">.</span></code></p></li>
 <li><p>Valid component characters are 0-9 of the Basic G0 Set of the
 International Reference Version of ISO 646:1990 (ASCII)</p></li>
 </ul>
-<p>If <code class="docutils literal notranslate"><span class="pre">pynetdicom._config.ENFORCE_UID_CONFORMANCE</span> <span class="pre">=</span> <span class="pre">False</span></code> then the
-following rules apply:</p>
+<p>If <a class="reference internal" href="pynetdicom._config.ENFORCE_UID_CONFORMANCE.html#pynetdicom._config.ENFORCE_UID_CONFORMANCE" title="pynetdicom._config.ENFORCE_UID_CONFORMANCE"><code class="xref py py-attr docutils literal notranslate"><span class="pre">ENFORCE_UID_CONFORMANCE</span></code></a> is <code class="docutils literal notranslate"><span class="pre">False</span></code> then
+the following rules apply:</p>
 <ul class="simple">
 <li><p>1-64 characters, inclusive</p></li>
 </ul>
@@ -220,7 +218,7 @@ following rules apply:</p>
 <dd class="field-odd"><p><strong>uid</strong> (<a class="reference external" href="https://pydicom.github.io/pydicom/stable/api_ref.html#pydicom.uid.UID" title="(in pydicom v1.3.0)"><em>pydicom.uid.UID</em></a>) – The UID to check for validity.</p>
 </dd>
 <dt class="field-even">Returns</dt>
-<dd class="field-even"><p>True if the value is considered valid, False otherwise.</p>
+<dd class="field-even"><p><code class="docutils literal notranslate"><span class="pre">True</span></code> if the value is considered valid, <code class="docutils literal notranslate"><span class="pre">False</span></code> otherwise.</p>
 </dd>
 <dt class="field-odd">Return type</dt>
 <dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.7)">bool</a></p>
@@ -238,7 +236,7 @@ following rules apply:</p>
   
     <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
       
-        <a href="../../apps/index.html" class="btn btn-neutral float-right" title="Applications" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
+        <a href="../../examples/index.html" class="btn btn-neutral float-right" title="Examples" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
       
       
         <a href="pynetdicom.utils.validate_ae_title.html" class="btn btn-neutral float-left" title="pynetdicom.utils.validate_ae_title" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>

@@ -90,20 +90,15 @@
               
             
             
-              <ul>
-<li class="toctree-l1"><a class="reference internal" href="../../service_classes/index.html">Supported Service Classes</a></li>
-</ul>
-<ul>
-<li class="toctree-l1"><a class="reference internal" href="../../user/index.html">User Guide</a></li>
-</ul>
-<ul>
-<li class="toctree-l1"><a class="reference internal" href="../../examples/index.html">Examples</a></li>
-</ul>
+              <p class="caption"><span class="caption-text">Documentation</span></p>
 <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../../user/index.html">User Guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../service_classes/index.html">Supported Service Classes</a></li>
 <li class="toctree-l1 current"><a class="reference internal" href="../index.html">API Reference</a><ul class="current">
 <li class="toctree-l2"><a class="reference internal" href="../acse.html">ACSE Service (<code class="xref py py-mod docutils literal notranslate"><span class="pre">pynetdicom.acse</span></code>)</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../ae.html">Application Entity (<code class="xref py py-mod docutils literal notranslate"><span class="pre">pynetdicom.ae</span></code>)</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../association.html">Association (<code class="xref py py-mod docutils literal notranslate"><span class="pre">pynetdicom.association</span></code>)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../config.html">Configuration Options (<code class="xref py py-mod docutils literal notranslate"><span class="pre">pynetdicom._config</span></code>)</a></li>
 <li class="toctree-l2 current"><a class="reference internal" href="../dimse.html">DIMSE Service</a><ul class="current">
 <li class="toctree-l3"><a class="reference internal" href="../dimse.provider.html">Service Provider (<code class="xref py py-mod docutils literal notranslate"><span class="pre">pynetdicom.dimse</span></code>)</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../dimse.primitives.html">Service Primitives (<code class="xref py py-mod docutils literal notranslate"><span class="pre">pynetdicom.dimse_primitives</span></code>)</a></li>
@@ -128,10 +123,13 @@
 </ul>
 </li>
 </ul>
+<p class="caption"><span class="caption-text">Examples</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../examples/index.html">Examples</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Additional Information</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="../../apps/index.html">Applications</a></li>
-</ul>
-<ul>
 <li class="toctree-l1"><a class="reference internal" href="../../changelog/index.html">Release Notes</a></li>
 </ul>
 
@@ -205,10 +203,10 @@
 <h1>pynetdicom.dimse_messages.N_CREATE_RSP<a class="headerlink" href="#pynetdicom-dimse-messages-n-create-rsp" title="Permalink to this headline">¶</a></h1>
 <dl class="class">
 <dt id="pynetdicom.dimse_messages.N_CREATE_RSP">
-<em class="property">class </em><code class="sig-prename descclassname">pynetdicom.dimse_messages.</code><code class="sig-name descname">N_CREATE_RSP</code><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/8ef6857f/pynetdicom/dimse_messages.py#L"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom.dimse_messages.N_CREATE_RSP" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="sig-prename descclassname">pynetdicom.dimse_messages.</code><code class="sig-name descname">N_CREATE_RSP</code><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/da5a1652/pynetdicom/dimse_messages.py#L"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom.dimse_messages.N_CREATE_RSP" title="Permalink to this definition">¶</a></dt>
 <dd><dl class="method">
 <dt id="pynetdicom.dimse_messages.N_CREATE_RSP.__init__">
-<code class="sig-name descname">__init__</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/8ef6857f/pynetdicom/dimse_messages.py#L655"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom.dimse_messages.N_CREATE_RSP.__init__" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">__init__</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/da5a1652/pynetdicom/dimse_messages.py#L660"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom.dimse_messages.N_CREATE_RSP.__init__" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <p class="rubric">Methods</p>
@@ -221,108 +219,20 @@
 <tr class="row-odd"><td><p><a class="reference internal" href="#pynetdicom.dimse_messages.N_CREATE_RSP.__init__" title="pynetdicom.dimse_messages.N_CREATE_RSP.__init__"><code class="xref py py-obj docutils literal notranslate"><span class="pre">__init__</span></code></a>()</p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#pynetdicom.dimse_messages.N_CREATE_RSP.decode_msg" title="pynetdicom.dimse_messages.N_CREATE_RSP.decode_msg"><code class="xref py py-obj docutils literal notranslate"><span class="pre">decode_msg</span></code></a>(primitive)</p></td>
-<td><p>Converts P-DATA primitives into a DIMSEMessage sub-class.</p></td>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">decode_msg</span></code>(primitive)</p></td>
+<td><p>Converts P-DATA primitives into a <code class="docutils literal notranslate"><span class="pre">DIMSEMessage</span></code> sub-class.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#pynetdicom.dimse_messages.N_CREATE_RSP.encode_msg" title="pynetdicom.dimse_messages.N_CREATE_RSP.encode_msg"><code class="xref py py-obj docutils literal notranslate"><span class="pre">encode_msg</span></code></a>(context_id, max_pdu_length)</p></td>
-<td><p>Yield P-DATA primitive(s) for the current DIMSE Message.</p></td>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">encode_msg</span></code>(context_id, max_pdu_length)</p></td>
+<td><p>Yield P-DATA primitives for the current DIMSE Message.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#pynetdicom.dimse_messages.N_CREATE_RSP.message_to_primitive" title="pynetdicom.dimse_messages.N_CREATE_RSP.message_to_primitive"><code class="xref py py-obj docutils literal notranslate"><span class="pre">message_to_primitive</span></code></a>()</p></td>
-<td><p>Convert the DIMSEMessage class to a DIMSE primitive.</p></td>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">message_to_primitive</span></code>()</p></td>
+<td><p>Convert the <code class="docutils literal notranslate"><span class="pre">DIMSEMessage</span></code> class to a DIMSE primitive.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#pynetdicom.dimse_messages.N_CREATE_RSP.primitive_to_message" title="pynetdicom.dimse_messages.N_CREATE_RSP.primitive_to_message"><code class="xref py py-obj docutils literal notranslate"><span class="pre">primitive_to_message</span></code></a>(primitive)</p></td>
-<td><p>Convert a DIMSE <cite>primitive</cite> to the current DIMSEMessage object.</p></td>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">primitive_to_message</span></code>(primitive)</p></td>
+<td><p>Convert a DIMSE <cite>primitive</cite> to the current <code class="docutils literal notranslate"><span class="pre">DIMSEMessage</span></code> object.</p></td>
 </tr>
 </tbody>
 </table>
-<dl class="method">
-<dt id="pynetdicom.dimse_messages.N_CREATE_RSP.decode_msg">
-<code class="sig-name descname">decode_msg</code><span class="sig-paren">(</span><em class="sig-param">primitive</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/8ef6857f/pynetdicom/dimse_messages.py#L219"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom.dimse_messages.N_CREATE_RSP.decode_msg" title="Permalink to this definition">¶</a></dt>
-<dd><p>Converts P-DATA primitives into a DIMSEMessage sub-class.</p>
-<p>Decodes the data from the P-DATA service primitive (which
-may contain the results of one or more P-DATA-TF PDUs) into the
-<cite>command_set</cite> and <cite>data_set</cite> attributes. Also sets the <cite>ID</cite> and
-<cite>encoded_command_set</cite> attributes of the DIMSEMessage sub-class object.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>primitive</strong> (<a class="reference internal" href="pynetdicom.pdu_primitives.P_DATA.html#pynetdicom.pdu_primitives.P_DATA" title="pynetdicom.pdu_primitives.P_DATA"><em>pdu_primitives.P_DATA</em></a>) – The P-DATA service primitive to be decoded into a DIMSE message.</p>
-</dd>
-<dt class="field-even">Returns</dt>
-<dd class="field-even"><p>True when the DIMSE message is completely decoded, False otherwise.</p>
-</dd>
-<dt class="field-odd">Return type</dt>
-<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.7)">bool</a></p>
-</dd>
-</dl>
-<p class="rubric">References</p>
-<ul class="simple">
-<li><p>DICOM Standard, Part 8, Annex E</p></li>
-</ul>
-</dd></dl>
-
-<dl class="method">
-<dt id="pynetdicom.dimse_messages.N_CREATE_RSP.encode_msg">
-<code class="sig-name descname">encode_msg</code><span class="sig-paren">(</span><em class="sig-param">context_id</em>, <em class="sig-param">max_pdu_length</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/8ef6857f/pynetdicom/dimse_messages.py#L330"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom.dimse_messages.N_CREATE_RSP.encode_msg" title="Permalink to this definition">¶</a></dt>
-<dd><p>Yield P-DATA primitive(s) for the current DIMSE Message.</p>
-<p><strong>Encoding</strong></p>
-<p>The encoding of the Command Set shall be Little Endian Implicit VR,
-while the Data Set will be encoded as per the agreed presentation
-context.</p>
-<p>A P-DATA request PDV List parameter shall contain one or more PDVs.
-Each PDV is wholly contained in a given P-DATA request and doesn’t
-span across several P-DATA request primitives.</p>
-<p>The fragmentation of any message results in a series of PDVs that shall
-be sent, on a given association, by a corresponding series of P-DATA
-requests preserving the ordering of the fragments of any message.
-No fragments of any other messages shall be sent until all fragments
-of the current message have been sent.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>context_id</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.7)"><em>int</em></a>) – The ID of the agreed presentation context.</p></li>
-<li><p><strong>max_pdu_length</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.7)"><em>int</em></a>) – The maximum PDV length in bytes.</p></li>
-</ul>
-</dd>
-<dt class="field-even">Yields</dt>
-<dd class="field-even"><p><em>pdu_primitives.P_DATA</em> – The current DIMSE message as one or more P-DATA service
-primitives.</p>
-</dd>
-</dl>
-<p class="rubric">References</p>
-<ul class="simple">
-<li><p>DICOM Standard, Part 7, Section 6.3.1</p></li>
-<li><p>DICOM Standard, Part 8, Annex E</p></li>
-</ul>
-</dd></dl>
-
-<dl class="method">
-<dt id="pynetdicom.dimse_messages.N_CREATE_RSP.message_to_primitive">
-<code class="sig-name descname">message_to_primitive</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/8ef6857f/pynetdicom/dimse_messages.py#L484"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom.dimse_messages.N_CREATE_RSP.message_to_primitive" title="Permalink to this definition">¶</a></dt>
-<dd><p>Convert the DIMSEMessage class to a DIMSE primitive.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Returns</dt>
-<dd class="field-odd"><p>One of the DIMSE message primitives from
-pynetdicom.dimse_primitives generated from
-the current DIMSEMessage.</p>
-</dd>
-<dt class="field-even">Return type</dt>
-<dd class="field-even"><p>DIMSE message primitive</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="method">
-<dt id="pynetdicom.dimse_messages.N_CREATE_RSP.primitive_to_message">
-<code class="sig-name descname">primitive_to_message</code><span class="sig-paren">(</span><em class="sig-param">primitive</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/8ef6857f/pynetdicom/dimse_messages.py#L545"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom.dimse_messages.N_CREATE_RSP.primitive_to_message" title="Permalink to this definition">¶</a></dt>
-<dd><p>Convert a DIMSE <cite>primitive</cite> to the current DIMSEMessage object.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>primitive</strong> – A DIMSE message primitive from pynetdicom.dimse_primitives
-to convert to the current DIMSEMessage object.</p>
-</dd>
-</dl>
-</dd></dl>
-
 </dd></dl>
 
 </div>
