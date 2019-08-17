@@ -19,9 +19,32 @@ LOGGER = logging.getLogger('pynetdicom.events')
 # Notification events
 #   No returns/yields needed, can have multiple handlers per event
 NotificationEvent = namedtuple('NotificationEvent', ['name', 'description'])
+"""Representation of a notification event.
+
+Possible notification events are:
+
+* :class:`EVT_ABORTED`
+* :class:`EVT_ACCEPTED`
+* :class:`EVT_ACSE_RECV`
+* :class:`EVT_ACSE_SENT`
+* :class:`EVT_CONN_CLOSE`
+* :class:`EVT_CONN_OPEN`
+* :class:`EVT_DATA_RECV`
+* :class:`EVT_DATA_SENT`
+* :class:`EVT_DIMSE_RECV`
+* :class:`EVT_DIMSE_SENT`
+* :class:`EVT_ESTABLISHED`
+* :class:`EVT_FSM_TRANSITION`
+* :class:`EVT_PDU_RECV`
+* :class:`EVT_PDU_SENT`
+* :class:`EVT_REJECTED`
+* :class:`EVT_RELEASED`
+* :class:`EVT_REQUESTED`
+"""
 NotificationEvent.is_intervention = False
 NotificationEvent.is_notification = True
 
+# pylint: disable=line-too-long
 EVT_ABORTED = NotificationEvent("EVT_ABORTED", "Association aborted")
 EVT_ACCEPTED = NotificationEvent("EVT_ACCEPTED", "Association request accepted")
 EVT_ACSE_RECV = NotificationEvent("EVT_ACSE_RECV", "ACSE primitive received from DUL")
@@ -43,6 +66,26 @@ EVT_REQUESTED = NotificationEvent("EVT_REQUESTED", "Association requested")
 # Intervention events
 #   Returns/yields needed if bound, can only have one handler per event
 InterventionEvent = namedtuple('InterventionEvent', ['name', 'description'])
+"""Representation of an intervention event.
+
+Possible intervention events are:
+
+* :class:`EVT_ASYNC_OPS`
+* :class:`EVT_SOP_COMMON`
+* :class:`EVT_SOP_EXTENDED`
+* :class:`EVT_USER_ID`
+* :class:`EVT_C_ECHO`
+* :class:`EVT_C_FIND`
+* :class:`EVT_C_GET`
+* :class:`EVT_C_MOVE`
+* :class:`EVT_C_STORE`
+* :class:`EVT_N_ACTION`
+* :class:`EVT_N_CREATE`
+* :class:`EVT_N_DELETE`
+* :class:`EVT_N_EVENT_REPORT`
+* :class:`EVT_N_GET`
+* :class:`EVT_N_SET`
+"""
 InterventionEvent.is_intervention = True
 InterventionEvent.is_notification = False
 
@@ -61,7 +104,7 @@ EVT_N_DELETE = InterventionEvent("EVT_N_DELETE", "N-DELETE request received")
 EVT_N_EVENT_REPORT = InterventionEvent("EVT_N_EVENT_REPORT", "N-EVENT-REPORT request received")
 EVT_N_GET = InterventionEvent("EVT_N_GET", "N-GET request received")
 EVT_N_SET = InterventionEvent("EVT_N_SET", "N-SET request received")
-
+# pylint: enable=line-too-long
 
 _INTERVENTION_EVENTS = [
     ii[1] for ii in inspect.getmembers(
@@ -76,7 +119,7 @@ _NOTIFICATION_EVENTS = [
 
 
 def get_default_handler(event):
-    """Get the default handler for an intervention `event`."""
+    """Return the default handler for an intervention `event`."""
     handlers = {
         EVT_ASYNC_OPS : _async_ops_handler,
         EVT_SOP_COMMON : _sop_common_handler,
@@ -103,43 +146,35 @@ def trigger(assoc, event, attrs=None):
     Notification events can be bound to multiple handlers, intervention events
     can only be bound to a single handler.
 
-    **Intervention Events**
-
-    * Service class requests: EVT_C_ECHO, EVT_C_FIND, EVT_C_GET, EVT_C_MOVE,
-      EVT_C_STORE, EVT_N_ACTION, EVT_N_CREATE, EVT_N_DELETE,
-      EVT_N_EVENT_REPORT, EVT_N_GET, EVT_N_SET
-    * Association extended negotiation requests: EVT_ASYNC_OPS, EVT_SOP_COMMON,
-      EVT_SOP_EXTENDED, EVT_USER_ID
-
     **Special Attributes**
 
     If `attrs` contains:
 
-    * `_is_cancelled` key then ``Event.is_cancelled`` will be hooked into
+    * `_is_cancelled` key then :attr:`Event.is_cancelled` will be hooked into
       the value's callable function.
-    * a C-FIND, C-GET or C-MOVE `request` key then ``Event.identifier`` will
-      return the decoded *Identifier* parameter value.
-    * a C-STORE `request` key then ``Event.dataset`` will return the decoded
-      *Data Set* parameter value.
-    * an N-ACTION `request` key then ``Event.action_information`` will return
-      the decoded *Action Information* parameter value.
-    * an N-CREATE `request` key then ``Event.attribute_list`` will return
+    * a C-FIND, C-GET or C-MOVE `request` key then :attr:`Event.identifier`
+      will return the decoded *Identifier* parameter value.
+    * a C-STORE `request` key then :attr:`Event.dataset` will return the
+      decoded *Data Set* parameter value.
+    * an N-ACTION `request` key then :attr:`Event.action_information` will
+      return the decoded *Action Information* parameter value.
+    * an N-CREATE `request` key then :attr:`Event.attribute_list` will return
       the decoded *Attribute List* parameter value.
-    * an N-EVENT-REPORT `request` key then ``Event.event_information`` will
+    * an N-EVENT-REPORT `request` key then :attr:`Event.event_information` will
       return the decoded *Event Information* parameter value.
-    * an N-SET `request` key then ``Event.modification_list`` will return
+    * an N-SET `request` key then :attr:`Event.modification_list` will return
       the decoded *Modification List* parameter value.
 
     Parameters
     ----------
     assoc : assoc.Association
         The association in which the event occurred.
-    event : event.NotificationEvent or event.InterventionEvent
+    event : events.NotificationEvent or events.InterventionEvent
         The event to trigger.
     attrs : dict, optional
-        The attributes to set in the Event instance that is passed to
+        The attributes to set in the :class:`Event` instance that is passed to
         the event's corresponding handler functions as
-        {attribute name : value}, default {}.
+        ``{attribute name : value}``, default ``{}``.
 
     Raises
     ------
@@ -181,13 +216,22 @@ def trigger(assoc, event, attrs=None):
 class Event(object):
     """Representation of an event.
 
+    .. warning::
+
+       Some of :class:`Event`'s attributes are set dynamically when an event is
+       triggered and are available only for a specific event. For example, the
+       ``Event.context`` attribute is only available for events such as
+       ``evt.EVT_C_ECHO``, ``evt.EVT_C_STORE``, etc. See the
+       :ref:`handler documentation<api_events>` for a list of what attributes
+       are available for a given event.
+
     Attributes
     ----------
     assoc : association.Association
         The association in which the event occurred.
     event : events.InterventionEvent or events.NotificationEvent
-        A ``collections.namedtuple`` instance representing the event that
-        occurred.
+        A :func:`namedtuple<collections.namedtuple>` instance representing the
+        event that occurred.
     timestamp : datetime.datetime
         The date/time the event was created. Will be slightly before or after
         the actual event that this object represents.
@@ -202,7 +246,8 @@ class Event(object):
         event : events.NotificationEvent or events.InterventionEvent
             The representation of the event that occurred.
         attrs : dict, optional
-            The {attribute : value} pairs to use to set the Event's attributes.
+            The ``{attribute : value}`` pairs to use to set the
+            :class:`Event`'s  attributes.
         """
         self.assoc = assoc
         self._event = event
@@ -227,10 +272,10 @@ class Event(object):
         Dataset.
 
         Because *pydicom* defers data parsing during decoding until an element
-        is actually required the returned ``Dataset`` may raise an exception
-        when any element is first accessed. It's therefore important that
-        proper error handling be part of any handler
-        that uses the returned ``Dataset``.
+        is actually required the returned :class:`~pydicom.dataset.Dataset`
+        may raise an exception when any element is first accessed. It's
+        therefore important that proper error handling be part of any handler
+        that uses the returned :class:`~pydicom.dataset.Dataset`.
 
         Returns
         -------
@@ -273,11 +318,11 @@ class Event(object):
     @property
     def attribute_identifiers(self):
         """Return an N-GET request's `Attribute Identifier List` as a list of
-        *pydicom* Tags.
+        *pydicom* BaseTag.
 
         Returns
         -------
-        list of pydicom.tag.Tag
+        list of pydicom.tag.BaseTag
             The (0000,1005) *Attribute Identifier List* tags, may be an empty
             list if no *Attribute Identifier List* was included in the C-GET
             request.
@@ -307,10 +352,10 @@ class Event(object):
         Dataset.
 
         Because *pydicom* defers data parsing during decoding until an element
-        is actually required the returned ``Dataset`` may raise an exception
-        when any element is first accessed. It's therefore important that
-        proper error handling be part of any handler
-        that uses the returned ``Dataset``.
+        is actually required the returned :class:`~pydicom.dataset.Dataset`
+        may raise an exception when any element is first accessed. It's
+        therefore important that proper error handling be part of any handler
+        that uses the returned :class:`~pydicom.dataset.Dataset`.
 
         Returns
         -------
@@ -333,10 +378,10 @@ class Event(object):
         """Return a C-STORE request's `Data Set` as a *pydicom* Dataset.
 
         Because *pydicom* defers data parsing during decoding until an element
-        is actually required the returned ``Dataset`` may raise an exception
-        when any element is first accessed. It's therefore important that
-        proper error handling be part of any handler
-        that uses the returned ``Dataset``.
+        is actually required the returned :class:`~pydicom.dataset.Dataset`
+        may raise an exception when any element is first accessed. It's
+        therefore important that proper error handling be part of any handler
+        that uses the returned :class:`~pydicom.dataset.Dataset`.
 
         Returns
         -------
@@ -361,7 +406,8 @@ class Event(object):
         Returns
         -------
         events.InterventionEvent or events.NotificationEvent
-            The corresponding event as a ``collections.namedtuple``.
+            The corresponding event as a
+            :func:`namedtuple<collections.namedtuple>`.
         """
         return self._event
 
@@ -371,10 +417,10 @@ class Event(object):
         *pydicom* Dataset.
 
         Because *pydicom* defers data parsing during decoding until an element
-        is actually required the returned ``Dataset`` may raise an exception
-        when any element is first accessed. It's therefore important that
-        proper error handling be part of any handler
-        that uses the returned ``Dataset``.
+        is actually required the returned :class:`~pydicom.dataset.Dataset`
+        may raise an exception when any element is first accessed. It's
+        therefore important that proper error handling be part of any handler
+        that uses the returned :class:`~pydicom.dataset.Dataset`.
 
         Returns
         -------
@@ -416,7 +462,8 @@ class Event(object):
 
     @property
     def file_meta(self):
-        """Return a *pydicom* Dataset with the File Meta Information for a
+        """Return a *pydicom* Dataset with the
+        :dcm:`File Meta Information<part10/chapter_7.html#sect_7.1>` for a
         C-STORE request's `Data Set`.
 
         Contains the following File Meta Information elements:
@@ -431,11 +478,20 @@ class Event(object):
         --------
 
         Add the File Meta Information to the decoded *Data Set* and save it to
-        the DICOM File Format.
+        the :dcm:`DICOM File Format<part10/chapter_7.html>`.
 
         >>> ds = event.dataset
         >>> ds.file_meta = event.file_meta
         >>> ds.save_as('example.dcm')
+
+        Encode the File Meta Information in a new file and append the encoded
+        *Data Set* to it. This skips having to decode/re-encode the *Data Set*
+        as in the previous example.
+
+        >>> from pynetdicom.dsutils import encode
+        >>> with open('example.dcm', 'wb') as fp:
+        ...     fp.write(encode(event.file_meta, False, True))
+        ...     fp.write(event.request.DataSet.getvalue())
 
         Returns
         -------
@@ -532,10 +588,10 @@ class Event(object):
         *pydicom* Dataset.
 
         Because *pydicom* defers data parsing during decoding until an element
-        is actually required the returned ``Dataset`` may raise an exception
-        when any element is first accessed. It's therefore important that
-        proper error handling be part of any handler that
-        uses the returned ``Dataset``.
+        is actually required the returned :class:`~pydicom.dataset.Dataset`
+        may raise an exception when any element is first accessed. It's
+        therefore important that proper error handling be part of any handler
+        that uses the returned :class:`~pydicom.dataset.Dataset`.
 
         Returns
         -------
@@ -556,18 +612,18 @@ class Event(object):
 
     @property
     def is_cancelled(self):
-        """Return True if a C-CANCEL request has been received.
+        """Return ``True`` if a C-CANCEL request has been received.
 
         Returns
         -------
         bool
             If this event corresponds to a C-FIND, C-GET or C-MOVE request
-            being received by a Service Class then returns True if a C-CANCEL
-            request with a *Message ID Being Responded To* parameter value
-            corresponding to the *Message ID* of the service request has been
-            received. If no such C-CANCEL request has been received or if
+            being received by a Service Class then returns ``True`` if a
+            C-CANCEL request with a *Message ID Being Responded To* parameter
+            value corresponding to the *Message ID* of the service request has
+            been received. If no such C-CANCEL request has been received or if
             the event is not a C-FIND, C-GET or C-MOVE request then returns
-            False.
+            ``False``.
         """
         try:
             return self._is_cancelled(self.request.MessageID)
@@ -582,10 +638,10 @@ class Event(object):
         Dataset.
 
         Because *pydicom* defers data parsing during decoding until an element
-        is actually required the returned ``Dataset`` may raise an exception
-        when any element is first accessed. It's therefore important that
-        proper error handling be part of any handler
-        that uses the returned ``Dataset``.
+        is actually required the returned :class:`~pydicom.dataset.Dataset`
+        may raise an exception when any element is first accessed. It's
+        therefore important that proper error handling be part of any handler
+        that uses the returned :class:`~pydicom.dataset.Dataset`.
 
         Returns
         -------

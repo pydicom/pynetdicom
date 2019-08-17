@@ -34,25 +34,29 @@ class DULServiceProvider(Thread):
     Attributes
     ----------
     artim_timer : timer.Timer
-        The ARTIM timer
+        The :dcm:`ARTIM<part08/chapter_9.html#sect_9.1.5>` timer.
     socket : transport.AssociationSocket
-        A wrapped socket.socket object used to communicate with the peer.
+        A wrapped :pyd:`socket.socket<3/library/socket.html#socket-objects>`
+        object used to communicate with the peer.
     to_provider_queue : queue.Queue
         Queue of PDUs from the DUL service user to be processed by the DUL
-        provider
+        provider.
     to_user_queue : queue.Queue
-        Queue of primitives from the DUL service to be processed by the DUL user
+        Queue of primitives from the DUL service to be processed by the DUL
+        user.
     event_queue : queue.Queue
-        List of queued events to be processed by the state machine
+        List of queued events to be processed by the state machine.
     state_machine : fsm.StateMachine
-        The DICOM Upper Layer's State Machine
+        The DICOM Upper Layer's State Machine.
     """
     def __init__(self, assoc):
-        """
+        """Create a new DUL service provider for `assoc`.
+
         Parameters
         ----------
         assoc : association.Association
-            The DUL's parent Association instance.
+            The DUL's parent :class:`~pynetdicom.association.Association`
+            instance.
         """
         # The association thread
         self._assoc = assoc
@@ -92,7 +96,7 @@ class DULServiceProvider(Thread):
 
     @property
     def assoc(self):
-        """Return the Association we are providing DUL services for."""
+        """Return the parent :class:`~pynetdicom.association.Association`."""
         return self._assoc
 
     def _check_incoming_primitive(self):
@@ -143,14 +147,7 @@ class DULServiceProvider(Thread):
         return pdu, event
 
     def idle_timer_expired(self):
-        """
-        Checks if the idle timer has expired
-
-        Returns
-        -------
-        bool
-            True if the idle timer has expired, False otherwise.
-        """
+        """Return ``True`` if the network idle timer has expired."""
         return self._idle_timer.expired
 
     def _is_transport_event(self):
@@ -191,12 +188,12 @@ class DULServiceProvider(Thread):
         return False
 
     def kill_dul(self):
-        """Immediately interrupts the thread"""
+        """Kill the DUL reactor and stop the thread"""
         self._kill_thread = True
 
     @property
     def network_timeout(self):
-        """Return the network_timeout."""
+        """Return the network timeout (in seconds)."""
         return self.assoc.network_timeout
 
     def peek_next_pdu(self):
@@ -332,17 +329,17 @@ class DULServiceProvider(Thread):
         Parameters
         ----------
         wait : bool, optional
-            If `wait` is True and `timeout` is None, blocks until an item
-            is available. If `timeout` is a positive number, blocks at most
-            `timeout` seconds. Otherwise returns an item if one is immediately
-            available.
+            If `wait` is ``True`` and `timeout` is ``None``, blocks until an
+            item is available. If `timeout` is a positive number, blocks at
+            most `timeout` seconds. Otherwise returns an item if one is
+            immediately available.
         timeout : int or None
             See the definition of `wait`
 
         Returns
         -------
-        queue_item
-            The next object in the to_user_queue.
+        object
+            The next object in the :attr:`~DULServiceProvider.to_user_queue`.
         None
             If the queue is empty.
         """
@@ -367,10 +364,12 @@ class DULServiceProvider(Thread):
             return None
 
     def run(self):
-        """
-        The main threading.Thread run loop. Runs constantly, checking the
-        connection for incoming data. When incoming data is received it
-        categorises it and add its to the `to_user_queue`.
+        """Run the DUL reactor.
+
+        The main :class:`threading.Thread` run loop. Runs constantly, checking
+        the connection for incoming data. When incoming data is received it
+        categorises it and add its to the
+        :attr:`~DULServiceProvider.to_user_queue`.
         """
         # Main DUL loop
         self._idle_timer.start()
@@ -434,9 +433,16 @@ class DULServiceProvider(Thread):
 
         Parameters
         ----------
-        primitive - pdu_primitives class
-            A service primitive, one of A_ASSOCIATE, A_RELEASE, A_ABORT,
-            A_P_ABORT or P_DATA.
+        primitive : pdu_primitives.PDU sub-class
+            A service primitive, one of:
+
+            .. currentmodule:: pynetdicom.pdu_primitives
+
+            * :class:`A_ASSOCIATE`
+            * :class:`A_RELEASE`
+            * :class:`A_ABORT`
+            * :class:`A_P_ABORT`
+            * :class:`P_DATA`
         """
         # Event handler - ACSE sent primitive to the DUL service
         acse_primitives = (A_ASSOCIATE, A_RELEASE, A_ABORT, A_P_ABORT)
@@ -448,13 +454,13 @@ class DULServiceProvider(Thread):
         self.to_provider_queue.put(primitive)
 
     def stop_dul(self):
-        """
-        Interrupts the thread if state is "Sta1"
+        """Stop the reactor if current state is ``'Sta1'``
 
         Returns
         -------
         bool
-            True if Sta1, False otherwise
+            ``True`` if ``'Sta1'`` and the reactor has stopped, ``False``
+            otherwise
         """
         if self.state_machine.current_state == 'Sta1':
             self._kill_thread = True

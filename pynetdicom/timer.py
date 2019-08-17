@@ -15,33 +15,36 @@ class Timer(object):
     used by the state machine to monitor connection and response timeouts.
     This class may also be used as a general purpose expiry timer.
 
-    A `timeout` of None implies that `expired` always returns False and
-    `remaining` always returns 1.
-    A `timeout` of float implies that:
+    A :attr:`~Timer.timeout` of ``None`` implies that :attr:`~Timer.expired`
+    always returns ``False`` and :attr:`~Timer.remaining` always returns ``1``.
+    A :attr:`~Timer.timeout` of :class:`float` implies that:
 
-    - If not yet started, `expired` returns False and remaining returns
-      `timeout`
-    - If started then `expired` returns False until the time since starting
-      is greater than `timeout` after which it returns True. `remaining`
-      returns the number of seconds until `expired` returns True (will
-      return negative value after expiry)
-    - If started then stopped before the timeout then `expired` returns
-      False, if stopped after the time since starting is greater than `timeout`
-      then returns True. `remaining` always returns the number of seconds
-      until `expired` returns True.
+    - If not yet started, :attr:`~Timer.expired` returns ``False`` and
+      :attr:`~Timer.remaining` returns :attr:`~Timer.timeout`
+    - If started then :attr:`~Timer.expired` returns ``False`` until the time
+      since starting is greater than :attr:`~Timer.timeout` after which it
+      returns ``True``. :attr:`~Timer.remaining` returns the number of seconds
+      until :attr:`~Timer.expired` returns ``True`` (will return negative
+      value after expiry)
+    - If started then stopped before the timeout then :attr:`~Timer.expired`
+      returns ``False``, if stopped after the time since starting is greater
+      than :attr:`~Timer.timeout` then returns ``True``.
+      :attr:`~Timer.remaining` always returns the number of seconds until
+      :attr:`~Timer.expired` returns ``True``.
 
     References
     ----------
 
-    * DICOM Standard, Part 8, Section 9.1.5.
+    * DICOM Standard, Part 8,
+      :dcm:`Section 9.1.5<part08/chapter_9.html#sect_9.1.5>`.
     """
     def __init__(self, timeout):
-        """Create a new Timer.
+        """Create a new :class:`Timer`.
 
         Parameters
         ---------
         timeout : numeric or None
-            The number of seconds before the timer expires. A value of None
+            The number of seconds before the timer expires. A value of ``None``
             means the timer never expires.
         """
         self._start_time = None
@@ -55,7 +58,7 @@ class Timer(object):
         Returns
         -------
         bool
-            True if the timer has expired, False otherwise
+            ``True`` if the timer has expired, ``False`` otherwise
         """
         # Timer never expires
         if self.timeout is None:
@@ -75,7 +78,7 @@ class Timer(object):
     def remaining(self):
         """Return the number of seconds remaining until timeout.
 
-        Returns 1 if the timer is set to never expire.
+        Returns ``1`` if the timer is set to never expire.
         """
         # Timer never expires
         if self.timeout is None:
@@ -107,7 +110,7 @@ class Timer(object):
 
     @property
     def timeout(self):
-        """Return the number of seconds set for timeout."""
+        """Return the number of seconds set for :attr:`~Timer.timeout`."""
         return self._timeout
 
     @timeout.setter
@@ -117,7 +120,7 @@ class Timer(object):
         Parameters
         ----------
         value : numeric or None
-            The number of seconds before the timer expires. A value of None
+            The number of seconds before the timer expires. A value of ``None``
             means the timer never expires.
         """
         # pylint: disable=attribute-defined-outside-init

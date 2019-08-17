@@ -2,19 +2,10 @@
 
 import logging
 
-from pynetdicom.dimse_messages import *
+#from pynetdicom.dimse_messages import *
 from pynetdicom.pdu import (
     A_ASSOCIATE_RQ, A_ASSOCIATE_AC, A_ASSOCIATE_RJ, A_RELEASE_RQ,
     A_RELEASE_RP, A_ABORT_RQ, P_DATA_TF
-)
-from pynetdicom.pdu_primitives import (
-    A_ASSOCIATE, A_RELEASE, A_ABORT, A_P_ABORT,
-    SOPClassExtendedNegotiation,
-    SOPClassCommonExtendedNegotiation,
-    SCP_SCU_RoleSelectionNegotiation,
-    AsynchronousOperationsWindowNegotiation,
-    UserIdentityNegotiation,
-    ImplementationVersionNameNotification
 )
 from pynetdicom.sop_class import uid_to_service_class
 from pynetdicom.utils import pretty_bytes
@@ -35,16 +26,15 @@ def standard_pdu_recv_handler(event):
     ----------
     event : events.Event
         The ``evt.EVT_PDU_RECV`` event corresponding to receiving and decoding
-        a PDU from the peer. ``Event`` attributes are:
+        a PDU from the peer. :class:`~pynetdicom.events.Event` attributes are:
 
-        * ``assoc`` : the
-          :py:class:`association <pynetdicom.association.Association>`
+        * :attr:`~pynetdicom.events.Event.assoc`: the
+          :class:`~pynetdicom.association.Association`
           that received the PDU.
-        * ``pdu`` : the PDU that was received, one of the ``pdu.PDU``
+        * ``pdu``: the PDU that was received, one of the ``pdu.PDU``
           subclasses.
-        * ``timestamp`` : the
-          `date and time <https://docs.python.org/3/library/datetime.html#datetime-objects>`_
-          that the PDU was received.
+        * :attr:`~pynetdicom.events.Event.timestamp`: the date and time that
+          the PDU was received as :class:`datetime.datetime`.
     """
     pdu = event.pdu
     handlers = {
@@ -70,15 +60,14 @@ def standard_pdu_sent_handler(event):
     ----------
     event : events.Event
         The ``evt.EVT_PDU_SENT`` event corresponding to encoding and sending
-        a PDU to the peer. ``Event`` attributes are:
+        a PDU to the peer. :class:`~pynetdicom.events.Event` attributes are:
 
-        * ``assoc`` : the
-          :py:class:`association <pynetdicom.association.Association>`
+        * :attr:`~pynetdicom.events.Event.assoc`: the
+          :class:`~pynetdicom.association.Association`
           that sent the PDU.
-        * ``pdu`` : the PDU that was sent, one of the ``pdu.PDU`` subclasses.
-        * ``timestamp`` : the
-          `date and time <https://docs.python.org/3/library/datetime.html#datetime-objects>`_
-          that the PDU was sent.
+        * ``pdu``: the PDU that was sent, one of the ``pdu.PDU`` subclasses.
+        * :attr:`~pynetdicom.events.Event.timestamp`: the date and time that
+          the PDU was sent as :class:`datetime.datetime`.
     """
     pdu = event.pdu
     handlers = {
@@ -100,15 +89,15 @@ def standard_dimse_recv_handler(event):
     ----------
     event : events.Event
         The ``evt.EVT_DIMSE_RECV`` event corresponding to the DIMSE decoding
-        a message received from the peer. ``Event`` attributes are:
+        a message received from the peer. :class:`~pynetdicom.events.Event`
+        attributes are:
 
-        * ``assoc`` : the
-          :py:class:`association <pynetdicom.association.Association>`
+        * :attr:`~pynetdicom.events.Event.assoc`: the
+          :class:`~pynetdicom.association.Association`
           that the DIMSE is providing services for.
-        * ``message`` : the DIMSE message that was received.
-        * ``timestamp`` : the
-          `date and time <https://docs.python.org/3/library/datetime.html#datetime-objects>`_
-          that the message was decoded.
+        * ``message``: the DIMSE message that was received.
+        * :attr:`~pynetdicom.events.Event.timestamp`: the date and time that
+          the message was decoded as :class:`datetime.datetime`.
     """
     handlers = {
         C_ECHO_RQ: _recv_c_echo_rq,
@@ -146,15 +135,15 @@ def standard_dimse_sent_handler(event):
     ----------
     event : events.Event
         The ``evt.EVT_DIMSE_SENT`` event corresponding to the DIMSE encoding
-        a message to be sent to the peer. ``Event`` attributes are:
+        a message to be sent to the peer. :class:`~pynetdicom.events.Event`
+        attributes are:
 
-        * ``assoc`` : the
-          :py:class:`association <pynetdicom.association.Association>`
+        * :attr:`~pynetdicom.events.Event.assoc`: the
+          :class:`~pynetdicom.association.Association`
           that the DIMSE is providing services for.
-        * ``message`` : the DIMSE message to be sent.
-        * ``timestamp`` : the
-          `date and time <https://docs.python.org/3/library/datetime.html#datetime-objects>`_
-          that the message was decoded.
+        * ``message``: the DIMSE message to be sent.
+        * :attr:`~pynetdicom.events.Event.timestamp`: the date and time that
+          the message was decode as :class:`datetime.datetime`.
     """
     handlers = {
         C_ECHO_RQ: _send_c_echo_rq,
@@ -2022,11 +2011,11 @@ def doc_handle_echo(event):
 
     **Event**
 
-    `evt.EVT_C_ECHO`
+    ``evt.EVT_C_ECHO``
 
     **Supported Service Classes**
 
-    * *Verification Service Class*
+    * :dcm:`Verification Service Class<part04/chapter_A.html>`
 
     **Status**
 
@@ -2043,45 +2032,48 @@ def doc_handle_echo(event):
     ----------
     event : events.Event
         The event representing a service class receiving a C-ECHO
-        request message. ``Event`` attributes are:
+        request message. :class:`~pynetdicom.events.Event` attributes are:
 
-        * ``assoc`` : the
-          :py:class:`association <pynetdicom.association.Association>`
+        * :attr:`~pynetdicom.events.Event.assoc`: the
+          :class:`~pynetdicom.association.Association`
           that is running the DICOM service that received the C-ECHO request.
-        * ``context`` : the presentation context the request was sent under
-          as a ``presentation.PresentationContextTuple``.
-        * ``event`` : the event that occurred as ``namedtuple``.
-        * ``request`` : the received
-          :py:class:`C-ECHO request <pynetdicom.dimse_primitives.C_ECHO>`
-        * ``timestamp`` : the
-          `date and time <https://docs.python.org/3/library/datetime.html#datetime-objects>`_
-          that the C-ECHO request was processed by the service.
+        * :attr:`~pynetdicom.events.Event.context`: the presentation context
+          the request was sent under as a
+          :class:`~pynetdicom.presentation.PresentationContextTuple`.
+        * :attr:`~pynetdicom.events.Event.event`: the event that occurred as an
+          :class:`~pynetdicom.events.InterventionEvent`.
+        * :attr:`~pynetdicom.events.Event.request`: the received
+          :class:`C-ECHO request <pynetdicom.dimse_primitives.C_ECHO>`
+        * :attr:`~pynetdicom.events.Event.timestamp`: the date and time
+          that the C-ECHO request was processed by the service as
+          :class:`datetime.datetime`.
 
     Returns
     -------
     status : pydicom.dataset.Dataset or int
         The status returned to the peer AE in the C-ECHO response. Must be
         a valid C-ECHO status value for the applicable Service Class as
-        either an ``int`` or a ``Dataset`` object containing (at a minimum)
-        a (0000,0900) *Status* element. If returning a ``Dataset`` object
+        either an :class:`int` or a :class:`~pydicom.dataset.Dataset` object
+        containing (at a minimum) a (0000,0900) *Status* element. If returning
+        a :class:`~pydicom.dataset.Dataset` object
         then it may also contain optional elements related to the *Status*
-        (as in the DICOM Standard Part 7, Annex C).
+        (as in the DICOM Standard, Part 7,
+        :dcm:`Annex C<part07/chapter_C.html>`).
 
     See Also
     --------
-
-    :py:meth:`send_c_echo() <pynetdicom.association.Association.send_c_echo>`
-    :py:class:`C_ECHO<pynetdicom.dimse_primitives.C_ECHO>`
-    :py:class:`VerificationServiceClass<pynetdicom.service_class.VerificationServiceClass>`
+    :meth:`~pynetdicom.association.Association.send_c_echo`
+    :class:`~pynetdicom.dimse_primitives.C_ECHO`
+    :class:`~pynetdicom.service_class.VerificationServiceClass`
 
     References
     ----------
 
-    * DICOM Standard Part 4, `Annex A <http://dicom.nema.org/medical/dicom/current/output/html/part04.html#chapter_A>`_
-    * DICOM Standard Part 7, Sections
-      `9.1.5 <http://dicom.nema.org/medical/dicom/current/output/html/part07.html#sect_9.1.5>`_,
-      `9.3.5 <http://dicom.nema.org/medical/dicom/current/output/html/part07.html#sect_9.3.5>`_
-      and `Annex C <http://dicom.nema.org/medical/dicom/current/output/html/part07.html#chapter_C>`_
+    * DICOM Standard, Part 4, :dcm:`Annex A<part04/chapter_A.html>`
+    * DICOM Standard, Part 7, Sections
+      :dcm:`9.1.5<part07/chapter_9.html#sect_9.1.5>`,
+      :dcm:`9.3.5<part07/sect_9.3.5.html>`, and
+      :dcm:`Annex C<part07/chapter_C.html>`
     """
     pass
 
@@ -2094,8 +2086,9 @@ def doc_handle_find(event):
     will be responded to using a  *Status* value of ``0xC311`` - Failure.
 
     Yields ``(status, identifier)`` pairs, where *status* is either an
-    ``int`` or pydicom ``Dataset`` containing a (0000,0900) *Status*
-    element and *identifier* is a C-FIND *Identifier* ``Dataset``.
+    :class:`int` or pydicom :class:`~pydicom.dataset.Dataset` containing a
+    (0000,0900) *Status* element and *identifier* is a C-FIND *Identifier*
+    :class:`~pydicom.dataset.Dataset`.
 
     **Event**
 
@@ -2103,14 +2096,17 @@ def doc_handle_find(event):
 
     **Supported Service Classes**
 
-    * *Query/Retrieve Service Class*
-    * *Basic Worklist Management Service*
-    * *Relevant Patient Information Query Service*
-    * *Substance Administration Query Service*
-    * *Hanging Protocol Query/Retrieve Service*
-    * *Defined Procedure Protocol Query/Retrieve Service*
-    * *Color Palette Query/Retrieve Service*
-    * *Implant Template Query/Retrieve Service*
+    * :dcm:`Query/Retrieve Service Class<part04/chapter_C.html>`
+    * :dcm:`Basic Worklist Management Service<part04/chapter_K.html>`
+    * :dcm:`Relevant Patient Information Query Service<part04/chapter_Q.html>`
+    * :dcm:`Hanging Protocol Query/Retrieve Service<part04/chapter_U.html>`
+    * :dcm:`Substance Administration Query Service<part04/chapter_V.html>`
+    * :dcm:`Color Palette Query/Retrieve Service<part04/chapter_X.html>`
+    * :dcm:`Implant Template Query/Retrieve Service<part04/chapter_BB.html>`
+    * :dcm:`Unified Procedure Step Service<part04/chapter_CC.html>`
+    * :dcm:`Defined Procedure Protocol Query/Retrieve Service
+      <part04/chapter_HH.html>`
+    * :dcm:`Protocol Approval Query/Retrieve Service<part04/chapter_II.html>`
 
     **Status**
 
@@ -2137,46 +2133,50 @@ def doc_handle_find(event):
     ----------
     event : events.Event
         The event representing a service class receiving a C-FIND
-        request message. ``Event`` attributes are:
+        request message. :class:`~pynetdicom.events.Event` attributes are:
 
-        * ``assoc`` : the
-          :py:class:`association <pynetdicom.association.Association>`
+        * :attr:`~pynetdicom.events.Event.assoc`: the
+          :class:`~pynetdicom.association.Association`
           that is running the service that received the C-FIND request.
-        * ``context`` : the presentation context the request was sent under
-          as a ``presentation.PresentationContextTuple``.
-        * ``event`` : the event that occurred as ``namedtuple``.
-        * ``request`` : the received
-          :py:class:`C-FIND request <pynetdicom.dimse_primitives.C_FIND>`
-        * ``timestamp`` : the
-          `date and time <https://docs.python.org/3/library/datetime.html#datetime-objects>`_
-          that the C-FIND request was processed by the service.
+        * :attr:`~pynetdicom.events.Event.context`: the presentation context
+          the request was sent under
+          as a :class:`~pynetdicom.presentation.PresentationContextTuple`.
+        * :attr:`~pynetdicom.events.Event.event`: the event that occurred as
+          :class:`~pynetdicom.events.InterventionEvent`.
+        * :attr:`~pynetdicom.events.Event.request`: the received
+          :class:`C-FIND request <pynetdicom.dimse_primitives.C_FIND>`
+        * :attr:`~pynetdicom.events.Event.timestamp`: the date and time
+          that the C-FIND request was processed by the service as
+          :class:`datetime.datetime`.
 
-        ``Event`` properties are:
+        :class:`~pynetdicom.events.Event` properties are:
 
-        * ``identifier`` : the decoded
-          :py:class:`Dataset <pydicom.dataset.Dataset>` contained within the
+        * :attr:`~pynetdicom.events.Event.identifier`: the decoded
+          :class:`~pydicom.dataset.Dataset` contained within the
           C-FIND request's *Identifier* parameter. Because *pydicom* uses
           a deferred read when decoding data, if the decode fails the returned
-          ``Dataset`` will only raise an exception at the time of use.
-        * ``is_cancelled`` : returns ``True`` if a
-          C-CANCEL request has been received, False otherwise. If a C-CANCEL
-          is received then the handler should ``yield (0xFE00, None)`` and
-          return.
+          :class:`~pydicom.dataset.Dataset` will only raise an exception at
+          the time of use.
+        * :attr:`~pynetdicom.events.Event.is_cancelled`: returns ``True`` if a
+          C-CANCEL request has been received, ``False`` otherwise. If a
+          C-CANCEL is received then the handler should ``yield (0xFE00, None)``
+          and ``return``.
 
     Yields
     ------
     status : pydicom.dataset.Dataset or int
         The status returned to the peer AE in the C-FIND response. Must be
         a valid C-FIND status vuale for the applicable Service Class as
-        either an ``int`` or a ``Dataset`` object containing (at a minimum)
-        a (0000,0900) *Status* element. If returning a ``Dataset`` object then
+        either an :class:`int` or a :class:`~pydicom.dataset.Dataset` object
+        containing (at a minimum) a (0000,0900) *Status* element. If returning
+        a :class:`~pydicom.dataset.Dataset` object then
         it may also contain optional elements related to the *Status* (as in
-        DICOM Standard Part 7, Annex C).
+        DICOM Standard, Part 7, :dcm:`Annex C<part07/chapter_C.html>`).
     identifier : pydicom.dataset.Dataset or None
-        If the status category is 'Pending' then the *Identifier* ``Dataset``
-        for a matching SOP Instance. The exact requirements for the C-FIND
-        response *Identifier* are Service Class specific (see the
-        DICOM Standard, Part 4).
+        If the status category is 'Pending' then the *Identifier*
+        :class:`~pydicom.dataset.Dataset` for a matching SOP Instance. The
+        exact requirements for the C-FIND response *Identifier* are Service
+        Class specific (see the DICOM Standard, Part 4).
 
         If the status category is 'Failure' or 'Cancel' then yield ``None``.
 
@@ -2186,34 +2186,39 @@ def doc_handle_find(event):
 
     See Also
     --------
-    :py:meth:`send_c_find()<pynetdicom.association.Association.send_c_find>`
-    :py:class:`C_FIND<pynetdicom.dimse_primitives.C_FIND>`
-    :py:class:`QueryRetrieveServiceClass<pynetdicom.service_class.QueryRetrieveServiceClass>`
-    :py:class:`BasicWorklistManagementServiceClass<pynetdicom.service_class.BasicWorklistManagementServiceClass>`
-    :py:class:`RelevantPatientInformationQueryServiceClass<pynetdicom.service_class.RelevantPatientInformationQueryServiceClass>`
-    :py:class:`SubstanceAdministrationQueryServiceClass<pynetdicom.service_class.SubstanceAdministrationQueryServiceClass>`
-    :py:class:`HangingProtocolQueryRetrieveServiceClass<pynetdicom.service_class.HangingProtocolQueryRetrieveServiceClass>`
-    :py:class:`DefinedProcedureProtocolQueryRetrieveServiceClass<pynetdicom.service_class.DefinedProcedureProtocolQueryRetrieveServiceClass>`
-    :py:class:`ColorPaletteQueryRetrieveServiceClass<pynetdicom.service_class.ColorPaletteQueryRetrieveServiceClass>`
-    :py:class:`ImplantTemplateQueryRetrieveServiceClass<pynetdicom.service_class.ImplantTemplateQueryRetrieveServiceClass>`
+
+    .. currentmodule:: pynetdicom.service_class
+
+    :meth:`~pynetdicom.association.Association.send_c_find`
+    :class:`~pynetdicom.dimse_primitives.C_FIND`
+    :class:`~QueryRetrieveServiceClass`
+    :class:`BasicWorklistManagementServiceClass`
+    :class:`RelevantPatientInformationQueryServiceClass`
+    :class:`SubstanceAdministrationQueryServiceClass`
+    :class:`HangingProtocolQueryRetrieveServiceClass`
+    :class:`DefinedProcedureProtocolQueryRetrieveServiceClass`
+    :class:`ColorPaletteQueryRetrieveServiceClass`
+    :class:`ImplantTemplateQueryRetrieveServiceClass`
+    :class:`~pynetdicom.service_class_n.UnifiedProcedureStepServiceClass`
+    :class:`ProtocolApprovalQueryRetrieveServiceClass`
 
     References
     ----------
 
-    * DICOM Standard Part 4, Annexes
-      `C <http://dicom.nema.org/medical/dicom/current/output/html/part04.html#chapter_C>`_,
-      `K <http://dicom.nema.org/medical/dicom/current/output/html/part04.html#chapter_K>`_,
-      `Q <http://dicom.nema.org/medical/dicom/current/output/html/part04.html#chapter_Q>`_,
-      `U <http://dicom.nema.org/medical/dicom/current/output/html/part04.html#chapter_U>`_,
-      `V <http://dicom.nema.org/medical/dicom/current/output/html/part04.html#chapter_V>`_,
-      `X <http://dicom.nema.org/medical/dicom/current/output/html/part04.html#chapter_X>`_,
-      `BB <http://dicom.nema.org/medical/dicom/current/output/html/part04.html#chapter_BB>`_,
-      `CC <http://dicom.nema.org/medical/dicom/current/output/html/part04.html#chapter_CC>`_
-      and `HH <http://dicom.nema.org/medical/dicom/current/output/html/part04.html#chapter_HH>`_
-    * DICOM Standard Part 7, Sections
-      `9.1.2 <http://dicom.nema.org/medical/dicom/current/output/html/part07.html#sect_9.1.2>`_,
-      `9.3.2 <http://dicom.nema.org/medical/dicom/current/output/html/part07.html#sect_9.3.2>`_
-      and `Annex C <http://dicom.nema.org/medical/dicom/current/output/html/part07.html#chapter_C>`_
+    * DICOM Standard, Part 4, :dcm:`Annex C<part04/chapter_C.html>`
+    * DICOM Standard, Part 4, :dcm:`Annex K<part04/chapter_K.html>`
+    * DICOM Standard, Part 4, :dcm:`Annex Q<part04/chapter_Q.html>`
+    * DICOM Standard, Part 4, :dcm:`Annex U<part04/chapter_U.html>`
+    * DICOM Standard, Part 4, :dcm:`Annex V<part04/chapter_V.html>`
+    * DICOM Standard, Part 4, :dcm:`Annex X<part04/chapter_X.html>`
+    * DICOM Standard, Part 4, :dcm:`Annex BB<part04/chapter_BB.html>`
+    * DICOM Standard, Part 4, :dcm:`Annex CC<part04/chapter_CC.html>`
+    * DICOM Standard, Part 4, :dcm:`Annex HH<part04/chapter_HH.html>`
+    * DICOM Standard, Part 4, :dcm:`Annex II<part04/chapter_II.html>`
+    * DICOM Standard, Part 7, Sections
+      :dcm:`9.1.2<part07/chapter_9.html#sect_9.1.2>`,
+      :dcm:`9.3.2<part07/sect_9.3.2.html>` and
+      :dcm:`Annex C<part07/chapter_C.html>`
     """
     pass
 
@@ -2225,8 +2230,8 @@ def doc_handle_c_get(event):
     not implemented and bound to ``evt.EVT_C_GET`` then the C-GET request
     will be responded to using a  *Status* value of ``0xC411`` - Failure.
 
-    Yields an ``int`` containing the total number of C-STORE sub-operations,
-    then yields ``(status, dataset)`` pairs.
+    Yields an :class:`int` containing the total number of C-STORE
+    sub-operations, then yields ``(status, dataset)`` pairs.
 
     **Event**
 
@@ -2234,11 +2239,13 @@ def doc_handle_c_get(event):
 
     **Supported Service Classes**
 
-    * *Query/Retrieve Service Class*
-    * *Hanging Protocol Query/Retrieve Service*
-    * *Defined Procedure Protocol Query/Retrieve Service*
-    * *Color Palette Query/Retrieve Service*
-    * *Implant Template Query/Retrieve Service*
+    * :dcm:`Query/Retrieve Service Class<part04/chapter_C.html>`
+    * :dcm:`Hanging Protocol Query/Retrieve Service<part04/chapter_U.html>`
+    * :dcm:`Color Palette Query/Retrieve Service<part04/chapter_X.html>`
+    * :dcm:`Implant Template Query/Retrieve Service<part04/chapter_BB.html>`
+    * :dcm:`Defined Procedure Protocol Query/Retrieve Service
+      <part04/chapter_HH.html>`
+    * :dcm:`Protocol Approval Query/Retrieve Service<part04/chapter_II.html>`
 
     **Status**
 
@@ -2275,31 +2282,34 @@ def doc_handle_c_get(event):
     ----------
     event : events.Event
         The event representing a service class receiving a C-GET
-        request message. ``Event`` attributes are:
+        request message. :class:`~pynetdicom.events.Event` attributes are:
 
-        * ``assoc`` : the
-          :py:class:`association <pynetdicom.association.Association>`
+        * :attr:`~pynetdicom.events.Event.assoc`: the
+          :class:`~pynetdicom.association.Association`
           that is running the service that received the C-GET request.
-        * ``context`` : the presentation context the request was sent under
-          as a ``presentation.PresentationContextTuple``.
-        * ``event`` : the event that occurred as ``namedtuple``.
-        * ``request`` : the received
-          :py:class:`C-GET request <pynetdicom.dimse_primitives.C_GET>`
-        * ``timestamp`` : the
-          `date and time <https://docs.python.org/3/library/datetime.html#datetime-objects>`_
-          that the C-GET request was processed by the service.
+        * :attr:`~pynetdicom.events.Event.context`: the presentation context
+          the request was sent under
+          as a :class:`~pynetdicom.presentation.PresentationContextTuple`.
+        * :attr:`~pynetdicom.events.Event.event`: the event that occurred as
+          :class:`~pynetdicom.events.InterventionEvent`.
+        * :attr:`~pynetdicom.events.Event.request`: the received
+          :class:`C-GET request <pynetdicom.dimse_primitives.C_GET>`
+        * :attr:`~pynetdicom.events.Event.timestamp`: the date and time
+          that the C-GET request was processed by the service as
+          :class:`datetime.datetime`.
 
-        ``Event`` properties are:
+        :class:`~pynetdicom.events.Event` properties are:
 
-        * ``identifier`` : the decoded
-          :py:class:`Dataset <pydicom.dataset.Dataset>` contained within the
+        * :attr:`~pynetdicom.events.Event.identifier`: the decoded
+          :class:`~pydicom.dataset.Dataset` contained within the
           C-GET request's *Identifier* parameter. Because *pydicom* uses
           a deferred read when decoding data, if the decode fails the returned
-          ``Dataset`` will only raise an exception at the time of use.
-        * ``is_cancelled`` : returns ``True`` if a
-          C-CANCEL request has been received, False otherwise. If a C-CANCEL
-          is received then the handler should ``yield (0xFE00, None)`` and
-          return.
+          :class:`~pydicom.dataset.Dataset` will only raise an exception at the
+          time of use.
+        * :attr:`~pynetdicom.events.Event.is_cancelled`: returns ``True`` if a
+          C-CANCEL request has been received, ``False`` otherwise. If a
+          C-CANCEL is received then the handler should ``yield (0xFE00, None)``
+          and ``return``.
 
     Yields
     ------
@@ -2311,18 +2321,21 @@ def doc_handle_c_get(event):
     status : pydicom.dataset.Dataset or int
         The status returned to the peer AE in the C-GET response. Must be a
         valid C-GET status value for the applicable Service Class as either
-        an ``int`` or a ``Dataset`` object containing (at a minimum) a
-        (0000,0900) *Status* element. If returning a ``Dataset`` object then
+        an :class:`int` or a :class:`~pydicom.dataset.Dataset` object
+        containing (at a minimum) a (0000,0900) *Status* element. If returning
+        a :class:`~pydicom.dataset.Dataset` object then
         it may also contain optional elements related to the *Status* (as in
-        DICOM Standard Part 7, Annex C).
+        DICOM Standard, Part 7, :dcm:`Annex C<part07/chapter_C.html>`).
     dataset : pydicom.dataset.Dataset or None
-        If the status category is 'Pending' then yield the ``Dataset`` to send
-        to the peer via a C-STORE sub-operation over the current association.
+        If the status category is 'Pending' then yield the
+        :class:`~pydicom.dataset.Dataset` to send to the peer via a C-STORE
+        sub-operation over the current association.
 
         If the status category is 'Failed', 'Warning' or 'Cancel' then yield a
-        ``Dataset`` with a (0008,0058) *Failed SOP Instance UID List*
-        element containing a list of the C-STORE sub-operation SOP Instance
-        UIDs for which the C-GET operation has failed.
+        :class:`~pydicom.dataset.Dataset` with a (0008,0058) *Failed SOP
+        Instance UID List* element containing a list of the C-STORE
+        sub-operation SOP Instance UIDs for which the C-GET operation has
+        failed.
 
         If the status category is 'Success' then yield ``None``, although
         yielding a final 'Success' status is not required and will be ignored
@@ -2330,29 +2343,33 @@ def doc_handle_c_get(event):
 
     See Also
     --------
-    :py:meth:`send_c_get()<pynetdicom.association.Association.send_c_get>`
-    :py:class:`C_GET<pynetdicom.dimse_primitives.C_GET>`
-    :py:class:`QueryRetrieveServiceClass<pynetdicom.service_class.QueryRetrieveServiceClass>`
-    :py:class:`HangingProtocolQueryRetrieveServiceClass<pynetdicom.service_class.HangingProtocolQueryRetrieveServiceClass>`
-    :py:class:`DefinedProcedureProtocolQueryRetrieveServiceClass<pynetdicom.service_class.DefinedProcedureProtocolQueryRetrieveServiceClass>`
-    :py:class:`ColorPaletteQueryRetrieveServiceClass<pynetdicom.service_class.ColorPaletteQueryRetrieveServiceClass>`
-    :py:class:`ImplantTemplateQueryRetrieveServiceClass<pynetdicom.service_class.ImplantTemplateQueryRetrieveServiceClass>`
+
+    .. currentmodule:: pynetdicom.service_class
+
+    :meth:`~pynetdicom.association.Association.send_c_get`
+    :class:`~pynetdicom.dimse_primitives.C_GET`
+    :class:`~QueryRetrieveServiceClass`
+    :class:`HangingProtocolQueryRetrieveServiceClass`
+    :class:`DefinedProcedureProtocolQueryRetrieveServiceClass`
+    :class:`ColorPaletteQueryRetrieveServiceClass`
+    :class:`ImplantTemplateQueryRetrieveServiceClass`
+    :class:`ProtocolApprovalQueryRetrieveServiceClass`
 
     References
     ----------
 
-    * DICOM Standard Part 4, Annexes
-      `C <http://dicom.nema.org/medical/dicom/current/output/html/part04.html#chapter_C>`_,
-      `U <http://dicom.nema.org/medical/dicom/current/output/html/part04.html#chapter_U>`_,
-      `X <http://dicom.nema.org/medical/dicom/current/output/html/part04.html#chapter_X>`_,
-      `Y <http://dicom.nema.org/medical/dicom/current/output/html/part04.html#chapter_Y>`_,
-      `Z <http://dicom.nema.org/medical/dicom/current/output/html/part04.html#chapter_Z>`_,
-      `BB <http://dicom.nema.org/medical/dicom/current/output/html/part04.html#chapter_BB>`_
-      and `HH <http://dicom.nema.org/medical/dicom/current/output/html/part04.html#chapter_HH>`_
-    * DICOM Standard Part 7, Sections
-      `9.1.3 <http://dicom.nema.org/medical/dicom/current/output/html/part07.html#sect_9.1.3>`_,
-      `9.3.3 <http://dicom.nema.org/medical/dicom/current/output/html/part07.html#sect_9.3.3>`_
-      and `Annex C <http://dicom.nema.org/medical/dicom/current/output/html/part07.html#chapter_C>`_
+    * DICOM Standard, Part 4, :dcm:`Annex C<part04/chapter_C.html>`
+    * DICOM Standard, Part 4, :dcm:`Annex U<part04/chapter_U.html>`
+    * DICOM Standard, Part 4, :dcm:`Annex X<part04/chapter_X.html>`
+    * DICOM Standard, Part 4, :dcm:`Annex Y<part04/chapter_Y.html>`
+    * DICOM Standard, Part 4, :dcm:`Annex Z<part04/chapter_Z.html>`
+    * DICOM Standard, Part 4, :dcm:`Annex BB<part04/chapter_BB.html>`
+    * DICOM Standard, Part 4, :dcm:`Annex HH<part04/chapter_HH.html>`
+    * DICOM Standard, Part 4, :dcm:`Annex II<part04/chapter_II.html>`
+    * DICOM Standard, Part 7, Sections
+      :dcm:`9.1.3<part07/chapter_9.html#sect_9.1.3>`,
+      :dcm:`9.3.3<part07/sect_9.3.3.html>` and
+      :dcm:`Annex C<part07/chapter_C.html>`
     """
     pass
 
@@ -2366,12 +2383,12 @@ def doc_handle_move(event):
 
     The first yield should be the ``(addr, port)`` of the move destination,
     the second yield the number of required C-STORE sub-operations as an
-    ``int``, and the remaining yields the ``(status, dataset)`` pairs.
+    :class:`int`, and the remaining yields the ``(status, dataset)`` pairs.
 
-    Matching SOP Instances will be sent to the peer AE with AE title
-    ``move_aet`` over a new association. If ``move_aet`` is unknown then
-    the SCP will send a response with a 'Failure' status of ``0xA801``
-    'Move Destination Unknown'.
+    Matching SOP Instances will be sent to the move destination Storage SCP
+    over a new association. If the move destination is unknown then the
+    SCP will send a response with a 'Failure' status of ``0xA801`` 'Move
+    Destination Unknown'.
 
     **Event**
 
@@ -2379,11 +2396,13 @@ def doc_handle_move(event):
 
     **Supported Service Classes**
 
-    * *Query/Retrieve Service*
-    * *Hanging Protocol Query/Retrieve Service*
-    * *Defined Procedure Protocol Query/Retrieve Service*
-    * *Color Palette Query/Retrieve Service*
-    * *Implant Template Query/Retrieve Service*
+    * :dcm:`Query/Retrieve Service Class<part04/chapter_C.html>`
+    * :dcm:`Hanging Protocol Query/Retrieve Service<part04/chapter_U.html>`
+    * :dcm:`Color Palette Query/Retrieve Service<part04/chapter_X.html>`
+    * :dcm:`Implant Template Query/Retrieve Service<part04/chapter_BB.html>`
+    * :dcm:`Defined Procedure Protocol Query/Retrieve Service
+      <part04/chapter_HH.html>`
+    * :dcm:`Protocol Approval Query/Retrieve Service<part04/chapter_II.html>`
 
     **Status**
 
@@ -2420,39 +2439,42 @@ def doc_handle_move(event):
     ----------
     event : events.Event
         The event representing a service class receiving a C-MOVE
-        request message. ``Event`` attributes are:
+        request message. :class:`~pynetdicom.events.Event` attributes are:
 
-        * ``assoc`` : the
-          :py:class:`association <pynetdicom.association.Association>`
+        * :attr:`~pynetdicom.events.Event.assoc`: the
+          :class:`~pynetdicom.association.Association`
           that is running the service that received the C-MOVE request.
-        * ``context`` : the presentation context the request was sent under
-          as a ``presentation.PresentationContextTuple``.
-        * ``event`` : the event that occurred as ``namedtuple``.
-        * ``move_destination`` : the C-MOVE request's *Move Destination*
-          value as ``bytes``.
-        * ``request`` : the received
-          :py:class:`C-MOVE request <pynetdicom.dimse_primitives.C_MOVE>`
-        * ``timestamp`` : the
-          `date and time <https://docs.python.org/3/library/datetime.html#datetime-objects>`_
-          that the C-MOVE request was processed by the service.
+        * :attr:`~pynetdicom.events.Event.context`: the presentation context
+          the request was sent under
+          as a :class:`~pynetdicom.presentation.PresentationContextTuple`.
+        * :attr:`~pynetdicom.events.Event.event`: the event that occurred as
+          :class:`~pynetdicom.events.InterventionEvent`.
+        * :attr:`~pynetdicom.events.Event.move_destination`: the C-MOVE
+          request's *Move Destination* value as :class:`bytes`.
+        * :attr:`~pynetdicom.events.Event.request`: the received
+          :class:`C-MOVE request <pynetdicom.dimse_primitives.C_MOVE>`
+        * :attr:`~pynetdicom.events.Event.timestamp`: the date and time
+          that the C-MOVE request was processed by the service as
+          :class:`datetime.datetime`.
 
-        ``Event`` properties are:
+        :class:`~pynetdicom.events.Event` properties are:
 
-        * ``identifier`` : the decoded
-          :py:class:`Dataset <pydicom.dataset.Dataset>` contained within the
+        * :attr:`~pynetdicom.events.Event.identifier`: the decoded
+          :class:`~pydicom.dataset.Dataset` contained within the
           C-MOVE request's *Identifier* parameter. Because *pydicom* uses
           a deferred read when decoding data, if the decode fails the returned
-          ``Dataset`` will only raise an exception at the time of use.
-        * ``is_cancelled`` : returns ``True`` if a
-          C-CANCEL request has been received, False otherwise. If a C-CANCEL
-          is received then the handler should yield a ``(0xFE00, None)``
-          status/dataset pair and return.
+          :class:`~pydicom.dataset.Dataset` will only raise an exception at the
+          time of use.
+        * :attr:`~pynetdicom.events.Event.is_cancelled`: returns ``True`` if a
+          C-CANCEL request has been received, ``False`` otherwise. If a
+          C-CANCEL is received then the handler should yield a
+          ``(0xFE00, None)`` status/dataset pair and ``return``.
 
 
     Yields
     ------
     addr, port : str, int or None, None
-        The first yield should be the TCP/IP address and port number of the
+        The first yield should be the (TCP/IP address, port number) of the
         destination AE (if known) or ``(None, None)`` if unknown. If
         ``(None, None)`` is yielded then the SCP will send a C-MOVE
         response with a 'Failure' Status of ``0xA801`` (move destination
@@ -2461,22 +2483,24 @@ def doc_handle_move(event):
         The second yield should be the number of C-STORE sub-operations
         required to complete the C-MOVE operation. In other words, this is
         the number of matching SOP Instances to be sent to the peer.
-    status : pydiom.dataset.Dataset or int
+    status : pydicom.dataset.Dataset or int
         The status returned to the peer AE in the C-MOVE response. Must be
         a valid C-MOVE status value for the applicable Service Class as
-        either an ``int`` or a ``Dataset`` containing (at a minimum) a
-        (0000,0900) *Status* element. If returning a ``Dataset`` then it
-        may also contain optional elements related to the *Status* (as in
-        DICOM Standard Part 7, Annex C).
+        either an :class:`int` or a :class:`~pydicom.dataset.Dataset`
+        containing (at a minimum) a (0000,0900) *Status* element. If returning
+        a :class:`~pydicom.dataset.Dataset` then it may also contain optional
+        elements related to the *Status* (as in
+        DICOM Standard, Part 7, :dcm:`Annex C<part07/chapter_C.html>`).
     dataset : pydicom.dataset.Dataset or None
-        If the status is 'Pending' then yield the ``Dataset``
-        to send to the peer via a C-STORE sub-operation over a new
-        association.
+        If the status is 'Pending' then yield the
+        :class:`~pydicom.dataset.Dataset` to send to the peer via a C-STORE
+        sub-operation over a new association.
 
         If the status is 'Failed', 'Warning' or 'Cancel' then yield a
-        ``Dataset`` with a (0008,0058) *Failed SOP Instance UID List*
-        element containing the list of the C-STORE sub-operation SOP
-        Instance UIDs for which the C-MOVE operation has failed.
+        :class:`~pydicom.dataset.Dataset` with a (0008,0058) *Failed SOP
+        Instance UID List* element containing the list of the C-STORE
+        sub-operation SOP Instance UIDs for which the C-MOVE operation has
+        failed.
 
         If the status is 'Success' then yield ``None``, although yielding a
         final 'Success' status is not required and will be ignored if
@@ -2484,28 +2508,32 @@ def doc_handle_move(event):
 
     See Also
     --------
-    :py:meth:`send_c_move()<pynetdicom.association.Association.send_c_move>`
-    :py:class:`C_MOVE<pynetdicom.dimse_primitives.C_MOVE>`
-    :py:class:`QueryRetrieveServiceClass<pynetdicom.service_class.QueryRetrieveServiceClass>`
-    :py:class:`HangingProtocolQueryRetrieveServiceClass<pynetdicom.service_class.HangingProtocolQueryRetrieveServiceClass>`
-    :py:class:`DefinedProcedureProtocolQueryRetrieveServiceClass<pynetdicom.service_class.DefinedProcedureProtocolQueryRetrieveServiceClass>`
-    :py:class:`ColorPaletteQueryRetrieveServiceClass<pynetdicom.service_class.ColorPaletteQueryRetrieveServiceClass>`
-    :py:class:`ImplantTemplateQueryRetrieveServiceClass<pynetdicom.service_class.ImplantTemplateQueryRetrieveServiceClass>`
+
+    .. currentmodule:: pynetdicom.service_class
+
+    :meth:`~pynetdicom.association.Association.send_c_move`
+    :class:`~pynetdicom.dimse_primitives.C_MOVE`
+    :class:`~QueryRetrieveServiceClass`
+    :class:`HangingProtocolQueryRetrieveServiceClass`
+    :class:`DefinedProcedureProtocolQueryRetrieveServiceClass`
+    :class:`ColorPaletteQueryRetrieveServiceClass`
+    :class:`ImplantTemplateQueryRetrieveServiceClass`
+    :class:`ProtocolApprovalQueryRetrieveServiceClass`
 
     References
     ----------
 
-    * DICOM Standard Part 4, Annexes
-      `C <http://dicom.nema.org/medical/dicom/current/output/html/part04.html#chapter_C>`_,
-      `U <http://dicom.nema.org/medical/dicom/current/output/html/part04.html#chapter_U>`_,
-      `X <http://dicom.nema.org/medical/dicom/current/output/html/part04.html#chapter_X>`_,
-      `Y <http://dicom.nema.org/medical/dicom/current/output/html/part04.html#chapter_Y>`_,
-      `BB <http://dicom.nema.org/medical/dicom/current/output/html/part04.html#chapter_BB>`_
-      and `HH <http://dicom.nema.org/medical/dicom/current/output/html/part04.html#chapter_HH>`_
-    * DICOM Standard Part 7, Sections
-      `9.1.4 <http://dicom.nema.org/medical/dicom/current/output/html/part07.html#sect_9.1.4>`_,
-      `9.3.4 <http://dicom.nema.org/medical/dicom/current/output/html/part07.html#sect_9.3.4>`_
-      and `Annex C <http://dicom.nema.org/medical/dicom/current/output/html/part07.html#chapter_C>`_
+    * DICOM Standard, Part 4, :dcm:`Annex C<part04/chapter_C.html>`
+    * DICOM Standard, Part 4, :dcm:`Annex U<part04/chapter_U.html>`
+    * DICOM Standard, Part 4, :dcm:`Annex X<part04/chapter_X.html>`
+    * DICOM Standard, Part 4, :dcm:`Annex Y<part04/chapter_Y.html>`
+    * DICOM Standard, Part 4, :dcm:`Annex BB<part04/chapter_BB.html>`
+    * DICOM Standard, Part 4, :dcm:`Annex HH<part04/chapter_HH.html>`
+    * DICOM Standard, Part 4, :dcm:`Annex II<part04/chapter_II.html>`
+    * DICOM Standard, Part 7, Sections
+      :dcm:`9.1.4<part07/chapter_9.html#sect_9.1.4>`,
+      :dcm:`9.3.4<part07/sect_9.3.4.html>` and
+      :dcm:`Annex C<part07/chapter_C.html>`
     """
     pass
 
@@ -2517,9 +2545,10 @@ def doc_handle_store(event):
     not implemented and bound to ``evt.EVT_C_STORE`` then the C-STORE request
     will be responded to using a  *Status* value of ``0xC211`` - Failure.
 
-    If the user is storing the dataset in the DICOM File Format (as in the
-    DICOM Standard Part 10, Section 7) then they are responsible for adding
-    the DICOM File Meta Information.
+    If the user is storing the dataset in the
+    :dcm:`DICOM File Format<part10/chapter_7.html>` then they are
+    responsible for adding the
+    :dcm:`File Meta Information<part10/chapter_7.html#sect_7.1>`.
 
     **Event**
 
@@ -2527,8 +2556,8 @@ def doc_handle_store(event):
 
     **Supported Service Classes**
 
-    * *Storage Service Class*
-    * *Non-Patient Object Storage Service Class*
+    * :dcm:`Storage Service Class<part04/chapter_B.html>`
+    * :dcm:`Non-Patient Object Storage Service Class<part04/chapter_GG.html>`
 
     **Status**
 
@@ -2555,42 +2584,46 @@ def doc_handle_store(event):
     ----------
     event : events.Event
         The event representing a service class receiving a C-STORE
-        request message. ``Event`` attributes are:
+        request message. :class:`~pynetdicom.events.Event` attributes are:
 
-        * ``assoc`` : the
-          :py:class:`association <pynetdicom.association.Association>`
+        * :attr:`~pynetdicom.events.Event.assoc`: the
+          :class:`~pynetdicom.association.Association`
           that is running the service that received the C-STORE request.
-        * ``context`` : the presentation context the request was sent under
-          as a ``presentation.PresentationContextTuple``.
-        * ``event`` : the event that occurred as ``namedtuple``.
-        * ``request`` : the received
-          :py:class:`C-STORE request <pynetdicom.dimse_primitives.C_STORE>`
-        * ``timestamp`` : the
-          `date and time <https://docs.python.org/3/library/datetime.html#datetime-objects>`_
-          that the C-STORE request was processed by the service.
+        * :attr:`~pynetdicom.events.Event.context`: the presentation context
+          the request was sent under
+          as a :class:`~pynetdicom.presentation.PresentationContextTuple`.
+        * :attr:`~pynetdicom.events.Event.event`: the event that occurred as
+          :class:`~pynetdicom.events.InterventionEvent`.
+        * :attr:`~pynetdicom.events.Event.request`: the received
+          :class:`C-STORE request <pynetdicom.dimse_primitives.C_STORE>`
+        * :attr:`~pynetdicom.events.Event.timestamp`: the date and time
+          that the C-STORE request was processed by the service as
+          :class:`datetime.datetime`.
 
-        ``Event`` properties are:
+        :class:`~pynetdicom.events.Event` properties are:
 
-        * ``dataset`` : the decoded
-          :py:class:`Dataset <pydicom.dataset.Dataset>` contained within the
+        * :attr:`~pynetdicom.events.Event.dataset`: the decoded
+          :class:`~pydicom.dataset.Dataset` contained within the
           C-STORE request's *Data Set* parameter. Because *pydicom* uses
           a deferred read when decoding data, if the decode fails the returned
-          ``Dataset`` will only raise an exception at the time of use.
-        * ``file_meta`` : a
-          :py:class:`Dataset <pydicom.dataset.Dataset>` containing DICOM
+          :class:`~pydicom.dataset.Dataset` will only raise an exception at the
+          time of use.
+        * :attr:`~pynetdicom.events.Event.file_meta`: a
+          :class:`~pydicom.dataset.Dataset` containing DICOM
           conformant File Meta Information that can be used with the decoded
-          dataset when saving to file: `event.dataset.file_meta =
-          event.file_meta`.
+          dataset when saving to file: ``event.dataset.file_meta =
+          event.file_meta``.
 
     Returns
     -------
     status : pydicom.dataset.Dataset or int
         The status returned to the requesting AE in the C-STORE response. Must
         be a valid C-STORE status value for the applicable Service Class as
-        either an ``int`` or a ``Dataset`` object containing (at a
-        minimum) a (0000,0900) *Status* element. If returning a ``Dataset``
-        object then it may also contain optional elements related to the
-        *Status* (as in the DICOM Standard Part 7, Annex C).
+        either an :class:`int` or a :class:`~pydicom.dataset.Dataset` object
+        containing (at a minimum) a (0000,0900) *Status* element. If returning
+        a :class:`~pydicom.dataset.Dataset` object then it may also contain
+        optional elements related to the *Status* (as in the DICOM Standard,
+        Part 7, :dcm:`Annex C<part07/chapter_C.html>`).
 
     Raises
     ------
@@ -2600,25 +2633,23 @@ def doc_handle_store(event):
 
     See Also
     --------
-    :py:meth:`send_c_store()<pynetdicom.association.Association.send_c_store>`
-    :py:class:`C_STORE<pynetdicom.dimse_primitives.C_STORE>`
-    :py:class:`StorageServiceClass<pynetdicom.service_class.StorageServiceClass>`
-    :py:class:`NonPatientObjectStorageServiceClass<pynetdicom.service_class.NonPatientObjectStorageServiceClass>`
+
+    .. currentmodule:: pynetdicom.service_class
+
+    :meth:`~pynetdicom.association.Association.send_c_store`
+    :class:`~pynetdicom.dimse_primitives.C_STORE`
+    :class:`~StorageServiceClass`
+    :class:`~NonPatientObjectStorageServiceClass`
 
     References
     ----------
 
-    * DICOM Standard Part 4, Annexes
-      `B <http://dicom.nema.org/medical/dicom/current/output/html/part04.html#chapter_B>`_,
-      `AA <http://dicom.nema.org/medical/dicom/current/output/html/part04.html#chapter_AA>`_,
-      `FF <http://dicom.nema.org/medical/dicom/current/output/html/part04.html#chapter_FF>`_
-      and `GG <http://dicom.nema.org/medical/dicom/current/output/html/part04.html#chapter_GG>`_
-    * DICOM Standard Part 7, Sections
-      `9.1.1 <http://dicom.nema.org/medical/dicom/current/output/html/part07.html#sect_9.1.1>`_,
-      `9.3.1 <http://dicom.nema.org/medical/dicom/current/output/html/part07.html#sect_9.3.1>`_
-      and `Annex C <http://dicom.nema.org/medical/dicom/current/output/html/part07.html#chapter_C>`_
-    * DICOM Standard Part 10,
-      `Section 7 <http://dicom.nema.org/medical/dicom/current/output/html/part10.html#chapter_7>`_
+    * DICOM Standard, Part 4, :dcm:`Annex B<part04/chapter_B.html>`
+    * DICOM Standard, Part 4, :dcm:`Annex GG<part04/chapter_GG.html>`
+    * DICOM Standard, Part 7, Sections
+      :dcm:`9.1.1<part07/chapter_9.html#sect_9.1.1>`,
+      :dcm:`9.3.1<part07/sect_9.3.html#sect_9.3.1>` and
+      :dcm:`Annex C<part07/chapter_C.html>`
     """
     pass
 
@@ -2637,12 +2668,12 @@ def doc_handle_action(event):
 
     **Supported Service Classes**
 
-    * *Print Management*
-    * *Storage Commitment*
-    * *Application Event Logging*
-    * *Media Creation Management*
-    * *Unified Procedure Step*
-    * *RT Machine Verification*
+    * :dcm:`Print Management<part04/chapter_H.html>`
+    * :dcm:`Storage Commitment<part04/chapter_J.html>`
+    * :dcm:`Application Event Logging<part04/chapter_P.html>`
+    * :dcm:`Media Creation Management<part04/chapter_S.html>`
+    * :dcm:`Unified Procedure Step<part04/chapter_CC.html>`
+    * :dcm:`RT Machine Verification<part04/chapter_DD.html>`
 
     **Status**
 
@@ -2725,44 +2756,48 @@ def doc_handle_action(event):
     ----------
     event : events.Event
         The event representing a service class receiving a N-ACTION
-        request message. ``Event`` attributes are:
+        request message. :class:`~pynetdicom.events.Event` attributes are:
 
-        * ``action_type`` : the N-ACTION request's *Action Type
-          ID* parameter value as ``int``.
-        * ``assoc`` : the
-          :py:class:`association <pynetdicom.association.Association>`
+        * :attr:`~pynetdicom.events.Event.action_type`: the N-ACTION request's
+          *Action Type ID* parameter value as :class:`int`.
+        * :attr:`~pynetdicom.events.Event.assoc`: the
+          :class:`~pynetdicom.association.Association`
           that is running the service that received the N-ACTION request.
-        * ``context`` : the presentation context the request was sent under
-          as a ``presentation.PresentationContextTuple``.
-        * ``event`` : the event that occurred as ``namedtuple``.
-        * ``request`` : the received
-          :py:class:`N-ACTION request <pynetdicom.dimse_primitives.N_ACTION>`
-        * ``timestamp`` : the
-          `date and time <https://docs.python.org/3/library/datetime.html#datetime-objects>`_
-          that the N-ACTION request was processed by the service.
+        * :attr:`~pynetdicom.events.Event.context`: the presentation context
+          the request was sent under
+          as a :class:`~pynetdicom.presentation.PresentationContextTuple`.
+        * :attr:`~pynetdicom.events.Event.event`: the event that occurred as
+          :class:`~pynetdicom.events.InterventionEvent`.
+        * :attr:`~pynetdicom.events.Event.request`: the received
+          :class:`N-ACTION request <pynetdicom.dimse_primitives.N_ACTION>`
+        * :attr:`~pynetdicom.events.Event.timestamp`: the date and time
+          that the N-ACTION request was processed by the service as
+          :class:`datetime.datetime`.
 
-        ``Event`` properties are:
+        :class:`~pynetdicom.events.Event` properties are:
 
-        * ``action_information`` : the decoded
-          :py:class:`Dataset <pydicom.dataset.Dataset>` contained within the
+        * :attr:`~pynetdicom.events.Event.action_information`: the decoded
+          :class:`~pydicom.dataset.Dataset` contained within the
           N-ACTION request's *Action Information* parameter. Because *pydicom*
           uses a deferred read when decoding data, if the decode fails the
-          returned ``Dataset`` will only raise an exception at the time of use.
+          returned :class:`~pydicom.dataset.Dataset` will only raise an
+          exception at the time of use.
 
     Returns
     -------
     status : pydicom.dataset.Dataset or int
         The status returned to the peer AE in the N-ACTION response. Must be a
         valid N-ACTION status value for the applicable Service Class as either
-        an ``int`` or a ``Dataset`` object containing (at a minimum) a
-        (0000,0900) *Status* element. If returning a ``Dataset`` object then
+        an :class:`int` or a :class:`~pydicom.dataset.Dataset` object
+        containing (at a minimum) a (0000,0900) *Status* element. If returning
+        a :class:`~pydicom.dataset.Dataset` object then
         it may also contain optional elements related to the *Status* (as in
-        DICOM Standard Part 7, Annex C).
+        DICOM Standard, Part 7, :dcm:`Annex C<part07/chapter_C.html>`).
     dataset : pydicom.dataset.Dataset or None
-        If the status category is 'Success' or 'Warning' then a ``Dataset``
-        containing elements for the response's *Action Reply*
-        conformant to the specifications in the corresponding Service
-        Class.
+        If the status category is 'Success' or 'Warning' then a
+        :class:`~pydicom.dataset.Dataset` containing elements for the
+        response's *Action Reply* conformant to the specifications in the
+        corresponding Service Class.
 
         If the status category is not 'Success' or 'Warning' then ``None``.
 
@@ -2774,12 +2809,31 @@ def doc_handle_action(event):
 
     See Also
     --------
-    :py:meth:`send_n_action()<pynetdicom.association.Association.send_n_action>`
-    :py:class:`N_ACTION<pynetdicom.dimse_primitives.N_ACTION>`
+
+    .. currentmodule:: pynetdicom.service_class_n
+
+    :meth:`~pynetdicom.association.Association.send_n_action`
+    :class:`~pynetdicom.dimse_primitives.N_ACTION`
+    :class:`ApplicationEventLoggingServiceClass`
+    :class:`MediaCreationManagementServiceClass`
+    :class:`PrintManagementServiceClass`
+    :class:`RTMachineVerificationServiceClass`
+    :class:`StorageCommitmentServiceClass`
+    :class:`UnifiedProcedureStepServiceClass`
 
     References
     ----------
-    DICOM Standard Part 4, Annexes H, J, P, S, CC and DD
+
+    * DICOM Standard, Part 4, :dcm:`Annex H<part04/chapter_H.html>`
+    * DICOM Standard, Part 4, :dcm:`Annex J<part04/chapter_J.html>`
+    * DICOM Standard, Part 4, :dcm:`Annex P<part04/chapter_P.html>`
+    * DICOM Standard, Part 4, :dcm:`Annex S<part04/chapter_S.html>`
+    * DICOM Standard, Part 4, :dcm:`Annex CC<part04/chapter_CC.html>`
+    * DICOM Standard, Part 4, :dcm:`Annex DD<part04/chapter_DD.html>`
+    * DICOM Standard, Part 7, Sections
+      :dcm:`10.1.4<part07/chapter_10.html#sect_10.1.4>`,
+      :dcm:`10.3.4<part07/sect_10.3.4.html>` and
+      :dcm:`Annex C<part07/chapter_C.html>`
     """
     pass
 
@@ -2801,7 +2855,12 @@ def doc_handle_create(event):
 
     **Supported Service Classes**
 
-    * *Modality Performed Procedure Step Management*
+    * :dcm:`Procedure Step<part04/chapter_F.html>`
+    * :dcm:`Print Management<part04/chapter_H.html>`
+    * :dcm:`Instance Availability Notification<part04/chapter_R.html>`
+    * :dcm:`Media Creation Management<part04/chapter_S.html>`
+    * :dcm:`Unified Procedure Step<part04/chapter_CC.html>`
+    * :dcm:`RT Machine Verification<part04/chapter_DD.html>`
 
     **Status**
 
@@ -2849,41 +2908,46 @@ def doc_handle_create(event):
     ----------
     event : events.Event
         The event representing a service class receiving a N-CREATE
-        request message. ``Event`` attributes are:
+        request message. :class:`~pynetdicom.events.Event` attributes are:
 
-        * ``assoc`` : the
-          :py:class:`association <pynetdicom.association.Association>`
+        * :attr:`~pynetdicom.events.Event.assoc`: the
+          :class:`~pynetdicom.association.Association`
           that is running the service that received the N-CREATE request.
-        * ``context`` : the presentation context the request was sent under
-          as a ``presentation.PresentationContextTuple``.
-        * ``event`` : the event that occurred as ``namedtuple``.
-        * ``request`` : the received
-          :py:class:`N-CREATE request <pynetdicom.dimse_primitives.N_CREATE>`
-        * ``timestamp`` : the
-          `date and time <https://docs.python.org/3/library/datetime.html#datetime-objects>`_
-          that the N-CREATE request was processed by the service.
+        * :attr:`~pynetdicom.events.Event.context`: the presentation context
+          the request was sent under
+          as a :class:`~pynetdicom.presentation.PresentationContextTuple`.
+        * :attr:`~pynetdicom.events.Event.event`: the event that occurred as
+          :class:`~pynetdicom.events.InterventionEvent`.
+        * :attr:`~pynetdicom.events.Event.request`: the received
+          :class:`N-CREATE request <pynetdicom.dimse_primitives.N_CREATE>`
+        * :attr:`~pynetdicom.events.Event.timestamp`: the date and time
+          that the N-CREATE request was processed by the service as
+          :class:`datetime.datetime`.
 
-        ``Event`` properties are:
+        :class:`~pynetdicom.events.Event` properties are:
 
-        * ``attribute_list`` : the decoded
-          :py:class:`Dataset <pydicom.dataset.Dataset>` contained within the
+        * :attr:`~pynetdicom.events.Event.attribute_list`: the decoded
+          :class:`~pydicom.dataset.Dataset` contained within the
           N-CREATE request's *Attribute List* parameter. Because *pydicom*
           uses a deferred read when decoding data, if the decode fails the
-          returned ``Dataset`` will only raise an exception at the time of use.
+          returned :class:`~pydicom.dataset.Dataset` will only raise an
+          exception at the time of use.
 
     Returns
     -------
     status : pydicom.dataset.Dataset or int
         The status returned to the peer AE in the N-CREATE response. Must be a
         valid N-CREATE status value for the applicable Service Class as either
-        an ``int`` or a ``Dataset`` object containing (at a minimum) a
-        (0000,0900) *Status* element. If returning a ``Dataset`` object then
+        an :class:`int` or a :class:`~pydicom.dataset.Dataset` object
+        containing (at a minimum) a (0000,0900) *Status* element. If returning
+        a :class:`~pydicom.dataset.Dataset` object then
         it may also contain optional elements related to the *Status* (as in
-        DICOM Standard Part 7, Annex C).
+        DICOM Standard, Part 7, :dcm:`Annex C<part07/chapter_C.html>`).
     dataset : pydicom.dataset.Dataset or None
-        If the status category is 'Success' or 'Warning' then a ``Dataset``
-        containing elements of the response's *Attribute List* conformant to
-        the specifications in the corresponding Service Class.
+        If the status category is 'Success' or 'Warning' then a
+        :class:`~pydicom.dataset.Dataset` containing elements of the
+        response's *Attribute List* conformant to the specifications in the
+        corresponding Service Class.
 
         If the status category is not 'Success' or 'Warning' then ``None``.
 
@@ -2895,12 +2959,31 @@ def doc_handle_create(event):
 
     See Also
     --------
-    :py:meth:`send_n_create()<pynetdicom.association.Association.send_n_create>`
-    :py:class:`N_CREATE<pynetdicom.dimse_primitives.N_CREATE>`
+
+    .. currentmodule:: pynetdicom.service_class_n
+
+    :meth:`~pynetdicom.association.Association.send_n_create`
+    :class:`~pynetdicom.dimse_primitives.N_CREATE`
+    :class:`InstanceAvailabilityNotificationServiceClass`
+    :class:`MediaCreationManagementServiceClass`
+    :class:`PrintManagementServiceClass`
+    :class:`ProcedureStepServiceClass`
+    :class:`RTMachineVerificationServiceClass`
+    :class:`UnifiedProcedureStepServiceClass`
 
     References
     ----------
-    DICOM Standard Part 4, Annexes F, H, R, S, CC and DD
+
+    * DICOM Standard, Part 4, :dcm:`Annex F<part04/chapter_F.html>`
+    * DICOM Standard, Part 4, :dcm:`Annex H<part04/chapter_H.html>`
+    * DICOM Standard, Part 4, :dcm:`Annex R<part04/chapter_R.html>`
+    * DICOM Standard, Part 4, :dcm:`Annex S<part04/chapter_S.html>`
+    * DICOM Standard, Part 4, :dcm:`Annex CC<part04/chapter_CC.html>`
+    * DICOM Standard, Part 4, :dcm:`Annex DD<part04/chapter_DD.html>`
+    * DICOM Standard, Part 7, Sections
+      :dcm:`10.1.5<part07/chapter_10.html#sect_10.1.5>`,
+      :dcm:`10.3.5<part07/sect_10.3.5.html>`
+      and :dcm:`Annex C<part07/chapter_C.html>`
     """
     pass
 
@@ -2919,8 +3002,8 @@ def doc_handle_delete(event):
 
     **Supported Service Classes**
 
-    * *Print Management*
-    * *RT Machine Verification*
+    * :dcm:`Print Management<part04/chapter_H.html>`
+    * :dcm:`RT Machine Verification<part04/chapter_DD.html>`
 
     **Status**
 
@@ -2943,29 +3026,32 @@ def doc_handle_delete(event):
     ----------
     event : events.Event
         The event representing a service class receiving a N-DELETE
-        request message. ``Event`` attributes are:
+        request message. :class:`~pynetdicom.events.Event` attributes are:
 
-        * ``assoc`` : the
-          :py:class:`association <pynetdicom.association.Association>`
+        * :attr:`~pynetdicom.events.Event.assoc`: the
+          :class:`~pynetdicom.association.Association`
           that is running the service that received the N-DELETE request.
-        * ``context`` : the presentation context the request was sent under
-          as a ``presentation.PresentationContextTuple``.
-        * ``event`` : the event that occurred as ``namedtuple``.
-        * ``request`` : the received
-          :py:class:`N-DELETE request <pynetdicom.dimse_primitives.N_DELETE>`
-        * ``timestamp`` : the
-          `date and time <https://docs.python.org/3/library/datetime.html#datetime-objects>`_
-          that the N-DELETE request was processed by the service.
+        * :attr:`~pynetdicom.events.Event.context`: the presentation context
+          the request was sent under
+          as a :class:`~pynetdicom.presentation.PresentationContextTuple`.
+        * :attr:`~pynetdicom.events.Event.event`: the event that occurred as
+          :class:`~pynetdicom.events.InterventionEvent`.
+        * :attr:`~pynetdicom.events.Event.request`: the received
+          :class:`N-DELETE request <pynetdicom.dimse_primitives.N_DELETE>`
+        * :attr:`~pynetdicom.events.Event.timestamp`: the date and time
+          that the N-DELETE request was processed by the service as
+          :class:`datetime.datetime`.
 
     Returns
     -------
     status : pydicom.dataset.Dataset or int
         The status returned to the peer AE in the N-DELETE response. Must be a
         valid N-DELETE status value for the applicable Service Class as either
-        an ``int`` or a ``Dataset`` object containing (at a minimum) a
-        (0000,0900) *Status* element. If returning a ``Dataset`` object then
+        an :class:`int` or a :class:`~pydicom.dataset.Dataset` object
+        containing (at a minimum) a (0000,0900) *Status* element. If returning
+        a :class:`~pydicom.dataset.Dataset` object then
         it may also contain optional elements related to the *Status* (as in
-        DICOM Standard Part 7, Annex C).
+        DICOM Standard, Part 7, :dcm:`Annex C<part07/chapter_C.html>`).
 
     Raises
     ------
@@ -2975,12 +3061,23 @@ def doc_handle_delete(event):
 
     See Also
     --------
-    :py:meth:`send_n_delete()<pynetdicom.association.Association.send_n_delete>`
-    :py:class:`N_DELETE<pynetdicom.dimse_primitives.N_DELETE>`
+
+    .. currentmodule:: pynetdicom.service_class_n
+
+    :meth:`~pynetdicom.association.Association.send_n_delete`
+    :class:`~pynetdicom.dimse_primitives.N_DELETE`
+    :class:`PrintManagementServiceClass`
+    :class:`RTMachineVerificationServiceClass`
 
     References
     ----------
-    DICOM Standard Part 4, Annexes H and DD
+
+    * DICOM Standard, Part 4, :dcm:`Annex H <part04/chapter_H.html>`
+    * DICOM Standard, Part 4, :dcm:`Annex DD <part04/chapter_DD.html>`
+    * DICOM Standard, Part 7, Sections
+      :dcm:`10.1.6<part07/chapter_10.html#sect_10.1.6>`,
+      :dcm:`10.3.6<part07/sect_10.3.6.html>`
+      and :dcm:`Annex C<part07/chapter_C.html>`
     """
     pass
 
@@ -2999,7 +3096,13 @@ def doc_handle_event_report(event):
 
     **Supported Service Classes**
 
-    * *Modality Performed Procedure Step Management*
+    * :dcm:`Procedure Step<part04/chapter_F.html>`
+    * :dcm:`Print Management<part04/chapter_H.html>`
+    * :dcm:`Storage Commitment<part04/chapter_J.html>`
+    * :dcm:`Instance Availability Notification<part04/chapter_R.html>`
+    * :dcm:`Media Creation Management<part04/chapter_S.html>`
+    * :dcm:`Unified Procedure Step<part04/chapter_CC.html>`
+    * :dcm:`RT Machine Verification<part04/chapter_DD.html>`
 
     **Status**
 
@@ -3024,45 +3127,49 @@ def doc_handle_event_report(event):
     ----------
     event : events.Event
         The event representing a service class receiving a N-EVENT-REPORT
-        request message. ``Event`` attributes are:
+        request message. :class:`~pynetdicom.events.Event` attributes are:
 
-        * ``assoc`` : the
-          :py:class:`association <pynetdicom.association.Association>`
+        * :attr:`~pynetdicom.events.Event.assoc`: the
+          :class:`~pynetdicom.association.Association`
           that is running the service that received the N-EVENT-REPORT request.
-        * ``context`` : the presentation context the request was sent under
-          as a ``presentation.PresentationContextTuple``.
-        * ``event`` : the event that occurred as ``namedtuple``.
-        * ``event_type`` : the N-EVENT-REPORT request's *Event Type
-          ID* parameter value as ``int``.
-        * ``request`` : the received
-          :py:class:`N-EVENT-REPORT request <pynetdicom.dimse_primitives.N_EVENT_REPORT>`
-        * ``timestamp`` : the
-          `date and time <https://docs.python.org/3/library/datetime.html#datetime-objects>`_
-          that the N-EVENT-REPORT request was processed by the service.
+        * :attr:`~pynetdicom.events.Event.context`: the presentation context
+          the request was sent under
+          as a :class:`~pynetdicom.presentation.PresentationContextTuple`.
+        * :attr:`~pynetdicom.events.Event.event`: the event that occurred as
+          :class:`~pynetdicom.events.InterventionEvent`.
+        * ``event_type``: the N-EVENT-REPORT request's *Event Type
+          ID* parameter value as :class:`int`.
+        * :attr:`~pynetdicom.events.Event.request`: the received
+          :class:`N-EVENT-REPORT request
+          <pynetdicom.dimse_primitives.N_EVENT_REPORT>`
+        * :attr:`~pynetdicom.events.Event.timestamp`: the date and time
+          that the N-EVENT-REPORT request was processed by the service as
+          :class:`datetime.datetime`.
 
-        ``Event`` properties are:
+        :class:`~pynetdicom.events.Event` properties are:
 
-        * ``event_information`` : the decoded
-          :py:class:`Dataset <pydicom.dataset.Dataset>` contained within the
+        * :attr:`~pynetdicom.events.Event.event_information`: the decoded
+          :class:`~pydicom.dataset.Dataset` contained within the
           N-EVENT-REPORT request's *Event Information* parameter. Because
           *pydicom* uses a deferred read when decoding data, if the decode
-          fails the returned ``Dataset`` will only raise an exception at the
-          time of use.
+          fails the returned :class:`~pydicom.dataset.Dataset` will only raise
+          an exception at the time of use.
 
     Returns
     -------
     status : pydicom.dataset.Dataset or int
         The status returned to the peer AE in the N-EVENT-REPORT response.
         Must be a valid N-EVENT-REPORT status value for the applicable Service
-        Class as either an ``int`` or a ``Dataset`` object containing (at a
-        minimum) a (0000,0900) *Status* element. If returning a Dataset
-        object then it may also contain optional elements related to the
-        Status (as in DICOM Standard Part 7, Annex C).
+        Class as either an :class:`int` or a :class:`~pydicom.dataset.Dataset`
+        object containing (at a minimum) a (0000,0900) *Status* element. If
+        returning a Dataset object then it may also contain optional elements
+        related to the Status (as in DICOM Standard, Part 7,
+        :dcm:`Annex C<part07/chapter_C.html>`).
     dataset : pydicom.dataset.Dataset or None
-        If the status category is 'Success' or 'Warning' then a ``Dataset``
-        containing elements of the response's *Event Reply*
-        conformant to the specifications in the corresponding Service
-        Class.
+        If the status category is 'Success' or 'Warning' then a
+        :class:`~pydicom.dataset.Dataset` containing elements of the
+        response's *Event Reply* conformant to the specifications in the
+        corresponding Service Class.
 
         If the status category is not 'Success' or 'Warning' then ``None``.
 
@@ -3074,12 +3181,29 @@ def doc_handle_event_report(event):
 
     See Also
     --------
-    :py:meth:`send_n_event_report()<pynetdicom.association.Association.send_n_event_report>`
-    :py:class:`N_EVENT_REPORT<pynetdicom.dimse_primitives.N_EVENT_REPORT>`
+
+    .. currentmodule:: pynetdicom.service_class_n
+
+    :meth:`~pynetdicom.association.Association.send_n_event_report`
+    :class:`~pynetdicom.dimse_primitives.N_EVENT_REPORT`
+    :class:`PrintManagementServiceClass`
+    :class:`ProcedureStepServiceClass`
+    :class:`RTMachineVerificationServiceClass`
+    :class:`StorageCommitmentServiceClass`
+    :class:`UnifiedProcedureStepServiceClass`
 
     References
     ----------
-    DICOM Standard Part 4, Annexes F, H, J, CC and DD
+
+    * DICOM Standard, Part 4, :dcm:`Annex F <part04/chapter_F.html>`
+    * DICOM Standard, Part 4, :dcm:`Annex H <part04/chapter_H.html>`
+    * DICOM Standard, Part 4, :dcm:`Annex J <part04/chapter_J.html>`
+    * DICOM Standard, Part 4, :dcm:`Annex CC <part04/chapter_CC.html>`
+    * DICOM Standard, Part 4, :dcm:`Annex DD <part04/chapter_DD.html>`
+    * DICOM Standard, Part 7, Sections
+      :dcm:`10.1.1 <part07/chapter_10.html#sect_10.1.1>`,
+      :dcm:`10.3.1 <part07/sect_10.3.html#sect_10.3.1>`
+      and :dcm:`Annex C <part07/chapter_C.html>`
     """
     pass
 
@@ -3098,8 +3222,12 @@ def doc_handle_n_get(event):
 
     **Supported Service Classes**
 
-    * *Display System Management Service Class*
-    * *Modality Performed Procedure Step Management*
+    * :dcm:`Procedure Step<part04/chapter_F.html>`
+    * :dcm:`Print Management<part04/chapter_H.html>`
+    * :dcm:`Media Creation Management<part04/chapter_S.html>`
+    * :dcm:`Unified Procedure Step<part04/chapter_CC.html>`
+    * :dcm:`RT Machine Verification<part04/chapter_DD.html>`
+    * :dcm:`Dispaly System Management<part04/chapter_EE.html>`
 
     **Status**
 
@@ -3130,24 +3258,26 @@ def doc_handle_n_get(event):
     ----------
     event : events.Event
         The event representing a service class receiving an N-GET
-        request message. ``Event`` attributes are:
+        request message. :class:`~pynetdicom.events.Event` attributes are:
 
-        * ``assoc`` : the
-          :py:class:`association <pynetdicom.association.Association>`
+        * :attr:`~pynetdicom.events.Event.assoc`: the
+          :class:`~pynetdicom.association.Association`
           that is running the service that received the N-GET request.
-        * ``context`` : the presentation context the request was sent under
-          as a ``presentation.PresentationContextTuple``.
-        * ``event`` : the event that occurred as ``namedtuple``.
-        * ``request`` : the received
-          :py:class:`N-GET request <pynetdicom.dimse_primitives.N_GET>`
-        * ``timestamp`` : the
-          `date and time <https://docs.python.org/3/library/datetime.html#datetime-objects>`_
-          that the N-GET request was processed by the service.
+        * :attr:`~pynetdicom.events.Event.context`: the presentation context
+          the request was sent under
+          as a :class:`~pynetdicom.presentation.PresentationContextTuple`.
+        * :attr:`~pynetdicom.events.Event.event`: the event that occurred as
+          :class:`~pynetdicom.events.InterventionEvent`.
+        * :attr:`~pynetdicom.events.Event.request`: the received
+          :class:`N-GET request <pynetdicom.dimse_primitives.N_GET>`
+        * :attr:`~pynetdicom.events.Event.timestamp`: the date and time
+          that the N-GET request was processed by the service as
+          :class:`datetime.datetime`.
 
-        ``Event`` properties are:
+        :class:`~pynetdicom.events.Event` properties are:
 
-        * ``attribute_identifiers`` : a list of attribute
-          :py:class:`Tags <pydicom.tag.BaseTag>` contained within the
+        * :attr:`~pynetdicom.events.Event.attribute_identifiers`: a list of
+          attribute :class:`BaseTag<pydicom.tag.BaseTag>` contained within the
           N-GET request's *Attribute Identifier List* parameter.
 
     Returns
@@ -3155,34 +3285,46 @@ def doc_handle_n_get(event):
     status : pydicom.dataset.Dataset or int
         The status returned to the peer AE in the N-GET response. Must be a
         valid N-GET status value for the applicable Service Class as either
-        an ``int`` or a ``Dataset`` object containing (at a minimum) a
-        (0000,0900) *Status* element. If returning a ``Dataset`` object then
-        it may also contain optional elements related to the *Status* (as in
-        DICOM Standard Part 7, Annex C).
+        an :class:`int` or a :class:`~pydicom.dataset.Dataset` object
+        containing (at a minimum) a (0000,0900) *Status* element. If returning
+        a :class:`~pydicom.dataset.Dataset` object then it may also contain
+        optional elements related to the *Status* (as in DICOM Standard, Part
+        7, :dcm:`Annex C<part07/chapter_C.html>`).
     dataset : pydicom.dataset.Dataset or None
-        If the status category is 'Success' or 'Warning' then a ``Dataset``
-        containing elements matching the request's *Attribute List*
-        conformant to the specifications in the corresponding Service
-        Class.
+        If the status category is 'Success' or 'Warning' then a
+        :class:`~pydicom.dataset.Dataset` containing elements matching the
+        request's *Attribute List* conformant to the specifications in the
+        corresponding Service Class.
 
         If the status category is not 'Success' or 'Warning' then ``None``.
 
     See Also
     --------
-    :py:meth:`send_n_get()<pynetdicom.association.Association.send_n_get>`
-    :py:class:`N_GET<pynetdicom.dimse_primitives.N_GET>`
-    :py:class:`DisplaySystemManagementServiceClass<pynetdicom.service_class_n.DisplaySystemManagementServiceClass>`
-    :py:class:`ProcedureStepServiceClass<pynetdicom.service_class_n.ProcedureStepServiceClass>`
+
+    .. currentmodule:: pynetdicom.service_class_n
+
+    :meth:`~pynetdicom.association.Association.send_n_get`
+    :class:`~pynetdicom.dimse_primitives.N_GET`
+    :class:`DisplaySystemManagementServiceClass`
+    :class:`MediaCreationManagementServiceClass`
+    :class:`PrintManagementServiceClass`
+    :class:`ProcedureStepServiceClass`
+    :class:`RTMachineVerificationServiceClass`
+    :class:`UnifiedProcedureStepServiceClass`
 
     References
     ----------
 
-    * DICOM Standart Part 4, `Annex F <http://dicom.nema.org/medical/dicom/current/output/html/part04.html#chapter_F>`_
-    * DICOM Standart Part 4, `Annex H <http://dicom.nema.org/medical/dicom/current/output/html/part04.html#chapter_H>`_
-    * DICOM Standard Part 4, `Annex S <http://dicom.nema.org/medical/dicom/current/output/html/part04.html#chapter_S>`_
-    * DICOM Standard Part 4, `Annex CC <http://dicom.nema.org/medical/dicom/current/output/html/part04.html#chapter_CC>`_
-    * DICOM Standard Part 4, `Annex DD <http://dicom.nema.org/medical/dicom/current/output/html/part04.html#chapter_DD>`_
-    * DICOM Standard Part 4, `Annex EE <http://dicom.nema.org/medical/dicom/current/output/html/part04.html#chapter_EE>`_
+    * DICOM Standard, Part 4, :dcm:`Annex F <part04/chapter_F.html>`
+    * DICOM Standard, Part 4, :dcm:`Annex H <part04/chapter_H.html>`
+    * DICOM Standard, Part 4, :dcm:`Annex S <part04/chapter_S.html>`
+    * DICOM Standard, Part 4, :dcm:`Annex CC <part04/chapter_CC.html>`
+    * DICOM Standard, Part 4, :dcm:`Annex DD <part04/chapter_DD.html>`
+    * DICOM Standard, Part 4, :dcm:`Annex EE <part04/chapter_EE.html>`
+    * DICOM Standard, Part 7, Sections
+      :dcm:`10.1.2 <part07/chapter_10.html#sect_10.1.2>`,
+      :dcm:`10.3.2 <part07/sect_10.3.2.html>`
+      and :dcm:`Annex C <part07/chapter_C.html>`
     """
     pass
 
@@ -3201,7 +3343,10 @@ def doc_handle_set(event):
 
     **Supported Service Classes**
 
-    * *Modality Performed Procedure Step Management*
+    * :dcm:`Procedure Step<part04/chapter_F.html>`
+    * :dcm:`Print Management<part04/chapter_H.html>`
+    * :dcm:`Unified Procedure Step<part04/chapter_CC.html>`
+    * :dcm:`RT Machine Verification<part04/chapter_DD.html>`
 
     **Status**
 
@@ -3262,42 +3407,46 @@ def doc_handle_set(event):
     ----------
     event : events.Event
         The event representing a service class receiving a N-SET
-        request message. ``Event`` attributes are:
+        request message. :class:`~pynetdicom.events.Event` attributes are:
 
-        * ``assoc`` : the
-          :py:class:`association <pynetdicom.association.Association>`
+        * :attr:`~pynetdicom.events.Event.assoc`: the
+          :class:`~pynetdicom.association.Association`
           that is running the service that received the N-SET request.
-        * ``context`` : the presentation context the request was sent under
-          as a ``presentation.PresentationContextTuple``.
-        * ``event`` : the event that occurred as ``namedtuple``.
-        * ``request`` : the received
-          :py:class:`N-SET request <pynetdicom.dimse_primitives.N_SET>`
-        * ``timestamp`` : the
-          `date and time <https://docs.python.org/3/library/datetime.html#datetime-objects>`_
-          that the N-SET request was processed by the service.
+        * :attr:`~pynetdicom.events.Event.context`: the presentation context
+          the request was sent under
+          as a :class:`~pynetdicom.presentation.PresentationContextTuple`.
+        * :attr:`~pynetdicom.events.Event.event`: the event that occurred as
+          :class:`~pynetdicom.events.InterventionEvent`.
+        * :attr:`~pynetdicom.events.Event.request`: the received
+          :class:`N-SET request <pynetdicom.dimse_primitives.N_SET>`
+        * :attr:`~pynetdicom.events.Event.timestamp`: the date and time
+          that the N-SET request was processed by the service as
+          :class:`datetime.datetime`.
 
-        ``Event`` properties are:
+        :class:`~pynetdicom.events.Event` properties are:
 
-        * ``modification_list`` : the decoded
-          :py:class:`Dataset <pydicom.dataset.Dataset>` contained within the
+        * :attr:`~pynetdicom.events.Event.modification_list`: the decoded
+          :class:`~pydicom.dataset.Dataset` contained within the
           N-SET request's *Modification List* parameter. Because *pydicom*
           uses a deferred read when decoding data, if the decode fails the
-          returned ``Dataset`` will only raise an exception at the time of use.
+          returned :class:`~pydicom.dataset.Dataset` will only raise an
+          exception at the time of use.
 
     Returns
     -------
     status : pydicom.dataset.Dataset or int
         The status returned to the peer AE in the N-SET response. Must be a
         valid N-SET status value for the applicable Service Class as either
-        an ``int`` or a ``Dataset`` object containing (at a minimum) a
-        (0000,0900) *Status* element. If returning a ``Dataset`` object then
-        it may also contain optional elements related to the *Status* (as in
-        DICOM Standard Part 7, Annex C).
+        an :class:`int` or a :class:`~pydicom.dataset.Dataset` object
+        containing (at a minimum) a (0000,0900) *Status* element. If returning
+        a :class:`~pydicom.dataset.Dataset` object then it may also contain
+        optional elements related to the *Status* (as in DICOM Standard, Part
+        7, :dcm:`Annex C<part07/chapter_C.html>`).
     dataset : pydicom.dataset.Dataset or None
-        If the status category is 'Success' or 'Warning' then a ``Dataset``
-        containing elements of the response's *Attribute List*
-        conformant to the specifications in the corresponding Service
-        Class.
+        If the status category is 'Success' or 'Warning' then a
+        :class:`~pydicom.dataset.Dataset` containing elements of the response's
+        *Attribute List* conformant to the specifications in the corresponding
+        Service Class.
 
         If the status category is not 'Success' or 'Warning' then ``None``.
 
@@ -3309,12 +3458,27 @@ def doc_handle_set(event):
 
     See Also
     --------
-    :py:meth:`send_n_set()<pynetdicom.association.Association.send_n_set>`
-    :py:class:`N_SET<pynetdicom.dimse_primitives.N_SET>`
+
+    .. currentmodule:: pynetdicom.service_class_n
+
+    :meth:`~pynetdicom.association.Association.send_n_set`
+    :class:`~pynetdicom.dimse_primitives.N_SET`
+    :class:`PrintManagementServiceClass`
+    :class:`ProcedureStepServiceClass`
+    :class:`RTMachineVerificationServiceClass`
+    :class:`UnifiedProcedureStepServiceClass`
 
     References
     ----------
-    DICOM Standard Part 4, Annexes H, J, P, S, CC and DD
+
+    * DICOM Standard, Part 4, :dcm:`Annex F <part04/chapter_F.html>`
+    * DICOM Standard, Part 4, :dcm:`Annex H <part04/chapter_H.html>`
+    * DICOM Standard, Part 4, :dcm:`Annex CC <part04/chapter_CC.html>`
+    * DICOM Standard, Part 4, :dcm:`Annex DD <part04/chapter_DD.html>`
+    * DICOM Standard, Part 7, Sections
+      :dcm:`10.1.3 <part07/chapter_10.html#sect_10.1.3>`,
+      :dcm:`10.3.3 <part07/sect_10.3.3.html>`
+      and :dcm:`Annex C <part07/chapter_C.html>`
     """
     pass
 
@@ -3323,8 +3487,8 @@ def doc_handle_async(event):
 
     User implementation of this event handler is optional. If a handler is
     not implemented and bound to ``evt.EVT_ASYNC_OPS`` then no response to the
-    Asynchronous Operations Window
-    Negotiation item will be sent in reply to the association requestor.
+    :dcm:`Asynchronous Operations Window Negotiation<part07/sect_D.3.3.3.html>`
+    item will be sent in reply to the association requestor.
 
     Because *pynetdicom* doesn't support asynchronous operations if the
     handler is implemented then the response to the asynchronous
@@ -3343,38 +3507,46 @@ def doc_handle_async(event):
         contains an Asynchronous Operations Window Negotiation item. Event
         attributes are:
 
-        * ``assoc`` : the
-          :py:class:`association <pynetdicom.association.Association>`
+        * :attr:`~pynetdicom.events.Event.assoc`: the
+          :class:`~pynetdicom.association.Association`
           that received the Asynchronous Operations Window Negotiation request.
-        * ``event`` : the event that occurred as ``namedtuple``.
-        * ``invoked`` : the *Maximum Number Operations Invoked* parameter
-          value of the Asynchronous Operations Window Negotiation request as
-          an ``int``. If the value is 0 then an unlimited number of
+        * :attr:`~pynetdicom.events.Event.event`: the event that occurred as
+          :class:`~pynetdicom.events.InterventionEvent`.
+        * ``invoked``: the *Maximum Number Operations Invoked* parameter
+          value of the Asynchronous Operations Window Negotiation item as
+          an :class:`int`. If the value is ``0`` then an unlimited number of
           invocations are requested.
-        * ``performed`` : the *Maximum Number Operations Performed*
+        * ``performed``: the *Maximum Number Operations Performed*
           parameter value of the Asynchronous Operations Window Negotiation
-          request as an ``int``. If the value is 0 then an unlimited number
-          of performances are requested.
-        * ``timestamp`` : the
-          `date and time <https://docs.python.org/3/library/datetime.html#datetime-objects>`_
-          that the negotiation request was processed by the ACSE.
+          item as an :class:`int`. If the value is ``0`` then an unlimited
+          number of performances are requested.
+        * :attr:`~pynetdicom.events.Event.timestamp`: the date and time
+          that the negotiation request was processed as
+          :class:`datetime.datetime`.
 
     Returns
     -------
     int, int
         The (maximum number operations invoked, maximum number operations
-        performed). A value of 0 indicates that an unlimited number of
+        performed). A value of ``0`` indicates that an unlimited number of
         operations is supported. As asynchronous operations are not
         supported the returned values will be ignored and (1, 1) sent in
         response.
+
+
+    References
+    ----------
+
+    * DICOM Standard, Part 7, :dcm:`Annex D.3.3.3 <part07/sect_D.3.3.3.html>`
     """
     pass
 
 def doc_handle_sop_common(event):
     """Documentation for handlers bound to ``evt.EVT_SOP_COMMON``.
 
-    User implementation of this event handler is required only if SOP Class
-    Common Extended Negotiation is to be supported by the association.
+    User implementation of this event handler is required only if
+    :dcm:`SOP Class Common Extended Negotiation<part07/sect_D.3.3.6.html>`
+    is to be supported by the association.
 
     **Event**
 
@@ -3387,23 +3559,24 @@ def doc_handle_sop_common(event):
         contains one or more SOP Class Common Extended Negotiation items. Event
         attributes are:
 
-        * ``assoc`` : the
-          :py:class:`association <pynetdicom.association.Association>`
+        * :attr:`~pynetdicom.events.Event.assoc`: the
+          :class:`~pynetdicom.association.Association`
           that received the SOP Class Common Extended Negotiation request.
-        * ``event`` : the event that occurred as ``namedtuple``.
-        * ``items`` : the {*SOP Class UID* :
-          :py:class:`SOP Class Common Extended Negotiation
+        * :attr:`~pynetdicom.events.Event.event`: the event that occurred as
+          :class:`~pynetdicom.events.InterventionEvent`.
+        * ``items``: the {*SOP Class UID* :
+          :class:`SOP Class Common Extended Negotiation
           <pynetdicom.pdu_primitives.SOPClassCommonExtendedNegotiation>`}
           items sent by the requestor.
-        * ``timestamp`` : the
-          `date and time <https://docs.python.org/3/library/datetime.html#datetime-objects>`_
-          that the negotiation request was processed by the ACSE.
+        * :attr:`~pynetdicom.events.Event.timestamp`: the date and time
+          that the negotiation request was processed as
+          :class:`datetime.datetime`.
 
     Returns
     -------
     dict
         The {*SOP Class UID* :
-        :py:class:`SOP Class Common Extended Negotiation
+        :class:`SOP Class Common Extended Negotiation
         <pynetdicom.pdu_primitives.SOPClassCommonExtendedNegotiation>`} items
         accepted by the acceptor. When receiving DIMSE messages containing
         datasets corresponding to the *SOP Class UID* in an accepted item
@@ -3412,15 +3585,16 @@ def doc_handle_sop_common(event):
     References
     ----------
 
-    * DICOM Standard Part 7, `Annex D.3.3.6 <http://dicom.nema.org/medical/dicom/current/output/chtml/part07/sect_D.3.3.6.html>`_
+    * DICOM Standard, Part 7, :dcm:`Annex D.3.3.6 <part07/sect_D.3.3.6.html>`
     """
     pass
 
 def doc_handle_sop_extended(event):
     """Documentation for handlers bound to ``evt.EVT_SOP_EXTENDED``.
 
-    User implementation of this event handler is required only if SOP Class
-    Extended Negotiation is to be supported by the association. If a handler
+    User implementation of this event handler is required only if
+    :dcm:`SOP Class Extended Negotiation<part07/sect_D.3.3.5.html>`
+    is to be supported by the association. If a handler
     is not implemented and bound to ``evt.EVT_SOP_EXTENDED`` then no response
     will be sent to the SOP Class Extended Negotiation request.
 
@@ -3435,18 +3609,19 @@ def doc_handle_sop_extended(event):
         contains one or more SOP Class Extended Negotiation item. Event
         attributes are:
 
-        * ``app_info`` : the {*SOP Class UID* : *Service Class Application
+        * ``app_info``: the {*SOP Class UID* : *Service Class Application
           Information*} parameter values for the included items, with the
           service class application information being the raw encoded data sent
-          by the requestor (as ``bytes``).
-        * ``assoc`` : the
-          :py:class:`association <pynetdicom.association.Association>`
+          by the requestor (as :class:`bytes`).
+        * :attr:`~pynetdicom.events.Event.assoc`: the
+          :class:`~pynetdicom.association.Association`
           that is running the service that received the user identity
           negotiation request.
-        * ``event`` : the event that occurred as ``namedtuple``.
-        * ``timestamp`` : the
-          `date and time <https://docs.python.org/3/library/datetime.html#datetime-objects>`_
-          that the negotiation request was processed by the ACSE.
+        * :attr:`~pynetdicom.events.Event.event`: the event that occurred as
+          :class:`~pynetdicom.events.InterventionEvent`.
+        * :attr:`~pynetdicom.events.Event.timestamp`: the date and time
+          that the negotiation request was processed as
+          :class:`datetime.datetime`.
 
     Returns
     -------
@@ -3454,21 +3629,22 @@ def doc_handle_sop_extended(event):
         The {*SOP Class UID* : *Service Class Application Information*}
         parameter values to be sent in response to the request, with the
         service class application information being the encoded data that
-        will be sent to the peer as-is. Return an empty ``dict`` if no
+        will be sent to the peer as-is. Return an empty :class:`dict` if no
         response is to be sent.
 
     References
     ----------
 
-    * DICOM Standard Part 7, `Annex D.3.3.5 <http://dicom.nema.org/medical/dicom/current/output/chtml/part07/sect_D.3.3.5.html>`_
+    * DICOM Standard, Part 7, :dcm:`Annex D.3.3.5 <part07/sect_D.3.3.5.html>`
     """
     pass
 
 def doc_handle_userid(event):
     """Documentation for handlers bound to ``evt.EVT_USER_ID``.
 
-    User implementation of this handler is required if User Identity
-    Negotiation is to be supported by the association. If no handler is
+    User implementation of this handler is required if
+    :dcm:`User Identity Negotiation<part07/sect_D.3.3.7.html>`
+    is to be supported by the association. If no handler is
     implemented and bound to ``evt.EVT_USER_ID``
     then the association will be accepted (provided there's no other reason
     to reject it) and no User Identity Negotiation response will be sent in
@@ -3482,48 +3658,51 @@ def doc_handle_userid(event):
     ----------
     event : events.Event
         The event representing an association request being received which
-        contains a User Identity Negotiation item. ``Event`` attributes are:
+        contains a User Identity Negotiation item.
+        :class:`~pynetdicom.events.Event` attributes are:
 
-        * ``assoc`` : the
-          :py:class:`association <pynetdicom.association.Association>`
+        * :attr:`~pynetdicom.events.Event.assoc`: the
+          :class:`~pynetdicom.association.Association`
           that is running the service that received the user identity
           negotiation request.
-        * ``event`` : the event that occurred as ``namedtuple``.
-        * ``primary_field`` : the *Primary Field* value (as ``bytes``),
+        * :attr:`~pynetdicom.events.Event.event`: the event that occurred as
+          :class:`~pynetdicom.events.InterventionEvent`.
+        * ``primary_field``: the *Primary Field* value (as :class:`bytes`),
           contains the username, the encoded Kerberos ticket or the JSON web
-          token, depending on the value of ``user_id_type``.
-        * ``secondary_field`` : the *Secondary Field* value. Will be ``None``
-          unless the ``user_id_type`` is ``2`` in which case it will be
-          ``bytes``.
-        * ``timestamp`` : the
-          `date and time <https://docs.python.org/3/library/datetime.html#datetime-objects>`_
-          that the negotiation request was processed by the ACSE.
-        * ``user_id_type`` : the *User Identity Type* value (as an ``int``),
-          which indicates the form of user identity being provided:
+          token, depending on the value of `user_id_type`.
+        * ``secondary_field``: the *Secondary Field* value. Will be ``None``
+          unless the `user_id_type` is ``2`` in which case it will be
+          :class:`bytes`.
+        * :attr:`~pynetdicom.events.Event.timestamp`: the date and time
+          that the negotiation request was processed as
+          :class:`datetime.datetime`.
+        * ``user_id_type``: the *User Identity Type* value (as an
+          :class:`int`), which indicates the form of user identity being
+          provided:
 
-          * 1 - Username as a UTF-8 string
-          * 2 - Username as a UTF-8 string and passcode
-          * 3 - Kerberos Service ticket
-          * 4 - SAML Assertion
-          * 5 - JSON Web Token
+          * ``1`` - Username as a UTF-8 string
+          * ``2`` - Username as a UTF-8 string and passcode
+          * ``3`` - Kerberos Service ticket
+          * ``4`` - SAML Assertion
+          * ``5`` - JSON Web Token
 
     Returns
     -------
     is_verified : bool
-        Return True if the user identity has been confirmed and you wish
-        to proceed with association establishment, False otherwise.
+        Return ``True`` if the user identity has been confirmed and you wish
+        to proceed with association establishment, ``False`` otherwise.
     response : bytes or None
-        If ``user_id_type`` is:
+        If `user_id_type` is:
 
-        * 1 or 2, then return ``None``
-        * 3 then return the Kerberos Server ticket as ``bytes``
-        * 4 then return the SAML response as ``bytes``
-        * 5 then return the JSON web token as ``bytes``
+        * ``1`` or ``2``, then return ``None``
+        * ``3`` then return the Kerberos Server ticket as :class:`bytes`
+        * ``4`` then return the SAML response as :class:`bytes`
+        * ``5`` then return the JSON web token as :class:`bytes`
 
     References
     ----------
 
-    * DICOM Standard Part 7, `Annex D.3.3.7 <http://dicom.nema.org/medical/dicom/current/output/chtml/part07/sect_D.3.3.7.html>`_
+    * DICOM Standard, Part 7, :dcm:`Annex D.3.3.7 <part07/sect_D.3.3.7.html>`
     """
     pass
 
@@ -3537,22 +3716,43 @@ def doc_handle_acse(event):
     event : events.Event
         Represents the ACSE service provider receiving or sending an
         association related primitive to/from the DUL service provider.
-        ``Event`` attributes are:
+        :class:`~pynetdicom.events.Event` attributes are:
 
-        * ``assoc`` : the
-          :py:class:`association <pynetdicom.association.Association>`
-          that is running the service that received the user identity
-          negotiation request.
-        * ``event`` : the event that occurred as ``namedtuple``.
-        * ``primitive`` : the ACSE primitive sent to or received from the
+        * :attr:`~pynetdicom.events.Event.assoc`: the
+          :class:`~pynetdicom.association.Association` that triggered the
+          event.
+        * :attr:`~pynetdicom.events.Event.event`: the event that occurred as
+          :class:`~pynetdicom.events.NotificationEvent`.
+        * ``primitive``: the ACSE primitive sent to or received from the
           DUL service provider. One of
-          :py:class:`A_ASSOCIATE<pynetdicom.pdu_primitives.A_ASSOCIATE>`,
-          :py:class:`A_RELEASE<pynetdicom.pdu_primitives.A_RELEASE>`,
-          :py:class:`A_ABORT<pynetdicom.pdu_primitives.A_ABORT>` or
-          :py:class:`A_P_ABORT<pynetdicom.pdu_primitives.A_P_ABORT>`.
-        * ``timestamp`` : the
-          `date and time <https://docs.python.org/3/library/datetime.html#datetime-objects>`_
-          that the negotiation request was processed by the ACSE.
+          :class:`A_ASSOCIATE<pynetdicom.pdu_primitives.A_ASSOCIATE>`,
+          :class:`A_RELEASE<pynetdicom.pdu_primitives.A_RELEASE>`,
+          :class:`A_ABORT<pynetdicom.pdu_primitives.A_ABORT>` or
+          :class:`A_P_ABORT<pynetdicom.pdu_primitives.A_P_ABORT>`.
+        * :attr:`~pynetdicom.events.Event.timestamp`: the date and time
+          that the negotiation item was processed as
+          :class:`datetime.datetime`.
+    """
+    pass
+
+def doc_handle_assoc(event):
+    """Documentation for handlers bound to ``evt.EVT_ACCEPTED``,
+    ``evt.EVT_ESTABLISHED``, ``evt.EVT_REJECTED``, ``evt.EVT_REQUESTED``,
+    ``evt.EVT_RELEASED`` or ``evt.EVT_ABORTED``.
+
+    Parameters
+    ----------
+    event : events.Event
+        Represents moving to one of the main association states. Event
+        attributes are:
+
+        * :attr:`~pynetdicom.events.Event.assoc`: the
+          :class:`~pynetdicom.association.Association` that triggered the
+          event.
+        * :attr:`~pynetdicom.events.Event.event`: the event that occurred as
+          :class:`~pynetdicom.events.NotificationEvent`.
+        * :attr:`~pynetdicom.events.Event.timestamp`: the date and time
+          that the association status changed as :class:`datetime.datetime`.
     """
     pass
 
@@ -3568,37 +3768,37 @@ def doc_handle_dimse(event):
         and converting a DIMSE message into P-DATA primitives. Event
         attributes are:
 
-        * ``assoc`` : the
-          :py:class:`association <pynetdicom.association.Association>`
+        * :attr:`~pynetdicom.events.Event.assoc`: the
+          :class:`~pynetdicom.association.Association`
           that is running the service that received the user identity
           negotiation request.
-        * ``event`` : the event that occurred as ``namedtuple``.
-        * ``message`` : the DIMSE message encoding or decoded. One of
-          :py:class:`C_ECHO_RQ<pynetdicom.dimse_messages.C_ECHO_RQ>`,
-          :py:class:`C_ECHO_RQ<pynetdicom.dimse_messages.C_ECHO_RSP>`,
-          :py:class:`C_FIND_RQ<pynetdicom.dimse_messages.C_FIND_RQ>`,
-          :py:class:`C_FIND_RSP<pynetdicom.dimse_messages.C_FIND_RSP>`,
-          :py:class:`C_GET_RQ<pynetdicom.dimse_messages.C_GET_RQ>`,
-          :py:class:`C_GET_RSP<pynetdicom.dimse_messages.C_GET_RSP>`,
-          :py:class:`C_MOVE_RQ<pynetdicom.dimse_messages.C_MOVE_RQ>`,
-          :py:class:`C_MOVE_RSP<pynetdicom.dimse_messages.C_MOVE_RSP>`,
-          :py:class:`C_STORE_RQ<pynetdicom.dimse_messages.C_STORE_RQ>`,
-          :py:class:`C_STORE_RSP<pynetdicom.dimse_messages.C_STORE_RSP>`,
-          :py:class:`N_ACTION_RQ<pynetdicom.dimse_messages.N_ACTION_RQ>`,
-          :py:class:`N_ACTION_RSP<pynetdicom.dimse_messages.N_ACTION_RSP>`,
-          :py:class:`N_CREATE_RQ<pynetdicom.dimse_messages.N_CREATE_RQ>`,
-          :py:class:`N_CREATE_RSP<pynetdicom.dimse_messages.N_CREATE_RSP>`,
-          :py:class:`N_DELETE_RQ<pynetdicom.dimse_messages.N_DELETE_RQ>`,
-          :py:class:`N_DELETE_RSP<pynetdicom.dimse_messages.N_DELETE_RSP>`,
-          :py:class:`N_EVENT_REPORT_RQ<pynetdicom.dimse_messages.N_EVENT_REPORT_RQ>`,
-          :py:class:`N_EVENT_REPORT_RSP<pynetdicom.dimse_messages.N_EVENT_REPORT_RSP>`,
-          :py:class:`N_GET_RQ<pynetdicom.dimse_messages.N_GET_RQ>`,
-          :py:class:`N_GET_RSP<pynetdicom.dimse_messages.N_GET_RSP>`,
-          :py:class:`N_SET_RQ<pynetdicom.dimse_messages.N_SET_RQ>` or
-          :py:class:`N_SET_RSP<pynetdicom.dimse_messages.N_SET_RSP>`
-        * ``timestamp`` : the
-          `date and time <https://docs.python.org/3/library/datetime.html#datetime-objects>`_
-          that the negotiation request was processed by the ACSE.
+        * :attr:`~pynetdicom.events.Event.event`: the event that occurred as
+          :class:`~pynetdicom.events.NotificationEvent`.
+        * ``message``: the DIMSE message encoding or decoded. One of
+          :class:`~pynetdicom.dimse_messages.C_ECHO_RQ`,
+          :class:`~pynetdicom.dimse_messages.C_ECHO_RSP`,
+          :class:`~pynetdicom.dimse_messages.C_FIND_RQ`,
+          :class:`~pynetdicom.dimse_messages.C_FIND_RSP`,
+          :class:`~pynetdicom.dimse_messages.C_GET_RQ`,
+          :class:`~pynetdicom.dimse_messages.C_GET_RSP`,
+          :class:`~pynetdicom.dimse_messages.C_MOVE_RQ`,
+          :class:`~pynetdicom.dimse_messages.C_MOVE_RSP`,
+          :class:`~pynetdicom.dimse_messages.C_STORE_RQ`,
+          :class:`~pynetdicom.dimse_messages.C_STORE_RSP`,
+          :class:`~pynetdicom.dimse_messages.N_ACTION_RQ`,
+          :class:`~pynetdicom.dimse_messages.N_ACTION_RSP`,
+          :class:`~pynetdicom.dimse_messages.N_CREATE_RQ`,
+          :class:`~pynetdicom.dimse_messages.N_CREATE_RSP`,
+          :class:`~pynetdicom.dimse_messages.N_DELETE_RQ`,
+          :class:`~pynetdicom.dimse_messages.N_DELETE_RSP`,
+          :class:`~pynetdicom.dimse_messages.N_EVENT_REPORT_RQ`,
+          :class:`~pynetdicom.dimse_messages.N_EVENT_REPORT_RSP`,
+          :class:`~pynetdicom.dimse_messages.N_GET_RQ`,
+          :class:`~pynetdicom.dimse_messages.N_GET_RSP`,
+          :class:`~pynetdicom.dimse_messages.N_SET_RQ` or
+          :class:`~pynetdicom.dimse_messages.N_SET_RSP`
+        * :attr:`~pynetdicom.events.Event.timestamp`: the date and time
+          that the message was processed as :class:`datetime.datetime`.
     """
     pass
 
@@ -3609,19 +3809,46 @@ def doc_handle_data(event):
     Parameters
     ----------
     event : events.Event
-        Represents data being sent to or received from the remote over the
-        socket. ``Event`` attributes are:
+        Represents data being sent to/received from the remote over the
+        socket. :class:`~pynetdicom.events.Event` attributes are:
 
-        * ``assoc`` : the
-          :py:class:`association <pynetdicom.association.Association>`
-          that is running the service that received the user identity
-          negotiation request.
-        * ``data`` : the data sent to or received from the remote (as
-          ``bytes``).
-        * ``event`` : the event that occurred as ``namedtuple``.
-        * ``timestamp`` : the
-          `date and time <https://docs.python.org/3/library/datetime.html#datetime-objects>`_
-          that the negotiation request was processed by the ACSE.
+        * :attr:`~pynetdicom.events.Event.assoc`: the
+          :class:`~pynetdicom.association.Association` that triggered the
+          event.
+        * ``data``: the data sent to/received from the remote, as
+          :class:`bytes`.
+        * :attr:`~pynetdicom.events.Event.event`: the event that occurred as
+          :class:`~pynetdicom.events.NotificationEvent`.
+        * :attr:`~pynetdicom.events.Event.timestamp`: the date and time
+          that the data was sent/received as :class:`datetime.datetime`.
+    """
+    pass
+
+def doc_handle_fsm(event):
+    """Documentation for handlers bound to ``evt.EVT_FSM_TRANSITION``.
+
+    Parameters
+    ----------
+    event : events.Event
+        Represents the state machine receiving a triggering event and being
+        about to perform the action that will take it to the next state.
+        :class:`~pynetdicom.events.Event` attributes are:
+
+        * ``action``: the name of the action that's to be performed as
+          :class:`str`.
+        * :attr:`~pynetdicom.events.Event.assoc`: the
+          :class:`~pynetdicom.association.Association` that triggered the
+          event.
+        * ``current_state``: the current state of the state machine as
+          :class:`str`.
+        * :attr:`~pynetdicom.events.Event.event`: the event that occurred as
+          :class:`~pynetdicom.events.NotificationEvent`.
+        * ``fsm_event``: the name of the state machine event that occurred,
+          triggering the transition as :class:`str`.
+        * ``next_state``: the state the state machine will be in after the
+          action has been performed as :class:`str`.
+        * :attr:`~pynetdicom.events.Event.timestamp`: the date and time
+          that the FSM transition occurred as :class:`datetime.datetime`.
     """
     pass
 
@@ -3633,24 +3860,23 @@ def doc_handle_pdu(event):
     ----------
     event : events.Event
         Represents the DUL service provider sending or receiving a PDU.
-        ``Event`` attributes are:
+        :class:`~pynetdicom.events.Event` attributes are:
 
-        * ``assoc`` : the
-          :py:class:`association <pynetdicom.association.Association>`
-          that is running the service that received the user identity
-          negotiation request.
-        * ``event`` : the event that occurred as ``namedtuple``.
-        * ``pdu`` : the PDU sent to or received from the peer. One of:
-          :py:class:`A_ASSOCIATE_RQ<pynetdicom.pdu.A_ASSOCIATE_RQ>`,
-          :py:class:`A_ASSOCIATE_RJ<pynetdicom.pdu.A_ASSOCIATE_RJ>`,
-          :py:class:`A_ASSOCIATE_AC<pynetdicom.pdu.A_ASSOCIATE_AC>`,
-          :py:class:`A_RELEASE_RQ<pynetdicom.pdu.A_RELEASE_RQ>`,
-          :py:class:`A_RELEASE_RP<pynetdicom.pdu.A_RELEASE_RP>`,
-          :py:class:`A_ABORT_RQ<pynetdicom.pdu.A_ABORT_RQ>` or
-          :py:class:`P_DATA_TF<pynetdicom.pdu.P_DATA_TF>`.
-        * ``timestamp`` : the
-          `date and time <https://docs.python.org/3/library/datetime.html#datetime-objects>`_
-          that the negotiation request was processed by the ACSE.
+        * :attr:`~pynetdicom.events.Event.assoc`: the
+          :class:`~pynetdicom.association.Association` that triggered the
+          event.
+        * :attr:`~pynetdicom.events.Event.event`: the event that occurred as
+          :class:`~pynetdicom.events.NotificationEvent`.
+        * ``pdu``: the PDU sent to or received from the peer. One of:
+          :class:`A_ASSOCIATE_RQ<pynetdicom.pdu.A_ASSOCIATE_RQ>`,
+          :class:`A_ASSOCIATE_RJ<pynetdicom.pdu.A_ASSOCIATE_RJ>`,
+          :class:`A_ASSOCIATE_AC<pynetdicom.pdu.A_ASSOCIATE_AC>`,
+          :class:`A_RELEASE_RQ<pynetdicom.pdu.A_RELEASE_RQ>`,
+          :class:`A_RELEASE_RP<pynetdicom.pdu.A_RELEASE_RP>`,
+          :class:`A_ABORT_RQ<pynetdicom.pdu.A_ABORT_RQ>` or
+          :class:`P_DATA_TF<pynetdicom.pdu.P_DATA_TF>`.
+        * :attr:`~pynetdicom.events.Event.timestamp`: the date and time
+          that the PDU was processed as :class:`datetime.datetime`.
     """
     pass
 
@@ -3664,65 +3890,15 @@ def doc_handle_transport(event):
         Represents opening or closing a transport connection. Event
         attributes are:
 
-        * ``address`` : the (host, port) of the remote as (str, int).
-        * ``assoc`` : the
-          :py:class:`association <pynetdicom.association.Association>`
-          that is running the service that received the user identity
-          negotiation request.
-        * ``event`` : the event that occurred as ``namedtuple``.
-        * ``timestamp`` : the
-          `date and time <https://docs.python.org/3/library/datetime.html#datetime-objects>`_
-          that the negotiation request was processed by the ACSE.
-    """
-    pass
-
-def doc_handle_assoc(event):
-    """Documentation for handlers bound to ``evt.EVT_ACCEPTED``,
-    ``evt.EVT_ESTABLISHED``, ``evt.EVT_REJECTED``, ``evt.EVT_REQUESTED``,
-    ``evt.EVT_RELEASED`` or ``evt.EVT_ABORTED``.
-
-    Parameters
-    ----------
-    event : events.Event
-        Represents moving to one of the main association states. Event
-        attributes are:
-
-        * ``assoc`` : the
-          :py:class:`association <pynetdicom.association.Association>`
-          that is running the service that received the user identity
-          negotiation request.
-        * ``event`` : the event that occurred as ``namedtuple``.
-        * ``timestamp`` : the
-          `date and time <https://docs.python.org/3/library/datetime.html#datetime-objects>`_
-          that the negotiation request was processed by the ACSE.
-    """
-    pass
-
-def doc_handle_fsm(event):
-    """Documentation for handlers bound to ``evt.EVT_FSM_TRANSITION``.
-
-    Parameters
-    ----------
-    event : events.Event
-        Represents the state machine receiving a triggering event and being
-        about to perform the action that will take it to the next state.
-        ``Event`` attributes are:
-
-        * ``action`` : the name of the action that's to be performed as
-          ``str``.
-        * ``assoc`` : the
-          :py:class:`association <pynetdicom.association.Association>`
-          that is running the service that received the user identity
-          negotiation request.
-        * ``current_state`` : the current state of the state machine as
-          ``str``.
-        * ``event`` : the event that occurred as ``namedtuple``.
-        * ``fsm_event`` : the name of the state machine event that occurred,
-          triggering the transition as ``str``.
-        * ``next_state`` : the state the state machine will be in after the
-          action has been performed as ``str``.
-        * ``timestamp`` : the
-          `date and time <https://docs.python.org/3/library/datetime.html#datetime-objects>`_
-          that the negotiation request was processed by the ACSE.
+        * ``address``: the (host, port) of the remote as (:class:`str`,
+          :class:`int`).
+        * :attr:`~pynetdicom.events.Event.assoc`: the
+          :class:`~pynetdicom.association.Association` that triggered the
+          event.
+        * :attr:`~pynetdicom.events.Event.event`: the event that occurred as
+          :class:`~pynetdicom.events.NotificationEvent`.
+        * :attr:`~pynetdicom.events.Event.timestamp`: the date and time
+          that the connection was opened/closed as
+          :class:`datetime.datetime`.
     """
     pass

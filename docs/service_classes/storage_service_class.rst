@@ -1,6 +1,8 @@
+.. _service_store:
+
 Storage Service Class
 =====================
-The `Storage Service Class <http://dicom.nema.org/medical/dicom/current/output/html/part04.html#chapter_B>`_
+The :dcm:`Storage Service Class <part04/chapter_B.html>`
 defines a service that facilitates the simple
 transfer of DICOM SOP Instances. It allows one DICOM Application Entity
 to send images, waveforms, reports, etc., to another using the DIMSE C-STORE
@@ -354,10 +356,3 @@ debugging.
 | 0xC211           | Failure  | Unhandled exception raised by the handler     |
 |                  |          | bound to ``evt.EVT_C_STORE``                  |
 +------------------+----------+-----------------------------------------------+
-
-
-References
-----------
-
-* DICOM Standard, Part 4, `Annex B <http://dicom.nema.org/medical/dicom/current/output/html/part04.html#chapter_B>`_
-* DICOM Standard, Part 7, `Section 9.1.1.1.9 <http://dicom.nema.org/medical/dicom/current/output/chtml/part07/chapter_9.html#sect_9.1.1.1.9>`_

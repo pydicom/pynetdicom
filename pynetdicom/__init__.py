@@ -1,5 +1,7 @@
 """Set module shortcuts and globals"""
 
+import logging
+
 from pydicom.uid import UID
 
 from ._version import __version__, __version_info__
@@ -21,7 +23,6 @@ PYNETDICOM_IMPLEMENTATION_UID = UID(
 )
 assert PYNETDICOM_IMPLEMENTATION_UID.is_valid
 
-import logging
 
 # Convenience imports
 from pynetdicom import events as evt

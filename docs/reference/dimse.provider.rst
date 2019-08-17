@@ -1,3 +1,5 @@
+.. _api_dimse_provider:
+
 Service Provider (:mod:`pynetdicom.dimse`)
 ===========================================
 

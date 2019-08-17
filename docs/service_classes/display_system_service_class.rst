@@ -1,8 +1,8 @@
-.. _display_service:
+.. _service_display:
 
 Display System Management Service Class
 =======================================
-The `Display System Management Service Class <http://dicom.nema.org/medical/dicom/current/output/html/part04.html#chapter_EE>`_
+The :dcm:`Display System Management Service Class <part04/chapter_EE.html>`
 defines a service that facilitates access to Display System objects.
 
 Supported SOP Classes
@@ -64,11 +64,3 @@ N-GET Statuses
 +------------+----------+----------------------------------+
 | 0x0213     | Failure  | Resource limitation              |
 +------------+----------+----------------------------------+
-
-
-References
-----------
-
-* DICOM Standard, Part 4, `Annex EE <http://dicom.nema.org/medical/dicom/current/output/html/part04.html#chapter_EE>`_
-* DICOM Standard, Part 7, Sections
-  `10.1.2 <http://dicom.nema.org/medical/dicom/current/output/chtml/part07/chapter_9.html#sect_10.1.2>`_

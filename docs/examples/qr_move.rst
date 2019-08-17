@@ -1,7 +1,7 @@
 Query/Retrieve (Move) Service Examples
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-The DICOM `Query/Retrieve Service <http://dicom.nema.org/medical/dicom/current/output/html/part04.html#chapter_C>`_
+The DICOM :dcm:`Query/Retrieve Service <part04/chapter_C.html>`
 provides a mechanism for a service user to query and retrieve the SOP Instances
 managed by a QR SCP. The QR (Move) SOP classes allow an SCU to request an SCP
 send matching SOP Instances to a known Storage SCP over a new association.
@@ -72,8 +72,8 @@ the storage sub-operations have been successful.
 In the next example we use a Storage SCP running within the same AE as the
 *Move Destination*. Remember that the Move SCP must first be configured with
 the IP and port number of the corresponding AE title. Check the
-`handler implementation documentation
-<../reference/generated/pynetdicom._handlers.doc_handle_store.html>`_
+:func:`handler implementation documentation
+<pynetdicom._handlers.doc_handle_store>`
 to see the requirements for the ``evt.EVT_C_STORE`` handler.
 
 .. code-block:: python
@@ -159,9 +159,9 @@ This is a very bad way of managing stored SOP Instances, in reality its
 probably best to store the instance attributes in a database and run the
 query against that.
 
-Check the `handler implementation documentation
-<../reference/generated/pynetdicom._handlers.doc_handle_move.html>`_
-to see the requirements for the ``evt.EVT_C_MOVE`` handler.
+Check the :func:`handler implementation documentation
+pynetdicom._handlers.doc_handle_move>` to see the requirements for the
+``evt.EVT_C_MOVE`` handler.
 
 .. code-block:: python
 

@@ -1,6 +1,9 @@
+.. _service_defproc:
+
 Defined Procedure Protocol Query/Retrieve Service Class
 =======================================================
-The `Defined Procedure Protocol Query/Retrieve Service Class <http://dicom.nema.org/medical/dicom/current/output/html/part04.html#chapter_HH>`_
+The :dcm:`Defined Procedure Protocol Query/Retrieve Service Class
+<part04/chapter_HH.html>`
 defines a service that facilitates access to Defined Procedure Protocol objects.
 
 Supported SOP Classes
@@ -250,14 +253,3 @@ pynetdicom Defined Procedure Protocol Query/Retrieve (Move) Statuses
 | 0xC515           | Failure  | The handler bound to ``evt.EVT_C_MOVE``       |
 |                  |          | failed to yield a valid (address, port) pair  |
 +------------------+----------+-----------------------------------------------+
-
-
-References
-----------
-
-* DICOM Standard, Part 4, `Annex C <http://dicom.nema.org/medical/dicom/current/output/html/part04.html#chapter_C>`_
-* DICOM Standard, Part 4, `Annex HH <http://dicom.nema.org/medical/dicom/current/output/html/part04.html#chapter_HH>`_
-* DICOM Standard, Part 7, Sections
-  `9.1.2.1.5 <http://dicom.nema.org/medical/dicom/current/output/chtml/part07/chapter_9.html#sect_9.1.2.1.5>`_,
-  `9.1.3.1.6 <http://dicom.nema.org/medical/dicom/current/output/chtml/part07/chapter_9.html#sect_9.1.3.1.6>`_ and
-  `9.1.4.1.7 <http://dicom.nema.org/medical/dicom/current/output/chtml/part07/chapter_9.html#sect_9.1.4.1.7>`_

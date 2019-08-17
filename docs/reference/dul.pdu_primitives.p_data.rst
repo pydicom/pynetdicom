@@ -1,3 +1,5 @@
+.. _api_dul_primitives_pdata:
+
 P-DATA
 ======
 
@@ -10,9 +12,3 @@ of application information (i.e. DICOM Messages).
    :toctree: generated/
 
    P_DATA
-
-References
-----------
-
-1. DICOM Standard, Part 8, Section
-   `7.6 <http://dicom.nema.org/medical/dicom/current/output/html/part08.html#sect_7.6>`_

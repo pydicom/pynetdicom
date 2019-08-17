@@ -1,4 +1,4 @@
-.. _reference:
+.. _api:
 
 #############
 API Reference
@@ -10,7 +10,7 @@ API Reference
 .. module:: pynetdicom
 
 This API reference guide details the functions, modules and objects included in
-pynetdicom.
+*pynetdicom*.
 
 .. toctree::
    :maxdepth: 2
@@ -19,6 +19,7 @@ pynetdicom.
    acse
    ae
    association
+   config
    dimse
    dsutils
    dul

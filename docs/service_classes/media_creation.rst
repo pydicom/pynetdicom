@@ -1,7 +1,8 @@
+.. _service_mediacreation:
+
 Media Creation Management Service Class
 =======================================
-The `Media Creation Management Service Class
-<http://dicom.nema.org/medical/dicom/current/output/html/part04.html#chapter_S>`_
+The `Media Creation Management Service Class<part04/chapter_S.html>`
 defines a service that uses the DIMSE N-CREATE, N-ACTION and N-GET services to
 allow an SCU to instruct a device to create Interchange Media containing a set
 of Composite SOP Instances.
@@ -172,12 +173,3 @@ Media Creation Management N-GET Service Statuses
 +==================+==========+===============================================+
 | 0x0001           | Warning  | Requested optional Attributes not supported   |
 +------------------+----------+-----------------------------------------------+
-
-
-References
-----------
-
-* DICOM Standard, Part 4, `Annex S <http://dicom.nema.org/medical/dicom/current/output/html/part04.html#chapter_S>`_
-* DICOM Standard, Part 7, `Section 10.1.4.1.10 <http://dicom.nema.org/medical/dicom/current/output/chtml/part07/chapter_10.html#sect_10.1.4.1.10>`_
-* DICOM Standard, Part 7, `Section 10.1.5.1.6 <http://dicom.nema.org/medical/dicom/current/output/chtml/part07/chapter_10.html#sect_10.1.5.1.6>`_
-* DICOM Standard, Part 7, `Section 10.1.2.1.9 <http://dicom.nema.org/medical/dicom/current/output/chtml/part07/chapter_10.html#sect_10.1.2.1.9>`_

@@ -1,4 +1,4 @@
-.. _dimse:
+.. _api_dimse:
 
 *************
 DIMSE Service

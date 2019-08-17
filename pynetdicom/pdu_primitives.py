@@ -57,15 +57,6 @@ class A_ASSOCIATE(object):
     A-ASSOCIATE-RQ, -AC, -RJ PDUs that are sent to the peer DUL provider and
     gets deconverted from -RQ, -AC, -RJ PDUs received from the peer.
 
-    It may be better to simply extend this with methods for containing
-    the -rq, -ac, -rj possibilities rather than creating a new
-    AssociationInformation class, but it would require maintaining the instance
-    across the request-accept/reject path
-
-    * -rq = no Result value
-    * -ac = Result of 0x00
-    * -rj = Result != 0x00
-
     +------------------+---------+------------+----------+--------------+
     | Parameter        | Request | Indication | Response | Confirmation |
     +------------------+---------+------------+----------+--------------+
@@ -109,123 +100,88 @@ class A_ASSOCIATE(object):
     | (=) - shall have same value as request or response
 
 
-    The Requestor sends a request primitive to the local DICOM UL provider =>
-    peer UL => indication primitive to Acceptor.
-
-    Acceptor sends response primitive to peer UL => local UL => confirmation
-    primitive to Requestor
-
-    The DICOM UL providers communicate with UL users using service primitives
-    The DICOM UL providers communicate with each other using PDUs over TCP/IP
-
-    **Service Procedure**
-
-    1. An AE (DICOM UL service user) that desires the establish an association
-       issues an A-ASSOCIATE request primitive to the DICOM UL service
-       provider. The Requestor shall not issue any primitives except the
-       A-ABORT request primitive until it receives an A-ASSOCIATE confirmation
-       primitive.
-    2. The DICOM UL service provider issues an A-ASSOCIATE indication primitive
-       to the called AE
-    3. The called AE shall accept or reject the association by sending an
-       A-ASSOCIATE response primitive with an appropriate Result parameter. The
-       DICOM UL service provider shall issue an A-ASSOCIATE confirmation
-       primitive having the same Result parameter. The Result Source parameter
-       shall be assigned "UL service-user"
-    4. If the Acceptor accepts the association, it is established and is
-       available for use. DIMSE messages can now be exchanged.
-    5. If the Acceptor rejects the association, it shall not be established and
-       is not available for use
-    6. If the DICOM UL service provider is not capable of supporting the
-       requested association it shall return an A-ASSOCIATE confirmation
-       primitive to the Requestor with an appropriate Result parameter
-       (rejected). The Result Source parameter shall be assigned either
-       UL service provider (ACSE) or UL service provider (Presentation).
-       The indication primitive shall not be issued. The association shall not
-       be established.
-    7. Either Requestor or Acceptor may disrupt the Service Procedure by
-       issuing an A-ABORT request primitive. The remote AE receives an A-ABORT
-       indication primitive. The association shall not be established
-
     Attributes
     ----------
     mode : str
-        Fixed value of "normal"
+        Fixed value of ``'normal'``.
     application_context_name : pydicom.uid.UID, bytes or str
-        The application context name proposed by the requestor. Acceptor
+        The application context name proposed by the *Requestor*. *Acceptor*
         returns either the same or a different name. Returned name specifies
-        the application context used for the Association. See PS3.8 Annex A.
+        the application context used for the association. See the DICOM
+        Standard, Part 8, :dcm:`Annex A<part08/chapter_A.html>`.
         The application context name shall be a valid UID or UID string and for
-        version 3 of the DICOM Standard should be '1.2.840.10008.3.1.1.1'
+        version 3 of the DICOM Standard should be ``'1.2.840.10008.3.1.1.1'``
     calling_ae_title : str or bytes
-        Identifies the Requestor of the A-ASSOCIATE service. Must be a valid
-        AE
+        Identifies the *Requestor* of the A-ASSOCIATE service. Must be a valid
+        AE title.
     called_ae_title : str or bytes
-        Identifies the intended Acceptor of the A-ASSOCIATE service. Must be a
-        valid AE
+        Identifies the intended *Acceptor* of the A-ASSOCIATE service. Must be
+        a valid AE title.
     responding_ae_title : str or bytes
         Identifies the AE that contains the actual acceptor of the
         A-ASSOCIATE service. Shall always contain the same value as the
-        Called AE Title of the A-ASSOCIATE indication
+        *Called AE Title* of the A-ASSOCIATE indication
     user_information : list
-        Used by Requestor and Acceptor to include AE user information. See
-        PS3.8 Annex D and PS3.7 Annex D.3
+        Used by *Requestor* and *Acceptor* to include AE user information. See
+        the DICOM Standard, Part 8, :dcm:`Annex D<part08/chapter_D.html>` and
+        Part 7, :dcm:`Annex D.3<part07/sect_D.3.html>`
     result : int
-        Provided either by the Acceptor of the A-ASSOCIATE request, the UL
+        Provided either by the *Acceptor* of the A-ASSOCIATE request, the UL
         service provider (ACSE related) or the UL service provider
         (Presentation related). Indicates the result of the A-ASSOCIATE
         service. Allowed values are:
 
-        * 0: accepted
-        * 1: rejected (permanent)
-        * 2: rejected (transient)
+        * ``0``: accepted
+        * ``1``: rejected (permanent)
+        * ``2``: rejected (transient)
 
     result_source : int
         Identifies the creating source of the Result and Diagnostic parameters
         Allowed values are:
 
-        * 0: UL service-user
-        * 1: UL service-provider (ACSE related function)
-        * 2: UL service-provider (presentation related function)
+        * ``0``: UL service-user
+        * ``1``: UL service-provider (ACSE related function)
+        * ``2``: UL service-provider (presentation related function)
 
     diagnostic : int
-        If the `result` parameter is 0 "rejected (permanent)" or 1 "rejected
-        (transient)" then this supplies diagnostic information about the
-        result. If `result_source` is 0 "UL service-user" then allowed values
-        are:
+        If the `result` parameter is ``0`` "rejected (permanent)" or ``1``
+        "rejected (transient)" then this supplies diagnostic information about
+        the result. If `result_source` is ``0`` "UL service-user" then allowed
+        valuesare:
 
-        * 0: no reason given
-        * 1: application context name not supported
-        * 2: calling AE title not recognised
-        * 3: called AE title not recognised
+        * ``0``: no reason given
+        * ``1``: application context name not supported
+        * ``2``: calling AE title not recognised
+        * ``3``: called AE title not recognised
 
-        If `result_source` is 1 "UL service-provider (ACSE related function)"
-        then allowed values are:
-
-        * 0: no reason given
-        * 1: no common UL version
-
-        If `result_source` is 2 "UL service-provider (presentation related
+        If `result_source` is ``1`` "UL service-provider (ACSE related
         function)" then allowed values are:
 
-        * 0: no reason given
-        * 1: temporary congestion
-        * 2: local limit exceeded
-        * 3: called presentation address unknown
-        * 4: presentation protocol version not supported
-        * 5: no presentation service access point available
+        * ``0``: no reason given
+        * ``1``: no common UL version
+
+        If `result_source` is ``2`` "UL service-provider (presentation related
+        function)" then allowed values are:
+
+        * ``0``: no reason given
+        * ``1``: temporary congestion
+        * ``2``: local limit exceeded
+        * ``3``: called presentation address unknown
+        * ``4``: presentation protocol version not supported
+        * ``5``: no presentation service access point available
 
     calling_presentation_address : str
-        TCP/IP address of the Requestor
+        TCP/IP address of the *Requestor*
     called_presentation_address : str
-        TCP/IP address of the intended Acceptor
+        TCP/IP address of the intended *Acceptor*
     responding_presentation_address : str
-        Shall always contain the same value as the Called Presentation Address
+        Shall always contain the same value as the
+        *Called Presentation Address*.
     presentation_context_definition_list : list
         List of one or more presentation contexts, with each item containing
         a presentation context ID, an Abstract Syntax and a list of one or
-        more Transfer Syntax Names. Sent by the Requestor during
-        request/indication
+        more Transfer Syntax Names. Sent by the *Requestor* during
+        request/indication.
     presentation_context_definition_results_list : list
         Used in response/confirmation to indicate acceptance or rejection of
         each presentation context definition.
@@ -236,14 +192,15 @@ class A_ASSOCIATE(object):
         the order proposed.
         Only one Transfer Syntax per presentation context shall be agreed to
     presentation_requirements : str
-        Fixed value of "Presentation Kernel"
+        Fixed value of ``'Presentation Kernel'``.
     session_requirements : str
-        Fixed value of "" (empty string)
+        Fixed value of ``''`` (empty string).
 
     References
     ----------
 
-    * DICOM Standard, Part 8, Section 7.1.1
+    * DICOM Standard, Part 8,
+      :dcm:`Section 7.1.1<part08/chapter_7.html#sect_7.1.1>`
     """
     # pylint: disable=too-many-instance-attributes
 
@@ -787,43 +744,7 @@ class A_ASSOCIATE(object):
 
 
 class A_RELEASE(object):
-    """
-    An A-RELEASE primitive.
-
-    The release of an association between two AEs shall be performed through
-    ACSE A-RELEASE request, indication, response and confirmation primitives.
-    The initiator of the service is called a Requestor and the service-user
-    that receives the A-RELEASE indication is called the acceptor.
-
-    Service Procedure
-
-    1. The user (Requestor) that desires to end the association issues an
-       A-RELEASE request primitive. The Requestor shall not issue any other
-       primitives other than A-ABORT until it receives an A-RELEASE
-       confirmation primitive.
-    2. The DUL provider issues an A-RELEASE indication to the Acceptor. The
-       Acceptor shall not issue any other primitives other than A-RELEASE
-       response, A-ABORT request or P-DATA request.
-    3. To complete the release, the Acceptor replies using an A-RELEASE
-       response primitive, with "affirmative" as the result parameter.
-    4. After the Acceptor issues the A-RELEASE response it shall not issue any
-       more primitives.
-    5. The Requestor shall issue an A-RELEASE confirmation primitive always
-       with an "affirmative" value for the Result parameter.
-    6. A user may disrupt the release by issuing an A-ABORT request.
-    7. A collision may occur when both users issue A-RELEASE requests
-       simultaneously. In this situation both users receive an unexpect
-       A-RELEASE indication primitive (instead of an A-RELEASE acceptance):
-
-         a. The association requestor issues an A-RELEASE response primitive
-         b. The association acceptor waits for an A-RELEASE confirmation
-            primitive from its peer. When it receives one it issues an
-            A-RELEASE response primitive
-         c. The association requestor receives an A-RELEASE confirmation
-            primitive.
-
-       When both ACSE users have received an A-RELEASE confirmation primitive
-       the association shall be released.
+    """An A-RELEASE primitive.
 
     +------------------+---------+------------+----------+--------------+
     | Parameter        | Request | Indication | Response | Confirmation |
@@ -846,15 +767,15 @@ class A_RELEASE(object):
     Attributes
     ----------
     reason : str
-        Fixed value of "normal". Identifies the general level of urgency of the
-        request.
+        Fixed value of ``'normal'``. Identifies the general level of urgency
+        of the request.
     result : str or None
-        Must be None for request and indication, "affirmative" for response
-        and confirmation.
+        Must be ``None`` for request and indication, ``'affirmative'`` for
+        response and confirmation.
 
     References
     ----------
-    * DICOM Standard, Part 8, Section 7.2
+    * DICOM Standard, Part 8, :dcm:`Section 7.2<part08/sect_7.2.html>`
     """
     def __init__(self):
         self.result = None
@@ -905,13 +826,13 @@ class A_ABORT(object):
     abort_source : int
         Indicates the initiating source of the abort. Allowed values are:
 
-        * 0: UL service-user
-        * 2: UL service-provider
+        * ``0``: UL service-user
+        * ``2``: UL service-provider
 
     References
     ----------
 
-    * DICOM Standard, Part 8, Section 7.3.1
+    * DICOM Standard, Part 8, :dcm:`Section 7.3<part08/sect_7.3.html>`
     """
 
     def __init__(self):
@@ -965,19 +886,18 @@ class A_P_ABORT(object):
     provider_reason : int
         Indicates the reason for the abort. Allowed values are:
 
-        * 0: reason not specified
-        * 1: unrecognised PDU
-        * 2: unexpected PDU
-        * 4: unrecognised PDU parameter
-        * 5: unexpected PDU parameter
-        * 6: invalid PDU parameter value
+        * ``0``: reason not specified
+        * ``1``: unrecognised PDU
+        * ``2``: unexpected PDU
+        * ``4``: unrecognised PDU parameter
+        * ``5``: unexpected PDU parameter
+        * ``6``: invalid PDU parameter value
 
     References
     ----------
 
-    * DICOM Standard, Part 8, Section 7.4.1
+    * DICOM Standard, Part 8, :dcm:`Section 7.4<part08/sect_7.4.html>`
     """
-
     def __init__(self):
         self.provider_reason = None
 
@@ -1032,12 +952,12 @@ class P_DATA(object):
         a Presentation Context ID and User Data values. The User Data values
         are taken from the Abstract Syntax and encoded in the Transfer Syntax
         identified by the Presentation Context ID. Each item in the list is
-        [Context ID, PDV Data]
+        ``[Context ID, PDV Data]``
 
     References
     ----------
 
-    * DICOM Standard, Part 8, Section 7.6.1
+    * DICOM Standard, Part 8, :dcm:`Section 7.6<part08/sect_7.6.html>`
     """
     def __init__(self):
         self.presentation_data_value_list = []
@@ -1118,20 +1038,22 @@ class MaximumLengthNotification(ServiceParameter):
     of the data for each P-DATA indication. This notification is required for
     all DICOM v3.0 conforming implementations.
 
-    This User Information item is required during Association negotiation and
-    there must only be a single MaximumLengthNotification item
+    This User Information item is required during association negotiation and
+    there must only be a single :class:`MaximumLengthNotification` item.
 
     Attributes
     ----------
     maximum_length_received : int
         The maximum length received value for the Maximum Length sub-item in
-        bytes. A value of 0 indicates unlimited length (31682 bytes default).
+        bytes. A value of ``0`` indicates unlimited length (``31682`` bytes
+        default).
 
     References
     ----------
 
-    * DICOM Standard, Part 7, Annex D.3.3.1
-    * DICOM Standard, Part 8, Annex D.1
+    * DICOM Standard, Part 7,
+      :dcm:`Annex D.3.3.1<part07/sect_D.3.3.html#sect_D.3.3.1>`
+    * DICOM Standard, Part 8, :dcm:`Annex D.1<part08/chapter_D.html#sect_D.1>`
     """
     def __init__(self):
         self.maximum_length_received = DEFAULT_MAX_LENGTH
@@ -1196,25 +1118,24 @@ class ImplementationClassUIDNotification(ServiceParameter):
     """A representation of a Implementation Class UID Notification primitive.
 
     The implementation identification notification allows implementations of
-    communicating AEs to identify each other at Association establishment time.
+    communicating AEs to identify each other at association establishment time.
     It is intended to provider respective and non-ambiguous identification in
     the event of communication problems encountered between two nodes. This
     negotiation is required.
 
     Implementation identification relies on two pieces of information:
+
     - Implementation Class UID (required)
     - Implementation Version Name (optional)
 
-    The Implementation Class UID is required during Association negotiation and
-    there must only be a single ImplementationClassUID item
-
-    usr_data_neg = []
-    usr_data_neg.append(impl_class_uid)
+    The Implementation Class UID is required during association negotiation and
+    there must only be a single :class:`ImplementationClassUIDNotification`
+    item.
 
     Attributes
     ----------
     implementation_class_uid : pydicom.uid.UID, bytes or str
-        The UID to use
+        The UID to use.
 
     Examples
     --------
@@ -1228,7 +1149,7 @@ class ImplementationClassUIDNotification(ServiceParameter):
     References
     ----------
 
-    * DICOM Standard, Part 7, Annex D.3.3.2
+    * DICOM Standard, Part 7, :dcm:`Annex D.3.3.2<part07/sect_D.3.3.2.html>`
     """
     def __init__(self):
         self.implementation_class_uid = None
@@ -1324,12 +1245,12 @@ class ImplementationVersionNameNotification(ServiceParameter):
     - Implementation Version Name (optional)
 
     The Implementation Version Name is optional and there may only be a single
-    ImplementationVersionName item
+    :class:`ImplementationVersionNameNotification` item.
 
     Attributes
     ----------
     implementation_version_name : str or bytes
-        The version name to use, maximum of 16 characters
+        The version name to use, maximum of 16 characters.
 
     Examples
     --------
@@ -1343,7 +1264,7 @@ class ImplementationVersionNameNotification(ServiceParameter):
     References
     ----------
 
-    * DICOM Standard, Part 7, Annex D.3.3.2
+    * DICOM Standard, Part 7, :dcm:`Annex D.3.3.2<part07/sect_D.3.3.2.html>`
     """
     def __init__(self):
         self.implementation_version_name = None
@@ -1424,18 +1345,18 @@ class AsynchronousOperationsWindowNegotiation(ServiceParameter):
     or sub-operation requests. This negotiation is optional.
 
     The Asynchronous Operations Window is optional and there may only be a
-    single AsynchronousOperationsWindowNegotiation item
+    single :class:`AsynchronousOperationsWindowNegotiation` item
 
-    Identical for both A-ASSOCIATE-RQ and A-ASSOCIATE-AC
+    Identical for both A-ASSOCIATE-RQ and A-ASSOCIATE-AC.
 
     Attributes
     ----------
     maximum_number_operations_invoked : int
         The maximum number of asynchronous operations invoked by the AE. A
-        value of 0 indicates unlimited operations (default 1)
+        value of ``0`` indicates unlimited operations (default ``1``)
     maximum_number_operations_performed : int
         The maximum number of asynchronous operations performed by the AE. A
-        value of 0 indicates unlimited operations (default 1)
+        value of ``0`` indicates unlimited operations (default ``1``)
 
     Examples
     --------
@@ -1450,7 +1371,7 @@ class AsynchronousOperationsWindowNegotiation(ServiceParameter):
     References
     ----------
 
-    * DICOM Standard, Part 7, Annex D.3.3.3
+    * DICOM Standard, Part 7, :dcm:`Annex D.3.3.3<part07/sect_D.3.3.3.html>`
     """
 
     def __init__(self):
@@ -1552,37 +1473,30 @@ class SCP_SCU_RoleSelectionNegotiation(ServiceParameter):
     A representation of the SCP/SCU Role Selection Negotiation primitive.
 
     Allows peer AEs to negotiate the roles in which they will serve for each
-    SOP Class or Meta SOP Class supported on the Association. This negotiation
+    SOP Class or Meta SOP Class supported on the association. This negotiation
     is optional.
 
-    The Association Requestor may use one SCP/SCU Role Selection item for each
-    SOP Class as identified by its corresponding Abstract Syntax Name and shall
-    be one of three role values:
+    The association *Requestor* may use one SCP/SCU Role Selection item for
+    each SOP Class as identified by its corresponding Abstract Syntax Name and
+    shall be one of three role values:
 
-    - Requestor is SCU only
-    - Requestor is SCP only
-    - Requestor is both SCU/SCP
+    - *Requestor* is SCU only
+    - *Requestor* is SCP only
+    - *Requestor* is both SCU/SCP
 
     If the SCP/SCU Role Selection item is absent the default role for a
-    Requestor is SCU and for an Acceptor is SCP.
+    *Requestor* is SCU and for an *Acceptor* is SCP.
 
-    For a Requestor support for each SOP Class shall be one of the following
-    roles:
-
-    * Requestor is SCU only
-    * Requestor is SCP only
-    * Requestor is both SCU and SCP
-
-    Identical for both A-ASSOCIATE-RQ and A-ASSOCIATE-AC
+    Identical for both A-ASSOCIATE-RQ and A-ASSOCIATE-AC.
 
     Attributes
     ----------
     sop_class_uid : pydicom.uid.UID, bytes or str
         The UID of the corresponding Abstract Syntax
     scu_role : bool
-        False for non-support of the SCU role, True for support
+        ``False`` for non-support of the SCU role, ``True`` for support.
     scp_role : bool
-        False for non-support of the SCP role, True for support
+        ``False`` for non-support of the SCP role, ``True`` for support.
 
     Examples
     --------
@@ -1596,7 +1510,7 @@ class SCP_SCU_RoleSelectionNegotiation(ServiceParameter):
     References
     ----------
 
-    * DICOM Standard, Part 7, Annex D.3.3.4
+    * DICOM Standard, Part 7, :dcm:`Annex D.3.3.4<part07/sect_D.3.3.4.html>`
     """
     def __init__(self):
         self.sop_class_uid = None
@@ -1752,7 +1666,8 @@ class SOPClassExtendedNegotiation(ServiceParameter):
     negotiated between SCUs and SCPs.
 
     The SOP Class Extended Negotiation is optional and there may only be a
-    single SOPClassExtendedNegotiation item for each available SOP Class UID.
+    single :class:`SOPClassExtendedNegotiation` item for each available SOP
+    Class UID.
 
     Identical for both A-ASSOCIATE-RQ and A-ASSOCIATE-AC
 
@@ -1762,7 +1677,8 @@ class SOPClassExtendedNegotiation(ServiceParameter):
         The UID of the SOP Class
     service_class_application_information : bytes
         The Service Class Application Information as per the Service Class
-        Specifications (see PS3.4)
+        Specifications in :dcm:`Part 4<part04/PS3.4.html>` of the DICOM
+        Standard.
 
     Examples
     --------
@@ -1777,7 +1693,7 @@ class SOPClassExtendedNegotiation(ServiceParameter):
     References
     ----------
 
-    * DICOM Standard, Part 7, Annex D.3.3.5
+    * DICOM Standard, Part 7, :dcm:`Annex D.3.3.5<part07/sect_D.3.3.5.html>`
     """
     def __init__(self):
         self.sop_class_uid = None
@@ -1897,8 +1813,8 @@ class SOPClassCommonExtendedNegotiation(ServiceParameter):
     Allows peer AEs to exchange generic application information.
 
     The SOP Class Common Extended Negotiation is optional and there may only be
-    a single SOPClassCommonExtendedNegotiation item for each available SOP
-    Class UID.
+    a single :class:`SOPClassCommonExtendedNegotiation` item for each available
+    SOP Class UID.
 
     Identical for both A-ASSOCIATE-RQ and A-ASSOCIATE-AC
 
@@ -1925,7 +1841,7 @@ class SOPClassCommonExtendedNegotiation(ServiceParameter):
     References
     ----------
 
-    * DICOM Standard, Part 7, Annex D.3.3.6
+    * DICOM Standard, Part 7, :dcm:`Annex D.3.3.6<part07/sect_D.3.3.6.html>`
     """
     def __init__(self):
         self.sop_class_uid = None
@@ -2120,21 +2036,21 @@ class UserIdentityNegotiation(ServiceParameter):
     Allows peer AEs to exchange generic application information.
 
     The SOP Class Common Extended Negotiation is optional and there may only be
-    a single SOPClassCommonExtendedNegotiation item for each available SOP
-    Class UID.
+    a single :class:`UserIdentityNegotiation` item.
 
     In general, a User Identity Negotiation request that is accepted will
-    result in Association establishment and possibly a server response if
+    result in association establishment and possibly a server response if
     requested and supported by the peer. If a server response is requested but
-    not received then the Requestor must decide how to proceed.
-    An Association rejected due to an authorisation failure will be indicated
+    not received then the *Requestor* must decide how to proceed.
+    An association rejected due to an authorisation failure will be indicated
     using Rejection Permanent with a Source of "DICOM UL service provided (ACSE
     related function)".
 
-    How the Acceptor handles authentication is to be implemented by the
+    How the *Acceptor* handles authentication is to be implemented by the
     end-user and is outside the scope of the DICOM standard.
 
     A-ASSOCIATE-RQ
+
     | `user_identity_type`
     | `positive_response_requested`
     | `primary_field`
@@ -2143,31 +2059,32 @@ class UserIdentityNegotiation(ServiceParameter):
     A-ASSOCIATE-AC
     The `server_response` parameter is required when a response to the User
     Identity Negotiation request is to be issued (although this depends on
-    whether or not this is supported by the Acceptor).
+    whether or not this is supported by the *Acceptor*).
 
     Attributes
     ----------
     user_identity_type : int or None
         A-ASSOCIATE-RQ only. One of the following values:
 
-        * 1 - Username as string in UTF-8
-        * 2 - Username as string in UTF-8 and passcode
-        * 3 - Kerberos Service ticket
-        * 4 - SAML Assertion
-        * 5 - JSON Web Token
+        * ``1`` - Username as string in UTF-8
+        * ``2`` - Username as string in UTF-8 and passcode
+        * ``3`` - Kerberos Service ticket
+        * ``4`` - SAML Assertion
+        * ``5`` - JSON Web Token
     positive_response_requested : bool
-        A-ASSOCIATE-RQ only. True when requesting a response, False otherwise
-        (default is False)
+        A-ASSOCIATE-RQ only. ``True`` when requesting a response, ``False``
+        otherwise (default is ``False``)
     primary_field : bytes or None
         A-ASSOCIATE-RQ only. Contains either the username, Kerberos Service
         ticket or SAML assertion depending on `user_identity_type`.
     secondary_field : bytes or None
-        A-ASSOCIATE-RQ only. Only required if the `user_identity_type` is 2,
-        when it should contain the passcode as a bytes object, None otherwise
+        A-ASSOCIATE-RQ only. Only required if the `user_identity_type` is
+        ``2``, when it should contain the passcode as :class:`bytes`, ``None``
+        otherwise.
     server_response : bytes or None
         A-ASSOCIATE-AC only. Shall contain the Kerberos Service ticket or SAML
-        response if the `user_identity_type` in the Request was 3 or 4. Shall
-        be `None` if `user_identity_type` was 1 or 2.
+        response if the `user_identity_type` is ``3`` or ``4``. Shall
+        be ``None`` if `user_identity_type` was ``1`` or ``2``.
 
     Examples
     --------
@@ -2182,7 +2099,7 @@ class UserIdentityNegotiation(ServiceParameter):
     References
     ----------
 
-    * DICOM Standard, Part 7, Annex D.3.3.7
+    * DICOM Standard, Part 7, :dcm:`Annex D.3.3.7<part07/sect_D.3.3.7.html>`
     """
 
     def __init__(self):

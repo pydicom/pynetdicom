@@ -1,3 +1,4 @@
+"""Global variables for pynetdicom."""
 
 # The default Maximum PDU Length (in bytes)
 # Must be 0 or greater than 7.

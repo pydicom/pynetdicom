@@ -1,8 +1,8 @@
-.. _qr_sops:
+.. _service_qr:
 
 Query/Retrieve Service Class
 ============================
-The `Query/Retrieve Service Class <http://dicom.nema.org/medical/dicom/current/output/html/part04.html#chapter_C>`_
+The :dcm:`Query/Retrieve Service Class <part04/chapter_C.html>`
 defines a service that facilitates querying and retrieval of stored Instances.
 
 Supported SOP Classes
@@ -321,14 +321,3 @@ pynetdicom Query/Retrieve (Move) Statuses
 | 0xC515           | Failure  | The handler bound to ``evt.EVT_C_MOVE``       |
 |                  |          | failed to yield a valid (address, port) pair  |
 +------------------+----------+-----------------------------------------------+
-
-
-References
-----------
-
-* DICOM Standard, Part 4, `Annex C <http://dicom.nema.org/medical/dicom/current/output/html/part04.html#chapter_C>`_
-* DICOM Standard, Part 4, `Annex Y <http://dicom.nema.org/medical/dicom/current/output/html/part04.html#chapter_Y>`_
-* DICOM Standard, Part 7, Sections
-  `9.1.2.1.5 <http://dicom.nema.org/medical/dicom/current/output/chtml/part07/chapter_9.html#sect_9.1.2.1.5>`_,
-  `9.1.3.1.6 <http://dicom.nema.org/medical/dicom/current/output/chtml/part07/chapter_9.html#sect_9.1.3.1.6>`_ and
-  `9.1.4.1.7 <http://dicom.nema.org/medical/dicom/current/output/chtml/part07/chapter_9.html#sect_9.1.4.1.7>`_

@@ -1,7 +1,7 @@
 Verification Service Examples
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-The DICOM `Verification Service <http://dicom.nema.org/medical/dicom/current/output/html/part04.html#chapter_A>`_
+The DICOM :dcm:`Verification Service <part04/chapter_A.html>`
 allows an Application Entity to verify application level communication between
 itself and another AE by using the DIMSE C-ECHO service. It only has a single
 :ref:`supported SOP Class <verification_sops>`.
@@ -56,7 +56,8 @@ Verification Service.
    else:
        print('Association rejected, aborted or never connected')
 
-You can also use the inbuilt ``VerificationPresentationContexts`` when setting
+You can also use the inbuilt
+:attr:`~pynetdicom.presentation.VerificationPresentationContexts` when setting
 the requested contexts.
 
 .. code-block:: python
@@ -72,10 +73,11 @@ the requested contexts.
 Verification SCP
 ................
 
-Create an :ref:`AE <ae>` that supports the Verification Service and then listen for
+Create an :class:`AE <pynetdicom.ae.ApplicationEntity>` that supports the
+Verification Service and then listen for
 association requests on port 11112. When a verification request is received
 over the association we rely on the default handler bound to ``evt.EVT_C_ECHO``
-to return an 0x0000 *Success* :ref:`status <verification_statuses>`.
+to return an ``0x0000`` *Success* :ref:`status <verification_statuses>`.
 
 .. code-block:: python
 
@@ -92,8 +94,8 @@ to return an 0x0000 *Success* :ref:`status <verification_statuses>`.
    ae.start_server(('', 11112), block=True)
 
 You can also optionally bind your own handler to ``evt.EVT_C_ECHO``. Check the
-`handler implementation documentation
-<../reference/generated/pynetdicom._handlers.doc_handle_echo.html>`_
+:func:`handler implementation documentation
+<pynetdicom._handlers.doc_handle_echo>`
 to see the requirements for the ``evt.EVT_C_ECHO`` handler.
 
 .. code-block:: python

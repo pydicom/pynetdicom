@@ -1,3 +1,5 @@
+.. _api_dul_primitives_aassociate:
+
 A-ASSOCIATE
 ===========
 
@@ -26,9 +28,3 @@ Information primitives:
    SOPClassExtendedNegotiation
    SOPClassCommonExtendedNegotiation
    UserIdentityNegotiation
-
-References
-----------
-
-1. DICOM Standard, Part 8, Section
-   `7.1 <http://dicom.nema.org/medical/dicom/current/output/html/part08.html#sect_7.1>`_

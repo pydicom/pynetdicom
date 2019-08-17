@@ -1,4 +1,4 @@
-.. _timer:
+.. _api_timer:
 
 Timer (:mod:`pynetdicom.timer`)
 ================================

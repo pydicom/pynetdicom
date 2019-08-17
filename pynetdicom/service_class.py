@@ -2,15 +2,14 @@
 
 from io import BytesIO
 import logging
-import sys
 import traceback
 
 from pydicom.dataset import Dataset
 
-from pynetdicom import _config, evt
+from pynetdicom import evt
 from pynetdicom.dsutils import decode, encode
 from pynetdicom.dimse_primitives import (
-    C_STORE, C_ECHO, C_MOVE, C_GET, C_FIND, C_CANCEL,
+    C_STORE, C_ECHO, C_MOVE, C_GET, C_FIND,
     N_ACTION, N_CREATE, N_DELETE, N_EVENT_REPORT, N_GET, N_SET
 )
 from pynetdicom._globals import (
@@ -22,7 +21,6 @@ from pynetdicom.status import (
     QR_FIND_SERVICE_CLASS_STATUS,
     QR_GET_SERVICE_CLASS_STATUS,
     QR_MOVE_SERVICE_CLASS_STATUS,
-    MODALITY_WORKLIST_SERVICE_CLASS_STATUS,
     NON_PATIENT_SERVICE_CLASS_STATUS,
     RELEVANT_PATIENT_SERVICE_CLASS_STATUS,
     SUBSTANCE_ADMINISTRATION_SERVICE_CLASS_STATUS,
@@ -108,12 +106,21 @@ class ServiceClass(object):
 
         References
         ----------
-        .. [1] DICOM Standard, Part 4, `Annex C <http://dicom.nema.org/medical/dicom/current/output/html/part04.html#chapter_C>`_.
-        .. [1] DICOM Standard, Part 4, `Annex CC <http://dicom.nema.org/medical/dicom/current/output/html/part04.html#chapter_CC>`_.
-        .. [2] DICOM Standard, Part 7, Sections
-           `9.1.2 <http://dicom.nema.org/medical/dicom/current/output/html/part07.html#sect_9.1.2>`_,
-           `9.3.2 <http://dicom.nema.org/medical/dicom/current/output/html/part07.html#sect_9.3.2>`_
-           and `Annex C <http://dicom.nema.org/medical/dicom/current/output/html/part07.html#chapter_C>`_.
+
+        * DICOM Standard, Part 4, :dcm:`Annex C<part04/chapter_C.html>`
+        * DICOM Standard, Part 4, :dcm:`Annex K<part04/chapter_K.html>`
+        * DICOM Standard, Part 4, :dcm:`Annex Q<part04/chapter_Q.html>`
+        * DICOM Standard, Part 4, :dcm:`Annex U<part04/chapter_U.html>`
+        * DICOM Standard, Part 4, :dcm:`Annex V<part04/chapter_V.html>`
+        * DICOM Standard, Part 4, :dcm:`Annex X<part04/chapter_X.html>`
+        * DICOM Standard, Part 4, :dcm:`Annex BB<part04/chapter_BB.html>`
+        * DICOM Standard, Part 4, :dcm:`Annex CC<part04/chapter_CC.html>`
+        * DICOM Standard, Part 4, :dcm:`Annex HH<part04/chapter_HH.html>`
+        * DICOM Standard, Part 4, :dcm:`Annex II<part04/chapter_II.html>`
+        * DICOM Standard, Part 7, Sections
+          :dcm:`9.1.2<part07/chapter_9.html#sect_9.1.2>`,
+          :dcm:`9.3.2<part07/sect_9.3.2.html>` and
+          :dcm:`Annex C<part07/chapter_C.html>`
         """
         # Build C-FIND response primitive
         rsp = C_FIND()
@@ -254,8 +261,8 @@ class ServiceClass(object):
         Returns
         -------
         bool
-            True if a C-CANCEL message has been received with a *Message ID
-            Being Responded To* corresponding to `msg_id`, False otherwise.
+            ``True`` if a C-CANCEL message has been received with a *Message ID
+            Being Responded To* corresponding to `msg_id`, ``False`` otherwise.
         """
         if msg_id in self.dimse.cancel_req.keys():
             del self.dimse.cancel_req[msg_id]
@@ -264,7 +271,7 @@ class ServiceClass(object):
         return False
 
     def is_valid_status(self, status):
-        """Return True if `status` is valid for the service class.
+        """Return ``True`` if `status` is valid for the service class.
 
         Parameters
         ----------
@@ -274,7 +281,7 @@ class ServiceClass(object):
         Returns
         -------
         bool
-            True if the status is valid, False otherwise.
+            ``True`` if the status is valid, ``False`` otherwise.
         """
         if status in self.statuses:
             return True
@@ -346,45 +353,48 @@ class ServiceClass(object):
             Instance UID
           | ``0xC102`` - Event Information does not match Template
           | ``0xC103`` - Cannot match event to a current study
-          | ``0xC104`` - IDs inconsistent in matching a current study; Event not
-            logged
+          | ``0xC104`` - IDs inconsistent in matching a current study; Event
+            not logged
           | ``0xC10E`` - Operator not authorised to add entry to Medication
             Administration Record
-          | ``0xC110`` - Patient cannot be identified from Patient ID (0010,0020)
-            or Admission ID (0038,0010)
+          | ``0xC110`` - Patient cannot be identified from Patient ID
+            (0010,0020) or Admission ID (0038,0010)
           | ``0xC111`` - Update of Medication Administration Record failed
           | ``0xC112`` - Machine Verification requested instance not found
           | ``0xC300`` - The UPS may no longer be updated
           | ``0xC301`` - The correct Transaction UID was not provided
           | ``0xC302`` - The UPS is already IN PROGRESS
-          | ``0xC303`` - The UPS may only become SCHEDULED via N-CREATE, not N-SET
-            or N-ACTION
+          | ``0xC303`` - The UPS may only become SCHEDULED via N-CREATE, not
+            N-SET or N-ACTION
           | ``0xC304`` - The UPS has not met final state requirements for the
             requested state change
-          | ``0xC307`` - Specified SOP Instance UID does not exist or is not a UPS
-            Instance managed by this SCP
+          | ``0xC307`` - Specified SOP Instance UID does not exist or is not a
+            UPS Instance managed by this SCP
           | ``0xC308`` - Receiving AE-TITLE is Unknown to this SCP
           | ``0xC310`` - The UPS is not yet in the IN PROGRESS state
           | ``0xC311`` - The UPS is already COMPLETED
           | ``0xC312`` - The performer cannot be contacted
           | ``0xC313`` - Performer chooses not to cancel
-          | ``0xC314`` - Specified action not appropriate for specified instance
+          | ``0xC314`` - Specified action not appropriate for specified
+            instance
           | ``0xC315`` - SCP does not support Event Reports
-          | ``0xC600`` - Film Session SOP Instance hierarchy does not contain Film
-            Box SOP Instances
-          | ``0xC601`` - Unable to create Print Job SOP Instance; print queue is
-            full
-          | ``0xC602`` - Unable to create Print Job SOP Instance; print queue is
-            full
+          | ``0xC600`` - Film Session SOP Instance hierarchy does not contain
+            Film Box SOP Instances
+          | ``0xC601`` - Unable to create Print Job SOP Instance; print queue
+            is full
+          | ``0xC602`` - Unable to create Print Job SOP Instance; print queue
+            is full
           | ``0xC603`` - Image size is larger than image box size
-          | ``0xC613`` - Combined Print Image size is larger than Image Box size
+          | ``0xC613`` - Combined Print Image size is larger than Image Box
+            size
 
         Warning
-          | ``0xB101`` - Specified Synchronisation Frame of Reference UID does not
-            match SOP Synchronisation Frame of Reference
+          | ``0xB101`` - Specified Synchronisation Frame of Reference UID does
+            not match SOP Synchronisation Frame of Reference
           | ``0xB102`` - Study Instance UID coercion; Event logged under a
             different Study Instance UID
-          | ``0xB104`` - IDs inconsistent in matching a current study; Event logged
+          | ``0xB104`` - IDs inconsistent in matching a current study; Event
+            logged
           | ``0xB301`` - Deletion Lock not granted
           | ``0xB304`` - The UPS is already in the requested state of CANCELED
           | ``0xB306`` - The UPS is already in the requested state of COMPLETED
@@ -393,27 +403,27 @@ class ServiceClass(object):
             Image Box SOP Instances (empty page)
           | ``0xB603`` - Film Box SOP Instance hierarchy does not contain Image
             Box SOP Instances (empty page)
-          | ``0xB604`` - Image size is larger than Image Box size, the image has
-            been demagnified
-          | ``0xB609`` - Image size is larger than Image Box size, the image has
-            been cropped to fit.
-          | ``0xB60A`` - Image size or Combined Print Image size is larger than the
-            Image Box size. Image or Combined Print Image has been decimated to
-            fit.
+          | ``0xB604`` - Image size is larger than Image Box size, the image
+            has been demagnified
+          | ``0xB609`` - Image size is larger than Image Box size, the image
+            has been cropped to fit.
+          | ``0xB60A`` - Image size or Combined Print Image size is larger than
+            the Image Box size. Image or Combined Print Image has been
+            decimated to fit.
 
         References
         ----------
 
-        * DICOM Standard, Part 4, `Annex H <http://dicom.nema.org/medical/dicom/current/output/html/part04.html#chapter_H>`_
-        * DICOM Standard, Part 4, `Annex J <http://dicom.nema.org/medical/dicom/current/output/html/part04.html#chapter_J>`_
-        * DICOM Standard, Part 4, `Annex P <http://dicom.nema.org/medical/dicom/current/output/html/part04.html#chapter_P>`_
-        * DICOM Standard, Part 4, `Annex S <http://dicom.nema.org/medical/dicom/current/output/html/part04.html#chapter_S>`_
-        * DICOM Standard, Part 4, `Annex CC <http://dicom.nema.org/medical/dicom/current/output/html/part04.html#chapter_CC>`_
-        * DICOM Standard, Part 4, `Annex DD <http://dicom.nema.org/medical/dicom/current/output/html/part04.html#chapter_DD>`_
+        * DICOM Standard, Part 4, :dcm:`Annex H<part04/chapter_H.html>`
+        * DICOM Standard, Part 4, :dcm:`Annex J<part04/chapter_J.html>`
+        * DICOM Standard, Part 4, :dcm:`Annex P<part04/chapter_P.html>`
+        * DICOM Standard, Part 4, :dcm:`Annex S<part04/chapter_S.html>`
+        * DICOM Standard, Part 4, :dcm:`Annex CC<part04/chapter_CC.html>`
+        * DICOM Standard, Part 4, :dcm:`Annex DD<part04/chapter_DD.html>`
         * DICOM Standard, Part 7, Sections
-          `10.1.5 <http://dicom.nema.org/medical/dicom/current/output/html/part07.html#sect_10.1.5>`_,
-          `10.3.5 <http://dicom.nema.org/medical/dicom/current/output/html/part07.html#sect_10.3.5>`_
-          and `Annex C <http://dicom.nema.org/medical/dicom/current/output/html/part07.html#chapter_C>`_
+          :dcm:`10.1.4<part07/chapter_10.html#sect_10.1.4>`,
+          :dcm:`10.3.4<part07/sect_10.3.4.html>` and
+          :dcm:`Annex C<part07/chapter_C.html>`
         """
         # Build N-CREATE response primitive
         rsp = N_ACTION()
@@ -555,16 +565,16 @@ class ServiceClass(object):
         References
         ----------
 
-        * DICOM Standard, Part 4, `Annex F <http://dicom.nema.org/medical/dicom/current/output/html/part04.html#chapter_F>`_
-        * DICOM Standard, Part 4, `Annex H <http://dicom.nema.org/medical/dicom/current/output/html/part04.html#chapter_H>`_
-        * DICOM Standard, Part 4, `Annex R <http://dicom.nema.org/medical/dicom/current/output/html/part04.html#chapter_R>`_
-        * DICOM Standard, Part 4, `Annex S <http://dicom.nema.org/medical/dicom/current/output/html/part04.html#chapter_S>`_
-        * DICOM Standard, Part 4, `Annex CC <http://dicom.nema.org/medical/dicom/current/output/html/part04.html#chapter_CC>`_
-        * DICOM Standard, Part 4, `Annex DD <http://dicom.nema.org/medical/dicom/current/output/html/part04.html#chapter_DD>`_
+        * DICOM Standard, Part 4, :dcm:`Annex F<part04/chapter_F.html>`
+        * DICOM Standard, Part 4, :dcm:`Annex H<part04/chapter_H.html>`
+        * DICOM Standard, Part 4, :dcm:`Annex R<part04/chapter_R.html>`
+        * DICOM Standard, Part 4, :dcm:`Annex S<part04/chapter_S.html>`
+        * DICOM Standard, Part 4, :dcm:`Annex CC<part04/chapter_CC.html>`
+        * DICOM Standard, Part 4, :dcm:`Annex DD<part04/chapter_DD.html>`
         * DICOM Standard, Part 7, Sections
-          `10.1.5 <http://dicom.nema.org/medical/dicom/current/output/html/part07.html#sect_10.1.5>`_,
-          `10.3.5 <http://dicom.nema.org/medical/dicom/current/output/html/part07.html#sect_10.3.5>`_
-          and `Annex C <http://dicom.nema.org/medical/dicom/current/output/html/part07.html#chapter_C>`_
+          :dcm:`10.1.5<part07/chapter_10.html#sect_10.1.5>`,
+          :dcm:`10.3.5<part07/sect_10.3.5.html>`
+          and :dcm:`Annex C<part07/chapter_C.html>`
         """
         # Build N-CREATE response primitive
         rsp = N_CREATE()
@@ -674,12 +684,12 @@ class ServiceClass(object):
         References
         ----------
 
-        * DICOM Standard, Part 4, `Annex H <http://dicom.nema.org/medical/dicom/current/output/html/part04.html#chapter_H>`_
-        * DICOM Standard, Part 4, `Annex DD <http://dicom.nema.org/medical/dicom/current/output/html/part04.html#chapter_DD>`_
+        * DICOM Standard, Part 4, :dcm:`Annex H <part04/chapter_H.html>`
+        * DICOM Standard, Part 4, :dcm:`Annex DD <part04/chapter_DD.html>`
         * DICOM Standard, Part 7, Sections
-          `10.1.6 <http://dicom.nema.org/medical/dicom/current/output/html/part07.html#sect_10.1.6>`_,
-          `10.3.6 <http://dicom.nema.org/medical/dicom/current/output/html/part07.html#sect_10.3.6>`_
-          and `Annex C <http://dicom.nema.org/medical/dicom/current/output/html/part07.html#chapter_C>`_
+          :dcm:`10.1.6<part07/chapter_10.html#sect_10.1.6>`,
+          :dcm:`10.3.6<part07/sect_10.3.6.html>`
+          and :dcm:`Annex C<part07/chapter_C.html>`
         """
         # Build N-DELETE response primitive
         rsp = N_DELETE()
@@ -773,15 +783,15 @@ class ServiceClass(object):
         References
         ----------
 
-        * DICOM Standard, Part 4, `Annex F <http://dicom.nema.org/medical/dicom/current/output/html/part04.html#chapter_F>`_
-        * DICOM Standard, Part 4, `Annex H <http://dicom.nema.org/medical/dicom/current/output/html/part04.html#chapter_H>`_
-        * DICOM Standard, Part 4, `Annex J <http://dicom.nema.org/medical/dicom/current/output/html/part04.html#chapter_J>`_
-        * DICOM Standard, Part 4, `Annex CC <http://dicom.nema.org/medical/dicom/current/output/html/part04.html#chapter_CC>`_
-        * DICOM Standard, Part 4, `Annex DD <http://dicom.nema.org/medical/dicom/current/output/html/part04.html#chapter_DD>`_
+        * DICOM Standard, Part 4, :dcm:`Annex F <part04/chapter_F.html>`
+        * DICOM Standard, Part 4, :dcm:`Annex H <part04/chapter_H.html>`
+        * DICOM Standard, Part 4, :dcm:`Annex J <part04/chapter_J.html>`
+        * DICOM Standard, Part 4, :dcm:`Annex CC <part04/chapter_CC.html>`
+        * DICOM Standard, Part 4, :dcm:`Annex DD <part04/chapter_DD.html>`
         * DICOM Standard, Part 7, Sections
-          `10.1.1 <http://dicom.nema.org/medical/dicom/current/output/html/part07.html#sect_10.1.1>`_,
-          `10.3.1 <http://dicom.nema.org/medical/dicom/current/output/html/part07.html#sect_10.3.1>`_
-          and `Annex C <http://dicom.nema.org/medical/dicom/current/output/html/part07.html#chapter_C>`_
+          :dcm:`10.1.1 <part07/chapter_10.html#sect_10.1.1>`,
+          :dcm:`10.3.1 <part07/sect_10.3.html#sect_10.3.1>`
+          and :dcm:`Annex C <part07/chapter_C.html>`
         """
         # Build N-EVENT-REPLY response primitive
         rsp = N_EVENT_REPORT()
@@ -919,16 +929,16 @@ class ServiceClass(object):
         References
         ----------
 
-        * DICOM Standard, Part 4, `Annex F <http://dicom.nema.org/medical/dicom/current/output/html/part04.html#chapter_F>`_
-        * DICOM Standard, Part 4, `Annex H <http://dicom.nema.org/medical/dicom/current/output/html/part04.html#chapter_H>`_
-        * DICOM Standard, Part 4, `Annex S <http://dicom.nema.org/medical/dicom/current/output/html/part04.html#chapter_S>`_
-        * DICOM Standard, Part 4, `Annex CC <http://dicom.nema.org/medical/dicom/current/output/html/part04.html#chapter_CC>`_
-        * DICOM Standard, Part 4, `Annex DD <http://dicom.nema.org/medical/dicom/current/output/html/part04.html#chapter_DD>`_
-        * DICOM Standard, Part 4, `Annex EE <http://dicom.nema.org/medical/dicom/current/output/html/part04.html#chapter_EE>`_
+        * DICOM Standard, Part 4, :dcm:`Annex F <part04/chapter_F.html>`
+        * DICOM Standard, Part 4, :dcm:`Annex H <part04/chapter_H.html>`
+        * DICOM Standard, Part 4, :dcm:`Annex S <part04/chapter_S.html>`
+        * DICOM Standard, Part 4, :dcm:`Annex CC <part04/chapter_CC.html>`
+        * DICOM Standard, Part 4, :dcm:`Annex DD <part04/chapter_DD.html>`
+        * DICOM Standard, Part 4, :dcm:`Annex EE <part04/chapter_EE.html>`
         * DICOM Standard, Part 7, Sections
-          `10.1.2 <http://dicom.nema.org/medical/dicom/current/output/html/part07.html#sect_10.1.2>`_,
-          `10.3.2 <http://dicom.nema.org/medical/dicom/current/output/html/part07.html#sect_10.3.2>`_
-          and `Annex C <http://dicom.nema.org/medical/dicom/current/output/html/part07.html#chapter_C>`_
+          :dcm:`10.1.2 <part07/chapter_10.html#sect_10.1.2>`,
+          :dcm:`10.3.2 <part07/sect_10.3.2.html>`
+          and :dcm:`Annex C <part07/chapter_C.html>`
         """
         # Build N-GET response primitive
         rsp = N_GET()
@@ -1082,14 +1092,14 @@ class ServiceClass(object):
         References
         ----------
 
-        * DICOM Standard, Part 4, `Annex F <http://dicom.nema.org/medical/dicom/current/output/html/part04.html#chapter_F>`_
-        * DICOM Standard, Part 4, `Annex H <http://dicom.nema.org/medical/dicom/current/output/html/part04.html#chapter_H>`_
-        * DICOM Standard, Part 4, `Annex CC <http://dicom.nema.org/medical/dicom/current/output/html/part04.html#chapter_CC>`_
-        * DICOM Standard, Part 4, `Annex DD <http://dicom.nema.org/medical/dicom/current/output/html/part04.html#chapter_DD>`_
+        * DICOM Standard, Part 4, :dcm:`Annex F <part04/chapter_F.html>`
+        * DICOM Standard, Part 4, :dcm:`Annex H <part04/chapter_H.html>`
+        * DICOM Standard, Part 4, :dcm:`Annex CC <part04/chapter_CC.html>`
+        * DICOM Standard, Part 4, :dcm:`Annex DD <part04/chapter_DD.html>`
         * DICOM Standard, Part 7, Sections
-          `10.1.3 <http://dicom.nema.org/medical/dicom/current/output/html/part07.html#sect_10.1.3>`_,
-          `10.3.3 <http://dicom.nema.org/medical/dicom/current/output/html/part07.html#sect_10.3.3>`_
-          and `Annex C <http://dicom.nema.org/medical/dicom/current/output/html/part07.html#chapter_C>`_
+          :dcm:`10.1.3 <part07/chapter_10.html#sect_10.1.3>`,
+          :dcm:`10.3.3 <part07/sect_10.3.3.html>`
+          and :dcm:`Annex C <part07/chapter_C.html>`
         """
         # Build N-CREATE response primitive
         rsp = N_SET()
@@ -1249,52 +1259,6 @@ class VerificationServiceClass(ServiceClass):
             The C-ECHO request primitive sent by the peer.
         context : presentation.PresentationContext
             The presentation context that the SCP is operating under.
-
-        See Also
-        --------
-        association.Association.send_c_echo
-
-        Notes
-        -----
-        **C-ECHO Request**
-
-        *Parameters*
-
-        | (M) Message ID
-        | (M) Affected SOP Class UID
-
-        **C-ECHO Response**
-
-        *Parameters*
-
-        | (U) Message ID
-        | (M) Message ID Being Responded To
-        | (U) Affected SOP Class UID
-        | (M) Status
-
-        *Status*
-
-        The DICOM Standard, Part 7 (Table 9.3-13) indicates that the Status
-        value of a C-ECHO response "shall have a value of Success". However
-        Section 9.1.5.1.4 indicates it may have any of the following values:
-
-        Success
-          | ``0x0000`` Success
-
-        Failure
-          | ``0x0122`` Refused: SOP Class Not Supported
-          | ``0x0210`` Refused: Duplicate Invocation
-          | ``0x0211`` Refused: Unrecognised Operation
-          | ``0x0212`` Refused: Mistyped Argument
-
-        References
-        ----------
-
-        * DICOM Standard, Part 4, `Annex A <http://dicom.nema.org/medical/dicom/current/output/html/part04.html#chapter_A>`_
-        * DICOM Standard, Part 7, Sections
-          `9.1.5 <http://dicom.nema.org/medical/dicom/current/output/html/part07.html#sect_9.1.5>`_,
-          `9.3.5 <http://dicom.nema.org/medical/dicom/current/output/html/part07.html#sect_9.3.5>`_
-          and `Annex C <http://dicom.nema.org/medical/dicom/current/output/html/part07.html#chapter_C>`_
         """
         # Build C-ECHO response primitive
         rsp = C_ECHO()
@@ -1365,66 +1329,6 @@ class StorageServiceClass(ServiceClass):
             The C-STORE request primitive sent by the peer.
         context : presentation.PresentationContext
             The presentation context that the SCP is operating under.
-
-        See Also
-        --------
-        association.Association.send_c_store
-
-        Notes
-        -----
-
-        **C-STORE Request**
-
-        *Parameters*
-
-        | (M) Message ID
-        | (M) Affected SOP Class UID
-        | (M) Affected SOP Instance UID
-        | (M) Priority
-        | (U) Move Originator Application Entity Title
-        | (U) Move Originator Message ID
-        | (M) Data Set
-
-        **C-STORE Response**
-
-        *Parameters*
-
-        | (U) Message ID
-        | (M) Message ID Being Responded To
-        | (U) Affected SOP Class UID
-        | (U) Affected SOP Instance UID
-        | (M) Status
-
-        *Status*
-
-        Success
-          | ``0x0000`` Success
-
-        Warning
-          | ``0xB000`` Warning: Coercion of Data Elements
-          | ``0xB006`` Warning: Elements Discarded
-          | ``0xB007`` Warning: Data Set Does Not Match SOP Class
-
-        Failure
-          | ``0x0117`` Refused: Invalid SOP Instance
-          | ``0x0122`` Refused: SOP Class Not Supported
-          | ``0x0124`` Refused: Not Authorised
-          | ``0x0210`` Refused: Duplicate Invocation
-          | ``0x0211`` Refused: Unrecognised Operation
-          | ``0x0212`` Refused: Mistyped Argument
-          | ``0xA700`` to ``0xA7FF`` Refused: Out of Resources
-          | ``0xA900`` to ``0xA9FF`` Error: Data Set Does Not Match SOP Class
-          | ``0xC000`` to ``0xCFFF`` Error: Cannot Understand
-
-        References
-        ----------
-
-        * DICOM Standard, Part 4, `Annex B <http://dicom.nema.org/medical/dicom/current/output/html/part04.html#chapter_B>`_.
-        * DICOM Standard, Part 4, `Annex GG <http://dicom.nema.org/medical/dicom/current/output/html/part04.html#chapter_GG>`_.
-        * DICOM Standard, Part 7, Sections
-          `9.1.1 <http://dicom.nema.org/medical/dicom/current/output/html/part07.html#sect_9.1.1>`_,
-          `9.3.1 <http://dicom.nema.org/medical/dicom/current/output/html/part07.html#sect_9.3.1>`_
-          and `Annex C <http://dicom.nema.org/medical/dicom/current/output/html/part07.html#chapter_C>`_.
         """
         # Build C-STORE response primitive
         rsp = C_STORE()
@@ -1457,7 +1361,7 @@ class QueryRetrieveServiceClass(ServiceClass):
     """Implementation of the Query/Retrieve Service Class."""
     statuses = None
     # Used with Composite Instance Retrieve Without Bulk Data
-    BULK_DATA_KEYWORDS = [
+    _BULK_DATA_KEYWORDS = [
         'PixelData', 'FloatPixelData', 'DoubleFloatPixelData',
         'PixelDataProviderURL', 'SpectroscopyData', 'OverlayData',
         'CurveData', 'AudioSampleData', 'EncapsulatedDocument'
@@ -1527,98 +1431,6 @@ class QueryRetrieveServiceClass(ServiceClass):
             The C-FIND request primitive received from the peer.
         context : presentation.PresentationContext
             The presentation context that the SCP is operating under.
-
-        See Also
-        --------
-        association.Association.send_c_find
-
-        Notes
-        -----
-        **C-FIND Request**
-
-        *Parameters*
-
-        | (M) Message ID
-        | (M) Affected SOP Class UID
-        | (M) Priority
-        | (M) Identifier
-
-        *Identifier*
-
-        The C-FIND request Identifier shall contain:
-
-        * Key Attributes values to be matched against the values of storage
-          SOP Instances managed by the SCP.
-        * (0008,0052) Query/Retrieve Level.
-        * (0008,0053) Query/Retrieve View, if Enhanced Multi-Frame Image
-          Conversion has been accepted during Extended Negotiation. It shall
-          not be present otherwise.
-        * (0008,0005) Specific Character Set, if expanded or replacement
-          character sets may be used in any of the Attributes in the request
-          Identifier. It shall not be present otherwise.
-        * (0008,0201) Timezone Offset From UTC, if any Attributes of time in
-          the request Identifier are to be interpreted explicitly in the
-          designated local time zone. It shall not be present otherwise.
-
-        **C-FIND Response**
-
-        *Parameters*
-
-        | (U) Message ID
-        | (M) Message ID Being Responded To
-        | (U) Affected SOP Class UID
-        | (C) Identifier
-        | (M) Status
-
-        *Identifier*
-
-        The C-FIND response shall only include an Identifier when the Status is
-        'Pending'. When sent, the Identifier shall contain:
-
-        * Key Attributes with values corresponding to Key Attributes contained
-          in the Identifier of the req.
-        * (0008,0052) Query/Retrieve Level.
-        * (0008,0005) Specific Character Set, if expanded or replacement
-          character sets may be used in any of the Attributes in the response
-          Identifier. It shall not be present otherwise.
-        * (0008,0201) Timezone Offset From UTC, if any Attributes of time in
-          the response Identifier are to be interpreted explicitly in the
-          designated local time zone. It shall not be present otherwise.
-
-        The C-FIND response Identifier shall also contain either or both of:
-
-        * (0008,0130) Storage Media File-Set ID and (0088,0140) Storage Media
-          File-Set UID.
-        * (0008,0054) Retrieve AE Title.
-
-        The C-FIND response Identifier may also (but is not required to)
-        include the (0008,0056) Instance Availability element.
-
-        *Status*
-
-        Success
-          | ``0x0000`` Success
-
-        Pending
-          | ``0xFF00`` Matches are continuing, current match supplied
-          | ``0xFF01`` Matches are continuing, warning
-
-        Cancel
-          | ``0xFE00`` Cancel
-
-        Failure
-          | ``0x0122`` SOP class not supported
-          | ``0xA700`` Out of resources
-          | ``0xA900`` Identifier does not match SOP class
-          | ``0xC000`` to ``0xCFFF`` Unable to process
-
-        References
-        ----------
-        .. [1] DICOM Standard, Part 4, `Annex C <http://dicom.nema.org/medical/dicom/current/output/html/part04.html#chapter_C>`_.
-        .. [2] DICOM Standard, Part 7, Sections
-           `9.1.2 <http://dicom.nema.org/medical/dicom/current/output/html/part07.html#sect_9.1.2>`_,
-           `9.3.2 <http://dicom.nema.org/medical/dicom/current/output/html/part07.html#sect_9.3.2>`_
-           and `Annex C <http://dicom.nema.org/medical/dicom/current/output/html/part07.html#chapter_C>`_.
         """
         # Build C-FIND response primitive
         rsp = C_FIND()
@@ -1751,119 +1563,6 @@ class QueryRetrieveServiceClass(ServiceClass):
             The C-GET request primitive sent by the peer.
         context : presentation.PresentationContext
             The presentation context that the SCP is operating under.
-
-        See Also
-        --------
-        association.Association.send_c_get
-
-        Notes
-        -----
-        **C-GET Request**
-
-        *Parameters*
-
-        | (M) Message ID
-        | (M) Affected SOP Class UID
-        | (M) Priority
-        | (M) Identifier
-
-        *Identifier*
-
-        The C-GET request Identifier shall contain:
-
-        * (0008,0052) Query/Retrieve Level.
-        * Unique Key Attributes, which may include:
-
-          - (0010,0020) Patient ID
-          - (0020,000D) Study Instance UIDs
-          - (0020,000E) Series Instance UIDs
-          - (0008,0018) SOP Instance UIDs
-
-        * (0008,0053) Query/Retrieve View, if Enhanced Multi-Frame Image
-          Conversion has been accepted during Extended Negotiation. It shall
-          not be present otherwise.
-        * (0008,0005) Specific Character Set, if (0010,0020) Patient ID is
-          using a character set other than the default character repertoire.
-
-        **C-GET Response**
-
-        *Parameters*
-
-        | (U) Message ID
-        | (M) Message ID Being Responded To
-        | (U) Affected SOP Class UID
-        | (U) Identifier
-        | (M) Status
-        | (C) Number of Remaining Sub-operations
-        | (C) Number of Completed Sub-operations
-        | (C) Number of Failed Sub-operations
-        | (C) Number of Warning Sub-operations
-
-        *Identifier*
-
-        If the C-GET response Status is 'Cancelled', 'Failure', 'Refused' or
-        'Warning' then the Identifier shall contain:
-
-        * (0008,0058) Failed SOP Instance UID List
-
-        If the C-GET response Status is 'Pending' then there is no Identifier.
-
-        *Status*
-
-        Success
-          | ``0x0000`` Sub-operations complete: no failures or warnings
-
-        Pending
-          | ``0xFF00`` Sub-operations are continuing
-
-        Cancel
-          | ``0xFE00`` Sub-operations terminated due to Cancel indication
-
-        Failure
-          | ``0x0122`` SOP class not supported
-          | ``0x0124`` Not authorised
-          | ``0x0210`` Duplicate invocation
-          | ``0x0211`` Unrecognised operation
-          | ``0x0212`` Mistyped argument
-          | ``0xA701`` Out of resources: unable to calculate number of matches
-          | ``0xA702`` Out of resources: unable to perform sub-operations
-          | ``0xA900`` Identifier does not match SOP class
-          | ``0xC000`` to ``0xCFFF`` Unable to process
-
-        Warning
-          | ``0xB000`` Sub-operations complete: one or more failures or
-            warnings
-
-        *Number of X Sub-operations*
-
-        Inclusion of the 'Number of X Sub-operations' parameters is conditional
-        on the value of the response Status. For a given Status category, the
-        table below states whether or not the response shall contain, shall not
-        contain or may contain the 'Number of X Sub-operations' parameter.
-
-        +-----------+------------------------------------------+
-        |           | Number of "X" Sub-operations             |
-        +-----------+-----------+-----------+--------+---------+
-        | Status    | Remaining | Completed | Failed | Warning |
-        +===========+===========+===========+========+=========+
-        | Pending   | shall     | shall     | shall  | shall   |
-        +-----------+-----------+-----------+--------+---------+
-        | Cancelled | may       | may       | may    | may     |
-        +-----------+-----------+-----------+--------+---------+
-        | Warning   | shall not | may       | may    | may     |
-        +-----------+-----------+-----------+--------+---------+
-        | Failure   | shall not | may       | may    | may     |
-        +-----------+-----------+-----------+--------+---------+
-        | Success   | shall not | may       | may    | may     |
-        +-----------+-----------+-----------+--------+---------+
-
-        References
-        ----------
-        .. [1] DICOM Standard, Part 4, `Annex C <http://dicom.nema.org/medical/dicom/current/output/html/part04.html#chapter_C>`_.
-        .. [2] DICOM Standard, Part 7, Sections
-           `9.1.3 <http://dicom.nema.org/medical/dicom/current/output/html/part07.html#sect_9.1.3>`_,
-           `9.3.3 <http://dicom.nema.org/medical/dicom/current/output/html/part07.html#sect_9.3.3>`_
-           and `Annex C <http://dicom.nema.org/medical/dicom/current/output/html/part07.html#chapter_C>`_.
         """
         # Build C-GET response primitive
         rsp = C_GET()
@@ -2030,7 +1729,7 @@ class QueryRetrieveServiceClass(ServiceClass):
                 if context.abstract_syntax == '1.2.840.10008.5.1.4.1.2.5.3':
                     # Doesn't include WaveformData
                     _bulk_data = [
-                        kw for kw in self.BULK_DATA_KEYWORDS if kw in dataset
+                        kw for kw in self._BULK_DATA_KEYWORDS if kw in dataset
                     ]
                     for keyword in _bulk_data:
                         delattr(dataset, keyword)
@@ -2129,120 +1828,6 @@ class QueryRetrieveServiceClass(ServiceClass):
             The C-MOVE request primitive sent by the peer.
         context : presentation.PresentationContext
             The presentation context that the SCP is operating under.
-
-        See Also
-        --------
-        association.Association.send_c_move
-
-        Notes
-        -----
-        **C-MOVE Request**
-
-        *Parameters*
-
-        | (M) Message ID
-        | (M) Affected SOP Class UID
-        | (M) Priority
-        | (M) Move Destination
-        | (M) Identifier
-
-        *Identifier*
-
-        The C-MOVE request Identifier shall contain:
-
-        * (0008,0052) Query/Retrieve Level.
-        * Unique Key Attributes, which may include:
-
-          - (0010,0020) Patient ID
-          - (0020,000D) Study Instance UIDs
-          - (0020,000E) Series Instance UIDs
-          - (0008,0018) SOP Instance UIDs
-
-        * (0008,0053) Query/Retrieve View, if Enhanced Multi-Frame Image
-          Conversion has been accepted during Extended Negotiation. It shall
-          not be present otherwise.
-        * (0008,0005) Specific Character Set, if (0010,0020) Patient ID is
-          using a character set other than the default character repertoire.
-
-        **C-MOVE Response**
-
-        *Parameters*
-
-        | (U) Message ID
-        | (M) Message ID Being Responded To
-        | (U) Affected SOP Class UID
-        | (U) Identifier
-        | (M) Status
-        | (C) Number of Remaining Sub-operations
-        | (C) Number of Completed Sub-operations
-        | (C) Number of Failed Sub-operations
-        | (C) Number of Warning Sub-operations
-
-        *Identifier*
-
-        If the C-MOVE response Status is 'Cancelled', 'Failure', 'Refused' or
-        'Warning' then the Identifier shall contain:
-
-        * (0008,0058) Failed SOP Instance UID List
-
-        If the C-MOVE response Status is 'Pending' then there is no Identifier.
-
-        *Status*
-
-        Success
-          | ``0x0000`` Sub-operations complete: no failures
-
-        Pending
-          | ``0xFF00`` Sub-operations are continuing
-
-        Cancel
-          | ``0xFE00`` Sub-operations terminated due to Cancel indication
-
-        Failure
-          | ``0x0122`` SOP class not supported
-          | ``0x0124`` Not authorised
-          | ``0x0210`` Duplicate invocation
-          | ``0x0211`` Unrecognised operation
-          | ``0x0212`` Mistyped argument
-          | ``0xA701`` Out of resources: unable to calculate number of matches
-          | ``0xA702`` Out of resources, unable to perform sub-operations
-          | ``0xA801`` Move destination unknown
-          | ``0xA900`` Identifier does not match SOP class
-          | ``0xC000`` to ``0xCFFF`` Unable to process
-
-        Warning
-          | ``0xB000`` Sub-operations complete: one or more failures
-
-        *Number of X Sub-operations*
-
-        Inclusion of the 'Number of X Sub-operations' parameters is conditional
-        on the value of the response Status. For a given Status category, the
-        table below states whether or not the response shall contain, shall not
-        contain or may contain the 'Number of X Sub-operations' parameter.
-
-        +-----------+------------------------------------------+
-        |           | Number of "X" Sub-operations             |
-        +-----------+-----------+-----------+--------+---------+
-        | Status    | Remaining | Completed | Failed | Warning |
-        +===========+===========+===========+========+=========+
-        | Pending   | shall     | shall     | shall  | shall   |
-        +-----------+-----------+-----------+--------+---------+
-        | Cancelled | may       | may       | may    | may     |
-        +-----------+-----------+-----------+--------+---------+
-        | Warning   | shall not | may       | may    | may     |
-        +-----------+-----------+-----------+--------+---------+
-        | Failure   | shall not | may       | may    | may     |
-        +-----------+-----------+-----------+--------+---------+
-        | Success   | shall not | may       | may    | may     |
-        +-----------+-----------+-----------+--------+---------+
-
-        References
-        ----------
-        .. [1] DICOM Standard, Part 4, `Annex C <http://dicom.nema.org/medical/dicom/current/output/html/part04.html#chapter_C>`_.
-        .. [2] DICOM Standard, Part 7, Sections
-           `9.1.4 <http://dicom.nema.org/medical/dicom/current/output/html/part07.html#sect_9.1.4>`_,
-           `9.3.4 <http://dicom.nema.org/medical/dicom/current/output/html/part07.html#sect_9.3.4>`_
-           and `Annex C <http://dicom.nema.org/medical/dicom/current/output/html/part07.html#chapter_C>`_.
         """
         # Build C-MOVE response primitive
         rsp = C_MOVE()
@@ -2357,7 +1942,8 @@ class QueryRetrieveServiceClass(ServiceClass):
                 # Exception raised by handler
                 if isinstance(rsp_status, Exception):
                     LOGGER.error(
-                        "Exception raised by handler bound to 'evt.EVT_C_MOVE'",
+                        "Exception raised by handler bound to "
+                        "'evt.EVT_C_MOVE'",
                         exc_info=dataset
                     )
                     rsp_status = 0xC511
@@ -2573,9 +2159,6 @@ class BasicWorklistManagementServiceClass(QueryRetrieveServiceClass):
     """Implementation of the Basic Worklist Management Service Class."""
     statuses = QR_FIND_SERVICE_CLASS_STATUS
 
-    def __init__(self, assoc):
-        super(BasicWorklistManagementServiceClass, self).__init__(assoc)
-
     def SCP(self, req, context):
         """The SCP implementation for Basic Worklist Management.
 
@@ -2585,85 +2168,6 @@ class BasicWorklistManagementServiceClass(QueryRetrieveServiceClass):
             The C-FIND request primitive received from the peer.
         context : presentation.PresentationContext
             The presentation context that the SCP is operating under.
-
-        See Also
-        --------
-        association.Association.send_c_find
-
-        Notes
-        -----
-        **C-FIND Request**
-
-        *Parameters*
-
-        | (M) Message ID
-        | (M) Affected SOP Class UID
-        | (M) Priority
-        | (M) Identifier
-
-        *Identifier*
-
-        The C-FIND request Identifier shall contain:
-
-        * Key Attributes values to be matched against the values of attributes
-          specified in that SOP Class.
-        * (0008,0005) Specific Character Set, if expanded or replacement
-          character sets may be used in any of the Attributes in the request
-          Identifier. It shall not be present otherwise.
-        * (0008,0201) Timezone Offset From UTC, if any Attributes of time in
-          the request Identifier are to be interpreted explicitly in the
-          designated local time zone. It shall not be present otherwise.
-
-        **C-FIND Response**
-
-        *Parameters*
-
-        | (U) Message ID
-        | (M) Message ID Being Responded To
-        | (U) Affected SOP Class UID
-        | (C) Identifier
-        | (M) Status
-
-        *Identifier*
-
-        The C-FIND response shall only include an Identifier when the Status is
-        'Pending'. When sent, the Identifier shall contain:
-
-        * Key Attributes with values corresponding to Key Attributes contained
-          in the Identifier of the requeset.
-        * (0008,0005) Specific Character Set, if expanded or replacement
-          character sets may be used in any of the Attributes in the response
-          Identifier. It shall not be present otherwise.
-        * (0008,0201) Timezone Offset From UTC, if any Attributes of time in
-          the response Identifier are to be interpreted explicitly in the
-          designated local time zone. It shall not be present otherwise.
-
-        *Status*
-
-        Success
-          | ``0x0000`` Success
-
-        Pending
-          | ``0xFF00`` Matches are continuing, current match supplied
-          | ``0xFF01`` Matches are continuing, warning
-
-        Cancel
-          | ``0xFE00`` Cancel
-
-        Failure
-          | ``0x0122`` SOP class not supported
-          | ``0xA700`` Out of resources
-          | ``0xA900`` Dataset does not match SOP class
-          | ``0xC000`` to ``0xCFFF`` Unable to process
-
-        References
-        ----------
-
-        * DICOM Standard, Part 4, `Annex K <http://dicom.nema.org/medical/dicom/current/output/html/part04.html#chapter_K>`_.
-        * [2] DICOM Standard, Part 7, Sections
-          `9.1.2 <http://dicom.nema.org/medical/dicom/current/output/html/part07.html#sect_9.1.2>`_,
-          `9.3.2 <http://dicom.nema.org/medical/dicom/current/output/html/part07.html#sect_9.3.2>`_
-          and `Annex C <http://dicom.nema.org/medical/dicom/current/output/html/part07.html#chapter_C>`_.
         """
         if context.abstract_syntax == '1.2.840.10008.5.1.4.31':
             self._find_scp(req, context)
@@ -2718,73 +2222,6 @@ class RelevantPatientInformationQueryServiceClass(ServiceClass):
             The C-FIND request primitive sent by the peer.
         context : presentation.PresentationContext
             The presentation context that the SCP is operating under.
-
-        See Also
-        --------
-        association.Association.send_c_find
-
-        Notes
-        -----
-        **C-FIND Request**
-
-        *Parameters*
-
-        | (M) Message ID
-        | (M) Affected SOP Class UID
-        | (M) Priority
-        | (M) Identifier
-
-        *Identifier*
-
-        The C-FIND request Identifier shall contain:
-
-        * Key Attributes with values corresponding to Key Attributes contained
-          in the Identifier of the request.
-        * (0040,A504) Content Template Sequence, which shall include a single
-          sequence item containing (0040,DB00) Template Identifier and
-          (0008,0105) Mapping Resource attributes, to identify the template
-          structure used in the C-FIND responses.
-        * (0008,0005) Specific Character Set, if expanded or replacement
-          character sets may be used in any of the Attributes in the request
-          Identifier. It shall not be present otherwise.
-
-        **C-FIND Response**
-
-        *Parameters*
-
-        | (U) Message ID
-        | (M) Message ID Being Responded To
-        | (U) Affected SOP Class UID
-        | (C) Identifier
-        | (M) Status
-
-        *Status*
-
-        Success
-          | ``0x0000`` Success
-
-        Pending
-          | ``0xFF00`` Matches are continuing, current match supplied
-          | ``0xFF01`` Matches are continuing, warning
-
-        Cancel
-          | ``0xFE00`` Matching terminated due to cancel request
-
-        Failure
-          | ``0x0122`` SOP class not supported
-          | ``0xA700`` Out of resources
-          | ``0xA900`` Identifier does not match SOP class
-          | ``0xC100`` More than one match found
-          | ``0xC200`` Unable to support requested template
-
-        References
-        ----------
-
-        * DICOM Standard, Part 4, `Annex Q <http://dicom.nema.org/medical/dicom/current/output/html/part04.html#chapter_Q>`_.
-        * DICOM Standard, Part 7, Sections
-           `9.1.2 <http://dicom.nema.org/medical/dicom/current/output/html/part07.html#sect_9.1.2>`_,
-           `9.3.2 <http://dicom.nema.org/medical/dicom/current/output/html/part07.html#sect_9.3.2>`_
-           and `Annex C <http://dicom.nema.org/medical/dicom/current/output/html/part07.html#chapter_C>`_.
         """
         # Build C-FIND response primitive
         rsp = C_FIND()
@@ -2903,9 +2340,6 @@ class SubstanceAdministrationQueryServiceClass(QueryRetrieveServiceClass):
     """Implementation of the Substance Administration Query Service"""
     statuses = SUBSTANCE_ADMINISTRATION_SERVICE_CLASS_STATUS
 
-    def __init__(self, assoc):
-        super(SubstanceAdministrationQueryServiceClass, self).__init__(assoc)
-
     def SCP(self, req, context):
         """The SCP implementation for the Relevant Patient Information Query
         Service Class.
@@ -2916,67 +2350,5 @@ class SubstanceAdministrationQueryServiceClass(QueryRetrieveServiceClass):
             The C-FIND request primitive sent by the peer.
         context : presentation.PresentationContext
             The presentation context that the SCP is operating under.
-
-        See Also
-        --------
-        association.Association.send_c_find
-
-        Notes
-        -----
-        **C-FIND Request**
-
-        *Parameters*
-
-        | (M) Message ID
-        | (M) Affected SOP Class UID
-        | (M) Priority
-        | (M) Identifier
-
-        *Identifier*
-
-        The C-FIND request Identifier shall contain:
-
-        * Key Attributes with values corresponding to Key Attributes contained
-          in the Identifier of the request.
-        * (0008,0005) Specific Character Set, if expanded or replacement
-          character sets may be used in any of the Attributes in the request
-          Identifier. It shall not be present otherwise.
-
-        **C-FIND Response**
-
-        *Parameters*
-
-        | (U) Message ID
-        | (M) Message ID Being Responded To
-        | (U) Affected SOP Class UID
-        | (C) Identifier
-        | (M) Status
-
-        *Status*
-
-        Success
-          | ``0x0000`` Success
-
-        Pending
-          | ``0xFF00`` Matches are continuing, current match supplied
-          | ``0xFF01`` Matches are continuing, warning
-
-        Cancel
-          | ``0xFE00`` Matching terminated due to cancel request
-
-        Failure
-          | ``0x0122`` SOP class not supported
-          | ``0xA700`` Out of resources
-          | ``0xA900`` Identifier does not match SOP class
-          | ``0xC000`` to ``0xCFFF`` Unable to process
-
-        References
-        ----------
-
-        * DICOM Standard, Part 4, `Annex V <http://dicom.nema.org/medical/dicom/current/output/html/part04.html#chapter_V>`_.
-        * DICOM Standard, Part 7, Sections
-           `9.1.2 <http://dicom.nema.org/medical/dicom/current/output/html/part07.html#sect_9.1.2>`_,
-           `9.3.2 <http://dicom.nema.org/medical/dicom/current/output/html/part07.html#sect_9.3.2>`_
-           and `Annex C <http://dicom.nema.org/medical/dicom/current/output/html/part07.html#chapter_C>`_.
         """
         self._find_scp(req, context)
