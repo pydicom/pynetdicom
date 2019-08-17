@@ -2,7 +2,7 @@
 
 import logging
 
-#from pynetdicom.dimse_messages import *
+from pynetdicom.dimse_messages import *
 from pynetdicom.pdu import (
     A_ASSOCIATE_RQ, A_ASSOCIATE_AC, A_ASSOCIATE_RJ, A_RELEASE_RQ,
     A_RELEASE_RP, A_ABORT_RQ, P_DATA_TF
