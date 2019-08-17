@@ -10,7 +10,7 @@ API Reference
 .. module:: pynetdicom
 
 This API reference guide details the functions, modules and objects included in
-pynetdicom.
+*pynetdicom*.
 
 .. toctree::
    :maxdepth: 2

@@ -51,7 +51,7 @@ b'MY_AE_TITLE     '
 16
 
 When creating SCPs its also possible to give each SCP its own AE title by
-specifying the ``ae_title`` keyword argument in
+specifying the *ae_title* keyword argument in
 :meth:`AE.start_server()<pynetdicom.ae.ApplicationEntity.start_server>`.
 
 .. _ae_create_scu:

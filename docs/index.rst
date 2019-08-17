@@ -1,7 +1,32 @@
 
 
 pynetdicom Documentation
-========================
+------------------------
+
+.. toctree::
+   :maxdepth: 2
+   :hidden:
+   :caption: Documentation
+
+   user/index
+   service_classes/index
+   reference/index
+
+.. toctree::
+   :maxdepth: 2
+   :hidden:
+   :caption: Examples
+
+   examples/index
+
+.. toctree::
+   :maxdepth: 1
+   :hidden:
+   :caption: Additional Information
+
+   apps/index
+   changelog/index
+
 
 DICOM
 -----
@@ -24,15 +49,9 @@ AEs and using or providing the services available to the association.
 
 
 Supported Service Classes
--------------------------
+.........................
 *pynetdicom* currently supports the following `DICOM service classes
 <http://dicom.nema.org/medical/dicom/current/output/chtml/part04/PS3.4.html>`_:
-
-.. toctree::
-   :maxdepth: 2
-   :hidden:
-
-   service_classes/index
 
 * :doc:`Application Event Logging <service_classes/application_event>`
 * :doc:`Basic Worklist Management<service_classes/basic_worklist_service_class>`
@@ -66,27 +85,16 @@ Supported Service Classes
 
 
 User Guide
-==========
+..........
 The :ref:`user_guide` is intended as an introduction to *pynetdicom* and
 explains how to install the API and covers basic usage. For detailed
 documentation of the functions and classes see the
 :ref:`API reference <reference>`.
 
-.. toctree::
-   :maxdepth: 3
-
-   user/index
-
 .. _index_examples:
 
 Examples
-========
-
-.. toctree::
-   :maxdepth: 2
-   :hidden:
-
-   examples/index
+........
 
 * :doc:`Basic Worklist Management (C-FIND) <examples/basic_worklist>`
 * :doc:`Display System Management (N-GET) <examples/display>`
@@ -107,26 +115,14 @@ Examples
 
 
 API Reference
-=============
-
-.. toctree::
-   :maxdepth: 3
-   :hidden:
-
-   reference/index
+.............
 
 The :doc:`API Reference <reference/index>` provides documentation of the
 important functions and classes.
 
 
 Applications
-============
-
-.. toctree::
-   :maxdepth: 1
-   :hidden:
-
-   apps/index
+............
 
 * :doc:`echoscu <apps/echoscu>`
 * :doc:`echoscp <apps/echoscp>`
@@ -134,13 +130,7 @@ Applications
 * :doc:`storescp <apps/storescp>`
 
 Release Notes
-=============
-
-.. toctree::
-   :maxdepth: 1
-   :hidden:
-
-   changelog/index
+.............
 
 * `v1.4.0 <changelog/index.html#v1-4-0>`_
 * `v1.3.1 <changelog/index.html#v1-3-1>`_
