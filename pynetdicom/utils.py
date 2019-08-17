@@ -1,6 +1,5 @@
 """Various utility functions."""
 
-import codecs
 from io import BytesIO
 import logging
 import sys

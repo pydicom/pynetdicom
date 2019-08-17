@@ -50,8 +50,8 @@ AEs and using or providing the services available to the association.
 
 Supported Service Classes
 .........................
-*pynetdicom* currently supports the following `DICOM service classes
-<http://dicom.nema.org/medical/dicom/current/output/chtml/part04/PS3.4.html>`_:
+*pynetdicom* currently supports the following
+:dcm:`DICOM service classes<part04/PS3.4.html>`:
 
 * :doc:`Application Event Logging <service_classes/application_event>`
 * :doc:`Basic Worklist Management<service_classes/basic_worklist_service_class>`

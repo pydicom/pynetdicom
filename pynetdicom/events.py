@@ -10,7 +10,7 @@ import sys
 
 from pydicom.dataset import Dataset
 
-from pynetdicom.dsutils import decode, encode
+from pynetdicom.dsutils import decode
 
 
 LOGGER = logging.getLogger('pynetdicom.events')
@@ -44,6 +44,7 @@ Possible notification events are:
 NotificationEvent.is_intervention = False
 NotificationEvent.is_notification = True
 
+# pylint: disable=line-too-long
 EVT_ABORTED = NotificationEvent("EVT_ABORTED", "Association aborted")
 EVT_ACCEPTED = NotificationEvent("EVT_ACCEPTED", "Association request accepted")
 EVT_ACSE_RECV = NotificationEvent("EVT_ACSE_RECV", "ACSE primitive received from DUL")
@@ -103,7 +104,7 @@ EVT_N_DELETE = InterventionEvent("EVT_N_DELETE", "N-DELETE request received")
 EVT_N_EVENT_REPORT = InterventionEvent("EVT_N_EVENT_REPORT", "N-EVENT-REPORT request received")
 EVT_N_GET = InterventionEvent("EVT_N_GET", "N-GET request received")
 EVT_N_SET = InterventionEvent("EVT_N_SET", "N-SET request received")
-
+# pylint: enable=line-too-long
 
 _INTERVENTION_EVENTS = [
     ii[1] for ii in inspect.getmembers(

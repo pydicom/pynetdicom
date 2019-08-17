@@ -9,9 +9,19 @@ except ImportError:
     import Queue as queue  # Python 2 compatibility
 
 from pynetdicom import evt
-from pynetdicom.dimse_messages import *
-from pynetdicom.dimse_primitives import *
-from pynetdicom.pdu_primitives import P_DATA
+# pylint: disable=no-name-in-module
+from pynetdicom.dimse_messages import (
+    C_STORE_RQ, C_STORE_RSP, C_FIND_RQ, C_FIND_RSP, C_GET_RQ, C_GET_RSP,
+    C_MOVE_RQ, C_MOVE_RSP, C_ECHO_RQ, C_ECHO_RSP, C_CANCEL_RQ,
+    N_EVENT_REPORT_RQ, N_GET_RQ, N_SET_RQ, N_ACTION_RQ, N_CREATE_RQ,
+    N_DELETE_RQ, N_EVENT_REPORT_RSP, N_GET_RSP, N_SET_RSP, N_ACTION_RSP,
+    N_CREATE_RSP, N_DELETE_RSP, DIMSEMessage
+)
+# pylint: enable=no-name-in-module
+from pynetdicom.dimse_primitives import (
+    C_STORE, C_FIND, C_GET, C_MOVE, C_ECHO, C_CANCEL,
+    N_EVENT_REPORT, N_GET, N_SET, N_ACTION, N_CREATE, N_DELETE,
+)
 
 
 LOGGER = logging.getLogger('pynetdicom.dimse')
@@ -173,8 +183,8 @@ class DIMSEServiceProvider(object):
         """Return the peer's maximum PDU length as :class:`int`."""
         if self.assoc.is_requestor:
             return self.assoc.acceptor.maximum_length
-        elif self.assoc.is_acceptor:
-            return self.assoc.requestor.maximum_length
+
+        return self.assoc.requestor.maximum_length
 
     def peek_msg(self):
         """Return the first message in the message queue or ``None``.
@@ -233,7 +243,7 @@ class DIMSEServiceProvider(object):
                 msg_id = primitive.MessageIDBeingRespondedTo
                 self.cancel_req[msg_id] = primitive
             elif (isinstance(primitive, N_EVENT_REPORT) and
-                                                primitive.is_valid_request):
+                  primitive.is_valid_request):
                 # N-EVENT-REPORT service requests are handled immediately
                 self.assoc._serve_request(primitive, context_id)
             else:

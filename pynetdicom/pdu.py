@@ -60,7 +60,7 @@ class PDU(object):
 
     References
     ----------
-    DICOM Standard, Part 8, `Section 9.3 <http://dicom.nema.org/medical/dicom/current/output/html/part08.html#sect_9.3>`_
+    DICOM Standard, Part 8, :dcm:`Section 9.3 <part08/sect_9.3.html>`
     """
 
     def decode(self, bytestream):
@@ -183,9 +183,8 @@ class PDU(object):
 
         References
         ----------
-        * DICOM Standard, Part 8, Section
-           `9.3 <http://dicom.nema.org/medical/dicom/current/output/html/part08.html#sect_9.3>`_
-        * DICOM Standard, Part 8, Section
+        * DICOM Standard, Part 8, :dcm:`Section 9.3 <part08/sect_9.3.html>`
+        * DICOM Standard, Part 8,
            :dcm:`Section 9.3.1<part08/sect_9.3.html#sect_9.3.1>`
         """
         offset = 0
@@ -272,10 +271,11 @@ class PDU(object):
 
         References
         ----------
-        * DICOM Standard, part 8,
-           `Annex F <http://dicom.nema.org/medical/dicom/current/output/html/part08.html#chapter_F>`_.
-        * `Python 2 codecs module <https://docs.python.org/3/library/codecs.html#standard-encodings>`_
-        .. [3] `Python 3 codecs module <https://docs.python.org/2/library/codecs.html#standard-encodings>`_
+        * DICOM Standard, Part 8, :dcm:`Annex F <part08/chapter_F.html>`
+        * `Python 2 codecs module
+          <https://docs.python.org/3/library/codecs.html#standard-encodings>`_
+        * `Python 3 codecs module
+          <https://docs.python.org/2/library/codecs.html#standard-encodings>`_
         """
         return codecs.encode(uid, 'ascii')
 
@@ -1143,7 +1143,7 @@ class A_ASSOCIATE_RJ(PDU):
     ----------
     * DICOM Standard, Part 8,
       :dcm:`Section 9.3.4 <part08/sect_9.3.4.html>`
-    * DICOM Standard, Part 8, Section
+    * DICOM Standard, Part 8,
       :dcm:`Section 9.3.1<part08/sect_9.3.html#sect_9.3.1>`
     """
     def __init__(self):
@@ -1370,7 +1370,7 @@ class P_DATA_TF(PDU):
     ----------
     * DICOM Standard, Part 8,
       :dcm:`Section 9.3.5 <part08/sect_9.3.5.html>`
-    * DICOM Standard, Part 8, Section
+    * DICOM Standard, Part 8,
       :dcm:`Section 9.3.1<part08/sect_9.3.html#sect_9.3.1>`
     """
 
@@ -1490,10 +1490,10 @@ class P_DATA_TF(PDU):
 
         References
         ----------
-        * DICOM Standard, Part 8, Section
-           `9.3.5.1 <http://dicom.nema.org/medical/dicom/current/output/html/part08.html#sect_9.3.5.1>`_
-        * DICOM Standard, Part 8, Section
-           :dcm:`Section 9.3.1<part08/sect_9.3.html#sect_9.3.1>`
+        * DICOM Standard, Part 8, :dcm:`Section
+          9.3.5.1 <part08/sect_9.3.5.html#sect_9.3.5.1>`
+        * DICOM Standard, Part 8,
+          :dcm:`Section 9.3.1<part08/sect_9.3.html#sect_9.3.1>`
         """
         offset = 0
         while bytestream[offset:offset + 1]:
@@ -1599,7 +1599,7 @@ class A_RELEASE_RQ(PDU):
     ----------
     * DICOM Standard, Part 8,
       :dcm:`Section 9.3.6 <part08/sect_9.3.6.html>`
-    * DICOM Standard, Part 8, Section
+    * DICOM Standard, Part 8,
       :dcm:`Section 9.3.1<part08/sect_9.3.html#sect_9.3.1>`
     """
 
@@ -1727,7 +1727,7 @@ class A_RELEASE_RP(PDU):
     ----------
     * DICOM Standard, Part 8,
       :dcm:`Section 9.3.7 <part08/sect_9.3.7.html>`
-    * DICOM Standard, Part 8, Section
+    * DICOM Standard, Part 8,
       :dcm:`Section 9.3.1<part08/sect_9.3.html#sect_9.3.1>`
     """
 
@@ -1869,7 +1869,7 @@ class A_ABORT_RQ(PDU):
     ----------
     * DICOM Standard, Part 8,
       :dcm:`Section 9.3.8 <part08/sect_9.3.8.html>`
-    * DICOM Standard, Part 8, Section
+    * DICOM Standard, Part 8,
       :dcm:`Section 9.3.1<part08/sect_9.3.html#sect_9.3.1>`
     """
 

@@ -173,9 +173,10 @@ class PDUItem(object):
 
        **Encoding**
 
-        When encoded, PDU item and sub-item data for the above has the following
-        structure, taken from various tables in of the DICOM Standard (offsets shown with Python
-        indexing). Items are always encoded using Big Endian.
+        When encoded, PDU item and sub-item data for the above has the
+        following structure, taken from various tables in of the DICOM Standard
+        (offsets shown with Python indexing). Items are always encoded using
+        Big Endian.
 
         +--------+-------------+-------------+
         | Offset | Length      | Description |
@@ -191,10 +192,9 @@ class PDUItem(object):
 
         References
         ----------
-        * DICOM Standard, Part 8, Section
-           `9.3 <http://dicom.nema.org/medical/dicom/current/output/html/part08.html#sect_9.3>`_
-        * DICOM Standard, Part 8, Section
-           `9.3.1 <http://dicom.nema.org/medical/dicom/current/output/html/part08.html#sect_9.3.1>`_
+        * DICOM Standard, Part 8, :dcm:`Section 9.3 <part08/sect_9.3.html>`
+        * DICOM Standard, Part 8,
+          :dcm:`Section 9.3.1 <part08/sect_9.3.html#sect_9.3.1>`
         """
         offset = 0
         while bytestream[offset:offset + 1]:
@@ -291,9 +291,11 @@ class PDUItem(object):
 
         References
         ----------
-        * DICOM Standard, part 8, `Annex F <http://dicom.nema.org/medical/dicom/current/output/html/part08.html#chapter_F>`_.
-        * `Python 2 codecs module <https://docs.python.org/3/library/codecs.html#standard-encodings>`_
-        * `Python 3 codecs module <https://docs.python.org/2/library/codecs.html#standard-encodings>`_
+        * DICOM Standard, part 8, :dcm:`Annex F <part08/chapter_F.html>`
+        * `Python 2 codecs module
+          <https://docs.python.org/3/library/codecs.html#standard-encodings>`_
+        * `Python 3 codecs module
+          <https://docs.python.org/2/library/codecs.html#standard-encodings>`_
         """
         return codecs.encode(uid, 'ascii')
 
@@ -501,8 +503,10 @@ class ApplicationContextItem(PDUItem):
 
     def __str__(self):
         """Return a string representation of the Item."""
-        s = '{0!s} ({1!s})\n'.format(self.application_context_name,
-                                     self.application_context_name.name)
+        s = '{0!s} ({1!s})\n'.format(
+            self.application_context_name,
+            self.application_context_name.name
+        )
         return s
 
 
@@ -1128,7 +1132,9 @@ class UserInformationItem(PDUItem):
 
     @property
     def async_ops_window(self):
-        """Return the *Asynchronous Operations Window Sub-item*, if available."""
+        """Return the *Asynchronous Operations Window Sub-item*, if
+        available.
+        """
         for item in self.user_data:
             if isinstance(item, AsynchronousOperationsWindowSubItem):
                 return item
@@ -1197,7 +1203,9 @@ class UserInformationItem(PDUItem):
 
     @property
     def implementation_class_uid(self):
-        """Return the item's *Implementation Class UID* field value, if available."""
+        """Return the item's *Implementation Class UID* field value, if
+        available.
+        """
         for item in self.user_data:
             if isinstance(item, ImplementationClassUIDSubItem):
                 return item.implementation_class_uid
@@ -1206,7 +1214,9 @@ class UserInformationItem(PDUItem):
 
     @property
     def implementation_version_name(self):
-        """Return the item's *Implementation Version Name* field value, if available."""
+        """Return the item's *Implementation Version Name* field value, if
+        available.
+        """
         for item in self.user_data:
             if isinstance(item, ImplementationVersionNameSubItem):
                 return item.implementation_version_name
@@ -1224,7 +1234,9 @@ class UserInformationItem(PDUItem):
 
     @property
     def maximum_length(self):
-        """Return the item's *Maximum Length Received* field value, if available."""
+        """Return the item's *Maximum Length Received* field value, if
+        available.
+        """
         for item in self.user_data:
             if isinstance(item, MaximumLengthSubItem):
                 return item.maximum_length_received
@@ -1249,7 +1261,6 @@ class UserInformationItem(PDUItem):
 
     def __str__(self):
         """Return a string representation of the Item."""
-        # FIXME: Indent not applying correctly to user_data
         s = " User information item\n"
         s += "  Item type: 0x{0:02x}\n".format(self.item_type)
         s += "  Item length: {0:d}\n".format(self.item_length)
@@ -1893,7 +1904,7 @@ class ImplementationClassUIDSubItem(PDUItem):
 
     @property
     def implementation_class_uid(self):
-        """Return the item's *Implementation Class UID* field value as a UID."""
+        """Return the item's *Implementation Class UID* field value as UID."""
         return self._implementation_class_uid
 
     @implementation_class_uid.setter
@@ -2013,7 +2024,9 @@ class ImplementationVersionNameSubItem(PDUItem):
         primitive : pdu_primitives.ImplementationVersionNameNotification
             The primitive to use to set the Item's field values.
         """
-        self.implementation_version_name = primitive.implementation_version_name
+        self.implementation_version_name = (
+            primitive.implementation_version_name
+        )
 
     def to_primitive(self):
         """Return an Implementation Identification primitive from the current
@@ -2024,8 +2037,9 @@ class ImplementationVersionNameSubItem(PDUItem):
         pdu_primitives.ImplementationVersionNameNotification
             The primitive representation of the current Item.
         """
-        from pynetdicom.pdu_primitives import \
+        from pynetdicom.pdu_primitives import (
             ImplementationVersionNameNotification
+        )
 
         prim = ImplementationVersionNameNotification()
         prim.implementation_version_name = self.implementation_version_name
@@ -2266,12 +2280,14 @@ class AsynchronousOperationsWindowSubItem(PDUItem):
 
     @property
     def max_operations_invoked(self):
-        """Return the item's *Maximum Number Operations Invoked* field value."""
+        """Return the item's *Maximum Number Operations Invoked* field value.
+        """
         return self.maximum_number_operations_invoked
 
     @property
     def max_operations_performed(self):
-        """Return the item's *Maximum Number Operations Performed* field value."""
+        """Return the item's *Maximum Number Operations Performed* field value.
+        """
         return self.maximum_number_operations_performed
 
     def __str__(self):
@@ -2290,9 +2306,9 @@ class AsynchronousOperationsWindowSubItem(PDUItem):
 class SCP_SCU_RoleSelectionSubItem(PDUItem):
     """An SCP/SCU Role Selection Sub-item.
 
-    An SCU/SCU Role Selection Sub-item allows communicating Application Entities
-    to negotiate the roles in which they will server for each SOP Class or
-    Meta SOP Class supported on the association.
+    An SCU/SCU Role Selection Sub-item allows communicating Application
+    Entities to negotiate the roles in which they will server for each SOP
+    Class or Meta SOP Class supported on the association.
 
     Attributes
     ----------
@@ -2675,7 +2691,9 @@ class SOPClassExtendedNegotiationSubItem(PDUItem):
 
     @property
     def app_info(self):
-        """Return the item's *Service Class Application Information* field value."""
+        """Return the item's *Service Class Application Information* field
+        value.
+        """
         return self.service_class_application_information
 
     @property
@@ -3031,7 +3049,10 @@ class SOPClassCommonExtendedNegotiationSubItem(PDUItem):
             ('sop_class_uid', self._wrap_encode_uid, []),
             ('service_class_uid_length', PACK_UINT2, []),
             ('service_class_uid', self._wrap_encode_uid, []),
-            ('related_general_sop_class_identification_length', PACK_UINT2, []),
+            (
+                'related_general_sop_class_identification_length',
+                PACK_UINT2, []
+            ),
             ('related_general_sop_class_identification', self._wrap_list, []),
             # (None, )
         ]
@@ -3069,7 +3090,7 @@ class SOPClassCommonExtendedNegotiationSubItem(PDUItem):
         References
         ----------
         * DICOM Standard, Part 7,
-           :dcm:`Annex D.3.3.6 <http://dicom.nema.org/medical/dicom/current/output/html/part07.html#sect_D.3.3.6>`_
+           :dcm:`Annex D.3.3.6 <part07/sect_D.3.3.6.html>`
         * DICOM Standard, Part 8,
            :dcm:`Section 9.3.1<part08/sect_9.3.html#sect_9.3.1>`
         """
@@ -3096,7 +3117,9 @@ class SOPClassCommonExtendedNegotiationSubItem(PDUItem):
 
     @property
     def related_general_sop_class_identification(self):
-        """Return the item's *Related General SOP Class Identification* field value."""
+        """Return the item's *Related General SOP Class Identification* field
+        value.
+        """
         return self._related_general_sop_class_identification
 
     @related_general_sop_class_identification.setter
@@ -3217,7 +3240,9 @@ class SOPClassCommonExtendedNegotiationSubItem(PDUItem):
         s += "  SOP class: ={0!s}\n".format(self.sop_class_uid.name)
         s += "  Service class UID length: {0:d} bytes\n".format(
             self.service_class_uid_length)
-        s += "  Service class UID: ={0!s}\n".format(self.service_class_uid.name)
+        s += (
+            "  Service class UID: ={0!s}\n".format(self.service_class_uid.name)
+        )
         s += "  Related general SOP class ID length: {0:d} bytes\n".format(
             self.related_general_sop_class_identification_length)
         s += "  Related general SOP class ID(s):\n"
@@ -3500,7 +3525,8 @@ class UserIdentitySubItemRQ(PDUItem):
 
     @property
     def response_requested(self):
-        """Return the item's *Positive Response Requested* field value as bool."""
+        """Return the item's *Positive Response Requested* field value as bool.
+        """
         if self.positive_response_requested is not None:
             return bool(self.positive_response_requested)
 

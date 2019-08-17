@@ -2,19 +2,10 @@
 
 import logging
 
-from pynetdicom.dimse_messages import *
+#from pynetdicom.dimse_messages import *
 from pynetdicom.pdu import (
     A_ASSOCIATE_RQ, A_ASSOCIATE_AC, A_ASSOCIATE_RJ, A_RELEASE_RQ,
     A_RELEASE_RP, A_ABORT_RQ, P_DATA_TF
-)
-from pynetdicom.pdu_primitives import (
-    A_ASSOCIATE, A_RELEASE, A_ABORT, A_P_ABORT,
-    SOPClassExtendedNegotiation,
-    SOPClassCommonExtendedNegotiation,
-    SCP_SCU_RoleSelectionNegotiation,
-    AsynchronousOperationsWindowNegotiation,
-    UserIdentityNegotiation,
-    ImplementationVersionNameNotification
 )
 from pynetdicom.sop_class import uid_to_service_class
 from pynetdicom.utils import pretty_bytes
@@ -42,9 +33,8 @@ def standard_pdu_recv_handler(event):
           that received the PDU.
         * ``pdu``: the PDU that was received, one of the ``pdu.PDU``
           subclasses.
-        * :attr:`~pynetdicom.events.Event.timestamp`: the
-          `date and time <https://docs.python.org/3/library/datetime.html#datetime-objects>`_
-          that the PDU was received.
+        * :attr:`~pynetdicom.events.Event.timestamp`: the date and time that
+          the PDU was received as :class:`datetime.datetime`.
     """
     pdu = event.pdu
     handlers = {
@@ -76,9 +66,8 @@ def standard_pdu_sent_handler(event):
           :class:`~pynetdicom.association.Association`
           that sent the PDU.
         * ``pdu``: the PDU that was sent, one of the ``pdu.PDU`` subclasses.
-        * :attr:`~pynetdicom.events.Event.timestamp`: the
-          `date and time <https://docs.python.org/3/library/datetime.html#datetime-objects>`_
-          that the PDU was sent.
+        * :attr:`~pynetdicom.events.Event.timestamp`: the date and time that
+          the PDU was sent as :class:`datetime.datetime`.
     """
     pdu = event.pdu
     handlers = {
@@ -100,15 +89,15 @@ def standard_dimse_recv_handler(event):
     ----------
     event : events.Event
         The ``evt.EVT_DIMSE_RECV`` event corresponding to the DIMSE decoding
-        a message received from the peer. :class:`~pynetdicom.events.Event` attributes are:
+        a message received from the peer. :class:`~pynetdicom.events.Event`
+        attributes are:
 
         * :attr:`~pynetdicom.events.Event.assoc`: the
           :class:`~pynetdicom.association.Association`
           that the DIMSE is providing services for.
         * ``message``: the DIMSE message that was received.
-        * :attr:`~pynetdicom.events.Event.timestamp`: the
-          `date and time <https://docs.python.org/3/library/datetime.html#datetime-objects>`_
-          that the message was decoded.
+        * :attr:`~pynetdicom.events.Event.timestamp`: the date and time that
+          the message was decoded as :class:`datetime.datetime`.
     """
     handlers = {
         C_ECHO_RQ: _recv_c_echo_rq,
@@ -146,15 +135,15 @@ def standard_dimse_sent_handler(event):
     ----------
     event : events.Event
         The ``evt.EVT_DIMSE_SENT`` event corresponding to the DIMSE encoding
-        a message to be sent to the peer. :class:`~pynetdicom.events.Event` attributes are:
+        a message to be sent to the peer. :class:`~pynetdicom.events.Event`
+        attributes are:
 
         * :attr:`~pynetdicom.events.Event.assoc`: the
           :class:`~pynetdicom.association.Association`
           that the DIMSE is providing services for.
         * ``message``: the DIMSE message to be sent.
-        * :attr:`~pynetdicom.events.Event.timestamp`: the
-          `date and time <https://docs.python.org/3/library/datetime.html#datetime-objects>`_
-          that the message was decoded.
+        * :attr:`~pynetdicom.events.Event.timestamp`: the date and time that
+          the message was decode as :class:`datetime.datetime`.
     """
     handlers = {
         C_ECHO_RQ: _send_c_echo_rq,
@@ -2777,7 +2766,8 @@ def doc_handle_action(event):
         * :attr:`~pynetdicom.events.Event.context`: the presentation context
           the request was sent under
           as a :class:`~pynetdicom.presentation.PresentationContextTuple`.
-        * :attr:`~pynetdicom.events.Event.event`: the event that occurred as :class:`~pynetdicom.events.InterventionEvent`.
+        * :attr:`~pynetdicom.events.Event.event`: the event that occurred as
+          :class:`~pynetdicom.events.InterventionEvent`.
         * :attr:`~pynetdicom.events.Event.request`: the received
           :class:`N-ACTION request <pynetdicom.dimse_primitives.N_ACTION>`
         * :attr:`~pynetdicom.events.Event.timestamp`: the date and time
@@ -3785,28 +3775,28 @@ def doc_handle_dimse(event):
         * :attr:`~pynetdicom.events.Event.event`: the event that occurred as
           :class:`~pynetdicom.events.NotificationEvent`.
         * ``message``: the DIMSE message encoding or decoded. One of
-          :class:`C_ECHO_RQ<pynetdicom.dimse_messages.C_ECHO_RQ>`,
-          :class:`C_ECHO_RQ<pynetdicom.dimse_messages.C_ECHO_RSP>`,
-          :class:`C_FIND_RQ<pynetdicom.dimse_messages.C_FIND_RQ>`,
-          :class:`C_FIND_RSP<pynetdicom.dimse_messages.C_FIND_RSP>`,
-          :class:`C_GET_RQ<pynetdicom.dimse_messages.C_GET_RQ>`,
-          :class:`C_GET_RSP<pynetdicom.dimse_messages.C_GET_RSP>`,
-          :class:`C_MOVE_RQ<pynetdicom.dimse_messages.C_MOVE_RQ>`,
-          :class:`C_MOVE_RSP<pynetdicom.dimse_messages.C_MOVE_RSP>`,
-          :class:`C_STORE_RQ<pynetdicom.dimse_messages.C_STORE_RQ>`,
-          :class:`C_STORE_RSP<pynetdicom.dimse_messages.C_STORE_RSP>`,
-          :class:`N_ACTION_RQ<pynetdicom.dimse_messages.N_ACTION_RQ>`,
-          :class:`N_ACTION_RSP<pynetdicom.dimse_messages.N_ACTION_RSP>`,
-          :class:`N_CREATE_RQ<pynetdicom.dimse_messages.N_CREATE_RQ>`,
-          :class:`N_CREATE_RSP<pynetdicom.dimse_messages.N_CREATE_RSP>`,
-          :class:`N_DELETE_RQ<pynetdicom.dimse_messages.N_DELETE_RQ>`,
-          :class:`N_DELETE_RSP<pynetdicom.dimse_messages.N_DELETE_RSP>`,
-          :class:`N_EVENT_REPORT_RQ<pynetdicom.dimse_messages.N_EVENT_REPORT_RQ>`,
-          :class:`N_EVENT_REPORT_RSP<pynetdicom.dimse_messages.N_EVENT_REPORT_RSP>`,
-          :class:`N_GET_RQ<pynetdicom.dimse_messages.N_GET_RQ>`,
-          :class:`N_GET_RSP<pynetdicom.dimse_messages.N_GET_RSP>`,
-          :class:`N_SET_RQ<pynetdicom.dimse_messages.N_SET_RQ>` or
-          :class:`N_SET_RSP<pynetdicom.dimse_messages.N_SET_RSP>`
+          :class:`~pynetdicom.dimse_messages.C_ECHO_RQ`,
+          :class:`~pynetdicom.dimse_messages.C_ECHO_RSP`,
+          :class:`~pynetdicom.dimse_messages.C_FIND_RQ`,
+          :class:`~pynetdicom.dimse_messages.C_FIND_RSP`,
+          :class:`~pynetdicom.dimse_messages.C_GET_RQ`,
+          :class:`~pynetdicom.dimse_messages.C_GET_RSP`,
+          :class:`~pynetdicom.dimse_messages.C_MOVE_RQ`,
+          :class:`~pynetdicom.dimse_messages.C_MOVE_RSP`,
+          :class:`~pynetdicom.dimse_messages.C_STORE_RQ`,
+          :class:`~pynetdicom.dimse_messages.C_STORE_RSP`,
+          :class:`~pynetdicom.dimse_messages.N_ACTION_RQ`,
+          :class:`~pynetdicom.dimse_messages.N_ACTION_RSP`,
+          :class:`~pynetdicom.dimse_messages.N_CREATE_RQ`,
+          :class:`~pynetdicom.dimse_messages.N_CREATE_RSP`,
+          :class:`~pynetdicom.dimse_messages.N_DELETE_RQ`,
+          :class:`~pynetdicom.dimse_messages.N_DELETE_RSP`,
+          :class:`~pynetdicom.dimse_messages.N_EVENT_REPORT_RQ`,
+          :class:`~pynetdicom.dimse_messages.N_EVENT_REPORT_RSP`,
+          :class:`~pynetdicom.dimse_messages.N_GET_RQ`,
+          :class:`~pynetdicom.dimse_messages.N_GET_RSP`,
+          :class:`~pynetdicom.dimse_messages.N_SET_RQ` or
+          :class:`~pynetdicom.dimse_messages.N_SET_RSP`
         * :attr:`~pynetdicom.events.Event.timestamp`: the date and time
           that the message was processed as :class:`datetime.datetime`.
     """

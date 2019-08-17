@@ -8,7 +8,7 @@ from pynetdicom.pdu import (
     A_ASSOCIATE_RQ, A_ASSOCIATE_RJ, A_ASSOCIATE_AC,
     P_DATA_TF, A_RELEASE_RQ, A_RELEASE_RP, A_ABORT_RQ
 )
-from pynetdicom.pdu_primitives import A_ABORT, A_P_ABORT
+from pynetdicom.pdu_primitives import A_P_ABORT
 
 
 LOGGER = logging.getLogger('pynetdicom.sm')
@@ -819,8 +819,8 @@ def AA_4(dul):
 def AA_5(dul):
     """Association abort AA-5.
 
-    If connection closed during association request, stop ARTIM timer and return
-    to Idle
+    If connection closed during association request, stop ARTIM timer and
+    return to Idle
 
     State-event triggers: Sta2 + Evt17
 

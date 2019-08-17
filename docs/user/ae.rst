@@ -373,7 +373,7 @@ Handling SCP/SCU Role Selection Negotiation
 
 Depending on the requirements of the service class, an association *Requestor*
 may include
-`SCP/SCU Role Selection Negotiation <http://dicom.nema.org/medical/dicom/current/output/chtml/part07/sect_D.3.3.4.html>`_
+:dcm:`SCP/SCU Role Selection Negotiation <part07/sect_D.3.3.4.html>`
 items in the association request and it's up to the association *Acceptor*
 to decide whether or not to accept the proposed roles. This can be done
 through the *scu_role* and *scp_role* keyword arguments, which control whether

@@ -1,12 +1,10 @@
 """
 Defines the Association class which handles associating with peers.
 """
-import gc
 from io import BytesIO
 import logging
 import threading
 import time
-import warnings
 
 from pydicom.dataset import Dataset
 from pydicom.uid import UID
@@ -413,7 +411,8 @@ class Association(threading.Thread):
             ``'acceptor'``. If ``'requestor'`` then its assumed that the local
             AE requests an association with peers and (by default) acts as the
             SCU. If ``'acceptor'`` then its assumed that the local AE is
-            listening for association requests and (by default) acts as the SCP.
+            listening for association requests and (by default) acts as the
+            SCP.
         """
         mode = mode.lower()
         if mode not in [MODE_REQUESTOR, MODE_ACCEPTOR]:
@@ -1492,8 +1491,8 @@ class Association(threading.Thread):
               | ``0xB006`` - Element discarded
               | ``0xB007`` - Data set does not match SOP class
 
-            *Non-Patient Object Service Class* specific (DICOM Standard, Part 4,
-            Annex GG.4.2)
+            *Non-Patient Object Service Class* specific (DICOM Standard, Part
+            4, Annex GG.4.2)
 
             Failure
               | ``0xA700`` - Out of resources
@@ -2133,16 +2132,16 @@ class Association(threading.Thread):
 
             Failure
               | ``0xC616`` - There is an existing Film Box that has not been
-                printed and N-ACTION at the Film Session level is not supported.
-                A new Film Box will not be created when a previous Film Box has
-                not been printed
+                printed and N-ACTION at the Film Session level is not
+                supported. A new Film Box will not be created when a previous
+                Film Box has not been printed
 
             *Media Creation Management Service* specific (DICOM
             Standard Part 4, Annex S.3.2.1.4):
 
             Failure
-              | ``0xA510`` - Failed: an initiate media creation action has already been
-                received for this SOP Instance
+              | ``0xA510`` - Failed: an initiate media creation action has
+                already been received for this SOP Instance
 
             *Unified Procedure Step Service* specific (DICOM
             Standard Part 4, Annex CC.2.5.4):
@@ -2151,18 +2150,21 @@ class Association(threading.Thread):
               | ``0xB300`` - THE UPS was created with modifications
 
             Failure
-              | ``0xC309`` - The provided value of UPS State was not 'SCHEDULED'
+              | ``0xC309`` - The provided value of UPS State was not
+                'SCHEDULED'
 
             *RT Machine Verification Service* specific (DICOM
             Standard Part 4, Annex DD.3.2.1.2):
 
             Failure
-              | ``0xC221`` - The Referenced Fraction Group Number does not exist in the
-                referenced plan
-              | ``0xC222`` - No beams exist within the referenced fraction group
-              | ``0xC223`` - SCU already verifying and cannot currently process this
-                request
-              | ``0xC227`` - No such object instance - Referenced RT Plan not found
+              | ``0xC221`` - The Referenced Fraction Group Number does not
+                exist in the referenced plan
+              | ``0xC222`` - No beams exist within the referenced fraction
+                group
+              | ``0xC223`` - SCU already verifying and cannot currently process
+                this request
+              | ``0xC227`` - No such object instance - Referenced RT Plan not
+                found
 
         attribute_list : pydicom.dataset.Dataset or None
             If the status category is 'Success' or 'Warning' then a

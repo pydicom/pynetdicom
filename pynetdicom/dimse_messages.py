@@ -184,8 +184,8 @@ class DIMSEMessage(object):
     A Command Set is constructed of Command Elements. Command Elements contain
     the encoded values for each field of the Command Set per the semantics
     specified in the DIMSE protocol (PS3.7 9.2 and 10.2). Each Command Element
-    is composed of an explicit Tag, Value Length and a Value field. The encoding
-    of the Command Set shall be *Little Endian Implicit VR*.
+    is composed of an explicit Tag, Value Length and a Value field. The
+    encoding of the Command Set shall be *Little Endian Implicit VR*.
 
     **Message Types**
 

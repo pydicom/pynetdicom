@@ -14,7 +14,6 @@ from pynetdicom.pdu_primitives import (
 from pynetdicom.presentation import (
     negotiate_as_requestor, negotiate_as_acceptor
 )
-from pynetdicom.utils import pretty_bytes
 
 
 LOGGER = logging.getLogger('pynetdicom.acse')

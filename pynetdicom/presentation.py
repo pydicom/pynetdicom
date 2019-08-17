@@ -30,7 +30,6 @@ from pynetdicom.sop_class import (
     _UNIFIED_PROCEDURE_STEP_CLASSES,
     _VERIFICATION_CLASSES,
 )
-from pynetdicom._globals import DEFAULT_TRANSFER_SYNTAXES
 from pynetdicom.utils import validate_uid
 
 

@@ -591,7 +591,7 @@ class C_STORE(DIMSEPrimitive):
                 self._move_originator_application_entity_title = (
                     validate_ae_title(value)
                 )
-            except ValueError as exc:
+            except ValueError:
                 LOGGER.error(
                     "C-STORE request primitive contains an invalid "
                     "'Move Originator AE Title'"

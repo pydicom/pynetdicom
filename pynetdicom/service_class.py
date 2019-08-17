@@ -2,15 +2,14 @@
 
 from io import BytesIO
 import logging
-import sys
 import traceback
 
 from pydicom.dataset import Dataset
 
-from pynetdicom import _config, evt
+from pynetdicom import evt
 from pynetdicom.dsutils import decode, encode
 from pynetdicom.dimse_primitives import (
-    C_STORE, C_ECHO, C_MOVE, C_GET, C_FIND, C_CANCEL,
+    C_STORE, C_ECHO, C_MOVE, C_GET, C_FIND,
     N_ACTION, N_CREATE, N_DELETE, N_EVENT_REPORT, N_GET, N_SET
 )
 from pynetdicom._globals import (
@@ -22,7 +21,6 @@ from pynetdicom.status import (
     QR_FIND_SERVICE_CLASS_STATUS,
     QR_GET_SERVICE_CLASS_STATUS,
     QR_MOVE_SERVICE_CLASS_STATUS,
-    MODALITY_WORKLIST_SERVICE_CLASS_STATUS,
     NON_PATIENT_SERVICE_CLASS_STATUS,
     RELEVANT_PATIENT_SERVICE_CLASS_STATUS,
     SUBSTANCE_ADMINISTRATION_SERVICE_CLASS_STATUS,
@@ -355,45 +353,48 @@ class ServiceClass(object):
             Instance UID
           | ``0xC102`` - Event Information does not match Template
           | ``0xC103`` - Cannot match event to a current study
-          | ``0xC104`` - IDs inconsistent in matching a current study; Event not
-            logged
+          | ``0xC104`` - IDs inconsistent in matching a current study; Event
+            not logged
           | ``0xC10E`` - Operator not authorised to add entry to Medication
             Administration Record
-          | ``0xC110`` - Patient cannot be identified from Patient ID (0010,0020)
-            or Admission ID (0038,0010)
+          | ``0xC110`` - Patient cannot be identified from Patient ID
+            (0010,0020) or Admission ID (0038,0010)
           | ``0xC111`` - Update of Medication Administration Record failed
           | ``0xC112`` - Machine Verification requested instance not found
           | ``0xC300`` - The UPS may no longer be updated
           | ``0xC301`` - The correct Transaction UID was not provided
           | ``0xC302`` - The UPS is already IN PROGRESS
-          | ``0xC303`` - The UPS may only become SCHEDULED via N-CREATE, not N-SET
-            or N-ACTION
+          | ``0xC303`` - The UPS may only become SCHEDULED via N-CREATE, not
+            N-SET or N-ACTION
           | ``0xC304`` - The UPS has not met final state requirements for the
             requested state change
-          | ``0xC307`` - Specified SOP Instance UID does not exist or is not a UPS
-            Instance managed by this SCP
+          | ``0xC307`` - Specified SOP Instance UID does not exist or is not a
+            UPS Instance managed by this SCP
           | ``0xC308`` - Receiving AE-TITLE is Unknown to this SCP
           | ``0xC310`` - The UPS is not yet in the IN PROGRESS state
           | ``0xC311`` - The UPS is already COMPLETED
           | ``0xC312`` - The performer cannot be contacted
           | ``0xC313`` - Performer chooses not to cancel
-          | ``0xC314`` - Specified action not appropriate for specified instance
+          | ``0xC314`` - Specified action not appropriate for specified
+            instance
           | ``0xC315`` - SCP does not support Event Reports
-          | ``0xC600`` - Film Session SOP Instance hierarchy does not contain Film
-            Box SOP Instances
-          | ``0xC601`` - Unable to create Print Job SOP Instance; print queue is
-            full
-          | ``0xC602`` - Unable to create Print Job SOP Instance; print queue is
-            full
+          | ``0xC600`` - Film Session SOP Instance hierarchy does not contain
+            Film Box SOP Instances
+          | ``0xC601`` - Unable to create Print Job SOP Instance; print queue
+            is full
+          | ``0xC602`` - Unable to create Print Job SOP Instance; print queue
+            is full
           | ``0xC603`` - Image size is larger than image box size
-          | ``0xC613`` - Combined Print Image size is larger than Image Box size
+          | ``0xC613`` - Combined Print Image size is larger than Image Box
+            size
 
         Warning
-          | ``0xB101`` - Specified Synchronisation Frame of Reference UID does not
-            match SOP Synchronisation Frame of Reference
+          | ``0xB101`` - Specified Synchronisation Frame of Reference UID does
+            not match SOP Synchronisation Frame of Reference
           | ``0xB102`` - Study Instance UID coercion; Event logged under a
             different Study Instance UID
-          | ``0xB104`` - IDs inconsistent in matching a current study; Event logged
+          | ``0xB104`` - IDs inconsistent in matching a current study; Event
+            logged
           | ``0xB301`` - Deletion Lock not granted
           | ``0xB304`` - The UPS is already in the requested state of CANCELED
           | ``0xB306`` - The UPS is already in the requested state of COMPLETED
@@ -402,13 +403,13 @@ class ServiceClass(object):
             Image Box SOP Instances (empty page)
           | ``0xB603`` - Film Box SOP Instance hierarchy does not contain Image
             Box SOP Instances (empty page)
-          | ``0xB604`` - Image size is larger than Image Box size, the image has
-            been demagnified
-          | ``0xB609`` - Image size is larger than Image Box size, the image has
-            been cropped to fit.
-          | ``0xB60A`` - Image size or Combined Print Image size is larger than the
-            Image Box size. Image or Combined Print Image has been decimated to
-            fit.
+          | ``0xB604`` - Image size is larger than Image Box size, the image
+            has been demagnified
+          | ``0xB609`` - Image size is larger than Image Box size, the image
+            has been cropped to fit.
+          | ``0xB60A`` - Image size or Combined Print Image size is larger than
+            the Image Box size. Image or Combined Print Image has been
+            decimated to fit.
 
         References
         ----------
@@ -1941,7 +1942,8 @@ class QueryRetrieveServiceClass(ServiceClass):
                 # Exception raised by handler
                 if isinstance(rsp_status, Exception):
                     LOGGER.error(
-                        "Exception raised by handler bound to 'evt.EVT_C_MOVE'",
+                        "Exception raised by handler bound to "
+                        "'evt.EVT_C_MOVE'",
                         exc_info=dataset
                     )
                     rsp_status = 0xC511
@@ -2157,9 +2159,6 @@ class BasicWorklistManagementServiceClass(QueryRetrieveServiceClass):
     """Implementation of the Basic Worklist Management Service Class."""
     statuses = QR_FIND_SERVICE_CLASS_STATUS
 
-    def __init__(self, assoc):
-        super(BasicWorklistManagementServiceClass, self).__init__(assoc)
-
     def SCP(self, req, context):
         """The SCP implementation for Basic Worklist Management.
 
@@ -2340,9 +2339,6 @@ class RelevantPatientInformationQueryServiceClass(ServiceClass):
 class SubstanceAdministrationQueryServiceClass(QueryRetrieveServiceClass):
     """Implementation of the Substance Administration Query Service"""
     statuses = SUBSTANCE_ADMINISTRATION_SERVICE_CLASS_STATUS
-
-    def __init__(self, assoc):
-        super(SubstanceAdministrationQueryServiceClass, self).__init__(assoc)
 
     def SCP(self, req, context):
         """The SCP implementation for the Relevant Patient Information Query
