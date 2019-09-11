@@ -218,7 +218,7 @@ Check the
             # Pending
             yield (0xFF00, instance)
 
-    handlers = [(evt.EVT_C_GET), handle_get]
+    handlers = [(evt.EVT_C_GET, handle_get)]
 
     # Create application entity
     ae = AE()

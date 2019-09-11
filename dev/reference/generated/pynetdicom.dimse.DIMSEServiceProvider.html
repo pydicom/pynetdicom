@@ -202,7 +202,7 @@
 <h1>pynetdicom.dimse.DIMSEServiceProvider<a class="headerlink" href="#pynetdicom-dimse-dimseserviceprovider" title="Permalink to this headline">¶</a></h1>
 <dl class="class">
 <dt id="pynetdicom.dimse.DIMSEServiceProvider">
-<em class="property">class </em><code class="sig-prename descclassname">pynetdicom.dimse.</code><code class="sig-name descname">DIMSEServiceProvider</code><span class="sig-paren">(</span><em class="sig-param">assoc</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/13a10ab8/pynetdicom/dimse.py#L58"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom.dimse.DIMSEServiceProvider" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="sig-prename descclassname">pynetdicom.dimse.</code><code class="sig-name descname">DIMSEServiceProvider</code><span class="sig-paren">(</span><em class="sig-param">assoc</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/68fd9805/pynetdicom/dimse.py#L58"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom.dimse.DIMSEServiceProvider" title="Permalink to this definition">¶</a></dt>
 <dd><p>The DIMSE service provider.</p>
 <p><strong>Messages</strong></p>
 <table class="docutils align-default">
@@ -341,7 +341,7 @@ peer, except for C-CANCEL requests.</p>
 </ul>
 <dl class="method">
 <dt id="pynetdicom.dimse.DIMSEServiceProvider.__init__">
-<code class="sig-name descname">__init__</code><span class="sig-paren">(</span><em class="sig-param">assoc</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/13a10ab8/pynetdicom/dimse.py#L130"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom.dimse.DIMSEServiceProvider.__init__" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">__init__</code><span class="sig-paren">(</span><em class="sig-param">assoc</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/68fd9805/pynetdicom/dimse.py#L130"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom.dimse.DIMSEServiceProvider.__init__" title="Permalink to this definition">¶</a></dt>
 <dd><p>Initialise the DIMSE service provider.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -415,7 +415,7 @@ peer, except for C-CANCEL requests.</p>
 
 <dl class="method">
 <dt id="pynetdicom.dimse.DIMSEServiceProvider.get_msg">
-<code class="sig-name descname">get_msg</code><span class="sig-paren">(</span><em class="sig-param">block=False</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/13a10ab8/pynetdicom/dimse.py#L159"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom.dimse.DIMSEServiceProvider.get_msg" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">get_msg</code><span class="sig-paren">(</span><em class="sig-param">block=False</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/68fd9805/pynetdicom/dimse.py#L159"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom.dimse.DIMSEServiceProvider.get_msg" title="Permalink to this definition">¶</a></dt>
 <dd><p>Get the next available DIMSE message.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -442,7 +442,7 @@ within the <a class="reference internal" href="#pynetdicom.dimse.DIMSEServicePro
 
 <dl class="method">
 <dt id="pynetdicom.dimse.DIMSEServiceProvider.peek_msg">
-<code class="sig-name descname">peek_msg</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/13a10ab8/pynetdicom/dimse.py#L189"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom.dimse.DIMSEServiceProvider.peek_msg" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">peek_msg</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/68fd9805/pynetdicom/dimse.py#L189"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom.dimse.DIMSEServiceProvider.peek_msg" title="Permalink to this definition">¶</a></dt>
 <dd><p>Return the first message in the message queue or <code class="docutils literal notranslate"><span class="pre">None</span></code>.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Returns</dt>
@@ -458,7 +458,7 @@ of the queue.</p>
 
 <dl class="method">
 <dt id="pynetdicom.dimse.DIMSEServiceProvider.receive_primitive">
-<code class="sig-name descname">receive_primitive</code><span class="sig-paren">(</span><em class="sig-param">primitive</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/13a10ab8/pynetdicom/dimse.py#L204"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom.dimse.DIMSEServiceProvider.receive_primitive" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">receive_primitive</code><span class="sig-paren">(</span><em class="sig-param">primitive</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/68fd9805/pynetdicom/dimse.py#L204"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom.dimse.DIMSEServiceProvider.receive_primitive" title="Permalink to this definition">¶</a></dt>
 <dd><p>Process a P-DATA primitive received from the remote.</p>
 <p>A DIMSE message is split into one or more P-DATA primitives, which
 must be sent in sequential order. While waiting for all the P-DATA
@@ -477,7 +477,7 @@ DIMSE messages while a service class implementation is running.</p>
 
 <dl class="method">
 <dt id="pynetdicom.dimse.DIMSEServiceProvider.send_msg">
-<code class="sig-name descname">send_msg</code><span class="sig-paren">(</span><em class="sig-param">primitive</em>, <em class="sig-param">context_id</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/13a10ab8/pynetdicom/dimse.py#L258"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom.dimse.DIMSEServiceProvider.send_msg" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">send_msg</code><span class="sig-paren">(</span><em class="sig-param">primitive</em>, <em class="sig-param">context_id</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/68fd9805/pynetdicom/dimse.py#L258"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom.dimse.DIMSEServiceProvider.send_msg" title="Permalink to this definition">¶</a></dt>
 <dd><p>Send a DIMSE-C or DIMSE-N message to the peer AE.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>

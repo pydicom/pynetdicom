@@ -396,7 +396,7 @@ query against that.</p>
         <span class="c1"># Pending</span>
         <span class="k">yield</span> <span class="p">(</span><span class="mh">0xFF00</span><span class="p">,</span> <span class="n">instance</span><span class="p">)</span>
 
-<span class="n">handlers</span> <span class="o">=</span> <span class="p">[(</span><span class="n">evt</span><span class="o">.</span><span class="n">EVT_C_GET</span><span class="p">),</span> <span class="n">handle_get</span><span class="p">]</span>
+<span class="n">handlers</span> <span class="o">=</span> <span class="p">[(</span><span class="n">evt</span><span class="o">.</span><span class="n">EVT_C_GET</span><span class="p">,</span> <span class="n">handle_get</span><span class="p">)]</span>
 
 <span class="c1"># Create application entity</span>
 <span class="n">ae</span> <span class="o">=</span> <span class="n">AE</span><span class="p">()</span>
