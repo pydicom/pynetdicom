@@ -31,3 +31,19 @@ Examples
 >>> from pynetdicom import _config
 >>> _config.ENFORCE_UID_CONFORMANCE = True
 """
+
+
+USE_SHORT_DIMSE_AET = False
+"""Use short AE titles in DIMSE messages.
+
+If ``False`` then elements with a VR of AE in DIMSE messages will be padded
+with trailing spaces up to the maximum allowable length (16 bytes), otherwise
+they will be padded with zero or one space to the smallest possible even
+length (i.e an AE title with 7 characters will be trailing padded to 8).
+
+Examples
+--------
+
+>>> from pynetdicom import _config
+>>> _config.USE_SHORT_DIMSE_AET = True
+"""

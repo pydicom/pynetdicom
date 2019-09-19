@@ -71,7 +71,7 @@ def pretty_bytes(bytestream, prefix='  ', delimiter='  ', items_per_line=16,
     return lines
 
 
-def validate_ae_title(ae_title):
+def validate_ae_title(ae_title, use_short=False):
     """Return a valid AE title from `ae_title`, if possible.
 
     An AE title:
@@ -93,6 +93,10 @@ def validate_ae_title(ae_title):
     ----------
     ae_title : bytes
         The AE title to check.
+    use_short : bool, optional
+        If ``False`` (default) then pad AE titles with trailing spaces up to
+        the maximum allowable length (16 bytes), otherwise only pad odd length
+        AE titles with a single trailing space to make it even length.
 
     Returns
     -------
@@ -131,8 +135,12 @@ def validate_ae_title(ae_title):
 
     # Truncate if longer than 16 characters
     ae_title = ae_title[:16]
-    # Pad out to 16 characters using spaces
-    ae_title = ae_title.ljust(16)
+    if not use_short:
+        # Pad out to 16 characters using spaces
+        ae_title = ae_title.ljust(16)
+    elif len(ae_title) % 2:
+        # Pad to even length
+        ae_title += b'\x20'
 
     # Unicode category: 'Cc' is control characters
     invalid = [
