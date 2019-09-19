@@ -17,6 +17,7 @@ import logging
 from pydicom.tag import Tag
 from pydicom.uid import UID
 
+from pynetdicom import _config
 from pynetdicom.utils import validate_ae_title, validate_uid
 
 
@@ -589,7 +590,7 @@ class C_STORE(DIMSEPrimitive):
         if value:
             try:
                 self._move_originator_application_entity_title = (
-                    validate_ae_title(value)
+                    validate_ae_title(value, _config.USE_SHORT_DIMSE_AET)
                 )
             except ValueError:
                 LOGGER.error(
@@ -1154,7 +1155,9 @@ class C_MOVE(DIMSEPrimitive):
             value = codecs.encode(value, 'ascii')
 
         if value is not None:
-            self._move_destination = validate_ae_title(value)
+            self._move_destination = validate_ae_title(
+                value, _config.USE_SHORT_DIMSE_AET
+            )
         else:
             self._move_destination = None
 

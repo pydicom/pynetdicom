@@ -10,6 +10,14 @@ Fixes
   closing its sockets (:issue:`382`)
 * Improved the robustness of determining the local IP address (:issue:`394`)
 
+Enhancements
+............
+
+* Added configuration option :attr:`_config.USE_SHORT_DIMSE_AET
+  <pynetdicom._config.USE_SHORT_DIMSE_AET>` so elements with a VR of *AE* in
+  DIMSE messages are only padded to the shortest even length rather than to
+  the maximum 16 characters. (:issue:`403`)
+
 Changes
 .......
 
