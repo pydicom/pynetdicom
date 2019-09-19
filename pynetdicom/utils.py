@@ -140,7 +140,7 @@ def validate_ae_title(ae_title, use_short=False):
         ae_title = ae_title.ljust(16)
     elif len(ae_title) % 2:
         # Pad to even length
-        ae_title += b'\x20'
+        ae_title += ' '
 
     # Unicode category: 'Cc' is control characters
     invalid = [
