@@ -33,7 +33,7 @@ Examples
 """
 
 
-USE_SHORT_DIMSE_AET = False
+USE_SHORT_DIMSE_AET = True
 """Use short AE titles in DIMSE messages.
 
 If ``False`` then elements with a VR of AE in DIMSE messages will be padded
@@ -45,5 +45,5 @@ Examples
 --------
 
 >>> from pynetdicom import _config
->>> _config.USE_SHORT_DIMSE_AET = True
+>>> _config.USE_SHORT_DIMSE_AET = False
 """

@@ -4195,7 +4195,7 @@ class TestQRMoveServiceClass(object):
 
         req = attrs['request']
         assert isinstance(req, C_MOVE)
-        assert req.MoveDestination == b'TESTMOVE        '
+        assert req.MoveDestination == b'TESTMOVE'
 
         scp.shutdown()
 
@@ -4274,7 +4274,10 @@ class TestQRMoveServiceClass(object):
         ae.dimse_timeout = 5
         assoc = ae.associate('localhost', 11112)
         assert assoc.is_established
-        result = assoc.send_c_move(self.query, b'TESTMOVE', PatientRootQueryRetrieveInformationModelMove)
+        result = assoc.send_c_move(
+            self.query, b'TESTMOVE',
+            PatientRootQueryRetrieveInformationModelMove
+        )
         status, identifier = next(result)
         assert status.Status == 0xFF00
         assert identifier is None
@@ -4285,7 +4288,7 @@ class TestQRMoveServiceClass(object):
         assoc.release()
         assert assoc.is_released
 
-        assert attrs['destination'] == b'TESTMOVE        '
+        assert attrs['destination'] == b'TESTMOVE'
 
         scp.shutdown()
 

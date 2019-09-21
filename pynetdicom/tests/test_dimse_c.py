@@ -92,9 +92,9 @@ class TestPrimitive_C_STORE(object):
         assert primitive.Priority == 0x02
 
         primitive.MoveOriginatorApplicationEntityTitle = 'UNITTEST_SCP'
-        assert primitive.MoveOriginatorApplicationEntityTitle == b'UNITTEST_SCP    '
+        assert primitive.MoveOriginatorApplicationEntityTitle == b'UNITTEST_SCP'
         primitive.MoveOriginatorApplicationEntityTitle = b'UNITTEST_SCP'
-        assert primitive.MoveOriginatorApplicationEntityTitle == b'UNITTEST_SCP    '
+        assert primitive.MoveOriginatorApplicationEntityTitle == b'UNITTEST_SCP'
         primitive.MoveOriginatorApplicationEntityTitle = ''
         assert primitive.MoveOriginatorApplicationEntityTitle is None
         primitive.MoveOriginatorApplicationEntityTitle = b''
@@ -854,7 +854,7 @@ class TestPrimitive_C_MOVE(object):
         assert primitive.Priority == 0x02
 
         primitive.MoveDestination = 'UNITTEST_SCP'
-        assert primitive.MoveDestination == b'UNITTEST_SCP    '
+        assert primitive.MoveDestination == b'UNITTEST_SCP'
 
         ref_ds = Dataset()
         ref_ds.PatientID = 1234567
