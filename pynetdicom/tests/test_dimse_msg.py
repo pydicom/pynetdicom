@@ -198,13 +198,13 @@ class TestDIMSEMessage(object):
 
         # Test decoded command set
         cs = dimse_msg.command_set
-        assert cs.CommandGroupLength == 102
+        assert cs.CommandGroupLength == 94
         assert cs.AffectedSOPClassUID == UID('1.1.1')
         assert cs.AffectedSOPInstanceUID == UID('1.2.1')
         assert cs.Priority == 2
         assert cs.CommandDataSetType == 1
         assert cs.CommandField == 1
-        assert cs.MoveOriginatorApplicationEntityTitle == 'UNITTEST        '
+        assert cs.MoveOriginatorApplicationEntityTitle == 'UNITTEST'
         assert cs.MoveOriginatorMessageID == 3
 
         # Test decoded dataset
@@ -250,7 +250,7 @@ class TestDIMSEMessage(object):
         assert primitive.AffectedSOPClassUID == UID('1.1.1')
         assert primitive.AffectedSOPInstanceUID == UID('1.2.1')
         assert primitive.Priority == 2
-        assert primitive.MoveOriginatorApplicationEntityTitle == b'UNITTEST        '
+        assert primitive.MoveOriginatorApplicationEntityTitle == b'UNITTEST'
         assert primitive.MoveOriginatorMessageID == 3
 
         ds = decode(primitive.DataSet, True, True)
@@ -340,7 +340,7 @@ class TestDIMSEMessage(object):
         assert isinstance(primitive.Identifier, BytesIO)
         assert primitive.AffectedSOPClassUID == UID('1.2.840.10008.5.1.4.1.1.2')
         assert primitive.Priority == 2
-        assert primitive.MoveDestination == b'MOVE_SCP        '
+        assert primitive.MoveDestination == b'MOVE_SCP'
         assert primitive.MessageID == 7
 
         ds = decode(primitive.Identifier, True, True)
