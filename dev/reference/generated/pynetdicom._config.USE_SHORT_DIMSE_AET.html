@@ -197,7 +197,7 @@
 <h1>pynetdicom._config.USE_SHORT_DIMSE_AET<a class="headerlink" href="#pynetdicom-config-use-short-dimse-aet" title="Permalink to this headline">¶</a></h1>
 <dl class="data">
 <dt id="pynetdicom._config.USE_SHORT_DIMSE_AET">
-<code class="sig-prename descclassname">pynetdicom._config.</code><code class="sig-name descname">USE_SHORT_DIMSE_AET</code><em class="property"> = False</em><a class="headerlink" href="#pynetdicom._config.USE_SHORT_DIMSE_AET" title="Permalink to this definition">¶</a></dt>
+<code class="sig-prename descclassname">pynetdicom._config.</code><code class="sig-name descname">USE_SHORT_DIMSE_AET</code><em class="property"> = True</em><a class="headerlink" href="#pynetdicom._config.USE_SHORT_DIMSE_AET" title="Permalink to this definition">¶</a></dt>
 <dd><p>Use short AE titles in DIMSE messages.</p>
 <p>If <code class="docutils literal notranslate"><span class="pre">False</span></code> then elements with a VR of AE in DIMSE messages will be padded
 with trailing spaces up to the maximum allowable length (16 bytes), otherwise
@@ -205,7 +205,7 @@ they will be padded with zero or one space to the smallest possible even
 length (i.e an AE title with 7 characters will be trailing padded to 8).</p>
 <p class="rubric">Examples</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">pynetdicom</span> <span class="k">import</span> <span class="n">_config</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">_config</span><span class="o">.</span><span class="n">USE_SHORT_DIMSE_AET</span> <span class="o">=</span> <span class="kc">True</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">_config</span><span class="o">.</span><span class="n">USE_SHORT_DIMSE_AET</span> <span class="o">=</span> <span class="kc">False</span>
 </pre></div>
 </div>
 </dd></dl>
