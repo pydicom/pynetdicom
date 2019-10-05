@@ -43,6 +43,11 @@ CLIENT_CERT, CLIENT_KEY = (
     os.path.join(CERT_DIR, 'client.crt'),
     os.path.join(CERT_DIR, 'client.key')
 )
+CA_CERT, CA_KEY = (
+    os.path.join(CERT_DIR, 'ca.crt'),
+    os.path.join(CERT_DIR, 'ca.key')
+)
+
 
 DATASET = dcmread(os.path.join(DCM_DIR, 'RTImageStorage.dcm'))
 
@@ -194,7 +199,7 @@ def server_context(request):
     context = ssl.create_default_context(ssl.Purpose.CLIENT_AUTH)
     context.verify_mode = ssl.CERT_REQUIRED
     context.load_cert_chain(certfile=SERVER_CERT, keyfile=SERVER_KEY)
-    context.load_verify_locations(cafile=CLIENT_CERT)
+    context.load_verify_locations(cafile=CA_CERT)
     return context
 
 
@@ -205,6 +210,7 @@ def client_context(request):
         ssl.Purpose.CLIENT_AUTH, cafile=SERVER_CERT)
     context.verify_mode = ssl.CERT_REQUIRED
     context.load_cert_chain(certfile=CLIENT_CERT, keyfile=CLIENT_KEY)
+    context.load_verify_locations(cafile=CA_CERT)
     return context
 
 
