@@ -200,7 +200,7 @@
 <h1>pynetdicom.events.trigger<a class="headerlink" href="#pynetdicom-events-trigger" title="Permalink to this headline">¶</a></h1>
 <dl class="function">
 <dt id="pynetdicom.events.trigger">
-<code class="sig-prename descclassname">pynetdicom.events.</code><code class="sig-name descname">trigger</code><span class="sig-paren">(</span><em class="sig-param">assoc</em>, <em class="sig-param">event</em>, <em class="sig-param">attrs=None</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/e5bb27cc/pynetdicom/events.py#L143"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom.events.trigger" title="Permalink to this definition">¶</a></dt>
+<code class="sig-prename descclassname">pynetdicom.events.</code><code class="sig-name descname">trigger</code><span class="sig-paren">(</span><em class="sig-param">assoc</em>, <em class="sig-param">event</em>, <em class="sig-param">attrs=None</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/899900e7/pynetdicom/events.py#L143"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom.events.trigger" title="Permalink to this definition">¶</a></dt>
 <dd><p>Trigger an <cite>event</cite> and call any bound handler(s).</p>
 <p>Notification events can be bound to multiple handlers, intervention events
 can only be bound to a single handler.</p>
@@ -227,13 +227,13 @@ the decoded <em>Modification List</em> parameter value.</p></li>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>assoc</strong> (<em>assoc.Association</em>) – The association in which the event occurred.</p></li>
 <li><p><strong>event</strong> (<a class="reference internal" href="pynetdicom.events.NotificationEvent.html#pynetdicom.events.NotificationEvent" title="pynetdicom.events.NotificationEvent"><em>events.NotificationEvent</em></a><em> or </em><a class="reference internal" href="pynetdicom.events.InterventionEvent.html#pynetdicom.events.InterventionEvent" title="pynetdicom.events.InterventionEvent"><em>events.InterventionEvent</em></a>) – The event to trigger.</p></li>
-<li><p><strong>attrs</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.7)"><em>dict</em></a><em>, </em><em>optional</em>) – The attributes to set in the <a class="reference internal" href="pynetdicom.events.Event.html#pynetdicom.events.Event" title="pynetdicom.events.Event"><code class="xref py py-class docutils literal notranslate"><span class="pre">Event</span></code></a> instance that is passed to
+<li><p><strong>attrs</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.8)"><em>dict</em></a><em>, </em><em>optional</em>) – The attributes to set in the <a class="reference internal" href="pynetdicom.events.Event.html#pynetdicom.events.Event" title="pynetdicom.events.Event"><code class="xref py py-class docutils literal notranslate"><span class="pre">Event</span></code></a> instance that is passed to
 the event’s corresponding handler functions as
 <code class="docutils literal notranslate"><span class="pre">{attribute</span> <span class="pre">name</span> <span class="pre">:</span> <span class="pre">value}</span></code>, default <code class="docutils literal notranslate"><span class="pre">{}</span></code>.</p></li>
 </ul>
 </dd>
 <dt class="field-even">Raises</dt>
-<dd class="field-even"><p><a class="reference external" href="https://docs.python.org/3/library/exceptions.html#Exception" title="(in Python v3.7)"><strong>Exception</strong></a> – If an exception occurs in an intervention event handler then the
+<dd class="field-even"><p><a class="reference external" href="https://docs.python.org/3/library/exceptions.html#Exception" title="(in Python v3.8)"><strong>Exception</strong></a> – If an exception occurs in an intervention event handler then the
     exception will be raised. If an exception occurs in a notification
     handler then the exception will be caught and logged instead.</p>
 </dd>

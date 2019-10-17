@@ -199,6 +199,9 @@ closing its sockets (<a class="reference external" href="https://github.com/pydi
 <li><p>Added configuration option <a class="reference internal" href="../reference/generated/pynetdicom._config.USE_SHORT_DIMSE_AET.html#pynetdicom._config.USE_SHORT_DIMSE_AET" title="pynetdicom._config.USE_SHORT_DIMSE_AET"><code class="xref py py-attr docutils literal notranslate"><span class="pre">_config.USE_SHORT_DIMSE_AET</span></code></a> so elements with a VR of <em>AE</em> in
 DIMSE messages are only padded to the shortest even length rather than to
 the maximum 16 characters. (<a class="reference external" href="https://github.com/pydicom/pynetdicom/issues/403">#403</a>)</p></li>
+<li><p>When acting as the association Acceptor check that the user hasn’t sent
+and A-ABORT or A-ASSOCIATE-RJ before attempting association negotiation
+(<a class="reference external" href="https://github.com/pydicom/pynetdicom/issues/408">#408</a>)</p></li>
 </ul>
 </div>
 <div class="section" id="changes">

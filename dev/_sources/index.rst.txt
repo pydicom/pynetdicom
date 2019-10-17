@@ -132,6 +132,8 @@ Applications
 Release Notes
 .............
 
+* `v1.5.0 <changelog/index.html#v1-5-0>`_
+* `v1.4.1 <changelog/index.html#v1-4-1>`_
 * `v1.4.0 <changelog/index.html#v1-4-0>`_
 * `v1.3.1 <changelog/index.html#v1-3-1>`_
 * `v1.3.0 <changelog/index.html#v1-3-0>`_

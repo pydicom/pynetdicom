@@ -229,7 +229,7 @@ characters.</p></li>
 </ul>
 <p>AE titles in <em>pynetdicom</em> are checked for validity (using
 <a class="reference internal" href="../reference/generated/pynetdicom.utils.validate_ae_title.html#pynetdicom.utils.validate_ae_title" title="pynetdicom.utils.validate_ae_title"><code class="xref py py-func docutils literal notranslate"><span class="pre">validate_ae_title()</span></code></a>) and then stored as length 16
-<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#bytes" title="(in Python v3.7)"><code class="xref py py-class docutils literal notranslate"><span class="pre">bytes</span></code></a>, with trailing spaces added as padding if required. This can
+<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#bytes" title="(in Python v3.8)"><code class="xref py py-class docutils literal notranslate"><span class="pre">bytes</span></code></a>, with trailing spaces added as padding if required. This can
 be important to remember when dealing with AE titles as the value you set may
 not be the value that gets stored.</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">ae</span><span class="o">.</span><span class="n">ae_title</span> <span class="o">=</span> <span class="sa">b</span><span class="s1">&#39;MY_AE_TITLE&#39;</span>
@@ -306,7 +306,7 @@ convenience function:</p>
 </div>
 <p>As the association <em>Requestor</em> you’re limited to a total of 128 requested
 presentation contexts, so attempting to add more than 128 contexts will raise
-a <a class="reference external" href="https://docs.python.org/3/library/exceptions.html#ValueError" title="(in Python v3.7)"><code class="xref py py-class docutils literal notranslate"><span class="pre">ValueError</span></code></a> exception.</p>
+a <a class="reference external" href="https://docs.python.org/3/library/exceptions.html#ValueError" title="(in Python v3.8)"><code class="xref py py-class docutils literal notranslate"><span class="pre">ValueError</span></code></a> exception.</p>
 <p>When you add presentation contexts as shown above, the following transfer
 syntaxes are used by default for each context:</p>
 <table class="docutils align-default">
@@ -451,7 +451,7 @@ afterwards.</p></li>
 </pre></div>
 </div>
 <p>Here <a class="reference internal" href="../reference/generated/pynetdicom.presentation.StoragePresentationContexts.html#pynetdicom.presentation.StoragePresentationContexts" title="pynetdicom.presentation.StoragePresentationContexts"><code class="xref py py-attr docutils literal notranslate"><span class="pre">StoragePresentationContexts</span></code></a> is a prebuilt
-<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.7)"><code class="xref py py-class docutils literal notranslate"><span class="pre">list</span></code></a> of presentation contexts containing (almost) all the Storage
+<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.8)"><code class="xref py py-class docutils literal notranslate"><span class="pre">list</span></code></a> of presentation contexts containing (almost) all the Storage
 Service Class’ <a class="reference external" href="http://dicom.nema.org/medical/dicom/current/output/chtml/part04/sect_B.5.html">supported SOP Classes</a>,
 and there’s a <a class="reference internal" href="../reference/presentation.html#api-presentation-prebuilt"><span class="std std-ref">similar list</span></a> for
 all the supported service classes. Alternatively you can build your own list

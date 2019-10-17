@@ -217,7 +217,7 @@
 <h1>pynetdicom._handlers.doc_handle_move<a class="headerlink" href="#pynetdicom-handlers-doc-handle-move" title="Permalink to this headline">¶</a></h1>
 <dl class="function">
 <dt id="pynetdicom._handlers.doc_handle_move">
-<code class="sig-prename descclassname">pynetdicom._handlers.</code><code class="sig-name descname">doc_handle_move</code><span class="sig-paren">(</span><em class="sig-param">event</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/e5bb27cc/pynetdicom/_handlers.py#L2376"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom._handlers.doc_handle_move" title="Permalink to this definition">¶</a></dt>
+<code class="sig-prename descclassname">pynetdicom._handlers.</code><code class="sig-name descname">doc_handle_move</code><span class="sig-paren">(</span><em class="sig-param">event</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/899900e7/pynetdicom/_handlers.py#L2376"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom._handlers.doc_handle_move" title="Permalink to this definition">¶</a></dt>
 <dd><p>Documentation for handlers bound to <code class="docutils literal notranslate"><span class="pre">evt.EVT_C_MOVE</span></code>.</p>
 <p>User implementation of this event handler is required if one or more
 services that use C-MOVE are to be supported. If a handler is
@@ -225,7 +225,7 @@ not implemented and bound to <code class="docutils literal notranslate"><span cl
 will be responded to using a  <em>Status</em> value of <code class="docutils literal notranslate"><span class="pre">0xC511</span></code> - Failure.</p>
 <p>The first yield should be the <code class="docutils literal notranslate"><span class="pre">(addr,</span> <span class="pre">port)</span></code> of the move destination,
 the second yield the number of required C-STORE sub-operations as an
-<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.7)"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></a>, and the remaining yields the <code class="docutils literal notranslate"><span class="pre">(status,</span> <span class="pre">dataset)</span></code> pairs.</p>
+<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.8)"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></a>, and the remaining yields the <code class="docutils literal notranslate"><span class="pre">(status,</span> <span class="pre">dataset)</span></code> pairs.</p>
 <p>Matching SOP Instances will be sent to the move destination Storage SCP
 over a new association. If the move destination is unknown then the
 SCP will send a response with a ‘Failure’ status of <code class="docutils literal notranslate"><span class="pre">0xA801</span></code> ‘Move
@@ -290,12 +290,12 @@ as a <a class="reference internal" href="pynetdicom.presentation.PresentationCon
 <li><p><a class="reference internal" href="pynetdicom.events.Event.html#pynetdicom.events.Event.event" title="pynetdicom.events.Event.event"><code class="xref py py-attr docutils literal notranslate"><span class="pre">event</span></code></a>: the event that occurred as
 <a class="reference internal" href="pynetdicom.events.InterventionEvent.html#pynetdicom.events.InterventionEvent" title="pynetdicom.events.InterventionEvent"><code class="xref py py-class docutils literal notranslate"><span class="pre">InterventionEvent</span></code></a>.</p></li>
 <li><p><a class="reference internal" href="pynetdicom.events.Event.html#pynetdicom.events.Event.move_destination" title="pynetdicom.events.Event.move_destination"><code class="xref py py-attr docutils literal notranslate"><span class="pre">move_destination</span></code></a>: the C-MOVE
-request’s <em>Move Destination</em> value as <a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#bytes" title="(in Python v3.7)"><code class="xref py py-class docutils literal notranslate"><span class="pre">bytes</span></code></a>.</p></li>
+request’s <em>Move Destination</em> value as <a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#bytes" title="(in Python v3.8)"><code class="xref py py-class docutils literal notranslate"><span class="pre">bytes</span></code></a>.</p></li>
 <li><p><code class="xref py py-attr docutils literal notranslate"><span class="pre">request</span></code>: the received
 <a class="reference internal" href="pynetdicom.dimse_primitives.C_MOVE.html#pynetdicom.dimse_primitives.C_MOVE" title="pynetdicom.dimse_primitives.C_MOVE"><code class="xref py py-class docutils literal notranslate"><span class="pre">C-MOVE</span> <span class="pre">request</span></code></a></p></li>
 <li><p><a class="reference internal" href="pynetdicom.events.Event.html#pynetdicom.events.Event.timestamp" title="pynetdicom.events.Event.timestamp"><code class="xref py py-attr docutils literal notranslate"><span class="pre">timestamp</span></code></a>: the date and time
 that the C-MOVE request was processed by the service as
-<a class="reference external" href="https://docs.python.org/3/library/datetime.html#datetime.datetime" title="(in Python v3.7)"><code class="xref py py-class docutils literal notranslate"><span class="pre">datetime.datetime</span></code></a>.</p></li>
+<a class="reference external" href="https://docs.python.org/3/library/datetime.html#datetime.datetime" title="(in Python v3.8)"><code class="xref py py-class docutils literal notranslate"><span class="pre">datetime.datetime</span></code></a>.</p></li>
 </ul>
 <p><a class="reference internal" href="pynetdicom.events.Event.html#pynetdicom.events.Event" title="pynetdicom.events.Event"><code class="xref py py-class docutils literal notranslate"><span class="pre">Event</span></code></a> properties are:</p>
 <ul class="simple">
@@ -324,7 +324,7 @@ required to complete the C-MOVE operation. In other words, this is
 the number of matching SOP Instances to be sent to the peer.</p></li>
 <li><p><strong>status</strong> (<em>pydicom.dataset.Dataset or int</em>) – The status returned to the peer AE in the C-MOVE response. Must be
 a valid C-MOVE status value for the applicable Service Class as
-either an <a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.7)"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></a> or a <a class="reference external" href="https://pydicom.github.io/pydicom/stable/api_ref.html#pydicom.dataset.Dataset" title="(in pydicom v1.3.0)"><code class="xref py py-class docutils literal notranslate"><span class="pre">Dataset</span></code></a>
+either an <a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.8)"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></a> or a <a class="reference external" href="https://pydicom.github.io/pydicom/stable/api_ref.html#pydicom.dataset.Dataset" title="(in pydicom v1.3.0)"><code class="xref py py-class docutils literal notranslate"><span class="pre">Dataset</span></code></a>
 containing (at a minimum) a (0000,0900) <em>Status</em> element. If returning
 a <a class="reference external" href="https://pydicom.github.io/pydicom/stable/api_ref.html#pydicom.dataset.Dataset" title="(in pydicom v1.3.0)"><code class="xref py py-class docutils literal notranslate"><span class="pre">Dataset</span></code></a> then it may also contain optional
 elements related to the <em>Status</em> (as in
