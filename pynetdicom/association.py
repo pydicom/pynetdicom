@@ -499,7 +499,10 @@ class Association(threading.Thread):
             self.requestor.primitive = primitive
             evt.trigger(self, evt.EVT_REQUESTED, {})
 
-            self.acse.negotiate_association()
+            # User used EVT_REQUESTED to send an A-ABORT or A-ASSOCIATE-RJ
+            if not self.is_aborted and not self.is_rejected:
+                self.acse.negotiate_association()
+
             if self.is_established:
                 self._run_reactor()
 

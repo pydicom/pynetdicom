@@ -60,7 +60,9 @@ TEST_DS_DIR = os.path.join(os.path.dirname(__file__), 'dicom_files')
 BIG_DATASET = dcmread(os.path.join(TEST_DS_DIR, 'RTImageStorage.dcm')) # 2.1 M
 DATASET = dcmread(os.path.join(TEST_DS_DIR, 'CTImageStorage.dcm'))
 # JPEG2000Lossless UID
-COMP_DATASET = dcmread(os.path.join(TEST_DS_DIR, 'MRImageStorage_JPG2000_Lossless.dcm'))
+COMP_DATASET = dcmread(
+    os.path.join(TEST_DS_DIR, 'MRImageStorage_JPG2000_Lossless.dcm')
+)
 
 
 class DummyDIMSE(object):
@@ -514,6 +516,54 @@ class TestAssociation(object):
         assoc = ae.associate('localhost', 11112)
         assert evt.EVT_C_STORE in assoc.get_events()
         assert evt.EVT_USER_ID in assoc.get_events()
+
+    def test_requested_handler_abort(self):
+        """Test the EVT_REQUESTED handler sending abort."""
+        def handle_req(event):
+            event.assoc.acse.send_abort(0x00)
+            time.sleep(0.1)
+
+        self.ae = ae = AE()
+        ae.acse_timeout = 5
+        ae.dimse_timeout = 5
+        ae.network_timeout = 5
+        ae.add_supported_context(VerificationSOPClass)
+
+        hh = [(evt.EVT_REQUESTED, handle_req)]
+
+        scp = ae.start_server(('', 11112), block=False, evt_handlers=hh)
+
+        ae.add_requested_context(VerificationSOPClass)
+        assoc = ae.associate('localhost', 11112)
+        assert not assoc.is_established
+        assert assoc.is_aborted
+
+        scp.shutdown()
+
+    def test_requested_handler_reject(self):
+        """Test the EVT_REQUESTED handler sending reject."""
+        def handle_req(event):
+            event.assoc.acse.send_reject(0x02, 0x01, 0x01)
+            # Give the requestor time to process the message before killing
+            #   the connection
+            time.sleep(0.1)
+
+        self.ae = ae = AE()
+        ae.acse_timeout = 5
+        ae.dimse_timeout = 5
+        ae.network_timeout = 5
+        ae.add_supported_context(VerificationSOPClass)
+
+        hh = [(evt.EVT_REQUESTED, handle_req)]
+
+        scp = ae.start_server(('', 11112), block=False, evt_handlers=hh)
+
+        ae.add_requested_context(VerificationSOPClass)
+        assoc = ae.associate('localhost', 11112)
+        assert not assoc.is_established
+        assert assoc.is_rejected
+
+        scp.shutdown()
 
 
 class TestCStoreSCP(object):
