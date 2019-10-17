@@ -17,6 +17,9 @@ Enhancements
   <pynetdicom._config.USE_SHORT_DIMSE_AET>` so elements with a VR of *AE* in
   DIMSE messages are only padded to the shortest even length rather than to
   the maximum 16 characters. (:issue:`403`)
+* When acting as the association Acceptor check that the user hasn't sent
+  and A-ABORT or A-ASSOCIATE-RJ before attempting association negotiation
+  (:issue:`408`)
 
 Changes
 .......
