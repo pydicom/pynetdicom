@@ -484,7 +484,7 @@ class A_ASSOCIATE(object):
             },
             2 : {
                 1 : 'No reason given',
-                2: 'Protocol version not supported'
+                2 : 'Protocol version not supported'
             },
             3 : {
                 0 : "Reserved",
