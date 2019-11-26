@@ -1323,7 +1323,7 @@ class ImplementationVersionNameNotification(ServiceParameter):
             raise TypeError("Implementation Version Name must be a str "
                             "or bytes")
 
-        if value is not None and not 1 < len(value) < 17:
+        if value is not None and not 0 < len(value) < 17:
             raise ValueError("Implementation Version Name must be "
                              "between 1 and 16 characters long")
 
