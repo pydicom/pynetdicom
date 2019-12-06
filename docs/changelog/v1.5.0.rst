@@ -9,7 +9,9 @@ Fixes
 * Fixed the :class:`~pynetdicom.transport.AssociationServer` not properly
   closing its sockets (:issue:`382`)
 * Improved the robustness of determining the local IP address (:issue:`394`)
-
+* Fixed not being able to set an Implementation Version Name of length 1
+  (:issue:`414`)
+  
 Enhancements
 ............
 
