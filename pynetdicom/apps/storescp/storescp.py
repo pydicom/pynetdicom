@@ -13,7 +13,18 @@ from pydicom.uid import (
     ExplicitVRLittleEndian,
     ImplicitVRLittleEndian,
     ExplicitVRBigEndian,
-    DeflatedExplicitVRLittleEndian
+    DeflatedExplicitVRLittleEndian,
+    JPEGBaseline,
+    JPEGExtended,
+    JPEGLosslessP14,
+    JPEGLossless,
+    JPEGLSLossless,
+    JPEGLSLossy,
+    JPEG2000Lossless,
+    JPEG2000,
+    JPEG2000MultiComponentLossless,
+    JPEG2000MultiComponent,
+    RLELossless
 )
 
 from pynetdicom import (
@@ -25,7 +36,7 @@ from pynetdicom import (
 )
 
 
-VERSION = '0.5.1'
+VERSION = '0.6.0'
 
 
 def _setup_argparser():
@@ -188,10 +199,23 @@ if isinstance(args.port, int):
         sys.exit()
 
 # Set Transfer Syntax options
-transfer_syntax = [ImplicitVRLittleEndian,
-                   ExplicitVRLittleEndian,
-                   DeflatedExplicitVRLittleEndian,
-                   ExplicitVRBigEndian]
+transfer_syntax = [
+    ImplicitVRLittleEndian,
+    ExplicitVRLittleEndian,
+    DeflatedExplicitVRLittleEndian,
+    ExplicitVRBigEndian,
+    JPEGBaseline,
+    JPEGExtended,
+    JPEGLosslessP14,
+    JPEGLossless,
+    JPEGLSLossless,
+    JPEGLSLossy,
+    JPEG2000Lossless,
+    JPEG2000,
+    JPEG2000MultiComponentLossless,
+    JPEG2000MultiComponent,
+    RLELossless
+]
 
 if args.prefer_uncompr and ImplicitVRLittleEndian in transfer_syntax:
     transfer_syntax.remove(ImplicitVRLittleEndian)
@@ -258,6 +282,13 @@ def handle_store(event):
     }
 
     ds = event.dataset
+    # Remove any Group 0x0002 elements that may have been included
+    ds = ds[0x00030000:]
+
+    # Add the file meta information elements
+    ds.file_meta = event.file_meta
+    ds.is_little_endian = ds.file_meta.TransferSyntaxUID.is_little_endian
+    ds.is_implicit_VR = ds.file_meta.TransferSyntaxUID.is_implicit_VR
 
     # Because pydicom uses deferred reads for its decoding, decoding errors
     #   are hidden until encountered by accessing a faulty element
@@ -265,6 +296,8 @@ def handle_store(event):
         sop_class = ds.SOPClassUID
         sop_instance = ds.SOPInstanceUID
     except Exception as exc:
+        APP_LOGGER.error('Unable to decode the dataset')
+        APP_LOGGER.exception(exc)
         # Unable to decode dataset
         return 0xC210
 
@@ -279,34 +312,6 @@ def handle_store(event):
 
     if os.path.exists(filename):
         APP_LOGGER.warning('DICOM file already exists, overwriting')
-
-    # Presentation context
-    cx = event.context
-
-    ## DICOM File Format - File Meta Information Header
-    # If a DICOM dataset is to be stored in the DICOM File Format then the
-    # File Meta Information Header is required. At a minimum it requires:
-    #   * (0002,0000) FileMetaInformationGroupLength, UL, 4
-    #   * (0002,0001) FileMetaInformationVersion, OB, 2
-    #   * (0002,0002) MediaStorageSOPClassUID, UI, N
-    #   * (0002,0003) MediaStorageSOPInstanceUID, UI, N
-    #   * (0002,0010) TransferSyntaxUID, UI, N
-    #   * (0002,0012) ImplementationClassUID, UI, N
-    # (from the DICOM Standard, Part 10, Section 7.1)
-    # Of these, we should update the following as pydicom will take care of
-    #   the remainder
-    meta = Dataset()
-    meta.MediaStorageSOPClassUID = sop_class
-    meta.MediaStorageSOPInstanceUID = sop_instance
-    meta.ImplementationClassUID = PYNETDICOM_IMPLEMENTATION_UID
-    meta.TransferSyntaxUID = cx.transfer_syntax
-
-    # The following is not mandatory, set for convenience
-    meta.ImplementationVersionName = PYNETDICOM_IMPLEMENTATION_VERSION
-
-    ds.file_meta = meta
-    ds.is_little_endian = cx.transfer_syntax.is_little_endian
-    ds.is_implicit_VR = cx.transfer_syntax.is_implicit_VR
 
     status_ds = Dataset()
     status_ds.Status = 0x0000
@@ -327,9 +332,10 @@ def handle_store(event):
                      'permission')
         # Failed - Out of Resources - IOError
         status_ds.Status = 0xA700
-    except:
+    except Exception as exc:
         APP_LOGGER.error('Could not write file to specified directory:')
         APP_LOGGER.error("    {0!s}".format(os.path.dirname(filename)))
+        APP_LOGGER.exception(exc)
         # Failed - Out of Resources - Miscellaneous error
         status_ds.Status = 0xA701
 
