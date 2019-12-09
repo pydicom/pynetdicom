@@ -199,19 +199,19 @@
 <a class="reference internal" href="concepts.html#concepts-ae"><span class="std std-ref">Application Entity</span></a> which is done using the
 <a class="reference internal" href="../reference/generated/pynetdicom.ae.ApplicationEntity.html#pynetdicom.ae.ApplicationEntity" title="pynetdicom.ae.ApplicationEntity"><code class="xref py py-class docutils literal notranslate"><span class="pre">AE</span></code></a> class. A minimal initialisation of
 <a class="reference internal" href="../reference/generated/pynetdicom.ae.ApplicationEntity.html#pynetdicom.ae.ApplicationEntity" title="pynetdicom.ae.ApplicationEntity"><code class="xref py py-class docutils literal notranslate"><span class="pre">AE</span></code></a> requires no arguments.</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">pynetdicom</span> <span class="k">import</span> <span class="n">AE</span>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">pynetdicom</span> <span class="kn">import</span> <span class="n">AE</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">ae</span> <span class="o">=</span> <span class="n">AE</span><span class="p">()</span>
 </pre></div>
 </div>
 <p>This will create an <a class="reference internal" href="../reference/generated/pynetdicom.ae.ApplicationEntity.html#pynetdicom.ae.ApplicationEntity" title="pynetdicom.ae.ApplicationEntity"><code class="xref py py-class docutils literal notranslate"><span class="pre">AE</span></code></a> with an AE title of
 <code class="docutils literal notranslate"><span class="pre">b'PYNETDICOM</span>&#160;&#160;&#160;&#160;&#160; <span class="pre">'</span></code>. The AE title can set by supplying the <em>ae_title</em>
 keyword argument during initialisation:</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">pynetdicom</span> <span class="k">import</span> <span class="n">AE</span>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">pynetdicom</span> <span class="kn">import</span> <span class="n">AE</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">ae</span> <span class="o">=</span> <span class="n">AE</span><span class="p">(</span><span class="n">ae_title</span><span class="o">=</span><span class="sa">b</span><span class="s1">&#39;MY_AE_TITLE&#39;</span><span class="p">)</span>
 </pre></div>
 </div>
 <p>Or afterwards with the <a class="reference internal" href="../reference/generated/pynetdicom.ae.ApplicationEntity.html#pynetdicom.ae.ApplicationEntity.ae_title" title="pynetdicom.ae.ApplicationEntity.ae_title"><code class="xref py py-attr docutils literal notranslate"><span class="pre">ae_title</span></code></a> property:</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">pynetdicom</span> <span class="k">import</span> <span class="n">AE</span>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">pynetdicom</span> <span class="kn">import</span> <span class="n">AE</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">ae</span> <span class="o">=</span> <span class="n">AE</span><span class="p">()</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">ae</span><span class="o">.</span><span class="n">ae_title</span> <span class="o">=</span> <span class="sa">b</span><span class="s1">&#39;MY_AE_TITLE&#39;</span>
 </pre></div>
@@ -262,9 +262,9 @@ property. Additional contexts can still be added on a one-by-one basis
 afterwards.</p></li>
 </ul>
 <p>Adding presentation contexts one-by-one:</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">pydicom.uid</span> <span class="k">import</span> <span class="n">UID</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">pynetdicom</span> <span class="k">import</span> <span class="n">AE</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">pynetdicom.sop_class</span> <span class="k">import</span> <span class="n">CTImageStorage</span>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">pydicom.uid</span> <span class="kn">import</span> <span class="n">UID</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">pynetdicom</span> <span class="kn">import</span> <span class="n">AE</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">pynetdicom.sop_class</span> <span class="kn">import</span> <span class="n">CTImageStorage</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">ae</span> <span class="o">=</span> <span class="n">AE</span><span class="p">()</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">ae</span><span class="o">.</span><span class="n">add_requested_context</span><span class="p">(</span><span class="s1">&#39;1.2.840.10008.1.1&#39;</span><span class="p">)</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">ae</span><span class="o">.</span><span class="n">add_requested_context</span><span class="p">(</span><span class="n">UID</span><span class="p">(</span><span class="s1">&#39;1.2.840.10008.5.1.4.1.1.4&#39;</span><span class="p">))</span>
@@ -272,7 +272,7 @@ afterwards.</p></li>
 </pre></div>
 </div>
 <p>Adding presentation contexts all at once:</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">pynetdicom</span> <span class="k">import</span> <span class="n">AE</span><span class="p">,</span> <span class="n">StoragePresentationContexts</span>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">pynetdicom</span> <span class="kn">import</span> <span class="n">AE</span><span class="p">,</span> <span class="n">StoragePresentationContexts</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">ae</span> <span class="o">=</span> <span class="n">AE</span><span class="p">()</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">ae</span><span class="o">.</span><span class="n">requested_contexts</span> <span class="o">=</span> <span class="n">StoragePresentationContexts</span>
 </pre></div>
@@ -286,8 +286,8 @@ Alternatively you can build your own list of presentation contexts, either
 through creating new <a class="reference internal" href="../reference/generated/pynetdicom.presentation.PresentationContext.html#pynetdicom.presentation.PresentationContext" title="pynetdicom.presentation.PresentationContext"><code class="xref py py-class docutils literal notranslate"><span class="pre">PresentationContext</span></code></a>
 instances or by using the <a class="reference internal" href="../reference/generated/pynetdicom.presentation.build_context.html#pynetdicom.presentation.build_context" title="pynetdicom.presentation.build_context"><code class="xref py py-func docutils literal notranslate"><span class="pre">build_context()</span></code></a>
 convenience function:</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">pynetdicom</span> <span class="k">import</span> <span class="n">AE</span><span class="p">,</span> <span class="n">build_context</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">pynetdicom.sop_class</span> <span class="k">import</span> <span class="n">CTImageStorage</span>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">pynetdicom</span> <span class="kn">import</span> <span class="n">AE</span><span class="p">,</span> <span class="n">build_context</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">pynetdicom.sop_class</span> <span class="kn">import</span> <span class="n">CTImageStorage</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">ae</span> <span class="o">=</span> <span class="n">AE</span><span class="p">()</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">contexts</span> <span class="o">=</span> <span class="p">[</span>
 <span class="gp">... </span>    <span class="n">build_context</span><span class="p">(</span><span class="n">CTImageStorage</span><span class="p">),</span>
@@ -297,8 +297,8 @@ convenience function:</p>
 </pre></div>
 </div>
 <p>Combining the all-at-once and one-by-one approaches:</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">pynetdicom</span> <span class="k">import</span> <span class="n">AE</span><span class="p">,</span> <span class="n">StoragePresentationContexts</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">pynetdicom.sop_class</span> <span class="k">import</span> <span class="n">VerificationSOPClass</span>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">pynetdicom</span> <span class="kn">import</span> <span class="n">AE</span><span class="p">,</span> <span class="n">StoragePresentationContexts</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">pynetdicom.sop_class</span> <span class="kn">import</span> <span class="n">VerificationSOPClass</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">ae</span> <span class="o">=</span> <span class="n">AE</span><span class="p">()</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">ae</span><span class="o">.</span><span class="n">requested_contexts</span> <span class="o">=</span> <span class="n">StoragePresentationContexts</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">ae</span><span class="o">.</span><span class="n">add_requested_context</span><span class="p">(</span><span class="n">VerificationSOPClass</span><span class="p">)</span>
@@ -329,18 +329,18 @@ syntaxes are used by default for each context:</p>
 <p>Specifying your own transfer syntax(es) can be done with the
 <em>transfer_syntax</em> keyword argument as either a single str/UID or a list of
 str/UIDs:</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">pydicom.uid</span> <span class="k">import</span> <span class="n">ImplicitVRLittleEndian</span><span class="p">,</span> <span class="n">ExplicitVRLittleEndian</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">pynetdicom</span> <span class="k">import</span> <span class="n">AE</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">pynetdicom.sop_class</span> <span class="k">import</span> <span class="n">CTImageStorage</span><span class="p">,</span> <span class="n">MRImageStorage</span>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">pydicom.uid</span> <span class="kn">import</span> <span class="n">ImplicitVRLittleEndian</span><span class="p">,</span> <span class="n">ExplicitVRLittleEndian</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">pynetdicom</span> <span class="kn">import</span> <span class="n">AE</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">pynetdicom.sop_class</span> <span class="kn">import</span> <span class="n">CTImageStorage</span><span class="p">,</span> <span class="n">MRImageStorage</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">ae</span> <span class="o">=</span> <span class="n">AE</span><span class="p">()</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">ae</span><span class="o">.</span><span class="n">add_requested_context</span><span class="p">(</span><span class="n">CTImageStorage</span><span class="p">,</span> <span class="n">transfer_syntax</span><span class="o">=</span><span class="s1">&#39;1.2.840.10008.1.2&#39;</span><span class="p">)</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">ae</span><span class="o">.</span><span class="n">add_requested_context</span><span class="p">(</span><span class="n">MRImageStorage</span><span class="p">,</span>
 <span class="gp">... </span>                         <span class="p">[</span><span class="n">ImplicitVRLittleEndian</span><span class="p">,</span> <span class="n">ExplicitVRLittleEndian</span><span class="p">])</span>
 </pre></div>
 </div>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">pydicom.uid</span> <span class="k">import</span> <span class="n">ImplicitVRLittleEndian</span><span class="p">,</span> <span class="n">ExplicitVRLittleEndian</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">pynetdicom</span> <span class="k">import</span> <span class="n">AE</span><span class="p">,</span> <span class="n">build_context</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">pynetdicom.sop_class</span> <span class="k">import</span> <span class="n">CTImageStorage</span>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">pydicom.uid</span> <span class="kn">import</span> <span class="n">ImplicitVRLittleEndian</span><span class="p">,</span> <span class="n">ExplicitVRLittleEndian</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">pynetdicom</span> <span class="kn">import</span> <span class="n">AE</span><span class="p">,</span> <span class="n">build_context</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">pynetdicom.sop_class</span> <span class="kn">import</span> <span class="n">CTImageStorage</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">ae</span> <span class="o">=</span> <span class="n">AE</span><span class="p">()</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">context_a</span> <span class="o">=</span> <span class="n">build_context</span><span class="p">(</span><span class="n">CTImageStorage</span><span class="p">,</span> <span class="n">ImplicitVRLittleEndian</span><span class="p">))</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">context_b</span> <span class="o">=</span> <span class="n">build_context</span><span class="p">(</span><span class="s1">&#39;1.2.840.10008.1.1&#39;</span><span class="p">,</span>
@@ -351,8 +351,8 @@ str/UIDs:</p>
 <p>The requested presentation contexts can be accessed with the
 <a class="reference internal" href="../reference/generated/pynetdicom.ae.ApplicationEntity.html#pynetdicom.ae.ApplicationEntity.requested_contexts" title="pynetdicom.ae.ApplicationEntity.requested_contexts"><code class="xref py py-attr docutils literal notranslate"><span class="pre">AE.requested_contexts</span></code></a>
 property and they are returned in the order they were added:</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">pynetdicom</span> <span class="k">import</span> <span class="n">AE</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">pynetdicom.sop_class</span> <span class="k">import</span> <span class="n">VerificationSOPClass</span>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">pynetdicom</span> <span class="kn">import</span> <span class="n">AE</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">pynetdicom.sop_class</span> <span class="kn">import</span> <span class="n">VerificationSOPClass</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">ae</span> <span class="o">=</span> <span class="n">AE</span><span class="p">()</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="nb">len</span><span class="p">(</span><span class="n">ae</span><span class="o">.</span><span class="n">requested_contexts</span><span class="p">)</span>
 <span class="go">0</span>
@@ -369,9 +369,9 @@ property and they are returned in the order they were added:</p>
 </div>
 <p>Its also possible to have multiple requested presentation contexts for the
 same abstract syntax.</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">pydicom.uid</span> <span class="k">import</span> <span class="n">ImplicitVRLittleEndian</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">pynetdicom</span> <span class="k">import</span> <span class="n">AE</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">pynetdicom.sop_class</span> <span class="k">import</span> <span class="n">CTImageStorage</span>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">pydicom.uid</span> <span class="kn">import</span> <span class="n">ImplicitVRLittleEndian</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">pynetdicom</span> <span class="kn">import</span> <span class="n">AE</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">pynetdicom.sop_class</span> <span class="kn">import</span> <span class="n">CTImageStorage</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">ae</span> <span class="o">=</span> <span class="n">AE</span><span class="p">()</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">ae</span><span class="o">.</span><span class="n">add_requested_context</span><span class="p">(</span><span class="n">CTImageStorage</span><span class="p">)</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">ae</span><span class="o">.</span><span class="n">add_requested_context</span><span class="p">(</span><span class="n">CTImageStorage</span><span class="p">,</span> <span class="n">ImplicitVRLittleEndian</span><span class="p">)</span>
@@ -404,7 +404,7 @@ By default <em>pynetdicom</em> will use the first available port to communicate 
 peer AE. To specify the port number you can use the <em>bind_address</em> keyword
 argument when requesting an association, which takes a 2-tuple of
 (str <em>host</em>, int <em>port</em>):</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">pynetdicom</span> <span class="k">import</span> <span class="n">AE</span>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">pynetdicom</span> <span class="kn">import</span> <span class="n">AE</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">ae</span> <span class="o">=</span> <span class="n">AE</span><span class="p">()</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">ae</span><span class="o">.</span><span class="n">add_requested_context</span><span class="p">(</span><span class="s1">&#39;1.2.840.10008.1.1&#39;</span><span class="p">)</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">assoc</span> <span class="o">=</span> <span class="n">ae</span><span class="o">.</span><span class="n">associate</span><span class="p">(</span><span class="s1">&#39;localhost&#39;</span><span class="p">,</span> <span class="mi">11112</span><span class="p">,</span> <span class="n">bind_address</span><span class="o">=</span><span class="p">(</span><span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="mi">11113</span><span class="p">))</span>
@@ -435,9 +435,9 @@ property. Additional contexts can still be added on a one-by-one basis
 afterwards.</p></li>
 </ul>
 <p>Adding presentation contexts one-by-one:</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">pydicom.uid</span> <span class="k">import</span> <span class="n">UID</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">pynetdicom</span> <span class="k">import</span> <span class="n">AE</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">pynetdicom.sop_class</span> <span class="k">import</span> <span class="n">CTImageStorage</span>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">pydicom.uid</span> <span class="kn">import</span> <span class="n">UID</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">pynetdicom</span> <span class="kn">import</span> <span class="n">AE</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">pynetdicom.sop_class</span> <span class="kn">import</span> <span class="n">CTImageStorage</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">ae</span> <span class="o">=</span> <span class="n">AE</span><span class="p">()</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">ae</span><span class="o">.</span><span class="n">add_supported_context</span><span class="p">(</span><span class="s1">&#39;1.2.840.10008.1.1&#39;</span><span class="p">)</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">ae</span><span class="o">.</span><span class="n">add_supported_context</span><span class="p">(</span><span class="n">UID</span><span class="p">(</span><span class="s1">&#39;1.2.840.10008.5.1.4.1.1.4&#39;</span><span class="p">))</span>
@@ -445,7 +445,7 @@ afterwards.</p></li>
 </pre></div>
 </div>
 <p>Adding presentation contexts all at once:</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">pynetdicom</span> <span class="k">import</span> <span class="n">AE</span><span class="p">,</span> <span class="n">StoragePresentationContexts</span>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">pynetdicom</span> <span class="kn">import</span> <span class="n">AE</span><span class="p">,</span> <span class="n">StoragePresentationContexts</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">ae</span> <span class="o">=</span> <span class="n">AE</span><span class="p">()</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">ae</span><span class="o">.</span><span class="n">supported_contexts</span> <span class="o">=</span> <span class="n">StoragePresentationContexts</span>
 </pre></div>
@@ -458,8 +458,8 @@ all the supported service classes. Alternatively you can build your own list
 of presentation contexts, either through creating new
 <a class="reference internal" href="../reference/generated/pynetdicom.presentation.PresentationContext.html#pynetdicom.presentation.PresentationContext" title="pynetdicom.presentation.PresentationContext"><code class="xref py py-class docutils literal notranslate"><span class="pre">PresentationContext</span></code></a> instances or by using the
 <a class="reference internal" href="../reference/generated/pynetdicom.presentation.build_context.html#pynetdicom.presentation.build_context" title="pynetdicom.presentation.build_context"><code class="xref py py-func docutils literal notranslate"><span class="pre">build_context()</span></code></a> convenience function:</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">pynetdicom</span> <span class="k">import</span> <span class="n">AE</span><span class="p">,</span> <span class="n">build_context</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">pynetdicom.sop_class</span> <span class="k">import</span> <span class="n">CTImageStorage</span>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">pynetdicom</span> <span class="kn">import</span> <span class="n">AE</span><span class="p">,</span> <span class="n">build_context</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">pynetdicom.sop_class</span> <span class="kn">import</span> <span class="n">CTImageStorage</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">ae</span> <span class="o">=</span> <span class="n">AE</span><span class="p">()</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">contexts</span> <span class="o">=</span> <span class="p">[</span>
 <span class="gp">... </span>    <span class="n">build_context</span><span class="p">(</span><span class="n">CTImageStorage</span><span class="p">),</span>
@@ -469,8 +469,8 @@ of presentation contexts, either through creating new
 </pre></div>
 </div>
 <p>Combining the all-at-once and one-by-one approaches:</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">pynetdicom</span> <span class="k">import</span> <span class="n">AE</span><span class="p">,</span> <span class="n">StoragePresentationContexts</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">pynetdicom.sop_class</span> <span class="k">import</span> <span class="n">VerificationSOPClass</span>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">pynetdicom</span> <span class="kn">import</span> <span class="n">AE</span><span class="p">,</span> <span class="n">StoragePresentationContexts</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">pynetdicom.sop_class</span> <span class="kn">import</span> <span class="n">VerificationSOPClass</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">ae</span> <span class="o">=</span> <span class="n">AE</span><span class="p">()</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">ae</span><span class="o">.</span><span class="n">supported_contexts</span> <span class="o">=</span> <span class="n">StoragePresentationContexts</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">ae</span><span class="o">.</span><span class="n">add_supported_context</span><span class="p">(</span><span class="n">VerificationSOPClass</span><span class="p">)</span>
@@ -500,18 +500,18 @@ syntaxes are used by default for each context:</p>
 <p>Specifying your own transfer syntax(es) can be done with the
 <em>transfer_syntax</em> keyword argument parameter as either a single str/UID or a
 list of str/UIDs:</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">pydicom.uid</span> <span class="k">import</span> <span class="n">ImplicitVRLittleEndian</span><span class="p">,</span> <span class="n">ExplicitVRLittleEndian</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">pynetdicom</span> <span class="k">import</span> <span class="n">AE</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">pynetdicom.sop_class</span> <span class="k">import</span> <span class="n">CTImageStorage</span><span class="p">,</span> <span class="n">MRImageStorage</span>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">pydicom.uid</span> <span class="kn">import</span> <span class="n">ImplicitVRLittleEndian</span><span class="p">,</span> <span class="n">ExplicitVRLittleEndian</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">pynetdicom</span> <span class="kn">import</span> <span class="n">AE</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">pynetdicom.sop_class</span> <span class="kn">import</span> <span class="n">CTImageStorage</span><span class="p">,</span> <span class="n">MRImageStorage</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">ae</span> <span class="o">=</span> <span class="n">AE</span><span class="p">()</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">ae</span><span class="o">.</span><span class="n">add_supported_context</span><span class="p">(</span><span class="n">CTImageStorage</span><span class="p">,</span> <span class="n">transfer_syntax</span><span class="o">=</span><span class="s1">&#39;1.2.840.10008.1.2&#39;</span><span class="p">)</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">ae</span><span class="o">.</span><span class="n">add_supported_context</span><span class="p">(</span><span class="n">MRImageStorage</span><span class="p">,</span>
 <span class="gp">... </span>                         <span class="p">[</span><span class="n">ImplicitVRLittleEndian</span><span class="p">,</span> <span class="n">ExplicitVRLittleEndian</span><span class="p">])</span>
 </pre></div>
 </div>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">pydicom.uid</span> <span class="k">import</span> <span class="n">ImplicitVRLittleEndian</span><span class="p">,</span> <span class="n">ExplicitVRLittleEndian</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">pynetdicom</span> <span class="k">import</span> <span class="n">AE</span><span class="p">,</span> <span class="n">build_context</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">pynetdicom.sop_class</span> <span class="k">import</span> <span class="n">CTImageStorage</span>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">pydicom.uid</span> <span class="kn">import</span> <span class="n">ImplicitVRLittleEndian</span><span class="p">,</span> <span class="n">ExplicitVRLittleEndian</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">pynetdicom</span> <span class="kn">import</span> <span class="n">AE</span><span class="p">,</span> <span class="n">build_context</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">pynetdicom.sop_class</span> <span class="kn">import</span> <span class="n">CTImageStorage</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">ae</span> <span class="o">=</span> <span class="n">AE</span><span class="p">()</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">context_a</span> <span class="o">=</span> <span class="n">build_context</span><span class="p">(</span><span class="n">CTImageStorage</span><span class="p">,</span> <span class="n">ImplicitVRLittleEndian</span><span class="p">))</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">context_b</span> <span class="o">=</span> <span class="n">build_context</span><span class="p">(</span><span class="s1">&#39;1.2.840.10008.1.1&#39;</span><span class="p">,</span>
@@ -522,8 +522,8 @@ list of str/UIDs:</p>
 <p>The supported presentation contexts can be accessed with the
 <a class="reference internal" href="../reference/generated/pynetdicom.ae.ApplicationEntity.html#pynetdicom.ae.ApplicationEntity.supported_contexts" title="pynetdicom.ae.ApplicationEntity.supported_contexts"><code class="xref py py-attr docutils literal notranslate"><span class="pre">AE.supported_contexts</span></code></a>
 property and they are returned in order of their abstract syntax UID value:</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">pynetdicom</span> <span class="k">import</span> <span class="n">AE</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">pynetdicom.sop_class</span> <span class="k">import</span> <span class="n">VerificationSOPClass</span>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">pynetdicom</span> <span class="kn">import</span> <span class="n">AE</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">pynetdicom.sop_class</span> <span class="kn">import</span> <span class="n">VerificationSOPClass</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">ae</span> <span class="o">=</span> <span class="n">AE</span><span class="p">()</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="nb">len</span><span class="p">(</span><span class="n">ae</span><span class="o">.</span><span class="n">supported_contexts</span><span class="p">)</span>
 <span class="go">0</span>
@@ -541,9 +541,9 @@ property and they are returned in order of their abstract syntax UID value:</p>
 <p>For the association <em>Acceptor</em> its not possible to have multiple supported
 presentation contexts for the same abstract syntax, instead any additional
 transfer syntaxes will be combined with the pre-existing context:</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">pydicom.uid</span> <span class="k">import</span> <span class="n">ImplicitVRLittleEndian</span><span class="p">,</span> <span class="n">ExplicitVRLittleEndian</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">pynetdicom</span> <span class="k">import</span> <span class="n">AE</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">pynetdicom.sop_class</span> <span class="k">import</span> <span class="n">CTImageStorage</span>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">pydicom.uid</span> <span class="kn">import</span> <span class="n">ImplicitVRLittleEndian</span><span class="p">,</span> <span class="n">ExplicitVRLittleEndian</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">pynetdicom</span> <span class="kn">import</span> <span class="n">AE</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">pynetdicom.sop_class</span> <span class="kn">import</span> <span class="n">CTImageStorage</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">ae</span> <span class="o">=</span> <span class="n">AE</span><span class="p">()</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">ae</span><span class="o">.</span><span class="n">add_supported_context</span><span class="p">(</span><span class="n">CTImageStorage</span><span class="p">,</span> <span class="n">ExplicitVRLittleEndian</span><span class="p">)</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">ae</span><span class="o">.</span><span class="n">add_supported_context</span><span class="p">(</span><span class="n">CTImageStorage</span><span class="p">,</span> <span class="n">ImplicitVRLittleEndian</span><span class="p">)</span>
@@ -573,8 +573,8 @@ items in the association request and it’s up to the association <em>Acceptor</
 to decide whether or not to accept the proposed roles. This can be done
 through the <em>scu_role</em> and <em>scp_role</em> keyword arguments, which control whether
 or not the association <em>Acceptor</em> will accept or reject the proposal:</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">pynetdicom</span> <span class="k">import</span> <span class="n">AE</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">pynetdicom.sop_class</span> <span class="k">import</span> <span class="n">CTImageStorage</span>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">pynetdicom</span> <span class="kn">import</span> <span class="n">AE</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">pynetdicom.sop_class</span> <span class="kn">import</span> <span class="n">CTImageStorage</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">ae</span> <span class="o">=</span> <span class="n">AE</span><span class="p">()</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">ae</span><span class="o">.</span><span class="n">add_supported_context</span><span class="p">(</span><span class="n">CTImageStorage</span><span class="p">,</span> <span class="n">scu_role</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">scp_role</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 </pre></div>
@@ -642,7 +642,7 @@ to see the requirements for implementations of the <code class="docutils literal
 <h3>Specifying the bind address<a class="headerlink" href="#specifying-the-bind-address" title="Permalink to this headline">¶</a></h3>
 <p>The bind address for the server socket is specified by the <em>address</em>
 argument to <code class="docutils literal notranslate"><span class="pre">start_server()</span></code> as (str <em>host</em>, int <em>port</em>).</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">pynetdicom</span> <span class="k">import</span> <span class="n">AE</span>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">pynetdicom</span> <span class="kn">import</span> <span class="n">AE</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">ae</span> <span class="o">=</span> <span class="n">AE</span><span class="p">()</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">ae</span><span class="o">.</span><span class="n">add_supported_context</span><span class="p">(</span><span class="s1">&#39;1.2.840.10008.1.1&#39;</span><span class="p">)</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">ae</span><span class="o">.</span><span class="n">start_server</span><span class="p">((</span><span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="mi">11112</span><span class="p">))</span>

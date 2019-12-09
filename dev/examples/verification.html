@@ -195,7 +195,7 @@ starting point when troubleshooting associations, particularly when handlers
 are bound to the more fundamental <a class="reference internal" href="../user/events.html#events-notification"><span class="std std-ref">notification events</span></a>
 like  <code class="docutils literal notranslate"><span class="pre">evt.EVT_PDU_RECV</span></code> or <code class="docutils literal notranslate"><span class="pre">evt.EVT_DATA_RECV</span></code> or with the log level set
 to debug:</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">pynetdicom</span> <span class="k">import</span> <span class="n">debug_logger</span>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">pynetdicom</span> <span class="kn">import</span> <span class="n">debug_logger</span>
 
 <span class="n">debug_logger</span><span class="p">()</span>
 </pre></div>
@@ -224,14 +224,14 @@ Verification Service.</p>
     <span class="c1"># Check the status of the verification request</span>
     <span class="k">if</span> <span class="n">status</span><span class="p">:</span>
         <span class="c1"># If the verification request succeeded this will be 0x0000</span>
-        <span class="k">print</span><span class="p">(</span><span class="s1">&#39;C-ECHO request status: 0x{0:04x}&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">status</span><span class="o">.</span><span class="n">Status</span><span class="p">))</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;C-ECHO request status: 0x</span><span class="si">{0:04x}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">status</span><span class="o">.</span><span class="n">Status</span><span class="p">))</span>
     <span class="k">else</span><span class="p">:</span>
-        <span class="k">print</span><span class="p">(</span><span class="s1">&#39;Connection timed out, was aborted or received invalid response&#39;</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Connection timed out, was aborted or received invalid response&#39;</span><span class="p">)</span>
 
     <span class="c1"># Release the association</span>
     <span class="n">assoc</span><span class="o">.</span><span class="n">release</span><span class="p">()</span>
 <span class="k">else</span><span class="p">:</span>
-    <span class="k">print</span><span class="p">(</span><span class="s1">&#39;Association rejected, aborted or never connected&#39;</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Association rejected, aborted or never connected&#39;</span><span class="p">)</span>
 </pre></div>
 </div>
 <p>You can also use the inbuilt
@@ -261,7 +261,7 @@ to return an <code class="docutils literal notranslate"><span class="pre">0x0000
  <span class="n">ae</span><span class="o">.</span><span class="n">add_supported_context</span><span class="p">(</span><span class="n">VerificationSOPClass</span><span class="p">)</span>
 
 <span class="c1"># Start listening for incoming association requests in blocking mode</span>
-<span class="n">ae</span><span class="o">.</span><span class="n">start_server</span><span class="p">((</span><span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="mi">11112</span><span class="p">),</span> <span class="n">block</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
+<span class="n">ae</span><span class="o">.</span><span class="n">start_server</span><span class="p">((</span><span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="mi">11112</span><span class="p">),</span> <span class="n">block</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 </pre></div>
 </div>
 <p>You can also optionally bind your own handler to <code class="docutils literal notranslate"><span class="pre">evt.EVT_C_ECHO</span></code>. Check the

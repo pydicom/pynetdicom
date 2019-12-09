@@ -267,7 +267,7 @@ sent a message</p></td>
 <p>By default a number of notification handlers are bound for logging purposes.
 If you wish to remove these then you can do the following before creating any
 associations:</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">pynetdicom</span> <span class="k">import</span> <span class="n">_config</span>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">pynetdicom</span> <span class="kn">import</span> <span class="n">_config</span>
 
 <span class="c1"># Don&#39;t bind any of the default notification handlers</span>
 <span class="n">_config</span><span class="o">.</span><span class="n">LOG_HANDLER_LEVEL</span> <span class="o">=</span> <span class="s1">&#39;none&#39;</span>

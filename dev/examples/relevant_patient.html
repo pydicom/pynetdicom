@@ -223,18 +223,18 @@ single patient with ID <code class="docutils literal notranslate"><span class="p
 
     <span class="k">for</span> <span class="p">(</span><span class="n">status</span><span class="p">,</span> <span class="n">identifier</span><span class="p">)</span> <span class="ow">in</span> <span class="n">responses</span><span class="p">:</span>
         <span class="k">if</span> <span class="n">status</span><span class="p">:</span>
-            <span class="k">print</span><span class="p">(</span><span class="s1">&#39;C-FIND query status: 0x{0:04x}&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">status</span><span class="o">.</span><span class="n">Status</span><span class="p">))</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;C-FIND query status: 0x</span><span class="si">{0:04x}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">status</span><span class="o">.</span><span class="n">Status</span><span class="p">))</span>
 
             <span class="c1"># If the status is &#39;Pending&#39; then identifier is the C-FIND response</span>
             <span class="k">if</span> <span class="n">status</span><span class="o">.</span><span class="n">Status</span> <span class="ow">in</span> <span class="p">(</span><span class="mh">0xFF00</span><span class="p">,</span> <span class="mh">0xFF01</span><span class="p">):</span>
-                <span class="k">print</span><span class="p">(</span><span class="n">identifier</span><span class="p">)</span>
+                <span class="nb">print</span><span class="p">(</span><span class="n">identifier</span><span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
-            <span class="k">print</span><span class="p">(</span><span class="s1">&#39;Connection timed out, was aborted or received invalid response&#39;</span><span class="p">)</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Connection timed out, was aborted or received invalid response&#39;</span><span class="p">)</span>
 
     <span class="c1"># Release the association</span>
     <span class="n">assoc</span><span class="o">.</span><span class="n">release</span><span class="p">()</span>
 <span class="k">else</span><span class="p">:</span>
-    <span class="k">print</span><span class="p">(</span><span class="s1">&#39;Association rejected, aborted or never connected&#39;</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Association rejected, aborted or never connected&#39;</span><span class="p">)</span>
 </pre></div>
 </div>
 </div>
@@ -293,7 +293,7 @@ to see the requirements for the <code class="docutils literal notranslate"><span
         <span class="k">yield</span> <span class="p">(</span><span class="mh">0xFF00</span><span class="p">,</span> <span class="n">identifier</span><span class="p">)</span>
     <span class="k">elif</span> <span class="nb">len</span><span class="p">(</span><span class="n">matching</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">:</span>
         <span class="c1"># More than 1 match found</span>
-        <span class="k">yield</span> <span class="p">(</span><span class="mh">0xC100</span><span class="p">,</span> <span class="bp">None</span><span class="p">)</span>
+        <span class="k">yield</span> <span class="p">(</span><span class="mh">0xC100</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
 
 <span class="n">handlers</span> <span class="o">=</span> <span class="p">[(</span><span class="n">evt</span><span class="o">.</span><span class="n">EVT_C_FIND</span><span class="p">,</span> <span class="n">handle_find</span><span class="p">)]</span>
 

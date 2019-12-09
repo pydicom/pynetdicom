@@ -208,8 +208,8 @@
 presentation contexts then you can associate with a peer by using the
 <a class="reference internal" href="../reference/generated/pynetdicom.ae.ApplicationEntity.html#pynetdicom.ae.ApplicationEntity.associate" title="pynetdicom.ae.ApplicationEntity.associate"><code class="xref py py-meth docutils literal notranslate"><span class="pre">AE.associate()</span></code></a>
 method, which returns an <a class="reference internal" href="../reference/generated/pynetdicom.association.Association.html#pynetdicom.association.Association" title="pynetdicom.association.Association"><code class="xref py py-class docutils literal notranslate"><span class="pre">Association</span></code></a> thread:</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">pynetdicom</span> <span class="k">import</span> <span class="n">AE</span>
-<span class="kn">from</span> <span class="nn">pynetdicom.sop_class</span> <span class="k">import</span> <span class="n">VerificationSOPClass</span>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">pynetdicom</span> <span class="kn">import</span> <span class="n">AE</span>
+<span class="kn">from</span> <span class="nn">pynetdicom.sop_class</span> <span class="kn">import</span> <span class="n">VerificationSOPClass</span>
 
 <span class="n">ae</span> <span class="o">=</span> <span class="n">AE</span><span class="p">()</span>
 <span class="n">ae</span><span class="o">.</span><span class="n">add_requested_context</span><span class="p">(</span><span class="n">VerificationSOPClass</span><span class="p">)</span>
@@ -247,7 +247,7 @@ contexts in
 <a class="reference internal" href="../reference/generated/pynetdicom.ae.ApplicationEntity.html#pynetdicom.ae.ApplicationEntity.requested_contexts" title="pynetdicom.ae.ApplicationEntity.requested_contexts"><code class="xref py py-attr docutils literal notranslate"><span class="pre">AE.requested_contexts</span></code></a>
 will be used with the association. To propose presentation contexts on a
 per-association basis you can use the <em>contexts</em> keyword argument:</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">pynetdicom</span> <span class="k">import</span> <span class="n">AE</span><span class="p">,</span> <span class="n">build_context</span>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">pynetdicom</span> <span class="kn">import</span> <span class="n">AE</span><span class="p">,</span> <span class="n">build_context</span>
 
 <span class="n">ae</span> <span class="o">=</span> <span class="n">AE</span><span class="p">()</span>
 <span class="n">requested_contexts</span> <span class="o">=</span> <span class="p">[</span><span class="n">build_context</span><span class="p">(</span><span class="s1">&#39;1.2.840.10008.1.1&#39;</span><span class="p">)]</span>
@@ -268,13 +268,13 @@ service class and intended usage. The following example shows how to add
 <a class="reference internal" href="../reference/generated/pynetdicom.presentation.build_role.html#pynetdicom.presentation.build_role" title="pynetdicom.presentation.build_role"><code class="xref py py-func docutils literal notranslate"><span class="pre">build_role()</span></code></a> when requesting the use of the
 Query/Retrieve (QR) Service Class’ C-GET service (in this example the QR SCU is
 also acting as a Storage SCP), plus a <em>User Identity Negotiation</em> item:</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">pynetdicom</span> <span class="k">import</span> <span class="p">(</span>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">pynetdicom</span> <span class="kn">import</span> <span class="p">(</span>
     <span class="n">AE</span><span class="p">,</span>
     <span class="n">StoragePresentationContexts</span><span class="p">,</span>
     <span class="n">QueryRetrievePresentationContexts</span><span class="p">,</span>
     <span class="n">build_role</span>
 <span class="p">)</span>
-<span class="kn">from</span> <span class="nn">pynetdicom.pdu_primitives</span> <span class="k">import</span> <span class="n">UserIdentityNegotiation</span>
+<span class="kn">from</span> <span class="nn">pynetdicom.pdu_primitives</span> <span class="kn">import</span> <span class="n">UserIdentityNegotiation</span>
 
 <span class="n">ae</span> <span class="o">=</span> <span class="n">AE</span><span class="p">()</span>
 <span class="c1"># Contexts proposed as a QR SCU</span>
@@ -319,8 +319,8 @@ also acting as a Storage SCP), plus a <em>User Identity Negotiation</em> item:</
 use the <em>evt_handlers</em> keyword argument:</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">logging</span>
 
-<span class="kn">from</span> <span class="nn">pynetdicom</span> <span class="k">import</span> <span class="n">AE</span><span class="p">,</span> <span class="n">evt</span>
-<span class="kn">from</span> <span class="nn">pynetdicom.sop_class</span> <span class="k">import</span> <span class="n">VerificationSOPClass</span>
+<span class="kn">from</span> <span class="nn">pynetdicom</span> <span class="kn">import</span> <span class="n">AE</span><span class="p">,</span> <span class="n">evt</span>
+<span class="kn">from</span> <span class="nn">pynetdicom.sop_class</span> <span class="kn">import</span> <span class="n">VerificationSOPClass</span>
 
 <span class="n">LOGGER</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="s1">&#39;pynetdicom&#39;</span><span class="p">)</span>
 
@@ -343,8 +343,8 @@ use the <em>evt_handlers</em> keyword argument:</p>
 <a class="reference internal" href="../reference/generated/pynetdicom.association.Association.html#pynetdicom.association.Association" title="pynetdicom.association.Association"><code class="xref py py-class docutils literal notranslate"><span class="pre">Association</span></code></a>:</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">logging</span>
 
-<span class="kn">from</span> <span class="nn">pynetdicom</span> <span class="k">import</span> <span class="n">AE</span><span class="p">,</span> <span class="n">evt</span>
-<span class="kn">from</span> <span class="nn">pynetdicom.sop_class</span> <span class="k">import</span> <span class="n">VerificationSOPClass</span>
+<span class="kn">from</span> <span class="nn">pynetdicom</span> <span class="kn">import</span> <span class="n">AE</span><span class="p">,</span> <span class="n">evt</span>
+<span class="kn">from</span> <span class="nn">pynetdicom.sop_class</span> <span class="kn">import</span> <span class="n">VerificationSOPClass</span>
 
 <span class="n">LOGGER</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="s1">&#39;pynetdicom&#39;</span><span class="p">)</span>
 
@@ -379,8 +379,8 @@ the <em>tls_args</em> keyword argument to
 <a class="reference internal" href="../reference/generated/pynetdicom.ae.ApplicationEntity.html#pynetdicom.ae.ApplicationEntity.associate" title="pynetdicom.ae.ApplicationEntity.associate"><code class="xref py py-meth docutils literal notranslate"><span class="pre">associate()</span></code></a>:</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">ssl</span>
 
-<span class="kn">from</span> <span class="nn">pynetdicom</span> <span class="k">import</span> <span class="n">AE</span>
-<span class="kn">from</span> <span class="nn">pynetdicom.sop_class</span> <span class="k">import</span> <span class="n">VerificationSOPClass</span>
+<span class="kn">from</span> <span class="nn">pynetdicom</span> <span class="kn">import</span> <span class="n">AE</span>
+<span class="kn">from</span> <span class="nn">pynetdicom.sop_class</span> <span class="kn">import</span> <span class="n">VerificationSOPClass</span>
 
 <span class="n">ae</span> <span class="o">=</span> <span class="n">AE</span><span class="p">()</span>
 <span class="n">ae</span><span class="o">.</span><span class="n">add_requested_context</span><span class="p">(</span><span class="n">VerificationSOPClass</span><span class="p">)</span>
@@ -406,8 +406,8 @@ value of the <em>server_hostname</em> keyword argument in
 establishment, association rejection, association abort or a connection
 failure, so its a good idea to test for establishment prior to attempting to
 use the association:</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">pynetdicom</span> <span class="k">import</span> <span class="n">AE</span>
-<span class="kn">from</span> <span class="nn">pynetdicom.sop_class</span> <span class="k">import</span> <span class="n">VerificationSOPClass</span>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">pynetdicom</span> <span class="kn">import</span> <span class="n">AE</span>
+<span class="kn">from</span> <span class="nn">pynetdicom.sop_class</span> <span class="kn">import</span> <span class="n">VerificationSOPClass</span>
 
 <span class="n">ae</span> <span class="o">=</span> <span class="n">AE</span><span class="p">()</span>
 <span class="n">ae</span><span class="o">.</span><span class="n">add_requested_context</span><span class="p">(</span><span class="n">VerificationSOPClass</span><span class="p">)</span>
@@ -480,8 +480,8 @@ property after the association has been established.</p>
 listening for association requests from peers with the
 <a class="reference internal" href="../reference/generated/pynetdicom.ae.ApplicationEntity.html#pynetdicom.ae.ApplicationEntity.start_server" title="pynetdicom.ae.ApplicationEntity.start_server"><code class="xref py py-meth docutils literal notranslate"><span class="pre">AE.start_server()</span></code></a>
 method:</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">pynetdicom</span> <span class="k">import</span> <span class="n">AE</span>
-<span class="kn">from</span> <span class="nn">pynetdicom.sop_class</span> <span class="k">import</span> <span class="n">VerificationSOPClass</span>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">pynetdicom</span> <span class="kn">import</span> <span class="n">AE</span>
+<span class="kn">from</span> <span class="nn">pynetdicom.sop_class</span> <span class="kn">import</span> <span class="n">VerificationSOPClass</span>
 
 <span class="n">ae</span><span class="o">.</span><span class="n">add_supported_context</span><span class="p">(</span><span class="n">VerificationSOPClass</span><span class="p">)</span>
 
@@ -494,8 +494,8 @@ Class, however other service classes will require that you implement and bind
 one or more of the <a class="reference internal" href="events.html#events-intervention"><span class="std std-ref">intervention event handlers</span></a>.</p>
 <p>The association server can be started in both blocking (default) and
 non-blocking modes:</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">pynetdicom</span> <span class="k">import</span> <span class="n">AE</span>
-<span class="kn">from</span> <span class="nn">pynetdicom.sop_class</span> <span class="k">import</span> <span class="n">VerificationSOPClass</span>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">pynetdicom</span> <span class="kn">import</span> <span class="n">AE</span>
+<span class="kn">from</span> <span class="nn">pynetdicom.sop_class</span> <span class="kn">import</span> <span class="n">VerificationSOPClass</span>
 
 <span class="n">ae</span><span class="o">.</span><span class="n">add_supported_context</span><span class="p">(</span><span class="n">VerificationSOPClass</span><span class="p">)</span>
 
@@ -524,7 +524,7 @@ If no value is set then the AE title of the parent AE will be used instead:</p>
 <h3>Specifying Presentation Contexts for each SCP<a class="headerlink" href="#specifying-presentation-contexts-for-each-scp" title="Permalink to this headline">¶</a></h3>
 <p>To support presentation contexts on a per-SCP basis you can use the
 <em>contexts</em> keyword argument:</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">pynetdicom</span> <span class="k">import</span> <span class="n">AE</span><span class="p">,</span> <span class="n">build_context</span>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">pynetdicom</span> <span class="kn">import</span> <span class="n">AE</span><span class="p">,</span> <span class="n">build_context</span>
 
 <span class="n">ae</span> <span class="o">=</span> <span class="n">AE</span><span class="p">()</span>
 <span class="n">supported_cx</span> <span class="o">=</span> <span class="p">[</span><span class="n">build_context</span><span class="p">(</span><span class="s1">&#39;1.2.840.10008.1.1&#39;</span><span class="p">)]</span>
@@ -539,8 +539,8 @@ If no value is set then the AE title of the parent AE will be used instead:</p>
 generated by the SCP you can use the <em>evt_handlers</em> keyword argument:</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">logging</span>
 
-<span class="kn">from</span> <span class="nn">pynetdicom</span> <span class="k">import</span> <span class="n">AE</span><span class="p">,</span> <span class="n">evt</span>
-<span class="kn">from</span> <span class="nn">pynetdicom.sop_class</span> <span class="k">import</span> <span class="n">VerificationSOPClass</span>
+<span class="kn">from</span> <span class="nn">pynetdicom</span> <span class="kn">import</span> <span class="n">AE</span><span class="p">,</span> <span class="n">evt</span>
+<span class="kn">from</span> <span class="nn">pynetdicom.sop_class</span> <span class="kn">import</span> <span class="n">VerificationSOPClass</span>
 
 <span class="n">LOGGER</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="s1">&#39;pynetdicom&#39;</span><span class="p">)</span>
 
@@ -561,8 +561,8 @@ generated by the SCP you can use the <em>evt_handlers</em> keyword argument:</p>
 non-blocking mode:</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">logging</span>
 
-<span class="kn">from</span> <span class="nn">pynetdicom</span> <span class="k">import</span> <span class="n">AE</span><span class="p">,</span> <span class="n">evt</span>
-<span class="kn">from</span> <span class="nn">pynetdicom.sop_class</span> <span class="k">import</span> <span class="n">VerificationSOPClass</span>
+<span class="kn">from</span> <span class="nn">pynetdicom</span> <span class="kn">import</span> <span class="n">AE</span><span class="p">,</span> <span class="n">evt</span>
+<span class="kn">from</span> <span class="nn">pynetdicom.sop_class</span> <span class="kn">import</span> <span class="n">VerificationSOPClass</span>
 
 <span class="n">LOGGER</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="s1">&#39;pynetdicom&#39;</span><span class="p">)</span>
 
@@ -606,8 +606,8 @@ TLS by  supplying a <a class="reference external" href="https://docs.python.org/
 keyword argument:</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">ssl</span>
 
-<span class="kn">from</span> <span class="nn">pynetdicom</span> <span class="k">import</span> <span class="n">AE</span>
-<span class="kn">from</span> <span class="nn">pynetdicom.sop_class</span> <span class="k">import</span> <span class="n">VerificationSOPClass</span>
+<span class="kn">from</span> <span class="nn">pynetdicom</span> <span class="kn">import</span> <span class="n">AE</span>
+<span class="kn">from</span> <span class="nn">pynetdicom.sop_class</span> <span class="kn">import</span> <span class="n">VerificationSOPClass</span>
 
 <span class="n">ae</span><span class="o">.</span><span class="n">add_supported_context</span><span class="p">(</span><span class="n">VerificationSOPClass</span><span class="p">)</span>
 
@@ -677,8 +677,8 @@ implementation that always returns a <code class="docutils literal notranslate">
 <p>For instance, if your SCP is to support the Storage Service then you would
 implement and bind a handler for the <code class="docutils literal notranslate"><span class="pre">evt.EVT_C_STORE</span></code> event in manner
 similar to:</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">pynetdicom</span> <span class="k">import</span> <span class="n">AE</span><span class="p">,</span> <span class="n">evt</span>
-<span class="kn">from</span> <span class="nn">pynetdicom.sop_class</span> <span class="k">import</span> <span class="n">VerificationSOPClass</span>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">pynetdicom</span> <span class="kn">import</span> <span class="n">AE</span><span class="p">,</span> <span class="n">evt</span>
+<span class="kn">from</span> <span class="nn">pynetdicom.sop_class</span> <span class="kn">import</span> <span class="n">VerificationSOPClass</span>
 
 <span class="n">ae</span> <span class="o">=</span> <span class="n">AE</span><span class="p">()</span>
 <span class="n">ae</span><span class="o">.</span><span class="n">add_supported_context</span><span class="p">(</span><span class="n">VerificationSOPClass</span><span class="p">)</span>

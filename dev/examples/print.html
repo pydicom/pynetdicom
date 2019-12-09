@@ -483,20 +483,20 @@ notifications over the same association (and ignore them).</p>
         <span class="n">meta_uid</span><span class="o">=</span><span class="n">BasicGrayscalePrintManagementMetaSOPClass</span>
     <span class="p">)</span>
     <span class="k">if</span> <span class="n">status</span> <span class="ow">and</span> <span class="n">status</span><span class="o">.</span><span class="n">Status</span> <span class="o">==</span> <span class="mh">0x0000</span><span class="p">:</span>
-        <span class="k">if</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">attr_list</span><span class="p">,</span> <span class="s1">&#39;PrinterStatus&#39;</span><span class="p">,</span> <span class="bp">None</span><span class="p">)</span> <span class="o">!=</span> <span class="s2">&quot;NORMAL&quot;</span><span class="p">:</span>
-            <span class="k">print</span><span class="p">(</span><span class="s2">&quot;Printer status is not &#39;NORMAL&#39;&quot;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">attr_list</span><span class="p">,</span> <span class="s1">&#39;PrinterStatus&#39;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span> <span class="o">!=</span> <span class="s2">&quot;NORMAL&quot;</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Printer status is not &#39;NORMAL&#39;&quot;</span><span class="p">)</span>
             <span class="n">assoc</span><span class="o">.</span><span class="n">release</span><span class="p">()</span>
             <span class="n">sys</span><span class="o">.</span><span class="n">exit</span><span class="p">()</span>
         <span class="k">else</span><span class="p">:</span>
-            <span class="k">print</span><span class="p">(</span><span class="s2">&quot;Failed to get the printer status&quot;</span><span class="p">)</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Failed to get the printer status&quot;</span><span class="p">)</span>
             <span class="n">assoc</span><span class="o">.</span><span class="n">release</span><span class="p">()</span>
             <span class="n">sys</span><span class="o">.</span><span class="n">exit</span><span class="p">()</span>
     <span class="k">else</span><span class="p">:</span>
-        <span class="k">print</span><span class="p">(</span><span class="s2">&quot;Failed to get the printer status&quot;</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Failed to get the printer status&quot;</span><span class="p">)</span>
         <span class="n">assoc</span><span class="o">.</span><span class="n">release</span><span class="p">()</span>
         <span class="n">sys</span><span class="o">.</span><span class="n">exit</span><span class="p">()</span>
 
-    <span class="k">print</span><span class="p">(</span><span class="s1">&#39;Printer ready&#39;</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Printer ready&#39;</span><span class="p">)</span>
 
     <span class="c1"># Step 2: Create *Film Session* instance</span>
     <span class="n">status</span><span class="p">,</span> <span class="n">film_session</span> <span class="o">=</span> <span class="n">assoc</span><span class="o">.</span><span class="n">send_n_create</span><span class="p">(</span>
@@ -507,11 +507,11 @@ notifications over the same association (and ignore them).</p>
     <span class="p">)</span>
 
     <span class="k">if</span> <span class="ow">not</span> <span class="n">status</span> <span class="ow">or</span> <span class="n">status</span><span class="o">.</span><span class="n">Status</span> <span class="o">!=</span> <span class="mh">0x0000</span><span class="p">:</span>
-        <span class="k">print</span><span class="p">(</span><span class="s1">&#39;Creation of Film Session failed, releasing association&#39;</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Creation of Film Session failed, releasing association&#39;</span><span class="p">)</span>
         <span class="n">assoc</span><span class="o">.</span><span class="n">release</span><span class="p">()</span>
         <span class="n">sys</span><span class="o">.</span><span class="n">exit</span><span class="p">()</span>
 
-    <span class="k">print</span><span class="p">(</span><span class="s1">&#39;Film Session created&#39;</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Film Session created&#39;</span><span class="p">)</span>
 
     <span class="c1"># Step 3: Create *Film Box* and *Image Box(es)*</span>
     <span class="n">status</span><span class="p">,</span> <span class="n">film_box</span> <span class="o">=</span> <span class="n">assoc</span><span class="o">.</span><span class="n">send_n_create</span><span class="p">(</span>
@@ -521,11 +521,11 @@ notifications over the same association (and ignore them).</p>
         <span class="n">meta_uid</span><span class="o">=</span><span class="n">BasicGrayscalePrintManagementMetaSOPClass</span>
     <span class="p">)</span>
     <span class="k">if</span> <span class="ow">not</span> <span class="n">status</span> <span class="ow">or</span> <span class="n">status</span><span class="o">.</span><span class="n">Status</span> <span class="o">!=</span> <span class="mh">0x0000</span><span class="p">:</span>
-        <span class="k">print</span><span class="p">(</span><span class="s1">&#39;Creation of the Film Box failed, releasing association&#39;</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Creation of the Film Box failed, releasing association&#39;</span><span class="p">)</span>
         <span class="n">assoc</span><span class="o">.</span><span class="n">release</span><span class="p">()</span>
         <span class="n">sys</span><span class="o">.</span><span class="n">exit</span><span class="p">()</span>
 
-    <span class="k">print</span><span class="p">(</span><span class="s1">&#39;Film Box created&#39;</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Film Box created&#39;</span><span class="p">)</span>
 
     <span class="c1"># Step 4: Update the *Image Box* with the image data</span>
     <span class="c1"># In this example we only have one *Image Box* per *Film Box*</span>
@@ -538,27 +538,27 @@ notifications over the same association (and ignore them).</p>
         <span class="n">meta_uid</span><span class="o">=</span><span class="n">BasicGrayscalePrintManagementMetaSOPClass</span>
     <span class="p">)</span>
     <span class="k">if</span> <span class="ow">not</span> <span class="n">status</span> <span class="ow">or</span> <span class="n">status</span><span class="o">.</span><span class="n">Status</span> <span class="o">!=</span> <span class="mh">0x0000</span><span class="p">:</span>
-        <span class="k">print</span><span class="p">(</span><span class="s1">&#39;Updating the Image Box failed, releasing association&#39;</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Updating the Image Box failed, releasing association&#39;</span><span class="p">)</span>
         <span class="n">assoc</span><span class="o">.</span><span class="n">release</span><span class="p">()</span>
         <span class="n">sys</span><span class="o">.</span><span class="n">exit</span><span class="p">()</span>
 
-    <span class="k">print</span><span class="p">(</span><span class="s1">&#39;Updated the Image Box with the image data&#39;</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Updated the Image Box with the image data&#39;</span><span class="p">)</span>
 
     <span class="c1"># Step 5: Print the *Film Box*</span>
     <span class="n">status</span><span class="p">,</span> <span class="n">action_reply</span> <span class="o">=</span> <span class="n">assoc</span><span class="o">.</span><span class="n">send_n_action</span><span class="p">(</span>
-        <span class="bp">None</span><span class="p">,</span>  <span class="c1"># No *Action Information* needed</span>
+        <span class="kc">None</span><span class="p">,</span>  <span class="c1"># No *Action Information* needed</span>
         <span class="mi">1</span><span class="p">,</span>  <span class="c1"># Print the Film Box</span>
         <span class="n">film_box</span><span class="o">.</span><span class="n">SOPClassUID</span><span class="p">,</span>
         <span class="n">film_box</span><span class="o">.</span><span class="n">SOPInstanceUID</span><span class="p">,</span>
         <span class="n">meta_uid</span><span class="o">=</span><span class="n">BasicGrayscalePrintManagementMetaSOPClass</span>
     <span class="p">)</span>
     <span class="k">if</span> <span class="ow">not</span> <span class="n">status</span> <span class="ow">or</span> <span class="n">status</span><span class="o">.</span><span class="n">Status</span> <span class="o">!=</span> <span class="mh">0x0000</span><span class="p">:</span>
-        <span class="k">print</span><span class="p">(</span><span class="s1">&#39;Printing the Film Box failed, releasing association&#39;</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Printing the Film Box failed, releasing association&#39;</span><span class="p">)</span>
         <span class="n">assoc</span><span class="o">.</span><span class="n">release</span><span class="p">()</span>
         <span class="n">sys</span><span class="o">.</span><span class="n">exit</span><span class="p">()</span>
 
     <span class="c1"># The actual printing may occur after association release/abort</span>
-    <span class="k">print</span><span class="p">(</span><span class="s1">&#39;Print command sent successfully&#39;</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Print command sent successfully&#39;</span><span class="p">)</span>
 
     <span class="c1"># Optional - Delete the Film Box</span>
     <span class="n">status</span> <span class="o">=</span> <span class="n">assoc</span><span class="o">.</span><span class="n">send_n_delete</span><span class="p">(</span>

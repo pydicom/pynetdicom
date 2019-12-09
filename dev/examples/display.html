@@ -218,21 +218,21 @@ Display System Management Service.</p>
 
     <span class="c1"># Check the status of the display system request</span>
     <span class="k">if</span> <span class="n">status</span><span class="p">:</span>
-        <span class="k">print</span><span class="p">(</span><span class="s1">&#39;N-GET request status: 0x{0:04x}&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">status</span><span class="o">.</span><span class="n">Status</span><span class="p">))</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;N-GET request status: 0x</span><span class="si">{0:04x}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">status</span><span class="o">.</span><span class="n">Status</span><span class="p">))</span>
 
         <span class="c1"># If the display system request succeeded the status category may</span>
         <span class="c1"># be either success or warning</span>
         <span class="n">category</span> <span class="o">=</span> <span class="n">code_to_category</span><span class="p">(</span><span class="n">status</span><span class="o">.</span><span class="n">Status</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">category</span> <span class="ow">in</span> <span class="p">[</span><span class="s1">&#39;Warning&#39;</span><span class="p">,</span> <span class="s1">&#39;Success&#39;</span><span class="p">]:</span>
             <span class="c1"># `attr_list` is a pydicom Dataset containing attribute values</span>
-            <span class="k">print</span><span class="p">(</span><span class="n">attr_list</span><span class="p">)</span>
+            <span class="nb">print</span><span class="p">(</span><span class="n">attr_list</span><span class="p">)</span>
     <span class="k">else</span><span class="p">:</span>
-        <span class="k">print</span><span class="p">(</span><span class="s1">&#39;Connection timed out, was aborted or received invalid response&#39;</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Connection timed out, was aborted or received invalid response&#39;</span><span class="p">)</span>
 
     <span class="c1"># Release the association</span>
     <span class="n">assoc</span><span class="o">.</span><span class="n">release</span><span class="p">()</span>
 <span class="k">else</span><span class="p">:</span>
-    <span class="k">print</span><span class="p">(</span><span class="s1">&#39;Association rejected, aborted or never connected&#39;</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Association rejected, aborted or never connected&#39;</span><span class="p">)</span>
 </pre></div>
 </div>
 <p>You can also use the inbuilt

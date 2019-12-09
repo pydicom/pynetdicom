@@ -223,14 +223,14 @@ single CT dataset.</p>
     <span class="c1"># Check the status of the storage request</span>
     <span class="k">if</span> <span class="n">status</span><span class="p">:</span>
         <span class="c1"># If the storage request succeeded this will be 0x0000</span>
-        <span class="k">print</span><span class="p">(</span><span class="s1">&#39;C-STORE request status: 0x{0:04x}&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">status</span><span class="o">.</span><span class="n">Status</span><span class="p">))</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;C-STORE request status: 0x</span><span class="si">{0:04x}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">status</span><span class="o">.</span><span class="n">Status</span><span class="p">))</span>
     <span class="k">else</span><span class="p">:</span>
-        <span class="k">print</span><span class="p">(</span><span class="s1">&#39;Connection timed out, was aborted or received invalid response&#39;</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Connection timed out, was aborted or received invalid response&#39;</span><span class="p">)</span>
 
     <span class="c1"># Release the association</span>
     <span class="n">assoc</span><span class="o">.</span><span class="n">release</span><span class="p">()</span>
 <span class="k">else</span><span class="p">:</span>
-    <span class="k">print</span><span class="p">(</span><span class="s1">&#39;Association rejected, aborted or never connected&#39;</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Association rejected, aborted or never connected&#39;</span><span class="p">)</span>
 </pre></div>
 </div>
 <p>Of course it’s rarely the case that someone wants to store just CT images,
@@ -298,7 +298,7 @@ to see the requirements for the <code class="docutils literal notranslate"><span
     <span class="n">ds</span><span class="o">.</span><span class="n">file_meta</span> <span class="o">=</span> <span class="n">event</span><span class="o">.</span><span class="n">file_meta</span>
 
     <span class="c1"># Save the dataset using the SOP Instance UID as the filename</span>
-    <span class="n">ds</span><span class="o">.</span><span class="n">save_as</span><span class="p">(</span><span class="n">ds</span><span class="o">.</span><span class="n">SOPInstanceUID</span><span class="p">,</span> <span class="n">write_like_original</span><span class="o">=</span><span class="bp">False</span><span class="p">)</span>
+    <span class="n">ds</span><span class="o">.</span><span class="n">save_as</span><span class="p">(</span><span class="n">ds</span><span class="o">.</span><span class="n">SOPInstanceUID</span><span class="p">,</span> <span class="n">write_like_original</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
 
     <span class="c1"># Return a &#39;Success&#39; status</span>
     <span class="k">return</span> <span class="mh">0x0000</span>
@@ -345,7 +345,7 @@ interested in.</p>
 
 <span class="n">ae</span> <span class="o">=</span> <span class="n">AE</span><span class="p">()</span>
 <span class="n">ae</span><span class="o">.</span><span class="n">add_supported_context</span><span class="p">(</span><span class="n">CTImageStorage</span><span class="p">)</span>
-<span class="n">scp</span> <span class="o">=</span> <span class="n">ae</span><span class="o">.</span><span class="n">start_server</span><span class="p">((</span><span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="mi">11112</span><span class="p">),</span> <span class="n">block</span><span class="o">=</span><span class="bp">False</span> <span class="n">evt_handlers</span><span class="o">=</span><span class="n">handlers</span><span class="p">)</span>
+<span class="n">scp</span> <span class="o">=</span> <span class="n">ae</span><span class="o">.</span><span class="n">start_server</span><span class="p">((</span><span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="mi">11112</span><span class="p">),</span> <span class="n">block</span><span class="o">=</span><span class="kc">False</span> <span class="n">evt_handlers</span><span class="o">=</span><span class="n">handlers</span><span class="p">)</span>
 
 <span class="c1"># Zzzz</span>
 <span class="n">time</span><span class="o">.</span><span class="n">sleep</span><span class="p">(</span><span class="mi">60</span><span class="p">)</span>

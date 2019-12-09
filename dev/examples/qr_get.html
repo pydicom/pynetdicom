@@ -277,7 +277,7 @@ to see the requirements for the <code class="docutils literal notranslate"><span
     <span class="n">ds</span><span class="o">.</span><span class="n">is_implicit_VR</span> <span class="o">=</span> <span class="n">context</span><span class="o">.</span><span class="n">transfer_syntax</span><span class="o">.</span><span class="n">is_implicit_VR</span>
 
     <span class="c1"># Save the dataset using the SOP Instance UID as the filename</span>
-    <span class="n">ds</span><span class="o">.</span><span class="n">save_as</span><span class="p">(</span><span class="n">ds</span><span class="o">.</span><span class="n">SOPInstanceUID</span><span class="p">,</span> <span class="n">write_like_original</span><span class="o">=</span><span class="bp">False</span><span class="p">)</span>
+    <span class="n">ds</span><span class="o">.</span><span class="n">save_as</span><span class="p">(</span><span class="n">ds</span><span class="o">.</span><span class="n">SOPInstanceUID</span><span class="p">,</span> <span class="n">write_like_original</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
 
     <span class="c1"># Return a &#39;Success&#39; status</span>
     <span class="k">return</span> <span class="mh">0x0000</span>
@@ -293,7 +293,7 @@ to see the requirements for the <code class="docutils literal notranslate"><span
 <span class="n">ae</span><span class="o">.</span><span class="n">add_requested_context</span><span class="p">(</span><span class="n">CTImageStorage</span><span class="p">)</span>
 
 <span class="c1"># Create an SCP/SCU Role Selection Negotiation item for CT Image Storage</span>
-<span class="n">role</span> <span class="o">=</span> <span class="n">build_role</span><span class="p">(</span><span class="n">CTImageStorage</span><span class="p">,</span> <span class="n">scp_role</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
+<span class="n">role</span> <span class="o">=</span> <span class="n">build_role</span><span class="p">(</span><span class="n">CTImageStorage</span><span class="p">,</span> <span class="n">scp_role</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 
 <span class="c1"># Create our Identifier (query) dataset</span>
 <span class="c1"># We need to supply a Unique Key Attribute for each level above the</span>
@@ -316,18 +316,18 @@ to see the requirements for the <code class="docutils literal notranslate"><span
 
     <span class="k">for</span> <span class="p">(</span><span class="n">status</span><span class="p">,</span> <span class="n">identifier</span><span class="p">)</span> <span class="ow">in</span> <span class="n">responses</span><span class="p">:</span>
         <span class="k">if</span> <span class="n">status</span><span class="p">:</span>
-            <span class="k">print</span><span class="p">(</span><span class="s1">&#39;C-GET query status: 0x{0:04x}&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">status</span><span class="o">.</span><span class="n">Status</span><span class="p">))</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;C-GET query status: 0x</span><span class="si">{0:04x}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">status</span><span class="o">.</span><span class="n">Status</span><span class="p">))</span>
 
             <span class="c1"># If the status is &#39;Pending&#39; then `identifier` is the C-GET response</span>
             <span class="k">if</span> <span class="n">status</span><span class="o">.</span><span class="n">Status</span> <span class="ow">in</span> <span class="p">(</span><span class="mh">0xFF00</span><span class="p">,</span> <span class="mh">0xFF01</span><span class="p">):</span>
-                <span class="k">print</span><span class="p">(</span><span class="n">identifier</span><span class="p">)</span>
+                <span class="nb">print</span><span class="p">(</span><span class="n">identifier</span><span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
-            <span class="k">print</span><span class="p">(</span><span class="s1">&#39;Connection timed out, was aborted or received invalid response&#39;</span><span class="p">)</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Connection timed out, was aborted or received invalid response&#39;</span><span class="p">)</span>
 
     <span class="c1"># Release the association</span>
     <span class="n">assoc</span><span class="o">.</span><span class="n">release</span><span class="p">()</span>
 <span class="k">else</span><span class="p">:</span>
-    <span class="k">print</span><span class="p">(</span><span class="s1">&#39;Association rejected, aborted or never connected&#39;</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Association rejected, aborted or never connected&#39;</span><span class="p">)</span>
 </pre></div>
 </div>
 <p>The responses received from the SCP are dependent on the <em>Identifier</em> dataset
@@ -363,7 +363,7 @@ query against that.</p>
     <span class="n">ds</span> <span class="o">=</span> <span class="n">event</span><span class="o">.</span><span class="n">identifier</span>
     <span class="k">if</span> <span class="s1">&#39;QueryRetrieveLevel&#39;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">ds</span><span class="p">:</span>
         <span class="c1"># Failure</span>
-        <span class="k">yield</span> <span class="mh">0xC000</span><span class="p">,</span> <span class="bp">None</span>
+        <span class="k">yield</span> <span class="mh">0xC000</span><span class="p">,</span> <span class="kc">None</span>
         <span class="k">return</span>
 
     <span class="c1"># Import stored SOP Instances</span>
@@ -390,7 +390,7 @@ query against that.</p>
     <span class="k">for</span> <span class="n">instance</span> <span class="ow">in</span> <span class="n">matching</span><span class="p">:</span>
         <span class="c1"># Check if C-CANCEL has been received</span>
         <span class="k">if</span> <span class="n">event</span><span class="o">.</span><span class="n">is_cancelled</span><span class="p">:</span>
-            <span class="k">yield</span> <span class="p">(</span><span class="mh">0xFE00</span><span class="p">,</span> <span class="bp">None</span><span class="p">)</span>
+            <span class="k">yield</span> <span class="p">(</span><span class="mh">0xFE00</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
             <span class="k">return</span>
 
         <span class="c1"># Pending</span>
@@ -407,8 +407,8 @@ query against that.</p>
 <span class="c1"># Accept the association requestor&#39;s proposed SCP role in the</span>
 <span class="c1">#   SCP/SCU Role Selection Negotiation items</span>
 <span class="k">for</span> <span class="n">cx</span> <span class="ow">in</span> <span class="n">ae</span><span class="o">.</span><span class="n">supported_contexts</span><span class="p">:</span>
-    <span class="n">cx</span><span class="o">.</span><span class="n">scp_role</span> <span class="o">=</span> <span class="bp">True</span>
-    <span class="n">cx</span><span class="o">.</span><span class="n">scu_role</span> <span class="o">=</span> <span class="bp">False</span>
+    <span class="n">cx</span><span class="o">.</span><span class="n">scp_role</span> <span class="o">=</span> <span class="kc">True</span>
+    <span class="n">cx</span><span class="o">.</span><span class="n">scu_role</span> <span class="o">=</span> <span class="kc">False</span>
 
 <span class="c1"># Add a supported presentation context (QR Get SCP)</span>
 <span class="n">ae</span><span class="o">.</span><span class="n">add_supported_context</span><span class="p">(</span><span class="n">PatientRootQueryRetrieveInformationModelGet</span><span class="p">)</span>

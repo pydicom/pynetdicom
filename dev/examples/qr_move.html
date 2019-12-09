@@ -231,18 +231,18 @@ series with <em>Study Instance UID</em> <code class="docutils literal notranslat
 
     <span class="k">for</span> <span class="p">(</span><span class="n">status</span><span class="p">,</span> <span class="n">identifier</span><span class="p">)</span> <span class="ow">in</span> <span class="n">responses</span><span class="p">:</span>
         <span class="k">if</span> <span class="n">status</span><span class="p">:</span>
-            <span class="k">print</span><span class="p">(</span><span class="s1">&#39;C-MOVE query status: 0x{0:04x}&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">status</span><span class="o">.</span><span class="n">Status</span><span class="p">))</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;C-MOVE query status: 0x</span><span class="si">{0:04x}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">status</span><span class="o">.</span><span class="n">Status</span><span class="p">))</span>
 
             <span class="c1"># If the status is &#39;Pending&#39; then the identifier is the C-MOVE response</span>
             <span class="k">if</span> <span class="n">status</span><span class="o">.</span><span class="n">Status</span> <span class="ow">in</span> <span class="p">(</span><span class="mh">0xFF00</span><span class="p">,</span> <span class="mh">0xFF01</span><span class="p">):</span>
-                <span class="k">print</span><span class="p">(</span><span class="n">identifier</span><span class="p">)</span>
+                <span class="nb">print</span><span class="p">(</span><span class="n">identifier</span><span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
-            <span class="k">print</span><span class="p">(</span><span class="s1">&#39;Connection timed out, was aborted or received invalid response&#39;</span><span class="p">)</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Connection timed out, was aborted or received invalid response&#39;</span><span class="p">)</span>
 
     <span class="c1"># Release the association</span>
     <span class="n">assoc</span><span class="o">.</span><span class="n">release</span><span class="p">()</span>
 <span class="k">else</span><span class="p">:</span>
-    <span class="k">print</span><span class="p">(</span><span class="s1">&#39;Association rejected, aborted or never connected&#39;</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Association rejected, aborted or never connected&#39;</span><span class="p">)</span>
 </pre></div>
 </div>
 <p>The responses received from the SCP include notifications on whether or not
@@ -275,7 +275,7 @@ to see the requirements for the <code class="docutils literal notranslate"><span
 
 <span class="c1"># Start our Storage SCP in non-blocking mode, listening on port 11120</span>
 <span class="n">ae</span><span class="o">.</span><span class="n">ae_title</span> <span class="o">=</span> <span class="sa">b</span><span class="s1">&#39;OUR_STORE_SCP&#39;</span>
-<span class="n">scp</span> <span class="o">=</span> <span class="n">ae</span><span class="o">.</span><span class="n">start_server</span><span class="p">((</span><span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="mi">11120</span><span class="p">),</span> <span class="n">block</span><span class="o">=</span><span class="bp">False</span><span class="p">,</span> <span class="n">evt_handlers</span><span class="o">=</span><span class="n">handlers</span><span class="p">)</span>
+<span class="n">scp</span> <span class="o">=</span> <span class="n">ae</span><span class="o">.</span><span class="n">start_server</span><span class="p">((</span><span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="mi">11120</span><span class="p">),</span> <span class="n">block</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">evt_handlers</span><span class="o">=</span><span class="n">handlers</span><span class="p">)</span>
 
 <span class="c1"># Create out identifier (query) dataset</span>
 <span class="n">ds</span> <span class="o">=</span> <span class="n">Dataset</span><span class="p">()</span>
@@ -296,18 +296,18 @@ to see the requirements for the <code class="docutils literal notranslate"><span
 
     <span class="k">for</span> <span class="p">(</span><span class="n">status</span><span class="p">,</span> <span class="n">identifier</span><span class="p">)</span> <span class="ow">in</span> <span class="n">responses</span><span class="p">:</span>
         <span class="k">if</span> <span class="n">status</span><span class="p">:</span>
-            <span class="k">print</span><span class="p">(</span><span class="s1">&#39;C-MOVE query status: 0x{0:04x}&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">status</span><span class="o">.</span><span class="n">Status</span><span class="p">))</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;C-MOVE query status: 0x</span><span class="si">{0:04x}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">status</span><span class="o">.</span><span class="n">Status</span><span class="p">))</span>
 
             <span class="c1"># If the status is &#39;Pending&#39; then `identifier` is the C-MOVE response</span>
             <span class="k">if</span> <span class="n">status</span><span class="o">.</span><span class="n">Status</span> <span class="ow">in</span> <span class="p">(</span><span class="mh">0xFF00</span><span class="p">,</span> <span class="mh">0xFF01</span><span class="p">):</span>
-                <span class="k">print</span><span class="p">(</span><span class="n">identifier</span><span class="p">)</span>
+                <span class="nb">print</span><span class="p">(</span><span class="n">identifier</span><span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
-            <span class="k">print</span><span class="p">(</span><span class="s1">&#39;Connection timed out, was aborted or received invalid response&#39;</span><span class="p">)</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Connection timed out, was aborted or received invalid response&#39;</span><span class="p">)</span>
 
     <span class="c1"># Release the association</span>
     <span class="n">assoc</span><span class="o">.</span><span class="n">release</span><span class="p">()</span>
 <span class="k">else</span><span class="p">:</span>
-    <span class="k">print</span><span class="p">(</span><span class="s1">&#39;Association rejected, aborted or never connected&#39;</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Association rejected, aborted or never connected&#39;</span><span class="p">)</span>
 
 <span class="c1"># Stop our Storage SCP</span>
 <span class="n">scp</span><span class="o">.</span><span class="n">shutdown</span><span class="p">()</span>
@@ -347,7 +347,7 @@ query against that.</p>
 
     <span class="k">if</span> <span class="s1">&#39;QueryRetrieveLevel&#39;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">ds</span><span class="p">:</span>
         <span class="c1"># Failure</span>
-        <span class="k">yield</span> <span class="mh">0xC000</span><span class="p">,</span> <span class="bp">None</span>
+        <span class="k">yield</span> <span class="mh">0xC000</span><span class="p">,</span> <span class="kc">None</span>
         <span class="k">return</span>
 
     <span class="c1"># get_known_aet() is here to represent a user-implemented method of</span>
@@ -358,7 +358,7 @@ query against that.</p>
         <span class="p">(</span><span class="n">addr</span><span class="p">,</span> <span class="n">port</span><span class="p">)</span> <span class="o">=</span> <span class="n">known_aet_dict</span><span class="p">[</span><span class="n">event</span><span class="o">.</span><span class="n">move_destination</span><span class="p">]</span>
     <span class="k">except</span> <span class="ne">KeyError</span><span class="p">:</span>
         <span class="c1"># Unknown destination AE</span>
-        <span class="k">yield</span> <span class="p">(</span><span class="bp">None</span><span class="p">,</span> <span class="bp">None</span><span class="p">)</span>
+        <span class="k">yield</span> <span class="p">(</span><span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
         <span class="k">return</span>
 
     <span class="c1"># Yield the IP address and listen port of the destination AE</span>
@@ -388,7 +388,7 @@ query against that.</p>
     <span class="k">for</span> <span class="n">instance</span> <span class="ow">in</span> <span class="n">matching</span><span class="p">:</span>
         <span class="c1"># Check if C-CANCEL has been received</span>
         <span class="k">if</span> <span class="n">event</span><span class="o">.</span><span class="n">is_cancelled</span><span class="p">:</span>
-            <span class="k">yield</span> <span class="p">(</span><span class="mh">0xFE00</span><span class="p">,</span> <span class="bp">None</span><span class="p">)</span>
+            <span class="k">yield</span> <span class="p">(</span><span class="mh">0xFE00</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
             <span class="k">return</span>
 
         <span class="c1"># Pending</span>

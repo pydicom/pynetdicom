@@ -250,8 +250,8 @@ SOP Instance.</p>
     <span class="n">ds</span><span class="o">.</span><span class="n">PerformedProcedureStepDescription</span> <span class="o">=</span> <span class="s1">&#39;Some description&#39;</span>
     <span class="n">ds</span><span class="o">.</span><span class="n">PerformedProcedureTypeDescription</span> <span class="o">=</span> <span class="s1">&#39;Some type&#39;</span>
     <span class="n">ds</span><span class="o">.</span><span class="n">PerformedProcedureCodeSequence</span> <span class="o">=</span> <span class="p">[]</span>
-    <span class="n">ds</span><span class="o">.</span><span class="n">PerformedProcedureStepEndDate</span> <span class="o">=</span> <span class="bp">None</span>
-    <span class="n">ds</span><span class="o">.</span><span class="n">PerformedProcedureStepEndTime</span> <span class="o">=</span> <span class="bp">None</span>
+    <span class="n">ds</span><span class="o">.</span><span class="n">PerformedProcedureStepEndDate</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">ds</span><span class="o">.</span><span class="n">PerformedProcedureStepEndTime</span> <span class="o">=</span> <span class="kc">None</span>
     <span class="c1"># Image Acquisition Results</span>
     <span class="n">ds</span><span class="o">.</span><span class="n">Modality</span> <span class="o">=</span> <span class="s1">&#39;CT&#39;</span>
     <span class="n">ds</span><span class="o">.</span><span class="n">StudyID</span> <span class="o">=</span> <span class="s2">&quot;1&quot;</span>
@@ -280,21 +280,21 @@ SOP Instance.</p>
 
     <span class="c1"># Check the status of the display system request</span>
     <span class="k">if</span> <span class="n">status</span><span class="p">:</span>
-        <span class="k">print</span><span class="p">(</span><span class="s1">&#39;N-CREATE request status: 0x{0:04x}&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">status</span><span class="o">.</span><span class="n">Status</span><span class="p">))</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;N-CREATE request status: 0x</span><span class="si">{0:04x}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">status</span><span class="o">.</span><span class="n">Status</span><span class="p">))</span>
 
         <span class="c1"># If the MPPS request succeeded the status category may</span>
         <span class="c1"># be either Success or Warning</span>
         <span class="n">category</span> <span class="o">=</span> <span class="n">code_to_category</span><span class="p">(</span><span class="n">status</span><span class="o">.</span><span class="n">Status</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">category</span> <span class="ow">in</span> <span class="p">[</span><span class="s1">&#39;Warning&#39;</span><span class="p">,</span> <span class="s1">&#39;Success&#39;</span><span class="p">]:</span>
             <span class="c1"># `attr_list` is a pydicom Dataset containing attribute values</span>
-            <span class="k">print</span><span class="p">(</span><span class="n">attr_list</span><span class="p">)</span>
+            <span class="nb">print</span><span class="p">(</span><span class="n">attr_list</span><span class="p">)</span>
     <span class="k">else</span><span class="p">:</span>
-        <span class="k">print</span><span class="p">(</span><span class="s1">&#39;Connection timed out, was aborted or received invalid response&#39;</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Connection timed out, was aborted or received invalid response&#39;</span><span class="p">)</span>
 
     <span class="c1"># Release the association</span>
     <span class="n">assoc</span><span class="o">.</span><span class="n">release</span><span class="p">()</span>
 <span class="k">else</span><span class="p">:</span>
-    <span class="k">print</span><span class="p">(</span><span class="s1">&#39;Association rejected, aborted or never connected&#39;</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Association rejected, aborted or never connected&#39;</span><span class="p">)</span>
 </pre></div>
 </div>
 </div>
@@ -318,12 +318,12 @@ Procedure Step Status</em> of <code class="docutils literal notranslate"><span c
     <span class="n">ds</span><span class="o">.</span><span class="n">PerformedSeriesSequence</span> <span class="o">=</span> <span class="p">[</span><span class="n">Dataset</span><span class="p">()]</span>
 
     <span class="n">series_seq</span> <span class="o">=</span> <span class="n">ds</span><span class="o">.</span><span class="n">PerformedSeriesSequence</span>
-    <span class="n">series_seq</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">PerformingPhysicianName</span> <span class="o">=</span> <span class="bp">None</span>
+    <span class="n">series_seq</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">PerformingPhysicianName</span> <span class="o">=</span> <span class="kc">None</span>
     <span class="n">series_seq</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">ProtocolName</span> <span class="o">=</span> <span class="s2">&quot;Some protocol&quot;</span>
-    <span class="n">series_seq</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">OperatorName</span> <span class="o">=</span> <span class="bp">None</span>
+    <span class="n">series_seq</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">OperatorName</span> <span class="o">=</span> <span class="kc">None</span>
     <span class="n">series_seq</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">SeriesInstanceUID</span> <span class="o">=</span> <span class="n">series_instance</span>
     <span class="n">series_seq</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">SeriesDescription</span> <span class="o">=</span> <span class="s2">&quot;some description&quot;</span>
-    <span class="n">series_seq</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">RetrieveAETitle</span> <span class="o">=</span> <span class="bp">None</span>
+    <span class="n">series_seq</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">RetrieveAETitle</span> <span class="o">=</span> <span class="kc">None</span>
     <span class="n">series_seq</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">ReferencedImageSequence</span> <span class="o">=</span> <span class="p">[]</span>
 
     <span class="n">img_seq</span> <span class="o">=</span> <span class="n">series_seq</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">ReferencedImageSequence</span>
@@ -355,7 +355,7 @@ Procedure Step Status</em> of <code class="docutils literal notranslate"><span c
     <span class="p">)</span>
 
     <span class="k">if</span> <span class="n">status</span><span class="p">:</span>
-        <span class="k">print</span><span class="p">(</span><span class="s1">&#39;N-SET request status: 0x{0:04x}&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">status</span><span class="o">.</span><span class="n">Status</span><span class="p">))</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;N-SET request status: 0x</span><span class="si">{0:04x}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">status</span><span class="o">.</span><span class="n">Status</span><span class="p">))</span>
         <span class="n">category</span> <span class="o">=</span> <span class="n">code_to_category</span><span class="p">(</span><span class="n">status</span><span class="o">.</span><span class="n">Status</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">category</span> <span class="ow">in</span> <span class="p">[</span><span class="s1">&#39;Warning&#39;</span><span class="p">,</span> <span class="s1">&#39;Success&#39;</span><span class="p">]:</span>
             <span class="c1"># Send completion</span>
@@ -365,9 +365,9 @@ Procedure Step Status</em> of <code class="docutils literal notranslate"><span c
                 <span class="n">mpps_instance_uid</span>
             <span class="p">)</span>
             <span class="k">if</span> <span class="n">status</span><span class="p">:</span>
-                <span class="k">print</span><span class="p">(</span><span class="s1">&#39;Final N-SET request status: 0x{0:04x}&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">status</span><span class="o">.</span><span class="n">Status</span><span class="p">))</span>
+                <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Final N-SET request status: 0x</span><span class="si">{0:04x}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">status</span><span class="o">.</span><span class="n">Status</span><span class="p">))</span>
     <span class="k">else</span><span class="p">:</span>
-        <span class="k">print</span><span class="p">(</span><span class="s1">&#39;Connection timed out, was aborted or received invalid response&#39;</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Connection timed out, was aborted or received invalid response&#39;</span><span class="p">)</span>
 
     <span class="n">assoc</span><span class="o">.</span><span class="n">release</span><span class="p">()</span>
 </pre></div>
@@ -392,14 +392,14 @@ handlers.</p>
 <span class="k">def</span> <span class="nf">handle_create</span><span class="p">(</span><span class="n">event</span><span class="p">):</span>
     <span class="c1"># MPPS&#39; N-CREATE request must have an *Affected SOP Instance UID*</span>
     <span class="n">req</span> <span class="o">=</span> <span class="n">event</span><span class="o">.</span><span class="n">request</span>
-    <span class="k">if</span> <span class="n">req</span><span class="o">.</span><span class="n">AffectedSOPInstanceUID</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
+    <span class="k">if</span> <span class="n">req</span><span class="o">.</span><span class="n">AffectedSOPInstanceUID</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
         <span class="c1"># Failed - invalid attribute value</span>
-        <span class="k">return</span> <span class="mh">0x0106</span><span class="p">,</span> <span class="bp">None</span>
+        <span class="k">return</span> <span class="mh">0x0106</span><span class="p">,</span> <span class="kc">None</span>
 
     <span class="c1"># Can&#39;t create a duplicate SOP Instance</span>
     <span class="k">if</span> <span class="n">req</span><span class="o">.</span><span class="n">AffectedSOPInstanceUID</span> <span class="ow">in</span> <span class="n">managed_instances</span><span class="p">:</span>
         <span class="c1"># Failed - duplicate SOP Instance</span>
-        <span class="k">return</span> <span class="mh">0x0111</span><span class="p">,</span> <span class="bp">None</span>
+        <span class="k">return</span> <span class="mh">0x0111</span><span class="p">,</span> <span class="kc">None</span>
 
     <span class="c1"># The N-CREATE request&#39;s *Attribute List* dataset</span>
     <span class="n">attr_list</span> <span class="o">=</span> <span class="n">event</span><span class="o">.</span><span class="n">attribute_list</span>
@@ -407,9 +407,9 @@ handlers.</p>
     <span class="c1"># Performed Procedure Step Status must be &#39;IN PROGRESS&#39;</span>
     <span class="k">if</span> <span class="s2">&quot;PerformedProcedureStepStatus&quot;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">attr_list</span><span class="p">:</span>
         <span class="c1"># Failed - missing attribute</span>
-        <span class="k">return</span> <span class="mh">0x0120</span><span class="p">,</span> <span class="bp">None</span>
+        <span class="k">return</span> <span class="mh">0x0120</span><span class="p">,</span> <span class="kc">None</span>
     <span class="k">if</span> <span class="n">attr_list</span><span class="o">.</span><span class="n">PerformedProcedureStepStatus</span><span class="o">.</span><span class="n">upper</span><span class="p">()</span> <span class="o">!=</span> <span class="s1">&#39;IN PROGRESS&#39;</span><span class="p">:</span>
-        <span class="k">return</span> <span class="mh">0x0106</span><span class="p">,</span> <span class="bp">None</span>
+        <span class="k">return</span> <span class="mh">0x0106</span><span class="p">,</span> <span class="kc">None</span>
 
     <span class="c1"># Skip other tests...</span>
 
@@ -435,7 +435,7 @@ handlers.</p>
     <span class="n">req</span> <span class="o">=</span> <span class="n">event</span><span class="o">.</span><span class="n">request</span>
     <span class="k">if</span> <span class="n">req</span><span class="o">.</span><span class="n">RequestedSOPInstanceUID</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">managed_instances</span><span class="p">:</span>
         <span class="c1"># Failure - SOP Instance not recognised</span>
-        <span class="k">return</span> <span class="mh">0x0112</span><span class="p">,</span> <span class="bp">None</span>
+        <span class="k">return</span> <span class="mh">0x0112</span><span class="p">,</span> <span class="kc">None</span>
 
     <span class="n">ds</span> <span class="o">=</span> <span class="n">managed_instances</span><span class="p">[</span><span class="n">req</span><span class="o">.</span><span class="n">RequestedSOPInstanceUID</span><span class="p">]</span>
 
