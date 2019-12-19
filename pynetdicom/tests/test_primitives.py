@@ -187,6 +187,9 @@ class TestPrimitive_ImplementationVersionNameNotification(object):
         primitive.implementation_version_name = 'PYNETDICOM_090'
         assert primitive.implementation_version_name == reference_name
 
+        primitive.implementation_version_name = 'P'
+        assert primitive.implementation_version_name == b'P'
+
         ## Check exceptions
         primitive = ImplementationVersionNameNotification()
 
@@ -201,8 +204,15 @@ class TestPrimitive_ImplementationVersionNameNotification(object):
         with pytest.raises(TypeError):
             primitive.implementation_version_name = 100
 
-        with pytest.raises(ValueError):
+        msg = (
+            r"Implementation Version Name must be between 1 and 16"
+            r" characters long"
+        )
+        with pytest.raises(ValueError, match=msg):
             primitive.implementation_version_name = 'ABCD1234ABCD12345'
+
+        with pytest.raises(ValueError, match=msg):
+            primitive.implementation_version_name = ''
 
     def test_conversion(self):
         """ Check converting to PDU item works correctly """
