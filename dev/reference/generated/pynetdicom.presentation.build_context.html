@@ -203,7 +203,7 @@
 <h1>pynetdicom.presentation.build_context<a class="headerlink" href="#pynetdicom-presentation-build-context" title="Permalink to this headline">¶</a></h1>
 <dl class="function">
 <dt id="pynetdicom.presentation.build_context">
-<code class="sig-prename descclassname">pynetdicom.presentation.</code><code class="sig-name descname">build_context</code><span class="sig-paren">(</span><em class="sig-param">abstract_syntax</em>, <em class="sig-param">transfer_syntax=None</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/33d9d12b/pynetdicom/presentation.py#L780"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom.presentation.build_context" title="Permalink to this definition">¶</a></dt>
+<code class="sig-prename descclassname">pynetdicom.presentation.</code><code class="sig-name descname">build_context</code><span class="sig-paren">(</span><em class="sig-param">abstract_syntax</em>, <em class="sig-param">transfer_syntax=None</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/72fa35ea/pynetdicom/presentation.py#L780"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom.presentation.build_context" title="Permalink to this definition">¶</a></dt>
 <dd><p>Return a <a class="reference internal" href="pynetdicom.presentation.PresentationContext.html#pynetdicom.presentation.PresentationContext" title="pynetdicom.presentation.PresentationContext"><code class="xref py py-class docutils literal notranslate"><span class="pre">PresentationContext</span></code></a> built from the <cite>abstract_syntax</cite>.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -219,7 +219,7 @@ syntax.</p></li>
 </dl>
 <p class="rubric">Examples</p>
 <p>Specifying a presentation context with the default transfer syntaxes</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">pynetdicom</span> <span class="kn">import</span> <span class="n">build_context</span>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">pynetdicom</span> <span class="kn">import</span> <span class="n">build_context</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">context</span> <span class="o">=</span> <span class="n">build_context</span><span class="p">(</span><span class="s1">&#39;1.2.840.10008.1.1&#39;</span><span class="p">)</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="n">context</span><span class="p">)</span>
 <span class="go">Abstract Syntax: Verification SOP Class</span>
@@ -232,7 +232,7 @@ syntax.</p></li>
 <p>Specifying the abstract syntax using a <em>pynetdicom</em>
 <a class="reference internal" href="pynetdicom.sop_class.SOPClass.html#pynetdicom.sop_class.SOPClass" title="pynetdicom.sop_class.SOPClass"><code class="xref py py-class docutils literal notranslate"><span class="pre">SOPClass</span></code></a> instance and a single transfer
 syntax</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">pynetdicom</span> <span class="kn">import</span> <span class="n">build_context</span>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">pynetdicom</span> <span class="kn">import</span> <span class="n">build_context</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">pynetdicom.sop_class</span> <span class="kn">import</span> <span class="n">VerificationSOPClass</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">context</span> <span class="o">=</span> <span class="n">build_context</span><span class="p">(</span><span class="n">VerificationSOPClass</span><span class="p">,</span> <span class="s1">&#39;1.2.840.10008.1.2&#39;</span><span class="p">)</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="n">context</span><span class="p">)</span>
@@ -242,7 +242,7 @@ syntax</p>
 </pre></div>
 </div>
 <p>Specifying multiple transfer syntaxes</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">pydicom.uid</span> <span class="kn">import</span> <span class="n">UID</span>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">pydicom.uid</span> <span class="kn">import</span> <span class="n">UID</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">pynetdicom</span> <span class="kn">import</span> <span class="n">build_context</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">context</span> <span class="o">=</span> <span class="n">build_context</span><span class="p">(</span><span class="n">UID</span><span class="p">(</span><span class="s1">&#39;1.2.840.10008.1.1&#39;</span><span class="p">),</span>
 <span class="go">                            [&#39;1.2.840.10008.1.2&#39;,</span>
