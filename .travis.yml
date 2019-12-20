@@ -16,6 +16,9 @@ matrix:
         - name: "Python 3.7, pydicom master"
           python: "3.7"
           env: TEST_SUITE=pydicom_master
+        - name: "Python 3.8, pydicom master"
+          python: "3.8"
+          env: TEST_SUITE=pydicom_master
         - name: "Python 2.7, pydicom release"
           python: "2.7"
           env: TEST_SUITE=pydicom_release
@@ -27,6 +30,9 @@ matrix:
           env: TEST_SUITE=pydicom_release
         - name: "Python 3.7, pydicom release"
           python: "3.7"
+          env: TEST_SUITE=pydicom_release
+        - name: "Python 3.8, pydicom release"
+          python: "3.8"
           env: TEST_SUITE=pydicom_release
 
 # Install dependencies and pynetdicom

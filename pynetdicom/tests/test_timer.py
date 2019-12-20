@@ -76,16 +76,16 @@ class TestTimer(object):
         timer = Timer(None)
         assert timer.timeout is None
         assert timer.expired is False
-        assert timer.remaining is 1
+        assert timer.remaining == 1
         timer.start()
         assert timer.expired is False
-        assert timer.remaining is 1
+        assert timer.remaining == 1
         time.sleep(0.5)
         assert timer.expired is False
-        assert timer.remaining is 1
+        assert timer.remaining == 1
         timer.stop()
         assert timer.expired is False
-        assert timer.remaining is 1
+        assert timer.remaining == 1
 
     def test_timeout(self):
         """Test the timer with a time out."""
