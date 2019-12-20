@@ -2042,13 +2042,16 @@ def doc_handle_echo(event):
           :class:`~pynetdicom.presentation.PresentationContextTuple`.
         * :attr:`~pynetdicom.events.Event.event`: the event that occurred as an
           :class:`~pynetdicom.events.InterventionEvent`.
-        * :attr:`~pynetdicom.events.Event.message_id`: the C-ECHO request's
-          *Message ID* as :class:`bytes`.
         * :attr:`~pynetdicom.events.Event.request`: the received
           :class:`C-ECHO request <pynetdicom.dimse_primitives.C_ECHO>`
         * :attr:`~pynetdicom.events.Event.timestamp`: the date and time
           that the C-ECHO request was processed by the service as
           :class:`datetime.datetime`.
+
+        :class:`~pynetdicom.events.Event` properties are:
+
+        * :attr:`~pynetdicom.events.Event.message_id`: the C-ECHO request's
+          *Message ID* as :class:`int`.
 
     Returns
     -------
@@ -2145,8 +2148,6 @@ def doc_handle_find(event):
           as a :class:`~pynetdicom.presentation.PresentationContextTuple`.
         * :attr:`~pynetdicom.events.Event.event`: the event that occurred as
           :class:`~pynetdicom.events.InterventionEvent`.
-        * :attr:`~pynetdicom.events.Event.message_id`: the C-FIND request's
-          *Message ID* as :class:`bytes`.
         * :attr:`~pynetdicom.events.Event.request`: the received
           :class:`C-FIND request <pynetdicom.dimse_primitives.C_FIND>`
         * :attr:`~pynetdicom.events.Event.timestamp`: the date and time
@@ -2165,6 +2166,8 @@ def doc_handle_find(event):
           C-CANCEL request has been received, ``False`` otherwise. If a
           C-CANCEL is received then the handler should ``yield (0xFE00, None)``
           and ``return``.
+        * :attr:`~pynetdicom.events.Event.message_id`: the C-FIND request's
+          *Message ID* as :class:`int`.
 
     Yields
     ------
@@ -2296,8 +2299,6 @@ def doc_handle_c_get(event):
           as a :class:`~pynetdicom.presentation.PresentationContextTuple`.
         * :attr:`~pynetdicom.events.Event.event`: the event that occurred as
           :class:`~pynetdicom.events.InterventionEvent`.
-        * :attr:`~pynetdicom.events.Event.message_id`: the C-GET request's
-          *Message ID* as :class:`bytes`.
         * :attr:`~pynetdicom.events.Event.request`: the received
           :class:`C-GET request <pynetdicom.dimse_primitives.C_GET>`
         * :attr:`~pynetdicom.events.Event.timestamp`: the date and time
@@ -2316,6 +2317,8 @@ def doc_handle_c_get(event):
           C-CANCEL request has been received, ``False`` otherwise. If a
           C-CANCEL is received then the handler should ``yield (0xFE00, None)``
           and ``return``.
+        * :attr:`~pynetdicom.events.Event.message_id`: the C-GET request's
+          *Message ID* as :class:`int`.
 
     Yields
     ------
@@ -2455,10 +2458,6 @@ def doc_handle_move(event):
           as a :class:`~pynetdicom.presentation.PresentationContextTuple`.
         * :attr:`~pynetdicom.events.Event.event`: the event that occurred as
           :class:`~pynetdicom.events.InterventionEvent`.
-        * :attr:`~pynetdicom.events.Event.message_id`: the C-MOVE request's
-          *Message ID* as :class:`bytes`.
-        * :attr:`~pynetdicom.events.Event.move_destination`: the C-MOVE
-          request's *Move Destination* value as :class:`bytes`.
         * :attr:`~pynetdicom.events.Event.request`: the received
           :class:`C-MOVE request <pynetdicom.dimse_primitives.C_MOVE>`
         * :attr:`~pynetdicom.events.Event.timestamp`: the date and time
@@ -2477,6 +2476,10 @@ def doc_handle_move(event):
           C-CANCEL request has been received, ``False`` otherwise. If a
           C-CANCEL is received then the handler should yield a
           ``(0xFE00, None)`` status/dataset pair and ``return``.
+        * :attr:`~pynetdicom.events.Event.message_id`: the C-MOVE request's
+          *Message ID* as :class:`int`.
+        * :attr:`~pynetdicom.events.Event.move_destination`: the C-MOVE
+          request's *Move Destination* value as :class:`bytes`.
 
 
     Yields
@@ -2602,8 +2605,6 @@ def doc_handle_store(event):
           as a :class:`~pynetdicom.presentation.PresentationContextTuple`.
         * :attr:`~pynetdicom.events.Event.event`: the event that occurred as
           :class:`~pynetdicom.events.InterventionEvent`.
-        * :attr:`~pynetdicom.events.Event.message_id`: the C-STORE request's
-          *Message ID* as :class:`bytes`.
         * :attr:`~pynetdicom.events.Event.request`: the received
           :class:`C-STORE request <pynetdicom.dimse_primitives.C_STORE>`
         * :attr:`~pynetdicom.events.Event.timestamp`: the date and time
@@ -2623,6 +2624,8 @@ def doc_handle_store(event):
           conformant File Meta Information that can be used with the decoded
           dataset when saving to file: ``event.dataset.file_meta =
           event.file_meta``.
+        * :attr:`~pynetdicom.events.Event.message_id`: the C-STORE request's
+          *Message ID* as :class:`int`.
 
     Returns
     -------
@@ -2768,8 +2771,6 @@ def doc_handle_action(event):
         The event representing a service class receiving a N-ACTION
         request message. :class:`~pynetdicom.events.Event` attributes are:
 
-        * :attr:`~pynetdicom.events.Event.action_type`: the N-ACTION request's
-          *Action Type ID* parameter value as :class:`int`.
         * :attr:`~pynetdicom.events.Event.assoc`: the
           :class:`~pynetdicom.association.Association`
           that is running the service that received the N-ACTION request.
@@ -2778,8 +2779,6 @@ def doc_handle_action(event):
           as a :class:`~pynetdicom.presentation.PresentationContextTuple`.
         * :attr:`~pynetdicom.events.Event.event`: the event that occurred as
           :class:`~pynetdicom.events.InterventionEvent`.
-        * :attr:`~pynetdicom.events.Event.message_id`: the N-ACTION request's
-          *Message ID* as :class:`bytes`.
         * :attr:`~pynetdicom.events.Event.request`: the received
           :class:`N-ACTION request <pynetdicom.dimse_primitives.N_ACTION>`
         * :attr:`~pynetdicom.events.Event.timestamp`: the date and time
@@ -2794,6 +2793,10 @@ def doc_handle_action(event):
           uses a deferred read when decoding data, if the decode fails the
           returned :class:`~pydicom.dataset.Dataset` will only raise an
           exception at the time of use.
+        * :attr:`~pynetdicom.events.Event.action_type`: the N-ACTION request's
+          *Action Type ID* as :class:`int`.
+        * :attr:`~pynetdicom.events.Event.message_id`: the N-ACTION request's
+          *Message ID* as :class:`int`.
 
     Returns
     -------
@@ -2930,8 +2933,6 @@ def doc_handle_create(event):
           as a :class:`~pynetdicom.presentation.PresentationContextTuple`.
         * :attr:`~pynetdicom.events.Event.event`: the event that occurred as
           :class:`~pynetdicom.events.InterventionEvent`.
-        * :attr:`~pynetdicom.events.Event.message_id`: the N-CREATE request's
-          *Message ID* as :class:`bytes`.
         * :attr:`~pynetdicom.events.Event.request`: the received
           :class:`N-CREATE request <pynetdicom.dimse_primitives.N_CREATE>`
         * :attr:`~pynetdicom.events.Event.timestamp`: the date and time
@@ -2946,6 +2947,8 @@ def doc_handle_create(event):
           uses a deferred read when decoding data, if the decode fails the
           returned :class:`~pydicom.dataset.Dataset` will only raise an
           exception at the time of use.
+        * :attr:`~pynetdicom.events.Event.message_id`: the N-CREATE request's
+          *Message ID* as :class:`int`.
 
     Returns
     -------
@@ -3050,13 +3053,17 @@ def doc_handle_delete(event):
           as a :class:`~pynetdicom.presentation.PresentationContextTuple`.
         * :attr:`~pynetdicom.events.Event.event`: the event that occurred as
           :class:`~pynetdicom.events.InterventionEvent`.
-        * :attr:`~pynetdicom.events.Event.message_id`: the N-DELETE request's
-          *Message ID* as :class:`bytes`.
         * :attr:`~pynetdicom.events.Event.request`: the received
           :class:`N-DELETE request <pynetdicom.dimse_primitives.N_DELETE>`
         * :attr:`~pynetdicom.events.Event.timestamp`: the date and time
           that the N-DELETE request was processed by the service as
           :class:`datetime.datetime`.
+
+        :class:`~pynetdicom.events.Event` properties are:
+
+        * :attr:`~pynetdicom.events.Event.message_id`: the N-DELETE request's
+          *Message ID* as :class:`int`.
+
 
     Returns
     -------
@@ -3153,10 +3160,6 @@ def doc_handle_event_report(event):
           as a :class:`~pynetdicom.presentation.PresentationContextTuple`.
         * :attr:`~pynetdicom.events.Event.event`: the event that occurred as
           :class:`~pynetdicom.events.InterventionEvent`.
-        * ``event_type``: the N-EVENT-REPORT request's *Event Type
-          ID* parameter value as :class:`int`.
-        * :attr:`~pynetdicom.events.Event.message_id`: the N-EVENT-REPORT
-          request's *Message ID* as :class:`bytes`.
         * :attr:`~pynetdicom.events.Event.request`: the received
           :class:`N-EVENT-REPORT request
           <pynetdicom.dimse_primitives.N_EVENT_REPORT>`
@@ -3172,6 +3175,10 @@ def doc_handle_event_report(event):
           *pydicom* uses a deferred read when decoding data, if the decode
           fails the returned :class:`~pydicom.dataset.Dataset` will only raise
           an exception at the time of use.
+        * :attr:`~pynetdicom.events.Event.event_type`: the N-EVENT-REPORT
+          request's *Event Type ID* parameter value as :class:`int`.
+        * :attr:`~pynetdicom.events.Event.message_id`: the N-EVENT-REPORT
+          request's *Message ID* as :class:`int`.
 
     Returns
     -------
@@ -3286,8 +3293,6 @@ def doc_handle_n_get(event):
           as a :class:`~pynetdicom.presentation.PresentationContextTuple`.
         * :attr:`~pynetdicom.events.Event.event`: the event that occurred as
           :class:`~pynetdicom.events.InterventionEvent`.
-        * :attr:`~pynetdicom.events.Event.message_id`: the N-GET request's
-          *Message ID* as :class:`bytes`.
         * :attr:`~pynetdicom.events.Event.request`: the received
           :class:`N-GET request <pynetdicom.dimse_primitives.N_GET>`
         * :attr:`~pynetdicom.events.Event.timestamp`: the date and time
@@ -3299,6 +3304,8 @@ def doc_handle_n_get(event):
         * :attr:`~pynetdicom.events.Event.attribute_identifiers`: a list of
           attribute :class:`BaseTag<pydicom.tag.BaseTag>` contained within the
           N-GET request's *Attribute Identifier List* parameter.
+        * :attr:`~pynetdicom.events.Event.message_id`: the N-GET request's
+          *Message ID* as :class:`int`.
 
     Returns
     -------
@@ -3437,8 +3444,6 @@ def doc_handle_set(event):
           as a :class:`~pynetdicom.presentation.PresentationContextTuple`.
         * :attr:`~pynetdicom.events.Event.event`: the event that occurred as
           :class:`~pynetdicom.events.InterventionEvent`.
-        * :attr:`~pynetdicom.events.Event.message_id`: the N-SET request's
-          *Message ID* as :class:`bytes`.
         * :attr:`~pynetdicom.events.Event.request`: the received
           :class:`N-SET request <pynetdicom.dimse_primitives.N_SET>`
         * :attr:`~pynetdicom.events.Event.timestamp`: the date and time
@@ -3447,6 +3452,8 @@ def doc_handle_set(event):
 
         :class:`~pynetdicom.events.Event` properties are:
 
+        * :attr:`~pynetdicom.events.Event.message_id`: the N-SET request's
+          *Message ID* as :class:`int`.
         * :attr:`~pynetdicom.events.Event.modification_list`: the decoded
           :class:`~pydicom.dataset.Dataset` contained within the
           N-SET request's *Modification List* parameter. Because *pydicom*
