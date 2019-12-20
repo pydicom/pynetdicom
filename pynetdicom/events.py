@@ -682,6 +682,29 @@ class Event(object):
                 "'Move Destination' parameter"
             )
 
+    @property
+    def message_id(self):
+        """Return a DIMSE service request's 'Message ID' as int.
+
+        Returns
+        -------
+        int
+            The request's (0000,0110) *Message ID* value.
+
+        Raises
+        ------
+        AttributeError
+            If the corresponding event is not one of the DIMSE service
+            requests.
+        """
+        try:
+            return self.request.MessageID
+        except AttributeError:
+            raise AttributeError(
+                "The corresponding event is not a DIMSE service request and "
+                "has no 'Message ID' parameter"
+            )
+
 
 # Default extended negotiation event handlers
 def _async_ops_handler(event):
