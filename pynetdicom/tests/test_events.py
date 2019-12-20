@@ -181,6 +181,13 @@ class TestEvent(object):
         with pytest.raises(AttributeError, match=msg):
             event.event_type
 
+        msg = (
+            r"The corresponding event is not a DIMSE service request and "
+            r"has no 'Message ID' parameter"
+        )
+        with pytest.raises(AttributeError, match=msg):
+            event.message_id
+
     def test_is_cancelled_non(self):
         """Test Event.is_cancelled with wrong event type."""
         event = evt.Event(None, evt.EVT_DATA_RECV)
@@ -325,6 +332,18 @@ class TestEvent(object):
         # Test hash mismatch
         event._hash = None
         assert 'PatientID' not in event.modification_list
+
+    def test_message_id(self):
+        """Test Event.modification_list."""
+        request = N_SET()
+        request.MessageID = 1234
+        event = Event(
+            None,
+            evt.EVT_N_CREATE,
+            {'request' : request, 'context' : self.context.as_tuple}
+        )
+
+        assert 1234 == event.message_id
 
     def test_empty_dataset(self):
         """Test with an empty dataset-like."""

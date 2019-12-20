@@ -633,6 +633,29 @@ class Event(object):
         return False
 
     @property
+    def message_id(self):
+        """Return a DIMSE service request's 'Message ID' as int.
+
+        Returns
+        -------
+        int
+            The request's (0000,0110) *Message ID* value.
+
+        Raises
+        ------
+        AttributeError
+            If the corresponding event is not one of the DIMSE service
+            requests.
+        """
+        try:
+            return self.request.MessageID
+        except AttributeError:
+            raise AttributeError(
+                "The corresponding event is not a DIMSE service request and "
+                "has no 'Message ID' parameter"
+            )
+
+    @property
     def modification_list(self):
         """Return an N-SET request's `Modification List` as a *pydicom*
         Dataset.
