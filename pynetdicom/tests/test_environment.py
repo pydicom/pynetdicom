@@ -1,11 +1,49 @@
 """Tests that confirm the environment is as expected."""
 
-import pytest
+import os
+import sys
 
+import pytest
 
 from pynetdicom._version import __version__, is_canonical, extract_components
 
 
+def get_envar(envar):
+    """Return the value of the environmental variable `envar`.
+
+    Parameters
+    ----------
+    envar : str
+        The environmental variable to check for.
+
+    Returns
+    -------
+    str or None
+        If the envar is present then return its value otherwise returns None.
+    """
+    if envar in os.environ:
+        return os.environ.get(envar)
+
+    return None
+
+
+IN_TRAVIS = get_envar("TRAVIS") == 'true'
+
+
+@pytest.mark.skipif(not IN_TRAVIS, reason="Tests not running in Travis")
+class TestBuilds(object):
+    """Tests for the testing builds in Travis CI."""
+    def test_python_version(self):
+        """Test that the python version is correct."""
+        version = get_envar('TRAVIS_PYTHON_VERSION')
+        if not version:
+            raise RuntimeError("No 'TRAVIS_PYTHON_VERSION' envar has been set")
+
+        version = tuple([int(vv) for vv in version.split('.')])
+        assert version[:2] == sys.version_info[:2]
+
+
+# Tests for the pynetdicom version
 def test_is_canonical():
     """Test is_canonical"""
     assert is_canonical('1.0')
