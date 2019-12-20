@@ -2042,7 +2042,7 @@ def doc_handle_echo(event):
           :class:`~pynetdicom.presentation.PresentationContextTuple`.
         * :attr:`~pynetdicom.events.Event.event`: the event that occurred as an
           :class:`~pynetdicom.events.InterventionEvent`.
-        * :arr:`~pynetdicom.events.Event.message_id`: the C-ECHO request's
+        * :attr:`~pynetdicom.events.Event.message_id`: the C-ECHO request's
           *Message ID* as :class:`bytes`.
         * :attr:`~pynetdicom.events.Event.request`: the received
           :class:`C-ECHO request <pynetdicom.dimse_primitives.C_ECHO>`
@@ -2145,7 +2145,7 @@ def doc_handle_find(event):
           as a :class:`~pynetdicom.presentation.PresentationContextTuple`.
         * :attr:`~pynetdicom.events.Event.event`: the event that occurred as
           :class:`~pynetdicom.events.InterventionEvent`.
-        * :arr:`~pynetdicom.events.Event.message_id`: the C-FIND request's
+        * :attr:`~pynetdicom.events.Event.message_id`: the C-FIND request's
           *Message ID* as :class:`bytes`.
         * :attr:`~pynetdicom.events.Event.request`: the received
           :class:`C-FIND request <pynetdicom.dimse_primitives.C_FIND>`
@@ -2296,7 +2296,7 @@ def doc_handle_c_get(event):
           as a :class:`~pynetdicom.presentation.PresentationContextTuple`.
         * :attr:`~pynetdicom.events.Event.event`: the event that occurred as
           :class:`~pynetdicom.events.InterventionEvent`.
-        * :arr:`~pynetdicom.events.Event.message_id`: the C-GET request's
+        * :attr:`~pynetdicom.events.Event.message_id`: the C-GET request's
           *Message ID* as :class:`bytes`.
         * :attr:`~pynetdicom.events.Event.request`: the received
           :class:`C-GET request <pynetdicom.dimse_primitives.C_GET>`
@@ -2455,7 +2455,7 @@ def doc_handle_move(event):
           as a :class:`~pynetdicom.presentation.PresentationContextTuple`.
         * :attr:`~pynetdicom.events.Event.event`: the event that occurred as
           :class:`~pynetdicom.events.InterventionEvent`.
-        * :arr:`~pynetdicom.events.Event.message_id`: the C-MOVE request's
+        * :attr:`~pynetdicom.events.Event.message_id`: the C-MOVE request's
           *Message ID* as :class:`bytes`.
         * :attr:`~pynetdicom.events.Event.move_destination`: the C-MOVE
           request's *Move Destination* value as :class:`bytes`.
@@ -2602,7 +2602,7 @@ def doc_handle_store(event):
           as a :class:`~pynetdicom.presentation.PresentationContextTuple`.
         * :attr:`~pynetdicom.events.Event.event`: the event that occurred as
           :class:`~pynetdicom.events.InterventionEvent`.
-        * :arr:`~pynetdicom.events.Event.message_id`: the C-STORE request's
+        * :attr:`~pynetdicom.events.Event.message_id`: the C-STORE request's
           *Message ID* as :class:`bytes`.
         * :attr:`~pynetdicom.events.Event.request`: the received
           :class:`C-STORE request <pynetdicom.dimse_primitives.C_STORE>`
@@ -2778,7 +2778,7 @@ def doc_handle_action(event):
           as a :class:`~pynetdicom.presentation.PresentationContextTuple`.
         * :attr:`~pynetdicom.events.Event.event`: the event that occurred as
           :class:`~pynetdicom.events.InterventionEvent`.
-        * :arr:`~pynetdicom.events.Event.message_id`: the N-ACTION request's
+        * :attr:`~pynetdicom.events.Event.message_id`: the N-ACTION request's
           *Message ID* as :class:`bytes`.
         * :attr:`~pynetdicom.events.Event.request`: the received
           :class:`N-ACTION request <pynetdicom.dimse_primitives.N_ACTION>`
@@ -2930,7 +2930,7 @@ def doc_handle_create(event):
           as a :class:`~pynetdicom.presentation.PresentationContextTuple`.
         * :attr:`~pynetdicom.events.Event.event`: the event that occurred as
           :class:`~pynetdicom.events.InterventionEvent`.
-        * :arr:`~pynetdicom.events.Event.message_id`: the N-CREATE request's
+        * :attr:`~pynetdicom.events.Event.message_id`: the N-CREATE request's
           *Message ID* as :class:`bytes`.
         * :attr:`~pynetdicom.events.Event.request`: the received
           :class:`N-CREATE request <pynetdicom.dimse_primitives.N_CREATE>`
@@ -3050,7 +3050,7 @@ def doc_handle_delete(event):
           as a :class:`~pynetdicom.presentation.PresentationContextTuple`.
         * :attr:`~pynetdicom.events.Event.event`: the event that occurred as
           :class:`~pynetdicom.events.InterventionEvent`.
-        * :arr:`~pynetdicom.events.Event.message_id`: the N-DELETE request's
+        * :attr:`~pynetdicom.events.Event.message_id`: the N-DELETE request's
           *Message ID* as :class:`bytes`.
         * :attr:`~pynetdicom.events.Event.request`: the received
           :class:`N-DELETE request <pynetdicom.dimse_primitives.N_DELETE>`
@@ -3155,7 +3155,7 @@ def doc_handle_event_report(event):
           :class:`~pynetdicom.events.InterventionEvent`.
         * ``event_type``: the N-EVENT-REPORT request's *Event Type
           ID* parameter value as :class:`int`.
-        * :arr:`~pynetdicom.events.Event.message_id`: the N-EVENT-REPORT
+        * :attr:`~pynetdicom.events.Event.message_id`: the N-EVENT-REPORT
           request's *Message ID* as :class:`bytes`.
         * :attr:`~pynetdicom.events.Event.request`: the received
           :class:`N-EVENT-REPORT request
@@ -3286,7 +3286,7 @@ def doc_handle_n_get(event):
           as a :class:`~pynetdicom.presentation.PresentationContextTuple`.
         * :attr:`~pynetdicom.events.Event.event`: the event that occurred as
           :class:`~pynetdicom.events.InterventionEvent`.
-        * :arr:`~pynetdicom.events.Event.message_id`: the N-GET request's
+        * :attr:`~pynetdicom.events.Event.message_id`: the N-GET request's
           *Message ID* as :class:`bytes`.
         * :attr:`~pynetdicom.events.Event.request`: the received
           :class:`N-GET request <pynetdicom.dimse_primitives.N_GET>`
@@ -3437,7 +3437,7 @@ def doc_handle_set(event):
           as a :class:`~pynetdicom.presentation.PresentationContextTuple`.
         * :attr:`~pynetdicom.events.Event.event`: the event that occurred as
           :class:`~pynetdicom.events.InterventionEvent`.
-        * :arr:`~pynetdicom.events.Event.message_id`: the N-SET request's
+        * :attr:`~pynetdicom.events.Event.message_id`: the N-SET request's
           *Message ID* as :class:`bytes`.
         * :attr:`~pynetdicom.events.Event.request`: the received
           :class:`N-SET request <pynetdicom.dimse_primitives.N_SET>`
