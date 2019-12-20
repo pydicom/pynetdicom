@@ -32,5 +32,5 @@ Changes
   :meth:`Association.send_c_find`, :meth:`Association.send_c_get` and
   :meth:`Association.send_c_move` removed as per planned deprecation. Use the
   UID directly instead.
-* Python 3.4 is no longer officially supported, Python 3.7 is now officially
-  supported
+* Python 3.4 is no longer supported, Python 3.7 and 3.8 are now
+  officially supported
