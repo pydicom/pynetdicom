@@ -217,7 +217,7 @@
 <h1>pynetdicom._handlers.doc_handle_n_get<a class="headerlink" href="#pynetdicom-handlers-doc-handle-n-get" title="Permalink to this headline">¶</a></h1>
 <dl class="function">
 <dt id="pynetdicom._handlers.doc_handle_n_get">
-<code class="sig-prename descclassname">pynetdicom._handlers.</code><code class="sig-name descname">doc_handle_n_get</code><span class="sig-paren">(</span><em class="sig-param">event</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/08ed3388/pynetdicom/_handlers.py#L3210"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom._handlers.doc_handle_n_get" title="Permalink to this definition">¶</a></dt>
+<code class="sig-prename descclassname">pynetdicom._handlers.</code><code class="sig-name descname">doc_handle_n_get</code><span class="sig-paren">(</span><em class="sig-param">event</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/50fac8d7/pynetdicom/_handlers.py#L3235"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom._handlers.doc_handle_n_get" title="Permalink to this definition">¶</a></dt>
 <dd><p>Documentation for handlers bound to <code class="docutils literal notranslate"><span class="pre">evt.EVT_N_GET</span></code>.</p>
 <p>User implementation of this event handler is required if one or more
 services that use N-GET are to be supported. If a handler is
@@ -288,6 +288,8 @@ that the N-GET request was processed by the service as
 <li><p><a class="reference internal" href="pynetdicom.events.Event.html#pynetdicom.events.Event.attribute_identifiers" title="pynetdicom.events.Event.attribute_identifiers"><code class="xref py py-attr docutils literal notranslate"><span class="pre">attribute_identifiers</span></code></a>: a list of
 attribute <a class="reference external" href="https://pydicom.github.io/pydicom/stable/api_ref.html#pydicom.tag.BaseTag" title="(in pydicom v1.3.0)"><code class="xref py py-class docutils literal notranslate"><span class="pre">BaseTag</span></code></a> contained within the
 N-GET request’s <em>Attribute Identifier List</em> parameter.</p></li>
+<li><p><a class="reference internal" href="pynetdicom.events.Event.html#pynetdicom.events.Event.message_id" title="pynetdicom.events.Event.message_id"><code class="xref py py-attr docutils literal notranslate"><span class="pre">message_id</span></code></a>: the N-GET request’s
+<em>Message ID</em> as <a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.8)"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></a>.</p></li>
 </ul>
 </p>
 </dd>

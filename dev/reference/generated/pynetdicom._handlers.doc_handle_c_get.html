@@ -217,7 +217,7 @@
 <h1>pynetdicom._handlers.doc_handle_c_get<a class="headerlink" href="#pynetdicom-handlers-doc-handle-c-get" title="Permalink to this headline">¶</a></h1>
 <dl class="function">
 <dt id="pynetdicom._handlers.doc_handle_c_get">
-<code class="sig-prename descclassname">pynetdicom._handlers.</code><code class="sig-name descname">doc_handle_c_get</code><span class="sig-paren">(</span><em class="sig-param">event</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/08ed3388/pynetdicom/_handlers.py#L2225"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom._handlers.doc_handle_c_get" title="Permalink to this definition">¶</a></dt>
+<code class="sig-prename descclassname">pynetdicom._handlers.</code><code class="sig-name descname">doc_handle_c_get</code><span class="sig-paren">(</span><em class="sig-param">event</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/50fac8d7/pynetdicom/_handlers.py#L2232"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom._handlers.doc_handle_c_get" title="Permalink to this definition">¶</a></dt>
 <dd><p>Documentation for handlers bound to <code class="docutils literal notranslate"><span class="pre">evt.EVT_C_GET</span></code>.</p>
 <p>User implementation of this event handler is required if one or more
 services that use C-GET are to be supported. If a handler is
@@ -304,6 +304,8 @@ time of use.</p></li>
 C-CANCEL request has been received, <code class="docutils literal notranslate"><span class="pre">False</span></code> otherwise. If a
 C-CANCEL is received then the handler should <code class="docutils literal notranslate"><span class="pre">yield</span> <span class="pre">(0xFE00,</span> <span class="pre">None)</span></code>
 and <code class="docutils literal notranslate"><span class="pre">return</span></code>.</p></li>
+<li><p><a class="reference internal" href="pynetdicom.events.Event.html#pynetdicom.events.Event.message_id" title="pynetdicom.events.Event.message_id"><code class="xref py py-attr docutils literal notranslate"><span class="pre">message_id</span></code></a>: the C-GET request’s
+<em>Message ID</em> as <a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.8)"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></a>.</p></li>
 </ul>
 </p>
 </dd>
