@@ -113,14 +113,9 @@ to see the requirements for the ``evt.EVT_C_STORE`` handler.
 
     from pydicom.dataset import Dataset
 
-    from pynetdicom import (
-        AE, evt,
-        StoragePresentationContexts,
-        PYNETDICOM_IMPLEMENTATION_UID,
-        PYNETDICOM_IMPLEMENTATION_VERSION
-    )
+    from pynetdicom import AE, evt, StoragePresentationContexts
 
-    # Implement a handler evt.EVT_C_STORE
+    # Implement a handler for evt.EVT_C_STORE
     def handle_store(event):
         """Handle a C-STORE request event."""
         # Decode the C-STORE request's *Data Set* parameter to a pydicom Dataset

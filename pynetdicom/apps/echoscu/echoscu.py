@@ -55,11 +55,15 @@ def _setup_argparser():
     output.add_argument("-d", "--debug",
                         help="debug mode, print debug information",
                         action="store_true")
-    gen_opts.add_argument("-ll", "--log-level", metavar='[l]',
-                          help="use level l for the logger (critical, error, "
-                               "warn, info, debug)",
-                          type=str,
-                          choices=['critical', 'error', 'warn', 'info', 'debug'])
+    gen_opts.add_argument(
+        "-ll", "--log-level", metavar='[l]',
+        help=(
+            "use level l for the logger (critical, error, "
+            "warn, info, debug)"
+        ),
+        type=str,
+        choices=['critical', 'error', 'warn', 'info', 'debug']
+    )
     gen_opts.add_argument("-lc", "--log-config", metavar='[f]',
                           help="use config file f for the logger",
                           type=str)
@@ -70,10 +74,12 @@ def _setup_argparser():
                           help="set my calling AE title (default: ECHOSCU)",
                           type=str,
                           default='ECHOSCU')
-    net_opts.add_argument("-aec", "--called-aet", metavar='[a]etitle',
-                          help="set called AE title of peer (default: ANY-SCP)",
-                          type=str,
-                          default='ANY-SCP')
+    net_opts.add_argument(
+        "-aec", "--called-aet", metavar='[a]etitle',
+        help="set called AE title of peer (default: ANY-SCP)",
+        type=str,
+        default='ANY-SCP'
+    )
     net_opts.add_argument("-pts", "--propose-ts", metavar='[n]umber',
                           help="propose n transfer syntaxes (1 - 3)",
                           type=int)
@@ -170,7 +176,7 @@ except:
 #-------------------------- CREATE AE and ASSOCIATE ---------------------------
 
 if args.version:
-    print('echoscu.py v%s' %(VERSION))
+    print('echoscu.py v{}'.format(VERSION))
     sys.exit()
 
 APP_LOGGER.debug('echoscu.py v%s', VERSION)

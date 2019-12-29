@@ -9,8 +9,6 @@
 import argparse
 import logging
 from logging.config import fileConfig
-import os
-import socket
 import sys
 
 from pydicom import dcmread
@@ -31,7 +29,7 @@ def _setup_argparser():
     parser = argparse.ArgumentParser(
         description="The storescu application implements a Service Class User "
                     "(SCU) for the Storage Service Class. For each DICOM "
-                    "file on the command line it sends a C-STORE message to a  "
+                    "file on the command line it sends a C-STORE message to a "
                     "Storage Service Class Provider (SCP) and waits for a "
                     "response. The application can be used to transmit DICOM "
                     "images and other composite objectes.",
@@ -60,12 +58,15 @@ def _setup_argparser():
     gen_opts.add_argument("-d", "--debug",
                           help="debug mode, print debug information",
                           action="store_true")
-    gen_opts.add_argument("-ll", "--log-level", metavar='[l]',
-                          help="use level l for the logger (fatal, error, warn, "
-                               "info, debug, trace)",
-                          type=str,
-                          choices=['fatal', 'error', 'warn',
-                                   'info', 'debug', 'trace'])
+    gen_opts.add_argument(
+        "-ll", "--log-level", metavar='[l]',
+        help=(
+            "use level l for the logger (fatal, error, warn, "
+            "info, debug, trace)"
+        ),
+        type=str,
+        choices=['fatal', 'error', 'warn', 'info', 'debug', 'trace']
+    )
     gen_opts.add_argument("-lc", "--log-config", metavar='[f]',
                           help="use config file f for the logger",
                           type=str)
@@ -76,10 +77,12 @@ def _setup_argparser():
                           help="set my calling AE title (default: STORESCU)",
                           type=str,
                           default='STORESCU')
-    net_opts.add_argument("-aec", "--called-aet", metavar='[a]etitle',
-                          help="set called AE title of peer (default: ANY-SCP)",
-                          type=str,
-                          default='ANY-SCP')
+    net_opts.add_argument(
+        "-aec", "--called-aet", metavar='[a]etitle',
+        help="set called AE title of peer (default: ANY-SCP)",
+        type=str,
+        default='ANY-SCP'
+    )
 
     # Transfer Syntaxes
     ts_opts = parser.add_mutually_exclusive_group()
