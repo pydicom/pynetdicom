@@ -58,6 +58,10 @@ _RSP_TO_MESSAGE = {
 class DIMSEServiceProvider(object):
     """The DIMSE service provider.
 
+    .. versionchanged:: 1.2
+
+        Added `msg_queue` attribute
+
     **Messages**
 
     +----------------+-----------------------+------------------------+
@@ -130,6 +134,10 @@ class DIMSEServiceProvider(object):
     def __init__(self, assoc):
         """Initialise the DIMSE service provider.
 
+        .. versionchanged:: 1.3
+
+            Class initialisation now only takes `assoc` parameter.
+
         Parameters
         ----------
         assoc : association.Association
@@ -143,7 +151,10 @@ class DIMSEServiceProvider(object):
 
     @property
     def assoc(self):
-        """Return the parent :class:`~pynetdicom.association.Association`."""
+        """Return the parent :class:`~pynetdicom.association.Association`.
+
+        .. versionadded:: 1.3
+        """
         return self._assoc
 
     @property
@@ -158,6 +169,8 @@ class DIMSEServiceProvider(object):
 
     def get_msg(self, block=False):
         """Get the next available DIMSE message.
+
+        .. versionadded:: 1.2
 
         Parameters
         ----------
@@ -189,6 +202,8 @@ class DIMSEServiceProvider(object):
     def peek_msg(self):
         """Return the first message in the message queue or ``None``.
 
+        .. versionadded:: 1.2
+
         Returns
         -------
         (int, dimse_messages.DIMSEMessage) or (None, None)
@@ -203,6 +218,8 @@ class DIMSEServiceProvider(object):
 
     def receive_primitive(self, primitive):
         """Process a P-DATA primitive received from the remote.
+
+        .. versionadded:: 1.2
 
         A DIMSE message is split into one or more P-DATA primitives, which
         must be sent in sequential order. While waiting for all the P-DATA

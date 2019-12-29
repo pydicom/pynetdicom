@@ -496,31 +496,23 @@ class DIMSEMessage(object):
             from the current ``DIMSEMessage`` sub-class object.
         """
         # pylint: disable=too-many-branches
+        messages = {
+            'C_ECHO' : C_ECHO,
+            'C_STORE' : C_STORE,
+            'C_FIND' : C_FIND,
+            'C_GET' : C_GET,
+            'C_MOVE' : C_MOVE,
+            'C_CANCEL' : C_CANCEL,
+            'N_EVENT_REPORT' : N_EVENT_REPORT,
+            'N_GET' : N_GET,
+            'N_SET' : N_SET,
+            'N_ACTION' : N_ACTION,
+            'N_CREATE' : N_CREATE,
+            'N_DELETE' : N_DELETE,
+        }
         cls_type_name = self.__class__.__name__
-        if 'C_ECHO' in cls_type_name:
-            primitive = C_ECHO()
-        elif 'C_STORE' in cls_type_name:
-            primitive = C_STORE()
-        elif 'C_FIND' in cls_type_name:
-            primitive = C_FIND()
-        elif 'C_GET' in cls_type_name:
-            primitive = C_GET()
-        elif 'C_MOVE' in cls_type_name:
-            primitive = C_MOVE()
-        elif 'C_CANCEL' in cls_type_name:
-            primitive = C_CANCEL()
-        elif 'N_EVENT' in cls_type_name:
-            primitive = N_EVENT_REPORT()
-        elif 'N_GET' in cls_type_name:
-            primitive = N_GET()
-        elif 'N_SET' in cls_type_name:
-            primitive = N_SET()
-        elif 'N_ACTION' in cls_type_name:
-            primitive = N_ACTION()
-        elif 'N_CREATE' in cls_type_name:
-            primitive = N_CREATE()
-        elif 'N_DELETE' in cls_type_name:
-            primitive = N_DELETE()
+        final_underscore = cls_type_name.rfind('_R')
+        primitive = messages[cls_type_name[:final_underscore]]()
 
         # Command Set
         # For each parameter in the primitive, set the appropriate value

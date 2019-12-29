@@ -31,8 +31,6 @@ from pynetdicom import (
     AE, evt,
     StoragePresentationContexts,
     VerificationPresentationContexts,
-    PYNETDICOM_IMPLEMENTATION_UID,
-    PYNETDICOM_IMPLEMENTATION_VERSION
 )
 
 
@@ -73,12 +71,15 @@ def _setup_argparser():
     gen_opts.add_argument("-d", "--debug",
                           help="debug mode, print debug information",
                           action="store_true")
-    gen_opts.add_argument("-ll", "--log-level", metavar='[l]',
-                          help="use level l for the APP_LOGGER (fatal, error, warn, "
-                               "info, debug, trace)",
-                          type=str,
-                          choices=['fatal', 'error', 'warn',
-                                   'info', 'debug', 'trace'])
+    gen_opts.add_argument(
+        "-ll", "--log-level", metavar='[l]',
+        help=(
+            "use level l for the APP_LOGGER (fatal, error, "
+            "warn, info, debug, trace)"
+        ),
+        type=str,
+        choices=['fatal', 'error', 'warn', 'info', 'debug', 'trace']
+    )
     gen_opts.add_argument("-lc", "--log-config", metavar='[f]',
                           help="use config file f for the APP_LOGGER",
                           type=str)
@@ -123,9 +124,11 @@ def _setup_argparser():
 
     # Output Options
     out_opts = parser.add_argument_group('Output Options')
-    out_opts.add_argument('-od', "--output-directory", metavar="[d]irectory",
-                          help="write received objects to existing directory d",
-                          type=str)
+    out_opts.add_argument(
+        '-od', "--output-directory", metavar="[d]irectory",
+        help="write received objects to existing directory d",
+        type=str
+    )
 
     # Miscellaneous
     misc_opts = parser.add_argument_group('Miscellaneous')
@@ -195,7 +198,10 @@ if isinstance(args.port, int):
         test_socket.bind((os.popen('hostname').read()[:-1], args.port))
         test_socket.close()
     except socket.error:
-        APP_LOGGER.error("Cannot listen on port {0:d}, insufficient priveleges".format(args.port))
+        APP_LOGGER.error(
+            "Cannot listen on port {0:d}, insufficient priveleges"
+            .format(args.port)
+        )
         sys.exit()
 
 # Set Transfer Syntax options
@@ -328,8 +334,9 @@ def handle_store(event):
     except IOError:
         APP_LOGGER.error('Could not write file to specified directory:')
         APP_LOGGER.error("    {0!s}".format(os.path.dirname(filename)))
-        APP_LOGGER.error('Directory may not exist or you may not have write '
-                     'permission')
+        APP_LOGGER.error(
+            'Directory may not exist or you may not have write permission '
+        )
         # Failed - Out of Resources - IOError
         status_ds.Status = 0xA700
     except Exception as exc:
@@ -346,8 +353,9 @@ handlers = [(evt.EVT_C_STORE, handle_store)]
 # Test output-directory
 if args.output_directory is not None:
     if not os.access(args.output_directory, os.W_OK|os.X_OK):
-        APP_LOGGER.error('No write permissions or the output '
-                     'directory may not exist:')
+        APP_LOGGER.error(
+            'No write permissions or the output directory may not exist:'
+        )
         APP_LOGGER.error("    {0!s}".format(args.output_directory))
         sys.exit()
 

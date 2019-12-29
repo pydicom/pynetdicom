@@ -21,6 +21,8 @@ LOGGER = logging.getLogger('pynetdicom.events')
 NotificationEvent = namedtuple('NotificationEvent', ['name', 'description'])
 """Representation of a notification event.
 
+.. versionadded:: 1.3
+
 Possible notification events are:
 
 * :class:`EVT_ABORTED`
@@ -67,6 +69,8 @@ EVT_REQUESTED = NotificationEvent("EVT_REQUESTED", "Association requested")
 #   Returns/yields needed if bound, can only have one handler per event
 InterventionEvent = namedtuple('InterventionEvent', ['name', 'description'])
 """Representation of an intervention event.
+
+.. versionadded:: 1.3
 
 Possible intervention events are:
 
@@ -119,7 +123,10 @@ _NOTIFICATION_EVENTS = [
 
 
 def get_default_handler(event):
-    """Return the default handler for an intervention `event`."""
+    """Return the default handler for an intervention `event`.
+
+    .. versionadded:: 1.3
+    """
     handlers = {
         EVT_ASYNC_OPS : _async_ops_handler,
         EVT_SOP_COMMON : _sop_common_handler,
@@ -142,6 +149,8 @@ def get_default_handler(event):
 
 def trigger(assoc, event, attrs=None):
     """Trigger an `event` and call any bound handler(s).
+
+    .. versionadded:: 1.3
 
     Notification events can be bound to multiple handlers, intervention events
     can only be bound to a single handler.
@@ -215,6 +224,8 @@ def trigger(assoc, event, attrs=None):
 
 class Event(object):
     """Representation of an event.
+
+    .. versionadded:: 1.3
 
     .. warning::
 
@@ -296,6 +307,8 @@ class Event(object):
     @property
     def action_type(self):
         """Return an N-ACTION request's `Action Type ID` as an int.
+
+        .. versionadded:: 1.4
 
         Returns
         -------
@@ -403,6 +416,8 @@ class Event(object):
     def event(self):
         """Return the corresponding event.
 
+        .. versionadded:: 1.4
+
         Returns
         -------
         events.InterventionEvent or events.NotificationEvent
@@ -441,6 +456,8 @@ class Event(object):
     @property
     def event_type(self):
         """Return an N-EVENT-REPORT request's `Event Type ID` as an int.
+
+        .. versionadded:: 1.4
 
         Returns
         -------
@@ -636,6 +653,8 @@ class Event(object):
     def message_id(self):
         """Return a DIMSE service request's 'Message ID' as int.
 
+        .. versionadded:: 1.5
+
         Returns
         -------
         int
@@ -685,6 +704,8 @@ class Event(object):
     @property
     def move_destination(self):
         """Return a C-MOVE request's `Move Destination` as bytes.
+
+        .. versionadded:: 1.4
 
         Returns
         -------

@@ -442,6 +442,14 @@ class ApplicationEntity(object):
         before sending any messages. The returned thread will only be running
         if the association was established.
 
+        .. versionchanged:: 1.2
+
+            Added `bind_address` and `tls_arg` keyword parameters
+
+        .. versionchanged:: 1.3
+
+            Added `evt_handlers` keyword parameter
+
         Parameters
         ----------
         addr : str
@@ -1009,6 +1017,10 @@ class ApplicationEntity(object):
         if none match the association will be rejected. If the set value
         is an empty list then the *Called AE Title* will not be checked.
 
+        .. versionchanged:: 1.1
+
+            `require_match` changed to ``bool``
+
         Parameters
         ----------
         require_match : bool
@@ -1034,6 +1046,10 @@ class ApplicationEntity(object):
         if none match the association will be rejected. If the set value
         is an empty list then the *Calling AE Title* will not be checked.
 
+        .. versionchanged:: 1.1
+
+            `ae_titles` changed to ``list`` of ``bytes``
+
         Parameters
         ----------
         ae_titles : list of bytes
@@ -1052,10 +1068,20 @@ class ApplicationEntity(object):
                      evt_handlers=None, ae_title=None, contexts=None):
         """Start the AE as an association acceptor.
 
+        .. versionadded:: 1.2
+
         If set to non-blocking then a running
         :class:`~pynetdicom.transport.ThreadedAssociationServer`
         instance will be returned. This can be stopped using
         :meth:`~pynetdicom.transport.ThreadedAssociationServer.shutdown`.
+
+        .. versionchanged:: 1.3
+
+            Added `evt_handlers` keyword parameter
+
+        .. versionchanged:: 1.4
+
+            Added `ae_title` and `contexts` keyword parameters
 
         Parameters
         ----------
@@ -1155,7 +1181,10 @@ class ApplicationEntity(object):
             return server
 
     def shutdown(self):
-        """Stop any active association servers and threads."""
+        """Stop any active association servers and threads.
+
+        .. versionadded:: 1.2
+        """
         for assoc in self.active_associations:
             assoc.abort()
 

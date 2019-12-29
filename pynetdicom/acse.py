@@ -48,7 +48,10 @@ class ACSE(object):
 
     @property
     def assoc(self):
-        """Return the parent :class:`~pynetdicom.association.Association`."""
+        """Return the parent :class:`~pynetdicom.association.Association`.
+
+        .. versionadded:: 1.3
+        """
         return self._assoc
 
     def _check_async_ops(self):
@@ -249,7 +252,10 @@ class ACSE(object):
         return False
 
     def is_release_requested(self):
-        """Return ``True`` if an A-RELEASE request has been received."""
+        """Return ``True`` if an A-RELEASE request has been received.
+
+        .. versionadded:: 1.1
+        """
         primitive = self.dul.peek_next_pdu()
         if isinstance(primitive, A_RELEASE) and primitive.result is None:
             _ = self.dul.receive_pdu(wait=False)
@@ -492,6 +498,8 @@ class ACSE(object):
 
     def negotiate_release(self):
         """Negotiate association release.
+
+        .. versionadded:: 1.1
 
         Once an A-RELEASE request has been sent any received P-DATA PDUs will
         be ignored.

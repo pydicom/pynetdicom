@@ -853,6 +853,8 @@ def build_context(abstract_syntax, transfer_syntax=None):
 def build_role(uid, scu_role=False, scp_role=False):
     """Return a SCP/SCU Role Selection Negotiation item.
 
+    .. versionadded:: 1.2
+
     Parameters
     ----------
     uid : str or UID or sop_class.SOPClass
