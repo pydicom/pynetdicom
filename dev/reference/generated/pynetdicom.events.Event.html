@@ -200,8 +200,11 @@
 <h1>pynetdicom.events.Event<a class="headerlink" href="#pynetdicom-events-event" title="Permalink to this headline">¶</a></h1>
 <dl class="class">
 <dt id="pynetdicom.events.Event">
-<em class="property">class </em><code class="sig-prename descclassname">pynetdicom.events.</code><code class="sig-name descname">Event</code><span class="sig-paren">(</span><em class="sig-param">assoc</em>, <em class="sig-param">event</em>, <em class="sig-param">attrs=None</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/50fac8d7/pynetdicom/events.py#L216"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom.events.Event" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="sig-prename descclassname">pynetdicom.events.</code><code class="sig-name descname">Event</code><span class="sig-paren">(</span><em class="sig-param">assoc</em>, <em class="sig-param">event</em>, <em class="sig-param">attrs=None</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/511607a9/pynetdicom/events.py#L225"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom.events.Event" title="Permalink to this definition">¶</a></dt>
 <dd><p>Representation of an event.</p>
+<div class="versionadded">
+<p><span class="versionmodified added">New in version 1.3.</span></p>
+</div>
 <div class="admonition warning">
 <p class="admonition-title">Warning</p>
 <p>Some of <a class="reference internal" href="#pynetdicom.events.Event" title="pynetdicom.events.Event"><code class="xref py py-class docutils literal notranslate"><span class="pre">Event</span></code></a>’s attributes are set dynamically when an event is
@@ -248,7 +251,7 @@ the actual event that this object represents.</p>
 
 <dl class="method">
 <dt id="pynetdicom.events.Event.__init__">
-<code class="sig-name descname">__init__</code><span class="sig-paren">(</span><em class="sig-param">assoc</em>, <em class="sig-param">event</em>, <em class="sig-param">attrs=None</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/50fac8d7/pynetdicom/events.py#L239"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom.events.Event.__init__" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">__init__</code><span class="sig-paren">(</span><em class="sig-param">assoc</em>, <em class="sig-param">event</em>, <em class="sig-param">attrs=None</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/511607a9/pynetdicom/events.py#L250"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom.events.Event.__init__" title="Permalink to this definition">¶</a></dt>
 <dd><p>Create a new Event.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -352,6 +355,9 @@ that uses the returned <a class="reference external" href="https://pydicom.githu
 <dt id="pynetdicom.events.Event.action_type">
 <em class="property">property </em><code class="sig-name descname">action_type</code><a class="headerlink" href="#pynetdicom.events.Event.action_type" title="Permalink to this definition">¶</a></dt>
 <dd><p>Return an N-ACTION request’s <cite>Action Type ID</cite> as an int.</p>
+<div class="versionadded">
+<p><span class="versionmodified added">New in version 1.4.</span></p>
+</div>
 <dl class="field-list simple">
 <dt class="field-odd">Returns</dt>
 <dd class="field-odd"><p>The request’s (0000,1008) <em>Action Type ID</em> value.</p>
@@ -434,6 +440,9 @@ that uses the returned <a class="reference external" href="https://pydicom.githu
 <dt>
 <em class="property">property </em><code class="sig-name descname">event</code></dt>
 <dd><p>Return the corresponding event.</p>
+<div class="versionadded">
+<p><span class="versionmodified added">New in version 1.4.</span></p>
+</div>
 <dl class="field-list simple">
 <dt class="field-odd">Returns</dt>
 <dd class="field-odd"><p>The corresponding event as a
@@ -472,6 +481,9 @@ that uses the returned <a class="reference external" href="https://pydicom.githu
 <dt id="pynetdicom.events.Event.event_type">
 <em class="property">property </em><code class="sig-name descname">event_type</code><a class="headerlink" href="#pynetdicom.events.Event.event_type" title="Permalink to this definition">¶</a></dt>
 <dd><p>Return an N-EVENT-REPORT request’s <cite>Event Type ID</cite> as an int.</p>
+<div class="versionadded">
+<p><span class="versionmodified added">New in version 1.4.</span></p>
+</div>
 <dl class="field-list simple">
 <dt class="field-odd">Returns</dt>
 <dd class="field-odd"><p>The request’s (0000,1002) <em>Event Type ID</em> value.</p>
@@ -578,6 +590,9 @@ the event is not a C-FIND, C-GET or C-MOVE request then returns
 <dt id="pynetdicom.events.Event.message_id">
 <em class="property">property </em><code class="sig-name descname">message_id</code><a class="headerlink" href="#pynetdicom.events.Event.message_id" title="Permalink to this definition">¶</a></dt>
 <dd><p>Return a DIMSE service request’s ‘Message ID’ as int.</p>
+<div class="versionadded">
+<p><span class="versionmodified added">New in version 1.5.</span></p>
+</div>
 <dl class="field-list simple">
 <dt class="field-odd">Returns</dt>
 <dd class="field-odd"><p>The request’s (0000,0110) <em>Message ID</em> value.</p>
@@ -619,6 +634,9 @@ that uses the returned <a class="reference external" href="https://pydicom.githu
 <dt id="pynetdicom.events.Event.move_destination">
 <em class="property">property </em><code class="sig-name descname">move_destination</code><a class="headerlink" href="#pynetdicom.events.Event.move_destination" title="Permalink to this definition">¶</a></dt>
 <dd><p>Return a C-MOVE request’s <cite>Move Destination</cite> as bytes.</p>
+<div class="versionadded">
+<p><span class="versionmodified added">New in version 1.4.</span></p>
+</div>
 <dl class="field-list simple">
 <dt class="field-odd">Returns</dt>
 <dd class="field-odd"><p>The request’s (0000,0600) <em>Move Destination</em> value as length 16

@@ -199,6 +199,9 @@
 <dt id="pynetdicom._config.USE_SHORT_DIMSE_AET">
 <code class="sig-prename descclassname">pynetdicom._config.</code><code class="sig-name descname">USE_SHORT_DIMSE_AET</code><em class="property"> = True</em><a class="headerlink" href="#pynetdicom._config.USE_SHORT_DIMSE_AET" title="Permalink to this definition">¶</a></dt>
 <dd><p>Use short AE titles in DIMSE messages.</p>
+<div class="versionadded">
+<p><span class="versionmodified added">New in version 1.5.</span></p>
+</div>
 <p>If <code class="docutils literal notranslate"><span class="pre">False</span></code> then elements with a VR of AE in DIMSE messages will be padded
 with trailing spaces up to the maximum allowable length (16 bytes), otherwise
 they will be padded with zero or one space to the smallest possible even

@@ -115,7 +115,7 @@ In *pynetdicom* this is accomplished through one of the following methods:
 
 3. Supplying a list of :class:`PresentationContext` items to
    :meth:`AE.associate()<pynetdicom.ae.ApplicationEntity.associate>`
-   via the *context* keyword argument.
+   via the *contexts* keyword argument.
 
 ::
 
