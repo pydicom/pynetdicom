@@ -28,6 +28,8 @@ class AssociationSocket(object):
     """A wrapper for a :pyd:`socket<3/library/socket.html#socket-objects>`
     object.
 
+    .. versionadded:: 1.2
+
     Provides an interface for :pyd:`socket
     <3/library/socket.html#socket-objects>` that is integrated nicely
     with an :class:`~pynetdicom.association.Association` instance and the
@@ -349,6 +351,8 @@ class AssociationSocket(object):
 class RequestHandler(BaseRequestHandler):
     """Connection request handler for the ``AssociationServer``.
 
+    .. versionadded:: 1.2
+
     Attributes
     ----------
     client_address : 2-tuple
@@ -429,6 +433,8 @@ class RequestHandler(BaseRequestHandler):
 class AssociationServer(TCPServer):
     """An Association server implementation.
 
+    .. versionadded:: 1.2
+
     Any attempts to connect will be assumed to be from association requestors.
 
     The server should be started with
@@ -497,6 +503,8 @@ class AssociationServer(TCPServer):
     def bind(self, event, handler):
         """Bind a callable `handler` to an `event`.
 
+        .. versionadded:: 1.3
+
         Parameters
         ----------
         event : 3-tuple
@@ -550,11 +558,16 @@ class AssociationServer(TCPServer):
         return [tt for tt in threads if tt._server is self]
 
     def get_events(self):
-        """Return a list of currently bound events."""
+        """Return a list of currently bound events.
+
+        .. versionadded:: 1.3
+        """
         return sorted(self._handlers.keys(), key=lambda x: x.name)
 
     def get_handlers(self, event):
         """Return handlers bound to a specific `event`.
+
+        .. versionadded:: 1.3
 
         Parameters
         ----------
@@ -653,6 +666,8 @@ class AssociationServer(TCPServer):
     def unbind(self, event, handler):
         """Unbind a callable `handler` from an `event`.
 
+        .. versionadded:: 1.3
+
         Parameters
         ----------
         event : 3-tuple
@@ -682,7 +697,10 @@ class AssociationServer(TCPServer):
 
 
 class ThreadedAssociationServer(ThreadingMixIn, AssociationServer):
-    """An :class:`AssociationServer` suitable for threading."""
+    """An :class:`AssociationServer` suitable for threading.
+
+    .. versionadded:: 1.2
+    """
     def process_request_thread(self, request, client_address):
         """Process a connection request."""
         # pylint: disable=broad-except

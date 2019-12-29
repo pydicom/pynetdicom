@@ -89,6 +89,10 @@ def validate_ae_title(ae_title, use_short=False):
     spaces have been removed, the spare trailing characters will be set to
     space (``0x20``).
 
+    .. versionchanged:: 1.1
+
+        Changed to only return ``bytes`` for Python 3.
+
     Parameters
     ----------
     ae_title : bytes

@@ -181,6 +181,8 @@ class Association(threading.Thread):
     def bind(self, event, handler):
         """Bind a callable `handler` to an `event`.
 
+        .. versionadded:: 1.3
+
         Parameters
         ----------
         event : namedtuple
@@ -269,11 +271,16 @@ class Association(threading.Thread):
             self._dimse_timeout = value
 
     def get_events(self):
-        """Return a list of currently bound events."""
+        """Return a list of currently bound events.
+
+        .. versionadded:: 1.3
+        """
         return sorted(self._handlers.keys(), key=lambda x: x.name)
 
     def get_handlers(self, event):
         """Return handlers bound to a specific `event`.
+
+        .. versionadded:: 1.3
 
         Parameters
         ----------
@@ -604,6 +611,8 @@ class Association(threading.Thread):
     def unbind(self, event, handler):
         """Unbind a callable `handler` from an `event`.
 
+        .. versionadded:: 1.3
+
         Parameters
         ----------
         event : namedtuple
@@ -857,6 +866,10 @@ class Association(threading.Thread):
 
         Yields (*status*, *identifier*) pairs for each response from the peer.
 
+        .. versionchanged:: 1.5
+
+            `query_model` now only accepts a UID string
+
         Parameters
         ----------
         dataset : pydicom.dataset.Dataset
@@ -1056,6 +1069,10 @@ class Association(threading.Thread):
         :ref:`SCP/SCU Role Selection Negotiation <user_ae_role_negotiation>`
         must be supported by the :class:`Association`.
 
+        .. versionchanged:: 1.5
+
+            `query_model` now only accepts a UID string
+
         Parameters
         ----------
         dataset : pydicom.dataset.Dataset
@@ -1245,6 +1262,10 @@ class Association(threading.Thread):
         the Move SCP. Once the association has been established, the peer will
         use the C-STORE service to send any matching datasets to the nominated
         Storage SCP.
+
+        .. versionchanged:: 1.5
+
+            `query_model` now only accepts a UID string
 
         Parameters
         ----------
@@ -1875,6 +1896,10 @@ class Association(threading.Thread):
                       msg_id=1, meta_uid=None):
         """Send an N-ACTION request to the peer AE.
 
+        .. versionchanged:: 1.4
+
+            Added `meta_uid` keyword parameter
+
         Parameters
         ----------
         dataset : pydicom.dataset.Dataset or None
@@ -2067,6 +2092,10 @@ class Association(threading.Thread):
     def send_n_create(self, dataset, class_uid, instance_uid=None, msg_id=1,
                       meta_uid=None):
         """Send an N-CREATE request to the peer AE.
+
+        .. versionchanged:: 1.4
+
+            Added `meta_uid` keyword parameter
 
         Parameters
         ----------
@@ -2298,6 +2327,10 @@ class Association(threading.Thread):
     def send_n_delete(self, class_uid, instance_uid, msg_id=1, meta_uid=None):
         """Send an N-DELETE request to the peer AE.
 
+        .. versionchanged:: 1.4
+
+            Added `meta_uid` keyword parameter
+
         Parameters
         ----------
         class_uid : pydicom.uid.UID
@@ -2414,6 +2447,10 @@ class Association(threading.Thread):
     def send_n_event_report(self, dataset, event_type, class_uid,
                             instance_uid, msg_id=1, meta_uid=None):
         """Send an N-EVENT-REPORT request to the peer AE.
+
+        .. versionchanged:: 1.4
+
+            Added `meta_uid` keyword parameter
 
         Parameters
         ----------
@@ -2608,6 +2645,10 @@ class Association(threading.Thread):
     def send_n_get(self, identifier_list, class_uid, instance_uid, msg_id=1,
                    meta_uid=None):
         """Send an N-GET request to the peer AE.
+
+        .. versionchanged:: 1.4
+
+            Added `meta_uid` keyword parameter
 
         Parameters
         ----------
@@ -2806,6 +2847,10 @@ class Association(threading.Thread):
     def send_n_set(self, dataset, class_uid, instance_uid, msg_id=1,
                    meta_uid=None):
         """Send an N-SET request to the peer AE.
+
+        .. versionchanged:: 1.4
+
+            Added `meta_uid` keyword parameter
 
         Parameters
         ----------

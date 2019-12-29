@@ -132,7 +132,10 @@ def _generate_sop_classes(sop_class_dict):
         uid = sop_class_dict[name]
         sop_class = SOPClass(uid)
         sop_class._service_class = uid_to_service_class(uid)
-        sop_class.__doc__ = "``{}``".format(uid)
+        docstring = "``{}``".format(uid)
+        if uid in ('1.2.840.10008.5.1.1.9', '1.2.840.10008.5.1.1.18'):
+            docstring += "\n\n.. versionadded:: 1.4"
+        sop_class.__doc__ = docstring
         globals()[name] = sop_class
 
 

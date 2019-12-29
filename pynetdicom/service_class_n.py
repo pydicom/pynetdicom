@@ -22,7 +22,10 @@ LOGGER = logging.getLogger('pynetdicom.service-n')
 
 
 class ApplicationEventLoggingServiceClass(ServiceClass):
-    """Implementation of the Application Event Logging Service Class"""
+    """Implementation of the Application Event Logging Service Class
+
+    .. versionadded:: 1.4
+    """
     statuses = APPLICATION_EVENT_LOGGING_SERVICE_CLASS_STATUS
 
     def SCP(self, req, context):
@@ -68,7 +71,10 @@ class DisplaySystemManagementServiceClass(ServiceClass):
 
 
 class InstanceAvailabilityNotificationServiceClass(ServiceClass):
-    """Implementation of the Instance Availability Service Class"""
+    """Implementation of the Instance Availability Service Class
+
+    .. versionadded:: 1.4
+    """
     statuses = GENERAL_STATUS
 
     def SCP(self, req, context):
@@ -91,7 +97,10 @@ class InstanceAvailabilityNotificationServiceClass(ServiceClass):
 
 
 class MediaCreationManagementServiceClass(ServiceClass):
-    """Implementation of the Media Creation Management Service Class"""
+    """Implementation of the Media Creation Management Service Class
+
+    .. versionadded:: 1.4
+    """
     statuses = MEDIA_CREATION_MANAGEMENT_SERVICE_CLASS_STATUS
 
     def SCP(self, req, context):
@@ -118,7 +127,10 @@ class MediaCreationManagementServiceClass(ServiceClass):
 
 
 class PrintManagementServiceClass(ServiceClass):
-    """Implementation of the Print Management Service Class"""
+    """Implementation of the Print Management Service Class
+
+    .. versionadded:: 1.4
+    """
     statuses = PRINT_JOB_MANAGEMENT_SERVICE_CLASS_STATUS
 
     def SCP(self, req, context):
@@ -152,7 +164,10 @@ class PrintManagementServiceClass(ServiceClass):
 
 
 class ProcedureStepServiceClass(ServiceClass):
-    """Implementation of the Modality Performed Procedure Step Service Class"""
+    """Implementation of the Modality Performed Procedure Step Service Class
+
+    .. versionadded:: 1.3
+    """
     statuses = PROCEDURE_STEP_STATUS
 
     def SCP(self, req, context):
@@ -187,7 +202,10 @@ class ProcedureStepServiceClass(ServiceClass):
 
 
 class RTMachineVerificationServiceClass(ServiceClass):
-    """Implementation of the RT Machine Verification Service Class"""
+    """Implementation of the RT Machine Verification Service Class
+
+    .. versionadded:: 1.4
+    """
     statuses = RT_MACHINE_VERIFICATION_SERVICE_CLASS_STATUS
 
     def SCP(self, req, context):
@@ -221,7 +239,10 @@ class RTMachineVerificationServiceClass(ServiceClass):
 
 
 class StorageCommitmentServiceClass(ServiceClass):
-    """Implementation of the Storage Commitment Service Class"""
+    """Implementation of the Storage Commitment Service Class
+
+    .. versionadded:: 1.4
+    """
     statuses = STORAGE_COMMITMENT_SERVICE_CLASS_STATUS
 
     def SCP(self, req, context):
@@ -246,7 +267,10 @@ class StorageCommitmentServiceClass(ServiceClass):
 
 
 class UnifiedProcedureStepServiceClass(ServiceClass):
-    """Implementation of the Unified Procedure Step Service Class"""
+    """Implementation of the Unified Procedure Step Service Class
+
+    .. versionadded:: 1.4
+    """
     statuses = UNIFIED_PROCEDURE_STEP_SERVICE_CLASS_STATUS
 
     def SCP(self, req, context):

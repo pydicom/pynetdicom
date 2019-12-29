@@ -20,6 +20,8 @@ Examples
 ENFORCE_UID_CONFORMANCE = False
 """Enforce UID conformance
 
+.. versionadded:: 1.3
+
 If ``True`` then UIDs will be checked to ensure they're conformant to the
 DICOM Standard and if not then an appropriate response sent, otherwise
 UIDs will only be checked to ensure they're no longer then 64 characters and
@@ -35,6 +37,8 @@ Examples
 
 USE_SHORT_DIMSE_AET = True
 """Use short AE titles in DIMSE messages.
+
+.. versionadded:: 1.5
 
 If ``False`` then elements with a VR of AE in DIMSE messages will be padded
 with trailing spaces up to the maximum allowable length (16 bytes), otherwise
