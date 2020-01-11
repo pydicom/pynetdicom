@@ -6,8 +6,6 @@ import logging
 from math import ceil
 
 from pydicom.dataset import Dataset
-from pydicom.tag import Tag
-from pydicom._dicom_dict import DicomDictionary as dcm_dict
 
 from pynetdicom.dimse_primitives import (
     C_STORE, C_FIND, C_GET, C_MOVE, C_ECHO, C_CANCEL,
@@ -40,7 +38,8 @@ _COMMAND_SET_KEYWORDS = {
     'C-STORE-RSP': (
         'CommandGroupLength', 'AffectedSOPClassUID', 'CommandField',
         'MessageIDBeingRespondedTo', 'CommandDataSetType', 'Status',
-        'OffendingElement', 'ErrorComment', 'AffectedSOPInstanceUID'
+        'AffectedSOPInstanceUID',
+        'OffendingElement', 'ErrorComment',
     ),
     'C-FIND-RQ': (
         'CommandGroupLength', 'AffectedSOPClassUID', 'CommandField',
@@ -62,9 +61,9 @@ _COMMAND_SET_KEYWORDS = {
     'C-GET-RSP': (
         'CommandGroupLength', 'AffectedSOPClassUID', 'CommandField',
         'MessageIDBeingRespondedTo', 'CommandDataSetType', 'Status',
-        'OffendingElement', 'ErrorComment', 'NumberOfRemainingSuboperations',
-        'NumberOfCompletedSuboperations', 'NumberOfFailedSuboperations',
-        'NumberOfWarningSuboperations',
+        'NumberOfRemainingSuboperations', 'NumberOfCompletedSuboperations',
+        'NumberOfFailedSuboperations', 'NumberOfWarningSuboperations',
+        'OffendingElement', 'ErrorComment',
     ),
     'C-MOVE-RQ': (
         'CommandGroupLength', 'AffectedSOPClassUID', 'CommandField',
@@ -73,9 +72,9 @@ _COMMAND_SET_KEYWORDS = {
     'C-MOVE-RSP': (
         'CommandGroupLength', 'AffectedSOPClassUID', 'CommandField',
         'MessageIDBeingRespondedTo', 'CommandDataSetType', 'Status',
-        'OffendingElement', 'ErrorComment', 'NumberOfRemainingSuboperations',
-        'NumberOfCompletedSuboperations', 'NumberOfFailedSuboperations',
-        'NumberOfWarningSuboperations'
+        'NumberOfRemainingSuboperations', 'NumberOfCompletedSuboperations',
+        'NumberOfFailedSuboperations', 'NumberOfWarningSuboperations',
+        'OffendingElement', 'ErrorComment'
     ),
     'N-EVENT-REPORT-RQ': (
         'CommandGroupLength', 'AffectedSOPClassUID', 'CommandField',
@@ -85,8 +84,8 @@ _COMMAND_SET_KEYWORDS = {
     'N-EVENT-REPORT-RSP': (
         'CommandGroupLength', 'AffectedSOPClassUID', 'CommandField',
         'MessageIDBeingRespondedTo', 'CommandDataSetType', 'Status',
-        'AffectedSOPInstanceUID', 'EventTypeID', 'EventTypeID', 'ErrorID',
-        'ErrorComment'
+        'AffectedSOPInstanceUID', 'EventTypeID', 'EventTypeID',
+        'ErrorID', 'ErrorComment'
     ),
     'N-GET-RQ': (
         'CommandGroupLength', 'RequestedSOPClassUID', 'CommandField',
@@ -96,7 +95,8 @@ _COMMAND_SET_KEYWORDS = {
     'N-GET-RSP': (
         'CommandGroupLength', 'AffectedSOPClassUID', 'CommandField',
         'MessageIDBeingRespondedTo', 'CommandDataSetType', 'Status',
-        'AffectedSOPInstanceUID', 'ErrorComment', 'ErrorID',
+        'AffectedSOPInstanceUID',
+        'AttributeIdentifierList', 'ErrorComment', 'ErrorID',
     ),
     'N-SET-RQ': (
         'CommandGroupLength', 'RequestedSOPClassUID', 'CommandField',
@@ -105,8 +105,8 @@ _COMMAND_SET_KEYWORDS = {
     'N-SET-RSP': (
         'CommandGroupLength', 'AffectedSOPClassUID', 'CommandField',
         'MessageIDBeingRespondedTo', 'CommandDataSetType', 'Status',
-        'AffectedSOPInstanceUID', 'AttributeIdentifierList', 'ErrorComment',
-        'ErrorID'
+        'AffectedSOPInstanceUID',
+        'AttributeIdentifierList', 'ErrorComment', 'ErrorID'
     ),
     'N-ACTION-RQ': (
         'CommandGroupLength', 'RequestedSOPClassUID', 'CommandField',
@@ -116,7 +116,8 @@ _COMMAND_SET_KEYWORDS = {
     'N-ACTION-RSP': (
         'CommandGroupLength', 'AffectedSOPClassUID', 'CommandField',
         'MessageIDBeingRespondedTo', 'CommandDataSetType', 'Status',
-        'AffectedSOPInstanceUID', 'ActionTypeID', 'ErrorID', 'ErrorComment'
+        'AffectedSOPInstanceUID', 'ActionTypeID',
+        'ErrorID', 'ErrorComment'
     ),
     'N-CREATE-RQ': (
         'CommandGroupLength', 'AffectedSOPClassUID', 'CommandField',
@@ -125,7 +126,8 @@ _COMMAND_SET_KEYWORDS = {
     'N-CREATE-RSP': (
         'CommandGroupLength', 'AffectedSOPClassUID', 'CommandField',
         'MessageIDBeingRespondedTo', 'CommandDataSetType', 'Status',
-        'AffectedSOPInstanceUID', 'ErrorID', 'ErrorComment'
+        'AffectedSOPInstanceUID',
+        'ErrorID', 'ErrorComment'
     ),
     'N-DELETE-RQ': (
         'CommandGroupLength', 'RequestedSOPClassUID', 'CommandField',
@@ -134,7 +136,8 @@ _COMMAND_SET_KEYWORDS = {
     'N-DELETE-RSP': (
         'CommandGroupLength', 'AffectedSOPClassUID', 'CommandField',
         'MessageIDBeingRespondedTo', 'CommandDataSetType', 'Status',
-        'AffectedSOPInstanceUID', 'ErrorComment', 'ErrorID',
+        'AffectedSOPInstanceUID',
+        'ErrorComment', 'ErrorID',
     )
 }
 
@@ -591,39 +594,27 @@ class DIMSEMessage(object):
 
 
 def _build_message_classes(message_name):
-    """
-    Create a new subclass instance of DIMSEMessage for the given DIMSE
+    """Create a new subclass instance of DIMSEMessage for the given DIMSE
     `message_name`.
 
     Parameters
     ----------
     message_name : str
         The name/type of message class to construct, one of the following:
-        * C-ECHO-RQ
-        * C-ECHO-RSP
-        * C-STORE-RQ
-        * C-STORE-RSP
-        * C-FIND-RQ
-        * C-FIND-RSP
-        * C-GET-RQ
-        * C-GET-RSP
-        * C-MOVE-RQ
-        * C-MOVE-RSP
-        * C-CANCEL-RQ
-        * N-EVENT-REPORT-RQ
-        * N-EVENT-REPORT-RSP
-        * N-GET-RQ
-        * N-GET-RSP
-        * N-SET-RQ
-        * N-SET-RSP
-        * N-ACTION-RQ
-        * N-ACTION-RSP
-        * N-CREATE-RQ
-        * N-CREATE-RSP
-        * N-DELETE-RQ
-        * N-DELETE-RSP
-    """
 
+        * C-ECHO-RQ, C-ECHO-RSP
+        * C-STORE-RQ, C-STORE-RSP
+        * C-FIND-RQ, C-FIND-RSP
+        * C-GET-RQ, C-GET-RSP
+        * C-MOVE-RQ, C-MOVE-RSP
+        * C-CANCEL-RQ
+        * N-EVENT-REPORT-RQ, N-EVENT-REPORT-RSP
+        * N-GET-RQ, N-GET-RSP
+        * N-SET-RQ, N-SET-RSP
+        * N-ACTION-RQ, N-ACTION-RSP
+        * N-CREATE-RQ, N-CREATE-RSP
+        * N-DELETE-RQ, N-DELETE-RSP
+    """
     def __init__(self):
         DIMSEMessage.__init__(self)
         # Create a new Dataset object for the command_set attributes
@@ -632,6 +623,7 @@ def _build_message_classes(message_name):
             # If the required command set elements are expanded this will need
             #   to be checked to ensure it functions OK
             try:
+                # TODO: In pydicom v1.4 should only need to set using `None`
                 setattr(ds, keyword, None)
             except TypeError:
                 setattr(ds, keyword, '')

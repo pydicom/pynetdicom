@@ -375,3 +375,19 @@ Verification
    :toctree: generated/
 
    VerificationSOPClass
+
+
+Well-known SOP Instances
+------------------------
+
+.. autosummary::
+   :toctree: generated/
+
+   DisplaySystemSOPInstance
+   PrinterConfigurationRetrievalSOPInstance
+   PrinterSOPInstance
+   ProceduralEventLoggingSOPInstance
+   StorageCommitmentPushModelSOPInstance
+   SubstanceAdministrationLoggingSOPInstance
+   UPSFilteredGlobalSubscriptionSOPInstance
+   UPSGlobalSubscriptionSOPInstance

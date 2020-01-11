@@ -216,11 +216,7 @@ class PDU(object):
     @property
     def pdu_type(self):
         """Return the *PDU Type* field value as :class:`int`."""
-        key_val = PDU_TYPES.items()
-        keys = [key for (key, val) in key_val]
-        vals = [val for (key, val) in key_val]
-
-        return keys[vals.index(self.__class__)]
+        return PDU_TYPES[self.__class__]
 
     @staticmethod
     def _wrap_bytes(bytestream):
@@ -2011,13 +2007,13 @@ class A_ABORT_RQ(PDU):
         return 'No reason given'
 
 
-# PDUs indexed by their type
+# PDUs indexed by their class
 PDU_TYPES = {
-    0x01 : A_ASSOCIATE_RQ,
-    0x02 : A_ASSOCIATE_AC,
-    0x03 : A_ASSOCIATE_RJ,
-    0x04 : P_DATA_TF,
-    0x05 : A_RELEASE_RQ,
-    0x06 : A_RELEASE_RP,
-    0x07 : A_ABORT_RQ,
+    A_ASSOCIATE_RQ : 0x01,
+    A_ASSOCIATE_AC : 0x02,
+    A_ASSOCIATE_RJ : 0x03,
+    P_DATA_TF : 0x04,
+    A_RELEASE_RQ : 0x05,
+    A_RELEASE_RP : 0x06,
+    A_ABORT_RQ : 0x07,
 }

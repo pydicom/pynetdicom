@@ -128,17 +128,7 @@ class DULServiceProvider(Thread):
         bytestream = bytes(bytestream)
         evt.trigger(self.assoc, evt.EVT_DATA_RECV, {'data' : bytestream})
 
-        pdu_types = {
-            b'\x01' : (A_ASSOCIATE_RQ, 'Evt6'),
-            b'\x02' : (A_ASSOCIATE_AC, 'Evt3'),
-            b'\x03' : (A_ASSOCIATE_RJ, 'Evt4'),
-            b'\x04' : (P_DATA_TF, 'Evt10'),
-            b'\x05' : (A_RELEASE_RQ, 'Evt12'),
-            b'\x06' : (A_RELEASE_RP, 'Evt13'),
-            b'\x07' : (A_ABORT_RQ, 'Evt16')
-        }
-
-        pdu, event = pdu_types[bytestream[0:1]]
+        pdu, event = _PDU_TYPES[bytestream[0:1]]
         pdu = pdu()
         pdu.decode(bytestream)
 
@@ -472,3 +462,14 @@ class DULServiceProvider(Thread):
             return True
 
         return False
+
+
+_PDU_TYPES = {
+    b'\x01' : (A_ASSOCIATE_RQ, 'Evt6'),
+    b'\x02' : (A_ASSOCIATE_AC, 'Evt3'),
+    b'\x03' : (A_ASSOCIATE_RJ, 'Evt4'),
+    b'\x04' : (P_DATA_TF, 'Evt10'),
+    b'\x05' : (A_RELEASE_RQ, 'Evt12'),
+    b'\x06' : (A_RELEASE_RP, 'Evt13'),
+    b'\x07' : (A_ABORT_RQ, 'Evt16')
+}
