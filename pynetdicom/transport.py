@@ -714,10 +714,11 @@ class AssociationServer(TCPServer):
             :class:`ssl.SSLContext` used to wrap the client sockets, otherwise
             if ``None`` then no TLS will be used (default).
         """
-        if not _HAS_SSL:
-            raise RuntimeError(
-                "Your Python installation lacks support for SSL"
-            )
+        # TODO: Uncomment when no longer supporting Python 2
+        #if not _HAS_SSL:
+        #    raise RuntimeError(
+        #        "Your Python installation lacks support for SSL"
+        #    )
 
         self._ssl_context = context
 

@@ -1,5 +1,7 @@
 .. _api_sopclasses:
 
+.. py:module:: pynetdicom.sop_class
+
 SOP Classes (:mod:`pynetdicom.sop_class`)
 ==============================================
 

@@ -1,5 +1,7 @@
 .. _api_dul_primitives:
 
+.. py:module:: pynetdicom.pdu_primitives
+
 Service Primitives (:mod:`pynetdicom.pdu_primitives`)
 ======================================================
 

@@ -1,5 +1,7 @@
 .. _api_events:
 
+.. py:module:: pynetdicom.events
+
 Events and Handlers (:mod:`pynetdicom.events`)
 ==============================================
 

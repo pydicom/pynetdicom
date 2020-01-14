@@ -1,5 +1,7 @@
 .. _api_presentation:
 
+.. py:module:: pynetdicom.presentation
+
 Presentation Service (:mod:`pynetdicom.presentation`)
 ======================================================
 
