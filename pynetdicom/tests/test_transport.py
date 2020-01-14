@@ -200,10 +200,19 @@ def server_context(request):
     context.load_verify_locations(cafile=CLIENT_CERT)
 
     # TLS v1.3 is not currently supported :(
+    # The actual available attributes/protocols depend on OS, OpenSSL version
+    #   and Python version, ugh
     if hasattr(ssl, 'TLSVersion'):
+        # This is the current and future, but heavily depends on OpenSSL
+        # Python 3.7+, w/ OpenSSL 1.1.0g+
         context.maximum_version = ssl.TLSVersion.TLSv1_2
     else:
-        context.options |= ssl.OP_NO_TLSv1_3
+        # Should work with older Python and OpenSSL versions
+        # Python 2.7, 3.5, 3.6
+        context = ssl.SSLContext(protocol=ssl.PROTOCOL_TLSv1_2)
+        context.verify_mode = ssl.CERT_REQUIRED
+        context.load_cert_chain(certfile=SERVER_CERT, keyfile=SERVER_KEY)
+        context.load_verify_locations(cafile=CLIENT_CERT)
 
     return context
 
@@ -230,7 +239,11 @@ class TestTLS(object):
 
         # Ensure ssl module is available again
         import importlib
-        importlib.reload(pynetdicom.transport)
+        try:
+            importlib.reload(pynetdicom.transport)
+        except AttributeError:
+            # Python 2
+            reload(pynetdicom.transport)
 
     def test_tls_not_server_not_client(self):
         """Test associating with no TLS on either end."""
@@ -351,7 +364,11 @@ class TestTLS(object):
         """Test exception raised if no SSL available to Python as SCP."""
         # Reload pynetdicom package
         import importlib
-        importlib.reload(pynetdicom.transport)
+        try:
+            importlib.reload(pynetdicom.transport)
+        except AttributeError:
+            # Python 2
+            reload(pynetdicom.transport)
 
         self.ae = ae = AE()
         ae.acse_timeout = 5
@@ -363,7 +380,7 @@ class TestTLS(object):
             ae.start_server(
                 ('', 11112),
                 block=False,
-                ssl_context=server_context,
+                ssl_context=['random', 'object'],
             )
 
     @hide_modules(['ssl'])
@@ -371,7 +388,11 @@ class TestTLS(object):
         """Test exception raised if no SSL available to Python as SCU."""
         # Reload pynetdicom package
         import importlib
-        importlib.reload(pynetdicom.transport)
+        try:
+            importlib.reload(pynetdicom.transport)
+        except AttributeError:
+            # Python 2
+            reload(pynetdicom.transport)
 
         self.ae = ae = AE()
         ae.acse_timeout = 5
@@ -380,7 +401,7 @@ class TestTLS(object):
         ae.add_requested_context('1.2.840.10008.1.1')
         msg = r"Your Python installation lacks support for SSL"
         with pytest.raises(RuntimeError, match=msg):
-            ae.associate('', 11112, tls_args=(client_context, None))
+            ae.associate('', 11112, tls_args=(['random', 'object'], None))
 
 
 class TestAssociationServer(object):

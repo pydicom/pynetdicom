@@ -512,6 +512,11 @@ class AssociationServer(TCPServer):
         self.ae = ae
         self.ae_title = ae_title
         self.contexts = contexts
+        # Cover Python 2: old style class
+        if ssl_context and not _HAS_SSL:
+            raise RuntimeError(
+                "Your Python installation lacks support for SSL"
+            )
         self.ssl_context = ssl_context
         self.allow_reuse_address = True
 
@@ -699,12 +704,12 @@ class AssociationServer(TCPServer):
         return self._ssl_context
 
     @ssl_context.setter
-    def ssl_context(self, ssl_context):
+    def ssl_context(self, context):
         """Set the SSL context for the socket.
 
         Parameters
         ----------
-        ssl_context : ssl.SSLContext or None
+        context : ssl.SSLContext or None
             If TLS is to be used then this should be the
             :class:`ssl.SSLContext` used to wrap the client sockets, otherwise
             if ``None`` then no TLS will be used (default).
@@ -714,7 +719,7 @@ class AssociationServer(TCPServer):
                 "Your Python installation lacks support for SSL"
             )
 
-        self._ssl_context = ssl_context
+        self._ssl_context = context
 
     def unbind(self, event, handler):
         """Unbind a callable `handler` from an `event`.
