@@ -278,26 +278,6 @@ class AssociationSocket(object):
 
         return bool(ready)
 
-    @property
-    def ready_tls(self):
-        """Return ``True`` if there is data available to be read for the SSL
-        socket.
-
-        Used when :attr:`~AssociationSocket.tls_args` is not ``None``
-
-        *Events Emitted*
-
-        - None
-        - Evt17: Transport connection closed
-
-        Returns
-        -------
-        bool
-            ``True`` if the socket has data ready to be read, ``False``
-            otherwise.
-        """
-        pass
-
     def recv(self, nr_bytes):
         """Read `nr_bytes` from the socket.
 
