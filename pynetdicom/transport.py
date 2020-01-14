@@ -9,7 +9,11 @@ try:
     from SocketServer import TCPServer, ThreadingMixIn, BaseRequestHandler
 except ImportError:
     from socketserver import TCPServer, ThreadingMixIn, BaseRequestHandler
-import ssl
+try:
+    import ssl
+    _HAS_SSL = True
+except ImportError:
+    _HAS_SSL = False
 from struct import pack
 import threading
 
@@ -85,7 +89,7 @@ class AssociationSocket(object):
             # Evt5: Transport connection indication
             self.event_queue.put('Evt5')
 
-        self.tls_args = None
+        self._tls_args = None
         self.select_timeout = 0.5
 
     @property
@@ -274,6 +278,26 @@ class AssociationSocket(object):
 
         return bool(ready)
 
+    @property
+    def ready_tls(self):
+        """Return ``True`` if there is data available to be read for the SSL
+        socket.
+
+        Used when :attr:`~AssociationSocket.tls_args` is not ``None``
+
+        *Events Emitted*
+
+        - None
+        - Evt17: Transport connection closed
+
+        Returns
+        -------
+        bool
+            ``True`` if the socket has data ready to be read, ``False``
+            otherwise.
+        """
+        pass
+
     def recv(self, nr_bytes):
         """Read `nr_bytes` from the socket.
 
@@ -346,6 +370,32 @@ class AssociationSocket(object):
     def __str__(self):
         """Return the string output for ``socket``."""
         return self.socket.__str__()
+
+    @property
+    def tls_args(self):
+        """Return the TLS context and hostname (if set) or ``None``."""
+        return self._tls_args
+
+    @tls_args.setter
+    def tls_args(self, tls_args):
+        """Set the TLS arguments for the socket.
+
+        Parameters
+        ----------
+        tls_args : 2-tuple
+            If the socket should be wrapped by TLS then this is
+            ``(context, hostname)``, where *context* is a
+            :class:`ssl.SSLContext` that will be used to wrap the socket and
+            *hostname* is the value to use for the *server_hostname* keyword
+            argument for :meth:`SSLContext.wrap_socket()
+            <ssl.SSLContext.wrap_socket>`.
+        """
+        if not _HAS_SSL:
+            raise RuntimeError(
+                "Your Python installation lacks support for SSL"
+            )
+
+        self._tls_args = tls_args
 
 
 class RequestHandler(BaseRequestHandler):
@@ -662,6 +712,29 @@ class AssociationServer(TCPServer):
         TCPServer.shutdown(self)
         self.server_close()
         self.ae._servers.remove(self)
+
+    @property
+    def ssl_context(self):
+        """Return the :class:`ssl.SSLContext` (if available)."""
+        return self._ssl_context
+
+    @ssl_context.setter
+    def ssl_context(self, ssl_context):
+        """Set the SSL context for the socket.
+
+        Parameters
+        ----------
+        ssl_context : ssl.SSLContext or None
+            If TLS is to be used then this should be the
+            :class:`ssl.SSLContext` used to wrap the client sockets, otherwise
+            if ``None`` then no TLS will be used (default).
+        """
+        if not _HAS_SSL:
+            raise RuntimeError(
+                "Your Python installation lacks support for SSL"
+            )
+
+        self._ssl_context = ssl_context
 
     def unbind(self, event, handler):
         """Unbind a callable `handler` from an `event`.

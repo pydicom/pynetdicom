@@ -19,14 +19,17 @@ import pytest
 
 from pydicom import dcmread
 
+import pynetdicom
 from pynetdicom import AE, evt, _config, debug_logger
 from pynetdicom.association import Association
 from pynetdicom.events import Event
 from pynetdicom._globals import MODE_REQUESTOR, MODE_ACCEPTOR
+from pynetdicom import transport
 from pynetdicom.transport import (
     AssociationSocket, AssociationServer, ThreadedAssociationServer
 )
 from pynetdicom.sop_class import VerificationSOPClass, RTImageStorage
+from .hide_modules import hide_modules
 
 
 # This is the directory that contains test data
@@ -195,6 +198,13 @@ def server_context(request):
     context.verify_mode = ssl.CERT_REQUIRED
     context.load_cert_chain(certfile=SERVER_CERT, keyfile=SERVER_KEY)
     context.load_verify_locations(cafile=CLIENT_CERT)
+
+    # TLS v1.3 is not currently supported :(
+    if hasattr(ssl, 'TLSVersion'):
+        context.maximum_version = ssl.TLSVersion.TLSv1_2
+    else:
+        context.options |= ssl.OP_NO_TLSv1_3
+
     return context
 
 
@@ -212,10 +222,15 @@ class TestTLS(object):
     """Test using TLS to wrap the association."""
     def setup(self):
         self.ae = None
+        self.has_ssl = transport._HAS_SSL
 
     def teardown(self):
         if self.ae:
             self.ae.shutdown()
+
+        # Ensure ssl module is available again
+        import importlib
+        importlib.reload(pynetdicom.transport)
 
     def test_tls_not_server_not_client(self):
         """Test associating with no TLS on either end."""
@@ -331,6 +346,42 @@ class TestTLS(object):
 
         assert len(ds[0].PixelData) == 2097152
 
+    @hide_modules(['ssl'])
+    def test_no_ssl_scp(self):
+        """Test exception raised if no SSL available to Python as SCP."""
+        # Reload pynetdicom package
+        import importlib
+        importlib.reload(pynetdicom.transport)
+
+        self.ae = ae = AE()
+        ae.acse_timeout = 5
+        ae.dimse_timeout = 5
+        ae.network_timeout = 5
+        ae.add_supported_context('1.2.840.10008.1.1')
+        msg = r"Your Python installation lacks support for SSL"
+        with pytest.raises(RuntimeError, match=msg):
+            ae.start_server(
+                ('', 11112),
+                block=False,
+                ssl_context=server_context,
+            )
+
+    @hide_modules(['ssl'])
+    def test_no_ssl_scu(self):
+        """Test exception raised if no SSL available to Python as SCU."""
+        # Reload pynetdicom package
+        import importlib
+        importlib.reload(pynetdicom.transport)
+
+        self.ae = ae = AE()
+        ae.acse_timeout = 5
+        ae.dimse_timeout = 5
+        ae.network_timeout = 5
+        ae.add_requested_context('1.2.840.10008.1.1')
+        msg = r"Your Python installation lacks support for SSL"
+        with pytest.raises(RuntimeError, match=msg):
+            ae.associate('', 11112, tls_args=(client_context, None))
+
 
 class TestAssociationServer(object):
     def setup(self):
@@ -342,7 +393,7 @@ class TestAssociationServer(object):
 
     @pytest.mark.skip()
     def test_multi_assoc_block(self):
-        """Test that multiple requestors can association when blocking."""
+        """Test that multiple requestors can associate when blocking."""
         self.ae = ae = AE()
         ae.maximum_associations = 10
         ae.add_supported_context('1.2.840.10008.1.1')

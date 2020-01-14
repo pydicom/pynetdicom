@@ -459,7 +459,7 @@ def uid_to_sop_class(uid):
     return sop_class
 
 
-# Well-known SOP Instance UIDs for the supported Service Class
+# Well-known SOP Instance UIDs for the supported Service Classes
 DisplaySystemSOPInstance = UID('1.2.840.10008.5.1.1.40.1')
 """1.2.840.10008.5.1.1.40.1
 
