@@ -1,5 +1,7 @@
 .. _api_dul_pduitems:
 
+.. py:module:: pynetdicom.pdu_items
+
 PDU Items and Sub-items (:mod:`pynetdicom.pdu_items`)
 ======================================================
 

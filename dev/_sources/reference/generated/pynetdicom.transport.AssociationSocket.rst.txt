@@ -31,5 +31,6 @@ pynetdicom.transport.AssociationSocket
       ~AssociationSocket.assoc
       ~AssociationSocket.event_queue
       ~AssociationSocket.ready
+      ~AssociationSocket.tls_args
    
    

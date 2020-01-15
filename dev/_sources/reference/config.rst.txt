@@ -1,5 +1,7 @@
 .. _api_config:
 
+.. py:module:: pynetdicom._config
+
 Configuration Options (:mod:`pynetdicom._config`)
 =================================================
 

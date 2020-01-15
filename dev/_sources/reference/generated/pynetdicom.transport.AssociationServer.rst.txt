@@ -48,6 +48,7 @@ pynetdicom.transport.AssociationServer
       ~AssociationServer.allow_reuse_address
       ~AssociationServer.request_queue_size
       ~AssociationServer.socket_type
+      ~AssociationServer.ssl_context
       ~AssociationServer.timeout
    
    

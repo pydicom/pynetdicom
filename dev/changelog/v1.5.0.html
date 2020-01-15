@@ -191,14 +191,14 @@
 <li><p>Fixed the <a class="reference internal" href="../reference/generated/pynetdicom.transport.AssociationServer.html#pynetdicom.transport.AssociationServer" title="pynetdicom.transport.AssociationServer"><code class="xref py py-class docutils literal notranslate"><span class="pre">AssociationServer</span></code></a> not properly
 closing its sockets (<a class="reference external" href="https://github.com/pydicom/pynetdicom/issues/382">#382</a>)</p></li>
 <li><p>Improved the robustness of determining the local IP address (<a class="reference external" href="https://github.com/pydicom/pynetdicom/issues/394">#394</a>)</p></li>
-<li><p>Fixed not being able to set an Implementation Version Name of length 1
+<li><p>Fixed not being able to set an <em>Implementation Version Name</em> of length 1
 (<a class="reference external" href="https://github.com/pydicom/pynetdicom/issues/414">#414</a>)</p></li>
 </ul>
 </div>
 <div class="section" id="enhancements">
 <h2>Enhancements<a class="headerlink" href="#enhancements" title="Permalink to this headline">¶</a></h2>
 <ul class="simple">
-<li><p>Added configuration option <a class="reference internal" href="../reference/generated/pynetdicom._config.USE_SHORT_DIMSE_AET.html#pynetdicom._config.USE_SHORT_DIMSE_AET" title="pynetdicom._config.USE_SHORT_DIMSE_AET"><code class="xref py py-attr docutils literal notranslate"><span class="pre">_config.USE_SHORT_DIMSE_AET</span></code></a> so elements with a VR of <em>AE</em> in
+<li><p>Added configuration option <a class="reference internal" href="../reference/generated/pynetdicom._config.USE_SHORT_DIMSE_AET.html#pynetdicom._config.USE_SHORT_DIMSE_AET" title="pynetdicom._config.USE_SHORT_DIMSE_AET"><code class="xref py py-attr docutils literal notranslate"><span class="pre">_config.USE_SHORT_DIMSE_AET</span></code></a> so elements with a VR of <strong>AE</strong> in
 DIMSE messages are only padded to the shortest even length rather than to
 the maximum 16 characters. (<a class="reference external" href="https://github.com/pydicom/pynetdicom/issues/403">#403</a>)</p></li>
 <li><p>When acting as the association Acceptor check that the user hasn’t sent
@@ -207,6 +207,8 @@ and A-ABORT or A-ASSOCIATE-RJ before attempting association negotiation
 <li><p>Added <a class="reference internal" href="../reference/generated/pynetdicom.events.Event.html#pynetdicom.events.Event.message_id" title="pynetdicom.events.Event.message_id"><code class="xref py py-attr docutils literal notranslate"><span class="pre">message_id</span></code></a> to
 <a class="reference internal" href="../reference/generated/pynetdicom.events.Event.html#pynetdicom.events.Event" title="pynetdicom.events.Event"><code class="xref py py-class docutils literal notranslate"><span class="pre">Event</span></code></a> for use when receiving a DIMSE service
 request</p></li>
+<li><p>Added the well-known SOP Instances for the supported service classes to
+<a class="reference internal" href="../reference/sop_classes.html#module-pynetdicom.sop_class" title="pynetdicom.sop_class"><code class="xref py py-mod docutils literal notranslate"><span class="pre">sop_class</span></code></a>.</p></li>
 </ul>
 </div>
 <div class="section" id="changes">

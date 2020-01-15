@@ -1,5 +1,7 @@
 .. _api_ae:
 
+.. py:module:: pynetdicom.ae
+
 Application Entity (:mod:`pynetdicom.ae`)
 =========================================================
 

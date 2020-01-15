@@ -1,5 +1,7 @@
 .. _api_dimse_messages:
 
+.. py:module:: pynetdicom.dimse_messages
+
 Messages (:mod:`pynetdicom.dimse_messages`)
 ============================================
 

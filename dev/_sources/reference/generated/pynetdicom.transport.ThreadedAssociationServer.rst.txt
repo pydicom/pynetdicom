@@ -50,6 +50,7 @@ pynetdicom.transport.ThreadedAssociationServer
       ~ThreadedAssociationServer.daemon_threads
       ~ThreadedAssociationServer.request_queue_size
       ~ThreadedAssociationServer.socket_type
+      ~ThreadedAssociationServer.ssl_context
       ~ThreadedAssociationServer.timeout
    
    
