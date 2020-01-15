@@ -1,5 +1,7 @@
 .. _api_association:
 
+.. py:module:: pynetdicom.association
+
 Association (:mod:`pynetdicom.association`)
 ============================================
 

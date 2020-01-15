@@ -70,9 +70,9 @@ def encode(ds, is_implicit_vr, is_little_endian):
     fp.is_little_endian = is_little_endian
     try:
         write_dataset(fp, ds)
-    except Exception as ex:
+    except Exception as exc:
         LOGGER.error("pydicom.write_dataset() failed:")
-        LOGGER.error(ex)
+        LOGGER.exception(exc)
         fp.close()
         return None
 

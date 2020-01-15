@@ -280,7 +280,7 @@ class Event(object):
     @property
     def action_information(self):
         """Return an N-ACTION request's `Action Information` as a *pydicom*
-        Dataset.
+        :class:`~pydicom.dataset.Dataset`.
 
         Because *pydicom* defers data parsing during decoding until an element
         is actually required the returned :class:`~pydicom.dataset.Dataset`
@@ -306,7 +306,7 @@ class Event(object):
 
     @property
     def action_type(self):
-        """Return an N-ACTION request's `Action Type ID` as an int.
+        """Return an N-ACTION request's `Action Type ID` as an :class:`int`.
 
         .. versionadded:: 1.4
 
@@ -330,8 +330,8 @@ class Event(object):
 
     @property
     def attribute_identifiers(self):
-        """Return an N-GET request's `Attribute Identifier List` as a list of
-        *pydicom* BaseTag.
+        """Return an N-GET request's `Attribute Identifier List` as a
+        :class:`list` of *pydicom* :class:`~pydicom.tag.BaseTag`.
 
         Returns
         -------
@@ -362,7 +362,7 @@ class Event(object):
     @property
     def attribute_list(self):
         """Return an N-CREATE request's `Attribute List` as a *pydicom*
-        Dataset.
+        :class:`~pydicom.dataset.Dataset`.
 
         Because *pydicom* defers data parsing during decoding until an element
         is actually required the returned :class:`~pydicom.dataset.Dataset`
@@ -388,7 +388,8 @@ class Event(object):
 
     @property
     def dataset(self):
-        """Return a C-STORE request's `Data Set` as a *pydicom* Dataset.
+        """Return a C-STORE request's `Data Set` as a *pydicom*
+        :class:`~pydicom.dataset.Dataset`.
 
         Because *pydicom* defers data parsing during decoding until an element
         is actually required the returned :class:`~pydicom.dataset.Dataset`
@@ -429,7 +430,7 @@ class Event(object):
     @property
     def event_information(self):
         """Return an N-EVENT-REPORT request's `Event Information` as a
-        *pydicom* Dataset.
+        *pydicom* :class:`~pydicom.dataset.Dataset`.
 
         Because *pydicom* defers data parsing during decoding until an element
         is actually required the returned :class:`~pydicom.dataset.Dataset`
@@ -455,7 +456,8 @@ class Event(object):
 
     @property
     def event_type(self):
-        """Return an N-EVENT-REPORT request's `Event Type ID` as an int.
+        """Return an N-EVENT-REPORT request's `Event Type ID` as an
+        :class:`int`.
 
         .. versionadded:: 1.4
 
@@ -479,7 +481,7 @@ class Event(object):
 
     @property
     def file_meta(self):
-        """Return a *pydicom* Dataset with the
+        """Return a *pydicom* :class:`~pydicom.dataset.Dataset` with the
         :dcm:`File Meta Information<part10/chapter_7.html#sect_7.1>` for a
         C-STORE request's `Data Set`.
 
@@ -602,7 +604,7 @@ class Event(object):
     @property
     def identifier(self):
         """Return a C-FIND, C-GET or C-MOVE request's `Identifier` as a
-        *pydicom* Dataset.
+        *pydicom* :class:`~pydicom.dataset.Dataset`.
 
         Because *pydicom* defers data parsing during decoding until an element
         is actually required the returned :class:`~pydicom.dataset.Dataset`
@@ -651,7 +653,7 @@ class Event(object):
 
     @property
     def message_id(self):
-        """Return a DIMSE service request's 'Message ID' as int.
+        """Return a DIMSE service request's `Message ID` as :class:`int`.
 
         .. versionadded:: 1.5
 
@@ -677,7 +679,7 @@ class Event(object):
     @property
     def modification_list(self):
         """Return an N-SET request's `Modification List` as a *pydicom*
-        Dataset.
+        :class:`~pydicom.dataset.Dataset`.
 
         Because *pydicom* defers data parsing during decoding until an element
         is actually required the returned :class:`~pydicom.dataset.Dataset`
@@ -703,7 +705,7 @@ class Event(object):
 
     @property
     def move_destination(self):
-        """Return a C-MOVE request's `Move Destination` as bytes.
+        """Return a C-MOVE request's `Move Destination` as :class:`bytes`.
 
         .. versionadded:: 1.4
 

@@ -147,7 +147,7 @@ class TestPDU(object):
     def test_pdu_type_raises(self):
         """Test PDU.pdu_type raises ValueError."""
         pdu = PDU()
-        with pytest.raises(ValueError):
+        with pytest.raises(KeyError):
             pdu.pdu_type
 
     def test_wrap_bytes(self):

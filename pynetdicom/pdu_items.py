@@ -217,7 +217,7 @@ class PDUItem(object):
     @property
     def item_type(self):
         """Return the item's *Item Type* field value as :class:`int`."""
-        return {vv: kk for kk, vv in PDU_ITEM_TYPES.items()}[type(self)]
+        return _TYPE_TO_PDU_ITEM[type(self)]
 
     def __len__(self):
         """Return the total length of the encoded item as :class:`int`."""
@@ -3899,3 +3899,5 @@ PDU_ITEM_TYPES = {
     0x58 : UserIdentitySubItemRQ,
     0x59 : UserIdentitySubItemAC
 }
+
+_TYPE_TO_PDU_ITEM = {vv: kk for kk, vv in PDU_ITEM_TYPES.items()}

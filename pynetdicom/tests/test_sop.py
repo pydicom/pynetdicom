@@ -55,6 +55,14 @@ from pynetdicom.sop_class import (
     UnifiedProcedureStepPullSOPClass,
     _VERIFICATION_CLASSES,
     VerificationSOPClass,
+    DisplaySystemSOPInstance,
+    PrinterConfigurationRetrievalSOPInstance,
+    PrinterSOPInstance,
+    ProceduralEventLoggingSOPInstance,
+    StorageCommitmentPushModelSOPInstance,
+    SubstanceAdministrationLoggingSOPInstance,
+    UPSFilteredGlobalSubscriptionSOPInstance,
+    UPSGlobalSubscriptionSOPInstance
 )
 from pynetdicom.service_class import (
     ServiceClass,
@@ -136,6 +144,18 @@ def test_all_service_classes():
     """Test that all the Service Class UIDs are correct."""
     for uid in _SERVICE_CLASSES:
         assert uid in UID_dictionary
+
+
+def test_all_sop_instances():
+    """Test the well-known SOP Instances are correct."""
+    assert DisplaySystemSOPInstance in UID_dictionary
+    assert PrinterConfigurationRetrievalSOPInstance in UID_dictionary
+    assert PrinterSOPInstance in UID_dictionary
+    assert ProceduralEventLoggingSOPInstance in UID_dictionary
+    assert StorageCommitmentPushModelSOPInstance in UID_dictionary
+    assert SubstanceAdministrationLoggingSOPInstance in UID_dictionary
+    assert UPSFilteredGlobalSubscriptionSOPInstance in UID_dictionary
+    assert UPSGlobalSubscriptionSOPInstance in UID_dictionary
 
 
 class TestUIDtoSOPlass(object):
