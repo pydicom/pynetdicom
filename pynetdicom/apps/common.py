@@ -432,6 +432,76 @@ class ElementPath(object):
         return self._entry[0]
 
 
+def setup_logging(args, app_name):
+    """Return the application logger.
+
+    Parameters
+    ----------
+    args : argparse.Namespace
+        The namespace containing the keywords and/or dataset file to use.
+        The namespace should contain ``args.quiet``, ``args.verbose``.
+        ``args.debug``, ``args.log_level`` and ``args.log_config`` attributes.
+    app_name : str
+        The name of the application.
+
+    Returns
+    -------
+    logger : logging.Logger, optional
+        The logger to use for logging.
+    """
+    formatter = logging.Formatter('%(levelname).1s: %(message)s')
+
+    # Setup pynetdicom library's logging
+    pynd_logger = logging.getLogger('pynetdicom')
+    handler = logging.StreamHandler()
+    handler.setFormatter(formatter)
+    pynd_logger.addHandler(handler)
+    pynd_logger.setLevel(logging.ERROR)
+
+    # Setup findscu application's logging
+    app_logger = logging.Logger(app_name)
+    handler = logging.StreamHandler()
+    handler.setFormatter(formatter)
+    app_logger.addHandler(handler)
+    app_logger.setLevel(logging.ERROR)
+
+    def _setup(logger, level):
+        logger.setLevel(level)
+
+    if args.quiet:
+        for hh in app_logger.handlers:
+            app_logger.removeHandler(hh)
+        for hh in pynd_logger.handlers:
+            pynd_logger.removeHandler(hh)
+
+        app_logger.addHandler(logging.NullHandler())
+        pynd_logger.addHandler(logging.NullHandler())
+
+    if args.verbose:
+        app_logger.setLevel(logging.INFO)
+        pynd_logger.setLevel(logging.INFO)
+
+    if args.debug:
+        app_logger.setLevel(logging.DEBUG)
+        pynd_logger.setLevel(logging.DEBUG)
+
+    if args.log_level:
+        levels = {
+            'critical' : logging.CRITICAL,
+            'error' : logging.ERROR,
+            'warn' : logging.WARNING,
+            'info' : logging.INFO,
+            'debug' : logging.DEBUG
+        }
+        app_logger.setLevel(levels[args.log_level])
+        pynd_logger.setLevel(levels[args.log_level])
+
+    if args.log_config:
+        fileConfig(args.log_config)
+
+    return app_logger
+
+
 SOP_CLASS_PREFIXES = {
     '1.2.840.10008.5.1.4.1.1.2' : ('CT', 'CT Image Storage'),
     '1.2.840.10008.5.1.4.1.1.2.1' : ('CTE', 'Enhanced CT Image Storage'),

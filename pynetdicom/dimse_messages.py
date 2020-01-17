@@ -618,17 +618,9 @@ def _build_message_classes(message_name):
     def __init__(self):
         DIMSEMessage.__init__(self)
         # Create a new Dataset object for the command_set attributes
-        ds = Dataset()
+        self.command_set = Dataset()
         for keyword in _COMMAND_SET_KEYWORDS[message_name]:
-            # If the required command set elements are expanded this will need
-            #   to be checked to ensure it functions OK
-            try:
-                # TODO: In pydicom v1.4 should only need to set using `None`
-                setattr(ds, keyword, None)
-            except TypeError:
-                setattr(ds, keyword, '')
-
-        self.command_set = ds
+            setattr(self.command_set, keyword, None)
 
     # Create new subclass of DIMSE Message using the supplied name
     #   but replace hyphens with underscores

@@ -1,7 +1,6 @@
 #!/usr/bin/env python
-
-"""
-A findscu application.
+"""An application for sending Query/Retrieve (QR) and Basic Worklist Modality
+(BWM) C-FIND requests to a QR/BWM - Find SCP.
 
 """
 
@@ -17,11 +16,10 @@ from pydicom.uid import (
 )
 
 from pynetdicom import (
-    AE,
-    QueryRetrievePresentationContexts,
+    AE, QueryRetrievePresentationContexts,
     BasicWorklistManagementPresentationContexts
 )
-from pynetdicom.apps.common import create_dataset
+from pynetdicom.apps.common import create_dataset, setup_logging
 from pynetdicom.sop_class import (
     ModalityWorklistInformationFind,
     PatientRootQueryRetrieveInformationModelFind,
@@ -60,22 +58,18 @@ def _setup_argparser():
         help="print version information and exit",
         action="store_true"
     )
-    gen_opts.add_argument(
-        "--arguments",
-        help="print expanded command line arguments",
-        action="store_true"
-    )
-    gen_opts.add_argument(
+    output = gen_opts.add_mutually_exclusive_group()
+    output.add_argument(
         "-q", "--quiet",
         help="quiet mode, print no warnings and errors",
         action="store_true"
     )
-    gen_opts.add_argument(
+    output.add_argument(
         "-v", "--verbose",
         help="verbose mode, print processing details",
         action="store_true"
     )
-    gen_opts.add_argument(
+    output.add_argument(
         "-d", "--debug",
         help="debug mode, print debug information",
         action="store_true"
@@ -163,62 +157,14 @@ def _setup_argparser():
     return ns
 
 
-# Logging/Output
-def setup_logger():
-    """Setup the findscu logger."""
-    logger = logging.Logger('findscu')
-    handler = logging.StreamHandler()
-    formatter = logging.Formatter('%(levelname).1s: %(message)s')
-    handler.setFormatter(formatter)
-    logger.addHandler(handler)
-    logger.setLevel(logging.ERROR)
-
-    return logger
-
-def _setup_logging(level):
-    """Setup the pynetdicom logger."""
-    APP_LOGGER.setLevel(level)
-    pynetdicom_logger = logging.getLogger('pynetdicom')
-    handler = logging.StreamHandler()
-    pynetdicom_logger.setLevel(level)
-    formatter = logging.Formatter('%(levelname).1s: %(message)s')
-    handler.setFormatter(formatter)
-    pynetdicom_logger.addHandler(handler)
-
-def _dev_setup_logging(args):
-
-    if args.quiet:
-        for hh in APP_LOGGER.handlers:
-            APP_LOGGER.removeHandler(hh)
-
-        APP_LOGGER.addHandler(logging.NullHandler())
-
-    if args.verbose:
-        _setup_logging(logging.INFO)
-
-    if args.debug:
-        _setup_logging(logging.DEBUG)
-
-    if args.log_level:
-        levels = {
-            'critical' : logging.CRITICAL,
-            'error' : logging.ERROR,
-            'warn' : logging.WARNING,
-            'info' : logging.INFO,
-            'debug' : logging.DEBUG
-        }
-        _setup_logging(levels[args.log_level])
-
-    if args.log_config:
-        fileConfig(args.log_config)
-
-
 if __name__ == '__main__':
     args = _setup_argparser()
 
-    APP_LOGGER = setup_logger()
-    _dev_setup_logging(args)
+    if args.version:
+        print('findscu.py v{}'.format(__version__))
+        sys.exit()
 
+    APP_LOGGER = setup_logging(args, 'findscu')
     APP_LOGGER.debug('findscu.py v{0!s}'.format(__version__))
     APP_LOGGER.debug('')
 

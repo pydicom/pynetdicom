@@ -17,10 +17,11 @@ from pydicom.uid import (
 )
 
 from pynetdicom import AE
+from pynetdicom.apps.common import setup_logging
 from pynetdicom.sop_class import VerificationSOPClass
 
 
-VERSION = '0.6.4'
+__version__ = '0.7.0'
 
 
 def _setup_argparser():
@@ -139,102 +140,56 @@ def _setup_argparser():
 
     return parser.parse_args()
 
-args = _setup_argparser()
 
-#--------------------------- SETUP USING ARGUMENTS ----------------------------
-# Logging/Output
-def setup_logger():
-    """Setup the echoscu logging"""
-    logger = logging.Logger('echoscu')
-    handler = logging.StreamHandler()
-    formatter = logging.Formatter('%(levelname).1s: %(message)s')
-    handler.setFormatter(formatter)
-    logger.addHandler(handler)
-    logger.setLevel(logging.ERROR)
+if __name__ == "__main__":
+    args = _setup_argparser()
 
-    return logger
+    if args.version:
+        print('echoscu.py v{}'.format(__version__))
+        sys.exit()
 
-APP_LOGGER = setup_logger()
+    APP_LOGGER = setup_logging(args, 'echoscu')
+    APP_LOGGER.debug('echoscu.py v%s', __version__)
+    APP_LOGGER.debug('')
 
-def _setup_logging(level):
-    APP_LOGGER.setLevel(level)
-    pynetdicom_logger = logging.getLogger('pynetdicom')
-    handler = logging.StreamHandler()
-    pynetdicom_logger.setLevel(level)
-    formatter = logging.Formatter('%(levelname).1s: %(message)s')
-    handler.setFormatter(formatter)
-    pynetdicom_logger.addHandler(handler)
-
-if args.quiet:
-    for hh in APP_LOGGER.handlers:
-        APP_LOGGER.removeHandler(hh)
-
-    APP_LOGGER.addHandler(logging.NullHandler())
-
-if args.verbose:
-    _setup_logging(logging.INFO)
-
-if args.debug:
-    _setup_logging(logging.DEBUG)
-
-if args.log_level:
-    levels = {
-        'critical' : logging.CRITICAL,
-        'error' : logging.ERROR,
-        'warn' : logging.WARNING,
-        'info' : logging.INFO,
-        'debug' : logging.DEBUG
-    }
-    _setup_logging(levels[args.log_level])
-
-if args.log_config:
-    fileConfig(args.log_config)
-
-# Propose extra transfer syntaxes
-try:
-    if 2 <= args.propose_ts:
-        transfer_syntax = [
-            ImplicitVRLittleEndian, ExplicitVRLittleEndian, ExplicitVRBigEndian
-        ]
-        transfer_syntax = [ts for ts in transfer_syntax[:args.propose_ts]]
-    else:
+    # Propose extra transfer syntaxes
+    try:
+        if 2 <= args.propose_ts:
+            transfer_syntax = [
+                ImplicitVRLittleEndian,
+                ExplicitVRLittleEndian,
+                ExplicitVRBigEndian
+            ]
+            transfer_syntax = [ts for ts in transfer_syntax[:args.propose_ts]]
+        else:
+            transfer_syntax = [ImplicitVRLittleEndian]
+    except:
         transfer_syntax = [ImplicitVRLittleEndian]
-except:
-    transfer_syntax = [ImplicitVRLittleEndian]
-
-#-------------------------- CREATE AE and ASSOCIATE ---------------------------
-
-if args.version:
-    print('echoscu.py v{}'.format(VERSION))
-    sys.exit()
-
-APP_LOGGER.debug('echoscu.py v%s', VERSION)
-APP_LOGGER.debug('')
 
 
-# Create local AE
-# Binding to port 0, OS will pick an available port
-ae = AE(ae_title=args.calling_aet)
-ae.add_requested_context(VerificationSOPClass, transfer_syntax)
+    # Create local AE
+    # Binding to port 0, OS will pick an available port
+    ae = AE(ae_title=args.calling_aet)
+    ae.add_requested_context(VerificationSOPClass, transfer_syntax)
 
-# Set timeouts
-ae.network_timeout = args.timeout
-ae.acse_timeout = args.acse_timeout
-ae.dimse_timeout = args.dimse_timeout
+    # Set timeouts
+    ae.network_timeout = args.timeout
+    ae.acse_timeout = args.acse_timeout
+    ae.dimse_timeout = args.dimse_timeout
 
-# Request association with remote AE
-assoc = ae.associate(
-    args.peer, args.port, ae_title=args.called_aet, max_pdu=args.max_pdu
-)
+    # Request association with remote AE
+    assoc = ae.associate(
+        args.peer, args.port, ae_title=args.called_aet, max_pdu=args.max_pdu
+    )
 
-# If we successfully Associated then send N DIMSE C-ECHOs
-if assoc.is_established:
-    for ii in range(args.repeat):
-        # `status` is a pydicom Dataset
-        status = assoc.send_c_echo()
+    # If we successfully Associated then send N DIMSE C-ECHOs
+    if assoc.is_established:
+        for ii in range(args.repeat):
+            # `status` is a pydicom Dataset
+            status = assoc.send_c_echo()
 
-    # Abort or release association
-    if args.abort:
-        assoc.abort()
-    else:
-        assoc.release()
+        # Abort or release association
+        if args.abort:
+            assoc.abort()
+        else:
+            assoc.release()
