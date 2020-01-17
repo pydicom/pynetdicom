@@ -1,6 +1,8 @@
+.. _service_mpps:
+
 Modality Performed Procedure Step Management
 ============================================
-`Modality Performed Procedure Step Management <http://dicom.nema.org/medical/dicom/current/output/html/part04.html#chapter_F>`_
+`Modality Performed Procedure Step Management <part04/chapter_F.html>`
 defines a service that facilitates logging and tracking of procedures performed
 by a modality.
 
@@ -188,17 +190,3 @@ N-SET Statuses
 +------------+----------+----------------------------------+
 | 0x0213     | Failure  | Resource limitation              |
 +------------+----------+----------------------------------+
-
-
-References
-----------
-
-* DICOM Standard, Part 4, `Annex F <http://dicom.nema.org/medical/dicom/current/output/html/part04.html#chapter_F>`_
-* DICOM Standard, Part 7, Section
-  `10.1.1 <http://dicom.nema.org/medical/dicom/current/output/chtml/part07/chapter_9.html#sect_10.1.1>`_
-* DICOM Standard, Part 7, Section
-  `10.1.2 <http://dicom.nema.org/medical/dicom/current/output/chtml/part07/chapter_9.html#sect_10.1.2>`_
-* DICOM Standard, Part 7, Section
-  `10.1.3 <http://dicom.nema.org/medical/dicom/current/output/chtml/part07/chapter_9.html#sect_10.1.3>`_
-* DICOM Standard, Part 7, Section
-  `10.1.5 <http://dicom.nema.org/medical/dicom/current/output/chtml/part07/chapter_9.html#sect_10.1.5>`_

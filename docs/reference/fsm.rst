@@ -1,4 +1,6 @@
-.. _fsm:
+.. _api_fsm:
+
+.. py:module:: pynetdicom.fsm
 
 State Machine (:mod:`pynetdicom.fsm`)
 ======================================

@@ -60,7 +60,9 @@ TEST_DS_DIR = os.path.join(os.path.dirname(__file__), 'dicom_files')
 BIG_DATASET = dcmread(os.path.join(TEST_DS_DIR, 'RTImageStorage.dcm')) # 2.1 M
 DATASET = dcmread(os.path.join(TEST_DS_DIR, 'CTImageStorage.dcm'))
 # JPEG2000Lossless UID
-COMP_DATASET = dcmread(os.path.join(TEST_DS_DIR, 'MRImageStorage_JPG2000_Lossless.dcm'))
+COMP_DATASET = dcmread(
+    os.path.join(TEST_DS_DIR, 'MRImageStorage_JPG2000_Lossless.dcm')
+)
 
 
 class DummyDIMSE(object):
@@ -477,7 +479,6 @@ class TestAssociation(object):
 
         assert assoc.dul.socket == 'abc'
 
-    @pytest.mark.skipif(sys.version_info[:2] == (3, 4), reason='no caplog')
     def test_invalid_context(self, caplog):
         """Test receiving an message with invalid context ID"""
         with caplog.at_level(logging.INFO, logger='pynetdicom'):
@@ -515,6 +516,54 @@ class TestAssociation(object):
         assoc = ae.associate('localhost', 11112)
         assert evt.EVT_C_STORE in assoc.get_events()
         assert evt.EVT_USER_ID in assoc.get_events()
+
+    def test_requested_handler_abort(self):
+        """Test the EVT_REQUESTED handler sending abort."""
+        def handle_req(event):
+            event.assoc.acse.send_abort(0x00)
+            time.sleep(0.1)
+
+        self.ae = ae = AE()
+        ae.acse_timeout = 5
+        ae.dimse_timeout = 5
+        ae.network_timeout = 5
+        ae.add_supported_context(VerificationSOPClass)
+
+        hh = [(evt.EVT_REQUESTED, handle_req)]
+
+        scp = ae.start_server(('', 11112), block=False, evt_handlers=hh)
+
+        ae.add_requested_context(VerificationSOPClass)
+        assoc = ae.associate('localhost', 11112)
+        assert not assoc.is_established
+        assert assoc.is_aborted
+
+        scp.shutdown()
+
+    def test_requested_handler_reject(self):
+        """Test the EVT_REQUESTED handler sending reject."""
+        def handle_req(event):
+            event.assoc.acse.send_reject(0x02, 0x01, 0x01)
+            # Give the requestor time to process the message before killing
+            #   the connection
+            time.sleep(0.1)
+
+        self.ae = ae = AE()
+        ae.acse_timeout = 5
+        ae.dimse_timeout = 5
+        ae.network_timeout = 5
+        ae.add_supported_context(VerificationSOPClass)
+
+        hh = [(evt.EVT_REQUESTED, handle_req)]
+
+        scp = ae.start_server(('', 11112), block=False, evt_handlers=hh)
+
+        ae.add_requested_context(VerificationSOPClass)
+        assoc = ae.associate('localhost', 11112)
+        assert not assoc.is_established
+        assert assoc.is_rejected
+
+        scp.shutdown()
 
 
 class TestCStoreSCP(object):
@@ -1969,7 +2018,6 @@ class TestAssociationSendCFind(object):
 
         self.scp.stop()
 
-    @pytest.mark.skipif(sys.version_info[:2] == (3, 4), reason='no caplog')
     def test_rsp_not_find(self, caplog):
         """Test receiving a non C-FIND message in response."""
         with caplog.at_level(logging.ERROR, logger='pynetdicom'):
@@ -1996,7 +2044,6 @@ class TestAssociationSendCFind(object):
             ) in caplog.text
             assert assoc.is_aborted
 
-    @pytest.mark.skipif(sys.version_info[:2] == (3, 4), reason='no caplog')
     def test_rsp_invalid_find(self, caplog):
         """Test receiving an invalid C-FIND message in response."""
         with caplog.at_level(logging.ERROR, logger='pynetdicom'):
@@ -2052,7 +2099,6 @@ class TestAssociationSendCFind(object):
 
         scp.shutdown()
 
-    @pytest.mark.skipif(sys.version_info[:2] == (3, 4), reason='no caplog')
     def test_query_uid_private(self, caplog):
         """Test using a private UID for the query model"""
         def handle(event):
@@ -2768,7 +2814,6 @@ class TestAssociationSendCGet(object):
 
         self.scp.stop()
 
-    @pytest.mark.skipif(sys.version_info[:2] == (3, 4), reason='no caplog')
     def test_rsp_not_get(self, caplog):
         """Test receiving a non C-GET/C-STORE message in response."""
         with caplog.at_level(logging.ERROR, logger='pynetdicom'):
@@ -2795,7 +2840,6 @@ class TestAssociationSendCGet(object):
             ) in caplog.text
             assert assoc.is_aborted
 
-    @pytest.mark.skipif(sys.version_info[:2] == (3, 4), reason='no caplog')
     def test_rsp_invalid_get(self, caplog):
         """Test receiving an invalid C-GET message in response."""
         with caplog.at_level(logging.ERROR, logger='pynetdicom'):
@@ -2852,7 +2896,6 @@ class TestAssociationSendCGet(object):
 
         scp.shutdown()
 
-    @pytest.mark.skipif(sys.version_info[:2] == (3, 4), reason='no caplog')
     def test_query_uid_private(self, caplog):
         """Test using a private UID for the query model"""
         def handle(event):
@@ -3531,7 +3574,6 @@ class TestAssociationSendCMove(object):
 
         self.scp.stop()
 
-    @pytest.mark.skipif(sys.version_info[:2] == (3, 4), reason='no caplog')
     def test_rsp_not_move(self, caplog):
         """Test receiving a non C-MOVE/C-STORE message in response."""
         with caplog.at_level(logging.ERROR, logger='pynetdicom'):
@@ -3560,7 +3602,6 @@ class TestAssociationSendCMove(object):
             ) in caplog.text
             assert assoc.is_aborted
 
-    @pytest.mark.skipif(sys.version_info[:2] == (3, 4), reason='no caplog')
     def test_rsp_invalid_move(self, caplog):
         """Test receiving an invalid C-MOVE message in response."""
         with caplog.at_level(logging.ERROR, logger='pynetdicom'):
@@ -3646,7 +3687,6 @@ class TestAssociationSendCMove(object):
         store_scp.shutdown()
         move_scp.shutdown()
 
-    @pytest.mark.skipif(sys.version_info[:2] == (3, 4), reason='no caplog')
     def test_query_uid_private(self, caplog):
         """Test using a private UID for the query model"""
         def handle_store(event):
@@ -4501,7 +4541,6 @@ class TestEventHandlingAcceptor(object):
 
         scp.shutdown()
 
-    @pytest.mark.skipif(sys.version_info[:2] == (3, 4), reason='no caplog')
     def test_abort_raises(self, caplog):
         """Test the handler for EVT_ACCEPTED raising exception."""
         def handle(event):
@@ -4674,7 +4713,6 @@ class TestEventHandlingAcceptor(object):
 
         scp.shutdown()
 
-    @pytest.mark.skipif(sys.version_info[:2] == (3, 4), reason='no caplog')
     def test_accept_raises(self, caplog):
         """Test the handler for EVT_ACCEPTED raising exception."""
         def handle(event):
@@ -4868,7 +4906,6 @@ class TestEventHandlingAcceptor(object):
 
         scp.shutdown()
 
-    @pytest.mark.skipif(sys.version_info[:2] == (3, 4), reason='no caplog')
     def test_release_raises(self, caplog):
         """Test the handler for EVT_RELEASED raising exception."""
         def handle(event):
@@ -5025,7 +5062,6 @@ class TestEventHandlingAcceptor(object):
 
         scp.shutdown()
 
-    @pytest.mark.skipif(sys.version_info[:2] == (3, 4), reason='no caplog')
     def test_established_raises(self, caplog):
         """Test the handler for EVT_ESTABLISHED raising exception."""
         def handle(event):
@@ -5182,7 +5218,6 @@ class TestEventHandlingAcceptor(object):
 
         scp.shutdown()
 
-    @pytest.mark.skipif(sys.version_info[:2] == (3, 4), reason='no caplog')
     def test_requested_raises(self, caplog):
         """Test the handler for EVT_REQUESTED raising exception."""
         def handle(event):
@@ -5314,7 +5349,6 @@ class TestEventHandlingAcceptor(object):
 
         scp.shutdown()
 
-    @pytest.mark.skipif(sys.version_info[:2] == (3, 4), reason='no caplog')
     def test_rejected_raises(self, caplog):
         """Test the handler for EVT_REJECTED raising exception."""
         def handle(event):
@@ -5622,7 +5656,6 @@ class TestEventHandlingRequestor(object):
 
         scp.shutdown()
 
-    @pytest.mark.skipif(sys.version_info[:2] == (3, 4), reason='no caplog')
     def test_abort_raises(self, caplog):
         """Test the handler for EVT_ACCEPTED raising exception."""
         def handle(event):
@@ -5688,7 +5721,6 @@ class TestEventHandlingRequestor(object):
 
         scp.shutdown()
 
-    @pytest.mark.skipif(sys.version_info[:2] == (3, 4), reason='no caplog')
     def test_accept_raises(self, caplog):
         """Test the handler for EVT_ACCEPTED raising exception."""
         def handle(event):
@@ -5849,7 +5881,6 @@ class TestEventHandlingRequestor(object):
 
         scp.shutdown()
 
-    @pytest.mark.skipif(sys.version_info[:2] == (3, 4), reason='no caplog')
     def test_release_raises(self, caplog):
         """Test the handler for EVT_RELEASED raising exception."""
         def handle(event):
@@ -5915,7 +5946,6 @@ class TestEventHandlingRequestor(object):
 
         scp.shutdown()
 
-    @pytest.mark.skipif(sys.version_info[:2] == (3, 4), reason='no caplog')
     def test_established_raises(self, caplog):
         """Test the handler for EVT_ESTABLISHED raising exception."""
         def handle(event):
@@ -5980,7 +6010,6 @@ class TestEventHandlingRequestor(object):
 
         scp.shutdown()
 
-    @pytest.mark.skipif(sys.version_info[:2] == (3, 4), reason='no caplog')
     def test_requested_raises(self, caplog):
         """Test the handler for EVT_REQUESTED raising exception."""
         def handle(event):
@@ -6041,7 +6070,6 @@ class TestEventHandlingRequestor(object):
 
         scp.shutdown()
 
-    @pytest.mark.skipif(sys.version_info[:2] == (3, 4), reason='no caplog')
     def test_rejected_raises(self, caplog):
         """Test the handler for EVT_REJECTED raising exception."""
         def handle(event):

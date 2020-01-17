@@ -9,9 +9,19 @@ except ImportError:
     import Queue as queue  # Python 2 compatibility
 
 from pynetdicom import evt
-from pynetdicom.dimse_messages import *
-from pynetdicom.dimse_primitives import *
-from pynetdicom.pdu_primitives import P_DATA
+# pylint: disable=no-name-in-module
+from pynetdicom.dimse_messages import (
+    C_STORE_RQ, C_STORE_RSP, C_FIND_RQ, C_FIND_RSP, C_GET_RQ, C_GET_RSP,
+    C_MOVE_RQ, C_MOVE_RSP, C_ECHO_RQ, C_ECHO_RSP, C_CANCEL_RQ,
+    N_EVENT_REPORT_RQ, N_GET_RQ, N_SET_RQ, N_ACTION_RQ, N_CREATE_RQ,
+    N_DELETE_RQ, N_EVENT_REPORT_RSP, N_GET_RSP, N_SET_RSP, N_ACTION_RSP,
+    N_CREATE_RSP, N_DELETE_RSP, DIMSEMessage
+)
+# pylint: enable=no-name-in-module
+from pynetdicom.dimse_primitives import (
+    C_STORE, C_FIND, C_GET, C_MOVE, C_ECHO, C_CANCEL,
+    N_EVENT_REPORT, N_GET, N_SET, N_ACTION, N_CREATE, N_DELETE,
+)
 
 
 LOGGER = logging.getLogger('pynetdicom.dimse')
@@ -48,71 +58,16 @@ _RSP_TO_MESSAGE = {
 class DIMSEServiceProvider(object):
     """The DIMSE service provider.
 
-    A DICOM AE uses the services provided by the DICOM Message Service Element
-    (DIMSE). DIMSE specifies two sets of services.
+    .. versionchanged:: 1.2
 
-    - DIMSE-C supports operations associated with composite SOP Classes and
-      provides effective compatibility with the previous versions of the DICOM
-      standards.
-    - DIMSE-N supports operations associated with normalised SOP Classes and
-      provides an extended set of object-orientated operations and
-      notifications
-
-    **Service Overview**
-
-    The DIMSE service provider supports communication between peer DIMSE
-    service users. A service user acts in one of two roles:
-
-    - invoking DIMSE user
-    - performing DIMSE user
-
-    Service users make use of service primitives provided by the DIMSE service
-    provider. A service primitive shall be one of the following types:
-
-    - request primitive
-    - indication primitive
-    - response primitive
-    - confirmation primitive
-
-    These primitives are used as follows:
-
-    - The invoking service user issues a request primitive to the DIMSE
-      provider
-    - The DIMSE provider receives the request primitive and issues an
-      indication primitive to the performing service user
-    - The performing service user receives the indication primitive and
-      performs the requested service
-    - The performing service user issues a response primitive to the DIMSE
-      provider
-    - The DIMSE provider receives the response primitive and issues a
-      confirmation primitive to the invoking service user
-    - The invoking service user receives the confirmation primitive, completing
-      the DIMSE service.
-
-    **Service Primitive Classes**
-
-    * DIMSE-C: C_ECHO, C_STORE, C_GET, C_FIND, C_MOVE
-    * DIMSE-N: N_EVENT_REPORT, N_GET, N_GET, N_ACTION, N_CREATE, N_DELETE
-
-    **Protocol Machine**
-
-    PS3.7 8.1
-    The DIMSE protocol machine defines the procedures and the encoding rules
-    necessary to construct Messages used to exchange command requests and
-    responses between peer DIMSE service users.
-
-    The DIMSE protocol machine accepts service user requests and response
-    service primitives and constructs Messages defined by the procedures in
-    PS3.7 9.3 and 10.3. The DIMSE protocol machine accepts Messages and passes
-    them to the DIMSE service user by the means of indication and confirmation
-    service primitives.
+        Added `msg_queue` attribute
 
     **Messages**
 
     +----------------+-----------------------+------------------------+
     | Primitive      | Type                  | Message Class          |
     +----------------+-----------------------+------------------------+
-    | C-CANCEL       | Request/indication    | C_CANCEL_R             |
+    | C-CANCEL       | Request/indication    | C_CANCEL_RQ            |
     +----------------+-----------------------+------------------------+
     | C-ECHO         | Request/indication    | C_ECHO_RQ              |
     |                +-----------------------+------------------------+
@@ -162,11 +117,11 @@ class DIMSEServiceProvider(object):
     Attributes
     ----------
     cancel_rq : dict
-        A dict of {MessageIDBeingRespondedTo : C_CANCEL} messages received.
+        A dict of ``{MessageIDBeingRespondedTo : C_CANCEL}`` messages received.
         The dict is cleared out at the start and end of Service Class
         operations and is limited to a maximum of 10 messages.
-    message : dimse_messages.DIMSEMessage
-        The DIMSE message.
+    message : dimse_messages.DIMSEMessage or None
+        The DIMSE message currently being received.
     msg_queue: queue.queue of dimse_messages.DIMSEMessage
         A queue holding decoded DIMSE Message primitives received from the
         peer, except for C-CANCEL requests.
@@ -174,15 +129,19 @@ class DIMSEServiceProvider(object):
     References
     ----------
 
-    * DICOM Standard, Part 7
+    * DICOM Standard, :dcm:`Part 7<part07/PS3.7.html>`
     """
     def __init__(self, assoc):
         """Initialise the DIMSE service provider.
 
+        .. versionchanged:: 1.3
+
+            Class initialisation now only takes `assoc` parameter.
+
         Parameters
         ----------
         assoc : association.Association
-            The Association to provide DIMSE services for.
+            The association to provide DIMSE services for.
         """
         self._assoc = assoc
 
@@ -192,34 +151,40 @@ class DIMSEServiceProvider(object):
 
     @property
     def assoc(self):
-        """Return the ACSE's Association."""
+        """Return the parent :class:`~pynetdicom.association.Association`.
+
+        .. versionadded:: 1.3
+        """
         return self._assoc
 
     @property
     def dimse_timeout(self):
-        """Return the DIMSE timeout as numeric or None."""
+        """Return the DIMSE timeout as numeric or ``None``."""
         return self.assoc.dimse_timeout
 
     @property
     def dul(self):
-        """Return the Association's DUL service provider."""
+        """Return the :class:`~pynetdicom.dul.DULServiceProvider`."""
         return self.assoc.dul
 
     def get_msg(self, block=False):
         """Get the next available DIMSE message.
 
+        .. versionadded:: 1.2
+
         Parameters
         ----------
         block : bool
-            If True then the function will block until either a message is
-            available or `dimse_timeout` expires, otherwise non-blocking.
+            If ``True`` then the function will block until either a message is
+            available or :attr:`~DIMSEServiceProvider.dimse_timeout` expires,
+            otherwise non-blocking.
 
         Returns
         -------
-        int, dimse_messages.DIMSEMessage or None, None
-            The next available (context ID, DIMSE message), which is taken off
-            the queue, or (None, None) if no messages are available within
-            the `dimse_timeout` period.
+        (int, dimse_messages.DIMSEMessage) or (None, None)
+            The next available (*Context ID*, *DIMSE Message*), which is taken
+            off the queue, or ``(None, None)`` if no messages are available
+            within the :attr:`~DIMSEServiceProvider.dimse_timeout` period.
         """
         try:
             return self.msg_queue.get(block=block, timeout=self.dimse_timeout)
@@ -228,20 +193,23 @@ class DIMSEServiceProvider(object):
 
     @property
     def maximum_pdu_size(self):
-        """Return the peer's maximum PDU length."""
+        """Return the peer's maximum PDU length as :class:`int`."""
         if self.assoc.is_requestor:
             return self.assoc.acceptor.maximum_length
-        elif self.assoc.is_acceptor:
-            return self.assoc.requestor.maximum_length
+
+        return self.assoc.requestor.maximum_length
 
     def peek_msg(self):
-        """Return the first message in the message queue or None.
+        """Return the first message in the message queue or ``None``.
+
+        .. versionadded:: 1.2
 
         Returns
         -------
-        int, dimse_messages.DIMSEMessage or None, None
-            The first (context ID, message) in the queue if one is available,
-            otherwise (None, None). No messages are taken out of the queue.
+        (int, dimse_messages.DIMSEMessage) or (None, None)
+            The first (*Context ID*, *Message*) in the queue if one is
+            available, otherwise ``(None, None)``. No messages are taken out
+            of the queue.
         """
         try:
             return self.msg_queue.queue[0]
@@ -251,11 +219,14 @@ class DIMSEServiceProvider(object):
     def receive_primitive(self, primitive):
         """Process a P-DATA primitive received from the remote.
 
+        .. versionadded:: 1.2
+
         A DIMSE message is split into one or more P-DATA primitives, which
         must be sent in sequential order. While waiting for all the P-DATA
         primitives associated with a message the encoded data is stored in
-        self.message, which is decoded only when complete and converted
-        into a DIMSE Message primitive which is added to the `msg_queue`.
+        :attr:`~DIMSEServiceProvider.message`, which is decoded only when
+        complete and converted into a DIMSE Message primitive which is added
+        to the :attr:`~DIMSEServiceProvider.msg_queue`.
 
         This makes it possible to process incoming P-DATA primitives into
         DIMSE messages while a service class implementation is running.
@@ -289,7 +260,7 @@ class DIMSEServiceProvider(object):
                 msg_id = primitive.MessageIDBeingRespondedTo
                 self.cancel_req[msg_id] = primitive
             elif (isinstance(primitive, N_EVENT_REPORT) and
-                                                primitive.is_valid_request):
+                  primitive.is_valid_request):
                 # N-EVENT-REPORT service requests are handled immediately
                 self.assoc._serve_request(primitive, context_id)
             else:

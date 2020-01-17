@@ -1,7 +1,8 @@
+.. _service_ups:
+
 Unified Procedure Step Service Class
 ====================================
-The `Unified Procedure Step Service Class
-<http://dicom.nema.org/medical/dicom/current/output/html/part04.html#chapter_CC>`_
+The :dcm:`Unified Procedure Step Service Class<part04/chapter_CC.html>`
 defines a service that uses the DIMSE C-FIND, N-CREATE, N-SET, N-ACTION,
 N-EVENT-REPORT and N-GET services to
 facilitate management of simple worklists, including creation of new worklist
@@ -391,16 +392,3 @@ UPS N-SET Service Statuses
 +------------------+----------+-----------------------------------------------+
 | 0xC310           | Failure  | The UPS is not in the IN PROGRESS state       |
 +------------------+----------+-----------------------------------------------+
-
-
-
-References
-----------
-
-* DICOM Standard, Part 4, `Annex CC <http://dicom.nema.org/medical/dicom/current/output/html/part04.html#chapter_CC>`_
-* DICOM Standard, Part 7, `Section 9.1.2.1.6 <http://dicom.nema.org/medical/dicom/current/output/chtml/part07/chapter_9.html#sect_9.1.2.1.6>`_
-* DICOM Standard, Part 7, `Section 10.1.4.1.10 <http://dicom.nema.org/medical/dicom/current/output/chtml/part07/chapter_10.html#sect_10.1.4.1.10>`_
-* DICOM Standard, Part 7, `Section 10.1.5.1.6 <http://dicom.nema.org/medical/dicom/current/output/chtml/part07/chapter_10.html#sect_10.1.5.1.6>`_
-* DICOM Standard, Part 7, `Section 10.1.1.1.8 <http://dicom.nema.org/medical/dicom/current/output/chtml/part07/chapter_10.html#sect_10.1.1.1.8>`_
-* DICOM Standard, Part 7, `Section 10.1.2.1.9 <http://dicom.nema.org/medical/dicom/current/output/chtml/part07/chapter_10.html#sect_10.1.2.1.9>`_
-* DICOM Standard, Part 7, `Section 10.1.3.1.9 <http://dicom.nema.org/medical/dicom/current/output/chtml/part07/chapter_10.html#sect_10.1.3.1.9>`_

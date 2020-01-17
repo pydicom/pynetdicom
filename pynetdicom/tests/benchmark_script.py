@@ -182,6 +182,72 @@ def receive_store(nr_assoc, ds_per_assoc, write_ds=False, use_yappi=False):
     server.shutdown()
 
 
+def receive_store_internal(nr_assoc, ds_per_assoc, write_ds=False, use_yappi=False):
+    """Run a Storage SCP and transfer datasets with pynetdicom alone.
+
+    Parameters
+    ----------
+    nr_assoc : int
+        The total number of (sequential) associations that will be made.
+    ds_per_assoc : int
+        The number of C-STORE requests sent per successful association.
+    write_ds : bool, optional
+        True to write the received dataset to file, False otherwise (default).
+    use_yappi : bool, optional
+        True to use the yappi profiler, False otherwise (default).
+    """
+    if use_yappi:
+        init_yappi()
+
+    def handle(event):
+        if write_ds:
+            # TODO: optimise write using event.request.DataSet instead
+            # Standard write using dataset decode and re-encode
+            tfile = tempfile.TemporaryFile(mode='w+b')
+            ds = event.dataset
+            ds.file_meta = event.file_meta
+            ds.save_as(tfile)
+
+        return 0x0000
+
+    ae = AE()
+    ae.acse_timeout = 5
+    ae.dimse_timeout = 5
+    ae.network_timeout = 5
+    ae.add_supported_context(DATASET.SOPClassUID, ImplicitVRLittleEndian)
+    ae.add_requested_context(DATASET.SOPClassUID, ImplicitVRLittleEndian)
+
+    server = ae.start_server(
+        ('', 11112), block=False, evt_handlers=[(evt.EVT_C_STORE, handle)]
+    )
+
+    time.sleep(0.5)
+
+    start_time = time.time()
+    run_times = []
+
+    is_successful = True
+
+    for ii in range(nr_assoc):
+        assoc = ae.associate('127.0.0.1', 11112)
+        if assoc.is_established:
+            for jj in range(ds_per_assoc):
+                assoc.send_c_store(DATASET)
+
+            assoc.release()
+
+    if is_successful:
+        print(
+            "C-STORE SCU/SCP transferred {} total datasets over {} "
+            "association(s) in {:.2f} s"
+            .format(nr_assoc * ds_per_assoc, nr_assoc, time.time() - start_time)
+        )
+    else:
+        print("C-STORE SCU/SCP benchmark failed")
+
+    server.shutdown()
+
+
 def receive_store_simultaneous(nr_assoc, ds_per_assoc, use_yappi=False):
     """Run a Storage SCP and transfer datasets with simultaneous storescu's.
 
@@ -322,7 +388,8 @@ if __name__ == "__main__":
     print("  3. Storage SCP, 1000 datasets over 1 association")
     print("  4. Storage SCP, 1000 datasets over 1 association (write)")
     print("  5. Storage SCP, 1 dataset per association over 1000 associations")
-    print("  6. Storage SCP, 1000 dataset per association over 10 simultaneous associations")
+    print("  6. Storage SCP, 1000 datasets per association over 10 simultaneous associations")
+    print("  7. Storage SCU/SCP, 1000 datasets over 1 association")
     bench_index = input()
 
     if bench_index == "1":
@@ -337,3 +404,5 @@ if __name__ == "__main__":
         receive_store(1000, 1, False, use_yappi)
     elif bench_index == "6":
         receive_store_simultaneous(10, 1000, use_yappi)
+    elif bench_index == "7":
+        receive_store_internal(1, 1000, False, use_yappi)

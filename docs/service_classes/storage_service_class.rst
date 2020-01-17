@@ -1,6 +1,8 @@
+.. _service_store:
+
 Storage Service Class
 =====================
-The `Storage Service Class <http://dicom.nema.org/medical/dicom/current/output/html/part04.html#chapter_B>`_
+The :dcm:`Storage Service Class <part04/chapter_B.html>`
 defines a service that facilitates the simple
 transfer of DICOM SOP Instances. It allows one DICOM Application Entity
 to send images, waveforms, reports, etc., to another using the DIMSE C-STORE
@@ -245,9 +247,9 @@ Supported SOP Classes
 +----------------------------------+-------------------------------------------------------------------+---------+
 | 1.2.840.10008.5.1.4.1.1.128      | PositronEmissionTomographyImageStorage                            | A.21    |
 +----------------------------------+-------------------------------------------------------------------+---------+
-| 1.2.840.10008.5.1.4.1.1.130      | EnhancedPETImageStorage                                           | A.56    |
-+----------------------------------+-------------------------------------------------------------------+---------+
 | 1.2.840.10008.5.1.4.1.1.128.1    | LegacyConvertedEnhancedPETImageStorage                            | A.72    |
++----------------------------------+-------------------------------------------------------------------+---------+
+| 1.2.840.10008.5.1.4.1.1.130      | EnhancedPETImageStorage                                           | A.56    |
 +----------------------------------+-------------------------------------------------------------------+---------+
 | 1.2.840.10008.5.1.4.1.1.131      | BasicStructuredDisplayStorage                                     | A.33.5  |
 +----------------------------------+-------------------------------------------------------------------+---------+
@@ -263,7 +265,7 @@ Supported SOP Classes
 +----------------------------------+-------------------------------------------------------------------+---------+
 | 1.2.840.10008.5.1.4.1.1.481.5    | RTPlanStorage                                                     | A.20    |
 +----------------------------------+-------------------------------------------------------------------+---------+
-| 1.2.840.10008.5.1.4.1.1.481.6    | RTBrachyTreatmentRecordStorage                                    | A.20    |
+| 1.2.840.10008.5.1.4.1.1.481.6    | RTBrachyTreatmentRecordStorage                                    | A.30    |
 +----------------------------------+-------------------------------------------------------------------+---------+
 | 1.2.840.10008.5.1.4.1.1.481.7    | RTTreatmentSummaryRecordStorage                                   | A.31    |
 +----------------------------------+-------------------------------------------------------------------+---------+
@@ -354,10 +356,3 @@ debugging.
 | 0xC211           | Failure  | Unhandled exception raised by the handler     |
 |                  |          | bound to ``evt.EVT_C_STORE``                  |
 +------------------+----------+-----------------------------------------------+
-
-
-References
-----------
-
-* DICOM Standard, Part 4, `Annex B <http://dicom.nema.org/medical/dicom/current/output/html/part04.html#chapter_B>`_
-* DICOM Standard, Part 7, `Section 9.1.1.1.9 <http://dicom.nema.org/medical/dicom/current/output/chtml/part07/chapter_9.html#sect_9.1.1.1.9>`_

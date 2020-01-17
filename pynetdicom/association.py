@@ -1,12 +1,10 @@
 """
 Defines the Association class which handles associating with peers.
 """
-import gc
 from io import BytesIO
 import logging
 import threading
 import time
-import warnings
 
 from pydicom.dataset import Dataset
 from pydicom.uid import UID
@@ -71,24 +69,26 @@ class Association(threading.Thread):
     is_released : bool
         ``True`` if the association has been released, ``False`` otherwise.
     mode : str
-        The mode of the local AE, either the association 'requestor' or
-        association 'acceptor'.
+        The mode of the local AE, either the association ``'requestor'`` or
+        association ``'acceptor'``.
     requestor : association.ServiceUser
         Representation of the association's requestor AE.
     """
     def __init__(self, ae, mode):
-        """Create a new ``Association`` instance.
+        """Create a new :class:`Association` instance.
 
         The association starts in State 1 (idle). Association negotiation
-        won't begin until an ``AssociationSocket`` is assigned using
-        ``set_socket()`` and ``Association.start_server()`` is called.
+        won't begin until an :class:`~pynetdicom.transport.AssociationSocket`
+        is assigned using :meth:`set_socket` and
+        :meth:`Association.start_server()<pynetdicom.Association.start_server>`
+        is called.
 
         Parameters
         ----------
         ae : ae.ApplicationEntity
             The local AE.
         mode : str
-            Must be ``"requestor"`` or ``"acceptor"``.
+            Must be ``'requestor'`` or ``'acceptor'``.
         """
         self._ae = ae
         self.mode = mode
@@ -140,7 +140,8 @@ class Association(threading.Thread):
         self.daemon = True
 
     def abort(self):
-        """Send an A-ABORT to the remote AE and kill the ``Association``."""
+        """Send an A-ABORT to the remote AE and kill the :class:`Association`.
+        """
         if not self.is_released:
             # Ensure the reactor is running so it can be exited
             self._reactor_checkpoint.set()
@@ -155,13 +156,14 @@ class Association(threading.Thread):
 
     @property
     def accepted_contexts(self):
-        """Return a list of accepted ``PresentationContexts``."""
+        """Return a list of accepted
+        :class:`~pynetdicom.presentation.PresentationContext`."""
         # Accepted contexts are stored internally as {context ID : context}
         return sorted(self._accepted_cx.values(), key=lambda x: x.context_id)
 
     @property
     def acse_timeout(self):
-        """Return the ACSE timeout in seconds."""
+        """Return the ACSE timeout (in seconds)."""
         return self._acse_timeout
 
     @acse_timeout.setter
@@ -173,11 +175,13 @@ class Association(threading.Thread):
 
     @property
     def ae(self):
-        """Return the Association's parent ``ApplicationEntity``."""
+        """Return the parent :class:`~pynetdicom.ae.ApplicationEntity`."""
         return self._ae
 
     def bind(self, event, handler):
         """Bind a callable `handler` to an `event`.
+
+        .. versionadded:: 1.3
 
         Parameters
         ----------
@@ -218,7 +222,8 @@ class Association(threading.Thread):
             self.bind(evt.EVT_PDU_SENT, standard_pdu_sent_handler)
 
     def _check_received_status(self, rsp):
-        """Return a pydicom ``Dataset`` containing status related elements.
+        """Return a :class:`~pydicom.dataset.Dataset` containing status
+        related elements.
 
         Parameters
         ----------
@@ -230,8 +235,9 @@ class Association(threading.Thread):
         -------
         pydicom.dataset.Dataset
             If no response or an invalid response was received from the peer
-            then an empty ``Dataset``, if a valid response was received from
-            the peer then (at a minimum) a ``Dataset`` containing an
+            then an empty :class:`~pydicom.dataset.Dataset`, if a valid
+            response was received from the peer then (at a minimum) a
+            :class:`~pydicom.dataset.Dataset` containing an
             (0000,0900) *Status* element, and any included optional status
             related elements.
         """
@@ -255,7 +261,7 @@ class Association(threading.Thread):
 
     @property
     def dimse_timeout(self):
-        """Return the DIMSE timeout in seconds."""
+        """Return the DIMSE timeout (in seconds)."""
         return self._dimse_timeout
 
     @dimse_timeout.setter
@@ -265,11 +271,16 @@ class Association(threading.Thread):
             self._dimse_timeout = value
 
     def get_events(self):
-        """Return a list of currently bound events."""
+        """Return a list of currently bound events.
+
+        .. versionadded:: 1.3
+        """
         return sorted(self._handlers.keys(), key=lambda x: x.name)
 
     def get_handlers(self, event):
         """Return handlers bound to a specific `event`.
+
+        .. versionadded:: 1.3
 
         Parameters
         ----------
@@ -282,7 +293,8 @@ class Association(threading.Thread):
             If the event is a notification event then returns a list of
             callable functions bound to `event`, if the event is an
             intervention event then returns either a callable function if a
-            handler is bound to the event or None if no handler has been bound.
+            handler is bound to the event or ``None`` if no handler has been
+            bound.
         """
         if event not in self._handlers:
             return []
@@ -369,7 +381,7 @@ class Association(threading.Thread):
         return self.mode == MODE_REQUESTOR
 
     def kill(self):
-        """Kill the ``Association`` thread."""
+        """Kill the :class:`Association` thread."""
         # Ensure the reactor is running so it can be exited
         self._reactor_checkpoint.set()
         self._kill = True
@@ -379,15 +391,20 @@ class Association(threading.Thread):
 
     @property
     def local(self):
-        """Return a dict with information about the local AE."""
+        """Return a :class:`dict` with information about the local AE."""
         if self.is_acceptor:
             return self.acceptor.info
 
         return self.requestor.info
 
     @property
+    def lock(self):
+        """Return the AE's :class:`threading.Lock`."""
+        return self.ae._lock
+
+    @property
     def mode(self):
-        """Return the Association's `mode` as a str."""
+        """Return the Association's `mode` as a :class:`str`."""
         return self._mode
 
     @mode.setter
@@ -397,11 +414,12 @@ class Association(threading.Thread):
         Parameters
         ----------
         mode : str
-            The mode of the Association, must be either ``"requestor"`` or
-            ``"acceptor"``. If ``"requestor"`` then its assumed that the local
+            The mode of the Association, must be either ``'requestor'`` or
+            ``'acceptor'``. If ``'requestor'`` then its assumed that the local
             AE requests an association with peers and (by default) acts as the
-            SCU. If ``"acceptor"`` then its assumed that the local AE is
-            listening for association requests and (by default) acts as the SCP.
+            SCU. If ``'acceptor'`` then its assumed that the local AE is
+            listening for association requests and (by default) acts as the
+            SCP.
         """
         mode = mode.lower()
         if mode not in [MODE_REQUESTOR, MODE_ACCEPTOR]:
@@ -415,7 +433,7 @@ class Association(threading.Thread):
 
     @property
     def network_timeout(self):
-        """Return the network timeout in seconds."""
+        """Return the network timeout (in seconds)."""
         return self._network_timeout
 
     @network_timeout.setter
@@ -427,7 +445,9 @@ class Association(threading.Thread):
 
     @property
     def rejected_contexts(self):
-        """Return a list of rejected ``PresentationContext``."""
+        """Return a :class:`list` of rejected
+        :class:`~pynetdicom.presentation.PresentationContext`.
+        """
         return self._rejected_cx
 
     def release(self):
@@ -443,7 +463,7 @@ class Association(threading.Thread):
 
     @property
     def remote(self):
-        """Return a dict with information about the peer AE."""
+        """Return a :class:`dict` with information about the peer AE."""
         if self.is_acceptor:
             return self.requestor.info
 
@@ -452,9 +472,9 @@ class Association(threading.Thread):
     def request(self):
         """Request an association with a peer.
 
-        A request can only be made once the ``Association`` instance has been
-        configured for requestor mode and been assigned an
-        ``AssociationSocket``.
+        A request can only be made once the :class:`Association` instance has
+        been configured for requestor mode and been assigned an
+        :class:`~pynetdicom.transport.AssociationSocket`.
         """
         # Start the DUL thread if not already started
         self.dul.start()
@@ -466,7 +486,7 @@ class Association(threading.Thread):
         self.acse.negotiate_association()
 
     def run(self):
-        """The main ``Association`` reactor."""
+        """The main :class:`Association` reactor."""
         # Start the DUL thread if not already started
         if not self._started_dul:
             self.dul.start()
@@ -486,9 +506,16 @@ class Association(threading.Thread):
             self.requestor.primitive = primitive
             evt.trigger(self, evt.EVT_REQUESTED, {})
 
-            self.acse.negotiate_association()
+            # User used EVT_REQUESTED to send an A-ABORT or A-ASSOCIATE-RJ
+            if not self.is_aborted and not self.is_rejected:
+                self.acse.negotiate_association()
+
             if self.is_established:
                 self._run_reactor()
+
+            # Ensure the connection is shutdown properly
+            if self.dul.socket.socket:
+                self._server.shutdown_request(self.dul.socket.socket)
         else:
             # Association requestor
             # Allow non-blocking negotiation
@@ -564,7 +591,7 @@ class Association(threading.Thread):
                 return
 
     def set_socket(self, socket):
-        """Set the socket to use for communicating with the peer.
+        """Set the `socket` to use for communicating with the peer.
 
         Parameters
         ----------
@@ -574,7 +601,7 @@ class Association(threading.Thread):
         Raises
         ------
         RuntimeError
-            If the Association already has a socket set.
+            If the :class:`Association` already has a socket set.
         """
         if self.dul.socket is not None:
             raise RuntimeError("The Association already has a socket set.")
@@ -582,7 +609,9 @@ class Association(threading.Thread):
         self.dul.socket = socket
 
     def unbind(self, event, handler):
-        """Unbind a callable `func` from an `event`.
+        """Unbind a callable `handler` from an `event`.
+
+        .. versionadded:: 1.3
 
         Parameters
         ----------
@@ -738,22 +767,25 @@ class Association(threading.Thread):
         Parameters
         ----------
         msg_id : int, optional
-            The DIMSE *Message ID*, must be between 0 and 65535, inclusive,
-            (default 1).
+            The C-ECHO request's *Message ID*, must be between 0 and 65535,
+            inclusive, (default ``1``).
 
         Returns
         -------
         status : pydicom.dataset.Dataset
             If the peer timed out, aborted or sent an invalid response then
-            returns an empty ``Dataset``. If a valid response was received from
-            the peer then returns a ``Dataset`` containing at least a
+            returns an empty :class:`~pydicom.dataset.Dataset`. If a valid
+            response was received from the peer then returns a
+            :class:`~pydicom.dataset.Dataset` containing at least a
             (0000,0900) *Status* element, and, depending on the returned
             *Status* value, may optionally contain additional elements (see
-            DICOM Standard Part 7, Annex C).
+            DICOM Standard, Part 7, :dcm:`Annex C<part07/chapter_C.html>`).
 
-            The DICOM Standard Part 7, Table 9.3-13 indicates that the Status
+            The DICOM Standard, Part 7, :dcm:`Table 9.3-13
+            <part07/sect_9.3.5.2.html>` indicates that the *Status*
             value of a C-ECHO response "shall have a value of Success". However
-            Section 9.1.5.1.4 indicates it may have any of the following
+            :dcm:`Section 9.1.5.1.4<part07/chapter_9.html#sect_9.1.5.1.4>`
+            indicates it may have any of the following
             values:
 
             Success
@@ -773,22 +805,22 @@ class Association(threading.Thread):
         RuntimeError
             If called without an association to a peer SCP.
         ValueError
-            If the association has no accepted Presentation Context for
-            'Verification SOP Class'.
+            If the association has no accepted presentation context for
+            *Verification SOP Class*.
 
         See Also
         --------
-        dimse_primitives.C_ECHO
-        service_class.VerificationServiceClass
+        :class:`~pynetdicom.dimse_primitives.C_ECHO`
+        :class:`~pynetdicom.service_class.VerificationServiceClass`
 
         References
         ----------
 
-        * DICOM Standard Part 4, `Annex A <http://dicom.nema.org/medical/dicom/current/output/html/part04.html#chapter_A>`_
-        * DICOM Standard Part 7, Sections
-          `9.1.5 <http://dicom.nema.org/medical/dicom/current/output/html/part07.html#sect_9.1.5>`_,
-          `9.3.5 <http://dicom.nema.org/medical/dicom/current/output/html/part07.html#sect_9.3.5>`_,
-          and `Annex C <http://dicom.nema.org/medical/dicom/current/output/html/part07.html#chapter_C>`_
+        * DICOM Standard, Part 4, :dcm:`Annex A<part04/chapter_A.html>`
+        * DICOM Standard, Part 7, Sections
+          :dcm:`9.1.5<part07/chapter_9.html#sect_9.1.5>`,
+          :dcm:`9.3.5<part07/sect_9.3.5.html>`, and
+          :dcm:`Annex C<part07/chapter_C.html>`
         """
         # Can't send a C-ECHO without an Association
         if not self.is_established:
@@ -832,21 +864,25 @@ class Association(threading.Thread):
     def send_c_find(self, dataset, query_model, msg_id=1, priority=2):
         """Send a C-FIND request to the peer AE.
 
-        Yields ``(status, identifier)`` pairs.
+        Yields (*status*, *identifier*) pairs for each response from the peer.
+
+        .. versionchanged:: 1.5
+
+            `query_model` now only accepts a UID string
 
         Parameters
         ----------
         dataset : pydicom.dataset.Dataset
             The C-FIND request's *Identifier* dataset. The exact requirements
             for the *Identifier* dataset are Service Class specific (see the
-            DICOM Standard, Part 4).
+            DICOM Standard, :dcm:`Part 4<part04/PS3.4.html>`).
         query_model : pydicom.uid.UID or str
             The value to use for the C-FIND request's (0000,0002) *Affected
             SOP Class UID* parameter, which usually corresponds to the
             Information Model that is to be used.
         msg_id : int, optional
-            The DIMSE *Message ID*, must be between 0 and 65535, inclusive,
-            (default 1).
+            The C-FIND request's *Message ID*, must be between 0 and 65535,
+            inclusive, (default ``1``).
         priority : int, optional
             The C-FIND operation *Priority* (may not be supported by the peer),
             one of:
@@ -859,17 +895,20 @@ class Association(threading.Thread):
         ------
         status : pydicom.dataset.Dataset
             If the peer timed out, aborted or sent an invalid response then
-            yields an empty ``Dataset``. If a response was received from the
-            peer then yields a ``Dataset`` containing at least a (0000,0900)
+            yields an empty :class:`~pydicom.dataset.Dataset`. If a response
+            was received from the peer then yields a
+            :class:`~pydicom.dataset.Dataset` containing at least a (0000,0900)
             *Status* element, and depending on the returned value, may
             optionally contain additional elements (see the DICOM Standard,
-            Part 7, Section 9.1.2.1.5 and Annex C).
+            Part 7, :dcm:`Section 9.1.2.1.6
+            <part07/chapter_9.html#sect_9.1.2.1.6>` and
+            :dcm:`Annex C<part07/chapter_C.html>`).
 
             The status for the requested C-FIND operation should be one of the
             following values, but as the value depends
             on the peer this can't be assumed:
 
-            *General C-FIND* (Part 7, Section 9.1.2.1.5 and Annex C)
+            *General C-FIND* (Part 7, Section 9.1.2.1.6 and Annex C)
 
             Cancel
               | ``0xFE00`` - Matching terminated due to Cancel request
@@ -887,7 +926,7 @@ class Association(threading.Thread):
             Color Palette Query/Retrieve Service*, *Implant Template
             Query/Retrieve Service*, *Protocol Approval Query/Retrieve
             Service* and *Unified Protocol Step Service* specific
-            (DICOM Standard Part 4, Annexes C.4.1, K.4.1.1.4, U.4.1, HH,
+            (DICOM Standard, Part 4, Annexes C.4.1, K.4.1.1.4, U.4.1, HH,
             V.4.1.1.4, X, BB, II and CC):
 
             Failure
@@ -920,48 +959,52 @@ class Association(threading.Thread):
 
         identifier : pydicom.dataset.Dataset or None
             If the status category is 'Pending' then the C-FIND response's
-            *Identifier* ``Dataset``. If the status category is not 'Pending'
-            this will be ``None``. The exact contents of the response
-            *Identifier* are Service Class specific (see the DICOM Standard,
-            Part 4).
+            *Identifier* :class:`~pydicom.dataset.Dataset` If the status
+            category is not 'Pending' this will be ``None``. The exact contents
+            of the response *Identifier* are Service Class specific (see the
+            DICOM Standard, :dcm:`Part 4<part04.html>`).
 
         Raises
         ------
         RuntimeError
             If ``send_c_find`` is called with no established association.
         ValueError
-            If no accepted Presentation Context for `dataset` exists or if
+            If no accepted Presentation Context for `query_model` exists or if
             unable to encode the *Identifier* `dataset`.
 
         See Also
         --------
-        dimse_primitives.C_FIND
-        service_class.ColorPaletteQueryRetrieveServiceClass
-        service_class.DefinedProcedureProtocolQueryRetrieveServiceClass
-        service_class.HangingProtocolQueryRetrieveServiceClass
-        service_class.ImplantTemplateQueryRetrieveServiceClass
-        service_class.ProtocolApprovalQueryRetrieveServiceClass
-        service_class.QueryRetrieveFindServiceClass
-        service_class.RelevantPatientInformationQueryServiceClass
-        service_class.SubstanceAdministrationQueryServiceClass
-        service_class.UnifiedProcedureStepServiceClass
+        .. currentmodule:: pynetdicom.service_class
+
+        :class:`~pynetdicom.dimse_primitives.C_FIND`
+        :class:`BasicWorklistManagementServiceClass`
+        :class:`ColorPaletteQueryRetrieveServiceClass`
+        :class:`DefinedProcedureProtocolQueryRetrieveServiceClass`
+        :class:`HangingProtocolQueryRetrieveServiceClass`
+        :class:`ImplantTemplateQueryRetrieveServiceClass`
+        :class:`ProtocolApprovalQueryRetrieveServiceClass`
+        :class:`QueryRetrieveServiceClass`
+        :class:`RelevantPatientInformationQueryServiceClass`
+        :class:`SubstanceAdministrationQueryServiceClass`
+        :class:`~pynetdicom.service_class_n.UnifiedProcedureStepServiceClass`
 
         References
         ----------
 
-        * DICOM Standard Part 4, `Annex C <http://dicom.nema.org/medical/dicom/current/output/html/part04.html#chapter_C>`_
-        * DICOM Standard Part 4, `Annex Q <http://dicom.nema.org/medical/dicom/current/output/html/part04.html#chapter_Q>`_
-        * DICOM Standard Part 4, `Annex U <http://dicom.nema.org/medical/dicom/current/output/html/part04.html#chapter_U>`_
-        * DICOM Standard Part 4, `Annex V <http://dicom.nema.org/medical/dicom/current/output/html/part04.html#chapter_V>`_
-        * DICOM Standard Part 4, `Annex X <http://dicom.nema.org/medical/dicom/current/output/html/part04.html#chapter_X>`_
-        * DICOM Standard Part 4, `Annex BB <http://dicom.nema.org/medical/dicom/current/output/html/part04.html#chapter_BB>`_
-        * DICOM Standard Part 4, `Annex HH <http://dicom.nema.org/medical/dicom/current/output/html/part04.html#chapter_HH>`_
-        * DICOM Standard Part 4, `Annex II <http://dicom.nema.org/medical/dicom/current/output/html/part04.html#chapter_II>`_
-        * DICOM Standard Part 7, Sections
-          `9.1.2 <http://dicom.nema.org/medical/dicom/current/output/html/part07.html#sect_9.1.2>`_,
-          `9.3.2 <http://dicom.nema.org/medical/dicom/current/output/html/part07.html#sect_9.3.2>`_,
-          Annexes `C <http://dicom.nema.org/medical/dicom/current/output/html/part07.html#chapter_C>`_
-          and `K <http://dicom.nema.org/medical/dicom/current/output/html/part07.html#chapter_K>`_
+        * DICOM Standard, Part 4, :dcm:`Annex C<part04/chapter_C.html>`
+        * DICOM Standard, Part 4, :dcm:`Annex K<part04/chapter_K.html>`
+        * DICOM Standard, Part 4, :dcm:`Annex Q<part04/chapter_Q.html>`
+        * DICOM Standard, Part 4, :dcm:`Annex U<part04/chapter_U.html>`
+        * DICOM Standard, Part 4, :dcm:`Annex V<part04/chapter_V.html>`
+        * DICOM Standard, Part 4, :dcm:`Annex X<part04/chapter_X.html>`
+        * DICOM Standard, Part 4, :dcm:`Annex BB<part04/chapter_BB.html>`
+        * DICOM Standard, Part 4, :dcm:`Annex CC<part04/chapter_CC.html>`
+        * DICOM Standard, Part 4, :dcm:`Annex HH<part04/chapter_HH.html>`
+        * DICOM Standard, Part 4, :dcm:`Annex II<part04/chapter_II.html>`
+        * DICOM Standard, Part 7, Sections
+          :dcm:`9.1.2<part07/chapter_9.html#sect_9.1.2>`,
+          :dcm:`9.3.2<part07/sect_9.3.2.html>` and
+          :dcm:`Annex C<part07/chapter_C.html>`
         """
         # Can't send a C-FIND without an Association
         if not self.is_established:
@@ -1017,28 +1060,32 @@ class Association(threading.Thread):
     def send_c_get(self, dataset, query_model, msg_id=1, priority=2):
         """Send a C-GET request to the peer AE.
 
-        Yields ``(status, identifier)`` pairs.
+        Yields (*status*, *identifier*) pairs for each response from the peer.
 
-        A :py:meth:`handler <pynetdicom._handlers.doc_handle_store>`
+        A :meth:`C-STORE handler<pynetdicom._handlers.doc_handle_store>`
         should be implemented and bound to ``evt.EVT_C_STORE``
-        prior to calling ``send_c_get`` as the peer will return any matches
+        prior to calling :meth:`send_c_get` as the peer will return any matches
         via a C-STORE sub-operation over the current association. In addition,
-        SCP/SCU Role Selection Negotiation must be supported by the
-        Association.
+        :ref:`SCP/SCU Role Selection Negotiation <user_ae_role_negotiation>`
+        must be supported by the :class:`Association`.
+
+        .. versionchanged:: 1.5
+
+            `query_model` now only accepts a UID string
 
         Parameters
         ----------
         dataset : pydicom.dataset.Dataset
-            The C-GET request's *Identifier* ``Dataset``. The exact
+            The C-GET request's *Identifier* dataset. The exact
             requirements for the *Identifier* are Service Class specific (see
-            the DICOM Standard, Part 4).
+            the DICOM Standard, :dcm:`Part 4<part04/PS3.4.html>`).
         query_model : pydicom.uid.UID or str
             The value to use for the C-GET request's (0000,0002) *Affected
             SOP Class UID* parameter, which usually corresponds to the
             Information Model that is to be used.
         msg_id : int, optional
-            The DIMSE *Message ID*, must be between 0 and 65535, inclusive,
-            (default 1).
+            The C-GET request's *Message ID*, must be between 0 and 65535,
+            inclusive, (default ``1``).
         priority : int, optional
             The C-GET operation *Priority* (may not be supported by the peer),
             one of:
@@ -1051,17 +1098,20 @@ class Association(threading.Thread):
         ------
         status : pydicom.dataset.Dataset
             If the peer timed out, aborted or sent an invalid response then
-            yields an empty ``Dataset``. If a response was received from the
-            peer then yields a ``Dataset`` containing at least a (0000,0900)
+            yields an empty :class:`~pydicom.dataset.Dataset`. If a response
+            was received from the peer then yields a
+            :class:`~pydicom.dataset.Dataset` containing at least a (0000,0900)
             *Status* element, and depending on the returned value may
-            optionally contain additional elements (see DICOM Standard Part 7,
-            Section 9.1.2.1.5 and Annex C).
+            optionally contain additional elements (see the DICOM Standard,
+            Part 7, :dcm:`Section 9.1.3.1.6
+            <part07/chapter_9.html#sect_9.1.3.1.6>` and
+            :dcm:`Annex C<part07/chapter_C.html>`).
 
             The status for the requested C-GET operation should be one of the
             following values, but as the value depends on the peer this
             can't be assumed:
 
-            *General C-GET* (DICOM Standard Part 7, Section 9.1.3 and Annex C)
+            *General C-GET* (DICOM Standard, Part 7, Section 9.1.3 and Annex C)
 
             Success
               | ``0x0000`` - Sub-operations complete: no failures or warnings
@@ -1077,7 +1127,7 @@ class Association(threading.Thread):
             Defined Procedure Protocol Query/Retrieve Service, Color Palette
             Query/Retrieve Service*, *Implant Template Query/Retrieve
             Service* and *Protocol Approval Query/Retrieve Service* specific
-            (DICOM Standard Part 4, Annexes C.4.3,
+            (DICOM Standard, Part 4, Annexes C.4.3,
             Y.C.4.2.1.4, Z.4.2.1.4, U.4.3, X, BB, HH and II):
 
             Pending
@@ -1107,43 +1157,47 @@ class Association(threading.Thread):
         identifier : pydicom.dataset.Dataset or None
             If the status category is 'Pending' or 'Success' then yields
             ``None``. If the status category is 'Warning', 'Failure' or
-            'Cancel' then yields a ``Dataset`` which should contain an
-            (0008,0058) *Failed SOP Instance UID List* element, however this
-            is not guaranteed and may instead be an empty ``Dataset``.
+            'Cancel' then yields a :class:`~pydicom.dataset.Dataset` which
+            should contain an (0008,0058) *Failed SOP Instance UID List*
+            element, however this is not guaranteed and may instead be an
+            empty :class:`~pydicom.dataset.Dataset`.
 
         Raises
         ------
         RuntimeError
-            If ``send_c_get`` is called with no established association.
+            If :meth:`send_c_get` is called with no established association.
         ValueError
-            If no accepted Presentation Context for `dataset` exists or if
+            If no accepted Presentation Context for `query_model` exists or if
             unable to encode the *Identifier* `dataset`.
 
         See Also
         --------
-        service_class.QueryRetrieveGetServiceClass
-        service_class.HangingProtocolQueryRetrieveServiceClass
-        service_class.DefinedProcedureProtocolQueryRetrieveServiceClass
-        service_class.ColorPaletteQueryRetrieveServiceClass
-        service_class.ImplantTemplateQueryRetrieveServiceClass
-        service_class.ProtocolApprovalQueryRetrieveServiceClass
-        dimse_primitives.C_GET
+
+        .. currentmodule:: pynetdicom.service_class
+
+        :class:`~pynetdicom.dimse_primitives.C_GET`
+        :class:`QueryRetrieveServiceClass`
+        :class:`HangingProtocolQueryRetrieveServiceClass`
+        :class:`DefinedProcedureProtocolQueryRetrieveServiceClass`
+        :class:`ColorPaletteQueryRetrieveServiceClass`
+        :class:`ImplantTemplateQueryRetrieveServiceClass`
+        :class:`ProtocolApprovalQueryRetrieveServiceClass`
 
         References
         ----------
 
-        * DICOM Standard Part 4, `Annex C <http://dicom.nema.org/medical/dicom/current/output/html/part04.html#chapter_C>`_
-        * DICOM Standard Part 4, `Annex U <http://dicom.nema.org/medical/dicom/current/output/html/part04.html#chapter_U>`_
-        * DICOM Standard Part 4, `Annex X <http://dicom.nema.org/medical/dicom/current/output/html/part04.html#chapter_X>`_
-        * DICOM Standard Part 4, `Annex Y <http://dicom.nema.org/medical/dicom/current/output/html/part04.html#chapter_Y>`_
-        * DICOM Standard Part 4, `Annex Z <http://dicom.nema.org/medical/dicom/current/output/html/part04.html#chapter_Z>`_
-        * DICOM Standard Part 4, `Annex BB <http://dicom.nema.org/medical/dicom/current/output/html/part04.html#chapter_BB>`_
-        * DICOM Standard Part 4, `Annex HH <http://dicom.nema.org/medical/dicom/current/output/html/part04.html#chapter_HH>`_
-        * DICOM Standard Part 4, `Annex II <http://dicom.nema.org/medical/dicom/current/output/html/part04.html#chapter_II>`_
-        * DICOM Standard Part 7, Sections
-          `9.1.3 <http://dicom.nema.org/medical/dicom/current/output/html/part07.html#sect_9.1.3>`_,
-          `9.3.3 <http://dicom.nema.org/medical/dicom/current/output/html/part07.html#sect_9.3.3>`_
-          and `Annex C <http://dicom.nema.org/medical/dicom/current/output/html/part07.html#chapter_C>`_
+        * DICOM Standard, Part 4, :dcm:`Annex C<part04/chapter_C.html>`
+        * DICOM Standard, Part 4, :dcm:`Annex U<part04/chapter_U.html>`
+        * DICOM Standard, Part 4, :dcm:`Annex X<part04/chapter_X.html>`
+        * DICOM Standard, Part 4, :dcm:`Annex Y<part04/chapter_Y.html>`
+        * DICOM Standard, Part 4, :dcm:`Annex Z<part04/chapter_Z.html>`
+        * DICOM Standard, Part 4, :dcm:`Annex BB<part04/chapter_BB.html>`
+        * DICOM Standard, Part 4, :dcm:`Annex HH<part04/chapter_HH.html>`
+        * DICOM Standard, Part 4, :dcm:`Annex II<part04/chapter_II.html>`
+        * DICOM Standard, Part 7, Sections
+          :dcm:`9.1.3<part07/chapter_9.html#sect_9.1.3>`,
+          :dcm:`9.3.3<part07/sect_9.3.3.html>` and
+          :dcm:`Annex C<part07/chapter_C.html>`
         """
         # Can't send a C-GET without an Association
         if not self.is_established:
@@ -1201,19 +1255,24 @@ class Association(threading.Thread):
                     priority=2):
         """Send a C-MOVE request to the peer AE.
 
-        Yields ``(status, identifier)`` pairs.
+        Yields (*status*, *identifier*) pairs for each response from the peer.
 
-        The peer will attempt to start a new association with the AE with
-        *AE Title* ``move_aet`` and hence must be known to the SCP. Once the
-        association has been established it will use the C-STORE service to
-        send any matching datasets.
+        The peer will attempt to start a new association with an Storage SCP
+        with AE title `move_aet` and hence the Storage SCP must be known to
+        the Move SCP. Once the association has been established, the peer will
+        use the C-STORE service to send any matching datasets to the nominated
+        Storage SCP.
+
+        .. versionchanged:: 1.5
+
+            `query_model` now only accepts a UID string
 
         Parameters
         ----------
         dataset : pydicom.dataset.Dataset
-            The C-MOVE request's *Identifier* ``Dataset``. The exact
+            The C-MOVE request's *Identifier* dataset. The exact
             requirements for the *Identifier* are Service Class specific (see
-            the DICOM Standard, Part 4).
+            the DICOM Standard, :dcm:`Part 4<part04/PS3.4.html>`).
         move_aet : bytes
             The value of the *Move Destination* parameter for the C-MOVE
             request, should be the AE title of the Storage SCP for the
@@ -1223,8 +1282,8 @@ class Association(threading.Thread):
             SOP Class UID* parameter, which usually corresponds to the
             Information Model that is to be used.
         msg_id : int, optional
-            The DIMSE *Message ID*, must be between 0 and 65535, inclusive,
-            (default 1).
+            The C-MOVE request's *Message ID*, must be between 0 and 65535,
+            inclusive, (default ``1``).
         priority : int, optional
             The value of the *Priority* parameter (if supported by the peer),
             one of:
@@ -1237,17 +1296,20 @@ class Association(threading.Thread):
         ------
         status : pydicom.dataset.Dataset
             If the peer timed out, aborted or sent an invalid response then
-            yields an empty ``Dataset``. If a response was received from the
-            peer then yields a ``Dataset`` containing at least a (0000,0900)
+            yields an empty :class:`~pydicom.dataset.Dataset`. If a response
+            was received from the peer then yields a
+            :class:`~pydicom.dataset.Dataset` containing at least a (0000,0900)
             *Status* element, and depending on the returned value, may
-            optionally contain additional elements (see DICOM Standard Part 7,
-            Section 9.1.4 and Annex C).
+            optionally contain additional elements (see the DICOM Standard,
+            Part 7, :dcm:`Section 9.1.4.1.7
+            <part07/chapter_9.html#sect_9.1.4.1.7>` and
+            :dcm:`Annex C<part07/chapter_C.html>`).
 
             The status for the requested C-MOVE operation should be one of the
             following values, but as the value depends
             on the peer this can't be assumed:
 
-            *General C-MOVE* (DICOM Standard Part 7, 9.1.4.1.7 and Annex C)
+            *General C-MOVE* (DICOM Standard, Part 7, 9.1.4.1.7 and Annex C)
 
             Cancel
               | ``0xFE00`` - Sub-operations terminated due to Cancel indication
@@ -1262,7 +1324,7 @@ class Association(threading.Thread):
             Defined Procedure Protocol Query/Retrieve Service, Color Palette
             Query/Retrieve Service* , *Implant Template Query/Retreive
             Service* and *Protocol Approval Query/Retrieve Service*
-            specific (DICOM Standard Part 4, Annexes C, U, Y, X, BB and HH):
+            specific (DICOM Standard, Part 4, Annexes C, U, Y, X, BB and HH):
 
             Failure
               | ``0xA701`` - Out of resources: unable to calculate number of
@@ -1288,33 +1350,45 @@ class Association(threading.Thread):
         identifier : pydicom.dataset.Dataset or None
             If the status category is 'Pending' or 'Success' then yields
             ``None``. If the status category is 'Warning', 'Failure' or
-            'Cancel' then yields a ``Dataset`` which should contain an
-            (0008,0058) *Failed SOP Instance UID List* element, however this
-            is not guaranteed and may instead be an empty ``Dataset``.
+            'Cancel' then yields a :class:`~pydicom.dataset.Dataset` which
+            should contain an (0008,0058) *Failed SOP Instance UID List*
+            element, however this is not guaranteed and may instead be an empty
+            :class:`~pydicom.dataset.Dataset`.
+
+        Raises
+        ------
+        RuntimeError
+            If :meth:`send_c_move` is called with no established association.
+        ValueError
+            If no accepted Presentation Context for `query_model` exists or if
+            unable to encode the `dataset`.
 
         See Also
         --------
-        dimse_primitives.C_MOVE
-        service_class.QueryRetrieveMoveServiceClass
-        service_class.HangingProtocolQueryRetrieveServiceClass
-        service_class.ColorPaletteQueryRetrieveServiceClass
-        service_class.ImplantTemplateQueryRetrieveServiceClass
-        service_class.ProtocolApprovalQueryRetrieveServiceClass
+
+        .. currentmodule:: pynetdicom.service_class
+
+        :class:`~pynetdicom.dimse_primitives.C_MOVE`
+        :class:`QueryRetrieveServiceClass`
+        :class:`HangingProtocolQueryRetrieveServiceClass`
+        :class:`ColorPaletteQueryRetrieveServiceClass`
+        :class:`ImplantTemplateQueryRetrieveServiceClass`
+        :class:`ProtocolApprovalQueryRetrieveServiceClass`
 
         References
         ----------
 
-        * DICOM Standard Part 4, `Annex C <http://dicom.nema.org/medical/dicom/current/output/html/part04.html#chapter_C>`_
-        * DICOM Standard Part 4, `Annex U <http://dicom.nema.org/medical/dicom/current/output/html/part04.html#chapter_U>`_
-        * DICOM Standard Part 4, `Annex X <http://dicom.nema.org/medical/dicom/current/output/html/part04.html#chapter_X>`_
-        * DICOM Standard Part 4, `Annex Y <http://dicom.nema.org/medical/dicom/current/output/html/part04.html#chapter_Y>`_
-        * DICOM Standard Part 4, `Annex BB <http://dicom.nema.org/medical/dicom/current/output/html/part04.html#chapter_BB>`_
-        * DICOM Standard Part 4, `Annex HH <http://dicom.nema.org/medical/dicom/current/output/html/part04.html#chapter_HH>`_
-        * DICOM Standard Part 4, `Annex II <http://dicom.nema.org/medical/dicom/current/output/html/part04.html#chapter_II>`_
-        * DICOM Standard Part 7, Sections
-          `9.1.4 <http://dicom.nema.org/medical/dicom/current/output/html/part07.html#sect_9.1.4>`_,
-          `9.3.4 <http://dicom.nema.org/medical/dicom/current/output/html/part07.html#sect_9.3.4>`_
-          and `Annex C <http://dicom.nema.org/medical/dicom/current/output/html/part07.html#chapter_C>`_
+        * DICOM Standard, Part 4, :dcm:`Annex C<part04/chapter_C.html>`
+        * DICOM Standard, Part 4, :dcm:`Annex U<part04/chapter_U.html>`
+        * DICOM Standard, Part 4, :dcm:`Annex X<part04/chapter_X.html>`
+        * DICOM Standard, Part 4, :dcm:`Annex Y<part04/chapter_Y.html>`
+        * DICOM Standard, Part 4, :dcm:`Annex BB<part04/chapter_BB.html>`
+        * DICOM Standard, Part 4, :dcm:`Annex HH<part04/chapter_HH.html>`
+        * DICOM Standard, Part 4, :dcm:`Annex II<part04/chapter_II.html>`
+        * DICOM Standard, Part 7, Sections
+          :dcm:`9.1.4<part07/chapter_9.html#sect_9.1.4>`,
+          :dcm:`9.3.4<part07/sect_9.3.4.html>` and
+          :dcm:`Annex C<part07/chapter_C.html>`
         """
         # Can't send a C-MOVE without an Association
         if not self.is_established:
@@ -1379,8 +1453,8 @@ class Association(threading.Thread):
         dataset : pydicom.dataset.Dataset
             The DICOM dataset to send to the peer.
         msg_id : int, optional
-            The DIMSE *Message ID*, must be between 0 and 65535, inclusive,
-            (default ``1``).
+            The C-STORE request's *Message ID*, must be between 0 and 65535,
+            inclusive, (default ``1``).
         priority : int, optional
             The C-STORE operation *Priority* (may not be supported by the
             peer), one of:
@@ -1388,13 +1462,13 @@ class Association(threading.Thread):
             - ``0`` - Medium
             - ``1`` - High
             - ``2`` - Low (default)
-        originator_aet : bytes, optional
+        originator_aet : bytes or None, optional
             The value of the *Move Originator Application Entity Title*
             parameter for the C-STORE request. This is the AE title of the
             peer that invoked the C-MOVE operation for
             which this C-STORE sub-operation is being performed (default
             ``None``).
-        originator_id : int, optional
+        originator_id : int or None, optional
             The value of the *Move Originator Message ID* parameter for the
             C-STORE request. This is the original *Message ID* parameter value
             for the C-MOVE request primitive for which the
@@ -1404,17 +1478,18 @@ class Association(threading.Thread):
         -------
         status : pydicom.dataset.Dataset
             If the peer timed out, aborted or sent an invalid response then
-            returns an empty ``Dataset``. If a valid response was received
-            from the peer then returns a ``Dataset`` containing at least a
+            returns an empty :class:`~pydicom.dataset.Dataset`. If a valid
+            response was received from the peer then returns a
+            :class:`~pydicom.dataset.Dataset` containing at least a
             (0000,0900) *Status* element, and, depending on the returned
             value, may optionally contain additional elements (see DICOM
-            Standard Part 7, Annex C).
+            Standard, Part 7, :dcm:`Annex C<part07/chapter_C.html>`).
 
             The status for the requested C-STORE operation should be one of the
             following, but as the value depends on the peer SCP this can't be
             assumed:
 
-            *General C-STORE* (DICOM Standard Part 7, 9.1.1.1.9 and Annex C):
+            *General C-STORE* (DICOM Standard, Part 7, 9.1.1.1.9 and Annex C):
 
             Success
               | ``0x0000`` - Success
@@ -1428,7 +1503,7 @@ class Association(threading.Thread):
               | ``0x0212`` - Mistyped argument
 
             *Storage Service* and *Non-Patient Object Storage Service* specific
-            (DICOM Standard Part 4, Annexes B.2.3 and GG):
+            (DICOM Standard, Part 4, Annexes B.2.3 and GG):
 
             Failure
               | ``0xA700`` to ``0xA7FF`` - Out of resources
@@ -1440,8 +1515,8 @@ class Association(threading.Thread):
               | ``0xB006`` - Element discarded
               | ``0xB007`` - Data set does not match SOP class
 
-            *Non-Patient Object Service Class* specific (DICOM Standard Part 4,
-            Annex GG.4.2)
+            *Non-Patient Object Service Class* specific (DICOM Standard, Part
+            4, Annex GG.4.2)
 
             Failure
               | ``0xA700`` - Out of resources
@@ -1451,7 +1526,7 @@ class Association(threading.Thread):
         Raises
         ------
         RuntimeError
-            If ``send_c_store`` is called with no established association.
+            If :meth:`send_c_store` is called with no established association.
         AttributeError
             If `dataset` is missing (0008,0016) *SOP Class UID*,
             (0008,0018) *SOP Instance UID* elements or the (0002,0010)
@@ -1462,19 +1537,22 @@ class Association(threading.Thread):
 
         See Also
         --------
-        dimse_primitives.C_STORE
-        service_class.StorageServiceClass
-        service_class.NonPatientObjectStorageServiceClass
+
+        .. currentmodule:: pynetdicom.service_class
+
+        :class:`~pynetdicom.dimse_primitives.C_STORE`
+        :class:`StorageServiceClass`
+        :class:`NonPatientObjectStorageServiceClass`
 
         References
         ----------
 
-        * DICOM Standard Part 4, Annex `B <http://dicom.nema.org/medical/dicom/current/output/html/part04.html#chapter_B>`_
-        * DICOM Standard Part 4, Annex `GG <http://dicom.nema.org/medical/dicom/current/output/html/part04.html#chapter_GG>`_
-        * DICOM Standard Part 7, Sections
-          `9.1.1 <http://dicom.nema.org/medical/dicom/current/output/html/part07.html#sect_9.1.1>`_,
-          `9.3.1 <http://dicom.nema.org/medical/dicom/current/output/html/part07.html#sect_9.3.1>`_
-          and `Annex C <http://dicom.nema.org/medical/dicom/current/output/html/part07.html#chapter_C>`_
+        * DICOM Standard, Part 4, :dcm:`Annex B<part04/chapter_B.html>`
+        * DICOM Standard, Part 4, :dcm:`Annex GG<part04/chapter_GG.html>`
+        * DICOM Standard, Part 7, Sections
+          :dcm:`9.1.1<part07/chapter_9.html#sect_9.1.1>`,
+          :dcm:`9.3.1<part07/sect_9.3.html#sect_9.3.1>` and
+          :dcm:`Annex C<part07/chapter_C.html>`
         """
         # Can't send a C-STORE without an Association
         if not self.is_established:
@@ -1642,20 +1720,24 @@ class Association(threading.Thread):
             if category in [STATUS_PENDING]:
                 operation_no += 1
 
-                try:
-                    identifier = decode(rsp.Identifier,
-                                        transfer_syntax.is_implicit_VR,
-                                        transfer_syntax.is_little_endian)
-                    LOGGER.info('')
-                    LOGGER.info('# Response Identifier')
-                    for elem in identifier:
-                        LOGGER.info(elem)
-                    LOGGER.info('')
-                except Exception:
-                    LOGGER.error(
-                        "Failed to decode the received Identifier dataset"
-                    )
-                    yield status, None
+                with self.lock:
+                    try:
+                        identifier = decode(
+                            rsp.Identifier,
+                            transfer_syntax.is_implicit_VR,
+                            transfer_syntax.is_little_endian
+                        )
+                        LOGGER.info('')
+                        LOGGER.info('# Response Identifier')
+                        for elem in identifier:
+                            LOGGER.info(elem)
+                        LOGGER.info('')
+                    except Exception as exc:
+                        LOGGER.error(
+                            "Failed to decode the received Identifier dataset"
+                        )
+                        LOGGER.exception(exc)
+                        yield status, None
 
                 yield status, identifier
                 continue
@@ -1785,22 +1867,25 @@ class Association(threading.Thread):
                 #   with a (0008,0058) Failed SOP Instance UID List
                 #    element however this can't be assumed
                 # pylint: disable=broad-except
-                try:
-                    identifier = decode(rsp.Identifier,
-                                        transfer_syntax.is_implicit_VR,
-                                        transfer_syntax.is_little_endian)
-                    if identifier:
-                        LOGGER.debug('')
-                        LOGGER.debug('# Response Identifier')
-                        for elem in identifier:
-                            LOGGER.info(elem)
-                        LOGGER.debug('')
-                except Exception as ex:
-                    LOGGER.error(
-                        "Failed to decode the received Identifier dataset"
-                    )
-                    LOGGER.exception(ex)
-                    identifier = None
+                with self.lock:
+                    try:
+                        identifier = decode(
+                            rsp.Identifier,
+                            transfer_syntax.is_implicit_VR,
+                            transfer_syntax.is_little_endian
+                        )
+                        if identifier:
+                            LOGGER.info('')
+                            LOGGER.info('# Response Identifier')
+                            for elem in identifier:
+                                LOGGER.info(elem)
+                            LOGGER.info('')
+                    except Exception as exc:
+                        LOGGER.error(
+                            "Failed to decode the received Identifier dataset"
+                        )
+                        LOGGER.exception(exc)
+                        identifier = None
 
             # Only reach this point if status is Sucess, Warning, Failure
             #   or Cancel
@@ -1814,24 +1899,29 @@ class Association(threading.Thread):
     # DIMSE-N services provided by the Association
     def send_n_action(self, dataset, action_type, class_uid, instance_uid,
                       msg_id=1, meta_uid=None):
-        """Send an N-ACTION request message to the peer AE.
+        """Send an N-ACTION request to the peer AE.
+
+        .. versionchanged:: 1.4
+
+            Added `meta_uid` keyword parameter
 
         Parameters
         ----------
         dataset : pydicom.dataset.Dataset or None
             The dataset that will be sent as the *Action Information*
-            parameter in the N-ACTION request, or ``None`` if not required.
+            parameter in the request, or ``None`` if not required.
         action_type : int
-            The value of the request's (0000,1008) *Action Type ID* parameter.
+            The value of the request's (0000,1008) *Action Type ID*
+            parameter.
         class_uid : pydicom.uid.UID
-            The UID to be sent for the request's (0000,0003) *Requested SOP
-            Class UID* parameter.
+            The UID to be sent for the request's (0000,0003)
+            *Requested SOP Class UID* parameter.
         instance_uid : pydicom.uid.UID
-            The UID to be sent for the request's (0000,1001) *Requested SOP
-            Instance UID* parameter.
+            The UID to be sent for the request's (0000,1001)
+            *Requested SOP Instance UID* parameter.
         msg_id : int, optional
-            The request's *Message ID* parameter value, must be between 0 and
-            65535, inclusive, (default 1).
+            The request's *Message ID* parameter value, must be
+            between 0 and 65535, inclusive, (default ``1``).
         meta_uid : pydicom.uid.UID, optional
             If the service class operates under a presentation context
             negotiated using a *Meta SOP Class* rather than a standard *SOP
@@ -1844,13 +1934,16 @@ class Association(threading.Thread):
         -------
         status : pydicom.dataset.Dataset
             If the peer timed out, aborted or sent an invalid response then
-            returns an empty ``Dataset``. If a response was received from the
-            peer then returns a ``Dataset`` containing at least a (0000,0900)
+            returns an empty :class:`~pydicom.dataset.Dataset`. If a response
+            was received from the peer then returns a
+            :class:`~pydicom.dataset.Dataset` containing at least a (0000,0900)
             *Status* element, and depending on the returned value, may
             optionally contain additional elements (see the DICOM Standard,
-            Part 7, Section 9.1.2.1.5 and Annex C).
+            Part 7, :dcm:`Section 10.1.4.1.10
+            <part07/chapter_10.html#sect_10.1.4.1.10>` and
+            :dcm:`Annex C<part07/chapter_C.html>`).
 
-            *General N-ACTION* (DICOM Standard Part 7, Section 10.1.4 and
+            *General N-ACTION* (DICOM Standard, Part 7, Section 10.1.4 and
             Annex C)
 
             Success
@@ -1872,29 +1965,41 @@ class Association(threading.Thread):
               | ``0x0213`` - Resource limitation
 
         action_reply : pydicom.dataset.Dataset or None
-            If the status category is 'Success' or 'Warning' then a ``Dataset``
-            containing attributes corresponding to those supplied in the
-            *Action Reply*. Because *Action Reply* is optional the returned
-            ``Dataset`` may be empty.
+            If the status category is 'Success' or 'Warning' then a
+            :class:`~pydicom.dataset.Dataset` containing attributes
+            corresponding to those supplied in the *Action Reply*. Because
+            *Action Reply* is optional the returned
+            :class:`~pydicom.dataset.Dataset` may be empty.
 
             If the status category is 'Failure' or if the peer timed-out,
             aborted, or sent an invalid response then returns ``None``.
 
         See Also
         --------
-        dimse_primitives.N_ACTION
+
+        .. currentmodule:: pynetdicom.service_class_n
+
+        :class:`~pynetdicom.dimse_primitives.N_ACTION`
+        :class:`ApplicationEventLoggingServiceClass`
+        :class:`MediaCreationManagementServiceClass`
+        :class:`PrintManagementServiceClass`
+        :class:`RTMachineVerificationServiceClass`
+        :class:`StorageCommitmentServiceClass`
+        :class:`UnifiedProcedureStepServiceClass`
 
         References
         ----------
 
-        * DICOM Standart Part 4, `Annex F <http://dicom.nema.org/medical/dicom/current/output/html/part04.html#chapter_F>`_
-        * DICOM Standart Part 4, `Annex H <http://dicom.nema.org/medical/dicom/current/output/html/part04.html#chapter_H>`_
-        * DICOM Standard Part 4, `Annex CC <http://dicom.nema.org/medical/dicom/current/output/html/part04.html#chapter_CC>`_
-        * DICOM Standard Part 4, `Annex DD <http://dicom.nema.org/medical/dicom/current/output/html/part04.html#chapter_DD>`_
-        * DICOM Standard Part 7, Sections
-          `10.1.3 <http://dicom.nema.org/medical/dicom/current/output/html/part07.html#sect_10.1.3>`_,
-          `10.3.3 <http://dicom.nema.org/medical/dicom/current/output/html/part07.html#sect_10.3.3>`_
-          and `Annex C <http://dicom.nema.org/medical/dicom/current/output/html/part07.html#chapter_C>`_
+        * DICOM Standard, Part 4, :dcm:`Annex H<part04/chapter_H.html>`
+        * DICOM Standard, Part 4, :dcm:`Annex J<part04/chapter_J.html>`
+        * DICOM Standard, Part 4, :dcm:`Annex P<part04/chapter_P.html>`
+        * DICOM Standard, Part 4, :dcm:`Annex S<part04/chapter_S.html>`
+        * DICOM Standard, Part 4, :dcm:`Annex CC<part04/chapter_CC.html>`
+        * DICOM Standard, Part 4, :dcm:`Annex DD<part04/chapter_DD.html>`
+        * DICOM Standard, Part 7, Sections
+          :dcm:`10.1.4<part07/chapter_10.html#sect_10.1.4>`,
+          :dcm:`10.3.4<part07/sect_10.3.4.html>` and
+          :dcm:`Annex C<part07/chapter_C.html>`
         """
         # Can't send an N-ACTION without an Association
         if not self.is_established:
@@ -1991,7 +2096,11 @@ class Association(threading.Thread):
 
     def send_n_create(self, dataset, class_uid, instance_uid=None, msg_id=1,
                       meta_uid=None):
-        """Send an N-CREATE request message to the peer AE.
+        """Send an N-CREATE request to the peer AE.
+
+        .. versionchanged:: 1.4
+
+            Added `meta_uid` keyword parameter
 
         Parameters
         ----------
@@ -2006,7 +2115,7 @@ class Association(threading.Thread):
             Instance UID* parameter.
         msg_id : int, optional
             The request's *Message ID* parameter value, must be between 0 and
-            65535, inclusive, (default 1).
+            65535, inclusive, (default ``1``).
         meta_uid : pydicom.uid.UID, optional
             If the service class operates under a presentation context
             negotiated using a *Meta SOP Class* rather than a standard *SOP
@@ -2019,13 +2128,16 @@ class Association(threading.Thread):
         -------
         status : pydicom.dataset.Dataset
             If the peer timed out, aborted or sent an invalid response then
-            returns an empty ``Dataset``. If a response was received from the
-            peer then returns a ``Dataset`` containing at least a (0000,0900)
+            returns an empty :class:`~pydicom.dataset.Dataset`. If a response
+            was received from the peer then returns a
+            :class:`~pydicom.dataset.Dataset` containing at least a (0000,0900)
             *Status* element, and depending on the returned value, may
             optionally contain additional elements (see the DICOM Standard,
-            Part 7, Section 9.1.2.1.5 and Annex C).
+            Part 7,
+            :dcm:`Section 10.1.5.1.6<part07/chapter_10.html#sect_10.1.5.1.6>`
+            and :dcm:`Annex C<part07/chapter_C.html>`).
 
-            *General N-CREATE* (DICOM Standard Part 7, Section 10.1.5 and
+            *General N-CREATE* (DICOM Standard, Part 7, Section 10.1.5 and
             Annex C)
 
             Success
@@ -2057,16 +2169,16 @@ class Association(threading.Thread):
 
             Failure
               | ``0xC616`` - There is an existing Film Box that has not been
-                printed and N-ACTION at the Film Session level is not supported.
-                A new Film Box will not be created when a previous Film Box has
-                not been printed
+                printed and N-ACTION at the Film Session level is not
+                supported. A new Film Box will not be created when a previous
+                Film Box has not been printed
 
             *Media Creation Management Service* specific (DICOM
             Standard Part 4, Annex S.3.2.1.4):
 
             Failure
-              | ``0xA510`` - Failed: an initiate media creation action has already been
-                received for this SOP Instance
+              | ``0xA510`` - Failed: an initiate media creation action has
+                already been received for this SOP Instance
 
             *Unified Procedure Step Service* specific (DICOM
             Standard Part 4, Annex CC.2.5.4):
@@ -2075,43 +2187,58 @@ class Association(threading.Thread):
               | ``0xB300`` - THE UPS was created with modifications
 
             Failure
-              | ``0xC309`` - The provided value of UPS State was not 'SCHEDULED'
+              | ``0xC309`` - The provided value of UPS State was not
+                'SCHEDULED'
 
             *RT Machine Verification Service* specific (DICOM
             Standard Part 4, Annex DD.3.2.1.2):
 
             Failure
-              | ``0xC221`` - The Referenced Fraction Group Number does not exist in the
-                referenced plan
-              | ``0xC222`` - No beams exist within the referenced fraction group
-              | ``0xC223`` - SCU already verifying and cannot currently process this
-                request
-              | ``0xC227`` - No such object instance - Referenced RT Plan not found
+              | ``0xC221`` - The Referenced Fraction Group Number does not
+                exist in the referenced plan
+              | ``0xC222`` - No beams exist within the referenced fraction
+                group
+              | ``0xC223`` - SCU already verifying and cannot currently process
+                this request
+              | ``0xC227`` - No such object instance - Referenced RT Plan not
+                found
 
         attribute_list : pydicom.dataset.Dataset or None
-            If the status category is 'Success' or 'Warning' then a ``Dataset``
-            containing attributes corresponding to those supplied in the
-            *Attribute List*. Because *Attribute List* is optional the returned
-            ``Dataset`` may be empty.
+            If the status category is 'Success' or 'Warning' then a
+            :class:`~pydicom.dataset.Dataset` containing attributes
+            corresponding to those supplied in the *Attribute List*. Because
+            *Attribute List* is optional the returned
+            :class:`~pydicom.dataset.Dataset` may be empty.
 
             If the status category is 'Failure' or if the peer timed-out,
             aborted, or sent an invalid response then returns ``None``.
 
         See Also
         --------
-        dimse_primitives.N_CREATE
+
+        .. currentmodule:: pynetdicom.service_class_n
+
+        :class:`~pynetdicom.dimse_primitives.N_CREATE`
+        :class:`InstanceAvailabilityNotificationServiceClass`
+        :class:`MediaCreationManagementServiceClass`
+        :class:`PrintManagementServiceClass`
+        :class:`ProcedureStepServiceClass`
+        :class:`RTMachineVerificationServiceClass`
+        :class:`UnifiedProcedureStepServiceClass`
 
         References
         ----------
 
-        * DICOM Standart Part 4, `Annex F <http://dicom.nema.org/medical/dicom/current/output/html/part04.html#chapter_F>`_
-        * DICOM Standart Part 4, `Annex H <http://dicom.nema.org/medical/dicom/current/output/html/part04.html#chapter_H>`_
-        * DICOM Standard Part 4, `Annex CC <http://dicom.nema.org/medical/dicom/current/output/html/part04.html#chapter_CC>`_
-        * DICOM Standard Part 4, `Annex DD <http://dicom.nema.org/medical/dicom/current/output/html/part04.html#chapter_DD>`_
-        * DICOM Standard Part 7, Sections
-          `10.1.5 <http://dicom.nema.org/medical/dicom/current/output/html/part07.html#sect_10.1.5>`_,
-          `10.3.5 <http://dicom.nema.org/medical/dicom/current/output/html/part07.html#sect_10.3.5>`_
-          and `Annex C <http://dicom.nema.org/medical/dicom/current/output/html/part07.html#chapter_C>`_
+        * DICOM Standard, Part 4, :dcm:`Annex F<part04/chapter_F.html>`
+        * DICOM Standard, Part 4, :dcm:`Annex H<part04/chapter_H.html>`
+        * DICOM Standard, Part 4, :dcm:`Annex R<part04/chapter_R.html>`
+        * DICOM Standard, Part 4, :dcm:`Annex S<part04/chapter_S.html>`
+        * DICOM Standard, Part 4, :dcm:`Annex CC<part04/chapter_CC.html>`
+        * DICOM Standard, Part 4, :dcm:`Annex DD<part04/chapter_DD.html>`
+        * DICOM Standard, Part 7, Sections
+          :dcm:`10.1.5<part07/chapter_10.html#sect_10.1.5>`,
+          :dcm:`10.3.5<part07/sect_10.3.5.html>`
+          and :dcm:`Annex C<part07/chapter_C.html>`
         """
         # Can't send an N-CREATE without an Association
         if not self.is_established:
@@ -2203,7 +2330,11 @@ class Association(threading.Thread):
         return status, attribute_list
 
     def send_n_delete(self, class_uid, instance_uid, msg_id=1, meta_uid=None):
-        """Send an N-DELETE request message to the peer AE.
+        """Send an N-DELETE request to the peer AE.
+
+        .. versionchanged:: 1.4
+
+            Added `meta_uid` keyword parameter
 
         Parameters
         ----------
@@ -2215,7 +2346,7 @@ class Association(threading.Thread):
             Instance UID* parameter.
         msg_id : int, optional
             The request's *Message ID* parameter value, must be between 0 and
-            65535, inclusive, (default 1).
+            65535, inclusive, (default ``1``).
         meta_uid : pydicom.uid.UID, optional
             If the service class operates under a presentation context
             negotiated using a *Meta SOP Class* rather than a standard *SOP
@@ -2228,13 +2359,16 @@ class Association(threading.Thread):
         -------
         status : pydicom.dataset.Dataset
             If the peer timed out, aborted or sent an invalid response then
-            returns an empty ``Dataset``. If a response was received from the
-            peer then returns a ``Dataset`` containing at least a (0000,0900)
+            returns an empty :class:`~pydicom.dataset.Dataset`. If a response
+            was received from the peer then returns a
+            :class:`~pydicom.dataset.Dataset` containing at least a (0000,0900)
             *Status* element, and depending on the returned value, may
             optionally contain additional elements (see the DICOM Standard,
-            Part 7, Section 9.1.2.1.5 and Annex C).
+            Part 7,
+            :dcm:`Section 10.1.6.1.7<part07/chapter_10.html#sect_10.1.6.1.7>`
+            and :dcm:`Annex C<part07/chapter_C.html>`).
 
-            General N-DELETE (DICOM Standard Part 7, Section 10.1.6 and
+            General N-DELETE (DICOM Standard, Part 7, Section 10.1.6 and
             Annex C)
 
             Success
@@ -2254,17 +2388,22 @@ class Association(threading.Thread):
 
         See Also
         --------
-        dimse_primitives.N_DELETE
+
+        .. currentmodule:: pynetdicom.service_class_n
+
+        :class:`~pynetdicom.dimse_primitives.N_DELETE`
+        :class:`PrintManagementServiceClass`
+        :class:`RTMachineVerificationServiceClass`
 
         References
         ----------
 
-        * DICOM Standart Part 4, `Annex H <http://dicom.nema.org/medical/dicom/current/output/html/part04.html#chapter_H>`_
-        * DICOM Standard Part 4, `Annex DD <http://dicom.nema.org/medical/dicom/current/output/html/part04.html#chapter_DD>`_
-        * DICOM Standard Part 7, Sections
-          `10.1.6 <http://dicom.nema.org/medical/dicom/current/output/html/part07.html#sect_10.1.6>`_,
-          `10.3.6 <http://dicom.nema.org/medical/dicom/current/output/html/part07.html#sect_10.3.6>`_
-          and `Annex C <http://dicom.nema.org/medical/dicom/current/output/html/part07.html#chapter_C>`_
+        * DICOM Standard, Part 4, :dcm:`Annex H <part04/chapter_H.html>`
+        * DICOM Standard, Part 4, :dcm:`Annex DD <part04/chapter_DD.html>`
+        * DICOM Standard, Part 7, Sections
+          :dcm:`10.1.6<part07/chapter_10.html#sect_10.1.6>`,
+          :dcm:`10.3.6<part07/sect_10.3.6.html>`
+          and :dcm:`Annex C<part07/chapter_C.html>`
         """
         # Can't send an N-DELETE without an Association
         if not self.is_established:
@@ -2312,7 +2451,11 @@ class Association(threading.Thread):
 
     def send_n_event_report(self, dataset, event_type, class_uid,
                             instance_uid, msg_id=1, meta_uid=None):
-        """Send an N-EVENT-REPORT request message to the peer AE.
+        """Send an N-EVENT-REPORT request to the peer AE.
+
+        .. versionchanged:: 1.4
+
+            Added `meta_uid` keyword parameter
 
         Parameters
         ----------
@@ -2331,7 +2474,7 @@ class Association(threading.Thread):
             Instance UID* parameter.
         msg_id : int, optional
             The request's *Message ID* parameter value, must be between 0 and
-            65535, inclusive, (default 1).
+            65535, inclusive, (default ``1``).
         meta_uid : pydicom.uid.UID, optional
             If the service class operates under a presentation context
             negotiated using a *Meta SOP Class* rather than a standard *SOP
@@ -2344,13 +2487,16 @@ class Association(threading.Thread):
         -------
         status : pydicom.dataset.Dataset
             If the peer timed out, aborted or sent an invalid response then
-            returns an empty ``Dataset``. If a response was received from the
-            peer then returns a ``Dataset`` containing at least a (0000,0900)
+            returns an empty :class:`~pydicom.dataset.Dataset`. If a response
+            was received from the peer then returns a
+            :class:`~pydicom.dataset.Dataset` containing at least a (0000,0900)
             *Status* element, and depending on the returned value, may
             optionally contain additional elements (see the DICOM Standard,
-            Part 7, Section 9.1.2.1.5 and Annex C).
+            Part 7,
+            :dcm:`Section 10.1.1.1.8<part07/chapter_10.html#sect_10.1.1.1.8>`
+            and :dcm:`Annex C<part07/chapter_C.html>`).
 
-            *General N-EVENT-REPORT* (DICOM Standard Part 7, Section 10.1.1
+            *General N-EVENT-REPORT* (DICOM Standard, Part 7, Section 10.1.1
             and Annex C)
 
             Success
@@ -2371,30 +2517,39 @@ class Association(threading.Thread):
               | ``0x0213`` - Resource limitation
 
         event_reply : pydicom.dataset.Dataset or None
-            If the status category is 'Success' or 'Warning' then a ``Dataset``
+            If the status category is 'Success' or 'Warning' then a
+            :class:`~pydicom.dataset.Dataset`
             containing attributes corresponding to those supplied in the
             *Event Reply*. Because *Event Reply* is optional the returned
-            ``Dataset`` may be empty.
+            :class:`~pydicom.dataset.Dataset` may be empty.
 
             If the status category is 'Failure' or if the peer timed-out,
             aborted, or sent an invalid response then returns ``None``.
 
         See Also
         --------
-        dimse_primitives.N_EVENT_REPORT
+
+        .. currentmodule:: pynetdicom.service_class_n
+
+        :class:`~pynetdicom.dimse_primitives.N_EVENT_REPORT`
+        :class:`PrintManagementServiceClass`
+        :class:`ProcedureStepServiceClass`
+        :class:`RTMachineVerificationServiceClass`
+        :class:`StorageCommitmentServiceClass`
+        :class:`UnifiedProcedureStepServiceClass`
 
         References
         ----------
 
-        * DICOM Standart Part 4, `Annex F <http://dicom.nema.org/medical/dicom/current/output/html/part04.html#chapter_F>`_
-        * DICOM Standart Part 4, `Annex H <http://dicom.nema.org/medical/dicom/current/output/html/part04.html#chapter_H>`_
-        * DICOM Standart Part 4, `Annex J <http://dicom.nema.org/medical/dicom/current/output/html/part04.html#chapter_J>`_
-        * DICOM Standard Part 4, `Annex CC <http://dicom.nema.org/medical/dicom/current/output/html/part04.html#chapter_CC>`_
-        * DICOM Standard Part 4, `Annex DD <http://dicom.nema.org/medical/dicom/current/output/html/part04.html#chapter_DD>`_
-        * DICOM Standard Part 7, Sections
-          `10.1.1 <http://dicom.nema.org/medical/dicom/current/output/html/part07.html#sect_10.1.1>`_,
-          `10.3.1 <http://dicom.nema.org/medical/dicom/current/output/html/part07.html#sect_10.3.1>`_
-          and `Annex C <http://dicom.nema.org/medical/dicom/current/output/html/part07.html#chapter_C>`_
+        * DICOM Standard, Part 4, :dcm:`Annex F <part04/chapter_F.html>`
+        * DICOM Standard, Part 4, :dcm:`Annex H <part04/chapter_H.html>`
+        * DICOM Standard, Part 4, :dcm:`Annex J <part04/chapter_J.html>`
+        * DICOM Standard, Part 4, :dcm:`Annex CC <part04/chapter_CC.html>`
+        * DICOM Standard, Part 4, :dcm:`Annex DD <part04/chapter_DD.html>`
+        * DICOM Standard, Part 7, Sections
+          :dcm:`10.1.1 <part07/chapter_10.html#sect_10.1.1>`,
+          :dcm:`10.3.1 <part07/sect_10.3.html#sect_10.3.1>`
+          and :dcm:`Annex C <part07/chapter_C.html>`
         """
         # Can't send an N-EVENT-REPORT without an Association
         if not self.is_established:
@@ -2494,15 +2649,19 @@ class Association(threading.Thread):
 
     def send_n_get(self, identifier_list, class_uid, instance_uid, msg_id=1,
                    meta_uid=None):
-        """Send an N-GET request message to the peer AE.
+        """Send an N-GET request to the peer AE.
+
+        .. versionchanged:: 1.4
+
+            Added `meta_uid` keyword parameter
 
         Parameters
         ----------
         identifier_list : list of pydicom.tag.Tag
             A list of DICOM Data Element tags to be sent for the request's
             (0000,1005) *Attribute Identifier List* parameter. Should either be
-            a list of pydicom ``Tag`` objects or a list of values that is
-            acceptable for creating pydicom ``Tag`` objects.
+            a list of *pydicom* :class:`~pydicom.tag.BaseTag` objects or a
+            list of values that is acceptable for creating them.
         class_uid : pydicom.uid.UID
             The UID to be sent for the request's (0000,0003) *Requested SOP
             Class UID* parameter.
@@ -2511,7 +2670,7 @@ class Association(threading.Thread):
             Instance UID* parameter.
         msg_id : int, optional
             The request's *Message ID* parameter value, must be between 0 and
-            65535, inclusive, (default 1).
+            65535, inclusive, (default ``1``).
         meta_uid : pydicom.uid.UID, optional
             If the service class operates under a presentation context
             negotiated using a *Meta SOP Class* rather than a standard *SOP
@@ -2524,13 +2683,17 @@ class Association(threading.Thread):
         -------
         status : pydicom.dataset.Dataset
             If the peer timed out, aborted or sent an invalid response then
-            returns an empty ``Dataset``. If a response was received from the
-            peer then returns a ``Dataset`` containing at least a (0000,0900)
+            returns an empty :class:`~pydicom.dataset.Dataset`. If a response
+            was received from the peer then returns a
+            :class:`~pydicom.dataset.Dataset` containing at least a (0000,0900)
             *Status* element, and depending on the returned value, may
             optionally contain additional elements (see the DICOM Standard,
-            Part 7, Section 9.1.2.1.5 and Annex C).
+            Part 7,
+            :dcm:`Section 10.1.2.1.9<part07/chapter_10.html#sect_10.1.2.1.9>`
+            and :dcm:`Annex C<part07/chapter_C.html>`).
 
-            *General N-GET* (DICOM Standard Part 7, Section 10.1.2 and Annex C)
+            *General N-GET* (DICOM Standard, Part 7, Section 10.1.2 and
+            Annex C)
 
             Success
               | ``0x0000`` - Successful operation
@@ -2553,13 +2716,13 @@ class Association(threading.Thread):
 
             *Modality Performed Procedure Step Management Service* and *Media
             Creation Management Service* specific
-            (DICOM Standard Part 4, Annex F.8.2.1.4 and Annex S.3.2.4.4):
+            (DICOM Standard, Part 4, Annex F.8.2.1.4 and Annex S.3.2.4.4):
 
             Warning
               | ``0x0001`` - Requested optional Attributes are not supported
 
             *Unified Procedure Step Service* specific
-            (DICOM Standard Part 4, Annex CC.2.7.4):
+            (DICOM Standard, Part 4, Annex CC.2.7.4):
 
             Warning
               | ``0x0001`` - Requested optional Attributes are not supported
@@ -2569,38 +2732,47 @@ class Association(threading.Thread):
                 a UPS Instance managed by this SCP
 
             *RT Machine Verification Service* specific
-            (DICOM Standard Part 4, Annex DD.3.2.2.3):
+            (DICOM Standard, Part 4, Annex DD.3.2.2.3):
 
             Failure
               | ``0xC112`` - Applicable Machine Verification Instance not found
 
         attribute_list : pydicom.dataset.Dataset or None
-            If the status category is 'Success' or 'Warning' then a ``Dataset``
+            If the status category is 'Success' or 'Warning' then a
+            :class:`~pydicom.dataset.Dataset`
             containing attributes corresponding to those supplied in the
             *Attribute List*. Because *Attribute List* is optional the returned
-            ``Dataset`` may be empty.
+            :class:`~pydicom.dataset.Dataset` may be empty.
 
             If the status category is 'Failure' or if the peer timed-out,
             aborted, or sent an invalid response then returns ``None``.
 
         See Also
         --------
-        dimse_primitives.N_GET
-        service_class.DisplaySystemManagementServiceClass
+
+        .. currentmodule:: pynetdicom.service_class_n
+
+        :class:`~pynetdicom.dimse_primitives.N_GET`
+        :class:`DisplaySystemManagementServiceClass`
+        :class:`MediaCreationManagementServiceClass`
+        :class:`PrintManagementServiceClass`
+        :class:`ProcedureStepServiceClass`
+        :class:`RTMachineVerificationServiceClass`
+        :class:`UnifiedProcedureStepServiceClass`
 
         References
         ----------
 
-        * DICOM Standart Part 4, `Annex F <http://dicom.nema.org/medical/dicom/current/output/html/part04.html#chapter_F>`_
-        * DICOM Standart Part 4, `Annex H <http://dicom.nema.org/medical/dicom/current/output/html/part04.html#chapter_H>`_
-        * DICOM Standard Part 4, `Annex S <http://dicom.nema.org/medical/dicom/current/output/html/part04.html#chapter_S>`_
-        * DICOM Standard Part 4, `Annex CC <http://dicom.nema.org/medical/dicom/current/output/html/part04.html#chapter_CC>`_
-        * DICOM Standard Part 4, `Annex DD <http://dicom.nema.org/medical/dicom/current/output/html/part04.html#chapter_DD>`_
-        * DICOM Standard Part 4, `Annex EE <http://dicom.nema.org/medical/dicom/current/output/html/part04.html#chapter_EE>`_
-        * DICOM Standard Part 7, Sections
-          `10.1.2 <http://dicom.nema.org/medical/dicom/current/output/html/part07.html#sect_10.1.2>`_,
-          `10.3.2 <http://dicom.nema.org/medical/dicom/current/output/html/part07.html#sect_10.3.2>`_
-          and `Annex C <http://dicom.nema.org/medical/dicom/current/output/html/part07.html#chapter_C>`_
+        * DICOM Standard, Part 4, :dcm:`Annex F <part04/chapter_F.html>`
+        * DICOM Standard, Part 4, :dcm:`Annex H <part04/chapter_H.html>`
+        * DICOM Standard, Part 4, :dcm:`Annex S <part04/chapter_S.html>`
+        * DICOM Standard, Part 4, :dcm:`Annex CC <part04/chapter_CC.html>`
+        * DICOM Standard, Part 4, :dcm:`Annex DD <part04/chapter_DD.html>`
+        * DICOM Standard, Part 4, :dcm:`Annex EE <part04/chapter_EE.html>`
+        * DICOM Standard, Part 7, Sections
+          :dcm:`10.1.2 <part07/chapter_10.html#sect_10.1.2>`,
+          :dcm:`10.3.2 <part07/sect_10.3.2.html>`
+          and :dcm:`Annex C <part07/chapter_C.html>`
         """
         # Can't send an N-GET without an Association
         if not self.is_established:
@@ -2679,7 +2851,11 @@ class Association(threading.Thread):
 
     def send_n_set(self, dataset, class_uid, instance_uid, msg_id=1,
                    meta_uid=None):
-        """Send an N-SET request message to the peer AE.
+        """Send an N-SET request to the peer AE.
+
+        .. versionchanged:: 1.4
+
+            Added `meta_uid` keyword parameter
 
         Parameters
         ----------
@@ -2694,7 +2870,7 @@ class Association(threading.Thread):
             Instance UID* parameter.
         msg_id : int, optional
             The request's *Message ID* parameter value, must be between 0 and
-            65535, inclusive, (default 1).
+            65535, inclusive, (default ``1``).
         meta_uid : pydicom.uid.UID, optional
             If the service class operates under a presentation context
             negotiated using a *Meta SOP Class* rather than a standard *SOP
@@ -2707,13 +2883,17 @@ class Association(threading.Thread):
         -------
         status : pydicom.dataset.Dataset
             If the peer timed out, aborted or sent an invalid response then
-            returns an empty ``Dataset``. If a response was received from the
-            peer then returns a ``Dataset`` containing at least a (0000,0900)
+            returns an empty :class:`~pydicom.dataset.Dataset`. If a response
+            was received from the peer then returns a
+            :class:`~pydicom.dataset.Dataset` containing at least a (0000,0900)
             *Status* element, and depending on the returned value, may
             optionally contain additional elements (see the DICOM Standard,
-            Part 7, Section 9.1.2.1.5 and Annex C).
+            Part 7,
+            :dcm:`Section 10.1.3.1.9<part07/chapter_10.html#sect_10.1.3.1.9>`
+            and :dcm:`Annex C<part07/chapter_C.html>`).
 
-            *General N-SET* (DICOM Standard Part 7, Section 10.1.3 and Annex C)
+            *General N-SET* (DICOM Standard, Part 7, Section 10.1.3 and
+            Annex C)
 
             Success
               | ``0x0000`` - Successful operation
@@ -2765,7 +2945,7 @@ class Association(threading.Thread):
                 supported. A new Film Box will not be created when a previous
                 Film Box has not been printed
 
-            *Unified Procedure Step Service* specific (DICOM Standard Part 4,
+            *Unified Procedure Step Service* specific (DICOM Standard, Part 4,
             Annex CC.2.6.4):
 
             Warning
@@ -2779,7 +2959,7 @@ class Association(threading.Thread):
                 not a UPS Instance managed by this SCP
               | ``0xC310`` - The UPS is not in the 'IN PROGRESS' state
 
-            *RT Machine Verification Service* specific (DICOM Standard Part 4,
+            *RT Machine Verification Service* specific (DICOM Standard, Part 4,
             Annex DD.3.2.1.2):
 
             Failure
@@ -2790,29 +2970,37 @@ class Association(threading.Thread):
                 referenced beam
 
         attribute_list : pydicom.dataset.Dataset or None
-            If the status category is 'Success' or 'Warning' then a ``Dataset``
+            If the status category is 'Success' or 'Warning' then a
+            :class:`~pydicom.dataset.Dataset`
             containing attributes corresponding to those supplied in the
             *Attribute List*. Because *Attribute List* is optional the returned
-            ``Dataset`` may be empty.
+            :class:`~pydicom.dataset.Dataset` may be empty.
 
             If the status category is 'Failure' or if the peer timed-out,
             aborted, or sent an invalid response then returns ``None``.
 
         See Also
         --------
-        dimse_primitives.N_SET
+
+        .. currentmodule:: pynetdicom.service_class_n
+
+        :class:`~pynetdicom.dimse_primitives.N_SET`
+        :class:`PrintManagementServiceClass`
+        :class:`ProcedureStepServiceClass`
+        :class:`RTMachineVerificationServiceClass`
+        :class:`UnifiedProcedureStepServiceClass`
 
         References
         ----------
 
-        * DICOM Standart Part 4, `Annex F <http://dicom.nema.org/medical/dicom/current/output/html/part04.html#chapter_F>`_
-        * DICOM Standart Part 4, `Annex H <http://dicom.nema.org/medical/dicom/current/output/html/part04.html#chapter_H>`_
-        * DICOM Standard Part 4, `Annex CC <http://dicom.nema.org/medical/dicom/current/output/html/part04.html#chapter_CC>`_
-        * DICOM Standard Part 4, `Annex DD <http://dicom.nema.org/medical/dicom/current/output/html/part04.html#chapter_DD>`_
-        * DICOM Standard Part 7, Sections
-          `10.1.3 <http://dicom.nema.org/medical/dicom/current/output/html/part07.html#sect_10.1.3>`_,
-          `10.3.3 <http://dicom.nema.org/medical/dicom/current/output/html/part07.html#sect_10.3.3>`_
-          and `Annex C <http://dicom.nema.org/medical/dicom/current/output/html/part07.html#chapter_C>`_
+        * DICOM Standard, Part 4, :dcm:`Annex F <part04/chapter_F.html>`
+        * DICOM Standard, Part 4, :dcm:`Annex H <part04/chapter_H.html>`
+        * DICOM Standard, Part 4, :dcm:`Annex CC <part04/chapter_CC.html>`
+        * DICOM Standard, Part 4, :dcm:`Annex DD <part04/chapter_DD.html>`
+        * DICOM Standard, Part 7, Sections
+          :dcm:`10.1.3 <part07/chapter_10.html#sect_10.1.3>`,
+          :dcm:`10.3.3 <part07/sect_10.3.3.html>`
+          and :dcm:`Annex C <part07/chapter_C.html>`
         """
         # Can't send an N-SET without an Association
         if not self.is_established:
@@ -2972,28 +3160,29 @@ class Association(threading.Thread):
 
 
 class ServiceUser(object):
-    """Convenience class for the ``Association`` service user.
+    """Convenience class for the :class:`Association` service user.
 
-    An ``Association`` object has two ``ServiceUser`` attributes, one
+    An :class:`Association` object has two :class:`ServiceUser` attributes, one
     representing the association *Requestor* and the other the association
     *Acceptor*. Once both have been defined sufficiently to be considered
     valid then association negotiation can begin. The *Requestor*
-    ``ServiceUser`` requires (at a minimum) the following in order to be valid:
+    :class:`ServiceUser` requires (at a minimum) the following in order to be
+    valid:
 
     * For association as requestor:
 
-        * AE title (ae_title)
-        * Address and port number (address and port)
-        * Maximum PDU length (maximum_length)
-        * Implementation class UID (implementation_class_uid)
-        * At least one presentation context (requested_contexts)
+        * AE title (`ae_title`)
+        * Address and port number (`address` and `port`)
+        * Maximum PDU length (`maximum_length`)
+        * Implementation class UID (`implementation_class_uid`)
+        * At least one presentation context (`requested_contexts`)
     * For association as acceptor:
 
         * AE title
         * Address and port number
 
-    The *Acceptor* ``ServiceUser`` requires (at a minimum) the following in
-    order to be valid:
+    The *Acceptor* :class:`ServiceUser` requires (at a minimum) the following
+    in order to be valid:
 
     * For association as requestor:
 
@@ -3014,21 +3203,22 @@ class ServiceUser(object):
     port : int
         The port number of the AE.
     primitive : None or pdu_primitives.A_ASSOCIATE
-        The A-ASSOCIATE primitive (request if mode is 'requestor',
-        accept/reject if mode is 'acceptor') sent or received by the AE
+        The A-ASSOCIATE primitive (request if mode is ``'requestor'``,
+        accept/reject if mode is ``'acceptor'``) sent or received by the AE
         during association negotiation.
     """
     def __init__(self, assoc, mode):
-        """Create a new ServiceUser.
+        """Create a new :class:`ServiceUser`.
 
         Parameters
         ----------
         assoc : association.Association
-            The parent Association.
+            The parent association.
         mode : str
-            The operation mode of the AE represented by the ServiceUser, either
-            'requestor' or 'acceptor'. This is not necessarily the same as the
-            association's mode.
+            The operation mode of the AE represented by the
+            :class:`ServiceUser`, either ``'requestor'`` or ``'acceptor'``.
+            This is not necessarily the same as the association's
+            :attr:`~Association.mode`.
         """
         mode = mode.lower()
         if mode not in [MODE_REQUESTOR, MODE_ACCEPTOR]:
@@ -3063,13 +3253,14 @@ class ServiceUser(object):
 
     @property
     def accepted_common_extended(self):
-        """Return a dict of the accepted SOP Class Common Extended Negotiation.
+        """Return a :class:`dict` of the accepted SOP Class Common Extended
+        Negotiation.
 
         Returns
         -------
         dict of 2-tuple
-            The {SOP Class UID : (Service Class UID, Related General SOP Class
-            Identification)} for the accepted SOP Class Common Extended
+            The ``{'SOP Class UID' : (Service Class UID, Related General SOP
+            Class Identification)}`` for the accepted SOP Class Common Extended
             negotiation items.
 
         Raises
@@ -3100,10 +3291,15 @@ class ServiceUser(object):
         Parameters
         ----------
         item : pdu_primitives.ServiceParameter
-            An extended negotiation item, one of
-            SCP_SCU_RoleSelectionNegotiation, UserIdentityNegotiation,
-            AsynchronousOperationsWindowNegotiation,
-            SOPClassExtendedNegotiation or SOPClassCommonExtendedNegotiation.
+            An extended negotiation item, one of:
+
+            .. currentmodule:: pynetdicom.pdu_primitives
+
+            * :class:`SCP_SCU_RoleSelectionNegotiation`
+            * :class:`UserIdentityNegotiation`
+            * :class:`AsynchronousOperationsWindowNegotiation`
+            * :class:`SOPClassExtendedNegotiation`
+            * :class:`SOPClassCommonExtendedNegotiation`
 
         Raises
         ------
@@ -3133,8 +3329,8 @@ class ServiceUser(object):
         Returns
         -------
         2-tuple of int
-            The (Maximum Number of Operations Invoked, Maximum Number of
-            Operations Performed) or (1, 1) if no Asynchronous Operations
+            The (*Maximum Number of Operations Invoked*, *Maximum Number of
+            Operations Performed*) or (1, 1) if no Asynchronous Operations
             Window Negotiation item is in the extended negotiation items.
         """
         if self.writeable:
@@ -3168,9 +3364,10 @@ class ServiceUser(object):
         Returns
         -------
         list
-            If `mode` is 'requestor' then returns a list of the proposed
-            extended negotiation items, otherwise returns a list of the
-            extended negotiation item responses.
+            If :meth:`~ServiceUser.mode` is ``'requestor'`` then returns a
+            :class:`list` of the proposed extended negotiation items,
+            otherwise returns a list of the extended negotiation item
+            responses.
         """
         items = []
         if self.writeable:
@@ -3187,31 +3384,35 @@ class ServiceUser(object):
         return items
 
     def get_contexts(self, cx_type):
-        """Return a list of PresentationContext corresponding to `cx_type`.
+        """Return a :class:`list` of
+        :class:`~pynetdicom.presentation.PresentationContext` items
+        corresponding to `cx_type`.
 
         Parameters
         ----------
         cx_type : str
-            The type of contexts to return, if `mode` is 'requestor':
+            The type of contexts to return, if `mode` is ``'requestor'``:
 
-            - If the association has not yet been negotiated then 'requested'.
-            - If the association has been negotiated then 'requested' or
-              'pcdl'.
+            - If the association has not yet been negotiated then
+              ``'requested'``.
+            - If the association has been negotiated then ``'requested'`` or
+              ``'pcdl'``.
 
-            If `mode` is 'acceptor':
+            If `mode` is ``'acceptor'``:
 
-            - If the association has not yet been negotiated then 'supported'.
-            - If the association has been negotiated then 'supported' or
-              'pcdrl'.
+            - If the association has not yet been negotiated then
+              ``'supported'``.
+            - If the association has been negotiated then ``'supported'`` or
+              ``'pcdrl'``.
 
         Returns
         -------
         list of presentation.PresentationContext
-            A list of presentations contexts, if `cx_type` is 'requested' then
-            the requested presentation contexts, if 'pcdl' then the
+            A list of presentations contexts, if `cx_type` is ``'requested'``
+            then the requested presentation contexts, if ``'pcdl'`` then the
             presentation contexts from the A-ASSOCIATE (request) primitive's
-            Presentation Context Definition List parameter. If 'supported' then
-            the supported presentation contexts, if 'pcdrl' then the
+            Presentation Context Definition List parameter. If ``'supported'``
+            then the supported presentation contexts, if ``'pcdrl'`` then the
             presentation contexts from the A-ASSOCIATE (accept) primitive's
             Presentation Context Definition Results List parameter.
         """
@@ -3246,14 +3447,15 @@ class ServiceUser(object):
 
     @property
     def implementation_class_uid(self):
-        """Return the Implementation Class UID as a pydicom UID.
+        """Return the Implementation Class UID as a *pydicom*
+        :class:`~pydicom.uid.UID`.
 
         Returns
         -------
         pydicom.uid.UID or None
             Returns the Implementation Class UID if the requestor or if
-            the acceptor and they have accepted the negotiation. Returns None
-            if the acceptor and they have rejected the negotiation.
+            the acceptor and they have accepted the negotiation. Returns
+            ``None`` if the acceptor and they have rejected the negotiation.
         """
         if not self.writeable:
             for item in self.user_information:
@@ -3294,12 +3496,13 @@ class ServiceUser(object):
 
     @property
     def implementation_version_name(self):
-        """Return the Implementation Version Name as str (if available).
+        """Return the Implementation Version Name as :class:`str` (if
+        available).
 
         Returns
         -------
         str or None
-            Returns None if the acceptor and they have rejected the
+            Returns ``None`` if the acceptor and they have rejected the
             negotiation or if no Implementation Version Name Notification item
             has been included in the association negotiation. Otherwise returns
             the Implementation Version Name.
@@ -3343,7 +3546,9 @@ class ServiceUser(object):
 
     @property
     def info(self):
-        """Return a dict with information about the ServiceUser."""
+        """Return a :class:`dict` with information about the
+        :class:`ServiceUser`.
+        """
         info = {
             'ae_title' : self.ae_title,
             'address' : self.address,
@@ -3357,24 +3562,28 @@ class ServiceUser(object):
 
     @property
     def is_acceptor(self):
-        """Return True if the ServiceUser is the association acceptor."""
+        """Return ``True`` if the :class:`ServiceUser` is the association
+        acceptor.
+        """
         return self.mode == MODE_ACCEPTOR
 
     @property
     def is_requestor(self):
-        """Return True if the ServiceUser is the association requestor."""
+        """Return ``True`` if the :class:`ServiceUser` is the association
+        requestor.
+        """
         return self.mode == MODE_REQUESTOR
 
     @property
     def maximum_length(self):
-        """Return the maximum PDV size as int.
+        """Return the maximum PDV size as :class:`int`.
 
         Returns
         -------
         int or None
             Returns the Maximum Received Length if the requestor or if
-            the acceptor and they have accepted the negotiation. Returns None
-            if the acceptor and they have rejected the negotiation.
+            the acceptor and they have accepted the negotiation. Returns
+            ``None`` if the acceptor and they have rejected the negotiation.
         """
         if not self.writeable:
             for item in self.user_information:
@@ -3414,12 +3623,16 @@ class ServiceUser(object):
 
     @property
     def mode(self):
-        """Return the mode as str, either 'requestor' or 'acceptor'."""
+        """Return the mode as :class:`str`, either ``'requestor'`` or
+        ``'acceptor'``.
+        """
         return self._mode
 
     @property
     def requested_contexts(self):
-        """Return a list of the requestor's requested presentation contexts."""
+        """Return a :class:`list` of the requestor's requested presentation
+        contexts.
+        """
         return self.get_contexts('requested')
 
     @requested_contexts.setter
@@ -3462,10 +3675,15 @@ class ServiceUser(object):
         Parameters
         ----------
         item : pdu_primitives.ServiceParameter
-            An extended negotiation item, one of
-            SCP_SCU_RoleSelectionNegotiation, UserIdentityNegotiation,
-            AsynchronousOperationsWindowNegotiation,
-            SOPClassExtendedNegotiation or SOPClassCommonExtendedNegotiation.
+            An extended negotiation item, one of:
+
+            .. currentmodule:: pynetdicom.pdu_primitives
+
+            * :class:`SCP_SCU_RoleSelectionNegotiation`
+            * :class:`UserIdentityNegotiation`
+            * :class:`AsynchronousOperationsWindowNegotiation`
+            * :class:`SOPClassExtendedNegotiation`
+            * :class:`SOPClassCommonExtendedNegotiation`
 
         Raises
         ------
@@ -3520,13 +3738,13 @@ class ServiceUser(object):
 
     @property
     def role_selection(self):
-        """Return any SCP/SCU Role Selection items as a dict.
+        """Return any SCP/SCU Role Selection items.
 
         Returns
         -------
         dict
-            The SCP/SCU Role Selection items as {SOP Class UID :
-            SCP_SCU_RoleSelectionNegotiation}.
+            The SCP/SCU Role Selection items as ``{'SOP Class UID' :
+            SCP_SCU_RoleSelectionNegotiation}``.
         """
         roles = {}
         if self.writeable:
@@ -3543,15 +3761,16 @@ class ServiceUser(object):
 
     @property
     def sop_class_common_extended(self):
-        """Return any SOP Class Common Extended items as dict.
+        """Return the SOP Class Common Extended items.
 
-        If the ServiceUser is the association acceptor then no SOP Class
-        Common Extended items will be present in the User Information.
+        If the :class:`ServiceUser` is the association acceptor then no SOP
+        Class Common Extended items will be present in the User Information.
 
         Returns
         -------
         dict
-            The SOP Class Common Extended items as {SOP Class UID : item}.
+            The SOP Class Common Extended items as
+            ``{'SOP Class UID' : item}``.
         """
         if self.is_acceptor:
             return {}
@@ -3571,13 +3790,13 @@ class ServiceUser(object):
 
     @property
     def sop_class_extended(self):
-        """Return any SOP Class Extended items as dict.
+        """Return any SOP Class Extended items.
 
         Returns
         -------
         dict
-            The SOP Class Extended items as {SOP Class UID : Service Class
-            Application Information}.
+            The SOP Class Extended items as ``{'SOP Class UID' : Service Class
+            Application Information}``.
         """
         sop_classes = {}
         if self.writeable:
@@ -3598,7 +3817,7 @@ class ServiceUser(object):
 
     @property
     def supported_contexts(self):
-        """Return a list of supported presentation contexts.
+        """Return the supported presentation contexts.
 
         Returns
         -------
@@ -3646,7 +3865,7 @@ class ServiceUser(object):
         -------
         pdu_primitives.UserIdentityNegotiation or None
             Returns the User Identity item if one is available, otherwise
-            None.
+            ``None``.
         """
         if self.writeable:
             items = self._ext_neg[UserIdentityNegotiation]
@@ -3663,7 +3882,7 @@ class ServiceUser(object):
 
     @property
     def user_information(self):
-        """Returns a list of the User Information items."""
+        """Returns a :class:`list` of the User Information items."""
         if not self.writeable:
             return self.primitive.user_information
 
@@ -3671,5 +3890,5 @@ class ServiceUser(object):
 
     @property
     def writeable(self):
-        """Return True if the current object can be changed."""
+        """Return ``True`` if the current object can be changed."""
         return self.primitive is None

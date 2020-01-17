@@ -19,14 +19,17 @@ import pytest
 
 from pydicom import dcmread
 
+import pynetdicom
 from pynetdicom import AE, evt, _config, debug_logger
 from pynetdicom.association import Association
 from pynetdicom.events import Event
 from pynetdicom._globals import MODE_REQUESTOR, MODE_ACCEPTOR
+from pynetdicom import transport
 from pynetdicom.transport import (
     AssociationSocket, AssociationServer, ThreadedAssociationServer
 )
 from pynetdicom.sop_class import VerificationSOPClass, RTImageStorage
+from .hide_modules import hide_modules
 
 
 # This is the directory that contains test data
@@ -108,7 +111,6 @@ class TestAssociationSocket(object):
 
         assert sock.event_queue.get(block=False) == "Evt5"
 
-    @pytest.mark.skipif(sys.version_info[:2] == (3, 4), reason='no caplog')
     def test_init_raises(self, caplog):
         """Test exception is raised if init with client_socket and address."""
         msg = (
@@ -149,6 +151,45 @@ class TestAssociationSocket(object):
         sock = AssociationSocket(self.assoc)
         assert sock.__str__() == sock.socket.__str__()
 
+    def test_close_socket_none(self):
+        """Test trying to close a closed socket."""
+        def handle_close(event):
+            event.assoc.dul.socket.socket = None
+
+        hh = [(evt.EVT_CONN_CLOSE, handle_close)]
+
+        self.ae = ae = AE()
+        ae.acse_timeout = 5
+        ae.dimse_timeout = 5
+        ae.network_timeout = 5
+        ae.add_supported_context(VerificationSOPClass)
+        scp = ae.start_server(('', 11113), block=False, evt_handlers=hh)
+
+        ae.add_requested_context(VerificationSOPClass)
+        assoc = ae.associate('', 11113)
+        assert assoc.is_established
+
+        assoc.release()
+        assert assoc.is_released
+
+        scp.shutdown()
+
+    def test_get_local_addr(self):
+        """Test get_local_addr()."""
+        # Normal use
+        self.ae = ae = AE()
+        ae.acse_timeout = 5
+        ae.dimse_timeout = 5
+        ae.network_timeout = 5
+        ae.add_requested_context(VerificationSOPClass)
+        assoc = ae.associate('', 11113)
+        assert not assoc.is_established
+        assert isinstance(assoc.requestor.address, str)
+        # Exceptional use
+        assert not assoc.is_established
+        addr = assoc.dul.socket.get_local_addr(('', 111111))
+        assert '127.0.0.1' == addr
+
 
 @pytest.fixture
 def server_context(request):
@@ -157,6 +198,22 @@ def server_context(request):
     context.verify_mode = ssl.CERT_REQUIRED
     context.load_cert_chain(certfile=SERVER_CERT, keyfile=SERVER_KEY)
     context.load_verify_locations(cafile=CLIENT_CERT)
+
+    # TLS v1.3 is not currently supported :(
+    # The actual available attributes/protocols depend on OS, OpenSSL version
+    #   and Python version, ugh
+    if hasattr(ssl, 'TLSVersion'):
+        # This is the current and future, but heavily depends on OpenSSL
+        # Python 3.7+, w/ OpenSSL 1.1.0g+
+        context.maximum_version = ssl.TLSVersion.TLSv1_2
+    else:
+        # Should work with older Python and OpenSSL versions
+        # Python 2.7, 3.5, 3.6
+        context = ssl.SSLContext(protocol=ssl.PROTOCOL_TLSv1_2)
+        context.verify_mode = ssl.CERT_REQUIRED
+        context.load_cert_chain(certfile=SERVER_CERT, keyfile=SERVER_KEY)
+        context.load_verify_locations(cafile=CLIENT_CERT)
+
     return context
 
 
@@ -174,10 +231,19 @@ class TestTLS(object):
     """Test using TLS to wrap the association."""
     def setup(self):
         self.ae = None
+        self.has_ssl = transport._HAS_SSL
 
     def teardown(self):
         if self.ae:
             self.ae.shutdown()
+
+        # Ensure ssl module is available again
+        import importlib
+        try:
+            importlib.reload(pynetdicom.transport)
+        except AttributeError:
+            # Python 2
+            reload(pynetdicom.transport)
 
     def test_tls_not_server_not_client(self):
         """Test associating with no TLS on either end."""
@@ -188,6 +254,8 @@ class TestTLS(object):
         ae.add_requested_context('1.2.840.10008.1.1')
         assoc = ae.associate('', 11112)
         assert assoc.is_established
+        status = assoc.send_c_echo()
+        assert status.Status == 0x0000
         assoc.release()
         assert assoc.is_released
 
@@ -291,6 +359,50 @@ class TestTLS(object):
 
         assert len(ds[0].PixelData) == 2097152
 
+    @hide_modules(['ssl'])
+    def test_no_ssl_scp(self):
+        """Test exception raised if no SSL available to Python as SCP."""
+        # Reload pynetdicom package
+        import importlib
+        try:
+            importlib.reload(pynetdicom.transport)
+        except AttributeError:
+            # Python 2
+            reload(pynetdicom.transport)
+
+        self.ae = ae = AE()
+        ae.acse_timeout = 5
+        ae.dimse_timeout = 5
+        ae.network_timeout = 5
+        ae.add_supported_context('1.2.840.10008.1.1')
+        msg = r"Your Python installation lacks support for SSL"
+        with pytest.raises(RuntimeError, match=msg):
+            ae.start_server(
+                ('', 11112),
+                block=False,
+                ssl_context=['random', 'object'],
+            )
+
+    @hide_modules(['ssl'])
+    def test_no_ssl_scu(self):
+        """Test exception raised if no SSL available to Python as SCU."""
+        # Reload pynetdicom package
+        import importlib
+        try:
+            importlib.reload(pynetdicom.transport)
+        except AttributeError:
+            # Python 2
+            reload(pynetdicom.transport)
+
+        self.ae = ae = AE()
+        ae.acse_timeout = 5
+        ae.dimse_timeout = 5
+        ae.network_timeout = 5
+        ae.add_requested_context('1.2.840.10008.1.1')
+        msg = r"Your Python installation lacks support for SSL"
+        with pytest.raises(RuntimeError, match=msg):
+            ae.associate('', 11112, tls_args=(['random', 'object'], None))
+
 
 class TestAssociationServer(object):
     def setup(self):
@@ -302,7 +414,7 @@ class TestAssociationServer(object):
 
     @pytest.mark.skip()
     def test_multi_assoc_block(self):
-        """Test that multiple requestors can association when blocking."""
+        """Test that multiple requestors can associate when blocking."""
         self.ae = ae = AE()
         ae.maximum_associations = 10
         ae.add_supported_context('1.2.840.10008.1.1')
@@ -695,7 +807,6 @@ class TestEventHandlingAcceptor(object):
 
         scp.shutdown()
 
-    @pytest.mark.skipif(sys.version_info[:2] == (3, 4), reason='no caplog')
     def test_conn_open_raises(self, caplog):
         """Test the handler for EVT_CONN_OPEN raising exception."""
         def handle(event):
@@ -872,7 +983,6 @@ class TestEventHandlingAcceptor(object):
 
         scp.shutdown()
 
-    @pytest.mark.skipif(sys.version_info[:2] == (3, 4), reason='no caplog')
     def test_conn_close_raises(self, caplog):
         """Test the handler for EVT_CONN_CLOSE raising exception."""
         def handle(event):
@@ -1019,7 +1129,6 @@ class TestEventHandlingAcceptor(object):
 
         scp.shutdown()
 
-    @pytest.mark.skipif(sys.version_info[:2] == (3, 4), reason='no caplog')
     def test_data_sent_raises(self, caplog):
         """Test the handler for EVT_DATA_SENT raising exception."""
         def handle(event):
@@ -1168,7 +1277,6 @@ class TestEventHandlingAcceptor(object):
 
         scp.shutdown()
 
-    @pytest.mark.skipif(sys.version_info[:2] == (3, 4), reason='no caplog')
     def test_data_recv_raises(self, caplog):
         """Test the handler for EVT_DATA_RECV raising exception."""
         def handle(event):
@@ -1401,7 +1509,6 @@ class TestEventHandlingRequestor(object):
 
         scp.shutdown()
 
-    @pytest.mark.skipif(sys.version_info[:2] == (3, 4), reason='no caplog')
     def test_connection_failure_log(self, caplog):
         """Test that a connection failure is logged."""
         self.ae = ae = AE()

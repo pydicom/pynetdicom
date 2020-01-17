@@ -1,6 +1,5 @@
 """Various utility functions."""
 
-import codecs
 from io import BytesIO
 import logging
 import sys
@@ -14,7 +13,8 @@ LOGGER = logging.getLogger('pynetdicom.utils')
 
 def pretty_bytes(bytestream, prefix='  ', delimiter='  ', items_per_line=16,
                  max_size=512, suffix=''):
-    """Turn the bytestring `bytestream` into a list of nicely formatted str.
+    """Turn the bytestring `bytestream` into a :class:`list` of nicely
+    formatted :class:`str`.
 
     Parameters
     ----------
@@ -28,7 +28,7 @@ def pretty_bytes(bytestream, prefix='  ', delimiter='  ', items_per_line=16,
         The number of bytes in each item of the output string list.
     max_size : int or None
         The maximum number of bytes to add to the output string list. A value
-        of None indicates that all of `bytestream` should be output.
+        of ``None`` indicates that all of `bytestream` should be output.
     suffix : str
         Append `suffix` to the end of every item in the output string list
 
@@ -71,7 +71,7 @@ def pretty_bytes(bytestream, prefix='  ', delimiter='  ', items_per_line=16,
     return lines
 
 
-def validate_ae_title(ae_title):
+def validate_ae_title(ae_title, use_short=False):
     """Return a valid AE title from `ae_title`, if possible.
 
     An AE title:
@@ -79,7 +79,7 @@ def validate_ae_title(ae_title):
     * Must be no more than 16 characters
     * Leading and trailing spaces are not significant
     * The characters should belong to the Default Character Repertoire
-      excluding 0x5C (backslash) and all control characters
+      excluding ``0x5C`` (backslash) and all control characters
 
     If the supplied `ae_title` is greater than 16 characters once
     non-significant spaces have been removed then the returned AE title
@@ -87,22 +87,27 @@ def validate_ae_title(ae_title):
 
     If the supplied `ae_title` is less than 16 characters once non-significant
     spaces have been removed, the spare trailing characters will be set to
-    space (0x20).
+    space (``0x20``).
 
-    AE titles are made up of the Default Character Repertoire (the Basic
-    G0 Set of ISO646) excluding character code 0x5c (backslash) and all
-    control characters.
+    .. versionchanged:: 1.1
+
+        Changed to only return ``bytes`` for Python 3.
 
     Parameters
     ----------
     ae_title : bytes
         The AE title to check.
+    use_short : bool, optional
+        If ``False`` (default) then pad AE titles with trailing spaces up to
+        the maximum allowable length (16 bytes), otherwise only pad odd length
+        AE titles with a single trailing space to make it even length.
 
     Returns
     -------
     str or bytes
         A valid AE title truncated to 16 characters if necessary. If Python 3
-        then only returns bytes, if Python 2 then returns str.
+        then only returns :class:`bytes`, if Python 2 then returns
+        :class:`str`.
 
     Raises
     ------
@@ -134,8 +139,12 @@ def validate_ae_title(ae_title):
 
     # Truncate if longer than 16 characters
     ae_title = ae_title[:16]
-    # Pad out to 16 characters using spaces
-    ae_title = ae_title.ljust(16)
+    if not use_short:
+        # Pad out to 16 characters using spaces
+        ae_title = ae_title.ljust(16)
+    elif len(ae_title) % 2:
+        # Pad to even length
+        ae_title += ' '
 
     # Unicode category: 'Cc' is control characters
     invalid = [
@@ -154,17 +163,17 @@ def validate_ae_title(ae_title):
 def validate_uid(uid):
     """Return True if `uid` is considered valid.
 
-    If ``pynetdicom._config.ENFORCE_UID_CONFORMANCE = True`` then the following
-    rules apply:
+    If :attr:`~pynetdicom._config.ENFORCE_UID_CONFORMANCE` is ``True`` then the
+    following rules apply:
 
     * 1-64 characters, inclusive
     * Each component may not start with 0 unless the component itself is 0
-    * Components are separated by '.'
+    * Components are separated by ``.``
     * Valid component characters are 0-9 of the Basic G0 Set of the
       International Reference Version of ISO 646:1990 (ASCII)
 
-    If ``pynetdicom._config.ENFORCE_UID_CONFORMANCE = False`` then the
-    following rules apply:
+    If :attr:`~pynetdicom._config.ENFORCE_UID_CONFORMANCE` is ``False`` then
+    the following rules apply:
 
     * 1-64 characters, inclusive
 
@@ -176,7 +185,7 @@ def validate_uid(uid):
     Returns
     -------
     bool
-        True if the value is considered valid, False otherwise.
+        ``True`` if the value is considered valid, ``False`` otherwise.
     """
     if _config.ENFORCE_UID_CONFORMANCE:
         return uid.is_valid

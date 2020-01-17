@@ -5,15 +5,15 @@ Association
 
 .. _assoc_scu:
 
+.. currentmodule:: pynetdicom.association
+
 Requesting an Association (SCU)
 -------------------------------
 
-Assuming you :ref:`have an AE <ae_create_scu>` and have added your requested presentation contexts
-then you can associate with a peer by using the
-:py:meth:`AE.associate() <pynetdicom.ae.ApplicationEntity.associate>`
-method, which returns an
-:py:class:`Association <pynetdicom.association.Association>`
-thread:
+Assuming you :ref:`have an AE <ae_create_scu>` and have added your requested
+presentation contexts then you can associate with a peer by using the
+:meth:`AE.associate()<pynetdicom.ae.ApplicationEntity.associate>`
+method, which returns an :class:`Association` thread:
 
 ::
 
@@ -30,22 +30,23 @@ thread:
     if assoc.is_established:
         assoc.release()
 
-This sends an association request to the IP address ``127.0.0.1`` on port ``11112``
-with the request containing the presentation contexts from
-:py:obj:`AE.requested_contexts <pynetdicom.ae.ApplicationEntity.requested_contexts>`
+This sends an association request to the IP address ``127.0.0.1`` on port
+``11112`` with the request containing the presentation contexts from
+:attr:`AE.requested_contexts<pynetdicom.ae.ApplicationEntity.requested_contexts>`
 and the default *Called AE Title* parameter of ``b'ANY-SCP         '``.
 
 Established associations should always be released or aborted (using
-``Association.release()`` or ``Associations.abort()``), otherwise the
+:func:`Association.release` or :func:`Association.abort`), otherwise the
 association will remain open until either the peer or local AE hits a timeout
 and aborts.
 
 
 Specifying the Called AE Title
 ..............................
+
 Some SCPs will reject an association request if the *Called AE Title* parameter
-value doesn't match its own title, so this can be set using the ``ae_title``
-parameter:
+value doesn't match its own title, so this can be set using the *ae_title*
+keyword argument:
 
 ::
 
@@ -53,13 +54,13 @@ parameter:
 
 Specifying Presentation Contexts for each Association
 .....................................................
-Calling
-:py:meth:`AE.associate() <pynetdicom.ae.ApplicationEntity.associate>`
-with only the ``addr`` and ``port`` parameters means the presentation
+
+Calling :meth:`AE.associate()<pynetdicom.ae.ApplicationEntity.associate>`
+with only the *addr* and *port* parameters means the presentation
 contexts in
-:py:obj:`AE.requested_contexts <pynetdicom.ae.ApplicationEntity.requested_contexts>`
+:attr:`AE.requested_contexts<pynetdicom.ae.ApplicationEntity.requested_contexts>`
 will be used with the association. To propose presentation contexts on a
-per-association basis you can use the ``contexts`` keyword argument:
+per-association basis you can use the *contexts* keyword argument:
 
 ::
 
@@ -74,13 +75,13 @@ per-association basis you can use the ``contexts`` keyword argument:
 
 Using Extended Negotiation
 ..........................
+
 If you require the use of :ref:`extended negotiation <concepts_negotiation>`
-then you can supply the ``ext_neg`` keyword argument. Some extended negotiation
+then you can supply the *ext_neg* keyword argument. Some extended negotiation
 items can only be singular and some can occur multiple times depending on the
 service class and intended usage. The following example shows how to add
 *SCP/SCU Role Selection Negotiation* items using
-:py:meth:`build_role() <pynetdicom.presentation.build_role>`
-when requesting the use of the
+:func:`~pynetdicom.presentation.build_role` when requesting the use of the
 Query/Retrieve (QR) Service Class' C-GET service (in this example the QR SCU is
 also acting as a Storage SCP), plus a *User Identity Negotiation* item:
 
@@ -122,18 +123,24 @@ also acting as a Storage SCP), plus a *User Identity Negotiation* item:
 
 Possible extended negotiation items are:
 
-* :py:class:`Asynchronous Operations Window Negotiation <pynetdicom.pdu_primitives.AsynchronousOperationsWindowNegotiation>`
-* :py:class:`SCP/SCU Role Selection Negotiation <pynetdicom.pdu_primitives.SCP_SCU_RoleSelectionNegotiation>`
-* :py:class:`SOP Class Extended Negotiation <pynetdicom.pdu_primitives.SOPClassExtendedNegotiation>`
-* :py:class:`SOP Class Common Extended Negotiation <pynetdicom.pdu_primitives.SOPClassCommonExtendedNegotiation>`
-* :py:class:`User Identity Negotiation <pynetdicom.pdu_primitives.UserIdentityNegotiation>`
+.. currentmodule:: pynetdicom.pdu_primitives
+
+* :class:`Asynchronous Operations Window Negotiation
+  <AsynchronousOperationsWindowNegotiation>`
+* :class:`SCP/SCU Role Selection Negotiation<SCP_SCU_RoleSelectionNegotiation>`
+* :class:`SOP Class Extended Negotiation<SOPClassExtendedNegotiation>`
+* :class:`SOP Class Common Extended Negotiation
+  <SOPClassCommonExtendedNegotiation>`
+* :class:`User Identity Negotiation <UserIdentityNegotiation>`
 
 Binding Event Handlers
 ......................
 
+.. currentmodule:: pynetdicom.association
+
 If you want to bind handlers to any
-:ref:`events <user_events>` within a new ``Association`` you can
-use the ``evt_handlers`` keyword argument:
+:ref:`events <user_events>` within a new :class:`Association` you can
+use the *evt_handlers* keyword argument:
 
 ::
 
@@ -159,7 +166,7 @@ use the ``evt_handlers`` keyword argument:
         assoc.release()
 
 Handlers can also be bound and unbound from events in an existing
-``Association``:
+:class:`Association`:
 
 ::
 
@@ -197,7 +204,8 @@ TLS
 ...
 
 The client socket used for the association can be wrapped in TLS by supplying
-the ``tls_args`` keyword argument to ``associate()``:
+the *tls_args* keyword argument to
+:meth:`~pynetdicom.ae.ApplicationEntity.associate`:
 
 ::
 
@@ -219,17 +227,17 @@ the ``tls_args`` keyword argument to ``associate()``:
     if assoc.is_established:
         assoc.release()
 
-``tls_args`` is
-(`ssl.SSLContext <https://docs.python.org/3/library/ssl.html#ssl.SSLContext.wrap_socket>`_,
-*host*), where *host* is the value of the ``server_hostname`` keyword argument in ``SSLContext.wrap_socket()``.
+Where *tls_args* is (:class:`ssl.SSLContext`, *host*), where *host* is the
+value of the *server_hostname* keyword argument in
+:meth:`~ssl.SSLContext.wrap_socket`.
 
 
 Outcomes of an Association Request
 ..................................
 There are four potential outcomes of an association request: acceptance and
 establishment, association rejection, association abort or a connection
-failure, so its a good idea to test for establishment prior to attempting to use
-the Association:
+failure, so its a good idea to test for establishment prior to attempting to
+use the association:
 
 ::
 
@@ -256,46 +264,32 @@ Once an association has been established with the peer then the agreed upon
 set of services are available for use. *pynetdicom* supports the usage
 of the following DIMSE services:
 
-* C-ECHO, through the
-  :py:meth:`Association.send_c_echo() <pynetdicom.association.Association.send_c_echo>`
-  method
-* C-STORE, through the
-  :py:meth:`Association.send_c_store() <pynetdicom.association.Association.send_c_store>`
-  method
-* C-FIND, through the
-  :py:meth:`Association.send_c_find() <pynetdicom.association.Association.send_c_find>`
-  method
-* C-GET, through the
-  :py:meth:`Association.send_c_get() <pynetdicom.association.Association.send_c_get>`
-  method. Any AE that uses the C-GET service will also be providing the C-STORE
+.. currentmodule:: pynetdicom.association.Association
+
+* C-ECHO, through the :meth:`Association.send_c_echo()<send_c_echo>` method
+* C-STORE, through the :meth:`Association.send_c_store()<send_c_store>` method
+* C-FIND, through the :meth:`Association.send_c_find()<send_c_find>` method
+* C-GET, through the :meth:`Association.send_c_get()<send_c_get>` method.
+  Any AE that uses the C-GET service will also be providing the C-STORE
   service and must implement and bind a handler for ``evt.EVT_C_STORE`` (as
   outlined :ref:`here <assoc_scp>`)
-* C-MOVE, through the
-  :py:meth:`Association.send_c_move() <pynetdicom.association.Association.send_c_move>`
-  method. The move destination can either be a different AE or the AE that made
+* C-MOVE, through the :meth:`Association.send_c_move()<send_c_move>` method.
+  The move destination can either be a different AE or the AE that made
   the C-MOVE request (provided a non-blocking Storage SCP has been started).
-* N-ACTION, through the
-  :py:meth:`Association.send_n_action() <pynetdicom.association.Association.send_n_action>`
+* N-ACTION, through the :meth:`Association.send_n_action()<send_n_action>`
   method
-* N-CREATE, through the
-  :py:meth:`Association.send_n_create() <pynetdicom.association.Association.send_n_create>`
+* N-CREATE, through the :meth:`Association.send_n_create()<send_n_create>`
   method
-* N-DELETE, through the
-  :py:meth:`Association.send_n_delete() <pynetdicom.association.Association.send_n_delete>`
+* N-DELETE, through the :meth:`Association.send_n_delete()<send_n_delete>`
   method
-* N-EVENT-REPORT, through the
-  :py:meth:`Association.send_n_event_report() <pynetdicom.association.Association.send_n_event_report>`
-  method.
-* N-GET, through the
-  :py:meth:`Association.send_n_get() <pynetdicom.association.Association.send_n_get>`
-  method.
-* N-SET, through the
-  :py:meth:`Association.send_n_set() <pynetdicom.association.Association.send_n_set>`
-  method.
+* N-EVENT-REPORT, through the :meth:`Association.send_n_event_report()
+  <send_n_event_report>` method.
+* N-GET, through the :meth:`Association.send_n_get()<send_n_get>` method.
+* N-SET, through the :meth:`Association.send_n_set()<send_n_set>` method.
 
 Attempting to use a service without an established association will raise a
-``RuntimeError``, while attempting to use a service that is not supported by
-the association will raise a ``ValueError``.
+:class:`RuntimeError`, while attempting to use a service that is not supported
+by the association will raise a :class:`ValueError`.
 
 For more information on using the services available to an association please
 read through the :ref:`examples <index_examples>` corresponding to the
@@ -304,8 +298,10 @@ service class you're interested in.
 Releasing an Association
 ........................
 
+.. currentmodule:: pynetdicom.association
+
 Once your association has been established and you've finished using it, its a
-good idea to release the association using ``Association.release()``, otherwise
+good idea to release the association using :meth:`Association.release`, otherwise
 the association will remain open until the network timeout expires or the
 peer aborts or closes the connection.
 
@@ -313,10 +309,10 @@ Accessing User Identity Responses
 ---------------------------------
 
 If the association *Requestor* has sent a
-`User Identity Negotiation <http://dicom.nema.org/medical/dicom/current/output/chtml/part07/sect_D.3.3.7.html>`_
+:dcm:`User Identity Negotiation<part07/sect_D.3.3.7.html>`
 item as part of the extended negotiation and has requested a response in the
 event of a positive identification then it can be accessed via the
-:py:meth:`Assocation.acceptor.user_identity <pynetdicom.association.Association.acceptor.user_identity>`
+:attr:`Association.acceptor.user_identity<ServiceUser.user_identity>`
 property after the association has been established.
 
 .. _assoc_scp:
@@ -325,7 +321,7 @@ Listening for Association Requests (SCP)
 ----------------------------------------
 Assuming you have added your supported presentation contexts then you can start
 listening for association requests from peers with the
-:py:meth:`AE.start_server() <pynetdicom.ae.ApplicationEntity.start_server>`
+:meth:`AE.start_server()<pynetdicom.ae.ApplicationEntity.start_server>`
 method:
 
 ::
@@ -359,14 +355,16 @@ non-blocking modes:
     ae.start_server(('', 11113), block=True)
 
 The returned
-:py:class:`ThreadedAssociationServer <pynetdicom.transport.ThreadedAssociationServer>`
-instances can be stopped using ``shutdown()`` and all active associations
-can be stopped using ``AE.shutdown()``.
+:class:`~pynetdicom.transport.ThreadedAssociationServer`
+instances can be stopped using
+:meth:`~pynetdicom.transport.ThreadedAssociationServer.shutdown` and all active
+associations can be stopped using
+:meth:`AE.shutdown()<pynetdicom.ae.ApplicationEntity.shutdown>`.
 
 
 Specifying the AE Title
 .......................
-The AE title for each SCP can be set using the ``ae_title`` keyword argument.
+The AE title for each SCP can be set using the *ae_title* keyword argument.
 If no value is set then the AE title of the parent AE will be used instead:
 
 ::
@@ -377,7 +375,7 @@ If no value is set then the AE title of the parent AE will be used instead:
 Specifying Presentation Contexts for each SCP
 .............................................
 To support presentation contexts on a per-SCP basis you can use the
-``contexts`` keyword argument:
+*contexts* keyword argument:
 
 ::
 
@@ -392,8 +390,8 @@ Binding Event Handlers
 ......................
 
 If you want to bind handlers to any
-:ref:`events <user_events>` within any ``Association`` instances
-generated by the SCP you can use the ``evt_handlers`` keyword argument:
+:ref:`events <user_events>` within any :class:`Association` instances
+generated by the SCP you can use the *evt_handlers* keyword argument:
 
 ::
 
@@ -417,7 +415,8 @@ generated by the SCP you can use the ``evt_handlers`` keyword argument:
 
 
 Handlers can also be bound and unbound from events in an existing
-``ThreadedAssociationServer``, provided you run in non-blocking mode:
+:class:`~pynetdicom.transport.ThreadedAssociationServer`, provided you run in
+non-blocking mode:
 
 ::
 
@@ -453,18 +452,20 @@ Handlers can also be bound and unbound from events in an existing
 
     scp.shutdown()
 
-This will bind/unbind the handler from all currently running ``Association``
-instances generated  by the server as well as new ``Association`` instances
-generated in response to future association requests. ``Associations`` created
-using ``AE.associate()`` will be unaffected.
+This will bind/unbind the handler from all currently running
+:class:`Association` instances generated  by the server as well as new
+:class:`Association` instances generated in response to future association
+requests. Associations created using
+:meth:`AE.associate()<pynetdicom.ae.ApplicationEntity.associate>` will be
+unaffected.
 
 
 TLS
 ...
 
 The client sockets generated by the association server can also be wrapped in
-TLS by  supplying a `ssl.SSLContext <https://docs.python.org/3/library/ssl.html#ssl.SSLContext.wrap_socket>`_
-instance via the ``ssl_context`` keyword argument:
+TLS by  supplying a :class:`ssl.SSLContext` instance via the *ssl_context*
+keyword argument:
 
 ::
 
@@ -490,7 +491,7 @@ Providing DIMSE Services (SCP)
 If the association supports a service class that uses one or more of the
 DIMSE-C or -N services then a handler must be implemented and bound to the
 event corresponding the the service (excluding C-ECHO which has a default
-implementation that always returns a 0x0000 *Success* response):
+implementation that always returns a ``0x0000`` *Success* response):
 
 +----------------+----------------------------+
 | DIMSE service  | Event                      |

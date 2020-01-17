@@ -1,7 +1,7 @@
 Display System Management Service Examples
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-The DICOM `Display System Management Service <http://dicom.nema.org/medical/dicom/current/output/html/part04.html#chapter_EE>`_
+The DICOM :dcm:`Display System Management Service <part04/chapter_EE.html>`
 allows an Application Entity to retrieve Display Subsystem parameters from a
 peer by using the N-GET service. It only has a single
 :ref:`supported SOP Class <display_sops>`.
@@ -54,7 +54,8 @@ Display System Management Service.
     else:
         print('Association rejected, aborted or never connected')
 
-You can also use the inbuilt ``DisplaySystemPresentationContexts`` when setting
+You can also use the inbuilt
+:func:`~pynetdicom.presentation.DisplaySystemPresentationContexts` when setting
 the requested contexts.
 
 .. code-block:: python
@@ -75,8 +76,8 @@ SCP, where the SCU has sent a request with an *Attribute Identifier List*
 containing the single tag (0008,0070).
 
 Check the
-`handler implementation documentation
-<../reference/generated/pynetdicom._handlers.doc_handle_n_get.html>`_
+:attr:`handler implementation documentation
+<pynetdicom._handlers.doc_handle_n_get>`
 to see the requirements for the ``evt.EVT_N_GET`` handler.
 
 .. code-block:: python

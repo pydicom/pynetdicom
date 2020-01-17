@@ -1,5 +1,7 @@
 .. _api_events:
 
+.. py:module:: pynetdicom.events
+
 Events and Handlers (:mod:`pynetdicom.events`)
 ==============================================
 
@@ -9,6 +11,9 @@ Events and Handlers (:mod:`pynetdicom.events`)
    :toctree: generated/
 
    Event
+   InterventionEvent
+   NotificationEvent
+   trigger
 
 Documentation for Intervention Event Handlers
 ---------------------------------------------
@@ -42,9 +47,9 @@ Documentation for Notification Event Handlers
    :toctree: generated/
 
    doc_handle_acse
+   doc_handle_assoc
    doc_handle_dimse
    doc_handle_data
-   doc_handle_pdu
    doc_handle_fsm
-   doc_handle_assoc
+   doc_handle_pdu
    doc_handle_transport

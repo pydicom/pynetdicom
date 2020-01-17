@@ -1391,8 +1391,6 @@ class TestUserInformation_ImplementationUID(object):
         assert len(item) == 9
         assert item.encode() == b'\x52\x00\x00\x05\x31\x2e\x32\x2e\x33'
 
-    @pytest.mark.skipif(sys.version_info[:2] == (3, 4),
-                        reason='pytest missing caplog')
     def test_no_log_padded(self, caplog):
         """Regression test for #240."""
         _config.ENFORCE_UID_CONFORMANCE = True

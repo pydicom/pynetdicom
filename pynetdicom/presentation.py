@@ -1,4 +1,5 @@
 """Implementation of the Presentation service."""
+
 from collections import namedtuple
 import logging
 
@@ -29,7 +30,6 @@ from pynetdicom.sop_class import (
     _UNIFIED_PROCEDURE_STEP_CLASSES,
     _VERIFICATION_CLASSES,
 )
-from pynetdicom._globals import DEFAULT_TRANSFER_SYNTAXES
 from pynetdicom.utils import validate_uid
 
 
@@ -41,6 +41,9 @@ PresentationContextTuple = namedtuple(
     'PresentationContextTuple',
     ['context_id', 'abstract_syntax', 'transfer_syntax']
 )
+""":func:`namedtuple<collections.namedtuple>` representation of an accepted
+:class:`PresentationContext`.
+"""
 
 
 DEFAULT_ROLE = (True, False, False, True)
@@ -122,27 +125,28 @@ class PresentationContext(object):
     - Each Presentation Context (response) contains:
 
       - One context ID, corresponding to a Presentation Context received from
-        the Requestor
-      - A result, one of 0x00 (acceptance), 0x01 (user rejection), 0x02
-        (provider rejection), 0x03 (abstract syntax not supported) or 0x04
-        (transfer syntaxes not supported).
-      - If the result is 0x00, then a transfer syntax.
+        the *Requestor*
+      - A result, one of ``0x00`` (acceptance), ``0x01`` (user rejection),
+        ``0x02`` (provider rejection), ``0x03`` (abstract syntax not supported)
+        or ``0x04`` (transfer syntaxes not supported).
+      - If the result is ``0x00``, then a transfer syntax.
       - If any other result, then a transfer syntax may or may not be present.
-    - If the result is not 0x00 then the transfer syntax in the reply is not
-      significant.
+    - If the result is not ``0x00`` then the transfer syntax in the reply is
+      not significant.
     - The same abstract syntax can be present in more than one Presententation
       Context.
     - Only one transfer syntax can be accepted per Presentation Context.
-    - The Presentation Contexts may be sent by the Requestor in any order.
-    - The Presentation Contexts may be sent by the Acceptor in any order.
+    - The Presentation Contexts may be sent by the *Requestor* in any order.
+    - The Presentation Contexts may be sent by the *Acceptor* in any order.
 
     **SCP/SCU Role Selection Negotiation**
 
-    - If no role selection negotiation then the requestor is SCU and the
-      acceptor is SCP
-    - The association acceptor cannot accept a role that has not been
+    - If no role selection negotiation then the *Requestor* is SCU and the
+      *Acceptor* is SCP
+    - The association *Acceptor* cannot accept a role that has not been
       proposed (i.e. cannot return 1 when the proposed value is 0).
-    - The association requestor may be SCP only, SCU only or both SCU and SCP.
+    - The association *Requestor* may be SCP only, SCU only or both SCU and
+      SCP.
 
     +---------------------+---------------------+-------------------+----------+
     | Requestor           | Acceptor            | Outcome           | Notes    |
@@ -172,54 +176,53 @@ class PresentationContext(object):
 
     As can be seen from the above table there are four possible outcomes:
 
-    * Requestor is SCU, acceptor is SCP (default roles)
-    * Requestor is SCP, acceptor is SCU
-    * Requestor and acceptor are both SCU/SCP
-    * Requestor and acceptor are neither (context rejected)
+    * *Requestor* is SCU, *Acceptor* is SCP (default roles)
+    * *Requestor* is SCP, *Acceptor* is SCU
+    * *Requestor* and *Acceptor* are both SCU/SCP
+    * *Requestor* and *Acceptor* are neither (context rejected)
 
     Attributes
     ---------
     abstract_syntax : pydicom.uid.UID or None
-        The Presentation Context's *Abstract Syntax*.
+        The context's *Abstract Syntax*.
     as_scp : bool or None
-        If True then the association acceptor can act as SCP for the current
-        context, otherwise it cannot. A non-None value is only available
-        after association negotiation has been completed.
+        If ``True`` then the association *Acceptor* can act as SCP for the
+        current context, otherwise it cannot. A non-``None`` value is only
+        available after association negotiation has been completed.
     as_scu : bool or None
-        If True then the association acceptor can act as SCU for the current
-        context, otherwise it cannot. A non-None value is only available
-        after association negotiation has been completed.
+        If ``True`` then the association *Acceptor* can act as SCU for the
+        current context, otherwise it cannot. A non-``None`` value is only
+        available after association negotiation has been completed.
     context_id : int or None
-        The Presentation Context's *Context ID*.
+        The context's *Context ID*.
     result : int or None
-        If part of an A-ASSOCIATE (request) then None. If part of an
-        A-ASSOCIATE (response) then one of 0x00, 0x01, 0x02, 0x03, 0x04.
+        If part of an A-ASSOCIATE (request) then ``None``. If part of an
+        A-ASSOCIATE (response) then one of ``0x00``, ``0x01``, ``0x02``,
+        ``0x03``, ``0x04``.
     scp_role : bool or None
-        Only used when acting as an association acceptor. If True
-        then accept when the SCP role is proposed by the requestor, otherwise
-        reject the proposal. If None (default) then no SCP/SCU Role Selection
-        reply will be sent and the default roles will be used.
+        Only used when acting as an association *Acceptor*. If ``True``
+        then accept when the SCP role is proposed by the *Requestor*, otherwise
+        reject the proposal. If ``None`` (default) then no SCP/SCU Role
+        Selection reply will be sent and the default roles will be used.
     scu_role : bool
-        Only used when acting as an association acceptor. If True
-        then accept when the SCU role is proposed by the requestor, otherwise
-        reject the proposal. If None (default) then no SCP/SCU Role Selection
-        reply will be sent and the default roles will be used.
+        Only used when acting as an association *Acceptor*. If ``True``
+        then accept when the SCU role is proposed by the *Requestor*, otherwise
+        reject the proposal. If ``None`` (default) then no SCP/SCU Role
+        Selection reply will be sent and the default roles will be used.
     transfer_syntax : list of pydicom.uid.UID
-        The Presentation Context's *Transfer Syntax(es)*.
+        The context's *Transfer Syntax(es)*.
 
     References
     ----------
 
-    * DICOM Standard, Part 7, Annexes
-      `D.3.2 <http://dicom.nema.org/medical/dicom/current/output/html/part07.html#sect_D.3.2>`_
-      and `D.3.3.4 <http://dicom.nema.org/medical/dicom/current/output/html/part07.html#sect_D.3.3.4>`_
-    * DICOM Standard, Part 8, Sections
-      `9.3.2.2 <http://dicom.nema.org/medical/dicom/current/output/html/part08.html#sect_9.3.2.2>`_,
-      `9.3.3.2 <http://dicom.nema.org/medical/dicom/current/output/html/part08.html#sect_9.3.3.2>`_
-      and `Annex B <http://dicom.nema.org/medical/dicom/current/output/html/part08.html#chapter_B>`_
+    * DICOM Standard, Part 7, Annexes :dcm:`D.3.2<part07.html#sect_D.3.2>`
+      and :dcm:`D.3.3.4<part07.html#sect_D.3.3.4>`
+    * DICOM Standard, Part 8, Sections :dcm:`9.3.2.2
+      <part08.html#sect_9.3.2.2>`, :dcm:`9.3.3.2 <part08.html#sect_9.3.3.2>`
+      and :dcm:`Annex B <part08.html#chapter_B>`
     """
     def __init__(self):
-        """Create a new PresentationContext."""
+        """Create a new object."""
         self._context_id = None
         self._abstract_syntax = None
         self._transfer_syntax = []
@@ -235,7 +238,7 @@ class PresentationContext(object):
 
     @property
     def abstract_syntax(self):
-        """Return the presentation context's *Abstract Syntax* as a UID.
+        """Return the context's *Abstract Syntax* as :class:`~pydicom.uid.UID`.
 
         Returns
         -------
@@ -245,12 +248,12 @@ class PresentationContext(object):
 
     @abstract_syntax.setter
     def abstract_syntax(self, uid):
-        """Set the presentation context's *Abstract Syntax*.
+        """Set the context's *Abstract Syntax*.
 
         Parameters
         ----------
         uid : str or bytes or pydicom.uid.UID
-            The abstract syntax UIDs
+            The abstract syntax UID.
         """
         if isinstance(uid, bytes):
             uid = UID(uid.decode('ascii'))
@@ -311,19 +314,20 @@ class PresentationContext(object):
 
     @property
     def as_scp(self):
-        """Return True if can act as an SCP for the context."""
+        """Return ``True`` if can act as an SCP for the context."""
         return self._as_scp
 
     @property
     def as_scu(self):
-        """Return True if can act as an SCU for the context."""
+        """Return ``True`` if can act as an SCU for the context."""
         return self._as_scu
 
     @property
     def as_tuple(self):
-        """Return a namedtuple representation of the presentation context.
+        """Return a :func:`namedtuple<collections.namedtuple>` representation
+        of the presentation context.
 
-        Intended to be used when the result is 0x00 (accepted) as only the
+        Intended to be used when the result is ``0x00`` (accepted) as only the
         first transfer syntax item is returned in the tuple.
 
         Returns
@@ -337,12 +341,12 @@ class PresentationContext(object):
 
     @property
     def context_id(self):
-        """Return the presentation context's *ID* parameter as an int."""
+        """Return the context's *ID* parameter as an :class:`int`."""
         return self._context_id
 
     @context_id.setter
     def context_id(self, value):
-        """Set the presentation context's *ID* parameter.
+        """Set the context's *ID* parameter.
 
         Parameters
         ----------
@@ -356,7 +360,7 @@ class PresentationContext(object):
         self._context_id = value
 
     def __eq__(self, other):
-        """Return True if `self` is equal to `other`."""
+        """Return ``True`` if `self` is equal to `other`."""
         if self is other:
             return True
 
@@ -369,26 +373,30 @@ class PresentationContext(object):
     __hash__ = None
 
     def __ne__(self, other):
-        """Return True if `self` does not equal `other`."""
+        """Return ``True`` if `self` does not equal `other`."""
         return not self == other
+
+    def __repr__(self):
+        """Representation of the Presentation Context."""
+        return self.abstract_syntax.name
 
     @property
     def scp_role(self):
-        """Return True if a proposed SCP role will be accepted."""
+        """Return ``True`` if a proposed SCP role will be accepted."""
         return self._scp_role
 
     @scp_role.setter
     def scp_role(self, val):
-        """Set whether to accept the proposed SCP role (as acceptor).
+        """Set whether to accept the proposed SCP role (as *Acceptor*).
 
         Parameters
         ----------
         val : bool or None
-            If True then accept if the association requestor proposes
-            the SCP role for itself, False to reject the proposal. If None
-            (default) then no SCP/SCU Role Selection reply will be sent. If
-            either of `scu_role` or `scp_role` is None then both will assumed
-            to be.
+            If ``True`` then accept if the association *Requestor* proposes
+            the SCP role for itself, ``False`` to reject the proposal. If
+            ``None`` (default) then no SCP/SCU Role Selection reply will be
+            sent. If either of :attr:`scu_role` or :attr:`scp_role` is ``None``
+            then both will assumed to be.
         """
         if not isinstance(val, (bool, type(None))):
             raise TypeError("`scp_role` must be a bool or None")
@@ -397,21 +405,21 @@ class PresentationContext(object):
 
     @property
     def scu_role(self):
-        """Return True if a proposed SCU role will be accepted."""
+        """Return ``True`` if a proposed SCU role will be accepted."""
         return self._scu_role
 
     @scu_role.setter
     def scu_role(self, val):
-        """Set whether to accept the proposed SCU role (as acceptor).
+        """Set whether to accept the proposed SCU role (as *Acceptor*).
 
         Parameters
         ----------
         val : bool or None
-            If True then accept if the association requestor proposes
-            the SCU role for itself, False to reject the proposal. If None
-            (default) then no SCP/SCU Role Selection reply will be sent. If
-            either of `scu_role` or `scp_role` is None then both will assumed
-            to be.
+            If ``True`` then accept if the association *Requestor* proposes
+            the SCU role for itself, ``False`` to reject the proposal. If
+            ``None`` (default) then no SCP/SCU Role Selection reply will be
+            sent. If either of :attr:`scu_role` or :attr:`scp_role` is ``None``
+            then both will assumed to be.
         """
         if not isinstance(val, (bool, type(None))):
             raise TypeError("`scu_role` must be a bool or None")
@@ -420,12 +428,12 @@ class PresentationContext(object):
 
     @property
     def status(self):
-        """Return a descriptive str of the presentation context's *Result*.
+        """Return a descriptive :class:`str` of the context's *Result*.
 
         Returns
         -------
         str
-            The string representation of the result.
+            The string representation of the negotiated result.
         """
         if self.result is None:
             status = 'Pending'
@@ -478,18 +486,18 @@ class PresentationContext(object):
 
     @property
     def transfer_syntax(self):
-        """Return the presentation context's *Transfer Syntaxes* as a list.
+        """Return the context's *Transfer Syntaxes* as a :class:`list`.
 
         Returns
         -------
         list of pydicom.uid.UID
-            The transfer syntaxes.
+            The context's transfer syntaxes.
         """
         return self._transfer_syntax
 
     @transfer_syntax.setter
     def transfer_syntax(self, syntaxes):
-        """Set the presentation context's *Transfer Syntaxes*.
+        """Set the context's *Transfer Syntaxes*.
 
         Parameters
         ----------
@@ -506,7 +514,7 @@ class PresentationContext(object):
 
 
 def negotiate_as_acceptor(rq_contexts, ac_contexts, roles=None):
-    """Process the Presentation Contexts as an Association acceptor.
+    """Process the Presentation Contexts as an Association *Acceptor*.
 
     Parameters
     ----------
@@ -515,12 +523,13 @@ def negotiate_as_acceptor(rq_contexts, ac_contexts, roles=None):
         values for Context ID, Abstract Syntax and Transfer Syntax.
     ac_contexts : list of PresentationContext
         The Presentation Contexts supported by the local AE when acting
-        as an Association acceptor. Each item has values for Context ID
+        as an Association *Acceptor*. Each item has values for Context ID,
         Abstract Syntax and Transfer Syntax.
     roles : dict or None
-        If the requestor has included one or more SCP/SCU Role Selection
-        Negotiation items then this will be a dict of
-        {SOP Class UID : (SCU role, SCP role)}, otherwise None (default)
+        If the *Requestor* has included one or more SCP/SCU Role Selection
+        Negotiation items then this will be a :class:`dict` of
+        ``{'SOP Class UID' : (SCU role, SCP role)}``, otherwise ``None``
+        (default)
 
     Returns
     -------
@@ -529,8 +538,8 @@ def negotiate_as_acceptor(rq_contexts, ac_contexts, roles=None):
         a Context ID, an Abstract Syntax and one Transfer Syntax item.
         Items are sorted in increasing Context ID value.
     list of SCP_SCU_RoleSelectionNegotiation
-        If `roles` is not None then this is a list of SCP/SCU Role Selection
-        Negotiation items that can be sent back to the requestor.
+        If `roles` is not ``None`` then this is a :class:`list` of SCP/SCU Role
+        Selection Negotiation items that can be sent back to the *Requestor*.
     """
     from pynetdicom.pdu_primitives import SCP_SCU_RoleSelectionNegotiation
 
@@ -663,26 +672,26 @@ def negotiate_as_acceptor(rq_contexts, ac_contexts, roles=None):
 
 
 def negotiate_as_requestor(rq_contexts, ac_contexts, roles=None):
-    """Process the Presentation Contexts as an Association requestor.
+    """Process the Presentation Contexts as an Association *Requestor*.
 
-    The acceptor has processed the requestor's presentation context
+    The *Acceptor* has processed the *Requestor's* presentation context
     definition list and returned the results. We want to do two things:
 
-    - Process the SCP/SCU Role Selection Negotiation
-    - Return a nice list of PresentationContexts with the Results and
+    - Process the SCP/SCU Role Selection Negotiation items
+    - Return a nice list of :class:`PresentationContext` with the Results and
       original Abstract Syntax values to make things easier to use.
 
-    Presentation Context Item (RQ)
+    :class:`~pynetdicom.pdu_items.PresentationContextItemRQ`
 
     - Presentation context ID
     - Abstract Syntax: one
     - Transfer syntax: one or more
 
-    Presentation Context Item (AC)
+    :class:`~pynetdicom.pdu_items.PresentationContextItemAC`
 
     - Presentation context ID
-    - Result: 0x00, 0x01, 0x02, 0x03, 0x04
-    - Transfer syntax: one, not to be tested if result is not 0x00
+    - Result: one of ``0x00``, ``0x01``, ``0x02``, ``0x03`` or ``0x04``
+    - Transfer syntax: one, not to be tested if result is not ``0x00``
 
     Parameters
     ----------
@@ -693,9 +702,10 @@ def negotiate_as_requestor(rq_contexts, ac_contexts, roles=None):
         The Presentation Contexts return by the peer as the A-ASSOCIATE's
         Presentation Context Definition Result List.
     roles : dict or None
-        If the acceptor has included one or more SCP/SCU Role Selection
-        Negotiation items then this will be a dict of
-        {SOP Class UID : (SCU role, SCP role)}, otherwise None (default)
+        If the *Acceptor* has included one or more SCP/SCU Role Selection
+        Negotiation items then this will be a :class:`dict` of
+        ``{'SOP Class UID' : (SCU role, SCP role)}``, otherwise ``None``
+        (default)
 
     Returns
     -------
@@ -768,15 +778,18 @@ def negotiate_as_requestor(rq_contexts, ac_contexts, roles=None):
 
 
 def build_context(abstract_syntax, transfer_syntax=None):
-    """Return a PresentationContext built from the `abstract_syntax`.
+    """Return a :class:`PresentationContext` built from the `abstract_syntax`.
 
     Parameters
     ----------
     abstract_syntax : str or UID or sop_class.SOPClass
-        The UID or SOPClass instance to use as the abstract syntax.
+        The :class:`~pydicom.uid.UID` or subclass of
+        :class:`~pynetdicom.sop_class.SOPClass` instance to use as the abstract
+        syntax.
     transfer_syntax : str/UID or list of str/UID
-        The transfer syntax UID(s) to use (default: [Implicit VR Little Endian,
-        Explicit VR Little Endian, Implicit VR Big Endian])
+        The transfer syntax UID(s) to use (default:
+        ``[Implicit VR Little Endian, Explicit VR Little Endian,
+        Implicit VR Big Endian]``)
 
     Examples
     --------
@@ -792,8 +805,9 @@ def build_context(abstract_syntax, transfer_syntax=None):
         =Explicit VR Little Endian
         =Explicit VR Big Endian
 
-    Specifying the abstract syntax using a pynetdicom SOPClass instance and
-    a single transfer syntax
+    Specifying the abstract syntax using a *pynetdicom*
+    :class:`~pynetdicom.sop_class.SOPClass` instance and a single transfer
+    syntax
 
     >>> from pynetdicom import build_context
     >>> from pynetdicom.sop_class import VerificationSOPClass
@@ -815,7 +829,6 @@ def build_context(abstract_syntax, transfer_syntax=None):
     Transfer Syntax(es):
         =Implicit VR Little Endian
         =JPEG Baseline (Process 1)
-
 
     Returns
     -------
@@ -840,17 +853,20 @@ def build_context(abstract_syntax, transfer_syntax=None):
 def build_role(uid, scu_role=False, scp_role=False):
     """Return a SCP/SCU Role Selection Negotiation item.
 
+    .. versionadded:: 1.2
+
     Parameters
     ----------
     uid : str or UID or sop_class.SOPClass
-        The UID or SOPClass instance to use as the *SOP Class UID* parameter
-        value.
+        The :class:`~pydicom.uid.UID` or subclass of
+        :class:`~pynetdicom.sop_class.SOPClass` instance to use as the *SOP
+        Class UID* parameter value.
     scu_role : bool, optional
-        True to propose the SCU role for the *Requestor*, False otherwise
-        (default).
+        ``True`` to propose the SCU role for the *Requestor*, ``False``
+        otherwise (default).
     scp_role : bool, optional
-        True to propose the SCP role for the *Requestor*, False otherwise
-        (default).
+        ``True`` to propose the SCP role for the *Requestor*, ``False``
+        otherwise (default).
 
     Returns
     -------
@@ -871,69 +887,114 @@ def build_role(uid, scu_role=False, scp_role=False):
 ApplicationEventLoggingPresentationContexts = [
     build_context(uid) for uid in sorted(_APPLICATION_EVENT_CLASSES.values())
 ]
+"""Pre-built presentation contexts for :dcm:`Application Event Logging<part04/chapter_P.html>`."""
+
 BasicWorklistManagementPresentationContexts = [
     build_context(uid) for uid in sorted(_BASIC_WORKLIST_CLASSES.values())
 ]
+"""Pre-built presentation contexts for :dcm:`Basic Worklist Management<part04/chapter_K.html>`."""
+
 ColorPalettePresentationContexts = [
     build_context(uid) for uid in sorted(_COLOR_PALETTE_CLASSES.values())
 ]
+"""Pre-built presentation contexts for :dcm:`Color Palette Query/Retrieve<part04/chapter_X.html>`."""
+
 DefinedProcedureProtocolPresentationContexts = [
     build_context(uid) for uid in sorted(_DEFINED_PROCEDURE_CLASSES.values())
 ]
+"""Pre-built presentation contexts for :dcm:`Defined Procedure Protocol Query/Retrieve<part04/chapter_HH.html>`."""
+
 DisplaySystemPresentationContexts = [
     build_context(uid) for uid in sorted(_DISPLAY_SYSTEM_CLASSES.values())
 ]
+"""Pre-built presentation contexts for :dcm:`Display System Management<part04/chapter_EE.html>`."""
+
 HangingProtocolPresentationContexts = [
     build_context(uid) for uid in sorted(_HANGING_PROTOCOL_CLASSES.values())
 ]
+"""Pre-built presentation contexts for :dcm:`Hanging Protocol Query/Retrieve<part04/chapter_U.html>`."""
+
 ImplantTemplatePresentationContexts = [
     build_context(uid) for uid in sorted(_IMPLANT_TEMPLATE_CLASSES.values())
 ]
+"""Pre-built presentation contexts for :dcm:`Implant Template Query/Retrieve<part04/chapter_BB.html>`."""
+
 InstanceAvailabilityPresentationContexts = [
     build_context(uid) for uid in sorted(_INSTANCE_AVAILABILITY_CLASSES.values())
 ]
+"""Pre-built presentation contexts for :dcm:`Instance Availability Notification<part04/chapter_R.html>`."""
+
 MediaCreationManagementPresentationContexts = [
     build_context(uid) for uid in sorted(_MEDIA_CREATION_CLASSES.values())
 ]
+"""Pre-built presentation contexts for :dcm:`Media Creation Management<part04/chapter_S.html>`."""
+
 MediaStoragePresentationContexts = [
     build_context(uid) for uid in sorted(_MEDIA_STORAGE_CLASSES.values())
 ]
+"""Pre-built presentation contexts for :dcm:`Media Storage<part04/chapter_I.html>`."""
+
 ModalityPerformedPresentationContexts = [
     build_context(uid) for uid in sorted(_PROCEDURE_STEP_CLASSES.values())
 ]
+"""Pre-built presentation contexts for :dcm:`Modality Performed Procedure Step<part04/chapter_F.html>`."""
+
 NonPatientObjectPresentationContexts = [
     build_context(uid) for uid in sorted(_NON_PATIENT_OBJECT_CLASSES.values())
 ]
+"""Pre-built presentation contexts for :dcm:`Non-Patient Object Storage<part04/chapter_GG.html>`."""
+
 PrintManagementPresentationContexts = [
     build_context(uid) for uid in sorted(_PRINT_MANAGEMENT_CLASSES.values())
 ]
+"""Pre-built presentation contexts for :dcm:`Print Management<part04/chapter_H.html>`."""
+
 ProcedureStepPresentationContexts = [
     build_context(uid) for uid in sorted(_PROCEDURE_STEP_CLASSES.values())
 ]
+"""Pre-built presentation contexts for :dcm:`Procedure Step<part04/chapter_F.html>`."""
+
 ProtocolApprovalPresentationContexts = [
     build_context(uid) for uid in sorted(_PROTOCOL_APPROVAL_CLASSES.values())
 ]
+"""Pre-built presentation contexts for :dcm:`Protocol Approval Query/Retrieve<part04/chapter_II.html>`."""
+
 QueryRetrievePresentationContexts = [
     build_context(uid) for uid in sorted(_QR_CLASSES.values())
 ]
+"""Pre-built presentation contexts for :dcm:`Query/Retrieve<part04/chapter_C.html>`."""
+
 RelevantPatientInformationPresentationContexts = [
     build_context(uid) for uid in sorted(_RELEVANT_PATIENT_QUERY_CLASSES.values())
 ]
+"""Pre-built presentation contexts for :dcm:`Relevant Patient Information Query<part04/chapter_Q.html>`."""
+
 RTMachineVerificationPresentationContexts = [
     build_context(uid) for uid in sorted(_RT_MACHINE_VERIFICATION_CLASSES.values())
 ]
+"""Pre-built presentation contexts for :dcm:`RT Machine Verification<part04/chapter_DD.html>`."""
+
 StoragePresentationContexts = [
     build_context(uid) for uid in sorted(_STORAGE_CLASSES.values())[:128]
 ]
+"""Pre-built presentation contexts for :dcm:`Storage<part04/chapter_B.html>`."""
+
 StorageCommitmentPresentationContexts = [
     build_context(uid) for uid in sorted(_STORAGE_COMMITMENT_CLASSES.values())
 ]
+"""Pre-built presentation contexts for :dcm:`Storage Commitment<part04/chapter_J.html>`."""
+
 SubstanceAdministrationPresentationContexts = [
     build_context(uid) for uid in sorted(_SUBSTANCE_ADMINISTRATION_CLASSES.values())
 ]
+"""Pre-built presentation contexts for :dcm:`Substance Administration Query<part04/chapter_V.html>`."""
+
 UnifiedProcedurePresentationContexts = [
     build_context(uid) for uid in sorted(_UNIFIED_PROCEDURE_STEP_CLASSES.values())
 ]
+"""Pre-built presentation contexts for :dcm:`Unified Procedure Step<part04/chapter_CC.html>`."""
+
 VerificationPresentationContexts = [
     build_context(uid) for uid in sorted(_VERIFICATION_CLASSES.values())
 ]
+"""Pre-built presentation contexts for :dcm:`Verification<part04/chapter_A.html>`."""

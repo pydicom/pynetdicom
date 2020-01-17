@@ -65,39 +65,50 @@ extensions = [
     'sphinx.ext.todo',
     'sphinx.ext.imgmath',
     'sphinx.ext.ifconfig',
-    #'sphinx.ext.viewcode',
-    #'sphinx_gallery.gen_gallery',
     'sphinx.ext.autosummary',
     'sphinx.ext.napoleon',
     'sphinx.ext.linkcode',
+    'sphinx.ext.extlinks',
     # Custom
     'sphinx_issues',
 ]
 
 autosummary_generate = True
 
-autodoc_default_flags = ['members', 'inherited-members']
+autodoc_default_options = {
+    'members': None,
+    'no-inherited-members': None,
+}
+
+# Shortcuts for sphinx.ext.extlinks
+extlinks = {
+    # 'alias' : (url_prefix, caption)
+    # Usage :dcm:`link text <part05/sect_6.2.html>`
+    'dcm': (
+        'http://dicom.nema.org/medical/dicom/current/output/chtml/%s',
+        None
+    ),
+    'gh': (
+        'https://github.com/pydicom/%s',
+        None
+    ),
+    'pyd': (
+        'https://docs.python.org/%s',
+        None
+    )
+}
 
 # intersphinx configuration
 intersphinx_mapping = {
-    'python': ('https://docs.python.org/{.major}'.format(
-        sys.version_info), None),
-    'pydicom': ('https://pydicom.github.io/pydicom/stable', None),
+    'python': (
+        'https://docs.python.org/{.major}'.format(sys.version_info),
+        None
+    ),
+    'pydicom': (
+        'https://pydicom.github.io/pydicom/stable',
+        None
+    ),
 }
-
-#sphinx_gallery_conf = {
-#    'default_thumb_file': 'assets/img/pydicom_flat_black_alpha.png',
-#    # path to your examples scripts
-#    'examples_dirs': '../examples',
-#    # path where to save gallery generated examples
-#    'gallery_dirs': 'auto_examples',
-#    'backreferences_dir': os.path.join('generated'),
-#    # to make references clickable
-#    'doc_module': 'pynetdicom',
-#    'reference_url': {
-#        'pynetdicom': None
-#    }
-#}
 
 napoleon_google_docstring = False
 napoleon_numpy_docstring = True

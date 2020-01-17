@@ -50,9 +50,11 @@ class TestPrimitive_C_STORE(object):
     """Test DIMSE C-STORE operations."""
     def setup(self):
         self.default_conformance = _config.ENFORCE_UID_CONFORMANCE
+        self.default_aet_length = _config.USE_SHORT_DIMSE_AET
 
     def teardown(self):
         _config.ENFORCE_UID_CONFORMANCE = self.default_conformance
+        _config.USE_SHORT_DIMSE_AET = self.default_aet_length
 
     def test_assignment(self):
         """ Check assignment works correctly """
@@ -90,9 +92,9 @@ class TestPrimitive_C_STORE(object):
         assert primitive.Priority == 0x02
 
         primitive.MoveOriginatorApplicationEntityTitle = 'UNITTEST_SCP'
-        assert primitive.MoveOriginatorApplicationEntityTitle == b'UNITTEST_SCP    '
+        assert primitive.MoveOriginatorApplicationEntityTitle == b'UNITTEST_SCP'
         primitive.MoveOriginatorApplicationEntityTitle = b'UNITTEST_SCP'
-        assert primitive.MoveOriginatorApplicationEntityTitle == b'UNITTEST_SCP    '
+        assert primitive.MoveOriginatorApplicationEntityTitle == b'UNITTEST_SCP'
         primitive.MoveOriginatorApplicationEntityTitle = ''
         assert primitive.MoveOriginatorApplicationEntityTitle is None
         primitive.MoveOriginatorApplicationEntityTitle = b''
@@ -319,6 +321,38 @@ class TestPrimitive_C_STORE(object):
         assert not primitive.is_valid_response
         primitive.Status = 0x0000
         assert primitive.is_valid_response
+
+    def test_aet_short_false(self):
+        """Test using long AE titles."""
+        primitive = C_STORE()
+
+        _config.USE_SHORT_DIMSE_AET = False
+
+        primitive.MoveOriginatorApplicationEntityTitle = b'A'
+        aet = primitive.MoveOriginatorApplicationEntityTitle
+        assert b'A               ' == aet
+
+    def test_aet_short_true(self):
+        """Test using short AE titles."""
+        primitive = C_STORE()
+
+        _config.USE_SHORT_DIMSE_AET = True
+
+        primitive.MoveOriginatorApplicationEntityTitle = b'A'
+        aet = primitive.MoveOriginatorApplicationEntityTitle
+        assert b'A ' == aet
+
+        primitive.MoveOriginatorApplicationEntityTitle = b'ABCDEFGHIJKLMNO'
+        aet = primitive.MoveOriginatorApplicationEntityTitle
+        assert b'ABCDEFGHIJKLMNO ' == aet
+
+        primitive.MoveOriginatorApplicationEntityTitle = b'ABCDEFGHIJKLMNOP'
+        aet = primitive.MoveOriginatorApplicationEntityTitle
+        assert b'ABCDEFGHIJKLMNOP' == aet
+
+        primitive.MoveOriginatorApplicationEntityTitle = b'ABCDEFGHIJKLMNOPQ'
+        aet = primitive.MoveOriginatorApplicationEntityTitle
+        assert b'ABCDEFGHIJKLMNOP' == aet
 
 
 class TestPrimitive_C_FIND(object):
@@ -789,9 +823,11 @@ class TestPrimitive_C_MOVE(object):
     """Test DIMSE C-MOVE operations."""
     def setup(self):
         self.default_conformance = _config.ENFORCE_UID_CONFORMANCE
+        self.default_aet_length = _config.USE_SHORT_DIMSE_AET
 
     def teardown(self):
         _config.ENFORCE_UID_CONFORMANCE = self.default_conformance
+        _config.USE_SHORT_DIMSE_AET = self.default_aet_length
 
     def test_assignment(self):
         """ Check assignment works correctly """
@@ -818,7 +854,7 @@ class TestPrimitive_C_MOVE(object):
         assert primitive.Priority == 0x02
 
         primitive.MoveDestination = 'UNITTEST_SCP'
-        assert primitive.MoveDestination == b'UNITTEST_SCP    '
+        assert primitive.MoveDestination == b'UNITTEST_SCP'
 
         ref_ds = Dataset()
         ref_ds.PatientID = 1234567
@@ -1046,6 +1082,34 @@ class TestPrimitive_C_MOVE(object):
         assert not primitive.is_valid_response
         primitive.Status = 0x0000
         assert primitive.is_valid_response
+
+    def test_aet_short_false(self):
+        """Test using long AE titles."""
+        primitive = C_MOVE()
+
+        _config.USE_SHORT_DIMSE_AET = False
+
+        primitive.MoveDestination = b'A'
+        assert b'A               ' == primitive.MoveDestination
+
+    def test_aet_short_true(self):
+        """Test using short AE titles."""
+        primitive = C_MOVE()
+
+        _config.USE_SHORT_DIMSE_AET = True
+
+        primitive.MoveDestination = b'A'
+        aet = primitive.MoveDestination
+        assert b'A ' == primitive.MoveDestination
+
+        primitive.MoveDestination = b'ABCDEFGHIJKLMNO'
+        assert b'ABCDEFGHIJKLMNO ' == primitive.MoveDestination
+
+        primitive.MoveDestination = b'ABCDEFGHIJKLMNOP'
+        assert b'ABCDEFGHIJKLMNOP' == primitive.MoveDestination
+
+        primitive.MoveDestination = b'ABCDEFGHIJKLMNOPQ'
+        assert b'ABCDEFGHIJKLMNOP' == primitive.MoveDestination
 
 
 class TestPrimitive_C_ECHO(object):

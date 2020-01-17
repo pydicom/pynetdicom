@@ -1,31 +1,38 @@
+dist: xenial
 language: python
 
 # Build against pydicom master and current release
 matrix:
     include:
-        - name: "python 2.7, pydicom master"
+        - name: "Python 2.7, pydicom master"
           python: "2.7"
           env: TEST_SUITE=pydicom_master
-        - name: "python 3.4, pydicom master"
-          python: "3.4"
-          env: TEST_SUITE=pydicom_master
-        - name: "python 3.5, pydicom master"
+        - name: "Python 3.5, pydicom master"
           python: "3.5"
           env: TEST_SUITE=pydicom_master
-        - name: "python 3.6, pydicom master"
+        - name: "Python 3.6, pydicom master"
           python: "3.6"
           env: TEST_SUITE=pydicom_master
-        - name: "python 2.7, pydicom release"
+        - name: "Python 3.7, pydicom master"
+          python: "3.7"
+          env: TEST_SUITE=pydicom_master
+        - name: "Python 3.8, pydicom master"
+          python: "3.8"
+          env: TEST_SUITE=pydicom_master
+        - name: "Python 2.7, pydicom release"
           python: "2.7"
           env: TEST_SUITE=pydicom_release
-        - name: "python 3.4, pydicom release"
-          python: "3.4"
-          env: TEST_SUITE=pydicom_release
-        - name: "python 3.5, pydicom release"
+        - name: "Python 3.5, pydicom release"
           python: "3.5"
           env: TEST_SUITE=pydicom_release
-        - name: "python 3.6, pydicom release"
+        - name: "Python 3.6, pydicom release"
           python: "3.6"
+          env: TEST_SUITE=pydicom_release
+        - name: "Python 3.7, pydicom release"
+          python: "3.7"
+          env: TEST_SUITE=pydicom_release
+        - name: "Python 3.8, pydicom release"
+          python: "3.8"
           env: TEST_SUITE=pydicom_release
 
 # Install dependencies and pynetdicom
@@ -33,11 +40,13 @@ install: source build_tools/travis/install.sh
 
 # Command to run tests
 script:
-    - pytest --cov=pynetdicom --pyargs pynetdicom --ignore=pydicom-master,pydicom 
+    - pytest --cov=pynetdicom --pyargs pynetdicom --ignore=pydicom-master,pydicom
 
-# Upload coverage results to codecov.io
 after_success:
-    - codecov
+    # Upload coverage results to codecov.io
+    # curl times out sometimes, so drop the connection timeout but retry more often
+    - bash <(curl --connect-timeout 10 --retry 10 --retry-max-time 0 https://codecov.io/bash) ||
+      (sleep 30 && bash <(curl --connect-timeout 10 --retry 10 --retry-max-time 0 https://codecov.io/bash))
 
 notifications:
     email: false

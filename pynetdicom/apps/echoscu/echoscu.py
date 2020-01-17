@@ -205,7 +205,7 @@ except:
 #-------------------------- CREATE AE and ASSOCIATE ---------------------------
 
 if args.version:
-    print('echoscu.py v%s' %(VERSION))
+    print('echoscu.py v{}'.format(VERSION))
     sys.exit()
 
 APP_LOGGER.debug('echoscu.py v%s', VERSION)

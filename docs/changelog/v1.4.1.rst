@@ -1,0 +1,11 @@
+.. _v1.4.1:
+
+1.4.1
+=====
+
+
+Fixes
+.....
+
+* Fixed server socket not closing properly after association release
+  (:issue:`382`)

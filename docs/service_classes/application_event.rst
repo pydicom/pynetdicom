@@ -1,7 +1,8 @@
+.. _service_appevent:
+
 Application Event Logging Service Class
 =======================================
-The `Application Event Logging Service Class
-<http://dicom.nema.org/medical/dicom/current/output/html/part04.html#chapter_P>`_
+The :dcm:`Application Event Logging Service Class<part04/chapter_P.html>`
 defines a service that uses the DIMSE N-ACTION service to facilitate the
 transfer of Event Log Records to be logged
 
@@ -108,10 +109,3 @@ Application Event Logging Service Statuses
 | 0xC111           | Failure  | Update of Medication Administration Record    |
 |                  |          | failed                                        |
 +------------------+----------+-----------------------------------------------+
-
-
-References
-----------
-
-* DICOM Standard, Part 4, `Annex P <http://dicom.nema.org/medical/dicom/current/output/html/part04.html#chapter_P>`_
-* DICOM Standard, Part 7, `Section 10.1.4.1.10 <http://dicom.nema.org/medical/dicom/current/output/chtml/part07/chapter_10.html#sect_10.1.4.1.10>`_

@@ -1,3 +1,7 @@
+.. _api_dul_pdu:
+
+.. py:module:: pynetdicom.pdu
+
 PDUs (:mod:`pynetdicom.pdu`)
 =============================
 
@@ -35,10 +39,4 @@ as its first byte value a corresponding *PDU Type*:
 | ``0x06`` - A-RELEASE-RP
 | ``0x07`` - A-ABORT
 
-The encoding of DICOM Upper Layer PDUs is always Big Endian byte ordering [#]_.
-
-References
-----------
-
-.. [#] DICOM Standard, Part 8, Section
-   `9.3.1 <http://dicom.nema.org/medical/dicom/current/output/html/part08.html#sect_9.3.1>`_
+The encoding of DICOM Upper Layer PDUs is always Big Endian byte ordering.

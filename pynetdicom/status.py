@@ -428,7 +428,9 @@ RT_MACHINE_VERIFICATION_SERVICE_CLASS_STATUS.update(GENERAL_STATUS)
 
 
 def code_to_status(code):
-    """Return a Dataset with a Status element value of `code`."""
+    """Return a :class:`~pydicom.dataset.Dataset` with a *Status* element
+    value of `code`.
+    """
     if isinstance(code, int) and code >= 0:
         ds = Dataset()
         ds.Status = code
@@ -438,12 +440,8 @@ def code_to_status(code):
 
 
 def code_to_category(code):
-    """Return a Status' category as a str or 'Unknown' if not recognised.
-
-    References
-    ----------
-    DICOM Standard Part 7, Annex C
-    DICOM Standard Part 4
+    """Return a *Status* category as :class:`str` or ``'Unknown'`` if not
+    recognised.
     """
     # pylint: disable=too-many-return-statements
     if isinstance(code, int) and code >= 0:

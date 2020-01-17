@@ -1,4 +1,4 @@
-.. _ref_service_classes:
+.. _api_serviceclasses:
 
 Service Classes (:mod:`pynetdicom.service_class`)
 ==================================================

@@ -1,4 +1,4 @@
-"""Generates the supported SOP Classes."""
+"""Generates the supported SOP Classes and well-known SOP Instances."""
 
 import inspect
 import logging
@@ -38,7 +38,8 @@ LOGGER = logging.getLogger('pynetdicom.sop')
 
 
 def uid_to_service_class(uid):
-    """Return the ServiceClass object corresponding to `uid`.
+    """Return the :class:`~pynetdicom.service_class.ServiceClass` object
+    corresponding to `uid`.
 
     Parameters
     ----------
@@ -48,7 +49,7 @@ def uid_to_service_class(uid):
 
     Returns
     -------
-    service_class.ServiceClass
+    subclass of service_class.ServiceClass
         The Service Class corresponding to the SOP Class UID or the base class
         if support for the SOP Class isn't implemented.
     """
@@ -104,7 +105,10 @@ def uid_to_service_class(uid):
 
 
 class SOPClass(UID):
-    """Extend pydicom's UID to include the corresponding Service Class."""
+    """Extend :class:`~pydicom.uid.UID` to include the corresponding Service
+    Class.
+
+    """
     _service_class = None
 
     def __new__(cls, val):
@@ -125,8 +129,13 @@ class SOPClass(UID):
 def _generate_sop_classes(sop_class_dict):
     """Generate the SOP Classes."""
     for name in sop_class_dict:
-        sop_class = SOPClass(sop_class_dict[name])
-        sop_class._service_class = uid_to_service_class(sop_class_dict[name])
+        uid = sop_class_dict[name]
+        sop_class = SOPClass(uid)
+        sop_class._service_class = uid_to_service_class(uid)
+        docstring = "``{}``".format(uid)
+        if uid in ('1.2.840.10008.5.1.1.9', '1.2.840.10008.5.1.1.18'):
+            docstring += "\n\n.. versionadded:: 1.4"
+        sop_class.__doc__ = docstring
         globals()[name] = sop_class
 
 
@@ -416,11 +425,12 @@ _generate_sop_classes(_VERIFICATION_CLASSES)
 
 
 def uid_to_sop_class(uid):
-    """Return the SOPClass object corresponding to `uid`.
+    """Return the :class:`SOPClass` object corresponding to `uid`.
 
     Parameters
     ----------
     uid : pydicom.uid.UID
+        Return the corresponding object for this UID.
 
     Returns
     -------
@@ -447,3 +457,46 @@ def uid_to_sop_class(uid):
     sop_class._service_class = ServiceClass
 
     return sop_class
+
+
+# Well-known SOP Instance UIDs for the supported Service Classes
+DisplaySystemSOPInstance = UID('1.2.840.10008.5.1.1.40.1')
+"""``1.2.840.10008.5.1.1.40.1``
+
+.. versionadded:: 1.5
+"""
+PrinterConfigurationRetrievalSOPInstance = UID('1.2.840.10008.5.1.1.17.376')
+"""``1.2.840.10008.5.1.1.17.376``
+
+.. versionadded:: 1.5
+"""
+PrinterSOPInstance = UID('1.2.840.10008.5.1.1.17')
+"""``1.2.840.10008.5.1.1.17``
+
+.. versionadded:: 1.5
+"""
+ProceduralEventLoggingSOPInstance = UID('1.2.840.10008.1.40.1')
+"""``1.2.840.10008.1.40.1``
+
+.. versionadded:: 1.5
+"""
+StorageCommitmentPushModelSOPInstance = UID('1.2.840.10008.1.20.1.1')
+"""``1.2.840.10008.1.20.1.1``
+
+.. versionadded:: 1.5
+"""
+SubstanceAdministrationLoggingSOPInstance = UID('1.2.840.10008.1.42.1')
+"""``1.2.840.10008.1.42.1``
+
+.. versionadded:: 1.5
+"""
+UPSFilteredGlobalSubscriptionSOPInstance = UID('1.2.840.10008.5.1.4.34.5.1')
+"""``1.2.840.10008.5.1.4.34.5.1``
+
+.. versionadded:: 1.5
+"""
+UPSGlobalSubscriptionSOPInstance = UID('1.2.840.10008.5.1.4.34.5')
+"""``1.2.840.10008.5.1.4.34.5``
+
+.. versionadded:: 1.5
+"""

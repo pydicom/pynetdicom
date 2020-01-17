@@ -30,10 +30,10 @@ def _setup_argparser():
     # Description
     parser = argparse.ArgumentParser(
         description="The echoscp application implements a Service Class "
-                    "Provider (SCP) for the Verification SOP Class. It listens "
-                    "for a DICOM C-ECHO message from a Service Class User "
-                    "(SCU) and sends a response. The application can be used "
-                    "to verify basic DICOM connectivity.",
+                    "Provider (SCP) for the Verification SOP Class. It "
+                    "listens for a DICOM C-ECHO message from a Service Class "
+                    "User (SCU) and sends a response. The application can be "
+                    "used to verify basic DICOM connectivity.",
         usage="echoscp [options] port")
 
     # Parameters
@@ -56,12 +56,15 @@ def _setup_argparser():
     gen_opts.add_argument("-d", "--debug",
                           help="debug mode, print debug information",
                           action="store_true")
-    gen_opts.add_argument("-ll", "--log-level", metavar='[l]',
-                          help="use level l for the APP_LOGGER (fatal, error, warn, "
-                               "info, debug, trace)",
-                          type=str,
-                          choices=['fatal', 'error', 'warn',
-                                   'info', 'debug', 'trace'])
+    gen_opts.add_argument(
+        "-ll", "--log-level", metavar='[l]',
+        help=(
+            "use level l for the APP_LOGGER (fatal, error, warn, "
+            "info, debug, trace)"
+        ),
+        type=str,
+        choices=['fatal', 'error', 'warn', 'info', 'debug', 'trace']
+    )
     gen_opts.add_argument("-lc", "--log-config", metavar='[f]',
                           help="use config file f for the APP_LOGGER",
                           type=str)
@@ -166,8 +169,10 @@ if isinstance(args.port, int):
         test_socket.bind((os.popen('hostname').read()[:-1], args.port))
         test_socket.close()
     except socket.error:
-        APP_LOGGER.error("Cannot listen on port {}, insufficient privileges or "
-            "already in use".format(args.port))
+        APP_LOGGER.error(
+            "Cannot listen on port {}, insufficient privileges or "
+            "already in use".format(args.port)
+        )
         sys.exit()
 
 # Set Transfer Syntax options

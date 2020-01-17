@@ -1,8 +1,7 @@
 Print Management Service Examples
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-The DICOM `Print Management service
-<http://dicom.nema.org/medical/dicom/current/output/html/part04.html#chapter_H>`_
+The DICOM :dcm:`Print Management service<part04/chapter_H.html>`
 facilitates print of images and image related data. There are two Basic Print
 Management Meta SOP Classes which correspond with the minimum functionality
 that an implementation of the Print Management service class shall support (i.e
@@ -87,8 +86,10 @@ depending on the implementation (check the conformance statement):
 Depending on which method the Print SCP uses you should:
 
 * For methods 1 and 2, simply bind a handler to ``evt.EVT_N_REPORT``
-  when calling ``AE.associate()``
-* For method 3, start an ``AssociationServer`` instance with
+  when calling
+  :meth:`AE.associate()<pynetdicom.ae.ApplicationEntity.associate>`
+* For method 3, start an :class:`~pynetdicom.transport.AssociationServer`
+  instance with
   ``AE.start_server((addr, port), block=False)`` with a handler bound to
   ``evt.EVT_N_EVENT_REPORT``
 

@@ -1,3 +1,5 @@
+.. _api_dul_primitives_aabort:
+
 A-ABORT
 =======
 
@@ -10,9 +12,3 @@ cause the abnormal release of the association.
    :toctree: generated/
 
    A_ABORT
-
-References
-----------
-
-1. DICOM Standard, Part 8, Section
-   `7.3 <http://dicom.nema.org/medical/dicom/current/output/html/part08.html#sect_7.3>`_

@@ -1,7 +1,8 @@
 Relevant Patient Information Query Service Examples
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-The DICOM `Relevant Patient Information Query Service <http://dicom.nema.org/medical/dicom/current/output/html/part04.html#chapter_Q>`_
+The DICOM :dcm:`Relevant Patient Information Query Service
+<part04/chapter_Q.html>`
 provides a mechanism for an SCU to access relevant patient information managed
 by an SCP. This is accomplished through the DIMSE C-FIND service.
 
@@ -82,8 +83,8 @@ probably best to store the instance attributes in a database and run the
 query against that.
 
 Check the
-`handler implementation documentation
-<../reference/generated/pynetdicom._handlers.doc_handle_find.html>`_
+:func:`handler implementation documentation
+<pynetdicom._handlers.doc_handle_find>`
 to see the requirements for the ``evt.EVT_C_FIND`` handler.
 
 .. code-block:: python

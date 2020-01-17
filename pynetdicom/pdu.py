@@ -60,7 +60,7 @@ class PDU(object):
 
     References
     ----------
-    DICOM Standard, Part 8, `Section 9.3 <http://dicom.nema.org/medical/dicom/current/output/html/part08.html#sect_9.3>`_
+    DICOM Standard, Part 8, :dcm:`Section 9.3 <part08/sect_9.3.html>`
     """
 
     def decode(self, bytestream):
@@ -89,7 +89,7 @@ class PDU(object):
         raise NotImplementedError
 
     def encode(self):
-        """Return the encoded PDU as bytes.
+        """Return the encoded PDU as :class:`bytes`.
 
         Returns
         -------
@@ -112,7 +112,7 @@ class PDU(object):
         raise NotImplementedError
 
     def __eq__(self, other):
-        """Return True if `self` equals `other`."""
+        """Return ``True`` if `self` equals `other`."""
         if other is self:
             return True
 
@@ -166,8 +166,8 @@ class PDU(object):
 
         **Encoding**
         When encoded, PDU item and sub-item data for the above has the
-        following structure, taken from various tables in [1]_ (offsets shown
-        with Python indexing). Items are always encoded using Big Endian [2]_.
+        following structure, taken from various tables in (offsets shown
+        with Python indexing). Items are always encoded using Big Endian.
 
         +--------+-------------+-------------+
         | Offset | Length      | Description |
@@ -183,10 +183,9 @@ class PDU(object):
 
         References
         ----------
-        .. [1] DICOM Standard, Part 8, Section
-           `9.3 <http://dicom.nema.org/medical/dicom/current/output/html/part08.html#sect_9.3>`_
-        .. [2] DICOM Standard, Part 8, Section
-           `9.3.1 <http://dicom.nema.org/medical/dicom/current/output/html/part08.html#sect_9.3.1>`_
+        * DICOM Standard, Part 8, :dcm:`Section 9.3 <part08/sect_9.3.html>`
+        * DICOM Standard, Part 8,
+           :dcm:`Section 9.3.1<part08/sect_9.3.html#sect_9.3.1>`
         """
         offset = 0
         while bytestream[offset:offset + 1]:
@@ -202,26 +201,22 @@ class PDU(object):
     __hash__ = None
 
     def __len__(self):
-        """Return the total length of the encoded PDU as an int."""
+        """Return the total length of the encoded PDU as :class:`int`."""
         return 6 + self.pdu_length
 
     def __ne__(self, other):
-        """Return True if `self` does not equal `other`."""
+        """Return ``True`` if `self` does not equal `other`."""
         return not self == other
 
     @property
     def pdu_length(self):
-        """Return the *PDU Length* field value as an int."""
+        """Return the *PDU Length* field value as :class:`int`."""
         raise NotImplementedError
 
     @property
     def pdu_type(self):
-        """Return the *PDU Type* field value an int."""
-        key_val = PDU_TYPES.items()
-        keys = [key for (key, val) in key_val]
-        vals = [val for (key, val) in key_val]
-
-        return keys[vals.index(self.__class__)]
+        """Return the *PDU Type* field value as :class:`int`."""
+        return PDU_TYPES[self.__class__]
 
     @staticmethod
     def _wrap_bytes(bytestream):
@@ -255,10 +250,10 @@ class PDU(object):
         Each component of Application Context, Abstract Syntax and Transfer
         Syntax UIDs should be encoded as a ISO 646:1990-Basic G0 Set Numeric
         String (characters 0-9), with each component separated by '.' (0x2e)
-        [1]_.
+       .
 
         'ascii' is chosen because this is the codec Python uses for ISO 646
-        [2]_ [3]_.
+        [3]_.
 
         Parameters
         ----------
@@ -272,10 +267,11 @@ class PDU(object):
 
         References
         ----------
-        .. [1] DICOM Standard, part 8,
-           `Annex F <http://dicom.nema.org/medical/dicom/current/output/html/part08.html#chapter_F>`_.
-        .. [2] `Python 2 codecs module <https://docs.python.org/3/library/codecs.html#standard-encodings>`_
-        .. [3] `Python 3 codecs module <https://docs.python.org/2/library/codecs.html#standard-encodings>`_
+        * DICOM Standard, Part 8, :dcm:`Annex F <part08/chapter_F.html>`
+        * `Python 2 codecs module
+          <https://docs.python.org/3/library/codecs.html#standard-encodings>`_
+        * `Python 3 codecs module
+          <https://docs.python.org/2/library/codecs.html#standard-encodings>`_
         """
         return codecs.encode(uid, 'ascii')
 
@@ -338,22 +334,22 @@ class A_ASSOCIATE_RQ(PDU):
     called_ae_title : bytes
         The *Called AE Title* field value, which is the destination DICOM
         application name as a fixed length 16-byte value (padded with trailing
-        spaces 0x20). Leading and trailing spaces are non-significant and a
+        spaces ``0x20``). Leading and trailing spaces are non-significant and a
         value of 16 spaces is not allowed.
     calling_ae_title : bytes
         The *Calling AE Title* field value, which is the destination DICOM
         application name as a fixed length 16-byte value (padded with trailing
-        spaces 0x20). Leading and trailing spaces are non-significant and a
+        spaces ``0x20``). Leading and trailing spaces are non-significant and a
         value of 16 spaces is not allowed.
     pdu_length : int
         The number of bytes from the first byte following the *PDU Length*
         field to the last byte of the PDU.
     pdu_type : int
-        The *PDU Type* field value (0x01).
+        The *PDU Type* field value (``0x01``).
     presentation_context : list of pdu_items.PresentationContextItemRQ
         The *Presentation Context Item(s)*.
     protocol_version : int
-        The *Protocol Version* field value (default 0x01).
+        The *Protocol Version* field value (``0x01``).
     user_information : pdu_items.UserInformationItem
         The *User Information Item* (if available).
     variable_items : list
@@ -366,38 +362,38 @@ class A_ASSOCIATE_RQ(PDU):
     -----
     An A-ASSOCIATE-RQ PDU requires the following parameters:
 
-    * PDU type (1, fixed value, 0x01)
+    * PDU type (1, fixed value, ``0x01``)
     * PDU length (1)
-    * Protocol version (1, default value, 0x01)
+    * Protocol version (1, default value, ``0x01``)
     * Called AE title (1)
     * Calling AE title (1)
     * Variable items (1)
 
       * Application Context Item (1)
 
-        * Item type (1, fixed value, 0x10)
+        * Item type (1, fixed value, ``0x10``)
         * Item length (1)
         * Application Context Name (1, fixed in an application)
       * Presentation Context Item(s) (1 or more)
 
-        * Item type (1, fixed value, 0x21)
+        * Item type (1, fixed value, ``0x21``)
         * Item length (1)
         * Context ID (1)
         * Abstract/Transfer Syntax Sub-items (1)
 
           * Abstract Syntax Sub-item (1)
 
-            * Item type (1, fixed, 0x30)
+            * Item type (1, fixed, ``0x30``)
             * Item length (1)
             * Abstract syntax name (1)
           * Transfer Syntax Sub-items (1 or more)
 
-            * Item type (1, fixed, 0x40)
+            * Item type (1, fixed, ``0x40``)
             * Item length (1)
             * Transfer syntax name(s) (1 or more)
       * User Information Item (1)
 
-        * Item type (1, fixed, 0x50)
+        * Item type (1, fixed, ``0x50``)
         * Item length (1)
         * User data Sub-items (2 or more)
 
@@ -408,8 +404,8 @@ class A_ASSOCIATE_RQ(PDU):
     **Encoding**
 
     When encoded, an A-ASSOCIATE-RQ PDU has the following structure, taken
-    from Table 9-11 [1]_ (offsets shown with Python indexing). PDUs are always
-    encoded using Big Endian [2]_.
+    from `Table 9-11<part08/sect_9.3.2.html>` (offsets shown with Python
+    indexing). PDUs are always encoded using Big Endian.
 
     +--------+-------------+------------------+
     | Offset | Length      | Description      |
@@ -435,10 +431,8 @@ class A_ASSOCIATE_RQ(PDU):
 
     References
     ----------
-    .. [1] DICOM Standard, Part 8, Section
-       `9.3.2 <http://dicom.nema.org/medical/dicom/current/output/html/part08.html#sect_9.3.2>`_
-    .. [2] DICOM Standard, Part 8, Section
-       `9.3.1 <http://dicom.nema.org/medical/dicom/current/output/html/part08.html#sect_9.3.1>`_
+    * DICOM Standard, Part 8, Sections :dcm:`9.3.2<part08/sect_9.3.2.html>`
+      and :dcm:`9.3.1<part08/sect_9.3.html#sect_9.3.1>`
     """
 
     def __init__(self):
@@ -530,7 +524,7 @@ class A_ASSOCIATE_RQ(PDU):
 
     @property
     def called_ae_title(self):
-        """Return the *Called AE Title* field value as bytes."""
+        """Return the *Called AE Title* field value as :class:`bytes`."""
         return self._called_aet
 
     @called_ae_title.setter
@@ -538,7 +532,7 @@ class A_ASSOCIATE_RQ(PDU):
         """Set the *Called AE Title* field value.
 
         Will be converted to a fixed length 16-byte value (padded with trailing
-        spaces 0x20). Leading and trailing spaces are non-significant and a
+        spaces ``0x20``). Leading and trailing spaces are non-significant and a
         value of 16 spaces is not allowed.
 
         Parameters
@@ -555,7 +549,7 @@ class A_ASSOCIATE_RQ(PDU):
 
     @property
     def calling_ae_title(self):
-        """Return the *Calling AE Title* field value as bytes."""
+        """Return the *Calling AE Title* field value as :class:`bytes`."""
         return self._calling_aet
 
     @calling_ae_title.setter
@@ -563,7 +557,7 @@ class A_ASSOCIATE_RQ(PDU):
         """Set the *Calling AE Title* field value.
 
         Will be converted to a fixed length 16-byte value (padded with trailing
-        spaces 0x20). Leading and trailing spaces are non-significant and a
+        spaces ``0x20``). Leading and trailing spaces are non-significant and a
         value of 16 spaces is not allowed.
 
         Parameters
@@ -585,14 +579,17 @@ class A_ASSOCIATE_RQ(PDU):
         Returns
         -------
         list of tuple
-            A list of ((offset, length), attr_name, callable, [args]), where
+            A list of ``((offset, length), attr_name, callable, [args])``,
+            where:
 
-            - offset is the byte offset to start at
-            - length is how many bytes to slice (if None then will slice to the
-              end of the data),
-            - attr_name is the name of the attribute corresponding to the field
-            - callable is a decoding function that returns the decoded value,
-            - args is a list of arguments to pass callable.
+            - ``offset`` is the byte offset to start at
+            - ``length`` is how many bytes to slice (if None then will slice
+              to the end of the data),
+            - ``attr_name`` is the name of the attribute corresponding to the
+              field
+            - ``callable`` is a decoding function that returns the decoded
+              value
+            - ``args`` is a list of arguments to pass ``callable``
         """
         return [
             ((6, 2), 'protocol_version', self._wrap_unpack, [UNPACK_UINT2]),
@@ -608,11 +605,12 @@ class A_ASSOCIATE_RQ(PDU):
         Returns
         -------
         list of tuple
-            A list of (attr_name, callable, [args]), where
+            A list of ``(attr_name, callable, [args])``, where:
 
-            - attr_name is the name of the attribute corresponding to the field
-            - callable is an encoding function that returns bytes
-            - args is a list of arguments to pass callable.
+            - ``attr_name`` is the name of the attribute corresponding to the
+              field
+            - ``callable`` is an encoding function that returns :class:`bytes`
+            - ``args`` is a :class:`list` of arguments to pass ``callable``.
         """
         return [
             ('pdu_type', PACK_UCHAR, []),
@@ -635,7 +633,7 @@ class A_ASSOCIATE_RQ(PDU):
 
     @property
     def pdu_length(self):
-        """Return the *PDU Length* field value as an int."""
+        """Return the *PDU Length* field value as :class:`int`."""
         length = 68
         for item in self.variable_items:
             length += len(item)
@@ -644,12 +642,12 @@ class A_ASSOCIATE_RQ(PDU):
 
     @property
     def presentation_context(self):
-        """Return a list of the Presentation Context Items.
+        """Return a list of the Presentation Context items.
 
         Returns
         -------
         list of pdu_items.PresentationContextItemRQ
-            The Presentation Context Items.
+            The Presentation Context items.
         """
         return [item for item in self.variable_items if
                 isinstance(item, PresentationContextItemRQ)]
@@ -697,7 +695,8 @@ class A_ASSOCIATE_RQ(PDU):
         Returns
         -------
         pdu_items.UserInformationItem or None
-            The requestor's User Information object or None, if not available.
+            The requestor's User Information object or ``None``, if not
+            available.
         """
         for item in self.variable_items:
             if isinstance(item, UserInformationItem):
@@ -715,7 +714,7 @@ class A_ASSOCIATE_AC(PDU):
     Attributes
     ----------
     application_context_name : pydicom.uid.UID
-        The 'Application Context Item's *Application Context Name* field value
+        The Application Context Item's *Application Context Name* field value
         (if available).
     called_ae_title : bytes
         The requestor's *Called AE Title* field value, which is the destination
@@ -729,11 +728,11 @@ class A_ASSOCIATE_AC(PDU):
         The number of bytes from the first byte following the *PDU Length*
         field to the last byte of the PDU.
     pdu_type : int
-        The *PDU Type* field value (0x02).
+        The *PDU Type* field value (``0x02``).
     presentation_context : list of pdu_items.PresentationContextItemAC
         The *Presentation Context Item(s)*.
     protocol_version : int
-        The *Protocol Version* field value (default 0x01).
+        The *Protocol Version* field value (default ``0x01``).
     user_information : pdu_items.UserInformationItem
         The *User Information Item* (if available).
     variable_items : list
@@ -746,30 +745,30 @@ class A_ASSOCIATE_AC(PDU):
     -----
     An A-ASSOCIATE-AC PDU requires the following parameters:
 
-    * PDU type (1, fixed value, 0x02)
+    * PDU type (1, fixed value, ``0x02``)
     * PDU length (1)
-    * Protocol version (1, default value, 0x01)
+    * Protocol version (1, default value, ``0x01``)
     * Variable items (1)
 
       * Application Context Item (1)
 
-        * Item type (1, fixed value, 0x10)
+        * Item type (1, fixed value, ``0x10``)
         * Item length (1)
         * Application Context Name (1, fixed in an application)
       * Presentation Context Item(s) (1 or more)
 
-        * Item type (1, fixed value, 0x21)
+        * Item type (1, fixed value, ``0x21``)
         * Item length (1)
         * Context ID (1)
         * Result/reason (1)
         * Transfer Syntax Sub-items (1)
 
-          * Item type (1, fixed, 0x40)
+          * Item type (1, fixed, ``0x40``)
           * Item length (1)
           * Transfer syntax name(s) (1)
       * User Information Item (1)
 
-        * Item type (1, fixed, 0x50)
+        * Item type (1, fixed, ``0x50``)
         * Item length (1)
         * User data Sub-items (2 or more)
 
@@ -780,8 +779,8 @@ class A_ASSOCIATE_AC(PDU):
     **Encoding**
 
     When encoded, an A-ASSOCIATE-AC PDU has the following structure, taken
-    from Table 9-17 [1]_ (offsets shown with Python indexing). PDUs are always
-    encoded using Big Endian [2]_.
+    from Table 9-17 (offsets shown with Python indexing). PDUs are always
+    encoded using Big Endian.
 
     +--------+-------------+------------------+
     | Offset | Length      | Description      |
@@ -810,10 +809,10 @@ class A_ASSOCIATE_AC(PDU):
 
     References
     ----------
-    .. [1] DICOM Standard, Part 8, Section
-       `9.3.3 <http://dicom.nema.org/medical/dicom/current/output/html/part08.html#sect_9.3.3>`_
-    .. [2] DICOM Standard, Part 8, Section
-       `9.3.1 <http://dicom.nema.org/medical/dicom/current/output/html/part08.html#sect_9.3.1>`_
+    * DICOM Standard, Part 8,
+      :dcm:`Section 9.3.3 <part08/sect_9.3.3.html>`
+    * DICOM Standard, Part 8,
+      :dcm:`Section 9.3.1<part08/sect_9.3.html#sect_9.3.1>`
     """
 
     def __init__(self):
@@ -1094,7 +1093,7 @@ class A_ASSOCIATE_RJ(PDU):
         The number of bytes from the first byte following the *PDU Length*
         field to the last byte of the PDU.
     pdu_type : int
-        The *PDU Type* field value (0x03).
+        The *PDU Type* field value (``0x03``).
     reason_diagnostic : int
         The *Reason/Diagnostic* field value.
     result : int
@@ -1106,7 +1105,7 @@ class A_ASSOCIATE_RJ(PDU):
     -----
     An A-ASSOCIATE-RJ PDU requires the following parameters:
 
-    * PDU type (1, fixed value, 0x03)
+    * PDU type (1, fixed value, ``0x03``)
     * PDU length (1)
     * Result (1)
     * Source (1)
@@ -1115,8 +1114,8 @@ class A_ASSOCIATE_RJ(PDU):
     **Encoding**
 
     When encoded, an A-ASSOCIATE-RJ PDU has the following structure, taken
-    from Table 9-21 [1]_ (offsets shown with Python indexing). PDUs are always
-    encoded using Big Endian [2]_.
+    from Table 9-21 (offsets shown with Python indexing). PDUs are always
+    encoded using Big Endian.
 
     +--------+-------------+-------------------+
     | Offset | Length      | Description       |
@@ -1138,10 +1137,10 @@ class A_ASSOCIATE_RJ(PDU):
 
     References
     ----------
-    .. [1] DICOM Standard, Part 8, Section
-       `9.3.4 <http://dicom.nema.org/medical/dicom/current/output/html/part08.html#sect_9.3.4>`_
-    .. [2] DICOM Standard, Part 8, Section
-       `9.3.1 <http://dicom.nema.org/medical/dicom/current/output/html/part08.html#sect_9.3.1>`_
+    * DICOM Standard, Part 8,
+      :dcm:`Section 9.3.4 <part08/sect_9.3.4.html>`
+    * DICOM Standard, Part 8,
+      :dcm:`Section 9.3.1<part08/sect_9.3.html#sect_9.3.1>`
     """
     def __init__(self):
         """Initialise a new A-ASSOCIATE-RJ PDU."""
@@ -1333,7 +1332,7 @@ class P_DATA_TF(PDU):
         The number of bytes from the first byte following the *PDU Length*
         field to the last byte of the PDU.
     pdu_type : int
-        The *PDU Type* field value (0x04).
+        The *PDU Type* field value (``0x04``).
     presentation_data_value_items : list of pdu.PresentationDataValueItem
         The *Presentation Data Value Item(s)* field value.
 
@@ -1341,15 +1340,15 @@ class P_DATA_TF(PDU):
     -----
     A P-DATA-TF PDU requires the following parameters:
 
-    * PDU type (1, fixed value, 0x04)
+    * PDU type (1, fixed value, ``0x04``)
     * PDU length (1)
     * Presentation data value Item(s) (1 or more)
 
     **Encoding**
 
     When encoded, a P-DATA-TF PDU has the following structure, taken
-    from Table 9-22 [1]_ (offsets shown with Python indexing). PDUs are always
-    encoded using Big Endian [2]_.
+    from Table 9-22 (offsets shown with Python indexing). PDUs are always
+    encoded using Big Endian.
 
     +--------+-------------+-------------------------------+
     | Offset | Length      | Description                   |
@@ -1365,10 +1364,10 @@ class P_DATA_TF(PDU):
 
     References
     ----------
-    .. [1] DICOM Standard, Part 8, Section
-       `9.3.5 <http://dicom.nema.org/medical/dicom/current/output/html/part08.html#sect_9.3.5>`_
-    .. [2] DICOM Standard, Part 8, Section
-       `9.3.1 <http://dicom.nema.org/medical/dicom/current/output/html/part08.html#sect_9.3.1>`_
+    * DICOM Standard, Part 8,
+      :dcm:`Section 9.3.5 <part08/sect_9.3.5.html>`
+    * DICOM Standard, Part 8,
+      :dcm:`Section 9.3.1<part08/sect_9.3.html#sect_9.3.1>`
     """
 
     def __init__(self):
@@ -1470,10 +1469,10 @@ class P_DATA_TF(PDU):
         -----
         **Encoding**
         When encoded, a Presentation Data Value Item has the following
-        structure, taken from Table 9-23 [1]_ (offset shown with Python
+        structure, taken from Table 9-23 (offset shown with Python
         indexing). The item is encoded using Big Endian, but the encoding of
         of the presentation data message fragments is dependent on the
-        negotiated transfer syntax [2]_.
+        negotiated transfer syntax.
 
         +--------+-------------+-------------------------+
         | Offset | Length      | Description             |
@@ -1487,10 +1486,10 @@ class P_DATA_TF(PDU):
 
         References
         ----------
-        .. [1] DICOM Standard, Part 8, Section
-           `9.3.5.1 <http://dicom.nema.org/medical/dicom/current/output/html/part08.html#sect_9.3.5.1>`_
-        .. [2] DICOM Standard, Part 8, Section
-           `9.3.1 <http://dicom.nema.org/medical/dicom/current/output/html/part08.html#sect_9.3.1>`_
+        * DICOM Standard, Part 8, :dcm:`Section
+          9.3.5.1 <part08/sect_9.3.5.html#sect_9.3.5.1>`
+        * DICOM Standard, Part 8,
+          :dcm:`Section 9.3.1<part08/sect_9.3.html#sect_9.3.1>`
         """
         offset = 0
         while bytestream[offset:offset + 1]:
@@ -1565,20 +1564,20 @@ class A_RELEASE_RQ(PDU):
         The number of bytes from the first byte following the *PDU Length*
         field to the last byte of the PDU.
     pdu_type : int
-        The *PDU Type* field value (0x05).
+        The *PDU Type* field value (``0x05``).
 
     Notes
     -----
     An A-RELEASE-RQ PDU requires the following parameters:
 
-    * PDU type (1, fixed value, 0x05)
+    * PDU type (1, fixed value, ``0x05``)
     * PDU length (1, fixed value, 4)
 
     **Encoding**
 
     When encoded, an A-RELEASE-RQ PDU has the following structure, taken
-    from Table 9-24 [1]_ (offsets shown with Python indexing). PDUs are always
-    encoded using Big Endian [2]_.
+    from Table 9-24 (offsets shown with Python indexing). PDUs are always
+    encoded using Big Endian.
 
     +--------+-------------+---------------+
     | Offset | Length      | Description   |
@@ -1594,10 +1593,10 @@ class A_RELEASE_RQ(PDU):
 
     References
     ----------
-    .. [1] DICOM Standard, Part 8, Section
-       `9.3.6 <http://dicom.nema.org/medical/dicom/current/output/html/part08.html#sect_9.3.6>`_
-    .. [2] DICOM Standard, Part 8, Section
-       `9.3.1 <http://dicom.nema.org/medical/dicom/current/output/html/part08.html#sect_9.3.1>`_
+    * DICOM Standard, Part 8,
+      :dcm:`Section 9.3.6 <part08/sect_9.3.6.html>`
+    * DICOM Standard, Part 8,
+      :dcm:`Section 9.3.1<part08/sect_9.3.html#sect_9.3.1>`
     """
 
     def __init__(self):
@@ -1693,20 +1692,20 @@ class A_RELEASE_RP(PDU):
         The number of bytes from the first byte following the *PDU Length*
         field to the last byte of the PDU.
     pdu_type : int
-        The *PDU Type* field value (0x06).
+        The *PDU Type* field value (``0x06``).
 
     Notes
     -----
     An A-RELEASE-RP PDU requires the following parameters:
 
-    * PDU type (1, fixed value, 0x06)
-    * PDU length (1, fixed value, 0x00000004)
+    * PDU type (1, fixed value, ``0x06``)
+    * PDU length (1, fixed value, ``0x00000004``)
 
     **Encoding**
 
     When encoded, an A-RELEASE-RP PDU has the following structure, taken
-    from Table 9-25 [1]_ (offsets shown with Python indexing). PDUs are always
-    encoded using Big Endian [2]_.
+    from Table 9-25 (offsets shown with Python indexing). PDUs are always
+    encoded using Big Endian.
 
     +--------+-------------+---------------+
     | Offset | Length      | Description   |
@@ -1722,10 +1721,10 @@ class A_RELEASE_RP(PDU):
 
     References
     ----------
-    .. [1] DICOM Standard, Part 8, Section
-       `9.3.7 <http://dicom.nema.org/medical/dicom/current/output/html/part08.html#sect_9.3.7>`_
-    .. [2] DICOM Standard, Part 8, Section
-       `9.3.1 <http://dicom.nema.org/medical/dicom/current/output/html/part08.html#sect_9.3.1>`_
+    * DICOM Standard, Part 8,
+      :dcm:`Section 9.3.7 <part08/sect_9.3.7.html>`
+    * DICOM Standard, Part 8,
+      :dcm:`Section 9.3.1<part08/sect_9.3.html#sect_9.3.1>`
     """
 
     def __init__(self):
@@ -1823,7 +1822,7 @@ class A_ABORT_RQ(PDU):
         The number of bytes from the first byte following the *PDU Length*
         field to the last byte of the PDU.
     pdu_type : int
-        The *PDU Type* field value (0x07).
+        The *PDU Type* field value (``0x07``).
     reason_diagnostic : int
         The *Reason/Diagnostic* field value.
     source : int
@@ -1833,7 +1832,7 @@ class A_ABORT_RQ(PDU):
     -----
     An A-ABORT-RQ PDU requires the following parameters:
 
-    * PDU type (1, fixed value, 0x06)
+    * PDU type (1, fixed value, ``0x06``)
     * PDU length (1, fixed value, 4)
     * Source (1)
     * Reason/Diagnostic (1)
@@ -1841,8 +1840,8 @@ class A_ABORT_RQ(PDU):
     **Encoding**
 
     When encoded, an A-ABORT-RQ PDU has the following structure, taken
-    from Table 9-26 [1]_ (offsets shown with Python indexing). PDUs are always
-    encoded using Big Endian [2]_.
+    from Table 9-26 (offsets shown with Python indexing). PDUs are always
+    encoded using Big Endian.
 
     +--------+-------------+-------------------+
     | Offset | Length      | Description       |
@@ -1864,10 +1863,10 @@ class A_ABORT_RQ(PDU):
 
     References
     ----------
-    .. [1] DICOM Standard, Part 8, Section
-       `9.3.8 <http://dicom.nema.org/medical/dicom/current/output/html/part08.html#sect_9.3.8>`_
-    .. [2] DICOM Standard, Part 8, Section
-       `9.3.1 <http://dicom.nema.org/medical/dicom/current/output/html/part08.html#sect_9.3.1>`_
+    * DICOM Standard, Part 8,
+      :dcm:`Section 9.3.8 <part08/sect_9.3.8.html>`
+    * DICOM Standard, Part 8,
+      :dcm:`Section 9.3.1<part08/sect_9.3.html#sect_9.3.1>`
     """
 
     def __init__(self):
@@ -2008,13 +2007,13 @@ class A_ABORT_RQ(PDU):
         return 'No reason given'
 
 
-# PDUs indexed by their type
+# PDUs indexed by their class
 PDU_TYPES = {
-    0x01 : A_ASSOCIATE_RQ,
-    0x02 : A_ASSOCIATE_AC,
-    0x03 : A_ASSOCIATE_RJ,
-    0x04 : P_DATA_TF,
-    0x05 : A_RELEASE_RQ,
-    0x06 : A_RELEASE_RP,
-    0x07 : A_ABORT_RQ,
+    A_ASSOCIATE_RQ : 0x01,
+    A_ASSOCIATE_AC : 0x02,
+    A_ASSOCIATE_RJ : 0x03,
+    P_DATA_TF : 0x04,
+    A_RELEASE_RQ : 0x05,
+    A_RELEASE_RP : 0x06,
+    A_ABORT_RQ : 0x07,
 }

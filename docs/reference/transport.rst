@@ -1,4 +1,6 @@
-.. _transport:
+.. _api_transport:
+
+.. py:module:: pynetdicom.transport
 
 Transport Service (:mod:`pynetdicom.transport`)
 ===============================================

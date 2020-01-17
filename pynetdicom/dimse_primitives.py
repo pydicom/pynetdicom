@@ -17,6 +17,7 @@ import logging
 from pydicom.tag import Tag
 from pydicom.uid import UID
 
+from pynetdicom import _config
 from pynetdicom.utils import validate_ae_title, validate_uid
 
 
@@ -35,7 +36,7 @@ class DIMSEPrimitive(object):
 
     @property
     def AffectedSOPClassUID(self):
-        """Return the *Affected SOP Class UID* as a UID."""
+        """Return the *Affected SOP Class UID* as :class:`~pydicom.uid.UID`."""
         return self._affected_sop_class_uid
 
     @AffectedSOPClassUID.setter
@@ -76,7 +77,8 @@ class DIMSEPrimitive(object):
 
     @property
     def _AffectedSOPInstanceUID(self):
-        """Return the *Affected SOP Instance UID*."""
+        """Return the *Affected SOP Instance UID* as :class:`~pydicom.uid.UID`.
+        """
         return self._affected_sop_instance_uid
 
     @_AffectedSOPInstanceUID.setter
@@ -154,7 +156,7 @@ class DIMSEPrimitive(object):
 
     @property
     def is_valid_request(self):
-        """Return True if the request is valid, False otherwise."""
+        """Return ``True`` if the request is valid, ``False`` otherwise."""
         for keyword in self.REQUEST_KEYWORDS:
             if getattr(self, keyword) is None:
                 return False
@@ -163,7 +165,7 @@ class DIMSEPrimitive(object):
 
     @property
     def is_valid_response(self):
-        """Return True if the response is valid, False otherwise."""
+        """Return ``True`` if the response is valid, ``False`` otherwise."""
         for keyword in self.RESPONSE_KEYWORDS:
             if getattr(self, keyword) is None:
                 return False
@@ -172,7 +174,7 @@ class DIMSEPrimitive(object):
 
     @property
     def MessageID(self):
-        """Return the *Message ID* value as an int."""
+        """Return the *Message ID* value as :class:`int`."""
         return self._message_id
 
     @MessageID.setter
@@ -197,7 +199,7 @@ class DIMSEPrimitive(object):
 
     @property
     def MessageIDBeingRespondedTo(self):
-        """Return the *Message ID Being Responded To* as an int."""
+        """Return the *Message ID Being Responded To* as :class:`int`."""
         return self._message_id_being_responded_to
 
     @MessageIDBeingRespondedTo.setter
@@ -395,7 +397,7 @@ class DIMSEPrimitive(object):
 
     @property
     def Status(self):
-        """Return the *Status* as an int."""
+        """Return the *Status* as :class:`int`."""
         return self._status
 
     @Status.setter
@@ -414,7 +416,7 @@ class DIMSEPrimitive(object):
 
     @property
     def msg_type(self):
-        """Return the DIMSE message type as str."""
+        """Return the DIMSE message type as :class:`str`."""
         return self.__class__.__name__.replace('_', '-')
 
 
@@ -533,7 +535,8 @@ class C_STORE(DIMSEPrimitive):
 
     @property
     def AffectedSOPInstanceUID(self):
-        """Return the *Affected SOP Instance UID* as UID."""
+        """Return the *Affected SOP Instance UID* as :class:`~pydicom.uid.UID`.
+        """
         return self._AffectedSOPInstanceUID
 
     @AffectedSOPInstanceUID.setter
@@ -549,7 +552,7 @@ class C_STORE(DIMSEPrimitive):
 
     @property
     def DataSet(self):
-        """Return the *Data Set* as io.BytesIO."""
+        """Return the *Data Set* as :class:`io.BytesIO`."""
         return self._dataset_variant
 
     @DataSet.setter
@@ -565,7 +568,9 @@ class C_STORE(DIMSEPrimitive):
 
     @property
     def MoveOriginatorApplicationEntityTitle(self):
-        """Return the *Move Originator Application Entity Title* as bytes."""
+        """Return the *Move Originator Application Entity Title* as
+        :class:`bytes`.
+        """
         return self._move_originator_application_entity_title
 
     @MoveOriginatorApplicationEntityTitle.setter
@@ -585,9 +590,9 @@ class C_STORE(DIMSEPrimitive):
         if value:
             try:
                 self._move_originator_application_entity_title = (
-                    validate_ae_title(value)
+                    validate_ae_title(value, _config.USE_SHORT_DIMSE_AET)
                 )
-            except ValueError as exc:
+            except ValueError:
                 LOGGER.error(
                     "C-STORE request primitive contains an invalid "
                     "'Move Originator AE Title'"
@@ -598,7 +603,7 @@ class C_STORE(DIMSEPrimitive):
 
     @property
     def MoveOriginatorMessageID(self):
-        """Return the *Move Originator Message ID* as int."""
+        """Return the *Move Originator Message ID* as :class:`int`."""
         return self._move_originator_message_id
 
     @MoveOriginatorMessageID.setter
@@ -624,7 +629,7 @@ class C_STORE(DIMSEPrimitive):
 
     @property
     def Priority(self):
-        """Return the *Priority* as an int."""
+        """Return the *Priority* as :class:`int`."""
         return self._Priority
 
     @Priority.setter
@@ -730,7 +735,7 @@ class C_FIND(DIMSEPrimitive):
 
     @property
     def Identifier(self):
-        """Return the *Identifier* as io.BytesIO."""
+        """Return the *Identifier* as :class:`io.BytesIO`."""
         return self._dataset_variant
 
     @Identifier.setter
@@ -746,7 +751,7 @@ class C_FIND(DIMSEPrimitive):
 
     @property
     def Priority(self):
-        """Return the *Priority* as an int."""
+        """Return the *Priority* as :class:`int`."""
         return self._Priority
 
     @Priority.setter
@@ -887,7 +892,7 @@ class C_GET(DIMSEPrimitive):
 
     @property
     def Identifier(self):
-        """Return the *Identifier* as io.BytesIO."""
+        """Return the *Identifier* as :class:`io.BytesIO`."""
         return self._dataset_variant
 
     @Identifier.setter
@@ -903,7 +908,7 @@ class C_GET(DIMSEPrimitive):
 
     @property
     def NumberOfCompletedSuboperations(self):
-        """Return the *Number of Completed Suboperations* as int."""
+        """Return the *Number of Completed Suboperations* as :class:`int`."""
         return self._NumberOfCompletedSuboperations
 
     @NumberOfCompletedSuboperations.setter
@@ -920,7 +925,7 @@ class C_GET(DIMSEPrimitive):
 
     @property
     def NumberOfFailedSuboperations(self):
-        """Return the *Number of Failed Suboperations* as int."""
+        """Return the *Number of Failed Suboperations* as :class:`int`."""
         return self._NumberOfFailedSuboperations
 
     @NumberOfFailedSuboperations.setter
@@ -937,7 +942,7 @@ class C_GET(DIMSEPrimitive):
 
     @property
     def NumberOfRemainingSuboperations(self):
-        """Return the *Number of Remaining Suboperations* as int."""
+        """Return the *Number of Remaining Suboperations* as :class:`int`."""
         return self._NumberOfRemainingSuboperations
 
     @NumberOfRemainingSuboperations.setter
@@ -954,7 +959,7 @@ class C_GET(DIMSEPrimitive):
 
     @property
     def NumberOfWarningSuboperations(self):
-        """Return the *Number of Warning Suboperations* as int."""
+        """Return the *Number of Warning Suboperations* as :class:`int`."""
         return self._NumberOfWarningSuboperations
 
     @NumberOfWarningSuboperations.setter
@@ -971,7 +976,7 @@ class C_GET(DIMSEPrimitive):
 
     @property
     def Priority(self):
-        """Return the *Priority* as an int."""
+        """Return the *Priority* as :class:`int`."""
         return self._Priority
 
     @Priority.setter
@@ -1117,7 +1122,7 @@ class C_MOVE(DIMSEPrimitive):
 
     @property
     def Identifier(self):
-        """Return the *Identifier* as io.BytesIO."""
+        """Return the *Identifier* as :class:`io.BytesIO`."""
         return self._dataset_variant
 
     @Identifier.setter
@@ -1150,13 +1155,15 @@ class C_MOVE(DIMSEPrimitive):
             value = codecs.encode(value, 'ascii')
 
         if value is not None:
-            self._move_destination = validate_ae_title(value)
+            self._move_destination = validate_ae_title(
+                value, _config.USE_SHORT_DIMSE_AET
+            )
         else:
             self._move_destination = None
 
     @property
     def NumberOfCompletedSuboperations(self):
-        """Return the *Number of Completed Suboperations* as int."""
+        """Return the *Number of Completed Suboperations* as :class:`int`."""
         return self._NumberOfCompletedSuboperations
 
     @NumberOfCompletedSuboperations.setter
@@ -1173,7 +1180,7 @@ class C_MOVE(DIMSEPrimitive):
 
     @property
     def NumberOfFailedSuboperations(self):
-        """Return the *Number of Failed Suboperations* as int."""
+        """Return the *Number of Failed Suboperations* as :class:`int`."""
         return self._NumberOfFailedSuboperations
 
     @NumberOfFailedSuboperations.setter
@@ -1190,7 +1197,7 @@ class C_MOVE(DIMSEPrimitive):
 
     @property
     def NumberOfRemainingSuboperations(self):
-        """Return the *Number of Remaining Suboperations* as int."""
+        """Return the *Number of Remaining Suboperations* as :class:`int`."""
         return self._NumberOfRemainingSuboperations
 
     @NumberOfRemainingSuboperations.setter
@@ -1207,7 +1214,7 @@ class C_MOVE(DIMSEPrimitive):
 
     @property
     def NumberOfWarningSuboperations(self):
-        """Return the *Number of Warning Suboperations* as int."""
+        """Return the *Number of Warning Suboperations* as :class:`int`."""
         return self._NumberOfWarningSuboperations
 
     @NumberOfWarningSuboperations.setter
@@ -1224,7 +1231,7 @@ class C_MOVE(DIMSEPrimitive):
 
     @property
     def Priority(self):
-        """Return the *Priority* as an int."""
+        """Return the *Priority* as :class:`int`."""
         return self._Priority
 
     @Priority.setter
@@ -1328,7 +1335,7 @@ class C_CANCEL(object):
     References
     ----------
 
-    * DICOM Standard, Part 7, Section 9.3.2.3-4
+    * DICOM Standard, Part 7, :dcm:`Section 9.3.2.3<part07/sect_9.3.2.3.html>`
     """
     def __init__(self):
         """Initialise the C_CANCEL"""
@@ -1341,7 +1348,7 @@ class C_CANCEL(object):
 
     @property
     def MessageIDBeingRespondedTo(self):
-        """Return the *Message ID Being Responded To* as an int."""
+        """Return the *Message ID Being Responded To* as an :class:`int`."""
         return self._message_id_being_responded_to
 
     @MessageIDBeingRespondedTo.setter
@@ -1454,7 +1461,8 @@ class N_EVENT_REPORT(DIMSEPrimitive):
 
     @property
     def AffectedSOPInstanceUID(self):
-        """Return the *Affected SOP Instance UID* as UID."""
+        """Return the *Affected SOP Instance UID* as :class:`~pydicom.uid.UID`.
+        """
         return self._AffectedSOPInstanceUID
 
     @AffectedSOPInstanceUID.setter
@@ -1470,7 +1478,7 @@ class N_EVENT_REPORT(DIMSEPrimitive):
 
     @property
     def EventInformation(self):
-        """Return the *Event Information* as io.BytesIO."""
+        """Return the *Event Information* as :class:`io.BytesIO`."""
         return self._dataset_variant
 
     @EventInformation.setter
@@ -1486,7 +1494,7 @@ class N_EVENT_REPORT(DIMSEPrimitive):
 
     @property
     def EventReply(self):
-        """Return the *Event Reply* as io.BytesIO."""
+        """Return the *Event Reply* as :class:`io.BytesIO`."""
         return self._dataset_variant
 
     @EventReply.setter
@@ -1502,7 +1510,7 @@ class N_EVENT_REPORT(DIMSEPrimitive):
 
     @property
     def EventTypeID(self):
-        """Return the *Event Type ID* as int."""
+        """Return the *Event Type ID* as :class:`int`."""
         return self._event_type_id
 
     @EventTypeID.setter
@@ -1582,7 +1590,9 @@ class N_GET(DIMSEPrimitive):
     Status : int
         The error or success notification of the operation.
     """
-    STATUS_OPTIONAL_KEYWORDS = ('ErrorComment', 'ErrorID', )
+    STATUS_OPTIONAL_KEYWORDS = (
+        'AttributeIdentifierList', 'ErrorComment', 'ErrorID',
+    )
     REQUEST_KEYWORDS = (
         'MessageID', 'RequestedSOPClassUID', 'RequestedSOPInstanceUID'
     )
@@ -1604,7 +1614,8 @@ class N_GET(DIMSEPrimitive):
 
     @property
     def AffectedSOPInstanceUID(self):
-        """Return the *Affected SOP Instance UID* as UID."""
+        """Return the *Affected SOP Instance UID* as :class:`~pydicom.uid.UID`.
+        """
         return self._AffectedSOPInstanceUID
 
     @AffectedSOPInstanceUID.setter
@@ -1620,8 +1631,8 @@ class N_GET(DIMSEPrimitive):
 
     @property
     def AttributeIdentifierList(self):
-        """Return the *Attribute Identifier List* as a list of
-        pydicom.tag.Tag.
+        """Return the *Attribute Identifier List* as a :class:`list` of
+        :class:`~pydicom.tag.BaseTag`.
 
         """
         return self._attribute_identifier_list
@@ -1632,10 +1643,10 @@ class N_GET(DIMSEPrimitive):
 
         Parameters
         ----------
-        list of pydicom.tag.Tag
+        list of pydicom.tag.BaseTag
             The value to use for the *Attribute Identifier List* parameter.
-            A list of pydicom ``Tag`` instances or any values acceptable for
-            creating a ``Tag`` instance.
+            A list of pydicom :class:`pydicom.tag.BaseTag` instances or any
+            values acceptable for creating them.
         """
         if value is None:
             self._attribute_identifier_list = None
@@ -1660,7 +1671,7 @@ class N_GET(DIMSEPrimitive):
 
     @property
     def AttributeList(self):
-        """Return the *Attribute List* as io.BytesIO."""
+        """Return the *Attribute List* as :class:`io.BytesIO`."""
         return self._dataset_variant
 
     @AttributeList.setter
@@ -1676,7 +1687,8 @@ class N_GET(DIMSEPrimitive):
 
     @property
     def RequestedSOPClassUID(self):
-        """Return the *Requested SOP Class UID* as UID."""
+        """Return the *Requested SOP Class UID* as :class:`~pydicom.uid.UID`.
+        """
         return self._RequestedSOPClassUID
 
     @RequestedSOPClassUID.setter
@@ -1692,7 +1704,9 @@ class N_GET(DIMSEPrimitive):
 
     @property
     def RequestedSOPInstanceUID(self):
-        """Return the *Requested SOP Instance UID* as UID."""
+        """Return the *Requested SOP Instance UID* as
+        :class:`~pydicom.uid.UID`.
+        """
         return self._RequestedSOPInstanceUID
 
     @RequestedSOPInstanceUID.setter
@@ -1794,7 +1808,8 @@ class N_SET(DIMSEPrimitive):
 
     @property
     def AffectedSOPInstanceUID(self):
-        """Return the *Affected SOP Instance UID* as UID."""
+        """Return the *Affected SOP Instance UID* as :class:`~pydicom.uid.UID`.
+        """
         return self._AffectedSOPInstanceUID
 
     @AffectedSOPInstanceUID.setter
@@ -1810,7 +1825,7 @@ class N_SET(DIMSEPrimitive):
 
     @property
     def AttributeList(self):
-        """Return the *Attribute List* as io.BytesIO."""
+        """Return the *Attribute List* as :class:`io.BytesIO`."""
         return self._dataset_variant
 
     @AttributeList.setter
@@ -1826,7 +1841,7 @@ class N_SET(DIMSEPrimitive):
 
     @property
     def ModificationList(self):
-        """Return the *Modification List* as io.BytesIO."""
+        """Return the *Modification List* as :class:`io.BytesIO`."""
         return self._dataset_variant
 
     @ModificationList.setter
@@ -1842,7 +1857,8 @@ class N_SET(DIMSEPrimitive):
 
     @property
     def RequestedSOPClassUID(self):
-        """Return the *Requested SOP Class UID* as UID."""
+        """Return the *Requested SOP Class UID* as :class:`~pydicom.uid.UID`.
+        """
         return self._RequestedSOPClassUID
 
     @RequestedSOPClassUID.setter
@@ -1858,7 +1874,9 @@ class N_SET(DIMSEPrimitive):
 
     @property
     def RequestedSOPInstanceUID(self):
-        """Return the *Requested SOP Instance UID* as UID."""
+        """Return the *Requested SOP Instance UID* as
+        :class:`~pydicom.uid.UID`.
+        """
         return self._RequestedSOPInstanceUID
 
     @RequestedSOPInstanceUID.setter
@@ -1965,7 +1983,7 @@ class N_ACTION(DIMSEPrimitive):
 
     @property
     def ActionInformation(self):
-        """Return the *Action Information* as io.BytesIO."""
+        """Return the *Action Information* as :class:`io.BytesIO`."""
         return self._dataset_variant
 
     @ActionInformation.setter
@@ -1981,7 +1999,7 @@ class N_ACTION(DIMSEPrimitive):
 
     @property
     def ActionReply(self):
-        """Return the *Action Reply* as io.BytesIO."""
+        """Return the *Action Reply* as :class:`io.BytesIO`."""
         return self._dataset_variant
 
     @ActionReply.setter
@@ -1997,7 +2015,7 @@ class N_ACTION(DIMSEPrimitive):
 
     @property
     def ActionTypeID(self):
-        """Return the *Action Type ID* as int."""
+        """Return the *Action Type ID* as :class:`int`."""
         return self._action_type_id
 
     @ActionTypeID.setter
@@ -2016,7 +2034,8 @@ class N_ACTION(DIMSEPrimitive):
 
     @property
     def AffectedSOPInstanceUID(self):
-        """Return the *Affected SOP Instance UID* as UID."""
+        """Return the *Affected SOP Instance UID* as :class:`~pydicom.uid.UID`.
+        """
         return self._AffectedSOPInstanceUID
 
     @AffectedSOPInstanceUID.setter
@@ -2032,7 +2051,8 @@ class N_ACTION(DIMSEPrimitive):
 
     @property
     def RequestedSOPClassUID(self):
-        """Return the *Requested SOP Class UID* as UID."""
+        """Return the *Requested SOP Class UID* as :class:`~pydicom.uid.UID`.
+        """
         return self._RequestedSOPClassUID
 
     @RequestedSOPClassUID.setter
@@ -2048,7 +2068,9 @@ class N_ACTION(DIMSEPrimitive):
 
     @property
     def RequestedSOPInstanceUID(self):
-        """Return the *Requested SOP Instance UID* as UID."""
+        """Return the *Requested SOP Instance UID* as
+        :class:`~pydicom.uid.UID`.
+        """
         return self._RequestedSOPInstanceUID
 
     @RequestedSOPInstanceUID.setter
@@ -2132,7 +2154,8 @@ class N_CREATE(DIMSEPrimitive):
 
     @property
     def AffectedSOPInstanceUID(self):
-        """Return the *Affected SOP Instance UID* as UID."""
+        """Return the *Affected SOP Instance UID* as :class:`~pydicom.uid.UID`.
+        """
         return self._AffectedSOPInstanceUID
 
     @AffectedSOPInstanceUID.setter
@@ -2148,7 +2171,7 @@ class N_CREATE(DIMSEPrimitive):
 
     @property
     def AttributeList(self):
-        """Return the *Attribute List* as io.BytesIO."""
+        """Return the *Attribute List* as :class:`io.BytesIO`."""
         return self._dataset_variant
 
     @AttributeList.setter
@@ -2237,7 +2260,8 @@ class N_DELETE(DIMSEPrimitive):
 
     @property
     def AffectedSOPInstanceUID(self):
-        """Return the *Affected SOP Instance UID* as UID."""
+        """Return the *Affected SOP Instance UID* as :class:`~pydicom.uid.UID`.
+        """
         return self._AffectedSOPInstanceUID
 
     @AffectedSOPInstanceUID.setter
@@ -2253,7 +2277,8 @@ class N_DELETE(DIMSEPrimitive):
 
     @property
     def RequestedSOPClassUID(self):
-        """Return the *Requested SOP Class UID* as UID."""
+        """Return the *Requested SOP Class UID* as :class:`~pydicom.uid.UID`.
+        """
         return self._RequestedSOPClassUID
 
     @RequestedSOPClassUID.setter
@@ -2269,7 +2294,9 @@ class N_DELETE(DIMSEPrimitive):
 
     @property
     def RequestedSOPInstanceUID(self):
-        """Return the *Requested SOP Instance UID* as UID."""
+        """Return the *Requested SOP Instance UID* as
+        :class:`~pydicom.uid.UID`.
+        """
         return self._RequestedSOPInstanceUID
 
     @RequestedSOPInstanceUID.setter

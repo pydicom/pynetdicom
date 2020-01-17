@@ -194,7 +194,6 @@ class TestNegotiationRequestor(object):
                 thread.abort()
                 thread.stop()
 
-    @pytest.mark.skipif(sys.version_info[:2] == (3, 4), reason='no caplog')
     def test_no_requested_cx(self, caplog):
         """Test error logged if no requested contexts."""
         ae = AE()
@@ -1961,7 +1960,6 @@ class TestNegotiateRelease(object):
 
         return server
 
-    @pytest.mark.skipif(sys.version_info[:2] == (3, 4), reason='no caplog')
     def test_collision_req(self, caplog):
         """Test a simulated A-RELEASE collision on the requestor side."""
         commands = [
@@ -2012,7 +2010,6 @@ class TestNegotiateRelease(object):
         assert scp.received[1] == a_release_rq
         assert scp.received[2] == a_p_abort[:-1] + b'\x00'
 
-    @pytest.mark.skipif(sys.version_info[:2] == (3, 4), reason='no caplog')
     def test_release_p_data(self, caplog):
         """Test receiving P-DATA-TF after release."""
         commands = [
@@ -2040,7 +2037,6 @@ class TestNegotiateRelease(object):
 
         assert scp.received[1] == a_release_rq
 
-    @pytest.mark.skipif(sys.version_info[:2] == (3, 4), reason='no caplog')
     def test_coll_acc(self, caplog):
         """Test a simulated A-RELEASE collision on the acceptor side."""
         def handle(event):
@@ -2084,7 +2080,6 @@ class TestNegotiateRelease(object):
         assert scu.received[1] == a_release_rq
         assert scu.received[2] == a_release_rp
 
-    @pytest.mark.skipif(sys.version_info[:2] == (3, 4), reason='no caplog')
     def test_collision_req_abort(self, caplog):
         """Test release collision with acceptor abort."""
         commands = [
@@ -2112,7 +2107,6 @@ class TestNegotiateRelease(object):
         assert scp.received[1] == a_release_rq
         assert scp.received[2] == a_release_rp
 
-    @pytest.mark.skipif(sys.version_info[:2] == (3, 4), reason='no caplog')
     def test_collision_req_ap_abort(self, caplog):
         """Test release collision with acceptor abort."""
         commands = [
@@ -2315,7 +2309,6 @@ class TestEventHandlingAcceptor(object):
 
         scp.shutdown()
 
-    @pytest.mark.skipif(sys.version_info[:2] == (3, 4), reason='no caplog')
     def test_acse_sent_raises(self, caplog):
         """Test the handler for EVT_ACSE_SENT raising exception."""
         def handle(event):
@@ -2478,7 +2471,6 @@ class TestEventHandlingAcceptor(object):
 
         scp.shutdown()
 
-    @pytest.mark.skipif(sys.version_info[:2] == (3, 4), reason='no caplog')
     def test_acse_recv_raises(self, caplog):
         """Test the handler for EVT_ACSE_RECV raising exception."""
         def handle(event):
@@ -2708,7 +2700,6 @@ class TestEventHandlingRequestor(object):
 
         scp.shutdown()
 
-    @pytest.mark.skipif(sys.version_info[:2] == (3, 4), reason='no caplog')
     def test_acse_sent_raises(self, caplog):
         """Test the handler for EVT_ACSE_SENT raising exception."""
         def handle(event):
@@ -2879,7 +2870,6 @@ class TestEventHandlingRequestor(object):
 
         scp.shutdown()
 
-    @pytest.mark.skipif(sys.version_info[:2] == (3, 4), reason='no caplog')
     def test_acse_recv_raises(self, caplog):
         """Test the handler for EVT_ACSE_RECV raising exception."""
         def handle(event):

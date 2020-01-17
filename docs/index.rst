@@ -1,7 +1,32 @@
 
 
 pynetdicom Documentation
-========================
+------------------------
+
+.. toctree::
+   :maxdepth: 2
+   :hidden:
+   :caption: Documentation
+
+   user/index
+   service_classes/index
+   reference/index
+
+.. toctree::
+   :maxdepth: 2
+   :hidden:
+   :caption: Examples
+
+   examples/index
+
+.. toctree::
+   :maxdepth: 1
+   :hidden:
+   :caption: Additional Information
+
+   apps/index
+   changelog/index
+
 
 DICOM
 -----
@@ -16,7 +41,7 @@ involved in some way.
 pynetdicom
 ----------
 `pynetdicom <https://github.com/pydicom/pynetdicom>`_ is a pure Python
-2.7/3.4+ package that implements the DICOM networking protocol. Working with
+2.7/3.5+ package that implements the DICOM networking protocol. Working with
 `pydicom <https://github.com/pydicom/pydicom>`_, it allows the easy creation
 of DICOM Application Entities (AEs), which can then act as *Service Class
 Users* (SCUs) and *Service Class Providers* (SCPs) by associating with other
@@ -24,27 +49,16 @@ AEs and using or providing the services available to the association.
 
 
 User Guide
-==========
+..........
 The :ref:`user_guide` is intended as an introduction to *pynetdicom* and
 explains how to install the API and covers basic usage. For detailed
 documentation of the functions and classes see the
 :ref:`API reference <reference>`.
 
-.. toctree::
-   :maxdepth: 3
-
-   user/index
-
 .. _index_examples:
 
 Examples
-========
-
-.. toctree::
-   :maxdepth: 2
-   :hidden:
-
-   examples/index
+........
 
 * :doc:`Basic Worklist Management (C-FIND) <examples/basic_worklist>`
 * :doc:`Display System Management (N-GET) <examples/display>`
@@ -65,13 +79,7 @@ Examples
 
 
 API Reference
-=============
-
-.. toctree::
-   :maxdepth: 3
-   :hidden:
-
-   reference/index
+.............
 
 The :doc:`API Reference <reference/index>` provides documentation of the
 important functions and classes.
@@ -120,28 +128,21 @@ Supported Service Classes
 
 
 Applications
-============
-
-.. toctree::
-   :maxdepth: 1
-   :hidden:
-
-   apps/index
+............
 
 * :doc:`echoscu <apps/echoscu>`
 * :doc:`echoscp <apps/echoscp>`
 * :doc:`storescu <apps/storescu>`
 * :doc:`storescp <apps/storescp>`
+* :doc:`findscu <apps/findscu>`
+* :doc:`getscu <apps/getscu>`
+* :doc:`movescu <apps/movescu>`
 
 Release Notes
-=============
+.............
 
-.. toctree::
-   :maxdepth: 1
-   :hidden:
-
-   changelog/index
-
+* `v1.5.0 <changelog/index.html#v1-5-0>`_
+* `v1.4.1 <changelog/index.html#v1-4-1>`_
 * `v1.4.0 <changelog/index.html#v1-4-0>`_
 * `v1.3.1 <changelog/index.html#v1-3-1>`_
 * `v1.3.0 <changelog/index.html#v1-3-0>`_

@@ -4,7 +4,6 @@ The main user class, represents a DICOM Application Entity
 from copy import deepcopy
 from datetime import datetime
 import logging
-import socket
 import threading
 
 from pydicom.uid import UID
@@ -35,30 +34,31 @@ class ApplicationEntity(object):
     ----------
     acse_timeout : int or float or None
         The maximum amount of time (in seconds) to wait for association related
-        messages. A value of ``None`` means no timeout. (default: 30)
+        messages. A value of ``None`` means no timeout. (default: ``30``)
     ae_title : bytes
-        The local AE's AE title.
+        The local AE's *AE title*.
     dimse_timeout : int or float or None
         The maximum amount of time (in seconds) to wait for DIMSE related
-        messages. A value of ``None`` means no timeout. (default: 30)
+        messages. A value of ``None`` means no timeout. (default: ``30``)
     network_timeout : int or float or None
         The maximum amount of time (in seconds) to wait for network messages.
-        A value of ``None`` means no timeout. (default: 60)
+        A value of ``None`` means no timeout. (default: ``60``)
     maximum_associations : int
         The maximum number of simultaneous associations requested by remote
         AEs. Note that this does not include the number of associations
-        requested by the local AE (default 10).
+        requested by the local AE (default ``10``).
     maximum_pdu_size : int
-        The maximum PDU receive size in bytes. A value of 0 means there is no
-        maximum size (default: 16382)
+        The maximum PDU receive size in bytes. A value of ``0`` means there is
+        no maximum size (default: ``16382``)
     require_calling_aet : list of bytes
         If not an empty list, the association request's *Calling AE Title*
         value must match one of the values in `require_calling_aet`. If an
         empty list then no matching will be performed (default). (Association
         acceptor only).
     require_called_aet : bool
-        If True, the association request's *Called AE Title* value
-        must match AE.ae_title (default False). (Association acceptor only).
+        If ``True``, the association request's *Called AE Title* value
+        must match :attr:`ae_title` (default ``False``). (Association acceptor
+        only).
     """
     # pylint: disable=too-many-instance-attributes,too-many-public-methods
     def __init__(self, ae_title=b'PYNETDICOM'):
@@ -101,10 +101,11 @@ class ApplicationEntity(object):
         self.require_called_aet = False
 
         self._servers = []
+        self._lock = threading.Lock()
 
     @property
     def acse_timeout(self):
-        """Return the ACSE timeout value."""
+        """Return the ACSE timeout value (in seconds)."""
         return self._acse_timeout
 
     @acse_timeout.setter
@@ -124,7 +125,8 @@ class ApplicationEntity(object):
 
     @property
     def active_associations(self):
-        """Return a list of the AE's active ``Association`` threads.
+        """Return a list of the AE's active
+        :class:`~pynetdicom.association.Association` threads.
 
         Returns
         -------
@@ -142,26 +144,25 @@ class ApplicationEntity(object):
         association.
 
         When an SCU sends an association request to a peer it includes a list
-        of presentation contexts it would like the peer to support [1]_. This
+        of presentation contexts it would like the peer to support. This
         method adds a single
-        :py:class:`PresentationContext
-        <pynetdicom.presentation.PresentationContext>`
-        to the list of the SCU's requested contexts.
+        :class:`~pynetdicom.presentation.PresentationContext` to the list of
+        the SCU's requested contexts.
 
         Only 128 presentation contexts can be included in the association
-        request [2]_. Multiple presentation contexts may be requested with the
+        request. Multiple presentation contexts may be requested with the
         same abstract syntax.
 
         To remove a requested context or one or more of its transfer syntaxes
-        see the ``remove_requested_context`` method.
+        see the :meth:`remove_requested_context` method.
 
         Parameters
         ----------
         abstract_syntax : str or pydicom.uid.UID
             The abstract syntax of the presentation context to request.
         transfer_syntax :  str/pydicom.uid.UID or list of str/pydicom.uid.UID
-            The transfer syntax(es) to request (default: Implicit VR Little
-            Endian, Explicit VR Little Endian, Explicit VR Big Endian).
+            The transfer syntax(es) to request (default: *Implicit VR Little
+            Endian*, *Explicit VR Little Endian*, *Explicit VR Big Endian*).
 
         Raises
         ------
@@ -185,7 +186,7 @@ class ApplicationEntity(object):
 
         Add a requested presentation context for *Verification SOP Class* with
         the default transfer syntaxes by using the inbuilt
-        `VerificationSOPClass` object.
+        :class:`~pynetdicom.sop_class.VerificationSOPClass` object.
 
         >>> from pynetdicom import AE
         >>> from pynetdicom.sop_class import VerificationSOPClass
@@ -235,8 +236,11 @@ class ApplicationEntity(object):
 
         References
         ----------
-        .. [1] DICOM Standard, Part 8, `Section 7.1.1.13 <http://dicom.nema.org/medical/dicom/current/output/html/part08.html#sect_7.1.1.13>`_
-        .. [2] DICOM Standard, Part 8, `Table 9-18 <http://dicom.nema.org/medical/dicom/current/output/html/part08.html#table_9-18>`_
+
+        * DICOM Standard, Part 8,
+          :dcm:`Section 7.1.1.13<part08.html#sect_7.1.1.13>`
+        * DICOM Standard, Part 8,
+          :dcm:`Table 9-18<part08.html#table_9-18>`
         """
         if transfer_syntax is None:
             transfer_syntax = DEFAULT_TRANSFER_SYNTAXES
@@ -266,21 +270,21 @@ class ApplicationEntity(object):
 
         When an association request is received from a peer it supplies a list
         of presentation contexts that it would like the SCP to support. This
-        method adds a `PresentationContext` to the list of the SCP's
-        supported contexts.
+        method adds a :class:`~pynetdicom.presentation.PresentationContext`
+        to the list of the SCP's supported contexts.
 
         Where the abstract syntax is already supported the transfer syntaxes
         will be extended by the those supplied in `transfer_syntax`. To remove
         a supported context or one or more of its transfer syntaxes see the
-        ``remove_supported_context`` method.
+        :meth:`remove_supported_context` method.
 
         Parameters
         ----------
         abstract_syntax : str, pydicom.uid.UID or sop_class.SOPClass
             The abstract syntax of the presentation context to be supported.
         transfer_syntax :  str/pydicom.uid.UID or list of str/pydicom.uid.UID
-            The transfer syntax(es) to support (default: Implicit VR Little
-            Endian, Explicit VR Little Endian, Explicit VR Big Endian).
+            The transfer syntax(es) to support (default: *Implicit VR Little
+            Endian*, *Explicit VR Little Endian*, *Explicit VR Big Endian*).
         scu_role : bool or None, optional
             If the association requestor includes an SCP/SCU Role Selection
             Negotiation item for this context then:
@@ -318,7 +322,7 @@ class ApplicationEntity(object):
 
         Add support for presentation contexts with an abstract syntax of
         *Verification SOP Class* and the default transfer syntaxes by using the
-        inbuilt `VerificationSOPClass` object.
+        inbuilt :class:`~pynetdicom.sop_class.VerificationSOPClass` object.
 
         >>> from pynetdicom import AE
         >>> from pynetdicom.sop_class import VerificationSOPClass
@@ -410,12 +414,12 @@ class ApplicationEntity(object):
 
     @property
     def ae_title(self):
-        """Return the AE title as length 16 ``bytes``."""
+        """Return the AE title as length 16 :class:`bytes`."""
         return self._ae_title
 
     @ae_title.setter
     def ae_title(self, value):
-        """Set the AE title using ``bytes``.
+        """Set the AE title using :class:`bytes`.
 
         Parameters
         ----------
@@ -431,10 +435,20 @@ class ApplicationEntity(object):
                   bind_address=('', 0), tls_args=None, evt_handlers=None):
         """Request an association with a remote AE.
 
-        An ``Association`` thread is returned whether or not the association
-        is accepted and should be checked using ``Association.is_established``
+        An :class:`~pynetdicom.association.Association` thread is returned
+        whether or not the association is accepted and should be checked using
+        :attr:`Association.is_established
+        <pynetdicom.association.Association.is_established>`
         before sending any messages. The returned thread will only be running
         if the association was established.
+
+        .. versionchanged:: 1.2
+
+            Added `bind_address` and `tls_arg` keyword parameters
+
+        .. versionchanged:: 1.3
+
+            Added `evt_handlers` keyword parameter
 
         Parameters
         ----------
@@ -445,45 +459,46 @@ class ApplicationEntity(object):
         contexts : list of presentation.PresentationContext, optional
             The presentation contexts that will be requested by the AE for
             support by the peer. If not used then the presentation contexts in
-            the `AE.requested_contexts` property will be requested instead.
+            the :attr:`requested_contexts` property will be requested instead.
         ae_title : bytes, optional
             The peer's AE title, will be used as the *Called AE Title*
             parameter value (default ``b'ANY-SCP'``).
         max_pdu : int, optional
             The maximum PDV receive size in bytes to use when negotiating the
-            association (default 16832).
+            association (default ``16832``).
         ext_neg : list of UserInformation objects, optional
             Used if extended association negotiation is required.
         bind_address : 2-tuple, optional
             The (host, port) to bind the Association's communication socket
-            to, default ('', 0).
+            to, default ``('', 0)``.
         tls_args : 2-tuple, optional
             If TLS is required then this should be a 2-tuple containing a
             (`ssl_context`, `server_hostname`), where `ssl_context` is the
-            ``ssl.SSLContext`` instance to use to wrap the client socket and
-            `server_hostname` is the value to use for the corresponding
-            keyword argument in ``SSLContext.wrap_sockets()``. If no
+            :class:`ssl.SSLContext` instance to use to wrap the client socket
+            and `server_hostname` is the value to use for the corresponding
+            keyword argument in :meth:`~ssl.SSLContext.wrap_socket`. If no
             `tls_args` is supplied then TLS will not be used (default).
         evt_handlers : list of 2-tuple, optional
             A list of (`event`, `handler`), where `event` is an ``evt.EVT_*``
             event tuple and `handler` is a callable function that will be
             bound to the event. The handler should take a single
-            ``event.Event`` parameter and may return or yield objects
-            depending on the exact event that the handler is bound to. For
-            more information see the :ref:`documentation<user_events>`.
+            :class:`Event<pynetdicom.events.Event>` parameter and may return
+            or yield objects depending on the exact event that the handler is
+            bound to. For more information see the
+            :ref:`documentation<user_events>`.
 
         Returns
         -------
         assoc : association.Association
-            If the association was established then a running ``Association``
-            thread, otherwise returns a thread that hasn't been started.
+            If the association was established then a running
+            :class:`~pynetdicom.association.Association` thread, otherwise
+            returns a thread that hasn't been started.
 
         Raises
         ------
         RuntimeError
             If called with no requested presentation contexts (i.e. `contexts`
-            has not been supplied and ``ApplicationEntity.requested_contexts``
-            is empty).
+            has not been supplied and :attr:`requested_contexts` is empty).
         """
         if not isinstance(addr, str):
             raise TypeError("'addr' must be a valid IPv4 string")
@@ -509,7 +524,7 @@ class ApplicationEntity(object):
         assoc.acceptor.port = port
 
         # Association Requestor object -> local AE
-        assoc.requestor.address = socket.gethostbyname(socket.gethostname())
+        assoc.requestor.address = sock.get_local_addr()
         assoc.requestor.port = bind_address[1]
         assoc.requestor.ae_title = self.ae_title
         assoc.requestor.maximum_length = max_pdu
@@ -580,7 +595,7 @@ class ApplicationEntity(object):
 
     @property
     def implementation_class_uid(self):
-        """Return the current *Implementation Class UID*."""
+        """Return the current *Implementation Class UID* as :class:`str`."""
         return self._implementation_uid
 
     @implementation_class_uid.setter
@@ -616,7 +631,7 @@ class ApplicationEntity(object):
 
     @property
     def maximum_associations(self):
-        """Return the number of maximum associations as int."""
+        """Return the number of maximum associations as :class:`int`."""
         return self._maximum_associations
 
     @maximum_associations.setter
@@ -631,7 +646,7 @@ class ApplicationEntity(object):
 
     @property
     def maximum_pdu_size(self):
-        """Return the maximum PDU size accepted by the AE as int."""
+        """Return the maximum PDU size accepted by the AE as :class:`int`."""
         return self._maximum_pdu_size
 
     @maximum_pdu_size.setter
@@ -651,7 +666,7 @@ class ApplicationEntity(object):
 
     @property
     def network_timeout(self):
-        """Return the network timeout."""
+        """Return the network timeout (in seconds)."""
         return self._network_timeout
 
     @network_timeout.setter
@@ -713,8 +728,8 @@ class ApplicationEntity(object):
         0
 
         Remove all requested presentation contexts with an abstract syntax of
-        *Verification SOP Class* using the inbuilt `VerificationSOPClass`
-        object.
+        *Verification SOP Class* using the inbuilt
+        :class:`~pynetdicom.sop_class.VerificationSOPClass` object.
 
         >>> from pynetdicom import AE
         >>> from pynetdicom.sop_class import VerificationSOPClass
@@ -840,8 +855,8 @@ class ApplicationEntity(object):
         0
 
         Remove the supported presentation context with an abstract syntax of
-        *Verification SOP Class* using the inbuilt `VerificationSOPClass`
-        object.
+        *Verification SOP Class* using the inbuilt
+        :class:`~pynetdicom.sop_class.VerificationSOPClass` object.
 
         >>> from pynetdicom import AE, VerificationPresentationContexts
         >>> from pynetdicom.sop_class import VerificationSOPClass
@@ -922,7 +937,8 @@ class ApplicationEntity(object):
 
     @property
     def requested_contexts(self):
-        """Return a list of the requested ``PresentationContext`` items.
+        """Return a list of the requested
+        :class:`~pynetdicom.presentation.PresentationContext` items.
 
         Returns
         -------
@@ -933,7 +949,7 @@ class ApplicationEntity(object):
 
     @requested_contexts.setter
     def requested_contexts(self, contexts):
-        """Set the requested presentation contexts using a list.
+        """Set the requested presentation contexts.
 
         Parameters
         ----------
@@ -943,14 +959,15 @@ class ApplicationEntity(object):
         Examples
         --------
         Set the requested presentation contexts using an inbuilt list of
-        service specific ``PresentationContext`` items:
+        service specific :class:`~pynetdicom.presentation.PresentationContext`
+        items:
 
         >>> from pynetdicom import AE, StoragePresentationContexts
         >>> ae = AE()
         >>> ae.requested_contexts = StoragePresentationContexts
 
-        Set the requested presentation contexts using a list of
-        ```PresentationContext`` items:
+        Set the requested presentation contexts using a :class:`list` of
+        :class:`~pynetdicom.presentation.PresentationContext` items:
 
         >>> from pydicom.uid import ImplicitVRLittleEndian
         >>> from pynetdicom import AE
@@ -1000,11 +1017,15 @@ class ApplicationEntity(object):
         if none match the association will be rejected. If the set value
         is an empty list then the *Called AE Title* will not be checked.
 
+        .. versionchanged:: 1.1
+
+            `require_match` changed to ``bool``
+
         Parameters
         ----------
         require_match : bool
             If ``True`` then any association requests that supply a
-            *Called AE Title* value that does not match ``AE.ae_title``
+            *Called AE Title* value that does not match :attr:`ae_title`
             will be rejected. If ``False`` (default) then all association
             requests will be accepted (unless rejected for other reasons).
         """
@@ -1013,7 +1034,7 @@ class ApplicationEntity(object):
 
     @property
     def require_calling_aet(self):
-        """Return the required calling AE title as a list of bytes."""
+        """Return the required calling AE title as a list of :class:`bytes`."""
         return self._require_calling_aet
 
     @require_calling_aet.setter
@@ -1025,12 +1046,16 @@ class ApplicationEntity(object):
         if none match the association will be rejected. If the set value
         is an empty list then the *Calling AE Title* will not be checked.
 
+        .. versionchanged:: 1.1
+
+            `ae_titles` changed to ``list`` of ``bytes``
+
         Parameters
         ----------
         ae_titles : list of bytes
             If not empty then any association requests that supply a
             *Calling AE Title* value that does not match one of the values in
-            ``ae_titles`` will be rejected. If an empty list (default) then all
+            *ae_titles* will be rejected. If an empty list (default) then all
             association requests will be accepted (unless rejected for other
             reasons).
         """
@@ -1043,8 +1068,20 @@ class ApplicationEntity(object):
                      evt_handlers=None, ae_title=None, contexts=None):
         """Start the AE as an association acceptor.
 
-        If set to non-blocking then a running ``ThreadedAssociationServer``
-        instance will be returned. This can be stopped using ``shutdown()``.
+        .. versionadded:: 1.2
+
+        If set to non-blocking then a running
+        :class:`~pynetdicom.transport.ThreadedAssociationServer`
+        instance will be returned. This can be stopped using
+        :meth:`~pynetdicom.transport.ThreadedAssociationServer.shutdown`.
+
+        .. versionchanged:: 1.3
+
+            Added `evt_handlers` keyword parameter
+
+        .. versionchanged:: 1.4
+
+            Added `ae_title` and `contexts` keyword parameters
 
         Parameters
         ----------
@@ -1055,25 +1092,25 @@ class ApplicationEntity(object):
             If ``True`` (default) then the server will be blocking, otherwise
             it will start the server in a new thread and be non-blocking.
         ssl_context : ssl.SSLContext, optional
-            If TLS is required then this should the ``SSLContext`` instance to
-            use to wrap the client sockets, otherwise if ``None`` then no TLS
-            will be used (default).
+            If TLS is required then this should the :class:`ssl.SSLContext`
+            instance to use to wrap the client sockets, otherwise if ``None``
+            then no TLS will be used (default).
         evt_handlers : list of 2-tuple, optional
-            A list of (event, handler), where `event` is an ``evt.EVT_*`` event
-            tuple and `handler` is a callable function that will be bound to
-            the event. The handler should take a single ``event.Event``
-            parameter and may return or yield objects depending on the exact
-            event that the handler is bound to. For more information see the
-            :ref:`documentation<user_events>`.
+            A list of (*event*, *handler*), where `event` is an ``evt.EVT_*``
+            event tuple and `handler` is a callable function that will be bound
+            to the event. The handler should take a single
+            :class:`~pynetdicom.events.Event` parameter and may return or yield
+            objects depending on the exact event that the handler is bound to.
+            For more information see the :ref:`documentation<user_events>`.
         ae_title : bytes, optional
             The AE title to use for the local SCP. Leading and trailing spaces
             are non-significant. If this keyword parameter is not used then
-            the AE title from the ``AE.ae_title`` property will be used instead
-            (default).
+            the AE title from the :attr:`ae_title` property will be used
+            instead (default).
         contexts : list of presentation.PresentationContext, optional
             The presentation contexts that will be supported by the SCP. If
             not used then the presentation contexts in the
-            ``AE.supported_contexts`` property will be used instead (default).
+            :attr:`supported_contexts` property will be used instead (default).
 
         Returns
         -------
@@ -1144,7 +1181,10 @@ class ApplicationEntity(object):
             return server
 
     def shutdown(self):
-        """Stop any active association servers and threads."""
+        """Stop any active association servers and threads.
+
+        .. versionadded:: 1.2
+        """
         for assoc in self.active_associations:
             assoc.abort()
 
@@ -1211,7 +1251,8 @@ class ApplicationEntity(object):
 
     @property
     def supported_contexts(self):
-        """Return a list of the supported ``PresentationContexts`` items.
+        """Return a list of the supported
+        :class:`~pynetdicom.presentation.PresentationContext` items.
 
         Returns
         -------
@@ -1248,7 +1289,8 @@ class ApplicationEntity(object):
         >>> ae.supported_contexts = [context]
 
         Set the supported presentation contexts using an inbuilt list of
-        service specific ``PresentationContext`` items:
+        service specific :class:`~pynetdicom.presentation.PresentationContext`
+        items:
 
         >>> from pynetdicom import AE, StoragePresentationContexts
         >>> ae = AE()
@@ -1287,8 +1329,10 @@ class ApplicationEntity(object):
                 "contexts is 128"
             )
 
-        for item in contexts:
-            if not isinstance(item, PresentationContext):
-                raise ValueError(
-                    "'contexts' must be a list of PresentationContext items"
-                )
+        invalid = [
+            ii for ii in contexts if not isinstance(ii, PresentationContext)
+        ]
+        if invalid:
+            raise ValueError(
+                "'contexts' must be a list of PresentationContext items"
+            )

@@ -2,7 +2,6 @@
 
 set -e
 
-pip install codecov
 pip install coverage
 pip install pytest-cov
 pip install pytest
@@ -24,3 +23,4 @@ elif [[ "$TEST_SUITE" == "pydicom_release" ]]; then
 fi
 
 python --version
+python -c "import ssl; print(ssl.OPENSSL_VERSION)"

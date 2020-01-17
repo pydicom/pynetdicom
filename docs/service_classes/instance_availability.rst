@@ -1,7 +1,8 @@
+.. _service_instance:
+
 Instance Availability Notification Service Class
 ================================================
-The `Instance Availability Notification Service Class
-<http://dicom.nema.org/medical/dicom/current/output/html/part04.html#chapter_R>`_
+The `Instance Availability Notification Service Class <part04/chapter_R.html>`
 defines a service that uses the DIMSE N-CREATE service to allow one AE to
 notify another AE of the presence and availability of SOP instances that may
 be retrieved.
@@ -70,10 +71,3 @@ N-CREATE Statuses
 +------------------+----------+-----------------------------------------------+
 | 0x0213           | Failure  | Resource limitation                           |
 +------------------+----------+-----------------------------------------------+
-
-
-References
-----------
-
-* DICOM Standard, Part 4, `Annex R <http://dicom.nema.org/medical/dicom/current/output/html/part04.html#chapter_R>`_
-* DICOM Standard, Part 7, `Section 10.1.5.1.6 <http://dicom.nema.org/medical/dicom/current/output/chtml/part07/chapter_10.html#sect_10.1.5.1.6>`_
