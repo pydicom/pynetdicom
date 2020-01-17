@@ -382,8 +382,8 @@ class ElementPath(object):
             * If the element VR is AE, AS, AT, CS, DA, DS, DT, IS, LO, LT, PN,
               SH, ST, TM, UC, UI, UR or UT then no conversion will be
               performed.
-            * If the element VR is SL, SS, UL or US then the ``str`` will be
-              converted to an ``int`` using ``int(value)``.
+            * If the element VR is SL, SS, SV, UL, US or UV then the ``str``
+              will be converted to an ``int`` using ``int(value)``.
             * If the element VR is FD or FL then the ``str`` will be converted
               to a ``float`` using ``float(value)``.
             * If the VR is not one of the above then the ``str`` will be
@@ -395,7 +395,7 @@ class ElementPath(object):
             'AE', 'AS', 'AT', 'CS', 'DA', 'DS', 'DT', 'IS', 'LO',
             'LT', 'PN', 'SH', 'ST', 'TM', 'UC', 'UI', 'UR', 'UT'
         ]
-        _int = ['SL', 'SS', 'UL', 'US']
+        _int = ['SL', 'SS', 'SV', 'UL', 'US', 'UV']
         _float = ['FD', 'FL']
         _byte = ['OB', 'OD', 'OF', 'OL', 'OW', 'OV', 'UN']
 
@@ -430,3 +430,24 @@ class ElementPath(object):
     def VR(self):
         """Return the element's VR as str."""
         return self._entry[0]
+
+
+SOP_CLASS_PREFIXES = {
+    '1.2.840.10008.5.1.4.1.1.2' : ('CT', 'CT Image Storage'),
+    '1.2.840.10008.5.1.4.1.1.2.1' : ('CTE', 'Enhanced CT Image Storage'),
+    '1.2.840.10008.5.1.4.1.1.4' : ('MR', 'MR Image Storage'),
+    '1.2.840.10008.5.1.4.1.1.4.1' : ('MRE', 'Enhanced MR Image Storage'),
+    '1.2.840.10008.5.1.4.1.1.128' : ('PT', 'Positron Emission Tomography Image Storage'),
+    '1.2.840.10008.5.1.4.1.1.130' : ('PTE', 'Enhanced PET Image Storage'),
+    '1.2.840.10008.5.1.4.1.1.481.1' : ('RI', 'RT Image Storage'),
+    '1.2.840.10008.5.1.4.1.1.481.2' : ('RD', 'RT Dose Storage'),
+    '1.2.840.10008.5.1.4.1.1.481.5' : ('RP', 'RT Plan Storage'),
+    '1.2.840.10008.5.1.4.1.1.481.3' : ('RS', 'RT Structure Set Storage'),
+    '1.2.840.10008.5.1.4.1.1.1' : ('CR', 'Computed Radiography Image Storage'),
+    '1.2.840.10008.5.1.4.1.1.6.1' : ('US', 'Ultrasound Image Storage'),
+    '1.2.840.10008.5.1.4.1.1.6.2' : ('USE', 'Enhanced US Volume Storage'),
+    '1.2.840.10008.5.1.4.1.1.12.1' : ('XA', 'X-Ray Angiographic Image Storage'),
+    '1.2.840.10008.5.1.4.1.1.12.1.1' : ('XAE', 'Enhanced XA Image Storage'),
+    '1.2.840.10008.5.1.4.1.1.20' : ('NM', 'Nuclear Medicine Image Storage'),
+    '1.2.840.10008.5.1.4.1.1.7' : ('SC', 'Secondary Capture Image Storage'),
+}
