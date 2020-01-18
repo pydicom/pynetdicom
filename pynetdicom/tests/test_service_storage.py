@@ -2,6 +2,7 @@
 
 from io import BytesIO
 import os
+import time
 
 import pytest
 
@@ -18,7 +19,7 @@ from pynetdicom.sop_class import (
 )
 
 
-#debug_logger()
+debug_logger()
 
 
 TEST_DS_DIR = os.path.join(os.path.dirname(__file__), 'dicom_files')
@@ -560,3 +561,24 @@ class TestStorageServiceClass(object):
 
         exc = event_exc[0]
         assert isinstance(exc, AttributeError)
+
+    def test_scp_handler_aborts(self):
+        """Test handler aborting the association"""
+        def handle(event):
+            event.assoc.abort()
+
+        handlers = [(evt.EVT_C_STORE, handle)]
+
+        self.ae = ae = AE()
+        ae.add_supported_context(CTImageStorage)
+        ae.add_requested_context(CTImageStorage)
+        scp = ae.start_server(('', 11112), block=False, evt_handlers=handlers)
+
+        assoc = ae.associate('localhost', 11112)
+        assert assoc.is_established
+        rsp = assoc.send_c_store(DATASET)
+        assert rsp == Dataset()
+
+        time.sleep(0.1)
+        assert assoc.is_aborted
+        scp.shutdown()

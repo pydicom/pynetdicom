@@ -1274,6 +1274,10 @@ class VerificationServiceClass(ServiceClass):
                 evt.EVT_C_ECHO,
                 {'request' : req, 'context' : context.as_tuple}
             )
+            # Event hander has aborted or released
+            if not self.assoc.is_established:
+                return
+
             if isinstance(status, Dataset):
                 if 'Status' not in status:
                     raise AttributeError(
@@ -1352,6 +1356,10 @@ class StorageServiceClass(ServiceClass):
             LOGGER.exception(exc)
             rsp.Status = 0xC211
             self.dimse.send_msg(rsp, context.context_id)
+            return
+
+        # Event hander has aborted or released
+        if not self.assoc.is_established:
             return
 
         # Validate rsp_status and set rsp.Status accordingly

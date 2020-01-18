@@ -1,5 +1,7 @@
 """Tests for the VerificationServiceClass."""
 
+import time
+
 import pytest
 
 from pydicom.dataset import Dataset
@@ -10,7 +12,7 @@ from pynetdicom.service_class import VerificationServiceClass
 from pynetdicom.sop_class import VerificationSOPClass
 
 
-#debug_logger()
+debug_logger()
 
 
 class TestVerificationServiceClass(object):
@@ -288,4 +290,25 @@ class TestVerificationServiceClass(object):
         assert req.MessageID == 1
         assert isinstance(req, C_ECHO)
 
+        scp.shutdown()
+
+    def test_scp_handler_aborts(self):
+        """Test handler aborting the association"""
+        def handle(event):
+            event.assoc.abort()
+
+        handlers = [(evt.EVT_C_ECHO, handle)]
+
+        self.ae = ae = AE()
+        ae.add_supported_context(VerificationSOPClass)
+        ae.add_requested_context(VerificationSOPClass)
+        scp = ae.start_server(('', 11112), block=False, evt_handlers=handlers)
+
+        assoc = ae.associate('localhost', 11112)
+        assert assoc.is_established
+        rsp = assoc.send_c_echo()
+        assert rsp == Dataset()
+
+        time.sleep(0.1)
+        assert assoc.is_aborted
         scp.shutdown()

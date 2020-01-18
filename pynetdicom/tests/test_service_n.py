@@ -37,7 +37,7 @@ from pynetdicom.sop_class import (
 )
 
 
-#debug_logger()
+debug_logger()
 
 
 REFERENCE_REQUESTS = [
@@ -1036,6 +1036,62 @@ class TestNServiceClass(object):
         assoc.release()
         assert assoc.is_released
         scp.shutdown()
+
+    @pytest.mark.parametrize("sop_class, msg_type, warn, fail", REFERENCE_REQUESTS)
+    def test_handler_aborts(self, sop_class, msg_type, warn, fail):
+        """Test the handler returning a success status."""
+        ds = Dataset()
+        ds.PatientName = 'Test^test'
+
+        ds_in = Dataset()
+        ds_in.PatientName = 'TEST^Test^test'
+
+        handle_function = {
+            'N-ACTION' : (evt.EVT_N_ACTION, self.handle_dual, [0x0000, ds]),
+            'N-CREATE' : (evt.EVT_N_CREATE, self.handle_dual, [0x0000, ds]),
+            'N-DELETE' : (evt.EVT_N_DELETE, self.handle_single, [0x0000]),
+            'N-EVENT-REPORT' : (evt.EVT_N_EVENT_REPORT, self.handle_dual, [0x0000, ds]),
+            'N-GET' : (evt.EVT_N_GET, self.handle_dual, [0x0000, ds]),
+            'N-SET' : (evt.EVT_N_SET, self.handle_dual, [0x0000, ds]),
+        }
+
+        send_function = {
+            'N-ACTION' : (self.send_action, [sop_class]),
+            'N-CREATE' : (self.send_create, [sop_class]),
+            'N-DELETE' : (self.send_delete, [sop_class]),
+            'N-EVENT-REPORT' : (self.send_event_report, [sop_class]),
+            'N-GET' : (self.send_get, [sop_class]),
+            'N-SET' : (self.send_set, [sop_class, ds_in]),
+        }
+
+        def send_abort(event):
+            event.assoc.abort()
+
+        event, get_handler, args = handle_function[msg_type]
+        handlers = [(event, send_abort)]
+
+        self.ae = ae = AE()
+        ae.add_supported_context(sop_class)
+        ae.add_requested_context(sop_class)
+        scp = ae.start_server(('', 11112), block=False, evt_handlers=handlers)
+
+        ae.acse_timeout = 5
+        ae.dimse_timeout = 5
+        assoc = ae.associate('localhost', 11112)
+        assert assoc.is_established
+        (func, args) = send_function[msg_type]
+        rsp = func(assoc, *args)
+        if msg_type != "N-DELETE":
+            status, ds = rsp
+            assert status == Dataset()
+            assert ds == None
+        else:
+            assert rsp == Dataset()
+
+        time.sleep(0.1)
+        assert assoc.is_aborted
+        scp.shutdown()
+
 
 
 class TestUPSFindServiceClass(object):

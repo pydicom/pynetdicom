@@ -172,6 +172,11 @@ class DIMSEServiceProvider(object):
 
         .. versionadded:: 1.2
 
+        .. versionchanged:: 1.5
+
+            Changed to also return ``(None, None)`` if the peer aborts the
+            association.
+
         Parameters
         ----------
         block : bool
@@ -183,8 +188,9 @@ class DIMSEServiceProvider(object):
         -------
         (int, dimse_messages.DIMSEMessage) or (None, None)
             The next available (*Context ID*, *DIMSE Message*), which is taken
-            off the queue, or ``(None, None)`` if no messages are available
-            within the :attr:`~DIMSEServiceProvider.dimse_timeout` period.
+            off the queue, or ``(None, None)`` if the peer has aborted the
+            association or if no messages are available within the
+            :attr:`~DIMSEServiceProvider.dimse_timeout` period.
         """
         try:
             return self.msg_queue.get(block=block, timeout=self.dimse_timeout)
