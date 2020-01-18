@@ -12,7 +12,7 @@ from pynetdicom.service_class import VerificationServiceClass
 from pynetdicom.sop_class import VerificationSOPClass
 
 
-debug_logger()
+#debug_logger()
 
 
 class TestVerificationServiceClass(object):

@@ -4,6 +4,10 @@ from datetime import datetime
 from io import BytesIO
 import logging
 import os
+try:
+    import queue
+except ImportError:
+    import Queue as queue  # Python 2 compatibility
 import socket
 import sys
 import time
@@ -68,6 +72,7 @@ COMP_DATASET = dcmread(
 class DummyDIMSE(object):
     def __init__(self):
         self.status = None
+        self.msg_queue = queue.Queue()
 
     def send_msg(self, rsp, context_id):
         self.status = rsp.Status
@@ -1028,6 +1033,8 @@ class TestAssociationSendCEcho(object):
         assert assoc.is_established
         result = assoc.send_c_echo()
         assert result == Dataset()
+
+        time.sleep(0.1)
         assert assoc.is_aborted
 
         scp.shutdown()
@@ -1046,6 +1053,8 @@ class TestAssociationSendCEcho(object):
         assert assoc.is_established
         status = assoc.send_n_delete('1.2.3.4', '1.2.3')
         assert status == Dataset()
+
+        time.sleep(0.1)
         assert assoc.is_aborted
         self.scp.stop()
 

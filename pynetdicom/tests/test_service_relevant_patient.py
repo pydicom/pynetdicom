@@ -26,7 +26,7 @@ from .dummy_c_scp import (
 )
 
 
-debug_logger()
+#debug_logger()
 
 
 class TestRelevantPatientServiceClass(object):

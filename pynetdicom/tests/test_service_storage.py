@@ -19,7 +19,7 @@ from pynetdicom.sop_class import (
 )
 
 
-debug_logger()
+#debug_logger()
 
 
 TEST_DS_DIR = os.path.join(os.path.dirname(__file__), 'dicom_files')

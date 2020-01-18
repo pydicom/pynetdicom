@@ -270,8 +270,7 @@ class DULServiceProvider(Thread):
             # Byte 2 is always reserved
             # Bytes 3-6 are always the PDU length
             pdu_type, _, pdu_length = unpack('>BBL', bytestream)
-        except struct.error as exc:
-            LOGGER.exception(exc)
+        except struct.error:
             # Raised if there's not enough data
             # Evt17: Transport connection closed
             self.event_queue.put('Evt17')

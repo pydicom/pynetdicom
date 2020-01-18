@@ -441,12 +441,20 @@ class ServiceClass(object):
                 {'request' : req, 'context' : context.as_tuple}
             )
         except Exception as exc:
+            # Handler aborted or released
+            if not self.assoc.is_established:
+                return
+
             LOGGER.error(
                 "Exception in the handler bound to 'evt.EVT_N_ACTION"
             )
             LOGGER.exception(exc)
             rsp.Status = 0x0110
             self.dimse.send_msg(rsp, context.context_id)
+            return
+
+        # Handler aborted or released then returned valid values
+        if not self.assoc.is_established:
             return
 
         # Check Status validity
@@ -591,12 +599,20 @@ class ServiceClass(object):
                 {'request' : req, 'context' : context.as_tuple}
             )
         except Exception as exc:
+            # Handler aborted or released
+            if not self.assoc.is_established:
+                return
+
             LOGGER.error(
                 "Exception in the handler bound to 'evt.EVT_N_CREATE"
             )
             LOGGER.exception(exc)
             rsp.Status = 0x0110
             self.dimse.send_msg(rsp, context.context_id)
+            return
+
+        # Handler aborted or released then returned valid values
+        if not self.assoc.is_established:
             return
 
         # Check Status validity
@@ -714,6 +730,10 @@ class ServiceClass(object):
             self.dimse.send_msg(rsp, context.context_id)
             return
 
+        # Handler aborted or released
+        if not self.assoc.is_established:
+            return
+
         # Check Status validity
         # Validate 'status' and set 'rsp.Status' accordingly
         rsp = self.validate_status(status, rsp)
@@ -809,12 +829,20 @@ class ServiceClass(object):
                 {'request' : req, 'context' : context.as_tuple}
             )
         except Exception as exc:
+            # Handler aborted or released
+            if not self.assoc.is_established:
+                return
+
             LOGGER.error(
                 "Exception in the handler bound to 'evt.EVT_N_EVENT_REPORT"
             )
             LOGGER.exception(exc)
             rsp.Status = 0x0110
             self.dimse.send_msg(rsp, context.context_id)
+            return
+
+        # Handler aborted or released then returned valid values
+        if not self.assoc.is_established:
             return
 
         # Check Status validity
@@ -958,6 +986,10 @@ class ServiceClass(object):
                 }
             )
         except Exception as exc:
+            # Handler aborted or released
+            if not self.assoc.is_established:
+                return
+
             LOGGER.error(
                 "Exception in the handler bound to 'evt.EVT_N_GET'"
             )
@@ -965,6 +997,10 @@ class ServiceClass(object):
             # Processing failure - Error in handler
             rsp.Status = 0x0110
             self.dimse.send_msg(rsp, context.context_id)
+            return
+
+        # Handler aborted or released then returned valid values
+        if not self.assoc.is_established:
             return
 
         # Validate rsp_status and set rsp.Status accordingly
@@ -1116,12 +1152,20 @@ class ServiceClass(object):
                 {'request' : req, 'context' : context.as_tuple}
             )
         except Exception as exc:
+            # Handler aborted or released
+            if not self.assoc.is_established:
+                return
+
             LOGGER.error(
                 "Exception in the handler bound to 'evt.EVT_N_SET"
             )
             LOGGER.exception(exc)
             rsp.Status = 0x0110
             self.dimse.send_msg(rsp, context.context_id)
+            return
+
+        # Handler aborted or released then returned valid values
+        if not self.assoc.is_established:
             return
 
         # Validate rsp_status and set rsp.Status accordingly

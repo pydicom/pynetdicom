@@ -808,6 +808,8 @@ def AA_4(dul):
         ``'Sta1'``, the next state of the state machine
     """
     assoc = dul.assoc
+    assoc.dimse.msg_queue.put((None, None))
+
     remote = assoc.acceptor if assoc.is_requestor else assoc.requestor
     address = (remote.address, remote.port)
     evt.trigger(dul.assoc, evt.EVT_CONN_CLOSE, {'address' : address})
