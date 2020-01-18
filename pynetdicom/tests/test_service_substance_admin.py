@@ -1,9 +1,6 @@
 """Tests for the SubstanceAdministrationQueryServiceClass."""
 
 from io import BytesIO
-import logging
-import os
-import threading
 import time
 
 import pytest
@@ -11,7 +8,7 @@ import pytest
 from pydicom.dataset import Dataset
 from pydicom.uid import ExplicitVRLittleEndian
 
-from pynetdicom import AE, evt
+from pynetdicom import AE, evt, debug_logger
 from pynetdicom.dimse_primitives import C_FIND
 from pynetdicom.presentation import PresentationContext
 from pynetdicom.service_class import (
@@ -25,9 +22,8 @@ from .dummy_c_scp import (
     DummyBaseSCP,
 )
 
-LOGGER = logging.getLogger('pynetdicom')
-LOGGER.setLevel(logging.CRITICAL)
-#LOGGER.setLevel(logging.DEBUG)
+
+#debug_logger()
 
 
 class TestSubstanceAdministrationQueryServiceClass(object):

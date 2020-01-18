@@ -40,7 +40,7 @@ from pynetdicom.sop_class import (
 )
 
 
-#debug_logger()
+debug_logger()
 
 
 TEST_DS_DIR = os.path.join(os.path.dirname(__file__), 'dicom_files')
@@ -591,7 +591,9 @@ class TestQRFindServiceClass(object):
         ae.dimse_timeout = 5
         assoc = ae.associate('localhost', 11112)
         assert assoc.is_established
-        result = assoc.send_c_find(self.query, PatientRootQueryRetrieveInformationModelFind)
+        result = assoc.send_c_find(
+            self.query, PatientRootQueryRetrieveInformationModelFind
+        )
         status, identifier = next(result)
         assert status.Status == 0xFF00
         assert identifier == self.query
@@ -854,6 +856,144 @@ class TestQRFindServiceClass(object):
 
         assert True in cancel_results
 
+        scp.shutdown()
+
+    def test_handler_aborts_before(self):
+        """Test handler aborts before any yields."""
+        def handle(event):
+            event.assoc.abort()
+            yield 0xFF00, self.query
+
+        handlers = [(evt.EVT_C_FIND, handle)]
+
+        self.ae = ae = AE()
+        ae.add_supported_context(PatientRootQueryRetrieveInformationModelFind)
+        ae.add_requested_context(
+            PatientRootQueryRetrieveInformationModelFind,
+            ExplicitVRLittleEndian
+        )
+        scp = ae.start_server(('', 11112), block=False, evt_handlers=handlers)
+
+        ae.acse_timeout = 5
+        ae.dimse_timeout = 5
+        assoc = ae.associate('localhost', 11112)
+        assert assoc.is_established
+        result = assoc.send_c_find(
+            self.query, PatientRootQueryRetrieveInformationModelFind
+        )
+        status, identifier = next(result)
+        assert status == Dataset()
+        assert identifier == None
+        with pytest.raises(StopIteration):
+            next(result)
+
+        time.sleep(0.1)
+        assert assoc.is_aborted
+        scp.shutdown()
+
+    def test_handler_aborts_before_solo(self):
+        """Test handler aborts before any yields."""
+        def handle(event):
+            event.assoc.abort()
+
+        handlers = [(evt.EVT_C_FIND, handle)]
+
+        self.ae = ae = AE()
+        ae.add_supported_context(PatientRootQueryRetrieveInformationModelFind)
+        ae.add_requested_context(
+            PatientRootQueryRetrieveInformationModelFind,
+            ExplicitVRLittleEndian
+        )
+        scp = ae.start_server(('', 11112), block=False, evt_handlers=handlers)
+
+        ae.acse_timeout = 5
+        ae.dimse_timeout = 5
+        assoc = ae.associate('localhost', 11112)
+        assert assoc.is_established
+        result = assoc.send_c_find(
+            self.query, PatientRootQueryRetrieveInformationModelFind
+        )
+        status, identifier = next(result)
+        assert status == Dataset()
+        assert identifier == None
+        with pytest.raises(StopIteration):
+            next(result)
+
+        time.sleep(0.1)
+        assert assoc.is_aborted
+        scp.shutdown()
+
+    def test_handler_aborts_during(self):
+        """Test handler aborts during any yields."""
+        def handle(event):
+            yield 0xFF00, self.query
+            event.assoc.abort()
+            yield 0xFF01,  self.query
+
+        handlers = [(evt.EVT_C_FIND, handle)]
+
+        self.ae = ae = AE()
+        ae.add_supported_context(PatientRootQueryRetrieveInformationModelFind)
+        ae.add_requested_context(
+            PatientRootQueryRetrieveInformationModelFind,
+            ExplicitVRLittleEndian
+        )
+        scp = ae.start_server(('', 11112), block=False, evt_handlers=handlers)
+
+        ae.acse_timeout = 5
+        ae.dimse_timeout = 5
+        assoc = ae.associate('localhost', 11112)
+        assert assoc.is_established
+        result = assoc.send_c_find(
+            self.query, PatientRootQueryRetrieveInformationModelFind
+        )
+        status, identifier = next(result)
+        assert status.Status == 0xFF00
+        assert identifier == self.query
+        status, identifier = next(result)
+        with pytest.raises(StopIteration):
+            next(result)
+
+        time.sleep(0.1)
+        assert assoc.is_aborted
+        scp.shutdown()
+
+    def test_handler_aborts_after(self):
+        """Test handler aborts after any yields."""
+        def handle(event):
+            yield 0xFF00, self.query
+            yield 0xFF01,  self.query
+            event.assoc.abort()
+
+        handlers = [(evt.EVT_C_FIND, handle)]
+
+        self.ae = ae = AE()
+        ae.add_supported_context(PatientRootQueryRetrieveInformationModelFind)
+        ae.add_requested_context(
+            PatientRootQueryRetrieveInformationModelFind,
+            ExplicitVRLittleEndian
+        )
+        scp = ae.start_server(('', 11112), block=False, evt_handlers=handlers)
+
+        ae.acse_timeout = 5
+        ae.dimse_timeout = 5
+        assoc = ae.associate('localhost', 11112)
+        assert assoc.is_established
+        result = assoc.send_c_find(
+            self.query, PatientRootQueryRetrieveInformationModelFind
+        )
+        status, identifier = next(result)
+        assert status.Status == 0xFF00
+        assert identifier == self.query
+        status, identifier = next(result)
+        assert status.Status == 0xFF01
+        assert identifier == self.query
+        status, identifier = next(result)
+        with pytest.raises(StopIteration):
+            next(result)
+
+        time.sleep(0.1)
+        assert assoc.is_aborted
         scp.shutdown()
 
 
@@ -2752,6 +2892,215 @@ class TestQRGetServiceClass(object):
 
         assert msg_ids == [65535, 1, 2]
 
+    def test_handler_aborts_before(self):
+        """Test handler aborting the association before any yields"""
+        def handle(event):
+            event.assoc.abort()
+            yield 1
+            yield 0xFF00, self.ds
+
+        def handle_store(event):
+            return 0x0000
+
+        handlers = [(evt.EVT_C_GET, handle)]
+
+        self.ae = ae = AE()
+        ae.add_supported_context(PatientRootQueryRetrieveInformationModelGet)
+        ae.add_supported_context(CTImageStorage, scu_role=False, scp_role=True)
+        ae.add_requested_context(PatientRootQueryRetrieveInformationModelGet)
+        ae.add_requested_context(CTImageStorage)
+        scp = ae.start_server(('', 11112), block=False, evt_handlers=handlers)
+
+        role = build_role(CTImageStorage, scp_role=True)
+        handlers = [(evt.EVT_C_STORE, handle_store)]
+
+        ae.acse_timeout = 5
+        ae.dimse_timeout = 5
+        assoc = ae.associate(
+            'localhost', 11112, ext_neg=[role], evt_handlers=handlers
+        )
+        assert assoc.is_established
+        result = assoc.send_c_get(
+            self.query, PatientRootQueryRetrieveInformationModelGet
+        )
+        status, identifier = next(result)
+        assert status == Dataset()
+        assert identifier is None
+        pytest.raises(StopIteration, next, result)
+
+        time.sleep(0.1)
+        assert assoc.is_aborted
+        scp.shutdown()
+
+    def test_handler_aborts_before_solo(self):
+        """Test handler aborting the association before any yields"""
+        def handle(event):
+            event.assoc.abort()
+
+        def handle_store(event):
+            return 0x0000
+
+        handlers = [(evt.EVT_C_GET, handle)]
+
+        self.ae = ae = AE()
+        ae.add_supported_context(PatientRootQueryRetrieveInformationModelGet)
+        ae.add_supported_context(CTImageStorage, scu_role=False, scp_role=True)
+        ae.add_requested_context(PatientRootQueryRetrieveInformationModelGet)
+        ae.add_requested_context(CTImageStorage)
+        scp = ae.start_server(('', 11112), block=False, evt_handlers=handlers)
+
+        role = build_role(CTImageStorage, scp_role=True)
+        handlers = [(evt.EVT_C_STORE, handle_store)]
+
+        ae.acse_timeout = 5
+        ae.dimse_timeout = 5
+        assoc = ae.associate(
+            'localhost', 11112, ext_neg=[role], evt_handlers=handlers
+        )
+        assert assoc.is_established
+        result = assoc.send_c_get(
+            self.query, PatientRootQueryRetrieveInformationModelGet
+        )
+        status, identifier = next(result)
+        assert status == Dataset()
+        assert identifier is None
+        pytest.raises(StopIteration, next, result)
+
+        time.sleep(0.1)
+        assert assoc.is_aborted
+        scp.shutdown()
+
+    def test_handler_aborts_during_noops(self):
+        """Test handler aborting the association before any yields"""
+        def handle(event):
+            yield 1
+            event.assoc.abort()
+            yield 0xFF00, self.ds
+
+        def handle_store(event):
+            return 0x0000
+
+        handlers = [(evt.EVT_C_GET, handle)]
+
+        self.ae = ae = AE()
+        ae.add_supported_context(PatientRootQueryRetrieveInformationModelGet)
+        ae.add_supported_context(CTImageStorage, scu_role=False, scp_role=True)
+        ae.add_requested_context(PatientRootQueryRetrieveInformationModelGet)
+        ae.add_requested_context(CTImageStorage)
+        scp = ae.start_server(('', 11112), block=False, evt_handlers=handlers)
+
+        role = build_role(CTImageStorage, scp_role=True)
+        handlers = [(evt.EVT_C_STORE, handle_store)]
+
+        ae.acse_timeout = 5
+        ae.dimse_timeout = 5
+        assoc = ae.associate(
+            'localhost', 11112, ext_neg=[role], evt_handlers=handlers
+        )
+        assert assoc.is_established
+        result = assoc.send_c_get(
+            self.query, PatientRootQueryRetrieveInformationModelGet
+        )
+        status, identifier = next(result)
+        assert status == Dataset()
+        assert identifier is None
+        pytest.raises(StopIteration, next, result)
+
+        time.sleep(0.1)
+        assert assoc.is_aborted
+        scp.shutdown()
+
+    def test_handler_aborts_during(self):
+        """Test handler aborting the association before any yields"""
+        def handle(event):
+            yield 1
+            yield 0xFF00, self.ds
+            event.assoc.abort()
+            yield 0xFF00, self.ds
+
+        def handle_store(event):
+            return 0x0000
+
+        handlers = [(evt.EVT_C_GET, handle)]
+
+        self.ae = ae = AE()
+        ae.add_supported_context(PatientRootQueryRetrieveInformationModelGet)
+        ae.add_supported_context(CTImageStorage, scu_role=False, scp_role=True)
+        ae.add_requested_context(PatientRootQueryRetrieveInformationModelGet)
+        ae.add_requested_context(CTImageStorage)
+        scp = ae.start_server(('', 11112), block=False, evt_handlers=handlers)
+
+        role = build_role(CTImageStorage, scp_role=True)
+        handlers = [(evt.EVT_C_STORE, handle_store)]
+
+        ae.acse_timeout = 5
+        ae.dimse_timeout = 5
+        assoc = ae.associate(
+            'localhost', 11112, ext_neg=[role], evt_handlers=handlers
+        )
+        assert assoc.is_established
+        result = assoc.send_c_get(
+            self.query, PatientRootQueryRetrieveInformationModelGet
+        )
+        status, identifier = next(result)
+        assert status.Status == 0xFF00
+        assert identifier is None
+        status, identifier = next(result)
+        assert status == Dataset()
+        assert identifier is None
+        pytest.raises(StopIteration, next, result)
+
+        time.sleep(0.1)
+        assert assoc.is_aborted
+        scp.shutdown()
+
+    def test_handler_aborts_after(self):
+        """Test handler aborting the association before any yields"""
+        def handle(event):
+            yield 2
+            yield 0xFF00, self.ds
+            yield 0xFF00, self.ds
+            event.assoc.abort()
+
+        def handle_store(event):
+            return 0x0000
+
+        handlers = [(evt.EVT_C_GET, handle)]
+
+        self.ae = ae = AE()
+        ae.add_supported_context(PatientRootQueryRetrieveInformationModelGet)
+        ae.add_supported_context(CTImageStorage, scu_role=False, scp_role=True)
+        ae.add_requested_context(PatientRootQueryRetrieveInformationModelGet)
+        ae.add_requested_context(CTImageStorage)
+        scp = ae.start_server(('', 11112), block=False, evt_handlers=handlers)
+
+        role = build_role(CTImageStorage, scp_role=True)
+        handlers = [(evt.EVT_C_STORE, handle_store)]
+
+        ae.acse_timeout = 5
+        ae.dimse_timeout = 5
+        assoc = ae.associate(
+            'localhost', 11112, ext_neg=[role], evt_handlers=handlers
+        )
+        assert assoc.is_established
+        result = assoc.send_c_get(
+            self.query, PatientRootQueryRetrieveInformationModelGet
+        )
+        status, identifier = next(result)
+        assert status.Status == 0xFF00
+        assert identifier is None
+        status, identifier = next(result)
+        assert status.Status == 0xFF00
+        assert identifier is None
+        status, identifier = next(result)
+        assert status == Dataset()
+        assert identifier is None
+        pytest.raises(StopIteration, next, result)
+
+        time.sleep(0.1)
+        assert assoc.is_aborted
+        scp.shutdown()
+
 
 class TestQRMoveServiceClass(object):
     def setup(self):
@@ -4572,6 +4921,236 @@ class TestQRMoveServiceClass(object):
         pytest.raises(StopIteration, next, result)
 
         assoc.release()
+        scp.shutdown()
+
+    def test_handler_aborts_before(self):
+        """Test handler aborting the association before any yields"""
+        def handle(event):
+            event.assoc.abort()
+            yield self.destination
+            yield 1
+            yield 0xFF00, self.ds
+
+        def handle_store(event):
+            return 0x0000
+
+        handlers = [(evt.EVT_C_MOVE, handle), (evt.EVT_C_STORE, handle_store)]
+
+        self.ae = ae = AE()
+        ae.add_supported_context(PatientRootQueryRetrieveInformationModelMove)
+        ae.add_supported_context(CTImageStorage, scu_role=False, scp_role=True)
+        ae.add_requested_context(PatientRootQueryRetrieveInformationModelMove)
+        ae.add_requested_context(CTImageStorage)
+        scp = ae.start_server(('', 11112), block=False, evt_handlers=handlers)
+
+        ae.acse_timeout = 5
+        ae.dimse_timeout = 5
+        assoc = ae.associate('localhost', 11112)
+        assert assoc.is_established
+        result = assoc.send_c_move(
+            self.query, b'TESTMOVE',
+            PatientRootQueryRetrieveInformationModelMove
+        )
+        status, identifier = next(result)
+        assert status == Dataset()
+        assert identifier is None
+        pytest.raises(StopIteration, next, result)
+
+        time.sleep(0.1)
+        assert assoc.is_aborted
+        scp.shutdown()
+
+    def test_handler_aborts_before_solo(self):
+        """Test handler aborting the association before any yields"""
+        def handle(event):
+            event.assoc.abort()
+
+        def handle_store(event):
+            return 0x0000
+
+        handlers = [(evt.EVT_C_MOVE, handle), (evt.EVT_C_STORE, handle_store)]
+
+        self.ae = ae = AE()
+        ae.add_supported_context(PatientRootQueryRetrieveInformationModelMove)
+        ae.add_supported_context(CTImageStorage, scu_role=False, scp_role=True)
+        ae.add_requested_context(PatientRootQueryRetrieveInformationModelMove)
+        ae.add_requested_context(CTImageStorage)
+        scp = ae.start_server(('', 11112), block=False, evt_handlers=handlers)
+
+        ae.acse_timeout = 5
+        ae.dimse_timeout = 5
+        assoc = ae.associate('localhost', 11112)
+        assert assoc.is_established
+        result = assoc.send_c_move(
+            self.query, b'TESTMOVE',
+            PatientRootQueryRetrieveInformationModelMove
+        )
+        status, identifier = next(result)
+        assert status == Dataset()
+        assert identifier is None
+        pytest.raises(StopIteration, next, result)
+
+        time.sleep(0.1)
+        assert assoc.is_aborted
+        scp.shutdown()
+
+    def test_handler_aborts_during_destination(self):
+        """Test handler aborting the association during any yields"""
+        def handle(event):
+            yield self.destination
+            event.assoc.abort()
+            yield 1
+            yield 0xFF00, self.ds
+
+        def handle_store(event):
+            return 0x0000
+
+        handlers = [(evt.EVT_C_MOVE, handle), (evt.EVT_C_STORE, handle_store)]
+
+        self.ae = ae = AE()
+        ae.add_supported_context(PatientRootQueryRetrieveInformationModelMove)
+        ae.add_supported_context(CTImageStorage, scu_role=False, scp_role=True)
+        ae.add_requested_context(PatientRootQueryRetrieveInformationModelMove)
+        ae.add_requested_context(CTImageStorage)
+        scp = ae.start_server(('', 11112), block=False, evt_handlers=handlers)
+
+        ae.acse_timeout = 5
+        ae.dimse_timeout = 5
+        assoc = ae.associate('localhost', 11112)
+        assert assoc.is_established
+        result = assoc.send_c_move(
+            self.query, b'TESTMOVE',
+            PatientRootQueryRetrieveInformationModelMove
+        )
+        status, identifier = next(result)
+        assert status == Dataset()
+        assert identifier is None
+        pytest.raises(StopIteration, next, result)
+
+        time.sleep(0.1)
+        assert assoc.is_aborted
+        scp.shutdown()
+
+    def test_handler_aborts_during_noops(self):
+        """Test handler aborting the association during any yields"""
+        def handle(event):
+            yield self.destination
+            yield 1
+            event.assoc.abort()
+            yield 0xFF00, self.ds
+
+        def handle_store(event):
+            return 0x0000
+
+        handlers = [(evt.EVT_C_MOVE, handle), (evt.EVT_C_STORE, handle_store)]
+
+        self.ae = ae = AE()
+        ae.add_supported_context(PatientRootQueryRetrieveInformationModelMove)
+        ae.add_supported_context(CTImageStorage, scu_role=False, scp_role=True)
+        ae.add_requested_context(PatientRootQueryRetrieveInformationModelMove)
+        ae.add_requested_context(CTImageStorage)
+        scp = ae.start_server(('', 11112), block=False, evt_handlers=handlers)
+
+        ae.acse_timeout = 5
+        ae.dimse_timeout = 5
+        assoc = ae.associate('localhost', 11112)
+        assert assoc.is_established
+        result = assoc.send_c_move(
+            self.query, b'TESTMOVE',
+            PatientRootQueryRetrieveInformationModelMove
+        )
+        status, identifier = next(result)
+        assert status == Dataset()
+        assert identifier is None
+        pytest.raises(StopIteration, next, result)
+
+        time.sleep(0.1)
+        assert assoc.is_aborted
+        scp.shutdown()
+
+    def test_handler_aborts_during(self):
+        """Test handler aborting the association during any yields"""
+        def handle(event):
+            yield self.destination
+            yield 2
+            yield 0xFF00, self.ds
+            event.assoc.abort()
+            yield 0xFF00, self.ds
+
+        def handle_store(event):
+            return 0x0000
+
+        handlers = [(evt.EVT_C_MOVE, handle), (evt.EVT_C_STORE, handle_store)]
+
+        self.ae = ae = AE()
+        ae.add_supported_context(PatientRootQueryRetrieveInformationModelMove)
+        ae.add_supported_context(CTImageStorage, scu_role=False, scp_role=True)
+        ae.add_requested_context(PatientRootQueryRetrieveInformationModelMove)
+        ae.add_requested_context(CTImageStorage)
+        scp = ae.start_server(('', 11112), block=False, evt_handlers=handlers)
+
+        ae.acse_timeout = 5
+        ae.dimse_timeout = 5
+        assoc = ae.associate('localhost', 11112)
+        assert assoc.is_established
+        result = assoc.send_c_move(
+            self.query, b'TESTMOVE',
+            PatientRootQueryRetrieveInformationModelMove
+        )
+        status, identifier = next(result)
+        assert status.Status == 0xFF00
+        assert identifier is None
+        status, identifier = next(result)
+        assert status == Dataset()
+        assert identifier is None
+        pytest.raises(StopIteration, next, result)
+
+        time.sleep(0.1)
+        assert assoc.is_aborted
+        scp.shutdown()
+
+    def test_handler_aborts_after(self):
+        """Test handler aborting the association after any yields"""
+        def handle(event):
+            yield self.destination
+            yield 2
+            yield 0xFF00, self.ds
+            yield 0xFF00, self.ds
+            event.assoc.abort()
+
+        def handle_store(event):
+            return 0x0000
+
+        handlers = [(evt.EVT_C_MOVE, handle), (evt.EVT_C_STORE, handle_store)]
+
+        self.ae = ae = AE()
+        ae.add_supported_context(PatientRootQueryRetrieveInformationModelMove)
+        ae.add_supported_context(CTImageStorage, scu_role=False, scp_role=True)
+        ae.add_requested_context(PatientRootQueryRetrieveInformationModelMove)
+        ae.add_requested_context(CTImageStorage)
+        scp = ae.start_server(('', 11112), block=False, evt_handlers=handlers)
+
+        ae.acse_timeout = 5
+        ae.dimse_timeout = 5
+        assoc = ae.associate('localhost', 11112)
+        assert assoc.is_established
+        result = assoc.send_c_move(
+            self.query, b'TESTMOVE',
+            PatientRootQueryRetrieveInformationModelMove
+        )
+        status, identifier = next(result)
+        assert status.Status == 0xFF00
+        assert identifier is None
+        status, identifier = next(result)
+        assert status.Status == 0xFF00
+        assert identifier is None
+        status, identifier = next(result)
+        assert status == Dataset()
+        assert identifier is None
+        pytest.raises(StopIteration, next, result)
+
+        time.sleep(0.1)
+        assert assoc.is_aborted
         scp.shutdown()
 
 

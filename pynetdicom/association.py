@@ -1664,7 +1664,9 @@ class Association(threading.Thread):
             # If `rsp` is None then the DIMSE timeout expired
             #   so abort if the association hasn't already been aborted
             if rsp is None:
-                if self.is_established:
+                if self.acse.is_aborted():
+                    pass
+                elif self.is_established:
                     LOGGER.error("Connection closed or timed-out")
                     self.abort()
 
@@ -1782,7 +1784,9 @@ class Association(threading.Thread):
             # If `rsp` is None then the DIMSE timeout expired
             #   so abort if the association hasn't already been aborted
             if rsp is None:
-                if self.is_established:
+                if self.acse.is_aborted():
+                    pass
+                elif self.is_established:
                     LOGGER.error("Connection closed or timed-out")
                     self.abort()
 
