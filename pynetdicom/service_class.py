@@ -167,6 +167,10 @@ class ServiceClass(object):
             self.dimse.send_msg(rsp, context.context_id)
             return
 
+        # Event hander has aborted or released
+        if not self.assoc.is_established:
+            return
+
         # No matches and no yields
         if handler is None:
             handler = iter([(0x0000, None)])
@@ -180,6 +184,10 @@ class ServiceClass(object):
                     "Exception raised by user's C-FIND request handler",
                     exc_info=rsp_identifier)
                 rsp_status = 0xC311
+
+            # Event hander has aborted or released
+            if not self.assoc.is_established:
+                return
 
             # Validate rsp_status and set rsp.Status accordingly
             rsp = self.validate_status(rsp_status, rsp)
@@ -238,6 +246,10 @@ class ServiceClass(object):
 
             # Reset the response Identifier
             rsp.Identifier = None
+
+        # Event hander has aborted or released
+        if not self.assoc.is_established:
+            return
 
         # Send final success response
         rsp.Status = 0x0000

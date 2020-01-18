@@ -387,8 +387,6 @@ class Association(threading.Thread):
         self._kill = True
         self.is_established = False
         while self.dul.is_alive() and not self.dul.stop_dul():
-            #if self.is_acceptor:
-            #    print('Waiting for DUL to die')
             time.sleep(0.01)
 
     @property
