@@ -1,9 +1,7 @@
 """Tests for the RelevantPatientInformationQueryServiceClass."""
 
 from io import BytesIO
-import logging
 import os
-import threading
 import time
 
 import pytest
@@ -607,4 +605,59 @@ class TestRelevantPatientServiceClass(object):
         ds = attrs['identifier']
         assert ds.PatientName == '*'
 
+        scp.shutdown()
+
+    def test_scp_handler_aborts_before(self):
+        """Test handler aborts before any yields"""
+        def handle(event):
+            event.assoc.abort()
+            yield 0xFF00, self.query
+
+        handlers = [(evt.EVT_C_FIND, handle)]
+
+        self.ae = ae = AE()
+        ae.add_supported_context(GeneralRelevantPatientInformationQuery)
+        ae.add_requested_context(GeneralRelevantPatientInformationQuery)
+        scp = ae.start_server(('', 11112), block=False, evt_handlers=handlers)
+
+        ae.acse_timeout = 5
+        ae.dimse_timeout = 5
+        assoc = ae.associate('localhost', 11112)
+        assert assoc.is_established
+        result = assoc.send_c_find(
+            self.query, GeneralRelevantPatientInformationQuery
+        )
+        status, identifier = next(result)
+        assert status == Dataset()
+        assert identifier is None
+
+        time.sleep(0.1)
+        assert assoc.is_aborted
+        scp.shutdown()
+
+    def test_scp_handler_aborts_before_solo(self):
+        """Test handler aborts before any yields"""
+        def handle(event):
+            event.assoc.abort()
+
+        handlers = [(evt.EVT_C_FIND, handle)]
+
+        self.ae = ae = AE()
+        ae.add_supported_context(GeneralRelevantPatientInformationQuery)
+        ae.add_requested_context(GeneralRelevantPatientInformationQuery)
+        scp = ae.start_server(('', 11112), block=False, evt_handlers=handlers)
+
+        ae.acse_timeout = 5
+        ae.dimse_timeout = 5
+        assoc = ae.associate('localhost', 11112)
+        assert assoc.is_established
+        result = assoc.send_c_find(
+            self.query, GeneralRelevantPatientInformationQuery
+        )
+        status, identifier = next(result)
+        assert status == Dataset()
+        assert identifier is None
+
+        time.sleep(0.1)
+        assert assoc.is_aborted
         scp.shutdown()

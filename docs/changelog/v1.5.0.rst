@@ -27,6 +27,8 @@ Enhancements
   request
 * Added the well-known SOP Instances for the supported service classes to
   :mod:`~pynetdicom.sop_class`.
+* Added support for the DIMSE intervention event handlers aborting or releasing
+  the association during service class operation.
 * Add new SOP classes up to 2019e version of the standard (:issue:`424`)
 
 Changes
@@ -40,3 +42,8 @@ Changes
   UID directly instead.
 * Python 3.4 is no longer supported, Python 3.7 and 3.8 are now
   officially supported
+* If an A-ABORT is received while waiting for a DIMSE message the
+  ``Association.send_*`` methods will now return immediately rather than
+  waiting for the DIMSE timeout. (:issue:`430`)
+* Added `abort_type` keyword parameter to :meth:`ACSE.is_aborted()
+  <pynetdicom.acse.ACSE.is_aborted>`
