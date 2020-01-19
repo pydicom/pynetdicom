@@ -1857,8 +1857,8 @@ class TestServiceContexts(object):
             assert context.context_id is None
 
         assert contexts[0].abstract_syntax == '1.2.840.10008.5.1.4.1.1.1'
-        assert contexts[80].abstract_syntax == '1.2.840.10008.5.1.4.1.1.77.1.4.1'
-        assert contexts[-1].abstract_syntax == '1.2.840.10008.5.1.4.1.1.90.1'
+        assert contexts[80].abstract_syntax == '1.2.840.10008.5.1.4.1.1.77.1.2'
+        assert contexts[-1].abstract_syntax == '1.2.840.10008.5.1.4.1.1.9.2.1'
 
     def test_storage_commitement(self):
         """Tests with storage commitment presentation contexts"""
@@ -1886,7 +1886,7 @@ class TestServiceContexts(object):
     def test_unified_procedure(self):
         """Tests with unified procedure presentation contexts"""
         contexts = UnifiedProcedurePresentationContexts
-        assert len(contexts) == 4
+        assert len(contexts) == 5
 
         for context in contexts:
             assert context.transfer_syntax == DEFAULT_TRANSFER_SYNTAXES
@@ -1896,6 +1896,7 @@ class TestServiceContexts(object):
         assert contexts[1].abstract_syntax == '1.2.840.10008.5.1.4.34.6.2'
         assert contexts[2].abstract_syntax == '1.2.840.10008.5.1.4.34.6.3'
         assert contexts[3].abstract_syntax == '1.2.840.10008.5.1.4.34.6.4'
+        assert contexts[4].abstract_syntax == '1.2.840.10008.5.1.4.34.6.5'
 
     def test_verification(self):
         """Test the verification service presentation contexts."""
