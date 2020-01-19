@@ -152,8 +152,14 @@ def test_debug_logger():
     debug_logger()
 
     handlers = logger.handlers
-    assert len(logger.handlers) == 2
-    assert isinstance(logger.handlers[1], logging.StreamHandler)
+    assert len(logger.handlers) == 1
+    assert isinstance(logger.handlers[0], logging.StreamHandler)
+
+    debug_logger()
+
+    handlers = logger.handlers
+    assert len(logger.handlers) == 1
+    assert isinstance(logger.handlers[0], logging.StreamHandler)
 
 
 class TestDocHandlers(object):
