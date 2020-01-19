@@ -128,6 +128,16 @@ class SOPClass(UID):
 
 def _generate_sop_classes(sop_class_dict):
     """Generate the SOP Classes."""
+
+    _2019e = (
+        '1.2.840.10008.5.1.4.1.1.88.74',
+        '1.2.840.10008.5.1.4.1.1.88.75',
+        '1.2.840.10008.5.1.4.1.1.481.10',
+        '1.2.840.10008.5.1.4.1.1.481.11',
+        '1.2.840.10008.5.1.4.1.1.481.12',
+        '1.2.840.10008.5.1.4.1.1.481.13',
+    )
+
     for name in sop_class_dict:
         uid = sop_class_dict[name]
         sop_class = SOPClass(uid)
@@ -135,6 +145,9 @@ def _generate_sop_classes(sop_class_dict):
         docstring = "``{}``".format(uid)
         if uid in ('1.2.840.10008.5.1.1.9', '1.2.840.10008.5.1.1.18'):
             docstring += "\n\n.. versionadded:: 1.4"
+        elif uid in _2019e:
+            docstring += "\n\n.. versionadded:: 1.5"
+
         sop_class.__doc__ = docstring
         globals()[name] = sop_class
 
@@ -361,6 +374,8 @@ _STORAGE_CLASSES = {
     'AcquisitionContextSRStorage' : '1.2.840.10008.5.1.4.1.1.88.71',  # A.35.16
     'SimplifiedAdultEchoSRStorage' : '1.2.840.10008.5.1.4.1.1.88.72',  # A.35.17
     'PatientRadiationDoseSRStorage' : '1.2.840.10008.5.1.4.1.1.88.73',  # A.35.18
+    'PlannedImagingAgentAdministrationSRStorage' : '1.2.840.10008.5.1.4.1.1.88.74',  # A.35.19
+    'PerformedImagingAgestAdministrationSRStorage' : '1.2.840.10008.5.1.4.1.1.88.75',  # A.35.20
     'ContentAssessmentResultsStorage' : '1.2.840.10008.5.1.4.1.1.90.1',  # A.81
     'EncapsulatedPDFStorage' : '1.2.840.10008.5.1.4.1.1.104.1',  # A.45.1
     'EncapsulatedCDAStorage' : '1.2.840.10008.5.1.4.1.1.104.2',  # A.45.2
@@ -379,6 +394,10 @@ _STORAGE_CLASSES = {
     'RTTreatmentSummaryRecordStorage' : '1.2.840.10008.5.1.4.1.1.481.7',  # A.31
     'RTIonPlanStorage' : '1.2.840.10008.5.1.4.1.1.481.8',  # A.49
     'RTIonBeamsTreatmentRecordStorage' : '1.2.840.10008.5.1.4.1.1.481.9',  # A.50
+    'RTPhysicianIntentStorage' : '1.2.840.10008.5.1.4.1.1.481.10',  # A.86.1.2
+    'RTSegmentAnnotationStorage' : '1.2.840.10008.5.1.4.1.1.481.11',  # A.86.1.3
+    'RTRadiationSetStorage' : '1.2.840.10008.5.1.4.1.1.481.12',  # A.86.1.4
+    'CArmPhotonElectronRadiationStorage' : '1.2.840.10008.5.1.4.1.1.481.13',  # A.86.1.5
     'RTBeamsDeliveryInstructionStorage' : '1.2.840.10008.5.1.4.34.7',  # A.64
     'RTBrachyApplicationSetupDeliveryInstructionsStorage' : '1.2.840.10008.5.1.4.34.10',  # A.79
 }
@@ -394,6 +413,7 @@ _UNIFIED_PROCEDURE_STEP_CLASSES = {
     'UnifiedProcedureStepWatchSOPClass' : '1.2.840.10008.5.1.4.34.6.2',
     'UnifiedProcedureStepPullSOPClass' : '1.2.840.10008.5.1.4.34.6.3',
     'UnifiedProcedureStepEventSOPClass' : '1.2.840.10008.5.1.4.34.6.4',
+    'UnifiedProcedureStepQuerySOPClass' : '1.2.840.10008.5.1.4.34.6.5',
 }
 _VERIFICATION_CLASSES = {
     'VerificationSOPClass' : '1.2.840.10008.1.1',

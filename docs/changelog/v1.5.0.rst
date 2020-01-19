@@ -29,6 +29,7 @@ Enhancements
   :mod:`~pynetdicom.sop_class`.
 * Added support for the DIMSE intervention event handlers aborting or releasing
   the association during service class operation.
+* Add new SOP classes up to 2019e version of the standard (:issue:`424`)
 
 Changes
 .......
