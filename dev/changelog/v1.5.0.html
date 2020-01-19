@@ -209,6 +209,8 @@ and A-ABORT or A-ASSOCIATE-RJ before attempting association negotiation
 request</p></li>
 <li><p>Added the well-known SOP Instances for the supported service classes to
 <a class="reference internal" href="../reference/sop_classes.html#module-pynetdicom.sop_class" title="pynetdicom.sop_class"><code class="xref py py-mod docutils literal notranslate"><span class="pre">sop_class</span></code></a>.</p></li>
+<li><p>Added support for the DIMSE intervention event handlers aborting or releasing
+the association during service class operation.</p></li>
 </ul>
 </div>
 <div class="section" id="changes">
@@ -220,6 +222,10 @@ request</p></li>
 UID directly instead.</p></li>
 <li><p>Python 3.4 is no longer supported, Python 3.7 and 3.8 are now
 officially supported</p></li>
+<li><p>If an A-ABORT is received while waiting for a DIMSE message the
+<code class="docutils literal notranslate"><span class="pre">Association.send_*</span></code> methods will now return immediately rather than
+waiting for the DIMSE timeout. (<a class="reference external" href="https://github.com/pydicom/pynetdicom/issues/430">#430</a>)</p></li>
+<li><p>Added <cite>abort_type</cite> keyword parameter to <a class="reference internal" href="../reference/generated/pynetdicom.acse.ACSE.html#pynetdicom.acse.ACSE.is_aborted" title="pynetdicom.acse.ACSE.is_aborted"><code class="xref py py-meth docutils literal notranslate"><span class="pre">ACSE.is_aborted()</span></code></a></p></li>
 </ul>
 </div>
 </div>
