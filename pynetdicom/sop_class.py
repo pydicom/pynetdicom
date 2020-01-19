@@ -1,4 +1,4 @@
-"""Generates the supported SOP Classes."""
+"""Generates the supported SOP Classes and well-known SOP Instances."""
 
 import inspect
 import logging
@@ -477,3 +477,46 @@ def uid_to_sop_class(uid):
     sop_class._service_class = ServiceClass
 
     return sop_class
+
+
+# Well-known SOP Instance UIDs for the supported Service Classes
+DisplaySystemSOPInstance = UID('1.2.840.10008.5.1.1.40.1')
+"""``1.2.840.10008.5.1.1.40.1``
+
+.. versionadded:: 1.5
+"""
+PrinterConfigurationRetrievalSOPInstance = UID('1.2.840.10008.5.1.1.17.376')
+"""``1.2.840.10008.5.1.1.17.376``
+
+.. versionadded:: 1.5
+"""
+PrinterSOPInstance = UID('1.2.840.10008.5.1.1.17')
+"""``1.2.840.10008.5.1.1.17``
+
+.. versionadded:: 1.5
+"""
+ProceduralEventLoggingSOPInstance = UID('1.2.840.10008.1.40.1')
+"""``1.2.840.10008.1.40.1``
+
+.. versionadded:: 1.5
+"""
+StorageCommitmentPushModelSOPInstance = UID('1.2.840.10008.1.20.1.1')
+"""``1.2.840.10008.1.20.1.1``
+
+.. versionadded:: 1.5
+"""
+SubstanceAdministrationLoggingSOPInstance = UID('1.2.840.10008.1.42.1')
+"""``1.2.840.10008.1.42.1``
+
+.. versionadded:: 1.5
+"""
+UPSFilteredGlobalSubscriptionSOPInstance = UID('1.2.840.10008.5.1.4.34.5.1')
+"""``1.2.840.10008.5.1.4.34.5.1``
+
+.. versionadded:: 1.5
+"""
+UPSGlobalSubscriptionSOPInstance = UID('1.2.840.10008.5.1.4.34.5')
+"""``1.2.840.10008.5.1.4.34.5``
+
+.. versionadded:: 1.5
+"""

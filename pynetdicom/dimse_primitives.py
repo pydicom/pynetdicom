@@ -1590,7 +1590,9 @@ class N_GET(DIMSEPrimitive):
     Status : int
         The error or success notification of the operation.
     """
-    STATUS_OPTIONAL_KEYWORDS = ('ErrorComment', 'ErrorID', )
+    STATUS_OPTIONAL_KEYWORDS = (
+        'AttributeIdentifierList', 'ErrorComment', 'ErrorID',
+    )
     REQUEST_KEYWORDS = (
         'MessageID', 'RequestedSOPClassUID', 'RequestedSOPInstanceUID'
     )

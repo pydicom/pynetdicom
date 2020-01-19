@@ -78,7 +78,7 @@ class Association(threading.Thread):
         """Create a new :class:`Association` instance.
 
         The association starts in State 1 (idle). Association negotiation
-        won't begin until an :class:`~pynetdicom.transport,AssociationSocket`
+        won't begin until an :class:`~pynetdicom.transport.AssociationSocket`
         is assigned using :meth:`set_socket` and
         :meth:`Association.start_server()<pynetdicom.Association.start_server>`
         is called.

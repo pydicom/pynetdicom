@@ -974,6 +974,7 @@ class TestAssociationSendNGet(object):
             ds.Status = 0xFFF0
             ds.ErrorComment = 'Some comment'
             ds.ErrorID = 12
+            ds.AttributeIdentifierList = [0x00100020]
             return ds, None
 
         self.ae = ae = AE()
@@ -995,6 +996,7 @@ class TestAssociationSendNGet(object):
         assert status.Status == 0xFFF0
         assert status.ErrorComment == 'Some comment'
         assert status.ErrorID == 12
+        assert status.AttributeIdentifierList == [0x00100020]
         assert ds is None
         assoc.release()
         assert assoc.is_released

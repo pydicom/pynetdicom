@@ -1,5 +1,7 @@
 .. _api_dul_pdu:
 
+.. py:module:: pynetdicom.pdu
+
 PDUs (:mod:`pynetdicom.pdu`)
 =============================
 

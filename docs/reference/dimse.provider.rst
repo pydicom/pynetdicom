@@ -1,5 +1,7 @@
 .. _api_dimse_provider:
 
+.. py:module:: pynetdicom.dimse
+
 Service Provider (:mod:`pynetdicom.dimse`)
 ===========================================
 

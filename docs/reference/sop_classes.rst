@@ -1,5 +1,7 @@
 .. _api_sopclasses:
 
+.. py:module:: pynetdicom.sop_class
+
 SOP Classes (:mod:`pynetdicom.sop_class`)
 ==============================================
 
@@ -375,3 +377,19 @@ Verification
    :toctree: generated/
 
    VerificationSOPClass
+
+
+Well-known SOP Instances
+------------------------
+
+.. autosummary::
+   :toctree: generated/
+
+   DisplaySystemSOPInstance
+   PrinterConfigurationRetrievalSOPInstance
+   PrinterSOPInstance
+   ProceduralEventLoggingSOPInstance
+   StorageCommitmentPushModelSOPInstance
+   SubstanceAdministrationLoggingSOPInstance
+   UPSFilteredGlobalSubscriptionSOPInstance
+   UPSGlobalSubscriptionSOPInstance
