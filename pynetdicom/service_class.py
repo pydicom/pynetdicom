@@ -167,6 +167,10 @@ class ServiceClass(object):
             self.dimse.send_msg(rsp, context.context_id)
             return
 
+        # Event hander has aborted or released
+        if not self.assoc.is_established:
+            return
+
         # No matches and no yields
         if handler is None:
             handler = iter([(0x0000, None)])
@@ -180,6 +184,10 @@ class ServiceClass(object):
                     "Exception raised by user's C-FIND request handler",
                     exc_info=rsp_identifier)
                 rsp_status = 0xC311
+
+            # Event hander has aborted or released
+            if not self.assoc.is_established:
+                return
 
             # Validate rsp_status and set rsp.Status accordingly
             rsp = self.validate_status(rsp_status, rsp)
@@ -238,6 +246,10 @@ class ServiceClass(object):
 
             # Reset the response Identifier
             rsp.Identifier = None
+
+        # Event hander has aborted or released
+        if not self.assoc.is_established:
+            return
 
         # Send final success response
         rsp.Status = 0x0000
@@ -441,12 +453,20 @@ class ServiceClass(object):
                 {'request' : req, 'context' : context.as_tuple}
             )
         except Exception as exc:
+            # Handler aborted or released
+            if not self.assoc.is_established:
+                return
+
             LOGGER.error(
                 "Exception in the handler bound to 'evt.EVT_N_ACTION"
             )
             LOGGER.exception(exc)
             rsp.Status = 0x0110
             self.dimse.send_msg(rsp, context.context_id)
+            return
+
+        # Handler aborted or released then returned valid values
+        if not self.assoc.is_established:
             return
 
         # Check Status validity
@@ -591,12 +611,20 @@ class ServiceClass(object):
                 {'request' : req, 'context' : context.as_tuple}
             )
         except Exception as exc:
+            # Handler aborted or released
+            if not self.assoc.is_established:
+                return
+
             LOGGER.error(
                 "Exception in the handler bound to 'evt.EVT_N_CREATE"
             )
             LOGGER.exception(exc)
             rsp.Status = 0x0110
             self.dimse.send_msg(rsp, context.context_id)
+            return
+
+        # Handler aborted or released then returned valid values
+        if not self.assoc.is_established:
             return
 
         # Check Status validity
@@ -714,6 +742,10 @@ class ServiceClass(object):
             self.dimse.send_msg(rsp, context.context_id)
             return
 
+        # Handler aborted or released
+        if not self.assoc.is_established:
+            return
+
         # Check Status validity
         # Validate 'status' and set 'rsp.Status' accordingly
         rsp = self.validate_status(status, rsp)
@@ -809,12 +841,20 @@ class ServiceClass(object):
                 {'request' : req, 'context' : context.as_tuple}
             )
         except Exception as exc:
+            # Handler aborted or released
+            if not self.assoc.is_established:
+                return
+
             LOGGER.error(
                 "Exception in the handler bound to 'evt.EVT_N_EVENT_REPORT"
             )
             LOGGER.exception(exc)
             rsp.Status = 0x0110
             self.dimse.send_msg(rsp, context.context_id)
+            return
+
+        # Handler aborted or released then returned valid values
+        if not self.assoc.is_established:
             return
 
         # Check Status validity
@@ -958,6 +998,10 @@ class ServiceClass(object):
                 }
             )
         except Exception as exc:
+            # Handler aborted or released
+            if not self.assoc.is_established:
+                return
+
             LOGGER.error(
                 "Exception in the handler bound to 'evt.EVT_N_GET'"
             )
@@ -965,6 +1009,10 @@ class ServiceClass(object):
             # Processing failure - Error in handler
             rsp.Status = 0x0110
             self.dimse.send_msg(rsp, context.context_id)
+            return
+
+        # Handler aborted or released then returned valid values
+        if not self.assoc.is_established:
             return
 
         # Validate rsp_status and set rsp.Status accordingly
@@ -1116,12 +1164,20 @@ class ServiceClass(object):
                 {'request' : req, 'context' : context.as_tuple}
             )
         except Exception as exc:
+            # Handler aborted or released
+            if not self.assoc.is_established:
+                return
+
             LOGGER.error(
                 "Exception in the handler bound to 'evt.EVT_N_SET"
             )
             LOGGER.exception(exc)
             rsp.Status = 0x0110
             self.dimse.send_msg(rsp, context.context_id)
+            return
+
+        # Handler aborted or released then returned valid values
+        if not self.assoc.is_established:
             return
 
         # Validate rsp_status and set rsp.Status accordingly
@@ -1274,6 +1330,10 @@ class VerificationServiceClass(ServiceClass):
                 evt.EVT_C_ECHO,
                 {'request' : req, 'context' : context.as_tuple}
             )
+            # Event hander has aborted or released
+            if not self.assoc.is_established:
+                return
+
             if isinstance(status, Dataset):
                 if 'Status' not in status:
                     raise AttributeError(
@@ -1352,6 +1412,10 @@ class StorageServiceClass(ServiceClass):
             LOGGER.exception(exc)
             rsp.Status = 0xC211
             self.dimse.send_msg(rsp, context.context_id)
+            return
+
+        # Event hander has aborted or released
+        if not self.assoc.is_established:
             return
 
         # Validate rsp_status and set rsp.Status accordingly
@@ -1479,6 +1543,10 @@ class QueryRetrieveServiceClass(ServiceClass):
             self.dimse.send_msg(rsp, context.context_id)
             return
 
+        # Event hander has aborted or released - before any yields
+        if not self.assoc.is_established:
+            return
+
         # No matches and no yields
         if handler is None:
             handler = iter([(0x0000, None)])
@@ -1490,8 +1558,13 @@ class QueryRetrieveServiceClass(ServiceClass):
             if isinstance(rsp_status, Exception):
                 LOGGER.error(
                     "Exception raised by user's C-FIND request handler",
-                    exc_info=rsp_identifier)
+                    exc_info=rsp_identifier
+                )
                 rsp_status = 0xC311
+
+            # Event hander has aborted or released - after any yields
+            if not self.assoc.is_established:
+                return
 
             # Validate rsp_status and set rsp.Status accordingly
             rsp = self.validate_status(rsp_status, rsp)
@@ -1551,6 +1624,10 @@ class QueryRetrieveServiceClass(ServiceClass):
             # Reset the response Identifier
             rsp.Identifier = None
 
+        # Event hander has aborted or released - prevent final message
+        if not self.assoc.is_established:
+            return
+
         # Send final success response
         rsp.Status = 0x0000
         LOGGER.info('Find SCP Response: %s (Success)', ii + 2)
@@ -1592,6 +1669,10 @@ class QueryRetrieveServiceClass(ServiceClass):
             self.dimse.send_msg(rsp, context.context_id)
             return
 
+        # Event hander has aborted or released - before any yields
+        if not self.assoc.is_established:
+            return
+
         # Number of C-STORE sub-operations
         try:
             no_suboperations = int(next(result))
@@ -1622,6 +1703,10 @@ class QueryRetrieveServiceClass(ServiceClass):
                     "Exception raised by user's C-GET request handler",
                     exc_info=dataset)
                 rsp_status = 0xC411
+
+            # Event hander has aborted or released - after any yields
+            if not self.assoc.is_established:
+                return
 
             # All sub-operations are complete
             if store_results[0] <= 0:
@@ -1796,6 +1881,10 @@ class QueryRetrieveServiceClass(ServiceClass):
                 rsp.NumberOfCompletedSuboperations = store_results[3]
                 self.dimse.send_msg(rsp, context.context_id)
 
+        # Event hander has aborted or released - prevent final message
+        if not self.assoc.is_established:
+            return
+
         # If not already done, send the final 'Success' or 'Warning' response
         if not store_results[1] and not store_results[2]:
             # Success response - no failures or warnings
@@ -1880,6 +1969,10 @@ class QueryRetrieveServiceClass(ServiceClass):
             destination = next(result)
             no_suboperations = next(result)
         except Exception as exc:
+            # Event hander has aborted or released - during any yields
+            if not self.assoc.is_established:
+                return
+
             LOGGER.exception(
                 "The C-MOVE request handler must yield the (address, port) "
                 "of the destination AE, then yield the number of "
@@ -1888,6 +1981,10 @@ class QueryRetrieveServiceClass(ServiceClass):
             # Failure - Unable to process - Error in handler
             rsp.Status = 0xC514
             self.dimse.send_msg(rsp, context.context_id)
+            return
+
+        # Event hander has aborted or released - before any yields
+        if not self.assoc.is_established:
             return
 
         # Check number of C-STORE sub-operations
@@ -1917,12 +2014,12 @@ class QueryRetrieveServiceClass(ServiceClass):
             store_assoc = self.ae.associate(destination[0],
                                             destination[1],
                                             ae_title=req.MoveDestination)
-        except Exception as ex:
+        except Exception as exc:
             LOGGER.error(
                 "The handler bound to 'evt.EVT_C_MOVE' yielded an invalid "
                 "destination AE (addr, port) value"
             )
-            LOGGER.exception(ex)
+            LOGGER.exception(exc)
             # Failure - Unable to process - Bad handler AE destination
             rsp.Status = 0xC515
             self.dimse.send_msg(rsp, context.context_id)
@@ -1949,6 +2046,11 @@ class QueryRetrieveServiceClass(ServiceClass):
                         exc_info=dataset
                     )
                     rsp_status = 0xC511
+
+                # Event hander has aborted or released - during any yields
+                if not self.assoc.is_established:
+                    store_assoc.release()
+                    return
 
                 # All sub-operations are complete
                 if store_results[0] <= 0:
@@ -2091,7 +2193,7 @@ class QueryRetrieveServiceClass(ServiceClass):
                         store_status = STORAGE_SERVICE_CLASS_STATUS[
                             store_status.Status
                         ]
-                    except Exception as ex:
+                    except Exception as exc:
                         # An exception implies a C-STORE failure
                         LOGGER.warning("C-STORE sub-operation failed.")
                         store_status = [STATUS_FAILURE, 'Unknown']
@@ -2129,6 +2231,10 @@ class QueryRetrieveServiceClass(ServiceClass):
 
             # FIXME - shouldn't have to manually close the socket like this
             store_assoc.dul.socket.close()
+            return
+
+        # Event hander has aborted or released - after any yields
+        if not self.assoc.is_established:
             return
 
         # If not already done, send the final 'Success' or 'Warning' response
@@ -2264,6 +2370,10 @@ class RelevantPatientInformationQueryServiceClass(ServiceClass):
             )
             (rsp_status, rsp_identifier) = next(responses)
         except (StopIteration, TypeError):
+            # Event hander has aborted or released - before any yields
+            if not self.assoc.is_established:
+                return
+
             # There were no matches, so return Success
             # If success, then rsp_identifier is None
             rsp.Status = 0x0000
@@ -2275,6 +2385,10 @@ class RelevantPatientInformationQueryServiceClass(ServiceClass):
             LOGGER.exception(ex)
             rsp.Status = 0xC311
             self.dimse.send_msg(rsp, context.context_id)
+            return
+
+        # Event hander has aborted or released
+        if not self.assoc.is_established:
             return
 
         rsp = self.validate_status(rsp_status, rsp)

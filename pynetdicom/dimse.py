@@ -7,6 +7,7 @@ try:
     import queue
 except ImportError:
     import Queue as queue  # Python 2 compatibility
+import threading
 
 from pynetdicom import evt
 # pylint: disable=no-name-in-module
@@ -172,6 +173,11 @@ class DIMSEServiceProvider(object):
 
         .. versionadded:: 1.2
 
+        .. versionchanged:: 1.5
+
+            Changed to also return ``(None, None)`` if the peer aborts the
+            association or the connection is closed.
+
         Parameters
         ----------
         block : bool
@@ -183,8 +189,10 @@ class DIMSEServiceProvider(object):
         -------
         (int, dimse_messages.DIMSEMessage) or (None, None)
             The next available (*Context ID*, *DIMSE Message*), which is taken
-            off the queue, or ``(None, None)`` if no messages are available
-            within the :attr:`~DIMSEServiceProvider.dimse_timeout` period.
+            off the queue, or ``(None, None)`` if the peer has aborted the
+            association, the connection is closed or if no messages are
+            available within the :attr:`~DIMSEServiceProvider.dimse_timeout`
+            period.
         """
         try:
             return self.msg_queue.get(block=block, timeout=self.dimse_timeout)
@@ -262,7 +270,12 @@ class DIMSEServiceProvider(object):
             elif (isinstance(primitive, N_EVENT_REPORT) and
                   primitive.is_valid_request):
                 # N-EVENT-REPORT service requests are handled immediately
-                self.assoc._serve_request(primitive, context_id)
+                # Ugly hack, but would block the DUL otherwise
+                t = threading.Thread(
+                    target=self.assoc._serve_request,
+                    args=(primitive, context_id)
+                )
+                t.start()
             else:
                 self.msg_queue.put((context_id, primitive))
 

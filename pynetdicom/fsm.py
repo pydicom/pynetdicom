@@ -87,8 +87,10 @@ class StateMachine(object):
                 }
             )
             #print(
-            #    "{} + {} -> {} -> {}"
-            #    .format(self.current_state, event, action_name, next_state)
+            #    "{}: {} + {} -> {} -> {}".format(
+            #        self.dul.assoc.mode[0].upper(), self.current_state,
+            #        event, action_name, next_state
+            #    )
             #)
 
             # Move the state machine to the next state
@@ -738,8 +740,9 @@ def AA_2(dul):
     dul.socket.close()
 
     assoc = dul.assoc
-    remote = assoc.acceptor if assoc.is_requestor else assoc.requestor
+    assoc.dimse.msg_queue.put((None, None))
 
+    remote = assoc.acceptor if assoc.is_requestor else assoc.requestor
     address = (remote.address, remote.port)
     evt.trigger(dul.assoc, evt.EVT_CONN_CLOSE, {'address' : address})
 
@@ -775,8 +778,9 @@ def AA_3(dul):
     dul.socket.close()
 
     assoc = dul.assoc
-    remote = assoc.acceptor if assoc.is_requestor else assoc.requestor
+    assoc.dimse.msg_queue.put((None, None))
 
+    remote = assoc.acceptor if assoc.is_requestor else assoc.requestor
     address = (remote.address, remote.port)
     evt.trigger(dul.assoc, evt.EVT_CONN_CLOSE, {'address' : address})
 
@@ -803,8 +807,9 @@ def AA_4(dul):
         ``'Sta1'``, the next state of the state machine
     """
     assoc = dul.assoc
-    remote = assoc.acceptor if assoc.is_requestor else assoc.requestor
+    assoc.dimse.msg_queue.put((None, None))
 
+    remote = assoc.acceptor if assoc.is_requestor else assoc.requestor
     address = (remote.address, remote.port)
     evt.trigger(dul.assoc, evt.EVT_CONN_CLOSE, {'address' : address})
 

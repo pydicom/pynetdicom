@@ -241,12 +241,38 @@ class ACSE(object):
         """Return the :class:`~pynetdicom.dul.DULServiceProvider`."""
         return self.assoc.dul
 
-    def is_aborted(self):
-        """Return ``True`` if an A-ABORT or A-P-ABORT request has been
+    def is_aborted(self, abort_type='both'):
+        """Return ``True`` if an A-ABORT and/or A-P-ABORT request has been
         received.
+
+        .. versionchanged:: 1.5
+
+            Added `abort_type` keyword parameter.
+
+        Parameters
+        ----------
+        abort_type : str, optional
+            The type of abort to check for. If ``'both'`` then will return
+            ``True`` if an A-ABORT or A-P-ABORT is received (default). If
+            ``'a-abort'`` then will return ``True`` if an A-ABORT is received,
+            if ``'a-p-abort'`` then will return ``True`` if an A-P-ABORT is
+            received.
+
+        Returns
+        -------
+        bool
+            ``True`` if an abort is received, ``False`` otherwise.
         """
+        # A-P-ABORT:
+        #   Connection closed, FSM received invalid event or DUL sent A-ABORT
+        abort_classes = {
+            'both': (A_ABORT, A_P_ABORT),
+            'a-abort': (A_ABORT, ),
+            'a-p-abort': (A_P_ABORT, ),
+        }
+
         primitive = self.dul.peek_next_pdu()
-        if primitive.__class__ in (A_ABORT, A_P_ABORT):
+        if isinstance(primitive, abort_classes[abort_type]):
             return True
 
         return False
