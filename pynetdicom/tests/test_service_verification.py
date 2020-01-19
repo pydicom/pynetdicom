@@ -1,5 +1,6 @@
 """Tests for the VerificationServiceClass."""
 
+import logging
 import time
 
 import pytest
@@ -292,10 +293,11 @@ class TestVerificationServiceClass(object):
 
         scp.shutdown()
 
-    def test_scp_handler_aborts(self):
+    def test_abort(self, caplog):
         """Test handler aborting the association"""
         def handle(event):
             event.assoc.abort()
+            return 0x0000
 
         handlers = [(evt.EVT_C_ECHO, handle)]
 
@@ -306,9 +308,68 @@ class TestVerificationServiceClass(object):
 
         assoc = ae.associate('localhost', 11112)
         assert assoc.is_established
-        rsp = assoc.send_c_echo()
+        with caplog.at_level(logging.DEBUG, logger='pynetdicom'):
+            rsp = assoc.send_c_echo()
         assert rsp == Dataset()
 
         time.sleep(0.1)
         assert assoc.is_aborted
         scp.shutdown()
+
+        assert "Association Aborted" in caplog.text
+        assert "(A-P-ABORT)" not in caplog.text
+        assert "Connection closed" not in caplog.text
+        assert "DIMSE timeout reached" not in caplog.text
+
+    def test_disconnection(self, caplog):
+        """Test peer disconnecting during DIMSE messaging."""
+        def handle(event):
+            event.assoc.dul.socket.close()
+            return 0x0000
+
+        handlers = [(evt.EVT_C_ECHO, handle)]
+
+        self.ae = ae = AE()
+        ae.add_supported_context(VerificationSOPClass)
+        ae.add_requested_context(VerificationSOPClass)
+        scp = ae.start_server(('', 11112), block=False, evt_handlers=handlers)
+
+        assoc = ae.associate('localhost', 11112)
+        assert assoc.is_established
+        with caplog.at_level(logging.DEBUG, logger='pynetdicom'):
+            rsp = assoc.send_c_echo()
+        assert rsp == Dataset()
+
+        time.sleep(0.1)
+        assert assoc.is_aborted
+        scp.shutdown()
+
+        assert "Connection closed" in caplog.text
+        assert "Association Aborted (A-P-ABORT)" in caplog.text
+
+    def test_timeout(self, caplog):
+        """Test peer timing out during DIMSE messaging."""
+        def handle(event):
+            time.sleep(0.1)
+            return 0x0000
+
+        handlers = [(evt.EVT_C_ECHO, handle)]
+
+        self.ae = ae = AE()
+        ae.dimse_timeout = 0.05
+        ae.add_supported_context(VerificationSOPClass)
+        ae.add_requested_context(VerificationSOPClass)
+        scp = ae.start_server(('', 11112), block=False, evt_handlers=handlers)
+
+        assoc = ae.associate('localhost', 11112)
+        assert assoc.is_established
+        with caplog.at_level(logging.DEBUG, logger='pynetdicom'):
+            rsp = assoc.send_c_echo()
+        assert rsp == Dataset()
+
+        time.sleep(0.1)
+        assert assoc.is_aborted
+        scp.shutdown()
+
+        assert "DIMSE timeout reached" in caplog.text
+        assert "Aborting Association" in caplog.text

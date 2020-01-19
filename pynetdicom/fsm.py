@@ -87,10 +87,9 @@ class StateMachine(object):
                 }
             )
             #print(
-            #    "{}: {} + {} -> {} -> {}"
-            #    .format(
-            #        self.dul.assoc.mode, self.current_state, event,
-            #        action_name, next_state
+            #    "{}: {} + {} -> {} -> {}".format(
+            #        self.dul.assoc.mode[0].upper(), self.current_state,
+            #        event, action_name, next_state
             #    )
             #)
 

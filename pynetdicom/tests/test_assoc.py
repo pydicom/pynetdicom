@@ -888,6 +888,7 @@ class TestAssociationSendCEcho(object):
         ae.dimse_timeout = 5
         assoc = ae.associate('localhost', 11112)
         class DummyDIMSE():
+            msg_queue = queue.Queue()
             def send_msg(*args, **kwargs): return
             def get_msg(*args, **kwargs): return None, None
 
@@ -913,6 +914,7 @@ class TestAssociationSendCEcho(object):
             is_valid_response = False
 
         class DummyDIMSE():
+            msg_queue = queue.Queue()
             def send_msg(*args, **kwargs): return
             def get_msg(*args, **kwargs): return None, DummyResponse()
 
@@ -1312,6 +1314,7 @@ class TestAssociationSendCStore(object):
         assoc = ae.associate('localhost', 11112)
 
         class DummyDIMSE():
+            msg_queue = queue.Queue()
             def send_msg(*args, **kwargs): return
             def get_msg(*args, **kwargs): return None, None
 
@@ -1345,6 +1348,7 @@ class TestAssociationSendCStore(object):
             is_valid_response = False
 
         class DummyDIMSE():
+            msg_queue = queue.Queue()
             def send_msg(*args, **kwargs): return
             def get_msg(*args, **kwargs): return DummyResponse(), None
 
@@ -2003,6 +2007,7 @@ class TestAssociationSendCFind(object):
         assoc = ae.associate('localhost', 11112)
 
         class DummyDIMSE():
+            msg_queue = queue.Queue()
             def send_msg(*args, **kwargs):
                 return
 
