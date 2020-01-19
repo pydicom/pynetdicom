@@ -195,7 +195,7 @@
 <h1>pynetdicom.ae.ApplicationEntity<a class="headerlink" href="#pynetdicom-ae-applicationentity" title="Permalink to this headline">¶</a></h1>
 <dl class="class">
 <dt id="pynetdicom.ae.ApplicationEntity">
-<em class="property">class </em><code class="sig-prename descclassname">pynetdicom.ae.</code><code class="sig-name descname">ApplicationEntity</code><span class="sig-paren">(</span><em class="sig-param">ae_title=b'PYNETDICOM'</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/20b80a21/pynetdicom/ae.py#L27"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom.ae.ApplicationEntity" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="sig-prename descclassname">pynetdicom.ae.</code><code class="sig-name descname">ApplicationEntity</code><span class="sig-paren">(</span><em class="sig-param">ae_title=b'PYNETDICOM'</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/d1b07880/pynetdicom/ae.py#L27"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom.ae.ApplicationEntity" title="Permalink to this definition">¶</a></dt>
 <dd><p>Represents a DICOM Application Entity (AE).</p>
 <p>An AE may be a <em>Service Class Provider</em> (SCP), a <em>Service Class User</em> (SCU)
 or both.</p>
@@ -300,7 +300,7 @@ only).</p>
 
 <dl class="method">
 <dt id="pynetdicom.ae.ApplicationEntity.__init__">
-<code class="sig-name descname">__init__</code><span class="sig-paren">(</span><em class="sig-param">ae_title=b'PYNETDICOM'</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/20b80a21/pynetdicom/ae.py#L64"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom.ae.ApplicationEntity.__init__" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">__init__</code><span class="sig-paren">(</span><em class="sig-param">ae_title=b'PYNETDICOM'</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/d1b07880/pynetdicom/ae.py#L64"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom.ae.ApplicationEntity.__init__" title="Permalink to this definition">¶</a></dt>
 <dd><p>Create a new Application Entity.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -414,7 +414,7 @@ acceptors.</p>
 
 <dl class="method">
 <dt id="pynetdicom.ae.ApplicationEntity.add_requested_context">
-<code class="sig-name descname">add_requested_context</code><span class="sig-paren">(</span><em class="sig-param">abstract_syntax</em>, <em class="sig-param">transfer_syntax=None</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/20b80a21/pynetdicom/ae.py#L142"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom.ae.ApplicationEntity.add_requested_context" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">add_requested_context</code><span class="sig-paren">(</span><em class="sig-param">abstract_syntax</em>, <em class="sig-param">transfer_syntax=None</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/d1b07880/pynetdicom/ae.py#L142"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom.ae.ApplicationEntity.add_requested_context" title="Permalink to this definition">¶</a></dt>
 <dd><p>Add a presentation context to be proposed when requesting an
 association.</p>
 <p>When an SCU sends an association request to a peer it includes a list
@@ -514,7 +514,7 @@ using different transfer syntaxes for each.</p>
 
 <dl class="method">
 <dt id="pynetdicom.ae.ApplicationEntity.add_supported_context">
-<code class="sig-name descname">add_supported_context</code><span class="sig-paren">(</span><em class="sig-param">abstract_syntax</em>, <em class="sig-param">transfer_syntax=None</em>, <em class="sig-param">scu_role=None</em>, <em class="sig-param">scp_role=None</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/20b80a21/pynetdicom/ae.py#L266"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom.ae.ApplicationEntity.add_supported_context" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">add_supported_context</code><span class="sig-paren">(</span><em class="sig-param">abstract_syntax</em>, <em class="sig-param">transfer_syntax=None</em>, <em class="sig-param">scu_role=None</em>, <em class="sig-param">scp_role=None</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/d1b07880/pynetdicom/ae.py#L266"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom.ae.ApplicationEntity.add_supported_context" title="Permalink to this definition">¶</a></dt>
 <dd><p>Add a presentation context to be supported when accepting
 association requests.</p>
 <p>When an association request is received from a peer it supplies a list
@@ -638,7 +638,7 @@ Storage</em> requesting the SCU and SCP roles then accept the proposal.</p>
 
 <dl class="method">
 <dt id="pynetdicom.ae.ApplicationEntity.associate">
-<code class="sig-name descname">associate</code><span class="sig-paren">(</span><em class="sig-param">addr</em>, <em class="sig-param">port</em>, <em class="sig-param">contexts=None</em>, <em class="sig-param">ae_title=b'ANY-SCP'</em>, <em class="sig-param">max_pdu=16382</em>, <em class="sig-param">ext_neg=None</em>, <em class="sig-param">bind_address=(''</em>, <em class="sig-param">0)</em>, <em class="sig-param">tls_args=None</em>, <em class="sig-param">evt_handlers=None</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/20b80a21/pynetdicom/ae.py#L433"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom.ae.ApplicationEntity.associate" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">associate</code><span class="sig-paren">(</span><em class="sig-param">addr</em>, <em class="sig-param">port</em>, <em class="sig-param">contexts=None</em>, <em class="sig-param">ae_title=b'ANY-SCP'</em>, <em class="sig-param">max_pdu=16382</em>, <em class="sig-param">ext_neg=None</em>, <em class="sig-param">bind_address=(''</em>, <em class="sig-param">0)</em>, <em class="sig-param">tls_args=None</em>, <em class="sig-param">evt_handlers=None</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/d1b07880/pynetdicom/ae.py#L433"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom.ae.ApplicationEntity.associate" title="Permalink to this definition">¶</a></dt>
 <dd><p>Request an association with a remote AE.</p>
 <p>An <a class="reference internal" href="pynetdicom.association.Association.html#pynetdicom.association.Association" title="pynetdicom.association.Association"><code class="xref py py-class docutils literal notranslate"><span class="pre">Association</span></code></a> thread is returned
 whether or not the association is accepted and should be checked using
@@ -739,7 +739,7 @@ returns a thread that hasn’t been started.</p>
 
 <dl class="method">
 <dt id="pynetdicom.ae.ApplicationEntity.remove_requested_context">
-<code class="sig-name descname">remove_requested_context</code><span class="sig-paren">(</span><em class="sig-param">abstract_syntax</em>, <em class="sig-param">transfer_syntax=None</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/20b80a21/pynetdicom/ae.py#L687"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom.ae.ApplicationEntity.remove_requested_context" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">remove_requested_context</code><span class="sig-paren">(</span><em class="sig-param">abstract_syntax</em>, <em class="sig-param">transfer_syntax=None</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/d1b07880/pynetdicom/ae.py#L687"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom.ae.ApplicationEntity.remove_requested_context" title="Permalink to this definition">¶</a></dt>
 <dd><p>Remove a requested presentation context.</p>
 <p>Depending on the supplied parameters one of the following will occur:</p>
 <ul class="simple">
@@ -842,7 +842,7 @@ remaining transfer syntaxes.</p>
 
 <dl class="method">
 <dt id="pynetdicom.ae.ApplicationEntity.remove_supported_context">
-<code class="sig-name descname">remove_supported_context</code><span class="sig-paren">(</span><em class="sig-param">abstract_syntax</em>, <em class="sig-param">transfer_syntax=None</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/20b80a21/pynetdicom/ae.py#L814"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom.ae.ApplicationEntity.remove_supported_context" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">remove_supported_context</code><span class="sig-paren">(</span><em class="sig-param">abstract_syntax</em>, <em class="sig-param">transfer_syntax=None</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/d1b07880/pynetdicom/ae.py#L814"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom.ae.ApplicationEntity.remove_supported_context" title="Permalink to this definition">¶</a></dt>
 <dd><p>Remove a supported presentation context.</p>
 <p>Depending on the supplied parameters one of the following will occur:</p>
 <ul class="simple">
@@ -971,7 +971,7 @@ transfer syntaxes.</p>
 
 <dl class="method">
 <dt id="pynetdicom.ae.ApplicationEntity.shutdown">
-<code class="sig-name descname">shutdown</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/20b80a21/pynetdicom/ae.py#L1183"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom.ae.ApplicationEntity.shutdown" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">shutdown</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/d1b07880/pynetdicom/ae.py#L1183"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom.ae.ApplicationEntity.shutdown" title="Permalink to this definition">¶</a></dt>
 <dd><p>Stop any active association servers and threads.</p>
 <div class="versionadded">
 <p><span class="versionmodified added">New in version 1.2.</span></p>
@@ -980,7 +980,7 @@ transfer syntaxes.</p>
 
 <dl class="method">
 <dt id="pynetdicom.ae.ApplicationEntity.start_server">
-<code class="sig-name descname">start_server</code><span class="sig-paren">(</span><em class="sig-param">address</em>, <em class="sig-param">block=True</em>, <em class="sig-param">ssl_context=None</em>, <em class="sig-param">evt_handlers=None</em>, <em class="sig-param">ae_title=None</em>, <em class="sig-param">contexts=None</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/20b80a21/pynetdicom/ae.py#L1067"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom.ae.ApplicationEntity.start_server" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">start_server</code><span class="sig-paren">(</span><em class="sig-param">address</em>, <em class="sig-param">block=True</em>, <em class="sig-param">ssl_context=None</em>, <em class="sig-param">evt_handlers=None</em>, <em class="sig-param">ae_title=None</em>, <em class="sig-param">contexts=None</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/d1b07880/pynetdicom/ae.py#L1067"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom.ae.ApplicationEntity.start_server" title="Permalink to this definition">¶</a></dt>
 <dd><p>Start the AE as an association acceptor.</p>
 <div class="versionadded">
 <p><span class="versionmodified added">New in version 1.2.</span></p>

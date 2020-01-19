@@ -185,6 +185,7 @@
             
   <div class="section" id="v1-5-0">
 <span id="id1"></span><h1>1.5.0<a class="headerlink" href="#v1-5-0" title="Permalink to this headline">¶</a></h1>
+<p>This will be the last release that support Python 2.</p>
 <div class="section" id="fixes">
 <h2>Fixes<a class="headerlink" href="#fixes" title="Permalink to this headline">¶</a></h2>
 <ul class="simple">
@@ -202,7 +203,7 @@ closing its sockets (<a class="reference external" href="https://github.com/pydi
 DIMSE messages are only padded to the shortest even length rather than to
 the maximum 16 characters. (<a class="reference external" href="https://github.com/pydicom/pynetdicom/issues/403">#403</a>)</p></li>
 <li><p>When acting as the association Acceptor check that the user hasn’t sent
-and A-ABORT or A-ASSOCIATE-RJ before attempting association negotiation
+an A-ABORT or A-ASSOCIATE-RJ before attempting association negotiation
 (<a class="reference external" href="https://github.com/pydicom/pynetdicom/issues/408">#408</a>)</p></li>
 <li><p>Added <a class="reference internal" href="../reference/generated/pynetdicom.events.Event.html#pynetdicom.events.Event.message_id" title="pynetdicom.events.Event.message_id"><code class="xref py py-attr docutils literal notranslate"><span class="pre">message_id</span></code></a> to
 <a class="reference internal" href="../reference/generated/pynetdicom.events.Event.html#pynetdicom.events.Event" title="pynetdicom.events.Event"><code class="xref py py-class docutils literal notranslate"><span class="pre">Event</span></code></a> for use when receiving a DIMSE service
@@ -227,6 +228,8 @@ officially supported</p></li>
 <code class="docutils literal notranslate"><span class="pre">Association.send_*</span></code> methods will now return immediately rather than
 waiting for the DIMSE timeout. (<a class="reference external" href="https://github.com/pydicom/pynetdicom/issues/430">#430</a>)</p></li>
 <li><p>Added <cite>abort_type</cite> keyword parameter to <a class="reference internal" href="../reference/generated/pynetdicom.acse.ACSE.html#pynetdicom.acse.ACSE.is_aborted" title="pynetdicom.acse.ACSE.is_aborted"><code class="xref py py-meth docutils literal notranslate"><span class="pre">ACSE.is_aborted()</span></code></a></p></li>
+<li><p>Support for Python 2 is deprecated and will be removed starting in version
+2.0.</p></li>
 </ul>
 </div>
 </div>
