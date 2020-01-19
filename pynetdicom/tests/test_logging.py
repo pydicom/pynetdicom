@@ -24,7 +24,8 @@ from pynetdicom._handlers import (
     doc_handle_event_report, doc_handle_n_get, doc_handle_set,
     doc_handle_async, doc_handle_sop_common, doc_handle_sop_extended,
     doc_handle_userid, doc_handle_acse, doc_handle_dimse, doc_handle_data,
-    doc_handle_pdu, doc_handle_transport, doc_handle_assoc, doc_handle_fsm
+    doc_handle_pdu, doc_handle_transport, doc_handle_assoc, doc_handle_fsm,
+    debug_fsm
 )
 from pynetdicom.pdu import (
     A_ASSOCIATE_RQ, A_ASSOCIATE_AC,
@@ -151,8 +152,14 @@ def test_debug_logger():
     debug_logger()
 
     handlers = logger.handlers
-    assert len(logger.handlers) == 2
-    assert isinstance(logger.handlers[1], logging.StreamHandler)
+    assert len(logger.handlers) == 1
+    assert isinstance(logger.handlers[0], logging.StreamHandler)
+
+    debug_logger()
+
+    handlers = logger.handlers
+    assert len(logger.handlers) == 1
+    assert isinstance(logger.handlers[0], logging.StreamHandler)
 
 
 class TestDocHandlers(object):
@@ -1310,3 +1317,33 @@ class TestStandardLogging(object):
 
             assoc.release()
             scp.shutdown()
+
+
+class TestDebuggingLogging(object):
+    """Tests for debugging handlers."""
+    def setup(self):
+        """Setup each test."""
+        self.ae = None
+
+    def teardown(self):
+        """Cleanup after each test"""
+        if self.ae:
+            self.ae.shutdown()
+
+    def test_debug_fsm(self, caplog):
+        """Test debug_fsm."""
+        self.ae = ae = AE()
+        ae.add_supported_context('1.2.840.10008.1.1')
+        ae.add_requested_context('1.2.840.10008.1.1')
+        scp = ae.start_server(('', 11112), block=False)
+
+        hh = [(evt.EVT_FSM_TRANSITION, debug_fsm)]
+        with caplog.at_level(logging.DEBUG, logger='pynetdicom'):
+            assoc = ae.associate('localhost', 11112, evt_handlers=hh)
+            assert assoc.is_established
+            assoc.send_c_echo()
+            assoc.release()
+
+        scp.shutdown()
+
+        assert "R: Sta1 + Evt1 -> AE-1 -> Sta4" in caplog.text

@@ -3,6 +3,8 @@
 1.5.0
 =====
 
+This will be the last release that support Python 2.
+
 Fixes
 .....
 
@@ -20,7 +22,7 @@ Enhancements
   DIMSE messages are only padded to the shortest even length rather than to
   the maximum 16 characters. (:issue:`403`)
 * When acting as the association Acceptor check that the user hasn't sent
-  and A-ABORT or A-ASSOCIATE-RJ before attempting association negotiation
+  an A-ABORT or A-ASSOCIATE-RJ before attempting association negotiation
   (:issue:`408`)
 * Added :py:attr:`~pynetdicom.events.Event.message_id` to
   :class:`~pynetdicom.events.Event` for use when receiving a DIMSE service
@@ -47,3 +49,5 @@ Changes
   waiting for the DIMSE timeout. (:issue:`430`)
 * Added `abort_type` keyword parameter to :meth:`ACSE.is_aborted()
   <pynetdicom.acse.ACSE.is_aborted>`
+* Support for Python 2 is deprecated and will be removed starting in version
+  2.0.

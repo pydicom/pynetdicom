@@ -93,6 +93,10 @@ def validate_ae_title(ae_title, use_short=False):
 
         Changed to only return ``bytes`` for Python 3.
 
+    .. versionchanged:: 1.5
+
+        Added `use_short` keyword parameter.
+
     Parameters
     ----------
     ae_title : bytes
