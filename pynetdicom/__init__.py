@@ -64,6 +64,8 @@ logging.getLogger('pynetdicom').addHandler(logging.NullHandler())
 def debug_logger():
     """Setup the logger for debugging."""
     logger = logging.getLogger('pynetdicom')
+    # Ensure only have one StreamHandler
+    logger.handlers = []
     handler = logging.StreamHandler()
     logger.setLevel(logging.DEBUG)
     formatter = logging.Formatter('%(levelname).1s: %(message)s')
