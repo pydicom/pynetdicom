@@ -3,6 +3,8 @@
 1.5.0
 =====
 
+This will be the last release that support Python 2.
+
 Fixes
 .....
 
@@ -39,3 +41,5 @@ Changes
   UID directly instead.
 * Python 3.4 is no longer supported, Python 3.7 and 3.8 are now
   officially supported
+* Support for Python 2 is deprecated and will be removed starting in version
+  2.0.

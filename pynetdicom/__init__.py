@@ -76,10 +76,8 @@ def debug_logger():
 import sys
 if sys.version_info[0] == 2:
     import warnings
-    with warnings.catch_warnings():
-        warnings.simplefilter('always')
-        msg = (
-            "Python 2 will no longer be supported after the pynetdicom v1.5 "
-            "release"
-        )
-        warnings.warn(msg, DeprecationWarning)
+    msg = (
+        "Python 2 will no longer be supported after the pynetdicom v1.5 "
+        "release"
+    )
+    warnings.warn(msg, DeprecationWarning)
