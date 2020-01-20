@@ -132,20 +132,20 @@ Applications
 
 * :doc:`echoscu <apps/echoscu>`
 * :doc:`echoscp <apps/echoscp>`
-* :doc:`storescu <apps/storescu>`
-* :doc:`storescp <apps/storescp>`
 * :doc:`findscu <apps/findscu>`
 * :doc:`getscu <apps/getscu>`
 * :doc:`movescu <apps/movescu>`
+* :doc:`storescu <apps/storescu>`
+* :doc:`storescp <apps/storescp>`
 
 Release Notes
 .............
 
-* `v1.5.0 <changelog/index.html#v1-5-0>`_
-* `v1.4.1 <changelog/index.html#v1-4-1>`_
-* `v1.4.0 <changelog/index.html#v1-4-0>`_
-* `v1.3.1 <changelog/index.html#v1-3-1>`_
-* `v1.3.0 <changelog/index.html#v1-3-0>`_
-* `v1.2.0 <changelog/index.html#v1-2-0>`_
-* `v1.1.0 <changelog/index.html#v1-1-0>`_
-* `v1.0.0 <changelog/index.html#v1-0-0>`_
+* :doc:`v1.5.0 </changelog/v1.5.0>`
+* :doc:`v1.4.1 </changelog/v1.4.1>`
+* :doc:`v1.4.0 </changelog/v1.4.0>`
+* :doc:`v1.3.1 </changelog/v1.3.1>`
+* :doc:`v1.3.0 </changelog/v1.3.0>`
+* :doc:`v1.2.0 </changelog/v1.2.0>`
+* :doc:`v1.1.0 </changelog/v1.1.0>`
+* :doc:`v1.0.0 </changelog/v1.0.0>`

@@ -30,13 +30,13 @@ def _setup_argparser():
             "file on the command line it sends a C-STORE message to a "
             "Storage Service Class Provider (SCP) and waits for a response."
         ),
-        usage="storescu [options] peer port dcmfile-in"
+        usage="storescu [options] addr port dcmfile-in"
     )
 
     # Parameters
     req_opts = parser.add_argument_group('Parameters')
     req_opts.add_argument(
-        "peer", help="TCP/IP address of DICOM peer", type=str
+        "addr", help="TCP/IP address or hostname of DICOM peer", type=str
     )
     req_opts.add_argument("port", help="TCP/IP port number of peer", type=int)
     req_opts.add_argument(
@@ -97,6 +97,30 @@ def _setup_argparser():
         type=str,
         default='ANY-SCP'
     )
+    net_opts.add_argument(
+        "-ta", "--acse-timeout", metavar='[s]econds',
+        help="timeout for ACSE messages",
+        type=int,
+        default=30
+    )
+    net_opts.add_argument(
+        "-td", "--dimse-timeout", metavar='[s]econds',
+        help="timeout for DIMSE messages",
+        type=int,
+        default=30
+    )
+    net_opts.add_argument(
+        "-tn", "--network-timeout", metavar='[s]econds',
+        help="timeout for the network",
+        type=int,
+        default=30
+    )
+    net_opts.add_argument(
+        "-pdu", "--max-pdu", metavar='[n]umber of bytes',
+        help="set max receive pdu to n bytes (4096..131072)",
+        type=int,
+        default=16384
+    )
 
     # Transfer Syntaxes
     ts_opts = parser.add_argument_group("Transfer Syntax Options")
@@ -121,7 +145,10 @@ def _setup_argparser():
     misc_opts = parser.add_argument_group('Miscellaneous Options')
     misc_opts.add_argument(
         "-cx", "--single-context",
-        help="only request a single matching presentation context",
+        help=(
+            "only request a single presentation context that matches the "
+            "input DICOM file"
+        ),
         action="store_true",
     )
 
@@ -168,10 +195,15 @@ if __name__ == "__main__":
 
     # Bind to port 0, OS will pick an available port
     ae = AE(ae_title=args.calling_aet)
+    ae.acse_timeout = args.acse_timeout
+    ae.dimse_timeout = args.dimse_timeout
+    ae.network_timeout = args.network_timeout
 
     # Ensure the dataset is covered by the requested presentation contexts
     if args.single_context:
-        ae.add_requested_context(ds.SOPClassUID, transfer_syntax)
+        ae.add_requested_context(
+            ds.SOPClassUID, ds.file_meta.TransferSyntaxUID
+        )
     else:
         sop_classes = [
             cx.abstract_syntax for cx in StoragePresentationContexts
@@ -185,7 +217,9 @@ if __name__ == "__main__":
             ae.add_requested_context(uid, transfer_syntax)
 
     # Request association with remote
-    assoc = ae.associate(args.peer, args.port, ae_title=args.called_aet)
+    assoc = ae.associate(
+        args.addr, args.port, ae_title=args.called_aet, max_pdu=args.max_pdu
+    )
     if assoc.is_established:
         APP_LOGGER.info('Sending file: {0!s}'.format(args.dcmfile_in))
         status = assoc.send_c_store(ds)

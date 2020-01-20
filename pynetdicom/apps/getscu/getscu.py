@@ -7,9 +7,8 @@ For sending Query/Retrieve (QR) C-GET requests to a QR Get SCP.
 import argparse
 import os
 import sys
-import time
 
-from pydicom.dataset import Dataset, FileDataset
+from pydicom.dataset import Dataset
 from pydicom.uid import (
     ExplicitVRLittleEndian, ImplicitVRLittleEndian, ExplicitVRBigEndian
 )
@@ -43,12 +42,14 @@ def _setup_argparser():
             "query keys to an SCP and waits for a response. The application "
             "can be used to test SCPs of the QR Service Class."
         ),
-        usage="getscu [options] peer port"
+        usage="getscu [options] addr port"
     )
 
     # Parameters
     req_opts = parser.add_argument_group('Parameters')
-    req_opts.add_argument("peer", help="hostname of DICOM peer", type=str)
+    req_opts.add_argument(
+        "addr", help="TCP/IP address or hostname of DICOM peer", type=str
+    )
     req_opts.add_argument("port", help="TCP/IP port number of peer", type=int)
 
     # General Options
@@ -282,7 +283,7 @@ if __name__ == "__main__":
 
     # Request association with remote
     assoc = ae.associate(
-        args.peer,
+        args.addr,
         args.port,
         ae_title=args.called_aet,
         ext_neg=ext_neg,

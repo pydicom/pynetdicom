@@ -357,7 +357,7 @@ _STORAGE_CLASSES = {
     'XRayRadiationDoseSRStorage' : '1.2.840.10008.5.1.4.1.1.88.67',  # A.35.8
     'RadiopharmaceuticalRadiationDoseSRStorage' : '1.2.840.10008.5.1.4.1.1.88.68',  # A.35.14
     'ColonCADSRStorage' : '1.2.840.10008.5.1.4.1.1.88.69',  # A.35.10
-    'ImplantationPlanSRDocumentStorage' : '1.2.840.10008.5.1.4.1.1.88.70',  # A.35.12
+    'ImplantationPlanSRStorage' : '1.2.840.10008.5.1.4.1.1.88.70',  # A.35.12
     'AcquisitionContextSRStorage' : '1.2.840.10008.5.1.4.1.1.88.71',  # A.35.16
     'SimplifiedAdultEchoSRStorage' : '1.2.840.10008.5.1.4.1.1.88.72',  # A.35.17
     'PatientRadiationDoseSRStorage' : '1.2.840.10008.5.1.4.1.1.88.73',  # A.35.18
@@ -379,6 +379,7 @@ _STORAGE_CLASSES = {
     'RTTreatmentSummaryRecordStorage' : '1.2.840.10008.5.1.4.1.1.481.7',  # A.31
     'RTIonPlanStorage' : '1.2.840.10008.5.1.4.1.1.481.8',  # A.49
     'RTIonBeamsTreatmentRecordStorage' : '1.2.840.10008.5.1.4.1.1.481.9',  # A.50
+    # 128 presentation context limit here
     'RTBeamsDeliveryInstructionStorage' : '1.2.840.10008.5.1.4.34.7',  # A.64
     'RTBrachyApplicationSetupDeliveryInstructionsStorage' : '1.2.840.10008.5.1.4.34.10',  # A.79
 }

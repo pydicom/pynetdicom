@@ -29,9 +29,9 @@ from pydicom.uid import (
 
 from pynetdicom import (
     AE, evt,
-    StoragePresentationContexts,
     VerificationPresentationContexts,
 )
+from pynetdicom.presentation import AllStoragePresentationContexts
 
 
 VERSION = '0.6.0'
@@ -363,7 +363,7 @@ if args.output_directory is not None:
 ae = AE(ae_title=args.aetitle)
 
 # Add presentation contexts with specified transfer syntaxes
-for context in StoragePresentationContexts:
+for context in AllStoragePresentationContexts:
     ae.add_supported_context(context.abstract_syntax, transfer_syntax)
 for context in VerificationPresentationContexts:
     ae.add_supported_context(context.abstract_syntax, transfer_syntax)

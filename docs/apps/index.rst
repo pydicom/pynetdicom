@@ -10,5 +10,8 @@ Applications
 
    echoscu
    echoscp
+   findscu
+   getscu
+   movescu
    storescu
    storescp

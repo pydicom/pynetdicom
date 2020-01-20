@@ -6,19 +6,22 @@ requests to a QR/BWM - Find SCP.
 """
 
 import argparse
-import logging
-from logging.config import fileConfig
 import os
 import sys
 
 from pydicom import dcmread
+from pydicom.dataset import Dataset
 from pydicom.uid import (
-    ExplicitVRLittleEndian, ImplicitVRLittleEndian, ExplicitVRBigEndian
+    ExplicitVRLittleEndian, ImplicitVRLittleEndian, ExplicitVRBigEndian,
+    generate_uid
 )
 
 from pynetdicom import (
     AE, QueryRetrievePresentationContexts,
-    BasicWorklistManagementPresentationContexts
+    BasicWorklistManagementPresentationContexts,
+    PYNETDICOM_UID_PREFIX,
+    PYNETDICOM_IMPLEMENTATION_UID,
+    PYNETDICOM_IMPLEMENTATION_VERSION
 )
 from pynetdicom.apps.common import create_dataset, setup_logging
 from pynetdicom.sop_class import (
@@ -44,12 +47,14 @@ def _setup_argparser():
             "waits for a response. The application can be used to test SCPs "
             "of the QR and BWM Service Classes."
         ),
-        usage="findscu [options] peer port"
+        usage="findscu [options] addr port"
     )
 
     # Parameters
     req_opts = parser.add_argument_group('Parameters')
-    req_opts.add_argument("peer", help="hostname of DICOM peer", type=str)
+    req_opts.add_argument(
+        "addr", help="TCP/IP address or hostname of DICOM peer", type=str
+    )
     req_opts.add_argument("port", help="TCP/IP port number of peer", type=int)
 
     # General Options
@@ -104,6 +109,30 @@ def _setup_argparser():
         type=str,
         default='ANY-SCP'
     )
+    net_opts.add_argument(
+        "-ta", "--acse-timeout", metavar='[s]econds',
+        help="timeout for ACSE messages",
+        type=int,
+        default=60
+    )
+    net_opts.add_argument(
+        "-td", "--dimse-timeout", metavar='[s]econds',
+        help="timeout for DIMSE messages",
+        type=int,
+        default=None
+    )
+    net_opts.add_argument(
+        "-tn", "--network-timeout", metavar='[s]econds',
+        help="timeout for the network",
+        type=int,
+        default=30
+    )
+    net_opts.add_argument(
+        "-pdu", "--max-pdu", metavar='[n]umber of bytes',
+        help="set max receive pdu to n bytes (4096..131072)",
+        type=int,
+        default=16382
+    )
 
     # Query information model choices
     qr_group = parser.add_argument_group('Query Information Model Options')
@@ -151,11 +180,43 @@ def _setup_argparser():
         type=str,
     )
 
+    out_opts = parser.add_argument_group('Output Options')
+    qr_query.add_argument(
+        '-w', '--write',
+        help=(
+            "write the responses to file as rsp000001.dcm, rsp000002.dcm, ..."
+        ),
+        action="store_true"
+    )
+
     ns = parser.parse_args()
     if not bool(ns.file) and not bool(ns.keyword):
         parser.error('-f and/or -k must be specified')
 
     return ns
+
+
+def get_file_meta(assoc, query_model):
+    """Return a Dataset containing sufficient File Meta elements
+    for conformance.
+    """
+    cx = assoc._get_valid_context(query_model, '', 'scu')
+    file_meta = Dataset()
+    file_meta.TransferSyntaxUID = cx.transfer_syntax[0]
+    file_meta.MediaStorageSOPClassUID = query_model
+    file_meta.MediaStorageSOPInstanceUID = generate_uid(
+        prefix=PYNETDICOM_UID_PREFIX
+    )
+    file_meta.ImplementationClassUID = PYNETDICOM_IMPLEMENTATION_UID
+    file_meta.ImplementationVersionName = PYNETDICOM_IMPLEMENTATION_VERSION
+    return file_meta
+
+
+def generate_filename():
+    """Return a `str` filename for extracted C-FIND responses."""
+    fnbase = 'rsp{:06d}.dcm'
+    for ii in range(1000000):
+        yield fnbase.format(ii + 1)
 
 
 if __name__ == '__main__':
@@ -184,6 +245,12 @@ if __name__ == '__main__':
     # Create application entity
     # Binding to port 0 lets the OS pick an available port
     ae = AE(ae_title=args.calling_aet)
+
+    # Set timeouts
+    ae.acse_timeout = args.acse_timeout
+    ae.dimse_timeout = args.dimse_timeout
+    ae.network_timeout = args.network_timeout
+
     # Set the Presentation Contexts we are requesting the Find SCP support
     ae.requested_contexts = (
         QueryRetrievePresentationContexts
@@ -203,7 +270,9 @@ if __name__ == '__main__':
         query_model = PatientRootQueryRetrieveInformationModelFind
 
     # Request association with (QR/BWM) Find SCP
-    assoc = ae.associate(args.peer, args.port, ae_title=args.called_aet)
+    assoc = ae.associate(
+        args.addr, args.port, ae_title=args.called_aet, max_pdu=args.max_pdu
+    )
     if assoc.is_established:
         # Send C-FIND request, `responses` is a generator
         responses = assoc.send_c_find(identifier, query_model)
@@ -213,7 +282,14 @@ if __name__ == '__main__':
             if status and status.Status in [0xFF00, 0xFF01]:
                 # `rsp_identifier` is a pydicom Dataset containing a query
                 # response. You may want to do something interesting here...
-                pass
+                if args.write:
+                    fname = generate_filename()
+                    rsp_identifier.file_meta = get_file_meta(
+                        assoc, query_model
+                    )
+                    rsp_identifier.save_as(
+                        next(fname), write_like_original=False
+                    )
 
         # Release the association
         assoc.release()

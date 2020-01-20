@@ -974,10 +974,13 @@ RTMachineVerificationPresentationContexts = [
 ]
 """Pre-built presentation contexts for :dcm:`RT Machine Verification<part04/chapter_DD.html>`."""
 
-StoragePresentationContexts = [
-    build_context(uid) for uid in sorted(_STORAGE_CLASSES.values())[:128]
+AllStoragePresentationContexts = [
+    build_context(uid) for uid in sorted(_STORAGE_CLASSES.values())
 ]
-"""Pre-built presentation contexts for :dcm:`Storage<part04/chapter_B.html>`."""
+"""Pre-built presentation contexts for :dcm:`Storage<part04/chapter_B.html>` containing all SOP Classes."""
+
+StoragePresentationContexts = AllStoragePresentationContexts[:128]
+"""Pre-built presentation contexts for :dcm:`Storage<part04/chapter_B.html>` containing the first 128 SOP Classes."""
 
 StorageCommitmentPresentationContexts = [
     build_context(uid) for uid in sorted(_STORAGE_COMMITMENT_CLASSES.values())

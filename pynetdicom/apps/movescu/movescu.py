@@ -1,18 +1,12 @@
 #!/usr/bin/env python
+"""A QR Move SCU application.
 
-"""
-    A dcmtk style movescu application
-
-    Used for
+For sending Query/Retrieve (QR) C-MOVE requests to a QR Move SCP.
 """
 
 import argparse
-import logging
-from logging.config import fileConfig
 import os
-import socket
 import sys
-import time
 
 from pydicom.dataset import Dataset
 from pydicom.uid import (
@@ -51,13 +45,13 @@ def _setup_argparser():
             "(note: the use of the term 'move' is a misnomer, the C-MOVE "
             "operation performs a SOP Instance copy only)"
         ),
-        usage="movescu [options] peer port dcmfile-in"
+        usage="movescu [options] addr port dcmfile-in"
     )
 
     # Parameters
     req_opts = parser.add_argument_group('Parameters')
     req_opts.add_argument(
-        "peer", help="TCP/IP address of DICOM peer", type=str
+        "addr", help="TCP/IP address or hostname of DICOM peer", type=str
     )
     req_opts.add_argument("port", help="TCP/IP port number of peer", type=int)
 
@@ -321,7 +315,7 @@ if __name__ == "__main__":
         query_model = PatientRootQueryRetrieveInformationModelMove
 
     # Request association with remote AE
-    assoc = ae.associate(args.peer, args.port, ae_title=args.called_aet)
+    assoc = ae.associate(args.addr, args.port, ae_title=args.called_aet)
     if assoc.is_established:
         # Send query
         move_aet = args.move_aet or args.calling_aet

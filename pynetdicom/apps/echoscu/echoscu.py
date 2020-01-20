@@ -6,12 +6,11 @@ providing useful debugging and logging information.
 """
 
 import argparse
-import logging
-from logging.config import fileConfig
 import sys
 
 from pydicom.uid import (
-    ExplicitVRLittleEndian, ImplicitVRLittleEndian, ExplicitVRBigEndian
+    ExplicitVRLittleEndian, ImplicitVRLittleEndian,
+    ExplicitVRBigEndian, DeflatedExplicitVRLittleEndian
 )
 
 from pynetdicom import AE
@@ -33,13 +32,13 @@ def _setup_argparser():
             "waits for a response. The application can be used to "
             "verify basic DICOM connectivity."
         ),
-        usage="echoscu [options] peer port"
+        usage="echoscu [options] addr port"
     )
 
     # Parameters
     req_opts = parser.add_argument_group('Parameters')
     req_opts.add_argument(
-        "peer", help="TCP/IP address of DICOM peer", type=str
+        "addr", help="TCP/IP address of DICOM peer", type=str
     )
     req_opts.add_argument("port", help="TCP/IP port number of peer", type=int)
 
@@ -95,20 +94,6 @@ def _setup_argparser():
         default='ANY-SCP'
     )
     net_opts.add_argument(
-        "-pts", "--propose-ts", metavar='[n]umber',
-        help="propose n transfer syntaxes (1 - 3)",
-        type=int
-    )
-    #net_opts.add_argument("-ppc", "--propose-pc", metavar='[n]umber',
-    #                      help="propose n presentation contexts (1 - 128)",
-    #                      type=int)
-    net_opts.add_argument(
-        "-to", "--timeout", metavar='[s]econds',
-        help="timeout for connection requests",
-        type=int,
-        default=None
-    )
-    net_opts.add_argument(
         "-ta", "--acse-timeout", metavar='[s]econds',
         help="timeout for ACSE messages",
         type=int,
@@ -121,18 +106,46 @@ def _setup_argparser():
         default=None
     )
     net_opts.add_argument(
+        "-tn", "--network-timeout", metavar='[s]econds',
+        help="timeout for the network",
+        type=int,
+        default=30
+    )
+    net_opts.add_argument(
         "-pdu", "--max-pdu", metavar='[n]umber of bytes',
         help="set max receive pdu to n bytes (4096..131072)",
         type=int,
         default=16382
     )
-    net_opts.add_argument(
+
+    # Transfer Syntaxes
+    ts_opts = parser.add_argument_group("Transfer Syntax Options")
+    syntax = ts_opts.add_mutually_exclusive_group()
+    syntax.add_argument(
+        "-xe", "--request-little",
+        help="request explicit VR little endian TS only",
+        action="store_true"
+    )
+    syntax.add_argument(
+        "-xb", "--request-big",
+        help="request explicit VR big endian TS only",
+        action="store_true"
+    )
+    syntax.add_argument(
+        "-xi", "--request-implicit",
+        help="request implicit VR little endian TS only",
+        action="store_true"
+    )
+
+    # Miscellaneous Options
+    misc_opts = parser.add_argument_group('Miscellaneous Options')
+    misc_opts.add_argument(
         "--repeat", metavar='[n]umber',
-        help="repeat n times",
+        help="repeat echo request n times",
         type=int,
         default=1
     )
-    net_opts.add_argument(
+    misc_opts.add_argument(
         "--abort",
         help="abort association instead of releasing it",
         action="store_true"
@@ -152,20 +165,20 @@ if __name__ == "__main__":
     APP_LOGGER.debug('echoscu.py v%s', __version__)
     APP_LOGGER.debug('')
 
-    # Propose extra transfer syntaxes
-    try:
-        if 2 <= args.propose_ts:
-            transfer_syntax = [
-                ImplicitVRLittleEndian,
-                ExplicitVRLittleEndian,
-                ExplicitVRBigEndian
-            ]
-            transfer_syntax = [ts for ts in transfer_syntax[:args.propose_ts]]
-        else:
-            transfer_syntax = [ImplicitVRLittleEndian]
-    except:
-        transfer_syntax = [ImplicitVRLittleEndian]
+    # Set Transfer Syntax options
+    transfer_syntax = [
+        ExplicitVRLittleEndian,
+        ImplicitVRLittleEndian,
+        DeflatedExplicitVRLittleEndian,
+        ExplicitVRBigEndian
+    ]
 
+    if args.request_little:
+        transfer_syntax = [ExplicitVRLittleEndian]
+    elif args.request_big:
+        transfer_syntax = [ExplicitVRBigEndian]
+    elif args.request_implicit:
+        transfer_syntax = [ImplicitVRLittleEndian]
 
     # Create local AE
     # Binding to port 0, OS will pick an available port
@@ -173,13 +186,13 @@ if __name__ == "__main__":
     ae.add_requested_context(VerificationSOPClass, transfer_syntax)
 
     # Set timeouts
-    ae.network_timeout = args.timeout
     ae.acse_timeout = args.acse_timeout
     ae.dimse_timeout = args.dimse_timeout
+    ae.network_timeout = args.network_timeout
 
     # Request association with remote AE
     assoc = ae.associate(
-        args.peer, args.port, ae_title=args.called_aet, max_pdu=args.max_pdu
+        args.addr, args.port, ae_title=args.called_aet, max_pdu=args.max_pdu
     )
 
     # If we successfully Associated then send N DIMSE C-ECHOs
