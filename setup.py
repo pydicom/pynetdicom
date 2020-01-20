@@ -24,7 +24,9 @@ setup(
     author_email = "scaramallion@users.noreply.github.com",
     url = "https://github.com/pydicom/pynetdicom",
     license = "MIT",
-    keywords = "dicom python medicalimaging radiotherapy oncology pydicom imaging",
+    keywords = (
+        "dicom python medicalimaging radiotherapy oncology pydicom imaging"
+    ),
     project_urls={
         'Documentation' : 'https://pydicom.github.io/pynetdicom/'
     },

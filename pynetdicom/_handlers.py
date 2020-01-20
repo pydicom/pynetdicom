@@ -14,6 +14,21 @@ from pynetdicom.utils import pretty_bytes
 LOGGER = logging.getLogger('pynetdicom.events')
 
 
+# Debugging handlers
+def debug_fsm(event):
+    """Debugging handler for the FSM."""
+    LOGGER.debug(
+        "{}: {} + {} -> {} -> {}"
+        .format(
+            event.assoc.mode[0].upper(),
+            event.current_state,
+            event.fsm_event,
+            event.action,
+            event.next_state
+        )
+    )
+
+
 # Standard logging handlers
 def standard_pdu_recv_handler(event):
     """Standard handler when a PDU is received and decoded.

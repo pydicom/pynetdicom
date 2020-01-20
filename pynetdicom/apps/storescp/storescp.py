@@ -29,9 +29,9 @@ from pydicom.uid import (
 
 from pynetdicom import (
     AE, evt,
+    AllStoragePresentationContexts
     VerificationPresentationContexts,
 )
-from pynetdicom.presentation import AllStoragePresentationContexts
 
 
 VERSION = '0.6.0'

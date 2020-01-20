@@ -3,6 +3,8 @@
 1.5.0
 =====
 
+This will be the last release that support Python 2.
+
 Fixes
 .....
 
@@ -23,13 +25,16 @@ Enhancements
   DIMSE messages are only padded to the shortest even length rather than to
   the maximum 16 characters. (:issue:`403`)
 * When acting as the association Acceptor check that the user hasn't sent
-  and A-ABORT or A-ASSOCIATE-RJ before attempting association negotiation
+  an A-ABORT or A-ASSOCIATE-RJ before attempting association negotiation
   (:issue:`408`)
 * Added :py:attr:`~pynetdicom.events.Event.message_id` to
   :class:`~pynetdicom.events.Event` for use when receiving a DIMSE service
   request
 * Added the well-known SOP Instances for the supported service classes to
   :mod:`~pynetdicom.sop_class`.
+* Added support for the DIMSE intervention event handlers aborting or releasing
+  the association during service class operation.
+* Add new SOP classes up to 2019e version of the standard (:issue:`424`)
 * Added :attr:`~pynetdicom.presentation.AllStoragePresentationContexts` which
   contains all of the Storage Service Class' SOP Class UIDs rather than just
   the first 128 as in
@@ -48,3 +53,10 @@ Changes
   UID directly instead.
 * Python 3.4 is no longer supported, Python 3.7 and 3.8 are now
   officially supported
+* If an A-ABORT is received while waiting for a DIMSE message the
+  ``Association.send_*`` methods will now return immediately rather than
+  waiting for the DIMSE timeout. (:issue:`430`)
+* Added `abort_type` keyword parameter to :meth:`ACSE.is_aborted()
+  <pynetdicom.acse.ACSE.is_aborted>`
+* Support for Python 2 is deprecated and will be removed starting in version
+  2.0.
