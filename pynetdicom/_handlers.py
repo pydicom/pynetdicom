@@ -1279,7 +1279,7 @@ def _recv_c_store_rsp(event):
             status = service_class.statuses[cs.Status]
             status_str = '0x{0:04x} - {1}'.format(cs.Status, status[0])
 
-    LOGGER.info('Received Store Response')
+    LOGGER.info('Received Store Response (Status: {})'.format(status_str))
     s = []
     s.append('{:=^76}'.format(' INCOMING DIMSE MESSAGE '))
     s.append('Message Type                  : {0!s}'.format('C-STORE RSP'))

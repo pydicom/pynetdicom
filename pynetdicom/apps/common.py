@@ -1,6 +1,7 @@
 """Utility classes and functions for the apps."""
 
 import logging
+from logging.config import fileConfig
 import os
 from struct import pack
 
@@ -469,12 +470,9 @@ def setup_logging(args, app_name):
         logger.setLevel(level)
 
     if args.quiet:
-        for hh in app_logger.handlers:
-            app_logger.removeHandler(hh)
-        for hh in pynd_logger.handlers:
-            pynd_logger.removeHandler(hh)
-
+        app_logger.handlers = []
         app_logger.addHandler(logging.NullHandler())
+        pynd_logger.handlers = []
         pynd_logger.addHandler(logging.NullHandler())
 
     if args.verbose:
@@ -507,7 +505,9 @@ SOP_CLASS_PREFIXES = {
     '1.2.840.10008.5.1.4.1.1.2.1' : ('CTE', 'Enhanced CT Image Storage'),
     '1.2.840.10008.5.1.4.1.1.4' : ('MR', 'MR Image Storage'),
     '1.2.840.10008.5.1.4.1.1.4.1' : ('MRE', 'Enhanced MR Image Storage'),
-    '1.2.840.10008.5.1.4.1.1.128' : ('PT', 'Positron Emission Tomography Image Storage'),
+    '1.2.840.10008.5.1.4.1.1.128' : (
+        'PT', 'Positron Emission Tomography Image Storage'
+    ),
     '1.2.840.10008.5.1.4.1.1.130' : ('PTE', 'Enhanced PET Image Storage'),
     '1.2.840.10008.5.1.4.1.1.481.1' : ('RI', 'RT Image Storage'),
     '1.2.840.10008.5.1.4.1.1.481.2' : ('RD', 'RT Dose Storage'),
@@ -516,7 +516,9 @@ SOP_CLASS_PREFIXES = {
     '1.2.840.10008.5.1.4.1.1.1' : ('CR', 'Computed Radiography Image Storage'),
     '1.2.840.10008.5.1.4.1.1.6.1' : ('US', 'Ultrasound Image Storage'),
     '1.2.840.10008.5.1.4.1.1.6.2' : ('USE', 'Enhanced US Volume Storage'),
-    '1.2.840.10008.5.1.4.1.1.12.1' : ('XA', 'X-Ray Angiographic Image Storage'),
+    '1.2.840.10008.5.1.4.1.1.12.1' : (
+        'XA', 'X-Ray Angiographic Image Storage'
+    ),
     '1.2.840.10008.5.1.4.1.1.12.1.1' : ('XAE', 'Enhanced XA Image Storage'),
     '1.2.840.10008.5.1.4.1.1.20' : ('NM', 'Nuclear Medicine Image Storage'),
     '1.2.840.10008.5.1.4.1.1.7' : ('SC', 'Secondary Capture Image Storage'),

@@ -1,7 +1,5 @@
 #!/usr/bin/env python
-
-"""
-An echoscu application.
+"""An Echo SCU application.
 
 Used for verifying basic DICOM connectivity and as such has a focus on
 providing useful debugging and logging information.
@@ -40,7 +38,9 @@ def _setup_argparser():
 
     # Parameters
     req_opts = parser.add_argument_group('Parameters')
-    req_opts.add_argument("peer", help="hostname of DICOM peer", type=str)
+    req_opts.add_argument(
+        "peer", help="TCP/IP address of DICOM peer", type=str
+    )
     req_opts.add_argument("port", help="TCP/IP port number of peer", type=int)
 
     # General Options

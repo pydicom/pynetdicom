@@ -1,14 +1,11 @@
 #!/usr/bin/env python
+"""A QR Get SCU application.
 
-"""
-    A getscu application.
+For sending Query/Retrieve (QR) C-GET requests to a QR Get SCP.
 """
 
 import argparse
-import logging
-from logging.config import fileConfig
 import os
-import socket
 import sys
 import time
 
@@ -21,8 +18,6 @@ from pynetdicom import (
     AE, build_role, evt,
     StoragePresentationContexts,
     QueryRetrievePresentationContexts,
-    PYNETDICOM_IMPLEMENTATION_UID,
-    PYNETDICOM_IMPLEMENTATION___version__
 )
 from pynetdicom.apps.common import (
     setup_logging, create_dataset, SOP_CLASS_PREFIXES
@@ -127,6 +122,7 @@ def _setup_argparser():
         action="store_true"
     )
 
+    # Query Options
     qr_query = parser.add_argument_group('Query Options')
     qr_query.add_argument(
         '-k', '--keyword',
@@ -176,12 +172,24 @@ if __name__ == "__main__":
     args = _setup_argparser()
 
     if args.version:
-        print('echoscu.py v{}'.format(__version__))
+        print('getscu.py v{}'.format(__version__))
         sys.exit()
 
     APP_LOGGER = setup_logging(args, 'getscu')
-    APP_LOGGER.debug('$getscu.py v{0!s}'.format(__version__))
+    APP_LOGGER.debug('getscu.py v{0!s}'.format(__version__))
     APP_LOGGER.debug('')
+
+    # Create query (identifier) dataset
+    try:
+        # If you're looking at this to see how QR Get works then `identifer`
+        # is a pydicom Dataset instance with your query keys, e.g.:
+        #     identifier = Dataset()
+        #     identifier.QueryRetrieveLevel = 'PATIENT'
+        #     identifier.PatientName = '*'
+        identifier = create_dataset(args, APP_LOGGER)
+    except Exception as exc:
+        APP_LOGGER.exception(exc)
+        sys.exit(1)
 
     # Create application entity
     # Binding to port 0 lets the OS pick an available port
@@ -195,12 +203,10 @@ if __name__ == "__main__":
     # Add SCP/SCU Role Selection Negotiation to the extended negotiation
     # We want to act as a Storage SCP
     ext_neg = []
-    for context in StoragePresentationContexts:
-        ext_neg.append(build_role(context.abstract_syntax, scp_role=True))
+    for cx in StoragePresentationContexts:
+        ext_neg.append(build_role(cx.abstract_syntax, scp_role=True))
 
-    if args.patient:
-        query_model = PatientRootQueryRetrieveInformationModelGet
-    elif args.study:
+    if args.study:
         query_model = StudyRootQueryRetrieveInformationModelGet
     elif args.psonly:
         query_model = PatientStudyOnlyQueryRetrieveInformationModelGet
@@ -237,7 +243,7 @@ if __name__ == "__main__":
 
         try:
             # Get the elements we need
-            mode_prefix = SOP_CLASS_PREFIXES[sop_class]
+            mode_prefix = SOP_CLASS_PREFIXES[sop_class][0]
         except KeyError:
             mode_prefix = 'UN'
 
@@ -274,20 +280,24 @@ if __name__ == "__main__":
 
         return status
 
-    handlers = [(evt.EVT_C_STORE, handle_store)]
-
     # Request association with remote
-    assoc = ae.associate(args.peer,
-                         args.port,
-                         ae_title=args.called_aet,
-                         ext_neg=ext_neg,
-                         evt_handlers=handlers)
+    assoc = ae.associate(
+        args.peer,
+        args.port,
+        ae_title=args.called_aet,
+        ext_neg=ext_neg,
+        evt_handlers=[(evt.EVT_C_STORE, handle_store)]
+    )
 
-    # Send query
     if assoc.is_established:
-        response = assoc.send_c_get(d, query_model)
-
-        for status, identifier in response:
-            pass
+        # Send query
+        responses = assoc.send_c_get(identifier, query_model)
+        for (status, rsp_identifier) in responses:
+            # If `status.Status` is one of the 'Pending' statuses then
+            #   `rsp_identifier` is the C-GET response's Identifier dataset
+            if status and status.Status in [0xFF00, 0xFF01]:
+                # `rsp_identifier` is a pydicom Dataset containing a query
+                # response. You may want to do something interesting here...
+                pass
 
         assoc.release()

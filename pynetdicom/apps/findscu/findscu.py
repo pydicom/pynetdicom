@@ -1,7 +1,8 @@
 #!/usr/bin/env python
-"""An application for sending Query/Retrieve (QR) and Basic Worklist Modality
-(BWM) C-FIND requests to a QR/BWM - Find SCP.
+"""A QR and BWM Find SCU application.
 
+For sending Query/Retrieve (QR) and Basic Worklist Modality (BWM) C-FIND
+requests to a QR/BWM - Find SCP.
 """
 
 import argparse
@@ -178,7 +179,7 @@ if __name__ == '__main__':
         identifier = create_dataset(args, APP_LOGGER)
     except Exception as exc:
         APP_LOGGER.exception(exc)
-        sys.exit()
+        sys.exit(1)
 
     # Create application entity
     # Binding to port 0 lets the OS pick an available port
@@ -206,12 +207,12 @@ if __name__ == '__main__':
     if assoc.is_established:
         # Send C-FIND request, `responses` is a generator
         responses = assoc.send_c_find(identifier, query_model)
-        for (status, identifier) in responses:
+        for (status, rsp_identifier) in responses:
             # If `status.Status` is one of the 'Pending' statuses then
-            #   `identifier` is the C-FIND response's Identifier dataset
+            #   `rsp_identifier` is the C-FIND response's Identifier dataset
             if status and status.Status in [0xFF00, 0xFF01]:
-                # `identifier` is a pydicom Dataset containing a query reponse
-                # You may want to do something interesting here...
+                # `rsp_identifier` is a pydicom Dataset containing a query
+                # response. You may want to do something interesting here...
                 pass
 
         # Release the association
