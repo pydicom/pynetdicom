@@ -1,30 +1,30 @@
 =======
 echoscu
 =======
-    ``echoscu [options] addr port``
+    ``echoscu.py [options] addr port``
 
 Description
 ===========
 The ``echoscu`` application implements a Service Class User (SCU) for the
-*Verification SOP Class* (UID 1.2.840.10008.1.1). It establishes an Association
-with a peer Application Entity (AE) which it then sends a DICOM C-ECHO-RQ
-message and waits for a response. The application can be used to verify
-basic DICOM connectivity.
+:dcm:`Verification Service Class<part04/chapter_A.html>`. It establishes an
+Association with a peer Application Entity (AE) which it then sends a DICOM
+:dcm:`C-ECHO-RQ<part07/sect_9.3.5.html#sect_9.3.5.1>` message and waits for a
+response. The application can be used to verify basic DICOM connectivity.
 
 The following simple example shows what happens when it is succesfully run on
-an SCP that supports the *Verification SOP Class*:
+an SCP that supports the *Verification Service*:
 
 .. code-block:: text
 
-    user@host: echoscu 127.0.0.1 11112
+    user@host: python echoscu.py 127.0.0.1 11112
     user@host:
 
 When attempting to send a C-ECHO to an SCP that doesn't support the
-*Verification SOP Class*:
+*Verification Service*:
 
 .. code-block:: text
 
-    user@host: echoscu 127.0.0.1 11112
+    user@host: python echoscu.py 127.0.0.1 11112
     E: No Acceptable Presentation Contexts
     user@host:
 
@@ -32,7 +32,7 @@ When attempting to associate with a non-DICOM peer:
 
 .. code-block:: text
 
-    user@host: echoscu 127.0.0.1 11112
+    user@host: python echoscu.py 127.0.0.1 11112
     E: Association Request Failed: Failed to establish association
     E: Peer aborted Association (or never connected)
     E: TCP Initialisation Error: Connection refused
@@ -42,6 +42,7 @@ More information is available with the ``-d`` flag:
 
 .. code-block:: text
 
+    user@host: python echoscu.py 127.0.0.1 11112 -d
     D: echoscu.py v0.7.0
     D:
     I: Requesting Association
@@ -76,24 +77,26 @@ General Options
 ``-ll   --log-level [l]evel (str)``
             One of [``'critical'``, ``'error'``, ``'warning'``, ``'info'``,
             ``'debug'``], prints logging messages with corresponding level
-            or higher
+            or lower
 ``-lc   --log-config [f]ilename (str)``
-            use Python logging config file f for the logger
+            use Python logging `config file
+            <https://docs.python.org/3/library/logging.config.html#logging.config.fileConfig>`_
+            ``f`` for the logger
 
 Network Options
 ---------------
 ``-aet  --calling-aet [a]etitle (str)``
-            set the local AE title (default: ECHOSCU)
+            set the local AE title (default: ``ECHOSCU``)
 ``-aec  --called-aet [a]etitle (str)``
-            set the called AE title for the peer AE (default: ANY-SCP)
+            set the called AE title for the peer AE (default: ``ANY-SCP``)
 ``-ta   --acse-timeout [s]econds (int)``
-            timeout for ACSE messages (default: 30)
+            timeout for ACSE messages (default: ``30``)
 ``-td   --dimse-timeout [s]econdsr (int)``
-            timeout for DIMSE messages (default: 30)
+            timeout for DIMSE messages (default: ``30``)
 ``-tn   --network-timeout [s]econdsr (int)``
-            timeout for the network (default: 30)
+            timeout for the network (default: ``30``)
 ``-pdu  --max-pdu [n]umber of bytes (int)``
-            set maximum receive PDU bytes to n bytes (default: 16384)
+            set maximum receive PDU bytes to n bytes (default: ``16384``)
 
 Transfer Syntax Options
 -----------------------
@@ -107,14 +110,14 @@ Transfer Syntax Options
 Miscellaneous Options
 ---------------------
 ``--repeat [n]umber (int)``
-            repeat echo request n times
+            repeat echo request ``n`` times
 ``--abort``
             abort association instead of releasing it
 
 
 DICOM Conformance
 =================
-The echoscu application supports the following SOP Class as an SCU:
+The ``echoscu`` application supports the following SOP Class as an SCU:
 
 +------------------------+----------------------------------------------------+
 | UID                    | SOP Class                                          |

@@ -392,9 +392,9 @@ _STORAGE_CLASSES = {
     'RTPlanStorage' : '1.2.840.10008.5.1.4.1.1.481.5',  # A.20
     'RTBrachyTreatmentRecordStorage' : '1.2.840.10008.5.1.4.1.1.481.6',  # A.20
     'RTTreatmentSummaryRecordStorage' : '1.2.840.10008.5.1.4.1.1.481.7',  # A.31
+    # 128 presentation context limit here
     'RTIonPlanStorage' : '1.2.840.10008.5.1.4.1.1.481.8',  # A.49
     'RTIonBeamsTreatmentRecordStorage' : '1.2.840.10008.5.1.4.1.1.481.9',  # A.50
-    # 128 presentation context limit here
     'RTPhysicianIntentStorage' : '1.2.840.10008.5.1.4.1.1.481.10',  # A.86.1.2
     'RTSegmentAnnotationStorage' : '1.2.840.10008.5.1.4.1.1.481.11',  # A.86.1.3
     'RTRadiationSetStorage' : '1.2.840.10008.5.1.4.1.1.481.12',  # A.86.1.4
