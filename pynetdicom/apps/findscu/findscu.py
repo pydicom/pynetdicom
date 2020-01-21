@@ -244,6 +244,7 @@ if __name__ == '__main__':
         identifier = create_dataset(args, APP_LOGGER)
     except Exception as exc:
         APP_LOGGER.exception(exc)
+        raise exc
         sys.exit(1)
 
     # Create application entity

@@ -134,6 +134,15 @@ class TestFindSCU(object):
         assert "TCP Initialisation Error: Connection refused" in err
         assert "Association Aborted" in err
 
+    def test_bad_input(self, capfd):
+        """Test being unable to read the input file."""
+        p = start_findscu(['-f', 'no-such-file.dcm'])
+        p.wait()
+        assert p.returncode == 1
+
+        out, err = capfd.readouterr()
+        assert 'Cannot read input file no-such-file.dcm' in err
+
     def test_flag_version(self, capfd):
         """Test --version flag."""
         p = start_findscu(['--version'])
@@ -250,13 +259,13 @@ class TestFindSCU(object):
         ae.add_supported_context(VerificationSOPClass)
         scp = ae.start_server(('', 11112), block=False)
 
-        p = start_findscu(['-d', '--log-config', LOG_CONFIG, '-k', 'PatientName='])
+        p = start_findscu(['--log-config', LOG_CONFIG, '-k', 'PatientName='])
         p.wait()
         assert p.returncode == 1
 
-        #out, err = capfd.readouterr()
-        #assert "pynetdicom.acse - ERROR - No accepted presentation" in out
-        #assert "No accepted presentation contexts" in err
+        out, err = capfd.readouterr()
+        assert "pynetdicom.acse - ERROR - No accepted presentation" in out
+        assert "No accepted presentation contexts" in err
 
         scp.shutdown()
 
@@ -281,7 +290,7 @@ class TestFindSCU(object):
         )
         scp = ae.start_server(('', 11112), block=False, evt_handlers=handlers)
 
-        p = start_findscu(['-aet', 'MYSCU'])
+        p = start_findscu(['-aet', 'MYSCU', '-k', 'PatientName='])
         p.wait()
         assert p.returncode == 0
 
@@ -312,8 +321,8 @@ class TestFindSCU(object):
         )
         scp = ae.start_server(('', 11112), block=False, evt_handlers=handlers)
 
-        # Start echoscu.py and block until association is complete
-        p = start_findscu(['-aec', 'YOURSCP'])
+
+        p = start_findscu(['-aec', 'YOURSCP', '-k', 'PatientName='])
         p.wait()
         assert p.returncode == 0
 
@@ -354,8 +363,7 @@ class TestFindSCU(object):
         )
         scp = ae.start_server(('', 11112), block=False, evt_handlers=handlers)
 
-        # Start echoscu.py and block until association is complete
-        p = start_findscu(['-ta', '0.05', '-d'])
+        p = start_findscu(['-ta', '0.05', '-d', '-k', 'PatientName='])
         p.wait()
         assert p.returncode == 1
 
@@ -395,8 +403,8 @@ class TestFindSCU(object):
         )
         scp = ae.start_server(('', 11112), block=False, evt_handlers=handlers)
 
-        # Start echoscu.py and block until association is complete
-        p = start_findscu(['-td', '0.05', '-d'])
+
+        p = start_findscu(['-td', '0.05', '-d', '-k', 'PatientName='])
         p.wait()
         assert p.returncode == 0
 
@@ -440,8 +448,8 @@ class TestFindSCU(object):
         )
         scp = ae.start_server(('', 11112), block=False, evt_handlers=handlers)
 
-        # Start echoscu.py and block until association is complete
-        p = start_findscu(['--max-pdu', '123456'])
+
+        p = start_findscu(['--max-pdu', '123456', '-k', 'PatientName='])
         p.wait()
         assert p.returncode == 0
 
@@ -452,11 +460,160 @@ class TestFindSCU(object):
         requestor = events[1].assoc.requestor
         assert 123456 == requestor.maximum_length
 
-    def test_bad_input(self, capfd):
-        """Test being unable to read the input file."""
-        p = start_storescu(['no-such-file.dcm'])
-        p.wait()
-        assert p.returncode == 1
+    def test_flag_patient(self):
+        """Test the -P flag."""
+        events = []
+        def handle_find(event):
+            events.append(event)
+            yield 0x0000, None
 
-        out, err = capfd.readouterr()
-        assert 'Cannot read input file no-such-file.dcm' in err
+        handlers = [
+            (evt.EVT_C_FIND, handle_find),
+        ]
+
+        self.ae = ae = AE()
+        ae.acse_timeout = 5
+        ae.dimse_timeout = 5
+        ae.network_timeout = 5
+        ae.supported_contexts = (
+            QueryRetrievePresentationContexts
+            + BasicWorklistManagementPresentationContexts
+        )
+        scp = ae.start_server(('', 11112), block=False, evt_handlers=handlers)
+
+        p = start_findscu(['-P', '-k', 'PatientName='])
+        p.wait()
+        assert p.returncode == 0
+
+        scp.shutdown()
+
+        assert events[0].event == evt.EVT_C_FIND
+        cx = events[0].context
+        assert cx.abstract_syntax == (
+            PatientRootQueryRetrieveInformationModelFind
+        )
+
+    def test_flag_study(self):
+        """Test the -S flag."""
+        events = []
+        def handle_find(event):
+            events.append(event)
+            yield 0x0000, None
+
+        handlers = [
+            (evt.EVT_C_FIND, handle_find),
+        ]
+
+        self.ae = ae = AE()
+        ae.acse_timeout = 5
+        ae.dimse_timeout = 5
+        ae.network_timeout = 5
+        ae.supported_contexts = (
+            QueryRetrievePresentationContexts
+            + BasicWorklistManagementPresentationContexts
+        )
+        scp = ae.start_server(('', 11112), block=False, evt_handlers=handlers)
+
+        p = start_findscu(['-S', '-k', 'PatientName='])
+        p.wait()
+        assert p.returncode == 0
+
+        scp.shutdown()
+
+        assert events[0].event == evt.EVT_C_FIND
+        cx = events[0].context
+        assert cx.abstract_syntax == StudyRootQueryRetrieveInformationModelFind
+
+    def test_flag_patient_study(self):
+        """Test the -O flag."""
+        events = []
+        def handle_find(event):
+            events.append(event)
+            yield 0x0000, None
+
+        handlers = [
+            (evt.EVT_C_FIND, handle_find),
+        ]
+
+        self.ae = ae = AE()
+        ae.acse_timeout = 5
+        ae.dimse_timeout = 5
+        ae.network_timeout = 5
+        ae.supported_contexts = (
+            QueryRetrievePresentationContexts
+            + BasicWorklistManagementPresentationContexts
+        )
+        scp = ae.start_server(('', 11112), block=False, evt_handlers=handlers)
+
+        p = start_findscu(['-O', '-k', 'PatientName='])
+        p.wait()
+        assert p.returncode == 0
+
+        scp.shutdown()
+
+        assert events[0].event == evt.EVT_C_FIND
+        cx = events[0].context
+        assert cx.abstract_syntax == (
+            PatientStudyOnlyQueryRetrieveInformationModelFind
+        )
+
+    def test_flag_worklist(self):
+        """Test the -W flag."""
+        events = []
+        def handle_find(event):
+            events.append(event)
+            yield 0x0000, None
+
+        handlers = [
+            (evt.EVT_C_FIND, handle_find),
+        ]
+
+        self.ae = ae = AE()
+        ae.acse_timeout = 5
+        ae.dimse_timeout = 5
+        ae.network_timeout = 5
+        ae.supported_contexts = (
+            QueryRetrievePresentationContexts
+            + BasicWorklistManagementPresentationContexts
+        )
+        scp = ae.start_server(('', 11112), block=False, evt_handlers=handlers)
+
+        p = start_findscu(['-W', '-k', 'PatientName='])
+        p.wait()
+        assert p.returncode == 0
+
+        scp.shutdown()
+
+        assert events[0].event == evt.EVT_C_FIND
+        cx = events[0].context
+        assert cx.abstract_syntax == ModalityWorklistInformationFind
+
+    def test_flag_write(self):
+        """Test the -w flag."""
+        def handle_find(event):
+            yield 0xFF00, event.identifier
+
+        handlers = [
+            (evt.EVT_C_FIND, handle_find),
+        ]
+
+        self.ae = ae = AE()
+        ae.acse_timeout = 5
+        ae.dimse_timeout = 5
+        ae.network_timeout = 5
+        ae.supported_contexts = (
+            QueryRetrievePresentationContexts
+            + BasicWorklistManagementPresentationContexts
+        )
+        scp = ae.start_server(('', 11112), block=False, evt_handlers=handlers)
+
+        p = start_findscu(['-w', '-k', 'PatientName='])
+        p.wait()
+        assert p.returncode == 0
+
+        scp.shutdown()
+
+        assert 'rsp000001.dcm' in os.listdir()
+        ds = dcmread('rsp000001.dcm')
+        assert ds.PatientName == ''
+        os.remove('rsp000001.dcm')

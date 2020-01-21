@@ -38,8 +38,16 @@ def create_dataset(args, logger=None):
         try:
             with open(args.file, 'rb') as fp:
                 ds = dcmread(fp, force=True)
-                # Only way to check for a bad decode is to iterate the dataset
-                ds.iterall()
+        except Exception as exc:
+            if logger:
+                logger.error(
+                    'Cannot read input file {0!s}'.format(args.file)
+                )
+            raise exc
+
+        try:
+            # Only way to check for a bad decode is to iterate the dataset
+            ds.iterall()
         except Exception as exc:
             if logger:
                 logger.error(
