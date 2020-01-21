@@ -190,7 +190,9 @@ def _setup_argparser():
     )
 
     ns = parser.parse_args()
-    if not bool(ns.file) and not bool(ns.keyword):
+    if ns.version:
+        pass
+    elif not bool(ns.file) and not bool(ns.keyword):
         parser.error('-f and/or -k must be specified')
 
     return ns
@@ -209,14 +211,16 @@ def get_file_meta(assoc, query_model):
     )
     file_meta.ImplementationClassUID = PYNETDICOM_IMPLEMENTATION_UID
     file_meta.ImplementationVersionName = PYNETDICOM_IMPLEMENTATION_VERSION
+
     return file_meta
 
 
 def generate_filename():
     """Return a `str` filename for extracted C-FIND responses."""
-    fnbase = 'rsp{:06d}.dcm'
-    for ii in range(1000000):
-        yield fnbase.format(ii + 1)
+    ii = 1
+    while True:
+        yield 'rsp{:06d}.dcm'.format(ii)
+        ii += 1
 
 
 if __name__ == '__main__':
@@ -236,7 +240,7 @@ if __name__ == '__main__':
         # is a pydicom Dataset instance with your query keys, e.g.:
         #     identifier = Dataset()
         #     identifier.QueryRetrieveLevel = 'PATIENT'
-        #     identifier.PatientName = '*'
+        #     identifier.PatientName = ''
         identifier = create_dataset(args, APP_LOGGER)
     except Exception as exc:
         APP_LOGGER.exception(exc)
@@ -280,8 +284,6 @@ if __name__ == '__main__':
             # If `status.Status` is one of the 'Pending' statuses then
             #   `rsp_identifier` is the C-FIND response's Identifier dataset
             if status and status.Status in [0xFF00, 0xFF01]:
-                # `rsp_identifier` is a pydicom Dataset containing a query
-                # response. You may want to do something interesting here...
                 if args.write:
                     fname = generate_filename()
                     rsp_identifier.file_meta = get_file_meta(
@@ -293,3 +295,5 @@ if __name__ == '__main__':
 
         # Release the association
         assoc.release()
+    else:
+        sys.exit(1)

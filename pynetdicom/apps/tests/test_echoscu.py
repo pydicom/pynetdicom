@@ -175,18 +175,9 @@ class TestEchoSCU(object):
 
     def test_flag_log_collision(self):
         """Test error with -q -v and -d flag."""
-        self.ae = ae = AE()
-        ae.acse_timeout = 5
-        ae.dimse_timeout = 5
-        ae.network_timeout = 5
-        ae.add_supported_context(VerificationSOPClass)
-        scp = ae.start_server(('', 11112), block=False)
-
         p = start_echoscu(['-q', '-v'])
         p.wait()
         assert p.returncode != 0
-
-        scp.shutdown()
 
     @pytest.mark.skip("No way to test comprehensively")
     def test_flag_log_level(self):
