@@ -3,7 +3,7 @@
 1.5.0
 =====
 
-This will be the last release that support Python 2.
+This will be the last release that supports Python 2.
 
 Fixes
 .....

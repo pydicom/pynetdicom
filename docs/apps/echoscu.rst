@@ -25,7 +25,18 @@ When attempting to send a C-ECHO to an SCP that doesn't support the
 .. code-block:: text
 
     user@host: python echoscu.py 127.0.0.1 11112
-    E: No Acceptable Presentation Contexts
+    E: No accepted presentation contexts
+    user@host:
+
+When the Association request is rejected by the SCP (in this case because the
+called AE title wasn't recognised):
+
+.. code-block:: text
+
+    user@host: python echoscu.py 127.0.0.1 11112
+    E: Association Rejected
+    E: Result: Rejected Permanent, Source: Service User
+    E: Reason: Called AE title not recognised
     user@host:
 
 When attempting to associate with a non-DICOM peer:
@@ -33,8 +44,7 @@ When attempting to associate with a non-DICOM peer:
 .. code-block:: text
 
     user@host: python echoscu.py 127.0.0.1 11112
-    E: Association Request Failed: Failed to establish association
-    E: Peer aborted Association (or never connected)
+    E: Association request failed: unable to connect to remote
     E: TCP Initialisation Error: Connection refused
     user@host:
 

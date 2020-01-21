@@ -112,6 +112,30 @@ def _setup_argparser():
         type=str,
         default='STORESCP'
     )
+    net_opts.add_argument(
+        "-ta", "--acse-timeout", metavar='[s]econds',
+        help="timeout for ACSE messages",
+        type=float,
+        default=60
+    )
+    net_opts.add_argument(
+        "-td", "--dimse-timeout", metavar='[s]econds',
+        help="timeout for DIMSE messages",
+        type=float,
+        default=None
+    )
+    net_opts.add_argument(
+        "-tn", "--network-timeout", metavar='[s]econds',
+        help="timeout for the network",
+        type=float,
+        default=30
+    )
+    net_opts.add_argument(
+        "-pdu", "--max-pdu", metavar='[n]umber of bytes',
+        help="set max receive pdu to n bytes (4096..131072)",
+        type=int,
+        default=16382
+    )
 
     # Query information model choices
     qr_group = parser.add_argument_group('Query Information Model Options')
@@ -304,6 +328,9 @@ if __name__ == "__main__":
         )
 
     ae.ae_title = args.calling_aet
+    ae.acse_timeout = args.acse_timeout
+    ae.dimse_timeout = args.dimse_timeout
+    ae.network_timeout = args.network_timeout
     ae.requested_contexts = QueryRetrievePresentationContexts
 
     # Query/Retrieve Information Models
@@ -315,7 +342,9 @@ if __name__ == "__main__":
         query_model = PatientRootQueryRetrieveInformationModelMove
 
     # Request association with remote AE
-    assoc = ae.associate(args.addr, args.port, ae_title=args.called_aet)
+    assoc = ae.associate(
+        args.addr, args.port, ae_title=args.called_aet, max_pdu=args.max_pdu
+    )
     if assoc.is_established:
         # Send query
         move_aet = args.move_aet or args.calling_aet

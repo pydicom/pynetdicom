@@ -103,6 +103,30 @@ def _setup_argparser():
         type=str,
         default='ANY-SCP'
     )
+    net_opts.add_argument(
+        "-ta", "--acse-timeout", metavar='[s]econds',
+        help="timeout for ACSE messages",
+        type=float,
+        default=60
+    )
+    net_opts.add_argument(
+        "-td", "--dimse-timeout", metavar='[s]econds',
+        help="timeout for DIMSE messages",
+        type=float,
+        default=None
+    )
+    net_opts.add_argument(
+        "-tn", "--network-timeout", metavar='[s]econds',
+        help="timeout for the network",
+        type=float,
+        default=30
+    )
+    net_opts.add_argument(
+        "-pdu", "--max-pdu", metavar='[n]umber of bytes',
+        help="set max receive pdu to n bytes (4096..131072)",
+        type=int,
+        default=16382
+    )
 
     # Query information model choices
     qr_group = parser.add_argument_group('Query Information Model Options')
@@ -195,6 +219,9 @@ if __name__ == "__main__":
     # Create application entity
     # Binding to port 0 lets the OS pick an available port
     ae = AE(ae_title=args.calling_aet)
+    ae.acse_timeout = args.acse_timeout
+    ae.dimse_timeout = args.dimse_timeout
+    ae.network_timeout = args.network_timeout
 
     for context in QueryRetrievePresentationContexts:
         ae.add_requested_context(context.abstract_syntax)
@@ -287,7 +314,8 @@ if __name__ == "__main__":
         args.port,
         ae_title=args.called_aet,
         ext_neg=ext_neg,
-        evt_handlers=[(evt.EVT_C_STORE, handle_store)]
+        evt_handlers=[(evt.EVT_C_STORE, handle_store)],
+        max_pdu=args.max_pdu
     )
 
     if assoc.is_established:

@@ -1,0 +1,642 @@
+"""Unit tests for echoscu.py"""
+
+import logging
+import os
+import subprocess
+import sys
+import time
+
+import pytest
+
+from pydicom.uid import (
+    ExplicitVRLittleEndian, ImplicitVRLittleEndian,
+    DeflatedExplicitVRLittleEndian, ExplicitVRBigEndian
+)
+
+from pynetdicom import AE, evt, debug_logger, DEFAULT_TRANSFER_SYNTAXES
+from pynetdicom.sop_class import VerificationSOPClass, CTImageStorage
+
+
+#debug_logger()
+
+
+APP_DIR = os.path.join(os.path.dirname(__file__), '../')
+APP_FILE = os.path.join(APP_DIR, 'echoscu', 'echoscu.py')
+LOG_CONFIG = os.path.join(APP_DIR, 'echoscu', 'logging.cfg')
+
+
+def start_echoscu(args):
+    """Start the echoscu.py app and return the process."""
+    pargs = [APP_FILE, 'localhost', '11112'] + [*args]
+    return subprocess.Popen(pargs)
+
+
+class TestEchoSCU(object):
+    """Tests for echoscu.py"""
+    def setup(self):
+        """Run prior to each test"""
+        self.ae = None
+
+    def teardown(self):
+        """Clear any active threads"""
+        if self.ae:
+            self.ae.shutdown()
+
+    def test_default(self):
+        """Test default settings."""
+        events = []
+
+        def handle_echo(event):
+            events.append(event)
+            return 0x0000
+
+        def handle_release(event):
+            events.append(event)
+
+        handlers = [
+            (evt.EVT_C_ECHO, handle_echo),
+            (evt.EVT_RELEASED, handle_release)
+        ]
+
+        self.ae = ae = AE()
+        ae.acse_timeout = 5
+        ae.dimse_timeout = 5
+        ae.network_timeout = 5
+        ae.add_supported_context(VerificationSOPClass)
+        scp = ae.start_server(('', 11112), block=False, evt_handlers=handlers)
+
+        # Start echoscu.py and block until association is complete
+        p = start_echoscu([])
+        p.wait()
+        assert p.returncode == 0
+
+        scp.shutdown()
+
+        assert events[0].event == evt.EVT_C_ECHO
+        assert events[1].event == evt.EVT_RELEASED
+        requestor = events[1].assoc.requestor
+        assert b'ECHOSCU         ' == requestor.ae_title
+        assert 16382 == requestor.maximum_length
+        assert b'ANY-SCP         ' == requestor.primitive.called_ae_title
+        assert [] == requestor.extended_negotiation
+        assert (1, 1) == requestor.asynchronous_operations
+        assert {} == requestor.sop_class_common_extended
+        assert {} == requestor.sop_class_extended
+        assert requestor.user_identity == None
+        cxs = requestor.primitive.presentation_context_definition_list
+        assert len(cxs) == 1
+        assert cxs[0].abstract_syntax == VerificationSOPClass
+        assert cxs[0].transfer_syntax == [
+            ExplicitVRLittleEndian,
+            ImplicitVRLittleEndian,
+            DeflatedExplicitVRLittleEndian,
+            ExplicitVRBigEndian
+        ]
+
+    def test_no_peer(self, capfd):
+        """Test trying to connect to non-existent host."""
+        p = start_echoscu([])
+        p.wait()
+        assert p.returncode == 1
+
+        out, err = capfd.readouterr()
+        assert "Association request failed: unable to connect to remote" in err
+        assert "TCP Initialisation Error: Connection refused" in err
+        assert "Association Aborted" in err
+
+    def test_flag_version(self, capfd):
+        """Test --version flag."""
+        p = start_echoscu(['--version'])
+        p.wait()
+        assert p.returncode == 0
+
+        out, err = capfd.readouterr()
+        assert 'echoscu.py v' in out
+
+    def test_flag_quiet(self, capfd):
+        """Test --quiet flag."""
+        self.ae = ae = AE()
+        ae.acse_timeout = 5
+        ae.dimse_timeout = 5
+        ae.network_timeout = 5
+        ae.add_supported_context(CTImageStorage)
+        scp = ae.start_server(('', 11112), block=False)
+
+        p = start_echoscu(['-q'])
+        p.wait()
+        assert p.returncode == 1
+
+        out, err = capfd.readouterr()
+        assert out == err == ''
+
+        scp.shutdown()
+
+    def test_flag_verbose(self, capfd):
+        """Test --verbose flag."""
+        self.ae = ae = AE()
+        ae.acse_timeout = 5
+        ae.dimse_timeout = 5
+        ae.network_timeout = 5
+        ae.add_supported_context(VerificationSOPClass)
+        scp = ae.start_server(('', 11112), block=False)
+
+        p = start_echoscu(['-v'])
+        p.wait()
+        assert p.returncode == 0
+
+        out, err = capfd.readouterr()
+        assert "Requesting Association" in err
+        assert "Association Accepted" in err
+        assert "Sending Echo Request" in err
+        assert "Received Echo Response" in err
+        assert "Releasing Association" in err
+        assert "Accept Parameters" not in err
+
+        scp.shutdown()
+
+    def test_flag_debug(self, capfd):
+        """Test --debug flag."""
+        self.ae = ae = AE()
+        ae.acse_timeout = 5
+        ae.dimse_timeout = 5
+        ae.network_timeout = 5
+        ae.add_supported_context(VerificationSOPClass)
+        scp = ae.start_server(('', 11112), block=False)
+
+        p = start_echoscu(['-d'])
+        p.wait()
+        assert p.returncode == 0
+
+        out, err = capfd.readouterr()
+        assert "Releasing Association" in err
+        assert "Accept Parameters" in err
+
+        scp.shutdown()
+
+    def test_flag_log_collision(self):
+        """Test error with -q -v and -d flag."""
+        self.ae = ae = AE()
+        ae.acse_timeout = 5
+        ae.dimse_timeout = 5
+        ae.network_timeout = 5
+        ae.add_supported_context(VerificationSOPClass)
+        scp = ae.start_server(('', 11112), block=False)
+
+        p = start_echoscu(['-q', '-v'])
+        p.wait()
+        assert p.returncode != 0
+
+        scp.shutdown()
+
+    @pytest.mark.skip("No way to test comprehensively")
+    def test_flag_log_level(self):
+        """Test --log-level flag."""
+        self.ae = ae = AE()
+        ae.acse_timeout = 5
+        ae.dimse_timeout = 5
+        ae.network_timeout = 5
+        ae.add_supported_context(VerificationSOPClass)
+        scp = ae.start_server(('', 11112), block=False)
+
+        for level in ['critical', 'error', 'warn', 'info', 'debug']:
+            p = start_echoscu(['-ll', level])
+            p.wait()
+            assert p.returncode == 0
+
+            out, err = capfd.readouterr()
+
+        scp.shutdown()
+
+    def test_flag_log_config(self, capfd):
+        """Test --log-config flag."""
+        self.ae = ae = AE()
+        ae.acse_timeout = 5
+        ae.dimse_timeout = 5
+        ae.network_timeout = 5
+        ae.add_supported_context(CTImageStorage)
+        scp = ae.start_server(('', 11112), block=False)
+
+        p = start_echoscu(['--log-config', LOG_CONFIG])
+        p.wait()
+        assert p.returncode == 1
+
+        out, err = capfd.readouterr()
+        assert "pynetdicom.acse - ERROR - No accepted presentation" in out
+        assert "No accepted presentation contexts" in err
+
+        scp.shutdown()
+
+    def test_flag_aet(self):
+        """Test --calling-aet flag."""
+        events = []
+
+        def handle_echo(event):
+            events.append(event)
+            return 0x0000
+
+        def handle_release(event):
+            events.append(event)
+
+        handlers = [
+            (evt.EVT_C_ECHO, handle_echo),
+            (evt.EVT_RELEASED, handle_release)
+        ]
+
+        self.ae = ae = AE()
+        ae.acse_timeout = 5
+        ae.dimse_timeout = 5
+        ae.network_timeout = 5
+        ae.add_supported_context(VerificationSOPClass)
+        scp = ae.start_server(('', 11112), block=False, evt_handlers=handlers)
+
+        # Start echoscu.py and block until association is complete
+        p = start_echoscu(['-aet', 'MYSCU'])
+        p.wait()
+        assert p.returncode == 0
+
+        scp.shutdown()
+
+        assert events[0].event == evt.EVT_C_ECHO
+        assert events[1].event == evt.EVT_RELEASED
+        requestor = events[1].assoc.requestor
+        assert b'MYSCU           ' == requestor.ae_title
+
+    def test_flag_aec(self):
+        """Test --called-aet flag."""
+        events = []
+
+        def handle_echo(event):
+            events.append(event)
+            return 0x0000
+
+        def handle_release(event):
+            events.append(event)
+
+        handlers = [
+            (evt.EVT_C_ECHO, handle_echo),
+            (evt.EVT_RELEASED, handle_release)
+        ]
+
+        self.ae = ae = AE()
+        ae.acse_timeout = 5
+        ae.dimse_timeout = 5
+        ae.network_timeout = 5
+        ae.add_supported_context(VerificationSOPClass)
+        scp = ae.start_server(('', 11112), block=False, evt_handlers=handlers)
+
+        # Start echoscu.py and block until association is complete
+        p = start_echoscu(['-aec', 'YOURSCP'])
+        p.wait()
+        assert p.returncode == 0
+
+        scp.shutdown()
+
+        assert events[0].event == evt.EVT_C_ECHO
+        assert events[1].event == evt.EVT_RELEASED
+        requestor = events[1].assoc.requestor
+        assert b'YOURSCP         ' == requestor.primitive.called_ae_title
+
+    def test_flag_ta(self, capfd):
+        """Test --acse-timeout flag."""
+        events = []
+
+        def handle_requested(event):
+            events.append(event)
+            time.sleep(0.1)
+
+        def handle_echo(event):
+            events.append(event)
+            return 0x0000
+
+        def handle_abort(event):
+            events.append(event)
+
+        handlers = [
+            (evt.EVT_C_ECHO, handle_echo),
+            (evt.EVT_ABORTED, handle_abort),
+            (evt.EVT_REQUESTED, handle_requested),
+        ]
+
+        self.ae = ae = AE()
+        ae.acse_timeout = 5
+        ae.dimse_timeout = 5
+        ae.network_timeout = 5
+        ae.add_supported_context(VerificationSOPClass)
+        scp = ae.start_server(('', 11112), block=False, evt_handlers=handlers)
+
+        # Start echoscu.py and block until association is complete
+        p = start_echoscu(['-ta', '0.05', '-d'])
+        p.wait()
+        assert p.returncode == 1
+
+        time.sleep(0.1)
+
+        scp.shutdown()
+
+        out, err = capfd.readouterr()
+        assert "ACSE timeout reached while waiting for response" in err
+        assert events[0].event == evt.EVT_REQUESTED
+        assert events[1].event == evt.EVT_ABORTED
+
+    def test_flag_td(self, capfd):
+        """Test --dimse-timeout flag."""
+        events = []
+
+        def handle_echo(event):
+            events.append(event)
+            time.sleep(0.1)
+            return 0x0000
+
+        def handle_abort(event):
+            events.append(event)
+
+        handlers = [
+            (evt.EVT_C_ECHO, handle_echo),
+            (evt.EVT_ABORTED, handle_abort),
+        ]
+
+        self.ae = ae = AE()
+        ae.acse_timeout = 5
+        ae.dimse_timeout = 5
+        ae.network_timeout = 5
+        ae.add_supported_context(VerificationSOPClass)
+        scp = ae.start_server(('', 11112), block=False, evt_handlers=handlers)
+
+        # Start echoscu.py and block until association is complete
+        p = start_echoscu(['-td', '0.05', '-d'])
+        p.wait()
+        assert p.returncode == 0
+
+        time.sleep(0.1)
+
+        scp.shutdown()
+
+        out, err = capfd.readouterr()
+        assert "DIMSE timeout reached while waiting for message" in err
+        assert events[0].event == evt.EVT_C_ECHO
+        assert events[1].event == evt.EVT_ABORTED
+
+    @pytest.mark.skip("Don't think this can be tested")
+    def test_flag_tn(self, capfd):
+        """Test --network-timeout flag."""
+        events = []
+
+        def handle_accepted(event):
+            time.sleep(1)
+
+        def handle_echo(event):
+            events.append(event)
+            time.sleep(1)
+            return 0x0000
+
+        def handle_abort(event):
+            events.append(event)
+
+        handlers = [
+            (evt.EVT_C_ECHO, handle_echo),
+            (evt.EVT_ABORTED, handle_abort),
+            (evt.EVT_ACCEPTED, handle_accepted),
+        ]
+
+        self.ae = ae = AE()
+        ae.acse_timeout = 5
+        ae.dimse_timeout = 5
+        ae.network_timeout = 5
+        ae.add_supported_context(VerificationSOPClass)
+        scp = ae.start_server(('', 11112), block=False, evt_handlers=handlers)
+
+        # Start echoscu.py and block until association is complete
+        p = start_echoscu(['-tn', '0.05', '-d'])
+        p.wait()
+        assert p.returncode == 0
+
+        time.sleep(0.1)
+
+        scp.shutdown()
+
+        out, err = capfd.readouterr()
+        print(out, err)
+        #assert "DIMSE timeout reached while waiting for message" in err
+        assert events[0].event == evt.EVT_C_ECHO
+        assert events[1].event == evt.EVT_ABORTED
+
+    def test_flag_max_pdu(self):
+        """Test --max-pdu flag."""
+        events = []
+
+        def handle_echo(event):
+            events.append(event)
+            return 0x0000
+
+        def handle_release(event):
+            events.append(event)
+
+        handlers = [
+            (evt.EVT_C_ECHO, handle_echo),
+            (evt.EVT_RELEASED, handle_release)
+        ]
+
+        self.ae = ae = AE()
+        ae.acse_timeout = 5
+        ae.dimse_timeout = 5
+        ae.network_timeout = 5
+        ae.add_supported_context(VerificationSOPClass)
+        scp = ae.start_server(('', 11112), block=False, evt_handlers=handlers)
+
+        # Start echoscu.py and block until association is complete
+        p = start_echoscu(['--max-pdu', '123456'])
+        p.wait()
+        assert p.returncode == 0
+
+        scp.shutdown()
+
+        assert events[0].event == evt.EVT_C_ECHO
+        assert events[1].event == evt.EVT_RELEASED
+        requestor = events[1].assoc.requestor
+        assert 123456 == requestor.maximum_length
+
+    def test_flag_xe(self):
+        """Test --request-little flag."""
+        events = []
+
+        def handle_echo(event):
+            events.append(event)
+            return 0x0000
+
+        def handle_release(event):
+            events.append(event)
+
+        handlers = [
+            (evt.EVT_C_ECHO, handle_echo),
+            (evt.EVT_RELEASED, handle_release)
+        ]
+
+        self.ae = ae = AE()
+        ae.acse_timeout = 5
+        ae.dimse_timeout = 5
+        ae.network_timeout = 5
+        ae.add_supported_context(VerificationSOPClass)
+        scp = ae.start_server(('', 11112), block=False, evt_handlers=handlers)
+
+        # Start echoscu.py and block until association is complete
+        p = start_echoscu(['-xe'])
+        p.wait()
+        assert p.returncode == 0
+
+        scp.shutdown()
+
+        assert events[0].event == evt.EVT_C_ECHO
+        assert events[1].event == evt.EVT_RELEASED
+        requestor = events[1].assoc.requestor
+        cxs = requestor.primitive.presentation_context_definition_list
+        assert len(cxs) == 1
+        assert cxs[0].abstract_syntax == VerificationSOPClass
+        assert cxs[0].transfer_syntax == [ExplicitVRLittleEndian]
+
+    def test_flag_xb(self):
+        """Test --request-big flag."""
+        events = []
+
+        def handle_echo(event):
+            events.append(event)
+            return 0x0000
+
+        def handle_release(event):
+            events.append(event)
+
+        handlers = [
+            (evt.EVT_C_ECHO, handle_echo),
+            (evt.EVT_RELEASED, handle_release)
+        ]
+
+        self.ae = ae = AE()
+        ae.acse_timeout = 5
+        ae.dimse_timeout = 5
+        ae.network_timeout = 5
+        ae.add_supported_context(VerificationSOPClass)
+        scp = ae.start_server(('', 11112), block=False, evt_handlers=handlers)
+
+        # Start echoscu.py and block until association is complete
+        p = start_echoscu(['-xb'])
+        p.wait()
+        assert p.returncode == 0
+
+        scp.shutdown()
+
+        assert events[0].event == evt.EVT_C_ECHO
+        assert events[1].event == evt.EVT_RELEASED
+        requestor = events[1].assoc.requestor
+        cxs = requestor.primitive.presentation_context_definition_list
+        assert len(cxs) == 1
+        assert cxs[0].abstract_syntax == VerificationSOPClass
+        assert cxs[0].transfer_syntax == [ExplicitVRBigEndian]
+
+    def test_flag_xi(self):
+        """Test --request-implicit flag."""
+        events = []
+
+        def handle_echo(event):
+            events.append(event)
+            return 0x0000
+
+        def handle_release(event):
+            events.append(event)
+
+        handlers = [
+            (evt.EVT_C_ECHO, handle_echo),
+            (evt.EVT_RELEASED, handle_release)
+        ]
+
+        self.ae = ae = AE()
+        ae.acse_timeout = 5
+        ae.dimse_timeout = 5
+        ae.network_timeout = 5
+        ae.add_supported_context(VerificationSOPClass)
+        scp = ae.start_server(('', 11112), block=False, evt_handlers=handlers)
+
+        # Start echoscu.py and block until association is complete
+        p = start_echoscu(['-xi'])
+        p.wait()
+        assert p.returncode == 0
+
+        scp.shutdown()
+
+        assert events[0].event == evt.EVT_C_ECHO
+        assert events[1].event == evt.EVT_RELEASED
+        requestor = events[1].assoc.requestor
+        cxs = requestor.primitive.presentation_context_definition_list
+        assert len(cxs) == 1
+        assert cxs[0].abstract_syntax == VerificationSOPClass
+        assert cxs[0].transfer_syntax == [ImplicitVRLittleEndian]
+
+    def test_flag_repeat(self):
+        """Test --repeat flag."""
+        events = []
+
+        def handle_echo(event):
+            events.append(event)
+            return 0x0000
+
+        def handle_release(event):
+            events.append(event)
+
+        handlers = [
+            (evt.EVT_C_ECHO, handle_echo),
+            (evt.EVT_RELEASED, handle_release)
+        ]
+
+        self.ae = ae = AE()
+        ae.acse_timeout = 5
+        ae.dimse_timeout = 5
+        ae.network_timeout = 5
+        ae.add_supported_context(VerificationSOPClass)
+        scp = ae.start_server(('', 11112), block=False, evt_handlers=handlers)
+
+        # Start echoscu.py and block until association is complete
+        p = start_echoscu(['--repeat', '3'])
+        p.wait()
+        assert p.returncode == 0
+
+        scp.shutdown()
+
+        assert events[0].event == evt.EVT_C_ECHO
+        assert events[1].event == evt.EVT_C_ECHO
+        assert events[2].event == evt.EVT_C_ECHO
+        assert events[3].event == evt.EVT_RELEASED
+
+    def test_flag_abort(self):
+        """Test --abort flag."""
+        events = []
+
+        def handle_echo(event):
+            events.append(event)
+            return 0x0000
+
+        def handle_release(event):
+            events.append(event)
+
+        def handle_abort(event):
+            events.append(event)
+
+        handlers = [
+            (evt.EVT_C_ECHO, handle_echo),
+            (evt.EVT_RELEASED, handle_release),
+            (evt.EVT_ABORTED, handle_abort),
+        ]
+
+        self.ae = ae = AE()
+        ae.acse_timeout = 5
+        ae.dimse_timeout = 5
+        ae.network_timeout = 5
+        ae.add_supported_context(VerificationSOPClass)
+        scp = ae.start_server(('', 11112), block=False, evt_handlers=handlers)
+
+        # Start echoscu.py and block until association is complete
+        p = start_echoscu(['--abort'])
+        p.wait()
+        assert p.returncode == 0
+
+        scp.shutdown()
+
+        assert events[0].event == evt.EVT_C_ECHO
+        assert events[1].event == evt.EVT_ABORTED

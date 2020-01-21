@@ -96,19 +96,19 @@ def _setup_argparser():
     net_opts.add_argument(
         "-ta", "--acse-timeout", metavar='[s]econds',
         help="timeout for ACSE messages",
-        type=int,
+        type=float,
         default=60
     )
     net_opts.add_argument(
         "-td", "--dimse-timeout", metavar='[s]econds',
         help="timeout for DIMSE messages",
-        type=int,
+        type=float,
         default=None
     )
     net_opts.add_argument(
         "-tn", "--network-timeout", metavar='[s]econds',
         help="timeout for the network",
-        type=int,
+        type=float,
         default=30
     )
     net_opts.add_argument(
@@ -206,3 +206,5 @@ if __name__ == "__main__":
             assoc.abort()
         else:
             assoc.release()
+    else:
+        sys.exit(1)
