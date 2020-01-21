@@ -25,9 +25,25 @@ APP_FILE = os.path.join(APP_DIR, 'echoscu', 'echoscu.py')
 LOG_CONFIG = os.path.join(APP_DIR, 'echoscu', 'logging.cfg')
 
 
+def which(program):
+    # Determine if a given program is installed on PATH
+    def is_exe(fpath):
+        return os.path.isfile(fpath) and os.access(fpath, os.X_OK)
+
+    fpath, fname = os.path.split(program)
+    if fpath:
+        if is_exe(program):
+            return program
+    else:
+        for path in os.environ["PATH"].split(os.pathsep):
+            exe_file = os.path.join(path, program)
+            if is_exe(exe_file):
+                return exe_file
+
+
 def start_echoscu(args):
     """Start the echoscu.py app and return the process."""
-    pargs = [APP_FILE, 'localhost', '11112'] + [*args]
+    pargs = [which('python'), APP_FILE, 'localhost', '11112'] + [*args]
     return subprocess.Popen(pargs)
 
 
