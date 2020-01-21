@@ -136,19 +136,12 @@ class TestStoreSCU(object):
 
     def test_flag_quiet(self, capfd):
         """Test --quiet flag."""
-        def handle_store(event):
-            return 0x0000
-
-        handlers = [
-            (evt.EVT_C_STORE, handle_store),
-        ]
-
         self.ae = ae = AE()
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
         ae.network_timeout = 5
         ae.add_supported_context(VerificationSOPClass)
-        scp = ae.start_server(('', 11112), block=False, evt_handlers=handlers)
+        scp = ae.start_server(('', 11112), block=False)
 
         p = start_storescu([DATASET_FILE, '-q'])
         p.wait()

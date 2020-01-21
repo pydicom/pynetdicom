@@ -187,7 +187,9 @@ def _setup_argparser():
     )
 
     ns = parser.parse_args()
-    if not bool(ns.file) and not bool(ns.keyword):
+    if ns.version:
+        pass
+    elif not bool(ns.file) and not bool(ns.keyword):
         parser.error('-f and/or -k must be specified')
 
     return ns
@@ -252,8 +254,6 @@ if __name__ == "__main__":
 
         # Add the file meta information elements
         ds.file_meta = event.file_meta
-        ds.is_little_endian = ds.file_meta.TransferSyntaxUID.is_little_endian
-        ds.is_implicit_VR = ds.file_meta.TransferSyntaxUID.is_implicit_VR
 
         # Because pydicom uses deferred reads for its decoding, decoding errors
         #   are hidden until encountered by accessing a faulty element
@@ -287,6 +287,15 @@ if __name__ == "__main__":
         # Try to save to output-directory
         if args.output_directory is not None:
             filename = os.path.join(args.output_directory, filename)
+            try:
+                os.makedirs(args.output_directory)
+            except Exception as exc:
+                APP_LOGGER.error('Unable to create the output directory:')
+                APP_LOGGER.error("    {0!s}".format(args.output_directory))
+                APP_LOGGER.exception(exc)
+                # Failed - Out of Resources - IOError
+                status.Status = 0xA700
+                return status
 
         try:
             # We use `write_like_original=False` to ensure that a compliant
@@ -330,3 +339,5 @@ if __name__ == "__main__":
                 pass
 
         assoc.release()
+    else:
+        sys.exit(1)

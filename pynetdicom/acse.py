@@ -518,14 +518,17 @@ class ACSE(object):
             self.assoc.is_aborted = True
             evt.trigger(self.assoc, evt.EVT_ABORTED, {})
             self.dul.kill_dul()
-        else:
+        elif rsp is None:
+            # ACSE timeout
             LOGGER.error(
                 "ACSE timeout reached while waiting for response to "
                 "association request"
             )
             self.assoc.abort()
-            #self.assoc.is_established = False
-            #self.dul.kill_dul()
+        else:
+            # Received A-RELEASE or some weird object
+            self.assoc.is_established = False
+            self.dul.kill_dul()
 
     def negotiate_release(self):
         """Negotiate association release.
