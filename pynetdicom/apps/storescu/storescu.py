@@ -119,7 +119,7 @@ def _setup_argparser():
         "-pdu", "--max-pdu", metavar='[n]umber of bytes',
         help="set max receive pdu to n bytes (4096..131072)",
         type=int,
-        default=16384
+        default=16382
     )
 
     # Transfer Syntaxes
@@ -224,3 +224,5 @@ if __name__ == "__main__":
         APP_LOGGER.info('Sending file: {0!s}'.format(args.dcmfile_in))
         status = assoc.send_c_store(ds)
         assoc.release()
+    else:
+        sys.exit(1)

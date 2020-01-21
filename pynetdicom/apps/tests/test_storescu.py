@@ -1,4 +1,4 @@
-"""Unit tests for echoscu.py"""
+"""Unit tests for storescu.py"""
 
 import logging
 import os
@@ -8,6 +8,7 @@ import time
 
 import pytest
 
+from pydicom import dcmread
 from pydicom.uid import (
     ExplicitVRLittleEndian, ImplicitVRLittleEndian,
     DeflatedExplicitVRLittleEndian, ExplicitVRBigEndian
@@ -21,18 +22,20 @@ from pynetdicom.sop_class import VerificationSOPClass, CTImageStorage
 
 
 APP_DIR = os.path.join(os.path.dirname(__file__), '../')
-APP_FILE = os.path.join(APP_DIR, 'echoscu', 'echoscu.py')
+APP_FILE = os.path.join(APP_DIR, 'storescu', 'storescu.py')
 LOG_CONFIG = os.path.join(APP_DIR, 'echoscu', 'logging.cfg')
+DATA_DIR = os.path.join(APP_DIR, '../', 'tests', 'dicom_files')
+DATASET_FILE = os.path.join(DATA_DIR, 'CTImageStorage.dcm')
 
 
-def start_echoscu(args):
-    """Start the echoscu.py app and return the process."""
+def start_storescu(args):
+    """Start the storescu.py app and return the process."""
     pargs = [APP_FILE, 'localhost', '11112'] + [*args]
     return subprocess.Popen(pargs)
 
 
-class TestEchoSCU(object):
-    """Tests for echoscu.py"""
+class TestStoreSCU(object):
+    """Tests for storescu.py"""
     def setup(self):
         """Run prior to each test"""
         self.ae = None
@@ -46,7 +49,7 @@ class TestEchoSCU(object):
         """Test default settings."""
         events = []
 
-        def handle_echo(event):
+        def handle_store(event):
             events.append(event)
             return 0x0000
 
@@ -54,7 +57,7 @@ class TestEchoSCU(object):
             events.append(event)
 
         handlers = [
-            (evt.EVT_C_ECHO, handle_echo),
+            (evt.EVT_C_STORE, handle_store),
             (evt.EVT_RELEASED, handle_release)
         ]
 
@@ -62,20 +65,21 @@ class TestEchoSCU(object):
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
         ae.network_timeout = 5
-        ae.add_supported_context(VerificationSOPClass)
+        ae.add_supported_context(CTImageStorage)
         scp = ae.start_server(('', 11112), block=False, evt_handlers=handlers)
 
-        # Start echoscu.py and block until association is complete
-        p = start_echoscu([])
+        # Start storescu.py and block until association is complete
+        p = start_storescu([DATASET_FILE])
         p.wait()
         assert p.returncode == 0
 
         scp.shutdown()
 
-        assert events[0].event == evt.EVT_C_ECHO
+        assert events[0].event == evt.EVT_C_STORE
+        assert events[0].dataset.PatientName == "CompressedSamples^CT1"
         assert events[1].event == evt.EVT_RELEASED
         requestor = events[1].assoc.requestor
-        assert b'ECHOSCU         ' == requestor.ae_title
+        assert b'STORESCU        ' == requestor.ae_title
         assert 16382 == requestor.maximum_length
         assert b'ANY-SCP         ' == requestor.primitive.called_ae_title
         assert [] == requestor.extended_negotiation
@@ -84,9 +88,10 @@ class TestEchoSCU(object):
         assert {} == requestor.sop_class_extended
         assert requestor.user_identity == None
         cxs = requestor.primitive.presentation_context_definition_list
-        assert len(cxs) == 1
-        assert cxs[0].abstract_syntax == VerificationSOPClass
-        assert cxs[0].transfer_syntax == [
+        assert len(cxs) == 128
+        cxs = {cx.abstract_syntax: cx for cx in cxs}
+        assert CTImageStorage in cxs
+        assert cxs[CTImageStorage].transfer_syntax == [
             ExplicitVRLittleEndian,
             ImplicitVRLittleEndian,
             DeflatedExplicitVRLittleEndian,
@@ -95,7 +100,7 @@ class TestEchoSCU(object):
 
     def test_no_peer(self, capfd):
         """Test trying to connect to non-existent host."""
-        p = start_echoscu([])
+        p = start_storescu([DATASET_FILE])
         p.wait()
         assert p.returncode == 1
 
@@ -106,23 +111,30 @@ class TestEchoSCU(object):
 
     def test_flag_version(self, capfd):
         """Test --version flag."""
-        p = start_echoscu(['--version'])
+        p = start_storescu([DATASET_FILE, '--version'])
         p.wait()
         assert p.returncode == 0
 
         out, err = capfd.readouterr()
-        assert 'echoscu.py v' in out
+        assert 'storescu.py v' in out
 
     def test_flag_quiet(self, capfd):
         """Test --quiet flag."""
+        def handle_store(event):
+            return 0x0000
+
+        handlers = [
+            (evt.EVT_C_STORE, handle_store),
+        ]
+
         self.ae = ae = AE()
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
         ae.network_timeout = 5
-        ae.add_supported_context(CTImageStorage)
-        scp = ae.start_server(('', 11112), block=False)
+        ae.add_supported_context(VerificationSOPClass)
+        scp = ae.start_server(('', 11112), block=False, evt_handlers=handlers)
 
-        p = start_echoscu(['-q'])
+        p = start_storescu([DATASET_FILE, '-q'])
         p.wait()
         assert p.returncode == 1
 
@@ -133,22 +145,29 @@ class TestEchoSCU(object):
 
     def test_flag_verbose(self, capfd):
         """Test --verbose flag."""
+        def handle_store(event):
+            return 0x0000
+
+        handlers = [
+            (evt.EVT_C_STORE, handle_store),
+        ]
+
         self.ae = ae = AE()
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
         ae.network_timeout = 5
-        ae.add_supported_context(VerificationSOPClass)
-        scp = ae.start_server(('', 11112), block=False)
+        ae.add_supported_context(CTImageStorage)
+        scp = ae.start_server(('', 11112), block=False, evt_handlers=handlers)
 
-        p = start_echoscu(['-v'])
+        p = start_storescu([DATASET_FILE, '-v'])
         p.wait()
         assert p.returncode == 0
 
         out, err = capfd.readouterr()
         assert "Requesting Association" in err
         assert "Association Accepted" in err
-        assert "Sending Echo Request" in err
-        assert "Received Echo Response" in err
+        assert "Sending Store Request" in err
+        assert "Received Store Response" in err
         assert "Releasing Association" in err
         assert "Accept Parameters" not in err
 
@@ -156,14 +175,21 @@ class TestEchoSCU(object):
 
     def test_flag_debug(self, capfd):
         """Test --debug flag."""
+        def handle_store(event):
+            return 0x0000
+
+        handlers = [
+            (evt.EVT_C_STORE, handle_store),
+        ]
+
         self.ae = ae = AE()
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
         ae.network_timeout = 5
-        ae.add_supported_context(VerificationSOPClass)
-        scp = ae.start_server(('', 11112), block=False)
+        ae.add_supported_context(CTImageStorage)
+        scp = ae.start_server(('', 11112), block=False, evt_handlers=handlers)
 
-        p = start_echoscu(['-d'])
+        p = start_storescu([DATASET_FILE, '-d'])
         p.wait()
         assert p.returncode == 0
 
@@ -179,10 +205,10 @@ class TestEchoSCU(object):
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
         ae.network_timeout = 5
-        ae.add_supported_context(VerificationSOPClass)
+        ae.add_supported_context(CTImageStorage)
         scp = ae.start_server(('', 11112), block=False)
 
-        p = start_echoscu(['-q', '-v'])
+        p = start_storescu([DATASET_FILE, '-v', '-d'])
         p.wait()
         assert p.returncode != 0
 
@@ -199,10 +225,10 @@ class TestEchoSCU(object):
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
         ae.network_timeout = 5
-        ae.add_supported_context(CTImageStorage)
+        ae.add_supported_context(VerificationSOPClass)
         scp = ae.start_server(('', 11112), block=False)
 
-        p = start_echoscu(['--log-config', LOG_CONFIG])
+        p = start_storescu([DATASET_FILE, '--log-config', LOG_CONFIG])
         p.wait()
         assert p.returncode == 1
 
@@ -215,71 +241,58 @@ class TestEchoSCU(object):
     def test_flag_aet(self):
         """Test --calling-aet flag."""
         events = []
-
-        def handle_echo(event):
+        def handle_store(event):
             events.append(event)
             return 0x0000
 
-        def handle_release(event):
-            events.append(event)
-
         handlers = [
-            (evt.EVT_C_ECHO, handle_echo),
-            (evt.EVT_RELEASED, handle_release)
+            (evt.EVT_C_STORE, handle_store),
         ]
 
         self.ae = ae = AE()
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
         ae.network_timeout = 5
-        ae.add_supported_context(VerificationSOPClass)
+        ae.add_supported_context(CTImageStorage)
         scp = ae.start_server(('', 11112), block=False, evt_handlers=handlers)
 
-        # Start echoscu.py and block until association is complete
-        p = start_echoscu(['-aet', 'MYSCU'])
+        p = start_storescu([DATASET_FILE, '-aet', 'MYSCU'])
         p.wait()
         assert p.returncode == 0
 
         scp.shutdown()
 
-        assert events[0].event == evt.EVT_C_ECHO
-        assert events[1].event == evt.EVT_RELEASED
-        requestor = events[1].assoc.requestor
+        assert events[0].event == evt.EVT_C_STORE
+        requestor = events[0].assoc.requestor
         assert b'MYSCU           ' == requestor.ae_title
 
     def test_flag_aec(self):
         """Test --called-aet flag."""
         events = []
-
-        def handle_echo(event):
+        def handle_store(event):
             events.append(event)
             return 0x0000
 
-        def handle_release(event):
-            events.append(event)
-
         handlers = [
-            (evt.EVT_C_ECHO, handle_echo),
-            (evt.EVT_RELEASED, handle_release)
+            (evt.EVT_C_STORE, handle_store),
         ]
 
         self.ae = ae = AE()
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
         ae.network_timeout = 5
-        ae.add_supported_context(VerificationSOPClass)
+        ae.add_supported_context(CTImageStorage)
         scp = ae.start_server(('', 11112), block=False, evt_handlers=handlers)
 
         # Start echoscu.py and block until association is complete
-        p = start_echoscu(['-aec', 'YOURSCP'])
+        p = start_storescu([DATASET_FILE, '-aec', 'YOURSCP'])
         p.wait()
         assert p.returncode == 0
 
         scp.shutdown()
 
-        assert events[0].event == evt.EVT_C_ECHO
-        assert events[1].event == evt.EVT_RELEASED
-        requestor = events[1].assoc.requestor
+        assert events[0].event == evt.EVT_C_STORE
+        requestor = events[0].assoc.requestor
         assert b'YOURSCP         ' == requestor.primitive.called_ae_title
 
     def test_flag_ta(self, capfd):
@@ -290,7 +303,7 @@ class TestEchoSCU(object):
             events.append(event)
             time.sleep(0.1)
 
-        def handle_echo(event):
+        def handle_store(event):
             events.append(event)
             return 0x0000
 
@@ -298,7 +311,7 @@ class TestEchoSCU(object):
             events.append(event)
 
         handlers = [
-            (evt.EVT_C_ECHO, handle_echo),
+            (evt.EVT_C_STORE, handle_store),
             (evt.EVT_ABORTED, handle_abort),
             (evt.EVT_REQUESTED, handle_requested),
         ]
@@ -307,11 +320,11 @@ class TestEchoSCU(object):
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
         ae.network_timeout = 5
-        ae.add_supported_context(VerificationSOPClass)
+        ae.add_supported_context(CTImageStorage)
         scp = ae.start_server(('', 11112), block=False, evt_handlers=handlers)
 
         # Start echoscu.py and block until association is complete
-        p = start_echoscu(['-ta', '0.05', '-d'])
+        p = start_storescu([DATASET_FILE, '-ta', '0.05', '-d'])
         p.wait()
         assert p.returncode == 1
 
@@ -328,7 +341,7 @@ class TestEchoSCU(object):
         """Test --dimse-timeout flag."""
         events = []
 
-        def handle_echo(event):
+        def handle_store(event):
             events.append(event)
             time.sleep(0.1)
             return 0x0000
@@ -337,7 +350,7 @@ class TestEchoSCU(object):
             events.append(event)
 
         handlers = [
-            (evt.EVT_C_ECHO, handle_echo),
+            (evt.EVT_C_STORE, handle_store),
             (evt.EVT_ABORTED, handle_abort),
         ]
 
@@ -345,11 +358,11 @@ class TestEchoSCU(object):
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
         ae.network_timeout = 5
-        ae.add_supported_context(VerificationSOPClass)
+        ae.add_supported_context(CTImageStorage)
         scp = ae.start_server(('', 11112), block=False, evt_handlers=handlers)
 
         # Start echoscu.py and block until association is complete
-        p = start_echoscu(['-td', '0.05', '-d'])
+        p = start_storescu([DATASET_FILE, '-td', '0.05', '-d'])
         p.wait()
         assert p.returncode == 0
 
@@ -359,7 +372,7 @@ class TestEchoSCU(object):
 
         out, err = capfd.readouterr()
         assert "DIMSE timeout reached while waiting for message" in err
-        assert events[0].event == evt.EVT_C_ECHO
+        assert events[0].event == evt.EVT_C_STORE
         assert events[1].event == evt.EVT_ABORTED
 
     @pytest.mark.skip("Don't think this can be tested")
@@ -371,7 +384,7 @@ class TestEchoSCU(object):
         """Test --max-pdu flag."""
         events = []
 
-        def handle_echo(event):
+        def handle_store(event):
             events.append(event)
             return 0x0000
 
@@ -379,7 +392,7 @@ class TestEchoSCU(object):
             events.append(event)
 
         handlers = [
-            (evt.EVT_C_ECHO, handle_echo),
+            (evt.EVT_C_STORE, handle_store),
             (evt.EVT_RELEASED, handle_release)
         ]
 
@@ -387,17 +400,17 @@ class TestEchoSCU(object):
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
         ae.network_timeout = 5
-        ae.add_supported_context(VerificationSOPClass)
+        ae.add_supported_context(CTImageStorage)
         scp = ae.start_server(('', 11112), block=False, evt_handlers=handlers)
 
         # Start echoscu.py and block until association is complete
-        p = start_echoscu(['--max-pdu', '123456'])
+        p = start_storescu([DATASET_FILE, '--max-pdu', '123456'])
         p.wait()
         assert p.returncode == 0
 
         scp.shutdown()
 
-        assert events[0].event == evt.EVT_C_ECHO
+        assert events[0].event == evt.EVT_C_STORE
         assert events[1].event == evt.EVT_RELEASED
         requestor = events[1].assoc.requestor
         assert 123456 == requestor.maximum_length
@@ -406,7 +419,7 @@ class TestEchoSCU(object):
         """Test --request-little flag."""
         events = []
 
-        def handle_echo(event):
+        def handle_store(event):
             events.append(event)
             return 0x0000
 
@@ -414,7 +427,7 @@ class TestEchoSCU(object):
             events.append(event)
 
         handlers = [
-            (evt.EVT_C_ECHO, handle_echo),
+            (evt.EVT_C_STORE, handle_store),
             (evt.EVT_RELEASED, handle_release)
         ]
 
@@ -422,29 +435,31 @@ class TestEchoSCU(object):
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
         ae.network_timeout = 5
-        ae.add_supported_context(VerificationSOPClass)
+        ae.add_supported_context(CTImageStorage)
         scp = ae.start_server(('', 11112), block=False, evt_handlers=handlers)
 
         # Start echoscu.py and block until association is complete
-        p = start_echoscu(['-xe'])
+        p = start_storescu([DATASET_FILE, '-xe'])
         p.wait()
         assert p.returncode == 0
 
         scp.shutdown()
 
-        assert events[0].event == evt.EVT_C_ECHO
+        assert events[0].event == evt.EVT_C_STORE
+        assert events[0].dataset.PatientName == 'CompressedSamples^CT1'
         assert events[1].event == evt.EVT_RELEASED
         requestor = events[1].assoc.requestor
         cxs = requestor.primitive.presentation_context_definition_list
-        assert len(cxs) == 1
-        assert cxs[0].abstract_syntax == VerificationSOPClass
-        assert cxs[0].transfer_syntax == [ExplicitVRLittleEndian]
+        assert len(cxs) == 128
+        cxs = {cx.abstract_syntax: cx for cx in cxs}
+        assert CTImageStorage in cxs
+        assert cxs[CTImageStorage].transfer_syntax == [ExplicitVRLittleEndian]
 
     def test_flag_xb(self):
         """Test --request-big flag."""
         events = []
 
-        def handle_echo(event):
+        def handle_store(event):
             events.append(event)
             return 0x0000
 
@@ -452,7 +467,7 @@ class TestEchoSCU(object):
             events.append(event)
 
         handlers = [
-            (evt.EVT_C_ECHO, handle_echo),
+            (evt.EVT_C_STORE, handle_store),
             (evt.EVT_RELEASED, handle_release)
         ]
 
@@ -460,29 +475,32 @@ class TestEchoSCU(object):
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
         ae.network_timeout = 5
-        ae.add_supported_context(VerificationSOPClass)
+        ae.add_supported_context(CTImageStorage)
         scp = ae.start_server(('', 11112), block=False, evt_handlers=handlers)
 
         # Start echoscu.py and block until association is complete
-        p = start_echoscu(['-xb'])
+        p = start_storescu([DATASET_FILE, '-xb'])
         p.wait()
         assert p.returncode == 0
 
         scp.shutdown()
 
-        assert events[0].event == evt.EVT_C_ECHO
+        assert events[0].event == evt.EVT_C_STORE
+        assert events[0].dataset.PatientName == 'CompressedSamples^CT1'
         assert events[1].event == evt.EVT_RELEASED
         requestor = events[1].assoc.requestor
         cxs = requestor.primitive.presentation_context_definition_list
-        assert len(cxs) == 1
-        assert cxs[0].abstract_syntax == VerificationSOPClass
-        assert cxs[0].transfer_syntax == [ExplicitVRBigEndian]
+        cxs = requestor.primitive.presentation_context_definition_list
+        assert len(cxs) == 128
+        cxs = {cx.abstract_syntax: cx for cx in cxs}
+        assert CTImageStorage in cxs
+        assert cxs[CTImageStorage].transfer_syntax == [ExplicitVRBigEndian]
 
     def test_flag_xi(self):
         """Test --request-implicit flag."""
         events = []
 
-        def handle_echo(event):
+        def handle_store(event):
             events.append(event)
             return 0x0000
 
@@ -490,7 +508,7 @@ class TestEchoSCU(object):
             events.append(event)
 
         handlers = [
-            (evt.EVT_C_ECHO, handle_echo),
+            (evt.EVT_C_STORE, handle_store),
             (evt.EVT_RELEASED, handle_release)
         ]
 
@@ -498,29 +516,32 @@ class TestEchoSCU(object):
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
         ae.network_timeout = 5
-        ae.add_supported_context(VerificationSOPClass)
+        ae.add_supported_context(CTImageStorage)
         scp = ae.start_server(('', 11112), block=False, evt_handlers=handlers)
 
         # Start echoscu.py and block until association is complete
-        p = start_echoscu(['-xi'])
+        p = start_storescu([DATASET_FILE, '-xi'])
         p.wait()
         assert p.returncode == 0
 
         scp.shutdown()
 
-        assert events[0].event == evt.EVT_C_ECHO
+        assert events[0].event == evt.EVT_C_STORE
+        assert events[0].dataset.PatientName == 'CompressedSamples^CT1'
         assert events[1].event == evt.EVT_RELEASED
         requestor = events[1].assoc.requestor
         cxs = requestor.primitive.presentation_context_definition_list
-        assert len(cxs) == 1
-        assert cxs[0].abstract_syntax == VerificationSOPClass
-        assert cxs[0].transfer_syntax == [ImplicitVRLittleEndian]
+        cxs = requestor.primitive.presentation_context_definition_list
+        assert len(cxs) == 128
+        cxs = {cx.abstract_syntax: cx for cx in cxs}
+        assert CTImageStorage in cxs
+        assert cxs[CTImageStorage].transfer_syntax == [ImplicitVRLittleEndian]
 
-    def test_flag_repeat(self):
-        """Test --repeat flag."""
+    def test_flag_single_cx(self):
+        """Test --single-context flag."""
         events = []
 
-        def handle_echo(event):
+        def handle_store(event):
             events.append(event)
             return 0x0000
 
@@ -528,7 +549,7 @@ class TestEchoSCU(object):
             events.append(event)
 
         handlers = [
-            (evt.EVT_C_ECHO, handle_echo),
+            (evt.EVT_C_STORE, handle_store),
             (evt.EVT_RELEASED, handle_release)
         ]
 
@@ -536,54 +557,29 @@ class TestEchoSCU(object):
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
         ae.network_timeout = 5
-        ae.add_supported_context(VerificationSOPClass)
+        ae.add_supported_context(CTImageStorage)
         scp = ae.start_server(('', 11112), block=False, evt_handlers=handlers)
 
         # Start echoscu.py and block until association is complete
-        p = start_echoscu(['--repeat', '3'])
+        p = start_storescu([DATASET_FILE, '-cx'])
         p.wait()
         assert p.returncode == 0
 
         scp.shutdown()
 
-        assert events[0].event == evt.EVT_C_ECHO
-        assert events[1].event == evt.EVT_C_ECHO
-        assert events[2].event == evt.EVT_C_ECHO
-        assert events[3].event == evt.EVT_RELEASED
+        ds = dcmread(DATASET_FILE)
+        tsyntax = ds.file_meta.TransferSyntaxUID
+        requestor = events[0].assoc.requestor
+        cxs = requestor.primitive.presentation_context_definition_list
+        assert len(cxs) == 1
+        assert cxs[0].abstract_syntax == CTImageStorage
+        assert cxs[0].transfer_syntax == [tsyntax]
 
-    def test_flag_abort(self):
-        """Test --abort flag."""
-        events = []
-
-        def handle_echo(event):
-            events.append(event)
-            return 0x0000
-
-        def handle_release(event):
-            events.append(event)
-
-        def handle_abort(event):
-            events.append(event)
-
-        handlers = [
-            (evt.EVT_C_ECHO, handle_echo),
-            (evt.EVT_RELEASED, handle_release),
-            (evt.EVT_ABORTED, handle_abort),
-        ]
-
-        self.ae = ae = AE()
-        ae.acse_timeout = 5
-        ae.dimse_timeout = 5
-        ae.network_timeout = 5
-        ae.add_supported_context(VerificationSOPClass)
-        scp = ae.start_server(('', 11112), block=False, evt_handlers=handlers)
-
-        # Start echoscu.py and block until association is complete
-        p = start_echoscu(['--abort'])
+    def test_bad_input(self, capfd):
+        """Test being unable to read the input file."""
+        p = start_storescu(['no-such-file.dcm'])
         p.wait()
-        assert p.returncode == 0
+        assert p.returncode == 1
 
-        scp.shutdown()
-
-        assert events[0].event == evt.EVT_C_ECHO
-        assert events[1].event == evt.EVT_ABORTED
+        out, err = capfd.readouterr()
+        assert 'Cannot read input file no-such-file.dcm' in err
