@@ -24,7 +24,7 @@ from pynetdicom.apps.common import (
 )
 
 
-__version__ = '0.0.0'
+__version__ = '0.0.0alpha1'
 
 
 def _setup_argparser():

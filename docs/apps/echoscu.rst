@@ -11,8 +11,9 @@ Association with a peer Application Entity (AE) which it then sends a DICOM
 :dcm:`C-ECHO-RQ<part07/sect_9.3.5.html#sect_9.3.5.1>` message and waits for a
 response. The application can be used to verify basic DICOM connectivity.
 
-The following simple example shows what happens when it is succesfully run on
-an SCP that supports the *Verification Service*:
+The following simple example shows what happens when it's succesfully run on
+an SCP at IP 127.0.0.1 and listen port 11112 that supports the *Verification
+Service*:
 
 .. code-block:: text
 
@@ -99,11 +100,11 @@ Network Options
             set the local AE title (default: ``ECHOSCU``)
 ``-aec  --called-aet [a]etitle (str)``
             set the called AE title for the peer AE (default: ``ANY-SCP``)
-``-ta   --acse-timeout [s]econds (int)``
+``-ta   --acse-timeout [s]econds (float)``
             timeout for ACSE messages (default: ``30``)
-``-td   --dimse-timeout [s]econdsr (int)``
+``-td   --dimse-timeout [s]econdsr (float)``
             timeout for DIMSE messages (default: ``30``)
-``-tn   --network-timeout [s]econdsr (int)``
+``-tn   --network-timeout [s]econdsr (float)``
             timeout for the network (default: ``30``)
 ``-pdu  --max-pdu [n]umber of bytes (int)``
             set maximum receive PDU bytes to n bytes (default: ``16384``)

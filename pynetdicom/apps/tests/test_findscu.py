@@ -97,7 +97,6 @@ class TestFindSCU(object):
         )
         scp = ae.start_server(('', 11112), block=False, evt_handlers=handlers)
 
-        # Start storescu.py and block until association is complete
         p = start_findscu(['-k', "PatientName="])
         p.wait()
         assert p.returncode == 0

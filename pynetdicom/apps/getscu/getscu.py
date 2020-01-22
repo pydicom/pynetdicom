@@ -174,7 +174,7 @@ def _setup_argparser():
     out_opts = parser.add_argument_group('Output Options')
     out_opts.add_argument(
         '-od', "--output-directory", metavar="[d]irectory",
-        help="write received objects to existing directory d",
+        help="write received objects to directory d",
         type=str
     )
 

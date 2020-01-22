@@ -81,7 +81,6 @@ class TestEchoSCU(object):
         ae.add_supported_context(VerificationSOPClass)
         scp = ae.start_server(('', 11112), block=False, evt_handlers=handlers)
 
-        # Start echoscu.py and block until association is complete
         p = start_echoscu([])
         p.wait()
         assert p.returncode == 0
@@ -242,7 +241,6 @@ class TestEchoSCU(object):
         ae.add_supported_context(VerificationSOPClass)
         scp = ae.start_server(('', 11112), block=False, evt_handlers=handlers)
 
-        # Start echoscu.py and block until association is complete
         p = start_echoscu(['-aet', 'MYSCU'])
         p.wait()
         assert p.returncode == 0
@@ -277,7 +275,6 @@ class TestEchoSCU(object):
         ae.add_supported_context(VerificationSOPClass)
         scp = ae.start_server(('', 11112), block=False, evt_handlers=handlers)
 
-        # Start echoscu.py and block until association is complete
         p = start_echoscu(['-aec', 'YOURSCP'])
         p.wait()
         assert p.returncode == 0
@@ -317,7 +314,6 @@ class TestEchoSCU(object):
         ae.add_supported_context(VerificationSOPClass)
         scp = ae.start_server(('', 11112), block=False, evt_handlers=handlers)
 
-        # Start echoscu.py and block until association is complete
         p = start_echoscu(['-ta', '0.05', '-d'])
         p.wait()
         assert p.returncode == 1
@@ -355,7 +351,6 @@ class TestEchoSCU(object):
         ae.add_supported_context(VerificationSOPClass)
         scp = ae.start_server(('', 11112), block=False, evt_handlers=handlers)
 
-        # Start echoscu.py and block until association is complete
         p = start_echoscu(['-td', '0.05', '-d'])
         p.wait()
         assert p.returncode == 0
@@ -397,7 +392,6 @@ class TestEchoSCU(object):
         ae.add_supported_context(VerificationSOPClass)
         scp = ae.start_server(('', 11112), block=False, evt_handlers=handlers)
 
-        # Start echoscu.py and block until association is complete
         p = start_echoscu(['--max-pdu', '123456'])
         p.wait()
         assert p.returncode == 0
@@ -432,7 +426,6 @@ class TestEchoSCU(object):
         ae.add_supported_context(VerificationSOPClass)
         scp = ae.start_server(('', 11112), block=False, evt_handlers=handlers)
 
-        # Start echoscu.py and block until association is complete
         p = start_echoscu(['-xe'])
         p.wait()
         assert p.returncode == 0
@@ -470,7 +463,6 @@ class TestEchoSCU(object):
         ae.add_supported_context(VerificationSOPClass)
         scp = ae.start_server(('', 11112), block=False, evt_handlers=handlers)
 
-        # Start echoscu.py and block until association is complete
         p = start_echoscu(['-xb'])
         p.wait()
         assert p.returncode == 0
@@ -508,7 +500,6 @@ class TestEchoSCU(object):
         ae.add_supported_context(VerificationSOPClass)
         scp = ae.start_server(('', 11112), block=False, evt_handlers=handlers)
 
-        # Start echoscu.py and block until association is complete
         p = start_echoscu(['-xi'])
         p.wait()
         assert p.returncode == 0
@@ -546,7 +537,6 @@ class TestEchoSCU(object):
         ae.add_supported_context(VerificationSOPClass)
         scp = ae.start_server(('', 11112), block=False, evt_handlers=handlers)
 
-        # Start echoscu.py and block until association is complete
         p = start_echoscu(['--repeat', '3'])
         p.wait()
         assert p.returncode == 0
@@ -585,7 +575,6 @@ class TestEchoSCU(object):
         ae.add_supported_context(VerificationSOPClass)
         scp = ae.start_server(('', 11112), block=False, evt_handlers=handlers)
 
-        # Start echoscu.py and block until association is complete
         p = start_echoscu(['--abort'])
         p.wait()
         assert p.returncode == 0

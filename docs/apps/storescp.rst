@@ -103,7 +103,7 @@ Preferred Transfer Syntaxes
 Output
 ------
     ``-od   --output-directory [d]irectory (str)``
-              write received objects to existing directory d
+              write received objects to directory d
 
 
 DICOM Conformance

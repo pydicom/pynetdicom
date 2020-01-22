@@ -194,7 +194,7 @@ def _setup_argparser():
         default=11113
     )
     store_group.add_argument(
-        "--store_aet",
+        "--store-aet",
         help="the AE title to use for the Storage SCP",
         type=str,
         default="STORESCP"
@@ -204,7 +204,7 @@ def _setup_argparser():
     out_opts = parser.add_argument_group('Output Options')
     out_opts.add_argument(
         '-od', "--output-directory", metavar="[d]irectory",
-        help="write received objects to existing directory d",
+        help="write received objects to directory d",
         type=str
     )
 
@@ -217,7 +217,9 @@ def _setup_argparser():
     )
 
     ns = parser.parse_args()
-    if not bool(ns.file) and not bool(ns.keyword):
+    if ns.version:
+        pass
+    elif not bool(ns.file) and not bool(ns.keyword):
         parser.error('-f and/or -k must be specified')
 
     return ns
@@ -261,8 +263,6 @@ if __name__ == "__main__":
 
         # Add the file meta information elements
         ds.file_meta = event.file_meta
-        ds.is_little_endian = ds.file_meta.TransferSyntaxUID.is_little_endian
-        ds.is_implicit_VR = ds.file_meta.TransferSyntaxUID.is_implicit_VR
 
         # Because pydicom uses deferred reads for its decoding, decoding errors
         #   are hidden until encountered by accessing a faulty element
@@ -296,6 +296,15 @@ if __name__ == "__main__":
         # Try to save to output-directory
         if args.output_directory is not None:
             filename = os.path.join(args.output_directory, filename)
+            try:
+                os.makedirs(args.output_directory)
+            except Exception as exc:
+                APP_LOGGER.error('Unable to create the output directory:')
+                APP_LOGGER.error("    {0!s}".format(args.output_directory))
+                APP_LOGGER.exception(exc)
+                # Failed - Out of Resources - IOError
+                status.Status = 0xA700
+                return status
 
         try:
             # We use `write_like_original=False` to ensure that a compliant
@@ -358,7 +367,12 @@ if __name__ == "__main__":
                 pass
 
         assoc.release()
+        _EXIT_VALUE = 0
+    else:
+        _EXIT_VALUE = 1
 
     # Shutdown the Storage SCP (if used)
     if scp:
         scp.shutdown()
+
+    sys.exit(_EXIT_VALUE)
