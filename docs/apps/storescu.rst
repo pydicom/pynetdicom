@@ -8,7 +8,7 @@ Description
 The ``storescu`` application implements a *Service Class User* (SCU) for
 the :dcm:`Storage Service Class<part04/chapter_B.html>`. It requests an
 association with a peer Application Entity on IP address ``addr`` and listen
-port ``port`` and, once an association is established, requests the transfer
+port ``port`` and once established requests the transfer
 of the SOP Instance in ``dcmfile-in``.
 
 The following example shows what happens when it is succesfully run on

@@ -184,7 +184,6 @@ if __name__ == "__main__":
         transfer_syntax = [ImplicitVRLittleEndian]
 
     # Create local AE
-    # Binding to port 0, OS will pick an available port
     ae = AE(ae_title=args.calling_aet)
     ae.add_requested_context(VerificationSOPClass, transfer_syntax)
 
@@ -198,7 +197,7 @@ if __name__ == "__main__":
         args.addr, args.port, ae_title=args.called_aet, max_pdu=args.max_pdu
     )
 
-    # If we successfully Associated then send N DIMSE C-ECHOs
+    # If we successfully associated then send C-ECHO
     if assoc.is_established:
         for ii in range(args.repeat):
             # `status` is a pydicom Dataset
@@ -210,4 +209,5 @@ if __name__ == "__main__":
         else:
             assoc.release()
     else:
+        # Failed to associate: timeout, refused, connection closed, aborted
         sys.exit(1)

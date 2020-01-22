@@ -101,9 +101,9 @@ class ElementPath(object):
 
     >>> ElementPath('PixelData=00ffea08')
 
-    Elements with VM > 1 can be set by using '\' (where appropriate)
+    Elements with VM > 1 can be set by using '\\' (where appropriate)
 
-    >>> ElementPath('AcquisitionIndex=1\2\3\4')
+    >>> ElementPath('AcquisitionIndex=1\\2\\3\\4')
 
     Empty (300a,00b0) *Beam Sequence*
 

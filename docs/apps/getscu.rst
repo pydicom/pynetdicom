@@ -8,9 +8,9 @@ Description
 The ``getscu`` application implements a *Service Class User* (SCU) for
 the :dcm:`Query/Retrieve Service Class<part04/chapter_C.html>`. It requests an
 association with a peer Application Entity on IP address ``addr`` and listen
-port ``port`` and, once an Association is established, requests the SCP search
-its stored SOP Instances for matches to a query and then transfer them to the
-SCU.
+port ``port`` and once established, sends a query to be matched against the
+SCP's managed SOP Instances. The SCP then responds by sending a copy of the
+matching SOP Instances to the Get SCU (i.e. it acts as a Store SCP).
 
 The following example shows what happens when it is succesfully run on
 an SCP at IP 127.0.0.1 and listen port 11112 that supports the *QR Get

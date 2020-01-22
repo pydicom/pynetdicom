@@ -7,7 +7,7 @@ Description
 ===========
 The ``echoscu`` application implements a Service Class User (SCU) for the
 :dcm:`Verification Service Class<part04/chapter_A.html>`. It establishes an
-Association with a peer Application Entity (AE) which it then sends a DICOM
+association with a peer Application Entity (AE), sends a DICOM
 :dcm:`C-ECHO-RQ<part07/sect_9.3.5.html#sect_9.3.5.1>` message and waits for a
 response. The application can be used to verify basic DICOM connectivity.
 
@@ -20,7 +20,7 @@ Service*:
     user@host: python echoscu.py 127.0.0.1 11112
     user@host:
 
-When attempting to send a C-ECHO to an SCP that doesn't support the
+When attempting to send a C-ECHO request to an SCP that doesn't support the
 *Verification Service*:
 
 .. code-block:: text
@@ -29,7 +29,7 @@ When attempting to send a C-ECHO to an SCP that doesn't support the
     E: No accepted presentation contexts
     user@host:
 
-When the Association request is rejected by the SCP (in this case because the
+When the association request is rejected by the SCP (in this case because the
 called AE title wasn't recognised):
 
 .. code-block:: text
@@ -136,7 +136,7 @@ The ``echoscu`` application supports the following SOP Class as an SCU:
 |1.2.840.10008.1.1       | Verification SOP Class                             |
 +------------------------+----------------------------------------------------+
 
-The application will request presentation contexts using these transfer
+The application will request a presentation context using these transfer
 syntaxes:
 
 +------------------------+----------------------------------------------------+

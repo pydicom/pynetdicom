@@ -2,17 +2,17 @@ Keyword pathing
 ===============
 
 When using the `-k keyword` option it becomes possible to specify the
-*Identifier* without needing to create a DICOM file. Multiple instances of `-k`
-can be used to build up the *Identifier*. For example, this will produce an
-*Identifier* with (0008,0052) *Query Retrieve Level* and (0010,0010) *Patient
-Name* elements:
+query dataset (the *Identifier*) without needing to create a DICOM file.
+Multiple instances of `-k` can be used to build up the *Identifier*. For
+example, this will produce an *Identifier* with (0008,0052) *Query Retrieve
+Level* and (0010,0010) *Patient Name* elements:
 
 .. code-block:: text
 
     -k QueryRetrieveLevel=PATIENT -k PatientName=
 
-The value after the ``=`` is automatically interpreted as a
-:class:`str`, so including any single or double quotation marks will result in
+The value after the ``=`` is interpreted as the element's value, so including
+any single or double quotation marks will result in
 an incorrect element value. ``PatientName=Citizen^Jan`` is correct,
 ``PatientName="Citizen^Jan"`` is not.
 
@@ -98,6 +98,22 @@ Empty (300a,00b0) *Beam Sequence*:
 
        ---------
 
+*Beam Sequence* with 4 empty items:
+
+.. code-block:: text
+
+    -k BeamSequence[3]=
+
+    (300a, 00b0)  Beam Sequence   4 item(s) ----
+
+       ---------
+
+       ---------
+
+       ---------
+
+       ---------
+
 *Beam Sequence* with one non-empty item:
 
 .. code-block:: text
@@ -120,18 +136,18 @@ Nested sequence items:
           ---------
        ---------
 
-*Beam Sequence* with 4 empty items:
+       *Beam Sequence* with 4 empty items:
 
-.. code-block:: text
+       .. code-block:: text
 
-    -k BeamSequence[3]=
+           -k BeamSequence[3]=
 
-    (300a, 00b0)  Beam Sequence   4 item(s) ----
+           (300a, 00b0)  Beam Sequence   4 item(s) ----
 
-       ---------
+              ---------
 
-       ---------
+              ---------
 
-       ---------
+              ---------
 
-       ---------
+              ---------

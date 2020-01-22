@@ -8,9 +8,9 @@ Description
 The ``movescu`` application implements a *Service Class User* (SCU) for
 the :dcm:`Query/Retrieve Service Class<part04/chapter_C.html>`. It requests an
 association with a peer Application Entity on IP address ``addr`` and listen
-port ``port`` and, once an Association is established, requests the SCP search
-its stored SOP Instances for matches to a query and then transfer them to the
-the move destination Storage SCP.
+port ``port`` and once established, sends a query to be matched against the
+SCP's managed SOP Instances. The SCP then responds by sending a copy of the
+matching SOP Instances to the Store SCP specified using the Move AE title.
 
 The following example shows what happens when it is succesfully run on
 an SCP at IP 127.0.0.1 and listen port 11112 that supports the *QR Move
@@ -34,9 +34,11 @@ Service* with the default Move AE title ``STORESCP``:
     I: Releasing Association
     user@host:
 
-You can also use the ``--store`` option to start a Storage SCP on port
+The Move AE title can be specified using the ``-aem aetitle`` flag.
+
+You can also use the ``--store`` option to start a Store SCP on port
 ``11113`` that can be used as the move destination. The AE title and port of
-the Storage SCP can be configured using the ``--store-aet`` and
+the Store SCP can be configured using the ``--store-aet`` and
 ``--store-port`` flags:
 
 .. code-block:: text
@@ -137,9 +139,9 @@ Query Options
 Output Options
 --------------
 ``-od [d]irectory, --output-directory [d]irectory``
-            write received objects to directory ``d``
+            write received objects to directory ``d`` (with ``--store``)
 ``--ignore``
-            receive data but don't store it
+            receive data but don't store it (with ``--store``)
 
 
 .. include:: keyword_pathing.rst
