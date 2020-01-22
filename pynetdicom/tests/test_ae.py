@@ -382,6 +382,9 @@ class TestAEGoodAssociation(object):
         assert assoc.acceptor.maximum_length == 54321
         assoc.release()
 
+        time.sleep(0.1)
+        assert scp.active_associations == []
+
         # Check 0 max pdu value - max PDU value maps to 0x10000 internally
         assoc = scu_ae.associate('localhost', 11112, max_pdu=0)
         assert assoc.requestor.maximum_length == 0
