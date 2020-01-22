@@ -1,4 +1,5 @@
-"""Unit tests for the Dataset utilities."""
+"""Unit tests for the dataset utilities."""
+
 from copy import deepcopy
 from io import BytesIO
 import logging
@@ -8,11 +9,11 @@ import pytest
 from pydicom.dataset import Dataset
 from pydicom.dataelem import DataElement
 
+from pynetdicom import debug_logger
 from pynetdicom.dsutils import decode, encode, encode_element
 
-LOGGER = logging.getLogger('pynetdicom')
-handler = logging.StreamHandler()
-LOGGER.setLevel(logging.CRITICAL)
+
+#debug_logger()
 
 
 class TestEncode(object):

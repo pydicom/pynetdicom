@@ -1,4 +1,4 @@
-"""DICOM Dataset utility functions."""
+"""DICOM dataset utility functions."""
 
 import logging
 

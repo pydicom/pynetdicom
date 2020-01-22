@@ -968,7 +968,7 @@ def _send_c_find_rsp(event):
         s.append('Affected SOP Class UID        : {0!s}'
                  .format(cs.AffectedSOPClassUID.name))
     s.append('Identifier                    : {0!s}'.format(dataset))
-    s.append('DIMSE Status                  : 0x{0:04x}'.format(cs.Status))
+    s.append('Status                        : 0x{0:04X}'.format(cs.Status))
     s.append('{:=^76}'.format(' END DIMSE MESSAGE '))
 
     for line in s:
@@ -1051,7 +1051,7 @@ def _send_c_get_rsp(event):
         s.append('Affected SOP Class UID        : {0!s}'
                  .format(affected_sop))
     s.append('Identifier                    : {0!s}'.format(dataset))
-    s.append('DIMSE Status                  : 0x{0:04x}'.format(cs.Status))
+    s.append('Status                        : 0x{0:04X}'.format(cs.Status))
     s.append('{:=^76}'.format(' END DIMSE MESSAGE '))
 
     for line in s:
@@ -1138,7 +1138,7 @@ def _send_c_move_rsp(event):
     else:
         s.append('Affected SOP Class UID        : None')
     s.append('Identifier                    : {0!s}'.format(identifier))
-    s.append('Status                        : 0x{0:04x}'.format(cs.Status))
+    s.append('Status                        : 0x{0:04X}'.format(cs.Status))
     s.append('{:=^76}'.format(' END DIMSE MESSAGE '))
 
     for line in s:
@@ -1212,7 +1212,7 @@ def _recv_c_echo_rsp(event):
     if cs.Status == 0x0000:
         status_str = 'Success'
     else:
-        status_str = '0x{0:04x} - Unknown'.format(cs.Status)
+        status_str = '0x{0:04X} - Unknown'.format(cs.Status)
     LOGGER.info("Received Echo Response (Status: %s)", status_str)
 
 def _recv_c_store_rq(event):
@@ -1286,15 +1286,15 @@ def _recv_c_store_rsp(event):
     cs = msg.command_set
 
     # See PS3.4 Annex B.2.3 for Storage Service Class Statuses
-    status_str = '0x{0:04x} - Unknown'.format(cs.Status)
+    status_str = '0x{0:04X} - Unknown'.format(cs.Status)
     # Try and get the status from the affected SOP class UID
     if 'AffectedSOPClassUID' in cs:
         service_class = uid_to_service_class(cs.AffectedSOPClassUID)
         if cs.Status in service_class.statuses:
             status = service_class.statuses[cs.Status]
-            status_str = '0x{0:04x} - {1}'.format(cs.Status, status[0])
+            status_str = '0x{0:04X} - {1}'.format(cs.Status, status[0])
 
-    LOGGER.info('Received Store Response')
+    LOGGER.info('Received Store Response (Status: {})'.format(status_str))
     s = []
     s.append('{:=^76}'.format(' INCOMING DIMSE MESSAGE '))
     s.append('Message Type                  : {0!s}'.format('C-STORE RSP'))
@@ -1308,7 +1308,7 @@ def _recv_c_store_rsp(event):
     if 'AffectedSOPInstanceUID' in cs:
         s.append('Affected SOP Instance UID     : {0!s}'
                  .format(cs.AffectedSOPInstanceUID))
-    s.append('DIMSE Status                  : {0!s}'.format(status_str))
+    s.append('Status                        : {0!s}'.format(status_str))
     s.append('{:=^76}'.format(' END DIMSE MESSAGE '))
 
     for line in s:
@@ -1388,7 +1388,7 @@ def _recv_c_find_rsp(event):
         s.append('Affected SOP Class UID        : {0!s}'
                  .format(cs.AffectedSOPClassUID.name))
     s.append('Identifier                    : {0!s}'.format(dataset))
-    s.append('DIMSE Status                  : 0x{0:04x}'.format(cs.Status))
+    s.append('Status                        : 0x{0:04X}'.format(cs.Status))
     s.append('{:=^76}'.format(' END DIMSE MESSAGE '))
 
     for line in s:
@@ -1507,7 +1507,7 @@ def _recv_c_get_rsp(event):
         s.append('Warning Sub-operations        : {0!s}'
                  .format(cs.NumberOfWarningSuboperations))
     s.append('Identifier                    : {0!s}'.format(dataset))
-    s.append('DIMSE Status                  : 0x{0:04x}'.format(cs.Status))
+    s.append('Status                        : 0x{0:04X}'.format(cs.Status))
     s.append('{:=^76}'.format(' END DIMSE MESSAGE '))
 
     for line in s:
@@ -1579,7 +1579,7 @@ def _recv_c_move_rsp(event):
         s.append('Warning Sub-operations        : {0!s}'
                  .format(cs.NumberOfWarningSuboperations))
     s.append('Identifier                    : {0!s}'.format(identifier))
-    s.append('DIMSE Status                  : 0x{0:04x}'.format(cs.Status))
+    s.append('Status                        : 0x{0:04X}'.format(cs.Status))
     s.append('{:=^76}'.format(' END DIMSE MESSAGE '))
 
     for line in s:
@@ -1649,7 +1649,7 @@ def _send_n_event_report_rsp(event):
             .format(cs.EventTypeID)
         )
     s.append('Event Reply                   : {0!s}'.format(evt_reply))
-    s.append('Status                        : 0x{0:04x}'.format(cs.Status))
+    s.append('Status                        : 0x{0:04X}'.format(cs.Status))
     s.append('{:=^76}'.format(' END DIMSE MESSAGE '))
     for line in s:
         LOGGER.debug(line)
@@ -1713,7 +1713,7 @@ def _send_n_get_rsp(event):
         s.append('Affected SOP Instance UID     : {0!s}'
                  .format(cs.AffectedSOPInstanceUID))
     s.append('Attribute List                : {0!s}'.format(attr_list))
-    s.append('Status                        : 0x{0:04x}'.format(cs.Status))
+    s.append('Status                        : 0x{0:04X}'.format(cs.Status))
     s.append('{:=^76}'.format(' END DIMSE MESSAGE '))
     for line in s:
         LOGGER.debug(line)
@@ -1773,7 +1773,7 @@ def _send_n_set_rsp(event):
         s.append('Affected SOP Instance UID     : {0!s}'
                  .format(cs.AffectedSOPInstanceUID))
     s.append('Attribute List                : {0!s}'.format(attr_list))
-    s.append('Status                        : 0x{0:04x}'.format(cs.Status))
+    s.append('Status                        : 0x{0:04X}'.format(cs.Status))
     s.append('{:=^76}'.format(' END DIMSE MESSAGE '))
     for line in s:
         LOGGER.debug(line)
@@ -1863,7 +1863,7 @@ def _send_n_delete_rsp(event):
     if 'AffectedSOPInstanceUID' in cs:
         s.append('Affected SOP Instance UID     : {0!s}'
                  .format(cs.AffectedSOPInstanceUID))
-    s.append('Status                        : 0x{0:04x}'.format(cs.Status))
+    s.append('Status                        : 0x{0:04X}'.format(cs.Status))
     s.append('{:=^76}'.format(' END DIMSE MESSAGE '))
     for line in s:
         LOGGER.debug(line)
@@ -1928,7 +1928,7 @@ def _recv_n_get_rsp(event):
         s.append('Affected SOP Instance UID     : {0!s}'
                  .format(cs.AffectedSOPInstanceUID))
     s.append('Attribute List                : {0!s}'.format(dataset))
-    s.append('Status                        : 0x{0:04x}'.format(cs.Status))
+    s.append('Status                        : 0x{0:04X}'.format(cs.Status))
     s.append('{:=^76}'.format(' END DIMSE MESSAGE '))
 
     for line in s:

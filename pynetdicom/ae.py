@@ -575,7 +575,7 @@ class ApplicationEntity(object):
 
     @property
     def dimse_timeout(self):
-        """Return the DIMSE timeout as class:`int` (in seconds)."""
+        """Return the DIMSE timeout (in seconds)."""
         return self._dimse_timeout
 
     @dimse_timeout.setter

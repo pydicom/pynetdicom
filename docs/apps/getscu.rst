@@ -1,127 +1,152 @@
-========
-storescp
-========
-    ``storescp [options] port``
+=======
+getscu
+=======
+    ``getscu.py [options] addr port (-k keyword and/or -f file-in)``
 
 Description
 ===========
-The ``storescp`` application implements a *Service Class Provider* (SCP) for
-the *Storage Service Class*. It listens on the specified port for
-Association requests from peer Application Entities (AEs) and, once an
-Association is established, allows Storage SCUs transfer SOP Instances
-with SOP Classes matching the presentation contexts accepted during Association
-negotation.
+The ``getscu`` application implements a *Service Class User* (SCU) for
+the :dcm:`Query/Retrieve Service Class<part04/chapter_C.html>`. It requests an
+association with a peer Application Entity on IP address ``addr`` and listen
+port ``port`` and once established, sends a query to be matched against the
+SCP's managed SOP Instances. The SCP then responds by sending a copy of the
+matching SOP Instances to the Get SCU (i.e. it acts as a Store SCP).
 
-The following example shows what happens when it is started and receives
-a C-STORE request from a peer:
+The following example shows what happens when it is succesfully run on
+an SCP at IP 127.0.0.1 and listen port 11112 that supports the *QR Get
+Service*:
 
-::
+.. code-block:: text
 
-   user@host: storescp 11112
-
-
-More information is available when a connection is received while running with
-the ``-v`` option:
-
-::
-
-    user@host: storescp 11112 -v
-    I: Association Received
+    user@host: python getscu.py 127.0.0.1 11112 -k QueryRetrieveLevel=PATIENT -k PatientName=
+    I: Requesting Association
     I: Association Accepted
-    I: Received Store Requeset
-    I: Storing DICOM file: CT.1.2.3.4.5.6
-    I: Association Released
-
-Much more information is available when a connection is received while
-running with the ``-d`` option:
-
-::
-
-    user@host: storescp 11112 -d
-    D: $storescp.py v0.3.2
-    D:
-    I: Association Received
-    D: Request Parameters:
-    D: ====================== BEGIN A-ASSOCIATE-RQ =====================
-    ...
-    D: ======================= END A-ASSOCIATE-AC ======================
-    D: pydicom.read_dataset() TransferSyntax="Little Endian Implicit"
+    I: Sending Get Request: MsgID 1
+    I:
+    I: # Request Identifier
+    I: (0008, 0052) Query/Retrieve Level                CS: 'PATIENT'
+    I: (0010, 0010) Patient's Name                      PN: ''
+    I:
     I: Received Store Request
-    D: ===================== INCOMING DIMSE MESSAGE ====================
-    D: Message Type                  : C-STORE RQ
-    D: Presentation Context ID       : 41
-    D: Message ID                    : 1
-    D: Affected SOP Class UID        : 1.2.840.10008.5.1.4.1.1.2
-    D: Affected SOP Instance UID     : 1.2.3.4.5.6
-    D: Data Set                      : Present
-    D: Priority                      : Low
-    D: ======================= END DIMSE MESSAGE =======================
-    D: pydicom.read_dataset() TransferSyntax="Little Endian Explicit"
-    I: Storing DICOM file: CT.1.2.3.4.5.6
-    I: Association Released
+    I: Storing DICOM file: CT.1.3.6.1.4.1.5962.1.1.1.1.1.20040119072730.12322
+    I: Get SCP Response: 1 - 0xFF00 (Pending)
+    I: Sub-Operations Remaining: 0, Completed: 1, Failed: 0, Warning: 0
+    I: Get SCP Result: 0x0000 (Success)
+    I: Sub-Operations Remaining: 0, Completed: 1, Failed: 0, Warning: 0
+    I: Releasing Association
+    user@host:
+
+Parameters
+==========
+``addr``
+            TCP/IP address or hostname of DICOM peer
+``port``
+            TCP/IP port number of peer
 
 Options
 =======
-Logging
--------
-    ``-q    --quiet``
-              quiet mode, prints no warnings or errors
-    ``-v    --verbose``
-              verbose mode, prints processing details
-    ``-d    --debug``
-              debug mode, prints debugging information
+General Options
+---------------
+``-q    --quiet``
+            quiet mode, prints no warnings or errors
+``-v    --verbose``
+            verbose mode, prints processing details
+``-d    --debug``
+            debug mode, prints debugging information
+``-ll   --log-level [l]evel (str)``
+            One of [``'critical'``, ``'error'``, ``'warning'``, ``'info'``,
+            ``'debug'``], prints logging messages with corresponding level
+            or higher
+``-lc   --log-config [f]ilename (str)``
+            use Python logging `config file
+            <https://docs.python.org/3/library/logging.config.html#logging.config.fileConfig>`_
+            ``f`` for the logger
 
-Application Entity Titles
--------------------------
-    ``-aet  --aetitle [a]etitle (str)``
-              set my AE title (default: STORESCP)
+Network Options
+---------------
+``-aet  --calling-aet [a]etitle (str)``
+            set the local AE title (default: GETSCU)
+``-aec  --called-aet [a]etitle (str)``
+            set the called AE title for the peer AE (default: ANY-SCP)
+``-ta   --acse-timeout [s]econds (float)``
+            timeout for ACSE messages (default: 30)
+``-td   --dimse-timeout [s]econds (float)``
+            timeout for DIMSE messages (default: 30)
+``-tn   --network-timeout [s]econds (float)``
+            timeout for the network (default: 30)
+``-pdu  --max-pdu [n]umber of bytes (int)``
+            set maximum receive PDU bytes to n bytes (default: 16384)
 
-Miscellaneous DICOM
--------------------
-    ``-to   --timeout [s]econds (int)``
-              timeout for connection requests (default: unlimited)
-    ``-ta   --acse-timeout [s]econds (int)``
-              timeout for ACSE messages (default: 30)
-    ``-td   --dimse-timeout [s]econds (int)``
-              timeout for DIMSE messages (default: unlimited)
-    ``-pdu  --max-pdu [n]umber of bytes (int)``
-              set maximum receive PDU bytes to n bytes (default: 16384)
-    ``      --ignore``
-              receive data but don't store it
+Query Information Model Options
+-------------------------------
+``-P    --patient``
+            use patient root information model
+``-S    --study``
+            use study root information model
+``-O    --psonly``
+            use patient/study only information model
 
-Preferred Transfer Syntaxes
----------------------------
-    ``-x=   --prefer-uncompr``
-              prefer explicit VR local byte order (default)
-    ``-xe   --prefer-little``
-              prefer explicit VR little endian transfer syntax
-    ``-xb   --prefer-big``
-              prefer explicit VR big endian transfer syntax
-    ``-xi   --implicit``
-              accept implicit VR little endian transfer syntax only
+Query Options
+-------------
+``-k [k]eyword: (gggg,eeee)=str, keyword=str``
+            add or override a query element using either an element tag as
+            (group,element) or the element's keyword (such as PatientName).
+            See the *keyword pathing* section for more information.
+``-f path to [f]ile``
+            use a DICOM file as the query dataset, if used with ``-k``
+            then the elements will be added to or overwrite those
+            present in the file
 
-Output
-------
-    ``-od   --output-directory [d]irectory (str)``
-              write received objects to directory d
+Output Options
+--------------
+``-od [d]irectory, --output-directory [d]irectory``
+            write received objects to directory ``d``
+``--ignore``
+            receive data but don't store it
+
+
+.. include:: keyword_pathing.rst
 
 
 DICOM Conformance
 =================
-The ``storescp`` application supports the Verification and Storage Service
-Classes as an SCP with the following SOP Classes:
 
-Verification Service Class
---------------------------
+Get SCU conformance
+-------------------
 
-+----------------------------------+------------------------------------------+
-| UID                              | SOP Class                                |
-+==================================+==========================================+
-|1.2.840.10008.1.1                 | Verification SOP Class                   |
-+----------------------------------+------------------------------------------+
+The ``getscu`` application supports the following SOP Classes as an SCU:
 
-Storage Service Class
++-----------------------------+-----------------------------------------------+
+| UID                         | Transfer Syntax                               |
++=============================+===============================================+
+| 1.2.840.10008.5.1.4.1.2.1.3 | Patient Root Query Retrieve Information Model |
+|                             | - GET                                         |
++-----------------------------+-----------------------------------------------+
+| 1.2.840.10008.5.1.4.1.2.2.3 | Study Root Query Retrieve Information Model   |
+|                             | - GET                                         |
++-----------------------------+-----------------------------------------------+
+| 1.2.840.10008.5.1.4.1.2.3.3 | Patient Study Only Query Retrieve Information |
+|                             | - GET                                         |
++-----------------------------+-----------------------------------------------+
+
+
+The application will request presentation contexts using these transfer
+syntaxes:
+
++------------------------+----------------------------------------------------+
+| UID                    | Transfer Syntax                                    |
++========================+====================================================+
+| 1.2.840.10008.1.2      | Implicit VR Little Endian                          |
++------------------------+----------------------------------------------------+
+| 1.2.840.10008.1.2.1    | Explicit VR Little Endian                          |
++------------------------+----------------------------------------------------+
+| 1.2.840.10008.1.2.2    | Explicit VR Big Endian                             |
++------------------------+----------------------------------------------------+
+
+Store SCP conformance
 ---------------------
+
+The ``getscu`` application supports the following SOP Classes as an SCP:
 
 +----------------------------------+------------------------------------------+
 | UID                              | SOP Class                                |
@@ -387,19 +412,11 @@ Storage Service Class
 +----------------------------------+------------------------------------------+
 | 1.2.840.10008.5.1.4.1.1.88.73    | Patient Radiation Dose SR Storage        |
 +----------------------------------+------------------------------------------+
-| 1.2.840.10008.5.1.4.1.1.88.74    | Planned Imaging Agent Administration SR  |
-|                                  | Storage                                  |
-+----------------------------------+------------------------------------------+
-| 1.2.840.10008.5.1.4.1.1.88.75    | Performed Imaging Agent Administration   |
-|                                  | SR Storage                               |
-+----------------------------------+------------------------------------------+
 | 1.2.840.10008.5.1.4.1.1.90.1     | Content Assessment Results Storage       |
 +----------------------------------+------------------------------------------+
 | 1.2.840.10008.5.1.4.1.1.104.1    | Encapsulated PDF Storage                 |
 +----------------------------------+------------------------------------------+
 | 1.2.840.10008.5.1.4.1.1.104.2    | Encapsulated CDA Storage                 |
-+----------------------------------+------------------------------------------+
-| 1.2.840.10008.5.1.4.1.1.104.3    | Encapsulated STL Storage                 |
 +----------------------------------+------------------------------------------+
 | 1.2.840.10008.5.1.4.1.1.128      | Positron Emission Tomography Image       |
 |                                  | Storage                                  |
@@ -427,28 +444,10 @@ Storage Service Class
 +----------------------------------+------------------------------------------+
 | 1.2.840.10008.5.1.4.1.1.481.7    | RT Treatment Summary Record Storage      |
 +----------------------------------+------------------------------------------+
-| 1.2.840.10008.5.1.4.1.1.481.8    | RT Ion Plan Storage                      |
-+----------------------------------+------------------------------------------+
-| 1.2.840.10008.5.1.4.1.1.481.9    | RT Ion Beams Treatment Record Storage    |
-+----------------------------------+------------------------------------------+
-| 1.2.840.10008.5.1.4.1.1.481.10   | RT Physician Intent Storage              |
-+----------------------------------+------------------------------------------+
-| 1.2.840.10008.5.1.4.1.1.481.11   | RT Segmentation Annotation Storge        |
-+----------------------------------+------------------------------------------+
-| 1.2.840.10008.5.1.4.1.1.481.12   | RT Radiation Set Storage                 |
-+----------------------------------+------------------------------------------+
-| 1.2.840.10008.5.1.4.1.1.481.13   | C-Arm Photon-Electron Radiation Storage  |
-+----------------------------------+------------------------------------------+
-| 1.2.840.10008.5.1.4.34.7         | RT Beams Delivery Instruction Storage    |
-+----------------------------------+------------------------------------------+
-| 1.2.840.10008.5.1.4.34.10        | RT Brachy Application Setup Delivery     |
-|                                  | Instructions Storage                     |
-+----------------------------------+------------------------------------------+
 
 
-Transfer Syntaxes
------------------
-The supported Transfer Syntaxes are:
+The application will request presentation contexts using these transfer
+syntaxes:
 
 +------------------------+----------------------------------------------------+
 | UID                    | Transfer Syntax                                    |
@@ -458,30 +457,4 @@ The supported Transfer Syntaxes are:
 | 1.2.840.10008.1.2.1    | Explicit VR Little Endian                          |
 +------------------------+----------------------------------------------------+
 | 1.2.840.10008.1.2.2    | Explicit VR Big Endian                             |
-+------------------------+----------------------------------------------------+
-| 1.2.840.10008.1.2.1.99 | Deflated Explicit VR Little Endian                 |
-+------------------------+----------------------------------------------------+
-| 1.2.840.10008.1.2.4.50 | JPEG Baseline (Process 1)                          |
-+------------------------+----------------------------------------------------+
-| 1.2.840.10008.1.2.4.51 | JPEG Extended (Process 2 and 4)                    |
-+------------------------+----------------------------------------------------+
-| 1.2.840.10008.1.2.4.57 | JPEG Lossless, Non-Hierarchical (Process 14)       |
-+------------------------+----------------------------------------------------+
-| 1.2.840.10008.1.2.4.70 | JPEG Lossless, Non-Hierarchical, First-Order       |
-|                        | Prediction (Process 14 [Selection Value 1])        |
-+------------------------+----------------------------------------------------+
-| 1.2.840.10008.1.2.4.80 | JPEG-LS Lossless Image Compression                 |
-+------------------------+----------------------------------------------------+
-| 1.2.840.10008.1.2.4.81 | JPEG-LS Lossy (Near-Lossless) Image Compression    |
-+------------------------+----------------------------------------------------+
-| 1.2.840.10008.1.2.4.90 | JPEG 2000 Image Compression (Lossless Only)        |
-+------------------------+----------------------------------------------------+
-| 1.2.840.10008.1.2.4.91 | JPEG 2000 Image Compression                        |
-+------------------------+----------------------------------------------------+
-| 1.2.840.10008.1.2.4.92 | JPEG 2000 Part 2 Multi-component Image Compression |
-|                        | (Lossless Only)                                    |
-+------------------------+----------------------------------------------------+
-| 1.2.840.10008.1.2.4.93 | JPEG 2000 Part 2 Multi-component Image Compression |
-+------------------------+----------------------------------------------------+
-| 1.2.840.10008.1.2.5    | RLE Lossless                                       |
 +------------------------+----------------------------------------------------+

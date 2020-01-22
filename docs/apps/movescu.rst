@@ -1,127 +1,192 @@
-========
-storescp
-========
-    ``storescp [options] port``
+=======
+movescu
+=======
+    ``movescu.py [options] addr port (-k keyword and/or -f file-in)``
 
 Description
 ===========
-The ``storescp`` application implements a *Service Class Provider* (SCP) for
-the *Storage Service Class*. It listens on the specified port for
-Association requests from peer Application Entities (AEs) and, once an
-Association is established, allows Storage SCUs transfer SOP Instances
-with SOP Classes matching the presentation contexts accepted during Association
-negotation.
+The ``movescu`` application implements a *Service Class User* (SCU) for
+the :dcm:`Query/Retrieve Service Class<part04/chapter_C.html>`. It requests an
+association with a peer Application Entity on IP address ``addr`` and listen
+port ``port`` and once established, sends a query to be matched against the
+SCP's managed SOP Instances. The SCP then responds by sending a copy of the
+matching SOP Instances to the Store SCP specified using the Move AE title.
 
-The following example shows what happens when it is started and receives
-a C-STORE request from a peer:
+The following example shows what happens when it is succesfully run on
+an SCP at IP 127.0.0.1 and listen port 11112 that supports the *QR Move
+Service* with the default Move AE title ``STORESCP``:
 
-::
+.. code-block:: text
 
-   user@host: storescp 11112
-
-
-More information is available when a connection is received while running with
-the ``-v`` option:
-
-::
-
-    user@host: storescp 11112 -v
-    I: Association Received
+    user@host: python movescu.py 127.0.0.1 11112 -k QueryRetrieveLevel=PATIENT -k PatientName=
+    I: Requesting Association
     I: Association Accepted
-    I: Received Store Requeset
-    I: Storing DICOM file: CT.1.2.3.4.5.6
-    I: Association Released
+    I: Sending Move Request: MsgID 1
+    I:
+    I: # Request Identifier
+    I: (0008, 0052) Query/Retrieve Level                CS: 'PATIENT'
+    I: (0010, 0010) Patient's Name                      PN: ''
+    I:
+    I: Move SCP Response: 1 - 0xFF00 (Pending)
+    I: Sub-Operations Remaining: 0, Completed: 1, Failed: 0, Warning: 0
+    I: Move SCP Result: 0x0000 (Success)
+    I: Sub-Operations Remaining: 0, Completed: 1, Failed: 0, Warning: 0
+    I: Releasing Association
+    user@host:
 
-Much more information is available when a connection is received while
-running with the ``-d`` option:
+The Move AE title can be specified using the ``-aem aetitle`` flag.
 
-::
+You can also use the ``--store`` option to start a Store SCP on port
+``11113`` that can be used as the move destination. The AE title and port of
+the Store SCP can be configured using the ``--store-aet`` and
+``--store-port`` flags:
 
-    user@host: storescp 11112 -d
-    D: $storescp.py v0.3.2
-    D:
-    I: Association Received
-    D: Request Parameters:
-    D: ====================== BEGIN A-ASSOCIATE-RQ =====================
-    ...
-    D: ======================= END A-ASSOCIATE-AC ======================
-    D: pydicom.read_dataset() TransferSyntax="Little Endian Implicit"
+.. code-block:: text
+
+    user@host: python movescu.py 127.0.0.1 11112 -k QueryRetrieveLevel=PATIENT -k PatientName= --store
+    I: Requesting Association
+    I: Association Accepted
+    I: Sending Move Request: MsgID 1
+    I:
+    I: # Request Identifier
+    I: (0008, 0052) Query/Retrieve Level                CS: 'PATIENT'
+    I: (0010, 0010) Patient's Name                      PN: ''
+    I:
+    I: Accepting Association
     I: Received Store Request
-    D: ===================== INCOMING DIMSE MESSAGE ====================
-    D: Message Type                  : C-STORE RQ
-    D: Presentation Context ID       : 41
-    D: Message ID                    : 1
-    D: Affected SOP Class UID        : 1.2.840.10008.5.1.4.1.1.2
-    D: Affected SOP Instance UID     : 1.2.3.4.5.6
-    D: Data Set                      : Present
-    D: Priority                      : Low
-    D: ======================= END DIMSE MESSAGE =======================
-    D: pydicom.read_dataset() TransferSyntax="Little Endian Explicit"
-    I: Storing DICOM file: CT.1.2.3.4.5.6
+    I: Storing DICOM file: CT.1.3.6.1.4.1.5962.1.1.1.1.1.20040119072730.12322
+    W: DICOM file already exists, overwriting
     I: Association Released
+    I: Move SCP Response: 1 - 0xFF00 (Pending)
+    I: Sub-Operations Remaining: 0, Completed: 1, Failed: 0, Warning: 0
+    I: Move SCP Result: 0x0000 (Success)
+    I: Sub-Operations Remaining: 0, Completed: 1, Failed: 0, Warning: 0
+    I: Releasing Association
+    user@host:
+
+
+Parameters
+==========
+``addr``
+            TCP/IP address or hostname of DICOM peer
+``port``
+            TCP/IP port number of peer
 
 Options
 =======
-Logging
--------
-    ``-q    --quiet``
-              quiet mode, prints no warnings or errors
-    ``-v    --verbose``
-              verbose mode, prints processing details
-    ``-d    --debug``
-              debug mode, prints debugging information
+General Options
+---------------
+``-q    --quiet``
+            quiet mode, prints no warnings or errors
+``-v    --verbose``
+            verbose mode, prints processing details
+``-d    --debug``
+            debug mode, prints debugging information
+``-ll   --log-level [l]evel (str)``
+            One of [``'critical'``, ``'error'``, ``'warning'``, ``'info'``,
+            ``'debug'``], prints logging messages with corresponding level
+            or higher
+``-lc   --log-config [f]ilename (str)``
+            use Python logging `config file
+            <https://docs.python.org/3/library/logging.config.html#logging.config.fileConfig>`_
+            ``f`` for the logger
 
-Application Entity Titles
--------------------------
-    ``-aet  --aetitle [a]etitle (str)``
-              set my AE title (default: STORESCP)
+Network Options
+---------------
+``-aet  --calling-aet [a]etitle (str)``
+            set the local AE title (default: GETSCU)
+``-aec  --called-aet [a]etitle (str)``
+            set the called AE title for the peer AE (default: ANY-SCP)
+``-ta   --acse-timeout [s]econds (float)``
+            timeout for ACSE messages (default: 30)
+``-td   --dimse-timeout [s]econds (float)``
+            timeout for DIMSE messages (default: 30)
+``-tn   --network-timeout [s]econds (float)``
+            timeout for the network (default: 30)
+``-pdu  --max-pdu [n]umber of bytes (int)``
+            set maximum receive PDU bytes to n bytes (default: 16384)
 
-Miscellaneous DICOM
+Storage SCP Options
 -------------------
-    ``-to   --timeout [s]econds (int)``
-              timeout for connection requests (default: unlimited)
-    ``-ta   --acse-timeout [s]econds (int)``
-              timeout for ACSE messages (default: 30)
-    ``-td   --dimse-timeout [s]econds (int)``
-              timeout for DIMSE messages (default: unlimited)
-    ``-pdu  --max-pdu [n]umber of bytes (int)``
-              set maximum receive PDU bytes to n bytes (default: 16384)
-    ``      --ignore``
-              receive data but don't store it
+``--store``
+            start a Storage SCP that can be used as the move destination
+``--store-port [p]ort``
+            the listen port number to use for the Storage SCP (default: 11113)
+``--store-aet [a]etitle``
+            the AE title to use for the Storage SCP (default: STORESCP)
 
-Preferred Transfer Syntaxes
----------------------------
-    ``-x=   --prefer-uncompr``
-              prefer explicit VR local byte order (default)
-    ``-xe   --prefer-little``
-              prefer explicit VR little endian transfer syntax
-    ``-xb   --prefer-big``
-              prefer explicit VR big endian transfer syntax
-    ``-xi   --implicit``
-              accept implicit VR little endian transfer syntax only
 
-Output
-------
-    ``-od   --output-directory [d]irectory (str)``
-              write received objects to directory d
+Query Information Model Options
+-------------------------------
+``-P    --patient``
+            use patient root information model
+``-S    --study``
+            use study root information model
+``-O    --psonly``
+            use patient/study only information model
+
+Query Options
+-------------
+``-k [k]eyword: (gggg,eeee)=str, keyword=str``
+            add or override a query element using either an element tag as
+            (group,element) or the element's keyword (such as PatientName).
+            See the *keyword pathing* section for more information.
+``-f path to [f]ile``
+            use a DICOM file as the query dataset, if used with ``-k``
+            then the elements will be added to or overwrite those
+            present in the file
+
+Output Options
+--------------
+``-od [d]irectory, --output-directory [d]irectory``
+            write received objects to directory ``d`` (with ``--store``)
+``--ignore``
+            receive data but don't store it (with ``--store``)
+
+
+.. include:: keyword_pathing.rst
 
 
 DICOM Conformance
 =================
-The ``storescp`` application supports the Verification and Storage Service
-Classes as an SCP with the following SOP Classes:
 
-Verification Service Class
---------------------------
+Move SCU conformance
+--------------------
 
-+----------------------------------+------------------------------------------+
-| UID                              | SOP Class                                |
-+==================================+==========================================+
-|1.2.840.10008.1.1                 | Verification SOP Class                   |
-+----------------------------------+------------------------------------------+
+The ``movescu`` application supports the following SOP Classes as an SCU:
 
-Storage Service Class
++-----------------------------+-----------------------------------------------+
+| UID                         | Transfer Syntax                               |
++=============================+===============================================+
+| 1.2.840.10008.5.1.4.1.2.1.2 | Patient Root Query Retrieve Information Model |
+|                             | - MOVE                                        |
++-----------------------------+-----------------------------------------------+
+| 1.2.840.10008.5.1.4.1.2.2.2 | Study Root Query Retrieve Information Model   |
+|                             | - MOVE                                        |
++-----------------------------+-----------------------------------------------+
+| 1.2.840.10008.5.1.4.1.2.3.2 | Patient Study Only Query Retrieve Information |
+|                             | - MOVE                                        |
++-----------------------------+-----------------------------------------------+
+
+
+The application will request presentation contexts using these transfer
+syntaxes:
+
++------------------------+----------------------------------------------------+
+| UID                    | Transfer Syntax                                    |
++========================+====================================================+
+| 1.2.840.10008.1.2      | Implicit VR Little Endian                          |
++------------------------+----------------------------------------------------+
+| 1.2.840.10008.1.2.1    | Explicit VR Little Endian                          |
++------------------------+----------------------------------------------------+
+| 1.2.840.10008.1.2.2    | Explicit VR Big Endian                             |
++------------------------+----------------------------------------------------+
+
+Store SCP conformance
 ---------------------
+
+With the ``--store`` option, the ``movescu`` application supports the
+following SOP Classes as an SCP:
 
 +----------------------------------+------------------------------------------+
 | UID                              | SOP Class                                |
@@ -446,9 +511,7 @@ Storage Service Class
 +----------------------------------+------------------------------------------+
 
 
-Transfer Syntaxes
------------------
-The supported Transfer Syntaxes are:
+The application will support the following transfer syntaxes:
 
 +------------------------+----------------------------------------------------+
 | UID                    | Transfer Syntax                                    |

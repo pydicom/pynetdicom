@@ -25,7 +25,7 @@ from pynetdicom import (
 )
 
 
-VERSION = '0.4.1'
+__version__ = '0.0.0alpha1'
 
 
 def _setup_argparser():
@@ -162,7 +162,7 @@ if args.log_level:
 if args.log_config:
     fileConfig(args.log_config)
 
-APP_LOGGER.debug('$movescp.py v{0!s}'.format(VERSION))
+APP_LOGGER.debug('$movescp.py v{0!s}'.format(__version__))
 APP_LOGGER.debug('')
 
 # Validate port

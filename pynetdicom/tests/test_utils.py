@@ -1,8 +1,4 @@
-"""Unit tests for the utility functions.
-
-validate_ae_title
-pretty_bytes
-"""
+"""Unit tests for the pynetdicom.utils module."""
 
 from io import BytesIO
 import logging
@@ -11,12 +7,12 @@ import pytest
 
 from pydicom.uid import UID
 
-from pynetdicom import _config
+from pynetdicom import _config, debug_logger
 from pynetdicom.utils import validate_ae_title, pretty_bytes, validate_uid
 from .encoded_pdu_items import a_associate_rq
 
-LOGGER = logging.getLogger('pynetdicom')
-LOGGER.setLevel(logging.CRITICAL)
+
+#debug_logger()
 
 
 REFERENCE_GOOD_AE_STR = [
@@ -76,7 +72,7 @@ REFERENCE_BAD_AE_BYTES = [
 
 
 class TestValidateAETitle(object):
-    """Test validate_ae_title"""
+    """Tests for utils.validate_ae_title()."""
     @pytest.mark.parametrize("aet, output", REFERENCE_GOOD_AE_STR)
     def test_good_ae_str(self, aet, output):
         """Test validate_ae_title using str input."""
@@ -120,7 +116,7 @@ REFERENCE_UID = [
 
 
 class TestValidateUID(object):
-    """Test validate_uid."""
+    """Tests for utils.validate_uid()."""
     def setup(self):
         self.default_conformance = _config.ENFORCE_UID_CONFORMANCE
 
@@ -138,8 +134,8 @@ class TestValidateUID(object):
         assert validate_uid(UID(uid)) == is_valid[1]
 
 
-class TestWrapList(object):
-    """Test pretty_bytes() function"""
+class TestPrettyBytes(object):
+    """Tests for utils.pretty_bytes()."""
     def test_parameters(self):
         """Test parameters are correct."""
         # Default

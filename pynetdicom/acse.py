@@ -489,21 +489,21 @@ class ACSE(object):
             elif hasattr(rsp, 'result') and rsp.result in [0x01, 0x02]:
                 # 0x01 is rejected (permanent)
                 # 0x02 is rejected (transient)
-                LOGGER.info('Association Rejected:')
-                LOGGER.info(
+                LOGGER.error('Association Rejected')
+                LOGGER.error(
                     'Result: {}, Source: {}'
                     .format(rsp.result_str, rsp.source_str)
                 )
-                LOGGER.info('Reason: {}'.format(rsp.reason_str))
+                LOGGER.error('Reason: {}'.format(rsp.reason_str))
                 self.assoc.is_rejected = True
                 self.assoc.is_established = False
                 evt.trigger(self.assoc, evt.EVT_REJECTED, {})
                 self.dul.kill_dul()
             else:
-                LOGGER.warning(
+                LOGGER.error(
                     "Received an invalid A-ASSOCIATE response from the peer"
                 )
-                LOGGER.info("Aborting Association")
+                LOGGER.error("Aborting Association")
                 self.send_abort(0x02)
                 self.assoc.is_aborted = True
                 self.assoc.is_established = False
@@ -513,12 +513,20 @@ class ACSE(object):
 
         # Association aborted
         elif isinstance(rsp, (A_ABORT, A_P_ABORT)):
-            LOGGER.info("Association Aborted")
+            LOGGER.error("Association Aborted")
             self.assoc.is_established = False
             self.assoc.is_aborted = True
             evt.trigger(self.assoc, evt.EVT_ABORTED, {})
             self.dul.kill_dul()
+        elif rsp is None:
+            # ACSE timeout
+            LOGGER.error(
+                "ACSE timeout reached while waiting for response to "
+                "association request"
+            )
+            self.assoc.abort()
         else:
+            # Received A-RELEASE or some weird object
             self.assoc.is_established = False
             self.dul.kill_dul()
 

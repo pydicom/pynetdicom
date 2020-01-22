@@ -748,7 +748,7 @@ class Association(threading.Thread):
 
         if not rsp.Status in STORAGE_SERVICE_CLASS_STATUS:
             LOGGER.warning("Unknown status value returned by callback "
-                           "- 0x{0:04x}".format(rsp.Status))
+                           "- 0x{0:04X}".format(rsp.Status))
 
         # Send C-STORE confirmation back to peer
         self.dimse.send_msg(rsp, context.context_id)
@@ -1058,7 +1058,7 @@ class Association(threading.Thread):
 
         LOGGER.info('Sending Find Request: MsgID {}'.format(msg_id))
         LOGGER.info('')
-        LOGGER.info('# Identifier DICOM Dataset')
+        LOGGER.info('# Request Identifier')
         for elem in dataset:
             LOGGER.info(elem)
         LOGGER.info('')
@@ -1252,7 +1252,7 @@ class Association(threading.Thread):
 
         LOGGER.info('Sending Get Request: MsgID {}'.format(msg_id))
         LOGGER.info('')
-        LOGGER.info('# Identifier DICOM Dataset')
+        LOGGER.info('# Request Identifier')
         for elem in dataset:
             LOGGER.info(elem)
         LOGGER.info('')
@@ -1445,7 +1445,7 @@ class Association(threading.Thread):
 
         LOGGER.info('Sending Move Request: MsgID {}'.format(msg_id))
         LOGGER.info('')
-        LOGGER.info('# Identifier DICOM Dataset')
+        LOGGER.info('# Request Identifier')
         for elem in dataset:
             LOGGER.info(elem)
         LOGGER.info('')
@@ -1718,12 +1718,12 @@ class Association(threading.Thread):
             LOGGER.debug('')
             if category == STATUS_PENDING:
                 LOGGER.info(
-                    "Find SCP Response: {} - 0x{:04x} (Pending)"
+                    "Find SCP Response: {} - 0x{:04X} (Pending)"
                     .format(operation_no, status.Status)
                 )
             else:
                 LOGGER.info(
-                    'Find SCP Result: 0x{:04x} ({})'
+                    'Find SCP Result: 0x{:04X} ({})'
                     .format(status.Status, category)
                 )
 
@@ -1735,18 +1735,21 @@ class Association(threading.Thread):
 
                 with self.lock:
                     try:
-                        identifier = decode(rsp.Identifier,
-                                            transfer_syntax.is_implicit_VR,
-                                            transfer_syntax.is_little_endian)
-                        LOGGER.debug('')
-                        LOGGER.debug('# Identifier DICOM Dataset')
+                        identifier = decode(
+                            rsp.Identifier,
+                            transfer_syntax.is_implicit_VR,
+                            transfer_syntax.is_little_endian
+                        )
+                        LOGGER.info('')
+                        LOGGER.info('# Response Identifier')
                         for elem in identifier:
-                            LOGGER.debug(elem)
-                        LOGGER.debug('')
-                    except Exception:
+                            LOGGER.info(elem)
+                        LOGGER.info('')
+                    except Exception as exc:
                         LOGGER.error(
                             "Failed to decode the received Identifier dataset"
                         )
+                        LOGGER.exception(exc)
                         yield status, None
 
                 yield status, identifier
@@ -1840,12 +1843,12 @@ class Association(threading.Thread):
             LOGGER.debug('')
             if category == STATUS_PENDING:
                 LOGGER.info(
-                    "{} SCP Response: {} - 0x{:04x} (Pending)"
+                    "{} SCP Response: {} - 0x{:04X} (Pending)"
                     .format(rsp_name[rsp_type], operation_no, status.Status)
                 )
             else:
                 LOGGER.info(
-                    '{} SCP Result: 0x{:04x} ({})'
+                    '{} SCP Result: 0x{:04X} ({})'
                     .format(rsp_name[rsp_type], status.Status, category)
                 )
 
@@ -1876,20 +1879,22 @@ class Association(threading.Thread):
                 # pylint: disable=broad-except
                 with self.lock:
                     try:
-                        identifier = decode(rsp.Identifier,
-                                            transfer_syntax.is_implicit_VR,
-                                            transfer_syntax.is_little_endian)
+                        identifier = decode(
+                            rsp.Identifier,
+                            transfer_syntax.is_implicit_VR,
+                            transfer_syntax.is_little_endian
+                        )
                         if identifier:
-                            LOGGER.debug('')
-                            LOGGER.debug('# Identifier DICOM Dataset')
+                            LOGGER.info('')
+                            LOGGER.info('# Response Identifier')
                             for elem in identifier:
-                                LOGGER.debug(elem)
-                            LOGGER.debug('')
-                    except Exception as ex:
+                                LOGGER.info(elem)
+                            LOGGER.info('')
+                    except Exception as exc:
                         LOGGER.error(
                             "Failed to decode the received Identifier dataset"
                         )
-                        LOGGER.exception(ex)
+                        LOGGER.exception(exc)
                         identifier = None
 
             # Only reach this point if status is Sucess, Warning, Failure

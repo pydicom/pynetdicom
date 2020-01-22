@@ -32,6 +32,7 @@ from pynetdicom.presentation import (
     build_context,
     build_role,
     DEFAULT_TRANSFER_SYNTAXES,
+    AllStoragePresentationContexts,
     ApplicationEventLoggingPresentationContexts,
     BasicWorklistManagementPresentationContexts,
     ColorPalettePresentationContexts,
