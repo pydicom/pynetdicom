@@ -1,30 +1,30 @@
 ========
 storescu
 ========
-    ``storescu [options] addr port dcmfile-in``
+    ``storescu.py [options] addr port dcmfile-in``
 
 Description
 ===========
 The ``storescu`` application implements a *Service Class User* (SCU) for
-the *Storage Service Class*. It requests an association with a peer
-Application Entity on IP address ``addr`` and listen port ``port`` and, once an
-Association is established, requests the transfer of the SOP Instance
-in ``dcmfile-in``.
+the :dcm:`Storage Service Class<part04/chapter_B.html>`. It requests an
+association with a peer Application Entity on IP address ``addr`` and listen
+port ``port`` and, once an association is established, requests the transfer
+of the SOP Instance in ``dcmfile-in``.
 
-The following simple example shows what happens when it is succesfully run on
+The following example shows what happens when it is succesfully run on
 an SCP at IP 127.0.0.1 and listen port 11112 that supports the *Storage
 Service*:
 
 .. code-block:: text
 
-    user@host: storescu 127.0.0.1 11112 path/to/file
+    user@host: python storescu.py 127.0.0.1 11112 path/to/file
     user@host:
 
 When attempting to use the SCP with an unsupported SOP Class:
 
 .. code-block:: text
 
-    user@host: storescu 127.0.0.1 11112 path/to/file
+    user@host: python storescu.py 127.0.0.1 11112 path/to/file
     E: No accepted presentation contexts
     user@host:
 
@@ -32,7 +32,7 @@ More information is available with the ``-d`` flag:
 
 .. code-block:: text
 
-    user@host: storescu 127.0.0.1 11112 path/to/file -d
+    user@host: python storescu.py 127.0.0.1 11112 path/to/file -d
     D: storescu.py v0.3.0
     D:
     D: Checking input file
@@ -89,7 +89,9 @@ General Options
             ``'debug'``], prints logging messages with corresponding level
             or higher
 ``-lc   --log-config [f]ilename (str)``
-            use Python logging config file f for the logger
+            use Python logging `config file
+            <https://docs.python.org/3/library/logging.config.html#logging.config.fileConfig>`_
+            ``f`` for the logger
 
 Network Options
 ---------------
@@ -99,9 +101,9 @@ Network Options
             set the called AE title for the peer AE (default: ANY-SCP)
 ``-ta   --acse-timeout [s]econds (float)``
             timeout for ACSE messages (default: 30)
-``-td   --dimse-timeout [s]econdsr (float)``
+``-td   --dimse-timeout [s]econds (float)``
             timeout for DIMSE messages (default: 30)
-``-tn   --network-timeout [s]econdsr (float)``
+``-tn   --network-timeout [s]econds (float)``
             timeout for the network (default: 30)
 ``-pdu  --max-pdu [n]umber of bytes (int)``
             set maximum receive PDU bytes to n bytes (default: 16384)
@@ -125,10 +127,11 @@ Miscellaneous Options
 
 DICOM Conformance
 =================
-The storescu application supports transferring any of the Storage Service
-Class' supported SOP Classes.
+The storescu application supports all of the *Storage Service Class'* supported
+SOP Classes as SCU.
 
-The supported Transfer Syntaxes are:
+The application will request presentation contexts using these transfer
+syntaxes:
 
 +------------------------+----------------------------------------------------+
 | UID                    | Transfer Syntax                                    |

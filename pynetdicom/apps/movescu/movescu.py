@@ -10,11 +10,15 @@ import sys
 
 from pydicom.dataset import Dataset
 from pydicom.uid import (
-    ExplicitVRLittleEndian, ImplicitVRLittleEndian, ExplicitVRBigEndian
+    ExplicitVRLittleEndian, ImplicitVRLittleEndian, ExplicitVRBigEndian,
+    DeflatedExplicitVRLittleEndian, JPEGBaseline, JPEGExtended,
+    JPEGLosslessP14, JPEGLossless, JPEGLSLossless, JPEGLSLossy,
+    JPEG2000Lossless, JPEG2000, JPEG2000MultiComponentLossless,
+    JPEG2000MultiComponent, RLELossless
 )
 
 from pynetdicom import (
-    AE, evt, QueryRetrievePresentationContexts, StoragePresentationContexts,
+    AE, evt, QueryRetrievePresentationContexts, AllStoragePresentationContexts
 )
 from pynetdicom.apps.common import (
     setup_logging, create_dataset, SOP_CLASS_PREFIXES
@@ -66,17 +70,20 @@ def _setup_argparser():
     output.add_argument(
         "-q", "--quiet",
         help="quiet mode, print no warnings and errors",
-        action="store_true"
+        action="store_const",
+        dest='log_type', const='q'
     )
     output.add_argument(
         "-v", "--verbose",
         help="verbose mode, print processing details",
-        action="store_true"
+        action="store_const",
+        dest='log_type', const='v'
     )
     output.add_argument(
         "-d", "--debug",
         help="debug mode, print debug information",
-        action="store_true"
+        action="store_const",
+        dest='log_type', const='d'
     )
     gen_opts.add_argument(
         "-ll", "--log-level", metavar='[l]',
@@ -91,6 +98,7 @@ def _setup_argparser():
         help="use config file f for the logger",
         type=str
     )
+    parser.set_defaults(log_type='v')
 
     # Network Options
     net_opts = parser.add_argument_group('Network Options')
@@ -114,19 +122,19 @@ def _setup_argparser():
     )
     net_opts.add_argument(
         "-ta", "--acse-timeout", metavar='[s]econds',
-        help="timeout for ACSE messages",
+        help="timeout for ACSE messages (default: 30 s)",
         type=float,
-        default=60
+        default=30
     )
     net_opts.add_argument(
         "-td", "--dimse-timeout", metavar='[s]econds',
-        help="timeout for DIMSE messages",
+        help="timeout for DIMSE messages (default: 30 s)",
         type=float,
-        default=None
+        default=30
     )
     net_opts.add_argument(
         "-tn", "--network-timeout", metavar='[s]econds',
-        help="timeout for the network",
+        help="timeout for the network (default: 30 s)",
         type=float,
         default=30
     )
@@ -160,7 +168,7 @@ def _setup_argparser():
     qr_query = parser.add_argument_group('Query Options')
     qr_query.add_argument(
         '-k', '--keyword',
-        metavar='[k]eyword: "gggg,eeee=str", "keyword=str"',
+        metavar='[k]eyword: (gggg,eeee)=str, keyword=str',
         help=(
             "add or override a query element using either an element tag as "
             "(group,element) or the element's keyword (such as PatientName)"
@@ -188,13 +196,13 @@ def _setup_argparser():
         default=False
     )
     store_group.add_argument(
-        "--store-port",
+        "--store-port", metavar='[p]ort',
         help="the port number to use for the Storage SCP",
         type=int,
         default=11113
     )
     store_group.add_argument(
-        "--store-aet",
+        "--store-aet", metavar='[a]etitle',
         help="the AE title to use for the Storage SCP",
         type=str,
         default="STORESCP"
@@ -207,10 +215,7 @@ def _setup_argparser():
         help="write received objects to directory d",
         type=str
     )
-
-    # Miscellaneous
-    misc_opts = parser.add_argument_group('Miscellaneous')
-    misc_opts.add_argument(
+    out_opts.add_argument(
         '--ignore',
         help="receive data but don't store it",
         action="store_true"
@@ -329,9 +334,27 @@ if __name__ == "__main__":
     # Start the Store SCP (optional)
     scp = None
     if args.store:
+        transfer_syntax = [
+            ImplicitVRLittleEndian,
+            ExplicitVRLittleEndian,
+            DeflatedExplicitVRLittleEndian,
+            ExplicitVRBigEndian,
+            JPEGBaseline,
+            JPEGExtended,
+            JPEGLosslessP14,
+            JPEGLossless,
+            JPEGLSLossless,
+            JPEGLSLossy,
+            JPEG2000Lossless,
+            JPEG2000,
+            JPEG2000MultiComponentLossless,
+            JPEG2000MultiComponent,
+            RLELossless
+        ]
         store_handlers = [(evt.EVT_C_STORE, handle_store)]
         ae.ae_title = args.store_aet
-        ae.supported_contexts = StoragePresentationContexts
+        for cx in AllStoragePresentationContexts:
+            ae.add_supported_context(cx.abstract_syntax, transfer_syntax)
         scp = ae.start_server(
             ('', args.store_port), block=False, evt_handlers=store_handlers
         )

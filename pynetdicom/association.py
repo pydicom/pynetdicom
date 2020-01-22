@@ -748,7 +748,7 @@ class Association(threading.Thread):
 
         if not rsp.Status in STORAGE_SERVICE_CLASS_STATUS:
             LOGGER.warning("Unknown status value returned by callback "
-                           "- 0x{0:04x}".format(rsp.Status))
+                           "- 0x{0:04X}".format(rsp.Status))
 
         # Send C-STORE confirmation back to peer
         self.dimse.send_msg(rsp, context.context_id)
@@ -1718,12 +1718,12 @@ class Association(threading.Thread):
             LOGGER.debug('')
             if category == STATUS_PENDING:
                 LOGGER.info(
-                    "Find SCP Response: {} - 0x{:04x} (Pending)"
+                    "Find SCP Response: {} - 0x{:04X} (Pending)"
                     .format(operation_no, status.Status)
                 )
             else:
                 LOGGER.info(
-                    'Find SCP Result: 0x{:04x} ({})'
+                    'Find SCP Result: 0x{:04X} ({})'
                     .format(status.Status, category)
                 )
 
@@ -1843,12 +1843,12 @@ class Association(threading.Thread):
             LOGGER.debug('')
             if category == STATUS_PENDING:
                 LOGGER.info(
-                    "{} SCP Response: {} - 0x{:04x} (Pending)"
+                    "{} SCP Response: {} - 0x{:04X} (Pending)"
                     .format(rsp_name[rsp_type], operation_no, status.Status)
                 )
             else:
                 LOGGER.info(
-                    '{} SCP Result: 0x{:04x} ({})'
+                    '{} SCP Result: 0x{:04X} ({})'
                     .format(rsp_name[rsp_type], status.Status, category)
                 )
 

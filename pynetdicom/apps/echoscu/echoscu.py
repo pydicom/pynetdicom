@@ -53,17 +53,20 @@ def _setup_argparser():
     output.add_argument(
         "-q", "--quiet",
         help="quiet mode, print no warnings and errors",
-        action="store_true"
+        action="store_const",
+        dest='log_type', const='q'
     )
     output.add_argument(
         "-v", "--verbose",
         help="verbose mode, print processing details",
-        action="store_true"
+        action="store_const",
+        dest='log_type', const='v'
     )
     output.add_argument(
         "-d", "--debug",
         help="debug mode, print debug information",
-        action="store_true"
+        action="store_const",
+        dest='log_type', const='d'
     )
     gen_opts.add_argument(
         "-ll", "--log-level", metavar='[l]',
@@ -95,19 +98,19 @@ def _setup_argparser():
     )
     net_opts.add_argument(
         "-ta", "--acse-timeout", metavar='[s]econds',
-        help="timeout for ACSE messages",
+        help="timeout for ACSE messages (default: 30 s)",
         type=float,
-        default=60
+        default=30
     )
     net_opts.add_argument(
         "-td", "--dimse-timeout", metavar='[s]econds',
-        help="timeout for DIMSE messages",
+        help="timeout for DIMSE messages (default: 30 s)",
         type=float,
-        default=None
+        default=30
     )
     net_opts.add_argument(
         "-tn", "--network-timeout", metavar='[s]econds',
-        help="timeout for the network",
+        help="timeout for the network (default: 30 s)",
         type=float,
         default=30
     )

@@ -11,7 +11,7 @@ Association with a peer Application Entity (AE) which it then sends a DICOM
 :dcm:`C-ECHO-RQ<part07/sect_9.3.5.html#sect_9.3.5.1>` message and waits for a
 response. The application can be used to verify basic DICOM connectivity.
 
-The following simple example shows what happens when it's succesfully run on
+The following example shows what happens when it's succesfully run on
 an SCP at IP 127.0.0.1 and listen port 11112 that supports the *Verification
 Service*:
 
@@ -102,9 +102,9 @@ Network Options
             set the called AE title for the peer AE (default: ``ANY-SCP``)
 ``-ta   --acse-timeout [s]econds (float)``
             timeout for ACSE messages (default: ``30``)
-``-td   --dimse-timeout [s]econdsr (float)``
+``-td   --dimse-timeout [s]econds (float)``
             timeout for DIMSE messages (default: ``30``)
-``-tn   --network-timeout [s]econdsr (float)``
+``-tn   --network-timeout [s]econds (float)``
             timeout for the network (default: ``30``)
 ``-pdu  --max-pdu [n]umber of bytes (int)``
             set maximum receive PDU bytes to n bytes (default: ``16384``)
@@ -136,7 +136,8 @@ The ``echoscu`` application supports the following SOP Class as an SCU:
 |1.2.840.10008.1.1       | Verification SOP Class                             |
 +------------------------+----------------------------------------------------+
 
-The supported Transfer Syntaxes are:
+The application will request presentation contexts using these transfer
+syntaxes:
 
 +------------------------+----------------------------------------------------+
 | UID                    | Transfer Syntax                                    |

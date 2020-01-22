@@ -25,6 +25,9 @@ from pynetdicom.sop_class import (
     PatientRootQueryRetrieveInformationModelGet,
     StudyRootQueryRetrieveInformationModelGet,
     PatientStudyOnlyQueryRetrieveInformationModelGet,
+    PlannedImagingAgentAdministrationSRStorage,
+    PerformedImagingAgestAdministrationSRStorage,
+    EncapsulatedSTLStorage,
 )
 
 
@@ -63,17 +66,20 @@ def _setup_argparser():
     output.add_argument(
         "-q", "--quiet",
         help="quiet mode, print no warnings and errors",
-        action="store_true"
+        action="store_const",
+        dest='log_type', const='q'
     )
     output.add_argument(
         "-v", "--verbose",
         help="verbose mode, print processing details",
-        action="store_true"
+        action="store_const",
+        dest='log_type', const='v'
     )
     output.add_argument(
         "-d", "--debug",
         help="debug mode, print debug information",
-        action="store_true"
+        action="store_const",
+        dest='log_type', const='d'
     )
     gen_opts.add_argument(
         "-ll", "--log-level", metavar='[l]',
@@ -88,6 +94,7 @@ def _setup_argparser():
         help="use config file f for the logger",
         type=str
     )
+    parser.set_defaults(log_type='v')
 
     # Network Options
     net_opts = parser.add_argument_group('Network Options')
@@ -105,19 +112,19 @@ def _setup_argparser():
     )
     net_opts.add_argument(
         "-ta", "--acse-timeout", metavar='[s]econds',
-        help="timeout for ACSE messages",
+        help="timeout for ACSE messages (default: 30 s)",
         type=float,
-        default=60
+        default=30
     )
     net_opts.add_argument(
         "-td", "--dimse-timeout", metavar='[s]econds',
-        help="timeout for DIMSE messages",
+        help="timeout for DIMSE messages (default: 30 s)",
         type=float,
-        default=None
+        default=30
     )
     net_opts.add_argument(
         "-tn", "--network-timeout", metavar='[s]econds',
-        help="timeout for the network",
+        help="timeout for the network (default: 30 s)",
         type=float,
         default=30
     )
@@ -151,7 +158,7 @@ def _setup_argparser():
     qr_query = parser.add_argument_group('Query Options')
     qr_query.add_argument(
         '-k', '--keyword',
-        metavar='[k]eyword: "gggg,eeee=str", "keyword=str"',
+        metavar='[k]eyword: (gggg,eeee)=str, keyword=str',
         help=(
             "add or override a query element using either an element tag as "
             "(group,element) or the element's keyword (such as PatientName)"
@@ -177,10 +184,7 @@ def _setup_argparser():
         help="write received objects to directory d",
         type=str
     )
-
-    # Miscellaneous
-    misc_opts = parser.add_argument_group('Miscellaneous')
-    misc_opts.add_argument(
+    out_opts.add_argument(
         '--ignore',
         help="receive data but don't store it",
         action="store_true"
@@ -218,6 +222,17 @@ if __name__ == "__main__":
         APP_LOGGER.exception(exc)
         sys.exit(1)
 
+    # Exclude these SOP Classes
+    _exclusion = [
+        PlannedImagingAgentAdministrationSRStorage,
+        PerformedImagingAgestAdministrationSRStorage,
+        EncapsulatedSTLStorage,
+    ]
+    store_contexts = [
+        cx for cx in StoragePresentationContexts
+        if cx.abstract_syntax not in _exclusion
+    ]
+
     # Create application entity
     # Binding to port 0 lets the OS pick an available port
     ae = AE(ae_title=args.calling_aet)
@@ -225,15 +240,14 @@ if __name__ == "__main__":
     ae.dimse_timeout = args.dimse_timeout
     ae.network_timeout = args.network_timeout
 
-    for context in QueryRetrievePresentationContexts:
-        ae.add_requested_context(context.abstract_syntax)
-    for context in StoragePresentationContexts[:115]:
-        ae.add_requested_context(context.abstract_syntax)
-
-    # Add SCP/SCU Role Selection Negotiation to the extended negotiation
-    # We want to act as a Storage SCP
     ext_neg = []
-    for cx in StoragePresentationContexts:
+    ae.add_requested_context(PatientRootQueryRetrieveInformationModelGet)
+    ae.add_requested_context(StudyRootQueryRetrieveInformationModelGet)
+    ae.add_requested_context(PatientStudyOnlyQueryRetrieveInformationModelGet)
+    for cx in store_contexts:
+        ae.add_requested_context(cx.abstract_syntax)
+        # Add SCP/SCU Role Selection Negotiation to the extended negotiation
+        # We want to act as a Storage SCP
         ext_neg.append(build_role(cx.abstract_syntax, scp_role=True))
 
     if args.study:

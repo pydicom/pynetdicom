@@ -1,11 +1,41 @@
 =======
 findscu
 =======
-    ``findscu [options] addr port (-k keyword|-f file-in)``
+    ``findscu.py [options] addr port (-k keyword and/or -f file-in)``
 
 Description
 ===========
+The ``findscu`` application implements a *Service Class User* (SCU) for
+the :dcm:`Query/Retrieve Service Class<part04/chapter_C.html>`. It requests an
+association with a peer Application Entity on IP address ``addr`` and listen
+port ``port`` and, once an Association is established, requests the SCP search
+its stored SOP Instances for matches to a query.
 
+The following example shows what happens when it is succesfully run on
+an SCP at IP 127.0.0.1 and listen port 11112 that supports the *QR Find
+Service*:
+
+.. code-block:: text
+
+    user@host: python findscu.py 127.0.0.1 11112 -k QueryRetrieveLevel=PATIENT -k PatientName=
+    I: Requesting Association
+    I: Association Accepted
+    I: Sending Find Request: MsgID 1
+    I:
+    I: # Request Identifier
+    I: (0008, 0052) Query/Retrieve Level                CS: 'PATIENT'
+    I: (0010, 0010) Patient's Name                      PN: ''
+    I:
+    I: Find SCP Response: 1 - 0xFF00 (Pending)
+    I:
+    I: # Response Identifier
+    I: (0008, 0052) Query/Retrieve Level                CS: 'PATIENT'
+    I: (0008, 0054) Retrieve AE Title                   AE: 'QRSCP'
+    I: (0010, 0010) Patient's Name                      PN: 'CompressedSamples^CT1'
+    I:
+    I: Find SCP Result: 0x0000 (Success)
+    I: Releasing Association
+    user@host:
 
 Parameters
 ==========
@@ -29,19 +59,21 @@ General Options
             ``'debug'``], prints logging messages with corresponding level
             or higher
 ``-lc   --log-config [f]ilename (str)``
-            use Python logging config file f for the logger
+            use Python logging `config file
+            <https://docs.python.org/3/library/logging.config.html#logging.config.fileConfig>`_
+            ``f`` for the logger
 
 Network Options
 ---------------
 ``-aet  --calling-aet [a]etitle (str)``
-            set the local AE title (default: ECHOSCU)
+            set the local AE title (default: FINDSCU)
 ``-aec  --called-aet [a]etitle (str)``
             set the called AE title for the peer AE (default: ANY-SCP)
 ``-ta   --acse-timeout [s]econds (float)``
             timeout for ACSE messages (default: 30)
-``-td   --dimse-timeout [s]econdsr (float)``
+``-td   --dimse-timeout [s]econds (float)``
             timeout for DIMSE messages (default: 30)
-``-tn   --network-timeout [s]econdsr (float)``
+``-tn   --network-timeout [s]econds (float)``
             timeout for the network (default: 30)
 ``-pdu  --max-pdu [n]umber of bytes (int)``
             set maximum receive PDU bytes to n bytes (default: 16384)
@@ -59,10 +91,10 @@ Query Information Model Options
 
 Query Options
 -------------
-``-k [k]eyword: "(gggg,eeee)=str", "keyword=str"``
+``-k [k]eyword: (gggg,eeee)=str, keyword=str``
             add or override a query element using either an element tag as
             (group,element) or the element's keyword (such as PatientName).
-            See the (element pathing) section for more information.
+            See the *keyword pathing* section for more information.
 ``-f path to [f]ile``
             use a DICOM file as the query dataset, if used with ``-k``
             then the elements will be added to or overwrite those
@@ -75,6 +107,39 @@ Output Options
             ``rsp000002.dcm``, ...
 
 
-Element pathing
-===============
-Bluh
+.. include:: keyword_pathing.rst
+
+
+DICOM Conformance
+=================
+
+The ``findscu`` application supports the following SOP Classes as an SCU:
+
++-----------------------------+-----------------------------------------------+
+| UID                         | Transfer Syntax                               |
++=============================+===============================================+
+| 1.2.840.10008.5.1.4.1.2.1.1 | Patient Root Query Retrieve Information Model |
+|                             | - FIND                                        |
++-----------------------------+-----------------------------------------------+
+| 1.2.840.10008.5.1.4.1.2.2.1 | Study Root Query Retrieve Information Model   |
+|                             | - FIND                                        |
++-----------------------------+-----------------------------------------------+
+| 1.2.840.10008.5.1.4.1.2.3.1 | Patient Study Only Query Retrieve Information |
+|                             | - FIND                                        |
++-----------------------------+-----------------------------------------------+
+| 1.2.840.10008.5.1.4.31      | Modality Worklist Information Model - FIND    |
++-----------------------------+-----------------------------------------------+
+
+
+The application will request presentation contexts using these transfer
+syntaxes:
+
++------------------------+----------------------------------------------------+
+| UID                    | Transfer Syntax                                    |
++========================+====================================================+
+| 1.2.840.10008.1.2      | Implicit VR Little Endian                          |
++------------------------+----------------------------------------------------+
+| 1.2.840.10008.1.2.1    | Explicit VR Little Endian                          |
++------------------------+----------------------------------------------------+
+| 1.2.840.10008.1.2.2    | Explicit VR Big Endian                             |
++------------------------+----------------------------------------------------+

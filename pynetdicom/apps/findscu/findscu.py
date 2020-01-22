@@ -68,17 +68,20 @@ def _setup_argparser():
     output.add_argument(
         "-q", "--quiet",
         help="quiet mode, print no warnings and errors",
-        action="store_true"
+        action="store_const",
+        dest='log_type', const='q'
     )
     output.add_argument(
         "-v", "--verbose",
         help="verbose mode, print processing details",
-        action="store_true"
+        action="store_const",
+        dest='log_type', const='v'
     )
     output.add_argument(
         "-d", "--debug",
         help="debug mode, print debug information",
-        action="store_true"
+        action="store_const",
+        dest='log_type', const='d'
     )
     gen_opts.add_argument(
         "-ll", "--log-level", metavar='[l]',
@@ -94,6 +97,7 @@ def _setup_argparser():
         help="use config file f for the logger",
         type=str
     )
+    parser.set_defaults(log_type='v')
 
     # Network Options
     net_opts = parser.add_argument_group('Network Options')
@@ -111,19 +115,19 @@ def _setup_argparser():
     )
     net_opts.add_argument(
         "-ta", "--acse-timeout", metavar='[s]econds',
-        help="timeout for ACSE messages",
+        help="timeout for ACSE messages (default: 30 s)",
         type=float,
-        default=60
+        default=30
     )
     net_opts.add_argument(
         "-td", "--dimse-timeout", metavar='[s]econds',
-        help="timeout for DIMSE messages",
+        help="timeout for DIMSE messages (default: 30 s)",
         type=float,
-        default=None
+        default=30
     )
     net_opts.add_argument(
         "-tn", "--network-timeout", metavar='[s]econds',
-        help="timeout for the network",
+        help="timeout for the network (default: 30 s)",
         type=float,
         default=30
     )
@@ -161,7 +165,7 @@ def _setup_argparser():
     qr_query = parser.add_argument_group('Query Options')
     qr_query.add_argument(
         '-k', '--keyword',
-        metavar='[k]eyword: "gggg,eeee=str", "keyword=str"',
+        metavar='[k]eyword: (gggg,eeee)=str, keyword=str',
         help=(
             "add or override a query element using either an element tag as "
             "(group,element) or the element's keyword (such as PatientName)"
@@ -265,8 +269,6 @@ if __name__ == '__main__':
     # Query/Retrieve Information Models
     if args.worklist:
         query_model = ModalityWorklistInformationFind
-    elif args.patient:
-        query_model = PatientRootQueryRetrieveInformationModelFind
     elif args.study:
         query_model = StudyRootQueryRetrieveInformationModelFind
     elif args.psonly:

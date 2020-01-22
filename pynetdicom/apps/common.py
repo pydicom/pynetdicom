@@ -477,17 +477,15 @@ def setup_logging(args, app_name):
     def _setup(logger, level):
         logger.setLevel(level)
 
-    if args.quiet:
+    if args.log_type == 'q':
         app_logger.handlers = []
         app_logger.addHandler(logging.NullHandler())
         pynd_logger.handlers = []
         pynd_logger.addHandler(logging.NullHandler())
-
-    if args.verbose:
+    elif args.log_type == 'v':
         app_logger.setLevel(logging.INFO)
         pynd_logger.setLevel(logging.INFO)
-
-    if args.debug:
+    elif args.log_type == 'd':
         app_logger.setLevel(logging.DEBUG)
         pynd_logger.setLevel(logging.DEBUG)
 
