@@ -1,0 +1,6 @@
+pynetdicom.sop\_class.ImplantationPlanSRStorage
+===============================================
+
+.. currentmodule:: pynetdicom.sop_class
+
+.. autodata:: ImplantationPlanSRStorage

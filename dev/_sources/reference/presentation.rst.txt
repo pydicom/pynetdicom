@@ -39,6 +39,7 @@ Pre-built Presentation Contexts
 .. autosummary::
    :toctree: generated/
 
+   AllStoragePresentationContexts
    ApplicationEventLoggingPresentationContexts
    BasicWorklistManagementPresentationContexts
    ColorPalettePresentationContexts

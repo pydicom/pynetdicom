@@ -148,6 +148,9 @@
 <li class="toctree-l1"><a class="reference internal" href="../../apps/index.html">Applications</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../changelog/index.html">Release Notes</a></li>
 </ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../service_classes/index.html">Supported Service Classes</a></li>
+</ul>
 
             
           
@@ -217,7 +220,7 @@
 <h1>pynetdicom._handlers.doc_handle_store<a class="headerlink" href="#pynetdicom-handlers-doc-handle-store" title="Permalink to this headline">¶</a></h1>
 <dl class="function">
 <dt id="pynetdicom._handlers.doc_handle_store">
-<code class="sig-prename descclassname">pynetdicom._handlers.</code><code class="sig-name descname">doc_handle_store</code><span class="sig-paren">(</span><em class="sig-param">event</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/d1b07880/pynetdicom/_handlers.py#L2566"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom._handlers.doc_handle_store" title="Permalink to this definition">¶</a></dt>
+<code class="sig-prename descclassname">pynetdicom._handlers.</code><code class="sig-name descname">doc_handle_store</code><span class="sig-paren">(</span><em class="sig-param">event</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/8fdefcf2/pynetdicom/_handlers.py#L2566"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom._handlers.doc_handle_store" title="Permalink to this definition">¶</a></dt>
 <dd><p>Documentation for handlers bound to <code class="docutils literal notranslate"><span class="pre">evt.EVT_C_STORE</span></code>.</p>
 <p>User implementation of this event handler is required if one or more
 services that use C-STORE are to be supported. If a handler is
@@ -281,13 +284,13 @@ that the C-STORE request was processed by the service as
 <p><a class="reference internal" href="pynetdicom.events.Event.html#pynetdicom.events.Event" title="pynetdicom.events.Event"><code class="xref py py-class docutils literal notranslate"><span class="pre">Event</span></code></a> properties are:</p>
 <ul class="simple">
 <li><p><a class="reference internal" href="pynetdicom.events.Event.html#pynetdicom.events.Event.dataset" title="pynetdicom.events.Event.dataset"><code class="xref py py-attr docutils literal notranslate"><span class="pre">dataset</span></code></a>: the decoded
-<a class="reference external" href="https://pydicom.github.io/pydicom/stable/api_ref.html#pydicom.dataset.Dataset" title="(in pydicom v1.3.0)"><code class="xref py py-class docutils literal notranslate"><span class="pre">Dataset</span></code></a> contained within the
+<a class="reference external" href="https://pydicom.github.io/pydicom/stable/reference/generated/pydicom.dataset.Dataset.html#pydicom.dataset.Dataset" title="(in pydicom v1.4.1)"><code class="xref py py-class docutils literal notranslate"><span class="pre">Dataset</span></code></a> contained within the
 C-STORE request’s <em>Data Set</em> parameter. Because <em>pydicom</em> uses
 a deferred read when decoding data, if the decode fails the returned
-<a class="reference external" href="https://pydicom.github.io/pydicom/stable/api_ref.html#pydicom.dataset.Dataset" title="(in pydicom v1.3.0)"><code class="xref py py-class docutils literal notranslate"><span class="pre">Dataset</span></code></a> will only raise an exception at the
+<a class="reference external" href="https://pydicom.github.io/pydicom/stable/reference/generated/pydicom.dataset.Dataset.html#pydicom.dataset.Dataset" title="(in pydicom v1.4.1)"><code class="xref py py-class docutils literal notranslate"><span class="pre">Dataset</span></code></a> will only raise an exception at the
 time of use.</p></li>
 <li><p><a class="reference internal" href="pynetdicom.events.Event.html#pynetdicom.events.Event.file_meta" title="pynetdicom.events.Event.file_meta"><code class="xref py py-attr docutils literal notranslate"><span class="pre">file_meta</span></code></a>: a
-<a class="reference external" href="https://pydicom.github.io/pydicom/stable/api_ref.html#pydicom.dataset.Dataset" title="(in pydicom v1.3.0)"><code class="xref py py-class docutils literal notranslate"><span class="pre">Dataset</span></code></a> containing DICOM
+<a class="reference external" href="https://pydicom.github.io/pydicom/stable/reference/generated/pydicom.dataset.Dataset.html#pydicom.dataset.Dataset" title="(in pydicom v1.4.1)"><code class="xref py py-class docutils literal notranslate"><span class="pre">Dataset</span></code></a> containing DICOM
 conformant File Meta Information that can be used with the decoded
 dataset when saving to file: <code class="docutils literal notranslate"><span class="pre">event.dataset.file_meta</span> <span class="pre">=</span>
 <span class="pre">event.file_meta</span></code>.</p></li>
@@ -299,14 +302,14 @@ dataset when saving to file: <code class="docutils literal notranslate"><span cl
 <dt class="field-even">Returns</dt>
 <dd class="field-even"><p><strong>status</strong> – The status returned to the requesting AE in the C-STORE response. Must
 be a valid C-STORE status value for the applicable Service Class as
-either an <a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.8)"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></a> or a <a class="reference external" href="https://pydicom.github.io/pydicom/stable/api_ref.html#pydicom.dataset.Dataset" title="(in pydicom v1.3.0)"><code class="xref py py-class docutils literal notranslate"><span class="pre">Dataset</span></code></a> object
+either an <a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.8)"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></a> or a <a class="reference external" href="https://pydicom.github.io/pydicom/stable/reference/generated/pydicom.dataset.Dataset.html#pydicom.dataset.Dataset" title="(in pydicom v1.4.1)"><code class="xref py py-class docutils literal notranslate"><span class="pre">Dataset</span></code></a> object
 containing (at a minimum) a (0000,0900) <em>Status</em> element. If returning
-a <a class="reference external" href="https://pydicom.github.io/pydicom/stable/api_ref.html#pydicom.dataset.Dataset" title="(in pydicom v1.3.0)"><code class="xref py py-class docutils literal notranslate"><span class="pre">Dataset</span></code></a> object then it may also contain
+a <a class="reference external" href="https://pydicom.github.io/pydicom/stable/reference/generated/pydicom.dataset.Dataset.html#pydicom.dataset.Dataset" title="(in pydicom v1.4.1)"><code class="xref py py-class docutils literal notranslate"><span class="pre">Dataset</span></code></a> object then it may also contain
 optional elements related to the <em>Status</em> (as in the DICOM Standard,
 Part 7, <a class="reference external" href="http://dicom.nema.org/medical/dicom/current/output/chtml/part07/chapter_C.html">Annex C</a>).</p>
 </dd>
 <dt class="field-odd">Return type</dt>
-<dd class="field-odd"><p><a class="reference external" href="https://pydicom.github.io/pydicom/stable/api_ref.html#pydicom.dataset.Dataset" title="(in pydicom v1.3.0)">pydicom.dataset.Dataset</a> or <a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.8)">int</a></p>
+<dd class="field-odd"><p><a class="reference external" href="https://pydicom.github.io/pydicom/stable/reference/generated/pydicom.dataset.Dataset.html#pydicom.dataset.Dataset" title="(in pydicom v1.4.1)">pydicom.dataset.Dataset</a> or <a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.8)">int</a></p>
 </dd>
 <dt class="field-even">Raises</dt>
 <dd class="field-even"><p><a class="reference external" href="https://docs.python.org/3/library/exceptions.html#NotImplementedError" title="(in Python v3.8)"><strong>NotImplementedError</strong></a> – If the handler has not been implemented and bound to

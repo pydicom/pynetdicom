@@ -3,7 +3,7 @@
 1.5.0
 =====
 
-This will be the last release that support Python 2.
+This will be the last release that supports Python 2.
 
 Fixes
 .....
@@ -13,6 +13,9 @@ Fixes
 * Improved the robustness of determining the local IP address (:issue:`394`)
 * Fixed not being able to set an *Implementation Version Name* of length 1
   (:issue:`414`)
+* Changed ``ImplantationPlanSRDocumentStorage`` to
+  :attr:`~pynetdicom.sop_class.ImplantationPlanSRStorage` to match the name
+  from Part 6 of the DICOM Standard rather than Part 4.
 
 Enhancements
 ............
@@ -32,6 +35,12 @@ Enhancements
 * Added support for the DIMSE intervention event handlers aborting or releasing
   the association during service class operation.
 * Add new SOP classes up to 2019e version of the standard (:issue:`424`)
+* Added :attr:`~pynetdicom.presentation.AllStoragePresentationContexts` which
+  contains all of the Storage Service Class' SOP Class UIDs rather than just
+  the first 128 as in
+  :attr:`~pynetdicom.presentation.StoragePresentationContexts`.
+* Overhaul of ``echoscu.py``, ``storescu.py`` and added support for
+  ``findscu.py``, ``getscu.py`` and ``movescu.py`` apps.
 
 Changes
 .......

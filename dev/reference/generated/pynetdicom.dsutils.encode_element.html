@@ -131,6 +131,9 @@
 <li class="toctree-l1"><a class="reference internal" href="../../apps/index.html">Applications</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../changelog/index.html">Release Notes</a></li>
 </ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../service_classes/index.html">Supported Service Classes</a></li>
+</ul>
 
             
           
@@ -200,12 +203,12 @@
 <h1>pynetdicom.dsutils.encode_element<a class="headerlink" href="#pynetdicom-dsutils-encode-element" title="Permalink to this headline">¶</a></h1>
 <dl class="function">
 <dt id="pynetdicom.dsutils.encode_element">
-<code class="sig-prename descclassname">pynetdicom.dsutils.</code><code class="sig-name descname">encode_element</code><span class="sig-paren">(</span><em class="sig-param">elem</em>, <em class="sig-param">is_implicit_vr=True</em>, <em class="sig-param">is_little_endian=True</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/d1b07880/pynetdicom/dsutils.py#L85"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom.dsutils.encode_element" title="Permalink to this definition">¶</a></dt>
-<dd><p>Encode a <em>pydicom</em> <a class="reference external" href="https://pydicom.github.io/pydicom/stable/api_ref.html#pydicom.dataelem.DataElement" title="(in pydicom v1.3.0)"><code class="xref py py-class docutils literal notranslate"><span class="pre">DataElement</span></code></a> <cite>elem</cite>.</p>
+<code class="sig-prename descclassname">pynetdicom.dsutils.</code><code class="sig-name descname">encode_element</code><span class="sig-paren">(</span><em class="sig-param">elem</em>, <em class="sig-param">is_implicit_vr=True</em>, <em class="sig-param">is_little_endian=True</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/8fdefcf2/pynetdicom/dsutils.py#L85"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom.dsutils.encode_element" title="Permalink to this definition">¶</a></dt>
+<dd><p>Encode a <em>pydicom</em> <a class="reference external" href="https://pydicom.github.io/pydicom/stable/reference/generated/pydicom.dataelem.DataElement.html#pydicom.dataelem.DataElement" title="(in pydicom v1.4.1)"><code class="xref py py-class docutils literal notranslate"><span class="pre">DataElement</span></code></a> <cite>elem</cite>.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>elem</strong> (<a class="reference external" href="https://pydicom.github.io/pydicom/stable/api_ref.html#pydicom.dataelem.DataElement" title="(in pydicom v1.3.0)"><em>pydicom.dataelem.DataElement</em></a>) – The element to encode.</p></li>
+<li><p><strong>elem</strong> (<a class="reference external" href="https://pydicom.github.io/pydicom/stable/reference/generated/pydicom.dataelem.DataElement.html#pydicom.dataelem.DataElement" title="(in pydicom v1.4.1)"><em>pydicom.dataelem.DataElement</em></a>) – The element to encode.</p></li>
 <li><p><strong>is_implicit_vr</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.8)"><em>bool</em></a><em>, </em><em>optional</em>) – The element encoding scheme the element will be encoded with, <code class="docutils literal notranslate"><span class="pre">True</span></code>
 for implicit VR (default), <code class="docutils literal notranslate"><span class="pre">False</span></code> for explicit VR.</p></li>
 <li><p><strong>is_little_endian</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.8)"><em>bool</em></a><em>, </em><em>optional</em>) – The byte ordering the element will be encoded in, <code class="docutils literal notranslate"><span class="pre">True</span></code> for little

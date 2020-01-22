@@ -147,6 +147,9 @@
 <li class="toctree-l1"><a class="reference internal" href="../../apps/index.html">Applications</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../changelog/index.html">Release Notes</a></li>
 </ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../service_classes/index.html">Supported Service Classes</a></li>
+</ul>
 
             
           
@@ -220,7 +223,7 @@
 <h1>pynetdicom.pdu_items.PresentationContextItemRQ<a class="headerlink" href="#pynetdicom-pdu-items-presentationcontextitemrq" title="Permalink to this headline">¶</a></h1>
 <dl class="class">
 <dt id="pynetdicom.pdu_items.PresentationContextItemRQ">
-<em class="property">class </em><code class="sig-prename descclassname">pynetdicom.pdu_items.</code><code class="sig-name descname">PresentationContextItemRQ</code><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/d1b07880/pynetdicom/pdu_items.py#L513"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom.pdu_items.PresentationContextItemRQ" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="sig-prename descclassname">pynetdicom.pdu_items.</code><code class="sig-name descname">PresentationContextItemRQ</code><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/8fdefcf2/pynetdicom/pdu_items.py#L513"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom.pdu_items.PresentationContextItemRQ" title="Permalink to this definition">¶</a></dt>
 <dd><p>A Presentation Context (RQ) Item.</p>
 <p>Presentation Contexts (RQ) Items are used by the association requestor to
 propose Abstract Syntaxes (specifications of data elements with associated
@@ -231,7 +234,7 @@ semantics) and Transfer Syntaxes (sets of encoding rules).</p>
 <dd><p>The Presentation Context Item’s Abstract Syntax (if available).</p>
 <dl class="field-list simple">
 <dt class="field-odd">Type</dt>
-<dd class="field-odd"><p><a class="reference external" href="https://pydicom.github.io/pydicom/stable/api_ref.html#pydicom.uid.UID" title="(in pydicom v1.3.0)">pydicom.uid.UID</a> or None.</p>
+<dd class="field-odd"><p><a class="reference external" href="https://pydicom.github.io/pydicom/stable/reference/generated/pydicom.uid.UID.html#pydicom.uid.UID" title="(in pydicom v1.4.1)">pydicom.uid.UID</a> or None.</p>
 </dd>
 </dl>
 </dd></dl>
@@ -382,7 +385,7 @@ Python indexing). Items are always encoded using Big Endian.</p>
 </ul>
 <dl class="method">
 <dt id="pynetdicom.pdu_items.PresentationContextItemRQ.__init__">
-<code class="sig-name descname">__init__</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/d1b07880/pynetdicom/pdu_items.py#L594"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom.pdu_items.PresentationContextItemRQ.__init__" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">__init__</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/8fdefcf2/pynetdicom/pdu_items.py#L594"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom.pdu_items.PresentationContextItemRQ.__init__" title="Permalink to this definition">¶</a></dt>
 <dd><p>Initialise a new Presentation Context (RQ) Item.</p>
 </dd></dl>
 
@@ -443,7 +446,7 @@ Python indexing). Items are always encoded using Big Endian.</p>
 <dd class="field-odd"><p></p>
 </dd>
 <dt class="field-even">Return type</dt>
-<dd class="field-even"><p><a class="reference external" href="https://pydicom.github.io/pydicom/stable/api_ref.html#pydicom.uid.UID" title="(in pydicom v1.3.0)">pydicom.uid.UID</a> or <a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.8)">None</a></p>
+<dd class="field-even"><p><a class="reference external" href="https://pydicom.github.io/pydicom/stable/reference/generated/pydicom.uid.UID.html#pydicom.uid.UID" title="(in pydicom v1.4.1)">pydicom.uid.UID</a> or <a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.8)">None</a></p>
 </dd>
 </dl>
 </dd></dl>
@@ -457,7 +460,7 @@ Python indexing). Items are always encoded using Big Endian.</p>
 
 <dl class="method">
 <dt id="pynetdicom.pdu_items.PresentationContextItemRQ.from_primitive">
-<code class="sig-name descname">from_primitive</code><span class="sig-paren">(</span><em class="sig-param">primitive</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/d1b07880/pynetdicom/pdu_items.py#L599"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom.pdu_items.PresentationContextItemRQ.from_primitive" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">from_primitive</code><span class="sig-paren">(</span><em class="sig-param">primitive</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/8fdefcf2/pynetdicom/pdu_items.py#L599"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom.pdu_items.PresentationContextItemRQ.from_primitive" title="Permalink to this definition">¶</a></dt>
 <dd><p>Set the item’s values using a Presentation Context primitive.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -474,7 +477,7 @@ Python indexing). Items are always encoded using Big Endian.</p>
 
 <dl class="method">
 <dt id="pynetdicom.pdu_items.PresentationContextItemRQ.to_primitive">
-<code class="sig-name descname">to_primitive</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/d1b07880/pynetdicom/pdu_items.py#L621"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom.pdu_items.PresentationContextItemRQ.to_primitive" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">to_primitive</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/8fdefcf2/pynetdicom/pdu_items.py#L621"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom.pdu_items.PresentationContextItemRQ.to_primitive" title="Permalink to this definition">¶</a></dt>
 <dd><p>Return a PresentationContext primitive from the current Item.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Returns</dt>

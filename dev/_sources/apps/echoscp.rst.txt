@@ -80,7 +80,7 @@ Miscellaneous DICOM
               timeout for connection requests (default: unlimited)
     ``-ta   --acse-timeout [s]econds (int)``
               timeout for ACSE messages (default: 30)
-    ``-td   --dimse-timeout [s]econdsr (int)``
+    ``-td   --dimse-timeout [s]econds (int)``
               timeout for DIMSE messages (default: unlimited)
     ``-pdu  --max-pdu [n]umber of bytes (int)``
               set maximum receive PDU bytes to n bytes (default: 16384)

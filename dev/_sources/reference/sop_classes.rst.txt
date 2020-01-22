@@ -259,7 +259,7 @@ Storage
    GrayscalePlanarMPRVolumetricPresentationStateStorage
    GrayscaleSoftcopyPresentationStateStorage
    HemodynamicWaveformStorage
-   ImplantationPlanSRDocumentStorage
+   ImplantationPlanSRStorage
    IntraocularLensCalculationsStorage
    IntravascularOpticalCoherenceTomographyImagePresentationStorage
    IntravascularOpticalCoherenceTomographyImageProcessingStorage
