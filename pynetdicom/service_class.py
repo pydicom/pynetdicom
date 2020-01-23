@@ -2000,6 +2000,15 @@ class QueryRetrieveServiceClass(ServiceClass):
             self.dimse.send_msg(rsp, context.context_id)
             return
 
+        if no_suboperations < 1:
+            rsp.Status = 0x0000
+            rsp.NumberOfRemainingSuboperations = 0
+            rsp.NumberOfFailedSuboperations = 0
+            rsp.NumberOfWarningSuboperations = 0
+            rsp.NumberOfCompletedSuboperations = 0
+            self.dimse.send_msg(rsp, context.context_id)
+            return
+
         # Request new association with Move Destination
         try:
             # Unknown Move Destination
@@ -2011,9 +2020,9 @@ class QueryRetrieveServiceClass(ServiceClass):
                 self.dimse.send_msg(rsp, context.context_id)
                 return
 
-            store_assoc = self.ae.associate(destination[0],
-                                            destination[1],
-                                            ae_title=req.MoveDestination)
+            store_assoc = self.ae.associate(
+                destination[0], destination[1], ae_title=req.MoveDestination
+            )
         except Exception as exc:
             LOGGER.error(
                 "The handler bound to 'evt.EVT_C_MOVE' yielded an invalid "

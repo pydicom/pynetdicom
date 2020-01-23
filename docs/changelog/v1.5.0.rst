@@ -16,14 +16,17 @@ Fixes
 * Changed ``ImplantationPlanSRDocumentStorage`` to
   :attr:`~pynetdicom.sop_class.ImplantationPlanSRStorage` to match the name
   from Part 6 of the DICOM Standard rather than Part 4.
+* Stopped the QR Move SCP from associating with the move destination when no
+  suboperations were required (:issue:`436`)
+
 
 Enhancements
 ............
 
 * Added configuration option :attr:`_config.USE_SHORT_DIMSE_AET
   <pynetdicom._config.USE_SHORT_DIMSE_AET>` so elements with a VR of **AE** in
-  DIMSE messages are only padded to the shortest even length rather than to
-  the maximum 16 characters. (:issue:`403`)
+  DIMSE messages are no longer padded than to the maximum 16 characters.
+  (:issue:`403`)
 * When acting as the association Acceptor check that the user hasn't sent
   an A-ABORT or A-ASSOCIATE-RJ before attempting association negotiation
   (:issue:`408`)
@@ -39,8 +42,8 @@ Enhancements
   contains all of the Storage Service Class' SOP Class UIDs rather than just
   the first 128 as in
   :attr:`~pynetdicom.presentation.StoragePresentationContexts`.
-* Overhaul of ``echoscu.py``, ``storescu.py`` and added support for
-  ``findscu.py``, ``getscu.py`` and ``movescu.py`` apps.
+* Overhaul of ``echoscu.py``, ``storescu.py`` and added non-toy implementations
+  for ``findscu.py``, ``getscu.py`` and ``movescu.py`` apps.
 
 Changes
 .......
@@ -60,3 +63,9 @@ Changes
   <pynetdicom.acse.ACSE.is_aborted>`
 * Support for Python 2 is deprecated and will be removed starting in version
   2.0.
+
+
+Known Issues
+............
+
+* TLS v1.3 (with OpenSSL 1.1.1 or higher) is not currently supported.

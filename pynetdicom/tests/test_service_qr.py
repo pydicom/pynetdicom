@@ -4263,7 +4263,7 @@ class TestQRMoveServiceClass(object):
         scp.shutdown()
 
     def test_move_success(self):
-        """Test when handler returns failure status"""
+        """Test when handler returns success status"""
         def handle(event):
             yield self.destination
             yield 1
@@ -4285,7 +4285,10 @@ class TestQRMoveServiceClass(object):
         ae.dimse_timeout = 5
         assoc = ae.associate('localhost', 11112)
         assert assoc.is_established
-        result = assoc.send_c_move(self.query, b'TESTMOVE', PatientRootQueryRetrieveInformationModelMove)
+        result = assoc.send_c_move(
+            self.query, b'TESTMOVE',
+            PatientRootQueryRetrieveInformationModelMove
+        )
         status, identifier = next(result)
         assert status.Status == 0xFF00
         assert identifier is None
@@ -5152,6 +5155,58 @@ class TestQRMoveServiceClass(object):
         time.sleep(0.1)
         assert assoc.is_aborted
         scp.shutdown()
+
+    def test_no_subops_no_association(self):
+        """Test that the Move SCP doesn't try and associate if not needed."""
+        events = []
+        def handle(event):
+            yield ('localhost', 11113)
+            yield 0
+            yield 0x0000, None
+
+        def handle_store(event):
+            return 0x0000
+
+        def handle_assoc(event):
+            events.append(event)
+
+        handlers = [
+            (evt.EVT_REQUESTED, handle_assoc),
+            (evt.EVT_C_STORE, handle_store),
+        ]
+
+        self.ae = ae = AE()
+        ae.add_supported_context(PatientRootQueryRetrieveInformationModelMove)
+        ae.add_supported_context(CTImageStorage)
+        store_scp = ae.start_server(
+            ('', 11113), block=False, evt_handlers=handlers
+        )
+        ae.add_requested_context(PatientRootQueryRetrieveInformationModelMove)
+        ae.add_requested_context(CTImageStorage)
+        scp = ae.start_server(
+            ('', 11112), block=False, evt_handlers=[(evt.EVT_C_MOVE, handle)]
+        )
+
+        ae.acse_timeout = 5
+        ae.dimse_timeout = 5
+        assoc = ae.associate('localhost', 11112)
+        assert assoc.is_established
+        result = assoc.send_c_move(
+            self.query, b'TESTMOVE',
+            PatientRootQueryRetrieveInformationModelMove
+        )
+        status, identifier = next(result)
+        assert status.Status == 0x0000
+        assert identifier is None
+        assert status.NumberOfFailedSuboperations == 0
+        assert status.NumberOfWarningSuboperations == 0
+        assert status.NumberOfCompletedSuboperations == 0
+        pytest.raises(StopIteration, next, result)
+
+        assoc.release()
+        scp.shutdown()
+
+        assert len(events) == 0
 
 
 class TestQRCompositeInstanceWithoutBulk(object):

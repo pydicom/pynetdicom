@@ -299,9 +299,6 @@ class TestMoveSCU(object):
     def test_flag_aet(self):
         """Test --calling-aet flag."""
         events = []
-        def handle_store(event):
-            return 0x0000
-
         def handle_move(event):
             events.append(event)
             yield 'localhost', 11113
@@ -320,16 +317,11 @@ class TestMoveSCU(object):
         ae.supported_contexts = QueryRetrievePresentationContexts
         scp = ae.start_server(('', 11112), block=False, evt_handlers=handlers)
         ae.supported_contexts = StoragePresentationContexts
-        store_scp = ae.start_server(
-            ('', 11113), block=False,
-            evt_handlers=[(evt.EVT_C_STORE, handle_store)]
-        )
 
         p = start_movescu(['-aet', 'MYSCU', '-k', 'PatientName='])
         p.wait()
         assert p.returncode == 0
 
-        store_scp.shutdown()
         scp.shutdown()
 
         assert events[0].event == evt.EVT_C_MOVE
@@ -339,10 +331,6 @@ class TestMoveSCU(object):
     def test_flag_aec(self):
         """Test --called-aet flag."""
         events = []
-
-        def handle_store(event):
-            return 0x0000
-
         def handle_move(event):
             events.append(event)
             yield 'localhost', 11113
@@ -360,17 +348,11 @@ class TestMoveSCU(object):
         ae.requested_contexts = StoragePresentationContexts
         ae.supported_contexts = QueryRetrievePresentationContexts
         scp = ae.start_server(('', 11112), block=False, evt_handlers=handlers)
-        ae.supported_contexts = StoragePresentationContexts
-        store_scp = ae.start_server(
-            ('', 11113), block=False,
-            evt_handlers=[(evt.EVT_C_STORE, handle_store)]
-        )
 
         p = start_movescu(['-aec', 'YOURSCP', '-k', 'PatientName='])
         p.wait()
         assert p.returncode == 0
 
-        store_scp.shutdown()
         scp.shutdown()
 
         assert events[0].event == evt.EVT_C_MOVE
@@ -380,10 +362,6 @@ class TestMoveSCU(object):
     def test_flag_aem(self):
         """Test --called-aem flag."""
         events = []
-
-        def handle_store(event):
-            return 0x0000
-
         def handle_move(event):
             events.append(event)
             yield 'localhost', 11113
@@ -402,16 +380,11 @@ class TestMoveSCU(object):
         ae.supported_contexts = QueryRetrievePresentationContexts
         scp = ae.start_server(('', 11112), block=False, evt_handlers=handlers)
         ae.supported_contexts = StoragePresentationContexts
-        store_scp = ae.start_server(
-            ('', 11113), block=False,
-            evt_handlers=[(evt.EVT_C_STORE, handle_store)]
-        )
 
         p = start_movescu(['-aem', 'SOMESCP', '-k', 'PatientName='])
         p.wait()
         assert p.returncode == 0
 
-        store_scp.shutdown()
         scp.shutdown()
 
         assert events[0].event == evt.EVT_C_MOVE
@@ -420,9 +393,6 @@ class TestMoveSCU(object):
     def test_flag_ta(self, capfd):
         """Test --acse-timeout flag."""
         events = []
-        def handle_store(event):
-            return 0x0000
-
         def handle_requested(event):
             events.append(event)
             time.sleep(0.1)
@@ -449,18 +419,12 @@ class TestMoveSCU(object):
         ae.requested_contexts = StoragePresentationContexts
         ae.supported_contexts = QueryRetrievePresentationContexts
         scp = ae.start_server(('', 11112), block=False, evt_handlers=handlers)
-        ae.supported_contexts = StoragePresentationContexts
-        store_scp = ae.start_server(
-            ('', 11113), block=False,
-            evt_handlers=[(evt.EVT_C_STORE, handle_store)]
-        )
 
         p = start_movescu(['-ta', '0.05', '-d', '-k', 'PatientName='])
         p.wait()
         assert p.returncode == 1
 
         time.sleep(0.1)
-        store_scp.shutdown()
         scp.shutdown()
 
         out, err = capfd.readouterr()
@@ -471,9 +435,6 @@ class TestMoveSCU(object):
     def test_flag_td(self, capfd):
         """Test --dimse-timeout flag."""
         events = []
-        def handle_store(event):
-            return 0x0000
-
         def handle_move(event):
             events.append(event)
             time.sleep(0.1)
@@ -496,18 +457,12 @@ class TestMoveSCU(object):
         ae.requested_contexts = StoragePresentationContexts
         ae.supported_contexts = QueryRetrievePresentationContexts
         scp = ae.start_server(('', 11112), block=False, evt_handlers=handlers)
-        ae.supported_contexts = StoragePresentationContexts
-        store_scp = ae.start_server(
-            ('', 11113), block=False,
-            evt_handlers=[(evt.EVT_C_STORE, handle_store)]
-        )
 
         p = start_movescu(['-td', '0.05', '-d', '-k', 'PatientName='])
         p.wait()
         assert p.returncode == 0
 
         time.sleep(0.1)
-        store_scp.shutdown()
         scp.shutdown()
 
         out, err = capfd.readouterr()
@@ -523,9 +478,6 @@ class TestMoveSCU(object):
     def test_flag_max_pdu(self):
         """Test --max-pdu flag."""
         events = []
-        def handle_store(event):
-            return 0x0000
-
         def handle_move(event):
             events.append(event)
             yield 'localhost', 11113
@@ -547,17 +499,11 @@ class TestMoveSCU(object):
         ae.requested_contexts = StoragePresentationContexts
         ae.supported_contexts = QueryRetrievePresentationContexts
         scp = ae.start_server(('', 11112), block=False, evt_handlers=handlers)
-        ae.supported_contexts = StoragePresentationContexts
-        store_scp = ae.start_server(
-            ('', 11113), block=False,
-            evt_handlers=[(evt.EVT_C_STORE, handle_store)]
-        )
 
         p = start_movescu(['--max-pdu', '123456', '-k', 'PatientName='])
         p.wait()
         assert p.returncode == 0
 
-        store_scp.shutdown()
         scp.shutdown()
 
         assert events[0].event == evt.EVT_C_MOVE
@@ -568,9 +514,6 @@ class TestMoveSCU(object):
     def test_flag_patient(self):
         """Test the -P flag."""
         events = []
-        def handle_store(event):
-            return 0x0000
-
         def handle_move(event):
             events.append(event)
             yield 'localhost', 11113
@@ -588,17 +531,11 @@ class TestMoveSCU(object):
         ae.requested_contexts = StoragePresentationContexts
         ae.supported_contexts = QueryRetrievePresentationContexts
         scp = ae.start_server(('', 11112), block=False, evt_handlers=handlers)
-        ae.supported_contexts = StoragePresentationContexts
-        store_scp = ae.start_server(
-            ('', 11113), block=False,
-            evt_handlers=[(evt.EVT_C_STORE, handle_store)]
-        )
 
         p = start_movescu(['-P', '-k', 'PatientName='])
         p.wait()
         assert p.returncode == 0
 
-        store_scp.shutdown()
         scp.shutdown()
 
         assert events[0].event == evt.EVT_C_MOVE
@@ -610,9 +547,6 @@ class TestMoveSCU(object):
     def test_flag_study(self):
         """Test the -S flag."""
         events = []
-        def handle_store(event):
-            return 0x0000
-
         def handle_move(event):
             events.append(event)
             yield 'localhost', 11113
@@ -630,17 +564,11 @@ class TestMoveSCU(object):
         ae.requested_contexts = StoragePresentationContexts
         ae.supported_contexts = QueryRetrievePresentationContexts
         scp = ae.start_server(('', 11112), block=False, evt_handlers=handlers)
-        ae.supported_contexts = StoragePresentationContexts
-        store_scp = ae.start_server(
-            ('', 11113), block=False,
-            evt_handlers=[(evt.EVT_C_STORE, handle_store)]
-        )
 
         p = start_movescu(['-S', '-k', 'PatientName='])
         p.wait()
         assert p.returncode == 0
 
-        store_scp.shutdown()
         scp.shutdown()
 
         assert events[0].event == evt.EVT_C_MOVE
@@ -650,9 +578,6 @@ class TestMoveSCU(object):
     def test_flag_patient_study(self):
         """Test the -O flag."""
         events = []
-        def handle_store(event):
-            return 0x0000
-
         def handle_move(event):
             events.append(event)
             yield 'localhost', 11113
@@ -670,17 +595,11 @@ class TestMoveSCU(object):
         ae.requested_contexts = StoragePresentationContexts
         ae.supported_contexts = QueryRetrievePresentationContexts
         scp = ae.start_server(('', 11112), block=False, evt_handlers=handlers)
-        ae.supported_contexts = StoragePresentationContexts
-        store_scp = ae.start_server(
-            ('', 11113), block=False,
-            evt_handlers=[(evt.EVT_C_STORE, handle_store)]
-        )
 
         p = start_movescu(['-O', '-k', 'PatientName='])
         p.wait()
         assert p.returncode == 0
 
-        store_scp.shutdown()
         scp.shutdown()
 
         assert events[0].event == evt.EVT_C_MOVE

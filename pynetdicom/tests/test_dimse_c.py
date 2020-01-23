@@ -340,11 +340,11 @@ class TestPrimitive_C_STORE(object):
 
         primitive.MoveOriginatorApplicationEntityTitle = b'A'
         aet = primitive.MoveOriginatorApplicationEntityTitle
-        assert b'A ' == aet
+        assert b'A' == aet
 
         primitive.MoveOriginatorApplicationEntityTitle = b'ABCDEFGHIJKLMNO'
         aet = primitive.MoveOriginatorApplicationEntityTitle
-        assert b'ABCDEFGHIJKLMNO ' == aet
+        assert b'ABCDEFGHIJKLMNO' == aet
 
         primitive.MoveOriginatorApplicationEntityTitle = b'ABCDEFGHIJKLMNOP'
         aet = primitive.MoveOriginatorApplicationEntityTitle
@@ -1100,10 +1100,10 @@ class TestPrimitive_C_MOVE(object):
 
         primitive.MoveDestination = b'A'
         aet = primitive.MoveDestination
-        assert b'A ' == primitive.MoveDestination
+        assert b'A' == primitive.MoveDestination
 
         primitive.MoveDestination = b'ABCDEFGHIJKLMNO'
-        assert b'ABCDEFGHIJKLMNO ' == primitive.MoveDestination
+        assert b'ABCDEFGHIJKLMNO' == primitive.MoveDestination
 
         primitive.MoveDestination = b'ABCDEFGHIJKLMNOP'
         assert b'ABCDEFGHIJKLMNOP' == primitive.MoveDestination
