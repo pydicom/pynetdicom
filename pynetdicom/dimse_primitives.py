@@ -422,7 +422,7 @@ class DIMSEPrimitive(object):
 
 # DIMSE-C Service Primitives
 class C_STORE(DIMSEPrimitive):
-    """Represents a C-STORE primitive.
+    r"""Represents a C-STORE primitive.
 
     +------------------------------------------+---------+----------+
     | Parameter                                | Req/ind | Rsp/conf |
@@ -645,7 +645,7 @@ class C_STORE(DIMSEPrimitive):
 
 
 class C_FIND(DIMSEPrimitive):
-    """Represents a C-FIND primitive.
+    r"""Represents a C-FIND primitive.
 
     +-------------------------------+---------+----------+
     | Parameter                     | Req/ind | Rsp/conf |
@@ -767,7 +767,7 @@ class C_FIND(DIMSEPrimitive):
 
 
 class C_GET(DIMSEPrimitive):
-    """Represents a C-GET primitive.
+    r"""Represents a C-GET primitive.
 
     +-------------------------------+---------+----------+
     | Parameter                     | Req/ind | Rsp/conf |
@@ -992,7 +992,7 @@ class C_GET(DIMSEPrimitive):
 
 
 class C_MOVE(DIMSEPrimitive):
-    """Represents a C-MOVE primitive.
+    r"""Represents a C-MOVE primitive.
 
     +-------------------------------+---------+----------+
     | Parameter                     | Req/ind | Rsp/conf |
@@ -1247,7 +1247,7 @@ class C_MOVE(DIMSEPrimitive):
 
 
 class C_ECHO(DIMSEPrimitive):
-    """Represents a C-ECHO primitive.
+    r"""Represents a C-ECHO primitive.
 
     +-------------------------------+---------+----------+
     | Parameter                     | Req/ind | Rsp/conf |
@@ -1374,7 +1374,7 @@ class C_CANCEL(object):
 
 # DIMSE-N Service Primitives
 class N_EVENT_REPORT(DIMSEPrimitive):
-    """Represents a N-EVENT-REPORT primitive.
+    r"""Represents a N-EVENT-REPORT primitive.
 
     +------------------------------------------+---------+----------+
     | Parameter                                | Req/ind | Rsp/conf |
@@ -1529,7 +1529,7 @@ class N_EVENT_REPORT(DIMSEPrimitive):
 
 
 class N_GET(DIMSEPrimitive):
-    """Represents an N-GET primitive.
+    r"""Represents an N-GET primitive.
 
     +------------------------------------------+---------+----------+
     | Parameter                                | Req/ind | Rsp/conf |
@@ -1722,7 +1722,7 @@ class N_GET(DIMSEPrimitive):
 
 
 class N_SET(DIMSEPrimitive):
-    """Represents a N-SET primitive.
+    r"""Represents a N-SET primitive.
 
     +------------------------------------------+---------+----------+
     | Parameter                                | Req/ind | Rsp/conf |
@@ -1892,7 +1892,7 @@ class N_SET(DIMSEPrimitive):
 
 
 class N_ACTION(DIMSEPrimitive):
-    """Represents a N-ACTION primitive.
+    r"""Represents a N-ACTION primitive.
 
     +------------------------------------------+---------+----------+
     | Parameter                                | Req/ind | Rsp/conf |
@@ -2086,7 +2086,7 @@ class N_ACTION(DIMSEPrimitive):
 
 
 class N_CREATE(DIMSEPrimitive):
-    """Represents a N-CREATE primitive.
+    r"""Represents a N-CREATE primitive.
 
     +------------------------------------------+---------+----------+
     | Parameter                                | Req/ind | Rsp/conf |
@@ -2187,7 +2187,7 @@ class N_CREATE(DIMSEPrimitive):
 
 
 class N_DELETE(DIMSEPrimitive):
-    """Represents a N-DELETE primitive.
+    r"""Represents a N-DELETE primitive.
 
     +------------------------------------------+---------+----------+
     | Parameter                                | Req/ind | Rsp/conf |
