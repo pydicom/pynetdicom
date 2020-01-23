@@ -1847,11 +1847,9 @@ class QueryRetrieveServiceClass(ServiceClass):
                     if msg_id > 65535:
                         msg_id -= 65535
 
-                    print('A')
                     store_status = self.assoc.send_c_store(
                         dataset, msg_id=msg_id
                     )
-                    print('B')
                     store_status = (
                         STORAGE_SERVICE_CLASS_STATUS[store_status.Status]
                     )
