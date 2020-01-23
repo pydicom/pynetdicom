@@ -2037,6 +2037,7 @@ class TestAssociationSendCFind(object):
         with caplog.at_level(logging.ERROR, logger='pynetdicom'):
             ae = AE()
             assoc = Association(ae, 'requestor')
+            assoc._is_paused = True
             dimse = assoc.dimse
             dimse.msg_queue.put((3, C_STORE()))
             cx = build_context(PatientRootQueryRetrieveInformationModelFind)
@@ -2047,7 +2048,9 @@ class TestAssociationSendCFind(object):
             identifier = Dataset()
             identifier.PatientID = '*'
             assoc.is_established = True
-            results = assoc.send_c_find(identifier, PatientRootQueryRetrieveInformationModelFind)
+            results = assoc.send_c_find(
+                identifier, PatientRootQueryRetrieveInformationModelFind
+            )
             status, ds = next(results)
             assert status == Dataset()
             assert ds is None
@@ -2063,6 +2066,7 @@ class TestAssociationSendCFind(object):
         with caplog.at_level(logging.ERROR, logger='pynetdicom'):
             ae = AE()
             assoc = Association(ae, 'requestor')
+            assoc._is_paused = True
             dimse = assoc.dimse
             dimse.msg_queue.put((3, C_FIND()))
             cx = build_context(PatientRootQueryRetrieveInformationModelFind)
@@ -2427,7 +2431,9 @@ class TestAssociationSendCGet(object):
 
         assert assoc.is_established
 
-        result = assoc.send_c_get(self.ds, PatientRootQueryRetrieveInformationModelGet)
+        result = assoc.send_c_get(
+            self.ds, PatientRootQueryRetrieveInformationModelGet
+        )
         (status, ds) = next(result)
         assert status.Status == 0xff00
         assert ds is None
@@ -2833,6 +2839,7 @@ class TestAssociationSendCGet(object):
         with caplog.at_level(logging.ERROR, logger='pynetdicom'):
             ae = AE()
             assoc = Association(ae, 'requestor')
+            assoc._is_paused = True
             dimse = assoc.dimse
             dimse.msg_queue.put((3, C_FIND()))
             cx = build_context(PatientRootQueryRetrieveInformationModelGet)
@@ -2859,6 +2866,7 @@ class TestAssociationSendCGet(object):
         with caplog.at_level(logging.ERROR, logger='pynetdicom'):
             ae = AE()
             assoc = Association(ae, 'requestor')
+            assoc._is_paused = True
             dimse = assoc.dimse
             dimse.msg_queue.put((3, C_GET()))
             cx = build_context(PatientRootQueryRetrieveInformationModelGet)
@@ -3594,6 +3602,7 @@ class TestAssociationSendCMove(object):
         with caplog.at_level(logging.ERROR, logger='pynetdicom'):
             ae = AE()
             assoc = Association(ae, 'requestor')
+            assoc._is_paused = True
             dimse = assoc.dimse
             dimse.msg_queue.put((3, C_FIND()))
             cx = build_context(PatientRootQueryRetrieveInformationModelMove)
@@ -3622,6 +3631,7 @@ class TestAssociationSendCMove(object):
         with caplog.at_level(logging.ERROR, logger='pynetdicom'):
             ae = AE()
             assoc = Association(ae, 'requestor')
+            assoc._is_paused = True
             dimse = assoc.dimse
             dimse.msg_queue.put((3, C_MOVE()))
             cx = build_context(PatientRootQueryRetrieveInformationModelMove)

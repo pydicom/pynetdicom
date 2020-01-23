@@ -535,7 +535,7 @@ class Association(threading.Thread):
                 self._run_reactor()
 
             # Ensure the connection is shutdown properly
-            if self.dul.socket.socket:
+            if self._server and self.dul.socket.socket:
                 self._server.shutdown_request(self.dul.socket.socket)
         else:
             # Association requestor
@@ -1272,8 +1272,8 @@ class Association(threading.Thread):
 
         # Pause the reactor to prevent a race condition
         self._reactor_checkpoint.clear()
-        while not self._is_paused:
-            time.sleep(0.0001)
+        #while not self._is_paused:
+        #    time.sleep(0.0001)
 
         # Send C-GET request to the peer via DIMSE
         self.dimse.send_msg(req, context.context_id)
@@ -3170,7 +3170,9 @@ class Association(threading.Thread):
         try:
             # Clear out any C-CANCEL requests received beforehand
             self.dimse.cancel_req = {}
+            self._is_paused = True
             service_class.SCP(msg, context)
+            self._is_paused = False
             # Clear out any unacted upon requests received during
             self.dimse.cancel_req = {}
         except NotImplementedError:
