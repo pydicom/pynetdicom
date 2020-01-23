@@ -1272,8 +1272,8 @@ class Association(threading.Thread):
 
         # Pause the reactor to prevent a race condition
         self._reactor_checkpoint.clear()
-        #while not self._is_paused:
-        #    time.sleep(0.0001)
+        while not self._is_paused:
+            time.sleep(0.0001)
 
         # Send C-GET request to the peer via DIMSE
         self.dimse.send_msg(req, context.context_id)
@@ -3170,6 +3170,7 @@ class Association(threading.Thread):
         try:
             # Clear out any C-CANCEL requests received beforehand
             self.dimse.cancel_req = {}
+            # In case the SCP calls one of the send_* methods
             self._is_paused = True
             service_class.SCP(msg, context)
             self._is_paused = False
