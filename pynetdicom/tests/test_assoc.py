@@ -3058,10 +3058,11 @@ class TestAssociationSendCMove(object):
 
     def test_move_destination_no_assoc(self):
         """Test move destination failed to assoc"""
+        # Move SCP
         def handle_move(event):
             yield 'localhost', 11113
-            yield 0
-            yield 0x0000, None
+            yield 2
+            yield 0xFF00, self.good
 
         self.ae = ae = AE()
         ae.acse_timeout = 5
@@ -3088,8 +3089,8 @@ class TestAssociationSendCMove(object):
         """Test unknown move destination"""
         def handle_move(event):
             yield None, None
-            yield 0
-            yield 0x0000, None
+            yield 1
+            yield 0xFF00, self.good
 
         self.ae = ae = AE()
         ae.acse_timeout = 5

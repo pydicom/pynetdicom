@@ -284,7 +284,7 @@ class TestTLS(object):
         assert len(server.active_associations) == 0
 
     def test_tls_yes_server_not_client(self, server_context):
-        """Test wrapping the requestor socket with TLS (and server)."""
+        """Test wrapping the acceptor socket with TLS (and not client)."""
         self.ae = ae = AE()
         ae.add_supported_context('1.2.840.10008.1.1')
         server = ae.start_server(
@@ -302,7 +302,7 @@ class TestTLS(object):
         assert len(server.active_associations) == 0
 
     def test_tls_yes_server_yes_client(self, server_context, client_context):
-        """Test associating with no TLS on either end."""
+        """Test associating with TLS on both ends."""
         self.ae = ae = AE()
         ae.acse_timeout = 5
         ae.dimse_timeout = 5

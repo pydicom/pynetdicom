@@ -87,7 +87,7 @@ def validate_ae_title(ae_title, use_short=False):
 
     If the supplied `ae_title` is less than 16 characters once non-significant
     spaces have been removed, the spare trailing characters will be set to
-    space (``0x20``).
+    space (``0x20``) provided `use_short` is ``False``.
 
     .. versionchanged:: 1.1
 
@@ -103,8 +103,8 @@ def validate_ae_title(ae_title, use_short=False):
         The AE title to check.
     use_short : bool, optional
         If ``False`` (default) then pad AE titles with trailing spaces up to
-        the maximum allowable length (16 bytes), otherwise only pad odd length
-        AE titles with a single trailing space to make it even length.
+        the maximum allowable length (16 bytes), otherwise no padding will
+        be added.
 
     Returns
     -------
@@ -146,9 +146,6 @@ def validate_ae_title(ae_title, use_short=False):
     if not use_short:
         # Pad out to 16 characters using spaces
         ae_title = ae_title.ljust(16)
-    elif len(ae_title) % 2:
-        # Pad to even length
-        ae_title += ' '
 
     # Unicode category: 'Cc' is control characters
     invalid = [
