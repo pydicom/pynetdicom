@@ -134,6 +134,8 @@ class Association(threading.Thread):
         # Used to pause the association reactor while a service is being used
         self._reactor_checkpoint = threading.Event()
         self._reactor_checkpoint.set()
+        # Used to ensure the reactor is paused before DIMSE messaging
+        self._is_paused = False
 
         # Thread setup
         threading.Thread.__init__(self)
@@ -473,6 +475,8 @@ class Association(threading.Thread):
             # Ensure the reactor is paused so it doesn't
             #   steal incoming ACSE messages
             self._reactor_checkpoint.clear()
+            while not self._is_paused:
+                time.sleep(0.0001)
             LOGGER.info('Releasing Association')
             self.acse.negotiate_release()
             # Restart reactor
@@ -559,15 +563,20 @@ class Association(threading.Thread):
         5. Checks DUL idle timeout
             If timed out then kill thread
         """
+        self._is_paused = False
         while not self._kill:
+            time.sleep(0.001)
+
             # A race condition may occur if the Acceptor uses the send_*()
             #   methods as the received DIMSE message may be taken off the
             #   queue before the send_*() method gets to it, so we allow
             #   the reactor to be paused
-            # Will block until `_reactor_checkpoint` is True
+            # We also need to be careful that the reactor actually stops
+            #   before attempting DIMSE or ACSE messaging
+            # Will block until `_reactor_checkpoint` is set()
+            self._is_paused = True
             self._reactor_checkpoint.wait()
-
-            time.sleep(0.001)
+            self._is_paused = False
 
             # Check with the DIMSE provider to see if a completely decoded
             #   message is available
@@ -862,6 +871,8 @@ class Association(threading.Thread):
 
         # Pause the reactor to prevent a race condition
         self._reactor_checkpoint.clear()
+        while not self._is_paused:
+            time.sleep(0.0001)
 
         self.dimse.send_msg(primitive, context.context_id)
         cx_id, rsp = self.dimse.get_msg(block=True)
@@ -1065,6 +1076,8 @@ class Association(threading.Thread):
 
         # Pause the reactor to prevent a race condition
         self._reactor_checkpoint.clear()
+        while not self._is_paused:
+            time.sleep(0.0001)
 
         # Send C-FIND request to the peer via DIMSE
         self.dimse.send_msg(req, context.context_id)
@@ -1259,6 +1272,8 @@ class Association(threading.Thread):
 
         # Pause the reactor to prevent a race condition
         self._reactor_checkpoint.clear()
+        while not self._is_paused:
+            time.sleep(0.0001)
 
         # Send C-GET request to the peer via DIMSE
         self.dimse.send_msg(req, context.context_id)
@@ -1452,6 +1467,8 @@ class Association(threading.Thread):
 
         # Pause the reactor to prevent a race condition
         self._reactor_checkpoint.clear()
+        while not self._is_paused:
+            time.sleep(0.0001)
 
         # Send C-MOVE request to the peer via DIMSE and wait for the response
         self.dimse.send_msg(req, context.context_id)
@@ -1632,6 +1649,8 @@ class Association(threading.Thread):
 
         # Pause the reactor to prevent a race condition
         self._reactor_checkpoint.clear()
+        while not self._is_paused:
+            time.sleep(0.0001)
 
         # Send C-STORE request to the peer via DIMSE and wait for the response
         self.dimse.send_msg(req, context.context_id)
@@ -2058,6 +2077,8 @@ class Association(threading.Thread):
 
         # Pause the reactor to prevent a race condition
         self._reactor_checkpoint.clear()
+        while not self._is_paused:
+            time.sleep(0.0001)
 
         self.dimse.send_msg(req, context.context_id)
         cx_id, rsp = self.dimse.get_msg(block=True)
@@ -2289,6 +2310,8 @@ class Association(threading.Thread):
 
         # Pause the reactor to prevent a race condition
         self._reactor_checkpoint.clear()
+        while not self._is_paused:
+            time.sleep(0.0001)
 
         self.dimse.send_msg(req, context.context_id)
         cx_id, rsp = self.dimse.get_msg(block=True)
@@ -2435,6 +2458,8 @@ class Association(threading.Thread):
 
         # Pause the reactor to prevent a race condition
         self._reactor_checkpoint.clear()
+        while not self._is_paused:
+            time.sleep(0.0001)
 
         self.dimse.send_msg(req, context.context_id)
         cx_id, rsp = self.dimse.get_msg(block=True)
@@ -2604,6 +2629,8 @@ class Association(threading.Thread):
 
         # Pause the reactor to prevent a race condition
         self._reactor_checkpoint.clear()
+        while not self._is_paused:
+            time.sleep(0.0001)
 
         self.dimse.send_msg(req, context.context_id)
         cx_id, rsp = self.dimse.get_msg(block=True)
@@ -2803,6 +2830,8 @@ class Association(threading.Thread):
 
         # Pause the reactor to prevent a race condition
         self._reactor_checkpoint.clear()
+        while not self._is_paused:
+            time.sleep(0.0001)
 
         self.dimse.send_msg(req, context.context_id)
         cx_id, rsp = self.dimse.get_msg(block=True)
@@ -3041,6 +3070,8 @@ class Association(threading.Thread):
 
         # Pause the reactor to prevent a race condition
         self._reactor_checkpoint.clear()
+        while not self._is_paused:
+            time.sleep(0.0001)
 
         self.dimse.send_msg(req, context.context_id)
         cx_id, rsp = self.dimse.get_msg(block=True)
