@@ -108,6 +108,7 @@
 <li class="toctree-l3"><a class="reference internal" href="#fixes">Fixes</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#enhancements">Enhancements</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#changes">Changes</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#known-issues">Known Issues</a></li>
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="v1.4.1.html">1.4.1</a></li>
@@ -200,14 +201,16 @@ closing its sockets (<a class="reference external" href="https://github.com/pydi
 <li><p>Changed <code class="docutils literal notranslate"><span class="pre">ImplantationPlanSRDocumentStorage</span></code> to
 <a class="reference internal" href="../reference/generated/pynetdicom.sop_class.ImplantationPlanSRStorage.html#pynetdicom.sop_class.ImplantationPlanSRStorage" title="pynetdicom.sop_class.ImplantationPlanSRStorage"><code class="xref py py-attr docutils literal notranslate"><span class="pre">ImplantationPlanSRStorage</span></code></a> to match the name
 from Part 6 of the DICOM Standard rather than Part 4.</p></li>
+<li><p>Stopped the QR Move SCP from associating with the move destination when no
+suboperations were required (<a class="reference external" href="https://github.com/pydicom/pynetdicom/issues/436">#436</a>)</p></li>
 </ul>
 </div>
 <div class="section" id="enhancements">
 <h2>Enhancements<a class="headerlink" href="#enhancements" title="Permalink to this headline">¶</a></h2>
 <ul class="simple">
 <li><p>Added configuration option <a class="reference internal" href="../reference/generated/pynetdicom._config.USE_SHORT_DIMSE_AET.html#pynetdicom._config.USE_SHORT_DIMSE_AET" title="pynetdicom._config.USE_SHORT_DIMSE_AET"><code class="xref py py-attr docutils literal notranslate"><span class="pre">_config.USE_SHORT_DIMSE_AET</span></code></a> so elements with a VR of <strong>AE</strong> in
-DIMSE messages are only padded to the shortest even length rather than to
-the maximum 16 characters. (<a class="reference external" href="https://github.com/pydicom/pynetdicom/issues/403">#403</a>)</p></li>
+DIMSE messages are no longer padded to the maximum 16 characters.
+(<a class="reference external" href="https://github.com/pydicom/pynetdicom/issues/403">#403</a>)</p></li>
 <li><p>When acting as the association Acceptor check that the user hasn’t sent
 an A-ABORT or A-ASSOCIATE-RJ before attempting association negotiation
 (<a class="reference external" href="https://github.com/pydicom/pynetdicom/issues/408">#408</a>)</p></li>
@@ -223,8 +226,8 @@ the association during service class operation.</p></li>
 contains all of the Storage Service Class’ SOP Class UIDs rather than just
 the first 128 as in
 <a class="reference internal" href="../reference/generated/pynetdicom.presentation.StoragePresentationContexts.html#pynetdicom.presentation.StoragePresentationContexts" title="pynetdicom.presentation.StoragePresentationContexts"><code class="xref py py-attr docutils literal notranslate"><span class="pre">StoragePresentationContexts</span></code></a>.</p></li>
-<li><p>Overhaul of <code class="docutils literal notranslate"><span class="pre">echoscu.py</span></code>, <code class="docutils literal notranslate"><span class="pre">storescu.py</span></code> and added support for
-<code class="docutils literal notranslate"><span class="pre">findscu.py</span></code>, <code class="docutils literal notranslate"><span class="pre">getscu.py</span></code> and <code class="docutils literal notranslate"><span class="pre">movescu.py</span></code> apps.</p></li>
+<li><p>Overhaul of <code class="docutils literal notranslate"><span class="pre">echoscu.py</span></code>, <code class="docutils literal notranslate"><span class="pre">storescu.py</span></code> and added non-toy implementations
+for <code class="docutils literal notranslate"><span class="pre">findscu.py</span></code>, <code class="docutils literal notranslate"><span class="pre">getscu.py</span></code> and <code class="docutils literal notranslate"><span class="pre">movescu.py</span></code> apps.</p></li>
 </ul>
 </div>
 <div class="section" id="changes">
@@ -242,6 +245,12 @@ waiting for the DIMSE timeout. (<a class="reference external" href="https://gith
 <li><p>Added <cite>abort_type</cite> keyword parameter to <a class="reference internal" href="../reference/generated/pynetdicom.acse.ACSE.html#pynetdicom.acse.ACSE.is_aborted" title="pynetdicom.acse.ACSE.is_aborted"><code class="xref py py-meth docutils literal notranslate"><span class="pre">ACSE.is_aborted()</span></code></a></p></li>
 <li><p>Support for Python 2 is deprecated and will be removed starting in version
 2.0.</p></li>
+</ul>
+</div>
+<div class="section" id="known-issues">
+<h2>Known Issues<a class="headerlink" href="#known-issues" title="Permalink to this headline">¶</a></h2>
+<ul class="simple">
+<li><p>TLS v1.3 (with OpenSSL 1.1.1 or higher) is not currently supported.</p></li>
 </ul>
 </div>
 </div>
