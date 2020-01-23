@@ -2040,6 +2040,7 @@ class TestNegotiateRelease(object):
     def test_coll_acc(self, caplog):
         """Test a simulated A-RELEASE collision on the acceptor side."""
         def handle(event):
+            event.assoc._is_paused = True
             event.assoc.release()
             return 0x0000
 

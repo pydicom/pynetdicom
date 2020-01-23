@@ -48,8 +48,8 @@ class ApplicationEntity(object):
         AEs. Note that this does not include the number of associations
         requested by the local AE (default ``10``).
     maximum_pdu_size : int
-        The maximum PDU receive size in bytes. A value of ``0`` means there is
-        no maximum size (default: ``16382``)
+        The maximum PDU receive size in bytes. A value of ``0`` means the PDU
+        size is unlimited (default: ``16382``)
     require_calling_aet : list of bytes
         If not an empty list, the association request's *Calling AE Title*
         value must match one of the values in `require_calling_aet`. If an
@@ -465,7 +465,8 @@ class ApplicationEntity(object):
             parameter value (default ``b'ANY-SCP'``).
         max_pdu : int, optional
             The maximum PDV receive size in bytes to use when negotiating the
-            association (default ``16832``).
+            association (default ``16832``). A value of ``0`` means the PDU
+            size is unlimited.
         ext_neg : list of UserInformation objects, optional
             Used if extended association negotiation is required.
         bind_address : 2-tuple, optional

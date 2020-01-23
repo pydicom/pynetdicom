@@ -18,6 +18,7 @@ Fixes
   from Part 6 of the DICOM Standard rather than Part 4.
 * Stopped the QR Move SCP from associating with the move destination when no
   suboperations were required (:issue:`436`)
+* Fixed a possible race condition during DIMSE message exchange (:issue:`435`)
 
 
 Enhancements
