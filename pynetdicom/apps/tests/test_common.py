@@ -154,7 +154,7 @@ class TestElementPath(object):
         assert elem.is_sequence is False
         assert elem.child is None
         assert elem.parent is None
-        assert elem.value is ''
+        assert elem.value == ''
 
         elem = ElementPath('0000,0000')
         assert elem.tag == Tag(0x0000,0x0000)
@@ -164,7 +164,7 @@ class TestElementPath(object):
         assert elem.is_sequence is False
         assert elem.child is None
         assert elem.parent is None
-        assert elem.value is ''
+        assert elem.value == ''
 
         elem = ElementPath('CommandGroupLength')
         assert elem.tag == Tag(0x0000,0x0000)
@@ -174,7 +174,7 @@ class TestElementPath(object):
         assert elem.is_sequence is False
         assert elem.child is None
         assert elem.parent is None
-        assert elem.value is ''
+        assert elem.value == ''
 
     def test_pathing(self):
         """Test ElementPath using normal pathing."""
@@ -324,7 +324,7 @@ class TestElementPath(object):
         assert elem.is_sequence is True
         assert elem.child is None
         assert elem.parent is None
-        assert elem.value is ''
+        assert elem.value == ''
 
         elem = ElementPath('300a,00b0[13]')
         assert elem.tag == Tag(0x300a,0x00b0)
@@ -334,7 +334,7 @@ class TestElementPath(object):
         assert elem.is_sequence is True
         assert elem.child is None
         assert elem.parent is None
-        assert elem.value is ''
+        assert elem.value == ''
 
         elem = ElementPath('BeamSequence[13]')
         assert elem.tag == Tag(0x300a,0x00b0)
@@ -344,7 +344,7 @@ class TestElementPath(object):
         assert elem.is_sequence is True
         assert elem.child is None
         assert elem.parent is None
-        assert elem.value is ''
+        assert elem.value == ''
 
     def test_sequence_raises(self):
         """Test ElementPath using bad sequence component raises."""
