@@ -487,11 +487,16 @@ class Event(object):
 
         Contains the following File Meta Information elements:
 
-        * (0002,0002) *Media Storage SOP Class UID*
-        * (0002,0003) *Media Storage SOP Instance UID*
-        * (0002,0010) *Transfer Syntax UID*
-        * (0002,0012) *Implementation Class UID*
-        * (0002,0013) *Implementation Version Name*
+        * (0002,0002) *Media Storage SOP Class UID* - set from the request's
+          *Affected SOP Class UID*
+        * (0002,0003) *Media Storage SOP Instance UID* - set from the request's
+          *Affected SOP Instance UID*
+        * (0002,0010) *Transfer Syntax UID* - set from the presentation context
+          used to transfer the *Data Set*
+        * (0002,0012) *Implementation Class UID* - set using
+          :attr:`~pynetdicom.PYNETDICOM_IMPLEMENTATION_UID`
+        * (0002,0013) *Implementation Version Name* - set using
+          :attr:`~pynetdicom.PYNETDICOM_IMPLEMENTATION_VERSION`
 
         Examples
         --------

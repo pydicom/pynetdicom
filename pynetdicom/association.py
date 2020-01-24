@@ -405,6 +405,7 @@ class Association(threading.Thread):
         self._reactor_checkpoint.set()
         self._kill = True
         self.is_established = False
+        self._is_paused = True
         while self.dul.is_alive() and not self.dul.stop_dul():
             time.sleep(0.01)
 
