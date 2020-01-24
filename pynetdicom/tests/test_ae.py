@@ -694,7 +694,7 @@ class TestAEBadInitialisation(object):
     def test_ae_title_invalid_chars(self):
         """ AE should fail if ae_title is not a str """
         with pytest.raises(ValueError):
-            AE(ae_title=rb'TEST\ME')
+            AE(ae_title=br'TEST\ME')
 
 
 class TestAE_GoodExit(object):
