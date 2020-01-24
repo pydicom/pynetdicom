@@ -160,7 +160,7 @@ probably best to store the instance attributes in a database and run the
 query against that.
 
 Check the :func:`handler implementation documentation
-pynetdicom._handlers.doc_handle_move>` to see the requirements for the
+<pynetdicom._handlers.doc_handle_move>` to see the requirements for the
 ``evt.EVT_C_MOVE`` handler.
 
 .. code-block:: python

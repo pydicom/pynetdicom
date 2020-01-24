@@ -16,6 +16,7 @@ This API reference guide details the functions, modules and objects included in
    :maxdepth: 2
    :includehidden:
 
+   init
    acse
    ae
    association
