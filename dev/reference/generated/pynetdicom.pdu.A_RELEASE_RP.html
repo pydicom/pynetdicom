@@ -95,6 +95,7 @@
 <li class="toctree-l1"><a class="reference internal" href="../../user/index.html">User Guide</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../service_classes/index.html">Supported Service Classes</a></li>
 <li class="toctree-l1 current"><a class="reference internal" href="../index.html">API Reference</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="../init.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">pynetdicom</span></code></a></li>
 <li class="toctree-l2"><a class="reference internal" href="../acse.html">ACSE Service (<code class="xref py py-mod docutils literal notranslate"><span class="pre">pynetdicom.acse</span></code>)</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../ae.html">Application Entity (<code class="xref py py-mod docutils literal notranslate"><span class="pre">pynetdicom.ae</span></code>)</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../association.html">Association (<code class="xref py py-mod docutils literal notranslate"><span class="pre">pynetdicom.association</span></code>)</a></li>
@@ -214,7 +215,7 @@
 <h1>pynetdicom.pdu.A_RELEASE_RP<a class="headerlink" href="#pynetdicom-pdu-a-release-rp" title="Permalink to this headline">¶</a></h1>
 <dl class="class">
 <dt id="pynetdicom.pdu.A_RELEASE_RP">
-<em class="property">class </em><code class="sig-prename descclassname">pynetdicom.pdu.</code><code class="sig-name descname">A_RELEASE_RP</code><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/8fe0fea5/pynetdicom/pdu.py#L1683"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom.pdu.A_RELEASE_RP" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="sig-prename descclassname">pynetdicom.pdu.</code><code class="sig-name descname">A_RELEASE_RP</code><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/f3b60db9/pynetdicom/pdu.py#L1683"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom.pdu.A_RELEASE_RP" title="Permalink to this definition">¶</a></dt>
 <dd><p>An A-RELEASE-RP PDU.</p>
 <p>An A-RELEASE-RP PDU is used once an association has been established to
 confirm the release of the association.</p>
@@ -291,7 +292,7 @@ encoded using Big Endian.</p>
 </ul>
 <dl class="method">
 <dt id="pynetdicom.pdu.A_RELEASE_RP.__init__">
-<code class="sig-name descname">__init__</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/8fe0fea5/pynetdicom/pdu.py#L1730"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom.pdu.A_RELEASE_RP.__init__" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">__init__</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/f3b60db9/pynetdicom/pdu.py#L1730"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom.pdu.A_RELEASE_RP.__init__" title="Permalink to this definition">¶</a></dt>
 <dd><p>Initialise a new A-RELEASE-RP PDU.</p>
 </dd></dl>
 
@@ -336,7 +337,7 @@ encoded using Big Endian.</p>
 </table>
 <dl class="method">
 <dt id="pynetdicom.pdu.A_RELEASE_RP.from_primitive">
-<em class="property">static </em><code class="sig-name descname">from_primitive</code><span class="sig-paren">(</span><em class="sig-param">primitive</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/8fe0fea5/pynetdicom/pdu.py#L1734"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom.pdu.A_RELEASE_RP.from_primitive" title="Permalink to this definition">¶</a></dt>
+<em class="property">static </em><code class="sig-name descname">from_primitive</code><span class="sig-paren">(</span><em class="sig-param">primitive</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/f3b60db9/pynetdicom/pdu.py#L1734"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom.pdu.A_RELEASE_RP.from_primitive" title="Permalink to this definition">¶</a></dt>
 <dd><p>Setup the current PDU using an A-release (response) primitive.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -353,7 +354,7 @@ encoded using Big Endian.</p>
 
 <dl class="method">
 <dt id="pynetdicom.pdu.A_RELEASE_RP.to_primitive">
-<em class="property">static </em><code class="sig-name descname">to_primitive</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/8fe0fea5/pynetdicom/pdu.py#L1745"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom.pdu.A_RELEASE_RP.to_primitive" title="Permalink to this definition">¶</a></dt>
+<em class="property">static </em><code class="sig-name descname">to_primitive</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/f3b60db9/pynetdicom/pdu.py#L1745"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom.pdu.A_RELEASE_RP.to_primitive" title="Permalink to this definition">¶</a></dt>
 <dd><p>Return an A-RELEASE (response) primitive from the current PDU.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Returns</dt>

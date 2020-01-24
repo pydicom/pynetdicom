@@ -79,7 +79,7 @@ Elements with VM > 1 can be set by using ``\\`` (where appropriate):
 
     (0020, 9518) Acquisition Index                   US: [1, 2, 3, 4]
 
-Empty (300a,00b0) *Beam Sequence*:
+Empty (300A,00B0) *Beam Sequence*:
 
 .. code-block:: text
 
@@ -98,7 +98,7 @@ Empty (300a,00b0) *Beam Sequence*:
 
        ---------
 
-*Beam Sequence* with 4 empty items:
+*Beam Sequence* with four empty items:
 
 .. code-block:: text
 
@@ -135,19 +135,3 @@ Nested sequence items:
           (300a, 00bc) Number of Leaf/Jaw Pairs            IS: "1"
           ---------
        ---------
-
-       *Beam Sequence* with 4 empty items:
-
-       .. code-block:: text
-
-           -k BeamSequence[3]=
-
-           (300a, 00b0)  Beam Sequence   4 item(s) ----
-
-              ---------
-
-              ---------
-
-              ---------
-
-              ---------

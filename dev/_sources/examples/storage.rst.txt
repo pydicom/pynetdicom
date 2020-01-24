@@ -113,7 +113,7 @@ to see the requirements for the ``evt.EVT_C_STORE`` handler.
 
     from pydicom.dataset import Dataset
 
-    from pynetdicom import AE, evt, StoragePresentationContexts
+    from pynetdicom import AE, evt, AllStoragePresentationContexts
 
     # Implement a handler for evt.EVT_C_STORE
     def handle_store(event):
@@ -136,10 +136,54 @@ to see the requirements for the ``evt.EVT_C_STORE`` handler.
     ae = AE()
 
     # Add the supported presentation contexts
-    ae.supported_contexts = StoragePresentationContexts
+    ae.supported_contexts = AllStoragePresentationContexts
 
     # Start listening for incoming association requests
     ae.start_server(('', 11112), evt_handlers=handlers)
+
+If you're optimising for speed you can:
+
+* Increase the :attr:`maximum PDU size
+  <pynetdicom.ae.ApplicationEntity.maximum_pdu_size>`: this reduces the number
+  of DIMSE messages required to transfer the data
+* Write the received dataset's :attr:`raw bytes
+  <pynetdicom.dimse_primitives.C_STORE.DataSet>`: this skips the dataset
+  decode/re-encode step
+
+Using both options will result in around a 25% decrease in transfer time for
+multiple C-STORE requests, depending on the size of the datasets:
+
+.. code-block:: python
+
+    from pydicom.dataset import Dataset
+
+    from pynetdicom import AE, evt, AllStoragePresentationContexts
+    from pynetdicom.dsutils import encode
+
+    # Implement a handler for evt.EVT_C_STORE
+    def handle_store(event):
+        """Handle a C-STORE request event."""
+        with open(event.request.AffectedSOPInstanceUID, 'wb') as fp:
+            # File Meta must be encoded as explicit VR little endian
+            fp.write(encode(event.file_meta, False, True))
+            fp.write(event.request.DataSet.getvalue())
+
+        # Return a 'Success' status
+        return 0x0000
+
+    handlers = [(evt.EVT_C_STORE, handle_store)]
+
+    # Initialise the Application Entity
+    ae = AE()
+    # Unlimited PDU size
+    ae.maximum_pdu_size = 0
+
+    # Add the supported presentation contexts
+    ae.supported_contexts = AllStoragePresentationContexts
+
+    # Start listening for incoming association requests
+    ae.start_server(('', 11112), evt_handlers=handlers)
+
 
 As with the SCU you can also just support only the contexts you're
 interested in.

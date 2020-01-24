@@ -1,0 +1,6 @@
+pynetdicom.PYNETDICOM\_UID\_PREFIX
+==================================
+
+.. currentmodule:: pynetdicom
+
+.. autodata:: PYNETDICOM_UID_PREFIX
