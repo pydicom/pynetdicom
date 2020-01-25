@@ -93,11 +93,6 @@ def _setup_argparser():
         type=str,
         choices=['fatal', 'error', 'warn', 'info', 'debug', 'trace']
     )
-    gen_opts.add_argument(
-        "-lc", "--log-config", metavar='[f]',
-        help="use config file f for the logger",
-        type=str
-    )
     parser.set_defaults(log_type='v')
 
     # Network Options

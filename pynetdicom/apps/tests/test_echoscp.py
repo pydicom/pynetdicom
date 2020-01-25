@@ -185,26 +185,6 @@ class TestEchoSCP(object):
         """Test --log-level flag."""
         pass
 
-    def test_flag_log_config(self, capfd):
-        """Test --log-config flag."""
-        self.ae = ae = AE()
-        ae.acse_timeout = 5
-        ae.dimse_timeout = 5
-        ae.network_timeout = 5
-        ae.add_requested_context(CTImageStorage)
-
-        self.p = p = start_echoscp(['-d'])
-        time.sleep(0.5)
-
-        assoc = ae.associate('localhost', 11112)
-        assert assoc.is_aborted
-
-        p.terminate()
-        p.wait()
-
-        out, err = capfd.readouterr()
-        assert "Association Aborted" in err
-
     @pytest.mark.skip("Don't think this can be tested")
     def test_flag_ta(self, capfd):
         """Test --acse-timeout flag."""

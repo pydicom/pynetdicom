@@ -81,14 +81,9 @@ def _setup_argparser():
         type=str,
         choices=['critical', 'error', 'warn', 'info', 'debug']
     )
-    gen_opts.add_argument(
-        "-lc", "--log-config", metavar='[f]',
-        help="use config file f for the logger",
-        type=str
-    )
 
     # Input Options
-    in_opts = parse.add_argument('Input Options')
+    in_opts = parser.add_argument_group('Input Options')
     in_opts.add_argument(
         '-r', '--recurse',
         help="recursively search the given directory",
@@ -215,7 +210,7 @@ if __name__ == "__main__":
     ae.network_timeout = args.network_timeout
 
     # Ensure the dataset is covered by the requested presentation contexts
-    if args.single_context:
+    if args.required_contexts:
         ae.add_requested_context(
             ds.SOPClassUID, ds.file_meta.TransferSyntaxUID
         )

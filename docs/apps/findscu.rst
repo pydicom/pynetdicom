@@ -59,10 +59,6 @@ General Options
             One of [``'critical'``, ``'error'``, ``'warning'``, ``'info'``,
             ``'debug'``], prints logging messages with corresponding level
             or higher
-``-lc   --log-config [f]ilename (str)``
-            use Python logging `config file
-            <https://docs.python.org/3/library/logging.config.html#logging.config.fileConfig>`_
-            ``f`` for the logger
 
 Network Options
 ---------------
@@ -77,7 +73,7 @@ Network Options
 ``-tn   --network-timeout [s]econds (float)``
             timeout for the network (default: 30)
 ``-pdu  --max-pdu [n]umber of bytes (int)``
-            set maximum receive PDU bytes to n bytes (default: 16384)
+            set maximum receive PDU bytes to n bytes (default: 16382)
 
 Query Information Model Options
 -------------------------------

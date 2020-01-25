@@ -758,8 +758,3 @@ class TestElementPath(object):
         for vr, (kw, val) in keywords.items():
             ds = ElementPath('{}={}'.format(kw, val)).update(Dataset())
             assert getattr(ds, kw) == b'\x00\xff\xf0\xec'
-
-
-class TestEchoSCU(object):
-    """Tests for eschoscu.py"""
-    pass

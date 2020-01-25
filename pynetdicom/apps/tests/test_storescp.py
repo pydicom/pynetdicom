@@ -2,6 +2,7 @@
 
 import logging
 import os
+import shutil
 import subprocess
 import sys
 import time
@@ -147,13 +148,7 @@ class TestStoreSCP(object):
         p.terminate()
         p.wait()
 
-        #print(capsys.readouterr())
-        #print('out', p.stdout.read())
-        #print('err', p.stderr.read())
         out, err = capfd.readouterr()
-        print('out', out)
-        print('err', err)
-
         assert "Accepting Association" in err
         assert "Received Echo Request" in err
         assert "Association Released" in err
@@ -180,12 +175,12 @@ class TestStoreSCP(object):
         p.wait()
 
         out, err = capfd.readouterr()
-        assert "Releasing Association" in err
+        assert "pydicom.read_dataset()" in err
         assert "Accept Parameters" in err
 
     def test_flag_log_collision(self):
         """Test error with -q -v and -d flag."""
-        self.p = p = start_storescu(['-v', '-d'])
+        self.p = p = start_storescp(['-v', '-d'])
         p.wait()
         assert p.returncode != 0
 
@@ -194,20 +189,169 @@ class TestStoreSCP(object):
         """Test --log-level flag."""
         pass
 
-    def test_flag_log_config(self, capfd):
-        """Test --log-config flag."""
+    @pytest.mark.skip("Don't think this can be tested")
+    def test_flag_ta(self, capfd):
+        """Test --acse-timeout flag."""
+        pass
+
+    @pytest.mark.skip("Don't think this can be tested")
+    def test_flag_td(self, capfd):
+        """Test --dimse-timeout flag."""
+        pass
+
+    @pytest.mark.skip("Don't think this can be tested")
+    def test_flag_tn(self, capfd):
+        """Test --network-timeout flag."""
+        pass
+
+    def test_flag_max_pdu(self):
+        """Test --max-pdu flag."""
         self.ae = ae = AE()
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
         ae.network_timeout = 5
-        ae.add_supported_context(VerificationSOPClass)
-        scp = ae.start_server(('', 11112), block=False)
+        ae.add_requested_context(VerificationSOPClass)
 
-        self.p = p = start_storescp(['--log-config', LOG_CONFIG])
+        self.p = p = start_storescp(['--max-pdu', '123456'])
         time.sleep(0.5)
 
-        out, err = capfd.readouterr()
-        assert "pynetdicom.acse - ERROR - No accepted presentation" in out
-        assert "No accepted presentation contexts" in err
+        assoc = ae.associate('localhost', 11112)
+        assert assoc.is_established
+        assoc.release()
 
-        scp.shutdown()
+        p.terminate()
+        p.wait()
+
+        assert 123456 == assoc.acceptor.maximum_length
+
+    def test_flag_xequal(self):
+        """Test --prefer-uncompr flag."""
+        self.ae = ae = AE()
+        ae.acse_timeout = 5
+        ae.dimse_timeout = 5
+        ae.network_timeout = 5
+        ae.add_requested_context(VerificationSOPClass)
+
+        self.p = p = start_storescp(['-x='])
+        time.sleep(0.5)
+
+        assoc = ae.associate('localhost', 11112)
+        assert assoc.is_established
+        assoc.release()
+
+        p.terminate()
+        p.wait()
+
+        cx = assoc.accepted_contexts[0]
+        assert not cx.transfer_syntax[0].is_implicit_VR
+
+    def test_flag_xe(self):
+        """Test --prefer-little flag."""
+        self.ae = ae = AE()
+        ae.acse_timeout = 5
+        ae.dimse_timeout = 5
+        ae.network_timeout = 5
+        ae.add_requested_context(VerificationSOPClass)
+
+        self.p = p = start_storescp(['-xe'])
+        time.sleep(0.5)
+
+        assoc = ae.associate('localhost', 11112)
+        assert assoc.is_established
+        assoc.release()
+
+        p.terminate()
+        p.wait()
+
+        cx = assoc.accepted_contexts[0]
+        assert cx.transfer_syntax[0] == ExplicitVRLittleEndian
+
+    def test_flag_xb(self):
+        """Test --prefer-big flag."""
+        self.ae = ae = AE()
+        ae.acse_timeout = 5
+        ae.dimse_timeout = 5
+        ae.network_timeout = 5
+        ae.add_requested_context(VerificationSOPClass)
+
+        self.p = p = start_storescp(['-xb'])
+        time.sleep(0.5)
+
+        assoc = ae.associate('localhost', 11112)
+        assert assoc.is_established
+        assoc.release()
+
+        p.terminate()
+        p.wait()
+
+        cx = assoc.accepted_contexts[0]
+        assert cx.transfer_syntax[0] == ExplicitVRBigEndian
+
+    def test_flag_xi(self):
+        """Test --implicit flag."""
+        self.ae = ae = AE()
+        ae.acse_timeout = 5
+        ae.dimse_timeout = 5
+        ae.network_timeout = 5
+        ae.add_requested_context(VerificationSOPClass)
+
+        self.p = p = start_storescp(['-xi'])
+        time.sleep(0.5)
+
+        assoc = ae.associate('localhost', 11112)
+        assert assoc.is_established
+        assoc.release()
+
+        p.terminate()
+        p.wait()
+
+        cx = assoc.accepted_contexts[0]
+        assert cx.transfer_syntax[0] == ImplicitVRLittleEndian
+
+    def test_flag_output(self):
+        """Test the -od --output-directory flag."""
+        self.ae = ae = AE()
+        ae.acse_timeout = 5
+        ae.dimse_timeout = 5
+        ae.network_timeout = 5
+        ae.add_requested_context(VerificationSOPClass)
+        ae.add_requested_context(CTImageStorage)
+
+        assert 'test_dir' not in os.listdir()
+
+        self.p = p = start_storescp(['-od', 'test_dir'])
+        time.sleep(0.5)
+
+        ds = dcmread(DATASET_FILE)
+
+        assoc = ae.associate('localhost', 11112)
+        assert assoc.is_established
+        status = assoc.send_c_store(ds)
+        assert status.Status == 0x0000
+        assoc.release()
+
+        assert 'CT.{}'.format(ds.SOPInstanceUID) in os.listdir('test_dir')
+        shutil.rmtree('test_dir')
+        assert 'test_dir' not in os.listdir()
+
+    def test_flag_ignore(self):
+        """Test the --ignore flag."""
+        self.ae = ae = AE()
+        ae.acse_timeout = 5
+        ae.dimse_timeout = 5
+        ae.network_timeout = 5
+        ae.add_requested_context(VerificationSOPClass)
+        ae.add_requested_context(CTImageStorage)
+
+        self.p = p = start_storescp(['--ignore'])
+        time.sleep(0.5)
+
+        ds = dcmread(DATASET_FILE)
+
+        assoc = ae.associate('localhost', 11112)
+        assert assoc.is_established
+        status = assoc.send_c_store(ds)
+        assert status.Status == 0x0000
+        assoc.release()
+
+        assert 'CT.{}'.format(ds.SOPInstanceUID) not in os.listdir()

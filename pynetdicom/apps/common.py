@@ -500,9 +500,6 @@ def setup_logging(args, app_name):
         app_logger.setLevel(levels[args.log_level])
         pynd_logger.setLevel(levels[args.log_level])
 
-    if args.log_config:
-        fileConfig(args.log_config, disable_existing_loggers=False)
-
     return app_logger
 
 

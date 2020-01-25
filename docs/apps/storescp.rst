@@ -1,7 +1,7 @@
 ========
 storescp
 ========
-    ``storescp [options] port``
+    ``storescp.py [options] port``
 
 Description
 ===========
@@ -15,95 +15,95 @@ negotation.
 The following example shows what happens when it is started and receives
 a C-STORE request from a peer:
 
-::
+.. code-block:: text
 
-   user@host: storescp 11112
+   user@host: python storescp.py 11112
 
 
 More information is available when a connection is received while running with
 the ``-v`` option:
 
-::
+.. code-block:: text
 
-    user@host: storescp 11112 -v
-    I: Association Received
-    I: Association Accepted
-    I: Received Store Requeset
-    I: Storing DICOM file: CT.1.2.3.4.5.6
+    user@host: python storescp.py 11112 -v
+    I: Accepting Association
+    I: Received Store Request
+    I: Storing DICOM file: CT.1.3.6.1.4.1.5962.1.1.1.1.1.20040119072730.12322
     I: Association Released
 
 Much more information is available when a connection is received while
 running with the ``-d`` option:
 
-::
+.. code-block:: text
 
-    user@host: storescp 11112 -d
-    D: $storescp.py v0.3.2
+    user@host: python storescp.py 11112 -d
+    D: storescp.py v0.6.0
     D:
-    I: Association Received
     D: Request Parameters:
-    D: ====================== BEGIN A-ASSOCIATE-RQ =====================
+    D: ========================= BEGIN A-ASSOCIATE-RQ PDU =========================
     ...
-    D: ======================= END A-ASSOCIATE-AC ======================
+    D: ========================== END A-ASSOCIATE-AC PDU ==========================
     D: pydicom.read_dataset() TransferSyntax="Little Endian Implicit"
     I: Received Store Request
-    D: ===================== INCOMING DIMSE MESSAGE ====================
+    D: ========================== INCOMING DIMSE MESSAGE ==========================
     D: Message Type                  : C-STORE RQ
-    D: Presentation Context ID       : 41
+    D: Presentation Context ID       : 1
     D: Message ID                    : 1
-    D: Affected SOP Class UID        : 1.2.840.10008.5.1.4.1.1.2
-    D: Affected SOP Instance UID     : 1.2.3.4.5.6
+    D: Affected SOP Class UID        : CT Image Storage
+    D: Affected SOP Instance UID     : 1.3.6.1.4.1.5962.1.1.1.1.1.20040119072730.12322
     D: Data Set                      : Present
     D: Priority                      : Low
-    D: ======================= END DIMSE MESSAGE =======================
+    D: ============================ END DIMSE MESSAGE =============================
     D: pydicom.read_dataset() TransferSyntax="Little Endian Explicit"
-    I: Storing DICOM file: CT.1.2.3.4.5.6
+    I: Storing DICOM file: CT.1.3.6.1.4.1.5962.1.1.1.1.1.20040119072730.12322
     I: Association Released
+
 
 Options
 =======
-Logging
--------
-    ``-q    --quiet``
-              quiet mode, prints no warnings or errors
-    ``-v    --verbose``
-              verbose mode, prints processing details
-    ``-d    --debug``
-              debug mode, prints debugging information
+General Options
+---------------
+``-q    --quiet``
+            quiet mode, prints no warnings or errors
+``-v    --verbose``
+            verbose mode, prints processing details
+``-d    --debug``
+            debug mode, prints debugging information
+``-ll   --log-level [l]evel (str)``
+            One of [``'critical'``, ``'error'``, ``'warning'``, ``'info'``,
+            ``'debug'``], prints logging messages with corresponding level
+            or lower
 
-Application Entity Titles
--------------------------
-    ``-aet  --aetitle [a]etitle (str)``
-              set my AE title (default: STORESCP)
-
-Miscellaneous DICOM
--------------------
-    ``-to   --timeout [s]econds (int)``
-              timeout for connection requests (default: unlimited)
-    ``-ta   --acse-timeout [s]econds (int)``
-              timeout for ACSE messages (default: 30)
-    ``-td   --dimse-timeout [s]econds (int)``
-              timeout for DIMSE messages (default: unlimited)
-    ``-pdu  --max-pdu [n]umber of bytes (int)``
-              set maximum receive PDU bytes to n bytes (default: 16384)
-    ``      --ignore``
-              receive data but don't store it
+Network Options
+---------------
+``-aet  --ae-title [a]etitle (str)``
+            set the local AE title (default: ``STORESCP``)
+``-ta   --acse-timeout [s]econds (float)``
+            timeout for ACSE messages (default: ``30``)
+``-td   --dimse-timeout [s]econds (float)``
+            timeout for DIMSE messages (default: ``30``)
+``-tn   --network-timeout [s]econds (float)``
+            timeout for the network (default: ``30``)
+``-pdu  --max-pdu [n]umber of bytes (int)``
+            set maximum receive PDU bytes to n bytes (default: ``16382``)
 
 Preferred Transfer Syntaxes
 ---------------------------
-    ``-x=   --prefer-uncompr``
-              prefer explicit VR local byte order (default)
-    ``-xe   --prefer-little``
-              prefer explicit VR little endian transfer syntax
-    ``-xb   --prefer-big``
-              prefer explicit VR big endian transfer syntax
-    ``-xi   --implicit``
-              accept implicit VR little endian transfer syntax only
+``-x=   --prefer-uncompr``
+            prefer explicit VR local byte order
+``-xe   --prefer-little``
+            prefer explicit VR little endian transfer syntax
+``-xb   --prefer-big``
+            prefer explicit VR big endian transfer syntax
+``-xi   --implicit``
+            accept implicit VR little endian transfer syntax only
 
 Output
 ------
-    ``-od   --output-directory [d]irectory (str)``
-              write received objects to directory d
+``-od [d]irectory, --output-directory [d]irectory``
+            write received objects to directory ``d``
+``--ignore``
+            receive data but don't store it
 
 
 DICOM Conformance
