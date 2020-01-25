@@ -3,8 +3,8 @@
 1.5.0
 =====
 
-This will be the last release that supports Python 2, fixes for serious bugs
-will be available for a year after the release date.
+This will be the last release that supports Python 2, with fixes for serious
+bugs being available for a year after the release date.
 
 Fixes
 .....

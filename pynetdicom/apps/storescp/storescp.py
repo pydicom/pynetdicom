@@ -18,7 +18,7 @@ from pynetdicom import (
     AllStoragePresentationContexts,
     VerificationPresentationContexts,
 )
-from pynetdicom.apps.common import setup_logging, SOP_CLASS_PREFIXES
+from pynetdicom.apps.common import setup_logging, wrap_handle_store
 from pynetdicom._globals import ALL_TRANSFER_SYNTAXES, DEFAULT_MAX_LENGTH
 
 
@@ -165,95 +165,6 @@ def _setup_argparser():
     return parser.parse_args()
 
 
-def handle_store(event):
-    """Handle a C-STORE request.
-
-    Parameters
-    ----------
-    event : pynetdicom.event.event
-        The event corresponding to a C-STORE request.
-
-    Returns
-    -------
-    status : pynetdicom.sop_class.Status or int
-        A valid return status code, see PS3.4 Annex B.2.3 or the
-        ``StorageServiceClass`` implementation for the available statuses
-    """
-    if args.ignore:
-        return 0x0000
-
-    ds = event.dataset
-    # Remove any Group 0x0002 elements that may have been included
-    ds = ds[0x00030000:]
-
-    # Add the file meta information elements
-    ds.file_meta = event.file_meta
-
-    # Because pydicom uses deferred reads for its decoding, decoding errors
-    #   are hidden until encountered by accessing a faulty element
-    try:
-        sop_class = ds.SOPClassUID
-        sop_instance = ds.SOPInstanceUID
-    except Exception as exc:
-        APP_LOGGER.error(
-            "Unable to decode the received dataset or missing 'SOP Class "
-            "UID' and/or 'SOP Instance UID' elements"
-        )
-        APP_LOGGER.exception(exc)
-        # Unable to decode dataset
-        return 0xC210
-
-    try:
-        # Get the elements we need
-        mode_prefix = SOP_CLASS_PREFIXES[sop_class][0]
-    except KeyError:
-        mode_prefix = 'UN'
-
-    filename = '{0!s}.{1!s}'.format(mode_prefix, sop_instance)
-    APP_LOGGER.info('Storing DICOM file: {0!s}'.format(filename))
-
-    if os.path.exists(filename):
-        APP_LOGGER.warning('DICOM file already exists, overwriting')
-
-    status_ds = Dataset()
-    status_ds.Status = 0x0000
-
-    # Try to save to output-directory
-    if args.output_directory is not None:
-        filename = os.path.join(args.output_directory, filename)
-        try:
-            os.makedirs(args.output_directory)
-        except Exception as exc:
-            APP_LOGGER.error('Unable to create the output directory:')
-            APP_LOGGER.error("    {0!s}".format(args.output_directory))
-            APP_LOGGER.exception(exc)
-            # Failed - Out of Resources - IOError
-            status.Status = 0xA700
-            return status
-
-    try:
-        # We use `write_like_original=False` to ensure that a compliant
-        #   File Meta Information Header is written
-        ds.save_as(filename, write_like_original=False)
-        status_ds.Status = 0x0000 # Success
-    except IOError:
-        APP_LOGGER.error('Could not write file to specified directory:')
-        APP_LOGGER.error("    {0!s}".format(os.path.dirname(filename)))
-        APP_LOGGER.error(
-            'Directory may not exist or you may not have write permission '
-        )
-        # Failed - Out of Resources - IOError
-        status_ds.Status = 0xA700
-    except Exception as exc:
-        APP_LOGGER.error('Could not write file to specified directory:')
-        APP_LOGGER.error("    {0!s}".format(os.path.dirname(filename)))
-        APP_LOGGER.exception(exc)
-        # Failed - Out of Resources - Miscellaneous error
-        status_ds.Status = 0xA701
-
-    return status_ds
-
-
 if __name__ == "__main__":
     args = _setup_argparser()
 
@@ -280,6 +191,7 @@ if __name__ == "__main__":
     elif args.implicit:
         transfer_syntax = [ImplicitVRLittleEndian]
 
+    handle_store = wrap_handle_store(args, APP_LOGGER)
     handlers = [(evt.EVT_C_STORE, handle_store)]
 
     # Create application entity
