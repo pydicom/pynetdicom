@@ -8,13 +8,14 @@ import argparse
 import sys
 
 from pydicom import dcmread
+from pydicom.errors import InvalidDicomError
 from pydicom.uid import (
     ExplicitVRLittleEndian, ImplicitVRLittleEndian,
     ExplicitVRBigEndian, DeflatedExplicitVRLittleEndian
 )
 
 from pynetdicom import AE, StoragePresentationContexts
-from pynetdicom.apps.common import setup_logging
+from pynetdicom.apps.common import setup_logging, get_files
 from pynetdicom._globals import DEFAULT_MAX_LENGTH
 from pynetdicom.status import STORAGE_SERVICE_CLASS_STATUS
 
@@ -42,7 +43,7 @@ def _setup_argparser():
     )
     req_opts.add_argument("port", help="TCP/IP port number of peer", type=int)
     req_opts.add_argument(
-        "dcmfile", metavar="dcmfile",
+        "dcmfile", metavar="dcmfile", nargs='+',
         help="DICOM file or directory to be transmitted",
         type=str
     )
@@ -165,6 +166,44 @@ def _setup_argparser():
     return parser.parse_args()
 
 
+def get_contexts(fpaths):
+    """
+    """
+    bad = []
+    good = []
+    contexts = {}
+    for fpath in fpaths:
+        try:
+            ds = dcmread(fpath)
+        except Exception as exc:
+            bad.append((fpath, 'Cannot read input file'))
+            continue
+
+        try:
+            sop_class = ds.SOPClassUID
+            tsyntax = ds.file_meta.TransferSyntaxUID
+        except Exception as exc:
+            bad.append(
+                (
+                    fpath,
+                    'Unable to determine the abstract and/or transfer syntax'
+                )
+            )
+            continue
+
+        tsyntaxes = contexts.setdefault(sop_class, [])
+        if tsyntax not in tsyntaxes:
+            tsyntaxes.append(tsyntax)
+
+        good.append(fpath)
+
+    if bad:
+        for (bfile, reason) in bad:
+            APP_LOGGER.error("{}: {}".format(reason, bfile))
+
+    return good, contexts
+
+
 if __name__ == "__main__":
     args = _setup_argparser()
 
@@ -176,63 +215,62 @@ if __name__ == "__main__":
     APP_LOGGER.debug('storescu.py v{0!s}'.format(__version__))
     APP_LOGGER.debug('')
 
-    # Check file exists and is readable and DICOM
-    APP_LOGGER.debug('Checking input file')
-    try:
-        with open(args.dcmfile, 'rb') as fp:
-            ds = dcmread(fp, force=True)
-    except Exception as exc:
-        APP_LOGGER.error(
-            'Cannot read input file {0!s}'.format(args.dcmfile)
-        )
-        APP_LOGGER.exception(exc)
-        sys.exit(1)
+    lfiles = get_files(args.dcmfile, args.recurse)
 
-    # Set Transfer Syntax options
-    transfer_syntax = [
-        ExplicitVRLittleEndian,
-        ImplicitVRLittleEndian,
-        DeflatedExplicitVRLittleEndian,
-        ExplicitVRBigEndian
-    ]
-
-    if args.request_little:
-        transfer_syntax = [ExplicitVRLittleEndian]
-    elif args.request_big:
-        transfer_syntax = [ExplicitVRBigEndian]
-    elif args.request_implicit:
-        transfer_syntax = [ImplicitVRLittleEndian]
-
-    # Bind to port 0, OS will pick an available port
     ae = AE(ae_title=args.calling_aet)
     ae.acse_timeout = args.acse_timeout
     ae.dimse_timeout = args.dimse_timeout
     ae.network_timeout = args.network_timeout
 
-    # Ensure the dataset is covered by the requested presentation contexts
     if args.required_contexts:
-        ae.add_requested_context(
-            ds.SOPClassUID, ds.file_meta.TransferSyntaxUID
-        )
+        lfiles, contexts = get_contexts(lfiles)
+        if len(contexts) > 128:
+            APP_LOGGER.error(
+                "More than 128 presentation contexts required with the "
+                "'--required-contexts' flag, please try again without it or "
+                "try with fewer files"
+            )
+            sys.exit(1)
+        for abstract, transfer in contexts.items():
+            ae.add_requested_context(abstract, transfer)
     else:
-        sop_classes = [
-            cx.abstract_syntax for cx in StoragePresentationContexts
+        # Set Transfer Syntax options
+        transfer_syntax = [
+            ExplicitVRLittleEndian,
+            ImplicitVRLittleEndian,
+            DeflatedExplicitVRLittleEndian,
+            ExplicitVRBigEndian
         ]
-        nr_uids = len(sop_classes)
-        if ds.SOPClassUID not in sop_classes:
-            ae.add_requested_context(ds.SOPClassUID, transfer_syntax)
-            nr_uids -= 1
 
-        for uid in sop_classes[:nr_uids]:
-            ae.add_requested_context(uid, transfer_syntax)
+        if args.request_little:
+            transfer_syntax = [ExplicitVRLittleEndian]
+        elif args.request_big:
+            transfer_syntax = [ExplicitVRBigEndian]
+        elif args.request_implicit:
+            transfer_syntax = [ImplicitVRLittleEndian]
+
+        for cx in StoragePresentationContexts:
+            ae.add_requested_context(cx.abstract_syntax, transfer_syntax)
 
     # Request association with remote
     assoc = ae.associate(
         args.addr, args.port, ae_title=args.called_aet, max_pdu=args.max_pdu
     )
     if assoc.is_established:
-        APP_LOGGER.info('Sending file: {0!s}'.format(args.dcmfile))
-        status = assoc.send_c_store(ds)
+        ii = 1
+        for fpath in lfiles:
+            try:
+                ds = dcmread(fpath)
+                status = assoc.send_c_store(ds, ii)
+                ii += 1
+            except InvalidDicomError:
+                pass
+            except ValueError:
+                APP_LOGGER.error('Computer says no')
+            except Exception as exc:
+                APP_LOGGER.error("Error sending dataset: {}".format(fpath))
+                APP_LOGGER.exception(exc)
+
         assoc.release()
     else:
         sys.exit(1)

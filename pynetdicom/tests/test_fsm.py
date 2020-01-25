@@ -8706,8 +8706,12 @@ class TestState13(TestStateBase):
 
         self.assoc.dul._is_transport_event = patch_xport_event
         self.assoc.start()
+        start = time.time()
         while self.fsm.current_state != 'Sta13':
             time.sleep(0.05)
+            if time.time() - start > 5:
+                self.print_fsm_scp(self.fsm, scp)
+                break
         self.assoc.dul.send_pdu(self.get_pdata())
         time.sleep(0.1)
 

@@ -440,6 +440,35 @@ class ElementPath(object):
         return self._entry[0]
 
 
+def get_files(fpaths, recurse=False):
+    """Return a list of files.
+
+    Parameters
+    ----------
+    fpaths : list of str
+        A list of the files and/or directories to search.
+    recurse : bool, optional
+        Recursively search any directories (default: ``False``).
+
+    Returns
+    -------
+    list of str
+        A list of the files found.
+    """
+    out = []
+    for fpath in fpaths:
+        if os.path.isfile(fpath):
+            out.append(fpath)
+        elif os.path.isdir(fpath):
+            if recurse:
+                for root, dirs, files in os.walk(fpath):
+                    out += [os.path.join(root, pp) for pp in files]
+            else:
+                out += [os.path.join(fpath, pp) for pp in os.listdir(fpath)]
+
+    return sorted(list(set([pp for pp in out if os.path.isfile(pp)])))
+
+
 def setup_logging(args, app_name):
     """Return the application logger.
 

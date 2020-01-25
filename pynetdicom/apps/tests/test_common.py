@@ -2,13 +2,15 @@
 
 from collections import namedtuple
 import logging
+import os
 
 import pytest
+import pyfakefs
 
 from pydicom.dataset import Dataset
 from pydicom.tag import Tag
 
-from pynetdicom.apps.common import ElementPath, create_dataset
+from pynetdicom.apps.common import ElementPath, create_dataset, get_files
 
 
 class TestCreateDataset(object):
@@ -758,3 +760,83 @@ class TestElementPath(object):
         for vr, (kw, val) in keywords.items():
             ds = ElementPath('{}={}'.format(kw, val)).update(Dataset())
             assert getattr(ds, kw) == b'\x00\xff\xf0\xec'
+
+
+REFERENCE_FS = [
+    '/test.dcm',
+    '/test.txt',
+    '/A/test.dcm',
+    '/A/test.txt',
+    '/A/B/test.dcm',
+    '/A/B/test.txt',
+    '/A/B/C/test.dcm',
+    '/A/B/C/test.txt',
+    '/A/C/test.dcm',
+    '/A/C/test.txt',
+]
+REFERENCE_OUTPUT = [
+    (['/'], False, ['/test.dcm', '/test.txt']),
+    (['/'], True, [
+        '/test.dcm', '/test.txt',
+        '/A/test.dcm', '/A/test.txt',
+        '/A/B/test.dcm', '/A/B/test.txt',
+        '/A/B/C/test.dcm', '/A/B/C/test.txt',
+        '/A/C/test.dcm', '/A/C/test.txt',
+    ]),
+    (['/A'], False, ['/A/test.dcm', '/A/test.txt']),
+    (['/A'], True, [
+        '/A/test.dcm', '/A/test.txt',
+        '/A/B/test.dcm', '/A/B/test.txt',
+        '/A/B/C/test.dcm', '/A/B/C/test.txt',
+        '/A/C/test.dcm', '/A/C/test.txt',
+    ]),
+    (['/A/B'], False, ['/A/B/test.dcm', '/A/B/test.txt']),
+    (['/A/B'], True, [
+        '/A/B/test.dcm', '/A/B/test.txt',
+        '/A/B/C/test.dcm', '/A/B/C/test.txt',
+    ]),
+    (['/A/B/C'], False, ['/A/B/C/test.dcm', '/A/B/C/test.txt']),
+    (['/A/B/C'], True, ['/A/B/C/test.dcm', '/A/B/C/test.txt',]),
+    (['/A/B/C/test.dcm'], False, ['/A/B/C/test.dcm']),
+    (['/A/B/C/test.dcm'], True, ['/A/B/C/test.dcm']),
+    # Multiples
+    (['/', '/A/test.dcm'], False, ['/test.dcm', '/test.txt', '/A/test.dcm']),
+    (['/', '/A/test.dcm'], True, [
+        '/test.dcm', '/test.txt',
+        '/A/test.dcm', '/A/test.txt',
+        '/A/B/test.dcm', '/A/B/test.txt',
+        '/A/B/C/test.dcm', '/A/B/C/test.txt',
+        '/A/C/test.dcm', '/A/C/test.txt',
+    ]),
+    (['/A/B', '/A/C'], False, [
+        '/A/B/test.dcm', '/A/B/test.txt', '/A/C/test.dcm', '/A/C/test.txt'
+    ]),
+    (['/A/B', '/A/C'], True, [
+        '/A/B/test.dcm', '/A/B/test.txt',
+        '/A/C/test.dcm', '/A/C/test.txt',
+        '/A/B/C/test.dcm', '/A/B/C/test.txt'
+    ]),
+    (['/A/B', '/A/C', 'test.txt'], False, [
+        '/A/B/test.dcm', '/A/B/test.txt', '/A/C/test.dcm', '/A/C/test.txt',
+        'test.txt'
+    ]),
+    (['/A/B', '/A/C'], True, [
+        '/A/B/test.dcm', '/A/B/test.txt',
+        '/A/C/test.dcm', '/A/C/test.txt',
+        '/A/B/C/test.dcm', '/A/B/C/test.txt'
+    ]),
+    (['/A/B', '/A/C', 'test.txt'], True, [
+        '/A/B/test.dcm', '/A/B/test.txt',
+        '/A/C/test.dcm', '/A/C/test.txt',
+        '/A/B/C/test.dcm', '/A/B/C/test.txt', 'test.txt'
+    ]),
+]
+
+
+@pytest.mark.parametrize('fpaths, recurse, out', REFERENCE_OUTPUT)
+def test_single_file(fpaths, recurse, out, fs):
+    """Test finding files in a given path."""
+    for fpath in REFERENCE_FS:
+        fs.create_file(fpath)
+
+    assert set(out) == set(get_files(fpaths, recurse))
