@@ -9,13 +9,6 @@ import os
 import sys
 
 from pydicom.dataset import Dataset
-from pydicom.uid import (
-    ExplicitVRLittleEndian, ImplicitVRLittleEndian, ExplicitVRBigEndian,
-    DeflatedExplicitVRLittleEndian, JPEGBaseline, JPEGExtended,
-    JPEGLosslessP14, JPEGLossless, JPEGLSLossless, JPEGLSLossy,
-    JPEG2000Lossless, JPEG2000, JPEG2000MultiComponentLossless,
-    JPEG2000MultiComponent, RLELossless
-)
 
 from pynetdicom import (
     AE, evt, QueryRetrievePresentationContexts, AllStoragePresentationContexts
@@ -23,6 +16,7 @@ from pynetdicom import (
 from pynetdicom.apps.common import (
     setup_logging, create_dataset, SOP_CLASS_PREFIXES
 )
+from pynetdicom._globals import ALL_TRANSFER_SYNTAXES, DEFAULT_MAX_LENGTH
 from pynetdicom.sop_class import (
     PatientRootQueryRetrieveInformationModelMove,
     StudyRootQueryRetrieveInformationModelMove,
@@ -49,7 +43,7 @@ def _setup_argparser():
             "(note: the use of the term 'move' is a misnomer, the C-MOVE "
             "operation performs a SOP Instance copy only)"
         ),
-        usage="movescu [options] addr port dcmfile-in"
+        usage="movescu [options] addr port"
     )
 
     # Parameters
@@ -140,9 +134,12 @@ def _setup_argparser():
     )
     net_opts.add_argument(
         "-pdu", "--max-pdu", metavar='[n]umber of bytes',
-        help="set max receive pdu to n bytes (4096..131072)",
+        help=(
+            "set max receive pdu to n bytes (0 for unlimited, default: {})"
+            .format(DEFAULT_MAX_LENGTH)
+        ),
         type=int,
-        default=16382
+        default=DEFAULT_MAX_LENGTH
     )
 
     # Query information model choices
@@ -230,6 +227,81 @@ def _setup_argparser():
     return ns
 
 
+def handle_store(event):
+    """Handle a C-STORE request."""
+    if args.ignore:
+        return 0x0000
+
+    ds = event.dataset
+    # Remove any Group 0x0002 elements that may have been included
+    ds = ds[0x00030000:]
+
+    # Add the file meta information elements
+    ds.file_meta = event.file_meta
+
+    # Because pydicom uses deferred reads for its decoding, decoding errors
+    #   are hidden until encountered by accessing a faulty element
+    try:
+        sop_class = ds.SOPClassUID
+        sop_instance = ds.SOPInstanceUID
+    except Exception as exc:
+        APP_LOGGER.error(
+            "Unable to decode the received dataset or missing 'SOP Class "
+            "UID' and/or 'SOP Instance UID' elements"
+        )
+        APP_LOGGER.exception(exc)
+        # Unable to decode dataset
+        return 0xC210
+
+    try:
+        # Get the elements we need
+        mode_prefix = SOP_CLASS_PREFIXES[sop_class][0]
+    except KeyError:
+        mode_prefix = 'UN'
+
+    filename = '{0!s}.{1!s}'.format(mode_prefix, sop_instance)
+    APP_LOGGER.info('Storing DICOM file: {0!s}'.format(filename))
+
+    if os.path.exists(filename):
+        APP_LOGGER.warning('DICOM file already exists, overwriting')
+
+    status = Dataset()
+    status.Status = 0x0000
+
+    # Try to save to output-directory
+    if args.output_directory is not None:
+        filename = os.path.join(args.output_directory, filename)
+        try:
+            os.makedirs(args.output_directory)
+        except Exception as exc:
+            APP_LOGGER.error('Unable to create the output directory:')
+            APP_LOGGER.error("    {0!s}".format(args.output_directory))
+            APP_LOGGER.exception(exc)
+            # Failed - Out of Resources - IOError
+            status.Status = 0xA700
+            return status
+
+    try:
+        # We use `write_like_original=False` to ensure that a compliant
+        #   File Meta Information Header is written
+        ds.save_as(filename, write_like_original=False)
+        status.Status = 0x0000 # Success
+    except IOError as exc:
+        APP_LOGGER.error('Could not write file to specified directory:')
+        APP_LOGGER.error("    {0!s}".format(os.path.dirname(filename)))
+        APP_LOGGER.exception(exc)
+        # Failed - Out of Resources - IOError
+        status.Status = 0xA700
+    except Exception as exc:
+        APP_LOGGER.error('Could not write file to specified directory:')
+        APP_LOGGER.error("    {0!s}".format(os.path.dirname(filename)))
+        APP_LOGGER.exception(exc)
+        # Failed - Out of Resources - Miscellaneous error
+        status.Status = 0xA701
+
+    return status
+
+
 if __name__ == "__main__":
     args = _setup_argparser()
 
@@ -257,104 +329,15 @@ if __name__ == "__main__":
     # Binding to port 0 lets the OS pick an available port
     ae = AE()
 
-    def handle_store(event):
-        """Handle a C-STORE request."""
-        if args.ignore:
-            return 0x0000
-
-        ds = event.dataset
-        # Remove any Group 0x0002 elements that may have been included
-        ds = ds[0x00030000:]
-
-        # Add the file meta information elements
-        ds.file_meta = event.file_meta
-
-        # Because pydicom uses deferred reads for its decoding, decoding errors
-        #   are hidden until encountered by accessing a faulty element
-        try:
-            sop_class = ds.SOPClassUID
-            sop_instance = ds.SOPInstanceUID
-        except Exception as exc:
-            APP_LOGGER.error(
-                "Unable to decode the received dataset or missing 'SOP Class "
-                "UID' and/or 'SOP Instance UID' elements"
-            )
-            APP_LOGGER.exception(exc)
-            # Unable to decode dataset
-            return 0xC210
-
-        try:
-            # Get the elements we need
-            mode_prefix = SOP_CLASS_PREFIXES[sop_class][0]
-        except KeyError:
-            mode_prefix = 'UN'
-
-        filename = '{0!s}.{1!s}'.format(mode_prefix, sop_instance)
-        APP_LOGGER.info('Storing DICOM file: {0!s}'.format(filename))
-
-        if os.path.exists(filename):
-            APP_LOGGER.warning('DICOM file already exists, overwriting')
-
-        status = Dataset()
-        status.Status = 0x0000
-
-        # Try to save to output-directory
-        if args.output_directory is not None:
-            filename = os.path.join(args.output_directory, filename)
-            try:
-                os.makedirs(args.output_directory)
-            except Exception as exc:
-                APP_LOGGER.error('Unable to create the output directory:')
-                APP_LOGGER.error("    {0!s}".format(args.output_directory))
-                APP_LOGGER.exception(exc)
-                # Failed - Out of Resources - IOError
-                status.Status = 0xA700
-                return status
-
-        try:
-            # We use `write_like_original=False` to ensure that a compliant
-            #   File Meta Information Header is written
-            ds.save_as(filename, write_like_original=False)
-            status.Status = 0x0000 # Success
-        except IOError as exc:
-            APP_LOGGER.error('Could not write file to specified directory:')
-            APP_LOGGER.error("    {0!s}".format(os.path.dirname(filename)))
-            APP_LOGGER.exception(exc)
-            # Failed - Out of Resources - IOError
-            status.Status = 0xA700
-        except Exception as exc:
-            APP_LOGGER.error('Could not write file to specified directory:')
-            APP_LOGGER.error("    {0!s}".format(os.path.dirname(filename)))
-            APP_LOGGER.exception(exc)
-            # Failed - Out of Resources - Miscellaneous error
-            status.Status = 0xA701
-
-        return status
-
     # Start the Store SCP (optional)
     scp = None
     if args.store:
-        transfer_syntax = [
-            ImplicitVRLittleEndian,
-            ExplicitVRLittleEndian,
-            DeflatedExplicitVRLittleEndian,
-            ExplicitVRBigEndian,
-            JPEGBaseline,
-            JPEGExtended,
-            JPEGLosslessP14,
-            JPEGLossless,
-            JPEGLSLossless,
-            JPEGLSLossy,
-            JPEG2000Lossless,
-            JPEG2000,
-            JPEG2000MultiComponentLossless,
-            JPEG2000MultiComponent,
-            RLELossless
-        ]
+        transfer_syntax = ALL_TRANSFER_SYNTAXES[:]
         store_handlers = [(evt.EVT_C_STORE, handle_store)]
         ae.ae_title = args.store_aet
         for cx in AllStoragePresentationContexts:
             ae.add_supported_context(cx.abstract_syntax, transfer_syntax)
+
         scp = ae.start_server(
             ('', args.store_port), block=False, evt_handlers=store_handlers
         )

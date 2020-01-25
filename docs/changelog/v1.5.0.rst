@@ -19,6 +19,9 @@ Fixes
 * Stopped the QR Move SCP from associating with the move destination when no
   suboperations were required (:issue:`436`)
 * Fixed a possible race condition during DIMSE message exchange (:issue:`435`)
+* Fixed the association acceptor selecting the first matching proposed
+  transfer syntax rather than the first matching supported transfer syntax
+  during presentation context negotiation
 
 
 Enhancements

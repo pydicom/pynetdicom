@@ -24,6 +24,7 @@ from pynetdicom import (
     PYNETDICOM_IMPLEMENTATION_VERSION
 )
 from pynetdicom.apps.common import create_dataset, setup_logging
+from pynetdicom._globals import DEFAULT_MAX_LENGTH
 from pynetdicom.sop_class import (
     ModalityWorklistInformationFind,
     PatientRootQueryRetrieveInformationModelFind,
@@ -133,9 +134,12 @@ def _setup_argparser():
     )
     net_opts.add_argument(
         "-pdu", "--max-pdu", metavar='[n]umber of bytes',
-        help="set max receive pdu to n bytes (4096..131072)",
+        help=(
+            "set max receive pdu to n bytes (0 for unlimited, default: {})"
+            .format(DEFAULT_MAX_LENGTH)
+        ),
         type=int,
-        default=16382
+        default=DEFAULT_MAX_LENGTH
     )
 
     # Query information model choices

@@ -15,6 +15,7 @@ from pydicom.uid import (
 
 from pynetdicom import AE
 from pynetdicom.apps.common import setup_logging
+from pynetdicom._globals import DEFAULT_MAX_LENGTH
 from pynetdicom.sop_class import VerificationSOPClass
 
 
@@ -116,9 +117,12 @@ def _setup_argparser():
     )
     net_opts.add_argument(
         "-pdu", "--max-pdu", metavar='[n]umber of bytes',
-        help="set max receive pdu to n bytes (4096..131072)",
+        help=(
+            "set max receive pdu to n bytes (0 for unlimited, default: {})"
+            .format(DEFAULT_MAX_LENGTH)
+        ),
         type=int,
-        default=16382
+        default=DEFAULT_MAX_LENGTH
     )
 
     # Transfer Syntaxes

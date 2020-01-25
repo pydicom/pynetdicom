@@ -283,7 +283,7 @@ class TestStoreSCU(object):
         ae.add_supported_context(CTImageStorage)
         scp = ae.start_server(('', 11112), block=False, evt_handlers=handlers)
 
-        # Start echoscu.py and block until association is complete
+
         p = start_storescu([DATASET_FILE, '-aec', 'YOURSCP'])
         p.wait()
         assert p.returncode == 0
@@ -322,7 +322,6 @@ class TestStoreSCU(object):
         ae.add_supported_context(CTImageStorage)
         scp = ae.start_server(('', 11112), block=False, evt_handlers=handlers)
 
-        # Start echoscu.py and block until association is complete
         p = start_storescu([DATASET_FILE, '-ta', '0.05', '-d'])
         p.wait()
         assert p.returncode == 1
@@ -360,7 +359,6 @@ class TestStoreSCU(object):
         ae.add_supported_context(CTImageStorage)
         scp = ae.start_server(('', 11112), block=False, evt_handlers=handlers)
 
-        # Start echoscu.py and block until association is complete
         p = start_storescu([DATASET_FILE, '-td', '0.05', '-d'])
         p.wait()
         assert p.returncode == 0
@@ -402,7 +400,6 @@ class TestStoreSCU(object):
         ae.add_supported_context(CTImageStorage)
         scp = ae.start_server(('', 11112), block=False, evt_handlers=handlers)
 
-        # Start echoscu.py and block until association is complete
         p = start_storescu([DATASET_FILE, '--max-pdu', '123456'])
         p.wait()
         assert p.returncode == 0
@@ -437,7 +434,6 @@ class TestStoreSCU(object):
         ae.add_supported_context(CTImageStorage)
         scp = ae.start_server(('', 11112), block=False, evt_handlers=handlers)
 
-        # Start echoscu.py and block until association is complete
         p = start_storescu([DATASET_FILE, '-xe'])
         p.wait()
         assert p.returncode == 0
@@ -477,7 +473,6 @@ class TestStoreSCU(object):
         ae.add_supported_context(CTImageStorage)
         scp = ae.start_server(('', 11112), block=False, evt_handlers=handlers)
 
-        # Start echoscu.py and block until association is complete
         p = start_storescu([DATASET_FILE, '-xb'])
         p.wait()
         assert p.returncode == 0
@@ -518,7 +513,6 @@ class TestStoreSCU(object):
         ae.add_supported_context(CTImageStorage)
         scp = ae.start_server(('', 11112), block=False, evt_handlers=handlers)
 
-        # Start echoscu.py and block until association is complete
         p = start_storescu([DATASET_FILE, '-xi'])
         p.wait()
         assert p.returncode == 0
@@ -559,7 +553,6 @@ class TestStoreSCU(object):
         ae.add_supported_context(CTImageStorage)
         scp = ae.start_server(('', 11112), block=False, evt_handlers=handlers)
 
-        # Start echoscu.py and block until association is complete
         p = start_storescu([DATASET_FILE, '-cx'])
         p.wait()
         assert p.returncode == 0

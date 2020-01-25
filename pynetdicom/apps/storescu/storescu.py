@@ -15,6 +15,7 @@ from pydicom.uid import (
 
 from pynetdicom import AE, StoragePresentationContexts
 from pynetdicom.apps.common import setup_logging
+from pynetdicom._globals import DEFAULT_MAX_LENGTH
 from pynetdicom.status import STORAGE_SERVICE_CLASS_STATUS
 
 
@@ -31,7 +32,7 @@ def _setup_argparser():
             "file on the command line it sends a C-STORE message to a "
             "Storage Service Class Provider (SCP) and waits for a response."
         ),
-        usage="storescu [options] addr port dcmfile-in"
+        usage="storescu [options] addr port dcmfile"
     )
 
     # Parameters
@@ -41,9 +42,8 @@ def _setup_argparser():
     )
     req_opts.add_argument("port", help="TCP/IP port number of peer", type=int)
     req_opts.add_argument(
-        "dcmfile_in",
-        metavar="dcmfile-in",
-        help="DICOM file to be transmitted",
+        "dcmfile", metavar="dcmfile",
+        help="DICOM file or directory to be transmitted",
         type=str
     )
 
@@ -87,6 +87,14 @@ def _setup_argparser():
         type=str
     )
 
+    # Input Options
+    in_opts = parse.add_argument('Input Options')
+    in_opts.add_argument(
+        '-r', '--recurse',
+        help="recursively search the given directory",
+        action="store_true"
+    )
+
     # Network Options
     net_opts = parser.add_argument_group('Network Options')
     net_opts.add_argument(
@@ -121,9 +129,12 @@ def _setup_argparser():
     )
     net_opts.add_argument(
         "-pdu", "--max-pdu", metavar='[n]umber of bytes',
-        help="set max receive pdu to n bytes (4096..131072)",
+        help=(
+            "set max receive pdu to n bytes (0 for unlimited, default: {})"
+            .format(DEFAULT_MAX_LENGTH)
+        ),
         type=int,
-        default=16382
+        default=DEFAULT_MAX_LENGTH
     )
 
     # Transfer Syntaxes
@@ -148,10 +159,10 @@ def _setup_argparser():
     # Misc Options
     misc_opts = parser.add_argument_group('Miscellaneous Options')
     misc_opts.add_argument(
-        "-cx", "--single-context",
+        "-cx", "--required-contexts",
         help=(
-            "only request a single presentation context that matches the "
-            "input DICOM file"
+            "only request the presentation contexts required for the "
+            "input DICOM file(s)"
         ),
         action="store_true",
     )
@@ -173,11 +184,11 @@ if __name__ == "__main__":
     # Check file exists and is readable and DICOM
     APP_LOGGER.debug('Checking input file')
     try:
-        with open(args.dcmfile_in, 'rb') as fp:
+        with open(args.dcmfile, 'rb') as fp:
             ds = dcmread(fp, force=True)
     except Exception as exc:
         APP_LOGGER.error(
-            'Cannot read input file {0!s}'.format(args.dcmfile_in)
+            'Cannot read input file {0!s}'.format(args.dcmfile)
         )
         APP_LOGGER.exception(exc)
         sys.exit(1)
@@ -225,7 +236,7 @@ if __name__ == "__main__":
         args.addr, args.port, ae_title=args.called_aet, max_pdu=args.max_pdu
     )
     if assoc.is_established:
-        APP_LOGGER.info('Sending file: {0!s}'.format(args.dcmfile_in))
+        APP_LOGGER.info('Sending file: {0!s}'.format(args.dcmfile))
         status = assoc.send_c_store(ds)
         assoc.release()
     else:
