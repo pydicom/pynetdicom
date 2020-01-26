@@ -310,9 +310,9 @@ class TestVerificationServiceClass(object):
         assert assoc.is_established
         with caplog.at_level(logging.DEBUG, logger='pynetdicom'):
             rsp = assoc.send_c_echo()
-        assert rsp == Dataset()
+            assert rsp == Dataset()
+            time.sleep(0.1)
 
-        time.sleep(0.1)
         assert assoc.is_aborted
         scp.shutdown()
 
@@ -338,9 +338,9 @@ class TestVerificationServiceClass(object):
         assert assoc.is_established
         with caplog.at_level(logging.DEBUG, logger='pynetdicom'):
             rsp = assoc.send_c_echo()
-        assert rsp == Dataset()
+            assert rsp == Dataset()
+            time.sleep(0.1)
 
-        time.sleep(0.1)
         assert assoc.is_aborted
         scp.shutdown()
 

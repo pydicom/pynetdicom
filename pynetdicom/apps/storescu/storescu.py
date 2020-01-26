@@ -167,28 +167,34 @@ def _setup_argparser():
 
 
 def get_contexts(fpaths):
+    """Return the valid DICOM files and their context values.
+
+    Parameters
+    ----------
+    fpaths : list of str
+        A list of paths to the files to try and get data from.
+
+    Returns
+    -------
+    list of str, dict
+        A list of paths to valid DICOM files and the {SOP Class UID :
+        [Transfer Syntax UIDs]} that can be used to create the required
+        presentation contexts.
     """
-    """
-    bad = []
-    good = []
+    good, bad = [], []
     contexts = {}
     for fpath in fpaths:
         try:
             ds = dcmread(fpath)
         except Exception as exc:
-            bad.append((fpath, 'Cannot read input file'))
+            bad.append(('Bad DICOM file', fpath))
             continue
 
         try:
             sop_class = ds.SOPClassUID
             tsyntax = ds.file_meta.TransferSyntaxUID
         except Exception as exc:
-            bad.append(
-                (
-                    fpath,
-                    'Unable to determine the abstract and/or transfer syntax'
-                )
-            )
+            bad.append(('Unknown SOP Class or Transfer Syntax UID', fpath))
             continue
 
         tsyntaxes = contexts.setdefault(sop_class, [])
@@ -197,9 +203,8 @@ def get_contexts(fpaths):
 
         good.append(fpath)
 
-    if bad:
-        for (bfile, reason) in bad:
-            APP_LOGGER.error("{}: {}".format(reason, bfile))
+    for (reason, fpath) in bad:
+        APP_LOGGER.error("{}: {}".format(reason, fpath))
 
     return good, contexts
 
@@ -223,34 +228,39 @@ if __name__ == "__main__":
     ae.network_timeout = args.network_timeout
 
     if args.required_contexts:
+        # Only propose required presentation contexts
         lfiles, contexts = get_contexts(lfiles)
         if len(contexts) > 128:
-            APP_LOGGER.error(
+            raise ValueError(
                 "More than 128 presentation contexts required with the "
                 "'--required-contexts' flag, please try again without it or "
-                "try with fewer files"
+                "with fewer files"
             )
-            sys.exit(1)
+
         for abstract, transfer in contexts.items():
             ae.add_requested_context(abstract, transfer)
     else:
-        # Set Transfer Syntax options
-        transfer_syntax = [
-            ExplicitVRLittleEndian,
-            ImplicitVRLittleEndian,
-            DeflatedExplicitVRLittleEndian,
-            ExplicitVRBigEndian
-        ]
-
+        # Propose the default presentation contexts
         if args.request_little:
             transfer_syntax = [ExplicitVRLittleEndian]
         elif args.request_big:
             transfer_syntax = [ExplicitVRBigEndian]
         elif args.request_implicit:
             transfer_syntax = [ImplicitVRLittleEndian]
+        else:
+            transfer_syntax = [
+                ExplicitVRLittleEndian,
+                ImplicitVRLittleEndian,
+                DeflatedExplicitVRLittleEndian,
+                ExplicitVRBigEndian
+            ]
 
         for cx in StoragePresentationContexts:
             ae.add_requested_context(cx.abstract_syntax, transfer_syntax)
+
+    if not lfiles:
+        APP_LOGGER.warning("No suitable DICOM files found")
+        sys.exit()
 
     # Request association with remote
     assoc = ae.associate(
@@ -259,16 +269,17 @@ if __name__ == "__main__":
     if assoc.is_established:
         ii = 1
         for fpath in lfiles:
+            APP_LOGGER.info('Sending file: {}'.format(fpath))
             try:
                 ds = dcmread(fpath)
                 status = assoc.send_c_store(ds, ii)
                 ii += 1
             except InvalidDicomError:
-                pass
-            except ValueError:
-                APP_LOGGER.error('Computer says no')
+                APP_LOGGER.error('Bad DICOM file: {}'.format(fpath))
+            except ValueError as exc:
+                APP_LOGGER.error("Store failed: {}".format(fpath))
             except Exception as exc:
-                APP_LOGGER.error("Error sending dataset: {}".format(fpath))
+                APP_LOGGER.error("Store failed: {}".format(fpath))
                 APP_LOGGER.exception(exc)
 
         assoc.release()

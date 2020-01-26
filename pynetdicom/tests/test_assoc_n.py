@@ -1,6 +1,10 @@
 """Association testing for DIMSE-N services"""
 
 from io import BytesIO
+try:
+    import queue
+except ImportError:
+    import Queue as queue  # Python 2 compatibility
 import time
 
 import pytest
@@ -101,8 +105,8 @@ class TestAssociationSendNEventReport(object):
         assert assoc.is_established
 
         msg = (
-            r"No suitable presentation context for the SCU role has been "
-            r"accepted by the peer for the SOP Class 'Verification SOP Class'"
+            r"No presentation context for 'Verification SOP Class' has been "
+            r"accepted by the peer for the SCU role"
         )
         with pytest.raises(ValueError, match=msg):
             assoc.send_n_event_report(
@@ -207,9 +211,18 @@ class TestAssociationSendNEventReport(object):
             is_valid_response = False
 
         class DummyDIMSE():
+            msg_queue = queue.Queue()
+            gotten = False
             def send_msg(*args, **kwargs): return
-            def get_msg(*args, **kwargs): return None, DummyResponse()
+            def get_msg(self, *args, **kwargs):
+                if not self.gotten:
+                    self.gotten = True
+                    return None, DummyResponse()
+                return None, None
 
+        assoc._reactor_checkpoint.clear()
+        while not assoc._is_paused:
+            time.sleep(0.01)
         assoc.dimse = DummyDIMSE()
 
         ds = Dataset()
@@ -425,13 +438,21 @@ class TestAssociationSendNEventReport(object):
             STATUS_OPTIONAL_KEYWORDS = []
 
         class DummyDIMSE():
+            msg_queue = queue.Queue()
+            gotten = False
+
             def send_msg(*args, **kwargs):
                 return
 
-            def get_msg(*args, **kwargs):
-                rsp = DummyMessage()
-                return 1, rsp
+            def get_msg(self, *args, **kwargs):
+                if not self.gotten:
+                    self.gotten = True
+                    return 1, DummyMessage()
+                return None, None
 
+        assoc._reactor_checkpoint.clear()
+        while not assoc._is_paused:
+            time.sleep(0.01)
         assoc.dimse = DummyDIMSE()
         assert assoc.is_established
 
@@ -593,9 +614,10 @@ class TestAssociationSendNEventReport(object):
         ds = Dataset()
         ds.PatientName = 'Test^test'
         msg = (
-            r"No suitable presentation context for the SCU role has been "
-            r"accepted by the peer for the SOP Class 'Basic Color Print "
-            r"Management Meta SOP Class'"
+            r"No presentation context for 'Basic Color Print Management "
+            r"Meta SOP Class' has been "
+            r"accepted by the peer "
+            r"for the SCU role"
         )
         with pytest.raises(ValueError, match=msg):
             assoc.send_n_event_report(
@@ -668,8 +690,9 @@ class TestAssociationSendNGet(object):
         assoc = ae.associate('localhost', 11112)
         assert assoc.is_established
         msg = (
-            r"No suitable presentation context for the SCU role has been "
-            r"accepted by the peer for the SOP Class 'Verification SOP Class'"
+            r"No presentation context for 'Verification SOP Class' has been "
+            r"accepted by the peer "
+            r"for the SCU role"
         )
         with pytest.raises(ValueError, match=msg):
             assoc.send_n_get(None, VerificationSOPClass, None)
@@ -736,9 +759,18 @@ class TestAssociationSendNGet(object):
             is_valid_response = False
 
         class DummyDIMSE():
+            msg_queue = queue.Queue()
+            gotten = False
             def send_msg(*args, **kwargs): return
-            def get_msg(*args, **kwargs): return None, DummyResponse()
+            def get_msg(self, *args, **kwargs):
+                if not self.gotten:
+                    self.gotten = True
+                    return None, DummyResponse()
+                return None, None
 
+        assoc._reactor_checkpoint.clear()
+        while not assoc._is_paused:
+            time.sleep(0.01)
         assoc.dimse = DummyDIMSE()
         assert assoc.is_established
         status, ds = assoc.send_n_get([(0x7fe0,0x0010)],
@@ -947,13 +979,21 @@ class TestAssociationSendNGet(object):
             STATUS_OPTIONAL_KEYWORDS = []
 
         class DummyDIMSE():
+            msg_queue = queue.Queue()
+            gotten = False
+
             def send_msg(*args, **kwargs):
                 return
 
-            def get_msg(*args, **kwargs):
-                rsp = DummyMessage()
-                return 1, rsp
+            def get_msg(self, *args, **kwargs):
+                if not self.gotten:
+                    self.gotten = True
+                    return 1, DummyMessage()
+                return None, None
 
+        assoc._reactor_checkpoint.clear()
+        while not assoc._is_paused:
+            time.sleep(0.01)
         assoc.dimse = DummyDIMSE()
         assert assoc.is_established
         status, ds = assoc.send_n_get(
@@ -1113,9 +1153,10 @@ class TestAssociationSendNGet(object):
         ds = Dataset()
         ds.PatientName = 'Test^test'
         msg = (
-            r"No suitable presentation context for the SCU role has been "
-            r"accepted by the peer for the SOP Class 'Basic Color Print "
-            r"Management Meta SOP Class'"
+            r"No presentation context for 'Basic Color Print Management "
+            r"Meta SOP Class' has been "
+            r"accepted by the peer "
+            r"for the SCU role"
         )
         with pytest.raises(ValueError, match=msg):
             assoc.send_n_get(
@@ -1187,8 +1228,9 @@ class TestAssociationSendNSet(object):
         assert assoc.is_established
 
         msg = (
-            r"No suitable presentation context for the SCU role has been "
-            r"accepted by the peer for the SOP Class 'Verification SOP Class'"
+            r"No presentation context for 'Verification SOP Class' has been "
+            r"accepted by the peer "
+            r"for the SCU role"
         )
         with pytest.raises(ValueError, match=msg):
             assoc.send_n_set(None, VerificationSOPClass, None)
@@ -1292,9 +1334,18 @@ class TestAssociationSendNSet(object):
             is_valid_response = False
 
         class DummyDIMSE():
+            msg_queue = queue.Queue()
+            gotten = False
             def send_msg(*args, **kwargs): return
-            def get_msg(*args, **kwargs): return None, DummyResponse()
+            def get_msg(self, *args, **kwargs):
+                if not self.gotten:
+                    self.gotten = True
+                    return None, DummyResponse()
+                return None, None
 
+        assoc._reactor_checkpoint.clear()
+        while not assoc._is_paused:
+            time.sleep(0.01)
         assoc.dimse = DummyDIMSE()
         mod_list = Dataset()
         mod_list.PatientName = 'Test^test'
@@ -1501,13 +1552,21 @@ class TestAssociationSendNSet(object):
             STATUS_OPTIONAL_KEYWORDS = []
 
         class DummyDIMSE():
+            msg_queue = queue.Queue()
+            gotten = False
+
             def send_msg(*args, **kwargs):
                 return
 
-            def get_msg(*args, **kwargs):
-                rsp = DummyMessage()
-                return 1, rsp
+            def get_msg(self, *args, **kwargs):
+                if not self.gotten:
+                    self.gotten = True
+                    return 1, DummyMessage()
+                return None, None
 
+        assoc._reactor_checkpoint.clear()
+        while not assoc._is_paused:
+            time.sleep(0.01)
         assoc.dimse = DummyDIMSE()
         assert assoc.is_established
         mod_list = Dataset()
@@ -1669,9 +1728,10 @@ class TestAssociationSendNSet(object):
         ds = Dataset()
         ds.PatientName = 'Test^test'
         msg = (
-            r"No suitable presentation context for the SCU role has been "
-            r"accepted by the peer for the SOP Class 'Basic Color Print "
-            r"Management Meta SOP Class'"
+            r"No presentation context for 'Basic Color Print Management "
+            r"Meta SOP Class' has been "
+            r"accepted by the peer "
+            r"for the SCU role"
         )
         with pytest.raises(ValueError, match=msg):
             assoc.send_n_set(
@@ -1742,8 +1802,8 @@ class TestAssociationSendNAction(object):
         assert assoc.is_established
 
         msg = (
-            r"No suitable presentation context for the SCU role has been "
-            r"accepted by the peer for the SOP Class 'Verification SOP Class'"
+            r"No presentation context for 'Verification SOP Class' has been "
+            r"accepted by the peer for the SCU role"
         )
         with pytest.raises(ValueError, match=msg):
             assoc.send_n_action(None, 1, VerificationSOPClass, None)
@@ -1803,10 +1863,14 @@ class TestAssociationSendNAction(object):
         assert assoc.is_established
 
         class DummyDIMSE():
+            msg_queue = queue.Queue()
             def send_msg(*args, **kwargs): return
 
             def get_msg(*args, **kwargs): return None, None
 
+        assoc._reactor_checkpoint.clear()
+        while not assoc._is_paused:
+            time.sleep(0.01)
         assoc.dimse = DummyDIMSE()
         ds = Dataset()
         ds.PatientName = 'Test^test'
@@ -1842,9 +1906,18 @@ class TestAssociationSendNAction(object):
             is_valid_response = False
 
         class DummyDIMSE():
+            msg_queue = queue.Queue()
+            gotten = False
             def send_msg(*args, **kwargs): return
-            def get_msg(*args, **kwargs): return None, DummyResponse()
+            def get_msg(self, *args, **kwargs):
+                if not self.gotten:
+                    self.gotten = True
+                    return None, DummyResponse()
+                return None, None
 
+        assoc._reactor_checkpoint.clear()
+        while not assoc._is_paused:
+            time.sleep(0.01)
         assoc.dimse = DummyDIMSE()
         ds = Dataset()
         ds.PatientName = 'Test^test'
@@ -2007,6 +2080,7 @@ class TestAssociationSendNAction(object):
             STATUS_OPTIONAL_KEYWORDS = []
 
         class DummyDIMSE():
+            msg_queue = queue.Queue()
             def send_msg(*args, **kwargs):
                 return
 
@@ -2014,6 +2088,9 @@ class TestAssociationSendNAction(object):
                 rsp = DummyMessage()
                 return 1, rsp
 
+        assoc._reactor_checkpoint.clear()
+        while not assoc._is_paused:
+            time.sleep(0.01)
         assoc.dimse = DummyDIMSE()
         ds = Dataset()
         ds.PatientName = 'Test^test'
@@ -2162,9 +2239,10 @@ class TestAssociationSendNAction(object):
         ds = Dataset()
         ds.PatientName = 'Test^test'
         msg = (
-            r"No suitable presentation context for the SCU role has been "
-            r"accepted by the peer for the SOP Class 'Basic Color Print "
-            r"Management Meta SOP Class'"
+            r"No presentation context for 'Basic Color Print Management "
+            r"Meta SOP Class' has been "
+            r"accepted by the peer "
+            r"for the SCU role"
         )
         with pytest.raises(ValueError, match=msg):
             assoc.send_n_action(
@@ -2234,8 +2312,8 @@ class TestAssociationSendNCreate(object):
         assert assoc.is_established
 
         msg = (
-            r"No suitable presentation context for the SCU role has been "
-            r"accepted by the peer for the SOP Class 'Verification SOP Class'"
+            r"No presentation context for 'Verification SOP Class' has been "
+            r"accepted by the peer for the SCU role"
         )
         with pytest.raises(ValueError, match=msg):
             assoc.send_n_create(None, VerificationSOPClass, None)
@@ -2331,9 +2409,18 @@ class TestAssociationSendNCreate(object):
             is_valid_response = False
 
         class DummyDIMSE():
+            msg_queue = queue.Queue()
+            gotten = False
             def send_msg(*args, **kwargs): return
-            def get_msg(*args, **kwargs): return None, DummyResponse()
+            def get_msg(self, *args, **kwargs):
+                if not self.gotten:
+                    self.gotten = True
+                    return None, DummyResponse()
+                return None, None
 
+        assoc._reactor_checkpoint.clear()
+        while not assoc._is_paused:
+            time.sleep(0.01)
         assoc.dimse = DummyDIMSE()
         ds = Dataset()
         ds.PatientName = 'Test^test'
@@ -2531,18 +2618,27 @@ class TestAssociationSendNCreate(object):
 
         class DummyMessage():
             is_valid_response = True
+            is_valid_request = False
             AttributeList = DummyReply()
             Status = 0x0000
             STATUS_OPTIONAL_KEYWORDS = []
 
         class DummyDIMSE():
+            msg_queue = queue.Queue()
+            gotten = False
+
             def send_msg(*args, **kwargs):
                 return
 
-            def get_msg(*args, **kwargs):
-                rsp = DummyMessage()
-                return 1, rsp
+            def get_msg(self, *args, **kwargs):
+                if not self.gotten:
+                    self.gotten = True
+                    return 1, DummyMessage()
+                return None, None
 
+        assoc._reactor_checkpoint.clear()
+        while not assoc._is_paused:
+            time.sleep(0.01)
         assoc.dimse = DummyDIMSE()
         ds = Dataset()
         ds.PatientName = 'Test^test'
@@ -2695,9 +2791,10 @@ class TestAssociationSendNCreate(object):
         ds = Dataset()
         ds.PatientName = 'Test^test'
         msg = (
-            r"No suitable presentation context for the SCU role has been "
-            r"accepted by the peer for the SOP Class 'Basic Color Print "
-            r"Management Meta SOP Class'"
+            r"No presentation context for 'Basic Color Print Management "
+            r"Meta SOP Class' has been "
+            r"accepted by the peer "
+            r"for the SCU role"
         )
         with pytest.raises(ValueError, match=msg):
             assoc.send_n_create(
@@ -2767,8 +2864,8 @@ class TestAssociationSendNDelete(object):
         assert assoc.is_established
 
         msg = (
-            r"No suitable presentation context for the SCU role has been "
-            r"accepted by the peer for the SOP Class 'Verification SOP Class'"
+            r"No presentation context for 'Verification SOP Class' has been "
+            r"accepted by the peer for the SCU role"
         )
         with pytest.raises(ValueError, match=msg):
             assoc.send_n_delete(VerificationSOPClass, None)
@@ -2825,9 +2922,18 @@ class TestAssociationSendNDelete(object):
             is_valid_response = False
 
         class DummyDIMSE():
+            msg_queue = queue.Queue()
+            gotten = False
             def send_msg(*args, **kwargs): return
-            def get_msg(*args, **kwargs): return None, DummyResponse()
+            def get_msg(self, *args, **kwargs):
+                if not self.gotten:
+                    self.gotten = True
+                    return None, DummyResponse()
+                return None, None
 
+        assoc._reactor_checkpoint.clear()
+        while not assoc._is_paused:
+            time.sleep(0.01)
         assoc.dimse = DummyDIMSE()
         status = assoc.send_n_delete(BasicFilmSessionSOPClass,
                                      '1.2.840.10008.5.1.1.40.1')
@@ -3042,9 +3148,10 @@ class TestAssociationSendNDelete(object):
         ds = Dataset()
         ds.PatientName = 'Test^test'
         msg = (
-            r"No suitable presentation context for the SCU role has been "
-            r"accepted by the peer for the SOP Class 'Basic Color Print "
-            r"Management Meta SOP Class'"
+            r"No presentation context for 'Basic Color Print Management "
+            r"Meta SOP Class' has been "
+            r"accepted by the peer "
+            r"for the SCU role"
         )
         with pytest.raises(ValueError, match=msg):
             assoc.send_n_delete(

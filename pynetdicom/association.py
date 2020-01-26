@@ -362,12 +362,12 @@ class Association(threading.Thread):
 
         role = role or 'scu'
         msg = (
-            "No suitable presentation context for the {} role has been "
-            "accepted by the peer for the SOP Class '{}'"
-            .format(role.upper(), ab_syntax.name)
+            "No presentation context for '{}' has been accepted by the peer"
+            .format(ab_syntax.name)
         )
         if tr_syntax:
-            msg += " with a transfer syntax of '{}'".format(tr_syntax.name)
+            msg += " with '{}' transfer syntax".format(tr_syntax.name)
+        msg += " for the {} role".format(role.upper())
 
         LOGGER.error(msg)
         raise ValueError(msg)
