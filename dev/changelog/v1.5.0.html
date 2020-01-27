@@ -189,7 +189,8 @@
             
   <div class="section" id="v1-5-0">
 <span id="id1"></span><h1>1.5.0<a class="headerlink" href="#v1-5-0" title="Permalink to this headline">¶</a></h1>
-<p>This will be the last release that supports Python 2.</p>
+<p>This will be the last release that supports Python 2, with fixes for serious
+bugs being available for a year after the release date.</p>
 <div class="section" id="fixes">
 <h2>Fixes<a class="headerlink" href="#fixes" title="Permalink to this headline">¶</a></h2>
 <ul class="simple">
@@ -204,6 +205,9 @@ from Part 6 of the DICOM Standard rather than Part 4.</p></li>
 <li><p>Stopped the QR Move SCP from associating with the move destination when no
 suboperations were required (<a class="reference external" href="https://github.com/pydicom/pynetdicom/issues/436">#436</a>)</p></li>
 <li><p>Fixed a possible race condition during DIMSE message exchange (<a class="reference external" href="https://github.com/pydicom/pynetdicom/issues/435">#435</a>)</p></li>
+<li><p>Fixed the association acceptor selecting the first matching proposed
+transfer syntax rather than the first matching supported transfer syntax
+during presentation context negotiation (<a class="reference external" href="https://github.com/pydicom/pynetdicom/issues/445">#445</a>)</p></li>
 </ul>
 </div>
 <div class="section" id="enhancements">
@@ -227,8 +231,10 @@ the association during service class operation.</p></li>
 contains all of the Storage Service Class’ SOP Class UIDs rather than just
 the first 128 as in
 <a class="reference internal" href="../reference/generated/pynetdicom.presentation.StoragePresentationContexts.html#pynetdicom.presentation.StoragePresentationContexts" title="pynetdicom.presentation.StoragePresentationContexts"><code class="xref py py-attr docutils literal notranslate"><span class="pre">StoragePresentationContexts</span></code></a>.</p></li>
-<li><p>Overhaul of <code class="docutils literal notranslate"><span class="pre">echoscu.py</span></code>, <code class="docutils literal notranslate"><span class="pre">storescu.py</span></code> and added non-toy implementations
-for <code class="docutils literal notranslate"><span class="pre">findscu.py</span></code>, <code class="docutils literal notranslate"><span class="pre">getscu.py</span></code> and <code class="docutils literal notranslate"><span class="pre">movescu.py</span></code> apps.</p></li>
+<li><p>Overhaul of <code class="docutils literal notranslate"><span class="pre">echoscp.py</span></code>, <code class="docutils literal notranslate"><span class="pre">echoscu.py</span></code>, <code class="docutils literal notranslate"><span class="pre">storescp.py</span></code> and
+<code class="docutils literal notranslate"><span class="pre">storescu.py</span></code></p></li>
+<li><p>Added non-toy implementations for <code class="docutils literal notranslate"><span class="pre">findscu.py</span></code>, <code class="docutils literal notranslate"><span class="pre">getscu.py</span></code> and
+<code class="docutils literal notranslate"><span class="pre">movescu.py</span></code> apps</p></li>
 </ul>
 </div>
 <div class="section" id="changes">

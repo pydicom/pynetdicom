@@ -1,100 +1,102 @@
 =======
 echoscp
 =======
-    ``echoscp [options] port``
+    ``echoscp.py [options] port``
 
 Description
 ===========
 The ``echoscp`` application implements a Service Class Provider (SCP) for the
-*Verification SOP Class* (UID 1.2.840.10008.1.1) [#]_. It establishes an
+*Verification SOP Class* (UID 1.2.840.10008.1.1). It establishes an
 Association with peer Application Entities (AEs) and listens for
-DICOM C-ECHO-RQ [#]_ messages to which it responds with a DICOM C-ECHO-RSP
+DICOM C-ECHO-RQ messages to which it responds with a DICOM C-ECHO-RSP
 message. The application can be used to verify basic DICOM connectivity.
 
 The following example shows what happens when it is started and receives
 a C-ECHO request from a peer:
-::
 
-   user@host: echoscp 11112
+.. code-block:: text
+
+   user@host: python echoscp.py 11112
 
 
 More information is available when a connection is received while running with
 the ``-v`` option:
-::
 
-    user@host: echoscp 11112 -v
-    I: Association Received
-    I: Association Accepted
+.. code-block:: text
+
+    user@host: python echoscp.py 11112 -v
+    I: Accepting Association
     I: Received Echo Request (MsgID 1)
     I: Association Released
 
 When a peer AE attempts to send non C-ECHO message:
-::
 
-    user@host: echoscu 192.168.2.1 11112 -v
-    I: Association Received
-    I: Association Accepted
-    I: Aborting Association
+.. code-block:: text
+
+    user@host: python echoscp.py 192.168.2.1 11112 -v
+    I: Accepting Association
+    I: Association Aborted
 
 Much more information is available when a connection is received while
 running with the ``-d`` option:
-::
 
-    user@host: echoscp 11112 -d
-    D: $echosco.py v0.4.1
+.. code-block:: text
+
+    user@host: python echoscp.py 11112 -d
+    D: echoscp.py v0.7.0
     D:
-    I: Association Received
     D: Request Parameters:
-    D: ====================== BEGIN A-ASSOCIATE-RQ =============================
-    D: Their Implementation Class UID: 1.2.826.0.1.3680043.9.381.0.9.0
+    D: ========================= BEGIN A-ASSOCIATE-RQ PDU =========================
+    D: Their Implementation Class UID:      1.2.276.0.7230010.3.0.3.6.2
     ...
     I: Received Echo Request (MsgID 1)
-    ...
+    D: ========================== INCOMING DIMSE MESSAGE ==========================
+    D: Message Type                  : C-ECHO RQ
+    D: Presentation Context ID       : 1
+    D: Message ID                    : 1
+    D: Data Set                      : None
+    D: ============================ END DIMSE MESSAGE =============================
     I: Association Released
 
 
 Options
 =======
-Logging
--------
-    ``-q    --quiet``
-              quiet mode, prints no warnings or errors
-    ``-v    --verbose``
-              verbose mode, prints processing details
-    ``-d    --debug``
-              debug mode, prints debugging information
-    ``-ll   --log-level [l]evel (str)``
-              One of ['critical', 'error', 'warning', 'info', 'debug'], prints
-              logging messages with corresponding level l or higher
-    ``-lc   --log-config [f]ilename (str)``
-              use python logging config [#]_ file f for the logger
+General Options
+---------------
+``-q    --quiet``
+            quiet mode, prints no warnings or errors
+``-v    --verbose``
+            verbose mode, prints processing details
+``-d    --debug``
+            debug mode, prints debugging information
+``-ll   --log-level [l]evel (str)``
+            One of [``'critical'``, ``'error'``, ``'warning'``, ``'info'``,
+            ``'debug'``], prints logging messages with corresponding level
+            or lower
 
-Application Entity Titles
--------------------------
-    ``-aet  --aetitle [a]etitle (str)``
-              set my AE title (default: ECHOSCP)
-
-Miscellaneous DICOM
--------------------
-    ``-to   --timeout [s]econds (int)``
-              timeout for connection requests (default: unlimited)
-    ``-ta   --acse-timeout [s]econds (int)``
-              timeout for ACSE messages (default: 30)
-    ``-td   --dimse-timeout [s]econds (int)``
-              timeout for DIMSE messages (default: unlimited)
-    ``-pdu  --max-pdu [n]umber of bytes (int)``
-              set maximum receive PDU bytes to n bytes (default: 16384)
+Network Options
+---------------
+``-aet  --ae-title [a]etitle (str)``
+            set the local AE title (default: ``ECHOSCP``)
+``-ta   --acse-timeout [s]econds (float)``
+            timeout for ACSE messages (default: ``30``)
+``-td   --dimse-timeout [s]econds (float)``
+            timeout for DIMSE messages (default: ``30``)
+``-tn   --network-timeout [s]econds (float)``
+            timeout for the network (default: ``30``)
+``-pdu  --max-pdu [n]umber of bytes (int)``
+            set maximum receive PDU bytes to n bytes (default: ``16382``)
 
 Preferred Transfer Syntaxes
 ---------------------------
-    ``-x=   --prefer-uncompr``
-              prefer explicit VR local byte order (default)
-    ``-xe   --prefer-little``
-              prefer explicit VR little endian transfer syntax
-    ``-xb   --prefer-big``
-              prefer explicit VR big endian transfer syntax
-    ``-xi   --implicit``
-              accept implicit VR little endian transfer syntax only
+``-x=   --prefer-uncompr``
+            prefer explicit VR local byte order
+``-xe   --prefer-little``
+            prefer explicit VR little endian transfer syntax
+``-xb   --prefer-big``
+            prefer explicit VR big endian transfer syntax
+``-xi   --implicit``
+            accept implicit VR little endian transfer syntax only
 
 DICOM Conformance
 =================
@@ -106,21 +108,40 @@ The ``echoscp`` application supports the following SOP Class as an SCP:
 |1.2.840.10008.1.1 | Verification SOP Class |
 +------------------+------------------------+
 
-The supported Transfer Syntaxes [#]_ are:
+The supported Transfer Syntaxes are:
 
-+--------------------+---------------------------+
-| UID                | Transfer Syntax           |
-+====================+===========================+
-|1.2.840.10008.1.2   | Little Endian Implicit VR |
-+--------------------+---------------------------+
-|1.2.840.10008.1.2.1 | Little Endian Explicit VR |
-+--------------------+---------------------------+
-|1.2.840.10008.1.2.2 | Big Endian Explicit VR    |
-+--------------------+---------------------------+
-
-.. rubric:: Footnotes
-
-.. [#] DICOM Standard, Part 6, Table A-1
-.. [#] DICOM Standard, Part 7, Sections 9.1.5 and 9.3.5
-.. [#] `The Python documentation <https://docs.python.org/3.5/library/logging.config.html#logging-config-fileformat>`_
-.. [#] DICOM Standard, Part 5, Section 10 and Annex A
++------------------------+----------------------------------------------------+
+| UID                    | Transfer Syntax                                    |
++========================+====================================================+
+| 1.2.840.10008.1.2      | Implicit VR Little Endian                          |
++------------------------+----------------------------------------------------+
+| 1.2.840.10008.1.2.1    | Explicit VR Little Endian                          |
++------------------------+----------------------------------------------------+
+| 1.2.840.10008.1.2.2    | Explicit VR Big Endian                             |
++------------------------+----------------------------------------------------+
+| 1.2.840.10008.1.2.1.99 | Deflated Explicit VR Little Endian                 |
++------------------------+----------------------------------------------------+
+| 1.2.840.10008.1.2.4.50 | JPEG Baseline (Process 1)                          |
++------------------------+----------------------------------------------------+
+| 1.2.840.10008.1.2.4.51 | JPEG Extended (Process 2 and 4)                    |
++------------------------+----------------------------------------------------+
+| 1.2.840.10008.1.2.4.57 | JPEG Lossless, Non-Hierarchical (Process 14)       |
++------------------------+----------------------------------------------------+
+| 1.2.840.10008.1.2.4.70 | JPEG Lossless, Non-Hierarchical, First-Order       |
+|                        | Prediction (Process 14 [Selection Value 1])        |
++------------------------+----------------------------------------------------+
+| 1.2.840.10008.1.2.4.80 | JPEG-LS Lossless Image Compression                 |
++------------------------+----------------------------------------------------+
+| 1.2.840.10008.1.2.4.81 | JPEG-LS Lossy (Near-Lossless) Image Compression    |
++------------------------+----------------------------------------------------+
+| 1.2.840.10008.1.2.4.90 | JPEG 2000 Image Compression (Lossless Only)        |
++------------------------+----------------------------------------------------+
+| 1.2.840.10008.1.2.4.91 | JPEG 2000 Image Compression                        |
++------------------------+----------------------------------------------------+
+| 1.2.840.10008.1.2.4.92 | JPEG 2000 Part 2 Multi-component Image Compression |
+|                        | (Lossless Only)                                    |
++------------------------+----------------------------------------------------+
+| 1.2.840.10008.1.2.4.93 | JPEG 2000 Part 2 Multi-component Image Compression |
++------------------------+----------------------------------------------------+
+| 1.2.840.10008.1.2.5    | RLE Lossless                                       |
++------------------------+----------------------------------------------------+
