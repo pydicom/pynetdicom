@@ -86,17 +86,15 @@ General Options
             One of [``'critical'``, ``'error'``, ``'warning'``, ``'info'``,
             ``'debug'``], prints logging messages with corresponding level
             or higher
-``-lc   --log-config [f]ilename (str)``
-            use Python logging `config file
-            <https://docs.python.org/3/library/logging.config.html#logging.config.fileConfig>`_
-            ``f`` for the logger
 
 Network Options
 ---------------
 ``-aet  --calling-aet [a]etitle (str)``
-            set the local AE title (default: GETSCU)
+            set the local AE title (default: MOVESCU)
 ``-aec  --called-aet [a]etitle (str)``
             set the called AE title for the peer AE (default: ANY-SCP)
+``-aem  --move-aet [a]etitle (str)``
+            set the move destination AE title (default: STORESCP)
 ``-ta   --acse-timeout [s]econds (float)``
             timeout for ACSE messages (default: 30)
 ``-td   --dimse-timeout [s]econds (float)``
@@ -104,15 +102,15 @@ Network Options
 ``-tn   --network-timeout [s]econds (float)``
             timeout for the network (default: 30)
 ``-pdu  --max-pdu [n]umber of bytes (int)``
-            set maximum receive PDU bytes to n bytes (default: 16384)
+            set maximum receive PDU bytes to n bytes (default: 16382)
 
 Storage SCP Options
 -------------------
 ``--store``
             start a Storage SCP that can be used as the move destination
-``--store-port [p]ort``
+``--store-port [p]ort (int)``
             the listen port number to use for the Storage SCP (default: 11113)
-``--store-aet [a]etitle``
+``--store-aet [a]etitle (str)``
             the AE title to use for the Storage SCP (default: STORESCP)
 
 
@@ -131,14 +129,14 @@ Query Options
             add or override a query element using either an element tag as
             (group,element) or the element's keyword (such as PatientName).
             See the *keyword pathing* section for more information.
-``-f path to [f]ile``
+``-f path to [f]ile (str)``
             use a DICOM file as the query dataset, if used with ``-k``
             then the elements will be added to or overwrite those
             present in the file
 
 Output Options
 --------------
-``-od [d]irectory, --output-directory [d]irectory``
+``-od [d]irectory, --output-directory [d]irectory (strS)``
             write received objects to directory ``d`` (with ``--store``)
 ``--ignore``
             receive data but don't store it (with ``--store``)

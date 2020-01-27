@@ -8,13 +8,15 @@ import argparse
 import sys
 
 from pydicom import dcmread
+from pydicom.errors import InvalidDicomError
 from pydicom.uid import (
     ExplicitVRLittleEndian, ImplicitVRLittleEndian,
     ExplicitVRBigEndian, DeflatedExplicitVRLittleEndian
 )
 
 from pynetdicom import AE, StoragePresentationContexts
-from pynetdicom.apps.common import setup_logging
+from pynetdicom.apps.common import setup_logging, get_files
+from pynetdicom._globals import DEFAULT_MAX_LENGTH
 from pynetdicom.status import STORAGE_SERVICE_CLASS_STATUS
 
 
@@ -31,7 +33,7 @@ def _setup_argparser():
             "file on the command line it sends a C-STORE message to a "
             "Storage Service Class Provider (SCP) and waits for a response."
         ),
-        usage="storescu [options] addr port dcmfile-in"
+        usage="storescu [options] addr port dcmfile"
     )
 
     # Parameters
@@ -41,9 +43,8 @@ def _setup_argparser():
     )
     req_opts.add_argument("port", help="TCP/IP port number of peer", type=int)
     req_opts.add_argument(
-        "dcmfile_in",
-        metavar="dcmfile-in",
-        help="DICOM file to be transmitted",
+        "dcmfile", metavar="dcmfile", nargs='+',
+        help="DICOM file or directory to be transmitted",
         type=str
     )
 
@@ -81,10 +82,13 @@ def _setup_argparser():
         type=str,
         choices=['critical', 'error', 'warn', 'info', 'debug']
     )
-    gen_opts.add_argument(
-        "-lc", "--log-config", metavar='[f]',
-        help="use config file f for the logger",
-        type=str
+
+    # Input Options
+    in_opts = parser.add_argument_group('Input Options')
+    in_opts.add_argument(
+        '-r', '--recurse',
+        help="recursively search the given directory",
+        action="store_true"
     )
 
     # Network Options
@@ -121,9 +125,12 @@ def _setup_argparser():
     )
     net_opts.add_argument(
         "-pdu", "--max-pdu", metavar='[n]umber of bytes',
-        help="set max receive pdu to n bytes (4096..131072)",
+        help=(
+            "set max receive pdu to n bytes (0 for unlimited, default: {})"
+            .format(DEFAULT_MAX_LENGTH)
+        ),
         type=int,
-        default=16382
+        default=DEFAULT_MAX_LENGTH
     )
 
     # Transfer Syntaxes
@@ -148,15 +155,58 @@ def _setup_argparser():
     # Misc Options
     misc_opts = parser.add_argument_group('Miscellaneous Options')
     misc_opts.add_argument(
-        "-cx", "--single-context",
+        "-cx", "--required-contexts",
         help=(
-            "only request a single presentation context that matches the "
-            "input DICOM file"
+            "only request the presentation contexts required for the "
+            "input DICOM file(s)"
         ),
         action="store_true",
     )
 
     return parser.parse_args()
+
+
+def get_contexts(fpaths):
+    """Return the valid DICOM files and their context values.
+
+    Parameters
+    ----------
+    fpaths : list of str
+        A list of paths to the files to try and get data from.
+
+    Returns
+    -------
+    list of str, dict
+        A list of paths to valid DICOM files and the {SOP Class UID :
+        [Transfer Syntax UIDs]} that can be used to create the required
+        presentation contexts.
+    """
+    good, bad = [], []
+    contexts = {}
+    for fpath in fpaths:
+        try:
+            ds = dcmread(fpath)
+        except Exception as exc:
+            bad.append(('Bad DICOM file', fpath))
+            continue
+
+        try:
+            sop_class = ds.SOPClassUID
+            tsyntax = ds.file_meta.TransferSyntaxUID
+        except Exception as exc:
+            bad.append(('Unknown SOP Class or Transfer Syntax UID', fpath))
+            continue
+
+        tsyntaxes = contexts.setdefault(sop_class, [])
+        if tsyntax not in tsyntaxes:
+            tsyntaxes.append(tsyntax)
+
+        good.append(fpath)
+
+    for (reason, fpath) in bad:
+        APP_LOGGER.error("{}: {}".format(reason, fpath))
+
+    return good, contexts
 
 
 if __name__ == "__main__":
@@ -170,63 +220,71 @@ if __name__ == "__main__":
     APP_LOGGER.debug('storescu.py v{0!s}'.format(__version__))
     APP_LOGGER.debug('')
 
-    # Check file exists and is readable and DICOM
-    APP_LOGGER.debug('Checking input file')
-    try:
-        with open(args.dcmfile_in, 'rb') as fp:
-            ds = dcmread(fp, force=True)
-    except Exception as exc:
-        APP_LOGGER.error(
-            'Cannot read input file {0!s}'.format(args.dcmfile_in)
-        )
-        APP_LOGGER.exception(exc)
-        sys.exit(1)
+    lfiles, badfiles = get_files(args.dcmfile, args.recurse)
 
-    # Set Transfer Syntax options
-    transfer_syntax = [
-        ExplicitVRLittleEndian,
-        ImplicitVRLittleEndian,
-        DeflatedExplicitVRLittleEndian,
-        ExplicitVRBigEndian
-    ]
+    for bad in badfiles:
+        APP_LOGGER.error("Cannot access path: {}".format(bad))
 
-    if args.request_little:
-        transfer_syntax = [ExplicitVRLittleEndian]
-    elif args.request_big:
-        transfer_syntax = [ExplicitVRBigEndian]
-    elif args.request_implicit:
-        transfer_syntax = [ImplicitVRLittleEndian]
-
-    # Bind to port 0, OS will pick an available port
     ae = AE(ae_title=args.calling_aet)
     ae.acse_timeout = args.acse_timeout
     ae.dimse_timeout = args.dimse_timeout
     ae.network_timeout = args.network_timeout
 
-    # Ensure the dataset is covered by the requested presentation contexts
-    if args.single_context:
-        ae.add_requested_context(
-            ds.SOPClassUID, ds.file_meta.TransferSyntaxUID
-        )
-    else:
-        sop_classes = [
-            cx.abstract_syntax for cx in StoragePresentationContexts
-        ]
-        nr_uids = len(sop_classes)
-        if ds.SOPClassUID not in sop_classes:
-            ae.add_requested_context(ds.SOPClassUID, transfer_syntax)
-            nr_uids -= 1
+    if args.required_contexts:
+        # Only propose required presentation contexts
+        lfiles, contexts = get_contexts(lfiles)
+        if len(contexts) > 128:
+            raise ValueError(
+                "More than 128 presentation contexts required with the "
+                "'--required-contexts' flag, please try again without it or "
+                "with fewer files"
+            )
 
-        for uid in sop_classes[:nr_uids]:
-            ae.add_requested_context(uid, transfer_syntax)
+        for abstract, transfer in contexts.items():
+            ae.add_requested_context(abstract, transfer)
+    else:
+        # Propose the default presentation contexts
+        if args.request_little:
+            transfer_syntax = [ExplicitVRLittleEndian]
+        elif args.request_big:
+            transfer_syntax = [ExplicitVRBigEndian]
+        elif args.request_implicit:
+            transfer_syntax = [ImplicitVRLittleEndian]
+        else:
+            transfer_syntax = [
+                ExplicitVRLittleEndian,
+                ImplicitVRLittleEndian,
+                DeflatedExplicitVRLittleEndian,
+                ExplicitVRBigEndian
+            ]
+
+        for cx in StoragePresentationContexts:
+            ae.add_requested_context(cx.abstract_syntax, transfer_syntax)
+
+    if not lfiles:
+        APP_LOGGER.warning("No suitable DICOM files found")
+        sys.exit()
 
     # Request association with remote
     assoc = ae.associate(
         args.addr, args.port, ae_title=args.called_aet, max_pdu=args.max_pdu
     )
     if assoc.is_established:
-        APP_LOGGER.info('Sending file: {0!s}'.format(args.dcmfile_in))
-        status = assoc.send_c_store(ds)
+        ii = 1
+        for fpath in lfiles:
+            APP_LOGGER.info('Sending file: {}'.format(fpath))
+            try:
+                ds = dcmread(fpath)
+                status = assoc.send_c_store(ds, ii)
+                ii += 1
+            except InvalidDicomError:
+                APP_LOGGER.error('Bad DICOM file: {}'.format(fpath))
+            except ValueError as exc:
+                APP_LOGGER.error("Store failed: {}".format(fpath))
+            except Exception as exc:
+                APP_LOGGER.error("Store failed: {}".format(fpath))
+                APP_LOGGER.exception(exc)
+
         assoc.release()
     else:
         sys.exit(1)

@@ -242,25 +242,6 @@ class TestFindSCU(object):
         """Test --log-level flag."""
         pass
 
-    def test_flag_log_config(self, capfd):
-        """Test --log-config flag."""
-        self.ae = ae = AE()
-        ae.acse_timeout = 5
-        ae.dimse_timeout = 5
-        ae.network_timeout = 5
-        ae.add_supported_context(VerificationSOPClass)
-        scp = ae.start_server(('', 11112), block=False)
-
-        p = start_findscu(['--log-config', LOG_CONFIG, '-k', 'PatientName='])
-        p.wait()
-        assert p.returncode == 1
-
-        out, err = capfd.readouterr()
-        assert "pynetdicom.acse - ERROR - No accepted presentation" in out
-        assert "No accepted presentation contexts" in err
-
-        scp.shutdown()
-
     def test_flag_aet(self):
         """Test --calling-aet flag."""
         events = []

@@ -1,126 +1,153 @@
 #!/usr/bin/env python
-"""An implementation of a Storage Service Class Provider (Storage SCP)."""
+"""A Storage SCP application.
+
+Used for receiving DICOM SOP Instances transferred from an SCU.
+"""
 
 import argparse
-import logging
-from logging.config import fileConfig
 import os
-import socket
 import sys
 
 from pydicom.dataset import Dataset
 from pydicom.uid import (
-    ExplicitVRLittleEndian,
-    ImplicitVRLittleEndian,
-    ExplicitVRBigEndian,
-    DeflatedExplicitVRLittleEndian,
-    JPEGBaseline,
-    JPEGExtended,
-    JPEGLosslessP14,
-    JPEGLossless,
-    JPEGLSLossless,
-    JPEGLSLossy,
-    JPEG2000Lossless,
-    JPEG2000,
-    JPEG2000MultiComponentLossless,
-    JPEG2000MultiComponent,
-    RLELossless
+    ExplicitVRLittleEndian, ImplicitVRLittleEndian, ExplicitVRBigEndian
 )
 
 from pynetdicom import (
     AE, evt,
-    AllStoragePresentationContexts
+    AllStoragePresentationContexts,
     VerificationPresentationContexts,
 )
+from pynetdicom.apps.common import setup_logging, wrap_handle_store
+from pynetdicom._globals import ALL_TRANSFER_SYNTAXES, DEFAULT_MAX_LENGTH
 
 
-VERSION = '0.6.0'
+__version__ = '0.6.0'
 
 
 def _setup_argparser():
     """Setup the command line arguments"""
     # Description
     parser = argparse.ArgumentParser(
-        description="The storescp application implements a Service Class "
-                    "Provider (SCP) for the Storage SOP Class. It listens "
-                    "for a DICOM C-STORE message from a Service Class User "
-                    "(SCU) and stores the resulting DICOM dataset.",
-        usage="storescp [options] port")
+        description=(
+            "The storescp application implements a Service Class "
+            "Provider (SCP) for the Storage and Verification SOP Classes. It "
+            "listens for a DICOM C-STORE message from a Service Class User "
+            "(SCU) and stores the resulting DICOM dataset."
+        ),
+        usage="storescp [options] port"
+    )
 
     # Parameters
     req_opts = parser.add_argument_group('Parameters')
-    req_opts.add_argument("port",
-                          help="TCP/IP port number to listen on",
-                          type=int)
-    req_opts.add_argument("--bind_addr",
-                          help="The IP address of the network interface to "
-                          "listen on. If unset, listen on all interfaces.",
-                          default='')
+    req_opts.add_argument(
+        "port",
+        help="TCP/IP port number to listen on",
+        type=int
+    )
 
     # General Options
     gen_opts = parser.add_argument_group('General Options')
-    gen_opts.add_argument("--version",
-                          help="print version information and exit",
-                          action="store_true")
-    gen_opts.add_argument("-q", "--quiet",
-                          help="quiet mode, print no warnings and errors",
-                          action="store_true")
-    gen_opts.add_argument("-v", "--verbose",
-                          help="verbose mode, print processing details",
-                          action="store_true")
-    gen_opts.add_argument("-d", "--debug",
-                          help="debug mode, print debug information",
-                          action="store_true")
+    gen_opts.add_argument(
+        "--version",
+        help="print version information and exit",
+        action="store_true"
+    )
+    output = gen_opts.add_mutually_exclusive_group()
+    output.add_argument(
+        "-q", "--quiet",
+        help="quiet mode, print no warnings and errors",
+        action="store_const",
+        dest='log_type', const='q'
+    )
+    output.add_argument(
+        "-v", "--verbose",
+        help="verbose mode, print processing details",
+        action="store_const",
+        dest='log_type', const='v'
+    )
+    output.add_argument(
+        "-d", "--debug",
+        help="debug mode, print debug information",
+        action="store_const",
+        dest='log_type', const='d'
+    )
     gen_opts.add_argument(
         "-ll", "--log-level", metavar='[l]',
         help=(
-            "use level l for the APP_LOGGER (fatal, error, "
-            "warn, info, debug, trace)"
+            "use level l for the logger (critical, error, warn, info, debug)"
         ),
         type=str,
-        choices=['fatal', 'error', 'warn', 'info', 'debug', 'trace']
+        choices=['critical', 'error', 'warn', 'info', 'debug']
     )
-    gen_opts.add_argument("-lc", "--log-config", metavar='[f]',
-                          help="use config file f for the APP_LOGGER",
-                          type=str)
 
     # Network Options
     net_opts = parser.add_argument_group('Network Options')
-    net_opts.add_argument("-aet", "--aetitle", metavar='[a]etitle',
-                          help="set my AE title (default: STORESCP)",
-                          type=str,
-                          default='STORESCP')
-    net_opts.add_argument("-to", "--timeout", metavar='[s]econds',
-                          help="timeout for connection requests",
-                          type=int,
-                          default=None)
-    net_opts.add_argument("-ta", "--acse-timeout", metavar='[s]econds',
-                          help="timeout for ACSE messages",
-                          type=int,
-                          default=30)
-    net_opts.add_argument("-td", "--dimse-timeout", metavar='[s]econds',
-                          help="timeout for DIMSE messages",
-                          type=int,
-                          default=None)
-    net_opts.add_argument("-pdu", "--max-pdu", metavar='[n]umber of bytes',
-                          help="set max receive pdu to n bytes (4096..131072)",
-                          type=int,
-                          default=16384)
+    net_opts.add_argument(
+        "-aet", "--ae-title", metavar='[a]etitle',
+        help="set my AE title (default: STORESCP)",
+        type=str,
+        default='STORESCP'
+    )
+    net_opts.add_argument(
+        "-ta", "--acse-timeout", metavar='[s]econds',
+        help="timeout for ACSE messages (default: 30 s)",
+        type=float,
+        default=30
+    )
+    net_opts.add_argument(
+        "-td", "--dimse-timeout", metavar='[s]econds',
+        help="timeout for DIMSE messages (default: 30 s)",
+        type=float,
+        default=30
+    )
+    net_opts.add_argument(
+        "-tn", "--network-timeout", metavar='[s]econds',
+        help="timeout for the network (default: 30 s)",
+        type=float,
+        default=30
+    )
+    net_opts.add_argument(
+        "-pdu", "--max-pdu", metavar='[n]umber of bytes',
+        help=(
+            "set max receive pdu to n bytes (0 for unlimited, default: {})"
+            .format(DEFAULT_MAX_LENGTH)
+        ),
+        type=int,
+        default=DEFAULT_MAX_LENGTH
+    )
+    net_opts.add_argument(
+        "-ba", "--bind-address", metavar="[a]ddress",
+        help=(
+            "The address of the network interface to "
+            "listen on. If unset, listen on all interfaces."
+        ),
+        default=''
+    )
 
     # Transfer Syntaxes
     ts_opts = parser.add_argument_group('Preferred Transfer Syntaxes')
-    ts_opts.add_argument("-x=", "--prefer-uncompr",
-                         help="prefer explicit VR local byte order (default)",
-                         action="store_true")
-    ts_opts.add_argument("-xe", "--prefer-little",
-                         help="prefer explicit VR little endian TS",
-                         action="store_true")
-    ts_opts.add_argument("-xb", "--prefer-big",
-                         help="prefer explicit VR big endian TS",
-                         action="store_true")
-    ts_opts.add_argument("-xi", "--implicit",
-                         help="accept implicit VR little endian TS only",
-                         action="store_true")
+    ts = ts_opts.add_mutually_exclusive_group()
+    ts.add_argument(
+        "-x=", "--prefer-uncompr",
+        help="prefer explicit VR local byte order",
+        action="store_true"
+    )
+    ts.add_argument(
+        "-xe", "--prefer-little",
+        help="prefer explicit VR little endian TS",
+        action="store_true"
+    )
+    ts.add_argument(
+        "-xb", "--prefer-big",
+        help="prefer explicit VR big endian TS",
+        action="store_true"
+    )
+    ts.add_argument(
+        "-xi", "--implicit",
+        help="accept implicit VR little endian TS only",
+        action="store_true"
+    )
 
     # Output Options
     out_opts = parser.add_argument_group('Output Options')
@@ -129,257 +156,58 @@ def _setup_argparser():
         help="write received objects to directory d",
         type=str
     )
-
-    # Miscellaneous
-    misc_opts = parser.add_argument_group('Miscellaneous')
-    misc_opts.add_argument('--ignore',
-                           help="receive data but don't store it",
-                           action="store_true")
+    out_opts.add_argument(
+        '--ignore',
+        help="receive data but don't store it",
+        action="store_true"
+    )
 
     return parser.parse_args()
 
 
-args = _setup_argparser()
+if __name__ == "__main__":
+    args = _setup_argparser()
 
-# Logging/Output
-def setup_logger():
-    """Setup the echoscu logging"""
-    logger = logging.Logger('storescp')
-    handler = logging.StreamHandler()
-    formatter = logging.Formatter('%(levelname).1s: %(message)s')
-    handler.setFormatter(formatter)
-    logger.addHandler(handler)
-    logger.setLevel(logging.ERROR)
-
-    return logger
-
-APP_LOGGER = setup_logger()
-
-def _setup_logging(level):
-    APP_LOGGER.setLevel(level)
-    pynetdicom_logger = logging.getLogger('pynetdicom')
-    handler = logging.StreamHandler()
-    pynetdicom_logger.setLevel(level)
-    formatter = logging.Formatter('%(levelname).1s: %(message)s')
-    handler.setFormatter(formatter)
-    pynetdicom_logger.addHandler(handler)
-
-if args.quiet:
-    for hh in APP_LOGGER.handlers:
-        APP_LOGGER.removeHandler(hh)
-
-    APP_LOGGER.addHandler(logging.NullHandler())
-
-if args.verbose:
-    _setup_logging(logging.INFO)
-
-if args.debug:
-    _setup_logging(logging.DEBUG)
-
-if args.log_level:
-    levels = {'critical' : logging.CRITICAL,
-              'error'    : logging.ERROR,
-              'warn'     : logging.WARNING,
-              'info'     : logging.INFO,
-              'debug'    : logging.DEBUG}
-    _setup_logging(levels[args.log_level])
-
-if args.log_config:
-    fileConfig(args.log_config)
-
-APP_LOGGER.debug('$storescp.py v{0!s}'.format(VERSION))
-APP_LOGGER.debug('')
-
-# Validate port
-if isinstance(args.port, int):
-    test_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-    test_socket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
-    try:
-        test_socket.bind((os.popen('hostname').read()[:-1], args.port))
-        test_socket.close()
-    except socket.error:
-        APP_LOGGER.error(
-            "Cannot listen on port {0:d}, insufficient priveleges"
-            .format(args.port)
-        )
+    if args.version:
+        print('storescp.py v{}'.format(__version__))
         sys.exit()
 
-# Set Transfer Syntax options
-transfer_syntax = [
-    ImplicitVRLittleEndian,
-    ExplicitVRLittleEndian,
-    DeflatedExplicitVRLittleEndian,
-    ExplicitVRBigEndian,
-    JPEGBaseline,
-    JPEGExtended,
-    JPEGLosslessP14,
-    JPEGLossless,
-    JPEGLSLossless,
-    JPEGLSLossy,
-    JPEG2000Lossless,
-    JPEG2000,
-    JPEG2000MultiComponentLossless,
-    JPEG2000MultiComponent,
-    RLELossless
-]
+    APP_LOGGER = setup_logging(args, 'storescp')
+    APP_LOGGER.debug('storescp.py v{0!s}'.format(__version__))
+    APP_LOGGER.debug('')
 
-if args.prefer_uncompr and ImplicitVRLittleEndian in transfer_syntax:
-    transfer_syntax.remove(ImplicitVRLittleEndian)
-    transfer_syntax.append(ImplicitVRLittleEndian)
+    # Set Transfer Syntax options
+    transfer_syntax = ALL_TRANSFER_SYNTAXES[:]
 
-if args.implicit:
-    transfer_syntax = [ImplicitVRLittleEndian]
+    if args.prefer_uncompr:
+        transfer_syntax.remove(ImplicitVRLittleEndian)
+        transfer_syntax.append(ImplicitVRLittleEndian)
+    elif args.prefer_little:
+        transfer_syntax.remove(ExplicitVRLittleEndian)
+        transfer_syntax.insert(0, ExplicitVRLittleEndian)
+    elif args.prefer_big:
+        transfer_syntax.remove(ExplicitVRBigEndian)
+        transfer_syntax.insert(0, ExplicitVRBigEndian)
+    elif args.implicit:
+        transfer_syntax = [ImplicitVRLittleEndian]
 
-if args.prefer_little and ExplicitVRLittleEndian in transfer_syntax:
-    transfer_syntax.remove(ExplicitVRLittleEndian)
-    transfer_syntax.insert(0, ExplicitVRLittleEndian)
+    handle_store = wrap_handle_store(args, APP_LOGGER)
+    handlers = [(evt.EVT_C_STORE, handle_store)]
 
-if args.prefer_big and ExplicitVRBigEndian in transfer_syntax:
-    transfer_syntax.remove(ExplicitVRBigEndian)
-    transfer_syntax.insert(0, ExplicitVRBigEndian)
+    # Create application entity
+    ae = AE(ae_title=args.ae_title)
 
-def handle_store(event):
-    """Handle a C-STORE request.
+    # Add presentation contexts with specified transfer syntaxes
+    for context in AllStoragePresentationContexts:
+        ae.add_supported_context(context.abstract_syntax, transfer_syntax)
+    for context in VerificationPresentationContexts:
+        ae.add_supported_context(context.abstract_syntax, transfer_syntax)
 
-    Parameters
-    ----------
-    event : pynetdicom.event.event
-        The event corresponding to a C-STORE request. Attributes are:
+    ae.maximum_pdu_size = args.max_pdu
 
-        * *assoc*: the ``association.Association`` instance that received the
-          request
-        * *context*: the presentation context used for the request's *Data
-          Set* as a ``namedtuple``
-        * *request*: the C-STORE request as a ``dimse_primitives.C_STORE``
-          instance
+    # Set timeouts
+    ae.network_timeout = args.network_timeout
+    ae.acse_timeout = args.acse_timeout
+    ae.dimse_timeout = args.dimse_timeout
 
-        Properties are:
-
-        * *dataset*: the C-STORE request's decoded *Data Set* as a pydicom
-          ``Dataset``
-
-    Returns
-    -------
-    status : pynetdicom.sop_class.Status or int
-        A valid return status code, see PS3.4 Annex B.2.3 or the
-        ``StorageServiceClass`` implementation for the available statuses
-    """
-    if args.ignore:
-        return 0x0000
-
-    mode_prefixes = {
-        'CT Image Storage' : 'CT',
-        'Enhanced CT Image Storage' : 'CTE',
-        'MR Image Storage' : 'MR',
-        'Enhanced MR Image Storage' : 'MRE',
-        'Positron Emission Tomography Image Storage' : 'PT',
-        'Enhanced PET Image Storage' : 'PTE',
-        'RT Image Storage' : 'RI',
-        'RT Dose Storage' : 'RD',
-        'RT Plan Storage' : 'RP',
-        'RT Structure Set Storage' : 'RS',
-        'Computed Radiography Image Storage' : 'CR',
-        'Ultrasound Image Storage' : 'US',
-        'Enhanced Ultrasound Image Storage' : 'USE',
-        'X-Ray Angiographic Image Storage' : 'XA',
-        'Enhanced XA Image Storage' : 'XAE',
-        'Nuclear Medicine Image Storage' : 'NM',
-        'Secondary Capture Image Storage' : 'SC'
-    }
-
-    ds = event.dataset
-    # Remove any Group 0x0002 elements that may have been included
-    ds = ds[0x00030000:]
-
-    # Add the file meta information elements
-    ds.file_meta = event.file_meta
-
-    # Because pydicom uses deferred reads for its decoding, decoding errors
-    #   are hidden until encountered by accessing a faulty element
-    try:
-        sop_class = ds.SOPClassUID
-        sop_instance = ds.SOPInstanceUID
-    except Exception as exc:
-        APP_LOGGER.error('Unable to decode the dataset')
-        APP_LOGGER.exception(exc)
-        # Unable to decode dataset
-        return 0xC210
-
-    try:
-        # Get the elements we need
-        mode_prefix = mode_prefixes[sop_class.name]
-    except KeyError:
-        mode_prefix = 'UN'
-
-    filename = '{0!s}.{1!s}'.format(mode_prefix, sop_instance)
-    APP_LOGGER.info('Storing DICOM file: {0!s}'.format(filename))
-
-    if os.path.exists(filename):
-        APP_LOGGER.warning('DICOM file already exists, overwriting')
-
-    status_ds = Dataset()
-    status_ds.Status = 0x0000
-
-    # Try to save to output-directory
-    if args.output_directory is not None:
-        filename = os.path.join(args.output_directory, filename)
-        try:
-            os.makedirs(args.output_directory)
-        except Exception as exc:
-            APP_LOGGER.error('Unable to create the output directory:')
-            APP_LOGGER.error("    {0!s}".format(args.output_directory))
-            APP_LOGGER.exception(exc)
-            # Failed - Out of Resources - IOError
-            status.Status = 0xA700
-            return status
-
-    try:
-        # We use `write_like_original=False` to ensure that a compliant
-        #   File Meta Information Header is written
-        ds.save_as(filename, write_like_original=False)
-        status_ds.Status = 0x0000 # Success
-    except IOError:
-        APP_LOGGER.error('Could not write file to specified directory:')
-        APP_LOGGER.error("    {0!s}".format(os.path.dirname(filename)))
-        APP_LOGGER.error(
-            'Directory may not exist or you may not have write permission '
-        )
-        # Failed - Out of Resources - IOError
-        status_ds.Status = 0xA700
-    except Exception as exc:
-        APP_LOGGER.error('Could not write file to specified directory:')
-        APP_LOGGER.error("    {0!s}".format(os.path.dirname(filename)))
-        APP_LOGGER.exception(exc)
-        # Failed - Out of Resources - Miscellaneous error
-        status_ds.Status = 0xA701
-
-    return status_ds
-
-handlers = [(evt.EVT_C_STORE, handle_store)]
-
-# Test output-directory
-if args.output_directory is not None:
-    if not os.access(args.output_directory, os.W_OK|os.X_OK):
-        APP_LOGGER.error(
-            'No write permissions or the output directory may not exist:'
-        )
-        APP_LOGGER.error("    {0!s}".format(args.output_directory))
-        sys.exit()
-
-# Create application entity
-ae = AE(ae_title=args.aetitle)
-
-# Add presentation contexts with specified transfer syntaxes
-for context in AllStoragePresentationContexts:
-    ae.add_supported_context(context.abstract_syntax, transfer_syntax)
-for context in VerificationPresentationContexts:
-    ae.add_supported_context(context.abstract_syntax, transfer_syntax)
-
-ae.maximum_pdu_size = args.max_pdu
-
-# Set timeouts
-ae.network_timeout = args.timeout
-ae.acse_timeout = args.acse_timeout
-ae.dimse_timeout = args.dimse_timeout
-
-ae.start_server((args.bind_addr, args.port), evt_handlers=handlers)
+    ae.start_server((args.bind_address, args.port), evt_handlers=handlers)

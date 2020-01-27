@@ -892,6 +892,9 @@ class TestAssociationSendCEcho(object):
             def send_msg(*args, **kwargs): return
             def get_msg(*args, **kwargs): return None, None
 
+        assoc._reactor_checkpoint.clear()
+        while not assoc._is_paused:
+            time.sleep(0.01)
         assoc.dimse = DummyDIMSE()
         if assoc.is_established:
             assoc.send_c_echo()
@@ -918,6 +921,9 @@ class TestAssociationSendCEcho(object):
             def send_msg(*args, **kwargs): return
             def get_msg(*args, **kwargs): return None, DummyResponse()
 
+        assoc._reactor_checkpoint.clear()
+        while not assoc._is_paused:
+            time.sleep(0.01)
         assoc.dimse = DummyDIMSE()
         if assoc.is_established:
             assoc.send_c_echo()
@@ -1273,7 +1279,7 @@ class TestAssociationSendCStore(object):
         scp.shutdown()
 
     def test_encode_compressed_dataset(self):
-        """Test sending a dataset with a compressed transfer syntax"""
+        """Test sending a dataset with a compressed transfer syntax """
         def handle_store(event):
             return 0x0000
 
@@ -1318,6 +1324,9 @@ class TestAssociationSendCStore(object):
             def send_msg(*args, **kwargs): return
             def get_msg(*args, **kwargs): return None, None
 
+        assoc._reactor_checkpoint.clear()
+        while not assoc._is_paused:
+            time.sleep(0.01)
         assoc.dimse = DummyDIMSE()
         assert assoc.is_established
         status = assoc.send_c_store(DATASET)
@@ -1352,6 +1361,9 @@ class TestAssociationSendCStore(object):
             def send_msg(*args, **kwargs): return
             def get_msg(*args, **kwargs): return DummyResponse(), None
 
+        assoc._reactor_checkpoint.clear()
+        while not assoc._is_paused:
+            time.sleep(0.01)
         assoc.dimse = DummyDIMSE()
         assert assoc.is_established
         status = assoc.send_c_store(DATASET)
@@ -1622,9 +1634,9 @@ class TestAssociationSendCStore(object):
         assert assoc.is_established
 
         msg = (
-            r"No suitable presentation context for the SCU role has been "
-            r"accepted by the peer for the SOP Class 'CT Image Storage' with "
-            r"a transfer syntax of 'JPEG Baseline \(Process 1\)'"
+            r"No presentation context for 'CT Image Storage' has been "
+            r"accepted by the peer with 'JPEG Baseline \(Process 1\)' "
+            r"transfer syntax for the SCU role"
         )
         with pytest.raises(ValueError, match=msg):
             assoc.send_c_store(ds)
@@ -1892,6 +1904,9 @@ class TestAssociationSendCFind(object):
             def send_msg(*args, **kwargs): return
             def get_msg(*args, **kwargs): return DummyResponse(), None
 
+        assoc._reactor_checkpoint.clear()
+        while not assoc._is_paused:
+            time.sleep(0.01)
         assoc.dimse = DummyDIMSE()
         assert assoc.is_established
         for (_, _) in assoc.send_c_find(self.ds, PatientRootQueryRetrieveInformationModelFind):
@@ -1980,6 +1995,9 @@ class TestAssociationSendCFind(object):
             def get_msg(*args, **kwargs):
                 return None, None
 
+        assoc._reactor_checkpoint.clear()
+        while not assoc._is_paused:
+            time.sleep(0.01)
         assoc.dimse = DummyDIMSE()
         assert assoc.is_established
 
@@ -2021,6 +2039,9 @@ class TestAssociationSendCFind(object):
                 rsp._dataset = dummy
                 return 1, rsp
 
+        assoc._reactor_checkpoint.clear()
+        while not assoc._is_paused:
+            time.sleep(0.01)
         assoc.dimse = DummyDIMSE()
         assert assoc.is_established
 
@@ -2770,6 +2791,9 @@ class TestAssociationSendCGet(object):
             def get_msg(*args, **kwargs):
                 return None, None
 
+        assoc._reactor_checkpoint.clear()
+        while not assoc._is_paused:
+            time.sleep(0.01)
         assoc.dimse = DummyDIMSE()
         assert assoc.is_established
 
@@ -2823,6 +2847,9 @@ class TestAssociationSendCGet(object):
                 rsp._dataset = dummy
                 return 1, rsp
 
+        assoc._reactor_checkpoint.clear()
+        while not assoc._is_paused:
+            time.sleep(0.01)
         assoc.dimse = DummyDIMSE()
         assert assoc.is_established
 
@@ -3534,6 +3561,9 @@ class TestAssociationSendCMove(object):
             def get_msg(*args, **kwargs):
                 return None, None
 
+        assoc._reactor_checkpoint.clear()
+        while not assoc._is_paused:
+            time.sleep(0.01)
         assoc.dimse = DummyDIMSE()
         assert assoc.is_established
 
@@ -3584,6 +3614,9 @@ class TestAssociationSendCMove(object):
                 rsp._dataset = dummy
                 return 1, rsp
 
+        assoc._reactor_checkpoint.clear()
+        while not assoc._is_paused:
+            time.sleep(0.01)
         assoc.dimse = DummyDIMSE()
         assert assoc.is_established
 
@@ -3789,8 +3822,8 @@ class TestGetValidContext(object):
         assert assoc.is_established
 
         msg = (
-            r"No suitable presentation context for the SCU role has been "
-            r"accepted by the peer for the SOP Class 'CT Image Storage'"
+            r"No presentation context for 'CT Image Storage' has been "
+            r"accepted by the peer for the SCU role"
         )
         with pytest.raises(ValueError, match=msg):
             assoc._get_valid_context(CTImageStorage, '', 'scu', context_id=1)
@@ -3859,9 +3892,9 @@ class TestGetValidContext(object):
 
         # Uncompressed accepted, compressed sent
         msg = (
-            r"No suitable presentation context for the SCU role has been "
-            r"accepted by the peer for the SOP Class 'Verification SOP Class' "
-            r"with a transfer syntax of 'JPEG Baseline \(Process 1\)'"
+            r"No presentation context for 'Verification SOP Class' has been "
+            r"accepted by the peer with 'JPEG Baseline \(Process 1\)' "
+            r"transfer syntax for the SCU role"
         )
         with pytest.raises(ValueError, match=msg):
             assoc._get_valid_context('1.2.840.10008.1.1',
@@ -3879,9 +3912,9 @@ class TestGetValidContext(object):
         assert cx.transfer_syntax[0] == JPEGBaseline
 
         msg = (
-            r"No suitable presentation context for the SCU role has been "
-            r"accepted by the peer for the SOP Class 'CT Image Storage' "
-            r"with a transfer syntax of 'Implicit VR Little Endian'"
+            r"No presentation context for 'CT Image Storage' has been "
+            r"accepted by the peer with 'Implicit VR Little Endian' "
+            r"transfer syntax for the SCU role"
         )
         with pytest.raises(ValueError, match=msg):
             assoc._get_valid_context(CTImageStorage,
@@ -3891,9 +3924,9 @@ class TestGetValidContext(object):
 
         # Compressed (JPEGBaseline) accepted, compressed (JPEG2000) sent
         msg = (
-            r"No suitable presentation context for the SCU role has been "
-            r"accepted by the peer for the SOP Class 'CT Image Storage' "
-            r"with a transfer syntax of 'JPEG 2000 Image Compression'"
+            r"No presentation context for 'CT Image Storage' has been "
+            r"accepted by the peer with 'JPEG 2000 Image Compression' "
+            r"transfer syntax for the SCU role"
         )
         with pytest.raises(ValueError, match=msg):
             assoc._get_valid_context(CTImageStorage,
@@ -3928,8 +3961,9 @@ class TestGetValidContext(object):
 
         # Any transfer syntax
         msg = (
-            r"No suitable presentation context for the SCP role has been "
-            r"accepted by the peer for the SOP Class 'Verification SOP Class'"
+            r"No presentation context for 'Verification SOP Class' has been "
+            r"accepted by the peer "
+            r"for the SCP role"
         )
         with pytest.raises(ValueError, match=msg):
             assoc._get_valid_context('1.2.840.10008.1.1',
@@ -3939,9 +3973,10 @@ class TestGetValidContext(object):
 
         # Transfer syntax used
         msg = (
-            r"No suitable presentation context for the SCP role has been "
-            r"accepted by the peer for the SOP Class 'Verification SOP Class' "
-            r"with a transfer syntax of 'Implicit VR Little Endian'"
+            r"No presentation context for 'Verification SOP Class' has been "
+            r"accepted by the peer "
+            r"with 'Implicit VR Little Endian' transfer syntax "
+            r"for the SCP role"
         )
         with pytest.raises(ValueError, match=msg):
             assoc._get_valid_context('1.2.840.10008.1.1',
@@ -3977,8 +4012,9 @@ class TestGetValidContext(object):
 
         # Any transfer syntax
         msg = (
-            r"No suitable presentation context for the SCU role has been "
-            r"accepted by the peer for the SOP Class 'CT Image Storage'"
+            r"No presentation context for 'CT Image Storage' has been "
+            r"accepted by the peer "
+            r"for the SCU role"
         )
         with pytest.raises(ValueError, match=msg):
             assoc._get_valid_context(CTImageStorage,
@@ -3988,9 +4024,10 @@ class TestGetValidContext(object):
 
         # Transfer syntax used
         msg = (
-            r"No suitable presentation context for the SCU role has been "
-            r"accepted by the peer for the SOP Class 'CT Image Storage' "
-            r"with a transfer syntax of 'Implicit VR Little Endian'"
+            r"No presentation context for 'CT Image Storage' has been "
+            r"accepted by the peer "
+            r"with 'Implicit VR Little Endian' transfer syntax "
+            r"for the SCU role"
         )
         with pytest.raises(ValueError, match=msg):
             assoc._get_valid_context(CTImageStorage,
@@ -4014,8 +4051,9 @@ class TestGetValidContext(object):
         assoc._get_valid_context(VerificationSOPClass, '', 'scu')
 
         msg = (
-            r"No suitable presentation context for the SCU role has been "
-            r"accepted by the peer for the SOP Class 'CT Image Storage'"
+            r"No presentation context for 'CT Image Storage' has been "
+            r"accepted by the peer "
+            r"for the SCU role"
         )
         with pytest.raises(ValueError, match=msg):
             assoc._get_valid_context(CTImageStorage, '', 'scu')
@@ -4066,9 +4104,10 @@ class TestGetValidContext(object):
 
         # Uncompressed accepted, compressed sent
         msg = (
-            r"No suitable presentation context for the SCU role has been "
-            r"accepted by the peer for the SOP Class 'Verification SOP Class' "
-            r"with a transfer syntax of 'JPEG Baseline \(Process 1\)'"
+            r"No presentation context for 'Verification SOP Class' has been "
+            r"accepted by the peer "
+            r"with 'JPEG Baseline \(Process 1\)' transfer syntax "
+            r"for the SCU role"
         )
         with pytest.raises(ValueError, match=msg):
             assoc._get_valid_context('1.2.840.10008.1.1', JPEGBaseline, 'scu')
@@ -4080,9 +4119,10 @@ class TestGetValidContext(object):
         assert cx.transfer_syntax[0] == JPEGBaseline
 
         msg = (
-            r"No suitable presentation context for the SCU role has been "
-            r"accepted by the peer for the SOP Class 'CT Image Storage' "
-            r"with a transfer syntax of 'Implicit VR Little Endian'"
+            r"No presentation context for 'CT Image Storage' has been "
+            r"accepted by the peer "
+            r"with 'Implicit VR Little Endian' transfer syntax "
+            r"for the SCU role"
         )
         with pytest.raises(ValueError, match=msg):
             assoc._get_valid_context(CTImageStorage,
@@ -4091,9 +4131,10 @@ class TestGetValidContext(object):
 
         # Compressed (JPEGBaseline) accepted, compressed (JPEG2000) sent
         msg = (
-            r"No suitable presentation context for the SCU role has been "
-            r"accepted by the peer for the SOP Class 'CT Image Storage' "
-            r"with a transfer syntax of 'JPEG 2000 Image Compression'"
+            r"No presentation context for 'CT Image Storage' has been "
+            r"accepted by the peer "
+            r"with 'JPEG 2000 Image Compression' transfer syntax "
+            r"for the SCU role"
         )
         with pytest.raises(ValueError, match=msg):
             assoc._get_valid_context(CTImageStorage, JPEG2000, 'scu')
@@ -4122,17 +4163,19 @@ class TestGetValidContext(object):
 
         # Any transfer syntax
         msg = (
-            r"No suitable presentation context for the SCP role has been "
-            r"accepted by the peer for the SOP Class 'Verification SOP Class'"
+            r"No presentation context for 'Verification SOP Class' has been "
+            r"accepted by the peer "
+            r"for the SCP role"
         )
         with pytest.raises(ValueError, match=msg):
             assoc._get_valid_context('1.2.840.10008.1.1', '', 'scp')
 
         # Transfer syntax used
         msg = (
-            r"No suitable presentation context for the SCP role has been "
-            r"accepted by the peer for the SOP Class 'Verification SOP Class' "
-            r"with a transfer syntax of 'Implicit VR Little Endian'"
+            r"No presentation context for 'Verification SOP Class' has been "
+            r"accepted by the peer "
+            r"with 'Implicit VR Little Endian' transfer syntax "
+            r"for the SCP role"
         )
         with pytest.raises(ValueError, match=msg):
             assoc._get_valid_context('1.2.840.10008.1.1',
@@ -4164,8 +4207,9 @@ class TestGetValidContext(object):
 
         # Any transfer syntax
         msg = (
-            r"No suitable presentation context for the SCU role has been "
-            r"accepted by the peer for the SOP Class 'CT Image Storage'"
+            r"No presentation context for 'CT Image Storage' has been "
+            r"accepted by the peer "
+            r"for the SCU role"
         )
         with pytest.raises(ValueError, match=msg):
             assoc._get_valid_context(CTImageStorage,
@@ -4174,9 +4218,10 @@ class TestGetValidContext(object):
 
         # Transfer syntax used
         msg = (
-            r"No suitable presentation context for the SCU role has been "
-            r"accepted by the peer for the SOP Class 'CT Image Storage' "
-            r"with a transfer syntax of 'Implicit VR Little Endian'"
+            r"No presentation context for 'CT Image Storage' has been "
+            r"accepted by the peer "
+            r"with 'Implicit VR Little Endian' transfer syntax "
+            r"for the SCU role"
         )
         with pytest.raises(ValueError, match=msg):
             assoc._get_valid_context(CTImageStorage,

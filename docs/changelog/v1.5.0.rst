@@ -3,7 +3,8 @@
 1.5.0
 =====
 
-This will be the last release that supports Python 2.
+This will be the last release that supports Python 2, with fixes for serious
+bugs being available for a year after the release date.
 
 Fixes
 .....
@@ -19,6 +20,9 @@ Fixes
 * Stopped the QR Move SCP from associating with the move destination when no
   suboperations were required (:issue:`436`)
 * Fixed a possible race condition during DIMSE message exchange (:issue:`435`)
+* Fixed the association acceptor selecting the first matching proposed
+  transfer syntax rather than the first matching supported transfer syntax
+  during presentation context negotiation (:issue:`445`)
 
 
 Enhancements
@@ -43,8 +47,10 @@ Enhancements
   contains all of the Storage Service Class' SOP Class UIDs rather than just
   the first 128 as in
   :attr:`~pynetdicom.presentation.StoragePresentationContexts`.
-* Overhaul of ``echoscu.py``, ``storescu.py`` and added non-toy implementations
-  for ``findscu.py``, ``getscu.py`` and ``movescu.py`` apps.
+* Overhaul of ``echoscp.py``, ``echoscu.py``, ``storescp.py`` and
+  ``storescu.py``
+* Added non-toy implementations for ``findscu.py``, ``getscu.py`` and
+  ``movescu.py`` apps
 
 Changes
 .......

@@ -19,8 +19,9 @@ from pynetdicom import (
     QueryRetrievePresentationContexts,
 )
 from pynetdicom.apps.common import (
-    setup_logging, create_dataset, SOP_CLASS_PREFIXES
+    setup_logging, create_dataset, wrap_handle_store
 )
+from pynetdicom._globals import DEFAULT_MAX_LENGTH
 from pynetdicom.sop_class import (
     PatientRootQueryRetrieveInformationModelGet,
     StudyRootQueryRetrieveInformationModelGet,
@@ -89,11 +90,6 @@ def _setup_argparser():
         type=str,
         choices=['critical', 'error', 'warn', 'info', 'debug']
     )
-    gen_opts.add_argument(
-        "-lc", "--log-config", metavar='[f]',
-        help="use config file f for the logger",
-        type=str
-    )
     parser.set_defaults(log_type='v')
 
     # Network Options
@@ -130,9 +126,12 @@ def _setup_argparser():
     )
     net_opts.add_argument(
         "-pdu", "--max-pdu", metavar='[n]umber of bytes',
-        help="set max receive pdu to n bytes (4096..131072)",
+        help=(
+            "set max receive pdu to n bytes (0 for unlimited, default: {})"
+            .format(DEFAULT_MAX_LENGTH)
+        ),
         type=int,
-        default=16382
+        default=DEFAULT_MAX_LENGTH
     )
 
     # Query information model choices
@@ -257,79 +256,7 @@ if __name__ == "__main__":
     else:
         query_model = PatientRootQueryRetrieveInformationModelGet
 
-    def handle_store(event):
-        """Handle a C-STORE request."""
-        if args.ignore:
-            return 0x0000
-
-        ds = event.dataset
-        # Remove any Group 0x0002 elements that may have been included
-        ds = ds[0x00030000:]
-
-        # Add the file meta information elements
-        ds.file_meta = event.file_meta
-
-        # Because pydicom uses deferred reads for its decoding, decoding errors
-        #   are hidden until encountered by accessing a faulty element
-        try:
-            sop_class = ds.SOPClassUID
-            sop_instance = ds.SOPInstanceUID
-        except Exception as exc:
-            APP_LOGGER.error(
-                "Unable to decode the received dataset or missing 'SOP Class "
-                "UID' and/or 'SOP Instance UID' elements"
-            )
-            APP_LOGGER.exception(exc)
-            # Unable to decode dataset
-            return 0xC210
-
-        try:
-            # Get the elements we need
-            mode_prefix = SOP_CLASS_PREFIXES[sop_class][0]
-        except KeyError:
-            mode_prefix = 'UN'
-
-        filename = '{0!s}.{1!s}'.format(mode_prefix, sop_instance)
-        APP_LOGGER.info('Storing DICOM file: {0!s}'.format(filename))
-
-        if os.path.exists(filename):
-            APP_LOGGER.warning('DICOM file already exists, overwriting')
-
-        status = Dataset()
-        status.Status = 0x0000
-
-        # Try to save to output-directory
-        if args.output_directory is not None:
-            filename = os.path.join(args.output_directory, filename)
-            try:
-                os.makedirs(args.output_directory)
-            except Exception as exc:
-                APP_LOGGER.error('Unable to create the output directory:')
-                APP_LOGGER.error("    {0!s}".format(args.output_directory))
-                APP_LOGGER.exception(exc)
-                # Failed - Out of Resources - IOError
-                status.Status = 0xA700
-                return status
-
-        try:
-            # We use `write_like_original=False` to ensure that a compliant
-            #   File Meta Information Header is written
-            ds.save_as(filename, write_like_original=False)
-            status.Status = 0x0000 # Success
-        except IOError as exc:
-            APP_LOGGER.error('Could not write file to specified directory:')
-            APP_LOGGER.error("    {0!s}".format(os.path.dirname(filename)))
-            APP_LOGGER.exception(exc)
-            # Failed - Out of Resources - IOError
-            status.Status = 0xA700
-        except Exception as exc:
-            APP_LOGGER.error('Could not write file to specified directory:')
-            APP_LOGGER.error("    {0!s}".format(os.path.dirname(filename)))
-            APP_LOGGER.exception(exc)
-            # Failed - Out of Resources - Miscellaneous error
-            status.Status = 0xA701
-
-        return status
+    handle_store = wrap_handle_store(args, APP_LOGGER)
 
     # Request association with remote
     assoc = ae.associate(
