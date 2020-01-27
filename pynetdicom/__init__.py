@@ -34,10 +34,12 @@ assert PYNETDICOM_IMPLEMENTATION_UID.is_valid
 from pynetdicom import events as evt
 from pynetdicom.ae import ApplicationEntity as AE
 from pynetdicom.association import Association
+from pynetdicom._globals import (
+    ALL_TRANSFER_SYNTAXES, DEFAULT_TRANSFER_SYNTAXES
+)
 from pynetdicom.presentation import (
     build_context,
     build_role,
-    DEFAULT_TRANSFER_SYNTAXES,
     AllStoragePresentationContexts,
     ApplicationEventLoggingPresentationContexts,
     BasicWorklistManagementPresentationContexts,

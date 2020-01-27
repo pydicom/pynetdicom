@@ -14,7 +14,10 @@ from pydicom.uid import (
     DeflatedExplicitVRLittleEndian, ExplicitVRBigEndian
 )
 
-from pynetdicom import AE, evt, debug_logger, DEFAULT_TRANSFER_SYNTAXES
+from pynetdicom import (
+    AE, evt, debug_logger, DEFAULT_TRANSFER_SYNTAXES,
+    AllStoragePresentationContexts, ALL_TRANSFER_SYNTAXES
+)
 from pynetdicom.sop_class import VerificationSOPClass, CTImageStorage
 
 
@@ -26,6 +29,7 @@ APP_FILE = os.path.join(APP_DIR, 'storescu', 'storescu.py')
 LOG_CONFIG = os.path.join(APP_DIR, 'echoscu', 'logging.cfg')
 DATA_DIR = os.path.join(APP_DIR, '../', 'tests', 'dicom_files')
 DATASET_FILE = os.path.join(DATA_DIR, 'CTImageStorage.dcm')
+LIB_DIR = os.path.join(APP_DIR, '../')
 
 
 def which(program):
@@ -510,8 +514,8 @@ class TestStoreSCU(object):
         assert CTImageStorage in cxs
         assert cxs[CTImageStorage].transfer_syntax == [ImplicitVRLittleEndian]
 
-    def test_flag_single_cx(self):
-        """Test --single-context flag."""
+    def test_flag_required_cx(self):
+        """Test --required-contexts flag."""
         events = []
 
         def handle_store(event):
@@ -549,9 +553,37 @@ class TestStoreSCU(object):
 
     def test_bad_input(self, capfd):
         """Test being unable to read the input file."""
-        p = start_storescu(['no-such-file.dcm'])
+        p = start_storescu(['no-such-file.dcm', '-d'])
         p.wait()
-        assert p.returncode == 1
+        assert p.returncode == 0
 
         out, err = capfd.readouterr()
-        assert 'Cannot read input file no-such-file.dcm' in err
+        assert 'No suitable DICOM files found' in err
+        assert 'Cannot access path: no-such-file.dcm' in err
+
+    def test_recurse(self, capfd):
+        """Test the --recurse flag."""
+        events = []
+        def handle_store(event):
+            events.append(event)
+            return 0x0000
+
+        handlers = [
+            (evt.EVT_C_STORE, handle_store),
+        ]
+
+        self.ae = ae = AE()
+        ae.acse_timeout = 5
+        ae.dimse_timeout = 5
+        ae.network_timeout = 5
+        for cx in AllStoragePresentationContexts:
+            ae.add_supported_context(cx.abstract_syntax, ALL_TRANSFER_SYNTAXES)
+        scp = ae.start_server(('', 11112), block=False, evt_handlers=handlers)
+
+        p = start_storescu([LIB_DIR, '--recurse', '-cx'])
+        p.wait()
+        assert p.returncode == 0
+
+        scp.shutdown()
+
+        assert len(events) == 3

@@ -220,7 +220,10 @@ if __name__ == "__main__":
     APP_LOGGER.debug('storescu.py v{0!s}'.format(__version__))
     APP_LOGGER.debug('')
 
-    lfiles = get_files(args.dcmfile, args.recurse)
+    lfiles, badfiles = get_files(args.dcmfile, args.recurse)
+
+    for bad in badfiles:
+        APP_LOGGER.error("Cannot access path: {}".format(bad))
 
     ae = AE(ae_title=args.calling_aet)
     ae.acse_timeout = args.acse_timeout

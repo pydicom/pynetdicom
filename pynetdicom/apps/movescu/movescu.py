@@ -235,7 +235,7 @@ if __name__ == "__main__":
 
     # Create query (identifier) dataset
     try:
-        # If you're looking at this to see how QR Get works then `identifer`
+        # If you're looking at this to see how QR Move works then `identifer`
         # is a pydicom Dataset instance with your query keys, e.g.:
         #     identifier = Dataset()
         #     identifier.QueryRetrieveLevel = 'PATIENT'
@@ -246,7 +246,6 @@ if __name__ == "__main__":
         sys.exit(1)
 
     # Create application entity
-    # Binding to port 0 lets the OS pick an available port
     ae = AE()
 
     # Start the Store SCP (optional)
@@ -268,6 +267,7 @@ if __name__ == "__main__":
     ae.dimse_timeout = args.dimse_timeout
     ae.network_timeout = args.network_timeout
     ae.requested_contexts = QueryRetrievePresentationContexts
+    ae.supported_contexts = []
 
     # Query/Retrieve Information Models
     if args.study:

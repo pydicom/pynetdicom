@@ -839,4 +839,4 @@ def test_single_file(fpaths, recurse, out, fs):
     for fpath in REFERENCE_FS:
         fs.create_file(fpath)
 
-    assert set(out) == set(get_files(fpaths, recurse))
+    assert set(out) == set(get_files(fpaths, recurse)[0])

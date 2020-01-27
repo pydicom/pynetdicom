@@ -93,6 +93,8 @@ Network Options
             set the local AE title (default: MOVESCU)
 ``-aec  --called-aet [a]etitle (str)``
             set the called AE title for the peer AE (default: ANY-SCP)
+``-aem  --move-aet [a]etitle (str)``
+            set the move destination AE title (default: STORESCP)
 ``-ta   --acse-timeout [s]econds (float)``
             timeout for ACSE messages (default: 30)
 ``-td   --dimse-timeout [s]econds (float)``
@@ -106,9 +108,9 @@ Storage SCP Options
 -------------------
 ``--store``
             start a Storage SCP that can be used as the move destination
-``--store-port [p]ort``
+``--store-port [p]ort (int)``
             the listen port number to use for the Storage SCP (default: 11113)
-``--store-aet [a]etitle``
+``--store-aet [a]etitle (str)``
             the AE title to use for the Storage SCP (default: STORESCP)
 
 
@@ -127,14 +129,14 @@ Query Options
             add or override a query element using either an element tag as
             (group,element) or the element's keyword (such as PatientName).
             See the *keyword pathing* section for more information.
-``-f path to [f]ile``
+``-f path to [f]ile (str)``
             use a DICOM file as the query dataset, if used with ``-k``
             then the elements will be added to or overwrite those
             present in the file
 
 Output Options
 --------------
-``-od [d]irectory, --output-directory [d]irectory``
+``-od [d]irectory, --output-directory [d]irectory (strS)``
             write received objects to directory ``d`` (with ``--store``)
 ``--ignore``
             receive data but don't store it (with ``--store``)

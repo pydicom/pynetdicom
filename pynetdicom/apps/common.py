@@ -452,10 +452,11 @@ def get_files(fpaths, recurse=False):
 
     Returns
     -------
-    list of str
-        A list of the files found.
+    list of str, list of str
+        A list of the files found and a list of files not found.
     """
     out = []
+    bad = []
     for fpath in fpaths:
         if os.path.isfile(fpath):
             out.append(fpath)
@@ -465,8 +466,10 @@ def get_files(fpaths, recurse=False):
                     out += [os.path.join(root, pp) for pp in files]
             else:
                 out += [os.path.join(fpath, pp) for pp in os.listdir(fpath)]
+        else:
+            bad.append(fpath)
 
-    return sorted(list(set([pp for pp in out if os.path.isfile(pp)])))
+    return sorted(list(set([pp for pp in out if os.path.isfile(pp)]))), bad
 
 
 def setup_logging(args, app_name):
@@ -495,15 +498,12 @@ def setup_logging(args, app_name):
     pynd_logger.addHandler(handler)
     pynd_logger.setLevel(logging.ERROR)
 
-    # Setup findscu application's logging
+    # Setup application's logging
     app_logger = logging.Logger(app_name)
     handler = logging.StreamHandler()
     handler.setFormatter(formatter)
     app_logger.addHandler(handler)
     app_logger.setLevel(logging.ERROR)
-
-    def _setup(logger, level):
-        logger.setLevel(level)
 
     if args.log_type == 'q':
         app_logger.handlers = []
@@ -564,9 +564,15 @@ def wrap_handle_store(args, app_logger):
         if args.ignore:
             return 0x0000
 
-        ds = event.dataset
-        # Remove any Group 0x0002 elements that may have been included
-        ds = ds[0x00030000:]
+        try:
+            ds = event.dataset
+            # Remove any Group 0x0002 elements that may have been included
+            ds = ds[0x00030000:]
+        except Exception as exc:
+            app_logger.error("Unable to decode the dataset")
+            app_logger.exception(exc)
+            # Unable to decode dataset
+            return 0x210
 
         # Add the file meta information elements
         ds.file_meta = event.file_meta
