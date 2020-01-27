@@ -834,7 +834,7 @@ REFERENCE_OUTPUT = [
 
 
 @pytest.mark.parametrize('fpaths, recurse, out', REFERENCE_OUTPUT)
-def test_single_file(fpaths, recurse, out, fs):
+def test_get_files(fpaths, recurse, out, fs):
     """Test finding files in a given path."""
     for fpath in REFERENCE_FS:
         fs.create_file(fpath)
