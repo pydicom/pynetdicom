@@ -92,44 +92,44 @@ peer SCP, the following DIMSE-C and -N services are available (provided the
 peer supports the Service Class and a corresponding Presentation Context has
 been accepted):
 
-.. _assoc: https:pydicom.github.io/pynetdicom/stable/reference/generated/pynetdicom.association.Association.html#pynetdicom.association.Association
-.. _echo: https:pydicom.github.io/pynetdicom/stable/reference/generated/pynetdicom.association.Association.html#pynetdicom.association.Association.send_c_echo
-.. _find: https:pydicom.github.io/pynetdicom/stable/reference/generated/pynetdicom.association.Association.html#pynetdicom.association.Association.send_c_find
-.. _c_get: https:pydicom.github.io/pynetdicom/stable/reference/generated/pynetdicom.association.Association.html#pynetdicom.association.Association.send_c_get
-.. _move: https:pydicom.github.io/pynetdicom/stable/reference/generated/pynetdicom.association.Association.html#pynetdicom.association.Association.send_c_move
-.. _store: https:pydicom.github.io/pynetdicom/stable/reference/generated/pynetdicom.association.Association.html#pynetdicom.association.Association.send_c_store
-.. _action: https:pydicom.github.io/pynetdicom/stable/reference/generated/pynetdicom.association.Association.html#pynetdicom.association.Association.send_n_action
-.. _create: https:pydicom.github.io/pynetdicom/stable/reference/generated/pynetdicom.association.Association.html#pynetdicom.association.Association.send_n_create
-.. _delete: https:pydicom.github.io/pynetdicom/stable/reference/generated/pynetdicom.association.Association.html#pynetdicom.association.Association.send_n_delete
-.. _er: https:pydicom.github.io/pynetdicom/stable/reference/generated/pynetdicom.association.Association.html#pynetdicom.association.Association.send_n_event_report
-.. _n_get: https:pydicom.github.io/pynetdicom/stable/reference/generated/pynetdicom.association.Association.html#pynetdicom.association.Association.send_n_get
-.. _set: https:pydicom.github.io/pynetdicom/stable/reference/generated/pynetdicom.association.Association.html#pynetdicom.association.Association.send_n_set
+.. _assoc: https://pydicom.github.io/pynetdicom/stable/reference/generated/pynetdicom.association.Association.html
+.. _echo: https://pydicom.github.io/pynetdicom/stable/reference/generated/pynetdicom.association.Association.html#pynetdicom.association.Association.send_c_echo
+.. _find: https://pydicom.github.io/pynetdicom/stable/reference/generated/pynetdicom.association.Association.html#pynetdicom.association.Association.send_c_find
+.. _c_get: https://pydicom.github.io/pynetdicom/stable/reference/generated/pynetdicom.association.Association.html#pynetdicom.association.Association.send_c_get
+.. _move: https://pydicom.github.io/pynetdicom/stable/reference/generated/pynetdicom.association.Association.html#pynetdicom.association.Association.send_c_move
+.. _store: https://pydicom.github.io/pynetdicom/stable/reference/generated/pynetdicom.association.Association.html#pynetdicom.association.Association.send_c_store
+.. _action: https://pydicom.github.io/pynetdicom/stable/reference/generated/pynetdicom.association.Association.html#pynetdicom.association.Association.send_n_action
+.. _create: https://pydicom.github.io/pynetdicom/stable/reference/generated/pynetdicom.association.Association.html#pynetdicom.association.Association.send_n_create
+.. _delete: https://pydicom.github.io/pynetdicom/stable/reference/generated/pynetdicom.association.Association.html#pynetdicom.association.Association.send_n_delete
+.. _er: https://pydicom.github.io/pynetdicom/stable/reference/generated/pynetdicom.association.Association.html#pynetdicom.association.Association.send_n_event_report
+.. _n_get: https://pydicom.github.io/pynetdicom/stable/reference/generated/pynetdicom.association.Association.html#pynetdicom.association.Association.send_n_get
+.. _set: https://pydicom.github.io/pynetdicom/stable/reference/generated/pynetdicom.association.Association.html#pynetdicom.association.Association.send_n_set
 
-+----------------+--------------------------------------------------------------------------------------+
-| DIMSE service  | `Association<assoc>`_ method                                                         |
-+================+======================================================================================+
-| C-ECHO         | `Association.send_c_echo()<echo>`_                                                   |
-+----------------+--------------------------------------------------------------------------------------+
-| C-FIND         | `Association.send_c_find(dataset, query_model)<find>`_                               |
-+----------------+--------------------------------------------------------------------------------------+
-| C-GET          | `Association.send_c_get(dataset, query_model)<c_get>`_                               |
-+----------------+--------------------------------------------------------------------------------------+
-| C-MOVE         | `Association.send_c_move(dataset, move_aet, query_model)<move>`_                     |
-+----------------+--------------------------------------------------------------------------------------+
-| C-STORE        | `Association.send_c_store(dataset)<store>`_                                          |
-+----------------+--------------------------------------------------------------------------------------+
-| N-ACTION       | `Association.send_n_action(dataset, action_type, class_uid, instance_uid)<action>`_  |
-+----------------+--------------------------------------------------------------------------------------+
-| N-CREATE       | `Association.send_n_create(dataset, class_uid, instance_uid)<create>`_               |
-+----------------+--------------------------------------------------------------------------------------+
-| N-DELETE       | `Association.send_n_delete(class_uid, instance_uid)<delete>`_                        |
-+----------------+--------------------------------------------------------------------------------------+
-| N-EVENT-REPORT | `Association.send_n_event_report(dataset, event_type, class_uid, instance_uid)<er>`_ |
-+----------------+--------------------------------------------------------------------------------------+
-| N-GET          | `Association.send_n_set(dataset, class_uid, instance_uid)<n_get>`_                   |
-+----------------+--------------------------------------------------------------------------------------+
-| N-SET          | `Association.send_n_set(dataset, class_uid, instance_uid)<set>`_                     |
-+----------------+--------------------------------------------------------------------------------------+
++----------------+----------------------------------------------------------------------------------------+
+| DIMSE service  | `Association <assoc_>`_ method                                                         |
++================+========================================================================================+
+| C-ECHO         | `Association.send_c_echo() <echo_>`_                                                   |
++----------------+----------------------------------------------------------------------------------------+
+| C-FIND         | `Association.send_c_find(dataset, query_model) <find_>`_                               |
++----------------+----------------------------------------------------------------------------------------+
+| C-GET          | `Association.send_c_get(dataset, query_model) <c_get_>`_                               |
++----------------+----------------------------------------------------------------------------------------+
+| C-MOVE         | `Association.send_c_move(dataset, move_aet, query_model) <move_>`_                     |
++----------------+----------------------------------------------------------------------------------------+
+| C-STORE        | `Association.send_c_store(dataset) <store_>`_                                          |
++----------------+----------------------------------------------------------------------------------------+
+| N-ACTION       | `Association.send_n_action(dataset, action_type, class_uid, instance_uid) <action_>`_  |
++----------------+----------------------------------------------------------------------------------------+
+| N-CREATE       | `Association.send_n_create(dataset, class_uid, instance_uid) <create_>`_               |
++----------------+----------------------------------------------------------------------------------------+
+| N-DELETE       | `Association.send_n_delete(class_uid, instance_uid) <delete_>`_                        |
++----------------+----------------------------------------------------------------------------------------+
+| N-EVENT-REPORT | `Association.send_n_event_report(dataset, event_type, class_uid, instance_uid) <er_>`_ |
++----------------+----------------------------------------------------------------------------------------+
+| N-GET          | `Association.send_n_set(dataset, class_uid, instance_uid) <n_get_>`_                   |
++----------------+----------------------------------------------------------------------------------------+
+| N-SET          | `Association.send_n_set(dataset, class_uid, instance_uid) <set_>`_                     |
++----------------+----------------------------------------------------------------------------------------+
 
 Where *dataset* is a pydicom
 `Dataset <https://pydicom.github.io/pydicom/stable/ref_guide.html#dataset>`_
@@ -159,31 +159,31 @@ available to the peer once an association has been established:
 .. _hn_get: https://pydicom.github.io/pynetdicom/stable/reference/generated/pynetdicom._handlers.doc_handle_n_get.html
 .. _hset: https://pydicom.github.io/pynetdicom/stable/reference/generated/pynetdicom._handlers.doc_handle_set.html
 
-+----------------+----------------------------+-------------------------------+
-| DIMSE service  | Intervention Event         | Handler documentation         |
-+================+============================+===============================+
-| C-ECHO         | ``evt.EVT_C_ECHO``         | `Handle C-ECHO<hecho>`_       |
-+----------------+----------------------------+-------------------------------+
-| C-FIND         | ``evt.EVT_C_FIND``         | `Handle C-FIND<hfind>`_       |
-+----------------+----------------------------+-------------------------------+
-| C-GET          | ``evt.EVT_C_GET``          | `Handle C-GET<hc_get>`_       |
-+----------------+----------------------------+-------------------------------+
-| C-MOVE         | ``evt.EVT_C_MOVE``         | `Handle C-MOVE<hmove>`_       |
-+----------------+----------------------------+-------------------------------+
-| C-STORE        | ``evt.EVT_C_STORE``        | `Handle C-STORE<hstore>`_     |
-+----------------+----------------------------+-------------------------------+
-| N-ACTION       | ``evt.EVT_N_ACTION``       | `Handle N-ACTION<haction>`_   |
-+----------------+----------------------------+-------------------------------+
-| N-CREATE       | ``evt.EVT_N_CREATE``       | `Handle N-CREATE<gcreate>`_   |
-+----------------+----------------------------+-------------------------------+
-| N-DELETE       | ``evt.EVT_N_DELETE``       | `Handle N-DELETE<hdelete>`_   |
-+----------------+----------------------------+-------------------------------+
-| N-EVENT-REPORT | ``evt.EVT_N_EVENT_REPORT`` | `Handle N-EVENT-REPORT<her>`_ |
-+----------------+----------------------------+-------------------------------+
-| N-GET          | ``evt.EVT_N_GET``          | `Handle N-GET<hn_get>`_       |
-+----------------+----------------------------+-------------------------------+
-| N-SET          | ``evt.EVT_N_SET``          | `Handle N-SET<hset>`_         |
-+----------------+----------------------------+-------------------------------+
++----------------+----------------------------+---------------------------------+
+| DIMSE service  | Intervention Event         | Handler documentation           |
++================+============================+=================================+
+| C-ECHO         | ``evt.EVT_C_ECHO``         | `Handle C-ECHO <hecho_>`_       |
++----------------+----------------------------+---------------------------------+
+| C-FIND         | ``evt.EVT_C_FIND``         | `Handle C-FIND <hfind_>`_       |
++----------------+----------------------------+---------------------------------+
+| C-GET          | ``evt.EVT_C_GET``          | `Handle C-GET <hc_get_>`_       |
++----------------+----------------------------+---------------------------------+
+| C-MOVE         | ``evt.EVT_C_MOVE``         | `Handle C-MOVE <hmove_>`_       |
++----------------+----------------------------+---------------------------------+
+| C-STORE        | ``evt.EVT_C_STORE``        | `Handle C-STORE <hstore_>`_     |
++----------------+----------------------------+---------------------------------+
+| N-ACTION       | ``evt.EVT_N_ACTION``       | `Handle N-ACTION <haction_>`_   |
++----------------+----------------------------+---------------------------------+
+| N-CREATE       | ``evt.EVT_N_CREATE``       | `Handle N-CREATE <hcreate_>`_   |
++----------------+----------------------------+---------------------------------+
+| N-DELETE       | ``evt.EVT_N_DELETE``       | `Handle N-DELETE <hdelete_>`_   |
++----------------+----------------------------+---------------------------------+
+| N-EVENT-REPORT | ``evt.EVT_N_EVENT_REPORT`` | `Handle N-EVENT-REPORT <her_>`_ |
++----------------+----------------------------+---------------------------------+
+| N-GET          | ``evt.EVT_N_GET``          | `Handle N-GET <hn_get_>`_       |
++----------------+----------------------------+---------------------------------+
+| N-SET          | ``evt.EVT_N_SET``          | `Handle N-SET <hset_>`_         |
++----------------+----------------------------+---------------------------------+
 
 
 With the exception of the C-ECHO service, a user-defined callable function,
