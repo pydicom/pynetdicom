@@ -322,9 +322,10 @@ also acting as a Storage SCP), plus a <em>User Identity Negotiation</em> item:</
 use the <em>evt_handlers</em> keyword argument:</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">logging</span>
 
-<span class="kn">from</span> <span class="nn">pynetdicom</span> <span class="kn">import</span> <span class="n">AE</span><span class="p">,</span> <span class="n">evt</span>
+<span class="kn">from</span> <span class="nn">pynetdicom</span> <span class="kn">import</span> <span class="n">AE</span><span class="p">,</span> <span class="n">evt</span><span class="p">,</span> <span class="n">debug_logger</span>
 <span class="kn">from</span> <span class="nn">pynetdicom.sop_class</span> <span class="kn">import</span> <span class="n">VerificationSOPClass</span>
 
+<span class="n">debug_logger</span><span class="p">()</span>
 <span class="n">LOGGER</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="s1">&#39;pynetdicom&#39;</span><span class="p">)</span>
 
 <span class="k">def</span> <span class="nf">handle_open</span><span class="p">(</span><span class="n">event</span><span class="p">):</span>
@@ -332,7 +333,16 @@ use the <em>evt_handlers</em> keyword argument:</p>
     <span class="n">msg</span> <span class="o">=</span> <span class="s1">&#39;Connected with remote at (</span><span class="si">{}</span><span class="s1">)&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">event</span><span class="o">.</span><span class="n">address</span><span class="p">)</span>
     <span class="n">LOGGER</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="n">msg</span><span class="p">)</span>
 
-<span class="n">handlers</span> <span class="o">=</span> <span class="p">[(</span><span class="n">evt</span><span class="o">.</span><span class="n">EVT_CONN_OPEN</span><span class="p">,</span> <span class="n">handle_open</span><span class="p">)]</span>
+<span class="k">def</span> <span class="nf">handle_accepted</span><span class="p">(</span><span class="n">event</span><span class="p">,</span> <span class="n">arg1</span><span class="p">,</span> <span class="n">arg2</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Demonstrate the use of the optional extra arguments&quot;&quot;&quot;</span>
+    <span class="n">LOGGER</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Extra args: &#39;</span><span class="si">{}</span><span class="s2">&#39; and &#39;</span><span class="si">{}</span><span class="s2">&#39;&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">arg1</span><span class="p">,</span> <span class="n">arg2</span><span class="p">))</span>
+
+<span class="c1"># If a 2-tuple then only `event` parameter</span>
+<span class="c1"># If a 3-tuple then the third value should be a list of objects to pass the handler</span>
+<span class="n">handlers</span> <span class="o">=</span> <span class="p">[</span>
+    <span class="p">(</span><span class="n">evt</span><span class="o">.</span><span class="n">EVT_CONN_OPEN</span><span class="p">,</span> <span class="n">handle_open</span><span class="p">)</span>
+    <span class="p">(</span><span class="n">evt</span><span class="o">.</span><span class="n">EVT_ACCEPTED</span><span class="p">,</span> <span class="n">handle_accepted</span><span class="p">,</span> <span class="p">[</span><span class="s1">&#39;optional&#39;</span><span class="p">,</span> <span class="s1">&#39;parameters&#39;</span><span class="p">])</span>
+<span class="p">]</span>
 
 <span class="n">ae</span> <span class="o">=</span> <span class="n">AE</span><span class="p">()</span>
 <span class="n">ae</span><span class="o">.</span><span class="n">add_requested_context</span><span class="p">(</span><span class="n">VerificationSOPClass</span><span class="p">)</span>
@@ -346,9 +356,10 @@ use the <em>evt_handlers</em> keyword argument:</p>
 <a class="reference internal" href="../reference/generated/pynetdicom.association.Association.html#pynetdicom.association.Association" title="pynetdicom.association.Association"><code class="xref py py-class docutils literal notranslate"><span class="pre">Association</span></code></a>:</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">logging</span>
 
-<span class="kn">from</span> <span class="nn">pynetdicom</span> <span class="kn">import</span> <span class="n">AE</span><span class="p">,</span> <span class="n">evt</span>
+<span class="kn">from</span> <span class="nn">pynetdicom</span> <span class="kn">import</span> <span class="n">AE</span><span class="p">,</span> <span class="n">evt</span><span class="p">,</span> <span class="n">debug_logger</span>
 <span class="kn">from</span> <span class="nn">pynetdicom.sop_class</span> <span class="kn">import</span> <span class="n">VerificationSOPClass</span>
 
+<span class="n">debug_logger</span><span class="p">()</span>
 <span class="n">LOGGER</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="s1">&#39;pynetdicom&#39;</span><span class="p">)</span>
 
 <span class="k">def</span> <span class="nf">handle_open</span><span class="p">(</span><span class="n">event</span><span class="p">):</span>
@@ -542,9 +553,10 @@ If no value is set then the AE title of the parent AE will be used instead:</p>
 generated by the SCP you can use the <em>evt_handlers</em> keyword argument:</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">logging</span>
 
-<span class="kn">from</span> <span class="nn">pynetdicom</span> <span class="kn">import</span> <span class="n">AE</span><span class="p">,</span> <span class="n">evt</span>
+<span class="kn">from</span> <span class="nn">pynetdicom</span> <span class="kn">import</span> <span class="n">AE</span><span class="p">,</span> <span class="n">evt</span><span class="p">,</span> <span class="n">debug_logger</span>
 <span class="kn">from</span> <span class="nn">pynetdicom.sop_class</span> <span class="kn">import</span> <span class="n">VerificationSOPClass</span>
 
+<span class="n">debug_logger</span><span class="p">()</span>
 <span class="n">LOGGER</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="s1">&#39;pynetdicom&#39;</span><span class="p">)</span>
 
 <span class="k">def</span> <span class="nf">handle_open</span><span class="p">(</span><span class="n">event</span><span class="p">):</span>
@@ -552,7 +564,16 @@ generated by the SCP you can use the <em>evt_handlers</em> keyword argument:</p>
     <span class="n">msg</span> <span class="o">=</span> <span class="s1">&#39;Connected with remote at (</span><span class="si">{}</span><span class="s1">)&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">event</span><span class="o">.</span><span class="n">address</span><span class="p">)</span>
     <span class="n">LOGGER</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="n">msg</span><span class="p">)</span>
 
-<span class="n">handlers</span> <span class="o">=</span> <span class="p">[(</span><span class="n">evt</span><span class="o">.</span><span class="n">EVT_CONN_OPEN</span><span class="p">,</span> <span class="n">handle_open</span><span class="p">)]</span>
+<span class="k">def</span> <span class="nf">handle_accepted</span><span class="p">(</span><span class="n">event</span><span class="p">,</span> <span class="n">arg1</span><span class="p">,</span> <span class="n">arg2</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Demonstrate the use of the optional extra arguments&quot;&quot;&quot;</span>
+    <span class="n">LOGGER</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Extra args: &#39;</span><span class="si">{}</span><span class="s2">&#39; and &#39;</span><span class="si">{}</span><span class="s2">&#39;&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">arg1</span><span class="p">,</span> <span class="n">arg2</span><span class="p">))</span>
+
+<span class="c1"># If a 2-tuple then only `event` parameter</span>
+<span class="c1"># If a 3-tuple then the third value should be a list of objects to pass the handler</span>
+<span class="n">handlers</span> <span class="o">=</span> <span class="p">[</span>
+    <span class="p">(</span><span class="n">evt</span><span class="o">.</span><span class="n">EVT_CONN_OPEN</span><span class="p">,</span> <span class="n">handle_open</span><span class="p">)</span>
+    <span class="p">(</span><span class="n">evt</span><span class="o">.</span><span class="n">EVT_ACCEPTED</span><span class="p">,</span> <span class="n">handle_accepted</span><span class="p">,</span> <span class="p">[</span><span class="s1">&#39;optional&#39;</span><span class="p">,</span> <span class="s1">&#39;parameters&#39;</span><span class="p">])</span>
+<span class="p">]</span>
 
 <span class="n">ae</span> <span class="o">=</span> <span class="n">AE</span><span class="p">()</span>
 <span class="n">ae</span><span class="o">.</span><span class="n">add_supported_context</span><span class="p">(</span><span class="n">VerificationSOPClass</span><span class="p">)</span>
@@ -564,9 +585,10 @@ generated by the SCP you can use the <em>evt_handlers</em> keyword argument:</p>
 non-blocking mode:</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">logging</span>
 
-<span class="kn">from</span> <span class="nn">pynetdicom</span> <span class="kn">import</span> <span class="n">AE</span><span class="p">,</span> <span class="n">evt</span>
+<span class="kn">from</span> <span class="nn">pynetdicom</span> <span class="kn">import</span> <span class="n">AE</span><span class="p">,</span> <span class="n">evt</span><span class="p">,</span> <span class="n">debug_logger</span>
 <span class="kn">from</span> <span class="nn">pynetdicom.sop_class</span> <span class="kn">import</span> <span class="n">VerificationSOPClass</span>
 
+<span class="n">debug_logger</span><span class="p">()</span>
 <span class="n">LOGGER</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="s1">&#39;pynetdicom&#39;</span><span class="p">)</span>
 
 <span class="k">def</span> <span class="nf">handle_open</span><span class="p">(</span><span class="n">event</span><span class="p">):</span>

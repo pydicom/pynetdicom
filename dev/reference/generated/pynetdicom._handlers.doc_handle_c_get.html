@@ -221,7 +221,7 @@
 <h1>pynetdicom._handlers.doc_handle_c_get<a class="headerlink" href="#pynetdicom-handlers-doc-handle-c-get" title="Permalink to this headline">¶</a></h1>
 <dl class="function">
 <dt id="pynetdicom._handlers.doc_handle_c_get">
-<code class="sig-prename descclassname">pynetdicom._handlers.</code><code class="sig-name descname">doc_handle_c_get</code><span class="sig-paren">(</span><em class="sig-param">event</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/1156736d/pynetdicom/_handlers.py#L2247"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom._handlers.doc_handle_c_get" title="Permalink to this definition">¶</a></dt>
+<code class="sig-prename descclassname">pynetdicom._handlers.</code><code class="sig-name descname">doc_handle_c_get</code><span class="sig-paren">(</span><em class="sig-param">event</em>, <em class="sig-param">*args</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/44c995bd/pynetdicom/_handlers.py#L2259"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom._handlers.doc_handle_c_get" title="Permalink to this definition">¶</a></dt>
 <dd><p>Documentation for handlers bound to <code class="docutils literal notranslate"><span class="pre">evt.EVT_C_GET</span></code>.</p>
 <p>User implementation of this event handler is required if one or more
 services that use C-GET are to be supported. If a handler is
@@ -279,9 +279,10 @@ Keys</div>
 </dl>
 <dl class="field-list">
 <dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>event</strong> (<a class="reference internal" href="pynetdicom.events.Event.html#pynetdicom.events.Event" title="pynetdicom.events.Event"><em>events.Event</em></a>) – <p>The event representing a service class receiving a C-GET
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>event</strong> (<a class="reference internal" href="pynetdicom.events.Event.html#pynetdicom.events.Event" title="pynetdicom.events.Event"><em>events.Event</em></a>) – <p>The event representing a service class receiving a C-GET
 request message. <a class="reference internal" href="pynetdicom.events.Event.html#pynetdicom.events.Event" title="pynetdicom.events.Event"><code class="xref py py-class docutils literal notranslate"><span class="pre">Event</span></code></a> attributes are:</p>
-<ul class="simple">
+<ul>
 <li><p><a class="reference internal" href="pynetdicom.events.Event.html#pynetdicom.events.Event.assoc" title="pynetdicom.events.Event.assoc"><code class="xref py py-attr docutils literal notranslate"><span class="pre">assoc</span></code></a>: the
 <a class="reference internal" href="pynetdicom.association.Association.html#pynetdicom.association.Association" title="pynetdicom.association.Association"><code class="xref py py-class docutils literal notranslate"><span class="pre">Association</span></code></a>
 that is running the service that received the C-GET request.</p></li>
@@ -297,7 +298,7 @@ that the C-GET request was processed by the service as
 <a class="reference external" href="https://docs.python.org/3/library/datetime.html#datetime.datetime" title="(in Python v3.8)"><code class="xref py py-class docutils literal notranslate"><span class="pre">datetime.datetime</span></code></a>.</p></li>
 </ul>
 <p><a class="reference internal" href="pynetdicom.events.Event.html#pynetdicom.events.Event" title="pynetdicom.events.Event"><code class="xref py py-class docutils literal notranslate"><span class="pre">Event</span></code></a> properties are:</p>
-<ul class="simple">
+<ul>
 <li><p><a class="reference internal" href="pynetdicom.events.Event.html#pynetdicom.events.Event.identifier" title="pynetdicom.events.Event.identifier"><code class="xref py py-attr docutils literal notranslate"><span class="pre">identifier</span></code></a>: the decoded
 <a class="reference external" href="https://pydicom.github.io/pydicom/stable/reference/generated/pydicom.dataset.Dataset.html#pydicom.dataset.Dataset" title="(in pydicom v1.4.1)"><code class="xref py py-class docutils literal notranslate"><span class="pre">Dataset</span></code></a> contained within the
 C-GET request’s <em>Identifier</em> parameter. Because <em>pydicom</em> uses
@@ -311,7 +312,13 @@ and <code class="docutils literal notranslate"><span class="pre">return</span></
 <li><p><a class="reference internal" href="pynetdicom.events.Event.html#pynetdicom.events.Event.message_id" title="pynetdicom.events.Event.message_id"><code class="xref py py-attr docutils literal notranslate"><span class="pre">message_id</span></code></a>: the C-GET request’s
 <em>Message ID</em> as <a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.8)"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></a>.</p></li>
 </ul>
-</p>
+</p></li>
+<li><p><strong>args</strong> – If the handler was bound to the event using
+<code class="docutils literal notranslate"><span class="pre">bind(event,</span> <span class="pre">handler,</span> <span class="pre">args)</span></code> or by passing
+<code class="docutils literal notranslate"><span class="pre">evt_handlers=[(event,</span> <span class="pre">handler,</span> <span class="pre">args),</span> <span class="pre">...]</span></code>, where <cite>args</cite> is a
+<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.8)"><code class="xref py py-class docutils literal notranslate"><span class="pre">list</span></code></a> then there will be one or more optional extra parameters
+matching the contents of <cite>args</cite>.</p></li>
+</ul>
 </dd>
 <dt class="field-even">Yields</dt>
 <dd class="field-even"><ul>
