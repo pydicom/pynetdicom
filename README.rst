@@ -11,7 +11,7 @@
     :target: https://img.shields.io/pypi/pyversions/pynetdicom.svg
 .. image:: https://zenodo.org/badge/DOI/10.5281/zenodo.3345559.svg
    :target: https://doi.org/10.5281/zenodo.3345559
-.. image:: https://badges.gitter.im/pydicom.png
+.. image:: https://badges.gitter.im/pydicom/Lobby.svg
     :target: https://gitter.im/pydicom/Lobby
 
 
@@ -52,6 +52,16 @@ them by utilising the DIMSE-C and -N services (see the DICOM Standard Part 7,
 Sections `7.5 <http://dicom.nema.org/medical/dicom/current/output/html/part07.html#sect_7.5>`_,
 `9 <http://dicom.nema.org/medical/dicom/current/output/html/part07.html#chapter_9>`_,
 and `10 <http://dicom.nema.org/medical/dicom/current/output/html/part07.html#chapter_10>`_).
+
+Documentation
+-------------
+The *pynetdicom*
+`user guide <https://pydicom.github.io/pynetdicom/stable/#user-guide>`_,
+`code examples <https://pydicom.github.io/pynetdicom/stable/#examples>`_ and
+`API reference <https://pydicom.github.io/pynetdicom/stable/reference/index.html>`_
+documentation is available for the
+`current release <https://pydicom.github.io/pynetdicom/>`_ as well as the
+`development version <https://pydicom.github.io/pynetdicom/dev>`_.
 
 
 Supported Service Classes
@@ -217,17 +227,6 @@ intervention events must  return or yield certain values. See the
 for information on what attributes and properties are available in ``Event``
 for each event type and the expected returns/yields for the
 corresponding handlers.
-
-
-Documentation
--------------
-The *pynetdicom*
-`user guide <https://pydicom.github.io/pynetdicom/stable/#user-guide>`_,
-`code examples <https://pydicom.github.io/pynetdicom/stable/#examples>`_ and
-`API reference <https://pydicom.github.io/pynetdicom/stable/reference/index.html>`_
-documentation is available for the
-`current release <https://pydicom.github.io/pynetdicom/>`_ as well as the
-`development version <https://pydicom.github.io/pynetdicom/dev>`_.
 
 
 Installation

@@ -153,9 +153,9 @@ table below lists the possible intervention events.
 Event Handlers
 ..............
 
-Event handlers are callable functions bound to an event that get passed a
-single parameter, *event*, which is an :class:`Event` instance. All
-:class:`Event` instances come with at least three attributes:
+Event handlers are callable functions bound to an event that, at a minimum,
+gets passed a single parameter, *event*, which is an :class:`Event` instance.
+All :class:`Event` instances come with at least three attributes:
 
 * :attr:`Event.assoc` - the
   :class:`Association <pynetdicom.association.Association>` in which the
@@ -169,12 +169,45 @@ Additional attributes and properties are available depending on the event type,
 see the `handler implementation documentation
 <../reference/events.html>`_ for more information.
 
-Handlers can be bound to events through the ``bind(event, handler)`` methods
-in the :class:`~pynetdicom.association.Association` and
-:class:`~pynetdicom.transport.AssociationServer` classes or by using the
-*evt_handlers* keyword argument with
-:meth:`AE.associate()<pynetdicom.ae.ApplicationEntity.associate>` and
+Handlers can be bound to events through the *evt_handlers* keyword argument
+with :meth:`AE.associate()<pynetdicom.ae.ApplicationEntity.associate>` and
 :meth:`AE.start_server()<pynetdicom.ae.ApplicationEntity.start_server>`.
+*evt_handlers* should be a list of 2- or 3-tuples::
+
+    from pynetdicom import evt, AE
+    from pynetdicom.sop_class import VerificationSOPClass, CTImageStorage
+
+    def handle_echo(event):
+        # Because we used a 2-tuple to bind `handle_echo` we
+        #   have no extra parameters
+        return 0x0000
+
+    def handle_store(event, arg1, arg2):
+        # Because we used a 3-tuple to bind `handle_store` we
+        #   have optional extra parameters
+        assert arg1 == 'optional'
+        assert arg2 == 'parameters'
+        return 0x0000
+
+    handlers = [
+        (evt.EVT_C_ECHO, handle_echo),
+        (evt.EVT_C_STORE, handle_store, ['optional', 'parameters']),
+    ]
+
+    ae = AE()
+    ae.add_supported_context(VerificationSOPClass)
+    ae.add_supported_context(CTImageStorage)
+    ae.start_server(('localhost', 11112), evt_handlers=handlers)
+
+If using a 3-tuple then the third value should be a list of objects that will
+be passed to the handler as extra parameters.
+
+The other way to bind handlers to events is through the
+``bind(event, handler, args=None)`` methods in the
+:class:`~pynetdicom.association.Association` and
+:class:`~pynetdicom.transport.AssociationServer` classes, where the `args`
+keyword parameter is a list of objects to pass the handler as extra parameters.
+
 Handlers can be unbound with the ``unbind(event, handler)`` methods in the
 :class:`~pynetdicom.association.Association` and
 :class:`~pynetdicom.transport.AssociationServer` classes. See the

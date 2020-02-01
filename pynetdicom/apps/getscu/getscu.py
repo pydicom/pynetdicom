@@ -18,9 +18,7 @@ from pynetdicom import (
     StoragePresentationContexts,
     QueryRetrievePresentationContexts,
 )
-from pynetdicom.apps.common import (
-    setup_logging, create_dataset, wrap_handle_store
-)
+from pynetdicom.apps.common import setup_logging, create_dataset, handle_store
 from pynetdicom._globals import DEFAULT_MAX_LENGTH
 from pynetdicom.sop_class import (
     PatientRootQueryRetrieveInformationModelGet,
@@ -256,15 +254,13 @@ if __name__ == "__main__":
     else:
         query_model = PatientRootQueryRetrieveInformationModelGet
 
-    handle_store = wrap_handle_store(args, APP_LOGGER)
-
     # Request association with remote
     assoc = ae.associate(
         args.addr,
         args.port,
         ae_title=args.called_aet,
         ext_neg=ext_neg,
-        evt_handlers=[(evt.EVT_C_STORE, handle_store)],
+        evt_handlers=[(evt.EVT_C_STORE, handle_store, [args, APP_LOGGER])],
         max_pdu=args.max_pdu
     )
 

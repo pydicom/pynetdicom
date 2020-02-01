@@ -470,7 +470,7 @@ class TestAssociationServer(object):
         # Multiples allowed
         assert len(scp._handlers[evt.EVT_DATA_SENT]) == 3
         # Only a single handler allowed
-        assert scp._handlers[evt.EVT_C_ECHO] == handle_echo_b
+        assert scp._handlers[evt.EVT_C_ECHO] == (handle_echo_b, None)
 
     def test_get_events(self):
         """Test AssociationServer.get_events()."""
@@ -529,11 +529,11 @@ class TestAssociationServer(object):
         ae.add_supported_context(VerificationSOPClass)
         scp = ae.start_server(('', 11112), block=False, evt_handlers=handlers)
 
-        assert scp.get_handlers(evt.EVT_DATA_RECV) == [handle]
-        assert handle in scp.get_handlers(evt.EVT_DATA_SENT)
-        assert handle_echo in scp.get_handlers(evt.EVT_DATA_SENT)
-        assert handle_echo_b in scp.get_handlers(evt.EVT_DATA_SENT)
-        assert scp.get_handlers(evt.EVT_C_ECHO) == handle_echo_b
+        assert scp.get_handlers(evt.EVT_DATA_RECV) == [(handle, None)]
+        assert (handle, None) in scp.get_handlers(evt.EVT_DATA_SENT)
+        assert (handle_echo, None) in scp.get_handlers(evt.EVT_DATA_SENT)
+        assert (handle_echo_b, None) in scp.get_handlers(evt.EVT_DATA_SENT)
+        assert scp.get_handlers(evt.EVT_C_ECHO) == (handle_echo_b, None)
         assert scp.get_handlers(evt.EVT_PDU_SENT) == []
 
         scp.shutdown()
@@ -621,19 +621,19 @@ class TestEventHandlingAcceptor(object):
             block=False,
             evt_handlers=[(evt.EVT_CONN_OPEN, on_conn_open)]
         )
-        assert scp.get_handlers(evt.EVT_CONN_OPEN) == [on_conn_open]
+        assert scp.get_handlers(evt.EVT_CONN_OPEN) == [(on_conn_open, None)]
         assert scp.get_handlers(evt.EVT_CONN_CLOSE) == []
 
         assoc = ae.associate('localhost', 11112)
         assert assoc.is_established
         assert len(scp.active_associations) == 1
-        assert scp.get_handlers(evt.EVT_CONN_OPEN) == [on_conn_open]
+        assert scp.get_handlers(evt.EVT_CONN_OPEN) == [(on_conn_open, None)]
         assert scp.get_handlers(evt.EVT_CONN_CLOSE) == []
         assert assoc.get_handlers(evt.EVT_CONN_OPEN) == []
         assert assoc.get_handlers(evt.EVT_CONN_CLOSE) == []
 
         child = scp.active_associations[0]
-        assert child.get_handlers(evt.EVT_CONN_OPEN) == [on_conn_open]
+        assert child.get_handlers(evt.EVT_CONN_OPEN) == [(on_conn_open, None)]
         assert child.get_handlers(evt.EVT_CONN_CLOSE) == []
 
         assert len(triggered_events) == 1
@@ -679,22 +679,22 @@ class TestEventHandlingAcceptor(object):
         # Bind
         scp.bind(evt.EVT_CONN_OPEN, on_conn_open)
 
-        assert scp.get_handlers(evt.EVT_CONN_OPEN) == [on_conn_open]
+        assert scp.get_handlers(evt.EVT_CONN_OPEN) == [(on_conn_open, None)]
         assert scp.get_handlers(evt.EVT_CONN_CLOSE) == []
         child = scp.active_associations[0]
-        assert child.get_handlers(evt.EVT_CONN_OPEN) == [on_conn_open]
+        assert child.get_handlers(evt.EVT_CONN_OPEN) == [(on_conn_open, None)]
         assert child.get_handlers(evt.EVT_CONN_CLOSE) == []
 
         assoc2 = ae.associate('localhost', 11112)
         assert assoc2.is_established
         assert len(scp.active_associations) == 2
-        assert scp.get_handlers(evt.EVT_CONN_OPEN) == [on_conn_open]
+        assert scp.get_handlers(evt.EVT_CONN_OPEN) == [(on_conn_open, None)]
         assert scp.get_handlers(evt.EVT_CONN_CLOSE) == []
         assert assoc2.get_handlers(evt.EVT_CONN_OPEN) == []
         assert assoc2.get_handlers(evt.EVT_CONN_CLOSE) == []
 
         child2 = scp.active_associations[1]
-        assert child2.get_handlers(evt.EVT_CONN_OPEN) == [on_conn_open]
+        assert child2.get_handlers(evt.EVT_CONN_OPEN) == [(on_conn_open, None)]
         assert child2.get_handlers(evt.EVT_CONN_CLOSE) == []
 
         assert len(triggered_events) == 1
@@ -724,19 +724,19 @@ class TestEventHandlingAcceptor(object):
             block=False,
             evt_handlers=[(evt.EVT_CONN_OPEN, on_conn_open)]
         )
-        assert scp.get_handlers(evt.EVT_CONN_OPEN) == [on_conn_open]
+        assert scp.get_handlers(evt.EVT_CONN_OPEN) == [(on_conn_open, None)]
         assert scp.get_handlers(evt.EVT_CONN_CLOSE) == []
 
         assoc = ae.associate('localhost', 11112)
         assert assoc.is_established
         assert len(scp.active_associations) == 1
-        assert scp.get_handlers(evt.EVT_CONN_OPEN) == [on_conn_open]
+        assert scp.get_handlers(evt.EVT_CONN_OPEN) == [(on_conn_open, None)]
         assert scp.get_handlers(evt.EVT_CONN_CLOSE) == []
         assert assoc.get_handlers(evt.EVT_CONN_OPEN) == []
         assert assoc.get_handlers(evt.EVT_CONN_CLOSE) == []
 
         child = scp.active_associations[0]
-        assert child.get_handlers(evt.EVT_CONN_OPEN) == [on_conn_open]
+        assert child.get_handlers(evt.EVT_CONN_OPEN) == [(on_conn_open, None)]
         assert child.get_handlers(evt.EVT_CONN_CLOSE) == []
 
         assert len(triggered_events) == 1
@@ -799,7 +799,7 @@ class TestEventHandlingAcceptor(object):
         ae.add_requested_context(VerificationSOPClass)
         scp = ae.start_server(('', 11112), block=False)
         scp.bind(evt.EVT_CONN_CLOSE, dummy)
-        assert scp.get_handlers(evt.EVT_CONN_CLOSE) == [dummy]
+        assert scp.get_handlers(evt.EVT_CONN_CLOSE) == [(dummy, None)]
 
         scp.unbind(evt.EVT_CONN_CLOSE, dummy)
         assert scp.get_handlers(evt.EVT_CONN_CLOSE) == []
@@ -851,19 +851,19 @@ class TestEventHandlingAcceptor(object):
             evt_handlers=[(evt.EVT_CONN_CLOSE, on_conn_close)]
         )
         assert scp.get_handlers(evt.EVT_CONN_OPEN) == []
-        assert scp.get_handlers(evt.EVT_CONN_CLOSE) == [on_conn_close]
+        assert scp.get_handlers(evt.EVT_CONN_CLOSE) == [(on_conn_close, None)]
 
         assoc = ae.associate('localhost', 11112)
         assert assoc.is_established
         assert len(scp.active_associations) == 1
         assert scp.get_handlers(evt.EVT_CONN_OPEN) == []
-        assert scp.get_handlers(evt.EVT_CONN_CLOSE) == [on_conn_close]
+        assert scp.get_handlers(evt.EVT_CONN_CLOSE) == [(on_conn_close, None)]
         assert assoc.get_handlers(evt.EVT_CONN_OPEN) == []
         assert assoc.get_handlers(evt.EVT_CONN_CLOSE) == []
 
         child = scp.active_associations[0]
         assert child.get_handlers(evt.EVT_CONN_OPEN) == []
-        assert child.get_handlers(evt.EVT_CONN_CLOSE) == [on_conn_close]
+        assert child.get_handlers(evt.EVT_CONN_CLOSE) == [(on_conn_close, None)]
 
         assoc.release()
 
@@ -918,13 +918,13 @@ class TestEventHandlingAcceptor(object):
         scp.bind(evt.EVT_CONN_CLOSE, on_conn_close)
 
         assert scp.get_handlers(evt.EVT_CONN_OPEN) == []
-        assert scp.get_handlers(evt.EVT_CONN_CLOSE) == [on_conn_close]
+        assert scp.get_handlers(evt.EVT_CONN_CLOSE) == [(on_conn_close, None)]
         assert assoc.get_handlers(evt.EVT_CONN_OPEN) == []
         assert assoc.get_handlers(evt.EVT_CONN_CLOSE) == []
 
         child = scp.active_associations[0]
         assert child.get_handlers(evt.EVT_CONN_OPEN) == []
-        assert child.get_handlers(evt.EVT_CONN_CLOSE) == [on_conn_close]
+        assert child.get_handlers(evt.EVT_CONN_CLOSE) == [(on_conn_close, None)]
 
         assoc.release()
         assert assoc.is_released
@@ -954,19 +954,19 @@ class TestEventHandlingAcceptor(object):
             evt_handlers=[(evt.EVT_CONN_CLOSE, on_conn_close)]
         )
         assert scp.get_handlers(evt.EVT_CONN_OPEN) == []
-        assert scp.get_handlers(evt.EVT_CONN_CLOSE) == [on_conn_close]
+        assert scp.get_handlers(evt.EVT_CONN_CLOSE) == [(on_conn_close, None)]
 
         assoc = ae.associate('localhost', 11112)
         assert assoc.is_established
         assert len(scp.active_associations) == 1
         assert scp.get_handlers(evt.EVT_CONN_OPEN) == []
-        assert scp.get_handlers(evt.EVT_CONN_CLOSE) == [on_conn_close]
+        assert scp.get_handlers(evt.EVT_CONN_CLOSE) == [(on_conn_close, None)]
         assert assoc.get_handlers(evt.EVT_CONN_OPEN) == []
         assert assoc.get_handlers(evt.EVT_CONN_CLOSE) == []
 
         child = scp.active_associations[0]
         assert child.get_handlers(evt.EVT_CONN_OPEN) == []
-        assert child.get_handlers(evt.EVT_CONN_CLOSE) == [on_conn_close]
+        assert child.get_handlers(evt.EVT_CONN_CLOSE) == [(on_conn_close, None)]
 
         scp.unbind(evt.EVT_CONN_CLOSE, on_conn_close)
         assert scp.get_handlers(evt.EVT_CONN_OPEN) == []
@@ -1022,16 +1022,16 @@ class TestEventHandlingAcceptor(object):
         ae.add_requested_context(VerificationSOPClass)
         handlers = [(evt.EVT_DATA_SENT, handle)]
         scp = ae.start_server(('', 11112), block=False, evt_handlers=handlers)
-        assert scp.get_handlers(evt.EVT_DATA_SENT) == [handle]
+        assert scp.get_handlers(evt.EVT_DATA_SENT) == [(handle, None)]
 
         assoc = ae.associate('localhost', 11112)
         assert assoc.is_established
         assert len(scp.active_associations) == 1
-        assert scp.get_handlers(evt.EVT_DATA_SENT) == [handle]
+        assert scp.get_handlers(evt.EVT_DATA_SENT) == [(handle, None)]
         assert assoc.get_handlers(evt.EVT_DATA_SENT) == []
 
         child = scp.active_associations[0]
-        assert child.get_handlers(evt.EVT_DATA_SENT) == [handle]
+        assert child.get_handlers(evt.EVT_DATA_SENT) == [(handle, None)]
 
         assoc.release()
 
@@ -1070,11 +1070,11 @@ class TestEventHandlingAcceptor(object):
         scp.bind(evt.EVT_DATA_SENT, handle)
 
         assert len(scp.active_associations) == 1
-        assert scp.get_handlers(evt.EVT_DATA_SENT) == [handle]
+        assert scp.get_handlers(evt.EVT_DATA_SENT) == [(handle, None)]
         assert assoc.get_handlers(evt.EVT_DATA_SENT) == []
 
         child = scp.active_associations[0]
-        assert child.get_handlers(evt.EVT_DATA_SENT) == [handle]
+        assert child.get_handlers(evt.EVT_DATA_SENT) == [(handle, None)]
 
         assoc.release()
 
@@ -1104,16 +1104,16 @@ class TestEventHandlingAcceptor(object):
         ae.add_requested_context(VerificationSOPClass)
         handlers = [(evt.EVT_DATA_SENT, handle)]
         scp = ae.start_server(('', 11112), block=False, evt_handlers=handlers)
-        assert scp.get_handlers(evt.EVT_DATA_SENT) == [handle]
+        assert scp.get_handlers(evt.EVT_DATA_SENT) == [(handle, None)]
 
         assoc = ae.associate('localhost', 11112)
         assert assoc.is_established
         assert len(scp.active_associations) == 1
-        assert scp.get_handlers(evt.EVT_DATA_SENT) == [handle]
+        assert scp.get_handlers(evt.EVT_DATA_SENT) == [(handle, None)]
         assert assoc.get_handlers(evt.EVT_DATA_SENT) == []
 
         child = scp.active_associations[0]
-        assert child.get_handlers(evt.EVT_DATA_SENT) == [handle]
+        assert child.get_handlers(evt.EVT_DATA_SENT) == [(handle, None)]
 
         scp.unbind(evt.EVT_DATA_SENT, handle)
 
@@ -1168,16 +1168,16 @@ class TestEventHandlingAcceptor(object):
         ae.add_requested_context(VerificationSOPClass)
         handlers = [(evt.EVT_DATA_RECV, handle)]
         scp = ae.start_server(('', 11112), block=False, evt_handlers=handlers)
-        assert scp.get_handlers(evt.EVT_DATA_RECV) == [handle]
+        assert scp.get_handlers(evt.EVT_DATA_RECV) == [(handle, None)]
 
         assoc = ae.associate('localhost', 11112)
         assert assoc.is_established
         assert len(scp.active_associations) == 1
-        assert scp.get_handlers(evt.EVT_DATA_RECV) == [handle]
+        assert scp.get_handlers(evt.EVT_DATA_RECV) == [(handle, None)]
         assert assoc.get_handlers(evt.EVT_DATA_RECV) == []
 
         child = scp.active_associations[0]
-        assert child.get_handlers(evt.EVT_DATA_RECV) == [handle]
+        assert child.get_handlers(evt.EVT_DATA_RECV) == [(handle, None)]
 
         assoc.release()
 
@@ -1214,11 +1214,11 @@ class TestEventHandlingAcceptor(object):
 
         scp.bind(evt.EVT_DATA_RECV, handle)
 
-        assert scp.get_handlers(evt.EVT_DATA_RECV) == [handle]
+        assert scp.get_handlers(evt.EVT_DATA_RECV) == [(handle, None)]
         assert assoc.get_handlers(evt.EVT_DATA_RECV) == []
 
         child = scp.active_associations[0]
-        assert child.get_handlers(evt.EVT_DATA_RECV) == [handle]
+        assert child.get_handlers(evt.EVT_DATA_RECV) == [(handle, None)]
 
         assoc.release()
 
@@ -1247,7 +1247,7 @@ class TestEventHandlingAcceptor(object):
         ae.add_requested_context(VerificationSOPClass)
         handlers = [(evt.EVT_DATA_RECV, handle)]
         scp = ae.start_server(('', 11112), block=False, evt_handlers=handlers)
-        assert scp.get_handlers(evt.EVT_DATA_RECV) == [handle]
+        assert scp.get_handlers(evt.EVT_DATA_RECV) == [(handle, None)]
 
         assoc = ae.associate('localhost', 11112)
         assert assoc.is_established
@@ -1346,7 +1346,7 @@ class TestEventHandlingRequestor(object):
             evt_handlers=[(evt.EVT_CONN_OPEN, on_conn_open)]
         )
         assert assoc.is_established
-        assert assoc.get_handlers(evt.EVT_CONN_OPEN) == [on_conn_open]
+        assert assoc.get_handlers(evt.EVT_CONN_OPEN) == [(on_conn_open, None)]
         assert assoc.get_handlers(evt.EVT_CONN_CLOSE) == []
 
         child = scp.active_associations[0]
@@ -1380,7 +1380,7 @@ class TestEventHandlingRequestor(object):
             evt_handlers=[(evt.EVT_CONN_OPEN, on_conn_open)]
         )
         assert assoc.is_established
-        assert assoc.get_handlers(evt.EVT_CONN_OPEN) == [on_conn_open]
+        assert assoc.get_handlers(evt.EVT_CONN_OPEN) == [(on_conn_open, None)]
         assert assoc.get_handlers(evt.EVT_CONN_CLOSE) == []
 
         assoc.unbind(evt.EVT_CONN_OPEN, on_conn_open)
@@ -1415,7 +1415,7 @@ class TestEventHandlingRequestor(object):
         )
         assert assoc.is_established
         assert assoc.get_handlers(evt.EVT_CONN_OPEN) == []
-        assert assoc.get_handlers(evt.EVT_CONN_CLOSE) == [on_conn_close]
+        assert assoc.get_handlers(evt.EVT_CONN_CLOSE) == [(on_conn_close, None)]
 
         child = scp.active_associations[0]
         assert child.get_handlers(evt.EVT_CONN_OPEN) == []
@@ -1459,7 +1459,7 @@ class TestEventHandlingRequestor(object):
 
         assoc.bind(evt.EVT_CONN_CLOSE, on_conn_close)
         assert assoc.get_handlers(evt.EVT_CONN_OPEN) == []
-        assert assoc.get_handlers(evt.EVT_CONN_CLOSE) == [on_conn_close]
+        assert assoc.get_handlers(evt.EVT_CONN_CLOSE) == [(on_conn_close, None)]
 
         assoc.release()
         while scp.active_associations:
@@ -1490,7 +1490,7 @@ class TestEventHandlingRequestor(object):
         )
         assert assoc.is_established
         assert assoc.get_handlers(evt.EVT_CONN_OPEN) == []
-        assert assoc.get_handlers(evt.EVT_CONN_CLOSE) == [on_conn_close]
+        assert assoc.get_handlers(evt.EVT_CONN_CLOSE) == [(on_conn_close, None)]
 
         child = scp.active_associations[0]
         assert child.get_handlers(evt.EVT_CONN_OPEN) == []
@@ -1545,7 +1545,7 @@ class TestEventHandlingRequestor(object):
         assert assoc.is_established
         assert len(scp.active_associations) == 1
         assert scp.get_handlers(evt.EVT_DATA_SENT) == []
-        assert assoc.get_handlers(evt.EVT_DATA_SENT) == [handle]
+        assert assoc.get_handlers(evt.EVT_DATA_SENT) == [(handle, None)]
 
         child = scp.active_associations[0]
         assert child.get_handlers(evt.EVT_DATA_SENT) == []
@@ -1588,7 +1588,7 @@ class TestEventHandlingRequestor(object):
 
         assert len(scp.active_associations) == 1
         assert scp.get_handlers(evt.EVT_DATA_SENT) == []
-        assert assoc.get_handlers(evt.EVT_DATA_SENT) == [handle]
+        assert assoc.get_handlers(evt.EVT_DATA_SENT) == [(handle, None)]
 
         child = scp.active_associations[0]
         assert child.get_handlers(evt.EVT_DATA_SENT) == []
@@ -1627,7 +1627,7 @@ class TestEventHandlingRequestor(object):
         assert assoc.is_established
         assert len(scp.active_associations) == 1
         assert scp.get_handlers(evt.EVT_DATA_SENT) == []
-        assert assoc.get_handlers(evt.EVT_DATA_SENT) == [handle]
+        assert assoc.get_handlers(evt.EVT_DATA_SENT) == [(handle, None)]
 
         child = scp.active_associations[0]
         assert child.get_handlers(evt.EVT_DATA_SENT) == []
@@ -1661,7 +1661,7 @@ class TestEventHandlingRequestor(object):
         assert assoc.is_established
         assert len(scp.active_associations) == 1
         assert scp.get_handlers(evt.EVT_DATA_RECV) == []
-        assert assoc.get_handlers(evt.EVT_DATA_RECV) == [handle]
+        assert assoc.get_handlers(evt.EVT_DATA_RECV) == [(handle, None)]
 
         child = scp.active_associations[0]
         assert child.get_handlers(evt.EVT_DATA_RECV) == []
@@ -1702,7 +1702,7 @@ class TestEventHandlingRequestor(object):
         assoc.bind(evt.EVT_DATA_RECV, handle)
 
         assert scp.get_handlers(evt.EVT_DATA_RECV) == []
-        assert assoc.get_handlers(evt.EVT_DATA_RECV) == [handle]
+        assert assoc.get_handlers(evt.EVT_DATA_RECV) == [(handle, None)]
 
         child = scp.active_associations[0]
         assert child.get_handlers(evt.EVT_DATA_RECV) == []
@@ -1738,7 +1738,7 @@ class TestEventHandlingRequestor(object):
 
         assoc = ae.associate('localhost', 11112, evt_handlers=handlers)
         assert assoc.is_established
-        assert assoc.get_handlers(evt.EVT_DATA_RECV) == [handle]
+        assert assoc.get_handlers(evt.EVT_DATA_RECV) == [(handle, None)]
 
         assoc.unbind(evt.EVT_DATA_RECV, handle)
 

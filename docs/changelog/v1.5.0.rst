@@ -51,6 +51,8 @@ Enhancements
   ``storescu.py``
 * Added non-toy implementations for ``findscu.py``, ``getscu.py`` and
   ``movescu.py`` apps
+* Added ability to pass optional extra arguments to event handlers by using
+  ``(evt.EVT_NAME, handler, ['list', 'of', 'args'])``. (:issue:`447`)
 
 Changes
 .......
@@ -70,6 +72,13 @@ Changes
   <pynetdicom.acse.ACSE.is_aborted>`
 * Support for Python 2 is deprecated and will be removed starting in version
   2.0.
+* Added `args` keyword parameter to
+  :meth:`Association.bind()<Association.bind>` and
+  :meth:`AssociationServer.bind()<pynetdicom.transport.AssociationServer.bind>`
+* :meth:`Association.get_handlers()<Association.get_handlers>` and
+  :meth:`AssociationServer.get_handlers()
+  <pynetdicom.transport.AssociationServer.get_handlers>` now return a 2-tuple
+  or list of 2-tuples.
 
 
 Known Issues
