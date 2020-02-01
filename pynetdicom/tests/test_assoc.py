@@ -5478,6 +5478,42 @@ class TestEventHandlingAcceptor(object):
         assert len(arguments) == 1
         assert args == list(arguments[0])
 
+    def test_optional_args_intervention(self):
+        """Test passing optional arguments to the handler."""
+        arguments = []
+        def handle_echo(event, *args):
+            arguments.append(args)
+            return 0x0000
+
+        args = ['a', 1, {'test': 1}]
+
+        self.ae = ae = AE()
+        ae.add_supported_context(VerificationSOPClass)
+        ae.add_requested_context(VerificationSOPClass)
+        handlers = [(evt.EVT_C_ECHO, handle_echo, args)]
+        scp = ae.start_server(('', 11112), block=False, evt_handlers=handlers)
+
+        assoc = ae.associate('localhost', 11112)
+        assert assoc.is_established
+        assert len(scp.active_associations) == 1
+        assert scp.get_handlers(evt.EVT_C_ECHO) == (handle_echo, args)
+
+        child = scp.active_associations[0]
+        assert child.get_handlers(evt.EVT_C_ECHO) == (handle_echo, args)
+
+        status = assoc.send_c_echo()
+        assert status.Status == 0x0000
+
+        assoc.abort()
+
+        while scp.active_associations:
+            time.sleep(0.05)
+
+        scp.shutdown()
+
+        assert len(arguments) == 1
+        assert args == list(arguments[0])
+
 
 class TestEventHandlingRequestor(object):
     """Test the transport events and handling as acceptor."""

@@ -547,7 +547,7 @@ class AssociationServer(TCPServer):
 
         Parameters
         ----------
-        event : 3-tuple
+        event : namedtuple
             The event to bind the function to.
         handler : callable
             The function that will be called if the event occurs.
@@ -608,19 +608,24 @@ class AssociationServer(TCPServer):
 
         .. versionadded:: 1.3
 
+        .. versionchanged:: 1.5
+
+            Returns a 2-tuple of (callable, args) or list of 2-tuple.
+
         Parameters
         ----------
-        event : tuple
+        event : namedtuple
             The event bound to the handlers.
 
         Returns
         -------
-        callable, list of callable or None
+        2-tuple of (callable, args), list of 2-tuple
             If the event is a notification event then returns a list of
-            callable functions bound to *event*, if the event is an
-            intervention event then returns either a callable function if a
-            handler is bound to the event or ``None`` if no handler has been
-            bound.
+            2-tuples containing the callable functions bound to `event` and
+            the arguments passed to the callable as ``(callable, args)``. If
+            the event is an intervention event then returns either a 2-tuple of
+            (callable, args) if a handler is bound to the event or
+            ``(None, None)`` if no handler has been bound.
         """
         if event not in self._handlers:
             return []
