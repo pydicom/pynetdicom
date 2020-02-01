@@ -487,8 +487,8 @@ class ApplicationEntity(object):
             A list of (*event*, *handler*) or (*event*, *handler*, *args*),
             where `event` is an ``evt.EVT_*`` event tuple, `handler` is a
             callable function that will be bound to the event and `args` is a
-            list of objects that will be passed to `handler` as optional extra
-            arguments. At a minimum, `handler` should take an
+            :class:`list` of objects that will be passed to `handler` as
+            optional extra arguments. At a minimum, `handler` should take an
             :class:`~pynetdicom.events.Event` parameter and may return or yield
             objects depending on the exact event that the handler is bound to.
             For more information see the :ref:`documentation<user_events>`.
@@ -1109,8 +1109,8 @@ class ApplicationEntity(object):
             A list of (*event*, *handler*) or (*event*, *handler*, *args*),
             where `event` is an ``evt.EVT_*`` event tuple, `handler` is a
             callable function that will be bound to the event and `args` is a
-            list of objects that will be passed to `handler` as optional extra
-            arguments. At a minimum, `handler` should take an
+            :class:`list` of objects that will be passed to `handler` as
+            optional extra arguments. At a minimum, `handler` should take an
             :class:`~pynetdicom.events.Event` parameter and may return or yield
             objects depending on the exact event that the handler is bound to.
             For more information see the :ref:`documentation<user_events>`.

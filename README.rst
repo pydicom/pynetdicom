@@ -64,41 +64,6 @@ documentation is available for the
 `development version <https://pydicom.github.io/pynetdicom/dev>`_.
 
 
-Supported Service Classes
-~~~~~~~~~~~~~~~~~~~~~~~~~
-*pynetdicom* supports the following DICOM service classes:
-
-- `Application Event Logging Service Class <http://dicom.nema.org/medical/dicom/current/output/html/part04.html#chapter_P>`_
-- `Basic Worklist Management Service Class <http://dicom.nema.org/medical/dicom/current/output/html/part04.html#chapter_K>`_
-- `Color Palette Query/Retrieve Service Class <http://dicom.nema.org/medical/dicom/current/output/html/part04.html#chapter_X>`_
-- `Defined Procedure Protocol Query/Retrieve Service Class <http://dicom.nema.org/medical/dicom/current/output/html/part04.html#chapter_HH>`_
-- `Display System Management Service Class <http://dicom.nema.org/medical/dicom/current/output/html/part04.html#chapter_EE>`_
-- `Hanging Protocol Query/Retrieve Service Class <http://dicom.nema.org/medical/dicom/current/output/html/part04.html#chapter_U>`_
-- `Implant Template Query/Retrieve Service Class <http://dicom.nema.org/medical/dicom/current/output/html/part04.html#chapter_BB>`_
-- `Instance Availability Notification Service Class <http://dicom.nema.org/medical/dicom/current/output/html/part04.html#chapter_R>`_
-- `Media Creation Management Service Class <http://dicom.nema.org/medical/dicom/current/output/html/part04.html#chapter_S>`_
-- `Modality Performed Procedure Step Management <http://dicom.nema.org/medical/dicom/current/output/html/part04.html#chapter_F>`_
-- `Non-Patient Object Storage Service Class <http://dicom.nema.org/medical/dicom/current/output/html/part04.html#chapter_GG>`_
-- `Print Management Service Class <http://dicom.nema.org/medical/dicom/current/output/html/part04.html#chapter_H>`_
-- `Protocol Approval Query/Retrieve Service Class <http://dicom.nema.org/medical/dicom/current/output/html/part04.html#chapter_II>`_
-- `Query/Retrieve Service Class <http://dicom.nema.org/medical/dicom/current/output/html/part04.html#chapter_C>`_
-
-  - `Composite Instance Retrieve Without Bulk Data <http://dicom.nema.org/medical/dicom/current/output/html/part04.html#chapter_Z>`_
-  - `Instance and Frame Level Retrieve <http://dicom.nema.org/medical/dicom/current/output/html/part04.html#chapter_Y>`_
-- `Relevant Patient Information Query Service Class <http://dicom.nema.org/medical/dicom/current/output/html/part04.html#chapter_Q>`_
-- `RT Machine Verification Service Class <http://dicom.nema.org/medical/dicom/current/output/html/part04.html#chapter_DD>`_
-- `Storage Service Class <http://dicom.nema.org/medical/dicom/current/output/html/part04.html#chapter_B>`_
-
-  - `Ophthalmic Refractive Measurements Storage <http://dicom.nema.org/medical/dicom/current/output/html/part04.html#chapter_AA>`_
-  - `Softcopy Presentation State Storage <http://dicom.nema.org/medical/dicom/current/output/html/part04.html#chapter_N>`_
-  - `Structured Reporting Storage <http://dicom.nema.org/medical/dicom/current/output/html/part04.html#chapter_O>`_
-  - `Volumetric Presentation State Storage <http://dicom.nema.org/medical/dicom/current/output/html/part04.html#chapter_FF>`_
-- `Storage Commitment Service Class <http://dicom.nema.org/medical/dicom/current/output/html/part04.html#chapter_J>`_
-- `Substance Administration Query Service Class <http://dicom.nema.org/medical/dicom/current/output/html/part04.html#chapter_V>`_
-- `Unified Procedure Step Service Class <http://dicom.nema.org/medical/dicom/current/output/html/part04.html#chapter_CC>`_
-- `Verification Service Class <http://dicom.nema.org/medical/dicom/current/output/html/part04.html#chapter_A>`_
-
-
 Supported DIMSE SCU Services
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
@@ -122,7 +87,7 @@ been accepted):
 +----------------+----------------------------------------------------------+
 | DIMSE service  | ``Association`` method                                   |
 +================+==========================================================+
-| C-ECHO         | ``send_c_echo()``                                        |
+| C-ECHO         | :ref:`Association.send_c_echo()<send_c_echo>`            |
 |                |                                                          |
 +----------------+----------------------------------------------------------+
 | C-FIND         | ``send_c_find(dataset, query_model)``                    |

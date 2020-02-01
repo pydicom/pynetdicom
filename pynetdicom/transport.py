@@ -553,7 +553,7 @@ class AssociationServer(TCPServer):
             The function that will be called if the event occurs.
         args : list, optional
             Optional extra arguments to be passed to the handler (default:
-            ``None`` and no extra arguments passed to the handler).
+            no extra arguments passed to the handler).
         """
         # Notification events - multiple handlers allowed
         if event.is_notification:

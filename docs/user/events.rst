@@ -21,47 +21,29 @@ bound to it and any exceptions raised by the handlers are caught
 and the exception message logged instead. The table below lists the available
 notification events.
 
-+----------------------------+-----------------------------------+
-| Event                      | Description                       |
-+============================+===================================+
-| ``evt.EVT_ABORTED``        | Association aborted               |
-+----------------------------+-----------------------------------+
-| ``evt.EVT_ACCEPTED``       | Association accepted              |
-+----------------------------+-----------------------------------+
-| ``evt.EVT_ACSE_RECV``      | ACSE received a primitive         |
-|                            | from the DUL service provider     |
-+----------------------------+-----------------------------------+
-| ``evt.EVT_ACSE_SENT``      | ACSE sent a primitive             |
-|                            | to the DUL service provider       |
-+----------------------------+-----------------------------------+
-| ``evt.EVT_CONN_CLOSE``     | Connection with remote closed     |
-+----------------------------+-----------------------------------+
-| ``evt.EVT_CONN_OPEN``      | Connection with remote opened     |
-+----------------------------+-----------------------------------+
-| ``evt.EVT_DATA_RECV``      | Data received from the peer AE    |
-+----------------------------+-----------------------------------+
-| ``evt.EVT_DATA_SENT``      | Data sent to the peer AE          |
-+----------------------------+-----------------------------------+
-| ``evt.EVT_DIMSE_RECV``     | DIMSE service received and        |
-|                            | decoded a message                 |
-+----------------------------+-----------------------------------+
-| ``evt.EVT_DIMSE_SENT``     | DIMSE service encoded and         |
-|                            | sent a message                    |
-+----------------------------+-----------------------------------+
-| ``evt.EVT_ESTABLISHED``    | Association established           |
-+----------------------------+-----------------------------------+
-| ``evt.EVT_FSM_TRANSITION`` | State machine transitioning       |
-+----------------------------+-----------------------------------+
-| ``evt.EVT_PDU_RECV``       | PDU received from the peer AE     |
-+----------------------------+-----------------------------------+
-| ``evt.EVT_PDU_SENT``       | PDU sent to the peer AE           |
-+----------------------------+-----------------------------------+
-| ``evt.EVT_REJECTED``       | Association rejected              |
-+----------------------------+-----------------------------------+
-| ``evt.EVT_RELEASED``       | Association released              |
-+----------------------------+-----------------------------------+
-| ``evt.EVT_REQUESTED``      | Association requested             |
-+----------------------------+-----------------------------------+
+.. currentmodule:: pynetdicom._handlers
+
+.. csv-table::
+   :header: Event, Description
+   :widths: 15, 30
+
+   :func:`evt.EVT_ABORTED<doc_handle_assoc>`,Association aborted
+   :func:`evt.EVT_ACCEPTED<doc_handle_assoc>`,Association accepted
+   :func:`evt.EVT_ACSE_RECV<doc_handle_acse>`,ACSE received a primitive from the DUL service provider
+   :func:`evt.EVT_ACSE_SENT<doc_handle_acse>`,ACSE sent a primitive to the DUL service provider
+   :func:`evt.EVT_CONN_CLOSE<doc_handle_transport>`,Connection with remote closed
+   :func:`evt.EVT_CONN_OPEN<doc_handle_transport>`, Connection with remote opened
+   :func:`evt.EVT_DATA_RECV<doc_handle_data>`,Data received from the peer AE
+   :func:`evt.EVT_DATA_SENT<doc_handle_data>`,Data sent to the peer AE
+   :func:`evt.EVT_DIMSE_RECV<doc_handle_dimse>`,DIMSE service received and decoded a message
+   :func:`evt.EVT_DIMSE_SENT<doc_handle_dimse>`,DIMSE service encoded and sent a message
+   :func:`evt.EVT_ESTABLISHED<doc_handle_assoc>`,Association established
+   :func:`evt.EVT_FSM_TRANSITION<doc_handle_fsm>`,State machine transitioning
+   :func:`evt.EVT_PDU_RECV<doc_handle_pdu>`,PDU received from the peer AE
+   :func:`evt.EVT_PDU_SENT<doc_handle_pdu>`,PDU sent to the peer AE
+   :func:`evt.EVT_REJECTED<doc_handle_assoc>`,Association rejected
+   :func:`evt.EVT_RELEASED<doc_handle_assoc>`,Association released
+   :func:`evt.EVT_REQUESTED<doc_handle_assoc>`,Association requested
 
 By default a number of notification handlers are bound for logging purposes.
 If you wish to remove these then you can do the following before creating any
@@ -92,61 +74,37 @@ table below lists the possible intervention events.
 
 .. currentmodule:: pynetdicom._handlers
 
-+----------------------------+--------------------------------+----------------------------------------------------------+
-| Event                      | Description                    |                                                          |
-+============================+================================+==========================================================+
-| Association request includes extended negotiation items                                                                |
-+----------------------------+--------------------------------+----------------------------------------------------------+
-| ``evt.EVT_ASYNC_OPS``      | Association request includes   | :func:`Handler documentation<doc_handle_async>`          |
-|                            | Asynchronous Operations Window |                                                          |
-|                            | negotiation item               |                                                          |
-+----------------------------+--------------------------------+----------------------------------------------------------+
-| ``evt.EVT_SOP_COMMON``     | Association request includes   | :func:`Handler documentation<doc_handle_sop_common>`     |
-|                            | SOP Class Common Extended      |                                                          |
-|                            | negotiation item(s)            |                                                          |
-+----------------------------+--------------------------------+----------------------------------------------------------+
-| ``evt.EVT_SOP_EXTENDED``   | Association request includes   | :func:`Handler documentation<doc_handle_sop_extended>`   |
-|                            | SOP Class Extended negotiation |                                                          |
-|                            | item(s)                        |                                                          |
-+----------------------------+--------------------------------+----------------------------------------------------------+
-| ``evt.EVT_USER_ID``        | Association request includes   | :func:`Handler documentation<doc_handle_userid>`         |
-|                            | User Identity negotiation item |                                                          |
-+----------------------------+--------------------------------+----------------------------------------------------------+
-| Service class received a DIMSE service request                                                                         |
-+----------------------------+--------------------------------+----------------------------------------------------------+
-| ``evt.EVT_C_ECHO``         | Service class received         | :func:`Handler documentation<doc_handle_echo>`           |
-|                            | C-ECHO request                 |                                                          |
-+----------------------------+--------------------------------+----------------------------------------------------------+
-| ``evt.EVT_C_FIND``         | Service class received         | :func:`Handler documentation<doc_handle_find>`           |
-|                            | C-FIND request                 |                                                          |
-+----------------------------+--------------------------------+----------------------------------------------------------+
-| ``evt.EVT_C_GET``          | Service class received         | :func:`Handler documentation<doc_handle_c_get>`          |
-|                            | C-GET request                  |                                                          |
-+----------------------------+--------------------------------+----------------------------------------------------------+
-| ``evt.EVT_C_MOVE``         | Service class received         | :func:`Handler documentation<doc_handle_move>`           |
-|                            | C-MOVE request                 |                                                          |
-+----------------------------+--------------------------------+----------------------------------------------------------+
-| ``evt.EVT_C_STORE``        | Service class received         | :func:`Handler documentation<doc_handle_store>`          |
-|                            | C-STORE request                |                                                          |
-+----------------------------+--------------------------------+----------------------------------------------------------+
-| ``evt.EVT_N_ACTION``       | Service class received         | :func:`Handler documentation<doc_handle_action>`         |
-|                            | N-ACTION request               |                                                          |
-+----------------------------+--------------------------------+----------------------------------------------------------+
-| ``evt.EVT_N_CREATE``       | Service class received         | :func:`Handler documentation<doc_handle_create>`         |
-|                            | N-CREATE request               |                                                          |
-+----------------------------+--------------------------------+----------------------------------------------------------+
-| ``evt.EVT_N_DELETE``       | Service class received         | :func:`Handler documentation<doc_handle_delete>`         |
-|                            | N-DELETE request               |                                                          |
-+----------------------------+--------------------------------+----------------------------------------------------------+
-| ``evt.EVT_N_EVENT_REPORT`` | Service class received         | :func:`Handler documentation<doc_handle_event_report>`   |
-|                            | N-EVENT-REPORT request         |                                                          |
-+----------------------------+--------------------------------+----------------------------------------------------------+
-| ``evt.EVT_N_GET``          | Service class received         | :func:`Handler documentation<doc_handle_n_get>`          |
-|                            | N-GET request                  |                                                          |
-+----------------------------+--------------------------------+----------------------------------------------------------+
-| ``evt.EVT_N_SET``          | Service class received         | :func:`Handler documentation<doc_handle_set>`            |
-|                            | N-SET request                  |                                                          |
-+----------------------------+--------------------------------+----------------------------------------------------------+
+Associtation related
+~~~~~~~~~~~~~~~~~~~~
+
+.. csv-table::
+   :header: Event, Description
+   :widths: 10, 30
+
+   :func:`evt.EVT_ASYNC_OPS<doc_handle_async>`,Association request includes asynchronous operations negotiation item
+   :func:`evt.EVT_SOP_COMMON<doc_handle_sop_common>`,Association request includes SOP Class Common Extended negotiation item(s)
+   :func:`evt.EVT_SOP_EXTENDED<doc_handle_sop_extended>`,Association request includes SOP Class Extended negotiation item(s)
+   :func:`evt.EVT_USER_ID<doc_handle_userid>`,Association request includes User Identity negotiation item
+
+
+Service Class related
+~~~~~~~~~~~~~~~~~~~~~
+
+.. csv-table::
+   :header: Event, Description
+   :widths: 15, 30
+
+   :func:`evt.EVT_C_ECHO<doc_handle_echo>`,Received C-ECHO request
+   :func:`evt.EVT_C_FIND<doc_handle_find>`,Received C-FIND request
+   :func:`evt.EVT_C_GET<doc_handle_c_get>`,Received C-GET request
+   :func:`evt.EVT_C_MOVE<doc_handle_move>`,Received C-MOVE request
+   :func:`evt.EVT_C_STORE<doc_handle_store>`,Received C-STORE request
+   :func:`evt.EVT_N_ACTION<doc_handle_action>`,Received N-ACTION request
+   :func:`evt.EVT_N_CREATE<doc_handle_create>`,Received N-CREATE request
+   :func:`evt.EVT_N_DELETE<doc_handle_delete>`,Received N-DELETE request
+   :func:`evt.EVT_N_EVENT_REPORT<doc_handle_event_report>`,Received N-EVENT-REPORT request
+   :func:`evt.EVT_N_GET<doc_handle_n_get>`,Received N-GET request
+   :func:`evt.EVT_N_SET<doc_handle_set>`,Received N-SET request
 
 .. currentmodule:: pynetdicom.events
 
@@ -203,12 +161,13 @@ If using a 3-tuple then the third value should be a list of objects that will
 be passed to the handler as extra parameters.
 
 The other way to bind handlers to events is through the
-``bind(event, handler, args=None)`` methods in the
-:class:`~pynetdicom.association.Association` and
-:class:`~pynetdicom.transport.AssociationServer` classes, where the `args`
+:class:`Association.bind(event, handler, args=None)
+<pynetdicom.association.Association.bind>` and
+:class:`<AssociationServer.bind(event, handler, args=None)
+<pynetdicom.transport.AssociationServer.bind>` methods, where the `args`
 keyword parameter is a list of objects to pass the handler as extra parameters.
 
-Handlers can be unbound with the ``unbind(event, handler)`` methods in the
-:class:`~pynetdicom.association.Association` and
-:class:`~pynetdicom.transport.AssociationServer` classes. See the
-:ref:`Association<association>` guide for more details.
+Handlers can be unbound with
+:class:`Association.unbind()<pynetdicom.association.Association.unbind>` and
+:class:`AssociationServer.unbind()<pynetdicom.transport.AssociationServer>`
+methods. See the :ref:`Association<association>` guide for more details.
