@@ -531,11 +531,13 @@ def setup_logging(args, app_name):
     return app_logger
 
 
-def wrap_handle_store(args, app_logger):
-    """Wrap the EVT_C_STORE handler so it can access local variables.
+def handle_store(event, args, app_logger):
+    """Handle a C-STORE request.
 
     Parameters
     ----------
+    event : pynetdicom.event.event
+        The event corresponding to a C-STORE request.
     args : argparse.Namespace
         The namespace containing the arguments to use. The namespace should
         contain ``args.ignore`` and ``args.output_directory`` attributes.
@@ -544,104 +546,89 @@ def wrap_handle_store(args, app_logger):
 
     Returns
     -------
-    callable
-        The EVT_C_STORE handler.
+    status : pynetdicom.sop_class.Status or int
+        A valid return status code, see PS3.4 Annex B.2.3 or the
+        ``StorageServiceClass`` implementation for the available statuses
     """
-    def handle_store(event):
-        """Handle a C-STORE request.
+    if args.ignore:
+        return 0x0000
 
-        Parameters
-        ----------
-        event : pynetdicom.event.event
-            The event corresponding to a C-STORE request.
+    try:
+        ds = event.dataset
+        # Remove any Group 0x0002 elements that may have been included
+        ds = ds[0x00030000:]
+    except Exception as exc:
+        app_logger.error("Unable to decode the dataset")
+        app_logger.exception(exc)
+        # Unable to decode dataset
+        return 0x210
 
-        Returns
-        -------
-        status : pynetdicom.sop_class.Status or int
-            A valid return status code, see PS3.4 Annex B.2.3 or the
-            ``StorageServiceClass`` implementation for the available statuses
-        """
-        if args.ignore:
-            return 0x0000
+    # Add the file meta information elements
+    ds.file_meta = event.file_meta
 
+    # Because pydicom uses deferred reads for its decoding, decoding errors
+    #   are hidden until encountered by accessing a faulty element
+    try:
+        sop_class = ds.SOPClassUID
+        sop_instance = ds.SOPInstanceUID
+    except Exception as exc:
+        app_logger.error(
+            "Unable to decode the received dataset or missing 'SOP Class "
+            "UID' and/or 'SOP Instance UID' elements"
+        )
+        app_logger.exception(exc)
+        # Unable to decode dataset
+        return 0xC210
+
+    try:
+        # Get the elements we need
+        mode_prefix = SOP_CLASS_PREFIXES[sop_class][0]
+    except KeyError:
+        mode_prefix = 'UN'
+
+    filename = '{0!s}.{1!s}'.format(mode_prefix, sop_instance)
+    app_logger.info('Storing DICOM file: {0!s}'.format(filename))
+
+    if os.path.exists(filename):
+        app_logger.warning('DICOM file already exists, overwriting')
+
+    status_ds = Dataset()
+    status_ds.Status = 0x0000
+
+    # Try to save to output-directory
+    if args.output_directory is not None:
+        filename = os.path.join(args.output_directory, filename)
         try:
-            ds = event.dataset
-            # Remove any Group 0x0002 elements that may have been included
-            ds = ds[0x00030000:]
+            os.makedirs(args.output_directory)
         except Exception as exc:
-            app_logger.error("Unable to decode the dataset")
+            app_logger.error('Unable to create the output directory:')
+            app_logger.error("    {0!s}".format(args.output_directory))
             app_logger.exception(exc)
-            # Unable to decode dataset
-            return 0x210
-
-        # Add the file meta information elements
-        ds.file_meta = event.file_meta
-
-        # Because pydicom uses deferred reads for its decoding, decoding errors
-        #   are hidden until encountered by accessing a faulty element
-        try:
-            sop_class = ds.SOPClassUID
-            sop_instance = ds.SOPInstanceUID
-        except Exception as exc:
-            app_logger.error(
-                "Unable to decode the received dataset or missing 'SOP Class "
-                "UID' and/or 'SOP Instance UID' elements"
-            )
-            app_logger.exception(exc)
-            # Unable to decode dataset
-            return 0xC210
-
-        try:
-            # Get the elements we need
-            mode_prefix = SOP_CLASS_PREFIXES[sop_class][0]
-        except KeyError:
-            mode_prefix = 'UN'
-
-        filename = '{0!s}.{1!s}'.format(mode_prefix, sop_instance)
-        app_logger.info('Storing DICOM file: {0!s}'.format(filename))
-
-        if os.path.exists(filename):
-            app_logger.warning('DICOM file already exists, overwriting')
-
-        status_ds = Dataset()
-        status_ds.Status = 0x0000
-
-        # Try to save to output-directory
-        if args.output_directory is not None:
-            filename = os.path.join(args.output_directory, filename)
-            try:
-                os.makedirs(args.output_directory)
-            except Exception as exc:
-                app_logger.error('Unable to create the output directory:')
-                app_logger.error("    {0!s}".format(args.output_directory))
-                app_logger.exception(exc)
-                # Failed - Out of Resources - IOError
-                status.Status = 0xA700
-                return status
-
-        try:
-            # We use `write_like_original=False` to ensure that a compliant
-            #   File Meta Information Header is written
-            ds.save_as(filename, write_like_original=False)
-            status_ds.Status = 0x0000 # Success
-        except IOError:
-            app_logger.error('Could not write file to specified directory:')
-            app_logger.error("    {0!s}".format(os.path.dirname(filename)))
-            app_logger.error(
-                'Directory may not exist or you may not have write permission '
-            )
             # Failed - Out of Resources - IOError
-            status_ds.Status = 0xA700
-        except Exception as exc:
-            app_logger.error('Could not write file to specified directory:')
-            app_logger.error("    {0!s}".format(os.path.dirname(filename)))
-            app_logger.exception(exc)
-            # Failed - Out of Resources - Miscellaneous error
-            status_ds.Status = 0xA701
+            status.Status = 0xA700
+            return status
 
-        return status_ds
+    try:
+        # We use `write_like_original=False` to ensure that a compliant
+        #   File Meta Information Header is written
+        ds.save_as(filename, write_like_original=False)
+        status_ds.Status = 0x0000 # Success
+    except IOError:
+        app_logger.error('Could not write file to specified directory:')
+        app_logger.error("    {0!s}".format(os.path.dirname(filename)))
+        app_logger.error(
+            'Directory may not exist or you may not have write permission '
+        )
+        # Failed - Out of Resources - IOError
+        status_ds.Status = 0xA700
+    except Exception as exc:
+        app_logger.error('Could not write file to specified directory:')
+        app_logger.error("    {0!s}".format(os.path.dirname(filename)))
+        app_logger.exception(exc)
+        # Failed - Out of Resources - Miscellaneous error
+        status_ds.Status = 0xA701
 
-    return handle_store
+    return status_ds
 
 
 SOP_CLASS_PREFIXES = {

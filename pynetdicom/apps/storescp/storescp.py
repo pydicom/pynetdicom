@@ -18,7 +18,7 @@ from pynetdicom import (
     AllStoragePresentationContexts,
     VerificationPresentationContexts,
 )
-from pynetdicom.apps.common import setup_logging, wrap_handle_store
+from pynetdicom.apps.common import setup_logging, handle_store
 from pynetdicom._globals import ALL_TRANSFER_SYNTAXES, DEFAULT_MAX_LENGTH
 
 
@@ -191,8 +191,7 @@ if __name__ == "__main__":
     elif args.implicit:
         transfer_syntax = [ImplicitVRLittleEndian]
 
-    handle_store = wrap_handle_store(args, APP_LOGGER)
-    handlers = [(evt.EVT_C_STORE, handle_store)]
+    handlers = [(evt.EVT_C_STORE, handle_store, [args, APP_LOGGER])]
 
     # Create application entity
     ae = AE(ae_title=args.ae_title)

@@ -1396,16 +1396,16 @@ class TestEventHandlingAcceptor(object):
         ae.add_requested_context(VerificationSOPClass)
         handlers = [(evt.EVT_PDU_SENT, handle)]
         scp = ae.start_server(('', 11112), block=False, evt_handlers=handlers)
-        assert scp.get_handlers(evt.EVT_PDU_SENT) == [handle]
+        assert scp.get_handlers(evt.EVT_PDU_SENT) == [(handle, None)]
 
         assoc = ae.associate('localhost', 11112)
         assert assoc.is_established
         assert len(scp.active_associations) == 1
-        assert scp.get_handlers(evt.EVT_PDU_SENT) == [handle]
+        assert scp.get_handlers(evt.EVT_PDU_SENT) == [(handle, None)]
         assert assoc.get_handlers(evt.EVT_PDU_SENT) == []
 
         child = scp.active_associations[0]
-        assert child.get_handlers(evt.EVT_PDU_SENT) == [handle]
+        assert child.get_handlers(evt.EVT_PDU_SENT) == [(handle, None)]
 
         assoc.release()
 
@@ -1443,11 +1443,11 @@ class TestEventHandlingAcceptor(object):
         scp.bind(evt.EVT_PDU_SENT, handle)
 
         assert len(scp.active_associations) == 1
-        assert scp.get_handlers(evt.EVT_PDU_SENT) == [handle]
+        assert scp.get_handlers(evt.EVT_PDU_SENT) == [(handle, None)]
         assert assoc.get_handlers(evt.EVT_PDU_SENT) == []
 
         child = scp.active_associations[0]
-        assert child.get_handlers(evt.EVT_PDU_SENT) == [handle]
+        assert child.get_handlers(evt.EVT_PDU_SENT) == [(handle, None)]
 
         assoc.release()
 
@@ -1476,16 +1476,16 @@ class TestEventHandlingAcceptor(object):
         ae.add_requested_context(VerificationSOPClass)
         handlers = [(evt.EVT_PDU_SENT, handle)]
         scp = ae.start_server(('', 11112), block=False, evt_handlers=handlers)
-        assert scp.get_handlers(evt.EVT_PDU_SENT) == [handle]
+        assert scp.get_handlers(evt.EVT_PDU_SENT) == [(handle, None)]
 
         assoc = ae.associate('localhost', 11112)
         assert assoc.is_established
         assert len(scp.active_associations) == 1
-        assert scp.get_handlers(evt.EVT_PDU_SENT) == [handle]
+        assert scp.get_handlers(evt.EVT_PDU_SENT) == [(handle, None)]
         assert assoc.get_handlers(evt.EVT_PDU_SENT) == []
 
         child = scp.active_associations[0]
-        assert child.get_handlers(evt.EVT_PDU_SENT) == [handle]
+        assert child.get_handlers(evt.EVT_PDU_SENT) == [(handle, None)]
 
         scp.unbind(evt.EVT_PDU_SENT, handle)
 
@@ -1538,16 +1538,16 @@ class TestEventHandlingAcceptor(object):
         ae.add_requested_context(VerificationSOPClass)
         handlers = [(evt.EVT_PDU_RECV, handle)]
         scp = ae.start_server(('', 11112), block=False, evt_handlers=handlers)
-        assert scp.get_handlers(evt.EVT_PDU_RECV) == [handle]
+        assert scp.get_handlers(evt.EVT_PDU_RECV) == [(handle, None)]
 
         assoc = ae.associate('localhost', 11112)
         assert assoc.is_established
         assert len(scp.active_associations) == 1
-        assert scp.get_handlers(evt.EVT_PDU_RECV) == [handle]
+        assert scp.get_handlers(evt.EVT_PDU_RECV) == [(handle, None)]
         assert assoc.get_handlers(evt.EVT_PDU_RECV) == []
 
         child = scp.active_associations[0]
-        assert child.get_handlers(evt.EVT_PDU_RECV) == [handle]
+        assert child.get_handlers(evt.EVT_PDU_RECV) == [(handle, None)]
 
         assoc.release()
 
@@ -1583,11 +1583,11 @@ class TestEventHandlingAcceptor(object):
 
         scp.bind(evt.EVT_PDU_RECV, handle)
 
-        assert scp.get_handlers(evt.EVT_PDU_RECV) == [handle]
+        assert scp.get_handlers(evt.EVT_PDU_RECV) == [(handle, None)]
         assert assoc.get_handlers(evt.EVT_PDU_RECV) == []
 
         child = scp.active_associations[0]
-        assert child.get_handlers(evt.EVT_PDU_RECV) == [handle]
+        assert child.get_handlers(evt.EVT_PDU_RECV) == [(handle, None)]
 
         assoc.release()
 
@@ -1615,7 +1615,7 @@ class TestEventHandlingAcceptor(object):
         ae.add_requested_context(VerificationSOPClass)
         handlers = [(evt.EVT_PDU_RECV, handle)]
         scp = ae.start_server(('', 11112), block=False, evt_handlers=handlers)
-        assert scp.get_handlers(evt.EVT_PDU_RECV) == [handle]
+        assert scp.get_handlers(evt.EVT_PDU_RECV) == [(handle, None)]
 
         assoc = ae.associate('localhost', 11112)
         assert assoc.is_established
@@ -1726,7 +1726,7 @@ class TestEventHandlingRequestor(object):
         assert assoc.is_established
         assert len(scp.active_associations) == 1
         assert scp.get_handlers(evt.EVT_PDU_SENT) == []
-        assert assoc.get_handlers(evt.EVT_PDU_SENT) == [handle]
+        assert assoc.get_handlers(evt.EVT_PDU_SENT) == [(handle, None)]
 
         child = scp.active_associations[0]
         assert child.get_handlers(evt.EVT_PDU_SENT) == []
@@ -1799,7 +1799,7 @@ class TestEventHandlingRequestor(object):
 
         assert len(scp.active_associations) == 1
         assert scp.get_handlers(evt.EVT_PDU_SENT) == []
-        assert assoc.get_handlers(evt.EVT_PDU_SENT) == [handle]
+        assert assoc.get_handlers(evt.EVT_PDU_SENT) == [(handle, None)]
 
         child = scp.active_associations[0]
         assert child.get_handlers(evt.EVT_PDU_SENT) == []
@@ -1837,7 +1837,7 @@ class TestEventHandlingRequestor(object):
         assert assoc.is_established
         assert len(scp.active_associations) == 1
         assert scp.get_handlers(evt.EVT_PDU_SENT) == []
-        assert assoc.get_handlers(evt.EVT_PDU_SENT) == [handle]
+        assert assoc.get_handlers(evt.EVT_PDU_SENT) == [(handle, None)]
 
         child = scp.active_associations[0]
         assert child.get_handlers(evt.EVT_PDU_SENT) == []
@@ -1899,7 +1899,7 @@ class TestEventHandlingRequestor(object):
         assert assoc.is_established
         assert len(scp.active_associations) == 1
         assert scp.get_handlers(evt.EVT_PDU_RECV) == []
-        assert assoc.get_handlers(evt.EVT_PDU_RECV) == [handle]
+        assert assoc.get_handlers(evt.EVT_PDU_RECV) == [(handle, None)]
 
         child = scp.active_associations[0]
         assert child.get_handlers(evt.EVT_PDU_RECV) == []
@@ -1969,7 +1969,7 @@ class TestEventHandlingRequestor(object):
         assoc.bind(evt.EVT_PDU_RECV, handle)
 
         assert scp.get_handlers(evt.EVT_PDU_RECV) == []
-        assert assoc.get_handlers(evt.EVT_PDU_RECV) == [handle]
+        assert assoc.get_handlers(evt.EVT_PDU_RECV) == [(handle, None)]
 
         child = scp.active_associations[0]
         assert child.get_handlers(evt.EVT_PDU_RECV) == []
@@ -2004,7 +2004,7 @@ class TestEventHandlingRequestor(object):
 
         assoc = ae.associate('localhost', 11112, evt_handlers=handlers)
         assert assoc.is_established
-        assert assoc.get_handlers(evt.EVT_PDU_RECV) == [handle]
+        assert assoc.get_handlers(evt.EVT_PDU_RECV) == [(handle, None)]
 
         assoc.unbind(evt.EVT_PDU_RECV, handle)
 

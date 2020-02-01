@@ -13,9 +13,7 @@ from pydicom.dataset import Dataset
 from pynetdicom import (
     AE, evt, QueryRetrievePresentationContexts, AllStoragePresentationContexts
 )
-from pynetdicom.apps.common import (
-    setup_logging, create_dataset, wrap_handle_store
-)
+from pynetdicom.apps.common import setup_logging, create_dataset, handle_store
 from pynetdicom._globals import ALL_TRANSFER_SYNTAXES, DEFAULT_MAX_LENGTH
 from pynetdicom.sop_class import (
     PatientRootQueryRetrieveInformationModelMove,
@@ -252,8 +250,7 @@ if __name__ == "__main__":
     scp = None
     if args.store:
         transfer_syntax = ALL_TRANSFER_SYNTAXES[:]
-        handle_store = wrap_handle_store(args, APP_LOGGER)
-        store_handlers = [(evt.EVT_C_STORE, handle_store)]
+        store_handlers = [(evt.EVT_C_STORE, handle_store, [args, APP_LOGGER])]
         ae.ae_title = args.store_aet
         for cx in AllStoragePresentationContexts:
             ae.add_supported_context(cx.abstract_syntax, transfer_syntax)

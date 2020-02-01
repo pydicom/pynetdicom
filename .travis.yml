@@ -4,9 +4,6 @@ language: python
 # Build against pydicom master and current release
 matrix:
     include:
-        - name: "Python 2.7, pydicom master"
-          python: "2.7"
-          env: TEST_SUITE=pydicom_master
         - name: "Python 3.5, pydicom master"
           python: "3.5"
           env: TEST_SUITE=pydicom_master

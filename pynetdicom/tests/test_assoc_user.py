@@ -8,7 +8,7 @@ import pytest
 
 from pynetdicom import (
     AE, VerificationPresentationContexts, PYNETDICOM_IMPLEMENTATION_UID,
-    PYNETDICOM_IMPLEMENTATION_VERSION, build_context
+    PYNETDICOM_IMPLEMENTATION_VERSION, build_context, debug_logger
 )
 from pynetdicom.association import ServiceUser, Association
 from pynetdicom.pdu_primitives import (
@@ -22,9 +22,7 @@ from pynetdicom.sop_class import VerificationSOPClass
 from .dummy_c_scp import DummyVerificationSCP, DummyBaseSCP
 
 
-LOGGER = logging.getLogger('pynetdicom')
-LOGGER.setLevel(logging.CRITICAL)
-#LOGGER.setLevel(logging.DEBUG)
+#debug_logger()
 
 
 class TestServiceUserAcceptor(object):

@@ -242,16 +242,16 @@ class TestEventHandlingAcceptor(object):
         ae.add_requested_context(VerificationSOPClass)
         handlers = [(evt.EVT_DIMSE_SENT, handle)]
         scp = ae.start_server(('', 11112), block=False, evt_handlers=handlers)
-        assert scp.get_handlers(evt.EVT_DIMSE_SENT) == [handle]
+        assert scp.get_handlers(evt.EVT_DIMSE_SENT) == [(handle, None)]
 
         assoc = ae.associate('localhost', 11112)
         assert assoc.is_established
         assert len(scp.active_associations) == 1
-        assert scp.get_handlers(evt.EVT_DIMSE_SENT) == [handle]
+        assert scp.get_handlers(evt.EVT_DIMSE_SENT) == [(handle, None)]
         assert assoc.get_handlers(evt.EVT_DIMSE_SENT) == []
 
         child = scp.active_associations[0]
-        assert child.get_handlers(evt.EVT_DIMSE_SENT) == [handle]
+        assert child.get_handlers(evt.EVT_DIMSE_SENT) == [(handle, None)]
 
         assoc.send_c_echo()
 
@@ -292,11 +292,11 @@ class TestEventHandlingAcceptor(object):
         scp.bind(evt.EVT_DIMSE_SENT, handle)
 
         assert len(scp.active_associations) == 1
-        assert scp.get_handlers(evt.EVT_DIMSE_SENT) == [handle]
+        assert scp.get_handlers(evt.EVT_DIMSE_SENT) == [(handle, None)]
         assert assoc.get_handlers(evt.EVT_DIMSE_SENT) == []
 
         child = scp.active_associations[0]
-        assert child.get_handlers(evt.EVT_DIMSE_SENT) == [handle]
+        assert child.get_handlers(evt.EVT_DIMSE_SENT) == [(handle, None)]
 
         assoc.send_c_echo(msg_id=21)
 
@@ -328,13 +328,13 @@ class TestEventHandlingAcceptor(object):
         ae.add_requested_context(VerificationSOPClass)
         handlers = [(evt.EVT_DIMSE_SENT, handle)]
         scp = ae.start_server(('', 11112), block=False, evt_handlers=handlers)
-        assert scp.get_handlers(evt.EVT_DIMSE_SENT) == [handle]
+        assert scp.get_handlers(evt.EVT_DIMSE_SENT) == [(handle, None)]
 
         assoc = ae.associate('localhost', 11112)
         assert assoc.is_established
 
         child = scp.active_associations[0]
-        assert child.get_handlers(evt.EVT_DIMSE_SENT) == [handle]
+        assert child.get_handlers(evt.EVT_DIMSE_SENT) == [(handle, None)]
 
         assert assoc.get_handlers(evt.EVT_DIMSE_SENT) == []
 
@@ -407,16 +407,16 @@ class TestEventHandlingAcceptor(object):
         ae.add_requested_context(VerificationSOPClass)
         handlers = [(evt.EVT_DIMSE_RECV, handle)]
         scp = ae.start_server(('', 11112), block=False, evt_handlers=handlers)
-        assert scp.get_handlers(evt.EVT_DIMSE_RECV) == [handle]
+        assert scp.get_handlers(evt.EVT_DIMSE_RECV) == [(handle, None)]
 
         assoc = ae.associate('localhost', 11112)
         assert assoc.is_established
         assert len(scp.active_associations) == 1
-        assert scp.get_handlers(evt.EVT_DIMSE_RECV) == [handle]
+        assert scp.get_handlers(evt.EVT_DIMSE_RECV) == [(handle, None)]
         assert assoc.get_handlers(evt.EVT_DIMSE_RECV) == []
 
         child = scp.active_associations[0]
-        assert child.get_handlers(evt.EVT_DIMSE_RECV) == [handle]
+        assert child.get_handlers(evt.EVT_DIMSE_RECV) == [(handle, None)]
 
         assoc.send_c_echo()
 
@@ -455,11 +455,11 @@ class TestEventHandlingAcceptor(object):
 
         scp.bind(evt.EVT_DIMSE_RECV, handle)
 
-        assert scp.get_handlers(evt.EVT_DIMSE_RECV) == [handle]
+        assert scp.get_handlers(evt.EVT_DIMSE_RECV) == [(handle, None)]
         assert assoc.get_handlers(evt.EVT_DIMSE_RECV) == []
 
         child = scp.active_associations[0]
-        assert child.get_handlers(evt.EVT_DIMSE_RECV) == [handle]
+        assert child.get_handlers(evt.EVT_DIMSE_RECV) == [(handle, None)]
 
         assoc.send_c_echo(msg_id=21)
 
@@ -490,14 +490,14 @@ class TestEventHandlingAcceptor(object):
         ae.add_requested_context(VerificationSOPClass)
         handlers = [(evt.EVT_DIMSE_RECV, handle)]
         scp = ae.start_server(('', 11112), block=False, evt_handlers=handlers)
-        assert scp.get_handlers(evt.EVT_DIMSE_RECV) == [handle]
+        assert scp.get_handlers(evt.EVT_DIMSE_RECV) == [(handle, None)]
 
         assoc = ae.associate('localhost', 11112)
         assert assoc.is_established
         assert len(scp.active_associations) == 1
 
         child = scp.active_associations[0]
-        assert child.get_handlers(evt.EVT_DIMSE_RECV) == [handle]
+        assert child.get_handlers(evt.EVT_DIMSE_RECV) == [(handle, None)]
 
         assoc.send_c_echo(msg_id=12)
 
@@ -610,7 +610,7 @@ class TestEventHandlingRequestor(object):
         assert assoc.is_established
         assert len(scp.active_associations) == 1
         assert scp.get_handlers(evt.EVT_DIMSE_SENT) == []
-        assert assoc.get_handlers(evt.EVT_DIMSE_SENT) == [handle]
+        assert assoc.get_handlers(evt.EVT_DIMSE_SENT) == [(handle, None)]
 
         child = scp.active_associations[0]
         assert child.get_handlers(evt.EVT_DIMSE_SENT) == []
@@ -654,7 +654,7 @@ class TestEventHandlingRequestor(object):
 
         assert len(scp.active_associations) == 1
         assert scp.get_handlers(evt.EVT_DIMSE_SENT) == []
-        assert assoc.get_handlers(evt.EVT_DIMSE_SENT) == [handle]
+        assert assoc.get_handlers(evt.EVT_DIMSE_SENT) == [(handle, None)]
 
         child = scp.active_associations[0]
         assert child.get_handlers(evt.EVT_DIMSE_SENT) == []
@@ -696,7 +696,7 @@ class TestEventHandlingRequestor(object):
         assoc.send_c_echo(msg_id=12)
         assert len(scp.active_associations) == 1
         assert scp.get_handlers(evt.EVT_DIMSE_SENT) == []
-        assert assoc.get_handlers(evt.EVT_DIMSE_SENT) == [handle]
+        assert assoc.get_handlers(evt.EVT_DIMSE_SENT) == [(handle, None)]
 
         child = scp.active_associations[0]
         assert child.get_handlers(evt.EVT_DIMSE_SENT) == []
@@ -763,7 +763,7 @@ class TestEventHandlingRequestor(object):
         assert assoc.is_established
         assert len(scp.active_associations) == 1
         assert scp.get_handlers(evt.EVT_DIMSE_RECV) == []
-        assert assoc.get_handlers(evt.EVT_DIMSE_RECV) == [handle]
+        assert assoc.get_handlers(evt.EVT_DIMSE_RECV) == [(handle, None)]
 
         child = scp.active_associations[0]
         assert child.get_handlers(evt.EVT_DIMSE_RECV) == []
@@ -806,7 +806,7 @@ class TestEventHandlingRequestor(object):
         assoc.bind(evt.EVT_DIMSE_RECV, handle)
 
         assert scp.get_handlers(evt.EVT_DIMSE_RECV) == []
-        assert assoc.get_handlers(evt.EVT_DIMSE_RECV) == [handle]
+        assert assoc.get_handlers(evt.EVT_DIMSE_RECV) == [(handle, None)]
 
         child = scp.active_associations[0]
         assert child.get_handlers(evt.EVT_DIMSE_RECV) == []
@@ -844,7 +844,7 @@ class TestEventHandlingRequestor(object):
 
         assoc = ae.associate('localhost', 11112, evt_handlers=handlers)
         assert assoc.is_established
-        assert assoc.get_handlers(evt.EVT_DIMSE_RECV) == [handle]
+        assert assoc.get_handlers(evt.EVT_DIMSE_RECV) == [(handle, None)]
         assoc.send_c_echo(msg_id=12)
 
         assoc.unbind(evt.EVT_DIMSE_RECV, handle)
