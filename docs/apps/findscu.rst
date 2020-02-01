@@ -78,7 +78,7 @@ Network Options
 Query Information Model Options
 -------------------------------
 ``-P    --patient``
-            use patient root information model
+            use patient root information model (default)
 ``-S    --study``
             use study root information model
 ``-O    --psonly``
@@ -92,7 +92,7 @@ Query Options
             add or override a query element using either an element tag as
             (group,element) or the element's keyword (such as PatientName).
             See the *keyword pathing* section for more information.
-``-f path to [f]ile``
+``-f path to [f]ile (str)``
             use a DICOM file as the query dataset, if used with ``-k``
             then the elements will be added to or overwrite those
             present in the file

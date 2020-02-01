@@ -117,7 +117,7 @@ Storage SCP Options
 Query Information Model Options
 -------------------------------
 ``-P    --patient``
-            use patient root information model
+            use patient root information model (default)
 ``-S    --study``
             use study root information model
 ``-O    --psonly``
@@ -136,7 +136,7 @@ Query Options
 
 Output Options
 --------------
-``-od [d]irectory, --output-directory [d]irectory (strS)``
+``-od [d]irectory, --output-directory [d]irectory (str)``
             write received objects to directory ``d`` (with ``--store``)
 ``--ignore``
             receive data but don't store it (with ``--store``)

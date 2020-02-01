@@ -142,7 +142,7 @@ def _setup_argparser():
     qr_model = qr_group.add_mutually_exclusive_group()
     qr_model.add_argument(
         "-P", "--patient",
-        help="use patient root information model",
+        help="use patient root information model (default)",
         action="store_true"
     )
     qr_model.add_argument(
@@ -282,12 +282,13 @@ if __name__ == '__main__':
     if assoc.is_established:
         # Send C-FIND request, `responses` is a generator
         responses = assoc.send_c_find(identifier, query_model)
+        # Used to generate filenames if args.write used
+        fname = generate_filename()
         for (status, rsp_identifier) in responses:
             # If `status.Status` is one of the 'Pending' statuses then
             #   `rsp_identifier` is the C-FIND response's Identifier dataset
             if status and status.Status in [0xFF00, 0xFF01]:
                 if args.write:
-                    fname = generate_filename()
                     rsp_identifier.file_meta = get_file_meta(
                         assoc, query_model
                     )

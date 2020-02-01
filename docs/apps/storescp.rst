@@ -100,7 +100,7 @@ Preferred Transfer Syntaxes
 
 Output
 ------
-``-od [d]irectory, --output-directory [d]irectory``
+``-od [d]irectory, --output-directory [d]irectory (str)``
             write received objects to directory ``d``
 ``--ignore``
             receive data but don't store it

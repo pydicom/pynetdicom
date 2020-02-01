@@ -1,55 +1,29 @@
 
-
+========================
 pynetdicom Documentation
-------------------------
+========================
 
-.. toctree::
-   :maxdepth: 2
-   :hidden:
-   :caption: Documentation
-
-   user/index
-   service_classes/index
-   reference/index
-
-.. toctree::
-   :maxdepth: 2
-   :hidden:
-   :caption: Examples
-
-   examples/index
-
-.. toctree::
-   :maxdepth: 1
-   :hidden:
-   :caption: Additional Information
-
-   apps/index
-   changelog/index
-
-
-DICOM
------
-`DICOM <http://dicom.nema.org/>`_ is the international standard for medical
-images and related information. It defines the formats and communication
-protocols for media exchange in radiology, cardiology, radiotherapy and
-other medical domains. If you've ever had an X-ray, an MR scan, an ultrasound or one of
-many other medical procedures, then the chances are that the DICOM standard was
-involved in some way.
-
-
-pynetdicom
-----------
 `pynetdicom <https://github.com/pydicom/pynetdicom>`_ is a pure Python
-2.7/3.5+ package that implements the DICOM networking protocol. Working with
+2.7/3.5+ package that implements the `DICOM <http://dicom.nema.org/>`_
+networking protocol. Working with
 `pydicom <https://github.com/pydicom/pydicom>`_, it allows the easy creation
 of DICOM Application Entities (AEs), which can then act as *Service Class
 Users* (SCUs) and *Service Class Providers* (SCPs) by associating with other
 AEs and using or providing the services available to the association.
 
+Getting started
+===============
+
+If you're new to *pynetdicom* then start here:
+
+* **Basics**: :doc:`Installation</tutorials/installation>` |
+  :doc:`Writing your first SCU</tutorials/create_scu>` |
+  :doc:`Writing your first SCP</tutorials/create_scp>` |
+* **Intermediate**: :doc:`Using TLS</tutorials/using_tls>`
+
 
 User Guide
-..........
+==========
 The :ref:`user_guide` is intended as an introduction to *pynetdicom* and
 explains how to install the API and covers basic usage. For detailed
 documentation of the functions and classes see the
@@ -58,7 +32,7 @@ documentation of the functions and classes see the
 .. _index_examples:
 
 Examples
-........
+========
 
 * :doc:`Basic Worklist Management (C-FIND) <examples/basic_worklist>`
 * :doc:`Display System Management (N-GET) <examples/display>`
@@ -79,7 +53,7 @@ Examples
 
 
 API Reference
-.............
+=============
 
 The :doc:`API Reference <reference/index>` provides documentation of the
 important functions and classes.
@@ -89,12 +63,6 @@ Supported Service Classes
 =========================
 *pynetdicom* currently supports the following `DICOM service classes
 <http://dicom.nema.org/medical/dicom/current/output/chtml/part04/PS3.4.html>`_:
-
-.. toctree::
-   :maxdepth: 2
-   :hidden:
-
-   service_classes/index
 
 * :doc:`Application Event Logging <service_classes/application_event>`
 * :doc:`Basic Worklist Management<service_classes/basic_worklist_service_class>`
@@ -128,7 +96,7 @@ Supported Service Classes
 
 
 Applications
-............
+============
 
 * :doc:`echoscu <apps/echoscu>`
 * :doc:`echoscp <apps/echoscp>`
@@ -139,7 +107,7 @@ Applications
 * :doc:`storescp <apps/storescp>`
 
 Release Notes
-.............
+=============
 
 * :doc:`v1.5.0 </changelog/v1.5.0>`
 * :doc:`v1.4.1 </changelog/v1.4.1>`
@@ -149,3 +117,29 @@ Release Notes
 * :doc:`v1.2.0 </changelog/v1.2.0>`
 * :doc:`v1.1.0 </changelog/v1.1.0>`
 * :doc:`v1.0.0 </changelog/v1.0.0>`
+
+
+.. toctree::
+   :maxdepth: 2
+   :hidden:
+   :caption: Documentation
+
+   user/index
+   tutorials/index
+   service_classes/index
+   reference/index
+
+.. toctree::
+   :maxdepth: 2
+   :hidden:
+   :caption: Examples
+
+   examples/index
+
+.. toctree::
+   :maxdepth: 1
+   :hidden:
+   :caption: Additional Information
+
+   apps/index
+   changelog/index
