@@ -18,38 +18,61 @@ also be using DCMTK's
 `storescp <https://support.dcmtk.org/docs/storescp.html>`_ application, so if
 you haven't yet :ref:`installed DCMTK<tut_install_dcmtk>`, please do so.
 
+About associations
+==================
+
+Communication between DICOM applications normally proceeds in three stages;
+
+1. Firstly, they must negotiate to establish an *association*:
+
+  * The association *requestor* sends an association request message which
+    contains information about the services it would like to use
+  * The association *acceptor* receives the request and replies with
+    acceptance, rejection or aborts the negotiation
+  * Only if the *requestor* receives an association acceptance message is the
+    association established
+
+2. Secondly, the applications can make use of the services agreed to during
+   association negotiation by exchanging DIMSE messages.
+3. Finally, the association is released and the connection between the
+   applications closed.
+
+In general, the association *acceptor* will also be the one providing the DICOM
+services; it'll be the *Service Class Provider*, or SCP. Conversely, the
+*requestor* will usually be the one using the services - the *Service Class
+User*, or SCU. At this stage it may be helpful to think of SCPs and SCUs as
+being similar servers and clients. While this isn't strictly true - a few
+DICOM services don't follow this model - it's accurate enough for the most
+frequently used services like verification, storage and query/retrieve.
+
 
 Start the Echo SCP
 ==================
 
-Before we can make association requests we need an application that acts as a
-*Service Class Provider* (SCP). You can think of an SCP as being similar to
-a server; it'll listen for association requests from *Service Class Users*
-(SCUs) and then perform some service for them when asked. For this tutorial
-we need an SCP that provides DICOM :dcm:`verification<part04/chapter_A.html>`
+For this tutorial we need an SCP that provides DICOM
+:dcm:`verification<part04/chapter_A.html>`
 services, usually referred to as a *Verification SCP* or *Echo SCP* for short.
 DCMTK doesn't have a standalone Echo SCP application, but the `storescp`
 application also supports the verification service, so we'll use that instead.
 
-In a new terminal start ``storescp`` on port ``11112`` with the ``-d`` debug
-flag. How you start ``storescp`` will depend on your operating system. For
-linux you should be able to do:
+In a new terminal, start ``storescp`` listening for association requests on
+port ``11112`` with the ``-v`` verbose flag. How you start ``storescp`` will
+depend on your operating system; for linux you should be able to do:
 
 .. code-block:: text
 
-    $ storescp 11112 -d
+    $ storescp 11112 -v
 
 For Windows, **cd** to the folder containing the executable and then run:
 
 .. code-block:: text
 
-    $ .\storescp.exe 11112 -d
+    $ .\storescp.exe 11112 -v
 
-This starts the Echo SCP listening on port ``11112`` for incoming association
-requests. If you get an error saying the address is already in use, try again
-with a different port - just remember to adapt the port used in the Echo SCU
-accordingly. Depending on your OS you may also need to allow access through
-the firewall for the port you end up using.
+If you get an error saying the address is already in use, try again
+with a different port - just remember to adapt the port used when making
+association requests accordingly. Depending on your OS you may also need to
+allow access through the firewall for the port you end up using.
 
 The SCP will continue to run until you interrupt it either by closing the
 terminal or by pressing ``CTRL+C``. Keep the Echo SCP running in the
@@ -58,13 +81,9 @@ background for the rest of the tutorial.
 Create an Application Entity and associate
 ==========================================
 
-The first thing we're going to do is create a new application entity and
-request an association with the Echo SCP.
-
-***Add more about associations.***
-
-Create a new file ``create_scu.py``,
-open it in a text editor and add the following:
+Next we're going to make a new application entity and request an association
+with the Echo SCP. Create a new file ``create_scu.py``, open it in a text
+editor and add the following:
 
 .. code-block:: python
    :linenos:
@@ -78,7 +97,7 @@ open it in a text editor and add the following:
         print('Association established with Echo SCP!')
         assoc.release()
 
-There's a lot going on in these few lines, so let's look at it in two sections:
+There's a lot going on in these few lines, so let's split it up a bit:
 
 .. code-block:: python
    :linenos:
@@ -87,12 +106,12 @@ There's a lot going on in these few lines, so let's look at it in two sections:
     ae = AE()
     ae.add_requested_context('1.2.840.10008.1.1')
 
-This creates an :class:`AE<ae.ApplicationEntity>` instance, then adds a single
+This creates our :class:`AE<ae.ApplicationEntity>` instance, then adds a single
 *presentation context* to it using the
-:meth:`~ae.ApplicationEntity.add_requested_context` method, which we need to
-add because an association request must contain at least one.
-Since all we're interested in at the moment is establishing an association
-we'll go into presentation contexts a bit more later on.
+:meth:`~ae.ApplicationEntity.add_requested_context` method.  All association
+request must contain at least one presentation context, however since all
+we're interested in at the moment is establishing an association we'll go into
+presentation contexts a bit more later on.
 
 .. code-block:: python
    :linenos:
@@ -100,16 +119,26 @@ we'll go into presentation contexts a bit more later on.
 
     assoc = ae.associate('127.0.0.1', 11112)
 
-Here we initiate an association by sending an association request to the
-IP address ``'127.0.0.1'`` on port ``11112``. ``'127.0.0.1'`` (or
-``'localhost'``) is a `special IP address
-<https://en.wikipedia.org/wiki/Localhost>`_ that means "the computer I'm
-running on". This is the same IP address and port that we started the
-``storescp`` application on earlier.
+Here we initiate the association negotiation by sending an association request
+to the IP address ``'127.0.0.1'`` on port ``11112``. ``'127.0.0.1'`` (also
+known as ``'localhost'``) is a `special IP address
+<https://en.wikipedia.org/wiki/Localhost>`_ that means *this computer*. This
+is the same IP address and port that we started the ``storescp`` application
+on earlier.
 
 The :meth:`AE.associate()<ae.ApplicationEntity.associate>` method returns an
 :class:`~association.Association` instance `assoc`, which is a subclass of
 :class:`threading.Thread`.
+
+As mentioned earlier, an *acceptor* may do a couple of things in response to an
+association request:
+
+* Accept the association request and establish an association ʘ‿ʘ
+* Reject the association request ಠ_ಠ
+* Abort the association negotiation ಥ‸‸ಥ
+
+The request may also fail because there's nothing there to associate with (a
+connection failure).
 
 .. code-block:: python
    :linenos:
@@ -119,21 +148,13 @@ The :meth:`AE.associate()<ae.ApplicationEntity.associate>` method returns an
         print('Association established with Echo SCP!')
         assoc.release()
 
-In general, an SCP may do a couple of things in response to an association
-request:
-
-* Accept the association request and establish an association ʘ‿ʘ
-* Reject the association request ಠ_ಠ
-* Abort the association negotiation ಥ‸‸ಥ
-
-The request may also fail because there's nothing there to associate with (a
-connection failure). Because there are multiple possible outcomes, we first
-test to see if the request has been accepted (and the association established)
-using
-:attr:`Association.is_established<association.Association.is_established>`.
-Finally, we send an association release request using
-:meth:`~association.Association.release` which ends the association and closes
-the connection with the Echo SCP.
+Because there are multiple possible outcomes to negotiation, we check to see if
+the association :attr:`~association.Association.is_established`. If we have
+successfully associated, we print a message and send an association release
+request using :meth:`~association.Association.release`. This ends the
+association and closes the connection with the Echo SCP. On the other hand,
+if we failed to establish an association then the connection is closed
+automatically, so we don't need to do anything further.
 
 So, let's see what happens when we run our script. Open a new terminal and
 run the file with:
@@ -148,10 +169,13 @@ You should see:
 
     Association established with Echo SCP
 
-If you don't see any output then something has gone wrong (more on
+If you don't see anything then something has gone wrong (more on
 troubleshooting that in a bit). Otherwise, congratulations! Establishing an
 association is the first step any DICOM application needs to take before it
 can do anything useful.
+
+Troubleshooting associations
+----------------------------
 
 By itself our output isn't very helpful in understanding what's going on.
 Fortunately, by default *pynetdicom* has lots of logging output, which can be
@@ -217,36 +241,41 @@ information:
     I: Association Accepted
     I: Releasing Association
 
-Troubleshooting an association request
---------------------------------------
+The log can be broken down into a couple of categories:
 
-If you see ``TCP Initialised Error: Connection refused`` double check that the
-IP address and port that you're sending your association requests to is
-correct and that the SCP is up and running.
+* Information about the state of the association and services, usually
+  prefixed by ``I:``
+* Errors and exceptions that have occurred, prefixed by ``E:``
+* The contents of various association related messages,
+  such as the SCU's association request (A-ASSOCIATE-RQ) and SCP's association
+  accept (A-ASSOCIATE-AC) messages.
+* Later on you'll also see summaries of the various DIMSE messages
 
-Common reasons for a rejected association may include:
+Common issues
+.............
 
-* ``Reason: Called AE title not recognised``: The SCP requires the *Called AE
-  title* sent in the association request match it's own.
-* ``Reason: Calling AE title not recognised``: The SCP requires your *Calling
-  AE title* match one its familiar with.
+* ``TCP Initialised Error: Connection refused`` check the IP address and port
+  are correct, that the SCP is up and running and that the firewall allows
+  traffic on the port
+* ``Called AE title not recognised``: The SCP requires the *Called AE
+  title* sent in the association request match it's own. This can be set with
+  the *ae_title* keyword parameter in :meth:`~ae.ApplicationEntity.associate`
+* ``Calling AE title not recognised``: The SCP requires the *Calling
+  AE title* match one its familiar with. This can be set with the
+  :attr:`AE.ae_title<ae.ApplicationEntity.ae_title>` property. Alternatively,
+  you may need to configure the SCP with the details of your SCU
 * ``Local limit exceeded``: The SCP has too many current association, try
   again later
-
-Receiving an abort in response to an association request is more unusual and
-may be due to things like:
-
-* The SCP uses TLS or other methods to secure the connection which you've
-  forgotten to include
-* A failed *User Identity* negotiation
-* No accepted presentation contexts
+* ``Association Aborted``: this is more unusual during association negotiation,
+  (typically it's seen afterwards or during DIMSE messaging) but may be due to
+  the SCP using TLS or other methods to secure the connection
 
 
 Echo SCU
 ========
 
-Since we're able to associate with the Echo SCP our next step is to request
-the use of its verification service by sending a C-ECHO request:
+Since we're able to associate with the Echo SCP, our next step is to request
+the use of its verification service by sending a DIMSE C-ECHO request:
 
 .. code-block:: python
    :linenos:
@@ -263,15 +292,17 @@ the use of its verification service by sending a C-ECHO request:
         assoc.release()
 
 Our only change is to include a call to
-:meth:`~association.Association.send_c_echo`, which returns `status` which is
+:meth:`~association.Association.send_c_echo`, which returns `status` as
 a *pydicom* :class:`~pydicom.dataset.Dataset` instance. If we received a
-response to our C-ECHO request then `status` will contain (at a minimum) a
+response to our C-ECHO request then `status` will contain at least an
 (0000,0900) *Status* element containing the outcome of our request. If no
-response was received (due to a connection failure, a timeout or because the
+response was received (due to a connection failure, a timeout, or because the
 association was aborted) then `status` will be an empty ``Dataset``.
 
 Presentation Contexts
 ---------------------
 I've cheated a bit in our example by already including the presentation context
-we need in order to be allowed to request the use of the verification service.
+we need in order to be allowed to request the use of the verification service;
+``1.2.840.10008.1.1`` - *Verification SOP Class*. 
+
 Presentation contexts are... I dunno, what's a good analogy?
