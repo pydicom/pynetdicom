@@ -13,5 +13,6 @@ Applications
    findscu
    getscu
    movescu
+   qrscp
    storescu
    storescp
