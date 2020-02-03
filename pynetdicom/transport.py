@@ -437,10 +437,10 @@ class RequestHandler(BaseRequestHandler):
         for event in self.server._handlers:
             # Intervention events
             if event.is_intervention and self.server._handlers[event]:
-                assoc.bind(event, self.server._handlers[event])
+                assoc.bind(event, *self.server._handlers[event])
             elif event.is_notification:
                 for handler in self.server._handlers[event]:
-                    assoc.bind(event, handler)
+                    assoc.bind(event, *handler)
 
         # Trigger must be after binding the events
         evt.trigger(
@@ -505,9 +505,10 @@ class AssociationServer(TCPServer):
             If TLS is to be used then this should be the
             :class:`ssl.SSLContext` used to wrap the client sockets, otherwise
             if ``None`` then no TLS will be used (default).
-        evt_handlers : list of 2-tuple, optional
-            A list of ``(event, callable)``, the *callable* function to run
-            when *event* occurs.
+        evt_handlers : list of 2- or 3-tuple, optional
+            A list of ``(event, callable)`` or ``(event, callable, args)``,
+            the *callable* function to run when *event* occurs and the
+            optional extra *args* to pass to the callable.
         """
         self.ae = ae
         self.ae_title = ae_title
@@ -532,40 +533,43 @@ class AssociationServer(TCPServer):
         self._bind_defaults()
 
         # Bind the functions to their events
-        for (event, handler) in (evt_handlers or {}):
-            self.bind(event, handler)
+        for evt_hh_args in (evt_handlers or {}):
+            self.bind(*evt_hh_args)
 
-    def bind(self, event, handler):
+    def bind(self, event, handler, args=None):
         """Bind a callable `handler` to an `event`.
 
         .. versionadded:: 1.3
 
+        .. versionchanged:: 1.5
+
+            Added `args` keyword parameter.
+
         Parameters
         ----------
-        event : 3-tuple
+        event : namedtuple
             The event to bind the function to.
         handler : callable
             The function that will be called if the event occurs.
+        args : list, optional
+            Optional extra arguments to be passed to the handler (default:
+            no extra arguments passed to the handler).
         """
         # Notification events - multiple handlers allowed
         if event.is_notification:
             if event not in self._handlers:
                 self._handlers[event] = []
 
-            if handler not in self._handlers[event]:
-                self._handlers[event].append(handler)
+            if (handler, args) not in self._handlers[event]:
+                self._handlers[event].append((handler, args))
 
         # Intervention events - only one handler allowed
         if event.is_intervention:
-            if event not in self._handlers:
-                self._handlers[event] = None
-
-            if self._handlers[event] != handler:
-                self._handlers[event] = handler
+            self._handlers[event] = (handler, args)
 
         # Bind our child Association events
         for assoc in self.active_associations:
-            assoc.bind(event, handler)
+            assoc.bind(event, handler, args)
 
     def _bind_defaults(self):
         """Bind the default event handlers."""
@@ -604,19 +608,24 @@ class AssociationServer(TCPServer):
 
         .. versionadded:: 1.3
 
+        .. versionchanged:: 1.5
+
+            Returns a 2-tuple of (callable, args) or list of 2-tuple.
+
         Parameters
         ----------
-        event : tuple
+        event : namedtuple
             The event bound to the handlers.
 
         Returns
         -------
-        callable, list of callable or None
+        2-tuple of (callable, args), list of 2-tuple
             If the event is a notification event then returns a list of
-            callable functions bound to *event*, if the event is an
-            intervention event then returns either a callable function if a
-            handler is bound to the event or ``None`` if no handler has been
-            bound.
+            2-tuples containing the callable functions bound to `event` and
+            the arguments passed to the callable as ``(callable, args)``. If
+            the event is an intervention event then returns either a 2-tuple of
+            (callable, args) if a handler is bound to the event or
+            ``(None, None)`` if no handler has been bound.
         """
         if event not in self._handlers:
             return []
@@ -737,22 +746,25 @@ class AssociationServer(TCPServer):
         if event not in self._handlers:
             return
 
-        # Make sure no access to `_handlers` while its being changed
-        with threading.Lock():
-            # Notification events
-            if event.is_notification and handler in self._handlers[event]:
-                self._handlers[event].remove(handler)
+        # Notification events
+        if event.is_notification:
+            handlers = [hh[0] for hh in self._handlers[event]]
+            try:
+                ii = handlers.index(handler)
+                del self._handlers[event][ii]
+            except ValueError:
+                pass
 
-                if not self._handlers[event]:
-                    del self._handlers[event]
+            if not self._handlers[event]:
+                del self._handlers[event]
 
-            # Intervention events - unbind and replace with default
-            if event.is_intervention and self._handlers[event] == handler:
-                self._handlers[event] = evt.get_default_handler(event)
+        # Intervention events - unbind and replace with default
+        if event.is_intervention and handler in self._handlers[event]:
+            self._handlers[event] = (evt.get_default_handler(event), None)
 
-            # Unbind from our child Association events
-            for assoc in self.active_associations:
-                assoc.unbind(event, handler)
+        # Unbind from our child Association events
+        for assoc in self.active_associations:
+            assoc.unbind(event, handler)
 
 
 class ThreadedAssociationServer(ThreadingMixIn, AssociationServer):

@@ -633,6 +633,28 @@ class TestNegotiateAsAcceptor(object):
                 assert results[ii].result == 0x00
                 assert results[ii].transfer_syntax == ['1.2.840.10008.1.2']
 
+    def test_first_supported_match(self):
+        """Test that the acceptor uses the first matching supported tsyntax."""
+        req_contexts = []
+        pc = PresentationContext()
+        pc.context_id = 1
+        pc.abstract_syntax = CTImageStorage
+        pc.transfer_syntax = [
+            '1.2.840.10008.1.2', '1.2.840.10008.1.2.1', '1.2.840.10008.1.2.2'
+        ]
+        req_contexts.append(pc)
+
+        acc_contexts = []
+        pc = PresentationContext()
+        pc.abstract_syntax = CTImageStorage
+        pc.transfer_syntax = [
+            '1.2.840.10008.1.2.1', '1.2.840.10008.1.2.2', '1.2.840.10008.1.2'
+        ]
+        acc_contexts.append(pc)
+
+        results, roles = self.test_func(req_contexts, acc_contexts)
+        assert results[0].transfer_syntax[0] == '1.2.840.10008.1.2.1'
+
 
 # (req.as_scu, req.as_scp, ac.as_scu, ac.as_scp)
 DEFAULT_ROLE = (True, False, False, True)

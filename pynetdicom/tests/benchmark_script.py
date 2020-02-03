@@ -24,6 +24,7 @@ from pydicom import dcmread
 from pydicom.uid import ImplicitVRLittleEndian
 
 from pynetdicom import AE, evt, build_context, debug_logger
+from pynetdicom.dsutils import encode
 
 
 #debug_logger()
@@ -117,7 +118,7 @@ def start_storescu(ds_per_assoc):
     return subprocess.Popen(args)
 
 
-def receive_store(nr_assoc, ds_per_assoc, write_ds=False, use_yappi=False):
+def receive_store(nr_assoc, ds_per_assoc, write_ds=0, use_yappi=False):
     """Run a Storage SCP and transfer datasets with sequential storescu's.
 
     Parameters
@@ -126,8 +127,11 @@ def receive_store(nr_assoc, ds_per_assoc, write_ds=False, use_yappi=False):
         The total number of (sequential) associations that will be made.
     ds_per_assoc : int
         The number of C-STORE requests sent per successful association.
-    write_ds : bool, optional
-        True to write the received dataset to file, False otherwise (default).
+    write_ds : int, optional
+        ``0`` to not write to file (default),
+        ``1`` to write the received dataset to file using event.dataset,
+        ``2`` to write using the raw ``bytes``, .
+        ``3`` to write raw bytes with unlimited PDU size.
     use_yappi : bool, optional
         True to use the yappi profiler, False otherwise (default).
     """
@@ -135,13 +139,15 @@ def receive_store(nr_assoc, ds_per_assoc, write_ds=False, use_yappi=False):
         init_yappi()
 
     def handle(event):
-        if write_ds:
-            # TODO: optimise write using event.request.DataSet instead
-            # Standard write using dataset decode and re-encode
-            tfile = tempfile.TemporaryFile(mode='w+b')
-            ds = event.dataset
-            ds.file_meta = event.file_meta
-            ds.save_as(tfile)
+        if write_ds == 1:
+            with tempfile.TemporaryFile('w+b') as tfile:
+                ds = event.dataset
+                ds.file_meta = event.file_meta
+                ds.save_as(tfile)
+        elif write_ds in (2, 3):
+            with tempfile.TemporaryFile('w+b') as tfile:
+                tfile.write(encode(event.file_meta, False, True))
+                tfile.write(event.request.DataSet.getvalue())
 
         return 0x0000
 
@@ -149,6 +155,8 @@ def receive_store(nr_assoc, ds_per_assoc, write_ds=False, use_yappi=False):
     ae.acse_timeout = 5
     ae.dimse_timeout = 5
     ae.network_timeout = 5
+    if write_ds == 3:
+        ae.maximum_pdu_size = 0
     ae.add_supported_context(DATASET.SOPClassUID, ImplicitVRLittleEndian)
 
     server = ae.start_server(
@@ -182,7 +190,7 @@ def receive_store(nr_assoc, ds_per_assoc, write_ds=False, use_yappi=False):
     server.shutdown()
 
 
-def receive_store_internal(nr_assoc, ds_per_assoc, write_ds=False, use_yappi=False):
+def receive_store_internal(nr_assoc, ds_per_assoc, write_ds=0, use_yappi=False):
     """Run a Storage SCP and transfer datasets with pynetdicom alone.
 
     Parameters
@@ -191,8 +199,11 @@ def receive_store_internal(nr_assoc, ds_per_assoc, write_ds=False, use_yappi=Fal
         The total number of (sequential) associations that will be made.
     ds_per_assoc : int
         The number of C-STORE requests sent per successful association.
-    write_ds : bool, optional
-        True to write the received dataset to file, False otherwise (default).
+    write_ds : int, optional
+        ``0`` to not write to file (default),
+        ``1`` to write the received dataset to file using event.dataset,
+        ``2`` to write using the raw ``bytes``, .
+        ``3`` to write raw bytes with unlimited PDU size.
     use_yappi : bool, optional
         True to use the yappi profiler, False otherwise (default).
     """
@@ -200,13 +211,15 @@ def receive_store_internal(nr_assoc, ds_per_assoc, write_ds=False, use_yappi=Fal
         init_yappi()
 
     def handle(event):
-        if write_ds:
-            # TODO: optimise write using event.request.DataSet instead
-            # Standard write using dataset decode and re-encode
-            tfile = tempfile.TemporaryFile(mode='w+b')
-            ds = event.dataset
-            ds.file_meta = event.file_meta
-            ds.save_as(tfile)
+        if write_ds == 1:
+            with tempfile.TemporaryFile('w+b') as tfile:
+                ds = event.dataset
+                ds.file_meta = event.file_meta
+                ds.save_as(tfile)
+        elif write_ds in (2, 3):
+            with tempfile.TemporaryFile('w+b') as tfile:
+                tfile.write(encode(event.file_meta, False, True))
+                tfile.write(event.request.DataSet.getvalue())
 
         return 0x0000
 
@@ -214,6 +227,8 @@ def receive_store_internal(nr_assoc, ds_per_assoc, write_ds=False, use_yappi=Fal
     ae.acse_timeout = 5
     ae.dimse_timeout = 5
     ae.network_timeout = 5
+    if write_ds == 3:
+        ae.maximum_pdu_size = 0
     ae.add_supported_context(DATASET.SOPClassUID, ImplicitVRLittleEndian)
     ae.add_requested_context(DATASET.SOPClassUID, ImplicitVRLittleEndian)
 
@@ -387,9 +402,11 @@ if __name__ == "__main__":
     print("  2. Storage SCU, 1 dataset per association over 1000 associations")
     print("  3. Storage SCP, 1000 datasets over 1 association")
     print("  4. Storage SCP, 1000 datasets over 1 association (write)")
-    print("  5. Storage SCP, 1 dataset per association over 1000 associations")
-    print("  6. Storage SCP, 1000 datasets per association over 10 simultaneous associations")
-    print("  7. Storage SCU/SCP, 1000 datasets over 1 association")
+    print("  5. Storage SCP, 1000 datasets over 1 association (write fast)")
+    print("  6. Storage SCP, 1000 datasets over 1 association (write fastest)")
+    print("  7. Storage SCP, 1 dataset per association over 1000 associations")
+    print("  8. Storage SCP, 1000 datasets per association over 10 simultaneous associations")
+    print("  9. Storage SCU/SCP, 1000 datasets over 1 association")
     bench_index = input()
 
     if bench_index == "1":
@@ -397,12 +414,16 @@ if __name__ == "__main__":
     elif bench_index == "2":
         send_store(1000, 1, use_yappi)
     elif bench_index == "3":
-        receive_store(1, 1000, False, use_yappi)
+        receive_store(1, 1000, 0, use_yappi)
     elif bench_index == "4":
-        receive_store(1, 1000, True, use_yappi)
+        receive_store(1, 1000, 1, use_yappi)
     elif bench_index == "5":
-        receive_store(1000, 1, False, use_yappi)
+        receive_store(1, 1000, 2, use_yappi)
     elif bench_index == "6":
-        receive_store_simultaneous(10, 1000, use_yappi)
+        receive_store(1, 1000, 3, use_yappi)
     elif bench_index == "7":
-        receive_store_internal(1, 1000, False, use_yappi)
+        receive_store(1000, 1, 0, use_yappi)
+    elif bench_index == "8":
+        receive_store_simultaneous(10, 1000, use_yappi)
+    elif bench_index == "9":
+        receive_store_internal(1, 1000, 0, use_yappi)

@@ -11,7 +11,7 @@
     :target: https://img.shields.io/pypi/pyversions/pynetdicom.svg
 .. image:: https://zenodo.org/badge/DOI/10.5281/zenodo.3345559.svg
    :target: https://doi.org/10.5281/zenodo.3345559
-.. image:: https://badges.gitter.im/pydicom.png
+.. image:: https://badges.gitter.im/pydicom/Lobby.svg
     :target: https://gitter.im/pydicom/Lobby
 
 
@@ -53,98 +53,83 @@ Sections `7.5 <http://dicom.nema.org/medical/dicom/current/output/html/part07.ht
 `9 <http://dicom.nema.org/medical/dicom/current/output/html/part07.html#chapter_9>`_,
 and `10 <http://dicom.nema.org/medical/dicom/current/output/html/part07.html#chapter_10>`_).
 
+Installation
+------------
+Dependencies
+~~~~~~~~~~~~
+`pydicom <https://github.com/pydicom/pydicom>`_
 
-Supported Service Classes
-~~~~~~~~~~~~~~~~~~~~~~~~~
-*pynetdicom* supports the following DICOM service classes:
+Installing current release
+~~~~~~~~~~~~~~~~~~~~~~~~~~
+.. code-block:: sh
 
-- `Application Event Logging Service Class <http://dicom.nema.org/medical/dicom/current/output/html/part04.html#chapter_P>`_
-- `Basic Worklist Management Service Class <http://dicom.nema.org/medical/dicom/current/output/html/part04.html#chapter_K>`_
-- `Color Palette Query/Retrieve Service Class <http://dicom.nema.org/medical/dicom/current/output/html/part04.html#chapter_X>`_
-- `Defined Procedure Protocol Query/Retrieve Service Class <http://dicom.nema.org/medical/dicom/current/output/html/part04.html#chapter_HH>`_
-- `Display System Management Service Class <http://dicom.nema.org/medical/dicom/current/output/html/part04.html#chapter_EE>`_
-- `Hanging Protocol Query/Retrieve Service Class <http://dicom.nema.org/medical/dicom/current/output/html/part04.html#chapter_U>`_
-- `Implant Template Query/Retrieve Service Class <http://dicom.nema.org/medical/dicom/current/output/html/part04.html#chapter_BB>`_
-- `Instance Availability Notification Service Class <http://dicom.nema.org/medical/dicom/current/output/html/part04.html#chapter_R>`_
-- `Media Creation Management Service Class <http://dicom.nema.org/medical/dicom/current/output/html/part04.html#chapter_S>`_
-- `Modality Performed Procedure Step Management <http://dicom.nema.org/medical/dicom/current/output/html/part04.html#chapter_F>`_
-- `Non-Patient Object Storage Service Class <http://dicom.nema.org/medical/dicom/current/output/html/part04.html#chapter_GG>`_
-- `Print Management Service Class <http://dicom.nema.org/medical/dicom/current/output/html/part04.html#chapter_H>`_
-- `Protocol Approval Query/Retrieve Service Class <http://dicom.nema.org/medical/dicom/current/output/html/part04.html#chapter_II>`_
-- `Query/Retrieve Service Class <http://dicom.nema.org/medical/dicom/current/output/html/part04.html#chapter_C>`_
+        $ pip install pynetdicom
 
-  - `Composite Instance Retrieve Without Bulk Data <http://dicom.nema.org/medical/dicom/current/output/html/part04.html#chapter_Z>`_
-  - `Instance and Frame Level Retrieve <http://dicom.nema.org/medical/dicom/current/output/html/part04.html#chapter_Y>`_
-- `Relevant Patient Information Query Service Class <http://dicom.nema.org/medical/dicom/current/output/html/part04.html#chapter_Q>`_
-- `RT Machine Verification Service Class <http://dicom.nema.org/medical/dicom/current/output/html/part04.html#chapter_DD>`_
-- `Storage Service Class <http://dicom.nema.org/medical/dicom/current/output/html/part04.html#chapter_B>`_
+Installing development version
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+.. code-block:: sh
 
-  - `Ophthalmic Refractive Measurements Storage <http://dicom.nema.org/medical/dicom/current/output/html/part04.html#chapter_AA>`_
-  - `Softcopy Presentation State Storage <http://dicom.nema.org/medical/dicom/current/output/html/part04.html#chapter_N>`_
-  - `Structured Reporting Storage <http://dicom.nema.org/medical/dicom/current/output/html/part04.html#chapter_O>`_
-  - `Volumetric Presentation State Storage <http://dicom.nema.org/medical/dicom/current/output/html/part04.html#chapter_FF>`_
-- `Storage Commitment Service Class <http://dicom.nema.org/medical/dicom/current/output/html/part04.html#chapter_J>`_
-- `Substance Administration Query Service Class <http://dicom.nema.org/medical/dicom/current/output/html/part04.html#chapter_V>`_
-- `Unified Procedure Step Service Class <http://dicom.nema.org/medical/dicom/current/output/html/part04.html#chapter_CC>`_
-- `Verification Service Class <http://dicom.nema.org/medical/dicom/current/output/html/part04.html#chapter_A>`_
+        $ pip install git+git://github.com/pydicom/pynetdicom.git
 
 
-Supported DIMSE SCU Services
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Documentation
+-------------
+The *pynetdicom*
+`user guide <https://pydicom.github.io/pynetdicom/stable/#user-guide>`_,
+`code examples <https://pydicom.github.io/pynetdicom/stable/#examples>`_ and
+`API reference <https://pydicom.github.io/pynetdicom/stable/reference/index.html>`_
+documentation is available for the
+`current release <https://pydicom.github.io/pynetdicom/>`_ as well as the
+`development version <https://pydicom.github.io/pynetdicom/dev>`_.
+
+Supported DIMSE Services
+------------------------
+SCU Services
+~~~~~~~~~~~~
 
 When the AE is acting as an SCU and an association has been established with a
 peer SCP, the following DIMSE-C and -N services are available (provided the
 peer supports the Service Class and a corresponding Presentation Context has
 been accepted):
 
-.. _send_c_echo: https:pydicom.github.io/pynetdicom/stable/reference/generated/pynetdicom.association.Association.html#pynetdicom.association.Association.send_c_echo
-.. _send_c_find: https:pydicom.github.io/pynetdicom/stable/reference/generated/pynetdicom.association.Association.html#pynetdicom.association.Association.send_c_find
-.. _send_c_get: https:pydicom.github.io/pynetdicom/stable/reference/generated/pynetdicom.association.Association.html#pynetdicom.association.Association.send_c_get
-.. _send_c_move: https:pydicom.github.io/pynetdicom/stable/reference/generated/pynetdicom.association.Association.html#pynetdicom.association.Association.send_c_move
-.. _send_c_store: https:pydicom.github.io/pynetdicom/stable/reference/generated/pynetdicom.association.Association.html#pynetdicom.association.Association.send_c_store
-.. _send_n_action: https:pydicom.github.io/pynetdicom/stable/reference/generated/pynetdicom.association.Association.html#pynetdicom.association.Association.send_n_action
-.. _send_n_create: https:pydicom.github.io/pynetdicom/stable/reference/generated/pynetdicom.association.Association.html#pynetdicom.association.Association.send_n_create
-.. _send_n_delete: https:pydicom.github.io/pynetdicom/stable/reference/generated/pynetdicom.association.Association.html#pynetdicom.association.Association.send_n_delete
-.. _send_n_event_report: https:pydicom.github.io/pynetdicom/stable/reference/generated/pynetdicom.association.Association.html#pynetdicom.association.Association.send_n_event_report
-.. _send_n_get: https:pydicom.github.io/pynetdicom/stable/reference/generated/pynetdicom.association.Association.html#pynetdicom.association.Association.send_n_get
-.. _send_n_set: https:pydicom.github.io/pynetdicom/stable/reference/generated/pynetdicom.association.Association.html#pynetdicom.association.Association.send_n_set
+.. _assoc: https://pydicom.github.io/pynetdicom/stable/reference/generated/pynetdicom.association.Association.html
+.. _echo: https://pydicom.github.io/pynetdicom/stable/reference/generated/pynetdicom.association.Association.html#pynetdicom.association.Association.send_c_echo
+.. _find: https://pydicom.github.io/pynetdicom/stable/reference/generated/pynetdicom.association.Association.html#pynetdicom.association.Association.send_c_find
+.. _c_get: https://pydicom.github.io/pynetdicom/stable/reference/generated/pynetdicom.association.Association.html#pynetdicom.association.Association.send_c_get
+.. _move: https://pydicom.github.io/pynetdicom/stable/reference/generated/pynetdicom.association.Association.html#pynetdicom.association.Association.send_c_move
+.. _store: https://pydicom.github.io/pynetdicom/stable/reference/generated/pynetdicom.association.Association.html#pynetdicom.association.Association.send_c_store
+.. _action: https://pydicom.github.io/pynetdicom/stable/reference/generated/pynetdicom.association.Association.html#pynetdicom.association.Association.send_n_action
+.. _create: https://pydicom.github.io/pynetdicom/stable/reference/generated/pynetdicom.association.Association.html#pynetdicom.association.Association.send_n_create
+.. _delete: https://pydicom.github.io/pynetdicom/stable/reference/generated/pynetdicom.association.Association.html#pynetdicom.association.Association.send_n_delete
+.. _er: https://pydicom.github.io/pynetdicom/stable/reference/generated/pynetdicom.association.Association.html#pynetdicom.association.Association.send_n_event_report
+.. _n_get: https://pydicom.github.io/pynetdicom/stable/reference/generated/pynetdicom.association.Association.html#pynetdicom.association.Association.send_n_get
+.. _set: https://pydicom.github.io/pynetdicom/stable/reference/generated/pynetdicom.association.Association.html#pynetdicom.association.Association.send_n_set
 
-+----------------+----------------------------------------------------------+
-| DIMSE service  | ``Association`` method                                   |
-+================+==========================================================+
-| C-ECHO         | ``send_c_echo()``                                        |
-|                |                                                          |
-+----------------+----------------------------------------------------------+
-| C-FIND         | ``send_c_find(dataset, query_model)``                    |
-|                |                                                          |
-+----------------+----------------------------------------------------------+
-| C-GET          | ``send_c_get(dataset, query_model)``                     |
-|                |                                                          |
-+----------------+----------------------------------------------------------+
-| C-MOVE         | ``send_c_move(dataset, move_aet, query_model)``          |
-|                |                                                          |
-+----------------+----------------------------------------------------------+
-| C-STORE        | ``send_c_store(dataset)``                                |
-|                |                                                          |
-+----------------+----------------------------------------------------------+
-| N-ACTION       | ``send_n_action(dataset, action_type, class_uid,         |
-|                | instance_uid)``                                          |
-+----------------+----------------------------------------------------------+
-| N-CREATE       | ``send_n_create(dataset, class_uid, instance_uid)``      |
-|                |                                                          |
-+----------------+----------------------------------------------------------+
-| N-DELETE       | ``send_n_delete(class_uid, instance_uid)``               |
-|                |                                                          |
-+----------------+----------------------------------------------------------+
-| N-EVENT-REPORT | ``send_n_event_report(dataset, event_type,               |
-|                | class_uid, instance_uid)``                               |
-+----------------+----------------------------------------------------------+
-| N-GET          | ``send_n_get(identifier_list, class_uid, instance_uid)`` |
-|                |                                                          |
-+----------------+----------------------------------------------------------+
-| N-SET          | ``send_n_set(dataset, class_uid, instance_uid)``         |
-|                |                                                          |
-+----------------+----------------------------------------------------------+
++----------------+----------------------------------------------------------------------------------------+
+| DIMSE service  | `Association <assoc_>`_ method                                                         |
++================+========================================================================================+
+| C-ECHO         | `Association.send_c_echo() <echo_>`_                                                   |
++----------------+----------------------------------------------------------------------------------------+
+| C-FIND         | `Association.send_c_find(dataset, query_model) <find_>`_                               |
++----------------+----------------------------------------------------------------------------------------+
+| C-GET          | `Association.send_c_get(dataset, query_model) <c_get_>`_                               |
++----------------+----------------------------------------------------------------------------------------+
+| C-MOVE         | `Association.send_c_move(dataset, move_aet, query_model) <move_>`_                     |
++----------------+----------------------------------------------------------------------------------------+
+| C-STORE        | `Association.send_c_store(dataset) <store_>`_                                          |
++----------------+----------------------------------------------------------------------------------------+
+| N-ACTION       | `Association.send_n_action(dataset, action_type, class_uid, instance_uid) <action_>`_  |
++----------------+----------------------------------------------------------------------------------------+
+| N-CREATE       | `Association.send_n_create(dataset, class_uid, instance_uid) <create_>`_               |
++----------------+----------------------------------------------------------------------------------------+
+| N-DELETE       | `Association.send_n_delete(class_uid, instance_uid) <delete_>`_                        |
++----------------+----------------------------------------------------------------------------------------+
+| N-EVENT-REPORT | `Association.send_n_event_report(dataset, event_type, class_uid, instance_uid) <er_>`_ |
++----------------+----------------------------------------------------------------------------------------+
+| N-GET          | `Association.send_n_set(dataset, class_uid, instance_uid) <n_get_>`_                   |
++----------------+----------------------------------------------------------------------------------------+
+| N-SET          | `Association.send_n_set(dataset, class_uid, instance_uid) <set_>`_                     |
++----------------+----------------------------------------------------------------------------------------+
 
 Where *dataset* is a pydicom
 `Dataset <https://pydicom.github.io/pydicom/stable/ref_guide.html#dataset>`_
@@ -156,49 +141,49 @@ objects, *event_type* and *action_type* are ints and *class_uid* and
 for more information.
 
 
-Supported DIMSE SCP Services
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+SCP Services
+~~~~~~~~~~~~
 
 When the AE is acting as an SCP the following DIMSE-C and -N services are
 available to the peer once an association has been established:
 
-.. _handle_echo: https://pydicom.github.io/pynetdicom/stable/reference/generated/pynetdicom._handlers.doc_handle_echo.html
-.. _handle_find: https://pydicom.github.io/pynetdicom/stable/reference/generated/pynetdicom._handlers.doc_handle_find.html
-.. _handle_c_get: https://pydicom.github.io/pynetdicom/stable/reference/generated/pynetdicom._handlers.doc_handle_c_get.html
-.. _handle_move: https://pydicom.github.io/pynetdicom/stable/reference/generated/pynetdicom._handlers.doc_handle_move.html
-.. _handle_store: https://pydicom.github.io/pynetdicom/stable/reference/generated/pynetdicom._handlers.doc_handle_store.html
-.. _handle_action: https://pydicom.github.io/pynetdicom/stable/reference/generated/pynetdicom._handlers.doc_handle_action.html
-.. _handle_create: https://pydicom.github.io/pynetdicom/stable/reference/generated/pynetdicom._handlers.doc_handle_create.html
-.. _handle_delete: https://pydicom.github.io/pynetdicom/stable/reference/generated/pynetdicom._handlers.doc_handle_delete.html
-.. _handle_event_report: https://pydicom.github.io/pynetdicom/stable/reference/generated/pynetdicom._handlers.doc_handle_event_report.html
-.. _handle_n_get: https://pydicom.github.io/pynetdicom/stable/reference/generated/pynetdicom._handlers.doc_handle_n_get.html
-.. _handle_set: https://pydicom.github.io/pynetdicom/stable/reference/generated/pynetdicom._handlers.doc_handle_set.html
+.. _hecho: https://pydicom.github.io/pynetdicom/stable/reference/generated/pynetdicom._handlers.doc_handle_echo.html
+.. _hfind: https://pydicom.github.io/pynetdicom/stable/reference/generated/pynetdicom._handlers.doc_handle_find.html
+.. _hc_get: https://pydicom.github.io/pynetdicom/stable/reference/generated/pynetdicom._handlers.doc_handle_c_get.html
+.. _hmove: https://pydicom.github.io/pynetdicom/stable/reference/generated/pynetdicom._handlers.doc_handle_move.html
+.. _hstore: https://pydicom.github.io/pynetdicom/stable/reference/generated/pynetdicom._handlers.doc_handle_store.html
+.. _haction: https://pydicom.github.io/pynetdicom/stable/reference/generated/pynetdicom._handlers.doc_handle_action.html
+.. _hcreate: https://pydicom.github.io/pynetdicom/stable/reference/generated/pynetdicom._handlers.doc_handle_create.html
+.. _hdelete: https://pydicom.github.io/pynetdicom/stable/reference/generated/pynetdicom._handlers.doc_handle_delete.html
+.. _her: https://pydicom.github.io/pynetdicom/stable/reference/generated/pynetdicom._handlers.doc_handle_event_report.html
+.. _hn_get: https://pydicom.github.io/pynetdicom/stable/reference/generated/pynetdicom._handlers.doc_handle_n_get.html
+.. _hset: https://pydicom.github.io/pynetdicom/stable/reference/generated/pynetdicom._handlers.doc_handle_set.html
 
-+----------------+----------------------------+
-| DIMSE service  | Intervention Event         |
-+================+============================+
-| C-ECHO         | ``evt.EVT_C_ECHO``         |
-+----------------+----------------------------+
-| C-FIND         | ``evt.EVT_C_FIND``         |
-+----------------+----------------------------+
-| C-GET          | ``evt.EVT_C_GET``          |
-+----------------+----------------------------+
-| C-MOVE         | ``evt.EVT_C_MOVE``         |
-+----------------+----------------------------+
-| C-STORE        | ``evt.EVT_C_STORE``        |
-+----------------+----------------------------+
-| N-ACTION       | ``evt.EVT_N_ACTION``       |
-+----------------+----------------------------+
-| N-CREATE       | ``evt.EVT_N_CREATE``       |
-+----------------+----------------------------+
-| N-DELETE       | ``evt.EVT_N_DELETE``       |
-+----------------+----------------------------+
-| N-EVENT-REPORT | ``evt.EVT_N_EVENT_REPORT`` |
-+----------------+----------------------------+
-| N-GET          | ``evt.EVT_N_GET``          |
-+----------------+----------------------------+
-| N-SET          | ``evt.EVT_N_SET``          |
-+----------------+----------------------------+
++----------------+----------------------------+---------------------------------+
+| DIMSE service  | Intervention Event         | Handler documentation           |
++================+============================+=================================+
+| C-ECHO         | ``evt.EVT_C_ECHO``         | `Handle C-ECHO <hecho_>`_       |
++----------------+----------------------------+---------------------------------+
+| C-FIND         | ``evt.EVT_C_FIND``         | `Handle C-FIND <hfind_>`_       |
++----------------+----------------------------+---------------------------------+
+| C-GET          | ``evt.EVT_C_GET``          | `Handle C-GET <hc_get_>`_       |
++----------------+----------------------------+---------------------------------+
+| C-MOVE         | ``evt.EVT_C_MOVE``         | `Handle C-MOVE <hmove_>`_       |
++----------------+----------------------------+---------------------------------+
+| C-STORE        | ``evt.EVT_C_STORE``        | `Handle C-STORE <hstore_>`_     |
++----------------+----------------------------+---------------------------------+
+| N-ACTION       | ``evt.EVT_N_ACTION``       | `Handle N-ACTION <haction_>`_   |
++----------------+----------------------------+---------------------------------+
+| N-CREATE       | ``evt.EVT_N_CREATE``       | `Handle N-CREATE <hcreate_>`_   |
++----------------+----------------------------+---------------------------------+
+| N-DELETE       | ``evt.EVT_N_DELETE``       | `Handle N-DELETE <hdelete_>`_   |
++----------------+----------------------------+---------------------------------+
+| N-EVENT-REPORT | ``evt.EVT_N_EVENT_REPORT`` | `Handle N-EVENT-REPORT <her_>`_ |
++----------------+----------------------------+---------------------------------+
+| N-GET          | ``evt.EVT_N_GET``          | `Handle N-GET <hn_get_>`_       |
++----------------+----------------------------+---------------------------------+
+| N-SET          | ``evt.EVT_N_SET``          | `Handle N-SET <hset_>`_         |
++----------------+----------------------------+---------------------------------+
 
 
 With the exception of the C-ECHO service, a user-defined callable function,
@@ -217,36 +202,6 @@ intervention events must  return or yield certain values. See the
 for information on what attributes and properties are available in ``Event``
 for each event type and the expected returns/yields for the
 corresponding handlers.
-
-
-Documentation
--------------
-The *pynetdicom*
-`user guide <https://pydicom.github.io/pynetdicom/stable/#user-guide>`_,
-`code examples <https://pydicom.github.io/pynetdicom/stable/#examples>`_ and
-`API reference <https://pydicom.github.io/pynetdicom/stable/reference/index.html>`_
-documentation is available for the
-`current release <https://pydicom.github.io/pynetdicom/>`_ as well as the
-`development version <https://pydicom.github.io/pynetdicom/dev>`_.
-
-
-Installation
-------------
-Dependencies
-~~~~~~~~~~~~
-`pydicom <https://github.com/pydicom/pydicom>`_
-
-Installing current release
-~~~~~~~~~~~~~~~~~~~~~~~~~~
-.. code-block:: sh
-
-        $ pip install pynetdicom
-
-Installing development version
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-.. code-block:: sh
-
-        $ pip install git+git://github.com/pydicom/pynetdicom.git
 
 Examples
 --------

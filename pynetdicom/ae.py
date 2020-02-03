@@ -450,6 +450,10 @@ class ApplicationEntity(object):
 
             Added `evt_handlers` keyword parameter
 
+        .. versionchanged:: 1.5
+
+            `evt_handlers` now takes a list of 2- or 3-tuples
+
         Parameters
         ----------
         addr : str
@@ -479,14 +483,15 @@ class ApplicationEntity(object):
             and `server_hostname` is the value to use for the corresponding
             keyword argument in :meth:`~ssl.SSLContext.wrap_socket`. If no
             `tls_args` is supplied then TLS will not be used (default).
-        evt_handlers : list of 2-tuple, optional
-            A list of (`event`, `handler`), where `event` is an ``evt.EVT_*``
-            event tuple and `handler` is a callable function that will be
-            bound to the event. The handler should take a single
-            :class:`Event<pynetdicom.events.Event>` parameter and may return
-            or yield objects depending on the exact event that the handler is
-            bound to. For more information see the
-            :ref:`documentation<user_events>`.
+        evt_handlers : list of 2- or 3-tuple, optional
+            A list of (*event*, *handler*) or (*event*, *handler*, *args*),
+            where `event` is an ``evt.EVT_*`` event tuple, `handler` is a
+            callable function that will be bound to the event and `args` is a
+            :class:`list` of objects that will be passed to `handler` as
+            optional extra arguments. At a minimum, `handler` should take an
+            :class:`~pynetdicom.events.Event` parameter and may return or yield
+            objects depending on the exact event that the handler is bound to.
+            For more information see the :ref:`documentation<user_events>`.
 
         Returns
         -------
@@ -561,8 +566,8 @@ class ApplicationEntity(object):
 
         # Bind events to the handlers
         evt_handlers = evt_handlers or {}
-        for (event, handler) in evt_handlers:
-            assoc.bind(event, handler)
+        for evt_hh_args in evt_handlers:
+            assoc.bind(*evt_hh_args)
 
         # Send an A-ASSOCIATE request to the peer and start negotiation
         assoc.request()
@@ -1084,6 +1089,10 @@ class ApplicationEntity(object):
 
             Added `ae_title` and `contexts` keyword parameters
 
+        .. versionchanged:: 1.5
+
+            `evt_handlers` now takes a list of 2- or 3-tuples
+
         Parameters
         ----------
         address : 2-tuple
@@ -1096,10 +1105,12 @@ class ApplicationEntity(object):
             If TLS is required then this should the :class:`ssl.SSLContext`
             instance to use to wrap the client sockets, otherwise if ``None``
             then no TLS will be used (default).
-        evt_handlers : list of 2-tuple, optional
-            A list of (*event*, *handler*), where `event` is an ``evt.EVT_*``
-            event tuple and `handler` is a callable function that will be bound
-            to the event. The handler should take a single
+        evt_handlers : list of 2- or 3-tuple, optional
+            A list of (*event*, *handler*) or (*event*, *handler*, *args*),
+            where `event` is an ``evt.EVT_*`` event tuple, `handler` is a
+            callable function that will be bound to the event and `args` is a
+            :class:`list` of objects that will be passed to `handler` as
+            optional extra arguments. At a minimum, `handler` should take an
             :class:`~pynetdicom.events.Event` parameter and may return or yield
             objects depending on the exact event that the handler is bound to.
             For more information see the :ref:`documentation<user_events>`.

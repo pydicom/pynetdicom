@@ -2017,7 +2017,7 @@ def _recv_n_delete_rsp(event):
 
 # Example handlers used for the documentation
 # Intervention event handler documentation
-def doc_handle_echo(event):
+def doc_handle_echo(event, *args):
     """Documentation for handlers bound to ``evt.EVT_C_ECHO``.
 
     User implementation of this event handler is optional. If a handler is
@@ -2067,6 +2067,12 @@ def doc_handle_echo(event):
 
         * :attr:`~pynetdicom.events.Event.message_id`: the C-ECHO request's
           *Message ID* as :class:`int`.
+    args
+        If the handler was bound to the event using
+        ``bind(event, handler, args)`` or by passing
+        ``evt_handlers=[(event, handler, args), ...]``, where `args` is a
+        :class:`list` then there will be one or more optional extra parameters
+        matching the contents of `args`.
 
     Returns
     -------
@@ -2097,7 +2103,7 @@ def doc_handle_echo(event):
     """
     pass
 
-def doc_handle_find(event):
+def doc_handle_find(event, *args):
     """Documentation for handlers bound to ``evt.EVT_C_FIND``.
 
     User implementation of this event handler is required if one or more
@@ -2183,6 +2189,12 @@ def doc_handle_find(event):
           and ``return``.
         * :attr:`~pynetdicom.events.Event.message_id`: the C-FIND request's
           *Message ID* as :class:`int`.
+    args
+        If the handler was bound to the event using
+        ``bind(event, handler, args)`` or by passing
+        ``evt_handlers=[(event, handler, args), ...]``, where `args` is a
+        :class:`list` then there will be one or more optional extra parameters
+        matching the contents of `args`.
 
     Yields
     ------
@@ -2244,7 +2256,7 @@ def doc_handle_find(event):
     """
     pass
 
-def doc_handle_c_get(event):
+def doc_handle_c_get(event, *args):
     """Documentation for handlers bound to ``evt.EVT_C_GET``.
 
     User implementation of this event handler is required if one or more
@@ -2334,6 +2346,12 @@ def doc_handle_c_get(event):
           and ``return``.
         * :attr:`~pynetdicom.events.Event.message_id`: the C-GET request's
           *Message ID* as :class:`int`.
+    args
+        If the handler was bound to the event using
+        ``bind(event, handler, args)`` or by passing
+        ``evt_handlers=[(event, handler, args), ...]``, where `args` is a
+        :class:`list` then there will be one or more optional extra parameters
+        matching the contents of `args`.
 
     Yields
     ------
@@ -2397,7 +2415,7 @@ def doc_handle_c_get(event):
     """
     pass
 
-def doc_handle_move(event):
+def doc_handle_move(event, *args):
     """Documentation for handlers bound to ``evt.EVT_C_MOVE``.
 
     User implementation of this event handler is required if one or more
@@ -2495,7 +2513,12 @@ def doc_handle_move(event):
           *Message ID* as :class:`int`.
         * :attr:`~pynetdicom.events.Event.move_destination`: the C-MOVE
           request's *Move Destination* value as :class:`bytes`.
-
+    args
+        If the handler was bound to the event using
+        ``bind(event, handler, args)`` or by passing
+        ``evt_handlers=[(event, handler, args), ...]``, where `args` is a
+        :class:`list` then there will be one or more optional extra parameters
+        matching the contents of `args`.
 
     Yields
     ------
@@ -2563,7 +2586,7 @@ def doc_handle_move(event):
     """
     pass
 
-def doc_handle_store(event):
+def doc_handle_store(event, *args):
     """Documentation for handlers bound to ``evt.EVT_C_STORE``.
 
     User implementation of this event handler is required if one or more
@@ -2641,6 +2664,12 @@ def doc_handle_store(event):
           event.file_meta``.
         * :attr:`~pynetdicom.events.Event.message_id`: the C-STORE request's
           *Message ID* as :class:`int`.
+    args
+        If the handler was bound to the event using
+        ``bind(event, handler, args)`` or by passing
+        ``evt_handlers=[(event, handler, args), ...]``, where `args` is a
+        :class:`list` then there will be one or more optional extra parameters
+        matching the contents of `args`.
 
     Returns
     -------
@@ -2681,7 +2710,7 @@ def doc_handle_store(event):
     """
     pass
 
-def doc_handle_action(event):
+def doc_handle_action(event, *args):
     """Documentation for handlers bound to ``evt.EVT_N_ACTION``.
 
     User implementation of this event handler is required if one or more
@@ -2812,6 +2841,12 @@ def doc_handle_action(event):
           *Action Type ID* as :class:`int`.
         * :attr:`~pynetdicom.events.Event.message_id`: the N-ACTION request's
           *Message ID* as :class:`int`.
+    args
+        If the handler was bound to the event using
+        ``bind(event, handler, args)`` or by passing
+        ``evt_handlers=[(event, handler, args), ...]``, where `args` is a
+        :class:`list` then there will be one or more optional extra parameters
+        matching the contents of `args`.
 
     Returns
     -------
@@ -2867,7 +2902,7 @@ def doc_handle_action(event):
     """
     pass
 
-def doc_handle_create(event):
+def doc_handle_create(event, *args):
     """Documentation for handlers bound to ``evt.EVT_N_CREATE``.
 
     User implementation of this event handler is required if one or more
@@ -2964,6 +2999,12 @@ def doc_handle_create(event):
           exception at the time of use.
         * :attr:`~pynetdicom.events.Event.message_id`: the N-CREATE request's
           *Message ID* as :class:`int`.
+    args
+        If the handler was bound to the event using
+        ``bind(event, handler, args)`` or by passing
+        ``evt_handlers=[(event, handler, args), ...]``, where `args` is a
+        :class:`list` then there will be one or more optional extra parameters
+        matching the contents of `args`.
 
     Returns
     -------
@@ -3019,7 +3060,7 @@ def doc_handle_create(event):
     """
     pass
 
-def doc_handle_delete(event):
+def doc_handle_delete(event, *args):
     """Documentation for handlers bound to ``evt.EVT_N_DELETE``.
 
     User implementation of this event handler is required if one or more
@@ -3078,7 +3119,12 @@ def doc_handle_delete(event):
 
         * :attr:`~pynetdicom.events.Event.message_id`: the N-DELETE request's
           *Message ID* as :class:`int`.
-
+    args
+        If the handler was bound to the event using
+        ``bind(event, handler, args)`` or by passing
+        ``evt_handlers=[(event, handler, args), ...]``, where `args` is a
+        :class:`list` then there will be one or more optional extra parameters
+        matching the contents of `args`.
 
     Returns
     -------
@@ -3119,7 +3165,7 @@ def doc_handle_delete(event):
     """
     pass
 
-def doc_handle_event_report(event):
+def doc_handle_event_report(event, *args):
     """Documentation for handlers bound to ``evt.EVT_N_EVENT_REPORT``.
 
     User implementation of this event handler is required if one or more
@@ -3194,6 +3240,12 @@ def doc_handle_event_report(event):
           request's *Event Type ID* parameter value as :class:`int`.
         * :attr:`~pynetdicom.events.Event.message_id`: the N-EVENT-REPORT
           request's *Message ID* as :class:`int`.
+    args
+        If the handler was bound to the event using
+        ``bind(event, handler, args)`` or by passing
+        ``evt_handlers=[(event, handler, args), ...]``, where `args` is a
+        :class:`list` then there will be one or more optional extra parameters
+        matching the contents of `args`.
 
     Returns
     -------
@@ -3247,7 +3299,7 @@ def doc_handle_event_report(event):
     """
     pass
 
-def doc_handle_n_get(event):
+def doc_handle_n_get(event, *args):
     """Documentation for handlers bound to ``evt.EVT_N_GET``.
 
     User implementation of this event handler is required if one or more
@@ -3321,6 +3373,12 @@ def doc_handle_n_get(event):
           N-GET request's *Attribute Identifier List* parameter.
         * :attr:`~pynetdicom.events.Event.message_id`: the N-GET request's
           *Message ID* as :class:`int`.
+    args
+        If the handler was bound to the event using
+        ``bind(event, handler, args)`` or by passing
+        ``evt_handlers=[(event, handler, args), ...]``, where `args` is a
+        :class:`list` then there will be one or more optional extra parameters
+        matching the contents of `args`.
 
     Returns
     -------
@@ -3370,7 +3428,7 @@ def doc_handle_n_get(event):
     """
     pass
 
-def doc_handle_set(event):
+def doc_handle_set(event, *args):
     """Documentation for handlers bound to ``evt.EVT_N_SET``.
 
     User implementation of this event handler is required if one or more
@@ -3475,6 +3533,12 @@ def doc_handle_set(event):
           uses a deferred read when decoding data, if the decode fails the
           returned :class:`~pydicom.dataset.Dataset` will only raise an
           exception at the time of use.
+    args
+        If the handler was bound to the event using
+        ``bind(event, handler, args)`` or by passing
+        ``evt_handlers=[(event, handler, args), ...]``, where `args` is a
+        :class:`list` then there will be one or more optional extra parameters
+        matching the contents of `args`.
 
     Returns
     -------
@@ -3526,7 +3590,7 @@ def doc_handle_set(event):
     """
     pass
 
-def doc_handle_async(event):
+def doc_handle_async(event, *args):
     """Documentation for handlers bound to ``evt.EVT_ASYNC_OPS``.
 
     User implementation of this event handler is optional. If a handler is
@@ -3567,6 +3631,12 @@ def doc_handle_async(event):
         * :attr:`~pynetdicom.events.Event.timestamp`: the date and time
           that the negotiation request was processed as
           :class:`datetime.datetime`.
+    args
+        If the handler was bound to the event using
+        ``bind(event, handler, args)`` or by passing
+        ``evt_handlers=[(event, handler, args), ...]``, where `args` is a
+        :class:`list` then there will be one or more optional extra parameters
+        matching the contents of `args`.
 
     Returns
     -------
@@ -3577,7 +3647,6 @@ def doc_handle_async(event):
         supported the returned values will be ignored and (1, 1) sent in
         response.
 
-
     References
     ----------
 
@@ -3585,7 +3654,7 @@ def doc_handle_async(event):
     """
     pass
 
-def doc_handle_sop_common(event):
+def doc_handle_sop_common(event, *args):
     """Documentation for handlers bound to ``evt.EVT_SOP_COMMON``.
 
     User implementation of this event handler is required only if
@@ -3615,6 +3684,12 @@ def doc_handle_sop_common(event):
         * :attr:`~pynetdicom.events.Event.timestamp`: the date and time
           that the negotiation request was processed as
           :class:`datetime.datetime`.
+    args
+        If the handler was bound to the event using
+        ``bind(event, handler, args)`` or by passing
+        ``evt_handlers=[(event, handler, args), ...]``, where `args` is a
+        :class:`list` then there will be one or more optional extra parameters
+        matching the contents of `args`.
 
     Returns
     -------
@@ -3633,7 +3708,7 @@ def doc_handle_sop_common(event):
     """
     pass
 
-def doc_handle_sop_extended(event):
+def doc_handle_sop_extended(event, *args):
     """Documentation for handlers bound to ``evt.EVT_SOP_EXTENDED``.
 
     User implementation of this event handler is required only if
@@ -3666,6 +3741,12 @@ def doc_handle_sop_extended(event):
         * :attr:`~pynetdicom.events.Event.timestamp`: the date and time
           that the negotiation request was processed as
           :class:`datetime.datetime`.
+    args
+        If the handler was bound to the event using
+        ``bind(event, handler, args)`` or by passing
+        ``evt_handlers=[(event, handler, args), ...]``, where `args` is a
+        :class:`list` then there will be one or more optional extra parameters
+        matching the contents of `args`.
 
     Returns
     -------
@@ -3683,7 +3764,7 @@ def doc_handle_sop_extended(event):
     """
     pass
 
-def doc_handle_userid(event):
+def doc_handle_userid(event, *args):
     """Documentation for handlers bound to ``evt.EVT_USER_ID``.
 
     User implementation of this handler is required if
@@ -3729,6 +3810,12 @@ def doc_handle_userid(event):
           * ``3`` - Kerberos Service ticket
           * ``4`` - SAML Assertion
           * ``5`` - JSON Web Token
+    args
+        If the handler was bound to the event using
+        ``bind(event, handler, args)`` or by passing
+        ``evt_handlers=[(event, handler, args), ...]``, where `args` is a
+        :class:`list` then there will be one or more optional extra parameters
+        matching the contents of `args`.
 
     Returns
     -------
@@ -3751,7 +3838,7 @@ def doc_handle_userid(event):
     pass
 
 # Notification event handler documentation
-def doc_handle_acse(event):
+def doc_handle_acse(event, *args):
     """Documentation for handlers bound to ``evt.EVT_ACSE_RECV`` or
     ``evt.EVT_ACSE_SENT``.
 
@@ -3776,10 +3863,16 @@ def doc_handle_acse(event):
         * :attr:`~pynetdicom.events.Event.timestamp`: the date and time
           that the negotiation item was processed as
           :class:`datetime.datetime`.
+    args
+        If the handler was bound to the event using
+        ``bind(event, handler, args)`` or by passing
+        ``evt_handlers=[(event, handler, args), ...]``, where `args` is a
+        :class:`list` then there will be one or more optional extra parameters
+        matching the contents of `args`.
     """
     pass
 
-def doc_handle_assoc(event):
+def doc_handle_assoc(event, *args):
     """Documentation for handlers bound to ``evt.EVT_ACCEPTED``,
     ``evt.EVT_ESTABLISHED``, ``evt.EVT_REJECTED``, ``evt.EVT_REQUESTED``,
     ``evt.EVT_RELEASED`` or ``evt.EVT_ABORTED``.
@@ -3797,10 +3890,16 @@ def doc_handle_assoc(event):
           :class:`~pynetdicom.events.NotificationEvent`.
         * :attr:`~pynetdicom.events.Event.timestamp`: the date and time
           that the association status changed as :class:`datetime.datetime`.
+    args
+        If the handler was bound to the event using
+        ``bind(event, handler, args)`` or by passing
+        ``evt_handlers=[(event, handler, args), ...]``, where `args` is a
+        :class:`list` then there will be one or more optional extra parameters
+        matching the contents of `args`.
     """
     pass
 
-def doc_handle_dimse(event):
+def doc_handle_dimse(event, *args):
     """Documentation for handlers bound to ``evt.EVT_DIMSE_RECV`` or
     ``evt.EVT_DIMSE_SENT``.
 
@@ -3843,10 +3942,16 @@ def doc_handle_dimse(event):
           :class:`~pynetdicom.dimse_messages.N_SET_RSP`
         * :attr:`~pynetdicom.events.Event.timestamp`: the date and time
           that the message was processed as :class:`datetime.datetime`.
+    args
+        If the handler was bound to the event using
+        ``bind(event, handler, args)`` or by passing
+        ``evt_handlers=[(event, handler, args), ...]``, where `args` is a
+        :class:`list` then there will be one or more optional extra parameters
+        matching the contents of `args`.
     """
     pass
 
-def doc_handle_data(event):
+def doc_handle_data(event, *args):
     """Documentation for handlers bound to ``evt.EVT_DATA_RECV`` or
     ``evt.EVT_DATA_SENT``.
 
@@ -3865,10 +3970,16 @@ def doc_handle_data(event):
           :class:`~pynetdicom.events.NotificationEvent`.
         * :attr:`~pynetdicom.events.Event.timestamp`: the date and time
           that the data was sent/received as :class:`datetime.datetime`.
+    args
+        If the handler was bound to the event using
+        ``bind(event, handler, args)`` or by passing
+        ``evt_handlers=[(event, handler, args), ...]``, where `args` is a
+        :class:`list` then there will be one or more optional extra parameters
+        matching the contents of `args`.
     """
     pass
 
-def doc_handle_fsm(event):
+def doc_handle_fsm(event, *args):
     """Documentation for handlers bound to ``evt.EVT_FSM_TRANSITION``.
 
     Parameters
@@ -3893,10 +4004,16 @@ def doc_handle_fsm(event):
           action has been performed as :class:`str`.
         * :attr:`~pynetdicom.events.Event.timestamp`: the date and time
           that the FSM transition occurred as :class:`datetime.datetime`.
+    args
+        If the handler was bound to the event using
+        ``bind(event, handler, args)`` or by passing
+        ``evt_handlers=[(event, handler, args), ...]``, where `args` is a
+        :class:`list` then there will be one or more optional extra parameters
+        matching the contents of `args`.
     """
     pass
 
-def doc_handle_pdu(event):
+def doc_handle_pdu(event, *args):
     """Documentation for handlers bound to ``evt.EVT_PDU_RECV`` or
     ``evt.EVT_PDU_SENT``.
 
@@ -3921,10 +4038,16 @@ def doc_handle_pdu(event):
           :class:`P_DATA_TF<pynetdicom.pdu.P_DATA_TF>`.
         * :attr:`~pynetdicom.events.Event.timestamp`: the date and time
           that the PDU was processed as :class:`datetime.datetime`.
+    args
+        If the handler was bound to the event using
+        ``bind(event, handler, args)`` or by passing
+        ``evt_handlers=[(event, handler, args), ...]``, where `args` is a
+        :class:`list` then there will be one or more optional extra parameters
+        matching the contents of `args`.
     """
     pass
 
-def doc_handle_transport(event):
+def doc_handle_transport(event, *args):
     """Documentation for handlers bound to ``evt.EVT_CONN_OPEN`` or
     ``evt.EVT_CONN_CLOSE``.
 
@@ -3944,5 +4067,11 @@ def doc_handle_transport(event):
         * :attr:`~pynetdicom.events.Event.timestamp`: the date and time
           that the connection was opened/closed as
           :class:`datetime.datetime`.
+    args
+        If the handler was bound to the event using
+        ``bind(event, handler, args)`` or by passing
+        ``evt_handlers=[(event, handler, args), ...]``, where `args` is a
+        :class:`list` then there will be one or more optional extra parameters
+        matching the contents of `args`.
     """
     pass

@@ -2,13 +2,15 @@
 
 from collections import namedtuple
 import logging
+import os
 
 import pytest
+import pyfakefs
 
 from pydicom.dataset import Dataset
 from pydicom.tag import Tag
 
-from pynetdicom.apps.common import ElementPath, create_dataset
+from pynetdicom.apps.common import ElementPath, create_dataset, get_files
 
 
 class TestCreateDataset(object):
@@ -154,7 +156,7 @@ class TestElementPath(object):
         assert elem.is_sequence is False
         assert elem.child is None
         assert elem.parent is None
-        assert elem.value is ''
+        assert elem.value == ''
 
         elem = ElementPath('0000,0000')
         assert elem.tag == Tag(0x0000,0x0000)
@@ -164,7 +166,7 @@ class TestElementPath(object):
         assert elem.is_sequence is False
         assert elem.child is None
         assert elem.parent is None
-        assert elem.value is ''
+        assert elem.value == ''
 
         elem = ElementPath('CommandGroupLength')
         assert elem.tag == Tag(0x0000,0x0000)
@@ -174,7 +176,7 @@ class TestElementPath(object):
         assert elem.is_sequence is False
         assert elem.child is None
         assert elem.parent is None
-        assert elem.value is ''
+        assert elem.value == ''
 
     def test_pathing(self):
         """Test ElementPath using normal pathing."""
@@ -324,7 +326,7 @@ class TestElementPath(object):
         assert elem.is_sequence is True
         assert elem.child is None
         assert elem.parent is None
-        assert elem.value is ''
+        assert elem.value == ''
 
         elem = ElementPath('300a,00b0[13]')
         assert elem.tag == Tag(0x300a,0x00b0)
@@ -334,7 +336,7 @@ class TestElementPath(object):
         assert elem.is_sequence is True
         assert elem.child is None
         assert elem.parent is None
-        assert elem.value is ''
+        assert elem.value == ''
 
         elem = ElementPath('BeamSequence[13]')
         assert elem.tag == Tag(0x300a,0x00b0)
@@ -344,7 +346,7 @@ class TestElementPath(object):
         assert elem.is_sequence is True
         assert elem.child is None
         assert elem.parent is None
-        assert elem.value is ''
+        assert elem.value == ''
 
     def test_sequence_raises(self):
         """Test ElementPath using bad sequence component raises."""
@@ -760,6 +762,81 @@ class TestElementPath(object):
             assert getattr(ds, kw) == b'\x00\xff\xf0\xec'
 
 
-class TestEchoSCU(object):
-    """Tests for eschoscu.py"""
-    pass
+REFERENCE_FS = [
+    '/test.dcm',
+    '/test.txt',
+    '/A/test.dcm',
+    '/A/test.txt',
+    '/A/B/test.dcm',
+    '/A/B/test.txt',
+    '/A/B/C/test.dcm',
+    '/A/B/C/test.txt',
+    '/A/C/test.dcm',
+    '/A/C/test.txt',
+]
+REFERENCE_OUTPUT = [
+    (['/'], False, ['/test.dcm', '/test.txt']),
+    (['/'], True, [
+        '/test.dcm', '/test.txt',
+        '/A/test.dcm', '/A/test.txt',
+        '/A/B/test.dcm', '/A/B/test.txt',
+        '/A/B/C/test.dcm', '/A/B/C/test.txt',
+        '/A/C/test.dcm', '/A/C/test.txt',
+    ]),
+    (['/A'], False, ['/A/test.dcm', '/A/test.txt']),
+    (['/A'], True, [
+        '/A/test.dcm', '/A/test.txt',
+        '/A/B/test.dcm', '/A/B/test.txt',
+        '/A/B/C/test.dcm', '/A/B/C/test.txt',
+        '/A/C/test.dcm', '/A/C/test.txt',
+    ]),
+    (['/A/B'], False, ['/A/B/test.dcm', '/A/B/test.txt']),
+    (['/A/B'], True, [
+        '/A/B/test.dcm', '/A/B/test.txt',
+        '/A/B/C/test.dcm', '/A/B/C/test.txt',
+    ]),
+    (['/A/B/C'], False, ['/A/B/C/test.dcm', '/A/B/C/test.txt']),
+    (['/A/B/C'], True, ['/A/B/C/test.dcm', '/A/B/C/test.txt',]),
+    (['/A/B/C/test.dcm'], False, ['/A/B/C/test.dcm']),
+    (['/A/B/C/test.dcm'], True, ['/A/B/C/test.dcm']),
+    # Multiples
+    (['/', '/A/test.dcm'], False, ['/test.dcm', '/test.txt', '/A/test.dcm']),
+    (['/', '/A/test.dcm'], True, [
+        '/test.dcm', '/test.txt',
+        '/A/test.dcm', '/A/test.txt',
+        '/A/B/test.dcm', '/A/B/test.txt',
+        '/A/B/C/test.dcm', '/A/B/C/test.txt',
+        '/A/C/test.dcm', '/A/C/test.txt',
+    ]),
+    (['/A/B', '/A/C'], False, [
+        '/A/B/test.dcm', '/A/B/test.txt', '/A/C/test.dcm', '/A/C/test.txt'
+    ]),
+    (['/A/B', '/A/C'], True, [
+        '/A/B/test.dcm', '/A/B/test.txt',
+        '/A/C/test.dcm', '/A/C/test.txt',
+        '/A/B/C/test.dcm', '/A/B/C/test.txt'
+    ]),
+    (['/A/B', '/A/C', 'test.txt'], False, [
+        '/A/B/test.dcm', '/A/B/test.txt', '/A/C/test.dcm', '/A/C/test.txt',
+        'test.txt'
+    ]),
+    (['/A/B', '/A/C'], True, [
+        '/A/B/test.dcm', '/A/B/test.txt',
+        '/A/C/test.dcm', '/A/C/test.txt',
+        '/A/B/C/test.dcm', '/A/B/C/test.txt'
+    ]),
+    (['/A/B', '/A/C', 'test.txt'], True, [
+        '/A/B/test.dcm', '/A/B/test.txt',
+        '/A/C/test.dcm', '/A/C/test.txt',
+        '/A/B/C/test.dcm', '/A/B/C/test.txt', 'test.txt'
+    ]),
+]
+
+
+@pytest.mark.parametrize('fpaths, recurse, out', REFERENCE_OUTPUT)
+def test_get_files(fpaths, recurse, out, fs):
+    """Test finding files in a given path."""
+    for fpath in REFERENCE_FS:
+        fs.create_file(fpath)
+
+    assert set(out) == set(get_files(fpaths, recurse)[0])

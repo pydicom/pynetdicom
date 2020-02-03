@@ -8706,8 +8706,12 @@ class TestState13(TestStateBase):
 
         self.assoc.dul._is_transport_event = patch_xport_event
         self.assoc.start()
+        start = time.time()
         while self.fsm.current_state != 'Sta13':
             time.sleep(0.05)
+            if time.time() - start > 5:
+                self.print_fsm_scp(self.fsm, scp)
+                break
         self.assoc.dul.send_pdu(self.get_pdata())
         time.sleep(0.1)
 
@@ -9856,14 +9860,14 @@ class TestEventHandling(object):
         ae.add_requested_context('1.2.840.10008.1.1')
         handlers = [(evt.EVT_FSM_TRANSITION, handle)]
         scp = ae.start_server(('', 11112), block=False, evt_handlers=handlers)
-        assert scp.get_handlers(evt.EVT_FSM_TRANSITION) == [handle]
+        assert scp.get_handlers(evt.EVT_FSM_TRANSITION) == [(handle, None)]
 
         assoc = ae.associate('localhost', 11112)
         assert assoc.is_established
         assert assoc.get_handlers(evt.EVT_FSM_TRANSITION) == []
 
         child = scp.active_associations[0]
-        assert child.get_handlers(evt.EVT_FSM_TRANSITION) == [handle]
+        assert child.get_handlers(evt.EVT_FSM_TRANSITION) == [(handle, None)]
 
         assoc.release()
         while scp.active_associations:
@@ -9903,9 +9907,9 @@ class TestEventHandling(object):
         assert child.get_handlers(evt.EVT_FSM_TRANSITION) == []
 
         scp.bind(evt.EVT_FSM_TRANSITION, handle)
-        assert scp.get_handlers(evt.EVT_FSM_TRANSITION) == [handle]
+        assert scp.get_handlers(evt.EVT_FSM_TRANSITION) == [(handle, None)]
         child = scp.active_associations[0]
-        assert child.get_handlers(evt.EVT_FSM_TRANSITION) == [handle]
+        assert child.get_handlers(evt.EVT_FSM_TRANSITION) == [(handle, None)]
 
         assoc.release()
         while scp.active_associations:
@@ -9933,12 +9937,12 @@ class TestEventHandling(object):
         ae.add_requested_context('1.2.840.10008.1.1')
         handlers = [(evt.EVT_FSM_TRANSITION, handle)]
         scp = ae.start_server(('', 11112), block=False, evt_handlers=handlers)
-        assert scp.get_handlers(evt.EVT_FSM_TRANSITION) == [handle]
+        assert scp.get_handlers(evt.EVT_FSM_TRANSITION) == [(handle, None)]
 
         assoc = ae.associate('localhost', 11112)
         assert assoc.is_established
         child = scp.active_associations[0]
-        assert child.get_handlers(evt.EVT_FSM_TRANSITION) == [handle]
+        assert child.get_handlers(evt.EVT_FSM_TRANSITION) == [(handle, None)]
 
         scp.unbind(evt.EVT_FSM_TRANSITION, handle)
         assert scp.get_handlers(evt.EVT_FSM_TRANSITION) == []
@@ -9975,7 +9979,7 @@ class TestEventHandling(object):
         scp = ae.start_server(('', 11112), block=False)
 
         assoc = ae.associate('localhost', 11112, evt_handlers=handlers)
-        assert assoc.get_handlers(evt.EVT_FSM_TRANSITION) == [handle]
+        assert assoc.get_handlers(evt.EVT_FSM_TRANSITION) == [(handle, None)]
         assert assoc.is_established
         assert scp.get_handlers(evt.EVT_FSM_TRANSITION) == []
         child = scp.active_associations[0]
@@ -10013,7 +10017,7 @@ class TestEventHandling(object):
         assert assoc.get_handlers(evt.EVT_FSM_TRANSITION) == []
 
         assoc.bind(evt.EVT_FSM_TRANSITION, handle)
-        assert assoc.get_handlers(evt.EVT_FSM_TRANSITION) == [handle]
+        assert assoc.get_handlers(evt.EVT_FSM_TRANSITION) == [(handle, None)]
 
         assert scp.get_handlers(evt.EVT_FSM_TRANSITION) == []
         child = scp.active_associations[0]
@@ -10050,7 +10054,7 @@ class TestEventHandling(object):
 
         assoc = ae.associate('localhost', 11112, evt_handlers=handlers)
         assert assoc.is_established
-        assert assoc.get_handlers(evt.EVT_FSM_TRANSITION) == [handle]
+        assert assoc.get_handlers(evt.EVT_FSM_TRANSITION) == [(handle, None)]
 
         assoc.unbind(evt.EVT_FSM_TRANSITION, handle)
         assert assoc.get_handlers(evt.EVT_FSM_TRANSITION) == []

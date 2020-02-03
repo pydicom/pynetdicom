@@ -171,7 +171,7 @@ class Association(threading.Thread):
     @acse_timeout.setter
     def acse_timeout(self, value):
         """Set the ACSE timeout using numeric or ``None``."""
-        with threading.Lock():
+        with self.lock:
             self.dul.artim_timer.timeout = value
             self._acse_timeout = value
 
@@ -180,10 +180,14 @@ class Association(threading.Thread):
         """Return the parent :class:`~pynetdicom.ae.ApplicationEntity`."""
         return self._ae
 
-    def bind(self, event, handler):
+    def bind(self, event, handler, args=None):
         """Bind a callable `handler` to an `event`.
 
         .. versionadded:: 1.3
+
+        .. versionchanged:: 1.5
+
+            Added `args` keyword parameter.
 
         Parameters
         ----------
@@ -191,23 +195,23 @@ class Association(threading.Thread):
             The event to bind the function to.
         handler : callable
             The function that will be called if the event occurs.
+        args : list, optional
+            Optional extra arguments to be passed to the handler (default:
+            no extra arguments passed to the handler).
         """
         # Make sure no access to `_handlers` while its being changed
-        with threading.Lock():
+        with self.lock:
             # Notification events - multiple handlers allowed
             if event.is_notification:
                 if event not in self._handlers:
                     self._handlers[event] = []
-                if handler not in self._handlers[event]:
-                    self._handlers[event].append(handler)
+
+                if (handler, args) not in self._handlers[event]:
+                    self._handlers[event].append((handler, args))
 
             # Intervention events - only one handler allowed
             if event.is_intervention:
-                if event not in self._handlers:
-                    self._handlers[event] = None
-
-                if self._handlers[event] != handler:
-                    self._handlers[event] = handler
+                self._handlers[event] = (handler, args)
 
     def _bind_defaults(self):
         """Bind the default event handlers."""
@@ -269,7 +273,7 @@ class Association(threading.Thread):
     @dimse_timeout.setter
     def dimse_timeout(self, value):
         """Set the DIMSE timeout using numeric or ``None``."""
-        with threading.Lock():
+        with self.lock:
             self._dimse_timeout = value
 
     def get_events(self):
@@ -284,6 +288,10 @@ class Association(threading.Thread):
 
         .. versionadded:: 1.3
 
+        .. versionchanged:: 1.5
+
+            Returns a 2-tuple of (callable, args) or list of 2-tuple.
+
         Parameters
         ----------
         event : namedtuple
@@ -291,12 +299,13 @@ class Association(threading.Thread):
 
         Returns
         -------
-        callable, list of callable or None
+        2-tuple of (callable, args), list of 2-tuple
             If the event is a notification event then returns a list of
-            callable functions bound to `event`, if the event is an
-            intervention event then returns either a callable function if a
-            handler is bound to the event or ``None`` if no handler has been
-            bound.
+            2-tuples containing the callable functions bound to `event` and
+            the arguments passed to the callable as ``(callable, args)``. If
+            the event is an intervention event then returns either a 2-tuple of
+            (callable, args) if a handler is bound to the event or
+            ``(None, None)`` if no handler has been bound.
         """
         if event not in self._handlers:
             return []
@@ -362,12 +371,12 @@ class Association(threading.Thread):
 
         role = role or 'scu'
         msg = (
-            "No suitable presentation context for the {} role has been "
-            "accepted by the peer for the SOP Class '{}'"
-            .format(role.upper(), ab_syntax.name)
+            "No presentation context for '{}' has been accepted by the peer"
+            .format(ab_syntax.name)
         )
         if tr_syntax:
-            msg += " with a transfer syntax of '{}'".format(tr_syntax.name)
+            msg += " with '{}' transfer syntax".format(tr_syntax.name)
+        msg += " for the {} role".format(role.upper())
 
         LOGGER.error(msg)
         raise ValueError(msg)
@@ -405,6 +414,7 @@ class Association(threading.Thread):
         self._reactor_checkpoint.set()
         self._kill = True
         self.is_established = False
+        self._is_paused = True
         while self.dul.is_alive() and not self.dul.stop_dul():
             time.sleep(0.01)
 
@@ -458,7 +468,7 @@ class Association(threading.Thread):
     @network_timeout.setter
     def network_timeout(self, value):
         """Set the network timeout using numeric or ``None``."""
-        with threading.Lock():
+        with self.lock:
             self.dul._idle_timer.timeout = value
             self._network_timeout = value
 
@@ -653,17 +663,23 @@ class Association(threading.Thread):
             return
 
         # Make sure no access to `_handlers` while its being changed
-        with threading.Lock():
+        with self.lock:
+
             # Notification events
-            if event.is_notification and handler in self._handlers[event]:
-                self._handlers[event].remove(handler)
+            if event.is_notification:
+                handlers = [hh[0] for hh in self._handlers[event]]
+                try:
+                    ii = handlers.index(handler)
+                    del self._handlers[event][ii]
+                except ValueError:
+                    pass
 
                 if not self._handlers[event]:
                     del self._handlers[event]
 
             # Intervention events - unbind and replace with default
-            if event.is_intervention and self._handlers[event] == handler:
-                self._handlers[event] = evt.get_default_handler(event)
+            if event.is_intervention and handler in self._handlers[event]:
+                self._handlers[event] = (evt.get_default_handler(event), None)
 
     # DIMSE-C services provided by the Association
     def _c_store_scp(self, req):

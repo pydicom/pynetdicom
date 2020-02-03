@@ -602,9 +602,9 @@ def negotiate_as_acceptor(rq_contexts, ac_contexts, roles=None):
                 has_role = False
 
             # Abstract syntax supported so check Transfer Syntax
-            for tr_syntax in rq_context.transfer_syntax:
+            for tr_syntax in ac_context.transfer_syntax:
                 # If transfer syntax supported then (provisionally) accept
-                if tr_syntax in ac_context.transfer_syntax:
+                if tr_syntax in rq_context.transfer_syntax:
                     context.transfer_syntax = [tr_syntax]
                     context.result = 0x00
                     result_contexts.append(context)

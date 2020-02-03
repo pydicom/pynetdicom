@@ -892,6 +892,9 @@ class TestAssociationSendCEcho(object):
             def send_msg(*args, **kwargs): return
             def get_msg(*args, **kwargs): return None, None
 
+        assoc._reactor_checkpoint.clear()
+        while not assoc._is_paused:
+            time.sleep(0.01)
         assoc.dimse = DummyDIMSE()
         if assoc.is_established:
             assoc.send_c_echo()
@@ -918,6 +921,9 @@ class TestAssociationSendCEcho(object):
             def send_msg(*args, **kwargs): return
             def get_msg(*args, **kwargs): return None, DummyResponse()
 
+        assoc._reactor_checkpoint.clear()
+        while not assoc._is_paused:
+            time.sleep(0.01)
         assoc.dimse = DummyDIMSE()
         if assoc.is_established:
             assoc.send_c_echo()
@@ -1273,7 +1279,7 @@ class TestAssociationSendCStore(object):
         scp.shutdown()
 
     def test_encode_compressed_dataset(self):
-        """Test sending a dataset with a compressed transfer syntax"""
+        """Test sending a dataset with a compressed transfer syntax """
         def handle_store(event):
             return 0x0000
 
@@ -1318,6 +1324,9 @@ class TestAssociationSendCStore(object):
             def send_msg(*args, **kwargs): return
             def get_msg(*args, **kwargs): return None, None
 
+        assoc._reactor_checkpoint.clear()
+        while not assoc._is_paused:
+            time.sleep(0.01)
         assoc.dimse = DummyDIMSE()
         assert assoc.is_established
         status = assoc.send_c_store(DATASET)
@@ -1352,6 +1361,9 @@ class TestAssociationSendCStore(object):
             def send_msg(*args, **kwargs): return
             def get_msg(*args, **kwargs): return DummyResponse(), None
 
+        assoc._reactor_checkpoint.clear()
+        while not assoc._is_paused:
+            time.sleep(0.01)
         assoc.dimse = DummyDIMSE()
         assert assoc.is_established
         status = assoc.send_c_store(DATASET)
@@ -1622,9 +1634,9 @@ class TestAssociationSendCStore(object):
         assert assoc.is_established
 
         msg = (
-            r"No suitable presentation context for the SCU role has been "
-            r"accepted by the peer for the SOP Class 'CT Image Storage' with "
-            r"a transfer syntax of 'JPEG Baseline \(Process 1\)'"
+            r"No presentation context for 'CT Image Storage' has been "
+            r"accepted by the peer with 'JPEG Baseline \(Process 1\)' "
+            r"transfer syntax for the SCU role"
         )
         with pytest.raises(ValueError, match=msg):
             assoc.send_c_store(ds)
@@ -1892,6 +1904,9 @@ class TestAssociationSendCFind(object):
             def send_msg(*args, **kwargs): return
             def get_msg(*args, **kwargs): return DummyResponse(), None
 
+        assoc._reactor_checkpoint.clear()
+        while not assoc._is_paused:
+            time.sleep(0.01)
         assoc.dimse = DummyDIMSE()
         assert assoc.is_established
         for (_, _) in assoc.send_c_find(self.ds, PatientRootQueryRetrieveInformationModelFind):
@@ -1980,6 +1995,9 @@ class TestAssociationSendCFind(object):
             def get_msg(*args, **kwargs):
                 return None, None
 
+        assoc._reactor_checkpoint.clear()
+        while not assoc._is_paused:
+            time.sleep(0.01)
         assoc.dimse = DummyDIMSE()
         assert assoc.is_established
 
@@ -2021,6 +2039,9 @@ class TestAssociationSendCFind(object):
                 rsp._dataset = dummy
                 return 1, rsp
 
+        assoc._reactor_checkpoint.clear()
+        while not assoc._is_paused:
+            time.sleep(0.01)
         assoc.dimse = DummyDIMSE()
         assert assoc.is_established
 
@@ -2770,6 +2791,9 @@ class TestAssociationSendCGet(object):
             def get_msg(*args, **kwargs):
                 return None, None
 
+        assoc._reactor_checkpoint.clear()
+        while not assoc._is_paused:
+            time.sleep(0.01)
         assoc.dimse = DummyDIMSE()
         assert assoc.is_established
 
@@ -2823,6 +2847,9 @@ class TestAssociationSendCGet(object):
                 rsp._dataset = dummy
                 return 1, rsp
 
+        assoc._reactor_checkpoint.clear()
+        while not assoc._is_paused:
+            time.sleep(0.01)
         assoc.dimse = DummyDIMSE()
         assert assoc.is_established
 
@@ -3534,6 +3561,9 @@ class TestAssociationSendCMove(object):
             def get_msg(*args, **kwargs):
                 return None, None
 
+        assoc._reactor_checkpoint.clear()
+        while not assoc._is_paused:
+            time.sleep(0.01)
         assoc.dimse = DummyDIMSE()
         assert assoc.is_established
 
@@ -3584,6 +3614,9 @@ class TestAssociationSendCMove(object):
                 rsp._dataset = dummy
                 return 1, rsp
 
+        assoc._reactor_checkpoint.clear()
+        while not assoc._is_paused:
+            time.sleep(0.01)
         assoc.dimse = DummyDIMSE()
         assert assoc.is_established
 
@@ -3789,8 +3822,8 @@ class TestGetValidContext(object):
         assert assoc.is_established
 
         msg = (
-            r"No suitable presentation context for the SCU role has been "
-            r"accepted by the peer for the SOP Class 'CT Image Storage'"
+            r"No presentation context for 'CT Image Storage' has been "
+            r"accepted by the peer for the SCU role"
         )
         with pytest.raises(ValueError, match=msg):
             assoc._get_valid_context(CTImageStorage, '', 'scu', context_id=1)
@@ -3859,9 +3892,9 @@ class TestGetValidContext(object):
 
         # Uncompressed accepted, compressed sent
         msg = (
-            r"No suitable presentation context for the SCU role has been "
-            r"accepted by the peer for the SOP Class 'Verification SOP Class' "
-            r"with a transfer syntax of 'JPEG Baseline \(Process 1\)'"
+            r"No presentation context for 'Verification SOP Class' has been "
+            r"accepted by the peer with 'JPEG Baseline \(Process 1\)' "
+            r"transfer syntax for the SCU role"
         )
         with pytest.raises(ValueError, match=msg):
             assoc._get_valid_context('1.2.840.10008.1.1',
@@ -3879,9 +3912,9 @@ class TestGetValidContext(object):
         assert cx.transfer_syntax[0] == JPEGBaseline
 
         msg = (
-            r"No suitable presentation context for the SCU role has been "
-            r"accepted by the peer for the SOP Class 'CT Image Storage' "
-            r"with a transfer syntax of 'Implicit VR Little Endian'"
+            r"No presentation context for 'CT Image Storage' has been "
+            r"accepted by the peer with 'Implicit VR Little Endian' "
+            r"transfer syntax for the SCU role"
         )
         with pytest.raises(ValueError, match=msg):
             assoc._get_valid_context(CTImageStorage,
@@ -3891,9 +3924,9 @@ class TestGetValidContext(object):
 
         # Compressed (JPEGBaseline) accepted, compressed (JPEG2000) sent
         msg = (
-            r"No suitable presentation context for the SCU role has been "
-            r"accepted by the peer for the SOP Class 'CT Image Storage' "
-            r"with a transfer syntax of 'JPEG 2000 Image Compression'"
+            r"No presentation context for 'CT Image Storage' has been "
+            r"accepted by the peer with 'JPEG 2000 Image Compression' "
+            r"transfer syntax for the SCU role"
         )
         with pytest.raises(ValueError, match=msg):
             assoc._get_valid_context(CTImageStorage,
@@ -3928,8 +3961,9 @@ class TestGetValidContext(object):
 
         # Any transfer syntax
         msg = (
-            r"No suitable presentation context for the SCP role has been "
-            r"accepted by the peer for the SOP Class 'Verification SOP Class'"
+            r"No presentation context for 'Verification SOP Class' has been "
+            r"accepted by the peer "
+            r"for the SCP role"
         )
         with pytest.raises(ValueError, match=msg):
             assoc._get_valid_context('1.2.840.10008.1.1',
@@ -3939,9 +3973,10 @@ class TestGetValidContext(object):
 
         # Transfer syntax used
         msg = (
-            r"No suitable presentation context for the SCP role has been "
-            r"accepted by the peer for the SOP Class 'Verification SOP Class' "
-            r"with a transfer syntax of 'Implicit VR Little Endian'"
+            r"No presentation context for 'Verification SOP Class' has been "
+            r"accepted by the peer "
+            r"with 'Implicit VR Little Endian' transfer syntax "
+            r"for the SCP role"
         )
         with pytest.raises(ValueError, match=msg):
             assoc._get_valid_context('1.2.840.10008.1.1',
@@ -3977,8 +4012,9 @@ class TestGetValidContext(object):
 
         # Any transfer syntax
         msg = (
-            r"No suitable presentation context for the SCU role has been "
-            r"accepted by the peer for the SOP Class 'CT Image Storage'"
+            r"No presentation context for 'CT Image Storage' has been "
+            r"accepted by the peer "
+            r"for the SCU role"
         )
         with pytest.raises(ValueError, match=msg):
             assoc._get_valid_context(CTImageStorage,
@@ -3988,9 +4024,10 @@ class TestGetValidContext(object):
 
         # Transfer syntax used
         msg = (
-            r"No suitable presentation context for the SCU role has been "
-            r"accepted by the peer for the SOP Class 'CT Image Storage' "
-            r"with a transfer syntax of 'Implicit VR Little Endian'"
+            r"No presentation context for 'CT Image Storage' has been "
+            r"accepted by the peer "
+            r"with 'Implicit VR Little Endian' transfer syntax "
+            r"for the SCU role"
         )
         with pytest.raises(ValueError, match=msg):
             assoc._get_valid_context(CTImageStorage,
@@ -4014,8 +4051,9 @@ class TestGetValidContext(object):
         assoc._get_valid_context(VerificationSOPClass, '', 'scu')
 
         msg = (
-            r"No suitable presentation context for the SCU role has been "
-            r"accepted by the peer for the SOP Class 'CT Image Storage'"
+            r"No presentation context for 'CT Image Storage' has been "
+            r"accepted by the peer "
+            r"for the SCU role"
         )
         with pytest.raises(ValueError, match=msg):
             assoc._get_valid_context(CTImageStorage, '', 'scu')
@@ -4066,9 +4104,10 @@ class TestGetValidContext(object):
 
         # Uncompressed accepted, compressed sent
         msg = (
-            r"No suitable presentation context for the SCU role has been "
-            r"accepted by the peer for the SOP Class 'Verification SOP Class' "
-            r"with a transfer syntax of 'JPEG Baseline \(Process 1\)'"
+            r"No presentation context for 'Verification SOP Class' has been "
+            r"accepted by the peer "
+            r"with 'JPEG Baseline \(Process 1\)' transfer syntax "
+            r"for the SCU role"
         )
         with pytest.raises(ValueError, match=msg):
             assoc._get_valid_context('1.2.840.10008.1.1', JPEGBaseline, 'scu')
@@ -4080,9 +4119,10 @@ class TestGetValidContext(object):
         assert cx.transfer_syntax[0] == JPEGBaseline
 
         msg = (
-            r"No suitable presentation context for the SCU role has been "
-            r"accepted by the peer for the SOP Class 'CT Image Storage' "
-            r"with a transfer syntax of 'Implicit VR Little Endian'"
+            r"No presentation context for 'CT Image Storage' has been "
+            r"accepted by the peer "
+            r"with 'Implicit VR Little Endian' transfer syntax "
+            r"for the SCU role"
         )
         with pytest.raises(ValueError, match=msg):
             assoc._get_valid_context(CTImageStorage,
@@ -4091,9 +4131,10 @@ class TestGetValidContext(object):
 
         # Compressed (JPEGBaseline) accepted, compressed (JPEG2000) sent
         msg = (
-            r"No suitable presentation context for the SCU role has been "
-            r"accepted by the peer for the SOP Class 'CT Image Storage' "
-            r"with a transfer syntax of 'JPEG 2000 Image Compression'"
+            r"No presentation context for 'CT Image Storage' has been "
+            r"accepted by the peer "
+            r"with 'JPEG 2000 Image Compression' transfer syntax "
+            r"for the SCU role"
         )
         with pytest.raises(ValueError, match=msg):
             assoc._get_valid_context(CTImageStorage, JPEG2000, 'scu')
@@ -4122,17 +4163,19 @@ class TestGetValidContext(object):
 
         # Any transfer syntax
         msg = (
-            r"No suitable presentation context for the SCP role has been "
-            r"accepted by the peer for the SOP Class 'Verification SOP Class'"
+            r"No presentation context for 'Verification SOP Class' has been "
+            r"accepted by the peer "
+            r"for the SCP role"
         )
         with pytest.raises(ValueError, match=msg):
             assoc._get_valid_context('1.2.840.10008.1.1', '', 'scp')
 
         # Transfer syntax used
         msg = (
-            r"No suitable presentation context for the SCP role has been "
-            r"accepted by the peer for the SOP Class 'Verification SOP Class' "
-            r"with a transfer syntax of 'Implicit VR Little Endian'"
+            r"No presentation context for 'Verification SOP Class' has been "
+            r"accepted by the peer "
+            r"with 'Implicit VR Little Endian' transfer syntax "
+            r"for the SCP role"
         )
         with pytest.raises(ValueError, match=msg):
             assoc._get_valid_context('1.2.840.10008.1.1',
@@ -4164,8 +4207,9 @@ class TestGetValidContext(object):
 
         # Any transfer syntax
         msg = (
-            r"No suitable presentation context for the SCU role has been "
-            r"accepted by the peer for the SOP Class 'CT Image Storage'"
+            r"No presentation context for 'CT Image Storage' has been "
+            r"accepted by the peer "
+            r"for the SCU role"
         )
         with pytest.raises(ValueError, match=msg):
             assoc._get_valid_context(CTImageStorage,
@@ -4174,9 +4218,10 @@ class TestGetValidContext(object):
 
         # Transfer syntax used
         msg = (
-            r"No suitable presentation context for the SCU role has been "
-            r"accepted by the peer for the SOP Class 'CT Image Storage' "
-            r"with a transfer syntax of 'Implicit VR Little Endian'"
+            r"No presentation context for 'CT Image Storage' has been "
+            r"accepted by the peer "
+            r"with 'Implicit VR Little Endian' transfer syntax "
+            r"for the SCU role"
         )
         with pytest.raises(ValueError, match=msg):
             assoc._get_valid_context(CTImageStorage,
@@ -4281,10 +4326,10 @@ class TestEventHandlingAcceptor(object):
         ae.add_requested_context(VerificationSOPClass)
         scp = ae.start_server(('', 11112), block=False)
         scp.bind(evt.EVT_C_ECHO, dummy)
-        assert scp.get_handlers(evt.EVT_C_ECHO) == dummy
+        assert scp.get_handlers(evt.EVT_C_ECHO) == (dummy, None)
         scp.unbind(evt.EVT_C_ECHO, dummy)
-        assert scp.get_handlers(evt.EVT_C_ECHO) != dummy
-        assert scp.get_handlers(evt.EVT_C_ECHO) == evt._c_echo_handler
+        assert scp.get_handlers(evt.EVT_C_ECHO) != (dummy, None)
+        assert scp.get_handlers(evt.EVT_C_ECHO) == (evt._c_echo_handler, None)
 
         scp.shutdown()
 
@@ -4298,7 +4343,7 @@ class TestEventHandlingAcceptor(object):
         ae.add_requested_context(VerificationSOPClass)
         scp = ae.start_server(('', 11112), block=False)
         scp.bind(evt.EVT_C_ECHO, dummy)
-        assert scp.get_handlers(evt.EVT_C_ECHO) == dummy
+        assert scp.get_handlers(evt.EVT_C_ECHO) == (dummy, None)
 
         assoc = ae.associate('localhost', 11112)
 
@@ -4306,13 +4351,15 @@ class TestEventHandlingAcceptor(object):
         assert len(scp.active_associations) == 1
 
         child = scp.active_associations[0]
-        assert child.get_handlers(evt.EVT_C_ECHO) == dummy
+        assert child.get_handlers(evt.EVT_C_ECHO) == (dummy, None)
 
         scp.unbind(evt.EVT_C_ECHO, dummy)
-        assert scp.get_handlers(evt.EVT_C_ECHO) != dummy
-        assert scp.get_handlers(evt.EVT_C_ECHO) == evt._c_echo_handler
-        assert child.get_handlers(evt.EVT_C_ECHO) != dummy
-        assert child.get_handlers(evt.EVT_C_ECHO) == evt._c_echo_handler
+        assert scp.get_handlers(evt.EVT_C_ECHO) != (dummy, None)
+        assert scp.get_handlers(evt.EVT_C_ECHO) == (evt._c_echo_handler, None)
+        assert child.get_handlers(evt.EVT_C_ECHO) != (dummy, None)
+        assert child.get_handlers(evt.EVT_C_ECHO) == (
+            evt._c_echo_handler, None
+        )
 
         assoc.release()
 
@@ -4329,7 +4376,7 @@ class TestEventHandlingAcceptor(object):
         ae.add_requested_context(VerificationSOPClass)
         handlers = [(evt.EVT_ABORTED, handle)]
         scp = ae.start_server(('', 11112), block=False, evt_handlers=handlers)
-        assert scp.get_handlers(evt.EVT_ABORTED) == [handle]
+        assert scp.get_handlers(evt.EVT_ABORTED) == [(handle, None)]
         assert scp.get_handlers(evt.EVT_ACCEPTED) == []
         assert scp.get_handlers(evt.EVT_ESTABLISHED) == []
         assert scp.get_handlers(evt.EVT_REJECTED) == []
@@ -4340,7 +4387,7 @@ class TestEventHandlingAcceptor(object):
         assert assoc.is_established
         assert len(scp.active_associations) == 1
 
-        assert scp.get_handlers(evt.EVT_ABORTED) == [handle]
+        assert scp.get_handlers(evt.EVT_ABORTED) == [(handle, None)]
         assert scp.get_handlers(evt.EVT_ACCEPTED) == []
         assert scp.get_handlers(evt.EVT_ESTABLISHED) == []
         assert scp.get_handlers(evt.EVT_REJECTED) == []
@@ -4355,7 +4402,7 @@ class TestEventHandlingAcceptor(object):
         assert assoc.get_handlers(evt.EVT_REQUESTED) == []
 
         child = scp.active_associations[0]
-        assert child.get_handlers(evt.EVT_ABORTED) == [handle]
+        assert child.get_handlers(evt.EVT_ABORTED) == [(handle, None)]
         assert child.get_handlers(evt.EVT_ACCEPTED) == []
         assert child.get_handlers(evt.EVT_ESTABLISHED) == []
         assert child.get_handlers(evt.EVT_REJECTED) == []
@@ -4422,7 +4469,7 @@ class TestEventHandlingAcceptor(object):
 
         scp.bind(evt.EVT_ABORTED, handle)
 
-        assert scp.get_handlers(evt.EVT_ABORTED) == [handle]
+        assert scp.get_handlers(evt.EVT_ABORTED) == [(handle, None)]
         assert scp.get_handlers(evt.EVT_ACCEPTED) == []
         assert scp.get_handlers(evt.EVT_ESTABLISHED) == []
         assert scp.get_handlers(evt.EVT_REJECTED) == []
@@ -4437,7 +4484,7 @@ class TestEventHandlingAcceptor(object):
         assert assoc.get_handlers(evt.EVT_REQUESTED) == []
 
         child = scp.active_associations[0]
-        assert child.get_handlers(evt.EVT_ABORTED) == [handle]
+        assert child.get_handlers(evt.EVT_ABORTED) == [(handle, None)]
         assert child.get_handlers(evt.EVT_ACCEPTED) == []
         assert child.get_handlers(evt.EVT_ESTABLISHED) == []
         assert child.get_handlers(evt.EVT_REJECTED) == []
@@ -4469,7 +4516,7 @@ class TestEventHandlingAcceptor(object):
         ae.add_requested_context(VerificationSOPClass)
         handlers = [(evt.EVT_ABORTED, handle)]
         scp = ae.start_server(('', 11112), block=False, evt_handlers=handlers)
-        assert scp.get_handlers(evt.EVT_ABORTED) == [handle]
+        assert scp.get_handlers(evt.EVT_ABORTED) == [(handle, None)]
         assert scp.get_handlers(evt.EVT_ACCEPTED) == []
         assert scp.get_handlers(evt.EVT_ESTABLISHED) == []
         assert scp.get_handlers(evt.EVT_REJECTED) == []
@@ -4480,7 +4527,7 @@ class TestEventHandlingAcceptor(object):
         assert assoc.is_established
         assert len(scp.active_associations) == 1
 
-        assert scp.get_handlers(evt.EVT_ABORTED) == [handle]
+        assert scp.get_handlers(evt.EVT_ABORTED) == [(handle, None)]
         assert scp.get_handlers(evt.EVT_ACCEPTED) == []
         assert scp.get_handlers(evt.EVT_ESTABLISHED) == []
         assert scp.get_handlers(evt.EVT_REJECTED) == []
@@ -4495,7 +4542,7 @@ class TestEventHandlingAcceptor(object):
         assert assoc.get_handlers(evt.EVT_REQUESTED) == []
 
         child = scp.active_associations[0]
-        assert child.get_handlers(evt.EVT_ABORTED) == [handle]
+        assert child.get_handlers(evt.EVT_ABORTED) == [(handle, None)]
         assert child.get_handlers(evt.EVT_ACCEPTED) == []
         assert child.get_handlers(evt.EVT_ESTABLISHED) == []
         assert child.get_handlers(evt.EVT_REJECTED) == []
@@ -4606,7 +4653,7 @@ class TestEventHandlingAcceptor(object):
         handlers = [(evt.EVT_ACCEPTED, handle)]
         scp = ae.start_server(('', 11112), block=False, evt_handlers=handlers)
         assert scp.get_handlers(evt.EVT_ABORTED) == []
-        assert scp.get_handlers(evt.EVT_ACCEPTED) == [handle]
+        assert scp.get_handlers(evt.EVT_ACCEPTED) == [(handle, None)]
         assert scp.get_handlers(evt.EVT_ESTABLISHED) == []
         assert scp.get_handlers(evt.EVT_REJECTED) == []
         assert scp.get_handlers(evt.EVT_RELEASED) == []
@@ -4617,7 +4664,7 @@ class TestEventHandlingAcceptor(object):
         assert len(scp.active_associations) == 1
 
         assert scp.get_handlers(evt.EVT_ABORTED) == []
-        assert scp.get_handlers(evt.EVT_ACCEPTED) == [handle]
+        assert scp.get_handlers(evt.EVT_ACCEPTED) == [(handle, None)]
         assert scp.get_handlers(evt.EVT_ESTABLISHED) == []
         assert scp.get_handlers(evt.EVT_REJECTED) == []
         assert scp.get_handlers(evt.EVT_RELEASED) == []
@@ -4632,7 +4679,7 @@ class TestEventHandlingAcceptor(object):
 
         child = scp.active_associations[0]
         assert child.get_handlers(evt.EVT_ABORTED) == []
-        assert child.get_handlers(evt.EVT_ACCEPTED) == [handle]
+        assert child.get_handlers(evt.EVT_ACCEPTED) == [(handle, None)]
         assert child.get_handlers(evt.EVT_ESTABLISHED) == []
         assert child.get_handlers(evt.EVT_REJECTED) == []
         assert child.get_handlers(evt.EVT_RELEASED) == []
@@ -4677,9 +4724,9 @@ class TestEventHandlingAcceptor(object):
 
         scp.bind(evt.EVT_ACCEPTED, handle)
 
-        assert scp.get_handlers(evt.EVT_ACCEPTED) == [handle]
+        assert scp.get_handlers(evt.EVT_ACCEPTED) == [(handle, None)]
         assert assoc.get_handlers(evt.EVT_ACCEPTED) == []
-        assert child.get_handlers(evt.EVT_ACCEPTED) == [handle]
+        assert child.get_handlers(evt.EVT_ACCEPTED) == [(handle, None)]
 
         assoc2 = ae.associate('localhost', 11112)
 
@@ -4705,16 +4752,16 @@ class TestEventHandlingAcceptor(object):
         ae.add_requested_context(VerificationSOPClass)
         handlers = [(evt.EVT_ACCEPTED, handle)]
         scp = ae.start_server(('', 11112), block=False, evt_handlers=handlers)
-        assert scp.get_handlers(evt.EVT_ACCEPTED) == [handle]
+        assert scp.get_handlers(evt.EVT_ACCEPTED) == [(handle, None)]
 
         assoc = ae.associate('localhost', 11112)
         assert assoc.is_established
         assert len(scp.active_associations) == 1
 
-        assert scp.get_handlers(evt.EVT_ACCEPTED) == [handle]
+        assert scp.get_handlers(evt.EVT_ACCEPTED) == [(handle, None)]
         assert assoc.get_handlers(evt.EVT_ACCEPTED) == []
         child = scp.active_associations[0]
-        assert child.get_handlers(evt.EVT_ACCEPTED) == [handle]
+        assert child.get_handlers(evt.EVT_ACCEPTED) == [(handle, None)]
 
         assert len(triggered) == 1
         assert triggered[0].event.name == "EVT_ACCEPTED"
@@ -4781,7 +4828,7 @@ class TestEventHandlingAcceptor(object):
         assert scp.get_handlers(evt.EVT_ACCEPTED) == []
         assert scp.get_handlers(evt.EVT_ESTABLISHED) == []
         assert scp.get_handlers(evt.EVT_REJECTED) == []
-        assert scp.get_handlers(evt.EVT_RELEASED) == [handle]
+        assert scp.get_handlers(evt.EVT_RELEASED) == [(handle, None)]
         assert scp.get_handlers(evt.EVT_REQUESTED) == []
 
         assoc = ae.associate('localhost', 11112)
@@ -4792,7 +4839,7 @@ class TestEventHandlingAcceptor(object):
         assert scp.get_handlers(evt.EVT_ACCEPTED) == []
         assert scp.get_handlers(evt.EVT_ESTABLISHED) == []
         assert scp.get_handlers(evt.EVT_REJECTED) == []
-        assert scp.get_handlers(evt.EVT_RELEASED) == [handle]
+        assert scp.get_handlers(evt.EVT_RELEASED) == [(handle, None)]
         assert scp.get_handlers(evt.EVT_REQUESTED) == []
 
         assert assoc.get_handlers(evt.EVT_ABORTED) == []
@@ -4807,7 +4854,7 @@ class TestEventHandlingAcceptor(object):
         assert child.get_handlers(evt.EVT_ACCEPTED) == []
         assert child.get_handlers(evt.EVT_ESTABLISHED) == []
         assert child.get_handlers(evt.EVT_REJECTED) == []
-        assert child.get_handlers(evt.EVT_RELEASED) == [handle]
+        assert child.get_handlers(evt.EVT_RELEASED) == [(handle, None)]
         assert child.get_handlers(evt.EVT_REQUESTED) == []
 
         assoc.release()
@@ -4849,10 +4896,10 @@ class TestEventHandlingAcceptor(object):
 
         scp.bind(evt.EVT_RELEASED, handle)
 
-        assert scp.get_handlers(evt.EVT_RELEASED) == [handle]
+        assert scp.get_handlers(evt.EVT_RELEASED) == [(handle, None)]
         assert assoc.get_handlers(evt.EVT_RELEASED) == []
         child = scp.active_associations[0]
-        assert child.get_handlers(evt.EVT_RELEASED) == [handle]
+        assert child.get_handlers(evt.EVT_RELEASED) == [(handle, None)]
 
         assoc.release()
 
@@ -4972,7 +5019,7 @@ class TestEventHandlingAcceptor(object):
         scp = ae.start_server(('', 11112), block=False, evt_handlers=handlers)
         assert scp.get_handlers(evt.EVT_ABORTED) == []
         assert scp.get_handlers(evt.EVT_ACCEPTED) == []
-        assert scp.get_handlers(evt.EVT_ESTABLISHED) == [handle]
+        assert scp.get_handlers(evt.EVT_ESTABLISHED) == [(handle, None)]
         assert scp.get_handlers(evt.EVT_REJECTED) == []
         assert scp.get_handlers(evt.EVT_RELEASED) == []
         assert scp.get_handlers(evt.EVT_REQUESTED) == []
@@ -4983,7 +5030,7 @@ class TestEventHandlingAcceptor(object):
 
         assert scp.get_handlers(evt.EVT_ABORTED) == []
         assert scp.get_handlers(evt.EVT_ACCEPTED) == []
-        assert scp.get_handlers(evt.EVT_ESTABLISHED) == [handle]
+        assert scp.get_handlers(evt.EVT_ESTABLISHED) == [(handle, None)]
         assert scp.get_handlers(evt.EVT_REJECTED) == []
         assert scp.get_handlers(evt.EVT_RELEASED) == []
         assert scp.get_handlers(evt.EVT_REQUESTED) == []
@@ -4998,7 +5045,7 @@ class TestEventHandlingAcceptor(object):
         child = scp.active_associations[0]
         assert child.get_handlers(evt.EVT_ABORTED) == []
         assert child.get_handlers(evt.EVT_ACCEPTED) == []
-        assert child.get_handlers(evt.EVT_ESTABLISHED) == [handle]
+        assert child.get_handlers(evt.EVT_ESTABLISHED) == [(handle, None)]
         assert child.get_handlers(evt.EVT_REJECTED) == []
         assert child.get_handlers(evt.EVT_RELEASED) == []
         assert child.get_handlers(evt.EVT_REQUESTED) == []
@@ -5036,10 +5083,10 @@ class TestEventHandlingAcceptor(object):
         assert assoc.is_established
         assert len(scp.active_associations) == 1
 
-        assert scp.get_handlers(evt.EVT_ESTABLISHED) == [handle]
+        assert scp.get_handlers(evt.EVT_ESTABLISHED) == [(handle, None)]
         assert assoc.get_handlers(evt.EVT_ESTABLISHED) == []
         child = scp.active_associations[0]
-        assert child.get_handlers(evt.EVT_ESTABLISHED) == [handle]
+        assert child.get_handlers(evt.EVT_ESTABLISHED) == [(handle, None)]
 
         assoc.release()
 
@@ -5131,7 +5178,7 @@ class TestEventHandlingAcceptor(object):
         assert scp.get_handlers(evt.EVT_ESTABLISHED) == []
         assert scp.get_handlers(evt.EVT_REJECTED) == []
         assert scp.get_handlers(evt.EVT_RELEASED) == []
-        assert scp.get_handlers(evt.EVT_REQUESTED) == [handle]
+        assert scp.get_handlers(evt.EVT_REQUESTED) == [(handle, None)]
 
         assoc = ae.associate('localhost', 11112)
         assert assoc.is_established
@@ -5142,7 +5189,7 @@ class TestEventHandlingAcceptor(object):
         assert scp.get_handlers(evt.EVT_ESTABLISHED) == []
         assert scp.get_handlers(evt.EVT_REJECTED) == []
         assert scp.get_handlers(evt.EVT_RELEASED) == []
-        assert scp.get_handlers(evt.EVT_REQUESTED) == [handle]
+        assert scp.get_handlers(evt.EVT_REQUESTED) == [(handle, None)]
 
         assert assoc.get_handlers(evt.EVT_ABORTED) == []
         assert assoc.get_handlers(evt.EVT_ACCEPTED) == []
@@ -5157,7 +5204,7 @@ class TestEventHandlingAcceptor(object):
         assert child.get_handlers(evt.EVT_ESTABLISHED) == []
         assert child.get_handlers(evt.EVT_REJECTED) == []
         assert child.get_handlers(evt.EVT_RELEASED) == []
-        assert child.get_handlers(evt.EVT_REQUESTED) == [handle]
+        assert child.get_handlers(evt.EVT_REQUESTED) == [(handle, None)]
 
         assoc.release()
 
@@ -5192,10 +5239,10 @@ class TestEventHandlingAcceptor(object):
         assert assoc.is_established
         assert len(scp.active_associations) == 1
 
-        assert scp.get_handlers(evt.EVT_REQUESTED) == [handle]
+        assert scp.get_handlers(evt.EVT_REQUESTED) == [(handle, None)]
         assert assoc.get_handlers(evt.EVT_REQUESTED) == []
         child = scp.active_associations[0]
-        assert child.get_handlers(evt.EVT_REQUESTED) == [handle]
+        assert child.get_handlers(evt.EVT_REQUESTED) == [(handle, None)]
 
         assoc.release()
 
@@ -5286,7 +5333,7 @@ class TestEventHandlingAcceptor(object):
         assert scp.get_handlers(evt.EVT_ABORTED) == []
         assert scp.get_handlers(evt.EVT_ACCEPTED) == []
         assert scp.get_handlers(evt.EVT_ESTABLISHED) == []
-        assert scp.get_handlers(evt.EVT_REJECTED) == [handle]
+        assert scp.get_handlers(evt.EVT_REJECTED) == [(handle, None)]
         assert scp.get_handlers(evt.EVT_RELEASED) == []
         assert scp.get_handlers(evt.EVT_REQUESTED) == []
 
@@ -5296,7 +5343,7 @@ class TestEventHandlingAcceptor(object):
         assert scp.get_handlers(evt.EVT_ABORTED) == []
         assert scp.get_handlers(evt.EVT_ACCEPTED) == []
         assert scp.get_handlers(evt.EVT_ESTABLISHED) == []
-        assert scp.get_handlers(evt.EVT_REJECTED) == [handle]
+        assert scp.get_handlers(evt.EVT_REJECTED) == [(handle, None)]
         assert scp.get_handlers(evt.EVT_RELEASED) == []
         assert scp.get_handlers(evt.EVT_REQUESTED) == []
 
@@ -5335,7 +5382,7 @@ class TestEventHandlingAcceptor(object):
         assoc = ae.associate('localhost', 11112)
         assert assoc.is_rejected
 
-        assert scp.get_handlers(evt.EVT_REJECTED) == [handle]
+        assert scp.get_handlers(evt.EVT_REJECTED) == [(handle, None)]
         assert assoc.get_handlers(evt.EVT_REJECTED) == []
 
         assert len(triggered) == 1
@@ -5397,6 +5444,75 @@ class TestEventHandlingAcceptor(object):
             )
             assert msg in caplog.text
             assert "Exception description" in caplog.text
+
+    def test_optional_args(self):
+        """Test passing optional arguments to the handler."""
+        arguments = []
+        def handle(event, *args):
+            arguments.append(args)
+
+        args = ['a', 1, {'test': 1}]
+
+        self.ae = ae = AE()
+        ae.add_supported_context(VerificationSOPClass)
+        ae.add_requested_context(VerificationSOPClass)
+        handlers = [(evt.EVT_ACCEPTED, handle, args)]
+        scp = ae.start_server(('', 11112), block=False, evt_handlers=handlers)
+
+        assoc = ae.associate('localhost', 11112)
+        assert assoc.is_established
+        assert len(scp.active_associations) == 1
+        assert scp.get_handlers(evt.EVT_ACCEPTED) == [(handle, args)]
+        assert assoc.get_handlers(evt.EVT_ESTABLISHED) == []
+
+        child = scp.active_associations[0]
+        assert child.get_handlers(evt.EVT_ACCEPTED) == [(handle, args)]
+
+        assoc.abort()
+
+        while scp.active_associations:
+            time.sleep(0.05)
+
+        scp.shutdown()
+
+        assert len(arguments) == 1
+        assert args == list(arguments[0])
+
+    def test_optional_args_intervention(self):
+        """Test passing optional arguments to the handler."""
+        arguments = []
+        def handle_echo(event, *args):
+            arguments.append(args)
+            return 0x0000
+
+        args = ['a', 1, {'test': 1}]
+
+        self.ae = ae = AE()
+        ae.add_supported_context(VerificationSOPClass)
+        ae.add_requested_context(VerificationSOPClass)
+        handlers = [(evt.EVT_C_ECHO, handle_echo, args)]
+        scp = ae.start_server(('', 11112), block=False, evt_handlers=handlers)
+
+        assoc = ae.associate('localhost', 11112)
+        assert assoc.is_established
+        assert len(scp.active_associations) == 1
+        assert scp.get_handlers(evt.EVT_C_ECHO) == (handle_echo, args)
+
+        child = scp.active_associations[0]
+        assert child.get_handlers(evt.EVT_C_ECHO) == (handle_echo, args)
+
+        status = assoc.send_c_echo()
+        assert status.Status == 0x0000
+
+        assoc.abort()
+
+        while scp.active_associations:
+            time.sleep(0.05)
+
+        scp.shutdown()
+
+        assert len(arguments) == 1
+        assert args == list(arguments[0])
 
 
 class TestEventHandlingRequestor(object):
@@ -5495,9 +5611,9 @@ class TestEventHandlingRequestor(object):
 
         assoc.bind(evt.EVT_DIMSE_SENT, dummy)
 
-        assert assoc.get_handlers(evt.EVT_DIMSE_SENT) == [dummy]
+        assert assoc.get_handlers(evt.EVT_DIMSE_SENT) == [(dummy, None)]
         assoc.unbind(evt.EVT_DIMSE_SENT, dummy2)
-        assert assoc.get_handlers(evt.EVT_DIMSE_SENT) == [dummy]
+        assert assoc.get_handlers(evt.EVT_DIMSE_SENT) == [(dummy, None)]
 
         assoc.release()
 
@@ -5519,10 +5635,12 @@ class TestEventHandlingRequestor(object):
         assert len(scp.active_associations) == 1
 
         assoc.bind(evt.EVT_C_ECHO, dummy)
-        assert assoc.get_handlers(evt.EVT_C_ECHO) == dummy
+        assert assoc.get_handlers(evt.EVT_C_ECHO) == (dummy, None)
         assoc.unbind(evt.EVT_C_ECHO, dummy)
-        assert assoc.get_handlers(evt.EVT_C_ECHO) != dummy
-        assert assoc.get_handlers(evt.EVT_C_ECHO) == evt._c_echo_handler
+        assert assoc.get_handlers(evt.EVT_C_ECHO) != (dummy, None)
+        assert assoc.get_handlers(evt.EVT_C_ECHO) == (
+            evt._c_echo_handler, None
+        )
 
         assoc.release()
 
@@ -5543,7 +5661,7 @@ class TestEventHandlingRequestor(object):
         assert assoc.is_established
         assert len(scp.active_associations) == 1
 
-        assert assoc.get_handlers(evt.EVT_ABORTED) == [handle]
+        assert assoc.get_handlers(evt.EVT_ABORTED) == [(handle, None)]
         assert assoc.get_handlers(evt.EVT_ACCEPTED) == []
         assert assoc.get_handlers(evt.EVT_ESTABLISHED) == []
         assert assoc.get_handlers(evt.EVT_REJECTED) == []
@@ -5589,7 +5707,7 @@ class TestEventHandlingRequestor(object):
 
         assoc.bind(evt.EVT_ABORTED, handle)
 
-        assert assoc.get_handlers(evt.EVT_ABORTED) == [handle]
+        assert assoc.get_handlers(evt.EVT_ABORTED) == [(handle, None)]
         assert assoc.get_handlers(evt.EVT_ACCEPTED) == []
         assert assoc.get_handlers(evt.EVT_ESTABLISHED) == []
         assert assoc.get_handlers(evt.EVT_REJECTED) == []
@@ -5626,7 +5744,7 @@ class TestEventHandlingRequestor(object):
         assert assoc.is_established
         assert len(scp.active_associations) == 1
 
-        assert assoc.get_handlers(evt.EVT_ABORTED) == [handle]
+        assert assoc.get_handlers(evt.EVT_ABORTED) == [(handle, None)]
         assert assoc.get_handlers(evt.EVT_ACCEPTED) == []
         assert assoc.get_handlers(evt.EVT_ESTABLISHED) == []
         assert assoc.get_handlers(evt.EVT_REJECTED) == []
@@ -5726,7 +5844,7 @@ class TestEventHandlingRequestor(object):
         assert len(scp.active_associations) == 1
 
         assert assoc.get_handlers(evt.EVT_ABORTED) == []
-        assert assoc.get_handlers(evt.EVT_ACCEPTED) == [handle]
+        assert assoc.get_handlers(evt.EVT_ACCEPTED) == [(handle, None)]
         assert assoc.get_handlers(evt.EVT_ESTABLISHED) == []
         assert assoc.get_handlers(evt.EVT_REJECTED) == []
         assert assoc.get_handlers(evt.EVT_RELEASED) == []
@@ -5794,7 +5912,7 @@ class TestEventHandlingRequestor(object):
         assert assoc.get_handlers(evt.EVT_ACCEPTED) == []
         assert assoc.get_handlers(evt.EVT_ESTABLISHED) == []
         assert assoc.get_handlers(evt.EVT_REJECTED) == []
-        assert assoc.get_handlers(evt.EVT_RELEASED) == [handle]
+        assert assoc.get_handlers(evt.EVT_RELEASED) == [(handle, None)]
         assert assoc.get_handlers(evt.EVT_REQUESTED) == []
 
         assoc.release()
@@ -5829,7 +5947,7 @@ class TestEventHandlingRequestor(object):
         assert assoc.get_handlers(evt.EVT_RELEASED) == []
 
         assoc.bind(evt.EVT_RELEASED, handle)
-        assert assoc.get_handlers(evt.EVT_RELEASED) == [handle]
+        assert assoc.get_handlers(evt.EVT_RELEASED) == [(handle, None)]
 
         assoc.release()
 
@@ -5861,7 +5979,7 @@ class TestEventHandlingRequestor(object):
         assert assoc.is_established
         assert len(scp.active_associations) == 1
 
-        assert assoc.get_handlers(evt.EVT_RELEASED) == [handle]
+        assert assoc.get_handlers(evt.EVT_RELEASED) == [(handle, None)]
 
         assoc.unbind(evt.EVT_RELEASED, handle)
 
@@ -5952,7 +6070,7 @@ class TestEventHandlingRequestor(object):
 
         assert assoc.get_handlers(evt.EVT_ABORTED) == []
         assert assoc.get_handlers(evt.EVT_ACCEPTED) == []
-        assert assoc.get_handlers(evt.EVT_ESTABLISHED) == [handle]
+        assert assoc.get_handlers(evt.EVT_ESTABLISHED) == [(handle, None)]
         assert assoc.get_handlers(evt.EVT_REJECTED) == []
         assert assoc.get_handlers(evt.EVT_RELEASED) == []
         assert assoc.get_handlers(evt.EVT_REQUESTED) == []
@@ -6019,7 +6137,7 @@ class TestEventHandlingRequestor(object):
         assert assoc.get_handlers(evt.EVT_ESTABLISHED) == []
         assert assoc.get_handlers(evt.EVT_REJECTED) == []
         assert assoc.get_handlers(evt.EVT_RELEASED) == []
-        assert assoc.get_handlers(evt.EVT_REQUESTED) == [handle]
+        assert assoc.get_handlers(evt.EVT_REQUESTED) == [(handle, None)]
 
         assoc.release()
 
@@ -6082,7 +6200,7 @@ class TestEventHandlingRequestor(object):
         assert assoc.get_handlers(evt.EVT_ABORTED) == []
         assert assoc.get_handlers(evt.EVT_ACCEPTED) == []
         assert assoc.get_handlers(evt.EVT_ESTABLISHED) == []
-        assert assoc.get_handlers(evt.EVT_REJECTED) == [handle]
+        assert assoc.get_handlers(evt.EVT_REJECTED) == [(handle, None)]
         assert assoc.get_handlers(evt.EVT_RELEASED) == []
         assert assoc.get_handlers(evt.EVT_REQUESTED) == []
 
@@ -6118,3 +6236,32 @@ class TestEventHandlingRequestor(object):
             )
             assert msg in caplog.text
             assert "Exception description" in caplog.text
+
+    def test_optional_args(self):
+        """Test passing optional arguments to the handler."""
+        arguments = []
+        def handle(event, *args):
+            arguments.append(args)
+
+        args = ['a', 1, {'test': 1}]
+
+        self.ae = ae = AE()
+        ae.add_supported_context(VerificationSOPClass)
+        ae.add_requested_context(VerificationSOPClass)
+        handlers = [(evt.EVT_ACCEPTED, handle, args)]
+        scp = ae.start_server(('', 11112), block=False)
+
+        assoc = ae.associate('localhost', 11112, evt_handlers=handlers)
+        assert assoc.is_established
+        assert len(scp.active_associations) == 1
+        assert assoc.get_handlers(evt.EVT_ACCEPTED) == [(handle, args)]
+
+        assoc.abort()
+
+        while scp.active_associations:
+            time.sleep(0.05)
+
+        scp.shutdown()
+
+        assert len(arguments) == 1
+        assert args == list(arguments[0])

@@ -193,10 +193,12 @@ def trigger(assoc, event, attrs=None):
         handler then the exception will be caught and logged instead.
     """
     # Get the handler(s) bound to the event
-    #   notification events: returns a list of callable
-    #   intervention events: returns a callable or None
+    #   notification events: returns a list of 2-tuple (callable, args)
+    #   intervention events: returns a 2-tuple of (callable, args)
+    #       or (None, None)
     handlers = assoc.get_handlers(event)
-    if not handlers:
+    # Empty list or (None, None)
+    if not handlers or handlers[0] is None:
         return
 
     evt = Event(assoc, event, attrs or {})
@@ -204,11 +206,17 @@ def trigger(assoc, event, attrs=None):
     try:
         # Intervention event - only single handler allowed
         if event.is_intervention:
-            return handlers(evt)
+            if handlers[1] is not None:
+                return handlers[0](evt, *handlers[1])
+
+            return handlers[0](evt)
 
         # Notification event - multiple handlers are allowed
-        for func in handlers:
-            func(evt)
+        for func, args in handlers:
+            if args:
+                func(evt, *args)
+            else:
+                func(evt)
     except Exception as exc:
         # Intervention exceptions get raised
         if event.is_intervention:
@@ -487,11 +495,16 @@ class Event(object):
 
         Contains the following File Meta Information elements:
 
-        * (0002,0002) *Media Storage SOP Class UID*
-        * (0002,0003) *Media Storage SOP Instance UID*
-        * (0002,0010) *Transfer Syntax UID*
-        * (0002,0012) *Implementation Class UID*
-        * (0002,0013) *Implementation Version Name*
+        * (0002,0002) *Media Storage SOP Class UID* - set from the request's
+          *Affected SOP Class UID*
+        * (0002,0003) *Media Storage SOP Instance UID* - set from the request's
+          *Affected SOP Instance UID*
+        * (0002,0010) *Transfer Syntax UID* - set from the presentation context
+          used to transfer the *Data Set*
+        * (0002,0012) *Implementation Class UID* - set using
+          :attr:`~pynetdicom.PYNETDICOM_IMPLEMENTATION_UID`
+        * (0002,0013) *Implementation Version Name* - set using
+          :attr:`~pynetdicom.PYNETDICOM_IMPLEMENTATION_VERSION`
 
         Examples
         --------
