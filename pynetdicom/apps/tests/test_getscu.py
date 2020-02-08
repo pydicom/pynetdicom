@@ -33,7 +33,6 @@ from pynetdicom.sop_class import (
 
 APP_DIR = os.path.join(os.path.dirname(__file__), '../')
 APP_FILE = os.path.join(APP_DIR, 'getscu', 'getscu.py')
-LOG_CONFIG = os.path.join(APP_DIR, 'echoscu', 'logging.cfg')
 DATA_DIR = os.path.join(APP_DIR, '../', 'tests', 'dicom_files')
 DATASET_FILE = os.path.join(DATA_DIR, 'CTImageStorage.dcm')
 

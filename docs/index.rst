@@ -135,6 +135,7 @@ Applications
 * :doc:`findscu <apps/findscu>`
 * :doc:`getscu <apps/getscu>`
 * :doc:`movescu <apps/movescu>`
+* :doc:`qrscp <apps/qrscp>`
 * :doc:`storescu <apps/storescu>`
 * :doc:`storescp <apps/storescp>`
 

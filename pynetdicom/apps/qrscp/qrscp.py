@@ -25,7 +25,8 @@ from pynetdicom import (
     VerificationPresentationContexts
 )
 from pynetdicom.apps.common import setup_logging
-from .handlers import (
+from pynetdicom.sop_class import VerificationSOPClass
+from handlers import (
     handle_echo, handle_find, handle_get, handle_move, handle_store
 )
 
@@ -39,7 +40,7 @@ def _setup_argparser():
     parser = argparse.ArgumentParser(
         description=(
             "The qrscp application implements a Service Class Provider (SCP) "
-            "for the Verification, Storage and Query/Retrieve (QR) Service
+            "for the Verification, Storage and Query/Retrieve (QR) Service "
             "Classes."""
         ),
         usage="qrscp [options] port"
@@ -85,7 +86,7 @@ def _setup_argparser():
     )
     gen_opts.add_argument(
         '-c', '--config', metavar='[f]ilename',
-        help="use configuration file f"
+        help="use configuration file f",
         type=str,
     )
 
