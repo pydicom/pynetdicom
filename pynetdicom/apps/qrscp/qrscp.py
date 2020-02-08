@@ -5,11 +5,6 @@ import argparse
 import os
 import sys
 
-try:
-    import sqlalchemy
-    import sqlite3
-except ImportError:
-    sys.exit("qrscp.py requires the sqlalchemy and sqlite3 packages")
 
 from pydicom.dataset import Dataset
 from pydicom.uid import (
@@ -26,6 +21,7 @@ from pynetdicom import (
 )
 from pynetdicom.apps.common import setup_logging
 from pynetdicom.sop_class import VerificationSOPClass
+from db import connect, add_instance
 from handlers import (
     handle_echo, handle_find, handle_get, handle_move, handle_store
 )
