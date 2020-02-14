@@ -465,6 +465,10 @@ class AssociationServer(TCPServer):
 
     .. versionadded:: 1.2
 
+    .. versionchanged:: 1.5
+
+        Added `request_handler` keyword parameter.
+
     Any attempts to connect will be assumed to be from association requestors.
 
     The server should be started with
@@ -487,7 +491,7 @@ class AssociationServer(TCPServer):
         no TLS is required (default).
     """
     def __init__(self, ae, address, ae_title, contexts, ssl_context=None,
-                 evt_handlers=None):
+                 evt_handlers=None, request_handler=None):
         """Create a new :class:`AssociationServer`, bind a socket and start
         listening.
 
@@ -509,6 +513,10 @@ class AssociationServer(TCPServer):
             A list of ``(event, callable)`` or ``(event, callable, args)``,
             the *callable* function to run when *event* occurs and the
             optional extra *args* to pass to the callable.
+        request_handler : type
+            The request handler class; an instance of this class
+            is created for each request. Should be a subclass of
+            :class:`~socketserver.BaseRequestHandler`.
         """
         self.ae = ae
         self.ae_title = ae_title
@@ -521,8 +529,9 @@ class AssociationServer(TCPServer):
         self.ssl_context = ssl_context
         self.allow_reuse_address = True
 
+        request_handler = request_handler or RequestHandler
         TCPServer.__init__(
-            self, address, RequestHandler, bind_and_activate=True
+            self, address, request_handler, bind_and_activate=True
         )
 
         self.timeout = 60

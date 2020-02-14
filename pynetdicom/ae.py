@@ -1162,8 +1162,8 @@ class ApplicationEntity(object):
 
         if block:
             # Blocking server
-            server = AssociationServer(
-                self, address, ae_title, contexts, ssl_context,
+            server = self.make_server(
+                address, ae_title=ae_title, contexts=contexts, ssl_context=ssl_context,
                 evt_handlers=evt_handlers,
             )
             self._servers.append(server)
@@ -1176,9 +1176,9 @@ class ApplicationEntity(object):
         else:
             # Non-blocking server
             timestamp = datetime.strftime(datetime.now(), "%Y%m%d%H%M%S")
-            server = ThreadedAssociationServer(
-                self, address, ae_title, contexts, ssl_context,
-                evt_handlers=evt_handlers,
+            server = self.make_server(
+                address, ae_title=ae_title, contexts=contexts, ssl_context=ssl_context,
+                evt_handlers=evt_handlers, server_class=ThreadedAssociationServer,
             )
 
             thread = threading.Thread(
@@ -1191,6 +1191,22 @@ class ApplicationEntity(object):
             self._servers.append(server)
 
             return server
+
+    def make_server(self, address, ae_title=None, contexts=None,
+                    ssl_context=None, evt_handlers=None,
+                    server_class=None, **kwargs):
+        """Return an association server for the AE.
+        Accepts the same arguments as :meth:`start_server`. 
+        Additional keyword arguments are passed to the constructor of `server_class`.
+
+        .. versionadded:: 1.5
+        """
+        server_class = server_class or AssociationServer
+        return server_class(
+            self, address, ae_title, contexts, ssl_context,
+            evt_handlers=evt_handlers,
+            **kwargs
+        )
 
     def shutdown(self):
         """Stop any active association servers and threads.
