@@ -5,6 +5,7 @@ import os
 import pytest
 import pyfakefs
 from sqlalchemy.schema import MetaData
+from sqlalchemy.exc import IntegrityError
 
 from pydicom import dcmread
 import pydicom.config
@@ -32,6 +33,8 @@ DATASETS = {
         'series_number' : '1',
         'sop_instance_uid' : '1.3.6.1.4.1.5962.1.1.1.1.1.20040119072730.12322',
         'instance_number' : '1',
+        'transfer_syntax_uid' : '1.2.840.10008.1.2.1',
+        'sop_class_uid' : '1.2.840.10008.5.1.4.1.1.2',
     },
     'MRImageStorage_JPG2000_Lossless.dcm' : {
         'patient_id' : '4MR1',
@@ -46,6 +49,8 @@ DATASETS = {
         'series_number' : '1',
         'sop_instance_uid' : '1.3.6.1.4.1.5962.1.1.4.1.1.20040826185059.5457',
         'instance_number' : '1',
+        'transfer_syntax_uid' : '1.2.840.10008.1.2.4.90',
+        'sop_class_uid' : '1.2.840.10008.5.1.4.1.1.4',
     },
     'RTImageStorage.dcm' : {
         'patient_id' : '0123456789',
@@ -60,6 +65,8 @@ DATASETS = {
         'series_number' : '000000052637',
         'sop_instance_uid' : '1.3.46.423632.132218.1438566266.11',
         'instance_number' : '000000056675',
+        'transfer_syntax_uid' : '1.2.840.10008.1.2',
+        'sop_class_uid' : '1.2.840.10008.5.1.4.1.1.481.1',
     },
 }
 
@@ -116,10 +123,7 @@ class TestAddInstance(object):
     """Tests for db.add_instance()."""
     def setup(self):
         """Run prior to each test"""
-        self.orig = config.DATABASE_LOCATION
-        config.DATABASE_LOCATION = TEST_DB
-
-        self.conn, self.engine, self.session = db.connect()
+        self.conn, self.engine, self.session = db.connect('sqlite:///:memory:')
         pydicom.config.use_none_as_empty_text_VR_value = True
 
         ds = Dataset()
@@ -128,13 +132,6 @@ class TestAddInstance(object):
         ds.SeriesInstanceUID = '1.2.3'
         ds.SOPInstanceUID = '1.2.3.4'
         self.minimal = ds
-
-    def teardown(self):
-        """Clear any active threads"""
-        if os.path.exists(config.DATABASE_LOCATION):
-            os.remove(config.DATABASE_LOCATION)
-
-        config.DATABASE_LOCATION = self.orig
 
     def test_add_instance(self):
         """Test adding to the instance database."""
@@ -207,6 +204,45 @@ class TestAddInstance(object):
         session = self.session()
         assert not session.query(db.Instance).all()
 
+    def test_bad_instance_none(self):
+        """Test that instances with bad data aren't added."""
+        keywords = [
+            ('PatientID', 16),
+            ('PatientName', 64),
+            ('StudyInstanceUID', 64),
+            ('StudyDate', 8),
+            ('StudyTime', 14),
+            ('AccessionNumber', 16),
+            ('StudyID', 16),
+            ('SeriesInstanceUID', 64),
+            ('Modality', 16),
+            #('SeriesNumber', None),
+            ('SOPInstanceUID', 64),
+            #('InstanceNumber', None),
+        ]
+        ds = Dataset()
+        ds.PatientID = None
+        ds.StudyInstanceUID = None
+        ds.SeriesInstanceUID = None
+        ds.SOPInstanceUID = None
+        with pytest.raises(IntegrityError):
+            db.add_instance(ds, self.session)
+
+        session = self.session()
+        assert not session.query(db.Instance).all()
+
+    def test_instance_exists(self):
+        """Test that adding already existing instance."""
+        db.add_instance(self.minimal, self.session)
+
+        session = self.session()
+        assert session.query(db.Instance).all()
+
+        with pytest.raises(IntegrityError):
+            db.add_instance(self.minimal, self.session)
+
+        assert 1 == len(session.query(db.Instance).all())
+
 
 class TestRemoveInstance(object):
     """Tests for db.remove_instance()."""
@@ -215,7 +251,7 @@ class TestRemoveInstance(object):
         self.orig = config.DATABASE_LOCATION
         config.DATABASE_LOCATION = TEST_DB
 
-        self.conn, self.engine, self.session = db.connect()
+        self.conn, self.engine, self.session = db.connect('sqlite:///:memory:')
         pydicom.config.use_none_as_empty_text_VR_value = True
 
         ds = Dataset()
@@ -227,13 +263,6 @@ class TestRemoveInstance(object):
 
         self.minimal = ds
 
-    def teardown(self):
-        """Clear any active threads"""
-        if os.path.exists(config.DATABASE_LOCATION):
-            os.remove(config.DATABASE_LOCATION)
-
-        config.DATABASE_LOCATION = self.orig
-
     def test_remove_existing(self):
         """Test removing if exists in database."""
         session = self.session()
@@ -244,6 +273,10 @@ class TestRemoveInstance(object):
         db.remove_instance('1.2.3.4', self.session)
         session = self.session()
         assert not session.query(db.Instance).all()
+        assert not session.query(db.Patient).all()
+        assert not session.query(db.Study).all()
+        assert not session.query(db.Series).all()
+        assert not session.query(db.Image).all()
 
     def test_remove_not_existing(self):
         """Test removing if doesn't exist in database."""
@@ -261,23 +294,13 @@ class TestClear(object):
     """Tests for db.clear()."""
     def setup(self):
         """Run prior to each test"""
-        self.orig = config.DATABASE_LOCATION
-        config.DATABASE_LOCATION = TEST_DB
-
-        self.conn, self.engine, self.session = db.connect()
+        self.conn, self.engine, self.session = db.connect('sqlite:///:memory:')
         pydicom.config.use_none_as_empty_text_VR_value = True
 
         for fname in DATASETS:
             fpath = os.path.join(DATA_DIR, fname)
             ds = dcmread(fpath)
             db.add_instance(ds, self.session)
-
-    def teardown(self):
-        """Clear any active threads"""
-        if os.path.exists(config.DATABASE_LOCATION):
-            os.remove(config.DATABASE_LOCATION)
-
-        config.DATABASE_LOCATION = self.orig
 
     def test_clear(self):
         """Test removing if exists in database."""
@@ -292,10 +315,7 @@ class TestSearch(object):
     """Tests for db.search()."""
     def setup(self):
         """Run prior to each test"""
-        self.orig = config.DATABASE_LOCATION
-        config.DATABASE_LOCATION = TEST_DB
-
-        self.conn, self.engine, self.session = db.connect()
+        self.conn, self.engine, self.session = db.connect('sqlite:///:memory:')
         pydicom.config.use_none_as_empty_text_VR_value = True
 
         for fname in DATASETS:
@@ -303,13 +323,134 @@ class TestSearch(object):
             ds = dcmread(fpath)
             db.add_instance(ds, self.session)
 
-    def teardown(self):
-        """Clear any active threads"""
-        if os.path.exists(config.DATABASE_LOCATION):
-            os.remove(config.DATABASE_LOCATION)
-
-        config.DATABASE_LOCATION = self.orig
-
     def test_search(self):
         """Test simple search."""
         pass
+
+    def test_search_range_both(self):
+        """Test searching a range with both start and end."""
+        query = Dataset()
+        query.QueryRetrieveLevel = 'PATIENT'
+        query.StudyDate = '20000101-20200101'
+        q = db._search_range(query['StudyDate'], self.session)
+        assert 3 == len(q.all())
+
+        query.StudyDate = '20000101-20150101'
+        q = db._search_range(query['StudyDate'], self.session)
+        assert 2 == len(q.all())
+
+        query.StudyDate = '20000101-20010101'
+        q = db._search_range(query['StudyDate'], self.session)
+        assert not q.all()
+
+    def test_search_range_start(self):
+        """Test searching a range with only start."""
+        query = Dataset()
+        query.QueryRetrieveLevel = 'PATIENT'
+        query.StudyDate = '20000101-'
+        q = db._search_range(query['StudyDate'], self.session)
+        assert 3 == len(q.all())
+
+        query.StudyDate = '20150101-'
+        q = db._search_range(query['StudyDate'], self.session)
+        assert 1 == len(q.all())
+
+        query.StudyDate = '20200101-'
+        q = db._search_range(query['StudyDate'], self.session)
+        assert not q.all()
+
+    def test_search_range_end(self):
+        """Test searching a range with only end."""
+        query = Dataset()
+        query.QueryRetrieveLevel = 'PATIENT'
+        query.StudyDate = '-20200101'
+        q = db._search_range(query['StudyDate'], self.session)
+        assert 3 == len(q.all())
+
+        query.StudyDate = '-20150101'
+        q = db._search_range(query['StudyDate'], self.session)
+        assert 2 == len(q.all())
+
+        query.StudyDate = '-20010101'
+        q = db._search_range(query['StudyDate'], self.session)
+        assert not q.all()
+
+    def test_search_range_neither(self):
+        """Test searching a range with only end."""
+        query = Dataset()
+        query.QueryRetrieveLevel = 'PATIENT'
+        query.StudyDate = '-'
+        with pytest.raises(ValueError):
+            db._search_range(query['StudyDate'], self.session)
+
+    def test_search_single_value(self):
+        """Test search using a single value."""
+        query = Dataset()
+        query.QueryRetrieveLevel = 'PATIENT'
+        query.PatientName = 'CompressedSamples^CT1'
+        q = db._search_single_value(query['PatientName'], self.session)
+        assert 1 == len(q.all())
+
+    def test_search_wildcard_asterisk(self):
+        """Test search using a * wildcard."""
+        query = Dataset()
+        query.QueryRetrieveLevel = 'PATIENT'
+
+        query.PatientName = '*'
+        q = db._search_wildcard(query['PatientName'], self.session)
+        assert 3 == len(q.all())
+
+        query.PatientName = 'CompressedSamples*'
+        q = db._search_wildcard(query['PatientName'], self.session)
+        assert 2 == len(q.all())
+
+    def test_search_wildcard_qmark(self):
+        """Test search using a ? wildcard."""
+        query = Dataset()
+        query.QueryRetrieveLevel = 'PATIENT'
+
+        query.PatientName = 'CompressedSamples^??1'
+        q = db._search_wildcard(query['PatientName'], self.session)
+        assert 2 == len(q.all())
+
+    def test_search_uid_list(self):
+        """Test search using a UID list."""
+        query = Dataset()
+        query.QueryRetrieveLevel = 'PATIENT'
+
+        query.SOPInstanceUID = []
+        q = db._search_uid_list(query['SOPInstanceUID'], self.session)
+        assert 0 == len(q.all())
+
+        query.SOPInstanceUID = [
+            '1.3.6.1.4.1.5962.1.1.4.1.1.20040826185059.5457'
+        ]
+        q = db._search_uid_list(query['SOPInstanceUID'], self.session)
+        assert 1 == len(q.all())
+
+        query.SOPInstanceUID = [
+            '1.3.6.1.4.1.5962.1.1.4.1.1.20040826185059.5457',
+            '1.3.6.1.4.1.5962.1.1.1.1.1.20040119072730.12322'
+        ]
+        q = db._search_uid_list(query['SOPInstanceUID'], self.session)
+        assert 2 == len(q.all())
+
+        query.SOPInstanceUID = [
+            '1.3.6.1.4.1.5962.1.1.4.1.1.20040826185059.5457',
+            '1.3.6.1.4.1.5962.1.1.1.1.1.20040119072730.12322',
+            '1.3.46.423632.132218.1415242681.6'
+        ]
+        q = db._search_uid_list(query['SOPInstanceUID'], self.session)
+        assert 2 == len(q.all())
+
+    def test_combine_queries(self):
+        """Test combining queries."""
+        query = Dataset()
+        query.QueryRetrieveLevel = 'PATIENT'
+        query.PatientName = 'CompressedSamples*'
+        query.StudyDate = '20000101-20040119'
+
+        q1 = db._search_wildcard(query['PatientName'], self.session)
+        q2 = db._search_range(query['StudyDate'], self.session)
+        q = q1.intersect(q2)
+        assert 1 == len(q.all())
