@@ -1130,36 +1130,6 @@ class ApplicationEntity(object):
             If `block` is ``False`` then returns the server instance, otherwise
             returns ``None``.
         """
-        # If the SCP has no supported SOP Classes then there's no point
-        #   running as a server
-        if not contexts and not self.supported_contexts:
-            msg = "No supported Presentation Contexts have been defined"
-            LOGGER.error(msg)
-            raise ValueError(msg)
-
-        if ae_title:
-            ae_title = validate_ae_title(ae_title)
-        else:
-            ae_title = self.ae_title
-
-        contexts = contexts or self.supported_contexts
-
-        bad_contexts = []
-        for cx in contexts:
-            roles = (cx.scu_role, cx.scp_role)
-            if None in roles and roles != (None, None):
-                bad_contexts.append(cx.abstract_syntax)
-
-        if bad_contexts:
-            msg = (
-                "The following presentation contexts have inconsistent "
-                "scu_role/scp_role values (if one is None, both must be):\n  "
-            )
-            msg += '\n  '.join(bad_contexts)
-            raise ValueError(msg)
-
-        evt_handlers = evt_handlers or {}
-
         if block:
             # Blocking server
             server = self.make_server(
@@ -1201,6 +1171,36 @@ class ApplicationEntity(object):
 
         .. versionadded:: 1.5
         """
+        # If the SCP has no supported SOP Classes then there's no point
+        #   running as a server
+        if not contexts and not self.supported_contexts:
+            msg = "No supported Presentation Contexts have been defined"
+            LOGGER.error(msg)
+            raise ValueError(msg)
+
+        if ae_title:
+            ae_title = validate_ae_title(ae_title)
+        else:
+            ae_title = self.ae_title
+
+        contexts = contexts or self.supported_contexts
+
+        bad_contexts = []
+        for cx in contexts:
+            roles = (cx.scu_role, cx.scp_role)
+            if None in roles and roles != (None, None):
+                bad_contexts.append(cx.abstract_syntax)
+
+        if bad_contexts:
+            msg = (
+                "The following presentation contexts have inconsistent "
+                "scu_role/scp_role values (if one is None, both must be):\n  "
+            )
+            msg += '\n  '.join(bad_contexts)
+            raise ValueError(msg)
+
+        evt_handlers = evt_handlers or {}
+
         server_class = server_class or AssociationServer
         return server_class(
             self, address, ae_title, contexts, ssl_context,

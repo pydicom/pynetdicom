@@ -68,6 +68,8 @@ class TestMakeServer(object):
 
     def test_default_arguments(self):
         self.ae = ae = AE()
+        ae.add_supported_context(VerificationSOPClass)
+
         server = ae.make_server(('', 11112))
         assert isinstance(server, AssociationServer)
 
@@ -76,6 +78,8 @@ class TestMakeServer(object):
             pass
 
         self.ae = ae = AE()
+        ae.add_supported_context(VerificationSOPClass)
+
         server = ae.make_server(('', 11112), request_handler=MyRequestHandler)
         assert server.RequestHandlerClass is MyRequestHandler
 
