@@ -17,6 +17,7 @@ pynetdicom.ae.ApplicationEntity
       ~ApplicationEntity.add_requested_context
       ~ApplicationEntity.add_supported_context
       ~ApplicationEntity.associate
+      ~ApplicationEntity.make_server
       ~ApplicationEntity.remove_requested_context
       ~ApplicationEntity.remove_supported_context
       ~ApplicationEntity.shutdown

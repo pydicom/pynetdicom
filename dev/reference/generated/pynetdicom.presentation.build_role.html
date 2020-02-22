@@ -23,10 +23,10 @@
   
     
       <script type="text/javascript" id="documentation_options" data-url_root="../../" src="../../_static/documentation_options.js"></script>
-        <script type="text/javascript" src="../../_static/jquery.js"></script>
-        <script type="text/javascript" src="../../_static/underscore.js"></script>
-        <script type="text/javascript" src="../../_static/doctools.js"></script>
-        <script type="text/javascript" src="../../_static/language_data.js"></script>
+        <script src="../../_static/jquery.js"></script>
+        <script src="../../_static/underscore.js"></script>
+        <script src="../../_static/doctools.js"></script>
+        <script src="../../_static/language_data.js"></script>
     
     <script type="text/javascript" src="../../_static/js/theme.js"></script>
 
@@ -207,7 +207,7 @@
 <h1>pynetdicom.presentation.build_role<a class="headerlink" href="#pynetdicom-presentation-build-role" title="Permalink to this headline">¶</a></h1>
 <dl class="function">
 <dt id="pynetdicom.presentation.build_role">
-<code class="sig-prename descclassname">pynetdicom.presentation.</code><code class="sig-name descname">build_role</code><span class="sig-paren">(</span><em class="sig-param">uid</em>, <em class="sig-param">scu_role=False</em>, <em class="sig-param">scp_role=False</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/9322a8f8/pynetdicom/presentation.py#L853"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom.presentation.build_role" title="Permalink to this definition">¶</a></dt>
+<code class="sig-prename descclassname">pynetdicom.presentation.</code><code class="sig-name descname">build_role</code><span class="sig-paren">(</span><em class="sig-param">uid</em>, <em class="sig-param">scu_role=False</em>, <em class="sig-param">scp_role=False</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/e98be9b2/pynetdicom/presentation.py#L853"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom.presentation.build_role" title="Permalink to this definition">¶</a></dt>
 <dd><p>Return a SCP/SCU Role Selection Negotiation item.</p>
 <div class="versionadded">
 <p><span class="versionmodified added">New in version 1.2.</span></p>
@@ -215,7 +215,7 @@
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>uid</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)"><em>str</em></a><em> or </em><em>UID</em><em> or </em><a class="reference internal" href="pynetdicom.sop_class.SOPClass.html#pynetdicom.sop_class.SOPClass" title="pynetdicom.sop_class.SOPClass"><em>sop_class.SOPClass</em></a>) – The <a class="reference external" href="https://pydicom.github.io/pydicom/stable/reference/generated/pydicom.uid.UID.html#pydicom.uid.UID" title="(in pydicom v1.4.1)"><code class="xref py py-class docutils literal notranslate"><span class="pre">UID</span></code></a> or subclass of
+<li><p><strong>uid</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)"><em>str</em></a><em> or </em><em>UID</em><em> or </em><a class="reference internal" href="pynetdicom.sop_class.SOPClass.html#pynetdicom.sop_class.SOPClass" title="pynetdicom.sop_class.SOPClass"><em>sop_class.SOPClass</em></a>) – The <a class="reference external" href="https://pydicom.github.io/pydicom/stable/reference/generated/pydicom.uid.UID.html#pydicom.uid.UID" title="(in pydicom v1.4.2)"><code class="xref py py-class docutils literal notranslate"><span class="pre">UID</span></code></a> or subclass of
 <a class="reference internal" href="pynetdicom.sop_class.SOPClass.html#pynetdicom.sop_class.SOPClass" title="pynetdicom.sop_class.SOPClass"><code class="xref py py-class docutils literal notranslate"><span class="pre">SOPClass</span></code></a> instance to use as the <em>SOP
 Class UID</em> parameter value.</p></li>
 <li><p><strong>scu_role</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.8)"><em>bool</em></a><em>, </em><em>optional</em>) – <code class="docutils literal notranslate"><span class="pre">True</span></code> to propose the SCU role for the <em>Requestor</em>, <code class="docutils literal notranslate"><span class="pre">False</span></code>

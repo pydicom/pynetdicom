@@ -23,10 +23,10 @@
   
     
       <script type="text/javascript" id="documentation_options" data-url_root="../../" src="../../_static/documentation_options.js"></script>
-        <script type="text/javascript" src="../../_static/jquery.js"></script>
-        <script type="text/javascript" src="../../_static/underscore.js"></script>
-        <script type="text/javascript" src="../../_static/doctools.js"></script>
-        <script type="text/javascript" src="../../_static/language_data.js"></script>
+        <script src="../../_static/jquery.js"></script>
+        <script src="../../_static/underscore.js"></script>
+        <script src="../../_static/doctools.js"></script>
+        <script src="../../_static/language_data.js"></script>
     
     <script type="text/javascript" src="../../_static/js/theme.js"></script>
 
@@ -221,7 +221,7 @@
 <h1>pynetdicom._handlers.doc_handle_n_get<a class="headerlink" href="#pynetdicom-handlers-doc-handle-n-get" title="Permalink to this headline">¶</a></h1>
 <dl class="function">
 <dt id="pynetdicom._handlers.doc_handle_n_get">
-<code class="sig-prename descclassname">pynetdicom._handlers.</code><code class="sig-name descname">doc_handle_n_get</code><span class="sig-paren">(</span><em class="sig-param">event</em>, <em class="sig-param">*args</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/9322a8f8/pynetdicom/_handlers.py#L3302"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom._handlers.doc_handle_n_get" title="Permalink to this definition">¶</a></dt>
+<code class="sig-prename descclassname">pynetdicom._handlers.</code><code class="sig-name descname">doc_handle_n_get</code><span class="sig-paren">(</span><em class="sig-param">event</em>, <em class="sig-param">*args</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/e98be9b2/pynetdicom/_handlers.py#L3302"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom._handlers.doc_handle_n_get" title="Permalink to this definition">¶</a></dt>
 <dd><p>Documentation for handlers bound to <code class="docutils literal notranslate"><span class="pre">evt.EVT_N_GET</span></code>.</p>
 <p>User implementation of this event handler is required if one or more
 services that use N-GET are to be supported. If a handler is
@@ -291,7 +291,7 @@ that the N-GET request was processed by the service as
 <p><a class="reference internal" href="pynetdicom.events.Event.html#pynetdicom.events.Event" title="pynetdicom.events.Event"><code class="xref py py-class docutils literal notranslate"><span class="pre">Event</span></code></a> properties are:</p>
 <ul>
 <li><p><a class="reference internal" href="pynetdicom.events.Event.html#pynetdicom.events.Event.attribute_identifiers" title="pynetdicom.events.Event.attribute_identifiers"><code class="xref py py-attr docutils literal notranslate"><span class="pre">attribute_identifiers</span></code></a>: a list of
-attribute <a class="reference external" href="https://pydicom.github.io/pydicom/stable/reference/generated/pydicom.tag.BaseTag.html#pydicom.tag.BaseTag" title="(in pydicom v1.4.1)"><code class="xref py py-class docutils literal notranslate"><span class="pre">BaseTag</span></code></a> contained within the
+attribute <a class="reference external" href="https://pydicom.github.io/pydicom/stable/reference/generated/pydicom.tag.BaseTag.html#pydicom.tag.BaseTag" title="(in pydicom v1.4.2)"><code class="xref py py-class docutils literal notranslate"><span class="pre">BaseTag</span></code></a> contained within the
 N-GET request’s <em>Attribute Identifier List</em> parameter.</p></li>
 <li><p><a class="reference internal" href="pynetdicom.events.Event.html#pynetdicom.events.Event.message_id" title="pynetdicom.events.Event.message_id"><code class="xref py py-attr docutils literal notranslate"><span class="pre">message_id</span></code></a>: the N-GET request’s
 <em>Message ID</em> as <a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.8)"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></a>.</p></li>
@@ -308,13 +308,13 @@ matching the contents of <cite>args</cite>.</p></li>
 <dd class="field-even"><p><ul>
 <li><p><strong>status</strong> (<em>pydicom.dataset.Dataset or int</em>) – The status returned to the peer AE in the N-GET response. Must be a
 valid N-GET status value for the applicable Service Class as either
-an <a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.8)"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></a> or a <a class="reference external" href="https://pydicom.github.io/pydicom/stable/reference/generated/pydicom.dataset.Dataset.html#pydicom.dataset.Dataset" title="(in pydicom v1.4.1)"><code class="xref py py-class docutils literal notranslate"><span class="pre">Dataset</span></code></a> object
+an <a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.8)"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></a> or a <a class="reference external" href="https://pydicom.github.io/pydicom/stable/reference/generated/pydicom.dataset.Dataset.html#pydicom.dataset.Dataset" title="(in pydicom v1.4.2)"><code class="xref py py-class docutils literal notranslate"><span class="pre">Dataset</span></code></a> object
 containing (at a minimum) a (0000,0900) <em>Status</em> element. If returning
-a <a class="reference external" href="https://pydicom.github.io/pydicom/stable/reference/generated/pydicom.dataset.Dataset.html#pydicom.dataset.Dataset" title="(in pydicom v1.4.1)"><code class="xref py py-class docutils literal notranslate"><span class="pre">Dataset</span></code></a> object then it may also contain
+a <a class="reference external" href="https://pydicom.github.io/pydicom/stable/reference/generated/pydicom.dataset.Dataset.html#pydicom.dataset.Dataset" title="(in pydicom v1.4.2)"><code class="xref py py-class docutils literal notranslate"><span class="pre">Dataset</span></code></a> object then it may also contain
 optional elements related to the <em>Status</em> (as in DICOM Standard, Part
 7, <a class="reference external" href="http://dicom.nema.org/medical/dicom/current/output/chtml/part07/chapter_C.html">Annex C</a>).</p></li>
 <li><p><strong>dataset</strong> (<em>pydicom.dataset.Dataset or None</em>) – If the status category is ‘Success’ or ‘Warning’ then a
-<a class="reference external" href="https://pydicom.github.io/pydicom/stable/reference/generated/pydicom.dataset.Dataset.html#pydicom.dataset.Dataset" title="(in pydicom v1.4.1)"><code class="xref py py-class docutils literal notranslate"><span class="pre">Dataset</span></code></a> containing elements matching the
+<a class="reference external" href="https://pydicom.github.io/pydicom/stable/reference/generated/pydicom.dataset.Dataset.html#pydicom.dataset.Dataset" title="(in pydicom v1.4.2)"><code class="xref py py-class docutils literal notranslate"><span class="pre">Dataset</span></code></a> containing elements matching the
 request’s <em>Attribute List</em> conformant to the specifications in the
 corresponding Service Class.</p>
 <p>If the status category is not ‘Success’ or ‘Warning’ then <code class="docutils literal notranslate"><span class="pre">None</span></code>.</p>
@@ -325,14 +325,7 @@ corresponding Service Class.</p>
 </dl>
 <div class="admonition seealso">
 <p class="admonition-title">See also</p>
-<p><a class="reference internal" href="pynetdicom.association.Association.html#pynetdicom.association.Association.send_n_get" title="pynetdicom.association.Association.send_n_get"><code class="xref py py-meth docutils literal notranslate"><span class="pre">send_n_get()</span></code></a>
-<a class="reference internal" href="pynetdicom.dimse_primitives.N_GET.html#pynetdicom.dimse_primitives.N_GET" title="pynetdicom.dimse_primitives.N_GET"><code class="xref py py-class docutils literal notranslate"><span class="pre">N_GET</span></code></a>
-<a class="reference internal" href="pynetdicom.service_class_n.DisplaySystemManagementServiceClass.html#pynetdicom.service_class_n.DisplaySystemManagementServiceClass" title="pynetdicom.service_class_n.DisplaySystemManagementServiceClass"><code class="xref py py-class docutils literal notranslate"><span class="pre">DisplaySystemManagementServiceClass</span></code></a>
-<a class="reference internal" href="pynetdicom.service_class_n.MediaCreationManagementServiceClass.html#pynetdicom.service_class_n.MediaCreationManagementServiceClass" title="pynetdicom.service_class_n.MediaCreationManagementServiceClass"><code class="xref py py-class docutils literal notranslate"><span class="pre">MediaCreationManagementServiceClass</span></code></a>
-<a class="reference internal" href="pynetdicom.service_class_n.PrintManagementServiceClass.html#pynetdicom.service_class_n.PrintManagementServiceClass" title="pynetdicom.service_class_n.PrintManagementServiceClass"><code class="xref py py-class docutils literal notranslate"><span class="pre">PrintManagementServiceClass</span></code></a>
-<a class="reference internal" href="pynetdicom.service_class_n.ProcedureStepServiceClass.html#pynetdicom.service_class_n.ProcedureStepServiceClass" title="pynetdicom.service_class_n.ProcedureStepServiceClass"><code class="xref py py-class docutils literal notranslate"><span class="pre">ProcedureStepServiceClass</span></code></a>
-<a class="reference internal" href="pynetdicom.service_class_n.RTMachineVerificationServiceClass.html#pynetdicom.service_class_n.RTMachineVerificationServiceClass" title="pynetdicom.service_class_n.RTMachineVerificationServiceClass"><code class="xref py py-class docutils literal notranslate"><span class="pre">RTMachineVerificationServiceClass</span></code></a>
-<a class="reference internal" href="pynetdicom.service_class_n.UnifiedProcedureStepServiceClass.html#pynetdicom.service_class_n.UnifiedProcedureStepServiceClass" title="pynetdicom.service_class_n.UnifiedProcedureStepServiceClass"><code class="xref py py-class docutils literal notranslate"><span class="pre">UnifiedProcedureStepServiceClass</span></code></a></p>
+<p><code class="xref py py-func docutils literal notranslate"><span class="pre">()</span></code>, <a class="reference internal" href="pynetdicom.association.Association.html#pynetdicom.association.Association.send_n_get" title="pynetdicom.association.Association.send_n_get"><code class="xref py py-meth docutils literal notranslate"><span class="pre">send_n_get()</span></code></a>, <a class="reference internal" href="pynetdicom.dimse_primitives.N_GET.html#pynetdicom.dimse_primitives.N_GET" title="pynetdicom.dimse_primitives.N_GET"><code class="xref py py-class docutils literal notranslate"><span class="pre">N_GET</span></code></a>, <code class="xref py py-class docutils literal notranslate"><span class="pre">DisplaySystemManagementServiceClass</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">MediaCreationManagementServiceClass</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">PrintManagementServiceClass</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">ProcedureStepServiceClass</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">RTMachineVerificationServiceClass</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">UnifiedProcedureStepServiceClass</span></code></p>
 </div>
 <p class="rubric">References</p>
 <ul class="simple">

@@ -23,10 +23,10 @@
   
     
       <script type="text/javascript" id="documentation_options" data-url_root="../../" src="../../_static/documentation_options.js"></script>
-        <script type="text/javascript" src="../../_static/jquery.js"></script>
-        <script type="text/javascript" src="../../_static/underscore.js"></script>
-        <script type="text/javascript" src="../../_static/doctools.js"></script>
-        <script type="text/javascript" src="../../_static/language_data.js"></script>
+        <script src="../../_static/jquery.js"></script>
+        <script src="../../_static/underscore.js"></script>
+        <script src="../../_static/doctools.js"></script>
+        <script src="../../_static/language_data.js"></script>
     
     <script type="text/javascript" src="../../_static/js/theme.js"></script>
 
@@ -207,12 +207,12 @@
 <h1>pynetdicom.presentation.build_context<a class="headerlink" href="#pynetdicom-presentation-build-context" title="Permalink to this headline">¶</a></h1>
 <dl class="function">
 <dt id="pynetdicom.presentation.build_context">
-<code class="sig-prename descclassname">pynetdicom.presentation.</code><code class="sig-name descname">build_context</code><span class="sig-paren">(</span><em class="sig-param">abstract_syntax</em>, <em class="sig-param">transfer_syntax=None</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/9322a8f8/pynetdicom/presentation.py#L780"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom.presentation.build_context" title="Permalink to this definition">¶</a></dt>
+<code class="sig-prename descclassname">pynetdicom.presentation.</code><code class="sig-name descname">build_context</code><span class="sig-paren">(</span><em class="sig-param">abstract_syntax</em>, <em class="sig-param">transfer_syntax=None</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/e98be9b2/pynetdicom/presentation.py#L780"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom.presentation.build_context" title="Permalink to this definition">¶</a></dt>
 <dd><p>Return a <a class="reference internal" href="pynetdicom.presentation.PresentationContext.html#pynetdicom.presentation.PresentationContext" title="pynetdicom.presentation.PresentationContext"><code class="xref py py-class docutils literal notranslate"><span class="pre">PresentationContext</span></code></a> built from the <cite>abstract_syntax</cite>.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>abstract_syntax</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)"><em>str</em></a><em> or </em><em>UID</em><em> or </em><a class="reference internal" href="pynetdicom.sop_class.SOPClass.html#pynetdicom.sop_class.SOPClass" title="pynetdicom.sop_class.SOPClass"><em>sop_class.SOPClass</em></a>) – The <a class="reference external" href="https://pydicom.github.io/pydicom/stable/reference/generated/pydicom.uid.UID.html#pydicom.uid.UID" title="(in pydicom v1.4.1)"><code class="xref py py-class docutils literal notranslate"><span class="pre">UID</span></code></a> or subclass of
+<li><p><strong>abstract_syntax</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)"><em>str</em></a><em> or </em><em>UID</em><em> or </em><a class="reference internal" href="pynetdicom.sop_class.SOPClass.html#pynetdicom.sop_class.SOPClass" title="pynetdicom.sop_class.SOPClass"><em>sop_class.SOPClass</em></a>) – The <a class="reference external" href="https://pydicom.github.io/pydicom/stable/reference/generated/pydicom.uid.UID.html#pydicom.uid.UID" title="(in pydicom v1.4.2)"><code class="xref py py-class docutils literal notranslate"><span class="pre">UID</span></code></a> or subclass of
 <a class="reference internal" href="pynetdicom.sop_class.SOPClass.html#pynetdicom.sop_class.SOPClass" title="pynetdicom.sop_class.SOPClass"><code class="xref py py-class docutils literal notranslate"><span class="pre">SOPClass</span></code></a> instance to use as the abstract
 syntax.</p></li>
 <li><p><strong>transfer_syntax</strong> (<em>str/UID</em><em> or </em><em>list of str/UID</em>) – The transfer syntax UID(s) to use (default:
