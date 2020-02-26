@@ -41,7 +41,7 @@ Enhancements
     association servers that may be running.
   * Support for TLS added via the ``tls_args`` keyword parameter for
     ``AE.associate()`` and ``ssl_context`` keyword parameter for
-    ``AE.start_server()`` (:pull_request:`175`, :pull_request:`71`)
+    ``AE.start_server()`` (:pr:`175`, :pr:`71`)
   * It should now be possible to both request a C-MOVE operation and act as the
     destination for the request's C-STORE sub-operations over a new association
     within the same AE instance by running a non-blocking Storage SCP.
