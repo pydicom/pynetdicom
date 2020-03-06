@@ -17,6 +17,7 @@ from pynetdicom.service_class import StorageServiceClass
 from pynetdicom.sop_class import (
     VerificationSOPClass, CTImageStorage, RTImageStorage,
 )
+from pynetdicom.status import Status
 
 
 #debug_logger()
@@ -37,21 +38,23 @@ class TestStorageServiceClass(object):
         if self.ae:
             self.ae.shutdown()
 
-    def test_scp_failed_ds_decode(self):
+    def test_scp_failed_ds_decode_and_status_enum(self):
         """Test failure to decode the dataset"""
         # Hard to test directly as decode errors won't show up until the
         #   dataset is actually used
+        Status.add('UNABLE_TO_DECODE', 0xC210)
+
         def handle(event):
             try:
                 for elem in event.dataset.iterall():
                     pass
             except:
                 status = Dataset()
-                status.Status = 0xC210
+                status.Status = Status.UNABLE_TO_DECODE
                 status.ErrorComment = "Unable to decode the dataset"
                 return status
 
-            return 0x0000
+            return Status.SUCCESS
 
         handlers = [(evt.EVT_C_STORE, handle)]
 

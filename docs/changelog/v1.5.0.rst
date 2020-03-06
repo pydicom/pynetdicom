@@ -59,7 +59,7 @@ Enhancements
 * Added hook in :class:`~pynetdicom.ae.AE` for creating
   :class:`~pynetdicom.transport.AssociationSocket` objects (:issue:`455`)
 * Added a customisable :class:`~pynetdicom.status.Status` convenience class
-  for testing the values of statuses (:issue:`454`)
+  for comparing, returning and yielding status values (:issue:`454`)
 
 
 Changes

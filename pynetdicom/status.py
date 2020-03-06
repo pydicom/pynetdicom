@@ -476,6 +476,13 @@ def code_to_category(code):
 class Status(IntEnum):
     """Constants for common status codes.
 
+    .. versionadded:: 1.5
+
+    New constants can be added with the ``Status.add(name, code)`` method but
+    the documentation for it is missing due to a bug in Sphinx. `name` is
+    the variable name of the constant to add as a :class:`str` and `code` is
+    the corresponding status code as an :class:`int`.
+
     Examples
     --------
 
@@ -501,6 +508,8 @@ class Status(IntEnum):
     """``0xFE00`` - Operation terminated"""
     PENDING = 0xFF00
     """``0xFF00`` - Matches or sub-operations are continuing"""
+    MOVE_DESTINATION_UNKNOWN = 0xA801
+    """``0xA801`` - Move destination unknown"""
 
     @classmethod
     def add(cls, name, code):
