@@ -97,7 +97,7 @@ also acting as a Storage SCP), plus a *User Identity Negotiation* item:
     #   only include 127 to make room for the QR Get context
     ae.requested_contexts = StoragePresentationContexts[:127]
     # Contexts proposed as a QR SCU
-    ae.add_requested_contexts = PatientRootQueryRetrieveInformationModelGet
+    ae.add_requested_context = PatientRootQueryRetrieveInformationModelGet
 
     # Add role selection items for the contexts we will be supporting as an SCP
     negotiation_items = []
