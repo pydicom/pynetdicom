@@ -180,7 +180,7 @@ MODALITY_WORKLIST_SERVICE_CLASS_STATUS = {
               "Matches are continuing - current match is supplied and any "
               "Optional Keys were supported in the same manner as Required "
               "Keys"),
-    0xFE00 : (STATUS_PENDING,
+    0xFF01 : (STATUS_PENDING,
               "Matches are continuing - warning that one or more Optional "
               "Keys were not supported for existence for this Identifier"),
 }

@@ -87,28 +87,25 @@ also acting as a Storage SCP), plus a *User Identity Negotiation* item:
 
 ::
 
-    from pynetdicom import (
-        AE,
-        StoragePresentationContexts,
-        QueryRetrievePresentationContexts,
-        build_role
-    )
+    from pynetdicom import AE, StoragePresentationContexts, build_role
     from pynetdicom.pdu_primitives import UserIdentityNegotiation
+    from pynetdicom.sop_class import PatientRootQueryRetrieveInformationModelGet
 
     ae = AE()
-    # Contexts proposed as a QR SCU
-    ae.requested_contexts = QueryRetrievePresentationContexts
     # Contexts supported as a Storage SCP - requires Role Selection
-    ae.requested_contexts = StoragePresentationContexts
+    #   Note that we are limited to a maximum of 128 contexts so we
+    #   only include 127 to make room for the QR Get context
+    ae.requested_contexts = StoragePresentationContexts[:127]
+    # Contexts proposed as a QR SCU
+    ae.add_requested_contexts = PatientRootQueryRetrieveInformationModelGet
 
-    # Add role selection items for the storage contexts we will be supporting
-    #   as an SCP
+    # Add role selection items for the contexts we will be supporting as an SCP
     negotiation_items = []
-    for context in StoragePresentationContexts:
+    for context in StoragePresentationContexts[:127]:
         role = build_role(context.abstract_syntax, scp_role=True)
         negotiation_items.append(role)
 
-    # Add user identity negotiation request
+    # Add user identity negotiation request - passwords are sent in the clear!
     user_identity = UserIdentityNegotiation()
     user_identity.user_identity_type = 2
     user_identity.primary_field = b'username'
