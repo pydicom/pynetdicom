@@ -474,10 +474,33 @@ def code_to_category(code):
 
 
 class Status(IntEnum):
-    """Constants for common status codes."""
+    """Constants for common status codes.
+
+    Examples
+    --------
+
+    ::
+
+        from pynetdicom.status import Status
+
+        # Customise the class
+        Status.add('UNABLE_TO_PROCESS', 0xC000)
+
+        def handle_store(event):
+            try:
+                event.dataset.save_as('temp.dcm')
+            except:
+                return Status.UNABLE_TO_PROCESS
+
+            return Status.SUCCESS
+
+    """
     SUCCESS = 0x0000
+    """``0x0000`` - Success"""
     CANCEL = 0xFE00
+    """``0xFE00`` - Operation terminated"""
     PENDING = 0xFF00
+    """``0xFF00`` - Matches or sub-operations are continuing"""
 
     @classmethod
     def add(cls, name, code):
