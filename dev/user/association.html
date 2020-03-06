@@ -271,28 +271,25 @@ service class and intended usage. The following example shows how to add
 <a class="reference internal" href="../reference/generated/pynetdicom.presentation.build_role.html#pynetdicom.presentation.build_role" title="pynetdicom.presentation.build_role"><code class="xref py py-func docutils literal notranslate"><span class="pre">build_role()</span></code></a> when requesting the use of the
 Query/Retrieve (QR) Service Class’ C-GET service (in this example the QR SCU is
 also acting as a Storage SCP), plus a <em>User Identity Negotiation</em> item:</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">pynetdicom</span> <span class="kn">import</span> <span class="p">(</span>
-    <span class="n">AE</span><span class="p">,</span>
-    <span class="n">StoragePresentationContexts</span><span class="p">,</span>
-    <span class="n">QueryRetrievePresentationContexts</span><span class="p">,</span>
-    <span class="n">build_role</span>
-<span class="p">)</span>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">pynetdicom</span> <span class="kn">import</span> <span class="n">AE</span><span class="p">,</span> <span class="n">StoragePresentationContexts</span><span class="p">,</span> <span class="n">build_role</span>
 <span class="kn">from</span> <span class="nn">pynetdicom.pdu_primitives</span> <span class="kn">import</span> <span class="n">UserIdentityNegotiation</span>
+<span class="kn">from</span> <span class="nn">pynetdicom.sop_class</span> <span class="kn">import</span> <span class="n">PatientRootQueryRetrieveInformationModelGet</span>
 
 <span class="n">ae</span> <span class="o">=</span> <span class="n">AE</span><span class="p">()</span>
-<span class="c1"># Contexts proposed as a QR SCU</span>
-<span class="n">ae</span><span class="o">.</span><span class="n">requested_contexts</span> <span class="o">=</span> <span class="n">QueryRetrievePresentationContexts</span>
 <span class="c1"># Contexts supported as a Storage SCP - requires Role Selection</span>
-<span class="n">ae</span><span class="o">.</span><span class="n">requested_contexts</span> <span class="o">=</span> <span class="n">StoragePresentationContexts</span>
+<span class="c1">#   Note that we are limited to a maximum of 128 contexts so we</span>
+<span class="c1">#   only include 127 to make room for the QR Get context</span>
+<span class="n">ae</span><span class="o">.</span><span class="n">requested_contexts</span> <span class="o">=</span> <span class="n">StoragePresentationContexts</span><span class="p">[:</span><span class="mi">127</span><span class="p">]</span>
+<span class="c1"># Contexts proposed as a QR SCU</span>
+<span class="n">ae</span><span class="o">.</span><span class="n">add_requested_context</span> <span class="o">=</span> <span class="n">PatientRootQueryRetrieveInformationModelGet</span>
 
-<span class="c1"># Add role selection items for the storage contexts we will be supporting</span>
-<span class="c1">#   as an SCP</span>
+<span class="c1"># Add role selection items for the contexts we will be supporting as an SCP</span>
 <span class="n">negotiation_items</span> <span class="o">=</span> <span class="p">[]</span>
-<span class="k">for</span> <span class="n">context</span> <span class="ow">in</span> <span class="n">StoragePresentationContexts</span><span class="p">:</span>
+<span class="k">for</span> <span class="n">context</span> <span class="ow">in</span> <span class="n">StoragePresentationContexts</span><span class="p">[:</span><span class="mi">127</span><span class="p">]:</span>
     <span class="n">role</span> <span class="o">=</span> <span class="n">build_role</span><span class="p">(</span><span class="n">context</span><span class="o">.</span><span class="n">abstract_syntax</span><span class="p">,</span> <span class="n">scp_role</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
     <span class="n">negotiation_items</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">role</span><span class="p">)</span>
 
-<span class="c1"># Add user identity negotiation request</span>
+<span class="c1"># Add user identity negotiation request - passwords are sent in the clear!</span>
 <span class="n">user_identity</span> <span class="o">=</span> <span class="n">UserIdentityNegotiation</span><span class="p">()</span>
 <span class="n">user_identity</span><span class="o">.</span><span class="n">user_identity_type</span> <span class="o">=</span> <span class="mi">2</span>
 <span class="n">user_identity</span><span class="o">.</span><span class="n">primary_field</span> <span class="o">=</span> <span class="sa">b</span><span class="s1">&#39;username&#39;</span>

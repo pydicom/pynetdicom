@@ -23,6 +23,7 @@ Fixes
 * Fixed the association acceptor selecting the first matching proposed
   transfer syntax rather than the first matching supported transfer syntax
   during presentation context negotiation (:issue:`445`)
+* Fixed incorrect Pending status value for Modality Worklist (:issue:`462`)
 
 
 Enhancements
