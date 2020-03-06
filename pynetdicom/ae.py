@@ -520,8 +520,7 @@ class ApplicationEntity(object):
         assoc.name = "RequestorThread@{}".format(timestamp)
 
         # Setup the association's communication socket
-        sock = AssociationSocket(assoc, address=bind_address)
-        sock.tls_args = tls_args or {}
+        sock = self._create_socket(assoc, bind_address, tls_args)
         assoc.set_socket(sock)
 
         # Association Acceptor object -> remote AE
@@ -578,6 +577,15 @@ class ApplicationEntity(object):
             assoc.start()
 
         return assoc
+
+    def _create_socket(self, assoc, address, tls_args):
+        """Create an :class:`~pynetdicom.transport.AssociationSocket` for the current association.
+
+        .. versionadded:: 1.5
+        """
+        sock = AssociationSocket(assoc, address=address)
+        sock.tls_args = tls_args or {}
+        return sock
 
     @property
     def dimse_timeout(self):
@@ -1166,7 +1174,7 @@ class ApplicationEntity(object):
                     ssl_context=None, evt_handlers=None,
                     server_class=None, **kwargs):
         """Return an association server for the AE.
-        Accepts the same arguments as :meth:`start_server`. 
+        Accepts the same arguments as :meth:`start_server`.
         Additional keyword arguments are passed to the constructor of `server_class`.
 
         .. versionadded:: 1.5
