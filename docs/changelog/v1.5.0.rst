@@ -58,8 +58,9 @@ Enhancements
   :class:`~pynetdicom.transport.AssociationServer` (:issue:`453`)
 * Added hook in :class:`~pynetdicom.ae.AE` for creating
   :class:`~pynetdicom.transport.AssociationSocket` objects (:issue:`455`)
-* Added a customisable :class:`~pynetdicom.status.Status` convenience class
-  for comparing, returning and yielding status values (:issue:`454`)
+* Python 3 only: Added a customisable :class:`~pynetdicom.status.Status`
+  convenience class for comparing, returning and yielding status values
+  (:issue:`454`)
 
 
 Changes

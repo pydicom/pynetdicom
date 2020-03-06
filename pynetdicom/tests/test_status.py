@@ -7,7 +7,12 @@ import pytest
 
 from pydicom.dataset import Dataset
 
-from pynetdicom.status import code_to_category, code_to_status, Status
+from pynetdicom.status import code_to_category, code_to_status
+try:
+    from pynetdicom.status import Status
+    HAS_STATUS = True
+except ImportError:
+    HAS_STATUS = False
 
 
 LOGGER = logging.getLogger('pynetdicom')
@@ -257,6 +262,7 @@ class TestStatus(object):
             assert c2c(code) == 'Failure'
 
 
+@pytest.mark.skipif(not HAS_STATUS, reason="No Status class available")
 class TestStatusEnum(object):
     """Tests for the Status enum class."""
     def test_default(self):
