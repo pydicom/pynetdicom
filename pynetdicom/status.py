@@ -1,5 +1,7 @@
 """Implementation of the DIMSE Status values."""
 
+from enum import IntEnum
+
 from pydicom.dataset import Dataset
 
 from pynetdicom._globals import (
@@ -469,3 +471,23 @@ def code_to_category(code):
         return STATUS_UNKNOWN
     else:
         raise ValueError("'code' must be a positive integer.")
+
+
+class Status(IntEnum):
+    """Constants for common status codes."""
+    SUCCESS = 0x0000
+    CANCEL = 0xFE00
+    PENDING = 0xFF00
+
+    @classmethod
+    def add(cls, name, code):
+        """Add a new constant to `Status`.
+
+        Parameters
+        ----------
+        name : str
+            The name of the constant to add.
+        code : int
+            The status code corresponding to the name.
+        """
+        setattr(cls, name, code)
