@@ -35,10 +35,11 @@ matrix:
 # Install dependencies and pynetdicom
 install:
     - source build_tools/travis/install.sh
+    - python -m pip install .
 
 # Command to run tests
 script:
-    - python -m pytest --cov pynetdicom
+    - python -m pytest --cov pynetdicom --ignore=pynetdicom/apps
 
 after_success:
     # Upload coverage results to codecov.io
