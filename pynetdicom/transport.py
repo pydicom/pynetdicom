@@ -404,6 +404,30 @@ class RequestHandler(BaseRequestHandler):
         * Sets the Association's socket to the request's socket.
         * Starts the Association reactor.
         """
+        assoc = self._create_association()
+
+        # Trigger must be after binding the events
+        evt.trigger(
+            assoc, evt.EVT_CONN_OPEN, {'address' : self.client_address}
+        )
+
+        assoc.start()
+
+    @property
+    def local(self):
+        """Return a 2-tuple of the local server's ``(host, port)`` address."""
+        return self.server.server_address
+
+    @property
+    def remote(self):
+        """Return a 2-tuple of the remote client's ``(host, port)`` address."""
+        return self.client_address
+
+    def _create_association(self):
+        """Create an :class:`Association` object for the current request.
+
+        .. versionadded:: 1.5
+        """
         from pynetdicom.association import Association
 
         assoc = Association(self.ae, MODE_ACCEPTOR)
@@ -441,23 +465,8 @@ class RequestHandler(BaseRequestHandler):
             elif event.is_notification:
                 for handler in self.server._handlers[event]:
                     assoc.bind(event, *handler)
+        return assoc
 
-        # Trigger must be after binding the events
-        evt.trigger(
-            assoc, evt.EVT_CONN_OPEN, {'address' : self.client_address}
-        )
-
-        assoc.start()
-
-    @property
-    def local(self):
-        """Return a 2-tuple of the local server's ``(host, port)`` address."""
-        return self.server.server_address
-
-    @property
-    def remote(self):
-        """Return a 2-tuple of the remote client's ``(host, port)`` address."""
-        return self.client_address
 
 
 class AssociationServer(TCPServer):
