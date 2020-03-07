@@ -8,7 +8,7 @@ pip install coverage
 pip install pytest-cov
 pip install -U pytest
 pip install asv
-pip uninstall enum34
+pip uninstall -y enum34
 
 pip list
 
