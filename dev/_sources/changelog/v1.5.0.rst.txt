@@ -55,9 +55,14 @@ Enhancements
 * Added ability to pass optional extra arguments to event handlers by using
   ``(evt.EVT_NAME, handler, ['list', 'of', 'args'])``. (:issue:`447`)
 * Added :meth:`~pynetdicom.ae.AE.make_server` (:issue:`453`).
-* Added `request_handler` keyword parameter to :class:`~pynetdicom.transport.AssociationServer` (:issue:`453`)
+* Added `request_handler` keyword parameter to
+  :class:`~pynetdicom.transport.AssociationServer` (:issue:`453`)
 * Added hook in :class:`~pynetdicom.ae.AE` for creating
   :class:`~pynetdicom.transport.AssociationSocket` objects (:issue:`455`)
+* Python 3 only: Added a customisable :class:`~pynetdicom.status.Status`
+  convenience class for comparing, returning and yielding status values
+  (:issue:`454`)
+
 
 Changes
 .......

@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>pynetdicom.pdu_primitives.A_P_ABORT &mdash; pynetdicom 1.5.0.dev0 documentation</title>
+  <title>pynetdicom.status.Status &mdash; pynetdicom 1.5.0.dev0 documentation</title>
   
 
   
@@ -38,8 +38,8 @@
   <link rel="stylesheet" href="../../_static/css/pynetdicom.css" type="text/css" />
     <link rel="index" title="Index" href="../../genindex.html" />
     <link rel="search" title="Search" href="../../search.html" />
-    <link rel="next" title="P-DATA" href="../dul.pdu_primitives.p_data.html" />
-    <link rel="prev" title="A-P-ABORT" href="../dul.pdu_primitives.a_p_abort.html" /> 
+    <link rel="next" title="Timer (pynetdicom.timer)" href="../timer.html" />
+    <link rel="prev" title="pynetdicom.status.code_to_status" href="pynetdicom.status.code_to_status.html" /> 
 </head>
 
 <body class="wy-body-for-nav">
@@ -102,26 +102,18 @@
 <li class="toctree-l2"><a class="reference internal" href="../config.html">Configuration Options (<code class="xref py py-mod docutils literal notranslate"><span class="pre">pynetdicom._config</span></code>)</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../dimse.html">DIMSE Service</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../dsutils.html">Dataset Utilities (<code class="xref py py-mod docutils literal notranslate"><span class="pre">pynetdicom.dsutils</span></code>)</a></li>
-<li class="toctree-l2 current"><a class="reference internal" href="../dul.html">DICOM Upper Layer</a><ul class="current">
-<li class="toctree-l3"><a class="reference internal" href="../dul.provider.html">DUL Service Provider (<code class="xref py py-mod docutils literal notranslate"><span class="pre">pynetdicom.dul</span></code>)</a></li>
-<li class="toctree-l3 current"><a class="reference internal" href="../dul.pdu_primitives.html">Service Primitives (<code class="xref py py-mod docutils literal notranslate"><span class="pre">pynetdicom.pdu_primitives</span></code>)</a><ul class="current">
-<li class="toctree-l4"><a class="reference internal" href="../dul.pdu_primitives.a_associate.html">A-ASSOCIATE</a></li>
-<li class="toctree-l4"><a class="reference internal" href="../dul.pdu_primitives.a_release.html">A-RELEASE</a></li>
-<li class="toctree-l4"><a class="reference internal" href="../dul.pdu_primitives.a_abort.html">A-ABORT</a></li>
-<li class="toctree-l4 current"><a class="reference internal" href="../dul.pdu_primitives.a_p_abort.html">A-P-ABORT</a></li>
-<li class="toctree-l4"><a class="reference internal" href="../dul.pdu_primitives.p_data.html">P-DATA</a></li>
-</ul>
-</li>
-<li class="toctree-l3"><a class="reference internal" href="../dul.pdu.html">PDUs (<code class="xref py py-mod docutils literal notranslate"><span class="pre">pynetdicom.pdu</span></code>)</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../dul.pdu_items.html">PDU Items and Sub-items (<code class="xref py py-mod docutils literal notranslate"><span class="pre">pynetdicom.pdu_items</span></code>)</a></li>
-</ul>
-</li>
+<li class="toctree-l2"><a class="reference internal" href="../dul.html">DICOM Upper Layer</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../events.html">Events and Handlers (<code class="xref py py-mod docutils literal notranslate"><span class="pre">pynetdicom.events</span></code>)</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../fsm.html">State Machine (<code class="xref py py-mod docutils literal notranslate"><span class="pre">pynetdicom.fsm</span></code>)</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../presentation.html">Presentation Service (<code class="xref py py-mod docutils literal notranslate"><span class="pre">pynetdicom.presentation</span></code>)</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../service_classes.html">Service Classes (<code class="xref py py-mod docutils literal notranslate"><span class="pre">pynetdicom.service_class</span></code>)</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../sop_classes.html">SOP Classes (<code class="xref py py-mod docutils literal notranslate"><span class="pre">pynetdicom.sop_class</span></code>)</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../status.html">Statuses (<code class="xref py py-mod docutils literal notranslate"><span class="pre">pynetdicom.status</span></code>)</a></li>
+<li class="toctree-l2 current"><a class="reference internal" href="../status.html">Statuses (<code class="xref py py-mod docutils literal notranslate"><span class="pre">pynetdicom.status</span></code>)</a><ul class="current">
+<li class="toctree-l3"><a class="reference internal" href="pynetdicom.status.code_to_category.html">pynetdicom.status.code_to_category</a></li>
+<li class="toctree-l3"><a class="reference internal" href="pynetdicom.status.code_to_status.html">pynetdicom.status.code_to_status</a></li>
+<li class="toctree-l3 current"><a class="current reference internal" href="#">pynetdicom.status.Status</a></li>
+</ul>
+</li>
 <li class="toctree-l2"><a class="reference internal" href="../timer.html">Timer (<code class="xref py py-mod docutils literal notranslate"><span class="pre">pynetdicom.timer</span></code>)</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../transport.html">Transport Service (<code class="xref py py-mod docutils literal notranslate"><span class="pre">pynetdicom.transport</span></code>)</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../utils.html">Utilities (<code class="xref py py-mod docutils literal notranslate"><span class="pre">pynetdicom.utils</span></code>)</a></li>
@@ -186,13 +178,9 @@
         
           <li><a href="../index.html">API Reference</a> &raquo;</li>
         
-          <li><a href="../dul.html">DICOM Upper Layer</a> &raquo;</li>
+          <li><a href="../status.html">Statuses (<code class="xref py py-mod docutils literal notranslate"><span class="pre">pynetdicom.status</span></code>)</a> &raquo;</li>
         
-          <li><a href="../dul.pdu_primitives.html">Service Primitives (<code class="xref py py-mod docutils literal notranslate"><span class="pre">pynetdicom.pdu_primitives</span></code>)</a> &raquo;</li>
-        
-          <li><a href="../dul.pdu_primitives.a_p_abort.html">A-P-ABORT</a> &raquo;</li>
-        
-      <li>pynetdicom.pdu_primitives.A_P_ABORT</li>
+      <li>pynetdicom.status.Status</li>
     
     
       <li class="wy-breadcrumbs-aside">
@@ -209,77 +197,44 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
             
-  <div class="section" id="pynetdicom-pdu-primitives-a-p-abort">
-<h1>pynetdicom.pdu_primitives.A_P_ABORT<a class="headerlink" href="#pynetdicom-pdu-primitives-a-p-abort" title="Permalink to this headline">¶</a></h1>
+  <div class="section" id="pynetdicom-status-status">
+<h1>pynetdicom.status.Status<a class="headerlink" href="#pynetdicom-status-status" title="Permalink to this headline">¶</a></h1>
 <dl class="class">
-<dt id="pynetdicom.pdu_primitives.A_P_ABORT">
-<em class="property">class </em><code class="sig-prename descclassname">pynetdicom.pdu_primitives.</code><code class="sig-name descname">A_P_ABORT</code><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/aa6df7ef/pynetdicom/pdu_primitives.py#L865"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom.pdu_primitives.A_P_ABORT" title="Permalink to this definition">¶</a></dt>
-<dd><p>An A-P-ABORT primitive.</p>
-<table class="docutils align-default">
-<colgroup>
-<col style="width: 60%" />
-<col style="width: 40%" />
-</colgroup>
-<tbody>
-<tr class="row-odd"><td><p>Parameter</p></td>
-<td><p>Indication</p></td>
-</tr>
-<tr class="row-even"><td><p>abort source</p></td>
-<td><p>P</p></td>
-</tr>
-</tbody>
-</table>
-<div class="line-block">
-<div class="line">U   - User option</div>
-<div class="line">UF  - User option, fixed value</div>
-<div class="line">C   - Conditional (on user option)</div>
-<div class="line">M   - Mandatory</div>
-<div class="line">MF  - Mandatory, fixed value</div>
-<div class="line">NU  - Not used</div>
-<div class="line">P   - Provider initiated</div>
-<div class="line">(=) - shall have same value as request or response</div>
+<dt id="pynetdicom.status.Status">
+<em class="property">class </em><code class="sig-prename descclassname">pynetdicom.status.</code><code class="sig-name descname">Status</code><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/aa6df7ef/pynetdicom/status.py#L481"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom.status.Status" title="Permalink to this definition">¶</a></dt>
+<dd><p>Constants for common status codes.</p>
+<div class="versionadded">
+<p><span class="versionmodified added">New in version 1.5.</span></p>
 </div>
-<dl class="attribute">
-<dt id="pynetdicom.pdu_primitives.A_P_ABORT.provider_reason">
-<code class="sig-name descname">provider_reason</code><a class="headerlink" href="#pynetdicom.pdu_primitives.A_P_ABORT.provider_reason" title="Permalink to this definition">¶</a></dt>
-<dd><p>Indicates the reason for the abort. Allowed values are:</p>
-<ul class="simple">
-<li><p><code class="docutils literal notranslate"><span class="pre">0</span></code>: reason not specified</p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">1</span></code>: unrecognised PDU</p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">2</span></code>: unexpected PDU</p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">4</span></code>: unrecognised PDU parameter</p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">5</span></code>: unexpected PDU parameter</p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">6</span></code>: invalid PDU parameter value</p></li>
-</ul>
-<dl class="field-list simple">
-<dt class="field-odd">Type</dt>
-<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.8)">int</a></p>
-</dd>
-</dl>
-</dd></dl>
+<div class="admonition warning">
+<p class="admonition-title">Warning</p>
+<p>Only available with Python 3</p>
+</div>
+<p>New constants can be added with the <code class="docutils literal notranslate"><span class="pre">Status.add(name,</span> <span class="pre">code)</span></code> method but
+the documentation for it is missing due to a bug in Sphinx. <cite>name</cite> is
+the variable name of the constant to add as a <a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></a> and <cite>code</cite> is
+the corresponding status code as an <a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.8)"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></a>.</p>
+<p class="rubric">Examples</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">pynetdicom.status</span> <span class="kn">import</span> <span class="n">Status</span>
 
-<p class="rubric">References</p>
-<ul class="simple">
-<li><p>DICOM Standard, Part 8, <a class="reference external" href="http://dicom.nema.org/medical/dicom/current/output/chtml/part08/sect_7.4.html">Section 7.4</a></p></li>
-</ul>
+<span class="c1"># Customise the class</span>
+<span class="n">Status</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="s1">&#39;UNABLE_TO_PROCESS&#39;</span><span class="p">,</span> <span class="mh">0xC000</span><span class="p">)</span>
+
+<span class="k">def</span> <span class="nf">handle_store</span><span class="p">(</span><span class="n">event</span><span class="p">):</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="n">event</span><span class="o">.</span><span class="n">dataset</span><span class="o">.</span><span class="n">save_as</span><span class="p">(</span><span class="s1">&#39;temp.dcm&#39;</span><span class="p">)</span>
+    <span class="k">except</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">Status</span><span class="o">.</span><span class="n">UNABLE_TO_PROCESS</span>
+
+    <span class="k">return</span> <span class="n">Status</span><span class="o">.</span><span class="n">SUCCESS</span>
+</pre></div>
+</div>
 <dl class="method">
-<dt id="pynetdicom.pdu_primitives.A_P_ABORT.__init__">
-<code class="sig-name descname">__init__</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/aa6df7ef/pynetdicom/pdu_primitives.py#L901"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom.pdu_primitives.A_P_ABORT.__init__" title="Permalink to this definition">¶</a></dt>
+<dt id="pynetdicom.status.Status.__init__">
+<code class="sig-name descname">__init__</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pynetdicom.status.Status.__init__" title="Permalink to this definition">¶</a></dt>
 <dd><p>Initialize self.  See help(type(self)) for accurate signature.</p>
 </dd></dl>
 
-<p class="rubric">Methods</p>
-<table class="longtable docutils align-default">
-<colgroup>
-<col style="width: 10%" />
-<col style="width: 90%" />
-</colgroup>
-<tbody>
-<tr class="row-odd"><td><p><a class="reference internal" href="#pynetdicom.pdu_primitives.A_P_ABORT.__init__" title="pynetdicom.pdu_primitives.A_P_ABORT.__init__"><code class="xref py py-obj docutils literal notranslate"><span class="pre">__init__</span></code></a>()</p></td>
-<td><p>Initialize self.</p></td>
-</tr>
-</tbody>
-</table>
 <p class="rubric">Attributes</p>
 <table class="longtable docutils align-default">
 <colgroup>
@@ -287,15 +242,42 @@
 <col style="width: 90%" />
 </colgroup>
 <tbody>
-<tr class="row-odd"><td><p><a class="reference internal" href="#pynetdicom.pdu_primitives.A_P_ABORT.provider_reason" title="pynetdicom.pdu_primitives.A_P_ABORT.provider_reason"><code class="xref py py-obj docutils literal notranslate"><span class="pre">provider_reason</span></code></a></p></td>
-<td><p>Return the <em>Provider Reason</em>.</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pynetdicom.status.Status.CANCEL" title="pynetdicom.status.Status.CANCEL"><code class="xref py py-obj docutils literal notranslate"><span class="pre">CANCEL</span></code></a></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">0xFE00</span></code> - Operation terminated</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#pynetdicom.status.Status.MOVE_DESTINATION_UNKNOWN" title="pynetdicom.status.Status.MOVE_DESTINATION_UNKNOWN"><code class="xref py py-obj docutils literal notranslate"><span class="pre">MOVE_DESTINATION_UNKNOWN</span></code></a></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">0xA801</span></code> - Move destination unknown</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pynetdicom.status.Status.PENDING" title="pynetdicom.status.Status.PENDING"><code class="xref py py-obj docutils literal notranslate"><span class="pre">PENDING</span></code></a></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">0xFF00</span></code> - Matches or sub-operations are continuing</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#pynetdicom.status.Status.SUCCESS" title="pynetdicom.status.Status.SUCCESS"><code class="xref py py-obj docutils literal notranslate"><span class="pre">SUCCESS</span></code></a></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">0x0000</span></code> - Success</p></td>
 </tr>
 </tbody>
 </table>
-<dl class="method">
-<dt>
-<em class="property">property </em><code class="sig-name descname">provider_reason</code></dt>
-<dd><p>Return the <em>Provider Reason</em>.</p>
+<dl class="attribute">
+<dt id="pynetdicom.status.Status.CANCEL">
+<code class="sig-name descname">CANCEL</code><em class="property"> = 65024</em><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/aa6df7ef/pynetdicom/status.py#L"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom.status.Status.CANCEL" title="Permalink to this definition">¶</a></dt>
+<dd><p><code class="docutils literal notranslate"><span class="pre">0xFE00</span></code> - Operation terminated</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pynetdicom.status.Status.MOVE_DESTINATION_UNKNOWN">
+<code class="sig-name descname">MOVE_DESTINATION_UNKNOWN</code><em class="property"> = 43009</em><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/aa6df7ef/pynetdicom/status.py#L"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom.status.Status.MOVE_DESTINATION_UNKNOWN" title="Permalink to this definition">¶</a></dt>
+<dd><p><code class="docutils literal notranslate"><span class="pre">0xA801</span></code> - Move destination unknown</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pynetdicom.status.Status.PENDING">
+<code class="sig-name descname">PENDING</code><em class="property"> = 65280</em><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/aa6df7ef/pynetdicom/status.py#L"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom.status.Status.PENDING" title="Permalink to this definition">¶</a></dt>
+<dd><p><code class="docutils literal notranslate"><span class="pre">0xFF00</span></code> - Matches or sub-operations are continuing</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pynetdicom.status.Status.SUCCESS">
+<code class="sig-name descname">SUCCESS</code><em class="property"> = 0</em><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/aa6df7ef/pynetdicom/status.py#L"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom.status.Status.SUCCESS" title="Permalink to this definition">¶</a></dt>
+<dd><p><code class="docutils literal notranslate"><span class="pre">0x0000</span></code> - Success</p>
 </dd></dl>
 
 </dd></dl>
@@ -310,10 +292,10 @@
   
     <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
       
-        <a href="../dul.pdu_primitives.p_data.html" class="btn btn-neutral float-right" title="P-DATA" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
+        <a href="../timer.html" class="btn btn-neutral float-right" title="Timer (pynetdicom.timer)" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
       
       
-        <a href="../dul.pdu_primitives.a_p_abort.html" class="btn btn-neutral float-left" title="A-P-ABORT" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+        <a href="pynetdicom.status.code_to_status.html" class="btn btn-neutral float-left" title="pynetdicom.status.code_to_status" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
       
     </div>
   

@@ -414,6 +414,8 @@
 </li>
         <li><a href="reference/generated/pynetdicom.sop_class.SOPClass.html#pynetdicom.sop_class.SOPClass.__init__">(pynetdicom.sop_class.SOPClass method)</a>
 </li>
+        <li><a href="reference/generated/pynetdicom.status.Status.html#pynetdicom.status.Status.__init__">(pynetdicom.status.Status method)</a>
+</li>
         <li><a href="reference/generated/pynetdicom.timer.Timer.html#pynetdicom.timer.Timer.__init__">(pynetdicom.timer.Timer method)</a>
 </li>
         <li><a href="reference/generated/pynetdicom.transport.AssociationServer.html#pynetdicom.transport.AssociationServer.__init__">(pynetdicom.transport.AssociationServer method)</a>
@@ -898,6 +900,8 @@
       <li><a href="reference/generated/pynetdicom.pdu_primitives.A_ASSOCIATE.html#pynetdicom.pdu_primitives.A_ASSOCIATE.calling_presentation_address">calling_presentation_address (pynetdicom.pdu_primitives.A_ASSOCIATE attribute)</a>
 </li>
       <li><a href="reference/generated/pynetdicom.pdu_primitives.A_ASSOCIATE.html#pynetdicom.pdu_primitives.A_ASSOCIATE.calling_presentation_address">calling_presentation_address() (pynetdicom.pdu_primitives.A_ASSOCIATE property)</a>
+</li>
+      <li><a href="reference/generated/pynetdicom.status.Status.html#pynetdicom.status.Status.CANCEL">CANCEL (pynetdicom.status.Status attribute)</a>
 </li>
       <li><a href="reference/generated/pynetdicom.dimse.DIMSEServiceProvider.html#pynetdicom.dimse.DIMSEServiceProvider.cancel_rq">cancel_rq (pynetdicom.dimse.DIMSEServiceProvider attribute)</a>
 </li>
@@ -1807,6 +1811,8 @@
 </li>
       <li><a href="reference/generated/pynetdicom.events.Event.html#pynetdicom.events.Event.move_destination">move_destination() (pynetdicom.events.Event property)</a>
 </li>
+      <li><a href="reference/generated/pynetdicom.status.Status.html#pynetdicom.status.Status.MOVE_DESTINATION_UNKNOWN">MOVE_DESTINATION_UNKNOWN (pynetdicom.status.Status attribute)</a>
+</li>
       <li><a href="reference/generated/pynetdicom.dimse_primitives.C_MOVE.html#pynetdicom.dimse_primitives.C_MOVE.MoveDestination">MoveDestination (pynetdicom.dimse_primitives.C_MOVE attribute)</a>
 </li>
       <li><a href="reference/generated/pynetdicom.dimse_primitives.C_MOVE.html#pynetdicom.dimse_primitives.C_MOVE.MoveDestination">MoveDestination() (pynetdicom.dimse_primitives.C_MOVE property)</a>
@@ -2071,6 +2077,8 @@
 </li>
       <li><a href="reference/generated/pynetdicom.dul.DULServiceProvider.html#pynetdicom.dul.DULServiceProvider.peek_next_pdu">peek_next_pdu() (pynetdicom.dul.DULServiceProvider method)</a>
 </li>
+      <li><a href="reference/generated/pynetdicom.status.Status.html#pynetdicom.status.Status.PENDING">PENDING (pynetdicom.status.Status attribute)</a>
+</li>
       <li><a href="reference/generated/pynetdicom.association.ServiceUser.html#pynetdicom.association.ServiceUser.port">port (pynetdicom.association.ServiceUser attribute)</a>
 </li>
       <li><a href="reference/generated/pynetdicom.pdu_items.UserIdentitySubItemRQ.html#pynetdicom.pdu_items.UserIdentitySubItemRQ.positive_response_requested">positive_response_requested (pynetdicom.pdu_items.UserIdentitySubItemRQ attribute)</a>
@@ -2145,10 +2153,10 @@
       </ul></li>
       <li><a href="reference/generated/pynetdicom.sop_class.PresentationLUTSOPClass.html#pynetdicom.sop_class.PresentationLUTSOPClass">PresentationLUTSOPClass (in module pynetdicom.sop_class)</a>
 </li>
-      <li><a href="reference/generated/pynetdicom.utils.pretty_bytes.html#pynetdicom.utils.pretty_bytes">pretty_bytes() (in module pynetdicom.utils)</a>
-</li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="reference/generated/pynetdicom.utils.pretty_bytes.html#pynetdicom.utils.pretty_bytes">pretty_bytes() (in module pynetdicom.utils)</a>
+</li>
       <li><a href="reference/generated/pynetdicom.pdu_items.UserIdentitySubItemRQ.html#pynetdicom.pdu_items.UserIdentitySubItemRQ.primary">primary() (pynetdicom.pdu_items.UserIdentitySubItemRQ property)</a>
 </li>
       <li><a href="reference/generated/pynetdicom.pdu_items.UserIdentitySubItemRQ.html#pynetdicom.pdu_items.UserIdentitySubItemRQ.primary_field">primary_field (pynetdicom.pdu_items.UserIdentitySubItemRQ attribute)</a>
@@ -2717,10 +2725,10 @@
 </li>
       <li><a href="reference/generated/pynetdicom.association.ServiceUser.html#pynetdicom.association.ServiceUser">ServiceUser (class in pynetdicom.association)</a>
 </li>
-  </ul></td>
-  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="reference/generated/pynetdicom.pdu_primitives.A_ASSOCIATE.html#pynetdicom.pdu_primitives.A_ASSOCIATE.session_requirements">session_requirements (pynetdicom.pdu_primitives.A_ASSOCIATE attribute)</a>
 </li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="reference/generated/pynetdicom.pdu_primitives.A_ASSOCIATE.html#pynetdicom.pdu_primitives.A_ASSOCIATE.session_requirements">session_requirements() (pynetdicom.pdu_primitives.A_ASSOCIATE property)</a>
 </li>
       <li><a href="reference/generated/pynetdicom.association.Association.html#pynetdicom.association.Association.set_socket">set_socket() (pynetdicom.association.Association method)</a>
@@ -2825,9 +2833,11 @@
 </li>
       <li><a href="reference/generated/pynetdicom.fsm.StateMachine.html#pynetdicom.fsm.StateMachine">StateMachine (class in pynetdicom.fsm)</a>
 </li>
-      <li><a href="reference/generated/pynetdicom.dimse_primitives.C_ECHO.html#pynetdicom.dimse_primitives.C_ECHO.Status">Status (pynetdicom.dimse_primitives.C_ECHO attribute)</a>
+      <li><a href="reference/generated/pynetdicom.status.Status.html#pynetdicom.status.Status">Status (class in pynetdicom.status)</a>
 
       <ul>
+        <li><a href="reference/generated/pynetdicom.dimse_primitives.C_ECHO.html#pynetdicom.dimse_primitives.C_ECHO.Status">(pynetdicom.dimse_primitives.C_ECHO attribute)</a>
+</li>
         <li><a href="reference/generated/pynetdicom.dimse_primitives.C_FIND.html#pynetdicom.dimse_primitives.C_FIND.Status">(pynetdicom.dimse_primitives.C_FIND attribute)</a>
 </li>
         <li><a href="reference/generated/pynetdicom.dimse_primitives.C_GET.html#pynetdicom.dimse_primitives.C_GET.Status">(pynetdicom.dimse_primitives.C_GET attribute)</a>
@@ -2888,6 +2898,8 @@
       <li><a href="reference/generated/pynetdicom.service_class.SubstanceAdministrationQueryServiceClass.html#pynetdicom.service_class.SubstanceAdministrationQueryServiceClass">SubstanceAdministrationQueryServiceClass (class in pynetdicom.service_class)</a>
 </li>
       <li><a href="reference/generated/pynetdicom.sop_class.SubstanceApprovalQueryInformationModelFind.html#pynetdicom.sop_class.SubstanceApprovalQueryInformationModelFind">SubstanceApprovalQueryInformationModelFind (in module pynetdicom.sop_class)</a>
+</li>
+      <li><a href="reference/generated/pynetdicom.status.Status.html#pynetdicom.status.Status.SUCCESS">SUCCESS (pynetdicom.status.Status attribute)</a>
 </li>
       <li><a href="reference/generated/pynetdicom.ae.ApplicationEntity.html#pynetdicom.ae.ApplicationEntity.supported_contexts">supported_contexts() (pynetdicom.ae.ApplicationEntity property)</a>
 
