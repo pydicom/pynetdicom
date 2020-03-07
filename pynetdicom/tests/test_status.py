@@ -8,6 +8,11 @@ import pytest
 from pydicom.dataset import Dataset
 
 from pynetdicom.status import code_to_category, code_to_status
+try:
+    from pynetdicom.status import Status
+    HAS_STATUS = True
+except ImportError:
+    HAS_STATUS = False
 
 
 LOGGER = logging.getLogger('pynetdicom')
@@ -255,3 +260,24 @@ class TestStatus(object):
         assert c2c(0x0000) == 'Success'
         for code in [0xA700, 0xA900, 0xC000]:
             assert c2c(code) == 'Failure'
+
+
+@pytest.mark.skipif(not HAS_STATUS, reason="No Status class available")
+class TestStatusEnum(object):
+    """Tests for the Status enum class."""
+    def test_default(self):
+        """Test the default class."""
+        assert 0x0000 == Status.SUCCESS
+        assert 0xFE00 == Status.CANCEL
+        assert 0xFF00 == Status.PENDING
+
+    def test_adding(self):
+        """Tests for adding a new constant to the Status enum."""
+        with pytest.raises(AttributeError, match=r'PENDING_WITH_WARNING'):
+            Status.PENDING_WITH_WARNING
+
+        Status.add('PENDING_WITH_WARNING', 0xFF01)
+        assert 0xFF01 == Status.PENDING_WITH_WARNING
+        assert 0x0000 == Status.SUCCESS
+        assert 0xFE00 == Status.CANCEL
+        assert 0xFF00 == Status.PENDING

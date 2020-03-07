@@ -1,5 +1,11 @@
 """Implementation of the DIMSE Status values."""
 
+try:
+    from enum import IntEnum
+    HAS_ENUM = True
+except ImportError:
+    HAS_ENUM = False
+
 from pydicom.dataset import Dataset
 
 from pynetdicom._globals import (
@@ -469,3 +475,59 @@ def code_to_category(code):
         return STATUS_UNKNOWN
     else:
         raise ValueError("'code' must be a positive integer.")
+
+
+if HAS_ENUM:
+    class Status(IntEnum):
+        """Constants for common status codes.
+
+        .. versionadded:: 1.5
+        .. warning::
+
+            Only available with Python 3
+
+        New constants can be added with the ``Status.add(name, code)`` method but
+        the documentation for it is missing due to a bug in Sphinx. `name` is
+        the variable name of the constant to add as a :class:`str` and `code` is
+        the corresponding status code as an :class:`int`.
+
+        Examples
+        --------
+
+        ::
+
+            from pynetdicom.status import Status
+
+            # Customise the class
+            Status.add('UNABLE_TO_PROCESS', 0xC000)
+
+            def handle_store(event):
+                try:
+                    event.dataset.save_as('temp.dcm')
+                except:
+                    return Status.UNABLE_TO_PROCESS
+
+                return Status.SUCCESS
+
+        """
+        SUCCESS = 0x0000
+        """``0x0000`` - Success"""
+        CANCEL = 0xFE00
+        """``0xFE00`` - Operation terminated"""
+        PENDING = 0xFF00
+        """``0xFF00`` - Matches or sub-operations are continuing"""
+        MOVE_DESTINATION_UNKNOWN = 0xA801
+        """``0xA801`` - Move destination unknown"""
+
+        @classmethod
+        def add(cls, name, code):
+            """Add a new constant to `Status`.
+
+            Parameters
+            ----------
+            name : str
+                The name of the constant to add.
+            code : int
+                The status code corresponding to the name.
+            """
+            setattr(cls, name, code)
