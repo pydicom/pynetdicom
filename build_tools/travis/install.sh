@@ -2,10 +2,15 @@
 
 set -e
 
+pip install -U pip
+
 pip install coverage
 pip install pytest-cov
 pip install -U pytest
 pip install asv
+pip uninstall enum34
+
+pip list
 
 echo ""
 echo "Test suite is " $TEST_SUITE
