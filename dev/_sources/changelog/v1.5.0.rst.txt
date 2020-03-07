@@ -62,6 +62,8 @@ Enhancements
 * Python 3 only: Added a customisable :class:`~pynetdicom.status.Status`
   convenience class for comparing, returning and yielding status values
   (:issue:`454`)
+* Added hook in :class:`~pynetdicom.transport.RequestHandler` for creating
+  :class:`~pynetdicom.association.Association` objects (:issue:`455`).
 
 
 Changes
