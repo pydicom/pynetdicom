@@ -107,6 +107,9 @@ class Association(threading.Thread):
         self.is_aborted = False
         self.is_released = False
 
+        # Track whether we've sent an abort or not for the abort() method
+        self._sent_abort = False
+
         # Accepted and rejected presentation contexts
         self._accepted_cx = {}
         self._rejected_cx = []
@@ -144,11 +147,16 @@ class Association(threading.Thread):
     def abort(self):
         """Send an A-ABORT to the remote AE and kill the :class:`Association`.
         """
+        # Only allow a single abort message to be sent
+        if self._sent_abort:
+            return
+
         if not self.is_released:
             # Ensure the reactor is running so it can be exited
             self._reactor_checkpoint.set()
             LOGGER.info('Aborting Association')
             self.acse.send_abort(0x00)
+            self._sent_abort = True
             # Event handler - association aborted
             evt.trigger(self, evt.EVT_ABORTED, {})
             self.kill()
@@ -625,7 +633,7 @@ class Association(threading.Thread):
                 return
 
             # Check if idle timer has expired
-            if self.dul.idle_timer_expired() and self.is_established:
+            if self.dul.idle_timer_expired():
                 self.abort()
                 self.kill()
                 return
