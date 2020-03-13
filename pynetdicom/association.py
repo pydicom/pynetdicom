@@ -152,11 +152,13 @@ class Association(threading.Thread):
             return
 
         if not self.is_released:
+            # Set before restarting the reactor to prevent race condition
+            self._sent_abort = True
             # Ensure the reactor is running so it can be exited
             self._reactor_checkpoint.set()
             LOGGER.info('Aborting Association')
             self.acse.send_abort(0x00)
-            self._sent_abort = True
+
             # Event handler - association aborted
             evt.trigger(self, evt.EVT_ABORTED, {})
             self.kill()
@@ -401,7 +403,6 @@ class Association(threading.Thread):
                 "Connection closed while waiting for DIMSE message"
             )
         elif self.is_established:
-            # Issue 460 - sending an A-ABORT erroneously (not )
             LOGGER.error(
                 "DIMSE timeout reached while waiting for message response"
             )

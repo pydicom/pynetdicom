@@ -377,7 +377,7 @@ class TestVerificationServiceClass(object):
     def test_dimse_network_timeout(self, caplog):
         """Regression test for #460: invalid second abort."""
         def handle(event):
-            time.sleep(1)
+            time.sleep(0.1)
             return 0x0000
 
         handlers = [(evt.EVT_C_ECHO, handle)]
