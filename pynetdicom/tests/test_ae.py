@@ -21,6 +21,7 @@ from pynetdicom import (
 )
 from pynetdicom.presentation import build_context
 from pynetdicom.sop_class import RTImageStorage, VerificationSOPClass
+from pynetdicom.transport import AssociationServer, RequestHandler
 
 
 #debug_logger()
@@ -52,6 +53,35 @@ def test_blocking_handler():
     time.sleep(0.1)
 
     ae.shutdown()
+
+
+class TestMakeServer(object):
+    """Tests for AE.make_server()"""
+    def setup(self):
+        """Run prior to each test"""
+        self.ae = None
+
+    def teardown(self):
+        """Clear any active threads"""
+        if self.ae:
+            self.ae.shutdown()
+
+    def test_default_arguments(self):
+        self.ae = ae = AE()
+        ae.add_supported_context(VerificationSOPClass)
+
+        server = ae.make_server(('', 11112))
+        assert isinstance(server, AssociationServer)
+
+    def test_custom_request_handler(self):
+        class MyRequestHandler(RequestHandler):
+            pass
+
+        self.ae = ae = AE()
+        ae.add_supported_context(VerificationSOPClass)
+
+        server = ae.make_server(('', 11112), request_handler=MyRequestHandler)
+        assert server.RequestHandlerClass is MyRequestHandler
 
 
 class TestStartServer(object):

@@ -520,8 +520,7 @@ class ApplicationEntity(object):
         assoc.name = "RequestorThread@{}".format(timestamp)
 
         # Setup the association's communication socket
-        sock = AssociationSocket(assoc, address=bind_address)
-        sock.tls_args = tls_args or {}
+        sock = self._create_socket(assoc, bind_address, tls_args)
         assoc.set_socket(sock)
 
         # Association Acceptor object -> remote AE
@@ -578,6 +577,15 @@ class ApplicationEntity(object):
             assoc.start()
 
         return assoc
+
+    def _create_socket(self, assoc, address, tls_args):
+        """Create an :class:`~pynetdicom.transport.AssociationSocket` for the current association.
+
+        .. versionadded:: 1.5
+        """
+        sock = AssociationSocket(assoc, address=address)
+        sock.tls_args = tls_args or {}
+        return sock
 
     @property
     def dimse_timeout(self):
@@ -1130,6 +1138,47 @@ class ApplicationEntity(object):
             If `block` is ``False`` then returns the server instance, otherwise
             returns ``None``.
         """
+        if block:
+            # Blocking server
+            server = self.make_server(
+                address, ae_title=ae_title, contexts=contexts, ssl_context=ssl_context,
+                evt_handlers=evt_handlers,
+            )
+            self._servers.append(server)
+
+            try:
+                # **BLOCKING**
+                server.serve_forever()
+            except KeyboardInterrupt:
+                server.shutdown()
+        else:
+            # Non-blocking server
+            timestamp = datetime.strftime(datetime.now(), "%Y%m%d%H%M%S")
+            server = self.make_server(
+                address, ae_title=ae_title, contexts=contexts, ssl_context=ssl_context,
+                evt_handlers=evt_handlers, server_class=ThreadedAssociationServer,
+            )
+
+            thread = threading.Thread(
+                target=server.serve_forever,
+                name="AcceptorServer@{}".format(timestamp)
+            )
+            thread.daemon = True
+            thread.start()
+
+            self._servers.append(server)
+
+            return server
+
+    def make_server(self, address, ae_title=None, contexts=None,
+                    ssl_context=None, evt_handlers=None,
+                    server_class=None, **kwargs):
+        """Return an association server for the AE.
+        Accepts the same arguments as :meth:`start_server`.
+        Additional keyword arguments are passed to the constructor of `server_class`.
+
+        .. versionadded:: 1.5
+        """
         # If the SCP has no supported SOP Classes then there's no point
         #   running as a server
         if not contexts and not self.supported_contexts:
@@ -1160,37 +1209,12 @@ class ApplicationEntity(object):
 
         evt_handlers = evt_handlers or {}
 
-        if block:
-            # Blocking server
-            server = AssociationServer(
-                self, address, ae_title, contexts, ssl_context,
-                evt_handlers=evt_handlers,
-            )
-            self._servers.append(server)
-
-            try:
-                # **BLOCKING**
-                server.serve_forever()
-            except KeyboardInterrupt:
-                server.shutdown()
-        else:
-            # Non-blocking server
-            timestamp = datetime.strftime(datetime.now(), "%Y%m%d%H%M%S")
-            server = ThreadedAssociationServer(
-                self, address, ae_title, contexts, ssl_context,
-                evt_handlers=evt_handlers,
-            )
-
-            thread = threading.Thread(
-                target=server.serve_forever,
-                name="AcceptorServer@{}".format(timestamp)
-            )
-            thread.daemon = True
-            thread.start()
-
-            self._servers.append(server)
-
-            return server
+        server_class = server_class or AssociationServer
+        return server_class(
+            self, address, ae_title, contexts, ssl_context,
+            evt_handlers=evt_handlers,
+            **kwargs
+        )
 
     def shutdown(self):
         """Stop any active association servers and threads.

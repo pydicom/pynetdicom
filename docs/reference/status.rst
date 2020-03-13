@@ -72,3 +72,4 @@ codes are used internally within pynetdicom to help aid in debugging.
 
    code_to_category
    code_to_status
+   Status

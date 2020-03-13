@@ -17,6 +17,11 @@ from pynetdicom.service_class import StorageServiceClass
 from pynetdicom.sop_class import (
     VerificationSOPClass, CTImageStorage, RTImageStorage,
 )
+try:
+    from pynetdicom.status import Status
+    HAS_STATUS = True
+except ImportError:
+    HAS_STATUS = False
 
 
 #debug_logger()
@@ -37,10 +42,60 @@ class TestStorageServiceClass(object):
         if self.ae:
             self.ae.shutdown()
 
+    @pytest.mark.skipif(not HAS_STATUS, reason="No Status class available")
+    def test_status_enum(self):
+        """Test failure to decode the dataset"""
+        # Hard to test directly as decode errors won't show up until the
+        #   dataset is actually used
+        Status.add('UNABLE_TO_DECODE', 0xC210)
+
+        def handle(event):
+            try:
+                for elem in event.dataset.iterall():
+                    pass
+            except:
+                status = Dataset()
+                status.Status = Status.UNABLE_TO_DECODE
+                status.ErrorComment = "Unable to decode the dataset"
+                return status
+
+            return Status.SUCCESS
+
+        handlers = [(evt.EVT_C_STORE, handle)]
+
+        self.ae = ae = AE()
+        ae.add_supported_context(CTImageStorage)
+        ae.add_requested_context(CTImageStorage, ExplicitVRLittleEndian)
+        scp = ae.start_server(('', 11112), block=False, evt_handlers=handlers)
+
+        assoc = ae.associate('localhost', 11112)
+        assert assoc.is_established
+
+        req = C_STORE()
+        req.MessageID = 1
+        req.AffectedSOPClassUID = DATASET.SOPClassUID
+        req.AffectedSOPInstanceUID = DATASET.SOPInstanceUID
+        req.Priorty = 0x0002
+        req.DataSet = BytesIO(b'\x08\x00\x01\x00\x40\x40\x00\x00\x00\x00\x00\x08\x00\x49')
+
+        # Send C-STORE request to DIMSE and get response
+        assoc._reactor_checkpoint.clear()
+        assoc.dimse.send_msg(req, 1)
+        cx_id, rsp = assoc.dimse.get_msg(True)
+        assoc._reactor_checkpoint.set()
+
+        assert rsp.Status == 0xC210
+        assert rsp.ErrorComment == 'Unable to decode the dataset'
+        assoc.release()
+        assert assoc.is_released
+
+        scp.shutdown()
+
     def test_scp_failed_ds_decode(self):
         """Test failure to decode the dataset"""
         # Hard to test directly as decode errors won't show up until the
         #   dataset is actually used
+
         def handle(event):
             try:
                 for elem in event.dataset.iterall():
