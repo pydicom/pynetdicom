@@ -373,3 +373,32 @@ class TestVerificationServiceClass(object):
 
         assert "DIMSE timeout reached" in caplog.text
         assert "Aborting Association" in caplog.text
+
+    def test_dimse_network_timeout(self, caplog):
+        """Regression test for #460: invalid second abort."""
+        def handle(event):
+            time.sleep(0.1)
+            return 0x0000
+
+        handlers = [(evt.EVT_C_ECHO, handle)]
+
+        self.ae = ae = AE()
+        ae.dimse_timeout = 0.05
+        ae.network_timeout = 0.05
+        ae.add_supported_context(VerificationSOPClass)
+        ae.add_requested_context(VerificationSOPClass)
+        scp = ae.start_server(('', 11112), block=False, evt_handlers=handlers)
+
+        assoc = ae.associate('localhost', 11112)
+        assert assoc.is_established
+        with caplog.at_level(logging.DEBUG, logger='pynetdicom'):
+            rsp = assoc.send_c_echo()
+        assert rsp == Dataset()
+
+        time.sleep(0.1)
+        assert assoc.is_aborted
+        scp.shutdown()
+
+        assert "Invalid event 'Evt15' for the current state" not in caplog.text
+        assert "DIMSE timeout reached" in caplog.text
+        assert "Aborting Association" in caplog.text
