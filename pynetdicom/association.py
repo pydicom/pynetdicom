@@ -393,6 +393,7 @@ class Association(threading.Thread):
                 "Connection closed while waiting for DIMSE message"
             )
         elif self.is_established:
+            # Issue 460 - sending an A-ABORT erroneously (not )
             LOGGER.error(
                 "DIMSE timeout reached while waiting for message response"
             )
@@ -624,7 +625,7 @@ class Association(threading.Thread):
                 return
 
             # Check if idle timer has expired
-            if self.dul.idle_timer_expired():
+            if self.dul.idle_timer_expired() and self.is_established:
                 self.abort()
                 self.kill()
                 return
