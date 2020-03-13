@@ -23,6 +23,9 @@ Fixes
 * Fixed the association acceptor selecting the first matching proposed
   transfer syntax rather than the first matching supported transfer syntax
   during presentation context negotiation (:issue:`445`)
+* Fixed an ``InvalidEventError`` due to two A-ABORT messages being sent. Issue
+  is triggered when the DIMSE and network timeouts have the same value and
+  both expire while sending a DIMSE request. (:issue:`460`)
 
 
 Enhancements
