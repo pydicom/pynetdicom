@@ -9,8 +9,8 @@ In this tutorial you will:
 * Use DCMTK to start an Echo SCP
 * Create an application entity (AE) using *pynetdicom* and assocate with the
   Echo SCP
-* Use your AE as an Echo SCU by sending a request to the Echo SCP to use the
-  verification service
+* Use your AE as an Echo SCU by sending a verification service request to the
+  Echo SCP
 
 If you need to install *pynetdicom* please follow the instructions in the
 :doc:`installation guide</tutorials/installation>`. For this tutorial we'll
@@ -23,7 +23,7 @@ About associations
 
 Communication between DICOM applications normally proceeds in three stages;
 
-1. Firstly, they must negotiate to establish an *association*:
+1. First the applications negotiate to establish an *association*:
 
   * The association *requestor* sends an association request message which
     contains information about the services it would like to use
@@ -32,14 +32,14 @@ Communication between DICOM applications normally proceeds in three stages;
   * Only if the *requestor* receives an association acceptance message is the
     association established
 
-2. Secondly, the applications can make use of the services agreed to during
+2. Then the applications make use of the services agreed to during
    association negotiation by exchanging DIMSE messages.
 3. Finally, the association is released and the connection between the
    applications closed.
 
-In general, the association *acceptor* will also be the one providing the DICOM
-services; it'll be the *Service Class Provider*, or SCP. Conversely, the
-*requestor* will usually be the one using the services - the *Service Class
+In general, the association *acceptor* will also be the one **providing** the
+DICOM services; it'll be the *Service Class Provider*, or SCP. Conversely, the
+*requestor* will usually be the one **using** the services - the *Service Class
 User*, or SCU. At this stage it may be helpful to think of SCPs and SCUs as
 being similar servers and clients. While this isn't strictly true - a few
 DICOM services don't follow this model - it's accurate enough for the most
@@ -57,7 +57,7 @@ application also supports the verification service, so we'll use that instead.
 
 In a new terminal, start ``storescp`` listening for association requests on
 port ``11112`` with the ``-v`` verbose flag. How you start ``storescp`` will
-depend on your operating system; for linux you should be able to do:
+depend on your operating system; for Linux you should be able to do:
 
 .. code-block:: text
 
@@ -76,7 +76,9 @@ allow access through the firewall for the port you end up using.
 
 The SCP will continue to run until you interrupt it either by closing the
 terminal or by pressing ``CTRL+C``. Keep the Echo SCP running in the
-background for the rest of the tutorial.
+background for the rest of the tutorial, but you may wish to look at it's
+output every now and then to get a feel for what's happening.
+
 
 Create an Application Entity and associate
 ==========================================
@@ -109,9 +111,9 @@ There's a lot going on in these few lines, so let's split it up a bit:
 This creates our :class:`AE<ae.ApplicationEntity>` instance, then adds a single
 *presentation context* to it using the
 :meth:`~ae.ApplicationEntity.add_requested_context` method.  All association
-request must contain at least one presentation context, however since all
-we're interested in at the moment is establishing an association we'll go into
-presentation contexts a bit more later on.
+requests must contain at least one presentation context, and in this case we've
+added one that proposes the use of the verification service. We'll go into
+presentation contexts and how they're used a bit more later on.
 
 .. code-block:: python
    :linenos:
@@ -123,12 +125,14 @@ Here we initiate the association negotiation by sending an association request
 to the IP address ``'127.0.0.1'`` on port ``11112``. ``'127.0.0.1'`` (also
 known as ``'localhost'``) is a `special IP address
 <https://en.wikipedia.org/wiki/Localhost>`_ that means *this computer*. This
-is the same IP address and port that we started the ``storescp`` application
-on earlier.
+should be the same IP address and port that we started the ``storescp`` application
+on earlier, so if you used a different port you should change this value
+accordingly.
 
 The :meth:`AE.associate()<ae.ApplicationEntity.associate>` method returns an
 :class:`~association.Association` instance `assoc`, which is a subclass of
-:class:`threading.Thread`.
+:class:`threading.Thread`. This allows us to make use of the association while
+*pynetdicom* monitors the connection behind the scenes.
 
 As mentioned earlier, an *acceptor* may do a couple of things in response to an
 association request:
@@ -183,6 +187,7 @@ sent to the terminal by calling :func:`~debug_logger`:
 
 .. code-block:: python
    :linenos:
+   :emphasize-lines: 1,3
 
     from pynetdicom import AE, debug_logger
 
@@ -248,8 +253,9 @@ The log can be broken down into a couple of categories:
 * Errors and exceptions that have occurred, prefixed by ``E:``
 * The contents of various association related messages,
   such as the SCU's association request (A-ASSOCIATE-RQ) and SCP's association
-  accept (A-ASSOCIATE-AC) messages.
-* Later on you'll also see summaries of the various DIMSE messages
+  accept (A-ASSOCIATE-AC) messages, usually prefixed by ``D:``
+* Later on you'll also see summaries of the various DIMSE messages that get
+  exchanged
 
 Common issues
 .............
@@ -274,11 +280,23 @@ Common issues
 Echo SCU
 ========
 
+Presentation Contexts
+---------------------
+I've cheated a bit in our example by already including the presentation context
+we need in order to be allowed to request the use of the verification service;
+``1.2.840.10008.1.1`` - *Verification SOP Class*.
+
+Presentation contexts are... I dunno, what's a good analogy?
+
+
+
 Since we're able to associate with the Echo SCP, our next step is to request
-the use of its verification service by sending a DIMSE C-ECHO request:
+the use of its verification service. We do this by sending a DIMSE C-ECHO
+request:
 
 .. code-block:: python
    :linenos:
+   :emphasize-lines: 9
 
     from pynetdicom import AE, debug_logger
 
@@ -292,17 +310,9 @@ the use of its verification service by sending a DIMSE C-ECHO request:
         assoc.release()
 
 Our only change is to include a call to
-:meth:`~association.Association.send_c_echo`, which returns `status` as
-a *pydicom* :class:`~pydicom.dataset.Dataset` instance. If we received a
+:meth:`~association.Association.send_c_echo`, which returns a *pydicom*
+:class:`~pydicom.dataset.Dataset` instance *status*. If we received a
 response to our C-ECHO request then `status` will contain at least an
 (0000,0900) *Status* element containing the outcome of our request. If no
 response was received (due to a connection failure, a timeout, or because the
 association was aborted) then `status` will be an empty ``Dataset``.
-
-Presentation Contexts
----------------------
-I've cheated a bit in our example by already including the presentation context
-we need in order to be allowed to request the use of the verification service;
-``1.2.840.10008.1.1`` - *Verification SOP Class*. 
-
-Presentation contexts are... I dunno, what's a good analogy?

@@ -34,6 +34,11 @@ You may need to use this instead, depending on your operating system::
 
   $ python -m pip install pynetdicom
 
+*pynetdicom* is also available on `conda <https://docs.conda.io/>`_ at
+`conda-forge <https://anaconda.org/conda-forge/pynetdicom>`_::
+
+  $ conda install -c conda-forge pynetdicom
+
 
 .. _tut_install_dev:
 
