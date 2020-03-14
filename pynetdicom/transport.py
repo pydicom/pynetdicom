@@ -404,6 +404,30 @@ class RequestHandler(BaseRequestHandler):
         * Sets the Association's socket to the request's socket.
         * Starts the Association reactor.
         """
+        assoc = self._create_association()
+
+        # Trigger must be after binding the events
+        evt.trigger(
+            assoc, evt.EVT_CONN_OPEN, {'address' : self.client_address}
+        )
+
+        assoc.start()
+
+    @property
+    def local(self):
+        """Return a 2-tuple of the local server's ``(host, port)`` address."""
+        return self.server.server_address
+
+    @property
+    def remote(self):
+        """Return a 2-tuple of the remote client's ``(host, port)`` address."""
+        return self.client_address
+
+    def _create_association(self):
+        """Create an :class:`Association` object for the current request.
+
+        .. versionadded:: 1.5
+        """
         from pynetdicom.association import Association
 
         assoc = Association(self.ae, MODE_ACCEPTOR)
@@ -441,29 +465,18 @@ class RequestHandler(BaseRequestHandler):
             elif event.is_notification:
                 for handler in self.server._handlers[event]:
                     assoc.bind(event, *handler)
+        return assoc
 
-        # Trigger must be after binding the events
-        evt.trigger(
-            assoc, evt.EVT_CONN_OPEN, {'address' : self.client_address}
-        )
-
-        assoc.start()
-
-    @property
-    def local(self):
-        """Return a 2-tuple of the local server's ``(host, port)`` address."""
-        return self.server.server_address
-
-    @property
-    def remote(self):
-        """Return a 2-tuple of the remote client's ``(host, port)`` address."""
-        return self.client_address
 
 
 class AssociationServer(TCPServer):
     """An Association server implementation.
 
     .. versionadded:: 1.2
+
+    .. versionchanged:: 1.5
+
+        Added `request_handler` keyword parameter.
 
     Any attempts to connect will be assumed to be from association requestors.
 
@@ -487,7 +500,7 @@ class AssociationServer(TCPServer):
         no TLS is required (default).
     """
     def __init__(self, ae, address, ae_title, contexts, ssl_context=None,
-                 evt_handlers=None):
+                 evt_handlers=None, request_handler=None):
         """Create a new :class:`AssociationServer`, bind a socket and start
         listening.
 
@@ -509,6 +522,10 @@ class AssociationServer(TCPServer):
             A list of ``(event, callable)`` or ``(event, callable, args)``,
             the *callable* function to run when *event* occurs and the
             optional extra *args* to pass to the callable.
+        request_handler : type
+            The request handler class; an instance of this class
+            is created for each request. Should be a subclass of
+            :class:`~socketserver.BaseRequestHandler`.
         """
         self.ae = ae
         self.ae_title = ae_title
@@ -521,8 +538,9 @@ class AssociationServer(TCPServer):
         self.ssl_context = ssl_context
         self.allow_reuse_address = True
 
+        request_handler = request_handler or RequestHandler
         TCPServer.__init__(
-            self, address, RequestHandler, bind_and_activate=True
+            self, address, request_handler, bind_and_activate=True
         )
 
         self.timeout = 60

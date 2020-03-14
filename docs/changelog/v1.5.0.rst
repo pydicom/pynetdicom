@@ -23,6 +23,10 @@ Fixes
 * Fixed the association acceptor selecting the first matching proposed
   transfer syntax rather than the first matching supported transfer syntax
   during presentation context negotiation (:issue:`445`)
+* Fixed incorrect Pending status value for Modality Worklist (:issue:`462`)
+* Fixed an ``InvalidEventError`` due to two A-ABORT messages being sent. Issue
+  is triggered when the DIMSE and network timeouts have the same value and
+  both expire while sending a DIMSE request. (:issue:`460`)
 
 
 Enhancements
@@ -53,6 +57,17 @@ Enhancements
   ``movescu.py`` apps
 * Added ability to pass optional extra arguments to event handlers by using
   ``(evt.EVT_NAME, handler, ['list', 'of', 'args'])``. (:issue:`447`)
+* Added :meth:`~pynetdicom.ae.AE.make_server` (:issue:`453`).
+* Added `request_handler` keyword parameter to
+  :class:`~pynetdicom.transport.AssociationServer` (:issue:`453`)
+* Added hook in :class:`~pynetdicom.ae.AE` for creating
+  :class:`~pynetdicom.transport.AssociationSocket` objects (:issue:`455`)
+* Python 3 only: Added a customisable :class:`~pynetdicom.status.Status`
+  convenience class for comparing, returning and yielding status values
+  (:issue:`454`)
+* Added hook in :class:`~pynetdicom.transport.RequestHandler` for creating
+  :class:`~pynetdicom.association.Association` objects (:issue:`455`).
+
 
 Changes
 .......
