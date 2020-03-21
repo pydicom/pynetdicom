@@ -103,3 +103,7 @@ code.literal {
 ul p {
     margin-bottom: 0px !important;
 }
+
+.highlight .hll {
+    background-color: #d2ff6d !important;
+}

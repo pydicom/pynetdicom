@@ -17,6 +17,7 @@ If you need to install *pynetdicom* please follow the instructions in the
 also be using the :doc:`echoscp<../apps/echoscp>` application that comes with
 *pynetdicom*.
 
+
 About associations
 ==================
 
@@ -46,20 +47,34 @@ DICOM services don't follow this model - it's accurate enough for the most
 frequently used services like verification, storage and query/retrieve.
 
 
+What *is* an Echo SCU?
+======================
+
+If you're completely new to DICOM, you might be wondering what a Echo SCU or
+Echo SCP actually *are*. The best analogy is that they're similar to the echo
+client and server concept. The Echo SCU sents an echo request to the SCP, which
+sends a simple acknowledgement response back. By doing this you can test
+whether a DICOM application is active and reachable by your SCU, that your
+configuration is correct and the connection isn't being blocked by a firewall
+or anything else.
+
+
 Start the Echo SCP
 ==================
 
 For this tutorial we need an SCP that provides DICOM
 :dcm:`verification<part04/chapter_A.html>`
-services, usually referred to as a *Verification SCP* or *Echo SCP* for short.
-To make things simpler we'll use the :doc:`echoscp<../apps/echoscp>`
+services. To make things simpler we'll use the :doc:`echoscp<../apps/echoscp>`
 application that comes with
 *pynetdicom*, but you could also use any third-party application that supports
-the Verification Service as an SCP, such as DCMTK's
-`storescp <https://support.dcmtk.org/docs/storescp.html>`_.
+the verification service as an SCP, such as DCMTK's
+`storescp <https://support.dcmtk.org/docs/storescp.html>`_. To find out if
+an application supports the verification service you should check their
+DICOM conformance statement.
 
 In a new terminal, start ``echoscp`` listening for association requests on
-port ``11112`` with the ``-v`` verbose flag:
+port ``11112`` with the ``-v`` verbose flag (or ``-d`` debug flag for even
+more output):
 
 .. code-block:: text
 
@@ -72,7 +87,7 @@ you may also need to allow access through the firewall for the port you end
 up using.
 
 The SCP will continue to run until you interrupt it either by closing the
-terminal or by pressing ``CTRL+C``. Keep the Echo SCP running in the
+terminal or by pressing ``CTRL+C``. Keep the application running in the
 background for the rest of the tutorial, but you may wish to look at it's
 output every now and then to get a feel for what's happening.
 
@@ -128,13 +143,13 @@ Here we initiate the association negotiation by sending an association request
 to the IP address ``'127.0.0.1'`` on port ``11112``. ``'127.0.0.1'`` (also
 known as ``'localhost'``) is a `special IP address
 <https://en.wikipedia.org/wiki/Localhost>`_ that means *this computer*. This
-should be the same IP address and port that we started the ``echoscp``
+should be the same IP address and port that you started the ``echoscp``
 application on earlier, so if you used a different port you should change this
 value accordingly.
 
 The :meth:`AE.associate()<ae.ApplicationEntity.associate>` method returns an
 :class:`~association.Association` instance `assoc`, which is a subclass of
-:class:`threading.Thread`. Subclassing ``Thread`` allows us to make use of the
+:class:`threading.Thread`. This allows us to make use of the
 association while *pynetdicom* monitors the connection behind the scenes.
 
 .. code-block:: python
@@ -266,9 +281,8 @@ The log can be broken down into a couple of categories:
 * Errors and exceptions that have occurred, prefixed by ``E:``
 * The contents of various association related messages,
   such as the SCU's association request (A-ASSOCIATE-RQ) and SCP's association
-  accept (A-ASSOCIATE-AC) messages, usually prefixed by ``D:``
-* Later on you'll also see summaries of the various DIMSE messages that get
-  exchanged
+  accept (A-ASSOCIATE-AC) messages, as well as summaries of DIMSE messages,
+  usually prefixed by ``D:``
 
 Common issues
 .............
@@ -300,7 +314,7 @@ Presentation Contexts
 
     What follows is a basic introduction to presentation contexts. More
     information is available in the
-    :doc:`presentation context<../user/presentation>` section of the User
+    :doc:`presentation contexts<../user/presentation>` section of the User
     Guide.
 
 I've cheated a bit in our example by already including the presentation context
@@ -309,12 +323,12 @@ used to request the use of the verification service;
 
 Presentation contexts are how DICOM applications agree on which services
 are available to an association. Each DICOM service has a corresponding set of
-*SOP Class UIDs*. Including one (or more) of those *SOP Class UIDs* in the
+*SOP Class UIDs*. Including one (or more) of these in the
 proposed presentation contexts indicates to the *acceptor* that a particular
-service is requested for that SOP class.
+service is requested.
 
 So if you want to use the DICOM :dcm:`verification<part04/chapter_A.html>`
-service you propose a presentation context for *Verification SOP Class*. If
+service, you propose a presentation context for *Verification SOP Class*. If
 you wanted to use the :dcm:`storage<part04/chapter_B.html>` service
 to store *CT Images*, you'd propose a presentation context for the *CT Image
 Storage* SOP class.
@@ -356,7 +370,7 @@ Our only change is to include a call to
 :meth:`~association.Association.send_c_echo` which is used to send
 the C-ECHO request and returns a *pydicom*
 :class:`~pydicom.dataset.Dataset` instance *status*. If we received a
-response to our C-ECHO request then `status` will contain at least an
+response to our C-ECHO request, then `status` will contain at least an
 (0000,0900) *Status* element containing the outcome of our request. If no
 response was received (due to a connection failure, a timeout, or because the
 association was aborted) then `status` will be an empty ``Dataset``.
