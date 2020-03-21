@@ -1,11 +1,11 @@
 
-========================
-pynetdicom Documentation
-========================
+============
+*pynetdicom*
+============
 
-`pynetdicom <https://github.com/pydicom/pynetdicom>`_ is a pure Python
-2.7/3.5+ package that implements the `DICOM <http://dicom.nema.org/>`_
-networking protocol. Working with
+`pynetdicom <https://github.com/pydicom/pynetdicom>`_ is a pure Python package
+that implements the `DICOM <http://dicom.nema.org/>`_ networking protocol.
+Working with
 `pydicom <https://github.com/pydicom/pydicom>`_, it allows the easy creation
 of DICOM Application Entities (AEs), which can then act as *Service Class
 Users* (SCUs) and *Service Class Providers* (SCPs) by associating with other
@@ -18,16 +18,19 @@ If you're new to *pynetdicom* then start here:
 
 * **Basics**: :doc:`Installation</tutorials/installation>` |
   :doc:`Writing your first SCU</tutorials/create_scu>` |
-  :doc:`Writing your first SCP</tutorials/create_scp>` |
-* **Intermediate**: :doc:`Using TLS</tutorials/using_tls>`
+  :doc:`Writing your first SCP</tutorials/create_scp>`
 
+
+.. _index_guide:
 
 User Guide
 ==========
-The :ref:`user_guide` is intended as an introduction to *pynetdicom* and
-explains how to install the API and covers basic usage. For detailed
-documentation of the functions and classes see the
-:ref:`API reference <reference>`.
+The :ref:`user_guide` is intended as an overview for using *pynetdcom* and
+the concepts relevant to DICOM networking. It covers UIDs, presentation
+contexts, event handling, AEs and associating.
+
+For detailed documentation of the functions and classes see the
+:doc:`API reference <reference/index>`.
 
 .. _index_examples:
 
@@ -51,12 +54,13 @@ Examples
 * :doc:`Storage (C-STORE) <examples/storage>`
 * :doc:`Verification (C-ECHO) <examples/verification>`
 
+.. _index_api:
 
 API Reference
 =============
 
 The :doc:`API Reference <reference/index>` provides documentation of the
-important functions and classes.
+functions, classes and other objects.
 
 
 Supported Service Classes
@@ -94,9 +98,12 @@ Supported Service Classes
 * :doc:`Unified Procedure Step <service_classes/ups>`
 * :doc:`Verification <service_classes/verification_service_class>`
 
+.. _index_apps:
 
 Applications
 ============
+
+*pynetdicom* also includes some bundled applications
 
 * :doc:`echoscu <apps/echoscu>`
 * :doc:`echoscp <apps/echoscp>`
@@ -105,6 +112,8 @@ Applications
 * :doc:`movescu <apps/movescu>`
 * :doc:`storescu <apps/storescu>`
 * :doc:`storescp <apps/storescp>`
+
+.. _index_releases:
 
 Release Notes
 =============

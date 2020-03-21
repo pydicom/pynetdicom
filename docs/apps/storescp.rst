@@ -122,11 +122,15 @@ Output
 ``--ignore``
             receive data but don't store it
 
+Miscellaneous
+-------------
+``--no-echo``
+            don't act as a verification SCP
 
 DICOM Conformance
 =================
-The ``storescp`` application supports the Verification and Storage Service
-Classes as an SCP with the following SOP Classes:
+The ``storescp`` application supports the Verification (unless ``--no-echo``
+is used) and Storage Service Classes as an SCP with the following SOP Classes:
 
 Verification Service Class
 --------------------------

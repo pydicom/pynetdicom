@@ -162,6 +162,14 @@ def _setup_argparser():
         action="store_true"
     )
 
+    # Miscellaneous Options
+    misc_opts = parser.add_argument_group('Miscellaneous Options')
+    misc_opts.add_argument(
+        "--no-echo",
+        help="don't act as a verification SCP",
+        action="store_true"
+    )
+
     return parser.parse_args()
 
 
@@ -202,8 +210,10 @@ def main(args=None):
     # Add presentation contexts with specified transfer syntaxes
     for context in AllStoragePresentationContexts:
         ae.add_supported_context(context.abstract_syntax, transfer_syntax)
-    for context in VerificationPresentationContexts:
-        ae.add_supported_context(context.abstract_syntax, transfer_syntax)
+
+    if not args.no_echo:
+        for context in VerificationPresentationContexts:
+            ae.add_supported_context(context.abstract_syntax, transfer_syntax)
 
     ae.maximum_pdu_size = args.max_pdu
 
