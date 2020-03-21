@@ -165,9 +165,12 @@ def _setup_argparser():
     return parser.parse_args()
 
 
-if __name__ == "__main__":
-    args = _setup_argparser()
+def main(args=None):
+    """Run the application."""
+    if args is not None:
+        sys.argv = args
 
+    args = _setup_argparser()
     if args.version:
         print('storescp.py v{}'.format(__version__))
         sys.exit()
@@ -210,3 +213,7 @@ if __name__ == "__main__":
     ae.dimse_timeout = args.dimse_timeout
 
     ae.start_server((args.bind_address, args.port), evt_handlers=handlers)
+
+
+if __name__ == "__main__":
+    main()

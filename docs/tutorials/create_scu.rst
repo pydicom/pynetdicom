@@ -7,16 +7,18 @@ Writing your first SCU
 In this tutorial you will:
 
 * Use DCMTK to start an Echo SCP
-* Create an application entity (AE) using *pynetdicom* and assocate with the
+* Create an application entity (AE) using *pynetdicom* and associate with the
   Echo SCP
-* Use your AE as an Echo SCU by sending a verification service request to the
-  Echo SCP
+* Turn your AE into an Echo SCU by sending a verification service request to
+  the Echo SCP
 
 If you need to install *pynetdicom* please follow the instructions in the
 :doc:`installation guide</tutorials/installation>`. For this tutorial we'll
 also be using DCMTK's
 `storescp <https://support.dcmtk.org/docs/storescp.html>`_ application, so if
-you haven't yet :ref:`installed DCMTK<tut_install_dcmtk>`, please do so.
+you haven't yet :ref:`installed DCMTK<tut_install_dcmtk>`, please do so. If
+you're unable to install DCMTK then you can also use the `storescu.py`
+application included with *pynetdicom*.
 
 About associations
 ==================
@@ -28,7 +30,8 @@ Communication between DICOM applications normally proceeds in three stages;
   * The association *requestor* sends an association request message which
     contains information about the services it would like to use
   * The association *acceptor* receives the request and replies with
-    acceptance, rejection or aborts the negotiation
+    acceptance (along with an indication of which services it's agreed to),
+    rejection or aborts the negotiation
   * Only if the *requestor* receives an association acceptance message is the
     association established
 
@@ -98,6 +101,9 @@ editor and add the following:
     if assoc.is_established:
         print('Association established with Echo SCP!')
         assoc.release()
+    else:
+        # Association rejected, aborted or never connected
+        print('Failed to associate')
 
 There's a lot going on in these few lines, so let's split it up a bit:
 
@@ -109,7 +115,7 @@ There's a lot going on in these few lines, so let's split it up a bit:
     ae.add_requested_context('1.2.840.10008.1.1')
 
 This creates our :class:`AE<ae.ApplicationEntity>` instance, then adds a single
-*presentation context* to it using the
+:doc:`presentation context<../user/presentation>` to it using the
 :meth:`~ae.ApplicationEntity.add_requested_context` method.  All association
 requests must contain at least one presentation context, and in this case we've
 added one that proposes the use of the verification service. We'll go into
@@ -151,14 +157,18 @@ connection failure).
     if assoc.is_established:
         print('Association established with Echo SCP!')
         assoc.release()
+    else:
+        # Association rejected, aborted or never connected
+        print('Failed to associate')
 
-Because there are multiple possible outcomes to negotiation, we check to see if
-the association :attr:`~association.Association.is_established`. If we have
-successfully associated, we print a message and send an association release
-request using :meth:`~association.Association.release`. This ends the
+Because there's more than one possible outcomes to negotiation, we check to
+see if the association :attr:`~association.Association.is_established`. If it
+is, we print a message and send an association
+release request using :meth:`~association.Association.release`. This ends the
 association and closes the connection with the Echo SCP. On the other hand,
-if we failed to establish an association then the connection is closed
-automatically, so we don't need to do anything further.
+if we failed to establish an association for whatever reason, then the
+connection is closed automatically (if required), and we don't need to do
+anything further.
 
 So, let's see what happens when we run our script. Open a new terminal and
 run the file with:
@@ -173,10 +183,13 @@ You should see:
 
     Association established with Echo SCP
 
-If you don't see anything then something has gone wrong (more on
-troubleshooting that in a bit). Otherwise, congratulations! Establishing an
-association is the first step any DICOM application needs to take before it
-can do anything useful.
+You should see ``Association established with Echo SCP``. Congratulations!
+Establishing an association is the first step any DICOM application needs to
+take before it can do anything useful.
+
+If instead you saw ``Failed to associate`` then not to worry; make sure your
+Echo SCP is running and that your code is correct. If you still can't
+associate, move on to the next section on troubleshooting associations.
 
 Troubleshooting associations
 ----------------------------

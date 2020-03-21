@@ -220,7 +220,10 @@ def _setup_argparser():
     return ns
 
 
-if __name__ == "__main__":
+def main(args=None):
+    if args is not None:
+        sys.argv = args
+
     args = _setup_argparser()
 
     if args.version:
@@ -300,3 +303,7 @@ if __name__ == "__main__":
         scp.shutdown()
 
     sys.exit(_EXIT_VALUE)
+
+
+if __name__ == "__main__":
+    main()

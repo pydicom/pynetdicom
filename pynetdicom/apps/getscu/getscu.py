@@ -196,7 +196,11 @@ def _setup_argparser():
     return ns
 
 
-if __name__ == "__main__":
+def main(args=None):
+    """Run the application."""
+    if args is not None:
+        sys.argv = args
+
     args = _setup_argparser()
 
     if args.version:
@@ -278,3 +282,7 @@ if __name__ == "__main__":
         assoc.release()
     else:
         sys.exit(1)
+
+
+if __name__ == "__main__":
+    main()
