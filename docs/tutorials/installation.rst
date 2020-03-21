@@ -30,11 +30,11 @@ install from PyPi is using `pip <https://pip.pypa.io/>`_ with the command::
 
   $ pip install pynetdicom
 
-You may need to use this instead, depending on your operating system::
+You may need to use this instead::
 
   $ python -m pip install pynetdicom
 
-*pynetdicom* is also available on `conda <https://docs.conda.io/>`_ at
+*pynetdicom* is also available for `conda <https://docs.conda.io/>`_ on
 `conda-forge <https://anaconda.org/conda-forge/pynetdicom>`_::
 
   $ conda install -c conda-forge pynetdicom
@@ -57,7 +57,7 @@ If you want to keep up-to-date with the latest code, make sure you have
 `Git <https://git-scm.com/>`_ installed and then clone the ``master``
 branch (this will create a ``pynetdicom`` directory in your current directory)::
 
-  $ git clone --depth=1 https://github.com/pydicom/pynetdicom.git
+  $ git clone https://github.com/pydicom/pynetdicom.git
 
 Then install using pip in editable (``-e``) mode::
 

@@ -2,6 +2,10 @@
 storescp
 ========
 
+.. code-block:: text
+
+    $ python -m pynetdicom storescp [options] port
+
 Description
 ===========
 The ``storescp`` application implements a *Service Class Provider* (SCP) for
@@ -11,21 +15,6 @@ Association is established, allows Storage SCUs transfer SOP Instances
 with SOP Classes matching the presentation contexts accepted during Association
 negotation.
 
-Invocation
-==========
-
-If you've invoking ``storescp`` from source then use:
-
-.. code-block:: text
-
-    $ python storescp.py [options] port
-
-Alternatively, it can be invoked with:
-
-.. code-block:: text
-
-    $ python -m pynetdicom storescp [options] port
-
 Usage
 =====
 
@@ -34,7 +23,7 @@ a C-STORE request from a peer:
 
 .. code-block:: text
 
-   $ python storescp.py 11112
+   $ python -m pynetdicom storescp 11112
 
 
 More information is available when a connection is received while running with
@@ -42,7 +31,7 @@ the ``-v`` option:
 
 .. code-block:: text
 
-    $ python storescp.py 11112 -v
+    $ python -m pynetdicom storescp 11112 -v
     I: Accepting Association
     I: Received Store Request
     I: Storing DICOM file: CT.1.3.6.1.4.1.5962.1.1.1.1.1.20040119072730.12322
@@ -53,7 +42,7 @@ running with the ``-d`` option:
 
 .. code-block:: text
 
-    $ python storescp.py 11112 -d
+    $ python -m pynetdicom storescp 11112 -d
     D: storescp.py v0.6.0
     D:
     D: Request Parameters:

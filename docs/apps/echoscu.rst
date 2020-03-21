@@ -2,6 +2,10 @@
 echoscu
 =======
 
+.. code-block:: text
+
+    $ python -m pynetdicom echoscu [options] addr port
+
 Description
 ===========
 The ``echoscu`` application implements a Service Class User (SCU) for the
@@ -10,31 +14,16 @@ association with a peer Application Entity (AE), sends a DICOM
 :dcm:`C-ECHO-RQ<part07/sect_9.3.5.html#sect_9.3.5.1>` message and waits for a
 response. The application can be used to verify basic DICOM connectivity.
 
-Invocation
-==========
-
-If you've invoking ``echoscu`` from source then use:
-
-.. code-block:: text
-
-    $ python echoscu.py [options] addr port
-
-Alternatively, it can be invoked with:
-
-.. code-block:: text
-
-    $ python -m pynetdicom echoscu [options] addr port
-
 Usage
 =====
 
 The following example shows what happens when it's succesfully run on
-an SCP at IP 127.0.0.1 and listen port 11112 that supports the *Verification
-Service*:
+an SCP at IP ``127.0.0.1`` and listen port ``11112`` that supports the
+*Verification Service*:
 
 .. code-block:: text
 
-    $ python echoscu.py 127.0.0.1 11112
+    $ python -m pynetdicom echoscu 127.0.0.1 11112
     $
 
 When attempting to send a C-ECHO request to an SCP that doesn't support the
@@ -42,7 +31,7 @@ When attempting to send a C-ECHO request to an SCP that doesn't support the
 
 .. code-block:: text
 
-    $ python echoscu.py 127.0.0.1 11112
+    $ python -m pynetdicom echoscu 127.0.0.1 11112
     E: No accepted presentation contexts
     $
 
@@ -51,7 +40,7 @@ called AE title wasn't recognised):
 
 .. code-block:: text
 
-    $ python echoscu.py 127.0.0.1 11112
+    $ python -m pynetdicom echoscu 127.0.0.1 11112
     E: Association Rejected
     E: Result: Rejected Permanent, Source: Service User
     E: Reason: Called AE title not recognised
@@ -61,7 +50,7 @@ When attempting to associate with a non-DICOM peer:
 
 .. code-block:: text
 
-    $ python echoscu.py 127.0.0.1 11112
+    $ python -m pynetdicom echoscu 127.0.0.1 11112
     E: Association request failed: unable to connect to remote
     E: TCP Initialisation Error: Connection refused
     $
@@ -70,7 +59,7 @@ More information is available with the ``-d`` flag:
 
 .. code-block:: text
 
-    $ python echoscu.py 127.0.0.1 11112 -d
+    $ python -m pynetdicom echoscu 127.0.0.1 11112 -d
     D: echoscu.py v0.7.0
     D:
     I: Requesting Association

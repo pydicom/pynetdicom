@@ -2,6 +2,10 @@
 echoscp
 =======
 
+.. code-block:: text
+
+    $ python -m pynetdicom echoscp [options] port
+
 Description
 ===========
 The ``echoscp`` application implements a Service Class Provider (SCP) for the
@@ -9,21 +13,6 @@ The ``echoscp`` application implements a Service Class Provider (SCP) for the
 establishes an Association with peer Application Entities (AEs) and listens for
 DICOM C-ECHO-RQ messages to which it responds with a DICOM C-ECHO-RSP
 message. The application can be used to verify basic DICOM connectivity.
-
-Invocation
-==========
-
-If you've invoking ``echoscp`` from source then use:
-
-.. code-block:: text
-
-    $ python echoscp.py [options] port
-
-Alternatively, it can be invoked with:
-
-.. code-block:: text
-
-    $ python -m pynetdicom echoscp [options] port
 
 Usage
 =====
@@ -33,14 +22,14 @@ a C-ECHO request from a peer:
 
 .. code-block:: text
 
-   $ python echoscp.py 11112
+   $ python -m pynetdicom echoscp 11112
 
 
 More information is available when running with the ``-v`` option:
 
 .. code-block:: text
 
-    $ python echoscp.py 11112 -v
+    $ python -m pynetdicom echoscp 11112 -v
     I: Accepting Association
     I: Received Echo Request (MsgID 1)
     I: Association Released
@@ -49,7 +38,7 @@ When a peer AE attempts to send non C-ECHO message:
 
 .. code-block:: text
 
-    $ python echoscp.py 192.168.2.1 11112 -v
+    $ python -m pynetdicom echoscp 192.168.2.1 11112 -v
     I: Accepting Association
     I: Association Aborted
 
@@ -57,7 +46,7 @@ Much more information is available when running with the ``-d`` option:
 
 .. code-block:: text
 
-    $ python echoscp.py 11112 -d
+    $ python -m pynetdicom echoscp 11112 -d
     D: echoscp.py v0.7.0
     D:
     D: Request Parameters:

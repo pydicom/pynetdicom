@@ -484,7 +484,8 @@ if HAS_ENUM:
         .. versionadded:: 1.5
         .. warning::
 
-            Only available with Python 3
+            Not available with Python 2 unless the
+            `enum34 <https://pypi.org/project/enum34/>`_ package is installed
 
         New constants can be added with the ``Status.add(name, code)`` method but
         the documentation for it is missing due to a bug in Sphinx. `name` is
@@ -516,6 +517,9 @@ if HAS_ENUM:
         """``0xFE00`` - Operation terminated"""
         PENDING = 0xFF00
         """``0xFF00`` - Matches or sub-operations are continuing"""
+        PENDING_WITH_WARNING = 0xFF01
+        """``0xFF01`` - Matches or sub-operations are continuing, warning
+        that one or more Optional Keys were not supported"""
         MOVE_DESTINATION_UNKNOWN = 0xA801
         """``0xA801`` - Move destination unknown"""
 

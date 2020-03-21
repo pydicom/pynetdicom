@@ -51,22 +51,27 @@ Enhancements
   contains all of the Storage Service Class' SOP Class UIDs rather than just
   the first 128 as in
   :attr:`~pynetdicom.presentation.StoragePresentationContexts`.
-* Overhaul of ``echoscp.py``, ``echoscu.py``, ``storescp.py`` and
-  ``storescu.py``
-* Added non-toy implementations for ``findscu.py``, ``getscu.py`` and
-  ``movescu.py`` apps
+* Overhaul of :doc:`echoscp <../apps/echoscp>`,
+  :doc:`echoscu <../apps/echoscu>`, :doc:`storescp <../apps/storescp>` and
+  :doc:`storescu <../apps/storescu>` apps
+* Added non-toy implementations for :doc:`findscu <../apps/findscu>`,
+  :doc:`getscu <../apps/getscu>` and :doc:`movescu <../apps/movescu>` apps
+* Apps can now be invoked from the command line with
+  ``python -m pynetdicom [appname] [options]``, e.g. ``python -m pynetdicom
+  echoscu 127.0.0.1 11112 -d``
 * Added ability to pass optional extra arguments to event handlers by using
-  ``(evt.EVT_NAME, handler, ['list', 'of', 'args'])``. (:issue:`447`)
-* Added :meth:`~pynetdicom.ae.AE.make_server` (:issue:`453`).
+  ``(evt.EVT_NAME, handler, ['list', 'of', 'args'])`` (:issue:`447`)
+* Added :func:`AE.make_server()<pynetdicom.ae.ApplicationEntity.make_server>`
+  (:issue:`453`)
 * Added `request_handler` keyword parameter to
   :class:`~pynetdicom.transport.AssociationServer` (:issue:`453`)
-* Added hook in :class:`~pynetdicom.ae.AE` for creating
+* Added hook in :class:`AE<pynetdicom.ae.ApplicationEntity>` for creating
   :class:`~pynetdicom.transport.AssociationSocket` objects (:issue:`455`)
-* Python 3 only: Added a customisable :class:`~pynetdicom.status.Status`
+* Added a customisable :class:`~pynetdicom.status.Status`
   convenience class for comparing, returning and yielding status values
   (:issue:`454`)
 * Added hook in :class:`~pynetdicom.transport.RequestHandler` for creating
-  :class:`~pynetdicom.association.Association` objects (:issue:`455`).
+  :class:`~pynetdicom.association.Association` objects (:issue:`455`)
 
 
 Changes
@@ -99,4 +104,5 @@ Changes
 Known Issues
 ............
 
-* TLS v1.3 (with OpenSSL 1.1.1 or higher) is not currently supported.
+* TLS v1.3 (with OpenSSL 1.1.1 or higher) is not currently supported
+  (:issue:`364`)

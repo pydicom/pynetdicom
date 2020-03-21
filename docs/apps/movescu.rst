@@ -2,6 +2,10 @@
 movescu
 =======
 
+.. code-block:: text
+
+    $ python -m pynetdicom movescu [options] addr port (-k keyword and/or -f file-in)
+
 Description
 ===========
 The ``movescu`` application implements a *Service Class User* (SCU) for
@@ -11,31 +15,17 @@ port ``port`` and once established, sends a query to be matched against the
 SCP's managed SOP Instances. The SCP then responds by sending a copy of the
 matching SOP Instances to the Store SCP specified using the Move AE title.
 
-Invocation
-==========
-
-If you've invoking ``movescu`` from source then use:
-
-.. code-block:: text
-
-    $ python movescu.py [options] addr port (-k keyword and/or -f file-in)
-
-Alternatively, it can be invoked with:
-
-.. code-block:: text
-
-    $ python -m pynetdicom movescu [options] addr port (-k keyword and/or -f file-in)
 
 Usage
 =====
 
 The following example shows what happens when it is succesfully run on
-an SCP at IP 127.0.0.1 and listen port 11112 that supports the *QR Move
+an SCP at IP ``127.0.0.1`` and listen port ``11112`` that supports the *QR Move
 Service* with the default Move AE title ``STORESCP``:
 
 .. code-block:: text
 
-    $ python movescu.py 127.0.0.1 11112 -k QueryRetrieveLevel=PATIENT -k PatientName=
+    $ python -m pynetdicom movescu 127.0.0.1 11112 -k QueryRetrieveLevel=PATIENT -k PatientName=
     I: Requesting Association
     I: Association Accepted
     I: Sending Move Request: MsgID 1
@@ -60,7 +50,7 @@ the Store SCP can be configured using the ``--store-aet`` and
 
 .. code-block:: text
 
-    $ python movescu.py 127.0.0.1 11112 -k QueryRetrieveLevel=PATIENT -k PatientName= --store
+    $ python -m pynetdicom movescu 127.0.0.1 11112 -k QueryRetrieveLevel=PATIENT -k PatientName= --store
     I: Requesting Association
     I: Association Accepted
     I: Sending Move Request: MsgID 1
