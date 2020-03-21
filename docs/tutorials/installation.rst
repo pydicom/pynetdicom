@@ -66,22 +66,3 @@ Then install using pip in editable (``-e``) mode::
 When you want to update your copy of the source code, run ``git pull`` from
 within the ``pynetdicom`` directory and Git will download and apply any
 changes.
-
-
-.. _tut_install_dcmtk:
-
-Install DCMTK
-=============
-
-`DCMTK <https://dicom.offis.de/dcmtk.php.en>`_ applications are used in some
-of the tutorials so you don't have to worry about writing fully
-featured DICOM applications before starting to experiment with *pynetdicom*.
-
-Installing on:
-
-* Ubuntu/Debian: ``$ sudo apt install dcmtk``
-* Fedora: ``$ sudo dnf install dcmtk``
-* Windows/MacOS: check `DCMTK's website
-  <https://dicom.offis.de/dcmtk.php.en>`_ for installation instructions. If
-  you're interested in testing out TLS options you'll need to install the
-  version with OpenSSL based security extensions.

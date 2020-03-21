@@ -6,19 +6,16 @@ Writing your first SCU
 
 In this tutorial you will:
 
-* Use DCMTK to start an Echo SCP
-* Create an application entity (AE) using *pynetdicom* and associate with the
-  Echo SCP
+* Start an Echo SCP using *pynetdicom's* ``echoscp`` application
+* Create an new application entity (AE) using *pynetdicom* and associate with
+  the Echo SCP
 * Turn your AE into an Echo SCU by sending a verification service request to
   the Echo SCP
 
 If you need to install *pynetdicom* please follow the instructions in the
 :doc:`installation guide</tutorials/installation>`. For this tutorial we'll
-also be using DCMTK's
-`storescp <https://support.dcmtk.org/docs/storescp.html>`_ application, so if
-you haven't yet :ref:`installed DCMTK<tut_install_dcmtk>`, please do so. If
-you're unable to install DCMTK then you can also use the `storescu.py`
-application included with *pynetdicom*.
+also be using the :doc:`echoscp<../apps/echoscp>` application that comes with
+*pynetdicom*.
 
 About associations
 ==================
@@ -55,27 +52,24 @@ Start the Echo SCP
 For this tutorial we need an SCP that provides DICOM
 :dcm:`verification<part04/chapter_A.html>`
 services, usually referred to as a *Verification SCP* or *Echo SCP* for short.
-DCMTK doesn't have a standalone Echo SCP application, but the `storescp`
-application also supports the verification service, so we'll use that instead.
+To make things simpler we'll use the :doc:`echoscp<../apps/echoscp>`
+application that comes with
+*pynetdicom*, but you could also use any third-party application that supports
+the Verification Service as an SCP, such as DCMTK's
+`storescp <https://support.dcmtk.org/docs/storescp.html>`_.
 
-In a new terminal, start ``storescp`` listening for association requests on
-port ``11112`` with the ``-v`` verbose flag. How you start ``storescp`` will
-depend on your operating system; for Linux you should be able to do:
-
-.. code-block:: text
-
-    $ storescp 11112 -v
-
-For Windows, **cd** to the folder containing the executable and then run:
+In a new terminal, start ``echoscp`` listening for association requests on
+port ``11112`` with the ``-v`` verbose flag:
 
 .. code-block:: text
 
-    $ .\storescp.exe 11112 -v
+    $ python -m pynetdicom echoscp 11112 -v
 
 If you get an error saying the address is already in use, try again
 with a different port - just remember to adapt the port used when making
-association requests accordingly. Depending on your OS you may also need to
-allow access through the firewall for the port you end up using.
+association requests accordingly. Depending on your OS or system configuration
+you may also need to allow access through the firewall for the port you end
+up using.
 
 The SCP will continue to run until you interrupt it either by closing the
 terminal or by pressing ``CTRL+C``. Keep the Echo SCP running in the
@@ -109,12 +103,15 @@ There's a lot going on in these few lines, so let's split it up a bit:
 
 .. code-block:: python
    :linenos:
-   :lineno-start: 3
+   :lineno-start: 1
+
+    from pynetdicom import AE
 
     ae = AE()
     ae.add_requested_context('1.2.840.10008.1.1')
 
-This creates our :class:`AE<ae.ApplicationEntity>` instance, then adds a single
+This imports the :class:`AE<ae.ApplicationEntity>` class and creates a new
+``AE`` instance, `ae`, then adds a single
 :doc:`presentation context<../user/presentation>` to it using the
 :meth:`~ae.ApplicationEntity.add_requested_context` method.  All association
 requests must contain at least one presentation context, and in this case we've
@@ -131,24 +128,14 @@ Here we initiate the association negotiation by sending an association request
 to the IP address ``'127.0.0.1'`` on port ``11112``. ``'127.0.0.1'`` (also
 known as ``'localhost'``) is a `special IP address
 <https://en.wikipedia.org/wiki/Localhost>`_ that means *this computer*. This
-should be the same IP address and port that we started the ``storescp`` application
-on earlier, so if you used a different port you should change this value
-accordingly.
+should be the same IP address and port that we started the ``echoscp``
+application on earlier, so if you used a different port you should change this
+value accordingly.
 
 The :meth:`AE.associate()<ae.ApplicationEntity.associate>` method returns an
 :class:`~association.Association` instance `assoc`, which is a subclass of
-:class:`threading.Thread`. This allows us to make use of the association while
-*pynetdicom* monitors the connection behind the scenes.
-
-As mentioned earlier, an *acceptor* may do a couple of things in response to an
-association request:
-
-* Accept the association request and establish an association ʘ‿ʘ
-* Reject the association request ಠ_ಠ
-* Abort the association negotiation ಥ‸‸ಥ
-
-The request may also fail because there's nothing there to associate with (a
-connection failure).
+:class:`threading.Thread`. Subclassing ``Thread`` allows us to make use of the
+association while *pynetdicom* monitors the connection behind the scenes.
 
 .. code-block:: python
    :linenos:
@@ -160,6 +147,16 @@ connection failure).
     else:
         # Association rejected, aborted or never connected
         print('Failed to associate')
+
+As mentioned earlier, an *acceptor* may do a couple of things in response to an
+association request:
+
+* Accept the association request and establish an association ʘ‿ʘ
+* Reject the association request ಠ_ಠ
+* Abort the association negotiation ಥ‸‸ಥ
+
+The request may also fail because there's nothing there to associate with (a
+connection failure).
 
 Because there's more than one possible outcomes to negotiation, we check to
 see if the association :attr:`~association.Association.is_established`. If it
@@ -177,17 +174,20 @@ run the file with:
 
     $ python create_scu.py
 
-You should see:
+If everything has worked correctly, you should see:
 
 .. code-block:: text
 
     Association established with Echo SCP
 
-You should see ``Association established with Echo SCP``. Congratulations!
-Establishing an association is the first step any DICOM application needs to
-take before it can do anything useful.
+And if you take a look at the output for ``echoscp``:
 
-If instead you saw ``Failed to associate`` then not to worry; make sure your
+.. code-block:: text
+
+    I: Accepting Association
+    I: Association Released
+
+If instead you saw ``Failed to associate`` then not to worry; make sure the
 Echo SCP is running and that your code is correct. If you still can't
 associate, move on to the next section on troubleshooting associations.
 
@@ -273,8 +273,8 @@ The log can be broken down into a couple of categories:
 Common issues
 .............
 
-* ``TCP Initialised Error: Connection refused`` check the IP address and port
-  are correct, that the SCP is up and running and that the firewall allows
+* ``TCP Initialisation Error: Connection refused`` check the IP address and
+  port are correct, that the SCP is up and running and that the firewall allows
   traffic on the port
 * ``Called AE title not recognised``: The SCP requires the *Called AE
   title* sent in the association request match it's own. This can be set with
@@ -283,8 +283,8 @@ Common issues
   AE title* match one its familiar with. This can be set with the
   :attr:`AE.ae_title<ae.ApplicationEntity.ae_title>` property. Alternatively,
   you may need to configure the SCP with the details of your SCU
-* ``Local limit exceeded``: The SCP has too many current association, try
-  again later
+* ``Local limit exceeded``: The SCP has too many current associations active,
+  try again later
 * ``Association Aborted``: this is more unusual during association negotiation,
   (typically it's seen afterwards or during DIMSE messaging) but may be due to
   the SCP using TLS or other methods to secure the connection
@@ -295,13 +295,43 @@ Echo SCU
 
 Presentation Contexts
 ---------------------
+
+.. note::
+
+    What follows is a basic introduction to presentation contexts. More
+    information is available in the
+    :doc:`presentation context<../user/presentation>` section of the User
+    Guide.
+
 I've cheated a bit in our example by already including the presentation context
-we need in order to be allowed to request the use of the verification service;
+used to request the use of the verification service;
 ``1.2.840.10008.1.1`` - *Verification SOP Class*.
 
-Presentation contexts are... I dunno, what's a good analogy?
+Presentation contexts are how DICOM applications agree on which services
+are available to an association. Each DICOM service has a corresponding set of
+*SOP Class UIDs*. Including one (or more) of those *SOP Class UIDs* in the
+proposed presentation contexts indicates to the *acceptor* that a particular
+service is requested for that SOP class.
 
+So if you want to use the DICOM :dcm:`verification<part04/chapter_A.html>`
+service you propose a presentation context for *Verification SOP Class*. If
+you wanted to use the :dcm:`storage<part04/chapter_B.html>` service
+to store *CT Images*, you'd propose a presentation context for the *CT Image
+Storage* SOP class.
 
+When the *acceptor* receives the proposed presentation contexts it goes through
+each one and either accepts the presentation context and the service is
+available *for each accepted context*, or rejects it. If you tried to
+use a rejected presentation context you'll get an exception similar to:
+
+.. code-block:: text
+
+    ValueError: No presentation context for 'CT Image Storage' has been
+    accepted by the peer with 'Implicit VR Little Endian' transfer syntax for
+    the SCU role
+
+Turning our AE into an Echo SCU
+-------------------------------
 
 Since we're able to associate with the Echo SCP, our next step is to request
 the use of its verification service. We do this by sending a DIMSE C-ECHO
@@ -323,9 +353,33 @@ request:
         assoc.release()
 
 Our only change is to include a call to
-:meth:`~association.Association.send_c_echo`, which returns a *pydicom*
+:meth:`~association.Association.send_c_echo` which is used to send
+the C-ECHO request and returns a *pydicom*
 :class:`~pydicom.dataset.Dataset` instance *status*. If we received a
 response to our C-ECHO request then `status` will contain at least an
 (0000,0900) *Status* element containing the outcome of our request. If no
 response was received (due to a connection failure, a timeout, or because the
 association was aborted) then `status` will be an empty ``Dataset``.
+
+If you run your modified code then at the end of the output you should see:
+
+.. code-block:: text
+
+    I: Association Accepted
+    I: Sending Echo Request: MsgID 1
+    D: pydicom.read_dataset() TransferSyntax="Little Endian Implicit"
+    I: Received Echo Response (Status: Success)
+    I: Releasing Association
+
+``Status: Success`` indicates that our verification service request was
+successful. Congratulations, you've written your first DICOM SCU using
+*pynetdicom*.
+
+Next steps
+----------
+
+You might be interested in the :doc:`SCU examples<../examples/index>`
+available in the documentation, as well as the full
+`applications <https://github.com/pydicom/pynetdicom/tree/master/pynetdicom/apps>`_
+that come with *pynetdicom*. You may also want to check out the tutorial
+on :doc:`creating a basic Storage SCP<create_scp>`.
