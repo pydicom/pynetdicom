@@ -1,7 +1,6 @@
 =======
 findscu
 =======
-    ``findscu.py [options] addr port (-k keyword and/or -f file-in)``
 
 Description
 ===========
@@ -12,13 +11,31 @@ port ``port`` and once established, sends a query to be matched against the
 SCP's managed SOP Instances. The SCP then responds with the matching query
 keys.
 
+Invocation
+==========
+
+If you've invoking ``findscu`` from source then use:
+
+.. code-block:: text
+
+    $ python findscu.py [options] addr port (-k keyword and/or -f file-in)
+
+Alternatively, it can be invoked with:
+
+.. code-block:: text
+
+    $ python -m pynetdicom findscu [options] addr port (-k keyword and/or -f file-in)
+
+Usage
+=====
+
 The following example shows what happens when it is succesfully run on
 an SCP at IP 127.0.0.1 and listen port 11112 that supports the *QR Find
 Service*:
 
 .. code-block:: text
 
-    user@host: python findscu.py 127.0.0.1 11112 -k QueryRetrieveLevel=PATIENT -k PatientName=
+    $ python findscu.py 127.0.0.1 11112 -k QueryRetrieveLevel=PATIENT -k PatientName=
     I: Requesting Association
     I: Association Accepted
     I: Sending Find Request: MsgID 1
@@ -36,7 +53,7 @@ Service*:
     I:
     I: Find SCP Result: 0x0000 (Success)
     I: Releasing Association
-    user@host:
+    $
 
 Parameters
 ==========

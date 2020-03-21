@@ -371,7 +371,7 @@ If you run your modified code then at the end of the output you should see:
     I: Received Echo Response (Status: Success)
     I: Releasing Association
 
-``Status: Success`` indicates that our verification service request was
+``Status: Success`` indicates that the verification service request was
 successful. Congratulations, you've written your first DICOM SCU using
 *pynetdicom*.
 
@@ -379,7 +379,7 @@ Next steps
 ----------
 
 You might be interested in the :doc:`SCU examples<../examples/index>`
-available in the documentation, as well as the full
+available in the documentation, as well as the
 `applications <https://github.com/pydicom/pynetdicom/tree/master/pynetdicom/apps>`_
 that come with *pynetdicom*. You may also want to check out the tutorial
 on :doc:`creating a basic Storage SCP<create_scp>`.

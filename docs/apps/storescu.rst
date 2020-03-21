@@ -1,7 +1,6 @@
 ========
 storescu
 ========
-    ``storescu.py [options] addr port dcmfile-in``
 
 Description
 ===========
@@ -11,28 +10,46 @@ association with a peer Application Entity on IP address ``addr`` and listen
 port ``port`` and once established requests the transfer
 of the SOP Instance in ``dcmfile-in``.
 
+Invocation
+==========
+
+If you've invoking ``storescu`` from source then use:
+
+.. code-block:: text
+
+    $ python storescu.py [options] addr port dcmfile-in
+
+Alternatively, it can be invoked with:
+
+.. code-block:: text
+
+    $ python -m pynetdicom storescu [options] addr port dcmfile-in
+
+Usage
+=====
+
 The following example shows what happens when it is succesfully run on
 an SCP at IP 127.0.0.1 and listen port 11112 that supports the *Storage
 Service*:
 
 .. code-block:: text
 
-    user@host: python storescu.py 127.0.0.1 11112 path/to/file
-    user@host:
+    $ python storescu.py 127.0.0.1 11112 path/to/file
+    $
 
 When attempting to use the SCP with an unsupported SOP Class:
 
 .. code-block:: text
 
-    user@host: python storescu.py 127.0.0.1 11112 path/to/file
+    $ python storescu.py 127.0.0.1 11112 path/to/file
     E: No accepted presentation contexts
-    user@host:
+    $
 
 More information is available with the ``-d`` flag:
 
 .. code-block:: text
 
-    user@host: python storescu.py 127.0.0.1 11112 path/to/file -d
+    $ python storescu.py 127.0.0.1 11112 path/to/file -d
     D: storescu.py v0.3.0
     D:
     D: Checking input file
@@ -63,7 +80,7 @@ More information is available with the ``-d`` flag:
     D: Status                        : 0x0000 - Success
     D: ============================ END DIMSE MESSAGE =============================
     I: Releasing Association
-    user@host:
+    $
 
 Parameters
 ==========

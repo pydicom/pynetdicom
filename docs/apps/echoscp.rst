@@ -1,7 +1,6 @@
 =======
 echoscp
 =======
-    ``echoscp.py [options] port``
 
 Description
 ===========
@@ -11,7 +10,10 @@ establishes an Association with peer Application Entities (AEs) and listens for
 DICOM C-ECHO-RQ messages to which it responds with a DICOM C-ECHO-RSP
 message. The application can be used to verify basic DICOM connectivity.
 
-If you've invoking ``echoscp.py`` from source then use:
+Invocation
+==========
+
+If you've invoking ``echoscp`` from source then use:
 
 .. code-block:: text
 
@@ -22,6 +24,9 @@ Alternatively, it can be invoked with:
 .. code-block:: text
 
     $ python -m pynetdicom echoscp [options] port
+
+Usage
+=====
 
 The following example shows what happens when it's started and receives
 a C-ECHO request from a peer:
