@@ -517,9 +517,6 @@ if HAS_ENUM:
         """``0xFE00`` - Operation terminated"""
         PENDING = 0xFF00
         """``0xFF00`` - Matches or sub-operations are continuing"""
-        PENDING_WITH_WARNING = 0xFF01
-        """``0xFF01`` - Matches or sub-operations are continuing, warning
-        that one or more Optional Keys were not supported"""
         MOVE_DESTINATION_UNKNOWN = 0xA801
         """``0xA801`` - Move destination unknown"""
 

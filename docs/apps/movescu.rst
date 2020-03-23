@@ -39,7 +39,6 @@ Service* with the default Move AE title ``STORESCP``:
     I: Move SCP Result: 0x0000 (Success)
     I: Sub-Operations Remaining: 0, Completed: 1, Failed: 0, Warning: 0
     I: Releasing Association
-    $
 
 The Move AE title can be specified using the ``-aem aetitle`` flag.
 
@@ -69,7 +68,6 @@ the Store SCP can be configured using the ``--store-aet`` and
     I: Move SCP Result: 0x0000 (Success)
     I: Sub-Operations Remaining: 0, Completed: 1, Failed: 0, Warning: 0
     I: Releasing Association
-    $
 
 
 Parameters

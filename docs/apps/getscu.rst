@@ -40,7 +40,6 @@ Service*:
     I: Get SCP Result: 0x0000 (Success)
     I: Sub-Operations Remaining: 0, Completed: 1, Failed: 0, Warning: 0
     I: Releasing Association
-    $
 
 Parameters
 ==========

@@ -24,7 +24,6 @@ an SCP at IP ``127.0.0.1`` and listen port ``11112`` that supports the
 .. code-block:: text
 
     $ python -m pynetdicom echoscu 127.0.0.1 11112
-    $
 
 When attempting to send a C-ECHO request to an SCP that doesn't support the
 *Verification Service*:
@@ -33,7 +32,6 @@ When attempting to send a C-ECHO request to an SCP that doesn't support the
 
     $ python -m pynetdicom echoscu 127.0.0.1 11112
     E: No accepted presentation contexts
-    $
 
 When the association request is rejected by the SCP (in this case because the
 called AE title wasn't recognised):
@@ -44,7 +42,6 @@ called AE title wasn't recognised):
     E: Association Rejected
     E: Result: Rejected Permanent, Source: Service User
     E: Reason: Called AE title not recognised
-    $
 
 When attempting to associate with a non-DICOM peer:
 
@@ -53,7 +50,6 @@ When attempting to associate with a non-DICOM peer:
     $ python -m pynetdicom echoscu 127.0.0.1 11112
     E: Association request failed: unable to connect to remote
     E: TCP Initialisation Error: Connection refused
-    $
 
 More information is available with the ``-d`` flag:
 
@@ -72,7 +68,6 @@ More information is available with the ``-d`` flag:
     D: pydicom.read_dataset() TransferSyntax="Little Endian Implicit"
     I: Received Echo Response (Status: Success)
     I: Releasing Association
-    $
 
 Parameters
 ==========

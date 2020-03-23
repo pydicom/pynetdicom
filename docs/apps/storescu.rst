@@ -24,7 +24,6 @@ Service*:
 .. code-block:: text
 
     $ python -m pynetdicom storescu 127.0.0.1 11112 path/to/file
-    $
 
 When attempting to use the SCP with an unsupported SOP Class:
 
@@ -32,7 +31,6 @@ When attempting to use the SCP with an unsupported SOP Class:
 
     $ python -m pynetdicom storescu 127.0.0.1 11112 path/to/file
     E: No accepted presentation contexts
-    $
 
 More information is available with the ``-d`` flag:
 
@@ -69,7 +67,6 @@ More information is available with the ``-d`` flag:
     D: Status                        : 0x0000 - Success
     D: ============================ END DIMSE MESSAGE =============================
     I: Releasing Association
-    $
 
 Parameters
 ==========

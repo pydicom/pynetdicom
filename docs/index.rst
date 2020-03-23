@@ -34,8 +34,8 @@ For detailed documentation of the functions and classes see the
 
 .. _index_examples:
 
-Examples
-========
+Code Examples
+=============
 
 * :doc:`Basic Worklist Management (C-FIND) <examples/basic_worklist>`
 * :doc:`Display System Management (N-GET) <examples/display>`
@@ -105,13 +105,13 @@ Applications
 
 *pynetdicom* also includes some bundled applications
 
-* :doc:`echoscu <apps/echoscu>`
 * :doc:`echoscp <apps/echoscp>`
+* :doc:`echoscu <apps/echoscu>`
 * :doc:`findscu <apps/findscu>`
 * :doc:`getscu <apps/getscu>`
 * :doc:`movescu <apps/movescu>`
-* :doc:`storescu <apps/storescu>`
 * :doc:`storescp <apps/storescp>`
+* :doc:`storescu <apps/storescu>`
 
 .. _index_releases:
 

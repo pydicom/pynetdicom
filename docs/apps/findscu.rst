@@ -42,7 +42,6 @@ Service*:
     I:
     I: Find SCP Result: 0x0000 (Success)
     I: Releasing Association
-    $
 
 Parameters
 ==========
