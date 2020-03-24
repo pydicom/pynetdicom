@@ -3,6 +3,8 @@
 import importlib
 import sys
 
+from pynetdicom import __version__
+
 
 _APPS = {
     'echoscp': 'pynetdicom.apps.echoscp.echoscp',
@@ -18,7 +20,10 @@ _APPS = {
 
 if __name__ == "__main__":
     args = sys.argv[1:]
-    app_path = _APPS[args[0]]
-    app = importlib.import_module(app_path)
+    if args[0] == '--version':
+        print(__version__)
+    else:
+        app_path = _APPS[args[0]]
+        app = importlib.import_module(app_path)
 
-    app.main(args)
+        app.main(args)

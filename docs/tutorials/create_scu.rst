@@ -1,21 +1,29 @@
-======================
-Writing your first SCU
-======================
+===================================
+Writing your first *pynetdicom* SCU
+===================================
 
 .. currentmodule:: pynetdicom
 
-In this tutorial you will:
+This tutorial is intended for people who are new to *pynetdicom* and
+will take you through the creation of a basic DICOM Echo SCU. In the tutorial
+you'll:
 
-* Start an Echo SCP using *pynetdicom's* ``echoscp`` application
-* Create an new application entity (AE) using *pynetdicom* and associate with
-  the Echo SCP
-* Turn your AE into an Echo SCU by sending a verification service request to
-  the Echo SCP
+* Learn a bit about the basics of DICOM networking
+* Learn how to use the included ``echoscp`` application that comes with
+  *pynetdicom*
+* Create an new application entity (AE) and associate with a DICOM peer
+* Modify your AE to support the DICOM verification service as an SCU
 
-If you need to install *pynetdicom* please follow the instructions in the
-:doc:`installation guide</tutorials/installation>`. For this tutorial we'll
-also be using the :doc:`echoscp<../apps/echoscp>` application that comes with
-*pynetdicom*.
+This tutorial is written for *pynetdicom* 1.5, which supports Python 2.7, 3.5
+and later. You can tell which version of *pynetdicom* you have by running
+the following command::
+
+    python -m pynetdicom --version
+
+If you need to install or upgrade *pynetdicom* please follow the instructions
+in the :doc:`installation guide</tutorials/installation>`. For this tutorial
+we'll also be using the :doc:`echoscp<../apps/echoscp>` application that comes
+with *pynetdicom*.
 
 
 About associations

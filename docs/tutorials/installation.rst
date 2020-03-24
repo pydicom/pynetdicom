@@ -28,16 +28,31 @@ Install using pip
 the official third-party Python software repository. The simplest way to
 install from PyPi is using `pip <https://pip.pypa.io/>`_ with the command::
 
-  $ pip install pynetdicom
+  $ pip install -U pynetdicom
 
 You may need to use this instead::
 
-  $ python -m pip install pynetdicom
+  $ python -m pip install -U pynetdicom
+
+
+Install using conda
+-------------------
 
 *pynetdicom* is also available for `conda <https://docs.conda.io/>`_ on
 `conda-forge <https://anaconda.org/conda-forge/pynetdicom>`_::
 
   $ conda install -c conda-forge pynetdicom
+
+To update the installed version on conda do::
+
+  $ conda update pynetdicom
+
+
+After installation
+------------------
+
+Now that *pynetdicom* is installed  you can :doc:`move on to the
+tutorial<create_scu>`.
 
 
 .. _tut_install_dev:
