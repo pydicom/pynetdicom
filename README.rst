@@ -63,15 +63,24 @@ Dependencies
 
 Installing current release
 ~~~~~~~~~~~~~~~~~~~~~~~~~~
+Using pip:
+
 .. code-block:: sh
 
-        $ pip install pynetdicom
+    $ pip install pynetdicom
+
+Using conda:
+
+.. code-block:: sh
+
+    $ conda install -c conda-forge pynetdicom
+
 
 Installing development version
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 .. code-block:: sh
 
-        $ pip install git+git://github.com/pydicom/pynetdicom.git
+    $ pip install git+git://github.com/pydicom/pynetdicom.git
 
 
 Documentation

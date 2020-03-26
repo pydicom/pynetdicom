@@ -372,22 +372,21 @@ debug output in the A-ASSOCIATE-RQ section as::
 
 Presentation contexts are how DICOM applications agree on which services
 are available to an association. Each DICOM service has a corresponding set of
-*SOP Class UIDs*. Including one (or more) of these as the *abstract syntax*
-parameter in the proposed presentation contexts indicates to the *acceptor*
-that a particular service is requested for data matching that *SOP Class*.
+*SOP Class UIDs*. Setting one of these as the *abstract syntax*
+parameter in a proposed presentation context indicates to the *acceptor*
+that the corresponding service is requested for data matching that SOP Class.
 Additionally, the presentation context includes a description on how any
 exchanged data is to be encoded, its *transfer syntax*.
 
 So if you want to use the DICOM :dcm:`verification<part04/chapter_A.html>`
-service, you propose a presentation context for *Verification SOP Class*. If
-you wanted to use the :dcm:`storage<part04/chapter_B.html>` service
+service, you propose a presentation context for the *Verification SOP Class*.
+If you wanted to use the :dcm:`storage<part04/chapter_B.html>` service
 to store *CT Images*, you'd propose a presentation context for the *CT Image
 Storage* SOP class with a transfer syntax that matches the encoding of the
 CT data.
 
 When the *acceptor* receives the proposed presentation contexts it goes through
-each one and either accepts it and the corresponding service is
-available *for each accepted context*, or rejects it. The results are visible
+them one-by-one, either accepting or rejecting each. The results are visible
 in the A-ASSOCIATE-AC section of the debug log::
 
     D: Presentation Contexts:
@@ -398,13 +397,13 @@ in the A-ASSOCIATE-AC section of the debug log::
 
 Here you can see that the context was accepted and any transferred data must
 use ``Explicit VR Little Endian`` encoding. If a context was rejected and
-you still try to use it, you'll get a ``ValueError`` exception similar to:
+you still try to use it, or if a context was accepted but your data isn't
+encoded with the same transfer syntax, you'll get a ``ValueError`` exception
+similar to:
 
 .. code-block:: text
 
-    No presentation context for 'CT Image Storage' has been
-    accepted by the peer with 'Implicit VR Little Endian' transfer syntax for
-    the SCU role
+    No presentation context for 'CT Image Storage' has been accepted by the peer with 'Implicit VR Little Endian' transfer syntax for the SCU role
 
 Turning our AE into an Echo SCU
 -------------------------------
