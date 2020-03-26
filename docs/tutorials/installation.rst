@@ -26,7 +26,8 @@ Install using pip
 
 *pynetdicom* is available on `PyPi <https://pypi.python.org/pypi/pydicom/>`_,
 the official third-party Python software repository. The simplest way to
-install from PyPi is using `pip <https://pip.pypa.io/>`_ with the command::
+install (or upgrade) from PyPi is using `pip <https://pip.pypa.io/>`_ with the
+command::
 
   $ pip install -U pynetdicom
 
@@ -51,8 +52,8 @@ To update the installed version on conda do::
 After installation
 ------------------
 
-Now that *pynetdicom* is installed  you can :doc:`move on to the
-tutorial<create_scu>`.
+Now that *pynetdicom* is installed you might be interested in the
+:doc:`tutorial<create_scu>`.
 
 
 .. _tut_install_dev:

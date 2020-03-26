@@ -220,7 +220,7 @@ You can also start the SCP in non-blocking mode:
 
     ae = AE()
     ae.add_supported_context(CTImageStorage)
-    scp = ae.start_server(('', 11112), block=False evt_handlers=handlers)
+    scp = ae.start_server(('', 11112), block=False, evt_handlers=handlers)
 
     # Zzzz
     time.sleep(60)

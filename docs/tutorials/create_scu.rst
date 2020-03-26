@@ -1,18 +1,19 @@
-===================================
-Writing your first *pynetdicom* SCU
-===================================
+======================
+Writing your first SCU
+======================
 
 .. currentmodule:: pynetdicom
 
-This tutorial is intended for people who are new to *pynetdicom* and
-will take you through the creation of a basic DICOM Echo SCU. In the tutorial
+This tutorial is intended for people who are new to *pynetdicom*, and
+will take you through the creation of a DICOM Echo SCU. In the tutorial
 you'll:
 
 * Learn a bit about the basics of DICOM networking
 * Learn how to use the included ``echoscp`` application that comes with
   *pynetdicom*
 * Create an new application entity (AE) and associate with a DICOM peer
-* Modify your AE to support the DICOM verification service as an SCU
+* Learn how to perform some basic troubleshooting of associations
+* Modify your AE to be an Echo SCU
 
 This tutorial is written for *pynetdicom* 1.5, which supports Python 2.7, 3.5
 and later. You can tell which version of *pynetdicom* you have by running
@@ -20,67 +21,87 @@ the following command::
 
     python -m pynetdicom --version
 
-If you need to install or upgrade *pynetdicom* please follow the instructions
-in the :doc:`installation guide</tutorials/installation>`. For this tutorial
-we'll also be using the :doc:`echoscp<../apps/echoscp>` application that comes
-with *pynetdicom*.
+If you get an error saying "no module named pynetdicom" or if your version is
+earlier than 1.5, then install or upgrade *pynetdicom* by following the
+instructions in the :doc:`installation guide</tutorials/installation>`. For
+this tutorial we'll also be using the :doc:`echoscp<../apps/echoscp>`
+application that comes with *pynetdicom*.
 
 
-About associations
-==================
+DICOM networking
+================
 
-Communication between DICOM applications normally proceeds in three stages;
+*pynetdicom* is an implementation of the :dcm:`DICOM Upper Layer Protocol for
+TCP/IP<part08/chapter_9.html>`, which is used to facilitate communication
+between DICOM *Application Entities* (AEs) over a `TCP connection
+<https://en.wikipedia.org/wiki/Transmission_Control_Protocol>`_.
 
-1. First the applications negotiate to establish an *association*:
+Once two AEs have established a TCP connection to each other, the second step
+is to negotiate an *association* between them. The AE that
+initiated the connection, the *requestor*, sends an
+:dcm:`A-ASSOCIATE-RQ<part08/sect_9.3.2.html>`
+message proposing which :dcm:`DICOM services<part04/PS3.4.html>` it would like
+to use. The receiving AE, the *acceptor*, goes through the proposal and either:
 
-  * The association *requestor* sends an association request message which
-    contains information about the services it would like to use
-  * The association *acceptor* receives the request and replies with
-    acceptance (along with an indication of which services it's agreed to),
-    rejection or aborts the negotiation
-  * Only if the *requestor* receives an association acceptance message is the
-    association established
+* Accepts the association by replying with an :dcm:`A-ASSOCIATE-AC
+  <part08/sect_9.3.3.html>` message. However, just because an association has
+  been accepted doesn't mean that all the proposed services have also been
+  accepted.
+* Rejects the association by replying with an :dcm:`A-ASSOCIATE-RJ
+  <part08/sect_9.3.4.html>` message.
+* Aborts the association negotiation by sending an :dcm:`A-ABORT
+  <part08/sect_9.3.8.html>` message.
 
-2. Then the applications make use of the services agreed to during
-   association negotiation by exchanging DIMSE messages.
-3. Finally, the association is released and the connection between the
-   applications closed.
+When the *requestor* receives the A-ASSOCIATE-AC message the negotiation phase
+ends and the association becomes *established*. The two AEs can then
+use the services that were agreed upon during negotiation by exchanging
+:dcm:`DIMSE-C<part07/sect_7.5.html#sect_7.5.1>` and :dcm:`DIMSE-N
+<part07/sect_7.5.2.html>` messages.
 
-In general, the association *acceptor* will also be the one **providing** the
-DICOM services; it'll be the *Service Class Provider*, or SCP. Conversely, the
-*requestor* will usually be the one **using** the services - the *Service Class
-User*, or SCU. At this stage it may be helpful to think of SCPs and SCUs as
-being similar servers and clients. While this isn't strictly true - a few
-DICOM services don't follow this model - it's accurate enough for the most
-frequently used services like verification, storage and query/retrieve.
+When the AEs no longer need the association, it can be released by sending an
+:dcm:`A-RELEASE-RQ<part08/sect_9.3.6.html>` message. The association can be also
+be aborted at any time when either AE sends an A-ABORT message. Once
+the association has been aborted or released, the TCP connection is closed
+(if still open) and communication between the two AEs ends.
 
+What *is* an SCU?
+-----------------
 
-What *is* an Echo SCU?
-======================
+If you're new to DICOM, you might be wondering what an Echo SCU or SCP actually
+*are*. The answer lies in the DICOM services that are available to an
+association. If an AE *provides* a service then its referred to as a *Service
+Class Provider*, or SCP, while if an AE *uses* a service then its a *Service Class
+User*, or SCU. A *Verification SCU* then, is an AE that uses the DICOM
+:dcm:`verification service<part04/chapter_A.html>`, a *Storage SCP* is an AE
+that provides the DICOM :dcm:`storage service<part04/chapter_B.html>`, and so
+on. Because the verification service is the sole user of
+the DIMSE C-ECHO messages, the labels "Verification SCU" and "Verification SCP"
+are frequently shortened to "Echo SCU" and "Echo SCP" instead.
 
-If you're completely new to DICOM, you might be wondering what a Echo SCU or
-Echo SCP actually *are*. The best analogy is that they're similar to the echo
-client and server concept. The Echo SCU sents an echo request to the SCP, which
-sends a simple acknowledgement response back. By doing this you can test
+The verification service itself is used to verify basic DICOM connectivity
+between two AEs; the Echo SCU sends a :dcm:`C-ECHO request
+<part07/sect_9.3.5.html#sect_9.3.5.1>` to the SCP, which
+replies with a simple acknowledgement. By doing this you can test
 whether a DICOM application is active and reachable by your SCU, that your
-configuration is correct and the connection isn't being blocked by a firewall
-or anything else.
+configuration is correct and that the connection isn't being blocked by a
+firewall or anything else.
+
+
+OK, enough about DICOM, let's get started.
 
 
 Start the Echo SCP
 ==================
 
-For this tutorial we need an SCP that provides DICOM
-:dcm:`verification<part04/chapter_A.html>`
-services. To make things simpler we'll use the :doc:`echoscp<../apps/echoscp>`
-application that comes with
+For this tutorial we need an Echo SCP. To make things simpler we'll use the
+:doc:`echoscp <../apps/echoscp>` application that comes with
 *pynetdicom*, but you could also use any third-party application that supports
 the verification service as an SCP, such as DCMTK's
 `storescp <https://support.dcmtk.org/docs/storescp.html>`_. To find out if
 an application supports the verification service you should check their
 DICOM conformance statement.
 
-In a new terminal, start ``echoscp`` listening for association requests on
+In a new terminal, start ``echoscp`` listening for connection requests on
 port ``11112`` with the ``-v`` verbose flag (or ``-d`` debug flag for even
 more output):
 
@@ -94,10 +115,11 @@ association requests accordingly. Depending on your OS or system configuration
 you may also need to allow access through the firewall for the port you end
 up using.
 
-The SCP will continue to run until you interrupt it either by closing the
+The SCP will continue to run until you interrupt it, either by closing the
 terminal or by pressing ``CTRL+C``. Keep the application running in the
 background for the rest of the tutorial, but you may wish to look at it's
-output every now and then to get a feel for what's happening.
+output every now and then to get a feel for what's happening at the other
+end of the association.
 
 
 Create an Application Entity and associate
@@ -133,13 +155,14 @@ There's a lot going on in these few lines, so let's split it up a bit:
     ae = AE()
     ae.add_requested_context('1.2.840.10008.1.1')
 
-This imports the :class:`AE<ae.ApplicationEntity>` class and creates a new
+This imports the :class:`AE<ae.ApplicationEntity>` class, creates a new
 ``AE`` instance, `ae`, then adds a single
 :doc:`presentation context<../user/presentation>` to it using the
 :meth:`~ae.ApplicationEntity.add_requested_context` method.  All association
 requests must contain at least one presentation context, and in this case we've
 added one that proposes the use of the verification service. We'll go into
-presentation contexts and how they're used a bit more later on.
+presentation contexts and how they're used to define an association's services
+a bit more later on.
 
 .. code-block:: python
    :linenos:
@@ -147,9 +170,9 @@ presentation contexts and how they're used a bit more later on.
 
     assoc = ae.associate('127.0.0.1', 11112)
 
-Here we initiate the association negotiation by sending an association request
-to the IP address ``'127.0.0.1'`` on port ``11112``. ``'127.0.0.1'`` (also
-known as ``'localhost'``) is a `special IP address
+Here we initiate the association negotiation by connecting to, then sending an
+association request to the IP address ``'127.0.0.1'`` on port ``11112``.
+``'127.0.0.1'`` (also known as ``'localhost'``) is a `special IP address
 <https://en.wikipedia.org/wiki/Localhost>`_ that means *this computer*. This
 should be the same IP address and port that you started the ``echoscp``
 application on earlier, so if you used a different port you should change this
@@ -172,17 +195,13 @@ association while *pynetdicom* monitors the connection behind the scenes.
         print('Failed to associate')
 
 As mentioned earlier, an *acceptor* may do a couple of things in response to an
-association request:
-
-* Accept the association request and establish an association ʘ‿ʘ
-* Reject the association request ಠ_ಠ
-* Abort the association negotiation ಥ‸‸ಥ
-
+association request; accept it, reject it or abort the negotiation entirely.
 The request may also fail because there's nothing there to associate with (a
 connection failure).
 
 Because there's more than one possible outcomes to negotiation, we check to
-see if the association :attr:`~association.Association.is_established`. If it
+see if the association has been established using
+:attr:`~association.Association.is_established`. If it
 is, we print a message and send an association
 release request using :meth:`~association.Association.release`. This ends the
 association and closes the connection with the Echo SCP. On the other hand,
@@ -190,20 +209,21 @@ if we failed to establish an association for whatever reason, then the
 connection is closed automatically (if required), and we don't need to do
 anything further.
 
-So, let's see what happens when we run our script. Open a new terminal and
-run the file with:
+So, let's see what happens when we run our code. Open a new terminal and
+run the file:
 
 .. code-block:: text
 
     $ python create_scu.py
 
-If everything has worked correctly, you should see:
+If everything worked correctly, you should see:
 
 .. code-block:: text
 
     Association established with Echo SCP
 
-And if you take a look at the output for ``echoscp``:
+And if you take a look at the output for ``echoscp`` you should see it accept
+the association request and then notifies you of its release:
 
 .. code-block:: text
 
@@ -240,6 +260,7 @@ information:
 
 .. code-block:: text
 
+    $ python create_scu.py
     I: Requesting Association
     D: Request Parameters:
     D: ========================= BEGIN A-ASSOCIATE-RQ PDU =========================
@@ -282,33 +303,43 @@ information:
     I: Association Accepted
     I: Releasing Association
 
-The log can be broken down into a couple of categories:
+Here you can see the stages of the association:
+
+1. The association negotiation is initiated by sending an A-ASSOCIATE-RQ
+   message
+2. An A-ASSOCIATE-AC message is received and the association accepted
+3. The association is released.
+
+In general, the debugging log can be broken down into a couple of categories:
 
 * Information about the state of the association and services, usually
   prefixed by ``I:``
 * Errors and exceptions that have occurred, prefixed by ``E:``
 * The contents of various association related messages,
-  such as the SCU's association request (A-ASSOCIATE-RQ) and SCP's association
-  accept (A-ASSOCIATE-AC) messages, as well as summaries of DIMSE messages,
-  usually prefixed by ``D:``
+  such as the A-ASSOCIATE-RQ and A-ASSOCIATE-AC messages, as well as
+  summaries of exchanged DIMSE messages (not shown here), usually prefixed by
+  ``D:``
 
-Common issues
-.............
+The first step to troubleshooting an association should be to look at the debug
+output. Some common reasons for an association failure are:
 
-* ``TCP Initialisation Error: Connection refused`` check the IP address and
-  port are correct, that the SCP is up and running and that the firewall allows
-  traffic on the port
-* ``Called AE title not recognised``: The SCP requires the *Called AE
-  title* sent in the association request match it's own. This can be set with
-  the *ae_title* keyword parameter in :meth:`~ae.ApplicationEntity.associate`
-* ``Calling AE title not recognised``: The SCP requires the *Calling
-  AE title* match one its familiar with. This can be set with the
-  :attr:`AE.ae_title<ae.ApplicationEntity.ae_title>` property. Alternatively,
-  you may need to configure the SCP with the details of your SCU
+* ``TCP Initialisation Error: Connection refused`` indicates that nothing is
+  listening on the IP address and port you specified. Check they're correct,
+  that the SCP is up and running and that the firewall is allowing traffic
+  through.
+* ``Called AE title not recognised``: indicates that the SCP requires the
+  A-ASSOCIATE-RQ's *Called AE Title* value match it's own. This can
+  be set with the *ae_title* keyword parameter in
+  :meth:`~ae.ApplicationEntity.associate`
+* ``Calling AE title not recognised``: indicates that the SCP requires the
+  A-ASSOCIATE-RQ's *Calling AE Title* value match one its familiar with. This
+  can be set with the :attr:`AE.ae_title<ae.ApplicationEntity.ae_title>`
+  property. Alternatively, you may need to configure the SCP with the details
+  of your SCU
 * ``Local limit exceeded``: The SCP has too many current associations active,
   try again later
 * ``Association Aborted``: this is more unusual during association negotiation,
-  (typically it's seen afterwards or during DIMSE messaging) but may be due to
+  typically it's seen afterwards or during DIMSE messaging. It may be due to
   the SCP using TLS or other methods to secure the connection
 
 
@@ -325,30 +356,53 @@ Presentation Contexts
     :doc:`presentation contexts<../user/presentation>` section of the User
     Guide.
 
-I've cheated a bit in our example by already including the presentation context
-used to request the use of the verification service;
-``1.2.840.10008.1.1`` - *Verification SOP Class*.
+I've cheated a bit in our code by already including the presentation context
+used to propose the use of the verification service;
+``1.2.840.10008.1.1`` - *Verification SOP Class*. This is visible in the
+debug output in the A-ASSOCIATE-RQ section as::
+
+    D: Presentation Context:
+    D:   Context ID:        1 (Proposed)
+    D:     Abstract Syntax: =Verification SOP Class
+    D:     Proposed SCP/SCU Role: Default
+    D:     Proposed Transfer Syntaxes:
+    D:       =Implicit VR Little Endian
+    D:       =Explicit VR Little Endian
+    D:       =Explicit VR Big Endian
 
 Presentation contexts are how DICOM applications agree on which services
 are available to an association. Each DICOM service has a corresponding set of
-*SOP Class UIDs*. Including one (or more) of these in the
-proposed presentation contexts indicates to the *acceptor* that a particular
-service is requested.
+*SOP Class UIDs*. Including one (or more) of these as the *abstract syntax*
+parameter in the proposed presentation contexts indicates to the *acceptor*
+that a particular service is requested for data matching that *SOP Class*.
+Additionally, the presentation context includes a description on how any
+exchanged data is to be encoded, its *transfer syntax*.
 
 So if you want to use the DICOM :dcm:`verification<part04/chapter_A.html>`
 service, you propose a presentation context for *Verification SOP Class*. If
 you wanted to use the :dcm:`storage<part04/chapter_B.html>` service
 to store *CT Images*, you'd propose a presentation context for the *CT Image
-Storage* SOP class.
+Storage* SOP class with a transfer syntax that matches the encoding of the
+CT data.
 
 When the *acceptor* receives the proposed presentation contexts it goes through
-each one and either accepts the presentation context and the service is
-available *for each accepted context*, or rejects it. If you tried to
-use a rejected presentation context you'll get an exception similar to:
+each one and either accepts it and the corresponding service is
+available *for each accepted context*, or rejects it. The results are visible
+in the A-ASSOCIATE-AC section of the debug log::
+
+    D: Presentation Contexts:
+    D:   Context ID:        1 (Accepted)
+    D:     Abstract Syntax: =Verification SOP Class
+    D:     Accepted SCP/SCU Role: Default
+    D:     Accepted Transfer Syntax: =Explicit VR Little Endian
+
+Here you can see that the context was accepted and any transferred data must
+use ``Explicit VR Little Endian`` encoding. If a context was rejected and
+you still try to use it, you'll get a ``ValueError`` exception similar to:
 
 .. code-block:: text
 
-    ValueError: No presentation context for 'CT Image Storage' has been
+    No presentation context for 'CT Image Storage' has been
     accepted by the peer with 'Implicit VR Little Endian' transfer syntax for
     the SCU role
 
@@ -374,8 +428,8 @@ request:
         status = assoc.send_c_echo()
         assoc.release()
 
-Our only change is to include a call to
-:meth:`~association.Association.send_c_echo` which is used to send
+The only thing we need to change is to include a call to
+:meth:`~association.Association.send_c_echo`, which sends
 the C-ECHO request and returns a *pydicom*
 :class:`~pydicom.dataset.Dataset` instance *status*. If we received a
 response to our C-ECHO request, then `status` will contain at least an
@@ -400,8 +454,7 @@ successful. Congratulations, you've written your first DICOM SCU using
 Next steps
 ----------
 
-You might be interested in the :doc:`SCU examples<../examples/index>`
-available in the documentation, as well as the
-`applications <https://github.com/pydicom/pynetdicom/tree/master/pynetdicom/apps>`_
-that come with *pynetdicom*. You may also want to check out the tutorial
-on :doc:`creating a basic Storage SCP<create_scp>`.
+We recommend that you move on to :doc:`writing your first SCP<create_scp>`
+next. However you might also be interested in the
+:doc:`SCU examples<../examples/index>` available in the documentation, or the
+:doc:`applications<../apps/index>` that come with *pynetdicom*.
