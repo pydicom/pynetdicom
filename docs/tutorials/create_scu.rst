@@ -209,6 +209,10 @@ if we failed to establish an association for whatever reason, then the
 connection is closed automatically (if required), and we don't need to do
 anything further.
 
+If you don't release the association yourself then it will remain established
+until the connection is closed, usually when one of the timeouts expires on
+either the *requestor* or *acceptor* AE.
+
 So, let's see what happens when we run our code. Open a new terminal and
 run the file:
 
@@ -342,9 +346,12 @@ output. Some common reasons for an association failure are:
   typically it's seen afterwards or during DIMSE messaging. It may be due to
   the SCP using TLS or other methods to secure the connection
 
+Hopefully by this point you've managed to get your AE associating with the SCP,
+so let's turn it into an Echo SCU.
 
-Echo SCU
-========
+
+Creating the Echo SCU
+=====================
 
 Presentation Contexts
 ---------------------
@@ -396,8 +403,8 @@ in the A-ASSOCIATE-AC section of the debug log::
     D:     Accepted Transfer Syntax: =Explicit VR Little Endian
 
 Here you can see that the context was accepted and any transferred data must
-use ``Explicit VR Little Endian`` encoding. If a context was rejected and
-you still try to use it, or if a context was accepted but your data isn't
+use ``Explicit VR Little Endian`` encoding. If a context is rejected and
+you still try to use it, or if a context is accepted but your data isn't
 encoded with the same transfer syntax, you'll get a ``ValueError`` exception
 similar to:
 
@@ -454,6 +461,6 @@ Next steps
 ----------
 
 We recommend that you move on to :doc:`writing your first SCP<create_scp>`
-next. However you might also be interested in the
+next. However, you might also be interested in the
 :doc:`SCU examples<../examples/index>` available in the documentation, or the
 :doc:`applications<../apps/index>` that come with *pynetdicom*.

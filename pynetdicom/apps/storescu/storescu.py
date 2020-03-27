@@ -33,7 +33,7 @@ def _setup_argparser():
             "file on the command line it sends a C-STORE message to a "
             "Storage Service Class Provider (SCP) and waits for a response."
         ),
-        usage="storescu [options] addr port dcmfile"
+        usage="storescu [options] addr port path"
     )
 
     # Parameters
@@ -43,7 +43,7 @@ def _setup_argparser():
     )
     req_opts.add_argument("port", help="TCP/IP port number of peer", type=int)
     req_opts.add_argument(
-        "dcmfile", metavar="dcmfile", nargs='+',
+        "path", metavar="path", nargs='+',
         help="DICOM file or directory to be transmitted",
         type=str
     )

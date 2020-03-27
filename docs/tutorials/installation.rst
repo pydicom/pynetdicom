@@ -44,7 +44,7 @@ Install using conda
 
   $ conda install -c conda-forge pynetdicom
 
-To update the installed version on conda do::
+To upgrade the installed version on conda do::
 
   $ conda update pynetdicom
 
@@ -53,7 +53,7 @@ After installation
 ------------------
 
 Now that *pynetdicom* is installed you might be interested in the
-:doc:`tutorial<create_scu>`.
+:doc:`tutorial for new users<create_scu>`.
 
 
 .. _tut_install_dev:

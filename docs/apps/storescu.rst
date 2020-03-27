@@ -4,7 +4,7 @@ storescu
 
 .. code-block:: text
 
-    $ python -m pynetdicom storescu [options] addr port dcmfile-in
+    $ python -m pynetdicom storescu [options] addr port path
 
 Description
 ===========
@@ -12,7 +12,8 @@ The ``storescu`` application implements a *Service Class User* (SCU) for
 the :dcm:`Storage Service Class<part04/chapter_B.html>`. It requests an
 association with a peer Application Entity on IP address ``addr`` and listen
 port ``port`` and once established requests the transfer
-of the SOP Instance in ``dcmfile-in``.
+of the SOP Instance at ``path`` if ``path`` is a file, or the SOP Instances
+in ``path`` if ``path`` is a directory.
 
 Usage
 =====
@@ -23,20 +24,20 @@ Service*:
 
 .. code-block:: text
 
-    $ python -m pynetdicom storescu 127.0.0.1 11112 path/to/file
+    $ python -m pynetdicom storescu 127.0.0.1 11112 path/to/dataset.dcm
 
 When attempting to use the SCP with an unsupported SOP Class:
 
 .. code-block:: text
 
-    $ python -m pynetdicom storescu 127.0.0.1 11112 path/to/file
+    $ python -m pynetdicom storescu 127.0.0.1 11112 path/to/dataset.dcm
     E: No accepted presentation contexts
 
 More information is available with the ``-d`` flag:
 
 .. code-block:: text
 
-    $ python -m pynetdicom storescu 127.0.0.1 11112 path/to/file -d
+    $ python -m pynetdicom storescu 127.0.0.1 11112 path/to/dataset.dcm -d
     D: storescu.py v0.3.0
     D:
     D: Checking input file
@@ -92,6 +93,11 @@ General Options
             ``'debug'``], prints logging messages with corresponding level
             or higher
 
+Input Options
+-------------
+``-r   --recursive``
+            recursively search the given directory
+
 Network Options
 ---------------
 ``-aet  --calling-aet [a]etitle (str)``
@@ -120,8 +126,8 @@ Transfer Syntax Options
 Miscellaneous Options
 ---------------------
 ``-cx   --single-context``
-            only request a single presentation context that matches the input
-            DICOM file
+            only request the presentation contexts required for the
+            input DICOM file(s)
 
 
 DICOM Conformance
