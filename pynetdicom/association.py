@@ -322,7 +322,8 @@ class Association(threading.Thread):
 
         return self._handlers[event]
 
-    def _get_valid_context(self, ab_syntax, tr_syntax, role, context_id=None):
+    def _get_valid_context(self, ab_syntax, tr_syntax, role=None,
+                           context_id=None):
         """Return a valid presentation context matching the parameters.
 
         Parameters
@@ -333,13 +334,15 @@ class Association(threading.Thread):
             The transfer syntax to match, if an empty string is used then
             the transfer syntax will not be used for matching. If the value
             corresponds to an uncompressed syntax then matches will be made
-            with any uncompressed transfer syntaxes.
-        role : str or None
-            One of 'scu' or 'scp', the required role of the context. If None
-            then the accepted role will be ignored.
-        context_id : int or None
-            If not None then the ID of the presentation context to use. It will
-            be checked against the available parameter values.
+            with any uncompressed transfer syntax but an exact match will
+            be preferred.
+        role : str, optional
+            One of ``'scu'`` or ``'scp'``, the required role of the context.
+            If not used then the accepted role will be ignored.
+        context_id : int, optional
+            If used then the ID of the presentation context to use. It
+            will be checked against the available parameter values. If the ID
+            isn't found then will check against all accepted contexts.
 
         Returns
         -------
@@ -349,35 +352,42 @@ class Association(threading.Thread):
         ab_syntax = UID(ab_syntax)
         tr_syntax = UID(tr_syntax)
 
-        possible_contexts = []
-        if context_id is None:
+        try:
+            possible_contexts = [self._accepted_cx[context_id]]
+        except KeyError:
             possible_contexts = self.accepted_contexts
-        else:
-            for cx in self.accepted_contexts:
-                if cx.context_id == context_id:
-                    possible_contexts = [cx]
-                    break
 
+        # Filter by abstract syntax
+        possible_contexts = [
+            cx for cx in possible_contexts if ab_syntax == cx.abstract_syntax
+        ]
+        # Filter by role
+        if role == 'scu':
+            possible_contexts = [
+                cx for cx in possible_contexts if cx.as_scu is True
+            ]
+        if role == 'scp':
+            possible_contexts = [
+                cx for cx in possible_contexts if cx.as_scp is True
+            ]
+
+        matches = []
         for cx in possible_contexts:
-            if cx.abstract_syntax != ab_syntax:
-                continue
+            cx_syntax = cx.transfer_syntax[0]
+            if tr_syntax:
+                if tr_syntax == cx_syntax:
+                    # Exact match to transfer syntax
+                    return cx
+                else:
+                    if (tr_syntax.is_compressed or cx_syntax.is_compressed):
+                        # Compressed transfer syntaxes are not convertible
+                        continue
 
-            # Cover both False and None
-            if role == 'scu' and cx.as_scu is not True:
-                continue
+            # Match to convertible transfer syntaxes
+            matches.append(cx)
 
-            if role == 'scp' and cx.as_scp is not True:
-                continue
-
-            # Allow us to skip the transfer syntax check
-            if tr_syntax and tr_syntax != cx.transfer_syntax[0]:
-                # Compressed transfer syntaxes are not convertable
-                if (tr_syntax.is_compressed
-                        or cx.transfer_syntax[0].is_compressed):
-                    continue
-
-            # Only a valid presentation context can reach this point
-            return cx
+        if matches:
+            return matches[0]
 
         role = role or 'scu'
         msg = (

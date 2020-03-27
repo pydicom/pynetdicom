@@ -72,6 +72,8 @@ Enhancements
   (:issue:`454`)
 * Added hook in :class:`~pynetdicom.transport.RequestHandler` for creating
   :class:`~pynetdicom.association.Association` objects (:issue:`455`)
+* Prefer an exact match when selecting a valid presentation context over
+  a convertible one (:issue:`472`)
 
 
 Changes

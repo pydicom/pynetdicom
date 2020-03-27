@@ -24,7 +24,5 @@ if __name__ == "__main__":
         print(__version__)
     else:
         app_path = _APPS[args[0]]
-        print(app_path)
         app = importlib.import_module(app_path)
-
         app.main(args)
