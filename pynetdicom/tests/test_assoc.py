@@ -4228,6 +4228,66 @@ class TestGetValidContext(object):
                                      ImplicitVRLittleEndian,
                                      'scu')
 
+    def test_implicit_explicit(self):
+        """Test matching when both implicit and explicit are available."""
+        self.scp = DummyVerificationSCP()
+        self.scp.ae.add_supported_context(CTImageStorage, ImplicitVRLittleEndian)
+        self.scp.ae.add_supported_context(CTImageStorage, ExplicitVRLittleEndian)
+        self.scp.start()
+        ae = AE()
+        ae.add_requested_context(CTImageStorage, ImplicitVRLittleEndian)
+        ae.add_requested_context(CTImageStorage, ExplicitVRLittleEndian)
+        ae.acse_timeout = 5
+        ae.dimse_timeout = 5
+        assoc = ae.associate('localhost', 11112)
+        assert assoc.is_established
+
+        cx = assoc._get_valid_context(
+            CTImageStorage, ExplicitVRLittleEndian, 'scu'
+        )
+        assert cx.context_id == 3
+        assert cx.abstract_syntax == CTImageStorage
+        assert cx.transfer_syntax[0] == ExplicitVRLittleEndian
+        assert cx.as_scu is True
+
+        cx = assoc._get_valid_context(
+            CTImageStorage, ImplicitVRLittleEndian, 'scu'
+        )
+        assert cx.context_id == 1
+        assert cx.abstract_syntax == CTImageStorage
+        assert cx.transfer_syntax[0] == ImplicitVRLittleEndian
+        assert cx.as_scu is True
+
+    def test_explicit_implicit(self):
+        """Test matching when both implicit and explicit are available."""
+        self.scp = DummyVerificationSCP()
+        self.scp.ae.add_supported_context(CTImageStorage, ExplicitVRLittleEndian)
+        self.scp.ae.add_supported_context(CTImageStorage, ImplicitVRLittleEndian)
+        self.scp.start()
+        ae = AE()
+        ae.add_requested_context(CTImageStorage, ExplicitVRLittleEndian)
+        ae.add_requested_context(CTImageStorage, ImplicitVRLittleEndian)
+        ae.acse_timeout = 5
+        ae.dimse_timeout = 5
+        assoc = ae.associate('localhost', 11112)
+        assert assoc.is_established
+
+        cx = assoc._get_valid_context(
+            CTImageStorage, ExplicitVRLittleEndian, 'scu'
+        )
+        assert cx.context_id == 1
+        assert cx.abstract_syntax == CTImageStorage
+        assert cx.transfer_syntax[0] == ExplicitVRLittleEndian
+        assert cx.as_scu is True
+
+        cx = assoc._get_valid_context(
+            CTImageStorage, ImplicitVRLittleEndian, 'scu'
+        )
+        assert cx.context_id == 3
+        assert cx.abstract_syntax == CTImageStorage
+        assert cx.transfer_syntax[0] == ImplicitVRLittleEndian
+        assert cx.as_scu is True
+
 
 class TestEventHandlingAcceptor(object):
     """Test the transport events and handling as acceptor."""
