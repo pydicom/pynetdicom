@@ -18,7 +18,7 @@ Fixes
   :attr:`~pynetdicom.sop_class.ImplantationPlanSRStorage` to match the name
   from Part 6 of the DICOM Standard rather than Part 4.
 * Stopped the QR Move SCP from associating with the move destination when no
-  suboperations were required (:issue:`436`)
+  sub-operations were required (:issue:`436`)
 * Fixed a possible race condition during DIMSE message exchange (:issue:`435`)
 * Fixed the association acceptor selecting the first matching proposed
   transfer syntax rather than the first matching supported transfer syntax
@@ -39,7 +39,7 @@ Enhancements
 * When acting as the association Acceptor check that the user hasn't sent
   an A-ABORT or A-ASSOCIATE-RJ before attempting association negotiation
   (:issue:`408`)
-* Added :py:attr:`~pynetdicom.events.Event.message_id` to
+* Added :attr:`~pynetdicom.events.Event.message_id` to
   :class:`~pynetdicom.events.Event` for use when receiving a DIMSE service
   request
 * Added the well-known SOP Instances for the supported service classes to

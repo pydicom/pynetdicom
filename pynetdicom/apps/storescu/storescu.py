@@ -224,7 +224,7 @@ def main(args=None):
     APP_LOGGER.debug('storescu.py v{0!s}'.format(__version__))
     APP_LOGGER.debug('')
 
-    lfiles, badfiles = get_files(args.dcmfile, args.recurse)
+    lfiles, badfiles = get_files(args.path, args.recurse)
 
     for bad in badfiles:
         APP_LOGGER.error("Cannot access path: {}".format(bad))

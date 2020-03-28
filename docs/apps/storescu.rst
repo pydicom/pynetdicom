@@ -75,8 +75,8 @@ Parameters
             TCP/IP address or hostname of DICOM peer
 ``port``
             TCP/IP port number of peer
-``dcmfile-in``
-            DICOM file to be transmitted
+``path``
+            path to the DICOM file or directory to be transmitted
 
 Options
 =======
@@ -135,8 +135,8 @@ DICOM Conformance
 The storescu application supports all of the *Storage Service Class'* supported
 SOP Classes as SCU.
 
-The application will request presentation contexts using these transfer
-syntaxes:
+By default, the application will request presentation contexts using these
+transfer syntaxes:
 
 +------------------------+----------------------------------------------------+
 | UID                    | Transfer Syntax                                    |
