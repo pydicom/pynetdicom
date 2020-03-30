@@ -111,8 +111,6 @@ to see the requirements for the ``evt.EVT_C_STORE`` handler.
 
 .. code-block:: python
 
-    from pydicom.dataset import Dataset
-
     from pynetdicom import AE, evt, AllStoragePresentationContexts
 
     # Implement a handler for evt.EVT_C_STORE
@@ -155,17 +153,20 @@ multiple C-STORE requests, depending on the size of the datasets:
 
 .. code-block:: python
 
-    from pydicom.dataset import Dataset
+    from pydicom.filewriter import write_file_meta_info
 
     from pynetdicom import AE, evt, AllStoragePresentationContexts
-    from pynetdicom.dsutils import encode
 
     # Implement a handler for evt.EVT_C_STORE
     def handle_store(event):
         """Handle a C-STORE request event."""
         with open(event.request.AffectedSOPInstanceUID, 'wb') as fp:
-            # File Meta must be encoded as explicit VR little endian
-            fp.write(encode(event.file_meta, False, True))
+            # Write the preamble and prefix
+            fp.write(b'\x00' * 128)
+            fp.write(b'DICM')
+            # Write the File Meta Information
+            write_file_meta_info(fp, event.file_meta)
+            # Write the dataset
             fp.write(event.request.DataSet.getvalue())
 
         # Return a 'Success' status

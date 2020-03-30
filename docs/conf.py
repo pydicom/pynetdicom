@@ -92,6 +92,10 @@ extlinks = {
         'https://github.com/pydicom/%s',
         None
     ),
+    'pyd': (
+        'https://docs.python.org/%s',
+        None
+    )
 }
 
 # intersphinx configuration

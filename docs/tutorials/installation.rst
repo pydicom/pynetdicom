@@ -66,8 +66,8 @@ To install a snapshot of the latest code (the ``master`` branch) from
 
   $ pip install git+https://github.com/pydicom/pynetdicom.git
 
-The ``master`` branch is under active development and while it is usually
-stable, it may have undocumented changes or bugs.
+The ``master`` branch is under active development, and while it's usually
+stable it may have undocumented changes or bugs.
 
 If you want to keep up-to-date with the latest code, make sure you have
 `Git <https://git-scm.com/>`_ installed and then clone the ``master``
