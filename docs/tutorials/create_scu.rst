@@ -32,20 +32,22 @@ DICOM networking
 *pynetdicom* is an implementation of the :dcm:`DICOM Upper Layer Protocol for
 TCP/IP<part08/chapter_9.html>`, which is used to facilitate communication
 between DICOM *Application Entities* (AEs) over a `TCP connection
-<https://en.wikipedia.org/wiki/Transmission_Control_Protocol>`_.
+<https://en.wikipedia.org/wiki/Transmission_Control_Protocol>`_. Communication
+between two AEs starts by establishing a TCP connection, then progresses to
+negotiating an *association*, which is just a term to describe the
+communications channel between the AEs and the set of rules that govern their
+expected behaviour.
 
-Once two AEs have established a TCP connection to each other, the second step
-is to negotiate an *association* between them. The AE that
-initiated the connection, the *requestor*, sends an
-:dcm:`A-ASSOCIATE-RQ<part08/sect_9.3.2.html>`
-message proposing which :dcm:`DICOM services<part04/PS3.4.html>` it would like
+The AE that initiated the connection, the *requestor*, sends an
+:dcm:`A-ASSOCIATE-RQ<part08/sect_9.3.2.html>` message proposing which
+:dcm:`DICOM services<part04/PS3.4.html>` it would like
 to use. The receiving AE, the *acceptor*, goes through the proposal and either:
 
 * Accepts the association and replies with an :dcm:`A-ASSOCIATE-AC
   <part08/sect_9.3.3.html>` message. However, just because an association has
-  been accepted doesn't mean that all the proposed services have also been
+  been accepted doesn't mean that the proposed services have also been
   accepted.
-* Rejects the association and replies with an :dcm:`A-ASSOCIATE-RJ
+* Rejects the association by replying with an :dcm:`A-ASSOCIATE-RJ
   <part08/sect_9.3.4.html>` message.
 * Aborts the association negotiation by sending an :dcm:`A-ABORT
   <part08/sect_9.3.8.html>` message.
@@ -102,8 +104,8 @@ DICOM conformance statement.
 
 In a new terminal, start :doc:`echoscp<../apps/echoscp>` listening for
 connection requests on
-port ``11112`` with the ``-v`` verbose flag (or ``-d`` debug flag for even
-more output):
+port ``11112`` with the ``-v`` verbose flag (or you could use the ``-d`` debug
+flag for even more output):
 
 .. code-block:: text
 
@@ -237,7 +239,7 @@ the association request and notify you of its release:
     I: Association Released
 
 If instead you saw ``Failed to associate`` then not to worry; make sure the
-Echo SCP is running and that your code is correct. If you still can't
+Echo SCP is running and your code is correct. If you still can't
 associate, move on to the next section on troubleshooting associations.
 
 Troubleshooting associations
@@ -331,7 +333,7 @@ output. Some common reasons for an association failure are:
 
 * ``TCP Initialisation Error: Connection refused`` indicates that nothing is
   listening on the IP address and port you specified. Check they're correct,
-  that the SCP is up and running and that the firewall is allowing traffic
+  that the SCP is up and running, and that the firewall is allowing traffic
   through.
 * ``Called AE title not recognised``: indicates that the SCP requires the
   A-ASSOCIATE-RQ's *Called AE Title* value match its own. This can
@@ -365,7 +367,7 @@ Presentation Contexts
     :doc:`presentation contexts<../user/presentation>` section of the User
     Guide.
 
-I've cheated a bit in our code by already including the presentation context
+We've cheated a bit in our code by including a presentation context
 used to propose the use of the verification service;
 ``1.2.840.10008.1.1`` - *Verification SOP Class*. This is visible in the
 debug output in the A-ASSOCIATE-RQ section as::
@@ -478,9 +480,9 @@ If you run your modified code then at the end of the output you should see:
     I: Received Echo Response (Status: Success)
     I: Releasing Association
 
-``Status: Success`` indicates that the verification service request was
-successful. Congratulations, you've written your first DICOM SCU using
-*pynetdicom*.
+The SCP has responded with a ``Status: Success``, which indicates that the
+verification service request was successful. Congratulations, you've written
+your first DICOM SCU using *pynetdicom*.
 
 Next steps
 ----------
