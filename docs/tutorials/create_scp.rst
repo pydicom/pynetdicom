@@ -26,17 +26,29 @@ also be using the :doc:`storescu<../apps/storescu>` application that comes with
 The Data Set
 ============
 
+
+
 A DICOM :dcm:`Data Set<part05/chapter_7.html>`, which from now on we'll just
 refer to as a *dataset*, is a collection of Data Elements. Each Data Element, or
-*element* for short, is just a description of some value. Examples
-of elements are the *Transfer Syntax UID* element, which contains the value of
-the transfer syntax used to encode the dataset, *Pixel Data* which (usually)
+*element* for short, is a formalised description of a value. Some examples of
+elements are the *Transfer Syntax UID*, which contains the value of
+the transfer syntax used to encode a dataset, *Pixel Data* which (usually)
 contains image data, and *Patient's Name*, which - surprise! - contains a
-patient's name. The DICOM Standard contains :dcm:`hundreds of official
-elements<part06/chapter_6.html>`, and if they're not enough you can also
-create your own private ones.
+patient's name. The DICOM Standard contains :dcm:` thousands of official
+elements<part06/chapter_6.html>`, and if that's not enough you can also
+create private ones.
 
-When *elements* are combined together they can be used to describe a *thing*
+Part 3 of the DICOM Standard contains a bunch of official dataset definitions,
+
+Elements can be combined together any way you desire, the recipe for that
+combination is termed an *Information Object Definition*, or IOD. The product
+of following that recipe is a dataset (the information object). Part 3 of the
+DICOM Standard contains many IODs, such as the CT Image IOD. By following
+
+defines particular combinations of elements an *Information
+Object Definition* or IOD.
+
+,  to describe
 (the "DICOM Information Object"). What that *thing* is depends on which
 elements are in the dataset, and often what their values are. If that *thing*
 was a *CT Image* dataset, it'd contain the elements required by
