@@ -61,11 +61,20 @@ def start_movescu(args):
     return subprocess.Popen(pargs)
 
 
-class TestMoveSCU(object):
-    """Tests for findscu.py"""
+def start_movescu_cli(args):
+    """Start the movescu.py app using CLI and return the process."""
+    pargs = [
+        which('python'), '-m', 'pynetdicom', 'movescu', 'localhost', '11112'
+    ] + [*args]
+    return subprocess.Popen(pargs)
+
+
+class MoveSCUBase(object):
+    """Tests for movescu.py"""
     def setup(self):
         """Run prior to each test"""
         self.ae = None
+        self.func = None
 
         self.response = ds = Dataset()
         ds.file_meta = Dataset()
@@ -112,7 +121,7 @@ class TestMoveSCU(object):
             evt_handlers=[(evt.EVT_C_STORE, handle_store)]
         )
 
-        p = start_movescu(['-k', "PatientName="])
+        p = self.func(['-k', "PatientName="])
         p.wait()
         assert p.returncode == 0
 
@@ -141,7 +150,7 @@ class TestMoveSCU(object):
 
     def test_no_peer(self, capfd):
         """Test trying to connect to non-existent host."""
-        p = start_movescu(['-k', "PatientName="])
+        p = self.func(['-k', "PatientName="])
         p.wait()
         assert p.returncode == 1
 
@@ -152,7 +161,7 @@ class TestMoveSCU(object):
 
     def test_bad_input(self, capfd):
         """Test being unable to read the input file."""
-        p = start_movescu(['-f', 'no-such-file.dcm'])
+        p = self.func(['-f', 'no-such-file.dcm'])
         p.wait()
         assert p.returncode == 1
 
@@ -161,7 +170,7 @@ class TestMoveSCU(object):
 
     def test_flag_version(self, capfd):
         """Test --version flag."""
-        p = start_movescu(['--version'])
+        p = self.func(['--version'])
         p.wait()
         assert p.returncode == 0
 
@@ -177,7 +186,7 @@ class TestMoveSCU(object):
         ae.add_supported_context(VerificationSOPClass)
         scp = ae.start_server(('', 11112), block=False)
 
-        p = start_movescu(['-q', '-k', 'PatientName='])
+        p = self.func(['-q', '-k', 'PatientName='])
         p.wait()
         assert p.returncode == 1
 
@@ -213,7 +222,7 @@ class TestMoveSCU(object):
             evt_handlers=[(evt.EVT_C_STORE, handle_store)]
         )
 
-        p = start_movescu(['-v', '-k', 'PatientName='])
+        p = self.func(['-v', '-k', 'PatientName='])
         p.wait()
         assert p.returncode == 0
 
@@ -255,7 +264,7 @@ class TestMoveSCU(object):
             evt_handlers=[(evt.EVT_C_STORE, handle_store)]
         )
 
-        p = start_movescu(['-d', '-k', 'PatientName='])
+        p = self.func(['-d', '-k', 'PatientName='])
         p.wait()
         assert p.returncode == 0
 
@@ -268,7 +277,7 @@ class TestMoveSCU(object):
 
     def test_flag_log_collision(self):
         """Test error with -q -v and -d flag."""
-        p = start_movescu(['-v', '-d'])
+        p = self.func(['-v', '-d'])
         p.wait()
         assert p.returncode != 0
 
@@ -299,7 +308,7 @@ class TestMoveSCU(object):
         scp = ae.start_server(('', 11112), block=False, evt_handlers=handlers)
         ae.supported_contexts = StoragePresentationContexts
 
-        p = start_movescu(['-aet', 'MYSCU', '-k', 'PatientName='])
+        p = self.func(['-aet', 'MYSCU', '-k', 'PatientName='])
         p.wait()
         assert p.returncode == 0
 
@@ -330,7 +339,7 @@ class TestMoveSCU(object):
         ae.supported_contexts = QueryRetrievePresentationContexts
         scp = ae.start_server(('', 11112), block=False, evt_handlers=handlers)
 
-        p = start_movescu(['-aec', 'YOURSCP', '-k', 'PatientName='])
+        p = self.func(['-aec', 'YOURSCP', '-k', 'PatientName='])
         p.wait()
         assert p.returncode == 0
 
@@ -362,7 +371,7 @@ class TestMoveSCU(object):
         scp = ae.start_server(('', 11112), block=False, evt_handlers=handlers)
         ae.supported_contexts = StoragePresentationContexts
 
-        p = start_movescu(['-aem', 'SOMESCP', '-k', 'PatientName='])
+        p = self.func(['-aem', 'SOMESCP', '-k', 'PatientName='])
         p.wait()
         assert p.returncode == 0
 
@@ -401,7 +410,7 @@ class TestMoveSCU(object):
         ae.supported_contexts = QueryRetrievePresentationContexts
         scp = ae.start_server(('', 11112), block=False, evt_handlers=handlers)
 
-        p = start_movescu(['-ta', '0.05', '-d', '-k', 'PatientName='])
+        p = self.func(['-ta', '0.05', '-d', '-k', 'PatientName='])
         p.wait()
         assert p.returncode == 1
 
@@ -439,7 +448,7 @@ class TestMoveSCU(object):
         ae.supported_contexts = QueryRetrievePresentationContexts
         scp = ae.start_server(('', 11112), block=False, evt_handlers=handlers)
 
-        p = start_movescu(['-td', '0.05', '-d', '-k', 'PatientName='])
+        p = self.func(['-td', '0.05', '-d', '-k', 'PatientName='])
         p.wait()
         assert p.returncode == 0
 
@@ -481,7 +490,7 @@ class TestMoveSCU(object):
         ae.supported_contexts = QueryRetrievePresentationContexts
         scp = ae.start_server(('', 11112), block=False, evt_handlers=handlers)
 
-        p = start_movescu(['--max-pdu', '123456', '-k', 'PatientName='])
+        p = self.func(['--max-pdu', '123456', '-k', 'PatientName='])
         p.wait()
         assert p.returncode == 0
 
@@ -513,7 +522,7 @@ class TestMoveSCU(object):
         ae.supported_contexts = QueryRetrievePresentationContexts
         scp = ae.start_server(('', 11112), block=False, evt_handlers=handlers)
 
-        p = start_movescu(['-P', '-k', 'PatientName='])
+        p = self.func(['-P', '-k', 'PatientName='])
         p.wait()
         assert p.returncode == 0
 
@@ -546,7 +555,7 @@ class TestMoveSCU(object):
         ae.supported_contexts = QueryRetrievePresentationContexts
         scp = ae.start_server(('', 11112), block=False, evt_handlers=handlers)
 
-        p = start_movescu(['-S', '-k', 'PatientName='])
+        p = self.func(['-S', '-k', 'PatientName='])
         p.wait()
         assert p.returncode == 0
 
@@ -577,7 +586,7 @@ class TestMoveSCU(object):
         ae.supported_contexts = QueryRetrievePresentationContexts
         scp = ae.start_server(('', 11112), block=False, evt_handlers=handlers)
 
-        p = start_movescu(['-O', '-k', 'PatientName='])
+        p = self.func(['-O', '-k', 'PatientName='])
         p.wait()
         assert p.returncode == 0
 
@@ -610,7 +619,7 @@ class TestMoveSCU(object):
         ae.supported_contexts = QueryRetrievePresentationContexts
         scp = ae.start_server(('', 11112), block=False, evt_handlers=handlers)
 
-        p = start_movescu(['--store', '-k', 'PatientName='])
+        p = self.func(['--store', '-k', 'PatientName='])
         p.wait()
         assert p.returncode == 0
 
@@ -641,7 +650,7 @@ class TestMoveSCU(object):
         ae.supported_contexts = QueryRetrievePresentationContexts
         scp = ae.start_server(('', 11112), block=False, evt_handlers=handlers)
 
-        p = start_movescu(
+        p = self.func(
             ['--store', '--store-port', '11114', '-k', 'PatientName=']
         )
         p.wait()
@@ -679,7 +688,7 @@ class TestMoveSCU(object):
         ae.supported_contexts = QueryRetrievePresentationContexts
         scp = ae.start_server(('', 11112), block=False, evt_handlers=handlers)
 
-        p = start_movescu(
+        p = self.func(
             ['--store', '--store-aet', 'SOMESCP', '-k', 'PatientName=']
         )
         p.wait()
@@ -712,7 +721,7 @@ class TestMoveSCU(object):
 
         assert 'test_dir' not in os.listdir()
 
-        p = start_movescu(['--store', '-od', 'test_dir', '-k', 'PatientName='])
+        p = self.func(['--store', '-od', 'test_dir', '-k', 'PatientName='])
         p.wait()
         assert p.returncode == 0
 
@@ -741,10 +750,40 @@ class TestMoveSCU(object):
         ae.supported_contexts = QueryRetrievePresentationContexts
         scp = ae.start_server(('', 11112), block=False, evt_handlers=handlers)
 
-        p = start_movescu(['--store', '--ignore', '-k', 'PatientName='])
+        p = self.func(['--store', '--ignore', '-k', 'PatientName='])
         p.wait()
         assert p.returncode == 0
 
         scp.shutdown()
 
         assert 'CT.1.2.3.4' not in os.listdir()
+
+
+class TestMoveSCU(MoveSCUBase):
+    """Tests for movescu.py"""
+    def setup(self):
+        """Run prior to each test"""
+        self.ae = None
+        self.func = start_movescu
+
+        self.response = ds = Dataset()
+        ds.file_meta = Dataset()
+        ds.file_meta.TransferSyntaxUID = ImplicitVRLittleEndian
+        ds.SOPClassUID = CTImageStorage
+        ds.SOPInstanceUID = '1.2.3.4'
+        ds.PatientName = 'Citizen^Jan'
+
+
+class TestMoveSCUCLI(MoveSCUBase):
+    """Tests for movescu.py"""
+    def setup(self):
+        """Run prior to each test"""
+        self.ae = None
+        self.func = start_movescu_cli
+
+        self.response = ds = Dataset()
+        ds.file_meta = Dataset()
+        ds.file_meta.TransferSyntaxUID = ImplicitVRLittleEndian
+        ds.SOPClassUID = CTImageStorage
+        ds.SOPInstanceUID = '1.2.3.4'
+        ds.PatientName = 'Citizen^Jan'

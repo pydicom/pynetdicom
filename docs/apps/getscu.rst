@@ -1,7 +1,10 @@
 =======
 getscu
 =======
-    ``getscu.py [options] addr port (-k keyword and/or -f file-in)``
+
+.. code-block:: text
+
+    $ python -m pynetdicom getscu [options] addr port (-k keyword and/or -f file-in)
 
 Description
 ===========
@@ -12,13 +15,16 @@ port ``port`` and once established, sends a query to be matched against the
 SCP's managed SOP Instances. The SCP then responds by sending a copy of the
 matching SOP Instances to the Get SCU (i.e. it acts as a Store SCP).
 
+Usage
+=====
+
 The following example shows what happens when it is succesfully run on
-an SCP at IP 127.0.0.1 and listen port 11112 that supports the *QR Get
+an SCP at IP ``127.0.0.1`` and listen port ``11112`` that supports the *QR Get
 Service*:
 
 .. code-block:: text
 
-    user@host: python getscu.py 127.0.0.1 11112 -k QueryRetrieveLevel=PATIENT -k PatientName=
+    $ python -m pynetdicom getscu 127.0.0.1 11112 -k QueryRetrieveLevel=PATIENT -k PatientName=
     I: Requesting Association
     I: Association Accepted
     I: Sending Get Request: MsgID 1
@@ -34,7 +40,6 @@ Service*:
     I: Get SCP Result: 0x0000 (Success)
     I: Sub-Operations Remaining: 0, Completed: 1, Failed: 0, Warning: 0
     I: Releasing Association
-    user@host:
 
 Parameters
 ==========
@@ -76,7 +81,7 @@ Network Options
 Query Information Model Options
 -------------------------------
 ``-P    --patient``
-            use patient root information model
+            use patient root information model (default)
 ``-S    --study``
             use study root information model
 ``-O    --psonly``
@@ -88,7 +93,7 @@ Query Options
             add or override a query element using either an element tag as
             (group,element) or the element's keyword (such as PatientName).
             See the *keyword pathing* section for more information.
-``-f path to [f]ile``
+``-f path to [f]ile (str)``
             use a DICOM file as the query dataset, if used with ``-k``
             then the elements will be added to or overwrite those
             present in the file

@@ -156,7 +156,11 @@ def _setup_argparser():
     return parser.parse_args()
 
 
-if __name__ == "__main__":
+def main(args=None):
+    """Run the application."""
+    if args is not None:
+        sys.argv = args
+
     args = _setup_argparser()
 
     if args.version:
@@ -210,3 +214,7 @@ if __name__ == "__main__":
     else:
         # Failed to associate: timeout, refused, connection closed, aborted
         sys.exit(1)
+
+
+if __name__ == "__main__":
+    main()

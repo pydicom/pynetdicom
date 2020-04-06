@@ -50,12 +50,19 @@ def start_echoscp(args):
     return subprocess.Popen(pargs)
 
 
-class TestEchoSCP(object):
+def start_echoscp_cli(args):
+    """Start the echoscp app using CLI and return the process."""
+    pargs = [which('python'), '-m', 'pynetdicom', 'echoscp', '11112'] + [*args]
+    return subprocess.Popen(pargs)
+
+
+class EchoSCPBase(object):
     """Tests for echoscp.py"""
     def setup(self):
         """Run prior to each test"""
         self.ae = None
         self.p = None
+        self.func = None
 
     def teardown(self):
         """Clear any active threads"""
@@ -74,7 +81,7 @@ class TestEchoSCP(object):
         ae.network_timeout = 5
         ae.add_requested_context(VerificationSOPClass)
 
-        self.p = p = start_echoscp([])
+        self.p = p = self.func([])
         time.sleep(0.5)
 
         assoc = ae.associate('localhost', 11112)
@@ -93,7 +100,7 @@ class TestEchoSCP(object):
 
     def test_flag_version(self, capfd):
         """Test --version flag."""
-        self.p = p = start_echoscp(['--version'])
+        self.p = p = self.func(['--version'])
         p.wait()
         assert p.returncode == 0
 
@@ -108,7 +115,7 @@ class TestEchoSCP(object):
         ae.network_timeout = 5
         ae.add_requested_context(VerificationSOPClass)
 
-        self.p = p = start_echoscp(['-q'])
+        self.p = p = self.func(['-q'])
         time.sleep(0.5)
 
         assoc = ae.associate('localhost', 11112)
@@ -133,7 +140,7 @@ class TestEchoSCP(object):
 
         out, err = [], []
 
-        self.p = p = start_echoscp(['-v'])
+        self.p = p = self.func(['-v'])
         time.sleep(0.5)
 
         assoc = ae.associate('localhost', 11112)
@@ -158,7 +165,7 @@ class TestEchoSCP(object):
         ae.network_timeout = 5
         ae.add_requested_context(VerificationSOPClass)
 
-        self.p = p = start_echoscp(['-d'])
+        self.p = p = self.func(['-d'])
         time.sleep(0.5)
 
         assoc = ae.associate('localhost', 11112)
@@ -176,7 +183,7 @@ class TestEchoSCP(object):
 
     def test_flag_log_collision(self):
         """Test error with -q -v and -d flag."""
-        self.p = p = start_echoscp(['-v', '-d'])
+        self.p = p = self.func(['-v', '-d'])
         p.wait()
         assert p.returncode != 0
 
@@ -208,7 +215,7 @@ class TestEchoSCP(object):
         ae.network_timeout = 5
         ae.add_requested_context(VerificationSOPClass)
 
-        self.p = p = start_echoscp(['--max-pdu', '123456'])
+        self.p = p = self.func(['--max-pdu', '123456'])
         time.sleep(0.5)
 
         assoc = ae.associate('localhost', 11112)
@@ -228,7 +235,7 @@ class TestEchoSCP(object):
         ae.network_timeout = 5
         ae.add_requested_context(VerificationSOPClass)
 
-        self.p = p = start_echoscp(['-x='])
+        self.p = p = self.func(['-x='])
         time.sleep(0.5)
 
         assoc = ae.associate('localhost', 11112)
@@ -249,7 +256,7 @@ class TestEchoSCP(object):
         ae.network_timeout = 5
         ae.add_requested_context(VerificationSOPClass)
 
-        self.p = p = start_echoscp(['-xe'])
+        self.p = p = self.func(['-xe'])
         time.sleep(0.5)
 
         assoc = ae.associate('localhost', 11112)
@@ -270,7 +277,7 @@ class TestEchoSCP(object):
         ae.network_timeout = 5
         ae.add_requested_context(VerificationSOPClass)
 
-        self.p = p = start_echoscp(['-xb'])
+        self.p = p = self.func(['-xb'])
         time.sleep(0.5)
 
         assoc = ae.associate('localhost', 11112)
@@ -291,7 +298,7 @@ class TestEchoSCP(object):
         ae.network_timeout = 5
         ae.add_requested_context(VerificationSOPClass)
 
-        self.p = p = start_echoscp(['-xi'])
+        self.p = p = self.func(['-xi'])
         time.sleep(0.5)
 
         assoc = ae.associate('localhost', 11112)
@@ -303,3 +310,21 @@ class TestEchoSCP(object):
 
         cx = assoc.accepted_contexts[0]
         assert cx.transfer_syntax[0] == ImplicitVRLittleEndian
+
+
+class TestEchoSCP(EchoSCPBase):
+    """Tests for echoscp.py"""
+    def setup(self):
+        """Run prior to each test"""
+        self.ae = None
+        self.p = None
+        self.func = start_echoscp
+
+
+class TestEchoSCPCLI(EchoSCPBase):
+    """Tests for echoscp using CLI"""
+    def setup(self):
+        """Run prior to each test"""
+        self.ae = None
+        self.p = None
+        self.func = start_echoscp_cli

@@ -54,11 +54,20 @@ def start_storescu(args):
     return subprocess.Popen(pargs)
 
 
-class TestStoreSCU(object):
+def start_storescu_cli(args):
+    """Start the storescu app using CLI and return the process."""
+    pargs = [
+        which('python'), '-m', 'pynetdicom', 'storescu', 'localhost', '11112'
+    ] + [*args]
+    return subprocess.Popen(pargs)
+
+
+class StoreSCUBase(object):
     """Tests for storescu.py"""
     def setup(self):
         """Run prior to each test"""
         self.ae = None
+        self.func = None
 
     def teardown(self):
         """Clear any active threads"""
@@ -88,7 +97,7 @@ class TestStoreSCU(object):
         ae.add_supported_context(CTImageStorage)
         scp = ae.start_server(('', 11112), block=False, evt_handlers=handlers)
 
-        p = start_storescu([DATASET_FILE])
+        p = self.func([DATASET_FILE])
         p.wait()
         assert p.returncode == 0
 
@@ -119,7 +128,7 @@ class TestStoreSCU(object):
 
     def test_no_peer(self, capfd):
         """Test trying to connect to non-existent host."""
-        p = start_storescu([DATASET_FILE])
+        p = self.func([DATASET_FILE])
         p.wait()
         assert p.returncode == 1
 
@@ -130,7 +139,7 @@ class TestStoreSCU(object):
 
     def test_flag_version(self, capfd):
         """Test --version flag."""
-        p = start_storescu([DATASET_FILE, '--version'])
+        p = self.func([DATASET_FILE, '--version'])
         p.wait()
         assert p.returncode == 0
 
@@ -146,7 +155,7 @@ class TestStoreSCU(object):
         ae.add_supported_context(VerificationSOPClass)
         scp = ae.start_server(('', 11112), block=False)
 
-        p = start_storescu([DATASET_FILE, '-q'])
+        p = self.func([DATASET_FILE, '-q'])
         p.wait()
         assert p.returncode == 1
 
@@ -171,7 +180,7 @@ class TestStoreSCU(object):
         ae.add_supported_context(CTImageStorage)
         scp = ae.start_server(('', 11112), block=False, evt_handlers=handlers)
 
-        p = start_storescu([DATASET_FILE, '-v'])
+        p = self.func([DATASET_FILE, '-v'])
         p.wait()
         assert p.returncode == 0
 
@@ -201,7 +210,7 @@ class TestStoreSCU(object):
         ae.add_supported_context(CTImageStorage)
         scp = ae.start_server(('', 11112), block=False, evt_handlers=handlers)
 
-        p = start_storescu([DATASET_FILE, '-d'])
+        p = self.func([DATASET_FILE, '-d'])
         p.wait()
         assert p.returncode == 0
 
@@ -213,7 +222,7 @@ class TestStoreSCU(object):
 
     def test_flag_log_collision(self):
         """Test error with -q -v and -d flag."""
-        p = start_storescu([DATASET_FILE, '-v', '-d'])
+        p = self.func([DATASET_FILE, '-v', '-d'])
         p.wait()
         assert p.returncode != 0
 
@@ -240,7 +249,7 @@ class TestStoreSCU(object):
         ae.add_supported_context(CTImageStorage)
         scp = ae.start_server(('', 11112), block=False, evt_handlers=handlers)
 
-        p = start_storescu([DATASET_FILE, '-aet', 'MYSCU'])
+        p = self.func([DATASET_FILE, '-aet', 'MYSCU'])
         p.wait()
         assert p.returncode == 0
 
@@ -268,7 +277,7 @@ class TestStoreSCU(object):
         ae.add_supported_context(CTImageStorage)
         scp = ae.start_server(('', 11112), block=False, evt_handlers=handlers)
 
-        p = start_storescu([DATASET_FILE, '-aec', 'YOURSCP'])
+        p = self.func([DATASET_FILE, '-aec', 'YOURSCP'])
         p.wait()
         assert p.returncode == 0
 
@@ -306,7 +315,7 @@ class TestStoreSCU(object):
         ae.add_supported_context(CTImageStorage)
         scp = ae.start_server(('', 11112), block=False, evt_handlers=handlers)
 
-        p = start_storescu([DATASET_FILE, '-ta', '0.05', '-d'])
+        p = self.func([DATASET_FILE, '-ta', '0.05', '-d'])
         p.wait()
         assert p.returncode == 1
 
@@ -343,7 +352,7 @@ class TestStoreSCU(object):
         ae.add_supported_context(CTImageStorage)
         scp = ae.start_server(('', 11112), block=False, evt_handlers=handlers)
 
-        p = start_storescu([DATASET_FILE, '-td', '0.05', '-d'])
+        p = self.func([DATASET_FILE, '-td', '0.05', '-d'])
         p.wait()
         assert p.returncode == 0
 
@@ -384,7 +393,7 @@ class TestStoreSCU(object):
         ae.add_supported_context(CTImageStorage)
         scp = ae.start_server(('', 11112), block=False, evt_handlers=handlers)
 
-        p = start_storescu([DATASET_FILE, '--max-pdu', '123456'])
+        p = self.func([DATASET_FILE, '--max-pdu', '123456'])
         p.wait()
         assert p.returncode == 0
 
@@ -418,7 +427,7 @@ class TestStoreSCU(object):
         ae.add_supported_context(CTImageStorage)
         scp = ae.start_server(('', 11112), block=False, evt_handlers=handlers)
 
-        p = start_storescu([DATASET_FILE, '-xe'])
+        p = self.func([DATASET_FILE, '-xe'])
         p.wait()
         assert p.returncode == 0
 
@@ -457,7 +466,7 @@ class TestStoreSCU(object):
         ae.add_supported_context(CTImageStorage)
         scp = ae.start_server(('', 11112), block=False, evt_handlers=handlers)
 
-        p = start_storescu([DATASET_FILE, '-xb'])
+        p = self.func([DATASET_FILE, '-xb'])
         p.wait()
         assert p.returncode == 0
 
@@ -497,7 +506,7 @@ class TestStoreSCU(object):
         ae.add_supported_context(CTImageStorage)
         scp = ae.start_server(('', 11112), block=False, evt_handlers=handlers)
 
-        p = start_storescu([DATASET_FILE, '-xi'])
+        p = self.func([DATASET_FILE, '-xi'])
         p.wait()
         assert p.returncode == 0
 
@@ -537,7 +546,7 @@ class TestStoreSCU(object):
         ae.add_supported_context(CTImageStorage)
         scp = ae.start_server(('', 11112), block=False, evt_handlers=handlers)
 
-        p = start_storescu([DATASET_FILE, '-cx'])
+        p = self.func([DATASET_FILE, '-cx'])
         p.wait()
         assert p.returncode == 0
 
@@ -553,7 +562,7 @@ class TestStoreSCU(object):
 
     def test_bad_input(self, capfd):
         """Test being unable to read the input file."""
-        p = start_storescu(['no-such-file.dcm', '-d'])
+        p = self.func(['no-such-file.dcm', '-d'])
         p.wait()
         assert p.returncode == 0
 
@@ -580,10 +589,26 @@ class TestStoreSCU(object):
             ae.add_supported_context(cx.abstract_syntax, ALL_TRANSFER_SYNTAXES)
         scp = ae.start_server(('', 11112), block=False, evt_handlers=handlers)
 
-        p = start_storescu([LIB_DIR, '--recurse', '-cx'])
+        p = self.func([LIB_DIR, '--recurse', '-cx'])
         p.wait()
         assert p.returncode == 0
 
         scp.shutdown()
 
         assert len(events) == 3
+
+
+class TestStoreSCU(StoreSCUBase):
+    """Tests for storescu.py"""
+    def setup(self):
+        """Run prior to each test"""
+        self.ae = None
+        self.func = start_storescu
+
+
+class TestStoreSCUCLI(StoreSCUBase):
+    """Tests for storescu using CLI"""
+    def setup(self):
+        """Run prior to each test"""
+        self.ae = None
+        self.func = start_storescu_cli
