@@ -38,8 +38,8 @@
   <link rel="stylesheet" href="../_static/css/pynetdicom.css" type="text/css" />
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
-    <link rel="next" title="Release Notes" href="../changelog/index.html" />
-    <link rel="prev" title="storescu" href="storescu.html" /> 
+    <link rel="next" title="storescu" href="storescu.html" />
+    <link rel="prev" title="movescu" href="movescu.html" /> 
 </head>
 
 <body class="wy-body-for-nav">
@@ -103,19 +103,20 @@
 <p class="caption"><span class="caption-text">Additional Information</span></p>
 <ul class="current">
 <li class="toctree-l1 current"><a class="reference internal" href="index.html">Applications</a><ul class="current">
-<li class="toctree-l2"><a class="reference internal" href="echoscu.html">echoscu</a></li>
 <li class="toctree-l2"><a class="reference internal" href="echoscp.html">echoscp</a></li>
+<li class="toctree-l2"><a class="reference internal" href="echoscu.html">echoscu</a></li>
 <li class="toctree-l2"><a class="reference internal" href="findscu.html">findscu</a></li>
 <li class="toctree-l2"><a class="reference internal" href="getscu.html">getscu</a></li>
 <li class="toctree-l2"><a class="reference internal" href="movescu.html">movescu</a></li>
-<li class="toctree-l2"><a class="reference internal" href="storescu.html">storescu</a></li>
 <li class="toctree-l2 current"><a class="current reference internal" href="#">storescp</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="#description">Description</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#usage">Usage</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#options">Options</a><ul>
 <li class="toctree-l4"><a class="reference internal" href="#general-options">General Options</a></li>
 <li class="toctree-l4"><a class="reference internal" href="#network-options">Network Options</a></li>
 <li class="toctree-l4"><a class="reference internal" href="#preferred-transfer-syntaxes">Preferred Transfer Syntaxes</a></li>
 <li class="toctree-l4"><a class="reference internal" href="#output">Output</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#miscellaneous">Miscellaneous</a></li>
 </ul>
 </li>
 <li class="toctree-l3"><a class="reference internal" href="#dicom-conformance">DICOM Conformance</a><ul>
@@ -126,6 +127,7 @@
 </li>
 </ul>
 </li>
+<li class="toctree-l2"><a class="reference internal" href="storescu.html">storescu</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="../changelog/index.html">Release Notes</a></li>
@@ -198,9 +200,9 @@
             
   <div class="section" id="storescp">
 <h1>storescp<a class="headerlink" href="#storescp" title="Permalink to this headline">¶</a></h1>
-<blockquote>
-<div><p><code class="docutils literal notranslate"><span class="pre">storescp.py</span> <span class="pre">[options]</span> <span class="pre">port</span></code></p>
-</div></blockquote>
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>$ python -m pynetdicom storescp [options] port
+</pre></div>
+</div>
 <div class="section" id="description">
 <h2>Description<a class="headerlink" href="#description" title="Permalink to this headline">¶</a></h2>
 <p>The <code class="docutils literal notranslate"><span class="pre">storescp</span></code> application implements a <em>Service Class Provider</em> (SCP) for
@@ -209,14 +211,17 @@ Association requests from peer Application Entities (AEs) and, once an
 Association is established, allows Storage SCUs transfer SOP Instances
 with SOP Classes matching the presentation contexts accepted during Association
 negotation.</p>
+</div>
+<div class="section" id="usage">
+<h2>Usage<a class="headerlink" href="#usage" title="Permalink to this headline">¶</a></h2>
 <p>The following example shows what happens when it is started and receives
 a C-STORE request from a peer:</p>
-<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>user@host: python storescp.py 11112
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>$ python -m pynetdicom storescp 11112
 </pre></div>
 </div>
 <p>More information is available when a connection is received while running with
 the <code class="docutils literal notranslate"><span class="pre">-v</span></code> option:</p>
-<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>user@host: python storescp.py 11112 -v
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>$ python -m pynetdicom storescp 11112 -v
 I: Accepting Association
 I: Received Store Request
 I: Storing DICOM file: CT.1.3.6.1.4.1.5962.1.1.1.1.1.20040119072730.12322
@@ -225,7 +230,7 @@ I: Association Released
 </div>
 <p>Much more information is available when a connection is received while
 running with the <code class="docutils literal notranslate"><span class="pre">-d</span></code> option:</p>
-<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>user@host: python storescp.py 11112 -d
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>$ python -m pynetdicom storescp 11112 -d
 D: storescp.py v0.6.0
 D:
 D: Request Parameters:
@@ -297,17 +302,24 @@ or lower</p>
 <div class="section" id="output">
 <h3>Output<a class="headerlink" href="#output" title="Permalink to this headline">¶</a></h3>
 <dl class="simple">
-<dt><code class="docutils literal notranslate"><span class="pre">-od</span> <span class="pre">[d]irectory,</span> <span class="pre">--output-directory</span> <span class="pre">[d]irectory</span></code></dt><dd><p>write received objects to directory <code class="docutils literal notranslate"><span class="pre">d</span></code></p>
+<dt><code class="docutils literal notranslate"><span class="pre">-od</span> <span class="pre">[d]irectory,</span> <span class="pre">--output-directory</span> <span class="pre">[d]irectory</span> <span class="pre">(str)</span></code></dt><dd><p>write received objects to directory <code class="docutils literal notranslate"><span class="pre">d</span></code></p>
 </dd>
 <dt><code class="docutils literal notranslate"><span class="pre">--ignore</span></code></dt><dd><p>receive data but don’t store it</p>
+</dd>
+</dl>
+</div>
+<div class="section" id="miscellaneous">
+<h3>Miscellaneous<a class="headerlink" href="#miscellaneous" title="Permalink to this headline">¶</a></h3>
+<dl class="simple">
+<dt><code class="docutils literal notranslate"><span class="pre">--no-echo</span></code></dt><dd><p>don’t act as a verification SCP</p>
 </dd>
 </dl>
 </div>
 </div>
 <div class="section" id="dicom-conformance">
 <h2>DICOM Conformance<a class="headerlink" href="#dicom-conformance" title="Permalink to this headline">¶</a></h2>
-<p>The <code class="docutils literal notranslate"><span class="pre">storescp</span></code> application supports the Verification and Storage Service
-Classes as an SCP with the following SOP Classes:</p>
+<p>The <code class="docutils literal notranslate"><span class="pre">storescp</span></code> application supports the Verification (unless <code class="docutils literal notranslate"><span class="pre">--no-echo</span></code>
+is used) and Storage Service Classes as an SCP with the following SOP Classes:</p>
 <div class="section" id="verification-service-class">
 <h3>Verification Service Class<a class="headerlink" href="#verification-service-class" title="Permalink to this headline">¶</a></h3>
 <table class="docutils align-default">
@@ -872,10 +884,10 @@ Prediction (Process 14 [Selection Value 1])</p></td>
   
     <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
       
-        <a href="../changelog/index.html" class="btn btn-neutral float-right" title="Release Notes" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
+        <a href="storescu.html" class="btn btn-neutral float-right" title="storescu" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
       
       
-        <a href="storescu.html" class="btn btn-neutral float-left" title="storescu" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+        <a href="movescu.html" class="btn btn-neutral float-left" title="movescu" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
       
     </div>
   

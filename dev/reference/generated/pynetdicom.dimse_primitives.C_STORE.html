@@ -205,9 +205,9 @@
             
   <div class="section" id="pynetdicom-dimse-primitives-c-store">
 <h1>pynetdicom.dimse_primitives.C_STORE<a class="headerlink" href="#pynetdicom-dimse-primitives-c-store" title="Permalink to this headline">¶</a></h1>
-<dl class="class">
+<dl class="py class">
 <dt id="pynetdicom.dimse_primitives.C_STORE">
-<em class="property">class </em><code class="sig-prename descclassname">pynetdicom.dimse_primitives.</code><code class="sig-name descname">C_STORE</code><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/f1a8062c/pynetdicom/dimse_primitives.py#L424"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom.dimse_primitives.C_STORE" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="sig-prename descclassname">pynetdicom.dimse_primitives.</code><code class="sig-name descname">C_STORE</code><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/610a14c7/pynetdicom/dimse_primitives.py#L424"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom.dimse_primitives.C_STORE" title="Permalink to this definition">¶</a></dt>
 <dd><p>Represents a C-STORE primitive.</p>
 <table class="docutils align-default">
 <colgroup>
@@ -277,7 +277,7 @@ in the column to the left</div>
 <div class="line">U - The use of this parameter is a DIMSE service user option</div>
 <div class="line">UF - User option with a fixed value</div>
 </div>
-<dl class="attribute">
+<dl class="py attribute">
 <dt id="pynetdicom.dimse_primitives.C_STORE.MessageID">
 <code class="sig-name descname">MessageID</code><a class="headerlink" href="#pynetdicom.dimse_primitives.C_STORE.MessageID" title="Permalink to this definition">¶</a></dt>
 <dd><p>Identifies the operation and is used to distinguish this
@@ -291,7 +291,7 @@ outstanding operations.</p>
 </dl>
 </dd></dl>
 
-<dl class="attribute">
+<dl class="py attribute">
 <dt id="pynetdicom.dimse_primitives.C_STORE.MessageIDBeingRespondedTo">
 <code class="sig-name descname">MessageIDBeingRespondedTo</code><a class="headerlink" href="#pynetdicom.dimse_primitives.C_STORE.MessageIDBeingRespondedTo" title="Permalink to this definition">¶</a></dt>
 <dd><p>The Message ID of the operation request/indication to which this
@@ -303,7 +303,7 @@ response/confirmation applies.</p>
 </dl>
 </dd></dl>
 
-<dl class="attribute">
+<dl class="py attribute">
 <dt id="pynetdicom.dimse_primitives.C_STORE.AffectedSOPClassUID">
 <code class="sig-name descname">AffectedSOPClassUID</code><a class="headerlink" href="#pynetdicom.dimse_primitives.C_STORE.AffectedSOPClassUID" title="Permalink to this definition">¶</a></dt>
 <dd><p>For the request/indication this specifies the SOP Class for
@@ -316,7 +316,7 @@ to the value in the request/indication</p>
 </dl>
 </dd></dl>
 
-<dl class="attribute">
+<dl class="py attribute">
 <dt id="pynetdicom.dimse_primitives.C_STORE.AffectedSOPInstanceUID">
 <code class="sig-name descname">AffectedSOPInstanceUID</code><a class="headerlink" href="#pynetdicom.dimse_primitives.C_STORE.AffectedSOPInstanceUID" title="Permalink to this definition">¶</a></dt>
 <dd><p>For the request/indication this specifies the SOP Instance
@@ -329,7 +329,7 @@ equal to the value in the request/indication</p>
 </dl>
 </dd></dl>
 
-<dl class="attribute">
+<dl class="py attribute">
 <dt id="pynetdicom.dimse_primitives.C_STORE.Priority">
 <code class="sig-name descname">Priority</code><a class="headerlink" href="#pynetdicom.dimse_primitives.C_STORE.Priority" title="Permalink to this definition">¶</a></dt>
 <dd><p>The priority of the C-STORE operation. It shall be one of the
@@ -346,7 +346,7 @@ following:</p>
 </dl>
 </dd></dl>
 
-<dl class="attribute">
+<dl class="py attribute">
 <dt id="pynetdicom.dimse_primitives.C_STORE.MoveOriginatorApplicationEntityTitle">
 <code class="sig-name descname">MoveOriginatorApplicationEntityTitle</code><a class="headerlink" href="#pynetdicom.dimse_primitives.C_STORE.MoveOriginatorApplicationEntityTitle" title="Permalink to this definition">¶</a></dt>
 <dd><p>The DICOM AE Title of the AE that invoked the C-MOVE operation
@@ -358,7 +358,7 @@ from which this C-STORE sub-operation is being performed</p>
 </dl>
 </dd></dl>
 
-<dl class="attribute">
+<dl class="py attribute">
 <dt id="pynetdicom.dimse_primitives.C_STORE.MoveOriginatorMessageID">
 <code class="sig-name descname">MoveOriginatorMessageID</code><a class="headerlink" href="#pynetdicom.dimse_primitives.C_STORE.MoveOriginatorMessageID" title="Permalink to this definition">¶</a></dt>
 <dd><p>The Message ID of the C-MOVE request/indication primitive from
@@ -370,7 +370,7 @@ which this C-STORE sub-operation is being performed</p>
 </dl>
 </dd></dl>
 
-<dl class="attribute">
+<dl class="py attribute">
 <dt id="pynetdicom.dimse_primitives.C_STORE.DataSet">
 <code class="sig-name descname">DataSet</code><a class="headerlink" href="#pynetdicom.dimse_primitives.C_STORE.DataSet" title="Permalink to this definition">¶</a></dt>
 <dd><p>A DICOM dataset containing the attributes of the Composite
@@ -382,7 +382,7 @@ SOP Instance to be stored.</p>
 </dl>
 </dd></dl>
 
-<dl class="attribute">
+<dl class="py attribute">
 <dt id="pynetdicom.dimse_primitives.C_STORE.Status">
 <code class="sig-name descname">Status</code><a class="headerlink" href="#pynetdicom.dimse_primitives.C_STORE.Status" title="Permalink to this definition">¶</a></dt>
 <dd><p>The error or success notification of the operation.</p>
@@ -393,7 +393,7 @@ SOP Instance to be stored.</p>
 </dl>
 </dd></dl>
 
-<dl class="attribute">
+<dl class="py attribute">
 <dt id="pynetdicom.dimse_primitives.C_STORE.OffendingElement">
 <code class="sig-name descname">OffendingElement</code><a class="headerlink" href="#pynetdicom.dimse_primitives.C_STORE.OffendingElement" title="Permalink to this definition">¶</a></dt>
 <dd><p>An optional status related field containing a list of the
@@ -405,7 +405,7 @@ elements in which an error was detected.</p>
 </dl>
 </dd></dl>
 
-<dl class="attribute">
+<dl class="py attribute">
 <dt id="pynetdicom.dimse_primitives.C_STORE.ErrorComment">
 <code class="sig-name descname">ErrorComment</code><a class="headerlink" href="#pynetdicom.dimse_primitives.C_STORE.ErrorComment" title="Permalink to this definition">¶</a></dt>
 <dd><p>An optional status related field containing a text description
@@ -417,9 +417,9 @@ of the error detected. 64 characters maximum.</p>
 </dl>
 </dd></dl>
 
-<dl class="method">
+<dl class="py method">
 <dt id="pynetdicom.dimse_primitives.C_STORE.__init__">
-<code class="sig-name descname">__init__</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/f1a8062c/pynetdicom/dimse_primitives.py#L510"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom.dimse_primitives.C_STORE.__init__" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">__init__</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/610a14c7/pynetdicom/dimse_primitives.py#L510"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom.dimse_primitives.C_STORE.__init__" title="Permalink to this definition">¶</a></dt>
 <dd><p>Initialize self.  See help(type(self)) for accurate signature.</p>
 </dd></dl>
 
@@ -445,10 +445,10 @@ of the error detected. 64 characters maximum.</p>
 <tr class="row-odd"><td><p><a class="reference internal" href="#pynetdicom.dimse_primitives.C_STORE.AffectedSOPClassUID" title="pynetdicom.dimse_primitives.C_STORE.AffectedSOPClassUID"><code class="xref py py-obj docutils literal notranslate"><span class="pre">AffectedSOPClassUID</span></code></a></p></td>
 <td><p>Return the <em>Affected SOP Class UID</em> as <a class="reference external" href="https://pydicom.github.io/pydicom/stable/reference/generated/pydicom.uid.UID.html#pydicom.uid.UID" title="(in pydicom v1.4.2)"><code class="xref py py-class docutils literal notranslate"><span class="pre">UID</span></code></a>.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#pynetdicom.dimse_primitives.C_STORE.AffectedSOPInstanceUID" title="pynetdicom.dimse_primitives.C_STORE.AffectedSOPInstanceUID"><code class="xref py py-obj docutils literal notranslate"><span class="pre">AffectedSOPInstanceUID</span></code></a></p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#id0" title="pynetdicom.dimse_primitives.C_STORE.AffectedSOPInstanceUID"><code class="xref py py-obj docutils literal notranslate"><span class="pre">AffectedSOPInstanceUID</span></code></a></p></td>
 <td><p>Return the <em>Affected SOP Instance UID</em> as <a class="reference external" href="https://pydicom.github.io/pydicom/stable/reference/generated/pydicom.uid.UID.html#pydicom.uid.UID" title="(in pydicom v1.4.2)"><code class="xref py py-class docutils literal notranslate"><span class="pre">UID</span></code></a>.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#pynetdicom.dimse_primitives.C_STORE.DataSet" title="pynetdicom.dimse_primitives.C_STORE.DataSet"><code class="xref py py-obj docutils literal notranslate"><span class="pre">DataSet</span></code></a></p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#id1" title="pynetdicom.dimse_primitives.C_STORE.DataSet"><code class="xref py py-obj docutils literal notranslate"><span class="pre">DataSet</span></code></a></p></td>
 <td><p>Return the <em>Data Set</em> as <a class="reference external" href="https://docs.python.org/3/library/io.html#io.BytesIO" title="(in Python v3.8)"><code class="xref py py-class docutils literal notranslate"><span class="pre">io.BytesIO</span></code></a>.</p></td>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="#pynetdicom.dimse_primitives.C_STORE.MessageID" title="pynetdicom.dimse_primitives.C_STORE.MessageID"><code class="xref py py-obj docutils literal notranslate"><span class="pre">MessageID</span></code></a></p></td>
@@ -457,13 +457,13 @@ of the error detected. 64 characters maximum.</p>
 <tr class="row-odd"><td><p><a class="reference internal" href="#pynetdicom.dimse_primitives.C_STORE.MessageIDBeingRespondedTo" title="pynetdicom.dimse_primitives.C_STORE.MessageIDBeingRespondedTo"><code class="xref py py-obj docutils literal notranslate"><span class="pre">MessageIDBeingRespondedTo</span></code></a></p></td>
 <td><p>Return the <em>Message ID Being Responded To</em> as <a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.8)"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></a>.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#pynetdicom.dimse_primitives.C_STORE.MoveOriginatorApplicationEntityTitle" title="pynetdicom.dimse_primitives.C_STORE.MoveOriginatorApplicationEntityTitle"><code class="xref py py-obj docutils literal notranslate"><span class="pre">MoveOriginatorApplicationEntityTitle</span></code></a></p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#id2" title="pynetdicom.dimse_primitives.C_STORE.MoveOriginatorApplicationEntityTitle"><code class="xref py py-obj docutils literal notranslate"><span class="pre">MoveOriginatorApplicationEntityTitle</span></code></a></p></td>
 <td><p>Return the <em>Move Originator Application Entity Title</em> as <a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#bytes" title="(in Python v3.8)"><code class="xref py py-class docutils literal notranslate"><span class="pre">bytes</span></code></a>.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#pynetdicom.dimse_primitives.C_STORE.MoveOriginatorMessageID" title="pynetdicom.dimse_primitives.C_STORE.MoveOriginatorMessageID"><code class="xref py py-obj docutils literal notranslate"><span class="pre">MoveOriginatorMessageID</span></code></a></p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#id3" title="pynetdicom.dimse_primitives.C_STORE.MoveOriginatorMessageID"><code class="xref py py-obj docutils literal notranslate"><span class="pre">MoveOriginatorMessageID</span></code></a></p></td>
 <td><p>Return the <em>Move Originator Message ID</em> as <a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.8)"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></a>.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#pynetdicom.dimse_primitives.C_STORE.Priority" title="pynetdicom.dimse_primitives.C_STORE.Priority"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Priority</span></code></a></p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#id4" title="pynetdicom.dimse_primitives.C_STORE.Priority"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Priority</span></code></a></p></td>
 <td><p>Return the <em>Priority</em> as <a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.8)"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></a>.</p></td>
 </tr>
 <tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">REQUEST_KEYWORDS</span></code></p></td>
@@ -489,34 +489,34 @@ of the error detected. 64 characters maximum.</p>
 </tr>
 </tbody>
 </table>
-<dl class="method">
-<dt>
-<em class="property">property </em><code class="sig-name descname">AffectedSOPInstanceUID</code></dt>
+<dl class="py method">
+<dt id="id0">
+<em class="property">property </em><code class="sig-name descname">AffectedSOPInstanceUID</code><a class="headerlink" href="#id0" title="Permalink to this definition">¶</a></dt>
 <dd><p>Return the <em>Affected SOP Instance UID</em> as <a class="reference external" href="https://pydicom.github.io/pydicom/stable/reference/generated/pydicom.uid.UID.html#pydicom.uid.UID" title="(in pydicom v1.4.2)"><code class="xref py py-class docutils literal notranslate"><span class="pre">UID</span></code></a>.</p>
 </dd></dl>
 
-<dl class="method">
-<dt>
-<em class="property">property </em><code class="sig-name descname">DataSet</code></dt>
+<dl class="py method">
+<dt id="id1">
+<em class="property">property </em><code class="sig-name descname">DataSet</code><a class="headerlink" href="#id1" title="Permalink to this definition">¶</a></dt>
 <dd><p>Return the <em>Data Set</em> as <a class="reference external" href="https://docs.python.org/3/library/io.html#io.BytesIO" title="(in Python v3.8)"><code class="xref py py-class docutils literal notranslate"><span class="pre">io.BytesIO</span></code></a>.</p>
 </dd></dl>
 
-<dl class="method">
-<dt>
-<em class="property">property </em><code class="sig-name descname">MoveOriginatorApplicationEntityTitle</code></dt>
+<dl class="py method">
+<dt id="id2">
+<em class="property">property </em><code class="sig-name descname">MoveOriginatorApplicationEntityTitle</code><a class="headerlink" href="#id2" title="Permalink to this definition">¶</a></dt>
 <dd><p>Return the <em>Move Originator Application Entity Title</em> as
 <a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#bytes" title="(in Python v3.8)"><code class="xref py py-class docutils literal notranslate"><span class="pre">bytes</span></code></a>.</p>
 </dd></dl>
 
-<dl class="method">
-<dt>
-<em class="property">property </em><code class="sig-name descname">MoveOriginatorMessageID</code></dt>
+<dl class="py method">
+<dt id="id3">
+<em class="property">property </em><code class="sig-name descname">MoveOriginatorMessageID</code><a class="headerlink" href="#id3" title="Permalink to this definition">¶</a></dt>
 <dd><p>Return the <em>Move Originator Message ID</em> as <a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.8)"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></a>.</p>
 </dd></dl>
 
-<dl class="method">
-<dt>
-<em class="property">property </em><code class="sig-name descname">Priority</code></dt>
+<dl class="py method">
+<dt id="id4">
+<em class="property">property </em><code class="sig-name descname">Priority</code><a class="headerlink" href="#id4" title="Permalink to this definition">¶</a></dt>
 <dd><p>Return the <em>Priority</em> as <a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.8)"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></a>.</p>
 </dd></dl>
 

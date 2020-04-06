@@ -38,8 +38,8 @@
   <link rel="stylesheet" href="../_static/css/pynetdicom.css" type="text/css" />
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
-    <link rel="next" title="echoscp" href="echoscp.html" />
-    <link rel="prev" title="Applications" href="index.html" /> 
+    <link rel="next" title="findscu" href="findscu.html" />
+    <link rel="prev" title="echoscp" href="echoscp.html" /> 
 </head>
 
 <body class="wy-body-for-nav">
@@ -103,8 +103,10 @@
 <p class="caption"><span class="caption-text">Additional Information</span></p>
 <ul class="current">
 <li class="toctree-l1 current"><a class="reference internal" href="index.html">Applications</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="echoscp.html">echoscp</a></li>
 <li class="toctree-l2 current"><a class="current reference internal" href="#">echoscu</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="#description">Description</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#usage">Usage</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#parameters">Parameters</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#options">Options</a><ul>
 <li class="toctree-l4"><a class="reference internal" href="#general-options">General Options</a></li>
@@ -116,12 +118,11 @@
 <li class="toctree-l3"><a class="reference internal" href="#dicom-conformance">DICOM Conformance</a></li>
 </ul>
 </li>
-<li class="toctree-l2"><a class="reference internal" href="echoscp.html">echoscp</a></li>
 <li class="toctree-l2"><a class="reference internal" href="findscu.html">findscu</a></li>
 <li class="toctree-l2"><a class="reference internal" href="getscu.html">getscu</a></li>
 <li class="toctree-l2"><a class="reference internal" href="movescu.html">movescu</a></li>
-<li class="toctree-l2"><a class="reference internal" href="storescu.html">storescu</a></li>
 <li class="toctree-l2"><a class="reference internal" href="storescp.html">storescp</a></li>
+<li class="toctree-l2"><a class="reference internal" href="storescu.html">storescu</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="../changelog/index.html">Release Notes</a></li>
@@ -194,9 +195,9 @@
             
   <div class="section" id="echoscu">
 <h1>echoscu<a class="headerlink" href="#echoscu" title="Permalink to this headline">¶</a></h1>
-<blockquote>
-<div><p><code class="docutils literal notranslate"><span class="pre">echoscu.py</span> <span class="pre">[options]</span> <span class="pre">addr</span> <span class="pre">port</span></code></p>
-</div></blockquote>
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>$ python -m pynetdicom echoscu [options] addr port
+</pre></div>
+</div>
 <div class="section" id="description">
 <h2>Description<a class="headerlink" href="#description" title="Permalink to this headline">¶</a></h2>
 <p>The <code class="docutils literal notranslate"><span class="pre">echoscu</span></code> application implements a Service Class User (SCU) for the
@@ -204,38 +205,37 @@
 association with a peer Application Entity (AE), sends a DICOM
 <a class="reference external" href="http://dicom.nema.org/medical/dicom/current/output/chtml/part07/sect_9.3.5.html#sect_9.3.5.1">C-ECHO-RQ</a> message and waits for a
 response. The application can be used to verify basic DICOM connectivity.</p>
+</div>
+<div class="section" id="usage">
+<h2>Usage<a class="headerlink" href="#usage" title="Permalink to this headline">¶</a></h2>
 <p>The following example shows what happens when it’s succesfully run on
-an SCP at IP 127.0.0.1 and listen port 11112 that supports the <em>Verification
-Service</em>:</p>
-<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>user@host: python echoscu.py 127.0.0.1 11112
-user@host:
+an SCP at IP <code class="docutils literal notranslate"><span class="pre">127.0.0.1</span></code> and listen port <code class="docutils literal notranslate"><span class="pre">11112</span></code> that supports the
+<em>Verification Service</em>:</p>
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>$ python -m pynetdicom echoscu 127.0.0.1 11112
 </pre></div>
 </div>
 <p>When attempting to send a C-ECHO request to an SCP that doesn’t support the
 <em>Verification Service</em>:</p>
-<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>user@host: python echoscu.py 127.0.0.1 11112
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>$ python -m pynetdicom echoscu 127.0.0.1 11112
 E: No accepted presentation contexts
-user@host:
 </pre></div>
 </div>
 <p>When the association request is rejected by the SCP (in this case because the
 called AE title wasn’t recognised):</p>
-<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>user@host: python echoscu.py 127.0.0.1 11112
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>$ python -m pynetdicom echoscu 127.0.0.1 11112
 E: Association Rejected
 E: Result: Rejected Permanent, Source: Service User
 E: Reason: Called AE title not recognised
-user@host:
 </pre></div>
 </div>
 <p>When attempting to associate with a non-DICOM peer:</p>
-<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>user@host: python echoscu.py 127.0.0.1 11112
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>$ python -m pynetdicom echoscu 127.0.0.1 11112
 E: Association request failed: unable to connect to remote
 E: TCP Initialisation Error: Connection refused
-user@host:
 </pre></div>
 </div>
 <p>More information is available with the <code class="docutils literal notranslate"><span class="pre">-d</span></code> flag:</p>
-<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>user@host: python echoscu.py 127.0.0.1 11112 -d
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>$ python -m pynetdicom echoscu 127.0.0.1 11112 -d
 D: echoscu.py v0.7.0
 D:
 I: Requesting Association
@@ -248,7 +248,6 @@ I: Sending Echo Request: MsgID 1
 D: pydicom.read_dataset() TransferSyntax=&quot;Little Endian Implicit&quot;
 I: Received Echo Response (Status: Success)
 I: Releasing Association
-user@host:
 </pre></div>
 </div>
 </div>
@@ -373,10 +372,10 @@ syntaxes:</p>
   
     <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
       
-        <a href="echoscp.html" class="btn btn-neutral float-right" title="echoscp" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
+        <a href="findscu.html" class="btn btn-neutral float-right" title="findscu" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
       
       
-        <a href="index.html" class="btn btn-neutral float-left" title="Applications" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+        <a href="echoscp.html" class="btn btn-neutral float-left" title="echoscp" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
       
     </div>
   

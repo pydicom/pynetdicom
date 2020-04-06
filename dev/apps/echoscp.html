@@ -38,8 +38,8 @@
   <link rel="stylesheet" href="../_static/css/pynetdicom.css" type="text/css" />
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
-    <link rel="next" title="findscu" href="findscu.html" />
-    <link rel="prev" title="echoscu" href="echoscu.html" /> 
+    <link rel="next" title="echoscu" href="echoscu.html" />
+    <link rel="prev" title="Applications" href="index.html" /> 
 </head>
 
 <body class="wy-body-for-nav">
@@ -103,9 +103,9 @@
 <p class="caption"><span class="caption-text">Additional Information</span></p>
 <ul class="current">
 <li class="toctree-l1 current"><a class="reference internal" href="index.html">Applications</a><ul class="current">
-<li class="toctree-l2"><a class="reference internal" href="echoscu.html">echoscu</a></li>
 <li class="toctree-l2 current"><a class="current reference internal" href="#">echoscp</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="#description">Description</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#usage">Usage</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#options">Options</a><ul>
 <li class="toctree-l4"><a class="reference internal" href="#general-options">General Options</a></li>
 <li class="toctree-l4"><a class="reference internal" href="#network-options">Network Options</a></li>
@@ -115,11 +115,12 @@
 <li class="toctree-l3"><a class="reference internal" href="#dicom-conformance">DICOM Conformance</a></li>
 </ul>
 </li>
+<li class="toctree-l2"><a class="reference internal" href="echoscu.html">echoscu</a></li>
 <li class="toctree-l2"><a class="reference internal" href="findscu.html">findscu</a></li>
 <li class="toctree-l2"><a class="reference internal" href="getscu.html">getscu</a></li>
 <li class="toctree-l2"><a class="reference internal" href="movescu.html">movescu</a></li>
-<li class="toctree-l2"><a class="reference internal" href="storescu.html">storescu</a></li>
 <li class="toctree-l2"><a class="reference internal" href="storescp.html">storescp</a></li>
+<li class="toctree-l2"><a class="reference internal" href="storescu.html">storescu</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="../changelog/index.html">Release Notes</a></li>
@@ -192,38 +193,40 @@
             
   <div class="section" id="echoscp">
 <h1>echoscp<a class="headerlink" href="#echoscp" title="Permalink to this headline">¶</a></h1>
-<blockquote>
-<div><p><code class="docutils literal notranslate"><span class="pre">echoscp.py</span> <span class="pre">[options]</span> <span class="pre">port</span></code></p>
-</div></blockquote>
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>$ python -m pynetdicom echoscp [options] port
+</pre></div>
+</div>
 <div class="section" id="description">
 <h2>Description<a class="headerlink" href="#description" title="Permalink to this headline">¶</a></h2>
 <p>The <code class="docutils literal notranslate"><span class="pre">echoscp</span></code> application implements a Service Class Provider (SCP) for the
-<em>Verification SOP Class</em> (UID 1.2.840.10008.1.1). It establishes an
-Association with peer Application Entities (AEs) and listens for
+<em>Verification SOP Class</em> (<em>SOP Class UID</em> <code class="docutils literal notranslate"><span class="pre">UID</span> <span class="pre">1.2.840.10008.1.1</span></code>). It
+establishes an Association with peer Application Entities (AEs) and listens for
 DICOM C-ECHO-RQ messages to which it responds with a DICOM C-ECHO-RSP
 message. The application can be used to verify basic DICOM connectivity.</p>
-<p>The following example shows what happens when it is started and receives
+</div>
+<div class="section" id="usage">
+<h2>Usage<a class="headerlink" href="#usage" title="Permalink to this headline">¶</a></h2>
+<p>The following example shows what happens when it’s started and receives
 a C-ECHO request from a peer:</p>
-<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>user@host: python echoscp.py 11112
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>$ python -m pynetdicom echoscp 11112
 </pre></div>
 </div>
-<p>More information is available when a connection is received while running with
-the <code class="docutils literal notranslate"><span class="pre">-v</span></code> option:</p>
-<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>user@host: python echoscp.py 11112 -v
+<p>More information is available when running with the <code class="docutils literal notranslate"><span class="pre">-v</span></code> option:</p>
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>$ python -m pynetdicom echoscp 11112 -v
 I: Accepting Association
 I: Received Echo Request (MsgID 1)
 I: Association Released
 </pre></div>
 </div>
 <p>When a peer AE attempts to send non C-ECHO message:</p>
-<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>user@host: python echoscp.py 192.168.2.1 11112 -v
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>$ python -m pynetdicom echoscp 11112 -v
 I: Accepting Association
 I: Association Aborted
 </pre></div>
 </div>
 <p>Much more information is available when a connection is received while
 running with the <code class="docutils literal notranslate"><span class="pre">-d</span></code> option:</p>
-<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>user@host: python echoscp.py 11112 -d
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>$ python -m pynetdicom echoscp 11112 -d
 D: echoscp.py v0.7.0
 D:
 D: Request Parameters:
@@ -378,10 +381,10 @@ Prediction (Process 14 [Selection Value 1])</p></td>
   
     <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
       
-        <a href="findscu.html" class="btn btn-neutral float-right" title="findscu" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
+        <a href="echoscu.html" class="btn btn-neutral float-right" title="echoscu" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
       
       
-        <a href="echoscu.html" class="btn btn-neutral float-left" title="echoscu" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+        <a href="index.html" class="btn btn-neutral float-left" title="Applications" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
       
     </div>
   

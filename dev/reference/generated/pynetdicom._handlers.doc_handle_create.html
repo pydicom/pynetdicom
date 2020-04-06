@@ -219,9 +219,9 @@
             
   <div class="section" id="pynetdicom-handlers-doc-handle-create">
 <h1>pynetdicom._handlers.doc_handle_create<a class="headerlink" href="#pynetdicom-handlers-doc-handle-create" title="Permalink to this headline">¶</a></h1>
-<dl class="function">
+<dl class="py function">
 <dt id="pynetdicom._handlers.doc_handle_create">
-<code class="sig-prename descclassname">pynetdicom._handlers.</code><code class="sig-name descname">doc_handle_create</code><span class="sig-paren">(</span><em class="sig-param">event</em>, <em class="sig-param">*args</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/f1a8062c/pynetdicom/_handlers.py#L2905"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom._handlers.doc_handle_create" title="Permalink to this definition">¶</a></dt>
+<code class="sig-prename descclassname">pynetdicom._handlers.</code><code class="sig-name descname">doc_handle_create</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">event</span></em>, <em class="sig-param"><span class="o">*</span><span class="n">args</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/610a14c7/pynetdicom/_handlers.py#L2905"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom._handlers.doc_handle_create" title="Permalink to this definition">¶</a></dt>
 <dd><p>Documentation for handlers bound to <code class="docutils literal notranslate"><span class="pre">evt.EVT_N_CREATE</span></code>.</p>
 <p>User implementation of this event handler is required if one or more
 services that use N-CREATE are to be supported. If a handler is
@@ -299,7 +299,7 @@ that is running the service that received the N-CREATE request.</p></li>
 <li><p><code class="xref py py-attr docutils literal notranslate"><span class="pre">context</span></code>: the presentation context
 the request was sent under
 as a <a class="reference internal" href="pynetdicom.presentation.PresentationContextTuple.html#pynetdicom.presentation.PresentationContextTuple" title="pynetdicom.presentation.PresentationContextTuple"><code class="xref py py-class docutils literal notranslate"><span class="pre">PresentationContextTuple</span></code></a>.</p></li>
-<li><p><a class="reference internal" href="pynetdicom.events.Event.html#pynetdicom.events.Event.event" title="pynetdicom.events.Event.event"><code class="xref py py-attr docutils literal notranslate"><span class="pre">event</span></code></a>: the event that occurred as
+<li><p><a class="reference internal" href="pynetdicom.events.Event.html#id0" title="pynetdicom.events.Event.event"><code class="xref py py-attr docutils literal notranslate"><span class="pre">event</span></code></a>: the event that occurred as
 <a class="reference internal" href="pynetdicom.events.InterventionEvent.html#pynetdicom.events.InterventionEvent" title="pynetdicom.events.InterventionEvent"><code class="xref py py-class docutils literal notranslate"><span class="pre">InterventionEvent</span></code></a>.</p></li>
 <li><p><code class="xref py py-attr docutils literal notranslate"><span class="pre">request</span></code>: the received
 <a class="reference internal" href="pynetdicom.dimse_primitives.N_CREATE.html#pynetdicom.dimse_primitives.N_CREATE" title="pynetdicom.dimse_primitives.N_CREATE"><code class="xref py py-class docutils literal notranslate"><span class="pre">N-CREATE</span> <span class="pre">request</span></code></a></p></li>

@@ -211,9 +211,9 @@
             
   <div class="section" id="pynetdicom-pdu-primitives-implementationversionnamenotification">
 <h1>pynetdicom.pdu_primitives.ImplementationVersionNameNotification<a class="headerlink" href="#pynetdicom-pdu-primitives-implementationversionnamenotification" title="Permalink to this headline">¶</a></h1>
-<dl class="class">
+<dl class="py class">
 <dt id="pynetdicom.pdu_primitives.ImplementationVersionNameNotification">
-<em class="property">class </em><code class="sig-prename descclassname">pynetdicom.pdu_primitives.</code><code class="sig-name descname">ImplementationVersionNameNotification</code><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/f1a8062c/pynetdicom/pdu_primitives.py#L1232"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom.pdu_primitives.ImplementationVersionNameNotification" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="sig-prename descclassname">pynetdicom.pdu_primitives.</code><code class="sig-name descname">ImplementationVersionNameNotification</code><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/610a14c7/pynetdicom/pdu_primitives.py#L1232"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom.pdu_primitives.ImplementationVersionNameNotification" title="Permalink to this definition">¶</a></dt>
 <dd><p>A representation of a Implementation Version Name Notification primitive.</p>
 <p>The implementation identification notification allows implementations of
 communicating AEs to identify each other at Association establishment time.
@@ -227,7 +227,7 @@ negotiation is required.</p>
 </ul>
 <p>The Implementation Version Name is optional and there may only be a single
 <a class="reference internal" href="#pynetdicom.pdu_primitives.ImplementationVersionNameNotification" title="pynetdicom.pdu_primitives.ImplementationVersionNameNotification"><code class="xref py py-class docutils literal notranslate"><span class="pre">ImplementationVersionNameNotification</span></code></a> item.</p>
-<dl class="attribute">
+<dl class="py attribute">
 <dt id="pynetdicom.pdu_primitives.ImplementationVersionNameNotification.implementation_version_name">
 <code class="sig-name descname">implementation_version_name</code><a class="headerlink" href="#pynetdicom.pdu_primitives.ImplementationVersionNameNotification.implementation_version_name" title="Permalink to this definition">¶</a></dt>
 <dd><p>The version name to use, maximum of 16 characters.</p>
@@ -250,9 +250,9 @@ negotiation is required.</p>
 <ul class="simple">
 <li><p>DICOM Standard, Part 7, <a class="reference external" href="http://dicom.nema.org/medical/dicom/current/output/chtml/part07/sect_D.3.3.2.html">Annex D.3.3.2</a></p></li>
 </ul>
-<dl class="method">
+<dl class="py method">
 <dt id="pynetdicom.pdu_primitives.ImplementationVersionNameNotification.__init__">
-<code class="sig-name descname">__init__</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/f1a8062c/pynetdicom/pdu_primitives.py#L1269"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom.pdu_primitives.ImplementationVersionNameNotification.__init__" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">__init__</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/610a14c7/pynetdicom/pdu_primitives.py#L1269"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom.pdu_primitives.ImplementationVersionNameNotification.__init__" title="Permalink to this definition">¶</a></dt>
 <dd><p>Initialize self.  See help(type(self)) for accurate signature.</p>
 </dd></dl>
 
@@ -278,14 +278,14 @@ negotiation is required.</p>
 <col style="width: 90%" />
 </colgroup>
 <tbody>
-<tr class="row-odd"><td><p><a class="reference internal" href="#pynetdicom.pdu_primitives.ImplementationVersionNameNotification.implementation_version_name" title="pynetdicom.pdu_primitives.ImplementationVersionNameNotification.implementation_version_name"><code class="xref py py-obj docutils literal notranslate"><span class="pre">implementation_version_name</span></code></a></p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#id0" title="pynetdicom.pdu_primitives.ImplementationVersionNameNotification.implementation_version_name"><code class="xref py py-obj docutils literal notranslate"><span class="pre">implementation_version_name</span></code></a></p></td>
 <td><p>Return the <em>Implementation Version Name</em>.</p></td>
 </tr>
 </tbody>
 </table>
-<dl class="method">
+<dl class="py method">
 <dt id="pynetdicom.pdu_primitives.ImplementationVersionNameNotification.from_primitive">
-<code class="sig-name descname">from_primitive</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/f1a8062c/pynetdicom/pdu_primitives.py#L1272"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom.pdu_primitives.ImplementationVersionNameNotification.from_primitive" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">from_primitive</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/610a14c7/pynetdicom/pdu_primitives.py#L1272"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom.pdu_primitives.ImplementationVersionNameNotification.from_primitive" title="Permalink to this definition">¶</a></dt>
 <dd><p>Convert the primitive to a PDU item ready to be encoded.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Returns</dt>
@@ -300,9 +300,9 @@ negotiation is required.</p>
 </dl>
 </dd></dl>
 
-<dl class="method">
-<dt>
-<em class="property">property </em><code class="sig-name descname">implementation_version_name</code></dt>
+<dl class="py method">
+<dt id="id0">
+<em class="property">property </em><code class="sig-name descname">implementation_version_name</code><a class="headerlink" href="#id0" title="Permalink to this definition">¶</a></dt>
 <dd><p>Return the <em>Implementation Version Name</em>.</p>
 </dd></dl>
 

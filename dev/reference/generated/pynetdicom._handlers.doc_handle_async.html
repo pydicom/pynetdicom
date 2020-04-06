@@ -219,9 +219,9 @@
             
   <div class="section" id="pynetdicom-handlers-doc-handle-async">
 <h1>pynetdicom._handlers.doc_handle_async<a class="headerlink" href="#pynetdicom-handlers-doc-handle-async" title="Permalink to this headline">¶</a></h1>
-<dl class="function">
+<dl class="py function">
 <dt id="pynetdicom._handlers.doc_handle_async">
-<code class="sig-prename descclassname">pynetdicom._handlers.</code><code class="sig-name descname">doc_handle_async</code><span class="sig-paren">(</span><em class="sig-param">event</em>, <em class="sig-param">*args</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/f1a8062c/pynetdicom/_handlers.py#L3593"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom._handlers.doc_handle_async" title="Permalink to this definition">¶</a></dt>
+<code class="sig-prename descclassname">pynetdicom._handlers.</code><code class="sig-name descname">doc_handle_async</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">event</span></em>, <em class="sig-param"><span class="o">*</span><span class="n">args</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/610a14c7/pynetdicom/_handlers.py#L3593"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom._handlers.doc_handle_async" title="Permalink to this definition">¶</a></dt>
 <dd><p>Documentation for handlers bound to <code class="docutils literal notranslate"><span class="pre">evt.EVT_ASYNC_OPS</span></code>.</p>
 <p>User implementation of this event handler is optional. If a handler is
 not implemented and bound to <code class="docutils literal notranslate"><span class="pre">evt.EVT_ASYNC_OPS</span></code> then no response to the
@@ -244,7 +244,7 @@ attributes are:</p>
 <li><p><a class="reference internal" href="pynetdicom.events.Event.html#pynetdicom.events.Event.assoc" title="pynetdicom.events.Event.assoc"><code class="xref py py-attr docutils literal notranslate"><span class="pre">assoc</span></code></a>: the
 <a class="reference internal" href="pynetdicom.association.Association.html#pynetdicom.association.Association" title="pynetdicom.association.Association"><code class="xref py py-class docutils literal notranslate"><span class="pre">Association</span></code></a>
 that received the Asynchronous Operations Window Negotiation request.</p></li>
-<li><p><a class="reference internal" href="pynetdicom.events.Event.html#pynetdicom.events.Event.event" title="pynetdicom.events.Event.event"><code class="xref py py-attr docutils literal notranslate"><span class="pre">event</span></code></a>: the event that occurred as
+<li><p><a class="reference internal" href="pynetdicom.events.Event.html#id0" title="pynetdicom.events.Event.event"><code class="xref py py-attr docutils literal notranslate"><span class="pre">event</span></code></a>: the event that occurred as
 <a class="reference internal" href="pynetdicom.events.InterventionEvent.html#pynetdicom.events.InterventionEvent" title="pynetdicom.events.InterventionEvent"><code class="xref py py-class docutils literal notranslate"><span class="pre">InterventionEvent</span></code></a>.</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">invoked</span></code>: the <em>Maximum Number Operations Invoked</em> parameter
 value of the Asynchronous Operations Window Negotiation item as

@@ -1,30 +1,35 @@
 =======
 echoscp
 =======
-    ``echoscp.py [options] port``
+
+.. code-block:: text
+
+    $ python -m pynetdicom echoscp [options] port
 
 Description
 ===========
 The ``echoscp`` application implements a Service Class Provider (SCP) for the
-*Verification SOP Class* (UID 1.2.840.10008.1.1). It establishes an
-Association with peer Application Entities (AEs) and listens for
+*Verification SOP Class* (*SOP Class UID* ``UID 1.2.840.10008.1.1``). It
+establishes an Association with peer Application Entities (AEs) and listens for
 DICOM C-ECHO-RQ messages to which it responds with a DICOM C-ECHO-RSP
 message. The application can be used to verify basic DICOM connectivity.
 
-The following example shows what happens when it is started and receives
+Usage
+=====
+
+The following example shows what happens when it's started and receives
 a C-ECHO request from a peer:
 
 .. code-block:: text
 
-   user@host: python echoscp.py 11112
+   $ python -m pynetdicom echoscp 11112
 
 
-More information is available when a connection is received while running with
-the ``-v`` option:
+More information is available when running with the ``-v`` option:
 
 .. code-block:: text
 
-    user@host: python echoscp.py 11112 -v
+    $ python -m pynetdicom echoscp 11112 -v
     I: Accepting Association
     I: Received Echo Request (MsgID 1)
     I: Association Released
@@ -33,7 +38,7 @@ When a peer AE attempts to send non C-ECHO message:
 
 .. code-block:: text
 
-    user@host: python echoscp.py 192.168.2.1 11112 -v
+    $ python -m pynetdicom echoscp 11112 -v
     I: Accepting Association
     I: Association Aborted
 
@@ -42,7 +47,7 @@ running with the ``-d`` option:
 
 .. code-block:: text
 
-    user@host: python echoscp.py 11112 -d
+    $ python -m pynetdicom echoscp 11112 -d
     D: echoscp.py v0.7.0
     D:
     D: Request Parameters:

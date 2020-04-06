@@ -103,11 +103,12 @@
 <p class="caption"><span class="caption-text">Additional Information</span></p>
 <ul class="current">
 <li class="toctree-l1 current"><a class="reference internal" href="index.html">Applications</a><ul class="current">
-<li class="toctree-l2"><a class="reference internal" href="echoscu.html">echoscu</a></li>
 <li class="toctree-l2"><a class="reference internal" href="echoscp.html">echoscp</a></li>
+<li class="toctree-l2"><a class="reference internal" href="echoscu.html">echoscu</a></li>
 <li class="toctree-l2"><a class="reference internal" href="findscu.html">findscu</a></li>
 <li class="toctree-l2 current"><a class="current reference internal" href="#">getscu</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="#description">Description</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#usage">Usage</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#parameters">Parameters</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#options">Options</a><ul>
 <li class="toctree-l4"><a class="reference internal" href="#general-options">General Options</a></li>
@@ -129,8 +130,8 @@
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="movescu.html">movescu</a></li>
-<li class="toctree-l2"><a class="reference internal" href="storescu.html">storescu</a></li>
 <li class="toctree-l2"><a class="reference internal" href="storescp.html">storescp</a></li>
+<li class="toctree-l2"><a class="reference internal" href="storescu.html">storescu</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="../changelog/index.html">Release Notes</a></li>
@@ -203,9 +204,9 @@
             
   <div class="section" id="getscu">
 <h1>getscu<a class="headerlink" href="#getscu" title="Permalink to this headline">¶</a></h1>
-<blockquote>
-<div><p><code class="docutils literal notranslate"><span class="pre">getscu.py</span> <span class="pre">[options]</span> <span class="pre">addr</span> <span class="pre">port</span> <span class="pre">(-k</span> <span class="pre">keyword</span> <span class="pre">and/or</span> <span class="pre">-f</span> <span class="pre">file-in)</span></code></p>
-</div></blockquote>
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>$ python -m pynetdicom getscu [options] addr port (-k keyword and/or -f file-in)
+</pre></div>
+</div>
 <div class="section" id="description">
 <h2>Description<a class="headerlink" href="#description" title="Permalink to this headline">¶</a></h2>
 <p>The <code class="docutils literal notranslate"><span class="pre">getscu</span></code> application implements a <em>Service Class User</em> (SCU) for
@@ -214,10 +215,13 @@ association with a peer Application Entity on IP address <code class="docutils l
 port <code class="docutils literal notranslate"><span class="pre">port</span></code> and once established, sends a query to be matched against the
 SCP’s managed SOP Instances. The SCP then responds by sending a copy of the
 matching SOP Instances to the Get SCU (i.e. it acts as a Store SCP).</p>
+</div>
+<div class="section" id="usage">
+<h2>Usage<a class="headerlink" href="#usage" title="Permalink to this headline">¶</a></h2>
 <p>The following example shows what happens when it is succesfully run on
-an SCP at IP 127.0.0.1 and listen port 11112 that supports the <em>QR Get
+an SCP at IP <code class="docutils literal notranslate"><span class="pre">127.0.0.1</span></code> and listen port <code class="docutils literal notranslate"><span class="pre">11112</span></code> that supports the <em>QR Get
 Service</em>:</p>
-<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>user@host: python getscu.py 127.0.0.1 11112 -k QueryRetrieveLevel=PATIENT -k PatientName=
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>$ python -m pynetdicom getscu 127.0.0.1 11112 -k QueryRetrieveLevel=PATIENT -k PatientName=
 I: Requesting Association
 I: Association Accepted
 I: Sending Get Request: MsgID 1
@@ -233,7 +237,6 @@ I: Sub-Operations Remaining: 0, Completed: 1, Failed: 0, Warning: 0
 I: Get SCP Result: 0x0000 (Success)
 I: Sub-Operations Remaining: 0, Completed: 1, Failed: 0, Warning: 0
 I: Releasing Association
-user@host:
 </pre></div>
 </div>
 </div>
@@ -283,7 +286,7 @@ or higher</p>
 <div class="section" id="query-information-model-options">
 <h3>Query Information Model Options<a class="headerlink" href="#query-information-model-options" title="Permalink to this headline">¶</a></h3>
 <dl class="simple">
-<dt><code class="docutils literal notranslate"><span class="pre">-P</span>&#160;&#160;&#160; <span class="pre">--patient</span></code></dt><dd><p>use patient root information model</p>
+<dt><code class="docutils literal notranslate"><span class="pre">-P</span>&#160;&#160;&#160; <span class="pre">--patient</span></code></dt><dd><p>use patient root information model (default)</p>
 </dd>
 <dt><code class="docutils literal notranslate"><span class="pre">-S</span>&#160;&#160;&#160; <span class="pre">--study</span></code></dt><dd><p>use study root information model</p>
 </dd>
@@ -298,7 +301,7 @@ or higher</p>
 (group,element) or the element’s keyword (such as PatientName).
 See the <em>keyword pathing</em> section for more information.</p>
 </dd>
-<dt><code class="docutils literal notranslate"><span class="pre">-f</span> <span class="pre">path</span> <span class="pre">to</span> <span class="pre">[f]ile</span></code></dt><dd><p>use a DICOM file as the query dataset, if used with <code class="docutils literal notranslate"><span class="pre">-k</span></code>
+<dt><code class="docutils literal notranslate"><span class="pre">-f</span> <span class="pre">path</span> <span class="pre">to</span> <span class="pre">[f]ile</span> <span class="pre">(str)</span></code></dt><dd><p>use a DICOM file as the query dataset, if used with <code class="docutils literal notranslate"><span class="pre">-k</span></code>
 then the elements will be added to or overwrite those
 present in the file</p>
 </dd>

@@ -211,9 +211,9 @@
             
   <div class="section" id="pynetdicom-pdu-primitives-implementationclassuidnotification">
 <h1>pynetdicom.pdu_primitives.ImplementationClassUIDNotification<a class="headerlink" href="#pynetdicom-pdu-primitives-implementationclassuidnotification" title="Permalink to this headline">¶</a></h1>
-<dl class="class">
+<dl class="py class">
 <dt id="pynetdicom.pdu_primitives.ImplementationClassUIDNotification">
-<em class="property">class </em><code class="sig-prename descclassname">pynetdicom.pdu_primitives.</code><code class="sig-name descname">ImplementationClassUIDNotification</code><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/f1a8062c/pynetdicom/pdu_primitives.py#L1117"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom.pdu_primitives.ImplementationClassUIDNotification" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="sig-prename descclassname">pynetdicom.pdu_primitives.</code><code class="sig-name descname">ImplementationClassUIDNotification</code><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/610a14c7/pynetdicom/pdu_primitives.py#L1117"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom.pdu_primitives.ImplementationClassUIDNotification" title="Permalink to this definition">¶</a></dt>
 <dd><p>A representation of a Implementation Class UID Notification primitive.</p>
 <p>The implementation identification notification allows implementations of
 communicating AEs to identify each other at association establishment time.
@@ -228,7 +228,7 @@ negotiation is required.</p>
 <p>The Implementation Class UID is required during association negotiation and
 there must only be a single <a class="reference internal" href="#pynetdicom.pdu_primitives.ImplementationClassUIDNotification" title="pynetdicom.pdu_primitives.ImplementationClassUIDNotification"><code class="xref py py-class docutils literal notranslate"><span class="pre">ImplementationClassUIDNotification</span></code></a>
 item.</p>
-<dl class="attribute">
+<dl class="py attribute">
 <dt id="pynetdicom.pdu_primitives.ImplementationClassUIDNotification.implementation_class_uid">
 <code class="sig-name descname">implementation_class_uid</code><a class="headerlink" href="#pynetdicom.pdu_primitives.ImplementationClassUIDNotification.implementation_class_uid" title="Permalink to this definition">¶</a></dt>
 <dd><p>The UID to use.</p>
@@ -251,9 +251,9 @@ item.</p>
 <ul class="simple">
 <li><p>DICOM Standard, Part 7, <a class="reference external" href="http://dicom.nema.org/medical/dicom/current/output/chtml/part07/sect_D.3.3.2.html">Annex D.3.3.2</a></p></li>
 </ul>
-<dl class="method">
+<dl class="py method">
 <dt id="pynetdicom.pdu_primitives.ImplementationClassUIDNotification.__init__">
-<code class="sig-name descname">__init__</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/f1a8062c/pynetdicom/pdu_primitives.py#L1154"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom.pdu_primitives.ImplementationClassUIDNotification.__init__" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">__init__</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/610a14c7/pynetdicom/pdu_primitives.py#L1154"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom.pdu_primitives.ImplementationClassUIDNotification.__init__" title="Permalink to this definition">¶</a></dt>
 <dd><p>Initialize self.  See help(type(self)) for accurate signature.</p>
 </dd></dl>
 
@@ -279,14 +279,14 @@ item.</p>
 <col style="width: 90%" />
 </colgroup>
 <tbody>
-<tr class="row-odd"><td><p><a class="reference internal" href="#pynetdicom.pdu_primitives.ImplementationClassUIDNotification.implementation_class_uid" title="pynetdicom.pdu_primitives.ImplementationClassUIDNotification.implementation_class_uid"><code class="xref py py-obj docutils literal notranslate"><span class="pre">implementation_class_uid</span></code></a></p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#id0" title="pynetdicom.pdu_primitives.ImplementationClassUIDNotification.implementation_class_uid"><code class="xref py py-obj docutils literal notranslate"><span class="pre">implementation_class_uid</span></code></a></p></td>
 <td><p>Return the <em>Implementation Class UID</em>.</p></td>
 </tr>
 </tbody>
 </table>
-<dl class="method">
+<dl class="py method">
 <dt id="pynetdicom.pdu_primitives.ImplementationClassUIDNotification.from_primitive">
-<code class="sig-name descname">from_primitive</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/f1a8062c/pynetdicom/pdu_primitives.py#L1157"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom.pdu_primitives.ImplementationClassUIDNotification.from_primitive" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">from_primitive</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/610a14c7/pynetdicom/pdu_primitives.py#L1157"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom.pdu_primitives.ImplementationClassUIDNotification.from_primitive" title="Permalink to this definition">¶</a></dt>
 <dd><p>Convert the primitive to a PDU item ready to be encoded.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Returns</dt>
@@ -301,9 +301,9 @@ item.</p>
 </dl>
 </dd></dl>
 
-<dl class="method">
-<dt>
-<em class="property">property </em><code class="sig-name descname">implementation_class_uid</code></dt>
+<dl class="py method">
+<dt id="id0">
+<em class="property">property </em><code class="sig-name descname">implementation_class_uid</code><a class="headerlink" href="#id0" title="Permalink to this definition">¶</a></dt>
 <dd><p>Return the <em>Implementation Class UID</em>.</p>
 </dd></dl>
 

@@ -38,7 +38,7 @@
   <link rel="stylesheet" href="../_static/css/pynetdicom.css" type="text/css" />
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
-    <link rel="next" title="storescu" href="storescu.html" />
+    <link rel="next" title="storescp" href="storescp.html" />
     <link rel="prev" title="getscu" href="getscu.html" /> 
 </head>
 
@@ -103,12 +103,13 @@
 <p class="caption"><span class="caption-text">Additional Information</span></p>
 <ul class="current">
 <li class="toctree-l1 current"><a class="reference internal" href="index.html">Applications</a><ul class="current">
-<li class="toctree-l2"><a class="reference internal" href="echoscu.html">echoscu</a></li>
 <li class="toctree-l2"><a class="reference internal" href="echoscp.html">echoscp</a></li>
+<li class="toctree-l2"><a class="reference internal" href="echoscu.html">echoscu</a></li>
 <li class="toctree-l2"><a class="reference internal" href="findscu.html">findscu</a></li>
 <li class="toctree-l2"><a class="reference internal" href="getscu.html">getscu</a></li>
 <li class="toctree-l2 current"><a class="current reference internal" href="#">movescu</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="#description">Description</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#usage">Usage</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#parameters">Parameters</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#options">Options</a><ul>
 <li class="toctree-l4"><a class="reference internal" href="#general-options">General Options</a></li>
@@ -130,8 +131,8 @@
 </li>
 </ul>
 </li>
-<li class="toctree-l2"><a class="reference internal" href="storescu.html">storescu</a></li>
 <li class="toctree-l2"><a class="reference internal" href="storescp.html">storescp</a></li>
+<li class="toctree-l2"><a class="reference internal" href="storescu.html">storescu</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="../changelog/index.html">Release Notes</a></li>
@@ -204,9 +205,9 @@
             
   <div class="section" id="movescu">
 <h1>movescu<a class="headerlink" href="#movescu" title="Permalink to this headline">¶</a></h1>
-<blockquote>
-<div><p><code class="docutils literal notranslate"><span class="pre">movescu.py</span> <span class="pre">[options]</span> <span class="pre">addr</span> <span class="pre">port</span> <span class="pre">(-k</span> <span class="pre">keyword</span> <span class="pre">and/or</span> <span class="pre">-f</span> <span class="pre">file-in)</span></code></p>
-</div></blockquote>
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>$ python -m pynetdicom movescu [options] addr port (-k keyword and/or -f file-in)
+</pre></div>
+</div>
 <div class="section" id="description">
 <h2>Description<a class="headerlink" href="#description" title="Permalink to this headline">¶</a></h2>
 <p>The <code class="docutils literal notranslate"><span class="pre">movescu</span></code> application implements a <em>Service Class User</em> (SCU) for
@@ -215,10 +216,13 @@ association with a peer Application Entity on IP address <code class="docutils l
 port <code class="docutils literal notranslate"><span class="pre">port</span></code> and once established, sends a query to be matched against the
 SCP’s managed SOP Instances. The SCP then responds by sending a copy of the
 matching SOP Instances to the Store SCP specified using the Move AE title.</p>
+</div>
+<div class="section" id="usage">
+<h2>Usage<a class="headerlink" href="#usage" title="Permalink to this headline">¶</a></h2>
 <p>The following example shows what happens when it is succesfully run on
-an SCP at IP 127.0.0.1 and listen port 11112 that supports the <em>QR Move
+an SCP at IP <code class="docutils literal notranslate"><span class="pre">127.0.0.1</span></code> and listen port <code class="docutils literal notranslate"><span class="pre">11112</span></code> that supports the <em>QR Move
 Service</em> with the default Move AE title <code class="docutils literal notranslate"><span class="pre">STORESCP</span></code>:</p>
-<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>user@host: python movescu.py 127.0.0.1 11112 -k QueryRetrieveLevel=PATIENT -k PatientName=
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>$ python -m pynetdicom movescu 127.0.0.1 11112 -k QueryRetrieveLevel=PATIENT -k PatientName=
 I: Requesting Association
 I: Association Accepted
 I: Sending Move Request: MsgID 1
@@ -232,7 +236,6 @@ I: Sub-Operations Remaining: 0, Completed: 1, Failed: 0, Warning: 0
 I: Move SCP Result: 0x0000 (Success)
 I: Sub-Operations Remaining: 0, Completed: 1, Failed: 0, Warning: 0
 I: Releasing Association
-user@host:
 </pre></div>
 </div>
 <p>The Move AE title can be specified using the <code class="docutils literal notranslate"><span class="pre">-aem</span> <span class="pre">aetitle</span></code> flag.</p>
@@ -240,7 +243,7 @@ user@host:
 <code class="docutils literal notranslate"><span class="pre">11113</span></code> that can be used as the move destination. The AE title and port of
 the Store SCP can be configured using the <code class="docutils literal notranslate"><span class="pre">--store-aet</span></code> and
 <code class="docutils literal notranslate"><span class="pre">--store-port</span></code> flags:</p>
-<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>user@host: python movescu.py 127.0.0.1 11112 -k QueryRetrieveLevel=PATIENT -k PatientName= --store
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>$ python -m pynetdicom movescu 127.0.0.1 11112 -k QueryRetrieveLevel=PATIENT -k PatientName= --store
 I: Requesting Association
 I: Association Accepted
 I: Sending Move Request: MsgID 1
@@ -259,7 +262,6 @@ I: Sub-Operations Remaining: 0, Completed: 1, Failed: 0, Warning: 0
 I: Move SCP Result: 0x0000 (Success)
 I: Sub-Operations Remaining: 0, Completed: 1, Failed: 0, Warning: 0
 I: Releasing Association
-user@host:
 </pre></div>
 </div>
 </div>
@@ -322,7 +324,7 @@ or higher</p>
 <div class="section" id="query-information-model-options">
 <h3>Query Information Model Options<a class="headerlink" href="#query-information-model-options" title="Permalink to this headline">¶</a></h3>
 <dl class="simple">
-<dt><code class="docutils literal notranslate"><span class="pre">-P</span>&#160;&#160;&#160; <span class="pre">--patient</span></code></dt><dd><p>use patient root information model</p>
+<dt><code class="docutils literal notranslate"><span class="pre">-P</span>&#160;&#160;&#160; <span class="pre">--patient</span></code></dt><dd><p>use patient root information model (default)</p>
 </dd>
 <dt><code class="docutils literal notranslate"><span class="pre">-S</span>&#160;&#160;&#160; <span class="pre">--study</span></code></dt><dd><p>use study root information model</p>
 </dd>
@@ -346,7 +348,7 @@ present in the file</p>
 <div class="section" id="output-options">
 <h3>Output Options<a class="headerlink" href="#output-options" title="Permalink to this headline">¶</a></h3>
 <dl class="simple">
-<dt><code class="docutils literal notranslate"><span class="pre">-od</span> <span class="pre">[d]irectory,</span> <span class="pre">--output-directory</span> <span class="pre">[d]irectory</span> <span class="pre">(strS)</span></code></dt><dd><p>write received objects to directory <code class="docutils literal notranslate"><span class="pre">d</span></code> (with <code class="docutils literal notranslate"><span class="pre">--store</span></code>)</p>
+<dt><code class="docutils literal notranslate"><span class="pre">-od</span> <span class="pre">[d]irectory,</span> <span class="pre">--output-directory</span> <span class="pre">[d]irectory</span> <span class="pre">(str)</span></code></dt><dd><p>write received objects to directory <code class="docutils literal notranslate"><span class="pre">d</span></code> (with <code class="docutils literal notranslate"><span class="pre">--store</span></code>)</p>
 </dd>
 <dt><code class="docutils literal notranslate"><span class="pre">--ignore</span></code></dt><dd><p>receive data but don’t store it (with <code class="docutils literal notranslate"><span class="pre">--store</span></code>)</p>
 </dd>
@@ -1061,7 +1063,7 @@ Prediction (Process 14 [Selection Value 1])</p></td>
   
     <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
       
-        <a href="storescu.html" class="btn btn-neutral float-right" title="storescu" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
+        <a href="storescp.html" class="btn btn-neutral float-right" title="storescp" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
       
       
         <a href="getscu.html" class="btn btn-neutral float-left" title="getscu" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>

@@ -205,9 +205,9 @@
             
   <div class="section" id="pynetdicom-dimse-primitives-n-event-report">
 <h1>pynetdicom.dimse_primitives.N_EVENT_REPORT<a class="headerlink" href="#pynetdicom-dimse-primitives-n-event-report" title="Permalink to this headline">¶</a></h1>
-<dl class="class">
+<dl class="py class">
 <dt id="pynetdicom.dimse_primitives.N_EVENT_REPORT">
-<em class="property">class </em><code class="sig-prename descclassname">pynetdicom.dimse_primitives.</code><code class="sig-name descname">N_EVENT_REPORT</code><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/f1a8062c/pynetdicom/dimse_primitives.py#L1376"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom.dimse_primitives.N_EVENT_REPORT" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="sig-prename descclassname">pynetdicom.dimse_primitives.</code><code class="sig-name descname">N_EVENT_REPORT</code><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/610a14c7/pynetdicom/dimse_primitives.py#L1376"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom.dimse_primitives.N_EVENT_REPORT" title="Permalink to this definition">¶</a></dt>
 <dd><p>Represents a N-EVENT-REPORT primitive.</p>
 <table class="docutils align-default">
 <colgroup>
@@ -265,7 +265,7 @@ in the column to the left</div>
 <div class="line">U - The use of this parameter is a DIMSE service user option</div>
 <div class="line">UF - User option with a fixed value</div>
 </div>
-<dl class="attribute">
+<dl class="py attribute">
 <dt id="pynetdicom.dimse_primitives.N_EVENT_REPORT.MessageID">
 <code class="sig-name descname">MessageID</code><a class="headerlink" href="#pynetdicom.dimse_primitives.N_EVENT_REPORT.MessageID" title="Permalink to this definition">¶</a></dt>
 <dd><p>Identifies the operation and is used to distinguish this
@@ -279,7 +279,7 @@ outstanding operations.</p>
 </dl>
 </dd></dl>
 
-<dl class="attribute">
+<dl class="py attribute">
 <dt id="pynetdicom.dimse_primitives.N_EVENT_REPORT.MessageIDBeingRespondedTo">
 <code class="sig-name descname">MessageIDBeingRespondedTo</code><a class="headerlink" href="#pynetdicom.dimse_primitives.N_EVENT_REPORT.MessageIDBeingRespondedTo" title="Permalink to this definition">¶</a></dt>
 <dd><p>The Message ID of the operation request/indication to which this
@@ -291,7 +291,7 @@ response/confirmation applies.</p>
 </dl>
 </dd></dl>
 
-<dl class="attribute">
+<dl class="py attribute">
 <dt id="pynetdicom.dimse_primitives.N_EVENT_REPORT.AffectedSOPClassUID">
 <code class="sig-name descname">AffectedSOPClassUID</code><a class="headerlink" href="#pynetdicom.dimse_primitives.N_EVENT_REPORT.AffectedSOPClassUID" title="Permalink to this definition">¶</a></dt>
 <dd><p>For the request/indication this specifies the SOP Class for
@@ -304,7 +304,7 @@ to the value in the request/indication</p>
 </dl>
 </dd></dl>
 
-<dl class="attribute">
+<dl class="py attribute">
 <dt id="pynetdicom.dimse_primitives.N_EVENT_REPORT.AffectedSOPInstanceUID">
 <code class="sig-name descname">AffectedSOPInstanceUID</code><a class="headerlink" href="#pynetdicom.dimse_primitives.N_EVENT_REPORT.AffectedSOPInstanceUID" title="Permalink to this definition">¶</a></dt>
 <dd><p>For the request/indication this specifies the SOP Instance
@@ -317,7 +317,7 @@ equal to the value in the request/indication</p>
 </dl>
 </dd></dl>
 
-<dl class="attribute">
+<dl class="py attribute">
 <dt id="pynetdicom.dimse_primitives.N_EVENT_REPORT.EventTypeID">
 <code class="sig-name descname">EventTypeID</code><a class="headerlink" href="#pynetdicom.dimse_primitives.N_EVENT_REPORT.EventTypeID" title="Permalink to this definition">¶</a></dt>
 <dd><p>The type of event being reported, depends on the Service Class
@@ -329,7 +329,7 @@ specification. Shall be included if Event Reply is included.</p>
 </dl>
 </dd></dl>
 
-<dl class="attribute">
+<dl class="py attribute">
 <dt id="pynetdicom.dimse_primitives.N_EVENT_REPORT.EventInformation">
 <code class="sig-name descname">EventInformation</code><a class="headerlink" href="#pynetdicom.dimse_primitives.N_EVENT_REPORT.EventInformation" title="Permalink to this definition">¶</a></dt>
 <dd><p>Contains information the invoking DIMSE user is able to supply about
@@ -342,7 +342,7 @@ Class specific information related to the operation.</p>
 </dl>
 </dd></dl>
 
-<dl class="attribute">
+<dl class="py attribute">
 <dt id="pynetdicom.dimse_primitives.N_EVENT_REPORT.EventReply">
 <code class="sig-name descname">EventReply</code><a class="headerlink" href="#pynetdicom.dimse_primitives.N_EVENT_REPORT.EventReply" title="Permalink to this definition">¶</a></dt>
 <dd><p>Contains the optional reply to the event report. An encoded DICOM
@@ -354,7 +354,7 @@ dataset containing additional Service Class specific information.</p>
 </dl>
 </dd></dl>
 
-<dl class="attribute">
+<dl class="py attribute">
 <dt id="pynetdicom.dimse_primitives.N_EVENT_REPORT.Status">
 <code class="sig-name descname">Status</code><a class="headerlink" href="#pynetdicom.dimse_primitives.N_EVENT_REPORT.Status" title="Permalink to this definition">¶</a></dt>
 <dd><p>The error or success notification of the operation.</p>
@@ -365,9 +365,9 @@ dataset containing additional Service Class specific information.</p>
 </dl>
 </dd></dl>
 
-<dl class="method">
+<dl class="py method">
 <dt id="pynetdicom.dimse_primitives.N_EVENT_REPORT.__init__">
-<code class="sig-name descname">__init__</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/f1a8062c/pynetdicom/dimse_primitives.py#L1448"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom.dimse_primitives.N_EVENT_REPORT.__init__" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">__init__</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/610a14c7/pynetdicom/dimse_primitives.py#L1448"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom.dimse_primitives.N_EVENT_REPORT.__init__" title="Permalink to this definition">¶</a></dt>
 <dd><p>Initialize self.  See help(type(self)) for accurate signature.</p>
 </dd></dl>
 
@@ -393,16 +393,16 @@ dataset containing additional Service Class specific information.</p>
 <tr class="row-odd"><td><p><a class="reference internal" href="#pynetdicom.dimse_primitives.N_EVENT_REPORT.AffectedSOPClassUID" title="pynetdicom.dimse_primitives.N_EVENT_REPORT.AffectedSOPClassUID"><code class="xref py py-obj docutils literal notranslate"><span class="pre">AffectedSOPClassUID</span></code></a></p></td>
 <td><p>Return the <em>Affected SOP Class UID</em> as <a class="reference external" href="https://pydicom.github.io/pydicom/stable/reference/generated/pydicom.uid.UID.html#pydicom.uid.UID" title="(in pydicom v1.4.2)"><code class="xref py py-class docutils literal notranslate"><span class="pre">UID</span></code></a>.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#pynetdicom.dimse_primitives.N_EVENT_REPORT.AffectedSOPInstanceUID" title="pynetdicom.dimse_primitives.N_EVENT_REPORT.AffectedSOPInstanceUID"><code class="xref py py-obj docutils literal notranslate"><span class="pre">AffectedSOPInstanceUID</span></code></a></p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#id0" title="pynetdicom.dimse_primitives.N_EVENT_REPORT.AffectedSOPInstanceUID"><code class="xref py py-obj docutils literal notranslate"><span class="pre">AffectedSOPInstanceUID</span></code></a></p></td>
 <td><p>Return the <em>Affected SOP Instance UID</em> as <a class="reference external" href="https://pydicom.github.io/pydicom/stable/reference/generated/pydicom.uid.UID.html#pydicom.uid.UID" title="(in pydicom v1.4.2)"><code class="xref py py-class docutils literal notranslate"><span class="pre">UID</span></code></a>.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#pynetdicom.dimse_primitives.N_EVENT_REPORT.EventInformation" title="pynetdicom.dimse_primitives.N_EVENT_REPORT.EventInformation"><code class="xref py py-obj docutils literal notranslate"><span class="pre">EventInformation</span></code></a></p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#id1" title="pynetdicom.dimse_primitives.N_EVENT_REPORT.EventInformation"><code class="xref py py-obj docutils literal notranslate"><span class="pre">EventInformation</span></code></a></p></td>
 <td><p>Return the <em>Event Information</em> as <a class="reference external" href="https://docs.python.org/3/library/io.html#io.BytesIO" title="(in Python v3.8)"><code class="xref py py-class docutils literal notranslate"><span class="pre">io.BytesIO</span></code></a>.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#pynetdicom.dimse_primitives.N_EVENT_REPORT.EventReply" title="pynetdicom.dimse_primitives.N_EVENT_REPORT.EventReply"><code class="xref py py-obj docutils literal notranslate"><span class="pre">EventReply</span></code></a></p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#id2" title="pynetdicom.dimse_primitives.N_EVENT_REPORT.EventReply"><code class="xref py py-obj docutils literal notranslate"><span class="pre">EventReply</span></code></a></p></td>
 <td><p>Return the <em>Event Reply</em> as <a class="reference external" href="https://docs.python.org/3/library/io.html#io.BytesIO" title="(in Python v3.8)"><code class="xref py py-class docutils literal notranslate"><span class="pre">io.BytesIO</span></code></a>.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#pynetdicom.dimse_primitives.N_EVENT_REPORT.EventTypeID" title="pynetdicom.dimse_primitives.N_EVENT_REPORT.EventTypeID"><code class="xref py py-obj docutils literal notranslate"><span class="pre">EventTypeID</span></code></a></p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#id3" title="pynetdicom.dimse_primitives.N_EVENT_REPORT.EventTypeID"><code class="xref py py-obj docutils literal notranslate"><span class="pre">EventTypeID</span></code></a></p></td>
 <td><p>Return the <em>Event Type ID</em> as <a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.8)"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></a>.</p></td>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="#pynetdicom.dimse_primitives.N_EVENT_REPORT.MessageID" title="pynetdicom.dimse_primitives.N_EVENT_REPORT.MessageID"><code class="xref py py-obj docutils literal notranslate"><span class="pre">MessageID</span></code></a></p></td>
@@ -434,27 +434,27 @@ dataset containing additional Service Class specific information.</p>
 </tr>
 </tbody>
 </table>
-<dl class="method">
-<dt>
-<em class="property">property </em><code class="sig-name descname">AffectedSOPInstanceUID</code></dt>
+<dl class="py method">
+<dt id="id0">
+<em class="property">property </em><code class="sig-name descname">AffectedSOPInstanceUID</code><a class="headerlink" href="#id0" title="Permalink to this definition">¶</a></dt>
 <dd><p>Return the <em>Affected SOP Instance UID</em> as <a class="reference external" href="https://pydicom.github.io/pydicom/stable/reference/generated/pydicom.uid.UID.html#pydicom.uid.UID" title="(in pydicom v1.4.2)"><code class="xref py py-class docutils literal notranslate"><span class="pre">UID</span></code></a>.</p>
 </dd></dl>
 
-<dl class="method">
-<dt>
-<em class="property">property </em><code class="sig-name descname">EventInformation</code></dt>
+<dl class="py method">
+<dt id="id1">
+<em class="property">property </em><code class="sig-name descname">EventInformation</code><a class="headerlink" href="#id1" title="Permalink to this definition">¶</a></dt>
 <dd><p>Return the <em>Event Information</em> as <a class="reference external" href="https://docs.python.org/3/library/io.html#io.BytesIO" title="(in Python v3.8)"><code class="xref py py-class docutils literal notranslate"><span class="pre">io.BytesIO</span></code></a>.</p>
 </dd></dl>
 
-<dl class="method">
-<dt>
-<em class="property">property </em><code class="sig-name descname">EventReply</code></dt>
+<dl class="py method">
+<dt id="id2">
+<em class="property">property </em><code class="sig-name descname">EventReply</code><a class="headerlink" href="#id2" title="Permalink to this definition">¶</a></dt>
 <dd><p>Return the <em>Event Reply</em> as <a class="reference external" href="https://docs.python.org/3/library/io.html#io.BytesIO" title="(in Python v3.8)"><code class="xref py py-class docutils literal notranslate"><span class="pre">io.BytesIO</span></code></a>.</p>
 </dd></dl>
 
-<dl class="method">
-<dt>
-<em class="property">property </em><code class="sig-name descname">EventTypeID</code></dt>
+<dl class="py method">
+<dt id="id3">
+<em class="property">property </em><code class="sig-name descname">EventTypeID</code><a class="headerlink" href="#id3" title="Permalink to this definition">¶</a></dt>
 <dd><p>Return the <em>Event Type ID</em> as <a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.8)"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></a>.</p>
 </dd></dl>
 
