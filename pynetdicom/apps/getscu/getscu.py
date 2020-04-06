@@ -137,7 +137,7 @@ def _setup_argparser():
     qr_model = qr_group.add_mutually_exclusive_group()
     qr_model.add_argument(
         "-P", "--patient",
-        help="use patient root information model",
+        help="use patient root information model (default)",
         action="store_true"
     )
     qr_model.add_argument(
@@ -196,7 +196,11 @@ def _setup_argparser():
     return ns
 
 
-if __name__ == "__main__":
+def main(args=None):
+    """Run the application."""
+    if args is not None:
+        sys.argv = args
+
     args = _setup_argparser()
 
     if args.version:
@@ -278,3 +282,7 @@ if __name__ == "__main__":
         assoc.release()
     else:
         sys.exit(1)
+
+
+if __name__ == "__main__":
+    main()

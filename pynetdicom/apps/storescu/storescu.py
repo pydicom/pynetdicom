@@ -33,7 +33,7 @@ def _setup_argparser():
             "file on the command line it sends a C-STORE message to a "
             "Storage Service Class Provider (SCP) and waits for a response."
         ),
-        usage="storescu [options] addr port dcmfile"
+        usage="storescu [options] addr port path"
     )
 
     # Parameters
@@ -43,7 +43,7 @@ def _setup_argparser():
     )
     req_opts.add_argument("port", help="TCP/IP port number of peer", type=int)
     req_opts.add_argument(
-        "dcmfile", metavar="dcmfile", nargs='+',
+        "path", metavar="path", nargs='+',
         help="DICOM file or directory to be transmitted",
         type=str
     )
@@ -209,7 +209,11 @@ def get_contexts(fpaths):
     return good, contexts
 
 
-if __name__ == "__main__":
+def main(args=None):
+    """Run the application."""
+    if args is not None:
+        sys.argv = args
+
     args = _setup_argparser()
 
     if args.version:
@@ -220,7 +224,7 @@ if __name__ == "__main__":
     APP_LOGGER.debug('storescu.py v{0!s}'.format(__version__))
     APP_LOGGER.debug('')
 
-    lfiles, badfiles = get_files(args.dcmfile, args.recurse)
+    lfiles, badfiles = get_files(args.path, args.recurse)
 
     for bad in badfiles:
         APP_LOGGER.error("Cannot access path: {}".format(bad))
@@ -288,3 +292,7 @@ if __name__ == "__main__":
         assoc.release()
     else:
         sys.exit(1)
+
+
+if __name__ == "__main__":
+    main()

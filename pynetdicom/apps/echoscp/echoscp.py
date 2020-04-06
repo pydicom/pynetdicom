@@ -153,7 +153,11 @@ def handle_echo(event):
     return 0x0000
 
 
-if __name__ == "__main__":
+def main(args=None):
+    """Run the application."""
+    if args is not None:
+        sys.argv = args
+
     args = _setup_argparser()
 
     if args.version:
@@ -190,3 +194,7 @@ if __name__ == "__main__":
     ae.dimse_timeout = args.dimse_timeout
 
     ae.start_server((args.bind_address, args.port), evt_handlers=handlers)
+
+
+if __name__ == "__main__":
+    main()
