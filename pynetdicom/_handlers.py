@@ -194,7 +194,7 @@ def standard_dimse_sent_handler(event):
 def _receive_abort_pdu(event):
     """Standard logging handler for receiving an A-ABORT PDU."""
     s = ['Abort Parameters:']
-    s.append('{:=^76}'.format(' BEGIN A-ABORT PDU '))
+    s.append('{:=^76}'.format(' INCOMING A-ABORT PDU '))
     s.append('Abort Source: {0!s}'.format(event.pdu.source_str))
     s.append('Abort Reason: {0!s}'.format(event.pdu.reason_str))
     s.append('{:=^76}'.format(' END A-ABORT PDU '))
@@ -226,7 +226,7 @@ def _receive_associate_ac(event):
         their_version = user_info.implementation_version_name
 
     s = ['Accept Parameters:']
-    s.append('{:=^76}'.format(' BEGIN A-ASSOCIATE-AC PDU '))
+    s.append('{:=^76}'.format(' INCOMING A-ASSOCIATE-AC PDU '))
     s.append('Their Implementation Class UID:    {0!s}'
              .format(their_class_uid))
     s.append('Their Implementation Version Name: {0!s}'
@@ -309,7 +309,7 @@ def _receive_associate_ac(event):
 def _receive_associate_rj(event):
     """Standard logging handler for receiving an A-ASSOCIATE-RJ PDU."""
     s = ['Reject Parameters:']
-    s.append('{:=^76}'.format(' BEGIN A-ASSOCIATE-RJ PDU '))
+    s.append('{:=^76}'.format(' INCOMING A-ASSOCIATE-RJ PDU '))
     s.append('Result:    {0!s}'.format(event.pdu.result_str))
     s.append('Source:    {0!s}'.format(event.pdu.source_str))
     s.append('Reason:    {0!s}'.format(event.pdu.reason_str))
@@ -338,7 +338,7 @@ def _receive_associate_rq(event):
         their_version = user_info.implementation_version_name
 
     s = ['Request Parameters:']
-    s.append('{:=^76}'.format(' BEGIN A-ASSOCIATE-RQ PDU '))
+    s.append('{:=^76}'.format(' INCOMING A-ASSOCIATE-RQ PDU '))
     s.append('Their Implementation Class UID:      {0!s}'
              .format(their_class_uid))
     s.append('Their Implementation Version Name:   {0!s}'
@@ -499,7 +499,7 @@ def _receive_release_rq(event):
 def _send_abort(event):
     """Standard logging handler for sending an A-ABORT PDU."""
     s = ['Abort Parameters:']
-    s.append('{:=^76}'.format(' BEGIN A-ABORT PDU '))
+    s.append('{:=^76}'.format(' OUTGOING A-ABORT PDU '))
     s.append('Abort Source: {0!s}'.format(event.pdu.source_str))
     s.append('Abort Reason: {0!s}'.format(event.pdu.reason_str))
     s.append('{:=^76}'.format(' END A-ABORT PDU '))
@@ -524,7 +524,7 @@ def _send_associate_ac(event):
     responding_ae = 'resp. AE Title'
 
     s = ['Accept Parameters:']
-    s.append('{:=^76}'.format(' BEGIN A-ASSOCIATE-AC PDU '))
+    s.append('{:=^76}'.format(' OUTGOING A-ASSOCIATE-AC PDU '))
     s.append('Our Implementation Class UID:      '
              '{0!s}'.format(user_info.implementation_class_uid))
 
@@ -608,7 +608,7 @@ def _send_associate_ac(event):
 def _send_associate_rj(event):
     """Standard logging handler for sending an A-ASSOCIATE-RJ PDU."""
     s = ['Reject Parameters:']
-    s.append('{:=^76}'.format(' BEGIN A-ASSOCIATE-RJ PDU '))
+    s.append('{:=^76}'.format(' OUTGOING A-ASSOCIATE-RJ PDU '))
     s.append('Result:    {0!s}'.format(event.pdu.result_str))
     s.append('Source:    {0!s}'.format(event.pdu.source_str))
     s.append('Reason:    {0!s}'.format(event.pdu.reason_str))
@@ -626,7 +626,7 @@ def _send_associate_rq(event):
     user_info = pdu.user_information
 
     s = ['Request Parameters:']
-    s.append('{:=^76}'.format(' BEGIN A-ASSOCIATE-RQ PDU '))
+    s.append('{:=^76}'.format(' OUTGOING A-ASSOCIATE-RQ PDU '))
 
     s.append('Our Implementation Class UID:      '
              '{0!s}'.format(user_info.implementation_class_uid))
