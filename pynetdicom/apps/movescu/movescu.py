@@ -221,6 +221,7 @@ def _setup_argparser():
 
 
 def main(args=None):
+    """Run the application."""
     if args is not None:
         sys.argv = args
 

@@ -12,8 +12,7 @@ In this tutorial you'll:
 
 * Learn about DICOM Data Sets and the DICOM File Format
 * Create a new Storage SCP application using *pynetdicom*
-* Learn about the event-handler system used by *pynetdicom* and add handlers
-  to your SCP
+* Learn about the event-handler system and add handlers to your SCP
 * Send datasets to your SCP using *pynetdicom's*
   :doc:`storescu<../apps/storescu>` application
 
@@ -26,17 +25,23 @@ also be using the :doc:`storescu<../apps/storescu>` application that comes with
 The Data Set
 ============
 
+This tutorial is about creating an SCP for the DICOM :dcm:`storage service
+<part04/chapter_B.html>`, which is used to transfer DICOM
+:dcm:`Data Sets<part05/chapter_7.html>` from one AE to another. A Data Set,
+which from now on we'll just refer to as a *dataset*, is a collection of Data
+Elements, or *elements*. When the combination of elements in the dataset
+follows one of the definitions in Part 3 of the Standard then the dataset is
+also referred to as an *Information Object* (and the definition is an
+*Information Object Definition*, or IOD)
 
-
-A DICOM :dcm:`Data Set<part05/chapter_7.html>`, which from now on we'll just
-refer to as a *dataset*, is a collection of Data Elements. Each Data Element, or
-*element* for short, is a formalised description of a value. Some examples of
-elements are the *Transfer Syntax UID*, which contains the value of
+An element is simply a formalised description of some
+value. Some examples are the *Transfer Syntax UID*, which contains the value of
 the transfer syntax used to encode a dataset, *Pixel Data* which (usually)
 contains image data, and *Patient's Name*, which - surprise! - contains a
-patient's name. The DICOM Standard contains :dcm:` thousands of official
+patient's name. The DICOM Standard contains :dcm:`thousands of official
 elements<part06/chapter_6.html>`, and if that's not enough you can also
 create private ones.
+
 
 Part 3 of the DICOM Standard contains a bunch of official dataset definitions,
 

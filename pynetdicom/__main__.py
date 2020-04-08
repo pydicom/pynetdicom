@@ -1,4 +1,4 @@
-"""Invoke the apps using ``python -m pynetdicom [appname] [options]``"""
+"""CLI interface for pynetdicom"""
 
 import importlib
 import sys

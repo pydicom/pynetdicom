@@ -38,7 +38,7 @@ When a peer AE attempts to send non C-ECHO message:
 
 .. code-block:: text
 
-    $ python -m pynetdicom echoscp 192.168.2.1 11112 -v
+    $ python -m pynetdicom echoscp 11112 -v
     I: Accepting Association
     I: Association Aborted
 

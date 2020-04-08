@@ -116,6 +116,7 @@ Miscellaneous
 ``--no-echo``
             don't act as a verification SCP
 
+
 DICOM Conformance
 =================
 The ``storescp`` application supports the Verification (unless ``--no-echo``

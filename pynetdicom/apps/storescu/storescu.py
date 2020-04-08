@@ -166,7 +166,7 @@ def _setup_argparser():
     return parser.parse_args()
 
 
-def get_contexts(fpaths):
+def get_contexts(fpaths, app_logger):
     """Return the valid DICOM files and their context values.
 
     Parameters
@@ -204,7 +204,7 @@ def get_contexts(fpaths):
         good.append(fpath)
 
     for (reason, fpath) in bad:
-        APP_LOGGER.error("{}: {}".format(reason, fpath))
+        app_logger.error("{}: {}".format(reason, fpath))
 
     return good, contexts
 
@@ -236,7 +236,7 @@ def main(args=None):
 
     if args.required_contexts:
         # Only propose required presentation contexts
-        lfiles, contexts = get_contexts(lfiles)
+        lfiles, contexts = get_contexts(lfiles, APP_LOGGER)
         if len(contexts) > 128:
             raise ValueError(
                 "More than 128 presentation contexts required with the "
