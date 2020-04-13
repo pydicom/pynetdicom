@@ -520,12 +520,14 @@ class Event(object):
         *Data Set* to it. This skips having to decode/re-encode the *Data Set*
         as in the previous example.
 
-        >>> from pydicom.filewriter import write_file_meta_info
-        >>> with open('example.dcm', 'wb') as fp:
-        ...     fp.write(b'\x00' * 128)
-        ...     fp.write(b'DICM')
-        ...     write_file_meta_info(fp, event.file_meta)
-        ...     fp.write(event.request.DataSet.getvalue())
+        .. code-block:: python
+
+            >>> from pydicom.filewriter import write_file_meta_info
+            >>> with open('example.dcm', 'wb') as f:
+            ...     f.write(b'\x00' * 128)
+            ...     f.write(b'DICM')
+            ...     write_file_meta_info(f, event.file_meta)
+            ...     f.write(event.request.DataSet.getvalue())
 
         Returns
         -------

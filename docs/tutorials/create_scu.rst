@@ -128,7 +128,7 @@ Create an Application Entity and associate
 ==========================================
 
 Next we're going to make a new application entity and request an association
-with the Echo SCP. Create a new file ``create_scu.py``, open it in a text
+with the Echo SCP. Create a new file ``my_scu.py``, open it in a text
 editor and add the following:
 
 .. code-block:: python
@@ -221,7 +221,7 @@ run the file:
 
 .. code-block:: text
 
-    $ python create_scu.py
+    $ python my_scu.py
 
 If everything worked correctly, you should see:
 
@@ -263,12 +263,12 @@ sent to the terminal by calling :func:`~debug_logger`:
     if assoc.is_established:
         assoc.release()
 
-If you save the changes and run ``create_scu.py`` again you'll see much more
+If you save the changes and run ``my_scu.py`` again you'll see much more
 information:
 
 .. code-block:: text
 
-    $ python create_scu.py
+    $ python my_scu.py
     I: Requesting Association
     D: Request Parameters:
     D: ========================= BEGIN A-ASSOCIATE-RQ PDU =========================

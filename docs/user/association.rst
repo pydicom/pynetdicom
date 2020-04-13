@@ -73,6 +73,8 @@ per-association basis you can use the *contexts* keyword argument:
     if assoc.is_established:
         assoc.release()
 
+.. _user_assoc_extneg:
+
 Using Extended Negotiation
 ..........................
 

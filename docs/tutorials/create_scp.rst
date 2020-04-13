@@ -5,15 +5,15 @@ Writing your first SCP
 .. currentmodule:: pynetdicom
 
 This is the second tutorial for people who are new to *pynetdicom*. If you
-missed the :doc:`first one<create_scu>` then it's recommended that you check
-it out before continuing.
+missed the :doc:`first one<create_scu>` you should check it out before
+continuing.
 
 In this tutorial you'll:
 
 * Learn about DICOM Data Sets and the DICOM File Format
 * Create a new Storage SCP application using *pynetdicom*
 * Learn about the event-handler system and add handlers to your SCP
-* Send datasets to your SCP using *pynetdicom's*
+* Send data to your SCP using *pynetdicom's*
   :doc:`storescu<../apps/storescu>` application
 
 If you need to install *pynetdicom* please follow the instructions in the
@@ -28,62 +28,37 @@ The Data Set
 This tutorial is about creating an SCP for the DICOM :dcm:`storage service
 <part04/chapter_B.html>`, which is used to transfer DICOM
 :dcm:`Data Sets<part05/chapter_7.html>` from one AE to another. A Data Set,
-which from now on we'll just refer to as a *dataset*, is a collection of Data
-Elements, or *elements*. When the combination of elements in the dataset
-follows one of the definitions in Part 3 of the Standard then the dataset is
-also referred to as an *Information Object* (and the definition is an
-*Information Object Definition*, or IOD)
+which from now on we'll just refer to as a *dataset*, is a representation of
+a real world object, like a slice of a :dcm:`CT<part03/sect_A.3.html>`
+or a :dcm:`structured report<part03/sect_A.35.html>`. A dataset is a
+collection of :dcm:`Data Elements<part05/chapter_7.html#sect_7.1>`, where each
+*element* represents an attribute of the object.
 
-An element is simply a formalised description of some
-value. Some examples are the *Transfer Syntax UID*, which contains the value of
-the transfer syntax used to encode a dataset, *Pixel Data* which (usually)
-contains image data, and *Patient's Name*, which - surprise! - contains a
-patient's name. The DICOM Standard contains :dcm:`thousands of official
-elements<part06/chapter_6.html>`, and if that's not enough you can also
-create private ones.
+Datasets are usually used to store information from the medical procedures
+undergone by a patient, however the DICOM Standard
+also puts them to use as part of the networking protocol:
 
+* The :dcm:`DIMSE message exchange<part07/sect_7.5.html>` uses datasets for its
+  command messages
+* The :dcm:`queries and replies<part04/sect_C.4.html#sect_C.4.1.1.3>` used by
+  the query/retrieve service are datasets
 
-Part 3 of the DICOM Standard contains a bunch of official dataset definitions,
+.. note::
 
-Elements can be combined together any way you desire, the recipe for that
-combination is termed an *Information Object Definition*, or IOD. The product
-of following that recipe is a dataset (the information object). Part 3 of the
-DICOM Standard contains many IODs, such as the CT Image IOD. By following
+  While it's not required for this tutorial, you should be comfortable using
+  `pydicom <https://github.com/pydicom/pydicom>`_ to create new datasets and
+  read, write or modify existing ones. If you're new to *pydicom* then you
+  should start with the `Dataset Basics
+  <https://pydicom.github.io/pydicom/stable/tutorials/dataset_basics.html>`_
+  tutorial.
 
-defines particular combinations of elements an *Information
-Object Definition* or IOD.
-
-,  to describe
-(the "DICOM Information Object"). What that *thing* is depends on which
-elements are in the dataset, and often what their values are. If that *thing*
-was a *CT Image* dataset, it'd contain the elements required by
-:dcm:`Annex A.3<part03/sect_A.3.3.html>` in Part 3 of the DICOM Standard. If
-the *thing* is an *X-Ray Radiation Dose Structured Report*, it'd contain the
-elements required by :dcm:`Annex A.35.8<part03/sect_A.35.8.3.html>`.
-
-
-So, if a patient had a CT scan, the scan data is stored would be stored as
-either a number of *CT Image* datasets or as one *Enhanced CT Image* dataset.
-
-But datasets aren't just limited to storing patient data, they're also put to
-use by the DICOM networking protocol:
-
-* The DIMSE exchange mechanism uses datasets for its messages
-* The queries used by the query/retrieve service are datasets
-* And most importantly for this tutorial, the storage service provides a
-  mechanism for transferring datasets from one AE to another
-
-Fortunately there's a Python package for reading, modifying and creating
-datasets; *pydicom*. If you're new to *pydicom* then you should read through
-the `Dataset Basics
-<https://pydicom.github.io/pydicom/stable/tutorials/dataset_basics.html>`_
-tutorial.
 
 Creating a Storage SCP
 ======================
 
-Let's create a Storage SCP for receiving *CT Image* instances. Create a new
-file ``create_scp.py``, open it in a text editor and add the following:
+Let's create a simple Storage SCP for receiving *CT Image* datasets encoded
+using the *Explicit VR Little Endian* transfer syntax. Create a new file
+``my_scp.py``, open it in a text editor and add the following:
 
 .. code-block:: python
    :linenos:
@@ -97,7 +72,7 @@ file ``create_scp.py``, open it in a text editor and add the following:
 
     ae = AE()
     ae.add_supported_context(CTImageStorage, ExplicitVRLittleEndian)
-    ae.start_server(('', 11112))
+    ae.start_server(('', 11112), block=True)
 
 Let's break this down
 
@@ -109,37 +84,46 @@ Let's break this down
     from pynetdicom import AE, debug_logger
     from pynetdicom.sop_class import CTImageStorage
 
+We import the UID for :attr:`Explicit VR Little Endian
+<pydicom.uid.ExplicitVRLittleEndian>` from *pydicom*,
+the :class:`AE<ae.ApplicationEntity>` class, :func:`~debug_logger` function and
+the UID for :attr:`CT Image Storage<sop_class.CTImageStorage>` from
+*pynetdicom*.
+
+.. code-block:: python
+   :linenos:
+   :lineno-start: 6
+
     debug_logger()
 
     ae = AE()
     ae.add_supported_context(CTImageStorage, ExplicitVRLittleEndian)
 
-Just as with the Echo SCU from the previous tutorial, we import and create a
-new :class:`AE<ae.ApplicationEntity>` instance. However, because we'll be the
-association *acceptor*, its up to us to specify what
-:doc:`presentation context<../user/presentation>` are *supported* rather than
+Just as with the Echo SCU from the previous tutorial, we create a
+new :class:`AE<ae.ApplicationEntity>` instance. However, because this time
+we'll be the association *acceptor*, its up to us to specify what
+:doc:`presentation contexts<../user/presentation>` are *supported* rather than
 *requested*. Since we'll be supporting the storage of *CT Images* encoded
 using the *Explicit VR Little Endian* transfer syntax we use
-:meth:`~ae.ApplicationEntity.add_supported_context` to add a presentation
-context with abstract syntax *CT Image Storage*.
+:meth:`~ae.ApplicationEntity.add_supported_context` to add a corresponding
+presentation context.
 
 .. code-block:: python
    :linenos:
-   :lineno-start: 8
+   :lineno-start: 10
 
-    ae.start_server(('', 11112))
+    ae.start_server(('', 11112), block=True)
 
 The call to :meth:`~ae.ApplicationEntity.start_server` starts our SCP listening
-for association requests on port ``11112`` in *blocking* mode. We'll
-demonstrate running the SCP in *non-blocking* mode a bit later.
+for association requests on port ``11112`` in *blocking* mode.
 
 Open a new terminal and run the file:
 
 .. code-block:: text
 
-    $ python create_scp.py
+    $ python my_scp.py
 
-And in another terminal, run :doc:`storescu<../apps/storescu>` with
+And in another terminal, run :doc:`storescu<../apps/storescu>` on
 :gh:`this dataset
 <pynetdicom/raw/master/pynetdicom/tests/dicom_files/CTImageStorage.dcm>`:
 
@@ -158,8 +142,18 @@ You should see the following output:
     I: Received Store Response (Status: 0xC211 - Failure)
     I: Releasing Association
 
-Oh dear, our store request has returned with a failure status ``0xC211``.
-Something's gone horribly wrong. What does the output for the SCP look like?
+As you can see, ``storescu`` successfully associated with our SCP and send a
+store request, but received a response containing a failure status ``0xC211``.
+For the storage service, :dcm:`statuses<part04/sect_B.2.3.html>` in the
+``0xC000`` to ``0xCFFF`` range fall under 'cannot understand', which is a
+generic failure status. In *pynetdicom's* case this range of statuses is used
+to provide more specific error information; by checking the
+:ref:`storage service class page<service_store_pynd>` in the
+documentation you can find what the corresponding error is to a given status.
+
+In the case of ``0xC211`` the error is 'Unhandled exception raised by the
+handler bound to ``evt.EVT_C_STORE``', so what does the output from the SCP
+look like?
 
 .. code-block:: text
 
@@ -185,15 +179,15 @@ Something's gone horribly wrong. What does the output for the SCP look like?
         raise NotImplementedError("No handler has been bound to 'evt.EVT_C_STORE'")
     NotImplementedError: No handler has been bound to 'evt.EVT_C_STORE'
 
-As the log says, the failure was caused by not having a handler bound to
-``evt.EVT_C_STORE``, so we better add one.
+As the log confirms, the failure was caused by not having a handler bound to
+the ``evt.EVT_C_STORE`` event, so we better fix that.
 
 Events and handlers
 ===================
 
-*pynetdicom* uses an event-handler system to give users access to data
-exchanged between AEs and as a way to customise the responses to service
-requests. Events come in two types: :ref:`notification events
+*pynetdicom* uses an :doc:`event-handler system<../user/events>` to give
+access to data exchanged between AEs and as a way to customise the responses to
+service requests. Events come in two types: :ref:`notification events
 <events_notification>`, where
 where the user is notified some event has occurred, and
 :ref:`intervention events<events_intervention>`,
@@ -203,15 +197,15 @@ the handler is called.
 
 There are two areas where user intervention is required:
 
-1. Responding to extended negotiation items during association negotiation. You
-   probably won't need to worry about this unless you using :dcm:`User
-   Identity negotiation<part07/sect_D.3.3.7.html>`.
-2. Except for C-ECHO, responding to a DIMSE request when acting as an
+1. Responding to :ref:`extended negotiation<user_assoc_extneg>` items during
+   association negotiation. You most likely will only have to worry about this
+   if you're using :dcm:`User Identity negotiation<part07/sect_D.3.3.7.html>`.
+2. Responding to a DIMSE request when acting as an
    SCP, such as when an SCU sends a C-STORE request to a Storage SCP. Hey,
    that sounds familiar...
 
-So we need to bind a handler to :func:`EVT_C_STORE<_handlers.doc_handle_store>`
-to handle incoming storage requests.
+So we need to :func:`bind a handler<_handlers.doc_handle_store>` to
+``evt.EVT_C_STORE`` to respond to incoming storage requests.
 
 .. code-block:: python
    :linenos:
@@ -232,25 +226,26 @@ to handle incoming storage requests.
 
     ae = AE()
     ae.add_supported_context(CTImageStorage, ExplicitVRLittleEndian)
-    ae.start_server(('', 11112), evt_handlers=handlers)
+    ae.start_server(('', 11112), block=True, evt_handlers=handlers)
 
-We import ``evt``, which contains all the events, then add a function
+We import ``evt``, which contains all the events, and add a function
 ``handle_store`` which will be our handler. All handlers must, at a minimum,
-take a single parameter ``event``, which is an :class:`~events.Event` instance.
+take a single parameter `event`, which is an :class:`~events.Event` instance.
 If you look at the :func:`documentation for EVT_C_STORE handlers
 <_handlers.doc_handle_store>`, you'll see that they
-must return *status* as either a :class:`~pydicom.dataset.Dataset` or
-:class:`int`. This is the same (0000,0900) *Status* value you saw in the
-previous tutorial, only seen from the other end. In our ``handle_store``
+must return *status* as either an :class:`int` or *pydicom*
+:class:`~pydicom.dataset.Dataset`. This is the same (0000,0900) *Status*
+value you saw in the previous tutorial, only seen from the other end. In our
+``handle_store``
 function we're returning an ``0x0000`` status, which indicates that the
 storage operation was a success, but we're not actually storing anything at
 this stage.
 
-We bind our handler to the corresponding event by passing the ``handlers``
-:class:`list` to :func:`~ae.ApplicationEntity.start_server` via the
+We bind our handler to the corresponding event by passing ``handlers``
+to :func:`~ae.ApplicationEntity.start_server` via the
 `evt_handlers` keyword parameter.
 
-Interrupt the terminal running ``create_scp.py`` using ``CTRL+C`` and
+Interrupt the terminal running ``my_scp.py`` using ``CTRL+C`` and
 then restart it. This time when you run :doc:`storescu<../apps/storescu>`
 you should see:
 
@@ -287,21 +282,21 @@ Format<part10/chapter_7.html>`, which consists of four main parts:
 
 The File Meta Information should contain at least the following elements:
 
-+-------------+--------------------------------------+
-| Tag         | Description                          |
-+=============+======================================+
-| (0002,0000) | *File Meta Information Group Length* |
-+-------------+--------------------------------------+
-| (0002,0001) | *File Meta Information Version*      |
-+-------------+--------------------------------------+
-| (0002,0002) | *Media Storage SOP Class UID*        |
-+-------------+--------------------------------------+
-| (0002,0003) | *Media Storage SOP Instance UID*     |
-+-------------+--------------------------------------+
-| (0002,0010) | *Transfer Syntax UID*                |
-+-------------+--------------------------------------+
-| (0002,0012) | *Implementation Class UID*           |
-+-------------+--------------------------------------+
++-------------+--------------------------------------+----+
+| Tag         | Description                          | VR |
++=============+======================================+====+
+| (0002,0000) | *File Meta Information Group Length* | UL |
++-------------+--------------------------------------+----+
+| (0002,0001) | *File Meta Information Version*      | OB |
++-------------+--------------------------------------+----+
+| (0002,0002) | *Media Storage SOP Class UID*        | UI |
++-------------+--------------------------------------+----+
+| (0002,0003) | *Media Storage SOP Instance UID*     | UI |
++-------------+--------------------------------------+----+
+| (0002,0010) | *Transfer Syntax UID*                | UI |
++-------------+--------------------------------------+----+
+| (0002,0012) | *Implementation Class UID*           | UI |
++-------------+--------------------------------------+----+
 
 A dataset stored without the header, prefix and file meta information is
 non-conformant to the DICOM Standard. It also becomes more difficult to
@@ -320,7 +315,7 @@ make it very easy to store datasets correctly. Change your handler code to:
         return 0x0000
 
 Where :attr:`event.dataset<events.Event.dataset>` is the decoded dataset
-as a *pydicom* :class:`~pydicom.dataset.Dataset` and
+received from the SCU as a *pydicom* :class:`~pydicom.dataset.Dataset` and
 :attr:`event.file_meta<events.Event.file_meta>` is a
 :class:`~pydicom.dataset.Dataset` containing conformant File Meta Information
 elements. We set the dataset's :attr:`~pydicom.dataset.FileDataset.file_meta`
@@ -337,67 +332,140 @@ There are a couple of things to be aware of when dealing with
   :class:`Dataset<pydicom.dataset.Dataset>` returned by
   :attr:`event.dataset<events.Event.dataset>` may raise an exception when any
   element is first accessed.
-* The dataset may not contain a particular element, even it it's supposed to.
+* The dataset may not contain a particular element, even if it's supposed to.
   Always assume a dataset is non-conformant, check to see if what you need
   is present and handle missing elements appropriately. The
   easiest way to check if an element is in a dataset is with the
   :func:`in<operator.__contains__>` operator: ``'PatientName' in ds``
 
-If you restart ``create_scp.py`` and re-send the dataset using
+If you restart ``my_scp.py`` and re-send the dataset using
 :doc:`storescu<../apps/storescu>` you  should see that a file named
 ``1.3.6.1.4.1.5962.1.1.1.1.1.20040119072730.12322`` has been written to the
-directory containing ``create_scp.py``.
+directory containing ``my_scp.py``.
 
+Expanding the supported data
+----------------------------
+
+Our Storage SCP is pretty limited at the moment, only handling one type
+of dataset encoded in a particular way. We can change that to handle most
+data by adding more supported presentation contexts:
+
+.. code-block:: python
+   :linenos:
+   :emphasize-lines: 1-4,19-23
+
+    from pynetdicom import (
+        AE, debug_logger, evt, AllStoragePresentationContexts,
+        ALL_TRANSFER_SYNTAXES
+    )
+
+    debug_logger()
+
+    def handle_store(event):
+        """Handle EVT_C_STORE events."""
+        ds = event.dataset
+        ds.file_meta = event.file_meta
+        ds.save_as(ds.SOPInstanceUID, write_like_original=False)
+
+        return 0x0000
+
+    handlers = [(evt.EVT_C_STORE, handle_store)]
+
+    ae = AE()
+    storage_sop_classes = [
+        cx.abstract_syntax for cx in AllStoragePresentationContexts
+    ]
+    for uid in storage_sop_classes:
+        ae.add_supported_context(uid, ALL_TRANSFER_SYNTAXES)
+
+    ae.start_server(('', 11112), block=True, evt_handlers=handlers)
+
+:attr:`~presentation.AllStoragePresentationContexts` is a list of pre-build
+presentation contexts, one for every SOP Class in the storage service. However,
+by default the contexts only support the uncompressed transfer syntaxes. To
+fix that we separate out the abstract syntaxes then use
+:meth:`~ae.ApplicationEntity.add_supported_context`
+with :attr:`~ALL_TRANSFER_SYNTAXES` instead.
 
 Optimising and passing extra arguments
 --------------------------------------
 
-If you don't actually need a decoded :class:`~pydicom.dataset.Dataset`, then
+If you don't actually need a decoded :class:`~pydicom.dataset.Dataset` then
 it's faster to write the encoded data directly to file; this skips
-having to decode and then re-encode the dataset.
+having to decode and then re-encode the dataset at the cost of slightly more
+complex code:
 
 .. code-block:: python
    :linenos:
+   :emphasize-lines: 1,3,12,14-18,20-27,31
 
     import os
 
     from pydicom.filewriter import write_file_meta_info
-    from pydicom.uid import ExplicitVRLittleEndian
 
-    from pynetdicom import AE, debug_logger, evt
-    from pynetdicom.sop_class import CTImageStorage
+    from pynetdicom import (
+        AE, debug_logger, evt, AllStoragePresentationContexts,
+        ALL_TRANSFER_SYNTAXES
+    )
 
     debug_logger()
 
     def handle_store(event, storage_dir):
         """Handle EVT_C_STORE events."""
-        os.makedirs(storage_dir, exist_ok=True)
+        try:
+            os.makedirs(storage_dir, exist_ok=True)
+        except:
+            # Unable to create output dir, return failure status
+            return 0xC001
 
         fname = os.path.join(storage_dir, event.request.AffectedSOPInstanceUID)
-        with open(fname, 'wb') as fp:
+        with open(fname, 'wb') as f:
             # Write the preamble, prefix and file meta information elements
-            fp.write(b'\x00' * 128)
-            fp.write(b'DICM')
-            write_file_meta_info(fp, event.file_meta)
-            # Write the transferred dataset
-            fp.write(event.request.DataSet.getvalue())
+            f.write(b'\x00' * 128)
+            f.write(b'DICM')
+            write_file_meta_info(f, event.file_meta)
+            # Write the raw encoded dataset
+            f.write(event.request.DataSet.getvalue())
 
         return 0x0000
 
     handlers = [(evt.EVT_C_STORE, handle_store, ['out'])]
 
     ae = AE()
-    ae.add_supported_context(CTImageStorage, ExplicitVRLittleEndian)
-    ae.start_server(('', 11112), evt_handlers=handlers)
+    storage_sop_classes = [
+        cx.abstract_syntax for cx in AllStoragePresentationContexts
+    ]
+    for uid in storage_sop_classes:
+        ae.add_supported_context(uid, ALL_TRANSFER_SYNTAXES)
+
+    ae.start_server(('', 11112), block=True, evt_handlers=handlers)
 
 We've modified the handler to write the preamble and prefix to file,
 encode and write the file meta information elements using *pydicom's*
 :func:`~pydicom.filewriter.write_file_meta_info` function, then finally write
-the encoded dataset.
+the encoded dataset by getting the :attr:`raw dataset
+<dimse_primitives.C_STORE.DataSet>` directly from the C-STORE
+request via the ``event.request`` attribute.
 
 The second change we've made is to demonstrate how extra parameters can be
 passed to the handler by binding using a 3-tuple rather than a 2-tuple. The
-third value in the :class:`tuple` should be a :class:`list` of objects, and
-each item in the ``list`` will be passed as a separate parameter. In
+third value in the :class:`tuple` should be a :class:`list` of objects;
+each item will be passed as a separate parameter. In
 our case the string ``'out'`` will be passed to the handler as the
 *storage_dir* parameter.
+
+You should also handle any exceptions in your code gracefully by returning an
+appropriate status value. In this case, if we failed to create the output
+directory we return an ``0xC001`` status, indicating that the storage operation
+has failed.
+
+If you restart ``my_scp.py``, you should now be able to use
+:doc:`storescu<../apps/storescu>` to send it any DICOM dataset.
+
+
+Next steps
+----------
+
+You might want to read through the :doc:`User Guide<../user/index>`, or check
+out the :doc:`SCP examples<../examples/index>` available in the documentation,
+or the :doc:`applications<../apps/index>` that come with *pynetdicom*.
