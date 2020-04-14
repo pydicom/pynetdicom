@@ -30,14 +30,14 @@ When attempting to use the SCP with an unsupported SOP Class:
 
 .. code-block:: text
 
-    $ python -m pynetdicom storescu 127.0.0.1 11112 path/to/file
+    $ python -m pynetdicom storescu 127.0.0.1 11112 path/to/dataset
     E: No accepted presentation contexts
 
 More information is available with the ``-d`` flag:
 
 .. code-block:: text
 
-    $ python -m pynetdicom storescu 127.0.0.1 11112 path/to/file -d
+    $ python -m pynetdicom storescu 127.0.0.1 11112 path/to/dataset -d
     D: storescu.py v0.3.0
     D:
     D: Checking input file

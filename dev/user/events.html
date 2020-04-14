@@ -93,13 +93,12 @@
               <p class="caption"><span class="caption-text">Documentation</span></p>
 <ul class="current">
 <li class="toctree-l1 current"><a class="reference internal" href="index.html">User Guide</a><ul class="current">
-<li class="toctree-l2"><a class="reference internal" href="installation.html">Installation</a></li>
 <li class="toctree-l2"><a class="reference internal" href="concepts.html">Important Concepts</a></li>
 <li class="toctree-l2"><a class="reference internal" href="presentation.html">Presentation Contexts</a></li>
 <li class="toctree-l2 current"><a class="current reference internal" href="#">Events</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="#notification-events">Notification Events</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#intervention-events">Intervention Events</a><ul>
-<li class="toctree-l4"><a class="reference internal" href="#associtation-related">Associtation related</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#association-related">Association related</a></li>
 <li class="toctree-l4"><a class="reference internal" href="#service-class-related">Service Class related</a></li>
 </ul>
 </li>
@@ -110,20 +109,18 @@
 <li class="toctree-l2"><a class="reference internal" href="association.html">Association</a></li>
 </ul>
 </li>
+<li class="toctree-l1"><a class="reference internal" href="../tutorials/index.html">Tutorials</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../service_classes/index.html">Supported Service Classes</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../reference/index.html">API Reference</a></li>
 </ul>
 <p class="caption"><span class="caption-text">Examples</span></p>
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="../examples/index.html">Examples</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../examples/index.html">Code Examples</a></li>
 </ul>
 <p class="caption"><span class="caption-text">Additional Information</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="../apps/index.html">Applications</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../changelog/index.html">Release Notes</a></li>
-</ul>
-<ul>
-<li class="toctree-l1"><a class="reference internal" href="../service_classes/index.html">Supported Service Classes</a></li>
 </ul>
 
             
@@ -288,8 +285,8 @@ used, which usually returns a negative response (i.e. service request failed,
 or extended negotiation ignored). The sole exception is the default handler
 for <code class="docutils literal notranslate"><span class="pre">evt.EVT_C_ECHO</span></code> which returns an <code class="docutils literal notranslate"><span class="pre">0x0000</span></code> <em>Success</em> status. The
 table below lists the possible intervention events.</p>
-<div class="section" id="associtation-related">
-<h3>Associtation related<a class="headerlink" href="#associtation-related" title="Permalink to this headline">¶</a></h3>
+<div class="section" id="association-related">
+<h3>Association related<a class="headerlink" href="#association-related" title="Permalink to this headline">¶</a></h3>
 <table class="colwidths-given docutils align-default">
 <colgroup>
 <col style="width: 25%" />
@@ -375,7 +372,7 @@ All <a class="reference internal" href="../reference/generated/pynetdicom.events
 <li><p><a class="reference internal" href="../reference/generated/pynetdicom.events.Event.html#pynetdicom.events.Event.assoc" title="pynetdicom.events.Event.assoc"><code class="xref py py-attr docutils literal notranslate"><span class="pre">Event.assoc</span></code></a> - the
 <a class="reference internal" href="../reference/generated/pynetdicom.association.Association.html#pynetdicom.association.Association" title="pynetdicom.association.Association"><code class="xref py py-class docutils literal notranslate"><span class="pre">Association</span></code></a> in which the
 event occurred</p></li>
-<li><p><a class="reference internal" href="../reference/generated/pynetdicom.events.Event.html#id0" title="pynetdicom.events.Event.event"><code class="xref py py-attr docutils literal notranslate"><span class="pre">Event.event</span></code></a> - the corresponding event, as a python
+<li><p><a class="reference internal" href="../reference/generated/pynetdicom.events.Event.html#id0" title="pynetdicom.events.Event.event"><code class="xref py py-attr docutils literal notranslate"><span class="pre">Event.event</span></code></a> - the corresponding event, as a Python
 <a class="reference external" href="https://docs.python.org/3/library/collections.html#collections.namedtuple" title="(in Python v3.8)"><code class="xref py py-func docutils literal notranslate"><span class="pre">namedtuple</span></code></a></p></li>
 <li><p><a class="reference internal" href="../reference/generated/pynetdicom.events.Event.html#pynetdicom.events.Event.timestamp" title="pynetdicom.events.Event.timestamp"><code class="xref py py-attr docutils literal notranslate"><span class="pre">Event.timestamp</span></code></a> - the date and time the event occurred at, as a
 Python <a class="reference external" href="https://docs.python.org/3/library/datetime.html#datetime.datetime" title="(in Python v3.8)"><code class="xref py py-class docutils literal notranslate"><span class="pre">datetime.datetime</span></code></a></p></li>
@@ -415,10 +412,9 @@ with <a class="reference internal" href="../reference/generated/pynetdicom.ae.Ap
 <p>If using a 3-tuple then the third value should be a list of objects that will
 be passed to the handler as extra parameters.</p>
 <p>The other way to bind handlers to events is through the
-<a class="reference internal" href="../reference/generated/pynetdicom.association.Association.html#pynetdicom.association.Association.bind" title="pynetdicom.association.Association.bind"><code class="xref py py-class docutils literal notranslate"><span class="pre">Association.bind(event,</span> <span class="pre">handler,</span> <span class="pre">args=None)</span></code></a> and
-<a class="reference internal" href="../reference/generated/pynetdicom.transport.AssociationServer.html#pynetdicom.transport.AssociationServer.bind" title="pynetdicom.transport.AssociationServer.bind"><code class="xref py py-class docutils literal notranslate"><span class="pre">&lt;AssociationServer.bind(event,</span> <span class="pre">handler,</span> <span class="pre">args=None)</span></code></a> methods, where the <cite>args</cite>
-keyword parameter is a list of objects to pass the handler as extra parameters.</p>
-<p>Handlers can be unbound with
+<a class="reference internal" href="../reference/generated/pynetdicom.association.Association.html#pynetdicom.association.Association.bind" title="pynetdicom.association.Association.bind"><code class="xref py py-meth docutils literal notranslate"><span class="pre">Association.bind()</span></code></a> and
+<a class="reference internal" href="../reference/generated/pynetdicom.transport.AssociationServer.html#pynetdicom.transport.AssociationServer.bind" title="pynetdicom.transport.AssociationServer.bind"><code class="xref py py-meth docutils literal notranslate"><span class="pre">AssociationServer.bind()</span></code></a> methods. Handlers can be
+unbound with
 <a class="reference internal" href="../reference/generated/pynetdicom.association.Association.html#pynetdicom.association.Association.unbind" title="pynetdicom.association.Association.unbind"><code class="xref py py-class docutils literal notranslate"><span class="pre">Association.unbind()</span></code></a> and
 <a class="reference internal" href="../reference/generated/pynetdicom.transport.AssociationServer.html#pynetdicom.transport.AssociationServer" title="pynetdicom.transport.AssociationServer"><code class="xref py py-class docutils literal notranslate"><span class="pre">AssociationServer.unbind()</span></code></a>
 methods. See the <a class="reference internal" href="association.html#association"><span class="std std-ref">Association</span></a> guide for more details.</p>
@@ -445,7 +441,7 @@ methods. See the <a class="reference internal" href="association.html#associatio
 
   <div role="contentinfo">
     <p>
-        &copy; Copyright 2018-19, pynetdicom contributors
+        &copy; Copyright 2018-20, pynetdicom contributors
 
     </p>
   </div>

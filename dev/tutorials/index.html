@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>Installation &mdash; pynetdicom 1.5.0.dev0 documentation</title>
+  <title>Tutorials &mdash; pynetdicom 1.5.0.dev0 documentation</title>
   
 
   
@@ -38,8 +38,8 @@
   <link rel="stylesheet" href="../_static/css/pynetdicom.css" type="text/css" />
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
-    <link rel="next" title="Important Concepts" href="concepts.html" />
-    <link rel="prev" title="User Guide" href="index.html" /> 
+    <link rel="next" title="How to install pynetdicom" href="installation.html" />
+    <link rel="prev" title="Association" href="../user/association.html" /> 
 </head>
 
 <body class="wy-body-for-nav">
@@ -92,17 +92,11 @@
             
               <p class="caption"><span class="caption-text">Documentation</span></p>
 <ul class="current">
-<li class="toctree-l1 current"><a class="reference internal" href="index.html">User Guide</a><ul class="current">
-<li class="toctree-l2 current"><a class="current reference internal" href="#">Installation</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="#installing-the-current-release">Installing the current release</a></li>
-<li class="toctree-l3"><a class="reference internal" href="#installing-the-development-version">Installing the development version</a></li>
-</ul>
-</li>
-<li class="toctree-l2"><a class="reference internal" href="concepts.html">Important Concepts</a></li>
-<li class="toctree-l2"><a class="reference internal" href="presentation.html">Presentation Contexts</a></li>
-<li class="toctree-l2"><a class="reference internal" href="events.html">Events</a></li>
-<li class="toctree-l2"><a class="reference internal" href="ae.html">Application Entity</a></li>
-<li class="toctree-l2"><a class="reference internal" href="association.html">Association</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../user/index.html">User Guide</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Tutorials</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="installation.html">How to install pynetdicom</a></li>
+<li class="toctree-l2"><a class="reference internal" href="create_scu.html">Writing your first SCU</a></li>
+<li class="toctree-l2"><a class="reference internal" href="create_scp.html">Writing your first SCP</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="../service_classes/index.html">Supported Service Classes</a></li>
@@ -110,15 +104,12 @@
 </ul>
 <p class="caption"><span class="caption-text">Examples</span></p>
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="../examples/index.html">Examples</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../examples/index.html">Code Examples</a></li>
 </ul>
 <p class="caption"><span class="caption-text">Additional Information</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="../apps/index.html">Applications</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../changelog/index.html">Release Notes</a></li>
-</ul>
-<ul>
-<li class="toctree-l1"><a class="reference internal" href="../service_classes/index.html">Supported Service Classes</a></li>
 </ul>
 
             
@@ -164,9 +155,7 @@
     
       <li><a href="../index.html">Docs</a> &raquo;</li>
         
-          <li><a href="index.html">User Guide</a> &raquo;</li>
-        
-      <li>Installation</li>
+      <li>Tutorials</li>
     
     
       <li class="wy-breadcrumbs-aside">
@@ -183,21 +172,15 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
             
-  <div class="section" id="installation">
-<h1>Installation<a class="headerlink" href="#installation" title="Permalink to this headline">¶</a></h1>
-<p>You need to have <a class="reference external" href="https://www.python.org/">Python</a> and
-<a class="reference external" href="https://pypi.org/project/pip/">pip</a> already installed on your system</p>
-<div class="section" id="installing-the-current-release">
-<h2>Installing the current release<a class="headerlink" href="#installing-the-current-release" title="Permalink to this headline">¶</a></h2>
-<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>$ pip install pynetdicom
-</pre></div>
-</div>
-</div>
-<div class="section" id="installing-the-development-version">
-<h2>Installing the development version<a class="headerlink" href="#installing-the-development-version" title="Permalink to this headline">¶</a></h2>
-<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>$ pip install git+git://github.com/pydicom/pynetdicom.git
-</pre></div>
-</div>
+  <div class="section" id="tutorials">
+<h1>Tutorials<a class="headerlink" href="#tutorials" title="Permalink to this headline">¶</a></h1>
+<p>New to <em>pynetdicom</em>? Then these tutorials should get you up and running.</p>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="installation.html">How to install pynetdicom</a></li>
+<li class="toctree-l1"><a class="reference internal" href="create_scu.html">Writing your first SCU</a></li>
+<li class="toctree-l1"><a class="reference internal" href="create_scp.html">Writing your first SCP</a></li>
+</ul>
 </div>
 </div>
 
@@ -209,10 +192,10 @@
   
     <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
       
-        <a href="concepts.html" class="btn btn-neutral float-right" title="Important Concepts" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
+        <a href="installation.html" class="btn btn-neutral float-right" title="How to install pynetdicom" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
       
       
-        <a href="index.html" class="btn btn-neutral float-left" title="User Guide" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+        <a href="../user/association.html" class="btn btn-neutral float-left" title="Association" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
       
     </div>
   
@@ -221,7 +204,7 @@
 
   <div role="contentinfo">
     <p>
-        &copy; Copyright 2018-19, pynetdicom contributors
+        &copy; Copyright 2018-20, pynetdicom contributors
 
     </p>
   </div>

@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>pynetdicom Documentation &mdash; pynetdicom 1.5.0.dev0 documentation</title>
+  <title>pynetdicom &mdash; pynetdicom 1.5.0.dev0 documentation</title>
   
 
   
@@ -92,20 +92,18 @@
               <p class="caption"><span class="caption-text">Documentation</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="user/index.html">User Guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="tutorials/index.html">Tutorials</a></li>
 <li class="toctree-l1"><a class="reference internal" href="service_classes/index.html">Supported Service Classes</a></li>
 <li class="toctree-l1"><a class="reference internal" href="reference/index.html">API Reference</a></li>
 </ul>
 <p class="caption"><span class="caption-text">Examples</span></p>
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="examples/index.html">Examples</a></li>
+<li class="toctree-l1"><a class="reference internal" href="examples/index.html">Code Examples</a></li>
 </ul>
 <p class="caption"><span class="caption-text">Additional Information</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="apps/index.html">Applications</a></li>
 <li class="toctree-l1"><a class="reference internal" href="changelog/index.html">Release Notes</a></li>
-</ul>
-<ul>
-<li class="toctree-l1"><a class="reference internal" href="service_classes/index.html">Supported Service Classes</a></li>
 </ul>
 
             
@@ -151,7 +149,7 @@
     
       <li><a href="#">Docs</a> &raquo;</li>
         
-      <li>pynetdicom Documentation</li>
+      <li><em>pynetdicom</em></li>
     
     
       <li class="wy-breadcrumbs-aside">
@@ -168,41 +166,34 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
             
-  <div class="section" id="pynetdicom-documentation">
-<h1>pynetdicom Documentation<a class="headerlink" href="#pynetdicom-documentation" title="Permalink to this headline">¶</a></h1>
-<div class="toctree-wrapper compound">
-</div>
-<div class="toctree-wrapper compound">
-</div>
-<div class="toctree-wrapper compound">
-</div>
-</div>
-<div class="section" id="dicom">
-<h1>DICOM<a class="headerlink" href="#dicom" title="Permalink to this headline">¶</a></h1>
-<p><a class="reference external" href="http://dicom.nema.org/">DICOM</a> is the international standard for medical
-images and related information. It defines the formats and communication
-protocols for media exchange in radiology, cardiology, radiotherapy and
-other medical domains. If you’ve ever had an X-ray, an MR scan, an ultrasound or one of
-many other medical procedures, then the chances are that the DICOM standard was
-involved in some way.</p>
-</div>
-<div class="section" id="pynetdicom">
-<h1>pynetdicom<a class="headerlink" href="#pynetdicom" title="Permalink to this headline">¶</a></h1>
-<p><a class="reference external" href="https://github.com/pydicom/pynetdicom">pynetdicom</a> is a pure Python
-2.7/3.5+ package that implements the DICOM networking protocol. Working with
+  <div class="section" id="pynetdicom">
+<h1><em>pynetdicom</em><a class="headerlink" href="#pynetdicom" title="Permalink to this headline">¶</a></h1>
+<p><a class="reference external" href="https://github.com/pydicom/pynetdicom">pynetdicom</a> is a pure Python package
+that implements the <a class="reference external" href="http://dicom.nema.org/">DICOM</a> networking protocol.
+Working with
 <a class="reference external" href="https://github.com/pydicom/pydicom">pydicom</a>, it allows the easy creation
 of DICOM Application Entities (AEs), which can then act as <em>Service Class
 Users</em> (SCUs) and <em>Service Class Providers</em> (SCPs) by associating with other
 AEs and using or providing the services available to the association.</p>
-<div class="section" id="user-guide">
-<h2>User Guide<a class="headerlink" href="#user-guide" title="Permalink to this headline">¶</a></h2>
-<p>The <a class="reference internal" href="user/index.html#user-guide"><span class="std std-ref">User Guide</span></a> is intended as an introduction to <em>pynetdicom</em> and
-explains how to install the API and covers basic usage. For detailed
-documentation of the functions and classes see the
-<a class="reference external" href="https://docs.python.org/3/distutils/commandref.html#reference" title="(in Python v3.8)"><span class="xref std std-ref">API reference</span></a>.</p>
+<div class="section" id="getting-started">
+<h2>Getting started<a class="headerlink" href="#getting-started" title="Permalink to this headline">¶</a></h2>
+<p>If you’re new to <em>pynetdicom</em> then start here:</p>
+<ul class="simple">
+<li><p><strong>Basics</strong>: <a class="reference internal" href="tutorials/installation.html"><span class="doc">Installation</span></a> |
+<a class="reference internal" href="tutorials/create_scu.html"><span class="doc">Writing your first SCU</span></a> |
+<a class="reference internal" href="tutorials/create_scp.html"><span class="doc">Writing your first SCP</span></a></p></li>
+</ul>
 </div>
-<div class="section" id="examples">
-<span id="index-examples"></span><h2>Examples<a class="headerlink" href="#examples" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="user-guide">
+<span id="index-guide"></span><h2>User Guide<a class="headerlink" href="#user-guide" title="Permalink to this headline">¶</a></h2>
+<p>The <a class="reference internal" href="user/index.html#user-guide"><span class="std std-ref">User Guide</span></a> is intended as an overview for using <em>pynetdcom</em> and
+the concepts relevant to DICOM networking. It covers UIDs, presentation
+contexts, event handling, AEs and associating.</p>
+<p>For detailed documentation of the functions and classes see the
+<a class="reference internal" href="reference/index.html"><span class="doc">API reference</span></a>.</p>
+</div>
+<div class="section" id="code-examples">
+<span id="index-examples"></span><h2>Code Examples<a class="headerlink" href="#code-examples" title="Permalink to this headline">¶</a></h2>
 <ul class="simple">
 <li><p><a class="reference internal" href="examples/basic_worklist.html"><span class="doc">Basic Worklist Management (C-FIND)</span></a></p></li>
 <li><p><a class="reference internal" href="examples/display.html"><span class="doc">Display System Management (N-GET)</span></a></p></li>
@@ -229,14 +220,13 @@ documentation of the functions and classes see the
 </ul>
 </div>
 <div class="section" id="api-reference">
-<h2>API Reference<a class="headerlink" href="#api-reference" title="Permalink to this headline">¶</a></h2>
+<span id="index-api"></span><h2>API Reference<a class="headerlink" href="#api-reference" title="Permalink to this headline">¶</a></h2>
 <p>The <a class="reference internal" href="reference/index.html"><span class="doc">API Reference</span></a> provides documentation of the
-important functions and classes.</p>
-<div class="section" id="supported-service-classes">
-<h3>Supported Service Classes<a class="headerlink" href="#supported-service-classes" title="Permalink to this headline">¶</a></h3>
-<p><em>pynetdicom</em> currently supports the following <a class="reference external" href="http://dicom.nema.org/medical/dicom/current/output/chtml/part04/PS3.4.html">DICOM service classes</a>:</p>
-<div class="toctree-wrapper compound">
+functions, classes and other objects.</p>
 </div>
+<div class="section" id="supported-service-classes">
+<h2>Supported Service Classes<a class="headerlink" href="#supported-service-classes" title="Permalink to this headline">¶</a></h2>
+<p><em>pynetdicom</em> currently supports the following <a class="reference external" href="http://dicom.nema.org/medical/dicom/current/output/chtml/part04/PS3.4.html">DICOM service classes</a>:</p>
 <ul class="simple">
 <li><p><a class="reference internal" href="service_classes/application_event.html"><span class="doc">Application Event Logging</span></a></p></li>
 <li><p><a class="reference internal" href="service_classes/basic_worklist_service_class.html"><span class="doc">Basic Worklist Management</span></a></p></li>
@@ -273,21 +263,21 @@ important functions and classes.</p>
 <li><p><a class="reference internal" href="service_classes/verification_service_class.html"><span class="doc">Verification</span></a></p></li>
 </ul>
 </div>
-</div>
 <div class="section" id="applications">
-<h2>Applications<a class="headerlink" href="#applications" title="Permalink to this headline">¶</a></h2>
+<span id="index-apps"></span><h2>Applications<a class="headerlink" href="#applications" title="Permalink to this headline">¶</a></h2>
+<p><em>pynetdicom</em> also includes some bundled applications</p>
 <ul class="simple">
-<li><p><a class="reference internal" href="apps/echoscu.html"><span class="doc">echoscu</span></a></p></li>
 <li><p><a class="reference internal" href="apps/echoscp.html"><span class="doc">echoscp</span></a></p></li>
+<li><p><a class="reference internal" href="apps/echoscu.html"><span class="doc">echoscu</span></a></p></li>
 <li><p><a class="reference internal" href="apps/findscu.html"><span class="doc">findscu</span></a></p></li>
 <li><p><a class="reference internal" href="apps/getscu.html"><span class="doc">getscu</span></a></p></li>
 <li><p><a class="reference internal" href="apps/movescu.html"><span class="doc">movescu</span></a></p></li>
-<li><p><a class="reference internal" href="apps/storescu.html"><span class="doc">storescu</span></a></p></li>
 <li><p><a class="reference internal" href="apps/storescp.html"><span class="doc">storescp</span></a></p></li>
+<li><p><a class="reference internal" href="apps/storescu.html"><span class="doc">storescu</span></a></p></li>
 </ul>
 </div>
 <div class="section" id="release-notes">
-<h2>Release Notes<a class="headerlink" href="#release-notes" title="Permalink to this headline">¶</a></h2>
+<span id="index-releases"></span><h2>Release Notes<a class="headerlink" href="#release-notes" title="Permalink to this headline">¶</a></h2>
 <ul class="simple">
 <li><p><a class="reference internal" href="changelog/v1.5.0.html"><span class="doc">v1.5.0</span></a></p></li>
 <li><p><a class="reference internal" href="changelog/v1.4.1.html"><span class="doc">v1.4.1</span></a></p></li>
@@ -298,6 +288,12 @@ important functions and classes.</p>
 <li><p><a class="reference internal" href="changelog/v1.1.0.html"><span class="doc">v1.1.0</span></a></p></li>
 <li><p><a class="reference internal" href="changelog/v1.0.0.html"><span class="doc">v1.0.0</span></a></p></li>
 </ul>
+<div class="toctree-wrapper compound">
+</div>
+<div class="toctree-wrapper compound">
+</div>
+<div class="toctree-wrapper compound">
+</div>
 </div>
 </div>
 
@@ -319,7 +315,7 @@ important functions and classes.</p>
 
   <div role="contentinfo">
     <p>
-        &copy; Copyright 2018-19, pynetdicom contributors
+        &copy; Copyright 2018-20, pynetdicom contributors
 
     </p>
   </div>

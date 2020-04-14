@@ -93,7 +93,6 @@
               <p class="caption"><span class="caption-text">Documentation</span></p>
 <ul class="current">
 <li class="toctree-l1 current"><a class="reference internal" href="index.html">User Guide</a><ul class="current">
-<li class="toctree-l2"><a class="reference internal" href="installation.html">Installation</a></li>
 <li class="toctree-l2"><a class="reference internal" href="concepts.html">Important Concepts</a></li>
 <li class="toctree-l2 current"><a class="current reference internal" href="#">Presentation Contexts</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="#introduction">Introduction</a><ul>
@@ -114,20 +113,18 @@
 <li class="toctree-l2"><a class="reference internal" href="association.html">Association</a></li>
 </ul>
 </li>
+<li class="toctree-l1"><a class="reference internal" href="../tutorials/index.html">Tutorials</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../service_classes/index.html">Supported Service Classes</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../reference/index.html">API Reference</a></li>
 </ul>
 <p class="caption"><span class="caption-text">Examples</span></p>
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="../examples/index.html">Examples</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../examples/index.html">Code Examples</a></li>
 </ul>
 <p class="caption"><span class="caption-text">Additional Information</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="../apps/index.html">Applications</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../changelog/index.html">Release Notes</a></li>
-</ul>
-<ul>
-<li class="toctree-l1"><a class="reference internal" href="../service_classes/index.html">Supported Service Classes</a></li>
 </ul>
 
             
@@ -208,7 +205,7 @@ identifies the context. With <em>pynetdicom</em> this is not something you typic
 have to worry about.</p></li>
 <li><p>The <a class="reference external" href="http://dicom.nema.org/medical/dicom/current/output/chtml/part08/chapter_B.html">Abstract Syntax</a>
 defines what the data represents, usually identified by
-a DICOM SOP Class UID (however private abstract syntaxes are also allowed)
+a DICOM <em>SOP Class UID</em> (however private abstract syntaxes are also allowed)
 such as:</p>
 <ul>
 <li><p><code class="docutils literal notranslate"><span class="pre">1.2.840.10008.1.1</span></code> - <em>Verification SOP Class</em></p></li>
@@ -217,7 +214,7 @@ such as:</p>
 </li>
 <li><p>The <a class="reference external" href="http://dicom.nema.org/medical/dicom/current/output/chtml/part05/chapter_10.html">Transfer Syntax</a>
 defines how the data is encoded, usually identified by
-a DICOM transfer syntax UID (however private transfer syntaxes are also
+a DICOM <em>Transfer Syntax UID</em> (however private transfer syntaxes are also
 allowed) such as:</p>
 <ul>
 <li><p><code class="docutils literal notranslate"><span class="pre">1.2.840.10008.1.2</span></code> - <em>Implicit VR Little Endian</em></p></li>
@@ -263,7 +260,7 @@ returns a <a class="reference internal" href="../reference/generated/pynetdicom.
 </div>
 <div class="section" id="presentation-contexts-and-the-association-requestor">
 <h2>Presentation Contexts and the Association Requestor<a class="headerlink" href="#presentation-contexts-and-the-association-requestor" title="Permalink to this headline">¶</a></h2>
-<p>When acting as the association <em>Requestor</em> (usually the SCU), you must propose
+<p>When acting as the association <em>requestor</em> (usually the SCU), you must propose
 presentation contexts to be negotiated by the
 association process. There are a couple of simple rules for these:</p>
 <ul class="simple">
@@ -276,7 +273,7 @@ association process. There are a couple of simple rules for these:</p>
 <li><p>Setting the <a class="reference internal" href="../reference/generated/pynetdicom.ae.ApplicationEntity.html#pynetdicom.ae.ApplicationEntity.requested_contexts" title="pynetdicom.ae.ApplicationEntity.requested_contexts"><code class="xref py py-attr docutils literal notranslate"><span class="pre">AE.requested_contexts</span></code></a>
 attribute directly using a list of <a class="reference internal" href="../reference/generated/pynetdicom.presentation.PresentationContext.html#pynetdicom.presentation.PresentationContext" title="pynetdicom.presentation.PresentationContext"><code class="xref py py-class docutils literal notranslate"><span class="pre">PresentationContext</span></code></a> items.</p></li>
 </ol>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">pynetdicom</span> <span class="kn">import</span> <span class="n">AE</span>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">pynetdicom</span> <span class="kn">import</span> <span class="n">AE</span><span class="p">,</span> <span class="n">build_context</span>
 <span class="kn">from</span> <span class="nn">pynetdicom.sop_class</span> <span class="kn">import</span> <span class="n">VerificationSOPClass</span>
 
 <span class="n">ae</span> <span class="o">=</span> <span class="n">AE</span><span class="p">()</span>
@@ -303,7 +300,7 @@ method to add a new <a class="reference internal" href="../reference/generated/p
 <a class="reference internal" href="../reference/generated/pynetdicom.ae.ApplicationEntity.html#pynetdicom.ae.ApplicationEntity.associate" title="pynetdicom.ae.ApplicationEntity.associate"><code class="xref py py-meth docutils literal notranslate"><span class="pre">AE.associate()</span></code></a>
 via the <em>contexts</em> keyword argument.</p></li>
 </ol>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">pynetdicom</span> <span class="kn">import</span> <span class="n">AE</span>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">pynetdicom</span> <span class="kn">import</span> <span class="n">AE</span><span class="p">,</span> <span class="n">build_context</span>
 <span class="kn">from</span> <span class="nn">pynetdicom.sop_class</span> <span class="kn">import</span> <span class="n">VerificationSOPClass</span>
 
 <span class="n">ae</span> <span class="o">=</span> <span class="n">AE</span><span class="p">()</span>
@@ -354,15 +351,15 @@ Alternatively it may be necessary to decompress datasets prior to sending (as
 </div>
 <div class="section" id="presentation-contexts-and-the-association-acceptor">
 <h2>Presentation Contexts and the Association Acceptor<a class="headerlink" href="#presentation-contexts-and-the-association-acceptor" title="Permalink to this headline">¶</a></h2>
-<p>When acting as the association <em>Acceptor</em> (usually the SCP), you should define
-which presentation contexts will be supported. Unlike the <em>Requestor</em> you can
+<p>When acting as the association <em>acceptor</em> (usually the SCP), you should define
+which presentation contexts will be supported. Unlike the <em>requestor</em> you can
 define an unlimited number of supported presentation contexts.</p>
 <p>In <em>pynetdicom</em> this is accomplished through one of the following methods:</p>
 <ol class="arabic simple">
 <li><p>Setting the <a class="reference internal" href="../reference/generated/pynetdicom.ae.ApplicationEntity.html#pynetdicom.ae.ApplicationEntity.supported_contexts" title="pynetdicom.ae.ApplicationEntity.supported_contexts"><code class="xref py py-attr docutils literal notranslate"><span class="pre">AE.supported_contexts</span></code></a>
 attribute directly using a list of <a class="reference internal" href="../reference/generated/pynetdicom.presentation.PresentationContext.html#pynetdicom.presentation.PresentationContext" title="pynetdicom.presentation.PresentationContext"><code class="xref py py-class docutils literal notranslate"><span class="pre">PresentationContext</span></code></a> items.</p></li>
 </ol>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">pynetdicom</span> <span class="kn">import</span> <span class="n">AE</span>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">pynetdicom</span> <span class="kn">import</span> <span class="n">AE</span><span class="p">,</span> <span class="n">build_context</span>
 <span class="kn">from</span> <span class="nn">pynetdicom.sop_class</span> <span class="kn">import</span> <span class="n">VerificationSOPClass</span>
 
 <span class="n">ae</span> <span class="o">=</span> <span class="n">AE</span><span class="p">()</span>
@@ -398,7 +395,7 @@ acting as an SCP.</p>
 </div>
 <div class="section" id="presentation-context-negotiation">
 <h2>Presentation Context Negotiation<a class="headerlink" href="#presentation-context-negotiation" title="Permalink to this headline">¶</a></h2>
-<p>Consider an <em>Acceptor</em> that supports the following abstract syntax/transfer
+<p>Consider an <em>acceptor</em> that supports the following abstract syntax/transfer
 syntaxes:</p>
 <ul class="simple">
 <li><p>Verification SOP Class</p>
@@ -418,7 +415,7 @@ syntaxes:</p>
 </ul>
 </li>
 </ul>
-<p>And a <em>Requestor</em> that proposes the following presentation contexts:</p>
+<p>And a <em>requestor</em> that proposes the following presentation contexts:</p>
 <ul class="simple">
 <li><p>Context 1: Verification SOP Class</p>
 <ul>
@@ -450,21 +447,21 @@ syntaxes:</p>
 </ul>
 <p>Then the outcome of the presentation context negotiation will be:</p>
 <ul class="simple">
-<li><p>Context 1: Accepted (with the <em>Acceptor</em> choosing either <em>Implicit</em> or
+<li><p>Context 1: Accepted (with the <em>acceptor</em> choosing either <em>Implicit</em> or
 <em>Explicit VR Little Endian</em> to use as the transfer syntax)</p></li>
 <li><p>Context 3: Accepted with <em>Implicit VR Little Endian</em> transfer syntax</p></li>
-<li><p>Context 5: Rejected (transfer syntax not supported) because the <em>Acceptor</em>
-and <em>Requestor</em> have no matching transfer syntax for the context.</p></li>
-<li><p>Context 7: Rejected (abstract syntax not supported) because the <em>Acceptor</em>
+<li><p>Context 5: Rejected (transfer syntax not supported) because the <em>acceptor</em>
+and <em>requestor</em> have no matching transfer syntax for the context.</p></li>
+<li><p>Context 7: Rejected (abstract syntax not supported) because the <em>acceptor</em>
 doesn’t support the <em>CR Image Storage</em> abstract syntax.</p></li>
 </ul>
 <p>Contexts 1 and 3 have been accepted and can be used for sending data while
 5 and 7 have been rejected and are not available.</p>
 <div class="section" id="implementation-note">
 <h3>Implementation Note<a class="headerlink" href="#implementation-note" title="Permalink to this headline">¶</a></h3>
-<p>When acting as an <em>Acceptor</em>, <em>pynetdicom</em> will choose the first matching
+<p>When acting as an <em>acceptor</em>, <em>pynetdicom</em> will choose the first matching
 transfer syntax in <a class="reference internal" href="../reference/generated/pynetdicom.presentation.PresentationContext.html#id6" title="pynetdicom.presentation.PresentationContext.transfer_syntax"><code class="xref py py-attr docutils literal notranslate"><span class="pre">PresentationContext.transfer_syntax</span></code></a>.  For example, if
-the <em>Requestor</em> proposes the following:</p>
+the <em>requestor</em> proposes the following:</p>
 <blockquote>
 <div><div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">Abstract</span> <span class="n">Syntax</span><span class="p">:</span> <span class="n">Verification</span> <span class="n">SOP</span> <span class="n">Class</span>
 <span class="n">Transfer</span> <span class="n">Syntax</span><span class="p">(</span><span class="n">es</span><span class="p">):</span>
@@ -474,7 +471,7 @@ the <em>Requestor</em> proposes the following:</p>
 </pre></div>
 </div>
 </div></blockquote>
-<p>While the <em>Acceptor</em> supports:</p>
+<p>While the <em>acceptor</em> supports:</p>
 <blockquote>
 <div><div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">Abstract</span> <span class="n">Syntax</span><span class="p">:</span> <span class="n">Verification</span> <span class="n">SOP</span> <span class="n">Class</span>
 <span class="n">Transfer</span> <span class="n">Syntax</span><span class="p">(</span><span class="n">es</span><span class="p">):</span>
@@ -491,11 +488,11 @@ the <em>Requestor</em> proposes the following:</p>
 <h2>SCP/SCU Role Selection<a class="headerlink" href="#scp-scu-role-selection" title="Permalink to this headline">¶</a></h2>
 <p>The final wrinkle in presentation context negotiation is <a class="reference external" href="http://dicom.nema.org/medical/dicom/current/output/chtml/part07/sect_D.3.3.4.html">SCP/SCU Role
 Selection</a>,
-which allows an association <em>Requestor</em> to propose its role (SCU, SCP, or
+which allows an association <em>requestor</em> to propose its role (SCU, SCP, or
 SCU and SCP) for each proposed abstract syntax. Role selection is used for
 services such as the Query/Retrieve Service’s C-GET requests, where the
-association <em>Acceptor</em> sends data back to the <em>Requestor</em>.</p>
-<p>To propose SCP/SCU Role Selection as a <em>Requestor</em> you should include
+association <em>acceptor</em> sends data back to the <em>requestor</em>.</p>
+<p>To propose SCP/SCU Role Selection as a <em>requestor</em> you should include
 <a class="reference internal" href="../reference/generated/pynetdicom.pdu_primitives.SCP_SCU_RoleSelectionNegotiation.html#pynetdicom.pdu_primitives.SCP_SCU_RoleSelectionNegotiation" title="pynetdicom.pdu_primitives.SCP_SCU_RoleSelectionNegotiation"><code class="xref py py-class docutils literal notranslate"><span class="pre">SCP_SCU_RoleSelectionNegotiation</span></code></a>
 items in the extended negotiation, either by creating them from scratch or
 using the <a class="reference internal" href="../reference/generated/pynetdicom.presentation.build_role.html#pynetdicom.presentation.build_role" title="pynetdicom.presentation.build_role"><code class="xref py py-func docutils literal notranslate"><span class="pre">build_role()</span></code></a> convenience function:</p>
@@ -519,9 +516,9 @@ using the <a class="reference internal" href="../reference/generated/pynetdicom.
 </pre></div>
 </div>
 </div></blockquote>
-<p>When acting as the <em>Requestor</em> you can set <strong>either or both</strong> of <em>scu_role</em> and
+<p>When acting as the <em>requestor</em> you can set <strong>either or both</strong> of <em>scu_role</em> and
 <em>scp_role</em>, with the non-specified role assumed to be <code class="docutils literal notranslate"><span class="pre">False</span></code>.</p>
-<p>To support SCP/SCU Role Selection as an <em>Acceptor</em> you can use the <em>scu_role</em>
+<p>To support SCP/SCU Role Selection as an <em>acceptor</em> you can use the <em>scu_role</em>
 and <em>scp_role</em> arguments in <a class="reference internal" href="../reference/generated/pynetdicom.ae.ApplicationEntity.html#pynetdicom.ae.ApplicationEntity.add_supported_context" title="pynetdicom.ae.ApplicationEntity.add_supported_context"><code class="xref py py-meth docutils literal notranslate"><span class="pre">AE.add_supported_context()</span></code></a>:</p>
 <blockquote>
 <div><div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">pynetdicom</span> <span class="kn">import</span> <span class="n">AE</span>
@@ -534,23 +531,23 @@ and <em>scp_role</em> arguments in <a class="reference internal" href="../refere
 </pre></div>
 </div>
 </div></blockquote>
-<p>When acting as the <em>Acceptor</em> <strong>both</strong> <em>scu_role</em> and <em>scp_role</em> must be
-specified. A value of <code class="docutils literal notranslate"><span class="pre">True</span></code> indicates that the <em>Acceptor</em> will accept the
+<p>When acting as the <em>acceptor</em> <strong>both</strong> <em>scu_role</em> and <em>scp_role</em> must be
+specified. A value of <code class="docutils literal notranslate"><span class="pre">True</span></code> indicates that the <em>acceptor</em> will accept the
 proposed role. <em>pynetdicom</em> uses the following table to decide the outcome
 of role selection negotiation:</p>
 <table class="docutils align-default" id="role-selection-negotiation">
 <colgroup>
-<col style="width: 14%" />
-<col style="width: 14%" />
-<col style="width: 14%" />
-<col style="width: 14%" />
-<col style="width: 15%" />
-<col style="width: 14%" />
-<col style="width: 14%" />
+<col style="width: 13%" />
+<col style="width: 13%" />
+<col style="width: 13%" />
+<col style="width: 13%" />
+<col style="width: 17%" />
+<col style="width: 16%" />
+<col style="width: 13%" />
 </colgroup>
 <thead>
-<tr class="row-odd"><th class="head" colspan="2"><p>Requestor</p></th>
-<th class="head" colspan="2"><p>Acceptor</p></th>
+<tr class="row-odd"><th class="head" colspan="2"><p><em>Requestor</em></p></th>
+<th class="head" colspan="2"><p><em>Acceptor</em></p></th>
 <th class="head" colspan="2"><p>Outcome</p></th>
 <th class="head" rowspan="2"><p>Notes</p></th>
 </tr>
@@ -558,8 +555,8 @@ of role selection negotiation:</p>
 <th class="head"><p>scp_role</p></th>
 <th class="head"><p>scu_role</p></th>
 <th class="head"><p>scp_role</p></th>
-<th class="head"><p>Requestor</p></th>
-<th class="head"><p>Acceptor</p></th>
+<th class="head"><p><em>Requestor</em></p></th>
+<th class="head"><p><em>Acceptor</em></p></th>
 </tr>
 </thead>
 <tbody>
@@ -633,10 +630,10 @@ of role selection negotiation:</p>
 </table>
 <p>As can be seen there are four possible outcomes:</p>
 <ul class="simple">
-<li><p><em>Requestor</em> is SCU, <em>Acceptor</em> is SCP (default roles)</p></li>
-<li><p><em>Requestor</em> is SCP, <em>Acceptor</em> is SCU</p></li>
-<li><p><em>Requestor</em> and <em>Acceptor</em> are both SCU/SCP</p></li>
-<li><p><em>Requestor</em> and <em>Acceptor</em> are neither (context rejected)</p></li>
+<li><p><em>Requestor</em> is SCU, <em>acceptor</em> is SCP (default roles)</p></li>
+<li><p><em>Requestor</em> is SCP, <em>acceptor</em> is SCU</p></li>
+<li><p><em>Requestor</em> and <em>acceptor</em> are both SCU/SCP</p></li>
+<li><p><em>Requestor</em> and <em>acceptor</em> are neither (context rejected)</p></li>
 </ul>
 <div class="admonition warning">
 <p class="admonition-title">Warning</p>
@@ -666,7 +663,7 @@ so different implementations may not give the same outcomes.</p>
 
   <div role="contentinfo">
     <p>
-        &copy; Copyright 2018-19, pynetdicom contributors
+        &copy; Copyright 2018-20, pynetdicom contributors
 
     </p>
   </div>

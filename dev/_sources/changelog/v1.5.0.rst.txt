@@ -18,7 +18,7 @@ Fixes
   :attr:`~pynetdicom.sop_class.ImplantationPlanSRStorage` to match the name
   from Part 6 of the DICOM Standard rather than Part 4.
 * Stopped the QR Move SCP from associating with the move destination when no
-  suboperations were required (:issue:`436`)
+  sub-operations were required (:issue:`436`)
 * Fixed a possible race condition during DIMSE message exchange (:issue:`435`)
 * Fixed the association acceptor selecting the first matching proposed
   transfer syntax rather than the first matching supported transfer syntax
@@ -39,7 +39,7 @@ Enhancements
 * When acting as the association Acceptor check that the user hasn't sent
   an A-ABORT or A-ASSOCIATE-RJ before attempting association negotiation
   (:issue:`408`)
-* Added :py:attr:`~pynetdicom.events.Event.message_id` to
+* Added :attr:`~pynetdicom.events.Event.message_id` to
   :class:`~pynetdicom.events.Event` for use when receiving a DIMSE service
   request
 * Added the well-known SOP Instances for the supported service classes to
@@ -61,12 +61,13 @@ Enhancements
   echoscu 127.0.0.1 11112 -d``
 * Added ability to pass optional extra arguments to event handlers by using
   ``(evt.EVT_NAME, handler, ['list', 'of', 'args'])`` (:issue:`447`)
-* Added :meth:`~pynetdicom.ae.AE.make_server` (:issue:`453`).
+* Added :func:`AE.make_server()<pynetdicom.ae.ApplicationEntity.make_server>`
+  (:issue:`453`)
 * Added `request_handler` keyword parameter to
   :class:`~pynetdicom.transport.AssociationServer` (:issue:`453`)
-* Added hook in :class:`~pynetdicom.ae.AE` for creating
+* Added hook in :class:`AE<pynetdicom.ae.ApplicationEntity>` for creating
   :class:`~pynetdicom.transport.AssociationSocket` objects (:issue:`455`)
-* Python 3 only: Added a customisable :class:`~pynetdicom.status.Status`
+* Added a customisable :class:`~pynetdicom.status.Status`
   convenience class for comparing, returning and yielding status values
   (:issue:`454`)
 * Added hook in :class:`~pynetdicom.transport.RequestHandler` for creating
@@ -105,4 +106,5 @@ Changes
 Known Issues
 ............
 
-* TLS v1.3 (with OpenSSL 1.1.1 or higher) is not currently supported.
+* TLS v1.3 (with OpenSSL 1.1.1 or higher) is not currently supported
+  (:issue:`364`)

@@ -93,6 +93,7 @@
               <p class="caption"><span class="caption-text">Documentation</span></p>
 <ul class="current">
 <li class="toctree-l1"><a class="reference internal" href="../user/index.html">User Guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../tutorials/index.html">Tutorials</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../service_classes/index.html">Supported Service Classes</a></li>
 <li class="toctree-l1 current"><a class="reference internal" href="index.html">API Reference</a><ul class="current">
 <li class="toctree-l2"><a class="reference internal" href="init.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">pynetdicom</span></code></a></li>
@@ -113,6 +114,7 @@
 <li class="toctree-l2 current"><a class="current reference internal" href="#">Transport Service (<code class="xref py py-mod docutils literal notranslate"><span class="pre">pynetdicom.transport</span></code>)</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="generated/pynetdicom.transport.AssociationSocket.html">pynetdicom.transport.AssociationSocket</a></li>
 <li class="toctree-l3"><a class="reference internal" href="generated/pynetdicom.transport.AssociationServer.html">pynetdicom.transport.AssociationServer</a></li>
+<li class="toctree-l3"><a class="reference internal" href="generated/pynetdicom.transport.RequestHandler.html">pynetdicom.transport.RequestHandler</a></li>
 <li class="toctree-l3"><a class="reference internal" href="generated/pynetdicom.transport.ThreadedAssociationServer.html">pynetdicom.transport.ThreadedAssociationServer</a></li>
 </ul>
 </li>
@@ -122,15 +124,12 @@
 </ul>
 <p class="caption"><span class="caption-text">Examples</span></p>
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="../examples/index.html">Examples</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../examples/index.html">Code Examples</a></li>
 </ul>
 <p class="caption"><span class="caption-text">Additional Information</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="../apps/index.html">Applications</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../changelog/index.html">Release Notes</a></li>
-</ul>
-<ul>
-<li class="toctree-l1"><a class="reference internal" href="../service_classes/index.html">Supported Service Classes</a></li>
 </ul>
 
             
@@ -211,7 +210,10 @@ communication with peer AEs.</p>
 <tr class="row-even"><td><p><a class="reference internal" href="generated/pynetdicom.transport.AssociationServer.html#pynetdicom.transport.AssociationServer" title="pynetdicom.transport.AssociationServer"><code class="xref py py-obj docutils literal notranslate"><span class="pre">AssociationServer</span></code></a>(ae, address, ae_title, …)</p></td>
 <td><p>An Association server implementation.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="generated/pynetdicom.transport.ThreadedAssociationServer.html#pynetdicom.transport.ThreadedAssociationServer" title="pynetdicom.transport.ThreadedAssociationServer"><code class="xref py py-obj docutils literal notranslate"><span class="pre">ThreadedAssociationServer</span></code></a>(ae, address, …)</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/pynetdicom.transport.RequestHandler.html#pynetdicom.transport.RequestHandler" title="pynetdicom.transport.RequestHandler"><code class="xref py py-obj docutils literal notranslate"><span class="pre">RequestHandler</span></code></a>(request, client_address, server)</p></td>
+<td><p>Connection request handler for the <code class="docutils literal notranslate"><span class="pre">AssociationServer</span></code>.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/pynetdicom.transport.ThreadedAssociationServer.html#pynetdicom.transport.ThreadedAssociationServer" title="pynetdicom.transport.ThreadedAssociationServer"><code class="xref py py-obj docutils literal notranslate"><span class="pre">ThreadedAssociationServer</span></code></a>(ae, address, …)</p></td>
 <td><p>An <a class="reference internal" href="generated/pynetdicom.transport.AssociationServer.html#pynetdicom.transport.AssociationServer" title="pynetdicom.transport.AssociationServer"><code class="xref py py-class docutils literal notranslate"><span class="pre">AssociationServer</span></code></a> suitable for threading.</p></td>
 </tr>
 </tbody>
@@ -238,7 +240,7 @@ communication with peer AEs.</p>
 
   <div role="contentinfo">
     <p>
-        &copy; Copyright 2018-19, pynetdicom contributors
+        &copy; Copyright 2018-20, pynetdicom contributors
 
     </p>
   </div>

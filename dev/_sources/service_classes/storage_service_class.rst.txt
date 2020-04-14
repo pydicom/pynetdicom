@@ -344,6 +344,8 @@ Storage Service Statuses
 | 0xC000 to 0xCFFF | Failure  | Cannot understand                |
 +------------------+----------+----------------------------------+
 
+.. _service_store_pynd:
+
 pynetdicom Statuses
 ~~~~~~~~~~~~~~~~~~~
 

@@ -9,7 +9,7 @@ echoscp
 Description
 ===========
 The ``echoscp`` application implements a Service Class Provider (SCP) for the
-*Verification SOP Class* (*SOP Class UID* ``UID 1.2.840.10008.1.1``). It
+*Verification SOP Class* (*SOP Class UID* ``1.2.840.10008.1.1``). It
 establishes an Association with peer Application Entities (AEs) and listens for
 DICOM C-ECHO-RQ messages to which it responds with a DICOM C-ECHO-RSP
 message. The application can be used to verify basic DICOM connectivity.
@@ -42,8 +42,7 @@ When a peer AE attempts to send non C-ECHO message:
     I: Accepting Association
     I: Association Aborted
 
-Much more information is available when a connection is received while
-running with the ``-d`` option:
+Much more information is available when running with the ``-d`` option:
 
 .. code-block:: text
 
