@@ -54,7 +54,7 @@ In *pynetdicom* presentation contexts are represented using the
         =Implicit VR Little Endian
         =JPEG Baseline (Process 1)
 
-However its easier to use the :func:`build_context` convenience function which
+However it's easier to use the :func:`build_context` convenience function which
 returns a :class:`PresentationContext` instance:
 
 .. doctest::
@@ -120,7 +120,7 @@ In *pynetdicom* this is accomplished through one of the following methods:
 
 3. Supplying a list of :class:`PresentationContext` items to
    :meth:`AE.associate()<pynetdicom.ae.ApplicationEntity.associate>`
-   via the *contexts* keyword argument.
+   via the *contexts* keyword parameter.
 
    .. code-block:: python
 
@@ -172,9 +172,10 @@ transfer syntaxes:
     Transfer Syntax(es):
         =JPEG Baseline (Process 1)
 
-Provided both contexts get accepted then its becomes possible to transfer CT
+Provided both contexts get accepted then it becomes possible to transfer CT
 Image datasets encoded in *JPEG Baseline* and/or *Implicit VR Little Endian*.
-Alternatively it may be necessary to decompress datasets prior to sending (as
+Alternatively it may be necessary to
+:meth:`~pydicom.dataset.Dataset.decompress` datasets prior to sending (as
 *Implicit VR Little Endian* should always be accepted).
 
 
@@ -191,14 +192,14 @@ In *pynetdicom* this is accomplished through one of the following methods:
    <pynetdicom.ae.ApplicationEntity.supported_contexts>`
    attribute directly using a list of :class:`PresentationContext` items.
 
-.. code-block:: python
+   .. code-block:: python
 
-    from pynetdicom import AE, build_context
-    from pynetdicom.sop_class import VerificationSOPClass
+        from pynetdicom import AE, build_context
+        from pynetdicom.sop_class import VerificationSOPClass
 
-    ae = AE()
-    ae.supported_contexts = [build_context(VerificationSOPClass)]
-    ae.start_server(('', 11112))
+        ae = AE()
+        ae.supported_contexts = [build_context(VerificationSOPClass)]
+        ae.start_server(('', 11112))
 
 
 2. Using the
@@ -208,14 +209,28 @@ In *pynetdicom* this is accomplished through one of the following methods:
    :attr:`AE.supported_contexts
    <pynetdicom.ae.ApplicationEntity.supported_contexts>` attribute.
 
-.. code-block:: python
+   .. code-block:: python
 
-    from pynetdicom import AE
-    from pynetdicom.sop_class import VerificationSOPClass
+        from pynetdicom import AE
+        from pynetdicom.sop_class import VerificationSOPClass
 
-    ae = AE()
-    ae.add_supported_context(VerificationSOPClass)
-    ae.start_server(('', 11112))
+        ae = AE()
+        ae.add_supported_context(VerificationSOPClass)
+        ae.start_server(('', 11112))
+
+3. Supplying a list of :class:`PresentationContext` items to
+   :meth:`AE.start_server()<pynetdicom.ae.ApplicationEntity.start_server>`
+   via the `contexts` keyword parameter
+
+   .. code-block:: python
+
+       from pynetdicom import AE, build_context
+       from pynetdicom.sop_class import VerificationSOPClass
+
+       ae = AE()
+       supported = [build_context(VerificationSOPClass)]
+       ae.start_server(('', 11112), contexts=supported)
+
 
 The abstract syntaxes you support should correspond to the service classes that
 are being offered. For example, if you offer the
@@ -353,7 +368,7 @@ When acting as the *requestor* you can set **either or both** of *scu_role* and
 *scp_role*, with the non-specified role assumed to be ``False``.
 
 To support SCP/SCU Role Selection as an *acceptor* you can use the *scu_role*
-and *scp_role* arguments in :meth:`AE.add_supported_context()
+and *scp_role* keyword parameters in :meth:`AE.add_supported_context()
 <pynetdicom.ae.ApplicationEntity.add_supported_context>`:
 
 .. code-block:: python

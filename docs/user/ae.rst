@@ -4,9 +4,9 @@ Application Entity
 ------------------
 
 The first step in DICOM networking with *pynetdicom* is the creation of an
-:ref:`Application Entity <concepts_ae>` which is done using the
+:ref:`Application Entity <concepts_ae>` by using the
 :class:`AE<ApplicationEntity>` class. A minimal initialisation of
-:class:`AE<ApplicationEntity>` requires no arguments.
+:class:`AE<ApplicationEntity>` requires no parameters:
 
 .. doctest::
 
@@ -15,7 +15,7 @@ The first step in DICOM networking with *pynetdicom* is the creation of an
 
 This will create an :class:`AE<ApplicationEntity>` with an AE title of
 ``b'PYNETDICOM      '``. The AE title can set by supplying the *ae_title*
-keyword argument during initialisation:
+keyword parameter during initialisation:
 
 .. doctest::
 
@@ -63,8 +63,8 @@ not be the value that gets stored.
     >>> len(ae.ae_title)
     16
 
-When creating SCPs its also possible to give each SCP its own AE title by
-specifying the *ae_title* keyword argument in
+When creating SCPs  also possible to give each SCP  own AE title by
+specifying the *ae_title* keyword parameter in
 :meth:`AE.start_server()<pynetdicom.ae.ApplicationEntity.start_server>`.
 
 .. _ae_create_scu:
@@ -155,7 +155,7 @@ syntaxes are used by default for each context:
 +---------------------+------------------------------+
 
 Specifying your own transfer syntax(es) can be done with the
-*transfer_syntax* keyword argument as either a single str/UID or a list of
+*transfer_syntax* keyword parameter as either a single str/UID or a list of
 str/UIDs:
 
 .. doctest::
@@ -230,17 +230,16 @@ All the above examples set the requested presentation contexts on the
 Application Entity level, i.e. the same contexts will be used for all
 association requests. To set the requested presentation contexts on a
 per-association basis (i.e. each association request can have different
-requested contexts) you can use the *context* keyword argument when calling
+requested contexts) you can use the *context* keyword parameter when calling
 :meth:`AE.associate()<ApplicationEntity.associate>` (see
 the :ref:`Association <association>` page for more information).
 
 Specifying the network port
 ...........................
-In general it shouldn't be necessary to specify the port when acting as an SCU.
-By default *pynetdicom* will use the first available port to communicate with a
-peer AE. To specify the port number you can use the *bind_address* keyword
-argument when requesting an association, which takes a 2-tuple of
-(str *host*, int *port*):
+In general it shouldn't be necessary to specify the port when acting as an SCU,
+as by default *pynetdicom* will use the first port available. To specify the
+port number manually you can use the *bind_address* keyword parameter when
+requesting an association, which takes a 2-tuple of (str *host*, int *port*):
 
 .. doctest::
 
@@ -340,7 +339,7 @@ syntaxes are used by default for each context:
 +---------------------+------------------------------+
 
 Specifying your own transfer syntax(es) can be done with the
-*transfer_syntax* keyword argument parameter as either a single str/UID or a
+*transfer_syntax* keyword parameter parameter as either a single str/UID or a
 list of str/UIDs:
 
 .. doctest::
@@ -387,7 +386,7 @@ property and they are returned in order of their abstract syntax UID value:
         =Explicit VR Little Endian
         =Explicit VR Big Endian
 
-For the association *Acceptor* its not possible to have multiple supported
+For the association *Acceptor* it's not possible to have multiple supported
 presentation contexts for the same abstract syntax, instead any additional
 transfer syntaxes will be combined with the pre-existing context:
 
@@ -412,7 +411,7 @@ All the above examples set the supported presentation contexts on the
 Application Entity level, i.e. the same contexts will be used for all
 SCPs. To set the supported presentation contexts on a
 per-SCP basis (i.e. each SCP can have different
-supported contexts) you can use the *context* keyword argument when calling
+supported contexts) you can use the *contexts* keyword parameter when calling
 :meth:`AE.start_server()<ApplicationEntity.start_server>` (see
 the :ref:`Association <association>` page for more information).
 
@@ -427,7 +426,7 @@ may include
 :dcm:`SCP/SCU Role Selection Negotiation <part07/sect_D.3.3.4.html>`
 items in the association request and it's up to the association *Acceptor*
 to decide whether or not to accept the proposed roles. This can be done
-through the *scu_role* and *scp_role* keyword arguments, which control whether
+through the *scu_role* and *scp_role* keyword parameters, which control whether
 or not the association *Acceptor* will accept or reject the proposal:
 
 .. doctest::
@@ -472,7 +471,7 @@ methods are:
 * SAML assertion
 * JSON web token
 
-By default all association requests that include user identity negotiation
+By default, all association requests that include user identity negotiation
 are accepted (provided there's no other reason to reject) and
 no user identity negotiation response is sent even if one is requested.
 
@@ -486,6 +485,8 @@ to see the requirements for implementations of the ``evt.EVT_USER_ID`` handler.
 
     from pynetdicom import AE, evt
     from pynetdicom.sop_class import VerificationSOPClass
+
+    from my_code import some_user_function
 
     def handle_user_id(event):
         """Handle evt.EVT_USER_ID."""
@@ -504,7 +505,8 @@ to see the requirements for implementations of the ``evt.EVT_USER_ID`` handler.
 Specifying the bind address
 ...........................
 The bind address for the server socket is specified by the *address*
-argument to ``start_server()`` as (str *host*, int *port*).
+parameter to :meth:`~pynetdicom.ae.ApplicationEntity.start_server` as
+(str *host*, int *port*).
 
 .. code-block:: python
 
