@@ -38,7 +38,7 @@ networking protocol. Working with
 `pydicom <https://github.com/pydicom/pydicom>`_, it allows the easy creation
 of DICOM *Service Class Users* (SCUs) and *Service Class Providers* (SCPs).
 
-The main user class is
+*pynetdicom's* main user class is
 `AE <https://pydicom.github.io/pynetdicom/stable/reference/generated/pynetdicom.ae.ApplicationEntity.html>`_,
 which is used to represent a DICOM Application Entity. Once an ``AE`` has been
 created you can:
@@ -249,7 +249,7 @@ are available in the documentation.
 
 Echo SCU
 ~~~~~~~~
-Send a C-ECHO request to a peer Verification SCP (at TCP/IP address
+Send a C-ECHO request to a Verification SCP (at TCP/IP address
 *addr*, listen port number *port*):
 
 .. code-block:: python
@@ -258,8 +258,8 @@ Send a C-ECHO request to a peer Verification SCP (at TCP/IP address
 
         ae = AE(ae_title=b'MY_ECHO_SCU')
         # Verification SOP Class has a UID of 1.2.840.10008.1.1
-        #   we can use the UID string directly when requesting the presentation
-        #   contexts we want to use in the association
+        #   we can use the UID str directly when adding the requested
+        #   presentation context
         ae.add_requested_context('1.2.840.10008.1.1')
 
         # Associate with a peer AE
@@ -278,9 +278,9 @@ Send a C-ECHO request to a peer Verification SCP (at TCP/IP address
 
 Echo SCP
 ~~~~~~~~
-Create a blocking Echo SCP on port 11112 (you may optionally
+Create a blocking Echo SCP on port ``11112`` (you may optionally
 bind a handler to the ``evt.EVT_C_ECHO`` event if you want to return something
-other than a *Success* status):
+other than an ``0x0000`` *Success* status):
 
 .. code-block:: python
 
@@ -298,10 +298,11 @@ other than a *Success* status):
 
 Alternatively, you can start the SCP in non-blocking mode, which returns the
 running server instance. This can be useful when you want to run a Storage SCP
-and make C-MOVE requests within the same AE. In the next example we'll create a
-non-blocking Verification SCP and bind a handler for the C-ECHO service
-request event ``evt.EVT_C_ECHO`` that logs the requestor's address and port
-number and the timestamp for the event.
+and make C-MOVE requests within the same AE.
+
+In the next example we'll create a non-blocking Verification SCP and bind a
+handler for the C-ECHO service request event ``evt.EVT_C_ECHO`` that logs the
+requestor's address and port number and the timestamp for the event.
 
 .. code-block:: python
 
@@ -324,9 +325,9 @@ number and the timestamp for the event.
             ----------
             event : evt.Event
                 The C-ECHO service request event, this parameter is always
-                passed.
+                present.
             logger : logging.Logger
-                The logger to use, this parameter is only passed because we
+                The logger to use, this parameter is only present because we
                 bound ``evt.EVT_C_ECHO`` using a 3-tuple.
 
             Returns
@@ -357,7 +358,7 @@ number and the timestamp for the event.
         # Start the SCP in non-blocking mode
         scp = ae.start_server(('', 11112), block=False, evt_handlers=handlers)
 
-        # Send a C-ECHO request to our own Verification SCP
+        # Associate and send a C-ECHO request to our own Verification SCP
         ae.add_requested_context(VerificationSOPClass)
         assoc = ae.associate('localhost', 11112)
         if assoc.is_established:
