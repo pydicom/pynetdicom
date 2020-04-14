@@ -34,26 +34,45 @@ protocols for media exchange in radiology, cardiology, radiotherapy and other
 medical domains.
 
 *pynetdicom* is a pure Python (2.7/3.5+) package that implements the DICOM
-networking protocol. Working with `pydicom <https://github.com/pydicom/pydicom>`_,
-it allows the easy creation of DICOM *Service Class Users* (SCUs) and
-*Service Class Providers* (SCPs).
+networking protocol. Working with
+`pydicom <https://github.com/pydicom/pydicom>`_, it allows the easy creation
+of DICOM *Service Class Users* (SCUs) and *Service Class Providers* (SCPs).
 
-The main user class is ``AE``, which is used to represent a DICOM Application
-Entity. Once an ``AE`` has been created you would typically either:
+The main user class is
+`AE <https://pydicom.github.io/pynetdicom/stable/reference/generated/pynetdicom.ae.ApplicationEntity.html>`_,
+which is used to represent a DICOM Application Entity. Once an ``AE`` has been
+created you can:
 
-- Start the application as an SCP by specifying the presentation contexts that
-  you will support, then calling ``AE.start_server((host, port))`` and waiting
-  for incoming association requests
+- Start the application as an SCP by specifying the supported presentation
+  contexts then calling
+  `AE.start_server() <https://pydicom.github.io/pynetdicom/stable/reference/generated/pynetdicom.ae.ApplicationEntity.html#pynetdicom.ae.ApplicationEntity.start_server>`_
+  and waiting for incoming association requests
 - Use the application as an SCU by specifying the presentation contexts you
   want the peer SCP to support, then requesting an association
-  via the ``AE.associate(host, port)`` method, which returns an ``Association``
+  via the
+  `AE.associate() <https://pydicom.github.io/pynetdicom/stable/reference/generated/pynetdicom.ae.ApplicationEntity.html#pynetdicom.ae.ApplicationEntity.associate>`_
+  method, which returns an
+  `Association <https://pydicom.github.io/pynetdicom/stable/reference/generated/pynetdicom.association.Association.html#pynetdicom.association.Association>`_
   thread.
 
-Once the application is associated with a peer AE, DICOM data can be sent between
-them by utilising the DIMSE-C and -N services (see the DICOM Standard Part 7,
-Sections `7.5 <http://dicom.nema.org/medical/dicom/current/output/html/part07.html#sect_7.5>`_,
-`9 <http://dicom.nema.org/medical/dicom/current/output/html/part07.html#chapter_9>`_,
-and `10 <http://dicom.nema.org/medical/dicom/current/output/html/part07.html#chapter_10>`_).
+Once associated, the services available to the association can
+be used by sending
+`DIMSE-C <http://dicom.nema.org/medical/dicom/current/output/html/part07.html#chapter_9>`_
+and
+`DIMSE-N <http://dicom.nema.org/medical/dicom/current/output/html/part07.html#chapter_10>`_
+messages.
+
+Documentation
+-------------
+The *pynetdicom*
+`tutorials <https://pydicom.github.io/pynetdicom/stable/tutorials/index.html>`_,
+`user guide <https://pydicom.github.io/pynetdicom/stable/user/index.html>`_,
+`code examples <https://pydicom.github.io/pynetdicom/stable/examples/index.html>`_,
+`application <https://pydicom.github.io/pynetdicom/stable/apps/index.html>`_ and
+`API reference <https://pydicom.github.io/pynetdicom/stable/reference/index.html>`_
+documentation is available for the
+`current release <https://pydicom.github.io/pynetdicom/>`_ as well as the
+`development version <https://pydicom.github.io/pynetdicom/dev>`_.
 
 Installation
 ------------
@@ -83,25 +102,13 @@ Installing development version
     $ pip install git+git://github.com/pydicom/pynetdicom.git
 
 
-Documentation
--------------
-The *pynetdicom*
-`user guide <https://pydicom.github.io/pynetdicom/stable/#user-guide>`_,
-`code examples <https://pydicom.github.io/pynetdicom/stable/#examples>`_ and
-`API reference <https://pydicom.github.io/pynetdicom/stable/reference/index.html>`_
-documentation is available for the
-`current release <https://pydicom.github.io/pynetdicom/>`_ as well as the
-`development version <https://pydicom.github.io/pynetdicom/dev>`_.
-
 Supported DIMSE Services
 ------------------------
 SCU Services
 ~~~~~~~~~~~~
 
 When the AE is acting as an SCU and an association has been established with a
-peer SCP, the following DIMSE-C and -N services are available (provided the
-peer supports the Service Class and a corresponding Presentation Context has
-been accepted):
+peer SCP, the following DIMSE-C and -N services are available:
 
 .. _assoc: https://pydicom.github.io/pynetdicom/stable/reference/generated/pynetdicom.association.Association.html
 .. _echo: https://pydicom.github.io/pynetdicom/stable/reference/generated/pynetdicom.association.Association.html#pynetdicom.association.Association.send_c_echo
@@ -115,6 +122,7 @@ been accepted):
 .. _er: https://pydicom.github.io/pynetdicom/stable/reference/generated/pynetdicom.association.Association.html#pynetdicom.association.Association.send_n_event_report
 .. _n_get: https://pydicom.github.io/pynetdicom/stable/reference/generated/pynetdicom.association.Association.html#pynetdicom.association.Association.send_n_get
 .. _set: https://pydicom.github.io/pynetdicom/stable/reference/generated/pynetdicom.association.Association.html#pynetdicom.association.Association.send_n_set
+
 
 +----------------+----------------------------------------------------------------------------------------+
 | DIMSE service  | `Association <assoc_>`_ method                                                         |
@@ -203,10 +211,15 @@ With the exception of the C-ECHO service, a user-defined callable function,
 in order to complete a DIMSE service request. Events
 can be imported with ``from pynetdicom import evt`` and a handler can be
 bound to an event prior to starting an association through the *evt_handlers*
-keyword arguments in ``AE.start_server()`` and ``AE.associate()``.
+keyword arguments in
+`AE.start_server() <https://pydicom.github.io/pynetdicom/stable/reference/generated/pynetdicom.ae.ApplicationEntity.html#pynetdicom.ae.ApplicationEntity.start_server>`_
+and
+`AE.associate() <https://pydicom.github.io/pynetdicom/stable/reference/generated/pynetdicom.ae.ApplicationEntity.html#pynetdicom.ae.ApplicationEntity.associate>`_.
 
 When an event occurs the *handler* function is called and passed a single
-parameter, *event*, which is an ``evt.Event`` object whose specific attributes
+parameter, *event*, which is an
+`Event <https://pydicom.github.io/pynetdicom/stable/reference/generated/pynetdicom.events.Event.html>`_
+object whose specific attributes
 are dependent on the type of event that occurred. Handlers bound to
 intervention events must  return or yield certain values. See the
 `handler documentation <https://pydicom.github.io/pynetdicom/stable/reference/events>`_
@@ -214,10 +227,30 @@ for information on what attributes and properties are available in ``Event``
 for each event type and the expected returns/yields for the
 corresponding handlers.
 
-Examples
---------
-Send a DICOM C-ECHO to a peer Verification SCP (at TCP/IP address *addr*,
-listen port number *port*):
+Applications
+------------
+
+Some basic DICOM applications are included with *pynetdicom*:
+
+* `echoscp <https://pydicom.github.io/pynetdicom/stable/apps/echoscp.html>`_
+* `echoscu <https://pydicom.github.io/pynetdicom/stable/apps/echoscu.html>`_
+* `findscu <https://pydicom.github.io/pynetdicom/stable/apps/findscu.html>`_
+* `getscu <https://pydicom.github.io/pynetdicom/stable/apps/getscu.html>`_
+* `movescu <https://pydicom.github.io/pynetdicom/stable/apps/movescu.html>`_
+* `storescp <https://pydicom.github.io/pynetdicom/stable/apps/storescp.html>`_
+* `storescu <https://pydicom.github.io/pynetdicom/stable/apps/storescu.html>`_
+
+Code Examples
+-------------
+
+More
+`code examples <https://pydicom.github.io/pynetdicom/stable/examples/index.html>`_
+are available in the documentation.
+
+Echo SCU
+~~~~~~~~
+Send a C-ECHO request to a peer Verification SCP (at TCP/IP address
+*addr*, listen port number *port*):
 
 .. code-block:: python
 
@@ -229,25 +262,23 @@ listen port number *port*):
         #   contexts we want to use in the association
         ae.add_requested_context('1.2.840.10008.1.1')
 
-        # Associate with a peer DICOM AE
+        # Associate with a peer AE
         assoc = ae.associate(addr, port)
 
         if assoc.is_established:
             # Send a DIMSE C-ECHO request to the peer
-            # `status` is a pydicom Dataset object with (at a minimum) a
-            #   (0000,0900) Status element
-            # If the peer hasn't accepted the requested context then this
-            #   will raise a RuntimeError exception
             status = assoc.send_c_echo()
 
-            # Output the response from the peer
+            # Print the response from the peer
             if status:
                 print('C-ECHO Response: 0x{0:04x}'.format(status.Status))
 
             # Release the association
             assoc.release()
 
-Create a blocking DICOM C-ECHO listen SCP on port 11112 (you may optionally
+Echo SCP
+~~~~~~~~
+Create a blocking Echo SCP on port 11112 (you may optionally
 bind a handler to the ``evt.EVT_C_ECHO`` event if you want to return something
 other than a *Success* status):
 
@@ -276,23 +307,27 @@ number and the timestamp for the event.
 
         import logging
 
-        from pynetdicom import AE, evt, VerificationPresentationContexts, debug_logger
+        from pynetdicom import AE, evt, debug_logger
+        from pynetdicom.sop_class import VerificationSOPClass
 
         # Setup logging to use the StreamHandler at the debug level
         debug_logger()
-        LOGGER = logging.getLogger('pynetdicom')
 
         ae = AE(ae_title=b'MY_ECHO_SCP')
-        ae.supported_contexts = VerificationPresentationContexts
+        ae.add_supported_contexts(VerificationSOPClass)
 
         # Implement the EVT_C_ECHO handler
-        def handle_echo(event):
+        def handle_echo(event, logger):
             """Handle a C-ECHO service request.
 
             Parameters
             ----------
             event : evt.Event
-                The C-ECHO service request event.
+                The C-ECHO service request event, this parameter is always
+                passed.
+            logger : logging.Logger
+                The logger to use, this parameter is only passed because we
+                bound ``evt.EVT_C_ECHO`` using a 3-tuple.
 
             Returns
             -------
@@ -310,18 +345,20 @@ number and the timestamp for the event.
                 "Received C-ECHO service request from ({}, {}) at {}"
                 .format(requestor.address, requestor.port, timestamp)
             )
-            LOGGER.info(msg)
+            logger.info(msg)
 
             # Return a *Success* status
             return 0x0000
 
-        handlers = [(evt.EVT_C_ECHO, handle_echo)]
+        # By binding using a 3-tuple we can pass extra arguments to
+        #   the handler
+        handlers = [(evt.EVT_C_ECHO, handle_echo, [logging.getLogger('pynetdicom')])]
 
         # Start the SCP in non-blocking mode
         scp = ae.start_server(('', 11112), block=False, evt_handlers=handlers)
 
         # Send a C-ECHO request to our own Verification SCP
-        ae.add_requested_context('1.2.840.10008.1.1')
+        ae.add_requested_context(VerificationSOPClass)
         assoc = ae.associate('localhost', 11112)
         if assoc.is_established:
             status = assoc.send_c_echo()
@@ -330,7 +367,8 @@ number and the timestamp for the event.
         # Shutdown the SCP
         scp.shutdown()
 
-
+Storage SCU
+~~~~~~~~~~~
 Send the DICOM *CT Image Storage* dataset in *file-in.dcm* to a peer Storage
 SCP (at TCP/IP address *addr*, listen port number *port*):
 
