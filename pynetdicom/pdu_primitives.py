@@ -1657,7 +1657,7 @@ class SCP_SCU_RoleSelectionNegotiation(ServiceParameter):
 
 
 class SOPClassExtendedNegotiation(ServiceParameter):
-    """
+    r"""
     A representation of the SOP Class Extended Negotiation primitive.
 
     Allows peer AEs to exchange application information defined by specific
@@ -1685,7 +1685,7 @@ class SOPClassExtendedNegotiation(ServiceParameter):
 
     .. code-block:: python
 
-       >>> from pynetdicom.pdu_items import SOPClassExtendedNegotiation
+       >>> from pynetdicom.pdu_primitives import SOPClassExtendedNegotiation
        >>> item = SOPClassExtendedNegotiation()
        >>> item.sop_class_uid = '1.2.840.10008.5.1.4.1.2.1.3'
        >>> item.service_class_application_information = b'\x01'

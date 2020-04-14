@@ -179,7 +179,6 @@ def main(args=None):
         sys.argv = args
 
     args = _setup_argparser()
-
     if args.version:
         print('storescp.py v{}'.format(__version__))
         sys.exit()

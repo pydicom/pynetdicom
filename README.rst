@@ -9,6 +9,8 @@
     :target: https://badge.fury.io/py/pynetdicom
 .. image:: https://img.shields.io/pypi/pyversions/pynetdicom.svg
     :target: https://img.shields.io/pypi/pyversions/pynetdicom.svg
+.. image:: https://img.shields.io/conda/vn/conda-forge/pynetdicom.svg
+   :target: https://anaconda.org/conda-forge/pynetdicom
 .. image:: https://zenodo.org/badge/DOI/10.5281/zenodo.3345559.svg
    :target: https://doi.org/10.5281/zenodo.3345559
 .. image:: https://badges.gitter.im/pydicom/Lobby.svg
@@ -61,15 +63,24 @@ Dependencies
 
 Installing current release
 ~~~~~~~~~~~~~~~~~~~~~~~~~~
+Using pip:
+
 .. code-block:: sh
 
-        $ pip install pynetdicom
+    $ pip install pynetdicom
+
+Using conda:
+
+.. code-block:: sh
+
+    $ conda install -c conda-forge pynetdicom
+
 
 Installing development version
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 .. code-block:: sh
 
-        $ pip install git+git://github.com/pydicom/pynetdicom.git
+    $ pip install git+git://github.com/pydicom/pynetdicom.git
 
 
 Documentation

@@ -286,7 +286,7 @@ def main(args=None):
     if assoc.is_established:
         # Send C-FIND request, `responses` is a generator
         responses = assoc.send_c_find(identifier, query_model)
-        # Ysed to generate filenames if args.write used
+        # Used to generate filenames if args.write used
         fname = generate_filename()
         for (status, rsp_identifier) in responses:
             # If `status.Status` is one of the 'Pending' statuses then

@@ -127,7 +127,7 @@ master_doc = 'index'
 
 # General information about the project.
 project = u'pynetdicom'
-copyright = u'2018-19, pynetdicom contributors'
+copyright = u'2018-20, pynetdicom contributors'
 
 # The version info for the project you're documenting, acts as replacement for
 # |version| and |release|, also used in various other places throughout the

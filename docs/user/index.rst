@@ -7,7 +7,6 @@ User Guide
 .. toctree::
    :maxdepth: 2
 
-   installation
    concepts
    presentation
    events
