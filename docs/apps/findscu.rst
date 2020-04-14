@@ -11,16 +11,16 @@ Description
 The ``findscu`` application implements a *Service Class User* (SCU) for
 the :dcm:`Query/Retrieve Service Class<part04/chapter_C.html>`. It requests an
 association with a peer Application Entity on IP address ``addr`` and listen
-port ``port`` and once established, sends a query to be matched against the
-SCP's managed SOP Instances. The SCP then responds with the matching query
+port ``port`` and once established, sends a C-FIND query to be matched against
+the SCP's managed SOP Instances. The SCP then responds with the matching query
 keys.
 
 Usage
 =====
 
 The following example shows what happens when it is succesfully run on
-an SCP at IP ``127.0.0.1`` and listen port ``11112`` that supports the *QR Find
-Service*:
+an SCP at IP ``127.0.0.1`` and listen port ``11112`` that supports the
+*Query/Retrieve (Find) Service*:
 
 .. code-block:: text
 

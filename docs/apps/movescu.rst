@@ -11,8 +11,8 @@ Description
 The ``movescu`` application implements a *Service Class User* (SCU) for
 the :dcm:`Query/Retrieve Service Class<part04/chapter_C.html>`. It requests an
 association with a peer Application Entity on IP address ``addr`` and listen
-port ``port`` and once established, sends a query to be matched against the
-SCP's managed SOP Instances. The SCP then responds by sending a copy of the
+port ``port`` and once established, sends a C-MOVE query to be matched against
+the SCP's managed SOP Instances. The SCP then responds by sending a copy of the
 matching SOP Instances to the Store SCP specified using the Move AE title.
 
 
@@ -20,8 +20,8 @@ Usage
 =====
 
 The following example shows what happens when it is succesfully run on
-an SCP at IP ``127.0.0.1`` and listen port ``11112`` that supports the *QR Move
-Service* with the default Move AE title ``STORESCP``:
+an SCP at IP ``127.0.0.1`` and listen port ``11112`` that supports the
+*Query/Retrieve (Move) Service* with the default Move AE title ``STORESCP``:
 
 .. code-block:: text
 

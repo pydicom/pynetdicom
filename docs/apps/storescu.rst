@@ -43,7 +43,7 @@ More information is available with the ``-d`` flag:
     D: Checking input file
     I: Requesting Association
     D: Request Parameters:
-    D: ========================= BEGIN A-ASSOCIATE-RQ PDU =========================
+    D: ======================= OUTGOING A-ASSOCIATE-RQ PDU ========================
     ...
     D: ========================== END A-ASSOCIATE-AC PDU ==========================
     I: Association Accepted
