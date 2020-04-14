@@ -512,9 +512,11 @@ class Event(object):
         Add the File Meta Information to the decoded *Data Set* and save it to
         the :dcm:`DICOM File Format<part10/chapter_7.html>`.
 
-        >>> ds = event.dataset
-        >>> ds.file_meta = event.file_meta
-        >>> ds.save_as('example.dcm')
+        .. code-block:: python
+
+            >>> ds = event.dataset
+            >>> ds.file_meta = event.file_meta
+            >>> ds.save_as('example.dcm')
 
         Encode the File Meta Information in a new file and append the encoded
         *Data Set* to it. This skips having to decode/re-encode the *Data Set*

@@ -40,34 +40,40 @@ Representation in pynetdicom
 In *pynetdicom* presentation contexts are represented using the
 :class:`presentation.PresentationContext<PresentationContext>` class.
 
->>> from pynetdicom.presentation import PresentationContext
->>> cx = PresentationContext()
->>> cx.context_id = 1
->>> cx.abstract_syntax = '1.2.840.10008.1.1'
->>> cx.transfer_syntax = ['1.2.840.10008.1.2', '1.2.840.10008.1.2.4.50']
->>> print(cx)
-ID: 1
-Abstract Syntax: Verification SOP Class
-Transfer Syntax(es):
-    =Implicit VR Little Endian
-    =JPEG Baseline (Process 1)
+.. doctest::
+
+    >>> from pynetdicom.presentation import PresentationContext
+    >>> cx = PresentationContext()
+    >>> cx.context_id = 1
+    >>> cx.abstract_syntax = '1.2.840.10008.1.1'
+    >>> cx.transfer_syntax = ['1.2.840.10008.1.2', '1.2.840.10008.1.2.4.50']
+    >>> print(cx)
+    ID: 1
+    Abstract Syntax: Verification SOP Class
+    Transfer Syntax(es):
+        =Implicit VR Little Endian
+        =JPEG Baseline (Process 1)
 
 However its easier to use the :func:`build_context` convenience function which
 returns a :class:`PresentationContext` instance:
 
->>> from pynetdicom import build_context
->>> cx = build_context('1.2.840.10008.1.1', ['1.2.840.10008.1.2', '1.2.840.10008.1.2.4.50'])
->>> print(cx)
-Abstract Syntax: Verification SOP Class
-Transfer Syntax(es):
-    =Implicit VR Little Endian
-    =JPEG Baseline (Process 1)
->>> print(build_context('1.2.840.10008.1.1'))  # Default transfer syntaxes
-Abstract Syntax: Verification SOP Class
-Transfer Syntax(es):
-    =Implicit VR Little Endian
-    =Explicit VR Little Endian
-    =Explicit VR Big Endian
+.. doctest::
+
+    >>> from pynetdicom import build_context
+    >>> cx = build_context(
+    ...     '1.2.840.10008.1.1', ['1.2.840.10008.1.2', '1.2.840.10008.1.2.4.50']
+    ... )
+    >>> print(cx)
+    Abstract Syntax: Verification SOP Class
+    Transfer Syntax(es):
+        =Implicit VR Little Endian
+        =JPEG Baseline (Process 1)
+    >>> print(build_context('1.2.840.10008.1.1'))  # Default transfer syntaxes
+    Abstract Syntax: Verification SOP Class
+    Transfer Syntax(es):
+        =Implicit VR Little Endian
+        =Explicit VR Little Endian
+        =Explicit VR Big Endian
 
 
 Presentation Contexts and the Association Requestor
@@ -87,15 +93,14 @@ In *pynetdicom* this is accomplished through one of the following methods:
    <pynetdicom.ae.ApplicationEntity.requested_contexts>`
    attribute directly using a list of :class:`PresentationContext` items.
 
-::
+   .. code-block:: python
 
-    from pynetdicom import AE, build_context
-    from pynetdicom.sop_class import VerificationSOPClass
+      from pynetdicom import AE, build_context
+      from pynetdicom.sop_class import VerificationSOPClass
 
-    ae = AE()
-    ae.requested_contexts = [build_context(VerificationSOPClass)]
-    assoc = ae.associate('127.0.0.1', 11112)
-
+      ae = AE()
+      ae.requested_contexts = [build_context(VerificationSOPClass)]
+      assoc = ae.associate('127.0.0.1', 11112)
 
 2. Using the
    :meth:`AE.add_requested_context()
@@ -104,27 +109,27 @@ In *pynetdicom* this is accomplished through one of the following methods:
    :attr:`AE.requested_contexts
    <pynetdicom.ae.ApplicationEntity.requested_contexts>` attribute.
 
-::
+   .. code-block:: python
 
-    from pynetdicom import AE
-    from pynetdicom.sop_class import VerificationSOPClass
+      from pynetdicom import AE
+      from pynetdicom.sop_class import VerificationSOPClass
 
-    ae = AE()
-    ae.add_requested_context(VerificationSOPClass)
-    assoc = ae.associate('127.0.0.1', 11112)
+      ae = AE()
+      ae.add_requested_context(VerificationSOPClass)
+      assoc = ae.associate('127.0.0.1', 11112)
 
 3. Supplying a list of :class:`PresentationContext` items to
    :meth:`AE.associate()<pynetdicom.ae.ApplicationEntity.associate>`
    via the *contexts* keyword argument.
 
-::
+   .. code-block:: python
 
-    from pynetdicom import AE, build_context
-    from pynetdicom.sop_class import VerificationSOPClass
+      from pynetdicom import AE, build_context
+      from pynetdicom.sop_class import VerificationSOPClass
 
-    ae = AE()
-    requested = [build_context(VerificationSOPClass)]
-    assoc = ae.associate('127.0.0.1', 11112, contexts=requested)
+      ae = AE()
+      requested = [build_context(VerificationSOPClass)]
+      assoc = ae.associate('127.0.0.1', 11112, contexts=requested)
 
 
 The abstract syntaxes you propose should match the SOP Class or Meta SOP Class
@@ -149,21 +154,23 @@ If you have data encoded in a variety of transfer syntaxes then you can propose
 multiple presentation contexts with the same abstract syntax but different
 transfer syntaxes:
 
->>> from pydicom.uid import ImplicitVRLittleEndian, JPEGBaseline
->>> from pynetdicom import AE
->>> from pynetdicom.sop_class import CTImageStorage
->>> ae = AE()
->>> ae.add_requested_context(CTImageStorage, ImplicitVRLittleEndian)
->>> ae.add_requested_context(CTImageStorage, JPEGBaseline)
->>> for cx in ae.requested_contexts:
-...     print(cx)
-...
-Abstract Syntax: CT Image Storage
-Transfer Syntax(es):
-    =Implicit VR Little Endian
-Abstract Syntax: CT Image Storage
-Transfer Syntax(es):
-    =JPEG Baseline (Process 1)
+.. doctest::
+
+    >>> from pydicom.uid import ImplicitVRLittleEndian, JPEGBaseline
+    >>> from pynetdicom import AE
+    >>> from pynetdicom.sop_class import CTImageStorage
+    >>> ae = AE()
+    >>> ae.add_requested_context(CTImageStorage, ImplicitVRLittleEndian)
+    >>> ae.add_requested_context(CTImageStorage, JPEGBaseline)
+    >>> for cx in ae.requested_contexts:
+    ...     print(cx)
+    ...
+    Abstract Syntax: CT Image Storage
+    Transfer Syntax(es):
+        =Implicit VR Little Endian
+    Abstract Syntax: CT Image Storage
+    Transfer Syntax(es):
+        =JPEG Baseline (Process 1)
 
 Provided both contexts get accepted then its becomes possible to transfer CT
 Image datasets encoded in *JPEG Baseline* and/or *Implicit VR Little Endian*.
@@ -184,7 +191,7 @@ In *pynetdicom* this is accomplished through one of the following methods:
    <pynetdicom.ae.ApplicationEntity.supported_contexts>`
    attribute directly using a list of :class:`PresentationContext` items.
 
-::
+.. code-block:: python
 
     from pynetdicom import AE, build_context
     from pynetdicom.sop_class import VerificationSOPClass
@@ -201,7 +208,7 @@ In *pynetdicom* this is accomplished through one of the following methods:
    :attr:`AE.supported_contexts
    <pynetdicom.ae.ApplicationEntity.supported_contexts>` attribute.
 
-::
+.. code-block:: python
 
     from pynetdicom import AE
     from pynetdicom.sop_class import VerificationSOPClass
@@ -322,7 +329,8 @@ To propose SCP/SCU Role Selection as a *requestor* you should include
 items in the extended negotiation, either by creating them from scratch or
 using the :func:`build_role` convenience function:
 
-  ::
+
+.. code-block:: python
 
     from pynetdicom import AE, build_role
     from pynetdicom.pdu_primitives import SCP_SCU_RoleSelectionNegotiation
@@ -348,7 +356,7 @@ To support SCP/SCU Role Selection as an *acceptor* you can use the *scu_role*
 and *scp_role* arguments in :meth:`AE.add_supported_context()
 <pynetdicom.ae.ApplicationEntity.add_supported_context>`:
 
-  ::
+.. code-block:: python
 
     from pynetdicom import AE
     from pynetdicom.pdu_primitives import SCP_SCU_RoleSelectionNegotiation

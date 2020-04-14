@@ -365,8 +365,8 @@ class ApplicationEntity(object):
         Abstract Syntax: Verification SOP Class
         Transfer Syntax(es):
             =Implicit VR Little Endian
-            =Explicit VR Little Endian
             =Explicit VR Big Endian
+            =Explicit VR Little Endian
 
         Add support for *CT Image Storage* and if the association requestor
         includes an SCP/SCU Role Selection Negotiation item for *CT Image
@@ -731,12 +731,12 @@ class ApplicationEntity(object):
         >>> from pynetdicom import AE
         >>> ae = AE()
         >>> ae.add_requested_context('1.2.840.10008.1.1')
-        >>> print(ae.reqested_contexts[0])
+        >>> print(ae.requested_contexts[0])
         Abstract Syntax: Verification SOP Class
         Transfer Syntax(es):
-	        =Implicit VR Little Endian
-	        =Explicit VR Little Endian
-	        =Explicit VR Big Endian
+            =Implicit VR Little Endian
+            =Explicit VR Little Endian
+            =Explicit VR Big Endian
         >>> ae.remove_requested_context('1.2.840.10008.1.1')
         >>> len(ae.requested_contexts)
         0
@@ -770,7 +770,7 @@ class ApplicationEntity(object):
         >>> print(ae.requested_contexts[0])
         Abstract Syntax: Verification SOP Class
         Transfer Syntax(es):
-	        =Implicit VR Little Endian
+            =Implicit VR Little Endian
         >>> ae.remove_requested_context(VerificationSOPClass,
         ...                             ImplicitVRLittleEndian)
         >>> len(ae.requested_contexts)
@@ -788,16 +788,16 @@ class ApplicationEntity(object):
         >>> print(ae.requested_contexts[0])
         Abstract Syntax: Verification SOP Class
         Transfer Syntax(es):
-	        =Implicit VR Little Endian
-	        =Explicit VR Little Endian
-	        =Explicit VR Big Endian
+            =Implicit VR Little Endian
+            =Explicit VR Little Endian
+            =Explicit VR Big Endian
         >>> ae.remove_requested_context(VerificationSOPClass,
         ...                             [ImplicitVRLittleEndian,
         ...                              ExplicitVRLittleEndian])
         >>> print(ae.requested_contexts[0])
         Abstract Syntax: Verification SOP Class
         Transfer Syntax(es):
-	        =Explicit VR Big Endian
+            =Explicit VR Big Endian
         """
         abstract_syntax = UID(abstract_syntax)
 
@@ -861,9 +861,9 @@ class ApplicationEntity(object):
         >>> print(ae.supported_contexts[0])
         Abstract Syntax: Verification SOP Class
         Transfer Syntax(es):
-	        =Implicit VR Little Endian
-	        =Explicit VR Little Endian
-	        =Explicit VR Big Endian
+            =Implicit VR Little Endian
+            =Explicit VR Little Endian
+            =Explicit VR Big Endian
         >>> ae.remove_supported_context('1.2.840.10008.1.1')
         >>> len(ae.supported_contexts)
         0
@@ -896,7 +896,7 @@ class ApplicationEntity(object):
         >>> print(ae.supported_contexts[0])
         Abstract Syntax: Verification SOP Class
         Transfer Syntax(es):
-	        =Implicit VR Little Endian
+            =Implicit VR Little Endian
         >>> ae.remove_supported_context(VerificationSOPClass,
         ...                             ImplicitVRLittleEndian)
         >>> len(ae.supported_contexts)
@@ -914,16 +914,16 @@ class ApplicationEntity(object):
         >>> print(ae.supported_contexts[0])
         Abstract Syntax: Verification SOP Class
         Transfer Syntax(es):
-	        =Implicit VR Little Endian
-	        =Explicit VR Little Endian
-	        =Explicit VR Big Endian
+            =Implicit VR Little Endian
+            =Explicit VR Little Endian
+            =Explicit VR Big Endian
         >>> ae.remove_supported_context(VerificationSOPClass,
         ...                             [ImplicitVRLittleEndian,
         ...                              ExplicitVRLittleEndian])
         >>> print(ae.supported_contexts[0])
         Abstract Syntax: Verification SOP Class
         Transfer Syntax(es):
-	        =Explicit VR Big Endian
+            =Explicit VR Big Endian
         """
         abstract_syntax = UID(abstract_syntax)
 

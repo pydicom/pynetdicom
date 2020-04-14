@@ -821,9 +821,9 @@ def build_context(abstract_syntax, transfer_syntax=None):
 
     >>> from pydicom.uid import UID
     >>> from pynetdicom import build_context
-    >>> context = build_context(UID('1.2.840.10008.1.1'),
-                                ['1.2.840.10008.1.2',
-    ...                          '1.2.840.10008.1.2.4.50'])
+    >>> context = build_context(
+    ...     UID('1.2.840.10008.1.1'), ['1.2.840.10008.1.2', '1.2.840.10008.1.2.4.50']
+    ... )
     >>> print(context)
     Abstract Syntax: Verification SOP Class
     Transfer Syntax(es):

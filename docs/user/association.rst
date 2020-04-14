@@ -15,7 +15,7 @@ presentation contexts then you can associate with a peer by using the
 :meth:`AE.associate()<pynetdicom.ae.ApplicationEntity.associate>`
 method, which returns an :class:`Association` thread:
 
-::
+.. code-block:: python
 
     from pynetdicom import AE
     from pynetdicom.sop_class import VerificationSOPClass
@@ -28,7 +28,7 @@ method, which returns an :class:`Association` thread:
 
     # Release the association
     if assoc.is_established:
-        assoc.release()
+        assoc.release() 
 
 This sends an association request to the IP address ``127.0.0.1`` on port
 ``11112`` with the request containing the presentation contexts from
@@ -87,7 +87,7 @@ service class and intended usage. The following example shows how to add
 Query/Retrieve (QR) Service Class' C-GET service (in this example the QR SCU is
 also acting as a Storage SCP), plus a *User Identity Negotiation* item:
 
-::
+.. code-block:: python
 
     from pynetdicom import AE, StoragePresentationContexts, build_role
     from pynetdicom.pdu_primitives import UserIdentityNegotiation
