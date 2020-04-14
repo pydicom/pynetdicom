@@ -197,10 +197,10 @@
 <div class="section" id="description">
 <h2>Description<a class="headerlink" href="#description" title="Permalink to this headline">¶</a></h2>
 <p>The <code class="docutils literal notranslate"><span class="pre">echoscp</span></code> application implements a Service Class Provider (SCP) for the
-<em>Verification SOP Class</em> (<em>SOP Class UID</em> <code class="docutils literal notranslate"><span class="pre">1.2.840.10008.1.1</span></code>). It
-establishes an Association with peer Application Entities (AEs) and listens for
-DICOM C-ECHO-RQ messages to which it responds with a DICOM C-ECHO-RSP
-message. The application can be used to verify basic DICOM connectivity.</p>
+<em>Verification SOP Class</em> - <code class="docutils literal notranslate"><span class="pre">1.2.840.10008.1.1</span></code>. It
+establishes an Association with peer Application Entities (AEs) and responds to
+incoming C-ECHO requests. The application can be used to verify basic DICOM
+connectivity.</p>
 </div>
 <div class="section" id="usage">
 <h2>Usage<a class="headerlink" href="#usage" title="Permalink to this headline">¶</a></h2>
@@ -227,7 +227,7 @@ I: Association Aborted
 D: echoscp.py v0.7.0
 D:
 D: Request Parameters:
-D: ========================= BEGIN A-ASSOCIATE-RQ PDU =========================
+D: ======================= INCOMING A-ASSOCIATE-RQ PDU ========================
 D: Their Implementation Class UID:      1.2.276.0.7230010.3.0.3.6.2
 ...
 I: Received Echo Request (MsgID 1)

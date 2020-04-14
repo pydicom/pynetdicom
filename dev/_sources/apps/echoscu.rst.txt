@@ -10,8 +10,8 @@ Description
 ===========
 The ``echoscu`` application implements a Service Class User (SCU) for the
 :dcm:`Verification Service Class<part04/chapter_A.html>`. It establishes an
-association with a peer Application Entity (AE), sends a DICOM
-:dcm:`C-ECHO-RQ<part07/sect_9.3.5.html#sect_9.3.5.1>` message and waits for a
+association with a peer Application Entity (AE), sends a
+:dcm:`C-ECHO<part07/sect_9.3.5.html#sect_9.3.5.1>` request and waits for a
 response. The application can be used to verify basic DICOM connectivity.
 
 Usage
@@ -60,7 +60,7 @@ More information is available with the ``-d`` flag:
     D:
     I: Requesting Association
     D: Request Parameters:
-    D: ========================= BEGIN A-ASSOCIATE-RQ PDU =========================
+    D: ======================= OUTGOING A-ASSOCIATE-RQ PDU ========================
     ...
     D: ========================== END A-ASSOCIATE-AC PDU ==========================
     I: Association Accepted

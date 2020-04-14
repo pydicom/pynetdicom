@@ -200,8 +200,8 @@
 <h2>Description<a class="headerlink" href="#description" title="Permalink to this headline">¶</a></h2>
 <p>The <code class="docutils literal notranslate"><span class="pre">echoscu</span></code> application implements a Service Class User (SCU) for the
 <a class="reference external" href="http://dicom.nema.org/medical/dicom/current/output/chtml/part04/chapter_A.html">Verification Service Class</a>. It establishes an
-association with a peer Application Entity (AE), sends a DICOM
-<a class="reference external" href="http://dicom.nema.org/medical/dicom/current/output/chtml/part07/sect_9.3.5.html#sect_9.3.5.1">C-ECHO-RQ</a> message and waits for a
+association with a peer Application Entity (AE), sends a
+<a class="reference external" href="http://dicom.nema.org/medical/dicom/current/output/chtml/part07/sect_9.3.5.html#sect_9.3.5.1">C-ECHO</a> request and waits for a
 response. The application can be used to verify basic DICOM connectivity.</p>
 </div>
 <div class="section" id="usage">
@@ -238,7 +238,7 @@ D: echoscu.py v0.7.0
 D:
 I: Requesting Association
 D: Request Parameters:
-D: ========================= BEGIN A-ASSOCIATE-RQ PDU =========================
+D: ======================= OUTGOING A-ASSOCIATE-RQ PDU ========================
 ...
 D: ========================== END A-ASSOCIATE-AC PDU ==========================
 I: Association Accepted

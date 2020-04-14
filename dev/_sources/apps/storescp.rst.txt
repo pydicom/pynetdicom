@@ -46,7 +46,7 @@ running with the ``-d`` option:
     D: storescp.py v0.6.0
     D:
     D: Request Parameters:
-    D: ========================= BEGIN A-ASSOCIATE-RQ PDU =========================
+    D: ======================= INCOMING A-ASSOCIATE-RQ PDU ========================
     ...
     D: ========================== END A-ASSOCIATE-AC PDU ==========================
     D: pydicom.read_dataset() TransferSyntax="Little Endian Implicit"

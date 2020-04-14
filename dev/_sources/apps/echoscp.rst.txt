@@ -9,10 +9,10 @@ echoscp
 Description
 ===========
 The ``echoscp`` application implements a Service Class Provider (SCP) for the
-*Verification SOP Class* (*SOP Class UID* ``1.2.840.10008.1.1``). It
-establishes an Association with peer Application Entities (AEs) and listens for
-DICOM C-ECHO-RQ messages to which it responds with a DICOM C-ECHO-RSP
-message. The application can be used to verify basic DICOM connectivity.
+*Verification SOP Class* - ``1.2.840.10008.1.1``. It
+establishes an Association with peer Application Entities (AEs) and responds to
+incoming C-ECHO requests. The application can be used to verify basic DICOM
+connectivity.
 
 Usage
 =====
@@ -50,7 +50,7 @@ Much more information is available when running with the ``-d`` option:
     D: echoscp.py v0.7.0
     D:
     D: Request Parameters:
-    D: ========================= BEGIN A-ASSOCIATE-RQ PDU =========================
+    D: ======================= INCOMING A-ASSOCIATE-RQ PDU ========================
     D: Their Implementation Class UID:      1.2.276.0.7230010.3.0.3.6.2
     ...
     I: Received Echo Request (MsgID 1)

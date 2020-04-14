@@ -211,15 +211,15 @@
 <p>The <code class="docutils literal notranslate"><span class="pre">movescu</span></code> application implements a <em>Service Class User</em> (SCU) for
 the <a class="reference external" href="http://dicom.nema.org/medical/dicom/current/output/chtml/part04/chapter_C.html">Query/Retrieve Service Class</a>. It requests an
 association with a peer Application Entity on IP address <code class="docutils literal notranslate"><span class="pre">addr</span></code> and listen
-port <code class="docutils literal notranslate"><span class="pre">port</span></code> and once established, sends a query to be matched against the
-SCP’s managed SOP Instances. The SCP then responds by sending a copy of the
+port <code class="docutils literal notranslate"><span class="pre">port</span></code> and once established, sends a C-MOVE query to be matched against
+the SCP’s managed SOP Instances. The SCP then responds by sending a copy of the
 matching SOP Instances to the Store SCP specified using the Move AE title.</p>
 </div>
 <div class="section" id="usage">
 <h2>Usage<a class="headerlink" href="#usage" title="Permalink to this headline">¶</a></h2>
 <p>The following example shows what happens when it is succesfully run on
-an SCP at IP <code class="docutils literal notranslate"><span class="pre">127.0.0.1</span></code> and listen port <code class="docutils literal notranslate"><span class="pre">11112</span></code> that supports the <em>QR Move
-Service</em> with the default Move AE title <code class="docutils literal notranslate"><span class="pre">STORESCP</span></code>:</p>
+an SCP at IP <code class="docutils literal notranslate"><span class="pre">127.0.0.1</span></code> and listen port <code class="docutils literal notranslate"><span class="pre">11112</span></code> that supports the
+<em>Query/Retrieve (Move) Service</em> with the default Move AE title <code class="docutils literal notranslate"><span class="pre">STORESCP</span></code>:</p>
 <div class="highlight-text notranslate"><div class="highlight"><pre><span></span>$ python -m pynetdicom movescu 127.0.0.1 11112 -k QueryRetrieveLevel=PATIENT -k PatientName=
 I: Requesting Association
 I: Association Accepted
