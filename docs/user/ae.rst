@@ -406,7 +406,6 @@ transfer syntaxes will be combined with the pre-existing context:
         =Explicit VR Little Endian
         =Implicit VR Little Endian
 
-
 All the above examples set the supported presentation contexts on the
 Application Entity level, i.e. the same contexts will be used for all
 SCPs. To set the supported presentation contexts on a

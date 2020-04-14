@@ -344,7 +344,6 @@ To propose SCP/SCU Role Selection as a *requestor* you should include
 items in the extended negotiation, either by creating them from scratch or
 using the :func:`build_role` convenience function:
 
-
 .. code-block:: python
 
     from pynetdicom import AE, build_role
