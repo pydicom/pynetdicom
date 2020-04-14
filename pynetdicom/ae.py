@@ -274,7 +274,7 @@ class ApplicationEntity(object):
         to the list of the SCP's supported contexts.
 
         Where the abstract syntax is already supported the transfer syntaxes
-        will be extended by the those supplied in `transfer_syntax`. To remove
+        will be extended by those supplied in `transfer_syntax`. To remove
         a supported context or one or more of its transfer syntaxes see the
         :meth:`remove_supported_context` method.
 
