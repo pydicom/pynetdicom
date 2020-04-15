@@ -12,8 +12,9 @@ Basic Worklist Management SCU
 
 Associate with a peer DICOM Application Entity and request the
 worklist for the application with AE title ``CTSCANNER`` for the 5th October
-2018. The approach is very similar to that of a Query/Retrieve (Find) SCU,
-however BWM uses a different
+2018. You may need to change the *Identifier* to meet the requirements of the
+SCP so check it's conformance statement. The approach is very similar to that
+of a Query/Retrieve (Find) SCU, however BWM uses a different
 :dcm:`set of attributes <part04/sect_K.6.html#sect_K.6.1.2>` for the
 *Identifier*.
 
