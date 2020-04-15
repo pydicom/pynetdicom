@@ -524,12 +524,12 @@ class Event(object):
 
         .. code-block:: python
 
-            >>> from pydicom.filewriter import write_file_meta_info
-            >>> with open('example.dcm', 'wb') as f:
-            ...     f.write(b'\x00' * 128)
-            ...     f.write(b'DICM')
-            ...     write_file_meta_info(f, event.file_meta)
-            ...     f.write(event.request.DataSet.getvalue())
+           >>> from pydicom.filewriter import write_file_meta_info
+           >>> with open('example.dcm', 'wb') as f:
+           ...     f.write(b'\x00' * 128)
+           ...     f.write(b'DICM')
+           ...     write_file_meta_info(f, event.file_meta)
+           ...     f.write(event.request.DataSet.getvalue())
 
         Returns
         -------

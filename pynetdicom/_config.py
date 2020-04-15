@@ -42,7 +42,7 @@ USE_SHORT_DIMSE_AET = True
 
 If ``False`` then elements with a VR of AE in DIMSE messages will be padded
 with trailing spaces up to the maximum allowable length (16 bytes), otherwise
-no padding will be padded added.
+no padding will be added.
 
 Examples
 --------

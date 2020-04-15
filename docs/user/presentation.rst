@@ -327,6 +327,7 @@ While the *acceptor* supports:
 
 Then the accepted transfer syntax will be *Explicit VR Little Endian*.
 
+.. _user_presentation_role:
 
 SCP/SCU Role Selection
 ......................

@@ -51,14 +51,14 @@ class ApplicationEntity(object):
         The maximum PDU receive size in bytes. A value of ``0`` means the PDU
         size is unlimited (default: ``16382``)
     require_calling_aet : list of bytes
-        If not an empty list, the association request's *Calling AE Title*
-        value must match one of the values in `require_calling_aet`. If an
-        empty list then no matching will be performed (default). (Association
-        acceptor only).
+        Association *acceptor* only. If not an empty list, the association
+        request's *Calling AE Title* value must match one of the values in
+        `require_calling_aet`. If an empty list then no matching will be
+        performed (default).
     require_called_aet : bool
-        If ``True``, the association request's *Called AE Title* value
-        must match :attr:`ae_title` (default ``False``). (Association acceptor
-        only).
+        Association *acceptor* only. If ``True``, the association request's
+        *Called AE Title* value must match :attr:`ae_title` (default
+        ``False``).
     """
     # pylint: disable=too-many-instance-attributes,too-many-public-methods
     def __init__(self, ae_title=b'PYNETDICOM'):
@@ -105,7 +105,7 @@ class ApplicationEntity(object):
 
     @property
     def acse_timeout(self):
-        """Return the ACSE timeout value (in seconds)."""
+        """The ACSE timeout value (in seconds)."""
         return self._acse_timeout
 
     @acse_timeout.setter
@@ -140,8 +140,8 @@ class ApplicationEntity(object):
         return [tt for tt in t_assocs if tt.ae == self]
 
     def add_requested_context(self, abstract_syntax, transfer_syntax=None):
-        """Add a presentation context to be proposed when requesting an
-        association.
+        """Add a :ref:`presentation context<user_presentation>` to be
+        proposed when requesting an association.
 
         When an SCU sends an association request to a peer it includes a list
         of presentation contexts it would like the peer to support. This
@@ -200,8 +200,7 @@ class ApplicationEntity(object):
         >>> from pynetdicom import AE
         >>> from pynetdicom.sop_class import VerificationSOPClass
         >>> ae = AE()
-        >>> ae.add_requested_context(VerificationSOPClass,
-        ...                          ImplicitVRLittleEndian)
+        >>> ae.add_requested_context(VerificationSOPClass, ImplicitVRLittleEndian)
         >>> print(ae.requested_contexts[0])
         Abstract Syntax: Verification SOP Class
         Transfer Syntax(es):
@@ -211,17 +210,15 @@ class ApplicationEntity(object):
         using different transfer syntaxes for each.
 
         >>> from pydicom.uid import (
-        ...     ImplicitVRLittleEndian, ExplicitVRLittleEndian,
-        ...     ExplicitVRBigEndian
+        ...     ImplicitVRLittleEndian, ExplicitVRLittleEndian, ExplicitVRBigEndian
         ... )
         >>> from pynetdicom import AE
         >>> from pynetdicom.sop_class import VerificationSOPClass
         >>> ae = AE()
-        >>> ae.add_requested_context(VerificationSOPClass,
-        ...                          [ImplicitVRLittleEndian,
-        ...                           ExplicitVRBigEndian])
-        >>> ae.add_requested_context(VerificationSOPClass,
-        ...                          ExplicitVRLittleEndian)
+        >>> ae.add_requested_context(
+        ...     VerificationSOPClass, [ImplicitVRLittleEndian, ExplicitVRBigEndian]
+        ... )
+        >>> ae.add_requested_context(VerificationSOPClass, ExplicitVRLittleEndian)
         >>> len(ae.requested_contexts)
         2
         >>> print(ae.requested_contexts[0])
@@ -265,8 +262,8 @@ class ApplicationEntity(object):
 
     def add_supported_context(self, abstract_syntax, transfer_syntax=None,
                               scu_role=None, scp_role=None):
-        """Add a presentation context to be supported when accepting
-        association requests.
+        """Add a :ref:`presentation context<user_presentation>` to be
+        supported when accepting association requests.
 
         When an association request is received from a peer it supplies a list
         of presentation contexts that it would like the SCP to support. This
@@ -286,8 +283,9 @@ class ApplicationEntity(object):
             The transfer syntax(es) to support (default: *Implicit VR Little
             Endian*, *Explicit VR Little Endian*, *Explicit VR Big Endian*).
         scu_role : bool or None, optional
-            If the association requestor includes an SCP/SCU Role Selection
-            Negotiation item for this context then:
+            If the association requestor includes an
+            :ref:`SCP/SCU Role Selection Negotiation<user_presentation_role>`
+            item for this context then:
 
             * If ``None`` then ignore the proposal (if either `scp_role` or
               `scu_role` is ``None`` then both are assumed to be) and use the
@@ -295,8 +293,9 @@ class ApplicationEntity(object):
             * If ``True`` accept the proposed SCU role
             * If ``False`` reject the proposed SCU role
         scp_role : bool or None, optional
-            If the association requestor includes an SCP/SCU Role Selection
-            Negotiation item for this context then:
+            If the association requestor includes an
+            :ref:`SCP/SCU Role Selection Negotiation<user_presentation_role>`
+            item for this context then:
 
             * If ``None`` then ignore the proposal (if either `scp_role` or
               `scu_role` is ``None`` then both are assumed to be) and use the
@@ -337,8 +336,7 @@ class ApplicationEntity(object):
         >>> from pynetdicom import AE
         >>> from pynetdicom.sop_class import VerificationSOPClass
         >>> ae = AE()
-        >>> ae.add_supported_context(VerificationSOPClass,
-        ...                          ImplicitVRLittleEndian)
+        >>> ae.add_supported_context(VerificationSOPClass, ImplicitVRLittleEndian)
         >>> print(ae.supported_contexts[0])
         Abstract Syntax: Verification SOP Class
         Transfer Syntax(es):
@@ -350,17 +348,15 @@ class ApplicationEntity(object):
         also support *Explicit VR Little Endian*.
 
         >>> from pydicom.uid import (
-        ...     ImplicitVRLittleEndian, ExplicitVRLittleEndian,
-        ...     ExplicitVRBigEndian
+        ...     ImplicitVRLittleEndian, ExplicitVRLittleEndian, ExplicitVRBigEndian
         ... )
         >>> from pynetdicom import AE
         >>> from pynetdicom.sop_class import VerificationSOPClass
         >>> ae = AE()
-        >>> ae.add_supported_context(VerificationSOPClass,
-        ...                         [ImplicitVRLittleEndian,
-        ...                          ExplicitVRBigEndian])
-        >>> ae.add_supported_context(VerificationSOPClass,
-        ...                          ExplicitVRLittleEndian)
+        >>> ae.add_supported_context(
+        ...     VerificationSOPClass, [ImplicitVRLittleEndian, ExplicitVRBigEndian]
+        ... )
+        >>> ae.add_supported_context(VerificationSOPClass, ExplicitVRLittleEndian)
         >>> print(ae.supported_contexts[0])
         Abstract Syntax: Verification SOP Class
         Transfer Syntax(es):
@@ -375,9 +371,7 @@ class ApplicationEntity(object):
         >>> from pynetdicom import AE
         >>> from pynetdicom.sop_class import CTImageStorage
         >>> ae = AE()
-        >>> ae.add_supported_context(
-        ...     CTImageStorage, scu_role=True, scp_role=True
-        ... )
+        >>> ae.add_supported_context(CTImageStorage, scu_role=True, scp_role=True)
         """
         if transfer_syntax is None:
             transfer_syntax = DEFAULT_TRANSFER_SYNTAXES
@@ -414,7 +408,7 @@ class ApplicationEntity(object):
 
     @property
     def ae_title(self):
-        """Return the AE title as length 16 :class:`bytes`."""
+        """The AE title as length 16 :class:`bytes`."""
         return self._ae_title
 
     @ae_title.setter
@@ -589,7 +583,7 @@ class ApplicationEntity(object):
 
     @property
     def dimse_timeout(self):
-        """Return the DIMSE timeout (in seconds)."""
+        """The DIMSE timeout (in seconds)."""
         return self._dimse_timeout
 
     @dimse_timeout.setter
@@ -609,7 +603,7 @@ class ApplicationEntity(object):
 
     @property
     def implementation_class_uid(self):
-        """Return the current *Implementation Class UID* as :class:`str`."""
+        """The current *Implementation Class UID* as :class:`str`."""
         return self._implementation_uid
 
     @implementation_class_uid.setter
@@ -628,7 +622,7 @@ class ApplicationEntity(object):
 
     @property
     def implementation_version_name(self):
-        """Return the current *Implementation Version Name*."""
+        """The current *Implementation Version Name* as :class:`bytes`."""
         return self._implementation_version
 
     @implementation_version_name.setter
@@ -643,9 +637,58 @@ class ApplicationEntity(object):
         # pylint: disable=attribute-defined-outside-init
         self._implementation_version = value
 
+    def make_server(self, address, ae_title=None, contexts=None,
+                    ssl_context=None, evt_handlers=None,
+                    server_class=None, **kwargs):
+        """Return an association server.
+
+        Allows the use of a custom association server class.
+
+        Accepts the same parameters as :meth:`start_server`. Additional keyword
+        parameters are passed to the constructor of `server_class`.
+
+        .. versionadded:: 1.5
+        """
+        # If the SCP has no supported SOP Classes then there's no point
+        #   running as a server
+        if not contexts and not self.supported_contexts:
+            msg = "No supported Presentation Contexts have been defined"
+            LOGGER.error(msg)
+            raise ValueError(msg)
+
+        if ae_title:
+            ae_title = validate_ae_title(ae_title)
+        else:
+            ae_title = self.ae_title
+
+        contexts = contexts or self.supported_contexts
+
+        bad_contexts = []
+        for cx in contexts:
+            roles = (cx.scu_role, cx.scp_role)
+            if None in roles and roles != (None, None):
+                bad_contexts.append(cx.abstract_syntax)
+
+        if bad_contexts:
+            msg = (
+                "The following presentation contexts have inconsistent "
+                "scu_role/scp_role values (if one is None, both must be):\n  "
+            )
+            msg += '\n  '.join(bad_contexts)
+            raise ValueError(msg)
+
+        evt_handlers = evt_handlers or {}
+
+        server_class = server_class or AssociationServer
+        return server_class(
+            self, address, ae_title, contexts, ssl_context,
+            evt_handlers=evt_handlers,
+            **kwargs
+        )
+
     @property
     def maximum_associations(self):
-        """Return the number of maximum associations as :class:`int`."""
+        """The number of maximum simultaneous associations as :class:`int`."""
         return self._maximum_associations
 
     @maximum_associations.setter
@@ -660,7 +703,7 @@ class ApplicationEntity(object):
 
     @property
     def maximum_pdu_size(self):
-        """Return the maximum PDU size accepted by the AE as :class:`int`."""
+        """The maximum PDU size accepted by the AE as :class:`int`."""
         return self._maximum_pdu_size
 
     @maximum_pdu_size.setter
@@ -680,7 +723,7 @@ class ApplicationEntity(object):
 
     @property
     def network_timeout(self):
-        """Return the network timeout (in seconds)."""
+        """The network timeout (in seconds)."""
         return self._network_timeout
 
     @network_timeout.setter
@@ -718,7 +761,7 @@ class ApplicationEntity(object):
             The abstract syntax of the presentation context you wish to stop
             requesting when sending association requests.
         transfer_syntax : UID str or list of UID str, optional
-            The transfer syntax(ex) you wish to stop requesting. If a list of
+            The transfer syntax(es) you wish to stop requesting. If a list of
             str/UID then only those transfer syntaxes specified will no longer
             be requested. If not specified then the abstract syntax and all
             associated transfer syntaxes will no longer be requested (default).
@@ -765,22 +808,18 @@ class ApplicationEntity(object):
         >>> from pydicom.uid import ImplicitVRLittleEndian
         >>> from pynetdicom import AE
         >>> from pynetdicom.sop_class import VerificationSOPClass
-        >>> ae.add_requested_context(VerificationSOPClass,
-        ...                          ImplicitVRLittleEndian)
+        >>> ae.add_requested_context(VerificationSOPClass, ImplicitVRLittleEndian)
         >>> print(ae.requested_contexts[0])
         Abstract Syntax: Verification SOP Class
         Transfer Syntax(es):
             =Implicit VR Little Endian
-        >>> ae.remove_requested_context(VerificationSOPClass,
-        ...                             ImplicitVRLittleEndian)
+        >>> ae.remove_requested_context(VerificationSOPClass, ImplicitVRLittleEndian)
         >>> len(ae.requested_contexts)
         0
 
         Presentation context has at least one remaining transfer syntax:
 
-        >>> from pydicom.uid import (
-        ...     ImplicitVRLittleEndian, ExplicitVRLittleEndian
-        ... )
+        >>> from pydicom.uid import ImplicitVRLittleEndian, ExplicitVRLittleEndian
         >>> from pynetdicom import AE
         >>> from pynetdicom.sop_class import VerificationSOPClass
         >>> ae = AE()
@@ -791,9 +830,9 @@ class ApplicationEntity(object):
             =Implicit VR Little Endian
             =Explicit VR Little Endian
             =Explicit VR Big Endian
-        >>> ae.remove_requested_context(VerificationSOPClass,
-        ...                             [ImplicitVRLittleEndian,
-        ...                              ExplicitVRLittleEndian])
+        >>> ae.remove_requested_context(
+        ...     VerificationSOPClass, [ImplicitVRLittleEndian, ExplicitVRLittleEndian]
+        ... )
         >>> print(ae.requested_contexts[0])
         Abstract Syntax: Verification SOP Class
         Transfer Syntax(es):
@@ -845,7 +884,7 @@ class ApplicationEntity(object):
             The abstract syntax of the presentation context you wish to stop
             supporting.
         transfer_syntax : UID str or list of UID str, optional
-            The transfer syntax(ex) you wish to stop supporting. If a list of
+            The transfer syntax(es) you wish to stop supporting. If a list of
             str/UID then only those transfer syntaxes specified will no longer
             be supported. If not specified then the abstract syntax and all
             associated transfer syntaxes will no longer be supported (default).
@@ -891,22 +930,18 @@ class ApplicationEntity(object):
         >>> from pynetdicom import AE
         >>> from pynetdicom.sop_class import VerificationSOPClass
         >>> ae = AE()
-        >>> ae.add_supported_context(VerificationSOPClass,
-        ...                          ImplicitVRLittleEndian)
+        >>> ae.add_supported_context(VerificationSOPClass, ImplicitVRLittleEndian)
         >>> print(ae.supported_contexts[0])
         Abstract Syntax: Verification SOP Class
         Transfer Syntax(es):
             =Implicit VR Little Endian
-        >>> ae.remove_supported_context(VerificationSOPClass,
-        ...                             ImplicitVRLittleEndian)
+        >>> ae.remove_supported_context(VerificationSOPClass, ImplicitVRLittleEndian)
         >>> len(ae.supported_contexts)
         0
 
         Presentation context has at least one remaining transfer syntax:
 
-        >>> from pydicom.uid import (
-        ...     ImplicitVRLittleEndian, ExplicitVRLittleEndian
-        ... )
+        >>> from pydicom.uid import ImplicitVRLittleEndian, ExplicitVRLittleEndian
         >>> from pynetdicom import AE
         >>> from pynetdicom.sop_class import VerificationSOPClass
         >>> ae = AE()
@@ -917,9 +952,9 @@ class ApplicationEntity(object):
             =Implicit VR Little Endian
             =Explicit VR Little Endian
             =Explicit VR Big Endian
-        >>> ae.remove_supported_context(VerificationSOPClass,
-        ...                             [ImplicitVRLittleEndian,
-        ...                              ExplicitVRLittleEndian])
+        >>> ae.remove_supported_context(
+        ...     VerificationSOPClass, [ImplicitVRLittleEndian, ExplicitVRLittleEndian]
+        ... )
         >>> print(ae.supported_contexts[0])
         Abstract Syntax: Verification SOP Class
         Transfer Syntax(es):
@@ -951,7 +986,7 @@ class ApplicationEntity(object):
 
     @property
     def requested_contexts(self):
-        """Return a list of the requested
+        """A list of the requested
         :class:`~pynetdicom.presentation.PresentationContext` items.
 
         Returns
@@ -1019,7 +1054,7 @@ class ApplicationEntity(object):
 
     @property
     def require_called_aet(self):
-        """Return whether the *Called AE Title* must match the AE title."""
+        """Whether the *Called AE Title* must match the AE title."""
         return self._require_called_aet
 
     @require_called_aet.setter
@@ -1048,7 +1083,7 @@ class ApplicationEntity(object):
 
     @property
     def require_calling_aet(self):
-        """Return the required calling AE title as a list of :class:`bytes`."""
+        """The required calling AE title as a list of :class:`bytes`."""
         return self._require_calling_aet
 
     @require_calling_aet.setter
@@ -1080,14 +1115,14 @@ class ApplicationEntity(object):
 
     def start_server(self, address, block=True, ssl_context=None,
                      evt_handlers=None, ae_title=None, contexts=None):
-        """Start the AE as an association acceptor.
+        """Start the AE as an association *acceptor*.
 
         .. versionadded:: 1.2
 
         If set to non-blocking then a running
         :class:`~pynetdicom.transport.ThreadedAssociationServer`
         instance will be returned. This can be stopped using
-        :meth:`~pynetdicom.transport.ThreadedAssociationServer.shutdown`.
+        :meth:`~pynetdicom.transport.AssociationServer.shutdown`.
 
         .. versionchanged:: 1.3
 
@@ -1170,52 +1205,6 @@ class ApplicationEntity(object):
 
             return server
 
-    def make_server(self, address, ae_title=None, contexts=None,
-                    ssl_context=None, evt_handlers=None,
-                    server_class=None, **kwargs):
-        """Return an association server for the AE.
-        Accepts the same arguments as :meth:`start_server`.
-        Additional keyword arguments are passed to the constructor of `server_class`.
-
-        .. versionadded:: 1.5
-        """
-        # If the SCP has no supported SOP Classes then there's no point
-        #   running as a server
-        if not contexts and not self.supported_contexts:
-            msg = "No supported Presentation Contexts have been defined"
-            LOGGER.error(msg)
-            raise ValueError(msg)
-
-        if ae_title:
-            ae_title = validate_ae_title(ae_title)
-        else:
-            ae_title = self.ae_title
-
-        contexts = contexts or self.supported_contexts
-
-        bad_contexts = []
-        for cx in contexts:
-            roles = (cx.scu_role, cx.scp_role)
-            if None in roles and roles != (None, None):
-                bad_contexts.append(cx.abstract_syntax)
-
-        if bad_contexts:
-            msg = (
-                "The following presentation contexts have inconsistent "
-                "scu_role/scp_role values (if one is None, both must be):\n  "
-            )
-            msg += '\n  '.join(bad_contexts)
-            raise ValueError(msg)
-
-        evt_handlers = evt_handlers or {}
-
-        server_class = server_class or AssociationServer
-        return server_class(
-            self, address, ae_title, contexts, ssl_context,
-            evt_handlers=evt_handlers,
-            **kwargs
-        )
-
     def shutdown(self):
         """Stop any active association servers and threads.
 
@@ -1287,7 +1276,7 @@ class ApplicationEntity(object):
 
     @property
     def supported_contexts(self):
-        """Return a list of the supported
+        """A list of the supported
         :class:`~pynetdicom.presentation.PresentationContext` items.
 
         Returns
