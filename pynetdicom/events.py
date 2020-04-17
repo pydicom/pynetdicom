@@ -495,6 +495,9 @@ class Event(object):
 
         Contains the following File Meta Information elements:
 
+        * (0002,0000) *File Meta Information Group Length* - set as ``0``, will
+          be updated with the correct value during write
+        * (0002,0001) *File Meta Information Version* - set as ``0x0001``
         * (0002,0002) *Media Storage SOP Class UID* - set from the request's
           *Affected SOP Class UID*
         * (0002,0003) *Media Storage SOP Instance UID* - set from the request's
@@ -516,7 +519,7 @@ class Event(object):
 
             >>> ds = event.dataset
             >>> ds.file_meta = event.file_meta
-            >>> ds.save_as('example.dcm')
+            >>> ds.save_as('example.dcm', write_like_original=False)
 
         Encode the File Meta Information in a new file and append the encoded
         *Data Set* to it. This skips having to decode/re-encode the *Data Set*
@@ -553,6 +556,8 @@ class Event(object):
         # A C-STORE request must have AffectedSOPClassUID and
         #   AffectedSOPInstanceUID
         meta = Dataset()
+        meta.FileMetaInformationGroupLength = 0
+        meta.FileMetaInformationVersion = b'\x00\x01'
         meta.MediaStorageSOPClassUID = self.request.AffectedSOPClassUID
         meta.MediaStorageSOPInstanceUID = self.request.AffectedSOPInstanceUID
         meta.TransferSyntaxUID = self.context.transfer_syntax

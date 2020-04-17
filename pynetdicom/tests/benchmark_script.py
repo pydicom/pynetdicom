@@ -21,6 +21,7 @@ import tempfile
 import time
 
 from pydicom import dcmread
+from pydicom.filewriter import write_file_meta_info
 from pydicom.uid import ImplicitVRLittleEndian
 
 from pynetdicom import AE, evt, build_context, debug_logger
@@ -146,7 +147,9 @@ def receive_store(nr_assoc, ds_per_assoc, write_ds=0, use_yappi=False):
                 ds.save_as(tfile)
         elif write_ds in (2, 3):
             with tempfile.TemporaryFile('w+b') as tfile:
-                tfile.write(encode(event.file_meta, False, True))
+                tfile.write(b'\x00' * 128)
+                tfile.write(b'DICM')
+                write_file_meta_info(tfile, event.file_meta)
                 tfile.write(event.request.DataSet.getvalue())
 
         return 0x0000
@@ -218,7 +221,9 @@ def receive_store_internal(nr_assoc, ds_per_assoc, write_ds=0, use_yappi=False):
                 ds.save_as(tfile)
         elif write_ds in (2, 3):
             with tempfile.TemporaryFile('w+b') as tfile:
-                tfile.write(encode(event.file_meta, False, True))
+                tfile.write(b'\x00' * 128)
+                tfile.write(b'DICM')
+                write_file_meta_info(tfile, event.file_meta)
                 tfile.write(event.request.DataSet.getvalue())
 
         return 0x0000

@@ -13,9 +13,11 @@ import pytest
 from pydicom.dataset import Dataset
 from pydicom.tag import BaseTag
 from pydicom.uid import ImplicitVRLittleEndian
+from pydicom.filewriter import write_file_meta_info
 
 from pynetdicom import (
-    AE, evt, _config, Association, debug_logger, build_context
+    AE, evt, _config, Association, debug_logger, build_context,
+    PYNETDICOM_IMPLEMENTATION_UID, PYNETDICOM_IMPLEMENTATION_VERSION
 )
 from pynetdicom.events import (
     Event, trigger, _async_ops_handler, _sop_common_handler,
@@ -25,7 +27,7 @@ from pynetdicom.events import (
     _n_event_report_handler, _n_get_handler, _n_set_handler
 )
 from pynetdicom.dimse_messages import (
-    N_ACTION, N_CREATE, N_EVENT_REPORT, N_SET, N_GET, N_DELETE
+    N_ACTION, N_CREATE, N_EVENT_REPORT, N_SET, N_GET, N_DELETE, C_STORE
 )
 from pynetdicom.sop_class import VerificationSOPClass
 
@@ -308,6 +310,63 @@ class TestEvent(object):
         # Test hash mismatch
         event._hash = None
         assert 'PatientID' not in event.event_information
+
+    def test_file_meta(self):
+        """Test Event.file_meta."""
+        request = C_STORE()
+        request.AffectedSOPClassUID = '1.2.3.4'
+        request.AffectedSOPInstanceUID = '1.2.3.4.5'
+        request.DataSet = BytesIO(b'\x00\x01')
+
+        event = Event(
+            None,
+            evt.EVT_C_STORE,
+            {'request' : request, 'context' : self.context.as_tuple}
+        )
+
+        assert event._hash is None
+        assert event._decoded is None
+        meta = event.file_meta
+        assert event._hash is None
+        assert event._decoded is None
+        assert 0 == meta.FileMetaInformationGroupLength
+        assert b'\x00\x01' == meta.FileMetaInformationVersion
+        assert '1.2.3.4' == meta.MediaStorageSOPClassUID
+        assert '1.2.3.4.5' == meta.MediaStorageSOPInstanceUID
+        assert ImplicitVRLittleEndian == meta.TransferSyntaxUID
+        assert PYNETDICOM_IMPLEMENTATION_UID == meta.ImplementationClassUID
+        assert PYNETDICOM_IMPLEMENTATION_VERSION == (
+            meta.ImplementationVersionName
+        )
+
+    def test_write_file_meta(self):
+        """pydicom-independent test confirming correct write."""
+        request = C_STORE()
+        request.AffectedSOPClassUID = '1.2'
+        request.AffectedSOPInstanceUID = '1.3'
+        request.DataSet = BytesIO(b'\x00\x01')
+
+        event = Event(
+            None,
+            evt.EVT_C_STORE,
+            {'request' : request, 'context' : self.context.as_tuple}
+        )
+        fp = BytesIO()
+        meta = event.file_meta
+        write_file_meta_info(fp, meta)
+        bs = fp.getvalue()
+        assert bs[:12] == b'\x02\x00\x00\x00\x55\x4c\x04\x00\x7e\x00\x00\x00'
+        assert bs[12:76] == (
+            b'\x02\x00\x01\x00\x4f\x42\x00\x00\x02\x00\x00\x00\x00\x01'
+            b'\x02\x00\x02\x00\x55\x49\x04\x00\x31\x2e\x32\x00'
+            b'\x02\x00\x03\x00\x55\x49\x04\x00\x31\x2e\x33\x00'
+            b'\x02\x00\x10\x00\x55\x49\x12\x00\x31\x2e\x32\x2e\x38\x34'
+            b'\x30\x2e\x31\x30\x30\x30\x38\x2e\x31\x2e\x32\x00'
+        )
+
+        # Note: may not be 126 if Implementation Class and Version change
+        assert 126 == meta.FileMetaInformationGroupLength
+        assert 12 + 126 == len(fp.getvalue())
 
     def test_modification_list(self):
         """Test Event.modification_list."""

@@ -485,7 +485,7 @@ verification service request was successful. Congratulations, you've written
 your first DICOM SCU using *pynetdicom*.
 
 Next steps
-----------
+==========
 
 We recommend that you move on to :doc:`writing your first SCP<create_scp>`
 next. However, you might also be interested in the

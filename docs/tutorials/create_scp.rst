@@ -399,7 +399,7 @@ complex code:
 
 .. code-block:: python
    :linenos:
-   :emphasize-lines: 1,3,12,14-18,21-28,30
+   :emphasize-lines: 1,3,12,14-18,21-28,32
 
     import os
 
