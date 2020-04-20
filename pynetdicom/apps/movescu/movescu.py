@@ -15,6 +15,7 @@ from pynetdicom import (
 )
 from pynetdicom.apps.common import setup_logging, create_dataset, handle_store
 from pynetdicom._globals import ALL_TRANSFER_SYNTAXES, DEFAULT_MAX_LENGTH
+from pynetdicom.pdu_primitives import SOPClassExtendedNegotiation
 from pynetdicom.sop_class import (
     PatientRootQueryRetrieveInformationModelMove,
     StudyRootQueryRetrieveInformationModelMove,
@@ -198,6 +199,19 @@ def _setup_argparser():
         default="STORESCP"
     )
 
+    # Extended Negotiation Options
+    ext_neg = parser.add_argument_group('Extended Negotiation Options')
+    ext_neg.add_argument(
+        '--relational-retrieval',
+        help="request the use of relational retrieval",
+        action="store_true",
+    )
+    ext_neg.add_argument(
+        '--enhanced-conversion',
+        help="request the use of enhanced multi-frame image conversion",
+        action="store_true",
+    )
+
     # Output Options
     out_opts = parser.add_argument_group('Output Options')
     out_opts.add_argument(
@@ -278,9 +292,23 @@ def main(args=None):
     else:
         query_model = PatientRootQueryRetrieveInformationModelMove
 
+    # Extended Negotiation
+    ext_neg = []
+    ext_opts = [args.relational_retrieval, args.enhanced_conversion]
+    if any(ext_opts):
+        app_info = b''
+        for option in ext_opts:
+            app_info += b'\x01' if option else b'\x00'
+
+        item = SOPClassExtendedNegotiation()
+        item.sop_class_uid = query_model
+        item.service_class_application_information = app_info
+        ext_neg = [item]
+
     # Request association with remote AE
     assoc = ae.associate(
-        args.addr, args.port, ae_title=args.called_aet, max_pdu=args.max_pdu
+        args.addr, args.port, ae_title=args.called_aet, max_pdu=args.max_pdu,
+        ext_neg=ext_neg
     )
     if assoc.is_established:
         # Send query
