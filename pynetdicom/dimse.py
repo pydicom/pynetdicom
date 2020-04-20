@@ -67,7 +67,7 @@ class DIMSEServiceProvider(object):
 
     +----------------+-----------------------+------------------------+
     | Primitive      | Type                  | Message Class          |
-    +----------------+-----------------------+------------------------+
+    +================+=======================+========================+
     | C-CANCEL       | Request/indication    | C_CANCEL_RQ            |
     +----------------+-----------------------+------------------------+
     | C-ECHO         | Request/indication    | C_ECHO_RQ              |
@@ -286,7 +286,7 @@ class DIMSEServiceProvider(object):
             self.message = None
 
     def send_msg(self, primitive, context_id):
-        """Send a DIMSE-C or DIMSE-N message to the peer AE.
+        """Encode and send a DIMSE-C or DIMSE-N message to the peer AE.
 
         Parameters
         ----------

@@ -22,8 +22,8 @@ LOGGER = logging.getLogger('pynetdicom.acse')
 class ACSE(object):
     """The Association Control Service Element (ACSE) service provider.
 
-    The ACSE protocol handles association establishment, normal release of an
-    association and the abnormal release of an association.
+    The ACSE protocol handles association negotiation and establishment, and
+    normal and abnormal release of an association.
     """
     def __init__(self, assoc):
         """Create the ACSE service provider.
@@ -37,7 +37,7 @@ class ACSE(object):
 
     @property
     def acceptor(self):
-        """Return the *Acceptor* :class:`~pynetdicom.association.ServiceUser`.
+        """Return the *acceptor* :class:`~pynetdicom.association.ServiceUser`.
         """
         return self.assoc.acceptor
 
@@ -290,8 +290,8 @@ class ACSE(object):
         return False
 
     def negotiate_association(self):
-        """Perform an association negotiation as either the requestor or
-        acceptor.
+        """Perform an association negotiation as either the *requestor* or
+        *acceptor*.
         """
         if self.assoc.is_requestor:
             self._negotiate_as_requestor()
@@ -299,7 +299,7 @@ class ACSE(object):
             self._negotiate_as_acceptor()
 
     def _negotiate_as_acceptor(self):
-        """Perform an association negotiation as the association acceptor.
+        """Perform an association negotiation as the association *acceptor*.
         """
         # For convenience
         assoc_rq = self.requestor.primitive
@@ -405,7 +405,7 @@ class ACSE(object):
         evt.trigger(self.assoc, evt.EVT_ESTABLISHED, {})
 
     def _negotiate_as_requestor(self):
-        """Perform an association negotiation as the association requestor."""
+        """Perform an association negotiation as the association *requestor*."""
         if not self.requestor.requested_contexts:
             LOGGER.error(
                 "One or more requested presentation contexts must be set "
@@ -608,7 +608,7 @@ class ACSE(object):
 
     @property
     def requestor(self):
-        """Return the *Requestor* :class:`~pynetdicom.association.ServiceUser`.
+        """Return the *requestor* :class:`~pynetdicom.association.ServiceUser`.
         """
         return self.assoc.requestor
 

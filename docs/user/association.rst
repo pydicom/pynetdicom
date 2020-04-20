@@ -15,7 +15,7 @@ presentation contexts then you can associate with a peer by using the
 :meth:`AE.associate()<pynetdicom.ae.ApplicationEntity.associate>`
 method, which returns an :class:`Association` thread:
 
-::
+.. code-block:: python
 
     from pynetdicom import AE
     from pynetdicom.sop_class import VerificationSOPClass
@@ -46,7 +46,7 @@ Specifying the Called AE Title
 
 Some SCPs will reject an association request if the *Called AE Title* parameter
 value doesn't match its own title, so this can be set using the *ae_title*
-keyword argument:
+keyword parameter:
 
 ::
 
@@ -60,7 +60,7 @@ with only the *addr* and *port* parameters means the presentation
 contexts in
 :attr:`AE.requested_contexts<pynetdicom.ae.ApplicationEntity.requested_contexts>`
 will be used with the association. To propose presentation contexts on a
-per-association basis you can use the *contexts* keyword argument:
+per-association basis you can use the *contexts* keyword parameter:
 
 ::
 
@@ -79,7 +79,7 @@ Using Extended Negotiation
 ..........................
 
 If you require the use of :ref:`extended negotiation <concepts_negotiation>`
-then you can supply the *ext_neg* keyword argument. Some extended negotiation
+then you can supply the *ext_neg* keyword parameter. Some extended negotiation
 items can only be singular and some can occur multiple times depending on the
 service class and intended usage. The following example shows how to add
 *SCP/SCU Role Selection Negotiation* items using
@@ -87,7 +87,7 @@ service class and intended usage. The following example shows how to add
 Query/Retrieve (QR) Service Class' C-GET service (in this example the QR SCU is
 also acting as a Storage SCP), plus a *User Identity Negotiation* item:
 
-::
+.. code-block:: python
 
     from pynetdicom import AE, StoragePresentationContexts, build_role
     from pynetdicom.pdu_primitives import UserIdentityNegotiation
@@ -139,7 +139,7 @@ Binding Event Handlers
 
 If you want to bind handlers to any
 :ref:`events <user_events>` within a new :class:`Association` you can
-use the *evt_handlers* keyword argument:
+use the *evt_handlers* keyword parameter:
 
 ::
 
@@ -153,18 +153,18 @@ use the *evt_handlers* keyword argument:
 
     def handle_open(event):
         """Print the remote's (host, port) when connected."""
-        msg = 'Connected with remote at ({})'.format(event.address)
+        msg = 'Connected with remote at {}'.format(event.address)
         LOGGER.info(msg)
 
     def handle_accepted(event, arg1, arg2):
-        """Demonstrate the use of the optional extra arguments"""
+        """Demonstrate the use of the optional extra parameters"""
         LOGGER.info("Extra args: '{}' and '{}'".format(arg1, arg2))
 
     # If a 2-tuple then only `event` parameter
     # If a 3-tuple then the third value should be a list of objects to pass the handler
     handlers = [
-        (evt.EVT_CONN_OPEN, handle_open)
-        (evt.EVT_ACCEPTED, handle_accepted, ['optional', 'parameters'])
+        (evt.EVT_CONN_OPEN, handle_open),
+        (evt.EVT_ACCEPTED, handle_accepted, ['optional', 'parameters']),
     ]
 
     ae = AE()
@@ -189,12 +189,12 @@ Handlers can also be bound and unbound from events in an existing
 
     def handle_open(event):
         """Print the remote's (host, port) when connected."""
-        msg = 'Connected with remote at ({})'.format(event.address)
+        msg = 'Connected with remote at {}'.format(event.address)
         LOGGER.info(msg)
 
     def handle_close(event):
         """Print the remote's (host, port) when disconnected."""
-        msg = 'Disconnected from remote at ({})'.format(event.address)
+        msg = 'Disconnected from remote at {}'.format(event.address)
         LOGGER.info(msg)
 
     handlers = [(evt.EVT_CONN_OPEN, handle_open)]
@@ -218,7 +218,7 @@ TLS
     TLS v1.3 is not currently supported
 
 The client socket used for the association can be wrapped in TLS by supplying
-the *tls_args* keyword argument to
+the *tls_args* keyword parameter to
 :meth:`~pynetdicom.ae.ApplicationEntity.associate`:
 
 ::
@@ -242,7 +242,7 @@ the *tls_args* keyword argument to
         assoc.release()
 
 Where *tls_args* is (:class:`ssl.SSLContext`, *host*), where *host* is the
-value of the *server_hostname* keyword argument in
+value of the *server_hostname* keyword parameter in
 :meth:`~ssl.SSLContext.wrap_socket`.
 
 
@@ -250,7 +250,7 @@ Outcomes of an Association Request
 ..................................
 There are four potential outcomes of an association request: acceptance and
 establishment, association rejection, association abort or a connection
-failure, so its a good idea to test for establishment prior to attempting to
+failure, so its a good idea to test for establishment before attempting to
 use the association:
 
 ::
@@ -343,6 +343,7 @@ method:
     from pynetdicom import AE
     from pynetdicom.sop_class import VerificationSOPClass
 
+    ae = AE()
     ae.add_supported_context(VerificationSOPClass)
 
     # Listen for association requests
@@ -360,6 +361,7 @@ non-blocking modes:
     from pynetdicom import AE
     from pynetdicom.sop_class import VerificationSOPClass
 
+    ae = AE()
     ae.add_supported_context(VerificationSOPClass)
 
     # Returns a ThreadedAssociationServer instance
@@ -378,7 +380,7 @@ associations can be stopped using
 
 Specifying the AE Title
 .......................
-The AE title for each SCP can be set using the *ae_title* keyword argument.
+The AE title for each SCP can be set using the *ae_title* keyword parameter.
 If no value is set then the AE title of the parent AE will be used instead:
 
 ::
@@ -389,7 +391,7 @@ If no value is set then the AE title of the parent AE will be used instead:
 Specifying Presentation Contexts for each SCP
 .............................................
 To support presentation contexts on a per-SCP basis you can use the
-*contexts* keyword argument:
+*contexts* keyword parameter:
 
 ::
 
@@ -397,7 +399,7 @@ To support presentation contexts on a per-SCP basis you can use the
 
     ae = AE()
     supported_cx = [build_context('1.2.840.10008.1.1')]
-    ae.start_server(('', 11112), contexts=[supported_cx])
+    ae.start_server(('', 11112), contexts=supported_cx)
 
 
 Binding Event Handlers
@@ -405,7 +407,7 @@ Binding Event Handlers
 
 If you want to bind handlers to any
 :ref:`events <user_events>` within any :class:`Association` instances
-generated by the SCP you can use the *evt_handlers* keyword argument:
+generated by the SCP you can use the *evt_handlers* keyword parameter:
 
 ::
 
@@ -419,18 +421,18 @@ generated by the SCP you can use the *evt_handlers* keyword argument:
 
     def handle_open(event):
         """Print the remote's (host, port) when connected."""
-        msg = 'Connected with remote at ({})'.format(event.address)
+        msg = 'Connected with remote at {}'.format(event.address)
         LOGGER.info(msg)
 
     def handle_accepted(event, arg1, arg2):
-        """Demonstrate the use of the optional extra arguments"""
+        """Demonstrate the use of the optional extra parameters"""
         LOGGER.info("Extra args: '{}' and '{}'".format(arg1, arg2))
 
     # If a 2-tuple then only `event` parameter
     # If a 3-tuple then the third value should be a list of objects to pass the handler
     handlers = [
-        (evt.EVT_CONN_OPEN, handle_open)
-        (evt.EVT_ACCEPTED, handle_accepted, ['optional', 'parameters'])
+        (evt.EVT_CONN_OPEN, handle_open),
+        (evt.EVT_ACCEPTED, handle_accepted, ['optional', 'parameters']),
     ]
 
     ae = AE()
@@ -445,6 +447,7 @@ non-blocking mode:
 ::
 
     import logging
+    import time
 
     from pynetdicom import AE, evt, debug_logger
     from pynetdicom.sop_class import VerificationSOPClass
@@ -454,12 +457,12 @@ non-blocking mode:
 
     def handle_open(event):
         """Print the remote's (host, port) when connected."""
-        msg = 'Connected with remote at ({})'.format(event.address)
+        msg = 'Connected with remote at {}'.format(event.address)
         LOGGER.info(msg)
 
     def handle_close(event):
         """Print the remote's (host, port) when disconnected."""
-        msg = 'Disconnected from remote at ({})'.format(event.address)
+        msg = 'Disconnected from remote at {}'.format(event.address)
         LOGGER.info(msg)
 
     handlers = [(evt.EVT_CONN_OPEN, handle_open)]
@@ -468,12 +471,14 @@ non-blocking mode:
     ae.add_supported_context(VerificationSOPClass)
     scp = ae.start_server(('', 11112), block=False, evt_handlers=handlers)
 
-    time.sleep(60)
+    time.sleep(20)
 
     scp.unbind(evt.EVT_CONN_OPEN, handle_open)
     scp.bind(evt.EVT_CONN_CLOSE, handle_close)
 
-    time.sleep(60)
+    LOGGER.info("Bindings changed")
+
+    time.sleep(20)
 
     scp.shutdown()
 
@@ -494,7 +499,7 @@ TLS
 
 The client sockets generated by the association server can also be wrapped in
 TLS by  supplying a :class:`ssl.SSLContext` instance via the *ssl_context*
-keyword argument:
+keyword parameter:
 
 ::
 
@@ -503,6 +508,7 @@ keyword argument:
     from pynetdicom import AE
     from pynetdicom.sop_class import VerificationSOPClass
 
+    ae = AE()
     ae.add_supported_context(VerificationSOPClass)
 
     # Create the SSLContext, your requirements may vary
@@ -558,10 +564,10 @@ similar to:
 ::
 
     from pynetdicom import AE, evt
-    from pynetdicom.sop_class import VerificationSOPClass
+    from pynetdicom.sop_class import CTImageStorage
 
     ae = AE()
-    ae.add_supported_context(VerificationSOPClass)
+    ae.add_supported_context(CTImageStorage)
 
     def handle_store(event):
         """Handle evt.EVT_C_STORE"""

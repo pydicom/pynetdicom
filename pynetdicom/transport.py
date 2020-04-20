@@ -468,7 +468,6 @@ class RequestHandler(BaseRequestHandler):
         return assoc
 
 
-
 class AssociationServer(TCPServer):
     """An Association server implementation.
 

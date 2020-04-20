@@ -51,7 +51,7 @@ class Association(threading.Thread):
     Attributes
     ----------
     acceptor : association.ServiceUser
-        Representation of the association's acceptor AE.
+        Representation of the association's *acceptor* AE.
     acse : acse.ACSE
         The Association Control Service Element provider.
     ae : ae.ApplicationEntity
@@ -72,7 +72,7 @@ class Association(threading.Thread):
         The mode of the local AE, either the association ``'requestor'`` or
         association ``'acceptor'``.
     requestor : association.ServiceUser
-        Representation of the association's requestor AE.
+        Representation of the association's *requestor* AE.
     """
     def __init__(self, ae, mode):
         """Create a new :class:`Association` instance.
@@ -80,8 +80,7 @@ class Association(threading.Thread):
         The association starts in State 1 (idle). Association negotiation
         won't begin until an :class:`~pynetdicom.transport.AssociationSocket`
         is assigned using :meth:`set_socket` and
-        :meth:`Association.start_server()<pynetdicom.Association.start_server>`
-        is called.
+        :meth:`~threading.Thread.start` is called.
 
         Parameters
         ----------
@@ -145,7 +144,8 @@ class Association(threading.Thread):
         self.daemon = True
 
     def abort(self):
-        """Send an A-ABORT to the remote AE and kill the :class:`Association`.
+        """Abort the :class:`Association` by sending an A-ABORT to the remote
+        AE.
         """
         # Only allow a single abort message to be sent
         if self._sent_abort:
@@ -168,14 +168,14 @@ class Association(threading.Thread):
 
     @property
     def accepted_contexts(self):
-        """Return a list of accepted
-        :class:`~pynetdicom.presentation.PresentationContext`."""
+        """Return a :class:`list` of accepted
+        :class:`~pynetdicom.presentation.PresentationContext` items."""
         # Accepted contexts are stored internally as {context ID : context}
         return sorted(self._accepted_cx.values(), key=lambda x: x.context_id)
 
     @property
     def acse_timeout(self):
-        """Return the ACSE timeout (in seconds)."""
+        """The ACSE timeout (in seconds)."""
         return self._acse_timeout
 
     @acse_timeout.setter
@@ -201,7 +201,7 @@ class Association(threading.Thread):
 
         Parameters
         ----------
-        event : namedtuple
+        event : collections.namedtuple
             The event to bind the function to.
         handler : callable
             The function that will be called if the event occurs.
@@ -277,7 +277,7 @@ class Association(threading.Thread):
 
     @property
     def dimse_timeout(self):
-        """Return the DIMSE timeout (in seconds)."""
+        """The DIMSE timeout (in seconds)."""
         return self._dimse_timeout
 
     @dimse_timeout.setter
@@ -287,14 +287,14 @@ class Association(threading.Thread):
             self._dimse_timeout = value
 
     def get_events(self):
-        """Return a list of currently bound events.
+        """Return a :class:`list` of currently bound events.
 
         .. versionadded:: 1.3
         """
         return sorted(self._handlers.keys(), key=lambda x: x.name)
 
     def get_handlers(self, event):
-        """Return handlers bound to a specific `event`.
+        """Return the handlers bound to a specific `event`.
 
         .. versionadded:: 1.3
 
@@ -420,12 +420,12 @@ class Association(threading.Thread):
 
     @property
     def is_acceptor(self):
-        """Return ``True`` if the local AE is the association *Acceptor*."""
+        """Return ``True`` if the local AE is the association *acceptor*."""
         return self.mode == MODE_ACCEPTOR
 
     @property
     def is_requestor(self):
-        """Return ``True`` if the local AE is the association *Requestor*."""
+        """Return ``True`` if the local AE is the association *requestor*."""
         return self.mode == MODE_REQUESTOR
 
     def kill(self):
@@ -453,7 +453,7 @@ class Association(threading.Thread):
 
     @property
     def mode(self):
-        """Return the Association's `mode` as a :class:`str`."""
+        """The Association's `mode` as a :class:`str`."""
         return self._mode
 
     @mode.setter
@@ -482,7 +482,7 @@ class Association(threading.Thread):
 
     @property
     def network_timeout(self):
-        """Return the network timeout (in seconds)."""
+        """The network timeout (in seconds)."""
         return self._network_timeout
 
     @network_timeout.setter
@@ -500,7 +500,7 @@ class Association(threading.Thread):
         return self._rejected_cx
 
     def release(self):
-        """Send an A-RELEASE request and initiate association release."""
+        """Initiate association release by send an A-RELEASE request."""
         if self.is_established:
             # Ensure the reactor is paused so it doesn't
             #   steal incoming ACSE messages
@@ -3230,31 +3230,31 @@ class ServiceUser(object):
     """Convenience class for the :class:`Association` service user.
 
     An :class:`Association` object has two :class:`ServiceUser` attributes, one
-    representing the association *Requestor* and the other the association
-    *Acceptor*. Once both have been defined sufficiently to be considered
-    valid then association negotiation can begin. The *Requestor*
+    representing the association *requestor* and the other the association
+    *acceptor*. Once both have been defined sufficiently to be considered
+    valid then association negotiation can begin. The *requestor*
     :class:`ServiceUser` requires (at a minimum) the following in order to be
     valid:
 
-    * For association as requestor:
+    * For association as *requestor*:
 
         * AE title (`ae_title`)
         * Address and port number (`address` and `port`)
         * Maximum PDU length (`maximum_length`)
         * Implementation class UID (`implementation_class_uid`)
         * At least one presentation context (`requested_contexts`)
-    * For association as acceptor:
+    * For association as *acceptor*:
 
         * AE title
         * Address and port number
 
-    The *Acceptor* :class:`ServiceUser` requires (at a minimum) the following
+    The *acceptor* :class:`ServiceUser` requires (at a minimum) the following
     in order to be valid:
 
-    * For association as requestor:
+    * For association as *requestor*:
 
         * Address and port number
-    * For association as acceptor:
+    * For association as *acceptor*:
 
         * AE title
         * Address and port number
@@ -3333,7 +3333,7 @@ class ServiceUser(object):
         Raises
         ------
         RuntimeError
-            If called when the requestor.
+            If called when the *requestor*.
         """
         if not self.is_acceptor:
             raise RuntimeError(
@@ -3397,7 +3397,7 @@ class ServiceUser(object):
         -------
         2-tuple of int
             The (*Maximum Number of Operations Invoked*, *Maximum Number of
-            Operations Performed*) or (1, 1) if no Asynchronous Operations
+            Operations Performed*) or ``(1, 1)`` if no Asynchronous Operations
             Window Negotiation item is in the extended negotiation items.
         """
         if self.writeable:
@@ -3418,7 +3418,7 @@ class ServiceUser(object):
 
     @property
     def extended_negotiation(self):
-        """Return a list of Extended Negotiation items.
+        """Return a :class:`list` of Extended Negotiation items.
 
         Extended Negotiation items are:
 
@@ -3514,8 +3514,7 @@ class ServiceUser(object):
 
     @property
     def implementation_class_uid(self):
-        """Return the Implementation Class UID as a *pydicom*
-        :class:`~pydicom.uid.UID`.
+        """The Implementation Class UID as a :class:`~pydicom.uid.UID`.
 
         Returns
         -------
@@ -3563,8 +3562,7 @@ class ServiceUser(object):
 
     @property
     def implementation_version_name(self):
-        """Return the Implementation Version Name as :class:`str` (if
-        available).
+        """The Implementation Version Name as :class:`str` (if available).
 
         Returns
         -------
@@ -3643,7 +3641,7 @@ class ServiceUser(object):
 
     @property
     def maximum_length(self):
-        """Return the maximum PDV size as :class:`int`.
+        """The maximum PDV size as :class:`int`.
 
         Returns
         -------
@@ -3697,7 +3695,7 @@ class ServiceUser(object):
 
     @property
     def requested_contexts(self):
-        """Return a :class:`list` of the requestor's requested presentation
+        """A :class:`list` of the requestor's requested presentation
         contexts.
         """
         return self.get_contexts('requested')
@@ -3884,7 +3882,7 @@ class ServiceUser(object):
 
     @property
     def supported_contexts(self):
-        """Return the supported presentation contexts.
+        """The supported presentation contexts.
 
         Returns
         -------

@@ -25,8 +25,10 @@ series with *Study Instance UID* ``1.2.3`` and *Series Instance UID*
 
     from pydicom.dataset import Dataset
 
-    from pynetdicom import AE
+    from pynetdicom import AE, debug_logger
     from pynetdicom.sop_class import PatientRootQueryRetrieveInformationModelMove
+
+    debug_logger()
 
     # Initialise the Application Entity
     ae = AE()
@@ -50,14 +52,9 @@ series with *Study Instance UID* ``1.2.3`` and *Series Instance UID*
     if assoc.is_established:
         # Use the C-MOVE service to send the identifier
         responses = assoc.send_c_move(ds, b'STORE_SCP', PatientRootQueryRetrieveInformationModelMove)
-
         for (status, identifier) in responses:
             if status:
                 print('C-MOVE query status: 0x{0:04x}'.format(status.Status))
-
-                # If the status is 'Pending' then the identifier is the C-MOVE response
-                if status.Status in (0xFF00, 0xFF01):
-                    print(identifier)
             else:
                 print('Connection timed out, was aborted or received invalid response')
 
@@ -80,8 +77,10 @@ to see the requirements for the ``evt.EVT_C_STORE`` handler.
 
     from pydicom.dataset import Dataset
 
-    from pynetdicom import AE, evt, StoragePresentationContexts
+    from pynetdicom import AE, evt, StoragePresentationContexts, debug_logger
     from pynetdicom.sop_class import PatientRootQueryRetrieveInformationModelMove
+
+    debug_logger()
 
     def handle_store(event):
         """Handle a C-STORE service request"""
@@ -123,10 +122,6 @@ to see the requirements for the ``evt.EVT_C_STORE`` handler.
         for (status, identifier) in responses:
             if status:
                 print('C-MOVE query status: 0x{0:04x}'.format(status.Status))
-
-                # If the status is 'Pending' then `identifier` is the C-MOVE response
-                if status.Status in (0xFF00, 0xFF01):
-                    print(identifier)
             else:
                 print('Connection timed out, was aborted or received invalid response')
 

@@ -4,25 +4,31 @@ Application Entity
 ------------------
 
 The first step in DICOM networking with *pynetdicom* is the creation of an
-:ref:`Application Entity <concepts_ae>` which is done using the
+:ref:`Application Entity <concepts_ae>` by using the
 :class:`AE<ApplicationEntity>` class. A minimal initialisation of
-:class:`AE<ApplicationEntity>` requires no arguments.
+:class:`AE<ApplicationEntity>` requires no parameters:
 
->>> from pynetdicom import AE
->>> ae = AE()
+.. doctest::
+
+    >>> from pynetdicom import AE
+    >>> ae = AE()
 
 This will create an :class:`AE<ApplicationEntity>` with an AE title of
 ``b'PYNETDICOM      '``. The AE title can set by supplying the *ae_title*
-keyword argument during initialisation:
+keyword parameter during initialisation:
 
->>> from pynetdicom import AE
->>> ae = AE(ae_title=b'MY_AE_TITLE')
+.. doctest::
+
+    >>> from pynetdicom import AE
+    >>> ae = AE(ae_title=b'MY_AE_TITLE')
 
 Or afterwards with the :attr:`~ApplicationEntity.ae_title` property:
 
->>> from pynetdicom import AE
->>> ae = AE()
->>> ae.ae_title = b'MY_AE_TITLE'
+.. doctest::
+
+    >>> from pynetdicom import AE
+    >>> ae = AE()
+    >>> ae.ae_title = b'MY_AE_TITLE'
 
 AE titles must meet the conditions of a DICOM data element with a
 :dcm:`Value Representation <part05/sect_6.2.html>` of **AE**:
@@ -42,16 +48,23 @@ AE titles in *pynetdicom* are checked for validity (using
 be important to remember when dealing with AE titles as the value you set may
 not be the value that gets stored.
 
->>> ae.ae_title = b'MY_AE_TITLE'
->>> ae.ae_title == b'MY_AE_TITLE'
-False
->>> ae.ae_title
-b'MY_AE_TITLE     '
->>> len(ae.ae_title)
-16
+.. testsetup::
 
-When creating SCPs its also possible to give each SCP its own AE title by
-specifying the *ae_title* keyword argument in
+    from pynetdicom import AE
+    ae = AE()
+
+.. doctest::
+
+    >>> ae.ae_title = b'MY_AE_TITLE'
+    >>> ae.ae_title == b'MY_AE_TITLE'
+    False
+    >>> ae.ae_title
+    b'MY_AE_TITLE     '
+    >>> len(ae.ae_title)
+    16
+
+When creating SCPs  also possible to give each SCP  own AE title by
+specifying the *ae_title* keyword parameter in
 :meth:`AE.start_server()<pynetdicom.ae.ApplicationEntity.start_server>`.
 
 .. _ae_create_scu:
@@ -77,19 +90,23 @@ Association negotiation. This can be done in two ways:
 
 Adding presentation contexts one-by-one:
 
->>> from pydicom.uid import UID
->>> from pynetdicom import AE
->>> from pynetdicom.sop_class import CTImageStorage
->>> ae = AE()
->>> ae.add_requested_context('1.2.840.10008.1.1')
->>> ae.add_requested_context(UID('1.2.840.10008.5.1.4.1.1.4'))
->>> ae.add_requested_context(CTImageStorage)
+.. doctest::
+
+    >>> from pydicom.uid import UID
+    >>> from pynetdicom import AE
+    >>> from pynetdicom.sop_class import CTImageStorage
+    >>> ae = AE()
+    >>> ae.add_requested_context('1.2.840.10008.1.1')
+    >>> ae.add_requested_context(UID('1.2.840.10008.5.1.4.1.1.4'))
+    >>> ae.add_requested_context(CTImageStorage)
 
 Adding presentation contexts all at once:
 
->>> from pynetdicom import AE, StoragePresentationContexts
->>> ae = AE()
->>> ae.requested_contexts = StoragePresentationContexts
+.. doctest::
+
+    >>> from pynetdicom import AE, StoragePresentationContexts
+    >>> ae = AE()
+    >>> ae.requested_contexts = StoragePresentationContexts
 
 Here :attr:`~pynetdicom.presentation.StoragePresentationContexts` is a
 prebuilt list of presentation contexts containing (almost) all the Storage
@@ -101,22 +118,26 @@ through creating new :class:`~pynetdicom.presentation.PresentationContext`
 instances or by using the :func:`~pynetdicom.presentation.build_context`
 convenience function:
 
->>> from pynetdicom import AE, build_context
->>> from pynetdicom.sop_class import CTImageStorage
->>> ae = AE()
->>> contexts = [
-...     build_context(CTImageStorage),
-...     build_context('1.2.840.10008.1.1')
-... ]
->>> ae.requested_contexts = contexts
+.. doctest::
+
+    >>> from pynetdicom import AE, build_context
+    >>> from pynetdicom.sop_class import CTImageStorage
+    >>> ae = AE()
+    >>> contexts = [
+    ...     build_context(CTImageStorage),
+    ...     build_context('1.2.840.10008.1.1')
+    ... ]
+    >>> ae.requested_contexts = contexts
 
 Combining the all-at-once and one-by-one approaches:
 
->>> from pynetdicom import AE, StoragePresentationContexts
->>> from pynetdicom.sop_class import VerificationSOPClass
->>> ae = AE()
->>> ae.requested_contexts = StoragePresentationContexts
->>> ae.add_requested_context(VerificationSOPClass)
+.. doctest::
+
+    >>> from pynetdicom import AE, StoragePresentationContexts
+    >>> from pynetdicom.sop_class import VerificationSOPClass
+    >>> ae = AE()
+    >>> ae.requested_contexts = StoragePresentationContexts[:127]
+    >>> ae.add_requested_context(VerificationSOPClass)
 
 As the association *Requestor* you're limited to a total of 128 requested
 presentation contexts, so attempting to add more than 128 contexts will raise
@@ -134,87 +155,98 @@ syntaxes are used by default for each context:
 +---------------------+------------------------------+
 
 Specifying your own transfer syntax(es) can be done with the
-*transfer_syntax* keyword argument as either a single str/UID or a list of
+*transfer_syntax* keyword parameter as either a single str/UID or a list of
 str/UIDs:
 
->>> from pydicom.uid import ImplicitVRLittleEndian, ExplicitVRLittleEndian
->>> from pynetdicom import AE
->>> from pynetdicom.sop_class import CTImageStorage, MRImageStorage
->>> ae = AE()
->>> ae.add_requested_context(CTImageStorage, transfer_syntax='1.2.840.10008.1.2')
->>> ae.add_requested_context(MRImageStorage,
-...                          [ImplicitVRLittleEndian, ExplicitVRLittleEndian])
+.. doctest::
 
->>> from pydicom.uid import ImplicitVRLittleEndian, ExplicitVRLittleEndian
->>> from pynetdicom import AE, build_context
->>> from pynetdicom.sop_class import CTImageStorage
->>> ae = AE()
->>> context_a = build_context(CTImageStorage, ImplicitVRLittleEndian))
->>> context_b = build_context('1.2.840.10008.1.1',
-...                           [ImplicitVRLittleEndian, ExplicitVRBigEndian])
->>> ae.requested_contexts = [context_a, context_b]
+    >>> from pydicom.uid import ImplicitVRLittleEndian, ExplicitVRLittleEndian
+    >>> from pynetdicom import AE
+    >>> from pynetdicom.sop_class import CTImageStorage, MRImageStorage
+    >>> ae = AE()
+    >>> ae.add_requested_context(CTImageStorage, transfer_syntax='1.2.840.10008.1.2')
+    >>> ae.add_requested_context(
+    ...     MRImageStorage, [ImplicitVRLittleEndian, ExplicitVRLittleEndian]
+    ... )
+
+.. doctest::
+
+    >>> from pydicom.uid import ImplicitVRLittleEndian, ExplicitVRBigEndian
+    >>> from pynetdicom import AE, build_context
+    >>> from pynetdicom.sop_class import CTImageStorage
+    >>> ae = AE()
+    >>> context_a = build_context(CTImageStorage, ImplicitVRLittleEndian)
+    >>> context_b = build_context(
+    ...     '1.2.840.10008.1.1', [ImplicitVRLittleEndian, ExplicitVRBigEndian]
+    ... )
+    >>> ae.requested_contexts = [context_a, context_b]
 
 The requested presentation contexts can be accessed with the
 :attr:`AE.requested_contexts<ApplicationEntity.requested_contexts>`
 property and they are returned in the order they were added:
 
->>> from pynetdicom import AE
->>> from pynetdicom.sop_class import VerificationSOPClass
->>> ae = AE()
->>> len(ae.requested_contexts)
-0
->>> ae.add_requested_context(VerificationSOPClass)
->>> len(ae.requested_contexts)
-1
->>> print(ae.requested_contexts[0])
-Abstract Syntax: Verification SOP Class
-Transfer Syntax(es):
-    =Implicit VR Little Endian
-    =Explicit VR Little Endian
-    =Explicit VR Big Endian
+.. doctest::
+
+    >>> from pynetdicom import AE
+    >>> from pynetdicom.sop_class import VerificationSOPClass
+    >>> ae = AE()
+    >>> len(ae.requested_contexts)
+    0
+    >>> ae.add_requested_context(VerificationSOPClass)
+    >>> len(ae.requested_contexts)
+    1
+    >>> print(ae.requested_contexts[0])
+    Abstract Syntax: Verification SOP Class
+    Transfer Syntax(es):
+        =Implicit VR Little Endian
+        =Explicit VR Little Endian
+        =Explicit VR Big Endian
 
 Its also possible to have multiple requested presentation contexts for the
 same abstract syntax.
 
->>> from pydicom.uid import ImplicitVRLittleEndian
->>> from pynetdicom import AE
->>> from pynetdicom.sop_class import CTImageStorage
->>> ae = AE()
->>> ae.add_requested_context(CTImageStorage)
->>> ae.add_requested_context(CTImageStorage, ImplicitVRLittleEndian)
->>> len(ae.requested_contexts)
-2
->>> print(ae.requested_contexts[0])
-Abstract Syntax: CT Image Storage
-Transfer Syntax(es):
-    =Implicit VR Little Endian
-    =Explicit VR Little Endian
-    =Explicit VR Big Endian
->>> print(ae.requested_contexts[1])
-Abstract Syntax: CT Image Storage
-Transfer Syntax(es):
-    =Implicit VR Little Endian
+.. doctest::
+
+    >>> from pydicom.uid import ImplicitVRLittleEndian
+    >>> from pynetdicom import AE
+    >>> from pynetdicom.sop_class import CTImageStorage
+    >>> ae = AE()
+    >>> ae.add_requested_context(CTImageStorage)
+    >>> ae.add_requested_context(CTImageStorage, ImplicitVRLittleEndian)
+    >>> len(ae.requested_contexts)
+    2
+    >>> print(ae.requested_contexts[0])
+    Abstract Syntax: CT Image Storage
+    Transfer Syntax(es):
+        =Implicit VR Little Endian
+        =Explicit VR Little Endian
+        =Explicit VR Big Endian
+    >>> print(ae.requested_contexts[1])
+    Abstract Syntax: CT Image Storage
+    Transfer Syntax(es):
+        =Implicit VR Little Endian
 
 All the above examples set the requested presentation contexts on the
 Application Entity level, i.e. the same contexts will be used for all
 association requests. To set the requested presentation contexts on a
 per-association basis (i.e. each association request can have different
-requested contexts) you can use the *context* keyword argument when calling
+requested contexts) you can use the *context* keyword parameter when calling
 :meth:`AE.associate()<ApplicationEntity.associate>` (see
 the :ref:`Association <association>` page for more information).
 
 Specifying the network port
 ...........................
-In general it shouldn't be necessary to specify the port when acting as an SCU.
-By default *pynetdicom* will use the first available port to communicate with a
-peer AE. To specify the port number you can use the *bind_address* keyword
-argument when requesting an association, which takes a 2-tuple of
-(str *host*, int *port*):
+In general it shouldn't be necessary to specify the port when acting as an SCU,
+as by default *pynetdicom* will use the first port available. To specify the
+port number manually you can use the *bind_address* keyword parameter when
+requesting an association, which takes a 2-tuple of (str *host*, int *port*):
 
->>> from pynetdicom import AE
->>> ae = AE()
->>> ae.add_requested_context('1.2.840.10008.1.1')
->>> assoc = ae.associate('localhost', 11112, bind_address=('', 11113))
+.. doctest::
+
+    >>> from pynetdicom import AE
+    >>> ae = AE()
+    >>> ae.add_requested_context('1.2.840.10008.1.1')
+    >>> assoc = ae.associate('localhost', 11112, bind_address=('', 11113))  # doctest: +SKIP
 
 
 Association
@@ -244,19 +276,23 @@ Association negotiation. This can be done in two ways:
 
 Adding presentation contexts one-by-one:
 
->>> from pydicom.uid import UID
->>> from pynetdicom import AE
->>> from pynetdicom.sop_class import CTImageStorage
->>> ae = AE()
->>> ae.add_supported_context('1.2.840.10008.1.1')
->>> ae.add_supported_context(UID('1.2.840.10008.5.1.4.1.1.4'))
->>> ae.add_supported_context(CTImageStorage)
+.. doctest::
+
+    >>> from pydicom.uid import UID
+    >>> from pynetdicom import AE
+    >>> from pynetdicom.sop_class import CTImageStorage
+    >>> ae = AE()
+    >>> ae.add_supported_context('1.2.840.10008.1.1')
+    >>> ae.add_supported_context(UID('1.2.840.10008.5.1.4.1.1.4'))
+    >>> ae.add_supported_context(CTImageStorage)
 
 Adding presentation contexts all at once:
 
->>> from pynetdicom import AE, StoragePresentationContexts
->>> ae = AE()
->>> ae.supported_contexts = StoragePresentationContexts
+.. doctest::
+
+    >>> from pynetdicom import AE, StoragePresentationContexts
+    >>> ae = AE()
+    >>> ae.supported_contexts = StoragePresentationContexts
 
 Here :attr:`~pynetdicom.presentation.StoragePresentationContexts` is a prebuilt
 :class:`list` of presentation contexts containing (almost) all the Storage
@@ -267,22 +303,26 @@ of presentation contexts, either through creating new
 :class:`~pynetdicom.presentation.PresentationContext` instances or by using the
 :func:`~pynetdicom.presentation.build_context` convenience function:
 
->>> from pynetdicom import AE, build_context
->>> from pynetdicom.sop_class import CTImageStorage
->>> ae = AE()
->>> contexts = [
-...     build_context(CTImageStorage),
-...     build_context('1.2.840.10008.1.1')
-... ]
->>> ae.supported_contexts = contexts
+.. doctest::
+
+    >>> from pynetdicom import AE, build_context
+    >>> from pynetdicom.sop_class import CTImageStorage
+    >>> ae = AE()
+    >>> contexts = [
+    ...     build_context(CTImageStorage),
+    ...     build_context('1.2.840.10008.1.1')
+    ... ]
+    >>> ae.supported_contexts = contexts
 
 Combining the all-at-once and one-by-one approaches:
 
->>> from pynetdicom import AE, StoragePresentationContexts
->>> from pynetdicom.sop_class import VerificationSOPClass
->>> ae = AE()
->>> ae.supported_contexts = StoragePresentationContexts
->>> ae.add_supported_context(VerificationSOPClass)
+.. doctest::
+
+    >>> from pynetdicom import AE, AllStoragePresentationContexts
+    >>> from pynetdicom.sop_class import VerificationSOPClass
+    >>> ae = AE()
+    >>> ae.supported_contexts = AllStoragePresentationContexts
+    >>> ae.add_supported_context(VerificationSOPClass)
 
 As the association *Acceptor* you're not limited in the number of presentation
 contexts that you can support.
@@ -299,69 +339,78 @@ syntaxes are used by default for each context:
 +---------------------+------------------------------+
 
 Specifying your own transfer syntax(es) can be done with the
-*transfer_syntax* keyword argument parameter as either a single str/UID or a
+*transfer_syntax* keyword parameter parameter as either a single str/UID or a
 list of str/UIDs:
 
->>> from pydicom.uid import ImplicitVRLittleEndian, ExplicitVRLittleEndian
->>> from pynetdicom import AE
->>> from pynetdicom.sop_class import CTImageStorage, MRImageStorage
->>> ae = AE()
->>> ae.add_supported_context(CTImageStorage, transfer_syntax='1.2.840.10008.1.2')
->>> ae.add_supported_context(MRImageStorage,
-...                          [ImplicitVRLittleEndian, ExplicitVRLittleEndian])
+.. doctest::
 
->>> from pydicom.uid import ImplicitVRLittleEndian, ExplicitVRLittleEndian
->>> from pynetdicom import AE, build_context
->>> from pynetdicom.sop_class import CTImageStorage
->>> ae = AE()
->>> context_a = build_context(CTImageStorage, ImplicitVRLittleEndian))
->>> context_b = build_context('1.2.840.10008.1.1',
-...                           [ImplicitVRLittleEndian, ExplicitVRBigEndian])
->>> ae.supported_contexts = [context_a, context_b]
+    >>> from pydicom.uid import ImplicitVRLittleEndian, ExplicitVRLittleEndian
+    >>> from pynetdicom import AE
+    >>> from pynetdicom.sop_class import CTImageStorage, MRImageStorage
+    >>> ae = AE()
+    >>> ae.add_supported_context(CTImageStorage, transfer_syntax='1.2.840.10008.1.2')
+    >>> ae.add_supported_context(
+    ...     MRImageStorage, [ImplicitVRLittleEndian, ExplicitVRLittleEndian]
+    ... )
+
+.. doctest::
+
+    >>> from pydicom.uid import ImplicitVRLittleEndian, ExplicitVRBigEndian
+    >>> from pynetdicom import AE, build_context
+    >>> from pynetdicom.sop_class import CTImageStorage
+    >>> ae = AE()
+    >>> context_a = build_context(CTImageStorage, ImplicitVRLittleEndian)
+    >>> context_b = build_context(
+    ...     '1.2.840.10008.1.1', [ImplicitVRLittleEndian, ExplicitVRBigEndian]
+    ... )
+    >>> ae.supported_contexts = [context_a, context_b]
 
 The supported presentation contexts can be accessed with the
 :attr:`AE.supported_contexts<ApplicationEntity.supported_contexts>`
 property and they are returned in order of their abstract syntax UID value:
 
->>> from pynetdicom import AE
->>> from pynetdicom.sop_class import VerificationSOPClass
->>> ae = AE()
->>> len(ae.supported_contexts)
-0
->>> ae.add_supported_context(VerificationSOPClass)
->>> len(ae.supported_contexts)
-1
->>> print(ae.supported_contexts[0])
-Abstract Syntax: Verification SOP Class
-Transfer Syntax(es):
-    =Implicit VR Little Endian
-    =Explicit VR Little Endian
-    =Explicit VR Big Endian
+.. doctest::
 
-For the association *Acceptor* its not possible to have multiple supported
+    >>> from pynetdicom import AE
+    >>> from pynetdicom.sop_class import VerificationSOPClass
+    >>> ae = AE()
+    >>> len(ae.supported_contexts)
+    0
+    >>> ae.add_supported_context(VerificationSOPClass)
+    >>> len(ae.supported_contexts)
+    1
+    >>> print(ae.supported_contexts[0])
+    Abstract Syntax: Verification SOP Class
+    Transfer Syntax(es):
+        =Implicit VR Little Endian
+        =Explicit VR Little Endian
+        =Explicit VR Big Endian
+
+For the association *Acceptor* it's not possible to have multiple supported
 presentation contexts for the same abstract syntax, instead any additional
 transfer syntaxes will be combined with the pre-existing context:
 
->>> from pydicom.uid import ImplicitVRLittleEndian, ExplicitVRLittleEndian
->>> from pynetdicom import AE
->>> from pynetdicom.sop_class import CTImageStorage
->>> ae = AE()
->>> ae.add_supported_context(CTImageStorage, ExplicitVRLittleEndian)
->>> ae.add_supported_context(CTImageStorage, ImplicitVRLittleEndian)
->>> len(ae.supported_contexts)
-1
->>> print(ae.supported_contexts[0])
-Abstract Syntax: CT Image Storage
-Transfer Syntax(es):
-    =Implicit VR Little Endian
-    =Explicit VR Little Endian
+.. doctest::
 
+    >>> from pydicom.uid import ImplicitVRLittleEndian, ExplicitVRLittleEndian
+    >>> from pynetdicom import AE
+    >>> from pynetdicom.sop_class import CTImageStorage
+    >>> ae = AE()
+    >>> ae.add_supported_context(CTImageStorage, ExplicitVRLittleEndian)
+    >>> ae.add_supported_context(CTImageStorage, ImplicitVRLittleEndian)
+    >>> len(ae.supported_contexts)
+    1
+    >>> print(ae.supported_contexts[0])
+    Abstract Syntax: CT Image Storage
+    Transfer Syntax(es):
+        =Explicit VR Little Endian
+        =Implicit VR Little Endian
 
 All the above examples set the supported presentation contexts on the
 Application Entity level, i.e. the same contexts will be used for all
 SCPs. To set the supported presentation contexts on a
 per-SCP basis (i.e. each SCP can have different
-supported contexts) you can use the *context* keyword argument when calling
+supported contexts) you can use the *contexts* keyword parameter when calling
 :meth:`AE.start_server()<ApplicationEntity.start_server>` (see
 the :ref:`Association <association>` page for more information).
 
@@ -376,13 +425,15 @@ may include
 :dcm:`SCP/SCU Role Selection Negotiation <part07/sect_D.3.3.4.html>`
 items in the association request and it's up to the association *Acceptor*
 to decide whether or not to accept the proposed roles. This can be done
-through the *scu_role* and *scp_role* keyword arguments, which control whether
+through the *scu_role* and *scp_role* keyword parameters, which control whether
 or not the association *Acceptor* will accept or reject the proposal:
 
->>> from pynetdicom import AE
->>> from pynetdicom.sop_class import CTImageStorage
->>> ae = AE()
->>> ae.add_supported_context(CTImageStorage, scu_role=False, scp_role=True)
+.. doctest::
+
+    >>> from pynetdicom import AE
+    >>> from pynetdicom.sop_class import CTImageStorage
+    >>> ae = AE()
+    >>> ae.add_supported_context(CTImageStorage, scu_role=False, scp_role=True)
 
 If either *scu_role* or *scp_role* is ``None`` (the default) then no response
 to the role selection will be sent and the default roles assumed. If you wish
@@ -419,7 +470,7 @@ methods are:
 * SAML assertion
 * JSON web token
 
-By default all association requests that include user identity negotiation
+By default, all association requests that include user identity negotiation
 are accepted (provided there's no other reason to reject) and
 no user identity negotiation response is sent even if one is requested.
 
@@ -433,6 +484,8 @@ to see the requirements for implementations of the ``evt.EVT_USER_ID`` handler.
 
     from pynetdicom import AE, evt
     from pynetdicom.sop_class import VerificationSOPClass
+
+    from my_code import some_user_function
 
     def handle_user_id(event):
         """Handle evt.EVT_USER_ID."""
@@ -451,12 +504,15 @@ to see the requirements for implementations of the ``evt.EVT_USER_ID`` handler.
 Specifying the bind address
 ...........................
 The bind address for the server socket is specified by the *address*
-argument to ``start_server()`` as (str *host*, int *port*).
+parameter to :meth:`~pynetdicom.ae.ApplicationEntity.start_server` as
+(str *host*, int *port*).
 
->>> from pynetdicom import AE
->>> ae = AE()
->>> ae.add_supported_context('1.2.840.10008.1.1')
->>> ae.start_server(('', 11112))
+.. code-block:: python
+
+    >>> from pynetdicom import AE
+    >>> ae = AE()
+    >>> ae.add_supported_context('1.2.840.10008.1.1')
+    >>> ae.start_server(('', 11112))
 
 
 Association

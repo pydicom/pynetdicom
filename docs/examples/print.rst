@@ -156,14 +156,17 @@ notifications over the same association (and ignore them).
     from pydicom.dataset import Dataset
     from pydicom.uid import generate_uid
 
-    from pynetdicom import AE, evt
+    from pynetdicom import AE, evt, debug_logger
     from pynetdicom.sop_class import (
         BasicGrayscalePrintManagementMetaSOPClass,
         BasicFilmSessionSOPClass,
         BasicFilmBoxSOPClass,
         BasicGrayscaleImageBoxSOPClass,
         PrinterSOPClass,
+        PrinterSOPInstance
     )
+
+    debug_logger()
 
     # The SOP Instance containing the grayscale image data to be printed
     DATASET = dcmread('path/to/file.dcm')
@@ -274,7 +277,7 @@ notifications over the same association (and ignore them).
         status, attr_list = assoc.send_n_get(
             [0x21100010, 0x21100020],  # Attribute Identifier List
             PrinterSOPClass,  # Affected SOP Class UID
-            '1.2.840.10008.5.1.1.17',  # (Well-known Printer SOP Instance)
+            PrinterSOPInstance,  # Well-known Printer SOP Instance
             meta_uid=BasicGrayscalePrintManagementMetaSOPClass
         )
         if status and status.Status == 0x0000:
