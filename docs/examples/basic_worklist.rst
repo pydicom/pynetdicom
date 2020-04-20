@@ -22,8 +22,10 @@ of a Query/Retrieve (Find) SCU, however BWM uses a different
 
     from pydicom.dataset import Dataset
 
-    from pynetdicom import AE
+    from pynetdicom import AE, debug_logger
     from pynetdicom.sop_class import ModalityWorklistInformationFind
+
+    debug_logger()
 
     # Initialise the Application Entity
     ae = AE()
@@ -45,18 +47,10 @@ of a Query/Retrieve (Find) SCU, however BWM uses a different
 
     if assoc.is_established:
         # Use the C-FIND service to send the identifier
-        responses = assoc.send_c_find(
-            ds,
-            ModalityWorklistInformationFind
-        )
-
+        responses = assoc.send_c_find(ds, ModalityWorklistInformationFind)
         for (status, identifier) in responses:
             if status:
                 print('C-FIND query status: 0x{0:04x}'.format(status.Status))
-
-                # If the status is 'Pending' then identifier is the C-FIND response
-                if status.Status in (0xFF00, 0xFF01):
-                    print(identifier)
             else:
                 print('Connection timed out, was aborted or received invalid response')
 

@@ -14,11 +14,13 @@ Display System Management Service.
 
 .. code-block:: python
 
-    from pynetdicom import AE
+    from pynetdicom import AE, debug_logger
     from pynetdicom.sop_class import (
         DisplaySystemSOPClass, DisplaySystemSOPInstance
     )
     from pynetdicom.status import code_to_category
+
+    debug_logger()
 
     # Initialise the Application Entity
     ae = AE()
@@ -55,17 +57,6 @@ Display System Management Service.
         assoc.release()
     else:
         print('Association rejected, aborted or never connected')
-
-You can also use the inbuilt
-:attr:`~pynetdicom.presentation.DisplaySystemPresentationContexts` when setting
-the requested contexts.
-
-.. code-block:: python
-
-   from pynetdicom import AE, DisplaySystemPresentationContexts
-
-   ae = AE()
-   ae.requested_contexts = DisplaySystemPresentationContexts
 
 
 .. _example_nget_scp:

@@ -19,9 +19,10 @@ Root Query/Retrieve Information Model - Find* at the ``'PATIENT'`` level.
 
     from pydicom.dataset import Dataset
 
-    from pynetdicom import AE
+    from pynetdicom import AE, debug_logger
     from pynetdicom.sop_class import PatientRootQueryRetrieveInformationModelFind
 
+    debug_logger()
 
     ae = AE()
     ae.add_requested_context(PatientRootQueryRetrieveInformationModelFind)
@@ -39,10 +40,6 @@ Root Query/Retrieve Information Model - Find* at the ``'PATIENT'`` level.
         for (status, identifier) in responses:
             if status:
                 print('C-FIND query status: 0x{0:04X}'.format(status.Status))
-
-                # If the status is 'Pending' then identifier is the C-FIND response
-                if status.Status in (0xFF00, 0xFF01):
-                    print(identifier)
             else:
                 print('Connection timed out, was aborted or received invalid response')
 
@@ -53,7 +50,8 @@ Root Query/Retrieve Information Model - Find* at the ``'PATIENT'`` level.
 
 The responses received from the SCP are dependent on the *Identifier* dataset
 keys and values, the Query/Retrieve level and the information model. For
-example, the following query dataset should yield C-FIND responses containing
+example, provided the optional attribute *SOP Classes in Study* is supported,
+the following query dataset should yield C-FIND responses containing
 the various *SOP Class UIDs* that make are in each study for a patient with
 *Patient ID* ``1234567``.
 
@@ -62,7 +60,7 @@ the various *SOP Class UIDs* that make are in each study for a patient with
     ds = Dataset()
     ds.SOPClassesInStudy = ''
     ds.PatientID = '1234567'
-    ds.StudyInstanceUID = '*'
+    ds.StudyInstanceUID = ''
     ds.QueryRetrieveLevel = 'STUDY'
 
 .. _example_qrfind_scp:
