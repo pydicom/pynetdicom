@@ -240,7 +240,7 @@ We bind our handler to the corresponding event by passing ``handlers``
 to :func:`~ae.ApplicationEntity.start_server` via the
 `evt_handlers` keyword parameter.
 
-Interrupt the terminal running ``my_scp.py`` using ``CTRL+c`` and
+Interrupt the terminal running ``my_scp.py`` using ``CTRL+C`` and
 then restart it. This time when you run :doc:`storescu<../apps/storescu>`
 you should see:
 
@@ -399,7 +399,7 @@ complex code:
 
 .. code-block:: python
    :linenos:
-   :emphasize-lines: 1,3,12,14-18,20-27,31
+   :emphasize-lines: 1,3,12,14-18,21-28,32
 
     import os
 
@@ -420,8 +420,7 @@ complex code:
             # Unable to create output dir, return failure status
             return 0xC001
 
-        # Because we can't access `event.dataset.SOPInstanceUID` we need to
-        # rely on the UID from the C-STORE request instead
+        # We rely on the UID from the C-STORE request instead of decoding
         fname = os.path.join(storage_dir, event.request.AffectedSOPInstanceUID)
         with open(fname, 'wb') as f:
             # Write the preamble, prefix and file meta information elements
@@ -453,8 +452,8 @@ request via the ``event.request`` attribute.
 
 The second change we've made is to demonstrate how extra parameters can be
 passed to the handler by binding using a 3-tuple rather than a 2-tuple. The
-third value in the :class:`tuple` should be a :class:`list` of objects;
-each item will be passed as a separate parameter. In
+third item in the :class:`tuple` should be a :class:`list` of objects;
+each of the list's items will be passed as a separate parameter. In
 our case the string ``'out'`` will be passed to the handler as the
 *storage_dir* parameter.
 
@@ -462,7 +461,7 @@ You should also handle exceptions in your code gracefully by returning an
 appropriate status value. In this case, if we failed to create the output
 directory we return an ``0xC001`` status, indicating that the storage operation
 has failed. However, as you've already seen, any unhandled exceptions in the
-handler will automatically return an ``0xC112`` status, so you really only
+handler will automatically return an ``0xC211`` status, so you really only
 need to deal with the exceptions important to you.
 
 If you restart ``my_scp.py``, you should now be able to use
@@ -471,7 +470,7 @@ the storage service.
 
 
 Next steps
-----------
+==========
 
 That's it for the basics of *pynetdicom*. You might want to read through the
 :doc:`User Guide<../user/index>`, or check

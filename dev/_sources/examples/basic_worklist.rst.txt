@@ -12,8 +12,9 @@ Basic Worklist Management SCU
 
 Associate with a peer DICOM Application Entity and request the
 worklist for the application with AE title ``CTSCANNER`` for the 5th October
-2018. The approach is very similar to that of a Query/Retrieve (Find) SCU,
-however BWM uses a different
+2018. You may need to change the *Identifier* to meet the requirements of the
+SCP so check it's conformance statement. The approach is very similar to that
+of a Query/Retrieve (Find) SCU, however BWM uses a different
 :dcm:`set of attributes <part04/sect_K.6.html#sect_K.6.1.2>` for the
 *Identifier*.
 
@@ -21,8 +22,10 @@ however BWM uses a different
 
     from pydicom.dataset import Dataset
 
-    from pynetdicom import AE
+    from pynetdicom import AE, debug_logger
     from pynetdicom.sop_class import ModalityWorklistInformationFind
+
+    debug_logger()
 
     # Initialise the Application Entity
     ae = AE()
@@ -44,18 +47,10 @@ however BWM uses a different
 
     if assoc.is_established:
         # Use the C-FIND service to send the identifier
-        responses = assoc.send_c_find(
-            ds,
-            ModalityWorklistInformationFind
-        )
-
+        responses = assoc.send_c_find(ds, ModalityWorklistInformationFind)
         for (status, identifier) in responses:
             if status:
                 print('C-FIND query status: 0x{0:04x}'.format(status.Status))
-
-                # If the status is 'Pending' then identifier is the C-FIND response
-                if status.Status in (0xFF00, 0xFF01):
-                    print(identifier)
             else:
                 print('Connection timed out, was aborted or received invalid response')
 

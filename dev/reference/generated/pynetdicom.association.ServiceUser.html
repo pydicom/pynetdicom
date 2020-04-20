@@ -198,16 +198,16 @@
 <h1>pynetdicom.association.ServiceUser<a class="headerlink" href="#pynetdicom-association-serviceuser" title="Permalink to this headline">¶</a></h1>
 <dl class="py class">
 <dt id="pynetdicom.association.ServiceUser">
-<em class="property">class </em><code class="sig-prename descclassname">pynetdicom.association.</code><code class="sig-name descname">ServiceUser</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">assoc</span></em>, <em class="sig-param"><span class="n">mode</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/a214635f/pynetdicom/association.py#L3229"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom.association.ServiceUser" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="sig-prename descclassname">pynetdicom.association.</code><code class="sig-name descname">ServiceUser</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">assoc</span></em>, <em class="sig-param"><span class="n">mode</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/8def6df0/pynetdicom/association.py#L3229"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom.association.ServiceUser" title="Permalink to this definition">¶</a></dt>
 <dd><p>Convenience class for the <a class="reference internal" href="pynetdicom.association.Association.html#pynetdicom.association.Association" title="pynetdicom.association.Association"><code class="xref py py-class docutils literal notranslate"><span class="pre">Association</span></code></a> service user.</p>
 <p>An <a class="reference internal" href="pynetdicom.association.Association.html#pynetdicom.association.Association" title="pynetdicom.association.Association"><code class="xref py py-class docutils literal notranslate"><span class="pre">Association</span></code></a> object has two <a class="reference internal" href="#pynetdicom.association.ServiceUser" title="pynetdicom.association.ServiceUser"><code class="xref py py-class docutils literal notranslate"><span class="pre">ServiceUser</span></code></a> attributes, one
-representing the association <em>Requestor</em> and the other the association
-<em>Acceptor</em>. Once both have been defined sufficiently to be considered
-valid then association negotiation can begin. The <em>Requestor</em>
+representing the association <em>requestor</em> and the other the association
+<em>acceptor</em>. Once both have been defined sufficiently to be considered
+valid then association negotiation can begin. The <em>requestor</em>
 <a class="reference internal" href="#pynetdicom.association.ServiceUser" title="pynetdicom.association.ServiceUser"><code class="xref py py-class docutils literal notranslate"><span class="pre">ServiceUser</span></code></a> requires (at a minimum) the following in order to be
 valid:</p>
 <ul>
-<li><p>For association as requestor:</p>
+<li><p>For association as <em>requestor</em>:</p>
 <blockquote>
 <div><ul class="simple">
 <li><p>AE title (<cite>ae_title</cite>)</p></li>
@@ -218,7 +218,7 @@ valid:</p>
 </ul>
 </div></blockquote>
 </li>
-<li><p>For association as acceptor:</p>
+<li><p>For association as <em>acceptor</em>:</p>
 <blockquote>
 <div><ul class="simple">
 <li><p>AE title</p></li>
@@ -227,17 +227,17 @@ valid:</p>
 </div></blockquote>
 </li>
 </ul>
-<p>The <em>Acceptor</em> <a class="reference internal" href="#pynetdicom.association.ServiceUser" title="pynetdicom.association.ServiceUser"><code class="xref py py-class docutils literal notranslate"><span class="pre">ServiceUser</span></code></a> requires (at a minimum) the following
+<p>The <em>acceptor</em> <a class="reference internal" href="#pynetdicom.association.ServiceUser" title="pynetdicom.association.ServiceUser"><code class="xref py py-class docutils literal notranslate"><span class="pre">ServiceUser</span></code></a> requires (at a minimum) the following
 in order to be valid:</p>
 <ul>
-<li><p>For association as requestor:</p>
+<li><p>For association as <em>requestor</em>:</p>
 <blockquote>
 <div><ul class="simple">
 <li><p>Address and port number</p></li>
 </ul>
 </div></blockquote>
 </li>
-<li><p>For association as acceptor:</p>
+<li><p>For association as <em>acceptor</em>:</p>
 <blockquote>
 <div><ul class="simple">
 <li><p>AE title</p></li>
@@ -296,7 +296,7 @@ during association negotiation.</p>
 
 <dl class="py method">
 <dt id="pynetdicom.association.ServiceUser.__init__">
-<code class="sig-name descname">__init__</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">assoc</span></em>, <em class="sig-param"><span class="n">mode</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/a214635f/pynetdicom/association.py#L3277"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom.association.ServiceUser.__init__" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">__init__</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">assoc</span></em>, <em class="sig-param"><span class="n">mode</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/8def6df0/pynetdicom/association.py#L3277"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom.association.ServiceUser.__init__" title="Permalink to this definition">¶</a></dt>
 <dd><p>Create a new <a class="reference internal" href="#pynetdicom.association.ServiceUser" title="pynetdicom.association.ServiceUser"><code class="xref py py-class docutils literal notranslate"><span class="pre">ServiceUser</span></code></a>.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -349,13 +349,13 @@ This is not necessarily the same as the association’s
 <td><p>Return the Asynchronous Operations Window operations numbers.</p></td>
 </tr>
 <tr class="row-odd"><td><p><a class="reference internal" href="#pynetdicom.association.ServiceUser.extended_negotiation" title="pynetdicom.association.ServiceUser.extended_negotiation"><code class="xref py py-obj docutils literal notranslate"><span class="pre">extended_negotiation</span></code></a></p></td>
-<td><p>Return a list of Extended Negotiation items.</p></td>
+<td><p>Return a <a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.8)"><code class="xref py py-class docutils literal notranslate"><span class="pre">list</span></code></a> of Extended Negotiation items.</p></td>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="#pynetdicom.association.ServiceUser.implementation_class_uid" title="pynetdicom.association.ServiceUser.implementation_class_uid"><code class="xref py py-obj docutils literal notranslate"><span class="pre">implementation_class_uid</span></code></a></p></td>
-<td><p>Return the Implementation Class UID as a <em>pydicom</em> <a class="reference external" href="https://pydicom.github.io/pydicom/stable/reference/generated/pydicom.uid.UID.html#pydicom.uid.UID" title="(in pydicom v1.4.2)"><code class="xref py py-class docutils literal notranslate"><span class="pre">UID</span></code></a>.</p></td>
+<td><p>The Implementation Class UID as a <a class="reference external" href="https://pydicom.github.io/pydicom/stable/reference/generated/pydicom.uid.UID.html#pydicom.uid.UID" title="(in pydicom v1.4.2)"><code class="xref py py-class docutils literal notranslate"><span class="pre">UID</span></code></a>.</p></td>
 </tr>
 <tr class="row-odd"><td><p><a class="reference internal" href="#pynetdicom.association.ServiceUser.implementation_version_name" title="pynetdicom.association.ServiceUser.implementation_version_name"><code class="xref py py-obj docutils literal notranslate"><span class="pre">implementation_version_name</span></code></a></p></td>
-<td><p>Return the Implementation Version Name as <a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></a> (if available).</p></td>
+<td><p>The Implementation Version Name as <a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></a> (if available).</p></td>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="#pynetdicom.association.ServiceUser.info" title="pynetdicom.association.ServiceUser.info"><code class="xref py py-obj docutils literal notranslate"><span class="pre">info</span></code></a></p></td>
 <td><p>Return a <a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.8)"><code class="xref py py-class docutils literal notranslate"><span class="pre">dict</span></code></a> with information about the <a class="reference internal" href="#pynetdicom.association.ServiceUser" title="pynetdicom.association.ServiceUser"><code class="xref py py-class docutils literal notranslate"><span class="pre">ServiceUser</span></code></a>.</p></td>
@@ -367,13 +367,13 @@ This is not necessarily the same as the association’s
 <td><p>Return <code class="docutils literal notranslate"><span class="pre">True</span></code> if the <a class="reference internal" href="#pynetdicom.association.ServiceUser" title="pynetdicom.association.ServiceUser"><code class="xref py py-class docutils literal notranslate"><span class="pre">ServiceUser</span></code></a> is the association requestor.</p></td>
 </tr>
 <tr class="row-odd"><td><p><a class="reference internal" href="#pynetdicom.association.ServiceUser.maximum_length" title="pynetdicom.association.ServiceUser.maximum_length"><code class="xref py py-obj docutils literal notranslate"><span class="pre">maximum_length</span></code></a></p></td>
-<td><p>Return the maximum PDV size as <a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.8)"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></a>.</p></td>
+<td><p>The maximum PDV size as <a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.8)"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></a>.</p></td>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="#pynetdicom.association.ServiceUser.mode" title="pynetdicom.association.ServiceUser.mode"><code class="xref py py-obj docutils literal notranslate"><span class="pre">mode</span></code></a></p></td>
 <td><p>Return the mode as <a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></a>, either <code class="docutils literal notranslate"><span class="pre">'requestor'</span></code> or <code class="docutils literal notranslate"><span class="pre">'acceptor'</span></code>.</p></td>
 </tr>
 <tr class="row-odd"><td><p><a class="reference internal" href="#pynetdicom.association.ServiceUser.requested_contexts" title="pynetdicom.association.ServiceUser.requested_contexts"><code class="xref py py-obj docutils literal notranslate"><span class="pre">requested_contexts</span></code></a></p></td>
-<td><p>Return a <a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.8)"><code class="xref py py-class docutils literal notranslate"><span class="pre">list</span></code></a> of the requestor’s requested presentation contexts.</p></td>
+<td><p>A <a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.8)"><code class="xref py py-class docutils literal notranslate"><span class="pre">list</span></code></a> of the requestor’s requested presentation contexts.</p></td>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="#pynetdicom.association.ServiceUser.role_selection" title="pynetdicom.association.ServiceUser.role_selection"><code class="xref py py-obj docutils literal notranslate"><span class="pre">role_selection</span></code></a></p></td>
 <td><p>Return any SCP/SCU Role Selection items.</p></td>
@@ -385,7 +385,7 @@ This is not necessarily the same as the association’s
 <td><p>Return any SOP Class Extended items.</p></td>
 </tr>
 <tr class="row-odd"><td><p><a class="reference internal" href="#pynetdicom.association.ServiceUser.supported_contexts" title="pynetdicom.association.ServiceUser.supported_contexts"><code class="xref py py-obj docutils literal notranslate"><span class="pre">supported_contexts</span></code></a></p></td>
-<td><p>Return the supported presentation contexts.</p></td>
+<td><p>The supported presentation contexts.</p></td>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="#pynetdicom.association.ServiceUser.user_identity" title="pynetdicom.association.ServiceUser.user_identity"><code class="xref py py-obj docutils literal notranslate"><span class="pre">user_identity</span></code></a></p></td>
 <td><p>Return the User Identity Negotiation Item (if available).</p></td>
@@ -413,14 +413,14 @@ negotiation items.</p>
 <dd class="field-even"><p>dict of 2-tuple</p>
 </dd>
 <dt class="field-odd">Raises</dt>
-<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/exceptions.html#RuntimeError" title="(in Python v3.8)"><strong>RuntimeError</strong></a> – If called when the requestor.</p>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/exceptions.html#RuntimeError" title="(in Python v3.8)"><strong>RuntimeError</strong></a> – If called when the <em>requestor</em>.</p>
 </dd>
 </dl>
 </dd></dl>
 
 <dl class="py method">
 <dt id="pynetdicom.association.ServiceUser.add_negotiation_item">
-<code class="sig-name descname">add_negotiation_item</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">item</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/a214635f/pynetdicom/association.py#L3353"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom.association.ServiceUser.add_negotiation_item" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">add_negotiation_item</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">item</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/8def6df0/pynetdicom/association.py#L3353"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom.association.ServiceUser.add_negotiation_item" title="Permalink to this definition">¶</a></dt>
 <dd><p>Add an extended negotiation item to the user information.</p>
 <p>Items can only be added prior to starting the association negotiation.</p>
 <dl class="field-list simple">
@@ -452,7 +452,7 @@ negotiation items.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Returns</dt>
 <dd class="field-odd"><p>The (<em>Maximum Number of Operations Invoked</em>, <em>Maximum Number of
-Operations Performed</em>) or (1, 1) if no Asynchronous Operations
+Operations Performed</em>) or <code class="docutils literal notranslate"><span class="pre">(1,</span> <span class="pre">1)</span></code> if no Asynchronous Operations
 Window Negotiation item is in the extended negotiation items.</p>
 </dd>
 <dt class="field-even">Return type</dt>
@@ -464,7 +464,7 @@ Window Negotiation item is in the extended negotiation items.</p>
 <dl class="py method">
 <dt id="pynetdicom.association.ServiceUser.extended_negotiation">
 <em class="property">property </em><code class="sig-name descname">extended_negotiation</code><a class="headerlink" href="#pynetdicom.association.ServiceUser.extended_negotiation" title="Permalink to this definition">¶</a></dt>
-<dd><p>Return a list of Extended Negotiation items.</p>
+<dd><p>Return a <a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.8)"><code class="xref py py-class docutils literal notranslate"><span class="pre">list</span></code></a> of Extended Negotiation items.</p>
 <p>Extended Negotiation items are:</p>
 <ul class="simple">
 <li><p>SCP/SCU Role Selection Negotiation (0 or more)</p></li>
@@ -488,7 +488,7 @@ responses.</p>
 
 <dl class="py method">
 <dt id="pynetdicom.association.ServiceUser.get_contexts">
-<code class="sig-name descname">get_contexts</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">cx_type</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/a214635f/pynetdicom/association.py#L3453"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom.association.ServiceUser.get_contexts" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">get_contexts</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">cx_type</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/8def6df0/pynetdicom/association.py#L3453"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom.association.ServiceUser.get_contexts" title="Permalink to this definition">¶</a></dt>
 <dd><p>Return a <a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.8)"><code class="xref py py-class docutils literal notranslate"><span class="pre">list</span></code></a> of
 <a class="reference internal" href="pynetdicom.presentation.PresentationContext.html#pynetdicom.presentation.PresentationContext" title="pynetdicom.presentation.PresentationContext"><code class="xref py py-class docutils literal notranslate"><span class="pre">PresentationContext</span></code></a> items
 corresponding to <cite>cx_type</cite>.</p>
@@ -528,8 +528,7 @@ Presentation Context Definition Results List parameter.</p>
 <dl class="py method">
 <dt id="pynetdicom.association.ServiceUser.implementation_class_uid">
 <em class="property">property </em><code class="sig-name descname">implementation_class_uid</code><a class="headerlink" href="#pynetdicom.association.ServiceUser.implementation_class_uid" title="Permalink to this definition">¶</a></dt>
-<dd><p>Return the Implementation Class UID as a <em>pydicom</em>
-<a class="reference external" href="https://pydicom.github.io/pydicom/stable/reference/generated/pydicom.uid.UID.html#pydicom.uid.UID" title="(in pydicom v1.4.2)"><code class="xref py py-class docutils literal notranslate"><span class="pre">UID</span></code></a>.</p>
+<dd><p>The Implementation Class UID as a <a class="reference external" href="https://pydicom.github.io/pydicom/stable/reference/generated/pydicom.uid.UID.html#pydicom.uid.UID" title="(in pydicom v1.4.2)"><code class="xref py py-class docutils literal notranslate"><span class="pre">UID</span></code></a>.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Returns</dt>
 <dd class="field-odd"><p>Returns the Implementation Class UID if the requestor or if
@@ -545,8 +544,7 @@ the acceptor and they have accepted the negotiation. Returns
 <dl class="py method">
 <dt id="pynetdicom.association.ServiceUser.implementation_version_name">
 <em class="property">property </em><code class="sig-name descname">implementation_version_name</code><a class="headerlink" href="#pynetdicom.association.ServiceUser.implementation_version_name" title="Permalink to this definition">¶</a></dt>
-<dd><p>Return the Implementation Version Name as <a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></a> (if
-available).</p>
+<dd><p>The Implementation Version Name as <a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></a> (if available).</p>
 <dl class="field-list simple">
 <dt class="field-odd">Returns</dt>
 <dd class="field-odd"><p>Returns <code class="docutils literal notranslate"><span class="pre">None</span></code> if the acceptor and they have rejected the
@@ -584,7 +582,7 @@ requestor.</p>
 <dl class="py method">
 <dt id="pynetdicom.association.ServiceUser.maximum_length">
 <em class="property">property </em><code class="sig-name descname">maximum_length</code><a class="headerlink" href="#pynetdicom.association.ServiceUser.maximum_length" title="Permalink to this definition">¶</a></dt>
-<dd><p>Return the maximum PDV size as <a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.8)"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></a>.</p>
+<dd><p>The maximum PDV size as <a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.8)"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></a>.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Returns</dt>
 <dd class="field-odd"><p>Returns the Maximum Received Length if the requestor or if
@@ -606,7 +604,7 @@ the acceptor and they have accepted the negotiation. Returns
 
 <dl class="py method">
 <dt id="pynetdicom.association.ServiceUser.remove_negotiation_item">
-<code class="sig-name descname">remove_negotiation_item</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">item</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/a214635f/pynetdicom/association.py#L3736"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom.association.ServiceUser.remove_negotiation_item" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">remove_negotiation_item</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">item</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/8def6df0/pynetdicom/association.py#L3734"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom.association.ServiceUser.remove_negotiation_item" title="Permalink to this definition">¶</a></dt>
 <dd><p>Remove an extended negotiation item from the user information.</p>
 <p>Items can only be removed prior to starting the association
 negotiation.</p>
@@ -635,13 +633,13 @@ negotiation.</p>
 <dl class="py method">
 <dt id="pynetdicom.association.ServiceUser.requested_contexts">
 <em class="property">property </em><code class="sig-name descname">requested_contexts</code><a class="headerlink" href="#pynetdicom.association.ServiceUser.requested_contexts" title="Permalink to this definition">¶</a></dt>
-<dd><p>Return a <a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.8)"><code class="xref py py-class docutils literal notranslate"><span class="pre">list</span></code></a> of the requestor’s requested presentation
+<dd><p>A <a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.8)"><code class="xref py py-class docutils literal notranslate"><span class="pre">list</span></code></a> of the requestor’s requested presentation
 contexts.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt id="pynetdicom.association.ServiceUser.reset_negotiation_items">
-<code class="sig-name descname">reset_negotiation_items</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/a214635f/pynetdicom/association.py#L3779"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom.association.ServiceUser.reset_negotiation_items" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">reset_negotiation_items</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/8def6df0/pynetdicom/association.py#L3777"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom.association.ServiceUser.reset_negotiation_items" title="Permalink to this definition">¶</a></dt>
 <dd><p>Remove all extended negotiation items.</p>
 <p>Items can only be removed prior to starting the association
 negotiation.</p>
@@ -703,7 +701,7 @@ Class Common Extended items will be present in the User Information.</p>
 <dl class="py method">
 <dt id="pynetdicom.association.ServiceUser.supported_contexts">
 <em class="property">property </em><code class="sig-name descname">supported_contexts</code><a class="headerlink" href="#pynetdicom.association.ServiceUser.supported_contexts" title="Permalink to this definition">¶</a></dt>
-<dd><p>Return the supported presentation contexts.</p>
+<dd><p>The supported presentation contexts.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Returns</dt>
 <dd class="field-odd"><p>The supported presentation contexts when acting as an acceptor.</p>

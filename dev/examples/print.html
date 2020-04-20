@@ -362,14 +362,17 @@ notifications over the same association (and ignore them).</p>
 <span class="kn">from</span> <span class="nn">pydicom.dataset</span> <span class="kn">import</span> <span class="n">Dataset</span>
 <span class="kn">from</span> <span class="nn">pydicom.uid</span> <span class="kn">import</span> <span class="n">generate_uid</span>
 
-<span class="kn">from</span> <span class="nn">pynetdicom</span> <span class="kn">import</span> <span class="n">AE</span><span class="p">,</span> <span class="n">evt</span>
+<span class="kn">from</span> <span class="nn">pynetdicom</span> <span class="kn">import</span> <span class="n">AE</span><span class="p">,</span> <span class="n">evt</span><span class="p">,</span> <span class="n">debug_logger</span>
 <span class="kn">from</span> <span class="nn">pynetdicom.sop_class</span> <span class="kn">import</span> <span class="p">(</span>
     <span class="n">BasicGrayscalePrintManagementMetaSOPClass</span><span class="p">,</span>
     <span class="n">BasicFilmSessionSOPClass</span><span class="p">,</span>
     <span class="n">BasicFilmBoxSOPClass</span><span class="p">,</span>
     <span class="n">BasicGrayscaleImageBoxSOPClass</span><span class="p">,</span>
     <span class="n">PrinterSOPClass</span><span class="p">,</span>
+    <span class="n">PrinterSOPInstance</span>
 <span class="p">)</span>
+
+<span class="n">debug_logger</span><span class="p">()</span>
 
 <span class="c1"># The SOP Instance containing the grayscale image data to be printed</span>
 <span class="n">DATASET</span> <span class="o">=</span> <span class="n">dcmread</span><span class="p">(</span><span class="s1">&#39;path/to/file.dcm&#39;</span><span class="p">)</span>
@@ -480,7 +483,7 @@ notifications over the same association (and ignore them).</p>
     <span class="n">status</span><span class="p">,</span> <span class="n">attr_list</span> <span class="o">=</span> <span class="n">assoc</span><span class="o">.</span><span class="n">send_n_get</span><span class="p">(</span>
         <span class="p">[</span><span class="mh">0x21100010</span><span class="p">,</span> <span class="mh">0x21100020</span><span class="p">],</span>  <span class="c1"># Attribute Identifier List</span>
         <span class="n">PrinterSOPClass</span><span class="p">,</span>  <span class="c1"># Affected SOP Class UID</span>
-        <span class="s1">&#39;1.2.840.10008.5.1.1.17&#39;</span><span class="p">,</span>  <span class="c1"># (Well-known Printer SOP Instance)</span>
+        <span class="n">PrinterSOPInstance</span><span class="p">,</span>  <span class="c1"># Well-known Printer SOP Instance</span>
         <span class="n">meta_uid</span><span class="o">=</span><span class="n">BasicGrayscalePrintManagementMetaSOPClass</span>
     <span class="p">)</span>
     <span class="k">if</span> <span class="n">status</span> <span class="ow">and</span> <span class="n">status</span><span class="o">.</span><span class="n">Status</span> <span class="o">==</span> <span class="mh">0x0000</span><span class="p">:</span>

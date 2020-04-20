@@ -201,8 +201,10 @@ Service is what you’re looking for.</p>
 single CT dataset.</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">pydicom</span> <span class="kn">import</span> <span class="n">dcmread</span>
 
-<span class="kn">from</span> <span class="nn">pynetdicom</span> <span class="kn">import</span> <span class="n">AE</span>
+<span class="kn">from</span> <span class="nn">pynetdicom</span> <span class="kn">import</span> <span class="n">AE</span><span class="p">,</span> <span class="n">debug_logger</span>
 <span class="kn">from</span> <span class="nn">pynetdicom.sop_class</span> <span class="kn">import</span> <span class="n">CTImageStorage</span>
+
+<span class="n">debug_logger</span><span class="p">()</span>
 
 <span class="c1"># Initialise the Application Entity</span>
 <span class="n">ae</span> <span class="o">=</span> <span class="n">AE</span><span class="p">()</span>
@@ -215,7 +217,6 @@ single CT dataset.</p>
 
 <span class="c1"># Associate with peer AE at IP 127.0.0.1 and port 11112</span>
 <span class="n">assoc</span> <span class="o">=</span> <span class="n">ae</span><span class="o">.</span><span class="n">associate</span><span class="p">(</span><span class="s1">&#39;127.0.0.1&#39;</span><span class="p">,</span> <span class="mi">11112</span><span class="p">)</span>
-
 <span class="k">if</span> <span class="n">assoc</span><span class="o">.</span><span class="n">is_established</span><span class="p">:</span>
     <span class="c1"># Use the C-STORE service to send the dataset</span>
     <span class="c1"># returns the response status as a pydicom Dataset</span>
@@ -236,8 +237,9 @@ single CT dataset.</p>
 </div>
 <p>Of course it’s rarely the case that someone wants to store just CT images,
 so you can also use the inbuilt
-<a class="reference internal" href="../reference/generated/pynetdicom.presentation.StoragePresentationContexts.html#pynetdicom.presentation.StoragePresentationContexts" title="pynetdicom.presentation.StoragePresentationContexts"><code class="xref py py-attr docutils literal notranslate"><span class="pre">StoragePresentationContexts</span></code></a> when setting
-the requested contexts or just add as many contexts as you need.</p>
+<a class="reference internal" href="../reference/generated/pynetdicom.presentation.StoragePresentationContexts.html#pynetdicom.presentation.StoragePresentationContexts" title="pynetdicom.presentation.StoragePresentationContexts"><code class="xref py py-attr docutils literal notranslate"><span class="pre">StoragePresentationContexts</span></code></a> which contains
+presentation contexts for the first 128 storage SOP Classes when setting
+the requested contexts, or just add as many contexts as you need.</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">pynetdicom</span> <span class="kn">import</span> <span class="n">AE</span><span class="p">,</span> <span class="n">StoragePresentationContexts</span>
 
 <span class="n">ae</span> <span class="o">=</span> <span class="n">AE</span><span class="p">()</span>
@@ -280,7 +282,9 @@ which requires adding the File Meta Information.</p>
 <p>Check the
 <a class="reference internal" href="../reference/generated/pynetdicom._handlers.doc_handle_store.html#pynetdicom._handlers.doc_handle_store" title="pynetdicom._handlers.doc_handle_store"><code class="xref py py-func docutils literal notranslate"><span class="pre">handler</span> <span class="pre">implementation</span> <span class="pre">documentation</span></code></a>
 to see the requirements for the <code class="docutils literal notranslate"><span class="pre">evt.EVT_C_STORE</span></code> handler.</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">pynetdicom</span> <span class="kn">import</span> <span class="n">AE</span><span class="p">,</span> <span class="n">evt</span><span class="p">,</span> <span class="n">AllStoragePresentationContexts</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">pynetdicom</span> <span class="kn">import</span> <span class="n">AE</span><span class="p">,</span> <span class="n">evt</span><span class="p">,</span> <span class="n">AllStoragePresentationContexts</span><span class="p">,</span> <span class="n">debug_logger</span>
+
+<span class="n">debug_logger</span><span class="p">()</span>
 
 <span class="c1"># Implement a handler for evt.EVT_C_STORE</span>
 <span class="k">def</span> <span class="nf">handle_store</span><span class="p">(</span><span class="n">event</span><span class="p">):</span>
@@ -302,7 +306,7 @@ to see the requirements for the <code class="docutils literal notranslate"><span
 <span class="c1"># Initialise the Application Entity</span>
 <span class="n">ae</span> <span class="o">=</span> <span class="n">AE</span><span class="p">()</span>
 
-<span class="c1"># Add the supported presentation contexts</span>
+<span class="c1"># Support presentation contexts for all storage SOP Classes</span>
 <span class="n">ae</span><span class="o">.</span><span class="n">supported_contexts</span> <span class="o">=</span> <span class="n">AllStoragePresentationContexts</span>
 
 <span class="c1"># Start listening for incoming association requests</span>
@@ -313,8 +317,8 @@ to see the requirements for the <code class="docutils literal notranslate"><span
 <ul class="simple">
 <li><p>Increase the <a class="reference internal" href="../reference/generated/pynetdicom.ae.ApplicationEntity.html#id4" title="pynetdicom.ae.ApplicationEntity.maximum_pdu_size"><code class="xref py py-attr docutils literal notranslate"><span class="pre">maximum</span> <span class="pre">PDU</span> <span class="pre">size</span></code></a>: this reduces the number
 of DIMSE messages required to transfer the data</p></li>
-<li><p>Write the received dataset’s <a class="reference internal" href="../reference/generated/pynetdicom.dimse_primitives.C_STORE.html#id1" title="pynetdicom.dimse_primitives.C_STORE.DataSet"><code class="xref py py-attr docutils literal notranslate"><span class="pre">raw</span> <span class="pre">bytes</span></code></a>: this skips the dataset
-decode/re-encode step</p></li>
+<li><p>Write the received dataset’s <a class="reference internal" href="../reference/generated/pynetdicom.dimse_primitives.C_STORE.html#id1" title="pynetdicom.dimse_primitives.C_STORE.DataSet"><code class="xref py py-attr docutils literal notranslate"><span class="pre">raw</span> <span class="pre">bytes</span></code></a> directly to file: this skips
+the dataset decode/re-encode step</p></li>
 </ul>
 <p>Using both options will result in around a 25% decrease in transfer time for
 multiple C-STORE requests, depending on the size of the datasets:</p>
@@ -325,14 +329,14 @@ multiple C-STORE requests, depending on the size of the datasets:</p>
 <span class="c1"># Implement a handler for evt.EVT_C_STORE</span>
 <span class="k">def</span> <span class="nf">handle_store</span><span class="p">(</span><span class="n">event</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;Handle a C-STORE request event.&quot;&quot;&quot;</span>
-    <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">event</span><span class="o">.</span><span class="n">request</span><span class="o">.</span><span class="n">AffectedSOPInstanceUID</span><span class="p">,</span> <span class="s1">&#39;wb&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">fp</span><span class="p">:</span>
+    <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">event</span><span class="o">.</span><span class="n">request</span><span class="o">.</span><span class="n">AffectedSOPInstanceUID</span><span class="p">,</span> <span class="s1">&#39;wb&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
         <span class="c1"># Write the preamble and prefix</span>
-        <span class="n">fp</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="sa">b</span><span class="s1">&#39;</span><span class="se">\x00</span><span class="s1">&#39;</span> <span class="o">*</span> <span class="mi">128</span><span class="p">)</span>
-        <span class="n">fp</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="sa">b</span><span class="s1">&#39;DICM&#39;</span><span class="p">)</span>
-        <span class="c1"># Write the File Meta Information</span>
-        <span class="n">write_file_meta_info</span><span class="p">(</span><span class="n">fp</span><span class="p">,</span> <span class="n">event</span><span class="o">.</span><span class="n">file_meta</span><span class="p">)</span>
-        <span class="c1"># Write the dataset</span>
-        <span class="n">fp</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">event</span><span class="o">.</span><span class="n">request</span><span class="o">.</span><span class="n">DataSet</span><span class="o">.</span><span class="n">getvalue</span><span class="p">())</span>
+        <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="sa">b</span><span class="s1">&#39;</span><span class="se">\x00</span><span class="s1">&#39;</span> <span class="o">*</span> <span class="mi">128</span><span class="p">)</span>
+        <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="sa">b</span><span class="s1">&#39;DICM&#39;</span><span class="p">)</span>
+        <span class="c1"># Encode and write the File Meta Information</span>
+        <span class="n">write_file_meta_info</span><span class="p">(</span><span class="n">f</span><span class="p">,</span> <span class="n">event</span><span class="o">.</span><span class="n">file_meta</span><span class="p">)</span>
+        <span class="c1"># Write the encoded dataset</span>
+        <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">event</span><span class="o">.</span><span class="n">request</span><span class="o">.</span><span class="n">DataSet</span><span class="o">.</span><span class="n">getvalue</span><span class="p">())</span>
 
     <span class="c1"># Return a &#39;Success&#39; status</span>
     <span class="k">return</span> <span class="mh">0x0000</span>

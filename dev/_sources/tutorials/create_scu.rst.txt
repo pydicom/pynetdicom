@@ -271,7 +271,7 @@ information:
     $ python my_scu.py
     I: Requesting Association
     D: Request Parameters:
-    D: ========================= BEGIN A-ASSOCIATE-RQ PDU =========================
+    D: ======================= OUTGOING A-ASSOCIATE-RQ PDU ========================
     D: Our Implementation Class UID:      1.2.826.0.1.3680043.9.3811.1.5.0
     D: Our Implementation Version Name:   PYNETDICOM_150
     D: Application Context Name:    1.2.840.10008.3.1.1.1
@@ -292,7 +292,7 @@ information:
     D: Requested User Identity Negotiation: None
     D: ========================== END A-ASSOCIATE-RQ PDU ==========================
     D: Accept Parameters:
-    D: ========================= BEGIN A-ASSOCIATE-AC PDU =========================
+    D: ======================= INCOMING A-ASSOCIATE-AC PDU ========================
     D: Their Implementation Class UID:    1.2.276.0.7230010.3.0.3.6.2
     D: Their Implementation Version Name: OFFIS_DCMTK_362
     D: Application Context Name:    1.2.840.10008.3.1.1.1
@@ -485,7 +485,7 @@ verification service request was successful. Congratulations, you've written
 your first DICOM SCU using *pynetdicom*.
 
 Next steps
-----------
+==========
 
 We recommend that you move on to :doc:`writing your first SCP<create_scp>`
 next. However, you might also be interested in the

@@ -12,52 +12,46 @@ Query/Retrieve (Find) SCU
 .........................
 
 Associate with a peer DICOM Application Entity and request the SCP search for
-SOP Instances with a *Patient Name* matching ``CITIZEN^Jan`` using the *Patient
-Root Query/Retrieve Information Model - Find* at the *Patient* level.
+SOP Instances with a *Patient Name* matching ``CITIZEN^Jan`` using *Patient
+Root Query/Retrieve Information Model - Find* at the ``'PATIENT'`` level.
 
 .. code-block:: python
 
-   from pydicom.dataset import Dataset
+    from pydicom.dataset import Dataset
 
-   from pynetdicom import AE
-   from pynetdicom.sop_class import PatientRootQueryRetrieveInformationModelFind
+    from pynetdicom import AE, debug_logger
+    from pynetdicom.sop_class import PatientRootQueryRetrieveInformationModelFind
 
-   # Initialise the Application Entity
-   ae = AE()
+    debug_logger()
 
-   # Add a requested presentation context
-   ae.add_requested_context(PatientRootQueryRetrieveInformationModelFind)
+    ae = AE()
+    ae.add_requested_context(PatientRootQueryRetrieveInformationModelFind)
 
-   # Create our Identifier (query) dataset
-   ds = Dataset()
-   ds.PatientName = 'CITIZEN^Jan'
-   ds.QueryRetrieveLevel = 'PATIENT'
+    # Create our Identifier (query) dataset
+    ds = Dataset()
+    ds.PatientName = 'CITIZEN^Jan'
+    ds.QueryRetrieveLevel = 'PATIENT'
 
-   # Associate with peer AE at IP 127.0.0.1 and port 11112
-   assoc = ae.associate('127.0.0.1', 11112)
-
-   if assoc.is_established:
-       # Use the C-FIND service to send the identifier
-       responses = assoc.send_c_find(ds, PatientRootQueryRetrieveInformationModelFind)
-
-       for (status, identifier) in responses:
-           if status:
-               print('C-FIND query status: 0x{0:04x}'.format(status.Status))
-
-               # If the status is 'Pending' then identifier is the C-FIND response
-               if status.Status in (0xFF00, 0xFF01):
-                   print(identifier)
-           else:
-               print('Connection timed out, was aborted or received invalid response')
+    # Associate with the peer AE at IP 127.0.0.1 and port 11112
+    assoc = ae.associate('127.0.0.1', 11112)
+    if assoc.is_established:
+        # Send the C-FIND request
+        responses = assoc.send_c_find(ds, PatientRootQueryRetrieveInformationModelFind)
+        for (status, identifier) in responses:
+            if status:
+                print('C-FIND query status: 0x{0:04X}'.format(status.Status))
+            else:
+                print('Connection timed out, was aborted or received invalid response')
 
         # Release the association
-       assoc.release()
-   else:
-       print('Association rejected, aborted or never connected')
+        assoc.release()
+    else:
+        print('Association rejected, aborted or never connected')
 
 The responses received from the SCP are dependent on the *Identifier* dataset
 keys and values, the Query/Retrieve level and the information model. For
-example, the following query dataset should yield C-FIND responses containing
+example, provided the optional attribute *SOP Classes in Study* is supported,
+the following query dataset should yield C-FIND responses containing
 the various *SOP Class UIDs* that make are in each study for a patient with
 *Patient ID* ``1234567``.
 
@@ -66,7 +60,7 @@ the various *SOP Class UIDs* that make are in each study for a patient with
     ds = Dataset()
     ds.SOPClassesInStudy = ''
     ds.PatientID = '1234567'
-    ds.StudyInstanceUID = '*'
+    ds.StudyInstanceUID = ''
     ds.QueryRetrieveLevel = 'STUDY'
 
 .. _example_qrfind_scp:

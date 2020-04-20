@@ -246,36 +246,19 @@ File Meta Information.</p>
 to see the requirements for the <code class="docutils literal notranslate"><span class="pre">evt.EVT_C_STORE</span></code> handler.</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">pydicom.dataset</span> <span class="kn">import</span> <span class="n">Dataset</span>
 
-<span class="kn">from</span> <span class="nn">pynetdicom</span> <span class="kn">import</span> <span class="p">(</span>
-    <span class="n">AE</span><span class="p">,</span> <span class="n">evt</span><span class="p">,</span> <span class="n">build_role</span><span class="p">,</span>
-    <span class="n">PYNETDICOM_IMPLEMENTATION_UID</span><span class="p">,</span>
-    <span class="n">PYNETDICOM_IMPLEMENTATION_VERSION</span>
-<span class="p">)</span>
+<span class="kn">from</span> <span class="nn">pynetdicom</span> <span class="kn">import</span> <span class="n">AE</span><span class="p">,</span> <span class="n">evt</span><span class="p">,</span> <span class="n">build_role</span><span class="p">,</span> <span class="n">debug_logger</span>
 <span class="kn">from</span> <span class="nn">pynetdicom.sop_class</span> <span class="kn">import</span> <span class="p">(</span>
     <span class="n">PatientRootQueryRetrieveInformationModelGet</span><span class="p">,</span>
     <span class="n">CTImageStorage</span>
 <span class="p">)</span>
 
+<span class="n">debug_logger</span><span class="p">()</span>
+
 <span class="c1"># Implement the handler for evt.EVT_C_STORE</span>
 <span class="k">def</span> <span class="nf">handle_store</span><span class="p">(</span><span class="n">event</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;Handle a C-STORE request event.&quot;&quot;&quot;</span>
     <span class="n">ds</span> <span class="o">=</span> <span class="n">event</span><span class="o">.</span><span class="n">dataset</span>
-    <span class="n">context</span> <span class="o">=</span> <span class="n">event</span><span class="o">.</span><span class="n">context</span>
-
-    <span class="c1"># Add the DICOM File Meta Information</span>
-    <span class="n">meta</span> <span class="o">=</span> <span class="n">Dataset</span><span class="p">()</span>
-    <span class="n">meta</span><span class="o">.</span><span class="n">MediaStorageSOPClassUID</span> <span class="o">=</span> <span class="n">ds</span><span class="o">.</span><span class="n">SOPClassUID</span>
-    <span class="n">meta</span><span class="o">.</span><span class="n">MediaStorageSOPInstanceUID</span> <span class="o">=</span> <span class="n">ds</span><span class="o">.</span><span class="n">SOPInstanceUID</span>
-    <span class="n">meta</span><span class="o">.</span><span class="n">ImplementationClassUID</span> <span class="o">=</span> <span class="n">PYNETDICOM_IMPLEMENTATION_UID</span>
-    <span class="n">meta</span><span class="o">.</span><span class="n">ImplementationVersionName</span> <span class="o">=</span> <span class="n">PYNETDICOM_IMPLEMENTATION_VERSION</span>
-    <span class="n">meta</span><span class="o">.</span><span class="n">TransferSyntaxUID</span> <span class="o">=</span> <span class="n">context</span><span class="o">.</span><span class="n">transfer_syntax</span>
-
-    <span class="c1"># Add the file meta to the dataset</span>
-    <span class="n">ds</span><span class="o">.</span><span class="n">file_meta</span> <span class="o">=</span> <span class="n">meta</span>
-
-    <span class="c1"># Set the transfer syntax attributes of the dataset</span>
-    <span class="n">ds</span><span class="o">.</span><span class="n">is_little_endian</span> <span class="o">=</span> <span class="n">context</span><span class="o">.</span><span class="n">transfer_syntax</span><span class="o">.</span><span class="n">is_little_endian</span>
-    <span class="n">ds</span><span class="o">.</span><span class="n">is_implicit_VR</span> <span class="o">=</span> <span class="n">context</span><span class="o">.</span><span class="n">transfer_syntax</span><span class="o">.</span><span class="n">is_implicit_VR</span>
+    <span class="n">ds</span><span class="o">.</span><span class="n">file_meta</span> <span class="o">=</span> <span class="n">event</span><span class="o">.</span><span class="n">file_meta</span>
 
     <span class="c1"># Save the dataset using the SOP Instance UID as the filename</span>
     <span class="n">ds</span><span class="o">.</span><span class="n">save_as</span><span class="p">(</span><span class="n">ds</span><span class="o">.</span><span class="n">SOPInstanceUID</span><span class="p">,</span> <span class="n">write_like_original</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
@@ -314,14 +297,9 @@ to see the requirements for the <code class="docutils literal notranslate"><span
 <span class="k">if</span> <span class="n">assoc</span><span class="o">.</span><span class="n">is_established</span><span class="p">:</span>
     <span class="c1"># Use the C-GET service to send the identifier</span>
     <span class="n">responses</span> <span class="o">=</span> <span class="n">assoc</span><span class="o">.</span><span class="n">send_c_get</span><span class="p">(</span><span class="n">ds</span><span class="p">,</span> <span class="n">PatientRootQueryRetrieveInformationModelGet</span><span class="p">)</span>
-
     <span class="k">for</span> <span class="p">(</span><span class="n">status</span><span class="p">,</span> <span class="n">identifier</span><span class="p">)</span> <span class="ow">in</span> <span class="n">responses</span><span class="p">:</span>
         <span class="k">if</span> <span class="n">status</span><span class="p">:</span>
             <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;C-GET query status: 0x</span><span class="si">{0:04x}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">status</span><span class="o">.</span><span class="n">Status</span><span class="p">))</span>
-
-            <span class="c1"># If the status is &#39;Pending&#39; then `identifier` is the C-GET response</span>
-            <span class="k">if</span> <span class="n">status</span><span class="o">.</span><span class="n">Status</span> <span class="ow">in</span> <span class="p">(</span><span class="mh">0xFF00</span><span class="p">,</span> <span class="mh">0xFF01</span><span class="p">):</span>
-                <span class="nb">print</span><span class="p">(</span><span class="n">identifier</span><span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Connection timed out, was aborted or received invalid response&#39;</span><span class="p">)</span>
 

@@ -195,14 +195,17 @@ C-FIND service.</p>
 <h2>Basic Worklist Management SCU<a class="headerlink" href="#basic-worklist-management-scu" title="Permalink to this headline">¶</a></h2>
 <p>Associate with a peer DICOM Application Entity and request the
 worklist for the application with AE title <code class="docutils literal notranslate"><span class="pre">CTSCANNER</span></code> for the 5th October
-2018. The approach is very similar to that of a Query/Retrieve (Find) SCU,
-however BWM uses a different
+2018. You may need to change the <em>Identifier</em> to meet the requirements of the
+SCP so check it’s conformance statement. The approach is very similar to that
+of a Query/Retrieve (Find) SCU, however BWM uses a different
 <a class="reference external" href="http://dicom.nema.org/medical/dicom/current/output/chtml/part04/sect_K.6.html#sect_K.6.1.2">set of attributes</a> for the
 <em>Identifier</em>.</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">pydicom.dataset</span> <span class="kn">import</span> <span class="n">Dataset</span>
 
-<span class="kn">from</span> <span class="nn">pynetdicom</span> <span class="kn">import</span> <span class="n">AE</span>
+<span class="kn">from</span> <span class="nn">pynetdicom</span> <span class="kn">import</span> <span class="n">AE</span><span class="p">,</span> <span class="n">debug_logger</span>
 <span class="kn">from</span> <span class="nn">pynetdicom.sop_class</span> <span class="kn">import</span> <span class="n">ModalityWorklistInformationFind</span>
+
+<span class="n">debug_logger</span><span class="p">()</span>
 
 <span class="c1"># Initialise the Application Entity</span>
 <span class="n">ae</span> <span class="o">=</span> <span class="n">AE</span><span class="p">()</span>
@@ -224,18 +227,10 @@ however BWM uses a different
 
 <span class="k">if</span> <span class="n">assoc</span><span class="o">.</span><span class="n">is_established</span><span class="p">:</span>
     <span class="c1"># Use the C-FIND service to send the identifier</span>
-    <span class="n">responses</span> <span class="o">=</span> <span class="n">assoc</span><span class="o">.</span><span class="n">send_c_find</span><span class="p">(</span>
-        <span class="n">ds</span><span class="p">,</span>
-        <span class="n">ModalityWorklistInformationFind</span>
-    <span class="p">)</span>
-
+    <span class="n">responses</span> <span class="o">=</span> <span class="n">assoc</span><span class="o">.</span><span class="n">send_c_find</span><span class="p">(</span><span class="n">ds</span><span class="p">,</span> <span class="n">ModalityWorklistInformationFind</span><span class="p">)</span>
     <span class="k">for</span> <span class="p">(</span><span class="n">status</span><span class="p">,</span> <span class="n">identifier</span><span class="p">)</span> <span class="ow">in</span> <span class="n">responses</span><span class="p">:</span>
         <span class="k">if</span> <span class="n">status</span><span class="p">:</span>
             <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;C-FIND query status: 0x</span><span class="si">{0:04x}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">status</span><span class="o">.</span><span class="n">Status</span><span class="p">))</span>
-
-            <span class="c1"># If the status is &#39;Pending&#39; then identifier is the C-FIND response</span>
-            <span class="k">if</span> <span class="n">status</span><span class="o">.</span><span class="n">Status</span> <span class="ow">in</span> <span class="p">(</span><span class="mh">0xFF00</span><span class="p">,</span> <span class="mh">0xFF01</span><span class="p">):</span>
-                <span class="nb">print</span><span class="p">(</span><span class="n">identifier</span><span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Connection timed out, was aborted or received invalid response&#39;</span><span class="p">)</span>
 

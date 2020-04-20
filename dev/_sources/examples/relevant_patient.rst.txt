@@ -17,8 +17,10 @@ single patient with ID ``1234567``.
 
     from pydicom.dataset import Dataset
 
-    from pynetdicom import AE
+    from pynetdicom import AE, debug_logger
     from pynetdicom.sop_class import GeneralRelevantPatientInformationQuery
+
+    debug_logger()
 
     # Initialise the Application Entity
     ae = AE()
@@ -42,14 +44,9 @@ single patient with ID ``1234567``.
     if assoc.is_established:
         # Use the C-FIND service to send the identifier
         responses = assoc.send_c_find(ds, GeneralRelevantPatientInformationQuery)
-
         for (status, identifier) in responses:
             if status:
                 print('C-FIND query status: 0x{0:04x}'.format(status.Status))
-
-                # If the status is 'Pending' then identifier is the C-FIND response
-                if status.Status in (0xFF00, 0xFF01):
-                    print(identifier)
             else:
                 print('Connection timed out, was aborted or received invalid response')
 

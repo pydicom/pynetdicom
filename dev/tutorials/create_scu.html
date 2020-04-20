@@ -108,9 +108,9 @@
 <li class="toctree-l3"><a class="reference internal" href="#creating-the-echo-scu">Creating the Echo SCU</a><ul>
 <li class="toctree-l4"><a class="reference internal" href="#presentation-contexts">Presentation Contexts</a></li>
 <li class="toctree-l4"><a class="reference internal" href="#turning-our-ae-into-an-echo-scu">Turning our AE into an Echo SCU</a></li>
-<li class="toctree-l4"><a class="reference internal" href="#next-steps">Next steps</a></li>
 </ul>
 </li>
+<li class="toctree-l3"><a class="reference internal" href="#next-steps">Next steps</a></li>
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="create_scp.html">Writing your first SCP</a></li>
@@ -428,7 +428,7 @@ information:</p>
 <div class="highlight-text notranslate"><div class="highlight"><pre><span></span>$ python my_scu.py
 I: Requesting Association
 D: Request Parameters:
-D: ========================= BEGIN A-ASSOCIATE-RQ PDU =========================
+D: ======================= OUTGOING A-ASSOCIATE-RQ PDU ========================
 D: Our Implementation Class UID:      1.2.826.0.1.3680043.9.3811.1.5.0
 D: Our Implementation Version Name:   PYNETDICOM_150
 D: Application Context Name:    1.2.840.10008.3.1.1.1
@@ -449,7 +449,7 @@ D: Requested Asynchronous Operations Window Negotiation: None
 D: Requested User Identity Negotiation: None
 D: ========================== END A-ASSOCIATE-RQ PDU ==========================
 D: Accept Parameters:
-D: ========================= BEGIN A-ASSOCIATE-AC PDU =========================
+D: ======================= INCOMING A-ASSOCIATE-AC PDU ========================
 D: Their Implementation Class UID:    1.2.276.0.7230010.3.0.3.6.2
 D: Their Implementation Version Name: OFFIS_DCMTK_362
 D: Application Context Name:    1.2.840.10008.3.1.1.1
@@ -635,13 +635,13 @@ I: Releasing Association
 verification service request was successful. Congratulations, you’ve written
 your first DICOM SCU using <em>pynetdicom</em>.</p>
 </div>
+</div>
 <div class="section" id="next-steps">
-<h3>Next steps<a class="headerlink" href="#next-steps" title="Permalink to this headline">¶</a></h3>
+<h2>Next steps<a class="headerlink" href="#next-steps" title="Permalink to this headline">¶</a></h2>
 <p>We recommend that you move on to <a class="reference internal" href="create_scp.html"><span class="doc">writing your first SCP</span></a>
 next. However, you might also be interested in the
 <a class="reference internal" href="../examples/index.html"><span class="doc">SCU examples</span></a> available in the documentation, or the
 <a class="reference internal" href="../apps/index.html"><span class="doc">applications</span></a> that come with <em>pynetdicom</em>.</p>
-</div>
 </div>
 </div>
 

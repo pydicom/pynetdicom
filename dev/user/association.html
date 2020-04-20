@@ -208,7 +208,7 @@
 presentation contexts then you can associate with a peer by using the
 <a class="reference internal" href="../reference/generated/pynetdicom.ae.ApplicationEntity.html#pynetdicom.ae.ApplicationEntity.associate" title="pynetdicom.ae.ApplicationEntity.associate"><code class="xref py py-meth docutils literal notranslate"><span class="pre">AE.associate()</span></code></a>
 method, which returns an <a class="reference internal" href="../reference/generated/pynetdicom.association.Association.html#pynetdicom.association.Association" title="pynetdicom.association.Association"><code class="xref py py-class docutils literal notranslate"><span class="pre">Association</span></code></a> thread:</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">pynetdicom</span> <span class="kn">import</span> <span class="n">AE</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">pynetdicom</span> <span class="kn">import</span> <span class="n">AE</span>
 <span class="kn">from</span> <span class="nn">pynetdicom.sop_class</span> <span class="kn">import</span> <span class="n">VerificationSOPClass</span>
 
 <span class="n">ae</span> <span class="o">=</span> <span class="n">AE</span><span class="p">()</span>
@@ -234,7 +234,7 @@ and aborts.</p>
 <h3>Specifying the Called AE Title<a class="headerlink" href="#specifying-the-called-ae-title" title="Permalink to this headline">¶</a></h3>
 <p>Some SCPs will reject an association request if the <em>Called AE Title</em> parameter
 value doesn’t match its own title, so this can be set using the <em>ae_title</em>
-keyword argument:</p>
+keyword parameter:</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">assoc</span> <span class="o">=</span> <span class="n">ae</span><span class="o">.</span><span class="n">associate</span><span class="p">(</span><span class="s1">&#39;127.0.0.1&#39;</span><span class="p">,</span> <span class="mi">11112</span><span class="p">,</span> <span class="n">ae_title</span><span class="o">=</span><span class="sa">b</span><span class="s1">&#39;STORE_SCP&#39;</span><span class="p">)</span>
 </pre></div>
 </div>
@@ -246,7 +246,7 @@ with only the <em>addr</em> and <em>port</em> parameters means the presentation
 contexts in
 <a class="reference internal" href="../reference/generated/pynetdicom.ae.ApplicationEntity.html#pynetdicom.ae.ApplicationEntity.requested_contexts" title="pynetdicom.ae.ApplicationEntity.requested_contexts"><code class="xref py py-attr docutils literal notranslate"><span class="pre">AE.requested_contexts</span></code></a>
 will be used with the association. To propose presentation contexts on a
-per-association basis you can use the <em>contexts</em> keyword argument:</p>
+per-association basis you can use the <em>contexts</em> keyword parameter:</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">pynetdicom</span> <span class="kn">import</span> <span class="n">AE</span><span class="p">,</span> <span class="n">build_context</span>
 
 <span class="n">ae</span> <span class="o">=</span> <span class="n">AE</span><span class="p">()</span>
@@ -261,14 +261,14 @@ per-association basis you can use the <em>contexts</em> keyword argument:</p>
 <div class="section" id="using-extended-negotiation">
 <span id="user-assoc-extneg"></span><h3>Using Extended Negotiation<a class="headerlink" href="#using-extended-negotiation" title="Permalink to this headline">¶</a></h3>
 <p>If you require the use of <a class="reference internal" href="concepts.html#concepts-negotiation"><span class="std std-ref">extended negotiation</span></a>
-then you can supply the <em>ext_neg</em> keyword argument. Some extended negotiation
+then you can supply the <em>ext_neg</em> keyword parameter. Some extended negotiation
 items can only be singular and some can occur multiple times depending on the
 service class and intended usage. The following example shows how to add
 <em>SCP/SCU Role Selection Negotiation</em> items using
 <a class="reference internal" href="../reference/generated/pynetdicom.presentation.build_role.html#pynetdicom.presentation.build_role" title="pynetdicom.presentation.build_role"><code class="xref py py-func docutils literal notranslate"><span class="pre">build_role()</span></code></a> when requesting the use of the
 Query/Retrieve (QR) Service Class’ C-GET service (in this example the QR SCU is
 also acting as a Storage SCP), plus a <em>User Identity Negotiation</em> item:</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">pynetdicom</span> <span class="kn">import</span> <span class="n">AE</span><span class="p">,</span> <span class="n">StoragePresentationContexts</span><span class="p">,</span> <span class="n">build_role</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">pynetdicom</span> <span class="kn">import</span> <span class="n">AE</span><span class="p">,</span> <span class="n">StoragePresentationContexts</span><span class="p">,</span> <span class="n">build_role</span>
 <span class="kn">from</span> <span class="nn">pynetdicom.pdu_primitives</span> <span class="kn">import</span> <span class="n">UserIdentityNegotiation</span>
 <span class="kn">from</span> <span class="nn">pynetdicom.sop_class</span> <span class="kn">import</span> <span class="n">PatientRootQueryRetrieveInformationModelGet</span>
 
@@ -313,7 +313,7 @@ also acting as a Storage SCP), plus a <em>User Identity Negotiation</em> item:</
 <h3>Binding Event Handlers<a class="headerlink" href="#binding-event-handlers" title="Permalink to this headline">¶</a></h3>
 <p>If you want to bind handlers to any
 <a class="reference internal" href="events.html#user-events"><span class="std std-ref">events</span></a> within a new <a class="reference internal" href="../reference/generated/pynetdicom.association.Association.html#pynetdicom.association.Association" title="pynetdicom.association.Association"><code class="xref py py-class docutils literal notranslate"><span class="pre">Association</span></code></a> you can
-use the <em>evt_handlers</em> keyword argument:</p>
+use the <em>evt_handlers</em> keyword parameter:</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">logging</span>
 
 <span class="kn">from</span> <span class="nn">pynetdicom</span> <span class="kn">import</span> <span class="n">AE</span><span class="p">,</span> <span class="n">evt</span><span class="p">,</span> <span class="n">debug_logger</span>
@@ -324,18 +324,18 @@ use the <em>evt_handlers</em> keyword argument:</p>
 
 <span class="k">def</span> <span class="nf">handle_open</span><span class="p">(</span><span class="n">event</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;Print the remote&#39;s (host, port) when connected.&quot;&quot;&quot;</span>
-    <span class="n">msg</span> <span class="o">=</span> <span class="s1">&#39;Connected with remote at (</span><span class="si">{}</span><span class="s1">)&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">event</span><span class="o">.</span><span class="n">address</span><span class="p">)</span>
+    <span class="n">msg</span> <span class="o">=</span> <span class="s1">&#39;Connected with remote at </span><span class="si">{}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">event</span><span class="o">.</span><span class="n">address</span><span class="p">)</span>
     <span class="n">LOGGER</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="n">msg</span><span class="p">)</span>
 
 <span class="k">def</span> <span class="nf">handle_accepted</span><span class="p">(</span><span class="n">event</span><span class="p">,</span> <span class="n">arg1</span><span class="p">,</span> <span class="n">arg2</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;Demonstrate the use of the optional extra arguments&quot;&quot;&quot;</span>
+    <span class="sd">&quot;&quot;&quot;Demonstrate the use of the optional extra parameters&quot;&quot;&quot;</span>
     <span class="n">LOGGER</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Extra args: &#39;</span><span class="si">{}</span><span class="s2">&#39; and &#39;</span><span class="si">{}</span><span class="s2">&#39;&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">arg1</span><span class="p">,</span> <span class="n">arg2</span><span class="p">))</span>
 
 <span class="c1"># If a 2-tuple then only `event` parameter</span>
 <span class="c1"># If a 3-tuple then the third value should be a list of objects to pass the handler</span>
 <span class="n">handlers</span> <span class="o">=</span> <span class="p">[</span>
-    <span class="p">(</span><span class="n">evt</span><span class="o">.</span><span class="n">EVT_CONN_OPEN</span><span class="p">,</span> <span class="n">handle_open</span><span class="p">)</span>
-    <span class="p">(</span><span class="n">evt</span><span class="o">.</span><span class="n">EVT_ACCEPTED</span><span class="p">,</span> <span class="n">handle_accepted</span><span class="p">,</span> <span class="p">[</span><span class="s1">&#39;optional&#39;</span><span class="p">,</span> <span class="s1">&#39;parameters&#39;</span><span class="p">])</span>
+    <span class="p">(</span><span class="n">evt</span><span class="o">.</span><span class="n">EVT_CONN_OPEN</span><span class="p">,</span> <span class="n">handle_open</span><span class="p">),</span>
+    <span class="p">(</span><span class="n">evt</span><span class="o">.</span><span class="n">EVT_ACCEPTED</span><span class="p">,</span> <span class="n">handle_accepted</span><span class="p">,</span> <span class="p">[</span><span class="s1">&#39;optional&#39;</span><span class="p">,</span> <span class="s1">&#39;parameters&#39;</span><span class="p">]),</span>
 <span class="p">]</span>
 
 <span class="n">ae</span> <span class="o">=</span> <span class="n">AE</span><span class="p">()</span>
@@ -358,12 +358,12 @@ use the <em>evt_handlers</em> keyword argument:</p>
 
 <span class="k">def</span> <span class="nf">handle_open</span><span class="p">(</span><span class="n">event</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;Print the remote&#39;s (host, port) when connected.&quot;&quot;&quot;</span>
-    <span class="n">msg</span> <span class="o">=</span> <span class="s1">&#39;Connected with remote at (</span><span class="si">{}</span><span class="s1">)&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">event</span><span class="o">.</span><span class="n">address</span><span class="p">)</span>
+    <span class="n">msg</span> <span class="o">=</span> <span class="s1">&#39;Connected with remote at </span><span class="si">{}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">event</span><span class="o">.</span><span class="n">address</span><span class="p">)</span>
     <span class="n">LOGGER</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="n">msg</span><span class="p">)</span>
 
 <span class="k">def</span> <span class="nf">handle_close</span><span class="p">(</span><span class="n">event</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;Print the remote&#39;s (host, port) when disconnected.&quot;&quot;&quot;</span>
-    <span class="n">msg</span> <span class="o">=</span> <span class="s1">&#39;Disconnected from remote at (</span><span class="si">{}</span><span class="s1">)&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">event</span><span class="o">.</span><span class="n">address</span><span class="p">)</span>
+    <span class="n">msg</span> <span class="o">=</span> <span class="s1">&#39;Disconnected from remote at </span><span class="si">{}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">event</span><span class="o">.</span><span class="n">address</span><span class="p">)</span>
     <span class="n">LOGGER</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="n">msg</span><span class="p">)</span>
 
 <span class="n">handlers</span> <span class="o">=</span> <span class="p">[(</span><span class="n">evt</span><span class="o">.</span><span class="n">EVT_CONN_OPEN</span><span class="p">,</span> <span class="n">handle_open</span><span class="p">)]</span>
@@ -387,7 +387,7 @@ use the <em>evt_handlers</em> keyword argument:</p>
 <p>TLS v1.3 is not currently supported</p>
 </div>
 <p>The client socket used for the association can be wrapped in TLS by supplying
-the <em>tls_args</em> keyword argument to
+the <em>tls_args</em> keyword parameter to
 <a class="reference internal" href="../reference/generated/pynetdicom.ae.ApplicationEntity.html#pynetdicom.ae.ApplicationEntity.associate" title="pynetdicom.ae.ApplicationEntity.associate"><code class="xref py py-meth docutils literal notranslate"><span class="pre">associate()</span></code></a>:</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">ssl</span>
 
@@ -409,14 +409,14 @@ the <em>tls_args</em> keyword argument to
 </pre></div>
 </div>
 <p>Where <em>tls_args</em> is (<a class="reference external" href="https://docs.python.org/3/library/ssl.html#ssl.SSLContext" title="(in Python v3.8)"><code class="xref py py-class docutils literal notranslate"><span class="pre">ssl.SSLContext</span></code></a>, <em>host</em>), where <em>host</em> is the
-value of the <em>server_hostname</em> keyword argument in
+value of the <em>server_hostname</em> keyword parameter in
 <a class="reference external" href="https://docs.python.org/3/library/ssl.html#ssl.SSLContext.wrap_socket" title="(in Python v3.8)"><code class="xref py py-meth docutils literal notranslate"><span class="pre">wrap_socket()</span></code></a>.</p>
 </div>
 <div class="section" id="outcomes-of-an-association-request">
 <h3>Outcomes of an Association Request<a class="headerlink" href="#outcomes-of-an-association-request" title="Permalink to this headline">¶</a></h3>
 <p>There are four potential outcomes of an association request: acceptance and
 establishment, association rejection, association abort or a connection
-failure, so its a good idea to test for establishment prior to attempting to
+failure, so its a good idea to test for establishment before attempting to
 use the association:</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">pynetdicom</span> <span class="kn">import</span> <span class="n">AE</span>
 <span class="kn">from</span> <span class="nn">pynetdicom.sop_class</span> <span class="kn">import</span> <span class="n">VerificationSOPClass</span>
@@ -495,6 +495,7 @@ method:</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">pynetdicom</span> <span class="kn">import</span> <span class="n">AE</span>
 <span class="kn">from</span> <span class="nn">pynetdicom.sop_class</span> <span class="kn">import</span> <span class="n">VerificationSOPClass</span>
 
+<span class="n">ae</span> <span class="o">=</span> <span class="n">AE</span><span class="p">()</span>
 <span class="n">ae</span><span class="o">.</span><span class="n">add_supported_context</span><span class="p">(</span><span class="n">VerificationSOPClass</span><span class="p">)</span>
 
 <span class="c1"># Listen for association requests</span>
@@ -509,6 +510,7 @@ non-blocking modes:</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">pynetdicom</span> <span class="kn">import</span> <span class="n">AE</span>
 <span class="kn">from</span> <span class="nn">pynetdicom.sop_class</span> <span class="kn">import</span> <span class="n">VerificationSOPClass</span>
 
+<span class="n">ae</span> <span class="o">=</span> <span class="n">AE</span><span class="p">()</span>
 <span class="n">ae</span><span class="o">.</span><span class="n">add_supported_context</span><span class="p">(</span><span class="n">VerificationSOPClass</span><span class="p">)</span>
 
 <span class="c1"># Returns a ThreadedAssociationServer instance</span>
@@ -526,7 +528,7 @@ associations can be stopped using
 <a class="reference internal" href="../reference/generated/pynetdicom.ae.ApplicationEntity.html#pynetdicom.ae.ApplicationEntity.shutdown" title="pynetdicom.ae.ApplicationEntity.shutdown"><code class="xref py py-meth docutils literal notranslate"><span class="pre">AE.shutdown()</span></code></a>.</p>
 <div class="section" id="specifying-the-ae-title">
 <h3>Specifying the AE Title<a class="headerlink" href="#specifying-the-ae-title" title="Permalink to this headline">¶</a></h3>
-<p>The AE title for each SCP can be set using the <em>ae_title</em> keyword argument.
+<p>The AE title for each SCP can be set using the <em>ae_title</em> keyword parameter.
 If no value is set then the AE title of the parent AE will be used instead:</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">ae</span><span class="o">.</span><span class="n">start_server</span><span class="p">((</span><span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="mi">11112</span><span class="p">),</span> <span class="n">ae_title</span><span class="o">=</span><span class="sa">b</span><span class="s1">&#39;STORE_SCP&#39;</span><span class="p">)</span>
 </pre></div>
@@ -535,12 +537,12 @@ If no value is set then the AE title of the parent AE will be used instead:</p>
 <div class="section" id="specifying-presentation-contexts-for-each-scp">
 <h3>Specifying Presentation Contexts for each SCP<a class="headerlink" href="#specifying-presentation-contexts-for-each-scp" title="Permalink to this headline">¶</a></h3>
 <p>To support presentation contexts on a per-SCP basis you can use the
-<em>contexts</em> keyword argument:</p>
+<em>contexts</em> keyword parameter:</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">pynetdicom</span> <span class="kn">import</span> <span class="n">AE</span><span class="p">,</span> <span class="n">build_context</span>
 
 <span class="n">ae</span> <span class="o">=</span> <span class="n">AE</span><span class="p">()</span>
 <span class="n">supported_cx</span> <span class="o">=</span> <span class="p">[</span><span class="n">build_context</span><span class="p">(</span><span class="s1">&#39;1.2.840.10008.1.1&#39;</span><span class="p">)]</span>
-<span class="n">ae</span><span class="o">.</span><span class="n">start_server</span><span class="p">((</span><span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="mi">11112</span><span class="p">),</span> <span class="n">contexts</span><span class="o">=</span><span class="p">[</span><span class="n">supported_cx</span><span class="p">])</span>
+<span class="n">ae</span><span class="o">.</span><span class="n">start_server</span><span class="p">((</span><span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="mi">11112</span><span class="p">),</span> <span class="n">contexts</span><span class="o">=</span><span class="n">supported_cx</span><span class="p">)</span>
 </pre></div>
 </div>
 </div>
@@ -548,7 +550,7 @@ If no value is set then the AE title of the parent AE will be used instead:</p>
 <h3>Binding Event Handlers<a class="headerlink" href="#id2" title="Permalink to this headline">¶</a></h3>
 <p>If you want to bind handlers to any
 <a class="reference internal" href="events.html#user-events"><span class="std std-ref">events</span></a> within any <a class="reference internal" href="../reference/generated/pynetdicom.association.Association.html#pynetdicom.association.Association" title="pynetdicom.association.Association"><code class="xref py py-class docutils literal notranslate"><span class="pre">Association</span></code></a> instances
-generated by the SCP you can use the <em>evt_handlers</em> keyword argument:</p>
+generated by the SCP you can use the <em>evt_handlers</em> keyword parameter:</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">logging</span>
 
 <span class="kn">from</span> <span class="nn">pynetdicom</span> <span class="kn">import</span> <span class="n">AE</span><span class="p">,</span> <span class="n">evt</span><span class="p">,</span> <span class="n">debug_logger</span>
@@ -559,18 +561,18 @@ generated by the SCP you can use the <em>evt_handlers</em> keyword argument:</p>
 
 <span class="k">def</span> <span class="nf">handle_open</span><span class="p">(</span><span class="n">event</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;Print the remote&#39;s (host, port) when connected.&quot;&quot;&quot;</span>
-    <span class="n">msg</span> <span class="o">=</span> <span class="s1">&#39;Connected with remote at (</span><span class="si">{}</span><span class="s1">)&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">event</span><span class="o">.</span><span class="n">address</span><span class="p">)</span>
+    <span class="n">msg</span> <span class="o">=</span> <span class="s1">&#39;Connected with remote at </span><span class="si">{}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">event</span><span class="o">.</span><span class="n">address</span><span class="p">)</span>
     <span class="n">LOGGER</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="n">msg</span><span class="p">)</span>
 
 <span class="k">def</span> <span class="nf">handle_accepted</span><span class="p">(</span><span class="n">event</span><span class="p">,</span> <span class="n">arg1</span><span class="p">,</span> <span class="n">arg2</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;Demonstrate the use of the optional extra arguments&quot;&quot;&quot;</span>
+    <span class="sd">&quot;&quot;&quot;Demonstrate the use of the optional extra parameters&quot;&quot;&quot;</span>
     <span class="n">LOGGER</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Extra args: &#39;</span><span class="si">{}</span><span class="s2">&#39; and &#39;</span><span class="si">{}</span><span class="s2">&#39;&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">arg1</span><span class="p">,</span> <span class="n">arg2</span><span class="p">))</span>
 
 <span class="c1"># If a 2-tuple then only `event` parameter</span>
 <span class="c1"># If a 3-tuple then the third value should be a list of objects to pass the handler</span>
 <span class="n">handlers</span> <span class="o">=</span> <span class="p">[</span>
-    <span class="p">(</span><span class="n">evt</span><span class="o">.</span><span class="n">EVT_CONN_OPEN</span><span class="p">,</span> <span class="n">handle_open</span><span class="p">)</span>
-    <span class="p">(</span><span class="n">evt</span><span class="o">.</span><span class="n">EVT_ACCEPTED</span><span class="p">,</span> <span class="n">handle_accepted</span><span class="p">,</span> <span class="p">[</span><span class="s1">&#39;optional&#39;</span><span class="p">,</span> <span class="s1">&#39;parameters&#39;</span><span class="p">])</span>
+    <span class="p">(</span><span class="n">evt</span><span class="o">.</span><span class="n">EVT_CONN_OPEN</span><span class="p">,</span> <span class="n">handle_open</span><span class="p">),</span>
+    <span class="p">(</span><span class="n">evt</span><span class="o">.</span><span class="n">EVT_ACCEPTED</span><span class="p">,</span> <span class="n">handle_accepted</span><span class="p">,</span> <span class="p">[</span><span class="s1">&#39;optional&#39;</span><span class="p">,</span> <span class="s1">&#39;parameters&#39;</span><span class="p">]),</span>
 <span class="p">]</span>
 
 <span class="n">ae</span> <span class="o">=</span> <span class="n">AE</span><span class="p">()</span>
@@ -582,6 +584,7 @@ generated by the SCP you can use the <em>evt_handlers</em> keyword argument:</p>
 <a class="reference internal" href="../reference/generated/pynetdicom.transport.ThreadedAssociationServer.html#pynetdicom.transport.ThreadedAssociationServer" title="pynetdicom.transport.ThreadedAssociationServer"><code class="xref py py-class docutils literal notranslate"><span class="pre">ThreadedAssociationServer</span></code></a>, provided you run in
 non-blocking mode:</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">logging</span>
+<span class="kn">import</span> <span class="nn">time</span>
 
 <span class="kn">from</span> <span class="nn">pynetdicom</span> <span class="kn">import</span> <span class="n">AE</span><span class="p">,</span> <span class="n">evt</span><span class="p">,</span> <span class="n">debug_logger</span>
 <span class="kn">from</span> <span class="nn">pynetdicom.sop_class</span> <span class="kn">import</span> <span class="n">VerificationSOPClass</span>
@@ -591,12 +594,12 @@ non-blocking mode:</p>
 
 <span class="k">def</span> <span class="nf">handle_open</span><span class="p">(</span><span class="n">event</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;Print the remote&#39;s (host, port) when connected.&quot;&quot;&quot;</span>
-    <span class="n">msg</span> <span class="o">=</span> <span class="s1">&#39;Connected with remote at (</span><span class="si">{}</span><span class="s1">)&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">event</span><span class="o">.</span><span class="n">address</span><span class="p">)</span>
+    <span class="n">msg</span> <span class="o">=</span> <span class="s1">&#39;Connected with remote at </span><span class="si">{}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">event</span><span class="o">.</span><span class="n">address</span><span class="p">)</span>
     <span class="n">LOGGER</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="n">msg</span><span class="p">)</span>
 
 <span class="k">def</span> <span class="nf">handle_close</span><span class="p">(</span><span class="n">event</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;Print the remote&#39;s (host, port) when disconnected.&quot;&quot;&quot;</span>
-    <span class="n">msg</span> <span class="o">=</span> <span class="s1">&#39;Disconnected from remote at (</span><span class="si">{}</span><span class="s1">)&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">event</span><span class="o">.</span><span class="n">address</span><span class="p">)</span>
+    <span class="n">msg</span> <span class="o">=</span> <span class="s1">&#39;Disconnected from remote at </span><span class="si">{}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">event</span><span class="o">.</span><span class="n">address</span><span class="p">)</span>
     <span class="n">LOGGER</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="n">msg</span><span class="p">)</span>
 
 <span class="n">handlers</span> <span class="o">=</span> <span class="p">[(</span><span class="n">evt</span><span class="o">.</span><span class="n">EVT_CONN_OPEN</span><span class="p">,</span> <span class="n">handle_open</span><span class="p">)]</span>
@@ -605,12 +608,14 @@ non-blocking mode:</p>
 <span class="n">ae</span><span class="o">.</span><span class="n">add_supported_context</span><span class="p">(</span><span class="n">VerificationSOPClass</span><span class="p">)</span>
 <span class="n">scp</span> <span class="o">=</span> <span class="n">ae</span><span class="o">.</span><span class="n">start_server</span><span class="p">((</span><span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="mi">11112</span><span class="p">),</span> <span class="n">block</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">evt_handlers</span><span class="o">=</span><span class="n">handlers</span><span class="p">)</span>
 
-<span class="n">time</span><span class="o">.</span><span class="n">sleep</span><span class="p">(</span><span class="mi">60</span><span class="p">)</span>
+<span class="n">time</span><span class="o">.</span><span class="n">sleep</span><span class="p">(</span><span class="mi">20</span><span class="p">)</span>
 
 <span class="n">scp</span><span class="o">.</span><span class="n">unbind</span><span class="p">(</span><span class="n">evt</span><span class="o">.</span><span class="n">EVT_CONN_OPEN</span><span class="p">,</span> <span class="n">handle_open</span><span class="p">)</span>
 <span class="n">scp</span><span class="o">.</span><span class="n">bind</span><span class="p">(</span><span class="n">evt</span><span class="o">.</span><span class="n">EVT_CONN_CLOSE</span><span class="p">,</span> <span class="n">handle_close</span><span class="p">)</span>
 
-<span class="n">time</span><span class="o">.</span><span class="n">sleep</span><span class="p">(</span><span class="mi">60</span><span class="p">)</span>
+<span class="n">LOGGER</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Bindings changed&quot;</span><span class="p">)</span>
+
+<span class="n">time</span><span class="o">.</span><span class="n">sleep</span><span class="p">(</span><span class="mi">20</span><span class="p">)</span>
 
 <span class="n">scp</span><span class="o">.</span><span class="n">shutdown</span><span class="p">()</span>
 </pre></div>
@@ -630,12 +635,13 @@ unaffected.</p>
 </div>
 <p>The client sockets generated by the association server can also be wrapped in
 TLS by  supplying a <a class="reference external" href="https://docs.python.org/3/library/ssl.html#ssl.SSLContext" title="(in Python v3.8)"><code class="xref py py-class docutils literal notranslate"><span class="pre">ssl.SSLContext</span></code></a> instance via the <em>ssl_context</em>
-keyword argument:</p>
+keyword parameter:</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">ssl</span>
 
 <span class="kn">from</span> <span class="nn">pynetdicom</span> <span class="kn">import</span> <span class="n">AE</span>
 <span class="kn">from</span> <span class="nn">pynetdicom.sop_class</span> <span class="kn">import</span> <span class="n">VerificationSOPClass</span>
 
+<span class="n">ae</span> <span class="o">=</span> <span class="n">AE</span><span class="p">()</span>
 <span class="n">ae</span><span class="o">.</span><span class="n">add_supported_context</span><span class="p">(</span><span class="n">VerificationSOPClass</span><span class="p">)</span>
 
 <span class="c1"># Create the SSLContext, your requirements may vary</span>
@@ -708,10 +714,10 @@ implementation that always returns a <code class="docutils literal notranslate">
 implement and bind a handler for the <code class="docutils literal notranslate"><span class="pre">evt.EVT_C_STORE</span></code> event in manner
 similar to:</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">pynetdicom</span> <span class="kn">import</span> <span class="n">AE</span><span class="p">,</span> <span class="n">evt</span>
-<span class="kn">from</span> <span class="nn">pynetdicom.sop_class</span> <span class="kn">import</span> <span class="n">VerificationSOPClass</span>
+<span class="kn">from</span> <span class="nn">pynetdicom.sop_class</span> <span class="kn">import</span> <span class="n">CTImageStorage</span>
 
 <span class="n">ae</span> <span class="o">=</span> <span class="n">AE</span><span class="p">()</span>
-<span class="n">ae</span><span class="o">.</span><span class="n">add_supported_context</span><span class="p">(</span><span class="n">VerificationSOPClass</span><span class="p">)</span>
+<span class="n">ae</span><span class="o">.</span><span class="n">add_supported_context</span><span class="p">(</span><span class="n">CTImageStorage</span><span class="p">)</span>
 
 <span class="k">def</span> <span class="nf">handle_store</span><span class="p">(</span><span class="n">event</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;Handle evt.EVT_C_STORE&quot;&quot;&quot;</span>

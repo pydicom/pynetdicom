@@ -264,7 +264,7 @@ notification events.</p>
 </tr>
 </tbody>
 </table>
-<p>By default a number of notification handlers are bound for logging purposes.
+<p>By default, a number of notification handlers are bound for logging purposes.
 If you wish to remove these then you can do the following before creating any
 associations:</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">pynetdicom</span> <span class="kn">import</span> <span class="n">_config</span>
@@ -366,7 +366,7 @@ table below lists the possible intervention events.</p>
 <div class="section" id="event-handlers">
 <h2>Event Handlers<a class="headerlink" href="#event-handlers" title="Permalink to this headline">¶</a></h2>
 <p>Event handlers are callable functions bound to an event that, at a minimum,
-gets passed a single parameter, <em>event</em>, which is an <a class="reference internal" href="../reference/generated/pynetdicom.events.Event.html#pynetdicom.events.Event" title="pynetdicom.events.Event"><code class="xref py py-class docutils literal notranslate"><span class="pre">Event</span></code></a> instance.
+get passed a single parameter, <em>event</em>, which is an <a class="reference internal" href="../reference/generated/pynetdicom.events.Event.html#pynetdicom.events.Event" title="pynetdicom.events.Event"><code class="xref py py-class docutils literal notranslate"><span class="pre">Event</span></code></a> instance.
 All <a class="reference internal" href="../reference/generated/pynetdicom.events.Event.html#pynetdicom.events.Event" title="pynetdicom.events.Event"><code class="xref py py-class docutils literal notranslate"><span class="pre">Event</span></code></a> instances come with at least three attributes:</p>
 <ul class="simple">
 <li><p><a class="reference internal" href="../reference/generated/pynetdicom.events.Event.html#pynetdicom.events.Event.assoc" title="pynetdicom.events.Event.assoc"><code class="xref py py-attr docutils literal notranslate"><span class="pre">Event.assoc</span></code></a> - the
@@ -379,7 +379,7 @@ Python <a class="reference external" href="https://docs.python.org/3/library/dat
 </ul>
 <p>Additional attributes and properties are available depending on the event type,
 see the <a class="reference external" href="../reference/events.html">handler implementation documentation</a> for more information.</p>
-<p>Handlers can be bound to events through the <em>evt_handlers</em> keyword argument
+<p>Handlers can be bound to events through the <em>evt_handlers</em> keyword parameter
 with <a class="reference internal" href="../reference/generated/pynetdicom.ae.ApplicationEntity.html#pynetdicom.ae.ApplicationEntity.associate" title="pynetdicom.ae.ApplicationEntity.associate"><code class="xref py py-meth docutils literal notranslate"><span class="pre">AE.associate()</span></code></a> and
 <a class="reference internal" href="../reference/generated/pynetdicom.ae.ApplicationEntity.html#pynetdicom.ae.ApplicationEntity.start_server" title="pynetdicom.ae.ApplicationEntity.start_server"><code class="xref py py-meth docutils literal notranslate"><span class="pre">AE.start_server()</span></code></a>.
 <em>evt_handlers</em> should be a list of 2- or 3-tuples:</p>
@@ -409,7 +409,7 @@ with <a class="reference internal" href="../reference/generated/pynetdicom.ae.Ap
 <span class="n">ae</span><span class="o">.</span><span class="n">start_server</span><span class="p">((</span><span class="s1">&#39;localhost&#39;</span><span class="p">,</span> <span class="mi">11112</span><span class="p">),</span> <span class="n">evt_handlers</span><span class="o">=</span><span class="n">handlers</span><span class="p">)</span>
 </pre></div>
 </div>
-<p>If using a 3-tuple then the third value should be a list of objects that will
+<p>If using a 3-tuple then the third item should be a list of objects that will
 be passed to the handler as extra parameters.</p>
 <p>The other way to bind handlers to events is through the
 <a class="reference internal" href="../reference/generated/pynetdicom.association.Association.html#pynetdicom.association.Association.bind" title="pynetdicom.association.Association.bind"><code class="xref py py-meth docutils literal notranslate"><span class="pre">Association.bind()</span></code></a> and

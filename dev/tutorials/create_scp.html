@@ -104,9 +104,9 @@
 <li class="toctree-l4"><a class="reference internal" href="#the-dicom-file-format">The DICOM File Format</a></li>
 <li class="toctree-l4"><a class="reference internal" href="#expanding-the-supported-data">Expanding the supported data</a></li>
 <li class="toctree-l4"><a class="reference internal" href="#optimising-and-passing-extra-arguments">Optimising and passing extra arguments</a></li>
-<li class="toctree-l4"><a class="reference internal" href="#next-steps">Next steps</a></li>
 </ul>
 </li>
+<li class="toctree-l3"><a class="reference internal" href="#next-steps">Next steps</a></li>
 </ul>
 </li>
 </ul>
@@ -408,7 +408,7 @@ anything.</p>
 <p>We bind our handler to the corresponding event by passing <code class="docutils literal notranslate"><span class="pre">handlers</span></code>
 to <a class="reference internal" href="../reference/generated/pynetdicom.ae.ApplicationEntity.html#pynetdicom.ae.ApplicationEntity.start_server" title="pynetdicom.ae.ApplicationEntity.start_server"><code class="xref py py-func docutils literal notranslate"><span class="pre">start_server()</span></code></a> via the
 <cite>evt_handlers</cite> keyword parameter.</p>
-<p>Interrupt the terminal running <code class="docutils literal notranslate"><span class="pre">my_scp.py</span></code> using <code class="docutils literal notranslate"><span class="pre">CTRL+c</span></code> and
+<p>Interrupt the terminal running <code class="docutils literal notranslate"><span class="pre">my_scp.py</span></code> using <code class="docutils literal notranslate"><span class="pre">CTRL+C</span></code> and
 then restart it. This time when you run <a class="reference internal" href="../apps/storescu.html"><span class="doc">storescu</span></a>
 you should see:</p>
 <div class="highlight-text notranslate"><div class="highlight"><pre><span></span>$ python -m pynetdicom storescu 127.0.0.1 11112 CTImageStorage.dcm -v -cx
@@ -635,8 +635,7 @@ complex code:</p>
 38
 39
 40
-41
-42</pre></div></td><td class="code"><div class="highlight"><pre><span></span><span class="hll"> <span class="kn">import</span> <span class="nn">os</span>
+41</pre></div></td><td class="code"><div class="highlight"><pre><span></span><span class="hll"> <span class="kn">import</span> <span class="nn">os</span>
 </span>
 <span class="hll"> <span class="kn">from</span> <span class="nn">pydicom.filewriter</span> <span class="kn">import</span> <span class="n">write_file_meta_info</span>
 </span>
@@ -655,21 +654,20 @@ complex code:</p>
 </span><span class="hll">         <span class="c1"># Unable to create output dir, return failure status</span>
 </span><span class="hll">         <span class="k">return</span> <span class="mh">0xC001</span>
 </span>
-<span class="hll">     <span class="c1"># Because we can&#39;t access `event.dataset.SOPInstanceUID` we need to</span>
-</span><span class="hll">     <span class="c1"># rely on the UID from the C-STORE request instead</span>
-</span><span class="hll">     <span class="n">fname</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">storage_dir</span><span class="p">,</span> <span class="n">event</span><span class="o">.</span><span class="n">request</span><span class="o">.</span><span class="n">AffectedSOPInstanceUID</span><span class="p">)</span>
+     <span class="c1"># We rely on the UID from the C-STORE request instead of decoding</span>
+<span class="hll">     <span class="n">fname</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">storage_dir</span><span class="p">,</span> <span class="n">event</span><span class="o">.</span><span class="n">request</span><span class="o">.</span><span class="n">AffectedSOPInstanceUID</span><span class="p">)</span>
 </span><span class="hll">     <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">fname</span><span class="p">,</span> <span class="s1">&#39;wb&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
 </span><span class="hll">         <span class="c1"># Write the preamble, prefix and file meta information elements</span>
 </span><span class="hll">         <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="sa">b</span><span class="s1">&#39;</span><span class="se">\x00</span><span class="s1">&#39;</span> <span class="o">*</span> <span class="mi">128</span><span class="p">)</span>
 </span><span class="hll">         <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="sa">b</span><span class="s1">&#39;DICM&#39;</span><span class="p">)</span>
 </span><span class="hll">         <span class="n">write_file_meta_info</span><span class="p">(</span><span class="n">f</span><span class="p">,</span> <span class="n">event</span><span class="o">.</span><span class="n">file_meta</span><span class="p">)</span>
-</span>         <span class="c1"># Write the raw encoded dataset</span>
-         <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">event</span><span class="o">.</span><span class="n">request</span><span class="o">.</span><span class="n">DataSet</span><span class="o">.</span><span class="n">getvalue</span><span class="p">())</span>
-
-<span class="hll">     <span class="k">return</span> <span class="mh">0x0000</span>
+</span><span class="hll">         <span class="c1"># Write the raw encoded dataset</span>
+</span><span class="hll">         <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">event</span><span class="o">.</span><span class="n">request</span><span class="o">.</span><span class="n">DataSet</span><span class="o">.</span><span class="n">getvalue</span><span class="p">())</span>
 </span>
- <span class="n">handlers</span> <span class="o">=</span> <span class="p">[(</span><span class="n">evt</span><span class="o">.</span><span class="n">EVT_C_STORE</span><span class="p">,</span> <span class="n">handle_store</span><span class="p">,</span> <span class="p">[</span><span class="s1">&#39;out&#39;</span><span class="p">])]</span>
+     <span class="k">return</span> <span class="mh">0x0000</span>
 
+<span class="hll"> <span class="n">handlers</span> <span class="o">=</span> <span class="p">[(</span><span class="n">evt</span><span class="o">.</span><span class="n">EVT_C_STORE</span><span class="p">,</span> <span class="n">handle_store</span><span class="p">,</span> <span class="p">[</span><span class="s1">&#39;out&#39;</span><span class="p">])]</span>
+</span>
  <span class="n">ae</span> <span class="o">=</span> <span class="n">AE</span><span class="p">()</span>
  <span class="n">storage_sop_classes</span> <span class="o">=</span> <span class="p">[</span>
      <span class="n">cx</span><span class="o">.</span><span class="n">abstract_syntax</span> <span class="k">for</span> <span class="n">cx</span> <span class="ow">in</span> <span class="n">AllStoragePresentationContexts</span>
@@ -687,27 +685,27 @@ the encoded dataset using the <a class="reference internal" href="../reference/g
 request via the <code class="docutils literal notranslate"><span class="pre">event.request</span></code> attribute.</p>
 <p>The second change we’ve made is to demonstrate how extra parameters can be
 passed to the handler by binding using a 3-tuple rather than a 2-tuple. The
-third value in the <a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#tuple" title="(in Python v3.8)"><code class="xref py py-class docutils literal notranslate"><span class="pre">tuple</span></code></a> should be a <a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.8)"><code class="xref py py-class docutils literal notranslate"><span class="pre">list</span></code></a> of objects;
-each item will be passed as a separate parameter. In
+third item in the <a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#tuple" title="(in Python v3.8)"><code class="xref py py-class docutils literal notranslate"><span class="pre">tuple</span></code></a> should be a <a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.8)"><code class="xref py py-class docutils literal notranslate"><span class="pre">list</span></code></a> of objects;
+each of the list’s items will be passed as a separate parameter. In
 our case the string <code class="docutils literal notranslate"><span class="pre">'out'</span></code> will be passed to the handler as the
 <em>storage_dir</em> parameter.</p>
 <p>You should also handle exceptions in your code gracefully by returning an
 appropriate status value. In this case, if we failed to create the output
 directory we return an <code class="docutils literal notranslate"><span class="pre">0xC001</span></code> status, indicating that the storage operation
 has failed. However, as you’ve already seen, any unhandled exceptions in the
-handler will automatically return an <code class="docutils literal notranslate"><span class="pre">0xC112</span></code> status, so you really only
+handler will automatically return an <code class="docutils literal notranslate"><span class="pre">0xC211</span></code> status, so you really only
 need to deal with the exceptions important to you.</p>
 <p>If you restart <code class="docutils literal notranslate"><span class="pre">my_scp.py</span></code>, you should now be able to use
 <a class="reference internal" href="../apps/storescu.html"><span class="doc">storescu</span></a> to send it any DICOM dataset supported by
 the storage service.</p>
 </div>
+</div>
 <div class="section" id="next-steps">
-<h3>Next steps<a class="headerlink" href="#next-steps" title="Permalink to this headline">¶</a></h3>
+<h2>Next steps<a class="headerlink" href="#next-steps" title="Permalink to this headline">¶</a></h2>
 <p>That’s it for the basics of <em>pynetdicom</em>. You might want to read through the
 <a class="reference internal" href="../user/index.html"><span class="doc">User Guide</span></a>, or check
 out the <a class="reference internal" href="../examples/index.html"><span class="doc">SCP examples</span></a> available in the documentation
 or the <a class="reference internal" href="../apps/index.html"><span class="doc">applications</span></a> that come with <em>pynetdicom</em>.</p>
-</div>
 </div>
 </div>
 
