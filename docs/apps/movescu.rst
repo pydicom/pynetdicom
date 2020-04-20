@@ -139,6 +139,13 @@ Query Options
             then the elements will be added to or overwrite those
             present in the file
 
+Extended Negotiation Options
+----------------------------
+``--relational-retrieval``
+            request the use of relational retrieval
+``--enhanced-conversion``
+            request the use of enhanced multi-frame image conversion
+
 Output Options
 --------------
 ``-od [d]irectory, --output-directory [d]irectory (str)``

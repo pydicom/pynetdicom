@@ -102,6 +102,20 @@ Query Options
             then the elements will be added to or overwrite those
             present in the file
 
+Extended Negotiation Options
+----------------------------
+``--relational-query``
+            request the use of relational queries (not with ``-W``)
+``--dt-matching``
+            request the use of date-time matching (not with ``-W``)
+``--fuzzy-names``
+            request the use of fuzzy semantic matching of person names
+``--timezone-adj``
+            request the use of timezone query adjustment
+``--enhanced-conversion``
+            request the use of enhanced multi-frame image conversion (not with
+            ``-W``)
+
 Output Options
 --------------
 ``-w    --write``

@@ -20,6 +20,7 @@ from pynetdicom import (
 )
 from pynetdicom.apps.common import setup_logging, create_dataset, handle_store
 from pynetdicom._globals import DEFAULT_MAX_LENGTH
+from pynetdicom.pdu_primitives import SOPClassExtendedNegotiation
 from pynetdicom.sop_class import (
     PatientRootQueryRetrieveInformationModelGet,
     StudyRootQueryRetrieveInformationModelGet,
@@ -174,6 +175,19 @@ def _setup_argparser():
         type=str,
     )
 
+    # Extended Negotiation Options
+    ext_neg = parser.add_argument_group('Extended Negotiation Options')
+    ext_neg.add_argument(
+        '--relational-retrieval',
+        help="request the use of relational retrieval",
+        action="store_true",
+    )
+    ext_neg.add_argument(
+        '--enhanced-conversion',
+        help="request the use of enhanced multi-frame image conversion",
+        action="store_true",
+    )
+
     # Output Options
     out_opts = parser.add_argument_group('Output Options')
     out_opts.add_argument(
@@ -241,6 +255,7 @@ def main(args=None):
     ae.dimse_timeout = args.dimse_timeout
     ae.network_timeout = args.network_timeout
 
+    # Extended Negotiation - SCP/SCU Role Selection
     ext_neg = []
     ae.add_requested_context(PatientRootQueryRetrieveInformationModelGet)
     ae.add_requested_context(StudyRootQueryRetrieveInformationModelGet)
@@ -257,6 +272,18 @@ def main(args=None):
         query_model = PatientStudyOnlyQueryRetrieveInformationModelGet
     else:
         query_model = PatientRootQueryRetrieveInformationModelGet
+
+    # Extended Negotiation - SOP Class Extended
+    ext_opts = [args.relational_retrieval, args.enhanced_conversion]
+    if any(ext_opts):
+        app_info = b''
+        for option in ext_opts:
+            app_info += b'\x01' if option else b'\x00'
+
+        item = SOPClassExtendedNegotiation()
+        item.sop_class_uid = query_model
+        item.service_class_application_information = app_info
+        ext_neg.append(item)
 
     # Request association with remote
     assoc = ae.associate(
