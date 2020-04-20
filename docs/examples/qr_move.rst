@@ -80,7 +80,7 @@ to see the requirements for the ``evt.EVT_C_STORE`` handler.
     from pynetdicom import AE, evt, StoragePresentationContexts, debug_logger
     from pynetdicom.sop_class import PatientRootQueryRetrieveInformationModelMove
 
-    debug_logger
+    debug_logger()
 
     def handle_store(event):
         """Handle a C-STORE service request"""
