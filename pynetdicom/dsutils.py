@@ -6,6 +6,8 @@ from pydicom.filebase import DicomBytesIO
 from pydicom.filereader import read_dataset
 from pydicom.filewriter import write_dataset, write_data_element
 
+from pynetdicom.utils import pretty_bytes
+
 
 LOGGER = logging.getLogger('pynetdicom.dsutils')
 
@@ -109,3 +111,69 @@ def encode_element(elem, is_implicit_vr=True, is_little_endian=True):
     fp.close()
 
     return bytestring
+
+
+def pretty_dataset(ds, indent=0, indent_char='  '):
+    """Return a list of pretty dataset strings.
+
+    Parameters
+    ----------
+    ds : pydicom.dataset.Dataset
+        The dataset to print.
+    indent : int, optional
+        The indentation level of the current dataset (default: ``0``).
+    indent_char : str, optional
+        The character(s) to use when indenting the dataset (default ``'  '``).
+
+    Returns
+    -------
+    list of str
+    """
+    out = []
+    for elem in iter(ds):
+        if elem.VR == 'SQ':
+            out.append(pretty_element(elem))
+            for item in elem.value:
+                #spaces = len(out[0]) - len(out[0].lstrip())
+                #fmt = '  {{:-^{}}}'.format(78 - spaces)
+                #out.append(fmt.format('Sequence item'))
+                out.extend(pretty_dataset(item, indent + 1))
+        else:
+            out.append(indent_char * indent + pretty_element(elem))
+
+    return out
+
+
+def pretty_element(elem):
+    """Return a pretty element string."""
+    if elem.VM == 0:
+        value = '(no value available)'
+    elif elem.VR in ['OB', 'OD', 'OF', 'OL', 'OW', 'OV']:
+        if elem.VM == 1:
+            length = len(elem.value)
+            if length <= 13:
+                value = '[{}]'.format(
+                    pretty_bytes(elem.value, prefix='', delimiter=' ')[0]
+                )
+            else:
+                value = '({} bytes of binary data)'.format(len(elem.value))
+        else:
+            total_length = sum([len(ii) for ii in elem.value])
+            value = '({} bytes of binary data)'.format(total_length)
+    elif elem.VR != 'SQ':
+        if elem.VM == 1:
+            value = '[{}]'.format(elem.value)
+        else:
+            value = '[{}]'.format('\\'.join([ii for ii in elem.value]))
+    elif elem.VR == 'SQ':
+        value = '(Sequence of length {})'.format(len(elem.value))
+    else:
+        value = elem.value
+
+    return '({:04X},{:04X}) {} {: <40} # {} {}'.format(
+        elem.tag.group, elem.tag.element,
+        elem.VR,
+        value,
+        elem.VM,
+        elem.keyword
+    )

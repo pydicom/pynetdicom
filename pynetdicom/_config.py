@@ -50,3 +50,19 @@ Examples
 >>> from pynetdicom import _config
 >>> _config.USE_SHORT_DIMSE_AET = False
 """
+
+
+LOG_RESPONSE_IDENTIFIERS = True
+"""Log incoming C-FIND, C-GET and C-MOVE Identifier datasets.
+
+.. versionadded:: 1.5
+
+If ``True`` (default) then the *Identifier* datasets received in Pending
+responses to C-FIND, C-GET and C-MOVE requests will be logged.
+
+Examples
+--------
+
+>>> from pynetdicom import _config
+>>> _config.LOG_RESPONSE_IDENTIFIERS = False
+"""

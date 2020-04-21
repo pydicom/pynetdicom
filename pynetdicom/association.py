@@ -17,7 +17,7 @@ from pynetdicom.dimse_primitives import (
     C_ECHO, C_MOVE, C_STORE, C_GET, C_FIND, C_CANCEL,
     N_EVENT_REPORT, N_GET, N_SET, N_CREATE, N_ACTION, N_DELETE
 )
-from pynetdicom.dsutils import decode, encode
+from pynetdicom.dsutils import decode, encode, pretty_dataset
 from pynetdicom.dul import DULServiceProvider
 from pynetdicom._globals import (
     MODE_REQUESTOR, MODE_ACCEPTOR, DEFAULT_MAX_LENGTH, STATUS_WARNING,
@@ -1106,8 +1106,8 @@ class Association(threading.Thread):
         LOGGER.info('Sending Find Request: MsgID {}'.format(msg_id))
         LOGGER.info('')
         LOGGER.info('# Request Identifier')
-        for elem in dataset:
-            LOGGER.info(elem)
+        for line in pretty_dataset(dataset):
+            LOGGER.info(line)
         LOGGER.info('')
 
         # Pause the reactor to prevent a race condition
@@ -1795,11 +1795,12 @@ class Association(threading.Thread):
                             transfer_syntax.is_implicit_VR,
                             transfer_syntax.is_little_endian
                         )
-                        LOGGER.info('')
-                        LOGGER.info('# Response Identifier')
-                        for elem in identifier:
-                            LOGGER.info(elem)
-                        LOGGER.info('')
+                        if identifier and _config.LOG_RESPONSE_IDENTIFIERS:
+                            LOGGER.info('')
+                            LOGGER.info('# Response Identifier')
+                            for line in pretty_dataset(identifier):
+                                LOGGER.info(line)
+                            LOGGER.info('')
                     except Exception as exc:
                         LOGGER.error(
                             "Failed to decode the received Identifier dataset"
@@ -1939,7 +1940,7 @@ class Association(threading.Thread):
                             transfer_syntax.is_implicit_VR,
                             transfer_syntax.is_little_endian
                         )
-                        if identifier:
+                        if identifier and _config.LOG_RESPONSE_IDENTIFIERS:
                             LOGGER.info('')
                             LOGGER.info('# Response Identifier')
                             for elem in identifier:

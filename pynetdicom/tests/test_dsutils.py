@@ -10,7 +10,9 @@ from pydicom.dataset import Dataset
 from pydicom.dataelem import DataElement
 
 from pynetdicom import debug_logger
-from pynetdicom.dsutils import decode, encode, encode_element
+from pynetdicom.dsutils import (
+    decode, encode, encode_element, pretty_dataset, pretty_element
+)
 
 
 #debug_logger()
@@ -143,3 +145,89 @@ class TestDecodeFailure(object):
         def dummy(): pass
         with pytest.raises(AttributeError):
             print(decode(dummy, False, True))
+
+
+class TestPrettyElement(object):
+    """Tests for pretty_element()."""
+    def test_empty(self):
+        """"""
+        pass
+
+    def test_vm_one(self):
+        """"""
+        pass
+
+    def test_vm_two(self):
+        """"""
+        pass
+
+    def test_vm_fifty(self):
+        """"""
+        pass
+
+    def test_seq_empty(self):
+        """"""
+        pass
+
+    def test_seq_one(self):
+        """"""
+        pass
+
+    def test_seq_three(self):
+        """"""
+        pass
+
+    def test_seq_three_empty(self):
+        """"""
+        pass
+
+    def test_bytes_empty(self):
+        """Test empty byte VRs"""
+        ds = Dataset()
+        ds.PixelData = b''
+        ds['PixelData'].VR = 'OB'
+        out = pretty_element(ds['PixelData'])
+        assert (
+            '(7FE0,0010) OB (no value available)                     # 0'
+            ' PixelData'
+        ) == out
+
+    def test_bytes_short(self):
+        """Test byte VRs containing small amounts of data"""
+        ds = Dataset()
+        ds.PixelData = (
+            b'\x00\x01\x02\x03\x04\x05\x06\x07\x08\x09\x0A\x0B\x0C'
+        )
+        ds['PixelData'].VR = 'OB'
+        out = pretty_element(ds['PixelData'])
+        assert (
+            '(7FE0,0010) OB [00 01 02 03 04 05 06 07 08 09 0a 0b 0c] # 1'
+            ' PixelData'
+        ) == out
+
+    def test_bytes_long(self):
+        """Test byte VRs containing lots of data"""
+        ds = Dataset()
+        ds.PixelData = b'\x00' * 128
+        ds['PixelData'].VR = 'OB'
+        out = pretty_element(ds['PixelData'])
+        assert (
+            '(7FE0,0010) OB (128 bytes of binary data)               # 1'
+            ' PixelData'
+        ) == out
+
+    def test_bytes_vm_multi(self):
+        """Test byte VRs with VM > 1"""
+        ds = Dataset()
+        ds.PixelData = [
+            b'\x00\x01\x02\x03\x04\x05\x06\x07\x08\x09\x0A\x0B\x0C',
+            b'\x00\x01\x02\x03\x04\x05\x06\x07\x08\x09\x0A\x0B\x0C',
+        ]
+        ds['PixelData'].VR = 'OB'
+        out = pretty_element(ds['PixelData'])
+        print()
+        print(out)
+        #assert (
+        #    '(7FE0,0010) OB [00 01 02 03 04 05 06 07 08 09 0a 0b 0c] # 1'
+        #    ' PixelData'
+        #) == out
