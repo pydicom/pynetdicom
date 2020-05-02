@@ -78,6 +78,9 @@ Enhancements
   <pynetdicom._config.LOG_RESPONSE_IDENTIFIERS>` for controlling whether or
   not the contents of C-FIND, C-GET and C-MOVE response *Identifier* datasets
   are logged
+* Added :func:`~pynetdicom.dsutils.pretty_dataset` and
+  :func:`~pynetdicom.dsutils.pretty_element` functions for producing pretty
+  string output from datasets and elements
 
 
 
