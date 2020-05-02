@@ -101,7 +101,9 @@ def encode(ds, is_implicit_vr, is_little_endian, deflated=False):
 
     if deflated:
         # Compress the encoded dataset
-        compressor = zlib.compressobj(wbits=-zlib.MAX_WBITS)
+        compressor = zlib.compressobj(
+            zlib.Z_DEFAULT_COMPRESSION, zlib.DEFLATED, -zlib.MAX_WBITS
+        )
         bytestring = compressor.compress(bytestring)
         bytestring += compressor.flush()
         bytestring += b'\x00' if len(bytestring) % 2 else b''
