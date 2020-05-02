@@ -27,6 +27,8 @@ Fixes
 * Fixed an ``InvalidEventError`` due to two A-ABORT messages being sent. Issue
   is triggered when the DIMSE and network timeouts have the same value and
   both expire while sending a DIMSE request. (:issue:`460`)
+* Fixed datasets encoding using *Deflated Explicit VR Little Endian* not
+  transferring correctly (:issue:`482`)
 
 
 Enhancements

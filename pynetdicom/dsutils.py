@@ -1,6 +1,7 @@
 """DICOM dataset utility functions."""
 
 import logging
+import zlib
 
 from pydicom.filebase import DicomBytesIO
 from pydicom.filereader import read_dataset
@@ -10,7 +11,7 @@ from pydicom.filewriter import write_dataset, write_data_element
 LOGGER = logging.getLogger('pynetdicom.dsutils')
 
 
-def decode(bytestring, is_implicit_vr, is_little_endian):
+def decode(bytestring, is_implicit_vr, is_little_endian, deflated=False):
     """Decode `bytestring` to a *pydicom* :class:`~pydicom.dataset.Dataset`.
 
     Parameters
@@ -23,6 +24,9 @@ def decode(bytestring, is_implicit_vr, is_little_endian):
     is_little_endian : bool
         The byte ordering of the encoded dataset, ``True`` for little endian,
         ``False`` for big endian.
+    deflated : bool, optional
+        ``True`` if the dataset has been encoded using *Deflated Explicit VR
+        Little Endian* transfer syntax (default ``False``).
 
     Returns
     -------
@@ -30,7 +34,11 @@ def decode(bytestring, is_implicit_vr, is_little_endian):
         The decoded dataset.
     """
     ## Logging
-    transfer_syntax = "Little Endian" if is_little_endian else "Big Endian"
+    transfer_syntax = ''
+    if deflated:
+        transfer_syntax = "Deflated "
+
+    transfer_syntax += "Little Endian" if is_little_endian else "Big Endian"
     if is_implicit_vr:
         transfer_syntax += " Implicit"
     else:
@@ -38,13 +46,22 @@ def decode(bytestring, is_implicit_vr, is_little_endian):
 
     LOGGER.debug('pydicom.read_dataset() TransferSyntax="%s"', transfer_syntax)
 
-    ## Decode the dataset
     # Rewind to the start of the stream
     bytestring.seek(0)
+
+    if deflated:
+        # Decompress the dataset
+        bytestring = DicomBytesIO(
+            zlib.decompress(bytestring.getvalue(), -zlib.MAX_WBITS)
+        )
+        bytestring.is_implicit_VR = is_implicit_vr
+        bytestring.is_little_endian = is_little_endian
+
+    # Decode the dataset
     return read_dataset(bytestring, is_implicit_vr, is_little_endian)
 
 
-def encode(ds, is_implicit_vr, is_little_endian):
+def encode(ds, is_implicit_vr, is_little_endian, deflated=False):
     """Encode a *pydicom* :class:`~pydicom.dataset.Dataset` `ds`.
 
     Parameters
@@ -57,6 +74,9 @@ def encode(ds, is_implicit_vr, is_little_endian):
     is_little_endian : bool
         The byte ordering the dataset will be encoded in, ``True`` for little
         endian, ``False`` for big endian.
+    deflated : bool, optional
+        ``True`` if the dataset is to be encoded using *Deflated Explicit VR
+        Little Endian* transfer syntax (default ``False``).
 
     Returns
     -------
@@ -78,6 +98,13 @@ def encode(ds, is_implicit_vr, is_little_endian):
 
     bytestring = fp.parent.getvalue()
     fp.close()
+
+    if deflated:
+        # Compress the encoded dataset
+        compressor = zlib.compressobj(wbits=-zlib.MAX_WBITS)
+        bytestring = compressor.compress(bytestring)
+        bytestring += compressor.flush()
+        bytestring += b'\x00' if len(bytestring) % 2 else b''
 
     return bytestring
 
