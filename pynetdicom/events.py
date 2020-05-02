@@ -604,9 +604,12 @@ class Event(object):
             if bytestream and bytestream.getvalue() != b'':
                 # Dataset-like parameter has been used
                 t_syntax = self.context.transfer_syntax
-                ds = decode(bytestream,
-                            t_syntax.is_implicit_VR,
-                            t_syntax.is_little_endian)
+                ds = decode(
+                    bytestream,
+                    t_syntax.is_implicit_VR,
+                    t_syntax.is_little_endian,
+                    t_syntax.is_deflated
+                )
 
                 ds.is_little_endian = t_syntax.is_little_endian
                 ds.is_implicit_VR = t_syntax.is_implicit_VR
@@ -620,7 +623,7 @@ class Event(object):
             self._hash = hash(bytestream)
             return self._decoded
 
-        except AttributeError:
+        except AttributeError as exc:
             pass
 
         raise AttributeError(exc_msg)

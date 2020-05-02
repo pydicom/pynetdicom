@@ -24,6 +24,7 @@ from pydicom.uid import (
     JPEGBaseline,
     JPEG2000,
     JPEG2000Lossless,
+    DeflatedExplicitVRLittleEndian
 )
 
 from pynetdicom import (
@@ -48,6 +49,7 @@ from pynetdicom.sop_class import (
     PatientRootQueryRetrieveInformationModelMove,
     PatientStudyOnlyQueryRetrieveInformationModelMove,
     StudyRootQueryRetrieveInformationModelMove,
+    SecondaryCaptureImageStorage
 )
 from .dummy_c_scp import (
     DummyVerificationSCP, DummyStorageSCP, DummyFindSCP, DummyGetSCP,
@@ -66,6 +68,10 @@ DATASET = dcmread(os.path.join(TEST_DS_DIR, 'CTImageStorage.dcm'))
 # JPEG2000Lossless UID
 COMP_DATASET = dcmread(
     os.path.join(TEST_DS_DIR, 'MRImageStorage_JPG2000_Lossless.dcm')
+)
+# DeflatedExplicitVRLittleEndian
+DEFL_DATASET = dcmread(
+    os.path.join(TEST_DS_DIR, 'SCImageStorage_Deflated.dcm')
 )
 
 
@@ -1645,6 +1651,40 @@ class TestAssociationSendCStore(object):
         assert assoc.is_released
 
         scp.shutdown()
+
+    def test_send_deflated(self):
+        """Test sending a deflated encoded dataset (482)."""
+        recv_ds = []
+        def handle_store(event):
+            recv_ds.append(event.dataset)
+            return 0x0000
+
+        handlers = [(evt.EVT_C_STORE, handle_store)]
+
+        self.ae = ae = AE()
+        ae.acse_timeout = 5
+        ae.dimse_timeout = 5
+        ae.network_timeout = 5
+        ae.add_supported_context(
+            SecondaryCaptureImageStorage, DeflatedExplicitVRLittleEndian
+        )
+        scp = ae.start_server(('', 11112), block=False, evt_handlers=handlers)
+
+        ae.add_requested_context(
+            SecondaryCaptureImageStorage, DeflatedExplicitVRLittleEndian
+        )
+        assoc = ae.associate('localhost', 11112)
+
+        assert assoc.is_established
+
+        status = assoc.send_c_store(DEFL_DATASET)
+
+        assoc.release()
+        assert assoc.is_released
+
+        scp.shutdown()
+
+        assert '^^^^' == recv_ds[0].PatientName
 
 
 class TestAssociationSendCFind(object):
