@@ -119,7 +119,7 @@ def pretty_dataset(ds, indent=0, indent_char='  '):
     Parameters
     ----------
     ds : pydicom.dataset.Dataset
-        The dataset to print.
+        The dataset to beautify.
     indent : int, optional
         The indentation level of the current dataset (default: ``0``).
     indent_char : str, optional
@@ -145,30 +145,54 @@ def pretty_dataset(ds, indent=0, indent_char='  '):
 
 
 def pretty_element(elem):
-    """Return a pretty element string."""
-    if elem.VM == 0:
-        value = '(no value available)'
-    elif elem.VR in ['OB', 'OD', 'OF', 'OL', 'OW', 'OV']:
-        if elem.VM == 1:
-            length = len(elem.value)
-            if length <= 13:
-                value = '[{}]'.format(
-                    pretty_bytes(elem.value, prefix='', delimiter=' ')[0]
-                )
+    """Return a pretty element string.
+
+    Parameters
+    ----------
+    elem : pydicom.dataelem.DataElement
+        The element to beautify.
+
+    Returns
+    -------
+    str
+    """
+    # Rather than raise an exception if we fail to get a nice value, return
+    #   something like (pynetdicom failed to beautify value)
+    try:
+        if elem.VM == 0 and elem.VR != 'SQ':
+            # Empty value
+            value = '(no value available)'
+        elif elem.VR in ['OB', 'OD', 'OF', 'OL', 'OW', 'OV']:
+            # Byte VRs
+            if elem.VM == 1:
+                # Single value
+                length = len(elem.value)
+                if length <= 13:
+                    value = '[{}]'.format(
+                        pretty_bytes(elem.value, prefix='', delimiter=' ')[0]
+                    )
+                else:
+                    value = '({} bytes of binary data)'.format(len(elem.value))
             else:
-                value = '({} bytes of binary data)'.format(len(elem.value))
+                # Multiple values - probably non-conformant
+                total_length = sum([len(ii) for ii in elem.value])
+                value = '({} bytes of binary data)'.format(total_length)
+        elif elem.VR != 'SQ':
+            # Non-sequence elements
+            if elem.VM == 1:
+                value = '[{}]'.format(elem.value)
+            else:
+                value = '[{}]'.format(
+                    '\\'.join([str(ii) for ii in elem.value])
+                )
+        elif elem.VR == 'SQ':
+            # Sequence elements
+            value = '(Sequence of length {})'.format(len(elem.value))
         else:
-            total_length = sum([len(ii) for ii in elem.value])
-            value = '({} bytes of binary data)'.format(total_length)
-    elif elem.VR != 'SQ':
-        if elem.VM == 1:
-            value = '[{}]'.format(elem.value)
-        else:
-            value = '[{}]'.format('\\'.join([ii for ii in elem.value]))
-    elif elem.VR == 'SQ':
-        value = '(Sequence of length {})'.format(len(elem.value))
-    else:
-        value = elem.value
+            value = elem.value
+    except Exception as exc:
+        LOGGER.exception(exc)
+        value = '(pynetdicom failed to beautify value)'
 
     return '({:04X},{:04X}) {} {: <40} # {} {}'.format(
         elem.tag.group, elem.tag.element,

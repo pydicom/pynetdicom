@@ -454,7 +454,7 @@ The ``getscu`` application supports the following SOP Classes as an SCP:
 +----------------------------------+------------------------------------------+
 
 
-The application will request presentation contexts using these transfer
+The application will support presentation contexts using these transfer
 syntaxes:
 
 +------------------------+----------------------------------------------------+
