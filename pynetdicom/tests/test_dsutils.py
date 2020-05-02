@@ -441,7 +441,7 @@ class TestPrettyElement(object):
         ds = Dataset()
         ds.EventCodeSequence = []
         assert (
-            '(0008,2135) SQ (Sequence of length 0)                   # 0'
+            '(0008,2135) SQ (Sequence with 0 items)                  # 0'
             ' EventCodeSequence'
         ) == pretty_element(ds['EventCodeSequence'])
 
@@ -450,7 +450,7 @@ class TestPrettyElement(object):
         ds = Dataset()
         ds.EventCodeSequence = [Dataset()]
         assert (
-            '(0008,2135) SQ (Sequence of length 1)                   # 1'
+            '(0008,2135) SQ (Sequence with 1 item)                   # 1'
             ' EventCodeSequence'
         ) == pretty_element(ds['EventCodeSequence'])
 
@@ -459,7 +459,7 @@ class TestPrettyElement(object):
         ds = Dataset()
         ds.EventCodeSequence = [Dataset(), Dataset()]
         assert (
-            '(0008,2135) SQ (Sequence of length 2)                   # 2'
+            '(0008,2135) SQ (Sequence with 2 items)                  # 2'
             ' EventCodeSequence'
         ) == pretty_element(ds['EventCodeSequence'])
 
@@ -547,3 +547,100 @@ class TestPrettyElement(object):
             r'(0008,0018) UI [1.2.3.4\1.2.3.4.5]                      # 2'
             ' SOPInstanceUID'
         ) == pretty_element(ds['SOPInstanceUID'])
+
+
+class TestPrettyDataset(object):
+    """Tests for dsutils.pretty_dataset()."""
+    def test_empty(self):
+        """Test using an empty dataset."""
+        assert [] == pretty_dataset(Dataset())
+
+    def test_non_sequence(self):
+        """Test using a dataset with no sequence items."""
+        ds = Dataset()
+        ds.PatientName = 'Citizen^Jan'
+        ds.PatientID = None
+        ds.PatientBirthDate = ['19840988', '20200527']
+        out = pretty_dataset(ds)
+        assert 3 == len(out)
+        assert (
+            '(0010,0010) PN [Citizen^Jan]                            # 1'
+            ' PatientName'
+        ) == out[0]
+        assert (
+            '(0010,0020) LO (no value available)                     # 0'
+            ' PatientID'
+        ) == out[1]
+        assert (
+            r'(0010,0030) DA [19840988\20200527]                      # 2'
+            ' PatientBirthDate'
+        ) == out[2]
+
+    def test_sequence_empty(self):
+        """Test using a dataset with an empty sequence."""
+        ref = [
+            '(0010,0010) PN [Citizen^Jan]                            # 1 PatientName',
+            '(0014,2002) SQ (Sequence with 0 items)                  # 0 EvaluatorSequence',
+            '(7FE0,0010) OB (no value available)                     # 0 PixelData',
+        ]
+        ds = Dataset()
+        ds.PatientName = 'Citizen^Jan'
+        ds.EvaluatorSequence = []
+        ds.PixelData = None
+        ds['PixelData'].VR = 'OB'
+        assert ref == pretty_dataset(ds)
+
+    def test_sequence_one(self):
+        """Test using a dataset with a sequence of one item."""
+        ref = [
+            '(0010,0010) PN [Citizen^Jan]                            # 1 PatientName',
+            '(0014,2002) SQ (Sequence with 1 item)                   # 1 EvaluatorSequence',
+            '  (Sequence item #1)',
+            '    (0010,0020) LO (no value available)                     # 0 PatientID',
+            '    (0010,0030) DA [20011201]                               # 1 PatientBirthDate',
+            '(7FE0,0010) OB (no value available)                     # 0 PixelData',
+        ]
+        ds = Dataset()
+        ds.PatientName = 'Citizen^Jan'
+        ds.EvaluatorSequence = [Dataset()]
+        item = ds.EvaluatorSequence[0]
+        item.PatientID = None
+        item.PatientBirthDate = '20011201'
+        ds.PixelData = None
+        ds['PixelData'].VR = 'OB'
+        out = pretty_dataset(ds)
+        print()
+        for line in out:
+            print(line)
+        assert ref == pretty_dataset(ds)
+
+    def test_sequence_multi(self):
+        """Test using a dataset with a sequence with multiple items."""
+        ref = [
+            '(0010,0010) PN [Citizen^Jan]                            # 1 PatientName',
+            '(0014,2002) SQ (Sequence with 3 items)                  # 3 EvaluatorSequence',
+            '  (Sequence item #1)',
+            '    (0010,0020) LO (no value available)                     # 0 PatientID',
+            '    (0010,0030) DA [20011201]                               # 1 PatientBirthDate',
+            '  (Sequence item #2)',
+            '  (Sequence item #3)',
+            '    (0010,0020) LO [123456]                                 # 1 PatientID',
+            '    (0010,0030) DA [20021201]                               # 1 PatientBirthDate',
+            '(7FE0,0010) OB (no value available)                     # 0 PixelData',
+        ]
+        ds = Dataset()
+        ds.PatientName = 'Citizen^Jan'
+        ds.EvaluatorSequence = [Dataset(), Dataset(), Dataset()]
+        item = ds.EvaluatorSequence[0]
+        item.PatientID = None
+        item.PatientBirthDate = '20011201'
+        item = ds.EvaluatorSequence[2]
+        item.PatientID = '123456'
+        item.PatientBirthDate = '20021201'
+        ds.PixelData = None
+        ds['PixelData'].VR = 'OB'
+        out = pretty_dataset(ds)
+        print()
+        for line in out:
+            print(line)
+        assert ref == pretty_dataset(ds)

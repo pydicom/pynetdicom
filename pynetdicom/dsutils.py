@@ -133,11 +133,10 @@ def pretty_dataset(ds, indent=0, indent_char='  '):
     for elem in iter(ds):
         if elem.VR == 'SQ':
             out.append(pretty_element(elem))
-            for item in elem.value:
-                #spaces = len(out[0]) - len(out[0].lstrip())
-                #fmt = '  {{:-^{}}}'.format(78 - spaces)
-                #out.append(fmt.format('Sequence item'))
-                out.extend(pretty_dataset(item, indent + 1))
+            for ii, item in enumerate(elem.value):
+                msg = '(Sequence item #{})'.format(ii + 1)
+                out.append(indent_char * (indent + 1) + msg)
+                out.extend(pretty_dataset(item, indent + 2))
         else:
             out.append(indent_char * indent + pretty_element(elem))
 
@@ -156,8 +155,6 @@ def pretty_element(elem):
     -------
     str
     """
-    # Rather than raise an exception if we fail to get a nice value, return
-    #   something like (pynetdicom failed to beautify value)
     try:
         if elem.VM == 0 and elem.VR != 'SQ':
             # Empty value
@@ -187,7 +184,10 @@ def pretty_element(elem):
                 )
         elif elem.VR == 'SQ':
             # Sequence elements
-            value = '(Sequence of length {})'.format(len(elem.value))
+            if elem.VM == 1:
+                value = '(Sequence with {} item)'.format(len(elem.value))
+            else:
+                value = '(Sequence with {} items)'.format(len(elem.value))
         else:
             value = elem.value
     except Exception as exc:
