@@ -103,6 +103,8 @@ Changes
   :meth:`AssociationServer.get_handlers()
   <pynetdicom.transport.AssociationServer.get_handlers>` now return a 2-tuple
   or list of 2-tuples.
+* Added `deflated` keyword parameter to :func:`~pynetdicom.dsutils.encode` and
+  :func:`~pynetdicom.dsutils.decode`
 
 
 Known Issues

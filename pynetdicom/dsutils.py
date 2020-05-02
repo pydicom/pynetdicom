@@ -14,6 +14,10 @@ LOGGER = logging.getLogger('pynetdicom.dsutils')
 def decode(bytestring, is_implicit_vr, is_little_endian, deflated=False):
     """Decode `bytestring` to a *pydicom* :class:`~pydicom.dataset.Dataset`.
 
+    .. versionchanged:: 1.5
+
+        Added `deflated` keyword parameter
+
     Parameters
     ----------
     byestring : io.BytesIO
@@ -63,6 +67,10 @@ def decode(bytestring, is_implicit_vr, is_little_endian, deflated=False):
 
 def encode(ds, is_implicit_vr, is_little_endian, deflated=False):
     """Encode a *pydicom* :class:`~pydicom.dataset.Dataset` `ds`.
+
+    .. versionchanged:: 1.5
+
+        Added `deflated` keyword parameter
 
     Parameters
     ----------
