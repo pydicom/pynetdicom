@@ -7,6 +7,8 @@ from pydicom.filebase import DicomBytesIO
 from pydicom.filereader import read_dataset
 from pydicom.filewriter import write_dataset, write_data_element
 
+from pynetdicom.utils import pretty_bytes
+
 
 LOGGER = logging.getLogger('pynetdicom.dsutils')
 
@@ -146,3 +148,96 @@ def encode_element(elem, is_implicit_vr=True, is_little_endian=True):
     fp.close()
 
     return bytestring
+
+
+def pretty_dataset(ds, indent=0, indent_char='  '):
+    """Return a list of pretty dataset strings.
+
+    ..versionadded:: 1.5
+
+    Parameters
+    ----------
+    ds : pydicom.dataset.Dataset
+        The dataset to beautify.
+    indent : int, optional
+        The indentation level of the current dataset (default: ``0``).
+    indent_char : str, optional
+        The character(s) to use when indenting the dataset (default ``'  '``).
+
+    Returns
+    -------
+    list of str
+    """
+    out = []
+    for elem in iter(ds):
+        if elem.VR == 'SQ':
+            out.append(pretty_element(elem))
+            for ii, item in enumerate(elem.value):
+                msg = '(Sequence item #{})'.format(ii + 1)
+                out.append(indent_char * (indent + 1) + msg)
+                out.extend(pretty_dataset(item, indent + 2))
+        else:
+            out.append(indent_char * indent + pretty_element(elem))
+
+    return out
+
+
+def pretty_element(elem):
+    """Return a pretty element string.
+
+    ..versionadded:: 1.5
+
+    Parameters
+    ----------
+    elem : pydicom.dataelem.DataElement
+        The element to beautify.
+
+    Returns
+    -------
+    str
+    """
+    try:
+        value = elem.value
+        if elem.VM == 0 and elem.VR != 'SQ':
+            # Empty value
+            value = '(no value available)'
+        elif elem.VR in ['OB', 'OD', 'OF', 'OL', 'OW', 'OV']:
+            # Byte VRs
+            if elem.VM == 1:
+                # Single value
+                length = len(elem.value)
+                if length <= 13:
+                    value = '[{}]'.format(
+                        pretty_bytes(elem.value, prefix='', delimiter=' ')[0]
+                    )
+                else:
+                    value = '({} bytes of binary data)'.format(len(elem.value))
+            else:
+                # Multiple values - probably non-conformant
+                total_length = sum([len(ii) for ii in elem.value])
+                value = '({} bytes of binary data)'.format(total_length)
+        elif elem.VR != 'SQ':
+            # Non-sequence elements
+            if elem.VM == 1:
+                value = '[{}]'.format(elem.value)
+            else:
+                value = '[{}]'.format(
+                    '\\'.join([str(ii) for ii in elem.value])
+                )
+        elif elem.VR == 'SQ':
+            # Sequence elements
+            if elem.VM == 1:
+                value = '(Sequence with {} item)'.format(len(elem.value))
+            else:
+                value = '(Sequence with {} items)'.format(len(elem.value))
+
+    except Exception as exc:
+        value = '(pynetdicom failed to beautify value)'
+
+    return '({:04X},{:04X}) {} {: <40} # {} {}'.format(
+        elem.tag.group, elem.tag.element,
+        elem.VR,
+        value,
+        elem.VM,
+        elem.keyword
+    )
