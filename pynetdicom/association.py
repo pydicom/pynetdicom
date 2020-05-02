@@ -383,10 +383,6 @@ class Association(threading.Thread):
                         # Compressed transfer syntaxes are not convertible
                         continue
 
-            # Match endianness
-            if tr_syntax.is_little_endian != cx_syntax.is_little_endian:
-                continue
-
             # Match to convertible transfer syntaxes
             matches.append(cx)
 
