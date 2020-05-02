@@ -1093,9 +1093,12 @@ class Association(threading.Thread):
         # Encode the Identifier `dataset` using the agreed transfer syntax
         #   Will return None if failed to encode
         transfer_syntax = context.transfer_syntax[0]
-        bytestream = encode(dataset,
-                            transfer_syntax.is_implicit_VR,
-                            transfer_syntax.is_little_endian)
+        bytestream = encode(
+            dataset,
+            transfer_syntax.is_implicit_VR,
+            transfer_syntax.is_little_endian,
+            transfer_syntax.is_deflated
+        )
 
         if bytestream is not None:
             req.Identifier = BytesIO(bytestream)
@@ -1288,9 +1291,12 @@ class Association(threading.Thread):
         # Encode the Identifier `dataset` using the agreed transfer syntax
         #   Will return None if failed to encode
         transfer_syntax = context.transfer_syntax[0]
-        bytestream = encode(dataset,
-                            transfer_syntax.is_implicit_VR,
-                            transfer_syntax.is_little_endian)
+        bytestream = encode(
+            dataset,
+            transfer_syntax.is_implicit_VR,
+            transfer_syntax.is_little_endian,
+            transfer_syntax.is_deflated
+        )
 
         if bytestream is not None:
             req.Identifier = BytesIO(bytestream)
@@ -1483,9 +1489,12 @@ class Association(threading.Thread):
         # Encode the Identifier `dataset` using the agreed transfer syntax;
         #   will return None if failed to encode
         transfer_syntax = context.transfer_syntax[0]
-        bytestream = encode(dataset,
-                            transfer_syntax.is_implicit_VR,
-                            transfer_syntax.is_little_endian)
+        bytestream = encode(
+            dataset,
+            transfer_syntax.is_implicit_VR,
+            transfer_syntax.is_little_endian,
+            transfer_syntax.is_deflated
+        )
 
         if bytestream is not None:
             req.Identifier = BytesIO(bytestream)
@@ -1673,9 +1682,12 @@ class Association(threading.Thread):
 
         # Encode the `dataset` using the agreed transfer syntax
         #   Will return None if failed to encode
-        bytestream = encode(dataset,
-                            transfer_syntax.is_implicit_VR,
-                            transfer_syntax.is_little_endian)
+        bytestream = encode(
+            dataset,
+            transfer_syntax.is_implicit_VR,
+            transfer_syntax.is_little_endian,
+            transfer_syntax.is_deflated
+        )
 
         if bytestream is not None:
             req.DataSet = BytesIO(bytestream)
@@ -1793,7 +1805,8 @@ class Association(threading.Thread):
                         identifier = decode(
                             rsp.Identifier,
                             transfer_syntax.is_implicit_VR,
-                            transfer_syntax.is_little_endian
+                            transfer_syntax.is_little_endian,
+                            transfer_syntax.is_deflated
                         )
                         if identifier and _config.LOG_RESPONSE_IDENTIFIERS:
                             LOGGER.info('')
@@ -1938,7 +1951,8 @@ class Association(threading.Thread):
                         identifier = decode(
                             rsp.Identifier,
                             transfer_syntax.is_implicit_VR,
-                            transfer_syntax.is_little_endian
+                            transfer_syntax.is_little_endian,
+                            transfer_syntax.is_deflated
                         )
                         if identifier and _config.LOG_RESPONSE_IDENTIFIERS:
                             LOGGER.info('')
@@ -2095,9 +2109,12 @@ class Association(threading.Thread):
         if dataset is not None:
             # Encode the `dataset` using the agreed transfer syntax
             #   Will return None if failed to encode
-            bytestream = encode(dataset,
-                                transfer_syntax.is_implicit_VR,
-                                transfer_syntax.is_little_endian)
+            bytestream = encode(
+                dataset,
+                transfer_syntax.is_implicit_VR,
+                transfer_syntax.is_little_endian,
+                transfer_syntax.is_deflated
+            )
 
             if bytestream is not None:
                 req.ActionInformation = BytesIO(bytestream)
@@ -2144,9 +2161,12 @@ class Association(threading.Thread):
                 # Attempt to decode the response's dataset
                 # pylint: disable=broad-except
                 try:
-                    action_reply = decode(bytestream,
-                                          transfer_syntax.is_implicit_VR,
-                                          transfer_syntax.is_little_endian)
+                    action_reply = decode(
+                        bytestream,
+                        transfer_syntax.is_implicit_VR,
+                        transfer_syntax.is_little_endian,
+                        transfer_syntax.is_deflated
+                    )
                 except Exception as ex:
                     LOGGER.error(
                         "Unable to decode the received 'Action Reply' dataset"
@@ -2331,9 +2351,12 @@ class Association(threading.Thread):
         if dataset is not None:
             # Encode the `dataset` using the agreed transfer syntax
             #   Will return None if failed to encode
-            bytestream = encode(dataset,
-                                transfer_syntax.is_implicit_VR,
-                                transfer_syntax.is_little_endian)
+            bytestream = encode(
+                dataset,
+                transfer_syntax.is_implicit_VR,
+                transfer_syntax.is_little_endian,
+                transfer_syntax.is_deflated
+            )
 
             if bytestream is not None:
                 req.AttributeList = BytesIO(bytestream)
@@ -2377,9 +2400,12 @@ class Association(threading.Thread):
                 # Attempt to decode the response's dataset
                 # pylint: disable=broad-except
                 try:
-                    attribute_list = decode(bytestream,
-                                            transfer_syntax.is_implicit_VR,
-                                            transfer_syntax.is_little_endian)
+                    attribute_list = decode(
+                        bytestream,
+                        transfer_syntax.is_implicit_VR,
+                        transfer_syntax.is_little_endian,
+                        transfer_syntax.is_deflated
+                    )
                 except Exception as ex:
                     LOGGER.error(
                         "Unable to decode the received 'Attribute List' "
@@ -2647,9 +2673,12 @@ class Association(threading.Thread):
         if dataset is not None:
             # Encode the `dataset` using the agreed transfer syntax
             #   Will return None if failed to encode
-            bytestream = encode(dataset,
-                                transfer_syntax.is_implicit_VR,
-                                transfer_syntax.is_little_endian)
+            bytestream = encode(
+                dataset,
+                transfer_syntax.is_implicit_VR,
+                transfer_syntax.is_little_endian,
+                transfer_syntax.is_deflated
+            )
 
             if bytestream is not None:
                 req.EventInformation = BytesIO(bytestream)
@@ -2696,9 +2725,12 @@ class Association(threading.Thread):
                 # Attempt to decode the response's dataset
                 # pylint: disable=broad-except
                 try:
-                    event_reply = decode(bytestream,
-                                         transfer_syntax.is_implicit_VR,
-                                         transfer_syntax.is_little_endian)
+                    event_reply = decode(
+                        bytestream,
+                        transfer_syntax.is_implicit_VR,
+                        transfer_syntax.is_little_endian,
+                        transfer_syntax.is_deflated
+                    )
                 except Exception as ex:
                     LOGGER.error(
                         "Unable to decode the received 'Event Reply' dataset"
@@ -2897,9 +2929,12 @@ class Association(threading.Thread):
                 # Attempt to decode the response's dataset
                 # pylint: disable=broad-except
                 try:
-                    attribute_list = decode(bytestream,
-                                            transfer_syntax.is_implicit_VR,
-                                            transfer_syntax.is_little_endian)
+                    attribute_list = decode(
+                        bytestream,
+                        transfer_syntax.is_implicit_VR,
+                        transfer_syntax.is_little_endian,
+                        transfer_syntax.is_deflated
+                    )
                 except Exception as ex:
                     LOGGER.error(
                         "Unable to decode the received 'Attribute List' "
@@ -3091,9 +3126,12 @@ class Association(threading.Thread):
 
         # Encode the `dataset` using the agreed transfer syntax
         #   Will return None if failed to encode
-        bytestream = encode(dataset,
-                            transfer_syntax.is_implicit_VR,
-                            transfer_syntax.is_little_endian)
+        bytestream = encode(
+            dataset,
+            transfer_syntax.is_implicit_VR,
+            transfer_syntax.is_little_endian,
+            transfer_syntax.is_deflated
+        )
 
         if bytestream is not None:
             req.ModificationList = BytesIO(bytestream)
@@ -3137,9 +3175,12 @@ class Association(threading.Thread):
                 # Attempt to decode the response's dataset
                 # pylint: disable=broad-except
                 try:
-                    attribute_list = decode(rsp.AttributeList,
-                                            transfer_syntax.is_implicit_VR,
-                                            transfer_syntax.is_little_endian)
+                    attribute_list = decode(
+                        bytestream,
+                        transfer_syntax.is_implicit_VR,
+                        transfer_syntax.is_little_endian,
+                        transfer_syntax.is_deflated
+                    )
                 except Exception as ex:
                     LOGGER.error(
                         "Unable to decode the received 'Attribute List' "

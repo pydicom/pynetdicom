@@ -27,6 +27,8 @@ Fixes
 * Fixed an ``InvalidEventError`` due to two A-ABORT messages being sent. Issue
   is triggered when the DIMSE and network timeouts have the same value and
   both expire while sending a DIMSE request. (:issue:`460`)
+* Fixed datasets encoding using *Deflated Explicit VR Little Endian* not
+  transferring correctly (:issue:`482`)
 
 
 Enhancements
@@ -109,6 +111,8 @@ Changes
   :meth:`AssociationServer.get_handlers()
   <pynetdicom.transport.AssociationServer.get_handlers>` now return a 2-tuple
   or list of 2-tuples.
+* Added `deflated` keyword parameter to :func:`~pynetdicom.dsutils.encode` and
+  :func:`~pynetdicom.dsutils.decode`
 
 
 Known Issues
