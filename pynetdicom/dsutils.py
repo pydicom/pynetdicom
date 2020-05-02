@@ -191,7 +191,6 @@ def pretty_element(elem):
                 value = '(Sequence with {} items)'.format(len(elem.value))
 
     except Exception as exc:
-        LOGGER.exception(exc)
         value = '(pynetdicom failed to beautify value)'
 
     return '({:04X},{:04X}) {} {: <40} # {} {}'.format(

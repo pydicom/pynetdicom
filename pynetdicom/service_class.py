@@ -134,7 +134,7 @@ class ServiceClass(object):
             identifier = decode(req.Identifier,
                                 transfer_syntax.is_implicit_VR,
                                 transfer_syntax.is_little_endian)
-            LOGGER.info('Find SCP Request Identifiers:')
+            LOGGER.info('Find SCP Request Identifier:')
             LOGGER.info('')
             LOGGER.debug('# DICOM Dataset')
             for line in pretty_dataset(identifier):
@@ -1512,7 +1512,7 @@ class QueryRetrieveServiceClass(ServiceClass):
             identifier = decode(req.Identifier,
                                 transfer_syntax.is_implicit_VR,
                                 transfer_syntax.is_little_endian)
-            LOGGER.info('Find SCP Request Identifiers:')
+            LOGGER.info('Find SCP Request Identifier:')
             LOGGER.info('')
             LOGGER.debug('# DICOM Dataset')
             for line in pretty_dataset(identifier):
@@ -1603,8 +1603,9 @@ class QueryRetrieveServiceClass(ServiceClass):
                 bytestream = BytesIO(bytestream)
 
                 if bytestream.getvalue() == b'':
-                    LOGGER.error("Failed to encode the received Identifier "
-                                 "dataset")
+                    LOGGER.error(
+                        "Failed to encode the received Identifier dataset"
+                    )
                     # Failure: Unable to Process - Can't decode dataset
                     #   returned by handler
                     rsp.Status = 0xC312
@@ -2437,8 +2438,9 @@ class RelevantPatientInformationQueryServiceClass(ServiceClass):
             bytestream = BytesIO(bytestream)
 
             if bytestream.getvalue() == b'':
-                LOGGER.error("Failed to encode the received Identifier "
-                             "dataset")
+                LOGGER.error(
+                    "Failed to encode the received Identifier dataset"
+                )
                 # Failure: Unable to Process - Can't encode dataset
                 #   returned by handler
                 rsp.Status = 0xC312
