@@ -258,6 +258,12 @@ convenience class for comparing, returning and yielding status values
 <a class="reference internal" href="../reference/generated/pynetdicom.association.Association.html#pynetdicom.association.Association" title="pynetdicom.association.Association"><code class="xref py py-class docutils literal notranslate"><span class="pre">Association</span></code></a> objects (<a class="reference external" href="https://github.com/pydicom/pynetdicom/issues/455">#455</a>)</p></li>
 <li><p>Prefer an exact match when selecting a valid presentation context over
 a convertible one (<a class="reference external" href="https://github.com/pydicom/pynetdicom/issues/472">#472</a>)</p></li>
+<li><p>Added configuration option <a class="reference internal" href="../reference/generated/pynetdicom._config.LOG_RESPONSE_IDENTIFIERS.html#pynetdicom._config.LOG_RESPONSE_IDENTIFIERS" title="pynetdicom._config.LOG_RESPONSE_IDENTIFIERS"><code class="xref py py-attr docutils literal notranslate"><span class="pre">_config.LOG_RESPONSE_IDENTIFIERS</span></code></a> for controlling whether or
+not the contents of C-FIND, C-GET and C-MOVE response <em>Identifier</em> datasets
+are logged</p></li>
+<li><p>Added <a class="reference internal" href="../reference/generated/pynetdicom.dsutils.pretty_dataset.html#pynetdicom.dsutils.pretty_dataset" title="pynetdicom.dsutils.pretty_dataset"><code class="xref py py-func docutils literal notranslate"><span class="pre">pretty_dataset()</span></code></a> and
+<a class="reference internal" href="../reference/generated/pynetdicom.dsutils.pretty_element.html#pynetdicom.dsutils.pretty_element" title="pynetdicom.dsutils.pretty_element"><code class="xref py py-func docutils literal notranslate"><span class="pre">pretty_element()</span></code></a> functions for producing pretty
+string output from datasets and elements</p></li>
 </ul>
 </div>
 <div class="section" id="changes">

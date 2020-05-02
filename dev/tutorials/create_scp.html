@@ -310,7 +310,7 @@ For the storage service, <a class="reference external" href="http://dicom.nema.o
 generic failure status. In <em>pynetdicom’s</em> case this range of statuses is used
 to provide more specific error information; by checking the
 <a class="reference internal" href="../service_classes/storage_service_class.html#service-store-pynd"><span class="std std-ref">storage service class page</span></a> in the
-documentation you can the corresponding error to a given status.</p>
+documentation you can find the corresponding error to a given status.</p>
 <p>In the case of <code class="docutils literal notranslate"><span class="pre">0xC211</span></code> the error is ‘Unhandled exception raised by the
 handler bound to <code class="docutils literal notranslate"><span class="pre">evt.EVT_C_STORE</span></code>’, so what does the output from the SCP
 look like?</p>
@@ -338,7 +338,7 @@ NotImplementedError: No handler has been bound to &#39;evt.EVT_C_STORE&#39;
 </pre></div>
 </div>
 <p>As the log confirms, the failure was caused by not having a handler bound to
-the <code class="docutils literal notranslate"><span class="pre">evt.EVT_C_STORE</span></code> event, so we better fix that.</p>
+the <code class="docutils literal notranslate"><span class="pre">evt.EVT_C_STORE</span></code> event, so we’d better fix that.</p>
 </div>
 <div class="section" id="events-and-handlers">
 <h2>Events and handlers<a class="headerlink" href="#events-and-handlers" title="Permalink to this headline">¶</a></h2>
@@ -360,7 +360,7 @@ SCP, such as when an SCU sends a store request to a Storage SCP. Hey,
 that sounds familiar…</p></li>
 </ol>
 <p>So we need to <a class="reference internal" href="../reference/generated/pynetdicom._handlers.doc_handle_store.html#pynetdicom._handlers.doc_handle_store" title="pynetdicom._handlers.doc_handle_store"><code class="xref py py-func docutils literal notranslate"><span class="pre">bind</span> <span class="pre">a</span> <span class="pre">handler</span></code></a> to
-<code class="docutils literal notranslate"><span class="pre">evt.EVT_C_STORE</span></code> to respond to incoming storage requests.</p>
+<code class="docutils literal notranslate"><span class="pre">evt.EVT_C_STORE</span></code> to respond to incoming store requests.</p>
 <div class="highlight-python notranslate"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre> 1
  2
  3

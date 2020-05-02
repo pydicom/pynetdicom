@@ -25,3 +25,12 @@ Decoding
    :toctree: generated/
 
    decode
+
+Miscellaneous
+-------------
+
+.. autosummary::
+   :toctree: generated/
+
+   pretty_dataset
+   pretty_element

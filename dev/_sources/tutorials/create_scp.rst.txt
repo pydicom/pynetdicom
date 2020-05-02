@@ -144,7 +144,7 @@ For the storage service, :dcm:`statuses<part04/sect_B.2.3.html>` in the
 generic failure status. In *pynetdicom's* case this range of statuses is used
 to provide more specific error information; by checking the
 :ref:`storage service class page<service_store_pynd>` in the
-documentation you can the corresponding error to a given status.
+documentation you can find the corresponding error to a given status.
 
 In the case of ``0xC211`` the error is 'Unhandled exception raised by the
 handler bound to ``evt.EVT_C_STORE``', so what does the output from the SCP
@@ -175,7 +175,7 @@ look like?
     NotImplementedError: No handler has been bound to 'evt.EVT_C_STORE'
 
 As the log confirms, the failure was caused by not having a handler bound to
-the ``evt.EVT_C_STORE`` event, so we better fix that.
+the ``evt.EVT_C_STORE`` event, so we'd better fix that.
 
 Events and handlers
 ===================
@@ -200,7 +200,7 @@ There are two areas where user intervention is required:
    that sounds familiar...
 
 So we need to :func:`bind a handler<_handlers.doc_handle_store>` to
-``evt.EVT_C_STORE`` to respond to incoming storage requests.
+``evt.EVT_C_STORE`` to respond to incoming store requests.
 
 .. code-block:: python
    :linenos:
