@@ -156,6 +156,7 @@ def pretty_element(elem):
     str
     """
     try:
+        value = elem.value
         if elem.VM == 0 and elem.VR != 'SQ':
             # Empty value
             value = '(no value available)'
@@ -188,8 +189,7 @@ def pretty_element(elem):
                 value = '(Sequence with {} item)'.format(len(elem.value))
             else:
                 value = '(Sequence with {} items)'.format(len(elem.value))
-        else:
-            value = elem.value
+
     except Exception as exc:
         LOGGER.exception(exc)
         value = '(pynetdicom failed to beautify value)'

@@ -548,6 +548,18 @@ class TestPrettyElement(object):
             ' SOPInstanceUID'
         ) == pretty_element(ds['SOPInstanceUID'])
 
+    def test_pretty_failure(self):
+        """Test failure to pretty up the element."""
+        def some_func():
+            pass
+
+        ds = Dataset()
+        ds.PixelData = some_func
+        ds['PixelData'].VR = 'OB'
+        assert (
+            '(7FE0,0010) OB (pynetdicom failed to beautify value)    # 1 PixelData'
+        ) == pretty_element(ds['PixelData'])
+
 
 class TestPrettyDataset(object):
     """Tests for dsutils.pretty_dataset()."""

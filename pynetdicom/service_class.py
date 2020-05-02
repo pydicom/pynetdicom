@@ -6,8 +6,8 @@ import traceback
 
 from pydicom.dataset import Dataset
 
-from pynetdicom import evt
-from pynetdicom.dsutils import decode, encode
+from pynetdicom import evt, _config
+from pynetdicom.dsutils import decode, encode, pretty_dataset
 from pynetdicom.dimse_primitives import (
     C_STORE, C_ECHO, C_MOVE, C_GET, C_FIND,
     N_ACTION, N_CREATE, N_DELETE, N_EVENT_REPORT, N_GET, N_SET
@@ -137,8 +137,8 @@ class ServiceClass(object):
             LOGGER.info('Find SCP Request Identifiers:')
             LOGGER.info('')
             LOGGER.debug('# DICOM Dataset')
-            for elem in identifier.iterall():
-                LOGGER.info(elem)
+            for line in pretty_dataset(identifier):
+                LOGGER.info(line)
             LOGGER.info('')
         except Exception as ex:
             LOGGER.error("Failed to decode the request's Identifier dataset.")
@@ -224,8 +224,9 @@ class ServiceClass(object):
                 bytestream = BytesIO(bytestream)
 
                 if bytestream.getvalue() == b'':
-                    LOGGER.error("Failed to encode the received Identifier "
-                                 "dataset")
+                    LOGGER.error(
+                        "Failed to encode the received Identifier dataset"
+                    )
                     # Failure: Unable to Process - Can't decode dataset
                     #   returned by handler
                     rsp.Status = 0xC312
@@ -235,12 +236,13 @@ class ServiceClass(object):
                 rsp.Identifier = bytestream
 
                 LOGGER.info('Find SCP Response: %s (Pending)', ii + 1)
-                LOGGER.debug('Find SCP Response Identifier:')
-                LOGGER.debug('')
-                LOGGER.debug('# DICOM Dataset')
-                for elem in rsp_identifier.iterall():
-                    LOGGER.debug(elem)
-                LOGGER.debug('')
+                if _config.LOG_RESPONSE_IDENTIFIERS:
+                    LOGGER.debug('Find SCP Response Identifier:')
+                    LOGGER.debug('')
+                    LOGGER.debug('# DICOM Dataset')
+                    for line in pretty_dataset(rsp_identifier):
+                        LOGGER.debug(line)
+                    LOGGER.debug('')
 
                 self.dimse.send_msg(rsp, context.context_id)
 
@@ -1513,8 +1515,8 @@ class QueryRetrieveServiceClass(ServiceClass):
             LOGGER.info('Find SCP Request Identifiers:')
             LOGGER.info('')
             LOGGER.debug('# DICOM Dataset')
-            for elem in identifier.iterall():
-                LOGGER.info(elem)
+            for line in pretty_dataset(identifier):
+                LOGGER.info(line)
             LOGGER.info('')
         except Exception as ex:
             LOGGER.error("Failed to decode the request's Identifier dataset.")
@@ -1612,12 +1614,13 @@ class QueryRetrieveServiceClass(ServiceClass):
                 rsp.Identifier = bytestream
 
                 LOGGER.info('Find SCP Response: %s (Pending)', ii + 1)
-                LOGGER.debug('Find SCP Response Identifier:')
-                LOGGER.debug('')
-                LOGGER.debug('# DICOM Dataset')
-                for elem in rsp_identifier.iterall():
-                    LOGGER.debug(elem)
-                LOGGER.debug('')
+                if _config.LOG_RESPONSE_IDENTIFIERS:
+                    LOGGER.debug('Find SCP Response Identifier:')
+                    LOGGER.debug('')
+                    LOGGER.debug('# DICOM Dataset')
+                    for line in pretty_dataset(rsp_identifier):
+                        LOGGER.debug(line)
+                    LOGGER.debug('')
 
                 self.dimse.send_msg(rsp, context.context_id)
 
@@ -1935,8 +1938,8 @@ class QueryRetrieveServiceClass(ServiceClass):
             LOGGER.info('Move SCP Request Identifier:')
             LOGGER.info('')
             LOGGER.debug('# DICOM Data Set')
-            for elem in identifier.iterall():
-                LOGGER.info(elem)
+            for line in pretty_dataset(identifier):
+                LOGGER.info(line)
             LOGGER.info('')
         except Exception as exc:
             LOGGER.error("Failed to decode the request's Identifier dataset")
@@ -2355,8 +2358,8 @@ class RelevantPatientInformationQueryServiceClass(ServiceClass):
             LOGGER.info('Find SCP Request Identifier:')
             LOGGER.info('')
             LOGGER.debug('# DICOM Dataset')
-            for elem in identifier.iterall():
-                LOGGER.info(elem)
+            for line in pretty_dataset(identifier):
+                LOGGER.info(line)
             LOGGER.info('')
         except Exception as ex:
             LOGGER.error("Failed to decode the request's Identifier dataset.")
@@ -2445,12 +2448,13 @@ class RelevantPatientInformationQueryServiceClass(ServiceClass):
             rsp.Identifier = bytestream
 
             LOGGER.info('Find SCP Response: (Pending)')
-            LOGGER.debug('Find SCP Response Identifier:')
-            LOGGER.debug('')
-            LOGGER.debug('# DICOM Dataset')
-            for elem in rsp_identifier.iterall():
-                LOGGER.debug(elem)
-            LOGGER.debug('')
+            if _config.LOG_RESPONSE_IDENTIFIERS:
+                LOGGER.debug('Find SCP Response Identifier:')
+                LOGGER.debug('')
+                LOGGER.debug('# DICOM Dataset')
+                for line in pretty_dataset(rsp_identifier):
+                    LOGGER.debug(line)
+                LOGGER.debug('')
 
             # Send pending response
             self.dimse.send_msg(rsp, context.context_id)
