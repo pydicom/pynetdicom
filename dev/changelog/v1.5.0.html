@@ -210,6 +210,8 @@ during presentation context negotiation (<a class="reference external" href="htt
 <li><p>Fixed an <code class="docutils literal notranslate"><span class="pre">InvalidEventError</span></code> due to two A-ABORT messages being sent. Issue
 is triggered when the DIMSE and network timeouts have the same value and
 both expire while sending a DIMSE request. (<a class="reference external" href="https://github.com/pydicom/pynetdicom/issues/460">#460</a>)</p></li>
+<li><p>Fixed datasets encoding using <em>Deflated Explicit VR Little Endian</em> not
+transferring correctly (<a class="reference external" href="https://github.com/pydicom/pynetdicom/issues/482">#482</a>)</p></li>
 </ul>
 </div>
 <div class="section" id="enhancements">
@@ -279,6 +281,8 @@ waiting for the DIMSE timeout. (<a class="reference external" href="https://gith
 <li><p><a class="reference internal" href="../reference/generated/pynetdicom.association.Association.html#pynetdicom.association.Association.get_handlers" title="pynetdicom.association.Association.get_handlers"><code class="xref py py-meth docutils literal notranslate"><span class="pre">Association.get_handlers()</span></code></a> and
 <a class="reference internal" href="../reference/generated/pynetdicom.transport.AssociationServer.html#pynetdicom.transport.AssociationServer.get_handlers" title="pynetdicom.transport.AssociationServer.get_handlers"><code class="xref py py-meth docutils literal notranslate"><span class="pre">AssociationServer.get_handlers()</span></code></a> now return a 2-tuple
 or list of 2-tuples.</p></li>
+<li><p>Added <cite>deflated</cite> keyword parameter to <a class="reference internal" href="../reference/generated/pynetdicom.dsutils.encode.html#pynetdicom.dsutils.encode" title="pynetdicom.dsutils.encode"><code class="xref py py-func docutils literal notranslate"><span class="pre">encode()</span></code></a> and
+<a class="reference internal" href="../reference/generated/pynetdicom.dsutils.decode.html#pynetdicom.dsutils.decode" title="pynetdicom.dsutils.decode"><code class="xref py py-func docutils literal notranslate"><span class="pre">decode()</span></code></a></p></li>
 </ul>
 </div>
 <div class="section" id="known-issues">
