@@ -153,7 +153,7 @@ def encode_element(elem, is_implicit_vr=True, is_little_endian=True):
 def pretty_dataset(ds, indent=0, indent_char='  '):
     """Return a list of pretty dataset strings.
 
-    ..versionadded:: 1.5
+    .. versionadded:: 1.5
 
     Parameters
     ----------
@@ -185,7 +185,7 @@ def pretty_dataset(ds, indent=0, indent_char='  '):
 def pretty_element(elem):
     """Return a pretty element string.
 
-    ..versionadded:: 1.5
+    .. versionadded:: 1.5
 
     Parameters
     ----------

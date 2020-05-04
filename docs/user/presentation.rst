@@ -146,9 +146,9 @@ unless you propose (and get accepted) a presentation context with a matching
 transfer syntax.
 
 .. note::
-   Uncompressed transfer syntaxes are the exception to this rule as
-   *pydicom* is able to freely convert between these (provided the endianness
-   remains the same).
+   Uncompressed and deflated transfer syntaxes are the exception to this rule
+   as *pydicom* is able to freely convert between these (provided the
+   endianness remains the same).
 
 If you have data encoded in a variety of transfer syntaxes then you can propose
 multiple presentation contexts with the same abstract syntax but different

@@ -24,7 +24,8 @@ from pydicom.uid import (
     JPEGBaseline,
     JPEG2000,
     JPEG2000Lossless,
-    DeflatedExplicitVRLittleEndian
+    DeflatedExplicitVRLittleEndian,
+    ExplicitVRBigEndian
 )
 
 from pynetdicom import (
@@ -65,7 +66,7 @@ from .parrot import start_server, ThreadedParrot
 TEST_DS_DIR = os.path.join(os.path.dirname(__file__), 'dicom_files')
 BIG_DATASET = dcmread(os.path.join(TEST_DS_DIR, 'RTImageStorage.dcm')) # 2.1 M
 DATASET = dcmread(os.path.join(TEST_DS_DIR, 'CTImageStorage.dcm'))
-# JPEG2000Lossless UID
+# JPEG2000Lossless
 COMP_DATASET = dcmread(
     os.path.join(TEST_DS_DIR, 'MRImageStorage_JPG2000_Lossless.dcm')
 )
@@ -4298,6 +4299,8 @@ class TestGetValidContext(object):
         assert cx.transfer_syntax[0] == ImplicitVRLittleEndian
         assert cx.as_scu is True
 
+        self.scp.abort()
+
     def test_explicit_implicit(self):
         """Test matching when both implicit and explicit are available."""
         self.scp = DummyVerificationSCP()
@@ -4327,6 +4330,35 @@ class TestGetValidContext(object):
         assert cx.abstract_syntax == CTImageStorage
         assert cx.transfer_syntax[0] == ImplicitVRLittleEndian
         assert cx.as_scu is True
+
+        self.scp.abort()
+
+    def test_little_big(self):
+        """Test no match from little to big endian."""
+        self.scp = DummyVerificationSCP()
+        self.scp.ae.add_supported_context(MRImageStorage, ExplicitVRLittleEndian)
+        self.scp.ae.add_supported_context(CTImageStorage, ImplicitVRLittleEndian)
+        self.scp.start()
+
+        ae = AE()
+        ae.add_requested_context(MRImageStorage, ExplicitVRBigEndian)
+        ae.add_requested_context(CTImageStorage, ImplicitVRLittleEndian)
+        ae.acse_timeout = 5
+        ae.dimse_timeout = 5
+        assoc = ae.associate('localhost', 11112)
+        assert assoc.is_established
+
+        msg = (
+            r"No presentation context for 'MR Image Storage' has been "
+            r"accepted by the peer with 'Explicit VR Big Endian' transfer "
+            r"syntax for the SCU role"
+        )
+        with pytest.raises(ValueError, match=msg):
+            assoc._get_valid_context(
+                MRImageStorage, ExplicitVRBigEndian, 'scu'
+            )
+
+        self.scp.abort()
 
 
 class TestEventHandlingAcceptor(object):
