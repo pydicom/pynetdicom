@@ -326,6 +326,11 @@ class Association(threading.Thread):
                            context_id=None):
         """Return a valid presentation context matching the parameters.
 
+        .. versionchanged:: 1.5
+
+            Changed to prefer an exact matching context over a convertible one
+            and to reject contexts without matching endianness
+
         Parameters
         ----------
         ab_syntax : str or pydicom.uid.UID
@@ -378,12 +383,20 @@ class Association(threading.Thread):
                 if tr_syntax == cx_syntax:
                     # Exact match to transfer syntax
                     return cx
-                else:
-                    if (tr_syntax.is_compressed or cx_syntax.is_compressed):
-                        # Compressed transfer syntaxes are not convertible
-                        continue
+
+                # Compressed transfer syntaxes are not convertible
+                #   This excludes deflated transfer syntaxes
+                if tr_syntax.is_compressed or cx_syntax.is_compressed:
+                    continue
+
+                # Filter out contexts where the endianness doesn't match
+                if tr_syntax.is_little_endian != cx_syntax.is_little_endian:
+                    continue
 
             # Match to convertible transfer syntaxes
+            #   Allowable matches:
+            #       explicit VR <-> implicit VR
+            #       deflated <-> inflated
             matches.append(cx)
 
         if matches:
