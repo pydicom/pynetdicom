@@ -127,7 +127,7 @@ master_doc = 'index'
 
 # General information about the project.
 project = u'pynetdicom'
-copyright = u'2018-19, pynetdicom contributors'
+copyright = u'2018-20, pynetdicom contributors'
 
 # The version info for the project you're documenting, acts as replacement for
 # |version| and |release|, also used in various other places throughout the
@@ -298,10 +298,7 @@ def generate_example_rst(app, what, name, obj, options, lines):
 
 
 # Config for sphinx_issues
-
-ref_uri = 'https://github.com/pydicom/pynetdicom/{ref_type}/{ref_no}'
-ref_github_path = 'pydicom/pynetdicom'
-ref_user_uri = 'https://github.com/{user}'
+issues_github_path = 'pydicom/pynetdicom'
 
 
 def setup(app):

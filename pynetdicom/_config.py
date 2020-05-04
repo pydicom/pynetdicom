@@ -42,11 +42,27 @@ USE_SHORT_DIMSE_AET = True
 
 If ``False`` then elements with a VR of AE in DIMSE messages will be padded
 with trailing spaces up to the maximum allowable length (16 bytes), otherwise
-no padding will be padded added.
+no padding will be added.
 
 Examples
 --------
 
 >>> from pynetdicom import _config
 >>> _config.USE_SHORT_DIMSE_AET = False
+"""
+
+
+LOG_RESPONSE_IDENTIFIERS = True
+"""Log incoming C-FIND, C-GET and C-MOVE Identifier datasets.
+
+.. versionadded:: 1.5
+
+If ``True`` (default) then the *Identifier* datasets received in Pending
+responses to C-FIND, C-GET and C-MOVE requests will be logged.
+
+Examples
+--------
+
+>>> from pynetdicom import _config
+>>> _config.LOG_RESPONSE_IDENTIFIERS = False
 """

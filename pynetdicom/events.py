@@ -495,6 +495,9 @@ class Event(object):
 
         Contains the following File Meta Information elements:
 
+        * (0002,0000) *File Meta Information Group Length* - set as ``0``, will
+          be updated with the correct value during write
+        * (0002,0001) *File Meta Information Version* - set as ``0x0001``
         * (0002,0002) *Media Storage SOP Class UID* - set from the request's
           *Affected SOP Class UID*
         * (0002,0003) *Media Storage SOP Instance UID* - set from the request's
@@ -512,18 +515,24 @@ class Event(object):
         Add the File Meta Information to the decoded *Data Set* and save it to
         the :dcm:`DICOM File Format<part10/chapter_7.html>`.
 
-        >>> ds = event.dataset
-        >>> ds.file_meta = event.file_meta
-        >>> ds.save_as('example.dcm')
+        .. code-block:: python
+
+            >>> ds = event.dataset
+            >>> ds.file_meta = event.file_meta
+            >>> ds.save_as('example.dcm', write_like_original=False)
 
         Encode the File Meta Information in a new file and append the encoded
         *Data Set* to it. This skips having to decode/re-encode the *Data Set*
         as in the previous example.
 
-        >>> from pynetdicom.dsutils import encode
-        >>> with open('example.dcm', 'wb') as fp:
-        ...     fp.write(encode(event.file_meta, False, True))
-        ...     fp.write(event.request.DataSet.getvalue())
+        .. code-block:: python
+
+           >>> from pydicom.filewriter import write_file_meta_info
+           >>> with open('example.dcm', 'wb') as f:
+           ...     f.write(b'\x00' * 128)
+           ...     f.write(b'DICM')
+           ...     write_file_meta_info(f, event.file_meta)
+           ...     f.write(event.request.DataSet.getvalue())
 
         Returns
         -------
@@ -547,6 +556,8 @@ class Event(object):
         # A C-STORE request must have AffectedSOPClassUID and
         #   AffectedSOPInstanceUID
         meta = Dataset()
+        meta.FileMetaInformationGroupLength = 0
+        meta.FileMetaInformationVersion = b'\x00\x01'
         meta.MediaStorageSOPClassUID = self.request.AffectedSOPClassUID
         meta.MediaStorageSOPInstanceUID = self.request.AffectedSOPInstanceUID
         meta.TransferSyntaxUID = self.context.transfer_syntax
@@ -593,9 +604,12 @@ class Event(object):
             if bytestream and bytestream.getvalue() != b'':
                 # Dataset-like parameter has been used
                 t_syntax = self.context.transfer_syntax
-                ds = decode(bytestream,
-                            t_syntax.is_implicit_VR,
-                            t_syntax.is_little_endian)
+                ds = decode(
+                    bytestream,
+                    t_syntax.is_implicit_VR,
+                    t_syntax.is_little_endian,
+                    t_syntax.is_deflated
+                )
 
                 ds.is_little_endian = t_syntax.is_little_endian
                 ds.is_implicit_VR = t_syntax.is_implicit_VR
@@ -609,7 +623,7 @@ class Event(object):
             self._hash = hash(bytestream)
             return self._decoded
 
-        except AttributeError:
+        except AttributeError as exc:
             pass
 
         raise AttributeError(exc_msg)

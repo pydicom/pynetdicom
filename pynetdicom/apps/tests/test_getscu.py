@@ -59,11 +59,20 @@ def start_getscu(args):
     return subprocess.Popen(pargs)
 
 
-class TestGetSCU(object):
-    """Tests for findscu.py"""
+def start_getscu_cli(args):
+    """Start the getscu app using CLI and return the process."""
+    pargs = [
+        which('python'), '-m', 'pynetdicom', 'getscu', 'localhost', '11112'
+    ] + [*args]
+    return subprocess.Popen(pargs)
+
+
+class GetSCUBase(object):
+    """Tests for getscu.py"""
     def setup(self):
         """Run prior to each test"""
         self.ae = None
+        self.func = None
 
         self.response = ds = Dataset()
         ds.file_meta = Dataset()
@@ -101,7 +110,7 @@ class TestGetSCU(object):
         ae.supported_contexts = QueryRetrievePresentationContexts
         scp = ae.start_server(('', 11112), block=False, evt_handlers=handlers)
 
-        p = start_getscu(['-k', "PatientName="])
+        p = self.func(['-k', "PatientName="])
         p.wait()
         assert p.returncode == 0
 
@@ -129,7 +138,7 @@ class TestGetSCU(object):
 
     def test_no_peer(self, capfd):
         """Test trying to connect to non-existent host."""
-        p = start_getscu(['-k', "PatientName="])
+        p = self.func(['-k', "PatientName="])
         p.wait()
         assert p.returncode == 1
 
@@ -140,7 +149,7 @@ class TestGetSCU(object):
 
     def test_bad_input(self, capfd):
         """Test being unable to read the input file."""
-        p = start_getscu(['-f', 'no-such-file.dcm'])
+        p = self.func(['-f', 'no-such-file.dcm'])
         p.wait()
         assert p.returncode == 1
 
@@ -149,7 +158,7 @@ class TestGetSCU(object):
 
     def test_flag_version(self, capfd):
         """Test --version flag."""
-        p = start_getscu(['--version'])
+        p = self.func(['--version'])
         p.wait()
         assert p.returncode == 0
 
@@ -165,7 +174,7 @@ class TestGetSCU(object):
         ae.add_supported_context(VerificationSOPClass)
         scp = ae.start_server(('', 11112), block=False)
 
-        p = start_getscu(['-q', '-k', 'PatientName='])
+        p = self.func(['-q', '-k', 'PatientName='])
         p.wait()
         assert p.returncode == 1
 
@@ -191,7 +200,7 @@ class TestGetSCU(object):
         ae.supported_contexts = QueryRetrievePresentationContexts
         scp = ae.start_server(('', 11112), block=False, evt_handlers=handlers)
 
-        p = start_getscu(['-v', '-k', 'PatientName='])
+        p = self.func(['-v', '-k', 'PatientName='])
         p.wait()
         assert p.returncode == 0
 
@@ -222,7 +231,7 @@ class TestGetSCU(object):
         ae.supported_contexts = QueryRetrievePresentationContexts
         scp = ae.start_server(('', 11112), block=False, evt_handlers=handlers)
 
-        p = start_getscu(['-d', '-k', 'PatientName='])
+        p = self.func(['-d', '-k', 'PatientName='])
         p.wait()
         assert p.returncode == 0
 
@@ -234,7 +243,7 @@ class TestGetSCU(object):
 
     def test_flag_log_collision(self):
         """Test error with -q -v and -d flag."""
-        p = start_getscu(['-v', '-d'])
+        p = self.func(['-v', '-d'])
         p.wait()
         assert p.returncode != 0
 
@@ -262,7 +271,7 @@ class TestGetSCU(object):
         ae.supported_contexts = QueryRetrievePresentationContexts
         scp = ae.start_server(('', 11112), block=False, evt_handlers=handlers)
 
-        p = start_getscu(['-aet', 'MYSCU', '-k', 'PatientName='])
+        p = self.func(['-aet', 'MYSCU', '-k', 'PatientName='])
         p.wait()
         assert p.returncode == 0
 
@@ -292,7 +301,7 @@ class TestGetSCU(object):
         scp = ae.start_server(('', 11112), block=False, evt_handlers=handlers)
 
 
-        p = start_getscu(['-aec', 'YOURSCP', '-k', 'PatientName='])
+        p = self.func(['-aec', 'YOURSCP', '-k', 'PatientName='])
         p.wait()
         assert p.returncode == 0
 
@@ -331,7 +340,7 @@ class TestGetSCU(object):
         ae.supported_contexts = QueryRetrievePresentationContexts
         scp = ae.start_server(('', 11112), block=False, evt_handlers=handlers)
 
-        p = start_getscu(['-ta', '0.05', '-d', '-k', 'PatientName='])
+        p = self.func(['-ta', '0.05', '-d', '-k', 'PatientName='])
         p.wait()
         assert p.returncode == 1
 
@@ -370,7 +379,7 @@ class TestGetSCU(object):
         scp = ae.start_server(('', 11112), block=False, evt_handlers=handlers)
 
 
-        p = start_getscu(['-td', '0.05', '-d', '-k', 'PatientName='])
+        p = self.func(['-td', '0.05', '-d', '-k', 'PatientName='])
         p.wait()
         assert p.returncode == 0
 
@@ -413,7 +422,7 @@ class TestGetSCU(object):
         scp = ae.start_server(('', 11112), block=False, evt_handlers=handlers)
 
 
-        p = start_getscu(['--max-pdu', '123456', '-k', 'PatientName='])
+        p = self.func(['--max-pdu', '123456', '-k', 'PatientName='])
         p.wait()
         assert p.returncode == 0
 
@@ -443,7 +452,7 @@ class TestGetSCU(object):
         ae.supported_contexts = QueryRetrievePresentationContexts
         scp = ae.start_server(('', 11112), block=False, evt_handlers=handlers)
 
-        p = start_getscu(['-P', '-k', 'PatientName='])
+        p = self.func(['-P', '-k', 'PatientName='])
         p.wait()
         assert p.returncode == 0
 
@@ -474,7 +483,7 @@ class TestGetSCU(object):
         ae.supported_contexts = QueryRetrievePresentationContexts
         scp = ae.start_server(('', 11112), block=False, evt_handlers=handlers)
 
-        p = start_getscu(['-S', '-k', 'PatientName='])
+        p = self.func(['-S', '-k', 'PatientName='])
         p.wait()
         assert p.returncode == 0
 
@@ -503,7 +512,7 @@ class TestGetSCU(object):
         ae.supported_contexts = QueryRetrievePresentationContexts
         scp = ae.start_server(('', 11112), block=False, evt_handlers=handlers)
 
-        p = start_getscu(['-O', '-k', 'PatientName='])
+        p = self.func(['-O', '-k', 'PatientName='])
         p.wait()
         assert p.returncode == 0
 
@@ -535,7 +544,7 @@ class TestGetSCU(object):
 
         assert 'test_dir' not in os.listdir()
 
-        p = start_getscu(['-od', 'test_dir', '-k', 'PatientName='])
+        p = self.func(['-od', 'test_dir', '-k', 'PatientName='])
         p.wait()
         assert p.returncode == 0
 
@@ -562,10 +571,40 @@ class TestGetSCU(object):
         ae.supported_contexts = QueryRetrievePresentationContexts
         scp = ae.start_server(('', 11112), block=False, evt_handlers=handlers)
 
-        p = start_getscu(['--ignore', '-k', 'PatientName='])
+        p = self.func(['--ignore', '-k', 'PatientName='])
         p.wait()
         assert p.returncode == 0
 
         scp.shutdown()
 
         assert 'CT.1.2.3.4' not in os.listdir()
+
+
+class TestGetSCU(GetSCUBase):
+    """Tests for getscu.py"""
+    def setup(self):
+        """Run prior to each test"""
+        self.ae = None
+        self.func = start_getscu
+
+        self.response = ds = Dataset()
+        ds.file_meta = Dataset()
+        ds.file_meta.TransferSyntaxUID = ImplicitVRLittleEndian
+        ds.SOPClassUID = CTImageStorage
+        ds.SOPInstanceUID = '1.2.3.4'
+        ds.PatientName = 'Citizen^Jan'
+
+
+class TestGetSCUCLI(GetSCUBase):
+    """Tests for getscu using CLI"""
+    def setup(self):
+        """Run prior to each test"""
+        self.ae = None
+        self.func = start_getscu_cli
+
+        self.response = ds = Dataset()
+        ds.file_meta = Dataset()
+        ds.file_meta.TransferSyntaxUID = ImplicitVRLittleEndian
+        ds.SOPClassUID = CTImageStorage
+        ds.SOPInstanceUID = '1.2.3.4'
+        ds.PatientName = 'Citizen^Jan'

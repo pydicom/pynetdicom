@@ -1,64 +1,66 @@
 =======
 echoscu
 =======
-    ``echoscu.py [options] addr port``
+
+.. code-block:: text
+
+    $ python -m pynetdicom echoscu [options] addr port
 
 Description
 ===========
 The ``echoscu`` application implements a Service Class User (SCU) for the
 :dcm:`Verification Service Class<part04/chapter_A.html>`. It establishes an
-association with a peer Application Entity (AE), sends a DICOM
-:dcm:`C-ECHO-RQ<part07/sect_9.3.5.html#sect_9.3.5.1>` message and waits for a
+association with a peer Application Entity (AE), sends a
+:dcm:`C-ECHO<part07/sect_9.3.5.html#sect_9.3.5.1>` request and waits for a
 response. The application can be used to verify basic DICOM connectivity.
 
+Usage
+=====
+
 The following example shows what happens when it's succesfully run on
-an SCP at IP 127.0.0.1 and listen port 11112 that supports the *Verification
-Service*:
+an SCP at IP ``127.0.0.1`` and listen port ``11112`` that supports the
+*Verification Service*:
 
 .. code-block:: text
 
-    user@host: python echoscu.py 127.0.0.1 11112
-    user@host:
+    $ python -m pynetdicom echoscu 127.0.0.1 11112
 
 When attempting to send a C-ECHO request to an SCP that doesn't support the
 *Verification Service*:
 
 .. code-block:: text
 
-    user@host: python echoscu.py 127.0.0.1 11112
+    $ python -m pynetdicom echoscu 127.0.0.1 11112
     E: No accepted presentation contexts
-    user@host:
 
 When the association request is rejected by the SCP (in this case because the
 called AE title wasn't recognised):
 
 .. code-block:: text
 
-    user@host: python echoscu.py 127.0.0.1 11112
+    $ python -m pynetdicom echoscu 127.0.0.1 11112
     E: Association Rejected
     E: Result: Rejected Permanent, Source: Service User
     E: Reason: Called AE title not recognised
-    user@host:
 
 When attempting to associate with a non-DICOM peer:
 
 .. code-block:: text
 
-    user@host: python echoscu.py 127.0.0.1 11112
+    $ python -m pynetdicom echoscu 127.0.0.1 11112
     E: Association request failed: unable to connect to remote
     E: TCP Initialisation Error: Connection refused
-    user@host:
 
 More information is available with the ``-d`` flag:
 
 .. code-block:: text
 
-    user@host: python echoscu.py 127.0.0.1 11112 -d
+    $ python -m pynetdicom echoscu 127.0.0.1 11112 -d
     D: echoscu.py v0.7.0
     D:
     I: Requesting Association
     D: Request Parameters:
-    D: ========================= BEGIN A-ASSOCIATE-RQ PDU =========================
+    D: ======================= OUTGOING A-ASSOCIATE-RQ PDU ========================
     ...
     D: ========================== END A-ASSOCIATE-AC PDU ==========================
     I: Association Accepted
@@ -66,7 +68,6 @@ More information is available with the ``-d`` flag:
     D: pydicom.read_dataset() TransferSyntax="Little Endian Implicit"
     I: Received Echo Response (Status: Success)
     I: Releasing Association
-    user@host:
 
 Parameters
 ==========

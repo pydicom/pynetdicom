@@ -1,7 +1,10 @@
 ========
 storescu
 ========
-    ``storescu.py [options] addr port dcmfile-in``
+
+.. code-block:: text
+
+    $ python -m pynetdicom storescu [options] addr port path
 
 Description
 ===========
@@ -9,36 +12,38 @@ The ``storescu`` application implements a *Service Class User* (SCU) for
 the :dcm:`Storage Service Class<part04/chapter_B.html>`. It requests an
 association with a peer Application Entity on IP address ``addr`` and listen
 port ``port`` and once established requests the transfer
-of the SOP Instance in ``dcmfile-in``.
+of the SOP Instance at ``path`` if ``path`` is a file, or the SOP Instances in
+``path`` if ``path`` is a directory.
+
+Usage
+=====
 
 The following example shows what happens when it is succesfully run on
-an SCP at IP 127.0.0.1 and listen port 11112 that supports the *Storage
+an SCP at IP ``127.0.0.1`` and listen port ``11112`` that supports the *Storage
 Service*:
 
 .. code-block:: text
 
-    user@host: python storescu.py 127.0.0.1 11112 path/to/file
-    user@host:
+    $ python -m pynetdicom storescu 127.0.0.1 11112 path/to/dataset
 
 When attempting to use the SCP with an unsupported SOP Class:
 
 .. code-block:: text
 
-    user@host: python storescu.py 127.0.0.1 11112 path/to/file
+    $ python -m pynetdicom storescu 127.0.0.1 11112 path/to/dataset
     E: No accepted presentation contexts
-    user@host:
 
 More information is available with the ``-d`` flag:
 
 .. code-block:: text
 
-    user@host: python storescu.py 127.0.0.1 11112 path/to/file -d
+    $ python -m pynetdicom storescu 127.0.0.1 11112 path/to/dataset -d
     D: storescu.py v0.3.0
     D:
     D: Checking input file
     I: Requesting Association
     D: Request Parameters:
-    D: ========================= BEGIN A-ASSOCIATE-RQ PDU =========================
+    D: ======================= OUTGOING A-ASSOCIATE-RQ PDU ========================
     ...
     D: ========================== END A-ASSOCIATE-AC PDU ==========================
     I: Association Accepted
@@ -63,7 +68,6 @@ More information is available with the ``-d`` flag:
     D: Status                        : 0x0000 - Success
     D: ============================ END DIMSE MESSAGE =============================
     I: Releasing Association
-    user@host:
 
 Parameters
 ==========
@@ -71,8 +75,8 @@ Parameters
             TCP/IP address or hostname of DICOM peer
 ``port``
             TCP/IP port number of peer
-``dcmfile-in``
-            DICOM file to be transmitted
+``path``
+            path to the DICOM file or directory to be transmitted
 
 Options
 =======
@@ -88,6 +92,11 @@ General Options
             One of [``'critical'``, ``'error'``, ``'warning'``, ``'info'``,
             ``'debug'``], prints logging messages with corresponding level
             or higher
+
+Input Options
+-------------
+``-r    --recurse``
+            recursively search the given directory
 
 Network Options
 ---------------
@@ -117,8 +126,8 @@ Transfer Syntax Options
 Miscellaneous Options
 ---------------------
 ``-cx   --single-context``
-            only request a single presentation context that matches the input
-            DICOM file
+            only request the presentation contexts required for the
+            input DICOM file(s)
 
 
 DICOM Conformance
@@ -126,8 +135,8 @@ DICOM Conformance
 The storescu application supports all of the *Storage Service Class'* supported
 SOP Classes as SCU.
 
-The application will request presentation contexts using these transfer
-syntaxes:
+By default, the application will request presentation contexts using these
+transfer syntaxes:
 
 +------------------------+----------------------------------------------------+
 | UID                    | Transfer Syntax                                    |

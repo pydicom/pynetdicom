@@ -1,8 +1,8 @@
 .. examples:
 
-########
-Examples
-########
+#############
+Code Examples
+#############
 
 
 

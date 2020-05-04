@@ -24,6 +24,8 @@ from pydicom.uid import (
     JPEGBaseline,
     JPEG2000,
     JPEG2000Lossless,
+    DeflatedExplicitVRLittleEndian,
+    ExplicitVRBigEndian
 )
 
 from pynetdicom import (
@@ -48,6 +50,7 @@ from pynetdicom.sop_class import (
     PatientRootQueryRetrieveInformationModelMove,
     PatientStudyOnlyQueryRetrieveInformationModelMove,
     StudyRootQueryRetrieveInformationModelMove,
+    SecondaryCaptureImageStorage
 )
 from .dummy_c_scp import (
     DummyVerificationSCP, DummyStorageSCP, DummyFindSCP, DummyGetSCP,
@@ -63,9 +66,13 @@ from .parrot import start_server, ThreadedParrot
 TEST_DS_DIR = os.path.join(os.path.dirname(__file__), 'dicom_files')
 BIG_DATASET = dcmread(os.path.join(TEST_DS_DIR, 'RTImageStorage.dcm')) # 2.1 M
 DATASET = dcmread(os.path.join(TEST_DS_DIR, 'CTImageStorage.dcm'))
-# JPEG2000Lossless UID
+# JPEG2000Lossless
 COMP_DATASET = dcmread(
     os.path.join(TEST_DS_DIR, 'MRImageStorage_JPG2000_Lossless.dcm')
+)
+# DeflatedExplicitVRLittleEndian
+DEFL_DATASET = dcmread(
+    os.path.join(TEST_DS_DIR, 'SCImageStorage_Deflated.dcm')
 )
 
 
@@ -1645,6 +1652,40 @@ class TestAssociationSendCStore(object):
         assert assoc.is_released
 
         scp.shutdown()
+
+    def test_send_deflated(self):
+        """Test sending a deflated encoded dataset (482)."""
+        recv_ds = []
+        def handle_store(event):
+            recv_ds.append(event.dataset)
+            return 0x0000
+
+        handlers = [(evt.EVT_C_STORE, handle_store)]
+
+        self.ae = ae = AE()
+        ae.acse_timeout = 5
+        ae.dimse_timeout = 5
+        ae.network_timeout = 5
+        ae.add_supported_context(
+            SecondaryCaptureImageStorage, DeflatedExplicitVRLittleEndian
+        )
+        scp = ae.start_server(('', 11112), block=False, evt_handlers=handlers)
+
+        ae.add_requested_context(
+            SecondaryCaptureImageStorage, DeflatedExplicitVRLittleEndian
+        )
+        assoc = ae.associate('localhost', 11112)
+
+        assert assoc.is_established
+
+        status = assoc.send_c_store(DEFL_DATASET)
+
+        assoc.release()
+        assert assoc.is_released
+
+        scp.shutdown()
+
+        assert '^^^^' == recv_ds[0].PatientName
 
 
 class TestAssociationSendCFind(object):
@@ -4227,6 +4268,98 @@ class TestGetValidContext(object):
             assoc._get_valid_context(CTImageStorage,
                                      ImplicitVRLittleEndian,
                                      'scu')
+
+    def test_implicit_explicit(self):
+        """Test matching when both implicit and explicit are available."""
+        self.scp = DummyVerificationSCP()
+        self.scp.ae.add_supported_context(CTImageStorage, ImplicitVRLittleEndian)
+        self.scp.ae.add_supported_context(CTImageStorage, ExplicitVRLittleEndian)
+        self.scp.start()
+        ae = AE()
+        ae.add_requested_context(CTImageStorage, ImplicitVRLittleEndian)
+        ae.add_requested_context(CTImageStorage, ExplicitVRLittleEndian)
+        ae.acse_timeout = 5
+        ae.dimse_timeout = 5
+        assoc = ae.associate('localhost', 11112)
+        assert assoc.is_established
+
+        cx = assoc._get_valid_context(
+            CTImageStorage, ExplicitVRLittleEndian, 'scu'
+        )
+        assert cx.context_id == 3
+        assert cx.abstract_syntax == CTImageStorage
+        assert cx.transfer_syntax[0] == ExplicitVRLittleEndian
+        assert cx.as_scu is True
+
+        cx = assoc._get_valid_context(
+            CTImageStorage, ImplicitVRLittleEndian, 'scu'
+        )
+        assert cx.context_id == 1
+        assert cx.abstract_syntax == CTImageStorage
+        assert cx.transfer_syntax[0] == ImplicitVRLittleEndian
+        assert cx.as_scu is True
+
+        self.scp.abort()
+
+    def test_explicit_implicit(self):
+        """Test matching when both implicit and explicit are available."""
+        self.scp = DummyVerificationSCP()
+        self.scp.ae.add_supported_context(CTImageStorage, ExplicitVRLittleEndian)
+        self.scp.ae.add_supported_context(CTImageStorage, ImplicitVRLittleEndian)
+        self.scp.start()
+        ae = AE()
+        ae.add_requested_context(CTImageStorage, ExplicitVRLittleEndian)
+        ae.add_requested_context(CTImageStorage, ImplicitVRLittleEndian)
+        ae.acse_timeout = 5
+        ae.dimse_timeout = 5
+        assoc = ae.associate('localhost', 11112)
+        assert assoc.is_established
+
+        cx = assoc._get_valid_context(
+            CTImageStorage, ExplicitVRLittleEndian, 'scu'
+        )
+        assert cx.context_id == 1
+        assert cx.abstract_syntax == CTImageStorage
+        assert cx.transfer_syntax[0] == ExplicitVRLittleEndian
+        assert cx.as_scu is True
+
+        cx = assoc._get_valid_context(
+            CTImageStorage, ImplicitVRLittleEndian, 'scu'
+        )
+        assert cx.context_id == 3
+        assert cx.abstract_syntax == CTImageStorage
+        assert cx.transfer_syntax[0] == ImplicitVRLittleEndian
+        assert cx.as_scu is True
+
+        self.scp.abort()
+
+    def test_little_big(self):
+        """Test no match from little to big endian."""
+        self.scp = DummyVerificationSCP()
+        self.scp.ae.add_supported_context(MRImageStorage, ExplicitVRLittleEndian)
+        self.scp.ae.add_supported_context(CTImageStorage, ImplicitVRLittleEndian)
+        self.scp.start()
+
+        ae = AE()
+        ae.add_requested_context(MRImageStorage, ExplicitVRBigEndian)
+        ae.add_requested_context(MRImageStorage, ExplicitVRLittleEndian)
+        ae.add_requested_context(CTImageStorage, ImplicitVRLittleEndian)
+        ae.acse_timeout = 5
+        ae.dimse_timeout = 5
+        assoc = ae.associate('localhost', 11112)
+        assert assoc.is_established
+
+        msg = (
+            r"No presentation context for 'MR Image Storage' has been "
+            r"accepted by the peer with 'Explicit VR Big Endian' transfer "
+            r"syntax for the SCU role"
+        )
+        with pytest.raises(ValueError, match=msg):
+            assoc._get_valid_context(
+                MRImageStorage, ExplicitVRBigEndian, 'scu'
+            )
+
+        self.scp.abort()
 
 
 class TestEventHandlingAcceptor(object):

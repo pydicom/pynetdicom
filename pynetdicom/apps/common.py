@@ -599,7 +599,7 @@ def handle_store(event, args, app_logger):
     if args.output_directory is not None:
         filename = os.path.join(args.output_directory, filename)
         try:
-            os.makedirs(args.output_directory)
+            os.makedirs(args.output_directory, exist_ok=True)
         except Exception as exc:
             app_logger.error('Unable to create the output directory:')
             app_logger.error("    {0!s}".format(args.output_directory))

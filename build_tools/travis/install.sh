@@ -2,25 +2,27 @@
 
 set -e
 
+pip install -U pip
+
 pip install coverage
 pip install pytest-cov
-pip install pytest
+pip install -U pytest
 pip install asv
-#python setup.py install
+pip uninstall -y enum34
+
+pip list
 
 echo ""
 echo "Test suite is " $TEST_SUITE
 echo ""
 
 if [[ "$TEST_SUITE" == "pydicom_master" ]]; then
-    wget https://github.com/pydicom/pydicom/archive/master.tar.gz -O /tmp/pydicom.tar.gz
-    tar xzf /tmp/pydicom.tar.gz
-    pip install $PWD/pydicom-master
-    python -c "import pydicom; print('pydicom version', pydicom.__version__)"
+    pip install git+https://github.com/pydicom/pydicom.git
 elif [[ "$TEST_SUITE" == "pydicom_release" ]]; then
     pip install pydicom
-    python -c "import pydicom; print('pydicom version', pydicom.__version__)"
 fi
 
 python --version
+python -c "import pydicom; print('pydicom version', pydicom.__version__)"
+python -c "import pytest; print('pytest version', pytest.__version__)"
 python -c "import ssl; print(ssl.OPENSSL_VERSION)"

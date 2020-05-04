@@ -46,11 +46,20 @@ def start_echoscu(args):
     return subprocess.Popen(pargs)
 
 
-class TestEchoSCU(object):
+def start_echoscu_cli(args):
+    """Start the echoscu app using CLI and return the process."""
+    pargs = [
+        which('python'), '-m', 'pynetdicom', 'echoscu', 'localhost', '11112'
+    ] + [*args]
+    return subprocess.Popen(pargs)
+
+
+class EchoSCUBase(object):
     """Tests for echoscu.py"""
     def setup(self):
         """Run prior to each test"""
         self.ae = None
+        self.func = None
 
     def teardown(self):
         """Clear any active threads"""
@@ -80,7 +89,7 @@ class TestEchoSCU(object):
         ae.add_supported_context(VerificationSOPClass)
         scp = ae.start_server(('', 11112), block=False, evt_handlers=handlers)
 
-        p = start_echoscu([])
+        p = self.func([])
         p.wait()
         assert p.returncode == 0
 
@@ -109,7 +118,7 @@ class TestEchoSCU(object):
 
     def test_no_peer(self, capfd):
         """Test trying to connect to non-existent host."""
-        p = start_echoscu([])
+        p = self.func([])
         p.wait()
         assert p.returncode == 1
 
@@ -120,7 +129,7 @@ class TestEchoSCU(object):
 
     def test_flag_version(self, capfd):
         """Test --version flag."""
-        p = start_echoscu(['--version'])
+        p = self.func(['--version'])
         p.wait()
         assert p.returncode == 0
 
@@ -136,7 +145,7 @@ class TestEchoSCU(object):
         ae.add_supported_context(CTImageStorage)
         scp = ae.start_server(('', 11112), block=False)
 
-        p = start_echoscu(['-q'])
+        p = self.func(['-q'])
         p.wait()
         assert p.returncode == 1
 
@@ -154,7 +163,7 @@ class TestEchoSCU(object):
         ae.add_supported_context(VerificationSOPClass)
         scp = ae.start_server(('', 11112), block=False)
 
-        p = start_echoscu(['-v'])
+        p = self.func(['-v'])
         p.wait()
         assert p.returncode == 0
 
@@ -177,7 +186,7 @@ class TestEchoSCU(object):
         ae.add_supported_context(VerificationSOPClass)
         scp = ae.start_server(('', 11112), block=False)
 
-        p = start_echoscu(['-d'])
+        p = self.func(['-d'])
         p.wait()
         assert p.returncode == 0
 
@@ -189,7 +198,7 @@ class TestEchoSCU(object):
 
     def test_flag_log_collision(self):
         """Test error with -q -v and -d flag."""
-        p = start_echoscu(['-q', '-v'])
+        p = self.func(['-q', '-v'])
         p.wait()
         assert p.returncode != 0
 
@@ -221,7 +230,7 @@ class TestEchoSCU(object):
         ae.add_supported_context(VerificationSOPClass)
         scp = ae.start_server(('', 11112), block=False, evt_handlers=handlers)
 
-        p = start_echoscu(['-aet', 'MYSCU'])
+        p = self.func(['-aet', 'MYSCU'])
         p.wait()
         assert p.returncode == 0
 
@@ -255,7 +264,7 @@ class TestEchoSCU(object):
         ae.add_supported_context(VerificationSOPClass)
         scp = ae.start_server(('', 11112), block=False, evt_handlers=handlers)
 
-        p = start_echoscu(['-aec', 'YOURSCP'])
+        p = self.func(['-aec', 'YOURSCP'])
         p.wait()
         assert p.returncode == 0
 
@@ -294,7 +303,7 @@ class TestEchoSCU(object):
         ae.add_supported_context(VerificationSOPClass)
         scp = ae.start_server(('', 11112), block=False, evt_handlers=handlers)
 
-        p = start_echoscu(['-ta', '0.05', '-d'])
+        p = self.func(['-ta', '0.05', '-d'])
         p.wait()
         assert p.returncode == 1
 
@@ -331,7 +340,7 @@ class TestEchoSCU(object):
         ae.add_supported_context(VerificationSOPClass)
         scp = ae.start_server(('', 11112), block=False, evt_handlers=handlers)
 
-        p = start_echoscu(['-td', '0.05', '-d'])
+        p = self.func(['-td', '0.05', '-d'])
         p.wait()
         assert p.returncode == 0
 
@@ -372,7 +381,7 @@ class TestEchoSCU(object):
         ae.add_supported_context(VerificationSOPClass)
         scp = ae.start_server(('', 11112), block=False, evt_handlers=handlers)
 
-        p = start_echoscu(['--max-pdu', '123456'])
+        p = self.func(['--max-pdu', '123456'])
         p.wait()
         assert p.returncode == 0
 
@@ -406,7 +415,7 @@ class TestEchoSCU(object):
         ae.add_supported_context(VerificationSOPClass)
         scp = ae.start_server(('', 11112), block=False, evt_handlers=handlers)
 
-        p = start_echoscu(['-xe'])
+        p = self.func(['-xe'])
         p.wait()
         assert p.returncode == 0
 
@@ -443,7 +452,7 @@ class TestEchoSCU(object):
         ae.add_supported_context(VerificationSOPClass)
         scp = ae.start_server(('', 11112), block=False, evt_handlers=handlers)
 
-        p = start_echoscu(['-xb'])
+        p = self.func(['-xb'])
         p.wait()
         assert p.returncode == 0
 
@@ -480,7 +489,7 @@ class TestEchoSCU(object):
         ae.add_supported_context(VerificationSOPClass)
         scp = ae.start_server(('', 11112), block=False, evt_handlers=handlers)
 
-        p = start_echoscu(['-xi'])
+        p = self.func(['-xi'])
         p.wait()
         assert p.returncode == 0
 
@@ -517,7 +526,7 @@ class TestEchoSCU(object):
         ae.add_supported_context(VerificationSOPClass)
         scp = ae.start_server(('', 11112), block=False, evt_handlers=handlers)
 
-        p = start_echoscu(['--repeat', '3'])
+        p = self.func(['--repeat', '3'])
         p.wait()
         assert p.returncode == 0
 
@@ -555,7 +564,7 @@ class TestEchoSCU(object):
         ae.add_supported_context(VerificationSOPClass)
         scp = ae.start_server(('', 11112), block=False, evt_handlers=handlers)
 
-        p = start_echoscu(['--abort'])
+        p = self.func(['--abort'])
         p.wait()
         assert p.returncode == 0
 
@@ -563,3 +572,19 @@ class TestEchoSCU(object):
 
         assert events[0].event == evt.EVT_C_ECHO
         assert events[1].event == evt.EVT_ABORTED
+
+
+class TestEchoSCU(EchoSCUBase):
+    """Tests for echoscu.py"""
+    def setup(self):
+        """Run prior to each test"""
+        self.ae = None
+        self.func = start_echoscu
+
+
+class TestEchoSCUCLI(EchoSCUBase):
+    """Tests for echoscu using CLI"""
+    def setup(self):
+        """Run prior to each test"""
+        self.ae = None
+        self.func = start_echoscu_cli

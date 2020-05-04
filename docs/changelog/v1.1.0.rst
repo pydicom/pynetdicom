@@ -26,7 +26,7 @@ Enhancements
 
 * Added ``select_timeout`` parameter to ``Association.start()`` to allow the
   user to specify how long the select.select() call blocks for.
-  (:pull_request:`260`)
+  (:pr:`260`)
 * Improved the CPU usage of the AE when running idle as an SCP (:issue:`60`).
 
 

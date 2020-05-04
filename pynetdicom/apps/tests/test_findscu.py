@@ -59,11 +59,20 @@ def start_findscu(args):
     return subprocess.Popen(pargs)
 
 
-class TestFindSCU(object):
+def start_findscu_scli(args):
+    """Start the findscu app using CLI and return the process."""
+    pargs = [
+        which('python'), '-m', 'pynetdicom', 'findscu', 'localhost', '11112'
+    ] + [*args]
+    return subprocess.Popen(pargs)
+
+
+class FindSCUBase(object):
     """Tests for findscu.py"""
     def setup(self):
         """Run prior to each test"""
         self.ae = None
+        self.func = None
 
     def teardown(self):
         """Clear any active threads"""
@@ -96,7 +105,7 @@ class TestFindSCU(object):
         )
         scp = ae.start_server(('', 11112), block=False, evt_handlers=handlers)
 
-        p = start_findscu(['-k', "PatientName="])
+        p = self.func(['-k', "PatientName="])
         p.wait()
         assert p.returncode == 0
 
@@ -123,7 +132,7 @@ class TestFindSCU(object):
 
     def test_no_peer(self, capfd):
         """Test trying to connect to non-existent host."""
-        p = start_findscu(['-k', "PatientName="])
+        p = self.func(['-k', "PatientName="])
         p.wait()
         assert p.returncode == 1
 
@@ -134,7 +143,7 @@ class TestFindSCU(object):
 
     def test_bad_input(self, capfd):
         """Test being unable to read the input file."""
-        p = start_findscu(['-f', 'no-such-file.dcm'])
+        p = self.func(['-f', 'no-such-file.dcm'])
         p.wait()
         assert p.returncode == 1
 
@@ -143,7 +152,7 @@ class TestFindSCU(object):
 
     def test_flag_version(self, capfd):
         """Test --version flag."""
-        p = start_findscu(['--version'])
+        p = self.func(['--version'])
         p.wait()
         assert p.returncode == 0
 
@@ -159,7 +168,7 @@ class TestFindSCU(object):
         ae.add_supported_context(VerificationSOPClass)
         scp = ae.start_server(('', 11112), block=False)
 
-        p = start_findscu(['-q', '-k', 'PatientName='])
+        p = self.func(['-q', '-k', 'PatientName='])
         p.wait()
         assert p.returncode == 1
 
@@ -187,7 +196,7 @@ class TestFindSCU(object):
         )
         scp = ae.start_server(('', 11112), block=False, evt_handlers=handlers)
 
-        p = start_findscu(['-v', '-k', 'PatientName='])
+        p = self.func(['-v', '-k', 'PatientName='])
         p.wait()
         assert p.returncode == 0
 
@@ -220,7 +229,7 @@ class TestFindSCU(object):
         )
         scp = ae.start_server(('', 11112), block=False, evt_handlers=handlers)
 
-        p = start_findscu(['-d', '-k', 'PatientName='])
+        p = self.func(['-d', '-k', 'PatientName='])
         p.wait()
         assert p.returncode == 0
 
@@ -232,7 +241,7 @@ class TestFindSCU(object):
 
     def test_flag_log_collision(self):
         """Test error with -q -v and -d flag."""
-        p = start_findscu(['-v', '-d'])
+        p = self.func(['-v', '-d'])
         p.wait()
         assert p.returncode != 0
 
@@ -262,7 +271,7 @@ class TestFindSCU(object):
         )
         scp = ae.start_server(('', 11112), block=False, evt_handlers=handlers)
 
-        p = start_findscu(['-aet', 'MYSCU', '-k', 'PatientName='])
+        p = self.func(['-aet', 'MYSCU', '-k', 'PatientName='])
         p.wait()
         assert p.returncode == 0
 
@@ -294,7 +303,7 @@ class TestFindSCU(object):
         scp = ae.start_server(('', 11112), block=False, evt_handlers=handlers)
 
 
-        p = start_findscu(['-aec', 'YOURSCP', '-k', 'PatientName='])
+        p = self.func(['-aec', 'YOURSCP', '-k', 'PatientName='])
         p.wait()
         assert p.returncode == 0
 
@@ -335,7 +344,7 @@ class TestFindSCU(object):
         )
         scp = ae.start_server(('', 11112), block=False, evt_handlers=handlers)
 
-        p = start_findscu(['-ta', '0.05', '-d', '-k', 'PatientName='])
+        p = self.func(['-ta', '0.05', '-d', '-k', 'PatientName='])
         p.wait()
         assert p.returncode == 1
 
@@ -376,7 +385,7 @@ class TestFindSCU(object):
         scp = ae.start_server(('', 11112), block=False, evt_handlers=handlers)
 
 
-        p = start_findscu(['-td', '0.05', '-d', '-k', 'PatientName='])
+        p = self.func(['-td', '0.05', '-d', '-k', 'PatientName='])
         p.wait()
         assert p.returncode == 0
 
@@ -421,7 +430,7 @@ class TestFindSCU(object):
         scp = ae.start_server(('', 11112), block=False, evt_handlers=handlers)
 
 
-        p = start_findscu(['--max-pdu', '123456', '-k', 'PatientName='])
+        p = self.func(['--max-pdu', '123456', '-k', 'PatientName='])
         p.wait()
         assert p.returncode == 0
 
@@ -453,7 +462,7 @@ class TestFindSCU(object):
         )
         scp = ae.start_server(('', 11112), block=False, evt_handlers=handlers)
 
-        p = start_findscu(['-P', '-k', 'PatientName='])
+        p = self.func(['-P', '-k', 'PatientName='])
         p.wait()
         assert p.returncode == 0
 
@@ -486,7 +495,7 @@ class TestFindSCU(object):
         )
         scp = ae.start_server(('', 11112), block=False, evt_handlers=handlers)
 
-        p = start_findscu(['-S', '-k', 'PatientName='])
+        p = self.func(['-S', '-k', 'PatientName='])
         p.wait()
         assert p.returncode == 0
 
@@ -517,7 +526,7 @@ class TestFindSCU(object):
         )
         scp = ae.start_server(('', 11112), block=False, evt_handlers=handlers)
 
-        p = start_findscu(['-O', '-k', 'PatientName='])
+        p = self.func(['-O', '-k', 'PatientName='])
         p.wait()
         assert p.returncode == 0
 
@@ -550,7 +559,7 @@ class TestFindSCU(object):
         )
         scp = ae.start_server(('', 11112), block=False, evt_handlers=handlers)
 
-        p = start_findscu(['-W', '-k', 'PatientName='])
+        p = self.func(['-W', '-k', 'PatientName='])
         p.wait()
         assert p.returncode == 0
 
@@ -579,7 +588,7 @@ class TestFindSCU(object):
         )
         scp = ae.start_server(('', 11112), block=False, evt_handlers=handlers)
 
-        p = start_findscu(['-w', '-k', 'PatientName='])
+        p = self.func(['-w', '-k', 'PatientName='])
         p.wait()
         assert p.returncode == 0
 
@@ -589,3 +598,19 @@ class TestFindSCU(object):
         ds = dcmread('rsp000001.dcm')
         assert ds.PatientName == ''
         os.remove('rsp000001.dcm')
+
+
+class TestFindSCU(FindSCUBase):
+    """Tests for findscu.py"""
+    def setup(self):
+        """Run prior to each test"""
+        self.ae = None
+        self.func = start_findscu
+
+
+class TestFindSCUCLI(FindSCUBase):
+    """Tests for findscu.py"""
+    def setup(self):
+        """Run prior to each test"""
+        self.ae = None
+        self.func = start_findscu_scli

@@ -8,11 +8,11 @@ Applications
 .. toctree::
    :maxdepth: 1
 
-   echoscu
    echoscp
+   echoscu
    findscu
    getscu
    movescu
    qrscp
-   storescu
    storescp
+   storescu

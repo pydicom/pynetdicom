@@ -13,3 +13,4 @@ Configuration Options (:mod:`pynetdicom._config`)
    ENFORCE_UID_CONFORMANCE
    LOG_HANDLER_LEVEL
    USE_SHORT_DIMSE_AET
+   LOG_RESPONSE_IDENTIFIERS

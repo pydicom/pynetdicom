@@ -21,8 +21,10 @@ single CT dataset.
 
     from pydicom import dcmread
 
-    from pynetdicom import AE
+    from pynetdicom import AE, debug_logger
     from pynetdicom.sop_class import CTImageStorage
+
+    debug_logger()
 
     # Initialise the Application Entity
     ae = AE()
@@ -35,7 +37,6 @@ single CT dataset.
 
     # Associate with peer AE at IP 127.0.0.1 and port 11112
     assoc = ae.associate('127.0.0.1', 11112)
-
     if assoc.is_established:
         # Use the C-STORE service to send the dataset
         # returns the response status as a pydicom Dataset
@@ -55,8 +56,9 @@ single CT dataset.
 
 Of course it's rarely the case that someone wants to store just CT images,
 so you can also use the inbuilt
-:attr:`~pynetdicom.presentation.StoragePresentationContexts` when setting
-the requested contexts or just add as many contexts as you need.
+:attr:`~pynetdicom.presentation.StoragePresentationContexts` which contains
+presentation contexts for the first 128 storage SOP Classes when setting
+the requested contexts, or just add as many contexts as you need.
 
 .. code-block:: python
 
@@ -111,9 +113,9 @@ to see the requirements for the ``evt.EVT_C_STORE`` handler.
 
 .. code-block:: python
 
-    from pydicom.dataset import Dataset
+    from pynetdicom import AE, evt, AllStoragePresentationContexts, debug_logger
 
-    from pynetdicom import AE, evt, AllStoragePresentationContexts
+    debug_logger()
 
     # Implement a handler for evt.EVT_C_STORE
     def handle_store(event):
@@ -135,7 +137,7 @@ to see the requirements for the ``evt.EVT_C_STORE`` handler.
     # Initialise the Application Entity
     ae = AE()
 
-    # Add the supported presentation contexts
+    # Support presentation contexts for all storage SOP Classes
     ae.supported_contexts = AllStoragePresentationContexts
 
     # Start listening for incoming association requests
@@ -147,26 +149,29 @@ If you're optimising for speed you can:
   <pynetdicom.ae.ApplicationEntity.maximum_pdu_size>`: this reduces the number
   of DIMSE messages required to transfer the data
 * Write the received dataset's :attr:`raw bytes
-  <pynetdicom.dimse_primitives.C_STORE.DataSet>`: this skips the dataset
-  decode/re-encode step
+  <pynetdicom.dimse_primitives.C_STORE.DataSet>` directly to file: this skips
+  the dataset decode/re-encode step
 
 Using both options will result in around a 25% decrease in transfer time for
 multiple C-STORE requests, depending on the size of the datasets:
 
 .. code-block:: python
 
-    from pydicom.dataset import Dataset
+    from pydicom.filewriter import write_file_meta_info
 
     from pynetdicom import AE, evt, AllStoragePresentationContexts
-    from pynetdicom.dsutils import encode
 
     # Implement a handler for evt.EVT_C_STORE
     def handle_store(event):
         """Handle a C-STORE request event."""
-        with open(event.request.AffectedSOPInstanceUID, 'wb') as fp:
-            # File Meta must be encoded as explicit VR little endian
-            fp.write(encode(event.file_meta, False, True))
-            fp.write(event.request.DataSet.getvalue())
+        with open(event.request.AffectedSOPInstanceUID, 'wb') as f:
+            # Write the preamble and prefix
+            f.write(b'\x00' * 128)
+            f.write(b'DICM')
+            # Encode and write the File Meta Information
+            write_file_meta_info(f, event.file_meta)
+            # Write the encoded dataset
+            f.write(event.request.DataSet.getvalue())
 
         # Return a 'Success' status
         return 0x0000
@@ -220,7 +225,7 @@ You can also start the SCP in non-blocking mode:
 
     ae = AE()
     ae.add_supported_context(CTImageStorage)
-    scp = ae.start_server(('', 11112), block=False evt_handlers=handlers)
+    scp = ae.start_server(('', 11112), block=False, evt_handlers=handlers)
 
     # Zzzz
     time.sleep(60)

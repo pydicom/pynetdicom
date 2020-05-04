@@ -162,12 +162,23 @@ def _setup_argparser():
         action="store_true"
     )
 
+    # Miscellaneous Options
+    misc_opts = parser.add_argument_group('Miscellaneous Options')
+    misc_opts.add_argument(
+        "--no-echo",
+        help="don't act as a verification SCP",
+        action="store_true"
+    )
+
     return parser.parse_args()
 
 
-if __name__ == "__main__":
-    args = _setup_argparser()
+def main(args=None):
+    """Run the application."""
+    if args is not None:
+        sys.argv = args
 
+    args = _setup_argparser()
     if args.version:
         print('storescp.py v{}'.format(__version__))
         sys.exit()
@@ -199,8 +210,10 @@ if __name__ == "__main__":
     # Add presentation contexts with specified transfer syntaxes
     for context in AllStoragePresentationContexts:
         ae.add_supported_context(context.abstract_syntax, transfer_syntax)
-    for context in VerificationPresentationContexts:
-        ae.add_supported_context(context.abstract_syntax, transfer_syntax)
+
+    if not args.no_echo:
+        for context in VerificationPresentationContexts:
+            ae.add_supported_context(context.abstract_syntax, transfer_syntax)
 
     ae.maximum_pdu_size = args.max_pdu
 
@@ -210,3 +223,7 @@ if __name__ == "__main__":
     ae.dimse_timeout = args.dimse_timeout
 
     ae.start_server((args.bind_address, args.port), evt_handlers=handlers)
+
+
+if __name__ == "__main__":
+    main()

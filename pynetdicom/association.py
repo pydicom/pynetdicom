@@ -17,7 +17,7 @@ from pynetdicom.dimse_primitives import (
     C_ECHO, C_MOVE, C_STORE, C_GET, C_FIND, C_CANCEL,
     N_EVENT_REPORT, N_GET, N_SET, N_CREATE, N_ACTION, N_DELETE
 )
-from pynetdicom.dsutils import decode, encode
+from pynetdicom.dsutils import decode, encode, pretty_dataset
 from pynetdicom.dul import DULServiceProvider
 from pynetdicom._globals import (
     MODE_REQUESTOR, MODE_ACCEPTOR, DEFAULT_MAX_LENGTH, STATUS_WARNING,
@@ -51,7 +51,7 @@ class Association(threading.Thread):
     Attributes
     ----------
     acceptor : association.ServiceUser
-        Representation of the association's acceptor AE.
+        Representation of the association's *acceptor* AE.
     acse : acse.ACSE
         The Association Control Service Element provider.
     ae : ae.ApplicationEntity
@@ -72,7 +72,7 @@ class Association(threading.Thread):
         The mode of the local AE, either the association ``'requestor'`` or
         association ``'acceptor'``.
     requestor : association.ServiceUser
-        Representation of the association's requestor AE.
+        Representation of the association's *requestor* AE.
     """
     def __init__(self, ae, mode):
         """Create a new :class:`Association` instance.
@@ -80,8 +80,7 @@ class Association(threading.Thread):
         The association starts in State 1 (idle). Association negotiation
         won't begin until an :class:`~pynetdicom.transport.AssociationSocket`
         is assigned using :meth:`set_socket` and
-        :meth:`Association.start_server()<pynetdicom.Association.start_server>`
-        is called.
+        :meth:`~threading.Thread.start` is called.
 
         Parameters
         ----------
@@ -106,6 +105,9 @@ class Association(threading.Thread):
         self.is_rejected = False
         self.is_aborted = False
         self.is_released = False
+
+        # Track whether we've sent an abort or not for the abort() method
+        self._sent_abort = False
 
         # Accepted and rejected presentation contexts
         self._accepted_cx = {}
@@ -142,13 +144,21 @@ class Association(threading.Thread):
         self.daemon = True
 
     def abort(self):
-        """Send an A-ABORT to the remote AE and kill the :class:`Association`.
+        """Abort the :class:`Association` by sending an A-ABORT to the remote
+        AE.
         """
+        # Only allow a single abort message to be sent
+        if self._sent_abort:
+            return
+
         if not self.is_released:
+            # Set before restarting the reactor to prevent race condition
+            self._sent_abort = True
             # Ensure the reactor is running so it can be exited
             self._reactor_checkpoint.set()
             LOGGER.info('Aborting Association')
             self.acse.send_abort(0x00)
+
             # Event handler - association aborted
             evt.trigger(self, evt.EVT_ABORTED, {})
             self.kill()
@@ -158,14 +168,14 @@ class Association(threading.Thread):
 
     @property
     def accepted_contexts(self):
-        """Return a list of accepted
-        :class:`~pynetdicom.presentation.PresentationContext`."""
+        """Return a :class:`list` of accepted
+        :class:`~pynetdicom.presentation.PresentationContext` items."""
         # Accepted contexts are stored internally as {context ID : context}
         return sorted(self._accepted_cx.values(), key=lambda x: x.context_id)
 
     @property
     def acse_timeout(self):
-        """Return the ACSE timeout (in seconds)."""
+        """The ACSE timeout (in seconds)."""
         return self._acse_timeout
 
     @acse_timeout.setter
@@ -191,7 +201,7 @@ class Association(threading.Thread):
 
         Parameters
         ----------
-        event : namedtuple
+        event : collections.namedtuple
             The event to bind the function to.
         handler : callable
             The function that will be called if the event occurs.
@@ -267,7 +277,7 @@ class Association(threading.Thread):
 
     @property
     def dimse_timeout(self):
-        """Return the DIMSE timeout (in seconds)."""
+        """The DIMSE timeout (in seconds)."""
         return self._dimse_timeout
 
     @dimse_timeout.setter
@@ -277,14 +287,14 @@ class Association(threading.Thread):
             self._dimse_timeout = value
 
     def get_events(self):
-        """Return a list of currently bound events.
+        """Return a :class:`list` of currently bound events.
 
         .. versionadded:: 1.3
         """
         return sorted(self._handlers.keys(), key=lambda x: x.name)
 
     def get_handlers(self, event):
-        """Return handlers bound to a specific `event`.
+        """Return the handlers bound to a specific `event`.
 
         .. versionadded:: 1.3
 
@@ -312,8 +322,14 @@ class Association(threading.Thread):
 
         return self._handlers[event]
 
-    def _get_valid_context(self, ab_syntax, tr_syntax, role, context_id=None):
+    def _get_valid_context(self, ab_syntax, tr_syntax, role=None,
+                           context_id=None):
         """Return a valid presentation context matching the parameters.
+
+        .. versionchanged:: 1.5
+
+            Changed to prefer an exact matching context over a convertible one
+            and to reject contexts without matching endianness
 
         Parameters
         ----------
@@ -323,13 +339,15 @@ class Association(threading.Thread):
             The transfer syntax to match, if an empty string is used then
             the transfer syntax will not be used for matching. If the value
             corresponds to an uncompressed syntax then matches will be made
-            with any uncompressed transfer syntaxes.
-        role : str or None
-            One of 'scu' or 'scp', the required role of the context. If None
-            then the accepted role will be ignored.
-        context_id : int or None
-            If not None then the ID of the presentation context to use. It will
-            be checked against the available parameter values.
+            with any uncompressed transfer syntax but an exact match will
+            be preferred.
+        role : str, optional
+            One of ``'scu'`` or ``'scp'``, the required role of the context.
+            If not used then the accepted role will be ignored.
+        context_id : int, optional
+            If used then the ID of the presentation context to use. It
+            will be checked against the available parameter values. If the ID
+            isn't found then will check against all accepted contexts.
 
         Returns
         -------
@@ -339,35 +357,50 @@ class Association(threading.Thread):
         ab_syntax = UID(ab_syntax)
         tr_syntax = UID(tr_syntax)
 
-        possible_contexts = []
-        if context_id is None:
+        try:
+            possible_contexts = [self._accepted_cx[context_id]]
+        except KeyError:
             possible_contexts = self.accepted_contexts
-        else:
-            for cx in self.accepted_contexts:
-                if cx.context_id == context_id:
-                    possible_contexts = [cx]
-                    break
 
+        # Filter by abstract syntax
+        possible_contexts = [
+            cx for cx in possible_contexts if ab_syntax == cx.abstract_syntax
+        ]
+        # Filter by role
+        if role == 'scu':
+            possible_contexts = [
+                cx for cx in possible_contexts if cx.as_scu is True
+            ]
+        if role == 'scp':
+            possible_contexts = [
+                cx for cx in possible_contexts if cx.as_scp is True
+            ]
+
+        matches = []
         for cx in possible_contexts:
-            if cx.abstract_syntax != ab_syntax:
-                continue
+            cx_syntax = cx.transfer_syntax[0]
+            if tr_syntax:
+                if tr_syntax == cx_syntax:
+                    # Exact match to transfer syntax
+                    return cx
 
-            # Cover both False and None
-            if role == 'scu' and cx.as_scu is not True:
-                continue
-
-            if role == 'scp' and cx.as_scp is not True:
-                continue
-
-            # Allow us to skip the transfer syntax check
-            if tr_syntax and tr_syntax != cx.transfer_syntax[0]:
-                # Compressed transfer syntaxes are not convertable
-                if (tr_syntax.is_compressed
-                        or cx.transfer_syntax[0].is_compressed):
+                # Compressed transfer syntaxes are not convertible
+                #   This excludes deflated transfer syntaxes
+                if tr_syntax.is_compressed or cx_syntax.is_compressed:
                     continue
 
-            # Only a valid presentation context can reach this point
-            return cx
+                # Filter out contexts where the endianness doesn't match
+                if tr_syntax.is_little_endian != cx_syntax.is_little_endian:
+                    continue
+
+            # Match to convertible transfer syntaxes
+            #   Allowable matches:
+            #       explicit VR <-> implicit VR
+            #       deflated <-> inflated
+            matches.append(cx)
+
+        if matches:
+            return matches[0]
 
         role = role or 'scu'
         msg = (
@@ -400,12 +433,12 @@ class Association(threading.Thread):
 
     @property
     def is_acceptor(self):
-        """Return ``True`` if the local AE is the association *Acceptor*."""
+        """Return ``True`` if the local AE is the association *acceptor*."""
         return self.mode == MODE_ACCEPTOR
 
     @property
     def is_requestor(self):
-        """Return ``True`` if the local AE is the association *Requestor*."""
+        """Return ``True`` if the local AE is the association *requestor*."""
         return self.mode == MODE_REQUESTOR
 
     def kill(self):
@@ -433,7 +466,7 @@ class Association(threading.Thread):
 
     @property
     def mode(self):
-        """Return the Association's `mode` as a :class:`str`."""
+        """The Association's `mode` as a :class:`str`."""
         return self._mode
 
     @mode.setter
@@ -462,7 +495,7 @@ class Association(threading.Thread):
 
     @property
     def network_timeout(self):
-        """Return the network timeout (in seconds)."""
+        """The network timeout (in seconds)."""
         return self._network_timeout
 
     @network_timeout.setter
@@ -480,7 +513,7 @@ class Association(threading.Thread):
         return self._rejected_cx
 
     def release(self):
-        """Send an A-RELEASE request and initiate association release."""
+        """Initiate association release by send an A-RELEASE request."""
         if self.is_established:
             # Ensure the reactor is paused so it doesn't
             #   steal incoming ACSE messages
@@ -1073,9 +1106,12 @@ class Association(threading.Thread):
         # Encode the Identifier `dataset` using the agreed transfer syntax
         #   Will return None if failed to encode
         transfer_syntax = context.transfer_syntax[0]
-        bytestream = encode(dataset,
-                            transfer_syntax.is_implicit_VR,
-                            transfer_syntax.is_little_endian)
+        bytestream = encode(
+            dataset,
+            transfer_syntax.is_implicit_VR,
+            transfer_syntax.is_little_endian,
+            transfer_syntax.is_deflated
+        )
 
         if bytestream is not None:
             req.Identifier = BytesIO(bytestream)
@@ -1086,8 +1122,8 @@ class Association(threading.Thread):
         LOGGER.info('Sending Find Request: MsgID {}'.format(msg_id))
         LOGGER.info('')
         LOGGER.info('# Request Identifier')
-        for elem in dataset:
-            LOGGER.info(elem)
+        for line in pretty_dataset(dataset):
+            LOGGER.info(line)
         LOGGER.info('')
 
         # Pause the reactor to prevent a race condition
@@ -1268,9 +1304,12 @@ class Association(threading.Thread):
         # Encode the Identifier `dataset` using the agreed transfer syntax
         #   Will return None if failed to encode
         transfer_syntax = context.transfer_syntax[0]
-        bytestream = encode(dataset,
-                            transfer_syntax.is_implicit_VR,
-                            transfer_syntax.is_little_endian)
+        bytestream = encode(
+            dataset,
+            transfer_syntax.is_implicit_VR,
+            transfer_syntax.is_little_endian,
+            transfer_syntax.is_deflated
+        )
 
         if bytestream is not None:
             req.Identifier = BytesIO(bytestream)
@@ -1463,9 +1502,12 @@ class Association(threading.Thread):
         # Encode the Identifier `dataset` using the agreed transfer syntax;
         #   will return None if failed to encode
         transfer_syntax = context.transfer_syntax[0]
-        bytestream = encode(dataset,
-                            transfer_syntax.is_implicit_VR,
-                            transfer_syntax.is_little_endian)
+        bytestream = encode(
+            dataset,
+            transfer_syntax.is_implicit_VR,
+            transfer_syntax.is_little_endian,
+            transfer_syntax.is_deflated
+        )
 
         if bytestream is not None:
             req.Identifier = BytesIO(bytestream)
@@ -1653,9 +1695,12 @@ class Association(threading.Thread):
 
         # Encode the `dataset` using the agreed transfer syntax
         #   Will return None if failed to encode
-        bytestream = encode(dataset,
-                            transfer_syntax.is_implicit_VR,
-                            transfer_syntax.is_little_endian)
+        bytestream = encode(
+            dataset,
+            transfer_syntax.is_implicit_VR,
+            transfer_syntax.is_little_endian,
+            transfer_syntax.is_deflated
+        )
 
         if bytestream is not None:
             req.DataSet = BytesIO(bytestream)
@@ -1773,13 +1818,15 @@ class Association(threading.Thread):
                         identifier = decode(
                             rsp.Identifier,
                             transfer_syntax.is_implicit_VR,
-                            transfer_syntax.is_little_endian
+                            transfer_syntax.is_little_endian,
+                            transfer_syntax.is_deflated
                         )
-                        LOGGER.info('')
-                        LOGGER.info('# Response Identifier')
-                        for elem in identifier:
-                            LOGGER.info(elem)
-                        LOGGER.info('')
+                        if identifier and _config.LOG_RESPONSE_IDENTIFIERS:
+                            LOGGER.info('')
+                            LOGGER.info('# Response Identifier')
+                            for line in pretty_dataset(identifier):
+                                LOGGER.info(line)
+                            LOGGER.info('')
                     except Exception as exc:
                         LOGGER.error(
                             "Failed to decode the received Identifier dataset"
@@ -1917,9 +1964,10 @@ class Association(threading.Thread):
                         identifier = decode(
                             rsp.Identifier,
                             transfer_syntax.is_implicit_VR,
-                            transfer_syntax.is_little_endian
+                            transfer_syntax.is_little_endian,
+                            transfer_syntax.is_deflated
                         )
-                        if identifier:
+                        if identifier and _config.LOG_RESPONSE_IDENTIFIERS:
                             LOGGER.info('')
                             LOGGER.info('# Response Identifier')
                             for elem in identifier:
@@ -2074,9 +2122,12 @@ class Association(threading.Thread):
         if dataset is not None:
             # Encode the `dataset` using the agreed transfer syntax
             #   Will return None if failed to encode
-            bytestream = encode(dataset,
-                                transfer_syntax.is_implicit_VR,
-                                transfer_syntax.is_little_endian)
+            bytestream = encode(
+                dataset,
+                transfer_syntax.is_implicit_VR,
+                transfer_syntax.is_little_endian,
+                transfer_syntax.is_deflated
+            )
 
             if bytestream is not None:
                 req.ActionInformation = BytesIO(bytestream)
@@ -2123,9 +2174,12 @@ class Association(threading.Thread):
                 # Attempt to decode the response's dataset
                 # pylint: disable=broad-except
                 try:
-                    action_reply = decode(bytestream,
-                                          transfer_syntax.is_implicit_VR,
-                                          transfer_syntax.is_little_endian)
+                    action_reply = decode(
+                        bytestream,
+                        transfer_syntax.is_implicit_VR,
+                        transfer_syntax.is_little_endian,
+                        transfer_syntax.is_deflated
+                    )
                 except Exception as ex:
                     LOGGER.error(
                         "Unable to decode the received 'Action Reply' dataset"
@@ -2310,9 +2364,12 @@ class Association(threading.Thread):
         if dataset is not None:
             # Encode the `dataset` using the agreed transfer syntax
             #   Will return None if failed to encode
-            bytestream = encode(dataset,
-                                transfer_syntax.is_implicit_VR,
-                                transfer_syntax.is_little_endian)
+            bytestream = encode(
+                dataset,
+                transfer_syntax.is_implicit_VR,
+                transfer_syntax.is_little_endian,
+                transfer_syntax.is_deflated
+            )
 
             if bytestream is not None:
                 req.AttributeList = BytesIO(bytestream)
@@ -2356,9 +2413,12 @@ class Association(threading.Thread):
                 # Attempt to decode the response's dataset
                 # pylint: disable=broad-except
                 try:
-                    attribute_list = decode(bytestream,
-                                            transfer_syntax.is_implicit_VR,
-                                            transfer_syntax.is_little_endian)
+                    attribute_list = decode(
+                        bytestream,
+                        transfer_syntax.is_implicit_VR,
+                        transfer_syntax.is_little_endian,
+                        transfer_syntax.is_deflated
+                    )
                 except Exception as ex:
                     LOGGER.error(
                         "Unable to decode the received 'Attribute List' "
@@ -2626,9 +2686,12 @@ class Association(threading.Thread):
         if dataset is not None:
             # Encode the `dataset` using the agreed transfer syntax
             #   Will return None if failed to encode
-            bytestream = encode(dataset,
-                                transfer_syntax.is_implicit_VR,
-                                transfer_syntax.is_little_endian)
+            bytestream = encode(
+                dataset,
+                transfer_syntax.is_implicit_VR,
+                transfer_syntax.is_little_endian,
+                transfer_syntax.is_deflated
+            )
 
             if bytestream is not None:
                 req.EventInformation = BytesIO(bytestream)
@@ -2675,9 +2738,12 @@ class Association(threading.Thread):
                 # Attempt to decode the response's dataset
                 # pylint: disable=broad-except
                 try:
-                    event_reply = decode(bytestream,
-                                         transfer_syntax.is_implicit_VR,
-                                         transfer_syntax.is_little_endian)
+                    event_reply = decode(
+                        bytestream,
+                        transfer_syntax.is_implicit_VR,
+                        transfer_syntax.is_little_endian,
+                        transfer_syntax.is_deflated
+                    )
                 except Exception as ex:
                     LOGGER.error(
                         "Unable to decode the received 'Event Reply' dataset"
@@ -2876,9 +2942,12 @@ class Association(threading.Thread):
                 # Attempt to decode the response's dataset
                 # pylint: disable=broad-except
                 try:
-                    attribute_list = decode(bytestream,
-                                            transfer_syntax.is_implicit_VR,
-                                            transfer_syntax.is_little_endian)
+                    attribute_list = decode(
+                        bytestream,
+                        transfer_syntax.is_implicit_VR,
+                        transfer_syntax.is_little_endian,
+                        transfer_syntax.is_deflated
+                    )
                 except Exception as ex:
                     LOGGER.error(
                         "Unable to decode the received 'Attribute List' "
@@ -3070,9 +3139,12 @@ class Association(threading.Thread):
 
         # Encode the `dataset` using the agreed transfer syntax
         #   Will return None if failed to encode
-        bytestream = encode(dataset,
-                            transfer_syntax.is_implicit_VR,
-                            transfer_syntax.is_little_endian)
+        bytestream = encode(
+            dataset,
+            transfer_syntax.is_implicit_VR,
+            transfer_syntax.is_little_endian,
+            transfer_syntax.is_deflated
+        )
 
         if bytestream is not None:
             req.ModificationList = BytesIO(bytestream)
@@ -3116,9 +3188,12 @@ class Association(threading.Thread):
                 # Attempt to decode the response's dataset
                 # pylint: disable=broad-except
                 try:
-                    attribute_list = decode(rsp.AttributeList,
-                                            transfer_syntax.is_implicit_VR,
-                                            transfer_syntax.is_little_endian)
+                    attribute_list = decode(
+                        bytestream,
+                        transfer_syntax.is_implicit_VR,
+                        transfer_syntax.is_little_endian,
+                        transfer_syntax.is_deflated
+                    )
                 except Exception as ex:
                     LOGGER.error(
                         "Unable to decode the received 'Attribute List' "
@@ -3210,31 +3285,31 @@ class ServiceUser(object):
     """Convenience class for the :class:`Association` service user.
 
     An :class:`Association` object has two :class:`ServiceUser` attributes, one
-    representing the association *Requestor* and the other the association
-    *Acceptor*. Once both have been defined sufficiently to be considered
-    valid then association negotiation can begin. The *Requestor*
+    representing the association *requestor* and the other the association
+    *acceptor*. Once both have been defined sufficiently to be considered
+    valid then association negotiation can begin. The *requestor*
     :class:`ServiceUser` requires (at a minimum) the following in order to be
     valid:
 
-    * For association as requestor:
+    * For association as *requestor*:
 
         * AE title (`ae_title`)
         * Address and port number (`address` and `port`)
         * Maximum PDU length (`maximum_length`)
         * Implementation class UID (`implementation_class_uid`)
         * At least one presentation context (`requested_contexts`)
-    * For association as acceptor:
+    * For association as *acceptor*:
 
         * AE title
         * Address and port number
 
-    The *Acceptor* :class:`ServiceUser` requires (at a minimum) the following
+    The *acceptor* :class:`ServiceUser` requires (at a minimum) the following
     in order to be valid:
 
-    * For association as requestor:
+    * For association as *requestor*:
 
         * Address and port number
-    * For association as acceptor:
+    * For association as *acceptor*:
 
         * AE title
         * Address and port number
@@ -3313,7 +3388,7 @@ class ServiceUser(object):
         Raises
         ------
         RuntimeError
-            If called when the requestor.
+            If called when the *requestor*.
         """
         if not self.is_acceptor:
             raise RuntimeError(
@@ -3377,7 +3452,7 @@ class ServiceUser(object):
         -------
         2-tuple of int
             The (*Maximum Number of Operations Invoked*, *Maximum Number of
-            Operations Performed*) or (1, 1) if no Asynchronous Operations
+            Operations Performed*) or ``(1, 1)`` if no Asynchronous Operations
             Window Negotiation item is in the extended negotiation items.
         """
         if self.writeable:
@@ -3398,7 +3473,7 @@ class ServiceUser(object):
 
     @property
     def extended_negotiation(self):
-        """Return a list of Extended Negotiation items.
+        """Return a :class:`list` of Extended Negotiation items.
 
         Extended Negotiation items are:
 
@@ -3494,8 +3569,7 @@ class ServiceUser(object):
 
     @property
     def implementation_class_uid(self):
-        """Return the Implementation Class UID as a *pydicom*
-        :class:`~pydicom.uid.UID`.
+        """The Implementation Class UID as a :class:`~pydicom.uid.UID`.
 
         Returns
         -------
@@ -3543,8 +3617,7 @@ class ServiceUser(object):
 
     @property
     def implementation_version_name(self):
-        """Return the Implementation Version Name as :class:`str` (if
-        available).
+        """The Implementation Version Name as :class:`str` (if available).
 
         Returns
         -------
@@ -3623,7 +3696,7 @@ class ServiceUser(object):
 
     @property
     def maximum_length(self):
-        """Return the maximum PDV size as :class:`int`.
+        """The maximum PDV size as :class:`int`.
 
         Returns
         -------
@@ -3677,7 +3750,7 @@ class ServiceUser(object):
 
     @property
     def requested_contexts(self):
-        """Return a :class:`list` of the requestor's requested presentation
+        """A :class:`list` of the requestor's requested presentation
         contexts.
         """
         return self.get_contexts('requested')
@@ -3864,7 +3937,7 @@ class ServiceUser(object):
 
     @property
     def supported_contexts(self):
-        """Return the supported presentation contexts.
+        """The supported presentation contexts.
 
         Returns
         -------

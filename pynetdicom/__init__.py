@@ -11,14 +11,14 @@ from ._version import __version__, __version_info__
 PYNETDICOM_UID_PREFIX = '1.2.826.0.1.3680043.9.3811.'
 """``1.2.826.0.1.3680043.9.3811.``
 
-The UID root used by pynetdicom.
+The UID root used by *pynetdicom*.
 """
 
 # Encoded as SH, 16 bytes maximum
 PYNETDICOM_IMPLEMENTATION_VERSION = (
     'PYNETDICOM_' + ''.join([str(ii) for ii in __version_info__['release']])
 )
-"""The (0002,0013) *Implementation Version Name* used by pynetdicom"""
+"""The (0002,0013) *Implementation Version Name* used by *pynetdicom*"""
 assert 1 <= len(PYNETDICOM_IMPLEMENTATION_VERSION) <= 16
 
 PYNETDICOM_IMPLEMENTATION_UID = UID(
@@ -26,7 +26,7 @@ PYNETDICOM_IMPLEMENTATION_UID = UID(
         [str(ii) for ii in __version_info__['release']]
     )
 )
-"""The (0002,0012) *Implementation Class UID* used by pynetdicom"""
+"""The (0002,0012) *Implementation Class UID* used by *pynetdicom*"""
 assert PYNETDICOM_IMPLEMENTATION_UID.is_valid
 
 

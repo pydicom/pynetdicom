@@ -45,7 +45,7 @@ notification events.
    :func:`evt.EVT_RELEASED<doc_handle_assoc>`,Association released
    :func:`evt.EVT_REQUESTED<doc_handle_assoc>`,Association requested
 
-By default a number of notification handlers are bound for logging purposes.
+By default, a number of notification handlers are bound for logging purposes.
 If you wish to remove these then you can do the following before creating any
 associations:
 
@@ -74,7 +74,7 @@ table below lists the possible intervention events.
 
 .. currentmodule:: pynetdicom._handlers
 
-Associtation related
+Association related
 ~~~~~~~~~~~~~~~~~~~~
 
 .. csv-table::
@@ -112,13 +112,13 @@ Event Handlers
 ..............
 
 Event handlers are callable functions bound to an event that, at a minimum,
-gets passed a single parameter, *event*, which is an :class:`Event` instance.
+get passed a single parameter, *event*, which is an :class:`Event` instance.
 All :class:`Event` instances come with at least three attributes:
 
 * :attr:`Event.assoc` - the
   :class:`Association <pynetdicom.association.Association>` in which the
   event occurred
-* :attr:`Event.event` - the corresponding event, as a python
+* :attr:`Event.event` - the corresponding event, as a Python
   :func:`namedtuple<collections.namedtuple>`
 * :attr:`Event.timestamp` - the date and time the event occurred at, as a
   Python :class:`datetime.datetime`
@@ -127,7 +127,7 @@ Additional attributes and properties are available depending on the event type,
 see the `handler implementation documentation
 <../reference/events.html>`_ for more information.
 
-Handlers can be bound to events through the *evt_handlers* keyword argument
+Handlers can be bound to events through the *evt_handlers* keyword parameter
 with :meth:`AE.associate()<pynetdicom.ae.ApplicationEntity.associate>` and
 :meth:`AE.start_server()<pynetdicom.ae.ApplicationEntity.start_server>`.
 *evt_handlers* should be a list of 2- or 3-tuples::
@@ -157,17 +157,14 @@ with :meth:`AE.associate()<pynetdicom.ae.ApplicationEntity.associate>` and
     ae.add_supported_context(CTImageStorage)
     ae.start_server(('localhost', 11112), evt_handlers=handlers)
 
-If using a 3-tuple then the third value should be a list of objects that will
+If using a 3-tuple then the third item should be a list of objects that will
 be passed to the handler as extra parameters.
 
 The other way to bind handlers to events is through the
-:class:`Association.bind(event, handler, args=None)
-<pynetdicom.association.Association.bind>` and
-:class:`<AssociationServer.bind(event, handler, args=None)
-<pynetdicom.transport.AssociationServer.bind>` methods, where the `args`
-keyword parameter is a list of objects to pass the handler as extra parameters.
-
-Handlers can be unbound with
+:meth:`Association.bind()<pynetdicom.association.Association.bind>` and
+:meth:`AssociationServer.bind()
+<pynetdicom.transport.AssociationServer.bind>` methods. Handlers can be
+unbound with
 :class:`Association.unbind()<pynetdicom.association.Association.unbind>` and
 :class:`AssociationServer.unbind()<pynetdicom.transport.AssociationServer>`
 methods. See the :ref:`Association<association>` guide for more details.

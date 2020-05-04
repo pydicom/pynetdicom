@@ -6,8 +6,8 @@ import traceback
 
 from pydicom.dataset import Dataset
 
-from pynetdicom import evt
-from pynetdicom.dsutils import decode, encode
+from pynetdicom import evt, _config
+from pynetdicom.dsutils import decode, encode, pretty_dataset
 from pynetdicom.dimse_primitives import (
     C_STORE, C_ECHO, C_MOVE, C_GET, C_FIND,
     N_ACTION, N_CREATE, N_DELETE, N_EVENT_REPORT, N_GET, N_SET
@@ -131,14 +131,17 @@ class ServiceClass(object):
         # Decode and log Identifier
         transfer_syntax = context.transfer_syntax[0]
         try:
-            identifier = decode(req.Identifier,
-                                transfer_syntax.is_implicit_VR,
-                                transfer_syntax.is_little_endian)
-            LOGGER.info('Find SCP Request Identifiers:')
+            identifier = decode(
+                req.Identifier,
+                transfer_syntax.is_implicit_VR,
+                transfer_syntax.is_little_endian,
+                transfer_syntax.is_deflated
+            )
+            LOGGER.info('Find SCP Request Identifier:')
             LOGGER.info('')
             LOGGER.debug('# DICOM Dataset')
-            for elem in identifier.iterall():
-                LOGGER.info(elem)
+            for line in pretty_dataset(identifier):
+                LOGGER.info(line)
             LOGGER.info('')
         except Exception as ex:
             LOGGER.error("Failed to decode the request's Identifier dataset.")
@@ -218,14 +221,18 @@ class ServiceClass(object):
                 return
             elif status[0] == STATUS_PENDING:
                 # If pending, the rsp_identifier is the Identifier dataset
-                bytestream = encode(rsp_identifier,
-                                    transfer_syntax.is_implicit_VR,
-                                    transfer_syntax.is_little_endian)
+                bytestream = encode(
+                    rsp_identifier,
+                    transfer_syntax.is_implicit_VR,
+                    transfer_syntax.is_little_endian,
+                    transfer_syntax.is_deflated
+                )
                 bytestream = BytesIO(bytestream)
 
                 if bytestream.getvalue() == b'':
-                    LOGGER.error("Failed to encode the received Identifier "
-                                 "dataset")
+                    LOGGER.error(
+                        "Failed to encode the received Identifier dataset"
+                    )
                     # Failure: Unable to Process - Can't decode dataset
                     #   returned by handler
                     rsp.Status = 0xC312
@@ -235,12 +242,13 @@ class ServiceClass(object):
                 rsp.Identifier = bytestream
 
                 LOGGER.info('Find SCP Response: %s (Pending)', ii + 1)
-                LOGGER.debug('Find SCP Response Identifier:')
-                LOGGER.debug('')
-                LOGGER.debug('# DICOM Dataset')
-                for elem in rsp_identifier.iterall():
-                    LOGGER.debug(elem)
-                LOGGER.debug('')
+                if _config.LOG_RESPONSE_IDENTIFIERS:
+                    LOGGER.debug('Find SCP Response Identifier:')
+                    LOGGER.debug('')
+                    LOGGER.debug('# DICOM Dataset')
+                    for line in pretty_dataset(rsp_identifier):
+                        LOGGER.debug(line)
+                    LOGGER.debug('')
 
                 self.dimse.send_msg(rsp, context.context_id)
 
@@ -484,9 +492,12 @@ class ServiceClass(object):
             # If Success or Warning then there **may** be a dataset
             transfer_syntax = context.transfer_syntax[0]
             # If encode() fails then returns `None`
-            bytestream = encode(ds,
-                                transfer_syntax.is_implicit_VR,
-                                transfer_syntax.is_little_endian)
+            bytestream = encode(
+                ds,
+                transfer_syntax.is_implicit_VR,
+                transfer_syntax.is_little_endian,
+                transfer_syntax.is_deflated
+            )
 
             if bytestream is None:
                 LOGGER.error(
@@ -642,9 +653,12 @@ class ServiceClass(object):
             # If Success or Warning then there **may** be a dataset
             transfer_syntax = context.transfer_syntax[0]
             # If encode() fails then returns `None`
-            bytestream = encode(ds,
-                                transfer_syntax.is_implicit_VR,
-                                transfer_syntax.is_little_endian)
+            bytestream = encode(
+                ds,
+                transfer_syntax.is_implicit_VR,
+                transfer_syntax.is_little_endian,
+                transfer_syntax.is_deflated
+            )
 
             if bytestream is None:
                 LOGGER.error(
@@ -872,9 +886,12 @@ class ServiceClass(object):
             # If Success or Warning then there **may** be a dataset
             transfer_syntax = context.transfer_syntax[0]
             # If encode() fails then returns `None`
-            bytestream = encode(ds,
-                                transfer_syntax.is_implicit_VR,
-                                transfer_syntax.is_little_endian)
+            bytestream = encode(
+                ds,
+                transfer_syntax.is_implicit_VR,
+                transfer_syntax.is_little_endian,
+                transfer_syntax.is_deflated
+            )
 
             if bytestream is None:
                 LOGGER.error(
@@ -1029,9 +1046,12 @@ class ServiceClass(object):
             # If Success or Warning then there **may** be a dataset
             transfer_syntax = context.transfer_syntax[0]
             # If encode() fails then returns `None`
-            bytestream = encode(ds,
-                                transfer_syntax.is_implicit_VR,
-                                transfer_syntax.is_little_endian)
+            bytestream = encode(
+                ds,
+                transfer_syntax.is_implicit_VR,
+                transfer_syntax.is_little_endian,
+                transfer_syntax.is_deflated
+            )
 
             if bytestream is None:
                 LOGGER.error(
@@ -1194,9 +1214,12 @@ class ServiceClass(object):
             # If Success or Warning then there **may** be a dataset
             transfer_syntax = context.transfer_syntax[0]
             # If encode() fails then returns `None`
-            bytestream = encode(ds,
-                                transfer_syntax.is_implicit_VR,
-                                transfer_syntax.is_little_endian)
+            bytestream = encode(
+                ds,
+                transfer_syntax.is_implicit_VR,
+                transfer_syntax.is_little_endian,
+                transfer_syntax.is_deflated
+            )
 
             if bytestream is None:
                 LOGGER.error(
@@ -1507,14 +1530,17 @@ class QueryRetrieveServiceClass(ServiceClass):
         # Decode and log Identifier
         transfer_syntax = context.transfer_syntax[0]
         try:
-            identifier = decode(req.Identifier,
-                                transfer_syntax.is_implicit_VR,
-                                transfer_syntax.is_little_endian)
-            LOGGER.info('Find SCP Request Identifiers:')
+            identifier = decode(
+                req.Identifier,
+                transfer_syntax.is_implicit_VR,
+                transfer_syntax.is_little_endian,
+                transfer_syntax.is_deflated
+            )
+            LOGGER.info('Find SCP Request Identifier:')
             LOGGER.info('')
             LOGGER.debug('# DICOM Dataset')
-            for elem in identifier.iterall():
-                LOGGER.info(elem)
+            for line in pretty_dataset(identifier):
+                LOGGER.info(line)
             LOGGER.info('')
         except Exception as ex:
             LOGGER.error("Failed to decode the request's Identifier dataset.")
@@ -1595,14 +1621,18 @@ class QueryRetrieveServiceClass(ServiceClass):
                 return
             elif status[0] == STATUS_PENDING:
                 # If pending, the rsp_identifier is the Identifier dataset
-                bytestream = encode(rsp_identifier,
-                                    transfer_syntax.is_implicit_VR,
-                                    transfer_syntax.is_little_endian)
+                bytestream = encode(
+                    rsp_identifier,
+                    transfer_syntax.is_implicit_VR,
+                    transfer_syntax.is_little_endian,
+                    transfer_syntax.is_deflated
+                )
                 bytestream = BytesIO(bytestream)
 
                 if bytestream.getvalue() == b'':
-                    LOGGER.error("Failed to encode the received Identifier "
-                                 "dataset")
+                    LOGGER.error(
+                        "Failed to encode the received Identifier dataset"
+                    )
                     # Failure: Unable to Process - Can't decode dataset
                     #   returned by handler
                     rsp.Status = 0xC312
@@ -1612,12 +1642,13 @@ class QueryRetrieveServiceClass(ServiceClass):
                 rsp.Identifier = bytestream
 
                 LOGGER.info('Find SCP Response: %s (Pending)', ii + 1)
-                LOGGER.debug('Find SCP Response Identifier:')
-                LOGGER.debug('')
-                LOGGER.debug('# DICOM Dataset')
-                for elem in rsp_identifier.iterall():
-                    LOGGER.debug(elem)
-                LOGGER.debug('')
+                if _config.LOG_RESPONSE_IDENTIFIERS:
+                    LOGGER.debug('Find SCP Response Identifier:')
+                    LOGGER.debug('')
+                    LOGGER.debug('# DICOM Dataset')
+                    for line in pretty_dataset(rsp_identifier):
+                        LOGGER.debug(line)
+                    LOGGER.debug('')
 
                 self.dimse.send_msg(rsp, context.context_id)
 
@@ -1741,9 +1772,12 @@ class QueryRetrieveServiceClass(ServiceClass):
                     dataset = Dataset()
                     dataset.FailedSOPInstanceUIDList = failed_instances
 
-                bytestream = encode(dataset,
-                                    transfer_syntax.is_implicit_VR,
-                                    transfer_syntax.is_little_endian)
+                bytestream = encode(
+                    dataset,
+                    transfer_syntax.is_implicit_VR,
+                    transfer_syntax.is_little_endian,
+                    transfer_syntax.is_deflated
+                )
                 rsp.Identifier = BytesIO(bytestream)
                 self.dimse.send_msg(rsp, context.context_id)
                 return
@@ -1764,9 +1798,12 @@ class QueryRetrieveServiceClass(ServiceClass):
                     dataset = Dataset()
                     dataset.FailedSOPInstanceUIDList = failed_instances
 
-                bytestream = encode(dataset,
-                                    transfer_syntax.is_implicit_VR,
-                                    transfer_syntax.is_little_endian)
+                bytestream = encode(
+                    dataset,
+                    transfer_syntax.is_implicit_VR,
+                    transfer_syntax.is_little_endian,
+                    transfer_syntax.is_deflated
+                )
                 rsp.Identifier = BytesIO(bytestream)
                 self.dimse.send_msg(rsp, context.context_id)
                 return
@@ -1778,9 +1815,12 @@ class QueryRetrieveServiceClass(ServiceClass):
                     rsp.Status = 0xB000
                     ds = Dataset()
                     ds.FailedSOPInstanceUIDList = failed_instances
-                    bytestream = encode(ds,
-                                        transfer_syntax.is_implicit_VR,
-                                        transfer_syntax.is_little_endian)
+                    bytestream = encode(
+                        ds,
+                        transfer_syntax.is_implicit_VR,
+                        transfer_syntax.is_little_endian,
+                        transfer_syntax.is_deflated
+                    )
                     rsp.Identifier = BytesIO(bytestream)
                 else:
                     LOGGER.info('Get SCP Response: (Success)')
@@ -1898,9 +1938,12 @@ class QueryRetrieveServiceClass(ServiceClass):
             #   (0008,0058) Failed SOP Instance UID List element
             ds = Dataset()
             ds.FailedSOPInstanceUIDList = failed_instances
-            bytestream = encode(ds,
-                                transfer_syntax.is_implicit_VR,
-                                transfer_syntax.is_little_endian)
+            bytestream = encode(
+                ds,
+                transfer_syntax.is_implicit_VR,
+                transfer_syntax.is_little_endian,
+                transfer_syntax.is_deflated
+            )
             rsp.Identifier = BytesIO(bytestream)
 
         rsp.NumberOfRemainingSuboperations = None
@@ -1929,14 +1972,17 @@ class QueryRetrieveServiceClass(ServiceClass):
         # Attempt to decode the request's Identifier dataset
         transfer_syntax = context.transfer_syntax[0]
         try:
-            identifier = decode(req.Identifier,
-                                transfer_syntax.is_implicit_VR,
-                                transfer_syntax.is_little_endian)
+            identifier = decode(
+                req.Identifier,
+                transfer_syntax.is_implicit_VR,
+                transfer_syntax.is_little_endian,
+                transfer_syntax.is_deflated
+            )
             LOGGER.info('Move SCP Request Identifier:')
             LOGGER.info('')
             LOGGER.debug('# DICOM Data Set')
-            for elem in identifier.iterall():
-                LOGGER.info(elem)
+            for line in pretty_dataset(identifier):
+                LOGGER.info(line)
             LOGGER.info('')
         except Exception as exc:
             LOGGER.error("Failed to decode the request's Identifier dataset")
@@ -2013,8 +2059,10 @@ class QueryRetrieveServiceClass(ServiceClass):
         try:
             # Unknown Move Destination
             if None in destination:
-                LOGGER.error('Unknown Move Destination: %s',
-                             req.MoveDestination.decode('ascii'))
+                LOGGER.error(
+                    'Unknown Move Destination: %s',
+                    req.MoveDestination.decode('ascii')
+                )
                 # Failure - Move destination unknown
                 rsp.Status = 0xA801
                 self.dimse.send_msg(rsp, context.context_id)
@@ -2097,9 +2145,12 @@ class QueryRetrieveServiceClass(ServiceClass):
                         dataset = Dataset()
                         dataset.FailedSOPInstanceUIDList = failed_instances
 
-                    bytestream = encode(dataset,
-                                        transfer_syntax.is_implicit_VR,
-                                        transfer_syntax.is_little_endian)
+                    bytestream = encode(
+                        dataset,
+                        transfer_syntax.is_implicit_VR,
+                        transfer_syntax.is_little_endian,
+                        transfer_syntax.is_deflated
+                    )
 
                     rsp.Identifier = BytesIO(bytestream)
                     rsp.NumberOfRemainingSuboperations = store_results[0]
@@ -2123,9 +2174,12 @@ class QueryRetrieveServiceClass(ServiceClass):
                         dataset = Dataset()
                         dataset.FailedSOPInstanceUIDList = failed_instances
 
-                    bytestream = encode(dataset,
-                                        transfer_syntax.is_implicit_VR,
-                                        transfer_syntax.is_little_endian)
+                    bytestream = encode(
+                        dataset,
+                        transfer_syntax.is_implicit_VR,
+                        transfer_syntax.is_little_endian,
+                        transfer_syntax.is_deflated
+                    )
 
                     rsp.Identifier = BytesIO(bytestream)
                     rsp.NumberOfRemainingSuboperations = None
@@ -2148,9 +2202,12 @@ class QueryRetrieveServiceClass(ServiceClass):
 
                         ds = Dataset()
                         ds.FailedSOPInstanceUIDList = failed_instances
-                        bytestream = encode(ds,
-                                            transfer_syntax.is_implicit_VR,
-                                            transfer_syntax.is_little_endian)
+                        bytestream = encode(
+                            ds,
+                            transfer_syntax.is_implicit_VR,
+                            transfer_syntax.is_little_endian,
+                            transfer_syntax.is_deflated
+                        )
 
                         rsp.Identifier = BytesIO(bytestream)
                         rsp.Status = 0xB000
@@ -2259,9 +2316,12 @@ class QueryRetrieveServiceClass(ServiceClass):
             #   (0008, 0058) Failed SOP Instance UID List element
             ds = Dataset()
             ds.FailedSOPInstanceUIDList = failed_instances
-            bytestream = encode(ds,
-                                transfer_syntax.is_implicit_VR,
-                                transfer_syntax.is_little_endian)
+            bytestream = encode(
+                ds,
+                transfer_syntax.is_implicit_VR,
+                transfer_syntax.is_little_endian,
+                transfer_syntax.is_deflated
+            )
             rsp.Identifier = BytesIO(bytestream)
 
         rsp.NumberOfRemainingSuboperations = None
@@ -2349,14 +2409,17 @@ class RelevantPatientInformationQueryServiceClass(ServiceClass):
         # Decode and log Identifier
         transfer_syntax = context.transfer_syntax[0]
         try:
-            identifier = decode(req.Identifier,
-                                transfer_syntax.is_implicit_VR,
-                                transfer_syntax.is_little_endian)
+            identifier = decode(
+                req.Identifier,
+                transfer_syntax.is_implicit_VR,
+                transfer_syntax.is_little_endian,
+                transfer_syntax.is_deflated
+            )
             LOGGER.info('Find SCP Request Identifier:')
             LOGGER.info('')
             LOGGER.debug('# DICOM Dataset')
-            for elem in identifier.iterall():
-                LOGGER.info(elem)
+            for line in pretty_dataset(identifier):
+                LOGGER.info(line)
             LOGGER.info('')
         except Exception as ex:
             LOGGER.error("Failed to decode the request's Identifier dataset.")
@@ -2428,14 +2491,18 @@ class RelevantPatientInformationQueryServiceClass(ServiceClass):
             return
         elif status[0] == STATUS_PENDING:
             # If pending, the rsp_identifier is the Identifier dataset
-            bytestream = encode(rsp_identifier,
-                                transfer_syntax.is_implicit_VR,
-                                transfer_syntax.is_little_endian)
+            bytestream = encode(
+                rsp_identifier,
+                transfer_syntax.is_implicit_VR,
+                transfer_syntax.is_little_endian,
+                transfer_syntax.is_deflated
+            )
             bytestream = BytesIO(bytestream)
 
             if bytestream.getvalue() == b'':
-                LOGGER.error("Failed to encode the received Identifier "
-                             "dataset")
+                LOGGER.error(
+                    "Failed to encode the received Identifier dataset"
+                )
                 # Failure: Unable to Process - Can't encode dataset
                 #   returned by handler
                 rsp.Status = 0xC312
@@ -2445,12 +2512,13 @@ class RelevantPatientInformationQueryServiceClass(ServiceClass):
             rsp.Identifier = bytestream
 
             LOGGER.info('Find SCP Response: (Pending)')
-            LOGGER.debug('Find SCP Response Identifier:')
-            LOGGER.debug('')
-            LOGGER.debug('# DICOM Dataset')
-            for elem in rsp_identifier.iterall():
-                LOGGER.debug(elem)
-            LOGGER.debug('')
+            if _config.LOG_RESPONSE_IDENTIFIERS:
+                LOGGER.debug('Find SCP Response Identifier:')
+                LOGGER.debug('')
+                LOGGER.debug('# DICOM Dataset')
+                for line in pretty_dataset(rsp_identifier):
+                    LOGGER.debug(line)
+                LOGGER.debug('')
 
             # Send pending response
             self.dimse.send_msg(rsp, context.context_id)
