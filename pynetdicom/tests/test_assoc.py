@@ -4342,6 +4342,7 @@ class TestGetValidContext(object):
 
         ae = AE()
         ae.add_requested_context(MRImageStorage, ExplicitVRBigEndian)
+        ae.add_requested_context(MRImageStorage, ExplicitVRLittleEndian)
         ae.add_requested_context(CTImageStorage, ImplicitVRLittleEndian)
         ae.acse_timeout = 5
         ae.dimse_timeout = 5

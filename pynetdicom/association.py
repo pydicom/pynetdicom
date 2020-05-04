@@ -328,7 +328,7 @@ class Association(threading.Thread):
 
         .. versionchanged:: 1.5
 
-            Changed to prefer an exact matching convext over a convertible one
+            Changed to prefer an exact matching context over a convertible one
             and to reject contexts without matching endianness
 
         Parameters
