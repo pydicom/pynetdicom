@@ -12,6 +12,8 @@ import pydicom.config
 from pydicom.dataset import Dataset
 from pydicom.tag import Tag
 
+from pynetdicom.sop_class import PatientRootQueryRetrieveInformationModelFind
+
 from pynetdicom.apps.qrscp import db
 import pynetdicom.apps.qrscp.config as config
 
@@ -35,6 +37,22 @@ DATASETS = {
         'instance_number' : '1',
         'transfer_syntax_uid' : '1.2.840.10008.1.2.1',
         'sop_class_uid' : '1.2.840.10008.5.1.4.1.1.2',
+    },
+    'MRImageStorage_ExplicitVRBigEndian.dcm' : {
+        'patient_id' : '4MR1',
+        'patient_name' : 'CompressedSamples^MR1',
+        'study_instance_uid' : '1.3.6.1.4.1.5962.1.2.4.20040826185059.5457',
+        'study_date' : '20040826',
+        'study_time' : '185059',
+        'accession_number' : None,
+        'study_id' : '4MR1',
+        'series_instance_uid' : '1.3.6.1.4.1.5962.1.3.4.1.20040826185059.5457',
+        'modality' : 'MR',
+        'series_number' : '1',
+        'sop_instance_uid' : '1.3.6.1.4.1.5962.1.1.4.1.1.20040826185059.5457.1',
+        'instance_number' : '1',
+        'transfer_syntax_uid' : '1.2.840.10008.1.2.4.90',
+        'sop_class_uid' : '1.2.840.10008.5.1.4.1.1.4',
     },
     'MRImageStorage_JPG2000_Lossless.dcm' : {
         'patient_id' : '4MR1',
@@ -67,6 +85,22 @@ DATASETS = {
         'instance_number' : '000000056675',
         'transfer_syntax_uid' : '1.2.840.10008.1.2',
         'sop_class_uid' : '1.2.840.10008.5.1.4.1.1.481.1',
+    },
+    'SCImageStorage_Deflated.dcm' : {
+        'patient_id' : None,
+        'patient_name' : '^^^^',
+        'study_instance_uid' : '1.3.6.1.4.1.5962.1.2.0.977067310.6001.0',
+        'study_date' : None,
+        'study_time' : None,
+        'accession_number' : None,
+        'study_id' : None,
+        'series_instance_uid' : '1.3.6.1.4.1.5962.1.3.0.0.977067310.6001.0',
+        'modality' : 'OT',
+        'series_number' : None,
+        'sop_instance_uid' : '1.3.6.1.4.1.5962.1.1.0.0.0.977067309.6001.0',
+        'instance_number' : None,
+        'transfer_syntax_uid' : '1.2.840.10008.1.2.1.99',
+        'sop_class_uid' : '1.2.840.10008.5.1.4.1.1.7',
     },
 }
 
@@ -154,12 +188,13 @@ class TestAddInstance(object):
 
         session = self.session()
         obj = session.query(db.Instance).all()
-        assert 3 == len(obj)
+        assert 5 == len(obj)
         obj = session.query(db.Instance, db.Instance.patient_name).all()
         names = [val[1] for val in obj]
         assert 'CompressedSamples^CT1' in names
         assert 'CompressedSamples^MR1' in names
         assert 'ANON^A^B^C^D' in names
+        assert '^^^^' in names
 
     def test_add_minimal(self):
         """Test adding a minimal dataset."""
@@ -232,16 +267,21 @@ class TestAddInstance(object):
         assert not session.query(db.Instance).all()
 
     def test_instance_exists(self):
-        """Test that adding already existing instance."""
+        """Test that adding already existing instance updates it."""
         db.add_instance(self.minimal, self.session)
 
         session = self.session()
-        assert session.query(db.Instance).all()
+        result = session.query(db.Instance).all()
+        assert 1 == len(result)
+        assert None == result[0].modality
 
-        with pytest.raises(IntegrityError):
-            db.add_instance(self.minimal, self.session)
+        self.minimal.Modality = 'CT'
 
-        assert 1 == len(session.query(db.Instance).all())
+        session = self.session()
+        db.add_instance(self.minimal, self.session)
+        result = session.query(db.Instance).all()
+        assert 1 == len(result)
+        assert 'CT' == result[0].modality
 
 
 class TestRemoveInstance(object):
@@ -305,7 +345,7 @@ class TestClear(object):
     def test_clear(self):
         """Test removing if exists in database."""
         session = self.session()
-        assert 3 == len(session.query(db.Instance).all())
+        assert 5 == len(session.query(db.Instance).all())
 
         db.clear(self.session)
         assert not session.query(db.Instance).all()
@@ -333,11 +373,11 @@ class TestSearch(object):
         query.QueryRetrieveLevel = 'PATIENT'
         query.StudyDate = '20000101-20200101'
         q = db._search_range(query['StudyDate'], self.session)
-        assert 3 == len(q.all())
+        assert 4 == len(q.all())
 
         query.StudyDate = '20000101-20150101'
         q = db._search_range(query['StudyDate'], self.session)
-        assert 2 == len(q.all())
+        assert 3 == len(q.all())
 
         query.StudyDate = '20000101-20010101'
         q = db._search_range(query['StudyDate'], self.session)
@@ -349,7 +389,7 @@ class TestSearch(object):
         query.QueryRetrieveLevel = 'PATIENT'
         query.StudyDate = '20000101-'
         q = db._search_range(query['StudyDate'], self.session)
-        assert 3 == len(q.all())
+        assert 4 == len(q.all())
 
         query.StudyDate = '20150101-'
         q = db._search_range(query['StudyDate'], self.session)
@@ -365,11 +405,11 @@ class TestSearch(object):
         query.QueryRetrieveLevel = 'PATIENT'
         query.StudyDate = '-20200101'
         q = db._search_range(query['StudyDate'], self.session)
-        assert 3 == len(q.all())
+        assert 4 == len(q.all())
 
         query.StudyDate = '-20150101'
         q = db._search_range(query['StudyDate'], self.session)
-        assert 2 == len(q.all())
+        assert 3 == len(q.all())
 
         query.StudyDate = '-20010101'
         q = db._search_range(query['StudyDate'], self.session)
@@ -398,11 +438,11 @@ class TestSearch(object):
 
         query.PatientName = '*'
         q = db._search_wildcard(query['PatientName'], self.session)
-        assert 3 == len(q.all())
+        assert 5 == len(q.all())
 
         query.PatientName = 'CompressedSamples*'
         q = db._search_wildcard(query['PatientName'], self.session)
-        assert 2 == len(q.all())
+        assert 3 == len(q.all())
 
     def test_search_wildcard_qmark(self):
         """Test search using a ? wildcard."""
@@ -411,7 +451,7 @@ class TestSearch(object):
 
         query.PatientName = 'CompressedSamples^??1'
         q = db._search_wildcard(query['PatientName'], self.session)
-        assert 2 == len(q.all())
+        assert 3 == len(q.all())
 
     def test_search_uid_list(self):
         """Test search using a UID list."""
@@ -454,3 +494,30 @@ class TestSearch(object):
         q2 = db._search_range(query['StudyDate'], self.session)
         q = q1.intersect(q2)
         assert 1 == len(q.all())
+
+
+class TestSearchFind(object):
+    """Tests for running C-FIND queries against the database."""
+    def setup(self):
+        """Run prior to each test"""
+        self.conn, self.engine, self.session = db.connect('sqlite:///:memory:')
+        pydicom.config.use_none_as_empty_text_VR_value = True
+
+        for fname in DATASETS:
+            fpath = os.path.join(DATA_DIR, fname)
+            ds = dcmread(fpath)
+            db.add_instance(ds, self.session)
+
+    def test_patient_minimal(self):
+        """Test query at PATIENT level for Patient Root."""
+        query = Dataset()
+        query.QueryRetrieveLevel = 'PATIENT'
+        query.PatientID = None
+
+        result = db.search(
+            PatientRootQueryRetrieveInformationModelFind,
+            query,
+            self.session
+        )
+        for instance in result:
+            print(instance.as_identifier(query))

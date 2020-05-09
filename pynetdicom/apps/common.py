@@ -612,13 +612,11 @@ def handle_store(event, args, app_logger):
         # We use `write_like_original=False` to ensure that a compliant
         #   File Meta Information Header is written
         ds.save_as(filename, write_like_original=False)
-        status_ds.Status = 0x0000 # Success
-    except IOError:
+        status_ds.Status = 0x0000  # Success
+    except IOError as exc:
         app_logger.error('Could not write file to specified directory:')
         app_logger.error("    {0!s}".format(os.path.dirname(filename)))
-        app_logger.error(
-            'Directory may not exist or you may not have write permission '
-        )
+        app_logger.exception(exc)
         # Failed - Out of Resources - IOError
         status_ds.Status = 0xA700
     except Exception as exc:

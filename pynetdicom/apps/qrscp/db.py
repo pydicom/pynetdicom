@@ -1,13 +1,15 @@
 try:
     import sqlalchemy
 except ImportError:
-    sys.exit("qrscp.py requires the sqlalchemy package")
+    sys.exit("qrscp requires the sqlalchemy package")
 
 from sqlalchemy import (
     create_engine, Column, ForeignKey, Integer, String
 )
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import relationship, sessionmaker
+
+from pydicom.dataset import Dataset
 
 import pynetdicom.apps.qrscp.config as config
 
@@ -22,23 +24,23 @@ import pynetdicom.apps.qrscp.config as config
 # UI - 64 bytes maximum
 
 TRANSLATION = {
-    'PatientID' : 'patient_id',
-    'PatientName' : 'patient_name',
-    'StudyInstanceUID' : 'study_instance_uid',
-    'StudyDate' : 'study_date',
-    'StudyTime' : 'study_time',
-    'AccessionNumber' : 'accession_number',
-    'StudyID' : 'study_id',
-    'SeriesInstanceUID' : 'series_instance_uid',
-    'Modality' : 'modality',
-    'SeriesNumber' : 'series_number',
-    'SOPInstanceUID' : 'sop_instance_uid',
-    'InstanceNumber' : 'instance_number',
+    'PatientID' : 'patient_id',  # PATIENT | Unique
+    'PatientName' : 'patient_name',  # PATIENT | Required
+    'StudyInstanceUID' : 'study_instance_uid',  # STUDY | Unique
+    'StudyDate' : 'study_date',  # STUDY | Required
+    'StudyTime' : 'study_time',  # STUDY | Required
+    'AccessionNumber' : 'accession_number',  # STUDY | Required
+    'StudyID' : 'study_id',  # STUDY | Required
+    'SeriesInstanceUID' : 'series_instance_uid',  # SERIES | Unique
+    'Modality' : 'modality',  # SERIES | Required
+    'SeriesNumber' : 'series_number',  # SERIES | Required
+    'SOPInstanceUID' : 'sop_instance_uid',  # IMAGE | Unique
+    'InstanceNumber' : 'instance_number',  # IMAGE | Required
 }
 
 
 def add_instance(ds, session_builder, fpath=None):
-    """Add a SOP Instance to the database.
+    """Add a SOP Instance to the database or update existing instance.
 
     Parameters
     ----------
@@ -49,6 +51,19 @@ def add_instance(ds, session_builder, fpath=None):
         The path to where the SOP Instance is stored, taken relative
         to the database file.
     """
+    session = session_builder()
+
+    # Check if instance is already in the database
+    result = session.query(Instance).filter(
+        Instance.sop_instance_uid == ds.SOPInstanceUID
+    ).all()
+    if result:
+        instance = result[0]
+        instance_exists = True
+    else:
+        instance = Instance()
+        instance_exists = False
+
     # Unique or Required attributes
     required = [
         # (Instance() attribute, DICOM keyword)
@@ -65,7 +80,6 @@ def add_instance(ds, session_builder, fpath=None):
         ('sop_instance_uid', 'SOPInstanceUID', 64, True),
         ('instance_number', 'InstanceNumber', None, False),
     ]
-    instance = Instance()
 
     # Unique and Required attributes
     for attr, keyword, max_len, unique in required:
@@ -94,7 +108,7 @@ def add_instance(ds, session_builder, fpath=None):
         if tsyntax:
             assert len(tsyntax) < 64
             instance.transfer_syntax_uid = tsyntax
-    except (AttributeError, AssertionError):
+    except (AttributeError, AssertionError) as exc:
         pass
 
     # SOP Class UID
@@ -106,7 +120,6 @@ def add_instance(ds, session_builder, fpath=None):
     except (AttributeError, AssertionError):
         pass
 
-    session = session_builder()
     session.add(instance)
     session.commit()
 
@@ -191,8 +204,8 @@ def search(model, query, session_builder):
 
     Returns
     -------
-    list of str
-        The paths to the files matching the query.
+    list of Instance
+        The matching database Instances.
     """
     # sequence matching
     #   May be a sequence with 1 item, which contains zero or more attributes
@@ -244,20 +257,43 @@ def search(model, query, session_builder):
     else:
         raise ValueError()
 
-    del ds.QueryRetrieveLevel
+    # A unique key attribute shall uniquely identify a single instance at a
+    #   given level
+    # Unique keys may be in a C-FIND request's Identifier
+    # Unique keys shall be in a C-MOVE or C-GET request's Identifier
+    # C-FIND, C-GET and C-MOVE shall support existence and matching of all
+    #   unique keys. All instances managed shall have specific non-zero length
+    #   unique key values
 
-    matches = []
-    for elem in query if elem.keyword in TRANSLATION:
+    # Multiple instances may have the same value for required keys.
+    # Required keys may be in a C-FIND request's Identifier
+    # Required keys shall not be in a C-GET or C-MOVE request's Identifier
+
+    # Start with all managed Instances - this is probably not ideal
+    #   Change it to build up rather than exclude
+    #   Limit number of results Query.limit()
+    matches = session_builder().query(Instance)
+    for elem in [q for q in query if q.keyword in TRANSLATION]:
+        if elem.keyword == 'QueryRetrieveLevel':
+            continue
+
         if elem.VR in ['DT', 'TM'] and '-' in elem.value:
-            matches.append(_search_range(elem, session_builder))
+            matches.intersect(_search_range(elem, session_builder))
         elif elem.VR == 'UI' and elem.VM > 1:
-            matches.append(_search_uid_list(elem, session_builder))
-        elif elem.VR != 'PN' and '*' in elem.value or '?' in elem.value:
-            matches.append(_search_wildcard(elem, session_builder))
-        elif elem.VR != 'PN' and elem.value is None or elem.value == '':
-            matches.append(_search_wildcard(elem, session_builder))
+            matches.intersect(_search_uid_list(elem, session_builder))
+        elif elem.VR != 'PN' and (elem.value is None or elem.value == ''):
+            matches.intersect(_search_wildcard(elem, session_builder))
+        elif elem.VR != 'PN' and ('*' in elem.value or '?' in elem.value):
+            matches.intersect(_search_wildcard(elem, session_builder))
 
-    return
+    # C-GET/C-MOVE shall transfer:
+    #   PATIENT level - all Instances related to Patient
+    #   STUDY level - all Instances related to a Study
+    #   SERIES level - all Instances related to a Series
+    #   IMAGE level - selected individual Instances
+
+
+    return matches.all()
 
 
 def _search_single_value(attribute, session_builder):
@@ -390,6 +426,33 @@ class Instance(Base):
         String, ForeignKey('image.sop_instance_uid'), primary_key=True,
     )
     instance_number = Column(String, ForeignKey('image.instance_number'))
+
+    def as_identifier(self, query):
+        """Return an Identifier dataset matching the elements from a query.
+
+        Parameters
+        ----------
+        query : pydicom.dataset.Dataset
+            The C-FIND, C-GET or C-MOVE request's *Identifier* dataset.
+
+        Returns
+        -------
+        pydicom.dataset.Dataset
+            The response *Identifier*.
+        """
+        ds = Dataset()
+        if 'QueryRetrieveLevel' in query:
+            ds.QueryRetrieveLevel = query.QueryRetrieveLevel
+
+        for elem in query:
+            try:
+                attribute = TRANSLATION[elem.keyword]
+            except KeyError:
+                continue
+
+            setattr(ds, elem.keyword, getattr(self, attribute, None))
+
+        return ds
 
 
 class Patient(Base):

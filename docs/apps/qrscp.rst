@@ -1,7 +1,7 @@
 =====
 qrscp
 =====
-    ``qrscp.py [options] port``
+    ``python -m pynetdicom qrscp [options] port``
 
 
 Query Keys

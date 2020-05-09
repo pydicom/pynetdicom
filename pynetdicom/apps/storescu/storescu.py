@@ -237,15 +237,20 @@ def main(args=None):
     if args.required_contexts:
         # Only propose required presentation contexts
         lfiles, contexts = get_contexts(lfiles, APP_LOGGER)
-        if len(contexts) > 128:
-            raise ValueError(
-                "More than 128 presentation contexts required with the "
-                "'--required-contexts' flag, please try again without it or "
-                "with fewer files"
-            )
 
+        total_cx = 0
         for abstract, transfer in contexts.items():
-            ae.add_requested_context(abstract, transfer)
+            total_cx +=1
+            if total_cx > 128:
+                raise ValueError(
+                    "More than 128 presentation contexts required with the "
+                    "'--required-contexts' flag, please try again without it "
+                    "or with fewer files"
+                )
+
+            for tsyntax in transfer:
+                ae.add_requested_context(abstract, tsyntax)
+
     else:
         # Propose the default presentation contexts
         if args.request_little:

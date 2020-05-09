@@ -1,33 +1,75 @@
 #!/usr/bin/env python
-"""A Verification, Storage and Query/Retrieve SCP application."""
+"""A Verification, Storage and Query/Retrieve SCP application.
+
+
+TODO:
+* Add support for custom configuration file with -c option
+"""
 
 import argparse
 import os
 import sys
 
-
+import pydicom.config
 from pydicom.dataset import Dataset
-from pydicom.uid import (
-    ExplicitVRLittleEndian, ImplicitVRLittleEndian, ExplicitVRBigEndian,
-    DeflatedExplicitVRLittleEndian, JPEGBaseline, JPEGExtended,
-    JPEGLosslessP14, JPEGLossless, JPEGLSLossless, JPEGLSLossy,
-    JPEG2000Lossless, JPEG2000, JPEG2000MultiComponentLossless,
-    JPEG2000MultiComponent, RLELossless
-)
 
 from pynetdicom import (
-    AE, evt, QueryRetrievePresentationContexts, AllStoragePresentationContexts,
-    VerificationPresentationContexts
+    AE, evt, AllStoragePresentationContexts, ALL_TRANSFER_SYNTAXES
 )
+from pynetdicom import _config
 from pynetdicom.apps.common import setup_logging
-from pynetdicom.sop_class import VerificationSOPClass
-from db import connect, add_instance
-from handlers import (
+from pynetdicom.sop_class import (
+    VerificationSOPClass,
+    PatientRootQueryRetrieveInformationModelFind,
+    PatientRootQueryRetrieveInformationModelMove,
+    PatientRootQueryRetrieveInformationModelGet,
+    StudyRootQueryRetrieveInformationModelFind,
+    StudyRootQueryRetrieveInformationModelMove,
+    StudyRootQueryRetrieveInformationModelGet
+)
+
+from . import config
+from .db import connect, clear, Instance
+from .handlers import (
     handle_echo, handle_find, handle_get, handle_move, handle_store
 )
 
+# Use `None` for empty values
+pydicom.config.use_none_as_empty_text_VR_value = True
+# Don't log identifiers
+_config.LOG_RESPONSE_IDENTIFIERS = False
+
 
 __version__ = '0.0.0alpha1'
+
+
+def _log_config(logger):
+    """Log the configuration settings.
+
+    Parameters
+    ----------
+    logger : logging.Logger
+        The application's logger.
+    """
+    logger.debug('Configuration Settings')
+    logger.debug(
+        '  AE Title: {}, Port: {}, Max. PDU: {}'
+        .format(config.AE_TITLE, config.PORT, config.MAX_PDU)
+    )
+    logger.debug(
+        '  Storage directory: {}'
+        .format(os.path.abspath(config.INSTANCE_LOCATION))
+    )
+    logger.debug(
+        '  Database location: {}'
+        .format(os.path.abspath(config.DATABASE_LOCATION))
+    )
+    logger.debug('  Defined move destinations')
+    for ae_title, addr in config.MOVE_DESTINATIONS.items():
+        logger.debug('    {}: {}'.format(ae_title, addr))
+
+    logger.debug('  Log identifiers: {}'.format(config.LOG_IDENTIFIERS))
+    logger.debug('')
 
 
 def _setup_argparser():
@@ -86,10 +128,51 @@ def _setup_argparser():
         type=str,
     )
 
+    house_opts = parser.add_argument_group('Housekeeping Options')
+    house_opts.add_argument(
+        '--clean',
+        help=(
+            "remove all entries from the database and delete the "
+            "corresponding stored instances"
+        ),
+        action="store_true",
+    )
+
     return parser.parse_args()
 
 
-if __name__ == "__main__":
+def clean(logger):
+    """Remove all entries from the database and delete the corresponding
+    stored instances.
+    """
+    db_dir = os.path.dirname(config.DATABASE_LOCATION)
+    conn, engine, session = connect()
+    query_session = session()
+    instances = query_session.query(Instance).all()
+    for instance in instances:
+        try:
+            os.remove(
+                os.path.join(db_dir, instance.filename)
+            )
+        except Exception as exc:
+            logger.error(
+                "Unable to delete the instance at '{}'"
+                .format(instance.filename)
+            )
+            logger.exception(exc)
+
+    query_session.close()
+
+    clear(session)
+
+    logger.info('Database and storage location cleaned')
+
+
+def main(args=None):
+    """Run the application."""
+    if args is not None:
+        sys.argv = args
+
     args = _setup_argparser()
 
     if args.version:
@@ -100,14 +183,59 @@ if __name__ == "__main__":
     APP_LOGGER.debug('qrscp.py v{0!s}'.format(__version__))
     APP_LOGGER.debug('')
 
+    # Log configuration settings
+    _log_config(APP_LOGGER)
+
+    # Use default or specified configuration file
+    if not args.config:
+        current_dir = os.path.abspath(os.path.dirname(__file__))
+        config.INSTANCE_LOCATION = os.path.join(
+            current_dir, config.INSTANCE_LOCATION
+        )
+        config.DATABASE_LOCATION = os.path.join(
+            current_dir, config.DATABASE_LOCATION
+        )
+
+    if args.clean:
+        clean(APP_LOGGER)
+        sys.exit()
+
+    # Try to create the instance storage directory
+    os.makedirs(config.INSTANCE_LOCATION, exist_ok=True)
+
+    # Connect to the database
+    conn, engine, session = connect()
+
     handlers = [
         (evt.EVT_C_ECHO, handle_echo, [args, APP_LOGGER]),
-        (evt.EVT_C_FIND, handle_find, [args, APP_LOGGER]),
-        (evt.EVT_C_GET, handle_get, [args, APP_LOGGER]),
-        (evt.EVT_C_MOVE, handle_move, [args, APP_LOGGER]),
-        (evt.EVT_C_STORE, handle_store, [args, APP_LOGGER]),
+        (evt.EVT_C_FIND, handle_find, [session, args, APP_LOGGER]),
+        (evt.EVT_C_GET, handle_get, [session, args, APP_LOGGER]),
+        (evt.EVT_C_MOVE, handle_move, [session, args, APP_LOGGER]),
+        (evt.EVT_C_STORE, handle_store, [session, args, APP_LOGGER]),
     ]
 
-    ae = AE()
+    ae = AE(config.AE_TITLE)
+    ae.maximum_pdu_size = config.MAX_PDU
+
+    ## Add supported presentation contexts
+    # Verification SCP
     ae.add_supported_context(VerificationSOPClass)
-    ae.start_server(('', 11112), evt_handlers=handlers)
+
+    # Storage SCP
+    for cx in AllStoragePresentationContexts:
+        ae.add_supported_context(cx.abstract_syntax, ALL_TRANSFER_SYNTAXES)
+
+    # Query/Retrieve SCP
+    ae.add_supported_context(PatientRootQueryRetrieveInformationModelFind)
+    ae.add_supported_context(PatientRootQueryRetrieveInformationModelMove)
+    ae.add_supported_context(PatientRootQueryRetrieveInformationModelGet)
+    ae.add_supported_context(StudyRootQueryRetrieveInformationModelFind)
+    ae.add_supported_context(StudyRootQueryRetrieveInformationModelMove)
+    ae.add_supported_context(StudyRootQueryRetrieveInformationModelGet)
+
+    # Listen for incoming association requests
+    ae.start_server(('', config.PORT), evt_handlers=handlers)
+
+
+if __name__ == "__main__":
+    main()
