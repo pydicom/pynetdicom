@@ -372,107 +372,158 @@ class TestSearch(object):
         query = Dataset()
         query.QueryRetrieveLevel = 'PATIENT'
         query.StudyDate = '20000101-20200101'
-        q = db._search_range(query['StudyDate'], self.session)
+
+        session = self.session()
+        q = db._search_range(query['StudyDate'], session)
         assert 4 == len(q.all())
 
         query.StudyDate = '20000101-20150101'
-        q = db._search_range(query['StudyDate'], self.session)
+        q = db._search_range(query['StudyDate'], session)
         assert 3 == len(q.all())
 
         query.StudyDate = '20000101-20010101'
-        q = db._search_range(query['StudyDate'], self.session)
+        q = db._search_range(query['StudyDate'], session)
         assert not q.all()
+
+    def test_search_range_both_subquery(self):
+        """Test searching within an existing query."""
+        pass
 
     def test_search_range_start(self):
         """Test searching a range with only start."""
         query = Dataset()
         query.QueryRetrieveLevel = 'PATIENT'
         query.StudyDate = '20000101-'
-        q = db._search_range(query['StudyDate'], self.session)
+
+        session = self.session()
+        q = db._search_range(query['StudyDate'], session)
         assert 4 == len(q.all())
 
         query.StudyDate = '20150101-'
-        q = db._search_range(query['StudyDate'], self.session)
+        q = db._search_range(query['StudyDate'], session)
         assert 1 == len(q.all())
 
         query.StudyDate = '20200101-'
-        q = db._search_range(query['StudyDate'], self.session)
+        q = db._search_range(query['StudyDate'], session)
         assert not q.all()
+
+    def test_search_range_start_subquery(self):
+        """Test searching within an existing query."""
+        pass
 
     def test_search_range_end(self):
         """Test searching a range with only end."""
         query = Dataset()
         query.QueryRetrieveLevel = 'PATIENT'
         query.StudyDate = '-20200101'
-        q = db._search_range(query['StudyDate'], self.session)
+
+        session = self.session()
+        q = db._search_range(query['StudyDate'], session)
         assert 4 == len(q.all())
 
         query.StudyDate = '-20150101'
-        q = db._search_range(query['StudyDate'], self.session)
+        q = db._search_range(query['StudyDate'], session)
         assert 3 == len(q.all())
 
         query.StudyDate = '-20010101'
-        q = db._search_range(query['StudyDate'], self.session)
+        q = db._search_range(query['StudyDate'], session)
         assert not q.all()
+
+    def test_search_range_end_subquery(self):
+        """Test searching within an existing query."""
+        pass
 
     def test_search_range_neither(self):
         """Test searching a range with only end."""
         query = Dataset()
         query.QueryRetrieveLevel = 'PATIENT'
         query.StudyDate = '-'
+
+        session = self.session()
         with pytest.raises(ValueError):
-            db._search_range(query['StudyDate'], self.session)
+            db._search_range(query['StudyDate'], session)
+
+    def test_search_range_neither_subquery(self):
+        """Test searching within an existing query."""
+        pass
 
     def test_search_single_value(self):
         """Test search using a single value."""
         query = Dataset()
         query.QueryRetrieveLevel = 'PATIENT'
         query.PatientName = 'CompressedSamples^CT1'
-        q = db._search_single_value(query['PatientName'], self.session)
+
+        session = self.session()
+        q = db._search_single_value(query['PatientName'], session)
+        assert 1 == len(q.all())
+
+    def test_search_single_value_subquery(self):
+        """Test searching using a single value within an existing query."""
+        query = Dataset()
+        query.QueryRetrieveLevel = 'PATIENT'
+        query.PatientName = None
+
+        session = self.session()
+        q = db._search_universal(query['PatientName'], session)
+        assert 5 == len(q.all())
+
+        query.PatientName = 'CompressedSamples^CT1'
+        q = db._search_single_value(query['PatientName'], session, q)
         assert 1 == len(q.all())
 
     def test_search_wildcard_asterisk(self):
         """Test search using a * wildcard."""
         query = Dataset()
         query.QueryRetrieveLevel = 'PATIENT'
-
         query.PatientName = '*'
-        q = db._search_wildcard(query['PatientName'], self.session)
+
+        session = self.session()
+        q = db._search_wildcard(query['PatientName'], session)
         assert 5 == len(q.all())
 
         query.PatientName = 'CompressedSamples*'
-        q = db._search_wildcard(query['PatientName'], self.session)
+        q = db._search_wildcard(query['PatientName'], session)
         assert 3 == len(q.all())
+
+    def test_search_wildcard_asterisk_subquery(self):
+        """Test searching within an existing query."""
+        pass
 
     def test_search_wildcard_qmark(self):
         """Test search using a ? wildcard."""
         query = Dataset()
         query.QueryRetrieveLevel = 'PATIENT'
-
         query.PatientName = 'CompressedSamples^??1'
-        q = db._search_wildcard(query['PatientName'], self.session)
+
+        session = self.session()
+        q = db._search_wildcard(query['PatientName'], session)
         assert 3 == len(q.all())
+
+    def test_search_wildcard_qmark_subquery(self):
+        """Test searching within an existing query."""
+        pass
 
     def test_search_uid_list(self):
         """Test search using a UID list."""
         query = Dataset()
         query.QueryRetrieveLevel = 'PATIENT'
-
         query.SOPInstanceUID = []
-        q = db._search_uid_list(query['SOPInstanceUID'], self.session)
+
+        session = self.session()
+        q = db._search_uid_list(query['SOPInstanceUID'], session)
         assert 0 == len(q.all())
 
         query.SOPInstanceUID = [
             '1.3.6.1.4.1.5962.1.1.4.1.1.20040826185059.5457'
         ]
-        q = db._search_uid_list(query['SOPInstanceUID'], self.session)
+        q = db._search_uid_list(query['SOPInstanceUID'], session)
         assert 1 == len(q.all())
 
         query.SOPInstanceUID = [
             '1.3.6.1.4.1.5962.1.1.4.1.1.20040826185059.5457',
             '1.3.6.1.4.1.5962.1.1.1.1.1.20040119072730.12322'
         ]
-        q = db._search_uid_list(query['SOPInstanceUID'], self.session)
+        q = db._search_uid_list(query['SOPInstanceUID'], session)
         assert 2 == len(q.all())
 
         query.SOPInstanceUID = [
@@ -480,9 +531,14 @@ class TestSearch(object):
             '1.3.6.1.4.1.5962.1.1.1.1.1.20040119072730.12322',
             '1.3.46.423632.132218.1415242681.6'
         ]
-        q = db._search_uid_list(query['SOPInstanceUID'], self.session)
+        q = db._search_uid_list(query['SOPInstanceUID'], session)
         assert 2 == len(q.all())
 
+    def test_search_uid_list_subquery(self):
+        """Test searching within an existing query."""
+        pass
+
+    @pytest.mark.skip('probably obsolete')
     def test_combine_queries(self):
         """Test combining queries."""
         query = Dataset()
@@ -490,8 +546,9 @@ class TestSearch(object):
         query.PatientName = 'CompressedSamples*'
         query.StudyDate = '20000101-20040119'
 
-        q1 = db._search_wildcard(query['PatientName'], self.session)
-        q2 = db._search_range(query['StudyDate'], self.session)
+        session = self.session()
+        q1 = db._search_wildcard(query['PatientName'], session)
+        q2 = db._search_range(query['StudyDate'], session)
         q = q1.intersect(q2)
         assert 1 == len(q.all())
 
@@ -513,11 +570,16 @@ class TestSearchFind(object):
         query = Dataset()
         query.QueryRetrieveLevel = 'PATIENT'
         query.PatientID = None
+        query.PatientName = 'CompressedSamples^??1'
+        query.Modality = None
 
-        result = db.search(
+        result = db._search_find(
             PatientRootQueryRetrieveInformationModelFind,
             query,
             self.session
         )
+        assert 3 == len(result)
+
         for instance in result:
+            print()
             print(instance.as_identifier(query))

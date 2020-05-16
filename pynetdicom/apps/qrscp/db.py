@@ -1,3 +1,22 @@
+"""
+
+Unique Keys
+-----------
+* At each level one attribute is unique
+* A unique key shall uniquely identify a single instance at a given level
+* Unique keys **may** be in a C-FIND request's Identifier
+* Unique keys **shall** be in a C-MOVE or C-GET request's Identifier
+* C-FIND, C-GET and C-MOVE shall support existence and matching of all
+* unique keys. All instances managed shall have specific non-zero length
+  unique key values
+
+Required Keys
+-------------
+* Multiple instances may have the same value for required keys.
+* Required keys may be in a C-FIND request's Identifier
+* Required keys shall not be in a C-GET or C-MOVE request's Identifier
+"""
+
 try:
     import sqlalchemy
 except ImportError:
@@ -11,32 +30,90 @@ from sqlalchemy.orm import relationship, sessionmaker
 
 from pydicom.dataset import Dataset
 
+from pynetdicom.sop_class import(
+    PatientRootQueryRetrieveInformationModelFind,
+    PatientRootQueryRetrieveInformationModelMove,
+    PatientRootQueryRetrieveInformationModelGet,
+    StudyRootQueryRetrieveInformationModelFind,
+    StudyRootQueryRetrieveInformationModelMove,
+    StudyRootQueryRetrieveInformationModelGet
+)
+
 import pynetdicom.apps.qrscp.config as config
 
 
-# CS - 16 bytes maximum
-# DA - 8 bytes fixed YYYYMMDD
-# IS - 12 bytes maximum, range
-# LO - 64 characters maximum
-# PN - 64 characters maximum per component group (5 components make a group)
-# SH - 16 characters maximum
-# TM - 14 bytes maximum HHMMSS.FFFFFF
-# UI - 64 bytes maximum
+# C.2.2.2: The total length of the attribute may be larger given in Part 5
+# C.2.2.2: The VM may be larger than the VM from Part 6, depending
+#   on the matching type
 
-TRANSLATION = {
-    'PatientID' : 'patient_id',  # PATIENT | Unique
-    'PatientName' : 'patient_name',  # PATIENT | Required
-    'StudyInstanceUID' : 'study_instance_uid',  # STUDY | Unique
-    'StudyDate' : 'study_date',  # STUDY | Required
-    'StudyTime' : 'study_time',  # STUDY | Required
-    'AccessionNumber' : 'accession_number',  # STUDY | Required
-    'StudyID' : 'study_id',  # STUDY | Required
-    'SeriesInstanceUID' : 'series_instance_uid',  # SERIES | Unique
-    'Modality' : 'modality',  # SERIES | Required
-    'SeriesNumber' : 'series_number',  # SERIES | Required
-    'SOPInstanceUID' : 'sop_instance_uid',  # IMAGE | Unique
-    'InstanceNumber' : 'instance_number',  # IMAGE | Required
+# VRs for supported elements - Part 5
+# CS - 16 bytes maximum - str
+# DA - 8 bytes fixed, format YYYYMMDD - str
+# IS - 12 bytes maximum, range - int
+# LO - 64 characters maximum - str
+# PN - 64 characters maximum per component group (5 components per group) - str
+# SH - 16 characters maximum - str
+# TM - 14 bytes maximum, format HHMMSS.FFFFFF - str
+# UI - 64 bytes maximum - str
+
+
+# Translate from the element keyword to the db attribute
+_TRANSLATION = {
+    'PatientID' : 'patient_id',  # PATIENT | Unique | VM 1 | LO
+    'PatientName' : 'patient_name',  # PATIENT | Required | VM 1 | PN
+    'StudyInstanceUID' : 'study_instance_uid',  # STUDY | Unique | VM 1 | UI
+    'StudyDate' : 'study_date',  # STUDY | Required | VM 1 | DA
+    'StudyTime' : 'study_time',  # STUDY | Required | VM 1 | TM
+    'AccessionNumber' : 'accession_number',  # STUDY | Required | VM 1 | SH
+    'StudyID' : 'study_id',  # STUDY | Required | VM 1 | SH
+    'SeriesInstanceUID' : 'series_instance_uid',  # SERIES | Unique | VM 1 | UI
+    'Modality' : 'modality',  # SERIES | Required | VM 1 | CS
+    'SeriesNumber' : 'series_number',  # SERIES | Required | VM 1 | IS
+    'SOPInstanceUID' : 'sop_instance_uid',  # IMAGE | Unique | VM 1 | UI
+    'InstanceNumber' : 'instance_number',  # IMAGE | Required | VM 1 | IS
 }
+
+# Unique and required keys and their level, VR and VM for Patient Root
+# Study Root is the same but includes the PATIENT attributes
+_ATTRIBUTES = {
+    'PatientID' : ('PATIENT', 'U', 'LO', 1),
+    'PatientName' : ('PATIENT', 'R', 'PN', 1),
+    'StudyInstanceUID' : ('STUDY', 'U', 'UI', 1),
+    'StudyDate' : ('STUDY', 'R', 'DA', 1),
+    'StudyTime' : ('STUDY', 'R', 'TM', 1),
+    'AccessionNumber' : ('STUDY', 'R', 'SH', 1),
+    'StudyID' : ('STUDY', 'R', 'SH', 1),
+    'SeriesInstanceUID' : ('SERIES', 'U', 'UI', 1),
+    'Modality' : ('SERIES', 'R', 'VS', 1),
+    'SeriesNumber' : ('SERIES', 'R', 'IS', 1),
+    'SOPInstanceUID' : ('IMAGE', 'U', 'UI', 1),
+    'InstanceNumber' : ('IMAGE', 'R', 'UI', 1),
+}
+
+# Supported Information Models
+_C_FIND = [
+    PatientRootQueryRetrieveInformationModelFind,
+    StudyRootQueryRetrieveInformationModelFind
+]
+_C_GET = [
+    PatientRootQueryRetrieveInformationModelGet,
+    StudyRootQueryRetrieveInformationModelGet
+]
+_C_MOVE = [
+    PatientRootQueryRetrieveInformationModelMove,
+    StudyRootQueryRetrieveInformationModelMove
+]
+
+_PATIENT_ROOT = [
+    PatientRootQueryRetrieveInformationModelFind,
+    PatientRootQueryRetrieveInformationModelGet,
+    PatientRootQueryRetrieveInformationModelMove
+]
+_STUDY_ROOT = [
+    StudyRootQueryRetrieveInformationModelFind,
+    StudyRootQueryRetrieveInformationModelGet,
+    StudyRootQueryRetrieveInformationModelMove
+]
 
 
 def add_instance(ds, session_builder, fpath=None):
@@ -90,6 +167,8 @@ def add_instance(ds, session_builder, fpath=None):
             value = elem.value
 
         if value is not None:
+            # All supported attributes have VM 1
+            #assert elem.VM == 1
             if max_len:
                 if elem.VR == 'PN':
                     value = str(value)
@@ -172,6 +251,74 @@ def connect(db_location=None, echo=False):
     return conn, engine, Session
 
 
+def build_query(identifier, session_builder, query=None):
+    """Perform a query against the database.
+
+    Parameters
+    ----------
+    identifier : pydicom.dataset.Dataset
+        The request's *Identifier* dataset containing the query attributes.
+    session_builder : sqlalchemy.orm.session.sessionmaker
+        The session maker.
+    query :
+
+    Returns
+    -------
+    sqlalchemy.orm.query.Query
+        The resulting query.
+    """
+    session = session_builder()
+
+    # VRs for Single Value Matching and Wild Card Matching
+    _text_vr = [
+        'AE', 'CS', 'LO', 'LT', 'PN', 'SH', 'ST', 'UC', 'UR', 'UT'
+    ]
+    for elem in [e for e in identifier if e.keyword in _ATTRIBUTES]:
+        vr = elem.VR
+        val = elem.value
+        # Convert PersonName3 to str
+        if vr == 'PN' and val: val = str(val)
+
+        # Part 4, C.2.2.2.1 Single Value Matching
+        if vr != 'SQ' and val is not None:
+            if vr in _text_vr and ('*' in val or '?' in val):
+                pass
+            elif vr in ['DA', 'TM', 'DT'] and '-' in val:
+                pass
+            else:
+                print('Performing single value matching...')
+                query = _search_single_value(elem, session, query)
+                continue
+
+        # Part 4, C.2.2.2.2 List of UID Matching
+        if vr == 'UI':
+            print('Performing list of UID matching...')
+            query = _search_uid_list(elem, session, query)
+            continue
+
+        # Part 4, C.2.2.2.3 Universal Matching
+        if val is None:
+            print('Performing universal matching...')
+            query = _search_universal(elem, session, query)
+            continue
+
+        # Part 4, C.2.2.2.4 Wild Card Matching
+        if vr in _text_vr and ('*' in val or '?' in val):
+            print('Performing wildcard matching...')
+            query = _search_wildcard(elem, session, query)
+            continue
+
+        # Part 4, C.2.2.2.5 Range Matching
+        if vr in ['DT', 'TM', 'DA'] and '-' in val:
+            query = _search_range(elem, session, query)
+            continue
+
+        # Part 4, C.2.2.2.6 Sequence Matching
+        #   No supported attributes are sequences
+
+    return query
+
+
 def remove_instance(instance_uid, session_builder):
     """Return a SOP Instance from the database.
 
@@ -190,40 +337,147 @@ def remove_instance(instance_uid, session_builder):
         session.commit()
 
 
-def search(model, query, session_builder):
+def search(model, identifier, session_builder):
     """Search the database.
+
+    Optional keys are not supported.
 
     Parameters
     ----------
     model : pydicom.uid.UID
-        The Query/Retrieve Information Model. Supported models are *Patient
-        Root* and *Study Root*.
-    query : pydicom.dataset.Dataset
+        The Query/Retrieve Information Model. Supported models are:
+
+        - *Patient Root Query Retrieve Information Model* for C-FIND, C-GET
+          and C-MOVE
+        - *Study Root Query Retrieve Information Model* for C-FIND, C-GET and
+          C-MOVE
+    identifier : pydicom.dataset.Dataset
         The Query/Retrieve request's *Identifier* dataset.
-    session_builder :
+    session_builder : sqlalchemy.orm.session.sessionmaker
+        The session maker.
 
     Returns
     -------
     list of Instance
         The matching database Instances.
-    """
-    # sequence matching
-    #   May be a sequence with 1 item, which contains zero or more attributes
-    #   each attribute matched as normal, if all attributes match then success
-    # multiple values
-    #   if VM > 1, if one value matches then all values returned
-    patient_root_models = [
-        '1.2.840.10008.5.1.4.1.2.1.1',
-        '1.2.840.10008.5.1.4.1.2.1.2',
-        '1.2.840.10008.5.1.4.1.2.1.3'
-    ]
-    study_root_models = [
-        '1.2.840.10008.5.1.4.1.2.2.1',
-        '1.2.840.10008.5.1.4.1.2.2.2',
-        '1.2.840.10008.5.1.4.1.2.2.3',
-    ]
 
-    qr_level = query.QueryRetrieveLevel
+    Raises
+    ------
+    ValueError
+        If the `identifier` is invalid.
+    """
+    if model not in _STUDY_ROOT and model not in _PATIENT_ROOT:
+        raise ValueError(
+            "An information model of '{}' is not supported".format(model.name)
+        )
+
+    # Part 4, C.4.1.1.3.1, C.4.2.1.4 and C.4.3.1.3.1:
+    #   (0008,0052) Query Retrieve Level is required in the Identifier
+    if 'QueryRetrieveLevel' not in identifier:
+        raise ValueError(
+            "The Identifier must contain an (0008,0052) 'Query Retrieve "
+            "Level' element"
+        )
+
+    _levels = ['PATIENT', 'STUDY', 'SERIES', 'IMAGE']
+    if identifier.QueryRetrieveLevel not in _levels:
+        raise ValueError(
+            "A value of '{}' for (0008,0052) 'Query Retrieve Level' is invalid"
+            .format(identifier.QueryRetrieveLevel)
+        )
+
+    # Remove all optional keys
+    for elem in identifier:
+        kw = elem.keyword
+        if kw != 'QueryRetrieveLevel' and kw not in _ATTRIBUTES:
+            delattr(identifier, kw)
+
+    if model in _C_FIND:
+        return _search_find(model, identifier, session_builder)
+
+    # Must be C-GET or C-MOVE at this point
+    # Part 4, C.2.2.1.2: remove required keys from C-GET/C-MOVE so
+    #   they don't affect the match (should also be faster)
+    for kw in [k for k, v in _ATTRIBUTES.items() if v[1] == 'R']:
+        delattr(identifier, kw)
+
+    return _search_get_move(model, identifier, session_builder)
+
+
+def _search_find(model, identifier, session_builder):
+    """Search the database using a C-FIND query.
+
+    Parameters
+    ----------
+    model : pydicom.uid.UID
+        Either *Patient Root Query Retrieve Information Model* or *Study Root
+        Query Retrieve Information Model* for C-FIND
+    identifier : pydicom.dataset.Dataset
+        The C-FIND request's *Identifier* dataset.
+    session_builder : sqlalchemy.orm.session.sessionmaker
+        The session maker.
+
+    Returns
+    -------
+    list of db.Instance
+        The Instances that match the query.
+    """
+    # This function basically determines whether or not a query is valid
+    #   for the given Query Retrieve Level and information model
+    # An invalid identifier should return 0xA900 status
+    level = identifier.QueryRetrieveLevel
+
+    # C.4.1.2.1
+    # * An identifier shall contain a single value in the unique key for
+    #   each level above the QRLevel.
+    # * No required keys shall be specified that are associated with levels
+    #   above the QRLevel.
+    # * The unique key associated with the QRLevel shall be contained in the
+    #   identifier. Required keys may be contained in the identifier.
+
+    # Search using the "Hierarchical Search Method": Part 4, C.4.1.3.1.1
+    if model in _PATIENT_ROOT:
+        levels = ['PATIENT', 'STUDY', 'SERIES', 'IMAGE']
+        level_keys = {}
+    else:
+        levels = ['STUDY', 'SERIES', 'IMAGE']
+        level_keys = {'STUDY' : ['PatientID', 'PatientName']}
+
+    for level in levels:
+        level_keys[levels] = [
+            k for k, v in _ATTRIBUTES.items() if v[0] == levels
+        ]
+
+    current_level = levels[0]
+    query = None
+    if current_level = identifier.QueryRetrieveLevel:
+        ds = Dataset()
+        keys = level_keys[current_level]
+        for kw in keys:
+            if kw in identifier:
+                setattr(ds, kw, getattr(identifier, kw))
+
+        query = build_query(identifier, session_builder, query)
+
+
+    ## Patient Root
+    # PATIENT -> STUDY -> SERIES -> IMAGE
+
+    ## Study Root
+    # STUDY -> SERIES -> IMAGE
+    # Keys for PATIENT are rolled into STUDY
+
+
+    # Everything looks good, so perform the actual query
+    return build_query(identifier, session_builder)
+
+
+def _search_get_move(model, identifier, session_builder):
+    # C-GET/C-MOVE shall transfer:
+    #   PATIENT level - all Instances related to Patient
+    #   STUDY level - all Instances related to a Study
+    #   SERIES level - all Instances related to a Series
+    #   IMAGE level - selected individual Instances
     if model in patient_root_models:
         if qr_level == 'PATIENT':
             assert 'PatientID' in query
@@ -254,99 +508,129 @@ def search(model, query, session_builder):
             assert 'StudyInstanceUID' in query
             assert 'SeriesInstanceUID' in query
             assert 'SOPInstanceUID' in query
-    else:
-        raise ValueError()
-
-    # A unique key attribute shall uniquely identify a single instance at a
-    #   given level
-    # Unique keys may be in a C-FIND request's Identifier
-    # Unique keys shall be in a C-MOVE or C-GET request's Identifier
-    # C-FIND, C-GET and C-MOVE shall support existence and matching of all
-    #   unique keys. All instances managed shall have specific non-zero length
-    #   unique key values
-
-    # Multiple instances may have the same value for required keys.
-    # Required keys may be in a C-FIND request's Identifier
-    # Required keys shall not be in a C-GET or C-MOVE request's Identifier
-
-    # Start with all managed Instances - this is probably not ideal
-    #   Change it to build up rather than exclude
-    #   Limit number of results Query.limit()
-    matches = session_builder().query(Instance)
-    for elem in [q for q in query if q.keyword in TRANSLATION]:
-        if elem.keyword == 'QueryRetrieveLevel':
-            continue
-
-        if elem.VR in ['DT', 'TM'] and '-' in elem.value:
-            matches.intersect(_search_range(elem, session_builder))
-        elif elem.VR == 'UI' and elem.VM > 1:
-            matches.intersect(_search_uid_list(elem, session_builder))
-        elif elem.VR != 'PN' and (elem.value is None or elem.value == ''):
-            matches.intersect(_search_wildcard(elem, session_builder))
-        elif elem.VR != 'PN' and ('*' in elem.value or '?' in elem.value):
-            matches.intersect(_search_wildcard(elem, session_builder))
-
-    # C-GET/C-MOVE shall transfer:
-    #   PATIENT level - all Instances related to Patient
-    #   STUDY level - all Instances related to a Study
-    #   SERIES level - all Instances related to a Series
-    #   IMAGE level - selected individual Instances
-
-
-    return matches.all()
-
-
-def _search_single_value(attribute, session_builder):
-    """
-    """
-    # single value matching
-    #   VR: AE, CS, LO, LT, PN, SH, ST, UC, UR, UT and no '*' or '?'
-    #   VR: DA, TM, DT and a single value with no '-'
-    #   VR: all others
-    #   non-PN: Case-sensitive, only entities with values that match exactly
-    #   PN: May/may not be case-sensitive, accent-sensitive
-    session = session_builder()
-    attr = getattr(Instance, TRANSLATION[attribute.keyword])
-    if attribute.VR == 'PN':
-        # PN probably needs its own function
-        value = str(attribute.value)
-    else:
-        value = attribute.value
-
-    return session.query(Instance).filter(attr == value)
-
-
-def _search_uid_list(attribute, session_builder):
-    """
-    """
-    # list of UID matching
-    #   Each UID in the list may generate a match
-    session = session_builder()
-    attr = getattr(Instance, TRANSLATION[attribute.keyword])
-
-    return session.query(Instance).filter(attr.in_(attribute.value))
-
-
-def _search_universal():
-    # universal matching
-    #   If the value is zero length then all entities shall match
     pass
 
 
-def _search_wildcard(attribute, session_builder):
+def _search_single_value(elem, session, query=None):
+    """Perform a search using single value matching.
+
+    Single value matching shall be performed if the value of an Attribute is
+    non-zero length and the VR is not SQ and:
+
+    * the VR is AE, CS, LO, LT, PN, SH, ST, UC, UR or UT and contains no wild
+      card characters, or
+    * the VR is DA, TM or DT and contains a single value with no "-", or
+    * any other VR
+
+    Parameters
+    ----------
+    elem : pydicom.dataelem.DataElement
+        The attribute to perform the search with.
+    session : sqlalchemy.orm.session.Session
+        The session we are using to query the database.
+    query : sqlalchemy.orm.query.Query, optional
+        An existing query within which this search should be performed. If
+        not used then all the Instances in the database will be searched
+        (default).
+
+    Returns
+    -------
+    sqlalchemy.orm.query.Query
+        The resulting query.
     """
-    '?' or '*' in query attribute
+    attr = getattr(Instance, _TRANSLATION[elem.keyword])
+    if elem.VR == 'PN':
+        value = str(elem.value)
+    else:
+        value = elem.value
+
+    if not query:
+        query = session.query(Instance)
+
+    return query.filter(attr == value)
+
+
+def _search_uid_list(elem, session, query=None):
+    """Search using an element containing a list of UIDs.
+
+    A match against any of the UIDs is considered a positive result.
+
+    Parameters
+    ----------
+    elem : pydicom.dataelem.DataElement
+        The attribute to perform the search with.
+    session : sqlalchemy.orm.session.Session
+        The session we are using to query the database.
+    query : sqlalchemy.orm.query.Query, optional
+        An existing query within which this search should be performed. If
+        not used then all the Instances in the database will be searched
+        (default).
+
+    Returns
+    -------
+    sqlalchemy.orm.query.Query
+        The resulting query.
     """
-    # wildcard matching
-    #   Contains '*' or '?', case-sensitive if not PN
+    attr = getattr(Instance, _TRANSLATION[elem.keyword])
+    if not query:
+        query = session.query(Instance)
+
+    return query.filter(attr.in_(elem.value))
+
+
+def _search_universal(elem, session, query=None):
+    """Perform a universal search for empty elements.
+
+    Parameters
+    ----------
+    elem : pydicom.dataelem.DataElement
+        The attribute to perform the search with.
+    session : sqlalchemy.orm.session.Session
+        The session we are using to query the database.
+    query : sqlalchemy.orm.query.Query, optional
+        An existing query within which this search should be performed. If
+        not used then all the Instances in the database will be searched
+        (default).
+
+    Returns
+    -------
+    sqlalchemy.orm.query.Query
+        The resulting query.
+    """
+    # If the value is zero length then all entities shall match
+    if not query:
+        query = session.query(Instance)
+
+    return query
+
+
+def _search_wildcard(elem, session, query=None):
+    """Perform a wildcard search.
+
+    Parameters
+    ----------
+    elem : pydicom.dataelem.DataElement
+        The attribute to perform the search with.
+    session : sqlalchemy.orm.session.Session
+        The session we are using to query the database.
+    query : sqlalchemy.orm.query.Query, optional
+        An existing query within which this search should be performed. If
+        not used then all the Instances in the database will be searched
+        (default).
+
+    Returns
+    -------
+    sqlalchemy.orm.query.Query
+        The resulting query.
+    """
+    # Contains '*' or '?', case-sensitive if not PN
     #   '*' shall match any sequence of characters (incl. zero length)
     #   '?' shall match any single character
-    session = session_builder()
-    attr = getattr(Instance, TRANSLATION[attribute.keyword])
-    if attribute.VR == 'PN':
-        value = str(attribute.value)
+    attr = getattr(Instance, _TRANSLATION[elem.keyword])
+    if elem.VR == 'PN':
+        value = str(elem.value)
     else:
-        value = attribute.value
+        value = elem.value
 
     if value is None or value == '':
         value = '*'
@@ -354,18 +638,30 @@ def _search_wildcard(attribute, session_builder):
     value = value.replace('*', '%')
     value = value.replace('?', '_')
 
-    return session.query(Instance).filter(attr.like(value))
+    if not query:
+        query = session.query(Instance)
+
+    return query.filter(attr.like(value))
 
 
-def _search_range(attribute, session_builder):
-    """
+def _search_range(elem, session, query=None):
+    """Perform a range search for DA, DT and TM elements with '-' in them.
 
-    Date and Time if '-' in query attribute
+    Parameters
+    ----------
+    elem : pydicom.dataelem.DataElement
+        The attribute to perform the search with.
+    session : sqlalchemy.orm.session.Session
+        The session we are using to query the database.
+    query : sqlalchemy.orm.query.Query, optional
+        An existing query within which this search should be performed. If
+        not used then all the Instances in the database will be searched
+        (default).
 
     Returns
     -------
-    sqlalchemy.orm.Query
-        The results of the range search.
+    sqlalchemy.orm.query.Query
+        The resulting query.
     """
     # range matching
     #   <date1> - <date2>: matches any date within the range, inclusive
@@ -374,17 +670,19 @@ def _search_range(attribute, session_builder):
     #   <time>: if Timezone Offset From UTC included, values are in specified
     #   date: 20060705-20060707 + time: 1000-1800 matches July 5, 10 am to
     #       July 7, 6 pm.
-    session = session_builder()
-    start, end = attribute.value.split('-')
-    attr = getattr(Instance, TRANSLATION[attribute.keyword])
-    if start and end:
-        return session.query(Instance).filter(attr >= start, attr <= end)
-    elif start and not end:
-        return session.query(Instance).filter(attr >= start)
-    elif not start and end:
-        return session.query(Instance).filter(attr <= end)
+    start, end = elem.value.split('-')
+    attr = getattr(Instance, _TRANSLATION[elem.keyword])
+    if not query:
+        query = session.query(Instance)
 
-    raise ValueError("Invalid attribute value")
+    if start and end:
+        return query.filter(attr >= start, attr <= end)
+    elif start and not end:
+        return query.filter(attr >= start)
+    elif not start and end:
+        return query.filter(attr <= end)
+
+    raise ValueError("Invalid attribute value for range matching")
 
 
 Base = declarative_base()
@@ -446,7 +744,7 @@ class Instance(Base):
 
         for elem in query:
             try:
-                attribute = TRANSLATION[elem.keyword]
+                attribute = _TRANSLATION[elem.keyword]
             except KeyError:
                 continue
 

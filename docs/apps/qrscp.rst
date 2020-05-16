@@ -1,8 +1,18 @@
 =====
 qrscp
 =====
-    ``python -m pynetdicom qrscp [options] port``
 
+.. versionadded:: 1.5
+
+.. code-block:: text
+
+    $ python -m pynetdicom qrscp [options] port
+
+Description
+===========
+
+Usage
+=====
 
 Query Keys
 ==========
@@ -35,3 +45,14 @@ U - Unique keys, R - Required keys, O - Optional keys
 .. code-block:: text
 
    (0020,0013) SOP Instance UID
+
+Parameters
+==========
+
+
+Options
+=======
+
+
+DICOM Conformance
+=================

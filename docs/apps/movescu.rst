@@ -2,6 +2,8 @@
 movescu
 =======
 
+.. versionadded:: 1.5
+
 .. code-block:: text
 
     $ python -m pynetdicom movescu [options] addr port (-k keyword and/or -f file-in)
@@ -31,8 +33,8 @@ an SCP at IP ``127.0.0.1`` and listen port ``11112`` that supports the
     I: Sending Move Request: MsgID 1
     I:
     I: # Request Identifier
-    I: (0008, 0052) Query/Retrieve Level                CS: 'PATIENT'
-    I: (0010, 0010) Patient's Name                      PN: ''
+    I: (0008,0052) CS [PATIENT]                                # 1 QueryRetrieveLevel
+    I: (0010,0010) PN (no value available)                     # 0 PatientName
     I:
     I: Move SCP Response: 1 - 0xFF00 (Pending)
     I: Sub-Operations Remaining: 0, Completed: 1, Failed: 0, Warning: 0
@@ -55,13 +57,12 @@ the Store SCP can be configured using the ``--store-aet`` and
     I: Sending Move Request: MsgID 1
     I:
     I: # Request Identifier
-    I: (0008, 0052) Query/Retrieve Level                CS: 'PATIENT'
-    I: (0010, 0010) Patient's Name                      PN: ''
+    I: (0008,0052) CS [PATIENT]                                # 1 QueryRetrieveLevel
+    I: (0010,0010) PN (no value available)                     # 0 PatientName
     I:
     I: Accepting Association
     I: Received Store Request
     I: Storing DICOM file: CT.1.3.6.1.4.1.5962.1.1.1.1.1.20040119072730.12322
-    W: DICOM file already exists, overwriting
     I: Association Released
     I: Move SCP Response: 1 - 0xFF00 (Pending)
     I: Sub-Operations Remaining: 0, Completed: 1, Failed: 0, Warning: 0

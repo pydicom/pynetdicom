@@ -2,6 +2,8 @@
 findscu
 =======
 
+.. versionadded:: 1.5
+
 .. code-block:: text
 
     $ python -m pynetdicom findscu [options] addr port (-k keyword and/or -f file-in)
@@ -30,15 +32,15 @@ an SCP at IP ``127.0.0.1`` and listen port ``11112`` that supports the
     I: Sending Find Request: MsgID 1
     I:
     I: # Request Identifier
-    I: (0008, 0052) Query/Retrieve Level                CS: 'PATIENT'
-    I: (0010, 0010) Patient's Name                      PN: ''
+    I: (0008,0052) CS [PATIENT]                                # 1 QueryRetrieveLevel
+    I: (0010,0010) PN (no value available)                     # 0 PatientName
     I:
     I: Find SCP Response: 1 - 0xFF00 (Pending)
     I:
     I: # Response Identifier
-    I: (0008, 0052) Query/Retrieve Level                CS: 'PATIENT'
-    I: (0008, 0054) Retrieve AE Title                   AE: 'QRSCP'
-    I: (0010, 0010) Patient's Name                      PN: 'CompressedSamples^CT1'
+    I: (0008,0052) CS [PATIENT]                                # 1 QueryRetrieveLevel
+    I: (0008,0054) AE [QRSCP]                                  # 1 RetrieveAETitle
+    I: (0010,0010) PN [CompressedSamples^CT1]                  # 1 PatientName
     I:
     I: Find SCP Result: 0x0000 (Success)
     I: Releasing Association
