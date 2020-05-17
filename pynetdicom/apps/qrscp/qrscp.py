@@ -29,7 +29,7 @@ from pynetdicom.sop_class import (
 )
 
 from . import config
-from .db import connect, clear, Instance
+#from .db import connect, clear, Instance
 from .handlers import (
     handle_echo, handle_find, handle_get, handle_move, handle_store
 )
@@ -204,14 +204,15 @@ def main(args=None):
     os.makedirs(config.INSTANCE_LOCATION, exist_ok=True)
 
     # Connect to the database
-    conn, engine, session = connect()
+    #conn, engine, session = connect()
+    db_path = 'sqlite:///{}'.format(config.DATABASE_LOCATION)
 
     handlers = [
         (evt.EVT_C_ECHO, handle_echo, [args, APP_LOGGER]),
-        (evt.EVT_C_FIND, handle_find, [session, args, APP_LOGGER]),
-        (evt.EVT_C_GET, handle_get, [session, args, APP_LOGGER]),
-        (evt.EVT_C_MOVE, handle_move, [session, args, APP_LOGGER]),
-        (evt.EVT_C_STORE, handle_store, [session, args, APP_LOGGER]),
+        (evt.EVT_C_FIND, handle_find, [db_path, args, APP_LOGGER]),
+        (evt.EVT_C_GET, handle_get, [db_path, args, APP_LOGGER]),
+        (evt.EVT_C_MOVE, handle_move, [db_path, args, APP_LOGGER]),
+        (evt.EVT_C_STORE, handle_store, [db_path, args, APP_LOGGER]),
     ]
 
     ae = AE(config.AE_TITLE)
@@ -232,6 +233,9 @@ def main(args=None):
     ae.add_supported_context(StudyRootQueryRetrieveInformationModelFind)
     ae.add_supported_context(StudyRootQueryRetrieveInformationModelMove)
     ae.add_supported_context(StudyRootQueryRetrieveInformationModelGet)
+
+    import threading
+    print('qrscp', threading.get_ident())
 
     # Listen for incoming association requests
     ae.start_server(('', config.PORT), evt_handlers=handlers)

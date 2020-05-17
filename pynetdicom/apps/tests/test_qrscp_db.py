@@ -160,9 +160,10 @@ class TestAddInstance(object):
     """Tests for db.add_instance()."""
     def setup(self):
         """Run prior to each test"""
-        self.conn, self.engine, self.session = db.connect('sqlite:///:memory:')
+        self.conn, self.engine, Session = db.connect('sqlite:///:memory:')
         pydicom.config.use_none_as_empty_text_VR_value = True
 
+        self.session = Session()
         ds = Dataset()
         ds.PatientID = '1234'
         ds.StudyInstanceUID = '1.2'
@@ -176,8 +177,8 @@ class TestAddInstance(object):
         ds = dcmread(fpath)
         db.add_instance(ds, self.session)
 
-        session = self.session()
-        obj = session.query(db.Instance).all()
+
+        obj = self.session.query(db.Instance).all()
         assert 1 == len(obj)
         for kk, vv in DATASETS['CTImageStorage.dcm'].items():
             assert vv == getattr(obj[0], kk)
@@ -189,10 +190,10 @@ class TestAddInstance(object):
             ds = dcmread(fpath)
             db.add_instance(ds, self.session)
 
-        session = self.session()
-        obj = session.query(db.Instance).all()
+
+        obj = self.session.query(db.Instance).all()
         assert 5 == len(obj)
-        obj = session.query(db.Instance, db.Instance.patient_name).all()
+        obj = self.session.query(db.Instance, db.Instance.patient_name).all()
         names = [val[1] for val in obj]
         assert 'CompressedSamples^CT1' in names
         assert 'CompressedSamples^MR1' in names
@@ -202,8 +203,8 @@ class TestAddInstance(object):
     def test_add_minimal(self):
         """Test adding a minimal dataset."""
         db.add_instance(self.minimal, self.session)
-        session = self.session()
-        obj = session.query(db.Instance).all()
+
+        obj = self.session.query(db.Instance).all()
         assert 1 == len(obj)
         assert '1234' == obj[0].patient_id
         assert '1.2' == obj[0].study_instance_uid
@@ -239,8 +240,8 @@ class TestAddInstance(object):
             with pytest.raises(AssertionError):
                 db.add_instance(ds, self.session)
 
-        session = self.session()
-        assert not session.query(db.Instance).all()
+
+        assert not self.session.query(db.Instance).all()
 
     def test_bad_instance_none(self):
         """Test that instances with bad data aren't added."""
@@ -266,23 +267,22 @@ class TestAddInstance(object):
         with pytest.raises(IntegrityError):
             db.add_instance(ds, self.session)
 
-        session = self.session()
-        assert not session.query(db.Instance).all()
+        self.session.rollback()
+
+        assert not self.session.query(db.Instance).all()
 
     def test_instance_exists(self):
         """Test that adding already existing instance updates it."""
         db.add_instance(self.minimal, self.session)
 
-        session = self.session()
-        result = session.query(db.Instance).all()
+        result = self.session.query(db.Instance).all()
         assert 1 == len(result)
         assert None == result[0].modality
 
         self.minimal.Modality = 'CT'
 
-        session = self.session()
         db.add_instance(self.minimal, self.session)
-        result = session.query(db.Instance).all()
+        result = self.session.query(db.Instance).all()
         assert 1 == len(result)
         assert 'CT' == result[0].modality
 
@@ -294,9 +294,10 @@ class TestRemoveInstance(object):
         self.orig = config.DATABASE_LOCATION
         config.DATABASE_LOCATION = TEST_DB
 
-        self.conn, self.engine, self.session = db.connect('sqlite:///:memory:')
+        self.conn, self.engine, Session = db.connect('sqlite:///:memory:')
         pydicom.config.use_none_as_empty_text_VR_value = True
 
+        self.session = Session()
         ds = Dataset()
         ds.PatientID = '1234'
         ds.StudyInstanceUID = '1.2'
@@ -308,38 +309,39 @@ class TestRemoveInstance(object):
 
     def test_remove_existing(self):
         """Test removing if exists in database."""
-        session = self.session()
-        obj = session.query(db.Instance).all()
+
+        obj = self.session.query(db.Instance).all()
         assert 1 == len(obj)
         assert '1.2.3.4' == obj[0].sop_instance_uid
 
         db.remove_instance('1.2.3.4', self.session)
-        session = self.session()
-        assert not session.query(db.Instance).all()
-        assert not session.query(db.Patient).all()
-        assert not session.query(db.Study).all()
-        assert not session.query(db.Series).all()
-        assert not session.query(db.Image).all()
+
+        assert not self.session.query(db.Instance).all()
+        assert not self.session.query(db.Patient).all()
+        assert not self.session.query(db.Study).all()
+        assert not self.session.query(db.Series).all()
+        assert not self.session.query(db.Image).all()
 
     def test_remove_not_existing(self):
         """Test removing if doesn't exist in database."""
-        session = self.session()
-        obj = session.query(db.Instance).all()
+
+        obj = self.session.query(db.Instance).all()
         assert 1 == len(obj)
         assert '1.2.3.4' == obj[0].sop_instance_uid
 
         db.remove_instance('1.2.3.5', self.session)
-        session = self.session()
-        assert session.query(db.Instance).all()
+
+        assert self.session.query(db.Instance).all()
 
 
 class TestClear(object):
     """Tests for db.clear()."""
     def setup(self):
         """Run prior to each test"""
-        self.conn, self.engine, self.session = db.connect('sqlite:///:memory:')
+        self.conn, self.engine, Session = db.connect('sqlite:///:memory:')
         pydicom.config.use_none_as_empty_text_VR_value = True
 
+        self.session = Session()
         for fname in DATASETS:
             fpath = os.path.join(DATA_DIR, fname)
             ds = dcmread(fpath)
@@ -347,19 +349,20 @@ class TestClear(object):
 
     def test_clear(self):
         """Test removing if exists in database."""
-        session = self.session()
-        assert 5 == len(session.query(db.Instance).all())
+        assert 5 == len(self.session.query(db.Instance).all())
 
         db.clear(self.session)
-        assert not session.query(db.Instance).all()
+        assert not self.session.query(db.Instance).all()
 
 
 class TestSearch(object):
     """Tests for db.search()."""
     def setup(self):
         """Run prior to each test"""
-        self.conn, self.engine, self.session = db.connect('sqlite:///:memory:')
+        self.conn, self.engine, Session = db.connect('sqlite:///:memory:')
         pydicom.config.use_none_as_empty_text_VR_value = True
+
+        self.session = Session()
 
         for fname in DATASETS:
             fpath = os.path.join(DATA_DIR, fname)
@@ -376,16 +379,15 @@ class TestSearch(object):
         query.QueryRetrieveLevel = 'PATIENT'
         query.StudyDate = '20000101-20200101'
 
-        session = self.session()
-        q = db._search_range(query['StudyDate'], session)
+        q = db._search_range(query['StudyDate'], self.session)
         assert 4 == len(q.all())
 
         query.StudyDate = '20000101-20150101'
-        q = db._search_range(query['StudyDate'], session)
+        q = db._search_range(query['StudyDate'], self.session)
         assert 3 == len(q.all())
 
         query.StudyDate = '20000101-20010101'
-        q = db._search_range(query['StudyDate'], session)
+        q = db._search_range(query['StudyDate'], self.session)
         assert not q.all()
 
     def test_search_range_both_subquery(self):
@@ -398,16 +400,15 @@ class TestSearch(object):
         query.QueryRetrieveLevel = 'PATIENT'
         query.StudyDate = '20000101-'
 
-        session = self.session()
-        q = db._search_range(query['StudyDate'], session)
+        q = db._search_range(query['StudyDate'], self.session)
         assert 4 == len(q.all())
 
         query.StudyDate = '20150101-'
-        q = db._search_range(query['StudyDate'], session)
+        q = db._search_range(query['StudyDate'], self.session)
         assert 1 == len(q.all())
 
         query.StudyDate = '20200101-'
-        q = db._search_range(query['StudyDate'], session)
+        q = db._search_range(query['StudyDate'], self.session)
         assert not q.all()
 
     def test_search_range_start_subquery(self):
@@ -420,16 +421,15 @@ class TestSearch(object):
         query.QueryRetrieveLevel = 'PATIENT'
         query.StudyDate = '-20200101'
 
-        session = self.session()
-        q = db._search_range(query['StudyDate'], session)
+        q = db._search_range(query['StudyDate'], self.session)
         assert 4 == len(q.all())
 
         query.StudyDate = '-20150101'
-        q = db._search_range(query['StudyDate'], session)
+        q = db._search_range(query['StudyDate'], self.session)
         assert 3 == len(q.all())
 
         query.StudyDate = '-20010101'
-        q = db._search_range(query['StudyDate'], session)
+        q = db._search_range(query['StudyDate'], self.session)
         assert not q.all()
 
     def test_search_range_end_subquery(self):
@@ -442,9 +442,8 @@ class TestSearch(object):
         query.QueryRetrieveLevel = 'PATIENT'
         query.StudyDate = '-'
 
-        session = self.session()
         with pytest.raises(ValueError):
-            db._search_range(query['StudyDate'], session)
+            db._search_range(query['StudyDate'], self.session)
 
     def test_search_range_neither_subquery(self):
         """Test searching within an existing query."""
@@ -456,8 +455,7 @@ class TestSearch(object):
         query.QueryRetrieveLevel = 'PATIENT'
         query.PatientName = 'CompressedSamples^CT1'
 
-        session = self.session()
-        q = db._search_single_value(query['PatientName'], session)
+        q = db._search_single_value(query['PatientName'], self.session)
         assert 1 == len(q.all())
 
     def test_search_single_value_subquery(self):
@@ -466,12 +464,11 @@ class TestSearch(object):
         query.QueryRetrieveLevel = 'PATIENT'
         query.PatientName = None
 
-        session = self.session()
-        q = db._search_universal(query['PatientName'], session)
+        q = db._search_universal(query['PatientName'], self.session)
         assert 5 == len(q.all())
 
         query.PatientName = 'CompressedSamples^CT1'
-        q = db._search_single_value(query['PatientName'], session, q)
+        q = db._search_single_value(query['PatientName'], self.session, q)
         assert 1 == len(q.all())
 
     def test_search_wildcard_asterisk(self):
@@ -480,12 +477,11 @@ class TestSearch(object):
         query.QueryRetrieveLevel = 'PATIENT'
         query.PatientName = '*'
 
-        session = self.session()
-        q = db._search_wildcard(query['PatientName'], session)
+        q = db._search_wildcard(query['PatientName'], self.session)
         assert 5 == len(q.all())
 
         query.PatientName = 'CompressedSamples*'
-        q = db._search_wildcard(query['PatientName'], session)
+        q = db._search_wildcard(query['PatientName'], self.session)
         assert 3 == len(q.all())
 
     def test_search_wildcard_asterisk_subquery(self):
@@ -498,8 +494,7 @@ class TestSearch(object):
         query.QueryRetrieveLevel = 'PATIENT'
         query.PatientName = 'CompressedSamples^??1'
 
-        session = self.session()
-        q = db._search_wildcard(query['PatientName'], session)
+        q = db._search_wildcard(query['PatientName'], self.session)
         assert 3 == len(q.all())
 
     def test_search_wildcard_qmark_subquery(self):
@@ -510,23 +505,22 @@ class TestSearch(object):
         """Test search using a UID list."""
         query = Dataset()
         query.QueryRetrieveLevel = 'PATIENT'
-        query.SOPInstanceUID = []
+        query.SOPInstanceUID = None
 
-        session = self.session()
-        q = db._search_uid_list(query['SOPInstanceUID'], session)
-        assert 0 == len(q.all())
+        q = db._search_uid_list(query['SOPInstanceUID'], self.session)
+        assert 5 == len(q.all())
 
         query.SOPInstanceUID = [
             '1.3.6.1.4.1.5962.1.1.4.1.1.20040826185059.5457'
         ]
-        q = db._search_uid_list(query['SOPInstanceUID'], session)
+        q = db._search_uid_list(query['SOPInstanceUID'], self.session)
         assert 1 == len(q.all())
 
         query.SOPInstanceUID = [
             '1.3.6.1.4.1.5962.1.1.4.1.1.20040826185059.5457',
             '1.3.6.1.4.1.5962.1.1.1.1.1.20040119072730.12322'
         ]
-        q = db._search_uid_list(query['SOPInstanceUID'], session)
+        q = db._search_uid_list(query['SOPInstanceUID'], self.session)
         assert 2 == len(q.all())
 
         query.SOPInstanceUID = [
@@ -534,7 +528,7 @@ class TestSearch(object):
             '1.3.6.1.4.1.5962.1.1.1.1.1.20040119072730.12322',
             '1.3.46.423632.132218.1415242681.6'
         ]
-        q = db._search_uid_list(query['SOPInstanceUID'], session)
+        q = db._search_uid_list(query['SOPInstanceUID'], self.session)
         assert 2 == len(q.all())
 
     def test_search_uid_list_subquery(self):
@@ -547,8 +541,7 @@ class TestSearch(object):
         query.QueryRetrieveLevel = 'PATIENT'
         query.SOPInstanceUID = None
 
-        session = self.session()
-        q = db._search_uid_list(query['SOPInstanceUID'], session)
+        q = db._search_uid_list(query['SOPInstanceUID'], self.session)
         assert 5 == len(q.all())
 
     @pytest.mark.skip('probably obsolete')
@@ -559,40 +552,108 @@ class TestSearch(object):
         query.PatientName = 'CompressedSamples*'
         query.StudyDate = '20000101-20040119'
 
-        session = self.session()
-        q1 = db._search_wildcard(query['PatientName'], session)
-        q2 = db._search_range(query['StudyDate'], session)
+        q1 = db._search_wildcard(query['PatientName'], self.session)
+        q2 = db._search_range(query['StudyDate'], self.session)
         q = q1.intersect(q2)
         assert 1 == len(q.all())
 
 
 IDENTIFIERS = [
-    ('PATIENT', [], None),
-    ('PATIENT', ['PatientName'], None),
-    ('PATIENT', ['PatientID'], None),
-    ('STUDY', [], r"missing a unique key for the 'PATIENT' level"),
-    ('STUDY', ['PatientName'], r"missing a unique key for the 'PATIENT' level"),
-    ('STUDY', ['PatientID'], None),
-    ('STUDY', ['PatientID', 'PatientName'], None),
-    ('STUDY', ['PatientID', 'StudyInstanceUID'], None),
-    ('SERIES', [], r"missing a unique key for the 'PATIENT' level"),
-    ('SERIES', ['PatientID'], r"missing a unique key for the 'STUDY' level"),
-    ('SERIES', ['StudyInstanceUID'], r"missing a unique key for the 'PATIENT' level"),
-    ('SERIES', ['PatientID', 'StudyInstanceUID'], None),
-    ('IMAGE', [], r"missing a unique key for the 'PATIENT' level"),
-    ('IMAGE', ['PatientID'], r"missing a unique key for the 'STUDY' level"),
-    ('IMAGE', ['PatientID', 'StudyInstanceUID'], r"missing a unique key for the 'SERIES' level"),
-    ('IMAGE', ['PatientID', 'StudyInstanceUID', 'SeriesInstanceUID'], None),
-    ('DUMMY', [], r"The Identifier's Query Retrieve Level value is invalid"),
+    (
+        'PATIENT', [],
+        None,
+        r"The Identifier's Query Retrieve Level value is invalid"
+    ),
+    (
+        'PATIENT', ['PatientName'],
+        None,
+        r"The Identifier's Query Retrieve Level value is invalid"
+    ),
+    (
+        'PATIENT', ['PatientID'],
+        None,
+        r"The Identifier's Query Retrieve Level value is invalid"
+    ),
+    (
+        'PATIENT', ['PatientID', 'SOPInstanceUID'],
+        r"contains keys below the level specified by the Query Retrieve",
+        r"The Identifier's Query Retrieve Level value is invalid"
+    ),
+    (
+        'STUDY', [],
+        r"missing a unique key for the 'PATIENT' level",
+        None
+    ),
+    (
+        'STUDY', ['PatientName'],
+        r"missing a unique key for the 'PATIENT' level",
+        None
+    ),
+    ('STUDY', ['PatientID'], None, None),
+    ('STUDY', ['PatientID', 'PatientName'], None, None),
+    ('STUDY', ['PatientID', 'StudyInstanceUID'], None, None),
+    (
+        'STUDY', ['PatientID', 'StudyInstanceUID', 'SOPInstanceUID'],
+        r"contains keys below the level specified by the Query Retrieve",
+        r"contains keys below the level specified by the Query Retrieve",
+    ),
+    (
+        'SERIES', [],
+        r"missing a unique key for the 'PATIENT' level",
+        r"missing a unique key for the 'STUDY' level",
+    ),
+    (
+        'SERIES', ['PatientID'],
+        r"missing a unique key for the 'STUDY' level",
+        r"missing a unique key for the 'STUDY' level",
+    ),
+    (
+        'SERIES', ['StudyInstanceUID'],
+        r"missing a unique key for the 'PATIENT' level",
+        None
+    ),
+    ('SERIES', ['PatientID', 'StudyInstanceUID'], None, None),
+    (
+        'SERIES', ['PatientID', 'StudyInstanceUID', 'SOPInstanceUID'],
+        r"contains keys below the level specified by the Query Retrieve",
+        r"contains keys below the level specified by the Query Retrieve"
+    ),
+    (
+        'IMAGE', [],
+        r"missing a unique key for the 'PATIENT' level",
+        r"missing a unique key for the 'STUDY' level",
+    ),
+    (
+        'IMAGE', ['PatientID'],
+        r"missing a unique key for the 'STUDY' level",
+        r"missing a unique key for the 'STUDY' level",
+    ),
+    (
+        'IMAGE', ['PatientID', 'StudyInstanceUID'],
+        r"missing a unique key for the 'SERIES' level",
+        r"missing a unique key for the 'SERIES' level",
+    ),
+    (
+        'IMAGE', ['PatientID', 'StudyInstanceUID', 'SeriesInstanceUID'],
+        None,
+        None
+    ),
+    (
+        'DUMMY', [],
+        r"The Identifier's Query Retrieve Level value is invalid",
+        r"The Identifier's Query Retrieve Level value is invalid",
+    ),
 ]
+
 
 class TestSearchFind(object):
     """Tests for running C-FIND queries against the database."""
     def setup(self):
         """Run prior to each test"""
-        self.conn, self.engine, self.session = db.connect('sqlite:///:memory:')
+        self.conn, self.engine, Session = db.connect('sqlite:///:memory:')
         pydicom.config.use_none_as_empty_text_VR_value = True
 
+        self.session = Session()
         for fname in DATASETS:
             fpath = os.path.join(DATA_DIR, fname)
             ds = dcmread(fpath)
@@ -632,6 +693,21 @@ class TestSearchFind(object):
         ds.PatientID = '12345'
         db._check_find_identifier(ds, patient)
 
+    @pytest.mark.parametrize("level, identifier, pt, st", IDENTIFIERS)
+    def test_check_identifier_param_patient(self, level, identifier, pt, st):
+        """Tests for check_identifier()."""
+        ds = Dataset()
+        ds.QueryRetrieveLevel = level
+        for kw in identifier:
+            setattr(ds, kw, None)
+
+        model = PatientRootQueryRetrieveInformationModelFind
+        if pt:
+            with pytest.raises(db.InvalidIdentifier, match=pt):
+                db._check_find_identifier(ds, model)
+        else:
+            db._check_find_identifier(ds, model)
+
     def test_check_identifier_study(self):
         """Tests for check_find_identifier()."""
         ds = Dataset()
@@ -658,17 +734,17 @@ class TestSearchFind(object):
         ds.StudyInstanceUID = '12345'
         db._check_find_identifier(ds, study)
 
-    @pytest.mark.parametrize("level, identifier, msg", IDENTIFIERS)
-    def test_check_identifier_param_patient(self, level, identifier, msg):
+    @pytest.mark.parametrize("level, identifier, pt, st", IDENTIFIERS)
+    def test_check_identifier_param_study(self, level, identifier, pt, st):
         """Tests for check_identifier()."""
         ds = Dataset()
         ds.QueryRetrieveLevel = level
         for kw in identifier:
             setattr(ds, kw, None)
 
-        model = PatientRootQueryRetrieveInformationModelFind
-        if msg:
-            with pytest.raises(db.InvalidIdentifier, match=msg):
+        model = StudyRootQueryRetrieveInformationModelFind
+        if st:
+            with pytest.raises(db.InvalidIdentifier, match=st):
                 db._check_find_identifier(ds, model)
         else:
             db._check_find_identifier(ds, model)

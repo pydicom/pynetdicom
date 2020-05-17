@@ -2,10 +2,15 @@
 
 import os
 
+from sqlalchemy import create_engine
+from sqlalchemy.orm import sessionmaker
+
 from pynetdicom.dsutils import pretty_dataset
 
 from . import config
-from .db import add_instance, search, remove_instance, InvalidIdentifier
+from .db import (
+    add_instance, search, remove_instance, InvalidIdentifier, connect
+)
 
 
 def handle_echo(event, cli_config, logger):
@@ -34,15 +39,15 @@ def handle_echo(event, cli_config, logger):
     return 0x0000
 
 
-def handle_find(event, session, cli_config, logger):
+def handle_find(event, db_path, cli_config, logger):
     """Handler for evt.EVT_C_FIND.
 
     Parameters
     ----------
     event : pynetdicom.events.Event
         The C-FIND request :class:`~pynetdicom.events.Event`.
-    session : sqlalchemy.orm.Session
-        A database session.
+    db_path : str
+        The path to use with create_engine().
     cli_config : dict
         A :class:`dict` containing configuration settings passed via CLI.
     logger : logging.Logger
@@ -61,21 +66,33 @@ def handle_find(event, session, cli_config, logger):
         .format(requestor.address, requestor.port, timestamp)
     )
 
-    # Search database using Identifier as the query
     model = event.request.AffectedSOPClassUID
-    try:
-        matches = search(model, event.identifier, session)
-    except InvalidIdentifier as exc:
-        logger.error('Invalid C-FIND Identifier received')
-        logger.error(str(exc))
-        yield 0xA900, None
-        return
 
-    # Yield results
-    for match in matches:
-        response = match.as_identifier(event.identifier, model)
-        response.RetrieveAETitle = event.assoc.ae.ae_title
-        yield 0xFF00, response
+    engine = create_engine(db_path)
+    with engine.connect() as conn:
+        Session = sessionmaker(bind=engine)
+        session = Session()
+        # Search database using Identifier as the query
+        try:
+            matches = search(model, event.identifier, session)
+        except InvalidIdentifier as exc:
+            session.rollback()
+            logger.error('Invalid C-FIND Identifier received')
+            logger.error(str(exc))
+            yield 0xA900, None
+            return
+        finally:
+            session.close()
+
+        # Yield results
+        for match in matches:
+            if event.is_cancelled:
+                yield 0xFE00, None
+                return
+
+            response = match.as_identifier(event.identifier, model)
+            response.RetrieveAETitle = event.assoc.ae.ae_title
+            yield 0xFF00, response
 
 
 def handle_get(event, session, cli_config, logger):
@@ -114,7 +131,6 @@ def handle_get(event, session, cli_config, logger):
             logging.info(line)
 
     # Search database using Identifier as the query
-    conn, engine, session = connect()
     results = search(
         event.request.AffectedSOPClassUID, event.identifier, session
     )
@@ -179,28 +195,37 @@ def handle_move(event, session, cli_config, logger):
             logging.info(line)
 
     # Search database using Identifier as the query
-
-    results = search(
-        event.request.AffectedSOPClassUID, event.identifier, session
-    )
+    model = event.request.AffectedSOPClassUID
+    try:
+        matches = search(model, event.identifier, session)
+    except InvalidIdentifier as exc:
+        logger.error('Invalid C-MOVE Identifier received')
+        logger.error(str(exc))
+        yield 0xA900, None
+        return
 
     # Yield number of sub-operations
-    yield len(results)
+    yield len(matches)
 
     # Yield results
-    for response in results:
-        yield 0xFF00, response
+    for match in matches:
+        if event.is_cancelled:
+            yield 0xFE00, None
+            return
+
+        ds = dcmread(match.filename)
+        yield 0xFF00, ds
 
 
-def handle_store(event, session, cli_config, logger):
+def handle_store(event, db_path, cli_config, logger):
     """Handler for evt.EVT_C_STORE.
 
     Parameters
     ----------
     event : pynetdicom.events.Event
         The C-STORE request :class:`~pynetdicom.events.Event`.
-    session : sqlalchemy.orm.Session
-        A database session.
+    db_path : str
+        The path to use with create_engine().
     cli_config : dict
         A :class:`dict` containing configuration settings passed via CLI.
     logger : logging.Logger
@@ -238,14 +263,22 @@ def handle_store(event, session, cli_config, logger):
     #   If we fail then don't even try to store
     fpath = os.path.join(config.INSTANCE_LOCATION, sop_instance)
     db_dir = os.path.dirname(config.DATABASE_LOCATION)
-    try:
-        # Path is relative to the database file
-        add_instance(ds, session, os.path.relpath(fpath, db_dir))
-        logger.info("Instance added to database")
-    except Exception as exc:
-        logger.error('Unable to add instance to the database')
-        logger.exception(exc)
-        return 0xC001
+
+    engine = create_engine(db_path)
+    with engine.connect() as conn:
+        Session = sessionmaker(bind=engine)
+        session = Session()
+        try:
+            # Path is relative to the database file
+            add_instance(ds, session, os.path.relpath(fpath, db_dir))
+            logger.info("Instance added to database")
+        except Exception as exc:
+            session.rollback()
+            logger.error('Unable to add instance to the database')
+            logger.exception(exc)
+            return 0xC001
+        finally:
+            session.close()
 
     already_exists = False
     if os.path.exists(fpath):

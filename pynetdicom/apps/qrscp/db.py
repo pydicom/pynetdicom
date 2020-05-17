@@ -138,20 +138,19 @@ _STUDY_ROOT = OrderedDict({
 })
 
 
-def add_instance(ds, session_builder, fpath=None):
+def add_instance(ds, session, fpath=None):
     """Add a SOP Instance to the database or update existing instance.
 
     Parameters
     ----------
     ds : pydicom.dataset.Dataset
         The SOP Instance to be added to the database.
-    session_builder : sqlalchemy.orm.Session
+    session : sqlalchemy.orm.session.Session
+        The session we are using to query the database.
     fpath : str, optional
         The path to where the SOP Instance is stored, taken relative
         to the database file.
     """
-    session = session_builder()
-
     # Check if instance is already in the database
     result = session.query(Instance).filter(
         Instance.sop_instance_uid == ds.SOPInstanceUID
@@ -225,14 +224,14 @@ def add_instance(ds, session_builder, fpath=None):
     session.commit()
 
 
-def clear(session_builder):
+def clear(session):
     """Delete all entries from the database.
 
     Parameters
     ----------
-    session_builder
+    session : sqlalchemy.orm.session.Session
+        The session we are using to query the database.
     """
-    session = session_builder()
     for instance in session.query(Instance).all():
         session.delete(instance)
 
@@ -273,24 +272,24 @@ def connect(db_location=None, echo=False):
     return conn, engine, Session
 
 
-def build_query(identifier, session_builder, query=None):
+def build_query(identifier, session, query=None):
     """Perform a query against the database.
 
     Parameters
     ----------
     identifier : pydicom.dataset.Dataset
         The request's *Identifier* dataset containing the query attributes.
-    session_builder : sqlalchemy.orm.session.sessionmaker
-        The session maker.
-    query :
+    session : sqlalchemy.orm.session.Session
+        The session we are using to query the database.
+    query : sqlalchemy.orm.query.Query or None
+        If ``None`` then start a new query, otherwise extend the existing
+        `query`.
 
     Returns
     -------
     sqlalchemy.orm.query.Query
         The resulting query.
     """
-    session = session_builder()
-
     # VRs for Single Value Matching and Wild Card Matching
     _text_vr = [
         'AE', 'CS', 'LO', 'LT', 'PN', 'SH', 'ST', 'UC', 'UR', 'UT'
@@ -341,7 +340,7 @@ def build_query(identifier, session_builder, query=None):
     return query
 
 
-def remove_instance(instance_uid, session_builder):
+def remove_instance(instance_uid, session):
     """Return a SOP Instance from the database.
 
     Parameters
@@ -349,8 +348,9 @@ def remove_instance(instance_uid, session_builder):
     instance_uid : pydicom.uid.UID
         The () *SOP Instance UID* of the SOP Instance to be removed from the
         database.
+    session : sqlalchemy.orm.session.Session
+        The session we are using to query the database.
     """
-    session = session_builder()
     matches = session.query(Instance).filter(
         Instance.sop_instance_uid == instance_uid
     ).all()
@@ -359,7 +359,7 @@ def remove_instance(instance_uid, session_builder):
         session.commit()
 
 
-def search(model, identifier, session_builder):
+def search(model, identifier, session):
     """Search the database.
 
     Optional keys are not supported.
@@ -375,8 +375,8 @@ def search(model, identifier, session_builder):
           C-MOVE
     identifier : pydicom.dataset.Dataset
         The Query/Retrieve request's *Identifier* dataset.
-    session_builder : sqlalchemy.orm.session.sessionmaker
-        The session maker.
+    session : sqlalchemy.orm.session.Session
+        The session we are using to query the database.
 
     Returns
     -------
@@ -415,15 +415,14 @@ def search(model, identifier, session_builder):
             delattr(identifier, kw)
 
     if model in _C_FIND:
-        return _search_find(model, identifier, session_builder)
+        return _search_find(model, identifier, session)
 
     # Must be C-GET or C-MOVE at this point
     # Part 4, C.2.2.1.2: remove required keys from C-GET/C-MOVE so
     #   they don't affect the match (should also be faster)
-    for kw in [k for k, v in _ATTRIBUTES.items() if v[1] == 'R']:
-        delattr(identifier, kw)
+    [delattr(identifier, k) for k, v in _ATTRIBUTES.items() if v[1] == 'R']
 
-    return _search_get_move(model, identifier, session_builder)
+    return _search_get_move(model, identifier, session)
 
 
 def _check_find_identifier(identifier, model):
@@ -479,7 +478,7 @@ def _check_find_identifier(identifier, model):
             )
 
 
-def _search_find(model, identifier, session_builder):
+def _search_find(model, identifier, session):
     """Search the database using a C-FIND query.
 
     Parameters
@@ -489,8 +488,8 @@ def _search_find(model, identifier, session_builder):
         Query Retrieve Information Model* for C-FIND
     identifier : pydicom.dataset.Dataset
         The C-FIND request's *Identifier* dataset.
-    session_builder : sqlalchemy.orm.session.sessionmaker
-        The session maker.
+    session : sqlalchemy.orm.session.Session
+        The session we are using to query the database.
 
     Returns
     -------
@@ -512,50 +511,51 @@ def _search_find(model, identifier, session_builder):
         keywords = [kw for kw in keywords if kw in identifier]
         [setattr(ds, kw, getattr(identifier, kw)) for kw in keywords]
 
-        query = build_query(ds, session_builder, query)
+        query = build_query(ds, session, query)
         if level == identifier.QueryRetrieveLevel:
             break
 
     return query.all()
 
 
-def _search_get_move(model, identifier, session_builder):
-    # C-GET/C-MOVE shall transfer:
-    #   PATIENT level - all Instances related to Patient
-    #   STUDY level - all Instances related to a Study
-    #   SERIES level - all Instances related to a Series
-    #   IMAGE level - selected individual Instances
-    if model in patient_root_models:
-        if qr_level == 'PATIENT':
-            assert 'PatientID' in query
-        elif qr_level == 'STUDY':
-            assert 'PatientID' in query
-            assert 'StudyInstanceUID' in query
-        elif qr_level == 'SERIES':
-            assert 'PatientID' in query
-            assert 'StudyInstanceUID' in query
-            assert 'SeriesInstanceUID' in query
-        elif qr_level == 'IMAGE':
-            assert 'PatientID' in query
-            assert 'StudyInstanceUID' in query
-            assert 'SeriesInstanceUID' in query
-            assert 'SOPInstanceUID' in query
-    elif model in study_root_models:
-        if qr_level == 'STUDY':
-            assert 'StudyInstanceUID' in query
-        elif qr_level == 'PATIENT':
-            assert 'PatientID' in query
-            assert 'StudyInstanceUID' in query
-        elif qr_level == 'SERIES':
-            assert 'PatientID' in query
-            assert 'StudyInstanceUID' in query
-            assert 'SeriesInstanceUID' in query
-        elif qr_level == 'IMAGE':
-            assert 'PatientID' in query
-            assert 'StudyInstanceUID' in query
-            assert 'SeriesInstanceUID' in query
-            assert 'SOPInstanceUID' in query
-    pass
+def _search_get_move(model, identifier, session):
+    """Search the database using a C-FIND query.
+
+    Parameters
+    ----------
+    model : pydicom.uid.UID
+        Either *Patient Root Query Retrieve Information Model* or *Study Root
+        Query Retrieve Information Model* for C-FIND
+    identifier : pydicom.dataset.Dataset
+        The C-FIND request's *Identifier* dataset.
+    session : sqlalchemy.orm.session.Session
+        The session we are using to query the database.
+
+    Returns
+    -------
+    list of db.Instance
+        The Instances that match the query.
+    """
+    # Will raise InvalidIdentifier if check failed
+    _check_get_move_identifier(identifier, model)
+
+    if model in _PATIENT_ROOT:
+        attr = _PATIENT_ROOT[model]
+    else:
+        attr = _STUDY_ROOT[model]
+
+    # Hierarchical search method: C.4.1.3.1.1
+    query = None
+    for level, keywords in attr.items():
+        ds = Dataset()
+        keywords = [kw for kw in keywords if kw in identifier]
+        [setattr(ds, kw, getattr(identifier, kw)) for kw in keywords]
+
+        query = build_query(ds, session_builder, query)
+        if level == identifier.QueryRetrieveLevel:
+            break
+
+    return query.all()
 
 
 def _search_single_value(elem, session, query=None):
@@ -735,6 +735,7 @@ def _search_range(elem, session, query=None):
     raise ValueError("Invalid attribute value for range matching")
 
 
+# Database table setup stuff
 Base = declarative_base()
 
 
