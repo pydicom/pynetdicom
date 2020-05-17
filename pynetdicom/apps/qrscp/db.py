@@ -17,6 +17,8 @@ Required Keys
 * Required keys shall not be in a C-GET or C-MOVE request's Identifier
 """
 
+from collections import OrderedDict
+
 try:
     import sqlalchemy
 except ImportError:
@@ -41,6 +43,9 @@ from pynetdicom.sop_class import(
 
 import pynetdicom.apps.qrscp.config as config
 
+
+class InvalidIdentifier(Exception):
+    pass
 
 # C.2.2.2: The total length of the attribute may be larger given in Part 5
 # C.2.2.2: The VM may be larger than the VM from Part 6, depending
@@ -89,6 +94,23 @@ _ATTRIBUTES = {
     'SOPInstanceUID' : ('IMAGE', 'U', 'UI', 1),
     'InstanceNumber' : ('IMAGE', 'R', 'UI', 1),
 }
+_PATIENT_ROOT_ATTRIBUTES = {
+    'PATIENT' : ['PatientID', 'PatientName'],
+    'STUDY' : [
+        'StudyInstanceUID', 'StudyDate', 'StudyTime', 'AccessionNumber',
+        'StudyID'
+    ],
+    'SERIES' : ['SeriesInstanceUID', 'Modality', 'SeriesNumber'],
+    'IMAGE' : ['SOPInstanceUID', 'InstanceNumber'],
+}
+_STUDY_ROOT_ATTRIBUTES = {
+    'STUDY' : [
+        'StudyInstanceUID', 'StudyDate', 'StudyTime', 'AccessionNumber',
+        'StudyID', 'PatientID', 'PatientName'
+    ],
+    'SERIES' : ['SeriesInstanceUID', 'Modality', 'SeriesNumber'],
+    'IMAGE' : ['SOPInstanceUID', 'InstanceNumber'],
+}
 
 # Supported Information Models
 _C_FIND = [
@@ -104,16 +126,16 @@ _C_MOVE = [
     StudyRootQueryRetrieveInformationModelMove
 ]
 
-_PATIENT_ROOT = [
-    PatientRootQueryRetrieveInformationModelFind,
-    PatientRootQueryRetrieveInformationModelGet,
-    PatientRootQueryRetrieveInformationModelMove
-]
-_STUDY_ROOT = [
-    StudyRootQueryRetrieveInformationModelFind,
-    StudyRootQueryRetrieveInformationModelGet,
-    StudyRootQueryRetrieveInformationModelMove
-]
+_PATIENT_ROOT = OrderedDict({
+    PatientRootQueryRetrieveInformationModelFind : _PATIENT_ROOT_ATTRIBUTES,
+    PatientRootQueryRetrieveInformationModelGet : _PATIENT_ROOT_ATTRIBUTES,
+    PatientRootQueryRetrieveInformationModelMove : _PATIENT_ROOT_ATTRIBUTES,
+})
+_STUDY_ROOT = OrderedDict({
+    StudyRootQueryRetrieveInformationModelFind : _STUDY_ROOT_ATTRIBUTES,
+    StudyRootQueryRetrieveInformationModelGet : _STUDY_ROOT_ATTRIBUTES,
+    StudyRootQueryRetrieveInformationModelMove : _STUDY_ROOT_ATTRIBUTES,
+})
 
 
 def add_instance(ds, session_builder, fpath=None):
@@ -286,25 +308,25 @@ def build_query(identifier, session_builder, query=None):
             elif vr in ['DA', 'TM', 'DT'] and '-' in val:
                 pass
             else:
-                print('Performing single value matching...')
+                #print('Performing single value matching...')
                 query = _search_single_value(elem, session, query)
                 continue
 
-        # Part 4, C.2.2.2.2 List of UID Matching
-        if vr == 'UI':
-            print('Performing list of UID matching...')
-            query = _search_uid_list(elem, session, query)
-            continue
-
         # Part 4, C.2.2.2.3 Universal Matching
         if val is None:
-            print('Performing universal matching...')
+            #print('Performing universal matching...')
             query = _search_universal(elem, session, query)
+            continue
+
+        # Part 4, C.2.2.2.2 List of UID Matching
+        if vr == 'UI':
+            #print('Performing list of UID matching...')
+            query = _search_uid_list(elem, session, query)
             continue
 
         # Part 4, C.2.2.2.4 Wild Card Matching
         if vr in _text_vr and ('*' in val or '?' in val):
-            print('Performing wildcard matching...')
+            #print('Performing wildcard matching...')
             query = _search_wildcard(elem, session, query)
             continue
 
@@ -367,23 +389,23 @@ def search(model, identifier, session_builder):
         If the `identifier` is invalid.
     """
     if model not in _STUDY_ROOT and model not in _PATIENT_ROOT:
-        raise ValueError(
-            "An information model of '{}' is not supported".format(model.name)
-        )
+        raise ValueError("Unknown information model '{}'".format(model.name))
 
     # Part 4, C.4.1.1.3.1, C.4.2.1.4 and C.4.3.1.3.1:
     #   (0008,0052) Query Retrieve Level is required in the Identifier
     if 'QueryRetrieveLevel' not in identifier:
-        raise ValueError(
-            "The Identifier must contain an (0008,0052) 'Query Retrieve "
-            "Level' element"
+        raise InvalidIdentifier(
+            "The Identifier contains no Query Retrieve Level element"
         )
 
-    _levels = ['PATIENT', 'STUDY', 'SERIES', 'IMAGE']
-    if identifier.QueryRetrieveLevel not in _levels:
-        raise ValueError(
-            "A value of '{}' for (0008,0052) 'Query Retrieve Level' is invalid"
-            .format(identifier.QueryRetrieveLevel)
+    if model in _PATIENT_ROOT:
+        levels = _PATIENT_ROOT[model].keys()
+    else:
+        levels = _STUDY_ROOT[model].keys()
+
+    if identifier.QueryRetrieveLevel not in levels:
+        raise InvalidIdentifier(
+            "The Identifier's Query Retrieve Level value is invalid"
         )
 
     # Remove all optional keys
@@ -404,6 +426,59 @@ def search(model, identifier, session_builder):
     return _search_get_move(model, identifier, session_builder)
 
 
+def _check_find_identifier(identifier, model):
+    """Check that the C-FIND `identifier` is valid.
+
+    Parameters
+    ----------
+    identifier : pydicom.dataset.Dataset
+        The *Identifier* dataset to check.
+    model : pydicom.uid.UID
+        The Query/Retrieve Information Model.
+
+    Raises
+    ------
+    InvalidIdentifier
+        If the Identifier is invalid.
+    """
+    if 'QueryRetrieveLevel' not in identifier:
+        raise InvalidIdentifier(
+            "The Identifier contains no Query Retrieve Level element"
+        )
+
+    if model in _PATIENT_ROOT:
+        attr = _PATIENT_ROOT[model]
+    else:
+        attr = _STUDY_ROOT[model]
+
+    levels = list(attr.keys())
+    if identifier.QueryRetrieveLevel not in levels:
+        raise InvalidIdentifier(
+            "The Identifier's Query Retrieve Level value is invalid"
+        )
+
+    for ii, level in enumerate(levels):
+        if level == identifier.QueryRetrieveLevel:
+            # Check if identifier has elements below current level
+            for sublevel in levels[ii + 1:]:
+                if any([kw in identifier for kw in attr[sublevel]]):
+                    raise InvalidIdentifier(
+                        "The Identifier contains keys below the level "
+                        "specified by the Query Retrieve Level"
+                    )
+
+            # The level is the same as that in the identifier so we're OK
+            return
+
+        # The level is above that in the identifier so make sure the unique
+        #   keyword is present
+        if attr[level][0] not in identifier:
+            raise InvalidIdentifier(
+                "The Identifier is missing a unique key for the '{}' level"
+                .format(level)
+            )
+
+
 def _search_find(model, identifier, session_builder):
     """Search the database using a C-FIND query.
 
@@ -422,54 +497,26 @@ def _search_find(model, identifier, session_builder):
     list of db.Instance
         The Instances that match the query.
     """
-    # This function basically determines whether or not a query is valid
-    #   for the given Query Retrieve Level and information model
-    # An invalid identifier should return 0xA900 status
-    level = identifier.QueryRetrieveLevel
+    # Will raise InvalidIdentifier if check failed
+    _check_find_identifier(identifier, model)
 
-    # C.4.1.2.1
-    # * An identifier shall contain a single value in the unique key for
-    #   each level above the QRLevel.
-    # * No required keys shall be specified that are associated with levels
-    #   above the QRLevel.
-    # * The unique key associated with the QRLevel shall be contained in the
-    #   identifier. Required keys may be contained in the identifier.
-
-    # Search using the "Hierarchical Search Method": Part 4, C.4.1.3.1.1
     if model in _PATIENT_ROOT:
-        levels = ['PATIENT', 'STUDY', 'SERIES', 'IMAGE']
-        level_keys = {}
+        attr = _PATIENT_ROOT[model]
     else:
-        levels = ['STUDY', 'SERIES', 'IMAGE']
-        level_keys = {'STUDY' : ['PatientID', 'PatientName']}
+        attr = _STUDY_ROOT[model]
 
-    for level in levels:
-        level_keys[levels] = [
-            k for k, v in _ATTRIBUTES.items() if v[0] == levels
-        ]
-
-    current_level = levels[0]
+    # Hierarchical search method: C.4.1.3.1.1
     query = None
-    if current_level = identifier.QueryRetrieveLevel:
+    for level, keywords in attr.items():
         ds = Dataset()
-        keys = level_keys[current_level]
-        for kw in keys:
-            if kw in identifier:
-                setattr(ds, kw, getattr(identifier, kw))
+        keywords = [kw for kw in keywords if kw in identifier]
+        [setattr(ds, kw, getattr(identifier, kw)) for kw in keywords]
 
-        query = build_query(identifier, session_builder, query)
+        query = build_query(ds, session_builder, query)
+        if level == identifier.QueryRetrieveLevel:
+            break
 
-
-    ## Patient Root
-    # PATIENT -> STUDY -> SERIES -> IMAGE
-
-    ## Study Root
-    # STUDY -> SERIES -> IMAGE
-    # Keys for PATIENT are rolled into STUDY
-
-
-    # Everything looks good, so perform the actual query
-    return build_query(identifier, session_builder)
+    return query.all()
 
 
 def _search_get_move(model, identifier, session_builder):
@@ -571,6 +618,9 @@ def _search_uid_list(elem, session, query=None):
     sqlalchemy.orm.query.Query
         The resulting query.
     """
+    if not elem.value:
+        return _search_universal(elem, session, query)
+
     attr = getattr(Instance, _TRANSLATION[elem.keyword])
     if not query:
         query = session.query(Instance)
@@ -725,13 +775,15 @@ class Instance(Base):
     )
     instance_number = Column(String, ForeignKey('image.instance_number'))
 
-    def as_identifier(self, query):
+    def as_identifier(self, identifier, model):
         """Return an Identifier dataset matching the elements from a query.
 
         Parameters
         ----------
-        query : pydicom.dataset.Dataset
+        identifier : pydicom.dataset.Dataset
             The C-FIND, C-GET or C-MOVE request's *Identifier* dataset.
+        model : pydicom.uid.UID
+            The Query/Retrieve Information Model.
 
         Returns
         -------
@@ -739,16 +791,26 @@ class Instance(Base):
             The response *Identifier*.
         """
         ds = Dataset()
-        if 'QueryRetrieveLevel' in query:
-            ds.QueryRetrieveLevel = query.QueryRetrieveLevel
+        ds.QueryRetrieveLevel = identifier.QueryRetrieveLevel
 
-        for elem in query:
+        if model in _PATIENT_ROOT:
+            attr = _PATIENT_ROOT[model]
+        else:
+            attr = _STUDY_ROOT[model]
+
+        all_keywords = []
+        for level, keywords in attr.items():
+            all_keywords.extend(keywords)
+            if level == identifier.QueryRetrieveLevel:
+                break
+
+        for kw in [kw for kw in all_keywords if kw in identifier]:
             try:
-                attribute = _TRANSLATION[elem.keyword]
+                attribute = _TRANSLATION[kw]
             except KeyError:
                 continue
 
-            setattr(ds, elem.keyword, getattr(self, attribute, None))
+            setattr(ds, kw, getattr(self, attribute, None))
 
         return ds
 

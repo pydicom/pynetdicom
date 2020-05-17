@@ -5,7 +5,7 @@ import os
 from pynetdicom.dsutils import pretty_dataset
 
 from . import config
-from .db import add_instance, search, remove_instance
+from .db import add_instance, search, remove_instance, InvalidIdentifier
 
 
 def handle_echo(event, cli_config, logger):
@@ -61,20 +61,19 @@ def handle_find(event, session, cli_config, logger):
         .format(requestor.address, requestor.port, timestamp)
     )
 
-    # Log query dataset
-    #if config.LOG_IDENTIFIERS:
-    #    logger.info('')
-    #    for line in pretty_dataset(event.identifier):
-    #        logger.info(line)
-
     # Search database using Identifier as the query
-    matches = search(
-        event.request.AffectedSOPClassUID, event.identifier, session
-    )
+    model = event.request.AffectedSOPClassUID
+    try:
+        matches = search(model, event.identifier, session)
+    except InvalidIdentifier as exc:
+        logger.error('Invalid C-FIND Identifier received')
+        logger.error(str(exc))
+        yield 0xA900, None
+        return
 
     # Yield results
     for match in matches:
-        response = match.as_identifier(event.identifier)
+        response = match.as_identifier(event.identifier, model)
         response.RetrieveAETitle = event.assoc.ae.ae_title
         yield 0xFF00, response
 

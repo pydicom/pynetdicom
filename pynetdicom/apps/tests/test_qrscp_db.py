@@ -12,7 +12,10 @@ import pydicom.config
 from pydicom.dataset import Dataset
 from pydicom.tag import Tag
 
-from pynetdicom.sop_class import PatientRootQueryRetrieveInformationModelFind
+from pynetdicom.sop_class import (
+    PatientRootQueryRetrieveInformationModelFind,
+    StudyRootQueryRetrieveInformationModelFind
+)
 
 from pynetdicom.apps.qrscp import db
 import pynetdicom.apps.qrscp.config as config
@@ -538,6 +541,16 @@ class TestSearch(object):
         """Test searching within an existing query."""
         pass
 
+    def test_search_uid_list_empty(self):
+        """Test searching an empty UID element works correctly."""
+        query = Dataset()
+        query.QueryRetrieveLevel = 'PATIENT'
+        query.SOPInstanceUID = None
+
+        session = self.session()
+        q = db._search_uid_list(query['SOPInstanceUID'], session)
+        assert 5 == len(q.all())
+
     @pytest.mark.skip('probably obsolete')
     def test_combine_queries(self):
         """Test combining queries."""
@@ -552,6 +565,26 @@ class TestSearch(object):
         q = q1.intersect(q2)
         assert 1 == len(q.all())
 
+
+IDENTIFIERS = [
+    ('PATIENT', [], None),
+    ('PATIENT', ['PatientName'], None),
+    ('PATIENT', ['PatientID'], None),
+    ('STUDY', [], r"missing a unique key for the 'PATIENT' level"),
+    ('STUDY', ['PatientName'], r"missing a unique key for the 'PATIENT' level"),
+    ('STUDY', ['PatientID'], None),
+    ('STUDY', ['PatientID', 'PatientName'], None),
+    ('STUDY', ['PatientID', 'StudyInstanceUID'], None),
+    ('SERIES', [], r"missing a unique key for the 'PATIENT' level"),
+    ('SERIES', ['PatientID'], r"missing a unique key for the 'STUDY' level"),
+    ('SERIES', ['StudyInstanceUID'], r"missing a unique key for the 'PATIENT' level"),
+    ('SERIES', ['PatientID', 'StudyInstanceUID'], None),
+    ('IMAGE', [], r"missing a unique key for the 'PATIENT' level"),
+    ('IMAGE', ['PatientID'], r"missing a unique key for the 'STUDY' level"),
+    ('IMAGE', ['PatientID', 'StudyInstanceUID'], r"missing a unique key for the 'SERIES' level"),
+    ('IMAGE', ['PatientID', 'StudyInstanceUID', 'SeriesInstanceUID'], None),
+    ('DUMMY', [], r"The Identifier's Query Retrieve Level value is invalid"),
+]
 
 class TestSearchFind(object):
     """Tests for running C-FIND queries against the database."""
@@ -571,15 +604,78 @@ class TestSearchFind(object):
         query.QueryRetrieveLevel = 'PATIENT'
         query.PatientID = None
         query.PatientName = 'CompressedSamples^??1'
-        query.Modality = None
 
-        result = db._search_find(
-            PatientRootQueryRetrieveInformationModelFind,
-            query,
-            self.session
-        )
+        model = PatientRootQueryRetrieveInformationModelFind
+
+        result = db._search_find(model, query, self.session)
         assert 3 == len(result)
 
         for instance in result:
             print()
-            print(instance.as_identifier(query))
+            print(instance.as_identifier(query, model))
+
+    def test_check_identifier_patient(self):
+        """Tests for check_find_identifier()."""
+        ds = Dataset()
+        ds.QueryRetrieveLevel = 'PATIENT'
+        patient = PatientRootQueryRetrieveInformationModelFind
+
+        db._check_find_identifier(ds, patient)
+
+        ds.QueryRetrieveLevel = 'STUDY'
+        msg = (
+            r"The Identifier is missing a unique key for the 'PATIENT' level"
+        )
+        with pytest.raises(db.InvalidIdentifier, match=msg):
+            db._check_find_identifier(ds, patient)
+
+        ds.PatientID = '12345'
+        db._check_find_identifier(ds, patient)
+
+    def test_check_identifier_study(self):
+        """Tests for check_find_identifier()."""
+        ds = Dataset()
+        ds.QueryRetrieveLevel = 'PATIENT'
+        study = StudyRootQueryRetrieveInformationModelFind
+
+        msg = r"The Identifier's Query Retrieve Level value is invalid"
+        with pytest.raises(db.InvalidIdentifier, match=msg):
+            db._check_find_identifier(ds, study)
+
+        ds.QueryRetrieveLevel = 'STUDY'
+        db._check_find_identifier(ds, study)
+
+        ds.QueryRetrieveLevel = 'SERIES'
+        msg = (
+            r"The Identifier is missing a unique key for the 'STUDY' level"
+        )
+        with pytest.raises(db.InvalidIdentifier, match=msg):
+            db._check_find_identifier(ds, study)
+        ds.PatientID = None
+        with pytest.raises(db.InvalidIdentifier, match=msg):
+            db._check_find_identifier(ds, study)
+
+        ds.StudyInstanceUID = '12345'
+        db._check_find_identifier(ds, study)
+
+    @pytest.mark.parametrize("level, identifier, msg", IDENTIFIERS)
+    def test_check_identifier_param_patient(self, level, identifier, msg):
+        """Tests for check_identifier()."""
+        ds = Dataset()
+        ds.QueryRetrieveLevel = level
+        for kw in identifier:
+            setattr(ds, kw, None)
+
+        model = PatientRootQueryRetrieveInformationModelFind
+        if msg:
+            with pytest.raises(db.InvalidIdentifier, match=msg):
+                db._check_find_identifier(ds, model)
+        else:
+            db._check_find_identifier(ds, model)
+
+    def test_check_identifier_raises(self):
+        """Check raises if no QueryRetrieveLevel element."""
+        model = PatientRootQueryRetrieveInformationModelFind
+        msg = r"The Identifier contains no Query Retrieve Level element"
+        with pytest.raises(db.InvalidIdentifier, match=msg):
+            db._check_find_identifier(Dataset(), model)
