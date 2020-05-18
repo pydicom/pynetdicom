@@ -456,6 +456,9 @@ def _check_find_identifier(identifier, model):
             "The Identifier's Query Retrieve Level value is invalid"
         )
 
+    if len(identifier) == 1:
+        raise InvalidIdentifier("The Identifier contains no keys")
+
     for ii, level in enumerate(levels):
         if level == identifier.QueryRetrieveLevel:
             # Check if identifier has elements below current level

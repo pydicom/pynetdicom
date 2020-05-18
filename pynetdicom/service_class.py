@@ -1605,18 +1605,26 @@ class QueryRetrieveServiceClass(ServiceClass):
             if status[0] == STATUS_CANCEL:
                 # If cancel, then rsp_identifier is None
                 LOGGER.info('Received C-CANCEL-FIND RQ from peer')
-                LOGGER.info('Find SCP Response: (Cancel)')
+                LOGGER.info(
+                    'Find SCP Response {}: 0x{:04X} (Cancel)'
+                    .format(ii + 1, rsp.Status)
+                )
                 self.dimse.send_msg(rsp, context.context_id)
                 return
             elif status[0] == STATUS_FAILURE:
                 # If failed, then rsp_identifier is None
-                LOGGER.info('Find SCP Response: (Failure - %s)', status[1])
+                LOGGER.info(
+                    'Find SCP Response {}: 0x{:04X} (Failure - {})'
+                    .format(ii + 1, rsp.Status, status[1])
+                )
                 self.dimse.send_msg(rsp, context.context_id)
                 return
             elif status[0] == STATUS_SUCCESS:
                 # User isn't supposed to send these, but handle anyway
                 # If success, then rsp_identifier is None
-                LOGGER.info('Find SCP Response: %s (Success)', ii + 1)
+                LOGGER.info(
+                    'Find SCP Response {}: 0x0000 (Success)'.format(ii + 1)
+                )
                 self.dimse.send_msg(rsp, context.context_id)
                 return
             elif status[0] == STATUS_PENDING:
@@ -1641,7 +1649,10 @@ class QueryRetrieveServiceClass(ServiceClass):
 
                 rsp.Identifier = bytestream
 
-                LOGGER.info('Find SCP Response: %s (Pending)', ii + 1)
+                LOGGER.info(
+                    'Find SCP Response {}: 0x{:04X} (Pending)'
+                    .format(ii + 1, rsp.Status)
+                )
                 if _config.LOG_RESPONSE_IDENTIFIERS:
                     LOGGER.debug('Find SCP Response Identifier:')
                     LOGGER.debug('')
@@ -1661,7 +1672,9 @@ class QueryRetrieveServiceClass(ServiceClass):
 
         # Send final success response
         rsp.Status = 0x0000
-        LOGGER.info('Find SCP Response: %s (Success)', ii + 2)
+        LOGGER.info(
+            'Find SCP Response {}: 0x0000 (Success)'.format(ii + 2)
+        )
         self.dimse.send_msg(rsp, context.context_id)
 
     def _get_scp(self, req, context):
@@ -1760,7 +1773,11 @@ class QueryRetrieveServiceClass(ServiceClass):
             if status[0] == STATUS_CANCEL:
                 # If cancel, dataset is a Dataset with a
                 # 'FailedSOPInstanceUIDList' element
-                LOGGER.info('Get SCP Received C-CANCEL-GET RQ from peer')
+                LOGGER.info('Received C-CANCEL-GET RQ from peer')
+                LOGGER.info(
+                    'Get SCP Response {}: 0x{:04X} (Cancel)'
+                    .format(ii + 1, rsp.Status)
+                )
                 rsp.NumberOfRemainingSuboperations = store_results[0]
                 rsp.NumberOfFailedSuboperations = store_results[1]
                 rsp.NumberOfWarningSuboperations = store_results[2]
@@ -1784,7 +1801,10 @@ class QueryRetrieveServiceClass(ServiceClass):
             elif status[0] in [STATUS_FAILURE, STATUS_WARNING]:
                 # If failure or warning, dataset is a Dataset with a
                 # 'FailedSOPInstanceUIDList' element
-                LOGGER.info('Get SCP Result (%s - %s)', status[0], status[1])
+                LOGGER.info(
+                    'Get SCP Result {}: 0x{:04X} ({} - {})'
+                    .format(ii + 1, rsp.Status, status[0], status[1])
+                )
                 rsp.NumberOfRemainingSuboperations = None
                 rsp.NumberOfFailedSuboperations = (
                     store_results[1] + store_results[0]
@@ -1811,7 +1831,9 @@ class QueryRetrieveServiceClass(ServiceClass):
                 # If user yields Success, check it
                 # dataset is None
                 if store_results[1] or store_results[2]:
-                    LOGGER.info('Get SCP Response: (Warning)')
+                    LOGGER.info(
+                        'Get SCP Response {}: 0xB000 (Warning)'.format(ii + 1)
+                    )
                     rsp.Status = 0xB000
                     ds = Dataset()
                     ds.FailedSOPInstanceUIDList = failed_instances
@@ -1823,7 +1845,9 @@ class QueryRetrieveServiceClass(ServiceClass):
                     )
                     rsp.Identifier = BytesIO(bytestream)
                 else:
-                    LOGGER.info('Get SCP Response: (Success)')
+                    LOGGER.info(
+                        'Get SCP Response {}: 0x0000 (Success)'.format(ii + 1)
+                    )
                     rsp.Identifier = None
 
                 rsp.NumberOfRemainingSuboperations = None
@@ -1848,7 +1872,10 @@ class QueryRetrieveServiceClass(ServiceClass):
                     self.dimse.send_msg(rsp, context.context_id)
                     continue
 
-                LOGGER.info('Get SCP Response: %s (Pending)', ii + 1)
+                LOGGER.info(
+                    'Get SCP Response {}: 0x{:04X} (Pending)'
+                    .format(ii + 1, rsp.Status)
+                )
 
                 # If the Composite Instance Retrieve Without Bulk Data Service
                 #   is being used then we must remove the bulk data elements
@@ -1890,17 +1917,28 @@ class QueryRetrieveServiceClass(ServiceClass):
                     store_status = self.assoc.send_c_store(
                         dataset, msg_id=msg_id
                     )
+                    store_status_int = store_status.Status
                     store_status = (
                         STORAGE_SERVICE_CLASS_STATUS[store_status.Status]
                     )
-                except Exception as ex:
+                except Exception as exc:
                     # An exception implies a C-STORE failure
                     LOGGER.warning("C-STORE sub-operation failed.")
-                    LOGGER.exception(ex)
+                    LOGGER.exception(exc)
+                    store_status_int = None
                     store_status = [STATUS_FAILURE, 'Unknown']
 
-                LOGGER.info('Get SCP: Received Store SCU response (%s)',
-                            store_status[0])
+                if store_status_int is not None:
+                    msg = (
+                        'Get SCP: Received Store SCP response 0x{:04X} ({})'
+                        .format(store_status_int, store_status[0])
+                    )
+                else:
+                    msg = (
+                        'Get SCP: Received Store SCP response ({})'
+                        .format(store_status[0])
+                    )
+                LOGGER.info(msg)
 
                 # Update the C-STORE sub-operation result tracker
                 if store_status[0] == STATUS_FAILURE:
@@ -1928,11 +1966,15 @@ class QueryRetrieveServiceClass(ServiceClass):
         # If not already done, send the final 'Success' or 'Warning' response
         if not store_results[1] and not store_results[2]:
             # Success response - no failures or warnings
-            LOGGER.info('Get SCP Result: (Success)')
+            LOGGER.info(
+                'Get SCP Response {}: 0x0000 (Success)'.format(ii + 2)
+            )
             rsp.Status = 0x0000
         else:
             # Warning response - one or more failures or warnings
-            LOGGER.info('Get SCP Result: (Warning)')
+            LOGGER.info(
+                'Get SCP Response {}: 0xB000 (Warning)'.format(ii + 2)
+            )
             rsp.Status = 0xB000
             # If Warning response, need to return an Identifier with
             #   (0008,0058) Failed SOP Instance UID List element
@@ -2134,8 +2176,10 @@ class QueryRetrieveServiceClass(ServiceClass):
                 if status[0] == STATUS_CANCEL:
                     # If cancel, then dataset is a Dataset with a
                     #   'FailedSOPInstanceUIDList' element
+                    LOGGER.info('Received C-CANCEL-MOVE RQ from peer')
                     LOGGER.info(
-                        'Move SCP Received C-CANCEL-MOVE RQ from peer'
+                        'Move SCP Response {}: 0x{:04X} (Cancel)'
+                        .format(ii + 1, rsp.Status)
                     )
                     store_assoc.release()
 
@@ -2164,7 +2208,8 @@ class QueryRetrieveServiceClass(ServiceClass):
                     # If failed or warning, then dataset is a Dataset with a
                     #   'FailedSOPInstanceUIDList' element
                     LOGGER.info(
-                        'Move SCP Result (%s - %s)', status[0], status[1]
+                        'Move SCP Response {}: 0x{:04X} (%s - %s)'
+                        .format(ii + 1, rsp.Status, status[0], status[1])
                     )
                     store_assoc.release()
 
@@ -2198,7 +2243,10 @@ class QueryRetrieveServiceClass(ServiceClass):
                     # If the user yields Success, check it
                     if store_results[1] or store_results[2]:
                         # Sub-operations contained failures/warnings
-                        LOGGER.info('Move SCP Response: (Warning)')
+                        LOGGER.info(
+                            'Move SCP Response {}: 0xB000 (Warning)'
+                            .format(ii + 1)
+                        )
 
                         ds = Dataset()
                         ds.FailedSOPInstanceUIDList = failed_instances
@@ -2213,7 +2261,10 @@ class QueryRetrieveServiceClass(ServiceClass):
                         rsp.Status = 0xB000
                     else:
                         # No failures or warnings
-                        LOGGER.info('Move SCP Response: (Success)')
+                        LOGGER.info(
+                            'Move SCP Response {}: 0x0000 (Success)'
+                            .format(ii + 1)
+                        )
                         rsp.Identifier = None
 
                     rsp.NumberOfRemainingSuboperations = None
@@ -2238,7 +2289,10 @@ class QueryRetrieveServiceClass(ServiceClass):
                         self.dimse.send_msg(rsp, context.context_id)
                         continue
 
-                    LOGGER.info('Move SCP Response %s (Pending)', ii + 1)
+                    LOGGER.info(
+                        'Move SCP Response {}: 0x{:04X} (Pending)'
+                        .format(ii + 1, rsp.Status)
+                    )
 
                     # Send `dataset` via C-STORE sub-operations over the
                     #   association and check that the response's Status exists
@@ -2256,16 +2310,28 @@ class QueryRetrieveServiceClass(ServiceClass):
                             originator_id=1
                         )
                         # FIXME: Should probably split status check?
+                        store_status_int = store_status.Status
                         store_status = STORAGE_SERVICE_CLASS_STATUS[
                             store_status.Status
                         ]
                     except Exception as exc:
                         # An exception implies a C-STORE failure
                         LOGGER.warning("C-STORE sub-operation failed.")
+                        store_status_int = None
                         store_status = [STATUS_FAILURE, 'Unknown']
 
-                    LOGGER.info('Move SCP: Received Store SCU response (%s)',
-                                store_status[0])
+                    if store_status_int is not None:
+                        msg = (
+                            'Move SCP: Received Store SCP response 0x{:04X} '
+                            '({})'.format(store_status_int, store_status[0])
+                        )
+                    else:
+                        msg = (
+                            'Move SCP: Received Store SCP response({})'
+                            .format(store_status[0])
+                        )
+
+                    LOGGER.info(msg)
 
                     # Update the C-STORE sub-operation result tracker
                     if store_status[0] == STATUS_FAILURE:
@@ -2306,11 +2372,15 @@ class QueryRetrieveServiceClass(ServiceClass):
         # If not already done, send the final 'Success' or 'Warning' response
         if not store_results[1] and not store_results[2]:
             # Success response - no failures or warnings
-            LOGGER.info('Move SCP Result: (Success)')
+            LOGGER.info(
+                'Move SCP Response {}: 0x0000 (Success)'.format(ii + 2)
+            )
             rsp.Status = 0x0000
         else:
             # Warning response - one or more failures or warnings
-            LOGGER.info('Move SCP Result: (Warning)')
+            LOGGER.info(
+                'Move SCP Response {}: 0xB000 (Warning)'.format(ii + 2)
+            )
             rsp.Status = 0xB000
             # If Warning response, need to return an Identifier with
             #   (0008, 0058) Failed SOP Instance UID List element
@@ -2449,7 +2519,7 @@ class RelevantPatientInformationQueryServiceClass(ServiceClass):
             # There were no matches, so return Success
             # If success, then rsp_identifier is None
             rsp.Status = 0x0000
-            LOGGER.info('Find SCP Response: (Success)')
+            LOGGER.info('Find SCP Response: 0x0000 (Success)')
             self.dimse.send_msg(rsp, context.context_id)
             return
         except Exception as ex:
@@ -2475,18 +2545,22 @@ class RelevantPatientInformationQueryServiceClass(ServiceClass):
         if status[0] == STATUS_CANCEL:
             # If cancel, then rsp_identifier is None
             LOGGER.info('Received C-CANCEL-FIND RQ from peer')
-            LOGGER.info('Find SCP Response: (Cancel)')
+            LOGGER.info(
+                'Find SCP Response: 0x{:04X} (Cancel)'.format(rsp.Status)
+            )
             self.dimse.send_msg(rsp, context.context_id)
             return
         elif status[0] == STATUS_FAILURE:
             # If failed, then rsp_identifier is None
-            LOGGER.info('Find SCP Response: (Failure)')
+            LOGGER.info(
+                'Find SCP Response: 0x{:04X} (Failure)'.format(rsp.Status)
+            )
             self.dimse.send_msg(rsp, context.context_id)
             return
         elif status[0] == STATUS_SUCCESS:
             # User isn't supposed to send these, but handle anyway
             # If success, then rsp_identifier is None
-            LOGGER.info('Find SCP Response: (Success)')
+            LOGGER.info('Find SCP Response: 0x0000 (Success)')
             self.dimse.send_msg(rsp, context.context_id)
             return
         elif status[0] == STATUS_PENDING:
@@ -2511,7 +2585,9 @@ class RelevantPatientInformationQueryServiceClass(ServiceClass):
 
             rsp.Identifier = bytestream
 
-            LOGGER.info('Find SCP Response: (Pending)')
+            LOGGER.info(
+                'Find SCP Response:  0x{:04X} (Pending)'.format(rsp.Status)
+            )
             if _config.LOG_RESPONSE_IDENTIFIERS:
                 LOGGER.debug('Find SCP Response Identifier:')
                 LOGGER.debug('')
@@ -2525,7 +2601,7 @@ class RelevantPatientInformationQueryServiceClass(ServiceClass):
 
             # Send final success response
             rsp.Status = 0x0000
-            LOGGER.info('Find SCP Response: (Success)')
+            LOGGER.info('Find SCP Response: 0x0000 (Success)')
             self.dimse.send_msg(rsp, context.context_id)
 
 

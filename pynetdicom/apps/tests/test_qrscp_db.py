@@ -561,7 +561,7 @@ class TestSearch(object):
 IDENTIFIERS = [
     (
         'PATIENT', [],
-        None,
+        r"The Identifier contains no keys",
         r"The Identifier's Query Retrieve Level value is invalid"
     ),
     (
@@ -581,8 +581,8 @@ IDENTIFIERS = [
     ),
     (
         'STUDY', [],
-        r"missing a unique key for the 'PATIENT' level",
-        None
+        r"The Identifier contains no keys",
+        r"The Identifier contains no keys",
     ),
     (
         'STUDY', ['PatientName'],
@@ -599,8 +599,8 @@ IDENTIFIERS = [
     ),
     (
         'SERIES', [],
-        r"missing a unique key for the 'PATIENT' level",
-        r"missing a unique key for the 'STUDY' level",
+        r"The Identifier contains no keys",
+        r"The Identifier contains no keys",
     ),
     (
         'SERIES', ['PatientID'],
@@ -620,8 +620,8 @@ IDENTIFIERS = [
     ),
     (
         'IMAGE', [],
-        r"missing a unique key for the 'PATIENT' level",
-        r"missing a unique key for the 'STUDY' level",
+        r"The Identifier contains no keys",
+        r"The Identifier contains no keys",
     ),
     (
         'IMAGE', ['PatientID'],
@@ -659,6 +659,17 @@ class TestSearchFind(object):
             ds = dcmread(fpath)
             db.add_instance(ds, self.session)
 
+    def test_no_attributes(self):
+        """Test searching with no attributes."""
+        query = Dataset()
+        query.QueryRetrieveLevel = 'PATIENT'
+
+        model = PatientRootQueryRetrieveInformationModelFind
+
+        msg = r"The Identifier contains no keys"
+        with pytest.raises(db.InvalidIdentifier, match=msg):
+            db._search_find(model, query, self.session)
+
     def test_patient_minimal(self):
         """Test query at PATIENT level for Patient Root."""
         query = Dataset()
@@ -671,14 +682,11 @@ class TestSearchFind(object):
         result = db._search_find(model, query, self.session)
         assert 3 == len(result)
 
-        for instance in result:
-            print()
-            print(instance.as_identifier(query, model))
-
     def test_check_identifier_patient(self):
         """Tests for check_find_identifier()."""
         ds = Dataset()
         ds.QueryRetrieveLevel = 'PATIENT'
+        ds.PatientName = None
         patient = PatientRootQueryRetrieveInformationModelFind
 
         db._check_find_identifier(ds, patient)
@@ -712,6 +720,7 @@ class TestSearchFind(object):
         """Tests for check_find_identifier()."""
         ds = Dataset()
         ds.QueryRetrieveLevel = 'PATIENT'
+        ds.PatientName = None
         study = StudyRootQueryRetrieveInformationModelFind
 
         msg = r"The Identifier's Query Retrieve Level value is invalid"

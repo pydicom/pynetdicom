@@ -234,9 +234,6 @@ def main(args=None):
     ae.add_supported_context(StudyRootQueryRetrieveInformationModelMove)
     ae.add_supported_context(StudyRootQueryRetrieveInformationModelGet)
 
-    import threading
-    print('qrscp', threading.get_ident())
-
     # Listen for incoming association requests
     ae.start_server(('', config.PORT), evt_handlers=handlers)
 
