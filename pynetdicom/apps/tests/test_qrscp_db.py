@@ -689,17 +689,17 @@ class TestSearchFind(object):
         ds.PatientName = None
         patient = PatientRootQueryRetrieveInformationModelFind
 
-        db._check_find_identifier(ds, patient)
+        db._check_identifier(ds, patient)
 
         ds.QueryRetrieveLevel = 'STUDY'
         msg = (
             r"The Identifier is missing a unique key for the 'PATIENT' level"
         )
         with pytest.raises(db.InvalidIdentifier, match=msg):
-            db._check_find_identifier(ds, patient)
+            db._check_identifier(ds, patient)
 
         ds.PatientID = '12345'
-        db._check_find_identifier(ds, patient)
+        db._check_identifier(ds, patient)
 
     @pytest.mark.parametrize("level, identifier, pt, st", IDENTIFIERS)
     def test_check_identifier_param_patient(self, level, identifier, pt, st):
@@ -712,9 +712,9 @@ class TestSearchFind(object):
         model = PatientRootQueryRetrieveInformationModelFind
         if pt:
             with pytest.raises(db.InvalidIdentifier, match=pt):
-                db._check_find_identifier(ds, model)
+                db._check_identifier(ds, model)
         else:
-            db._check_find_identifier(ds, model)
+            db._check_identifier(ds, model)
 
     def test_check_identifier_study(self):
         """Tests for check_find_identifier()."""
@@ -725,23 +725,23 @@ class TestSearchFind(object):
 
         msg = r"The Identifier's Query Retrieve Level value is invalid"
         with pytest.raises(db.InvalidIdentifier, match=msg):
-            db._check_find_identifier(ds, study)
+            db._check_identifier(ds, study)
 
         ds.QueryRetrieveLevel = 'STUDY'
-        db._check_find_identifier(ds, study)
+        db._check_identifier(ds, study)
 
         ds.QueryRetrieveLevel = 'SERIES'
         msg = (
             r"The Identifier is missing a unique key for the 'STUDY' level"
         )
         with pytest.raises(db.InvalidIdentifier, match=msg):
-            db._check_find_identifier(ds, study)
+            db._check_identifier(ds, study)
         ds.PatientID = None
         with pytest.raises(db.InvalidIdentifier, match=msg):
-            db._check_find_identifier(ds, study)
+            db._check_identifier(ds, study)
 
         ds.StudyInstanceUID = '12345'
-        db._check_find_identifier(ds, study)
+        db._check_identifier(ds, study)
 
     @pytest.mark.parametrize("level, identifier, pt, st", IDENTIFIERS)
     def test_check_identifier_param_study(self, level, identifier, pt, st):
@@ -754,13 +754,13 @@ class TestSearchFind(object):
         model = StudyRootQueryRetrieveInformationModelFind
         if st:
             with pytest.raises(db.InvalidIdentifier, match=st):
-                db._check_find_identifier(ds, model)
+                db._check_identifier(ds, model)
         else:
-            db._check_find_identifier(ds, model)
+            db._check_identifier(ds, model)
 
     def test_check_identifier_raises(self):
         """Check raises if no QueryRetrieveLevel element."""
         model = PatientRootQueryRetrieveInformationModelFind
         msg = r"The Identifier contains no Query Retrieve Level element"
         with pytest.raises(db.InvalidIdentifier, match=msg):
-            db._check_find_identifier(Dataset(), model)
+            db._check_identifier(Dataset(), model)

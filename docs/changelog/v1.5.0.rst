@@ -95,6 +95,8 @@ Changes
   :meth:`Association.send_c_find`, :meth:`Association.send_c_get` and
   :meth:`Association.send_c_move` removed as per planned deprecation. Use the
   UID directly instead.
+* Support for Python 2 is deprecated and will be removed starting in version
+  2.0.
 * Python 3.4 is no longer supported, Python 3.7 and 3.8 are now
   officially supported
 * If an A-ABORT is received while waiting for a DIMSE message the
@@ -102,8 +104,6 @@ Changes
   waiting for the DIMSE timeout. (:issue:`430`)
 * Added `abort_type` keyword parameter to :meth:`ACSE.is_aborted()
   <pynetdicom.acse.ACSE.is_aborted>`
-* Support for Python 2 is deprecated and will be removed starting in version
-  2.0.
 * Added `args` keyword parameter to
   :meth:`Association.bind()<Association.bind>` and
   :meth:`AssociationServer.bind()<pynetdicom.transport.AssociationServer.bind>`
@@ -113,6 +113,8 @@ Changes
   or list of 2-tuples.
 * Added `deflated` keyword parameter to :func:`~pynetdicom.dsutils.encode` and
   :func:`~pynetdicom.dsutils.decode`
+* :func:`~pynetdicom.dsutils.encode_element` is deprecated and will be removed
+  in version 2.0
 
 
 Known Issues

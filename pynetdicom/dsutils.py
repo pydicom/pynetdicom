@@ -124,6 +124,10 @@ def encode(ds, is_implicit_vr, is_little_endian, deflated=False):
 def encode_element(elem, is_implicit_vr=True, is_little_endian=True):
     """Encode a *pydicom* :class:`~pydicom.dataelem.DataElement` `elem`.
 
+    .. deprecated:: 1.5
+
+        Will be removed in version 2.0, use *pydicom* instead.
+
     Parameters
     ----------
     elem : pydicom.dataelem.DataElement

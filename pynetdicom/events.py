@@ -489,7 +489,7 @@ class Event(object):
 
     @property
     def file_meta(self):
-        """Return a *pydicom* :class:`~pydicom.dataset.Dataset` with the
+        r"""Return a *pydicom* :class:`~pydicom.dataset.Dataset` with the
         :dcm:`File Meta Information<part10/chapter_7.html#sect_7.1>` for a
         C-STORE request's `Data Set`.
 

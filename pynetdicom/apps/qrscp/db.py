@@ -224,54 +224,6 @@ def add_instance(ds, session, fpath=None):
     session.commit()
 
 
-def clear(session):
-    """Delete all entries from the database.
-
-    Parameters
-    ----------
-    session : sqlalchemy.orm.session.Session
-        The session we are using to query the database.
-    """
-    for instance in session.query(Instance).all():
-        session.delete(instance)
-
-    session.commit()
-
-
-def connect(db_location=None, echo=False):
-    """Return a connection to the database.
-
-    Parameters
-    ----------
-    db_location : str, optional
-        The location of the database (default:
-        ``sqlite:///config.DATABASE_LOCATION``). Should only be used when
-        testing.
-    echo : bool, optional
-        Turn the sqlalchemy logging on (default ``False``).
-
-    Returns
-    -------
-    sqlalchemy.engine.Connection
-        The connection to the database.
-    sqlalchemy.orm.Session
-        The Session configured with the engine.
-    """
-    if not db_location:
-        db_location = 'sqlite:///{}'.format(config.DATABASE_LOCATION)
-
-    engine = create_engine(db_location, echo=echo)
-
-    Session = sessionmaker(bind=engine)
-
-    # Create the tables (won't recreate tables already present)
-    Base.metadata.create_all(engine)
-
-    conn = engine.connect()
-
-    return conn, engine, Session
-
-
 def build_query(identifier, session, query=None):
     """Perform a query against the database.
 
@@ -340,6 +292,112 @@ def build_query(identifier, session, query=None):
     return query
 
 
+def _check_identifier(identifier, model):
+    """Check that the C-FIND, C-GET or C-MOVE `identifier` is valid.
+
+    Parameters
+    ----------
+    identifier : pydicom.dataset.Dataset
+        The *Identifier* dataset to check.
+    model : pydicom.uid.UID
+        The Query/Retrieve Information Model.
+
+    Raises
+    ------
+    InvalidIdentifier
+        If the Identifier is invalid.
+    """
+    # Part 4, C.4.1.1.3.1, C.4.2.1.4 and C.4.3.1.3.1:
+    #   (0008,0052) Query Retrieve Level is required in the Identifier
+    if 'QueryRetrieveLevel' not in identifier:
+        raise InvalidIdentifier(
+            "The Identifier contains no Query Retrieve Level element"
+        )
+
+    if model in _PATIENT_ROOT:
+        attr = _PATIENT_ROOT[model]
+    else:
+        attr = _STUDY_ROOT[model]
+
+    levels = list(attr.keys())
+    if identifier.QueryRetrieveLevel not in levels:
+        raise InvalidIdentifier(
+            "The Identifier's Query Retrieve Level value is invalid"
+        )
+
+    if len(identifier) == 1:
+        raise InvalidIdentifier("The Identifier contains no keys")
+
+    for ii, level in enumerate(levels):
+        if level == identifier.QueryRetrieveLevel:
+            # Check if identifier has elements below current level
+            for sublevel in levels[ii + 1:]:
+                if any([kw in identifier for kw in attr[sublevel]]):
+                    raise InvalidIdentifier(
+                        "The Identifier contains keys below the level "
+                        "specified by the Query Retrieve Level"
+                    )
+
+            # The level is the same as that in the identifier so we're OK
+            return
+
+        # The level is above that in the identifier so make sure the unique
+        #   keyword is present
+        if attr[level][0] not in identifier:
+            raise InvalidIdentifier(
+                "The Identifier is missing a unique key for the '{}' level"
+                .format(level)
+            )
+
+
+def clear(session):
+    """Delete all entries from the database.
+
+    Parameters
+    ----------
+    session : sqlalchemy.orm.session.Session
+        The session we are using to clear the database.
+    """
+    for instance in session.query(Instance).all():
+        session.delete(instance)
+
+    session.commit()
+
+
+def connect(db_location=None, echo=False):
+    """Return a connection to the database.
+
+    Parameters
+    ----------
+    db_location : str, optional
+        The location of the database (default:
+        ``sqlite:///config.DATABASE_LOCATION``). Should only be used when
+        testing.
+    echo : bool, optional
+        Turn the sqlalchemy logging on (default ``False``).
+
+    Returns
+    -------
+    sqlalchemy.engine.Connection
+        The connection to the database.
+    sqlalchemy.orm.Session
+        The Session configured with the engine.
+    """
+    if not db_location:
+        db_location = 'sqlite:///{}'.format(config.DATABASE_LOCATION)
+
+    engine = create_engine(db_location, echo=echo)
+
+    Session = sessionmaker(bind=engine)
+
+    # Create the tables (won't recreate tables already present)
+    Base.metadata.create_all(engine)
+
+    conn = engine.connect()
+
+    return conn, engine, Session
+
+
 def remove_instance(instance_uid, session):
     """Return a SOP Instance from the database.
 
@@ -391,106 +449,30 @@ def search(model, identifier, session):
     if model not in _STUDY_ROOT and model not in _PATIENT_ROOT:
         raise ValueError("Unknown information model '{}'".format(model.name))
 
-    # Part 4, C.4.1.1.3.1, C.4.2.1.4 and C.4.3.1.3.1:
-    #   (0008,0052) Query Retrieve Level is required in the Identifier
-    if 'QueryRetrieveLevel' not in identifier:
-        raise InvalidIdentifier(
-            "The Identifier contains no Query Retrieve Level element"
-        )
-
-    if model in _PATIENT_ROOT:
-        levels = _PATIENT_ROOT[model].keys()
-    else:
-        levels = _STUDY_ROOT[model].keys()
-
-    if identifier.QueryRetrieveLevel not in levels:
-        raise InvalidIdentifier(
-            "The Identifier's Query Retrieve Level value is invalid"
-        )
-
     # Remove all optional keys
     for elem in identifier:
         kw = elem.keyword
         if kw != 'QueryRetrieveLevel' and kw not in _ATTRIBUTES:
             delattr(identifier, kw)
 
-    if model in _C_FIND:
-        return _search_find(model, identifier, session)
+    if model in _C_GET or model in _C_MOVE:
+        # Part 4, C.2.2.1.2: remove required keys from C-GET/C-MOVE so
+        #   they don't affect the match (should also be faster)
+        [delattr(identifier, k) for k, v in _ATTRIBUTES.items() if v[1] == 'R']
 
-    # Must be C-GET or C-MOVE at this point
-    # Part 4, C.2.2.1.2: remove required keys from C-GET/C-MOVE so
-    #   they don't affect the match (should also be faster)
-    [delattr(identifier, k) for k, v in _ATTRIBUTES.items() if v[1] == 'R']
-
-    return _search_get_move(model, identifier, session)
+    return _search_qr(model, identifier, session)
 
 
-def _check_find_identifier(identifier, model):
-    """Check that the C-FIND `identifier` is valid.
-
-    Parameters
-    ----------
-    identifier : pydicom.dataset.Dataset
-        The *Identifier* dataset to check.
-    model : pydicom.uid.UID
-        The Query/Retrieve Information Model.
-
-    Raises
-    ------
-    InvalidIdentifier
-        If the Identifier is invalid.
-    """
-    if 'QueryRetrieveLevel' not in identifier:
-        raise InvalidIdentifier(
-            "The Identifier contains no Query Retrieve Level element"
-        )
-
-    if model in _PATIENT_ROOT:
-        attr = _PATIENT_ROOT[model]
-    else:
-        attr = _STUDY_ROOT[model]
-
-    levels = list(attr.keys())
-    if identifier.QueryRetrieveLevel not in levels:
-        raise InvalidIdentifier(
-            "The Identifier's Query Retrieve Level value is invalid"
-        )
-
-    if len(identifier) == 1:
-        raise InvalidIdentifier("The Identifier contains no keys")
-
-    for ii, level in enumerate(levels):
-        if level == identifier.QueryRetrieveLevel:
-            # Check if identifier has elements below current level
-            for sublevel in levels[ii + 1:]:
-                if any([kw in identifier for kw in attr[sublevel]]):
-                    raise InvalidIdentifier(
-                        "The Identifier contains keys below the level "
-                        "specified by the Query Retrieve Level"
-                    )
-
-            # The level is the same as that in the identifier so we're OK
-            return
-
-        # The level is above that in the identifier so make sure the unique
-        #   keyword is present
-        if attr[level][0] not in identifier:
-            raise InvalidIdentifier(
-                "The Identifier is missing a unique key for the '{}' level"
-                .format(level)
-            )
-
-
-def _search_find(model, identifier, session):
-    """Search the database using a C-FIND query.
+def _search_qr(model, identifier, session):
+    """Search the database using a Query/Retrieve *Identifier* query.
 
     Parameters
     ----------
     model : pydicom.uid.UID
         Either *Patient Root Query Retrieve Information Model* or *Study Root
-        Query Retrieve Information Model* for C-FIND
+        Query Retrieve Information Model* for C-FIND, C-GET or C-MOVE.
     identifier : pydicom.dataset.Dataset
-        The C-FIND request's *Identifier* dataset.
+        The request's *Identifier* dataset.
     session : sqlalchemy.orm.session.Session
         The session we are using to query the database.
 
@@ -500,7 +482,7 @@ def _search_find(model, identifier, session):
         The Instances that match the query.
     """
     # Will raise InvalidIdentifier if check failed
-    _check_find_identifier(identifier, model)
+    _check_identifier(identifier, model)
 
     if model in _PATIENT_ROOT:
         attr = _PATIENT_ROOT[model]
@@ -521,44 +503,45 @@ def _search_find(model, identifier, session):
     return query.all()
 
 
-def _search_get_move(model, identifier, session):
-    """Search the database using a C-FIND query.
+def _search_range(elem, session, query=None):
+    """Perform a range search for DA, DT and TM elements with '-' in them.
 
     Parameters
     ----------
-    model : pydicom.uid.UID
-        Either *Patient Root Query Retrieve Information Model* or *Study Root
-        Query Retrieve Information Model* for C-FIND
-    identifier : pydicom.dataset.Dataset
-        The C-FIND request's *Identifier* dataset.
+    elem : pydicom.dataelem.DataElement
+        The attribute to perform the search with.
     session : sqlalchemy.orm.session.Session
         The session we are using to query the database.
+    query : sqlalchemy.orm.query.Query, optional
+        An existing query within which this search should be performed. If
+        not used then all the Instances in the database will be searched
+        (default).
 
     Returns
     -------
-    list of db.Instance
-        The Instances that match the query.
+    sqlalchemy.orm.query.Query
+        The resulting query.
     """
-    # Will raise InvalidIdentifier if check failed
-    _check_get_move_identifier(identifier, model)
+    # range matching
+    #   <date1> - <date2>: matches any date within the range, inclusive
+    #   - <date2>: match all dates prior to and including <date2>
+    #   <date1> -: match all dates after and including <date1>
+    #   <time>: if Timezone Offset From UTC included, values are in specified
+    #   date: 20060705-20060707 + time: 1000-1800 matches July 5, 10 am to
+    #       July 7, 6 pm.
+    start, end = elem.value.split('-')
+    attr = getattr(Instance, _TRANSLATION[elem.keyword])
+    if not query:
+        query = session.query(Instance)
 
-    if model in _PATIENT_ROOT:
-        attr = _PATIENT_ROOT[model]
-    else:
-        attr = _STUDY_ROOT[model]
+    if start and end:
+        return query.filter(attr >= start, attr <= end)
+    elif start and not end:
+        return query.filter(attr >= start)
+    elif not start and end:
+        return query.filter(attr <= end)
 
-    # Hierarchical search method: C.4.1.3.1.1
-    query = None
-    for level, keywords in attr.items():
-        ds = Dataset()
-        keywords = [kw for kw in keywords if kw in identifier]
-        [setattr(ds, kw, getattr(identifier, kw)) for kw in keywords]
-
-        query = build_query(ds, session_builder, query)
-        if level == identifier.QueryRetrieveLevel:
-            break
-
-    return query.all()
+    raise ValueError("Invalid attribute value for range matching")
 
 
 def _search_single_value(elem, session, query=None):
@@ -697,47 +680,6 @@ def _search_wildcard(elem, session, query=None):
     return query.filter(attr.like(value))
 
 
-def _search_range(elem, session, query=None):
-    """Perform a range search for DA, DT and TM elements with '-' in them.
-
-    Parameters
-    ----------
-    elem : pydicom.dataelem.DataElement
-        The attribute to perform the search with.
-    session : sqlalchemy.orm.session.Session
-        The session we are using to query the database.
-    query : sqlalchemy.orm.query.Query, optional
-        An existing query within which this search should be performed. If
-        not used then all the Instances in the database will be searched
-        (default).
-
-    Returns
-    -------
-    sqlalchemy.orm.query.Query
-        The resulting query.
-    """
-    # range matching
-    #   <date1> - <date2>: matches any date within the range, inclusive
-    #   - <date2>: match all dates prior to and including <date2>
-    #   <date1> -: match all dates after and including <date1>
-    #   <time>: if Timezone Offset From UTC included, values are in specified
-    #   date: 20060705-20060707 + time: 1000-1800 matches July 5, 10 am to
-    #       July 7, 6 pm.
-    start, end = elem.value.split('-')
-    attr = getattr(Instance, _TRANSLATION[elem.keyword])
-    if not query:
-        query = session.query(Instance)
-
-    if start and end:
-        return query.filter(attr >= start, attr <= end)
-    elif start and not end:
-        return query.filter(attr >= start)
-    elif not start and end:
-        return query.filter(attr <= end)
-
-    raise ValueError("Invalid attribute value for range matching")
-
-
 # Database table setup stuff
 Base = declarative_base()
 
@@ -827,6 +769,16 @@ class Patient(Base):
     patient_name = Column(String(64))
 
 
+class Series(Base):
+    __tablename__ = 'series'
+    # (0020,000E) Series Instance UID | VR UI, VM 1, U
+    series_instance_uid = Column(String(64), primary_key=True)
+    # (0008,0060) Modality | VR CS, VM 1, R
+    modality = Column(String(16))
+    # (0020,0011) Series Number | VR IS, VM 1, R
+    series_number = Column(Integer)
+
+
 class Study(Base):
     __tablename__ = 'study'
     # (0020,000D) Study Instance UID | VR UI, VM 1, U
@@ -839,13 +791,3 @@ class Study(Base):
     accession_number = Column(String(16))
     # (0020,0010) Study ID | VR SH, VM 1, R
     study_id = Column(String(16))
-
-
-class Series(Base):
-    __tablename__ = 'series'
-    # (0020,000E) Series Instance UID | VR UI, VM 1, U
-    series_instance_uid = Column(String(64), primary_key=True)
-    # (0008,0060) Modality | VR CS, VM 1, R
-    modality = Column(String(16))
-    # (0020,0011) Series Number | VR IS, VM 1, R
-    series_number = Column(Integer)

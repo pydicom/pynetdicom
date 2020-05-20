@@ -141,31 +141,66 @@ def _setup_argparser():
     return parser.parse_args()
 
 
-def clean(logger):
+def clean(db_path, logger):
     """Remove all entries from the database and delete the corresponding
     stored instances.
+
+    Parameters
+    ----------
+    db_path : str
+        The database path to use with create_engine().
+    logger : logging.Logger
+        The application logger.
+
+    Returns
+    -------
+    bool
+        ``True`` if the storage directory and database were both cleaned
+        successfully, ``False`` otherwise.
     """
-    db_dir = os.path.dirname(config.DATABASE_LOCATION)
-    conn, engine, session = connect()
-    query_session = session()
-    instances = query_session.query(Instance).all()
-    for instance in instances:
+    engine = create_engine(db_path)
+    with engine.connect() as conn:
+        Session = sessionmaker(bind=engine)
+        session = Session()
+
         try:
-            os.remove(
-                os.path.join(db_dir, instance.filename)
-            )
+            fpaths = [ii.filename for ii in session.query(Instance).all()]
         except Exception as exc:
-            logger.error(
-                "Unable to delete the instance at '{}'"
-                .format(instance.filename)
-            )
+            logger.error("Exception cleaning the database")
             logger.exception(exc)
+            session.rollback()
+        finally:
+            session.close()
 
-    query_session.close()
+        storage_cleaned = True
+        for fpath in fpaths:
+            try:
+                os.remove(os.path.join(config.INSTANCE_LOCATION, fpath))
+            except Exception as exc:
+                logger.error(
+                    "Unable to delete the instance at '{}'".format(fpath)
+                )
+                logger.exception(exc)
+                storage_cleaned = False
 
-    clear(session)
+        if storage_cleaned:
+            logger.info('Storage directory cleaned successfully')
+        else:
+            logger.error('Failed to clean storage directory')
 
-    logger.info('Database and storage location cleaned')
+        database_cleaned = False
+        try:
+            clear(session)
+            database_cleaned = True
+            logger.info('Database cleaned successfully')
+        except Exception as exc:
+            logger.error('Failed to clean the database')
+            logger.exception(exc)
+            session.rollback()
+        finally:
+            session.close()
+
+        return database_cleaned and storage_cleaned
 
 
 def main(args=None):
@@ -196,24 +231,25 @@ def main(args=None):
             current_dir, config.DATABASE_LOCATION
         )
 
+    # The path to the database
+    db_path = 'sqlite:///{}'.format(config.DATABASE_LOCATION)
+
+    # Clean up the database and storage directory
     if args.clean:
-        clean(APP_LOGGER)
-        sys.exit()
+        response = input(
+            "This will delete all instances from both the storage directory "
+            "and the database. Are you sure you wish to continue? [yes/no]: "
+        )
+        if response != 'yes':
+            sys.exit()
+
+        if clean(db_path, APP_LOGGER):
+            sys.exit()
+        else:
+            sys.exit(1)
 
     # Try to create the instance storage directory
     os.makedirs(config.INSTANCE_LOCATION, exist_ok=True)
-
-    # Connect to the database
-    #conn, engine, session = connect()
-    db_path = 'sqlite:///{}'.format(config.DATABASE_LOCATION)
-
-    handlers = [
-        (evt.EVT_C_ECHO, handle_echo, [args, APP_LOGGER]),
-        (evt.EVT_C_FIND, handle_find, [db_path, args, APP_LOGGER]),
-        (evt.EVT_C_GET, handle_get, [db_path, args, APP_LOGGER]),
-        (evt.EVT_C_MOVE, handle_move, [db_path, args, APP_LOGGER]),
-        (evt.EVT_C_STORE, handle_store, [db_path, args, APP_LOGGER]),
-    ]
 
     ae = AE(config.AE_TITLE)
     ae.maximum_pdu_size = config.MAX_PDU
@@ -222,7 +258,7 @@ def main(args=None):
     # Verification SCP
     ae.add_supported_context(VerificationSOPClass)
 
-    # Storage SCP
+    # Storage SCP - support all transfer syntaxes
     for cx in AllStoragePresentationContexts:
         ae.add_supported_context(cx.abstract_syntax, ALL_TRANSFER_SYNTAXES)
 
@@ -233,6 +269,15 @@ def main(args=None):
     ae.add_supported_context(StudyRootQueryRetrieveInformationModelFind)
     ae.add_supported_context(StudyRootQueryRetrieveInformationModelMove)
     ae.add_supported_context(StudyRootQueryRetrieveInformationModelGet)
+
+    # Set our handler bindings
+    handlers = [
+        (evt.EVT_C_ECHO, handle_echo, [args, APP_LOGGER]),
+        (evt.EVT_C_FIND, handle_find, [db_path, args, APP_LOGGER]),
+        (evt.EVT_C_GET, handle_get, [db_path, args, APP_LOGGER]),
+        (evt.EVT_C_MOVE, handle_move, [db_path, args, APP_LOGGER]),
+        (evt.EVT_C_STORE, handle_store, [db_path, args, APP_LOGGER]),
+    ]
 
     # Listen for incoming association requests
     ae.start_server(('', config.PORT), evt_handlers=handlers)
