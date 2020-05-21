@@ -16,7 +16,7 @@ from pydicom.dataset import Dataset
 from pynetdicom import (
     AE, evt, AllStoragePresentationContexts, ALL_TRANSFER_SYNTAXES
 )
-from pynetdicom import _config
+from pynetdicom import _config, _handlers
 from pynetdicom.apps.common import setup_logging
 from pynetdicom.sop_class import (
     VerificationSOPClass,
@@ -38,6 +38,12 @@ from .handlers import (
 pydicom.config.use_none_as_empty_text_VR_value = True
 # Don't log identifiers
 _config.LOG_RESPONSE_IDENTIFIERS = False
+
+# Override the standard outgoing C-FIND DIMSE logging
+def _send_c_find_rsp(event):
+    pass
+
+_handlers._send_c_find_rsp = _send_c_find_rsp
 
 
 __version__ = '0.0.0alpha1'
@@ -64,9 +70,12 @@ def _log_config(logger):
         '  Database location: {}'
         .format(os.path.abspath(config.DATABASE_LOCATION))
     )
-    logger.debug('  Defined move destinations')
-    for ae_title, addr in config.MOVE_DESTINATIONS.items():
-        logger.debug('    {}: {}'.format(ae_title, addr))
+    if config.MOVE_DESTINATIONS:
+        logger.debug('  Move destinations: ')
+        for ae_title, addr in config.MOVE_DESTINATIONS.items():
+            logger.debug('    {}: {}'.format(ae_title, addr))
+    else:
+        logger.debug('  Move destinations: None')
 
     logger.debug('  Log identifiers: {}'.format(config.LOG_IDENTIFIERS))
     logger.debug('')
@@ -260,7 +269,10 @@ def main(args=None):
 
     # Storage SCP - support all transfer syntaxes
     for cx in AllStoragePresentationContexts:
-        ae.add_supported_context(cx.abstract_syntax, ALL_TRANSFER_SYNTAXES)
+        ae.add_supported_context(
+            cx.abstract_syntax, ALL_TRANSFER_SYNTAXES[1:],
+            scp_role=True, scu_role=False
+        )
 
     # Query/Retrieve SCP
     ae.add_supported_context(PatientRootQueryRetrieveInformationModelFind)

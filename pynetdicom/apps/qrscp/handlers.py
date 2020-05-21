@@ -2,11 +2,13 @@
 
 import os
 
+from pydicom import dcmread
+
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 
 from . import config
-from .db import add_instance, search, InvalidIdentifier
+from .db import add_instance, search, InvalidIdentifier, Instance
 
 
 def handle_echo(event, cli_config, logger):
@@ -148,7 +150,8 @@ def handle_get(event, db_path, cli_config, logger):
                 yield 0xFE00, None
                 return
 
-            ds = dcmread(match.filename)
+            db_dir = os.path.dirname(config.DATABASE_LOCATION)
+            ds = dcmread(os.path.join(db_dir, match.filename))
             yield 0xFF00, ds
 
 
@@ -217,6 +220,9 @@ def handle_move(event, db_path, cli_config, logger):
 
         # Yield number of sub-operations
         yield len(matches)
+
+        # Determine the presentation contexts required for the matches
+        event.assoc.ae.requested_contexts = _get_contexts(matches)
 
         # Yield results
         for match in matches:
@@ -305,8 +311,14 @@ def handle_store(event, db_path, cli_config, logger):
 
         try:
             # Path is relative to the database file
+            matches = session.query(Instance).filter(
+                Instance.sop_instance_uid == ds.SOPInstanceUID
+            ).all()
             add_instance(ds, session, os.path.relpath(fpath, db_dir))
-            logger.info("Instance added to database")
+            if not matches:
+                logger.info("Instance added to database")
+            else:
+                logger.info("Database entry for instance updated")
         except Exception as exc:
             session.rollback()
             logger.error('Unable to add instance to the database')

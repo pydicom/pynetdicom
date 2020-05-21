@@ -20,6 +20,7 @@ MOVE_DESTINATIONS = {
     # {bytes AE title : (str address, int port)}
     # Example:
     # b'STORESCP' : ('127.0.0.1', 104),
+    b'STORESCP' : ('localhost', 11113)
 }
 
 ## Logging options

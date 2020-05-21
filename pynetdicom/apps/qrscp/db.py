@@ -458,7 +458,12 @@ def search(model, identifier, session):
     if model in _C_GET or model in _C_MOVE:
         # Part 4, C.2.2.1.2: remove required keys from C-GET/C-MOVE so
         #   they don't affect the match (should also be faster)
-        [delattr(identifier, k) for k, v in _ATTRIBUTES.items() if v[1] == 'R']
+        keywords = [elem.keyword for elem in identifier]
+        for elem in identifier:
+            if elem.keyword in _ATTRIBUTES and _ATTRIBUTES[elem.keyword][1] == 'R':
+                delattr(identifier, elem.keyword)
+
+        #[delattr(identifier, k) for k, v in _ATTRIBUTES.items() if v[1] == 'R']
 
     return _search_qr(model, identifier, session)
 

@@ -7,7 +7,11 @@ from struct import pack
 from pydicom import dcmread
 from pydicom.datadict import tag_for_keyword, repeater_has_keyword, get_entry
 from pydicom.dataset import Dataset
+from pydicom.filewriter import write_file_meta_info
 from pydicom.tag import Tag
+from pydicom.uid import DeflatedExplicitVRLittleEndian
+
+from pynetdicom.dsutils import encode
 
 
 def create_dataset(args, logger=None):
@@ -609,9 +613,18 @@ def handle_store(event, args, app_logger):
             return status
 
     try:
-        # We use `write_like_original=False` to ensure that a compliant
-        #   File Meta Information Header is written
-        ds.save_as(filename, write_like_original=False)
+        if event.context.transfer_syntax == DeflatedExplicitVRLittleEndian:
+            # Workaround for pydicom issue #1086
+            with open(filename, 'wb') as f:
+                f.write(b'\x00' * 128)
+                f.write(b'DICM')
+                f.write(write_file_meta_info(f, event.file_meta))
+                f.write(encode(ds, False, True, True))
+        else:
+            # We use `write_like_original=False` to ensure that a compliant
+            #   File Meta Information Header is written
+            ds.save_as(filename, write_like_original=False)
+
         status_ds.Status = 0x0000  # Success
     except IOError as exc:
         app_logger.error('Could not write file to specified directory:')
