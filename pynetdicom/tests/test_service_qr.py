@@ -40,7 +40,7 @@ from pynetdicom.sop_class import (
 )
 
 
-#debug_logger()
+debug_logger()
 
 
 TEST_DS_DIR = os.path.join(os.path.dirname(__file__), 'dicom_files')
@@ -5207,6 +5207,125 @@ class TestQRMoveServiceClass(object):
         scp.shutdown()
 
         assert len(events) == 0
+
+    def test_handler_unknown_destination(self):
+        """Test handler yielding unknown destination."""
+        def handle(event):
+            yield None, None
+
+        handlers = [(evt.EVT_C_MOVE, handle)]
+
+        self.ae = ae = AE()
+        ae.acse_timeout = 5
+        ae.dimse_timeout = 5
+        ae.network_timeout = 5
+
+        ae.add_supported_context(PatientRootQueryRetrieveInformationModelMove)
+        ae.add_supported_context(CTImageStorage)
+        scp = ae.start_server(('', 11112), block=False, evt_handlers=handlers)
+
+        ae.add_requested_context(PatientRootQueryRetrieveInformationModelMove)
+        ae.add_requested_context(CTImageStorage)
+        assoc = ae.associate('localhost', 11112)
+        assert assoc.is_established
+        result = assoc.send_c_move(
+            self.query,
+            b'TESTMOVE',
+            PatientRootQueryRetrieveInformationModelMove
+        )
+        status, identifier = next(result)
+        assert status.Status == 0xA801
+        assert identifier == Dataset()
+        pytest.raises(StopIteration, next, result)
+        assoc.release()
+
+        scp.shutdown()
+
+    def test_handler_assoc_kwargs(self):
+        """Test yielding the association kwargs."""
+        """Test when handler returns success status"""
+        def handle(event):
+            kwargs = {
+                'contexts': [build_context(CTImageStorage)],
+                'ae_title': b'SOME_AE'
+            }
+            yield self.destination[0], self.destination[1], kwargs
+            yield 1
+            yield 0xFF00, self.ds
+
+        def handle_store(event):
+            return 0x0000
+
+        handlers = [(evt.EVT_C_MOVE, handle), (evt.EVT_C_STORE, handle_store)]
+
+        self.ae = ae = AE()
+        ae.acse_timeout = 5
+        ae.dimse_timeout = 5
+        ae.network_timeout = 5
+        ae.add_supported_context(PatientRootQueryRetrieveInformationModelMove)
+        ae.add_supported_context(CTImageStorage)
+        scp = ae.start_server(('', 11112), block=False, evt_handlers=handlers)
+
+        ae.add_requested_context(PatientRootQueryRetrieveInformationModelMove)
+        assoc = ae.associate('localhost', 11112)
+        assert assoc.is_established
+        result = assoc.send_c_move(
+            self.query,
+            b'TESTMOVE',
+            PatientRootQueryRetrieveInformationModelMove
+        )
+        status, identifier = next(result)
+        assert status.Status == 0xFF00
+        assert identifier is None
+        status, identifier = next(result)
+        assert status.Status == 0x0000
+        assert status.NumberOfFailedSuboperations == 0
+        assert status.NumberOfWarningSuboperations == 0
+        assert status.NumberOfCompletedSuboperations == 1
+        assert identifier is None
+        pytest.raises(StopIteration, next, result)
+
+        assoc.release()
+        scp.shutdown()
+
+    def test_handler_assoc_kwargs_raises(self):
+        """Test yielding bad association kwargs."""
+        """Test when handler returns success status"""
+        def handle(event):
+            kwargs = {
+                'contexts': [build_context(CTImageStorage)],
+                'ae_title': b'SOME_AE',
+                'badness': None
+            }
+            yield self.destination[0], self.destination[1], kwargs
+            yield 1
+            yield 0xFF00, self.ds
+
+        handlers = [(evt.EVT_C_MOVE, handle)]
+
+        self.ae = ae = AE()
+        ae.acse_timeout = 5
+        ae.dimse_timeout = 5
+        ae.network_timeout = 5
+        ae.add_supported_context(PatientRootQueryRetrieveInformationModelMove)
+        ae.add_supported_context(CTImageStorage)
+        scp = ae.start_server(('', 11112), block=False, evt_handlers=handlers)
+
+        ae.add_requested_context(PatientRootQueryRetrieveInformationModelMove)
+        assoc = ae.associate('localhost', 11112)
+        assert assoc.is_established
+        result = assoc.send_c_move(
+            self.query,
+            b'TESTMOVE',
+            PatientRootQueryRetrieveInformationModelMove
+        )
+        status, identifier = next(result)
+        assert status.Status == 0xC515
+        assert identifier == Dataset()
+        pytest.raises(StopIteration, next, result)
+
+        assoc.release()
+        scp.shutdown()
 
 
 class TestQRCompositeInstanceWithoutBulk(object):
