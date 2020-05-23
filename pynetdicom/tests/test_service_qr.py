@@ -40,7 +40,7 @@ from pynetdicom.sop_class import (
 )
 
 
-debug_logger()
+#debug_logger()
 
 
 TEST_DS_DIR = os.path.join(os.path.dirname(__file__), 'dicom_files')
@@ -3224,7 +3224,7 @@ class TestQRMoveServiceClass(object):
 
         result = assoc.send_c_move(self.query, b'TESTMOVE', PatientRootQueryRetrieveInformationModelMove)
         status, identifier = next(result)
-        assert status.Status == 0xC514
+        assert status.Status == 0xC513
         pytest.raises(StopIteration, next, result)
 
         assoc.release()
@@ -3267,7 +3267,7 @@ class TestQRMoveServiceClass(object):
     def test_move_handler_bad_subops(self):
         """Test handler yielding a bad no subops"""
         def handle(event):
-            yield (None, 11112)
+            yield ('127.0.0.1', 11112)
             yield 'test'
             yield 0xFF00, self.ds
 
@@ -3635,7 +3635,7 @@ class TestQRMoveServiceClass(object):
 
         self.ae = ae = AE()
         ae.add_supported_context(PatientRootQueryRetrieveInformationModelMove)
-        ae.add_supported_context(CTImageStorage, scu_role=False, scp_role=True)
+        ae.add_supported_context(CTImageStorage)
         ae.add_requested_context(PatientRootQueryRetrieveInformationModelMove)
         ae.add_requested_context(CTImageStorage)
         scp = ae.start_server(('', 11112), block=False, evt_handlers=handlers)
@@ -3644,9 +3644,13 @@ class TestQRMoveServiceClass(object):
         ae.dimse_timeout = 5
         assoc = ae.associate('localhost', 11112)
         assert assoc.is_established
-        result = assoc.send_c_move(self.query, b'TESTMOVE', PatientRootQueryRetrieveInformationModelMove)
+        result = assoc.send_c_move(
+            self.query,
+            b'TESTMOVE',
+            PatientRootQueryRetrieveInformationModelMove
+        )
         status, identifier = next(result)
-        assert status.Status == 0xC514
+        assert status.Status == 0xC513
         assert identifier == Dataset()
         pytest.raises(StopIteration, next, result)
         assoc.release()

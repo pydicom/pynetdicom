@@ -2540,7 +2540,7 @@ def doc_handle_move(event, *args):
         ``(None, None)`` is yielded then the SCP will send a C-MOVE
         response with a 'Failure' Status of ``0xA801`` (move destination
         unknown), in which case nothing more needs to be yielded. You may
-        optionally instead yield ``(addr, port, kwargs)``, where ``kwargs`` is
+        instead yield ``(addr, port, kwargs)``, where ``kwargs`` is
         a :class:`dict` containing keyword parameters to pass to
         :meth:`AE.associate()<pynetdicom.ae.ApplicationEntity.associate>`
         when the new association with the Storage SCP is initiated.
