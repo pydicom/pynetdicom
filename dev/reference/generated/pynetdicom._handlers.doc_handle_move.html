@@ -219,19 +219,29 @@
 <h1>pynetdicom._handlers.doc_handle_move<a class="headerlink" href="#pynetdicom-handlers-doc-handle-move" title="Permalink to this headline">¶</a></h1>
 <dl class="py function">
 <dt id="pynetdicom._handlers.doc_handle_move">
-<code class="sig-prename descclassname">pynetdicom._handlers.</code><code class="sig-name descname">doc_handle_move</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">event</span></em>, <em class="sig-param"><span class="o">*</span><span class="n">args</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/18bd3aa9/pynetdicom/_handlers.py#L2418"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom._handlers.doc_handle_move" title="Permalink to this definition">¶</a></dt>
+<code class="sig-prename descclassname">pynetdicom._handlers.</code><code class="sig-name descname">doc_handle_move</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">event</span></em>, <em class="sig-param"><span class="o">*</span><span class="n">args</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/19c93ec9/pynetdicom/_handlers.py#L2418"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom._handlers.doc_handle_move" title="Permalink to this definition">¶</a></dt>
 <dd><p>Documentation for handlers bound to <code class="docutils literal notranslate"><span class="pre">evt.EVT_C_MOVE</span></code>.</p>
 <p>User implementation of this event handler is required if one or more
 services that use C-MOVE are to be supported. If a handler is
 not implemented and bound to <code class="docutils literal notranslate"><span class="pre">evt.EVT_C_MOVE</span></code> then the C-MOVE request
 will be responded to using a  <em>Status</em> value of <code class="docutils literal notranslate"><span class="pre">0xC511</span></code> - Failure.</p>
 <p>The first yield should be the <code class="docutils literal notranslate"><span class="pre">(addr,</span> <span class="pre">port)</span></code> of the move destination,
-the second yield the number of required C-STORE sub-operations as an
-<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.8)"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></a>, and the remaining yields the <code class="docutils literal notranslate"><span class="pre">(status,</span> <span class="pre">dataset)</span></code> pairs.</p>
+however you may instead yield <code class="docutils literal notranslate"><span class="pre">(addr,</span> <span class="pre">port,</span> <span class="pre">kwargs)</span></code>, where <code class="docutils literal notranslate"><span class="pre">kwargs</span></code>
+is a <a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.8)"><code class="xref py py-class docutils literal notranslate"><span class="pre">dict</span></code></a> containing keyword parameters that will be passed
+to <a class="reference internal" href="pynetdicom.ae.ApplicationEntity.html#pynetdicom.ae.ApplicationEntity.associate" title="pynetdicom.ae.ApplicationEntity.associate"><code class="xref py py-meth docutils literal notranslate"><span class="pre">AE.associate()</span></code></a>. This
+allows you to customise the presentation contexts requested by the
+association with the Storage SCP via the <cite>contexts</cite> keyword parameter.</p>
+<p>The second yield should be the number of required C-STORE sub-operations
+as an <a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.8)"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></a>, and the remaining yields the <code class="docutils literal notranslate"><span class="pre">(status,</span> <span class="pre">dataset)</span></code>
+pairs.</p>
 <p>Matching SOP Instances will be sent to the move destination Storage SCP
 over a new association. If the move destination is unknown then the
 SCP will send a response with a ‘Failure’ status of <code class="docutils literal notranslate"><span class="pre">0xA801</span></code> ‘Move
 Destination Unknown’.</p>
+<div class="versionchanged">
+<p><span class="versionmodified changed">Changed in version 1.5: </span>Added the ability to yield either <code class="docutils literal notranslate"><span class="pre">(addr,</span> <span class="pre">port)</span></code> or
+<code class="docutils literal notranslate"><span class="pre">(addr,</span> <span class="pre">port,</span> <span class="pre">kwargs)</span></code></p>
+</div>
 <p><strong>Event</strong></p>
 <p><code class="docutils literal notranslate"><span class="pre">evt.EVT_C_MOVE</span></code></p>
 <p><strong>Supported Service Classes</strong></p>
@@ -325,11 +335,15 @@ matching the contents of <cite>args</cite>.</p></li>
 </dd>
 <dt class="field-even">Yields</dt>
 <dd class="field-even"><ul>
-<li><p><strong>addr, port</strong> (<em>str, int or None, None</em>) – The first yield should be the (TCP/IP address, port number) of the
+<li><p><strong>addr, port or addr, port, kwargs</strong> (<em>str, int, (dict) or None, None, (None)</em>) – The first yield should be the (TCP/IP address, port number) of the
 destination AE (if known) or <code class="docutils literal notranslate"><span class="pre">(None,</span> <span class="pre">None)</span></code> if unknown. If
 <code class="docutils literal notranslate"><span class="pre">(None,</span> <span class="pre">None)</span></code> is yielded then the SCP will send a C-MOVE
 response with a ‘Failure’ Status of <code class="docutils literal notranslate"><span class="pre">0xA801</span></code> (move destination
-unknown), in which case nothing more needs to be yielded.</p></li>
+unknown), in which case nothing more needs to be yielded. You may
+instead yield <code class="docutils literal notranslate"><span class="pre">(addr,</span> <span class="pre">port,</span> <span class="pre">kwargs)</span></code>, where <code class="docutils literal notranslate"><span class="pre">kwargs</span></code> is
+a <a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.8)"><code class="xref py py-class docutils literal notranslate"><span class="pre">dict</span></code></a> containing keyword parameters to pass to
+<a class="reference internal" href="pynetdicom.ae.ApplicationEntity.html#pynetdicom.ae.ApplicationEntity.associate" title="pynetdicom.ae.ApplicationEntity.associate"><code class="xref py py-meth docutils literal notranslate"><span class="pre">AE.associate()</span></code></a>
+when the new association with the Storage SCP is initiated.</p></li>
 <li><p><em>int</em> – The second yield should be the number of C-STORE sub-operations
 required to complete the C-MOVE operation. In other words, this is
 the number of matching SOP Instances to be sent to the peer.</p></li>

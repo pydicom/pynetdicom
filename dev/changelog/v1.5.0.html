@@ -264,6 +264,11 @@ are logged</p></li>
 <li><p>Added <a class="reference internal" href="../reference/generated/pynetdicom.dsutils.pretty_dataset.html#pynetdicom.dsutils.pretty_dataset" title="pynetdicom.dsutils.pretty_dataset"><code class="xref py py-func docutils literal notranslate"><span class="pre">pretty_dataset()</span></code></a> and
 <a class="reference internal" href="../reference/generated/pynetdicom.dsutils.pretty_element.html#pynetdicom.dsutils.pretty_element" title="pynetdicom.dsutils.pretty_element"><code class="xref py py-func docutils literal notranslate"><span class="pre">pretty_element()</span></code></a> functions for producing pretty
 string output from datasets and elements</p></li>
+<li><p>When handling <code class="docutils literal notranslate"><span class="pre">evt.EVT_C_MOVE</span></code>, the <a class="reference internal" href="../reference/generated/pynetdicom._handlers.doc_handle_move.html#pynetdicom._handlers.doc_handle_move" title="pynetdicom._handlers.doc_handle_move"><code class="xref py py-func docutils literal notranslate"><span class="pre">handler</span> <span class="pre">function</span></code></a> may optionally yield
+<code class="docutils literal notranslate"><span class="pre">(addr,</span> <span class="pre">port,</span> <span class="pre">kwargs)</span></code> as its first yield, where <code class="docutils literal notranslate"><span class="pre">kwargs</span></code> is a
+<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.8)"><code class="xref py py-class docutils literal notranslate"><span class="pre">dict</span></code></a> containing keyword parameters that will be passed to
+<a class="reference internal" href="../reference/generated/pynetdicom.ae.ApplicationEntity.html#pynetdicom.ae.ApplicationEntity.associate" title="pynetdicom.ae.ApplicationEntity.associate"><code class="xref py py-meth docutils literal notranslate"><span class="pre">AE.associate()</span></code></a> when the
+association with the Storage SCP is initiated.</p></li>
 </ul>
 </div>
 <div class="section" id="changes">
