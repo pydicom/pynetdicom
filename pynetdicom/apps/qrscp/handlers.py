@@ -7,7 +7,6 @@ from pydicom import dcmread
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 
-from . import config
 from .db import add_instance, search, InvalidIdentifier, Instance
 
 
@@ -150,7 +149,7 @@ def handle_get(event, db_path, cli_config, logger):
                 yield 0xFE00, None
                 return
 
-            db_dir = os.path.dirname(config.DATABASE_LOCATION)
+            db_dir = os.path.dirname(db_path)
             ds = dcmread(os.path.join(db_dir, match.filename))
             yield 0xFF00, ds
 
@@ -231,18 +230,20 @@ def handle_move(event, db_path, cli_config, logger):
                 yield 0xFE00, None
                 return
 
-            db_dir = os.path.dirname(config.DATABASE_LOCATION)
+            db_dir = os.path.dirname(db_path)
             ds = dcmread(os.path.join(db_dir, match.filename))
             yield 0xFF00, ds
 
 
-def handle_store(event, db_path, cli_config, logger):
+def handle_store(event, storage_dir, db_path, cli_config, logger):
     """Handler for evt.EVT_C_STORE.
 
     Parameters
     ----------
     event : pynetdicom.events.Event
         The C-STORE request :class:`~pynetdicom.events.Event`.
+    storage_dir : str
+        The path to the directory where instances will be stored.
     db_path : str
         The database path to use with create_engine().
     cli_config : dict
@@ -282,8 +283,8 @@ def handle_store(event, db_path, cli_config, logger):
 
     # Try and add the instance to the database
     #   If we fail then don't even try to store
-    fpath = os.path.join(config.INSTANCE_LOCATION, sop_instance)
-    db_dir = os.path.dirname(config.DATABASE_LOCATION)
+    fpath = os.path.join(storage_dir, sop_instance)
+    db_dir = os.path.dirname(db_path)
 
     if os.path.exists(fpath):
         logger.warning(

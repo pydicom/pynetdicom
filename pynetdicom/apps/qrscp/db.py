@@ -42,8 +42,6 @@ from pynetdicom.sop_class import(
     StudyRootQueryRetrieveInformationModelGet
 )
 
-import pynetdicom.apps.qrscp.config as config
-
 
 class InvalidIdentifier(Exception):
     pass
@@ -365,15 +363,13 @@ def clear(session):
     session.commit()
 
 
-def connect(db_location=None, echo=False):
-    """Return a connection to the database.
+def connect(db_location, echo=False):
+    """Return a connection to the database for testing purposes.
 
     Parameters
     ----------
-    db_location : str, optional
-        The location of the database (default:
-        ``sqlite:///config.DATABASE_LOCATION``). Should only be used when
-        testing.
+    db_location : str
+        The location of the database.
     echo : bool, optional
         Turn the sqlalchemy logging on (default ``False``).
 
@@ -384,16 +380,11 @@ def connect(db_location=None, echo=False):
     sqlalchemy.orm.Session
         The Session configured with the engine.
     """
-    if not db_location:
-        db_location = 'sqlite:///{}'.format(config.DATABASE_LOCATION)
-
     engine = create_engine(db_location, echo=echo)
-
     Session = sessionmaker(bind=engine)
 
     # Create the tables (won't recreate tables already present)
     Base.metadata.create_all(engine)
-
     conn = engine.connect()
 
     return conn, engine, Session

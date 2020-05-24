@@ -7,6 +7,7 @@ TODO:
 """
 
 import argparse
+from configparser import ConfigParser
 import os
 import sys
 
@@ -28,7 +29,7 @@ from pynetdicom.sop_class import (
     StudyRootQueryRetrieveInformationModelGet
 )
 
-from pynetdicom.apps.qrscp import config
+#from pynetdicom.apps.qrscp import config
 from pynetdicom.apps.qrscp.handlers import (
     handle_echo, handle_find, handle_get, handle_move, handle_store
 )
@@ -52,7 +53,7 @@ _handlers._recv_c_store_rsp = _dont_log
 __version__ = '0.0.0alpha1'
 
 
-def _log_config(logger):
+def _log_config(config, logger):
     """Log the configuration settings.
 
     Parameters
@@ -61,26 +62,24 @@ def _log_config(logger):
         The application's logger.
     """
     logger.debug('Configuration Settings')
+    app = config['DEFAULT']
     logger.debug(
-        '  AE Title: {}, Port: {}, Max. PDU: {}'
-        .format(config.AE_TITLE, config.PORT, config.MAX_PDU)
+        '  AE title: {}, Port: {}, Max. PDU: {}'
+        .format(app['ae_title'], app['port'], app['max_pdu'])
     )
-    logger.debug(
-        '  Storage directory: {}'
-        .format(os.path.abspath(config.INSTANCE_LOCATION))
-    )
-    logger.debug(
-        '  Database location: {}'
-        .format(os.path.abspath(config.DATABASE_LOCATION))
-    )
-    if config.MOVE_DESTINATIONS:
-        logger.debug('  Move destinations: ')
-        for ae_title, addr in config.MOVE_DESTINATIONS.items():
-            logger.debug('    {}: {}'.format(ae_title, addr))
-    else:
-        logger.debug('  Move destinations: None')
+    logger.debug('  Storage directory: {}'.format(app['instance_location']))
+    logger.debug('  Database location: {}'.format(app['database_location']))
 
-    logger.debug('  Log identifiers: {}'.format(config.LOG_IDENTIFIERS))
+    if config.sections():
+        logger.debug('  Move destinations: ')
+    else:
+        logger.debug('  Move destinations: none')
+
+    for ae_title in config.sections():
+        addr = config[ae_title]['address']
+        port = config[ae_title]['port']
+        logger.debug('    {}: ({}, {})'.format(ae_title, addr, port))
+
     logger.debug('')
 
 
@@ -134,10 +133,13 @@ def _setup_argparser():
         type=str,
         choices=['critical', 'error', 'warn', 'info', 'debug']
     )
+    fdir = os.path.abspath(os.path.dirname(__file__))
+    fpath = os.path.join(fdir, 'default.ini')
     gen_opts.add_argument(
         '-c', '--config', metavar='[f]ilename',
         help="use configuration file f",
         type=str,
+        default=fpath,
     )
 
     house_opts = parser.add_argument_group('Housekeeping Options')
@@ -230,21 +232,22 @@ def main(args=None):
     APP_LOGGER.debug('qrscp.py v{0!s}'.format(__version__))
     APP_LOGGER.debug('')
 
+    APP_LOGGER.debug('Using configuration from {}'.format(args.config))
+    APP_LOGGER.debug('')
+    config = ConfigParser()
+    config.read(args.config)
+
     # Log configuration settings
-    _log_config(APP_LOGGER)
+    _log_config(config, APP_LOGGER)
+    app_config = config['DEFAULT']
 
     # Use default or specified configuration file
-    if not args.config:
-        current_dir = os.path.abspath(os.path.dirname(__file__))
-        config.INSTANCE_LOCATION = os.path.join(
-            current_dir, config.INSTANCE_LOCATION
-        )
-        config.DATABASE_LOCATION = os.path.join(
-            current_dir, config.DATABASE_LOCATION
-        )
+    current_dir = os.path.abspath(os.path.dirname(__file__))
+    instance_dir = os.path.join(current_dir, app_config['instance_location'])
+    db_path = os.path.join(current_dir, app_config['database_location'])
 
     # The path to the database
-    db_path = 'sqlite:///{}'.format(config.DATABASE_LOCATION)
+    db_path = 'sqlite:///{}'.format(db_path)
 
     # Clean up the database and storage directory
     if args.clean:
@@ -261,10 +264,10 @@ def main(args=None):
             sys.exit(1)
 
     # Try to create the instance storage directory
-    os.makedirs(config.INSTANCE_LOCATION, exist_ok=True)
+    os.makedirs(instance_dir, exist_ok=True)
 
-    ae = AE(config.AE_TITLE)
-    ae.maximum_pdu_size = config.MAX_PDU
+    ae = AE(app_config['ae_title'])
+    ae.maximum_pdu_size = app_config.getint('max_pdu')
 
     ## Add supported presentation contexts
     # Verification SCP
@@ -273,7 +276,7 @@ def main(args=None):
     # Storage SCP - support all transfer syntaxes
     for cx in AllStoragePresentationContexts:
         ae.add_supported_context(
-            cx.abstract_syntax, ALL_TRANSFER_SYNTAXES[1:],
+            cx.abstract_syntax, ALL_TRANSFER_SYNTAXES,
             scp_role=True, scu_role=False
         )
 
@@ -291,11 +294,15 @@ def main(args=None):
         (evt.EVT_C_FIND, handle_find, [db_path, args, APP_LOGGER]),
         (evt.EVT_C_GET, handle_get, [db_path, args, APP_LOGGER]),
         (evt.EVT_C_MOVE, handle_move, [db_path, args, APP_LOGGER]),
-        (evt.EVT_C_STORE, handle_store, [db_path, args, APP_LOGGER]),
+        (
+            evt.EVT_C_STORE,
+            handle_store,
+            [instance_dir, db_path, args, APP_LOGGER]
+        ),
     ]
 
     # Listen for incoming association requests
-    ae.start_server(('', config.PORT), evt_handlers=handlers)
+    ae.start_server(('', app_config.getint('port')), evt_handlers=handlers)
 
 
 if __name__ == "__main__":
