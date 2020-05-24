@@ -1598,7 +1598,7 @@ class QueryRetrieveServiceClass(ServiceClass):
                 for line in pretty_dataset(identifier):
                     LOGGER.info(line)
                 LOGGER.info('')
-            except Exception as ex:
+            except Exception:
                 # The user should deal with decoding failures
                 pass
 
@@ -1943,7 +1943,7 @@ class QueryRetrieveServiceClass(ServiceClass):
                 for line in pretty_dataset(identifier):
                     LOGGER.info(line)
                 LOGGER.info('')
-            except Exception as ex:
+            except Exception:
                 # The user should deal with decoding failures
                 pass
 
@@ -2403,7 +2403,7 @@ class RelevantPatientInformationQueryServiceClass(ServiceClass):
                 for line in pretty_dataset(identifier):
                     LOGGER.info(line)
                 LOGGER.info('')
-            except Exception as ex:
+            except Exception:
                 # The user should deal with decoding failures
                 pass
 
