@@ -32,6 +32,7 @@ from sqlalchemy.orm import relationship, sessionmaker
 
 from pydicom.dataset import Dataset
 
+from pynetdicom import build_context
 from pynetdicom.sop_class import(
     PatientRootQueryRetrieveInformationModelFind,
     PatientRootQueryRetrieveInformationModelMove,
@@ -764,6 +765,16 @@ class Instance(Base):
             setattr(ds, kw, getattr(self, attribute, None))
 
         return ds
+
+    @property
+    def context(self):
+        """Return a presentation context for the Instance.
+
+        Returns
+        -------
+        pynetdicom.presentation.PresentationContext
+        """
+        return build_context(self.sop_class_uid, self.transfer_syntax_uid)
 
 
 class Patient(Base):

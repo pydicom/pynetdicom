@@ -172,6 +172,27 @@ class TestPresentationContext(object):
         assert pc_a == pc_b
         assert not 'a' == pc_b
 
+    def test_hash(self):
+        """Test hashing the context"""
+        cx_a = build_context('1.2.3', '1.2.3.4')
+        cx_b = build_context('1.2.3', '1.2.3.4')
+        assert hash(cx_a) == hash(cx_b)
+        cx_a.transfer_syntax = ['1.2.3.4']
+        assert hash(cx_a) == hash(cx_b)
+        cx_a.transfer_syntax[0] = '1.2.3.4'
+        assert hash(cx_a) == hash(cx_b)
+        cx_a.transfer_syntax[0] = '1.2.3.5'
+        assert hash(cx_a) != hash(cx_b)
+        cx_a.transfer_syntax = ['1.2.3.5']
+        assert hash(cx_a) != hash(cx_b)
+        cx_c = build_context('1.2.3', ['1.1', '1.2'])
+        assert hash(cx_c) != hash(cx_b)
+        cx_d = build_context('1.2.3', ['1.1', '1.2'])
+        assert hash(cx_c) == hash(cx_d)
+        cx_c.transfer_syntax[1] = '1.2.3.5'
+        cx_d.transfer_syntax[1] = '1.2.3.5'
+        assert hash(cx_c) == hash(cx_d)
+
     def test_string_output(self):
         """Test string output"""
         pc = PresentationContext()

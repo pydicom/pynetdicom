@@ -28,9 +28,8 @@ from pynetdicom.sop_class import (
     StudyRootQueryRetrieveInformationModelGet
 )
 
-from . import config
-#from .db import connect, clear, Instance
-from .handlers import (
+from pynetdicom.apps.qrscp import config
+from pynetdicom.apps.qrscp.handlers import (
     handle_echo, handle_find, handle_get, handle_move, handle_store
 )
 
@@ -39,11 +38,15 @@ pydicom.config.use_none_as_empty_text_VR_value = True
 # Don't log identifiers
 _config.LOG_RESPONSE_IDENTIFIERS = False
 
-# Override the standard outgoing C-FIND DIMSE logging
-def _send_c_find_rsp(event):
+# Override the standard logging handlers
+def _dont_log(event):
     pass
 
-_handlers._send_c_find_rsp = _send_c_find_rsp
+_handlers._send_c_find_rsp = _dont_log
+_handlers._send_c_get_rsp = _dont_log
+_handlers._send_c_move_rsp = _dont_log
+_handlers._send_c_store_rq = _dont_log
+_handlers._recv_c_store_rsp = _dont_log
 
 
 __version__ = '0.0.0alpha1'

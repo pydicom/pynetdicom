@@ -1839,7 +1839,7 @@ class QueryRetrieveServiceClass(ServiceClass):
                 except Exception as exc:
                     # An exception implies a C-STORE failure
                     LOGGER.warning("C-STORE sub-operation failed.")
-                    LOGGER.exception(exc)
+                    LOGGER.error(str(exc))
                     store_status_int = None
                     store_status = [STATUS_FAILURE, 'Unknown']
 
@@ -2227,7 +2227,7 @@ class QueryRetrieveServiceClass(ServiceClass):
                         originator_aet=self.ae.ae_title,
                         originator_id=1
                     )
-                    # FIXME: Should probably split status check?
+
                     store_status_int = store_status.Status
                     store_status = STORAGE_SERVICE_CLASS_STATUS[
                         store_status.Status
@@ -2235,6 +2235,7 @@ class QueryRetrieveServiceClass(ServiceClass):
                 except Exception as exc:
                     # An exception implies a C-STORE failure
                     LOGGER.warning("C-STORE sub-operation failed.")
+                    LOGGER.error(str(exc))
                     store_status_int = None
                     store_status = [STATUS_FAILURE, 'Unknown']
 

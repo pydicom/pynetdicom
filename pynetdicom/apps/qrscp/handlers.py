@@ -197,11 +197,7 @@ def handle_move(event, db_path, cli_config, logger):
         yield None, None
         return
 
-    # Yield `Move Destination` IP and port
-    yield config.MOVE_DESTINATIONS[event.move_destination]
-
     model = event.request.AffectedSOPClassUID
-
     engine = create_engine(db_path)
     with engine.connect() as conn:
         Session = sessionmaker(bind=engine)
@@ -218,11 +214,16 @@ def handle_move(event, db_path, cli_config, logger):
         finally:
             session.close()
 
+        # Yield `Move Destination` IP and port, plus required contexts
+        addr, port = config.MOVE_DESTINATIONS[event.move_destination]
+        # We should be able to reduce the number of contexts by using the
+        # implicit context conversion between:
+        #   implicit VR <-> explicit VR <-> deflated transfer syntaxes
+        contexts = list(set([ii.context for ii in matches]))
+        yield addr, port, {'contexts' : contexts[:128]}
+
         # Yield number of sub-operations
         yield len(matches)
-
-        # Determine the presentation contexts required for the matches
-        event.assoc.ae.requested_contexts = _get_contexts(matches)
 
         # Yield results
         for match in matches:
@@ -230,7 +231,8 @@ def handle_move(event, db_path, cli_config, logger):
                 yield 0xFE00, None
                 return
 
-            ds = dcmread(match.filename)
+            db_dir = os.path.dirname(config.DATABASE_LOCATION)
+            ds = dcmread(os.path.join(db_dir, match.filename))
             yield 0xFF00, ds
 
 
