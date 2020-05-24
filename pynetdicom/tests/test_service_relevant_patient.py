@@ -47,6 +47,11 @@ class TestRelevantPatientServiceClass(object):
     def test_bad_req_identifier(self):
         """Test SCP handles a bad request identifier"""
         def handle(event):
+            try:
+                for elem in event.identifier.iterall():
+                    pass
+            except:
+                yield 0xC310, None
             yield 0xFF00, self.query
 
         handlers = [(evt.EVT_C_FIND, handle)]

@@ -2424,13 +2424,25 @@ def doc_handle_move(event, *args):
     will be responded to using a  *Status* value of ``0xC511`` - Failure.
 
     The first yield should be the ``(addr, port)`` of the move destination,
-    the second yield the number of required C-STORE sub-operations as an
-    :class:`int`, and the remaining yields the ``(status, dataset)`` pairs.
+    however you may instead yield ``(addr, port, kwargs)``, where ``kwargs``
+    is a :class:`dict` containing keyword parameters that will be passed
+    to :meth:`AE.associate()<pynetdicom.ae.ApplicationEntity.associate>`. This
+    allows you to customise the presentation contexts requested by the
+    association with the Storage SCP via the `contexts` keyword parameter.
+
+    The second yield should be the number of required C-STORE sub-operations
+    as an :class:`int`, and the remaining yields the ``(status, dataset)``
+    pairs.
 
     Matching SOP Instances will be sent to the move destination Storage SCP
     over a new association. If the move destination is unknown then the
     SCP will send a response with a 'Failure' status of ``0xA801`` 'Move
     Destination Unknown'.
+
+    .. versionchanged:: 1.5
+
+        Added the ability to yield either ``(addr, port)`` or
+        ``(addr, port, kwargs)``
 
     **Event**
 
@@ -2522,12 +2534,16 @@ def doc_handle_move(event, *args):
 
     Yields
     ------
-    addr, port : str, int or None, None
+    addr, port or addr, port, kwargs : str, int, (dict) or None, None, (None)
         The first yield should be the (TCP/IP address, port number) of the
         destination AE (if known) or ``(None, None)`` if unknown. If
         ``(None, None)`` is yielded then the SCP will send a C-MOVE
         response with a 'Failure' Status of ``0xA801`` (move destination
-        unknown), in which case nothing more needs to be yielded.
+        unknown), in which case nothing more needs to be yielded. You may
+        instead yield ``(addr, port, kwargs)``, where ``kwargs`` is
+        a :class:`dict` containing keyword parameters to pass to
+        :meth:`AE.associate()<pynetdicom.ae.ApplicationEntity.associate>`
+        when the new association with the Storage SCP is initiated.
     int
         The second yield should be the number of C-STORE sub-operations
         required to complete the C-MOVE operation. In other words, this is

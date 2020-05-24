@@ -53,7 +53,7 @@ Examples
 
 
 LOG_RESPONSE_IDENTIFIERS = True
-"""Log incoming C-FIND, C-GET and C-MOVE Identifier datasets.
+"""Log incoming C-FIND, C-GET and C-MOVE response *Identifier* datasets.
 
 .. versionadded:: 1.5
 
@@ -65,4 +65,20 @@ Examples
 
 >>> from pynetdicom import _config
 >>> _config.LOG_RESPONSE_IDENTIFIERS = False
+"""
+
+
+LOG_REQUEST_IDENTIFIERS = True
+"""Log incoming C-FIND, C-GET and C-MOVE request *Identifier* datasets.
+
+.. versionadded:: 1.5
+
+If ``True`` (default) then the *Identifier* datasets received in
+C-FIND, C-GET and C-MOVE requests will be logged.
+
+Examples
+--------
+
+>>> from pynetdicom import _config
+>>> _config.LOG_REQUEST_IDENTIFIERS = False
 """
