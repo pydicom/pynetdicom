@@ -2013,7 +2013,6 @@ class QueryRetrieveServiceClass(ServiceClass):
 
         try:
             destination = next(result)
-            no_suboperations = next(result)
         except Exception as exc:
             # Event hander has aborted or released - during any yields
             if not self.assoc.is_established:
@@ -2033,9 +2032,30 @@ class QueryRetrieveServiceClass(ServiceClass):
         if not self.assoc.is_established:
             return
 
+        try:
+            # Unknown Move Destination
+            if None in destination:
+                LOGGER.error(
+                    'Unknown Move Destination: {}'.format(req.MoveDestination)
+                )
+                # Failure - Move destination unknown
+                rsp.Status = 0xA801
+                self.dimse.send_msg(rsp, context.context_id)
+                return
+        except Exception as exc:
+            LOGGER.error(
+                "The handler bound to 'evt.EVT_C_MOVE' yielded an invalid "
+                "destination AE (addr, port) or (addr, port, kwargs) value"
+            )
+            LOGGER.exception(exc)
+            # Failure - Unable to process - Bad handler AE destination
+            rsp.Status = 0xC515
+            self.dimse.send_msg(rsp, context.context_id)
+            return
+
         # Check number of C-STORE sub-operations
         try:
-            no_suboperations = int(no_suboperations)
+            no_suboperations = int(next(result))
         except Exception as ex:
             LOGGER.error(
                 "The C-MOVE request handler yielded an invalid number of "
@@ -2057,24 +2077,17 @@ class QueryRetrieveServiceClass(ServiceClass):
 
         # Request new association with Move Destination
         try:
-            # Unknown Move Destination
-            if None in destination:
-                LOGGER.error(
-                    'Unknown Move Destination: %s',
-                    req.MoveDestination.decode('ascii')
-                )
-                # Failure - Move destination unknown
-                rsp.Status = 0xA801
-                self.dimse.send_msg(rsp, context.context_id)
-                return
+            kwargs = {'ae_title': req.MoveDestination}
+            if len(destination) >= 3:
+                kwargs.update(destination[2])
 
             store_assoc = self.ae.associate(
-                destination[0], destination[1], ae_title=req.MoveDestination
+                destination[0], destination[1], **kwargs
             )
         except Exception as exc:
             LOGGER.error(
                 "The handler bound to 'evt.EVT_C_MOVE' yielded an invalid "
-                "destination AE (addr, port) value"
+                "destination AE (addr, port) or (addr, port, kwargs) value"
             )
             LOGGER.exception(exc)
             # Failure - Unable to process - Bad handler AE destination

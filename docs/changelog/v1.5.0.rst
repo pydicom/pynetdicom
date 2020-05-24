@@ -83,7 +83,12 @@ Enhancements
 * Added :func:`~pynetdicom.dsutils.pretty_dataset` and
   :func:`~pynetdicom.dsutils.pretty_element` functions for producing pretty
   string output from datasets and elements
-
+* When handling ``evt.EVT_C_MOVE``, the :func:`handler function
+  <pynetdicom._handlers.doc_handle_move>` may optionally yield
+  ``(addr, port, kwargs)`` as its first yield, where ``kwargs`` is a
+  :class:`dict` containing keyword parameters that will be passed to
+  :meth:`AE.associate()<pynetdicom.ae.ApplicationEntity.associate>` when the
+  association with the Storage SCP is initiated.
 
 
 Changes
