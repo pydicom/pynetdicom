@@ -237,20 +237,16 @@ def main(args=None):
     if args.required_contexts:
         # Only propose required presentation contexts
         lfiles, contexts = get_contexts(lfiles, APP_LOGGER)
-
-        total_cx = 0
-        for abstract, transfer in contexts.items():
-            total_cx +=1
-            if total_cx > 128:
-                raise ValueError(
-                    "More than 128 presentation contexts required with the "
-                    "'--required-contexts' flag, please try again without it "
-                    "or with fewer files"
-                )
-
-            for tsyntax in transfer:
-                ae.add_requested_context(abstract, tsyntax)
-
+        try:
+            for abstract, transfer in contexts.items():
+                for tsyntax in transfer:
+                    ae.add_requested_context(abstract, tsyntax)
+        except ValueError:
+            raise ValueError(
+                "More than 128 presentation contexts required with "
+                "the '--required-contexts' flag, please try again "
+                "without it or with fewer files"
+            )
     else:
         # Propose the default presentation contexts
         if args.request_little:
@@ -288,8 +284,6 @@ def main(args=None):
                 ii += 1
             except InvalidDicomError:
                 APP_LOGGER.error('Bad DICOM file: {}'.format(fpath))
-            except ValueError as exc:
-                APP_LOGGER.error("Store failed: {}".format(fpath))
             except Exception as exc:
                 APP_LOGGER.error("Store failed: {}".format(fpath))
                 APP_LOGGER.exception(exc)

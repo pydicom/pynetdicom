@@ -93,7 +93,7 @@ _ATTRIBUTES = {
     'SOPInstanceUID' : ('IMAGE', 'U', 'UI', 1),
     'InstanceNumber' : ('IMAGE', 'R', 'UI', 1),
 }
-_PATIENT_ROOT_ATTRIBUTES = {
+_PATIENT_ROOT_ATTRIBUTES = OrderedDict({
     'PATIENT' : ['PatientID', 'PatientName'],
     'STUDY' : [
         'StudyInstanceUID', 'StudyDate', 'StudyTime', 'AccessionNumber',
@@ -101,15 +101,15 @@ _PATIENT_ROOT_ATTRIBUTES = {
     ],
     'SERIES' : ['SeriesInstanceUID', 'Modality', 'SeriesNumber'],
     'IMAGE' : ['SOPInstanceUID', 'InstanceNumber'],
-}
-_STUDY_ROOT_ATTRIBUTES = {
+})
+_STUDY_ROOT_ATTRIBUTES = OrderedDict({
     'STUDY' : [
         'StudyInstanceUID', 'StudyDate', 'StudyTime', 'AccessionNumber',
         'StudyID', 'PatientID', 'PatientName'
     ],
     'SERIES' : ['SeriesInstanceUID', 'Modality', 'SeriesNumber'],
     'IMAGE' : ['SOPInstanceUID', 'InstanceNumber'],
-}
+})
 
 # Supported Information Models
 _C_FIND = [
@@ -125,16 +125,16 @@ _C_MOVE = [
     StudyRootQueryRetrieveInformationModelMove
 ]
 
-_PATIENT_ROOT = OrderedDict({
+_PATIENT_ROOT = {
     PatientRootQueryRetrieveInformationModelFind : _PATIENT_ROOT_ATTRIBUTES,
     PatientRootQueryRetrieveInformationModelGet : _PATIENT_ROOT_ATTRIBUTES,
     PatientRootQueryRetrieveInformationModelMove : _PATIENT_ROOT_ATTRIBUTES,
-})
-_STUDY_ROOT = OrderedDict({
+}
+_STUDY_ROOT = {
     StudyRootQueryRetrieveInformationModelFind : _STUDY_ROOT_ATTRIBUTES,
     StudyRootQueryRetrieveInformationModelGet : _STUDY_ROOT_ATTRIBUTES,
     StudyRootQueryRetrieveInformationModelMove : _STUDY_ROOT_ATTRIBUTES,
-})
+}
 
 
 def add_instance(ds, session, fpath=None):
@@ -441,21 +441,19 @@ def search(model, identifier, session):
     if model not in _STUDY_ROOT and model not in _PATIENT_ROOT:
         raise ValueError("Unknown information model '{}'".format(model.name))
 
-    # Remove all optional keys
+    # Remove all optional keys, after this only unique/required will remain
     for elem in identifier:
         kw = elem.keyword
         if kw != 'QueryRetrieveLevel' and kw not in _ATTRIBUTES:
             delattr(identifier, kw)
 
     if model in _C_GET or model in _C_MOVE:
-        # Part 4, C.2.2.1.2: remove required keys from C-GET/C-MOVE so
-        #   they don't affect the match (should also be faster)
-        keywords = [elem.keyword for elem in identifier]
-        for elem in identifier:
-            if elem.keyword in _ATTRIBUTES and _ATTRIBUTES[elem.keyword][1] == 'R':
-                delattr(identifier, elem.keyword)
-
-        #[delattr(identifier, k) for k, v in _ATTRIBUTES.items() if v[1] == 'R']
+        # Part 4, C.2.2.1.2: remove required keys from C-GET/C-MOVE
+        keywords = [
+            e.keyword for e in identifier if _ATTRIBUTES[e.keyword][1] == 'R'
+        ]
+        for kw in keywords:
+            delattr(identifier, kw)
 
     return _search_qr(model, identifier, session)
 
@@ -489,11 +487,13 @@ def _search_qr(model, identifier, session):
     # Hierarchical search method: C.4.1.3.1.1
     query = None
     for level, keywords in attr.items():
-        ds = Dataset()
+        # Keywords at current level that are in the identifier
         keywords = [kw for kw in keywords if kw in identifier]
+        # Create query dataset for only the current level and run it
+        ds = Dataset()
         [setattr(ds, kw, getattr(identifier, kw)) for kw in keywords]
-
         query = build_query(ds, session, query)
+
         if level == identifier.QueryRetrieveLevel:
             break
 
@@ -764,7 +764,19 @@ class Instance(Base):
         Returns
         -------
         pynetdicom.presentation.PresentationContext
+
+        Raises
+        ------
+        ValueError
+            If either of the *SOP Class UID* or *Transfer Syntax UID* is not
+            available for the Instance.
         """
+        if None in [self.sop_class_uid, self.transfer_syntax_uid]:
+            raise ValueError(
+                "Cannot determine which presentation context is required for "
+                "for the SOP Instance"
+            )
+
         return build_context(self.sop_class_uid, self.transfer_syntax_uid)
 
 

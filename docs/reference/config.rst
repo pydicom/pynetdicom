@@ -14,3 +14,4 @@ Configuration Options (:mod:`pynetdicom._config`)
    LOG_HANDLER_LEVEL
    USE_SHORT_DIMSE_AET
    LOG_RESPONSE_IDENTIFIERS
+   LOG_REQUEST_IDENTIFIERS

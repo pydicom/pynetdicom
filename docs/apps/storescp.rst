@@ -8,12 +8,13 @@ storescp
 
 Description
 ===========
-The ``storescp`` application implements a *Service Class Provider* (SCP) for
-the *Storage Service Class*. It listens on the specified port for
-Association requests from peer Application Entities (AEs) and, once an
-Association is established, allows Storage SCUs transfer SOP Instances
-with SOP Classes matching the presentation contexts accepted during Association
-negotation.
+The ``storescp`` application implements a Service Class Provider (SCP) for
+the :dcm:`Storage<part04/chapter_B.html>` service class. It listens for
+incoming association requests on the specified *port*, and once an association
+is established, allows Storage SCUs to transfer SOP Instances.
+
+The source code for the application can be found `here
+<https://github.com/pydicom/pynetdicom/tree/master/pynetdicom/apps/storescp>`_
 
 Usage
 =====
@@ -120,10 +121,14 @@ Miscellaneous
 DICOM Conformance
 =================
 The ``storescp`` application supports the Verification (unless ``--no-echo``
-is used) and Storage Service Classes as an SCP with the following SOP Classes:
+is used) and Storage service classes as an SCP. The following SOP
+classes are supported:
 
-Verification Service Class
---------------------------
+Verification Service
+--------------------
+
+SOP Classes
+...........
 
 +----------------------------------+------------------------------------------+
 | UID                              | SOP Class                                |
@@ -131,8 +136,27 @@ Verification Service Class
 |1.2.840.10008.1.1                 | Verification SOP Class                   |
 +----------------------------------+------------------------------------------+
 
-Storage Service Class
----------------------
+Transfer Syntaxes
+.................
+
++------------------------+----------------------------------------------------+
+| UID                    | Transfer Syntax                                    |
++========================+====================================================+
+| 1.2.840.10008.1.2      | Implicit VR Little Endian                          |
++------------------------+----------------------------------------------------+
+| 1.2.840.10008.1.2.1    | Explicit VR Little Endian                          |
++------------------------+----------------------------------------------------+
+| 1.2.840.10008.1.2.1.99 | Deflated Explicit VR Little Endian                 |
++------------------------+----------------------------------------------------+
+| 1.2.840.10008.1.2.2    | Explicit VR Big Endian                             |
++------------------------+----------------------------------------------------+
+
+
+Storage Service
+---------------
+
+SOP Classes
+...........
 
 +----------------------------------+------------------------------------------+
 | UID                              | SOP Class                                |
@@ -458,8 +482,7 @@ Storage Service Class
 
 
 Transfer Syntaxes
------------------
-The supported Transfer Syntaxes are:
+.................
 
 +------------------------+----------------------------------------------------+
 | UID                    | Transfer Syntax                                    |
@@ -468,9 +491,9 @@ The supported Transfer Syntaxes are:
 +------------------------+----------------------------------------------------+
 | 1.2.840.10008.1.2.1    | Explicit VR Little Endian                          |
 +------------------------+----------------------------------------------------+
-| 1.2.840.10008.1.2.2    | Explicit VR Big Endian                             |
-+------------------------+----------------------------------------------------+
 | 1.2.840.10008.1.2.1.99 | Deflated Explicit VR Little Endian                 |
++------------------------+----------------------------------------------------+
+| 1.2.840.10008.1.2.2    | Explicit VR Big Endian                             |
 +------------------------+----------------------------------------------------+
 | 1.2.840.10008.1.2.4.50 | JPEG Baseline (Process 1)                          |
 +------------------------+----------------------------------------------------+

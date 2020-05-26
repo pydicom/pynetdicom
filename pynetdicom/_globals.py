@@ -12,6 +12,7 @@ APPLICATION_CONTEXT_NAME = '1.2.840.10008.3.1.1.1'
 DEFAULT_TRANSFER_SYNTAXES = [
     '1.2.840.10008.1.2',  # Implicit VR Little Endian,
     '1.2.840.10008.1.2.1',  # Explicit VR Little Endian,
+    '1.2.840.10008.1.2.1.99',  # Deflated Explicit VR Little Endian
     '1.2.840.10008.1.2.2',  # Explicit VR Big Endian,
 ]
 ALL_TRANSFER_SYNTAXES = [

@@ -1635,9 +1635,10 @@ class TestNegotiateAsRequestor(object):
 
 def test_default_transfer_syntaxes():
     """Test that the default transfer syntaxes are correct."""
-    assert len(DEFAULT_TRANSFER_SYNTAXES) == 3
+    assert len(DEFAULT_TRANSFER_SYNTAXES) == 4
     assert '1.2.840.10008.1.2' in DEFAULT_TRANSFER_SYNTAXES
     assert '1.2.840.10008.1.2.1' in DEFAULT_TRANSFER_SYNTAXES
+    assert '1.2.840.10008.1.2.1.99' in DEFAULT_TRANSFER_SYNTAXES
     assert '1.2.840.10008.1.2.2' in DEFAULT_TRANSFER_SYNTAXES
 
 

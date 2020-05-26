@@ -7,7 +7,9 @@ from pydicom import dcmread
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 
-from .db import add_instance, search, InvalidIdentifier, Instance
+from pynetdicom.apps.qrscp.db import (
+    add_instance, search, InvalidIdentifier, Instance
+)
 
 
 def handle_echo(event, cli_config, logger):
@@ -79,18 +81,30 @@ def handle_find(event, db_path, cli_config, logger):
             logger.error(str(exc))
             yield 0xA900, None
             return
+        except Exception as exc:
+            session.rollback()
+            logger.error('Exception occurred while querying database')
+            logger.exception(exc)
+            yield 0xC320, None
+            return
         finally:
             session.close()
 
-        # Yield results
-        for match in matches:
-            if event.is_cancelled:
-                yield 0xFE00, None
-                return
+    # Yield results
+    for match in matches:
+        if event.is_cancelled:
+            yield 0xFE00, None
+            return
 
+        try:
             response = match.as_identifier(event.identifier, model)
             response.RetrieveAETitle = event.assoc.ae.ae_title
-            yield 0xFF00, response
+        except Exception as exc:
+            logger.error("Error creating response Identifier")
+            logger.exception(exc)
+            yield 0xC322, None
+
+        yield 0xFF00, response
 
 
 def handle_get(event, db_path, cli_config, logger):
@@ -137,30 +151,44 @@ def handle_get(event, db_path, cli_config, logger):
             logger.error(str(exc))
             yield 0xA900, None
             return
+        except Exception as exc:
+            session.rollback()
+            logger.error('Exception occurred while querying database')
+            logger.exception(exc)
+            yield 0xC420, None
+            return
         finally:
             session.close()
 
-        # Yield number of sub-operations
-        yield len(matches)
+    # Yield number of sub-operations
+    yield len(matches)
 
-        # Yield results
-        for match in matches:
-            if event.is_cancelled:
-                yield 0xFE00, None
-                return
+    # Yield results
+    for match in matches:
+        if event.is_cancelled:
+            yield 0xFE00, None
+            return
 
-            db_dir = os.path.dirname(db_path)
-            ds = dcmread(os.path.join(db_dir, match.filename))
-            yield 0xFF00, ds
+        try:
+            ds = dcmread(fpath)
+        except Exception as exc:
+            logger.error("Error reading file: {}".format(fpath))
+            logger.exception(exc)
+            yield 0xC421, None
+
+        yield 0xFF00, ds
 
 
-def handle_move(event, db_path, cli_config, logger):
+def handle_move(event, destinations, db_path, cli_config, logger):
     """Handler for evt.EVT_C_MOVE.
 
     Parameters
     ----------
     event : pynetdicom.events.Event
         The C-MOVE request :class:`~pynetdicom.events.Event`.
+    destinations : dict
+        A :class:`dict` containing know move destinations as
+        ``{b'AE_TITLE: (addr, port)}``
     db_path : str
         The database path to use with create_engine().
     cli_config : dict
@@ -191,8 +219,10 @@ def handle_move(event, db_path, cli_config, logger):
     )
 
     # Unknown `Move Destination`
-    if event.move_destination not in config.MOVE_DESTINATIONS:
-        logger.info('No matching move destination in config.MOVE_DESTINATIONS')
+    try:
+        addr, port = destinations[event.move_destination]
+    except KeyError:
+        logger.info('No matching move destination in the configuration')
         yield None, None
         return
 
@@ -210,29 +240,41 @@ def handle_move(event, db_path, cli_config, logger):
             logger.error(str(exc))
             yield 0xA900, None
             return
+        except Exception as exc:
+            session.rollback()
+            logger.error('Exception occurred while querying database')
+            logger.exception(exc)
+            yield 0xC520, None
+            return
         finally:
             session.close()
 
-        # Yield `Move Destination` IP and port, plus required contexts
-        addr, port = config.MOVE_DESTINATIONS[event.move_destination]
-        # We should be able to reduce the number of contexts by using the
-        # implicit context conversion between:
-        #   implicit VR <-> explicit VR <-> deflated transfer syntaxes
-        contexts = list(set([ii.context for ii in matches]))
-        yield addr, port, {'contexts' : contexts[:128]}
+    # Yield `Move Destination` IP and port, plus required contexts
+    # We should be able to reduce the number of contexts by using the
+    # implicit context conversion between:
+    #   implicit VR <-> explicit VR <-> deflated transfer syntaxes
+    contexts = list(set([ii.context for ii in matches]))
+    yield addr, port, {'contexts' : contexts[:128]}
 
-        # Yield number of sub-operations
-        yield len(matches)
+    # Yield number of sub-operations
+    yield len(matches)
 
-        # Yield results
-        for match in matches:
-            if event.is_cancelled:
-                yield 0xFE00, None
-                return
+    # Yield results
+    for match in matches:
+        if event.is_cancelled:
+            yield 0xFE00, None
+            return
 
-            db_dir = os.path.dirname(db_path)
-            ds = dcmread(os.path.join(db_dir, match.filename))
-            yield 0xFF00, ds
+        db_dir = os.path.dirname(db_path)
+        fpath = os.path.join(db_dir, match.filename)
+        try:
+            ds = dcmread(fpath)
+        except Exception as exc:
+            logger.error("Error reading file: {}".format(fpath))
+            logger.exception(exc)
+            yield 0xC521, None
+
+        yield 0xFF00, ds
 
 
 def handle_store(event, storage_dir, db_path, cli_config, logger):

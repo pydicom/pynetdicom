@@ -9,10 +9,13 @@ echoscp
 Description
 ===========
 The ``echoscp`` application implements a Service Class Provider (SCP) for the
-*Verification SOP Class* - ``1.2.840.10008.1.1``. It
-establishes an Association with peer Application Entities (AEs) and responds to
-incoming C-ECHO requests. The application can be used to verify basic DICOM
-connectivity.
+:dcm:`Verification<part04/chapter_A.html>` service class. It listens for
+incoming association requests on the specified *port*, and once an association
+is established, responds to incoming C-ECHO requests. The application can be
+used to verify basic DICOM connectivity.
+
+The source code for the application can be found `here
+<https://github.com/pydicom/pynetdicom/tree/master/pynetdicom/apps/echoscp>`_
 
 Usage
 =====
@@ -104,7 +107,14 @@ Preferred Transfer Syntaxes
 
 DICOM Conformance
 =================
-The ``echoscp`` application supports the following SOP Class as an SCP:
+The ``echoscp`` application supports the Verification service as an SCP. The
+following SOP classes are supported:
+
+Verification Service
+--------------------
+
+SOP Classes
+...........
 
 +------------------+------------------------+
 | UID              | SOP Class              |
@@ -112,7 +122,8 @@ The ``echoscp`` application supports the following SOP Class as an SCP:
 |1.2.840.10008.1.1 | Verification SOP Class |
 +------------------+------------------------+
 
-The supported Transfer Syntaxes are:
+Transfer Syntaxes
+.................
 
 +------------------------+----------------------------------------------------+
 | UID                    | Transfer Syntax                                    |
@@ -121,9 +132,9 @@ The supported Transfer Syntaxes are:
 +------------------------+----------------------------------------------------+
 | 1.2.840.10008.1.2.1    | Explicit VR Little Endian                          |
 +------------------------+----------------------------------------------------+
-| 1.2.840.10008.1.2.2    | Explicit VR Big Endian                             |
-+------------------------+----------------------------------------------------+
 | 1.2.840.10008.1.2.1.99 | Deflated Explicit VR Little Endian                 |
++------------------------+----------------------------------------------------+
+| 1.2.840.10008.1.2.2    | Explicit VR Big Endian                             |
 +------------------------+----------------------------------------------------+
 | 1.2.840.10008.1.2.4.50 | JPEG Baseline (Process 1)                          |
 +------------------------+----------------------------------------------------+

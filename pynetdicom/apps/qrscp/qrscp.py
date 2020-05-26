@@ -28,6 +28,7 @@ from pynetdicom.sop_class import (
     StudyRootQueryRetrieveInformationModelMove,
     StudyRootQueryRetrieveInformationModelGet
 )
+from pynetdicom.utils import validate_ae_title
 
 #from pynetdicom.apps.qrscp import config
 from pynetdicom.apps.qrscp.handlers import (
@@ -180,11 +181,12 @@ def clean(db_path, logger):
         try:
             fpaths = [ii.filename for ii in session.query(Instance).all()]
         except Exception as exc:
-            logger.error("Exception cleaning the database")
+            logger.error("Exception raised while querying the database")
             logger.exception(exc)
             session.rollback()
         finally:
             session.close()
+            return False
 
         storage_cleaned = True
         for fpath in fpaths:
@@ -241,6 +243,13 @@ def main(args=None):
     _log_config(config, APP_LOGGER)
     app_config = config['DEFAULT']
 
+    dests = {}
+    for ae_title in config.sections():
+        dest = config[ae_title]
+        # Convert to bytes and validate the AE title
+        ae_title = validate_ae_title(ae_title.encode("ascii"), use_short=True)
+        dests[ae_title] = (dest['address'], dest['port'])
+
     # Use default or specified configuration file
     current_dir = os.path.abspath(os.path.dirname(__file__))
     instance_dir = os.path.join(current_dir, app_config['instance_location'])
@@ -271,7 +280,7 @@ def main(args=None):
 
     ## Add supported presentation contexts
     # Verification SCP
-    ae.add_supported_context(VerificationSOPClass)
+    ae.add_supported_context(VerificationSOPClass, ALL_TRANSFER_SYNTAXES)
 
     # Storage SCP - support all transfer syntaxes
     for cx in AllStoragePresentationContexts:
@@ -293,7 +302,7 @@ def main(args=None):
         (evt.EVT_C_ECHO, handle_echo, [args, APP_LOGGER]),
         (evt.EVT_C_FIND, handle_find, [db_path, args, APP_LOGGER]),
         (evt.EVT_C_GET, handle_get, [db_path, args, APP_LOGGER]),
-        (evt.EVT_C_MOVE, handle_move, [db_path, args, APP_LOGGER]),
+        (evt.EVT_C_MOVE, handle_move, [dests, db_path, args, APP_LOGGER]),
         (
             evt.EVT_C_STORE,
             handle_store,

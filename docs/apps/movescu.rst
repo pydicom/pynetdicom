@@ -10,20 +10,25 @@ movescu
 
 Description
 ===========
-The ``movescu`` application implements a *Service Class User* (SCU) for
-the :dcm:`Query/Retrieve Service Class<part04/chapter_C.html>`. It requests an
-association with a peer Application Entity on IP address ``addr`` and listen
-port ``port`` and once established, sends a C-MOVE query to be matched against
-the SCP's managed SOP Instances. The SCP then responds by sending a copy of the
-matching SOP Instances to the Store SCP specified using the Move AE title.
+The ``movescu`` application implements a Service Class User (SCU) for
+the :dcm:`Query/Retrieve<part04/chapter_C.html>` service class and optionally
+a Service Class Provider (SCP) for the :dcm:`Storage<part04/chapter_B.html>`
+service class. It requests an association with a peer Application Entity and
+once established, sends a C-MOVE query to be matched against
+the Query/Retrieve SCP's managed SOP Instances. The QR SCP then responds by
+sending a copy of the matching SOP Instances to the Storage SCP specified
+using the C-MOVE query's *Move Destination* AE title.
 
+The source code for the application can be found `here
+<https://github.com/pydicom/pynetdicom/tree/master/pynetdicom/apps/movescu>`_
 
 Usage
 =====
 
 The following example shows what happens when it is succesfully run on
 an SCP at IP ``127.0.0.1`` and listen port ``11112`` that supports the
-*Query/Retrieve (Move) Service* with the default Move AE title ``STORESCP``:
+Query/Retrieve service with the default *Move Destination* AE title
+``STORESCP``:
 
 .. code-block:: text
 
@@ -42,11 +47,12 @@ an SCP at IP ``127.0.0.1`` and listen port ``11112`` that supports the
     I: Sub-Operations Remaining: 0, Completed: 1, Failed: 0, Warning: 0
     I: Releasing Association
 
-The Move AE title can be specified using the ``-aem aetitle`` flag.
+The *Move Destination* AE title can be specified using the ``-aem aetitle``
+flag.
 
-You can also use the ``--store`` option to start a Store SCP on port
+You can also use the ``--store`` option to start a Storage SCP on port
 ``11113`` that can be used as the move destination. The AE title and port of
-the Store SCP can be configured using the ``--store-aet`` and
+the Storage SCP can be configured using the ``--store-aet`` and
 ``--store-port`` flags:
 
 .. code-block:: text
@@ -161,27 +167,32 @@ Output Options
 DICOM Conformance
 =================
 
-Move SCU conformance
---------------------
+The ``movescu`` application supports the Query/Retrieve service classes as an
+SCU and the Storage service as an SCP (with the ``--store`` option). The
+following SOP classes are supported:
 
-The ``movescu`` application supports the following SOP Classes as an SCU:
+Query/Retrieve Service
+----------------------
+
+SOP Classes
+...........
 
 +-----------------------------+-----------------------------------------------+
 | UID                         | Transfer Syntax                               |
 +=============================+===============================================+
-| 1.2.840.10008.5.1.4.1.2.1.2 | Patient Root Query Retrieve Information Model |
+| 1.2.840.10008.5.1.4.1.2.1.2 | Patient Root Query/Retrieve Information Model |
 |                             | - MOVE                                        |
 +-----------------------------+-----------------------------------------------+
-| 1.2.840.10008.5.1.4.1.2.2.2 | Study Root Query Retrieve Information Model   |
+| 1.2.840.10008.5.1.4.1.2.2.2 | Study Root Query/Retrieve Information Model   |
 |                             | - MOVE                                        |
 +-----------------------------+-----------------------------------------------+
-| 1.2.840.10008.5.1.4.1.2.3.2 | Patient Study Only Query Retrieve Information |
+| 1.2.840.10008.5.1.4.1.2.3.2 | Patient Study Only Query/Retrieve Information |
 |                             | - MOVE                                        |
 +-----------------------------+-----------------------------------------------+
 
 
-The application will request presentation contexts using these transfer
-syntaxes:
+Transfer Syntaxes
+.................
 
 +------------------------+----------------------------------------------------+
 | UID                    | Transfer Syntax                                    |
@@ -190,14 +201,16 @@ syntaxes:
 +------------------------+----------------------------------------------------+
 | 1.2.840.10008.1.2.1    | Explicit VR Little Endian                          |
 +------------------------+----------------------------------------------------+
+| 1.2.840.10008.1.2.1.99 | Deflated Explicit VR Little Endian                 |
++------------------------+----------------------------------------------------+
 | 1.2.840.10008.1.2.2    | Explicit VR Big Endian                             |
 +------------------------+----------------------------------------------------+
 
-Store SCP conformance
----------------------
+Storage Service
+---------------
 
-With the ``--store`` option, the ``movescu`` application supports the
-following SOP Classes as an SCP:
+SOP Classes
+...........
 
 +----------------------------------+------------------------------------------+
 | UID                              | SOP Class                                |
@@ -522,7 +535,8 @@ following SOP Classes as an SCP:
 +----------------------------------+------------------------------------------+
 
 
-The application will support the following transfer syntaxes:
+Transfer Syntaxes
+.................
 
 +------------------------+----------------------------------------------------+
 | UID                    | Transfer Syntax                                    |
@@ -531,9 +545,9 @@ The application will support the following transfer syntaxes:
 +------------------------+----------------------------------------------------+
 | 1.2.840.10008.1.2.1    | Explicit VR Little Endian                          |
 +------------------------+----------------------------------------------------+
-| 1.2.840.10008.1.2.2    | Explicit VR Big Endian                             |
-+------------------------+----------------------------------------------------+
 | 1.2.840.10008.1.2.1.99 | Deflated Explicit VR Little Endian                 |
++------------------------+----------------------------------------------------+
+| 1.2.840.10008.1.2.2    | Explicit VR Big Endian                             |
 +------------------------+----------------------------------------------------+
 | 1.2.840.10008.1.2.4.50 | JPEG Baseline (Process 1)                          |
 +------------------------+----------------------------------------------------+

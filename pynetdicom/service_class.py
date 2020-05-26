@@ -2,6 +2,7 @@
 
 from io import BytesIO
 import logging
+import sys
 import traceback
 
 from pydicom.dataset import Dataset
@@ -33,19 +34,23 @@ LOGGER = logging.getLogger('pynetdicom.service-c')
 
 
 class attempt():
-    """Context manager for sending replies when an exception is raised."""
-    def __init__(self, status, rsp, dimse, cx_id):
-        # Should be set within the context
-        self.error_msg = ''
+    """Context manager for sending replies when an exception is raised.
+
+    The code within the context is executed, and if an exception is raised
+    then it's logged and a DIMSE message is sent to the peer using the
+    set error message and status code.
+    """
+    def __init__(self, rsp, dimse, cx_id):
+        self._success = True
+        # Should be customised within the context
+        self.error_msg = "Exception occurred"
+        self.error_status = 0xC000
         # Set by init
-        self.status = status
-        self.rsp = rsp
-        self.dimse = dimse
-        self.cx_id = cx_id
+        self._rsp = rsp
+        self._dimse = dimse
+        self._cx_id = cx_id
 
     def __enter__(self):
-        self.success = True
-
         return self
 
     def __exit__(self, exc_type, exc_value, traceback):
@@ -56,12 +61,19 @@ class attempt():
         # Exception raised within the context
         LOGGER.error(self.error_msg)
         LOGGER.exception(exc_value)
-        self.rsp.Status = self.status
-        self.dimse.send_msg(self.rsp, self.cx_id)
-        self.success = False
+        self._rsp.Status = self.error_status
+        self._dimse.send_msg(self._rsp, self._cx_id)
+        self._success = False
 
         # Suppress any exceptions
         return True
+
+    @property
+    def success(self):
+        """Return ``True`` if the code within the context executed without
+        raising an exception, ``False`` otherwise.
+        """
+        return self._success
 
 
 class ServiceClass(object):
@@ -95,7 +107,7 @@ class ServiceClass(object):
 
         See Also
         --------
-        association.Association.send_c_find
+        pynetdicom.association.Association.send_c_find()
 
         Notes
         -----
@@ -174,7 +186,7 @@ class ServiceClass(object):
                 )
                 LOGGER.info('Find SCP Request Identifier:')
                 LOGGER.info('')
-                LOGGER.debug('# DICOM Dataset')
+                LOGGER.info('# DICOM Dataset')
                 for line in pretty_dataset(identifier):
                     LOGGER.info(line)
                 LOGGER.info('')
@@ -182,9 +194,10 @@ class ServiceClass(object):
                 pass
 
         # Try and trigger EVT_C_FIND
-        with attempt(0xC311, rsp, self.dimse, cx_id) as a:
-            a.error_msg = "Exception in handler bound to 'evt.EVT_C_FIND'"
-            handler = evt.trigger(
+        with attempt(rsp, self.dimse, cx_id) as ctx:
+            ctx.error_msg = "Exception in handler bound to 'evt.EVT_C_FIND'"
+            ctx.error_status = 0xC311
+            generator = evt.trigger(
                 self.assoc,
                 evt.EVT_C_FIND,
                 {
@@ -194,27 +207,29 @@ class ServiceClass(object):
                 }
             )
 
-        if not a.success:
-            return
-
-        # Event hander has aborted or released
-        if not self.assoc.is_established:
+        # Exception in context or handler aborted/released
+        if not ctx.success or not self.assoc.is_established:
             return
 
         # No matches and no yields
-        if handler is None:
-            handler = iter([(0x0000, None)])
+        if generator is None:
+            generator = iter([(0x0000, None)])
 
         ii = -1  # So if there are no results, log below doesn't break
         # Iterate through the results
-        for ii, (rsp_status, rsp_identifier) in enumerate(self._wrap_handler(handler)):
+        for ii, (result, exc) in enumerate(self._wrap_handler(generator)):
             # Exception raised by user's generator
-            if isinstance(rsp_status, Exception):
+            if exc:
+                LOGGER.error("Exception in handler bound to 'evt.EVT_C_FIND'")
                 LOGGER.error(
-                    "Exception raised by user's C-FIND request handler",
-                    exc_info=rsp_identifier
+                    "\nTraceback (most recent call last):\n" +
+                    "".join(traceback.format_tb(exc[2])) +
+                    "{}: {}".format(exc[0].__name__, str(exc[1]))
                 )
                 rsp_status = 0xC311
+                dataset = None
+            else:
+                (rsp_status, dataset) = result
 
             # Event hander has aborted or released
             if not self.assoc.is_established:
@@ -231,7 +246,7 @@ class ServiceClass(object):
                 return
 
             if status[0] == STATUS_CANCEL:
-                # If cancel, then rsp_identifier is None
+                # If cancel, then dataset is None
                 LOGGER.info('Received C-CANCEL-FIND RQ from peer')
                 LOGGER.info(
                     'Find SCP Response {}: 0x{:04X} (Cancel)'
@@ -240,7 +255,7 @@ class ServiceClass(object):
                 self.dimse.send_msg(rsp, cx_id)
                 return
             elif status[0] == STATUS_FAILURE:
-                # If failed, then rsp_identifier is None
+                # If failed, then dataset is None
                 LOGGER.info(
                     'Find SCP Response {}: 0x{:04X} (Failure - {})'
                     .format(ii + 1, rsp.Status, status[1])
@@ -249,16 +264,16 @@ class ServiceClass(object):
                 return
             elif status[0] == STATUS_SUCCESS:
                 # User isn't supposed to send these, but handle anyway
-                # If success, then rsp_identifier is None
+                # If success, then dataset is None
                 LOGGER.info(
                     'Find SCP Response {}: 0x0000 (Success)'.format(ii + 1)
                 )
                 self.dimse.send_msg(rsp, cx_id)
                 return
             elif status[0] == STATUS_PENDING:
-                # If pending, the rsp_identifier is the Identifier dataset
+                # If pending, `dataset` is the Identifier
                 bytestream = encode(
-                    rsp_identifier,
+                    dataset,
                     transfer_syntax.is_implicit_VR,
                     transfer_syntax.is_little_endian,
                     transfer_syntax.is_deflated
@@ -267,7 +282,7 @@ class ServiceClass(object):
 
                 if bytestream.getvalue() == b'':
                     LOGGER.error(
-                        "Failed to encode the received Identifier dataset"
+                        "Failed encoding the response 'Identifier' dataset"
                     )
                     # Failure: Unable to Process - Can't decode dataset
                     #   returned by handler
@@ -285,7 +300,7 @@ class ServiceClass(object):
                     LOGGER.debug('Find SCP Response Identifier:')
                     LOGGER.debug('')
                     LOGGER.debug('# DICOM Dataset')
-                    for line in pretty_dataset(rsp_identifier):
+                    for line in pretty_dataset(dataset):
                         LOGGER.debug(line)
                     LOGGER.debug('')
 
@@ -300,9 +315,7 @@ class ServiceClass(object):
 
         # Send final success response
         rsp.Status = 0x0000
-        LOGGER.info(
-            'Find SCP Response {}: 0x0000 (Success)'.format(ii + 2)
-        )
+        LOGGER.info('Find SCP Response {}: 0x0000 (Success)'.format(ii + 2))
         self.dimse.send_msg(rsp, cx_id)
 
     @property
@@ -497,27 +510,19 @@ class ServiceClass(object):
         rsp.AffectedSOPInstanceUID = req.RequestedSOPInstanceUID
         rsp.ActionTypeID = req.ActionTypeID
 
-        try:
+        with attempt(rsp, self.dimse, cx_id) as ctx:
+            ctx.error_msg = (
+                "Exception in the handler bound to 'evt.EVT_N_ACTION"
+            )
+            ctx.error_status = 0x0110
             status, ds = evt.trigger(
                 self.assoc,
                 evt.EVT_N_ACTION,
                 {'request' : req, 'context' : context.as_tuple}
             )
-        except Exception as exc:
-            # Handler aborted or released
-            if not self.assoc.is_established:
-                return
 
-            LOGGER.error(
-                "Exception in the handler bound to 'evt.EVT_N_ACTION"
-            )
-            LOGGER.exception(exc)
-            rsp.Status = 0x0110
-            self.dimse.send_msg(rsp, cx_id)
-            return
-
-        # Handler aborted or released then returned valid values
-        if not self.assoc.is_established:
+        # Exception in context or handler aborted/released
+        if not ctx.success or not self.assoc.is_established:
             return
 
         # Check Status validity
@@ -544,8 +549,7 @@ class ServiceClass(object):
 
             if bytestream is None:
                 LOGGER.error(
-                    "Failed to encode the N-ACTION response's 'Action Reply' "
-                    "dataset"
+                    "Failed encoding the response 'Action Reply' dataset"
                 )
                 # Processing failure
                 rsp.Status = 0x0110
@@ -660,27 +664,19 @@ class ServiceClass(object):
         rsp.AffectedSOPClassUID = req.AffectedSOPClassUID
         rsp.AffectedSOPInstanceUID = req.AffectedSOPInstanceUID
 
-        try:
+        with attempt(rsp, self.dimse, cx_id) as ctx:
+            ctx.error_msg = (
+                "Exception in the handler bound to 'evt.EVT_N_CREATE"
+            )
+            ctx.error_status = 0x0110
             status, ds = evt.trigger(
                 self.assoc,
                 evt.EVT_N_CREATE,
                 {'request' : req, 'context' : context.as_tuple}
             )
-        except Exception as exc:
-            # Handler aborted or released
-            if not self.assoc.is_established:
-                return
 
-            LOGGER.error(
-                "Exception in the handler bound to 'evt.EVT_N_CREATE"
-            )
-            LOGGER.exception(exc)
-            rsp.Status = 0x0110
-            self.dimse.send_msg(rsp, cx_id)
-            return
-
-        # Handler aborted or released then returned valid values
-        if not self.assoc.is_established:
+        # Exception in context or handler aborted/released
+        if not ctx.success or not self.assoc.is_established:
             return
 
         # Check Status validity
@@ -707,8 +703,7 @@ class ServiceClass(object):
 
             if bytestream is None:
                 LOGGER.error(
-                    "Failed to encode the N-CREATE response's 'Attribute "
-                    "List' dataset"
+                    "Failed encoding the response 'Attribute List' dataset"
                 )
                 # Processing failure
                 rsp.Status = 0x0110
@@ -780,29 +775,27 @@ class ServiceClass(object):
           :dcm:`10.3.6<part07/sect_10.3.6.html>`
           and :dcm:`Annex C<part07/chapter_C.html>`
         """
+        cx_id = context.context_id
+
         # Build N-DELETE response primitive
         rsp = N_DELETE()
         rsp.MessageIDBeingRespondedTo = req.MessageID
         rsp.AffectedSOPClassUID = req.RequestedSOPClassUID
         rsp.AffectedSOPInstanceUID = req.RequestedSOPInstanceUID
 
-        try:
+        with attempt(rsp, self.dimse, cx_id) as ctx:
+            ctx.error_msg = (
+                "Exception in the handler bound to 'evt.EVT_N_DELETE"
+            )
+            ctx.error_status = 0x0110
             status = evt.trigger(
                 self.assoc,
                 evt.EVT_N_DELETE,
                 {'request' : req, 'context' : context.as_tuple}
             )
-        except Exception as exc:
-            LOGGER.error(
-                "Exception in the handler bound to 'evt.EVT_N_DELETE"
-            )
-            LOGGER.exception(exc)
-            rsp.Status = 0x0110
-            self.dimse.send_msg(rsp, context.context_id)
-            return
 
-        # Handler aborted or released
-        if not self.assoc.is_established:
+        # Exception in context or handler aborted/released
+        if not ctx.success or not self.assoc.is_established:
             return
 
         # Check Status validity
@@ -810,7 +803,7 @@ class ServiceClass(object):
         rsp = self.validate_status(status, rsp)
 
         # Send response primitive
-        self.dimse.send_msg(rsp, context.context_id)
+        self.dimse.send_msg(rsp, cx_id)
 
     def _n_event_report_scp(self, req, context):
         """Implementation of the DIMSE N-EVENT-REPORT service.
@@ -895,27 +888,19 @@ class ServiceClass(object):
         rsp.AffectedSOPInstanceUID = req.AffectedSOPInstanceUID
         rsp.EventTypeID = req.EventTypeID
 
-        try:
+        with attempt(rsp, self.dimse, cx_id) as ctx:
+            ctx.error_msg = (
+                "Exception in the handler bound to 'evt.EVT_N_EVENT_REPORT"
+            )
+            ctx.error_status = 0x0110
             status, ds = evt.trigger(
                 self.assoc,
                 evt.EVT_N_EVENT_REPORT,
                 {'request' : req, 'context' : context.as_tuple}
             )
-        except Exception as exc:
-            # Handler aborted or released
-            if not self.assoc.is_established:
-                return
 
-            LOGGER.error(
-                "Exception in the handler bound to 'evt.EVT_N_EVENT_REPORT"
-            )
-            LOGGER.exception(exc)
-            rsp.Status = 0x0110
-            self.dimse.send_msg(rsp, cx_id)
-            return
-
-        # Handler aborted or released then returned valid values
-        if not self.assoc.is_established:
+        # Exception in context or handler aborted/released
+        if not ctx.success or not self.assoc.is_established:
             return
 
         # Check Status validity
@@ -942,8 +927,7 @@ class ServiceClass(object):
 
             if bytestream is None:
                 LOGGER.error(
-                    "Failed to encode the N-EVENT-REPORT response's 'Event "
-                    "Reply' dataset"
+                    "Failed encoding the response 'Event Reply' dataset"
                 )
                 # Processing failure
                 rsp.Status = 0x0110
@@ -1054,7 +1038,9 @@ class ServiceClass(object):
         rsp.AffectedSOPClassUID = req.RequestedSOPClassUID
         rsp.AffectedSOPInstanceUID = req.RequestedSOPInstanceUID
 
-        try:
+        with attempt(rsp, self.dimse, cx_id) as ctx:
+            ctx.error_msg = "Exception in the handler bound to 'evt.EVT_N_GET'"
+            ctx.error_status = 0x0110
             status, ds = evt.trigger(
                 self.assoc,
                 evt.EVT_N_GET,
@@ -1063,22 +1049,9 @@ class ServiceClass(object):
                     'context' : context.as_tuple,
                 }
             )
-        except Exception as exc:
-            # Handler aborted or released
-            if not self.assoc.is_established:
-                return
 
-            LOGGER.error(
-                "Exception in the handler bound to 'evt.EVT_N_GET'"
-            )
-            LOGGER.exception(exc)
-            # Processing failure - Error in handler
-            rsp.Status = 0x0110
-            self.dimse.send_msg(rsp, cx_id)
-            return
-
-        # Handler aborted or released then returned valid values
-        if not self.assoc.is_established:
+        # Exception in context or handler aborted/released
+        if not ctx.success or not self.assoc.is_established:
             return
 
         # Validate rsp_status and set rsp.Status accordingly
@@ -1104,8 +1077,7 @@ class ServiceClass(object):
 
             if bytestream is None:
                 LOGGER.error(
-                    "Failed to encode the N-GET response's 'Attribute "
-                    "List' dataset"
+                    "Failed encoding the response 'Attribute List' dataset"
                 )
                 # Processing failure - Failed to encode dataset
                 rsp.Status = 0x0110
@@ -1228,27 +1200,17 @@ class ServiceClass(object):
         rsp.AffectedSOPClassUID = req.RequestedSOPClassUID
         rsp.AffectedSOPInstanceUID = req.RequestedSOPInstanceUID
 
-        try:
+        with attempt(rsp, self.dimse, cx_id) as ctx:
+            ctx.error_msg = "Exception in the handler bound to 'evt.EVT_N_SET'"
+            ctx.error_status = 0x0110
             status, ds = evt.trigger(
                 self.assoc,
                 evt.EVT_N_SET,
                 {'request' : req, 'context' : context.as_tuple}
             )
-        except Exception as exc:
-            # Handler aborted or released
-            if not self.assoc.is_established:
-                return
 
-            LOGGER.error(
-                "Exception in the handler bound to 'evt.EVT_N_SET"
-            )
-            LOGGER.exception(exc)
-            rsp.Status = 0x0110
-            self.dimse.send_msg(rsp, cx_id)
-            return
-
-        # Handler aborted or released then returned valid values
-        if not self.assoc.is_established:
+        # Exception in context or handler aborted/released
+        if not ctx.success or not self.assoc.is_established:
             return
 
         # Validate rsp_status and set rsp.Status accordingly
@@ -1274,8 +1236,7 @@ class ServiceClass(object):
 
             if bytestream is None:
                 LOGGER.error(
-                    "Failed to encode the N-SET response's 'Attribute "
-                    "List' dataset"
+                    "Failed encoding the response 'Attribute List' dataset"
                 )
                 # Processing failure
                 rsp.Status = 0x0110
@@ -1374,9 +1335,9 @@ class ServiceClass(object):
         """
         try:
             for result in handler:
-                yield result
+                yield (result, None)
         except Exception as exc:
-            yield exc, traceback.print_exc()
+            yield (None, sys.exc_info())
 
 
 # Service Class implementations
@@ -1480,19 +1441,17 @@ class StorageServiceClass(ServiceClass):
         rsp.AffectedSOPClassUID = req.AffectedSOPClassUID
 
         # Try and trigger EVT_C_STORE
-        with attempt(0xC211, rsp, self.dimse, context.context_id) as a:
-            a.error_msg = "Exception in handler bound to 'evt.EVT_C_STORE'"
+        with attempt(rsp, self.dimse, context.context_id) as ctx:
+            ctx.error_msg = "Exception in handler bound to 'evt.EVT_C_STORE'"
+            ctx.error_status = 0xC211
             rsp_status = evt.trigger(
                 self.assoc,
                 evt.EVT_C_STORE,
                 {'request' : req, 'context' : context.as_tuple,}
             )
 
-        if not a.success:
-            return
-
-        # Event hander has aborted or released
-        if not self.assoc.is_established:
+        # Exception in context or handler aborted/released
+        if not ctx.success or not self.assoc.is_established:
             return
 
         # Validate rsp_status and set rsp.Status accordingly
@@ -1594,7 +1553,7 @@ class QueryRetrieveServiceClass(ServiceClass):
                 )
                 LOGGER.info('Get SCP Request Identifier:')
                 LOGGER.info('')
-                LOGGER.debug('# DICOM Dataset')
+                LOGGER.info('# DICOM Dataset')
                 for line in pretty_dataset(identifier):
                     LOGGER.info(line)
                 LOGGER.info('')
@@ -1603,9 +1562,10 @@ class QueryRetrieveServiceClass(ServiceClass):
                 pass
 
         # Try and trigger EVT_C_GET
-        with attempt(0xC411, rsp, self.dimse, cx_id) as a:
-            a.error_msg = "Exception in handler bound to 'evt.EVT_C_GET'"
-            result = evt.trigger(
+        with attempt(rsp, self.dimse, cx_id) as ctx:
+            ctx.error_msg = "Exception in handler bound to 'evt.EVT_C_GET'"
+            ctx.error_status = 0xC411
+            generator = evt.trigger(
                 self.assoc,
                 evt.EVT_C_GET,
                 {
@@ -1615,23 +1575,20 @@ class QueryRetrieveServiceClass(ServiceClass):
                 }
             )
 
-        if not a.success:
-            return
-
-        # Event hander has aborted or released - before any yields
-        if not self.assoc.is_established:
+        # Exception in context or handler aborted/released - before any yields
+        if not ctx.success or not self.assoc.is_established:
             return
 
         # Try to check number of C-STORE sub-operations yield is OK
-        with attempt(0xC413, rsp, self.dimse, cx_id) as a:
-            a.error_msg = (
+        with attempt(rsp, self.dimse, cx_id) as ctx:
+            ctx.error_msg = (
                 "The C-GET request handler yielded an invalid number of "
                 "sub-operations value"
             )
-            no_suboperations = int(next(result))
+            ctx.error_status = 0xC413
+            no_suboperations = int(next(generator))
 
-        if not a.success:
-            return
+        if not ctx.success: return
 
         if no_suboperations < 1:
             rsp.Status = 0x0000
@@ -1652,15 +1609,22 @@ class QueryRetrieveServiceClass(ServiceClass):
             if hasattr(ds, 'SOPInstanceUID'):
                 failed_instances.append(ds.SOPInstanceUID)
 
+        ii = -1  # So if there are no results, log below doesn't break
         # Iterate through the results
         # C-GET Pending responses are optional!
-        for ii, (rsp_status, dataset) in enumerate(self._wrap_handler(result)):
+        for ii, (result, exc) in enumerate(self._wrap_handler(generator)):
             # Exception raised by user's generator
-            if isinstance(rsp_status, Exception):
+            if exc:
+                LOGGER.error("Exception in handler bound to 'evt.EVT_C_GET'")
                 LOGGER.error(
-                    "Exception raised by user's C-GET request handler",
-                    exc_info=dataset)
+                    "\nTraceback (most recent call last):\n" +
+                    "".join(traceback.format_tb(exc[2])) +
+                    "{}: {}".format(exc[0].__name__, str(exc[1]))
+                )
                 rsp_status = 0xC411
+                dataset = None
+            else:
+                (rsp_status, dataset) = result
 
             # Event hander has aborted or released - after any yields
             if not self.assoc.is_established:
@@ -1881,15 +1845,11 @@ class QueryRetrieveServiceClass(ServiceClass):
         # If not already done, send the final 'Success' or 'Warning' response
         if not store_results[1] and not store_results[2]:
             # Success response - no failures or warnings
-            LOGGER.info(
-                'Get SCP Response {}: 0x0000 (Success)'.format(ii + 2)
-            )
+            LOGGER.info('Get SCP Response {}: 0x0000 (Success)'.format(ii + 2))
             rsp.Status = 0x0000
         else:
             # Warning response - one or more failures or warnings
-            LOGGER.info(
-                'Get SCP Response {}: 0xB000 (Warning)'.format(ii + 2)
-            )
+            LOGGER.info('Get SCP Response {}: 0xB000 (Warning)'.format(ii + 2))
             rsp.Status = 0xB000
             # If Warning response, need to return an Identifier with
             #   (0008,0058) Failed SOP Instance UID List element
@@ -1939,7 +1899,7 @@ class QueryRetrieveServiceClass(ServiceClass):
                 )
                 LOGGER.info('Move SCP Request Identifier:')
                 LOGGER.info('')
-                LOGGER.debug('# DICOM Dataset')
+                LOGGER.info('# DICOM Dataset')
                 for line in pretty_dataset(identifier):
                     LOGGER.info(line)
                 LOGGER.info('')
@@ -1948,9 +1908,10 @@ class QueryRetrieveServiceClass(ServiceClass):
                 pass
 
         # Try and trigger EVT_C_MOVE
-        with attempt(0xC511, rsp, self.dimse, cx_id) as a:
-            a.error_msg = "Exception in handler bound to 'evt.EVT_C_MOVE'"
-            result = evt.trigger(
+        with attempt(rsp, self.dimse, cx_id) as ctx:
+            ctx.error_msg = "Exception in handler bound to 'evt.EVT_C_MOVE'"
+            ctx.error_status = 0xC511
+            generator = evt.trigger(
                 self.assoc,
                 evt.EVT_C_MOVE,
                 {
@@ -1960,31 +1921,31 @@ class QueryRetrieveServiceClass(ServiceClass):
                 }
             )
 
-        if not a.success:
+        # Exception in context or handler aborted/released - before any yields
+        if not ctx.success or not self.assoc.is_established:
             return
 
         # Try and get the first yield
-        with attempt(0xC514, rsp, self.dimse, cx_id) as a:
-            a.error_msg = (
+        with attempt(rsp, self.dimse, cx_id) as ctx:
+            ctx.error_msg = (
                 "The C-MOVE request handler must yield the (address, port) of "
                 "the destination AE, then yield the number of sub-operations, "
                 "then yield (status, dataset) pairs."
             )
-            destination = next(result)
+            ctx.error_status = 0xC514
+            destination = next(generator)
 
-        if not a.success:
-            return
-
-        # Event hander has aborted or released - before any yields
-        if not self.assoc.is_established:
+        # Exception in context or handler aborted/released - first yield
+        if not ctx.success or not self.assoc.is_established:
             return
 
         # Try to check the Move Destination is OK and known
-        with attempt(0xC515, rsp, self.dimse, cx_id) as a:
-            a.error_msg = (
+        with attempt(rsp, self.dimse, cx_id) as ctx:
+            ctx.error_msg = (
                 "The handler bound to 'evt.EVT_C_MOVE' yielded an invalid "
                 "destination AE (addr, port) or (addr, port, kwargs) value"
             )
+            ctx.error_status = 0xC515
             if None in destination[:2]:
                 LOGGER.error(
                     'Unknown Move Destination: {}'.format(req.MoveDestination)
@@ -1994,18 +1955,19 @@ class QueryRetrieveServiceClass(ServiceClass):
                 self.dimse.send_msg(rsp, cx_id)
                 return
 
-        if not a.success:
-            return
+        if not ctx.success: return
 
         # Try to check number of C-STORE sub-operations yield is OK
-        with attempt(0xC513, rsp, self.dimse, cx_id) as a:
-            a.error_msg = (
+        with attempt(rsp, self.dimse, cx_id) as ctx:
+            ctx.error_msg = (
                 "The C-MOVE request handler yielded an invalid number of "
                 "sub-operations value"
             )
-            no_suboperations = int(next(result))
+            ctx.error_status = 0xC513
+            no_suboperations = int(next(generator))
 
-        if not a.success:
+        # Exception in context or handler aborted/released - second yield
+        if not ctx.success or not self.assoc.is_established:
             return
 
         if no_suboperations < 1:
@@ -2018,11 +1980,12 @@ class QueryRetrieveServiceClass(ServiceClass):
             return
 
         # Try to request new association with Move Destination
-        with attempt(0xC515, rsp, self.dimse, cx_id) as a:
-            a.error_msg = (
+        with attempt(rsp, self.dimse, cx_id) as ctx:
+            ctx.error_msg = (
                 "The handler bound to 'evt.EVT_C_MOVE' yielded an invalid "
                 "destination AE (addr, port) or (addr, port, kwargs) value"
             )
+            ctx.error_status = 0xC515
             kwargs = {'ae_title': req.MoveDestination}
             if len(destination) >= 3 and destination[2]:
                 kwargs.update(destination[2])
@@ -2031,8 +1994,7 @@ class QueryRetrieveServiceClass(ServiceClass):
                 destination[0], destination[1], **kwargs
             )
 
-        if not a.success:
-            return
+        if not ctx.success: return
 
         if not store_assoc.is_established:
             # Failed to associate with Move Destination AE
@@ -2054,17 +2016,24 @@ class QueryRetrieveServiceClass(ServiceClass):
             if hasattr(ds, 'SOPInstanceUID'):
                 failed_instances.append(ds.SOPInstanceUID)
 
+        ii = -1  # So if there are no results, log below doesn't break
         # Iterate through the remaining callback (status, dataset) yields
-        for ii, (rsp_status, dataset) in enumerate(self._wrap_handler(result)):
+        # C-MOVE Pending responses are optional!
+        for ii, (result, exc) in enumerate(self._wrap_handler(generator)):
             # Exception raised by handler
-            if isinstance(rsp_status, Exception):
+            if exc:
+                LOGGER.error("Exception in handler bound to 'evt.EVT_C_MOVE'")
                 LOGGER.error(
-                    "Exception raised by handler bound to 'evt.EVT_C_MOVE'",
-                    exc_info=dataset
+                    "\nTraceback (most recent call last):\n" +
+                    "".join(traceback.format_tb(exc[2])) +
+                    "{}: {}".format(exc[0].__name__, str(exc[1]))
                 )
                 rsp_status = 0xC511
+                dataset = None
+            else:
+                (rsp_status, dataset) = result
 
-            # Event hander has aborted or released - during any yields
+            # Event hander has aborted or released - during any status yields
             if not self.assoc.is_established:
                 store_assoc.release()
                 return
@@ -2482,7 +2451,7 @@ class RelevantPatientInformationQueryServiceClass(ServiceClass):
 
             if bytestream.getvalue() == b'':
                 LOGGER.error(
-                    "Failed to encode the received Identifier dataset"
+                    "Failed encoding the response 'Identifier' dataset"
                 )
                 # Failure: Unable to Process - Can't encode dataset
                 #   returned by handler
