@@ -191,6 +191,7 @@ class ServiceClass(object):
                     LOGGER.info(line)
                 LOGGER.info('')
             except Exception:
+                # The user should deal with decoding failures
                 pass
 
         # Try and trigger EVT_C_FIND
@@ -218,6 +219,9 @@ class ServiceClass(object):
         ii = -1  # So if there are no results, log below doesn't break
         # Iterate through the results
         for ii, (result, exc) in enumerate(self._wrap_handler(generator)):
+            # Reset the response Identifier
+            rsp.Identifier = None
+
             # Exception raised by user's generator
             if exc:
                 LOGGER.error("Exception in handler bound to 'evt.EVT_C_FIND'")
@@ -278,9 +282,8 @@ class ServiceClass(object):
                     transfer_syntax.is_little_endian,
                     transfer_syntax.is_deflated
                 )
-                bytestream = BytesIO(bytestream)
 
-                if bytestream.getvalue() == b'':
+                if bytestream == b'':
                     LOGGER.error(
                         "Failed encoding the response 'Identifier' dataset"
                     )
@@ -290,7 +293,7 @@ class ServiceClass(object):
                     self.dimse.send_msg(rsp, cx_id)
                     return
 
-                rsp.Identifier = bytestream
+                rsp.Identifier = BytesIO(bytestream)
 
                 LOGGER.info(
                     'Find SCP Response {}: 0x{:04X} (Pending)'
@@ -305,9 +308,6 @@ class ServiceClass(object):
                     LOGGER.debug('')
 
                 self.dimse.send_msg(rsp, cx_id)
-
-            # Reset the response Identifier
-            rsp.Identifier = None
 
         # Event hander has aborted or released
         if not self.assoc.is_established:
@@ -1479,43 +1479,53 @@ class QueryRetrieveServiceClass(ServiceClass):
         context : presentation.PresentationContext
             The presentation context that the SCP is operating under.
         """
-        if context.abstract_syntax in ['1.2.840.10008.5.1.4.1.2.1.1',
-                                       '1.2.840.10008.5.1.4.1.2.2.1',
-                                       '1.2.840.10008.5.1.4.1.2.3.1',
-                                       '1.2.840.10008.5.1.4.20.1',
-                                       '1.2.840.10008.5.1.4.38.2',
-                                       '1.2.840.10008.5.1.4.39.2',
-                                       '1.2.840.10008.5.1.4.43.2',
-                                       '1.2.840.10008.5.1.4.44.2',
-                                       '1.2.840.10008.5.1.4.45.2',
-                                       '1.2.840.10008.5.1.4.1.1.200.4']:
+        _find_uids = [
+            '1.2.840.10008.5.1.4.1.2.1.1',
+            '1.2.840.10008.5.1.4.1.2.2.1',
+            '1.2.840.10008.5.1.4.1.2.3.1',
+            '1.2.840.10008.5.1.4.20.1',
+            '1.2.840.10008.5.1.4.38.2',
+            '1.2.840.10008.5.1.4.39.2',
+            '1.2.840.10008.5.1.4.43.2',
+            '1.2.840.10008.5.1.4.44.2',
+            '1.2.840.10008.5.1.4.45.2',
+            '1.2.840.10008.5.1.4.1.1.200.4'
+        ]
+        _get_uids = [
+            '1.2.840.10008.5.1.4.1.2.1.3',
+            '1.2.840.10008.5.1.4.1.2.2.3',
+            '1.2.840.10008.5.1.4.1.2.3.3',
+            '1.2.840.10008.5.1.4.1.2.4.3',
+            '1.2.840.10008.5.1.4.1.2.5.3',
+            '1.2.840.10008.5.1.4.20.3',
+            '1.2.840.10008.5.1.4.38.4',
+            '1.2.840.10008.5.1.4.39.4',
+            '1.2.840.10008.5.1.4.43.4',
+            '1.2.840.10008.5.1.4.44.4',
+            '1.2.840.10008.5.1.4.45.4',
+            '1.2.840.10008.5.1.4.1.1.200.6'
+        ]
+        _move_uids = [
+            '1.2.840.10008.5.1.4.1.2.1.2',
+            '1.2.840.10008.5.1.4.1.2.2.2',
+            '1.2.840.10008.5.1.4.1.2.3.2',
+            '1.2.840.10008.5.1.4.1.2.4.2',
+            '1.2.840.10008.5.1.4.20.2',
+            '1.2.840.10008.5.1.4.38.3',
+            '1.2.840.10008.5.1.4.39.3',
+            '1.2.840.10008.5.1.4.43.3',
+            '1.2.840.10008.5.1.4.44.3',
+            '1.2.840.10008.5.1.4.45.3',
+            '1.2.840.10008.5.1.4.1.1.200.5'
+        ]
+
+        if context.abstract_syntax in _find_uids:
             self.statuses = QR_FIND_SERVICE_CLASS_STATUS
             self._c_find_scp(req, context)
-        elif context.abstract_syntax in ['1.2.840.10008.5.1.4.1.2.1.3',
-                                         '1.2.840.10008.5.1.4.1.2.2.3',
-                                         '1.2.840.10008.5.1.4.1.2.3.3',
-                                         '1.2.840.10008.5.1.4.1.2.4.3',
-                                         '1.2.840.10008.5.1.4.1.2.5.3',
-                                         '1.2.840.10008.5.1.4.20.3',
-                                         '1.2.840.10008.5.1.4.38.4',
-                                         '1.2.840.10008.5.1.4.39.4',
-                                         '1.2.840.10008.5.1.4.43.4',
-                                         '1.2.840.10008.5.1.4.44.4',
-                                         '1.2.840.10008.5.1.4.45.4',
-                                         '1.2.840.10008.5.1.4.1.1.200.6']:
+        elif context.abstract_syntax in _get_uids:
             self.statuses = QR_GET_SERVICE_CLASS_STATUS
             self._get_scp(req, context)
-        elif context.abstract_syntax in ['1.2.840.10008.5.1.4.1.2.1.2',
-                                         '1.2.840.10008.5.1.4.1.2.2.2',
-                                         '1.2.840.10008.5.1.4.1.2.3.2',
-                                         '1.2.840.10008.5.1.4.1.2.4.2',
-                                         '1.2.840.10008.5.1.4.20.2',
-                                         '1.2.840.10008.5.1.4.38.3',
-                                         '1.2.840.10008.5.1.4.39.3',
-                                         '1.2.840.10008.5.1.4.43.3',
-                                         '1.2.840.10008.5.1.4.44.3',
-                                         '1.2.840.10008.5.1.4.45.3',
-                                         '1.2.840.10008.5.1.4.1.1.200.5']:
+        elif context.abstract_syntax in _move_uids:
             self.statuses = QR_MOVE_SERVICE_CLASS_STATUS
             self._move_scp(req, context)
         else:
@@ -1613,6 +1623,9 @@ class QueryRetrieveServiceClass(ServiceClass):
         # Iterate through the results
         # C-GET Pending responses are optional!
         for ii, (result, exc) in enumerate(self._wrap_handler(generator)):
+            # Reset the response Identifier
+            rsp.Identifier = None
+
             # Exception raised by user's generator
             if exc:
                 LOGGER.error("Exception in handler bound to 'evt.EVT_C_GET'")
@@ -2020,6 +2033,9 @@ class QueryRetrieveServiceClass(ServiceClass):
         # Iterate through the remaining callback (status, dataset) yields
         # C-MOVE Pending responses are optional!
         for ii, (result, exc) in enumerate(self._wrap_handler(generator)):
+            # Reset the response Identifier
+            rsp.Identifier = None
+
             # Exception raised by handler
             if exc:
                 LOGGER.error("Exception in handler bound to 'evt.EVT_C_MOVE'")

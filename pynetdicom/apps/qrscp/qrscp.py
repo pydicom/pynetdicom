@@ -1,10 +1,5 @@
 #!/usr/bin/env python
-"""A Verification, Storage and Query/Retrieve SCP application.
-
-
-TODO:
-* Add support for custom configuration file with -c option
-"""
+"""A Verification, Storage and Query/Retrieve SCP application."""
 
 import argparse
 from configparser import ConfigParser
@@ -51,7 +46,7 @@ _handlers._send_c_store_rq = _dont_log
 _handlers._recv_c_store_rsp = _dont_log
 
 
-__version__ = '0.0.0alpha1'
+__version__ = '1.0.0'
 
 
 def _log_config(config, logger):

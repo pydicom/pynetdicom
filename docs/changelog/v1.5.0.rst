@@ -53,11 +53,14 @@ Enhancements
   contains all of the Storage Service Class' SOP Class UIDs rather than just
   the first 128 as in
   :attr:`~pynetdicom.presentation.StoragePresentationContexts`.
-* Overhaul of :doc:`echoscp <../apps/echoscp>`,
-  :doc:`echoscu <../apps/echoscu>`, :doc:`storescp <../apps/storescp>` and
-  :doc:`storescu <../apps/storescu>` apps
-* Added non-toy implementations for :doc:`findscu <../apps/findscu>`,
-  :doc:`getscu <../apps/getscu>` and :doc:`movescu <../apps/movescu>` apps
+* Updates and additions to the applications:
+
+  * Overhaul of :doc:`echoscp <../apps/echoscp>`,
+    :doc:`echoscu <../apps/echoscu>`, :doc:`storescp <../apps/storescp>` and
+    :doc:`storescu <../apps/storescu>` apps
+  * Added non-toy implementations for :doc:`findscu <../apps/findscu>`,
+    :doc:`getscu <../apps/getscu>` and :doc:`movescu <../apps/movescu>` apps
+  * Added :doc:`qrscp <../apps/qrscp>` app
 * Apps can now be invoked from the command line with
   ``python -m pynetdicom [appname] [options]``, e.g. ``python -m pynetdicom
   echoscu 127.0.0.1 11112 -d``
@@ -76,8 +79,8 @@ Enhancements
   :class:`~pynetdicom.association.Association` objects (:issue:`455`)
 * Prefer an exact match when selecting a valid presentation context over
   a convertible one (:issue:`472`)
-* Added configuration options :attr:`_config.LOG_RESPONSE_IDENTIFIERS
-  <pynetdicom._config.LOG_RESPONSE_IDENTIFIERS>` and
+* Added configuration options :attr:`_config.LOG_REQUEST_IDENTIFIERS
+  <pynetdicom._config.LOG_REQUEST_IDENTIFIERS>` and
   :attr:`_config.LOG_RESPONSE_IDENTIFIERS
   <pynetdicom._config.LOG_RESPONSE_IDENTIFIERS>` for controlling whether or
   not the contents of C-FIND, C-GET and C-MOVE request and response
@@ -122,6 +125,8 @@ Changes
   :func:`~pynetdicom.dsutils.decode`
 * :func:`~pynetdicom.dsutils.encode_element` is deprecated and will be removed
   in version 2.0
+* *Deflated Explicit VR Little Endian* added to
+  :attr:`~pynetdicom.DEFAULT_TRANSFER_SYNTAXES`
 
 
 Known Issues

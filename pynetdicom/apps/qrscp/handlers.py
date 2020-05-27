@@ -169,6 +169,8 @@ def handle_get(event, db_path, cli_config, logger):
             yield 0xFE00, None
             return
 
+        db_dir = os.path.dirname(db_path)
+        fpath = os.path.join(db_dir, match.filename)
         try:
             ds = dcmread(fpath)
         except Exception as exc:
@@ -335,16 +337,11 @@ def handle_store(event, storage_dir, db_path, cli_config, logger):
 
     try:
         ds.save_as(fpath, write_like_original=False)
-    except IOError as exc:
-        logger.error('Failed writing instance to storage directory')
-        logger.exception(exc)
-        # Failed - Out of Resources - IOError
-        return 0xA700
     except Exception as exc:
         logger.error('Failed writing instance to storage directory')
         logger.exception(exc)
-        # Failed - Out of Resources - Miscellaneous error
-        return 0xA701
+        # Failed - Out of Resources
+        return 0xA700
 
     logger.info("Instance written to storage directory")
 

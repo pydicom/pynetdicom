@@ -1,4 +1,4 @@
-"""
+"""Database interface for the qrscp application.
 
 Unique Keys
 -----------
@@ -46,7 +46,7 @@ from pynetdicom.sop_class import(
 class InvalidIdentifier(Exception):
     pass
 
-# C.2.2.2: The total length of the attribute may be larger given in Part 5
+# C.2.2.2: The total length of the attribute may be larger than given in Part 5
 # C.2.2.2: The VM may be larger than the VM from Part 6, depending
 #   on the matching type
 
@@ -163,7 +163,7 @@ def add_instance(ds, session, fpath=None):
 
     # Unique or Required attributes
     required = [
-        # (Instance() attribute, DICOM keyword)
+        # (Instance attribute, DICOM keyword, max length, req'd)
         ('patient_id', 'PatientID', 16, True),
         ('patient_name', 'PatientName', 64, False),
         ('study_instance_uid', 'StudyInstanceUID', 64, True),
@@ -232,8 +232,8 @@ def build_query(identifier, session, query=None):
         The request's *Identifier* dataset containing the query attributes.
     session : sqlalchemy.orm.session.Session
         The session we are using to query the database.
-    query : sqlalchemy.orm.query.Query or None
-        If ``None`` then start a new query, otherwise extend the existing
+    query : sqlalchemy.orm.query.Query, optional
+        If not used then start a new query, otherwise extend the existing
         `query`.
 
     Returns
@@ -391,15 +391,15 @@ def connect(db_location, echo=False):
 
 
 def remove_instance(instance_uid, session):
-    """Return a SOP Instance from the database.
+    """Remove a SOP Instance from the database.
 
     Parameters
     ----------
     instance_uid : pydicom.uid.UID
-        The () *SOP Instance UID* of the SOP Instance to be removed from the
-        database.
+        The (0008,0018) *SOP Instance UID* of the SOP Instance to be removed
+        from the database.
     session : sqlalchemy.orm.session.Session
-        The session we are using to query the database.
+        The session to use when querying the database for the instance.
     """
     matches = session.query(Instance).filter(
         Instance.sop_instance_uid == instance_uid
