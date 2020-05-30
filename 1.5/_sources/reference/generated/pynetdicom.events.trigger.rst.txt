@@ -1,0 +1,6 @@
+pynetdicom.events.trigger
+=========================
+
+.. currentmodule:: pynetdicom.events
+
+.. autofunction:: trigger

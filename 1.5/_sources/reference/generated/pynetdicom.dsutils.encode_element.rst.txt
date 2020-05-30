@@ -1,0 +1,6 @@
+pynetdicom.dsutils.encode\_element
+==================================
+
+.. currentmodule:: pynetdicom.dsutils
+
+.. autofunction:: encode_element

@@ -1,0 +1,6 @@
+pynetdicom.presentation.build\_role
+===================================
+
+.. currentmodule:: pynetdicom.presentation
+
+.. autofunction:: build_role

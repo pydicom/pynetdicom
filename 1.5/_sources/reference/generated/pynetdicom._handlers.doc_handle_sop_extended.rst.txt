@@ -1,0 +1,6 @@
+pynetdicom.\_handlers.doc\_handle\_sop\_extended
+================================================
+
+.. currentmodule:: pynetdicom._handlers
+
+.. autofunction:: doc_handle_sop_extended

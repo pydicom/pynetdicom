@@ -1,0 +1,6 @@
+pynetdicom.sop\_class.SecondaryCaptureImageStorage
+==================================================
+
+.. currentmodule:: pynetdicom.sop_class
+
+.. autodata:: SecondaryCaptureImageStorage

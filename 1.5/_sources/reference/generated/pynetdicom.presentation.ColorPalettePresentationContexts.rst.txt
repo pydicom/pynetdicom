@@ -1,0 +1,6 @@
+pynetdicom.presentation.ColorPalettePresentationContexts
+========================================================
+
+.. currentmodule:: pynetdicom.presentation
+
+.. autodata:: ColorPalettePresentationContexts

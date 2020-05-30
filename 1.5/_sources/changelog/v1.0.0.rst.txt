@@ -1,0 +1,105 @@
+.. _v1.0.0:
+
+1.0.0
+=====
+
+Fixes
+.....
+
+* Fixed upstream pydicom changes to AE elements breaking logging
+  (:issue:`195`)
+* Fixed typos in SOP class names, fix bad UID
+* Fixed SCP/SCU Role Negotiation requiring both SCP and SCU role values to be
+  set (as association requestor)
+* Starting with v1.0.0, versioning should be consistent
+
+
+Changes
+.......
+
+* ``applicationentity`` module renamed ``ae``
+* ``ApplicationEntity`` interface updated
+
+  - Removed the following: ``AE.scu_supported_sop``, ``AE.scp_supported_sop``,
+    ``AE.transfer_syntax``, ``AE.presentation_contexts_scu``,
+    ``AE.presentation_contexts_scp``.
+  - ``scu_sop_class``, ``scp_sop_class``, ``transfer_syntax`` and ``bind_addr``
+    arguments removed from ``AE`` initialisation.
+  - Added ``AE.bind_addr`` attribute to allow the user to specify the network
+    adapter.
+  - Added ``AE.add_supported_context()``, ``AE.supported_contexts``,
+    ``AE.remove_supported_context()`` for adding and removing the presentation
+    contexts supported as an SCP.
+  - Added ``AE.add_requested_context()``, ``AE.requested_contexts``,
+    ``AE.remove_requested_context()`` for adding and removing the presentation
+    contexts requested as an SCU.
+* Removed ``VerificationSOPClass``, ``StorageSOPClassList`` and
+  ``QueryRetrieveSOPClassList``.
+* Added ``VerificationPresentationContexts``, ``StoragePresentationContexts``,
+  ``QueryRetrievePresentationContexts`` and
+  ``BasicWorklistManagmentPresentationContexts`` to replace them
+* Added ``service_class`` module and moved the service class implementations
+  from ``sop_class`` to ``service_class``.
+* The three Query/Retrieve service class implementations (Find, Get, Move) have
+  been consolidated into one.
+* ``BasicWorklistManagementServiceClass`` reimplemented separately from QR.
+* ``SOPClass`` class added to ``sop_class`` module and all SOP Class objects
+  now inherit from it rather than the corresponding service class.
+* ``utils.PresentationContextManager`` removed
+* ``MaximumLengthNegotiation`` changed to ``MaximumLengthNotification``
+* ``ImplementationClassUIDNegotiation`` changed to ``ImplementationClassUIDNotification``
+* ``ImplementationVersionNameNegotiation`` changed to ``ImplementationVersioNameNotification``
+* Simplified ``service_class.ServiceClass`` interface
+* ``ACSE`` refactored to do more of the association negotiation work and to
+  operate independently of the Association instance.
+
+  - Added ``send_abort``, ``send_ap_abort``, ``send_reject``, ``send_release``
+    ``send_request``, ``send_accept`` methods
+  - Added ``negotiate_association`` method
+  - Added ``release_association`` method
+* Added ``association.ServiceUser`` class
+* ``Association`` refactored to do less association negotiation work and to
+  operate independently of the ACSE instance.
+
+  - Added ``Association.requestor`` and ``Association.acceptor`` attributes
+    which are ``ServiceUser`` instances that track the association requestor
+    and acceptor.
+* Project named changed from pynetdicom3 to pynetdicom
+
+
+Enhancements
+............
+
+* Add ``context`` and ``info`` parameters to on_c_* callbacks (:issue:`45`,
+  :issue:`54`, :issue:`65`, :issue:`106`)
+* Added contribution, issue and PR guides (:issue:`66`)
+* Added PEP8 conformant ``PYNETDICOM_IMPLEMENTATION_VERSION`` and
+  ``PYNETDICOM_IMPLEMENTATION_UID`` variables. The old ones will be removed in
+  v1.0
+* Added ``AE.implementation_version_name`` and ``AE.implementation_class_uid``
+  attributes so user's can specify the values used during association
+  negotiation.
+* Allow per-association presentation context requests (SCU)
+* Allow more than 128 supported presentation contexts (SCP)
+* Documentation added: user guide, examples, API reference (:issue:`1`,
+  :issue:`45`, :issue:`49`, :issue:`50`)
+* Add support for QR Instance and Frame Level Retrieve
+* Add support for QR Composite Instance Root Retrieval
+* Add support for the Relevant Patient Information Query service
+* Add support for the Hanging Protocol QR service
+* Add support for the Substance Administration Query service
+* Add support for the Color Palette QR service
+* Add support for the Implant Template QR service
+* Add support for the Non-Patient Information Storage service
+* Add support for the Defined Procedure Protocol QR service
+* Add support for the Display System Management service
+* Add support for N-GET, N-SET, N-EVENT-REPORT, N-DELETE, N-ACTION, N-CREATE
+  as SCU.
+* Add full support for SCP/SCU Role Selection Negotiation
+* Add support for SOP Class Extended Negotiation
+* Add support for Asynchronous Operations Window Negotiation, however
+  pynetdicom does not support asynchronous operations.
+* Add support for User Identity Negotiation
+* Add support for SOP Class Common Extended Negotiation
+* Non-conformant (null trailing padded) UIDs in A-ASSOCIATE messages are now
+  handled

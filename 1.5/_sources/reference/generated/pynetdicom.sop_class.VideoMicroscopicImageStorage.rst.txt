@@ -1,0 +1,6 @@
+pynetdicom.sop\_class.VideoMicroscopicImageStorage
+==================================================
+
+.. currentmodule:: pynetdicom.sop_class
+
+.. autodata:: VideoMicroscopicImageStorage

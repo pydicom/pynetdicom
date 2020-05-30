@@ -1,0 +1,6 @@
+pynetdicom.sop\_class.SurfaceSegmentationStorage
+================================================
+
+.. currentmodule:: pynetdicom.sop_class
+
+.. autodata:: SurfaceSegmentationStorage

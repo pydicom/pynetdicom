@@ -1,0 +1,6 @@
+pynetdicom.sop\_class.EnhancedXRFImageStorage
+=============================================
+
+.. currentmodule:: pynetdicom.sop_class
+
+.. autodata:: EnhancedXRFImageStorage

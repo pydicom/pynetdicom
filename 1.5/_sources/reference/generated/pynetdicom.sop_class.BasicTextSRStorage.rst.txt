@@ -1,0 +1,6 @@
+pynetdicom.sop\_class.BasicTextSRStorage
+========================================
+
+.. currentmodule:: pynetdicom.sop_class
+
+.. autodata:: BasicTextSRStorage

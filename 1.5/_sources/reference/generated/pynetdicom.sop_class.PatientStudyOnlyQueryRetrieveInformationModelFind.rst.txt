@@ -1,0 +1,6 @@
+pynetdicom.sop\_class.PatientStudyOnlyQueryRetrieveInformationModelFind
+=======================================================================
+
+.. currentmodule:: pynetdicom.sop_class
+
+.. autodata:: PatientStudyOnlyQueryRetrieveInformationModelFind

@@ -1,0 +1,306 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>How to install pynetdicom &mdash; pynetdicom 1.5.0 documentation</title>
+  
+
+  
+  
+    <link rel="shortcut icon" href="../_static/favicon.ico"/>
+  
+  
+  
+
+  
+  <script type="text/javascript" src="../_static/js/modernizr.min.js"></script>
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+        <script src="../_static/jquery.js"></script>
+        <script src="../_static/underscore.js"></script>
+        <script src="../_static/doctools.js"></script>
+        <script src="../_static/language_data.js"></script>
+    
+    <script type="text/javascript" src="../_static/js/theme.js"></script>
+
+    
+
+  
+  <link rel="stylesheet" href="../_static/css/pynetdicom.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/css/pynetdicom.css" type="text/css" />
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Writing your first SCU" href="create_scu.html" />
+    <link rel="prev" title="Tutorials" href="index.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="../index.html" class="icon icon-home"> pynetdicom
+          
+
+          
+            
+            <img src="../_static/pydicom_flat_black.svg" class="logo" alt="Logo"/>
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                1.5.0
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <p class="caption"><span class="caption-text">Documentation</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../user/index.html">User Guide</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="index.html">Tutorials</a><ul class="current">
+<li class="toctree-l2 current"><a class="current reference internal" href="#">How to install pynetdicom</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#install-the-official-release">Install the official release</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#install-using-pip">Install using pip</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#install-using-conda">Install using conda</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#after-installation">After installation</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#install-the-development-version">Install the development version</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="create_scu.html">Writing your first SCU</a></li>
+<li class="toctree-l2"><a class="reference internal" href="create_scp.html">Writing your first SCP</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../service_classes/index.html">Supported Service Classes</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../reference/index.html">API Reference</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Examples</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../examples/index.html">Code Examples</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Additional Information</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../apps/index.html">Applications</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../changelog/index.html">Release Notes</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">pynetdicom</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../index.html">Docs</a> &raquo;</li>
+        
+          <li><a href="index.html">Tutorials</a> &raquo;</li>
+        
+      <li>How to install pynetdicom</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="how-to-install-pynetdicom">
+<h1>How to install pynetdicom<a class="headerlink" href="#how-to-install-pynetdicom" title="Permalink to this headline">¶</a></h1>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>We recommend installing into a
+<a class="reference external" href="https://docs.python.org/3/tutorial/venv.html">virtual environment</a>,
+which is an isolated Python environment that allows you to install
+packages without admin privileges. See the <a class="reference external" href="https://pydicom.github.io/pydicom/stable/tutorials/virtualenvs.html">pydicom virtual environments
+tutorial</a> on
+how to create and manage virtual environments.</p>
+</div>
+<div class="section" id="install-the-official-release">
+<span id="tut-install"></span><h2>Install the official release<a class="headerlink" href="#install-the-official-release" title="Permalink to this headline">¶</a></h2>
+<p><em>pynetdicom</em> requires <a class="reference external" href="https://www.python.org/">Python</a> and <a class="reference external" href="https://pydicom.github.io/pydicom/stable/tutorials/installation.html">pydicom</a>.</p>
+<div class="section" id="install-using-pip">
+<h3>Install using pip<a class="headerlink" href="#install-using-pip" title="Permalink to this headline">¶</a></h3>
+<p><em>pynetdicom</em> is available on <a class="reference external" href="https://pypi.python.org/pypi/pydicom/">PyPi</a>,
+the official third-party Python software repository. The simplest way to
+install (or upgrade) from PyPi is using <a class="reference external" href="https://pip.pypa.io/">pip</a> with the
+command:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>$ pip install -U pynetdicom
+</pre></div>
+</div>
+<p>You may need to use this instead:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>$ python -m pip install -U pynetdicom
+</pre></div>
+</div>
+</div>
+<div class="section" id="install-using-conda">
+<h3>Install using conda<a class="headerlink" href="#install-using-conda" title="Permalink to this headline">¶</a></h3>
+<p><em>pynetdicom</em> is also available for <a class="reference external" href="https://docs.conda.io/">conda</a> on
+<a class="reference external" href="https://anaconda.org/conda-forge/pynetdicom">conda-forge</a>:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>$ conda install -c conda-forge pynetdicom
+</pre></div>
+</div>
+<p>To upgrade the installed version on conda do:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>$ conda update pynetdicom
+</pre></div>
+</div>
+</div>
+<div class="section" id="after-installation">
+<h3>After installation<a class="headerlink" href="#after-installation" title="Permalink to this headline">¶</a></h3>
+<p>Now that <em>pynetdicom</em> is installed you might be interested in the
+<a class="reference internal" href="create_scu.html"><span class="doc">tutorial for new users</span></a>.</p>
+</div>
+</div>
+<div class="section" id="install-the-development-version">
+<span id="tut-install-dev"></span><h2>Install the development version<a class="headerlink" href="#install-the-development-version" title="Permalink to this headline">¶</a></h2>
+<p>To install a snapshot of the latest code (the <code class="docutils literal notranslate"><span class="pre">master</span></code> branch) from
+<a class="reference external" href="https://github.com/pydicom/pynetdicom">GitHub</a>:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>$ pip install git+https://github.com/pydicom/pynetdicom.git
+</pre></div>
+</div>
+<p>The <code class="docutils literal notranslate"><span class="pre">master</span></code> branch is under active development, and while it’s usually
+stable it may have undocumented changes or bugs.</p>
+<p>If you want to keep up-to-date with the latest code, make sure you have
+<a class="reference external" href="https://git-scm.com/">Git</a> installed and then clone the <code class="docutils literal notranslate"><span class="pre">master</span></code>
+branch (this will create a <code class="docutils literal notranslate"><span class="pre">pynetdicom</span></code> directory in your current directory):</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>$ git clone https://github.com/pydicom/pynetdicom.git
+</pre></div>
+</div>
+<p>Then install using pip in editable (<code class="docutils literal notranslate"><span class="pre">-e</span></code>) mode:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>$ pip install -e pynetdicom/
+</pre></div>
+</div>
+<p>When you want to update your copy of the source code, run <code class="docutils literal notranslate"><span class="pre">git</span> <span class="pre">pull</span></code> from
+within the <code class="docutils literal notranslate"><span class="pre">pynetdicom</span></code> directory and Git will download and apply any
+changes.</p>
+</div>
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="create_scu.html" class="btn btn-neutral float-right" title="Writing your first SCU" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
+      
+      
+        <a href="index.html" class="btn btn-neutral float-left" title="Tutorials" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2018-20, pynetdicom contributors
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>

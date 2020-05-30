@@ -1,0 +1,6 @@
+pynetdicom.sop\_class.PseudocolorSoftcopyPresentationStageStorage
+=================================================================
+
+.. currentmodule:: pynetdicom.sop_class
+
+.. autodata:: PseudocolorSoftcopyPresentationStageStorage

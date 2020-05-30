@@ -1,0 +1,6 @@
+pynetdicom.sop\_class.DefinedProcedureProtocolInformationModelFind
+==================================================================
+
+.. currentmodule:: pynetdicom.sop_class
+
+.. autodata:: DefinedProcedureProtocolInformationModelFind

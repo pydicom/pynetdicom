@@ -1,0 +1,6 @@
+pynetdicom.sop\_class.ProtocolApprovalInformationModelMove
+==========================================================
+
+.. currentmodule:: pynetdicom.sop_class
+
+.. autodata:: ProtocolApprovalInformationModelMove

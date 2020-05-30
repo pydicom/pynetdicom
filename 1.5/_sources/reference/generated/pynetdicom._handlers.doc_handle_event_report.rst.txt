@@ -1,0 +1,6 @@
+pynetdicom.\_handlers.doc\_handle\_event\_report
+================================================
+
+.. currentmodule:: pynetdicom._handlers
+
+.. autofunction:: doc_handle_event_report

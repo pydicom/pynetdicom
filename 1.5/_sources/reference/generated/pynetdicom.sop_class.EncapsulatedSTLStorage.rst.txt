@@ -1,0 +1,6 @@
+pynetdicom.sop\_class.EncapsulatedSTLStorage
+============================================
+
+.. currentmodule:: pynetdicom.sop_class
+
+.. autodata:: EncapsulatedSTLStorage

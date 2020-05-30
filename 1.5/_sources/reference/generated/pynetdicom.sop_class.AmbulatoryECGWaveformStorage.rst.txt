@@ -1,0 +1,6 @@
+pynetdicom.sop\_class.AmbulatoryECGWaveformStorage
+==================================================
+
+.. currentmodule:: pynetdicom.sop_class
+
+.. autodata:: AmbulatoryECGWaveformStorage

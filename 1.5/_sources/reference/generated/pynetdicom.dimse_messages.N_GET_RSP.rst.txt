@@ -1,0 +1,26 @@
+pynetdicom.dimse\_messages.N\_GET\_RSP
+======================================
+
+.. currentmodule:: pynetdicom.dimse_messages
+
+.. autoclass:: N_GET_RSP
+
+   
+   .. automethod:: __init__
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+   
+      ~N_GET_RSP.__init__
+      ~N_GET_RSP.decode_msg
+      ~N_GET_RSP.encode_msg
+      ~N_GET_RSP.message_to_primitive
+      ~N_GET_RSP.primitive_to_message
+   
+   
+
+   
+   
+   

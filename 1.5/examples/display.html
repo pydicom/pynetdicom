@@ -1,0 +1,333 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>Display System Management Service Examples &mdash; pynetdicom 1.5.0 documentation</title>
+  
+
+  
+  
+    <link rel="shortcut icon" href="../_static/favicon.ico"/>
+  
+  
+  
+
+  
+  <script type="text/javascript" src="../_static/js/modernizr.min.js"></script>
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+        <script src="../_static/jquery.js"></script>
+        <script src="../_static/underscore.js"></script>
+        <script src="../_static/doctools.js"></script>
+        <script src="../_static/language_data.js"></script>
+    
+    <script type="text/javascript" src="../_static/js/theme.js"></script>
+
+    
+
+  
+  <link rel="stylesheet" href="../_static/css/pynetdicom.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/css/pynetdicom.css" type="text/css" />
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Modality Performed Procedure Step Management Service Examples" href="mpps.html" />
+    <link rel="prev" title="Basic Worklist Management Service Examples" href="basic_worklist.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="../index.html" class="icon icon-home"> pynetdicom
+          
+
+          
+            
+            <img src="../_static/pydicom_flat_black.svg" class="logo" alt="Logo"/>
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                1.5.0
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <p class="caption"><span class="caption-text">Documentation</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../user/index.html">User Guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../tutorials/index.html">Tutorials</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../service_classes/index.html">Supported Service Classes</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../reference/index.html">API Reference</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Examples</span></p>
+<ul class="current">
+<li class="toctree-l1 current"><a class="reference internal" href="index.html">Code Examples</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="basic_worklist.html">Basic Worklist Management Service Examples</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">Display System Management Service Examples</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#display-system-management-scu">Display System Management SCU</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#display-system-management-scp">Display System Management SCP</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="mpps.html">Modality Performed Procedure Step Management Service Examples</a></li>
+<li class="toctree-l2"><a class="reference internal" href="qr_find.html">Query/Retrieve (Find) Service Examples</a></li>
+<li class="toctree-l2"><a class="reference internal" href="qr_get.html">Query/Retrieve (Get) Service Examples</a></li>
+<li class="toctree-l2"><a class="reference internal" href="qr_move.html">Query/Retrieve (Move) Service Examples</a></li>
+<li class="toctree-l2"><a class="reference internal" href="relevant_patient.html">Relevant Patient Information Query Service Examples</a></li>
+<li class="toctree-l2"><a class="reference internal" href="print.html">Print Management Service Examples</a></li>
+<li class="toctree-l2"><a class="reference internal" href="storage.html">Storage Service Examples</a></li>
+<li class="toctree-l2"><a class="reference internal" href="verification.html">Verification Service Examples</a></li>
+</ul>
+</li>
+</ul>
+<p class="caption"><span class="caption-text">Additional Information</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../apps/index.html">Applications</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../changelog/index.html">Release Notes</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">pynetdicom</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../index.html">Docs</a> &raquo;</li>
+        
+          <li><a href="index.html">Code Examples</a> &raquo;</li>
+        
+      <li>Display System Management Service Examples</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="display-system-management-service-examples">
+<h1>Display System Management Service Examples<a class="headerlink" href="#display-system-management-service-examples" title="Permalink to this headline">¶</a></h1>
+<p>The DICOM <a class="reference external" href="http://dicom.nema.org/medical/dicom/current/output/chtml/part04/chapter_EE.html">Display System Management Service</a>
+allows an Application Entity to retrieve Display Subsystem parameters from a
+peer by using the N-GET service. It only has a single
+<a class="reference internal" href="../service_classes/display_system_service_class.html#display-sops"><span class="std std-ref">supported SOP Class</span></a>.</p>
+<div class="section" id="display-system-management-scu">
+<h2>Display System Management SCU<a class="headerlink" href="#display-system-management-scu" title="Permalink to this headline">¶</a></h2>
+<p>Associate with a peer DICOM Application Entity and request the use of the
+Display System Management Service.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">pynetdicom</span> <span class="kn">import</span> <span class="n">AE</span><span class="p">,</span> <span class="n">debug_logger</span>
+<span class="kn">from</span> <span class="nn">pynetdicom.sop_class</span> <span class="kn">import</span> <span class="p">(</span>
+    <span class="n">DisplaySystemSOPClass</span><span class="p">,</span> <span class="n">DisplaySystemSOPInstance</span>
+<span class="p">)</span>
+<span class="kn">from</span> <span class="nn">pynetdicom.status</span> <span class="kn">import</span> <span class="n">code_to_category</span>
+
+<span class="n">debug_logger</span><span class="p">()</span>
+
+<span class="c1"># Initialise the Application Entity</span>
+<span class="n">ae</span> <span class="o">=</span> <span class="n">AE</span><span class="p">()</span>
+
+<span class="c1"># Add a requested presentation context</span>
+<span class="n">ae</span><span class="o">.</span><span class="n">add_requested_context</span><span class="p">(</span><span class="n">DisplaySystemSOPClass</span><span class="p">)</span>
+
+<span class="c1"># Associate with peer AE at IP 127.0.0.1 and port 11112</span>
+<span class="n">assoc</span> <span class="o">=</span> <span class="n">ae</span><span class="o">.</span><span class="n">associate</span><span class="p">(</span><span class="s1">&#39;127.0.0.1&#39;</span><span class="p">,</span> <span class="mi">11112</span><span class="p">)</span>
+
+<span class="k">if</span> <span class="n">assoc</span><span class="o">.</span><span class="n">is_established</span><span class="p">:</span>
+    <span class="c1"># Use the N-GET service to send the request, returns the</span>
+    <span class="c1">#  response status a pydicom Dataset and the AttributeList dataset</span>
+    <span class="n">status</span><span class="p">,</span> <span class="n">attr_list</span> <span class="o">=</span> <span class="n">assoc</span><span class="o">.</span><span class="n">send_n_get</span><span class="p">(</span>
+        <span class="p">[(</span><span class="mh">0x0008</span><span class="p">,</span> <span class="mh">0x0070</span><span class="p">)],</span>
+        <span class="n">DisplaySystemSOPClass</span><span class="p">,</span>
+        <span class="n">DisplaySystemSOPInstance</span>  <span class="c1"># Well-known SOP Instance</span>
+    <span class="p">)</span>
+
+    <span class="c1"># Check the status of the display system request</span>
+    <span class="k">if</span> <span class="n">status</span><span class="p">:</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;N-GET request status: 0x</span><span class="si">{0:04x}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">status</span><span class="o">.</span><span class="n">Status</span><span class="p">))</span>
+
+        <span class="c1"># If the display system request succeeded the status category may</span>
+        <span class="c1"># be either success or warning</span>
+        <span class="n">category</span> <span class="o">=</span> <span class="n">code_to_category</span><span class="p">(</span><span class="n">status</span><span class="o">.</span><span class="n">Status</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">category</span> <span class="ow">in</span> <span class="p">[</span><span class="s1">&#39;Warning&#39;</span><span class="p">,</span> <span class="s1">&#39;Success&#39;</span><span class="p">]:</span>
+            <span class="c1"># `attr_list` is a pydicom Dataset containing attribute values</span>
+            <span class="nb">print</span><span class="p">(</span><span class="n">attr_list</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Connection timed out, was aborted or received invalid response&#39;</span><span class="p">)</span>
+
+    <span class="c1"># Release the association</span>
+    <span class="n">assoc</span><span class="o">.</span><span class="n">release</span><span class="p">()</span>
+<span class="k">else</span><span class="p">:</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Association rejected, aborted or never connected&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="display-system-management-scp">
+<span id="example-nget-scp"></span><h2>Display System Management SCP<a class="headerlink" href="#display-system-management-scp" title="Permalink to this headline">¶</a></h2>
+<p>The following represents a toy implementation of a Display System Management
+SCP, where the SCU has sent a request with an <em>Attribute Identifier List</em>
+containing the single tag (0008,0070).</p>
+<p>Check the
+<a class="reference internal" href="../reference/generated/pynetdicom._handlers.doc_handle_n_get.html#pynetdicom._handlers.doc_handle_n_get" title="pynetdicom._handlers.doc_handle_n_get"><code class="xref py py-attr docutils literal notranslate"><span class="pre">handler</span> <span class="pre">implementation</span> <span class="pre">documentation</span></code></a>
+to see the requirements for the <code class="docutils literal notranslate"><span class="pre">evt.EVT_N_GET</span></code> handler.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">pynetdicom</span> <span class="kn">import</span> <span class="n">AE</span><span class="p">,</span> <span class="n">evt</span>
+<span class="kn">from</span> <span class="nn">pynetdicom.sop_class</span> <span class="kn">import</span> <span class="n">DisplaySystemSOPClass</span>
+
+<span class="kn">from</span> <span class="nn">my_code</span> <span class="kn">import</span> <span class="n">create_attribute_list</span>
+
+<span class="c1"># Implement a handler evt.EVT_N_GET</span>
+<span class="k">def</span> <span class="nf">handle_get</span><span class="p">(</span><span class="n">event</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Handle an N-GET request event.&quot;&quot;&quot;</span>
+    <span class="n">attr</span> <span class="o">=</span> <span class="n">event</span><span class="o">.</span><span class="n">request</span><span class="o">.</span><span class="n">AttributeIdentifierList</span>
+    <span class="c1"># User defined function to generate the required attribute list dataset</span>
+    <span class="c1"># implementation is outside the scope of the current example</span>
+    <span class="c1"># We pretend it returns a pydicom Dataset</span>
+    <span class="n">dataset</span> <span class="o">=</span> <span class="n">create_attribute_list</span><span class="p">(</span><span class="n">attr</span><span class="p">)</span>
+
+    <span class="c1"># Return success status and dataset</span>
+    <span class="k">return</span> <span class="mh">0x0000</span><span class="p">,</span> <span class="n">dataset</span>
+
+<span class="n">handlers</span> <span class="o">=</span> <span class="p">[(</span><span class="n">evt</span><span class="o">.</span><span class="n">EVT_N_GET</span><span class="p">,</span> <span class="n">handle_get</span><span class="p">)]</span>
+
+<span class="c1"># Initialise the Application Entity and specify the listen port</span>
+<span class="n">ae</span> <span class="o">=</span> <span class="n">AE</span><span class="p">()</span>
+
+<span class="c1"># Add the supported presentation context</span>
+<span class="n">ae</span><span class="o">.</span><span class="n">add_supported_context</span><span class="p">(</span><span class="n">DisplaySystemSOPClass</span><span class="p">)</span>
+
+<span class="c1"># Start listening for incoming association requests</span>
+<span class="n">ae</span><span class="o">.</span><span class="n">start_server</span><span class="p">((</span><span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="mi">11112</span><span class="p">),</span> <span class="n">evt_handlers</span><span class="o">=</span><span class="n">handlers</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="mpps.html" class="btn btn-neutral float-right" title="Modality Performed Procedure Step Management Service Examples" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
+      
+      
+        <a href="basic_worklist.html" class="btn btn-neutral float-left" title="Basic Worklist Management Service Examples" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2018-20, pynetdicom contributors
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>

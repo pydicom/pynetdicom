@@ -1,0 +1,6 @@
+pynetdicom.sop\_class.AutorefractionMeasurementsStorage
+=======================================================
+
+.. currentmodule:: pynetdicom.sop_class
+
+.. autodata:: AutorefractionMeasurementsStorage
