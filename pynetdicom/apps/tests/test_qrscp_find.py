@@ -4,6 +4,7 @@ import logging
 import os
 import subprocess
 import sys
+import tempfile
 import time
 
 import pytest
@@ -27,7 +28,6 @@ from pynetdicom.sop_class import (
 APP_DIR = os.path.join(os.path.dirname(__file__), '../')
 APP_FILE = os.path.join(APP_DIR, 'qrscp', 'qrscp.py')
 DATA_DIR = os.path.join(APP_DIR, '../', 'tests', 'dicom_files')
-DATASET_FILE = os.path.join(DATA_DIR, 'CTImageStorage.dcm')
 
 
 def which(program):
@@ -48,23 +48,35 @@ def which(program):
 
 def start_qrscp(args):
     """Start the qrscp.py app and return the process."""
-    pargs = [which('python'), APP_FILE, '11112'] + [*args]
+    pargs = [which('python'), APP_FILE] + [*args]
     return subprocess.Popen(pargs)
 
 
 def start_qrscp_cli(args):
     """Start the qrscp app using CLI and return the process."""
-    pargs = [which('python'), '-m', 'pynetdicom', 'qrscp', '11112'] + [*args]
+    pargs = [which('python'), '-m', 'pynetdicom', 'qrscp'] + [*args]
     return subprocess.Popen(pargs)
 
 
+def _send_datasets():
+    pargs = [
+        which('python'), '-m', 'pynetdicom', 'storescu', 'localhost', '11112',
+        DATA_DIR, '-cx'
+    ]
+    subprocess.Popen(pargs)
+
+
 class FindSCPBase(object):
-    """Tests for echoscp.py"""
+    """Tests for qrscp.py"""
     def setup(self):
         """Run prior to each test"""
         self.ae = None
         self.p = None
         self.func = None
+
+        self.tfile = tempfile.NamedTemporaryFile()
+        self.db_location = self.tfile.name
+        self.instance_location = tempfile.TemporaryDirectory()
 
         self.q_patient = ds = Dataset()
         ds.QueryRetrieveLevel = 'PATIENT'
@@ -99,16 +111,21 @@ class FindSCPBase(object):
 
     def test_pr_level_patient(self):
         """Test PATIENT query level."""
+        self.p = p = self.func([
+            '--database-location', self.db_location,
+            '--instance-location', self.instance_location.name,
+            '-d'
+        ])
+        time.sleep(1)
+        _send_datasets()
+        time.sleep(1)
+
         self.ae = ae = AE()
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
         ae.network_timeout = 5
         model = PatientRootQueryRetrieveInformationModelFind
         ae.add_requested_context(model)
-
-        self.p = p = self.func(['-d'])
-        time.sleep(0.5)
-
         assoc = ae.associate('localhost', 11112)
         assert assoc.is_established
         responses = assoc.send_c_find(self.q_patient, model)
@@ -130,7 +147,7 @@ class FindSCPBase(object):
         p.terminate()
         p.wait()
 
-    def test_pr_level_patient_invalid(self):
+    def test_pr_level_patient_invalid(self, caplog):
         """Test PATIENT query level."""
         self.ae = ae = AE()
         ae.acse_timeout = 5
@@ -141,6 +158,8 @@ class FindSCPBase(object):
 
         self.p = p = self.func(['-d'])
         time.sleep(0.5)
+        _send_datasets()
+        time.sleep(1)
 
         assoc = ae.associate('localhost', 11112)
         assert assoc.is_established
@@ -167,6 +186,8 @@ class FindSCPBase(object):
 
         self.p = p = self.func(['-d'])
         time.sleep(0.5)
+        _send_datasets()
+        time.sleep(1)
 
         assoc = ae.associate('localhost', 11112)
         assert assoc.is_established
@@ -202,6 +223,8 @@ class FindSCPBase(object):
 
         self.p = p = self.func(['-d'])
         time.sleep(0.5)
+        _send_datasets()
+        time.sleep(1)
 
         assoc = ae.associate('localhost', 11112)
         assert assoc.is_established
@@ -236,6 +259,8 @@ class FindSCPBase(object):
 
         self.p = p = self.func(['-d'])
         time.sleep(0.5)
+        _send_datasets()
+        time.sleep(1)
 
         assoc = ae.associate('localhost', 11112)
         assert assoc.is_established
@@ -272,6 +297,8 @@ class FindSCPBase(object):
 
         self.p = p = self.func(['-d'])
         time.sleep(0.5)
+        _send_datasets()
+        time.sleep(1)
 
         assoc = ae.associate('localhost', 11112)
         assert assoc.is_established
@@ -307,6 +334,8 @@ class FindSCPBase(object):
 
         self.p = p = self.func(['-d'])
         time.sleep(0.5)
+        _send_datasets()
+        time.sleep(1)
 
         assoc = ae.associate('localhost', 11112)
         assert assoc.is_established
@@ -344,6 +373,8 @@ class FindSCPBase(object):
 
         self.p = p = self.func(['-d'])
         time.sleep(0.5)
+        _send_datasets()
+        time.sleep(1)
 
         assoc = ae.associate('localhost', 11112)
         assert assoc.is_established
@@ -380,6 +411,8 @@ class FindSCPBase(object):
 
         self.p = p = self.func(['-d'])
         time.sleep(0.5)
+        _send_datasets()
+        time.sleep(1)
 
         assoc = ae.associate('localhost', 11112)
         assert assoc.is_established
@@ -418,6 +451,8 @@ class FindSCPBase(object):
 
         self.p = p = self.func(['-d'])
         time.sleep(0.5)
+        _send_datasets()
+        time.sleep(1)
 
         ds = Dataset()
         ds.QueryRetrieveLevel = 'PATIENT'
@@ -455,6 +490,8 @@ class FindSCPBase(object):
 
         self.p = p = self.func(['-d'])
         time.sleep(0.5)
+        _send_datasets()
+        time.sleep(1)
 
         ds = Dataset()
         ds.QueryRetrieveLevel = 'STUDY'
@@ -483,7 +520,7 @@ class FindSCPBase(object):
 
 
 class TestFindSCP(FindSCPBase):
-    """Tests for echoscp.py"""
+    """Tests for qrscp.py"""
     def setup(self):
         """Run prior to each test"""
         super().setup()
@@ -493,7 +530,7 @@ class TestFindSCP(FindSCPBase):
 
 
 class TestFindSCPCLI(FindSCPBase):
-    """Tests for echoscp using CLI"""
+    """Tests for qrscp using CLI"""
     def setup(self):
         """Run prior to each test"""
         super().setup()

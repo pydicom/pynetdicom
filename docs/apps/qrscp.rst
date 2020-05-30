@@ -80,8 +80,29 @@ General Options
             ``'debug'``], prints logging messages with corresponding level
             or lower
 
+Network Options
+---------------
+``-aet  --ae-title [a]etitle (str)``
+            override the configured local AE title
+``--port [p]ort (int)``
+            override the configured listen port
+``-ba   --bind-address [a]ddress (str)``
+            override the configured bind address
+``-ta   --acse-timeout [s]econds (float)``
+            override the configured timeout for ACSE messages
+``-td   --dimse-timeout [s]econds (float)``
+            override the configured timeout for DIMSE messages
+``-tn   --network-timeout [s]econds (float)``
+            override the configured timeout for the network
+``-pdu  --max-pdu [n]umber of bytes (int)``
+            override the configured maximum receive PDU bytes
+
 Database Options
 ----------------
+``--database-location [f]ile (str)``
+            override the location of the database using file f
+``--instance-location [d]irectory (str)``
+            override the configured instance storage location to directory d
 ``--clean``
             remove all entries from the database and delete the corresponding
             stored instances
@@ -105,6 +126,13 @@ Destinations*:
     port: 11112
     # Our maximum PDU size; 0 for unlimited
     max_pdu: 16382
+    # The ACSE, DIMSE and network timeouts (in seconds)
+    acse_timeout: 30
+    dimse_timeout: 30
+    network_timeout: 30
+    # The address of the network interface to listen on
+    # If unset, listen on all interfaces
+    bind_address:
     # Directory where SOP Instances received from Storage SCUs will be stored
     #   This directory contains the QR service's managed SOP Instances
     instance_location: instances

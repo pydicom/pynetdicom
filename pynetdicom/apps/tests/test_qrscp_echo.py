@@ -4,6 +4,7 @@ import logging
 import os
 import subprocess
 import sys
+import tempfile
 import time
 
 import pytest
@@ -45,13 +46,13 @@ def which(program):
 
 def start_qrscp(args):
     """Start the qrscp.py app and return the process."""
-    pargs = [which('python'), APP_FILE, '11112'] + [*args]
+    pargs = [which('python'), APP_FILE] + [*args]
     return subprocess.Popen(pargs)
 
 
 def start_qrscp_cli(args):
     """Start the qrscp app using CLI and return the process."""
-    pargs = [which('python'), '-m', 'pynetdicom', 'qrscp', '11112'] + [*args]
+    pargs = [which('python'), '-m', 'pynetdicom', 'qrscp'] + [*args]
     return subprocess.Popen(pargs)
 
 
@@ -62,6 +63,10 @@ class EchoSCPBase(object):
         self.ae = None
         self.p = None
         self.func = None
+
+        self.tfile = tempfile.NamedTemporaryFile()
+        self.db_location = 'sqlite:///{}'.format(self.tfile.name)
+        self.instance_location = tempfile.TemporaryDirectory()
 
     def teardown(self):
         """Clear any active threads"""
@@ -74,14 +79,18 @@ class EchoSCPBase(object):
 
     def test_default(self):
         """Test default settings."""
+        print(self.ae)
         self.ae = ae = AE()
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
         ae.network_timeout = 5
         ae.add_requested_context(VerificationSOPClass)
 
-        self.p = p = self.func([])
-        time.sleep(0.5)
+        self.p = p = self.func([
+            '--database-location', self.db_location,
+            '--instance-location', self.instance_location.name
+        ])
+        time.sleep(1)
 
         assoc = ae.associate('localhost', 11112)
         assert assoc.is_established
@@ -99,7 +108,11 @@ class EchoSCPBase(object):
 
     def test_flag_version(self, capfd):
         """Test --version flag."""
-        self.p = p = self.func(['--version'])
+        self.p = p = self.func([
+            '--database-location', self.db_location,
+            '--instance-location', self.instance_location.name,
+            '--version'
+        ])
         p.wait()
         assert p.returncode == 0
 
@@ -114,7 +127,11 @@ class EchoSCPBase(object):
         ae.network_timeout = 5
         ae.add_requested_context(VerificationSOPClass)
 
-        self.p = p = self.func(['-q'])
+        self.p = p = self.func([
+            '--database-location', self.db_location,
+            '--instance-location', self.instance_location.name,
+            '-q'
+        ])
         time.sleep(0.5)
 
         assoc = ae.associate('localhost', 11112)
@@ -139,7 +156,11 @@ class EchoSCPBase(object):
 
         out, err = [], []
 
-        self.p = p = self.func(['-v'])
+        self.p = p = self.func([
+            '--database-location', self.db_location,
+            '--instance-location', self.instance_location.name,
+            '-v'
+        ])
         time.sleep(0.5)
 
         assoc = ae.associate('localhost', 11112)
@@ -164,7 +185,11 @@ class EchoSCPBase(object):
         ae.network_timeout = 5
         ae.add_requested_context(VerificationSOPClass)
 
-        self.p = p = self.func(['-d'])
+        self.p = p = self.func([
+            '--database-location', self.db_location,
+            '--instance-location', self.instance_location.name,
+            '-d'
+        ])
         time.sleep(0.5)
 
         assoc = ae.associate('localhost', 11112)
@@ -183,7 +208,11 @@ class EchoSCPBase(object):
 
     def test_flag_log_collision(self):
         """Test error with -q -v and -d flag."""
-        self.p = p = self.func(['-v', '-d'])
+        self.p = p = self.func([
+            '--database-location', self.db_location,
+            '--instance-location', self.instance_location.name,
+            '-v', '-d'
+        ])
         p.wait()
         assert p.returncode != 0
 
@@ -192,8 +221,8 @@ class TestEchoSCP(EchoSCPBase):
     """Tests for echoscp.py"""
     def setup(self):
         """Run prior to each test"""
-        self.ae = None
-        self.p = None
+        super().setup()
+
         self.func = start_qrscp
 
 
@@ -201,6 +230,6 @@ class TestEchoSCPCLI(EchoSCPBase):
     """Tests for echoscp using CLI"""
     def setup(self):
         """Run prior to each test"""
-        self.ae = None
-        self.p = None
+        super().setup()
+
         self.func = start_qrscp_cli

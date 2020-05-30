@@ -363,8 +363,8 @@ def clear(session):
     session.commit()
 
 
-def connect(db_location, echo=False):
-    """Return a connection to the database for testing purposes.
+def create(db_location, echo=False):
+    """Create a new database at `db_location` if one doesn't already exist.
 
     Parameters
     ----------
@@ -372,22 +372,13 @@ def connect(db_location, echo=False):
         The location of the database.
     echo : bool, optional
         Turn the sqlalchemy logging on (default ``False``).
-
-    Returns
-    -------
-    sqlalchemy.engine.Connection
-        The connection to the database.
-    sqlalchemy.orm.Session
-        The Session configured with the engine.
     """
     engine = create_engine(db_location, echo=echo)
-    Session = sessionmaker(bind=engine)
 
     # Create the tables (won't recreate tables already present)
     Base.metadata.create_all(engine)
-    conn = engine.connect()
 
-    return conn, engine, Session
+    return engine
 
 
 def remove_instance(instance_uid, session):
@@ -449,11 +440,9 @@ def search(model, identifier, session):
 
     if model in _C_GET or model in _C_MOVE:
         # Part 4, C.2.2.1.2: remove required keys from C-GET/C-MOVE
-        keywords = [
-            e.keyword for e in identifier if _ATTRIBUTES[e.keyword][1] == 'R'
-        ]
-        for kw in keywords:
-            delattr(identifier, kw)
+        for kw, value in _ATTRIBUTES.items():
+            if value[1] == 'R' and kw in identifier:
+                delattr(identifier, kw)
 
     return _search_qr(model, identifier, session)
 
@@ -692,7 +681,7 @@ class Image(Base):
 class Instance(Base):
     __tablename__ = 'instance'
 
-    # Relative path from the DB file to the stored SOP Instance
+    # Absolute path to the stored SOP Instance
     filename = Column(String)
     # Transfer Syntax UID of the SOP Instance
     transfer_syntax_uid = Column(String(64))

@@ -1,11 +1,13 @@
 """Unit tests for the QRSCP app's database functions."""
 
 import os
+import tempfile
 
 import pytest
-import pyfakefs
+from sqlalchemy import create_engine
 from sqlalchemy.schema import MetaData
 from sqlalchemy.exc import IntegrityError
+from sqlalchemy.orm import sessionmaker
 
 from pydicom import dcmread
 import pydicom.config
@@ -18,7 +20,6 @@ from pynetdicom.sop_class import (
 )
 
 from pynetdicom.apps.qrscp import db
-import pynetdicom.apps.qrscp.config as config
 
 
 TEST_DIR = os.path.dirname(__file__)
@@ -110,20 +111,11 @@ DATASETS = {
 
 class TestConnect(object):
     """Tests for db.connect()."""
-    def setup(self):
-        """Run prior to each test"""
-        self.orig = config.DATABASE_LOCATION
-        config.DATABASE_LOCATION = TEST_DB
-
-    def teardown(self):
-        """Clear any active threads"""
-        config.DATABASE_LOCATION = self.orig
-
     def test_create_new(self):
         """Test connecting to the instance database if it doesn't exist."""
-        assert not os.path.exists(config.DATABASE_LOCATION)
-        conn, engine, session = db.connect()
-        assert os.path.exists(config.DATABASE_LOCATION)
+        db_file = tempfile.NamedTemporaryFile()
+        db_location = 'sqlite:///{}'.format(db_file.name)
+        engine = db.create(db_location)
 
         # Check exists with tables
         meta = MetaData(bind=engine)
@@ -134,15 +126,13 @@ class TestConnect(object):
         assert 'image' in meta.tables
         assert 'instance' in meta.tables
 
-        os.remove(config.DATABASE_LOCATION)
-        assert not os.path.exists(config.DATABASE_LOCATION)
-
     def test_create_new_existing(self):
         """Test connecting to the instance database if it exists."""
-        conn, engine, session = db.connect()
-        assert os.path.exists(config.DATABASE_LOCATION)
-
-        conn, engine, session = db.connect()
+        db_file = tempfile.NamedTemporaryFile()
+        db_location = 'sqlite:///{}'.format(db_file.name)
+        db.create(db_location)
+        # Test creating if already exists
+        engine = db.create(db_location)
 
         meta = MetaData(bind=engine)
         meta.reflect(bind=engine)
@@ -152,18 +142,15 @@ class TestConnect(object):
         assert 'image' in meta.tables
         assert 'instance' in meta.tables
 
-        os.remove(config.DATABASE_LOCATION)
-        assert not os.path.exists(config.DATABASE_LOCATION)
-
 
 class TestAddInstance(object):
     """Tests for db.add_instance()."""
     def setup(self):
         """Run prior to each test"""
-        self.conn, self.engine, Session = db.connect('sqlite:///:memory:')
+        engine = db.create('sqlite:///:memory:')
+
         pydicom.config.use_none_as_empty_text_VR_value = True
 
-        self.session = Session()
         ds = Dataset()
         ds.PatientID = '1234'
         ds.StudyInstanceUID = '1.2'
@@ -171,12 +158,13 @@ class TestAddInstance(object):
         ds.SOPInstanceUID = '1.2.3.4'
         self.minimal = ds
 
+        self.session = sessionmaker(bind=engine)()
+
     def test_add_instance(self):
         """Test adding to the instance database."""
         fpath = os.path.join(DATA_DIR, 'CTImageStorage.dcm')
         ds = dcmread(fpath)
         db.add_instance(ds, self.session)
-
 
         obj = self.session.query(db.Instance).all()
         assert 1 == len(obj)
@@ -291,13 +279,11 @@ class TestRemoveInstance(object):
     """Tests for db.remove_instance()."""
     def setup(self):
         """Run prior to each test"""
-        self.orig = config.DATABASE_LOCATION
-        config.DATABASE_LOCATION = TEST_DB
+        engine = db.create('sqlite:///:memory:')
 
-        self.conn, self.engine, Session = db.connect('sqlite:///:memory:')
         pydicom.config.use_none_as_empty_text_VR_value = True
 
-        self.session = Session()
+        self.session = sessionmaker(bind=engine)()
         ds = Dataset()
         ds.PatientID = '1234'
         ds.StudyInstanceUID = '1.2'
@@ -338,10 +324,11 @@ class TestClear(object):
     """Tests for db.clear()."""
     def setup(self):
         """Run prior to each test"""
-        self.conn, self.engine, Session = db.connect('sqlite:///:memory:')
+        engine = db.create('sqlite:///:memory:')
+
         pydicom.config.use_none_as_empty_text_VR_value = True
 
-        self.session = Session()
+        self.session = sessionmaker(bind=engine)()
         for fname in DATASETS:
             fpath = os.path.join(DATA_DIR, fname)
             ds = dcmread(fpath)
@@ -359,10 +346,10 @@ class TestSearch(object):
     """Tests for db.search()."""
     def setup(self):
         """Run prior to each test"""
-        self.conn, self.engine, Session = db.connect('sqlite:///:memory:')
+        engine = db.create('sqlite:///:memory:')
         pydicom.config.use_none_as_empty_text_VR_value = True
 
-        self.session = Session()
+        self.session = sessionmaker(bind=engine)()
 
         for fname in DATASETS:
             fpath = os.path.join(DATA_DIR, fname)
@@ -650,10 +637,10 @@ class TestSearchFind(object):
     """Tests for running C-FIND queries against the database."""
     def setup(self):
         """Run prior to each test"""
-        self.conn, self.engine, Session = db.connect('sqlite:///:memory:')
+        engine = db.create('sqlite:///:memory:')
         pydicom.config.use_none_as_empty_text_VR_value = True
 
-        self.session = Session()
+        self.session = sessionmaker(bind=engine)()
         for fname in DATASETS:
             fpath = os.path.join(DATA_DIR, fname)
             ds = dcmread(fpath)
@@ -668,7 +655,7 @@ class TestSearchFind(object):
 
         msg = r"The Identifier contains no keys"
         with pytest.raises(db.InvalidIdentifier, match=msg):
-            db._search_find(model, query, self.session)
+            db._search_qr(model, query, self.session)
 
     def test_patient_minimal(self):
         """Test query at PATIENT level for Patient Root."""
@@ -679,7 +666,7 @@ class TestSearchFind(object):
 
         model = PatientRootQueryRetrieveInformationModelFind
 
-        result = db._search_find(model, query, self.session)
+        result = db._search_qr(model, query, self.session)
         assert 3 == len(result)
 
     def test_check_identifier_patient(self):

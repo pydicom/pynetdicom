@@ -18,7 +18,9 @@ from pynetdicom import (
     AE, evt, debug_logger, DEFAULT_TRANSFER_SYNTAXES,
     AllStoragePresentationContexts, ALL_TRANSFER_SYNTAXES
 )
-from pynetdicom.sop_class import VerificationSOPClass, CTImageStorage
+from pynetdicom.sop_class import (
+    VerificationSOPClass, CTImageStorage, MRImageStorage
+)
 
 
 #debug_logger()
@@ -28,6 +30,9 @@ APP_DIR = os.path.join(os.path.dirname(__file__), '../')
 APP_FILE = os.path.join(APP_DIR, 'storescu', 'storescu.py')
 DATA_DIR = os.path.join(APP_DIR, '../', 'tests', 'dicom_files')
 DATASET_FILE = os.path.join(DATA_DIR, 'CTImageStorage.dcm')
+BE_DATASET_FILE = os.path.join(
+    DATA_DIR, 'MRImageStorage_ExplicitVRBigEndian.dcm'
+)
 LIB_DIR = os.path.join(APP_DIR, '../')
 
 
@@ -462,17 +467,17 @@ class StoreSCUBase(object):
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
         ae.network_timeout = 5
-        ae.add_supported_context(CTImageStorage)
+        ae.add_supported_context(MRImageStorage)
         scp = ae.start_server(('', 11112), block=False, evt_handlers=handlers)
 
-        p = self.func([DATASET_FILE, '-xb'])
+        p = self.func([BE_DATASET_FILE, '-xb'])
         p.wait()
         assert p.returncode == 0
 
         scp.shutdown()
 
         assert events[0].event == evt.EVT_C_STORE
-        assert events[0].dataset.PatientName == 'CompressedSamples^CT1'
+        assert events[0].dataset.PatientName == 'CompressedSamples^MR1'
         assert events[1].event == evt.EVT_RELEASED
         requestor = events[1].assoc.requestor
         cxs = requestor.primitive.presentation_context_definition_list
@@ -594,7 +599,7 @@ class StoreSCUBase(object):
 
         scp.shutdown()
 
-        assert len(events) == 3
+        assert len(events) == 5
 
 
 class TestStoreSCU(StoreSCUBase):

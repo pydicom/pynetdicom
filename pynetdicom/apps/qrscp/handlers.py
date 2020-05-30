@@ -169,10 +169,8 @@ def handle_get(event, db_path, cli_config, logger):
             yield 0xFE00, None
             return
 
-        db_dir = os.path.dirname(db_path)
-        fpath = os.path.join(db_dir, match.filename)
         try:
-            ds = dcmread(fpath)
+            ds = dcmread(match.filename)
         except Exception as exc:
             logger.error("Error reading file: {}".format(fpath))
             logger.exception(exc)
@@ -267,10 +265,8 @@ def handle_move(event, destinations, db_path, cli_config, logger):
             yield 0xFE00, None
             return
 
-        db_dir = os.path.dirname(db_path)
-        fpath = os.path.join(db_dir, match.filename)
         try:
-            ds = dcmread(fpath)
+            ds = dcmread(match.filename)
         except Exception as exc:
             logger.error("Error reading file: {}".format(fpath))
             logger.exception(exc)
@@ -356,7 +352,7 @@ def handle_store(event, storage_dir, db_path, cli_config, logger):
             matches = session.query(Instance).filter(
                 Instance.sop_instance_uid == ds.SOPInstanceUID
             ).all()
-            add_instance(ds, session, os.path.relpath(fpath, db_dir))
+            add_instance(ds, session, os.path.abspath(fpath))
             if not matches:
                 logger.info("Instance added to database")
             else:

@@ -29,6 +29,7 @@ from pynetdicom.utils import validate_ae_title
 from pynetdicom.apps.qrscp.handlers import (
     handle_echo, handle_find, handle_get, handle_move, handle_store
 )
+from pynetdicom.apps.qrscp import db
 
 # Use `None` for empty values
 pydicom.config.use_none_as_empty_text_VR_value = True
@@ -57,11 +58,18 @@ def _log_config(config, logger):
     logger : logging.Logger
         The application's logger.
     """
-    logger.debug('Configuration Settings')
+    logger.debug('Configuration settings')
     app = config['DEFAULT']
     logger.debug(
         '  AE title: {}, Port: {}, Max. PDU: {}'
         .format(app['ae_title'], app['port'], app['max_pdu'])
+    )
+    logger.debug('  Timeouts:')
+    logger.debug(
+        '    ACSE: {}, DIMSE: {}, Network: {}'
+        .format(
+            app['acse_timeout'], app['dimse_timeout'], app['network_timeout']
+        )
     )
     logger.debug('  Storage directory: {}'.format(app['instance_location']))
     logger.debug('  Database location: {}'.format(app['database_location']))
@@ -86,14 +94,10 @@ def _setup_argparser():
         description=(
             "The qrscp application implements a Service Class Provider (SCP) "
             "for the Verification, Storage and Query/Retrieve (QR) Service "
-            "Classes."""
+            "Classes."
         ),
-        usage="qrscp [options] port"
+        usage="qrscp [options]"
     )
-
-    # Parameters
-    req_opts = parser.add_argument_group('Parameters')
-    req_opts.add_argument("port", help="TCP/IP listen port number", type=int)
 
     # General Options
     gen_opts = parser.add_argument_group('General Options')
@@ -134,12 +138,56 @@ def _setup_argparser():
     gen_opts.add_argument(
         '-c', '--config', metavar='[f]ilename',
         help="use configuration file f",
-        type=str,
         default=fpath,
     )
 
-    house_opts = parser.add_argument_group('Housekeeping Options')
-    house_opts.add_argument(
+    net_opts = parser.add_argument_group('Networking Options')
+    net_opts.add_argument(
+        "--port",
+        help="override the configured TCP/IP listen port number",
+    )
+    net_opts.add_argument(
+        "-aet", "--ae-title", metavar='[a]etitle',
+        help="override the configured AE title",
+    )
+    net_opts.add_argument(
+        "-ta", "--acse-timeout", metavar='[s]econds',
+        help="override the configured timeout for ACSE messages",
+    )
+    net_opts.add_argument(
+        "-td", "--dimse-timeout", metavar='[s]econds',
+        help="override the configured timeout for DIMSE messages",
+    )
+    net_opts.add_argument(
+        "-tn", "--network-timeout", metavar='[s]econds',
+        help="override the configured timeout for the network",
+    )
+    net_opts.add_argument(
+        "-pdu", "--max-pdu", metavar='[n]umber of bytes',
+        help="override the configured max receive pdu to n bytes",
+    )
+    net_opts.add_argument(
+        "-ba", "--bind-address", metavar="[a]ddress",
+        help=(
+            "override the configured address of the network interface to "
+            "listen on"
+        ),
+    )
+
+    db_opts = parser.add_argument_group('Database Options')
+    db_opts.add_argument(
+        '--database-location', metavar='[f]ile',
+        help="override the location of the database using file f",
+        type=str,
+    )
+    db_opts.add_argument(
+        "--instance-location", metavar="[d]irectory",
+        help=(
+            "override the configured instance storage location to directory d"
+        ),
+        type=str
+    )
+    db_opts.add_argument(
         '--clean',
         help=(
             "remove all entries from the database and delete the "
@@ -229,10 +277,30 @@ def main(args=None):
     APP_LOGGER.debug('qrscp.py v{0!s}'.format(__version__))
     APP_LOGGER.debug('')
 
-    APP_LOGGER.debug('Using configuration from {}'.format(args.config))
+    APP_LOGGER.debug('Using configuration from:'.format(args.config))
+    APP_LOGGER.debug('  {}'.format(args.config))
     APP_LOGGER.debug('')
     config = ConfigParser()
     config.read(args.config)
+
+    if args.ae_title:
+        config['DEFAULT']['ae_title'] = args.ae_title
+    if args.port:
+        config['DEFAULT']['port'] = args.port
+    if args.max_pdu:
+        config['DEFAULT']['max_pdu'] = args.max_pdu
+    if args.acse_timeout:
+        config['DEFAULT']['acse_timeout'] = args.acse_timeout
+    if args.dimse_timeout:
+        config['DEFAULT']['dimse_timeout'] = args.dimse_timeout
+    if args.network_timeout:
+        config['DEFAULT']['network_timeout'] = args.network_timeout
+    if args.bind_address:
+        config['DEFAULT']['bind_address'] = args.bind_address
+    if args.database_location:
+        config['DEFAULT']['database_location'] = args.database_location
+    if args.instance_location:
+        config['DEFAULT']['instance_location'] = args.instance_location
 
     # Log configuration settings
     _log_config(config, APP_LOGGER)
@@ -243,7 +311,7 @@ def main(args=None):
         dest = config[ae_title]
         # Convert to bytes and validate the AE title
         ae_title = validate_ae_title(ae_title.encode("ascii"), use_short=True)
-        dests[ae_title] = (dest['address'], dest['port'])
+        dests[ae_title] = (dest['address'], dest.getint('port'))
 
     # Use default or specified configuration file
     current_dir = os.path.abspath(os.path.dirname(__file__))
@@ -252,6 +320,7 @@ def main(args=None):
 
     # The path to the database
     db_path = 'sqlite:///{}'.format(db_path)
+    db.create(db_path)
 
     # Clean up the database and storage directory
     if args.clean:
@@ -272,6 +341,9 @@ def main(args=None):
 
     ae = AE(app_config['ae_title'])
     ae.maximum_pdu_size = app_config.getint('max_pdu')
+    ae.acse_timeout = app_config.getfloat('acse_timeout')
+    ae.dimse_timeout = app_config.getfloat('dimse_timeout')
+    ae.network_timeout = app_config.getfloat('network_timeout')
 
     ## Add supported presentation contexts
     # Verification SCP
@@ -306,7 +378,10 @@ def main(args=None):
     ]
 
     # Listen for incoming association requests
-    ae.start_server(('', app_config.getint('port')), evt_handlers=handlers)
+    ae.start_server(
+        (app_config['bind_address'], app_config.getint('port')),
+        evt_handlers=handlers
+    )
 
 
 if __name__ == "__main__":

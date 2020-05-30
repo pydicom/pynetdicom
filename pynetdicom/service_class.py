@@ -282,8 +282,9 @@ class ServiceClass(object):
                     transfer_syntax.is_little_endian,
                     transfer_syntax.is_deflated
                 )
+                bytestream = BytesIO(bytestream)
 
-                if bytestream == b'':
+                if bytestream.getvalue() == b'':
                     LOGGER.error(
                         "Failed encoding the response 'Identifier' dataset"
                     )
@@ -293,7 +294,7 @@ class ServiceClass(object):
                     self.dimse.send_msg(rsp, cx_id)
                     return
 
-                rsp.Identifier = BytesIO(bytestream)
+                rsp.Identifier = bytestream
 
                 LOGGER.info(
                     'Find SCP Response {}: 0x{:04X} (Pending)'

@@ -2000,12 +2000,13 @@ class TestAssociationSendCFind(object):
             ('', 11112), block=False, evt_handlers=[(evt.EVT_C_FIND, handle)]
         )
 
-        ae.add_requested_context(PatientRootQueryRetrieveInformationModelFind,
-                                 ExplicitVRLittleEndian)
+        model = PatientRootQueryRetrieveInformationModelFind
+        ae.add_requested_context(model, ExplicitVRLittleEndian)
         assoc = ae.associate('localhost', 11112)
         assert assoc.is_established
-        for (status, ds) in assoc.send_c_find(self.ds, PatientRootQueryRetrieveInformationModelFind):
+        for (status, ds) in assoc.send_c_find(self.ds, model):
             assert status.Status in range(0xC000, 0xD000)
+
         assoc.release()
         assert assoc.is_released
 
