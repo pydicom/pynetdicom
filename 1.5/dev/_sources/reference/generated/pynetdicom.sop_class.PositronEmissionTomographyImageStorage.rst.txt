@@ -1,0 +1,6 @@
+pynetdicom.sop\_class.PositronEmissionTomographyImageStorage
+============================================================
+
+.. currentmodule:: pynetdicom.sop_class
+
+.. autodata:: PositronEmissionTomographyImageStorage

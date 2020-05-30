@@ -1,0 +1,6 @@
+pynetdicom.sop\_class.DigitalXRayImagePresentationStorage
+=========================================================
+
+.. currentmodule:: pynetdicom.sop_class
+
+.. autodata:: DigitalXRayImagePresentationStorage

@@ -1,0 +1,6 @@
+pynetdicom.sop\_class.RTBeamsDeliveryInstructionStorage
+=======================================================
+
+.. currentmodule:: pynetdicom.sop_class
+
+.. autodata:: RTBeamsDeliveryInstructionStorage

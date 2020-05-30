@@ -1,0 +1,533 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>pynetdicom.acse.ACSE &mdash; pynetdicom 1.5.0 documentation</title>
+  
+
+  
+  
+    <link rel="shortcut icon" href="../../_static/favicon.ico"/>
+  
+  
+  
+
+  
+  <script type="text/javascript" src="../../_static/js/modernizr.min.js"></script>
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../../" src="../../_static/documentation_options.js"></script>
+        <script src="../../_static/jquery.js"></script>
+        <script src="../../_static/underscore.js"></script>
+        <script src="../../_static/doctools.js"></script>
+        <script src="../../_static/language_data.js"></script>
+    
+    <script type="text/javascript" src="../../_static/js/theme.js"></script>
+
+    
+
+  
+  <link rel="stylesheet" href="../../_static/css/pynetdicom.css" type="text/css" />
+  <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="../../_static/css/pynetdicom.css" type="text/css" />
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" />
+    <link rel="next" title="Application Entity (pynetdicom.ae)" href="../ae.html" />
+    <link rel="prev" title="ACSE Service Provider (pynetdicom.acse)" href="../acse.provider.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="../../index.html" class="icon icon-home"> pynetdicom
+          
+
+          
+            
+            <img src="../../_static/pydicom_flat_black.svg" class="logo" alt="Logo"/>
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                1.5.0
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <p class="caption"><span class="caption-text">Documentation</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../../user/index.html">User Guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../tutorials/index.html">Tutorials</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../service_classes/index.html">Supported Service Classes</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="../index.html">API Reference</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="../init.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">pynetdicom</span></code></a></li>
+<li class="toctree-l2 current"><a class="reference internal" href="../acse.html">ACSE Service (<code class="xref py py-mod docutils literal notranslate"><span class="pre">pynetdicom.acse</span></code>)</a><ul class="current">
+<li class="toctree-l3 current"><a class="reference internal" href="../acse.provider.html">ACSE Service Provider (<code class="xref py py-mod docutils literal notranslate"><span class="pre">pynetdicom.acse</span></code>)</a><ul class="current">
+<li class="toctree-l4 current"><a class="current reference internal" href="#">pynetdicom.acse.ACSE</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../ae.html">Application Entity (<code class="xref py py-mod docutils literal notranslate"><span class="pre">pynetdicom.ae</span></code>)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../association.html">Association (<code class="xref py py-mod docutils literal notranslate"><span class="pre">pynetdicom.association</span></code>)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../config.html">Configuration Options (<code class="xref py py-mod docutils literal notranslate"><span class="pre">pynetdicom._config</span></code>)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../dimse.html">DIMSE Service</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../dsutils.html">Dataset Utilities (<code class="xref py py-mod docutils literal notranslate"><span class="pre">pynetdicom.dsutils</span></code>)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../dul.html">DICOM Upper Layer</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../events.html">Events and Handlers (<code class="xref py py-mod docutils literal notranslate"><span class="pre">pynetdicom.events</span></code>)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../fsm.html">State Machine (<code class="xref py py-mod docutils literal notranslate"><span class="pre">pynetdicom.fsm</span></code>)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../presentation.html">Presentation Service (<code class="xref py py-mod docutils literal notranslate"><span class="pre">pynetdicom.presentation</span></code>)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../service_classes.html">Service Classes (<code class="xref py py-mod docutils literal notranslate"><span class="pre">pynetdicom.service_class</span></code>)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../sop_classes.html">SOP Classes (<code class="xref py py-mod docutils literal notranslate"><span class="pre">pynetdicom.sop_class</span></code>)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../status.html">Statuses (<code class="xref py py-mod docutils literal notranslate"><span class="pre">pynetdicom.status</span></code>)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../timer.html">Timer (<code class="xref py py-mod docutils literal notranslate"><span class="pre">pynetdicom.timer</span></code>)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../transport.html">Transport Service (<code class="xref py py-mod docutils literal notranslate"><span class="pre">pynetdicom.transport</span></code>)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../utils.html">Utilities (<code class="xref py py-mod docutils literal notranslate"><span class="pre">pynetdicom.utils</span></code>)</a></li>
+</ul>
+</li>
+</ul>
+<p class="caption"><span class="caption-text">Examples</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../examples/index.html">Code Examples</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Additional Information</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../apps/index.html">Applications</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../changelog/index.html">Release Notes</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../index.html">pynetdicom</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../../index.html">Docs</a> &raquo;</li>
+        
+          <li><a href="../index.html">API Reference</a> &raquo;</li>
+        
+          <li><a href="../acse.html">ACSE Service (<code class="xref py py-mod docutils literal notranslate"><span class="pre">pynetdicom.acse</span></code>)</a> &raquo;</li>
+        
+          <li><a href="../acse.provider.html">ACSE Service Provider (<code class="xref py py-mod docutils literal notranslate"><span class="pre">pynetdicom.acse</span></code>)</a> &raquo;</li>
+        
+      <li>pynetdicom.acse.ACSE</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="pynetdicom-acse-acse">
+<h1>pynetdicom.acse.ACSE<a class="headerlink" href="#pynetdicom-acse-acse" title="Permalink to this headline">¶</a></h1>
+<dl class="py class">
+<dt id="pynetdicom.acse.ACSE">
+<em class="property">class </em><code class="sig-prename descclassname">pynetdicom.acse.</code><code class="sig-name descname">ACSE</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">assoc</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/547ff8c5/pynetdicom/acse.py#L22"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom.acse.ACSE" title="Permalink to this definition">¶</a></dt>
+<dd><p>The Association Control Service Element (ACSE) service provider.</p>
+<p>The ACSE protocol handles association negotiation and establishment, and
+normal and abnormal release of an association.</p>
+<dl class="py method">
+<dt id="pynetdicom.acse.ACSE.__init__">
+<code class="sig-name descname">__init__</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">assoc</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/547ff8c5/pynetdicom/acse.py#L28"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom.acse.ACSE.__init__" title="Permalink to this definition">¶</a></dt>
+<dd><p>Create the ACSE service provider.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>assoc</strong> (<a class="reference internal" href="pynetdicom.association.Association.html#pynetdicom.association.Association" title="pynetdicom.association.Association"><em>association.Association</em></a>) – The Association to provide ACSE services for.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<p class="rubric">Methods</p>
+<table class="longtable docutils align-default">
+<colgroup>
+<col style="width: 10%" />
+<col style="width: 90%" />
+</colgroup>
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pynetdicom.acse.ACSE.__init__" title="pynetdicom.acse.ACSE.__init__"><code class="xref py py-obj docutils literal notranslate"><span class="pre">__init__</span></code></a>(assoc)</p></td>
+<td><p>Create the ACSE service provider.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#pynetdicom.acse.ACSE.is_aborted" title="pynetdicom.acse.ACSE.is_aborted"><code class="xref py py-obj docutils literal notranslate"><span class="pre">is_aborted</span></code></a>([abort_type])</p></td>
+<td><p>Return <code class="docutils literal notranslate"><span class="pre">True</span></code> if an A-ABORT and/or A-P-ABORT request has been received.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pynetdicom.acse.ACSE.is_release_requested" title="pynetdicom.acse.ACSE.is_release_requested"><code class="xref py py-obj docutils literal notranslate"><span class="pre">is_release_requested</span></code></a>()</p></td>
+<td><p>Return <code class="docutils literal notranslate"><span class="pre">True</span></code> if an A-RELEASE request has been received.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#pynetdicom.acse.ACSE.negotiate_association" title="pynetdicom.acse.ACSE.negotiate_association"><code class="xref py py-obj docutils literal notranslate"><span class="pre">negotiate_association</span></code></a>()</p></td>
+<td><p>Perform an association negotiation as either the <em>requestor</em> or <em>acceptor</em>.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pynetdicom.acse.ACSE.negotiate_release" title="pynetdicom.acse.ACSE.negotiate_release"><code class="xref py py-obj docutils literal notranslate"><span class="pre">negotiate_release</span></code></a>()</p></td>
+<td><p>Negotiate association release.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#pynetdicom.acse.ACSE.send_abort" title="pynetdicom.acse.ACSE.send_abort"><code class="xref py py-obj docutils literal notranslate"><span class="pre">send_abort</span></code></a>(source)</p></td>
+<td><p>Send an A-ABORT request to the peer.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pynetdicom.acse.ACSE.send_accept" title="pynetdicom.acse.ACSE.send_accept"><code class="xref py py-obj docutils literal notranslate"><span class="pre">send_accept</span></code></a>()</p></td>
+<td><p>Send an A-ASSOCIATE (accept) to the peer.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#pynetdicom.acse.ACSE.send_ap_abort" title="pynetdicom.acse.ACSE.send_ap_abort"><code class="xref py py-obj docutils literal notranslate"><span class="pre">send_ap_abort</span></code></a>(reason)</p></td>
+<td><p>Send an A-P-ABORT to the peer.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pynetdicom.acse.ACSE.send_reject" title="pynetdicom.acse.ACSE.send_reject"><code class="xref py py-obj docutils literal notranslate"><span class="pre">send_reject</span></code></a>(result, source, diagnostic)</p></td>
+<td><p>Send an A-ASSOCIATE (reject) to the peer.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#pynetdicom.acse.ACSE.send_release" title="pynetdicom.acse.ACSE.send_release"><code class="xref py py-obj docutils literal notranslate"><span class="pre">send_release</span></code></a>([is_response])</p></td>
+<td><p>Send an A-RELEASE (request or response) to the peer.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pynetdicom.acse.ACSE.send_request" title="pynetdicom.acse.ACSE.send_request"><code class="xref py py-obj docutils literal notranslate"><span class="pre">send_request</span></code></a>()</p></td>
+<td><p>Send an A-ASSOCIATE (request) to the peer.</p></td>
+</tr>
+</tbody>
+</table>
+<p class="rubric">Attributes</p>
+<table class="longtable docutils align-default">
+<colgroup>
+<col style="width: 10%" />
+<col style="width: 90%" />
+</colgroup>
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pynetdicom.acse.ACSE.acceptor" title="pynetdicom.acse.ACSE.acceptor"><code class="xref py py-obj docutils literal notranslate"><span class="pre">acceptor</span></code></a></p></td>
+<td><p>Return the <em>acceptor</em> <a class="reference internal" href="pynetdicom.association.ServiceUser.html#pynetdicom.association.ServiceUser" title="pynetdicom.association.ServiceUser"><code class="xref py py-class docutils literal notranslate"><span class="pre">ServiceUser</span></code></a>.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#pynetdicom.acse.ACSE.acse_timeout" title="pynetdicom.acse.ACSE.acse_timeout"><code class="xref py py-obj docutils literal notranslate"><span class="pre">acse_timeout</span></code></a></p></td>
+<td><p>Return the ACSE timeout (in seconds).</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pynetdicom.acse.ACSE.assoc" title="pynetdicom.acse.ACSE.assoc"><code class="xref py py-obj docutils literal notranslate"><span class="pre">assoc</span></code></a></p></td>
+<td><p>Return the parent <a class="reference internal" href="pynetdicom.association.Association.html#pynetdicom.association.Association" title="pynetdicom.association.Association"><code class="xref py py-class docutils literal notranslate"><span class="pre">Association</span></code></a>.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#pynetdicom.acse.ACSE.dul" title="pynetdicom.acse.ACSE.dul"><code class="xref py py-obj docutils literal notranslate"><span class="pre">dul</span></code></a></p></td>
+<td><p>Return the <a class="reference internal" href="pynetdicom.dul.DULServiceProvider.html#pynetdicom.dul.DULServiceProvider" title="pynetdicom.dul.DULServiceProvider"><code class="xref py py-class docutils literal notranslate"><span class="pre">DULServiceProvider</span></code></a>.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pynetdicom.acse.ACSE.requestor" title="pynetdicom.acse.ACSE.requestor"><code class="xref py py-obj docutils literal notranslate"><span class="pre">requestor</span></code></a></p></td>
+<td><p>Return the <em>requestor</em> <a class="reference internal" href="pynetdicom.association.ServiceUser.html#pynetdicom.association.ServiceUser" title="pynetdicom.association.ServiceUser"><code class="xref py py-class docutils literal notranslate"><span class="pre">ServiceUser</span></code></a>.</p></td>
+</tr>
+</tbody>
+</table>
+<dl class="py method">
+<dt id="pynetdicom.acse.ACSE.acceptor">
+<em class="property">property </em><code class="sig-name descname">acceptor</code><a class="headerlink" href="#pynetdicom.acse.ACSE.acceptor" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return the <em>acceptor</em> <a class="reference internal" href="pynetdicom.association.ServiceUser.html#pynetdicom.association.ServiceUser" title="pynetdicom.association.ServiceUser"><code class="xref py py-class docutils literal notranslate"><span class="pre">ServiceUser</span></code></a>.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="pynetdicom.acse.ACSE.acse_timeout">
+<em class="property">property </em><code class="sig-name descname">acse_timeout</code><a class="headerlink" href="#pynetdicom.acse.ACSE.acse_timeout" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return the ACSE timeout (in seconds).</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="pynetdicom.acse.ACSE.assoc">
+<em class="property">property </em><code class="sig-name descname">assoc</code><a class="headerlink" href="#pynetdicom.acse.ACSE.assoc" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return the parent <a class="reference internal" href="pynetdicom.association.Association.html#pynetdicom.association.Association" title="pynetdicom.association.Association"><code class="xref py py-class docutils literal notranslate"><span class="pre">Association</span></code></a>.</p>
+<div class="versionadded">
+<p><span class="versionmodified added">New in version 1.3.</span></p>
+</div>
+</dd></dl>
+
+<dl class="py method">
+<dt id="pynetdicom.acse.ACSE.dul">
+<em class="property">property </em><code class="sig-name descname">dul</code><a class="headerlink" href="#pynetdicom.acse.ACSE.dul" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return the <a class="reference internal" href="pynetdicom.dul.DULServiceProvider.html#pynetdicom.dul.DULServiceProvider" title="pynetdicom.dul.DULServiceProvider"><code class="xref py py-class docutils literal notranslate"><span class="pre">DULServiceProvider</span></code></a>.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="pynetdicom.acse.ACSE.is_aborted">
+<code class="sig-name descname">is_aborted</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">abort_type</span><span class="o">=</span><span class="default_value">'both'</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/547ff8c5/pynetdicom/acse.py#L244"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom.acse.ACSE.is_aborted" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return <code class="docutils literal notranslate"><span class="pre">True</span></code> if an A-ABORT and/or A-P-ABORT request has been
+received.</p>
+<div class="versionchanged">
+<p><span class="versionmodified changed">Changed in version 1.5: </span>Added <cite>abort_type</cite> keyword parameter.</p>
+</div>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>abort_type</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)"><em>str</em></a><em>, </em><em>optional</em>) – The type of abort to check for. If <code class="docutils literal notranslate"><span class="pre">'both'</span></code> then will return
+<code class="docutils literal notranslate"><span class="pre">True</span></code> if an A-ABORT or A-P-ABORT is received (default). If
+<code class="docutils literal notranslate"><span class="pre">'a-abort'</span></code> then will return <code class="docutils literal notranslate"><span class="pre">True</span></code> if an A-ABORT is received,
+if <code class="docutils literal notranslate"><span class="pre">'a-p-abort'</span></code> then will return <code class="docutils literal notranslate"><span class="pre">True</span></code> if an A-P-ABORT is
+received.</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><code class="docutils literal notranslate"><span class="pre">True</span></code> if an abort is received, <code class="docutils literal notranslate"><span class="pre">False</span></code> otherwise.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.8)">bool</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="pynetdicom.acse.ACSE.is_release_requested">
+<code class="sig-name descname">is_release_requested</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/547ff8c5/pynetdicom/acse.py#L280"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom.acse.ACSE.is_release_requested" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return <code class="docutils literal notranslate"><span class="pre">True</span></code> if an A-RELEASE request has been received.</p>
+<div class="versionadded">
+<p><span class="versionmodified added">New in version 1.1.</span></p>
+</div>
+</dd></dl>
+
+<dl class="py method">
+<dt id="pynetdicom.acse.ACSE.negotiate_association">
+<code class="sig-name descname">negotiate_association</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/547ff8c5/pynetdicom/acse.py#L292"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom.acse.ACSE.negotiate_association" title="Permalink to this definition">¶</a></dt>
+<dd><p>Perform an association negotiation as either the <em>requestor</em> or
+<em>acceptor</em>.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="pynetdicom.acse.ACSE.negotiate_release">
+<code class="sig-name descname">negotiate_release</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/547ff8c5/pynetdicom/acse.py#L533"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom.acse.ACSE.negotiate_release" title="Permalink to this definition">¶</a></dt>
+<dd><p>Negotiate association release.</p>
+<div class="versionadded">
+<p><span class="versionmodified added">New in version 1.1.</span></p>
+</div>
+<p>Once an A-RELEASE request has been sent any received P-DATA PDUs will
+be ignored.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="pynetdicom.acse.ACSE.requestor">
+<em class="property">property </em><code class="sig-name descname">requestor</code><a class="headerlink" href="#pynetdicom.acse.ACSE.requestor" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return the <em>requestor</em> <a class="reference internal" href="pynetdicom.association.ServiceUser.html#pynetdicom.association.ServiceUser" title="pynetdicom.association.ServiceUser"><code class="xref py py-class docutils literal notranslate"><span class="pre">ServiceUser</span></code></a>.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="pynetdicom.acse.ACSE.send_abort">
+<code class="sig-name descname">send_abort</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">source</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/547ff8c5/pynetdicom/acse.py#L615"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom.acse.ACSE.send_abort" title="Permalink to this definition">¶</a></dt>
+<dd><p>Send an A-ABORT request to the peer.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>source</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.8)"><em>int</em></a>) – <p>The source of the abort request</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">0x00</span></code> - the DUL service user</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">0x02</span></code> - the DUL service provider</p></li>
+</ul>
+</p>
+</dd>
+<dt class="field-even">Raises</dt>
+<dd class="field-even"><p><a class="reference external" href="https://docs.python.org/3/library/exceptions.html#ValueError" title="(in Python v3.8)"><strong>ValueError</strong></a> – If the <cite>source</cite> value is invalid.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="pynetdicom.acse.ACSE.send_accept">
+<code class="sig-name descname">send_accept</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/547ff8c5/pynetdicom/acse.py#L645"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom.acse.ACSE.send_accept" title="Permalink to this definition">¶</a></dt>
+<dd><p>Send an A-ASSOCIATE (accept) to the peer.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="pynetdicom.acse.ACSE.send_ap_abort">
+<code class="sig-name descname">send_ap_abort</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">reason</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/547ff8c5/pynetdicom/acse.py#L675"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom.acse.ACSE.send_ap_abort" title="Permalink to this definition">¶</a></dt>
+<dd><p>Send an A-P-ABORT to the peer.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>reason</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.8)"><em>int</em></a>) – <p>The reason for aborting the association, one of the following:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">0x00</span></code> - reason not specified</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">0x01</span></code> - unrecognised PDU</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">0x02</span></code> - unexpected PDU</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">0x04</span></code> - unrecognised PDU parameter</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">0x05</span></code> - unexpected PDU parameter</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">0x06</span></code> - invalid PDU parameter value</p></li>
+</ul>
+</p>
+</dd>
+<dt class="field-even">Raises</dt>
+<dd class="field-even"><p><a class="reference external" href="https://docs.python.org/3/library/exceptions.html#ValueError" title="(in Python v3.8)"><strong>ValueError</strong></a> – If the <cite>reason</cite> value is invalid.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="pynetdicom.acse.ACSE.send_reject">
+<code class="sig-name descname">send_reject</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">result</span></em>, <em class="sig-param"><span class="n">source</span></em>, <em class="sig-param"><span class="n">diagnostic</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/547ff8c5/pynetdicom/acse.py#L709"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom.acse.ACSE.send_reject" title="Permalink to this definition">¶</a></dt>
+<dd><p>Send an A-ASSOCIATE (reject) to the peer.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>result</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.8)"><em>int</em></a>) – <p>The association rejection:</p>
+<ul>
+<li><p><code class="docutils literal notranslate"><span class="pre">0x01</span></code> - rejected permanent</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">0x02</span></code> - rejected transient</p></li>
+</ul>
+</p></li>
+<li><p><strong>source</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.8)"><em>int</em></a>) – <p>The source of the rejection:</p>
+<ul>
+<li><p><code class="docutils literal notranslate"><span class="pre">0x01</span></code> - DUL service user</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">0x02</span></code> - DUL service provider (ACSE related)</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">0x03</span></code> - DUL service provider (presentation related)</p></li>
+</ul>
+</p></li>
+<li><p><strong>diagnostic</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.8)"><em>int</em></a>) – <p>The reason for the rejection, if the <cite>source</cite> is <code class="docutils literal notranslate"><span class="pre">0x01</span></code>:</p>
+<ul>
+<li><p><code class="docutils literal notranslate"><span class="pre">0x01</span></code> - no reason given</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">0x02</span></code> - application context name not supported</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">0x03</span></code> - calling AE title not recognised</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">0x07</span></code> - called AE title not recognised</p></li>
+</ul>
+<p>If the <cite>source</cite> is <code class="docutils literal notranslate"><span class="pre">0x02</span></code>:</p>
+<ul>
+<li><p><code class="docutils literal notranslate"><span class="pre">0x01</span></code> - no reason given</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">0x02</span></code> - protocol version not supported</p></li>
+</ul>
+<p>If the <cite>source</cite> is <code class="docutils literal notranslate"><span class="pre">0x03</span></code>:</p>
+<ul>
+<li><p><code class="docutils literal notranslate"><span class="pre">0x01</span></code> - temporary congestion</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">0x02</span></code> - local limit exceeded</p></li>
+</ul>
+</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="pynetdicom.acse.ACSE.send_release">
+<code class="sig-name descname">send_release</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">is_response</span><span class="o">=</span><span class="default_value">False</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/547ff8c5/pynetdicom/acse.py#L775"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom.acse.ACSE.send_release" title="Permalink to this definition">¶</a></dt>
+<dd><p>Send an A-RELEASE (request or response) to the peer.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>is_response</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.8)"><em>bool</em></a><em>, </em><em>optional</em>) – <code class="docutils literal notranslate"><span class="pre">True</span></code> to send an A-RELEASE (response) to the peer, <code class="docutils literal notranslate"><span class="pre">False</span></code>
+to send an A-RELEASE (request) to the peer (default).</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="pynetdicom.acse.ACSE.send_request">
+<code class="sig-name descname">send_request</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/547ff8c5/pynetdicom/acse.py#L791"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom.acse.ACSE.send_request" title="Permalink to this definition">¶</a></dt>
+<dd><p>Send an A-ASSOCIATE (request) to the peer.</p>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="../ae.html" class="btn btn-neutral float-right" title="Application Entity (pynetdicom.ae)" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
+      
+      
+        <a href="../acse.provider.html" class="btn btn-neutral float-left" title="ACSE Service Provider (pynetdicom.acse)" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2018-20, pynetdicom contributors
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>

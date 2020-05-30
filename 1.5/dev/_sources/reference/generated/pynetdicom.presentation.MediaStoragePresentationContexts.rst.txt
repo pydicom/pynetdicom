@@ -1,0 +1,6 @@
+pynetdicom.presentation.MediaStoragePresentationContexts
+========================================================
+
+.. currentmodule:: pynetdicom.presentation
+
+.. autodata:: MediaStoragePresentationContexts

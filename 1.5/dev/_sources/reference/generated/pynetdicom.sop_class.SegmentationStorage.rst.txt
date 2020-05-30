@@ -1,0 +1,6 @@
+pynetdicom.sop\_class.SegmentationStorage
+=========================================
+
+.. currentmodule:: pynetdicom.sop_class
+
+.. autodata:: SegmentationStorage

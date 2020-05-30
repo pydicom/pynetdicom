@@ -1,0 +1,28 @@
+pynetdicom.pdu\_primitives.A\_P\_ABORT
+======================================
+
+.. currentmodule:: pynetdicom.pdu_primitives
+
+.. autoclass:: A_P_ABORT
+
+   
+   .. automethod:: __init__
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+   
+      ~A_P_ABORT.__init__
+   
+   
+
+   
+   
+   .. rubric:: Attributes
+
+   .. autosummary::
+   
+      ~A_P_ABORT.provider_reason
+   
+   

@@ -1,0 +1,6 @@
+pynetdicom.sop\_class.ProceduralEventLoggingSOPInstance
+=======================================================
+
+.. currentmodule:: pynetdicom.sop_class
+
+.. autodata:: ProceduralEventLoggingSOPInstance

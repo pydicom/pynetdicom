@@ -1,0 +1,6 @@
+pynetdicom.sop\_class.PresentationLUTSOPClass
+=============================================
+
+.. currentmodule:: pynetdicom.sop_class
+
+.. autodata:: PresentationLUTSOPClass

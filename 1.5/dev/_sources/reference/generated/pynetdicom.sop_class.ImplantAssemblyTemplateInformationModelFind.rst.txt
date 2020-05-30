@@ -1,0 +1,6 @@
+pynetdicom.sop\_class.ImplantAssemblyTemplateInformationModelFind
+=================================================================
+
+.. currentmodule:: pynetdicom.sop_class
+
+.. autodata:: ImplantAssemblyTemplateInformationModelFind

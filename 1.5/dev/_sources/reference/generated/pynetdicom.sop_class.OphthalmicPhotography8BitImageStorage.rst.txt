@@ -1,0 +1,6 @@
+pynetdicom.sop\_class.OphthalmicPhotography8BitImageStorage
+===========================================================
+
+.. currentmodule:: pynetdicom.sop_class
+
+.. autodata:: OphthalmicPhotography8BitImageStorage

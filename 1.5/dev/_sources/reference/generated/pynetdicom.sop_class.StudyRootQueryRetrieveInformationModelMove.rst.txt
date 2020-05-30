@@ -1,0 +1,6 @@
+pynetdicom.sop\_class.StudyRootQueryRetrieveInformationModelMove
+================================================================
+
+.. currentmodule:: pynetdicom.sop_class
+
+.. autodata:: StudyRootQueryRetrieveInformationModelMove

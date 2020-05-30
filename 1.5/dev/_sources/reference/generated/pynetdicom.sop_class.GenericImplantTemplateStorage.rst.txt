@@ -1,0 +1,6 @@
+pynetdicom.sop\_class.GenericImplantTemplateStorage
+===================================================
+
+.. currentmodule:: pynetdicom.sop_class
+
+.. autodata:: GenericImplantTemplateStorage

@@ -1,0 +1,6 @@
+pynetdicom.sop\_class.AcquisitionContextSRStorage
+=================================================
+
+.. currentmodule:: pynetdicom.sop_class
+
+.. autodata:: AcquisitionContextSRStorage

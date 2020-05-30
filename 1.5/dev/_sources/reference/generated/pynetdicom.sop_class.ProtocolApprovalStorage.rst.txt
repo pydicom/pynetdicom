@@ -1,0 +1,6 @@
+pynetdicom.sop\_class.ProtocolApprovalStorage
+=============================================
+
+.. currentmodule:: pynetdicom.sop_class
+
+.. autodata:: ProtocolApprovalStorage

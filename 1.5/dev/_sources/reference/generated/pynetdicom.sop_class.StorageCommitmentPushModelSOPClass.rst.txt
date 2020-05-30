@@ -1,0 +1,6 @@
+pynetdicom.sop\_class.StorageCommitmentPushModelSOPClass
+========================================================
+
+.. currentmodule:: pynetdicom.sop_class
+
+.. autodata:: StorageCommitmentPushModelSOPClass

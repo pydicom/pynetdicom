@@ -1,0 +1,6 @@
+pynetdicom.sop\_class.DisplaySystemSOPInstance
+==============================================
+
+.. currentmodule:: pynetdicom.sop_class
+
+.. autodata:: DisplaySystemSOPInstance

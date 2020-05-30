@@ -1,0 +1,6 @@
+pynetdicom.sop\_class.OphthalmicVisualFieldStaticPerimetryMeasurementsStorage
+=============================================================================
+
+.. currentmodule:: pynetdicom.sop_class
+
+.. autodata:: OphthalmicVisualFieldStaticPerimetryMeasurementsStorage

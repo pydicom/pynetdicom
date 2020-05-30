@@ -1,0 +1,6 @@
+pynetdicom.sop\_class.VideoEndoscopicImageStorage
+=================================================
+
+.. currentmodule:: pynetdicom.sop_class
+
+.. autodata:: VideoEndoscopicImageStorage

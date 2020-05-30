@@ -1,0 +1,42 @@
+pynetdicom.dimse\_primitives.N\_SET
+===================================
+
+.. currentmodule:: pynetdicom.dimse_primitives
+
+.. autoclass:: N_SET
+
+   
+   .. automethod:: __init__
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+   
+      ~N_SET.__init__
+   
+   
+
+   
+   
+   .. rubric:: Attributes
+
+   .. autosummary::
+   
+      ~N_SET.AffectedSOPClassUID
+      ~N_SET.AffectedSOPInstanceUID
+      ~N_SET.AttributeList
+      ~N_SET.MessageID
+      ~N_SET.MessageIDBeingRespondedTo
+      ~N_SET.ModificationList
+      ~N_SET.REQUEST_KEYWORDS
+      ~N_SET.RESPONSE_KEYWORDS
+      ~N_SET.RequestedSOPClassUID
+      ~N_SET.RequestedSOPInstanceUID
+      ~N_SET.STATUS_OPTIONAL_KEYWORDS
+      ~N_SET.Status
+      ~N_SET.is_valid_request
+      ~N_SET.is_valid_response
+      ~N_SET.msg_type
+   
+   

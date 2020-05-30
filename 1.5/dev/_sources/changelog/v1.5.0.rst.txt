@@ -1,0 +1,136 @@
+.. _v1.5.0:
+
+1.5.0
+=====
+
+This will be the last release that supports Python 2, with fixes for serious
+bugs being available for a year after the release date.
+
+Fixes
+.....
+
+* Fixed the :class:`~pynetdicom.transport.AssociationServer` not properly
+  closing its sockets (:issue:`382`)
+* Improved the robustness of determining the local IP address (:issue:`394`)
+* Fixed not being able to set an *Implementation Version Name* of length 1
+  (:issue:`414`)
+* Changed ``ImplantationPlanSRDocumentStorage`` to
+  :attr:`~pynetdicom.sop_class.ImplantationPlanSRStorage` to match the name
+  from Part 6 of the DICOM Standard rather than Part 4.
+* Stopped the QR Move SCP from associating with the move destination when no
+  sub-operations were required (:issue:`436`)
+* Fixed a possible race condition during DIMSE message exchange (:issue:`435`)
+* Fixed the association acceptor selecting the first matching proposed
+  transfer syntax rather than the first matching supported transfer syntax
+  during presentation context negotiation (:issue:`445`)
+* Fixed incorrect Pending status value for Modality Worklist (:issue:`462`)
+* Fixed an ``InvalidEventError`` due to two A-ABORT messages being sent. Issue
+  is triggered when the DIMSE and network timeouts have the same value and
+  both expire while sending a DIMSE request. (:issue:`460`)
+* Fixed datasets encoding using *Deflated Explicit VR Little Endian* not
+  transferring correctly (:issue:`482`)
+
+
+Enhancements
+............
+
+* Added configuration option :attr:`_config.USE_SHORT_DIMSE_AET
+  <pynetdicom._config.USE_SHORT_DIMSE_AET>` so elements with a VR of **AE** in
+  DIMSE messages are no longer padded to the maximum 16 characters.
+  (:issue:`403`)
+* When acting as the association Acceptor check that the user hasn't sent
+  an A-ABORT or A-ASSOCIATE-RJ before attempting association negotiation
+  (:issue:`408`)
+* Added :attr:`~pynetdicom.events.Event.message_id` to
+  :class:`~pynetdicom.events.Event` for use when receiving a DIMSE service
+  request
+* Added the well-known SOP Instances for the supported service classes to
+  :mod:`~pynetdicom.sop_class`.
+* Added support for the DIMSE intervention event handlers aborting or releasing
+  the association during service class operation.
+* Add new SOP classes up to 2019e version of the standard (:issue:`424`)
+* Added :attr:`~pynetdicom.presentation.AllStoragePresentationContexts` which
+  contains all of the Storage Service Class' SOP Class UIDs rather than just
+  the first 128 as in
+  :attr:`~pynetdicom.presentation.StoragePresentationContexts`.
+* Updates and additions to the applications:
+
+  * Overhaul of :doc:`echoscp <../apps/echoscp>`,
+    :doc:`echoscu <../apps/echoscu>`, :doc:`storescp <../apps/storescp>` and
+    :doc:`storescu <../apps/storescu>` apps
+  * Added non-toy implementations for :doc:`findscu <../apps/findscu>`,
+    :doc:`getscu <../apps/getscu>` and :doc:`movescu <../apps/movescu>` apps
+  * Added :doc:`qrscp <../apps/qrscp>` app
+* Apps can now be invoked from the command line with
+  ``python -m pynetdicom [appname] [options]``, e.g. ``python -m pynetdicom
+  echoscu 127.0.0.1 11112 -d``
+* Added ability to pass optional extra arguments to event handlers by using
+  ``(evt.EVT_NAME, handler, ['list', 'of', 'args'])`` (:issue:`447`)
+* Added :func:`AE.make_server()<pynetdicom.ae.ApplicationEntity.make_server>`
+  (:issue:`453`)
+* Added `request_handler` keyword parameter to
+  :class:`~pynetdicom.transport.AssociationServer` (:issue:`453`)
+* Added hook in :class:`AE<pynetdicom.ae.ApplicationEntity>` for creating
+  :class:`~pynetdicom.transport.AssociationSocket` objects (:issue:`455`)
+* Added a customisable :class:`~pynetdicom.status.Status`
+  convenience class for comparing, returning and yielding status values
+  (:issue:`454`)
+* Added hook in :class:`~pynetdicom.transport.RequestHandler` for creating
+  :class:`~pynetdicom.association.Association` objects (:issue:`455`)
+* Prefer an exact match when selecting a valid presentation context over
+  a convertible one (:issue:`472`)
+* Added configuration options :attr:`_config.LOG_REQUEST_IDENTIFIERS
+  <pynetdicom._config.LOG_REQUEST_IDENTIFIERS>` and
+  :attr:`_config.LOG_RESPONSE_IDENTIFIERS
+  <pynetdicom._config.LOG_RESPONSE_IDENTIFIERS>` for controlling whether or
+  not the contents of C-FIND, C-GET and C-MOVE request and response
+  *Identifier* datasets are logged
+* Added :func:`~pynetdicom.dsutils.pretty_dataset` and
+  :func:`~pynetdicom.dsutils.pretty_element` functions for producing pretty
+  string output from datasets and elements
+* When handling ``evt.EVT_C_MOVE``, the :func:`handler function
+  <pynetdicom._handlers.doc_handle_move>` may optionally yield
+  ``(addr, port, kwargs)`` as its first yield, where ``kwargs`` is a
+  :class:`dict` containing keyword parameters that will be passed to
+  :meth:`AE.associate()<pynetdicom.ae.ApplicationEntity.associate>` when the
+  association with the Storage SCP is initiated.
+
+
+Changes
+.......
+
+.. currentmodule:: pynetdicom.association
+
+* Using a key that corresponds to a given UID with
+  :meth:`Association.send_c_find`, :meth:`Association.send_c_get` and
+  :meth:`Association.send_c_move` removed as per planned deprecation. Use the
+  UID directly instead.
+* Support for Python 2 is deprecated and will be removed starting in version
+  2.0.
+* Python 3.4 is no longer supported, Python 3.7 and 3.8 are now
+  officially supported
+* If an A-ABORT is received while waiting for a DIMSE message the
+  ``Association.send_*`` methods will now return immediately rather than
+  waiting for the DIMSE timeout. (:issue:`430`)
+* Added `abort_type` keyword parameter to :meth:`ACSE.is_aborted()
+  <pynetdicom.acse.ACSE.is_aborted>`
+* Added `args` keyword parameter to
+  :meth:`Association.bind()<Association.bind>` and
+  :meth:`AssociationServer.bind()<pynetdicom.transport.AssociationServer.bind>`
+* :meth:`Association.get_handlers()<Association.get_handlers>` and
+  :meth:`AssociationServer.get_handlers()
+  <pynetdicom.transport.AssociationServer.get_handlers>` now return a 2-tuple
+  or list of 2-tuples.
+* Added `deflated` keyword parameter to :func:`~pynetdicom.dsutils.encode` and
+  :func:`~pynetdicom.dsutils.decode`
+* :func:`~pynetdicom.dsutils.encode_element` is deprecated and will be removed
+  in version 2.0
+* *Deflated Explicit VR Little Endian* added to
+  :attr:`~pynetdicom.DEFAULT_TRANSFER_SYNTAXES`
+
+
+Known Issues
+............
+
+* TLS v1.3 (with OpenSSL 1.1.1 or higher) is not currently supported
+  (:issue:`364`)

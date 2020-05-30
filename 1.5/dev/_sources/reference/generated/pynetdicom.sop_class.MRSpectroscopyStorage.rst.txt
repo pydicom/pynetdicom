@@ -1,0 +1,6 @@
+pynetdicom.sop\_class.MRSpectroscopyStorage
+===========================================
+
+.. currentmodule:: pynetdicom.sop_class
+
+.. autodata:: MRSpectroscopyStorage

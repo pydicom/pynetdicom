@@ -1,0 +1,6 @@
+pynetdicom.sop\_class.TwelveLeadECGWaveformStorage
+==================================================
+
+.. currentmodule:: pynetdicom.sop_class
+
+.. autodata:: TwelveLeadECGWaveformStorage

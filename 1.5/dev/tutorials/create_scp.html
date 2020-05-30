@@ -1,0 +1,761 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>Writing your first SCP &mdash; pynetdicom 1.5.0 documentation</title>
+  
+
+  
+  
+    <link rel="shortcut icon" href="../_static/favicon.ico"/>
+  
+  
+  
+
+  
+  <script type="text/javascript" src="../_static/js/modernizr.min.js"></script>
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+        <script src="../_static/jquery.js"></script>
+        <script src="../_static/underscore.js"></script>
+        <script src="../_static/doctools.js"></script>
+        <script src="../_static/language_data.js"></script>
+    
+    <script type="text/javascript" src="../_static/js/theme.js"></script>
+
+    
+
+  
+  <link rel="stylesheet" href="../_static/css/pynetdicom.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/css/pynetdicom.css" type="text/css" />
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Supported Service Classes" href="../service_classes/index.html" />
+    <link rel="prev" title="Writing your first SCU" href="create_scu.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="../index.html" class="icon icon-home"> pynetdicom
+          
+
+          
+            
+            <img src="../_static/pydicom_flat_black.svg" class="logo" alt="Logo"/>
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                1.5.0
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <p class="caption"><span class="caption-text">Documentation</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../user/index.html">User Guide</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="index.html">Tutorials</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="installation.html">How to install pynetdicom</a></li>
+<li class="toctree-l2"><a class="reference internal" href="create_scu.html">Writing your first SCU</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">Writing your first SCP</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#the-data-set">The Data Set</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#creating-a-storage-scp">Creating a Storage SCP</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#events-and-handlers">Events and handlers</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#customising-the-handler">Customising the handler</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#the-dicom-file-format">The DICOM File Format</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#expanding-the-supported-data">Expanding the supported data</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#optimising-and-passing-extra-arguments">Optimising and passing extra arguments</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#next-steps">Next steps</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../service_classes/index.html">Supported Service Classes</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../reference/index.html">API Reference</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Examples</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../examples/index.html">Code Examples</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Additional Information</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../apps/index.html">Applications</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../changelog/index.html">Release Notes</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">pynetdicom</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../index.html">Docs</a> &raquo;</li>
+        
+          <li><a href="index.html">Tutorials</a> &raquo;</li>
+        
+      <li>Writing your first SCP</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="writing-your-first-scp">
+<h1>Writing your first SCP<a class="headerlink" href="#writing-your-first-scp" title="Permalink to this headline">¶</a></h1>
+<p>This is the second tutorial for people who are new to <em>pynetdicom</em>. If you
+missed the <a class="reference internal" href="create_scu.html"><span class="doc">first one</span></a> you should check it out before
+continuing.</p>
+<p>In this tutorial you’ll:</p>
+<ul class="simple">
+<li><p>Learn about DICOM Data Sets and the DICOM File Format</p></li>
+<li><p>Create a new Storage SCP application using <em>pynetdicom</em></p></li>
+<li><p>Learn about the event-handler system and add handlers to your SCP</p></li>
+<li><p>Send data to your SCP using <em>pynetdicom’s</em>
+<a class="reference internal" href="../apps/storescu.html"><span class="doc">storescu</span></a> application</p></li>
+</ul>
+<p>If you need to install <em>pynetdicom</em> please follow the instructions in the
+<a class="reference internal" href="installation.html"><span class="doc">installation guide</span></a>. For this tutorial we’ll
+also be using the <a class="reference internal" href="../apps/storescu.html"><span class="doc">storescu</span></a> application that comes with
+<em>pynetdicom</em>.</p>
+<div class="section" id="the-data-set">
+<h2>The Data Set<a class="headerlink" href="#the-data-set" title="Permalink to this headline">¶</a></h2>
+<p>This tutorial is about creating an SCP for the DICOM <a class="reference external" href="http://dicom.nema.org/medical/dicom/current/output/chtml/part04/chapter_B.html">storage service</a>, which is used to transfer DICOM
+<a class="reference external" href="http://dicom.nema.org/medical/dicom/current/output/chtml/part05/chapter_7.html">Data Sets</a> from one AE to another. A Data Set,
+which from now on we’ll just refer to as a <em>dataset</em>, is a representation of
+a real world object, like a slice of a <a class="reference external" href="http://dicom.nema.org/medical/dicom/current/output/chtml/part03/sect_A.3.html">CT</a>
+or a <a class="reference external" href="http://dicom.nema.org/medical/dicom/current/output/chtml/part03/sect_A.35.html">structured report</a>. A dataset is a
+collection of <a class="reference external" href="http://dicom.nema.org/medical/dicom/current/output/chtml/part05/chapter_7.html#sect_7.1">Data Elements</a>, where each
+<em>element</em> represents an attribute of the object.</p>
+<p>Datasets are usually used to store information from the medical procedures
+undergone by a patient, however the DICOM Standard also puts them to use as
+part of the networking protocol and in service provision.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>While it’s not required for this tutorial, you should be comfortable using
+<a class="reference external" href="https://github.com/pydicom/pydicom">pydicom</a> to create new datasets and
+read, write or modify existing ones. If you’re new to <em>pydicom</em> then you
+should start with the <a class="reference external" href="https://pydicom.github.io/pydicom/stable/tutorials/dataset_basics.html">Dataset Basics</a>
+tutorial.</p>
+</div>
+</div>
+<div class="section" id="creating-a-storage-scp">
+<h2>Creating a Storage SCP<a class="headerlink" href="#creating-a-storage-scp" title="Permalink to this headline">¶</a></h2>
+<p>Let’s create a simple Storage SCP for receiving <em>CT Image</em> datasets encoded
+using the <em>Explicit VR Little Endian</em> transfer syntax. Create a new file
+<code class="docutils literal notranslate"><span class="pre">my_scp.py</span></code>, open it in a text editor and add the following:</p>
+<div class="highlight-python notranslate"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre> 1
+ 2
+ 3
+ 4
+ 5
+ 6
+ 7
+ 8
+ 9
+10</pre></div></td><td class="code"><div class="highlight"><pre><span></span> <span class="kn">from</span> <span class="nn">pydicom.uid</span> <span class="kn">import</span> <span class="n">ExplicitVRLittleEndian</span>
+
+ <span class="kn">from</span> <span class="nn">pynetdicom</span> <span class="kn">import</span> <span class="n">AE</span><span class="p">,</span> <span class="n">debug_logger</span>
+ <span class="kn">from</span> <span class="nn">pynetdicom.sop_class</span> <span class="kn">import</span> <span class="n">CTImageStorage</span>
+
+ <span class="n">debug_logger</span><span class="p">()</span>
+
+ <span class="n">ae</span> <span class="o">=</span> <span class="n">AE</span><span class="p">()</span>
+ <span class="n">ae</span><span class="o">.</span><span class="n">add_supported_context</span><span class="p">(</span><span class="n">CTImageStorage</span><span class="p">,</span> <span class="n">ExplicitVRLittleEndian</span><span class="p">)</span>
+ <span class="n">ae</span><span class="o">.</span><span class="n">start_server</span><span class="p">((</span><span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="mi">11112</span><span class="p">),</span> <span class="n">block</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+</pre></div>
+</td></tr></table></div>
+<p>Let’s break this down</p>
+<div class="highlight-python notranslate"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre>1
+2
+3
+4</pre></div></td><td class="code"><div class="highlight"><pre><span></span> <span class="kn">from</span> <span class="nn">pydicom.uid</span> <span class="kn">import</span> <span class="n">ExplicitVRLittleEndian</span>
+
+ <span class="kn">from</span> <span class="nn">pynetdicom</span> <span class="kn">import</span> <span class="n">AE</span><span class="p">,</span> <span class="n">debug_logger</span>
+ <span class="kn">from</span> <span class="nn">pynetdicom.sop_class</span> <span class="kn">import</span> <span class="n">CTImageStorage</span>
+</pre></div>
+</td></tr></table></div>
+<p>We import the <a class="reference internal" href="../user/concepts.html#concepts-uids"><span class="std std-ref">UID</span></a> for <a class="reference external" href="https://pydicom.github.io/pydicom/stable/reference/generated/pydicom.uid.ExplicitVRLittleEndian.html#pydicom.uid.ExplicitVRLittleEndian" title="(in pydicom v2.0.0)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Explicit</span> <span class="pre">VR</span> <span class="pre">Little</span> <span class="pre">Endian</span></code></a> from <em>pydicom</em>, and
+the <a class="reference internal" href="../reference/generated/pynetdicom.ae.ApplicationEntity.html#pynetdicom.ae.ApplicationEntity" title="pynetdicom.ae.ApplicationEntity"><code class="xref py py-class docutils literal notranslate"><span class="pre">AE</span></code></a> class, <a class="reference internal" href="../reference/generated/pynetdicom.debug_logger.html#pynetdicom.debug_logger" title="pynetdicom.debug_logger"><code class="xref py py-func docutils literal notranslate"><span class="pre">debug_logger()</span></code></a> function and
+the UID for <a class="reference internal" href="../reference/generated/pynetdicom.sop_class.CTImageStorage.html#pynetdicom.sop_class.CTImageStorage" title="pynetdicom.sop_class.CTImageStorage"><code class="xref py py-attr docutils literal notranslate"><span class="pre">CT</span> <span class="pre">Image</span> <span class="pre">Storage</span></code></a> from <em>pynetdicom</em>.</p>
+<div class="highlight-python notranslate"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre>6
+7
+8
+9</pre></div></td><td class="code"><div class="highlight"><pre><span></span> <span class="n">debug_logger</span><span class="p">()</span>
+
+ <span class="n">ae</span> <span class="o">=</span> <span class="n">AE</span><span class="p">()</span>
+ <span class="n">ae</span><span class="o">.</span><span class="n">add_supported_context</span><span class="p">(</span><span class="n">CTImageStorage</span><span class="p">,</span> <span class="n">ExplicitVRLittleEndian</span><span class="p">)</span>
+</pre></div>
+</td></tr></table></div>
+<p>Just as with the Echo SCU from the previous tutorial, we create a
+new <a class="reference internal" href="../reference/generated/pynetdicom.ae.ApplicationEntity.html#pynetdicom.ae.ApplicationEntity" title="pynetdicom.ae.ApplicationEntity"><code class="xref py py-class docutils literal notranslate"><span class="pre">AE</span></code></a> instance. However, because this time
+we’ll be the association <em>acceptor</em>, its up to us to specify what
+<a class="reference internal" href="../user/presentation.html"><span class="doc">presentation contexts</span></a> are <em>supported</em> rather than
+<em>requested</em>. Since we’ll be supporting the storage of <em>CT Images</em> encoded
+using the <em>Explicit VR Little Endian</em> transfer syntax we use
+<a class="reference internal" href="../reference/generated/pynetdicom.ae.ApplicationEntity.html#pynetdicom.ae.ApplicationEntity.add_supported_context" title="pynetdicom.ae.ApplicationEntity.add_supported_context"><code class="xref py py-meth docutils literal notranslate"><span class="pre">add_supported_context()</span></code></a> to add a corresponding
+presentation context.</p>
+<div class="highlight-python notranslate"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre>10</pre></div></td><td class="code"><div class="highlight"><pre><span></span> <span class="n">ae</span><span class="o">.</span><span class="n">start_server</span><span class="p">((</span><span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="mi">11112</span><span class="p">),</span> <span class="n">block</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+</pre></div>
+</td></tr></table></div>
+<p>The call to <a class="reference internal" href="../reference/generated/pynetdicom.ae.ApplicationEntity.html#pynetdicom.ae.ApplicationEntity.start_server" title="pynetdicom.ae.ApplicationEntity.start_server"><code class="xref py py-meth docutils literal notranslate"><span class="pre">start_server()</span></code></a> starts our SCP listening
+for association requests on port <code class="docutils literal notranslate"><span class="pre">11112</span></code> in <em>blocking</em> mode.</p>
+<p>Open a new terminal and start our SCP running:</p>
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>$ python my_scp.py
+</pre></div>
+</div>
+<p>And in another terminal, run <a class="reference internal" href="../apps/storescu.html"><span class="doc">storescu</span></a> on
+<a class="reference external" href="https://github.com/pydicom/pynetdicom/raw/master/pynetdicom/tests/dicom_files/CTImageStorage.dcm">this dataset</a>:</p>
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>$ python -m pynetdicom storescu 127.0.0.1 11112 CTImageStorage.dcm -v -cx
+</pre></div>
+</div>
+<p>You should see the following output:</p>
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>I: Requesting Association
+I: Association Accepted
+I: Sending file: CTImageStorage.dcm
+I: Sending Store Request: MsgID 1, (CT)
+I: Received Store Response (Status: 0xC211 - Failure)
+I: Releasing Association
+</pre></div>
+</div>
+<p>As you can see, <code class="docutils literal notranslate"><span class="pre">storescu</span></code> successfully associated with our SCP and sent a
+store request, but received a response containing a failure status <code class="docutils literal notranslate"><span class="pre">0xC211</span></code>.
+For the storage service, <a class="reference external" href="http://dicom.nema.org/medical/dicom/current/output/chtml/part04/sect_B.2.3.html">statuses</a> in the
+<code class="docutils literal notranslate"><span class="pre">0xC000</span></code> to <code class="docutils literal notranslate"><span class="pre">0xCFFF</span></code> range fall under ‘cannot understand’, which is a
+generic failure status. In <em>pynetdicom’s</em> case this range of statuses is used
+to provide more specific error information; by checking the
+<a class="reference internal" href="../service_classes/storage_service_class.html#service-store-pynd"><span class="std std-ref">storage service class page</span></a> in the
+documentation you can find the corresponding error to a given status.</p>
+<p>In the case of <code class="docutils literal notranslate"><span class="pre">0xC211</span></code> the error is ‘Unhandled exception raised by the
+handler bound to <code class="docutils literal notranslate"><span class="pre">evt.EVT_C_STORE</span></code>’, so what does the output from the SCP
+look like?</p>
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>...
+I: Received Store Request
+D: ========================== INCOMING DIMSE MESSAGE ==========================
+D: Message Type                  : C-STORE RQ
+D: Presentation Context ID       : 1
+D: Message ID                    : 1
+D: Affected SOP Class UID        : CT Image Storage
+D: Affected SOP Instance UID     : 1.3.6.1.4.1.5962.1.1.1.1.1.20040119072730.12322
+D: Data Set                      : Present
+D: Priority                      : Low
+D: ============================ END DIMSE MESSAGE =============================
+E: Exception in the handler bound to &#39;evt.EVT_C_STORE&#39;
+E: No handler has been bound to &#39;evt.EVT_C_STORE&#39;
+Traceback (most recent call last):
+  File &quot;.../pynetdicom/service_class.py&quot;, line 1406, in SCP
+    {&#39;request&#39; : req, &#39;context&#39; : context.as_tuple}
+  File &quot;.../pynetdicom/events.py&quot;, line 212, in trigger
+    return handlers[0](evt)
+  File &quot;.../pynetdicom/events.py&quot;, line 820, in _c_store_handler
+    raise NotImplementedError(&quot;No handler has been bound to &#39;evt.EVT_C_STORE&#39;&quot;)
+NotImplementedError: No handler has been bound to &#39;evt.EVT_C_STORE&#39;
+</pre></div>
+</div>
+<p>As the log confirms, the failure was caused by not having a handler bound to
+the <code class="docutils literal notranslate"><span class="pre">evt.EVT_C_STORE</span></code> event, so we’d better fix that.</p>
+</div>
+<div class="section" id="events-and-handlers">
+<h2>Events and handlers<a class="headerlink" href="#events-and-handlers" title="Permalink to this headline">¶</a></h2>
+<p><em>pynetdicom</em> uses an <a class="reference internal" href="../user/events.html"><span class="doc">event-handler system</span></a> to give
+access to data exchanged between AEs and as a way to customise the responses to
+service requests. Events come in two types: <a class="reference internal" href="../user/events.html#events-notification"><span class="std std-ref">notification events</span></a>, where
+where the user is notified some event has occurred, and
+<a class="reference internal" href="../user/events.html#events-intervention"><span class="std std-ref">intervention events</span></a>,
+where the user must intervene in some way. The idea is that you bind a
+callable function, the <em>handler</em>, to an event, and then when the event occurs
+the handler is called.</p>
+<p>There are two areas where user intervention is required:</p>
+<ol class="arabic simple">
+<li><p>Responding to <a class="reference internal" href="../user/association.html#user-assoc-extneg"><span class="std std-ref">extended negotiation</span></a> items during
+association negotiation. You most likely will only have to worry about this
+if you’re using <a class="reference external" href="http://dicom.nema.org/medical/dicom/current/output/chtml/part07/sect_D.3.3.7.html">User Identity negotiation</a>.</p></li>
+<li><p>Responding to a service request when acting as an
+SCP, such as when an SCU sends a store request to a Storage SCP. Hey,
+that sounds familiar…</p></li>
+</ol>
+<p>So we need to <a class="reference internal" href="../reference/generated/pynetdicom._handlers.doc_handle_store.html#pynetdicom._handlers.doc_handle_store" title="pynetdicom._handlers.doc_handle_store"><code class="xref py py-func docutils literal notranslate"><span class="pre">bind</span> <span class="pre">a</span> <span class="pre">handler</span></code></a> to
+<code class="docutils literal notranslate"><span class="pre">evt.EVT_C_STORE</span></code> to respond to incoming store requests.</p>
+<div class="highlight-python notranslate"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre> 1
+ 2
+ 3
+ 4
+ 5
+ 6
+ 7
+ 8
+ 9
+10
+11
+12
+13
+14
+15
+16</pre></div></td><td class="code"><div class="highlight"><pre><span></span> <span class="kn">from</span> <span class="nn">pydicom.uid</span> <span class="kn">import</span> <span class="n">ExplicitVRLittleEndian</span>
+
+<span class="hll"> <span class="kn">from</span> <span class="nn">pynetdicom</span> <span class="kn">import</span> <span class="n">AE</span><span class="p">,</span> <span class="n">debug_logger</span><span class="p">,</span> <span class="n">evt</span>
+</span> <span class="kn">from</span> <span class="nn">pynetdicom.sop_class</span> <span class="kn">import</span> <span class="n">CTImageStorage</span>
+
+ <span class="n">debug_logger</span><span class="p">()</span>
+
+<span class="hll"> <span class="k">def</span> <span class="nf">handle_store</span><span class="p">(</span><span class="n">event</span><span class="p">):</span>
+</span><span class="hll">     <span class="sd">&quot;&quot;&quot;Handle EVT_C_STORE events.&quot;&quot;&quot;</span>
+</span><span class="hll">     <span class="k">return</span> <span class="mh">0x0000</span>
+</span>
+<span class="hll"> <span class="n">handlers</span> <span class="o">=</span> <span class="p">[(</span><span class="n">evt</span><span class="o">.</span><span class="n">EVT_C_STORE</span><span class="p">,</span> <span class="n">handle_store</span><span class="p">)]</span>
+</span>
+ <span class="n">ae</span> <span class="o">=</span> <span class="n">AE</span><span class="p">()</span>
+ <span class="n">ae</span><span class="o">.</span><span class="n">add_supported_context</span><span class="p">(</span><span class="n">CTImageStorage</span><span class="p">,</span> <span class="n">ExplicitVRLittleEndian</span><span class="p">)</span>
+<span class="hll"> <span class="n">ae</span><span class="o">.</span><span class="n">start_server</span><span class="p">((</span><span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="mi">11112</span><span class="p">),</span> <span class="n">block</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">evt_handlers</span><span class="o">=</span><span class="n">handlers</span><span class="p">)</span>
+</span></pre></div>
+</td></tr></table></div>
+<p>We import <code class="docutils literal notranslate"><span class="pre">evt</span></code>, which contains all the events, and add a function
+<code class="docutils literal notranslate"><span class="pre">handle_store</span></code> which will be our handler. All handlers must, at a minimum,
+take a single parameter <cite>event</cite>, which is an <a class="reference internal" href="../reference/generated/pynetdicom.events.Event.html#pynetdicom.events.Event" title="pynetdicom.events.Event"><code class="xref py py-class docutils literal notranslate"><span class="pre">Event</span></code></a> instance.
+If you look at the <a class="reference internal" href="../reference/generated/pynetdicom._handlers.doc_handle_store.html#pynetdicom._handlers.doc_handle_store" title="pynetdicom._handlers.doc_handle_store"><code class="xref py py-func docutils literal notranslate"><span class="pre">documentation</span> <span class="pre">for</span> <span class="pre">EVT_C_STORE</span> <span class="pre">handlers</span></code></a>, you’ll see that they
+must return <em>status</em> as either an <a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.8)"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></a> or <em>pydicom</em>
+<a class="reference external" href="https://pydicom.github.io/pydicom/stable/reference/generated/pydicom.dataset.Dataset.html#pydicom.dataset.Dataset" title="(in pydicom v2.0.0)"><code class="xref py py-class docutils literal notranslate"><span class="pre">Dataset</span></code></a>. This is the same (0000,0900) <em>Status</em>
+value you saw in the previous tutorial, only this will be the value sent by the
+SCP to the SCU, rather than the other way around. In our <code class="docutils literal notranslate"><span class="pre">handle_store</span></code>
+function we’re returning an <code class="docutils literal notranslate"><span class="pre">0x0000</span></code> status, which indicates that the
+storage operation was a success, but at this stage we’re not actually storing
+anything.</p>
+<p>We bind our handler to the corresponding event by passing <code class="docutils literal notranslate"><span class="pre">handlers</span></code>
+to <a class="reference internal" href="../reference/generated/pynetdicom.ae.ApplicationEntity.html#pynetdicom.ae.ApplicationEntity.start_server" title="pynetdicom.ae.ApplicationEntity.start_server"><code class="xref py py-func docutils literal notranslate"><span class="pre">start_server()</span></code></a> via the
+<cite>evt_handlers</cite> keyword parameter.</p>
+<p>Interrupt the terminal running <code class="docutils literal notranslate"><span class="pre">my_scp.py</span></code> using <code class="docutils literal notranslate"><span class="pre">CTRL+C</span></code> and
+then restart it. This time when you run <a class="reference internal" href="../apps/storescu.html"><span class="doc">storescu</span></a>
+you should see:</p>
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>$ python -m pynetdicom storescu 127.0.0.1 11112 CTImageStorage.dcm -v -cx
+I: Requesting Association
+I: Association Accepted
+I: Sending file: CTImageStorage.dcm
+I: Sending Store Request: MsgID 1, (CT)
+I: Received Store Response (Status: 0x0000 - Success)
+I: Releasing Association
+</pre></div>
+</div>
+</div>
+<div class="section" id="customising-the-handler">
+<h2>Customising the handler<a class="headerlink" href="#customising-the-handler" title="Permalink to this headline">¶</a></h2>
+<p>Our Storage SCP is returning success statuses for all incoming requests even
+though we’re not actually storing anything, so our next step is to modify the
+handler to write the dataset to file. Before we do that we need to know a bit
+about the DICOM File Format.</p>
+<div class="section" id="the-dicom-file-format">
+<h3>The DICOM File Format<a class="headerlink" href="#the-dicom-file-format" title="Permalink to this headline">¶</a></h3>
+<p>To be conformant to the DICOM Standard, when a dataset is written to file it
+should be written in the <a class="reference external" href="http://dicom.nema.org/medical/dicom/current/output/chtml/part10/chapter_7.html">DICOM File Format</a>,
+which consists of four main parts:</p>
+<ol class="arabic simple">
+<li><p>A header containing an 128-byte preamble</p></li>
+<li><p>A 4-byte <code class="docutils literal notranslate"><span class="pre">DICM</span></code> prefix (<code class="docutils literal notranslate"><span class="pre">0x4449434D</span></code> in hex)</p></li>
+<li><p>The encoded <em>File Meta Information</em>, which is a small dataset containing
+meta information about the actual dataset</p></li>
+<li><p>The encoded dataset itself</p></li>
+</ol>
+<p>The File Meta Information should contain at least the following elements:</p>
+<table class="docutils align-default">
+<colgroup>
+<col style="width: 24%" />
+<col style="width: 69%" />
+<col style="width: 7%" />
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"><p>Tag</p></th>
+<th class="head"><p>Description</p></th>
+<th class="head"><p>VR</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>(0002,0000)</p></td>
+<td><p><em>File Meta Information Group Length</em></p></td>
+<td><p>UL</p></td>
+</tr>
+<tr class="row-odd"><td><p>(0002,0001)</p></td>
+<td><p><em>File Meta Information Version</em></p></td>
+<td><p>OB</p></td>
+</tr>
+<tr class="row-even"><td><p>(0002,0002)</p></td>
+<td><p><em>Media Storage SOP Class UID</em></p></td>
+<td><p>UI</p></td>
+</tr>
+<tr class="row-odd"><td><p>(0002,0003)</p></td>
+<td><p><em>Media Storage SOP Instance UID</em></p></td>
+<td><p>UI</p></td>
+</tr>
+<tr class="row-even"><td><p>(0002,0010)</p></td>
+<td><p><em>Transfer Syntax UID</em></p></td>
+<td><p>UI</p></td>
+</tr>
+<tr class="row-odd"><td><p>(0002,0012)</p></td>
+<td><p><em>Implementation Class UID</em></p></td>
+<td><p>UI</p></td>
+</tr>
+</tbody>
+</table>
+<p>While a dataset can be stored without the header, prefix and file meta
+information, to do so is non-conformant to the DICOM Standard. It also becomes
+more difficult to correctly determine the encoding of the dataset, which is
+important when trying to read or transfer it. Fortunately, <em>pynetdicom</em> and
+<em>pydicom</em> make it very easy to store datasets correctly. Change your handler
+code to:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">handle_store</span><span class="p">(</span><span class="n">event</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Handle EVT_C_STORE events.&quot;&quot;&quot;</span>
+    <span class="n">ds</span> <span class="o">=</span> <span class="n">event</span><span class="o">.</span><span class="n">dataset</span>
+    <span class="n">ds</span><span class="o">.</span><span class="n">file_meta</span> <span class="o">=</span> <span class="n">event</span><span class="o">.</span><span class="n">file_meta</span>
+    <span class="n">ds</span><span class="o">.</span><span class="n">save_as</span><span class="p">(</span><span class="n">ds</span><span class="o">.</span><span class="n">SOPInstanceUID</span><span class="p">,</span> <span class="n">write_like_original</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="mh">0x0000</span>
+</pre></div>
+</div>
+<p>Where <a class="reference internal" href="../reference/generated/pynetdicom.events.Event.html#pynetdicom.events.Event.dataset" title="pynetdicom.events.Event.dataset"><code class="xref py py-attr docutils literal notranslate"><span class="pre">event.dataset</span></code></a> is the decoded dataset
+received from the SCU as a <em>pydicom</em> <a class="reference external" href="https://pydicom.github.io/pydicom/stable/reference/generated/pydicom.dataset.Dataset.html#pydicom.dataset.Dataset" title="(in pydicom v2.0.0)"><code class="xref py py-class docutils literal notranslate"><span class="pre">Dataset</span></code></a> and
+<a class="reference internal" href="../reference/generated/pynetdicom.events.Event.html#pynetdicom.events.Event.file_meta" title="pynetdicom.events.Event.file_meta"><code class="xref py py-attr docutils literal notranslate"><span class="pre">event.file_meta</span></code></a> is a
+<a class="reference external" href="https://pydicom.github.io/pydicom/stable/reference/generated/pydicom.dataset.Dataset.html#pydicom.dataset.Dataset" title="(in pydicom v2.0.0)"><code class="xref py py-class docutils literal notranslate"><span class="pre">Dataset</span></code></a> containing conformant File Meta Information
+elements. We set the dataset’s <a class="reference external" href="https://pydicom.github.io/pydicom/stable/reference/generated/pydicom.dataset.FileDataset.html#pydicom.dataset.FileDataset.file_meta" title="(in pydicom v2.0.0)"><code class="xref py py-attr docutils literal notranslate"><span class="pre">file_meta</span></code></a>
+attribute and then save it to a file
+named after its (0008,0018) <em>SOP Instance UID</em>,  which is an identifier unique
+to each dataset that <em>should</em> be present. We pass
+<code class="docutils literal notranslate"><span class="pre">write_like_original</span> <span class="pre">=</span> <span class="pre">False</span></code> to <a class="reference external" href="https://pydicom.github.io/pydicom/stable/reference/generated/pydicom.dataset.Dataset.html#pydicom.dataset.Dataset.save_as" title="(in pydicom v2.0.0)"><code class="xref py py-meth docutils literal notranslate"><span class="pre">Dataset.save_as()</span></code></a> to
+ensure that the file is written in the DICOM File Format.</p>
+<p>There are a couple of things to be aware of when dealing with
+<a class="reference external" href="https://pydicom.github.io/pydicom/stable/reference/generated/pydicom.dataset.Dataset.html#pydicom.dataset.Dataset" title="(in pydicom v2.0.0)"><code class="xref py py-class docutils literal notranslate"><span class="pre">Datasets</span></code></a>:</p>
+<ul class="simple">
+<li><p>Because <em>pydicom</em> uses a deferred-read system, the
+<a class="reference external" href="https://pydicom.github.io/pydicom/stable/reference/generated/pydicom.dataset.Dataset.html#pydicom.dataset.Dataset" title="(in pydicom v2.0.0)"><code class="xref py py-class docutils literal notranslate"><span class="pre">Dataset</span></code></a> returned by
+<a class="reference internal" href="../reference/generated/pynetdicom.events.Event.html#pynetdicom.events.Event.dataset" title="pynetdicom.events.Event.dataset"><code class="xref py py-attr docutils literal notranslate"><span class="pre">event.dataset</span></code></a> may raise an exception when any
+element is first accessed.</p></li>
+<li><p>The dataset may not contain a particular element, even if it’s supposed to.
+Always assume a dataset is non-conformant, check to see if what you need
+is present and handle missing elements appropriately. The
+easiest way to check if an element is in a dataset is with the
+<a class="reference external" href="https://docs.python.org/3/library/operator.html#operator.__contains__" title="(in Python v3.8)"><code class="xref py py-func docutils literal notranslate"><span class="pre">in</span></code></a> operator: <code class="docutils literal notranslate"><span class="pre">'PatientName'</span> <span class="pre">in</span> <span class="pre">ds</span></code>, but
+<a class="reference external" href="https://pydicom.github.io/pydicom/stable/reference/generated/pydicom.dataset.Dataset.html#pydicom.dataset.Dataset.get" title="(in pydicom v2.0.0)"><code class="xref py py-meth docutils literal notranslate"><span class="pre">Dataset.get()</span></code></a> or <a class="reference external" href="https://docs.python.org/3/library/functions.html#getattr" title="(in Python v3.8)"><code class="xref py py-func docutils literal notranslate"><span class="pre">getattr()</span></code></a> are
+also handy.</p></li>
+</ul>
+<p>If you restart <code class="docutils literal notranslate"><span class="pre">my_scp.py</span></code> and re-send the dataset using
+<a class="reference internal" href="../apps/storescu.html"><span class="doc">storescu</span></a> you  should see that a file containing the
+transferred dataset named
+<code class="docutils literal notranslate"><span class="pre">1.3.6.1.4.1.5962.1.1.1.1.1.20040119072730.12322</span></code> has been written to the
+directory containing <code class="docutils literal notranslate"><span class="pre">my_scp.py</span></code>.</p>
+</div>
+<div class="section" id="expanding-the-supported-data">
+<h3>Expanding the supported data<a class="headerlink" href="#expanding-the-supported-data" title="Permalink to this headline">¶</a></h3>
+<p>Our Storage SCP is pretty limited at the moment, only handling one type of
+dataset (technically, one <em>SOP Class</em>) encoded in a particular way. We can
+change that to handle all the storage service’s SOP Classes by adding more
+supported presentation contexts:</p>
+<div class="highlight-python notranslate"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre> 1
+ 2
+ 3
+ 4
+ 5
+ 6
+ 7
+ 8
+ 9
+10
+11
+12
+13
+14
+15
+16
+17
+18
+19
+20
+21
+22
+23
+24
+25</pre></div></td><td class="code"><div class="highlight"><pre><span></span><span class="hll"> <span class="kn">from</span> <span class="nn">pynetdicom</span> <span class="kn">import</span> <span class="p">(</span>
+</span><span class="hll">     <span class="n">AE</span><span class="p">,</span> <span class="n">debug_logger</span><span class="p">,</span> <span class="n">evt</span><span class="p">,</span> <span class="n">AllStoragePresentationContexts</span><span class="p">,</span>
+</span><span class="hll">     <span class="n">ALL_TRANSFER_SYNTAXES</span>
+</span><span class="hll"> <span class="p">)</span>
+</span>
+ <span class="n">debug_logger</span><span class="p">()</span>
+
+ <span class="k">def</span> <span class="nf">handle_store</span><span class="p">(</span><span class="n">event</span><span class="p">):</span>
+     <span class="sd">&quot;&quot;&quot;Handle EVT_C_STORE events.&quot;&quot;&quot;</span>
+     <span class="n">ds</span> <span class="o">=</span> <span class="n">event</span><span class="o">.</span><span class="n">dataset</span>
+     <span class="n">ds</span><span class="o">.</span><span class="n">file_meta</span> <span class="o">=</span> <span class="n">event</span><span class="o">.</span><span class="n">file_meta</span>
+     <span class="n">ds</span><span class="o">.</span><span class="n">save_as</span><span class="p">(</span><span class="n">ds</span><span class="o">.</span><span class="n">SOPInstanceUID</span><span class="p">,</span> <span class="n">write_like_original</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+
+     <span class="k">return</span> <span class="mh">0x0000</span>
+
+ <span class="n">handlers</span> <span class="o">=</span> <span class="p">[(</span><span class="n">evt</span><span class="o">.</span><span class="n">EVT_C_STORE</span><span class="p">,</span> <span class="n">handle_store</span><span class="p">)]</span>
+
+ <span class="n">ae</span> <span class="o">=</span> <span class="n">AE</span><span class="p">()</span>
+<span class="hll"> <span class="n">storage_sop_classes</span> <span class="o">=</span> <span class="p">[</span>
+</span><span class="hll">     <span class="n">cx</span><span class="o">.</span><span class="n">abstract_syntax</span> <span class="k">for</span> <span class="n">cx</span> <span class="ow">in</span> <span class="n">AllStoragePresentationContexts</span>
+</span><span class="hll"> <span class="p">]</span>
+</span><span class="hll"> <span class="k">for</span> <span class="n">uid</span> <span class="ow">in</span> <span class="n">storage_sop_classes</span><span class="p">:</span>
+</span><span class="hll">     <span class="n">ae</span><span class="o">.</span><span class="n">add_supported_context</span><span class="p">(</span><span class="n">uid</span><span class="p">,</span> <span class="n">ALL_TRANSFER_SYNTAXES</span><span class="p">)</span>
+</span>
+ <span class="n">ae</span><span class="o">.</span><span class="n">start_server</span><span class="p">((</span><span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="mi">11112</span><span class="p">),</span> <span class="n">block</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">evt_handlers</span><span class="o">=</span><span class="n">handlers</span><span class="p">)</span>
+</pre></div>
+</td></tr></table></div>
+<p><a class="reference internal" href="../reference/generated/pynetdicom.presentation.AllStoragePresentationContexts.html#pynetdicom.presentation.AllStoragePresentationContexts" title="pynetdicom.presentation.AllStoragePresentationContexts"><code class="xref py py-attr docutils literal notranslate"><span class="pre">AllStoragePresentationContexts</span></code></a> is a list of pre-built
+presentation contexts, one for every SOP Class in the storage service. However,
+by default these contexts only support the uncompressed transfer syntaxes. To
+support both compressed and uncompressed transfer syntaxes we separate out the
+abstract syntaxes then use <a class="reference internal" href="../reference/generated/pynetdicom.ae.ApplicationEntity.html#pynetdicom.ae.ApplicationEntity.add_supported_context" title="pynetdicom.ae.ApplicationEntity.add_supported_context"><code class="xref py py-meth docutils literal notranslate"><span class="pre">add_supported_context()</span></code></a>
+with <a class="reference internal" href="../reference/generated/pynetdicom.ALL_TRANSFER_SYNTAXES.html#pynetdicom.ALL_TRANSFER_SYNTAXES" title="pynetdicom.ALL_TRANSFER_SYNTAXES"><code class="xref py py-attr docutils literal notranslate"><span class="pre">ALL_TRANSFER_SYNTAXES</span></code></a> instead.</p>
+</div>
+<div class="section" id="optimising-and-passing-extra-arguments">
+<h3>Optimising and passing extra arguments<a class="headerlink" href="#optimising-and-passing-extra-arguments" title="Permalink to this headline">¶</a></h3>
+<p>If you don’t actually need a decoded <a class="reference external" href="https://pydicom.github.io/pydicom/stable/reference/generated/pydicom.dataset.Dataset.html#pydicom.dataset.Dataset" title="(in pydicom v2.0.0)"><code class="xref py py-class docutils literal notranslate"><span class="pre">Dataset</span></code></a> object
+then it’s faster to write the encoded dataset directly to file; this skips
+having to decode and then re-encode the dataset at the cost of slightly more
+complex code:</p>
+<div class="highlight-python notranslate"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre> 1
+ 2
+ 3
+ 4
+ 5
+ 6
+ 7
+ 8
+ 9
+10
+11
+12
+13
+14
+15
+16
+17
+18
+19
+20
+21
+22
+23
+24
+25
+26
+27
+28
+29
+30
+31
+32
+33
+34
+35
+36
+37
+38
+39
+40
+41</pre></div></td><td class="code"><div class="highlight"><pre><span></span><span class="hll"> <span class="kn">import</span> <span class="nn">os</span>
+</span>
+<span class="hll"> <span class="kn">from</span> <span class="nn">pydicom.filewriter</span> <span class="kn">import</span> <span class="n">write_file_meta_info</span>
+</span>
+ <span class="kn">from</span> <span class="nn">pynetdicom</span> <span class="kn">import</span> <span class="p">(</span>
+     <span class="n">AE</span><span class="p">,</span> <span class="n">debug_logger</span><span class="p">,</span> <span class="n">evt</span><span class="p">,</span> <span class="n">AllStoragePresentationContexts</span><span class="p">,</span>
+     <span class="n">ALL_TRANSFER_SYNTAXES</span>
+ <span class="p">)</span>
+
+ <span class="n">debug_logger</span><span class="p">()</span>
+
+<span class="hll"> <span class="k">def</span> <span class="nf">handle_store</span><span class="p">(</span><span class="n">event</span><span class="p">,</span> <span class="n">storage_dir</span><span class="p">):</span>
+</span>     <span class="sd">&quot;&quot;&quot;Handle EVT_C_STORE events.&quot;&quot;&quot;</span>
+<span class="hll">     <span class="k">try</span><span class="p">:</span>
+</span><span class="hll">         <span class="n">os</span><span class="o">.</span><span class="n">makedirs</span><span class="p">(</span><span class="n">storage_dir</span><span class="p">,</span> <span class="n">exist_ok</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+</span><span class="hll">     <span class="k">except</span><span class="p">:</span>
+</span><span class="hll">         <span class="c1"># Unable to create output dir, return failure status</span>
+</span><span class="hll">         <span class="k">return</span> <span class="mh">0xC001</span>
+</span>
+     <span class="c1"># We rely on the UID from the C-STORE request instead of decoding</span>
+<span class="hll">     <span class="n">fname</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">storage_dir</span><span class="p">,</span> <span class="n">event</span><span class="o">.</span><span class="n">request</span><span class="o">.</span><span class="n">AffectedSOPInstanceUID</span><span class="p">)</span>
+</span><span class="hll">     <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">fname</span><span class="p">,</span> <span class="s1">&#39;wb&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+</span><span class="hll">         <span class="c1"># Write the preamble, prefix and file meta information elements</span>
+</span><span class="hll">         <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="sa">b</span><span class="s1">&#39;</span><span class="se">\x00</span><span class="s1">&#39;</span> <span class="o">*</span> <span class="mi">128</span><span class="p">)</span>
+</span><span class="hll">         <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="sa">b</span><span class="s1">&#39;DICM&#39;</span><span class="p">)</span>
+</span><span class="hll">         <span class="n">write_file_meta_info</span><span class="p">(</span><span class="n">f</span><span class="p">,</span> <span class="n">event</span><span class="o">.</span><span class="n">file_meta</span><span class="p">)</span>
+</span><span class="hll">         <span class="c1"># Write the raw encoded dataset</span>
+</span><span class="hll">         <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">event</span><span class="o">.</span><span class="n">request</span><span class="o">.</span><span class="n">DataSet</span><span class="o">.</span><span class="n">getvalue</span><span class="p">())</span>
+</span>
+     <span class="k">return</span> <span class="mh">0x0000</span>
+
+<span class="hll"> <span class="n">handlers</span> <span class="o">=</span> <span class="p">[(</span><span class="n">evt</span><span class="o">.</span><span class="n">EVT_C_STORE</span><span class="p">,</span> <span class="n">handle_store</span><span class="p">,</span> <span class="p">[</span><span class="s1">&#39;out&#39;</span><span class="p">])]</span>
+</span>
+ <span class="n">ae</span> <span class="o">=</span> <span class="n">AE</span><span class="p">()</span>
+ <span class="n">storage_sop_classes</span> <span class="o">=</span> <span class="p">[</span>
+     <span class="n">cx</span><span class="o">.</span><span class="n">abstract_syntax</span> <span class="k">for</span> <span class="n">cx</span> <span class="ow">in</span> <span class="n">AllStoragePresentationContexts</span>
+ <span class="p">]</span>
+ <span class="k">for</span> <span class="n">uid</span> <span class="ow">in</span> <span class="n">storage_sop_classes</span><span class="p">:</span>
+     <span class="n">ae</span><span class="o">.</span><span class="n">add_supported_context</span><span class="p">(</span><span class="n">uid</span><span class="p">,</span> <span class="n">ALL_TRANSFER_SYNTAXES</span><span class="p">)</span>
+
+ <span class="n">ae</span><span class="o">.</span><span class="n">start_server</span><span class="p">((</span><span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="mi">11112</span><span class="p">),</span> <span class="n">block</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">evt_handlers</span><span class="o">=</span><span class="n">handlers</span><span class="p">)</span>
+</pre></div>
+</td></tr></table></div>
+<p>We’ve modified the handler to write the preamble and prefix to file,
+encode and write the file meta information elements using <em>pydicom’s</em>
+<a class="reference external" href="https://pydicom.github.io/pydicom/stable/reference/generated/pydicom.filewriter.write_file_meta_info.html#pydicom.filewriter.write_file_meta_info" title="(in pydicom v2.0.0)"><code class="xref py py-func docutils literal notranslate"><span class="pre">write_file_meta_info()</span></code></a> function, then finally write
+the encoded dataset using the <a class="reference internal" href="../reference/generated/pynetdicom.dimse_primitives.C_STORE.html#id1" title="pynetdicom.dimse_primitives.C_STORE.DataSet"><code class="xref py py-attr docutils literal notranslate"><span class="pre">raw</span> <span class="pre">dataset</span></code></a> received directly from the C-STORE
+request via the <code class="docutils literal notranslate"><span class="pre">event.request</span></code> attribute.</p>
+<p>The second change we’ve made is to demonstrate how extra parameters can be
+passed to the handler by binding using a 3-tuple rather than a 2-tuple. The
+third item in the <a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#tuple" title="(in Python v3.8)"><code class="xref py py-class docutils literal notranslate"><span class="pre">tuple</span></code></a> should be a <a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.8)"><code class="xref py py-class docutils literal notranslate"><span class="pre">list</span></code></a> of objects;
+each of the list’s items will be passed as a separate parameter. In
+our case the string <code class="docutils literal notranslate"><span class="pre">'out'</span></code> will be passed to the handler as the
+<em>storage_dir</em> parameter.</p>
+<p>You should also handle exceptions in your code gracefully by returning an
+appropriate status value. In this case, if we failed to create the output
+directory we return an <code class="docutils literal notranslate"><span class="pre">0xC001</span></code> status, indicating that the storage operation
+has failed. However, as you’ve already seen, any unhandled exceptions in the
+handler will automatically return an <code class="docutils literal notranslate"><span class="pre">0xC211</span></code> status, so you really only
+need to deal with the exceptions important to you.</p>
+<p>If you restart <code class="docutils literal notranslate"><span class="pre">my_scp.py</span></code>, you should now be able to use
+<a class="reference internal" href="../apps/storescu.html"><span class="doc">storescu</span></a> to send it any DICOM dataset supported by
+the storage service.</p>
+</div>
+</div>
+<div class="section" id="next-steps">
+<h2>Next steps<a class="headerlink" href="#next-steps" title="Permalink to this headline">¶</a></h2>
+<p>That’s it for the basics of <em>pynetdicom</em>. You might want to read through the
+<a class="reference internal" href="../user/index.html"><span class="doc">User Guide</span></a>, or check
+out the <a class="reference internal" href="../examples/index.html"><span class="doc">SCP examples</span></a> available in the documentation
+or the <a class="reference internal" href="../apps/index.html"><span class="doc">applications</span></a> that come with <em>pynetdicom</em>.</p>
+</div>
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="../service_classes/index.html" class="btn btn-neutral float-right" title="Supported Service Classes" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
+      
+      
+        <a href="create_scu.html" class="btn btn-neutral float-left" title="Writing your first SCU" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2018-20, pynetdicom contributors
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>

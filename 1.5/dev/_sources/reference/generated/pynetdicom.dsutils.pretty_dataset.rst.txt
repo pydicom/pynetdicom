@@ -1,0 +1,6 @@
+pynetdicom.dsutils.pretty\_dataset
+==================================
+
+.. currentmodule:: pynetdicom.dsutils
+
+.. autofunction:: pretty_dataset

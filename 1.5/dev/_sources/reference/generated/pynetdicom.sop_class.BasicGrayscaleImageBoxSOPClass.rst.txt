@@ -1,0 +1,6 @@
+pynetdicom.sop\_class.BasicGrayscaleImageBoxSOPClass
+====================================================
+
+.. currentmodule:: pynetdicom.sop_class
+
+.. autodata:: BasicGrayscaleImageBoxSOPClass

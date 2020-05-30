@@ -1,0 +1,664 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>pynetdicom.presentation.PresentationContext &mdash; pynetdicom 1.5.0 documentation</title>
+  
+
+  
+  
+    <link rel="shortcut icon" href="../../_static/favicon.ico"/>
+  
+  
+  
+
+  
+  <script type="text/javascript" src="../../_static/js/modernizr.min.js"></script>
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../../" src="../../_static/documentation_options.js"></script>
+        <script src="../../_static/jquery.js"></script>
+        <script src="../../_static/underscore.js"></script>
+        <script src="../../_static/doctools.js"></script>
+        <script src="../../_static/language_data.js"></script>
+    
+    <script type="text/javascript" src="../../_static/js/theme.js"></script>
+
+    
+
+  
+  <link rel="stylesheet" href="../../_static/css/pynetdicom.css" type="text/css" />
+  <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="../../_static/css/pynetdicom.css" type="text/css" />
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" />
+    <link rel="next" title="pynetdicom.presentation.PresentationContextTuple" href="pynetdicom.presentation.PresentationContextTuple.html" />
+    <link rel="prev" title="pynetdicom.presentation.build_role" href="pynetdicom.presentation.build_role.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="../../index.html" class="icon icon-home"> pynetdicom
+          
+
+          
+            
+            <img src="../../_static/pydicom_flat_black.svg" class="logo" alt="Logo"/>
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                1.5.0
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <p class="caption"><span class="caption-text">Documentation</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../../user/index.html">User Guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../tutorials/index.html">Tutorials</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../service_classes/index.html">Supported Service Classes</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="../index.html">API Reference</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="../init.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">pynetdicom</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="../acse.html">ACSE Service (<code class="xref py py-mod docutils literal notranslate"><span class="pre">pynetdicom.acse</span></code>)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../ae.html">Application Entity (<code class="xref py py-mod docutils literal notranslate"><span class="pre">pynetdicom.ae</span></code>)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../association.html">Association (<code class="xref py py-mod docutils literal notranslate"><span class="pre">pynetdicom.association</span></code>)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../config.html">Configuration Options (<code class="xref py py-mod docutils literal notranslate"><span class="pre">pynetdicom._config</span></code>)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../dimse.html">DIMSE Service</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../dsutils.html">Dataset Utilities (<code class="xref py py-mod docutils literal notranslate"><span class="pre">pynetdicom.dsutils</span></code>)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../dul.html">DICOM Upper Layer</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../events.html">Events and Handlers (<code class="xref py py-mod docutils literal notranslate"><span class="pre">pynetdicom.events</span></code>)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../fsm.html">State Machine (<code class="xref py py-mod docutils literal notranslate"><span class="pre">pynetdicom.fsm</span></code>)</a></li>
+<li class="toctree-l2 current"><a class="reference internal" href="../presentation.html">Presentation Service (<code class="xref py py-mod docutils literal notranslate"><span class="pre">pynetdicom.presentation</span></code>)</a><ul class="current">
+<li class="toctree-l3 current"><a class="reference internal" href="../presentation.html#presentation-contexts">Presentation Contexts</a><ul class="current">
+<li class="toctree-l4"><a class="reference internal" href="pynetdicom.presentation.build_context.html">pynetdicom.presentation.build_context</a></li>
+<li class="toctree-l4"><a class="reference internal" href="pynetdicom.presentation.build_role.html">pynetdicom.presentation.build_role</a></li>
+<li class="toctree-l4 current"><a class="current reference internal" href="#">pynetdicom.presentation.PresentationContext</a></li>
+<li class="toctree-l4"><a class="reference internal" href="pynetdicom.presentation.PresentationContextTuple.html">pynetdicom.presentation.PresentationContextTuple</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../presentation.html#presentation-context-negotiation">Presentation Context Negotiation</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../presentation.html#pre-built-presentation-contexts">Pre-built Presentation Contexts</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../service_classes.html">Service Classes (<code class="xref py py-mod docutils literal notranslate"><span class="pre">pynetdicom.service_class</span></code>)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../sop_classes.html">SOP Classes (<code class="xref py py-mod docutils literal notranslate"><span class="pre">pynetdicom.sop_class</span></code>)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../status.html">Statuses (<code class="xref py py-mod docutils literal notranslate"><span class="pre">pynetdicom.status</span></code>)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../timer.html">Timer (<code class="xref py py-mod docutils literal notranslate"><span class="pre">pynetdicom.timer</span></code>)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../transport.html">Transport Service (<code class="xref py py-mod docutils literal notranslate"><span class="pre">pynetdicom.transport</span></code>)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../utils.html">Utilities (<code class="xref py py-mod docutils literal notranslate"><span class="pre">pynetdicom.utils</span></code>)</a></li>
+</ul>
+</li>
+</ul>
+<p class="caption"><span class="caption-text">Examples</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../examples/index.html">Code Examples</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Additional Information</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../apps/index.html">Applications</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../changelog/index.html">Release Notes</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../index.html">pynetdicom</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../../index.html">Docs</a> &raquo;</li>
+        
+          <li><a href="../index.html">API Reference</a> &raquo;</li>
+        
+          <li><a href="../presentation.html">Presentation Service (<code class="xref py py-mod docutils literal notranslate"><span class="pre">pynetdicom.presentation</span></code>)</a> &raquo;</li>
+        
+      <li>pynetdicom.presentation.PresentationContext</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="pynetdicom-presentation-presentationcontext">
+<h1>pynetdicom.presentation.PresentationContext<a class="headerlink" href="#pynetdicom-presentation-presentationcontext" title="Permalink to this headline">¶</a></h1>
+<dl class="py class">
+<dt id="pynetdicom.presentation.PresentationContext">
+<em class="property">class </em><code class="sig-prename descclassname">pynetdicom.presentation.</code><code class="sig-name descname">PresentationContext</code><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/547ff8c5/pynetdicom/presentation.py#L115"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom.presentation.PresentationContext" title="Permalink to this definition">¶</a></dt>
+<dd><p>A Presentation Context primitive.</p>
+<p><strong>Rules</strong></p>
+<ul class="simple">
+<li><p>Each Presentation Context (request) contains:</p>
+<ul>
+<li><p>One context ID, an odd integer between 1 and 255.</p></li>
+<li><p>One abstract syntax.</p></li>
+<li><p>One or more transfer syntaxes.</p></li>
+</ul>
+</li>
+<li><p>Each Presentation Context (response) contains:</p>
+<ul>
+<li><p>One context ID, corresponding to a Presentation Context received from
+the <em>Requestor</em></p></li>
+<li><p>A result, one of <code class="docutils literal notranslate"><span class="pre">0x00</span></code> (acceptance), <code class="docutils literal notranslate"><span class="pre">0x01</span></code> (user rejection),
+<code class="docutils literal notranslate"><span class="pre">0x02</span></code> (provider rejection), <code class="docutils literal notranslate"><span class="pre">0x03</span></code> (abstract syntax not supported)
+or <code class="docutils literal notranslate"><span class="pre">0x04</span></code> (transfer syntaxes not supported).</p></li>
+<li><p>If the result is <code class="docutils literal notranslate"><span class="pre">0x00</span></code>, then a transfer syntax.</p></li>
+<li><p>If any other result, then a transfer syntax may or may not be present.</p></li>
+</ul>
+</li>
+<li><p>If the result is not <code class="docutils literal notranslate"><span class="pre">0x00</span></code> then the transfer syntax in the reply is
+not significant.</p></li>
+<li><p>The same abstract syntax can be present in more than one Presententation
+Context.</p></li>
+<li><p>Only one transfer syntax can be accepted per Presentation Context.</p></li>
+<li><p>The Presentation Contexts may be sent by the <em>Requestor</em> in any order.</p></li>
+<li><p>The Presentation Contexts may be sent by the <em>Acceptor</em> in any order.</p></li>
+</ul>
+<p><strong>SCP/SCU Role Selection Negotiation</strong></p>
+<ul class="simple">
+<li><p>If no role selection negotiation then the <em>Requestor</em> is SCU and the
+<em>Acceptor</em> is SCP</p></li>
+<li><p>The association <em>Acceptor</em> cannot accept a role that has not been
+proposed (i.e. cannot return 1 when the proposed value is 0).</p></li>
+<li><p>The association <em>Requestor</em> may be SCP only, SCU only or both SCU and
+SCP.</p></li>
+</ul>
+<table class="docutils align-default">
+<colgroup>
+<col style="width: 15%" />
+<col style="width: 15%" />
+<col style="width: 15%" />
+<col style="width: 15%" />
+<col style="width: 13%" />
+<col style="width: 13%" />
+<col style="width: 15%" />
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head" colspan="2"><p>Requestor</p></th>
+<th class="head" colspan="2"><p>Acceptor</p></th>
+<th class="head" colspan="2"><p>Outcome</p></th>
+<th class="head" rowspan="2"><p>Notes</p></th>
+</tr>
+<tr class="row-even"><th class="head"><p>scu_role</p></th>
+<th class="head"><p>scp_role</p></th>
+<th class="head"><p>scu_role</p></th>
+<th class="head"><p>scp_role</p></th>
+<th class="head"><p>Req.</p></th>
+<th class="head"><p>Acc.</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-odd"><td><p>N/A</p></td>
+<td><p>N/A</p></td>
+<td><p>N/A</p></td>
+<td><p>N/A</p></td>
+<td><p>SCU</p></td>
+<td><p>SCP</p></td>
+<td><p>Default</p></td>
+</tr>
+<tr class="row-even"><td rowspan="4"><p>True</p></td>
+<td rowspan="4"><p>True</p></td>
+<td rowspan="2"><p>False</p></td>
+<td><p>False</p></td>
+<td><p>N/A</p></td>
+<td><p>N/A</p></td>
+<td><p>Rejected</p></td>
+</tr>
+<tr class="row-odd"><td><p>True</p></td>
+<td><p>SCP</p></td>
+<td><p>SCU</p></td>
+<td></td>
+</tr>
+<tr class="row-even"><td rowspan="2"><p>True</p></td>
+<td><p>False</p></td>
+<td><p>SCU</p></td>
+<td><p>SCP</p></td>
+<td><p>Default</p></td>
+</tr>
+<tr class="row-odd"><td><p>True</p></td>
+<td><p>SCU/SCP</p></td>
+<td><p>SCU/SCP</p></td>
+<td></td>
+</tr>
+<tr class="row-even"><td rowspan="2"><p>True</p></td>
+<td rowspan="2"><p>False</p></td>
+<td><p>False</p></td>
+<td rowspan="2"><p>False</p></td>
+<td><p>N/A</p></td>
+<td><p>N/A</p></td>
+<td><p>Rejected</p></td>
+</tr>
+<tr class="row-odd"><td><p>True</p></td>
+<td><p>SCU</p></td>
+<td><p>SCP</p></td>
+<td><p>Default</p></td>
+</tr>
+<tr class="row-even"><td rowspan="2"><p>False</p></td>
+<td rowspan="2"><p>True</p></td>
+<td rowspan="2"><p>False</p></td>
+<td><p>False</p></td>
+<td><p>N/A</p></td>
+<td><p>N/A</p></td>
+<td><p>Rejected</p></td>
+</tr>
+<tr class="row-odd"><td><p>True</p></td>
+<td><p>SCP</p></td>
+<td><p>SCU</p></td>
+<td></td>
+</tr>
+<tr class="row-even"><td><p>False</p></td>
+<td><p>False</p></td>
+<td><p>False</p></td>
+<td><p>False</p></td>
+<td><p>N/A</p></td>
+<td><p>N/A</p></td>
+<td><p>Rejected</p></td>
+</tr>
+</tbody>
+</table>
+<p>As can be seen from the above table there are four possible outcomes:</p>
+<ul class="simple">
+<li><p><em>Requestor</em> is SCU, <em>Acceptor</em> is SCP (default roles)</p></li>
+<li><p><em>Requestor</em> is SCP, <em>Acceptor</em> is SCU</p></li>
+<li><p><em>Requestor</em> and <em>Acceptor</em> are both SCU/SCP</p></li>
+<li><p><em>Requestor</em> and <em>Acceptor</em> are neither (context rejected)</p></li>
+</ul>
+<dl class="py attribute">
+<dt id="pynetdicom.presentation.PresentationContext.abstract_syntax">
+<code class="sig-name descname">abstract_syntax</code><a class="headerlink" href="#pynetdicom.presentation.PresentationContext.abstract_syntax" title="Permalink to this definition">¶</a></dt>
+<dd><p>The context’s <em>Abstract Syntax</em>.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p><a class="reference external" href="https://pydicom.github.io/pydicom/stable/reference/generated/pydicom.uid.UID.html#pydicom.uid.UID" title="(in pydicom v2.0.0)">pydicom.uid.UID</a> or <a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.8)">None</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt id="pynetdicom.presentation.PresentationContext.as_scp">
+<code class="sig-name descname">as_scp</code><a class="headerlink" href="#pynetdicom.presentation.PresentationContext.as_scp" title="Permalink to this definition">¶</a></dt>
+<dd><p>If <code class="docutils literal notranslate"><span class="pre">True</span></code> then the association <em>Acceptor</em> can act as SCP for the
+current context, otherwise it cannot. A non-<code class="docutils literal notranslate"><span class="pre">None</span></code> value is only
+available after association negotiation has been completed.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.8)">bool</a> or <a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.8)">None</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt id="pynetdicom.presentation.PresentationContext.as_scu">
+<code class="sig-name descname">as_scu</code><a class="headerlink" href="#pynetdicom.presentation.PresentationContext.as_scu" title="Permalink to this definition">¶</a></dt>
+<dd><p>If <code class="docutils literal notranslate"><span class="pre">True</span></code> then the association <em>Acceptor</em> can act as SCU for the
+current context, otherwise it cannot. A non-<code class="docutils literal notranslate"><span class="pre">None</span></code> value is only
+available after association negotiation has been completed.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.8)">bool</a> or <a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.8)">None</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt id="pynetdicom.presentation.PresentationContext.context_id">
+<code class="sig-name descname">context_id</code><a class="headerlink" href="#pynetdicom.presentation.PresentationContext.context_id" title="Permalink to this definition">¶</a></dt>
+<dd><p>The context’s <em>Context ID</em>.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.8)">int</a> or <a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.8)">None</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt id="pynetdicom.presentation.PresentationContext.result">
+<code class="sig-name descname">result</code><a class="headerlink" href="#pynetdicom.presentation.PresentationContext.result" title="Permalink to this definition">¶</a></dt>
+<dd><p>If part of an A-ASSOCIATE (request) then <code class="docutils literal notranslate"><span class="pre">None</span></code>. If part of an
+A-ASSOCIATE (response) then one of <code class="docutils literal notranslate"><span class="pre">0x00</span></code>, <code class="docutils literal notranslate"><span class="pre">0x01</span></code>, <code class="docutils literal notranslate"><span class="pre">0x02</span></code>,
+<code class="docutils literal notranslate"><span class="pre">0x03</span></code>, <code class="docutils literal notranslate"><span class="pre">0x04</span></code>.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.8)">int</a> or <a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.8)">None</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt id="pynetdicom.presentation.PresentationContext.scp_role">
+<code class="sig-name descname">scp_role</code><a class="headerlink" href="#pynetdicom.presentation.PresentationContext.scp_role" title="Permalink to this definition">¶</a></dt>
+<dd><p>Only used when acting as an association <em>Acceptor</em>. If <code class="docutils literal notranslate"><span class="pre">True</span></code>
+then accept when the SCP role is proposed by the <em>Requestor</em>, otherwise
+reject the proposal. If <code class="docutils literal notranslate"><span class="pre">None</span></code> (default) then no SCP/SCU Role
+Selection reply will be sent and the default roles will be used.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.8)">bool</a> or <a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.8)">None</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt id="pynetdicom.presentation.PresentationContext.scu_role">
+<code class="sig-name descname">scu_role</code><a class="headerlink" href="#pynetdicom.presentation.PresentationContext.scu_role" title="Permalink to this definition">¶</a></dt>
+<dd><p>Only used when acting as an association <em>Acceptor</em>. If <code class="docutils literal notranslate"><span class="pre">True</span></code>
+then accept when the SCU role is proposed by the <em>Requestor</em>, otherwise
+reject the proposal. If <code class="docutils literal notranslate"><span class="pre">None</span></code> (default) then no SCP/SCU Role
+Selection reply will be sent and the default roles will be used.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.8)">bool</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt id="pynetdicom.presentation.PresentationContext.transfer_syntax">
+<code class="sig-name descname">transfer_syntax</code><a class="headerlink" href="#pynetdicom.presentation.PresentationContext.transfer_syntax" title="Permalink to this definition">¶</a></dt>
+<dd><p>The context’s <em>Transfer Syntax(es)</em>.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p>list of pydicom.uid.UID</p>
+</dd>
+</dl>
+</dd></dl>
+
+<p class="rubric">References</p>
+<ul class="simple">
+<li><p>DICOM Standard, Part 7, Annexes <a class="reference external" href="http://dicom.nema.org/medical/dicom/current/output/chtml/part07.html#sect_D.3.2">D.3.2</a>
+and <a class="reference external" href="http://dicom.nema.org/medical/dicom/current/output/chtml/part07.html#sect_D.3.3.4">D.3.3.4</a></p></li>
+<li><p>DICOM Standard, Part 8, Sections <a class="reference external" href="http://dicom.nema.org/medical/dicom/current/output/chtml/part08.html#sect_9.3.2.2">9.3.2.2</a>, <a class="reference external" href="http://dicom.nema.org/medical/dicom/current/output/chtml/part08.html#sect_9.3.3.2">9.3.3.2</a>
+and <a class="reference external" href="http://dicom.nema.org/medical/dicom/current/output/chtml/part08.html#chapter_B">Annex B</a></p></li>
+</ul>
+<dl class="py method">
+<dt id="pynetdicom.presentation.PresentationContext.__init__">
+<code class="sig-name descname">__init__</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/547ff8c5/pynetdicom/presentation.py#L224"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom.presentation.PresentationContext.__init__" title="Permalink to this definition">¶</a></dt>
+<dd><p>Create a new object.</p>
+</dd></dl>
+
+<p class="rubric">Methods</p>
+<table class="longtable docutils align-default">
+<colgroup>
+<col style="width: 10%" />
+<col style="width: 90%" />
+</colgroup>
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pynetdicom.presentation.PresentationContext.__init__" title="pynetdicom.presentation.PresentationContext.__init__"><code class="xref py py-obj docutils literal notranslate"><span class="pre">__init__</span></code></a>()</p></td>
+<td><p>Create a new object.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#pynetdicom.presentation.PresentationContext.add_transfer_syntax" title="pynetdicom.presentation.PresentationContext.add_transfer_syntax"><code class="xref py py-obj docutils literal notranslate"><span class="pre">add_transfer_syntax</span></code></a>(syntax)</p></td>
+<td><p>Append a transfer syntax to the presentation context.</p></td>
+</tr>
+</tbody>
+</table>
+<p class="rubric">Attributes</p>
+<table class="longtable docutils align-default">
+<colgroup>
+<col style="width: 10%" />
+<col style="width: 90%" />
+</colgroup>
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="#id0" title="pynetdicom.presentation.PresentationContext.abstract_syntax"><code class="xref py py-obj docutils literal notranslate"><span class="pre">abstract_syntax</span></code></a></p></td>
+<td><p>Return the context’s <em>Abstract Syntax</em> as <a class="reference external" href="https://pydicom.github.io/pydicom/stable/reference/generated/pydicom.uid.UID.html#pydicom.uid.UID" title="(in pydicom v2.0.0)"><code class="xref py py-class docutils literal notranslate"><span class="pre">UID</span></code></a>.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#id1" title="pynetdicom.presentation.PresentationContext.as_scp"><code class="xref py py-obj docutils literal notranslate"><span class="pre">as_scp</span></code></a></p></td>
+<td><p>Return <code class="docutils literal notranslate"><span class="pre">True</span></code> if can act as an SCP for the context.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#id2" title="pynetdicom.presentation.PresentationContext.as_scu"><code class="xref py py-obj docutils literal notranslate"><span class="pre">as_scu</span></code></a></p></td>
+<td><p>Return <code class="docutils literal notranslate"><span class="pre">True</span></code> if can act as an SCU for the context.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#pynetdicom.presentation.PresentationContext.as_tuple" title="pynetdicom.presentation.PresentationContext.as_tuple"><code class="xref py py-obj docutils literal notranslate"><span class="pre">as_tuple</span></code></a></p></td>
+<td><p>Return a <a class="reference external" href="https://docs.python.org/3/library/collections.html#collections.namedtuple" title="(in Python v3.8)"><code class="xref py py-func docutils literal notranslate"><span class="pre">namedtuple</span></code></a> representation of the presentation context.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#id3" title="pynetdicom.presentation.PresentationContext.context_id"><code class="xref py py-obj docutils literal notranslate"><span class="pre">context_id</span></code></a></p></td>
+<td><p>Return the context’s <em>ID</em> parameter as an <a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.8)"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></a>.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#id4" title="pynetdicom.presentation.PresentationContext.scp_role"><code class="xref py py-obj docutils literal notranslate"><span class="pre">scp_role</span></code></a></p></td>
+<td><p>Return <code class="docutils literal notranslate"><span class="pre">True</span></code> if a proposed SCP role will be accepted.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#id5" title="pynetdicom.presentation.PresentationContext.scu_role"><code class="xref py py-obj docutils literal notranslate"><span class="pre">scu_role</span></code></a></p></td>
+<td><p>Return <code class="docutils literal notranslate"><span class="pre">True</span></code> if a proposed SCU role will be accepted.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#pynetdicom.presentation.PresentationContext.status" title="pynetdicom.presentation.PresentationContext.status"><code class="xref py py-obj docutils literal notranslate"><span class="pre">status</span></code></a></p></td>
+<td><p>Return a descriptive <a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></a> of the context’s <em>Result</em>.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#id6" title="pynetdicom.presentation.PresentationContext.transfer_syntax"><code class="xref py py-obj docutils literal notranslate"><span class="pre">transfer_syntax</span></code></a></p></td>
+<td><p>Return the context’s <em>Transfer Syntaxes</em> as a <a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.8)"><code class="xref py py-class docutils literal notranslate"><span class="pre">list</span></code></a>.</p></td>
+</tr>
+</tbody>
+</table>
+<dl class="py method">
+<dt id="id0">
+<em class="property">property </em><code class="sig-name descname">abstract_syntax</code><a class="headerlink" href="#id0" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return the context’s <em>Abstract Syntax</em> as <a class="reference external" href="https://pydicom.github.io/pydicom/stable/reference/generated/pydicom.uid.UID.html#pydicom.uid.UID" title="(in pydicom v2.0.0)"><code class="xref py py-class docutils literal notranslate"><span class="pre">UID</span></code></a>.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p></p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p><a class="reference external" href="https://pydicom.github.io/pydicom/stable/reference/generated/pydicom.uid.UID.html#pydicom.uid.UID" title="(in pydicom v2.0.0)">pydicom.uid.UID</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="pynetdicom.presentation.PresentationContext.add_transfer_syntax">
+<code class="sig-name descname">add_transfer_syntax</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">syntax</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/547ff8c5/pynetdicom/presentation.py#L276"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom.presentation.PresentationContext.add_transfer_syntax" title="Permalink to this definition">¶</a></dt>
+<dd><p>Append a transfer syntax to the presentation context.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>syntax</strong> (<a class="reference external" href="https://pydicom.github.io/pydicom/stable/reference/generated/pydicom.uid.UID.html#pydicom.uid.UID" title="(in pydicom v2.0.0)"><em>pydicom.uid.UID</em></a><em>, </em><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#bytes" title="(in Python v3.8)"><em>bytes</em></a><em> or </em><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)"><em>str</em></a>) – The transfer syntax to add to the presentation context.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="id1">
+<em class="property">property </em><code class="sig-name descname">as_scp</code><a class="headerlink" href="#id1" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return <code class="docutils literal notranslate"><span class="pre">True</span></code> if can act as an SCP for the context.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="id2">
+<em class="property">property </em><code class="sig-name descname">as_scu</code><a class="headerlink" href="#id2" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return <code class="docutils literal notranslate"><span class="pre">True</span></code> if can act as an SCU for the context.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="pynetdicom.presentation.PresentationContext.as_tuple">
+<em class="property">property </em><code class="sig-name descname">as_tuple</code><a class="headerlink" href="#pynetdicom.presentation.PresentationContext.as_tuple" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return a <a class="reference external" href="https://docs.python.org/3/library/collections.html#collections.namedtuple" title="(in Python v3.8)"><code class="xref py py-func docutils literal notranslate"><span class="pre">namedtuple</span></code></a> representation
+of the presentation context.</p>
+<p>Intended to be used when the result is <code class="docutils literal notranslate"><span class="pre">0x00</span></code> (accepted) as only the
+first transfer syntax item is returned in the tuple.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>A representation of an accepted presentation context.</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p><a class="reference internal" href="pynetdicom.presentation.PresentationContextTuple.html#pynetdicom.presentation.PresentationContextTuple" title="pynetdicom.presentation.PresentationContextTuple">PresentationContextTuple</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="id3">
+<em class="property">property </em><code class="sig-name descname">context_id</code><a class="headerlink" href="#id3" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return the context’s <em>ID</em> parameter as an <a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.8)"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></a>.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="id4">
+<em class="property">property </em><code class="sig-name descname">scp_role</code><a class="headerlink" href="#id4" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return <code class="docutils literal notranslate"><span class="pre">True</span></code> if a proposed SCP role will be accepted.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="id5">
+<em class="property">property </em><code class="sig-name descname">scu_role</code><a class="headerlink" href="#id5" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return <code class="docutils literal notranslate"><span class="pre">True</span></code> if a proposed SCU role will be accepted.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="pynetdicom.presentation.PresentationContext.status">
+<em class="property">property </em><code class="sig-name descname">status</code><a class="headerlink" href="#pynetdicom.presentation.PresentationContext.status" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return a descriptive <a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></a> of the context’s <em>Result</em>.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>The string representation of the negotiated result.</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)">str</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="id6">
+<em class="property">property </em><code class="sig-name descname">transfer_syntax</code><a class="headerlink" href="#id6" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return the context’s <em>Transfer Syntaxes</em> as a <a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.8)"><code class="xref py py-class docutils literal notranslate"><span class="pre">list</span></code></a>.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>The context’s transfer syntaxes.</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p>list of pydicom.uid.UID</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="pynetdicom.presentation.PresentationContextTuple.html" class="btn btn-neutral float-right" title="pynetdicom.presentation.PresentationContextTuple" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
+      
+      
+        <a href="pynetdicom.presentation.build_role.html" class="btn btn-neutral float-left" title="pynetdicom.presentation.build_role" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2018-20, pynetdicom contributors
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>

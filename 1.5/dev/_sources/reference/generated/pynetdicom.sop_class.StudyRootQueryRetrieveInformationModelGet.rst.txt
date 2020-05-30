@@ -1,0 +1,6 @@
+pynetdicom.sop\_class.StudyRootQueryRetrieveInformationModelGet
+===============================================================
+
+.. currentmodule:: pynetdicom.sop_class
+
+.. autodata:: StudyRootQueryRetrieveInformationModelGet
