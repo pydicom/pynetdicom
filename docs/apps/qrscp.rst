@@ -1,93 +1,74 @@
-=======
-movescu
-=======
+=====
+qrscp
+=====
 
 .. versionadded:: 1.5
 
 .. code-block:: text
 
-    $ python -m pynetdicom movescu [options] addr port (-k keyword and/or -f file-in)
+    $ python -m pynetdicom qrscp [options]
 
 Description
 ===========
-The ``movescu`` application implements a Service Class User (SCU) for
-the :dcm:`Query/Retrieve<part04/chapter_C.html>` service class and optionally
-a Service Class Provider (SCP) for the :dcm:`Storage<part04/chapter_B.html>`
-service class. It requests an association with a peer Application Entity and
-once established, sends a C-MOVE query to be matched against
-the Query/Retrieve SCP's managed SOP Instances. The QR SCP then responds by
-sending a copy of the matching SOP Instances to the Storage SCP specified
-using the C-MOVE query's *Move Destination* AE title.
+
+The ``qrscp`` application implements a Service Class Provider (SCP) for the
+:dcm:`Verification<part04/chapter_A.html>`, :dcm:`Storage
+<part04/chapter_B.html>` and :dcm:`Query/Retrieve<part04/chapter_C.html>`
+service classes. It listens for incoming association requests on the
+configured port, and once an association is established, allows Service Class
+Users (SCUs) to:
+
+* Verify the DICOM connection
+* Request the application store SOP Instances
+* Query the application for its stored SOP Instances
+* Request the retrieval of stored SOP Instances
+
+SOP Instances sent to the application using the Storage service have some of
+their attributes added to a sqlite database that is used to manage Instances
+for the Query/Retrieve service.
+
+.. warning::
+
+    In addition to the standard *pynetdicom* dependencies, the ``qrscp``
+    application requires the `sqlalchemy <https://www.sqlalchemy.org/>`_
+    package
 
 The source code for the application can be found `here
-<https://github.com/pydicom/pynetdicom/tree/master/pynetdicom/apps/movescu>`_
+<https://github.com/pydicom/pynetdicom/tree/master/pynetdicom/apps/qrscp>`_
 
 Usage
 =====
 
-The following example shows what happens when it is succesfully run on
-an SCP at IP ``127.0.0.1`` and listen port ``11112`` that supports the
-Query/Retrieve service with the default *Move Destination* AE title
-``STORESCP``:
+Start the application using the default configuration, which listens on port
+11112:
 
 .. code-block:: text
 
-    $ python -m pynetdicom movescu 127.0.0.1 11112 -k QueryRetrieveLevel=PATIENT -k PatientName=
-    I: Requesting Association
-    I: Association Accepted
-    I: Sending Move Request: MsgID 1
-    I:
-    I: # Request Identifier
-    I: (0008,0052) CS [PATIENT]                                # 1 QueryRetrieveLevel
-    I: (0010,0010) PN (no value available)                     # 0 PatientName
-    I:
-    I: Move SCP Response: 1 - 0xFF00 (Pending)
-    I: Sub-Operations Remaining: 0, Completed: 1, Failed: 0, Warning: 0
-    I: Move SCP Result: 0x0000 (Success)
-    I: Sub-Operations Remaining: 0, Completed: 1, Failed: 0, Warning: 0
-    I: Releasing Association
+    $ python -m pynetdicom qrscp
 
-The *Move Destination* AE title can be specified using the ``-aem aetitle``
-flag.
-
-You can also use the ``--store`` option to start a Storage SCP on port
-``11113`` that can be used as the move destination. The AE title and port of
-the Storage SCP can be configured using the ``--store-aet`` and
-``--store-port`` flags:
+Start the application using a custom configuration file:
 
 .. code-block:: text
 
-    $ python -m pynetdicom movescu 127.0.0.1 11112 -k QueryRetrieveLevel=PATIENT -k PatientName= --store
-    I: Requesting Association
-    I: Association Accepted
-    I: Sending Move Request: MsgID 1
-    I:
-    I: # Request Identifier
-    I: (0008,0052) CS [PATIENT]                                # 1 QueryRetrieveLevel
-    I: (0010,0010) PN (no value available)                     # 0 PatientName
-    I:
-    I: Accepting Association
-    I: Received Store Request
-    I: Storing DICOM file: CT.1.3.6.1.4.1.5962.1.1.1.1.1.20040119072730.12322
-    I: Association Released
-    I: Move SCP Response: 1 - 0xFF00 (Pending)
-    I: Sub-Operations Remaining: 0, Completed: 1, Failed: 0, Warning: 0
-    I: Move SCP Result: 0x0000 (Success)
-    I: Sub-Operations Remaining: 0, Completed: 1, Failed: 0, Warning: 0
-    I: Releasing Association
+    $ python -m pynetdicom qrscp -c my_config.ini
 
+More information is available when starting the application with the ``-v`` or
+``-d`` options:
 
-Parameters
-==========
-``addr``
-            TCP/IP address or hostname of DICOM peer
-``port``
-            TCP/IP port number of peer
+.. code-block:: text
+
+    $ python -m pynetdicom qrscp -d
+
 
 Options
 =======
 General Options
 ---------------
+``-c    --config [f]ilename``
+            use configuration file f, see the *configuration file* section for
+            more information
+``--version``
+            print version information and exit
 ``-q    --quiet``
             quiet mode, prints no warnings or errors
 ``-v    --verbose``
@@ -97,99 +78,95 @@ General Options
 ``-ll   --log-level [l]evel (str)``
             One of [``'critical'``, ``'error'``, ``'warning'``, ``'info'``,
             ``'debug'``], prints logging messages with corresponding level
-            or higher
+            or lower
 
 Network Options
 ---------------
-``-aet  --calling-aet [a]etitle (str)``
-            set the local AE title (default: MOVESCU)
-``-aec  --called-aet [a]etitle (str)``
-            set the called AE title for the peer AE (default: ANY-SCP)
-``-aem  --move-aet [a]etitle (str)``
-            set the move destination AE title (default: STORESCP)
+``-aet  --ae-title [a]etitle (str)``
+            override the configured local AE title
+``--port [p]ort (int)``
+            override the configured listen port
+``-ba   --bind-address [a]ddress (str)``
+            override the configured bind address
 ``-ta   --acse-timeout [s]econds (float)``
-            timeout for ACSE messages (default: 30)
+            override the configured timeout for ACSE messages
 ``-td   --dimse-timeout [s]econds (float)``
-            timeout for DIMSE messages (default: 30)
+            override the configured timeout for DIMSE messages
 ``-tn   --network-timeout [s]econds (float)``
-            timeout for the network (default: 30)
+            override the configured timeout for the network
 ``-pdu  --max-pdu [n]umber of bytes (int)``
-            set maximum receive PDU bytes to n bytes (default: 16382)
+            override the configured maximum receive PDU bytes
 
-Storage SCP Options
--------------------
-``--store``
-            start a Storage SCP that can be used as the move destination
-``--store-port [p]ort (int)``
-            the listen port number to use for the Storage SCP (default: 11113)
-``--store-aet [a]etitle (str)``
-            the AE title to use for the Storage SCP (default: STORESCP)
-
-
-Query Information Model Options
--------------------------------
-``-P    --patient``
-            use patient root information model (default)
-``-S    --study``
-            use study root information model
-``-O    --psonly``
-            use patient/study only information model
-
-Query Options
--------------
-``-k [k]eyword: (gggg,eeee)=str, keyword=str``
-            add or override a query element using either an element tag as
-            (group,element) or the element's keyword (such as PatientName).
-            See the *keyword pathing* section for more information.
-``-f path to [f]ile (str)``
-            use a DICOM file as the query dataset, if used with ``-k``
-            then the elements will be added to or overwrite those
-            present in the file
-
-Extended Negotiation Options
-----------------------------
-``--relational-retrieval``
-            request the use of relational retrieval
-``--enhanced-conversion``
-            request the use of enhanced multi-frame image conversion
-
-Output Options
---------------
-``-od [d]irectory, --output-directory [d]irectory (str)``
-            write received objects to directory ``d`` (with ``--store``)
-``--ignore``
-            receive data but don't store it (with ``--store``)
+Database Options
+----------------
+``--database-location [f]ile (str)``
+            override the location of the database using file f
+``--instance-location [d]irectory (str)``
+            override the configured instance storage location to directory d
+``--clean``
+            remove all entries from the database and delete the corresponding
+            stored instances
 
 
-.. include:: keyword_pathing.rst
+Configuration File
+==================
 
+The ``qrscp`` application uses a configuration file format compatible with the
+:mod:`configparser` Python module. The ``[DEFAULT]`` section contains the
+configuration options for the application itself while all other sections
+are assumed to be definitions for the Query/Retrieve service's *Move
+Destinations*:
+
+.. code-block:: text
+
+    [DEFAULT]
+    # Our AE Title
+    ae_title: QRSCP
+    # Our listen port
+    port: 11112
+    # Our maximum PDU size; 0 for unlimited
+    max_pdu: 16382
+    # The ACSE, DIMSE and network timeouts (in seconds)
+    acse_timeout: 30
+    dimse_timeout: 30
+    network_timeout: 30
+    # The address of the network interface to listen on
+    # If unset, listen on all interfaces
+    bind_address:
+    # Directory where SOP Instances received from Storage SCUs will be stored
+    #   This directory contains the QR service's managed SOP Instances
+    instance_location: instances
+    # Location of sqlite3 database for the QR service's managed SOP Instances
+    database_location: instances.sqlite
+
+    # Move Destination 1
+    # The AE title of the move destination, as ASCII
+    [STORESCP]
+        # The IP address and listen port of the destination
+        address: 8.8.8.8
+        port: 11112
+
+    # Move Destination 2
+    [PACS_SCP]
+        address: 192.168.2.1
+        port: 104
 
 DICOM Conformance
 =================
+The ``qrscp`` application supports the Verification, Storage and Query/Retrieve
+service classes as an SCP. The following SOP classes are supported:
 
-The ``movescu`` application supports the Query/Retrieve service classes as an
-SCU and the Storage service as an SCP (with the ``--store`` option). The
-following SOP classes are supported:
-
-Query/Retrieve Service
-----------------------
+Verification Service
+--------------------
 
 SOP Classes
 ...........
 
-+-----------------------------+-----------------------------------------------+
-| UID                         | Transfer Syntax                               |
-+=============================+===============================================+
-| 1.2.840.10008.5.1.4.1.2.1.2 | Patient Root Query/Retrieve Information Model |
-|                             | - MOVE                                        |
-+-----------------------------+-----------------------------------------------+
-| 1.2.840.10008.5.1.4.1.2.2.2 | Study Root Query/Retrieve Information Model   |
-|                             | - MOVE                                        |
-+-----------------------------+-----------------------------------------------+
-| 1.2.840.10008.5.1.4.1.2.3.2 | Patient Study Only Query/Retrieve Information |
-|                             | - MOVE                                        |
-+-----------------------------+-----------------------------------------------+
-
++----------------------------------+------------------------------------------+
+| UID                              | SOP Class                                |
++==================================+==========================================+
+|1.2.840.10008.1.1                 | Verification SOP Class                   |
++----------------------------------+------------------------------------------+
 
 Transfer Syntaxes
 .................
@@ -201,10 +178,35 @@ Transfer Syntaxes
 +------------------------+----------------------------------------------------+
 | 1.2.840.10008.1.2.1    | Explicit VR Little Endian                          |
 +------------------------+----------------------------------------------------+
-| 1.2.840.10008.1.2.1.99 | Deflated Explicit VR Little Endian                 |
-+------------------------+----------------------------------------------------+
 | 1.2.840.10008.1.2.2    | Explicit VR Big Endian                             |
 +------------------------+----------------------------------------------------+
+| 1.2.840.10008.1.2.1.99 | Deflated Explicit VR Little Endian                 |
++------------------------+----------------------------------------------------+
+| 1.2.840.10008.1.2.4.50 | JPEG Baseline (Process 1)                          |
++------------------------+----------------------------------------------------+
+| 1.2.840.10008.1.2.4.51 | JPEG Extended (Process 2 and 4)                    |
++------------------------+----------------------------------------------------+
+| 1.2.840.10008.1.2.4.57 | JPEG Lossless, Non-Hierarchical (Process 14)       |
++------------------------+----------------------------------------------------+
+| 1.2.840.10008.1.2.4.70 | JPEG Lossless, Non-Hierarchical, First-Order       |
+|                        | Prediction (Process 14 [Selection Value 1])        |
++------------------------+----------------------------------------------------+
+| 1.2.840.10008.1.2.4.80 | JPEG-LS Lossless Image Compression                 |
++------------------------+----------------------------------------------------+
+| 1.2.840.10008.1.2.4.81 | JPEG-LS Lossy (Near-Lossless) Image Compression    |
++------------------------+----------------------------------------------------+
+| 1.2.840.10008.1.2.4.90 | JPEG 2000 Image Compression (Lossless Only)        |
++------------------------+----------------------------------------------------+
+| 1.2.840.10008.1.2.4.91 | JPEG 2000 Image Compression                        |
++------------------------+----------------------------------------------------+
+| 1.2.840.10008.1.2.4.92 | JPEG 2000 Part 2 Multi-component Image Compression |
+|                        | (Lossless Only)                                    |
++------------------------+----------------------------------------------------+
+| 1.2.840.10008.1.2.4.93 | JPEG 2000 Part 2 Multi-component Image Compression |
++------------------------+----------------------------------------------------+
+| 1.2.840.10008.1.2.5    | RLE Lossless                                       |
++------------------------+----------------------------------------------------+
+
 
 Storage Service
 ---------------
@@ -545,9 +547,9 @@ Transfer Syntaxes
 +------------------------+----------------------------------------------------+
 | 1.2.840.10008.1.2.1    | Explicit VR Little Endian                          |
 +------------------------+----------------------------------------------------+
-| 1.2.840.10008.1.2.1.99 | Deflated Explicit VR Little Endian                 |
-+------------------------+----------------------------------------------------+
 | 1.2.840.10008.1.2.2    | Explicit VR Big Endian                             |
++------------------------+----------------------------------------------------+
+| 1.2.840.10008.1.2.1.99 | Deflated Explicit VR Little Endian                 |
 +------------------------+----------------------------------------------------+
 | 1.2.840.10008.1.2.4.50 | JPEG Baseline (Process 1)                          |
 +------------------------+----------------------------------------------------+
@@ -572,4 +574,48 @@ Transfer Syntaxes
 | 1.2.840.10008.1.2.4.93 | JPEG 2000 Part 2 Multi-component Image Compression |
 +------------------------+----------------------------------------------------+
 | 1.2.840.10008.1.2.5    | RLE Lossless                                       |
++------------------------+----------------------------------------------------+
+
+
+Query/Retrieve Service
+----------------------
+
+SOP Classes
+...........
+
++----------------------------------+------------------------------------------+
+| UID                              | SOP Class                                |
++==================================+==========================================+
+|1.2.840.10008.5.1.4.1.2.1.1       | Patient Root Query/Retrieve Information  |
+|                                  | Model - FIND                             |
++----------------------------------+------------------------------------------+
+|1.2.840.10008.5.1.4.1.2.1.2       | Patient Root Query/Retrieve Information  |
+|                                  | Model - MOVE                             |
++----------------------------------+------------------------------------------+
+|1.2.840.10008.5.1.4.1.2.1.3       | Patient Root Query/Retrieve Information  |
+|                                  | Model - GET                              |
++----------------------------------+------------------------------------------+
+|1.2.840.10008.5.1.4.1.2.2.1       | Study Root Query/Retrieve Information    |
+|                                  | Model - FIND                             |
++----------------------------------+------------------------------------------+
+|1.2.840.10008.5.1.4.1.2.2.2       | Study Root Query/Retrieve Information    |
+|                                  | Model - MOVE                             |
++----------------------------------+------------------------------------------+
+|1.2.840.10008.5.1.4.1.2.2.3       | Study Root Query/Retrieve Information    |
+|                                  | Model - GET                              |
++----------------------------------+------------------------------------------+
+
+Transfer Syntaxes
+.................
+
++------------------------+----------------------------------------------------+
+| UID                    | Transfer Syntax                                    |
++========================+====================================================+
+| 1.2.840.10008.1.2      | Implicit VR Little Endian                          |
++------------------------+----------------------------------------------------+
+| 1.2.840.10008.1.2.1    | Explicit VR Little Endian                          |
++------------------------+----------------------------------------------------+
+| 1.2.840.10008.1.2.1.99 | Deflated Explicit VR Little Endian                 |
++------------------------+----------------------------------------------------+
+| 1.2.840.10008.1.2.2    | Explicit VR Big Endian                             |
 +------------------------+----------------------------------------------------+

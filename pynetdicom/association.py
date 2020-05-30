@@ -962,8 +962,8 @@ class Association(threading.Thread):
             The C-FIND request's *Message ID*, must be between 0 and 65535,
             inclusive, (default ``1``).
         priority : int, optional
-            The C-FIND operation *Priority* (may not be supported by the peer),
-            one of:
+            The value of the C-FIND request's *Priority* parameter (may not be
+            supported by the peer), one of:
 
             - ``0`` - Medium
             - ``1`` - High
@@ -1052,18 +1052,17 @@ class Association(threading.Thread):
 
         See Also
         --------
-        .. currentmodule:: pynetdicom.service_class
 
         :class:`~pynetdicom.dimse_primitives.C_FIND`
-        :class:`BasicWorklistManagementServiceClass`
-        :class:`ColorPaletteQueryRetrieveServiceClass`
-        :class:`DefinedProcedureProtocolQueryRetrieveServiceClass`
-        :class:`HangingProtocolQueryRetrieveServiceClass`
-        :class:`ImplantTemplateQueryRetrieveServiceClass`
-        :class:`ProtocolApprovalQueryRetrieveServiceClass`
-        :class:`QueryRetrieveServiceClass`
-        :class:`RelevantPatientInformationQueryServiceClass`
-        :class:`SubstanceAdministrationQueryServiceClass`
+        :class:`~pynetdicom.service_class.BasicWorklistManagementServiceClass`
+        :class:`~pynetdicom.service_class.ColorPaletteQueryRetrieveServiceClass`
+        :class:`~pynetdicom.service_class.DefinedProcedureProtocolQueryRetrieveServiceClass`
+        :class:`~pynetdicom.service_class.HangingProtocolQueryRetrieveServiceClass`
+        :class:`~pynetdicom.service_class.ImplantTemplateQueryRetrieveServiceClass`
+        :class:`~pynetdicom.service_class.ProtocolApprovalQueryRetrieveServiceClass`
+        :class:`~pynetdicom.service_class.QueryRetrieveServiceClass`
+        :class:`~pynetdicom.service_class.RelevantPatientInformationQueryServiceClass`
+        :class:`~pynetdicom.service_class.SubstanceAdministrationQueryServiceClass`
         :class:`~pynetdicom.service_class_n.UnifiedProcedureStepServiceClass`
 
         References
@@ -1170,8 +1169,8 @@ class Association(threading.Thread):
             The C-GET request's *Message ID*, must be between 0 and 65535,
             inclusive, (default ``1``).
         priority : int, optional
-            The C-GET operation *Priority* (may not be supported by the peer),
-            one of:
+            The value of the C-GET request's *Priority* parameter (may not be
+            supported by the peer), one of:
 
             - ``0`` - Medium
             - ``1`` - High
@@ -1242,8 +1241,8 @@ class Association(threading.Thread):
             ``None``. If the status category is 'Warning', 'Failure' or
             'Cancel' then yields a :class:`~pydicom.dataset.Dataset` which
             should contain an (0008,0058) *Failed SOP Instance UID List*
-            element, however this is not guaranteed and may instead be an
-            empty :class:`~pydicom.dataset.Dataset`.
+            element, however as this comes from the peer this is not guaranteed
+            and may instead be an empty :class:`~pydicom.dataset.Dataset`.
 
         Raises
         ------
@@ -1256,15 +1255,13 @@ class Association(threading.Thread):
         See Also
         --------
 
-        .. currentmodule:: pynetdicom.service_class
-
         :class:`~pynetdicom.dimse_primitives.C_GET`
-        :class:`QueryRetrieveServiceClass`
-        :class:`HangingProtocolQueryRetrieveServiceClass`
-        :class:`DefinedProcedureProtocolQueryRetrieveServiceClass`
-        :class:`ColorPaletteQueryRetrieveServiceClass`
-        :class:`ImplantTemplateQueryRetrieveServiceClass`
-        :class:`ProtocolApprovalQueryRetrieveServiceClass`
+        :class:`~pynetdicom.service_class.QueryRetrieveServiceClass`
+        :class:`~pynetdicom.service_class.HangingProtocolQueryRetrieveServiceClass`
+        :class:`~pynetdicom.service_class.DefinedProcedureProtocolQueryRetrieveServiceClass`
+        :class:`~pynetdicom.service_class.ColorPaletteQueryRetrieveServiceClass`
+        :class:`~pynetdicom.service_class.ImplantTemplateQueryRetrieveServiceClass`
+        :class:`~pynetdicom.service_class.ProtocolApprovalQueryRetrieveServiceClass`
 
         References
         ----------
@@ -1321,8 +1318,8 @@ class Association(threading.Thread):
         LOGGER.info('Sending Get Request: MsgID {}'.format(msg_id))
         LOGGER.info('')
         LOGGER.info('# Request Identifier')
-        for elem in dataset:
-            LOGGER.info(elem)
+        for line in pretty_dataset(dataset):
+            LOGGER.info(line)
         LOGGER.info('')
 
         # Pause the reactor to prevent a race condition
@@ -1368,13 +1365,13 @@ class Association(threading.Thread):
         query_model : pydicom.uid.UID or str
             The value to use for the C-MOVE request's (0000,0002) *Affected
             SOP Class UID* parameter, which usually corresponds to the
-            Information Model that is to be used.
+            Information Model that is to be used when querying.
         msg_id : int, optional
             The C-MOVE request's *Message ID*, must be between 0 and 65535,
             inclusive, (default ``1``).
         priority : int, optional
-            The value of the *Priority* parameter (if supported by the peer),
-            one of:
+            The value of the C-MOVE request's *Priority* parameter (may not be
+            supported by the peer), one of:
 
             - ``0`` - Medium
             - ``1`` - High
@@ -1440,8 +1437,8 @@ class Association(threading.Thread):
             ``None``. If the status category is 'Warning', 'Failure' or
             'Cancel' then yields a :class:`~pydicom.dataset.Dataset` which
             should contain an (0008,0058) *Failed SOP Instance UID List*
-            element, however this is not guaranteed and may instead be an empty
-            :class:`~pydicom.dataset.Dataset`.
+            element, however as this comes from the peer this is not guaranteed
+            and may instead be an empty :class:`~pydicom.dataset.Dataset`.
 
         Raises
         ------
@@ -1454,14 +1451,12 @@ class Association(threading.Thread):
         See Also
         --------
 
-        .. currentmodule:: pynetdicom.service_class
-
         :class:`~pynetdicom.dimse_primitives.C_MOVE`
-        :class:`QueryRetrieveServiceClass`
-        :class:`HangingProtocolQueryRetrieveServiceClass`
-        :class:`ColorPaletteQueryRetrieveServiceClass`
-        :class:`ImplantTemplateQueryRetrieveServiceClass`
-        :class:`ProtocolApprovalQueryRetrieveServiceClass`
+        :class:`~pynetdicom.service_class.QueryRetrieveServiceClass`
+        :class:`~pynetdicom.service_class.HangingProtocolQueryRetrieveServiceClass`
+        :class:`~pynetdicom.service_class.ColorPaletteQueryRetrieveServiceClass`
+        :class:`~pynetdicom.service_class.ImplantTemplateQueryRetrieveServiceClass`
+        :class:`~pynetdicom.service_class.ProtocolApprovalQueryRetrieveServiceClass`
 
         References
         ----------
@@ -1519,8 +1514,8 @@ class Association(threading.Thread):
         LOGGER.info('Sending Move Request: MsgID {}'.format(msg_id))
         LOGGER.info('')
         LOGGER.info('# Request Identifier')
-        for elem in dataset:
-            LOGGER.info(elem)
+        for line in pretty_dataset(dataset):
+            LOGGER.info(line)
         LOGGER.info('')
 
         # Pause the reactor to prevent a race condition
@@ -1549,23 +1544,22 @@ class Association(threading.Thread):
             The C-STORE request's *Message ID*, must be between 0 and 65535,
             inclusive, (default ``1``).
         priority : int, optional
-            The C-STORE operation *Priority* (may not be supported by the
-            peer), one of:
+            The value of the C-STORE request's *Priority* parameter (may not be
+            supported by the peer), one of:
 
             - ``0`` - Medium
             - ``1`` - High
             - ``2`` - Low (default)
-        originator_aet : bytes or None, optional
+        originator_aet : bytes, optional
             The value of the *Move Originator Application Entity Title*
             parameter for the C-STORE request. This is the AE title of the
-            peer that invoked the C-MOVE operation for
-            which this C-STORE sub-operation is being performed (default
-            ``None``).
-        originator_id : int or None, optional
+            peer that invoked the C-MOVE operation for which this C-STORE
+            sub-operation is being performed (default ``None``).
+        originator_id : int, optional
             The value of the *Move Originator Message ID* parameter for the
             C-STORE request. This is the original *Message ID* parameter value
-            for the C-MOVE request primitive for which the
-            C-STORE sub-operation is being performed (default ``None``).
+            for the C-MOVE request primitive for which the C-STORE
+            sub-operation is being performed (default ``None``).
 
         Returns
         -------
@@ -1631,11 +1625,9 @@ class Association(threading.Thread):
         See Also
         --------
 
-        .. currentmodule:: pynetdicom.service_class
-
         :class:`~pynetdicom.dimse_primitives.C_STORE`
-        :class:`StorageServiceClass`
-        :class:`NonPatientObjectStorageServiceClass`
+        :class:`~pynetdicom.service_class.StorageServiceClass`
+        :class:`~pynetdicom.service_class.NonPatientObjectStorageServiceClass`
 
         References
         ----------
@@ -2070,15 +2062,13 @@ class Association(threading.Thread):
         See Also
         --------
 
-        .. currentmodule:: pynetdicom.service_class_n
-
         :class:`~pynetdicom.dimse_primitives.N_ACTION`
-        :class:`ApplicationEventLoggingServiceClass`
-        :class:`MediaCreationManagementServiceClass`
-        :class:`PrintManagementServiceClass`
-        :class:`RTMachineVerificationServiceClass`
-        :class:`StorageCommitmentServiceClass`
-        :class:`UnifiedProcedureStepServiceClass`
+        :class:`~pynetdicom.service_class_n.ApplicationEventLoggingServiceClass`
+        :class:`~pynetdicom.service_class_n.MediaCreationManagementServiceClass`
+        :class:`~pynetdicom.service_class_n.PrintManagementServiceClass`
+        :class:`~pynetdicom.service_class_n.RTMachineVerificationServiceClass`
+        :class:`~pynetdicom.service_class_n.StorageCommitmentServiceClass`
+        :class:`~pynetdicom.service_class_n.UnifiedProcedureStepServiceClass`
 
         References
         ----------
@@ -2314,15 +2304,13 @@ class Association(threading.Thread):
         See Also
         --------
 
-        .. currentmodule:: pynetdicom.service_class_n
-
         :class:`~pynetdicom.dimse_primitives.N_CREATE`
-        :class:`InstanceAvailabilityNotificationServiceClass`
-        :class:`MediaCreationManagementServiceClass`
-        :class:`PrintManagementServiceClass`
-        :class:`ProcedureStepServiceClass`
-        :class:`RTMachineVerificationServiceClass`
-        :class:`UnifiedProcedureStepServiceClass`
+        :class:`~pynetdicom.service_class_n.InstanceAvailabilityNotificationServiceClass`
+        :class:`~pynetdicom.service_class_n.MediaCreationManagementServiceClass`
+        :class:`~pynetdicom.service_class_n.PrintManagementServiceClass`
+        :class:`~pynetdicom.service_class_n.ProcedureStepServiceClass`
+        :class:`~pynetdicom.service_class_n.RTMachineVerificationServiceClass`
+        :class:`~pynetdicom.service_class_n.UnifiedProcedureStepServiceClass`
 
         References
         ----------
@@ -2493,11 +2481,9 @@ class Association(threading.Thread):
         See Also
         --------
 
-        .. currentmodule:: pynetdicom.service_class_n
-
         :class:`~pynetdicom.dimse_primitives.N_DELETE`
-        :class:`PrintManagementServiceClass`
-        :class:`RTMachineVerificationServiceClass`
+        :class:`~pynetdicom.service_class_n.PrintManagementServiceClass`
+        :class:`~pynetdicom.service_class_n.RTMachineVerificationServiceClass`
 
         References
         ----------
@@ -2633,14 +2619,12 @@ class Association(threading.Thread):
         See Also
         --------
 
-        .. currentmodule:: pynetdicom.service_class_n
-
         :class:`~pynetdicom.dimse_primitives.N_EVENT_REPORT`
-        :class:`PrintManagementServiceClass`
-        :class:`ProcedureStepServiceClass`
-        :class:`RTMachineVerificationServiceClass`
-        :class:`StorageCommitmentServiceClass`
-        :class:`UnifiedProcedureStepServiceClass`
+        :class:`~pynetdicom.service_class_n.PrintManagementServiceClass`
+        :class:`~pynetdicom.service_class_n.ProcedureStepServiceClass`
+        :class:`~pynetdicom.service_class_n.RTMachineVerificationServiceClass`
+        :class:`~pynetdicom.service_class_n.StorageCommitmentServiceClass`
+        :class:`~pynetdicom.service_class_n.UnifiedProcedureStepServiceClass`
 
         References
         ----------
@@ -2860,15 +2844,13 @@ class Association(threading.Thread):
         See Also
         --------
 
-        .. currentmodule:: pynetdicom.service_class_n
-
         :class:`~pynetdicom.dimse_primitives.N_GET`
-        :class:`DisplaySystemManagementServiceClass`
-        :class:`MediaCreationManagementServiceClass`
-        :class:`PrintManagementServiceClass`
-        :class:`ProcedureStepServiceClass`
-        :class:`RTMachineVerificationServiceClass`
-        :class:`UnifiedProcedureStepServiceClass`
+        :class:`~pynetdicom.service_class_n.DisplaySystemManagementServiceClass`
+        :class:`~pynetdicom.service_class_n.MediaCreationManagementServiceClass`
+        :class:`~pynetdicom.service_class_n.PrintManagementServiceClass`
+        :class:`~pynetdicom.service_class_n.ProcedureStepServiceClass`
+        :class:`~pynetdicom.service_class_n.RTMachineVerificationServiceClass`
+        :class:`~pynetdicom.service_class_n.UnifiedProcedureStepServiceClass`
 
         References
         ----------
@@ -3095,13 +3077,11 @@ class Association(threading.Thread):
         See Also
         --------
 
-        .. currentmodule:: pynetdicom.service_class_n
-
         :class:`~pynetdicom.dimse_primitives.N_SET`
-        :class:`PrintManagementServiceClass`
-        :class:`ProcedureStepServiceClass`
-        :class:`RTMachineVerificationServiceClass`
-        :class:`UnifiedProcedureStepServiceClass`
+        :class:`~pynetdicom.service_class_n.PrintManagementServiceClass`
+        :class:`~pynetdicom.service_class_n.ProcedureStepServiceClass`
+        :class:`~pynetdicom.service_class_n.RTMachineVerificationServiceClass`
+        :class:`~pynetdicom.service_class_n.UnifiedProcedureStepServiceClass`
 
         References
         ----------

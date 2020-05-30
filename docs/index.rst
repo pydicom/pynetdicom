@@ -110,6 +110,7 @@ Applications
 * :doc:`findscu <apps/findscu>`
 * :doc:`getscu <apps/getscu>`
 * :doc:`movescu <apps/movescu>`
+* :doc:`qrscp <apps/qrscp>`
 * :doc:`storescp <apps/storescp>`
 * :doc:`storescu <apps/storescu>`
 

@@ -22,7 +22,6 @@ from pynetdicom.sop_class import VerificationSOPClass, CTImageStorage
 
 APP_DIR = os.path.join(os.path.dirname(__file__), '../')
 APP_FILE = os.path.join(APP_DIR, 'echoscu', 'echoscu.py')
-LOG_CONFIG = os.path.join(APP_DIR, 'echoscu', 'logging.cfg')
 
 
 def which(program):

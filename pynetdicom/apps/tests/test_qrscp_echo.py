@@ -1,9 +1,10 @@
-"""Unit tests for echoscp.py"""
+"""Unit tests for qrscp.py verification service."""
 
 import logging
 import os
 import subprocess
 import sys
+import tempfile
 import time
 
 import pytest
@@ -22,7 +23,7 @@ from pynetdicom.sop_class import VerificationSOPClass, CTImageStorage
 
 
 APP_DIR = os.path.join(os.path.dirname(__file__), '../')
-APP_FILE = os.path.join(APP_DIR, 'echoscp', 'echoscp.py')
+APP_FILE = os.path.join(APP_DIR, 'qrscp', 'qrscp.py')
 DATA_DIR = os.path.join(APP_DIR, '../', 'tests', 'dicom_files')
 DATASET_FILE = os.path.join(DATA_DIR, 'CTImageStorage.dcm')
 
@@ -43,15 +44,15 @@ def which(program):
                 return exe_file
 
 
-def start_echoscp(args):
-    """Start the echoscp.py app and return the process."""
-    pargs = [which('python'), APP_FILE, '11112'] + [*args]
+def start_qrscp(args):
+    """Start the qrscp.py app and return the process."""
+    pargs = [which('python'), APP_FILE] + [*args]
     return subprocess.Popen(pargs)
 
 
-def start_echoscp_cli(args):
-    """Start the echoscp app using CLI and return the process."""
-    pargs = [which('python'), '-m', 'pynetdicom', 'echoscp', '11112'] + [*args]
+def start_qrscp_cli(args):
+    """Start the qrscp app using CLI and return the process."""
+    pargs = [which('python'), '-m', 'pynetdicom', 'qrscp'] + [*args]
     return subprocess.Popen(pargs)
 
 
@@ -62,6 +63,10 @@ class EchoSCPBase(object):
         self.ae = None
         self.p = None
         self.func = None
+
+        self.tfile = tempfile.NamedTemporaryFile()
+        self.db_location = 'sqlite:///{}'.format(self.tfile.name)
+        self.instance_location = tempfile.TemporaryDirectory()
 
     def teardown(self):
         """Clear any active threads"""
@@ -74,14 +79,18 @@ class EchoSCPBase(object):
 
     def test_default(self):
         """Test default settings."""
+        print(self.ae)
         self.ae = ae = AE()
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
         ae.network_timeout = 5
         ae.add_requested_context(VerificationSOPClass)
 
-        self.p = p = self.func([])
-        time.sleep(0.5)
+        self.p = p = self.func([
+            '--database-location', self.db_location,
+            '--instance-location', self.instance_location.name
+        ])
+        time.sleep(1)
 
         assoc = ae.associate('localhost', 11112)
         assert assoc.is_established
@@ -99,12 +108,16 @@ class EchoSCPBase(object):
 
     def test_flag_version(self, capfd):
         """Test --version flag."""
-        self.p = p = self.func(['--version'])
+        self.p = p = self.func([
+            '--database-location', self.db_location,
+            '--instance-location', self.instance_location.name,
+            '--version'
+        ])
         p.wait()
         assert p.returncode == 0
 
         out, err = capfd.readouterr()
-        assert 'echoscp.py v' in out
+        assert 'qrscp.py v' in out
 
     def test_flag_quiet(self, capfd):
         """Test --quiet flag."""
@@ -114,7 +127,11 @@ class EchoSCPBase(object):
         ae.network_timeout = 5
         ae.add_requested_context(VerificationSOPClass)
 
-        self.p = p = self.func(['-q'])
+        self.p = p = self.func([
+            '--database-location', self.db_location,
+            '--instance-location', self.instance_location.name,
+            '-q'
+        ])
         time.sleep(0.5)
 
         assoc = ae.associate('localhost', 11112)
@@ -139,7 +156,11 @@ class EchoSCPBase(object):
 
         out, err = [], []
 
-        self.p = p = self.func(['-v'])
+        self.p = p = self.func([
+            '--database-location', self.db_location,
+            '--instance-location', self.instance_location.name,
+            '-v'
+        ])
         time.sleep(0.5)
 
         assoc = ae.associate('localhost', 11112)
@@ -164,7 +185,11 @@ class EchoSCPBase(object):
         ae.network_timeout = 5
         ae.add_requested_context(VerificationSOPClass)
 
-        self.p = p = self.func(['-d'])
+        self.p = p = self.func([
+            '--database-location', self.db_location,
+            '--instance-location', self.instance_location.name,
+            '-d'
+        ])
         time.sleep(0.5)
 
         assoc = ae.associate('localhost', 11112)
@@ -179,151 +204,32 @@ class EchoSCPBase(object):
         out, err = capfd.readouterr()
         assert "pydicom.read_dataset()" in err
         assert "Accept Parameters" in err
+        assert 'Received C-ECHO request from' in err
 
     def test_flag_log_collision(self):
         """Test error with -q -v and -d flag."""
-        self.p = p = self.func(['-v', '-d'])
+        self.p = p = self.func([
+            '--database-location', self.db_location,
+            '--instance-location', self.instance_location.name,
+            '-v', '-d'
+        ])
         p.wait()
         assert p.returncode != 0
-
-    @pytest.mark.skip("No way to test comprehensively")
-    def test_flag_log_level(self):
-        """Test --log-level flag."""
-        pass
-
-    @pytest.mark.skip("Don't think this can be tested")
-    def test_flag_ta(self, capfd):
-        """Test --acse-timeout flag."""
-        pass
-
-    @pytest.mark.skip("Don't think this can be tested")
-    def test_flag_td(self, capfd):
-        """Test --dimse-timeout flag."""
-        pass
-
-    @pytest.mark.skip("Don't think this can be tested")
-    def test_flag_tn(self, capfd):
-        """Test --network-timeout flag."""
-        pass
-
-    def test_flag_max_pdu(self):
-        """Test --max-pdu flag."""
-        self.ae = ae = AE()
-        ae.acse_timeout = 5
-        ae.dimse_timeout = 5
-        ae.network_timeout = 5
-        ae.add_requested_context(VerificationSOPClass)
-
-        self.p = p = self.func(['--max-pdu', '123456'])
-        time.sleep(0.5)
-
-        assoc = ae.associate('localhost', 11112)
-        assert assoc.is_established
-        assoc.release()
-
-        p.terminate()
-        p.wait()
-
-        assert 123456 == assoc.acceptor.maximum_length
-
-    def test_flag_xequal(self):
-        """Test --prefer-uncompr flag."""
-        self.ae = ae = AE()
-        ae.acse_timeout = 5
-        ae.dimse_timeout = 5
-        ae.network_timeout = 5
-        ae.add_requested_context(VerificationSOPClass)
-
-        self.p = p = self.func(['-x='])
-        time.sleep(0.5)
-
-        assoc = ae.associate('localhost', 11112)
-        assert assoc.is_established
-        assoc.release()
-
-        p.terminate()
-        p.wait()
-
-        cx = assoc.accepted_contexts[0]
-        assert not cx.transfer_syntax[0].is_implicit_VR
-
-    def test_flag_xe(self):
-        """Test --prefer-little flag."""
-        self.ae = ae = AE()
-        ae.acse_timeout = 5
-        ae.dimse_timeout = 5
-        ae.network_timeout = 5
-        ae.add_requested_context(VerificationSOPClass)
-
-        self.p = p = self.func(['-xe'])
-        time.sleep(0.5)
-
-        assoc = ae.associate('localhost', 11112)
-        assert assoc.is_established
-        assoc.release()
-
-        p.terminate()
-        p.wait()
-
-        cx = assoc.accepted_contexts[0]
-        assert cx.transfer_syntax[0] == ExplicitVRLittleEndian
-
-    def test_flag_xb(self):
-        """Test --prefer-big flag."""
-        self.ae = ae = AE()
-        ae.acse_timeout = 5
-        ae.dimse_timeout = 5
-        ae.network_timeout = 5
-        ae.add_requested_context(VerificationSOPClass)
-
-        self.p = p = self.func(['-xb'])
-        time.sleep(0.5)
-
-        assoc = ae.associate('localhost', 11112)
-        assert assoc.is_established
-        assoc.release()
-
-        p.terminate()
-        p.wait()
-
-        cx = assoc.accepted_contexts[0]
-        assert cx.transfer_syntax[0] == ExplicitVRBigEndian
-
-    def test_flag_xi(self):
-        """Test --implicit flag."""
-        self.ae = ae = AE()
-        ae.acse_timeout = 5
-        ae.dimse_timeout = 5
-        ae.network_timeout = 5
-        ae.add_requested_context(VerificationSOPClass)
-
-        self.p = p = self.func(['-xi'])
-        time.sleep(0.5)
-
-        assoc = ae.associate('localhost', 11112)
-        assert assoc.is_established
-        assoc.release()
-
-        p.terminate()
-        p.wait()
-
-        cx = assoc.accepted_contexts[0]
-        assert cx.transfer_syntax[0] == ImplicitVRLittleEndian
 
 
 class TestEchoSCP(EchoSCPBase):
     """Tests for echoscp.py"""
     def setup(self):
         """Run prior to each test"""
-        self.ae = None
-        self.p = None
-        self.func = start_echoscp
+        super().setup()
+
+        self.func = start_qrscp
 
 
 class TestEchoSCPCLI(EchoSCPBase):
     """Tests for echoscp using CLI"""
     def setup(self):
         """Run prior to each test"""
-        self.ae = None
-        self.p = None
-        self.func = start_echoscp_cli
+        super().setup()
+
+        self.func = start_qrscp_cli

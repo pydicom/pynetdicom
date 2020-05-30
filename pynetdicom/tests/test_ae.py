@@ -1009,7 +1009,7 @@ class TestAESupportedPresentationContexts(object):
         context = self.ae.supported_contexts[0]
         assert context.abstract_syntax == '1.2.840.10008.1.1'
         assert context.transfer_syntax == DEFAULT_TRANSFER_SYNTAXES
-        assert len(context.transfer_syntax) == 3
+        assert len(context.transfer_syntax) == 4
 
         self.ae.remove_supported_context('1.2.840.10008.1.1')
         assert len(self.ae.supported_contexts) == 0
@@ -1021,7 +1021,7 @@ class TestAESupportedPresentationContexts(object):
         context = self.ae.supported_contexts[0]
         assert context.abstract_syntax == '1.2.840.10008.1.1'
         assert context.transfer_syntax == DEFAULT_TRANSFER_SYNTAXES
-        assert len(context.transfer_syntax) == 3
+        assert len(context.transfer_syntax) == 4
 
         self.ae.remove_supported_context('1.2.840.10008.1.1', DEFAULT_TRANSFER_SYNTAXES[0])
         context = self.ae.supported_contexts[0]
@@ -1036,13 +1036,13 @@ class TestAESupportedPresentationContexts(object):
         context = self.ae.supported_contexts[0]
         assert context.abstract_syntax == '1.2.840.10008.1.1'
         assert context.transfer_syntax == DEFAULT_TRANSFER_SYNTAXES
-        assert len(context.transfer_syntax) == 3
+        assert len(context.transfer_syntax) == 4
 
         self.ae.remove_supported_context('1.2.840.10008.1.1',
                                          ['1.2.840.10008.1.2'])
         assert len(self.ae.supported_contexts) == 1
         context = self.ae.supported_contexts[0]
-        assert len(context.transfer_syntax) == 2
+        assert len(context.transfer_syntax) == 3
         assert context.transfer_syntax == DEFAULT_TRANSFER_SYNTAXES[1:]
         assert context.abstract_syntax == '1.2.840.10008.1.1'
 
@@ -1054,7 +1054,7 @@ class TestAESupportedPresentationContexts(object):
                                          ['1.2.840.10008.1.2'])
         assert len(self.ae.supported_contexts) == 2
         context = self.ae.supported_contexts[0]
-        assert len(context.transfer_syntax) == 2
+        assert len(context.transfer_syntax) == 3
         assert context.transfer_syntax == DEFAULT_TRANSFER_SYNTAXES[1:]
         assert context.abstract_syntax == '1.2.840.10008.1.1'
 
@@ -1067,7 +1067,7 @@ class TestAESupportedPresentationContexts(object):
         context = self.ae.supported_contexts[0]
         assert context.abstract_syntax == '1.2.840.10008.1.1'
         assert context.transfer_syntax == DEFAULT_TRANSFER_SYNTAXES
-        assert len(context.transfer_syntax) == 3
+        assert len(context.transfer_syntax) == 4
 
         # Test singular
         self.ae.remove_supported_context('1.2.840.10008.1.1',
@@ -1094,7 +1094,7 @@ class TestAESupportedPresentationContexts(object):
         context = self.ae.supported_contexts[0]
         assert context.abstract_syntax == '1.2.840.10008.1.1'
         assert context.transfer_syntax == DEFAULT_TRANSFER_SYNTAXES
-        assert len(context.transfer_syntax) == 3
+        assert len(context.transfer_syntax) == 4
 
         self.ae.remove_supported_context('1.2.840.10008.1.1', tsyntax)
         assert len(self.ae.supported_contexts) == 0
@@ -1427,7 +1427,7 @@ class TestAERequestedPresentationContexts(object):
         context = self.ae.requested_contexts[0]
         assert context.abstract_syntax == '1.2.840.10008.1.1'
         assert context.transfer_syntax == DEFAULT_TRANSFER_SYNTAXES
-        assert len(context.transfer_syntax) == 3
+        assert len(context.transfer_syntax) == 4
 
         self.ae.remove_requested_context('1.2.840.10008.1.1')
         assert len(self.ae.requested_contexts) == 0
@@ -1439,7 +1439,7 @@ class TestAERequestedPresentationContexts(object):
         context = self.ae.requested_contexts[0]
         assert context.abstract_syntax == '1.2.840.10008.1.1'
         assert context.transfer_syntax == DEFAULT_TRANSFER_SYNTAXES
-        assert len(context.transfer_syntax) == 3
+        assert len(context.transfer_syntax) == 4
 
         self.ae.remove_requested_context('1.2.840.10008.1.1', DEFAULT_TRANSFER_SYNTAXES[0])
         context = self.ae.requested_contexts[0]
@@ -1454,13 +1454,13 @@ class TestAERequestedPresentationContexts(object):
         context = self.ae.requested_contexts[0]
         assert context.abstract_syntax == '1.2.840.10008.1.1'
         assert context.transfer_syntax == DEFAULT_TRANSFER_SYNTAXES
-        assert len(context.transfer_syntax) == 3
+        assert len(context.transfer_syntax) == 4
 
         self.ae.remove_requested_context('1.2.840.10008.1.1',
                                          ['1.2.840.10008.1.2'])
         assert len(self.ae.requested_contexts) == 1
         context = self.ae.requested_contexts[0]
-        assert len(context.transfer_syntax) == 2
+        assert len(context.transfer_syntax) == 3
         assert context.transfer_syntax == DEFAULT_TRANSFER_SYNTAXES[1:]
         assert context.abstract_syntax == '1.2.840.10008.1.1'
 
@@ -1476,7 +1476,7 @@ class TestAERequestedPresentationContexts(object):
                                          ['1.2.840.10008.1.2'])
         assert len(self.ae.requested_contexts) == 3
         context = self.ae.requested_contexts[0]
-        assert len(context.transfer_syntax) == 2
+        assert len(context.transfer_syntax) == 3
         assert context.transfer_syntax == DEFAULT_TRANSFER_SYNTAXES[1:]
         assert context.abstract_syntax == '1.2.840.10008.1.1'
 
@@ -1495,7 +1495,7 @@ class TestAERequestedPresentationContexts(object):
         context = self.ae.requested_contexts[0]
         assert context.abstract_syntax == '1.2.840.10008.1.1'
         assert context.transfer_syntax == DEFAULT_TRANSFER_SYNTAXES
-        assert len(context.transfer_syntax) == 3
+        assert len(context.transfer_syntax) == 4
 
         # Test singular
         self.ae.remove_requested_context('1.2.840.10008.1.1',
@@ -1527,7 +1527,7 @@ class TestAERequestedPresentationContexts(object):
         context = self.ae.requested_contexts[0]
         assert context.abstract_syntax == '1.2.840.10008.1.1'
         assert context.transfer_syntax == DEFAULT_TRANSFER_SYNTAXES
-        assert len(context.transfer_syntax) == 3
+        assert len(context.transfer_syntax) == 4
 
         self.ae.remove_requested_context('1.2.840.10008.1.1', tsyntax)
         assert len(self.ae.requested_contexts) == 0

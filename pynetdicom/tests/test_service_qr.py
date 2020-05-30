@@ -361,7 +361,9 @@ class TestQRFindServiceClass(object):
         """Test SCP handles handler yielding an exception after first yield"""
         def handle(event):
             yield 0xFF00, self.query
-            raise ValueError
+            raise ValueError('some message')
+            yield 0xFF00, self.query
+            raise NotImplementedError('different message')
 
         handlers = [(evt.EVT_C_FIND, handle)]
 
@@ -377,7 +379,9 @@ class TestQRFindServiceClass(object):
         ae.dimse_timeout = 5
         assoc = ae.associate('localhost', 11112)
         assert assoc.is_established
-        result = assoc.send_c_find(self.query, PatientRootQueryRetrieveInformationModelFind)
+        result = assoc.send_c_find(
+            self.query, PatientRootQueryRetrieveInformationModelFind
+        )
         status, identifier = next(result)
         assert status.Status == 0xFF00
         assert identifier == self.query
@@ -994,6 +998,38 @@ class TestQRFindServiceClass(object):
 
         time.sleep(0.1)
         assert assoc.is_aborted
+        scp.shutdown()
+
+    def test_handler_no_yield(self):
+        """Test handler doesn't yield anything."""
+        def handle_find(event):
+            raise ValueError
+
+        handlers = [(evt.EVT_C_FIND, handle_find)]
+
+        self.ae = ae = AE()
+        ae.add_supported_context(PatientRootQueryRetrieveInformationModelFind)
+        ae.add_requested_context(
+            PatientRootQueryRetrieveInformationModelFind,
+            ExplicitVRLittleEndian
+        )
+        scp = ae.start_server(('', 11112), block=False, evt_handlers=handlers)
+
+        ae.acse_timeout = 5
+        ae.dimse_timeout = 5
+        assoc = ae.associate('localhost', 11112)
+        assert assoc.is_established
+        result = assoc.send_c_find(
+            self.query, PatientRootQueryRetrieveInformationModelFind
+        )
+        status, identifier = next(result)
+        assert status.Status == 0xC311
+        assert identifier == None
+        pytest.raises(StopIteration, next, result)
+
+        assoc.release()
+        time.sleep(0.1)
+        assert assoc.is_released
         scp.shutdown()
 
 
@@ -3131,6 +3167,8 @@ class TestQRMoveServiceClass(object):
     def test_bad_req_identifier(self):
         """Test SCP handles a bad request identifier"""
         def handle(event):
+            yield '127.0.0.1', 11112
+            yield 1
             try:
                 ds = event.identifier
                 for elem in ds.iterall():
@@ -3157,17 +3195,20 @@ class TestQRMoveServiceClass(object):
         assoc = ae.associate('localhost', 11112)
         assert assoc.is_established
 
-        req = C_GET()
+        req = C_MOVE()
         req.MessageID = 1
+        req.MoveDestination = b'Test'
         req.AffectedSOPClassUID = PatientRootQueryRetrieveInformationModelMove
         req.Priority = 2
         # Encoded as Implicit VR Little
-        req.Identifier = BytesIO(b'\x08\x00\x01\x00\x40\x40\x00\x00\x00\x00\x00\x08\x00\x49')
+        req.Identifier = BytesIO(
+            b'\x08\x00\x01\x00\x40\x40\x00\x00\x00\x00\x00\x08\x00\x49'
+        )
         assoc._reactor_checkpoint.clear()
         assoc.dimse.send_msg(req, 1)
         cx_id, status = assoc.dimse.get_msg(True)
         assoc._reactor_checkpoint.set()
-        assert status.Status == 0xC510
+        assert status.Status == 0xC410
 
         assoc.release()
         assert assoc.is_released

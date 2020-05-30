@@ -2221,20 +2221,18 @@ def doc_handle_find(event, *args):
     See Also
     --------
 
-    .. currentmodule:: pynetdicom.service_class
-
     :meth:`~pynetdicom.association.Association.send_c_find`
     :class:`~pynetdicom.dimse_primitives.C_FIND`
     :class:`~QueryRetrieveServiceClass`
-    :class:`BasicWorklistManagementServiceClass`
-    :class:`RelevantPatientInformationQueryServiceClass`
-    :class:`SubstanceAdministrationQueryServiceClass`
-    :class:`HangingProtocolQueryRetrieveServiceClass`
-    :class:`DefinedProcedureProtocolQueryRetrieveServiceClass`
-    :class:`ColorPaletteQueryRetrieveServiceClass`
-    :class:`ImplantTemplateQueryRetrieveServiceClass`
+    :class:`~pynetdicom.service_class.BasicWorklistManagementServiceClass`
+    :class:`~pynetdicom.service_class.RelevantPatientInformationQueryServiceClass`
+    :class:`~pynetdicom.service_class.SubstanceAdministrationQueryServiceClass`
+    :class:`~pynetdicom.service_class.HangingProtocolQueryRetrieveServiceClass`
+    :class:`~pynetdicom.service_class.DefinedProcedureProtocolQueryRetrieveServiceClass`
+    :class:`~pynetdicom.service_class.ColorPaletteQueryRetrieveServiceClass`
+    :class:`~pynetdicom.service_class.ImplantTemplateQueryRetrieveServiceClass`
     :class:`~pynetdicom.service_class_n.UnifiedProcedureStepServiceClass`
-    :class:`ProtocolApprovalQueryRetrieveServiceClass`
+    :class:`~pynetdicom.service_class.ProtocolApprovalQueryRetrieveServiceClass`
 
     References
     ----------
@@ -2386,16 +2384,14 @@ def doc_handle_c_get(event, *args):
     See Also
     --------
 
-    .. currentmodule:: pynetdicom.service_class
-
     :meth:`~pynetdicom.association.Association.send_c_get`
     :class:`~pynetdicom.dimse_primitives.C_GET`
-    :class:`~QueryRetrieveServiceClass`
-    :class:`HangingProtocolQueryRetrieveServiceClass`
-    :class:`DefinedProcedureProtocolQueryRetrieveServiceClass`
-    :class:`ColorPaletteQueryRetrieveServiceClass`
-    :class:`ImplantTemplateQueryRetrieveServiceClass`
-    :class:`ProtocolApprovalQueryRetrieveServiceClass`
+    :class:`~pynetdicom.service_class.QueryRetrieveServiceClass`
+    :class:`~pynetdicom.service_class.HangingProtocolQueryRetrieveServiceClass`
+    :class:`~pynetdicom.service_class.DefinedProcedureProtocolQueryRetrieveServiceClass`
+    :class:`~pynetdicom.service_class.ColorPaletteQueryRetrieveServiceClass`
+    :class:`~pynetdicom.service_class.ImplantTemplateQueryRetrieveServiceClass`
+    :class:`~pynetdicom.service_class.ProtocolApprovalQueryRetrieveServiceClass`
 
     References
     ----------
@@ -2574,16 +2570,14 @@ def doc_handle_move(event, *args):
     See Also
     --------
 
-    .. currentmodule:: pynetdicom.service_class
-
     :meth:`~pynetdicom.association.Association.send_c_move`
     :class:`~pynetdicom.dimse_primitives.C_MOVE`
-    :class:`~QueryRetrieveServiceClass`
-    :class:`HangingProtocolQueryRetrieveServiceClass`
-    :class:`DefinedProcedureProtocolQueryRetrieveServiceClass`
-    :class:`ColorPaletteQueryRetrieveServiceClass`
-    :class:`ImplantTemplateQueryRetrieveServiceClass`
-    :class:`ProtocolApprovalQueryRetrieveServiceClass`
+    :class:`~pynetdicom.service_class.QueryRetrieveServiceClass`
+    :class:`~pynetdicom.service_class.HangingProtocolQueryRetrieveServiceClass`
+    :class:`~pynetdicom.service_class.DefinedProcedureProtocolQueryRetrieveServiceClass`
+    :class:`~pynetdicom.service_class.ColorPaletteQueryRetrieveServiceClass`
+    :class:`~pynetdicom.service_class.ImplantTemplateQueryRetrieveServiceClass`
+    :class:`~pynetdicom.service_class.ProtocolApprovalQueryRetrieveServiceClass`
 
     References
     ----------
@@ -2707,12 +2701,10 @@ def doc_handle_store(event, *args):
     See Also
     --------
 
-    .. currentmodule:: pynetdicom.service_class
-
     :meth:`~pynetdicom.association.Association.send_c_store`
     :class:`~pynetdicom.dimse_primitives.C_STORE`
-    :class:`~StorageServiceClass`
-    :class:`~NonPatientObjectStorageServiceClass`
+    :class:`~pynetdicom.service_class.StorageServiceClass`
+    :class:`~pynetdicom.service_class.NonPatientObjectStorageServiceClass`
 
     References
     ----------
@@ -2891,16 +2883,14 @@ def doc_handle_action(event, *args):
     See Also
     --------
 
-    .. currentmodule:: pynetdicom.service_class_n
-
     :meth:`~pynetdicom.association.Association.send_n_action`
     :class:`~pynetdicom.dimse_primitives.N_ACTION`
-    :class:`ApplicationEventLoggingServiceClass`
-    :class:`MediaCreationManagementServiceClass`
-    :class:`PrintManagementServiceClass`
-    :class:`RTMachineVerificationServiceClass`
-    :class:`StorageCommitmentServiceClass`
-    :class:`UnifiedProcedureStepServiceClass`
+    :class:`~pynetdicom.service_class_n.ApplicationEventLoggingServiceClass`
+    :class:`~pynetdicom.service_class_n.MediaCreationManagementServiceClass`
+    :class:`~pynetdicom.service_class_n.PrintManagementServiceClass`
+    :class:`~pynetdicom.service_class_n.RTMachineVerificationServiceClass`
+    :class:`~pynetdicom.service_class_n.StorageCommitmentServiceClass`
+    :class:`~pynetdicom.service_class_n.UnifiedProcedureStepServiceClass`
 
     References
     ----------
@@ -3049,16 +3039,14 @@ def doc_handle_create(event, *args):
     See Also
     --------
 
-    .. currentmodule:: pynetdicom.service_class_n
-
     :meth:`~pynetdicom.association.Association.send_n_create`
     :class:`~pynetdicom.dimse_primitives.N_CREATE`
-    :class:`InstanceAvailabilityNotificationServiceClass`
-    :class:`MediaCreationManagementServiceClass`
-    :class:`PrintManagementServiceClass`
-    :class:`ProcedureStepServiceClass`
-    :class:`RTMachineVerificationServiceClass`
-    :class:`UnifiedProcedureStepServiceClass`
+    :class:`~pynetdicom.service_class_n.InstanceAvailabilityNotificationServiceClass`
+    :class:`~pynetdicom.service_class_n.MediaCreationManagementServiceClass`
+    :class:`~pynetdicom.service_class_n.PrintManagementServiceClass`
+    :class:`~pynetdicom.service_class_n.ProcedureStepServiceClass`
+    :class:`~pynetdicom.service_class_n.RTMachineVerificationServiceClass`
+    :class:`~pynetdicom.service_class_n.UnifiedProcedureStepServiceClass`
 
     References
     ----------
@@ -3162,12 +3150,10 @@ def doc_handle_delete(event, *args):
     See Also
     --------
 
-    .. currentmodule:: pynetdicom.service_class_n
-
     :meth:`~pynetdicom.association.Association.send_n_delete`
     :class:`~pynetdicom.dimse_primitives.N_DELETE`
-    :class:`PrintManagementServiceClass`
-    :class:`RTMachineVerificationServiceClass`
+    :class:`~pynetdicom.service_class_n.PrintManagementServiceClass`
+    :class:`~pynetdicom.service_class_n.RTMachineVerificationServiceClass`
 
     References
     ----------
@@ -3290,15 +3276,13 @@ def doc_handle_event_report(event, *args):
     See Also
     --------
 
-    .. currentmodule:: pynetdicom.service_class_n
-
     :meth:`~pynetdicom.association.Association.send_n_event_report`
     :class:`~pynetdicom.dimse_primitives.N_EVENT_REPORT`
-    :class:`PrintManagementServiceClass`
-    :class:`ProcedureStepServiceClass`
-    :class:`RTMachineVerificationServiceClass`
-    :class:`StorageCommitmentServiceClass`
-    :class:`UnifiedProcedureStepServiceClass`
+    :class:`~pynetdicom.service_class_n.PrintManagementServiceClass`
+    :class:`~pynetdicom.service_class_n.ProcedureStepServiceClass`
+    :class:`~pynetdicom.service_class_n.RTMachineVerificationServiceClass`
+    :class:`~pynetdicom.service_class_n.StorageCommitmentServiceClass`
+    :class:`~pynetdicom.service_class_n.UnifiedProcedureStepServiceClass`
 
     References
     ----------
@@ -3417,16 +3401,14 @@ def doc_handle_n_get(event, *args):
     See Also
     --------
 
-    .. currentmodule:: pynetdicom.service_class_n
-
     :meth:`~pynetdicom.association.Association.send_n_get`
     :class:`~pynetdicom.dimse_primitives.N_GET`
-    :class:`DisplaySystemManagementServiceClass`
-    :class:`MediaCreationManagementServiceClass`
-    :class:`PrintManagementServiceClass`
-    :class:`ProcedureStepServiceClass`
-    :class:`RTMachineVerificationServiceClass`
-    :class:`UnifiedProcedureStepServiceClass`
+    :class:`~pynetdicom.service_class_n.DisplaySystemManagementServiceClass`
+    :class:`~pynetdicom.service_class_n.MediaCreationManagementServiceClass`
+    :class:`~pynetdicom.service_class_n.PrintManagementServiceClass`
+    :class:`~pynetdicom.service_class_n.ProcedureStepServiceClass`
+    :class:`~pynetdicom.service_class_n.RTMachineVerificationServiceClass`
+    :class:`~pynetdicom.service_class_n.UnifiedProcedureStepServiceClass`
 
     References
     ----------
@@ -3583,14 +3565,12 @@ def doc_handle_set(event, *args):
     See Also
     --------
 
-    .. currentmodule:: pynetdicom.service_class_n
-
     :meth:`~pynetdicom.association.Association.send_n_set`
     :class:`~pynetdicom.dimse_primitives.N_SET`
-    :class:`PrintManagementServiceClass`
-    :class:`ProcedureStepServiceClass`
-    :class:`RTMachineVerificationServiceClass`
-    :class:`UnifiedProcedureStepServiceClass`
+    :class:`~pynetdicom.service_class_n.PrintManagementServiceClass`
+    :class:`~pynetdicom.service_class_n.ProcedureStepServiceClass`
+    :class:`~pynetdicom.service_class_n.RTMachineVerificationServiceClass`
+    :class:`~pynetdicom.service_class_n.UnifiedProcedureStepServiceClass`
 
     References
     ----------

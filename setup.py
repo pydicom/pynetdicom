@@ -47,5 +47,5 @@ setup(
         "Topic :: Scientific/Engineering :: Medical Science Apps.",
         "Topic :: Software Development :: Libraries",
     ],
-    install_requires = ["pydicom>=1.4.2"],
+    install_requires = ["pydicom==1.4.2"],
 )

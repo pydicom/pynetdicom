@@ -2,25 +2,30 @@
 getscu
 =======
 
+.. versionadded:: 1.5
+
 .. code-block:: text
 
     $ python -m pynetdicom getscu [options] addr port (-k keyword and/or -f file-in)
 
 Description
 ===========
-The ``getscu`` application implements a *Service Class User* (SCU) for
-the :dcm:`Query/Retrieve Service Class<part04/chapter_C.html>`. It requests an
-association with a peer Application Entity on IP address ``addr`` and listen
-port ``port`` and once established, sends a C-GET query to be matched against
-the SCP's managed SOP Instances. The SCP then responds by sending a copy of the
-matching SOP Instances to the Get SCU (i.e. it acts as a Store SCU).
+The ``getscu`` application implements a Service Class User (SCU) for
+the :dcm:`Query/Retrieve<part04/chapter_C.html>` service class. It requests an
+association with a peer Application Entity and once established, sends a C-GET
+query to be matched against the Query/Retrieve SCP's managed SOP Instances.
+The QR SCP then responds by sending a copy of the matching SOP Instances (i.e.
+the peer acts as a Storage SCU with ``getscu`` the Storage SCP).
+
+The source code for the application can be found `here
+<https://github.com/pydicom/pynetdicom/tree/master/pynetdicom/apps/getscu>`_
 
 Usage
 =====
 
 The following example shows what happens when it is succesfully run on
 an SCP at IP ``127.0.0.1`` and listen port ``11112`` that supports the
-*Query/Retrieve (Get) Service*:
+Query/Retrieve (Get) service:
 
 .. code-block:: text
 
@@ -30,8 +35,8 @@ an SCP at IP ``127.0.0.1`` and listen port ``11112`` that supports the
     I: Sending Get Request: MsgID 1
     I:
     I: # Request Identifier
-    I: (0008, 0052) Query/Retrieve Level                CS: 'PATIENT'
-    I: (0010, 0010) Patient's Name                      PN: ''
+    I: (0008,0052) CS [PATIENT]                                # 1 QueryRetrieveLevel
+    I: (0010,0010) PN (no value available)                     # 0 PatientName
     I:
     I: Received Store Request
     I: Storing DICOM file: CT.1.3.6.1.4.1.5962.1.1.1.1.1.20040119072730.12322
@@ -119,27 +124,31 @@ Output Options
 DICOM Conformance
 =================
 
-Get SCU conformance
--------------------
+The ``getscu`` application supports the Query/Retrieve service classes as an
+SCU. The following SOP classes are supported:
 
-The ``getscu`` application supports the following SOP Classes as an SCU:
+Query/Retrieve Service
+----------------------
+
+SOP Classes
+...........
 
 +-----------------------------+-----------------------------------------------+
 | UID                         | Transfer Syntax                               |
 +=============================+===============================================+
-| 1.2.840.10008.5.1.4.1.2.1.3 | Patient Root Query Retrieve Information Model |
+| 1.2.840.10008.5.1.4.1.2.1.3 | Patient Root Query/Retrieve Information Model |
 |                             | - GET                                         |
 +-----------------------------+-----------------------------------------------+
-| 1.2.840.10008.5.1.4.1.2.2.3 | Study Root Query Retrieve Information Model   |
+| 1.2.840.10008.5.1.4.1.2.2.3 | Study Root Query/Retrieve Information Model   |
 |                             | - GET                                         |
 +-----------------------------+-----------------------------------------------+
-| 1.2.840.10008.5.1.4.1.2.3.3 | Patient Study Only Query Retrieve Information |
+| 1.2.840.10008.5.1.4.1.2.3.3 | Patient Study Only/Query Retrieve Information |
 |                             | - GET                                         |
 +-----------------------------+-----------------------------------------------+
 
 
-The application will request presentation contexts using these transfer
-syntaxes:
+Transfer Syntaxes
+.................
 
 +------------------------+----------------------------------------------------+
 | UID                    | Transfer Syntax                                    |
@@ -148,13 +157,17 @@ syntaxes:
 +------------------------+----------------------------------------------------+
 | 1.2.840.10008.1.2.1    | Explicit VR Little Endian                          |
 +------------------------+----------------------------------------------------+
+| 1.2.840.10008.1.2.1.99 | Deflated Explicit VR Little Endian                 |
++------------------------+----------------------------------------------------+
 | 1.2.840.10008.1.2.2    | Explicit VR Big Endian                             |
 +------------------------+----------------------------------------------------+
 
-Store SCP conformance
----------------------
 
-The ``getscu`` application supports the following SOP Classes as an SCP:
+When receiving datasets sent from the peer the ``getscu`` application
+supports the following SOP classes as an SCP:
+
+SOP Classes
+...........
 
 +----------------------------------+------------------------------------------+
 | UID                              | SOP Class                                |
@@ -454,8 +467,8 @@ The ``getscu`` application supports the following SOP Classes as an SCP:
 +----------------------------------+------------------------------------------+
 
 
-The application will support presentation contexts using these transfer
-syntaxes:
+Transfer Syntaxes
+.................
 
 +------------------------+----------------------------------------------------+
 | UID                    | Transfer Syntax                                    |
@@ -463,6 +476,8 @@ syntaxes:
 | 1.2.840.10008.1.2      | Implicit VR Little Endian                          |
 +------------------------+----------------------------------------------------+
 | 1.2.840.10008.1.2.1    | Explicit VR Little Endian                          |
++------------------------+----------------------------------------------------+
+| 1.2.840.10008.1.2.1.99 | Deflated Explicit VR Little Endian                 |
 +------------------------+----------------------------------------------------+
 | 1.2.840.10008.1.2.2    | Explicit VR Big Endian                             |
 +------------------------+----------------------------------------------------+

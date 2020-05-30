@@ -11,7 +11,7 @@ from pynetdicom.dimse_primitives import (
     C_STORE, C_FIND, C_GET, C_MOVE, C_ECHO, C_CANCEL,
     N_EVENT_REPORT, N_GET, N_SET, N_ACTION, N_CREATE, N_DELETE
 )
-from pynetdicom.dsutils import encode_element, encode, decode
+from pynetdicom.dsutils import encode, decode
 from pynetdicom.pdu_primitives import P_DATA
 
 
@@ -169,12 +169,12 @@ class DIMSEMessage(object):
 
     ::
 
-                          primitive_to_message       encode_msg
-        .--------------------.  ----->   .----------.  ----->  .------------.
-        |       DIMSE        |           |   DIMSE  |          |   P-DATA   |
-        |     primitive      |           |  message |          |  primitive |
-        .--------------------.  <-----   .----------.  <-----  .------------.
-                          message_to_primitive       decode_msg
+                primitive_to_message()       encode_msg()
+        +-------------+   --->    +-----------+   --->   +-------------+
+        |    DIMSE    |           |   DIMSE   |          |   P-DATA    |
+        |  primitive  |           |  Message  |          |  primitive  |
+        +-------------+   <---    +-----------+   <---   +-------------+
+                message_to_primitive()       decode_msg()
 
 
     **Command Set**
@@ -210,9 +210,17 @@ class DIMSEMessage(object):
         self.context_id = None
 
         # Required to save command set data from multiple fragments
-        # self.command_set is added by _build_message_classes()
         self.encoded_command_set = BytesIO()
         self.data_set = BytesIO()
+        self.command_set = Dataset()
+
+        cls_name = self.__class__.__name__
+        if cls_name == 'DIMSEMessage':
+            return
+
+        # Set the command set attributes for the subclasses
+        for keyword in _COMMAND_SET_KEYWORDS[cls_name.replace('_', '-')]:
+            setattr(self.command_set, keyword, None)
 
     def decode_msg(self, primitive):
         """Converts P-DATA primitives into a ``DIMSEMessage`` sub-class.
@@ -578,66 +586,23 @@ class DIMSEMessage(object):
     def _set_command_group_length(self):
         """Reset the Command Group Length element value.
 
-        Once the self.command_set Dataset has been built and filled with
-        values, this should be called to set the CommandGroupLength element
+        Once the `command_set` Dataset has been built and filled with
+        values, this should be called to set the (Command Group Length* element
         value correctly.
         """
         # Remove CommandGroupLength to stop it messing up the length calc
         del self.command_set.CommandGroupLength
 
-        length = 0
-        for elem in self.command_set:
-            # The Command Set is always Implicit VR Little Endian
-            length += len(encode_element(elem, True, True))
-
-        self.command_set.CommandGroupLength = length
+        # The Command Set is always Implicit VR Little Endian
+        self.command_set.CommandGroupLength = len(
+            encode(self.command_set, True, True)
+        )
 
 
-def _build_message_classes(message_name):
-    """Create a new subclass instance of DIMSEMessage for the given DIMSE
-    `message_name`.
-
-    Parameters
-    ----------
-    message_name : str
-        The name/type of message class to construct, one of the following:
-
-        * C-ECHO-RQ, C-ECHO-RSP
-        * C-STORE-RQ, C-STORE-RSP
-        * C-FIND-RQ, C-FIND-RSP
-        * C-GET-RQ, C-GET-RSP
-        * C-MOVE-RQ, C-MOVE-RSP
-        * C-CANCEL-RQ
-        * N-EVENT-REPORT-RQ, N-EVENT-REPORT-RSP
-        * N-GET-RQ, N-GET-RSP
-        * N-SET-RQ, N-SET-RSP
-        * N-ACTION-RQ, N-ACTION-RSP
-        * N-CREATE-RQ, N-CREATE-RSP
-        * N-DELETE-RQ, N-DELETE-RSP
-    """
-    def __init__(self):
-        DIMSEMessage.__init__(self)
-        # Create a new Dataset object for the command_set attributes
-        self.command_set = Dataset()
-        for keyword in _COMMAND_SET_KEYWORDS[message_name]:
-            setattr(self.command_set, keyword, None)
-
-    # Create new subclass of DIMSE Message using the supplied name
-    #   but replace hyphens with underscores
-    cls = type(
-        message_name.replace('-', '_'),
-        (DIMSEMessage, ),
-        {"__init__": __init__}
-    )
-
-    # Add the class to the module
+# Create DIMSEMessage subclasses and add them to the module
+for _msg_name in _COMMAND_SET_KEYWORDS:
+    cls = type(_msg_name.replace('-', '_'), (DIMSEMessage, ), {})
     globals()[cls.__name__] = cls
-
-    return cls
-
-
-for __msg_type in _COMMAND_SET_KEYWORDS:
-    _build_message_classes(__msg_type)
 
 
 # Values from PS3.5

@@ -120,9 +120,7 @@ def validate_ae_title(ae_title, use_short=False):
         control characters or backslash.
     """
     if not isinstance(ae_title, (str, bytes)):
-        raise TypeError(
-            "AE titles must be str or bytes"
-        )
+        raise TypeError("AE titles must be str or bytes")
 
     # Python 2 - convert string to unicode
     if sys.version_info[0] == 2:

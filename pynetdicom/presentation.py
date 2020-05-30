@@ -369,8 +369,15 @@ class PresentationContext(object):
 
         return NotImplemented
 
-    # Python 2: Classes defining __eq__ should flag themselves as unhashable
-    __hash__ = None
+    def __hash__(self):
+        """Return a hash of the context."""
+        return hash((
+            self.abstract_syntax,
+            self.context_id,
+            tuple(self.transfer_syntax),
+            self.as_scp,
+            self.as_scu
+        ))
 
     def __ne__(self, other):
         """Return ``True`` if `self` does not equal `other`."""
