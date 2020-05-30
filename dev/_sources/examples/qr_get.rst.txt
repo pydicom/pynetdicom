@@ -140,7 +140,8 @@ Root Query Retrieve Information Model - Get* context.
 
 This is a very bad way of managing stored SOP Instances, in reality its
 probably best to store the instance attributes in a database and run the
-query against that.
+query against that, which is the approach taken by the
+:doc:`qrscp application<../apps/qrscp>`.
 
 Check the
 :func:`handler implementation documentation

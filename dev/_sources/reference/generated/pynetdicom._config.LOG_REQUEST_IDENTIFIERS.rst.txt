@@ -1,0 +1,6 @@
+pynetdicom.\_config.LOG\_REQUEST\_IDENTIFIERS
+=============================================
+
+.. currentmodule:: pynetdicom._config
+
+.. autodata:: LOG_REQUEST_IDENTIFIERS

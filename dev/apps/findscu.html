@@ -123,11 +123,16 @@
 <li class="toctree-l4"><a class="reference internal" href="#examples">Examples</a></li>
 </ul>
 </li>
-<li class="toctree-l3"><a class="reference internal" href="#dicom-conformance">DICOM Conformance</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#dicom-conformance">DICOM Conformance</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#query-retrieve-service">Query/Retrieve Service</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#basic-worklist-management-service">Basic Worklist Management Service</a></li>
+</ul>
+</li>
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="getscu.html">getscu</a></li>
 <li class="toctree-l2"><a class="reference internal" href="movescu.html">movescu</a></li>
+<li class="toctree-l2"><a class="reference internal" href="qrscp.html">qrscp</a></li>
 <li class="toctree-l2"><a class="reference internal" href="storescp.html">storescp</a></li>
 <li class="toctree-l2"><a class="reference internal" href="storescu.html">storescu</a></li>
 </ul>
@@ -199,38 +204,42 @@
             
   <div class="section" id="findscu">
 <h1>findscu<a class="headerlink" href="#findscu" title="Permalink to this headline">¶</a></h1>
+<div class="versionadded">
+<p><span class="versionmodified added">New in version 1.5.</span></p>
+</div>
 <div class="highlight-text notranslate"><div class="highlight"><pre><span></span>$ python -m pynetdicom findscu [options] addr port (-k keyword and/or -f file-in)
 </pre></div>
 </div>
 <div class="section" id="description">
 <h2>Description<a class="headerlink" href="#description" title="Permalink to this headline">¶</a></h2>
-<p>The <code class="docutils literal notranslate"><span class="pre">findscu</span></code> application implements a <em>Service Class User</em> (SCU) for
-the <a class="reference external" href="http://dicom.nema.org/medical/dicom/current/output/chtml/part04/chapter_C.html">Query/Retrieve Service Class</a>. It requests an
-association with a peer Application Entity on IP address <code class="docutils literal notranslate"><span class="pre">addr</span></code> and listen
-port <code class="docutils literal notranslate"><span class="pre">port</span></code> and once established, sends a C-FIND query to be matched against
-the SCP’s managed SOP Instances. The SCP then responds with the matching query
-keys.</p>
+<p>The <code class="docutils literal notranslate"><span class="pre">findscu</span></code> application implements a Service Class User (SCU) for
+the <a class="reference external" href="http://dicom.nema.org/medical/dicom/current/output/chtml/part04/chapter_C.html">Query/Retrieve</a> and
+<a class="reference external" href="http://dicom.nema.org/medical/dicom/current/output/chtml/part04/chapter_K.html">Basic Worklist Management</a> service classes. It
+requests an association with a peer Application Entity and once established,
+sends a C-FIND query to be matched against the SCP’s managed SOP Instances.
+The SCP then responds with the matching query keys.</p>
+<p>The source code for the application can be found <a class="reference external" href="https://github.com/pydicom/pynetdicom/tree/master/pynetdicom/apps/findscu">here</a></p>
 </div>
 <div class="section" id="usage">
 <h2>Usage<a class="headerlink" href="#usage" title="Permalink to this headline">¶</a></h2>
 <p>The following example shows what happens when it is succesfully run on
 an SCP at IP <code class="docutils literal notranslate"><span class="pre">127.0.0.1</span></code> and listen port <code class="docutils literal notranslate"><span class="pre">11112</span></code> that supports the
-<em>Query/Retrieve (Find) Service</em>:</p>
+Query/Retrieve (Find) service:</p>
 <div class="highlight-text notranslate"><div class="highlight"><pre><span></span>$ python -m pynetdicom findscu 127.0.0.1 11112 -k QueryRetrieveLevel=PATIENT -k PatientName=
 I: Requesting Association
 I: Association Accepted
 I: Sending Find Request: MsgID 1
 I:
 I: # Request Identifier
-I: (0008, 0052) Query/Retrieve Level                CS: &#39;PATIENT&#39;
-I: (0010, 0010) Patient&#39;s Name                      PN: &#39;&#39;
+I: (0008,0052) CS [PATIENT]                                # 1 QueryRetrieveLevel
+I: (0010,0010) PN (no value available)                     # 0 PatientName
 I:
 I: Find SCP Response: 1 - 0xFF00 (Pending)
 I:
 I: # Response Identifier
-I: (0008, 0052) Query/Retrieve Level                CS: &#39;PATIENT&#39;
-I: (0008, 0054) Retrieve AE Title                   AE: &#39;QRSCP&#39;
-I: (0010, 0010) Patient&#39;s Name                      PN: &#39;CompressedSamples^CT1&#39;
+I: (0008,0052) CS [PATIENT]                                # 1 QueryRetrieveLevel
+I: (0008,0054) AE [QRSCP]                                  # 1 RetrieveAETitle
+I: (0010,0010) PN [CompressedSamples^CT1]                  # 1 PatientName
 I:
 I: Find SCP Result: 0x0000 (Success)
 I: Releasing Association
@@ -442,7 +451,12 @@ or <a class="reference external" href="https://docs.python.org/3/library/functio
 </div>
 <div class="section" id="dicom-conformance">
 <h2>DICOM Conformance<a class="headerlink" href="#dicom-conformance" title="Permalink to this headline">¶</a></h2>
-<p>The <code class="docutils literal notranslate"><span class="pre">findscu</span></code> application supports the following SOP Classes as an SCU:</p>
+<p>The <code class="docutils literal notranslate"><span class="pre">findscu</span></code> application supports the Query/Retrieve and Basic Worklist
+Management services as an SCU. The following SOP classes are supported:</p>
+<div class="section" id="query-retrieve-service">
+<h3>Query/Retrieve Service<a class="headerlink" href="#query-retrieve-service" title="Permalink to this headline">¶</a></h3>
+<div class="section" id="sop-classes">
+<h4>SOP Classes<a class="headerlink" href="#sop-classes" title="Permalink to this headline">¶</a></h4>
 <table class="docutils align-default">
 <colgroup>
 <col style="width: 38%" />
@@ -455,24 +469,22 @@ or <a class="reference external" href="https://docs.python.org/3/library/functio
 </thead>
 <tbody>
 <tr class="row-even"><td><p>1.2.840.10008.5.1.4.1.2.1.1</p></td>
-<td><p>Patient Root Query Retrieve Information Model
+<td><p>Patient Root Query/Retrieve Information Model
 - FIND</p></td>
 </tr>
 <tr class="row-odd"><td><p>1.2.840.10008.5.1.4.1.2.2.1</p></td>
-<td><p>Study Root Query Retrieve Information Model
+<td><p>Study Root Query/Retrieve Information Model
 - FIND</p></td>
 </tr>
 <tr class="row-even"><td><p>1.2.840.10008.5.1.4.1.2.3.1</p></td>
-<td><p>Patient Study Only Query Retrieve Information
+<td><p>Patient Study Only Query/Retrieve Information
 - FIND</p></td>
-</tr>
-<tr class="row-odd"><td><p>1.2.840.10008.5.1.4.31</p></td>
-<td><p>Modality Worklist Information Model - FIND</p></td>
 </tr>
 </tbody>
 </table>
-<p>The application will request presentation contexts using these transfer
-syntaxes:</p>
+</div>
+<div class="section" id="transfer-syntaxes">
+<h4>Transfer Syntaxes<a class="headerlink" href="#transfer-syntaxes" title="Permalink to this headline">¶</a></h4>
 <table class="docutils align-default">
 <colgroup>
 <col style="width: 32%" />
@@ -490,11 +502,66 @@ syntaxes:</p>
 <tr class="row-odd"><td><p>1.2.840.10008.1.2.1</p></td>
 <td><p>Explicit VR Little Endian</p></td>
 </tr>
-<tr class="row-even"><td><p>1.2.840.10008.1.2.2</p></td>
+<tr class="row-even"><td><p>1.2.840.10008.1.2.1.99</p></td>
+<td><p>Deflated Explicit VR Little Endian</p></td>
+</tr>
+<tr class="row-odd"><td><p>1.2.840.10008.1.2.2</p></td>
 <td><p>Explicit VR Big Endian</p></td>
 </tr>
 </tbody>
 </table>
+</div>
+</div>
+<div class="section" id="basic-worklist-management-service">
+<h3>Basic Worklist Management Service<a class="headerlink" href="#basic-worklist-management-service" title="Permalink to this headline">¶</a></h3>
+<div class="section" id="id1">
+<h4>SOP Classes<a class="headerlink" href="#id1" title="Permalink to this headline">¶</a></h4>
+<table class="docutils align-default">
+<colgroup>
+<col style="width: 38%" />
+<col style="width: 62%" />
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"><p>UID</p></th>
+<th class="head"><p>Transfer Syntax</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>1.2.840.10008.5.1.4.31</p></td>
+<td><p>Modality Worklist Information Model - FIND</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="section" id="id2">
+<h4>Transfer Syntaxes<a class="headerlink" href="#id2" title="Permalink to this headline">¶</a></h4>
+<table class="docutils align-default">
+<colgroup>
+<col style="width: 32%" />
+<col style="width: 68%" />
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"><p>UID</p></th>
+<th class="head"><p>Transfer Syntax</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>1.2.840.10008.1.2</p></td>
+<td><p>Implicit VR Little Endian</p></td>
+</tr>
+<tr class="row-odd"><td><p>1.2.840.10008.1.2.1</p></td>
+<td><p>Explicit VR Little Endian</p></td>
+</tr>
+<tr class="row-even"><td><p>1.2.840.10008.1.2.1.99</p></td>
+<td><p>Deflated Explicit VR Little Endian</p></td>
+</tr>
+<tr class="row-odd"><td><p>1.2.840.10008.1.2.2</p></td>
+<td><p>Explicit VR Big Endian</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
 </div>
 </div>
 

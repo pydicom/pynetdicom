@@ -39,7 +39,7 @@
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
     <link rel="next" title="storescu" href="storescu.html" />
-    <link rel="prev" title="movescu" href="movescu.html" /> 
+    <link rel="prev" title="qrscp" href="qrscp.html" /> 
 </head>
 
 <body class="wy-body-for-nav">
@@ -109,6 +109,7 @@
 <li class="toctree-l2"><a class="reference internal" href="findscu.html">findscu</a></li>
 <li class="toctree-l2"><a class="reference internal" href="getscu.html">getscu</a></li>
 <li class="toctree-l2"><a class="reference internal" href="movescu.html">movescu</a></li>
+<li class="toctree-l2"><a class="reference internal" href="qrscp.html">qrscp</a></li>
 <li class="toctree-l2 current"><a class="current reference internal" href="#">storescp</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="#description">Description</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#usage">Usage</a></li>
@@ -121,9 +122,8 @@
 </ul>
 </li>
 <li class="toctree-l3"><a class="reference internal" href="#dicom-conformance">DICOM Conformance</a><ul>
-<li class="toctree-l4"><a class="reference internal" href="#verification-service-class">Verification Service Class</a></li>
-<li class="toctree-l4"><a class="reference internal" href="#storage-service-class">Storage Service Class</a></li>
-<li class="toctree-l4"><a class="reference internal" href="#transfer-syntaxes">Transfer Syntaxes</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#verification-service">Verification Service</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#storage-service">Storage Service</a></li>
 </ul>
 </li>
 </ul>
@@ -203,12 +203,11 @@
 </div>
 <div class="section" id="description">
 <h2>Description<a class="headerlink" href="#description" title="Permalink to this headline">¶</a></h2>
-<p>The <code class="docutils literal notranslate"><span class="pre">storescp</span></code> application implements a <em>Service Class Provider</em> (SCP) for
-the <em>Storage Service Class</em>. It listens on the specified port for
-Association requests from peer Application Entities (AEs) and, once an
-Association is established, allows Storage SCUs transfer SOP Instances
-with SOP Classes matching the presentation contexts accepted during Association
-negotation.</p>
+<p>The <code class="docutils literal notranslate"><span class="pre">storescp</span></code> application implements a Service Class Provider (SCP) for
+the <a class="reference external" href="http://dicom.nema.org/medical/dicom/current/output/chtml/part04/chapter_B.html">Storage</a> service class. It listens for
+incoming association requests on the specified <em>port</em>, and once an association
+is established, allows Storage SCUs to transfer SOP Instances.</p>
+<p>The source code for the application can be found <a class="reference external" href="https://github.com/pydicom/pynetdicom/tree/master/pynetdicom/apps/storescp">here</a></p>
 </div>
 <div class="section" id="usage">
 <h2>Usage<a class="headerlink" href="#usage" title="Permalink to this headline">¶</a></h2>
@@ -317,9 +316,12 @@ or lower</p>
 <div class="section" id="dicom-conformance">
 <h2>DICOM Conformance<a class="headerlink" href="#dicom-conformance" title="Permalink to this headline">¶</a></h2>
 <p>The <code class="docutils literal notranslate"><span class="pre">storescp</span></code> application supports the Verification (unless <code class="docutils literal notranslate"><span class="pre">--no-echo</span></code>
-is used) and Storage Service Classes as an SCP with the following SOP Classes:</p>
-<div class="section" id="verification-service-class">
-<h3>Verification Service Class<a class="headerlink" href="#verification-service-class" title="Permalink to this headline">¶</a></h3>
+is used) and Storage service classes as an SCP. The following SOP
+classes are supported:</p>
+<div class="section" id="verification-service">
+<h3>Verification Service<a class="headerlink" href="#verification-service" title="Permalink to this headline">¶</a></h3>
+<div class="section" id="sop-classes">
+<h4>SOP Classes<a class="headerlink" href="#sop-classes" title="Permalink to this headline">¶</a></h4>
 <table class="docutils align-default">
 <colgroup>
 <col style="width: 45%" />
@@ -337,8 +339,39 @@ is used) and Storage Service Classes as an SCP with the following SOP Classes:</
 </tbody>
 </table>
 </div>
-<div class="section" id="storage-service-class">
-<h3>Storage Service Class<a class="headerlink" href="#storage-service-class" title="Permalink to this headline">¶</a></h3>
+<div class="section" id="transfer-syntaxes">
+<h4>Transfer Syntaxes<a class="headerlink" href="#transfer-syntaxes" title="Permalink to this headline">¶</a></h4>
+<table class="docutils align-default">
+<colgroup>
+<col style="width: 32%" />
+<col style="width: 68%" />
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"><p>UID</p></th>
+<th class="head"><p>Transfer Syntax</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>1.2.840.10008.1.2</p></td>
+<td><p>Implicit VR Little Endian</p></td>
+</tr>
+<tr class="row-odd"><td><p>1.2.840.10008.1.2.1</p></td>
+<td><p>Explicit VR Little Endian</p></td>
+</tr>
+<tr class="row-even"><td><p>1.2.840.10008.1.2.1.99</p></td>
+<td><p>Deflated Explicit VR Little Endian</p></td>
+</tr>
+<tr class="row-odd"><td><p>1.2.840.10008.1.2.2</p></td>
+<td><p>Explicit VR Big Endian</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+<div class="section" id="storage-service">
+<h3>Storage Service<a class="headerlink" href="#storage-service" title="Permalink to this headline">¶</a></h3>
+<div class="section" id="id1">
+<h4>SOP Classes<a class="headerlink" href="#id1" title="Permalink to this headline">¶</a></h4>
 <table class="docutils align-default">
 <colgroup>
 <col style="width: 45%" />
@@ -807,9 +840,8 @@ Instructions Storage</p></td>
 </tbody>
 </table>
 </div>
-<div class="section" id="transfer-syntaxes">
-<h3>Transfer Syntaxes<a class="headerlink" href="#transfer-syntaxes" title="Permalink to this headline">¶</a></h3>
-<p>The supported Transfer Syntaxes are:</p>
+<div class="section" id="id2">
+<h4>Transfer Syntaxes<a class="headerlink" href="#id2" title="Permalink to this headline">¶</a></h4>
 <table class="docutils align-default">
 <colgroup>
 <col style="width: 32%" />
@@ -827,11 +859,11 @@ Instructions Storage</p></td>
 <tr class="row-odd"><td><p>1.2.840.10008.1.2.1</p></td>
 <td><p>Explicit VR Little Endian</p></td>
 </tr>
-<tr class="row-even"><td><p>1.2.840.10008.1.2.2</p></td>
-<td><p>Explicit VR Big Endian</p></td>
-</tr>
-<tr class="row-odd"><td><p>1.2.840.10008.1.2.1.99</p></td>
+<tr class="row-even"><td><p>1.2.840.10008.1.2.1.99</p></td>
 <td><p>Deflated Explicit VR Little Endian</p></td>
+</tr>
+<tr class="row-odd"><td><p>1.2.840.10008.1.2.2</p></td>
+<td><p>Explicit VR Big Endian</p></td>
 </tr>
 <tr class="row-even"><td><p>1.2.840.10008.1.2.4.50</p></td>
 <td><p>JPEG Baseline (Process 1)</p></td>
@@ -873,6 +905,7 @@ Prediction (Process 14 [Selection Value 1])</p></td>
 </div>
 </div>
 </div>
+</div>
 
 
            </div>
@@ -885,7 +918,7 @@ Prediction (Process 14 [Selection Value 1])</p></td>
         <a href="storescu.html" class="btn btn-neutral float-right" title="storescu" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
       
       
-        <a href="movescu.html" class="btn btn-neutral float-left" title="movescu" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+        <a href="qrscp.html" class="btn btn-neutral float-left" title="qrscp" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
       
     </div>
   

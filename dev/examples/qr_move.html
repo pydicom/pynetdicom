@@ -324,7 +324,8 @@ and listen port number <code class="docutils literal notranslate"><span class="p
 </div>
 <p>This is a very bad way of managing stored SOP Instances, in reality its
 probably best to store the instance attributes in a database and run the
-query against that.</p>
+query against that, which is the approach taken by the
+<a class="reference internal" href="../apps/qrscp.html"><span class="doc">qrscp application</span></a>.</p>
 <p>Check the <a class="reference internal" href="../reference/generated/pynetdicom._handlers.doc_handle_move.html#pynetdicom._handlers.doc_handle_move" title="pynetdicom._handlers.doc_handle_move"><code class="xref py py-func docutils literal notranslate"><span class="pre">handler</span> <span class="pre">implementation</span> <span class="pre">documentation</span></code></a> to see the requirements for the
 <code class="docutils literal notranslate"><span class="pre">evt.EVT_C_MOVE</span></code> handler.</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">os</span>
@@ -403,6 +404,14 @@ query against that.</p>
 <span class="n">ae</span><span class="o">.</span><span class="n">start_server</span><span class="p">((</span><span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="mi">11112</span><span class="p">),</span> <span class="n">evt_handlers</span><span class="o">=</span><span class="n">handlers</span><span class="p">)</span>
 </pre></div>
 </div>
+<p>It’s also possible to get more control over the association with the Storage
+SCP that’ll be receiving any matching datasets by yielding <code class="docutils literal notranslate"><span class="pre">(addr,</span> <span class="pre">port,</span>
+<span class="pre">kwargs)</span></code> instead of <code class="docutils literal notranslate"><span class="pre">(addr,</span> <span class="pre">port)</span></code>, where <code class="docutils literal notranslate"><span class="pre">kwargs</span></code> is a <a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.8)"><code class="xref py py-class docutils literal notranslate"><span class="pre">dict</span></code></a>
+containing keyword parameters that’ll be passed to
+<a class="reference internal" href="../reference/generated/pynetdicom.ae.ApplicationEntity.html#pynetdicom.ae.ApplicationEntity.associate" title="pynetdicom.ae.ApplicationEntity.associate"><code class="xref py py-meth docutils literal notranslate"><span class="pre">AE.associate()</span></code></a>. In
+particular, this allows you to tailor the presentation contexts that will be
+requested to the datasets matching the query (via the <em>contexts</em> keyword
+parameter).</p>
 </div>
 </div>
 

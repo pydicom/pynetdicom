@@ -113,13 +113,17 @@
 <li class="toctree-l4"><a class="reference internal" href="#preferred-transfer-syntaxes">Preferred Transfer Syntaxes</a></li>
 </ul>
 </li>
-<li class="toctree-l3"><a class="reference internal" href="#dicom-conformance">DICOM Conformance</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#dicom-conformance">DICOM Conformance</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#verification-service">Verification Service</a></li>
+</ul>
+</li>
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="echoscu.html">echoscu</a></li>
 <li class="toctree-l2"><a class="reference internal" href="findscu.html">findscu</a></li>
 <li class="toctree-l2"><a class="reference internal" href="getscu.html">getscu</a></li>
 <li class="toctree-l2"><a class="reference internal" href="movescu.html">movescu</a></li>
+<li class="toctree-l2"><a class="reference internal" href="qrscp.html">qrscp</a></li>
 <li class="toctree-l2"><a class="reference internal" href="storescp.html">storescp</a></li>
 <li class="toctree-l2"><a class="reference internal" href="storescu.html">storescu</a></li>
 </ul>
@@ -197,10 +201,11 @@
 <div class="section" id="description">
 <h2>Description<a class="headerlink" href="#description" title="Permalink to this headline">¶</a></h2>
 <p>The <code class="docutils literal notranslate"><span class="pre">echoscp</span></code> application implements a Service Class Provider (SCP) for the
-<em>Verification SOP Class</em> - <code class="docutils literal notranslate"><span class="pre">1.2.840.10008.1.1</span></code>. It
-establishes an Association with peer Application Entities (AEs) and responds to
-incoming C-ECHO requests. The application can be used to verify basic DICOM
-connectivity.</p>
+<a class="reference external" href="http://dicom.nema.org/medical/dicom/current/output/chtml/part04/chapter_A.html">Verification</a> service class. It listens for
+incoming association requests on the specified <em>port</em>, and once an association
+is established, responds to incoming C-ECHO requests. The application can be
+used to verify basic DICOM connectivity.</p>
+<p>The source code for the application can be found <a class="reference external" href="https://github.com/pydicom/pynetdicom/tree/master/pynetdicom/apps/echoscp">here</a></p>
 </div>
 <div class="section" id="usage">
 <h2>Usage<a class="headerlink" href="#usage" title="Permalink to this headline">¶</a></h2>
@@ -289,7 +294,12 @@ or lower</p>
 </div>
 <div class="section" id="dicom-conformance">
 <h2>DICOM Conformance<a class="headerlink" href="#dicom-conformance" title="Permalink to this headline">¶</a></h2>
-<p>The <code class="docutils literal notranslate"><span class="pre">echoscp</span></code> application supports the following SOP Class as an SCP:</p>
+<p>The <code class="docutils literal notranslate"><span class="pre">echoscp</span></code> application supports the Verification service as an SCP. The
+following SOP classes are supported:</p>
+<div class="section" id="verification-service">
+<h3>Verification Service<a class="headerlink" href="#verification-service" title="Permalink to this headline">¶</a></h3>
+<div class="section" id="sop-classes">
+<h4>SOP Classes<a class="headerlink" href="#sop-classes" title="Permalink to this headline">¶</a></h4>
 <table class="docutils align-default">
 <colgroup>
 <col style="width: 43%" />
@@ -306,7 +316,9 @@ or lower</p>
 </tr>
 </tbody>
 </table>
-<p>The supported Transfer Syntaxes are:</p>
+</div>
+<div class="section" id="transfer-syntaxes">
+<h4>Transfer Syntaxes<a class="headerlink" href="#transfer-syntaxes" title="Permalink to this headline">¶</a></h4>
 <table class="docutils align-default">
 <colgroup>
 <col style="width: 32%" />
@@ -324,11 +336,11 @@ or lower</p>
 <tr class="row-odd"><td><p>1.2.840.10008.1.2.1</p></td>
 <td><p>Explicit VR Little Endian</p></td>
 </tr>
-<tr class="row-even"><td><p>1.2.840.10008.1.2.2</p></td>
-<td><p>Explicit VR Big Endian</p></td>
-</tr>
-<tr class="row-odd"><td><p>1.2.840.10008.1.2.1.99</p></td>
+<tr class="row-even"><td><p>1.2.840.10008.1.2.1.99</p></td>
 <td><p>Deflated Explicit VR Little Endian</p></td>
+</tr>
+<tr class="row-odd"><td><p>1.2.840.10008.1.2.2</p></td>
+<td><p>Explicit VR Big Endian</p></td>
 </tr>
 <tr class="row-even"><td><p>1.2.840.10008.1.2.4.50</p></td>
 <td><p>JPEG Baseline (Process 1)</p></td>
@@ -367,6 +379,8 @@ Prediction (Process 14 [Selection Value 1])</p></td>
 </tr>
 </tbody>
 </table>
+</div>
+</div>
 </div>
 </div>
 

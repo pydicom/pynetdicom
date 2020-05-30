@@ -53,11 +53,14 @@ Enhancements
   contains all of the Storage Service Class' SOP Class UIDs rather than just
   the first 128 as in
   :attr:`~pynetdicom.presentation.StoragePresentationContexts`.
-* Overhaul of :doc:`echoscp <../apps/echoscp>`,
-  :doc:`echoscu <../apps/echoscu>`, :doc:`storescp <../apps/storescp>` and
-  :doc:`storescu <../apps/storescu>` apps
-* Added non-toy implementations for :doc:`findscu <../apps/findscu>`,
-  :doc:`getscu <../apps/getscu>` and :doc:`movescu <../apps/movescu>` apps
+* Updates and additions to the applications:
+
+  * Overhaul of :doc:`echoscp <../apps/echoscp>`,
+    :doc:`echoscu <../apps/echoscu>`, :doc:`storescp <../apps/storescp>` and
+    :doc:`storescu <../apps/storescu>` apps
+  * Added non-toy implementations for :doc:`findscu <../apps/findscu>`,
+    :doc:`getscu <../apps/getscu>` and :doc:`movescu <../apps/movescu>` apps
+  * Added :doc:`qrscp <../apps/qrscp>` app
 * Apps can now be invoked from the command line with
   ``python -m pynetdicom [appname] [options]``, e.g. ``python -m pynetdicom
   echoscu 127.0.0.1 11112 -d``
@@ -76,10 +79,12 @@ Enhancements
   :class:`~pynetdicom.association.Association` objects (:issue:`455`)
 * Prefer an exact match when selecting a valid presentation context over
   a convertible one (:issue:`472`)
-* Added configuration option :attr:`_config.LOG_RESPONSE_IDENTIFIERS
+* Added configuration options :attr:`_config.LOG_REQUEST_IDENTIFIERS
+  <pynetdicom._config.LOG_REQUEST_IDENTIFIERS>` and
+  :attr:`_config.LOG_RESPONSE_IDENTIFIERS
   <pynetdicom._config.LOG_RESPONSE_IDENTIFIERS>` for controlling whether or
-  not the contents of C-FIND, C-GET and C-MOVE response *Identifier* datasets
-  are logged
+  not the contents of C-FIND, C-GET and C-MOVE request and response
+  *Identifier* datasets are logged
 * Added :func:`~pynetdicom.dsutils.pretty_dataset` and
   :func:`~pynetdicom.dsutils.pretty_element` functions for producing pretty
   string output from datasets and elements
@@ -100,6 +105,8 @@ Changes
   :meth:`Association.send_c_find`, :meth:`Association.send_c_get` and
   :meth:`Association.send_c_move` removed as per planned deprecation. Use the
   UID directly instead.
+* Support for Python 2 is deprecated and will be removed starting in version
+  2.0.
 * Python 3.4 is no longer supported, Python 3.7 and 3.8 are now
   officially supported
 * If an A-ABORT is received while waiting for a DIMSE message the
@@ -107,8 +114,6 @@ Changes
   waiting for the DIMSE timeout. (:issue:`430`)
 * Added `abort_type` keyword parameter to :meth:`ACSE.is_aborted()
   <pynetdicom.acse.ACSE.is_aborted>`
-* Support for Python 2 is deprecated and will be removed starting in version
-  2.0.
 * Added `args` keyword parameter to
   :meth:`Association.bind()<Association.bind>` and
   :meth:`AssociationServer.bind()<pynetdicom.transport.AssociationServer.bind>`
@@ -118,6 +123,10 @@ Changes
   or list of 2-tuples.
 * Added `deflated` keyword parameter to :func:`~pynetdicom.dsutils.encode` and
   :func:`~pynetdicom.dsutils.decode`
+* :func:`~pynetdicom.dsutils.encode_element` is deprecated and will be removed
+  in version 2.0
+* *Deflated Explicit VR Little Endian* added to
+  :attr:`~pynetdicom.DEFAULT_TRANSFER_SYNTAXES`
 
 
 Known Issues

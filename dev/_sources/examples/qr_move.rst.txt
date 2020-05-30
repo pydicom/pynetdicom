@@ -152,7 +152,8 @@ and listen port number ``11113``.
 
 This is a very bad way of managing stored SOP Instances, in reality its
 probably best to store the instance attributes in a database and run the
-query against that.
+query against that, which is the approach taken by the
+:doc:`qrscp application<../apps/qrscp>`.
 
 Check the :func:`handler implementation documentation
 <pynetdicom._handlers.doc_handle_move>` to see the requirements for the
@@ -234,3 +235,12 @@ Check the :func:`handler implementation documentation
 
     # Start listening for incoming association requests
     ae.start_server(('', 11112), evt_handlers=handlers)
+
+It's also possible to get more control over the association with the Storage
+SCP that'll be receiving any matching datasets by yielding ``(addr, port,
+kwargs)`` instead of ``(addr, port)``, where ``kwargs`` is a :class:`dict`
+containing keyword parameters that'll be passed to
+:meth:`AE.associate()<pynetdicom.ae.ApplicationEntity.associate>`. In
+particular, this allows you to tailor the presentation contexts that will be
+requested to the datasets matching the query (via the *contexts* keyword
+parameter).

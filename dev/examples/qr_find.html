@@ -255,7 +255,8 @@ Root Query Retrieve Information Model - Find</em> context.</p>
 </div>
 <p>This is a very bad way of managing stored SOP Instances, in reality its
 probably best to store the instance attributes in a database and run the
-query against that.</p>
+query against that, which is the approach taken by the
+<a class="reference internal" href="../apps/qrscp.html"><span class="doc">qrscp application</span></a>.</p>
 <p>Check the
 <a class="reference internal" href="../reference/generated/pynetdicom._handlers.doc_handle_find.html#pynetdicom._handlers.doc_handle_find" title="pynetdicom._handlers.doc_handle_find"><code class="xref py py-func docutils literal notranslate"><span class="pre">handler</span> <span class="pre">implementation</span> <span class="pre">documentation</span></code></a>
 to see the requirements for the <code class="docutils literal notranslate"><span class="pre">evt.EVT_C_FIND</span></code> handler.</p>

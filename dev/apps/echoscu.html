@@ -116,12 +116,16 @@
 <li class="toctree-l4"><a class="reference internal" href="#miscellaneous-options">Miscellaneous Options</a></li>
 </ul>
 </li>
-<li class="toctree-l3"><a class="reference internal" href="#dicom-conformance">DICOM Conformance</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#dicom-conformance">DICOM Conformance</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#verification-service">Verification Service</a></li>
+</ul>
+</li>
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="findscu.html">findscu</a></li>
 <li class="toctree-l2"><a class="reference internal" href="getscu.html">getscu</a></li>
 <li class="toctree-l2"><a class="reference internal" href="movescu.html">movescu</a></li>
+<li class="toctree-l2"><a class="reference internal" href="qrscp.html">qrscp</a></li>
 <li class="toctree-l2"><a class="reference internal" href="storescp.html">storescp</a></li>
 <li class="toctree-l2"><a class="reference internal" href="storescu.html">storescu</a></li>
 </ul>
@@ -199,21 +203,22 @@
 <div class="section" id="description">
 <h2>Description<a class="headerlink" href="#description" title="Permalink to this headline">¶</a></h2>
 <p>The <code class="docutils literal notranslate"><span class="pre">echoscu</span></code> application implements a Service Class User (SCU) for the
-<a class="reference external" href="http://dicom.nema.org/medical/dicom/current/output/chtml/part04/chapter_A.html">Verification Service Class</a>. It establishes an
+<a class="reference external" href="http://dicom.nema.org/medical/dicom/current/output/chtml/part04/chapter_A.html">Verification</a> service class. It establishes an
 association with a peer Application Entity (AE), sends a
 <a class="reference external" href="http://dicom.nema.org/medical/dicom/current/output/chtml/part07/sect_9.3.5.html#sect_9.3.5.1">C-ECHO</a> request and waits for a
 response. The application can be used to verify basic DICOM connectivity.</p>
+<p>The source code for the application can be found <a class="reference external" href="https://github.com/pydicom/pynetdicom/tree/master/pynetdicom/apps/echoscu">here</a></p>
 </div>
 <div class="section" id="usage">
 <h2>Usage<a class="headerlink" href="#usage" title="Permalink to this headline">¶</a></h2>
 <p>The following example shows what happens when it’s succesfully run on
 an SCP at IP <code class="docutils literal notranslate"><span class="pre">127.0.0.1</span></code> and listen port <code class="docutils literal notranslate"><span class="pre">11112</span></code> that supports the
-<em>Verification Service</em>:</p>
+Verification service:</p>
 <div class="highlight-text notranslate"><div class="highlight"><pre><span></span>$ python -m pynetdicom echoscu 127.0.0.1 11112
 </pre></div>
 </div>
 <p>When attempting to send a C-ECHO request to an SCP that doesn’t support the
-<em>Verification Service</em>:</p>
+Verification service:</p>
 <div class="highlight-text notranslate"><div class="highlight"><pre><span></span>$ python -m pynetdicom echoscu 127.0.0.1 11112
 E: No accepted presentation contexts
 </pre></div>
@@ -315,11 +320,16 @@ or lower</p>
 </div>
 <div class="section" id="dicom-conformance">
 <h2>DICOM Conformance<a class="headerlink" href="#dicom-conformance" title="Permalink to this headline">¶</a></h2>
-<p>The <code class="docutils literal notranslate"><span class="pre">echoscu</span></code> application supports the following SOP Class as an SCU:</p>
+<p>The <code class="docutils literal notranslate"><span class="pre">echoscu</span></code> application supports the Verification service as an SCU. The
+following SOP classes are supported:</p>
+<div class="section" id="verification-service">
+<h3>Verification Service<a class="headerlink" href="#verification-service" title="Permalink to this headline">¶</a></h3>
+<div class="section" id="sop-classes">
+<h4>SOP Classes<a class="headerlink" href="#sop-classes" title="Permalink to this headline">¶</a></h4>
 <table class="docutils align-default">
 <colgroup>
-<col style="width: 32%" />
-<col style="width: 68%" />
+<col style="width: 43%" />
+<col style="width: 57%" />
 </colgroup>
 <thead>
 <tr class="row-odd"><th class="head"><p>UID</p></th>
@@ -332,8 +342,9 @@ or lower</p>
 </tr>
 </tbody>
 </table>
-<p>The application will request a presentation context using these transfer
-syntaxes:</p>
+</div>
+<div class="section" id="transfer-syntaxes">
+<h4>Transfer Syntaxes<a class="headerlink" href="#transfer-syntaxes" title="Permalink to this headline">¶</a></h4>
 <table class="docutils align-default">
 <colgroup>
 <col style="width: 32%" />
@@ -351,14 +362,16 @@ syntaxes:</p>
 <tr class="row-odd"><td><p>1.2.840.10008.1.2.1</p></td>
 <td><p>Explicit VR Little Endian</p></td>
 </tr>
-<tr class="row-even"><td><p>1.2.840.10008.1.2.2</p></td>
-<td><p>Explicit VR Big Endian</p></td>
-</tr>
-<tr class="row-odd"><td><p>1.2.840.10008.1.2.1.99</p></td>
+<tr class="row-even"><td><p>1.2.840.10008.1.2.1.99</p></td>
 <td><p>Deflated Explicit VR Little Endian</p></td>
+</tr>
+<tr class="row-odd"><td><p>1.2.840.10008.1.2.2</p></td>
+<td><p>Explicit VR Big Endian</p></td>
 </tr>
 </tbody>
 </table>
+</div>
+</div>
 </div>
 </div>
 

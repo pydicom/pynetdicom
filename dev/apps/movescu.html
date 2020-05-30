@@ -38,7 +38,7 @@
   <link rel="stylesheet" href="../_static/css/pynetdicom.css" type="text/css" />
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
-    <link rel="next" title="storescp" href="storescp.html" />
+    <link rel="next" title="qrscp" href="qrscp.html" />
     <link rel="prev" title="getscu" href="getscu.html" /> 
 </head>
 
@@ -127,12 +127,13 @@
 </ul>
 </li>
 <li class="toctree-l3"><a class="reference internal" href="#dicom-conformance">DICOM Conformance</a><ul>
-<li class="toctree-l4"><a class="reference internal" href="#move-scu-conformance">Move SCU conformance</a></li>
-<li class="toctree-l4"><a class="reference internal" href="#store-scp-conformance">Store SCP conformance</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#query-retrieve-service">Query/Retrieve Service</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#storage-service">Storage Service</a></li>
 </ul>
 </li>
 </ul>
 </li>
+<li class="toctree-l2"><a class="reference internal" href="qrscp.html">qrscp</a></li>
 <li class="toctree-l2"><a class="reference internal" href="storescp.html">storescp</a></li>
 <li class="toctree-l2"><a class="reference internal" href="storescu.html">storescu</a></li>
 </ul>
@@ -204,31 +205,38 @@
             
   <div class="section" id="movescu">
 <h1>movescu<a class="headerlink" href="#movescu" title="Permalink to this headline">¶</a></h1>
+<div class="versionadded">
+<p><span class="versionmodified added">New in version 1.5.</span></p>
+</div>
 <div class="highlight-text notranslate"><div class="highlight"><pre><span></span>$ python -m pynetdicom movescu [options] addr port (-k keyword and/or -f file-in)
 </pre></div>
 </div>
 <div class="section" id="description">
 <h2>Description<a class="headerlink" href="#description" title="Permalink to this headline">¶</a></h2>
-<p>The <code class="docutils literal notranslate"><span class="pre">movescu</span></code> application implements a <em>Service Class User</em> (SCU) for
-the <a class="reference external" href="http://dicom.nema.org/medical/dicom/current/output/chtml/part04/chapter_C.html">Query/Retrieve Service Class</a>. It requests an
-association with a peer Application Entity on IP address <code class="docutils literal notranslate"><span class="pre">addr</span></code> and listen
-port <code class="docutils literal notranslate"><span class="pre">port</span></code> and once established, sends a C-MOVE query to be matched against
-the SCP’s managed SOP Instances. The SCP then responds by sending a copy of the
-matching SOP Instances to the Store SCP specified using the Move AE title.</p>
+<p>The <code class="docutils literal notranslate"><span class="pre">movescu</span></code> application implements a Service Class User (SCU) for
+the <a class="reference external" href="http://dicom.nema.org/medical/dicom/current/output/chtml/part04/chapter_C.html">Query/Retrieve</a> service class and optionally
+a Service Class Provider (SCP) for the <a class="reference external" href="http://dicom.nema.org/medical/dicom/current/output/chtml/part04/chapter_B.html">Storage</a>
+service class. It requests an association with a peer Application Entity and
+once established, sends a C-MOVE query to be matched against
+the Query/Retrieve SCP’s managed SOP Instances. The QR SCP then responds by
+sending a copy of the matching SOP Instances to the Storage SCP specified
+using the C-MOVE query’s <em>Move Destination</em> AE title.</p>
+<p>The source code for the application can be found <a class="reference external" href="https://github.com/pydicom/pynetdicom/tree/master/pynetdicom/apps/movescu">here</a></p>
 </div>
 <div class="section" id="usage">
 <h2>Usage<a class="headerlink" href="#usage" title="Permalink to this headline">¶</a></h2>
 <p>The following example shows what happens when it is succesfully run on
 an SCP at IP <code class="docutils literal notranslate"><span class="pre">127.0.0.1</span></code> and listen port <code class="docutils literal notranslate"><span class="pre">11112</span></code> that supports the
-<em>Query/Retrieve (Move) Service</em> with the default Move AE title <code class="docutils literal notranslate"><span class="pre">STORESCP</span></code>:</p>
+Query/Retrieve service with the default <em>Move Destination</em> AE title
+<code class="docutils literal notranslate"><span class="pre">STORESCP</span></code>:</p>
 <div class="highlight-text notranslate"><div class="highlight"><pre><span></span>$ python -m pynetdicom movescu 127.0.0.1 11112 -k QueryRetrieveLevel=PATIENT -k PatientName=
 I: Requesting Association
 I: Association Accepted
 I: Sending Move Request: MsgID 1
 I:
 I: # Request Identifier
-I: (0008, 0052) Query/Retrieve Level                CS: &#39;PATIENT&#39;
-I: (0010, 0010) Patient&#39;s Name                      PN: &#39;&#39;
+I: (0008,0052) CS [PATIENT]                                # 1 QueryRetrieveLevel
+I: (0010,0010) PN (no value available)                     # 0 PatientName
 I:
 I: Move SCP Response: 1 - 0xFF00 (Pending)
 I: Sub-Operations Remaining: 0, Completed: 1, Failed: 0, Warning: 0
@@ -237,10 +245,11 @@ I: Sub-Operations Remaining: 0, Completed: 1, Failed: 0, Warning: 0
 I: Releasing Association
 </pre></div>
 </div>
-<p>The Move AE title can be specified using the <code class="docutils literal notranslate"><span class="pre">-aem</span> <span class="pre">aetitle</span></code> flag.</p>
-<p>You can also use the <code class="docutils literal notranslate"><span class="pre">--store</span></code> option to start a Store SCP on port
+<p>The <em>Move Destination</em> AE title can be specified using the <code class="docutils literal notranslate"><span class="pre">-aem</span> <span class="pre">aetitle</span></code>
+flag.</p>
+<p>You can also use the <code class="docutils literal notranslate"><span class="pre">--store</span></code> option to start a Storage SCP on port
 <code class="docutils literal notranslate"><span class="pre">11113</span></code> that can be used as the move destination. The AE title and port of
-the Store SCP can be configured using the <code class="docutils literal notranslate"><span class="pre">--store-aet</span></code> and
+the Storage SCP can be configured using the <code class="docutils literal notranslate"><span class="pre">--store-aet</span></code> and
 <code class="docutils literal notranslate"><span class="pre">--store-port</span></code> flags:</p>
 <div class="highlight-text notranslate"><div class="highlight"><pre><span></span>$ python -m pynetdicom movescu 127.0.0.1 11112 -k QueryRetrieveLevel=PATIENT -k PatientName= --store
 I: Requesting Association
@@ -248,13 +257,12 @@ I: Association Accepted
 I: Sending Move Request: MsgID 1
 I:
 I: # Request Identifier
-I: (0008, 0052) Query/Retrieve Level                CS: &#39;PATIENT&#39;
-I: (0010, 0010) Patient&#39;s Name                      PN: &#39;&#39;
+I: (0008,0052) CS [PATIENT]                                # 1 QueryRetrieveLevel
+I: (0010,0010) PN (no value available)                     # 0 PatientName
 I:
 I: Accepting Association
 I: Received Store Request
 I: Storing DICOM file: CT.1.3.6.1.4.1.5962.1.1.1.1.1.20040119072730.12322
-W: DICOM file already exists, overwriting
 I: Association Released
 I: Move SCP Response: 1 - 0xFF00 (Pending)
 I: Sub-Operations Remaining: 0, Completed: 1, Failed: 0, Warning: 0
@@ -474,9 +482,13 @@ or <a class="reference external" href="https://docs.python.org/3/library/functio
 </div>
 <div class="section" id="dicom-conformance">
 <h2>DICOM Conformance<a class="headerlink" href="#dicom-conformance" title="Permalink to this headline">¶</a></h2>
-<div class="section" id="move-scu-conformance">
-<h3>Move SCU conformance<a class="headerlink" href="#move-scu-conformance" title="Permalink to this headline">¶</a></h3>
-<p>The <code class="docutils literal notranslate"><span class="pre">movescu</span></code> application supports the following SOP Classes as an SCU:</p>
+<p>The <code class="docutils literal notranslate"><span class="pre">movescu</span></code> application supports the Query/Retrieve service classes as an
+SCU and the Storage service as an SCP (with the <code class="docutils literal notranslate"><span class="pre">--store</span></code> option). The
+following SOP classes are supported:</p>
+<div class="section" id="query-retrieve-service">
+<h3>Query/Retrieve Service<a class="headerlink" href="#query-retrieve-service" title="Permalink to this headline">¶</a></h3>
+<div class="section" id="sop-classes">
+<h4>SOP Classes<a class="headerlink" href="#sop-classes" title="Permalink to this headline">¶</a></h4>
 <table class="docutils align-default">
 <colgroup>
 <col style="width: 38%" />
@@ -489,21 +501,22 @@ or <a class="reference external" href="https://docs.python.org/3/library/functio
 </thead>
 <tbody>
 <tr class="row-even"><td><p>1.2.840.10008.5.1.4.1.2.1.2</p></td>
-<td><p>Patient Root Query Retrieve Information Model
+<td><p>Patient Root Query/Retrieve Information Model
 - MOVE</p></td>
 </tr>
 <tr class="row-odd"><td><p>1.2.840.10008.5.1.4.1.2.2.2</p></td>
-<td><p>Study Root Query Retrieve Information Model
+<td><p>Study Root Query/Retrieve Information Model
 - MOVE</p></td>
 </tr>
 <tr class="row-even"><td><p>1.2.840.10008.5.1.4.1.2.3.2</p></td>
-<td><p>Patient Study Only Query Retrieve Information
+<td><p>Patient Study Only Query/Retrieve Information
 - MOVE</p></td>
 </tr>
 </tbody>
 </table>
-<p>The application will request presentation contexts using these transfer
-syntaxes:</p>
+</div>
+<div class="section" id="transfer-syntaxes">
+<h4>Transfer Syntaxes<a class="headerlink" href="#transfer-syntaxes" title="Permalink to this headline">¶</a></h4>
 <table class="docutils align-default">
 <colgroup>
 <col style="width: 32%" />
@@ -521,16 +534,20 @@ syntaxes:</p>
 <tr class="row-odd"><td><p>1.2.840.10008.1.2.1</p></td>
 <td><p>Explicit VR Little Endian</p></td>
 </tr>
-<tr class="row-even"><td><p>1.2.840.10008.1.2.2</p></td>
+<tr class="row-even"><td><p>1.2.840.10008.1.2.1.99</p></td>
+<td><p>Deflated Explicit VR Little Endian</p></td>
+</tr>
+<tr class="row-odd"><td><p>1.2.840.10008.1.2.2</p></td>
 <td><p>Explicit VR Big Endian</p></td>
 </tr>
 </tbody>
 </table>
 </div>
-<div class="section" id="store-scp-conformance">
-<h3>Store SCP conformance<a class="headerlink" href="#store-scp-conformance" title="Permalink to this headline">¶</a></h3>
-<p>With the <code class="docutils literal notranslate"><span class="pre">--store</span></code> option, the <code class="docutils literal notranslate"><span class="pre">movescu</span></code> application supports the
-following SOP Classes as an SCP:</p>
+</div>
+<div class="section" id="storage-service">
+<h3>Storage Service<a class="headerlink" href="#storage-service" title="Permalink to this headline">¶</a></h3>
+<div class="section" id="id1">
+<h4>SOP Classes<a class="headerlink" href="#id1" title="Permalink to this headline">¶</a></h4>
 <table class="docutils align-default">
 <colgroup>
 <col style="width: 45%" />
@@ -998,7 +1015,9 @@ Instructions Storage</p></td>
 </tr>
 </tbody>
 </table>
-<p>The application will support the following transfer syntaxes:</p>
+</div>
+<div class="section" id="id2">
+<h4>Transfer Syntaxes<a class="headerlink" href="#id2" title="Permalink to this headline">¶</a></h4>
 <table class="docutils align-default">
 <colgroup>
 <col style="width: 32%" />
@@ -1016,11 +1035,11 @@ Instructions Storage</p></td>
 <tr class="row-odd"><td><p>1.2.840.10008.1.2.1</p></td>
 <td><p>Explicit VR Little Endian</p></td>
 </tr>
-<tr class="row-even"><td><p>1.2.840.10008.1.2.2</p></td>
-<td><p>Explicit VR Big Endian</p></td>
-</tr>
-<tr class="row-odd"><td><p>1.2.840.10008.1.2.1.99</p></td>
+<tr class="row-even"><td><p>1.2.840.10008.1.2.1.99</p></td>
 <td><p>Deflated Explicit VR Little Endian</p></td>
+</tr>
+<tr class="row-odd"><td><p>1.2.840.10008.1.2.2</p></td>
+<td><p>Explicit VR Big Endian</p></td>
 </tr>
 <tr class="row-even"><td><p>1.2.840.10008.1.2.4.50</p></td>
 <td><p>JPEG Baseline (Process 1)</p></td>
@@ -1062,6 +1081,7 @@ Prediction (Process 14 [Selection Value 1])</p></td>
 </div>
 </div>
 </div>
+</div>
 
 
            </div>
@@ -1071,7 +1091,7 @@ Prediction (Process 14 [Selection Value 1])</p></td>
   
     <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
       
-        <a href="storescp.html" class="btn btn-neutral float-right" title="storescp" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
+        <a href="qrscp.html" class="btn btn-neutral float-right" title="qrscp" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
       
       
         <a href="getscu.html" class="btn btn-neutral float-left" title="getscu" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>

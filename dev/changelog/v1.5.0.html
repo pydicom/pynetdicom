@@ -235,11 +235,16 @@ the association during service class operation.</p></li>
 contains all of the Storage Service Class’ SOP Class UIDs rather than just
 the first 128 as in
 <a class="reference internal" href="../reference/generated/pynetdicom.presentation.StoragePresentationContexts.html#pynetdicom.presentation.StoragePresentationContexts" title="pynetdicom.presentation.StoragePresentationContexts"><code class="xref py py-attr docutils literal notranslate"><span class="pre">StoragePresentationContexts</span></code></a>.</p></li>
+<li><p>Updates and additions to the applications:</p>
+<ul>
 <li><p>Overhaul of <a class="reference internal" href="../apps/echoscp.html"><span class="doc">echoscp</span></a>,
 <a class="reference internal" href="../apps/echoscu.html"><span class="doc">echoscu</span></a>, <a class="reference internal" href="../apps/storescp.html"><span class="doc">storescp</span></a> and
 <a class="reference internal" href="../apps/storescu.html"><span class="doc">storescu</span></a> apps</p></li>
 <li><p>Added non-toy implementations for <a class="reference internal" href="../apps/findscu.html"><span class="doc">findscu</span></a>,
 <a class="reference internal" href="../apps/getscu.html"><span class="doc">getscu</span></a> and <a class="reference internal" href="../apps/movescu.html"><span class="doc">movescu</span></a> apps</p></li>
+<li><p>Added <a class="reference internal" href="../apps/qrscp.html"><span class="doc">qrscp</span></a> app</p></li>
+</ul>
+</li>
 <li><p>Apps can now be invoked from the command line with
 <code class="docutils literal notranslate"><span class="pre">python</span> <span class="pre">-m</span> <span class="pre">pynetdicom</span> <span class="pre">[appname]</span> <span class="pre">[options]</span></code>, e.g. <code class="docutils literal notranslate"><span class="pre">python</span> <span class="pre">-m</span> <span class="pre">pynetdicom</span>
 <span class="pre">echoscu</span> <span class="pre">127.0.0.1</span> <span class="pre">11112</span> <span class="pre">-d</span></code></p></li>
@@ -258,9 +263,10 @@ convenience class for comparing, returning and yielding status values
 <a class="reference internal" href="../reference/generated/pynetdicom.association.Association.html#pynetdicom.association.Association" title="pynetdicom.association.Association"><code class="xref py py-class docutils literal notranslate"><span class="pre">Association</span></code></a> objects (<a class="reference external" href="https://github.com/pydicom/pynetdicom/issues/455">#455</a>)</p></li>
 <li><p>Prefer an exact match when selecting a valid presentation context over
 a convertible one (<a class="reference external" href="https://github.com/pydicom/pynetdicom/issues/472">#472</a>)</p></li>
-<li><p>Added configuration option <a class="reference internal" href="../reference/generated/pynetdicom._config.LOG_RESPONSE_IDENTIFIERS.html#pynetdicom._config.LOG_RESPONSE_IDENTIFIERS" title="pynetdicom._config.LOG_RESPONSE_IDENTIFIERS"><code class="xref py py-attr docutils literal notranslate"><span class="pre">_config.LOG_RESPONSE_IDENTIFIERS</span></code></a> for controlling whether or
-not the contents of C-FIND, C-GET and C-MOVE response <em>Identifier</em> datasets
-are logged</p></li>
+<li><p>Added configuration options <a class="reference internal" href="../reference/generated/pynetdicom._config.LOG_REQUEST_IDENTIFIERS.html#pynetdicom._config.LOG_REQUEST_IDENTIFIERS" title="pynetdicom._config.LOG_REQUEST_IDENTIFIERS"><code class="xref py py-attr docutils literal notranslate"><span class="pre">_config.LOG_REQUEST_IDENTIFIERS</span></code></a> and
+<a class="reference internal" href="../reference/generated/pynetdicom._config.LOG_RESPONSE_IDENTIFIERS.html#pynetdicom._config.LOG_RESPONSE_IDENTIFIERS" title="pynetdicom._config.LOG_RESPONSE_IDENTIFIERS"><code class="xref py py-attr docutils literal notranslate"><span class="pre">_config.LOG_RESPONSE_IDENTIFIERS</span></code></a> for controlling whether or
+not the contents of C-FIND, C-GET and C-MOVE request and response
+<em>Identifier</em> datasets are logged</p></li>
 <li><p>Added <a class="reference internal" href="../reference/generated/pynetdicom.dsutils.pretty_dataset.html#pynetdicom.dsutils.pretty_dataset" title="pynetdicom.dsutils.pretty_dataset"><code class="xref py py-func docutils literal notranslate"><span class="pre">pretty_dataset()</span></code></a> and
 <a class="reference internal" href="../reference/generated/pynetdicom.dsutils.pretty_element.html#pynetdicom.dsutils.pretty_element" title="pynetdicom.dsutils.pretty_element"><code class="xref py py-func docutils literal notranslate"><span class="pre">pretty_element()</span></code></a> functions for producing pretty
 string output from datasets and elements</p></li>
@@ -278,14 +284,14 @@ association with the Storage SCP is initiated.</p></li>
 <a class="reference internal" href="../reference/generated/pynetdicom.association.Association.html#pynetdicom.association.Association.send_c_find" title="pynetdicom.association.Association.send_c_find"><code class="xref py py-meth docutils literal notranslate"><span class="pre">Association.send_c_find()</span></code></a>, <a class="reference internal" href="../reference/generated/pynetdicom.association.Association.html#pynetdicom.association.Association.send_c_get" title="pynetdicom.association.Association.send_c_get"><code class="xref py py-meth docutils literal notranslate"><span class="pre">Association.send_c_get()</span></code></a> and
 <a class="reference internal" href="../reference/generated/pynetdicom.association.Association.html#pynetdicom.association.Association.send_c_move" title="pynetdicom.association.Association.send_c_move"><code class="xref py py-meth docutils literal notranslate"><span class="pre">Association.send_c_move()</span></code></a> removed as per planned deprecation. Use the
 UID directly instead.</p></li>
+<li><p>Support for Python 2 is deprecated and will be removed starting in version
+2.0.</p></li>
 <li><p>Python 3.4 is no longer supported, Python 3.7 and 3.8 are now
 officially supported</p></li>
 <li><p>If an A-ABORT is received while waiting for a DIMSE message the
 <code class="docutils literal notranslate"><span class="pre">Association.send_*</span></code> methods will now return immediately rather than
 waiting for the DIMSE timeout. (<a class="reference external" href="https://github.com/pydicom/pynetdicom/issues/430">#430</a>)</p></li>
 <li><p>Added <cite>abort_type</cite> keyword parameter to <a class="reference internal" href="../reference/generated/pynetdicom.acse.ACSE.html#pynetdicom.acse.ACSE.is_aborted" title="pynetdicom.acse.ACSE.is_aborted"><code class="xref py py-meth docutils literal notranslate"><span class="pre">ACSE.is_aborted()</span></code></a></p></li>
-<li><p>Support for Python 2 is deprecated and will be removed starting in version
-2.0.</p></li>
 <li><p>Added <cite>args</cite> keyword parameter to
 <a class="reference internal" href="../reference/generated/pynetdicom.association.Association.html#pynetdicom.association.Association.bind" title="pynetdicom.association.Association.bind"><code class="xref py py-meth docutils literal notranslate"><span class="pre">Association.bind()</span></code></a> and
 <a class="reference internal" href="../reference/generated/pynetdicom.transport.AssociationServer.html#pynetdicom.transport.AssociationServer.bind" title="pynetdicom.transport.AssociationServer.bind"><code class="xref py py-meth docutils literal notranslate"><span class="pre">AssociationServer.bind()</span></code></a></p></li>
@@ -294,6 +300,10 @@ waiting for the DIMSE timeout. (<a class="reference external" href="https://gith
 or list of 2-tuples.</p></li>
 <li><p>Added <cite>deflated</cite> keyword parameter to <a class="reference internal" href="../reference/generated/pynetdicom.dsutils.encode.html#pynetdicom.dsutils.encode" title="pynetdicom.dsutils.encode"><code class="xref py py-func docutils literal notranslate"><span class="pre">encode()</span></code></a> and
 <a class="reference internal" href="../reference/generated/pynetdicom.dsutils.decode.html#pynetdicom.dsutils.decode" title="pynetdicom.dsutils.decode"><code class="xref py py-func docutils literal notranslate"><span class="pre">decode()</span></code></a></p></li>
+<li><p><a class="reference internal" href="../reference/generated/pynetdicom.dsutils.encode_element.html#pynetdicom.dsutils.encode_element" title="pynetdicom.dsutils.encode_element"><code class="xref py py-func docutils literal notranslate"><span class="pre">encode_element()</span></code></a> is deprecated and will be removed
+in version 2.0</p></li>
+<li><p><em>Deflated Explicit VR Little Endian</em> added to
+<a class="reference internal" href="../reference/generated/pynetdicom.DEFAULT_TRANSFER_SYNTAXES.html#pynetdicom.DEFAULT_TRANSFER_SYNTAXES" title="pynetdicom.DEFAULT_TRANSFER_SYNTAXES"><code class="xref py py-attr docutils literal notranslate"><span class="pre">DEFAULT_TRANSFER_SYNTAXES</span></code></a></p></li>
 </ul>
 </div>
 <div class="section" id="known-issues">

@@ -9,24 +9,27 @@ echoscu
 Description
 ===========
 The ``echoscu`` application implements a Service Class User (SCU) for the
-:dcm:`Verification Service Class<part04/chapter_A.html>`. It establishes an
+:dcm:`Verification<part04/chapter_A.html>` service class. It establishes an
 association with a peer Application Entity (AE), sends a
 :dcm:`C-ECHO<part07/sect_9.3.5.html#sect_9.3.5.1>` request and waits for a
 response. The application can be used to verify basic DICOM connectivity.
+
+The source code for the application can be found `here
+<https://github.com/pydicom/pynetdicom/tree/master/pynetdicom/apps/echoscu>`_
 
 Usage
 =====
 
 The following example shows what happens when it's succesfully run on
 an SCP at IP ``127.0.0.1`` and listen port ``11112`` that supports the
-*Verification Service*:
+Verification service:
 
 .. code-block:: text
 
     $ python -m pynetdicom echoscu 127.0.0.1 11112
 
 When attempting to send a C-ECHO request to an SCP that doesn't support the
-*Verification Service*:
+Verification service:
 
 .. code-block:: text
 
@@ -125,16 +128,23 @@ Miscellaneous Options
 
 DICOM Conformance
 =================
-The ``echoscu`` application supports the following SOP Class as an SCU:
+The ``echoscu`` application supports the Verification service as an SCU. The
+following SOP classes are supported:
 
-+------------------------+----------------------------------------------------+
-| UID                    | SOP Class                                          |
-+========================+====================================================+
-|1.2.840.10008.1.1       | Verification SOP Class                             |
-+------------------------+----------------------------------------------------+
+Verification Service
+--------------------
 
-The application will request a presentation context using these transfer
-syntaxes:
+SOP Classes
+...........
+
++------------------+------------------------+
+| UID              | SOP Class              |
++==================+========================+
+|1.2.840.10008.1.1 | Verification SOP Class |
++------------------+------------------------+
+
+Transfer Syntaxes
+.................
 
 +------------------------+----------------------------------------------------+
 | UID                    | Transfer Syntax                                    |
@@ -143,7 +153,7 @@ syntaxes:
 +------------------------+----------------------------------------------------+
 | 1.2.840.10008.1.2.1    | Explicit VR Little Endian                          |
 +------------------------+----------------------------------------------------+
-| 1.2.840.10008.1.2.2    | Explicit VR Big Endian                             |
-+------------------------+----------------------------------------------------+
 | 1.2.840.10008.1.2.1.99 | Deflated Explicit VR Little Endian                 |
++------------------------+----------------------------------------------------+
+| 1.2.840.10008.1.2.2    | Explicit VR Big Endian                             |
 +------------------------+----------------------------------------------------+
