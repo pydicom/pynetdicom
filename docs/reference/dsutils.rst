@@ -9,21 +9,13 @@ Dataset Utilities (:mod:`pynetdicom.dsutils`)
 
 This module provides DICOM Dataset related utilities.
 
-Encoding
---------
+Encoding and Decoding
+---------------------
 
 .. autosummary::
    :toctree: generated/
 
    encode
-   encode_element
-
-Decoding
---------
-
-.. autosummary::
-   :toctree: generated/
-
    decode
 
 Miscellaneous
