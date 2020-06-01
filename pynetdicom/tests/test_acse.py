@@ -44,7 +44,7 @@ from .encoded_pdu_items import (
 from .parrot import ThreadedParrot
 
 
-#debug_logger()
+debug_logger()
 
 
 class DummyDUL(object):
@@ -339,17 +339,23 @@ class TestNegotiationAcceptor(object):
     def test_response_has_rejected(self):
         """Test that the A-ASSOCIATE-AC contains rejected contexts."""
         self.ae = ae = AE()
-        ae.add_requested_context(VerificationSOPClass)
-        ae.add_requested_context(CTImageStorage)
+        ae.acse_timeout = 5
+        ae.dimse_timeout = 5
+        ae.network_timeout = 5
         ae.add_supported_context(VerificationSOPClass)
         scp = ae.start_server(('', 11112), block=False)
 
+        time.sleep(0.1)
+
+        ae.add_requested_context(VerificationSOPClass)
+        ae.add_requested_context(CTImageStorage)
         assoc = ae.associate('', 11112)
         assert assoc.is_established
 
         pcdrl = assoc.acceptor.get_contexts('pcdrl')
-        cxs = {cx.context_id:cx for cx in pcdrl}
+        cxs = {cx.context_id: cx for cx in pcdrl}
         assert 3 in cxs
+        assert 0x03 == cxs[3].result
 
         assoc.release()
         assert assoc.is_released

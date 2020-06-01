@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+"""Tests for pdu_primitives"""
 
 import codecs
 import logging

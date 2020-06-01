@@ -7874,7 +7874,7 @@ class TestState12(TestStateBase):
         assoc.dul.send_pdu(self.get_release(False))
         time.sleep(0.1)
         assoc.dul.send_pdu(self.get_pdata())
-        time.sleep(0.1)
+        time.sleep(0.2)
 
         #self.print_fsm_scp(fsm, scp)
 
@@ -9164,7 +9164,7 @@ class TestParrotAttack(TestStateBase):
 
         self.assoc.start()
 
-        time.sleep(0.5)
+        time.sleep(1.0)
 
         #self.print_fsm_scp(self.fsm, scp)
 
@@ -9822,7 +9822,6 @@ class TestStateMachineFunctionalAcceptor(object):
         assert self.fsm.current_state == 'Sta1'
 
         self.scp.stop()
-        FINITE_STATE.ACTIONS['AE-2']= orig_entry
 
 
 class TestEventHandling(object):

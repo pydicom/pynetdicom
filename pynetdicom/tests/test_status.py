@@ -1,4 +1,3 @@
-#!/usr/bin/env python
 """Status testing"""
 
 import logging

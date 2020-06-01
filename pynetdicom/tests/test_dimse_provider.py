@@ -1,13 +1,7 @@
-#!/usr/bin/env python
-"""Test DIMSE service provider operations.
+"""Test DIMSE service provider operations."""
 
-TODO: Add testing of maximum pdu length flow from assoc negotiation
-"""
 from datetime import datetime
-try:
-    import queue
-except ImportError:
-    import Queue as queue
+import queue
 from io import BytesIO
 import logging
 import sys

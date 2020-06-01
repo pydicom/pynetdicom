@@ -111,6 +111,8 @@ class TestStartServer(object):
         server.shutdown()
 
         server = ae.start_server(('', 11112), block=False, ae_title=b'MYAE')
+        time.sleep(0.1)
+
         assert server.ae_title == b'MYAE            '
         ae.require_called_aet = True
 
@@ -133,11 +135,14 @@ class TestStartServer(object):
 
         cx = build_context(VerificationSOPClass)
         server = ae.start_server(('', 11112), block=False, contexts=[cx])
+        time.sleep(0.1)
 
         ae.add_requested_context(VerificationSOPClass)
         assoc = ae.associate('', 11112, ae_title=b'MYAE')
         assert assoc.is_established
-        assert assoc.accepted_contexts[0].abstract_syntax == VerificationSOPClass
+        assert (
+            assoc.accepted_contexts[0].abstract_syntax == VerificationSOPClass
+        )
         assoc.release()
         assert assoc.is_released
 

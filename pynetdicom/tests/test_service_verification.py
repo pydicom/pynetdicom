@@ -384,7 +384,6 @@ class TestVerificationServiceClass(object):
 
         self.ae = ae = AE()
         ae.dimse_timeout = 0.05
-        ae.network_timeout = 0.05
         ae.add_supported_context(VerificationSOPClass)
         ae.add_requested_context(VerificationSOPClass)
         scp = ae.start_server(('', 11112), block=False, evt_handlers=handlers)
@@ -395,7 +394,7 @@ class TestVerificationServiceClass(object):
             rsp = assoc.send_c_echo()
         assert rsp == Dataset()
 
-        time.sleep(0.1)
+        time.sleep(0.2)
         assert assoc.is_aborted
         scp.shutdown()
 

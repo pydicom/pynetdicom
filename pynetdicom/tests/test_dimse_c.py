@@ -1,4 +1,3 @@
-#!/usr/bin/env python
 """Test DIMSE-C operations."""
 
 from io import BytesIO

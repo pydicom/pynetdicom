@@ -1,4 +1,5 @@
 """Tests for the presentation module."""
+
 import logging
 import sys
 

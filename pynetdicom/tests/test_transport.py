@@ -2,10 +2,7 @@
 
 from datetime import datetime
 import logging
-try:
-    import queue
-except ImportError:
-    import Queue as queue
+import queue
 import os
 import select
 import socket
@@ -138,7 +135,7 @@ class TestAssociationSocket(object):
 
     def test_ready_error(self):
         """Test AssociationSocket.ready."""
-        sock = AssociationSocket(self.assoc)
+        sock = AssociationSocket(self.assoc, address=('localhost', 0))
         assert sock.ready is False
         sock._is_connected = True
         assert sock.ready is True
@@ -164,6 +161,7 @@ class TestAssociationSocket(object):
         ae.network_timeout = 5
         ae.add_supported_context(VerificationSOPClass)
         scp = ae.start_server(('', 11113), block=False, evt_handlers=hh)
+        time.sleep(0.1)
 
         ae.add_requested_context(VerificationSOPClass)
         assoc = ae.associate('', 11113)
@@ -246,6 +244,7 @@ class TestTLS(object):
         self.ae = ae = AE()
         ae.add_supported_context('1.2.840.10008.1.1')
         server = ae.start_server(('', 11112), block=False)
+        time.sleep(0.1)
 
         ae.add_requested_context('1.2.840.10008.1.1')
         assoc = ae.associate('', 11112)
@@ -309,6 +308,7 @@ class TestTLS(object):
             block=False,
             ssl_context=server_context,
         )
+        time.sleep(0.1)
 
         ae.add_requested_context('1.2.840.10008.1.1')
         assoc = ae.associate('', 11112, tls_args=(client_context, None))
@@ -341,6 +341,7 @@ class TestTLS(object):
             ssl_context=server_context,
             evt_handlers=handlers
         )
+        time.sleep(0.1)
 
         ae.add_requested_context('1.2.840.10008.1.1')
         ae.add_requested_context(RTImageStorage)
