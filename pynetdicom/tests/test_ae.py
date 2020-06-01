@@ -155,6 +155,7 @@ class TestAEVerificationSCP(object):
         if self.ae:
             self.ae.shutdown()
 
+    @pytest.mark.skipif(os.name == "nt", reason="Kills pytest on windows")
     def test_start_server_keyboard_interrupt(self):
         """Test stopping the SCP with keyboard"""
         pid = os.getpid()

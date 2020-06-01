@@ -100,9 +100,9 @@ jobs:
     - name: Send coverage results
       if: ${{ success() }}
       run: |
-        bash <(curl --connect-timeout 10 --retry 10 --retry-max-time
-        0 https://codecov.io/bash) || (sleep 30 && bash <(curl
-        --connect-timeout 10 --retry 10 --retry-max-time
+        bash <(curl --connect-timeout 10 --retry 10 --retry-max-time \
+        0 https://codecov.io/bash) || (sleep 30 && bash <(curl \
+        --connect-timeout 10 --retry 10 --retry-max-time \
         0 https://codecov.io/bash))
 
   pydicom-release:
