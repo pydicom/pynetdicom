@@ -13,11 +13,11 @@ This tutorial is intended for people who are new to *pynetdicom*. In it you'll:
 * Learn how to perform some basic troubleshooting of associations
 * Modify your AE to be an Echo SCU
 
-The tutorial is written for *pynetdicom* 2.0, which supports 3.6
+The tutorial is written for *pynetdicom* 2.0, which supports Python 3.6
 and later. You can tell which version of *pynetdicom* you have by running
 the following command::
 
-    $ python -m pynetdicom --versopm
+    $ python -m pynetdicom --version
 
 If you get an error or if your version is earlier than 2.0, then install or
 upgrade *pynetdicom* by following the instructions in the
