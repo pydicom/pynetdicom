@@ -197,9 +197,6 @@ class PDU(object):
             # Move `offset` to the start of the next item
             offset += 4 + item_length
 
-    # Python 2: Classes defining __eq__ should flag themselves as unhashable
-    __hash__ = None
-
     def __len__(self):
         """Return the total length of the encoded PDU as :class:`int`."""
         return 6 + self.pdu_length
@@ -268,8 +265,6 @@ class PDU(object):
         References
         ----------
         * DICOM Standard, Part 8, :dcm:`Annex F <part08/chapter_F.html>`
-        * `Python 2 codecs module
-          <https://docs.python.org/3/library/codecs.html#standard-encodings>`_
         * `Python 3 codecs module
           <https://docs.python.org/2/library/codecs.html#standard-encodings>`_
         """
@@ -929,9 +924,6 @@ class A_ASSOCIATE_AC(PDU):
             The value the A-ASSOCIATE-AC sent in the *Called AE Title* reserved
             space.
         """
-        if isinstance(self._reserved_aet, str):
-            return codecs.encode(self._reserved_aet, 'ascii')
-
         return self._reserved_aet
 
     @property
@@ -948,9 +940,6 @@ class A_ASSOCIATE_AC(PDU):
             The value the A-ASSOCIATE-AC sent in the *Calling AE Title*
             reserved space.
         """
-        if isinstance(self._reserved_aec, str):
-            return codecs.encode(self._reserved_aec, 'ascii')
-
         return self._reserved_aec
 
     @property

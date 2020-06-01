@@ -3,10 +3,7 @@ Implements the DICOM Upper Layer service provider.
 """
 
 import logging
-try:
-    import queue
-except ImportError:
-    import Queue as queue  # Python 2 compatibility
+import queue
 import socket
 from struct import unpack
 import struct

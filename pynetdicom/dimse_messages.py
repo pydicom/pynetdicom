@@ -262,19 +262,7 @@ class DIMSEMessage(object):
             # xxxxxx01 - Command information, not the last fragment
             # xxxxxx10 - Message Dataset information, the last fragment
             # xxxxxx11 - Command information, the last fragment
-
-            ## Compatibility
-            # Python 2
-            #   - data[0] returns length 1 str
-            #   - data[:1] returns length 1 str
-            # Python 3
-            #   - data[0] returns int
-            #   - data[:1] returns length 1 bytes
-            # So grab str/bytes and convert to int rather than grab
-            #   str/int and convert the str to int. The reason for this is
-            #   that a type check is twice as expensive as just converting
-            #   str/bytes to int
-            control_header_byte = ord(data[:1])
+            control_header_byte = data[0]
 
             # LOGGER.debug('Control header byte %s', control_header_byte)
             #print('Control header byte {}'.format(control_header_byte))

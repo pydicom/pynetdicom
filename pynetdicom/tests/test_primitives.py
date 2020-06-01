@@ -463,10 +463,6 @@ class TestPrimitive_SOPClassExtendedNegotiation(object):
         with pytest.raises(TypeError):
             primitive.service_class_application_information = 45.2
 
-        # Python 2 compatibility all bytes are str
-        #with pytest.raises(TypeError):
-        #    primitive.service_class_application_information = 'abc'
-
         # No value set
         primitive = SOPClassExtendedNegotiation()
         with pytest.raises(ValueError):

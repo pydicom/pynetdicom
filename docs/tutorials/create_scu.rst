@@ -13,15 +13,15 @@ This tutorial is intended for people who are new to *pynetdicom*. In it you'll:
 * Learn how to perform some basic troubleshooting of associations
 * Modify your AE to be an Echo SCU
 
-The tutorial is written for *pynetdicom* 1.5, which supports Python 2.7, 3.5
+The tutorial is written for *pynetdicom* 2.0, which supports 3.6
 and later. You can tell which version of *pynetdicom* you have by running
 the following command::
 
-    $ python -c "import pynetdicom; print(pynetdicom.__version__)"
+    $ python -m pynetdicom --versopm
 
-If you get an error saying "no module named pynetdicom" or if your version is
-earlier than 1.5, then install or upgrade *pynetdicom* by following the
-instructions in the :doc:`installation guide</tutorials/installation>`. For
+If you get an error or if your version is earlier than 2.0, then install or
+upgrade *pynetdicom* by following the instructions in the
+:doc:`installation guide</tutorials/installation>`. For
 this tutorial we'll also be using the :doc:`echoscp<../apps/echoscp>`
 application that comes with *pynetdicom*.
 

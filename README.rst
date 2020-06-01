@@ -236,6 +236,7 @@ Some basic DICOM applications are included with *pynetdicom*:
 * `echoscu <https://pydicom.github.io/pynetdicom/stable/apps/echoscu.html>`_
 * `findscu <https://pydicom.github.io/pynetdicom/stable/apps/findscu.html>`_
 * `getscu <https://pydicom.github.io/pynetdicom/stable/apps/getscu.html>`_
+* `qrscp <https://pydicom.github.io/pynetdicom/stable/apps/qrscp.html>`_
 * `movescu <https://pydicom.github.io/pynetdicom/stable/apps/movescu.html>`_
 * `storescp <https://pydicom.github.io/pynetdicom/stable/apps/storescp.html>`_
 * `storescu <https://pydicom.github.io/pynetdicom/stable/apps/storescu.html>`_
