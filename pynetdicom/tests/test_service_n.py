@@ -2246,7 +2246,6 @@ class TestNEventReport(object):
         ae.network_timeout = 5
         ae.add_supported_context(PrintJobSOPClass)
         scp = ae.start_server(('', 11112), block=False, evt_handlers=scp_hh)
-        time.sleep(0.1)
 
         events = []
         def handle_ner(event):
@@ -2300,7 +2299,6 @@ class TestNEventReport(object):
         ae.network_timeout = 5
         ae.add_supported_context(PrintJobSOPClass)
         scp = ae.start_server(('', 11112), block=False, evt_handlers=scp_hh)
-        time.sleep(0.1)
 
         events = []
         def handle_ner(event):
@@ -2311,7 +2309,6 @@ class TestNEventReport(object):
 
         scu_hh = [(evt.EVT_N_EVENT_REPORT, handle_ner)]
         ner_scp = ae.start_server(('', 11113), block=False, evt_handlers=scu_hh)
-        time.sleep(0.1)
 
         ae.add_requested_context(PrintJobSOPClass)
         assoc = ae.associate('localhost', 11112)

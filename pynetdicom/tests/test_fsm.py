@@ -3345,11 +3345,8 @@ class TestState06(TestStateBase):
 
         self.assoc.start()
 
-        start_time = time.time()
-        total_time = 3
-        while not self.assoc.is_established and total_time < 2.0:
+        while not self.assoc.is_established:
             time.sleep(0.05)
-            total_time = time.time() - start_time
         time.sleep(0.2)
 
         #self.print_fsm_scp(self.fsm, scp)
@@ -7877,7 +7874,7 @@ class TestState12(TestStateBase):
         assoc.dul.send_pdu(self.get_release(False))
         time.sleep(0.1)
         assoc.dul.send_pdu(self.get_pdata())
-        time.sleep(0.2)
+        time.sleep(0.1)
 
         #self.print_fsm_scp(fsm, scp)
 
@@ -8570,11 +8567,8 @@ class TestState13(TestStateBase):
         ]
         scp = self.start_server(commands)
 
-        start_time = time.time()
-        total_time = 3
-        while not self.assoc.is_established and total_time < 2.0:
+        while not self.assoc.is_established:
             time.sleep(0.05)
-            total_time = time.time() - start_time
 
         time.sleep(0.2)
 
@@ -9169,7 +9163,7 @@ class TestParrotAttack(TestStateBase):
 
         self.assoc.start()
 
-        time.sleep(1.0)
+        time.sleep(0.5)
 
         #self.print_fsm_scp(self.fsm, scp)
 
@@ -9428,7 +9422,7 @@ class TestStateMachineFunctionalRequestor(object):
         while (not self.assoc.is_established and not self.assoc.is_rejected and
                not self.assoc.is_aborted and not self.assoc.dul._kill_thread):
             time.sleep(0.05)
-        time.sleep(0.1)
+        time.sleep(0.05)
 
         assert self.assoc.is_rejected
 
@@ -9816,7 +9810,6 @@ class TestStateMachineFunctionalAcceptor(object):
         while (not self.assoc.is_established and not self.assoc.is_rejected and
                not self.assoc.is_aborted and not self.assoc.dul._kill_thread):
             time.sleep(0.05)
-        time.sleep(0.1)
 
         assert self.assoc.is_rejected
         assert self.assoc.acceptor.primitive.result == 0x01

@@ -378,15 +378,14 @@ class TestAssociation(object):
         ae.network_timeout = 5
         ae.add_supported_context(VerificationSOPClass)
         ae.require_called_aet = True
-        self.scp = ae.start_server(('', 11112), block=False)
+        scp = ae.start_server(('', 11112), block=False)
 
         ae.add_requested_context(VerificationSOPClass)
         assoc = ae.associate('localhost', 11112)
         assert not assoc.is_established
         assert assoc.is_rejected
 
-        self.scp.shutdown()
-        self.scp = None
+        scp.shutdown()
 
     def test_require_calling_aet(self):
         """SCP requires matching called AET"""
@@ -396,15 +395,14 @@ class TestAssociation(object):
         ae.network_timeout = 5
         ae.add_supported_context(VerificationSOPClass)
         ae.require_calling_aet = [b'TESTSCP']
-        self.scp = ae.start_server(('', 11112), block=False)
+        scp = ae.start_server(('', 11112), block=False)
 
         ae.add_requested_context(VerificationSOPClass)
         assoc = ae.associate('localhost', 11112)
         assert not assoc.is_established
         assert assoc.is_rejected
 
-        self.scp.shutdown()
-        self.scp = None
+        scp.shutdown()
 
     def test_dimse_timeout(self):
         """Test that the DIMSE timeout works"""

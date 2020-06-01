@@ -133,7 +133,6 @@ class TestAssociationSocket(object):
         assert sock.event_queue.get() == 'Evt17'
         assert sock.socket is None
 
-    @pytest.mark.skipif(os.name == 'nt', reason="Windows weirdness")
     def test_ready_error(self):
         """Test AssociationSocket.ready."""
         sock = AssociationSocket(self.assoc, address=('localhost', 0))
@@ -162,7 +161,6 @@ class TestAssociationSocket(object):
         ae.network_timeout = 5
         ae.add_supported_context(VerificationSOPClass)
         scp = ae.start_server(('', 11113), block=False, evt_handlers=hh)
-        time.sleep(0.1)
 
         ae.add_requested_context(VerificationSOPClass)
         assoc = ae.associate('localhost', 11113)
@@ -245,7 +243,6 @@ class TestTLS(object):
         self.ae = ae = AE()
         ae.add_supported_context('1.2.840.10008.1.1')
         server = ae.start_server(('', 11112), block=False)
-        time.sleep(0.1)
 
         ae.add_requested_context('1.2.840.10008.1.1')
         assoc = ae.associate('localhost', 11112)
@@ -297,7 +294,6 @@ class TestTLS(object):
 
         assert len(server.active_associations) == 0
 
-    @pytest.mark.skipif(os.name == "nt", reason="Dodgy TLS")
     def test_tls_yes_server_yes_client(self, server_context, client_context):
         """Test associating with TLS on both ends."""
         self.ae = ae = AE()
@@ -321,7 +317,6 @@ class TestTLS(object):
 
         assert len(server.active_associations) == 0
 
-    @pytest.mark.skipif(os.name == "nt", reason="Dodgy TLS")
     def test_tls_transfer(self, server_context, client_context):
         """Test transferring data after associating with TLS."""
         ds = []

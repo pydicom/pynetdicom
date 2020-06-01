@@ -394,7 +394,7 @@ class TestVerificationServiceClass(object):
             rsp = assoc.send_c_echo()
         assert rsp == Dataset()
 
-        time.sleep(0.2)
+        time.sleep(0.1)
         assert assoc.is_aborted
         scp.shutdown()
 
