@@ -10,14 +10,14 @@ on: [push]
   #  branches: [ master ]
 
 jobs:
-  
+
   windows:
     # Test Windows with latest Python version
    runs-on: windows-latest
    strategy:
      matrix:
        python-version: [3.8]
-    
+
    steps:
    - uses: actions/checkout@v2
    - name: Set up Python ${{ matrix.python-version }}
@@ -30,15 +30,15 @@ jobs:
        pip install pytest pydicom coverage pytest-cov
    - name: Test with pytest
      run: |
-       pytest
-          
+       pytest --ignore=pynetdicom/apps
+
   macos:
     # Test MacOS with latest Python version
     runs-on: macos-latest
     strategy:
       matrix:
         python-version: [3.8]
-    
+
     steps:
     - uses: actions/checkout@v2
     - name: Set up Python ${{ matrix.python-version }}
@@ -51,15 +51,15 @@ jobs:
         pip install pytest pydicom coverage pytest-cov
     - name: Test with pytest
       run: |
-        pytest
-  
+        pytest --ignore=pynetdicom/apps
+
   conda:
     # Test conda build with latest Python version
     runs-on: ubuntu-latest
     strategy:
       matrix:
         python-version: [3.8]
-    
+
     steps:
     - uses: actions/checkout@v2
     - name: Setup conda
@@ -74,15 +74,15 @@ jobs:
         conda install -c conda-forge pydicom
     - name: Test with pytest
       run: |
-        pytest
-  
+        pytest --ignore=pynetdicom/apps
+
   pydicom-dev:
     # Matrix builds with development pydicom
     runs-on: ubuntu-latest
     strategy:
       matrix:
         python-version: [3.6, 3.7, 3.8]
-    
+
     steps:
     - uses: actions/checkout@v2
     - name: Set up Python ${{ matrix.python-version }}
@@ -97,7 +97,14 @@ jobs:
     - name: Test with pytest
       run: |
         pytest --cov pynetdicom --ignore=pynetdicom/apps
-  
+    - name: Send coverage results
+      if: ${{ job.status == "success" }}
+      run: |
+        bash <(curl --connect-timeout 10 --retry 10 --retry-max-time
+        0 https://codecov.io/bash) || (sleep 30 && bash <(curl
+        --connect-timeout 10 --retry 10 --retry-max-time
+        0 https://codecov.io/bash))
+
   pydicom-release:
     # Matrix builds with released pydicom
     runs-on: ubuntu-latest
@@ -118,3 +125,10 @@ jobs:
     - name: Test with pytest
       run: |
         pytest --cov pynetdicom --ignore=pynetdicom/apps
+    - name: Send coverage results
+      if: ${{ job.status == "success" }}
+      run: |
+        bash <(curl --connect-timeout 10 --retry 10 --retry-max-time
+        0 https://codecov.io/bash) || (sleep 30 && bash <(curl
+        --connect-timeout 10 --retry 10 --retry-max-time
+        0 https://codecov.io/bash))
