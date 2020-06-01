@@ -9300,7 +9300,7 @@ class TestStateMachineFunctionalRequestor(object):
         assoc.acceptor.port = 11112
 
         # Association Requestor object -> local AE
-        assoc.requestor.address = ''
+        assoc.requestor.address = 'localhost'
         assoc.requestor.port = 11113
         assoc.requestor.ae_title = ae.ae_title
         assoc.requestor.maximum_length = 16382
@@ -9727,7 +9727,7 @@ class TestStateMachineFunctionalAcceptor(object):
         assoc.acceptor.port = 11112
 
         # Association Requestor object -> local AE
-        assoc.requestor.address = ''
+        assoc.requestor.address = 'localhost'
         assoc.requestor.port = 11113
         assoc.requestor.ae_title = ae.ae_title
         assoc.requestor.maximum_length = 16382
@@ -9745,6 +9745,8 @@ class TestStateMachineFunctionalAcceptor(object):
         self.assoc = assoc
         self.fsm = self.monkey_patch(assoc.dul.state_machine)
 
+        self.orig_entry = FINITE_STATE.ACTIONS['AE-2']
+
     def teardown(self):
         """Clear any active threads"""
         if self.scp:
@@ -9756,6 +9758,8 @@ class TestStateMachineFunctionalAcceptor(object):
             if isinstance(thread, DummyBaseSCP):
                 thread.abort()
                 thread.stop()
+
+        FINITE_STATE.ACTIONS['AE-2']= self.orig_entry
 
     def monkey_patch(self, fsm):
         """Monkey patch the StateMachine to add testing hooks."""

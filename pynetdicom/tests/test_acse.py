@@ -1914,7 +1914,7 @@ class TestNegotiateRelease(object):
                 socket.SO_RCVTIMEO,
                 pack('ll', 1, 0)
             )
-        sock.connect(('', 11112))
+        sock.connect(('localhost', 11112))
 
         ae = AE()
         ae.add_supported_context(VerificationSOPClass)
@@ -1950,7 +1950,7 @@ class TestNegotiateRelease(object):
 
     def start_server(self, commands):
         """Start the receiving server."""
-        server = ThreadedParrot(('', 11112), commands)
+        server = ThreadedParrot(('localhost', 11112), commands)
         thread = threading.Thread(target=server.serve_forever)
         thread.daemon = True
         thread.start()
