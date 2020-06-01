@@ -3345,11 +3345,14 @@ class TestState06(TestStateBase):
 
         self.assoc.start()
 
-        while not self.assoc.is_established:
+        start_time = time.time()
+        total_time = 3
+        while not self.assoc.is_established and total_time < 2.0:
             time.sleep(0.05)
+            total_time = time.time() - start_time
         time.sleep(0.2)
 
-        #self.print_fsm_scp(self.fsm, scp)
+        self.print_fsm_scp(self.fsm, scp)
 
         scp.shutdown()
 
@@ -3411,7 +3414,7 @@ class TestState06(TestStateBase):
             time.sleep(0.05)
         time.sleep(0.2)
 
-        self.print_fsm_scp(self.fsm, scp)
+        #self.print_fsm_scp(self.fsm, scp)
 
         scp.shutdown()
 

@@ -160,8 +160,6 @@ class TestAssociation(object):
 
         scp.active_associations[0].release()
 
-        time.sleep(0.1)
-
         assert assoc.is_released
         assert not assoc.is_established
 
@@ -181,8 +179,6 @@ class TestAssociation(object):
         assert assoc.is_established
 
         scp.active_associations[0].abort()
-
-        time.sleep(0.1)
 
         assert assoc.is_aborted
         assert not assoc.is_established

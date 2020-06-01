@@ -117,7 +117,7 @@ class TestStartServer(object):
         ae.require_called_aet = True
 
         ae.add_requested_context(VerificationSOPClass)
-        assoc = ae.associate('', 11112, ae_title=b'MYAE')
+        assoc = ae.associate('localhost', 11112, ae_title=b'MYAE')
         assert assoc.is_established
         assoc.release()
         assert assoc.is_released
@@ -138,7 +138,7 @@ class TestStartServer(object):
         time.sleep(0.1)
 
         ae.add_requested_context(VerificationSOPClass)
-        assoc = ae.associate('', 11112, ae_title=b'MYAE')
+        assoc = ae.associate('localhost', 11112, ae_title=b'MYAE')
         assert assoc.is_established
         assert (
             assoc.accepted_contexts[0].abstract_syntax == VerificationSOPClass

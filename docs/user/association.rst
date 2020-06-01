@@ -169,7 +169,7 @@ use the *evt_handlers* keyword parameter:
 
     ae = AE()
     ae.add_requested_context(VerificationSOPClass)
-    assoc = ae.associate('', 11112, evt_handlers=handlers)
+    assoc = ae.associate('localhost', 11112, evt_handlers=handlers)
 
     if assoc.is_established:
         assoc.release()
@@ -201,7 +201,7 @@ Handlers can also be bound and unbound from events in an existing
 
     ae = AE()
     ae.add_requested_context(VerificationSOPClass)
-    assoc = ae.associate('', 11112, evt_handlers=handlers)
+    assoc = ae.associate('localhost', 11112, evt_handlers=handlers)
 
     assoc.unbind(evt.EVT_CONN_OPEN, handle_open)
     assoc.bind(evt.EVT_CONN_CLOSE, handle_close)

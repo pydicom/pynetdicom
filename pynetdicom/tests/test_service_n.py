@@ -2258,7 +2258,7 @@ class TestNEventReport(object):
         scu_hh = [(evt.EVT_N_EVENT_REPORT, handle_ner)]
 
         ae.add_requested_context(PrintJobSOPClass)
-        assoc = ae.associate('', 11112, evt_handlers=scu_hh)
+        assoc = ae.associate('localhost', 11112, evt_handlers=scu_hh)
         assert assoc.is_established
 
         status, attr = assoc.send_n_get(
@@ -2283,7 +2283,7 @@ class TestNEventReport(object):
             ds = Dataset()
             ds.PatientName = 'Test2'
 
-            assoc = event.assoc.ae.associate('', 11113)
+            assoc = event.assoc.ae.associate('localhost', 11113)
             assoc.send_n_event_report(
                 ds,
                 1,
@@ -2314,7 +2314,7 @@ class TestNEventReport(object):
         time.sleep(0.1)
 
         ae.add_requested_context(PrintJobSOPClass)
-        assoc = ae.associate('', 11112)
+        assoc = ae.associate('localhost', 11112)
         assert assoc.is_established
 
         assoc.release()

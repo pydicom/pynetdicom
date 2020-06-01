@@ -44,7 +44,7 @@ from .encoded_pdu_items import (
 from .parrot import ThreadedParrot
 
 
-debug_logger()
+#debug_logger()
 
 
 class DummyDUL(object):
@@ -345,11 +345,9 @@ class TestNegotiationAcceptor(object):
         ae.add_supported_context(VerificationSOPClass)
         scp = ae.start_server(('', 11112), block=False)
 
-        time.sleep(0.1)
-
         ae.add_requested_context(VerificationSOPClass)
         ae.add_requested_context(CTImageStorage)
-        assoc = ae.associate('', 11112)
+        assoc = ae.associate('localhost', 11112)
         assert assoc.is_established
 
         pcdrl = assoc.acceptor.get_contexts('pcdrl')
