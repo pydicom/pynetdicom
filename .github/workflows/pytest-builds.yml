@@ -48,7 +48,7 @@ jobs:
         pip install pytest pydicom coverage pytest-cov
     - name: Test with pytest
       run: |
-        pytest --ignore=pynetdicom/apps -v -s
+        pytest --ignore=pynetdicom/apps -v
 
   conda:
     # Test conda build with latest Python version

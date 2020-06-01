@@ -3352,7 +3352,7 @@ class TestState06(TestStateBase):
             total_time = time.time() - start_time
         time.sleep(0.2)
 
-        self.print_fsm_scp(self.fsm, scp)
+        #self.print_fsm_scp(self.fsm, scp)
 
         scp.shutdown()
 
@@ -8570,9 +8570,11 @@ class TestState13(TestStateBase):
         ]
         scp = self.start_server(commands)
 
-        self.assoc.start()
-        while not self.assoc.is_established:
+        start_time = time.time()
+        total_time = 3
+        while not self.assoc.is_established and total_time < 2.0:
             time.sleep(0.05)
+            total_time = time.time() - start_time
 
         time.sleep(0.2)
 
@@ -9426,6 +9428,7 @@ class TestStateMachineFunctionalRequestor(object):
         while (not self.assoc.is_established and not self.assoc.is_rejected and
                not self.assoc.is_aborted and not self.assoc.dul._kill_thread):
             time.sleep(0.05)
+        time.sleep(0.1)
 
         assert self.assoc.is_rejected
 
@@ -9798,9 +9801,6 @@ class TestStateMachineFunctionalAcceptor(object):
 
         assert self.fsm.current_state == 'Sta1'
 
-        # Patch AE_2
-        orig_entry = FINITE_STATE.ACTIONS['AE-2']
-
         def AE_2(dul):
             dul.pdu = A_ASSOCIATE_RQ()
             dul.pdu.from_primitive(dul.primitive)
@@ -9816,6 +9816,7 @@ class TestStateMachineFunctionalAcceptor(object):
         while (not self.assoc.is_established and not self.assoc.is_rejected and
                not self.assoc.is_aborted and not self.assoc.dul._kill_thread):
             time.sleep(0.05)
+        time.sleep(0.1)
 
         assert self.assoc.is_rejected
         assert self.assoc.acceptor.primitive.result == 0x01
