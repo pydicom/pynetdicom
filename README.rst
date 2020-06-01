@@ -33,7 +33,7 @@ images and related information. It defines the formats and communication
 protocols for media exchange in radiology, cardiology, radiotherapy and other
 medical domains.
 
-*pynetdicom* is a pure Python (2.7/3.5+) package that implements the DICOM
+*pynetdicom* is a pure Python 3.6+ package that implements the DICOM
 networking protocol. Working with
 `pydicom <https://github.com/pydicom/pydicom>`_, it allows the easy creation
 of DICOM *Service Class Users* (SCUs) and *Service Class Providers* (SCPs).
@@ -99,7 +99,7 @@ Installing development version
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 .. code-block:: sh
 
-    $ pip install git+git://github.com/pydicom/pynetdicom.git
+    $ pip install git+https://github.com/pydicom/pynetdicom.git
 
 
 Supported DIMSE Services
@@ -236,6 +236,7 @@ Some basic DICOM applications are included with *pynetdicom*:
 * `echoscu <https://pydicom.github.io/pynetdicom/stable/apps/echoscu.html>`_
 * `findscu <https://pydicom.github.io/pynetdicom/stable/apps/findscu.html>`_
 * `getscu <https://pydicom.github.io/pynetdicom/stable/apps/getscu.html>`_
+* `qrscp <https://pydicom.github.io/pynetdicom/stable/apps/qrscp.html>`_
 * `movescu <https://pydicom.github.io/pynetdicom/stable/apps/movescu.html>`_
 * `storescp <https://pydicom.github.io/pynetdicom/stable/apps/storescp.html>`_
 * `storescu <https://pydicom.github.io/pynetdicom/stable/apps/storescu.html>`_

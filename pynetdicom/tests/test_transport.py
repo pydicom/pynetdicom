@@ -208,7 +208,7 @@ def server_context(request):
         context.maximum_version = ssl.TLSVersion.TLSv1_2
     else:
         # Should work with older Python and OpenSSL versions
-        # Python 2.7, 3.5, 3.6
+        # Python 3.6
         context = ssl.SSLContext(protocol=ssl.PROTOCOL_TLSv1_2)
         context.verify_mode = ssl.CERT_REQUIRED
         context.load_cert_chain(certfile=SERVER_CERT, keyfile=SERVER_KEY)
@@ -239,11 +239,7 @@ class TestTLS(object):
 
         # Ensure ssl module is available again
         import importlib
-        try:
-            importlib.reload(pynetdicom.transport)
-        except AttributeError:
-            # Python 2
-            reload(pynetdicom.transport)
+        importlib.reload(pynetdicom.transport)
 
     def test_tls_not_server_not_client(self):
         """Test associating with no TLS on either end."""
@@ -364,11 +360,7 @@ class TestTLS(object):
         """Test exception raised if no SSL available to Python as SCP."""
         # Reload pynetdicom package
         import importlib
-        try:
-            importlib.reload(pynetdicom.transport)
-        except AttributeError:
-            # Python 2
-            reload(pynetdicom.transport)
+        importlib.reload(pynetdicom.transport)
 
         self.ae = ae = AE()
         ae.acse_timeout = 5
@@ -388,11 +380,7 @@ class TestTLS(object):
         """Test exception raised if no SSL available to Python as SCU."""
         # Reload pynetdicom package
         import importlib
-        try:
-            importlib.reload(pynetdicom.transport)
-        except AttributeError:
-            # Python 2
-            reload(pynetdicom.transport)
+        importlib.reload(pynetdicom.transport)
 
         self.ae = ae = AE()
         ae.acse_timeout = 5

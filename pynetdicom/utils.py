@@ -47,13 +47,7 @@ def pretty_bytes(bytestream, prefix='  ', delimiter='  ', items_per_line=16,
         # chunk is a bytes in python3 and a str in python2
         chunk = bytestream[ii:ii + items_per_line]
         byte_count += len(chunk)
-
-        # Python 2 compatibility
-        if isinstance(chunk, str):
-            gen = (format(ord(x), '02x') for x in chunk)
-        else:
-            gen = (format(x, '02x') for x in chunk)
-
+        gen = (format(x, '02x') for x in chunk)
 
         if max_size is not None and byte_count <= max_size:
             line = prefix + delimiter.join(gen)
@@ -108,10 +102,8 @@ def validate_ae_title(ae_title, use_short=False):
 
     Returns
     -------
-    str or bytes
-        A valid AE title truncated to 16 characters if necessary. If Python 3
-        then only returns :class:`bytes`, if Python 2 then returns
-        :class:`str`.
+    bytes
+        A valid AE title truncated to 16 characters if necessary.
 
     Raises
     ------
@@ -121,10 +113,6 @@ def validate_ae_title(ae_title, use_short=False):
     """
     if not isinstance(ae_title, (str, bytes)):
         raise TypeError("AE titles must be str or bytes")
-
-    # Python 2 - convert string to unicode
-    if sys.version_info[0] == 2:
-        ae_title = unicode(ae_title)
 
     # If bytes decode to ascii string
     if isinstance(ae_title, bytes):
