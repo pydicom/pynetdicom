@@ -30,7 +30,7 @@ jobs:
        pip install pytest pydicom coverage pytest-cov
    - name: Test with pytest
      run: |
-       pytest --ignore=pynetdicom/apps -v
+       pytest --ignore=pynetdicom/apps
 
   macos:
     # Test MacOS with latest Python version
