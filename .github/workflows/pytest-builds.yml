@@ -98,7 +98,7 @@ jobs:
       run: |
         pytest --cov pynetdicom --ignore=pynetdicom/apps
     - name: Send coverage results
-      if: ${{ job.status == "success" }}
+      if: ${{ success() }}
       run: |
         bash <(curl --connect-timeout 10 --retry 10 --retry-max-time
         0 https://codecov.io/bash) || (sleep 30 && bash <(curl
@@ -126,7 +126,7 @@ jobs:
       run: |
         pytest --cov pynetdicom --ignore=pynetdicom/apps
     - name: Send coverage results
-      if: ${{ job.status == "success" }}
+      if: ${{ success() }}
       run: |
         bash <(curl --connect-timeout 10 --retry 10 --retry-max-time
         0 https://codecov.io/bash) || (sleep 30 && bash <(curl
