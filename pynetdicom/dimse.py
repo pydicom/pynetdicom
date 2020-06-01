@@ -3,10 +3,7 @@ Implementation of the DIMSE service provider.
 """
 from io import BytesIO
 import logging
-try:
-    import queue
-except ImportError:
-    import Queue as queue  # Python 2 compatibility
+import queue
 import threading
 
 from pynetdicom import evt

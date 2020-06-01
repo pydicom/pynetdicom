@@ -4,10 +4,7 @@ from datetime import datetime
 from io import BytesIO
 import logging
 import os
-try:
-    import queue
-except ImportError:
-    import Queue as queue  # Python 2 compatibility
+import queue
 import socket
 import sys
 import time

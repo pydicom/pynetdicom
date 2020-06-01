@@ -206,9 +206,6 @@ class PDUItem(object):
             # Move `offset` to the start of the next item
             offset += 4 + item_length
 
-    # Python 2: Classes defining __eq__ should flag themselves as unhashable
-    __hash__ = None
-
     @property
     def item_length(self):
         """Return the item's *Item Length* field value as :class:`int`."""
@@ -292,8 +289,6 @@ class PDUItem(object):
         References
         ----------
         * DICOM Standard, part 8, :dcm:`Annex F <part08/chapter_F.html>`
-        * `Python 2 codecs module
-          <https://docs.python.org/3/library/codecs.html#standard-encodings>`_
         * `Python 3 codecs module
           <https://docs.python.org/2/library/codecs.html#standard-encodings>`_
         """
@@ -2805,18 +2800,15 @@ class SOPClassExtendedNegotiationSubItem(PDUItem):
         s = "SOP Class Extended Negotiation Sub-item\n"
         s += "  Item type: 0x{0:02x}\n".format(self.item_type)
         s += "  Item length: {0:d} bytes\n".format(self.item_length)
-        s += "  SOP class UID length: {0:d} bytes\n".format(
-            self.sop_class_uid_length)
+        s += (
+            "  SOP class UID length: {0:d} bytes\n"
+            .format(self.sop_class_uid_length)
+        )
         s += "  SOP class: ={0!s}\n".format(self.sop_class_uid.name)
-
-        # Python 2 compatibility
-        app_info = self.service_class_application_information
-        if isinstance(app_info, str):
-            app_info = "\\x" + "\\x".join(
-                ['{0:02x}'.format(ord(x)) for x in app_info])
-
-        s += "  Service class application information: {0!s}\n".format(
-            app_info)
+        s += (
+            "  Service class application information: {0!s}\n"
+            .format(self.service_class_application_information)
+        )
 
         return s
 
@@ -3870,12 +3862,9 @@ class PresentationDataValueItem(PDUItem):
         s += "  Item length: {0:d} bytes\n".format(self.item_length)
         s += "  Context ID: {0:d}\n".format(self.presentation_context_id)
 
-        # Python 2 compatibility
-        pdv_sample = self.presentation_data_value[:10]
-        if isinstance(pdv_sample, str):
-            pdv_sample = (format(ord(x), '02x') for x in pdv_sample)
-        else:
-            pdv_sample = (format(x, '02x') for x in pdv_sample)
+        pdv_sample = (
+            format(x, '02x') for x in self.presentation_data_value[:10]
+        )
         s += "  Data value: 0x{0!s} ...\n".format(' 0x'.join(pdv_sample))
 
         return s

@@ -996,35 +996,36 @@ class P_DATA(object):
             s += '  Value Length: {0!s} bytes\n'.format(len(pdv[1]))
             header_byte = pdv[1][0]
 
-            # Python 2 compatibility
-            if isinstance(header_byte, str):
-                header_byte = ord(header_byte)
-
             s += "  Message Control Header Byte: {:08b}\n".format(header_byte)
 
             # xxxxxx01 and xxxxxx011
             if header_byte & 1:
                 # xxxxxx11
                 if header_byte & 2:
-                    s += '    Command information, last fragment of the ' \
-                         'DIMSE message\n'
+                    s += (
+                        '    Command information, last fragment of the '
+                        'DIMSE message\n'
+                    )
                 # xxxxxx01
                 else:
-                    s += '    Command information, not the last fragment of ' \
-                         'the DIMSE message\n'
+                    s += (
+                        '    Command information, not the last fragment of '
+                        'the DIMSE message\n'
+                    )
             # xxxxxx00, xxxxxxx10
             else:
                 # xxxxxx10
                 if header_byte & 2 != 0:
-                    s += '    Dataset information, last fragment of the ' \
-                         'DIMSE message\n'
+                    s += (
+                        '    Dataset information, last fragment of the '
+                        'DIMSE message\n'
+                    )
                 # xxxxxx00
                 else:
-                    s += '    Dataset information, not the last fragment of ' \
-                         'the DIMSE message\n'
-
-            # Remaining data
-            #s += pretty_bytes(pdv[1][1:], '    ', max_size=512)
+                    s += (
+                        '    Dataset information, not the last fragment of '
+                        'the DIMSE message\n'
+                    )
 
         return s
 

@@ -7,10 +7,7 @@ Notes:
 """
 
 import codecs
-try:
-    from collections.abc import MutableSequence
-except ImportError:
-    from collections import MutableSequence
+from collections.abc import MutableSequence
 from io import BytesIO
 import logging
 

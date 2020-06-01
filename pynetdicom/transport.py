@@ -529,11 +529,6 @@ class AssociationServer(TCPServer):
         self.ae = ae
         self.ae_title = ae_title
         self.contexts = contexts
-        # Cover Python 2: old style class
-        if ssl_context and not _HAS_SSL:
-            raise RuntimeError(
-                "Your Python installation lacks support for SSL"
-            )
         self.ssl_context = ssl_context
         self.allow_reuse_address = True
 
@@ -719,6 +714,7 @@ class AssociationServer(TCPServer):
 
     def shutdown(self):
         """Completely shutdown the server and close it's socket."""
+        # TODO: Change to use super()
         # Can't use super() due to Python 2.7 compatibility
         TCPServer.shutdown(self)
         self.server_close()
@@ -740,11 +736,10 @@ class AssociationServer(TCPServer):
             :class:`ssl.SSLContext` used to wrap the client sockets, otherwise
             if ``None`` then no TLS will be used (default).
         """
-        # TODO: Uncomment when no longer supporting Python 2
-        #if not _HAS_SSL:
-        #    raise RuntimeError(
-        #        "Your Python installation lacks support for SSL"
-        #    )
+        if not _HAS_SSL:
+            raise RuntimeError(
+                "Your Python installation lacks support for SSL"
+            )
 
         self._ssl_context = context
 

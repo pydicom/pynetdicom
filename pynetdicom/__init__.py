@@ -81,13 +81,3 @@ def debug_logger():
     formatter = logging.Formatter('%(levelname).1s: %(message)s')
     handler.setFormatter(formatter)
     logger.addHandler(handler)
-
-
-import sys
-if sys.version_info[0] == 2:
-    import warnings
-    msg = (
-        "Python 2 will no longer be supported after the pynetdicom v1.5 "
-        "release"
-    )
-    warnings.warn(msg, DeprecationWarning)

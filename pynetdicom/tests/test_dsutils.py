@@ -13,9 +13,7 @@ from pydicom.valuerep import DA, DSfloat, DSdecimal, DT, IS, TM
 from pydicom.uid import UID
 
 from pynetdicom import debug_logger
-from pynetdicom.dsutils import (
-    decode, encode, encode_element, pretty_dataset, pretty_element
-)
+from pynetdicom.dsutils import decode, encode, pretty_dataset, pretty_element
 
 
 #debug_logger()
@@ -107,39 +105,6 @@ class TestDecode(object):
                          b'\x73\x20')
         ds = decode(bytestring, False, False)
         assert ds.PatientName == 'CITIZEN^Snips'
-
-
-class TestElementEncode(object):
-    """Test dsutils.encode_element(elem, is_implicit_vr, is_little_endian)."""
-    def test_implicit_little(self):
-        """Test encoding using implicit VR little endian."""
-        elem = DataElement(0x00100010, 'PN', 'CITIZEN^Snips')
-        bytestring = encode_element(elem, True, True)
-        assert bytestring == (
-            b'\x10\x00\x10\x00\x0e\x00\x00\x00\x43'
-            b'\x49\x54\x49\x5a\x45\x4e\x5e\x53\x6e'
-            b'\x69\x70\x73\x20'
-        )
-
-    def test_explicit_little(self):
-        """Test encoding using explicit VR little endian."""
-        elem = DataElement(0x00100010, 'PN', 'CITIZEN^Snips')
-        bytestring = encode_element(elem, False, True)
-        assert bytestring == (
-            b'\x10\x00\x10\x00\x50\x4e\x0e\x00\x43'
-            b'\x49\x54\x49\x5a\x45\x4e\x5e\x53\x6e'
-            b'\x69\x70\x73\x20'
-        )
-
-    def test_explicit_big(self):
-        """Test encoding using explicit VR big endian."""
-        elem = DataElement(0x00100010, 'PN', 'CITIZEN^Snips')
-        bytestring = encode_element(elem, False, False)
-        assert bytestring == (
-            b'\x00\x10\x00\x10\x50\x4e\x00\x0e\x43'
-            b'\x49\x54\x49\x5a\x45\x4e\x5e\x53\x6e'
-            b'\x69\x70\x73\x20'
-        )
 
 
 class TestDecodeFailure(object):

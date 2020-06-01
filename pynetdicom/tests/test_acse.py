@@ -2,10 +2,7 @@
 
 from datetime import datetime
 import logging
-try:
-    import queue
-except ImportError:
-    import Queue as queue  # Python 2 compatibility
+import queue
 import select
 import socket
 from struct import pack, unpack

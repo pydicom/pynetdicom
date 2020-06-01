@@ -121,39 +121,6 @@ def encode(ds, is_implicit_vr, is_little_endian, deflated=False):
     return bytestring
 
 
-def encode_element(elem, is_implicit_vr=True, is_little_endian=True):
-    """Encode a *pydicom* :class:`~pydicom.dataelem.DataElement` `elem`.
-
-    .. deprecated:: 1.5
-
-        Will be removed in version 2.0, use *pydicom* instead.
-
-    Parameters
-    ----------
-    elem : pydicom.dataelem.DataElement
-        The element to encode.
-    is_implicit_vr : bool, optional
-        The element encoding scheme the element will be encoded with, ``True``
-        for implicit VR (default), ``False`` for explicit VR.
-    is_little_endian : bool, optional
-        The byte ordering the element will be encoded in, ``True`` for little
-        endian (default), ``False`` for big endian.
-
-    Returns
-    -------
-    bytes
-        The encoded element.
-    """
-    fp = DicomBytesIO()
-    fp.is_implicit_VR = is_implicit_vr
-    fp.is_little_endian = is_little_endian
-    write_data_element(fp, elem)
-    bytestring = fp.parent.getvalue()
-    fp.close()
-
-    return bytestring
-
-
 def pretty_dataset(ds, indent=0, indent_char='  '):
     """Return a list of pretty dataset strings.
 
