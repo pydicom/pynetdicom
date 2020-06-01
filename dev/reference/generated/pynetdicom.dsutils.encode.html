@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>pynetdicom.dsutils.encode &mdash; pynetdicom 1.5.0 documentation</title>
+  <title>pynetdicom.dsutils.encode &mdash; pynetdicom 2.0.0.dev0 documentation</title>
   
 
   
@@ -38,7 +38,7 @@
   <link rel="stylesheet" href="../../_static/css/pynetdicom.css" type="text/css" />
     <link rel="index" title="Index" href="../../genindex.html" />
     <link rel="search" title="Search" href="../../search.html" />
-    <link rel="next" title="pynetdicom.dsutils.encode_element" href="pynetdicom.dsutils.encode_element.html" />
+    <link rel="next" title="pynetdicom.dsutils.decode" href="pynetdicom.dsutils.decode.html" />
     <link rel="prev" title="Dataset Utilities (pynetdicom.dsutils)" href="../dsutils.html" /> 
 </head>
 
@@ -66,7 +66,7 @@
             
             
               <div class="version">
-                1.5.0
+                2.0.0.dev0
               </div>
             
           
@@ -103,12 +103,11 @@
 <li class="toctree-l2"><a class="reference internal" href="../config.html">Configuration Options (<code class="xref py py-mod docutils literal notranslate"><span class="pre">pynetdicom._config</span></code>)</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../dimse.html">DIMSE Service</a></li>
 <li class="toctree-l2 current"><a class="reference internal" href="../dsutils.html">Dataset Utilities (<code class="xref py py-mod docutils literal notranslate"><span class="pre">pynetdicom.dsutils</span></code>)</a><ul class="current">
-<li class="toctree-l3 current"><a class="reference internal" href="../dsutils.html#encoding">Encoding</a><ul class="current">
+<li class="toctree-l3 current"><a class="reference internal" href="../dsutils.html#encoding-and-decoding">Encoding and Decoding</a><ul class="current">
 <li class="toctree-l4 current"><a class="current reference internal" href="#">pynetdicom.dsutils.encode</a></li>
-<li class="toctree-l4"><a class="reference internal" href="pynetdicom.dsutils.encode_element.html">pynetdicom.dsutils.encode_element</a></li>
+<li class="toctree-l4"><a class="reference internal" href="pynetdicom.dsutils.decode.html">pynetdicom.dsutils.decode</a></li>
 </ul>
 </li>
-<li class="toctree-l3"><a class="reference internal" href="../dsutils.html#decoding">Decoding</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../dsutils.html#miscellaneous">Miscellaneous</a></li>
 </ul>
 </li>
@@ -203,7 +202,7 @@
 <h1>pynetdicom.dsutils.encode<a class="headerlink" href="#pynetdicom-dsutils-encode" title="Permalink to this headline">¶</a></h1>
 <dl class="py function">
 <dt id="pynetdicom.dsutils.encode">
-<code class="sig-prename descclassname">pynetdicom.dsutils.</code><code class="sig-name descname">encode</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">ds</span></em>, <em class="sig-param"><span class="n">is_implicit_vr</span></em>, <em class="sig-param"><span class="n">is_little_endian</span></em>, <em class="sig-param"><span class="n">deflated</span><span class="o">=</span><span class="default_value">False</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/547ff8c5/pynetdicom/dsutils.py#L70"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom.dsutils.encode" title="Permalink to this definition">¶</a></dt>
+<code class="sig-prename descclassname">pynetdicom.dsutils.</code><code class="sig-name descname">encode</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">ds</span></em>, <em class="sig-param"><span class="n">is_implicit_vr</span></em>, <em class="sig-param"><span class="n">is_little_endian</span></em>, <em class="sig-param"><span class="n">deflated</span><span class="o">=</span><span class="default_value">False</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/5f998758/pynetdicom/dsutils.py#L70"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom.dsutils.encode" title="Permalink to this definition">¶</a></dt>
 <dd><p>Encode a <em>pydicom</em> <a class="reference external" href="https://pydicom.github.io/pydicom/stable/reference/generated/pydicom.dataset.Dataset.html#pydicom.dataset.Dataset" title="(in pydicom v2.0.0)"><code class="xref py py-class docutils literal notranslate"><span class="pre">Dataset</span></code></a> <cite>ds</cite>.</p>
 <div class="versionchanged">
 <p><span class="versionmodified changed">Changed in version 1.5: </span>Added <cite>deflated</cite> keyword parameter</p>
@@ -240,7 +239,7 @@ the encoding failed.</p>
   
     <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
       
-        <a href="pynetdicom.dsutils.encode_element.html" class="btn btn-neutral float-right" title="pynetdicom.dsutils.encode_element" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
+        <a href="pynetdicom.dsutils.decode.html" class="btn btn-neutral float-right" title="pynetdicom.dsutils.decode" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
       
       
         <a href="../dsutils.html" class="btn btn-neutral float-left" title="Dataset Utilities (pynetdicom.dsutils)" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
