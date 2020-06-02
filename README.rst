@@ -1,6 +1,8 @@
 .. class:: center
 .. image:: https://codecov.io/gh/pydicom/pynetdicom/branch/master/graph/badge.svg
     :target: https://codecov.io/gh/pydicom/pynetdicom
+.. image:: https://github.com/pydicom/pynetdicom/workflows/build/badge.svg
+    :target: https://github.com/pydicom/pynetdicom/actions?query=workflow%3Abuild
 .. image:: https://travis-ci.org/pydicom/pynetdicom.svg?branch=master
     :target: https://travis-ci.org/pydicom/pynetdicom
 .. image:: https://circleci.com/gh/pydicom/pynetdicom/tree/master.svg?style=shield
