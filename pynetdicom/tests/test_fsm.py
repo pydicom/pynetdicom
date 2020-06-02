@@ -9954,6 +9954,8 @@ class TestEventHandling(object):
         while scp.active_associations:
             time.sleep(0.05)
 
+        time.sleep(0.5)
+
         for event in triggered:
             assert hasattr(event, 'current_state')
             assert hasattr(event, 'fsm_event')

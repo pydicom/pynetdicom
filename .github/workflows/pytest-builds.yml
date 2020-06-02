@@ -13,6 +13,7 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 20
     strategy:
+      fail-fast: false
       matrix:
         python-version: [3.8]
 
@@ -37,6 +38,7 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 20
     strategy:
+      fail-fast: false
       matrix:
         python-version: [3.6, 3.7, 3.8]
 
@@ -67,6 +69,7 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 20
     strategy:
+      fail-fast: false
       matrix:
         python-version: [3.6, 3.7, 3.8]
 
