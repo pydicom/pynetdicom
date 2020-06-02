@@ -193,12 +193,13 @@ def standard_dimse_sent_handler(event):
 # PDU sub-handlers
 def _receive_abort_pdu(event):
     """Standard logging handler for receiving an A-ABORT PDU."""
-    s = ['Abort Parameters:']
-    s.append('{:=^76}'.format(' INCOMING A-ABORT PDU '))
-    s.append('Abort Source: {0!s}'.format(event.pdu.source_str))
-    s.append('Abort Reason: {0!s}'.format(event.pdu.reason_str))
-    s.append('{:=^76}'.format(' END A-ABORT PDU '))
-
+    s = [
+        "Abort Parameters:",
+        f"{' INCOMING A-ABORT PDU ':=^76}",
+        f"Abort Source: {event.pdu.source_str}",
+        f"Abort Reason: {event.pdu.reason_str}",
+        f"{' END A-ABORT PDU ':=^76}"
+    ]
     for line in s:
         LOGGER.debug(line)
 
@@ -217,35 +218,34 @@ def _receive_associate_ac(event):
     req_contexts = event.assoc.requestor.requested_contexts
     req_contexts = {ii.context_id:ii for ii in req_contexts}
 
-    their_class_uid = 'unknown'
-    their_version = b'unknown'
+    their_class_uid = "unknown"
+    their_version = b"unknown"
 
     if user_info.implementation_class_uid:
         their_class_uid = user_info.implementation_class_uid
     if user_info.implementation_version_name:
         their_version = user_info.implementation_version_name
 
-    s = ['Accept Parameters:']
-    s.append('{:=^76}'.format(' INCOMING A-ASSOCIATE-AC PDU '))
-    s.append('Their Implementation Class UID:    {0!s}'
-             .format(their_class_uid))
-    s.append('Their Implementation Version Name: {0!s}'
-             .format(their_version.decode('ascii')))
-    s.append('Application Context Name:    {0!s}'.format(app_context))
-    s.append('Calling Application Name:    {0!s}'
-             .format(assoc_ac.calling_ae_title.decode('ascii')))
-    s.append('Called Application Name:     {0!s}'
-             .format(assoc_ac.called_ae_title.decode('ascii')))
-    s.append('Their Max PDU Receive Size:  {0!s}'
-             .format(user_info.maximum_length))
-    s.append('Presentation Contexts:')
+    calling_aet = assoc_ac.calling_ae_title.decode('ascii')
+    called_aet = assoc_ac.called_ae_title.decode('ascii')
+
+    s = [
+        "Accept Parameters:",
+        f"{' INCOMING A-ASSOCIATE-AC PDU ':=^76}",
+        f"Their Implementation Class UID:    {their_class_uid}",
+        f"Their Implementation Version Name: {their_version.decode('ascii')}",
+        f"Application Context Name:    {app_context}",
+        f"Calling Application Name:    {calling_aet}",
+        f"Called Application Name:     {called_aet}",
+        f"Their Max PDU Receive Size:  {user_info.maximum_length}",
+        "Presentation Contexts:"
+    ]
 
     for cx in pres_contexts:
-        s.append('  Context ID:        {0!s} ({1!s})'
-                 .format(cx.context_id, cx.result_str))
+        s.append(f"  Context ID:        {cx.context_id} ({cx.result_str})")
         # Grab the abstract syntax from the requestor
         a_syntax = req_contexts[cx.context_id].abstract_syntax
-        s.append('    Abstract Syntax: ={0!s}'.format(a_syntax.name))
+        s.append(f"    Abstract Syntax: ={a_syntax.name}")
 
         # Add SCP/SCU Role Selection Negotiation
         # Roles are: SCU, SCP/SCU, SCP, Default
@@ -254,67 +254,56 @@ def _receive_associate_ac(event):
                 role = roles[a_syntax]
                 cx_roles = []
                 if role.scp_role:
-                    cx_roles.append('SCP')
+                    cx_roles.append("SCP")
                 if role.scu_role:
-                    cx_roles.append('SCU')
-                scp_scu_role = '/'.join(cx_roles)
+                    cx_roles.append("SCU")
+                scp_scu_role = "/".join(cx_roles)
             except KeyError:
-                scp_scu_role = 'Default'
+                scp_scu_role = "Default"
 
-            s.append('    Accepted SCP/SCU Role: {0!s}'.format(scp_scu_role))
+            s.append(f"    Accepted SCP/SCU Role: {scp_scu_role}")
             s.append(
-                '    Accepted Transfer Syntax: ={0!s}'
-                .format(cx.transfer_syntax.name)
+                f"    Accepted Transfer Syntax: ={cx.transfer_syntax.name}"
             )
 
     ## Extended Negotiation
     if user_info.ext_neg:
-        s.append('Accepted Extended Negotiation:')
-
+        s.append("Accepted Extended Negotiation:")
         for item in user_info.ext_neg:
-            s.append('  SOP Class: ={0!s}'.format(item.uid))
-            app_info = pretty_bytes(item.app_info)
-            for line in app_info:
-                s.append('  {0!s}'.format(line))
+            s.append(f"  SOP Class: ={item.uid}")
+            s.extend([f"  {line}" for line in pretty_bytes(item.app_info)])
     else:
-        s.append('Accepted Extended Negotiation: None')
+        s.append("Accepted Extended Negotiation: None")
 
     ## Asynchronous Operations
     if async_ops:
-        s.append(
-            "Accepted Asynchronous Operations Window Negotiation:"
-        )
-        s.append(
-            "  Maximum Invoked Operations:     {}"
-            .format(async_ops.maximum_number_operations_invoked)
-        )
-        s.append(
-            "  Maximum Performed Operations:   {}"
-            .format(async_ops.maximum_number_operations_performed)
-        )
+        max_invoked = async_ops.maximum_number_operations_invoked
+        max_performed = async_ops.maximum_number_operations_performed
+        s.append("Accepted Asynchronous Operations Window Negotiation:")
+        s.append(f"  Maximum Invoked Operations:     {max_invoked}")
+        s.append(f"  Maximum Performed Operations:   {max_performed}")
     else:
-        s.append(
-            "Accepted Asynchronous Operations Window Negotiation: None"
-        )
+        s.append("Accepted Asynchronous Operations Window Negotiation: None")
 
     ## User Identity
-    usr_id = 'Yes' if user_info.user_identity else 'None'
+    usr_id = "Yes" if user_info.user_identity else "None"
 
-    s.append('User Identity Negotiation Response: {0!s}'.format(usr_id))
-    s.append('{:=^76}'.format(' END A-ASSOCIATE-AC PDU '))
+    s.append(f"User Identity Negotiation Response: {usr_id}")
+    s.append(f"{' END A-ASSOCIATE-AC PDU ':=^76}")
 
     for line in s:
         LOGGER.debug(line)
 
 def _receive_associate_rj(event):
     """Standard logging handler for receiving an A-ASSOCIATE-RJ PDU."""
-    s = ['Reject Parameters:']
-    s.append('{:=^76}'.format(' INCOMING A-ASSOCIATE-RJ PDU '))
-    s.append('Result:    {0!s}'.format(event.pdu.result_str))
-    s.append('Source:    {0!s}'.format(event.pdu.source_str))
-    s.append('Reason:    {0!s}'.format(event.pdu.reason_str))
-    s.append('{:=^76}'.format(' END A-ASSOCIATE-RJ PDU '))
-
+    s = [
+        "Reject Parameters:",
+        f"{' INCOMING A-ASSOCIATE-RJ PDU ':=^76}",
+        f"Result:    {event.pdu.result_str}",
+        f"Source:    {event.pdu.source_str}",
+        f"Reason:    {event.pdu.reason_str}",
+        f"{' END A-ASSOCIATE-RJ PDU ':=^76}"
+    ]
     for line in s:
         LOGGER.debug(line)
 
@@ -328,41 +317,38 @@ def _receive_associate_rq(event):
     )
     user_info = pdu.user_information
 
-    #responding_ae = 'resp. AP Title'
-    their_class_uid = 'unknown'
-    their_version = b'unknown'
+    their_class_uid = "unknown"
+    their_version = b"unknown"
 
     if user_info.implementation_class_uid:
         their_class_uid = user_info.implementation_class_uid
     if user_info.implementation_version_name:
         their_version = user_info.implementation_version_name
 
-    s = ['Request Parameters:']
-    s.append('{:=^76}'.format(' INCOMING A-ASSOCIATE-RQ PDU '))
-    s.append('Their Implementation Class UID:      {0!s}'
-             .format(their_class_uid))
-    s.append('Their Implementation Version Name:   {0!s}'
-             .format(their_version.decode('ascii')))
-    s.append('Application Context Name:    {0!s}'
-             .format(app_context))
-    s.append('Calling Application Name:    {0!s}'
-             .format(pdu.calling_ae_title.decode('ascii')))
-    s.append('Called Application Name:     {0!s}'
-             .format(pdu.called_ae_title.decode('ascii')))
-    s.append('Their Max PDU Receive Size:  {0!s}'
-             .format(user_info.maximum_length))
+    their_version = their_version.decode("ascii")
+    calling_aet = pdu.calling_ae_title.decode("ascii")
+    called_aet = pdu.called_ae_title.decode("ascii")
+
+    s = [
+        "Request Parameters:",
+        f"{' INCOMING A-ASSOCIATE-RQ PDU ':=^76}",
+        f"Their Implementation Class UID:      {their_class_uid}",
+        f"Their Implementation Version Name:   {their_version}",
+        f"Application Context Name:    {app_context}",
+        f"Calling Application Name:    {calling_aet}",
+        f"Called Application Name:     {called_aet}",
+        f"Their Max PDU Receive Size:  {user_info.maximum_length}"
+    ]
 
     ## Presentation Contexts
     if len(pres_contexts) == 1:
-        s.append('Presentation Context:')
+        s.append("Presentation Context:")
     else:
-        s.append('Presentation Contexts:')
+        s.append("Presentation Contexts:")
 
     for context in pres_contexts:
-        s.append('  Context ID:        {0!s} '
-                 '(Proposed)'.format((context.context_id)))
-        s.append('    Abstract Syntax: ='
-                 '{0!s}'.format(context.abstract_syntax.name))
+        s.append(f"  Context ID:        {context.context_id} (Proposed)")
+        s.append(f"    Abstract Syntax: ={context.abstract_syntax.name}")
 
         # Add SCP/SCU Role Selection Negotiation
         # Roles are: SCU, SCP/SCU, SCP, Default
@@ -373,113 +359,94 @@ def _receive_associate_rq(event):
                 ]
                 roles = []
                 if role.scp_role:
-                    roles.append('SCP')
+                    roles.append("SCP")
                 if role.scu_role:
-                    roles.append('SCU')
+                    roles.append("SCU")
 
-                scp_scu_role = '/'.join(roles)
+                scp_scu_role = "/".join(roles)
             except KeyError:
-                scp_scu_role = 'Default'
+                scp_scu_role = "Default"
         else:
-            scp_scu_role = 'Default'
+            scp_scu_role = "Default"
 
-        s.append('    Proposed SCP/SCU Role: {0!s}'.format(scp_scu_role))
+        s.append(f"    Proposed SCP/SCU Role: {scp_scu_role}")
 
         # Transfer Syntaxes
         if len(context.transfer_syntax) == 1:
-            s.append('    Proposed Transfer Syntax:')
+            s.append("    Proposed Transfer Syntax:")
         else:
-            s.append('    Proposed Transfer Syntaxes:')
-
-        for ts in context.transfer_syntax:
-            s.append('      ={0!s}'.format(ts.name))
+            s.append("    Proposed Transfer Syntaxes:")
+        s.extend([f"      ={ts.name}" for ts in context.transfer_syntax])
 
     ## Extended Negotiation
     if pdu.user_information.ext_neg:
-        s.append('Requested Extended Negotiation:')
-
+        s.append("Requested Extended Negotiation:")
         for item in pdu.user_information.ext_neg:
-            s.append('  SOP Class: ={0!s}'.format(item.uid))
-            #s.append('    Application Information, length: %d bytes'
-            #                                       %len(item.app_info))
-
-            app_info = pretty_bytes(item.app_info)
-            for line in app_info:
-                s.append('  {0!s}'.format(line))
+            s.append(f"  SOP Class: ={item.uid}")
+            s.extend([f"  {line}" for line in pretty_bytes(item.app_info)])
     else:
-        s.append('Requested Extended Negotiation: None')
+        s.append("Requested Extended Negotiation: None")
 
     ## Common Extended Negotiation
     if pdu.user_information.common_ext_neg:
-        s.append('Requested Common Extended Negotiation:')
+        s.append("Requested Common Extended Negotiation:")
 
         for item in pdu.user_information.common_ext_neg:
-
-            s.append('  SOP Class: ={0!s}'.format(item.sop_class_uid.name))
-            s.append(
-                "    Service Class: ={0!s}"
-                .format(item.service_class_uid.name)
-            )
+            s.append(f"  SOP Class: ={item.sop_class_uid.name}")
+            s.append(f"    Service Class: ={item.service_class_uid.name}")
 
             related_uids = item.related_general_sop_class_identification
             if related_uids:
-                s.append('    Related General SOP Class(es):')
-                for sub_field in related_uids:
-                    s.append('      ={0!s}'.format(sub_field.name))
+                s.append("    Related General SOP Class(es):")
+                s.extend([f"      ={sub.name}" for sub in related_uids])
             else:
-                s.append('    Related General SOP Classes: None')
+                s.append("    Related General SOP Classes: None")
     else:
-        s.append('Requested Common Extended Negotiation: None')
+        s.append("Requested Common Extended Negotiation: None")
 
     ## Asynchronous Operations Window Negotiation
     async_ops = pdu.user_information.async_ops_window
     if async_ops is not None:
-        s.append('Requested Asynchronous Operations Window Negotiation:')
-        s.append(
-            "  Maximum Invoked Operations:     {}"
-            .format(async_ops.maximum_number_operations_invoked)
-        )
-        s.append(
-            "  Maximum Performed Operations:   {}"
-            .format(async_ops.maximum_number_operations_performed)
-        )
+        max_invoked = async_ops.maximum_number_operations_invoked
+        max_performed = async_ops.maximum_number_operations_performed
+        s.append("Requested Asynchronous Operations Window Negotiation:")
+        s.append(f"  Maximum Invoked Operations:     {max_invoked}")
+        s.append(f"  Maximum Performed Operations:   {max_performed}")
     else:
-        s.append(
-            "Requested Asynchronous Operations Window Negotiation: None"
-        )
+        s.append("Requested Asynchronous Operations Window Negotiation: None")
 
     ## User Identity
     if user_info.user_identity is not None:
         usid = user_info.user_identity
-        s.append('Requested User Identity Negotiation:')
-        s.append('  Authentication Mode: {0:d} - {1!s}'
-                 .format(usid.id_type, usid.id_type_str))
+        s.append("Requested User Identity Negotiation:")
+        s.append(f"  Authentication Mode: {usid.id_type} - {usid.id_type_str}")
         if usid.id_type == 1:
-            s.append('  Username: [{0!s}]'
-                     .format(usid.primary.decode('utf-8')))
+            s.append(f"  Username: [{usid.primary.decode('utf-8')}]")
         elif usid.id_type == 2:
-            s.append('  Username: [{0!s}]'
-                     .format(usid.primary.decode('utf-8')))
-            s.append('  Password: [{0!s}]'
-                     .format(usid.secondary.decode('utf-8')))
+            s.append(f"  Username: [{usid.primary.decode('utf-8')}]")
+            s.append(f"  Password: [{usid.secondary.decode('utf-8')}]")
         elif usid.id_type == 3:
-            s.append('  Kerberos Service Ticket (not dumped) length: '
-                     '{0:d}'.format(len(usid.primary)))
+            s.append(
+                f"  Kerberos Service Ticket (not dumped) length: "
+                f"{len(usid.primary)}"
+            )
         elif usid.id_type == 4:
-            s.append('  SAML Assertion (not dumped) length: '
-                     '{0:d}'.format(len(usid.primary)))
+            s.append(
+                f"  SAML Assertion (not dumped) length: {len(usid.primary)}"
+            )
         elif usid.id_type == 5:
-            s.append('  JSON Web Token (not dumped) length: '
-                     '{0:d}'.format(len(usid.primary)))
+            s.append(
+                f"  JSON Web Token (not dumped) length: {len(usid.primary)}"
+            )
 
         if usid.response_requested:
-            s.append('  Positive Response Requested: Yes')
+            s.append("  Positive Response Requested: Yes")
         else:
-            s.append('  Positive Response Requested: None')
+            s.append("  Positive Response Requested: None")
     else:
-        s.append('Requested User Identity Negotiation: None')
+        s.append("Requested User Identity Negotiation: None")
 
-    s.append('{:=^76}'.format(' END A-ASSOCIATE-RQ PDU '))
+    s.append(f"{' END A-ASSOCIATE-RQ PDU ':=^76}")
 
     for line in s:
         LOGGER.debug(line)
@@ -498,12 +465,13 @@ def _receive_release_rq(event):
 
 def _send_abort(event):
     """Standard logging handler for sending an A-ABORT PDU."""
-    s = ['Abort Parameters:']
-    s.append('{:=^76}'.format(' OUTGOING A-ABORT PDU '))
-    s.append('Abort Source: {0!s}'.format(event.pdu.source_str))
-    s.append('Abort Reason: {0!s}'.format(event.pdu.reason_str))
-    s.append('{:=^76}'.format(' END A-ABORT PDU '))
-
+    s = [
+        "Abort Parameters:",
+        f"{' OUTGOING A-ABORT PDU ':=^76}",
+        f"Abort Source: {event.pdu.source_str}",
+        f"Abort Reason: {event.pdu.reason_str}",
+        f"{' END A-ABORT PDU ':=^76}"
+    ]
     for line in s:
         LOGGER.debug(line)
 
@@ -521,33 +489,34 @@ def _send_associate_ac(event):
     async_ops = user_info.async_ops_window
     roles = user_info.role_selection
 
-    responding_ae = 'resp. AE Title'
+    responding_ae = "resp. AE Title"
+    class_uid = user_info.implementation_class_uid
 
-    s = ['Accept Parameters:']
-    s.append('{:=^76}'.format(' OUTGOING A-ASSOCIATE-AC PDU '))
-    s.append('Our Implementation Class UID:      '
-             '{0!s}'.format(user_info.implementation_class_uid))
-
+    s = [
+        "Accept Parameters:",
+        f"{' OUTGOING A-ASSOCIATE-AC PDU ':=^76}",
+        f"Our Implementation Class UID:      {class_uid}",
+    ]
     if user_info.implementation_version_name:
         s.append(
             "Our Implementation Version Name:   {0!s}"
             .format(user_info.implementation_version_name.decode('ascii'))
         )
-    s.append('Application Context Name:    {0!s}'.format(app_context))
-    s.append('Responding Application Name: {0!s}'.format(responding_ae))
-    s.append('Our Max PDU Receive Size:    '
-             '{0!s}'.format(user_info.maximum_length))
-    s.append('Presentation Contexts:')
+    s.append(f"Application Context Name:    {app_context}")
+    s.append(f"Responding Application Name: {responding_ae}")
+    s.append(f"Our Max PDU Receive Size:    {user_info.maximum_length}")
 
-    if not pres_contexts:
-        s.append('    (no valid presentation contexts)')
+
+    if pres_contexts:
+        s.append("Presentation Contexts:")
+    else:
+        s.append("Presentation Contexts: None")
 
     # Sort by context ID
     for cx in sorted(pres_contexts, key=lambda x: x.context_id):
-        s.append('  Context ID:        {0!s} ({1!s})'
-                 .format(cx.context_id, cx.result_str))
+        s.append(f"  Context ID:        {cx.context_id} ({cx.result_str})")
         a_syntax = req_contexts[cx.context_id].abstract_syntax
-        s.append('    Abstract Syntax: ={0!s}'.format(a_syntax.name))
+        s.append(f"    Abstract Syntax: ={a_syntax.name}")
 
         # If Presentation Context was accepted
         if cx.result == 0:
@@ -555,65 +524,55 @@ def _send_associate_ac(event):
                 role = roles[a_syntax]
                 cx_roles = []
                 if role.scp_role:
-                    cx_roles.append('SCP')
+                    cx_roles.append("SCP")
                 if role.scu_role:
-                    cx_roles.append('SCU')
-                scp_scu_role = '/'.join(cx_roles)
+                    cx_roles.append("SCU")
+                scp_scu_role = "/".join(cx_roles)
             except KeyError:
-                scp_scu_role = 'Default'
-            s.append('    Accepted SCP/SCU Role: {0!s}'.format(scp_scu_role))
-            s.append('    Accepted Transfer Syntax: ={0!s}'
-                     .format(cx.transfer_syntax.name))
+                scp_scu_role = "Default"
+
+            s.append(f"    Accepted SCP/SCU Role: {scp_scu_role}")
+            s.append(
+                f"    Accepted Transfer Syntax: ={cx.transfer_syntax.name}"
+            )
 
     ## Extended Negotiation
     if user_info.ext_neg:
-        s.append('Accepted Extended Negotiation:')
-
+        s.append("Accepted Extended Negotiation:")
         for item in user_info.ext_neg:
-            s.append('  SOP Class: ={0!s}'.format(item.uid))
-            app_info = pretty_bytes(item.app_info)
-            for line in app_info:
-                s.append('  {0!s}'.format(line))
+            s.append(f"  SOP Class: ={item.uid}")
+            s.extend([f"  {line}" for line in pretty_bytes(item.app_info)])
     else:
-        s.append('Accepted Extended Negotiation: None')
+        s.append("Accepted Extended Negotiation: None")
 
     ## Asynchronous Operations
     if async_ops:
-        s.append(
-            "Accepted Asynchronous Operations Window Negotiation:"
-        )
-        s.append(
-            "  Maximum Invoked Operations:     {}"
-            .format(async_ops.maximum_number_operations_invoked)
-        )
-        s.append(
-            "  Maximum Performed Operations:   {}"
-            .format(async_ops.maximum_number_operations_performed)
-        )
+        max_invoked = async_ops.maximum_number_operations_invoked
+        max_performed = async_ops.maximum_number_operations_performed
+        s.append("Accepted Asynchronous Operations Window Negotiation:")
+        s.append(f"  Maximum Invoked Operations:     {max_invoked}")
+        s.append(f"  Maximum Performed Operations:   {max_performed}")
     else:
-        s.append(
-            "Accepted Asynchronous Operations Window Negotiation: None"
-        )
+        s.append("Accepted Asynchronous Operations Window Negotiation: None")
 
     ## User Identity Negotiation
-    usr_id = 'Yes' if user_info.user_identity is not None else 'None'
-
-
-    s.append('User Identity Negotiation Response: {0!s}'.format(usr_id))
-    s.append('{:=^76}'.format(' END A-ASSOCIATE-AC PDU '))
+    usr_id = "Yes" if user_info.user_identity is not None else "None"
+    s.append(f"User Identity Negotiation Response: {usr_id}")
+    s.append(f"{' END A-ASSOCIATE-AC PDU ':=^76}")
 
     for line in s:
         LOGGER.debug(line)
 
 def _send_associate_rj(event):
     """Standard logging handler for sending an A-ASSOCIATE-RJ PDU."""
-    s = ['Reject Parameters:']
-    s.append('{:=^76}'.format(' OUTGOING A-ASSOCIATE-RJ PDU '))
-    s.append('Result:    {0!s}'.format(event.pdu.result_str))
-    s.append('Source:    {0!s}'.format(event.pdu.source_str))
-    s.append('Reason:    {0!s}'.format(event.pdu.reason_str))
-    s.append('{:=^76}'.format(' END A-ASSOCIATE-RJ PDU '))
-
+    s = [
+        "Reject Parameters:",
+        f"{' OUTGOING A-ASSOCIATE-RJ PDU ':=^76}",
+        f"Result:    {event.pdu.result_str}",
+        f"Source:    {event.pdu.source_str}",
+        f"Reason:    {event.pdu.reason_str}",
+        f"{' END A-ASSOCIATE-RJ PDU ':=^76}"
+    ]
     for line in s:
         LOGGER.debug(line)
 
@@ -624,37 +583,34 @@ def _send_associate_rq(event):
     app_context = pdu.application_context_name.title()
     pres_contexts = pdu.presentation_context
     user_info = pdu.user_information
+    class_uid = user_info.implementation_class_uid
 
-    s = ['Request Parameters:']
-    s.append('{:=^76}'.format(' OUTGOING A-ASSOCIATE-RQ PDU '))
+    s = [
+        "Request Parameters:",
+        f"{' OUTGOING A-ASSOCIATE-RQ PDU ':=^76}",
+        f"Our Implementation Class UID:      {class_uid}",
+    ]
 
-    s.append('Our Implementation Class UID:      '
-             '{0!s}'.format(user_info.implementation_class_uid))
     if user_info.implementation_version_name:
-        s.append(
-            'Our Implementation Version Name:   {0!s}'.format(
-                user_info.implementation_version_name.decode('ascii')
-            )
-        )
-    s.append('Application Context Name:    {0!s}'.format(app_context))
-    s.append('Calling Application Name:    '
-             '{0!s}'.format(pdu.calling_ae_title.decode('ascii')))
-    s.append('Called Application Name:     '
-             '{0!s}'.format(pdu.called_ae_title.decode('ascii')))
-    s.append('Our Max PDU Receive Size:    '
-             '{0!s}'.format(user_info.maximum_length))
+        version_name = user_info.implementation_version_name.decode('ascii')
+        s.append(f"Our Implementation Version Name:   {version_name}")
+
+    calling_aet = pdu.calling_ae_title.decode("ascii")
+    called_aet = pdu.called_ae_title.decode("ascii")
+    s.append(f"Application Context Name:    {app_context}")
+    s.append(f"Calling Application Name:    {calling_aet}")
+    s.append(f"Called Application Name:     {called_aet}")
+    s.append(f"Our Max PDU Receive Size:    {user_info.maximum_length}")
 
     ## Presentation Contexts
     if len(pres_contexts) == 1:
-        s.append('Presentation Context:')
+        s.append("Presentation Context:")
     else:
-        s.append('Presentation Contexts:')
+        s.append("Presentation Contexts:")
 
     for context in pres_contexts:
-        s.append('  Context ID:        {0!s} '
-                 '(Proposed)'.format((context.context_id)))
-        s.append('    Abstract Syntax: ='
-                 '{0!s}'.format(context.abstract_syntax.name))
+        s.append(f"  Context ID:        {context.context_id} (Proposed)")
+        s.append(f"    Abstract Syntax: ={context.abstract_syntax.name}")
 
         # Add SCP/SCU Role Selection Negotiation
         # Roles are: SCU, SCP/SCU, SCP, Default
@@ -665,113 +621,93 @@ def _send_associate_rq(event):
                 ]
                 roles = []
                 if role.scp_role:
-                    roles.append('SCP')
+                    roles.append("SCP")
                 if role.scu_role:
-                    roles.append('SCU')
+                    roles.append("SCU")
 
-                scp_scu_role = '/'.join(roles)
+                scp_scu_role = "/".join(roles)
             except KeyError:
-                scp_scu_role = 'Default'
+                scp_scu_role = "Default"
         else:
-            scp_scu_role = 'Default'
+            scp_scu_role = "Default"
 
-        s.append('    Proposed SCP/SCU Role: {0!s}'.format(scp_scu_role))
+        s.append(f"    Proposed SCP/SCU Role: {scp_scu_role}")
 
         # Transfer Syntaxes
         if len(context.transfer_syntax) == 1:
-            s.append('    Proposed Transfer Syntax:')
+            s.append("    Proposed Transfer Syntax:")
         else:
-            s.append('    Proposed Transfer Syntaxes:')
-
-        for ts in context.transfer_syntax:
-            s.append('      ={0!s}'.format(ts.name))
+            s.append("    Proposed Transfer Syntaxes:")
+        s.extend([f"      ={ts.name}" for ts in context.transfer_syntax])
 
     ## Extended Negotiation
     if pdu.user_information.ext_neg:
-        s.append('Requested Extended Negotiation:')
+        s.append("Requested Extended Negotiation:")
 
         for item in pdu.user_information.ext_neg:
-            s.append('  SOP Class: ={0!s}'.format(item.uid))
-            #s.append('    Application Information, length: %d bytes'
-            #                                       %len(item.app_info))
-
-            app_info = pretty_bytes(item.app_info)
-            for line in app_info:
-                s.append('   {0!s}'.format(line))
+            s.append("  SOP Class: ={0!s}".format(item.uid))
+            s.extend([f"  {line}" for line in pretty_bytes(item.app_info)])
     else:
-        s.append('Requested Extended Negotiation: None')
+        s.append("Requested Extended Negotiation: None")
 
     ## Common Extended Negotiation
     if pdu.user_information.common_ext_neg:
-        s.append('Requested Common Extended Negotiation:')
-
+        s.append("Requested Common Extended Negotiation:")
         for item in pdu.user_information.common_ext_neg:
-
-            s.append('  SOP Class: ={0!s}'.format(item.sop_class_uid.name))
-            s.append(
-                "    Service Class: ={0!s}"
-                .format(item.service_class_uid.name)
-            )
+            s.append(f"  SOP Class: ={item.sop_class_uid.name}")
+            s.append(f"    Service Class: ={item.service_class_uid.name}")
 
             related_uids = item.related_general_sop_class_identification
             if related_uids:
-                s.append('    Related General SOP Class(es):')
-                for sub_field in related_uids:
-                    s.append('      ={0!s}'.format(sub_field.name))
+                s.append("    Related General SOP Class(es):")
+                s.extend([f"      ={sub.name}" for sub in related_uids])
             else:
-                s.append('    Related General SOP Classes: None')
+                s.append("    Related General SOP Classes: None")
     else:
-        s.append('Requested Common Extended Negotiation: None')
+        s.append("Requested Common Extended Negotiation: None")
 
     ## Asynchronous Operations Window Negotiation
     async_ops = pdu.user_information.async_ops_window
     if async_ops is not None:
-        s.append('Requested Asynchronous Operations Window Negotiation:')
-        s.append(
-            "  Maximum Invoked Operations:     {}"
-            .format(async_ops.maximum_number_operations_invoked)
-        )
-        s.append(
-            "  Maximum Performed Operations:   {}"
-            .format(async_ops.maximum_number_operations_performed)
-        )
+        max_invoked = async_ops.maximum_number_operations_invoked
+        max_performed = async_ops.maximum_number_operations_performed
+        s.append("Requested Asynchronous Operations Window Negotiation:")
+        s.append(f"  Maximum Invoked Operations:     {max_invoked}")
+        s.append(f"  Maximum Performed Operations:   {max_performed}")
     else:
-        s.append(
-            "Requested Asynchronous Operations Window Negotiation: None"
-        )
+        s.append("Requested Asynchronous Operations Window Negotiation: None")
 
     ## User Identity
     if user_info.user_identity is not None:
         usid = user_info.user_identity
-        s.append('Requested User Identity Negotiation:')
-        s.append('  Authentication Mode: {0:d} - '
-                 '{1!s}'.format(usid.id_type, usid.id_type_str))
+        s.append("Requested User Identity Negotiation:")
+        s.append("  Authentication Mode: {0:d} - "
+                 "{1!s}".format(usid.id_type, usid.id_type_str))
         if usid.id_type == 1:
-            s.append('  Username: '
-                     '[{0!s}]'.format(usid.primary.decode('utf-8')))
+            s.append(f"  Username: [{usid.primary.decode('utf-8')}]")
         elif usid.id_type == 2:
-            s.append('  Username: '
-                     '[{0!s}]'.format(usid.primary.decode('utf-8')))
-            s.append('  Password: '
-                     '[{0!s}]'.format(usid.secondary.decode('utf-8')))
+            s.append(f"  Username: [{usid.primary.decode('utf-8')}]")
+            s.append(f"  Password: [{usid.secondary.decode('utf-8')}]")
         elif usid.id_type == 3:
-            s.append('  Kerberos Service Ticket (not dumped) length: '
-                     '{0:d}'.format(len(usid.primary)))
+            s.append(
+                f"  Kerberos Service Ticket (not dumped) length: "
+                f"{len(usid.primary)}"
+            )
         elif usid.id_type == 4:
-            s.append('  SAML Assertion (not dumped) length: '
-                     '{0:d}'.format(len(usid.primary)))
+            s.append(
+                f"  SAML Assertion (not dumped) length: {len(usid.primary)}")
         elif usid.id_type == 5:
-            s.append('  JSON Web Token (not dumped) length: '
-                     '{0:d}'.format(len(usid.primary)))
+            s.append(
+                f"  JSON Web Token (not dumped) length: {len(usid.primary)}")
 
         if usid.response_requested:
-            s.append('  Positive Response Requested: Yes')
+            s.append("  Positive Response Requested: Yes")
         else:
-            s.append('  Positive Response Requested: No')
+            s.append("  Positive Response Requested: No")
     else:
-        s.append('Requested User Identity Negotiation: None')
+        s.append("Requested User Identity Negotiation: None")
 
-    s.append('{:=^76}'.format(' END A-ASSOCIATE-RQ PDU '))
+    s.append(f"{' END A-ASSOCIATE-RQ PDU ':=^76}")
 
     for line in s:
         LOGGER.debug(line)
@@ -843,36 +779,32 @@ def _send_c_store_rq(event):
     msg = event.message
     cs = msg.command_set
 
-    priority_str = {2: 'Low',
-                    0: 'Medium',
-                    1: 'High'}
+    priority_str = {2: "Low", 0: "Medium", 1: "High"}
     priority = priority_str[cs.Priority]
 
-    dataset = 'None'
-    if msg.data_set and msg.data_set.getvalue() != b'':
-        dataset = 'Present'
+    dataset = "None"
+    if msg.data_set and msg.data_set.getvalue() != b"":
+        dataset = "Present"
 
-    if cs.AffectedSOPClassUID.name == 'CT Image Storage':
-        dataset_type = ', (CT)'
-    elif cs.AffectedSOPClassUID.name == 'MR Image Storage':
-        dataset_type = ', (MR)'
+    if cs.AffectedSOPClassUID.name == "CT Image Storage":
+        dataset_type = ", (CT)"
+    elif cs.AffectedSOPClassUID.name == "MR Image Storage":
+        dataset_type = ", (MR)"
     else:
-        dataset_type = ''
+        dataset_type = ""
 
-    LOGGER.info("Sending Store Request: MsgID %s%s",
-                cs.MessageID, dataset_type)
+    LOGGER.info("Sending Store Request: MsgID {cs.MessageID}{dataset_type}")
 
-    s = []
-    s.append('{:=^76}'.format(' OUTGOING DIMSE MESSAGE '))
-    s.append('Message Type                  : {0!s}'.format('C-STORE RQ'))
-    s.append('Message ID                    : {0!s}'.format(cs.MessageID))
-    s.append('Affected SOP Class UID        : {0!s}'
-             .format(cs.AffectedSOPClassUID.name))
-    s.append('Affected SOP Instance UID     : {0!s}'
-             .format(cs.AffectedSOPInstanceUID))
-    s.append('Data Set                      : {0!s}'.format(dataset))
-    s.append('Priority                      : {0!s}'.format(priority))
-    s.append('{:=^76}'.format(' END DIMSE MESSAGE '))
+    s = [
+        f"{' OUTGOING DIMSE MESSAGE ':=^76}",
+        "Message Type                  : C-STORE RQ",
+        f"Message ID                    : {cs.MessageID}",
+        f"Affected SOP Class UID        : {cs.AffectedSOPClassUID.name}",
+        f"Affected SOP Instance UID     : {cs.AffectedSOPInstanceUID}",
+        f"Data Set                      : {dataset}",
+        f"Priority                      : {priority}",
+        f"{' END DIMSE MESSAGE ':=^76}"
+    ]
     for line in s:
         LOGGER.debug(line)
 
@@ -912,27 +844,23 @@ def _send_c_find_rq(event):
     msg = event.message
     cs = msg.command_set
 
-    priority_str = {2: 'Low',
-                    0: 'Medium',
-                    1: 'High'}
+    priority_str = {2: "Low", 0: "Medium", 1: "High"}
     priority = priority_str[cs.Priority]
 
-    dataset = 'None'
-    if msg.data_set and msg.data_set.getvalue() != b'':
-        dataset = 'Present'
+    dataset = "None"
+    if msg.data_set and msg.data_set.getvalue() != b"":
+        dataset = "Present"
 
-    s = []
-    s.append('{:=^76}'.format(' OUTGOING DIMSE MESSAGE '))
-    s.append('Message Type                  : {0!s}'.format('C-FIND RQ'))
-    s.append('Presentation Context ID       : {0!s}'
-             .format(msg.context_id))
-    s.append('Message ID                    : {0!s}'.format(cs.MessageID))
-    s.append('Affected SOP Class UID        : {0!s}'
-             .format(cs.AffectedSOPClassUID.name))
-    s.append('Identifier                    : {0!s}'.format(dataset))
-    s.append('Priority                      : {0!s}'.format(priority))
-    s.append('{:=^76}'.format(' END DIMSE MESSAGE '))
-
+    s = [
+        f"{' OUTGOING DIMSE MESSAGE ':=^76}",
+        "Message Type                  : C-FIND RQ",
+        f"Presentation Context ID       : {msg.context_id}",
+        f"Message ID                    : {cs.MessageID}",
+        f"Affected SOP Class UID        : {cs.AffectedSOPClassUID.name}",
+        f"Identifier                    : {dataset}",
+        f"Priority                      : {priority}",
+        f"{' END DIMSE MESSAGE ':=^76}"
+    ]
     for line in s:
         LOGGER.debug(line)
 
@@ -955,22 +883,23 @@ def _send_c_find_rsp(event):
     msg = event.message
     cs = msg.command_set
 
-    dataset = 'None'
-    if msg.data_set and msg.data_set.getvalue() != b'':
-        dataset = 'Present'
+    dataset = "None"
+    if msg.data_set and msg.data_set.getvalue() != b"":
+        dataset = "Present"
 
-    s = []
-    s.append('{:=^76}'.format(' OUTGOING DIMSE MESSAGE '))
-    s.append('Message Type                  : {0!s}'.format('C-FIND RSP'))
-    s.append('Message ID Being Responded To : {0!s}'
-             .format(cs.MessageIDBeingRespondedTo))
-    if 'AffectedSOPClassUID' in cs:
-        s.append('Affected SOP Class UID        : {0!s}'
-                 .format(cs.AffectedSOPClassUID.name))
-    s.append('Identifier                    : {0!s}'.format(dataset))
-    s.append('Status                        : 0x{0:04X}'.format(cs.Status))
-    s.append('{:=^76}'.format(' END DIMSE MESSAGE '))
+    affected_sop = "None"
+    if "AffectedSOPClassUID" in cs:
+        affected_sop = cs.AffectedSOPClassUID.name
 
+    s = [
+        f"{' OUTGOING DIMSE MESSAGE ':=^76}",
+        "Message Type                  : C-FIND RSP",
+        f"Message ID Being Responded To : {cs.MessageIDBeingRespondedTo}",
+        f"Affected SOP Class UID        : {affected_sop}",
+        f"Identifier                    : {dataset}",
+        f"Status                        : 0x{cs.Status:04X}",
+        f"{' END DIMSE MESSAGE ':=^76}"
+    ]
     for line in s:
         LOGGER.debug(line)
 
@@ -992,24 +921,22 @@ def _send_c_get_rq(event):
     msg = event.message
     cs = msg.command_set
 
-    priority_str = {2: 'Low',
-                    0: 'Medium',
-                    1: 'High'}
+    priority_str = {2: "Low", 0: "Medium", 1: "High"}
     priority = priority_str[cs.Priority]
 
-    dataset = 'None'
-    if msg.data_set and msg.data_set.getvalue() != b'':
-        dataset = 'Present'
+    dataset = "None"
+    if msg.data_set and msg.data_set.getvalue() != b"":
+        dataset = "Present"
 
-    s = []
-    s.append('{:=^76}'.format(' OUTGOING DIMSE MESSAGE '))
-    s.append('Message Type                  : {0!s}'.format('C-GET RQ'))
-    s.append('Message ID                    : {0!s}'.format(cs.MessageID))
-    s.append('Affected SOP Class UID        : {0!s}'
-             .format(cs.AffectedSOPClassUID.name))
-    s.append('Identifier                    : {0!s}'.format(dataset))
-    s.append('Priority                      : {0!s}'.format(priority))
-    s.append('{:=^76}'.format(' END DIMSE MESSAGE '))
+    s = [
+        f"{' OUTGOING DIMSE MESSAGE ':=^76}",
+        "Message Type                  : C-GET RQ",
+        f"Message ID                    : {cs.MessageID}",
+        f"Affected SOP Class UID        : {cs.AffectedSOPClassUID.name}",
+        f"Identifier                    : {dataset}",
+        f"Priority                      : {priority}",
+        f"{' END DIMSE MESSAGE ':=^76}"
+    ]
     for line in s:
         LOGGER.debug(line)
 
@@ -1036,24 +963,23 @@ def _send_c_get_rsp(event):
     msg = event.message
     cs = msg.command_set
 
-    dataset = 'None'
-    if msg.data_set and msg.data_set.getvalue() != b'':
-        dataset = 'Present'
+    dataset = "None"
+    if msg.data_set and msg.data_set.getvalue() != b"":
+        dataset = "Present"
 
-    affected_sop = getattr(cs, 'AffectedSOPClassUID', 'None')
+    affected_sop = "None"
+    if "AffectedSOPClassUID" in cs:
+        affected_sop = cs.AffectedSOPClassUID.name
 
-    s = []
-    s.append('{:=^76}'.format(' OUTGOING DIMSE MESSAGE '))
-    s.append('Message Type                  : {0!s}'.format('C-GET RSP'))
-    s.append('Message ID Being Responded To : {0!s}'
-             .format(cs.MessageIDBeingRespondedTo))
-    if 'AffectedSOPClassUID' in cs:
-        s.append('Affected SOP Class UID        : {0!s}'
-                 .format(affected_sop))
-    s.append('Identifier                    : {0!s}'.format(dataset))
-    s.append('Status                        : 0x{0:04X}'.format(cs.Status))
-    s.append('{:=^76}'.format(' END DIMSE MESSAGE '))
-
+    s = [
+        f"{' OUTGOING DIMSE MESSAGE ':=^76}",
+        "Message Type                  : C-GET RSP",
+        f"Message ID Being Responded To : {cs.MessageIDBeingRespondedTo}",
+        f"Affected SOP Class UID        : {affected_sop}",
+        f"Identifier                    : {dataset}",
+        f"Status                        : 0x{cs.Status:04X}",
+        f"{' END DIMSE MESSAGE ':=^76}"
+    ]
     for line in s:
         LOGGER.debug(line)
 
@@ -1076,29 +1002,25 @@ def _send_c_move_rq(event):
     msg = event.message
     cs = msg.command_set
 
-    priority_str = {2: 'Low',
-                    0: 'Medium',
-                    1: 'High'}
+    priority_str = {2: "Low", 0: "Medium", 1: "High"}
     priority = priority_str[cs.Priority]
 
-    identifier = 'None'
-    if msg.data_set and msg.data_set.getvalue() != b'':
-        identifier = 'Present'
+    identifier = "None"
+    if msg.data_set and msg.data_set.getvalue() != b"":
+        identifier = "Present"
 
-    s = []
-    s.append('{:=^76}'.format(' OUTGOING DIMSE MESSAGE '))
-    s.append('Message Type                  : {0!s}'.format('C-MOVE RQ'))
-    s.append('Message ID                    : {0!s}'.format(cs.MessageID))
-    s.append('Affected SOP Class UID        : {0!s}'
-             .format(cs.AffectedSOPClassUID.name))
-    s.append('Move Destination              : {0!s}'
-             .format(cs.MoveDestination))
-    s.append('Identifier                    : {0!s}'.format(identifier))
-    s.append('Priority                      : {0!s}'.format(priority))
-    s.append('{:=^76}'.format(' END DIMSE MESSAGE '))
+    s = [
+        f"{' OUTGOING DIMSE MESSAGE ':=^76}",
+        "Message Type                  : C-MOVE RQ",
+        f"Message ID                    : {cs.MessageID}",
+        f"Affected SOP Class UID        : {cs.AffectedSOPClassUID.name}",
+        f"Move Destination              : {cs.MoveDestination}",
+        f"Identifier                    : {identifier}",
+        f"Priority                      : {priority}",
+        f"{' END DIMSE MESSAGE ':=^76}"
+    ]
     for line in s:
         LOGGER.debug(line)
-    return None
 
 def _send_c_move_rsp(event):
     """Logging handler when a C-MOVE-RSP is sent.
@@ -1123,24 +1045,23 @@ def _send_c_move_rsp(event):
     msg = event.message
     cs = msg.command_set
 
-    identifier = 'None'
-    if msg.data_set and msg.data_set.getvalue() != b'':
-        identifier = 'Present'
+    identifier = "None"
+    if msg.data_set and msg.data_set.getvalue() != b"":
+        identifier = "Present"
 
-    s = []
-    s.append('{:=^76}'.format(' OUTGOING DIMSE MESSAGE '))
-    s.append('Message Type                  : {0!s}'.format('C-MOVE RSP'))
-    s.append('Message ID Being Responded To : {0!s}'
-             .format(cs.MessageIDBeingRespondedTo))
-    if 'AffectedSOPClassUID' in cs:
-        s.append('Affected SOP Class UID        : {0!s}'
-                 .format(cs.AffectedSOPClassUID.name))
-    else:
-        s.append('Affected SOP Class UID        : None')
-    s.append('Identifier                    : {0!s}'.format(identifier))
-    s.append('Status                        : 0x{0:04X}'.format(cs.Status))
-    s.append('{:=^76}'.format(' END DIMSE MESSAGE '))
+    affected_sop = "None"
+    if "AffectedSOPClassUID" in cs:
+        affected_sop = cs.AffectedSOPClassUID.name
 
+    s = [
+        f"{' OUTGOING DIMSE MESSAGE ':=^76}",
+        "Message Type                  : C-MOVE RSP",
+        f"Message ID Being Responded To : {cs.MessageIDBeingRespondedTo}",
+        f"Affected SOP Class UID        : {affected_sop}",
+        f"Identifier                    : {identifier}",
+        f"Status                        : 0x{cs.Status:04X}",
+        f"{' END DIMSE MESSAGE ':=^76}"
+    ]
     for line in s:
         LOGGER.debug(line)
 
@@ -1172,17 +1093,16 @@ def _recv_c_echo_rq(event):
     msg = event.message
     cs = msg.command_set
 
-    LOGGER.info('Received Echo Request (MsgID %s)', cs.MessageID)
+    LOGGER.info(f"Received Echo Request (MsgID {cs.MessageID})")
 
-    s = []
-    s.append('{:=^76}'.format(' INCOMING DIMSE MESSAGE '))
-    s.append('Message Type                  : {0!s}'.format('C-ECHO RQ'))
-    s.append('Presentation Context ID       : {0!s}'
-             .format(msg.context_id))
-    s.append('Message ID                    : {0!s}'.format(cs.MessageID))
-    s.append('Data Set                      : None')
-    s.append('{:=^76}'.format(' END DIMSE MESSAGE '))
-
+    s = [
+        f"{' INCOMING DIMSE MESSAGE ':=^76}",
+        "Message Type                  : C-ECHO RQ",
+        f"Presentation Context ID       : {msg.context_id}",
+        f"Message ID                    : {cs.MessageID}",
+        "Data Set                      : None",
+        f"{' END DIMSE MESSAGE ':=^76}"
+    ]
     for line in s:
         LOGGER.debug(line)
 
@@ -1210,10 +1130,11 @@ def _recv_c_echo_rsp(event):
     #   0x0212 Refused: Mistyped Argument
     #   0x0211 Refused: Unrecognised Operation
     if cs.Status == 0x0000:
-        status_str = 'Success'
+        status_str = "0x0000 - Success"
     else:
-        status_str = '0x{0:04X} - Unknown'.format(cs.Status)
-    LOGGER.info("Received Echo Response (Status: %s)", status_str)
+        status_str = f"0x{cs.Status:04X} - Unknown"
+
+    LOGGER.info(f"Received Echo Response (Status: {status_str})")
 
 def _recv_c_store_rq(event):
     """Logging handler when a C-STORE-RQ is received.
@@ -1236,33 +1157,29 @@ def _recv_c_store_rq(event):
     msg = event.message
     cs = msg.command_set
 
-    priority_str = {2: 'Low',
-                    0: 'Medium',
-                    1: 'High'}
+    priority_str = {2: "Low", 0: "Medium", 1: "High"}
     priority = priority_str[cs.Priority]
 
-    dataset = 'None'
-    if msg.data_set and msg.data_set.getvalue() != b'':
-        dataset = 'Present'
+    dataset = "None"
+    if msg.data_set and msg.data_set.getvalue() != b"":
+        dataset = "Present"
 
-    LOGGER.info('Received Store Request')
+    LOGGER.info("Received Store Request")
 
-    s = []
-    s.append('{:=^76}'.format(' INCOMING DIMSE MESSAGE '))
-    s.append('Message Type                  : {0!s}'.format('C-STORE RQ'))
-    s.append('Presentation Context ID       : {0!s}'
-             .format(msg.context_id))
-    s.append('Message ID                    : {0!s}'.format(cs.MessageID))
-    s.append('Affected SOP Class UID        : {0!s}'
-             .format(cs.AffectedSOPClassUID.name))
-    s.append('Affected SOP Instance UID     : {0!s}'
-             .format(cs.AffectedSOPInstanceUID))
-    if 'MoveOriginatorApplicationEntityTitle' in cs:
-        s.append('Move Originator               : {0!s}'
-                 .format(cs.MoveOriginatorApplicationEntityTitle))
-    s.append('Data Set                      : {0!s}'.format(dataset))
-    s.append('Priority                      : {0!s}'.format(priority))
-    s.append('{:=^76}'.format(' END DIMSE MESSAGE '))
+    s = [
+        f"{' INCOMING DIMSE MESSAGE ':=^76}",
+        "Message Type                  : C-STORE RQ",
+        f"Presentation Context ID       : {msg.context_id}",
+        f"Message ID                    : {cs.MessageID}",
+        f"Affected SOP Class UID        : {cs.AffectedSOPClassUID.name}",
+        f"Affected SOP Instance UID     : {cs.AffectedSOPInstanceUID}",
+    ]
+    if "MoveOriginatorApplicationEntityTitle" in cs:
+        move_aet = cs.MoveOriginatorApplicationEntityTitle
+        s.append(f"Move Originator               : {move_aet}")
+    s.append(f"Data Set                      : {dataset}")
+    s.append(f"Priority                      : {priority}")
+    s.append(f"{' END DIMSE MESSAGE ':=^76}")
     for line in s:
         LOGGER.debug(line)
 
@@ -1286,31 +1203,32 @@ def _recv_c_store_rsp(event):
     cs = msg.command_set
 
     # See PS3.4 Annex B.2.3 for Storage Service Class Statuses
-    status_str = '0x{0:04X} - Unknown'.format(cs.Status)
+    status_str = f"0x{cs.Status:04X} - Unknown"
     # Try and get the status from the affected SOP class UID
-    if 'AffectedSOPClassUID' in cs:
+    affected_sop = "None"
+    if "AffectedSOPClassUID" in cs:
+        affected_sop = cs.AffectedSOPClassUID.name
         service_class = uid_to_service_class(cs.AffectedSOPClassUID)
         if cs.Status in service_class.statuses:
             status = service_class.statuses[cs.Status]
-            status_str = '0x{0:04X} - {1}'.format(cs.Status, status[0])
+            status_str = f"0x{cs.Status:04X} - {status[0]}"
 
-    LOGGER.info('Received Store Response (Status: {})'.format(status_str))
-    s = []
-    s.append('{:=^76}'.format(' INCOMING DIMSE MESSAGE '))
-    s.append('Message Type                  : {0!s}'.format('C-STORE RSP'))
-    s.append('Presentation Context ID       : {0!s}'
-             .format(msg.context_id))
-    s.append('Message ID Being Responded To : {0!s}'
-             .format(cs.MessageIDBeingRespondedTo))
-    if 'AffectedSOPClassUID' in cs:
-        s.append('Affected SOP Class UID        : {0!s}'
-                 .format(cs.AffectedSOPClassUID.name))
-    if 'AffectedSOPInstanceUID' in cs:
-        s.append('Affected SOP Instance UID     : {0!s}'
-                 .format(cs.AffectedSOPInstanceUID))
-    s.append('Status                        : {0!s}'.format(status_str))
-    s.append('{:=^76}'.format(' END DIMSE MESSAGE '))
+    LOGGER.info(f"Received Store Response (Status: {status_str})")
 
+    sop_instance = "None"
+    if "AffectedSOPInstanceUID" in cs:
+        sop_instance = cs.AffectedSOPInstanceUID
+
+    s = [
+        f"{' INCOMING DIMSE MESSAGE ':=^76}",
+        "Message Type                  : C-STORE RSP",
+        f"Presentation Context ID       : {msg.context_id}",
+        f"Message ID Being Responded To : {cs.MessageIDBeingRespondedTo}",
+        f"Affected SOP Class UID        : {affected_sop}",
+        f"Affected SOP Instance UID     : {sop_instance}",
+        f"Status                        : {status_str}",
+        f"{' END DIMSE MESSAGE ':=^76}"
+    ]
     for line in s:
         LOGGER.debug(line)
 
@@ -1332,25 +1250,22 @@ def _recv_c_find_rq(event):
     msg = event.message
     cs = msg.command_set
 
-    priority_str = {2: 'Low',
-                    0: 'Medium',
-                    1: 'High'}
+    priority_str = {2: "Low", 0: "Medium", 1: "High"}
     priority = priority_str[cs.Priority]
 
-    dataset = 'None'
-    if msg.data_set and msg.data_set.getvalue() != b'':
-        dataset = 'Present'
+    dataset = "None"
+    if msg.data_set and msg.data_set.getvalue() != b"":
+        dataset = "Present"
 
-    s = []
-    s.append('{:=^76}'.format(' INCOMING DIMSE MESSAGE '))
-    s.append('Message Type                  : {0!s}'.format('C-FIND RQ'))
-    s.append('Message ID                    : {0!s}'.format(cs.MessageID))
-    s.append('Affected SOP Class UID        : {0!s}'
-             .format(cs.AffectedSOPClassUID.name))
-    s.append('Identifier                    : {0!s}'.format(dataset))
-    s.append('Priority                      : {0!s}'.format(priority))
-    s.append('{:=^76}'.format(' END DIMSE MESSAGE '))
-
+    s = [
+        f"{' INCOMING DIMSE MESSAGE ':=^76}",
+        "Message Type                  : C-FIND RQ",
+        f"Message ID                    : {cs.MessageID}",
+        f"Affected SOP Class UID        : {cs.AffectedSOPClassUID.name}",
+        f"Identifier                    : {dataset}",
+        f"Priority                      : {priority}",
+        f"{' END DIMSE MESSAGE ':=^76}"
+    ]
     for line in s:
         LOGGER.debug(line)
 
@@ -1375,22 +1290,23 @@ def _recv_c_find_rsp(event):
     if cs.Status != 0x0000:
         return
 
-    dataset = 'None'
-    if msg.data_set and msg.data_set.getvalue() != b'':
-        dataset = 'Present'
+    dataset = "None"
+    if msg.data_set and msg.data_set.getvalue() != b"":
+        dataset = "Present"
 
-    s = []
-    s.append('{:=^76}'.format(' INCOMING DIMSE MESSAGE '))
-    s.append('Message Type                  : {0!s}'.format('C-FIND RSP'))
-    s.append('Message ID Being Responded To : {0!s}'
-             .format(cs.MessageIDBeingRespondedTo))
-    if 'AffectedSOPClassUID' in cs:
-        s.append('Affected SOP Class UID        : {0!s}'
-                 .format(cs.AffectedSOPClassUID.name))
-    s.append('Identifier                    : {0!s}'.format(dataset))
-    s.append('Status                        : 0x{0:04X}'.format(cs.Status))
-    s.append('{:=^76}'.format(' END DIMSE MESSAGE '))
+    affected_sop = "None"
+    if "AffectedSOPClassUID" in cs:
+        affected_sop = cs.AffectedSOPClassUID.name
 
+    s = [
+        f"{' INCOMING DIMSE MESSAGE ':=^76}",
+        "Message Type                  : C-FIND RSP",
+        f"Message ID Being Responded To : {cs.MessageIDBeingRespondedTo}",
+        f"Affected SOP Class UID        : {affected_sop}",
+        f"Identifier                    : {dataset}",
+        f"Status                        : 0x{cs.Status:04X}",
+        f"{' END DIMSE MESSAGE ':=^76}"
+    ]
     for line in s:
         LOGGER.debug(line)
 
@@ -1404,16 +1320,14 @@ def _recv_c_cancel_rq(event):
     event : events.Event
         The evt.EVT_DIMSE_RECV event that occurred.
     """
-    msg = event.message
-    cs = msg.command_set
+    cs = event.message.command_set
 
-    s = []
-    s.append('{:=^76}'.format(' INCOMING DIMSE MESSAGE '))
-    s.append('Message Type                  : {0!s}'.format('C-CANCEL RQ'))
-    s.append('Message ID Being Responded To : {0!s}'
-             .format(cs.MessageIDBeingRespondedTo))
-    s.append('{:=^76}'.format(' END DIMSE MESSAGE '))
-
+    s = [
+        f"{' INCOMING DIMSE MESSAGE ':=^76}",
+        "Message Type                  : C-CANCEL RQ",
+        f"Message ID Being Responded To : {cs.MessageIDBeingRespondedTo}",
+        f"{' END DIMSE MESSAGE ':=^76}"
+    ]
     for line in s:
         LOGGER.debug(line)
 
@@ -1435,25 +1349,22 @@ def _recv_c_get_rq(event):
     msg = event.message
     cs = msg.command_set
 
-    priority_str = {2: 'Low',
-                    0: 'Medium',
-                    1: 'High'}
+    priority_str = {2: "Low", 0: "Medium", 1: "High"}
     priority = priority_str[cs.Priority]
 
-    dataset = 'None'
-    if msg.data_set and msg.data_set.getvalue() != b'':
-        dataset = 'Present'
+    dataset = "None"
+    if msg.data_set and msg.data_set.getvalue() != b"":
+        dataset = "Present"
 
-    s = []
-    s.append('{:=^76}'.format(' INCOMING DIMSE MESSAGE '))
-    s.append('Message Type                  : {0!s}'.format('C-GET RQ'))
-    s.append('Message ID                    : {0!s}'.format(cs.MessageID))
-    s.append('Affected SOP Class UID        : {0!s}'
-             .format(cs.AffectedSOPClassUID.name))
-    s.append('Identifier                    : {0!s}'.format(dataset))
-    s.append('Priority                      : {0!s}'.format(priority))
-    s.append('{:=^76}'.format(' END DIMSE MESSAGE '))
-
+    s = [
+        f"{' INCOMING DIMSE MESSAGE ':=^76}",
+        "Message Type                  : C-GET RQ",
+        f"Message ID                    : {cs.MessageID}",
+        f"Affected SOP Class UID        : {cs.AffectedSOPClassUID.name}",
+        f"Identifier                    : {dataset}",
+        f"Priority                      : {priority}",
+        f"{' END DIMSE MESSAGE ':=^76}"
+    ]
     for line in s:
         LOGGER.debug(line)
 
@@ -1480,35 +1391,48 @@ def _recv_c_get_rsp(event):
     msg = event.message
     cs = msg.command_set
 
-    dataset = 'None'
-    if msg.data_set and msg.data_set.getvalue() != b'':
-        dataset = 'Present'
+    dataset = "None"
+    if msg.data_set and msg.data_set.getvalue() != b"":
+        dataset = "Present"
 
-    s = []
-    s.append('{:=^76}'.format(' INCOMING DIMSE MESSAGE '))
-    s.append('Message Type                  : {0!s}'.format('C-GET RSP'))
-    s.append('Presentation Context ID       : {0!s}'
-             .format(msg.context_id))
-    s.append('Message ID Being Responded To : {0!s}'
-             .format(cs.MessageIDBeingRespondedTo))
-    if 'AffectedSOPClassUID' in cs:
-        s.append('Affected SOP Class UID        : {0!s}'
-                 .format(cs.AffectedSOPClassUID.name))
-    if 'NumberOfRemainingSuboperations' in cs:
-        s.append('Remaining Sub-operations      : {0!s}'
-                 .format(cs.NumberOfRemainingSuboperations))
-    if 'NumberOfCompletedSuboperations' in cs:
-        s.append('Completed Sub-operations      : {0!s}'
-                 .format(cs.NumberOfCompletedSuboperations))
-    if 'NumberOfFailedSuboperations' in cs:
-        s.append('Failed Sub-operations         : {0!s}'
-                 .format(cs.NumberOfFailedSuboperations))
-    if 'NumberOfWarningSuboperations' in cs:
-        s.append('Warning Sub-operations        : {0!s}'
-                 .format(cs.NumberOfWarningSuboperations))
-    s.append('Identifier                    : {0!s}'.format(dataset))
-    s.append('Status                        : 0x{0:04X}'.format(cs.Status))
-    s.append('{:=^76}'.format(' END DIMSE MESSAGE '))
+    affected_sop = "None"
+    if "AffectedSOPClassUID" in cs:
+        affected_sop = cs.AffectedSOPClassUID.name
+
+    s = [
+        f"{' INCOMING DIMSE MESSAGE ':=^76}",
+        "Message Type                  : C-GET RSP",
+        f"Presentation Context ID       : {msg.context_id}",
+        f"Message ID Being Responded To : {cs.MessageIDBeingRespondedTo}",
+    ]
+
+    if "AffectedSOPClassUID" in cs:
+        s.append(
+            f"Affected SOP Class UID        : {cs.AffectedSOPClassUID.name}"
+        )
+    if "NumberOfRemainingSuboperations" in cs:
+        s.append(
+            "Remaining Sub-operations      : {}"
+            .format(cs.NumberOfRemainingSuboperations)
+        )
+    if "NumberOfCompletedSuboperations" in cs:
+        s.append(
+            "Completed Sub-operations      : {}"
+            .format(cs.NumberOfCompletedSuboperations)
+        )
+    if "NumberOfFailedSuboperations" in cs:
+        s.append(
+            "Failed Sub-operations         : {}"
+            .format(cs.NumberOfFailedSuboperations)
+        )
+    if "NumberOfWarningSuboperations" in cs:
+        s.append(
+            "Warning Sub-operations        : {}"
+            .format(cs.NumberOfWarningSuboperations)
+        )
+    s.append(f"Identifier                    : {dataset}")
+    s.append(f"Status                        : 0x{cs.Status:04X}")
+    s.append(f"{' END DIMSE MESSAGE ':=^76}")
 
     for line in s:
         LOGGER.debug(line)
@@ -1554,33 +1478,44 @@ def _recv_c_move_rsp(event):
     msg = event.message
     cs = msg.command_set
 
-    identifier = 'None'
-    if msg.data_set and msg.data_set.getvalue() != b'':
-        identifier = 'Present'
+    identifier = "None"
+    if msg.data_set and msg.data_set.getvalue() != b"":
+        identifier = "Present"
 
-    s = []
-    s.append('{:=^76}'.format(' INCOMING DIMSE MESSAGE '))
-    s.append('Message Type                  : {0!s}'.format('C-MOVE RSP'))
-    s.append('Message ID Being Responded To : {0!s}'
-             .format(cs.MessageIDBeingRespondedTo))
-    if 'AffectedSOPClassUID' in cs:
-        s.append('Affected SOP Class UID        : {0!s}'
-                 .format(cs.AffectedSOPClassUID.name))
-    if 'NumberOfRemainingSuboperations' in cs:
-        s.append('Remaining Sub-operations      : {0!s}'
-                 .format(cs.NumberOfRemainingSuboperations))
-    if 'NumberOfCompletedSuboperations' in cs:
-        s.append('Completed Sub-operations      : {0!s}'
-                 .format(cs.NumberOfCompletedSuboperations))
-    if 'NumberOfFailedSuboperations' in cs:
-        s.append('Failed Sub-operations         : {0!s}'
-                 .format(cs.NumberOfFailedSuboperations))
-    if 'NumberOfWarningSuboperations' in cs:
-        s.append('Warning Sub-operations        : {0!s}'
-                 .format(cs.NumberOfWarningSuboperations))
-    s.append('Identifier                    : {0!s}'.format(identifier))
-    s.append('Status                        : 0x{0:04X}'.format(cs.Status))
-    s.append('{:=^76}'.format(' END DIMSE MESSAGE '))
+    s = [
+        f"{' INCOMING DIMSE MESSAGE ':=^76}",
+        "Message Type                  : C-MOVE RSP",
+        f"Presentation Context ID       : {msg.context_id}",
+        f"Message ID Being Responded To : {cs.MessageIDBeingRespondedTo}",
+    ]
+
+    if "AffectedSOPClassUID" in cs:
+        s.append(
+            f"Affected SOP Class UID        : {cs.AffectedSOPClassUID.name}"
+        )
+    if "NumberOfRemainingSuboperations" in cs:
+        s.append(
+            "Remaining Sub-operations      : {}"
+            .format(cs.NumberOfRemainingSuboperations)
+        )
+    if "NumberOfCompletedSuboperations" in cs:
+        s.append(
+            "Completed Sub-operations      : {}"
+            .format(cs.NumberOfCompletedSuboperations)
+        )
+    if "NumberOfFailedSuboperations" in cs:
+        s.append(
+            "Failed Sub-operations         : {}"
+            .format(cs.NumberOfFailedSuboperations)
+        )
+    if "NumberOfWarningSuboperations" in cs:
+        s.append(
+            "Warning Sub-operations        : {}"
+            .format(cs.NumberOfWarningSuboperations)
+        )
+    s.append(f"Identifier                    : {dataset}")
+    s.append(f"Status                        : 0x{cs.Status:04X}")
+    s.append(f"{' END DIMSE MESSAGE ':=^76}")
 
     for line in s:
         LOGGER.debug(line)
@@ -1596,23 +1531,21 @@ def _send_n_event_report_rq(event):
     msg = event.message
     cs = msg.command_set
 
-    evt_info = 'None'
-    if msg.data_set and msg.data_set.getvalue() != b'':
-        evt_info = 'Present'
+    evt_info = "None"
+    if msg.data_set and msg.data_set.getvalue() != b"":
+        evt_info = "Present"
 
-    s = []
-    s.append('{:=^76}'.format(' OUTGOING DIMSE MESSAGE '))
-    s.append('Message Type                  : {0!s}'
-             .format('N-EVENT-REPORT RQ'))
-    s.append('Message ID                    : {0!s}'.format(cs.MessageID))
-    s.append('Affected SOP Class UID        : {0!s}'
-             .format(cs.AffectedSOPClassUID.name))
-    s.append('Affected SOP Instance UID     : {0!s}'
-             .format(cs.AffectedSOPInstanceUID))
-    s.append('Event Type ID                 : {0!s}'
-             .format(cs.EventTypeID))
-    s.append('Event Information             : {0!s}'.format(evt_info))
-    s.append('{:=^76}'.format(' END DIMSE MESSAGE '))
+    s = [
+        f"{' OUTGOING DIMSE MESSAGE ':=^76}",
+        "Message Type                  : N-EVENT-REPORT RQ",
+        f"Message ID                    : {cs.MessageID}",
+        f"Affected SOP Class UID        : {cs.AffectedSOPClassUID.name}",
+        f"Affected SOP Instance UID     : {cs.AffectedSOPInstanceUID}",
+        f"Event Type ID                 : {cs.EventTypeID}",
+        f"Event Information             : {evt_info}",
+        f"{' END DIMSE MESSAGE ':=^76}"
+
+    ]
     for line in s:
         LOGGER.debug(line)
 
@@ -1627,30 +1560,29 @@ def _send_n_event_report_rsp(event):
     msg = event.message
     cs = msg.command_set
 
-    evt_reply = 'None'
-    if msg.data_set and msg.data_set.getvalue() != b'':
-        evt_reply = 'Present'
+    evt_reply = "None"
+    if msg.data_set and msg.data_set.getvalue() != b"":
+        evt_reply = "Present"
 
-    s = []
-    s.append('{:=^76}'.format(' OUTGOING DIMSE MESSAGE '))
-    s.append('Message Type                  : {0!s}'
-             .format('N-EVENT-REPORT RSP'))
-    s.append('Message ID Being Responded To : {0!s}'
-             .format(cs.MessageIDBeingRespondedTo))
-    if 'AffectedSOPClassUID' in cs:
-        s.append('Affected SOP Class UID        : {0!s}'
-                 .format(cs.AffectedSOPClassUID.name))
-    if 'AffectedSOPInstanceUID' in cs:
-        s.append('Affected SOP Instance UID     : {0!s}'
-                 .format(cs.AffectedSOPInstanceUID))
-    if 'EventTypeID' in cs:
+    s = [
+        f"{' OUTGOING DIMSE MESSAGE ':=^76}",
+        "Message Type                  : N-EVENT-REPORT RSP",
+        f"Message ID Being Responded To : {cs.MessageIDBeingRespondedTo}",
+    ]
+    if "AffectedSOPClassUID" in cs:
         s.append(
-            'Event Type ID                 : {!s}'
-            .format(cs.EventTypeID)
+            f"Affected SOP Class UID        : {cs.AffectedSOPClassUID.name}"
         )
-    s.append('Event Reply                   : {0!s}'.format(evt_reply))
-    s.append('Status                        : 0x{0:04X}'.format(cs.Status))
-    s.append('{:=^76}'.format(' END DIMSE MESSAGE '))
+    if "AffectedSOPInstanceUID" in cs:
+        s.append(
+            f"Affected SOP Instance UID     : {cs.AffectedSOPInstanceUID}"
+        )
+    if "EventTypeID" in cs:
+        s.append(f"Event Type ID                 : {cs.EventTypeID}")
+
+    s.append(f"Event Reply                   : {evt_reply}")
+    s.append(f"Status                        : 0x{cs.Status:04X}")
+    s.append(f"{' END DIMSE MESSAGE ':=^76}")
     for line in s:
         LOGGER.debug(line)
 
@@ -1665,24 +1597,19 @@ def _send_n_get_rq(event):
     msg = event.message
     cs = msg.command_set
 
-    nr_attr = 'no identifiers'
-    if 'AttributeIdentifierList' in cs:
-        nr_attr = len(cs.AttributeIdentifierList)
-        if nr_attr == 1:
-            nr_attr = '{} Attribute Tag'.format(nr_attr)
-        else:
-            nr_attr = '{} Attribute Tags'.format(nr_attr)
+    nr_attr = "None"
+    if "AttributeIdentifierList" in cs:
+        nr_attr = f"({len(cs.AttributeIdentifierList)} Attribute Tag(s))"
 
-    s = []
-    s.append('{:=^76}'.format(' OUTGOING DIMSE MESSAGE '))
-    s.append('Message Type                  : {0!s}'.format('N-GET RQ'))
-    s.append('Message ID                    : {0!s}'.format(cs.MessageID))
-    s.append('Requested SOP Class UID       : {0!s}'
-             .format(cs.RequestedSOPClassUID))
-    s.append('Requested SOP Instance UID    : {0!s}'
-             .format(cs.RequestedSOPInstanceUID))
-    s.append('Attribute Identifier List     : ({0!s})'.format(nr_attr))
-    s.append('{:=^76}'.format(' END DIMSE MESSAGE '))
+    s = [
+        f"{' OUTGOING DIMSE MESSAGE ':=^76}",
+        "Message Type                  : N-GET RQ",
+        f"Message ID                    : {cs.MessageID}",
+        f"Requested SOP Class UID       : {cs.RequestedSOPClassUID}",
+        f"Requested SOP Instance UID    : {cs.RequestedSOPInstanceUID}",
+        f"Attribute Identifier List     : {nr_attr}",
+        f"{' END DIMSE MESSAGE ':=^76}"
+    ]
     for line in s:
         LOGGER.debug(line)
 
@@ -1697,24 +1624,26 @@ def _send_n_get_rsp(event):
     msg = event.message
     cs = msg.command_set
 
-    attr_list = 'None'
-    if msg.data_set and msg.data_set.getvalue() != b'':
-        attr_list = 'Present'
+    attr_list = "None"
+    if msg.data_set and msg.data_set.getvalue() != b"":
+        attr_list = "Present"
 
-    s = []
-    s.append('{:=^76}'.format(' OUTGOING DIMSE MESSAGE '))
-    s.append('Message Type                  : {0!s}'.format('N-GET RSP'))
-    s.append('Message ID Being Responded To : {0!s}'
-             .format(cs.MessageIDBeingRespondedTo))
-    if 'AffectedSOPClassUID' in cs:
-        s.append('Affected SOP Class UID        : {0!s}'
-                 .format(cs.AffectedSOPClassUID.name))
-    if 'AffectedSOPInstanceUID' in cs:
-        s.append('Affected SOP Instance UID     : {0!s}'
-                 .format(cs.AffectedSOPInstanceUID))
-    s.append('Attribute List                : {0!s}'.format(attr_list))
-    s.append('Status                        : 0x{0:04X}'.format(cs.Status))
-    s.append('{:=^76}'.format(' END DIMSE MESSAGE '))
+    s = [
+        f"{' OUTGOING DIMSE MESSAGE ':=^76}",
+        "Message Type                  : N-GET RSP",
+        f"Message ID Being Responded To : {cs.MessageIDBeingRespondedTo}"
+    ]
+    if "AffectedSOPClassUID" in cs:
+        s.append(
+            f"Affected SOP Class UID        : {cs.AffectedSOPClassUID.name}"
+        )
+    if "AffectedSOPInstanceUID" in cs:
+        s.append(
+            f"Affected SOP Instance UID     : {cs.AffectedSOPInstanceUID}"
+        )
+    s.append(f"Attribute List                : {attr_list}")
+    s.append(f"Status                        : 0x{cs.Status:04X}")
+    s.append(f"{' END DIMSE MESSAGE ':=^76}")
     for line in s:
         LOGGER.debug(line)
 
@@ -1729,20 +1658,19 @@ def _send_n_set_rq(event):
     msg = event.message
     cs = msg.command_set
 
-    mod_list = 'None'
-    if msg.data_set and msg.data_set.getvalue() != b'':
-        mod_list = 'Present'
+    mod_list = "None"
+    if msg.data_set and msg.data_set.getvalue() != b"":
+        mod_list = "Present"
 
-    s = []
-    s.append('{:=^76}'.format(' OUTGOING DIMSE MESSAGE '))
-    s.append('Message Type                  : {0!s}'.format('N-SET RQ'))
-    s.append('Message ID                    : {0!s}'.format(cs.MessageID))
-    s.append('Requested SOP Class UID       : {0!s}'
-             .format(cs.RequestedSOPClassUID))
-    s.append('Requested SOP Instance UID    : {0!s}'
-             .format(cs.RequestedSOPInstanceUID))
-    s.append('Modification List             : {0!s}'.format(mod_list))
-    s.append('{:=^76}'.format(' END DIMSE MESSAGE '))
+    s = [
+        f"{' OUTGOING DIMSE MESSAGE ':=^76}",
+        "Message Type                  : N-SET RQ",
+        f"Message ID                    : {cs.MessageID}",
+        f"Requested SOP Class UID       : {cs.RequestedSOPClassUID}",
+        f"Requested SOP Instance UID    : {cs.RequestedSOPInstanceUID}",
+        f"Modification List             : {mod_list}",
+        f"{' END DIMSE MESSAGE ':=^76}"
+    ]
     for line in s:
         LOGGER.debug(line)
 
@@ -1757,24 +1685,26 @@ def _send_n_set_rsp(event):
     msg = event.message
     cs = msg.command_set
 
-    attr_list = 'None'
-    if msg.data_set and msg.data_set.getvalue() != b'':
-        attr_list = 'Present'
+    attr_list = "None"
+    if msg.data_set and msg.data_set.getvalue() != b"":
+        attr_list = "Present"
 
-    s = []
-    s.append('{:=^76}'.format(' OUTGOING DIMSE MESSAGE '))
-    s.append('Message Type                  : {0!s}'.format('N-SET RSP'))
-    s.append('Message ID Being Responded To : {0!s}'
-             .format(cs.MessageIDBeingRespondedTo))
-    if 'AffectedSOPClassUID' in cs:
-        s.append('Affected SOP Class UID        : {0!s}'
-                 .format(cs.AffectedSOPClassUID.name))
-    if 'AffectedSOPInstanceUID' in cs:
-        s.append('Affected SOP Instance UID     : {0!s}'
-                 .format(cs.AffectedSOPInstanceUID))
-    s.append('Attribute List                : {0!s}'.format(attr_list))
-    s.append('Status                        : 0x{0:04X}'.format(cs.Status))
-    s.append('{:=^76}'.format(' END DIMSE MESSAGE '))
+    s = [
+        f"{' OUTGOING DIMSE MESSAGE ':=^76}",
+        "Message Type                  : N-SET RSP",
+        f"Message ID Being Responded To : {cs.MessageIDBeingRespondedTo}"
+    ]
+    if "AffectedSOPClassUID" in cs:
+        s.append(
+            f"Affected SOP Class UID        : {cs.AffectedSOPClassUID.name}"
+        )
+    if "AffectedSOPInstanceUID" in cs:
+        s.append(
+            f"Affected SOP Instance UID     : {cs.AffectedSOPInstanceUID}"
+        )
+    s.append(f"Attribute List                : {attr_list}")
+    s.append(f"Status                        : 0x{cs.Status:04X}")
+    s.append(f"{' END DIMSE MESSAGE ':=^76}")
     for line in s:
         LOGGER.debug(line)
 
@@ -1829,15 +1759,14 @@ def _send_n_delete_rq(event):
     msg = event.message
     cs = msg.command_set
 
-    s = []
-    s.append('{:=^76}'.format(' OUTGOING DIMSE MESSAGE '))
-    s.append('Message Type                  : {0!s}'.format('N-DELETE RQ'))
-    s.append('Message ID                    : {0!s}'.format(cs.MessageID))
-    s.append('Requested SOP Class UID       : {0!s}'
-             .format(cs.RequestedSOPClassUID))
-    s.append('Requested SOP Instance UID    : {0!s}'
-             .format(cs.RequestedSOPInstanceUID))
-    s.append('{:=^76}'.format(' END DIMSE MESSAGE '))
+    s = [
+        f"{' OUTGOING DIMSE MESSAGE ':=^76}",
+        "Message Type                  : N-DELETE RQ",
+        f"Message ID                    : {cs.MessageID}",
+        f"Requested SOP Class UID       : {cs.RequestedSOPClassUID}",
+        f"Requested SOP Instance UID    : {cs.RequestedSOPInstanceUID}",
+        f"{' END DIMSE MESSAGE ':=^76}"
+    ]
     for line in s:
         LOGGER.debug(line)
 
@@ -1852,19 +1781,22 @@ def _send_n_delete_rsp(event):
     msg = event.message
     cs = msg.command_set
 
-    s = []
-    s.append('{:=^76}'.format(' OUTGOING DIMSE MESSAGE '))
-    s.append('Message Type                  : {0!s}'.format('N-DELETE RSP'))
-    s.append('Message ID Being Responded To : {0!s}'
-             .format(cs.MessageIDBeingRespondedTo))
-    if 'AffectedSOPClassUID' in cs:
-        s.append('Affected SOP Class UID        : {0!s}'
-                 .format(cs.AffectedSOPClassUID.name))
-    if 'AffectedSOPInstanceUID' in cs:
-        s.append('Affected SOP Instance UID     : {0!s}'
-                 .format(cs.AffectedSOPInstanceUID))
-    s.append('Status                        : 0x{0:04X}'.format(cs.Status))
-    s.append('{:=^76}'.format(' END DIMSE MESSAGE '))
+    s = [
+        f"{' OUTGOING DIMSE MESSAGE ':=^76}",
+        "Message Type                  : N-DELETE RSP",
+        f"Message ID Being Responded To : {cs.MessageIDBeingRespondedTo}",
+
+    ]
+    if "AffectedSOPClassUID" in cs:
+        s.append(
+            f"Affected SOP Class UID        : {cs.AffectedSOPClassUID.name}"
+        )
+    if "AffectedSOPInstanceUID" in cs:
+        s.append(
+            f"Affected SOP Instance UID     : {cs.AffectedSOPInstanceUID}"
+        )
+    s.append(f"Status                        : 0x{cs.Status:04X}")
+    s.append(f"{' END DIMSE MESSAGE ':=^76}")
     for line in s:
         LOGGER.debug(line)
 
@@ -1909,28 +1841,28 @@ def _recv_n_get_rsp(event):
     msg = event.message
     cs = msg.command_set
 
-    dataset = 'None'
-    if msg.data_set and msg.data_set.getvalue() != b'':
-        dataset = 'Present'
+    dataset = "None"
+    if msg.data_set and msg.data_set.getvalue() != b"":
+        dataset = "Present"
 
-    LOGGER.info('Received Get Response')
-    s = []
-    s.append('{:=^76}'.format(' INCOMING DIMSE MESSAGE '))
-    s.append('Message Type                  : {0!s}'.format('N-GET RSP'))
-    s.append('Presentation Context ID       : {0!s}'
-             .format(msg.context_id))
-    s.append('Message ID Being Responded To : {0!s}'
-             .format(cs.MessageIDBeingRespondedTo))
-    if 'AffectedSOPClassUID' in cs:
-        s.append('Affected SOP Class UID        : {0!s}'
-                 .format(cs.AffectedSOPClassUID.name))
-    if 'AffectedSOPInstanceUID' in cs:
-        s.append('Affected SOP Instance UID     : {0!s}'
-                 .format(cs.AffectedSOPInstanceUID))
-    s.append('Attribute List                : {0!s}'.format(dataset))
-    s.append('Status                        : 0x{0:04X}'.format(cs.Status))
-    s.append('{:=^76}'.format(' END DIMSE MESSAGE '))
-
+    LOGGER.info("Received Get Response")
+    s = [
+        f"{' INCOMING DIMSE MESSAGE ':=^76}",
+        "Message Type                  : N-GET RSP",
+        f"Presentation Context ID       : {msg.context_id}",
+        f"Message ID Being Responded To : {cs.MessageIDBeingRespondedTo}"
+    ]
+    if "AffectedSOPClassUID" in cs:
+        s.append(
+            f"Affected SOP Class UID        : {cs.AffectedSOPClassUID.name}"
+        )
+    if "AffectedSOPInstanceUID" in cs:
+        s.append(
+            f"Affected SOP Instance UID     : {cs.AffectedSOPInstanceUID}"
+        )
+    s.append(f"Attribute List                : {dataset}")
+    s.append(f"Status                        : 0x{cs.Status:04X}")
+    s.append(f"{' END DIMSE MESSAGE ':=^76}")
     for line in s:
         LOGGER.debug(line)
 
