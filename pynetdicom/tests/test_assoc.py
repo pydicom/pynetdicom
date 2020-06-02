@@ -160,8 +160,6 @@ class TestAssociation(object):
 
         scp.active_associations[0].release()
 
-        time.sleep(0.1)
-
         assert assoc.is_released
         assert not assoc.is_established
 
@@ -181,8 +179,6 @@ class TestAssociation(object):
         assert assoc.is_established
 
         scp.active_associations[0].abort()
-
-        time.sleep(0.1)
 
         assert assoc.is_aborted
         assert not assoc.is_established
@@ -376,31 +372,37 @@ class TestAssociation(object):
 
     def test_require_called_aet(self):
         """SCP requires matching called AET"""
-        self.scp = DummyVerificationSCP()
-        self.scp.ae.require_called_aet = True
-        self.scp.start()
-        ae = AE()
-        ae.add_requested_context(VerificationSOPClass)
+        self.ae = ae = AE()
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
+        ae.network_timeout = 5
+        ae.add_supported_context(VerificationSOPClass)
+        ae.require_called_aet = True
+        scp = ae.start_server(('', 11112), block=False)
+
+        ae.add_requested_context(VerificationSOPClass)
         assoc = ae.associate('localhost', 11112)
         assert not assoc.is_established
         assert assoc.is_rejected
-        self.scp.stop()
+
+        scp.shutdown()
 
     def test_require_calling_aet(self):
         """SCP requires matching called AET"""
-        self.scp = DummyVerificationSCP()
-        self.scp.ae.require_calling_aet = [b'TESTSCP']
-        self.scp.start()
-        ae = AE()
-        ae.add_requested_context(VerificationSOPClass)
+        self.ae = ae = AE()
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
+        ae.network_timeout = 5
+        ae.add_supported_context(VerificationSOPClass)
+        ae.require_calling_aet = [b'TESTSCP']
+        scp = ae.start_server(('', 11112), block=False)
+
+        ae.add_requested_context(VerificationSOPClass)
         assoc = ae.associate('localhost', 11112)
         assert not assoc.is_established
         assert assoc.is_rejected
-        self.scp.stop()
+
+        scp.shutdown()
 
     def test_dimse_timeout(self):
         """Test that the DIMSE timeout works"""
@@ -3873,40 +3875,41 @@ class TestGetValidContext(object):
 
     def test_id_transfer_syntax(self):
         """Test match with context ID."""
-        self.scp = DummyVerificationSCP()
-        self.scp.ae.add_supported_context(CTImageStorage)
-        self.scp.ae.add_supported_context(
-            CTImageStorage,
-            [ExplicitVRLittleEndian, JPEGBaseline]
+        self.ae = ae = AE()
+        ae.acse_timeout = 5
+        ae.dimse_timeout = 5
+        ae.network_timeout = 5
+        ae.add_supported_context(CTImageStorage)
+        ae.add_supported_context(
+            CTImageStorage, [ExplicitVRLittleEndian, JPEGBaseline]
         )
-        self.scp.start()
-        ae = AE()
+        scp = ae.start_server(('', 11112), block=False)
+
         ae.add_requested_context(VerificationSOPClass)
         ae.add_requested_context(CTImageStorage)
         ae.add_requested_context(CTImageStorage, JPEGBaseline)
-        ae.acse_timeout = 5
-        ae.dimse_timeout = 5
+
         assoc = ae.associate('localhost', 11112)
         assert assoc.is_established
 
         # Uncompressed accepted, different uncompressed sent
-        cx = assoc._get_valid_context(CTImageStorage,
-                                      '',
-                                      'scu',
-                                      context_id=3)
+        cx = assoc._get_valid_context(
+            CTImageStorage, '', 'scu', context_id=3
+        )
         assert cx.context_id == 3
         assert cx.abstract_syntax == CTImageStorage
         assert cx.transfer_syntax[0] == ImplicitVRLittleEndian
         assert cx.as_scu is True
 
-        cx = assoc._get_valid_context(CTImageStorage,
-                                      '',
-                                      'scu',
-                                      context_id=5)
+        cx = assoc._get_valid_context(
+            CTImageStorage, '', 'scu', context_id=5
+        )
         assert cx.context_id == 5
         assert cx.abstract_syntax == CTImageStorage
         assert cx.transfer_syntax[0] == JPEGBaseline
         assert cx.as_scu is True
+
+        scp.shutdown()
 
     def test_id_no_transfer_syntax(self):
         """Test exception raised if with ID no transfer syntax match."""

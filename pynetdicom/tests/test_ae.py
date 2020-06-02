@@ -115,7 +115,7 @@ class TestStartServer(object):
         ae.require_called_aet = True
 
         ae.add_requested_context(VerificationSOPClass)
-        assoc = ae.associate('', 11112, ae_title=b'MYAE')
+        assoc = ae.associate('localhost', 11112, ae_title=b'MYAE')
         assert assoc.is_established
         assoc.release()
         assert assoc.is_released
@@ -135,9 +135,11 @@ class TestStartServer(object):
         server = ae.start_server(('', 11112), block=False, contexts=[cx])
 
         ae.add_requested_context(VerificationSOPClass)
-        assoc = ae.associate('', 11112, ae_title=b'MYAE')
+        assoc = ae.associate('localhost', 11112, ae_title=b'MYAE')
         assert assoc.is_established
-        assert assoc.accepted_contexts[0].abstract_syntax == VerificationSOPClass
+        assert (
+            assoc.accepted_contexts[0].abstract_syntax == VerificationSOPClass
+        )
         assoc.release()
         assert assoc.is_released
 
@@ -155,6 +157,7 @@ class TestAEVerificationSCP(object):
         if self.ae:
             self.ae.shutdown()
 
+    @pytest.mark.skipif(os.name == "nt", reason="Kills pytest on windows")
     def test_start_server_keyboard_interrupt(self):
         """Test stopping the SCP with keyboard"""
         pid = os.getpid()

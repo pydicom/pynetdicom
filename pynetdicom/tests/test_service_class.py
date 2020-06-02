@@ -1,9 +1,6 @@
 """Tests for the service_class module."""
 
-try:
-    import queue
-except ImportError:
-    import Queue as queue
+import queue
 
 import pytest
 

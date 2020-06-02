@@ -1,4 +1,3 @@
-#!/usr/bin/env python
 """Test the service primitives."""
 
 import logging

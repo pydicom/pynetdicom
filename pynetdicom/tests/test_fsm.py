@@ -339,7 +339,7 @@ class TestStateBase(object):
 
     def start_server(self, commands):
         """Start the receiving server."""
-        server = ThreadedParrot(('', 11112), commands)
+        server = ThreadedParrot(('localhost', 11112), commands)
         thread = threading.Thread(target=server.serve_forever)
         thread.daemon = True
         thread.start()
@@ -367,7 +367,7 @@ class TestStateBase(object):
                 socket.SO_RCVTIMEO,
                 pack('ll', 1, 0)
             )
-        sock.connect(('', 11112))
+        sock.connect(('localhost', 11112))
 
         ae = AE()
         ae.add_supported_context(VerificationSOPClass)
@@ -9300,7 +9300,7 @@ class TestStateMachineFunctionalRequestor(object):
         assoc.acceptor.port = 11112
 
         # Association Requestor object -> local AE
-        assoc.requestor.address = ''
+        assoc.requestor.address = 'localhost'
         assoc.requestor.port = 11113
         assoc.requestor.ae_title = ae.ae_title
         assoc.requestor.maximum_length = 16382
@@ -9423,6 +9423,7 @@ class TestStateMachineFunctionalRequestor(object):
         while (not self.assoc.is_established and not self.assoc.is_rejected and
                not self.assoc.is_aborted and not self.assoc.dul._kill_thread):
             time.sleep(0.05)
+        time.sleep(0.05)
 
         assert self.assoc.is_rejected
 
@@ -9727,7 +9728,7 @@ class TestStateMachineFunctionalAcceptor(object):
         assoc.acceptor.port = 11112
 
         # Association Requestor object -> local AE
-        assoc.requestor.address = ''
+        assoc.requestor.address = 'localhost'
         assoc.requestor.port = 11113
         assoc.requestor.ae_title = ae.ae_title
         assoc.requestor.maximum_length = 16382
@@ -9745,6 +9746,8 @@ class TestStateMachineFunctionalAcceptor(object):
         self.assoc = assoc
         self.fsm = self.monkey_patch(assoc.dul.state_machine)
 
+        self.orig_entry = FINITE_STATE.ACTIONS['AE-2']
+
     def teardown(self):
         """Clear any active threads"""
         if self.scp:
@@ -9756,6 +9759,8 @@ class TestStateMachineFunctionalAcceptor(object):
             if isinstance(thread, DummyBaseSCP):
                 thread.abort()
                 thread.stop()
+
+        FINITE_STATE.ACTIONS['AE-2']= self.orig_entry
 
     def monkey_patch(self, fsm):
         """Monkey patch the StateMachine to add testing hooks."""
@@ -9791,9 +9796,6 @@ class TestStateMachineFunctionalAcceptor(object):
 
         assert self.fsm.current_state == 'Sta1'
 
-        # Patch AE_2
-        orig_entry = FINITE_STATE.ACTIONS['AE-2']
-
         def AE_2(dul):
             dul.pdu = A_ASSOCIATE_RQ()
             dul.pdu.from_primitive(dul.primitive)
@@ -9818,7 +9820,6 @@ class TestStateMachineFunctionalAcceptor(object):
         assert self.fsm.current_state == 'Sta1'
 
         self.scp.stop()
-        FINITE_STATE.ACTIONS['AE-2']= orig_entry
 
 
 class TestEventHandling(object):
@@ -9952,6 +9953,8 @@ class TestEventHandling(object):
         assoc.release()
         while scp.active_associations:
             time.sleep(0.05)
+
+        time.sleep(0.5)
 
         for event in triggered:
             assert hasattr(event, 'current_state')

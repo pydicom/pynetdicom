@@ -15,7 +15,7 @@ from pynetdicom.transport import AssociationServer
 
 
 def start_server(commands):
-    server = ThreadedParrot(('', 11112), commands)
+    server = ThreadedParrot(('localhost', 11112), commands)
     thread = threading.Thread(target=server.serve_forever)
     thread.daemon = True
     thread.start()

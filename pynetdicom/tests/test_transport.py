@@ -2,10 +2,7 @@
 
 from datetime import datetime
 import logging
-try:
-    import queue
-except ImportError:
-    import Queue as queue
+import queue
 import os
 import select
 import socket
@@ -138,7 +135,7 @@ class TestAssociationSocket(object):
 
     def test_ready_error(self):
         """Test AssociationSocket.ready."""
-        sock = AssociationSocket(self.assoc)
+        sock = AssociationSocket(self.assoc, address=('localhost', 0))
         assert sock.ready is False
         sock._is_connected = True
         assert sock.ready is True
@@ -166,7 +163,7 @@ class TestAssociationSocket(object):
         scp = ae.start_server(('', 11113), block=False, evt_handlers=hh)
 
         ae.add_requested_context(VerificationSOPClass)
-        assoc = ae.associate('', 11113)
+        assoc = ae.associate('localhost', 11113)
         assert assoc.is_established
 
         assoc.release()
@@ -182,7 +179,7 @@ class TestAssociationSocket(object):
         ae.dimse_timeout = 5
         ae.network_timeout = 5
         ae.add_requested_context(VerificationSOPClass)
-        assoc = ae.associate('', 11113)
+        assoc = ae.associate('localhost', 11113)
         assert not assoc.is_established
         assert isinstance(assoc.requestor.address, str)
         # Exceptional use
@@ -248,7 +245,7 @@ class TestTLS(object):
         server = ae.start_server(('', 11112), block=False)
 
         ae.add_requested_context('1.2.840.10008.1.1')
-        assoc = ae.associate('', 11112)
+        assoc = ae.associate('localhost', 11112)
         assert assoc.is_established
         status = assoc.send_c_echo()
         assert status.Status == 0x0000
@@ -270,7 +267,7 @@ class TestTLS(object):
         server = ae.start_server(('', 11112), block=False)
 
         ae.add_requested_context('1.2.840.10008.1.1')
-        assoc = ae.associate('', 11112, tls_args=(client_context, None))
+        assoc = ae.associate('localhost', 11112, tls_args=(client_context, None))
         assert assoc.is_aborted
 
         server.shutdown()
@@ -290,7 +287,7 @@ class TestTLS(object):
         )
 
         ae.add_requested_context('1.2.840.10008.1.1')
-        assoc = ae.associate('', 11112)
+        assoc = ae.associate('localhost', 11112)
         assert assoc.is_aborted
 
         server.shutdown()
@@ -305,13 +302,13 @@ class TestTLS(object):
         ae.network_timeout = 5
         ae.add_supported_context('1.2.840.10008.1.1')
         server = ae.start_server(
-            ('', 11112),
-            block=False,
-            ssl_context=server_context,
+            ('', 11112), block=False, ssl_context=server_context,
         )
 
         ae.add_requested_context('1.2.840.10008.1.1')
-        assoc = ae.associate('', 11112, tls_args=(client_context, None))
+        assoc = ae.associate(
+            'localhost', 11112, tls_args=(client_context, None)
+        )
         assert assoc.is_established
         assoc.release()
         assert assoc.is_released
@@ -344,7 +341,7 @@ class TestTLS(object):
 
         ae.add_requested_context('1.2.840.10008.1.1')
         ae.add_requested_context(RTImageStorage)
-        assoc = ae.associate('', 11112, tls_args=(client_context, None))
+        assoc = ae.associate('localhost', 11112, tls_args=(client_context, None))
         assert assoc.is_established
         status = assoc.send_c_store(DATASET)
         assert status.Status == 0x0000
@@ -389,7 +386,7 @@ class TestTLS(object):
         ae.add_requested_context('1.2.840.10008.1.1')
         msg = r"Your Python installation lacks support for SSL"
         with pytest.raises(RuntimeError, match=msg):
-            ae.associate('', 11112, tls_args=(['random', 'object'], None))
+            ae.associate('localhost', 11112, tls_args=(['random', 'object'], None))
 
 
 class TestAssociationServer(object):
@@ -549,7 +546,7 @@ class TestAssociationServer(object):
 
         ae = AE()
         ae.add_requested_context('1.2.840.10008.1.1')
-        assoc = ae.associate('', 11112)
+        assoc = ae.associate('localhost', 11112)
 
         assert server.socket.fileno() != -1
 

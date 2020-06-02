@@ -339,17 +339,21 @@ class TestNegotiationAcceptor(object):
     def test_response_has_rejected(self):
         """Test that the A-ASSOCIATE-AC contains rejected contexts."""
         self.ae = ae = AE()
-        ae.add_requested_context(VerificationSOPClass)
-        ae.add_requested_context(CTImageStorage)
+        ae.acse_timeout = 5
+        ae.dimse_timeout = 5
+        ae.network_timeout = 5
         ae.add_supported_context(VerificationSOPClass)
         scp = ae.start_server(('', 11112), block=False)
 
-        assoc = ae.associate('', 11112)
+        ae.add_requested_context(VerificationSOPClass)
+        ae.add_requested_context(CTImageStorage)
+        assoc = ae.associate('localhost', 11112)
         assert assoc.is_established
 
         pcdrl = assoc.acceptor.get_contexts('pcdrl')
-        cxs = {cx.context_id:cx for cx in pcdrl}
+        cxs = {cx.context_id: cx for cx in pcdrl}
         assert 3 in cxs
+        assert 0x03 == cxs[3].result
 
         assoc.release()
         assert assoc.is_released
@@ -1914,7 +1918,7 @@ class TestNegotiateRelease(object):
                 socket.SO_RCVTIMEO,
                 pack('ll', 1, 0)
             )
-        sock.connect(('', 11112))
+        sock.connect(('localhost', 11112))
 
         ae = AE()
         ae.add_supported_context(VerificationSOPClass)
@@ -1950,7 +1954,7 @@ class TestNegotiateRelease(object):
 
     def start_server(self, commands):
         """Start the receiving server."""
-        server = ThreadedParrot(('', 11112), commands)
+        server = ThreadedParrot(('localhost', 11112), commands)
         thread = threading.Thread(target=server.serve_forever)
         thread.daemon = True
         thread.start()

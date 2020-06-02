@@ -1,4 +1,3 @@
-#!/usr/bin/env python
 """DUL service testing"""
 
 import logging
