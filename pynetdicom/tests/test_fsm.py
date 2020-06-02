@@ -8567,6 +8567,7 @@ class TestState13(TestStateBase):
         ]
         scp = self.start_server(commands)
 
+        self.assoc.start()
         while not self.assoc.is_established:
             time.sleep(0.05)
 
