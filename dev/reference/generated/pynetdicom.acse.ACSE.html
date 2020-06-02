@@ -202,13 +202,13 @@
 <h1>pynetdicom.acse.ACSE<a class="headerlink" href="#pynetdicom-acse-acse" title="Permalink to this headline">¶</a></h1>
 <dl class="py class">
 <dt id="pynetdicom.acse.ACSE">
-<em class="property">class </em><code class="sig-prename descclassname">pynetdicom.acse.</code><code class="sig-name descname">ACSE</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">assoc</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/5f998758/pynetdicom/acse.py#L22"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom.acse.ACSE" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="sig-prename descclassname">pynetdicom.acse.</code><code class="sig-name descname">ACSE</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">assoc</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/10c34d4a/pynetdicom/acse.py#L22"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom.acse.ACSE" title="Permalink to this definition">¶</a></dt>
 <dd><p>The Association Control Service Element (ACSE) service provider.</p>
 <p>The ACSE protocol handles association negotiation and establishment, and
 normal and abnormal release of an association.</p>
 <dl class="py method">
 <dt id="pynetdicom.acse.ACSE.__init__">
-<code class="sig-name descname">__init__</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">assoc</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/5f998758/pynetdicom/acse.py#L28"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom.acse.ACSE.__init__" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">__init__</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">assoc</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/10c34d4a/pynetdicom/acse.py#L28"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom.acse.ACSE.__init__" title="Permalink to this definition">¶</a></dt>
 <dd><p>Create the ACSE service provider.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -312,7 +312,7 @@ normal and abnormal release of an association.</p>
 
 <dl class="py method">
 <dt id="pynetdicom.acse.ACSE.is_aborted">
-<code class="sig-name descname">is_aborted</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">abort_type</span><span class="o">=</span><span class="default_value">'both'</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/5f998758/pynetdicom/acse.py#L244"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom.acse.ACSE.is_aborted" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">is_aborted</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">abort_type</span><span class="o">=</span><span class="default_value">'both'</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/10c34d4a/pynetdicom/acse.py#L244"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom.acse.ACSE.is_aborted" title="Permalink to this definition">¶</a></dt>
 <dd><p>Return <code class="docutils literal notranslate"><span class="pre">True</span></code> if an A-ABORT and/or A-P-ABORT request has been
 received.</p>
 <div class="versionchanged">
@@ -337,7 +337,7 @@ received.</p>
 
 <dl class="py method">
 <dt id="pynetdicom.acse.ACSE.is_release_requested">
-<code class="sig-name descname">is_release_requested</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/5f998758/pynetdicom/acse.py#L280"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom.acse.ACSE.is_release_requested" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">is_release_requested</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/10c34d4a/pynetdicom/acse.py#L280"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom.acse.ACSE.is_release_requested" title="Permalink to this definition">¶</a></dt>
 <dd><p>Return <code class="docutils literal notranslate"><span class="pre">True</span></code> if an A-RELEASE request has been received.</p>
 <div class="versionadded">
 <p><span class="versionmodified added">New in version 1.1.</span></p>
@@ -346,14 +346,14 @@ received.</p>
 
 <dl class="py method">
 <dt id="pynetdicom.acse.ACSE.negotiate_association">
-<code class="sig-name descname">negotiate_association</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/5f998758/pynetdicom/acse.py#L292"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom.acse.ACSE.negotiate_association" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">negotiate_association</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/10c34d4a/pynetdicom/acse.py#L292"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom.acse.ACSE.negotiate_association" title="Permalink to this definition">¶</a></dt>
 <dd><p>Perform an association negotiation as either the <em>requestor</em> or
 <em>acceptor</em>.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt id="pynetdicom.acse.ACSE.negotiate_release">
-<code class="sig-name descname">negotiate_release</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/5f998758/pynetdicom/acse.py#L533"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom.acse.ACSE.negotiate_release" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">negotiate_release</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/10c34d4a/pynetdicom/acse.py#L533"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom.acse.ACSE.negotiate_release" title="Permalink to this definition">¶</a></dt>
 <dd><p>Negotiate association release.</p>
 <div class="versionadded">
 <p><span class="versionmodified added">New in version 1.1.</span></p>
@@ -370,7 +370,7 @@ be ignored.</p>
 
 <dl class="py method">
 <dt id="pynetdicom.acse.ACSE.send_abort">
-<code class="sig-name descname">send_abort</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">source</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/5f998758/pynetdicom/acse.py#L615"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom.acse.ACSE.send_abort" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">send_abort</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">source</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/10c34d4a/pynetdicom/acse.py#L615"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom.acse.ACSE.send_abort" title="Permalink to this definition">¶</a></dt>
 <dd><p>Send an A-ABORT request to the peer.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -389,13 +389,13 @@ be ignored.</p>
 
 <dl class="py method">
 <dt id="pynetdicom.acse.ACSE.send_accept">
-<code class="sig-name descname">send_accept</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/5f998758/pynetdicom/acse.py#L645"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom.acse.ACSE.send_accept" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">send_accept</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/10c34d4a/pynetdicom/acse.py#L645"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom.acse.ACSE.send_accept" title="Permalink to this definition">¶</a></dt>
 <dd><p>Send an A-ASSOCIATE (accept) to the peer.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt id="pynetdicom.acse.ACSE.send_ap_abort">
-<code class="sig-name descname">send_ap_abort</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">reason</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/5f998758/pynetdicom/acse.py#L675"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom.acse.ACSE.send_ap_abort" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">send_ap_abort</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">reason</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/10c34d4a/pynetdicom/acse.py#L675"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom.acse.ACSE.send_ap_abort" title="Permalink to this definition">¶</a></dt>
 <dd><p>Send an A-P-ABORT to the peer.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -418,7 +418,7 @@ be ignored.</p>
 
 <dl class="py method">
 <dt id="pynetdicom.acse.ACSE.send_reject">
-<code class="sig-name descname">send_reject</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">result</span></em>, <em class="sig-param"><span class="n">source</span></em>, <em class="sig-param"><span class="n">diagnostic</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/5f998758/pynetdicom/acse.py#L709"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom.acse.ACSE.send_reject" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">send_reject</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">result</span></em>, <em class="sig-param"><span class="n">source</span></em>, <em class="sig-param"><span class="n">diagnostic</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/10c34d4a/pynetdicom/acse.py#L709"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom.acse.ACSE.send_reject" title="Permalink to this definition">¶</a></dt>
 <dd><p>Send an A-ASSOCIATE (reject) to the peer.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -461,7 +461,7 @@ be ignored.</p>
 
 <dl class="py method">
 <dt id="pynetdicom.acse.ACSE.send_release">
-<code class="sig-name descname">send_release</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">is_response</span><span class="o">=</span><span class="default_value">False</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/5f998758/pynetdicom/acse.py#L775"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom.acse.ACSE.send_release" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">send_release</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">is_response</span><span class="o">=</span><span class="default_value">False</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/10c34d4a/pynetdicom/acse.py#L775"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom.acse.ACSE.send_release" title="Permalink to this definition">¶</a></dt>
 <dd><p>Send an A-RELEASE (request or response) to the peer.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -473,7 +473,7 @@ to send an A-RELEASE (request) to the peer (default).</p>
 
 <dl class="py method">
 <dt id="pynetdicom.acse.ACSE.send_request">
-<code class="sig-name descname">send_request</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/5f998758/pynetdicom/acse.py#L791"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom.acse.ACSE.send_request" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">send_request</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/10c34d4a/pynetdicom/acse.py#L791"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom.acse.ACSE.send_request" title="Permalink to this definition">¶</a></dt>
 <dd><p>Send an A-ASSOCIATE (request) to the peer.</p>
 </dd></dl>
 
