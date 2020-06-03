@@ -651,35 +651,33 @@ class A_ASSOCIATE_RQ(PDU):
         """Return a string representation of the PDU."""
         s = 'A-ASSOCIATE-RQ PDU\n'
         s += '==================\n'
-        s += '  PDU type: 0x{0:02x}\n'.format(self.pdu_type)
-        s += '  PDU length: {0:d} bytes\n'.format(self.pdu_length)
-        s += '  Protocol version: {0:d}\n'.format(self.protocol_version)
-        s += '  Called AET:  {0!s}\n'.format(self.called_ae_title)
-        s += '  Calling AET: {0!s}\n'.format(self.calling_ae_title)
+        s += f'  PDU type: 0x{self.pdu_type:02x}\n'
+        s += f'  PDU length: {self.pdu_length:d} bytes\n'
+        s += f'  Protocol version: {self.protocol_version:d}\n'
+        s += f'  Called AET:  {self.called_ae_title}\n'
+        s += f'  Calling AET: {self.calling_ae_title}\n'
         s += '\n'
 
         s += '  Variable Items:\n'
         s += '  ---------------\n'
         s += '  * Application Context Item\n'
-        s += '    - Context name: ={0!s}\n'.format(
-            self.application_context_name)
-
+        s += f'    - Context name: ={self.application_context_name}\n'
         s += '  * Presentation Context Item(s):\n'
 
         for ii in self.presentation_context:
-            item_str = '{0!s}'.format(ii)
+            item_str = f'{ii}'
             item_str_list = item_str.split('\n')
-            s += '    - {0!s}\n'.format(item_str_list[0])
+            s += f'    - {item_str_list[0]}\n'
             for jj in item_str_list[1:-1]:
-                s += '      {0!s}\n'.format(jj)
+                s += f'      {jj}\n'
 
         s += '  * User Information Item(s):\n'
         for ii in self.user_information.user_data:
-            item_str = '{0!s}'.format(ii)
+            item_str = f'{ii}'
             item_str_list = item_str.split('\n')
-            s += '    - {0!s}\n'.format(item_str_list[0])
+            s += f'    - {item_str_list[0]}\n'
             for jj in item_str_list[1:-1]:
-                s += '      {0!s}\n'.format(jj)
+                s += f'      {jj}\n'
 
         return s
 
@@ -1022,35 +1020,33 @@ class A_ASSOCIATE_AC(PDU):
         """Return a string representation of the PDU."""
         s = 'A-ASSOCIATE-AC PDU\n'
         s += '==================\n'
-        s += '  PDU type: 0x{0:02x}\n'.format(self.pdu_type)
-        s += '  PDU length: {0:d} bytes\n'.format(self.pdu_length)
-        s += '  Protocol version: {0:d}\n'.format(self.protocol_version)
-        s += '  Reserved (Called AET):  {0!s}\n'.format(self._reserved_aet)
-        s += '  Reserved (Calling AET): {0!s}\n'.format(self._reserved_aec)
+        s += f'  PDU type: 0x{self.pdu_type:02x}\n'
+        s += f'  PDU length: {self.pdu_length:d} bytes\n'
+        s += f'  Protocol version: {self.protocol_version:d}\n'
+        s += f'  Reserved (Called AET):  {self._reserved_aet}\n'
+        s += f'  Reserved (Calling AET): {self._reserved_aec}\n'
         s += '\n'
 
         s += '  Variable Items:\n'
         s += '  ---------------\n'
         s += '  * Application Context Item\n'
-        s += '    -  Context name: ={0!s}\n'.format(
-            self.application_context_name)
-
+        s += f'    -  Context name: ={self.application_context_name}\n'
         s += '  * Presentation Context Item(s):\n'
 
         for ii in self.presentation_context:
-            item_str = '{0!s}'.format(ii)
+            item_str = f'{ii}'
             item_str_list = item_str.split('\n')
-            s += '    -  {0!s}\n'.format(item_str_list[0])
+            s += f'    -  {item_str_list[0]}\n'
             for jj in item_str_list[1:-1]:
-                s += '       {0!s}\n'.format(jj)
+                s += f'       {jj}\n'
 
         s += '  * User Information Item(s):\n'
         for item in self.user_information.user_data:
-            item_str = '{0!s}'.format(item)
+            item_str = f'{item}'
             item_str_list = item_str.split('\n')
-            s += '    -  {0!s}\n'.format(item_str_list[0])
+            s += f'    -  {item_str_list[0]}\n'
             for jj in item_str_list[1:-1]:
-                s += '       {0!s}\n'.format(jj)
+                s += f'       {jj}\n'
 
         return s
 
@@ -1299,11 +1295,11 @@ class A_ASSOCIATE_RJ(PDU):
         """Return a string representation of the PDU."""
         s = 'A-ASSOCIATE-RJ PDU\n'
         s += '==================\n'
-        s += '  PDU type: 0x{0:02x}\n'.format(self.pdu_type)
-        s += '  PDU length: {0:d} bytes\n'.format(self.pdu_length)
-        s += '  Result: {0!s}\n'.format(self.result_str)
-        s += '  Source: {0!s}\n'.format(self.source_str)
-        s += '  Reason/Diagnostic: {0!s}\n'.format(self.reason_str)
+        s += f'  PDU type: 0x{self.pdu_type:02x}\n'
+        s += f'  PDU length: {self.pdu_length:d} bytes\n'
+        s += f'  Result: {self.result_str}\n'
+        s += f'  Source: {self.source_str}\n'
+        s += f'  Reason/Diagnostic: {self.reason_str}\n'
 
         return s
 
@@ -1503,18 +1499,18 @@ class P_DATA_TF(PDU):
         """Return a string representation of the PDU."""
         s = 'P-DATA-TF PDU\n'
         s += '=============\n'
-        s += '  PDU type: 0x{0:02x}\n'.format(self.pdu_type)
-        s += '  PDU length: {0:d} bytes\n'.format(self.pdu_length)
+        s += f'  PDU type: 0x{self.pdu_type:02x}\n'
+        s += f'  PDU length: {self.pdu_length:d} bytes\n'
         s += '\n'
         s += '  Presentation Data Value Item(s):\n'
         s += '  --------------------------------\n'
 
         for ii in self.presentation_data_value_items:
-            item_str = '{0!s}'.format(ii)
+            item_str = f'{ii}'
             item_str_list = item_str.split('\n')
-            s += '  *  {0!s}\n'.format(item_str_list[0])
+            s += f'  *  {item_str_list[0]}\n'
             for jj in item_str_list[1:-1]:
-                s += '     {0!s}\n'.format(jj)
+                s += f'     {jj}\n'
 
         return s
 
@@ -1663,8 +1659,8 @@ class A_RELEASE_RQ(PDU):
         """Return a string representation of the PDU."""
         s = 'A-RELEASE-RQ PDU\n'
         s += '================\n'
-        s += '  PDU type: 0x{0:02x}\n'.format(self.pdu_type)
-        s += '  PDU length: {0:d} bytes\n'.format(self.pdu_length)
+        s += f'  PDU type: 0x{self.pdu_type:02x}\n'
+        s += f'  PDU length: {self.pdu_length:d} bytes\n'
 
         return s
 
@@ -1794,8 +1790,8 @@ class A_RELEASE_RP(PDU):
         """Return a string representation of the PDU."""
         s = 'A-RELEASE-RP PDU\n'
         s += '================\n'
-        s += '  PDU type: 0x{0:02x}\n'.format(self.pdu_type)
-        s += '  PDU length: {0:d} bytes\n'.format(self.pdu_length)
+        s += f'  PDU type: 0x{self.pdu_type:02x}\n'
+        s += f'  PDU length: {self.pdu_length:d} bytes\n'
 
         return s
 
@@ -1960,10 +1956,10 @@ class A_ABORT_RQ(PDU):
         """Return a string representation of the PDU."""
         s = "A-ABORT PDU\n"
         s += "===========\n"
-        s += "  PDU type: 0x{0:02x}\n".format(self.pdu_type)
-        s += "  PDU length: {0:d} bytes\n".format(self.pdu_length)
-        s += "  Abort Source: {0!s}\n".format(self.source_str)
-        s += "  Reason/Diagnostic: {0!s}\n".format(self.reason_str)
+        s += f"  PDU type: 0x{self.pdu_type:02x}\n"
+        s += f"  PDU length: {self.pdu_length:d} bytes\n"
+        s += f"  Abort Source: {self.source_str}\n"
+        s += f"  Reason/Diagnostic: {self.reason_str}\n"
 
         return s
 

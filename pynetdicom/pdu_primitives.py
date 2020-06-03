@@ -1223,7 +1223,7 @@ class ImplementationClassUIDNotification(ServiceParameter):
     def __str__(self):
         """String representation of the class."""
         s = "Implementation Class UID\n"
-        s += f"  Implementation class UID: {self.implementation_class_uid}\n" 
+        s += f"  Implementation class UID: {self.implementation_class_uid}\n"
         return s
 
 
@@ -1329,9 +1329,10 @@ class ImplementationVersionNameNotification(ServiceParameter):
 
     def __str__(self):
         """String representation of the class."""
+        version = self.implementation_version_name
         s = "Implementation Version Name\n"
-        s += "  Implementation version name: {0!s}\n".format(
-            self.implementation_version_name)
+        s += f"  Implementation version name: {version}\n"
+
         return s
 
 
@@ -1458,11 +1459,12 @@ class AsynchronousOperationsWindowNegotiation(ServiceParameter):
 
     def __str__(self):
         """String representation of the class."""
+        invoked = self.maximum_number_operations_invoked
+        performed = self.maximum_number_operations_performed
         s = "Asynchronous Operations Window\n"
-        s += "  Maximum number operations invoked: {0:d}\n".format(
-            self.maximum_number_operations_invoked)
-        s += "  Maximum number operations performed: {0:d}\n".format(
-            self.maximum_number_operations_performed)
+        s += f"  Maximum number operations invoked: {invoked:d}\n"
+        s += f"  Maximum number operations performed: {performed:d}\n"
+
         return s
 
 
@@ -1537,10 +1539,10 @@ class SCP_SCU_RoleSelectionNegotiation(ServiceParameter):
 
         # To get to this point self.sop_class_uid must be set
         if not self.scu_role and not self.scp_role:
-            LOGGER.error("SCU and SCP Roles cannot both be unsupported "
-                         "for %s", self.sop_class_uid)
-            raise ValueError("SCU and SCP Roles cannot both be unsupported "
-                             "for {}".format(self.sop_class_uid))
+            uid = self.sop_class_uid
+            msg = f"SCU and SCP Roles cannot both be unsupported for '{uid}'"
+            LOGGER.error(msg)
+            raise ValueError(msg)
 
         item = SCP_SCU_RoleSelectionSubItem()
         item.from_primitive(self)
@@ -1636,20 +1638,16 @@ class SCP_SCU_RoleSelectionNegotiation(ServiceParameter):
         elif value is None:
             pass
         else:
-            LOGGER.error("SOP Class UID must be a pydicom.uid.UID, str "
-                         "or bytes")
-            raise TypeError("SOP Class UID must be a pydicom.uid.UID, str "
-                            "or bytes")
+            msg = "SOP Class UID must be a pydicom.uid.UID, str or bytes"
+            LOGGER.error(msg)
+            raise TypeError(msg)
 
         if value is not None and not validate_uid(value):
             LOGGER.error("SOP Class UID is an invalid UID")
             raise ValueError("SOP Class UID is an invalid UID")
 
         if value and not value.is_valid:
-            LOGGER.warning(
-                "The SOP Class UID '{}' is non-conformant"
-                .format(value)
-            )
+            LOGGER.warning(f"The SOP Class UID '{value}' is non-conformant")
 
         self._sop_class_uid = value
 
@@ -1786,20 +1784,16 @@ class SOPClassExtendedNegotiation(ServiceParameter):
         elif value is None:
             pass
         else:
-            LOGGER.error("SOP Class UID must be a pydicom.uid.UID, str "
-                         "or bytes")
-            raise TypeError("SOP Class UID must be a pydicom.uid.UID, str "
-                            "or bytes")
+            msg = "SOP Class UID must be a pydicom.uid.UID, str or bytes"
+            LOGGER.error(msg)
+            raise TypeError(msg)
 
         if value is not None and not validate_uid(value):
             LOGGER.error("SOP Class UID is an invalid UID")
             raise ValueError("SOP Class UID is an invalid UID")
 
         if value and not value.is_valid:
-            LOGGER.warning(
-                "The SOP Class UID '{}' is non-conformant"
-                .format(value)
-            )
+            LOGGER.warning(f"The SOP Class UID '{value}' is non-conformant")
 
         self._sop_class_uid = value
 
@@ -1922,8 +1916,8 @@ class SOPClassCommonExtendedNegotiation(ServiceParameter):
 
                 if uid and not uid.is_valid:
                     LOGGER.warning(
-                        "The Related General SOP Class UID '{}' is "
-                        "non-conformant".format(uid)
+                        f"The Related General SOP Class UID '{uid}' is "
+                        f"non-conformant"
                     )
 
                 valid_uid_list.append(uid)
@@ -1976,8 +1970,7 @@ class SOPClassCommonExtendedNegotiation(ServiceParameter):
 
         if value and not value.is_valid:
             LOGGER.warning(
-                "The Service Class UID '{}' is non-conformant"
-                .format(value)
+                f"The Service Class UID '{value}' is non-conformant"
             )
 
         self._service_class_uid = value
@@ -2020,10 +2013,7 @@ class SOPClassCommonExtendedNegotiation(ServiceParameter):
             raise ValueError("SOP Class UID is an invalid UID")
 
         if value and not value.is_valid:
-            LOGGER.warning(
-                "The SOP Class UID '{}' is non-conformant"
-                .format(value)
-            )
+            LOGGER.warning("The SOP Class UID '{value}' is non-conformant")
 
         self._sop_class_uid = value
 
@@ -2280,14 +2270,13 @@ class UserIdentityNegotiation(ServiceParameter):
         """String representation of the class."""
         s = 'User Identity Parameters\n'
         if self.server_response is None:
-            s += '  User identity type: {0:d}\n'.format(
-                self.user_identity_type)
-            s += '  Positive response requested: {0!r}\n' \
-                 .format(self.positive_response_requested)
-            s += '  Primary field: {0!s}\n'.format(self.primary_field)
-            s += '  Secondary field: {0!s}\n'.format(self.secondary_field)
+            rsp_req = self.positive_response_requested
+            s += f'  User identity type: {self.user_identity_type:d}\n'
+            s += f'  Positive response requested: {rsp_req}\n'
+            s += f'  Primary field: {self.primary_field}\n'
+            s += f'  Secondary field: {self.secondary_field}\n'
         else:
-            s += '  Server response: {0!s}\n'.format(self.server_response)
+            s += f'  Server response: {self.server_response}\n'
 
         return s
 

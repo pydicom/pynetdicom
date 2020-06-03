@@ -43,9 +43,7 @@ def create_dataset(args, logger=None):
                 ds = dcmread(fp, force=True)
         except Exception as exc:
             if logger:
-                logger.error(
-                    'Cannot read input file {0!s}'.format(args.file)
-                )
+                logger.error(f'Cannot read input file {args.file}')
             raise exc
 
         try:
@@ -224,8 +222,8 @@ class ElementPath(object):
 
             if not is_valid:
                 raise ValueError(
-                    "Element path contains an invalid component: '{}'"
-                    .format(self.components[0])
+                    f"Element path contains an invalid component: "
+                    f"'{self.components[0]}'"
                 )
             self._item_nr = item_nr
 
@@ -290,8 +288,8 @@ class ElementPath(object):
 
             if len(group) != 4 or len(element) != 4:
                 raise ValueError(
-                    "Unable to parse element path component: '{}'"
-                    .format(self.components[0])
+                    f"Unable to parse element path component: "
+                    f"'{self.components[0]}'"
                 )
 
             return Tag(group, element)
@@ -301,8 +299,8 @@ class ElementPath(object):
         # Keyword based tag - private keywords not allowed
         if repeater_has_keyword(kw):
             raise ValueError(
-                "Repeating group elements must be specified using "
-                "(gggg,eeee): '{}'".format(self.components[0])
+                f"Repeating group elements must be specified using "
+                f"(gggg,eeee): '{self.components[0]}'"
             )
 
         tag = tag_for_keyword(kw)
@@ -311,8 +309,7 @@ class ElementPath(object):
             return Tag(tag)
 
         raise ValueError(
-            "Unable to parse element path component: '{}'"
-            .format(self.components[0])
+            f"Unable to parse element path component: '{self.components[0]}'"
         )
 
     def update(self, ds):
@@ -434,7 +431,7 @@ class ElementPath(object):
                 value[ii] + value[ii + 1] for ii in range(0, len(value), 2)
             ]
             value = [int(ii, 16) for ii in value]
-            value = pack('{}B'.format(len(value)), *value)
+            value = pack(f'{len(value)}B', *value)
 
         self._value = value
 
@@ -590,8 +587,8 @@ def handle_store(event, args, app_logger):
     except KeyError:
         mode_prefix = 'UN'
 
-    filename = '{0!s}.{1!s}'.format(mode_prefix, sop_instance)
-    app_logger.info('Storing DICOM file: {0!s}'.format(filename))
+    filename = f'{mode_prefix}.{sop_instance}'
+    app_logger.info(f'Storing DICOM file: {filename}')
 
     if os.path.exists(filename):
         app_logger.warning('DICOM file already exists, overwriting')
@@ -606,7 +603,7 @@ def handle_store(event, args, app_logger):
             os.makedirs(args.output_directory, exist_ok=True)
         except Exception as exc:
             app_logger.error('Unable to create the output directory:')
-            app_logger.error("    {0!s}".format(args.output_directory))
+            app_logger.error(f"    {args.output_directory}")
             app_logger.exception(exc)
             # Failed - Out of Resources - IOError
             status.Status = 0xA700
@@ -628,13 +625,13 @@ def handle_store(event, args, app_logger):
         status_ds.Status = 0x0000  # Success
     except IOError as exc:
         app_logger.error('Could not write file to specified directory:')
-        app_logger.error("    {0!s}".format(os.path.dirname(filename)))
+        app_logger.error(f"    {os.path.dirname(filename)}")
         app_logger.exception(exc)
         # Failed - Out of Resources - IOError
         status_ds.Status = 0xA700
     except Exception as exc:
         app_logger.error('Could not write file to specified directory:')
-        app_logger.error("    {0!s}".format(os.path.dirname(filename)))
+        app_logger.error(f"    {os.path.dirname(filename)}")
         app_logger.exception(exc)
         # Failed - Out of Resources - Miscellaneous error
         status_ds.Status = 0xA701

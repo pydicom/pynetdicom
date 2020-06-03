@@ -226,9 +226,9 @@ class ServiceClass(object):
             if exc:
                 LOGGER.error("Exception in handler bound to 'evt.EVT_C_FIND'")
                 LOGGER.error(
-                    "\nTraceback (most recent call last):\n" +
-                    "".join(traceback.format_tb(exc[2])) +
-                    "{}: {}".format(exc[0].__name__, str(exc[1]))
+                    f"\nTraceback (most recent call last):\n" +
+                    f"".join(traceback.format_tb(exc[2])) +
+                    f"{exc[0].__name__}: {str(exc[1])}"
                 )
                 rsp_status = 0xC311
                 dataset = None
@@ -253,16 +253,15 @@ class ServiceClass(object):
                 # If cancel, then dataset is None
                 LOGGER.info('Received C-CANCEL-FIND RQ from peer')
                 LOGGER.info(
-                    'Find SCP Response {}: 0x{:04X} (Cancel)'
-                    .format(ii + 1, rsp.Status)
+                    f'Find SCP Response {ii + 1}: 0x{rsp.Status:04X} (Cancel)'
                 )
                 self.dimse.send_msg(rsp, cx_id)
                 return
             elif status[0] == STATUS_FAILURE:
                 # If failed, then dataset is None
                 LOGGER.info(
-                    'Find SCP Response {}: 0x{:04X} (Failure - {})'
-                    .format(ii + 1, rsp.Status, status[1])
+                    f"Find SCP Response {ii + 1}: 0x{rsp.Status:04X} "
+                    f"(Failure - {status[1]})"
                 )
                 self.dimse.send_msg(rsp, cx_id)
                 return
@@ -270,7 +269,7 @@ class ServiceClass(object):
                 # User isn't supposed to send these, but handle anyway
                 # If success, then dataset is None
                 LOGGER.info(
-                    'Find SCP Response {}: 0x0000 (Success)'.format(ii + 1)
+                    f'Find SCP Response {ii + 1}: 0x0000 (Success)'
                 )
                 self.dimse.send_msg(rsp, cx_id)
                 return
@@ -297,8 +296,7 @@ class ServiceClass(object):
                 rsp.Identifier = bytestream
 
                 LOGGER.info(
-                    'Find SCP Response {}: 0x{:04X} (Pending)'
-                    .format(ii + 1, rsp.Status)
+                    f'Find SCP Response {ii + 1}: 0x{rsp.Status:04X} (Pending)'
                 )
                 if _config.LOG_RESPONSE_IDENTIFIERS:
                     LOGGER.debug('Find SCP Response Identifier:')
@@ -316,7 +314,7 @@ class ServiceClass(object):
 
         # Send final success response
         rsp.Status = 0x0000
-        LOGGER.info('Find SCP Response {}: 0x0000 (Success)'.format(ii + 2))
+        LOGGER.info(f'Find SCP Response {ii + 2}: 0x0000 (Success)')
         self.dimse.send_msg(rsp, cx_id)
 
     @property
@@ -1258,8 +1256,8 @@ class ServiceClass(object):
             The presentation context that the SCP is operating under.
         """
         msg = (
-            "No service class has been implemented for the SOP Class UID '{}'"
-            .format(context.abstract_syntax)
+            f"No service class has been implemented for the "
+            f"SOP Class UID '{context.abstract_syntax}'"
         )
         raise NotImplementedError(msg)
 
@@ -1290,8 +1288,8 @@ class ServiceClass(object):
                         setattr(rsp, elem.keyword, elem.value)
                     else:
                         LOGGER.warning(
-                            "Status dataset returned by callback contained an "
-                            "unsupported Element '{}'".format(elem.keyword)
+                            f"Status dataset returned by callback contained "
+                            f"an unsupported Element '{elem.keyword}'"
                         )
             else:
                 LOGGER.error(
@@ -1313,8 +1311,8 @@ class ServiceClass(object):
             # Failure: Cannot Understand - Unknown status returned by the
             #   callback
             LOGGER.warning(
-                "Unknown status value returned by callback - 0x{0:04x}"
-                .format(rsp.Status)
+                f"Unknown status value returned by callback - "
+                f"0x{rsp.Status:04x}"
             )
 
         return rsp
@@ -1387,9 +1385,9 @@ class VerificationServiceClass(ServiceClass):
                         setattr(rsp, elem.keyword, elem.value)
                     else:
                         LOGGER.warning(
-                            "The 'status' dataset returned by the handler "
-                            "bound to 'evt.EVT_C_ECHO' contained an "
-                            "unsupported Element '{}'".format(elem.keyword)
+                            f"The 'status' dataset returned by the handler "
+                            f"bound to 'evt.EVT_C_ECHO' contained an "
+                            f"unsupported Element '{elem.keyword}'"
                         )
             elif isinstance(status, int):
                 rsp.Status = status
@@ -1411,8 +1409,8 @@ class VerificationServiceClass(ServiceClass):
         # Check Status validity
         if not self.is_valid_status(rsp.Status):
             LOGGER.warning(
-                "Unknown 'status' value returned by the handler bound to "
-                "'evt.EVT_C_ECHO' - 0x{0:04x}".format(rsp.Status)
+                f"Unknown 'status' value returned by the handler bound to "
+                f"'evt.EVT_C_ECHO' - 0x{rsp.Status:04x}"
             )
 
         # Send primitive
@@ -1631,9 +1629,9 @@ class QueryRetrieveServiceClass(ServiceClass):
             if exc:
                 LOGGER.error("Exception in handler bound to 'evt.EVT_C_GET'")
                 LOGGER.error(
-                    "\nTraceback (most recent call last):\n" +
-                    "".join(traceback.format_tb(exc[2])) +
-                    "{}: {}".format(exc[0].__name__, str(exc[1]))
+                    f"\nTraceback (most recent call last):\n" +
+                    f"".join(traceback.format_tb(exc[2])) +
+                    f"{exc[0].__name__}: {str(exc[1])}"
                 )
                 rsp_status = 0xC411
                 dataset = None
@@ -1668,8 +1666,7 @@ class QueryRetrieveServiceClass(ServiceClass):
                 # 'FailedSOPInstanceUIDList' element
                 LOGGER.info('Received C-CANCEL-GET RQ from peer')
                 LOGGER.info(
-                    'Get SCP Response {}: 0x{:04X} (Cancel)'
-                    .format(ii + 1, rsp.Status)
+                    f'Get SCP Response {ii + 1}: 0x{rsp.Status:04X} (Cancel)'
                 )
                 rsp.NumberOfRemainingSuboperations = store_results[0]
                 rsp.NumberOfFailedSuboperations = store_results[1]
@@ -1695,8 +1692,8 @@ class QueryRetrieveServiceClass(ServiceClass):
                 # If failure or warning, dataset is a Dataset with a
                 # 'FailedSOPInstanceUIDList' element
                 LOGGER.info(
-                    'Get SCP Result {}: 0x{:04X} ({} - {})'
-                    .format(ii + 1, rsp.Status, status[0], status[1])
+                    f"Get SCP Result {ii + 1}: 0x{rsp.Status:04X} "
+                    f"({status[0]} - {status[1]})"
                 )
                 rsp.NumberOfRemainingSuboperations = None
                 rsp.NumberOfFailedSuboperations = (
@@ -1725,7 +1722,7 @@ class QueryRetrieveServiceClass(ServiceClass):
                 # dataset is None
                 if store_results[1] or store_results[2]:
                     LOGGER.info(
-                        'Get SCP Response {}: 0xB000 (Warning)'.format(ii + 1)
+                        f'Get SCP Response {ii + 1}: 0xB000 (Warning)'
                     )
                     rsp.Status = 0xB000
                     ds = Dataset()
@@ -1739,7 +1736,7 @@ class QueryRetrieveServiceClass(ServiceClass):
                     rsp.Identifier = BytesIO(bytestream)
                 else:
                     LOGGER.info(
-                        'Get SCP Response {}: 0x0000 (Success)'.format(ii + 1)
+                        f'Get SCP Response {ii + 1}: 0x0000 (Success)'
                     )
                     rsp.Identifier = None
 
@@ -1766,8 +1763,7 @@ class QueryRetrieveServiceClass(ServiceClass):
                     continue
 
                 LOGGER.info(
-                    'Get SCP Response {}: 0x{:04X} (Pending)'
-                    .format(ii + 1, rsp.Status)
+                    f'Get SCP Response {ii + 1}: 0x{rsp.Status:04X} (Pending)'
                 )
 
                 # If the Composite Instance Retrieve Without Bulk Data Service
@@ -1791,11 +1787,11 @@ class QueryRetrieveServiceClass(ServiceClass):
 
                     if _bulk_data:
                         LOGGER.warning(
-                            "The Query/Retrieve - Composite Instance Retrieve "
-                            "Without Bulk Data service is requested but a "
-                            "yielded dataset contains the following (to be "
-                            "removed) bulk data elements: {}"
-                            .format(','.join(_bulk_data))
+                            f"The Query/Retrieve - Composite Instance "
+                            f"Retrieve Without Bulk Data service is "
+                            f"requested but a yielded dataset contains the "
+                            f"following (to be removed) bulk data "
+                            f"elements: {','.join(_bulk_data)}"
                         )
 
                 # Send `dataset` via C-STORE sub-operations over the existing
@@ -1823,13 +1819,13 @@ class QueryRetrieveServiceClass(ServiceClass):
 
                 if store_status_int is not None:
                     msg = (
-                        'Get SCP: Received Store SCP response 0x{:04X} ({})'
-                        .format(store_status_int, store_status[0])
+                        f"Get SCP: Received Store SCP response "
+                        f"0x{store_status_int:04X} ({store_status[0]})"
                     )
                 else:
                     msg = (
-                        'Get SCP: Received Store SCP response ({})'
-                        .format(store_status[0])
+                        f"Get SCP: Received Store SCP response "
+                        f"({store_status[0]})"
                     )
                 LOGGER.info(msg)
 
@@ -1859,11 +1855,11 @@ class QueryRetrieveServiceClass(ServiceClass):
         # If not already done, send the final 'Success' or 'Warning' response
         if not store_results[1] and not store_results[2]:
             # Success response - no failures or warnings
-            LOGGER.info('Get SCP Response {}: 0x0000 (Success)'.format(ii + 2))
+            LOGGER.info(f'Get SCP Response {ii + 2}: 0x0000 (Success)')
             rsp.Status = 0x0000
         else:
             # Warning response - one or more failures or warnings
-            LOGGER.info('Get SCP Response {}: 0xB000 (Warning)'.format(ii + 2))
+            LOGGER.info(f'Get SCP Response {ii + 2}: 0xB000 (Warning)')
             rsp.Status = 0xB000
             # If Warning response, need to return an Identifier with
             #   (0008,0058) Failed SOP Instance UID List element
@@ -1962,7 +1958,7 @@ class QueryRetrieveServiceClass(ServiceClass):
             ctx.error_status = 0xC515
             if None in destination[:2]:
                 LOGGER.error(
-                    'Unknown Move Destination: {}'.format(req.MoveDestination)
+                    f'Unknown Move Destination: {req.MoveDestination}'
                 )
                 # Failure - Move destination unknown
                 rsp.Status = 0xA801
@@ -2041,9 +2037,9 @@ class QueryRetrieveServiceClass(ServiceClass):
             if exc:
                 LOGGER.error("Exception in handler bound to 'evt.EVT_C_MOVE'")
                 LOGGER.error(
-                    "\nTraceback (most recent call last):\n" +
-                    "".join(traceback.format_tb(exc[2])) +
-                    "{}: {}".format(exc[0].__name__, str(exc[1]))
+                    f"\nTraceback (most recent call last):\n" +
+                    f"".join(traceback.format_tb(exc[2])) +
+                    f"{exc[0].__name__}: {str(exc[1])}"
                 )
                 rsp_status = 0xC511
                 dataset = None
@@ -2082,8 +2078,7 @@ class QueryRetrieveServiceClass(ServiceClass):
                 #   'FailedSOPInstanceUIDList' element
                 LOGGER.info('Received C-CANCEL-MOVE RQ from peer')
                 LOGGER.info(
-                    'Move SCP Response {}: 0x{:04X} (Cancel)'
-                    .format(ii + 1, rsp.Status)
+                    f'Move SCP Response {ii + 1}: 0x{rsp.Status:04X} (Cancel)'
                 )
                 store_assoc.release()
 
@@ -2112,8 +2107,8 @@ class QueryRetrieveServiceClass(ServiceClass):
                 # If failed or warning, then dataset is a Dataset with a
                 #   'FailedSOPInstanceUIDList' element
                 LOGGER.info(
-                    'Move SCP Response {}: 0x{:04X} ({} - {})'
-                    .format(ii + 1, rsp.Status, status[0], status[1])
+                    f"Move SCP Response {ii + 1}: 0x{rsp.Status:04X} "
+                    f"({status[0]} - {status[1]})"
                 )
                 store_assoc.release()
 
@@ -2148,8 +2143,7 @@ class QueryRetrieveServiceClass(ServiceClass):
                 if store_results[1] or store_results[2]:
                     # Sub-operations contained failures/warnings
                     LOGGER.info(
-                        'Move SCP Response {}: 0xB000 (Warning)'
-                        .format(ii + 1)
+                        f'Move SCP Response {ii + 1}: 0xB000 (Warning)'
                     )
 
                     ds = Dataset()
@@ -2166,8 +2160,7 @@ class QueryRetrieveServiceClass(ServiceClass):
                 else:
                     # No failures or warnings
                     LOGGER.info(
-                        'Move SCP Response {}: 0x0000 (Success)'
-                        .format(ii + 1)
+                        f'Move SCP Response {ii + 1}: 0x0000 (Success)'
                     )
                     rsp.Identifier = None
 
@@ -2194,8 +2187,7 @@ class QueryRetrieveServiceClass(ServiceClass):
                     continue
 
                 LOGGER.info(
-                    'Move SCP Response {}: 0x{:04X} (Pending)'
-                    .format(ii + 1, rsp.Status)
+                    f'Move SCP Response {ii + 1}: 0x{rsp.Status:04X} (Pending)'
                 )
 
                 # Send `dataset` via C-STORE sub-operations over the
@@ -2227,13 +2219,13 @@ class QueryRetrieveServiceClass(ServiceClass):
 
                 if store_status_int is not None:
                     msg = (
-                        'Move SCP: Received Store SCP response 0x{:04X} '
-                        '({})'.format(store_status_int, store_status[0])
+                        f"Move SCP: Received Store SCP response "
+                        f"0x{store_status_int:04X} ({store_status[0]})"
                     )
                 else:
                     msg = (
-                        'Move SCP: Received Store SCP response({})'
-                        .format(store_status[0])
+                        f"Move SCP: Received Store SCP response "
+                        f"({store_status[0]})"
                     )
 
                 LOGGER.info(msg)
@@ -2268,13 +2260,13 @@ class QueryRetrieveServiceClass(ServiceClass):
         if not store_results[1] and not store_results[2]:
             # Success response - no failures or warnings
             LOGGER.info(
-                'Move SCP Response {}: 0x0000 (Success)'.format(ii + 2)
+                f'Move SCP Response {ii + 2}: 0x0000 (Success)'
             )
             rsp.Status = 0x0000
         else:
             # Warning response - one or more failures or warnings
             LOGGER.info(
-                'Move SCP Response {}: 0xB000 (Warning)'.format(ii + 2)
+                f"Move SCP Response {ii + 2}: 0xB000 (Warning)"
             )
             rsp.Status = 0xB000
             # If Warning response, need to return an Identifier with
@@ -2438,16 +2430,12 @@ class RelevantPatientInformationQueryServiceClass(ServiceClass):
         if status[0] == STATUS_CANCEL:
             # If cancel, then rsp_identifier is None
             LOGGER.info('Received C-CANCEL-FIND RQ from peer')
-            LOGGER.info(
-                'Find SCP Response: 0x{:04X} (Cancel)'.format(rsp.Status)
-            )
+            LOGGER.info(f'Find SCP Response: 0x{rsp.Status:04X} (Cancel)')
             self.dimse.send_msg(rsp, cx_id)
             return
         elif status[0] == STATUS_FAILURE:
             # If failed, then rsp_identifier is None
-            LOGGER.info(
-                'Find SCP Response: 0x{:04X} (Failure)'.format(rsp.Status)
-            )
+            LOGGER.info(f'Find SCP Response: 0x{rsp.Status:04X} (Failure)')
             self.dimse.send_msg(rsp, cx_id)
             return
         elif status[0] == STATUS_SUCCESS:
@@ -2478,9 +2466,7 @@ class RelevantPatientInformationQueryServiceClass(ServiceClass):
 
             rsp.Identifier = bytestream
 
-            LOGGER.info(
-                'Find SCP Response:  0x{:04X} (Pending)'.format(rsp.Status)
-            )
+            LOGGER.info(f'Find SCP Response:  0x{rsp.Status:04X} (Pending)')
             if _config.LOG_RESPONSE_IDENTIFIERS:
                 LOGGER.debug('Find SCP Response Identifier:')
                 LOGGER.debug('')

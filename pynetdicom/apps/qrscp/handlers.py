@@ -31,9 +31,9 @@ def handle_echo(event, cli_config, logger):
     """
     requestor = event.assoc.requestor
     timestamp = event.timestamp.strftime("%Y-%m-%d %H:%M:%S")
+    addr, port = requestor.address, requestor.port
     logger.info(
-        "Received C-ECHO request from {}:{} at {}"
-        .format(requestor.address, requestor.port, timestamp)
+        f"Received C-ECHO request from {addr}:{port} at {timestamp}"
     )
 
     return 0x0000
@@ -61,9 +61,9 @@ def handle_find(event, db_path, cli_config, logger):
     """
     requestor = event.assoc.requestor
     timestamp = event.timestamp.strftime("%Y-%m-%d %H:%M:%S")
+    addr, port = requestor.address, requestor.port
     logger.info(
-        "Received C-FIND request from {}:{} at {}"
-        .format(requestor.address, requestor.port, timestamp)
+        f"Received C-FIND request from {addr}:{port} at {timestamp}"
     )
 
     model = event.request.AffectedSOPClassUID
@@ -131,9 +131,9 @@ def handle_get(event, db_path, cli_config, logger):
     """
     requestor = event.assoc.requestor
     timestamp = event.timestamp.strftime("%Y-%m-%d %H:%M:%S")
+    addr, port = requestor.address, requestor.port
     logger.info(
-        "Received C-GET request from {}:{} at {}"
-        .format(requestor.address, requestor.port, timestamp)
+        f"Received C-GET request from {addr}:{port} at {timestamp}"
     )
 
     model = event.request.AffectedSOPClassUID
@@ -172,7 +172,7 @@ def handle_get(event, db_path, cli_config, logger):
         try:
             ds = dcmread(match.filename)
         except Exception as exc:
-            logger.error("Error reading file: {}".format(fpath))
+            logger.error(f"Error reading file: {fpath}")
             logger.exception(exc)
             yield 0xC421, None
 
@@ -208,14 +208,10 @@ def handle_move(event, destinations, db_path, cli_config, logger):
     """
     requestor = event.assoc.requestor
     timestamp = event.timestamp.strftime("%Y-%m-%d %H:%M:%S")
+    addr, port = requestor.address, requestor.port
     logger.info(
-        "Received C-MOVE request from {}:{} at {} with move destination {}"
-        .format(
-            requestor.address,
-            requestor.port,
-            timestamp,
-            event.move_destination
-        )
+        f"Received C-MOVE request from {addr}:{port} at {timestamp} "
+        f"with move destination {event.move_destination}"
     )
 
     # Unknown `Move Destination`
@@ -268,7 +264,7 @@ def handle_move(event, destinations, db_path, cli_config, logger):
         try:
             ds = dcmread(match.filename)
         except Exception as exc:
-            logger.error("Error reading file: {}".format(fpath))
+            logger.error(f"Error reading file: {fpath}")
             logger.exception(exc)
             yield 0xC521, None
 
@@ -300,9 +296,9 @@ def handle_store(event, storage_dir, db_path, cli_config, logger):
     """
     requestor = event.assoc.requestor
     timestamp = event.timestamp.strftime("%Y-%m-%d %H:%M:%S")
+    addr, port = requestor.address, requestor.port
     logger.info(
-        "Received C-STORE request from {}:{} at {}"
-        .format(requestor.address, requestor.port, timestamp)
+        f"Received C-STORE request from {addr}:{port} at {timestamp}"
     )
 
     try:
@@ -319,7 +315,7 @@ def handle_store(event, storage_dir, db_path, cli_config, logger):
     # Add the file meta information elements - must be before adding to DB
     ds.file_meta = event.file_meta
 
-    logger.info("SOP Instance UID '{}'".format(sop_instance))
+    logger.info(f"SOP Instance UID '{sop_instance}'")
 
     # Try and add the instance to the database
     #   If we fail then don't even try to store

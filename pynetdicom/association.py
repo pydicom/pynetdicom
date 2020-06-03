@@ -1754,9 +1754,9 @@ class Association(threading.Thread):
                 return
 
             if not isinstance(rsp, C_FIND):
+                msg_type = rsp.__class__.__name__.replace('_', '-')
                 LOGGER.error(
-                    'Received an unexpected {} message from the peer'
-                    .format(rsp.__class__.__name__.replace('_', '-'))
+                    f'Received an unexpected {msg_type} message from the peer'
                 )
                 self.abort()
                 self._reactor_checkpoint.set()
@@ -1914,13 +1914,13 @@ class Association(threading.Thread):
             LOGGER.debug('')
             if category == STATUS_PENDING:
                 LOGGER.info(
-                    "{} SCP Response: {} - 0x{:04X} (Pending)"
-                    .format(rsp_name[rsp_type], operation_no, status.Status)
+                    f"{rsp_name[rsp_type]} SCP Response: {operation_no} - "
+                    f"0x{status.Status:04X} (Pending)"
                 )
             else:
                 LOGGER.info(
-                    '{} SCP Result: 0x{:04X} ({})'
-                    .format(rsp_name[rsp_type], status.Status, category)
+                    f"{rsp_name[rsp_type]} SCP Result: "
+                    f"0x{status.Status:04X} ({category})"
                 )
 
             # Log number of remaining sub-operations - C-GET/C-MOVE only

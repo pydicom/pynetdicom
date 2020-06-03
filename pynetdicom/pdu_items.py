@@ -3219,7 +3219,7 @@ class SOPClassCommonExtendedNegotiationSubItem(PDUItem):
             "SOP Class Common Extended Negotiation Sub-item",
             f"  Item type: 0x{self.item_type:02x}",
             f"  Item length: {self.item_length:d} bytes",
-            f"  SOP class UID length: {self.sop_class_uid_lengt:d} bytes",
+            f"  SOP class UID length: {self.sop_class_uid_length:d} bytes",
             f"  SOP class: ={self.sop_class_uid.name}",
             f"  Service class UID length: "
             f"{self.service_class_uid_length:d} bytes",
@@ -3230,6 +3230,8 @@ class SOPClassCommonExtendedNegotiationSubItem(PDUItem):
         ]
         for uid in self.related_general_sop_class_identification:
             s.append(f"    ={uid} ({uid.name})")
+
+        s.append("")
 
         return '\n'.join(s)
 
@@ -3544,10 +3546,10 @@ class UserIdentitySubItemRQ(PDUItem):
                 f"  Secondary field length: "
                 f"{self.secondary_field_length:d} bytes"
             )
-            s.append(f"  Secondary field: {self.secondary_field}")
+            s.append(f"  Secondary field: {self.secondary_field}\n")
         else:
             s.append("  Secondary field length: (not used)")
-            s.append("  Secondary field: (not used)")
+            s.append("  Secondary field: (not used)\n")
 
         return '\n'.join(s)
 
@@ -3703,7 +3705,7 @@ class UserIdentitySubItemAC(PDUItem):
             f"  Item type: 0x{self.item_type:02x}",
             f"  Item length: {self.item_length:d} bytes"
             f"  Server response length: {self.server_response_length:d} bytes",
-            f"  Server response: {self.server_response}"
+            f"  Server response: {self.server_response}\n"
         ]
 
         return '\n'.join(s)

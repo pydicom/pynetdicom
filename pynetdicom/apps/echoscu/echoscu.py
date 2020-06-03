@@ -113,8 +113,8 @@ def _setup_argparser():
     net_opts.add_argument(
         "-pdu", "--max-pdu", metavar='[n]umber of bytes',
         help=(
-            "set max receive pdu to n bytes (0 for unlimited, default: {})"
-            .format(DEFAULT_MAX_LENGTH)
+            f"set max receive pdu to n bytes (0 for unlimited, "
+            f"default: {DEFAULT_MAX_LENGTH})"
         ),
         type=int,
         default=DEFAULT_MAX_LENGTH
@@ -164,7 +164,7 @@ def main(args=None):
     args = _setup_argparser()
 
     if args.version:
-        print('echoscu.py v{}'.format(__version__))
+        print(f'echoscu.py v{__version__}')
         sys.exit()
 
     APP_LOGGER = setup_logging(args, 'echoscu')

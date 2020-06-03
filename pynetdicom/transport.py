@@ -435,7 +435,7 @@ class RequestHandler(BaseRequestHandler):
 
         # Set the thread name
         timestamp = datetime.strftime(datetime.now(), "%Y%m%d%H%M%S")
-        assoc.name = "AcceptorThread@{}".format(timestamp)
+        assoc.name = f"AcceptorThread@{timestamp}"
 
         sock = AssociationSocket(assoc, client_socket=self.request)
         assoc.set_socket(sock)

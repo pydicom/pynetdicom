@@ -60,19 +60,16 @@ def _log_config(config, logger):
     """
     logger.debug('Configuration settings')
     app = config['DEFAULT']
+    aet, port, pdu = app['aet_title'], app['port'], app['max_pdu']
     logger.debug(
-        '  AE title: {}, Port: {}, Max. PDU: {}'
-        .format(app['ae_title'], app['port'], app['max_pdu'])
+        f'  AE title: {aet}, Port: {port}, Max. PDU: {pdu}'
     )
     logger.debug('  Timeouts:')
-    logger.debug(
-        '    ACSE: {}, DIMSE: {}, Network: {}'
-        .format(
-            app['acse_timeout'], app['dimse_timeout'], app['network_timeout']
-        )
-    )
-    logger.debug('  Storage directory: {}'.format(app['instance_location']))
-    logger.debug('  Database location: {}'.format(app['database_location']))
+    acse, dimse = app['acse_timeout'], app['dimse_timeout']
+    network = app['network_timeout']
+    logger.debug(f'    ACSE: {acse}, DIMSE: {dimse}, Network: {network}')
+    logger.debug(f'  Storage directory: {app['instance_location']}')
+    logger.debug(f'  Database location: {app['database_location']}')
 
     if config.sections():
         logger.debug('  Move destinations: ')
@@ -82,7 +79,7 @@ def _log_config(config, logger):
     for ae_title in config.sections():
         addr = config[ae_title]['address']
         port = config[ae_title]['port']
-        logger.debug('    {}: ({}, {})'.format(ae_title, addr, port))
+        logger.debug(f'    {ae_title}: ({addr}, {port})')
 
     logger.debug('')
 
@@ -236,9 +233,7 @@ def clean(db_path, logger):
             try:
                 os.remove(os.path.join(config.INSTANCE_LOCATION, fpath))
             except Exception as exc:
-                logger.error(
-                    "Unable to delete the instance at '{}'".format(fpath)
-                )
+                logger.error(f"Unable to delete the instance at '{fpath}'")
                 logger.exception(exc)
                 storage_cleaned = False
 
@@ -270,15 +265,15 @@ def main(args=None):
     args = _setup_argparser()
 
     if args.version:
-        print('qrscp.py v{}'.format(__version__))
+        print(f'qrscp.py v{__version__}')
         sys.exit()
 
     APP_LOGGER = setup_logging(args, 'qrscp')
-    APP_LOGGER.debug('qrscp.py v{0!s}'.format(__version__))
+    APP_LOGGER.debug(f'qrscp.py v{__version__}')
     APP_LOGGER.debug('')
 
-    APP_LOGGER.debug('Using configuration from:'.format(args.config))
-    APP_LOGGER.debug('  {}'.format(args.config))
+    APP_LOGGER.debug('Using configuration from:')
+    APP_LOGGER.debug(f'  {args.config}')
     APP_LOGGER.debug('')
     config = ConfigParser()
     config.read(args.config)
@@ -319,7 +314,7 @@ def main(args=None):
     db_path = os.path.join(current_dir, app_config['database_location'])
 
     # The path to the database
-    db_path = 'sqlite:///{}'.format(db_path)
+    db_path = f'sqlite:///{db_path}'
     db.create(db_path)
 
     # Clean up the database and storage directory

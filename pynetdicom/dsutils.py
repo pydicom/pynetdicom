@@ -178,9 +178,8 @@ def pretty_element(elem):
                 # Single value
                 length = len(elem.value)
                 if length <= 13:
-                    value = '[{}]'.format(
-                        pretty_bytes(elem.value, prefix='', delimiter=' ')[0]
-                    )
+                    value = pretty_bytes(elem.value, prefix='', delimiter=' ')
+                    value = f'[{value[0]}]'
                 else:
                     value = f'({len(elem.value)} bytes of binary data)'
             else:
@@ -192,7 +191,8 @@ def pretty_element(elem):
             if elem.VM == 1:
                 value = f'[{elem.value}]'
             else:
-                value = f'[{'\\'.join([str(ii) for ii in elem.value])}]'
+                value = '\\'.join([str(ii) for ii in elem.value])
+                value = f"[{value}]"
         elif elem.VR == 'SQ':
             # Sequence elements
             if elem.VM == 1:

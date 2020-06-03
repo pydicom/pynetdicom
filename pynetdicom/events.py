@@ -224,8 +224,8 @@ def trigger(assoc, event, attrs=None):
 
         # Capture exceptions for notification events
         LOGGER.error(
-            "Exception raised in user's 'evt.{}' event handler '{}'"
-            .format(event.name, func.__name__)
+            f"Exception raised in user's 'evt.{event.name}' "
+            f"event handler '{func.__name__}'"
         )
         LOGGER.exception(exc)
 

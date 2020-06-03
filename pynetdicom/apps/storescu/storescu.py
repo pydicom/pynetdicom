@@ -126,8 +126,8 @@ def _setup_argparser():
     net_opts.add_argument(
         "-pdu", "--max-pdu", metavar='[n]umber of bytes',
         help=(
-            "set max receive pdu to n bytes (0 for unlimited, default: {})"
-            .format(DEFAULT_MAX_LENGTH)
+            f"set max receive pdu to n bytes (0 for unlimited, "
+            f"default: {DEFAULT_MAX_LENGTH})"
         ),
         type=int,
         default=DEFAULT_MAX_LENGTH
@@ -204,7 +204,7 @@ def get_contexts(fpaths, app_logger):
         good.append(fpath)
 
     for (reason, fpath) in bad:
-        app_logger.error("{}: {}".format(reason, fpath))
+        app_logger.error(f"{reason}: {fpath}")
 
     return good, contexts
 
@@ -217,17 +217,17 @@ def main(args=None):
     args = _setup_argparser()
 
     if args.version:
-        print('storescu.py v{}'.format(__version__))
+        print(f'storescu.py v{__version__}')
         sys.exit()
 
     APP_LOGGER = setup_logging(args, 'storescu')
-    APP_LOGGER.debug('storescu.py v{0!s}'.format(__version__))
+    APP_LOGGER.debug(f'storescu.py v{__version__}')
     APP_LOGGER.debug('')
 
     lfiles, badfiles = get_files(args.path, args.recurse)
 
     for bad in badfiles:
-        APP_LOGGER.error("Cannot access path: {}".format(bad))
+        APP_LOGGER.error(f"Cannot access path: {bad}")
 
     ae = AE(ae_title=args.calling_aet)
     ae.acse_timeout = args.acse_timeout
@@ -277,15 +277,15 @@ def main(args=None):
     if assoc.is_established:
         ii = 1
         for fpath in lfiles:
-            APP_LOGGER.info('Sending file: {}'.format(fpath))
+            APP_LOGGER.info(f'Sending file: {fpath}')
             try:
                 ds = dcmread(fpath)
                 status = assoc.send_c_store(ds, ii)
                 ii += 1
             except InvalidDicomError:
-                APP_LOGGER.error('Bad DICOM file: {}'.format(fpath))
+                APP_LOGGER.error(f'Bad DICOM file: {fpath}')
             except Exception as exc:
-                APP_LOGGER.error("Store failed: {}".format(fpath))
+                APP_LOGGER.error(f"Store failed: {fpath}")
                 APP_LOGGER.exception(exc)
 
         assoc.release()
