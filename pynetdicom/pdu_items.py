@@ -498,11 +498,8 @@ class ApplicationContextItem(PDUItem):
 
     def __str__(self):
         """Return a string representation of the Item."""
-        s = '{0!s} ({1!s})\n'.format(
-            self.application_context_name,
-            self.application_context_name.name
-        )
-        return s
+        cx = self.application_context_name
+        return f'{cx} ({cx.name})\n'
 
 
 class PresentationContextItemRQ(PDUItem):
@@ -721,16 +718,16 @@ class PresentationContextItemRQ(PDUItem):
     def __str__(self):
         """Return a string representation of the Item."""
         s = "Presentation Context (RQ) Item\n"
-        s += "  Item type: 0x{0:02x}\n".format(self.item_type)
-        s += "  Item length: {0:d} bytes\n".format(self.item_length)
-        s += "  Context ID: {0:d}\n".format(self.context_id)
+        s += f"  Item type: 0x{self.item_type:02x}\n"
+        s += f"  Item length: {self.item_length:d} bytes\n"
+        s += f"  Context ID: {self.context_id:d}\n"
 
         for ii in self.abstract_transfer_syntax_sub_items:
-            item_str = '{0!s}'.format(ii)
+            item_str = f'{ii}'
             item_str_list = item_str.split('\n')
-            s += '  + {0!s}\n'.format(item_str_list[0])
+            s += f'  + {item_str_list[0]}\n'
             for jj in item_str_list[1:-1]:
-                s += '    {0!s}\n'.format(jj)
+                s += f'    {jj}\n'
 
         return s
 
@@ -956,14 +953,14 @@ class PresentationContextItemAC(PDUItem):
     def __str__(self):
         """Return a string representation of the Item."""
         s = "Presentation Context (AC) Item\n"
-        s += "  Item type:   0x{0:02x}\n".format(self.item_type)
-        s += "  Item length: {0:d} bytes\n".format(self.item_length)
-        s += "  Context ID: {0:d}\n".format(self.presentation_context_id)
-        s += "  Result/Reason: {0!s}\n".format(self.result_str)
+        s += f"  Item type:   0x{self.item_type:02x}\n"
+        s += f"  Item length: {self.item_length:d} bytes\n"
+        s += f"  Context ID: {self.presentation_context_id:d}\n"
+        s += f"  Result/Reason: {self.result_str}\n"
 
         if self.transfer_syntax:
-            item_str = '{0!s}'.format(self.transfer_syntax.name)
-            s += '  +  {0!s}\n'.format(item_str)
+            item_str = f'{self.transfer_syntax.name}'
+            s += f'  +  {item_str}\n'
 
         return s
 
@@ -1257,12 +1254,12 @@ class UserInformationItem(PDUItem):
     def __str__(self):
         """Return a string representation of the Item."""
         s = " User information item\n"
-        s += "  Item type: 0x{0:02x}\n".format(self.item_type)
-        s += "  Item length: {0:d}\n".format(self.item_length)
+        s += f"  Item type: 0x{self.item_type:02x}\n"
+        s += f"  Item length: {self.item_length:d}\n"
         s += "  User Data:\n "
 
         for item in self.user_data:
-            s += "  {0!s}".format(item)
+            s += f"  {item}"
 
         return s
 
@@ -1443,9 +1440,9 @@ class AbstractSyntaxSubItem(PDUItem):
     def __str__(self):
         """Return a string representation of the Item."""
         s = "Abstract Syntax Sub-item\n"
-        s += "  Item type: 0x{0:02x}\n".format(self.item_type)
-        s += "  Item length: {0:d} bytes\n".format(self.item_length)
-        s += '  Syntax name: ={0!s}\n'.format(self.abstract_syntax.name)
+        s += f"  Item type: 0x{self.item_type:02x}\n"
+        s += f"  Item length: {self.item_length:d} bytes\n"
+        s += f'  Syntax name: ={self.abstract_syntax.name}\n'
 
         return s
 
@@ -1579,12 +1576,10 @@ class TransferSyntaxSubItem(PDUItem):
     def __str__(self):
         """Return a string representation of the Item."""
         s = "Transfer syntax sub item\n"
-        s += "  Item type: 0x{0:02x}\n".format(self.item_type)
-        s += "  Item length: {0:d} bytes\n".format(self.item_length)
+        s += f"  Item type: 0x{self.item_type:02x}\n"
+        s += f"  Item length: {self.item_length:d} bytes\n"
         if self.transfer_syntax_name:
-            s += '  Transfer syntax name: ={0!s}\n'.format(
-                self.transfer_syntax_name.name
-            )
+            s += f'  Transfer syntax name: ={self.transfer_syntax_name.name}\n'
 
         return s
 
@@ -1766,10 +1761,10 @@ class MaximumLengthSubItem(PDUItem):
     def __str__(self):
         """Return a string representation of the Item."""
         s = "Maximum length Sub-item\n"
-        s += "  Item type: 0x{0:02x}\n".format(self.item_type)
-        s += "  Item length: {0:d} bytes\n".format(self.item_length)
-        s += "  Maximum length received: {0:d}\n".format(
-            self.maximum_length_received)
+        s += f"  Item type: 0x{self.item_type:02x}\n"
+        s += f"  Item length: {self.item_length:d} bytes\n"
+        s += f"  Maximum length received: {self.maximum_length_received:d}\n"
+
         return s
 
 
@@ -1941,10 +1936,9 @@ class ImplementationClassUIDSubItem(PDUItem):
     def __str__(self):
         """Return a string representation of the Item."""
         s = "Implementation Class UID Sub-item\n"
-        s += "  Item type: 0x{0:02x}\n".format(self.item_type)
-        s += "  Item length: {0:d} bytes\n".format(self.item_length)
-        s += "  Implementation class UID: '{0!s}'\n".format(
-            self.implementation_class_uid)
+        s += f"  Item type: 0x{self.item_type:02x}\n"
+        s += f"  Item length: {self.item_length:d} bytes\n"
+        s += f"  Implementation class UID: '{self.implementation_class_uid}'\n"
 
         return s
 
@@ -2105,11 +2099,11 @@ class ImplementationVersionNameSubItem(PDUItem):
 
     def __str__(self):
         """Return a string representation of the Item."""
+        version_name = self.implementation_version_name
         s = "Implementation Version Name Sub-item\n"
-        s += "  Item type: 0x{0:02x}\n".format(self.item_type)
-        s += "  Item length: {0:d} bytes\n".format(self.item_length)
-        s += "  Implementation version name: {0!s}\n".format(
-            self.implementation_version_name)
+        s += f"  Item type: 0x{self.item_type:02x}\n"
+        s += f"  Item length: {self.item_length:d} bytes\n"
+        s += f"  Implementation version name: {version_name}\n"
 
         return s
 
@@ -2287,13 +2281,13 @@ class AsynchronousOperationsWindowSubItem(PDUItem):
 
     def __str__(self):
         """Return a string representation of the Item."""
+        invoked = self.maximum_number_operations_invoked
+        performed = self.maximum_number_operations_performed
         s = "Asynchronous Operation Window Sub-item\n"
-        s += "  Item type: 0x{0:02x}\n".format(self.item_type)
-        s += "  Item length: {0:d} bytes\n".format(self.item_length)
-        s += "  Max. number of operations invoked: {0:d}\n".format(
-            self.maximum_number_operations_invoked)
-        s += "  Max. number of operations performed: {0:d}\n".format(
-            self.maximum_number_operations_performed)
+        s += f"  Item type: 0x{self.item_type:02x}\n"
+        s += f"  Item length: {self.item_length:d} bytes\n"
+        s += f"  Max. number of operations invoked: {invoked:d}\n"
+        s += f"  Max. number of operations performed: {performed:d}\n"
 
         return s
 
@@ -2554,12 +2548,12 @@ class SCP_SCU_RoleSelectionSubItem(PDUItem):
     def __str__(self):
         """Return a string representation of the Item."""
         s = "SCP/SCU Role Selection Sub-item\n"
-        s += "  Item type: 0x{0:02x}\n".format(self.item_type)
-        s += "  Item length: {0:d} bytes\n".format(self.item_length)
-        s += "  UID length: {0:d} bytes\n".format(self.uid_length)
-        s += "  SOP Class UID: {0!s}\n".format(self.uid.name)
-        s += "  SCU Role: {0:d}\n".format(self.scu)
-        s += "  SCP Role: {0:d}\n".format(self.scp)
+        s += f"  Item type: 0x{self.item_type:02x}\n"
+        s += f"  Item length: {self.item_length:d} bytes\n"
+        s += f"  UID length: {self.uid_length:d} bytes\n"
+        s += f"  SOP Class UID: {self.uid.name}\n"
+        s += f"  SCU Role: {self.scu:d}\n"
+        s += f"  SCP Role: {self.scp:d}\n"
 
         return s
 
@@ -2798,16 +2792,13 @@ class SOPClassExtendedNegotiationSubItem(PDUItem):
     def __str__(self):
         """Return a string representation of the Item."""
         s = "SOP Class Extended Negotiation Sub-item\n"
-        s += "  Item type: 0x{0:02x}\n".format(self.item_type)
-        s += "  Item length: {0:d} bytes\n".format(self.item_length)
+        s += f"  Item type: 0x{self.item_type:02x}\n"
+        s += f"  Item length: {self.item_length:d} bytes\n"
+        s += f"  SOP class UID length: {self.sop_class_uid_length:d} bytes\n"
+        s += f"  SOP class: ={self.sop_class_uid.name}\n"
         s += (
-            "  SOP class UID length: {0:d} bytes\n"
-            .format(self.sop_class_uid_length)
-        )
-        s += "  SOP class: ={0!s}\n".format(self.sop_class_uid.name)
-        s += (
-            "  Service class application information: {0!s}\n"
-            .format(self.service_class_application_information)
+            f"  Service class application information: "
+            f"{self.service_class_application_information}\n"
         )
 
         return s
@@ -3224,25 +3215,23 @@ class SOPClassCommonExtendedNegotiationSubItem(PDUItem):
 
     def __str__(self):
         """Return a string representation of the Item."""
-        s = "SOP Class Common Extended Negotiation Sub-item\n"
-        s += "  Item type: 0x{0:02x}\n".format(self.item_type)
-        s += "  Item length: {0:d} bytes\n".format(self.item_length)
-        s += "  SOP class UID length: {0:d} bytes\n".format(
-            self.sop_class_uid_length)
-        s += "  SOP class: ={0!s}\n".format(self.sop_class_uid.name)
-        s += "  Service class UID length: {0:d} bytes\n".format(
-            self.service_class_uid_length)
-        s += (
-            "  Service class UID: ={0!s}\n".format(self.service_class_uid.name)
-        )
-        s += "  Related general SOP class ID length: {0:d} bytes\n".format(
-            self.related_general_sop_class_identification_length)
-        s += "  Related general SOP class ID(s):\n"
-
+        s = [
+            "SOP Class Common Extended Negotiation Sub-item",
+            f"  Item type: 0x{self.item_type:02x}",
+            f"  Item length: {self.item_length:d} bytes",
+            f"  SOP class UID length: {self.sop_class_uid_lengt:d} bytes",
+            f"  SOP class: ={self.sop_class_uid.name}",
+            f"  Service class UID length: "
+            f"{self.service_class_uid_length:d} bytes",
+            f"  Service class UID: ={self.service_class_uid.name}",
+            f"  Related general SOP class ID length: "
+            f"{self.related_general_sop_class_identification_length:d} bytes",
+            "  Related general SOP class ID(s):"
+        ]
         for uid in self.related_general_sop_class_identification:
-            s += "    ={0!s} ({1!s})\n".format(uid, uid.name)
+            s.append(f"    ={uid} ({uid.name})")
 
-        return s
+        return '\n'.join(s)
 
     def _wrap_generate_items(self, bytestream):
         """Return a list of UID items generated from `bytestream`."""
@@ -3539,25 +3528,28 @@ class UserIdentitySubItemRQ(PDUItem):
 
     def __str__(self):
         """Return a string representation of the Item."""
-        s = "User Identity (RQ) Sub-item\n"
-        s += "  Item type: 0x{0:02x}\n".format(self.item_type)
-        s += "  Item length: {0:d} bytes\n".format(self.item_length)
-        s += "  User identity type: {0:d}\n".format(self.user_identity_type)
-        s += "  Positive response requested: {0:d}\n".format(
-            self.positive_response_requested)
-        s += "  Primary field length: {0:d} bytes\n".format(
-            self.primary_field_length)
-        s += "  Primary field: {0!s}\n".format(self.primary_field)
+        s = [
+            "User Identity (RQ) Sub-item",
+            f"  Item type: 0x{self.item_type:02x}",
+            f"  Item length: {self.item_length:d} bytes",
+            f"  User identity type: {self.user_identity_type:d}",
+            f"  Positive response requested: "
+            f"{self.positive_response_requested:d}",
+            f"  Primary field length: {self.primary_field_length:d} bytes",
+            f"  Primary field: {self.primary_field}",
 
+        ]
         if self.user_identity_type == 0x02:
-            s += "  Secondary field length: {0:d} bytes\n".format(
-                self.secondary_field_length)
-            s += "  Secondary field: {0!s}\n".format(self.secondary_field)
+            s.append(
+                f"  Secondary field length: "
+                f"{self.secondary_field_length:d} bytes"
+            )
+            s.append(f"  Secondary field: {self.secondary_field}")
         else:
-            s += "  Secondary field length: (not used)\n"
-            s += "  Secondary field: (not used)\n"
+            s.append("  Secondary field length: (not used)")
+            s.append("  Secondary field: (not used)")
 
-        return s
+        return '\n'.join(s)
 
 
 class UserIdentitySubItemAC(PDUItem):
@@ -3706,14 +3698,15 @@ class UserIdentitySubItemAC(PDUItem):
 
     def __str__(self):
         """Return a string representation of the Item."""
-        s = "User Identity (AC) Sub-item\n"
-        s += "  Item type: 0x{0:02x}\n".format(self.item_type)
-        s += "  Item length: {0:d} bytes\n".format(self.item_length)
-        s += "  Server response length: {0:d} bytes\n".format(
-            self.server_response_length)
-        s += "  Server response: {0!s}\n".format(self.server_response)
+        s = [
+            "User Identity (AC) Sub-item",
+            f"  Item type: 0x{self.item_type:02x}",
+            f"  Item length: {self.item_length:d} bytes"
+            f"  Server response length: {self.server_response_length:d} bytes",
+            f"  Server response: {self.server_response}"
+        ]
 
-        return s
+        return '\n'.join(s)
 
 
 ## P-DATA-TF Item
@@ -3852,20 +3845,20 @@ class PresentationDataValueItem(PDUItem):
     def message_control_header_byte(self):
         """Return the message control header byte as a formatted string."""
         if self.presentation_data_value:
-            return "{:08b}".format(ord(self.presentation_data_value[0:1]))
+            return f"{ord(self.presentation_data_value[0:1]):08b}"
 
         raise ValueError("No *Presentation Data Value* field value")
 
     def __str__(self):
         """Return a string representation of the Item."""
         s = "Presentation Value Data Item\n"
-        s += "  Item length: {0:d} bytes\n".format(self.item_length)
-        s += "  Context ID: {0:d}\n".format(self.presentation_context_id)
+        s += f"  Item length: {self.item_length:d} bytes\n"
+        s += f"  Context ID: {self.presentation_context_id:d}\n"
 
         pdv_sample = (
             format(x, '02x') for x in self.presentation_data_value[:10]
         )
-        s += "  Data value: 0x{0!s} ...\n".format(' 0x'.join(pdv_sample))
+        s += f"  Data value: 0x{' 0x'.join(pdv_sample)} ...\n"
 
         return s
 

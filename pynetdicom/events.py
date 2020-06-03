@@ -280,8 +280,7 @@ class Event(object):
         for kk, vv in attrs.items():
             if hasattr(self, kk):
                 raise AttributeError(
-                    "'Event' object already has an attribute '{}'"
-                    .format(kk)
+                    f"'Event' object already has an attribute '{kk}'"
                 )
             setattr(self, kk, vv)
 

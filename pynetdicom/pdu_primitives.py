@@ -255,8 +255,7 @@ class A_ASSOCIATE(object):
 
         if value and not value.is_valid:
             LOGGER.warning(
-                "The Application Context Name '{}' is non-conformant"
-                .format(value)
+                f"The Application Context Name '{value}' is non-conformant"
             )
 
         self._application_context_name = value
@@ -992,11 +991,10 @@ class P_DATA(object):
         """String representation of the class."""
         s = 'P-DATA\n'
         for pdv in self.presentation_data_value_list:
-            s += '  Context ID: {0!s}\n'.format(pdv[0])
-            s += '  Value Length: {0!s} bytes\n'.format(len(pdv[1]))
             header_byte = pdv[1][0]
-
-            s += "  Message Control Header Byte: {:08b}\n".format(header_byte)
+            s += f'  Context ID: {pdv[0]}\n'
+            s += f'  Value Length: {len(pdv[1])} bytes\n'
+            s += f"  Message Control Header Byte: {header_byte:08b}\n"
 
             # xxxxxx01 and xxxxxx011
             if header_byte & 1:
@@ -1107,10 +1105,12 @@ class MaximumLengthNotification(ServiceParameter):
 
     def __str__(self):
         """String representation of the class."""
-        s = "Maximum Length Negotiation\n"
-        s += "  Maximum length received: {0:d} bytes\n".format(
-            self.maximum_length_received)
-        return s
+        s = [
+            "Maximum Length Negotiation",
+            f"  Maximum length received: "
+            f"{self.maximum_length_received:d} bytes",
+        ]
+        return '\n'.join(s)
 
 
 # TODO: Combine ImplementationClass and ImplementationVersion
@@ -1207,17 +1207,15 @@ class ImplementationClassUIDNotification(ServiceParameter):
 
         if value is not None and not validate_uid(value):
             msg = (
-                "The Implementation Class UID Notification's 'Implementation "
-                "Class UID' parameter value '{}' is not a valid UID"
-                .format(value)
+                f"The Implementation Class UID Notification's 'Implementation "
+                f"Class UID' parameter value '{value}' is not a valid UID"
             )
             LOGGER.error(msg)
             raise ValueError(msg)
 
         if value and not value.is_valid:
             LOGGER.warning(
-                "The Implementation Class UID '{}' is non-conformant"
-                .format(value)
+                f"The Implementation Class UID '{value}' is non-conformant"
             )
 
         self._implementation_class_uid = value
@@ -1225,8 +1223,7 @@ class ImplementationClassUIDNotification(ServiceParameter):
     def __str__(self):
         """String representation of the class."""
         s = "Implementation Class UID\n"
-        s += "  Implementation class UID: {0!s}\n" \
-             .format(self.implementation_class_uid)
+        s += f"  Implementation class UID: {self.implementation_class_uid}\n" 
         return s
 
 

@@ -287,7 +287,6 @@ def _receive_associate_ac(event):
 
     ## User Identity
     usr_id = "Yes" if user_info.user_identity else "None"
-
     s.append(f"User Identity Negotiation Response: {usr_id}")
     s.append(f"{' END A-ASSOCIATE-AC PDU ':=^76}")
 
@@ -398,7 +397,7 @@ def _receive_associate_rq(event):
             related_uids = item.related_general_sop_class_identification
             if related_uids:
                 s.append("    Related General SOP Class(es):")
-                s.extend([f"      ={sub.name}" for sub in related_uids])
+                s.extend([f"      ={uid.name}" for uid in related_uids])
             else:
                 s.append("    Related General SOP Classes: None")
     else:
@@ -418,6 +417,7 @@ def _receive_associate_rq(event):
     ## User Identity
     if user_info.user_identity is not None:
         usid = user_info.user_identity
+        p_len = len(usid.primary)
         s.append("Requested User Identity Negotiation:")
         s.append(f"  Authentication Mode: {usid.id_type} - {usid.id_type_str}")
         if usid.id_type == 1:
@@ -426,18 +426,11 @@ def _receive_associate_rq(event):
             s.append(f"  Username: [{usid.primary.decode('utf-8')}]")
             s.append(f"  Password: [{usid.secondary.decode('utf-8')}]")
         elif usid.id_type == 3:
-            s.append(
-                f"  Kerberos Service Ticket (not dumped) length: "
-                f"{len(usid.primary)}"
-            )
+            s.append(f"  Kerberos Service Ticket (not dumped) length: {p_len}")
         elif usid.id_type == 4:
-            s.append(
-                f"  SAML Assertion (not dumped) length: {len(usid.primary)}"
-            )
+            s.append(f"  SAML Assertion (not dumped) length: {p_len}")
         elif usid.id_type == 5:
-            s.append(
-                f"  JSON Web Token (not dumped) length: {len(usid.primary)}"
-            )
+            s.append(f"  JSON Web Token (not dumped) length: {p_len}")
 
         if usid.response_requested:
             s.append("  Positive Response Requested: Yes")
@@ -498,14 +491,11 @@ def _send_associate_ac(event):
         f"Our Implementation Class UID:      {class_uid}",
     ]
     if user_info.implementation_version_name:
-        s.append(
-            "Our Implementation Version Name:   {0!s}"
-            .format(user_info.implementation_version_name.decode('ascii'))
-        )
+        version_name = user_info.implementation_version_name.decode('ascii')
+        s.append(f"Our Implementation Version Name:   {version_name}")
     s.append(f"Application Context Name:    {app_context}")
     s.append(f"Responding Application Name: {responding_ae}")
     s.append(f"Our Max PDU Receive Size:    {user_info.maximum_length}")
-
 
     if pres_contexts:
         s.append("Presentation Contexts:")
@@ -643,9 +633,8 @@ def _send_associate_rq(event):
     ## Extended Negotiation
     if pdu.user_information.ext_neg:
         s.append("Requested Extended Negotiation:")
-
         for item in pdu.user_information.ext_neg:
-            s.append("  SOP Class: ={0!s}".format(item.uid))
+            s.append(f"  SOP Class: ={item.uid}")
             s.extend([f"  {line}" for line in pretty_bytes(item.app_info)])
     else:
         s.append("Requested Extended Negotiation: None")
@@ -680,25 +669,20 @@ def _send_associate_rq(event):
     ## User Identity
     if user_info.user_identity is not None:
         usid = user_info.user_identity
+        p_len = len(usid.primary)
         s.append("Requested User Identity Negotiation:")
-        s.append("  Authentication Mode: {0:d} - "
-                 "{1!s}".format(usid.id_type, usid.id_type_str))
+        s.append(f"  Authentication Mode: {usid.id_type} - {usid.id_type_str}")
         if usid.id_type == 1:
             s.append(f"  Username: [{usid.primary.decode('utf-8')}]")
         elif usid.id_type == 2:
             s.append(f"  Username: [{usid.primary.decode('utf-8')}]")
             s.append(f"  Password: [{usid.secondary.decode('utf-8')}]")
         elif usid.id_type == 3:
-            s.append(
-                f"  Kerberos Service Ticket (not dumped) length: "
-                f"{len(usid.primary)}"
-            )
+            s.append(f"  Kerberos Service Ticket (not dumped) length: {p_len}")
         elif usid.id_type == 4:
-            s.append(
-                f"  SAML Assertion (not dumped) length: {len(usid.primary)}")
+            s.append(f"  SAML Assertion (not dumped) length: {p_len}")
         elif usid.id_type == 5:
-            s.append(
-                f"  JSON Web Token (not dumped) length: {len(usid.primary)}")
+            s.append(f"  JSON Web Token (not dumped) length: {p_len}")
 
         if usid.response_requested:
             s.append("  Positive Response Requested: Yes")
@@ -887,19 +871,17 @@ def _send_c_find_rsp(event):
     if msg.data_set and msg.data_set.getvalue() != b"":
         dataset = "Present"
 
-    affected_sop = "None"
-    if "AffectedSOPClassUID" in cs:
-        affected_sop = cs.AffectedSOPClassUID.name
-
     s = [
         f"{' OUTGOING DIMSE MESSAGE ':=^76}",
         "Message Type                  : C-FIND RSP",
-        f"Message ID Being Responded To : {cs.MessageIDBeingRespondedTo}",
-        f"Affected SOP Class UID        : {affected_sop}",
-        f"Identifier                    : {dataset}",
-        f"Status                        : 0x{cs.Status:04X}",
-        f"{' END DIMSE MESSAGE ':=^76}"
+        f"Message ID Being Responded To : {cs.MessageIDBeingRespondedTo}"
     ]
+    if "AffectedSOPClassUID" in cs:
+        affected_sop = cs.AffectedSOPClassUID.name
+        s.append(f"Affected SOP Class UID        : {affected_sop}")
+    s.append(f"Identifier                    : {dataset}")
+    s.append(f"Status                        : 0x{cs.Status:04X}")
+    s.append(f"{' END DIMSE MESSAGE ':=^76}")
     for line in s:
         LOGGER.debug(line)
 
@@ -967,19 +949,17 @@ def _send_c_get_rsp(event):
     if msg.data_set and msg.data_set.getvalue() != b"":
         dataset = "Present"
 
-    affected_sop = "None"
-    if "AffectedSOPClassUID" in cs:
-        affected_sop = cs.AffectedSOPClassUID.name
-
     s = [
         f"{' OUTGOING DIMSE MESSAGE ':=^76}",
         "Message Type                  : C-GET RSP",
-        f"Message ID Being Responded To : {cs.MessageIDBeingRespondedTo}",
-        f"Affected SOP Class UID        : {affected_sop}",
-        f"Identifier                    : {dataset}",
-        f"Status                        : 0x{cs.Status:04X}",
-        f"{' END DIMSE MESSAGE ':=^76}"
+        f"Message ID Being Responded To : {cs.MessageIDBeingRespondedTo}"
     ]
+    if "AffectedSOPClassUID" in cs:
+        affected_sop = cs.AffectedSOPClassUID.name
+        s.append(f"Affected SOP Class UID        : {affected_sop}")
+    s.append(f"Identifier                    : {dataset}")
+    s.append(f"Status                        : 0x{cs.Status:04X}")
+    s.append(f"{' END DIMSE MESSAGE ':=^76}")
     for line in s:
         LOGGER.debug(line)
 
@@ -1049,19 +1029,17 @@ def _send_c_move_rsp(event):
     if msg.data_set and msg.data_set.getvalue() != b"":
         identifier = "Present"
 
-    affected_sop = "None"
-    if "AffectedSOPClassUID" in cs:
-        affected_sop = cs.AffectedSOPClassUID.name
-
     s = [
         f"{' OUTGOING DIMSE MESSAGE ':=^76}",
         "Message Type                  : C-MOVE RSP",
         f"Message ID Being Responded To : {cs.MessageIDBeingRespondedTo}",
-        f"Affected SOP Class UID        : {affected_sop}",
-        f"Identifier                    : {identifier}",
-        f"Status                        : 0x{cs.Status:04X}",
-        f"{' END DIMSE MESSAGE ':=^76}"
     ]
+    if "AffectedSOPClassUID" in cs:
+        affected_sop = cs.AffectedSOPClassUID.name
+        s.append(f"Affected SOP Class UID        : {affected_sop}")
+    s.append(f"Identifier                    : {identifier}")
+    s.append(f"Status                        : 0x{cs.Status:04X}")
+    s.append(f"{' END DIMSE MESSAGE ':=^76}")
     for line in s:
         LOGGER.debug(line)
 
@@ -1121,8 +1099,7 @@ def _recv_c_echo_rsp(event):
     event : events.Event
         The evt.EVT_DIMSE_RECV event that occurred.
     """
-    msg = event.message
-    cs = msg.command_set
+    cs = event.message.command_set
     # Status is one of the following:
     #   0x0000 Success
     #   0x0122 Refused: SOP Class Not Supported
@@ -1205,9 +1182,7 @@ def _recv_c_store_rsp(event):
     # See PS3.4 Annex B.2.3 for Storage Service Class Statuses
     status_str = f"0x{cs.Status:04X} - Unknown"
     # Try and get the status from the affected SOP class UID
-    affected_sop = "None"
     if "AffectedSOPClassUID" in cs:
-        affected_sop = cs.AffectedSOPClassUID.name
         service_class = uid_to_service_class(cs.AffectedSOPClassUID)
         if cs.Status in service_class.statuses:
             status = service_class.statuses[cs.Status]
@@ -1215,20 +1190,20 @@ def _recv_c_store_rsp(event):
 
     LOGGER.info(f"Received Store Response (Status: {status_str})")
 
-    sop_instance = "None"
-    if "AffectedSOPInstanceUID" in cs:
-        sop_instance = cs.AffectedSOPInstanceUID
-
     s = [
         f"{' INCOMING DIMSE MESSAGE ':=^76}",
         "Message Type                  : C-STORE RSP",
         f"Presentation Context ID       : {msg.context_id}",
-        f"Message ID Being Responded To : {cs.MessageIDBeingRespondedTo}",
-        f"Affected SOP Class UID        : {affected_sop}",
-        f"Affected SOP Instance UID     : {sop_instance}",
-        f"Status                        : {status_str}",
-        f"{' END DIMSE MESSAGE ':=^76}"
+        f"Message ID Being Responded To : {cs.MessageIDBeingRespondedTo}"
     ]
+    if "AffectedSOPClassUID" in cs:
+        affected_sop = cs.AffectedSOPClassUID.name
+        s.append(f"Affected SOP Class UID        : {affected_sop}")
+    if "AffectedSOPInstanceUID" in cs:
+        sop_instance = cs.AffectedSOPInstanceUID
+        s.append(f"Affected SOP Instance UID     : {sop_instance}")
+    s.append(f"Status                        : {status_str}")
+    s.append(f"{' END DIMSE MESSAGE ':=^76}")
     for line in s:
         LOGGER.debug(line)
 
@@ -1294,19 +1269,17 @@ def _recv_c_find_rsp(event):
     if msg.data_set and msg.data_set.getvalue() != b"":
         dataset = "Present"
 
-    affected_sop = "None"
-    if "AffectedSOPClassUID" in cs:
-        affected_sop = cs.AffectedSOPClassUID.name
-
     s = [
         f"{' INCOMING DIMSE MESSAGE ':=^76}",
         "Message Type                  : C-FIND RSP",
         f"Message ID Being Responded To : {cs.MessageIDBeingRespondedTo}",
-        f"Affected SOP Class UID        : {affected_sop}",
-        f"Identifier                    : {dataset}",
-        f"Status                        : 0x{cs.Status:04X}",
-        f"{' END DIMSE MESSAGE ':=^76}"
     ]
+    if "AffectedSOPClassUID" in cs:
+        affected_sop = cs.AffectedSOPClassUID.name
+        s.append(f"Affected SOP Class UID        : {affected_sop}")
+    s.append(f"Identifier                    : {dataset}")
+    s.append(f"Status                        : 0x{cs.Status:04X}")
+    s.append(f"{' END DIMSE MESSAGE ':=^76}")
     for line in s:
         LOGGER.debug(line)
 
@@ -1395,10 +1368,6 @@ def _recv_c_get_rsp(event):
     if msg.data_set and msg.data_set.getvalue() != b"":
         dataset = "Present"
 
-    affected_sop = "None"
-    if "AffectedSOPClassUID" in cs:
-        affected_sop = cs.AffectedSOPClassUID.name
-
     s = [
         f"{' INCOMING DIMSE MESSAGE ':=^76}",
         "Message Type                  : C-GET RSP",
@@ -1407,29 +1376,21 @@ def _recv_c_get_rsp(event):
     ]
 
     if "AffectedSOPClassUID" in cs:
-        s.append(
-            f"Affected SOP Class UID        : {cs.AffectedSOPClassUID.name}"
-        )
+        sop_class = cs.AffectedSOPClassUID.name
+        s.append(f"Affected SOP Class UID        : {sop_class}")
     if "NumberOfRemainingSuboperations" in cs:
-        s.append(
-            "Remaining Sub-operations      : {}"
-            .format(cs.NumberOfRemainingSuboperations)
-        )
+        nr_ops = cs.NumberOfRemainingSuboperations
+        s.append(f"Remaining Sub-operations      : {nr_ops}")
     if "NumberOfCompletedSuboperations" in cs:
-        s.append(
-            "Completed Sub-operations      : {}"
-            .format(cs.NumberOfCompletedSuboperations)
-        )
+        nr_ops = cs.NumberOfCompletedSuboperations
+        s.append(f"Completed Sub-operations      : {nr_ops}")
     if "NumberOfFailedSuboperations" in cs:
-        s.append(
-            "Failed Sub-operations         : {}"
-            .format(cs.NumberOfFailedSuboperations)
-        )
+        nr_ops = cs.NumberOfFailedSuboperations
+        s.append(f"Failed Sub-operations         : {nr_ops}")
     if "NumberOfWarningSuboperations" in cs:
-        s.append(
-            "Warning Sub-operations        : {}"
-            .format(cs.NumberOfWarningSuboperations)
-        )
+        nr_ops = cs.NumberOfWarningSuboperations
+        s.append(f"Warning Sub-operations        : {nr_ops}")
+
     s.append(f"Identifier                    : {dataset}")
     s.append(f"Status                        : 0x{cs.Status:04X}")
     s.append(f"{' END DIMSE MESSAGE ':=^76}")
@@ -1490,29 +1451,21 @@ def _recv_c_move_rsp(event):
     ]
 
     if "AffectedSOPClassUID" in cs:
-        s.append(
-            f"Affected SOP Class UID        : {cs.AffectedSOPClassUID.name}"
-        )
+        sop_class = cs.AffectedSOPClassUID.name
+        s.append(f"Affected SOP Class UID        : {sop_class}")
     if "NumberOfRemainingSuboperations" in cs:
-        s.append(
-            "Remaining Sub-operations      : {}"
-            .format(cs.NumberOfRemainingSuboperations)
-        )
+        nr_ops = cs.NumberOfRemainingSuboperations
+        s.append(f"Remaining Sub-operations      : {nr_ops}")
     if "NumberOfCompletedSuboperations" in cs:
-        s.append(
-            "Completed Sub-operations      : {}"
-            .format(cs.NumberOfCompletedSuboperations)
-        )
+        nr_ops = cs.NumberOfCompletedSuboperations
+        s.append(f"Completed Sub-operations      : {nr_ops}")
     if "NumberOfFailedSuboperations" in cs:
-        s.append(
-            "Failed Sub-operations         : {}"
-            .format(cs.NumberOfFailedSuboperations)
-        )
+        nr_ops = cs.NumberOfFailedSuboperations
+        s.append(f"Failed Sub-operations         : {nr_ops}")
     if "NumberOfWarningSuboperations" in cs:
-        s.append(
-            "Warning Sub-operations        : {}"
-            .format(cs.NumberOfWarningSuboperations)
-        )
+        nr_ops = cs.NumberOfWarningSuboperations
+        s.append(f"Warning Sub-operations        : {nr_ops}")
+
     s.append(f"Identifier                    : {dataset}")
     s.append(f"Status                        : 0x{cs.Status:04X}")
     s.append(f"{' END DIMSE MESSAGE ':=^76}")
@@ -1544,7 +1497,6 @@ def _send_n_event_report_rq(event):
         f"Event Type ID                 : {cs.EventTypeID}",
         f"Event Information             : {evt_info}",
         f"{' END DIMSE MESSAGE ':=^76}"
-
     ]
     for line in s:
         LOGGER.debug(line)
@@ -1570,13 +1522,11 @@ def _send_n_event_report_rsp(event):
         f"Message ID Being Responded To : {cs.MessageIDBeingRespondedTo}",
     ]
     if "AffectedSOPClassUID" in cs:
-        s.append(
-            f"Affected SOP Class UID        : {cs.AffectedSOPClassUID.name}"
-        )
+        sop_class = cs.AffectedSOPClassUID.name
+        s.append(f"Affected SOP Class UID        : {sop_class}")
     if "AffectedSOPInstanceUID" in cs:
-        s.append(
-            f"Affected SOP Instance UID     : {cs.AffectedSOPInstanceUID}"
-        )
+        sop_instance = cs.AffectedSOPInstanceUID
+        s.append(f"Affected SOP Instance UID     : {sop_instance}")
     if "EventTypeID" in cs:
         s.append(f"Event Type ID                 : {cs.EventTypeID}")
 
@@ -1634,13 +1584,12 @@ def _send_n_get_rsp(event):
         f"Message ID Being Responded To : {cs.MessageIDBeingRespondedTo}"
     ]
     if "AffectedSOPClassUID" in cs:
-        s.append(
-            f"Affected SOP Class UID        : {cs.AffectedSOPClassUID.name}"
-        )
+        sop_class = cs.AffectedSOPClassUID.name
+        s.append(f"Affected SOP Class UID        : {sop_class}")
     if "AffectedSOPInstanceUID" in cs:
-        s.append(
-            f"Affected SOP Instance UID     : {cs.AffectedSOPInstanceUID}"
-        )
+        sop_instance = cs.AffectedSOPInstanceUID
+        s.append(f"Affected SOP Instance UID     : {sop_instance}")
+
     s.append(f"Attribute List                : {attr_list}")
     s.append(f"Status                        : 0x{cs.Status:04X}")
     s.append(f"{' END DIMSE MESSAGE ':=^76}")
@@ -1695,13 +1644,12 @@ def _send_n_set_rsp(event):
         f"Message ID Being Responded To : {cs.MessageIDBeingRespondedTo}"
     ]
     if "AffectedSOPClassUID" in cs:
-        s.append(
-            f"Affected SOP Class UID        : {cs.AffectedSOPClassUID.name}"
-        )
+        sop_class = cs.AffectedSOPClassUID.name
+        s.append(f"Affected SOP Class UID        : {sop_class}")
     if "AffectedSOPInstanceUID" in cs:
-        s.append(
-            f"Affected SOP Instance UID     : {cs.AffectedSOPInstanceUID}"
-        )
+        sop_instance = cs.AffectedSOPInstanceUID
+        s.append(f"Affected SOP Instance UID     : {sop_instance}")
+
     s.append(f"Attribute List                : {attr_list}")
     s.append(f"Status                        : 0x{cs.Status:04X}")
     s.append(f"{' END DIMSE MESSAGE ':=^76}")
@@ -1788,13 +1736,12 @@ def _send_n_delete_rsp(event):
 
     ]
     if "AffectedSOPClassUID" in cs:
-        s.append(
-            f"Affected SOP Class UID        : {cs.AffectedSOPClassUID.name}"
-        )
+        sop_class = cs.AffectedSOPClassUID.name
+        s.append(f"Affected SOP Class UID        : {sop_class}")
     if "AffectedSOPInstanceUID" in cs:
-        s.append(
-            f"Affected SOP Instance UID     : {cs.AffectedSOPInstanceUID}"
-        )
+        sop_instance = cs.AffectedSOPInstanceUID
+        s.append(f"Affected SOP Instance UID     : {sop_instance}")
+
     s.append(f"Status                        : 0x{cs.Status:04X}")
     s.append(f"{' END DIMSE MESSAGE ':=^76}")
     for line in s:
@@ -1853,13 +1800,12 @@ def _recv_n_get_rsp(event):
         f"Message ID Being Responded To : {cs.MessageIDBeingRespondedTo}"
     ]
     if "AffectedSOPClassUID" in cs:
-        s.append(
-            f"Affected SOP Class UID        : {cs.AffectedSOPClassUID.name}"
-        )
+        sop_class = cs.AffectedSOPClassUID.name
+        s.append(f"Affected SOP Class UID        : {sop_class}")
     if "AffectedSOPInstanceUID" in cs:
-        s.append(
-            f"Affected SOP Instance UID     : {cs.AffectedSOPInstanceUID}"
-        )
+        sop_instance = cs.AffectedSOPInstanceUID
+        s.append(f"Affected SOP Instance UID     : {sop_instance}")
+
     s.append(f"Attribute List                : {dataset}")
     s.append(f"Status                        : 0x{cs.Status:04X}")
     s.append(f"{' END DIMSE MESSAGE ':=^76}")

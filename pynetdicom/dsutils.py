@@ -144,7 +144,7 @@ def pretty_dataset(ds, indent=0, indent_char='  '):
         if elem.VR == 'SQ':
             out.append(pretty_element(elem))
             for ii, item in enumerate(elem.value):
-                msg = '(Sequence item #{})'.format(ii + 1)
+                msg = f"(Sequence item #{ii + 1})"
                 out.append(indent_char * (indent + 1) + msg)
                 out.extend(pretty_dataset(item, indent + 2))
         else:
@@ -182,25 +182,23 @@ def pretty_element(elem):
                         pretty_bytes(elem.value, prefix='', delimiter=' ')[0]
                     )
                 else:
-                    value = '({} bytes of binary data)'.format(len(elem.value))
+                    value = f'({len(elem.value)} bytes of binary data)'
             else:
                 # Multiple values - probably non-conformant
                 total_length = sum([len(ii) for ii in elem.value])
-                value = '({} bytes of binary data)'.format(total_length)
+                value = f'({total_length} bytes of binary data)'
         elif elem.VR != 'SQ':
             # Non-sequence elements
             if elem.VM == 1:
-                value = '[{}]'.format(elem.value)
+                value = f'[{elem.value}]'
             else:
-                value = '[{}]'.format(
-                    '\\'.join([str(ii) for ii in elem.value])
-                )
+                value = f'[{'\\'.join([str(ii) for ii in elem.value])}]'
         elif elem.VR == 'SQ':
             # Sequence elements
             if elem.VM == 1:
-                value = '(Sequence with {} item)'.format(len(elem.value))
+                value = f'(Sequence with {len(elem.value)} item)'
             else:
-                value = '(Sequence with {} items)'.format(len(elem.value))
+                value = f'(Sequence with {len(elem.value)} items)'
 
     except Exception as exc:
         value = '(pynetdicom failed to beautify value)'

@@ -265,7 +265,7 @@ class DIMSEMessage(object):
             control_header_byte = data[0]
 
             # LOGGER.debug('Control header byte %s', control_header_byte)
-            #print('Control header byte {}'.format(control_header_byte))
+            #print(f'Control header byte {control_header_byte}')
 
             # COMMAND SET
             # P-DATA fragment contains Command Set information
@@ -528,8 +528,8 @@ class DIMSEMessage(object):
         cls_type_name = self.__class__.__name__.replace('_', '-')
         if cls_type_name not in _COMMAND_SET_KEYWORDS:
             raise ValueError(
-                "Can't convert primitive to message for unknown "
-                "DIMSE message type '{}'".format(cls_type_name)
+                f"Can't convert primitive to message for unknown "
+                f"DIMSE message type '{cls_type_name}'"
             )
 
         # Command Set
