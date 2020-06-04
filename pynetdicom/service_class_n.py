@@ -42,8 +42,8 @@ class ApplicationEventLoggingServiceClass(ServiceClass):
             self._n_action_scp(req, context)
         else:
             raise ValueError(
-                "Invalid DIMSE primitive '{}' used with Application Event "
-                "Logging".format(req.__class__.__name__)
+                f"Invalid DIMSE primitive '{req.__class__.__name__}' used "
+                f"with Application Event Logging"
             )
 
 
@@ -65,8 +65,8 @@ class DisplaySystemManagementServiceClass(ServiceClass):
             self._n_get_scp(req, context)
         else:
             raise ValueError(
-                "Invalid DIMSE primitive '{}' used with Display System "
-                "Management".format(req.__class__.__name__)
+                f"Invalid DIMSE primitive '{req.__class__.__name__}' used "
+                f"with Display System Management"
             )
 
 
@@ -91,8 +91,8 @@ class InstanceAvailabilityNotificationServiceClass(ServiceClass):
             self._n_create_scp(req, context)
         else:
             raise ValueError(
-                "Invalid DIMSE primitive '{}' used with Instance Availability"
-                .format(req.__class__.__name__)
+                f"Invalid DIMSE primitive '{req.__class__.__name__}' used "
+                f"with Instance Availability"
             )
 
 
@@ -121,8 +121,8 @@ class MediaCreationManagementServiceClass(ServiceClass):
             self._n_action_scp(req, context)
         else:
             raise ValueError(
-                "Invalid DIMSE primitive '{}' used with Media Creation "
-                "Management".format(req.__class__.__name__)
+                f"Invalid DIMSE primitive '{req.__class__.__name__}' used "
+                f"with Media Creation Management"
             )
 
 
@@ -158,8 +158,8 @@ class PrintManagementServiceClass(ServiceClass):
             self._n_delete_scp(req, context)
         else:
             raise ValueError(
-                "Invalid DIMSE primitive '{}' used with Print Management"
-                .format(req.__class__.__name__)
+                f"Invalid DIMSE primitive '{req.__class__.__name__}' used "
+                f"with Print Management"
             )
 
 
@@ -195,9 +195,8 @@ class ProcedureStepServiceClass(ServiceClass):
             self._n_set_scp(req, context)
         else:
             raise ValueError(
-                "Invalid DIMSE primitive '{}' used with Modality "
-                "Performed Procedure Step"
-                .format(req.__class__.__name__)
+                f"Invalid DIMSE primitive '{req.__class__.__name__}' used "
+                f"with Modality Performed Procedure Step"
             )
 
 
@@ -233,8 +232,8 @@ class RTMachineVerificationServiceClass(ServiceClass):
             self._n_delete_scp(req, context)
         else:
             raise ValueError(
-                "Invalid DIMSE primitive '{}' used with RT Machine "
-                "Verification".format(req.__class__.__name__)
+                f"Invalid DIMSE primitive '{req.__class__.__name__}' used "
+                f"with RT Machine Verification"
             )
 
 
@@ -261,8 +260,8 @@ class StorageCommitmentServiceClass(ServiceClass):
             self._n_action_scp(req, context)
         else:
             raise ValueError(
-                "Invalid DIMSE primitive '{}' used with Storage Commitment"
-                .format(req.__class__.__name__)
+                f"Invalid DIMSE primitive '{req.__class__.__name__}' used "
+                f"with Storage Commitment"
             )
 
 
@@ -302,6 +301,6 @@ class UnifiedProcedureStepServiceClass(ServiceClass):
             self._c_find_scp(req, context)
         else:
             raise ValueError(
-                "Invalid DIMSE primitive '{}' used with Unified Procedure Step"
-                .format(req.__class__.__name__)
+                f"Invalid DIMSE primitive '{req.__class__.__name__}' used "
+                f"with Unified Procedure Step"
             )

@@ -170,9 +170,8 @@ class ACSE(object):
                 items.append(item)
             except Exception as exc:
                 LOGGER.error(
-                    "Unable to set the SOP Class Extended Negotiation "
-                    "response values for the SOP Class UID {}"
-                    .format(sop_class)
+                    f"Unable to set the SOP Class Extended Negotiation "
+                    f"response values for the SOP Class UID {sop_class}"
                 )
                 LOGGER.exception(exc)
 
@@ -491,10 +490,9 @@ class ACSE(object):
                 # 0x02 is rejected (transient)
                 LOGGER.error('Association Rejected')
                 LOGGER.error(
-                    'Result: {}, Source: {}'
-                    .format(rsp.result_str, rsp.source_str)
+                    f"Result: {rsp.result_str}, Source: {rsp.source_str}"
                 )
-                LOGGER.error('Reason: {}'.format(rsp.reason_str))
+                LOGGER.error(f"Reason: {rsp.reason_str}")
                 self.assoc.is_rejected = True
                 self.assoc.is_established = False
                 evt.trigger(self.assoc, evt.EVT_REJECTED, {})

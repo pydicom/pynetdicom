@@ -121,7 +121,7 @@ class StateMachine(object):
         if state in STATES.keys():
             self.current_state = state
         else:
-            msg = "Invalid state '{}' for State Machine".format(state)
+            msg = f"Invalid state '{state}' for State Machine"
             LOGGER.error(msg)
             raise ValueError(msg)
 

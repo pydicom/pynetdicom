@@ -511,7 +511,7 @@ class ApplicationEntity(object):
 
         # Set the thread name
         timestamp = datetime.strftime(datetime.now(), "%Y%m%d%H%M%S")
-        assoc.name = "RequestorThread@{}".format(timestamp)
+        assoc.name = f"RequestorThread@{timestamp}"
 
         # Setup the association's communication socket
         sock = self._create_socket(assoc, bind_address, tls_args)
@@ -717,9 +717,7 @@ class ApplicationEntity(object):
         if value >= 0:
             self._maximum_pdu_size = value
         else:
-            LOGGER.warning(
-                "maximum_pdu_size set to {}".format(DEFAULT_MAX_LENGTH)
-            )
+            LOGGER.warning(f"maximum_pdu_size set to {DEFAULT_MAX_LENGTH}")
 
     @property
     def network_timeout(self):
@@ -1196,7 +1194,7 @@ class ApplicationEntity(object):
 
             thread = threading.Thread(
                 target=server.serve_forever,
-                name="AcceptorServer@{}".format(timestamp)
+                name=f"AcceptorServer@{timestamp}"
             )
             thread.daemon = True
             thread.start()
@@ -1224,53 +1222,53 @@ class ApplicationEntity(object):
     def __str__(self):
         """ Prints out the attribute values and status for the AE """
         str_out = "\n"
-        str_out += "Application Entity '{0!s}'\n".format(self.ae_title)
+        str_out += f"Application Entity '{self.ae_title}'\n"
 
         str_out += "\n"
         str_out += "  Requested Presentation Contexts:\n"
         if not self.requested_contexts:
             str_out += "\tNone\n"
         for context in self.requested_contexts:
-            str_out += "\t{0!s}\n".format(context.abstract_syntax.name)
+            str_out += f"\t{context.abstract_syntax.name}\n"
             for transfer_syntax in context.transfer_syntax:
-                str_out += "\t\t{0!s}\n".format(transfer_syntax.name)
+                str_out += f"\t\t{transfer_syntax.name}\n"
 
         str_out += "\n"
         str_out += "  Supported Presentation Contexts:\n"
         if not self.supported_contexts:
             str_out += "\tNone\n"
         for context in self.supported_contexts:
-            str_out += "\t{0!s}\n".format(context.abstract_syntax.name)
+            str_out += f"\t{context.abstract_syntax.name}\n"
             for transfer_syntax in context.transfer_syntax:
-                str_out += "\t\t{0!s}\n".format(transfer_syntax.name)
+                str_out += f"\t\t{transfer_syntax.name}\n"
 
         str_out += "\n"
-        str_out += "  ACSE timeout: {0!s} s\n".format(self.acse_timeout)
-        str_out += "  DIMSE timeout: {0!s} s\n".format(self.dimse_timeout)
-        str_out += "  Network timeout: {0!s} s\n".format(self.network_timeout)
+        str_out += f"  ACSE timeout: {self.acse_timeout} s\n"
+        str_out += f"  DIMSE timeout: {self.dimse_timeout} s\n"
+        str_out += f"  Network timeout: {self.network_timeout} s\n"
 
         str_out += "\n"
         if self.require_calling_aet != []:
             ae_titles = [
                 aet.decode('ascii') for aet in self.require_calling_aet
             ]
-            str_out += "  Required calling AE title(s): {0!s}\n" \
-                       .format(', '.join(ae_titles))
-        str_out += "  Require called AE title: {0!s}\n" \
-                   .format(self.require_called_aet)
-
+            str_out += (
+                f"  Required calling AE title(s): {', '.join(ae_titles)}\n"
+            )
+        str_out += f"  Require called AE title: {self.require_called_aet}\n"
         str_out += "\n"
 
         # Association information
-        str_out += '  Association(s): {0!s}/{1!s}\n' \
-                   .format(len(self.active_associations),
-                           self.maximum_associations)
+        str_out += (
+            f"  Association(s): {len(self.active_associations)}"
+            f"/{self.maximum_associations}\n"
+        )
 
         for assoc in self.active_associations:
-            str_out += '\tPeer: {0!s} on {1!s}:{2!s}\n' \
-                       .format(assoc.remote['ae_title'],
-                               assoc.remote['address'],
-                               assoc.remote['port'])
+            str_out += (
+                f"\tPeer: {assoc.remote['ae_title']} on "
+                f"{assoc.remote['address']}:{assoc.remote['port']}\n"
+           )
 
         return str_out
 

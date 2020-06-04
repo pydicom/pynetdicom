@@ -344,8 +344,8 @@ def _check_identifier(identifier, model):
         #   keyword is present
         if attr[level][0] not in identifier:
             raise InvalidIdentifier(
-                "The Identifier is missing a unique key for the '{}' level"
-                .format(level)
+                f"The Identifier is missing a unique key for "
+                f"the '{level}' level"
             )
 
 
@@ -430,7 +430,7 @@ def search(model, identifier, session):
         If the `identifier` is invalid.
     """
     if model not in _STUDY_ROOT and model not in _PATIENT_ROOT:
-        raise ValueError("Unknown information model '{}'".format(model.name))
+        raise ValueError(f"Unknown information model '{model.name}'")
 
     # Remove all optional keys, after this only unique/required will remain
     for elem in identifier:

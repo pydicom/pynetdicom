@@ -60,7 +60,7 @@ def pretty_bytes(bytestream, prefix='  ', delimiter='  ', items_per_line=16,
             lines.append(line + suffix)
 
     if cutoff_output:
-        lines.insert(0, prefix + 'Only dumping {0!s} bytes.'.format(max_size))
+        lines.insert(0, prefix + f"Only dumping {max_size} bytes.")
 
     return lines
 

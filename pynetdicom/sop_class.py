@@ -142,7 +142,7 @@ def _generate_sop_classes(sop_class_dict):
         uid = sop_class_dict[name]
         sop_class = SOPClass(uid)
         sop_class._service_class = uid_to_service_class(uid)
-        docstring = "``{}``".format(uid)
+        docstring = f"``{uid}``"
         if uid in ('1.2.840.10008.5.1.1.9', '1.2.840.10008.5.1.1.18'):
             docstring += "\n\n.. versionadded:: 1.4"
         elif uid in _2019e:

@@ -268,7 +268,7 @@ class PresentationContext(object):
 
         if uid and not uid.is_valid:
             LOGGER.warning(
-                "The Abstract Syntax Name '{}' is non-conformant".format(uid)
+                f"The Abstract Syntax Name '{uid}' is non-conformant"
             )
 
         self._abstract_syntax = uid
@@ -297,8 +297,7 @@ class PresentationContext(object):
 
         if syntax and not syntax.is_valid:
             LOGGER.warning(
-                "The Transfer Syntax Name '{}' is non-conformant"
-                .format(syntax)
+                f"The Transfer Syntax Name '{syntax}' is non-conformant"
             )
 
         # If the transfer syntax is rejected we may add an empty str
@@ -463,21 +462,22 @@ class PresentationContext(object):
         """String representation of the Presentation Context."""
         s = ''
         if self.context_id is not None:
-            s += 'ID: {0!s}\n'.format(self.context_id)
+            s += f'ID: {self.context_id}\n'
 
         if self.abstract_syntax is not None:
-            s += 'Abstract Syntax: {0!s}\n'.format(self.abstract_syntax.name)
+            s += f'Abstract Syntax: {self.abstract_syntax.name}\n'
 
         s += 'Transfer Syntax(es):\n'
         for syntax in self.transfer_syntax[:-1]:
-            s += '    ={0!s}\n'.format(syntax.name)
+            s += f'    ={syntax.name}\n'
+
         if self.transfer_syntax:
-            s += '    ={0!s}'.format(self.transfer_syntax[-1].name)
+            s += f'    ={self.transfer_syntax[-1].name}'
         else:
             s += '    (none)'
 
         if self.result is not None:
-            s += '\nResult: {0!s}'.format(self.status)
+            s += f'\nResult: {self.status}'
 
         if None not in (self.as_scu, self.as_scp):
             if self.as_scu and not self.as_scp:

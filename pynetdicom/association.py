@@ -268,8 +268,7 @@ class Association(threading.Thread):
                     setattr(status, keyword, getattr(rsp, keyword))
         else:
             LOGGER.error(
-                "Received an invalid {} response from the peer"
-                .format(msg_type)
+                f"Received an invalid {msg_type} response from the peer"
             )
             self.abort()
 
@@ -404,12 +403,12 @@ class Association(threading.Thread):
 
         role = role or 'scu'
         msg = (
-            "No presentation context for '{}' has been accepted by the peer"
-            .format(ab_syntax.name)
+            f"No presentation context for '{ab_syntax.name}' has been "
+            f"accepted by the peer"
         )
         if tr_syntax:
-            msg += " with '{}' transfer syntax".format(tr_syntax.name)
-        msg += " for the {} role".format(role.upper())
+            msg += f" with '{tr_syntax.name}' transfer syntax"
+        msg += f" for the {role.upper()} role"
 
         LOGGER.error(msg)
         raise ValueError(msg)
@@ -805,8 +804,9 @@ class Association(threading.Thread):
             rsp.Status = 0xC002
 
         if not rsp.Status in STORAGE_SERVICE_CLASS_STATUS:
-            LOGGER.warning("Unknown status value returned by callback "
-                           "- 0x{0:04X}".format(rsp.Status))
+            LOGGER.warning(
+                f"Unknown status value returned by callback 0x{rsp.Status:04X}"
+            )
 
         # Send C-STORE confirmation back to peer
         self.dimse.send_msg(rsp, context.context_id)
@@ -916,7 +916,7 @@ class Association(threading.Thread):
         primitive.AffectedSOPClassUID = VerificationSOPClass
 
         # Send C-ECHO request to the peer via DIMSE and wait for the response
-        LOGGER.info('Sending Echo Request: MsgID {}'.format(msg_id))
+        LOGGER.info(f"Sending Echo Request: MsgID {msg_id}")
 
         # Pause the reactor to prevent a race condition
         self._reactor_checkpoint.clear()
@@ -1118,7 +1118,7 @@ class Association(threading.Thread):
             LOGGER.error("Failed to encode the supplied Dataset")
             raise ValueError('Failed to encode the supplied Dataset')
 
-        LOGGER.info('Sending Find Request: MsgID {}'.format(msg_id))
+        LOGGER.info(f'Sending Find Request: MsgID {msg_id}')
         LOGGER.info('')
         LOGGER.info('# Request Identifier')
         for line in pretty_dataset(dataset):
@@ -1315,7 +1315,7 @@ class Association(threading.Thread):
             raise ValueError('Failed to encode the supplied Identifer '
                              'dataset')
 
-        LOGGER.info('Sending Get Request: MsgID {}'.format(msg_id))
+        LOGGER.info(f'Sending Get Request: MsgID {msg_id}')
         LOGGER.info('')
         LOGGER.info('# Request Identifier')
         for line in pretty_dataset(dataset):
@@ -1511,7 +1511,7 @@ class Association(threading.Thread):
             raise ValueError('Failed to encode the supplied Identifier '
                              'dataset')
 
-        LOGGER.info('Sending Move Request: MsgID {}'.format(msg_id))
+        LOGGER.info(f'Sending Move Request: MsgID {msg_id}')
         LOGGER.info('')
         LOGGER.info('# Request Identifier')
         for line in pretty_dataset(dataset):
@@ -1754,9 +1754,9 @@ class Association(threading.Thread):
                 return
 
             if not isinstance(rsp, C_FIND):
+                msg_type = rsp.__class__.__name__.replace('_', '-')
                 LOGGER.error(
-                    'Received an unexpected {} message from the peer'
-                    .format(rsp.__class__.__name__.replace('_', '-'))
+                    f'Received an unexpected {msg_type} message from the peer'
                 )
                 self.abort()
                 self._reactor_checkpoint.set()
@@ -1790,13 +1790,12 @@ class Association(threading.Thread):
             LOGGER.debug('')
             if category == STATUS_PENDING:
                 LOGGER.info(
-                    "Find SCP Response: {} - 0x{:04X} (Pending)"
-                    .format(operation_no, status.Status)
+                    f"Find SCP Response: {operation_no} - "
+                    f"0x{status.Status:04X} (Pending)"
                 )
             else:
                 LOGGER.info(
-                    'Find SCP Result: 0x{:04X} ({})'
-                    .format(status.Status, category)
+                    f'Find SCP Result: 0x{status.Status:04X} ({category})'
                 )
 
             # 'Success', 'Warning', 'Failure', 'Cancel' are final yields,
@@ -1875,8 +1874,7 @@ class Association(threading.Thread):
 
             if not isinstance(rsp, (C_STORE, C_GET, C_MOVE)):
                 LOGGER.error(
-                    'Received an unexpected {} message from the peer'
-                    .format(rsp_type)
+                    f'Received an unexpected {rsp_type} message from the peer'
                 )
                 self.abort()
                 self._reactor_checkpoint.set()
@@ -1891,8 +1889,7 @@ class Association(threading.Thread):
 
             if not rsp.is_valid_response:
                 LOGGER.error(
-                    'Received an invalid {} response from the peer'
-                    .format(rsp_type)
+                    f'Received an invalid {rsp_type} response from the peer'
                 )
                 self.abort()
                 self._reactor_checkpoint.set()
@@ -1917,13 +1914,13 @@ class Association(threading.Thread):
             LOGGER.debug('')
             if category == STATUS_PENDING:
                 LOGGER.info(
-                    "{} SCP Response: {} - 0x{:04X} (Pending)"
-                    .format(rsp_name[rsp_type], operation_no, status.Status)
+                    f"{rsp_name[rsp_type]} SCP Response: {operation_no} - "
+                    f"0x{status.Status:04X} (Pending)"
                 )
             else:
                 LOGGER.info(
-                    '{} SCP Result: 0x{:04X} ({})'
-                    .format(rsp_name[rsp_type], status.Status, category)
+                    f"{rsp_name[rsp_type]} SCP Result: "
+                    f"0x{status.Status:04X} ({category})"
                 )
 
             # Log number of remaining sub-operations - C-GET/C-MOVE only
@@ -2130,7 +2127,7 @@ class Association(threading.Thread):
                 raise ValueError(msg)
 
         # Send N-ACTION request to the peer via DIMSE and wait for the response
-        LOGGER.info('Sending Action Request: MsgID {}'.format(msg_id))
+        LOGGER.info(f'Sending Action Request: MsgID {msg_id}')
 
         # Pause the reactor to prevent a race condition
         self._reactor_checkpoint.clear()
@@ -2367,7 +2364,7 @@ class Association(threading.Thread):
                 raise ValueError(msg)
 
         # Send N-CREATE request to the peer via DIMSE and wait for the response
-        LOGGER.info('Sending Create Request: MsgID {}'.format(msg_id))
+        LOGGER.info(f'Sending Create Request: MsgID {msg_id}')
 
         # Pause the reactor to prevent a race condition
         self._reactor_checkpoint.clear()
@@ -2516,7 +2513,7 @@ class Association(threading.Thread):
         req.RequestedSOPInstanceUID = instance_uid
 
         # Send N-DELETE request to the peer via DIMSE and wait for the response
-        LOGGER.info('Sending Delete Request: MsgID {}'.format(msg_id))
+        LOGGER.info(f'Sending Delete Request: MsgID {msg_id}')
 
         # Pause the reactor to prevent a race condition
         self._reactor_checkpoint.clear()
@@ -2688,7 +2685,7 @@ class Association(threading.Thread):
 
         # Send N-EVENT-REPORT request to the peer via DIMSE and wait for
         # the response primitive
-        LOGGER.info('Sending Event Report Request: MsgID {}'.format(msg_id))
+        LOGGER.info(f'Sending Event Report Request: MsgID {msg_id}')
 
         # Pause the reactor to prevent a race condition
         self._reactor_checkpoint.clear()
@@ -2890,7 +2887,7 @@ class Association(threading.Thread):
         req.AttributeIdentifierList = identifier_list
 
         # Send N-GET request to the peer via DIMSE and wait for the response
-        LOGGER.info('Sending Get Request: MsgID {}'.format(msg_id))
+        LOGGER.info(f'Sending Get Request: MsgID {msg_id}')
 
         # Pause the reactor to prevent a race condition
         self._reactor_checkpoint.clear()
@@ -3134,7 +3131,7 @@ class Association(threading.Thread):
             raise ValueError(msg)
 
         # Send N-SET request to the peer via DIMSE and wait for the response
-        LOGGER.info('Sending Set Request: MsgID {}'.format(msg_id))
+        LOGGER.info(f'Sending Set Request: MsgID {msg_id}')
 
         # Pause the reactor to prevent a race condition
         self._reactor_checkpoint.clear()
@@ -3202,7 +3199,7 @@ class Association(threading.Thread):
         # No message or not a service request
         if not msg.is_valid_request:
             LOGGER.warning(
-                "Received unexpected {} service message".format(msg.msg_type)
+                f"Received unexpected {msg.msg_type} service message"
             )
             return
 
@@ -3250,8 +3247,8 @@ class Association(threading.Thread):
         except NotImplementedError:
             # SCP isn't implemented
             LOGGER.error(
-                "No supported service class available for the SOP "
-                "Class UID '{}'".format(class_uid)
+                f"No supported service class available for the SOP "
+                f"Class UID '{class_uid}'"
             )
             self.abort()
             return
@@ -3542,9 +3539,9 @@ class ServiceUser(object):
         if cx_type in available:
             return contexts[cx_type]
 
-        available = ["'{}'".format(vv) for vv in available]
+        available = [f"'{vv}'" for vv in available]
         raise ValueError(
-            "Invalid 'cx_type', must be {}".format(' or '.join(available))
+            f"Invalid 'cx_type', must be {' or '.join(available)}"
         )
 
     @property

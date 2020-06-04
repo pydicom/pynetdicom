@@ -63,8 +63,7 @@ class DIMSEPrimitive(object):
 
         if value and not value.is_valid:
             LOGGER.warning(
-                "The Affected SOP Class UID '{}' is non-conformant"
-                .format(value)
+                f"The Affected SOP Class UID '{value}' is non-conformant"
             )
 
         if value:
@@ -105,8 +104,7 @@ class DIMSEPrimitive(object):
 
         if value and not value.is_valid:
             LOGGER.warning(
-                "The Affected SOP Instance UID '{}' is non-conformant"
-                .format(value)
+                f"The Affected SOP Instance UID '{value}' is non-conformant"
             )
 
         if value:
@@ -147,9 +145,7 @@ class DIMSEPrimitive(object):
         elif isinstance(value[0], BytesIO):
             self._dataset = value[0]
         else:
-            raise TypeError(
-                "'{}' parameter must be a BytesIO object".format(value[1])
-            )
+            raise TypeError(f"'{value[1]}' parameter must be a BytesIO object")
 
     @property
     def is_valid_request(self):
@@ -342,8 +338,7 @@ class DIMSEPrimitive(object):
 
         if value and not value.is_valid:
             LOGGER.warning(
-                "The Requested SOP Class UID '{}' is non-conformant"
-                .format(value)
+                f"The Requested SOP Class UID '{value}' is non-conformant"
             )
 
         if value:
@@ -383,8 +378,7 @@ class DIMSEPrimitive(object):
 
         if value and not value.is_valid:
             LOGGER.warning(
-                "The Requested SOP Instance UID '{}' is non-conformant"
-                .format(value)
+                f"The Requested SOP Instance UID '{value}' is non-conformant"
             )
 
         if value:
