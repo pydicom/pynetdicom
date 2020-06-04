@@ -65,7 +65,7 @@ class EchoSCPBase(object):
         self.func = None
 
         self.tfile = tempfile.NamedTemporaryFile()
-        self.db_location = 'sqlite:///{}'.format(self.tfile.name)
+        self.db_location = self.tfile.name
         self.instance_location = tempfile.TemporaryDirectory()
 
     def teardown(self):
@@ -79,7 +79,6 @@ class EchoSCPBase(object):
 
     def test_default(self):
         """Test default settings."""
-        print(self.ae)
         self.ae = ae = AE()
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
