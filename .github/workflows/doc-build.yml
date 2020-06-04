@@ -32,9 +32,3 @@ jobs:
       uses: ammaraskar/sphinx-action@master
       with:
         docs-folder: "docs/"
-    - name: Deploy
-      if: ${{ success() }}
-      uses: actions/upload-artifact@v1
-      with:
-        name: DocumentationHTML
-        path: docs/_build/html/
