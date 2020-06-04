@@ -1466,7 +1466,7 @@ def _recv_c_move_rsp(event):
         nr_ops = cs.NumberOfWarningSuboperations
         s.append(f"Warning Sub-operations        : {nr_ops}")
 
-    s.append(f"Identifier                    : {dataset}")
+    s.append(f"Identifier                    : {identifier}")
     s.append(f"Status                        : 0x{cs.Status:04X}")
     s.append(f"{' END DIMSE MESSAGE ':=^76}")
 
