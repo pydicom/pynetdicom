@@ -18,6 +18,9 @@ jobs:
         python-version: [3.8]
 
     steps:
+    - name: Check stuff
+      run: |
+        echo $PATH && which git
     - uses: actions/checkout@v2
     - name: Set up Python ${{ matrix.python-version }}
       uses: actions/setup-python@v2

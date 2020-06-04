@@ -7,4 +7,4 @@ numpydoc
 sphinx-gallery
 sphinxcontrib-napoleon
 sphinx-issues~=1.0
--e https://github.com/pydicom/pydicom.git#egg=pydicom
+-e git://github.com/pydicom/pydicom.git#egg=pydicom
