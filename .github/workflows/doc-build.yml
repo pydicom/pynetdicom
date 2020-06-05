@@ -28,6 +28,6 @@ jobs:
         python-version: ${{ matrix.python-version }}
     - name: Build documentation
       uses: ammaraskar/sphinx-action@master
-      pre-build-command: "apt-get update -y && apt-get install -y git"
       with:
         docs-folder: "docs/"
+        pre-build-command: "apt-get update -y && apt-get install -y git"
