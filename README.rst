@@ -12,7 +12,7 @@
 .. image:: https://img.shields.io/conda/vn/conda-forge/pynetdicom.svg
    :target: https://anaconda.org/conda-forge/pynetdicom
 .. image:: https://zenodo.org/badge/DOI/10.5281/zenodo.3880767.svg
-    :target: https://doi.org/10.5281/zenodo.3880767
+   :target: https://doi.org/10.5281/zenodo.3880767
 .. image:: https://badges.gitter.im/pydicom/Lobby.svg
     :target: https://gitter.im/pydicom/Lobby
 
