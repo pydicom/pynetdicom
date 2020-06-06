@@ -1,6 +1,0 @@
-pynetdicom.sop\_class.MediaStorageDirectoryStorage
-==================================================
-
-.. currentmodule:: pynetdicom.sop_class
-
-.. autodata:: MediaStorageDirectoryStorage

@@ -1,6 +1,0 @@
-pynetdicom.presentation.DisplaySystemPresentationContexts
-=========================================================
-
-.. currentmodule:: pynetdicom.presentation
-
-.. autodata:: DisplaySystemPresentationContexts

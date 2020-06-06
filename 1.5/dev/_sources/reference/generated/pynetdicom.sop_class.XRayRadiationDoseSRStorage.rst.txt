@@ -1,6 +1,0 @@
-pynetdicom.sop\_class.XRayRadiationDoseSRStorage
-================================================
-
-.. currentmodule:: pynetdicom.sop_class
-
-.. autodata:: XRayRadiationDoseSRStorage

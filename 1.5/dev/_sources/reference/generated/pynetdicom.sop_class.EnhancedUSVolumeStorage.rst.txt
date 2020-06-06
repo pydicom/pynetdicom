@@ -1,6 +1,0 @@
-pynetdicom.sop\_class.EnhancedUSVolumeStorage
-=============================================
-
-.. currentmodule:: pynetdicom.sop_class
-
-.. autodata:: EnhancedUSVolumeStorage

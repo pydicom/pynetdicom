@@ -1,6 +1,0 @@
-pynetdicom.utils.validate\_uid
-==============================
-
-.. currentmodule:: pynetdicom.utils
-
-.. autofunction:: validate_uid

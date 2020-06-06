@@ -1,6 +1,0 @@
-pynetdicom.sop\_class.ModalityWorklistInformationFind
-=====================================================
-
-.. currentmodule:: pynetdicom.sop_class
-
-.. autodata:: ModalityWorklistInformationFind

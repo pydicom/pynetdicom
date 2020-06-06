@@ -1,6 +1,0 @@
-pynetdicom.sop\_class.MultipleVolumeRenderingVolumetricPresentationStateStorage
-===============================================================================
-
-.. currentmodule:: pynetdicom.sop_class
-
-.. autodata:: MultipleVolumeRenderingVolumetricPresentationStateStorage

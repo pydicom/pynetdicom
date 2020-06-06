@@ -1,6 +1,0 @@
-pynetdicom.\_handlers.doc\_handle\_c\_get
-=========================================
-
-.. currentmodule:: pynetdicom._handlers
-
-.. autofunction:: doc_handle_c_get

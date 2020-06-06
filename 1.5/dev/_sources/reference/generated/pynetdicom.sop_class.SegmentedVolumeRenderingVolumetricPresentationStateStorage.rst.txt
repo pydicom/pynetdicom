@@ -1,6 +1,0 @@
-pynetdicom.sop\_class.SegmentedVolumeRenderingVolumetricPresentationStateStorage
-================================================================================
-
-.. currentmodule:: pynetdicom.sop_class
-
-.. autodata:: SegmentedVolumeRenderingVolumetricPresentationStateStorage

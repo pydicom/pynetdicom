@@ -1,6 +1,0 @@
-pynetdicom.sop\_class.DigitalXRayImageProcessingStorage
-=======================================================
-
-.. currentmodule:: pynetdicom.sop_class
-
-.. autodata:: DigitalXRayImageProcessingStorage

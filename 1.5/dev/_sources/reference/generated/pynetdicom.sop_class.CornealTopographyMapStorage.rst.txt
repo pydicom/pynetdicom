@@ -1,6 +1,0 @@
-pynetdicom.sop\_class.CornealTopographyMapStorage
-=================================================
-
-.. currentmodule:: pynetdicom.sop_class
-
-.. autodata:: CornealTopographyMapStorage

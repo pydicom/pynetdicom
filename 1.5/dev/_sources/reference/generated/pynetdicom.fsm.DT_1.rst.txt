@@ -1,6 +1,0 @@
-pynetdicom.fsm.DT\_1
-====================
-
-.. currentmodule:: pynetdicom.fsm
-
-.. autofunction:: DT_1

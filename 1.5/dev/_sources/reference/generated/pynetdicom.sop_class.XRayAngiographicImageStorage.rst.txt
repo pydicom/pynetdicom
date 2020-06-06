@@ -1,6 +1,0 @@
-pynetdicom.sop\_class.XRayAngiographicImageStorage
-==================================================
-
-.. currentmodule:: pynetdicom.sop_class
-
-.. autodata:: XRayAngiographicImageStorage

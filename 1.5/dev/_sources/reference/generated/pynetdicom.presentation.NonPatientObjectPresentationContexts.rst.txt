@@ -1,6 +1,0 @@
-pynetdicom.presentation.NonPatientObjectPresentationContexts
-============================================================
-
-.. currentmodule:: pynetdicom.presentation
-
-.. autodata:: NonPatientObjectPresentationContexts

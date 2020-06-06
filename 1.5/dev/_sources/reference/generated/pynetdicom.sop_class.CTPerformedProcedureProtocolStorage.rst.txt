@@ -1,6 +1,0 @@
-pynetdicom.sop\_class.CTPerformedProcedureProtocolStorage
-=========================================================
-
-.. currentmodule:: pynetdicom.sop_class
-
-.. autodata:: CTPerformedProcedureProtocolStorage

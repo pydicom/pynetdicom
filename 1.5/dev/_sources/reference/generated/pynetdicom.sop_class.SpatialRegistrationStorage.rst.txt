@@ -1,6 +1,0 @@
-pynetdicom.sop\_class.SpatialRegistrationStorage
-================================================
-
-.. currentmodule:: pynetdicom.sop_class
-
-.. autodata:: SpatialRegistrationStorage

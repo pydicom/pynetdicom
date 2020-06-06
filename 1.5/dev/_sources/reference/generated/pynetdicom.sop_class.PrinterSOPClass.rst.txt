@@ -1,6 +1,0 @@
-pynetdicom.sop\_class.PrinterSOPClass
-=====================================
-
-.. currentmodule:: pynetdicom.sop_class
-
-.. autodata:: PrinterSOPClass

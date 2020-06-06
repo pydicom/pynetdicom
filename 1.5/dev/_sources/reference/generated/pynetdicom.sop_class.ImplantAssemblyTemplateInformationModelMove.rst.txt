@@ -1,6 +1,0 @@
-pynetdicom.sop\_class.ImplantAssemblyTemplateInformationModelMove
-=================================================================
-
-.. currentmodule:: pynetdicom.sop_class
-
-.. autodata:: ImplantAssemblyTemplateInformationModelMove

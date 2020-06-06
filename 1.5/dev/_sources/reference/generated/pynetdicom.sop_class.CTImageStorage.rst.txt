@@ -1,6 +1,0 @@
-pynetdicom.sop\_class.CTImageStorage
-====================================
-
-.. currentmodule:: pynetdicom.sop_class
-
-.. autodata:: CTImageStorage

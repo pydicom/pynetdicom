@@ -1,6 +1,0 @@
-pynetdicom.presentation.RelevantPatientInformationPresentationContexts
-======================================================================
-
-.. currentmodule:: pynetdicom.presentation
-
-.. autodata:: RelevantPatientInformationPresentationContexts

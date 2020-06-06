@@ -1,6 +1,0 @@
-pynetdicom.sop\_class.EnhancedXAImageStorage
-============================================
-
-.. currentmodule:: pynetdicom.sop_class
-
-.. autodata:: EnhancedXAImageStorage

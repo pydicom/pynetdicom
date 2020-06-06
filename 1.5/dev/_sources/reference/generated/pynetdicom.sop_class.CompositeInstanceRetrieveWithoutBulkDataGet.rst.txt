@@ -1,6 +1,0 @@
-pynetdicom.sop\_class.CompositeInstanceRetrieveWithoutBulkDataGet
-=================================================================
-
-.. currentmodule:: pynetdicom.sop_class
-
-.. autodata:: CompositeInstanceRetrieveWithoutBulkDataGet

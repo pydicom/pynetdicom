@@ -1,6 +1,0 @@
-pynetdicom.sop\_class.ContentAssessmentResultsStorage
-=====================================================
-
-.. currentmodule:: pynetdicom.sop_class
-
-.. autodata:: ContentAssessmentResultsStorage

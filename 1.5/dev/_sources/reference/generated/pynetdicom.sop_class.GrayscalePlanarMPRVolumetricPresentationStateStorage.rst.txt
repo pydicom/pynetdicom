@@ -1,6 +1,0 @@
-pynetdicom.sop\_class.GrayscalePlanarMPRVolumetricPresentationStateStorage
-==========================================================================
-
-.. currentmodule:: pynetdicom.sop_class
-
-.. autodata:: GrayscalePlanarMPRVolumetricPresentationStateStorage

@@ -1,6 +1,0 @@
-pynetdicom.sop\_class.EnhancedMRImageStorage
-============================================
-
-.. currentmodule:: pynetdicom.sop_class
-
-.. autodata:: EnhancedMRImageStorage

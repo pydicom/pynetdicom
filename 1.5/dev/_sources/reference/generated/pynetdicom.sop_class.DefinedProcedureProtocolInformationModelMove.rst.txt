@@ -1,6 +1,0 @@
-pynetdicom.sop\_class.DefinedProcedureProtocolInformationModelMove
-==================================================================
-
-.. currentmodule:: pynetdicom.sop_class
-
-.. autodata:: DefinedProcedureProtocolInformationModelMove

@@ -1,6 +1,0 @@
-pynetdicom.sop\_class.ColorPaletteInformationModelFind
-======================================================
-
-.. currentmodule:: pynetdicom.sop_class
-
-.. autodata:: ColorPaletteInformationModelFind

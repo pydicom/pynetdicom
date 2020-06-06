@@ -1,6 +1,0 @@
-pynetdicom.sop\_class.StereometricRelationshipStorage
-=====================================================
-
-.. currentmodule:: pynetdicom.sop_class
-
-.. autodata:: StereometricRelationshipStorage

@@ -1,6 +1,0 @@
-pynetdicom.presentation.negotiate\_as\_acceptor
-===============================================
-
-.. currentmodule:: pynetdicom.presentation
-
-.. autofunction:: negotiate_as_acceptor

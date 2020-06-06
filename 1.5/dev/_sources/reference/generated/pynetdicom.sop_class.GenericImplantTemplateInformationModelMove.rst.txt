@@ -1,6 +1,0 @@
-pynetdicom.sop\_class.GenericImplantTemplateInformationModelMove
-================================================================
-
-.. currentmodule:: pynetdicom.sop_class
-
-.. autodata:: GenericImplantTemplateInformationModelMove

@@ -1,6 +1,0 @@
-pynetdicom.sop\_class.BreastImagingRelevantPatientInformationQuery
-==================================================================
-
-.. currentmodule:: pynetdicom.sop_class
-
-.. autodata:: BreastImagingRelevantPatientInformationQuery

@@ -1,6 +1,0 @@
-pynetdicom.sop\_class.BasicStructuredDisplayStorage
-===================================================
-
-.. currentmodule:: pynetdicom.sop_class
-
-.. autodata:: BasicStructuredDisplayStorage

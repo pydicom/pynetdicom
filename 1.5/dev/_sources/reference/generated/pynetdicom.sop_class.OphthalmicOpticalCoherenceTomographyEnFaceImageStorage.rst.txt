@@ -1,6 +1,0 @@
-pynetdicom.sop\_class.OphthalmicOpticalCoherenceTomographyEnFaceImageStorage
-============================================================================
-
-.. currentmodule:: pynetdicom.sop_class
-
-.. autodata:: OphthalmicOpticalCoherenceTomographyEnFaceImageStorage

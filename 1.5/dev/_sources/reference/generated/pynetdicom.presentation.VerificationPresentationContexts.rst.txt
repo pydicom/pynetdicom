@@ -1,6 +1,0 @@
-pynetdicom.presentation.VerificationPresentationContexts
-========================================================
-
-.. currentmodule:: pynetdicom.presentation
-
-.. autodata:: VerificationPresentationContexts

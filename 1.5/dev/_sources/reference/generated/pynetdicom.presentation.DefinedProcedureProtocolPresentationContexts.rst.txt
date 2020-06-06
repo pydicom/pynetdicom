@@ -1,6 +1,0 @@
-pynetdicom.presentation.DefinedProcedureProtocolPresentationContexts
-====================================================================
-
-.. currentmodule:: pynetdicom.presentation
-
-.. autodata:: DefinedProcedureProtocolPresentationContexts

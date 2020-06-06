@@ -1,6 +1,0 @@
-pynetdicom.presentation.ImplantTemplatePresentationContexts
-===========================================================
-
-.. currentmodule:: pynetdicom.presentation
-
-.. autodata:: ImplantTemplatePresentationContexts

@@ -1,6 +1,0 @@
-pynetdicom.sop\_class.RTBeamsTreatmentRecordStorage
-===================================================
-
-.. currentmodule:: pynetdicom.sop_class
-
-.. autodata:: RTBeamsTreatmentRecordStorage

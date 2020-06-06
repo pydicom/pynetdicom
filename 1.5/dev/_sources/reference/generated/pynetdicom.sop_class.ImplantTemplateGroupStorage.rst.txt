@@ -1,6 +1,0 @@
-pynetdicom.sop\_class.ImplantTemplateGroupStorage
-=================================================
-
-.. currentmodule:: pynetdicom.sop_class
-
-.. autodata:: ImplantTemplateGroupStorage

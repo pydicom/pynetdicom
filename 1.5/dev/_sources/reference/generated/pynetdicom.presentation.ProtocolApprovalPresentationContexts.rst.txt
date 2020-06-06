@@ -1,6 +1,0 @@
-pynetdicom.presentation.ProtocolApprovalPresentationContexts
-============================================================
-
-.. currentmodule:: pynetdicom.presentation
-
-.. autodata:: ProtocolApprovalPresentationContexts

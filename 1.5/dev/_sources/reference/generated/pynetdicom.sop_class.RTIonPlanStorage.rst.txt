@@ -1,6 +1,0 @@
-pynetdicom.sop\_class.RTIonPlanStorage
-======================================
-
-.. currentmodule:: pynetdicom.sop_class
-
-.. autodata:: RTIonPlanStorage

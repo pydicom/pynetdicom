@@ -1,6 +1,0 @@
-pynetdicom.sop\_class.EnhancedPETImageStorage
-=============================================
-
-.. currentmodule:: pynetdicom.sop_class
-
-.. autodata:: EnhancedPETImageStorage

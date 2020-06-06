@@ -1,6 +1,0 @@
-pynetdicom.presentation.ApplicationEventLoggingPresentationContexts
-===================================================================
-
-.. currentmodule:: pynetdicom.presentation
-
-.. autodata:: ApplicationEventLoggingPresentationContexts

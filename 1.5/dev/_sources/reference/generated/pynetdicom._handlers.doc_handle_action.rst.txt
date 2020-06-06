@@ -1,6 +1,0 @@
-pynetdicom.\_handlers.doc\_handle\_action
-=========================================
-
-.. currentmodule:: pynetdicom._handlers
-
-.. autofunction:: doc_handle_action

@@ -1,6 +1,0 @@
-pynetdicom.sop\_class.VLPhotographicImageStorage
-================================================
-
-.. currentmodule:: pynetdicom.sop_class
-
-.. autodata:: VLPhotographicImageStorage

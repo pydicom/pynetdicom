@@ -1,6 +1,0 @@
-pynetdicom.status.code\_to\_category
-====================================
-
-.. currentmodule:: pynetdicom.status
-
-.. autofunction:: code_to_category

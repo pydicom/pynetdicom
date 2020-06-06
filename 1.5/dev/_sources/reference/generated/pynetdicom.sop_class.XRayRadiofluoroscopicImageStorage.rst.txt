@@ -1,6 +1,0 @@
-pynetdicom.sop\_class.XRayRadiofluoroscopicImageStorage
-=======================================================
-
-.. currentmodule:: pynetdicom.sop_class
-
-.. autodata:: XRayRadiofluoroscopicImageStorage

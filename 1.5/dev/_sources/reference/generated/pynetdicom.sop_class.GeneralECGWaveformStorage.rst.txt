@@ -1,6 +1,0 @@
-pynetdicom.sop\_class.GeneralECGWaveformStorage
-===============================================
-
-.. currentmodule:: pynetdicom.sop_class
-
-.. autodata:: GeneralECGWaveformStorage

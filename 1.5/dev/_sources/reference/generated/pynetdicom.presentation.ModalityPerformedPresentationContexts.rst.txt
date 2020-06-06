@@ -1,6 +1,0 @@
-pynetdicom.presentation.ModalityPerformedPresentationContexts
-=============================================================
-
-.. currentmodule:: pynetdicom.presentation
-
-.. autodata:: ModalityPerformedPresentationContexts
