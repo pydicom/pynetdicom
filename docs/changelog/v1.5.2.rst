@@ -1,0 +1,16 @@
+.. _v1.5.2:
+
+1.5.2
+=====
+
+Changes
+.......
+
+* The ``Association.send_n_*()`` methods now allow the use of :class:`UPS Push
+  <pynetdicom.sop_class.UnifiedProcedureStepPushSOPClass>` as the
+  *Requested* or *Affected SOP Class* when :class:`UPS Pull
+  <pynetdicom.sop_class.UnifiedProcedureStepPullSOPClass>`, :class:`Watch
+  <pynetdicom.sop_class.UnifiedProcedureStepWatchSOPClass>`, :class:`Event
+  <pynetdicom.sop_class.UnifiedProcedureStepEventSOPClass>`, or :class:`Query
+  <pynetdicom.sop_class.UnifiedProcedureStepQuerySOPClass>` has been
+  accepted in a presentation context by the peer (:issue:`509`)
