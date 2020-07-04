@@ -120,6 +120,7 @@ Release Notes
 =============
 
 * :doc:`v2.0.0 </changelog/v2.0.0>`
+* :doc:`v1.5.2 </changelog/v1.5.2>`
 * :doc:`v1.5.1 </changelog/v1.5.1>`
 * :doc:`v1.5.0 </changelog/v1.5.0>`
 * :doc:`v1.4.1 </changelog/v1.4.1>`
