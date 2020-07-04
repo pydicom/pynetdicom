@@ -368,6 +368,7 @@ Unified Procedure Step
    UnifiedProcedureStepEventSOPClass
    UnifiedProcedureStepPullSOPClass
    UnifiedProcedureStepPushSOPClass
+   UnifiedProcedureStepQuerySOPClass
    UnifiedProcedureStepWatchSOPClass
 
 Verification
