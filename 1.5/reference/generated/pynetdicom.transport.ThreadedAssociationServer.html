@@ -1,15 +1,19 @@
 
 
 <!DOCTYPE html>
-<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
-<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<html class="writer-html5" lang="en" >
 <head>
   <meta charset="utf-8">
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>pynetdicom.transport.ThreadedAssociationServer &mdash; pynetdicom 1.5.1 documentation</title>
+  <title>pynetdicom.transport.ThreadedAssociationServer &mdash; pynetdicom 1.5.2 documentation</title>
   
+
+  
+  <link rel="stylesheet" href="../../_static/css/pynetdicom.css" type="text/css" />
+  <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="../../_static/css/pynetdicom.css" type="text/css" />
 
   
   
@@ -19,7 +23,9 @@
   
 
   
-  <script type="text/javascript" src="../../_static/js/modernizr.min.js"></script>
+  <!--[if lt IE 9]>
+    <script src="../../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
   
     
       <script type="text/javascript" id="documentation_options" data-url_root="../../" src="../../_static/documentation_options.js"></script>
@@ -31,11 +37,6 @@
     <script type="text/javascript" src="../../_static/js/theme.js"></script>
 
     
-
-  
-  <link rel="stylesheet" href="../../_static/css/pynetdicom.css" type="text/css" />
-  <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
-  <link rel="stylesheet" href="../../_static/css/pynetdicom.css" type="text/css" />
     <link rel="index" title="Index" href="../../genindex.html" />
     <link rel="search" title="Search" href="../../search.html" />
     <link rel="next" title="Utilities (pynetdicom.utils)" href="../utils.html" />
@@ -53,7 +54,7 @@
           
 
           
-            <a href="../../index.html" class="icon icon-home"> pynetdicom
+            <a href="../../index.html" class="icon icon-home" alt="Documentation Home"> pynetdicom
           
 
           
@@ -66,7 +67,7 @@
             
             
               <div class="version">
-                1.5.1
+                1.5.2
               </div>
             
           
@@ -83,6 +84,7 @@
           
         </div>
 
+        
         <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
           
             
@@ -135,6 +137,7 @@
             
           
         </div>
+        
       </div>
     </nav>
 
@@ -173,7 +176,7 @@
 
   <ul class="wy-breadcrumbs">
     
-      <li><a href="../../index.html">Docs</a> &raquo;</li>
+      <li><a href="../../index.html" class="icon icon-home"></a> &raquo;</li>
         
           <li><a href="../index.html">API Reference</a> &raquo;</li>
         
@@ -200,14 +203,14 @@
 <h1>pynetdicom.transport.ThreadedAssociationServer<a class="headerlink" href="#pynetdicom-transport-threadedassociationserver" title="Permalink to this headline">¶</a></h1>
 <dl class="py class">
 <dt id="pynetdicom.transport.ThreadedAssociationServer">
-<em class="property">class </em><code class="sig-prename descclassname">pynetdicom.transport.</code><code class="sig-name descname">ThreadedAssociationServer</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">ae</span></em>, <em class="sig-param"><span class="n">address</span></em>, <em class="sig-param"><span class="n">ae_title</span></em>, <em class="sig-param"><span class="n">contexts</span></em>, <em class="sig-param"><span class="n">ssl_context</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">evt_handlers</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">request_handler</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/587025a3/pynetdicom/transport.py#L787"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom.transport.ThreadedAssociationServer" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="sig-prename descclassname">pynetdicom.transport.</code><code class="sig-name descname">ThreadedAssociationServer</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">ae</span></em>, <em class="sig-param"><span class="n">address</span></em>, <em class="sig-param"><span class="n">ae_title</span></em>, <em class="sig-param"><span class="n">contexts</span></em>, <em class="sig-param"><span class="n">ssl_context</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">evt_handlers</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">request_handler</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/d8cdeeaf/pynetdicom/transport.py#L787"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom.transport.ThreadedAssociationServer" title="Permalink to this definition">¶</a></dt>
 <dd><p>An <a class="reference internal" href="pynetdicom.transport.AssociationServer.html#pynetdicom.transport.AssociationServer" title="pynetdicom.transport.AssociationServer"><code class="xref py py-class docutils literal notranslate"><span class="pre">AssociationServer</span></code></a> suitable for threading.</p>
 <div class="versionadded">
 <p><span class="versionmodified added">New in version 1.2.</span></p>
 </div>
 <dl class="py method">
 <dt id="pynetdicom.transport.ThreadedAssociationServer.__init__">
-<code class="sig-name descname">__init__</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">ae</span></em>, <em class="sig-param"><span class="n">address</span></em>, <em class="sig-param"><span class="n">ae_title</span></em>, <em class="sig-param"><span class="n">contexts</span></em>, <em class="sig-param"><span class="n">ssl_context</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">evt_handlers</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">request_handler</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/587025a3/pynetdicom/transport.py#L501"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom.transport.ThreadedAssociationServer.__init__" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">__init__</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">ae</span></em>, <em class="sig-param"><span class="n">address</span></em>, <em class="sig-param"><span class="n">ae_title</span></em>, <em class="sig-param"><span class="n">contexts</span></em>, <em class="sig-param"><span class="n">ssl_context</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">evt_handlers</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">request_handler</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/d8cdeeaf/pynetdicom/transport.py#L501"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom.transport.ThreadedAssociationServer.__init__" title="Permalink to this definition">¶</a></dt>
 <dd><p>Create a new <a class="reference internal" href="pynetdicom.transport.AssociationServer.html#pynetdicom.transport.AssociationServer" title="pynetdicom.transport.AssociationServer"><code class="xref py py-class docutils literal notranslate"><span class="pre">AssociationServer</span></code></a>, bind a socket and start
 listening.</p>
 <dl class="field-list simple">
@@ -287,7 +290,7 @@ is created for each request. Should be a subclass of
 <td><p>Bind the socket and set the socket options.</p></td>
 </tr>
 <tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">server_close</span></code>()</p></td>
-<td><p></p></td>
+<td><p>Close the server.</p></td>
 </tr>
 <tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">service_actions</span></code>()</p></td>
 <td><p>Called by the serve_forever() loop.</p></td>
@@ -341,7 +344,7 @@ is created for each request. Should be a subclass of
 </table>
 <dl class="py method">
 <dt id="pynetdicom.transport.ThreadedAssociationServer.process_request_thread">
-<code class="sig-name descname">process_request_thread</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">request</span></em>, <em class="sig-param"><span class="n">client_address</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/587025a3/pynetdicom/transport.py#L792"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom.transport.ThreadedAssociationServer.process_request_thread" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">process_request_thread</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">request</span></em>, <em class="sig-param"><span class="n">client_address</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/d8cdeeaf/pynetdicom/transport.py#L792"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom.transport.ThreadedAssociationServer.process_request_thread" title="Permalink to this definition">¶</a></dt>
 <dd><p>Process a connection request.</p>
 </dd></dl>
 
@@ -369,11 +372,19 @@ is created for each request. Should be a subclass of
 
   <div role="contentinfo">
     <p>
+        
         &copy; Copyright 2018-20, pynetdicom contributors
 
     </p>
   </div>
-  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+    
+    
+    
+    Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a
+    
+    <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a>
+    
+    provided by <a href="https://readthedocs.org">Read the Docs</a>. 
 
 </footer>
 
@@ -384,7 +395,6 @@ is created for each request. Should be a subclass of
 
   </div>
   
-
 
   <script type="text/javascript">
       jQuery(function () {

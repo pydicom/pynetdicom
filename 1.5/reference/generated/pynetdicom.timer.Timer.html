@@ -1,15 +1,19 @@
 
 
 <!DOCTYPE html>
-<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
-<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<html class="writer-html5" lang="en" >
 <head>
   <meta charset="utf-8">
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>pynetdicom.timer.Timer &mdash; pynetdicom 1.5.1 documentation</title>
+  <title>pynetdicom.timer.Timer &mdash; pynetdicom 1.5.2 documentation</title>
   
+
+  
+  <link rel="stylesheet" href="../../_static/css/pynetdicom.css" type="text/css" />
+  <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="../../_static/css/pynetdicom.css" type="text/css" />
 
   
   
@@ -19,7 +23,9 @@
   
 
   
-  <script type="text/javascript" src="../../_static/js/modernizr.min.js"></script>
+  <!--[if lt IE 9]>
+    <script src="../../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
   
     
       <script type="text/javascript" id="documentation_options" data-url_root="../../" src="../../_static/documentation_options.js"></script>
@@ -31,11 +37,6 @@
     <script type="text/javascript" src="../../_static/js/theme.js"></script>
 
     
-
-  
-  <link rel="stylesheet" href="../../_static/css/pynetdicom.css" type="text/css" />
-  <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
-  <link rel="stylesheet" href="../../_static/css/pynetdicom.css" type="text/css" />
     <link rel="index" title="Index" href="../../genindex.html" />
     <link rel="search" title="Search" href="../../search.html" />
     <link rel="next" title="Transport Service (pynetdicom.transport)" href="../transport.html" />
@@ -53,7 +54,7 @@
           
 
           
-            <a href="../../index.html" class="icon icon-home"> pynetdicom
+            <a href="../../index.html" class="icon icon-home" alt="Documentation Home"> pynetdicom
           
 
           
@@ -66,7 +67,7 @@
             
             
               <div class="version">
-                1.5.1
+                1.5.2
               </div>
             
           
@@ -83,6 +84,7 @@
           
         </div>
 
+        
         <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
           
             
@@ -132,6 +134,7 @@
             
           
         </div>
+        
       </div>
     </nav>
 
@@ -170,7 +173,7 @@
 
   <ul class="wy-breadcrumbs">
     
-      <li><a href="../../index.html">Docs</a> &raquo;</li>
+      <li><a href="../../index.html" class="icon icon-home"></a> &raquo;</li>
         
           <li><a href="../index.html">API Reference</a> &raquo;</li>
         
@@ -197,7 +200,7 @@
 <h1>pynetdicom.timer.Timer<a class="headerlink" href="#pynetdicom-timer-timer" title="Permalink to this headline">¶</a></h1>
 <dl class="py class">
 <dt id="pynetdicom.timer.Timer">
-<em class="property">class </em><code class="sig-prename descclassname">pynetdicom.timer.</code><code class="sig-name descname">Timer</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">timeout</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/587025a3/pynetdicom/timer.py#L11"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom.timer.Timer" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="sig-prename descclassname">pynetdicom.timer.</code><code class="sig-name descname">Timer</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">timeout</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/d8cdeeaf/pynetdicom/timer.py#L11"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom.timer.Timer" title="Permalink to this definition">¶</a></dt>
 <dd><p>A generic timer.</p>
 <p>Implementation of the DICOM Upper Layer’s ARTIM timer. The ARTIM timer is
 used by the state machine to monitor connection and response timeouts.
@@ -226,7 +229,7 @@ than <a class="reference internal" href="#pynetdicom.timer.Timer.timeout" title=
 </ul>
 <dl class="py method">
 <dt id="pynetdicom.timer.Timer.__init__">
-<code class="sig-name descname">__init__</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">timeout</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/587025a3/pynetdicom/timer.py#L41"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom.timer.Timer.__init__" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">__init__</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">timeout</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/d8cdeeaf/pynetdicom/timer.py#L41"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom.timer.Timer.__init__" title="Permalink to this definition">¶</a></dt>
 <dd><p>Create a new <a class="reference internal" href="#pynetdicom.timer.Timer" title="pynetdicom.timer.Timer"><code class="xref py py-class docutils literal notranslate"><span class="pre">Timer</span></code></a>.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -298,19 +301,19 @@ means the timer never expires.</p>
 
 <dl class="py method">
 <dt id="pynetdicom.timer.Timer.restart">
-<code class="sig-name descname">restart</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/587025a3/pynetdicom/timer.py#L98"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom.timer.Timer.restart" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">restart</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/d8cdeeaf/pynetdicom/timer.py#L98"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom.timer.Timer.restart" title="Permalink to this definition">¶</a></dt>
 <dd><p>Restart the timer.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt id="pynetdicom.timer.Timer.start">
-<code class="sig-name descname">start</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/587025a3/pynetdicom/timer.py#L102"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom.timer.Timer.start" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">start</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/d8cdeeaf/pynetdicom/timer.py#L102"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom.timer.Timer.start" title="Permalink to this definition">¶</a></dt>
 <dd><p>Resets and starts the timer running.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt id="pynetdicom.timer.Timer.stop">
-<code class="sig-name descname">stop</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/587025a3/pynetdicom/timer.py#L107"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom.timer.Timer.stop" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">stop</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/d8cdeeaf/pynetdicom/timer.py#L107"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom.timer.Timer.stop" title="Permalink to this definition">¶</a></dt>
 <dd><p>Stops the timer and resets it.</p>
 </dd></dl>
 
@@ -344,11 +347,19 @@ means the timer never expires.</p>
 
   <div role="contentinfo">
     <p>
+        
         &copy; Copyright 2018-20, pynetdicom contributors
 
     </p>
   </div>
-  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+    
+    
+    
+    Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a
+    
+    <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a>
+    
+    provided by <a href="https://readthedocs.org">Read the Docs</a>. 
 
 </footer>
 
@@ -359,7 +370,6 @@ means the timer never expires.</p>
 
   </div>
   
-
 
   <script type="text/javascript">
       jQuery(function () {

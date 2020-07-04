@@ -1,15 +1,19 @@
 
 
 <!DOCTYPE html>
-<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
-<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<html class="writer-html5" lang="en" >
 <head>
   <meta charset="utf-8">
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>pynetdicom.pdu.A_RELEASE_RQ &mdash; pynetdicom 1.5.1 documentation</title>
+  <title>pynetdicom.pdu.A_RELEASE_RQ &mdash; pynetdicom 1.5.2 documentation</title>
   
+
+  
+  <link rel="stylesheet" href="../../_static/css/pynetdicom.css" type="text/css" />
+  <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="../../_static/css/pynetdicom.css" type="text/css" />
 
   
   
@@ -19,7 +23,9 @@
   
 
   
-  <script type="text/javascript" src="../../_static/js/modernizr.min.js"></script>
+  <!--[if lt IE 9]>
+    <script src="../../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
   
     
       <script type="text/javascript" id="documentation_options" data-url_root="../../" src="../../_static/documentation_options.js"></script>
@@ -31,11 +37,6 @@
     <script type="text/javascript" src="../../_static/js/theme.js"></script>
 
     
-
-  
-  <link rel="stylesheet" href="../../_static/css/pynetdicom.css" type="text/css" />
-  <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
-  <link rel="stylesheet" href="../../_static/css/pynetdicom.css" type="text/css" />
     <link rel="index" title="Index" href="../../genindex.html" />
     <link rel="search" title="Search" href="../../search.html" />
     <link rel="next" title="A-RELEASE-RP PDU" href="../dul.pdu.a_release_rp.html" />
@@ -53,7 +54,7 @@
           
 
           
-            <a href="../../index.html" class="icon icon-home"> pynetdicom
+            <a href="../../index.html" class="icon icon-home" alt="Documentation Home"> pynetdicom
           
 
           
@@ -66,7 +67,7 @@
             
             
               <div class="version">
-                1.5.1
+                1.5.2
               </div>
             
           
@@ -83,6 +84,7 @@
           
         </div>
 
+        
         <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
           
             
@@ -144,6 +146,7 @@
             
           
         </div>
+        
       </div>
     </nav>
 
@@ -182,7 +185,7 @@
 
   <ul class="wy-breadcrumbs">
     
-      <li><a href="../../index.html">Docs</a> &raquo;</li>
+      <li><a href="../../index.html" class="icon icon-home"></a> &raquo;</li>
         
           <li><a href="../index.html">API Reference</a> &raquo;</li>
         
@@ -213,7 +216,7 @@
 <h1>pynetdicom.pdu.A_RELEASE_RQ<a class="headerlink" href="#pynetdicom-pdu-a-release-rq" title="Permalink to this headline">¶</a></h1>
 <dl class="py class">
 <dt id="pynetdicom.pdu.A_RELEASE_RQ">
-<em class="property">class </em><code class="sig-prename descclassname">pynetdicom.pdu.</code><code class="sig-name descname">A_RELEASE_RQ</code><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/587025a3/pynetdicom/pdu.py#L1555"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom.pdu.A_RELEASE_RQ" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="sig-prename descclassname">pynetdicom.pdu.</code><code class="sig-name descname">A_RELEASE_RQ</code><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/d8cdeeaf/pynetdicom/pdu.py#L1555"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom.pdu.A_RELEASE_RQ" title="Permalink to this definition">¶</a></dt>
 <dd><p>An A-RELEASE-RQ PDU.</p>
 <p>An A-RELEASE-RQ PDU is used once an association has been established to
 initiate the release of the association.</p>
@@ -290,7 +293,7 @@ encoded using Big Endian.</p>
 </ul>
 <dl class="py method">
 <dt id="pynetdicom.pdu.A_RELEASE_RQ.__init__">
-<code class="sig-name descname">__init__</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/587025a3/pynetdicom/pdu.py#L1602"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom.pdu.A_RELEASE_RQ.__init__" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">__init__</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/d8cdeeaf/pynetdicom/pdu.py#L1602"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom.pdu.A_RELEASE_RQ.__init__" title="Permalink to this definition">¶</a></dt>
 <dd><p>Initialise a new A-RELEASE-RQ PDU.</p>
 </dd></dl>
 
@@ -335,7 +338,7 @@ encoded using Big Endian.</p>
 </table>
 <dl class="py method">
 <dt id="pynetdicom.pdu.A_RELEASE_RQ.from_primitive">
-<em class="property">static </em><code class="sig-name descname">from_primitive</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">primitive</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/587025a3/pynetdicom/pdu.py#L1606"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom.pdu.A_RELEASE_RQ.from_primitive" title="Permalink to this definition">¶</a></dt>
+<em class="property">static </em><code class="sig-name descname">from_primitive</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">primitive</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/d8cdeeaf/pynetdicom/pdu.py#L1606"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom.pdu.A_RELEASE_RQ.from_primitive" title="Permalink to this definition">¶</a></dt>
 <dd><p>Setup the current PDU using an A-RELEASE (request) primitive.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -352,7 +355,7 @@ encoded using Big Endian.</p>
 
 <dl class="py method">
 <dt id="pynetdicom.pdu.A_RELEASE_RQ.to_primitive">
-<em class="property">static </em><code class="sig-name descname">to_primitive</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/587025a3/pynetdicom/pdu.py#L1617"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom.pdu.A_RELEASE_RQ.to_primitive" title="Permalink to this definition">¶</a></dt>
+<em class="property">static </em><code class="sig-name descname">to_primitive</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/d8cdeeaf/pynetdicom/pdu.py#L1617"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom.pdu.A_RELEASE_RQ.to_primitive" title="Permalink to this definition">¶</a></dt>
 <dd><p>Return an A-RELEASE (request) primitive from the current PDU.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Returns</dt>
@@ -388,11 +391,19 @@ encoded using Big Endian.</p>
 
   <div role="contentinfo">
     <p>
+        
         &copy; Copyright 2018-20, pynetdicom contributors
 
     </p>
   </div>
-  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+    
+    
+    
+    Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a
+    
+    <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a>
+    
+    provided by <a href="https://readthedocs.org">Read the Docs</a>. 
 
 </footer>
 
@@ -403,7 +414,6 @@ encoded using Big Endian.</p>
 
   </div>
   
-
 
   <script type="text/javascript">
       jQuery(function () {
