@@ -50,7 +50,10 @@ from pynetdicom.sop_class import (
     PatientRootQueryRetrieveInformationModelMove,
     PatientStudyOnlyQueryRetrieveInformationModelMove,
     StudyRootQueryRetrieveInformationModelMove,
-    SecondaryCaptureImageStorage
+    SecondaryCaptureImageStorage,
+    UnifiedProcedureStepPullSOPClass,
+    UnifiedProcedureStepPushSOPClass,
+    UnifiedProcedureStepWatchSOPClass
 )
 from .dummy_c_scp import (
     DummyVerificationSCP, DummyStorageSCP, DummyFindSCP, DummyGetSCP,
@@ -60,7 +63,7 @@ from .encoded_pdu_items import a_associate_ac
 from .parrot import start_server, ThreadedParrot
 
 
-#debug_logger()
+debug_logger()
 
 
 TEST_DS_DIR = os.path.join(os.path.dirname(__file__), 'dicom_files')
@@ -3838,11 +3841,15 @@ class TestGetValidContext(object):
     def setup(self):
         """Run prior to each test"""
         self.scp = None
+        self.ae = None
 
     def teardown(self):
         """Clear any active threads"""
         if self.scp:
             self.scp.abort()
+
+        if self.ae:
+            self.ae.shutdown()
 
         time.sleep(0.1)
 
@@ -4361,6 +4368,159 @@ class TestGetValidContext(object):
             )
 
         self.scp.abort()
+
+    def test_ups_push_action(self, caplog):
+        """Test matching UPS Push to other UPS contexts."""
+        def handle(event, cx):
+            cx.append(event.context)
+            return 0x0000, None
+
+        self.ae = ae = AE()
+        ae.network_timeout = 5
+        ae.dimse_timeout = 5
+        ae.acse_timeout = 5
+        ae.add_supported_context(UnifiedProcedureStepPullSOPClass)
+
+        contexts = []
+        handlers = [(evt.EVT_N_ACTION, handle, [contexts])]
+        scp = ae.start_server(('', 11112), block=False, evt_handlers=handlers)
+
+        ae.add_requested_context(UnifiedProcedureStepPullSOPClass)
+        assoc = ae.associate('localhost', 11112)
+        assert assoc.is_established
+
+        msg = (
+            r"No exact matching context found for 'Unified Procedure Step "
+            r"- Push SOP Class', checking accepted contexts for other UPS "
+            r"SOP classes"
+        )
+        ds = Dataset()
+        ds.TransactionUID = '1.2.3.4'
+        with caplog.at_level(logging.DEBUG, logger='pynetdicom'):
+            status, rsp = assoc.send_n_action(
+                ds, 1, UnifiedProcedureStepPushSOPClass, '1.2.3'
+            )
+            assert msg in caplog.text
+
+        assoc.release()
+        assert contexts[0].abstract_syntax == UnifiedProcedureStepPullSOPClass
+        scp.shutdown()
+
+    def test_ups_push_get(self, caplog):
+        """Test matching UPS Push to other UPS contexts."""
+        self.ae = ae = AE()
+        ae.network_timeout = 5
+        ae.dimse_timeout = 5
+        ae.acse_timeout = 5
+        ae.add_supported_context(UnifiedProcedureStepPullSOPClass)
+
+        scp = ae.start_server(('', 11112), block=False)
+
+        ae.add_requested_context(UnifiedProcedureStepPullSOPClass)
+        assoc = ae.associate('localhost', 11112)
+        assert assoc.is_established
+
+        msg = (
+            r"No exact matching context found for 'Unified Procedure Step "
+            r"- Push SOP Class', checking accepted contexts for other UPS "
+            r"SOP classes"
+        )
+        with caplog.at_level(logging.DEBUG, logger='pynetdicom'):
+            status, rsp = assoc.send_n_get(
+                [0x00100010], UnifiedProcedureStepPushSOPClass, '1.2.3'
+            )
+            assert msg in caplog.text
+
+        assoc.release()
+        scp.shutdown()
+
+    def test_ups_push_set(self, caplog):
+        """Test matching UPS Push to other UPS contexts."""
+        self.ae = ae = AE()
+        ae.network_timeout = 5
+        ae.dimse_timeout = 5
+        ae.acse_timeout = 5
+        ae.add_supported_context(UnifiedProcedureStepPullSOPClass)
+
+        scp = ae.start_server(('', 11112), block=False)
+
+        ae.add_requested_context(UnifiedProcedureStepPullSOPClass)
+        assoc = ae.associate('localhost', 11112)
+        assert assoc.is_established
+
+        msg = (
+            r"No exact matching context found for 'Unified Procedure Step "
+            r"- Push SOP Class', checking accepted contexts for other UPS "
+            r"SOP classes"
+        )
+        ds = Dataset()
+        ds.TransactionUID = '1.2.3.4'
+        with caplog.at_level(logging.DEBUG, logger='pynetdicom'):
+            status, rsp = assoc.send_n_set(
+                ds, UnifiedProcedureStepPushSOPClass, '1.2.3'
+            )
+            assert msg in caplog.text
+
+        assoc.release()
+        scp.shutdown()
+
+    def test_ups_push_er(self, caplog):
+        """Test matching UPS Push to other UPS contexts."""
+        self.ae = ae = AE()
+        ae.network_timeout = 5
+        ae.dimse_timeout = 5
+        ae.acse_timeout = 5
+        ae.add_supported_context(UnifiedProcedureStepPullSOPClass)
+
+        scp = ae.start_server(('', 11112), block=False)
+
+        ae.add_requested_context(UnifiedProcedureStepPullSOPClass)
+        assoc = ae.associate('localhost', 11112)
+        assert assoc.is_established
+
+        msg = (
+            r"No exact matching context found for 'Unified Procedure Step "
+            r"- Push SOP Class', checking accepted contexts for other UPS "
+            r"SOP classes"
+        )
+        ds = Dataset()
+        ds.TransactionUID = '1.2.3.4'
+        with caplog.at_level(logging.DEBUG, logger='pynetdicom'):
+            status, rsp = assoc.send_n_event_report(
+                ds, 1, UnifiedProcedureStepPushSOPClass, '1.2.3'
+            )
+            assert msg in caplog.text
+
+        assoc.release()
+        scp.shutdown()
+
+    def test_ups_push_find(self, caplog):
+        """Test matching UPS Push to other UPS contexts."""
+        self.ae = ae = AE()
+        ae.network_timeout = 5
+        ae.dimse_timeout = 5
+        ae.acse_timeout = 5
+        ae.add_supported_context(UnifiedProcedureStepPullSOPClass)
+
+        scp = ae.start_server(('', 11112), block=False)
+
+        ae.add_requested_context(UnifiedProcedureStepPullSOPClass)
+        assoc = ae.associate('localhost', 11112)
+        assert assoc.is_established
+
+        msg = (
+            r"No exact matching context found for 'Unified Procedure Step "
+            r"- Push SOP Class', checking accepted contexts for other UPS "
+            r"SOP classes"
+        )
+        ds = Dataset()
+        ds.TransactionUID = '1.2.3.4'
+        with caplog.at_level(logging.DEBUG, logger='pynetdicom'):
+            responses = assoc.send_c_find(ds, UnifiedProcedureStepPushSOPClass)
+            assert msg in caplog.text
+
+        assoc.release()
+        scp.shutdown()
 
 
 class TestEventHandlingAcceptor(object):
