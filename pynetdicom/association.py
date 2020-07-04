@@ -27,7 +27,12 @@ from pynetdicom._handlers import (
     standard_dimse_recv_handler, standard_dimse_sent_handler,
     standard_pdu_recv_handler, standard_pdu_sent_handler,
 )
-from pynetdicom.sop_class import uid_to_service_class, VerificationSOPClass
+from pynetdicom.sop_class import (
+    uid_to_service_class, VerificationSOPClass,
+    UnifiedProcedureStepPullSOPClass, UnifiedProcedureStepPushSOPClass,
+    UnifiedProcedureStepWatchSOPClass, UnifiedProcedureStepEventSOPClass,
+    UnifiedProcedureStepQuerySOPClass
+)
 from pynetdicom.pdu_primitives import (
     UserIdentityNegotiation,
     MaximumLengthNotification,
@@ -365,6 +370,30 @@ class Association(threading.Thread):
         possible_contexts = [
             cx for cx in possible_contexts if ab_syntax == cx.abstract_syntax
         ]
+
+        # For UPS we can also match UPS Push to Pull/Watch/Event/Query
+        if (
+            ab_syntax == UnifiedProcedureStepPushSOPClass
+            and not possible_contexts
+        ):
+            LOGGER.info(
+                "No exact matching context found for 'Unified Procedure Step "
+                "- Push SOP Class', checking accepted contexts for other UPS "
+                "SOP classes"
+            )
+            ups = [
+                UnifiedProcedureStepPullSOPClass,
+                UnifiedProcedureStepWatchSOPClass,
+                UnifiedProcedureStepEventSOPClass,
+                UnifiedProcedureStepQuerySOPClass
+            ]
+            possible_contexts.extend(
+                [
+                    cx for cx in self._accepted_cx.values()
+                    if cx.abstract_syntax in ups
+                ]
+            )
+
         # Filter by role
         if role == 'scu':
             possible_contexts = [
@@ -1091,6 +1120,12 @@ class Association(threading.Thread):
         # Determine the Presentation Context we are operating under
         #   and hence the transfer syntax to use for encoding `dataset`
         context = self._get_valid_context(query_model, '', 'scu')
+        if context.abstract_syntax != query_model:
+            LOGGER.info("Using Presentation Context:")
+            LOGGER.info(f"  Context ID:        {context.context_id}")
+            LOGGER.info(
+                f"  Abstract Syntax:   ={context.abstract_syntax.name}"
+            )
 
         # Build C-FIND request primitive
         #   (M) Message ID
@@ -2091,6 +2126,12 @@ class Association(threading.Thread):
         # Determine the Presentation Context we are operating under
         #   and hence the transfer syntax to use for encoding `dataset`
         context = self._get_valid_context(meta_uid or class_uid, '', 'scu')
+        if class_uid and context.abstract_syntax != class_uid:
+            LOGGER.info("Using Presentation Context:")
+            LOGGER.info(f"  Context ID:        {context.context_id}")
+            LOGGER.info(
+                f"  Abstract Syntax:   ={context.abstract_syntax.name}"
+            )
         transfer_syntax = context.transfer_syntax[0]
 
         # Build N-ACTION request primitive
@@ -2649,6 +2690,12 @@ class Association(threading.Thread):
         #   selection negotiation, so we need to ignore the negotiate role
         #   since the SCP will be sending requests to the SCU
         context = self._get_valid_context(meta_uid or class_uid, '', None)
+        if class_uid and context.abstract_syntax != class_uid:
+            LOGGER.info("Using Presentation Context:")
+            LOGGER.info(f"  Context ID:        {context.context_id}")
+            LOGGER.info(
+                f"  Abstract Syntax:   ={context.abstract_syntax.name}"
+            )
         transfer_syntax = context.transfer_syntax[0]
 
         # Build N-EVENT-REPORT request primitive
@@ -2873,6 +2920,12 @@ class Association(threading.Thread):
         # Determine the Presentation Context we are operating under
         #   and hence the transfer syntax to use for encoding `dataset`
         context = self._get_valid_context(meta_uid or class_uid, '', 'scu')
+        if class_uid and context.abstract_syntax != class_uid:
+            LOGGER.info("Using Presentation Context:")
+            LOGGER.info(f"  Context ID:        {context.context_id}")
+            LOGGER.info(
+                f"  Abstract Syntax:   ={context.abstract_syntax.name}"
+            )
         transfer_syntax = context.transfer_syntax[0]
 
         # Build N-GET request primitive
@@ -3102,6 +3155,12 @@ class Association(threading.Thread):
         # Determine the Presentation Context we are operating under
         #   and hence the transfer syntax to use for encoding `dataset`
         context = self._get_valid_context(meta_uid or class_uid, '', 'scu')
+        if class_uid and context.abstract_syntax != class_uid:
+            LOGGER.info("Using Presentation Context:")
+            LOGGER.info(f"  Context ID:        {context.context_id}")
+            LOGGER.info(
+                f"  Abstract Syntax:   ={context.abstract_syntax.name}"
+            )
         transfer_syntax = context.transfer_syntax[0]
 
         # Build N-SET request primitive

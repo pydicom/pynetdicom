@@ -145,7 +145,7 @@ peer SCP, the following DIMSE-C and -N services are available:
 +----------------+----------------------------------------------------------------------------------------+
 | N-EVENT-REPORT | `Association.send_n_event_report(dataset, event_type, class_uid, instance_uid) <er_>`_ |
 +----------------+----------------------------------------------------------------------------------------+
-| N-GET          | `Association.send_n_set(dataset, class_uid, instance_uid) <n_get_>`_                   |
+| N-GET          | `Association.send_n_get(identifier_list, class_uid, instance_uid) <n_get_>`_           |
 +----------------+----------------------------------------------------------------------------------------+
 | N-SET          | `Association.send_n_set(dataset, class_uid, instance_uid) <set_>`_                     |
 +----------------+----------------------------------------------------------------------------------------+
