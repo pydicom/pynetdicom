@@ -172,7 +172,7 @@ def handle_get(event, db_path, cli_config, logger):
         try:
             ds = dcmread(match.filename)
         except Exception as exc:
-            logger.error(f"Error reading file: {fpath}")
+            logger.error(f"Error reading file: {match.filename}")
             logger.exception(exc)
             yield 0xC421, None
 
@@ -264,7 +264,7 @@ def handle_move(event, destinations, db_path, cli_config, logger):
         try:
             ds = dcmread(match.filename)
         except Exception as exc:
-            logger.error(f"Error reading file: {fpath}")
+            logger.error(f"Error reading file: {match.filename}")
             logger.exception(exc)
             yield 0xC521, None
 
