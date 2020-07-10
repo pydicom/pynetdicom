@@ -127,8 +127,10 @@ def validate_ae_title(ae_title, use_short=False):
             "AE titles are not allowed to consist entirely of only spaces"
         )
 
-    # Truncate if longer than 16 characters
-    ae_title = ae_title[:16]
+    if not _config.ALLOW_LONG_DIMSE_AET:
+        # Truncate if longer than 16 characters
+        ae_title = ae_title[:16]
+
     if not use_short:
         # Pad out to 16 characters using spaces
         ae_title = ae_title.ljust(16)

@@ -52,6 +52,23 @@ Examples
 """
 
 
+ALLOW_LONG_DIMSE_AET = False
+"""Allow the use of non-conformant AE titles.
+
+.. versionadded:: 2.0
+
+If ``False`` then elements with a VR of AE in DIMSE messages will have their
+length checked to ensure conformance, otherwise no length check will be
+performed.
+
+Examples
+--------
+
+>>> from pynetdicom import _config
+>>> _config.ALL_LONG_AET = True
+"""
+
+
 LOG_RESPONSE_IDENTIFIERS = True
 """Log incoming C-FIND, C-GET and C-MOVE response *Identifier* datasets.
 

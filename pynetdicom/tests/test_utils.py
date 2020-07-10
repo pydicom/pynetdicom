@@ -97,6 +97,15 @@ class TestValidateAETitle(object):
         with pytest.raises((TypeError, ValueError)):
             validate_ae_title(aet)
 
+    def test_length_check(self):
+        """Test validate_ae_title with no length check."""
+        assert _config.ALLOW_LONG_DIMSE_AET is False
+        aet = b"12345678901234567890"
+        assert 16 == len(validate_ae_title(aet))
+        _config.ALLOW_LONG_DIMSE_AET = True
+        assert 20 == len(validate_ae_title(aet))
+        _config.ALLOW_LONG_DIMSE_AET = False
+
 
 REFERENCE_UID = [
     # UID, (enforced, non-enforced conformance)
