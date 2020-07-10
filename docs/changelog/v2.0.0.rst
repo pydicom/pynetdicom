@@ -4,6 +4,12 @@
 =====
 
 
+Enhancements
+............
+
+* Added configuration option :attr:`_config.ALLOW_LONG_DIMSE_AET` to allow
+  bypassing the length check for elements with a VR of **AE** (:issue:`515`)
+
 Changes
 .......
 
