@@ -1,0 +1,6 @@
+pynetdicom.\_config.ALLOW\_LONG\_DIMSE\_AET
+===========================================
+
+.. currentmodule:: pynetdicom._config
+
+.. autodata:: ALLOW_LONG_DIMSE_AET

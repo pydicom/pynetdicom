@@ -7,7 +7,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>pynetdicom.dimse_messages.N_GET_RQ &mdash; pynetdicom 2.0.0.dev0 documentation</title>
+  <title>pynetdicom._config.ALLOW_LONG_DIMSE_AET &mdash; pynetdicom 2.0.0.dev0 documentation</title>
   
 
   
@@ -39,8 +39,8 @@
     
     <link rel="index" title="Index" href="../../genindex.html" />
     <link rel="search" title="Search" href="../../search.html" />
-    <link rel="next" title="pynetdicom.dimse_messages.N_GET_RSP" href="pynetdicom.dimse_messages.N_GET_RSP.html" />
-    <link rel="prev" title="pynetdicom.dimse_messages.N_EVENT_REPORT_RSP" href="pynetdicom.dimse_messages.N_EVENT_REPORT_RSP.html" /> 
+    <link rel="next" title="pynetdicom._config.LOG_REQUEST_IDENTIFIERS" href="pynetdicom._config.LOG_REQUEST_IDENTIFIERS.html" />
+    <link rel="prev" title="pynetdicom._config.USE_SHORT_DIMSE_AET" href="pynetdicom._config.USE_SHORT_DIMSE_AET.html" /> 
 </head>
 
 <body class="wy-body-for-nav">
@@ -102,17 +102,16 @@
 <li class="toctree-l2"><a class="reference internal" href="../acse.html">ACSE Service (<code class="xref py py-mod docutils literal notranslate"><span class="pre">pynetdicom.acse</span></code>)</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../ae.html">Application Entity (<code class="xref py py-mod docutils literal notranslate"><span class="pre">pynetdicom.ae</span></code>)</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../association.html">Association (<code class="xref py py-mod docutils literal notranslate"><span class="pre">pynetdicom.association</span></code>)</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../config.html">Configuration Options (<code class="xref py py-mod docutils literal notranslate"><span class="pre">pynetdicom._config</span></code>)</a></li>
-<li class="toctree-l2 current"><a class="reference internal" href="../dimse.html">DIMSE Service</a><ul class="current">
-<li class="toctree-l3"><a class="reference internal" href="../dimse.provider.html">Service Provider (<code class="xref py py-mod docutils literal notranslate"><span class="pre">pynetdicom.dimse</span></code>)</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../dimse.primitives.html">Service Primitives (<code class="xref py py-mod docutils literal notranslate"><span class="pre">pynetdicom.dimse_primitives</span></code>)</a></li>
-<li class="toctree-l3 current"><a class="reference internal" href="../dimse.messages.html">Messages (<code class="xref py py-mod docutils literal notranslate"><span class="pre">pynetdicom.dimse_messages</span></code>)</a><ul class="current">
-<li class="toctree-l4"><a class="reference internal" href="../dimse.messages.html#dimse-c-messages">DIMSE-C Messages</a></li>
-<li class="toctree-l4 current"><a class="reference internal" href="../dimse.messages.html#dimse-n-messages">DIMSE-N Messages</a></li>
+<li class="toctree-l2 current"><a class="reference internal" href="../config.html">Configuration Options (<code class="xref py py-mod docutils literal notranslate"><span class="pre">pynetdicom._config</span></code>)</a><ul class="current">
+<li class="toctree-l3"><a class="reference internal" href="pynetdicom._config.ENFORCE_UID_CONFORMANCE.html">pynetdicom._config.ENFORCE_UID_CONFORMANCE</a></li>
+<li class="toctree-l3"><a class="reference internal" href="pynetdicom._config.LOG_HANDLER_LEVEL.html">pynetdicom._config.LOG_HANDLER_LEVEL</a></li>
+<li class="toctree-l3"><a class="reference internal" href="pynetdicom._config.USE_SHORT_DIMSE_AET.html">pynetdicom._config.USE_SHORT_DIMSE_AET</a></li>
+<li class="toctree-l3 current"><a class="current reference internal" href="#">pynetdicom._config.ALLOW_LONG_DIMSE_AET</a></li>
+<li class="toctree-l3"><a class="reference internal" href="pynetdicom._config.LOG_REQUEST_IDENTIFIERS.html">pynetdicom._config.LOG_REQUEST_IDENTIFIERS</a></li>
+<li class="toctree-l3"><a class="reference internal" href="pynetdicom._config.LOG_RESPONSE_IDENTIFIERS.html">pynetdicom._config.LOG_RESPONSE_IDENTIFIERS</a></li>
 </ul>
 </li>
-</ul>
-</li>
+<li class="toctree-l2"><a class="reference internal" href="../dimse.html">DIMSE Service</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../dsutils.html">Dataset Utilities (<code class="xref py py-mod docutils literal notranslate"><span class="pre">pynetdicom.dsutils</span></code>)</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../dul.html">DICOM Upper Layer</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../events.html">Events and Handlers (<code class="xref py py-mod docutils literal notranslate"><span class="pre">pynetdicom.events</span></code>)</a></li>
@@ -183,11 +182,9 @@
         
           <li><a href="../index.html">API Reference</a> &raquo;</li>
         
-          <li><a href="../dimse.html">DIMSE Service</a> &raquo;</li>
+          <li><a href="../config.html">Configuration Options (<code class="xref py py-mod docutils literal notranslate"><span class="pre">pynetdicom._config</span></code>)</a> &raquo;</li>
         
-          <li><a href="../dimse.messages.html">Messages (<code class="xref py py-mod docutils literal notranslate"><span class="pre">pynetdicom.dimse_messages</span></code>)</a> &raquo;</li>
-        
-      <li>pynetdicom.dimse_messages.N_GET_RQ</li>
+      <li>pynetdicom._config.ALLOW_LONG_DIMSE_AET</li>
     
     
       <li class="wy-breadcrumbs-aside">
@@ -204,41 +201,23 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
             
-  <div class="section" id="pynetdicom-dimse-messages-n-get-rq">
-<h1>pynetdicom.dimse_messages.N_GET_RQ<a class="headerlink" href="#pynetdicom-dimse-messages-n-get-rq" title="Permalink to this headline">¶</a></h1>
-<dl class="py class">
-<dt id="pynetdicom.dimse_messages.N_GET_RQ">
-<em class="property">class </em><code class="sig-prename descclassname">pynetdicom.dimse_messages.</code><code class="sig-name descname">N_GET_RQ</code><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/2a4ed109/pynetdicom/dimse_messages.py#L"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom.dimse_messages.N_GET_RQ" title="Permalink to this definition">¶</a></dt>
-<dd><dl class="py method">
-<dt id="pynetdicom.dimse_messages.N_GET_RQ.__init__">
-<code class="sig-name descname">__init__</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/2a4ed109/pynetdicom/dimse_messages.py#L208"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom.dimse_messages.N_GET_RQ.__init__" title="Permalink to this definition">¶</a></dt>
-<dd><p>Create a new DIMSE Message.</p>
-</dd></dl>
-
-<p class="rubric">Methods</p>
-<table class="longtable docutils align-default">
-<colgroup>
-<col style="width: 10%" />
-<col style="width: 90%" />
-</colgroup>
-<tbody>
-<tr class="row-odd"><td><p><a class="reference internal" href="#pynetdicom.dimse_messages.N_GET_RQ.__init__" title="pynetdicom.dimse_messages.N_GET_RQ.__init__"><code class="xref py py-obj docutils literal notranslate"><span class="pre">__init__</span></code></a>()</p></td>
-<td><p>Create a new DIMSE Message.</p></td>
-</tr>
-<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">decode_msg</span></code>(primitive)</p></td>
-<td><p>Converts P-DATA primitives into a <code class="docutils literal notranslate"><span class="pre">DIMSEMessage</span></code> sub-class.</p></td>
-</tr>
-<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">encode_msg</span></code>(context_id, max_pdu_length)</p></td>
-<td><p>Yield P-DATA primitives for the current DIMSE Message.</p></td>
-</tr>
-<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">message_to_primitive</span></code>()</p></td>
-<td><p>Convert the <code class="docutils literal notranslate"><span class="pre">DIMSEMessage</span></code> class to a DIMSE primitive.</p></td>
-</tr>
-<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">primitive_to_message</span></code>(primitive)</p></td>
-<td><p>Convert a DIMSE <cite>primitive</cite> to the current <code class="docutils literal notranslate"><span class="pre">DIMSEMessage</span></code> object.</p></td>
-</tr>
-</tbody>
-</table>
+  <div class="section" id="pynetdicom-config-allow-long-dimse-aet">
+<h1>pynetdicom._config.ALLOW_LONG_DIMSE_AET<a class="headerlink" href="#pynetdicom-config-allow-long-dimse-aet" title="Permalink to this headline">¶</a></h1>
+<dl class="py data">
+<dt id="pynetdicom._config.ALLOW_LONG_DIMSE_AET">
+<code class="sig-prename descclassname">pynetdicom._config.</code><code class="sig-name descname">ALLOW_LONG_DIMSE_AET</code><em class="property"> = False</em><a class="headerlink" href="#pynetdicom._config.ALLOW_LONG_DIMSE_AET" title="Permalink to this definition">¶</a></dt>
+<dd><p>Allow the use of non-conformant AE titles.</p>
+<div class="versionadded">
+<p><span class="versionmodified added">New in version 2.0.</span></p>
+</div>
+<p>If <code class="docutils literal notranslate"><span class="pre">False</span></code> then elements with a VR of AE in DIMSE messages will have their
+length checked to ensure conformance, otherwise no length check will be
+performed.</p>
+<p class="rubric">Examples</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">pynetdicom</span> <span class="kn">import</span> <span class="n">_config</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">_config</span><span class="o">.</span><span class="n">ALL_LONG_AET</span> <span class="o">=</span> <span class="kc">True</span>
+</pre></div>
+</div>
 </dd></dl>
 
 </div>
@@ -251,10 +230,10 @@
   
     <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
       
-        <a href="pynetdicom.dimse_messages.N_GET_RSP.html" class="btn btn-neutral float-right" title="pynetdicom.dimse_messages.N_GET_RSP" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
+        <a href="pynetdicom._config.LOG_REQUEST_IDENTIFIERS.html" class="btn btn-neutral float-right" title="pynetdicom._config.LOG_REQUEST_IDENTIFIERS" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
       
       
-        <a href="pynetdicom.dimse_messages.N_EVENT_REPORT_RSP.html" class="btn btn-neutral float-left" title="pynetdicom.dimse_messages.N_EVENT_REPORT_RSP" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+        <a href="pynetdicom._config.USE_SHORT_DIMSE_AET.html" class="btn btn-neutral float-left" title="pynetdicom._config.USE_SHORT_DIMSE_AET" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
       
     </div>
   
