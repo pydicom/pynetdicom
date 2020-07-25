@@ -41,15 +41,19 @@ except ImportError:
 # absolute, like shown here.
 sys.path.insert(0, os.path.abspath('../build_tools/sphinx'))
 print(os.path.abspath('../build_tools/sphinx'))
+print(sys.path)
 from github_link import make_linkcode_resolve
 #sys.path.insert(0, os.path.abspath('sphinxext'))  # noqa
 #from github_link import make_linkcode_resolve
 
 # Get the pydicom version
 BASE_DIR = Path(__file__).resolve().parent.parent
+sys.path.append(os.fspath(BASE_DIR / 'pynetdicom'))
 VERSION_FILE = BASE_DIR / 'pynetdicom' / '_version.py'
 with open(VERSION_FILE) as fp:
     exec(fp.read())
+
+print(f"pynetdicom v{__version__}")
 
 # If your documentation needs a minimal Sphinx version, state it here.
 # needs_sphinx = '1.0'
