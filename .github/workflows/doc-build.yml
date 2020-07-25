@@ -20,5 +20,5 @@ jobs:
     - uses: actions/checkout@v2
     - uses: ammaraskar/sphinx-action@master
       with:
-        docs-folder: "docs/"
+        docs-folder: "pynetdicom/docs/"
         pre-build-command: "apt-get update -y && apt-get install -y git"
