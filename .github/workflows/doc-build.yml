@@ -22,4 +22,4 @@ jobs:
       with:
         docs-folder: "docs/"
         pre-build-command: "apt-get update -y && apt-get install -y git"
-        build_command: "make html"
+        build-command: "make html"
