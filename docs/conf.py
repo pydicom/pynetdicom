@@ -40,6 +40,7 @@ except ImportError:
 # is relative to the documentation root, use os.path.abspath to make it
 # absolute, like shown here.
 sys.path.insert(0, os.path.abspath('../build_tools/sphinx'))
+BASE_DIR = Path(__file__).resolve().parent.parent
 sys.path.append(os.fspath(BASE_DIR / 'pynetdicom'))
 
 from github_link import make_linkcode_resolve
