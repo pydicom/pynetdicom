@@ -38,9 +38,9 @@ jobs:
       run: |
         python -c "import pytest; pytest.main(['--pyargs', 'pynetdicom.tests'])"
 
-    #- name: Publish a Python distribution to PyPI
-    #  if: ${{ success() }}
-    #  uses: pypa/gh-action-pypi-publish@master
-    #  with:
-    #    user: __token__
-    #    password: ${{ secrets.pypi_password }}
+    - name: Publish a Python distribution to PyPI
+      if: ${{ success() }}
+      uses: pypa/gh-action-pypi-publish@master
+      with:
+        user: __token__
+        password: ${{ secrets.pypi_password }}
