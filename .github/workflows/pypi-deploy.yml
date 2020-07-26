@@ -3,8 +3,6 @@ name: pypi-deploy
 on:
   release:
     types: [ published ]
-  pull_request:
-    branches: [ master ]
 
 jobs:
 
@@ -28,9 +26,6 @@ jobs:
         python -m pip install --upgrade pip
         pip install wheel
         python setup.py sdist bdist_wheel
-        ls .
-        ls dist
-        pwd
 
     - name: Upload artifacts
       if: ${{ success() }}
@@ -48,7 +43,6 @@ jobs:
 
     - name: Install dependencies
       run: |
-
         pip install virtualenvwrapper
         mkvirtualenvwrapper testpynd
         pip install pytest pydicom
@@ -61,8 +55,8 @@ jobs:
         deactivate
         cd ${GITHUB_WORKSPACE}
 
-    #- name: Publish package to PyPi
-    #  uses: pypa/gh-action-pypi-publish@master
-    #  with:
-    #    user: __token__
-    #    password: ${{ secrets.PYPI_PASSWORD }}
+    - name: Publish package to PyPi
+      uses: pypa/gh-action-pypi-publish@master
+      with:
+        user: __token__
+        password: ${{ secrets.PYPI_PASSWORD }}
