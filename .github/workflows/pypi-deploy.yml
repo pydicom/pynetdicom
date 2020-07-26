@@ -28,6 +28,9 @@ jobs:
         python -m pip install --upgrade pip
         pip install wheel
         python setup.py sdist bdist_wheel
+        ls .
+        ls dist
+        pwd
 
     - name: Upload artifacts
       if: ${{ success() }}
@@ -53,8 +56,10 @@ jobs:
 
     - name: Test with pytest
       run: |
+        cd ${HOME}
         python -c "import pytest; pytest.main(['--pyargs', 'pynetdicom.tests'])"
         deactivate
+        cd ${GITHUB_WORKSPACE}
 
     #- name: Publish package to PyPi
     #  uses: pypa/gh-action-pypi-publish@master
