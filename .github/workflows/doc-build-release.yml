@@ -24,12 +24,6 @@ jobs:
         docs-folder: "docs/"
         pre-build-command: "apt-get update -y && apt-get install -y git"
         build-command: "make html"
-    - name: Upload artifacts
-      if: ${{ success() }}
-      uses: actions/upload-artifact@v1
-      with:
-        name: docs
-        path: docs/_build/html/
     - name: Commit changes to gh-pages
       run: |
         git clone https://github.com/pydicom/pynetdicom.git --branch gh-pages --single-branch gh-pages

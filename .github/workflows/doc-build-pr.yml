@@ -28,7 +28,7 @@ jobs:
       if: ${{ success() }}
       uses: actions/upload-artifact@v1
       with:
-        name: DocumentationHTML
+        name: docs
         path: docs/_build/html/
     - name: Test committing changes to gh-pages
       run: |
