@@ -4522,6 +4522,37 @@ class TestGetValidContext(object):
         assoc.release()
         scp.shutdown()
 
+    def test_allow_conversion(self):
+        """Test allow_conversion=False."""
+        self.ae = ae = AE()
+        ae.acse_timeout = 5
+        ae.dimse_timeout = 5
+        ae.network_timeout = 5
+        ae.add_supported_context(CTImageStorage, ImplicitVRLittleEndian)
+        ae.add_supported_context(CTImageStorage, ExplicitVRLittleEndian)
+        scp = ae.start_server(('', 11112), block=False)
+
+        ae.add_requested_context(CTImageStorage, ImplicitVRLittleEndian)
+        #ae.add_requested_context(CTImageStorage, ExplicitVRLittleEndian)
+
+        assoc = ae.associate('localhost', 11112)
+        assert assoc.is_established
+
+        msg = (
+            r"No presentation context for 'CT Image Storage' has been "
+            r"accepted by the peer with 'Explicit VR"
+        )
+        with pytest.raises(ValueError, match=msg):
+            assoc._get_valid_context(
+                CTImageStorage,
+                ExplicitVRLittleEndian,
+                'scu',
+                allow_conversion=False
+            )
+
+        assoc.release()
+        scp.shutdown()
+
 
 class TestEventHandlingAcceptor(object):
     """Test the transport events and handling as acceptor."""

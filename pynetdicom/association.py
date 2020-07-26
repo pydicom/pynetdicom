@@ -5,6 +5,7 @@ from io import BytesIO
 import logging
 import threading
 import time
+from typing import Union, Optional
 
 from pydicom.dataset import Dataset
 from pydicom.uid import UID
@@ -27,12 +28,6 @@ from pynetdicom._handlers import (
     standard_dimse_recv_handler, standard_dimse_sent_handler,
     standard_pdu_recv_handler, standard_pdu_sent_handler,
 )
-from pynetdicom.sop_class import (
-    uid_to_service_class, VerificationSOPClass,
-    UnifiedProcedureStepPullSOPClass, UnifiedProcedureStepPushSOPClass,
-    UnifiedProcedureStepWatchSOPClass, UnifiedProcedureStepEventSOPClass,
-    UnifiedProcedureStepQuerySOPClass
-)
 from pynetdicom.pdu_primitives import (
     UserIdentityNegotiation,
     MaximumLengthNotification,
@@ -42,6 +37,13 @@ from pynetdicom.pdu_primitives import (
     SOPClassExtendedNegotiation,
     SOPClassCommonExtendedNegotiation,
     SCP_SCU_RoleSelectionNegotiation,
+)
+from pynetdicom.presentation import PresentationContext
+from pynetdicom.sop_class import (
+    uid_to_service_class, VerificationSOPClass,
+    UnifiedProcedureStepPullSOPClass, UnifiedProcedureStepPushSOPClass,
+    UnifiedProcedureStepWatchSOPClass, UnifiedProcedureStepEventSOPClass,
+    UnifiedProcedureStepQuerySOPClass
 )
 from pynetdicom.status import code_to_category, STORAGE_SERVICE_CLASS_STATUS
 
@@ -326,14 +328,24 @@ class Association(threading.Thread):
 
         return self._handlers[event]
 
-    def _get_valid_context(self, ab_syntax, tr_syntax, role=None,
-                           context_id=None):
+    def _get_valid_context(
+        self,
+        ab_syntax: UID,
+        tr_syntax: UID,
+        role: Optional[str] = None,
+        context_id: Optional[int] = None,
+        allow_conversion: bool = True
+    ) -> PresentationContext:
         """Return a valid presentation context matching the parameters.
 
         .. versionchanged:: 1.5
 
             Changed to prefer an exact matching context over a convertible one
             and to reject contexts without matching endianness
+
+        .. versionchanged:: 2.0
+
+            Added `allow_conversion` keyword parameter.
 
         Parameters
         ----------
@@ -352,6 +364,10 @@ class Association(threading.Thread):
             If used then the ID of the presentation context to use. It
             will be checked against the available parameter values. If the ID
             isn't found then will check against all accepted contexts.
+        allow_conversion : bool, optional
+            If ``True`` (default), then if there's no exact matching accepted
+            presentation context then use a convertible one instead. If
+            ``False`` then an exact matching context is required.
 
         Returns
         -------
@@ -427,7 +443,7 @@ class Association(threading.Thread):
             #       deflated <-> inflated
             matches.append(cx)
 
-        if matches:
+        if allow_conversion and matches:
             return matches[0]
 
         role = role or 'scu'

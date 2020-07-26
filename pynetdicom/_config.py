@@ -99,3 +99,25 @@ Examples
 >>> from pynetdicom import _config
 >>> _config.LOG_REQUEST_IDENTIFIERS = False
 """
+
+
+STORE_SEND_CHUNKED_DATASET = False
+"""Chunk a dataset file when sending it to minimise memory usage.
+
+.. versionadded:: 2.1
+
+If ``True``, then when using
+:meth:`~pynetdicom.association.Association.send_c_store` with a file path to
+a DICOM dataset, don't decode the dataset and instead send the raw encoded
+data (without the File Meta STORE_CHUNK_DATASETInformation) in chunks of no larger than
+:attr:`~pynetdicom.ae.ApplicationEntity.maximum_pdu_size`. This should
+minimise the amount of memory required when sending large datasets, however
+no conversion of the dataset is possible and so an exact matching accepted
+presentation context will be required. Default: ``False``.
+
+Examples
+--------
+
+>>> from pynetdicom import _config
+>>> _config.STORE_SEND_CHUNKED_DATASET = True
+"""
