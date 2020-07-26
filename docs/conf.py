@@ -41,7 +41,7 @@ except ImportError:
 # absolute, like shown here.
 sys.path.insert(0, os.path.abspath('../build_tools/sphinx'))
 BASE_DIR = Path(__file__).resolve().parent.parent
-sys.path.append(os.fspath(BASE_DIR / 'pynetdicom'))
+sys.path.append(os.fspath(BASE_DIR))
 
 from github_link import make_linkcode_resolve
 import pynetdicom
