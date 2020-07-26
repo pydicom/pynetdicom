@@ -32,12 +32,12 @@ jobs:
         ls dist
         pwd
 
-    #- name: Upload artifacts
-    #  if: ${{ success() }}
-    #  uses: actions/upload-artifact@v1
-    #  with:
-    #    name: wheels
-    #    path: dist/*
+    - name: Upload artifacts
+      if: ${{ success() }}
+      uses: actions/upload-artifact@v2
+      with:
+        name: wheels
+        path: dist/*.whl
 
     - name: Publish package to Test PyPi
       uses: pypa/gh-action-pypi-publish@master
