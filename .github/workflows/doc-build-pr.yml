@@ -15,6 +15,9 @@ jobs:
         python-version: [3.8]
 
     steps:
+    - name: Get branch name
+      # Should be 'merge'
+      run: echo ${GITHUB_REF##*/}
     - uses: actions/checkout@v2
     - uses: ammaraskar/sphinx-action@master
       with:
@@ -27,8 +30,6 @@ jobs:
       with:
         name: DocumentationHTML
         path: docs/_build/html/
-    - name: Get branch name
-      run: echo ${GITHUB_REF##*/}
     - name: Commit changes to gh-pages
       run: |
         git clone https://github.com/pydicom/pynetdicom.git --branch gh-pages --single-branch gh-pages

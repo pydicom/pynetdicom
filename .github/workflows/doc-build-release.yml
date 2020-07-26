@@ -2,7 +2,7 @@ name: docs-release
 
 on:
   push:
-    branches: [ '[0-9].[0-9].X' ]
+    branches: -'[0-9].[0-9].X'
 
 jobs:
 
@@ -15,6 +15,9 @@ jobs:
         python-version: [3.8]
 
     steps:
+    - name: Get branch name
+      # Should be 1.2.X, 2.5.X, etc
+      run: echo ${GITHUB_REF##*/}
     - uses: actions/checkout@v2
     - uses: ammaraskar/sphinx-action@master
       with:
@@ -25,15 +28,13 @@ jobs:
       if: ${{ success() }}
       uses: actions/upload-artifact@v1
       with:
-        name: DocumentationHTML
+        name: docs
         path: docs/_build/html/
-    - name: Get branch name
-      run: echo ${GITHUB_REF##*/}
     - name: Commit changes to gh-pages
       run: |
         git clone https://github.com/pydicom/pynetdicom.git --branch gh-pages --single-branch gh-pages
-        BRANCH={{ github.events.}}
-        cp -r docs/_build/html/* gh-pages/${GITHUB_REF##*/}
+        BRANCH=${GITHUB_REF##*/}
+        cp -r docs/_build/html/* gh-pages/${BRANCH::-2}
         cd gh-pages
         git config --local user.email "action@github.com"
         git config --local user.name "GitHub Action"
