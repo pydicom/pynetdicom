@@ -41,14 +41,14 @@ except ImportError:
 # absolute, like shown here.
 sys.path.insert(0, os.path.abspath('../build_tools/sphinx'))
 print(os.path.abspath('../build_tools/sphinx'))
-print(sys.path)
-from github_link import make_linkcode_resolve
 #sys.path.insert(0, os.path.abspath('sphinxext'))  # noqa
-#from github_link import make_linkcode_resolve
+
+from github_link import make_linkcode_resolve
 
 # Get the pydicom version
 BASE_DIR = Path(__file__).resolve().parent.parent
 sys.path.append(os.fspath(BASE_DIR / 'pynetdicom'))
+print(sys.path)
 VERSION_FILE = BASE_DIR / 'pynetdicom' / '_version.py'
 with open(VERSION_FILE) as fp:
     exec(fp.read())
@@ -137,7 +137,7 @@ master_doc = 'index'
 
 # General information about the project.
 project = u'pynetdicom'
-copyright = u'2018-20, pynetdicom contributors'
+copyright = u'2018-2020, pynetdicom contributors'
 
 # The version info for the project you're documenting, acts as replacement for
 # |version| and |release|, also used in various other places throughout the
@@ -275,8 +275,10 @@ htmlhelp_basename = 'pynetdicomdoc'
 # (source start file, target name, title, author,
 # documentclass [howto/manual]).
 latex_documents = [
-  ('index', 'pynetdicom.tex', u'pynetdicom Documentation',
-   u'pynetdicom contributors', 'manual'),
+    (
+        'index', 'pynetdicom.tex', u'pynetdicom Documentation',
+        u'pynetdicom contributors', 'manual'
+    ),
 ]
 
 # The name of an image file (relative to this directory) to place at the top of
@@ -300,8 +302,9 @@ latex_documents = [
 def generate_example_rst(app, what, name, obj, options, lines):
     # generate empty examples files, so that we don't get
     # inclusion errors if there are no examples for a class / module
-    examples_path = os.path.join(app.srcdir, "generated",
-                                 "%s.examples" % name)
+    examples_path = os.path.join(
+        app.srcdir, "generated", "%s.examples" % name
+    )
     if not os.path.exists(examples_path):
         # touch file
         open(examples_path, 'w').close()
@@ -321,7 +324,7 @@ def setup(app):
 
 
 # The following is used by sphinx.ext.linkcode to provide links to github
-linkcode_resolve = make_linkcode_resolve('pynetdicom',
-                                         u'https://github.com/pydicom/'
-                                         'pynetdicom/blob/{revision}/'
-                                         '{package}/{path}#L{lineno}')
+linkcode_resolve = make_linkcode_resolve(
+    'pynetdicom',
+    u'https://github.com/pydicom/pynetdicom/blob/{revision}/{package}/{path}#L{lineno}'
+)
