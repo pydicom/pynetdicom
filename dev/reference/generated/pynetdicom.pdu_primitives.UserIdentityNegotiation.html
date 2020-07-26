@@ -212,9 +212,9 @@
             
   <div class="section" id="pynetdicom-pdu-primitives-useridentitynegotiation">
 <h1>pynetdicom.pdu_primitives.UserIdentityNegotiation<a class="headerlink" href="#pynetdicom-pdu-primitives-useridentitynegotiation" title="Permalink to this headline">¶</a></h1>
-<dl class="py class">
+<dl class="class">
 <dt id="pynetdicom.pdu_primitives.UserIdentityNegotiation">
-<em class="property">class </em><code class="sig-prename descclassname">pynetdicom.pdu_primitives.</code><code class="sig-name descname">UserIdentityNegotiation</code><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/2a4ed109/pynetdicom/pdu_primitives.py#L2021"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom.pdu_primitives.UserIdentityNegotiation" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="sig-prename descclassname">pynetdicom.pdu_primitives.</code><code class="sig-name descname">UserIdentityNegotiation</code><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/8fa6839/pynetdicom/pdu_primitives.py#L2021"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom.pdu_primitives.UserIdentityNegotiation" title="Permalink to this definition">¶</a></dt>
 <dd><p>Representation of the User Identity Negotiation primitive.</p>
 <p>Allows peer AEs to exchange generic application information.</p>
 <p>The SOP Class Common Extended Negotiation is optional and there may only be
@@ -239,7 +239,7 @@ end-user and is outside the scope of the DICOM standard.</p>
 The <cite>server_response</cite> parameter is required when a response to the User
 Identity Negotiation request is to be issued (although this depends on
 whether or not this is supported by the <em>Acceptor</em>).</p>
-<dl class="py attribute">
+<dl class="attribute">
 <dt id="pynetdicom.pdu_primitives.UserIdentityNegotiation.user_identity_type">
 <code class="sig-name descname">user_identity_type</code><a class="headerlink" href="#pynetdicom.pdu_primitives.UserIdentityNegotiation.user_identity_type" title="Permalink to this definition">¶</a></dt>
 <dd><p>A-ASSOCIATE-RQ only. One of the following values:</p>
@@ -257,7 +257,7 @@ whether or not this is supported by the <em>Acceptor</em>).</p>
 </dl>
 </dd></dl>
 
-<dl class="py attribute">
+<dl class="attribute">
 <dt id="pynetdicom.pdu_primitives.UserIdentityNegotiation.positive_response_requested">
 <code class="sig-name descname">positive_response_requested</code><a class="headerlink" href="#pynetdicom.pdu_primitives.UserIdentityNegotiation.positive_response_requested" title="Permalink to this definition">¶</a></dt>
 <dd><p>A-ASSOCIATE-RQ only. <code class="docutils literal notranslate"><span class="pre">True</span></code> when requesting a response, <code class="docutils literal notranslate"><span class="pre">False</span></code>
@@ -269,7 +269,7 @@ otherwise (default is <code class="docutils literal notranslate"><span class="pr
 </dl>
 </dd></dl>
 
-<dl class="py attribute">
+<dl class="attribute">
 <dt id="pynetdicom.pdu_primitives.UserIdentityNegotiation.primary_field">
 <code class="sig-name descname">primary_field</code><a class="headerlink" href="#pynetdicom.pdu_primitives.UserIdentityNegotiation.primary_field" title="Permalink to this definition">¶</a></dt>
 <dd><p>A-ASSOCIATE-RQ only. Contains either the username, Kerberos Service
@@ -281,7 +281,7 @@ ticket or SAML assertion depending on <cite>user_identity_type</cite>.</p>
 </dl>
 </dd></dl>
 
-<dl class="py attribute">
+<dl class="attribute">
 <dt id="pynetdicom.pdu_primitives.UserIdentityNegotiation.secondary_field">
 <code class="sig-name descname">secondary_field</code><a class="headerlink" href="#pynetdicom.pdu_primitives.UserIdentityNegotiation.secondary_field" title="Permalink to this definition">¶</a></dt>
 <dd><p>A-ASSOCIATE-RQ only. Only required if the <cite>user_identity_type</cite> is
@@ -294,7 +294,7 @@ otherwise.</p>
 </dl>
 </dd></dl>
 
-<dl class="py attribute">
+<dl class="attribute">
 <dt id="pynetdicom.pdu_primitives.UserIdentityNegotiation.server_response">
 <code class="sig-name descname">server_response</code><a class="headerlink" href="#pynetdicom.pdu_primitives.UserIdentityNegotiation.server_response" title="Permalink to this definition">¶</a></dt>
 <dd><p>A-ASSOCIATE-AC only. Shall contain the Kerberos Service ticket or SAML
@@ -320,9 +320,9 @@ be <code class="docutils literal notranslate"><span class="pre">None</span></cod
 <ul class="simple">
 <li><p>DICOM Standard, Part 7, <a class="reference external" href="http://dicom.nema.org/medical/dicom/current/output/chtml/part07/sect_D.3.3.7.html">Annex D.3.3.7</a></p></li>
 </ul>
-<dl class="py method">
+<dl class="method">
 <dt id="pynetdicom.pdu_primitives.UserIdentityNegotiation.__init__">
-<code class="sig-name descname">__init__</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/2a4ed109/pynetdicom/pdu_primitives.py#L2093"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom.pdu_primitives.UserIdentityNegotiation.__init__" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">__init__</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/8fa6839/pynetdicom/pdu_primitives.py#L2093"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom.pdu_primitives.UserIdentityNegotiation.__init__" title="Permalink to this definition">¶</a></dt>
 <dd><p>Initialize self.  See help(type(self)) for accurate signature.</p>
 </dd></dl>
 
@@ -348,26 +348,26 @@ be <code class="docutils literal notranslate"><span class="pre">None</span></cod
 <col style="width: 90%" />
 </colgroup>
 <tbody>
-<tr class="row-odd"><td><p><a class="reference internal" href="#id0" title="pynetdicom.pdu_primitives.UserIdentityNegotiation.positive_response_requested"><code class="xref py py-obj docutils literal notranslate"><span class="pre">positive_response_requested</span></code></a></p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pynetdicom.pdu_primitives.UserIdentityNegotiation.positive_response_requested" title="pynetdicom.pdu_primitives.UserIdentityNegotiation.positive_response_requested"><code class="xref py py-obj docutils literal notranslate"><span class="pre">positive_response_requested</span></code></a></p></td>
 <td><p>Return <em>Positive Response Requested</em>.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#id1" title="pynetdicom.pdu_primitives.UserIdentityNegotiation.primary_field"><code class="xref py py-obj docutils literal notranslate"><span class="pre">primary_field</span></code></a></p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#pynetdicom.pdu_primitives.UserIdentityNegotiation.primary_field" title="pynetdicom.pdu_primitives.UserIdentityNegotiation.primary_field"><code class="xref py py-obj docutils literal notranslate"><span class="pre">primary_field</span></code></a></p></td>
 <td><p>Return <em>Primary Field</em>.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#id2" title="pynetdicom.pdu_primitives.UserIdentityNegotiation.secondary_field"><code class="xref py py-obj docutils literal notranslate"><span class="pre">secondary_field</span></code></a></p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pynetdicom.pdu_primitives.UserIdentityNegotiation.secondary_field" title="pynetdicom.pdu_primitives.UserIdentityNegotiation.secondary_field"><code class="xref py py-obj docutils literal notranslate"><span class="pre">secondary_field</span></code></a></p></td>
 <td><p>Return the <em>Secondary Field</em>.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#id3" title="pynetdicom.pdu_primitives.UserIdentityNegotiation.server_response"><code class="xref py py-obj docutils literal notranslate"><span class="pre">server_response</span></code></a></p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#pynetdicom.pdu_primitives.UserIdentityNegotiation.server_response" title="pynetdicom.pdu_primitives.UserIdentityNegotiation.server_response"><code class="xref py py-obj docutils literal notranslate"><span class="pre">server_response</span></code></a></p></td>
 <td><p>Return the <em>Server Response</em>.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#id4" title="pynetdicom.pdu_primitives.UserIdentityNegotiation.user_identity_type"><code class="xref py py-obj docutils literal notranslate"><span class="pre">user_identity_type</span></code></a></p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pynetdicom.pdu_primitives.UserIdentityNegotiation.user_identity_type" title="pynetdicom.pdu_primitives.UserIdentityNegotiation.user_identity_type"><code class="xref py py-obj docutils literal notranslate"><span class="pre">user_identity_type</span></code></a></p></td>
 <td><p>Return the <em>User Identity Type</em>.</p></td>
 </tr>
 </tbody>
 </table>
-<dl class="py method">
+<dl class="method">
 <dt id="pynetdicom.pdu_primitives.UserIdentityNegotiation.from_primitive">
-<code class="sig-name descname">from_primitive</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/2a4ed109/pynetdicom/pdu_primitives.py#L2100"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom.pdu_primitives.UserIdentityNegotiation.from_primitive" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">from_primitive</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/8fa6839/pynetdicom/pdu_primitives.py#L2100"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom.pdu_primitives.UserIdentityNegotiation.from_primitive" title="Permalink to this definition">¶</a></dt>
 <dd><p>Convert the primitive to a PDU item ready to be encoded.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Returns</dt>
@@ -387,33 +387,33 @@ be <code class="docutils literal notranslate"><span class="pre">None</span></cod
 </dl>
 </dd></dl>
 
-<dl class="py method">
-<dt id="id0">
-<em class="property">property </em><code class="sig-name descname">positive_response_requested</code><a class="headerlink" href="#id0" title="Permalink to this definition">¶</a></dt>
+<dl class="method">
+<dt>
+<em class="property">property </em><code class="sig-name descname">positive_response_requested</code></dt>
 <dd><p>Return <em>Positive Response Requested</em>.</p>
 </dd></dl>
 
-<dl class="py method">
-<dt id="id1">
-<em class="property">property </em><code class="sig-name descname">primary_field</code><a class="headerlink" href="#id1" title="Permalink to this definition">¶</a></dt>
+<dl class="method">
+<dt>
+<em class="property">property </em><code class="sig-name descname">primary_field</code></dt>
 <dd><p>Return <em>Primary Field</em>.</p>
 </dd></dl>
 
-<dl class="py method">
-<dt id="id2">
-<em class="property">property </em><code class="sig-name descname">secondary_field</code><a class="headerlink" href="#id2" title="Permalink to this definition">¶</a></dt>
+<dl class="method">
+<dt>
+<em class="property">property </em><code class="sig-name descname">secondary_field</code></dt>
 <dd><p>Return the <em>Secondary Field</em>.</p>
 </dd></dl>
 
-<dl class="py method">
-<dt id="id3">
-<em class="property">property </em><code class="sig-name descname">server_response</code><a class="headerlink" href="#id3" title="Permalink to this definition">¶</a></dt>
+<dl class="method">
+<dt>
+<em class="property">property </em><code class="sig-name descname">server_response</code></dt>
 <dd><p>Return the <em>Server Response</em>.</p>
 </dd></dl>
 
-<dl class="py method">
-<dt id="id4">
-<em class="property">property </em><code class="sig-name descname">user_identity_type</code><a class="headerlink" href="#id4" title="Permalink to this definition">¶</a></dt>
+<dl class="method">
+<dt>
+<em class="property">property </em><code class="sig-name descname">user_identity_type</code></dt>
 <dd><p>Return the <em>User Identity Type</em>.</p>
 </dd></dl>
 
@@ -442,7 +442,7 @@ be <code class="docutils literal notranslate"><span class="pre">None</span></cod
   <div role="contentinfo">
     <p>
         
-        &copy; Copyright 2018-20, pynetdicom contributors
+        &copy; Copyright 2018-2020, pynetdicom contributors
 
     </p>
   </div>

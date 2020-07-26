@@ -220,9 +220,9 @@
             
   <div class="section" id="pynetdicom-handlers-doc-handle-echo">
 <h1>pynetdicom._handlers.doc_handle_echo<a class="headerlink" href="#pynetdicom-handlers-doc-handle-echo" title="Permalink to this headline">¶</a></h1>
-<dl class="py function">
+<dl class="function">
 <dt id="pynetdicom._handlers.doc_handle_echo">
-<code class="sig-prename descclassname">pynetdicom._handlers.</code><code class="sig-name descname">doc_handle_echo</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">event</span></em>, <em class="sig-param"><span class="o">*</span><span class="n">args</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/2a4ed109/pynetdicom/_handlers.py#L1898"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom._handlers.doc_handle_echo" title="Permalink to this definition">¶</a></dt>
+<code class="sig-prename descclassname">pynetdicom._handlers.</code><code class="sig-name descname">doc_handle_echo</code><span class="sig-paren">(</span><em class="sig-param">event</em>, <em class="sig-param">*args</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/8fa6839/pynetdicom/_handlers.py#L1898"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom._handlers.doc_handle_echo" title="Permalink to this definition">¶</a></dt>
 <dd><p>Documentation for handlers bound to <code class="docutils literal notranslate"><span class="pre">evt.EVT_C_ECHO</span></code>.</p>
 <p>User implementation of this event handler is optional. If a handler is
 not implemented and bound to <code class="docutils literal notranslate"><span class="pre">evt.EVT_C_ECHO</span></code> then the C-ECHO request
@@ -259,7 +259,7 @@ that is running the DICOM service that received the C-ECHO request.</p></li>
 <li><p><code class="xref py py-attr docutils literal notranslate"><span class="pre">context</span></code>: the presentation context
 the request was sent under as a
 <a class="reference internal" href="pynetdicom.presentation.PresentationContextTuple.html#pynetdicom.presentation.PresentationContextTuple" title="pynetdicom.presentation.PresentationContextTuple"><code class="xref py py-class docutils literal notranslate"><span class="pre">PresentationContextTuple</span></code></a>.</p></li>
-<li><p><a class="reference internal" href="pynetdicom.events.Event.html#id0" title="pynetdicom.events.Event.event"><code class="xref py py-attr docutils literal notranslate"><span class="pre">event</span></code></a>: the event that occurred as an
+<li><p><a class="reference internal" href="pynetdicom.events.Event.html#pynetdicom.events.Event.event" title="pynetdicom.events.Event.event"><code class="xref py py-attr docutils literal notranslate"><span class="pre">event</span></code></a>: the event that occurred as an
 <a class="reference internal" href="pynetdicom.events.InterventionEvent.html#pynetdicom.events.InterventionEvent" title="pynetdicom.events.InterventionEvent"><code class="xref py py-class docutils literal notranslate"><span class="pre">InterventionEvent</span></code></a>.</p></li>
 <li><p><code class="xref py py-attr docutils literal notranslate"><span class="pre">request</span></code>: the received
 <a class="reference internal" href="pynetdicom.dimse_primitives.C_ECHO.html#pynetdicom.dimse_primitives.C_ECHO" title="pynetdicom.dimse_primitives.C_ECHO"><code class="xref py py-class docutils literal notranslate"><span class="pre">C-ECHO</span> <span class="pre">request</span></code></a></p></li>
@@ -331,7 +331,7 @@ then it may also contain optional elements related to the <em>Status</em>
   <div role="contentinfo">
     <p>
         
-        &copy; Copyright 2018-20, pynetdicom contributors
+        &copy; Copyright 2018-2020, pynetdicom contributors
 
     </p>
   </div>

@@ -212,9 +212,9 @@
             
   <div class="section" id="pynetdicom-handlers-doc-handle-dimse">
 <h1>pynetdicom._handlers.doc_handle_dimse<a class="headerlink" href="#pynetdicom-handlers-doc-handle-dimse" title="Permalink to this headline">¶</a></h1>
-<dl class="py function">
+<dl class="function">
 <dt id="pynetdicom._handlers.doc_handle_dimse">
-<code class="sig-prename descclassname">pynetdicom._handlers.</code><code class="sig-name descname">doc_handle_dimse</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">event</span></em>, <em class="sig-param"><span class="o">*</span><span class="n">args</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/2a4ed109/pynetdicom/_handlers.py#L3776"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom._handlers.doc_handle_dimse" title="Permalink to this definition">¶</a></dt>
+<code class="sig-prename descclassname">pynetdicom._handlers.</code><code class="sig-name descname">doc_handle_dimse</code><span class="sig-paren">(</span><em class="sig-param">event</em>, <em class="sig-param">*args</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/8fa6839/pynetdicom/_handlers.py#L3776"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom._handlers.doc_handle_dimse" title="Permalink to this definition">¶</a></dt>
 <dd><p>Documentation for handlers bound to <code class="docutils literal notranslate"><span class="pre">evt.EVT_DIMSE_RECV</span></code> or
 <code class="docutils literal notranslate"><span class="pre">evt.EVT_DIMSE_SENT</span></code>.</p>
 <dl class="field-list simple">
@@ -229,7 +229,7 @@ attributes are:</p>
 <a class="reference internal" href="pynetdicom.association.Association.html#pynetdicom.association.Association" title="pynetdicom.association.Association"><code class="xref py py-class docutils literal notranslate"><span class="pre">Association</span></code></a>
 that is running the service that received the user identity
 negotiation request.</p></li>
-<li><p><a class="reference internal" href="pynetdicom.events.Event.html#id0" title="pynetdicom.events.Event.event"><code class="xref py py-attr docutils literal notranslate"><span class="pre">event</span></code></a>: the event that occurred as
+<li><p><a class="reference internal" href="pynetdicom.events.Event.html#pynetdicom.events.Event.event" title="pynetdicom.events.Event.event"><code class="xref py py-attr docutils literal notranslate"><span class="pre">event</span></code></a>: the event that occurred as
 <a class="reference internal" href="pynetdicom.events.NotificationEvent.html#pynetdicom.events.NotificationEvent" title="pynetdicom.events.NotificationEvent"><code class="xref py py-class docutils literal notranslate"><span class="pre">NotificationEvent</span></code></a>.</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">message</span></code>: the DIMSE message encoding or decoded. One of
 <a class="reference internal" href="pynetdicom.dimse_messages.C_ECHO_RQ.html#pynetdicom.dimse_messages.C_ECHO_RQ" title="pynetdicom.dimse_messages.C_ECHO_RQ"><code class="xref py py-class docutils literal notranslate"><span class="pre">C_ECHO_RQ</span></code></a>,
@@ -291,7 +291,7 @@ matching the contents of <cite>args</cite>.</p></li>
   <div role="contentinfo">
     <p>
         
-        &copy; Copyright 2018-20, pynetdicom contributors
+        &copy; Copyright 2018-2020, pynetdicom contributors
 
     </p>
   </div>

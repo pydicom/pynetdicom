@@ -201,16 +201,16 @@
             
   <div class="section" id="pynetdicom-transport-threadedassociationserver">
 <h1>pynetdicom.transport.ThreadedAssociationServer<a class="headerlink" href="#pynetdicom-transport-threadedassociationserver" title="Permalink to this headline">¶</a></h1>
-<dl class="py class">
+<dl class="class">
 <dt id="pynetdicom.transport.ThreadedAssociationServer">
-<em class="property">class </em><code class="sig-prename descclassname">pynetdicom.transport.</code><code class="sig-name descname">ThreadedAssociationServer</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">ae</span></em>, <em class="sig-param"><span class="n">address</span></em>, <em class="sig-param"><span class="n">ae_title</span></em>, <em class="sig-param"><span class="n">contexts</span></em>, <em class="sig-param"><span class="n">ssl_context</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">evt_handlers</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">request_handler</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/2a4ed109/pynetdicom/transport.py#L782"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom.transport.ThreadedAssociationServer" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="sig-prename descclassname">pynetdicom.transport.</code><code class="sig-name descname">ThreadedAssociationServer</code><span class="sig-paren">(</span><em class="sig-param">ae</em>, <em class="sig-param">address</em>, <em class="sig-param">ae_title</em>, <em class="sig-param">contexts</em>, <em class="sig-param">ssl_context=None</em>, <em class="sig-param">evt_handlers=None</em>, <em class="sig-param">request_handler=None</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/8fa6839/pynetdicom/transport.py#L782"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom.transport.ThreadedAssociationServer" title="Permalink to this definition">¶</a></dt>
 <dd><p>An <a class="reference internal" href="pynetdicom.transport.AssociationServer.html#pynetdicom.transport.AssociationServer" title="pynetdicom.transport.AssociationServer"><code class="xref py py-class docutils literal notranslate"><span class="pre">AssociationServer</span></code></a> suitable for threading.</p>
 <div class="versionadded">
 <p><span class="versionmodified added">New in version 1.2.</span></p>
 </div>
-<dl class="py method">
+<dl class="method">
 <dt id="pynetdicom.transport.ThreadedAssociationServer.__init__">
-<code class="sig-name descname">__init__</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">ae</span></em>, <em class="sig-param"><span class="n">address</span></em>, <em class="sig-param"><span class="n">ae_title</span></em>, <em class="sig-param"><span class="n">contexts</span></em>, <em class="sig-param"><span class="n">ssl_context</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">evt_handlers</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">request_handler</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/2a4ed109/pynetdicom/transport.py#L501"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom.transport.ThreadedAssociationServer.__init__" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">__init__</code><span class="sig-paren">(</span><em class="sig-param">ae</em>, <em class="sig-param">address</em>, <em class="sig-param">ae_title</em>, <em class="sig-param">contexts</em>, <em class="sig-param">ssl_context=None</em>, <em class="sig-param">evt_handlers=None</em>, <em class="sig-param">request_handler=None</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/8fa6839/pynetdicom/transport.py#L501"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom.transport.ThreadedAssociationServer.__init__" title="Permalink to this definition">¶</a></dt>
 <dd><p>Create a new <a class="reference internal" href="pynetdicom.transport.AssociationServer.html#pynetdicom.transport.AssociationServer" title="pynetdicom.transport.AssociationServer"><code class="xref py py-class docutils literal notranslate"><span class="pre">AssociationServer</span></code></a>, bind a socket and start
 listening.</p>
 <dl class="field-list simple">
@@ -290,7 +290,7 @@ is created for each request. Should be a subclass of
 <td><p>Bind the socket and set the socket options.</p></td>
 </tr>
 <tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">server_close</span></code>()</p></td>
-<td><p>Close the server.</p></td>
+<td><p></p></td>
 </tr>
 <tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">service_actions</span></code>()</p></td>
 <td><p>Called by the serve_forever() loop.</p></td>
@@ -325,26 +325,29 @@ is created for each request. Should be a subclass of
 <tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">allow_reuse_address</span></code></p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">daemon_threads</span></code></p></td>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">block_on_close</span></code></p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">request_queue_size</span></code></p></td>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">daemon_threads</span></code></p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">socket_type</span></code></p></td>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">request_queue_size</span></code></p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">ssl_context</span></code></p></td>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">socket_type</span></code></p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">ssl_context</span></code></p></td>
 <td><p>Return the <a class="reference external" href="https://docs.python.org/3/library/ssl.html#ssl.SSLContext" title="(in Python v3.8)"><code class="xref py py-class docutils literal notranslate"><span class="pre">ssl.SSLContext</span></code></a> (if available).</p></td>
 </tr>
-<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">timeout</span></code></p></td>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">timeout</span></code></p></td>
 <td><p></p></td>
 </tr>
 </tbody>
 </table>
-<dl class="py method">
+<dl class="method">
 <dt id="pynetdicom.transport.ThreadedAssociationServer.process_request_thread">
-<code class="sig-name descname">process_request_thread</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">request</span></em>, <em class="sig-param"><span class="n">client_address</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/2a4ed109/pynetdicom/transport.py#L787"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom.transport.ThreadedAssociationServer.process_request_thread" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">process_request_thread</code><span class="sig-paren">(</span><em class="sig-param">request</em>, <em class="sig-param">client_address</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/8fa6839/pynetdicom/transport.py#L787"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom.transport.ThreadedAssociationServer.process_request_thread" title="Permalink to this definition">¶</a></dt>
 <dd><p>Process a connection request.</p>
 </dd></dl>
 
@@ -373,7 +376,7 @@ is created for each request. Should be a subclass of
   <div role="contentinfo">
     <p>
         
-        &copy; Copyright 2018-20, pynetdicom contributors
+        &copy; Copyright 2018-2020, pynetdicom contributors
 
     </p>
   </div>
