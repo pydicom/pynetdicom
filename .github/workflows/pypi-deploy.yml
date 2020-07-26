@@ -28,14 +28,13 @@ jobs:
         python -m pip install --upgrade pip
         pip install wheel
         python setup.py sdist bdist_wheel
-        ls .
 
     - name: Upload artifacts
       if: ${{ success() }}
       uses: actions/upload-artifact@v1
       with:
         name: wheels
-        path: ../dist/*.whl
+        path: dist/*
 
     - name: Publish package to Test PyPi
       uses: pypa/gh-action-pypi-publish@master
