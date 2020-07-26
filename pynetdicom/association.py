@@ -3,10 +3,13 @@ Defines the Association class which handles associating with peers.
 """
 from io import BytesIO
 import logging
+import os
+from pathlib import Path
 import threading
 import time
 from typing import Union, Optional
 
+from pydicom import dcmread
 from pydicom.dataset import Dataset
 from pydicom.uid import UID
 
@@ -1587,10 +1590,17 @@ class Association(threading.Thread):
                      originator_id=None):
         """Send a C-STORE request to the peer AE.
 
+        .. versionchanged:: 2.0
+
+            Changed `dataset` parameter to either be a dataset or the path to
+            a dataset.
+
         Parameters
         ----------
-        dataset : pydicom.dataset.Dataset
-            The DICOM dataset to send to the peer.
+        dataset : pydicom.dataset.Dataset, str or pathlib.Path
+            The DICOM dataset to send to the peer or the file path to the
+            dataset to be sent. If a file path then the dataset will be read
+            and decoded using :func:`~pydicom.dcmread`.
         msg_id : int, optional
             The C-STORE request's *Message ID*, must be between 0 and 65535,
             inclusive, (default ``1``).
@@ -1694,6 +1704,9 @@ class Association(threading.Thread):
         if not self.is_established:
             raise RuntimeError("The association with a peer SCP must be "
                                "established before sending a C-STORE request")
+
+        if not isinstance(dataset, Dataset):
+            dataset = dcmread(os.fspath(dataset))
 
         # Check `dataset` has required elements
         if 'SOPClassUID' not in dataset:

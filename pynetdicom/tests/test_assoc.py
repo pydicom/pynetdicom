@@ -4,6 +4,7 @@ from datetime import datetime
 from io import BytesIO
 import logging
 import os
+from pathlib import Path
 import queue
 import socket
 import sys
@@ -65,7 +66,8 @@ from .parrot import start_server, ThreadedParrot
 
 TEST_DS_DIR = os.path.join(os.path.dirname(__file__), 'dicom_files')
 BIG_DATASET = dcmread(os.path.join(TEST_DS_DIR, 'RTImageStorage.dcm')) # 2.1 M
-DATASET = dcmread(os.path.join(TEST_DS_DIR, 'CTImageStorage.dcm'))
+DATASET_PATH = os.path.join(TEST_DS_DIR, 'CTImageStorage.dcm')
+DATASET = dcmread(DATASET_PATH)
 # JPEG2000Lossless
 COMP_DATASET = dcmread(
     os.path.join(TEST_DS_DIR, 'MRImageStorage_JPG2000_Lossless.dcm')
@@ -1615,6 +1617,46 @@ class TestAssociationSendCStore(object):
         assoc.release()
 
         scp.shutdown()
+
+    def test_using_filepath(self):
+        """Test receiving a success response from the peer"""
+        recv = []
+
+        def handle_store(event):
+            recv.append(event.dataset)
+            return 0x0000
+
+        handlers = [(evt.EVT_C_STORE, handle_store)]
+
+        self.ae = ae = AE()
+        ae.acse_timeout = 5
+        ae.dimse_timeout = 5
+        ae.network_timeout = 5
+        ae.add_supported_context(CTImageStorage)
+        scp = ae.start_server(('', 11112), block=False, evt_handlers=handlers)
+
+        ae.add_requested_context(CTImageStorage)
+        assoc = ae.associate('localhost', 11112)
+
+        assert assoc.is_established
+        assert isinstance(DATASET_PATH, str)
+        status = assoc.send_c_store(DATASET_PATH)
+        assert status.Status == 0x0000
+
+        p = Path(DATASET_PATH).resolve()
+        assert isinstance(p, Path)
+        status = assoc.send_c_store(p)
+        assert status.Status == 0x0000
+
+        assoc.release()
+        assert assoc.is_released
+
+        scp.shutdown()
+
+        assert 2 == len(recv)
+        for ds in recv:
+            assert "CompressedSamples^CT1" == ds.PatientName
+            assert "DataSetTrailingPadding" in ds
 
     # Regression tests
     def test_no_send_mismatch(self):
