@@ -18,6 +18,16 @@ jobs:
     steps:
     - uses: actions/checkout@v2
 
+    - name: Set up Python ${{ matrix.python-version }}
+      uses: actions/setup-python@v2
+      with:
+        python-version: ${{ matrix.python-version }}
+
+    - name: Build package
+      run: |
+        python -m pip install --upgrade pip
+        python setup.py sdist bdist_wheel
+
     - name: Publish package to Test PyPi
       uses: pypa/gh-action-pypi-publish@master
       with:
@@ -25,14 +35,9 @@ jobs:
         password: ${{ secrets.test_pypi_password }}
         respository_url: https://test.pypi.org/legacy/
 
-    - name: Set up Python ${{ matrix.python-version }}
-      uses: actions/setup-python@v2
-      with:
-        python-version: ${{ matrix.python-version }}
-
     - name: Install dependencies
       run: |
-        python -m pip install --upgrade pip
+
         pip install pytest pydicom
         pip install -i https://test.pypi.org/simple/ pynetdicom
 
@@ -40,8 +45,7 @@ jobs:
       run: |
         python -c "import pytest; pytest.main(['--pyargs', 'pynetdicom.tests'])"
 
-    #- name: Publish a Python distribution to PyPI
-    #  if: ${{ success() }}
+    #- name: Publish package to PyPi
     #  uses: pypa/gh-action-pypi-publish@master
     #  with:
     #    user: __token__
