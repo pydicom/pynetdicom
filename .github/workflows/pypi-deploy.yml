@@ -46,12 +46,15 @@ jobs:
     - name: Install dependencies
       run: |
 
+        pip install virtualenvwrapper
+        mkvirtualenvwrapper testpynd
         pip install pytest pydicom
         pip install -i https://test.pypi.org/simple/ pynetdicom
 
     - name: Test with pytest
       run: |
         python -c "import pytest; pytest.main(['--pyargs', 'pynetdicom.tests'])"
+        deactivate
 
     #- name: Publish package to PyPi
     #  uses: pypa/gh-action-pypi-publish@master
