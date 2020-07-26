@@ -1600,7 +1600,7 @@ class Association(threading.Thread):
         dataset : pydicom.dataset.Dataset, str or pathlib.Path
             The DICOM dataset to send to the peer or the file path to the
             dataset to be sent. If a file path then the dataset will be read
-            and decoded using :func:`~pydicom.dcmread`.
+            and decoded using :func:`~pydicom.filereader.dcmread`.
         msg_id : int, optional
             The C-STORE request's *Message ID*, must be between 0 and 65535,
             inclusive, (default ``1``).
