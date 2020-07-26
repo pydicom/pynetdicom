@@ -30,7 +30,7 @@ jobs:
       with:
         name: DocumentationHTML
         path: docs/_build/html/
-    - name: Commit changes to gh-pages
+    - name: Test committing changes to gh-pages
       run: |
         git clone https://github.com/pydicom/pynetdicom.git --branch gh-pages --single-branch gh-pages
         cp -r docs/_build/html/* gh-pages/dev
@@ -38,6 +38,4 @@ jobs:
         git config --local user.email "action@github.com"
         git config --local user.name "GitHub Action"
         git add .
-        git commit -m "Update documentation" -a || true
-        # The above command will fail if no changes were present, so we ignore
-        # the return code.
+        git commit -m "Update docs from commit ${GITHUB_SHA}" -a || true
