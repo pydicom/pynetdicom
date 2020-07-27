@@ -1282,7 +1282,8 @@ class TestAssociationSendCStore(object):
         ds.PerimeterValue = b'\x00\x01'
         ds.file_meta = Dataset()
         ds.file_meta.TransferSyntaxUID = ImplicitVRLittleEndian
-        with pytest.raises(ValueError):
+        msg = r"Failed to encode the supplied dataset"
+        with pytest.raises(ValueError, match=msg):
             assoc.send_c_store(ds)
         assoc.release()
         assert assoc.is_released
@@ -1507,9 +1508,8 @@ class TestAssociationSendCStore(object):
         assert assoc.is_established
         assert 'SOPClassUID' not in ds
         msg = (
-            r"Unable to determine the presentation context to use with "
-            r"`dataset` as it contains no '\(0008,0016\) SOP Class UID' "
-            r"element"
+            f"Unable to send the dataset as one or more required "
+            f"element are missing: SOPClassUID"
         )
         with pytest.raises(AttributeError, match=msg):
             assoc.send_c_store(ds)

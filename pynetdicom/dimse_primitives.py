@@ -561,10 +561,7 @@ class C_STORE(DIMSEPrimitive):
         io.BytesIO
             The value to use for the *Data Set* parameter.
         """
-        if not self._dataset_path:
-            self._dataset_variant = (value, 'DataSet')
-        else:
-            self._dataset_variant = BytesIO()
+        self._dataset_variant = (value, 'DataSet')
 
     @property
     def MoveOriginatorApplicationEntityTitle(self):

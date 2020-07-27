@@ -406,6 +406,7 @@ class DIMSEMessage(object):
         # DATASET (if available)
         #   Check that the Data Set is not empty
         if self.data_set is not None:
+            encoded_data_set = self.data_set.getvalue()
             if encoded_data_set:
                 # Split the data set into fragments with maximum
                 #   size max_pdu_length
@@ -442,7 +443,7 @@ class DIMSEMessage(object):
                 f.seek(self._data_set_offset)
                 length = end - f.tell()
 
-                if max_pdu_length = 0:
+                if max_pdu_length == 0:
                     nr_fragments = 1
                 else:
                     nr_fragments = ceil(length / (max_pdu_length - 6))

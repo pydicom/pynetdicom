@@ -11,6 +11,10 @@ Enhancements
   bypassing the length check for elements with a VR of **AE** (:issue:`515`)
 * Added the ability to pass a file path to a dataset to
   :meth:`~pynetdicom.association.Association.send_c_store` (:issue:`517`)
+* Added :attr:`~pynetdicom._config.STORE_SEND_CHUNKED_DATASET` config option
+  to allow the use of a chunked read when a file path is passed to
+  :meth:`~pynetdicom.association.Association.send_c_store` in order to
+  reduce the memory needed for sending large dataset (:issue:`517`)
 
 Changes
 .......
