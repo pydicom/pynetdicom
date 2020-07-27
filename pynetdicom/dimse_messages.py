@@ -7,6 +7,7 @@ from math import ceil
 
 from pydicom.dataset import Dataset
 
+from pynetdicom import _config
 from pynetdicom.dimse_primitives import (
     C_STORE, C_FIND, C_GET, C_MOVE, C_ECHO, C_CANCEL,
     N_EVENT_REPORT, N_GET, N_SET, N_ACTION, N_CREATE, N_DELETE
@@ -214,6 +215,11 @@ class DIMSEMessage(object):
         self.data_set = BytesIO()
         self.command_set = Dataset()
 
+        # If reading the dataset in chunks this will be it's file path
+        self._data_set_path = None
+        # The byte offset to the start of the dataset (after file meta info)
+        self._data_set_offset = None
+
         cls_name = self.__class__.__name__
         if cls_name == 'DIMSEMessage':
             return
@@ -372,17 +378,18 @@ class DIMSEMessage(object):
         # COMMAND SET (always)
         # Split the command set into fragments with maximum size max_pdu_length
         if max_pdu_length == 0:
-            no_fragments = 1
+            nr_fragments = 1
         else:
-            no_fragments = ceil(
+            nr_fragments = ceil(
                 len(encoded_command_set) / (max_pdu_length - 6)
             )
 
-        cmd_fragments = self._generate_pdv_fragments(encoded_command_set,
-                                                     max_pdu_length)
+        cmd_fragments = self._generate_pdv_fragments(
+            encoded_command_set, max_pdu_length
+        )
 
         # First to (n - 1)th command data fragment - bits xxxxxx01
-        for ii in range(int(no_fragments - 1)):
+        for ii in range(int(nr_fragments - 1)):
             pdata = P_DATA()
             pdata.presentation_data_value_list.append(
                 [context_id, b'\x01' + next(cmd_fragments)]
@@ -399,21 +406,22 @@ class DIMSEMessage(object):
         # DATASET (if available)
         #   Check that the Data Set is not empty
         if self.data_set is not None:
-            encoded_data_set = self.data_set.getvalue()
             if encoded_data_set:
                 # Split the data set into fragments with maximum
                 #   size max_pdu_length
                 if max_pdu_length == 0:
-                    no_fragments = 1
+                    nr_fragments = 1
                 else:
-                    no_fragments = ceil(
+                    nr_fragments = ceil(
                         len(encoded_data_set) / (max_pdu_length - 6)
                     )
-                ds_fragments = self._generate_pdv_fragments(encoded_data_set,
-                                                            max_pdu_length)
+
+                ds_fragments = self._generate_pdv_fragments(
+                    encoded_data_set, max_pdu_length
+                )
 
                 # First to (n - 1)th dataset fragment - bits xxxxxx00
-                for ii in range(int(no_fragments - 1)):
+                for ii in range(int(nr_fragments - 1)):
                     pdata = P_DATA()
                     pdata.presentation_data_value_list.append(
                         [context_id, b'\x00' + next(ds_fragments)]
@@ -424,6 +432,33 @@ class DIMSEMessage(object):
                 pdata = P_DATA()
                 pdata.presentation_data_value_list.append(
                     [context_id, b'\x02' + next(ds_fragments)]
+                )
+                yield pdata
+        elif self._data_set_path is not None:
+            # Read and send encoded dataset from file
+            # Buffer size determined by io.DEFAULT_BUFFER_SIZE
+            with open(self._data_set_path, 'rb') as f:
+                end = f.seek(0, 2)
+                f.seek(self._data_set_offset)
+                length = end - f.tell()
+
+                if max_pdu_length = 0:
+                    nr_fragments = 1
+                else:
+                    nr_fragments = ceil(length / (max_pdu_length - 6))
+
+                # First to (n - 1)th dataset fragment - bits xxxxxx00
+                for ii in range(int(nr_fragments - 1)):
+                    pdata = P_DATA()
+                    pdata.presentation_data_value_list.append(
+                        [context_id, 'b\x00' + f.read(max_pdu_length - 6)]
+                    )
+                    yield pdata
+
+                # Last dataset fragment - bits xxxxxx10
+                pdata = P_DATA()
+                pdata.presentation_data_value_list.append(
+                    [context_id, 'b\x02' + f.read(max_pdu_length - 6)]
                 )
                 yield pdata
 
@@ -444,7 +479,7 @@ class DIMSEMessage(object):
 
         Parameters
         ----------
-        bytestream : bytes
+        bytestream : bytes or
             The data to be fragmented.
         fragment_length : int
             The maximum size of each fragment, a value of 0 is taken to mean
@@ -567,6 +602,9 @@ class DIMSEMessage(object):
             # 'C_ECHO_RQ', 'C_ECHO_RSP', 'N_DELETE_RQ', 'C_STORE_RSP',
             # 'C_CANCEL_RQ', 'N_DELETE_RSP', 'C_FIND_RSP', 'N_GET_RQ'
             pass
+
+        self._data_set_path = getattr(primitive, "_dataset_path", None)
+        self._data_set_offset = getattr(primitive, "_dataset_offset", None)
 
         # Set the Command Set length
         self._set_command_group_length()

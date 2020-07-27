@@ -1705,8 +1705,28 @@ class Association(threading.Thread):
             raise RuntimeError("The association with a peer SCP must be "
                                "established before sending a C-STORE request")
 
+        # Build C-STORE request primitive
+        #   (M) Message ID
+        #   (M) Affected SOP Class UID
+        #   (M) Affected SOP Instance UID
+        #   (M) Priority
+        #   (U) Move Originator Application Entity Title
+        #   (U) Move Originator Message ID
+        #   (M) Data Set
+        req = C_STORE()
+        req.MessageID = msg_id
+        req.Priority = priority
+        req.MoveOriginatorApplicationEntityTitle = originator_aet
+        req.MoveOriginatorMessageID = originator_id
+
         if not isinstance(dataset, Dataset):
-            dataset = dcmread(os.fspath(dataset))
+            send_chunks = _config.STORE_SEND_CHUNKED_DATASET
+            if not send_chunks:
+                dataset = dcmread(os.fspath(dataset))
+            else:
+                dataset = None
+                req._dataset_path = dataset
+                
 
         # Check `dataset` has required elements
         if 'SOPClassUID' not in dataset:
@@ -1733,21 +1753,8 @@ class Association(threading.Thread):
         )
         transfer_syntax = context.transfer_syntax[0]
 
-        # Build C-STORE request primitive
-        #   (M) Message ID
-        #   (M) Affected SOP Class UID
-        #   (M) Affected SOP Instance UID
-        #   (M) Priority
-        #   (U) Move Originator Application Entity Title
-        #   (U) Move Originator Message ID
-        #   (M) Data Set
-        req = C_STORE()
-        req.MessageID = msg_id
         req.AffectedSOPClassUID = dataset.SOPClassUID
         req.AffectedSOPInstanceUID = dataset.SOPInstanceUID
-        req.Priority = priority
-        req.MoveOriginatorApplicationEntityTitle = originator_aet
-        req.MoveOriginatorMessageID = originator_id
 
         # Encode the `dataset` using the agreed transfer syntax
         #   Will return None if failed to encode

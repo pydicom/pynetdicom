@@ -524,6 +524,12 @@ class C_STORE(DIMSEPrimitive):
         # For Failure statuses 0x0117
         # self.AffectedSOPInstanceUID
 
+        # If None then the dataset is encoded as BytesIO
+        # If not None then the dataset is stored at `_dataset_path`
+        self._dataset_path = None
+        # The byte offset to the start of the dataset (after file meta info)
+        self._dataset_offset = None
+
     @property
     def AffectedSOPInstanceUID(self):
         """Return the *Affected SOP Instance UID* as :class:`~pydicom.uid.UID`.
@@ -555,7 +561,10 @@ class C_STORE(DIMSEPrimitive):
         io.BytesIO
             The value to use for the *Data Set* parameter.
         """
-        self._dataset_variant = (value, 'DataSet')
+        if not self._dataset_path:
+            self._dataset_variant = (value, 'DataSet')
+        else:
+            self._dataset_variant = BytesIO()
 
     @property
     def MoveOriginatorApplicationEntityTitle(self):
