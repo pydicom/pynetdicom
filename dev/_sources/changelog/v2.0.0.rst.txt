@@ -9,6 +9,8 @@ Enhancements
 
 * Added configuration option :attr:`_config.ALLOW_LONG_DIMSE_AET` to allow
   bypassing the length check for elements with a VR of **AE** (:issue:`515`)
+* Added the ability to pass a file path to a dataset to
+  :meth:`~pynetdicom.association.Association.send_c_store` (:issue:`517`)
 
 Changes
 .......
