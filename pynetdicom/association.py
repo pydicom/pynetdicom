@@ -1742,7 +1742,7 @@ class Association(threading.Thread):
                 if missing:
                     raise AttributeError(
                         f"Unable to send the dataset from the file at "
-                        f"{os.fspath(path)} as one or more required File Meta "
+                        f"{os.fspath(dataset)} as one or more required File Meta "
                         f"Information elements are missing: "
                         f"{','.join(missing)}"
                     )

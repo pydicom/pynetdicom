@@ -214,7 +214,7 @@ class DIMSEMessage(object):
         self.data_set = BytesIO()
         self.command_set = Dataset()
 
-        # If reading the dataset in chunks this will be it's file path
+        # If reading the dataset in chunks this will be its file path
         self._data_set_path = None
         # The byte offset to the start of the dataset (after file meta info)
         self._data_set_offset = None
