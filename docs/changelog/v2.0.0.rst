@@ -7,7 +7,7 @@
 Enhancements
 ............
 
-* Added configuration option :attr:`~pyneticom._config.ALLOW_LONG_DIMSE_AET`
+* Added configuration option :attr:`~pynetdicom._config.ALLOW_LONG_DIMSE_AET`
   to allow bypassing the length check for elements with a VR of **AE**
   (:issue:`515`)
 * Added the ability to pass a file path to a dataset to
