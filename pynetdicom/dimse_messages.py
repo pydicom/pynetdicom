@@ -7,7 +7,6 @@ from math import ceil
 
 from pydicom.dataset import Dataset
 
-from pynetdicom import _config
 from pynetdicom.dimse_primitives import (
     C_STORE, C_FIND, C_GET, C_MOVE, C_ECHO, C_CANCEL,
     N_EVENT_REPORT, N_GET, N_SET, N_ACTION, N_CREATE, N_DELETE
@@ -452,14 +451,14 @@ class DIMSEMessage(object):
                 for ii in range(int(nr_fragments - 1)):
                     pdata = P_DATA()
                     pdata.presentation_data_value_list.append(
-                        [context_id, 'b\x00' + f.read(max_pdu_length - 6)]
+                        [context_id, b'\x00' + f.read(max_pdu_length - 6)]
                     )
                     yield pdata
 
                 # Last dataset fragment - bits xxxxxx10
                 pdata = P_DATA()
                 pdata.presentation_data_value_list.append(
-                    [context_id, 'b\x02' + f.read(max_pdu_length - 6)]
+                    [context_id, b'\x02' + f.read(max_pdu_length - 6)]
                 )
                 yield pdata
 
@@ -480,7 +479,7 @@ class DIMSEMessage(object):
 
         Parameters
         ----------
-        bytestream : bytes or
+        bytestream : bytes
             The data to be fragmented.
         fragment_length : int
             The maximum size of each fragment, a value of 0 is taken to mean
@@ -606,6 +605,8 @@ class DIMSEMessage(object):
 
         self._data_set_path = getattr(primitive, "_dataset_path", None)
         self._data_set_offset = getattr(primitive, "_dataset_offset", None)
+        if self._data_set_path:
+            self.command_set.CommandDataSetType = 0x0001
 
         # Set the Command Set length
         self._set_command_group_length()

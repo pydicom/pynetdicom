@@ -1,6 +1,7 @@
 """DICOM dataset utility functions."""
 
 import logging
+import os
 import zlib
 
 from pydicom.filebase import DicomBytesIO
@@ -218,7 +219,7 @@ def split_dataset(fpath):
     Parameters
     ----------
     fpath : pathlib.Path
-        The path to a data in the DICOM File Format
+        The path to a dataset written in the DICOM File Format.
 
     Returns
     -------

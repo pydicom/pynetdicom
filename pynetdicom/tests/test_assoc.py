@@ -61,7 +61,7 @@ from .encoded_pdu_items import a_associate_ac
 from .parrot import start_server, ThreadedParrot
 
 
-#debug_logger()
+debug_logger()
 
 
 TEST_DS_DIR = os.path.join(os.path.dirname(__file__), 'dicom_files')
@@ -1185,6 +1185,8 @@ class TestAssociationSendCStore(object):
         if self.ae:
             self.ae.shutdown()
 
+        _config.STORE_SEND_CHUNKED_DATASET = False
+
     def test_must_be_associated(self):
         """Test SCU can't send without association."""
         # Test raise if assoc not established
@@ -1636,6 +1638,48 @@ class TestAssociationSendCStore(object):
         scp = ae.start_server(('', 11112), block=False, evt_handlers=handlers)
 
         ae.add_requested_context(CTImageStorage)
+        assoc = ae.associate('localhost', 11112)
+
+        assert assoc.is_established
+        assert isinstance(DATASET_PATH, str)
+        status = assoc.send_c_store(DATASET_PATH)
+        assert status.Status == 0x0000
+
+        p = Path(DATASET_PATH).resolve()
+        assert isinstance(p, Path)
+        status = assoc.send_c_store(p)
+        assert status.Status == 0x0000
+
+        assoc.release()
+        assert assoc.is_released
+
+        scp.shutdown()
+
+        assert 2 == len(recv)
+        for ds in recv:
+            assert "CompressedSamples^CT1" == ds.PatientName
+            assert "DataSetTrailingPadding" in ds
+
+    def test_using_filepath_chunks(self):
+        """Test receiving a success response from the peer"""
+        _config.STORE_SEND_CHUNKED_DATASET = True
+
+        recv = []
+
+        def handle_store(event):
+            recv.append(event.dataset)
+            return 0x0000
+
+        handlers = [(evt.EVT_C_STORE, handle_store)]
+
+        self.ae = ae = AE()
+        ae.acse_timeout = 5
+        ae.dimse_timeout = 5
+        ae.network_timeout = 5
+        ae.add_supported_context(CTImageStorage)
+        scp = ae.start_server(('', 11112), block=False, evt_handlers=handlers)
+
+        ae.add_requested_context(CTImageStorage, ExplicitVRLittleEndian)
         assoc = ae.associate('localhost', 11112)
 
         assert assoc.is_established
