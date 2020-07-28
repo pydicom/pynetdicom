@@ -1,0 +1,22 @@
+version: 2
+jobs:
+    build:
+        docker:
+            - image: circleci/python:3.6
+        steps:
+            - checkout
+            - run:
+                name: Build documentation
+                command: ./build_tools/circle/build_doc.sh
+                timeout: "3600" # seconds
+            - store_artifacts:
+                path: docs/_build/html
+            - add_ssh_keys:
+                fingerprints:
+                    - "a1:d2:31:ea:d3:72:b8:2e:c5:20:52:7f:94:7b:78:dc"
+            - deploy:
+                name: Deploy documentation
+                environment:
+                    USERNAME: scaramallion
+                    EMAIL: scaramallion@users.noreply.github.com
+                command: ./build_tools/circle/push_doc.sh

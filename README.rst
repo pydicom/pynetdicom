@@ -3,8 +3,8 @@
     :target: https://codecov.io/gh/pydicom/pynetdicom
 .. image:: https://github.com/pydicom/pynetdicom/workflows/build/badge.svg
     :target: https://github.com/pydicom/pynetdicom/actions?query=workflow%3Abuild
-.. image:: https://github.com/pydicom/pynetdicom/workflows/docs-master/badge.svg
-    :target: https://github.com/pydicom/pynetdicom/actions?query=workflow%3Adocs-master
+.. image:: https://circleci.com/gh/pydicom/pynetdicom/tree/master.svg?style=shield
+    :target: https://circleci.com/gh/pydicom/pynetdicom/tree/master
 .. image:: https://badge.fury.io/py/pynetdicom.svg
     :target: https://badge.fury.io/py/pynetdicom
 .. image:: https://img.shields.io/pypi/pyversions/pynetdicom.svg
