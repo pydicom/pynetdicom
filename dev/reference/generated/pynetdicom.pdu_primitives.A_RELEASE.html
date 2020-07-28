@@ -212,9 +212,9 @@
             
   <div class="section" id="pynetdicom-pdu-primitives-a-release">
 <h1>pynetdicom.pdu_primitives.A_RELEASE<a class="headerlink" href="#pynetdicom-pdu-primitives-a-release" title="Permalink to this headline">¶</a></h1>
-<dl class="class">
+<dl class="py class">
 <dt id="pynetdicom.pdu_primitives.A_RELEASE">
-<em class="property">class </em><code class="sig-prename descclassname">pynetdicom.pdu_primitives.</code><code class="sig-name descname">A_RELEASE</code><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/53485da/pynetdicom/pdu_primitives.py#L745"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom.pdu_primitives.A_RELEASE" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="sig-prename descclassname">pynetdicom.pdu_primitives.</code><code class="sig-name descname">A_RELEASE</code><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/642df6fa/pynetdicom/pdu_primitives.py#L745"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom.pdu_primitives.A_RELEASE" title="Permalink to this definition">¶</a></dt>
 <dd><p>An A-RELEASE primitive.</p>
 <table class="docutils align-default">
 <colgroup>
@@ -260,7 +260,7 @@
 <div class="line">NU  - Not used</div>
 <div class="line">(=) - shall have same value as request or response</div>
 </div>
-<dl class="attribute">
+<dl class="py attribute">
 <dt id="pynetdicom.pdu_primitives.A_RELEASE.reason">
 <code class="sig-name descname">reason</code><a class="headerlink" href="#pynetdicom.pdu_primitives.A_RELEASE.reason" title="Permalink to this definition">¶</a></dt>
 <dd><p>Fixed value of <code class="docutils literal notranslate"><span class="pre">'normal'</span></code>. Identifies the general level of urgency
@@ -272,7 +272,7 @@ of the request.</p>
 </dl>
 </dd></dl>
 
-<dl class="attribute">
+<dl class="py attribute">
 <dt id="pynetdicom.pdu_primitives.A_RELEASE.result">
 <code class="sig-name descname">result</code><a class="headerlink" href="#pynetdicom.pdu_primitives.A_RELEASE.result" title="Permalink to this definition">¶</a></dt>
 <dd><p>Must be <code class="docutils literal notranslate"><span class="pre">None</span></code> for request and indication, <code class="docutils literal notranslate"><span class="pre">'affirmative'</span></code> for
@@ -288,9 +288,9 @@ response and confirmation.</p>
 <ul class="simple">
 <li><p>DICOM Standard, Part 8, <a class="reference external" href="http://dicom.nema.org/medical/dicom/current/output/chtml/part08/sect_7.2.html">Section 7.2</a></p></li>
 </ul>
-<dl class="method">
+<dl class="py method">
 <dt id="pynetdicom.pdu_primitives.A_RELEASE.__init__">
-<code class="sig-name descname">__init__</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/53485da/pynetdicom/pdu_primitives.py#L779"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom.pdu_primitives.A_RELEASE.__init__" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">__init__</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/642df6fa/pynetdicom/pdu_primitives.py#L779"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom.pdu_primitives.A_RELEASE.__init__" title="Permalink to this definition">¶</a></dt>
 <dd><p>Initialize self.  See help(type(self)) for accurate signature.</p>
 </dd></dl>
 
@@ -313,23 +313,23 @@ response and confirmation.</p>
 <col style="width: 90%" />
 </colgroup>
 <tbody>
-<tr class="row-odd"><td><p><a class="reference internal" href="#pynetdicom.pdu_primitives.A_RELEASE.reason" title="pynetdicom.pdu_primitives.A_RELEASE.reason"><code class="xref py py-obj docutils literal notranslate"><span class="pre">reason</span></code></a></p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#id0" title="pynetdicom.pdu_primitives.A_RELEASE.reason"><code class="xref py py-obj docutils literal notranslate"><span class="pre">reason</span></code></a></p></td>
 <td><p>Return the <em>Reason</em> parameter.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#pynetdicom.pdu_primitives.A_RELEASE.result" title="pynetdicom.pdu_primitives.A_RELEASE.result"><code class="xref py py-obj docutils literal notranslate"><span class="pre">result</span></code></a></p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#id1" title="pynetdicom.pdu_primitives.A_RELEASE.result"><code class="xref py py-obj docutils literal notranslate"><span class="pre">result</span></code></a></p></td>
 <td><p>Return the <em>Result</em> parameter.</p></td>
 </tr>
 </tbody>
 </table>
-<dl class="method">
-<dt>
-<em class="property">property </em><code class="sig-name descname">reason</code></dt>
+<dl class="py method">
+<dt id="id0">
+<em class="property">property </em><code class="sig-name descname">reason</code><a class="headerlink" href="#id0" title="Permalink to this definition">¶</a></dt>
 <dd><p>Return the <em>Reason</em> parameter.</p>
 </dd></dl>
 
-<dl class="method">
-<dt>
-<em class="property">property </em><code class="sig-name descname">result</code></dt>
+<dl class="py method">
+<dt id="id1">
+<em class="property">property </em><code class="sig-name descname">result</code><a class="headerlink" href="#id1" title="Permalink to this definition">¶</a></dt>
 <dd><p>Return the <em>Result</em> parameter.</p>
 </dd></dl>
 

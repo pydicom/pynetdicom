@@ -684,7 +684,7 @@ complex code:</p>
 <p>We’ve modified the handler to write the preamble and prefix to file,
 encode and write the file meta information elements using <em>pydicom’s</em>
 <a class="reference external" href="https://pydicom.github.io/pydicom/stable/reference/generated/pydicom.filewriter.write_file_meta_info.html#pydicom.filewriter.write_file_meta_info" title="(in pydicom v2.0.0)"><code class="xref py py-func docutils literal notranslate"><span class="pre">write_file_meta_info()</span></code></a> function, then finally write
-the encoded dataset using the <a class="reference internal" href="../reference/generated/pynetdicom.dimse_primitives.C_STORE.html#pynetdicom.dimse_primitives.C_STORE.DataSet" title="pynetdicom.dimse_primitives.C_STORE.DataSet"><code class="xref py py-attr docutils literal notranslate"><span class="pre">raw</span> <span class="pre">dataset</span></code></a> received directly from the C-STORE
+the encoded dataset using the <a class="reference internal" href="../reference/generated/pynetdicom.dimse_primitives.C_STORE.html#id1" title="pynetdicom.dimse_primitives.C_STORE.DataSet"><code class="xref py py-attr docutils literal notranslate"><span class="pre">raw</span> <span class="pre">dataset</span></code></a> received directly from the C-STORE
 request via the <code class="docutils literal notranslate"><span class="pre">event.request</span></code> attribute.</p>
 <p>The second change we’ve made is to demonstrate how extra parameters can be
 passed to the handler by binding using a 3-tuple rather than a 2-tuple. The

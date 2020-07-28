@@ -42,7 +42,6 @@ pynetdicom.dul.DULServiceProvider
       ~DULServiceProvider.daemon
       ~DULServiceProvider.ident
       ~DULServiceProvider.name
-      ~DULServiceProvider.native_id
       ~DULServiceProvider.network_timeout
    
    

@@ -65,7 +65,6 @@ pynetdicom.association.Association
       ~Association.lock
       ~Association.mode
       ~Association.name
-      ~Association.native_id
       ~Association.network_timeout
       ~Association.rejected_contexts
       ~Association.remote

@@ -27,7 +27,6 @@ pynetdicom.sop\_class.SOPClass
       ~SOPClass.index
       ~SOPClass.isalnum
       ~SOPClass.isalpha
-      ~SOPClass.isascii
       ~SOPClass.isdecimal
       ~SOPClass.isdigit
       ~SOPClass.isidentifier

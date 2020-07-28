@@ -212,9 +212,9 @@
             
   <div class="section" id="pynetdicom-pdu-primitives-scp-scu-roleselectionnegotiation">
 <h1>pynetdicom.pdu_primitives.SCP_SCU_RoleSelectionNegotiation<a class="headerlink" href="#pynetdicom-pdu-primitives-scp-scu-roleselectionnegotiation" title="Permalink to this headline">¶</a></h1>
-<dl class="class">
+<dl class="py class">
 <dt id="pynetdicom.pdu_primitives.SCP_SCU_RoleSelectionNegotiation">
-<em class="property">class </em><code class="sig-prename descclassname">pynetdicom.pdu_primitives.</code><code class="sig-name descname">SCP_SCU_RoleSelectionNegotiation</code><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/53485da/pynetdicom/pdu_primitives.py#L1471"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom.pdu_primitives.SCP_SCU_RoleSelectionNegotiation" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="sig-prename descclassname">pynetdicom.pdu_primitives.</code><code class="sig-name descname">SCP_SCU_RoleSelectionNegotiation</code><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/642df6fa/pynetdicom/pdu_primitives.py#L1471"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom.pdu_primitives.SCP_SCU_RoleSelectionNegotiation" title="Permalink to this definition">¶</a></dt>
 <dd><p>A representation of the SCP/SCU Role Selection Negotiation primitive.</p>
 <p>Allows peer AEs to negotiate the roles in which they will serve for each
 SOP Class or Meta SOP Class supported on the association. This negotiation
@@ -230,7 +230,7 @@ shall be one of three role values:</p>
 <p>If the SCP/SCU Role Selection item is absent the default role for a
 <em>Requestor</em> is SCU and for an <em>Acceptor</em> is SCP.</p>
 <p>Identical for both A-ASSOCIATE-RQ and A-ASSOCIATE-AC.</p>
-<dl class="attribute">
+<dl class="py attribute">
 <dt id="pynetdicom.pdu_primitives.SCP_SCU_RoleSelectionNegotiation.sop_class_uid">
 <code class="sig-name descname">sop_class_uid</code><a class="headerlink" href="#pynetdicom.pdu_primitives.SCP_SCU_RoleSelectionNegotiation.sop_class_uid" title="Permalink to this definition">¶</a></dt>
 <dd><p>The UID of the corresponding Abstract Syntax</p>
@@ -241,7 +241,7 @@ shall be one of three role values:</p>
 </dl>
 </dd></dl>
 
-<dl class="attribute">
+<dl class="py attribute">
 <dt id="pynetdicom.pdu_primitives.SCP_SCU_RoleSelectionNegotiation.scu_role">
 <code class="sig-name descname">scu_role</code><a class="headerlink" href="#pynetdicom.pdu_primitives.SCP_SCU_RoleSelectionNegotiation.scu_role" title="Permalink to this definition">¶</a></dt>
 <dd><p><code class="docutils literal notranslate"><span class="pre">False</span></code> for non-support of the SCU role, <code class="docutils literal notranslate"><span class="pre">True</span></code> for support.</p>
@@ -252,7 +252,7 @@ shall be one of three role values:</p>
 </dl>
 </dd></dl>
 
-<dl class="attribute">
+<dl class="py attribute">
 <dt id="pynetdicom.pdu_primitives.SCP_SCU_RoleSelectionNegotiation.scp_role">
 <code class="sig-name descname">scp_role</code><a class="headerlink" href="#pynetdicom.pdu_primitives.SCP_SCU_RoleSelectionNegotiation.scp_role" title="Permalink to this definition">¶</a></dt>
 <dd><p><code class="docutils literal notranslate"><span class="pre">False</span></code> for non-support of the SCP role, <code class="docutils literal notranslate"><span class="pre">True</span></code> for support.</p>
@@ -275,9 +275,9 @@ shall be one of three role values:</p>
 <ul class="simple">
 <li><p>DICOM Standard, Part 7, <a class="reference external" href="http://dicom.nema.org/medical/dicom/current/output/chtml/part07/sect_D.3.3.4.html">Annex D.3.3.4</a></p></li>
 </ul>
-<dl class="method">
+<dl class="py method">
 <dt id="pynetdicom.pdu_primitives.SCP_SCU_RoleSelectionNegotiation.__init__">
-<code class="sig-name descname">__init__</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/53485da/pynetdicom/pdu_primitives.py#L1515"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom.pdu_primitives.SCP_SCU_RoleSelectionNegotiation.__init__" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">__init__</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/642df6fa/pynetdicom/pdu_primitives.py#L1515"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom.pdu_primitives.SCP_SCU_RoleSelectionNegotiation.__init__" title="Permalink to this definition">¶</a></dt>
 <dd><p>Initialize self.  See help(type(self)) for accurate signature.</p>
 </dd></dl>
 
@@ -303,20 +303,20 @@ shall be one of three role values:</p>
 <col style="width: 90%" />
 </colgroup>
 <tbody>
-<tr class="row-odd"><td><p><a class="reference internal" href="#pynetdicom.pdu_primitives.SCP_SCU_RoleSelectionNegotiation.scp_role" title="pynetdicom.pdu_primitives.SCP_SCU_RoleSelectionNegotiation.scp_role"><code class="xref py py-obj docutils literal notranslate"><span class="pre">scp_role</span></code></a></p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#id0" title="pynetdicom.pdu_primitives.SCP_SCU_RoleSelectionNegotiation.scp_role"><code class="xref py py-obj docutils literal notranslate"><span class="pre">scp_role</span></code></a></p></td>
 <td><p>Return the <em>SCP Role</em>.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#pynetdicom.pdu_primitives.SCP_SCU_RoleSelectionNegotiation.scu_role" title="pynetdicom.pdu_primitives.SCP_SCU_RoleSelectionNegotiation.scu_role"><code class="xref py py-obj docutils literal notranslate"><span class="pre">scu_role</span></code></a></p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#id1" title="pynetdicom.pdu_primitives.SCP_SCU_RoleSelectionNegotiation.scu_role"><code class="xref py py-obj docutils literal notranslate"><span class="pre">scu_role</span></code></a></p></td>
 <td><p>Return the <em>SCU Role</em>.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#pynetdicom.pdu_primitives.SCP_SCU_RoleSelectionNegotiation.sop_class_uid" title="pynetdicom.pdu_primitives.SCP_SCU_RoleSelectionNegotiation.sop_class_uid"><code class="xref py py-obj docutils literal notranslate"><span class="pre">sop_class_uid</span></code></a></p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#id2" title="pynetdicom.pdu_primitives.SCP_SCU_RoleSelectionNegotiation.sop_class_uid"><code class="xref py py-obj docutils literal notranslate"><span class="pre">sop_class_uid</span></code></a></p></td>
 <td><p>Return the <em>SOP Class UID</em>.</p></td>
 </tr>
 </tbody>
 </table>
-<dl class="method">
+<dl class="py method">
 <dt id="pynetdicom.pdu_primitives.SCP_SCU_RoleSelectionNegotiation.from_primitive">
-<code class="sig-name descname">from_primitive</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/53485da/pynetdicom/pdu_primitives.py#L1520"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom.pdu_primitives.SCP_SCU_RoleSelectionNegotiation.from_primitive" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">from_primitive</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/642df6fa/pynetdicom/pdu_primitives.py#L1520"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom.pdu_primitives.SCP_SCU_RoleSelectionNegotiation.from_primitive" title="Permalink to this definition">¶</a></dt>
 <dd><p>Convert the primitive to a PDU item ready to be encoded</p>
 <dl class="field-list simple">
 <dt class="field-odd">Returns</dt>
@@ -334,21 +334,21 @@ shall be one of three role values:</p>
 </dl>
 </dd></dl>
 
-<dl class="method">
-<dt>
-<em class="property">property </em><code class="sig-name descname">scp_role</code></dt>
+<dl class="py method">
+<dt id="id0">
+<em class="property">property </em><code class="sig-name descname">scp_role</code><a class="headerlink" href="#id0" title="Permalink to this definition">¶</a></dt>
 <dd><p>Return the <em>SCP Role</em>.</p>
 </dd></dl>
 
-<dl class="method">
-<dt>
-<em class="property">property </em><code class="sig-name descname">scu_role</code></dt>
+<dl class="py method">
+<dt id="id1">
+<em class="property">property </em><code class="sig-name descname">scu_role</code><a class="headerlink" href="#id1" title="Permalink to this definition">¶</a></dt>
 <dd><p>Return the <em>SCU Role</em>.</p>
 </dd></dl>
 
-<dl class="method">
-<dt>
-<em class="property">property </em><code class="sig-name descname">sop_class_uid</code></dt>
+<dl class="py method">
+<dt id="id2">
+<em class="property">property </em><code class="sig-name descname">sop_class_uid</code><a class="headerlink" href="#id2" title="Permalink to this definition">¶</a></dt>
 <dd><p>Return the <em>SOP Class UID</em>.</p>
 </dd></dl>
 

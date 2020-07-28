@@ -206,12 +206,12 @@
             
   <div class="section" id="pynetdicom-presentation-presentationcontexttuple">
 <h1>pynetdicom.presentation.PresentationContextTuple<a class="headerlink" href="#pynetdicom-presentation-presentationcontexttuple" title="Permalink to this headline">¶</a></h1>
-<dl class="class">
+<dl class="py class">
 <dt id="pynetdicom.presentation.PresentationContextTuple">
-<em class="property">class </em><code class="sig-prename descclassname">pynetdicom.presentation.</code><code class="sig-name descname">PresentationContextTuple</code><span class="sig-paren">(</span><em class="sig-param">context_id</em>, <em class="sig-param">abstract_syntax</em>, <em class="sig-param">transfer_syntax</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/53485da/pynetdicom/presentation.py#L"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom.presentation.PresentationContextTuple" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="sig-prename descclassname">pynetdicom.presentation.</code><code class="sig-name descname">PresentationContextTuple</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">context_id</span></em>, <em class="sig-param"><span class="n">abstract_syntax</span></em>, <em class="sig-param"><span class="n">transfer_syntax</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/642df6fa/pynetdicom/presentation.py#L"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom.presentation.PresentationContextTuple" title="Permalink to this definition">¶</a></dt>
 <dd><p><a class="reference external" href="https://docs.python.org/3/library/collections.html#collections.namedtuple" title="(in Python v3.8)"><code class="xref py py-func docutils literal notranslate"><span class="pre">namedtuple</span></code></a> representation of an accepted
 <a class="reference internal" href="pynetdicom.presentation.PresentationContext.html#pynetdicom.presentation.PresentationContext" title="pynetdicom.presentation.PresentationContext"><code class="xref py py-class docutils literal notranslate"><span class="pre">PresentationContext</span></code></a>.</p>
-<dl class="method">
+<dl class="py method">
 <dt id="pynetdicom.presentation.PresentationContextTuple.__init__">
 <code class="sig-name descname">__init__</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pynetdicom.presentation.PresentationContextTuple.__init__" title="Permalink to this definition">¶</a></dt>
 <dd><p>Initialize self.  See help(type(self)) for accurate signature.</p>
@@ -224,14 +224,14 @@
 <col style="width: 90%" />
 </colgroup>
 <tbody>
-<tr class="row-odd"><td><p><a class="reference internal" href="#pynetdicom.presentation.PresentationContextTuple.__init__" title="pynetdicom.presentation.PresentationContextTuple.__init__"><code class="xref py py-obj docutils literal notranslate"><span class="pre">__init__</span></code></a></p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pynetdicom.presentation.PresentationContextTuple.__init__" title="pynetdicom.presentation.PresentationContextTuple.__init__"><code class="xref py py-obj docutils literal notranslate"><span class="pre">__init__</span></code></a>()</p></td>
 <td><p>Initialize self.</p></td>
 </tr>
-<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">count</span></code></p></td>
-<td><p>Return number of occurrences of value.</p></td>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">count</span></code>(value)</p></td>
+<td><p></p></td>
 </tr>
-<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">index</span></code></p></td>
-<td><p>Return first index of value.</p></td>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">index</span></code>(value, [start, [stop]])</p></td>
+<td><p>Raises ValueError if the value is not present.</p></td>
 </tr>
 </tbody>
 </table>
@@ -253,21 +253,21 @@
 </tr>
 </tbody>
 </table>
-<dl class="attribute">
+<dl class="py method">
 <dt id="pynetdicom.presentation.PresentationContextTuple.abstract_syntax">
-<code class="sig-name descname">abstract_syntax</code><a class="headerlink" href="#pynetdicom.presentation.PresentationContextTuple.abstract_syntax" title="Permalink to this definition">¶</a></dt>
+<em class="property">property </em><code class="sig-name descname">abstract_syntax</code><a class="headerlink" href="#pynetdicom.presentation.PresentationContextTuple.abstract_syntax" title="Permalink to this definition">¶</a></dt>
 <dd><p>Alias for field number 1</p>
 </dd></dl>
 
-<dl class="attribute">
+<dl class="py method">
 <dt id="pynetdicom.presentation.PresentationContextTuple.context_id">
-<code class="sig-name descname">context_id</code><a class="headerlink" href="#pynetdicom.presentation.PresentationContextTuple.context_id" title="Permalink to this definition">¶</a></dt>
+<em class="property">property </em><code class="sig-name descname">context_id</code><a class="headerlink" href="#pynetdicom.presentation.PresentationContextTuple.context_id" title="Permalink to this definition">¶</a></dt>
 <dd><p>Alias for field number 0</p>
 </dd></dl>
 
-<dl class="attribute">
+<dl class="py method">
 <dt id="pynetdicom.presentation.PresentationContextTuple.transfer_syntax">
-<code class="sig-name descname">transfer_syntax</code><a class="headerlink" href="#pynetdicom.presentation.PresentationContextTuple.transfer_syntax" title="Permalink to this definition">¶</a></dt>
+<em class="property">property </em><code class="sig-name descname">transfer_syntax</code><a class="headerlink" href="#pynetdicom.presentation.PresentationContextTuple.transfer_syntax" title="Permalink to this definition">¶</a></dt>
 <dd><p>Alias for field number 2</p>
 </dd></dl>
 

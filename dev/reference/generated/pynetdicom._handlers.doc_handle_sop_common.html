@@ -220,9 +220,9 @@
             
   <div class="section" id="pynetdicom-handlers-doc-handle-sop-common">
 <h1>pynetdicom._handlers.doc_handle_sop_common<a class="headerlink" href="#pynetdicom-handlers-doc-handle-sop-common" title="Permalink to this headline">¶</a></h1>
-<dl class="function">
+<dl class="py function">
 <dt id="pynetdicom._handlers.doc_handle_sop_common">
-<code class="sig-prename descclassname">pynetdicom._handlers.</code><code class="sig-name descname">doc_handle_sop_common</code><span class="sig-paren">(</span><em class="sig-param">event</em>, <em class="sig-param">*args</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/53485da/pynetdicom/_handlers.py#L3531"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom._handlers.doc_handle_sop_common" title="Permalink to this definition">¶</a></dt>
+<code class="sig-prename descclassname">pynetdicom._handlers.</code><code class="sig-name descname">doc_handle_sop_common</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">event</span></em>, <em class="sig-param"><span class="o">*</span><span class="n">args</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/642df6fa/pynetdicom/_handlers.py#L3531"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom._handlers.doc_handle_sop_common" title="Permalink to this definition">¶</a></dt>
 <dd><p>Documentation for handlers bound to <code class="docutils literal notranslate"><span class="pre">evt.EVT_SOP_COMMON</span></code>.</p>
 <p>User implementation of this event handler is required only if
 <a class="reference external" href="http://dicom.nema.org/medical/dicom/current/output/chtml/part07/sect_D.3.3.6.html">SOP Class Common Extended Negotiation</a>
@@ -239,7 +239,7 @@ attributes are:</p>
 <li><p><a class="reference internal" href="pynetdicom.events.Event.html#pynetdicom.events.Event.assoc" title="pynetdicom.events.Event.assoc"><code class="xref py py-attr docutils literal notranslate"><span class="pre">assoc</span></code></a>: the
 <a class="reference internal" href="pynetdicom.association.Association.html#pynetdicom.association.Association" title="pynetdicom.association.Association"><code class="xref py py-class docutils literal notranslate"><span class="pre">Association</span></code></a>
 that received the SOP Class Common Extended Negotiation request.</p></li>
-<li><p><a class="reference internal" href="pynetdicom.events.Event.html#pynetdicom.events.Event.event" title="pynetdicom.events.Event.event"><code class="xref py py-attr docutils literal notranslate"><span class="pre">event</span></code></a>: the event that occurred as
+<li><p><a class="reference internal" href="pynetdicom.events.Event.html#id0" title="pynetdicom.events.Event.event"><code class="xref py py-attr docutils literal notranslate"><span class="pre">event</span></code></a>: the event that occurred as
 <a class="reference internal" href="pynetdicom.events.InterventionEvent.html#pynetdicom.events.InterventionEvent" title="pynetdicom.events.InterventionEvent"><code class="xref py py-class docutils literal notranslate"><span class="pre">InterventionEvent</span></code></a>.</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">items</span></code>: the {<em>SOP Class UID</em> :
 <a class="reference internal" href="pynetdicom.pdu_primitives.SOPClassCommonExtendedNegotiation.html#pynetdicom.pdu_primitives.SOPClassCommonExtendedNegotiation" title="pynetdicom.pdu_primitives.SOPClassCommonExtendedNegotiation"><code class="xref py py-class docutils literal notranslate"><span class="pre">SOP</span> <span class="pre">Class</span> <span class="pre">Common</span> <span class="pre">Extended</span> <span class="pre">Negotiation</span></code></a>}

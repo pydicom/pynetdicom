@@ -214,14 +214,14 @@
             
   <div class="section" id="pynetdicom-pdu-presentationdatavalueitem">
 <h1>pynetdicom.pdu.PresentationDataValueItem<a class="headerlink" href="#pynetdicom-pdu-presentationdatavalueitem" title="Permalink to this headline">¶</a></h1>
-<dl class="class">
+<dl class="py class">
 <dt id="pynetdicom.pdu.PresentationDataValueItem">
-<em class="property">class </em><code class="sig-prename descclassname">pynetdicom.pdu.</code><code class="sig-name descname">PresentationDataValueItem</code><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/53485da/pynetdicom/pdu_items.py#L3716"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom.pdu.PresentationDataValueItem" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="sig-prename descclassname">pynetdicom.pdu.</code><code class="sig-name descname">PresentationDataValueItem</code><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/642df6fa/pynetdicom/pdu_items.py#L3716"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom.pdu.PresentationDataValueItem" title="Permalink to this definition">¶</a></dt>
 <dd><p>A Presentation Data Value Item.</p>
 <p>Presentation Data Value (PDV) Items are used to contain DIMSE Messages
 that have been fragmented into Command and Data fragments, with each
 fragment placed into its own PDV Item.</p>
-<dl class="attribute">
+<dl class="py attribute">
 <dt id="pynetdicom.pdu.PresentationDataValueItem.item_length">
 <code class="sig-name descname">item_length</code><a class="headerlink" href="#pynetdicom.pdu.PresentationDataValueItem.item_length" title="Permalink to this definition">¶</a></dt>
 <dd><p>The <em>Item Length</em> field value.</p>
@@ -232,7 +232,7 @@ fragment placed into its own PDV Item.</p>
 </dl>
 </dd></dl>
 
-<dl class="attribute">
+<dl class="py attribute">
 <dt id="pynetdicom.pdu.PresentationDataValueItem.presentation_context_id">
 <code class="sig-name descname">presentation_context_id</code><a class="headerlink" href="#pynetdicom.pdu.PresentationDataValueItem.presentation_context_id" title="Permalink to this definition">¶</a></dt>
 <dd><p>The <em>Presentation Context ID</em> field value.</p>
@@ -243,7 +243,7 @@ fragment placed into its own PDV Item.</p>
 </dl>
 </dd></dl>
 
-<dl class="attribute">
+<dl class="py attribute">
 <dt id="pynetdicom.pdu.PresentationDataValueItem.presentation_data_value">
 <code class="sig-name descname">presentation_data_value</code><a class="headerlink" href="#pynetdicom.pdu.PresentationDataValueItem.presentation_data_value" title="Permalink to this definition">¶</a></dt>
 <dd><p>The <em>Presentation Data Value</em> field value.</p>
@@ -303,9 +303,9 @@ Python indexing). Items are always encoded using Big Endian.</p>
 <li><p>DICOM Standard, Part 8,
 <a class="reference external" href="http://dicom.nema.org/medical/dicom/current/output/chtml/part08/sect_9.3.html#sect_9.3.1">Section 9.3.1</a></p></li>
 </ul>
-<dl class="method">
+<dl class="py method">
 <dt id="pynetdicom.pdu.PresentationDataValueItem.__init__">
-<code class="sig-name descname">__init__</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/53485da/pynetdicom/pdu_items.py#L3766"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom.pdu.PresentationDataValueItem.__init__" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">__init__</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/642df6fa/pynetdicom/pdu_items.py#L3766"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom.pdu.PresentationDataValueItem.__init__" title="Permalink to this definition">¶</a></dt>
 <dd><p>Initialise a new Presentation Data Value Item.</p>
 </dd></dl>
 
@@ -340,7 +340,7 @@ Python indexing). Items are always encoded using Big Endian.</p>
 <tr class="row-even"><td><p><a class="reference internal" href="#pynetdicom.pdu.PresentationDataValueItem.data" title="pynetdicom.pdu.PresentationDataValueItem.data"><code class="xref py py-obj docutils literal notranslate"><span class="pre">data</span></code></a></p></td>
 <td><p>Return the item’s <em>Presentation Data Value</em> field value.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#pynetdicom.pdu.PresentationDataValueItem.item_length" title="pynetdicom.pdu.PresentationDataValueItem.item_length"><code class="xref py py-obj docutils literal notranslate"><span class="pre">item_length</span></code></a></p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#id0" title="pynetdicom.pdu.PresentationDataValueItem.item_length"><code class="xref py py-obj docutils literal notranslate"><span class="pre">item_length</span></code></a></p></td>
 <td><p>Return the item’s <em>Item Length</em> field value as <a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.8)"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></a>.</p></td>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="#pynetdicom.pdu.PresentationDataValueItem.item_type" title="pynetdicom.pdu.PresentationDataValueItem.item_type"><code class="xref py py-obj docutils literal notranslate"><span class="pre">item_type</span></code></a></p></td>
@@ -351,32 +351,32 @@ Python indexing). Items are always encoded using Big Endian.</p>
 </tr>
 </tbody>
 </table>
-<dl class="method">
+<dl class="py method">
 <dt id="pynetdicom.pdu.PresentationDataValueItem.context_id">
 <em class="property">property </em><code class="sig-name descname">context_id</code><a class="headerlink" href="#pynetdicom.pdu.PresentationDataValueItem.context_id" title="Permalink to this definition">¶</a></dt>
 <dd><p>Return the item’s <em>Presentation Context ID</em> field value.</p>
 </dd></dl>
 
-<dl class="method">
+<dl class="py method">
 <dt id="pynetdicom.pdu.PresentationDataValueItem.data">
 <em class="property">property </em><code class="sig-name descname">data</code><a class="headerlink" href="#pynetdicom.pdu.PresentationDataValueItem.data" title="Permalink to this definition">¶</a></dt>
 <dd><p>Return the item’s <em>Presentation Data Value</em> field value.</p>
 </dd></dl>
 
-<dl class="method">
-<dt>
-<em class="property">property </em><code class="sig-name descname">item_length</code></dt>
+<dl class="py method">
+<dt id="id0">
+<em class="property">property </em><code class="sig-name descname">item_length</code><a class="headerlink" href="#id0" title="Permalink to this definition">¶</a></dt>
 <dd><p>Return the item’s <em>Item Length</em> field value as <a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.8)"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></a>.</p>
 </dd></dl>
 
-<dl class="method">
+<dl class="py method">
 <dt id="pynetdicom.pdu.PresentationDataValueItem.item_type">
 <em class="property">property </em><code class="sig-name descname">item_type</code><a class="headerlink" href="#pynetdicom.pdu.PresentationDataValueItem.item_type" title="Permalink to this definition">¶</a></dt>
 <dd><p>Raise NotImplementedError as Presentation Data Value Items have no
 <em>Item Type</em> field.</p>
 </dd></dl>
 
-<dl class="method">
+<dl class="py method">
 <dt id="pynetdicom.pdu.PresentationDataValueItem.message_control_header_byte">
 <em class="property">property </em><code class="sig-name descname">message_control_header_byte</code><a class="headerlink" href="#pynetdicom.pdu.PresentationDataValueItem.message_control_header_byte" title="Permalink to this definition">¶</a></dt>
 <dd><p>Return the message control header byte as a formatted string.</p>

@@ -206,11 +206,11 @@
             
   <div class="section" id="pynetdicom-dul-dulserviceprovider">
 <h1>pynetdicom.dul.DULServiceProvider<a class="headerlink" href="#pynetdicom-dul-dulserviceprovider" title="Permalink to this headline">¶</a></h1>
-<dl class="class">
+<dl class="py class">
 <dt id="pynetdicom.dul.DULServiceProvider">
-<em class="property">class </em><code class="sig-prename descclassname">pynetdicom.dul.</code><code class="sig-name descname">DULServiceProvider</code><span class="sig-paren">(</span><em class="sig-param">assoc</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/53485da/pynetdicom/dul.py#L28"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom.dul.DULServiceProvider" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="sig-prename descclassname">pynetdicom.dul.</code><code class="sig-name descname">DULServiceProvider</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">assoc</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/642df6fa/pynetdicom/dul.py#L28"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom.dul.DULServiceProvider" title="Permalink to this definition">¶</a></dt>
 <dd><p>The DICOM Upper Layer Service Provider.</p>
-<dl class="attribute">
+<dl class="py attribute">
 <dt id="pynetdicom.dul.DULServiceProvider.artim_timer">
 <code class="sig-name descname">artim_timer</code><a class="headerlink" href="#pynetdicom.dul.DULServiceProvider.artim_timer" title="Permalink to this definition">¶</a></dt>
 <dd><p>The <a class="reference external" href="http://dicom.nema.org/medical/dicom/current/output/chtml/part08/chapter_9.html#sect_9.1.5">ARTIM</a> timer.</p>
@@ -221,7 +221,7 @@
 </dl>
 </dd></dl>
 
-<dl class="attribute">
+<dl class="py attribute">
 <dt id="pynetdicom.dul.DULServiceProvider.socket">
 <code class="sig-name descname">socket</code><a class="headerlink" href="#pynetdicom.dul.DULServiceProvider.socket" title="Permalink to this definition">¶</a></dt>
 <dd><p>A wrapped <a class="reference external" href="https://docs.python.org/3/library/socket.html#socket-objects">socket.socket</a>
@@ -233,7 +233,7 @@ object used to communicate with the peer.</p>
 </dl>
 </dd></dl>
 
-<dl class="attribute">
+<dl class="py attribute">
 <dt id="pynetdicom.dul.DULServiceProvider.to_provider_queue">
 <code class="sig-name descname">to_provider_queue</code><a class="headerlink" href="#pynetdicom.dul.DULServiceProvider.to_provider_queue" title="Permalink to this definition">¶</a></dt>
 <dd><p>Queue of PDUs from the DUL service user to be processed by the DUL
@@ -245,7 +245,7 @@ provider.</p>
 </dl>
 </dd></dl>
 
-<dl class="attribute">
+<dl class="py attribute">
 <dt id="pynetdicom.dul.DULServiceProvider.to_user_queue">
 <code class="sig-name descname">to_user_queue</code><a class="headerlink" href="#pynetdicom.dul.DULServiceProvider.to_user_queue" title="Permalink to this definition">¶</a></dt>
 <dd><p>Queue of primitives from the DUL service to be processed by the DUL
@@ -257,7 +257,7 @@ user.</p>
 </dl>
 </dd></dl>
 
-<dl class="attribute">
+<dl class="py attribute">
 <dt id="pynetdicom.dul.DULServiceProvider.event_queue">
 <code class="sig-name descname">event_queue</code><a class="headerlink" href="#pynetdicom.dul.DULServiceProvider.event_queue" title="Permalink to this definition">¶</a></dt>
 <dd><p>List of queued events to be processed by the state machine.</p>
@@ -268,7 +268,7 @@ user.</p>
 </dl>
 </dd></dl>
 
-<dl class="attribute">
+<dl class="py attribute">
 <dt id="pynetdicom.dul.DULServiceProvider.state_machine">
 <code class="sig-name descname">state_machine</code><a class="headerlink" href="#pynetdicom.dul.DULServiceProvider.state_machine" title="Permalink to this definition">¶</a></dt>
 <dd><p>The DICOM Upper Layer’s State Machine.</p>
@@ -279,9 +279,9 @@ user.</p>
 </dl>
 </dd></dl>
 
-<dl class="method">
+<dl class="py method">
 <dt id="pynetdicom.dul.DULServiceProvider.__init__">
-<code class="sig-name descname">__init__</code><span class="sig-paren">(</span><em class="sig-param">assoc</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/53485da/pynetdicom/dul.py#L49"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom.dul.DULServiceProvider.__init__" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">__init__</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">assoc</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/642df6fa/pynetdicom/dul.py#L49"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom.dul.DULServiceProvider.__init__" title="Permalink to this definition">¶</a></dt>
 <dd><p>Create a new DUL service provider for <cite>assoc</cite>.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -367,47 +367,44 @@ instance.</p>
 <tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">name</span></code></p></td>
 <td><p>A string used for identification purposes only.</p></td>
 </tr>
-<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">native_id</span></code></p></td>
-<td><p>Native integral thread ID of this thread, or None if it has not been started.</p></td>
-</tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#pynetdicom.dul.DULServiceProvider.network_timeout" title="pynetdicom.dul.DULServiceProvider.network_timeout"><code class="xref py py-obj docutils literal notranslate"><span class="pre">network_timeout</span></code></a></p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pynetdicom.dul.DULServiceProvider.network_timeout" title="pynetdicom.dul.DULServiceProvider.network_timeout"><code class="xref py py-obj docutils literal notranslate"><span class="pre">network_timeout</span></code></a></p></td>
 <td><p>Return the network timeout (in seconds).</p></td>
 </tr>
 </tbody>
 </table>
-<dl class="method">
+<dl class="py method">
 <dt id="pynetdicom.dul.DULServiceProvider.assoc">
 <em class="property">property </em><code class="sig-name descname">assoc</code><a class="headerlink" href="#pynetdicom.dul.DULServiceProvider.assoc" title="Permalink to this definition">¶</a></dt>
 <dd><p>Return the parent <a class="reference internal" href="pynetdicom.association.Association.html#pynetdicom.association.Association" title="pynetdicom.association.Association"><code class="xref py py-class docutils literal notranslate"><span class="pre">Association</span></code></a>.</p>
 </dd></dl>
 
-<dl class="method">
+<dl class="py method">
 <dt id="pynetdicom.dul.DULServiceProvider.idle_timer_expired">
-<code class="sig-name descname">idle_timer_expired</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/53485da/pynetdicom/dul.py#L136"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom.dul.DULServiceProvider.idle_timer_expired" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">idle_timer_expired</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/642df6fa/pynetdicom/dul.py#L136"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom.dul.DULServiceProvider.idle_timer_expired" title="Permalink to this definition">¶</a></dt>
 <dd><p>Return <code class="docutils literal notranslate"><span class="pre">True</span></code> if the network idle timer has expired.</p>
 </dd></dl>
 
-<dl class="method">
+<dl class="py method">
 <dt id="pynetdicom.dul.DULServiceProvider.kill_dul">
-<code class="sig-name descname">kill_dul</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/53485da/pynetdicom/dul.py#L177"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom.dul.DULServiceProvider.kill_dul" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">kill_dul</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/642df6fa/pynetdicom/dul.py#L177"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom.dul.DULServiceProvider.kill_dul" title="Permalink to this definition">¶</a></dt>
 <dd><p>Kill the DUL reactor and stop the thread</p>
 </dd></dl>
 
-<dl class="method">
+<dl class="py method">
 <dt id="pynetdicom.dul.DULServiceProvider.network_timeout">
 <em class="property">property </em><code class="sig-name descname">network_timeout</code><a class="headerlink" href="#pynetdicom.dul.DULServiceProvider.network_timeout" title="Permalink to this definition">¶</a></dt>
 <dd><p>Return the network timeout (in seconds).</p>
 </dd></dl>
 
-<dl class="method">
+<dl class="py method">
 <dt id="pynetdicom.dul.DULServiceProvider.peek_next_pdu">
-<code class="sig-name descname">peek_next_pdu</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/53485da/pynetdicom/dul.py#L186"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom.dul.DULServiceProvider.peek_next_pdu" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">peek_next_pdu</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/642df6fa/pynetdicom/dul.py#L186"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom.dul.DULServiceProvider.peek_next_pdu" title="Permalink to this definition">¶</a></dt>
 <dd><p>Check the next PDU to be processed.</p>
 </dd></dl>
 
-<dl class="method">
+<dl class="py method">
 <dt id="pynetdicom.dul.DULServiceProvider.receive_pdu">
-<code class="sig-name descname">receive_pdu</code><span class="sig-paren">(</span><em class="sig-param">wait=False</em>, <em class="sig-param">timeout=None</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/53485da/pynetdicom/dul.py#L310"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom.dul.DULServiceProvider.receive_pdu" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">receive_pdu</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">wait</span><span class="o">=</span><span class="default_value">False</span></em>, <em class="sig-param"><span class="n">timeout</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/642df6fa/pynetdicom/dul.py#L310"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom.dul.DULServiceProvider.receive_pdu" title="Permalink to this definition">¶</a></dt>
 <dd><p>Return an item from the queue if one is available.</p>
 <p>Get the next item to be processed out of the queue of items sent
 from the DUL service provider to the service user</p>
@@ -431,9 +428,9 @@ immediately available.</p></li>
 </dl>
 </dd></dl>
 
-<dl class="method">
+<dl class="py method">
 <dt id="pynetdicom.dul.DULServiceProvider.run">
-<code class="sig-name descname">run</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/53485da/pynetdicom/dul.py#L353"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom.dul.DULServiceProvider.run" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">run</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/642df6fa/pynetdicom/dul.py#L353"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom.dul.DULServiceProvider.run" title="Permalink to this definition">¶</a></dt>
 <dd><p>Run the DUL reactor.</p>
 <p>The main <a class="reference external" href="https://docs.python.org/3/library/threading.html#threading.Thread" title="(in Python v3.8)"><code class="xref py py-class docutils literal notranslate"><span class="pre">threading.Thread</span></code></a> run loop. Runs constantly, checking
 the connection for incoming data. When incoming data is received it
@@ -441,9 +438,9 @@ categorises it and add its to the
 <a class="reference internal" href="#pynetdicom.dul.DULServiceProvider.to_user_queue" title="pynetdicom.dul.DULServiceProvider.to_user_queue"><code class="xref py py-attr docutils literal notranslate"><span class="pre">to_user_queue</span></code></a>.</p>
 </dd></dl>
 
-<dl class="method">
+<dl class="py method">
 <dt id="pynetdicom.dul.DULServiceProvider.send_pdu">
-<code class="sig-name descname">send_pdu</code><span class="sig-paren">(</span><em class="sig-param">primitive</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/53485da/pynetdicom/dul.py#L415"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom.dul.DULServiceProvider.send_pdu" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">send_pdu</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">primitive</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/642df6fa/pynetdicom/dul.py#L415"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom.dul.DULServiceProvider.send_pdu" title="Permalink to this definition">¶</a></dt>
 <dd><p>Place a primitive in the provider queue to be sent to the peer.</p>
 <p>Primitives are converted to the corresponding PDU and encoded before
 sending.</p>
@@ -462,9 +459,9 @@ sending.</p>
 </dl>
 </dd></dl>
 
-<dl class="method">
+<dl class="py method">
 <dt id="pynetdicom.dul.DULServiceProvider.stop_dul">
-<code class="sig-name descname">stop_dul</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/53485da/pynetdicom/dul.py#L443"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom.dul.DULServiceProvider.stop_dul" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">stop_dul</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/642df6fa/pynetdicom/dul.py#L443"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom.dul.DULServiceProvider.stop_dul" title="Permalink to this definition">¶</a></dt>
 <dd><p>Stop the reactor if current state is <code class="docutils literal notranslate"><span class="pre">'Sta1'</span></code></p>
 <dl class="field-list simple">
 <dt class="field-odd">Returns</dt>
