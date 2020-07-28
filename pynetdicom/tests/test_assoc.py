@@ -61,7 +61,7 @@ from .encoded_pdu_items import a_associate_ac
 from .parrot import start_server, ThreadedParrot
 
 
-debug_logger()
+#debug_logger()
 
 
 TEST_DS_DIR = os.path.join(os.path.dirname(__file__), 'dicom_files')
