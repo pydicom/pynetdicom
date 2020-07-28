@@ -1689,6 +1689,7 @@ class Association(threading.Thread):
         :class:`~pynetdicom.dimse_primitives.C_STORE`
         :class:`~pynetdicom.service_class.StorageServiceClass`
         :class:`~pynetdicom.service_class.NonPatientObjectStorageServiceClass`
+        :attr:`~pynetdicom._config.STORE_SEND_CHUNKED_DATASET`
 
         References
         ----------
@@ -1723,9 +1724,8 @@ class Association(threading.Thread):
 
         allow_conversion = True
         if not isinstance(dataset, Dataset):
-            send_chunks = _config.STORE_SEND_CHUNKED_DATASET
             dataset = Path(dataset)
-            if not send_chunks:
+            if not _config.STORE_SEND_CHUNKED_DATASET:
                 dataset = dcmread(os.fspath(dataset))
             else:
                 allow_conversion = False

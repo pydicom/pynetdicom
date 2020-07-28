@@ -232,7 +232,7 @@ def split_dataset(fpath):
         """Return True if the tag is not in group 0x0002, False otherwise."""
         return tag.group != 2
 
-    with open(os.fspath(fpath), 'rb') as fp:
+    with open(fpath, 'rb') as fp:
         read_preamble(fp, False)
         file_meta = read_dataset(
             fp,
