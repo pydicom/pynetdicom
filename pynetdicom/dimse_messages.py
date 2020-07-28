@@ -444,6 +444,7 @@ class DIMSEMessage(object):
 
                 if max_pdu_length == 0:
                     nr_fragments = 1
+                    max_pdu_length = length + 6
                 else:
                     nr_fragments = ceil(length / (max_pdu_length - 6))
 

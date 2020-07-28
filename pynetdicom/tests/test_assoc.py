@@ -1692,8 +1692,12 @@ class TestAssociationSendCStore(object):
         assert isinstance(p, Path)
         status = assoc.send_c_store(p)
         assert status.Status == 0x0000
+        assoc.release()
+        assert assoc.is_released
 
         ae.maximum_pdu_size = 0
+        assoc = ae.associate('localhost', 11112)
+        assert assoc.is_established
         status = assoc.send_c_store(p)
         assert status.Status == 0x0000
 
