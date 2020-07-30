@@ -215,7 +215,7 @@
 <a class="reference internal" href="pynetdicom.association.Association.html#pynetdicom.association.Association.send_c_store" title="pynetdicom.association.Association.send_c_store"><code class="xref py py-meth docutils literal notranslate"><span class="pre">send_c_store()</span></code></a> with a file path to
 a DICOM dataset, don’t decode the dataset and instead send the raw encoded
 data (without the File Meta Information) in chunks of no larger than
-<a class="reference internal" href="pynetdicom.ae.ApplicationEntity.html#id4" title="pynetdicom.ae.ApplicationEntity.maximum_pdu_size"><code class="xref py py-attr docutils literal notranslate"><span class="pre">maximum_pdu_size</span></code></a>. This should
+maximum PDU size allowed by the peer. This should
 minimise the amount of memory required when sending large datasets, however
 no conversion of the dataset is possible and so an exact matching accepted
 presentation context will be required. Default: <code class="docutils literal notranslate"><span class="pre">False</span></code>.</p>
