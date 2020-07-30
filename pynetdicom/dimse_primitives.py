@@ -525,10 +525,8 @@ class C_STORE(DIMSEPrimitive):
         # self.AffectedSOPInstanceUID
 
         # If None then the dataset is encoded as BytesIO
-        # If not None then the dataset is stored at `_dataset_path`
-        self._dataset_path = None
-        # The byte offset to the start of the dataset (after file meta info)
-        self._dataset_offset = None
+        # If not None then the dataset is stored at (path, offset)
+        self._dataset_file = None
 
     @property
     def AffectedSOPInstanceUID(self):

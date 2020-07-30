@@ -104,7 +104,7 @@ Examples
 STORE_SEND_CHUNKED_DATASET = False
 """Chunk a dataset file when sending it to minimise memory usage.
 
-.. versionadded:: 2.1
+.. versionadded:: 2.0
 
 If ``True``, then when using
 :meth:`~pynetdicom.association.Association.send_c_store` with a file path to

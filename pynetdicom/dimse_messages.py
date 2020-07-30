@@ -214,10 +214,9 @@ class DIMSEMessage(object):
         self.data_set = BytesIO()
         self.command_set = Dataset()
 
-        # If reading the dataset in chunks this will be its file path
-        self._data_set_path = None
-        # The byte offset to the start of the dataset (after file meta info)
-        self._data_set_offset = None
+        # If reading the dataset in chunks this will be
+        #   (its file path, byte offset to the start of the dataset)
+        self._data_set_file = None
 
         cls_name = self.__class__.__name__
         if cls_name == 'DIMSEMessage':
@@ -434,13 +433,12 @@ class DIMSEMessage(object):
                     [context_id, b'\x02' + next(ds_fragments)]
                 )
                 yield pdata
-        elif self._data_set_path is not None:
+        elif self._data_set_file is not None:
             # Read and send encoded dataset from file
             # Buffer size determined by io.DEFAULT_BUFFER_SIZE
-            with open(self._data_set_path, 'rb') as f:
+            with open(self._data_set_file[0], 'rb') as f:
                 end = f.seek(0, 2)
-                f.seek(self._data_set_offset)
-                length = end - f.tell()
+                length = end - f.seek(self._data_set_file[1])
 
                 if max_pdu_length == 0:
                     nr_fragments = 1
@@ -604,9 +602,8 @@ class DIMSEMessage(object):
             # 'C_CANCEL_RQ', 'N_DELETE_RSP', 'C_FIND_RSP', 'N_GET_RQ'
             pass
 
-        self._data_set_path = getattr(primitive, "_dataset_path", None)
-        self._data_set_offset = getattr(primitive, "_dataset_offset", None)
-        if self._data_set_path:
+        self._data_set_file = getattr(primitive, "_dataset_file", None)
+        if self._data_set_file:
             self.command_set.CommandDataSetType = 0x0001
 
         # Set the Command Set length

@@ -769,7 +769,7 @@ def _send_c_store_rq(event):
     dataset = "None"
     if msg.data_set and msg.data_set.getvalue() != b"":
         dataset = "Present"
-    elif msg._data_set_path is not None:
+    elif msg._data_set_file is not None:
         dataset = "Present"
 
     if cs.AffectedSOPClassUID.name == "CT Image Storage":
