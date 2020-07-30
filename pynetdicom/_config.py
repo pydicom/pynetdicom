@@ -110,7 +110,7 @@ If ``True``, then when using
 :meth:`~pynetdicom.association.Association.send_c_store` with a file path to
 a DICOM dataset, don't decode the dataset and instead send the raw encoded
 data (without the File Meta Information) in chunks of no larger than
-:attr:`~pynetdicom.ae.ApplicationEntity.maximum_pdu_size`. This should
+maximum PDU size allowed by the peer. This should
 minimise the amount of memory required when sending large datasets, however
 no conversion of the dataset is possible and so an exact matching accepted
 presentation context will be required. Default: ``False``.
