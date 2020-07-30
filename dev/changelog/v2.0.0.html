@@ -194,10 +194,15 @@
 <div class="section" id="enhancements">
 <h2>Enhancements<a class="headerlink" href="#enhancements" title="Permalink to this headline">¶</a></h2>
 <ul class="simple">
-<li><p>Added configuration option <code class="xref py py-attr docutils literal notranslate"><span class="pre">_config.ALLOW_LONG_DIMSE_AET</span></code> to allow
-bypassing the length check for elements with a VR of <strong>AE</strong> (<a class="reference external" href="https://github.com/pydicom/pynetdicom/issues/515">#515</a>)</p></li>
+<li><p>Added configuration option <a class="reference internal" href="../reference/generated/pynetdicom._config.ALLOW_LONG_DIMSE_AET.html#pynetdicom._config.ALLOW_LONG_DIMSE_AET" title="pynetdicom._config.ALLOW_LONG_DIMSE_AET"><code class="xref py py-attr docutils literal notranslate"><span class="pre">ALLOW_LONG_DIMSE_AET</span></code></a>
+to allow bypassing the length check for elements with a VR of <strong>AE</strong>
+(<a class="reference external" href="https://github.com/pydicom/pynetdicom/issues/515">#515</a>)</p></li>
 <li><p>Added the ability to pass a file path to a dataset to
 <a class="reference internal" href="../reference/generated/pynetdicom.association.Association.html#pynetdicom.association.Association.send_c_store" title="pynetdicom.association.Association.send_c_store"><code class="xref py py-meth docutils literal notranslate"><span class="pre">send_c_store()</span></code></a> (<a class="reference external" href="https://github.com/pydicom/pynetdicom/issues/517">#517</a>)</p></li>
+<li><p>Added <a class="reference internal" href="../reference/generated/pynetdicom._config.STORE_SEND_CHUNKED_DATASET.html#pynetdicom._config.STORE_SEND_CHUNKED_DATASET" title="pynetdicom._config.STORE_SEND_CHUNKED_DATASET"><code class="xref py py-attr docutils literal notranslate"><span class="pre">STORE_SEND_CHUNKED_DATASET</span></code></a> config option
+to allow the use of a chunked read when a file path is passed to
+<a class="reference internal" href="../reference/generated/pynetdicom.association.Association.html#pynetdicom.association.Association.send_c_store" title="pynetdicom.association.Association.send_c_store"><code class="xref py py-meth docutils literal notranslate"><span class="pre">send_c_store()</span></code></a> in order to
+reduce the memory needed for sending large dataset (<a class="reference external" href="https://github.com/pydicom/pynetdicom/issues/517">#517</a>)</p></li>
 </ul>
 </div>
 <div class="section" id="changes">

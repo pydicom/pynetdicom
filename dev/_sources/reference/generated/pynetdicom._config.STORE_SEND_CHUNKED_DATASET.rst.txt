@@ -1,0 +1,6 @@
+pynetdicom.\_config.STORE\_SEND\_CHUNKED\_DATASET
+=================================================
+
+.. currentmodule:: pynetdicom._config
+
+.. autodata:: STORE_SEND_CHUNKED_DATASET
