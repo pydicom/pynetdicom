@@ -67,6 +67,7 @@ from .parrot import start_server, ThreadedParrot
 TEST_DS_DIR = os.path.join(os.path.dirname(__file__), 'dicom_files')
 BIG_DATASET = dcmread(os.path.join(TEST_DS_DIR, 'RTImageStorage.dcm')) # 2.1 M
 DATASET_PATH = os.path.join(TEST_DS_DIR, 'CTImageStorage.dcm')
+BAD_DATASET_PATH = os.path.join(TEST_DS_DIR, 'CTImageStorage_bad_meta.dcm')
 DATASET = dcmread(DATASET_PATH)
 # JPEG2000Lossless
 COMP_DATASET = dcmread(
@@ -1185,6 +1186,8 @@ class TestAssociationSendCStore(object):
         if self.ae:
             self.ae.shutdown()
 
+        _config.STORE_SEND_CHUNKED_DATASET = False
+
     def test_must_be_associated(self):
         """Test SCU can't send without association."""
         # Test raise if assoc not established
@@ -1282,7 +1285,8 @@ class TestAssociationSendCStore(object):
         ds.PerimeterValue = b'\x00\x01'
         ds.file_meta = Dataset()
         ds.file_meta.TransferSyntaxUID = ImplicitVRLittleEndian
-        with pytest.raises(ValueError):
+        msg = r"Failed to encode the supplied dataset"
+        with pytest.raises(ValueError, match=msg):
             assoc.send_c_store(ds)
         assoc.release()
         assert assoc.is_released
@@ -1507,9 +1511,8 @@ class TestAssociationSendCStore(object):
         assert assoc.is_established
         assert 'SOPClassUID' not in ds
         msg = (
-            r"Unable to determine the presentation context to use with "
-            r"`dataset` as it contains no '\(0008,0016\) SOP Class UID' "
-            r"element"
+            f"Unable to send the dataset as one or more required "
+            f"element are missing: SOPClassUID"
         )
         with pytest.raises(AttributeError, match=msg):
             assoc.send_c_store(ds)
@@ -1619,7 +1622,7 @@ class TestAssociationSendCStore(object):
         scp.shutdown()
 
     def test_using_filepath(self):
-        """Test receiving a success response from the peer"""
+        """Test using a file path to a dataset."""
         recv = []
 
         def handle_store(event):
@@ -1657,6 +1660,93 @@ class TestAssociationSendCStore(object):
         for ds in recv:
             assert "CompressedSamples^CT1" == ds.PatientName
             assert "DataSetTrailingPadding" in ds
+
+    def test_using_filepath_chunks(self):
+        """Test chunking send."""
+        _config.STORE_SEND_CHUNKED_DATASET = True
+
+        recv = []
+
+        def handle_store(event):
+            recv.append(event.dataset)
+            return 0x0000
+
+        handlers = [(evt.EVT_C_STORE, handle_store)]
+
+        self.ae = ae = AE()
+        ae.acse_timeout = 5
+        ae.dimse_timeout = 5
+        ae.network_timeout = 5
+        ae.add_supported_context(CTImageStorage)
+        scp = ae.start_server(('', 11112), block=False, evt_handlers=handlers)
+
+        ae.add_requested_context(CTImageStorage, ExplicitVRLittleEndian)
+        assoc = ae.associate('localhost', 11112)
+
+        assert assoc.is_established
+        assert isinstance(DATASET_PATH, str)
+        status = assoc.send_c_store(DATASET_PATH)
+        assert status.Status == 0x0000
+
+        p = Path(DATASET_PATH).resolve()
+        assert isinstance(p, Path)
+        status = assoc.send_c_store(p)
+        assert status.Status == 0x0000
+        assoc.release()
+        assert assoc.is_released
+
+        ae.maximum_pdu_size = 0
+        assoc = ae.associate('localhost', 11112)
+        assert assoc.is_established
+        status = assoc.send_c_store(p)
+        assert status.Status == 0x0000
+
+        assoc.release()
+        assert assoc.is_released
+
+        scp.shutdown()
+
+        assert 3 == len(recv)
+        for ds in recv:
+            assert not hasattr(ds, "file_meta")
+            assert "CompressedSamples^CT1" == ds.PatientName
+            assert 126 == len(ds.DataSetTrailingPadding)
+
+    def test_using_filepath_chunks_missing(self):
+        """Test receiving a success response from the peer"""
+        _config.STORE_SEND_CHUNKED_DATASET = True
+
+        recv = []
+
+        def handle_store(event):
+            recv.append(event.dataset)
+            return 0x0000
+
+        handlers = [(evt.EVT_C_STORE, handle_store)]
+
+        self.ae = ae = AE()
+        ae.acse_timeout = 5
+        ae.dimse_timeout = 5
+        ae.network_timeout = 5
+        ae.add_supported_context(CTImageStorage)
+        scp = ae.start_server(('', 11112), block=False, evt_handlers=handlers)
+
+        ae.add_requested_context(CTImageStorage, ExplicitVRLittleEndian)
+        assoc = ae.associate('localhost', 11112)
+
+        assert assoc.is_established
+        assert isinstance(BAD_DATASET_PATH, str)
+        msg = (
+            r"one or more required file meta information elements are "
+            r"missing: MediaStorageSOPClassUID"
+        )
+        with pytest.raises(AttributeError, match=msg):
+            assoc.send_c_store(BAD_DATASET_PATH)
+
+        assoc.release()
+        assert assoc.is_released
+
+        scp.shutdown()
 
     # Regression tests
     def test_no_send_mismatch(self):

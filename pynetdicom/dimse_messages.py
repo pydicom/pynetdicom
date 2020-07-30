@@ -214,6 +214,10 @@ class DIMSEMessage(object):
         self.data_set = BytesIO()
         self.command_set = Dataset()
 
+        # If reading the dataset in chunks this will be
+        #   (its file path, byte offset to the start of the dataset)
+        self._data_set_file = None
+
         cls_name = self.__class__.__name__
         if cls_name == 'DIMSEMessage':
             return
@@ -372,17 +376,18 @@ class DIMSEMessage(object):
         # COMMAND SET (always)
         # Split the command set into fragments with maximum size max_pdu_length
         if max_pdu_length == 0:
-            no_fragments = 1
+            nr_fragments = 1
         else:
-            no_fragments = ceil(
+            nr_fragments = ceil(
                 len(encoded_command_set) / (max_pdu_length - 6)
             )
 
-        cmd_fragments = self._generate_pdv_fragments(encoded_command_set,
-                                                     max_pdu_length)
+        cmd_fragments = self._generate_pdv_fragments(
+            encoded_command_set, max_pdu_length
+        )
 
         # First to (n - 1)th command data fragment - bits xxxxxx01
-        for ii in range(int(no_fragments - 1)):
+        for ii in range(int(nr_fragments - 1)):
             pdata = P_DATA()
             pdata.presentation_data_value_list.append(
                 [context_id, b'\x01' + next(cmd_fragments)]
@@ -404,16 +409,18 @@ class DIMSEMessage(object):
                 # Split the data set into fragments with maximum
                 #   size max_pdu_length
                 if max_pdu_length == 0:
-                    no_fragments = 1
+                    nr_fragments = 1
                 else:
-                    no_fragments = ceil(
+                    nr_fragments = ceil(
                         len(encoded_data_set) / (max_pdu_length - 6)
                     )
-                ds_fragments = self._generate_pdv_fragments(encoded_data_set,
-                                                            max_pdu_length)
+
+                ds_fragments = self._generate_pdv_fragments(
+                    encoded_data_set, max_pdu_length
+                )
 
                 # First to (n - 1)th dataset fragment - bits xxxxxx00
-                for ii in range(int(no_fragments - 1)):
+                for ii in range(int(nr_fragments - 1)):
                     pdata = P_DATA()
                     pdata.presentation_data_value_list.append(
                         [context_id, b'\x00' + next(ds_fragments)]
@@ -424,6 +431,33 @@ class DIMSEMessage(object):
                 pdata = P_DATA()
                 pdata.presentation_data_value_list.append(
                     [context_id, b'\x02' + next(ds_fragments)]
+                )
+                yield pdata
+        elif self._data_set_file is not None:
+            # Read and send encoded dataset from file
+            # Buffer size determined by io.DEFAULT_BUFFER_SIZE
+            with open(self._data_set_file[0], 'rb') as f:
+                end = f.seek(0, 2)
+                length = end - f.seek(self._data_set_file[1])
+
+                if max_pdu_length == 0:
+                    nr_fragments = 1
+                    max_pdu_length = length + 6
+                else:
+                    nr_fragments = ceil(length / (max_pdu_length - 6))
+
+                # First to (n - 1)th dataset fragment - bits xxxxxx00
+                for ii in range(int(nr_fragments - 1)):
+                    pdata = P_DATA()
+                    pdata.presentation_data_value_list.append(
+                        [context_id, b'\x00' + f.read(max_pdu_length - 6)]
+                    )
+                    yield pdata
+
+                # Last dataset fragment - bits xxxxxx10
+                pdata = P_DATA()
+                pdata.presentation_data_value_list.append(
+                    [context_id, b'\x02' + f.read(max_pdu_length - 6)]
                 )
                 yield pdata
 
@@ -567,6 +601,10 @@ class DIMSEMessage(object):
             # 'C_ECHO_RQ', 'C_ECHO_RSP', 'N_DELETE_RQ', 'C_STORE_RSP',
             # 'C_CANCEL_RQ', 'N_DELETE_RSP', 'C_FIND_RSP', 'N_GET_RQ'
             pass
+
+        self._data_set_file = getattr(primitive, "_dataset_file", None)
+        if self._data_set_file:
+            self.command_set.CommandDataSetType = 0x0001
 
         # Set the Command Set length
         self._set_command_group_length()

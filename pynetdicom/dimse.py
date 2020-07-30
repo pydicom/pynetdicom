@@ -303,9 +303,7 @@ class DIMSEServiceProvider(object):
         dimse_msg.context_id = context_id
 
         # Trigger event
-        evt.trigger(
-            self.assoc, evt.EVT_DIMSE_SENT, {'message' : dimse_msg}
-        )
+        evt.trigger(self.assoc, evt.EVT_DIMSE_SENT, {'message' : dimse_msg})
 
         # Split the full messages into P-DATA chunks,
         #   each below the max_pdu size

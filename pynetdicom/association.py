@@ -21,7 +21,7 @@ from pynetdicom.dimse_primitives import (
     C_ECHO, C_MOVE, C_STORE, C_GET, C_FIND, C_CANCEL,
     N_EVENT_REPORT, N_GET, N_SET, N_CREATE, N_ACTION, N_DELETE
 )
-from pynetdicom.dsutils import decode, encode, pretty_dataset
+from pynetdicom.dsutils import decode, encode, pretty_dataset, split_dataset
 from pynetdicom.dul import DULServiceProvider
 from pynetdicom._globals import (
     MODE_REQUESTOR, MODE_ACCEPTOR, DEFAULT_MAX_LENGTH, STATUS_WARNING,
@@ -1689,6 +1689,7 @@ class Association(threading.Thread):
         :class:`~pynetdicom.dimse_primitives.C_STORE`
         :class:`~pynetdicom.service_class.StorageServiceClass`
         :class:`~pynetdicom.service_class.NonPatientObjectStorageServiceClass`
+        :attr:`~pynetdicom._config.STORE_SEND_CHUNKED_DATASET`
 
         References
         ----------
@@ -1702,36 +1703,10 @@ class Association(threading.Thread):
         """
         # Can't send a C-STORE without an Association
         if not self.is_established:
-            raise RuntimeError("The association with a peer SCP must be "
-                               "established before sending a C-STORE request")
-
-        if not isinstance(dataset, Dataset):
-            dataset = dcmread(os.fspath(dataset))
-
-        # Check `dataset` has required elements
-        if 'SOPClassUID' not in dataset:
-            raise AttributeError(
-                "Unable to determine the presentation context to use with "
-                "`dataset` as it contains no '(0008,0016) SOP Class UID' "
-                "element"
+            raise RuntimeError(
+                "The association with a peer SCP must be established before "
+                "sending a C-STORE request"
             )
-
-        try:
-            assert 'TransferSyntaxUID' in dataset.file_meta
-        except (AssertionError, AttributeError):
-            raise AttributeError(
-                "Unable to determine the presentation context to use with "
-                "`dataset` as it contains no '(0002,0010) Transfer Syntax "
-                "UID' file meta information element"
-            )
-
-        # Get a Presentation Context to use for sending the message
-        context = self._get_valid_context(
-            dataset.SOPClassUID,
-            dataset.file_meta.TransferSyntaxUID,
-            'scu'
-        )
-        transfer_syntax = context.transfer_syntax[0]
 
         # Build C-STORE request primitive
         #   (M) Message ID
@@ -1743,26 +1718,84 @@ class Association(threading.Thread):
         #   (M) Data Set
         req = C_STORE()
         req.MessageID = msg_id
-        req.AffectedSOPClassUID = dataset.SOPClassUID
-        req.AffectedSOPInstanceUID = dataset.SOPInstanceUID
         req.Priority = priority
         req.MoveOriginatorApplicationEntityTitle = originator_aet
         req.MoveOriginatorMessageID = originator_id
 
+        allow_conversion = True
+        if not isinstance(dataset, Dataset):
+            fpath = Path(dataset)
+            if not _config.STORE_SEND_CHUNKED_DATASET:
+                dataset = dcmread(os.fspath(fpath))
+            else:
+                dataset = None
+                allow_conversion = False
+                file_meta, offset = split_dataset(fpath)
+                req._dataset_file = (fpath, offset)
+
+                missing = [
+                    'MediaStorageSOPClassUID',
+                    'MediaStorageSOPInstanceUID',
+                    'TransferSyntaxUID'
+                ]
+                missing = [kw for kw in missing if kw not in file_meta]
+                if missing:
+                    raise AttributeError(
+                        f"Unable to send the dataset from the file at "
+                        f"{os.fspath(fpath)} as one or more required file "
+                        f"meta information elements are missing: "
+                        f"{','.join(missing)}"
+                    )
+
+                sop_class = file_meta.MediaStorageSOPClassUID
+                sop_instance = file_meta.MediaStorageSOPInstanceUID
+                tsyntax = file_meta.TransferSyntaxUID
+
+        if dataset:
+            missing = ['SOPClassUID', 'SOPInstanceUID']
+            missing = [kw for kw in missing if kw not in dataset]
+            if missing:
+                raise AttributeError(
+                    f"Unable to send the dataset as one or more required "
+                    f"element are missing: {','.join(missing)}"
+                )
+
+            sop_class = dataset.SOPClassUID
+            sop_instance = dataset.SOPInstanceUID
+
+            try:
+                tsyntax = dataset.file_meta.TransferSyntaxUID
+            except (AssertionError, AttributeError):
+                raise AttributeError(
+                    "Unable to determine the presentation context to use with "
+                    "`dataset` as it contains no '(0002,0010) Transfer Syntax "
+                    "UID' file meta information element"
+                )
+
+        # Get a Presentation Context to use for sending the message
+        context = self._get_valid_context(
+            sop_class, tsyntax, 'scu', allow_conversion=allow_conversion
+        )
+        transfer_syntax = context.transfer_syntax[0]
+
+        req.AffectedSOPClassUID = sop_class
+        req.AffectedSOPInstanceUID = sop_instance
+
         # Encode the `dataset` using the agreed transfer syntax
         #   Will return None if failed to encode
-        bytestream = encode(
-            dataset,
-            transfer_syntax.is_implicit_VR,
-            transfer_syntax.is_little_endian,
-            transfer_syntax.is_deflated
-        )
+        if dataset:
+            bytestream = encode(
+                dataset,
+                transfer_syntax.is_implicit_VR,
+                transfer_syntax.is_little_endian,
+                transfer_syntax.is_deflated
+            )
 
-        if bytestream is not None:
-            req.DataSet = BytesIO(bytestream)
-        else:
-            LOGGER.error("Failed to encode the supplied Dataset")
-            raise ValueError('Failed to encode the supplied Dataset')
+            if bytestream is not None:
+                req.DataSet = BytesIO(bytestream)
+            else:
+                LOGGER.error("Failed to encode the supplied dataset")
+                raise ValueError('Failed to encode the supplied dataset')
 
         # Pause the reactor to prevent a race condition
         self._reactor_checkpoint.clear()

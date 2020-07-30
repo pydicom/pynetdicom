@@ -524,6 +524,10 @@ class C_STORE(DIMSEPrimitive):
         # For Failure statuses 0x0117
         # self.AffectedSOPInstanceUID
 
+        # If None then the dataset is encoded as BytesIO
+        # If not None then the dataset is stored at (path, offset)
+        self._dataset_file = None
+
     @property
     def AffectedSOPInstanceUID(self):
         """Return the *Affected SOP Instance UID* as :class:`~pydicom.uid.UID`.

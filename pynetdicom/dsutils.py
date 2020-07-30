@@ -1,10 +1,11 @@
 """DICOM dataset utility functions."""
 
 import logging
+import os
 import zlib
 
 from pydicom.filebase import DicomBytesIO
-from pydicom.filereader import read_dataset
+from pydicom.filereader import read_dataset, read_preamble
 from pydicom.filewriter import write_dataset, write_data_element
 
 from pynetdicom.utils import pretty_bytes
@@ -210,3 +211,35 @@ def pretty_element(elem):
         elem.VM,
         elem.keyword
     )
+
+
+def split_dataset(fpath):
+    """Return the file meta elements and the offset to the start of the dataset
+
+    .. versionadded:: 2.0
+
+    Parameters
+    ----------
+    fpath : pathlib.Path
+        The path to a dataset written in the DICOM File Format.
+
+    Returns
+    -------
+    pydicom.dataset.Dataset, int
+        The File Meta elements as a Dataset instance and the byte offset to
+        the start of the dataset itself. The File Meta dataset may be empty if
+        no File Meta is present.
+    """
+    def _not_group_0002(tag, VR, length):
+        """Return True if the tag is not in group 0x0002, False otherwise."""
+        return tag.group != 2
+
+    with open(fpath, 'rb') as fp:
+        read_preamble(fp, False)
+        file_meta = read_dataset(
+            fp,
+            is_implicit_VR=False,
+            is_little_endian=True,
+            stop_when=_not_group_0002
+        )
+        return file_meta, fp.tell()
