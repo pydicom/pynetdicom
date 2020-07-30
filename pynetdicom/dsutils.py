@@ -216,6 +216,8 @@ def pretty_element(elem):
 def split_dataset(fpath):
     """Return the file meta elements and the offset to the start of the dataset
 
+    .. versionadded:: 2.0
+
     Parameters
     ----------
     fpath : pathlib.Path

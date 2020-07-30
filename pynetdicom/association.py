@@ -1724,13 +1724,14 @@ class Association(threading.Thread):
 
         allow_conversion = True
         if not isinstance(dataset, Dataset):
-            dataset = Path(dataset)
+            fpath = Path(dataset)
             if not _config.STORE_SEND_CHUNKED_DATASET:
-                dataset = dcmread(os.fspath(dataset))
+                dataset = dcmread(os.fspath(fpath))
             else:
+                dataset = None
                 allow_conversion = False
-                file_meta, offset = split_dataset(dataset)
-                req._dataset_file = (dataset, offset)
+                file_meta, offset = split_dataset(fpath)
+                req._dataset_file = (fpath, offset)
 
                 missing = [
                     'MediaStorageSOPClassUID',
@@ -1741,16 +1742,14 @@ class Association(threading.Thread):
                 if missing:
                     raise AttributeError(
                         f"Unable to send the dataset from the file at "
-                        f"{os.fspath(dataset)} as one or more required File Meta "
-                        f"Information elements are missing: "
+                        f"{os.fspath(fpath)} as one or more required file "
+                        f"meta information elements are missing: "
                         f"{','.join(missing)}"
                     )
 
                 sop_class = file_meta.MediaStorageSOPClassUID
                 sop_instance = file_meta.MediaStorageSOPInstanceUID
                 tsyntax = file_meta.TransferSyntaxUID
-
-                dataset = None
 
         if dataset:
             missing = ['SOPClassUID', 'SOPInstanceUID']

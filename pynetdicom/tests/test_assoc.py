@@ -1737,7 +1737,7 @@ class TestAssociationSendCStore(object):
         assert assoc.is_established
         assert isinstance(BAD_DATASET_PATH, str)
         msg = (
-            r"one or more required File Meta Information elements are "
+            r"one or more required file meta information elements are "
             r"missing: MediaStorageSOPClassUID"
         )
         with pytest.raises(AttributeError, match=msg):
