@@ -4,10 +4,12 @@ the state machine events.
 
 from collections import namedtuple
 from datetime import datetime
+from io import BytesIO, FileIO
 import inspect
 import logging
 import sys
 
+from pydicom import dcmread
 from pydicom.dataset import Dataset
 
 from pynetdicom.dsutils import decode
@@ -600,7 +602,7 @@ class Event(object):
                 return self._decoded
 
             # Some dataset-like parameters are optional
-            if bytestream and bytestream.getvalue() != b'':
+            if isinstance(bytestream, BytesIO) and bytestream.getvalue() != b'':
                 # Dataset-like parameter has been used
                 t_syntax = self.context.transfer_syntax
                 ds = decode(
@@ -615,6 +617,8 @@ class Event(object):
 
                 # Store the decoded dataset in case its accessed again
                 self._decoded = ds
+            elif isinstance(bytestream, FileIO):
+                self._decoded = dcmread(bytestream)
             else:
                 # Dataset-like parameter hasn't been used
                 self._decoded = Dataset()

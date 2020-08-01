@@ -121,3 +121,6 @@ Examples
 >>> from pynetdicom import _config
 >>> _config.STORE_SEND_CHUNKED_DATASET = True
 """
+
+
+STORE_RECV_CHUNKED_DATASET_PATH = False

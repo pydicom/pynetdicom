@@ -7,6 +7,7 @@ from math import ceil
 
 from pydicom.dataset import Dataset
 
+from pynetdicom import _config
 from pynetdicom.dimse_primitives import (
     C_STORE, C_FIND, C_GET, C_MOVE, C_ECHO, C_CANCEL,
     N_EVENT_REPORT, N_GET, N_SET, N_ACTION, N_CREATE, N_DELETE
@@ -301,6 +302,12 @@ class DIMSEMessage(object):
                     self.__class__ = (
                         _MESSAGE_TYPES[self.command_set.CommandField][1]
                     )
+
+                    if self.__class__ == C_STORE and _config.STORE_RECV_CHUNKED_DATASET_PATH:
+                        self._data_set_file = (
+                            _config.STORE_RECV_CHUNKED_DATASET_PATH / f"{self.command_set.AffectedSOPInstanceUID}.dcm"
+                        )
+                        self.data_set = open(self._data_set_file, 'a+b')
 
                     # Determine if a Data Set is present by checking for
                     #   (0000, 0800) CommandDataSetType US 1. If the value is
