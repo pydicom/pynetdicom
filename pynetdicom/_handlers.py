@@ -779,7 +779,7 @@ def _send_c_store_rq(event):
     else:
         dataset_type = ""
 
-    LOGGER.info("Sending Store Request: MsgID {cs.MessageID}{dataset_type}")
+    LOGGER.info(f"Sending Store Request: MsgID {cs.MessageID}{dataset_type}")
 
     s = [
         f"{' OUTGOING DIMSE MESSAGE ':=^76}",
