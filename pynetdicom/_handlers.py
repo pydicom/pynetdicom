@@ -2,8 +2,6 @@
 
 import logging
 
-from io import FileIO
-
 from pynetdicom.dimse_messages import *
 from pynetdicom.pdu import (
     A_ASSOCIATE_RQ, A_ASSOCIATE_AC, A_ASSOCIATE_RJ, A_RELEASE_RQ,
@@ -1169,12 +1167,8 @@ def _recv_c_store_rq(event):
     priority = priority_str[cs.Priority]
 
     dataset = "None"
-
-    if msg.data_set:
-        if isinstance(msg.data_set, BytesIO) and msg.data_set.getvalue() != b"":
-            dataset = "Present"
-        elif isinstance(msg.data_set, FileIO):
-            dataset = "Present"
+    if msg.data_set and msg.data_set.getvalue() != b"":
+        dataset = "Present"
 
     LOGGER.info("Received Store Request")
 

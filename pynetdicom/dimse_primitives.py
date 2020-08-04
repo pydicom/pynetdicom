@@ -8,7 +8,7 @@ Notes:
 
 import codecs
 from collections.abc import MutableSequence
-from io import BytesIO, FileIO
+from io import BytesIO
 import logging
 
 from pydicom.tag import Tag
@@ -144,10 +144,8 @@ class DIMSEPrimitive(object):
             self._dataset = value[0]
         elif isinstance(value[0], BytesIO):
             self._dataset = value[0]
-        elif isinstance(value[0], FileIO):
-            self._dataset = value[0]
         else:
-            raise TypeError(f"'{value[1]}' parameter must be a BytesIO or FileIO object")
+            raise TypeError(f"'{value[1]}' parameter must be a BytesIO object")
 
     @property
     def is_valid_request(self):

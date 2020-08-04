@@ -1,6 +1,6 @@
 """Implements the supported Service Classes."""
 
-from io import BytesIO, FileIO
+from io import BytesIO
 import logging
 import sys
 import traceback
@@ -1456,10 +1456,6 @@ class StorageServiceClass(ServiceClass):
         # Validate rsp_status and set rsp.Status accordingly
         rsp = self.validate_status(rsp_status, rsp)
         self.dimse.send_msg(rsp, context.context_id)
-
-        # Cleanup
-        if isinstance(req.DataSet, FileIO):
-            req.DataSet.close()
 
 
 class QueryRetrieveServiceClass(ServiceClass):

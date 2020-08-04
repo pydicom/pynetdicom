@@ -606,6 +606,9 @@ class Association(threading.Thread):
             self._dul_ready.wait()
 
         if self.is_acceptor:
+            if _config.STORE_RECV_CHUNKED_DATASET_PATH:
+                os.mkdir(_config.STORE_RECV_CHUNKED_DATASET_PATH / self.dul.ident)
+
             primitive = self.dul.receive_pdu(wait=True,
                                              timeout=self.acse_timeout)
 
@@ -627,6 +630,9 @@ class Association(threading.Thread):
             # Ensure the connection is shutdown properly
             if self._server and self.dul.socket.socket:
                 self._server.shutdown_request(self.dul.socket.socket)
+
+            if _config.STORE_RECV_CHUNKED_DATASET_PATH:
+                os.unlink(_config.STORE_RECV_CHUNKED_DATASET_PATH / self.dul.ident)
         else:
             # Association requestor
             # Allow non-blocking negotiation

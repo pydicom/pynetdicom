@@ -4,6 +4,7 @@ from __future__ import division
 from io import BytesIO
 import logging
 from math import ceil
+from threading import get_ident
 
 from pydicom.dataset import Dataset
 
@@ -303,11 +304,15 @@ class DIMSEMessage(object):
                         _MESSAGE_TYPES[self.command_set.CommandField][1]
                     )
 
-                    if self.__class__ == C_STORE and _config.STORE_RECV_CHUNKED_DATASET_PATH:
+                    if (
+                        self.__class__ == C_STORE
+                        and _config.STORE_RECV_CHUNKED_DATASET_PATH
+                    ):
                         self._data_set_file = (
-                            _config.STORE_RECV_CHUNKED_DATASET_PATH / f"{self.command_set.AffectedSOPInstanceUID}.dcm"
+                            _config.STORE_RECV_CHUNKED_DATASET_PATH
+                            / get_ident()
+                            / f"{self.command_set.AffectedSOPInstanceUID}.dcm"
                         )
-                        self.data_set = open(self._data_set_file, 'a+b')
 
                     # Determine if a Data Set is present by checking for
                     #   (0000, 0800) CommandDataSetType US 1. If the value is
@@ -324,7 +329,11 @@ class DIMSEMessage(object):
                 # As with the command set, the data set may be spread over
                 #   a number of fragments in each P-DATA primitive and a
                 #   number of P-DATA primitives.
-                self.data_set.write(data[1:])
+                if self._data_set_file:
+                    with open(self._data_set_file, "wb") as data_set_file:
+                        data_set_file.write(data[1:])
+                else:
+                    self.data_set.write(data[1:])
 
                 # The final data set fragment (xxxxxx10) has been added
                 if control_header_byte & 2 != 0:
