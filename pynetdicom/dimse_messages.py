@@ -220,6 +220,7 @@ class DIMSEMessage(object):
         # If reading the dataset in chunks this will be
         #   (its file path, byte offset to the start of the dataset)
         self._data_set_file = None
+        self._data_set_file_ctx = None
 
         cls_name = self.__class__.__name__
         if cls_name == 'DIMSEMessage':
