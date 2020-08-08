@@ -1,6 +1,7 @@
 """Tests for the StorageServiceClass."""
 
 from io import BytesIO
+import hashlib
 import os
 from pathlib import Path
 import time
@@ -414,10 +415,20 @@ class TestStorageServiceClass(object):
     def test_scp_handler_dataset_file(self):
         """Test handler event's dataset_file property"""
         attrs = {}
-        def handle(event):
-            dataset_file = event.dataset_file
-            ds = dcmread(dataset_file)
 
+        def handle(event):
+            # File meta written on access
+            assert not event._did_prepare_dataset_file
+            dataset_file = event.dataset_file
+            assert event._did_prepare_dataset_file
+
+            # File meta write idempotent
+            dataset_file_hash = hashlib.sha256(dataset_file.read_bytes()).hexdigest()
+            dataset_file = event.dataset_file
+            assert dataset_file_hash == hashlib.sha256(dataset_file.read_bytes()).hexdigest()
+
+            # Dataset file valid and complete
+            ds = dcmread(dataset_file)
             assert isinstance(ds, Dataset)
             assert isinstance(ds.file_meta, Dataset)
             assert ds.PatientName == DATASET.PatientName
@@ -448,9 +459,9 @@ class TestStorageServiceClass(object):
         dataset_file = attrs['dataset_file']
         assert isinstance(dataset_file, Path)
 
-        # File not available outside of event handler
+        # Dataset file not available outside of event handler
         with pytest.raises(FileNotFoundError):
-            open(dataset_file, "rb")
+            dataset_file.open("rb")
 
         scp.shutdown()
 

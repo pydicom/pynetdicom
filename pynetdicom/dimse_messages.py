@@ -333,7 +333,7 @@ class DIMSEMessage(object):
                 #   a number of fragments in each P-DATA primitive and a
                 #   number of P-DATA primitives.
                 if self._data_set_file:
-                    with open(self._data_set_file, "a+b") as data_set_file:
+                    with self._data_set_file.open("a+b") as data_set_file:
                         data_set_file.write(data[1:])
                 else:
                     self.data_set.write(data[1:])

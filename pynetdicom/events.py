@@ -437,17 +437,17 @@ class Event(object):
             return dataset_file
 
         # Prepend File Meta Information
-        with open(
-            f"{dataset_file}.meta", 'w+b'
-        ) as meta_file, open(
-            dataset_file, 'rb'
+        with dataset_file.with_suffix(".meta").open(
+            'w+b'
+        ) as meta_file, dataset_file.open(
+            'rb'
         ) as data_set_file:
             meta_file.write(b'\x00' * 128)
             meta_file.write(b'DICM')
             write_file_meta_info(meta_file, self.file_meta)
             copyfileobj(data_set_file, meta_file)
 
-        os.rename(f"{dataset_file}.meta", dataset_file)
+        os.rename(dataset_file.with_suffix(".meta"), dataset_file)
 
         self._did_prepare_dataset_file = True
 
