@@ -428,10 +428,17 @@ class Event(object):
 
     @property
     def dataset_file(self):
-        dataset_file = self.request._dataset_file
+        try:
+            dataset_file = self.request._dataset_file
+        except AttributeError:
+            dataset_file = None
 
         if not dataset_file:
-            raise RuntimeError("No dataset file available")
+            msg = (
+                "The corresponding event is either not a C-STORE request or "
+                "'STORE_RECV_CHUNKED_DATASET' is not set."
+            )
+            raise AttributeError(msg)
 
         if self._did_prepare_dataset_file:
             return dataset_file
