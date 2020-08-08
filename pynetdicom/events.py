@@ -279,6 +279,9 @@ class Event(object):
         self._hash = None
         self._decoded = None
 
+        # Only prepare a dataset_file once
+        self._did_prepare_dataset_file = False
+
         attrs = attrs or {}
         for kk, vv in attrs.items():
             if hasattr(self, kk):
@@ -428,16 +431,23 @@ class Event(object):
         if not self.request._data_set_file:
             raise RuntimeError("No dataset file available")
 
+        if self._did_prepare_dataset_file:
+            return self.request._data_set_file
+
         # Prepend File Meta Information
-        with open(f"{self.request._data_set_file}.meta", 'w+b') as meta_file:
+        with open(
+            f"{self.request._data_set_file}.meta", 'w+b'
+        ) as meta_file, open(
+            self.request._data_set_file, 'rb'
+        ) as data_set_file:
             meta_file.write(b'\x00' * 128)
             meta_file.write(b'DICM')
             write_file_meta_info(meta_file, self.file_meta)
-
-            with open(self.request._data_set_file, 'rb') as data_set_file:
-                copyfileobj(data_set_file, meta_file)
+            copyfileobj(data_set_file, meta_file)
 
         os.rename(f"{self.request._data_set_file}.meta", self.request._data_set_file)
+
+        self._did_prepare_dataset_file = True
 
         return self.request._data_set_file
 
