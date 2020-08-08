@@ -4,11 +4,14 @@ the state machine events.
 
 from collections import namedtuple
 from datetime import datetime
+from shutil import copyfileobj
 import inspect
 import logging
+import os
 import sys
 
 from pydicom.dataset import Dataset
+from pydicom.filewriter import write_file_meta_info
 
 from pynetdicom.dsutils import decode
 
@@ -419,6 +422,24 @@ class Event(object):
             "'Data Set' parameter"
         )
         return self._get_dataset("DataSet", msg)
+
+    @property
+    def dataset_file(self):
+        if not self.request._data_set_file:
+            raise RuntimeError("No dataset file available")
+
+        # Prepend File Meta Information
+        with open(f"{self.request._data_set_file}.meta", 'w+b') as meta_file:
+            meta_file.write(b'\x00' * 128)
+            meta_file.write(b'DICM')
+            write_file_meta_info(meta_file, self.file_meta)
+
+            with open(self.request._data_set_file, 'rb') as data_set_file:
+                copyfileobj(data_set_file, meta_file)
+
+        os.rename(f"{self.request._data_set_file}.meta", self.request._data_set_file)
+
+        return self.request._data_set_file
 
     @property
     def event(self):

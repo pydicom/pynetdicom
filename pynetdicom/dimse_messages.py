@@ -4,6 +4,7 @@ from __future__ import division
 from io import BytesIO
 import logging
 from math import ceil
+from tempfile import TemporaryDirectory
 from threading import get_ident
 
 from pydicom.dataset import Dataset
@@ -306,10 +307,11 @@ class DIMSEMessage(object):
 
                     if (
                         self.__class__ == C_STORE
-                        and _config.STORE_RECV_CHUNKED_DATASET_PATH
+                        and _config.STORE_RECV_CHUNKED_DATASET
                     ):
+                        self._data_set_file_ctx = TemporaryDirectory()
                         self._data_set_file = (
-                            _config.STORE_RECV_CHUNKED_DATASET_PATH
+                            self._data_set_file_ctx.__enter__()
                             / get_ident()
                             / f"{self.command_set.AffectedSOPInstanceUID}.dcm"
                         )
