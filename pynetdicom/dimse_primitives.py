@@ -527,6 +527,7 @@ class C_STORE(DIMSEPrimitive):
         # If None then the dataset is encoded as BytesIO
         # If not None then the dataset is stored at (path, offset)
         self._dataset_file = None
+        self._dataset_file_ctx = None
 
     @property
     def AffectedSOPInstanceUID(self):

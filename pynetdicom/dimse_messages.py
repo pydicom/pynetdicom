@@ -565,6 +565,9 @@ class DIMSEMessage(object):
         # Set the presentation context ID the message was set under
         primitive._context_id = self.context_id
 
+        primitive._dataset_file = self._data_set_file
+        primitive._dataset_file_ctx = self._data_set_file_ctx
+
         return primitive
 
     def primitive_to_message(self, primitive):
