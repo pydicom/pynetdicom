@@ -428,28 +428,30 @@ class Event(object):
 
     @property
     def dataset_file(self):
-        if not self.request._data_set_file:
+        dataset_file = self.request._dataset_file
+
+        if not dataset_file:
             raise RuntimeError("No dataset file available")
 
         if self._did_prepare_dataset_file:
-            return self.request._data_set_file
+            return dataset_file
 
         # Prepend File Meta Information
         with open(
-            f"{self.request._data_set_file}.meta", 'w+b'
+            f"{dataset_file}.meta", 'w+b'
         ) as meta_file, open(
-            self.request._data_set_file, 'rb'
+            dataset_file, 'rb'
         ) as data_set_file:
             meta_file.write(b'\x00' * 128)
             meta_file.write(b'DICM')
             write_file_meta_info(meta_file, self.file_meta)
             copyfileobj(data_set_file, meta_file)
 
-        os.rename(f"{self.request._data_set_file}.meta", self.request._data_set_file)
+        os.rename(f"{dataset_file}.meta", dataset_file)
 
         self._did_prepare_dataset_file = True
 
-        return self.request._data_set_file
+        return dataset_file
 
     @property
     def event(self):
