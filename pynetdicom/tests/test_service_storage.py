@@ -415,7 +415,18 @@ class TestStorageServiceClass(object):
         """Test handler event's dataset_file property"""
         attrs = {}
         def handle(event):
-            attrs['dataset_file'] = event.dataset_file
+            dataset_file = event.dataset_file
+            ds = dcmread(dataset_file)
+
+            assert isinstance(ds, Dataset)
+            assert isinstance(ds.file_meta, Dataset)
+            assert ds.PatientName == DATASET.PatientName
+            assert (
+                ds.file_meta.MediaStorageSOPInstanceUID
+                == DATASET.file_meta.MediaStorageSOPInstanceUID
+            )
+
+            attrs['dataset_file'] = dataset_file
             return 0x0000
 
         _config.STORE_RECV_CHUNKED_DATASET = True
@@ -436,6 +447,10 @@ class TestStorageServiceClass(object):
 
         dataset_file = attrs['dataset_file']
         assert isinstance(dataset_file, Path)
+
+        # File not available outside of event handler
+        with pytest.raises(FileNotFoundError):
+            open(dataset_file, "rb")
 
         scp.shutdown()
 
