@@ -5,7 +5,7 @@ from io import BytesIO
 import logging
 from math import ceil
 from tempfile import TemporaryDirectory
-from threading import get_ident
+import uuid
 
 from pydicom.dataset import Dataset
 
@@ -312,7 +312,7 @@ class DIMSEMessage(object):
                         self._data_set_file_ctx = TemporaryDirectory()
                         self._data_set_file = (
                             self._data_set_file_ctx.__enter__()
-                            / get_ident()
+                            / uuid.uuid4()
                             / f"{self.command_set.AffectedSOPInstanceUID}.dcm"
                         )
 

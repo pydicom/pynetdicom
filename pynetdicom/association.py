@@ -627,7 +627,6 @@ class Association(threading.Thread):
             # Ensure the connection is shutdown properly
             if self._server and self.dul.socket.socket:
                 self._server.shutdown_request(self.dul.socket.socket)
-
         else:
             # Association requestor
             # Allow non-blocking negotiation
