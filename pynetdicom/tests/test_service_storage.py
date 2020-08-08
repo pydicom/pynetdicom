@@ -2,6 +2,7 @@
 
 from io import BytesIO
 import os
+from pathlib import Path
 import time
 
 import pytest
@@ -10,7 +11,7 @@ from pydicom import dcmread
 from pydicom.dataset import Dataset
 from pydicom.uid import ExplicitVRLittleEndian
 
-from pynetdicom import AE, evt, build_role, debug_logger
+from pynetdicom import AE, _config, evt, build_role, debug_logger
 from pynetdicom.dimse_primitives import C_STORE
 from pynetdicom.pdu_primitives import SOPClassExtendedNegotiation
 from pynetdicom.service_class import StorageServiceClass
@@ -407,6 +408,34 @@ class TestStorageServiceClass(object):
         ds = attrs['dataset']
         assert isinstance(ds, Dataset)
         assert ds.PatientName == DATASET.PatientName
+
+        scp.shutdown()
+
+    def test_scp_handler_dataset_file(self):
+        """Test handler event's dataset_file property"""
+        attrs = {}
+        def handle(event):
+            attrs['dataset_file'] = event.dataset_file
+            return 0x0000
+
+        _config.STORE_RECV_CHUNKED_DATASET = True
+
+        handlers = [(evt.EVT_C_STORE, handle)]
+
+        self.ae = ae = AE()
+        ae.add_supported_context(CTImageStorage)
+        ae.add_requested_context(CTImageStorage)
+        scp = ae.start_server(('', 11112), block=False, evt_handlers=handlers)
+
+        assoc = ae.associate('localhost', 11112)
+        assert assoc.is_established
+        status = assoc.send_c_store(DATASET)
+        assert status.Status == 0x0000
+        assoc.release()
+        assert assoc.is_released
+
+        dataset_file = attrs['dataset_file']
+        assert isinstance(dataset_file, Path)
 
         scp.shutdown()
 

@@ -4,6 +4,7 @@ from __future__ import division
 from io import BytesIO
 import logging
 from math import ceil
+from pathlib import Path
 from tempfile import TemporaryDirectory
 import uuid
 
@@ -220,7 +221,7 @@ class DIMSEMessage(object):
         # If reading the dataset in chunks this will be
         #   (its file path, byte offset to the start of the dataset)
         self._data_set_file = None
-        self._data_set_file_ctx = None
+        self._data_set_base_dir = None
 
         cls_name = self.__class__.__name__
         if cls_name == 'DIMSEMessage':
@@ -307,14 +308,13 @@ class DIMSEMessage(object):
                     )
 
                     if (
-                        self.__class__ == C_STORE
+                        self.__class__.__name__ == "C_STORE_RQ"
                         and _config.STORE_RECV_CHUNKED_DATASET
                     ):
-                        self._data_set_file_ctx = TemporaryDirectory()
+                        self._data_set_base_dir = TemporaryDirectory()
                         self._data_set_file = (
-                            self._data_set_file_ctx.__enter__()
-                            / uuid.uuid4()
-                            / f"{self.command_set.AffectedSOPInstanceUID}.dcm"
+                            Path(self._data_set_base_dir.name)
+                            / f"{uuid.uuid4()}.dcm"
                         )
 
                     # Determine if a Data Set is present by checking for
@@ -333,7 +333,7 @@ class DIMSEMessage(object):
                 #   a number of fragments in each P-DATA primitive and a
                 #   number of P-DATA primitives.
                 if self._data_set_file:
-                    with open(self._data_set_file, "wb") as data_set_file:
+                    with open(self._data_set_file, "a+b") as data_set_file:
                         data_set_file.write(data[1:])
                 else:
                     self.data_set.write(data[1:])
@@ -566,7 +566,7 @@ class DIMSEMessage(object):
         primitive._context_id = self.context_id
 
         primitive._dataset_file = self._data_set_file
-        primitive._dataset_file_ctx = self._data_set_file_ctx
+        primitive._dataset_base_dir = self._data_set_base_dir
 
         return primitive
 
