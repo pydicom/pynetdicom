@@ -445,7 +445,7 @@ class Event(object):
 
         # Prepend File Meta Information
         with dataset_file.with_suffix(".meta").open(
-            'w+b'
+            'wb'
         ) as meta_file, dataset_file.open(
             'rb'
         ) as data_set_file:
