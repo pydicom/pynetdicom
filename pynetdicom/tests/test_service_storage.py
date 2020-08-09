@@ -44,6 +44,8 @@ class TestStorageServiceClass(object):
         if self.ae:
             self.ae.shutdown()
 
+        _config.STORE_RECV_CHUNKED_DATASET = False
+
     @pytest.mark.skipif(not HAS_STATUS, reason="No Status class available")
     def test_status_enum(self):
         """Test failure to decode the dataset"""
@@ -423,9 +425,14 @@ class TestStorageServiceClass(object):
             assert event._did_prepare_dataset_file
 
             # File meta write idempotent
-            dataset_file_hash = hashlib.sha256(dataset_file.read_bytes()).hexdigest()
+            dataset_file_hash = hashlib.sha256(
+                dataset_file.read_bytes()
+            ).hexdigest()
             dataset_file = event.dataset_file
-            assert dataset_file_hash == hashlib.sha256(dataset_file.read_bytes()).hexdigest()
+            assert (
+                dataset_file_hash
+                == hashlib.sha256(dataset_file.read_bytes()).hexdigest()
+            )
 
             # Dataset file valid and complete
             ds = dcmread(dataset_file)
@@ -436,6 +443,9 @@ class TestStorageServiceClass(object):
                 ds.file_meta.MediaStorageSOPInstanceUID
                 == DATASET.file_meta.MediaStorageSOPInstanceUID
             )
+
+            # `dataset` property empty
+            assert event.dataset == Dataset()
 
             attrs['dataset_file'] = dataset_file
             return 0x0000
