@@ -268,15 +268,6 @@ class AssociationSocket(object):
         if self.socket is None or self._is_connected is False:
             return False
 
-        # XXX: An SSLSocket may have buffered data available that `select`
-        # is unaware of. Bypass `select` so we never encounter:
-        # 1. OS socket readable but SSL socket has received insufficient
-        #    framing to buffer decoded data
-        # 2. OS socket not readable but SSL socket has buffered data decoded
-        #    and available
-        if _HAS_SSL and isinstance(self.socket, ssl.SSLSocket):
-            return bool(self.socket.pending())
-
         try:
             # Use a timeout of 0 so we get an "instant" result
             ready, _, _ = select.select([self.socket], [], [], 0)
@@ -285,7 +276,16 @@ class AssociationSocket(object):
             self.event_queue.put('Evt17')
             return False
 
-        return bool(ready)
+        return (
+            bool(ready)
+            # XXX: An SSLSocket may have buffered data available that `select`
+            # is unaware of.
+            or (
+                _HAS_SSL
+                and isinstance(self.socket, ssl.SSLSocket)
+                and bool(self.socket.pending())
+            )
+        )
 
     def recv(self, nr_bytes):
         """Read `nr_bytes` from the socket.
