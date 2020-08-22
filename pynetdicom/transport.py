@@ -276,16 +276,12 @@ class AssociationSocket(object):
             self.event_queue.put('Evt17')
             return False
 
-        return (
-            bool(ready)
-            # XXX: An SSLSocket may have buffered data available that `select`
-            # is unaware of.
-            or (
-                _HAS_SSL
-                and isinstance(self.socket, ssl.SSLSocket)
-                and bool(self.socket.pending())
-            )
-        )
+        # An SSLSocket may have buffered data available that `select`
+        # is unaware of - see #528
+        if _HAS_SSL and isinstance(self.socket, ssl.SSLSocket):
+            return bool(ready) or bool(self.socket.pending())
+
+        return bool(ready)
 
     def recv(self, nr_bytes):
         """Read `nr_bytes` from the socket.
