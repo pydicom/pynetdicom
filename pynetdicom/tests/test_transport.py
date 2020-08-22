@@ -388,6 +388,58 @@ class TestTLS(object):
         with pytest.raises(RuntimeError, match=msg):
             ae.associate('localhost', 11112, tls_args=(['random', 'object'], None))
 
+    def test_select_multiple_pdu(self, server_context, client_context):
+        """Test what happens if two PDUs are sent before the select call."""
+
+        # C-ECHO RQ
+        p_data_tf_rq = (
+            b"\x04\x00\x00\x00\x00\x4a"  # P-DATA
+            b"\x00\x00\x00\x46\x01"  # PDV Item
+            b"\x03"
+            b"\x00\x00\x00\x00\x04\x00\x00\x00\x3a\x00"  # Command Group Length
+            b"\x00\x00\x00\x00\x02\x00\x12\x00\x00\x00"  # Affected SOP Class UID
+            b"\x31\x2e\x32\x2e\x38\x34\x30\x2e\x31\x30\x30\x30\x38\x2e\x31\x2e\x31\x00"
+            b"\x00\x00\x00\x01\x02\x00\x00\x00\x30\x00"  # Command Field
+            b"\x00\x00\x10\x01\x02\x00\x00\x00\x01\x00"  # Message ID
+            b"\x00\x00\x00\x08\x02\x00\x00\x00\x01\x01"  # Command Data Set Type
+        )
+
+        events = []
+
+        def handle_echo(event):
+            events.append(event)
+            return 0x0000
+
+        self.ae = ae = AE()
+        ae.acse_timeout = 5
+        ae.dimse_timeout = 5
+        ae.network_timeout = 5
+        ae.add_supported_context('1.2.840.10008.1.1')
+        ae.add_requested_context('1.2.840.10008.1.1')
+
+        server = ae.start_server(
+            ('', 11112), block=False, ssl_context=server_context,
+        )
+
+        assoc = ae.associate(
+            'localhost', 11112, tls_args=(client_context, None),
+            evt_handlers=[(evt.EVT_C_ECHO, handle_echo)]
+        )
+        assert assoc.is_established
+
+        # Send data directly to the requestor
+        socket = server.active_associations[0].dul.socket
+        socket.send(2 * p_data_tf_rq)
+
+        time.sleep(1)
+
+        assoc.release()
+        assert assoc.is_released
+
+        server.shutdown()
+
+        assert 2 == len(events)
+
 
 class TestAssociationServer(object):
     def setup(self):
