@@ -188,6 +188,79 @@ class TestAssociationSocket(object):
         addr = assoc.dul.socket.get_local_addr(('', 111111))
         assert '127.0.0.1' == addr
 
+    def test_multiple_pdu_req(self):
+        """Test what happens if two PDUs are sent before the select call."""
+        events = []
+
+        def handle_echo(event):
+            events.append(event)
+            return 0x0000
+
+        self.ae = ae = AE()
+        ae.acse_timeout = 5
+        ae.dimse_timeout = 5
+        ae.network_timeout = 5
+        ae.add_supported_context('1.2.840.10008.1.1')
+        ae.add_requested_context('1.2.840.10008.1.1')
+
+        server = ae.start_server(('', 11112), block=False)
+
+        assoc = ae.associate(
+            'localhost', 11112, evt_handlers=[(evt.EVT_C_ECHO, handle_echo)]
+        )
+        assert assoc.is_established
+
+        # Send data directly to the requestor
+        socket = server.active_associations[0].dul.socket
+        socket.send(2 * p_data_tf_rq)
+
+        time.sleep(1)
+
+        assoc.release()
+        assert assoc.is_released
+
+        server.shutdown()
+
+        assert 2 == len(events)
+
+    def test_multiple_pdu_acc(self):
+        """Test what happens if two PDUs are sent before the select call."""
+        events = []
+
+        def handle_echo(event):
+            events.append(event)
+            return 0x0000
+
+        self.ae = ae = AE()
+        ae.acse_timeout = 5
+        ae.dimse_timeout = 5
+        ae.network_timeout = 5
+        ae.add_supported_context('1.2.840.10008.1.1')
+        ae.add_requested_context('1.2.840.10008.1.1')
+
+        server = ae.start_server(
+            ('', 11112), block=False,
+            evt_handlers=[(evt.EVT_C_ECHO, handle_echo)]
+        )
+
+        assoc = ae.associate(
+            'localhost', 11112,
+        )
+        assert assoc.is_established
+
+        # Send data directly to the requestor
+        socket = assoc.dul.socket
+        socket.send(2 * p_data_tf_rq)
+
+        time.sleep(1)
+
+        assoc.release()
+        assert assoc.is_released
+
+        server.shutdown()
+
+        assert 2 == len(events)
+
 
 @pytest.fixture
 def server_context(request):
@@ -389,7 +462,7 @@ class TestTLS(object):
         with pytest.raises(RuntimeError, match=msg):
             ae.associate('localhost', 11112, tls_args=(['random', 'object'], None))
 
-    def test_select_multiple_pdu(self, server_context, client_context):
+    def test_multiple_pdu_req(self, server_context, client_context):
         """Test what happens if two PDUs are sent before the select call."""
         events = []
 
@@ -416,6 +489,40 @@ class TestTLS(object):
 
         # Send data directly to the requestor
         socket = server.active_associations[0].dul.socket
+        socket.send(2 * p_data_tf_rq)
+
+        time.sleep(1)
+
+        assoc.release()
+        assert assoc.is_released
+
+    def test_multiple_pdu_acc(self, server_context, client_context):
+        """Test what happens if two PDUs are sent before the select call."""
+        events = []
+
+        def handle_echo(event):
+            events.append(event)
+            return 0x0000
+
+        self.ae = ae = AE()
+        ae.acse_timeout = 5
+        ae.dimse_timeout = 5
+        ae.network_timeout = 5
+        ae.add_supported_context('1.2.840.10008.1.1')
+        ae.add_requested_context('1.2.840.10008.1.1')
+
+        server = ae.start_server(
+            ('', 11112), block=False, ssl_context=server_context,
+            evt_handlers=[(evt.EVT_C_ECHO, handle_echo)]
+        )
+
+        assoc = ae.associate(
+            'localhost', 11112, tls_args=(client_context, None)
+        )
+        assert assoc.is_established
+
+        # Send data directly to the requestor
+        socket = assoc.dul.socket
         socket.send(2 * p_data_tf_rq)
 
         time.sleep(1)
