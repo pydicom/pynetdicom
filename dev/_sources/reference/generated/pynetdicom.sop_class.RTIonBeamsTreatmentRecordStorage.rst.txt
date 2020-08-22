@@ -1,4 +1,4 @@
-pynetdicom.sop\_class.RTIonBeamsTreatmentRecordStorage
+﻿pynetdicom.sop\_class.RTIonBeamsTreatmentRecordStorage
 ======================================================
 
 .. currentmodule:: pynetdicom.sop_class

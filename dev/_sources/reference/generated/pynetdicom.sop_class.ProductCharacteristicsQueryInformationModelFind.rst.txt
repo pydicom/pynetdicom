@@ -1,4 +1,4 @@
-pynetdicom.sop\_class.ProductCharacteristicsQueryInformationModelFind
+﻿pynetdicom.sop\_class.ProductCharacteristicsQueryInformationModelFind
 =====================================================================
 
 .. currentmodule:: pynetdicom.sop_class

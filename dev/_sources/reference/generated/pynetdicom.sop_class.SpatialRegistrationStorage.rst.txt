@@ -1,4 +1,4 @@
-pynetdicom.sop\_class.SpatialRegistrationStorage
+﻿pynetdicom.sop\_class.SpatialRegistrationStorage
 ================================================
 
 .. currentmodule:: pynetdicom.sop_class

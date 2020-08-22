@@ -1,4 +1,4 @@
-pynetdicom.sop\_class.NuclearMedicineImageStorage
+﻿pynetdicom.sop\_class.NuclearMedicineImageStorage
 =================================================
 
 .. currentmodule:: pynetdicom.sop_class

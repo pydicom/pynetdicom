@@ -1,4 +1,4 @@
-pynetdicom.sop\_class.ImplantTemplateGroupInformationModelMove
+﻿pynetdicom.sop\_class.ImplantTemplateGroupInformationModelMove
 ==============================================================
 
 .. currentmodule:: pynetdicom.sop_class

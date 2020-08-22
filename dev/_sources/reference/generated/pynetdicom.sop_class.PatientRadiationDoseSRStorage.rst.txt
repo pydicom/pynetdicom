@@ -1,4 +1,4 @@
-pynetdicom.sop\_class.PatientRadiationDoseSRStorage
+﻿pynetdicom.sop\_class.PatientRadiationDoseSRStorage
 ===================================================
 
 .. currentmodule:: pynetdicom.sop_class

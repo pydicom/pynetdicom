@@ -1,4 +1,4 @@
-pynetdicom.sop\_class.PrinterConfigurationRetrievalSOPClass
+﻿pynetdicom.sop\_class.PrinterConfigurationRetrievalSOPClass
 ===========================================================
 
 .. currentmodule:: pynetdicom.sop_class

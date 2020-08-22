@@ -1,4 +1,4 @@
-pynetdicom.dimse\_primitives.C\_FIND
+﻿pynetdicom.dimse\_primitives.C\_FIND
 ====================================
 
 .. currentmodule:: pynetdicom.dimse_primitives

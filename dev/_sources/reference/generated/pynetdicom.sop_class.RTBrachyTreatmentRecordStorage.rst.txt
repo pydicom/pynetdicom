@@ -1,4 +1,4 @@
-pynetdicom.sop\_class.RTBrachyTreatmentRecordStorage
+﻿pynetdicom.sop\_class.RTBrachyTreatmentRecordStorage
 ====================================================
 
 .. currentmodule:: pynetdicom.sop_class

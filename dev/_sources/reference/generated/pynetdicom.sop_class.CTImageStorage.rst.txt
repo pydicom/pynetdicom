@@ -1,4 +1,4 @@
-pynetdicom.sop\_class.CTImageStorage
+﻿pynetdicom.sop\_class.CTImageStorage
 ====================================
 
 .. currentmodule:: pynetdicom.sop_class

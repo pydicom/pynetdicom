@@ -1,4 +1,4 @@
-pynetdicom.sop\_class.Comprehensive3DSRStorage
+﻿pynetdicom.sop\_class.Comprehensive3DSRStorage
 ==============================================
 
 .. currentmodule:: pynetdicom.sop_class

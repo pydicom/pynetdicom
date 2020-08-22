@@ -210,7 +210,7 @@
 <h1>pynetdicom.sop_class.SOPClass<a class="headerlink" href="#pynetdicom-sop-class-sopclass" title="Permalink to this headline">¶</a></h1>
 <dl class="py class">
 <dt id="pynetdicom.sop_class.SOPClass">
-<em class="property">class </em><code class="sig-prename descclassname">pynetdicom.sop_class.</code><code class="sig-name descname">SOPClass</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">val</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/1b379ef8/pynetdicom/sop_class.py#L107"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom.sop_class.SOPClass" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="sig-prename descclassname">pynetdicom.sop_class.</code><code class="sig-name descname">SOPClass</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">val</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/0ed3a3d9/pynetdicom/sop_class.py#L107"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom.sop_class.SOPClass" title="Permalink to this definition">¶</a></dt>
 <dd><p>Extend <a class="reference external" href="https://pydicom.github.io/pydicom/stable/reference/generated/pydicom.uid.UID.html#pydicom.uid.UID" title="(in pydicom v2.0.0)"><code class="xref py py-class docutils literal notranslate"><span class="pre">UID</span></code></a> to include the corresponding Service
 Class.</p>
 <dl class="py method">
@@ -230,7 +230,7 @@ Class.</p>
 <td><p>Initialize self.</p></td>
 </tr>
 <tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">capitalize</span></code>()</p></td>
-<td><p>Return a capitalized version of S, i.e.</p></td>
+<td><p>Return a capitalized version of S, i.e. make the first character have upper case and the rest lower case.</p></td>
 </tr>
 <tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">casefold</span></code>()</p></td>
 <td><p>Return a version of S suitable for caseless comparisons.</p></td>
@@ -290,7 +290,7 @@ Class.</p>
 <td><p>Return True if all characters in S are whitespace and there is at least one character in S, False otherwise.</p></td>
 </tr>
 <tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">istitle</span></code>()</p></td>
-<td><p>Return True if S is a titlecased string and there is at least one character in S, i.e.</p></td>
+<td><p>Return True if S is a titlecased string and there is at least one character in S, i.e. upper- and titlecase characters may only follow uncased characters and lowercase characters only cased ones.</p></td>
 </tr>
 <tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">isupper</span></code>()</p></td>
 <td><p>Return True if all cased characters in S are uppercase and there is at least one cased character in S, False otherwise.</p></td>
@@ -350,7 +350,7 @@ Class.</p>
 <td><p>Return a copy of S with uppercase characters converted to lowercase and vice versa.</p></td>
 </tr>
 <tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">title</span></code>()</p></td>
-<td><p>Return a titlecased version of S, i.e.</p></td>
+<td><p>Return a titlecased version of S, i.e. words start with title case characters, all remaining cased characters have lower case.</p></td>
 </tr>
 <tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">translate</span></code>(table)</p></td>
 <td><p>Return a copy of the string S in which each character has been mapped through the given translation table.</p></td>

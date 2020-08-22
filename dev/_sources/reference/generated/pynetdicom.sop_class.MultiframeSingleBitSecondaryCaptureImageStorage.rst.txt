@@ -1,4 +1,4 @@
-pynetdicom.sop\_class.MultiframeSingleBitSecondaryCaptureImageStorage
+﻿pynetdicom.sop\_class.MultiframeSingleBitSecondaryCaptureImageStorage
 =====================================================================
 
 .. currentmodule:: pynetdicom.sop_class

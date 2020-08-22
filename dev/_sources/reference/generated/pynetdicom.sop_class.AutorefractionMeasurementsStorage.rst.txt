@@ -1,4 +1,4 @@
-pynetdicom.sop\_class.AutorefractionMeasurementsStorage
+﻿pynetdicom.sop\_class.AutorefractionMeasurementsStorage
 =======================================================
 
 .. currentmodule:: pynetdicom.sop_class

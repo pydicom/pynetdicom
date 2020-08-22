@@ -1,4 +1,4 @@
-pynetdicom.sop\_class.BreastProjectionXRayImagePresentationStorage
+﻿pynetdicom.sop\_class.BreastProjectionXRayImagePresentationStorage
 ==================================================================
 
 .. currentmodule:: pynetdicom.sop_class

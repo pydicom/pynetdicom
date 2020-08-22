@@ -1,4 +1,4 @@
-pynetdicom.sop\_class.StorageCommitmentPushModelSOPClass
+﻿pynetdicom.sop\_class.StorageCommitmentPushModelSOPClass
 ========================================================
 
 .. currentmodule:: pynetdicom.sop_class

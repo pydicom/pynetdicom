@@ -1,4 +1,4 @@
-pynetdicom.sop\_class.GeneralRelevantPatientInformationQuery
+﻿pynetdicom.sop\_class.GeneralRelevantPatientInformationQuery
 ============================================================
 
 .. currentmodule:: pynetdicom.sop_class

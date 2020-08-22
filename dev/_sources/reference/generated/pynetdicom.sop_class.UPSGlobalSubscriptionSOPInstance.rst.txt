@@ -1,4 +1,4 @@
-pynetdicom.sop\_class.UPSGlobalSubscriptionSOPInstance
+﻿pynetdicom.sop\_class.UPSGlobalSubscriptionSOPInstance
 ======================================================
 
 .. currentmodule:: pynetdicom.sop_class

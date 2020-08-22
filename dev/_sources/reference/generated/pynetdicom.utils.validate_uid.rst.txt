@@ -1,4 +1,4 @@
-pynetdicom.utils.validate\_uid
+﻿pynetdicom.utils.validate\_uid
 ==============================
 
 .. currentmodule:: pynetdicom.utils

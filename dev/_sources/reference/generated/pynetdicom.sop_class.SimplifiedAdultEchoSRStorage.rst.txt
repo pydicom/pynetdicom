@@ -1,4 +1,4 @@
-pynetdicom.sop\_class.SimplifiedAdultEchoSRStorage
+﻿pynetdicom.sop\_class.SimplifiedAdultEchoSRStorage
 ==================================================
 
 .. currentmodule:: pynetdicom.sop_class

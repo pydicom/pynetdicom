@@ -1,4 +1,4 @@
-pynetdicom.sop\_class.SOPClass
+﻿pynetdicom.sop\_class.SOPClass
 ==============================
 
 .. currentmodule:: pynetdicom.sop_class

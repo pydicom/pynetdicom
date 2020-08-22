@@ -1,4 +1,4 @@
-pynetdicom.transport.RequestHandler
+﻿pynetdicom.transport.RequestHandler
 ===================================
 
 .. currentmodule:: pynetdicom.transport

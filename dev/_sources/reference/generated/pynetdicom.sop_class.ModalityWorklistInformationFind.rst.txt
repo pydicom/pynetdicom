@@ -1,4 +1,4 @@
-pynetdicom.sop\_class.ModalityWorklistInformationFind
+﻿pynetdicom.sop\_class.ModalityWorklistInformationFind
 =====================================================
 
 .. currentmodule:: pynetdicom.sop_class

@@ -1,4 +1,4 @@
-pynetdicom.sop\_class.BasicGrayscalePrintManagementMetaSOPClass
+﻿pynetdicom.sop\_class.BasicGrayscalePrintManagementMetaSOPClass
 ===============================================================
 
 .. currentmodule:: pynetdicom.sop_class

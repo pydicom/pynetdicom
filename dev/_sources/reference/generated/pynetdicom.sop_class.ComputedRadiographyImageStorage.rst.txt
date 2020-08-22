@@ -1,4 +1,4 @@
-pynetdicom.sop\_class.ComputedRadiographyImageStorage
+﻿pynetdicom.sop\_class.ComputedRadiographyImageStorage
 =====================================================
 
 .. currentmodule:: pynetdicom.sop_class

@@ -1,4 +1,4 @@
-pynetdicom.transport.ThreadedAssociationServer
+﻿pynetdicom.transport.ThreadedAssociationServer
 ==============================================
 
 .. currentmodule:: pynetdicom.transport

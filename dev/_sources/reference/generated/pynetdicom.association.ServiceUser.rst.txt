@@ -1,4 +1,4 @@
-pynetdicom.association.ServiceUser
+﻿pynetdicom.association.ServiceUser
 ==================================
 
 .. currentmodule:: pynetdicom.association

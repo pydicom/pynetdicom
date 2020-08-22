@@ -1,4 +1,4 @@
-pynetdicom.sop\_class.HangingProtocolInformationModelGet
+﻿pynetdicom.sop\_class.HangingProtocolInformationModelGet
 ========================================================
 
 .. currentmodule:: pynetdicom.sop_class

@@ -1,4 +1,4 @@
-pynetdicom.sop\_class.VLWholeSlideMicroscopyImageStorage
+﻿pynetdicom.sop\_class.VLWholeSlideMicroscopyImageStorage
 ========================================================
 
 .. currentmodule:: pynetdicom.sop_class

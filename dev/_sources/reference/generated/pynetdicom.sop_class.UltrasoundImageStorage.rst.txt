@@ -1,4 +1,4 @@
-pynetdicom.sop\_class.UltrasoundImageStorage
+﻿pynetdicom.sop\_class.UltrasoundImageStorage
 ============================================
 
 .. currentmodule:: pynetdicom.sop_class

@@ -1,4 +1,4 @@
-pynetdicom.sop\_class.XRay3DAngiographicImageStorage
+﻿pynetdicom.sop\_class.XRay3DAngiographicImageStorage
 ====================================================
 
 .. currentmodule:: pynetdicom.sop_class

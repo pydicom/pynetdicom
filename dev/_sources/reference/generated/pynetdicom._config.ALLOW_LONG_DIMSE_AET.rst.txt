@@ -1,4 +1,4 @@
-pynetdicom.\_config.ALLOW\_LONG\_DIMSE\_AET
+﻿pynetdicom.\_config.ALLOW\_LONG\_DIMSE\_AET
 ===========================================
 
 .. currentmodule:: pynetdicom._config

@@ -1,4 +1,4 @@
-pynetdicom.pdu.A\_ABORT\_RQ
+﻿pynetdicom.pdu.A\_ABORT\_RQ
 ===========================
 
 .. currentmodule:: pynetdicom.pdu

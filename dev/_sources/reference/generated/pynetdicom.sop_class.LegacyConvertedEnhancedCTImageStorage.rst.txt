@@ -1,4 +1,4 @@
-pynetdicom.sop\_class.LegacyConvertedEnhancedCTImageStorage
+﻿pynetdicom.sop\_class.LegacyConvertedEnhancedCTImageStorage
 ===========================================================
 
 .. currentmodule:: pynetdicom.sop_class

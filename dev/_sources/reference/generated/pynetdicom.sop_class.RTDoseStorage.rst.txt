@@ -1,4 +1,4 @@
-pynetdicom.sop\_class.RTDoseStorage
+﻿pynetdicom.sop\_class.RTDoseStorage
 ===================================
 
 .. currentmodule:: pynetdicom.sop_class

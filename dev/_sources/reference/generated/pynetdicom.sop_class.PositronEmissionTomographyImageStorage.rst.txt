@@ -1,4 +1,4 @@
-pynetdicom.sop\_class.PositronEmissionTomographyImageStorage
+﻿pynetdicom.sop\_class.PositronEmissionTomographyImageStorage
 ============================================================
 
 .. currentmodule:: pynetdicom.sop_class

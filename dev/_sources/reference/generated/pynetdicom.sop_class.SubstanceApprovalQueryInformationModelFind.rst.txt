@@ -1,4 +1,4 @@
-pynetdicom.sop\_class.SubstanceApprovalQueryInformationModelFind
+﻿pynetdicom.sop\_class.SubstanceApprovalQueryInformationModelFind
 ================================================================
 
 .. currentmodule:: pynetdicom.sop_class

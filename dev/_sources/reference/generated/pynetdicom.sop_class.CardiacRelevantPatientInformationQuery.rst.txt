@@ -1,4 +1,4 @@
-pynetdicom.sop\_class.CardiacRelevantPatientInformationQuery
+﻿pynetdicom.sop\_class.CardiacRelevantPatientInformationQuery
 ============================================================
 
 .. currentmodule:: pynetdicom.sop_class

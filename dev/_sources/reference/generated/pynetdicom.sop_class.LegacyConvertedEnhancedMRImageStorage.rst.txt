@@ -1,4 +1,4 @@
-pynetdicom.sop\_class.LegacyConvertedEnhancedMRImageStorage
+﻿pynetdicom.sop\_class.LegacyConvertedEnhancedMRImageStorage
 ===========================================================
 
 .. currentmodule:: pynetdicom.sop_class

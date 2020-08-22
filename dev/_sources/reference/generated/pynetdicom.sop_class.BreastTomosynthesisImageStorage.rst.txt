@@ -1,4 +1,4 @@
-pynetdicom.sop\_class.BreastTomosynthesisImageStorage
+﻿pynetdicom.sop\_class.BreastTomosynthesisImageStorage
 =====================================================
 
 .. currentmodule:: pynetdicom.sop_class

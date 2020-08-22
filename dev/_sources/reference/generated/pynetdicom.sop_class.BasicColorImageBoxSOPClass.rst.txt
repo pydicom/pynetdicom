@@ -1,4 +1,4 @@
-pynetdicom.sop\_class.BasicColorImageBoxSOPClass
+﻿pynetdicom.sop\_class.BasicColorImageBoxSOPClass
 ================================================
 
 .. currentmodule:: pynetdicom.sop_class

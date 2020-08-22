@@ -1,4 +1,4 @@
-pynetdicom.pdu\_primitives.SCP\_SCU\_RoleSelectionNegotiation
+﻿pynetdicom.pdu\_primitives.SCP\_SCU\_RoleSelectionNegotiation
 =============================================================
 
 .. currentmodule:: pynetdicom.pdu_primitives

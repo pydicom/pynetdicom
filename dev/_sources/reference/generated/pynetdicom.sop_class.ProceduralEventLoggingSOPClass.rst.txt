@@ -1,4 +1,4 @@
-pynetdicom.sop\_class.ProceduralEventLoggingSOPClass
+﻿pynetdicom.sop\_class.ProceduralEventLoggingSOPClass
 ====================================================
 
 .. currentmodule:: pynetdicom.sop_class

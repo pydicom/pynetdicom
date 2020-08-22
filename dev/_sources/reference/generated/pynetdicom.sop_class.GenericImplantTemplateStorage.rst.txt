@@ -1,4 +1,4 @@
-pynetdicom.sop\_class.GenericImplantTemplateStorage
+﻿pynetdicom.sop\_class.GenericImplantTemplateStorage
 ===================================================
 
 .. currentmodule:: pynetdicom.sop_class

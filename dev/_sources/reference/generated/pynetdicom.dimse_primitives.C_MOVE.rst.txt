@@ -1,4 +1,4 @@
-pynetdicom.dimse\_primitives.C\_MOVE
+﻿pynetdicom.dimse\_primitives.C\_MOVE
 ====================================
 
 .. currentmodule:: pynetdicom.dimse_primitives

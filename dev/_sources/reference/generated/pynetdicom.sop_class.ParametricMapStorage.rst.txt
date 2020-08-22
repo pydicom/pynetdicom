@@ -1,4 +1,4 @@
-pynetdicom.sop\_class.ParametricMapStorage
+﻿pynetdicom.sop\_class.ParametricMapStorage
 ==========================================
 
 .. currentmodule:: pynetdicom.sop_class

@@ -1,4 +1,4 @@
-pynetdicom.events.NotificationEvent
+﻿pynetdicom.events.NotificationEvent
 ===================================
 
 .. currentmodule:: pynetdicom.events

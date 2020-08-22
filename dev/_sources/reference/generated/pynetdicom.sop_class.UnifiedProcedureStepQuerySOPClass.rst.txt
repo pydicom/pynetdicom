@@ -1,4 +1,4 @@
-pynetdicom.sop\_class.UnifiedProcedureStepQuerySOPClass
+﻿pynetdicom.sop\_class.UnifiedProcedureStepQuerySOPClass
 =======================================================
 
 .. currentmodule:: pynetdicom.sop_class

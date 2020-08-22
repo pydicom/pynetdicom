@@ -1,4 +1,4 @@
-pynetdicom.service\_class.ImplantTemplateQueryRetrieveServiceClass
+﻿pynetdicom.service\_class.ImplantTemplateQueryRetrieveServiceClass
 ==================================================================
 
 .. currentmodule:: pynetdicom.service_class

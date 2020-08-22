@@ -1,4 +1,4 @@
-pynetdicom.dsutils.pretty\_element
+﻿pynetdicom.dsutils.pretty\_element
 ==================================
 
 .. currentmodule:: pynetdicom.dsutils

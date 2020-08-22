@@ -1,4 +1,4 @@
-pynetdicom.sop\_class.HangingProtocolStorage
+﻿pynetdicom.sop\_class.HangingProtocolStorage
 ============================================
 
 .. currentmodule:: pynetdicom.sop_class

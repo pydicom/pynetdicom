@@ -1,4 +1,4 @@
-pynetdicom.\_config.LOG\_REQUEST\_IDENTIFIERS
+﻿pynetdicom.\_config.LOG\_REQUEST\_IDENTIFIERS
 =============================================
 
 .. currentmodule:: pynetdicom._config

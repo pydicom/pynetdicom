@@ -1,4 +1,4 @@
-pynetdicom.sop\_class.MediaCreationManagementSOPClass
+﻿pynetdicom.sop\_class.MediaCreationManagementSOPClass
 =====================================================
 
 .. currentmodule:: pynetdicom.sop_class

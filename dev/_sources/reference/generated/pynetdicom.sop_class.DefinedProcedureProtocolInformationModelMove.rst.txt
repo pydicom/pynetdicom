@@ -1,4 +1,4 @@
-pynetdicom.sop\_class.DefinedProcedureProtocolInformationModelMove
+﻿pynetdicom.sop\_class.DefinedProcedureProtocolInformationModelMove
 ==================================================================
 
 .. currentmodule:: pynetdicom.sop_class

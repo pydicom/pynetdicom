@@ -1,4 +1,4 @@
-pynetdicom.pdu\_items.SOPClassCommonExtendedNegotiationSubItem
+﻿pynetdicom.pdu\_items.SOPClassCommonExtendedNegotiationSubItem
 ==============================================================
 
 .. currentmodule:: pynetdicom.pdu_items

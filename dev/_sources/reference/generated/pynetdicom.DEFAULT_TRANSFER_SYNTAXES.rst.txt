@@ -1,4 +1,4 @@
-pynetdicom.DEFAULT\_TRANSFER\_SYNTAXES
+﻿pynetdicom.DEFAULT\_TRANSFER\_SYNTAXES
 ======================================
 
 .. currentmodule:: pynetdicom

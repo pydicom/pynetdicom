@@ -1,4 +1,4 @@
-pynetdicom.service\_class\_n.MediaCreationManagementServiceClass
+﻿pynetdicom.service\_class\_n.MediaCreationManagementServiceClass
 ================================================================
 
 .. currentmodule:: pynetdicom.service_class_n

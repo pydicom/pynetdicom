@@ -1,4 +1,4 @@
-pynetdicom.sop\_class.SecondaryCaptureImageStorage
+﻿pynetdicom.sop\_class.SecondaryCaptureImageStorage
 ==================================================
 
 .. currentmodule:: pynetdicom.sop_class

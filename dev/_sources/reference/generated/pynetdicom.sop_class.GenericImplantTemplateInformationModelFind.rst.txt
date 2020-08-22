@@ -1,4 +1,4 @@
-pynetdicom.sop\_class.GenericImplantTemplateInformationModelFind
+﻿pynetdicom.sop\_class.GenericImplantTemplateInformationModelFind
 ================================================================
 
 .. currentmodule:: pynetdicom.sop_class

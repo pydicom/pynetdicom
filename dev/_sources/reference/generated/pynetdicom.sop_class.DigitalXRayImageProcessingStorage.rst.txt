@@ -1,4 +1,4 @@
-pynetdicom.sop\_class.DigitalXRayImageProcessingStorage
+﻿pynetdicom.sop\_class.DigitalXRayImageProcessingStorage
 =======================================================
 
 .. currentmodule:: pynetdicom.sop_class

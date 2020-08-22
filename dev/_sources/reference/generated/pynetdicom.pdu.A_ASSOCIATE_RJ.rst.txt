@@ -1,4 +1,4 @@
-pynetdicom.pdu.A\_ASSOCIATE\_RJ
+﻿pynetdicom.pdu.A\_ASSOCIATE\_RJ
 ===============================
 
 .. currentmodule:: pynetdicom.pdu

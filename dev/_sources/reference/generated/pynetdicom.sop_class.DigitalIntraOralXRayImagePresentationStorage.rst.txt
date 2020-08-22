@@ -1,4 +1,4 @@
-pynetdicom.sop\_class.DigitalIntraOralXRayImagePresentationStorage
+﻿pynetdicom.sop\_class.DigitalIntraOralXRayImagePresentationStorage
 ==================================================================
 
 .. currentmodule:: pynetdicom.sop_class

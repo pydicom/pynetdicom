@@ -1,4 +1,4 @@
-pynetdicom.sop\_class.DeformableSpatialRegistrationStorage
+﻿pynetdicom.sop\_class.DeformableSpatialRegistrationStorage
 ==========================================================
 
 .. currentmodule:: pynetdicom.sop_class

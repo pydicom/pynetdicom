@@ -1,4 +1,4 @@
-pynetdicom.sop\_class.StudyRootQueryRetrieveInformationModelMove
+﻿pynetdicom.sop\_class.StudyRootQueryRetrieveInformationModelMove
 ================================================================
 
 .. currentmodule:: pynetdicom.sop_class

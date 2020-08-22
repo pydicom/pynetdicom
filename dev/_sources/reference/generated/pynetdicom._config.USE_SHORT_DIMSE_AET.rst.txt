@@ -1,4 +1,4 @@
-pynetdicom.\_config.USE\_SHORT\_DIMSE\_AET
+﻿pynetdicom.\_config.USE\_SHORT\_DIMSE\_AET
 ==========================================
 
 .. currentmodule:: pynetdicom._config

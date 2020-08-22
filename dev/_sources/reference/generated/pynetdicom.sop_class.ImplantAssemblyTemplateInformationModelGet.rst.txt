@@ -1,4 +1,4 @@
-pynetdicom.sop\_class.ImplantAssemblyTemplateInformationModelGet
+﻿pynetdicom.sop\_class.ImplantAssemblyTemplateInformationModelGet
 ================================================================
 
 .. currentmodule:: pynetdicom.sop_class

@@ -1,4 +1,4 @@
-pynetdicom.sop\_class.ProtocolApprovalInformationModelMove
+﻿pynetdicom.sop\_class.ProtocolApprovalInformationModelMove
 ==========================================================
 
 .. currentmodule:: pynetdicom.sop_class
