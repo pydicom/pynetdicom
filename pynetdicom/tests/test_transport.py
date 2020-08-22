@@ -26,6 +26,7 @@ from pynetdicom.transport import (
     AssociationSocket, AssociationServer, ThreadedAssociationServer
 )
 from pynetdicom.sop_class import VerificationSOPClass, RTImageStorage
+from .encoded_pdu_items import p_data_tf_rq
 from .hide_modules import hide_modules
 
 
@@ -390,20 +391,6 @@ class TestTLS(object):
 
     def test_select_multiple_pdu(self, server_context, client_context):
         """Test what happens if two PDUs are sent before the select call."""
-
-        # C-ECHO RQ
-        p_data_tf_rq = (
-            b"\x04\x00\x00\x00\x00\x4a"  # P-DATA
-            b"\x00\x00\x00\x46\x01"  # PDV Item
-            b"\x03"
-            b"\x00\x00\x00\x00\x04\x00\x00\x00\x3a\x00"  # Command Group Length
-            b"\x00\x00\x00\x00\x02\x00\x12\x00\x00\x00"  # Affected SOP Class UID
-            b"\x31\x2e\x32\x2e\x38\x34\x30\x2e\x31\x30\x30\x30\x38\x2e\x31\x2e\x31\x00"
-            b"\x00\x00\x00\x01\x02\x00\x00\x00\x30\x00"  # Command Field
-            b"\x00\x00\x10\x01\x02\x00\x00\x00\x01\x00"  # Message ID
-            b"\x00\x00\x00\x08\x02\x00\x00\x00\x01\x01"  # Command Data Set Type
-        )
-
         events = []
 
         def handle_echo(event):
