@@ -4,6 +4,7 @@ from datetime import datetime
 import logging
 import queue
 import os
+import platform
 import select
 import socket
 import ssl
@@ -139,7 +140,10 @@ class TestAssociationSocket(object):
         sock = AssociationSocket(self.assoc, address=('localhost', 0))
         assert sock.ready is False
         sock._is_connected = True
-        assert sock.ready is True
+        if platform.system() == 'Windows':
+            assert sock.ready is False
+        else:
+            assert sock.ready is True
         sock.socket.close()
         assert sock.ready is False
         assert sock.event_queue.get() == 'Evt17'
