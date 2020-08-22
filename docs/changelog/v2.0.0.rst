@@ -3,6 +3,11 @@
 2.0.0
 =====
 
+Fixes
+.....
+
+* Fixed not processing multiple PDUs received when acting as the association 
+  requestor with SSL/TLS (:pr:`528`)
 
 Enhancements
 ............

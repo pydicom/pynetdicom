@@ -4,6 +4,7 @@ from datetime import datetime
 import logging
 import queue
 import os
+import platform
 import select
 import socket
 import ssl
@@ -26,6 +27,7 @@ from pynetdicom.transport import (
     AssociationSocket, AssociationServer, ThreadedAssociationServer
 )
 from pynetdicom.sop_class import VerificationSOPClass, RTImageStorage
+from .encoded_pdu_items import p_data_tf_rq
 from .hide_modules import hide_modules
 
 
@@ -138,7 +140,10 @@ class TestAssociationSocket(object):
         sock = AssociationSocket(self.assoc, address=('localhost', 0))
         assert sock.ready is False
         sock._is_connected = True
-        assert sock.ready is True
+        if platform.system() == 'Windows':
+            assert sock.ready is False
+        else:
+            assert sock.ready is True
         sock.socket.close()
         assert sock.ready is False
         assert sock.event_queue.get() == 'Evt17'
@@ -186,6 +191,79 @@ class TestAssociationSocket(object):
         assert not assoc.is_established
         addr = assoc.dul.socket.get_local_addr(('', 111111))
         assert '127.0.0.1' == addr
+
+    def test_multiple_pdu_req(self):
+        """Test what happens if two PDUs are sent before the select call."""
+        events = []
+
+        def handle_echo(event):
+            events.append(event)
+            return 0x0000
+
+        self.ae = ae = AE()
+        ae.acse_timeout = 5
+        ae.dimse_timeout = 5
+        ae.network_timeout = 5
+        ae.add_supported_context('1.2.840.10008.1.1')
+        ae.add_requested_context('1.2.840.10008.1.1')
+
+        server = ae.start_server(('', 11112), block=False)
+
+        assoc = ae.associate(
+            'localhost', 11112, evt_handlers=[(evt.EVT_C_ECHO, handle_echo)]
+        )
+        assert assoc.is_established
+
+        # Send data directly to the requestor
+        socket = server.active_associations[0].dul.socket
+        socket.send(2 * p_data_tf_rq)
+
+        time.sleep(1)
+
+        assoc.release()
+        assert assoc.is_released
+
+        server.shutdown()
+
+        assert 2 == len(events)
+
+    def test_multiple_pdu_acc(self):
+        """Test what happens if two PDUs are sent before the select call."""
+        events = []
+
+        def handle_echo(event):
+            events.append(event)
+            return 0x0000
+
+        self.ae = ae = AE()
+        ae.acse_timeout = 5
+        ae.dimse_timeout = 5
+        ae.network_timeout = 5
+        ae.add_supported_context('1.2.840.10008.1.1')
+        ae.add_requested_context('1.2.840.10008.1.1')
+
+        server = ae.start_server(
+            ('', 11112), block=False,
+            evt_handlers=[(evt.EVT_C_ECHO, handle_echo)]
+        )
+
+        assoc = ae.associate(
+            'localhost', 11112,
+        )
+        assert assoc.is_established
+
+        # Send data directly to the requestor
+        socket = assoc.dul.socket
+        socket.send(2 * p_data_tf_rq)
+
+        time.sleep(1)
+
+        assoc.release()
+        assert assoc.is_released
+
+        server.shutdown()
+
+        assert 2 == len(events)
 
 
 @pytest.fixture
@@ -388,22 +466,8 @@ class TestTLS(object):
         with pytest.raises(RuntimeError, match=msg):
             ae.associate('localhost', 11112, tls_args=(['random', 'object'], None))
 
-    def test_select_multiple_pdu(self, server_context, client_context):
+    def test_multiple_pdu_req(self, server_context, client_context):
         """Test what happens if two PDUs are sent before the select call."""
-
-        # C-ECHO RQ
-        p_data_tf_rq = (
-            b"\x04\x00\x00\x00\x00\x4a"  # P-DATA
-            b"\x00\x00\x00\x46\x01"  # PDV Item
-            b"\x03"
-            b"\x00\x00\x00\x00\x04\x00\x00\x00\x3a\x00"  # Command Group Length
-            b"\x00\x00\x00\x00\x02\x00\x12\x00\x00\x00"  # Affected SOP Class UID
-            b"\x31\x2e\x32\x2e\x38\x34\x30\x2e\x31\x30\x30\x30\x38\x2e\x31\x2e\x31\x00"
-            b"\x00\x00\x00\x01\x02\x00\x00\x00\x30\x00"  # Command Field
-            b"\x00\x00\x10\x01\x02\x00\x00\x00\x01\x00"  # Message ID
-            b"\x00\x00\x00\x08\x02\x00\x00\x00\x01\x01"  # Command Data Set Type
-        )
-
         events = []
 
         def handle_echo(event):
@@ -429,6 +493,40 @@ class TestTLS(object):
 
         # Send data directly to the requestor
         socket = server.active_associations[0].dul.socket
+        socket.send(2 * p_data_tf_rq)
+
+        time.sleep(1)
+
+        assoc.release()
+        assert assoc.is_released
+
+    def test_multiple_pdu_acc(self, server_context, client_context):
+        """Test what happens if two PDUs are sent before the select call."""
+        events = []
+
+        def handle_echo(event):
+            events.append(event)
+            return 0x0000
+
+        self.ae = ae = AE()
+        ae.acse_timeout = 5
+        ae.dimse_timeout = 5
+        ae.network_timeout = 5
+        ae.add_supported_context('1.2.840.10008.1.1')
+        ae.add_requested_context('1.2.840.10008.1.1')
+
+        server = ae.start_server(
+            ('', 11112), block=False, ssl_context=server_context,
+            evt_handlers=[(evt.EVT_C_ECHO, handle_echo)]
+        )
+
+        assoc = ae.associate(
+            'localhost', 11112, tls_args=(client_context, None)
+        )
+        assert assoc.is_established
+
+        # Send data directly to the requestor
+        socket = assoc.dul.socket
         socket.send(2 * p_data_tf_rq)
 
         time.sleep(1)
