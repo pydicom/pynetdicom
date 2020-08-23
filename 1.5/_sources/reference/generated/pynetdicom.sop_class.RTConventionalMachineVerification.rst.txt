@@ -1,4 +1,4 @@
-pynetdicom.sop\_class.RTConventionalMachineVerification
+﻿pynetdicom.sop\_class.RTConventionalMachineVerification
 =======================================================
 
 .. currentmodule:: pynetdicom.sop_class

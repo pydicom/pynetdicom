@@ -1,4 +1,4 @@
-pynetdicom.service\_class\_n.PrintManagementServiceClass
+﻿pynetdicom.service\_class\_n.PrintManagementServiceClass
 ========================================================
 
 .. currentmodule:: pynetdicom.service_class_n

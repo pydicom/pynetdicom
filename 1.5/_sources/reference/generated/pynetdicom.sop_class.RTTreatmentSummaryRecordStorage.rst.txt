@@ -1,4 +1,4 @@
-pynetdicom.sop\_class.RTTreatmentSummaryRecordStorage
+﻿pynetdicom.sop\_class.RTTreatmentSummaryRecordStorage
 =====================================================
 
 .. currentmodule:: pynetdicom.sop_class

@@ -1,4 +1,4 @@
-pynetdicom.sop\_class.SurfaceSegmentationStorage
+﻿pynetdicom.sop\_class.SurfaceSegmentationStorage
 ================================================
 
 .. currentmodule:: pynetdicom.sop_class

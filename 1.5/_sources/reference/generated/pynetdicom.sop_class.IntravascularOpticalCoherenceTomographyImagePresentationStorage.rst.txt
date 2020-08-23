@@ -1,4 +1,4 @@
-pynetdicom.sop\_class.IntravascularOpticalCoherenceTomographyImagePresentationStorage
+﻿pynetdicom.sop\_class.IntravascularOpticalCoherenceTomographyImagePresentationStorage
 =====================================================================================
 
 .. currentmodule:: pynetdicom.sop_class

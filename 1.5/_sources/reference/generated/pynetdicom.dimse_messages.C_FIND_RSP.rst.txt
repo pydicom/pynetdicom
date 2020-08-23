@@ -1,4 +1,4 @@
-pynetdicom.dimse\_messages.C\_FIND\_RSP
+﻿pynetdicom.dimse\_messages.C\_FIND\_RSP
 =======================================
 
 .. currentmodule:: pynetdicom.dimse_messages

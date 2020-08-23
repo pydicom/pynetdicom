@@ -1,4 +1,4 @@
-pynetdicom.sop\_class.PatientRootQueryRetrieveInformationModelMove
+﻿pynetdicom.sop\_class.PatientRootQueryRetrieveInformationModelMove
 ==================================================================
 
 .. currentmodule:: pynetdicom.sop_class

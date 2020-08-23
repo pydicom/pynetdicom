@@ -1,4 +1,4 @@
-pynetdicom.debug\_logger
+﻿pynetdicom.debug\_logger
 ========================
 
 .. currentmodule:: pynetdicom

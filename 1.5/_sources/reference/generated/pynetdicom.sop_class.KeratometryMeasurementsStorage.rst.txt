@@ -1,4 +1,4 @@
-pynetdicom.sop\_class.KeratometryMeasurementsStorage
+﻿pynetdicom.sop\_class.KeratometryMeasurementsStorage
 ====================================================
 
 .. currentmodule:: pynetdicom.sop_class

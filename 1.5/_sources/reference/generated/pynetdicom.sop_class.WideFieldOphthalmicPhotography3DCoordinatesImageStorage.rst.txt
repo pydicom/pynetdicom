@@ -1,4 +1,4 @@
-pynetdicom.sop\_class.WideFieldOphthalmicPhotography3DCoordinatesImageStorage
+﻿pynetdicom.sop\_class.WideFieldOphthalmicPhotography3DCoordinatesImageStorage
 =============================================================================
 
 .. currentmodule:: pynetdicom.sop_class

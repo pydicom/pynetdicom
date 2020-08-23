@@ -1,4 +1,4 @@
-pynetdicom.sop\_class.RadiopharmaceuticalRadiationDoseSRStorage
+﻿pynetdicom.sop\_class.RadiopharmaceuticalRadiationDoseSRStorage
 ===============================================================
 
 .. currentmodule:: pynetdicom.sop_class

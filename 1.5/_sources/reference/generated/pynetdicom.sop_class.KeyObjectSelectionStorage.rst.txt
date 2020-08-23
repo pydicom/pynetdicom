@@ -1,4 +1,4 @@
-pynetdicom.sop\_class.KeyObjectSelectionStorage
+﻿pynetdicom.sop\_class.KeyObjectSelectionStorage
 ===============================================
 
 .. currentmodule:: pynetdicom.sop_class

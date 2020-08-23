@@ -1,4 +1,4 @@
-pynetdicom.sop\_class.XRay3DCraniofacialImageStorage
+﻿pynetdicom.sop\_class.XRay3DCraniofacialImageStorage
 ====================================================
 
 .. currentmodule:: pynetdicom.sop_class

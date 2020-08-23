@@ -1,4 +1,4 @@
-pynetdicom.sop\_class.DefinedProcedureProtocolInformationModelGet
+﻿pynetdicom.sop\_class.DefinedProcedureProtocolInformationModelGet
 =================================================================
 
 .. currentmodule:: pynetdicom.sop_class

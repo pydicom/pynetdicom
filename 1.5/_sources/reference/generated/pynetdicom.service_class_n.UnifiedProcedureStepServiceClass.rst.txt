@@ -1,4 +1,4 @@
-pynetdicom.service\_class\_n.UnifiedProcedureStepServiceClass
+﻿pynetdicom.service\_class\_n.UnifiedProcedureStepServiceClass
 =============================================================
 
 .. currentmodule:: pynetdicom.service_class_n

@@ -1,4 +1,4 @@
-pynetdicom.sop\_class.UnifiedProcedureStepEventSOPClass
+﻿pynetdicom.sop\_class.UnifiedProcedureStepEventSOPClass
 =======================================================
 
 .. currentmodule:: pynetdicom.sop_class

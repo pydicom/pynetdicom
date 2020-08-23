@@ -1,4 +1,4 @@
-pynetdicom.sop\_class.RTBrachyApplicationSetupDeliveryInstructionsStorage
+﻿pynetdicom.sop\_class.RTBrachyApplicationSetupDeliveryInstructionsStorage
 =========================================================================
 
 .. currentmodule:: pynetdicom.sop_class

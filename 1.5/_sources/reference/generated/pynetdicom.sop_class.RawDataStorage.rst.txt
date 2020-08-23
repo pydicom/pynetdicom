@@ -1,4 +1,4 @@
-pynetdicom.sop\_class.RawDataStorage
+﻿pynetdicom.sop\_class.RawDataStorage
 ====================================
 
 .. currentmodule:: pynetdicom.sop_class

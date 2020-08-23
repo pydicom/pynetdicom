@@ -1,4 +1,4 @@
-pynetdicom.PYNETDICOM\_IMPLEMENTATION\_VERSION
+﻿pynetdicom.PYNETDICOM\_IMPLEMENTATION\_VERSION
 ==============================================
 
 .. currentmodule:: pynetdicom

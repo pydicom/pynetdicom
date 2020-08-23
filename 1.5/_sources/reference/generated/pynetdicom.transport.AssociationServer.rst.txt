@@ -1,4 +1,4 @@
-pynetdicom.transport.AssociationServer
+﻿pynetdicom.transport.AssociationServer
 ======================================
 
 .. currentmodule:: pynetdicom.transport

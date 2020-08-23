@@ -1,4 +1,4 @@
-pynetdicom.sop\_class.OphthalmicPhotography8BitImageStorage
+﻿pynetdicom.sop\_class.OphthalmicPhotography8BitImageStorage
 ===========================================================
 
 .. currentmodule:: pynetdicom.sop_class

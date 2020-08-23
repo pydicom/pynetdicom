@@ -1,4 +1,4 @@
-pynetdicom.sop\_class.ColorPaletteInformationModelFind
+﻿pynetdicom.sop\_class.ColorPaletteInformationModelFind
 ======================================================
 
 .. currentmodule:: pynetdicom.sop_class

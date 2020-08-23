@@ -1,4 +1,4 @@
-pynetdicom.\_handlers.doc\_handle\_event\_report
+﻿pynetdicom.\_handlers.doc\_handle\_event\_report
 ================================================
 
 .. currentmodule:: pynetdicom._handlers

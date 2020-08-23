@@ -1,4 +1,4 @@
-pynetdicom.pdu\_primitives.ImplementationClassUIDNotification
+﻿pynetdicom.pdu\_primitives.ImplementationClassUIDNotification
 =============================================================
 
 .. currentmodule:: pynetdicom.pdu_primitives

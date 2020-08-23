@@ -1,4 +1,4 @@
-pynetdicom.dsutils.pretty\_dataset
+﻿pynetdicom.dsutils.pretty\_dataset
 ==================================
 
 .. currentmodule:: pynetdicom.dsutils

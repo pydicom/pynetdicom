@@ -1,4 +1,4 @@
-pynetdicom.status.code\_to\_category
+﻿pynetdicom.status.code\_to\_category
 ====================================
 
 .. currentmodule:: pynetdicom.status

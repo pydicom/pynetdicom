@@ -1,4 +1,4 @@
-pynetdicom.sop\_class.EnhancedSRStorage
+﻿pynetdicom.sop\_class.EnhancedSRStorage
 =======================================
 
 .. currentmodule:: pynetdicom.sop_class

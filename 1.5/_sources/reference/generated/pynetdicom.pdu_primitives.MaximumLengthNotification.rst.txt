@@ -1,4 +1,4 @@
-pynetdicom.pdu\_primitives.MaximumLengthNotification
+﻿pynetdicom.pdu\_primitives.MaximumLengthNotification
 ====================================================
 
 .. currentmodule:: pynetdicom.pdu_primitives

@@ -1,4 +1,4 @@
-pynetdicom.sop\_class.EnhancedUSVolumeStorage
+﻿pynetdicom.sop\_class.EnhancedUSVolumeStorage
 =============================================
 
 .. currentmodule:: pynetdicom.sop_class

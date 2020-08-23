@@ -1,4 +1,4 @@
-pynetdicom.sop\_class.BasicFilmSessionSOPClass
+﻿pynetdicom.sop\_class.BasicFilmSessionSOPClass
 ==============================================
 
 .. currentmodule:: pynetdicom.sop_class

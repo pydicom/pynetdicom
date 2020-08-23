@@ -1,4 +1,4 @@
-pynetdicom.sop\_class.PatientRootQueryRetrieveInformationModelFind
+﻿pynetdicom.sop\_class.PatientRootQueryRetrieveInformationModelFind
 ==================================================================
 
 .. currentmodule:: pynetdicom.sop_class

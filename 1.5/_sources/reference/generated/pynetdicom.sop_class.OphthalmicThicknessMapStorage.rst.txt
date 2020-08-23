@@ -1,4 +1,4 @@
-pynetdicom.sop\_class.OphthalmicThicknessMapStorage
+﻿pynetdicom.sop\_class.OphthalmicThicknessMapStorage
 ===================================================
 
 .. currentmodule:: pynetdicom.sop_class

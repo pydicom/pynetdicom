@@ -1,4 +1,4 @@
-pynetdicom.sop\_class.BlendingSoftcopyPresentationStateStorage
+﻿pynetdicom.sop\_class.BlendingSoftcopyPresentationStateStorage
 ==============================================================
 
 .. currentmodule:: pynetdicom.sop_class

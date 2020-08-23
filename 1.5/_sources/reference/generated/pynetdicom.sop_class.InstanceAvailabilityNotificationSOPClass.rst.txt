@@ -1,4 +1,4 @@
-pynetdicom.sop\_class.InstanceAvailabilityNotificationSOPClass
+﻿pynetdicom.sop\_class.InstanceAvailabilityNotificationSOPClass
 ==============================================================
 
 .. currentmodule:: pynetdicom.sop_class

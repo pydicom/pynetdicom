@@ -1,4 +1,4 @@
-pynetdicom.pdu\_primitives.ImplementationVersionNameNotification
+﻿pynetdicom.pdu\_primitives.ImplementationVersionNameNotification
 ================================================================
 
 .. currentmodule:: pynetdicom.pdu_primitives

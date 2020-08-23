@@ -1,4 +1,4 @@
-pynetdicom.sop\_class.ColorPaletteInformationModelGet
+﻿pynetdicom.sop\_class.ColorPaletteInformationModelGet
 =====================================================
 
 .. currentmodule:: pynetdicom.sop_class

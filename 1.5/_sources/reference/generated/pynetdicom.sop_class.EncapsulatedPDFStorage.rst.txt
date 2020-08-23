@@ -1,4 +1,4 @@
-pynetdicom.sop\_class.EncapsulatedPDFStorage
+﻿pynetdicom.sop\_class.EncapsulatedPDFStorage
 ============================================
 
 .. currentmodule:: pynetdicom.sop_class

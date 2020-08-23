@@ -1,4 +1,4 @@
-pynetdicom.service\_class\_n.InstanceAvailabilityNotificationServiceClass
+﻿pynetdicom.service\_class\_n.InstanceAvailabilityNotificationServiceClass
 =========================================================================
 
 .. currentmodule:: pynetdicom.service_class_n

@@ -1,4 +1,4 @@
-pynetdicom.dimse.DIMSEServiceProvider
+﻿pynetdicom.dimse.DIMSEServiceProvider
 =====================================
 
 .. currentmodule:: pynetdicom.dimse

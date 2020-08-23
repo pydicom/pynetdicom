@@ -1,4 +1,4 @@
-pynetdicom.sop\_class.MultiframeGrayscaleByteSecondaryCaptureImageStorage
+﻿pynetdicom.sop\_class.MultiframeGrayscaleByteSecondaryCaptureImageStorage
 =========================================================================
 
 .. currentmodule:: pynetdicom.sop_class

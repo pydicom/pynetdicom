@@ -1,4 +1,4 @@
-pynetdicom.sop\_class.ContentAssessmentResultsStorage
+﻿pynetdicom.sop\_class.ContentAssessmentResultsStorage
 =====================================================
 
 .. currentmodule:: pynetdicom.sop_class

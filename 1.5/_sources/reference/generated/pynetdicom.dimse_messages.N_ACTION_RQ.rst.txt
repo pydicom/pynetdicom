@@ -1,4 +1,4 @@
-pynetdicom.dimse\_messages.N\_ACTION\_RQ
+﻿pynetdicom.dimse\_messages.N\_ACTION\_RQ
 ========================================
 
 .. currentmodule:: pynetdicom.dimse_messages

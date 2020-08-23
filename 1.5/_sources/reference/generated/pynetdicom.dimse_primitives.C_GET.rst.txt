@@ -1,4 +1,4 @@
-pynetdicom.dimse\_primitives.C\_GET
+﻿pynetdicom.dimse\_primitives.C\_GET
 ===================================
 
 .. currentmodule:: pynetdicom.dimse_primitives

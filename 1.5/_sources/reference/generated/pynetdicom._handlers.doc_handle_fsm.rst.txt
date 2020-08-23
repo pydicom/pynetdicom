@@ -1,4 +1,4 @@
-pynetdicom.\_handlers.doc\_handle\_fsm
+﻿pynetdicom.\_handlers.doc\_handle\_fsm
 ======================================
 
 .. currentmodule:: pynetdicom._handlers

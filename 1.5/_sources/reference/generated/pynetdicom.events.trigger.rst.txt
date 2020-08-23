@@ -1,4 +1,4 @@
-pynetdicom.events.trigger
+﻿pynetdicom.events.trigger
 =========================
 
 .. currentmodule:: pynetdicom.events

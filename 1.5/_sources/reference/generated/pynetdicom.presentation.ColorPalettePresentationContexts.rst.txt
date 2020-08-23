@@ -1,4 +1,4 @@
-pynetdicom.presentation.ColorPalettePresentationContexts
+﻿pynetdicom.presentation.ColorPalettePresentationContexts
 ========================================================
 
 .. currentmodule:: pynetdicom.presentation

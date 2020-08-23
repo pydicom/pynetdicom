@@ -1,4 +1,4 @@
-pynetdicom.sop\_class.EncapsulatedSTLStorage
+﻿pynetdicom.sop\_class.EncapsulatedSTLStorage
 ============================================
 
 .. currentmodule:: pynetdicom.sop_class

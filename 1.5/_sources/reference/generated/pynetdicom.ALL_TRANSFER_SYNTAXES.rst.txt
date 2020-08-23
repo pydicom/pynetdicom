@@ -1,4 +1,4 @@
-pynetdicom.ALL\_TRANSFER\_SYNTAXES
+﻿pynetdicom.ALL\_TRANSFER\_SYNTAXES
 ==================================
 
 .. currentmodule:: pynetdicom

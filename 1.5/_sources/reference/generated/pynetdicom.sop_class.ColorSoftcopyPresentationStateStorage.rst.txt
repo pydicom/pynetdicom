@@ -1,4 +1,4 @@
-pynetdicom.sop\_class.ColorSoftcopyPresentationStateStorage
+﻿pynetdicom.sop\_class.ColorSoftcopyPresentationStateStorage
 ===========================================================
 
 .. currentmodule:: pynetdicom.sop_class

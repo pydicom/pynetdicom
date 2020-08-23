@@ -1,4 +1,4 @@
-pynetdicom.transport.AssociationSocket
+﻿pynetdicom.transport.AssociationSocket
 ======================================
 
 .. currentmodule:: pynetdicom.transport

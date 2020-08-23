@@ -1,4 +1,4 @@
-pynetdicom.sop\_class.ColorPaletteInformationModelMove
+﻿pynetdicom.sop\_class.ColorPaletteInformationModelMove
 ======================================================
 
 .. currentmodule:: pynetdicom.sop_class

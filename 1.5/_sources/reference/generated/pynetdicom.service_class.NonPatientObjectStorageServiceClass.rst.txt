@@ -1,4 +1,4 @@
-pynetdicom.service\_class.NonPatientObjectStorageServiceClass
+﻿pynetdicom.service\_class.NonPatientObjectStorageServiceClass
 =============================================================
 
 .. currentmodule:: pynetdicom.service_class

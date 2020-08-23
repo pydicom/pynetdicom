@@ -1,4 +1,4 @@
-pynetdicom.dimse\_messages.C\_CANCEL\_RQ
+﻿pynetdicom.dimse\_messages.C\_CANCEL\_RQ
 ========================================
 
 .. currentmodule:: pynetdicom.dimse_messages

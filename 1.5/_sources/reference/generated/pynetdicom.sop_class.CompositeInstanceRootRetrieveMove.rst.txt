@@ -1,4 +1,4 @@
-pynetdicom.sop\_class.CompositeInstanceRootRetrieveMove
+﻿pynetdicom.sop\_class.CompositeInstanceRootRetrieveMove
 =======================================================
 
 .. currentmodule:: pynetdicom.sop_class

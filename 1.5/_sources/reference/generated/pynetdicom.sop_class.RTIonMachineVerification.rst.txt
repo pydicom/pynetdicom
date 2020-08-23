@@ -1,4 +1,4 @@
-pynetdicom.sop\_class.RTIonMachineVerification
+﻿pynetdicom.sop\_class.RTIonMachineVerification
 ==============================================
 
 .. currentmodule:: pynetdicom.sop_class

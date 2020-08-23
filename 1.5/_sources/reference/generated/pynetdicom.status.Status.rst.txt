@@ -1,4 +1,4 @@
-pynetdicom.status.Status
+﻿pynetdicom.status.Status
 ========================
 
 .. currentmodule:: pynetdicom.status

@@ -1,4 +1,4 @@
-pynetdicom.sop\_class.DisplaySystemSOPInstance
+﻿pynetdicom.sop\_class.DisplaySystemSOPInstance
 ==============================================
 
 .. currentmodule:: pynetdicom.sop_class

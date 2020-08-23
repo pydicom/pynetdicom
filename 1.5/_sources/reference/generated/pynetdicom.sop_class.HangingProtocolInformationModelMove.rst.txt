@@ -1,4 +1,4 @@
-pynetdicom.sop\_class.HangingProtocolInformationModelMove
+﻿pynetdicom.sop\_class.HangingProtocolInformationModelMove
 =========================================================
 
 .. currentmodule:: pynetdicom.sop_class

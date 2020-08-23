@@ -1,4 +1,4 @@
-pynetdicom.PYNETDICOM\_UID\_PREFIX
+﻿pynetdicom.PYNETDICOM\_UID\_PREFIX
 ==================================
 
 .. currentmodule:: pynetdicom

@@ -1,4 +1,4 @@
-pynetdicom.sop\_class.XRayAngiographicImageStorage
+﻿pynetdicom.sop\_class.XRayAngiographicImageStorage
 ==================================================
 
 .. currentmodule:: pynetdicom.sop_class

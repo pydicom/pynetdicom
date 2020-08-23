@@ -1,4 +1,4 @@
-pynetdicom.events.InterventionEvent
+﻿pynetdicom.events.InterventionEvent
 ===================================
 
 .. currentmodule:: pynetdicom.events

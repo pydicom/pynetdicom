@@ -1,4 +1,4 @@
-pynetdicom.presentation.QueryRetrievePresentationContexts
+﻿pynetdicom.presentation.QueryRetrievePresentationContexts
 =========================================================
 
 .. currentmodule:: pynetdicom.presentation

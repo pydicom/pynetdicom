@@ -1,4 +1,4 @@
-pynetdicom.service\_class.ColorPaletteQueryRetrieveServiceClass
+﻿pynetdicom.service\_class.ColorPaletteQueryRetrieveServiceClass
 ===============================================================
 
 .. currentmodule:: pynetdicom.service_class

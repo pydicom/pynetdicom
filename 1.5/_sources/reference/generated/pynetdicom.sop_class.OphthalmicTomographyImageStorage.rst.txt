@@ -1,4 +1,4 @@
-pynetdicom.sop\_class.OphthalmicTomographyImageStorage
+﻿pynetdicom.sop\_class.OphthalmicTomographyImageStorage
 ======================================================
 
 .. currentmodule:: pynetdicom.sop_class

@@ -1,4 +1,4 @@
-pynetdicom.presentation.NonPatientObjectPresentationContexts
+﻿pynetdicom.presentation.NonPatientObjectPresentationContexts
 ============================================================
 
 .. currentmodule:: pynetdicom.presentation

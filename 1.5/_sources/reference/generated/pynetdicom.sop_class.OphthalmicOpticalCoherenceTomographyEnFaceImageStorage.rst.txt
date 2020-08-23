@@ -1,4 +1,4 @@
-pynetdicom.sop\_class.OphthalmicOpticalCoherenceTomographyEnFaceImageStorage
+﻿pynetdicom.sop\_class.OphthalmicOpticalCoherenceTomographyEnFaceImageStorage
 ============================================================================
 
 .. currentmodule:: pynetdicom.sop_class

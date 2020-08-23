@@ -1,4 +1,4 @@
-pynetdicom.sop\_class.LensometryMeasurementsStorage
+﻿pynetdicom.sop\_class.LensometryMeasurementsStorage
 ===================================================
 
 .. currentmodule:: pynetdicom.sop_class

@@ -1,4 +1,4 @@
-pynetdicom.sop\_class.GeneralAudioWaveformStorage
+﻿pynetdicom.sop\_class.GeneralAudioWaveformStorage
 =================================================
 
 .. currentmodule:: pynetdicom.sop_class

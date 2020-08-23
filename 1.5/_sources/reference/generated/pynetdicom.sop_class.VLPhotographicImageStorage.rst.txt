@@ -1,4 +1,4 @@
-pynetdicom.sop\_class.VLPhotographicImageStorage
+﻿pynetdicom.sop\_class.VLPhotographicImageStorage
 ================================================
 
 .. currentmodule:: pynetdicom.sop_class

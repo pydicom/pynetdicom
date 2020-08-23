@@ -1,4 +1,4 @@
-pynetdicom.PYNETDICOM\_IMPLEMENTATION\_UID
+﻿pynetdicom.PYNETDICOM\_IMPLEMENTATION\_UID
 ==========================================
 
 .. currentmodule:: pynetdicom

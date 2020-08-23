@@ -1,4 +1,4 @@
-pynetdicom.service\_class.ProtocolApprovalQueryRetrieveServiceClass
+﻿pynetdicom.service\_class.ProtocolApprovalQueryRetrieveServiceClass
 ===================================================================
 
 .. currentmodule:: pynetdicom.service_class

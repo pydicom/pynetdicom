@@ -1,4 +1,4 @@
-pynetdicom.sop\_class.BasicVoiceAudioWaveformStorage
+﻿pynetdicom.sop\_class.BasicVoiceAudioWaveformStorage
 ====================================================
 
 .. currentmodule:: pynetdicom.sop_class

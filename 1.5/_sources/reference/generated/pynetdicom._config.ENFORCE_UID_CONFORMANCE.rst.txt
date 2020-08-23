@@ -1,4 +1,4 @@
-pynetdicom.\_config.ENFORCE\_UID\_CONFORMANCE
+﻿pynetdicom.\_config.ENFORCE\_UID\_CONFORMANCE
 =============================================
 
 .. currentmodule:: pynetdicom._config

@@ -1,4 +1,4 @@
-pynetdicom.sop\_class.ProtocolApprovalInformationModelFind
+﻿pynetdicom.sop\_class.ProtocolApprovalInformationModelFind
 ==========================================================
 
 .. currentmodule:: pynetdicom.sop_class

@@ -1,4 +1,4 @@
-pynetdicom.sop\_class.ModalityPerformedProcedureStepSOPClass
+﻿pynetdicom.sop\_class.ModalityPerformedProcedureStepSOPClass
 ============================================================
 
 .. currentmodule:: pynetdicom.sop_class

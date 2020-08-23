@@ -1,4 +1,4 @@
-pynetdicom.sop\_class.AmbulatoryECGWaveformStorage
+﻿pynetdicom.sop\_class.AmbulatoryECGWaveformStorage
 ==================================================
 
 .. currentmodule:: pynetdicom.sop_class

@@ -1,4 +1,4 @@
-pynetdicom.sop\_class.VLMicroscopicImageStorage
+﻿pynetdicom.sop\_class.VLMicroscopicImageStorage
 ===============================================
 
 .. currentmodule:: pynetdicom.sop_class
