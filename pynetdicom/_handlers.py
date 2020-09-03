@@ -202,6 +202,7 @@ def _receive_abort_pdu(event):
     ]
     for line in s:
         LOGGER.debug(line)
+    return s
 
 def _receive_associate_ac(event):
     """Standard logging handler for receiving an A-ASSOCIATE-AC PDU."""
@@ -293,6 +294,8 @@ def _receive_associate_ac(event):
     for line in s:
         LOGGER.debug(line)
 
+    return s
+
 def _receive_associate_rj(event):
     """Standard logging handler for receiving an A-ASSOCIATE-RJ PDU."""
     s = [
@@ -305,6 +308,7 @@ def _receive_associate_rj(event):
     ]
     for line in s:
         LOGGER.debug(line)
+    return s
 
 def _receive_associate_rq(event):
     """Standard logging handler for receiving an A-ASSOCIATE-RQ PDU."""
@@ -444,6 +448,8 @@ def _receive_associate_rq(event):
     for line in s:
         LOGGER.debug(line)
 
+    return s
+
 def _receive_data_tf(event):
     """Standard logging handler for receiving a P-DATA-TF PDU."""
     pass
@@ -467,6 +473,7 @@ def _send_abort(event):
     ]
     for line in s:
         LOGGER.debug(line)
+    return s
 
 def _send_associate_ac(event):
     """Standard logging handler for sending an A-ASSOCIATE-AC PDU."""
@@ -553,6 +560,8 @@ def _send_associate_ac(event):
     for line in s:
         LOGGER.debug(line)
 
+    return s
+
 def _send_associate_rj(event):
     """Standard logging handler for sending an A-ASSOCIATE-RJ PDU."""
     s = [
@@ -565,6 +574,7 @@ def _send_associate_rj(event):
     ]
     for line in s:
         LOGGER.debug(line)
+    return s
 
 def _send_associate_rq(event):
     """Standard logging handler for sending an A-ASSOCIATE-RQ PDU."""
@@ -696,6 +706,8 @@ def _send_associate_rq(event):
     for line in s:
         LOGGER.debug(line)
 
+    return s
+
 def _send_data_tf(event):
     """Standard logging handler for sending a P-DATA-TF PDU."""
     pass
@@ -793,6 +805,7 @@ def _send_c_store_rq(event):
     ]
     for line in s:
         LOGGER.debug(line)
+    return s
 
 def _send_c_store_rsp(event):
     """Logging handler when a C-STORE-RSP is sent.
@@ -849,6 +862,7 @@ def _send_c_find_rq(event):
     ]
     for line in s:
         LOGGER.debug(line)
+    return s
 
 def _send_c_find_rsp(event):
     """Logging handler when a C-FIND-RSP is sent.
@@ -886,6 +900,7 @@ def _send_c_find_rsp(event):
     s.append(f"{' END DIMSE MESSAGE ':=^76}")
     for line in s:
         LOGGER.debug(line)
+    return s
 
 def _send_c_get_rq(event):
     """Logging handler when a C-GET-RQ is sent.
@@ -923,6 +938,7 @@ def _send_c_get_rq(event):
     ]
     for line in s:
         LOGGER.debug(line)
+    return s
 
 def _send_c_get_rsp(event):
     """Logging handler when a C-GET-RSP is sent.
@@ -964,6 +980,7 @@ def _send_c_get_rsp(event):
     s.append(f"{' END DIMSE MESSAGE ':=^76}")
     for line in s:
         LOGGER.debug(line)
+    return s
 
 def _send_c_move_rq(event):
     """Logging handler when a C-MOVE-RQ is sent.
@@ -1003,6 +1020,7 @@ def _send_c_move_rq(event):
     ]
     for line in s:
         LOGGER.debug(line)
+    return s
 
 def _send_c_move_rsp(event):
     """Logging handler when a C-MOVE-RSP is sent.
@@ -1044,6 +1062,7 @@ def _send_c_move_rsp(event):
     s.append(f"{' END DIMSE MESSAGE ':=^76}")
     for line in s:
         LOGGER.debug(line)
+    return s
 
 def _send_c_cancel_rq(event):
     """Logging handler when a C-CANCEL-RQ is sent.
@@ -1085,6 +1104,7 @@ def _recv_c_echo_rq(event):
     ]
     for line in s:
         LOGGER.debug(line)
+    return s
 
 def _recv_c_echo_rsp(event):
     """Logging handler when a C-ECHO-RSP is received.
@@ -1113,7 +1133,14 @@ def _recv_c_echo_rsp(event):
     else:
         status_str = f"0x{cs.Status:04X} - Unknown"
 
-    LOGGER.info(f"Received Echo Response (Status: {status_str})")
+    s = [
+        f"Received Echo Response (Status: {status_str})"
+    ]
+
+    for line in s:
+        LOGGER.info(line)
+
+    return s
 
 def _recv_c_store_rq(event):
     """Logging handler when a C-STORE-RQ is received.
@@ -1161,6 +1188,7 @@ def _recv_c_store_rq(event):
     s.append(f"{' END DIMSE MESSAGE ':=^76}")
     for line in s:
         LOGGER.debug(line)
+    return s
 
 def _recv_c_store_rsp(event):
     """Logging handler when a C-STORE-RSP is received.
@@ -1208,6 +1236,7 @@ def _recv_c_store_rsp(event):
     s.append(f"{' END DIMSE MESSAGE ':=^76}")
     for line in s:
         LOGGER.debug(line)
+    return s
 
 def _recv_c_find_rq(event):
     """Logging handler when a C-FIND-RQ is received.
@@ -1245,6 +1274,7 @@ def _recv_c_find_rq(event):
     ]
     for line in s:
         LOGGER.debug(line)
+    return s
 
 def _recv_c_find_rsp(event):
     """Logging handler when a C-FIND-RSP is received.
@@ -1284,6 +1314,7 @@ def _recv_c_find_rsp(event):
     s.append(f"{' END DIMSE MESSAGE ':=^76}")
     for line in s:
         LOGGER.debug(line)
+    return s
 
 def _recv_c_cancel_rq(event):
     """Logging handler when a C-CANCEL-RQ is received.
@@ -1305,6 +1336,7 @@ def _recv_c_cancel_rq(event):
     ]
     for line in s:
         LOGGER.debug(line)
+    return s
 
 def _recv_c_get_rq(event):
     """Logging handler when a C-GET-RQ is received.
@@ -1342,6 +1374,7 @@ def _recv_c_get_rq(event):
     ]
     for line in s:
         LOGGER.debug(line)
+    return s
 
 def _recv_c_get_rsp(event):
     """Logging handler when a C-GET-RSP is received.
@@ -1399,6 +1432,8 @@ def _recv_c_get_rsp(event):
 
     for line in s:
         LOGGER.debug(line)
+
+    return s
 
 def _recv_c_move_rq(event):
     """Logging handler when a C-MOVE-RQ is received.
@@ -1475,6 +1510,8 @@ def _recv_c_move_rsp(event):
     for line in s:
         LOGGER.debug(line)
 
+    return s
+
 def _send_n_event_report_rq(event):
     """Logging handler when an N-EVENT-REPORT-RQ is sent.
 
@@ -1502,6 +1539,7 @@ def _send_n_event_report_rq(event):
     ]
     for line in s:
         LOGGER.debug(line)
+    return s
 
 def _send_n_event_report_rsp(event):
     """Logging handler when an N-EVENT-REPORT-RSP is sent.
@@ -1537,6 +1575,7 @@ def _send_n_event_report_rsp(event):
     s.append(f"{' END DIMSE MESSAGE ':=^76}")
     for line in s:
         LOGGER.debug(line)
+    return s
 
 def _send_n_get_rq(event):
     """Logging handler when an N-GET-RQ is sent.
@@ -1564,6 +1603,7 @@ def _send_n_get_rq(event):
     ]
     for line in s:
         LOGGER.debug(line)
+    return s
 
 def _send_n_get_rsp(event):
     """Logging handler when an N-GET-RSP is sent.
@@ -1597,6 +1637,7 @@ def _send_n_get_rsp(event):
     s.append(f"{' END DIMSE MESSAGE ':=^76}")
     for line in s:
         LOGGER.debug(line)
+    return s
 
 def _send_n_set_rq(event):
     """Logging handler when an N-SET-RQ is sent.
@@ -1624,6 +1665,7 @@ def _send_n_set_rq(event):
     ]
     for line in s:
         LOGGER.debug(line)
+    return s
 
 def _send_n_set_rsp(event):
     """Logging handler when an N-SET-RSP is sent.
@@ -1657,6 +1699,7 @@ def _send_n_set_rsp(event):
     s.append(f"{' END DIMSE MESSAGE ':=^76}")
     for line in s:
         LOGGER.debug(line)
+    return s
 
 def _send_n_action_rq(event):
     """Logging handler when an N-ACTION-RQ is sent.
@@ -1719,6 +1762,7 @@ def _send_n_delete_rq(event):
     ]
     for line in s:
         LOGGER.debug(line)
+    return s
 
 def _send_n_delete_rsp(event):
     """Logging handler when an N-DELETE-RSP is sent.
@@ -1748,6 +1792,7 @@ def _send_n_delete_rsp(event):
     s.append(f"{' END DIMSE MESSAGE ':=^76}")
     for line in s:
         LOGGER.debug(line)
+    return s
 
 def _recv_n_event_report_rq(event):
     """Logging handler when an N-EVENT-REPORT-RQ is received.
@@ -1813,6 +1858,7 @@ def _recv_n_get_rsp(event):
     s.append(f"{' END DIMSE MESSAGE ':=^76}")
     for line in s:
         LOGGER.debug(line)
+    return s
 
 def _recv_n_set_rq(event):
     """Logging handler when an N-SET-RQ is received.
