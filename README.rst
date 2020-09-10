@@ -315,7 +315,7 @@ requestor's address and port number and the timestamp for the event.
         debug_logger()
 
         ae = AE(ae_title=b'MY_ECHO_SCP')
-        ae.add_supported_contexts(VerificationSOPClass)
+        ae.add_supported_context(VerificationSOPClass)
 
         # Implement the EVT_C_ECHO handler
         def handle_echo(event, logger):
