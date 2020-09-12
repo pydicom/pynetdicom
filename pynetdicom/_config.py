@@ -111,9 +111,14 @@ If ``True``, then when using
 a DICOM dataset, don't decode the dataset and instead send the raw encoded
 data (without the File Meta Information) in chunks of no larger than
 maximum PDU size allowed by the peer. This should
-minimise the amount of memory required when sending large datasets, however
-no conversion of the dataset is possible and so an exact matching accepted
-presentation context will be required. Default: ``False``.
+minimise the amount of memory required when:
+
+* Sending large datasets
+* Sending many datasets concurrently
+
+It is not possible to convert the dataset without lodaing it into memory
+and so an exact matching accepted presentation context will be required.
+Default: ``False``.
 
 Examples
 --------
@@ -123,3 +128,25 @@ Examples
 """
 
 STORE_RECV_CHUNKED_DATASET = False
+"""Chunk a dataset file when receiving it to minimise memory usage.
+
+.. versionadded:: 2.0
+
+If ``True``, then when receiving C-STORE primitives as an SCP, don't encode
+the dataset and instead receive the raw encoded data in chunks of no larger
+than the maximum PDU size allowed by the peer. The dataset is written to a
+temporary file on disk (with the File Meta Information). The path of the
+dataset is available in the C-STORE event handler on the property
+``dataset_path``. This should minimise the amount of memory required when:
+
+* Receiving large datasets
+* Receiving many datasets concurrently
+
+Default: ``False``.
+
+Examples
+--------
+
+>>> from pynetdicom import _config
+>>> _config.STORE_RECV_CHUNKED_DATASET = True
+"""

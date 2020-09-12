@@ -218,9 +218,13 @@ class DIMSEMessage(object):
         self.data_set = BytesIO()
         self.command_set = Dataset()
 
-        # If reading the dataset in chunks this will be
-        #   (its file path, byte offset to the start of the dataset)
+        # If reading the dataset in chunks this will be a tuple:
+        #   (its file path, a byte offset to the start of the dataset)
+        # If writing the dataset in chunks this will be a Path:
+        #   its file path
         self._data_set_path = None
+        # If writing the dataset in chunks this will be a NamedTemporaryFile:
+        #   the file object backing its file path
         self._data_set_file = None
 
         cls_name = self.__class__.__name__
@@ -247,7 +251,7 @@ class DIMSEMessage(object):
             The P-DATA service primitive to be decoded into a DIMSE message.
 
         assoc : association.Association
-            The Association that produced the service primitive.
+            The Association that produced the P-DATA service primitive.
 
         Returns
         -------
