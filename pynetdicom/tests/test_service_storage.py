@@ -420,7 +420,7 @@ class TestStorageServiceClass(object):
         def handle(event):
             dataset_path = event.dataset_path
 
-            # Dataset file valid and complete
+            # File at `dataset_path` valid and complete
             ds = dcmread(dataset_path)
             assert isinstance(ds, Dataset)
             assert isinstance(ds.file_meta, Dataset)
@@ -455,7 +455,7 @@ class TestStorageServiceClass(object):
         dataset_path = attrs['dataset_path']
         assert isinstance(dataset_path, Path)
 
-        # Dataset file not available outside of event handler
+        # `dataset_path` not available outside of event handler
         with pytest.raises(FileNotFoundError):
             dataset_path.open("rb")
 
