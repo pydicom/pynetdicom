@@ -1,7 +1,6 @@
 """Tests for the StorageServiceClass."""
 
 from io import BytesIO
-import hashlib
 import os
 from pathlib import Path
 import time

@@ -4,10 +4,8 @@ the state machine events.
 
 from collections import namedtuple
 from datetime import datetime
-from shutil import copyfileobj
 import inspect
 import logging
-import os
 import sys
 
 from pydicom.dataset import Dataset
