@@ -322,30 +322,29 @@ class DIMSEMessage(object):
                         isinstance(self, C_STORE_RQ)
                         and _config.STORE_RECV_CHUNKED_DATASET
                     ):
-                        self._data_set_file = NamedTemporaryFile(suffix=".dcm")
+                        self._data_set_file = NamedTemporaryFile(mode="wb", suffix=".dcm")
                         self._data_set_path = Path(self._data_set_file.name)
 
-                        with self._data_set_path.open("wb") as data_set_path:
-                            from pynetdicom import PYNETDICOM_IMPLEMENTATION_UID
-                            from pynetdicom import PYNETDICOM_IMPLEMENTATION_VERSION
+                        from pynetdicom import PYNETDICOM_IMPLEMENTATION_UID
+                        from pynetdicom import PYNETDICOM_IMPLEMENTATION_VERSION
 
-                            data_set_path.write(b'\x00' * 128)
-                            data_set_path.write(b'DICM')
+                        self._data_set_file.write(b'\x00' * 128)
+                        self._data_set_file.write(b'DICM')
 
-                            file_meta = Dataset()
+                        file_meta = Dataset()
 
-                            file_meta.FileMetaInformationGroupLength = 0
-                            file_meta.FileMetaInformationVersion = b'\x00\x01'
-                            file_meta.MediaStorageSOPClassUID = self.command_set.AffectedSOPClassUID
-                            file_meta.MediaStorageSOPInstanceUID = self.command_set.AffectedSOPInstanceUID
-                            file_meta.TransferSyntaxUID = assoc._accepted_cx[context_id].transfer_syntax[0]
-                            file_meta.ImplementationClassUID = PYNETDICOM_IMPLEMENTATION_UID
-                            file_meta.ImplementationVersionName = PYNETDICOM_IMPLEMENTATION_VERSION
+                        file_meta.FileMetaInformationGroupLength = 0
+                        file_meta.FileMetaInformationVersion = b'\x00\x01'
+                        file_meta.MediaStorageSOPClassUID = self.command_set.AffectedSOPClassUID
+                        file_meta.MediaStorageSOPInstanceUID = self.command_set.AffectedSOPInstanceUID
+                        file_meta.TransferSyntaxUID = assoc._accepted_cx[context_id].transfer_syntax[0]
+                        file_meta.ImplementationClassUID = PYNETDICOM_IMPLEMENTATION_UID
+                        file_meta.ImplementationVersionName = PYNETDICOM_IMPLEMENTATION_VERSION
 
-                            file_meta.is_little_endian = True
-                            file_meta.is_implicit_VR = False
+                        file_meta.is_little_endian = True
+                        file_meta.is_implicit_VR = False
 
-                            write_file_meta_info(data_set_path, file_meta)
+                        write_file_meta_info(self._data_set_file, file_meta)
 
             # DATA SET
             # P-DATA fragment contains Data Set information
@@ -354,9 +353,8 @@ class DIMSEMessage(object):
                 # As with the command set, the data set may be spread over
                 #   a number of fragments in each P-DATA primitive and a
                 #   number of P-DATA primitives.
-                if self._data_set_path:
-                    with self._data_set_path.open("a+b") as data_set_path:
-                        data_set_path.write(data[1:])
+                if self._data_set_file:
+                    self._data_set_file.write(data[1:])
                 else:
                     self.data_set.write(data[1:])
 
