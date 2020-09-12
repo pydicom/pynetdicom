@@ -414,28 +414,15 @@ class TestStorageServiceClass(object):
 
         scp.shutdown()
 
-    def test_scp_handler_dataset_file(self):
-        """Test handler event's dataset_file property"""
+    def test_scp_handler_dataset_path(self):
+        """Test handler event's dataset_path property"""
         attrs = {}
 
         def handle(event):
-            # File meta written on access
-            assert not event._did_prepare_dataset_file
-            dataset_file = event.dataset_file
-            assert event._did_prepare_dataset_file
-
-            # File meta write idempotent
-            dataset_file_hash = hashlib.sha256(
-                dataset_file.read_bytes()
-            ).hexdigest()
-            dataset_file = event.dataset_file
-            assert (
-                dataset_file_hash
-                == hashlib.sha256(dataset_file.read_bytes()).hexdigest()
-            )
+            dataset_path = event.dataset_path
 
             # Dataset file valid and complete
-            ds = dcmread(dataset_file)
+            ds = dcmread(dataset_path)
             assert isinstance(ds, Dataset)
             assert isinstance(ds.file_meta, Dataset)
             assert ds.PatientName == DATASET.PatientName
@@ -447,7 +434,7 @@ class TestStorageServiceClass(object):
             # `dataset` property empty
             assert event.dataset == Dataset()
 
-            attrs['dataset_file'] = dataset_file
+            attrs['dataset_path'] = dataset_path
             return 0x0000
 
         _config.STORE_RECV_CHUNKED_DATASET = True
@@ -466,12 +453,12 @@ class TestStorageServiceClass(object):
         assoc.release()
         assert assoc.is_released
 
-        dataset_file = attrs['dataset_file']
-        assert isinstance(dataset_file, Path)
+        dataset_path = attrs['dataset_path']
+        assert isinstance(dataset_path, Path)
 
         # Dataset file not available outside of event handler
         with pytest.raises(FileNotFoundError):
-            dataset_file.open("rb")
+            dataset_path.open("rb")
 
         scp.shutdown()
 

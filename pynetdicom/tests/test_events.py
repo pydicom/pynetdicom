@@ -195,7 +195,7 @@ class TestEvent(object):
             r"'STORE_RECV_CHUNKED_DATASET' is not set."
         )
         with pytest.raises(AttributeError, match=msg):
-            event.dataset_file
+            event.dataset_path
 
     def test_is_cancelled_non(self):
         """Test Event.is_cancelled with wrong event type."""

@@ -11,7 +11,6 @@ import os
 import sys
 
 from pydicom.dataset import Dataset
-from pydicom.filewriter import write_file_meta_info
 
 from pynetdicom.dsutils import decode
 
@@ -279,9 +278,6 @@ class Event(object):
         self._hash = None
         self._decoded = None
 
-        # Only prepare a dataset_file once
-        self._did_prepare_dataset_file = False
-
         attrs = attrs or {}
         for kk, vv in attrs.items():
             if hasattr(self, kk):
@@ -427,38 +423,17 @@ class Event(object):
         return self._get_dataset("DataSet", msg)
 
     @property
-    def dataset_file(self):
+    def dataset_path(self):
         try:
-            dataset_file = self.request._dataset_file
+            dataset_path = self.request._dataset_path
         except AttributeError:
-            dataset_file = None
-
-        if not dataset_file:
             msg = (
                 "The corresponding event is either not a C-STORE request or "
                 "'STORE_RECV_CHUNKED_DATASET' is not set."
             )
             raise AttributeError(msg)
 
-        if self._did_prepare_dataset_file:
-            return dataset_file
-
-        # Prepend File Meta Information
-        with dataset_file.with_suffix(".meta").open(
-            'wb'
-        ) as meta_file, dataset_file.open(
-            'rb'
-        ) as data_set_file:
-            meta_file.write(b'\x00' * 128)
-            meta_file.write(b'DICM')
-            write_file_meta_info(meta_file, self.file_meta)
-            copyfileobj(data_set_file, meta_file)
-
-        os.rename(dataset_file.with_suffix(".meta"), dataset_file)
-
-        self._did_prepare_dataset_file = True
-
-        return dataset_file
+        return dataset_path
 
     @property
     def event(self):
