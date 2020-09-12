@@ -1448,8 +1448,8 @@ class StorageServiceClass(ServiceClass):
                 evt.EVT_C_STORE,
                 {'request' : req, 'context' : context.as_tuple,}
             )
-            if req._dataset_base_dir:
-                req._dataset_base_dir.cleanup()
+            if req._dataset_file:
+                req._dataset_file.close()
 
         # Exception in context or handler aborted/released
         if not ctx.success or not self.assoc.is_established:

@@ -5,8 +5,7 @@ from io import BytesIO
 import logging
 from math import ceil
 from pathlib import Path
-from tempfile import TemporaryDirectory
-import uuid
+from tempfile import NamedTemporaryFile
 
 from pydicom.dataset import Dataset
 from pydicom.filewriter import write_file_meta_info
@@ -222,7 +221,7 @@ class DIMSEMessage(object):
         # If reading the dataset in chunks this will be
         #   (its file path, byte offset to the start of the dataset)
         self._data_set_path = None
-        self._data_set_base_dir = None
+        self._data_set_file = None
 
         cls_name = self.__class__.__name__
         if cls_name == 'DIMSEMessage':
@@ -320,14 +319,11 @@ class DIMSEMessage(object):
                         return True
 
                     if (
-                        self.__class__.__name__ == "C_STORE_RQ"
+                        isinstance(self, C_STORE_RQ)
                         and _config.STORE_RECV_CHUNKED_DATASET
                     ):
-                        self._data_set_base_dir = TemporaryDirectory()
-                        self._data_set_path = (
-                            Path(self._data_set_base_dir.name)
-                            / f"{uuid.uuid4()}.dcm"
-                        )
+                        self._data_set_file = NamedTemporaryFile(suffix=".dcm")
+                        self._data_set_path = Path(self._data_set_file.name)
 
                         with self._data_set_path.open("wb") as data_set_path:
                             from pynetdicom import PYNETDICOM_IMPLEMENTATION_UID
@@ -592,7 +588,7 @@ class DIMSEMessage(object):
         primitive._context_id = self.context_id
 
         primitive._dataset_path = self._data_set_path
-        primitive._dataset_base_dir = self._data_set_base_dir
+        primitive._dataset_file = self._data_set_file
 
         return primitive
 
