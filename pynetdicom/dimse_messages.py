@@ -235,7 +235,7 @@ class DIMSEMessage(object):
         for keyword in _COMMAND_SET_KEYWORDS[cls_name.replace('_', '-')]:
             setattr(self.command_set, keyword, None)
 
-    def decode_msg(self, primitive, assoc):
+    def decode_msg(self, primitive, assoc=None):
         """Converts P-DATA primitives into a ``DIMSEMessage`` sub-class.
 
         Decodes the data from the P-DATA service primitive (which
@@ -251,7 +251,15 @@ class DIMSEMessage(object):
             The P-DATA service primitive to be decoded into a DIMSE message.
 
         assoc : association.Association
-            The Association that produced the P-DATA service primitive.
+            The Association that produced the P-DATA service primitive. This
+            is only necessary when:
+
+            * _config.STORE_RECV_CHUNKED_DATASET is ``True``
+            * The P_DATA primitive is a part of a C_STORE_RQ DIMSE message
+
+            In this case the Association is consulted for its accepted
+            transfer syntax, which is included in the File Meta Information
+            of the stored dataset.
 
         Returns
         -------
@@ -323,8 +331,8 @@ class DIMSEMessage(object):
                         return True
 
                     if (
+                        _config.STORE_RECV_CHUNKED_DATASET and
                         isinstance(self, C_STORE_RQ)
-                        and _config.STORE_RECV_CHUNKED_DATASET
                     ):
                         self._data_set_file = NamedTemporaryFile(mode="wb", suffix=".dcm")
                         self._data_set_path = Path(self._data_set_file.name)
