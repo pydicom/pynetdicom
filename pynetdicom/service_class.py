@@ -2,6 +2,7 @@
 
 from io import BytesIO
 import logging
+import os
 import sys
 import traceback
 
@@ -1449,7 +1450,19 @@ class StorageServiceClass(ServiceClass):
                 {'request' : req, 'context' : context.as_tuple,}
             )
             if req._dataset_file:
-                req._dataset_file.close()
+                try:
+                    req._dataset_file.close()
+                except ValueError:
+                    # Someone already called `close`
+                    pass
+
+                try:
+                    # We passed delete=False when creating the temporary file
+                    os.unlink(req._dataset_file.name)
+                except OSError:
+                    # This is best effort on e.g Windows where files may
+                    # not be deleted while in use.
+                    pass
 
         # Exception in context or handler aborted/released
         if not ctx.success or not self.assoc.is_established:

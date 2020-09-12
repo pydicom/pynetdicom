@@ -334,7 +334,15 @@ class DIMSEMessage(object):
                         _config.STORE_RECV_CHUNKED_DATASET and
                         isinstance(self, C_STORE_RQ)
                     ):
-                        self._data_set_file = NamedTemporaryFile(suffix=".dcm")
+                        # delete=False is a workaround for Windows
+                        # Setting delete=True prevents us from re-opening
+                        # the file after it is opened by NamedTemporaryFile
+                        # below.
+                        self._data_set_file = NamedTemporaryFile(
+                            delete=False,
+                            mode="wb",
+                            suffix=".dcm"
+                        )
                         self._data_set_path = Path(self._data_set_file.name)
 
                         from pynetdicom import PYNETDICOM_IMPLEMENTATION_UID
