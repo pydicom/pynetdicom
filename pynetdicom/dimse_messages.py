@@ -334,7 +334,7 @@ class DIMSEMessage(object):
                         _config.STORE_RECV_CHUNKED_DATASET and
                         isinstance(self, C_STORE_RQ)
                     ):
-                        self._data_set_file = NamedTemporaryFile(mode="wb", suffix=".dcm")
+                        self._data_set_file = NamedTemporaryFile(suffix=".dcm")
                         self._data_set_path = Path(self._data_set_file.name)
 
                         from pynetdicom import PYNETDICOM_IMPLEMENTATION_UID
