@@ -256,6 +256,32 @@ def create_file_meta(
     implementation_uid=PYNETDICOM_IMPLEMENTATION_UID,
     implementation_version=PYNETDICOM_IMPLEMENTATION_VERSION,
 ):
+    """Return a new file meta dataset
+
+    .. versionadded:: 2.0
+
+    Parameters
+    ----------
+    sop_class_uid : pydicom.uid.UID
+        The value for the MediaStorageSOPClassUID attribute.
+    sop_instance_uid : pydicom.uid.UID
+        The value for the MediaStorageSOPInstanceUID attribute.
+    transfer_syntax : pydicom.uid.UID
+        The value for the TransferSyntax attribute.
+    group_length : int
+        The value for the FileMetaInformationGroupLength attribute.
+    version : bytes
+        The value for the FileMetaInformationVersion attribute.
+    implementation_uid : pydicom.uid.UID
+        The value for the ImplementationClassUID attribute.
+    implementation_version : str
+        The value for the ImplementationVersionName attribute.
+
+    Returns
+    -------
+    pydicom.dataset.Dataset
+        The File Meta dataset
+    """
     file_meta = Dataset()
 
     file_meta.FileMetaInformationGroupLength = group_length

@@ -254,7 +254,7 @@ class DIMSEMessage(object):
             The Association that produced the P-DATA service primitive. This
             is only necessary when:
 
-            * _config.STORE_RECV_CHUNKED_DATASET is ``True``
+            * :attr:`~pynetdicom._config.STORE_RECV_CHUNKED_DATASET` is ``True``
             * The P_DATA primitive is a part of a C_STORE_RQ DIMSE message
 
             In this case the Association is consulted for its accepted
