@@ -15,7 +15,7 @@ from pynetdicom.dimse_primitives import (
     C_STORE, C_FIND, C_GET, C_MOVE, C_ECHO, C_CANCEL,
     N_EVENT_REPORT, N_GET, N_SET, N_ACTION, N_CREATE, N_DELETE
 )
-from pynetdicom.dsutils import encode, decode
+from pynetdicom.dsutils import encode, decode, create_file_meta
 from pynetdicom.pdu_primitives import P_DATA
 
 
@@ -345,26 +345,17 @@ class DIMSEMessage(object):
                         )
                         self._data_set_path = Path(self._data_set_file.name)
 
-                        from pynetdicom import PYNETDICOM_IMPLEMENTATION_UID
-                        from pynetdicom import PYNETDICOM_IMPLEMENTATION_VERSION
-
                         self._data_set_file.write(b'\x00' * 128)
                         self._data_set_file.write(b'DICM')
 
-                        file_meta = Dataset()
-
-                        file_meta.FileMetaInformationGroupLength = 0
-                        file_meta.FileMetaInformationVersion = b'\x00\x01'
-                        file_meta.MediaStorageSOPClassUID = self.command_set.AffectedSOPClassUID
-                        file_meta.MediaStorageSOPInstanceUID = self.command_set.AffectedSOPInstanceUID
-                        file_meta.TransferSyntaxUID = assoc._accepted_cx[context_id].transfer_syntax[0]
-                        file_meta.ImplementationClassUID = PYNETDICOM_IMPLEMENTATION_UID
-                        file_meta.ImplementationVersionName = PYNETDICOM_IMPLEMENTATION_VERSION
-
-                        file_meta.is_little_endian = True
-                        file_meta.is_implicit_VR = False
-
-                        write_file_meta_info(self._data_set_file, file_meta)
+                        write_file_meta_info(
+                            self._data_set_file,
+                            create_file_meta(
+                                sop_class_uid=self.command_set.AffectedSOPClassUID,
+                                sop_instance_uid=self.command_set.AffectedSOPInstanceUID,
+                                transfer_syntax=assoc._accepted_cx[context_id].transfer_syntax[0],
+                            )
+                        )
 
             # DATA SET
             # P-DATA fragment contains Data Set information

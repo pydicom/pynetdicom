@@ -1,13 +1,14 @@
 """DICOM dataset utility functions."""
 
 import logging
-import os
 import zlib
 
+from pydicom import Dataset
 from pydicom.filebase import DicomBytesIO
 from pydicom.filereader import read_dataset, read_preamble
-from pydicom.filewriter import write_dataset, write_data_element
+from pydicom.filewriter import write_dataset
 
+from pynetdicom import PYNETDICOM_IMPLEMENTATION_UID, PYNETDICOM_IMPLEMENTATION_VERSION
 from pynetdicom.utils import pretty_bytes
 
 
@@ -243,3 +244,30 @@ def split_dataset(fpath):
             stop_when=_not_group_0002
         )
         return file_meta, fp.tell()
+
+
+def create_file_meta(
+    *,
+    sop_class_uid,
+    sop_instance_uid,
+    transfer_syntax,
+    group_length=0,
+    version=b'\x00\x01',
+    implementation_uid=PYNETDICOM_IMPLEMENTATION_UID,
+    implementation_version=PYNETDICOM_IMPLEMENTATION_VERSION,
+):
+    file_meta = Dataset()
+
+    file_meta.FileMetaInformationGroupLength = group_length
+    file_meta.FileMetaInformationVersion = version
+    file_meta.MediaStorageSOPClassUID = sop_class_uid
+    file_meta.MediaStorageSOPInstanceUID = sop_instance_uid
+    file_meta.TransferSyntaxUID = transfer_syntax
+    file_meta.ImplementationClassUID = implementation_uid
+    file_meta.ImplementationVersionName = implementation_version
+
+    # File Meta Information is always encoded as Explicit VR Little Endian
+    file_meta.is_little_endian = True
+    file_meta.is_implicit_VR = False
+
+    return file_meta

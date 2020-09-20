@@ -10,7 +10,7 @@ import sys
 
 from pydicom.dataset import Dataset
 
-from pynetdicom.dsutils import decode
+from pynetdicom.dsutils import decode, create_file_meta
 
 
 LOGGER = logging.getLogger('pynetdicom.events')
@@ -562,25 +562,13 @@ class Event(object):
                 "The corresponding event is not a C-STORE request"
             )
 
-        from pynetdicom import PYNETDICOM_IMPLEMENTATION_UID
-        from pynetdicom import PYNETDICOM_IMPLEMENTATION_VERSION
-
         # A C-STORE request must have AffectedSOPClassUID and
         #   AffectedSOPInstanceUID
-        meta = Dataset()
-        meta.FileMetaInformationGroupLength = 0
-        meta.FileMetaInformationVersion = b'\x00\x01'
-        meta.MediaStorageSOPClassUID = self.request.AffectedSOPClassUID
-        meta.MediaStorageSOPInstanceUID = self.request.AffectedSOPInstanceUID
-        meta.TransferSyntaxUID = self.context.transfer_syntax
-        meta.ImplementationClassUID = PYNETDICOM_IMPLEMENTATION_UID
-        meta.ImplementationVersionName = PYNETDICOM_IMPLEMENTATION_VERSION
-
-        # File Meta Information is always encoded as Explicit VR Little Endian
-        meta.is_little_endian = True
-        meta.is_implicit_VR = False
-
-        return meta
+        return create_file_meta(
+            sop_class_uid=self.request.AffectedSOPClassUID,
+            sop_instance_uid=self.request.AffectedSOPInstanceUID,
+            transfer_syntax=self.context.transfer_syntax,
+        )
 
     def _get_dataset(self, attr, exc_msg):
         """Return DIMSE dataset-like parameter as a *pydicom* Dataset.
