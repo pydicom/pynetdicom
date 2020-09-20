@@ -1450,11 +1450,7 @@ class StorageServiceClass(ServiceClass):
                 {'request' : req, 'context' : context.as_tuple,}
             )
             if req._dataset_file:
-                try:
-                    req._dataset_file.close()
-                except ValueError:
-                    # Someone already called `close`
-                    pass
+                req._dataset_file.close()
 
                 try:
                     # We passed delete=False when creating the temporary file

@@ -461,32 +461,6 @@ class TestStorageServiceClass(object):
 
         scp.shutdown()
 
-    def test_scp_handler_dataset_path_user_close(self):
-        """Test handler event's dataset_path property:
-            user closed underlying file"""
-
-        def handle(event):
-            event.request._dataset_file.close()
-            return 0x0000
-
-        _config.STORE_RECV_CHUNKED_DATASET = True
-
-        handlers = [(evt.EVT_C_STORE, handle)]
-
-        self.ae = ae = AE()
-        ae.add_supported_context(CTImageStorage)
-        ae.add_requested_context(CTImageStorage)
-        scp = ae.start_server(('', 11112), block=False, evt_handlers=handlers)
-
-        assoc = ae.associate('localhost', 11112)
-        assert assoc.is_established
-        status = assoc.send_c_store(DATASET)
-        assert status.Status == 0x0000
-        assoc.release()
-        assert assoc.is_released
-
-        scp.shutdown()
-
     def test_scp_handler_dataset_path_windows_unlink(self, monkeypatch):
         """Test handler event's dataset_path property:
             user has file open on Windows"""
