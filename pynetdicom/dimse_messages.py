@@ -4,14 +4,18 @@ from __future__ import division
 from io import BytesIO
 import logging
 from math import ceil
+from pathlib import Path
+from tempfile import NamedTemporaryFile
 
 from pydicom.dataset import Dataset
+from pydicom.filewriter import write_file_meta_info
 
+from pynetdicom import _config
 from pynetdicom.dimse_primitives import (
     C_STORE, C_FIND, C_GET, C_MOVE, C_ECHO, C_CANCEL,
     N_EVENT_REPORT, N_GET, N_SET, N_ACTION, N_CREATE, N_DELETE
 )
-from pynetdicom.dsutils import encode, decode
+from pynetdicom.dsutils import encode, decode, create_file_meta
 from pynetdicom.pdu_primitives import P_DATA
 
 
@@ -214,8 +218,13 @@ class DIMSEMessage(object):
         self.data_set = BytesIO()
         self.command_set = Dataset()
 
-        # If reading the dataset in chunks this will be
-        #   (its file path, byte offset to the start of the dataset)
+        # If reading the dataset in chunks this will be a tuple:
+        #   (its file path, a byte offset to the start of the dataset)
+        # If writing the dataset in chunks this will be a Path:
+        #   its file path
+        self._data_set_path = None
+        # If writing the dataset in chunks this will be a NamedTemporaryFile:
+        #   the file object backing its file path
         self._data_set_file = None
 
         cls_name = self.__class__.__name__
@@ -226,7 +235,7 @@ class DIMSEMessage(object):
         for keyword in _COMMAND_SET_KEYWORDS[cls_name.replace('_', '-')]:
             setattr(self.command_set, keyword, None)
 
-    def decode_msg(self, primitive):
+    def decode_msg(self, primitive, assoc=None):
         """Converts P-DATA primitives into a ``DIMSEMessage`` sub-class.
 
         Decodes the data from the P-DATA service primitive (which
@@ -240,6 +249,17 @@ class DIMSEMessage(object):
         ----------
         primitive : pdu_primitives.P_DATA
             The P-DATA service primitive to be decoded into a DIMSE message.
+
+        assoc : association.Association
+            The Association that produced the P-DATA service primitive. This
+            is only necessary when:
+
+            * :attr:`~pynetdicom._config.STORE_RECV_CHUNKED_DATASET` is ``True``
+            * The P_DATA primitive is a part of a C_STORE_RQ DIMSE message
+
+            In this case the Association is consulted for its accepted
+            transfer syntax, which is included in the File Meta Information
+            of the stored dataset.
 
         Returns
         -------
@@ -310,6 +330,33 @@ class DIMSEMessage(object):
                         #   has been completely decoded
                         return True
 
+                    if (
+                        _config.STORE_RECV_CHUNKED_DATASET and
+                        isinstance(self, C_STORE_RQ)
+                    ):
+                        # delete=False is a workaround for Windows
+                        # Setting delete=True prevents us from re-opening
+                        # the file after it is opened by NamedTemporaryFile
+                        # below.
+                        self._data_set_file = NamedTemporaryFile(
+                            delete=False,
+                            mode="wb",
+                            suffix=".dcm"
+                        )
+                        self._data_set_path = Path(self._data_set_file.name)
+
+                        self._data_set_file.write(b'\x00' * 128)
+                        self._data_set_file.write(b'DICM')
+
+                        write_file_meta_info(
+                            self._data_set_file,
+                            create_file_meta(
+                                sop_class_uid=self.command_set.AffectedSOPClassUID,
+                                sop_instance_uid=self.command_set.AffectedSOPInstanceUID,
+                                transfer_syntax=assoc._accepted_cx[context_id].transfer_syntax[0],
+                            )
+                        )
+
             # DATA SET
             # P-DATA fragment contains Data Set information
             #   (control_header_byte is xxxxxx00 or xxxxxx10)
@@ -317,7 +364,10 @@ class DIMSEMessage(object):
                 # As with the command set, the data set may be spread over
                 #   a number of fragments in each P-DATA primitive and a
                 #   number of P-DATA primitives.
-                self.data_set.write(data[1:])
+                if self._data_set_file:
+                    self._data_set_file.write(data[1:])
+                else:
+                    self.data_set.write(data[1:])
 
                 # The final data set fragment (xxxxxx10) has been added
                 if control_header_byte & 2 != 0:
@@ -433,12 +483,12 @@ class DIMSEMessage(object):
                     [context_id, b'\x02' + next(ds_fragments)]
                 )
                 yield pdata
-        elif self._data_set_file is not None:
+        elif self._data_set_path is not None:
             # Read and send encoded dataset from file
             # Buffer size determined by io.DEFAULT_BUFFER_SIZE
-            with open(self._data_set_file[0], 'rb') as f:
+            with open(self._data_set_path[0], 'rb') as f:
                 end = f.seek(0, 2)
-                length = end - f.seek(self._data_set_file[1])
+                length = end - f.seek(self._data_set_path[1])
 
                 if max_pdu_length == 0:
                     nr_fragments = 1
@@ -546,6 +596,9 @@ class DIMSEMessage(object):
         # Set the presentation context ID the message was set under
         primitive._context_id = self.context_id
 
+        primitive._dataset_path = self._data_set_path
+        primitive._dataset_file = self._data_set_file
+
         return primitive
 
     def primitive_to_message(self, primitive):
@@ -602,8 +655,8 @@ class DIMSEMessage(object):
             # 'C_CANCEL_RQ', 'N_DELETE_RSP', 'C_FIND_RSP', 'N_GET_RQ'
             pass
 
-        self._data_set_file = getattr(primitive, "_dataset_file", None)
-        if self._data_set_file:
+        self._data_set_path = getattr(primitive, "_dataset_path", None)
+        if self._data_set_path:
             self.command_set.CommandDataSetType = 0x0001
 
         # Set the Command Set length

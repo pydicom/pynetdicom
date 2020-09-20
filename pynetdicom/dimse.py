@@ -244,7 +244,7 @@ class DIMSEServiceProvider(object):
         if self.message is None:
             self.message = DIMSEMessage()
 
-        if self.message.decode_msg(primitive):
+        if self.message.decode_msg(primitive, self.assoc):
             # Trigger event
             evt.trigger(
                 self.assoc, evt.EVT_DIMSE_RECV, {'message' : self.message}

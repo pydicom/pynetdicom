@@ -524,8 +524,19 @@ class C_STORE(DIMSEPrimitive):
         # For Failure statuses 0x0117
         # self.AffectedSOPInstanceUID
 
-        # If None then the dataset is encoded as BytesIO
-        # If not None then the dataset is stored at (path, offset)
+        # If we are sending a C-STORE service primitive:
+        #   If None then the dataset is encoded as BytesIO
+        #   If not None then the dataset is stored at (path, offset)
+        # If we are receiving a C-STORE service primitive:
+        #   If None then the dataset is encoded as BytesIO
+        #   If not None then the dataset is stored at _dataset_path
+        self._dataset_path = None
+        # If we are sending a C-STORE service primitive:
+        #   Always None
+        # If we are receiving a C-STORE service primitive:
+        #   If None then the dataset is encoded as BytesIO
+        #   If not None then _dataset_file backs the dataset stored
+        #   at _dataset_path
         self._dataset_file = None
 
     @property

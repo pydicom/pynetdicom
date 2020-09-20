@@ -1731,7 +1731,7 @@ class Association(threading.Thread):
                 dataset = None
                 allow_conversion = False
                 file_meta, offset = split_dataset(fpath)
-                req._dataset_file = (fpath, offset)
+                req._dataset_path = (fpath, offset)
 
                 missing = [
                     'MediaStorageSOPClassUID',
