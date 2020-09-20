@@ -28,6 +28,7 @@
       ~Event.attribute_identifiers
       ~Event.attribute_list
       ~Event.dataset
+      ~Event.dataset_path
       ~Event.event
       ~Event.event_information
       ~Event.event_type
