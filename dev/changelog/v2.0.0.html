@@ -42,7 +42,7 @@
     
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
-    <link rel="next" title="1.5.2" href="v1.5.2.html" />
+    <link rel="next" title="1.5.3" href="v1.5.3.html" />
     <link rel="prev" title="Release Notes" href="index.html" /> 
 </head>
 
@@ -116,6 +116,7 @@
 <li class="toctree-l3"><a class="reference internal" href="#changes">Changes</a></li>
 </ul>
 </li>
+<li class="toctree-l2"><a class="reference internal" href="v1.5.3.html">1.5.3</a></li>
 <li class="toctree-l2"><a class="reference internal" href="v1.5.2.html">1.5.2</a></li>
 <li class="toctree-l2"><a class="reference internal" href="v1.5.1.html">1.5.1</a></li>
 <li class="toctree-l2"><a class="reference internal" href="v1.5.0.html">1.5.0</a></li>
@@ -200,6 +201,8 @@
 <ul class="simple">
 <li><p>Fixed not processing multiple PDUs received when acting as the association
 requestor with SSL/TLS (<a class="reference external" href="https://github.com/pydicom/pynetdicom/pull/528">#528</a>)</p></li>
+<li><p>Fixed not using the correct <em>Move Originator Message ID</em> when sending
+C-STORE-RQs when acting as a Move SCP (<a class="reference external" href="https://github.com/pydicom/pynetdicom/issues/541">#541</a>)</p></li>
 </ul>
 </div>
 <div class="section" id="enhancements">
@@ -213,7 +216,10 @@ to allow bypassing the length check for elements with a VR of <strong>AE</strong
 <li><p>Added <a class="reference internal" href="../reference/generated/pynetdicom._config.STORE_SEND_CHUNKED_DATASET.html#pynetdicom._config.STORE_SEND_CHUNKED_DATASET" title="pynetdicom._config.STORE_SEND_CHUNKED_DATASET"><code class="xref py py-attr docutils literal notranslate"><span class="pre">STORE_SEND_CHUNKED_DATASET</span></code></a> config option
 to allow the use of a chunked read when a file path is passed to
 <a class="reference internal" href="../reference/generated/pynetdicom.association.Association.html#pynetdicom.association.Association.send_c_store" title="pynetdicom.association.Association.send_c_store"><code class="xref py py-meth docutils literal notranslate"><span class="pre">send_c_store()</span></code></a> in order to
-reduce the memory needed for sending large dataset (<a class="reference external" href="https://github.com/pydicom/pynetdicom/issues/517">#517</a>)</p></li>
+reduce the memory needed for sending datasets (<a class="reference external" href="https://github.com/pydicom/pynetdicom/issues/517">#517</a>)</p></li>
+<li><p>Added <a class="reference internal" href="../reference/generated/pynetdicom._config.STORE_RECV_CHUNKED_DATASET.html#pynetdicom._config.STORE_RECV_CHUNKED_DATASET" title="pynetdicom._config.STORE_RECV_CHUNKED_DATASET"><code class="xref py py-attr docutils literal notranslate"><span class="pre">STORE_RECV_CHUNKED_DATASET</span></code></a> config option
+to allow storing received C-STORE datasets directly to file,
+reducing the memory needed when receiving datasets (<a class="reference external" href="https://github.com/pydicom/pynetdicom/issues/517">#517</a>)</p></li>
 </ul>
 </div>
 <div class="section" id="changes">
@@ -233,7 +239,7 @@ reduce the memory needed for sending large dataset (<a class="reference external
   
     <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
       
-        <a href="v1.5.2.html" class="btn btn-neutral float-right" title="1.5.2" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
+        <a href="v1.5.3.html" class="btn btn-neutral float-right" title="1.5.3" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
       
       
         <a href="index.html" class="btn btn-neutral float-left" title="Release Notes" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>

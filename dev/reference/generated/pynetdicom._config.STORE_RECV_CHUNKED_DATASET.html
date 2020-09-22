@@ -215,12 +215,11 @@
 <div class="versionadded">
 <p><span class="versionmodified added">New in version 2.0.</span></p>
 </div>
-<p>If <code class="docutils literal notranslate"><span class="pre">True</span></code>, then when receiving C-STORE primitives as an SCP, don’t encode
-the dataset and instead receive the raw data in chunks of no larger
-than the maximum PDU size allowed by the peer. The dataset is written to a
-temporary file on disk (with the File Meta Information). The path of the
-dataset is available in the C-STORE event handler on the property
-<code class="docutils literal notranslate"><span class="pre">dataset_path</span></code>. This should minimise the amount of memory required when:</p>
+<p>If <code class="docutils literal notranslate"><span class="pre">True</span></code>, then when receiving C-STORE requests as an SCP, don’t decode
+the dataset and instead write the raw data to a temporary file in the DICOM
+File Format. The path to the dataset is available to the <code class="docutils literal notranslate"><span class="pre">evt.EVT_C_STORE</span></code>
+handler using the  <a class="reference internal" href="pynetdicom.events.Event.html#pynetdicom.events.Event.dataset_path" title="pynetdicom.events.Event.dataset_path"><code class="xref py py-attr docutils literal notranslate"><span class="pre">Event.dataset_path</span></code></a> attribute. This should minimise the
+amount of memory required when:</p>
 <ul class="simple">
 <li><p>Receiving large datasets</p></li>
 <li><p>Receiving many datasets concurrently</p></li>

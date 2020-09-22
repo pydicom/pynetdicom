@@ -219,15 +219,15 @@
 <a class="reference internal" href="pynetdicom.association.Association.html#pynetdicom.association.Association.send_c_store" title="pynetdicom.association.Association.send_c_store"><code class="xref py py-meth docutils literal notranslate"><span class="pre">send_c_store()</span></code></a> with a file path to
 a DICOM dataset, don’t decode the dataset and instead send the raw encoded
 data (without the File Meta Information) in chunks of no larger than
-maximum PDU size allowed by the peer. This should
-minimise the amount of memory required when:</p>
+maximum PDU size allowed by the peer. This should minimise the amount of
+memory required when:</p>
 <ul class="simple">
 <li><p>Sending large datasets</p></li>
 <li><p>Sending many datasets concurrently</p></li>
 </ul>
-<p>It is not possible to convert the dataset without loading it into memory
-and so an exact matching accepted presentation context will be required.
-Default: <code class="docutils literal notranslate"><span class="pre">False</span></code>.</p>
+<p>As it’s not possible to change the dataset encoding without loading it into
+memory, an exact matching accepted presentation context will be required.</p>
+<p>Default: <code class="docutils literal notranslate"><span class="pre">False</span></code>.</p>
 <p class="rubric">Examples</p>
 <div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">pynetdicom</span> <span class="kn">import</span> <span class="n">_config</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">_config</span><span class="o">.</span><span class="n">STORE_SEND_CHUNKED_DATASET</span> <span class="o">=</span> <span class="kc">True</span>
