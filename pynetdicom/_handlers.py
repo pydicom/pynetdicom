@@ -62,7 +62,7 @@ def standard_pdu_recv_handler(event):
         P_DATA_TF : _receive_data_tf,
     }
     with event.assoc.lock:
-        handlers[type(pdu)](event)
+        return handlers[type(pdu)](event)
 
 def standard_pdu_sent_handler(event):
     """Standard handler when a PDU is encoded and sent.
@@ -95,7 +95,7 @@ def standard_pdu_sent_handler(event):
         P_DATA_TF : _send_data_tf,
     }
     with event.assoc.lock:
-        handlers[type(pdu)](event)
+        return handlers[type(pdu)](event)
 
 def standard_dimse_recv_handler(event):
     """Standard handler for the ACSE receiving a primitive from the DUL.
@@ -141,7 +141,7 @@ def standard_dimse_recv_handler(event):
     }
 
     with event.assoc.lock:
-        handlers[type(event.message)](event)
+        return handlers[type(event.message)](event)
 
 def standard_dimse_sent_handler(event):
     """Standard handler for the ACSE receiving a primitive from the DUL.
@@ -187,7 +187,7 @@ def standard_dimse_sent_handler(event):
     }
 
     with event.assoc.lock:
-        handlers[type(event.message)](event)
+        return handlers[type(event.message)](event)
 
 
 # PDU sub-handlers
