@@ -430,9 +430,7 @@ class TestStorageServiceClass(object):
                 == DATASET.file_meta.MediaStorageSOPInstanceUID
             )
 
-            # `dataset` property empty
-            assert event.dataset == Dataset()
-
+            attrs['dataset'] = event.dataset
             attrs['dataset_path'] = dataset_path
             return 0x0000
 
@@ -458,6 +456,9 @@ class TestStorageServiceClass(object):
         # `dataset_path` not available outside of event handler
         with pytest.raises(FileNotFoundError):
             dataset_path.open("rb")
+
+        ds = attrs['dataset']
+        assert "CompressedSamples^CT1" == ds.PatientName
 
         scp.shutdown()
 

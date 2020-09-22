@@ -110,14 +110,15 @@ If ``True``, then when using
 :meth:`~pynetdicom.association.Association.send_c_store` with a file path to
 a DICOM dataset, don't decode the dataset and instead send the raw encoded
 data (without the File Meta Information) in chunks of no larger than
-maximum PDU size allowed by the peer. This should
-minimise the amount of memory required when:
+maximum PDU size allowed by the peer. This should minimise the amount of
+memory required when:
 
 * Sending large datasets
 * Sending many datasets concurrently
 
-It is not possible to convert the dataset without loading it into memory
-and so an exact matching accepted presentation context will be required.
+As it's not possible to change the dataset encoding without loading it into
+memory, an exact matching accepted presentation context will be required.
+
 Default: ``False``.
 
 Examples
@@ -132,12 +133,12 @@ STORE_RECV_CHUNKED_DATASET = False
 
 .. versionadded:: 2.0
 
-If ``True``, then when receiving C-STORE primitives as an SCP, don't encode
-the dataset and instead receive the raw data in chunks of no larger
-than the maximum PDU size allowed by the peer. The dataset is written to a
-temporary file on disk (with the File Meta Information). The path of the
-dataset is available in the C-STORE event handler on the property
-``dataset_path``. This should minimise the amount of memory required when:
+If ``True``, then when receiving C-STORE requests as an SCP, don't decode
+the dataset and instead write the raw data to a temporary file in the DICOM
+File Format. The path to the dataset is available to the ``evt.EVT_C_STORE``
+handler using the  :attr:`Event.dataset_path
+<pynetdicom.events.Event.dataset_path>` attribute. This should minimise the
+amount of memory required when:
 
 * Receiving large datasets
 * Receiving many datasets concurrently

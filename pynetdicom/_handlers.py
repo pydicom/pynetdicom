@@ -2593,6 +2593,9 @@ def doc_handle_store(event, *args):
           a deferred read when decoding data, if the decode fails the returned
           :class:`~pydicom.dataset.Dataset` will only raise an exception at the
           time of use.
+        * :attr:`~pynetdicom.events.Event.dataset_path`: when
+          :attr:`~pynetdicom._config.STORE_RECV_CHUNKED_DATASET` is ``True``,
+          this is the path to the received dataset as :class:`pathlib.Path`.
         * :attr:`~pynetdicom.events.Event.file_meta`: a
           :class:`~pydicom.dataset.Dataset` containing DICOM
           conformant File Meta Information that can be used with the decoded

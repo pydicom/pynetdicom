@@ -2214,7 +2214,7 @@ class QueryRetrieveServiceClass(ServiceClass):
                         dataset,
                         msg_id=msg_id,
                         originator_aet=self.ae.ae_title,
-                        originator_id=1
+                        originator_id=req.MessageID
                     )
 
                     store_status_int = store_status.Status

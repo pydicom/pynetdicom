@@ -249,15 +249,14 @@ class DIMSEMessage(object):
         ----------
         primitive : pdu_primitives.P_DATA
             The P-DATA service primitive to be decoded into a DIMSE message.
+        assoc : association.Association, optional
+            The association processing the message. This is required when:
 
-        assoc : association.Association
-            The Association that produced the P-DATA service primitive. This
-            is only necessary when:
+            * :attr:`~pynetdicom._config.STORE_RECV_CHUNKED_DATASET` is
+              ``True``
+            * The P-DATA primitive contains part of a C-STORE-RQ message
 
-            * :attr:`~pynetdicom._config.STORE_RECV_CHUNKED_DATASET` is ``True``
-            * The P_DATA primitive is a part of a C_STORE_RQ DIMSE message
-
-            In this case the Association is consulted for its accepted
+            In this case the association is consulted for its accepted
             transfer syntax, which is included in the File Meta Information
             of the stored dataset.
 
@@ -330,9 +329,10 @@ class DIMSEMessage(object):
                         #   has been completely decoded
                         return True
 
+                    # Data Set is present
                     if (
-                        _config.STORE_RECV_CHUNKED_DATASET and
-                        isinstance(self, C_STORE_RQ)
+                        _config.STORE_RECV_CHUNKED_DATASET
+                        and isinstance(self, C_STORE_RQ)
                     ):
                         # delete=False is a workaround for Windows
                         # Setting delete=True prevents us from re-opening
@@ -344,16 +344,18 @@ class DIMSEMessage(object):
                             suffix=".dcm"
                         )
                         self._data_set_path = Path(self._data_set_file.name)
-
+                        # Write the File Meta
                         self._data_set_file.write(b'\x00' * 128)
                         self._data_set_file.write(b'DICM')
 
+                        cs = self.command_set
+                        cx = assoc._accepted_cx[context_id]
                         write_file_meta_info(
                             self._data_set_file,
                             create_file_meta(
-                                sop_class_uid=self.command_set.AffectedSOPClassUID,
-                                sop_instance_uid=self.command_set.AffectedSOPInstanceUID,
-                                transfer_syntax=assoc._accepted_cx[context_id].transfer_syntax[0],
+                                sop_class_uid=cs.AffectedSOPClassUID,
+                                sop_instance_uid=cs.AffectedSOPInstanceUID,
+                                transfer_syntax=cx.transfer_syntax[0]
                             )
                         )
 
