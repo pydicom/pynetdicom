@@ -4,15 +4,67 @@ import logging
 import zlib
 
 from pydicom import Dataset
+from pydicom.dataset import FileMetaDataset
 from pydicom.filebase import DicomBytesIO
 from pydicom.filereader import read_dataset, read_preamble
 from pydicom.filewriter import write_dataset
 
-from pynetdicom import PYNETDICOM_IMPLEMENTATION_UID, PYNETDICOM_IMPLEMENTATION_VERSION
+from pynetdicom import (
+    PYNETDICOM_IMPLEMENTATION_UID, PYNETDICOM_IMPLEMENTATION_VERSION
+)
 from pynetdicom.utils import pretty_bytes
 
 
 LOGGER = logging.getLogger('pynetdicom.dsutils')
+
+
+
+
+def create_file_meta(
+    *,
+    sop_class_uid,
+    sop_instance_uid,
+    transfer_syntax,
+    implementation_uid=PYNETDICOM_IMPLEMENTATION_UID,
+    implementation_version=PYNETDICOM_IMPLEMENTATION_VERSION,
+):
+    """Return a new file meta dataset
+
+    .. versionadded:: 2.0
+
+    Parameters
+    ----------
+    sop_class_uid : pydicom.uid.UID
+        The value for the *Media Storage SOP Class UID*.
+    sop_instance_uid : pydicom.uid.UID
+        The value for the *Media Storage SOP Instance UID*.
+    transfer_syntax : pydicom.uid.UID
+        The value for the *Transfer Syntax UID*.
+    implementation_uid : pydicom.uid.UID, optional
+        The value for the *Implementation Class UID*.
+    implementation_version : str, optional
+        The value for the *Implementation Version Name*.
+
+    Returns
+    -------
+    pydicom.dataset.FileMetaDataset
+        The File Meta dataset
+    """
+    file_meta = FileMetaDataset()
+
+    file_meta.FileMetaInformationGroupLength = 0
+    file_meta.FileMetaInformationVersion = b'\x00\x01'
+    file_meta.MediaStorageSOPClassUID = sop_class_uid
+    file_meta.MediaStorageSOPInstanceUID = sop_instance_uid
+    file_meta.TransferSyntaxUID = transfer_syntax
+    file_meta.ImplementationClassUID = implementation_uid
+    file_meta.ImplementationVersionName = implementation_version
+
+    # File Meta Information is always encoded as Explicit VR Little Endian
+    file_meta.is_little_endian = True
+    file_meta.is_implicit_VR = False
+
+    return file_meta
 
 
 def decode(bytestring, is_implicit_vr, is_little_endian, deflated=False):
@@ -244,56 +296,3 @@ def split_dataset(fpath):
             stop_when=_not_group_0002
         )
         return file_meta, fp.tell()
-
-
-def create_file_meta(
-    *,
-    sop_class_uid,
-    sop_instance_uid,
-    transfer_syntax,
-    group_length=0,
-    version=b'\x00\x01',
-    implementation_uid=PYNETDICOM_IMPLEMENTATION_UID,
-    implementation_version=PYNETDICOM_IMPLEMENTATION_VERSION,
-):
-    """Return a new file meta dataset
-
-    .. versionadded:: 2.0
-
-    Parameters
-    ----------
-    sop_class_uid : pydicom.uid.UID
-        The value for the MediaStorageSOPClassUID attribute.
-    sop_instance_uid : pydicom.uid.UID
-        The value for the MediaStorageSOPInstanceUID attribute.
-    transfer_syntax : pydicom.uid.UID
-        The value for the TransferSyntax attribute.
-    group_length : int
-        The value for the FileMetaInformationGroupLength attribute.
-    version : bytes
-        The value for the FileMetaInformationVersion attribute.
-    implementation_uid : pydicom.uid.UID
-        The value for the ImplementationClassUID attribute.
-    implementation_version : str
-        The value for the ImplementationVersionName attribute.
-
-    Returns
-    -------
-    pydicom.dataset.Dataset
-        The File Meta dataset
-    """
-    file_meta = Dataset()
-
-    file_meta.FileMetaInformationGroupLength = group_length
-    file_meta.FileMetaInformationVersion = version
-    file_meta.MediaStorageSOPClassUID = sop_class_uid
-    file_meta.MediaStorageSOPInstanceUID = sop_instance_uid
-    file_meta.TransferSyntaxUID = transfer_syntax
-    file_meta.ImplementationClassUID = implementation_uid
-    file_meta.ImplementationVersionName = implementation_version
-
-    # File Meta Information is always encoded as Explicit VR Little Endian
-    file_meta.is_little_endian = True
-    file_meta.is_implicit_VR = False
-
-    return file_meta

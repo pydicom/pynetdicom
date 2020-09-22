@@ -5,11 +5,14 @@ the state machine events.
 from collections import namedtuple
 from datetime import datetime
 import inspect
+from io import BytesIO
 import logging
 import sys
 
 from pydicom.dataset import Dataset
+from pydicom.filereader import dcmread
 
+from pynetdicom import _config
 from pynetdicom.dsutils import decode, create_file_meta
 
 
@@ -418,16 +421,29 @@ class Event(object):
             "The corresponding event is not a C-STORE request and has no "
             "'Data Set' parameter"
         )
+        try:
+            return dcmread(self.dataset_path)
+        except (TypeError, AttributeError):
+            pass
+
         return self._get_dataset("DataSet", msg)
 
     @property
     def dataset_path(self):
+        """Return the path to the dataset when
+        :attr:`~pynetdicom._config.STORE_RECV_CHUNKED_DATASET` is ``True``.
+
+        Returns
+        -------
+        pathlib.Path
+            The path to the dataset.
+        """
         try:
             dataset_path = self.request._dataset_path
         except AttributeError:
             msg = (
                 "The corresponding event is either not a C-STORE request or "
-                "'STORE_RECV_CHUNKED_DATASET' is not set."
+                "'STORE_RECV_CHUNKED_DATASET' is not True."
             )
             raise AttributeError(msg)
 
@@ -596,6 +612,7 @@ class Event(object):
         """
         try:
             bytestream = getattr(self.request, attr)
+
             # If no change in encoded data then return stored decode
             if self._hash == hash(bytestream):
                 return self._decoded

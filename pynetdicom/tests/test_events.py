@@ -192,7 +192,7 @@ class TestEvent(object):
 
         msg = (
             r"The corresponding event is either not a C-STORE request or "
-            r"'STORE_RECV_CHUNKED_DATASET' is not set."
+            r"'STORE_RECV_CHUNKED_DATASET' is not True."
         )
         with pytest.raises(AttributeError, match=msg):
             event.dataset_path

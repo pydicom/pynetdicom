@@ -4564,6 +4564,10 @@ class TestQRMoveServiceClass(object):
             yield 0xFF00, self.ds
 
         def handle_store(event):
+            attrs['originator_msg_id'] = event.request.MoveOriginatorMessageID
+            attrs['originator_aet'] = (
+                event.request.MoveOriginatorApplicationEntityTitle
+            )
             return 0x0000
 
         handlers = [(evt.EVT_C_MOVE, handle), (evt.EVT_C_STORE, handle_store)]
@@ -4579,7 +4583,11 @@ class TestQRMoveServiceClass(object):
         ae.dimse_timeout = 5
         assoc = ae.associate('localhost', 11112)
         assert assoc.is_established
-        result = assoc.send_c_move(self.query, b'TESTMOVE', PatientRootQueryRetrieveInformationModelMove)
+        result = assoc.send_c_move(
+            self.query, b'TESTMOVE',
+            PatientRootQueryRetrieveInformationModelMove,
+            msg_id=1234
+        )
         status, identifier = next(result)
         assert status.Status == 0xFF00
         assert identifier is None
@@ -4593,6 +4601,9 @@ class TestQRMoveServiceClass(object):
         req = attrs['request']
         assert isinstance(req, C_MOVE)
         assert req.MoveDestination == b'TESTMOVE'
+
+        assert attrs['originator_msg_id'] == 1234
+        assert attrs['originator_aet'] == b'PYNETDICOM'
 
         scp.shutdown()
 

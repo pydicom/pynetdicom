@@ -330,9 +330,10 @@ class DIMSEMessage(object):
                         #   has been completely decoded
                         return True
 
+                    # Data Set is present
                     if (
-                        _config.STORE_RECV_CHUNKED_DATASET and
-                        isinstance(self, C_STORE_RQ)
+                        _config.STORE_RECV_CHUNKED_DATASET
+                        and isinstance(self, C_STORE_RQ)
                     ):
                         # delete=False is a workaround for Windows
                         # Setting delete=True prevents us from re-opening
@@ -344,16 +345,18 @@ class DIMSEMessage(object):
                             suffix=".dcm"
                         )
                         self._data_set_path = Path(self._data_set_file.name)
-
+                        # Write the File Meta
                         self._data_set_file.write(b'\x00' * 128)
                         self._data_set_file.write(b'DICM')
 
+                        cs = self.command_set
+                        cx = assoc._accepted_cx[context_id]
                         write_file_meta_info(
                             self._data_set_file,
                             create_file_meta(
-                                sop_class_uid=self.command_set.AffectedSOPClassUID,
-                                sop_instance_uid=self.command_set.AffectedSOPInstanceUID,
-                                transfer_syntax=assoc._accepted_cx[context_id].transfer_syntax[0],
+                                sop_class_uid=cs.AffectedSOPClassUID,
+                                sop_instance_uid=cs.AffectedSOPInstanceUID,
+                                transfer_syntax=cx.transfer_syntax[0]
                             )
                         )
 
