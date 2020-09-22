@@ -249,15 +249,14 @@ class DIMSEMessage(object):
         ----------
         primitive : pdu_primitives.P_DATA
             The P-DATA service primitive to be decoded into a DIMSE message.
+        assoc : association.Association, optional
+            The association processing the message. This is required when:
 
-        assoc : association.Association
-            The Association that produced the P-DATA service primitive. This
-            is only necessary when:
+            * :attr:`~pynetdicom._config.STORE_RECV_CHUNKED_DATASET` is
+              ``True``
+            * The P-DATA primitive contains part of a C-STORE-RQ message
 
-            * :attr:`~pynetdicom._config.STORE_RECV_CHUNKED_DATASET` is ``True``
-            * The P_DATA primitive is a part of a C_STORE_RQ DIMSE message
-
-            In this case the Association is consulted for its accepted
+            In this case the association is consulted for its accepted
             transfer syntax, which is included in the File Meta Information
             of the stored dataset.
 
