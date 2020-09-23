@@ -1,6 +1,9 @@
 """Standard logging event handlers."""
 
 import logging
+from struct import unpack, calcsize
+
+from pydicom.uid import UID
 
 from pynetdicom.dimse_messages import *
 from pynetdicom.pdu import (
@@ -27,6 +30,133 @@ def debug_fsm(event):
             event.next_state
         )
     )
+
+
+def debug_data(event, pdu_type=None, print_raw=True, print_summary=False):
+    """Debugging handler for parsing raw encoded PDUs
+
+    Usable with ``evt.EVT_DATA_RECV`` and ``evt.EVT_DATA_SENT``.
+
+    Parameters
+    ----------
+    event : pynetdicom.events.Event
+        The event object.
+    pdu_type : int, optional
+        If used, this should be the PDU type for the PDU you are interested in,
+        should be in the range 1 to 7.
+    print_raw : bool, optional
+        If ``True`` (default) then print only the raw encoded PDU as hex.
+    print_summary : bool, optional
+        If ``True`` then print out a summary of the PDU contents (default
+        ``False``).
+    """
+    data = event.data
+    if pdu_type and data[0] != pdu_type:
+        return
+
+    if print_raw:
+        print(f"\n{' DEBUG - ENCODED PDU ':=^76}")
+        slist = pretty_bytes(
+            data, prefix=' ', delimiter=' ', max_size=None, items_per_line=25
+        )
+        for s in slist:
+            print(s)
+
+    PDU_ITEM_TYPES = {
+        0x01: ("A-ASSOCIATE-RQ", '>I', 74),
+        0x02: ("A-ASSOCIATE-AC", '>I', 74),
+        0x03: ("A-ASSOCIATE-RJ", '>I', None),
+        0x04: ("P-DATA-TF", '>I', None),
+        0x05: ("A-RELEASE-RQ", '>I', None),
+        0x06: ("A-RELEASE-RP", '>I', None),
+        0x07: ("A-ABORT", '>I', None),
+        0x10: ("Application Context", '>H', None),
+        0x20: ("Presentation Context RQ", '>H', 8),
+        0x21: ("Presentation Context AC", '>H', 8),
+        0x30: ("Abstract Syntax", '>H', None),
+        0x40: ("Transfer Syntax", '>H', None),
+        0x50: ("User Information", '>H', 4),
+        0x51: ("Maximum Length", '>H', None),
+        0x52: ("Implementation Class UID", '>H', None),
+        0x53: ("Asynchronous Operations", '>H', None),
+        0x54: ("SCP/SCU Role Selection", '>H', None),
+        0x55: ("Implementation Version Name", '>H', None),
+        0x56: ("SOP Class Extended Negotiation", '>H', None),
+        0x57: ("SOP Class Common Extended Negotiation", '>H', None),
+        0x58: ("User Identity RQ", '>H', None),
+        0x59: ("User Identity AC", '>H', None),
+    }
+
+    if print_summary:
+        print(f"\n{' DEBUG - PDU SUMMARY ':=^76}")
+        idx = 0
+        digits = len(str(len(data)))
+        while idx < len(data):
+            data_type = data[idx]
+            name, fmt, len_fixed = PDU_ITEM_TYPES[data_type]
+            len_bytes = calcsize(fmt)
+            length = unpack(fmt, data[idx + 2:idx + 2 + len_bytes])[0]
+
+            s = (
+                f" {idx:>{digits}}: 0x{data_type:02X} - {name} "
+                f"({length} bytes)"
+            )
+
+            # Presentation Content Item
+            if data_type == 0x20:
+                cx_id = data[idx + 2 + len_bytes]
+                s += f" - {cx_id}"
+
+            # Abstract and Transfer Syntax Sub-items
+            if data_type in [0x30, 0x40] and length:
+                start = idx + 2 + len_bytes
+                uid = UID(data[start:start + length].decode('ascii'))
+                s += f" - {uid.name}"
+
+            # SCP/SCU Role Selection Sub-item
+            if data_type == 0x054:
+                start = idx + 2 + len_bytes
+                len_uid = unpack('>H', data[start:start + 2])[0]
+                uid = UID(data[start + 2:start + 2 + len_uid].decode('ascii'))
+                scu_role = data[start + 2 + len_uid]
+                scp_role = data[start + 2 + len_uid + 1]
+                s += (
+                    f" - {uid.name}, SCU {scu_role}, SCP {scp_role}"
+                )
+
+            # A-ASSOCIATE-RJ
+            if data_type == 0x03:
+                s += (
+                    f" - Result {data[idx + 7]}, Source {data[idx + 8]}, "
+                    f"Reason {data[idx + 9]}"
+                )
+
+            # A-ABORT
+            if data_type == 0x07:
+                s += f" - Source {data[idx + 8]}, Reason {data[idx + 9]}"
+
+            print(s)
+
+            # P-DATA-TF
+            if data_type == 0x04:
+                offset = idx + 2 + len_bytes
+                while offset < idx + 2 + len_bytes + length:
+                    item_length = unpack('>I', data[offset:offset + 4])[0]
+                    cx_id = data[offset + 4]
+                    print(
+                        f"{offset:>{digits}}:        PDV - context ID "
+                        f"{cx_id}, length {item_length}"
+                    )
+
+                    offset += item_length + 4
+
+            if len_fixed:
+                idx += len_fixed
+            else:
+                if data_type < 7:
+                    idx += length + 6
+                else:
+                    idx += length + 4
 
 
 # Standard logging handlers
