@@ -2332,8 +2332,10 @@ class TestState04(TestStateBase):
 
         self.assoc.dul.socket.connect = connect
         self.assoc.start()
-        while not self.fsm.current_state == 'Sta4':
+        timeout = 0
+        while not self.fsm.current_state == 'Sta4' and timeout < 10:
             time.sleep(0.05)
+            timeout += 0.05
 
         time.sleep(0.2)
 
@@ -2463,7 +2465,9 @@ class TestState04(TestStateBase):
         def connect(address):
             """Override the socket's connect so no event gets added."""
             if self.assoc.dul.socket.socket is None:
-                self.assoc.dul.socket.socket = self.assoc.dul.socket._create_socket()
+                self.assoc.dul.socket.socket = (
+                    self.assoc.dul.socket._create_socket()
+                )
 
             try:
                 self.assoc.dul.socket.socket.connect(address)
@@ -2497,7 +2501,9 @@ class TestState04(TestStateBase):
         def connect(address):
             """Override the socket's connect so no event gets added."""
             if self.assoc.dul.socket.socket is None:
-                self.assoc.dul.socket.socket = self.assoc.dul.socket._create_socket()
+                self.assoc.dul.socket.socket = (
+                    self.assoc.dul.socket._create_socket()
+                )
 
             try:
                 self.assoc.dul.socket.socket.connect(address)
@@ -2534,7 +2540,9 @@ class TestState04(TestStateBase):
         def connect(address):
             """Override the socket's connect so no event gets added."""
             if self.assoc.dul.socket.socket is None:
-                self.assoc.dul.socket.socket = self.assoc.dul.socket._create_socket()
+                self.assoc.dul.socket.socket = (
+                    self.assoc.dul.socket._create_socket()
+                )
 
             try:
                 self.assoc.dul.socket.socket.connect(address)
@@ -2570,8 +2578,11 @@ class TestState05(TestStateBase):
         scp = self.start_server(commands)
 
         self.assoc.start()
-        while self.fsm.current_state != 'Sta5':
+        timeout = 0
+        while self.fsm.current_state != 'Sta5' and timeout < 10:
             time.sleep(0.05)
+            timeout += 0.05
+
         time.sleep(0.1)
         self.assoc.dul.send_pdu(self.get_associate('request'))
         time.sleep(0.1)
@@ -2699,8 +2710,10 @@ class TestState05(TestStateBase):
         scp = self.start_server(commands)
 
         self.assoc.start()
-        while self.fsm.current_state != 'Sta5':
+        timeout = 0
+        while self.fsm.current_state != 'Sta5' and timeout < 10:
             time.sleep(0.05)
+            timeout += 0.05
         time.sleep(0.1)
         self.assoc.dul.send_pdu(self.get_associate('accept'))
         time.sleep(0.1)
@@ -2727,8 +2740,10 @@ class TestState05(TestStateBase):
         scp = self.start_server(commands)
 
         self.assoc.start()
-        while self.fsm.current_state != 'Sta5':
+        timeout = 0
+        while self.fsm.current_state != 'Sta5' and timeout < 10:
             time.sleep(0.05)
+            timeout += 0.05
         time.sleep(0.1)
         self.assoc.dul.send_pdu(self.get_associate('reject'))
         time.sleep(0.1)
@@ -2755,8 +2770,10 @@ class TestState05(TestStateBase):
         scp = self.start_server(commands)
 
         self.assoc.start()
-        while self.fsm.current_state != 'Sta5':
+        timeout = 0
+        while self.fsm.current_state != 'Sta5' and timeout < 10:
             time.sleep(0.05)
+            timeout += 0.05
         time.sleep(0.1)
         self.assoc.dul.send_pdu(self.get_pdata())
         time.sleep(0.1)
@@ -2815,8 +2832,10 @@ class TestState05(TestStateBase):
         scp = self.start_server(commands)
 
         self.assoc.start()
-        while self.fsm.current_state != 'Sta5':
+        timeout = 0
+        while self.fsm.current_state != 'Sta5' and timeout < 10:
             time.sleep(0.05)
+            timeout += 0.05
         time.sleep(0.1)
         self.assoc.dul.send_pdu(self.get_release(False))
         time.sleep(0.1)
@@ -2907,8 +2926,10 @@ class TestState05(TestStateBase):
         scp = self.start_server(commands)
 
         self.assoc.start()
-        while self.fsm.current_state != 'Sta5':
+        timeout = 0
+        while self.fsm.current_state != 'Sta5' and timeout < 10:
             time.sleep(0.05)
+            timeout += 0.05
         time.sleep(0.1)
         self.assoc.dul.send_pdu(self.get_release(True))
         time.sleep(0.1)
@@ -2936,8 +2957,10 @@ class TestState05(TestStateBase):
         scp = self.start_server(commands)
 
         self.assoc.start()
-        while self.fsm.current_state != 'Sta5':
+        timeout = 0
+        while self.fsm.current_state != 'Sta5' and timeout < 10:
             time.sleep(0.05)
+            timeout += 0.05
         time.sleep(0.1)
         self.assoc.dul.send_pdu(self.get_abort())
         time.sleep(0.1)
@@ -3027,8 +3050,10 @@ class TestState05(TestStateBase):
         scp = self.start_server(commands)
 
         self.assoc.start()
-        while self.fsm.current_state != 'Sta5':
+        timeout = 0
+        while self.fsm.current_state != 'Sta5' and timeout < 10:
             time.sleep(0.05)
+            timeout += 0.05
         time.sleep(0.1)
         self.assoc.dul.artim_timer.timeout = 0.05
         self.assoc.dul.artim_timer.start()
@@ -3092,8 +3117,10 @@ class TestState06(TestStateBase):
         scp = self.start_server(commands)
 
         self.assoc.start()
-        while not self.assoc.is_established:
+        timeout = 0
+        while not self.assoc.is_established and timeout < 10:
             time.sleep(0.05)
+            timeout += 0.05
         time.sleep(0.2)
         self.assoc.dul.send_pdu(self.get_associate('request'))
         time.sleep(0.1)
@@ -3133,8 +3160,10 @@ class TestState06(TestStateBase):
 
         self.assoc.start()
 
-        while not self.assoc.is_established:
-            time.sleep(0.01)
+        timeout = 0
+        while not self.assoc.is_established and timeout < 10:
+            time.sleep(0.05)
+            timeout += 0.05
         time.sleep(0.2)
 
         #self.print_fsm_scp(self.fsm, scp)
@@ -3171,8 +3200,10 @@ class TestState06(TestStateBase):
 
         self.assoc.start()
 
-        while not self.assoc.is_established:
+        timeout = 0
+        while not self.assoc.is_established and timeout < 10:
             time.sleep(0.05)
+            timeout += 0.05
         time.sleep(0.2)
 
         #self.print_fsm_scp(self.fsm, scp)
@@ -3216,8 +3247,10 @@ class TestState06(TestStateBase):
 
         self.assoc.start()
 
-        while not self.assoc.is_established:
+        timeout = 0
+        while not self.assoc.is_established and timeout < 10:
             time.sleep(0.05)
+            timeout += 0.05
         time.sleep(0.2)
 
         #self.print_fsm_scp(self.fsm, scp)
@@ -3250,8 +3283,10 @@ class TestState06(TestStateBase):
         scp = self.start_server(commands)
 
         self.assoc.start()
-        while not self.assoc.is_established:
+        timeout = 0
+        while not self.assoc.is_established and timeout < 10:
             time.sleep(0.05)
+            timeout += 0.05
         time.sleep(0.2)
         self.assoc.dul.send_pdu(self.get_associate('accept'))
         time.sleep(0.1)
@@ -3280,8 +3315,10 @@ class TestState06(TestStateBase):
         scp = self.start_server(commands)
 
         self.assoc.start()
-        while not self.assoc.is_established:
+        timeout = 0
+        while not self.assoc.is_established and timeout < 10:
             time.sleep(0.05)
+            timeout += 0.05
         time.sleep(0.2)
         self.assoc.dul.send_pdu(self.get_associate('reject'))
         time.sleep(0.1)
@@ -3311,8 +3348,10 @@ class TestState06(TestStateBase):
         scp = self.start_server(commands)
 
         self.assoc.start()
-        while not self.assoc.is_established:
+        timeout = 0
+        while not self.assoc.is_established and timeout < 10:
             time.sleep(0.05)
+            timeout += 0.05
         time.sleep(0.2)
         self.assoc.dul.send_pdu(self.get_pdata())
         time.sleep(0.1)
@@ -3345,8 +3384,10 @@ class TestState06(TestStateBase):
 
         self.assoc.start()
 
-        while not self.assoc.is_established:
+        timeout = 0
+        while not self.assoc.is_established and timeout < 10:
             time.sleep(0.05)
+            timeout += 0.05
         time.sleep(0.2)
 
         #self.print_fsm_scp(self.fsm, scp)
@@ -3374,8 +3415,10 @@ class TestState06(TestStateBase):
         scp = self.start_server(commands)
 
         self.assoc.start()
-        while not self.assoc.is_established:
+        timeout = 0
+        while not self.assoc.is_established and timeout < 10:
             time.sleep(0.05)
+            timeout += 0.05
         time.sleep(0.2)
         self.assoc.dul.send_pdu(self.get_release(False))
         time.sleep(0.1)
@@ -3407,8 +3450,10 @@ class TestState06(TestStateBase):
 
         self.assoc.start()
 
-        while not self.assoc.is_established:
+        timeout = 0
+        while not self.assoc.is_established and timeout < 10:
             time.sleep(0.05)
+            timeout += 0.05
         time.sleep(0.2)
 
         #self.print_fsm_scp(self.fsm, scp)
@@ -3440,8 +3485,10 @@ class TestState06(TestStateBase):
 
         self.assoc.start()
 
-        while not self.assoc.is_established:
+        timeout = 0
+        while not self.assoc.is_established and timeout < 10:
             time.sleep(0.05)
+            timeout += 0.05
         time.sleep(0.2)
 
         #self.print_fsm_scp(self.fsm, scp)
@@ -3474,8 +3521,10 @@ class TestState06(TestStateBase):
         scp = self.start_server(commands)
 
         self.assoc.start()
-        while not self.assoc.is_established:
+        timeout = 0
+        while not self.assoc.is_established and timeout < 10:
             time.sleep(0.05)
+            timeout += 0.05
         time.sleep(0.2)
         self.assoc.dul.send_pdu(self.get_release(True))
         time.sleep(0.1)
@@ -3506,8 +3555,10 @@ class TestState06(TestStateBase):
 
         self.assoc.start()
 
-        while not self.assoc.is_established:
+        timeout = 0
+        while not self.assoc.is_established and timeout < 10:
             time.sleep(0.05)
+            timeout += 0.05
         time.sleep(0.2)
 
         self.assoc.abort()
@@ -3544,8 +3595,10 @@ class TestState06(TestStateBase):
 
         self.assoc.start()
 
-        while not self.assoc.is_established:
+        timeout = 0
+        while not self.assoc.is_established and timeout < 10:
             time.sleep(0.05)
+            timeout += 0.05
         time.sleep(0.2)
 
         #self.print_fsm_scp(self.fsm, scp)
@@ -3575,8 +3628,10 @@ class TestState06(TestStateBase):
 
         self.assoc.start()
 
-        while not self.assoc.is_established:
+        timeout = 0
+        while not self.assoc.is_established and timeout < 10:
             time.sleep(0.05)
+            timeout += 0.05
         time.sleep(0.2)
 
         #self.print_fsm_scp(self.fsm, scp)
@@ -3605,8 +3660,10 @@ class TestState06(TestStateBase):
 
         self.assoc.start()
 
-        while not self.assoc.is_established:
+        timeout = 0
+        while not self.assoc.is_established and timeout < 10:
             time.sleep(0.05)
+            timeout += 0.05
         time.sleep(0.2)
 
         self.assoc.dul.artim_timer.timeout = 0.05
@@ -3640,8 +3697,10 @@ class TestState06(TestStateBase):
 
         self.assoc.start()
 
-        while not self.assoc.is_established:
+        timeout = 0
+        while not self.assoc.is_established and timeout < 10:
             time.sleep(0.05)
+            timeout += 0.05
         time.sleep(0.2)
 
         #self.print_fsm_scp(self.fsm, scp)
@@ -3678,8 +3737,10 @@ class TestState07(TestStateBase):
         scp = self.start_server(commands)
 
         self.assoc.start()
-        while not self.assoc.is_established:
+        timeout = 0
+        while not self.assoc.is_established and timeout < 10:
             time.sleep(0.05)
+            timeout += 0.05
         time.sleep(0.2)
         self.assoc.dul.send_pdu(self.get_release(False))
         self.assoc.dul.send_pdu(self.get_associate('request'))
@@ -3719,8 +3780,10 @@ class TestState07(TestStateBase):
         scp = self.start_server(commands)
 
         self.assoc.start()
-        while not self.assoc.is_established:
+        timeout = 0
+        while not self.assoc.is_established and timeout < 10:
             time.sleep(0.05)
+            timeout += 0.05
         time.sleep(0.2)
         self.assoc.dul.send_pdu(self.get_release(False))
         time.sleep(0.1)
@@ -3759,8 +3822,10 @@ class TestState07(TestStateBase):
         scp = self.start_server(commands)
 
         self.assoc.start()
-        while not self.assoc.is_established:
+        timeout = 0
+        while not self.assoc.is_established and timeout < 10:
             time.sleep(0.05)
+            timeout += 0.05
         time.sleep(0.2)
         self.assoc.dul.send_pdu(self.get_release(False))
         time.sleep(0.1)
@@ -3806,8 +3871,10 @@ class TestState07(TestStateBase):
         scp = self.start_server(commands)
 
         self.assoc.start()
-        while not self.assoc.is_established:
+        timeout = 0
+        while not self.assoc.is_established and timeout < 10:
             time.sleep(0.05)
+            timeout += 0.05
         time.sleep(0.2)
         self.assoc.dul.send_pdu(self.get_release(False))
         time.sleep(0.1)
@@ -3844,8 +3911,10 @@ class TestState07(TestStateBase):
         scp = self.start_server(commands)
 
         self.assoc.start()
-        while not self.assoc.is_established:
+        timeout = 0
+        while not self.assoc.is_established and timeout < 10:
             time.sleep(0.05)
+            timeout += 0.05
         time.sleep(0.2)
         self.assoc.dul.send_pdu(self.get_release(False))
         self.assoc.dul.send_pdu(self.get_associate('accept'))
@@ -3877,8 +3946,10 @@ class TestState07(TestStateBase):
         scp = self.start_server(commands)
 
         self.assoc.start()
-        while not self.assoc.is_established:
+        timeout = 0
+        while not self.assoc.is_established and timeout < 10:
             time.sleep(0.05)
+            timeout += 0.05
         time.sleep(0.2)
         self.assoc.dul.send_pdu(self.get_release(False))
         self.assoc.dul.send_pdu(self.get_associate('reject'))
@@ -3910,8 +3981,10 @@ class TestState07(TestStateBase):
         scp = self.start_server(commands)
 
         self.assoc.start()
-        while not self.assoc.is_established:
+        timeout = 0
+        while not self.assoc.is_established and timeout < 10:
             time.sleep(0.05)
+            timeout += 0.05
         time.sleep(0.2)
         self.assoc.dul.send_pdu(self.get_release(False))
         self.assoc.dul.send_pdu(self.get_pdata())
@@ -3944,8 +4017,10 @@ class TestState07(TestStateBase):
         scp = self.start_server(commands)
 
         self.assoc.start()
-        while not self.assoc.is_established:
+        timeout = 0
+        while not self.assoc.is_established and timeout < 10:
             time.sleep(0.05)
+            timeout += 0.05
         time.sleep(0.2)
         self.assoc.dul.send_pdu(self.get_release(False))
         time.sleep(0.1)
@@ -3979,8 +4054,10 @@ class TestState07(TestStateBase):
         scp = self.start_server(commands)
 
         self.assoc.start()
-        while not self.assoc.is_established:
+        timeout = 0
+        while not self.assoc.is_established and timeout < 10:
             time.sleep(0.05)
+            timeout += 0.05
         time.sleep(0.2)
         self.assoc.dul.send_pdu(self.get_release(False))
         self.assoc.dul.send_pdu(self.get_release(False))
@@ -4013,8 +4090,10 @@ class TestState07(TestStateBase):
         scp = self.start_server(commands)
 
         self.assoc.start()
-        while not self.assoc.is_established:
+        timeout = 0
+        while not self.assoc.is_established and timeout < 10:
             time.sleep(0.05)
+            timeout += 0.05
         time.sleep(0.2)
         self.assoc.dul.send_pdu(self.get_release(False))
         time.sleep(0.1)
@@ -4047,8 +4126,10 @@ class TestState07(TestStateBase):
         scp = self.start_server(commands)
 
         self.assoc.start()
-        while not self.assoc.is_established:
+        timeout = 0
+        while not self.assoc.is_established and timeout < 10:
             time.sleep(0.05)
+            timeout += 0.05
         time.sleep(0.2)
         self.assoc.dul.send_pdu(self.get_release(False))
         time.sleep(0.1)
@@ -4082,8 +4163,10 @@ class TestState07(TestStateBase):
         scp = self.start_server(commands)
 
         self.assoc.start()
-        while not self.assoc.is_established:
+        timeout = 0
+        while not self.assoc.is_established and timeout < 10:
             time.sleep(0.05)
+            timeout += 0.05
         time.sleep(0.2)
         self.assoc.dul.send_pdu(self.get_release(False))
         self.assoc.dul.send_pdu(self.get_release(True))
@@ -4116,8 +4199,10 @@ class TestState07(TestStateBase):
         scp = self.start_server(commands)
 
         self.assoc.start()
-        while not self.assoc.is_established:
+        timeout = 0
+        while not self.assoc.is_established and timeout < 10:
             time.sleep(0.05)
+            timeout += 0.05
         time.sleep(0.2)
         self.assoc.dul.send_pdu(self.get_release(False))
         self.assoc.dul.send_pdu(self.get_abort())
@@ -4150,8 +4235,10 @@ class TestState07(TestStateBase):
         scp = self.start_server(commands)
 
         self.assoc.start()
-        while not self.assoc.is_established:
+        timeout = 0
+        while not self.assoc.is_established and timeout < 10:
             time.sleep(0.05)
+            timeout += 0.05
         time.sleep(0.2)
         self.assoc.dul.send_pdu(self.get_release(False))
         time.sleep(0.1)
@@ -4183,8 +4270,10 @@ class TestState07(TestStateBase):
         scp = self.start_server(commands)
 
         self.assoc.start()
-        while not self.assoc.is_established:
+        timeout = 0
+        while not self.assoc.is_established and timeout < 10:
             time.sleep(0.05)
+            timeout += 0.05
         time.sleep(0.2)
         self.assoc.dul.send_pdu(self.get_release(False))
         time.sleep(0.1)
@@ -4216,8 +4305,10 @@ class TestState07(TestStateBase):
         scp = self.start_server(commands)
 
         self.assoc.start()
-        while not self.assoc.is_established:
+        timeout = 0
+        while not self.assoc.is_established and timeout < 10:
             time.sleep(0.05)
+            timeout += 0.05
         time.sleep(0.2)
         self.assoc.dul.send_pdu(self.get_release(False))
         self.assoc.dul.artim_timer.timeout = 0.05
@@ -4252,8 +4343,10 @@ class TestState07(TestStateBase):
         scp = self.start_server(commands)
 
         self.assoc.start()
-        while not self.assoc.is_established:
+        timeout = 0
+        while not self.assoc.is_established and timeout < 10:
             time.sleep(0.05)
+            timeout += 0.05
         time.sleep(0.2)
         self.assoc.dul.send_pdu(self.get_release(False))
         time.sleep(0.1)
@@ -4300,8 +4393,10 @@ class TestState08(TestStateBase):
         self.assoc.acse.is_release_requested = is_release_requested
 
         self.assoc.start()
-        while not self.assoc.is_established:
+        timeout = 0
+        while not self.assoc.is_established and timeout < 10:
             time.sleep(0.05)
+            timeout += 0.05
         time.sleep(0.2)
         self.assoc.dul.send_pdu(self.get_associate('request'))
         time.sleep(0.1)
@@ -4348,8 +4443,10 @@ class TestState08(TestStateBase):
         self.assoc.acse.is_release_requested = is_release_requested
 
         self.assoc.start()
-        while not self.assoc.is_established:
+        timeout = 0
+        while not self.assoc.is_established and timeout < 10:
             time.sleep(0.05)
+            timeout += 0.05
         time.sleep(0.2)
 
         #self.print_fsm_scp(self.fsm, scp)
@@ -4388,8 +4485,10 @@ class TestState08(TestStateBase):
         self.assoc.acse.is_release_requested = is_release_requested
 
         self.assoc.start()
-        while not self.assoc.is_established:
+        timeout = 0
+        while not self.assoc.is_established and timeout < 10:
             time.sleep(0.05)
+            timeout += 0.05
         time.sleep(0.2)
 
         #self.print_fsm_scp(self.fsm, scp)
@@ -4435,8 +4534,10 @@ class TestState08(TestStateBase):
         self.assoc.acse.is_release_requested = is_release_requested
 
         self.assoc.start()
-        while not self.assoc.is_established:
+        timeout = 0
+        while not self.assoc.is_established and timeout < 10:
             time.sleep(0.05)
+            timeout += 0.05
         time.sleep(0.2)
 
         #self.print_fsm_scp(self.fsm, scp)
@@ -4472,8 +4573,10 @@ class TestState08(TestStateBase):
 
         self.assoc.acse.is_release_requested = is_release_requested
         self.assoc.start()
-        while not self.assoc.is_established:
+        timeout = 0
+        while not self.assoc.is_established and timeout < 10:
             time.sleep(0.05)
+            timeout += 0.05
         time.sleep(0.2)
         self.assoc.dul.send_pdu(self.get_associate('accept'))
         time.sleep(0.1)
@@ -4510,8 +4613,10 @@ class TestState08(TestStateBase):
 
         self.assoc.acse.is_release_requested = is_release_requested
         self.assoc.start()
-        while not self.assoc.is_established:
+        timeout = 0
+        while not self.assoc.is_established and timeout < 10:
             time.sleep(0.05)
+            timeout += 0.05
         time.sleep(0.2)
         self.assoc.dul.send_pdu(self.get_associate('reject'))
         time.sleep(0.1)
@@ -4549,8 +4654,10 @@ class TestState08(TestStateBase):
 
         self.assoc.acse.is_release_requested = is_release_requested
         self.assoc.start()
-        while not self.assoc.is_established:
+        timeout = 0
+        while not self.assoc.is_established and timeout < 10:
             time.sleep(0.05)
+            timeout += 0.05
         time.sleep(0.2)
         self.assoc.dul.send_pdu(self.get_pdata())
         time.sleep(0.1)
@@ -4590,8 +4697,10 @@ class TestState08(TestStateBase):
         self.assoc.acse.is_release_requested = is_release_requested
 
         self.assoc.start()
-        while not self.assoc.is_established:
+        timeout = 0
+        while not self.assoc.is_established and timeout < 10:
             time.sleep(0.05)
+            timeout += 0.05
         time.sleep(0.2)
 
         #self.print_fsm_scp(self.fsm, scp)
@@ -4627,8 +4736,10 @@ class TestState08(TestStateBase):
 
         self.assoc.acse.is_release_requested = is_release_requested
         self.assoc.start()
-        while not self.assoc.is_established:
+        timeout = 0
+        while not self.assoc.is_established and timeout < 10:
             time.sleep(0.05)
+            timeout += 0.05
         time.sleep(0.2)
         self.assoc.dul.send_pdu(self.get_release(False))
         time.sleep(0.1)
@@ -4668,8 +4779,10 @@ class TestState08(TestStateBase):
         self.assoc.acse.is_release_requested = is_release_requested
 
         self.assoc.start()
-        while not self.assoc.is_established:
+        timeout = 0
+        while not self.assoc.is_established and timeout < 10:
             time.sleep(0.05)
+            timeout += 0.05
         time.sleep(0.2)
 
         #self.print_fsm_scp(self.fsm, scp)
@@ -4708,8 +4821,10 @@ class TestState08(TestStateBase):
         self.assoc.acse.is_release_requested = is_release_requested
 
         self.assoc.start()
-        while not self.assoc.is_established:
+        timeout = 0
+        while not self.assoc.is_established and timeout < 10:
             time.sleep(0.05)
+            timeout += 0.05
         time.sleep(0.2)
 
         #self.print_fsm_scp(self.fsm, scp)
@@ -4746,8 +4861,10 @@ class TestState08(TestStateBase):
 
         self.assoc.acse.is_release_requested = is_release_requested
         self.assoc.start()
-        while not self.assoc.is_established:
+        timeout = 0
+        while not self.assoc.is_established and timeout < 10:
             time.sleep(0.05)
+            timeout += 0.05
         time.sleep(0.2)
         self.assoc.dul.send_pdu(self.get_release(True))
         time.sleep(0.1)
@@ -4785,8 +4902,10 @@ class TestState08(TestStateBase):
 
         self.assoc.acse.is_release_requested = is_release_requested
         self.assoc.start()
-        while not self.assoc.is_established:
+        timeout = 0
+        while not self.assoc.is_established and timeout < 10:
             time.sleep(0.05)
+            timeout += 0.05
         time.sleep(0.2)
         self.assoc.dul.send_pdu(self.get_abort())
         time.sleep(0.1)
@@ -4826,8 +4945,10 @@ class TestState08(TestStateBase):
         self.assoc.acse.is_release_requested = is_release_requested
 
         self.assoc.start()
-        while not self.assoc.is_established:
+        timeout = 0
+        while not self.assoc.is_established and timeout < 10:
             time.sleep(0.05)
+            timeout += 0.05
         time.sleep(0.2)
 
         #self.print_fsm_scp(self.fsm, scp)
@@ -4864,8 +4985,10 @@ class TestState08(TestStateBase):
         self.assoc.acse.is_release_requested = is_release_requested
         self.assoc.start()
 
-        while not self.assoc.is_established:
+        timeout = 0
+        while not self.assoc.is_established and timeout < 10:
             time.sleep(0.05)
+            timeout += 0.05
         time.sleep(0.2)
 
         #self.print_fsm_scp(self.fsm, scp)
@@ -4902,8 +5025,10 @@ class TestState08(TestStateBase):
         self.assoc.acse.is_release_requested = is_release_requested
         self.assoc.start()
 
-        while not self.assoc.is_established:
+        timeout = 0
+        while not self.assoc.is_established and timeout < 10:
             time.sleep(0.05)
+            timeout += 0.05
         time.sleep(0.2)
         self.assoc.dul.artim_timer.timeout = 0.05
         self.assoc.dul.artim_timer.start()
@@ -4943,8 +5068,10 @@ class TestState08(TestStateBase):
         self.assoc.acse.is_release_requested = is_release_requested
         self.assoc.start()
 
-        while not self.assoc.is_established:
+        timeout = 0
+        while not self.assoc.is_established and timeout < 10:
             time.sleep(0.05)
+            timeout += 0.05
         time.sleep(0.2)
 
         #self.print_fsm_scp(self.fsm, scp)
@@ -4984,8 +5111,10 @@ class TestState09(TestStateBase):
         self.assoc.acse.is_release_requested = is_release_requested
 
         self.assoc.start()
-        while not self.assoc.is_established:
+        timeout = 0
+        while not self.assoc.is_established and timeout < 10:
             time.sleep(0.05)
+            timeout += 0.05
         time.sleep(0.2)
         self.assoc.dul.send_pdu(self.get_release(False))
         time.sleep(0.1)
@@ -5039,8 +5168,10 @@ class TestState09(TestStateBase):
         self.assoc.acse.is_release_requested = is_release_requested
 
         self.assoc.start()
-        while not self.assoc.is_established:
+        timeout = 0
+        while not self.assoc.is_established and timeout < 10:
             time.sleep(0.05)
+            timeout += 0.05
         time.sleep(0.2)
         self.assoc.dul.send_pdu(self.get_release(False))
         time.sleep(0.1)
@@ -5089,8 +5220,10 @@ class TestState09(TestStateBase):
         self.assoc.acse.is_release_requested = is_release_requested
 
         self.assoc.start()
-        while not self.assoc.is_established:
+        timeout = 0
+        while not self.assoc.is_established and timeout < 10:
             time.sleep(0.05)
+            timeout += 0.05
         time.sleep(0.2)
         self.assoc.dul.send_pdu(self.get_release(False))
         time.sleep(0.1)
@@ -5146,8 +5279,10 @@ class TestState09(TestStateBase):
         self.assoc.acse.is_release_requested = is_release_requested
 
         self.assoc.start()
-        while not self.assoc.is_established:
+        timeout = 0
+        while not self.assoc.is_established and timeout < 10:
             time.sleep(0.05)
+            timeout += 0.05
         time.sleep(0.2)
         self.assoc.dul.send_pdu(self.get_release(False))
         time.sleep(0.1)
@@ -5194,8 +5329,10 @@ class TestState09(TestStateBase):
         self.assoc.acse.is_release_requested = is_release_requested
 
         self.assoc.start()
-        while not self.assoc.is_established:
+        timeout = 0
+        while not self.assoc.is_established and timeout < 10:
             time.sleep(0.05)
+            timeout += 0.05
         time.sleep(0.2)
         self.assoc.dul.send_pdu(self.get_release(False))
         time.sleep(0.1)
@@ -5240,8 +5377,10 @@ class TestState09(TestStateBase):
         self.assoc.acse.is_release_requested = is_release_requested
 
         self.assoc.start()
-        while not self.assoc.is_established:
+        timeout = 0
+        while not self.assoc.is_established and timeout < 10:
             time.sleep(0.05)
+            timeout += 0.05
         time.sleep(0.2)
         self.assoc.dul.send_pdu(self.get_release(False))
         time.sleep(0.1)
@@ -5286,8 +5425,10 @@ class TestState09(TestStateBase):
         self.assoc.acse.is_release_requested = is_release_requested
 
         self.assoc.start()
-        while not self.assoc.is_established:
+        timeout = 0
+        while not self.assoc.is_established and timeout < 10:
             time.sleep(0.05)
+            timeout += 0.05
         time.sleep(0.2)
         self.assoc.dul.send_pdu(self.get_release(False))
         time.sleep(0.1)
@@ -5334,8 +5475,10 @@ class TestState09(TestStateBase):
         self.assoc.acse.is_release_requested = is_release_requested
 
         self.assoc.start()
-        while not self.assoc.is_established:
+        timeout = 0
+        while not self.assoc.is_established and timeout < 10:
             time.sleep(0.05)
+            timeout += 0.05
         time.sleep(0.2)
         self.assoc.dul.send_pdu(self.get_release(False))
         time.sleep(0.1)
@@ -5382,8 +5525,10 @@ class TestState09(TestStateBase):
         self.assoc.acse.is_release_requested = is_release_requested
 
         self.assoc.start()
-        while not self.assoc.is_established:
+        timeout = 0
+        while not self.assoc.is_established and timeout < 10:
             time.sleep(0.05)
+            timeout += 0.05
         time.sleep(0.2)
         self.assoc.dul.send_pdu(self.get_release(False))
         time.sleep(0.1)
@@ -5430,8 +5575,10 @@ class TestState09(TestStateBase):
         self.assoc.acse.is_release_requested = is_release_requested
 
         self.assoc.start()
-        while not self.assoc.is_established:
+        timeout = 0
+        while not self.assoc.is_established and timeout < 10:
             time.sleep(0.05)
+            timeout += 0.05
         time.sleep(0.2)
         self.assoc.dul.send_pdu(self.get_release(False))
         time.sleep(0.1)
@@ -5480,8 +5627,10 @@ class TestState09(TestStateBase):
         self.assoc.acse.is_release_requested = is_release_requested
 
         self.assoc.start()
-        while not self.assoc.is_established:
+        timeout = 0
+        while not self.assoc.is_established and timeout < 10:
             time.sleep(0.05)
+            timeout += 0.05
         time.sleep(0.2)
         self.assoc.dul.send_pdu(self.get_release(False))
         time.sleep(0.1)
@@ -5529,8 +5678,10 @@ class TestState09(TestStateBase):
         self.assoc.acse.is_release_requested = is_release_requested
 
         self.assoc.start()
-        while not self.assoc.is_established:
+        timeout = 0
+        while not self.assoc.is_established and timeout < 10:
             time.sleep(0.05)
+            timeout += 0.05
         time.sleep(0.2)
         self.assoc.dul.send_pdu(self.get_release(False))
         time.sleep(0.1)
@@ -5579,8 +5730,10 @@ class TestState09(TestStateBase):
         self.assoc.acse.is_release_requested = is_release_requested
 
         self.assoc.start()
-        while not self.assoc.is_established:
+        timeout = 0
+        while not self.assoc.is_established and timeout < 10:
             time.sleep(0.05)
+            timeout += 0.05
         time.sleep(0.2)
         self.assoc.dul.send_pdu(self.get_release(False))
         time.sleep(0.1)
@@ -5630,8 +5783,10 @@ class TestState09(TestStateBase):
         self.assoc.acse.is_release_requested = is_release_requested
 
         self.assoc.start()
-        while not self.assoc.is_established:
+        timeout = 0
+        while not self.assoc.is_established and timeout < 10:
             time.sleep(0.05)
+            timeout += 0.05
         time.sleep(0.2)
         self.assoc.dul.send_pdu(self.get_release(False))
         time.sleep(0.1)
@@ -5675,8 +5830,10 @@ class TestState09(TestStateBase):
         self.assoc.acse.is_release_requested = is_release_requested
 
         self.assoc.start()
-        while not self.assoc.is_established:
+        timeout = 0
+        while not self.assoc.is_established and timeout < 10:
             time.sleep(0.05)
+            timeout += 0.05
         time.sleep(0.2)
         self.assoc.dul.send_pdu(self.get_release(False))
         time.sleep(0.1)
@@ -5720,8 +5877,10 @@ class TestState09(TestStateBase):
         self.assoc.acse.is_release_requested = is_release_requested
 
         self.assoc.start()
-        while not self.assoc.is_established:
+        timeout = 0
+        while not self.assoc.is_established and timeout < 10:
             time.sleep(0.05)
+            timeout += 0.05
         time.sleep(0.2)
         self.assoc.dul.send_pdu(self.get_release(False))
         time.sleep(0.1)
@@ -5769,8 +5928,10 @@ class TestState09(TestStateBase):
         self.assoc.acse.is_release_requested = is_release_requested
 
         self.assoc.start()
-        while not self.assoc.is_established:
+        timeout = 0
+        while not self.assoc.is_established and timeout < 10:
             time.sleep(0.05)
+            timeout += 0.05
         time.sleep(0.2)
         self.assoc.dul.send_pdu(self.get_release(False))
         time.sleep(0.1)
@@ -5820,8 +5981,10 @@ class TestState10(TestStateBase):
 
         assoc.acse.is_release_requested = is_release_requested
         assoc.start()
-        while not assoc.is_established:
+        timeout = 0
+        while not assoc.is_established and timeout < 10:
             time.sleep(0.05)
+            timeout += 0.05
         time.sleep(0.2)
         assoc.dul.send_pdu(self.get_release(False))
         time.sleep(0.1)
@@ -5875,8 +6038,10 @@ class TestState10(TestStateBase):
 
         assoc.acse.is_release_requested = is_release_requested
         assoc.start()
-        while not assoc.is_established:
+        timeout = 0
+        while not assoc.is_established and timeout < 10:
             time.sleep(0.05)
+            timeout += 0.05
         time.sleep(0.2)
         assoc.dul.send_pdu(self.get_release(False))
         time.sleep(0.1)
@@ -5925,8 +6090,10 @@ class TestState10(TestStateBase):
 
         assoc.acse.is_release_requested = is_release_requested
         assoc.start()
-        while not assoc.is_established:
+        timeout = 0
+        while not assoc.is_established and timeout < 10:
             time.sleep(0.05)
+            timeout += 0.05
         time.sleep(0.2)
         assoc.dul.send_pdu(self.get_release(False))
         time.sleep(0.1)
@@ -5982,8 +6149,10 @@ class TestState10(TestStateBase):
 
         assoc.acse.is_release_requested = is_release_requested
         assoc.start()
-        while not assoc.is_established:
+        timeout = 0
+        while not assoc.is_established and timeout < 10:
             time.sleep(0.05)
+            timeout += 0.05
         time.sleep(0.2)
         assoc.dul.send_pdu(self.get_release(False))
         time.sleep(0.1)
@@ -6031,8 +6200,10 @@ class TestState10(TestStateBase):
 
         assoc.acse.is_release_requested = is_release_requested
         assoc.start()
-        while not assoc.is_established:
+        timeout = 0
+        while not assoc.is_established and timeout < 10:
             time.sleep(0.05)
+            timeout += 0.05
         time.sleep(0.2)
         assoc.dul.send_pdu(self.get_release(False))
         time.sleep(0.1)
@@ -6078,8 +6249,10 @@ class TestState10(TestStateBase):
 
         assoc.acse.is_release_requested = is_release_requested
         assoc.start()
-        while not assoc.is_established:
+        timeout = 0
+        while not assoc.is_established and timeout < 10:
             time.sleep(0.05)
+            timeout += 0.05
         time.sleep(0.2)
         assoc.dul.send_pdu(self.get_release(False))
         time.sleep(0.1)
@@ -6125,8 +6298,10 @@ class TestState10(TestStateBase):
 
         assoc.acse.is_release_requested = is_release_requested
         assoc.start()
-        while not assoc.is_established:
+        timeout = 0
+        while not assoc.is_established and timeout < 10:
             time.sleep(0.05)
+            timeout += 0.05
         time.sleep(0.2)
         assoc.dul.send_pdu(self.get_release(False))
         time.sleep(0.1)
@@ -6173,8 +6348,10 @@ class TestState10(TestStateBase):
 
         assoc.acse.is_release_requested = is_release_requested
         assoc.start()
-        while not assoc.is_established:
+        timeout = 0
+        while not assoc.is_established and timeout < 10:
             time.sleep(0.05)
+            timeout += 0.05
         time.sleep(0.2)
         assoc.dul.send_pdu(self.get_release(False))
         time.sleep(0.1)
@@ -6222,8 +6399,10 @@ class TestState10(TestStateBase):
 
         assoc.acse.is_release_requested = is_release_requested
         assoc.start()
-        while not assoc.is_established:
+        timeout = 0
+        while not assoc.is_established and timeout < 10:
             time.sleep(0.05)
+            timeout += 0.05
         time.sleep(0.2)
         assoc.dul.send_pdu(self.get_release(False))
         time.sleep(0.1)
@@ -6270,8 +6449,10 @@ class TestState10(TestStateBase):
 
         assoc.acse.is_release_requested = is_release_requested
         assoc.start()
-        while not assoc.is_established:
+        timeout = 0
+        while not assoc.is_established and timeout < 10:
             time.sleep(0.05)
+            timeout += 0.05
         time.sleep(0.2)
         assoc.dul.send_pdu(self.get_release(False))
         time.sleep(0.1)
@@ -6319,8 +6500,10 @@ class TestState10(TestStateBase):
 
         assoc.acse.is_release_requested = is_release_requested
         assoc.start()
-        while not assoc.is_established:
+        timeout = 0
+        while not assoc.is_established and timeout < 10:
             time.sleep(0.05)
+            timeout += 0.05
         time.sleep(0.2)
         assoc.dul.send_pdu(self.get_release(False))
         time.sleep(0.1)
@@ -6366,8 +6549,10 @@ class TestState10(TestStateBase):
         assoc.acse.is_release_requested = is_release_requested
         assoc.start()
 
-        while not assoc.is_established:
+        timeout = 0
+        while not assoc.is_established and timeout < 10:
             time.sleep(0.05)
+            timeout += 0.05
         time.sleep(0.2)
         assoc.dul.send_pdu(self.get_release(False))
         time.sleep(0.1)
@@ -6415,8 +6600,10 @@ class TestState10(TestStateBase):
         assoc.acse.is_release_requested = is_release_requested
         assoc.start()
 
-        while not assoc.is_established:
+        timeout = 0
+        while not assoc.is_established and timeout < 10:
             time.sleep(0.05)
+            timeout += 0.05
         time.sleep(0.2)
         assoc.dul.send_pdu(self.get_release(False))
         time.sleep(0.1)
@@ -6467,8 +6654,10 @@ class TestState10(TestStateBase):
         assoc.acse.is_release_requested = is_release_requested
         assoc.start()
 
-        while not assoc.is_established:
+        timeout = 0
+        while not assoc.is_established and timeout < 10:
             time.sleep(0.05)
+            timeout += 0.05
         time.sleep(0.2)
         assoc.dul.send_pdu(self.get_release(False))
         time.sleep(0.1)
@@ -6513,8 +6702,10 @@ class TestState10(TestStateBase):
         assoc.acse.is_release_requested = is_release_requested
         assoc.start()
 
-        while not assoc.is_established:
+        timeout = 0
+        while not assoc.is_established and timeout < 10:
             time.sleep(0.05)
+            timeout += 0.05
         time.sleep(0.2)
         assoc.dul.send_pdu(self.get_release(False))
         time.sleep(0.1)
@@ -6560,8 +6751,10 @@ class TestState10(TestStateBase):
         assoc.acse.is_release_requested = is_release_requested
         assoc.start()
 
-        while not assoc.is_established:
+        timeout = 0
+        while not assoc.is_established and timeout < 10:
             time.sleep(0.05)
+            timeout += 0.05
         time.sleep(0.2)
         assoc.dul.send_pdu(self.get_release(False))
         time.sleep(0.1)
@@ -6612,8 +6805,10 @@ class TestState10(TestStateBase):
         assoc.acse.is_release_requested = is_release_requested
         assoc.start()
 
-        while not assoc.is_established:
+        timeout = 0
+        while not assoc.is_established and timeout < 10:
             time.sleep(0.05)
+            timeout += 0.05
         time.sleep(0.2)
         assoc.dul.send_pdu(self.get_release(False))
         time.sleep(0.1)
@@ -6664,8 +6859,10 @@ class TestState11(TestStateBase):
         self.assoc.acse.is_release_requested = is_release_requested
 
         self.assoc.start()
-        while not self.assoc.is_established:
+        timeout = 0
+        while not self.assoc.is_established and timeout < 10:
             time.sleep(0.05)
+            timeout += 0.05
         time.sleep(0.2)
         self.assoc.dul.send_pdu(self.get_release(False))
         time.sleep(0.1)
@@ -6724,8 +6921,10 @@ class TestState11(TestStateBase):
         self.assoc.acse.is_release_requested = is_release_requested
 
         self.assoc.start()
-        while not self.assoc.is_established:
+        timeout = 0
+        while not self.assoc.is_established and timeout < 10:
             time.sleep(0.05)
+            timeout += 0.05
         time.sleep(0.2)
         self.assoc.dul.send_pdu(self.get_release(False))
         time.sleep(0.1)
@@ -6776,8 +6975,10 @@ class TestState11(TestStateBase):
         self.assoc.acse.is_release_requested = is_release_requested
 
         self.assoc.start()
-        while not self.assoc.is_established:
+        timeout = 0
+        while not self.assoc.is_established and timeout < 10:
             time.sleep(0.05)
+            timeout += 0.05
         time.sleep(0.2)
         self.assoc.dul.send_pdu(self.get_release(False))
         time.sleep(0.1)
@@ -6835,8 +7036,10 @@ class TestState11(TestStateBase):
         self.assoc.acse.is_release_requested = is_release_requested
 
         self.assoc.start()
-        while not self.assoc.is_established:
+        timeout = 0
+        while not self.assoc.is_established and timeout < 10:
             time.sleep(0.05)
+            timeout += 0.05
         time.sleep(0.2)
         self.assoc.dul.send_pdu(self.get_release(False))
         time.sleep(0.1)
@@ -6884,8 +7087,10 @@ class TestState11(TestStateBase):
         self.assoc.acse.is_release_requested = is_release_requested
 
         self.assoc.start()
-        while not self.assoc.is_established:
+        timeout = 0
+        while not self.assoc.is_established and timeout < 10:
             time.sleep(0.05)
+            timeout += 0.05
         time.sleep(0.2)
         self.assoc.dul.send_pdu(self.get_release(False))
         time.sleep(0.1)
@@ -6934,8 +7139,10 @@ class TestState11(TestStateBase):
         self.assoc.acse.is_release_requested = is_release_requested
 
         self.assoc.start()
-        while not self.assoc.is_established:
+        timeout = 0
+        while not self.assoc.is_established and timeout < 10:
             time.sleep(0.05)
+            timeout += 0.05
         time.sleep(0.2)
         self.assoc.dul.send_pdu(self.get_release(False))
         time.sleep(0.1)
@@ -6984,8 +7191,10 @@ class TestState11(TestStateBase):
         self.assoc.acse.is_release_requested = is_release_requested
 
         self.assoc.start()
-        while not self.assoc.is_established:
+        timeout = 0
+        while not self.assoc.is_established and timeout < 10:
             time.sleep(0.05)
+            timeout += 0.05
         time.sleep(0.2)
         self.assoc.dul.send_pdu(self.get_release(False))
         time.sleep(0.1)
@@ -7037,8 +7246,10 @@ class TestState11(TestStateBase):
         self.assoc.acse.is_release_requested = is_release_requested
 
         self.assoc.start()
-        while not self.assoc.is_established:
+        timeout = 0
+        while not self.assoc.is_established and timeout < 10:
             time.sleep(0.05)
+            timeout += 0.05
         time.sleep(0.2)
         self.assoc.dul.send_pdu(self.get_release(False))
         time.sleep(0.1)
@@ -7086,8 +7297,10 @@ class TestState11(TestStateBase):
         self.assoc.acse.is_release_requested = is_release_requested
 
         self.assoc.start()
-        while not self.assoc.is_established:
+        timeout = 0
+        while not self.assoc.is_established and timeout < 10:
             time.sleep(0.05)
+            timeout += 0.05
         time.sleep(0.2)
         self.assoc.dul.send_pdu(self.get_release(False))
         time.sleep(0.1)
@@ -7139,8 +7352,10 @@ class TestState11(TestStateBase):
         self.assoc.acse.is_release_requested = is_release_requested
 
         self.assoc.start()
-        while not self.assoc.is_established:
+        timeout = 0
+        while not self.assoc.is_established and timeout < 10:
             time.sleep(0.05)
+            timeout += 0.05
         time.sleep(0.2)
         self.assoc.dul.send_pdu(self.get_release(False))
         time.sleep(0.1)
@@ -7190,8 +7405,10 @@ class TestState11(TestStateBase):
         self.assoc.acse.is_release_requested = is_release_requested
 
         self.assoc.start()
-        while not self.assoc.is_established:
+        timeout = 0
+        while not self.assoc.is_established and timeout < 10:
             time.sleep(0.05)
+            timeout += 0.05
         time.sleep(0.2)
         self.assoc.dul.send_pdu(self.get_release(False))
         time.sleep(0.1)
@@ -7239,8 +7456,10 @@ class TestState11(TestStateBase):
         self.assoc.acse.is_release_requested = is_release_requested
 
         self.assoc.start()
-        while not self.assoc.is_established:
+        timeout = 0
+        while not self.assoc.is_established and timeout < 10:
             time.sleep(0.05)
+            timeout += 0.05
         time.sleep(0.2)
         self.assoc.dul.send_pdu(self.get_release(False))
         time.sleep(0.1)
@@ -7291,8 +7510,10 @@ class TestState11(TestStateBase):
         self.assoc.acse.is_release_requested = is_release_requested
 
         self.assoc.start()
-        while not self.assoc.is_established:
+        timeout = 0
+        while not self.assoc.is_established and timeout < 10:
             time.sleep(0.05)
+            timeout += 0.05
         time.sleep(0.2)
         self.assoc.dul.send_pdu(self.get_release(False))
         time.sleep(0.2)
@@ -7343,8 +7564,10 @@ class TestState11(TestStateBase):
         self.assoc.acse.is_release_requested = is_release_requested
 
         self.assoc.start()
-        while not self.assoc.is_established:
+        timeout = 0
+        while not self.assoc.is_established and timeout < 10:
             time.sleep(0.05)
+            timeout += 0.05
         time.sleep(0.2)
         self.assoc.dul.send_pdu(self.get_release(False))
         time.sleep(0.1)
@@ -7392,8 +7615,10 @@ class TestState11(TestStateBase):
         self.assoc.acse.is_release_requested = is_release_requested
 
         self.assoc.start()
-        while not self.assoc.is_established:
+        timeout = 0
+        while not self.assoc.is_established and timeout < 10:
             time.sleep(0.05)
+            timeout += 0.05
         time.sleep(0.2)
         self.assoc.dul.send_pdu(self.get_release(False))
         time.sleep(0.1)
@@ -7441,8 +7666,10 @@ class TestState11(TestStateBase):
         self.assoc.acse.is_release_requested = is_release_requested
 
         self.assoc.start()
-        while not self.assoc.is_established:
+        timeout = 0
+        while not self.assoc.is_established and timeout < 10:
             time.sleep(0.05)
+            timeout += 0.05
         time.sleep(0.2)
         self.assoc.dul.send_pdu(self.get_release(False))
         time.sleep(0.1)
@@ -7495,8 +7722,10 @@ class TestState11(TestStateBase):
         self.assoc.acse.is_release_requested = is_release_requested
 
         self.assoc.start()
-        while not self.assoc.is_established:
+        timeout = 0
+        while not self.assoc.is_established and timeout < 10:
             time.sleep(0.05)
+            timeout += 0.05
         time.sleep(0.2)
         self.assoc.dul.send_pdu(self.get_release(False))
         time.sleep(0.1)
@@ -7547,8 +7776,10 @@ class TestState12(TestStateBase):
 
         assoc.acse.is_release_requested = is_release_requested
         assoc.start()
-        while not assoc.is_established:
+        timeout = 0
+        while not assoc.is_established and timeout < 10:
             time.sleep(0.05)
+            timeout += 0.05
         time.sleep(0.2)
         assoc.dul.send_pdu(self.get_release(False))
         time.sleep(0.1)
@@ -7604,8 +7835,10 @@ class TestState12(TestStateBase):
 
         assoc.acse.is_release_requested = is_release_requested
         assoc.start()
-        while not assoc.is_established:
+        timeout = 0
+        while not assoc.is_established and timeout < 10:
             time.sleep(0.05)
+            timeout += 0.05
         time.sleep(0.2)
         assoc.dul.send_pdu(self.get_release(False))
         time.sleep(0.1)
@@ -7657,8 +7890,10 @@ class TestState12(TestStateBase):
         assoc.acse.is_release_requested = is_release_requested
         assoc.start()
 
-        while not assoc.is_established:
+        timeout = 0
+        while not assoc.is_established and timeout < 10:
             time.sleep(0.05)
+            timeout += 0.05
         time.sleep(0.2)
         assoc.dul.send_pdu(self.get_release(False))
         time.sleep(0.1)
@@ -7717,8 +7952,10 @@ class TestState12(TestStateBase):
         assoc.acse.is_release_requested = is_release_requested
         assoc.start()
 
-        while not assoc.is_established:
+        timeout = 0
+        while not assoc.is_established and timeout < 10:
             time.sleep(0.05)
+            timeout += 0.05
         time.sleep(0.2)
 
         assoc.dul.send_pdu(self.get_release(False))
@@ -7770,8 +8007,10 @@ class TestState12(TestStateBase):
         assoc.acse.is_release_requested = is_release_requested
         assoc.start()
 
-        while not assoc.is_established:
+        timeout = 0
+        while not assoc.is_established and timeout < 10:
             time.sleep(0.05)
+            timeout += 0.05
         time.sleep(0.2)
         assoc.dul.send_pdu(self.get_release(False))
         time.sleep(0.1)
@@ -7819,8 +8058,10 @@ class TestState12(TestStateBase):
         assoc.acse.is_release_requested = is_release_requested
         assoc.start()
 
-        while not assoc.is_established:
+        timeout = 0
+        while not assoc.is_established and timeout < 10:
             time.sleep(0.05)
+            timeout += 0.05
         time.sleep(0.2)
         assoc.dul.send_pdu(self.get_release(False))
         time.sleep(0.1)
@@ -7868,8 +8109,10 @@ class TestState12(TestStateBase):
         assoc.acse.is_release_requested = is_release_requested
         assoc.start()
 
-        while not assoc.is_established:
+        timeout = 0
+        while not assoc.is_established and timeout < 10:
             time.sleep(0.05)
+            timeout += 0.05
         time.sleep(0.2)
         assoc.dul.send_pdu(self.get_release(False))
         time.sleep(0.1)
@@ -7919,8 +8162,10 @@ class TestState12(TestStateBase):
         assoc.acse.is_release_requested = is_release_requested
         assoc.start()
 
-        while not assoc.is_established:
+        timeout = 0
+        while not assoc.is_established and timeout < 10:
             time.sleep(0.05)
+            timeout += 0.05
         time.sleep(0.2)
 
         assoc.dul.send_pdu(self.get_release(False))
@@ -7972,8 +8217,10 @@ class TestState12(TestStateBase):
         assoc.acse.is_release_requested = is_release_requested
         assoc.start()
 
-        while not assoc.is_established:
+        timeout = 0
+        while not assoc.is_established and timeout < 10:
             time.sleep(0.05)
+            timeout += 0.05
         time.sleep(0.2)
         assoc.dul.send_pdu(self.get_release(False))
         time.sleep(0.1)
@@ -8023,8 +8270,10 @@ class TestState12(TestStateBase):
         assoc.acse.is_release_requested = is_release_requested
         assoc.start()
 
-        while not assoc.is_established:
+        timeout = 0
+        while not assoc.is_established and timeout < 10:
             time.sleep(0.05)
+            timeout += 0.05
         time.sleep(0.2)
         assoc.dul.send_pdu(self.get_release(False))
         time.sleep(0.1)
@@ -8076,8 +8325,10 @@ class TestState12(TestStateBase):
         assoc.acse.is_release_requested = is_release_requested
         assoc.start()
 
-        while not assoc.is_established:
+        timeout = 0
+        while not assoc.is_established and timeout < 10:
             time.sleep(0.05)
+            timeout += 0.05
         time.sleep(0.2)
         assoc.dul.send_pdu(self.get_release(False))
         time.sleep(0.1)
@@ -8128,8 +8379,10 @@ class TestState12(TestStateBase):
         assoc.acse.is_release_requested = is_release_requested
         assoc.start()
 
-        while not assoc.is_established:
+        timeout = 0
+        while not assoc.is_established and timeout < 10:
             time.sleep(0.05)
+            timeout += 0.05
         time.sleep(0.2)
         assoc.dul.send_pdu(self.get_release(False))
         time.sleep(0.1)
@@ -8182,8 +8435,10 @@ class TestState12(TestStateBase):
         assoc.acse.is_release_requested = is_release_requested
         assoc.start()
 
-        while not assoc.is_established:
+        timeout = 0
+        while not assoc.is_established and timeout < 10:
             time.sleep(0.05)
+            timeout += 0.05
         time.sleep(0.2)
         assoc.dul.send_pdu(self.get_release(False))
         time.sleep(0.1)
@@ -8236,8 +8491,10 @@ class TestState12(TestStateBase):
         assoc.acse.is_release_requested = is_release_requested
         assoc.start()
 
-        while not assoc.is_established:
+        timeout = 0
+        while not assoc.is_established and timeout < 10:
             time.sleep(0.05)
+            timeout += 0.05
         time.sleep(0.2)
         assoc.dul.send_pdu(self.get_release(False))
         time.sleep(0.1)
@@ -8284,8 +8541,10 @@ class TestState12(TestStateBase):
         assoc.acse.is_release_requested = is_release_requested
         assoc.start()
 
-        while not assoc.is_established:
+        timeout = 0
+        while not assoc.is_established and timeout < 10:
             time.sleep(0.05)
+            timeout += 0.05
         time.sleep(0.2)
         assoc.dul.send_pdu(self.get_release(False))
         time.sleep(0.1)
@@ -8331,8 +8590,10 @@ class TestState12(TestStateBase):
 
         assoc.acse.is_release_requested = is_release_requested
         assoc.start()
-        while not assoc.is_established:
+        timeout = 0
+        while not assoc.is_established and timeout < 10:
             time.sleep(0.05)
+            timeout += 0.05
         time.sleep(0.2)
         assoc.dul.send_pdu(self.get_release(False))
         time.sleep(0.1)
@@ -8383,8 +8644,10 @@ class TestState12(TestStateBase):
         assoc.acse.is_release_requested = is_release_requested
         assoc.start()
 
-        while not assoc.is_established:
+        timeout = 0
+        while not assoc.is_established and timeout < 10:
             time.sleep(0.05)
+            timeout += 0.05
         time.sleep(0.2)
         assoc.dul.send_pdu(self.get_release(False))
         time.sleep(0.1)
@@ -8443,8 +8706,10 @@ class TestState13(TestStateBase):
         self.assoc.dul._is_transport_event = patch_xport_event
 
         self.assoc.start()
-        while self.fsm.current_state != 'Sta13':
+        timeout = 0
+        while self.fsm.current_state != 'Sta13' and timeout < 10:
             time.sleep(0.05)
+            timeout += 0.05
         self.assoc.dul.send_pdu(self.get_associate('request'))
         time.sleep(0.1)
 
@@ -8483,8 +8748,10 @@ class TestState13(TestStateBase):
         scp = self.start_server(commands)
 
         self.assoc.start()
-        while not self.assoc.is_established:
+        timeout = 0
+        while not self.assoc.is_established and timeout < 10:
             time.sleep(0.05)
+            timeout += 0.05
 
         time.sleep(0.2)
 
@@ -8522,8 +8789,10 @@ class TestState13(TestStateBase):
         scp = self.start_server(commands)
 
         self.assoc.start()
-        while not self.assoc.is_established:
+        timeout = 0
+        while not self.assoc.is_established and timeout < 10:
             time.sleep(0.05)
+            timeout += 0.05
 
         time.sleep(0.2)
 
@@ -8568,8 +8837,10 @@ class TestState13(TestStateBase):
         scp = self.start_server(commands)
 
         self.assoc.start()
-        while not self.assoc.is_established:
+        timeout = 0
+        while not self.assoc.is_established and timeout < 10:
             time.sleep(0.05)
+            timeout += 0.05
 
         time.sleep(0.2)
 
@@ -8618,8 +8889,10 @@ class TestState13(TestStateBase):
 
         self.assoc.dul._is_transport_event = patch_xport_event
         self.assoc.start()
-        while self.fsm.current_state != 'Sta13':
+        timeout = 0
+        while self.fsm.current_state != 'Sta13' and timeout < 10:
             time.sleep(0.05)
+            timeout += 0.05
         self.assoc.dul.send_pdu(self.get_associate('accept'))
         time.sleep(0.1)
 
@@ -8662,8 +8935,10 @@ class TestState13(TestStateBase):
 
         self.assoc.dul._is_transport_event = patch_xport_event
         self.assoc.start()
-        while self.fsm.current_state != 'Sta13':
+        timeout = 0
+        while self.fsm.current_state != 'Sta13' and timeout < 10:
             time.sleep(0.05)
+            timeout += 0.05
         self.assoc.dul.send_pdu(self.get_associate('reject'))
         time.sleep(0.1)
 
@@ -8707,11 +8982,11 @@ class TestState13(TestStateBase):
         self.assoc.dul._is_transport_event = patch_xport_event
         self.assoc.start()
         start = time.time()
-        while self.fsm.current_state != 'Sta13':
+        timeout = 0
+        while self.fsm.current_state != 'Sta13' and timeout < 10:
             time.sleep(0.05)
-            if time.time() - start > 5:
-                self.print_fsm_scp(self.fsm, scp)
-                break
+            timeout += 0.05
+
         self.assoc.dul.send_pdu(self.get_pdata())
         time.sleep(0.1)
 
@@ -8743,8 +9018,10 @@ class TestState13(TestStateBase):
         scp = self.start_server(commands)
 
         self.assoc.start()
-        while not self.assoc.is_established:
+        timeout = 0
+        while not self.assoc.is_established and timeout < 10:
             time.sleep(0.05)
+            timeout += 0.05
 
         time.sleep(0.2)
 
@@ -8793,8 +9070,10 @@ class TestState13(TestStateBase):
 
         self.assoc.dul._is_transport_event = patch_xport_event
         self.assoc.start()
-        while self.fsm.current_state != 'Sta13':
+        timeout = 0
+        while self.fsm.current_state != 'Sta13' and timeout < 10:
             time.sleep(0.05)
+            timeout += 0.05
         self.assoc.dul.send_pdu(self.get_release(False))
         time.sleep(0.1)
 
@@ -8826,8 +9105,10 @@ class TestState13(TestStateBase):
         scp = self.start_server(commands)
 
         self.assoc.start()
-        while not self.assoc.is_established:
+        timeout = 0
+        while not self.assoc.is_established and timeout < 10:
             time.sleep(0.05)
+            timeout += 0.05
 
         time.sleep(0.2)
 
@@ -8865,8 +9146,10 @@ class TestState13(TestStateBase):
         scp = self.start_server(commands)
 
         self.assoc.start()
-        while not self.assoc.is_established:
+        timeout = 0
+        while not self.assoc.is_established and timeout < 10:
             time.sleep(0.05)
+            timeout += 0.05
 
         time.sleep(0.2)
 
@@ -8915,8 +9198,10 @@ class TestState13(TestStateBase):
 
         self.assoc.dul._is_transport_event = patch_xport_event
         self.assoc.start()
-        while self.fsm.current_state != 'Sta13':
+        timeout = 0
+        while self.fsm.current_state != 'Sta13' and timeout < 10:
             time.sleep(0.05)
+            timeout += 0.05
         self.assoc.dul.send_pdu(self.get_release(True))
         time.sleep(0.1)
 
@@ -8959,8 +9244,10 @@ class TestState13(TestStateBase):
 
         self.assoc.dul._is_transport_event = patch_xport_event
         self.assoc.start()
-        while self.fsm.current_state != 'Sta13':
+        timeout = 0
+        while self.fsm.current_state != 'Sta13' and timeout < 10:
             time.sleep(0.05)
+            timeout += 0.05
         self.assoc.dul.send_pdu(self.get_abort())
         time.sleep(0.1)
 
@@ -8992,8 +9279,10 @@ class TestState13(TestStateBase):
         scp = self.start_server(commands)
 
         self.assoc.start()
-        while not self.assoc.is_established:
+        timeout = 0
+        while not self.assoc.is_established and timeout < 10:
             time.sleep(0.05)
+            timeout += 0.05
 
         time.sleep(0.2)
 
@@ -9029,8 +9318,10 @@ class TestState13(TestStateBase):
         scp = self.start_server(commands)
 
         self.assoc.start()
-        while not self.assoc.is_established:
+        timeout = 0
+        while not self.assoc.is_established and timeout < 10:
             time.sleep(0.05)
+            timeout += 0.05
 
         time.sleep(0.2)
 
@@ -9082,8 +9373,10 @@ class TestState13(TestStateBase):
 
         self.assoc.start()
 
-        while self.fsm.current_state != 'Sta13':
+        timeout = 0
+        while self.fsm.current_state != 'Sta13' and timeout < 10:
             time.sleep(0.05)
+            timeout += 0.05
 
         self.assoc.dul.artim_timer.timeout = 0.05
         self.assoc.dul.artim_timer.start()
@@ -9119,8 +9412,10 @@ class TestState13(TestStateBase):
         scp = self.start_server(commands)
 
         self.assoc.start()
-        while not self.assoc.is_established:
+        timeout = 0
+        while not self.assoc.is_established and timeout < 10:
             time.sleep(0.05)
+            timeout += 0.05
 
         time.sleep(0.2)
 
@@ -9384,9 +9679,16 @@ class TestStateMachineFunctionalRequestor(object):
 
         self.assoc.start()
 
-        while (not self.assoc.is_established and not self.assoc.is_rejected and
-               not self.assoc.is_aborted and not self.assoc.dul._kill_thread):
+        timeout = 0
+        while (
+            not self.assoc.is_established
+            and not self.assoc.is_rejected
+            and not self.assoc.is_aborted
+            and not self.assoc.dul._kill_thread
+            and timeout < 10
+        ):
             time.sleep(0.05)
+            timeout += 0.05
 
         if self.assoc.is_established:
             self.assoc.release()
@@ -9420,9 +9722,16 @@ class TestStateMachineFunctionalRequestor(object):
 
         self.assoc.start()
 
-        while (not self.assoc.is_established and not self.assoc.is_rejected and
-               not self.assoc.is_aborted and not self.assoc.dul._kill_thread):
+        timeout = 0
+        while (
+            not self.assoc.is_established
+            and not self.assoc.is_rejected
+            and not self.assoc.is_aborted
+            and not self.assoc.dul._kill_thread
+            and timeout < 10
+        ):
             time.sleep(0.05)
+            timeout += 0.05
         time.sleep(0.05)
 
         assert self.assoc.is_rejected
@@ -9452,9 +9761,16 @@ class TestStateMachineFunctionalRequestor(object):
 
         self.assoc.start()
 
-        while (not self.assoc.is_established and not self.assoc.is_rejected and
-               not self.assoc.is_aborted and not self.assoc.dul._kill_thread):
+        timeout = 0
+        while (
+            not self.assoc.is_established
+            and not self.assoc.is_rejected
+            and not self.assoc.is_aborted
+            and not self.assoc.dul._kill_thread
+            and timeout < 10
+        ):
             time.sleep(0.05)
+            timeout += 0.05
 
         if self.assoc.is_established:
             self.assoc.abort()
@@ -9489,9 +9805,16 @@ class TestStateMachineFunctionalRequestor(object):
         self.assoc.requestor.requested_contexts[0].abstract_syntax = '1.2.3'
         self.assoc.start()
 
-        while (not self.assoc.is_established and not self.assoc.is_rejected and
-               not self.assoc.is_aborted and not self.assoc.dul._kill_thread):
+        timeout = 0
+        while (
+            not self.assoc.is_established
+            and not self.assoc.is_rejected
+            and not self.assoc.is_aborted
+            and not self.assoc.dul._kill_thread
+            and timeout < 10
+        ):
             time.sleep(0.05)
+            timeout += 0.05
 
         time.sleep(0.1)
 
@@ -9525,15 +9848,26 @@ class TestStateMachineFunctionalRequestor(object):
 
         self.assoc.start()
 
-        while (not self.assoc.is_established and not self.assoc.is_rejected and
-               not self.assoc.is_aborted and not self.assoc.dul._kill_thread):
+        timeout = 0
+        while (
+            not self.assoc.is_established
+            and not self.assoc.is_rejected
+            and not self.assoc.is_aborted
+            and not self.assoc.dul._kill_thread
+            and timeout < 10
+        ):
             time.sleep(0.05)
+            timeout += 0.05
 
-        while not self.assoc.is_established:
+        timeout = 0
+        while not self.assoc.is_established and timeout < 10:
             time.sleep(0.05)
+            timeout += 0.05
 
-        while not self.assoc.is_aborted:
+        timeout = 0
+        while not self.assoc.is_aborted and timeout < 10:
             time.sleep(0.05)
+            timeout += 0.05
 
         assert self.fsm._transitions == [
             'Sta4',  # Waiting for connection to complete
@@ -9561,9 +9895,16 @@ class TestStateMachineFunctionalRequestor(object):
 
         self.assoc.start()
 
-        while (not self.assoc.is_established and not self.assoc.is_rejected and
-               not self.assoc.is_aborted and not self.assoc.dul._kill_thread):
+        timeout = 0
+        while (
+            not self.assoc.is_established
+            and not self.assoc.is_rejected
+            and not self.assoc.is_aborted
+            and not self.assoc.dul._kill_thread
+            and timeout < 10
+        ):
             time.sleep(0.05)
+            timeout += 0.05
 
         self.assoc.send_c_echo()
         self.assoc.release()
@@ -9620,9 +9961,16 @@ class TestStateMachineFunctionalRequestor(object):
 
         self.assoc.start()
 
-        while (not self.assoc.is_established and not self.assoc.is_rejected and
-               not self.assoc.is_aborted and not self.assoc.dul._kill_thread):
+        timeout = 0
+        while (
+            not self.assoc.is_established
+            and not self.assoc.is_rejected
+            and not self.assoc.is_aborted
+            and not self.assoc.dul._kill_thread
+            and timeout < 10
+        ):
             time.sleep(0.05)
+            timeout += 0.05
 
         self.assoc.release()
 
@@ -9678,9 +10026,16 @@ class TestStateMachineFunctionalRequestor(object):
 
         self.assoc.start()
 
-        while (not self.assoc.is_established and not self.assoc.is_rejected and
-               not self.assoc.is_aborted and not self.assoc.dul._kill_thread):
+        timeout = 0
+        while (
+            not self.assoc.is_established
+            and not self.assoc.is_rejected
+            and not self.assoc.is_aborted
+            and not self.assoc.dul._kill_thread
+            and timeout < 10
+        ):
             time.sleep(0.05)
+            timeout += 0.05
 
         self.assoc.release()
 
@@ -9808,9 +10163,16 @@ class TestStateMachineFunctionalAcceptor(object):
 
         self.assoc.start()
 
-        while (not self.assoc.is_established and not self.assoc.is_rejected and
-               not self.assoc.is_aborted and not self.assoc.dul._kill_thread):
+        timeout = 0
+        while (
+            not self.assoc.is_established
+            and not self.assoc.is_rejected
+            and not self.assoc.is_aborted
+            and not self.assoc.dul._kill_thread
+            and timeout < 10
+        ):
             time.sleep(0.05)
+            timeout += 0.05
 
         assert self.assoc.is_rejected
         assert self.assoc.acceptor.primitive.result == 0x01
@@ -9871,8 +10233,10 @@ class TestEventHandling(object):
         assert child.get_handlers(evt.EVT_FSM_TRANSITION) == [(handle, None)]
 
         assoc.release()
-        while scp.active_associations:
+        timeout = 0
+        while scp.active_associations and timeout < 10:
             time.sleep(0.05)
+            timeout += 0.05
 
         for event in triggered:
             assert hasattr(event, 'current_state')
@@ -9918,8 +10282,10 @@ class TestEventHandling(object):
         assert child.get_handlers(evt.EVT_FSM_TRANSITION) == [(handle, None)]
 
         assoc.release()
-        while scp.active_associations:
+        timeout = 0
+        while scp.active_associations and timeout < 10:
             time.sleep(0.05)
+            timeout += 0.05
 
         for event in triggered:
             assert hasattr(event, 'current_state')
@@ -9966,8 +10332,10 @@ class TestEventHandling(object):
 
         # Should go Sta6 -> Sta8 -> Sta13
         assoc.release()
-        while scp.active_associations:
+        timeout = 0
+        while scp.active_associations and timeout < 10:
             time.sleep(0.05)
+            timeout += 0.05
 
         time.sleep(0.5)
 
@@ -10004,8 +10372,10 @@ class TestEventHandling(object):
         child = scp.active_associations[0]
         assert child.get_handlers(evt.EVT_FSM_TRANSITION) == []
         assoc.release()
-        while not assoc.is_released:
+        timeout = 0
+        while not assoc.is_released and timeout < 10:
             time.sleep(0.05)
+            timeout += 0.05
 
         for event in triggered:
             assert hasattr(event, 'current_state')
@@ -10043,8 +10413,10 @@ class TestEventHandling(object):
         assert child.get_handlers(evt.EVT_FSM_TRANSITION) == []
 
         assoc.release()
-        while not assoc.is_released:
+        timeout = 0
+        while not assoc.is_released and timeout < 10:
             time.sleep(0.05)
+            timeout += 0.05
 
         for event in triggered:
             assert hasattr(event, 'current_state')
@@ -10083,8 +10455,10 @@ class TestEventHandling(object):
         assert child.get_handlers(evt.EVT_FSM_TRANSITION) == []
 
         assoc.release()
-        while not assoc.is_released:
+        timeout = 0
+        while not assoc.is_released and timeout < 10:
             time.sleep(0.05)
+            timeout += 0.05
 
         for event in triggered:
             assert hasattr(event, 'current_state')
@@ -10115,8 +10489,10 @@ class TestEventHandling(object):
             assert assoc.is_established
             assoc.release()
 
-            while scp.active_associations:
+            timeout = 0
+            while scp.active_associations and timeout < 10:
                 time.sleep(0.05)
+                timeout += 0.05
 
             scp.shutdown()
 

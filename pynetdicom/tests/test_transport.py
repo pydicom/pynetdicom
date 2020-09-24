@@ -1201,6 +1201,7 @@ class TestEventHandlingAcceptor(object):
 
         assoc = ae.associate('localhost', 11112)
         assert assoc.is_established
+        time.sleep(0.5)
 
         scp.bind(evt.EVT_DATA_SENT, handle)
 
@@ -1243,11 +1244,13 @@ class TestEventHandlingAcceptor(object):
 
         assoc = ae.associate('localhost', 11112)
         assert assoc.is_established
+        time.sleep(0.5)
         assert len(scp.active_associations) == 1
         assert scp.get_handlers(evt.EVT_DATA_SENT) == [(handle, None)]
         assert assoc.get_handlers(evt.EVT_DATA_SENT) == []
 
         child = scp.active_associations[0]
+        assert child.dul.state_machine.current_state == 'Sta6'
         assert child.get_handlers(evt.EVT_DATA_SENT) == [(handle, None)]
 
         scp.unbind(evt.EVT_DATA_SENT, handle)

@@ -4393,9 +4393,7 @@ class TestGetValidContext(object):
             r"for the SCU role"
         )
         with pytest.raises(ValueError, match=msg):
-            assoc._get_valid_context(CTImageStorage,
-                                     '',
-                                     'scu')
+            assoc._get_valid_context(CTImageStorage, '', 'scu')
 
         # Transfer syntax used
         msg = (
