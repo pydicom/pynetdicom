@@ -31,7 +31,6 @@ def debug_fsm(event):
         )
     )
 
-
 def debug_data(event, pdu_type=None, print_raw=True, print_summary=False):
     """Debugging handler for parsing raw encoded PDUs
 
@@ -55,12 +54,14 @@ def debug_data(event, pdu_type=None, print_raw=True, print_summary=False):
         return
 
     if print_raw:
-        print(f"\n{' DEBUG - ENCODED PDU ':=^76}")
+        LOGGER.debug(f"{' DEBUG - ENCODED PDU ':=^76}")
         slist = pretty_bytes(
             data, prefix=' ', delimiter=' ', max_size=None, items_per_line=25
         )
         for s in slist:
-            print(s)
+            LOGGER.debug(s)
+
+        LOGGER.debug(f"{' END ENCODED PDU ':=^76}")
 
     PDU_ITEM_TYPES = {
         0x01: ("A-ASSOCIATE-RQ", '>I', 74),
@@ -88,7 +89,7 @@ def debug_data(event, pdu_type=None, print_raw=True, print_summary=False):
     }
 
     if print_summary:
-        print(f"\n{' DEBUG - PDU SUMMARY ':=^76}")
+        LOGGER.debug(f"{' DEBUG - PDU SUMMARY ':=^76}")
         idx = 0
         digits = len(str(len(data)))
         while idx < len(data):
@@ -135,7 +136,7 @@ def debug_data(event, pdu_type=None, print_raw=True, print_summary=False):
             if data_type == 0x07:
                 s += f" - Source {data[idx + 8]}, Reason {data[idx + 9]}"
 
-            print(s)
+            LOGGER.debug(s)
 
             # P-DATA-TF
             if data_type == 0x04:
@@ -143,7 +144,7 @@ def debug_data(event, pdu_type=None, print_raw=True, print_summary=False):
                 while offset < idx + 2 + len_bytes + length:
                     item_length = unpack('>I', data[offset:offset + 4])[0]
                     cx_id = data[offset + 4]
-                    print(
+                    LOGGER.debug(
                         f"{offset:>{digits}}:        PDV - context ID "
                         f"{cx_id}, length {item_length}"
                     )
@@ -153,10 +154,12 @@ def debug_data(event, pdu_type=None, print_raw=True, print_summary=False):
             if len_fixed:
                 idx += len_fixed
             else:
-                if data_type < 7:
+                if data_type < 8:
                     idx += length + 6
                 else:
                     idx += length + 4
+
+        LOGGER.debug(f"{' END PDU SUMMARY ':=^76}")
 
 
 # Standard logging handlers
