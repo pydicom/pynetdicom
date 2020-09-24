@@ -4365,12 +4365,14 @@ class TestGetValidContext(object):
 
     def test_no_id_no_role_scu(self):
         """Test exception raised if no role match."""
-        self.scp = DummyGetSCP()
-        self.scp.start()
+        self.ae = ae = AE()
+        ae.acse_timeout = 5
+        ae.dimse_timeout = 5
+        ae.network_timeout = 5
+        ae.add_supported_context(PatientRootQueryRetrieveInformationModelGet)
+        ae.add_supported_context(CTImageStorage, scp_role=True, scu_role=True)
+        scp = ae.start_server(('', 11112), block=False)
 
-        times.sleep(0.5)
-
-        ae = AE()
         ae.add_requested_context(PatientRootQueryRetrieveInformationModelGet)
         ae.add_requested_context(CTImageStorage)
 
@@ -4406,9 +4408,12 @@ class TestGetValidContext(object):
             r"for the SCU role"
         )
         with pytest.raises(ValueError, match=msg):
-            assoc._get_valid_context(CTImageStorage,
-                                     ImplicitVRLittleEndian,
-                                     'scu')
+            assoc._get_valid_context(
+                CTImageStorage, ImplicitVRLittleEndian, 'scu'
+            )
+
+        assoc.release()
+        scp.shutdown()
 
     def test_implicit_explicit(self):
         """Test matching when both implicit and explicit are available."""
