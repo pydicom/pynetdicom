@@ -25,7 +25,7 @@ from pynetdicom._handlers import (
     doc_handle_async, doc_handle_sop_common, doc_handle_sop_extended,
     doc_handle_userid, doc_handle_acse, doc_handle_dimse, doc_handle_data,
     doc_handle_pdu, doc_handle_transport, doc_handle_assoc, doc_handle_fsm,
-    debug_fsm
+    debug_fsm, debug_data
 )
 from pynetdicom.pdu import (
     A_ASSOCIATE_RQ, A_ASSOCIATE_AC,
@@ -1346,3 +1346,162 @@ class TestDebuggingLogging(object):
         scp.shutdown()
 
         assert "R: Sta1 + Evt1 -> AE-1 -> Sta4" in caplog.text
+
+    def test_debug_data_reject(self, caplog):
+        """Test debug_data."""
+        self.ae = ae = AE()
+        ae.require_called_aet = True
+        ae.add_supported_context('1.2.840.10008.1.1')
+        ae.add_requested_context('1.2.840.10008.1.1')
+        scp = ae.start_server(('', 11112), block=False)
+
+        role = build_role('1.2.840.10008.1.1', scp_role=True)
+        hh = [
+            (evt.EVT_DATA_RECV, debug_data, [3, True, True]),
+        ]
+        with caplog.at_level(logging.DEBUG, logger='pynetdicom'):
+            assoc = ae.associate(
+                'localhost', 11112, evt_handlers=hh, ext_neg=[role]
+            )
+            assert assoc.is_rejected
+
+        scp.shutdown()
+
+        assert "DEBUG - ENCODED PDU" in caplog.text
+        assert "03 00 00 00 00 04 00 01 01 07" in caplog.text
+        assert "DEBUG - PDU SUMMARY" in caplog.text
+        assert (
+            "0: 0x03 - A-ASSOCIATE-RJ (4 bytes) - Result 1, Source 1, Reason 7"
+        ) in caplog.text
+
+    def test_debug_data_abort(self, caplog):
+        """Test debug_data."""
+        self.ae = ae = AE()
+        ae.add_supported_context('1.2.840.10008.1.1')
+        ae.add_requested_context('1.2.840.10008.1.1')
+        scp = ae.start_server(('', 11112), block=False)
+
+        hh = [
+            (evt.EVT_DATA_SENT, debug_data, [7, True, True]),
+        ]
+        with caplog.at_level(logging.DEBUG, logger='pynetdicom'):
+            assoc = ae.associate('localhost', 11112, evt_handlers=hh)
+            assert assoc.is_established
+            assoc.abort()
+            assert assoc.is_aborted
+
+        scp.shutdown()
+
+        assert "DEBUG - ENCODED PDU" in caplog.text
+        assert "07 00 00 00 00 04 00 00 00 00" in caplog.text
+        assert "DEBUG - PDU SUMMARY" in caplog.text
+        assert (
+            "0: 0x07 - A-ABORT (4 bytes) - Source 0, Reason 0" in caplog.text
+        )
+
+    def test_debug_data_raw(self, caplog):
+        """Test debug_data."""
+        self.ae = ae = AE()
+        ae.add_supported_context('1.2.840.10008.1.1')
+        ae.add_requested_context('1.2.840.10008.1.1')
+        scp = ae.start_server(('', 11112), block=False)
+
+        role = build_role('1.2.840.10008.1.1', scp_role=True)
+        hh = [
+            (evt.EVT_DATA_SENT, debug_data, [1, True, False]),
+        ]
+        with caplog.at_level(logging.DEBUG, logger='pynetdicom'):
+            assoc = ae.associate(
+                'localhost', 11112, evt_handlers=hh, ext_neg=[role]
+            )
+            assert assoc.is_established
+            assoc.send_c_echo()
+            assoc.release()
+
+        scp.shutdown()
+
+        assert "DEBUG - ENCODED PDU" in caplog.text
+        assert "01 00 00 00 01 32 00 01 00 00" in caplog.text
+        assert "30 38 2e 31 2e 32 2e 31 2e 39 39 40 00" in caplog.text
+        assert "DEBUG - PDU SUMMARY" not in caplog.text
+
+    def test_debug_data_pdata(self, caplog):
+        """Test debug_data."""
+        self.ae = ae = AE()
+        ae.add_supported_context('1.2.840.10008.1.1')
+        ae.add_requested_context('1.2.840.10008.1.1')
+        scp = ae.start_server(('', 11112), block=False)
+
+        role = build_role('1.2.840.10008.1.1', scp_role=True)
+        hh = [
+            (evt.EVT_DATA_SENT, debug_data, [4, True, True]),
+        ]
+        with caplog.at_level(logging.DEBUG, logger='pynetdicom'):
+            assoc = ae.associate(
+                'localhost', 11112, evt_handlers=hh, ext_neg=[role]
+            )
+            assert assoc.is_established
+            assoc.send_c_echo()
+            assoc.release()
+
+        scp.shutdown()
+
+        assert "DEBUG - ENCODED PDU" in caplog.text
+        assert "04 00 00 00 00 4a 00 00 00 46 01 03" in caplog.text
+        assert "00 00 00 01 01" in caplog.text
+        assert "DEBUG - PDU SUMMARY" in caplog.text
+        assert "0: 0x04 - P-DATA-TF (74 bytes)" in caplog.text
+        assert "6:        PDV - context ID 1, length 70" in caplog.text
+
+    def test_debug_data_summary(self, caplog):
+        """Test debug_data."""
+        self.ae = ae = AE()
+        ae.add_supported_context('1.2.840.10008.1.1')
+        ae.add_requested_context('1.2.840.10008.1.1')
+        scp = ae.start_server(('', 11112), block=False)
+
+        role = build_role('1.2.840.10008.1.1', scp_role=True)
+        hh = [
+            (evt.EVT_DATA_SENT, debug_data, [1, False, True]),
+        ]
+        with caplog.at_level(logging.DEBUG, logger='pynetdicom'):
+            assoc = ae.associate(
+                'localhost', 11112, evt_handlers=hh, ext_neg=[role]
+            )
+            assert assoc.is_established
+            assoc.send_c_echo()
+            assoc.release()
+
+        scp.shutdown()
+
+        assert "DEBUG - ENCODED PDU" not in caplog.text
+        assert "DEBUG - PDU SUMMARY" in caplog.text
+        items = [
+            "  0: 0x01 - A-ASSOCIATE-RQ (306 bytes)",
+            " 74: 0x10 - Application Context (21 bytes)",
+            " 99: 0x20 - Presentation Context RQ (118 bytes) - 1",
+            "107: 0x30 - Abstract Syntax (17 bytes) - Verification SOP Class",
+            (
+                "128: 0x40 - Transfer Syntax (17 bytes) - Implicit VR "
+                "Little Endian"
+            ),
+            (
+                "149: 0x40 - Transfer Syntax (19 bytes) - Explicit VR "
+                "Little Endian"
+            ),
+            (
+                "172: 0x40 - Transfer Syntax (22 bytes) - Deflated Explicit "
+                "VR Little Endian"
+            ),
+            "198: 0x40 - Transfer Syntax (19 bytes) - Explicit VR Big Endian",
+            "221: 0x50 - User Information (87 bytes)",
+            "225: 0x51 - Maximum Length (4 bytes)",
+            "233: 0x52 - Implementation Class UID (32 bytes)",
+            "269: 0x55 - Implementation Version Name (14 bytes)",
+            (
+                "287: 0x54 - SCP/SCU Role Selection (21 bytes) - Verification "
+                "SOP Class, SCU 0, SCP 1"
+            ),
+        ]
+        for item in items:
+            assert item in caplog.text
