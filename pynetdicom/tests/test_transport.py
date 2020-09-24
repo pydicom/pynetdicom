@@ -383,6 +383,8 @@ class TestTLS(object):
             ('', 11112), block=False, ssl_context=server_context,
         )
 
+        time.sleep(0.5)
+
         ae.add_requested_context('1.2.840.10008.1.1')
         assoc = ae.associate(
             'localhost', 11112, tls_args=(client_context, None)

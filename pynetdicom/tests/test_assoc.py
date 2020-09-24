@@ -4367,6 +4367,9 @@ class TestGetValidContext(object):
         """Test exception raised if no role match."""
         self.scp = DummyGetSCP()
         self.scp.start()
+
+        times.sleep(0.5)
+
         ae = AE()
         ae.add_requested_context(PatientRootQueryRetrieveInformationModelGet)
         ae.add_requested_context(CTImageStorage)
