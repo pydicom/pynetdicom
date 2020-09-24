@@ -63,10 +63,17 @@ class TestTimer(object):
         """Test Timer restarts correctly."""
         timer = Timer(0.2)
         timer.start()
-        time.sleep(0.1)
+        # time.sleep() may be longer than the called amount - whoof
+        timeout = 0
+        while timeout < 0.1:
+            time.sleep(0.001)
+            timeout += 0.001
         assert timer.expired is False
         timer.restart()
-        time.sleep(0.15)
+        timeout = 0
+        while timeout < 0.15:
+            time.sleep(0.001)
+            timeout += 0.001
         assert timer.expired is False
         time.sleep(0.1)
         assert timer.expired is True
