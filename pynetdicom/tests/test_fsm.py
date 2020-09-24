@@ -9903,8 +9903,13 @@ class TestEventHandling(object):
 
         assoc = ae.associate('localhost', 11112)
         assert assoc.is_established
-        assert assoc.get_handlers(evt.EVT_FSM_TRANSITION) == []
+
+
+        time.sleep(0.5)
+
         child = scp.active_associations[0]
+        assert child.dul.state_machine.current_state == 'Sta6'
+        assert assoc.get_handlers(evt.EVT_FSM_TRANSITION) == []
         assert child.get_handlers(evt.EVT_FSM_TRANSITION) == []
 
         scp.bind(evt.EVT_FSM_TRANSITION, handle)
@@ -9938,18 +9943,28 @@ class TestEventHandling(object):
         ae.add_requested_context('1.2.840.10008.1.1')
         handlers = [(evt.EVT_FSM_TRANSITION, handle)]
         scp = ae.start_server(('', 11112), block=False, evt_handlers=handlers)
+
+        # Confirm that the handler is bound
         assert scp.get_handlers(evt.EVT_FSM_TRANSITION) == [(handle, None)]
 
         assoc = ae.associate('localhost', 11112)
         assert assoc.is_established
+
+        time.sleep(0.5)
+
+        # Acceptor association
         child = scp.active_associations[0]
+        # At this point we *must* have gone Sta1 -> Sta2 -> Sta3 -> Sta6
+        assert child.dul.state_machine.current_state == 'Sta6'
         assert child.get_handlers(evt.EVT_FSM_TRANSITION) == [(handle, None)]
 
+        # Unbind the handler and confirm that its unbound
         scp.unbind(evt.EVT_FSM_TRANSITION, handle)
         assert scp.get_handlers(evt.EVT_FSM_TRANSITION) == []
         child = scp.active_associations[0]
         assert child.get_handlers(evt.EVT_FSM_TRANSITION) == []
 
+        # Should go Sta6 -> Sta8 -> Sta13
         assoc.release()
         while scp.active_associations:
             time.sleep(0.05)
@@ -9965,6 +9980,7 @@ class TestEventHandling(object):
             assert isinstance(event.timestamp, datetime.datetime)
 
         states = [ee.current_state for ee in triggered]
+        print(states)
         assert states[:3] == ['Sta1', 'Sta2', 'Sta3']
 
         scp.shutdown()
