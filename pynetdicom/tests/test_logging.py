@@ -1425,6 +1425,34 @@ class TestDebuggingLogging(object):
         assert "30 38 2e 31 2e 32 2e 31 2e 39 39 40 00" in caplog.text
         assert "DEBUG - PDU SUMMARY" not in caplog.text
 
+    def test_debug_data_pdata(self, caplog):
+        """Test debug_data."""
+        self.ae = ae = AE()
+        ae.add_supported_context('1.2.840.10008.1.1')
+        ae.add_requested_context('1.2.840.10008.1.1')
+        scp = ae.start_server(('', 11112), block=False)
+
+        role = build_role('1.2.840.10008.1.1', scp_role=True)
+        hh = [
+            (evt.EVT_DATA_SENT, debug_data, [4, True, True]),
+        ]
+        with caplog.at_level(logging.DEBUG, logger='pynetdicom'):
+            assoc = ae.associate(
+                'localhost', 11112, evt_handlers=hh, ext_neg=[role]
+            )
+            assert assoc.is_established
+            assoc.send_c_echo()
+            assoc.release()
+
+        scp.shutdown()
+
+        assert "DEBUG - ENCODED PDU" in caplog.text
+        assert "04 00 00 00 00 4a 00 00 00 46 01 03" in caplog.text
+        assert "00 00 00 01 01" in caplog.text
+        assert "DEBUG - PDU SUMMARY" in caplog.text
+        assert "0: 0x04 - P-DATA-TF (74 bytes)" in caplog.text
+        assert "6:        PDV - context ID 1, length 70" in caplog.text
+
     def test_debug_data_summary(self, caplog):
         """Test debug_data."""
         self.ae = ae = AE()

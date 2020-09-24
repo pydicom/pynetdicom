@@ -145,7 +145,7 @@ def debug_data(event, pdu_type=None, print_raw=True, print_summary=False):
                     item_length = unpack('>I', data[offset:offset + 4])[0]
                     cx_id = data[offset + 4]
                     LOGGER.debug(
-                        f"{offset:>{digits}}:        PDV - context ID "
+                        f" {offset:>{digits}}:        PDV - context ID "
                         f"{cx_id}, length {item_length}"
                     )
 
