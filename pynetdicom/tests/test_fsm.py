@@ -7,7 +7,7 @@ import socket
 from struct import pack
 import sys
 import threading
-import time
+#import time
 
 import pytest
 
@@ -24,6 +24,7 @@ from pynetdicom.pdu import A_RELEASE_RQ
 from pynetdicom.sop_class import VerificationSOPClass
 from pynetdicom.transport import AssociationSocket
 from pynetdicom.utils import validate_ae_title
+import pynetdicom.utils as time
 from .dummy_c_scp import DummyVerificationSCP, DummyBaseSCP
 from .encoded_pdu_items import (
     a_associate_ac, a_associate_rq, a_associate_rj, p_data_tf, a_abort,

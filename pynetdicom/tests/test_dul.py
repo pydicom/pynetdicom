@@ -3,7 +3,8 @@
 import logging
 import socket
 import threading
-import time
+#import time
+import pynetdicom.utils as time
 
 import pytest
 
