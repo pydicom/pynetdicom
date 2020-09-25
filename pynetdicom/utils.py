@@ -3,7 +3,6 @@
 from io import BytesIO
 import logging
 import sys
-import time
 import unicodedata
 
 from pynetdicom import _config
@@ -64,15 +63,6 @@ def pretty_bytes(bytestream, prefix='  ', delimiter='  ', items_per_line=16,
         lines.insert(0, prefix + f"Only dumping {max_size} bytes.")
 
     return lines
-
-
-# Might be better off in testing
-def sleep(duration):
-    """Sleep for `duration` seconds."""
-    now = time.perf_counter()
-    end = now + duration
-    while now < end:
-        now = time.perf_counter()
 
 
 def validate_ae_title(ae_title, use_short=False):

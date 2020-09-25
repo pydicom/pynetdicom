@@ -58,7 +58,6 @@ from .dummy_c_scp import (
     DummyMoveSCP, DummyBaseSCP
 )
 from .encoded_pdu_items import a_associate_ac
-from .parrot import start_server, ThreadedParrot
 
 
 #debug_logger()

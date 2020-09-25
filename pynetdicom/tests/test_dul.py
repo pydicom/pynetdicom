@@ -3,22 +3,23 @@
 import logging
 import socket
 import threading
-#import time
-import pynetdicom.utils as time
+import time
 
 import pytest
 
-from pynetdicom import AE
+from pynetdicom import AE, debug_logger
 from pynetdicom.dul import DULServiceProvider
-from pynetdicom.pdu import A_ASSOCIATE_RQ, A_ASSOCIATE_AC, A_ASSOCIATE_RJ, \
-                            A_RELEASE_RQ, A_RELEASE_RP, P_DATA_TF, A_ABORT_RQ
+from pynetdicom.pdu import (
+    A_ASSOCIATE_RQ, A_ASSOCIATE_AC, A_ASSOCIATE_RJ,
+    A_RELEASE_RQ, A_RELEASE_RP, P_DATA_TF, A_ABORT_RQ
+)
 from pynetdicom.pdu_primitives import A_ASSOCIATE, A_RELEASE, A_ABORT, P_DATA
 from .encoded_pdu_items import a_associate_ac, a_release_rq
-from .parrot import start_server, ThreadedParrot
+from .parrot import start_server, ThreadedParrot, ParrotRequest
+from .utils import sleep
 
-LOGGER = logging.getLogger('pynetdicom')
-LOGGER.setLevel(logging.CRITICAL)
-#LOGGER.setLevel(logging.DEBUG)
+
+#debug_logger()
 
 
 class DummyACSE(object):
@@ -88,14 +89,14 @@ class TestDUL(object):
             ('send', b"\x07\x00\x00\x00\x00\x04"),
             ('wait', 0.3)
         ]
-        scp = start_server(commands)
+        scp = start_server(commands, ParrotRequest)
 
         ae = AE()
         ae.network_timeout = 0.2
         ae.add_requested_context('1.2.840.10008.1.1')
         assoc = ae.associate('localhost', 11112)
         assert assoc.is_established
-        time.sleep(0.4)
+        sleep(0.4)
         assert assoc.is_aborted
 
         scp.shutdown()
@@ -108,7 +109,7 @@ class TestDUL(object):
             ('send', b"\x07\x00\x00\x00\x00\x04\x00\x00"),  # Send short PDU
             ('wait', 0.3),  # Keep connection open
         ]
-        scp = start_server(commands)
+        scp = start_server(commands, ParrotRequest)
 
         ae = AE()
         ae.add_requested_context('1.2.840.10008.1.1')
@@ -116,7 +117,7 @@ class TestDUL(object):
         assoc = ae.associate('localhost', 11112)
         assert assoc.is_established
 
-        time.sleep(0.4)
+        sleep(0.4)
         assert assoc.is_aborted
 
         scp.shutdown()
@@ -129,7 +130,7 @@ class TestDUL(object):
             ('wait', 0.1),  # Don't want to accidentally kill the DUL
             ('send', b"\x07\x00\x00\x00\x00\x02\x00\x00"),
         ]
-        scp = start_server(commands)
+        scp = start_server(commands, ParrotRequest)
 
         ae = AE()
         ae.network_timeout = 0.2
@@ -137,7 +138,7 @@ class TestDUL(object):
         assoc = ae.associate('localhost', 11112)
         assert assoc.is_established
 
-        time.sleep(0.4)
+        sleep(0.4)
         assert assoc.is_aborted
 
         scp.shutdown()
@@ -154,7 +155,7 @@ class TestDUL(object):
             ('recv', None),  # recv a-abort
             ('wait', 0.2),
         ]
-        scp = start_server(commands)
+        scp = start_server(commands, ParrotRequest)
 
         ae = AE()
         ae.network_timeout = 0.2
@@ -167,7 +168,7 @@ class TestDUL(object):
 
         assoc.dul._read_pdu_data = patch_read_pdu
 
-        time.sleep(0.4)
+        sleep(0.4)
         assert assoc.is_aborted
 
         scp.shutdown()

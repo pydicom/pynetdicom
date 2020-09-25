@@ -1,11 +1,11 @@
 """Unit tests for the Timer class."""
 
 import logging
-import time
 
 import pytest
 
 from pynetdicom.timer import Timer
+from .utils import sleep
 
 LOGGER = logging.getLogger('pynetdicom')
 LOGGER.setLevel(logging.CRITICAL)
@@ -41,10 +41,10 @@ class TestTimer(object):
 
         timer.timeout = 0.2
         timer.start()
-        time.sleep(0.1)
+        sleep(0.1)
         assert timer.remaining < 0.1
         assert not timer.expired
-        time.sleep(0.1)
+        sleep(0.1)
         assert timer.expired
 
         timer.timeout = None
@@ -54,28 +54,28 @@ class TestTimer(object):
         """Test Timer stops."""
         timer = Timer(0.2)
         timer.start()
-        time.sleep(0.1)
+        sleep(0.1)
         timer.stop()
-        time.sleep(0.2)
+        sleep(0.2)
         assert not timer.expired
 
     def test_restart(self):
         """Test Timer restarts correctly."""
         timer = Timer(0.2)
         timer.start()
-        # time.sleep() may be longer than the called amount - whoof
+        # sleep() may be longer than the called amount - whoof
         timeout = 0
         while timeout < 0.1:
-            time.sleep(0.001)
+            sleep(0.001)
             timeout += 0.001
         assert timer.expired is False
         timer.restart()
         timeout = 0
         while timeout < 0.15:
-            time.sleep(0.001)
+            sleep(0.001)
             timeout += 0.001
         assert timer.expired is False
-        time.sleep(0.1)
+        sleep(0.1)
         assert timer.expired is True
 
     def test_no_timeout(self):
@@ -87,7 +87,7 @@ class TestTimer(object):
         timer.start()
         assert timer.expired is False
         assert timer.remaining == 1
-        time.sleep(0.5)
+        sleep(0.5)
         assert timer.expired is False
         assert timer.remaining == 1
         timer.stop()
@@ -103,7 +103,7 @@ class TestTimer(object):
         timer.start()
         assert timer.expired is False
         assert timer.remaining > 0
-        time.sleep(0.2)
+        sleep(0.2)
         assert timer.expired is True
         assert timer.remaining < 0
         timer.stop()
@@ -122,7 +122,7 @@ class TestTimer(object):
         assert timer.expired is False
         assert timer.remaining > 0
         timer.start()
-        time.sleep(0.2)
+        sleep(0.2)
         timer.stop()
         assert timer.timeout == 0.1
         assert timer.expired is True

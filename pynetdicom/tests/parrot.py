@@ -14,15 +14,6 @@ import time
 from pynetdicom.transport import AssociationServer
 
 
-def start_server(commands):
-    server = ThreadedParrot(('localhost', 11112), commands)
-    thread = threading.Thread(target=server.serve_forever)
-    thread.daemon = True
-    thread.start()
-
-    return server
-
-
 class ParrotRequest(BaseRequestHandler):
     @property
     def commands(self):
@@ -41,36 +32,6 @@ class ParrotRequest(BaseRequestHandler):
         self.event.clear()
         self.received = []
         self.sent = []
-        while True:
-            print('Parrot: waiting on threading.Event')
-            self.event.wait()
-            print('Parrot: wait ended')
-            cmd, data = self.commands.pop(0)
-            print('Parrot: running command', cmd)
-            if cmd == 'close':
-                print('Parrot: closing TCP connection')
-                # Close the TCP connection
-                pass
-
-            if cmd == 'exit':
-                print('Parrot: exiting...')
-                return
-
-            if cmd == 'recv':
-                print('Parrot: receiving data')
-                self.kill_read = False
-                while not self.kill_read:
-                    if self.ready:
-                        self.received.append(bytes(self.read_data))
-                        self.kill_read = True
-            elif cmd == 'send':
-                print('Parrot: sending data')
-                self.send(data)
-                self.sent.append(data)
-
-            self.event.clear()
-
-        return
         for (cmd, data) in self.commands:
             if cmd == 'recv':
                 self.kill_read = False
@@ -203,8 +164,50 @@ class ParrotRequest(BaseRequestHandler):
         return self.request
 
 
+class SteppingParrotRequest(ParrotRequest):
+    def handle(self):
+        # self.server: ThreadedParrot
+        # self.client_address: remote's (host, port)
+        # self.request: socket
+        self.event.clear()
+        self.received = []
+        self.sent = []
+        while True:
+            #print('Parrot: waiting on threading.Event')
+            self.event.wait()
+            #print('Parrot: wait ended')
+            cmd, data = self.commands.pop(0)
+            #print('Parrot: running command', cmd)
+            if cmd == 'exit':
+                #print('Parrot: exiting...')
+                return
+
+            if cmd == 'recv':
+                #print('Parrot: receiving data')
+                self.kill_read = False
+                while not self.kill_read:
+                    if self.ready:
+                        self.received.append(bytes(self.read_data))
+                        self.kill_read = True
+            elif cmd == 'send':
+                #print('Parrot: sending data')
+                self.send(data)
+                self.sent.append(data)
+
+            self.event.clear()
+
+
+def start_server(commands, handler=SteppingParrotRequest):
+    server = ThreadedParrot(('localhost', 11112), commands, handler)
+    thread = threading.Thread(target=server.serve_forever)
+    thread.daemon = True
+    thread.start()
+
+    return server
+
+
 class Parrot(AssociationServer):
-    def __init__(self, address, commands):
+    def __init__(self, address, commands, handler=SteppingParrotRequest):
         """Create a new AssociationServer, bind a socket and start listening.
 
         Parameters
@@ -225,7 +228,7 @@ class Parrot(AssociationServer):
         self.allow_reuse_address = True
 
         TCPServer.__init__(
-            self, address, ParrotRequest, bind_and_activate=True
+            self, address, handler, bind_and_activate=True
         )
 
         self.timeout = 60

@@ -41,7 +41,7 @@ from .encoded_pdu_items import (
     a_associate_rq, a_associate_ac, a_release_rq, a_release_rp, p_data_tf,
     a_abort, a_p_abort,
 )
-from .parrot import ThreadedParrot
+from .parrot import ThreadedParrot, ParrotRequest
 
 
 #debug_logger()
@@ -1954,7 +1954,7 @@ class TestNegotiateRelease(object):
 
     def start_server(self, commands):
         """Start the receiving server."""
-        server = ThreadedParrot(('localhost', 11112), commands)
+        server = ThreadedParrot(('localhost', 11112), commands, ParrotRequest)
         thread = threading.Thread(target=server.serve_forever)
         thread.daemon = True
         thread.start()
