@@ -140,7 +140,7 @@ class TestAssociationSocket(object):
         sock = AssociationSocket(self.assoc, address=('localhost', 0))
         assert sock.ready is False
         sock._is_connected = True
-        if platform.system() == 'Windows':
+        if platform.system() in ['Windows', 'Darwin']:
             assert sock.ready is False
         else:
             assert sock.ready is True

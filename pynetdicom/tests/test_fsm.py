@@ -24,7 +24,6 @@ from pynetdicom.pdu import A_RELEASE_RQ
 from pynetdicom.sop_class import VerificationSOPClass
 from pynetdicom.transport import AssociationSocket
 from pynetdicom.utils import validate_ae_title
-from .utils import sleep
 from .dummy_c_scp import DummyVerificationSCP, DummyBaseSCP
 from .encoded_pdu_items import (
     a_associate_ac, a_associate_rq, a_associate_rj, p_data_tf, a_abort,
@@ -406,7 +405,7 @@ class TestStateBase(object):
     def wait_on_state(self, fsm, state, timeout=1):
         start = 0
         while fsm.current_state != state and start < timeout:
-            time.sleep(0.05)
+            time.time.sleep(0.05)
             start += 0.05
 
 
@@ -534,7 +533,7 @@ class TestState01(TestStateBase):
 
         self.assoc.dul.send_pdu(self.get_associate('accept'))
 
-        sleep(0.5)
+        time.sleep(0.5)
 
         self.assoc.kill()
 
@@ -551,7 +550,7 @@ class TestState01(TestStateBase):
 
         self.assoc.dul.send_pdu(self.get_associate('reject'))
 
-        sleep(0.5)
+        time.sleep(0.5)
 
         self.assoc.kill()
 
@@ -569,7 +568,7 @@ class TestState01(TestStateBase):
 
         self.assoc.dul.send_pdu(self.get_pdata())
 
-        sleep(0.5)
+        time.sleep(0.5)
 
         self.assoc.kill()
 
@@ -610,7 +609,7 @@ class TestState01(TestStateBase):
 
         self.assoc.dul.send_pdu(self.get_release(False))
 
-        sleep(0.5)
+        time.sleep(0.5)
 
         self.assoc.kill()
 
@@ -674,7 +673,7 @@ class TestState01(TestStateBase):
 
         self.assoc.dul.send_pdu(self.get_release(True))
 
-        sleep(0.5)
+        time.sleep(0.5)
 
         self.assoc.kill()
 
@@ -692,7 +691,7 @@ class TestState01(TestStateBase):
 
         self.assoc.dul.send_pdu(self.get_abort(False))
 
-        sleep(0.5)
+        time.sleep(0.5)
 
         self.assoc.kill()
 
@@ -741,7 +740,7 @@ class TestState01(TestStateBase):
         scp.step()
         scp.shutdown()
 
-        sleep(0.5)
+        time.sleep(0.5)
 
         assert self.fsm._transitions == []
         assert self.fsm._changes == []
@@ -756,7 +755,7 @@ class TestState01(TestStateBase):
         self.assoc.dul.artim_timer.timeout = 0.05
         self.assoc.dul.artim_timer.start()
 
-        sleep(0.5)
+        time.sleep(0.5)
 
         self.assoc.kill()
 
@@ -1192,7 +1191,7 @@ class TestState02(TestStateBase):
         scp.step()
         scp.shutdown()
 
-        sleep(0.5)
+        time.sleep(0.5)
 
         assert fsm._transitions[:2] == ['Sta2', 'Sta1']
         assert fsm._changes[:2] == [
@@ -1214,7 +1213,7 @@ class TestState02(TestStateBase):
 
         assoc.dul.artim_timer.timeout = 0.05
         assoc.dul.artim_timer.start()
-        sleep(0.5)
+        time.sleep(0.5)
 
         scp.step()
         scp.shutdown()
@@ -1502,7 +1501,7 @@ class TestState03(TestStateBase):
             """Override ACSE._negotiate_as_acceptor so no A-ASSOCIATE (rsp)."""
             # Keep the state machine in Sta3 for 0.5 s
             scp.step()
-            sleep(0.5)
+            time.sleep(0.5)
             orig()
 
         assoc.acse._negotiate_as_acceptor = _neg_as_acc
@@ -1568,7 +1567,7 @@ class TestState03(TestStateBase):
             """Override ACSE._negotiate_as_acceptor so no A-ASSOCIATE (rsp)."""
             # Keep the state machine in Sta3 for 0.5 s
             scp.step()
-            sleep(0.5)
+            time.sleep(0.5)
             orig()
 
         assoc.acse._negotiate_as_acceptor = _neg_as_acc
@@ -1604,7 +1603,7 @@ class TestState03(TestStateBase):
             """Override ACSE._negotiate_as_acceptor so no A-ASSOCIATE (rsp)."""
             # Keep the state machine in Sta3 for 0.5 s
             scp.step()
-            sleep(0.5)
+            time.sleep(0.5)
             orig()
 
         assoc.acse._negotiate_as_acceptor = _neg_as_acc
@@ -1702,7 +1701,7 @@ class TestState03(TestStateBase):
             """Override ACSE._negotiate_as_acceptor so no A-ASSOCIATE (rsp)."""
             # Keep the state machine in Sta3 for 0.5 s
             scp.step()
-            sleep(0.5)
+            time.sleep(0.5)
             orig()
 
         assoc.acse._negotiate_as_acceptor = _neg_as_acc
@@ -1736,7 +1735,7 @@ class TestState03(TestStateBase):
         def _neg_as_acc():
             """Override ACSE._negotiate_as_acceptor so no A-ASSOCIATE (rsp)."""
             # Keep the state machine in Sta3 for 0.5 s
-            sleep(0.5)
+            time.sleep(0.5)
             orig()
 
         assoc.acse._negotiate_as_acceptor = _neg_as_acc
@@ -1745,7 +1744,7 @@ class TestState03(TestStateBase):
         scp.step()
         scp.shutdown()
 
-        sleep(0.5)
+        time.sleep(0.5)
 
         assert fsm._transitions[:2] == ['Sta2', 'Sta3']
         assert fsm._changes[:3] == [
@@ -1773,7 +1772,7 @@ class TestState03(TestStateBase):
             # Keep the state machine in Sta3 for 0.5 s
             assoc.dul.artim_timer.timeout = 0.05
             assoc.dul.artim_timer.start()
-            sleep(0.5)
+            time.sleep(0.5)
             orig()
 
         assoc.acse._negotiate_as_acceptor = _neg_as_acc
@@ -1808,7 +1807,7 @@ class TestState03(TestStateBase):
             """Override ACSE._negotiate_as_acceptor so no A-ASSOCIATE (rsp)."""
             # Keep the state machine in Sta3 for 0.5 s
             scp.step()
-            sleep(0.5)
+            time.sleep(0.5)
             orig()
 
         assoc.acse._negotiate_as_acceptor = _neg_as_acc
@@ -2170,7 +2169,7 @@ class TestState04(TestStateBase):
         scp.step()
         scp.shutdown()
 
-        sleep(0.5)
+        time.sleep(0.5)
 
         assert self.fsm._transitions[:1] == ['Sta4']
         assert self.fsm._changes[:1] == [
@@ -2190,7 +2189,7 @@ class TestState04(TestStateBase):
 
         self.assoc.dul.artim_timer.timeout = 0.05
         self.assoc.dul.artim_timer.start()
-        sleep(0.5)
+        time.sleep(0.5)
 
         scp.step()
         scp.shutdown()
@@ -2634,7 +2633,7 @@ class TestState05(TestStateBase):
         scp.step()
         scp.shutdown()
 
-        sleep(0.5)
+        time.sleep(0.5)
 
         assert self.fsm._changes[:3] == [
             ('Sta1', 'Evt1', 'AE-1'),
@@ -2657,7 +2656,7 @@ class TestState05(TestStateBase):
 
         self.assoc.dul.artim_timer.timeout = 0.05
         self.assoc.dul.artim_timer.start()
-        sleep(0.5)
+        time.sleep(0.5)
 
         scp.step()
         scp.shutdown()
@@ -3141,7 +3140,7 @@ class TestState06(TestStateBase):
         scp.step()
         scp.shutdown()
 
-        sleep(0.5)
+        time.sleep(0.5)
 
         assert self.fsm._changes[:4] == [
             ('Sta1', 'Evt1', 'AE-1'),
@@ -3166,7 +3165,7 @@ class TestState06(TestStateBase):
 
         self.assoc.dul.artim_timer.timeout = 0.05
         self.assoc.dul.artim_timer.start()
-        sleep(0.5)
+        time.sleep(0.5)
 
         scp.step()
         scp.shutdown()
@@ -3674,7 +3673,7 @@ class TestState07(TestStateBase):
         scp.step()
         scp.shutdown()
 
-        sleep(0.5)
+        time.sleep(0.5)
 
         assert self.fsm._changes[:5] == [
             ('Sta1', 'Evt1', 'AE-1'),
@@ -3701,7 +3700,7 @@ class TestState07(TestStateBase):
 
         self.assoc.dul.artim_timer.timeout = 0.05
         self.assoc.dul.artim_timer.start()
-        sleep(0.5)
+        time.sleep(0.5)
 
         scp.step()
         scp.shutdown()
@@ -4194,7 +4193,7 @@ class TestState08(TestStateBase):
         scp.step()
         scp.shutdown()
 
-        sleep(0.5)
+        time.sleep(0.5)
 
         assert self.fsm._changes[:5] == [
             ('Sta1', 'Evt1', 'AE-1'),
@@ -4221,7 +4220,7 @@ class TestState08(TestStateBase):
 
         self.assoc.dul.artim_timer.timeout = 0.05
         self.assoc.dul.artim_timer.start()
-        sleep(0.5)
+        time.sleep(0.5)
 
         scp.step()
         scp.shutdown()
@@ -4834,7 +4833,7 @@ class TestState09(TestStateBase):
         scp.step()
         scp.shutdown()
 
-        sleep(0.5)
+        time.sleep(0.5)
 
         assert self.fsm._changes[:6] == [
             ('Sta1', 'Evt1', 'AE-1'),
@@ -4867,7 +4866,7 @@ class TestState09(TestStateBase):
 
         self.assoc.dul.artim_timer.timeout = 0.05
         self.assoc.dul.artim_timer.start()
-        sleep(0.5)
+        time.sleep(0.5)
 
         scp.step()
         scp.shutdown()
@@ -5500,7 +5499,7 @@ class TestState10(TestStateBase):
         scp.step()
         scp.shutdown()
 
-        sleep(0.5)
+        time.sleep(0.5)
 
         assert fsm._transitions[:5] == [
             'Sta2', 'Sta3', 'Sta6', 'Sta7', 'Sta10'
@@ -5534,7 +5533,7 @@ class TestState10(TestStateBase):
 
         assoc.dul.artim_timer.timeout = 0.05
         assoc.dul.artim_timer.start()
-        sleep(0.5)
+        time.sleep(0.5)
 
         scp.step()
         scp.shutdown()
@@ -6180,7 +6179,7 @@ class TestState11(TestStateBase):
         scp.step()
         scp.shutdown()
 
-        sleep(0.5)
+        time.sleep(0.5)
 
         assert self.fsm._changes[:7] == [
             ('Sta1', 'Evt1', 'AE-1'),
@@ -6215,7 +6214,7 @@ class TestState11(TestStateBase):
 
         self.assoc.dul.artim_timer.timeout = 0.05
         self.assoc.dul.artim_timer.start()
-        sleep(0.5)
+        time.sleep(0.5)
 
         scp.step()
         scp.step()
@@ -6891,7 +6890,7 @@ class TestState12(TestStateBase):
         scp.step()
         scp.shutdown()
 
-        sleep(0.5)
+        time.sleep(0.5)
 
         assert fsm._transitions[:6] == [
             'Sta2', 'Sta3', 'Sta6', 'Sta7', 'Sta10', 'Sta12'
@@ -6927,7 +6926,7 @@ class TestState12(TestStateBase):
 
         assoc.dul.artim_timer.timeout = 0.05
         assoc.dul.artim_timer.start()
-        sleep(0.5)
+        time.sleep(0.5)
 
         scp.step()
         scp.shutdown()
@@ -7417,7 +7416,7 @@ class TestState13(TestStateBase):
         scp.step()
         scp.shutdown()
 
-        sleep(0.5)
+        time.sleep(0.5)
 
         assert self.fsm._changes[:4] == [
             ('Sta1', 'Evt1', 'AE-1'),
@@ -7443,7 +7442,7 @@ class TestState13(TestStateBase):
 
         self.assoc.dul.artim_timer.timeout = 0.05
         self.assoc.dul.artim_timer.start()
-        sleep(0.5)
+        time.sleep(0.5)
 
         scp.step()
         scp.shutdown()
@@ -7667,7 +7666,7 @@ class TestStateMachineFunctionalRequestor(object):
                 thread.abort()
                 thread.stop()
 
-        sleep(0.1)
+        time.sleep(0.1)
 
     def monkey_patch(self, fsm):
         """Monkey patch the StateMachine to add testing hooks."""
@@ -7731,7 +7730,7 @@ class TestStateMachineFunctionalRequestor(object):
             and not self.assoc.dul._kill_thread
             and timeout < 10
         ):
-            sleep(0.05)
+            time.sleep(0.05)
             timeout += 0.05
 
         if self.assoc.is_established:
@@ -7739,7 +7738,7 @@ class TestStateMachineFunctionalRequestor(object):
 
             timeout = 0
             while self.fsm.current_state != 'Sta1' and timeout < 10:
-                sleep(0.05)
+                time.sleep(0.05)
                 timeout += 0.05
 
             assert self.fsm._transitions == [
@@ -7779,16 +7778,15 @@ class TestStateMachineFunctionalRequestor(object):
             and not self.assoc.dul._kill_thread
             and timeout < 10
         ):
-            sleep(0.05)
+            time.sleep(0.05)
             timeout += 0.05
-        sleep(0.05)
-
-        assert self.assoc.is_rejected
 
         timeout = 0
         while self.fsm.current_state != 'Sta1' and timeout < 10:
-            sleep(0.05)
+            time.sleep(0.05)
             timeout += 0.05
+
+        assert self.assoc.is_rejected
 
         assert self.fsm._transitions == [
             'Sta4',  # Waiting for connection to complete
@@ -7823,7 +7821,7 @@ class TestStateMachineFunctionalRequestor(object):
             and not self.assoc.dul._kill_thread
             and timeout < 10
         ):
-            sleep(0.05)
+            time.sleep(0.05)
             timeout += 0.05
 
         if self.assoc.is_established:
@@ -7831,7 +7829,7 @@ class TestStateMachineFunctionalRequestor(object):
 
             timeout = 0
             while self.fsm.current_state != 'Sta1' and timeout < 10:
-                sleep(0.05)
+                time.sleep(0.05)
                 timeout += 0.05
 
             assert self.fsm._transitions == [
@@ -7872,12 +7870,12 @@ class TestStateMachineFunctionalRequestor(object):
             and not self.assoc.dul._kill_thread
             and timeout < 10
         ):
-            sleep(0.05)
+            time.sleep(0.05)
             timeout += 0.05
 
         timeout = 0
         while self.fsm.current_state != 'Sta1' and timeout < 10:
-            sleep(0.05)
+            time.sleep(0.05)
             timeout += 0.05
 
         assert self.fsm._transitions == [
@@ -7918,22 +7916,22 @@ class TestStateMachineFunctionalRequestor(object):
             and not self.assoc.dul._kill_thread
             and timeout < 1
         ):
-            sleep(0.05)
+            time.sleep(0.05)
             timeout += 0.05
 
         timeout = 0
         while not self.assoc.is_established and timeout < 1:
-            sleep(0.05)
+            time.sleep(0.05)
             timeout += 0.05
 
         timeout = 0
         while not self.assoc.is_aborted and timeout < 1:
-            sleep(0.05)
+            time.sleep(0.05)
             timeout += 0.05
 
         timeout = 0
         while self.fsm.current_state != 'Sta1' and timeout < 10:
-            sleep(0.05)
+            time.sleep(0.05)
             timeout += 0.05
 
         assert self.fsm._transitions == [
@@ -7968,7 +7966,7 @@ class TestStateMachineFunctionalRequestor(object):
             and not self.assoc.dul._kill_thread
             and timeout < 10
         ):
-            sleep(0.05)
+            time.sleep(0.05)
             timeout += 0.05
 
         self.assoc.send_c_echo()
@@ -7976,7 +7974,7 @@ class TestStateMachineFunctionalRequestor(object):
 
         timeout = 0
         while self.fsm.current_state != 'Sta1' and timeout < 10:
-            sleep(0.05)
+            time.sleep(0.05)
             timeout += 0.05
 
         assert self.fsm._transitions == [
@@ -8039,14 +8037,14 @@ class TestStateMachineFunctionalRequestor(object):
             and not self.assoc.dul._kill_thread
             and timeout < 10
         ):
-            sleep(0.05)
+            time.sleep(0.05)
             timeout += 0.05
 
         self.assoc.release()
 
         timeout = 0
         while self.fsm.current_state != 'Sta1' and timeout < 10:
-            sleep(0.05)
+            time.sleep(0.05)
             timeout += 0.05
 
         assert self.fsm._transitions == [
@@ -8109,14 +8107,14 @@ class TestStateMachineFunctionalRequestor(object):
             and not self.assoc.dul._kill_thread
             and timeout < 10
         ):
-            sleep(0.05)
+            time.sleep(0.05)
             timeout += 0.05
 
         self.assoc.release()
 
         timeout = 0
         while self.fsm.current_state != 'Sta1' and timeout < 10:
-            sleep(0.05)
+            time.sleep(0.05)
             timeout += 0.05
 
         assert self.fsm._transitions == [
@@ -8188,7 +8186,7 @@ class TestStateMachineFunctionalAcceptor(object):
         if self.scp:
             self.scp.abort()
 
-        sleep(0.1)
+        time.sleep(0.1)
 
         for thread in threading.enumerate():
             if isinstance(thread, DummyBaseSCP):
@@ -8251,7 +8249,7 @@ class TestStateMachineFunctionalAcceptor(object):
             and not self.assoc.dul._kill_thread
             and timeout < 10
         ):
-            sleep(0.05)
+            time.sleep(0.05)
             timeout += 0.05
 
         assert self.assoc.is_rejected
@@ -8261,7 +8259,7 @@ class TestStateMachineFunctionalAcceptor(object):
 
         timeout = 0
         while self.fsm.current_state != 'Sta1' and timeout < 10:
-            sleep(0.05)
+            time.sleep(0.05)
             timeout += 0.05
 
         assert self.fsm.current_state == 'Sta1'
@@ -8320,7 +8318,7 @@ class TestEventHandling(object):
         assoc.release()
         timeout = 0
         while scp.active_associations and timeout < 10:
-            sleep(0.05)
+            time.sleep(0.05)
             timeout += 0.05
 
         for event in triggered:
@@ -8354,7 +8352,7 @@ class TestEventHandling(object):
         assert assoc.is_established
 
 
-        sleep(0.5)
+        time.sleep(0.5)
 
         child = scp.active_associations[0]
         assert child.dul.state_machine.current_state == 'Sta6'
@@ -8369,7 +8367,7 @@ class TestEventHandling(object):
         assoc.release()
         timeout = 0
         while scp.active_associations and timeout < 10:
-            sleep(0.05)
+            time.sleep(0.05)
             timeout += 0.05
 
         for event in triggered:
@@ -8401,7 +8399,7 @@ class TestEventHandling(object):
         assoc = ae.associate('localhost', 11112)
         assert assoc.is_established
 
-        sleep(0.5)
+        time.sleep(0.5)
 
         # Acceptor association
         child = scp.active_associations[0]
@@ -8419,10 +8417,10 @@ class TestEventHandling(object):
         assoc.release()
         timeout = 0
         while scp.active_associations and timeout < 10:
-            sleep(0.05)
+            time.sleep(0.05)
             timeout += 0.05
 
-        sleep(0.5)
+        time.sleep(0.5)
 
         for event in triggered:
             assert hasattr(event, 'current_state')
@@ -8459,7 +8457,7 @@ class TestEventHandling(object):
         assoc.release()
         timeout = 0
         while not assoc.is_released and timeout < 10:
-            sleep(0.05)
+            time.sleep(0.05)
             timeout += 0.05
 
         for event in triggered:
@@ -8500,7 +8498,7 @@ class TestEventHandling(object):
         assoc.release()
         timeout = 0
         while not assoc.is_released and timeout < 10:
-            sleep(0.05)
+            time.sleep(0.05)
             timeout += 0.05
 
         for event in triggered:
@@ -8542,7 +8540,7 @@ class TestEventHandling(object):
         assoc.release()
         timeout = 0
         while not assoc.is_released and timeout < 10:
-            sleep(0.05)
+            time.sleep(0.05)
             timeout += 0.05
 
         for event in triggered:
@@ -8576,7 +8574,7 @@ class TestEventHandling(object):
 
             timeout = 0
             while scp.active_associations and timeout < 10:
-                sleep(0.05)
+                time.sleep(0.05)
                 timeout += 0.05
 
             scp.shutdown()
