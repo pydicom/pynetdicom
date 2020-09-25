@@ -1777,12 +1777,12 @@ class TestState03(TestStateBase):
             assoc.dul.artim_timer.timeout = 0.05
             assoc.dul.artim_timer.start()
             time.sleep(0.5)
+            scp.step()
             orig()
 
         assoc.acse._negotiate_as_acceptor = _neg_as_acc
         self.move_to_state(assoc, scp)
 
-        scp.step()
         scp.shutdown()
 
         assert fsm._transitions[:2] == ['Sta2', 'Sta3']
