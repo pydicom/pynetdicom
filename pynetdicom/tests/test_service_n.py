@@ -5,7 +5,7 @@ import time
 
 import pytest
 
-from pydicom.dataset import Dataset
+from pydicom.dataset import Dataset, FileMetaDataset
 from pydicom.uid import ImplicitVRLittleEndian, ExplicitVRLittleEndian
 
 from pynetdicom import AE, evt, debug_logger
@@ -1036,7 +1036,7 @@ class TestNServiceClass(object):
         ds = Dataset()
         ds.SOPClassUID = sop_class
         ds.SOPInstanceUID = '1.2.3.4'
-        ds.file_meta = Dataset()
+        ds.file_meta = FileMetaDataset()
         ds.file_meta.TransferSyntaxUID = ImplicitVRLittleEndian
 
         self.ae = ae = AE()

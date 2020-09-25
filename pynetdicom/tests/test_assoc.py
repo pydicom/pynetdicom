@@ -14,7 +14,7 @@ import threading
 import pytest
 
 from pydicom import dcmread
-from pydicom.dataset import Dataset
+from pydicom.dataset import Dataset, FileMetaDataset
 from pydicom.uid import (
     UID,
     ImplicitVRLittleEndian,
@@ -514,7 +514,7 @@ class TestAssociation(object):
             ds = Dataset()
             ds.SOPClassUID = CTImageStorage
             ds.SOPInstanceUID = '1.2.3.4'
-            ds.file_meta = Dataset()
+            ds.file_meta = FileMetaDataset()
             ds.file_meta.TransferSyntaxUID = ImplicitVRLittleEndian
             result = assoc.send_c_store(ds)
             time.sleep(0.1)
@@ -1282,7 +1282,7 @@ class TestAssociationSendCStore(object):
         ds.SOPClassUID = CTImageStorage
         ds.SOPInstanceUID = '1.2.3'
         ds.PerimeterValue = b'\x00\x01'
-        ds.file_meta = Dataset()
+        ds.file_meta = FileMetaDataset()
         ds.file_meta.TransferSyntaxUID = ImplicitVRLittleEndian
         msg = r"Failed to encode the supplied dataset"
         with pytest.raises(ValueError, match=msg):
@@ -1504,7 +1504,7 @@ class TestAssociationSendCStore(object):
 
         ds = Dataset()
         ds.SOPInstanceUID = '1.2.3.4'
-        ds.file_meta = Dataset()
+        ds.file_meta = FileMetaDataset()
         ds.file_meta.TransferSyntaxUID = ImplicitVRLittleEndian
 
         assert assoc.is_established
@@ -1551,7 +1551,7 @@ class TestAssociationSendCStore(object):
         with pytest.raises(AttributeError, match=msg):
             assoc.send_c_store(ds)
 
-        ds.file_meta = Dataset()
+        ds.file_meta = FileMetaDataset()
         assert 'TransferSyntaxUID' not in ds.file_meta
         msg = (
             r"Unable to determine the presentation context to use with "
@@ -1611,7 +1611,7 @@ class TestAssociationSendCStore(object):
         ds = Dataset()
         ds.SOPClassUID = '1.2.3'
         ds.SOPInstanceUID = '1.2.3.4'
-        ds.file_meta = Dataset()
+        ds.file_meta = FileMetaDataset()
         ds.file_meta.TransferSyntaxUID = ImplicitVRLittleEndian
         status = assoc.send_c_store(ds)
         assert status.Status == 0x0000
@@ -1768,7 +1768,7 @@ class TestAssociationSendCStore(object):
         ds = Dataset()
         ds.SOPClassUID = CTImageStorage
         ds.SOPInstanceUID = '1.2.3.4'
-        ds.file_meta = Dataset()
+        ds.file_meta = FileMetaDataset()
         ds.file_meta.TransferSyntaxUID = JPEGBaseline
 
         assert assoc.is_established
@@ -2397,19 +2397,17 @@ class TestAssociationSendCGet(object):
     def setup(self):
         """Run prior to each test"""
         self.ds = Dataset()
-        #self.ds.SOPClassUID = PatientRootQueryRetrieveInformationModelGet.UID
         self.ds.PatientName = '*'
         self.ds.QueryRetrieveLevel = "PATIENT"
 
         self.good = Dataset()
-        self.good.file_meta = Dataset()
+        self.good.file_meta = FileMetaDataset()
         self.good.file_meta.TransferSyntaxUID = ImplicitVRLittleEndian
         self.good.SOPClassUID = CTImageStorage
         self.good.SOPInstanceUID = '1.1.1'
         self.good.PatientName = 'Test'
 
         self.scp = None
-
         self.ae = None
 
     def teardown(self):
@@ -2441,7 +2439,9 @@ class TestAssociationSendCGet(object):
         assert assoc.is_released
         assert not assoc.is_established
         with pytest.raises(RuntimeError):
-            next(assoc.send_c_get(self.ds, PatientRootQueryRetrieveInformationModelGet))
+            next(assoc.send_c_get(
+                self.ds, PatientRootQueryRetrieveInformationModelGet)
+            )
         self.scp.stop()
 
     def test_must_be_scp(self):
@@ -2463,9 +2463,13 @@ class TestAssociationSendCGet(object):
         ae.dimse_timeout = 5
         ae.network_timeout = 5
         ae.add_supported_context(PatientRootQueryRetrieveInformationModelGet)
-        ae.add_supported_context(CTImageStorage, scu_role=True, scp_role=True)
+        ae.add_supported_context(
+            CTImageStorage, scu_role=True, scp_role=True
+        )
         scp = ae.start_server(
-            ('', 11112), block=False, evt_handlers=[(evt.EVT_C_GET, handle_get)]
+            ('', 11112),
+            block=False,
+            evt_handlers=[(evt.EVT_C_GET, handle_get)]
         )
 
         ae.add_requested_context(PatientRootQueryRetrieveInformationModelGet)
@@ -2478,7 +2482,9 @@ class TestAssociationSendCGet(object):
         )
         assert assoc.is_established
 
-        result = assoc.send_c_get(self.ds, PatientRootQueryRetrieveInformationModelGet)
+        result = assoc.send_c_get(
+            self.ds, PatientRootQueryRetrieveInformationModelGet
+        )
         (status, ds) = next(result)
         assert status.Status == 0xff00
         assert ds is None
@@ -3160,7 +3166,7 @@ class TestAssociationSendCMove(object):
         self.ds.QueryRetrieveLevel = "PATIENT"
 
         self.good = Dataset()
-        self.good.file_meta = Dataset()
+        self.good.file_meta = FileMetaDataset()
         self.good.file_meta.TransferSyntaxUID = ImplicitVRLittleEndian
         self.good.SOPClassUID = CTImageStorage
         self.good.SOPInstanceUID = '1.1.1'

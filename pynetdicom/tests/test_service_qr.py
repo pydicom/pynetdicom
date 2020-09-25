@@ -16,7 +16,7 @@ import time
 import pytest
 
 from pydicom import dcmread
-from pydicom.dataset import Dataset
+from pydicom.dataset import Dataset, FileMetaDataset
 from pydicom.uid import ImplicitVRLittleEndian, ExplicitVRLittleEndian
 
 from pynetdicom import (
@@ -1041,7 +1041,7 @@ class TestQRGetServiceClass(object):
         self.query.QueryRetrieveLevel = "PATIENT"
 
         self.ds = Dataset()
-        self.ds.file_meta = Dataset()
+        self.ds.file_meta = FileMetaDataset()
         self.ds.file_meta.TransferSyntaxUID = ImplicitVRLittleEndian
         self.ds.SOPClassUID = CTImageStorage
         self.ds.SOPInstanceUID = '1.1.1'
@@ -2760,7 +2760,7 @@ class TestQRGetServiceClass(object):
             ds = Dataset()
             ds.SOPClassUID = CTImageStorage
             ds.SOPInstanceUID = '1.2.3.4'
-            ds.file_meta = Dataset()
+            ds.file_meta = FileMetaDataset()
             ds.file_meta.TransferSyntaxUID = ImplicitVRLittleEndian
             yield 2
             cancel_results.append(event.is_cancelled)
@@ -3146,7 +3146,7 @@ class TestQRMoveServiceClass(object):
         self.query.QueryRetrieveLevel = "PATIENT"
 
         self.ds = Dataset()
-        self.ds.file_meta = Dataset()
+        self.ds.file_meta = FileMetaDataset()
         self.ds.file_meta.TransferSyntaxUID = ImplicitVRLittleEndian
         self.ds.SOPClassUID = CTImageStorage
         self.ds.SOPInstanceUID = '1.1.1'
@@ -4709,7 +4709,7 @@ class TestQRMoveServiceClass(object):
             ds = Dataset()
             ds.SOPClassUID = CTImageStorage
             ds.SOPInstanceUID = '1.2.3.4'
-            ds.file_meta = Dataset()
+            ds.file_meta = FileMetaDataset()
             ds.file_meta.TransferSyntaxUID = ImplicitVRLittleEndian
             yield self.destination
             yield 2
@@ -5393,7 +5393,7 @@ class TestQRCompositeInstanceWithoutBulk(object):
         self.query.QueryRetrieveLevel = "PATIENT"
 
         self.ds = Dataset()
-        self.ds.file_meta = Dataset()
+        self.ds.file_meta = FileMetaDataset()
         self.ds.file_meta.TransferSyntaxUID = ImplicitVRLittleEndian
         self.ds.SOPClassUID = CTImageStorage
         self.ds.SOPInstanceUID = '1.1.1'

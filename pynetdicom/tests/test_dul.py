@@ -19,7 +19,7 @@ from .parrot import start_server, ThreadedParrot, ParrotRequest
 from .utils import sleep
 
 
-debug_logger()
+#debug_logger()
 
 
 class DummyACSE(object):

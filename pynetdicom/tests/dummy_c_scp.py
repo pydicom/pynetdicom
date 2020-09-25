@@ -8,7 +8,7 @@ import time
 import threading
 
 from pydicom import read_file
-from pydicom.dataset import Dataset
+from pydicom.dataset import Dataset, FileMetaDataset
 from pydicom.uid import UID, ImplicitVRLittleEndian, JPEG2000Lossless
 
 from pynetdicom import (
@@ -286,7 +286,7 @@ class DummyGetSCP(DummyBaseSCP):
         DummyBaseSCP.__init__(self)
         self.statuses = [0x0000]
         ds = Dataset()
-        ds.file_meta = Dataset()
+        ds.file_meta = FileMetaDataset()
         ds.file_meta.TransferSyntaxUID = ImplicitVRLittleEndian
         ds.PatientName = 'Test'
         ds.SOPClassUID = CTImageStorage
@@ -341,7 +341,7 @@ class DummyMoveSCP(DummyBaseSCP):
         self.statuses = [0x0000]
         self.store_status = 0x0000
         ds = Dataset()
-        ds.file_meta = Dataset()
+        ds.file_meta = FileMetaDataset()
         ds.file_meta.TransferSyntaxUID = ImplicitVRLittleEndian
         ds.PatientName = 'Test'
         ds.SOPClassUID = CTImageStorage

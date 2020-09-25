@@ -406,7 +406,7 @@ class TestStateBase(object):
         fsm = self.monkey_patch(assoc.dul.state_machine)
         return assoc, fsm
 
-    def wait_on_state(self, fsm, state, timeout=1):
+    def wait_on_state(self, fsm, state, timeout=5):
         start = 0
         while fsm.current_state != state and start < timeout:
             time.sleep(0.05)
@@ -3768,6 +3768,7 @@ class TestState08(TestStateBase):
         assoc.start()
         scp.step()
         scp.step()
+        self.wait_on_state(assoc.dul.state_machine, 'Sta6')
         scp.step()
         self.wait_on_state(assoc.dul.state_machine, 'Sta8')
 
