@@ -27,12 +27,64 @@ class ParrotRequest(BaseRequestHandler):
     @property
     def commands(self):
         """Return a list of command tuples."""
+        # commands: recv, send, exit
         return self.server.commands
 
     @property
-    def socket(self):
-        """Return the socket to the remote."""
-        return self.request
+    def event(self):
+        return self.server.event
+
+    def handle(self):
+        # self.server: ThreadedParrot
+        # self.client_address: remote's (host, port)
+        # self.request: socket
+        self.event.clear()
+        self.received = []
+        self.sent = []
+        while True:
+            print('Parrot: waiting on threading.Event')
+            self.event.wait()
+            print('Parrot: wait ended')
+            cmd, data = self.commands.pop(0)
+            print('Parrot: running command', cmd)
+            if cmd == 'close':
+                print('Parrot: closing TCP connection')
+                # Close the TCP connection
+                pass
+
+            if cmd == 'exit':
+                print('Parrot: exiting...')
+                return
+
+            if cmd == 'recv':
+                print('Parrot: receiving data')
+                self.kill_read = False
+                while not self.kill_read:
+                    if self.ready:
+                        self.received.append(bytes(self.read_data))
+                        self.kill_read = True
+            elif cmd == 'send':
+                print('Parrot: sending data')
+                self.send(data)
+                self.sent.append(data)
+
+            self.event.clear()
+
+        return
+        for (cmd, data) in self.commands:
+            if cmd == 'recv':
+                self.kill_read = False
+                while not self.kill_read:
+                    if self.ready:
+                        self.received.append(bytes(self.read_data))
+                        self.kill_read = True
+            elif cmd == 'send':
+                self.send(data)
+                self.sent.append(data)
+            elif cmd == 'wait':
+                time.sleep(data)
+
+        # Disconnects automatically when this method ends!
 
     @property
     def ready(self):
@@ -145,26 +197,10 @@ class ParrotRequest(BaseRequestHandler):
 
         return True
 
-    def handle(self):
-        # self.server: ThreadedParrot
-        # self.client_address: remote's (host, port)
-        # self.request: socket
-        self.received = []
-        self.sent = []
-        for (cmd, data) in self.commands:
-            if cmd == 'recv':
-                self.kill_read = False
-                while not self.kill_read:
-                    if self.ready:
-                        self.received.append(bytes(self.read_data))
-                        self.kill_read = True
-            elif cmd == 'send':
-                self.send(data)
-                self.sent.append(data)
-            elif cmd == 'wait':
-                time.sleep(data)
-
-        # Disconnects automatically when this method ends!
+    @property
+    def socket(self):
+        """Return the socket to the remote."""
+        return self.request
 
 
 class Parrot(AssociationServer):
@@ -183,6 +219,8 @@ class Parrot(AssociationServer):
             used (default).
         """
         self.commands = commands
+        self.event = threading.Event()
+        self.event.set()
         self.ssl_context = None
         self.allow_reuse_address = True
 
@@ -211,6 +249,12 @@ class Parrot(AssociationServer):
 
         self.socket.bind(self.server_address)
         self.server_address = self.socket.getsockname()
+
+    def step(self):
+        while self.event.is_set():
+            time.sleep(0.05)
+
+        self.event.set()
 
     def finish_request(self, request, client_address):
         """Finish one request by instantiating RequestHandlerClass."""
