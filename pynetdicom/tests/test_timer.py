@@ -42,10 +42,10 @@ class TestTimer(object):
 
         timer.timeout = 0.2
         timer.start()
-        sleep(0.1)
+        sleep(0.15)
         assert timer.remaining < 0.1
         assert not timer.expired
-        time.sleep(0.2)
+        time.sleep(0.1)
         assert timer.expired
 
         timer.timeout = None
