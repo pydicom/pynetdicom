@@ -105,7 +105,8 @@ class TestQRFindServiceClass(object):
         req.Identifier = BytesIO(b'\x08\x00\x01\x00\x40\x40\x00\x00\x00\x00\x00\x08\x00\x49')
         assoc._reactor_checkpoint.clear()
         assoc.dimse.send_msg(req, 1)
-        cx_id, rsp = assoc.dimse.get_msg(True)
+        with pytest.warns(UserWarning):
+            cx_id, rsp = assoc.dimse.get_msg(True)
         assoc._reactor_checkpoint.set()
         assert rsp.Status == 0xC310
 
@@ -1093,7 +1094,8 @@ class TestQRGetServiceClass(object):
         req.Identifier = BytesIO(b'\x08\x00\x01\x00\x40\x40\x00\x00\x00\x00\x00\x08\x00\x49')
         assoc._reactor_checkpoint.clear()
         assoc.dimse.send_msg(req, 1)
-        cx_id, status = assoc.dimse.get_msg(True)
+        with pytest.warns(UserWarning):
+            cx_id, status = assoc.dimse.get_msg(True)
         assoc._reactor_checkpoint.set()
         assert status.Status == 0xC410
 
@@ -3206,7 +3208,8 @@ class TestQRMoveServiceClass(object):
         )
         assoc._reactor_checkpoint.clear()
         assoc.dimse.send_msg(req, 1)
-        cx_id, status = assoc.dimse.get_msg(True)
+        with pytest.warns(UserWarning):
+            cx_id, status = assoc.dimse.get_msg(True)
         assoc._reactor_checkpoint.set()
         assert status.Status == 0xC410
 

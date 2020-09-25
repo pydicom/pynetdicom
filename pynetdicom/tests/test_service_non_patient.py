@@ -82,7 +82,8 @@ class TestNonPatientObjectStorageServiceClass(object):
         # Need to manually hit the checkpoint
         assoc._reactor_checkpoint.clear()
         assoc.dimse.send_msg(req, 1)
-        cx_id, rsp = assoc.dimse.get_msg(True)
+        with pytest.warns(UserWarning):
+            cx_id, rsp = assoc.dimse.get_msg(True)
         assoc._reactor_checkpoint.set()
 
         assert rsp.Status == 0xC210

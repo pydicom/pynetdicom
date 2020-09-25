@@ -30,6 +30,8 @@ jobs:
         conda install pytest coverage pytest-cov
         conda install -c conda-forge pydicom
     - name: Test with pytest
+      env:
+        PYTHON_VERSION: ${{ matrix.python-version }}
       run: |
         pytest --ignore=pynetdicom/apps
 
@@ -52,6 +54,8 @@ jobs:
          python -m pip install --upgrade pip
          pip install pytest pydicom
      - name: Test with pytest
+       env:
+         PYTHON_VERSION: ${{ matrix.python-version }}
        run: |
          pytest --ignore=pynetdicom/apps
 
@@ -74,6 +78,8 @@ jobs:
           python -m pip install --upgrade pip
           pip install pytest pydicom
       - name: Test with pytest
+        env:
+          PYTHON_VERSION: ${{ matrix.python-version }}
         run: |
           pytest --ignore=pynetdicom/apps
 
@@ -98,6 +104,8 @@ jobs:
         pip install pytest coverage pytest-cov
         pip install git+https://github.com/pydicom/pydicom
     - name: Test with pytest
+      env:
+        PYTHON_VERSION: ${{ matrix.python-version }}
       run: |
         pytest --cov pynetdicom --ignore=pynetdicom/apps
     - name: Send coverage results
@@ -128,6 +136,8 @@ jobs:
         python -m pip install --upgrade pip
         pip install pytest pydicom coverage pytest-cov
     - name: Test with pytest
+      env:
+        PYTHON_VERSION: ${{ matrix.python-version }}
       run: |
         pytest --cov pynetdicom --ignore=pynetdicom/apps
     - name: Send coverage results
