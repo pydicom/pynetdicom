@@ -29,6 +29,7 @@ from pynetdicom.transport import (
 from pynetdicom.sop_class import VerificationSOPClass, RTImageStorage
 from .encoded_pdu_items import p_data_tf_rq
 from .hide_modules import hide_modules
+from .utils import wait_for_server_socket
 
 
 # This is the directory that contains test data
@@ -320,7 +321,7 @@ class TestTLS(object):
         """Test associating with no TLS on either end."""
         self.ae = ae = AE()
         ae.add_supported_context('1.2.840.10008.1.1')
-        server = ae.start_server(('', 11112), block=False)
+        server = ae.start_server(('localhost', 11112), block=False)
 
         ae.add_requested_context('1.2.840.10008.1.1')
         assoc = ae.associate('localhost', 11112)
@@ -342,7 +343,7 @@ class TestTLS(object):
         ae.network_timeout = 0.5
         ae.add_supported_context('1.2.840.10008.1.1')
 
-        server = ae.start_server(('', 11112), block=False)
+        server = ae.start_server(('localhost', 11112), block=False)
 
         ae.add_requested_context('1.2.840.10008.1.1')
         assoc = ae.associate('localhost', 11112, tls_args=(client_context, None))
@@ -359,7 +360,7 @@ class TestTLS(object):
         self.ae = ae = AE()
         ae.add_supported_context('1.2.840.10008.1.1')
         server = ae.start_server(
-            ('', 11112),
+            ('localhost', 11112),
             block=False,
             ssl_context=server_context,
         )
@@ -380,10 +381,10 @@ class TestTLS(object):
         ae.network_timeout = 5
         ae.add_supported_context('1.2.840.10008.1.1')
         server = ae.start_server(
-            ('', 11112), block=False, ssl_context=server_context,
+            ('localhost', 11112), block=False, ssl_context=server_context,
         )
 
-        time.sleep(0.5)
+        wait_for_server_socket(server, 1)
 
         ae.add_requested_context('1.2.840.10008.1.1')
         assoc = ae.associate(
@@ -413,7 +414,7 @@ class TestTLS(object):
         ae.add_supported_context('1.2.840.10008.1.1')
         ae.add_supported_context(RTImageStorage)
         server = ae.start_server(
-            ('', 11112),
+            ('localhost', 11112),
             block=False,
             ssl_context=server_context,
             evt_handlers=handlers
@@ -421,7 +422,9 @@ class TestTLS(object):
 
         ae.add_requested_context('1.2.840.10008.1.1')
         ae.add_requested_context(RTImageStorage)
-        assoc = ae.associate('localhost', 11112, tls_args=(client_context, None))
+        assoc = ae.associate(
+            'localhost', 11112, tls_args=(client_context, None)
+        )
         assert assoc.is_established
         status = assoc.send_c_store(DATASET)
         assert status.Status == 0x0000
@@ -447,7 +450,7 @@ class TestTLS(object):
         msg = r"Your Python installation lacks support for SSL"
         with pytest.raises(RuntimeError, match=msg):
             ae.start_server(
-                ('', 11112),
+                ('localhost', 11112),
                 block=False,
                 ssl_context=['random', 'object'],
             )
@@ -466,7 +469,9 @@ class TestTLS(object):
         ae.add_requested_context('1.2.840.10008.1.1')
         msg = r"Your Python installation lacks support for SSL"
         with pytest.raises(RuntimeError, match=msg):
-            ae.associate('localhost', 11112, tls_args=(['random', 'object'], None))
+            ae.associate(
+                'localhost', 11112, tls_args=(['random', 'object'], None)
+            )
 
     def test_multiple_pdu_req(self, server_context, client_context):
         """Test what happens if two PDUs are sent before the select call."""
@@ -484,7 +489,7 @@ class TestTLS(object):
         ae.add_requested_context('1.2.840.10008.1.1')
 
         server = ae.start_server(
-            ('', 11112), block=False, ssl_context=server_context,
+            ('localhost', 11112), block=False, ssl_context=server_context,
         )
 
         assoc = ae.associate(
@@ -523,7 +528,7 @@ class TestTLS(object):
         ae.add_requested_context('1.2.840.10008.1.1')
 
         server = ae.start_server(
-            ('', 11112), block=False, ssl_context=server_context,
+            ('localhost', 11112), block=False, ssl_context=server_context,
             evt_handlers=[(evt.EVT_C_ECHO, handle_echo)]
         )
 
