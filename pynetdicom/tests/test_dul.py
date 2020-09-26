@@ -159,6 +159,45 @@ class TestDUL(object):
         scp.step()
         scp.shutdown()
 
+    def test_recv_missing_data(self):
+        """Test missing data when receiving."""
+        commands = [
+            ('recv', None),  # recv a-associate-rq
+            ('send', a_associate_ac),
+            ('send', b"\x07\x00\x00\x00\x00\x02\x00"),  # Send short PDU
+            ('exit', None)
+        ]
+        self.scp = scp = start_server(commands)
+
+        def handle(event):
+            scp.step()
+            scp.step()
+
+        hh = [(evt.EVT_REQUESTED, handle)]
+
+        def recv(nr_bytes):
+            return assoc.dul.socket.socket.recv(6)
+
+        ae = AE()
+        ae.acse_timeout = 5
+        ae.dimse_timeout = 5
+        ae.network_timeout = 0.5
+        ae.add_requested_context('1.2.840.10008.1.1')
+        assoc = ae.associate('localhost', 11112, evt_handlers=hh)
+        assert assoc.is_established
+        assoc.dul.socket.recv = recv
+
+        scp.step()  # send short pdu
+        # Need to wait for network timeout to expire
+        timeout = 0
+        while not assoc.is_aborted and timeout < 1:
+            time.sleep(0.05)
+            timeout += 0.05
+        assert assoc.is_aborted
+
+        scp.step()
+        scp.shutdown()
+
     def test_recv_bad_pdu_aborts(self):
         """Test receiving undecodable PDU causes abort."""
         commands = [
