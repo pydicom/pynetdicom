@@ -500,6 +500,11 @@ class TestTLS(object):
         time.sleep(1)
 
         assoc.release()
+        timeout = 0
+        while not assoc.is_released and timeout < 5:
+            time.sleep(0.05)
+            timeout += 0.05
+
         assert assoc.is_released
 
     def test_multiple_pdu_acc(self, server_context, client_context):
@@ -534,6 +539,11 @@ class TestTLS(object):
         time.sleep(1)
 
         assoc.release()
+        timeout = 0
+        while not assoc.is_released and timeout < 5:
+            time.sleep(0.05)
+            timeout += 0.05
+
         assert assoc.is_released
 
         server.shutdown()

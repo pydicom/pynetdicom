@@ -57,7 +57,7 @@ class TestTimer(object):
         timer.start()
         time.sleep(0.1)
         timer.stop()
-        time.sleep(0.2)
+        time.sleep(0.5)
         assert not timer.expired
 
     def test_restart(self):
