@@ -648,6 +648,18 @@ class ApplicationEntity(object):
         parameters are passed to the constructor of `server_class`.
 
         .. versionadded:: 1.5
+
+        Parameters
+        ----------
+        server_class : object, optional
+            The class object to use when creating the server. Defaults to
+            :class:`~pynetdicom.transport.AssociationServer` if not used.
+
+        Returns
+        -------
+        object
+            The object passed via `server_class` or the
+            :class:`~pynetdicom.transport.AssociationServer`.
         """
         # If the SCP has no supported SOP Classes then there's no point
         #   running as a server
@@ -681,7 +693,11 @@ class ApplicationEntity(object):
 
         server_class = server_class or AssociationServer
         return server_class(
-            self, address, ae_title, contexts, ssl_context,
+            self,
+            address,
+            ae_title,
+            contexts,
+            ssl_context,
             evt_handlers=evt_handlers,
             **kwargs
         )
@@ -1174,7 +1190,10 @@ class ApplicationEntity(object):
         if block:
             # Blocking server
             server = self.make_server(
-                address, ae_title=ae_title, contexts=contexts, ssl_context=ssl_context,
+                address,
+                ae_title=ae_title,
+                contexts=contexts,
+                ssl_context=ssl_context,
                 evt_handlers=evt_handlers,
             )
             self._servers.append(server)
@@ -1188,8 +1207,12 @@ class ApplicationEntity(object):
             # Non-blocking server
             timestamp = datetime.strftime(datetime.now(), "%Y%m%d%H%M%S")
             server = self.make_server(
-                address, ae_title=ae_title, contexts=contexts, ssl_context=ssl_context,
-                evt_handlers=evt_handlers, server_class=ThreadedAssociationServer,
+                address,
+                ae_title=ae_title,
+                contexts=contexts,
+                ssl_context=ssl_context,
+                evt_handlers=evt_handlers,
+                server_class=ThreadedAssociationServer,
             )
 
             thread = threading.Thread(
