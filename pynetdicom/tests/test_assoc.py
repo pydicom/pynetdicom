@@ -3976,29 +3976,22 @@ class TestGetValidContext(object):
     """Tests for Association._get_valid_context."""
     def setup(self):
         """Run prior to each test"""
-        self.scp = None
         self.ae = None
 
     def teardown(self):
         """Clear any active threads"""
-        if self.scp:
-            self.scp.abort()
-
         if self.ae:
             self.ae.shutdown()
 
-        time.sleep(0.1)
-
-        for thread in threading.enumerate():
-            if isinstance(thread, DummyBaseSCP):
-                thread.abort()
-                thread.stop()
-
     def test_id_no_abstract_syntax_match(self):
         """Test exception raised if with ID no abstract syntax match"""
-        self.scp = DummyVerificationSCP()
-        self.scp.start()
-        ae = AE()
+        self.ae = ae = AE()
+        ae.acse_timeout = 5
+        ae.dimse_timeout = 5
+        ae.network_timeout = 5
+        ae.add_supported_context(VerificationSOPClass)
+        scp = ae.start_server(('', 11112), block=False)
+
         ae.add_requested_context(VerificationSOPClass)
         ae.add_requested_context(CTImageStorage)
         ae.acse_timeout = 5
@@ -4014,8 +4007,7 @@ class TestGetValidContext(object):
             assoc._get_valid_context(CTImageStorage, '', 'scu', context_id=1)
 
         assoc.release()
-        assert assoc.is_released
-        self.scp.stop()
+        scp.shutdown()
 
     def test_id_transfer_syntax(self):
         """Test match with context ID."""
@@ -4053,14 +4045,19 @@ class TestGetValidContext(object):
         assert cx.transfer_syntax[0] == JPEGBaseline
         assert cx.as_scu is True
 
+        assoc.release()
         scp.shutdown()
 
     def test_id_no_transfer_syntax(self):
         """Test exception raised if with ID no transfer syntax match."""
-        self.scp = DummyVerificationSCP()
-        self.scp.ae.add_supported_context(CTImageStorage, JPEGBaseline)
-        self.scp.start()
-        ae = AE()
+        self.ae = ae = AE()
+        ae.acse_timeout = 5
+        ae.dimse_timeout = 5
+        ae.network_timeout = 5
+        ae.add_supported_context(VerificationSOPClass)
+        ae.add_supported_context(CTImageStorage, JPEGBaseline)
+        scp = ae.start_server(('', 11112), block=False)
+
         ae.add_requested_context(VerificationSOPClass)
         ae.add_requested_context(CTImageStorage, JPEGBaseline)
         ae.acse_timeout = 5
@@ -4069,10 +4066,9 @@ class TestGetValidContext(object):
         assert assoc.is_established
 
         # Confirm otherwise OK
-        cx = assoc._get_valid_context('1.2.840.10008.1.1',
-                                      '',
-                                      'scu',
-                                      context_id=1)
+        cx = assoc._get_valid_context(
+            '1.2.840.10008.1.1', '', 'scu', context_id=1
+        )
         assert cx.context_id == 1
         assert cx.transfer_syntax[0] == ImplicitVRLittleEndian
 
@@ -4083,17 +4079,15 @@ class TestGetValidContext(object):
             r"transfer syntax for the SCU role"
         )
         with pytest.raises(ValueError, match=msg):
-            assoc._get_valid_context('1.2.840.10008.1.1',
-                                     JPEGBaseline,
-                                     'scu',
-                                     context_id=1)
+            assoc._get_valid_context(
+                '1.2.840.10008.1.1', JPEGBaseline, 'scu', context_id=1
+            )
 
         # Compressed (JPEGBaseline) accepted, uncompressed sent
         # Confirm otherwise OK
-        cx = assoc._get_valid_context(CTImageStorage,
-                                      JPEGBaseline,
-                                      'scu',
-                                      context_id=3)
+        cx = assoc._get_valid_context(
+            CTImageStorage, JPEGBaseline, 'scu', context_id=3
+        )
         assert cx.context_id == 3
         assert cx.transfer_syntax[0] == JPEGBaseline
 
@@ -4103,10 +4097,9 @@ class TestGetValidContext(object):
             r"transfer syntax for the SCU role"
         )
         with pytest.raises(ValueError, match=msg):
-            assoc._get_valid_context(CTImageStorage,
-                                     ImplicitVRLittleEndian,
-                                     'scu',
-                                     context_id=3)
+            assoc._get_valid_context(
+                CTImageStorage, ImplicitVRLittleEndian, 'scu', context_id=3
+            )
 
         # Compressed (JPEGBaseline) accepted, compressed (JPEG2000) sent
         msg = (
@@ -4115,21 +4108,23 @@ class TestGetValidContext(object):
             r"transfer syntax for the SCU role"
         )
         with pytest.raises(ValueError, match=msg):
-            assoc._get_valid_context(CTImageStorage,
-                                     JPEG2000,
-                                     'scu',
-                                     context_id=3)
+            assoc._get_valid_context(
+                CTImageStorage, JPEG2000, 'scu', context_id=3
+            )
 
         assoc.release()
-        assert assoc.is_released
-        self.scp.stop()
+        scp.shutdown()
 
     def test_id_no_role_scp(self):
         """Test exception raised if with ID no role match."""
-        self.scp = DummyVerificationSCP()
-        self.scp.ae.add_supported_context(CTImageStorage, JPEGBaseline)
-        self.scp.start()
-        ae = AE()
+        self.ae = ae = AE()
+        ae.acse_timeout = 5
+        ae.dimse_timeout = 5
+        ae.network_timeout = 5
+        ae.add_supported_context(VerificationSOPClass)
+        ae.add_supported_context(CTImageStorage, JPEGBaseline)
+        scp = ae.start_server(('', 11112), block=False)
+
         ae.add_requested_context(VerificationSOPClass)
         ae.add_requested_context(CTImageStorage, JPEGBaseline)
         ae.acse_timeout = 5
@@ -4138,10 +4133,9 @@ class TestGetValidContext(object):
         assert assoc.is_established
 
         # Confirm matching otherwise OK
-        cx = assoc._get_valid_context('1.2.840.10008.1.1',
-                                      '',
-                                      'scu',
-                                      context_id=1)
+        cx = assoc._get_valid_context(
+            '1.2.840.10008.1.1', '', 'scu', context_id=1
+        )
         assert cx.context_id == 1
         assert cx.as_scu is True
 
@@ -4152,10 +4146,9 @@ class TestGetValidContext(object):
             r"for the SCP role"
         )
         with pytest.raises(ValueError, match=msg):
-            assoc._get_valid_context('1.2.840.10008.1.1',
-                                     '',
-                                     'scp',
-                                     context_id=1)
+            assoc._get_valid_context(
+                '1.2.840.10008.1.1', '', 'scp', context_id=1
+            )
 
         # Transfer syntax used
         msg = (
@@ -4165,16 +4158,24 @@ class TestGetValidContext(object):
             r"for the SCP role"
         )
         with pytest.raises(ValueError, match=msg):
-            assoc._get_valid_context('1.2.840.10008.1.1',
-                                     ImplicitVRLittleEndian,
-                                     'scp',
-                                     context_id=1)
+            assoc._get_valid_context(
+                '1.2.840.10008.1.1', ImplicitVRLittleEndian,
+                'scp', context_id=1
+            )
+
+        assoc.release()
+        scp.shutdown()
 
     def test_id_no_role_scu(self):
         """Test exception raised if with ID no role match."""
-        self.scp = DummyGetSCP()
-        self.scp.start()
-        ae = AE()
+        self.ae = ae = AE()
+        ae.acse_timeout = 5
+        ae.dimse_timeout = 5
+        ae.network_timeout = 5
+        ae.add_supported_context(PatientRootQueryRetrieveInformationModelGet)
+        ae.add_supported_context(CTImageStorage, scp_role=True, scu_role=True)
+        scp = ae.start_server(('', 11112), block=False)
+
         ae.add_requested_context(PatientRootQueryRetrieveInformationModelGet)
         ae.add_requested_context(CTImageStorage)
 
@@ -4189,10 +4190,9 @@ class TestGetValidContext(object):
         assert assoc.is_established
 
         # Confirm matching otherwise OK
-        cx = assoc._get_valid_context(CTImageStorage,
-                                      '',
-                                      'scp',
-                                      context_id=3)
+        cx = assoc._get_valid_context(
+            CTImageStorage, '', 'scp', context_id=3
+        )
         assert cx.context_id == 3
         assert cx.as_scp is True
 
@@ -4203,10 +4203,9 @@ class TestGetValidContext(object):
             r"for the SCU role"
         )
         with pytest.raises(ValueError, match=msg):
-            assoc._get_valid_context(CTImageStorage,
-                                     '',
-                                     'scu',
-                                     context_id=3)
+            assoc._get_valid_context(
+                CTImageStorage, '', 'scu', context_id=3
+            )
 
         # Transfer syntax used
         msg = (
@@ -4216,16 +4215,22 @@ class TestGetValidContext(object):
             r"for the SCU role"
         )
         with pytest.raises(ValueError, match=msg):
-            assoc._get_valid_context(CTImageStorage,
-                                     ImplicitVRLittleEndian,
-                                     'scu',
-                                     context_id=3)
+            assoc._get_valid_context(
+                CTImageStorage, ImplicitVRLittleEndian, 'scu', context_id=3
+            )
+
+        assoc.release()
+        scp.shutdown()
 
     def test_no_id_no_abstract_syntax_match(self):
         """Test exception raised if no abstract syntax match"""
-        self.scp = DummyVerificationSCP()
-        self.scp.start()
-        ae = AE()
+        self.ae = ae = AE()
+        ae.acse_timeout = 5
+        ae.dimse_timeout = 5
+        ae.network_timeout = 5
+        ae.add_supported_context(VerificationSOPClass)
+        scp = ae.start_server(('', 11112), block=False)
+
         ae.add_requested_context(VerificationSOPClass)
         ae.add_requested_context(CTImageStorage)
         ae.acse_timeout = 5
@@ -4245,15 +4250,18 @@ class TestGetValidContext(object):
             assoc._get_valid_context(CTImageStorage, '', 'scu')
 
         assoc.release()
-        assert assoc.is_released
-        self.scp.stop()
+        scp.shutdown()
 
     def test_no_id_transfer_syntax(self):
         """Test match."""
-        self.scp = DummyVerificationSCP()
-        self.scp.ae.add_supported_context(CTImageStorage, JPEGBaseline)
-        self.scp.start()
-        ae = AE()
+        self.ae = ae = AE()
+        ae.acse_timeout = 5
+        ae.dimse_timeout = 5
+        ae.network_timeout = 5
+        ae.add_supported_context(VerificationSOPClass)
+        ae.add_supported_context(CTImageStorage, JPEGBaseline)
+        scp = ae.start_server(('', 11112), block=False)
+
         ae.add_requested_context(VerificationSOPClass)
         ae.add_requested_context(CTImageStorage, JPEGBaseline)
         ae.acse_timeout = 5
@@ -4262,20 +4270,27 @@ class TestGetValidContext(object):
         assert assoc.is_established
 
         # Uncompressed accepted, different uncompressed sent
-        cx = assoc._get_valid_context('1.2.840.10008.1.1',
-                                      ExplicitVRLittleEndian,
-                                      'scu')
+        cx = assoc._get_valid_context(
+            '1.2.840.10008.1.1', ExplicitVRLittleEndian, 'scu'
+        )
         assert cx.context_id == 1
         assert cx.abstract_syntax == VerificationSOPClass
         assert cx.transfer_syntax[0] == ImplicitVRLittleEndian
         assert cx.as_scu is True
 
+        assoc.release()
+        scp.shutdown()
+
     def test_no_id_no_transfer_syntax(self):
         """Test exception raised if no transfer syntax match."""
-        self.scp = DummyVerificationSCP()
-        self.scp.ae.add_supported_context(CTImageStorage, JPEGBaseline)
-        self.scp.start()
-        ae = AE()
+        self.ae = ae = AE()
+        ae.acse_timeout = 5
+        ae.dimse_timeout = 5
+        ae.network_timeout = 5
+        ae.add_supported_context(VerificationSOPClass)
+        ae.add_supported_context(CTImageStorage, JPEGBaseline)
+        scp = ae.start_server(('', 11112), block=False)
+
         ae.add_requested_context(VerificationSOPClass)
         ae.add_requested_context(CTImageStorage, JPEGBaseline)
         ae.acse_timeout = 5
@@ -4311,9 +4326,9 @@ class TestGetValidContext(object):
             r"for the SCU role"
         )
         with pytest.raises(ValueError, match=msg):
-            assoc._get_valid_context(CTImageStorage,
-                                     ImplicitVRLittleEndian,
-                                     'scu')
+            assoc._get_valid_context(
+                CTImageStorage, ImplicitVRLittleEndian, 'scu'
+            )
 
         # Compressed (JPEGBaseline) accepted, compressed (JPEG2000) sent
         msg = (
@@ -4326,15 +4341,18 @@ class TestGetValidContext(object):
             assoc._get_valid_context(CTImageStorage, JPEG2000, 'scu')
 
         assoc.release()
-        assert assoc.is_released
-        self.scp.stop()
+        scp.shutdown()
 
     def test_no_id_no_role_scp(self):
         """Test exception raised if no role match."""
-        self.scp = DummyVerificationSCP()
-        self.scp.ae.add_supported_context(CTImageStorage, JPEGBaseline)
-        self.scp.start()
-        ae = AE()
+        self.ae = ae = AE()
+        ae.acse_timeout = 5
+        ae.dimse_timeout = 5
+        ae.network_timeout = 5
+        ae.add_supported_context(VerificationSOPClass)
+        ae.add_supported_context(CTImageStorage, JPEGBaseline)
+        scp = ae.start_server(('', 11112), block=False)
+
         ae.add_requested_context(VerificationSOPClass)
         ae.add_requested_context(CTImageStorage, JPEGBaseline)
         ae.acse_timeout = 5
@@ -4364,9 +4382,12 @@ class TestGetValidContext(object):
             r"for the SCP role"
         )
         with pytest.raises(ValueError, match=msg):
-            assoc._get_valid_context('1.2.840.10008.1.1',
-                                     ImplicitVRLittleEndian,
-                                     'scp')
+            assoc._get_valid_context(
+                '1.2.840.10008.1.1', ImplicitVRLittleEndian, 'scp'
+            )
+
+        assoc.release()
+        scp.shutdown()
 
     def test_no_id_no_role_scu(self):
         """Test exception raised if no role match."""
@@ -4422,11 +4443,15 @@ class TestGetValidContext(object):
 
     def test_implicit_explicit(self):
         """Test matching when both implicit and explicit are available."""
-        self.scp = DummyVerificationSCP()
-        self.scp.ae.add_supported_context(CTImageStorage, ImplicitVRLittleEndian)
-        self.scp.ae.add_supported_context(CTImageStorage, ExplicitVRLittleEndian)
-        self.scp.start()
-        ae = AE()
+        self.ae = ae = AE()
+        ae.acse_timeout = 5
+        ae.dimse_timeout = 5
+        ae.network_timeout = 5
+        ae.add_supported_context(VerificationSOPClass)
+        ae.add_supported_context(CTImageStorage, ImplicitVRLittleEndian)
+        ae.add_supported_context(CTImageStorage, ExplicitVRLittleEndian)
+        scp = ae.start_server(('', 11112), block=False)
+
         ae.add_requested_context(CTImageStorage, ImplicitVRLittleEndian)
         ae.add_requested_context(CTImageStorage, ExplicitVRLittleEndian)
         ae.acse_timeout = 5
@@ -4450,15 +4475,20 @@ class TestGetValidContext(object):
         assert cx.transfer_syntax[0] == ImplicitVRLittleEndian
         assert cx.as_scu is True
 
-        self.scp.abort()
+        assoc.release()
+        scp.shutdown()
 
     def test_explicit_implicit(self):
         """Test matching when both implicit and explicit are available."""
-        self.scp = DummyVerificationSCP()
-        self.scp.ae.add_supported_context(CTImageStorage, ExplicitVRLittleEndian)
-        self.scp.ae.add_supported_context(CTImageStorage, ImplicitVRLittleEndian)
-        self.scp.start()
-        ae = AE()
+        self.ae = ae = AE()
+        ae.acse_timeout = 5
+        ae.dimse_timeout = 5
+        ae.network_timeout = 5
+        ae.add_supported_context(VerificationSOPClass)
+        ae.add_supported_context(CTImageStorage, ExplicitVRLittleEndian)
+        ae.add_supported_context(CTImageStorage, ImplicitVRLittleEndian)
+        scp = ae.start_server(('', 11112), block=False)
+
         ae.add_requested_context(CTImageStorage, ExplicitVRLittleEndian)
         ae.add_requested_context(CTImageStorage, ImplicitVRLittleEndian)
         ae.acse_timeout = 5
@@ -4482,16 +4512,20 @@ class TestGetValidContext(object):
         assert cx.transfer_syntax[0] == ImplicitVRLittleEndian
         assert cx.as_scu is True
 
-        self.scp.abort()
+        assoc.release()
+        scp.shutdown
 
     def test_little_big(self):
         """Test no match from little to big endian."""
-        self.scp = DummyVerificationSCP()
-        self.scp.ae.add_supported_context(MRImageStorage, ExplicitVRLittleEndian)
-        self.scp.ae.add_supported_context(CTImageStorage, ImplicitVRLittleEndian)
-        self.scp.start()
+        self.ae = ae = AE()
+        ae.acse_timeout = 5
+        ae.dimse_timeout = 5
+        ae.network_timeout = 5
+        ae.add_supported_context(VerificationSOPClass)
+        ae.add_supported_context(MRImageStorage, ExplicitVRLittleEndian)
+        ae.add_supported_context(CTImageStorage, ImplicitVRLittleEndian)
+        scp = ae.start_server(('', 11112), block=False)
 
-        ae = AE()
         ae.add_requested_context(MRImageStorage, ExplicitVRBigEndian)
         ae.add_requested_context(MRImageStorage, ExplicitVRLittleEndian)
         ae.add_requested_context(CTImageStorage, ImplicitVRLittleEndian)
@@ -4510,7 +4544,8 @@ class TestGetValidContext(object):
                 MRImageStorage, ExplicitVRBigEndian, 'scu'
             )
 
-        self.scp.abort()
+        assoc.release()
+        scp.shutdown()
 
     def test_ups_push_action(self, caplog):
         """Test matching UPS Push to other UPS contexts."""
