@@ -27,17 +27,17 @@ def get_envar(envar):
     return None
 
 
-IN_TRAVIS = get_envar("TRAVIS") == 'true'
+IN_GITHUB = get_envar("GITHUB_ACTIONS") == 'true'
 
 
-@pytest.mark.skipif(not IN_TRAVIS, reason="Tests not running in Travis")
+@pytest.mark.skipif(not IN_GITHUB, reason="Tests not running in Github")
 class TestBuilds(object):
-    """Tests for the testing builds in Travis CI."""
+    """Tests for the testing builds in Github Actions."""
     def test_python_version(self):
         """Test that the python version is correct."""
-        version = get_envar('TRAVIS_PYTHON_VERSION')
+        version = get_envar('PYTHON_VERSION')
         if not version:
-            raise RuntimeError("No 'TRAVIS_PYTHON_VERSION' envar has been set")
+            raise RuntimeError("No 'PYTHON_VERSION' envar has been set")
 
         version = tuple([int(vv) for vv in version.split('.')])
         assert version[:2] == sys.version_info[:2]

@@ -606,8 +606,9 @@ class Association(threading.Thread):
             self._dul_ready.wait()
 
         if self.is_acceptor:
-            primitive = self.dul.receive_pdu(wait=True,
-                                             timeout=self.acse_timeout)
+            primitive = self.dul.receive_pdu(
+                wait=True, timeout=self.acse_timeout
+            )
 
             # Timed out waiting for A-ASSOCIATE request
             if primitive is None:

@@ -538,9 +538,7 @@ class AssociationServer(TCPServer):
         self.allow_reuse_address = True
 
         request_handler = request_handler or RequestHandler
-        TCPServer.__init__(
-            self, address, request_handler, bind_and_activate=True
-        )
+        super().__init__(address, request_handler, bind_and_activate=True)
 
         self.timeout = 60
 
@@ -665,8 +663,9 @@ class AssociationServer(TCPServer):
         """
         client_socket, address = self.socket.accept()
         if self.ssl_context:
-            client_socket = self.ssl_context.wrap_socket(client_socket,
-                                                         server_side=True)
+            client_socket = self.ssl_context.wrap_socket(
+                client_socket, server_side=True
+            )
 
         return client_socket, address
 
@@ -719,9 +718,7 @@ class AssociationServer(TCPServer):
 
     def shutdown(self):
         """Completely shutdown the server and close it's socket."""
-        # TODO: Change to use super()
-        # Can't use super() due to Python 2.7 compatibility
-        TCPServer.shutdown(self)
+        super().shutdown()
         self.server_close()
         self.ae._servers.remove(self)
 

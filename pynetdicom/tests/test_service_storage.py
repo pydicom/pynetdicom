@@ -8,7 +8,7 @@ import time
 import pytest
 
 from pydicom import dcmread
-from pydicom.dataset import Dataset
+from pydicom.dataset import Dataset, FileMetaDataset
 from pydicom.uid import ExplicitVRLittleEndian
 
 from pynetdicom import AE, _config, evt, build_role, debug_logger
@@ -84,7 +84,8 @@ class TestStorageServiceClass(object):
         # Send C-STORE request to DIMSE and get response
         assoc._reactor_checkpoint.clear()
         assoc.dimse.send_msg(req, 1)
-        cx_id, rsp = assoc.dimse.get_msg(True)
+        with pytest.warns(UserWarning):
+            cx_id, rsp = assoc.dimse.get_msg(True)
         assoc._reactor_checkpoint.set()
 
         assert rsp.Status == 0xC210
@@ -131,7 +132,8 @@ class TestStorageServiceClass(object):
         # Send C-STORE request to DIMSE and get response
         assoc._reactor_checkpoint.clear()
         assoc.dimse.send_msg(req, 1)
-        cx_id, rsp = assoc.dimse.get_msg(True)
+        with pytest.warns(UserWarning):
+            cx_id, rsp = assoc.dimse.get_msg(True)
         assoc._reactor_checkpoint.set()
 
         assert rsp.Status == 0xC210
@@ -423,7 +425,7 @@ class TestStorageServiceClass(object):
             # File at `dataset_path` valid and complete
             ds = dcmread(dataset_path)
             assert isinstance(ds, Dataset)
-            assert isinstance(ds.file_meta, Dataset)
+            assert isinstance(ds.file_meta, FileMetaDataset)
             assert ds.PatientName == DATASET.PatientName
             assert (
                 ds.file_meta.MediaStorageSOPInstanceUID
@@ -575,7 +577,7 @@ class TestStorageServiceClass(object):
         """Test modifying event.dataset in-place."""
         event_out = []
         def handle(event):
-            meta = Dataset()
+            meta = FileMetaDataset()
             meta.TransferSyntaxUID = event.context.transfer_syntax
             event.dataset.file_meta = meta
 

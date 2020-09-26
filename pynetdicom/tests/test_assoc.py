@@ -14,7 +14,7 @@ import threading
 import pytest
 
 from pydicom import dcmread
-from pydicom.dataset import Dataset
+from pydicom.dataset import Dataset, FileMetaDataset
 from pydicom.uid import (
     UID,
     ImplicitVRLittleEndian,
@@ -53,12 +53,7 @@ from pynetdicom.sop_class import (
     UnifiedProcedureStepPushSOPClass,
     UnifiedProcedureStepWatchSOPClass
 )
-from .dummy_c_scp import (
-    DummyVerificationSCP, DummyStorageSCP, DummyFindSCP, DummyGetSCP,
-    DummyMoveSCP, DummyBaseSCP
-)
 from .encoded_pdu_items import a_associate_ac
-from .parrot import start_server, ThreadedParrot
 
 
 #debug_logger()
@@ -94,25 +89,14 @@ class DummyDIMSE(object):
 
 class TestAssociation(object):
     """Run tests on Associtation."""
-    # Association(local_ae, client_socket, peer_ae, acse_timeout,
-    #             dimse_timeout, max_pdu, ext_neg)
     def setup(self):
         """This function runs prior to all test methods"""
-        self.scp = None
         self.ae = None
 
     def teardown(self):
         """This function runs after all test methods"""
-        if self.scp:
-            self.scp.abort()
-
         if self.ae:
             self.ae.shutdown()
-
-        for thread in threading.enumerate():
-            if isinstance(thread, DummyBaseSCP):
-                thread.abort()
-                thread.stop()
 
     def test_bad_connection(self):
         """Test connect to non-AE"""
@@ -193,10 +177,11 @@ class TestAssociation(object):
 
     def test_peer_rejects_assoc(self):
         """Test peer rejects assoc"""
-        self.scp = DummyVerificationSCP()
-        self.scp.ae.require_calling_aet = [b'HAHA NOPE']
-        self.scp.start()
-        ae = AE()
+        self.ae = ae = AE()
+        ae.require_calling_aet = [b'HAHA NOPE']
+        ae.add_supported_context(VerificationSOPClass)
+        scp = ae.start_server(('', 11112), block=False)
+
         ae.add_requested_context(VerificationSOPClass)
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
@@ -204,31 +189,27 @@ class TestAssociation(object):
         time.sleep(0.1)
         assert assoc.is_rejected
         assert not assoc.is_established
-        self.scp.stop() # Important!
+
+        scp.shutdown()
 
     def test_assoc_release(self):
         """Test Association release"""
-        # Simple release
-        self.scp = DummyVerificationSCP()
-        self.scp.start()
-        ae = AE()
-        ae.add_requested_context(VerificationSOPClass)
+        self.ae = ae = AE()
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
+        ae.network_timeout = 5
+        ae.add_supported_context(VerificationSOPClass)
+        scp = ae.start_server(('', 11112), block=False)
+
+        # Simple release
+        ae.add_requested_context(VerificationSOPClass)
         assoc = ae.associate('localhost', 11112)
         assert assoc.is_established
         assoc.release()
         assert assoc.is_released
         assert not assoc.is_established
-        self.scp.stop()
 
         # Simple release, then release again
-        self.scp = DummyVerificationSCP()
-        self.scp.start()
-        ae = AE()
-        ae.add_requested_context(VerificationSOPClass)
-        ae.acse_timeout = 5
-        ae.dimse_timeout = 5
         assoc = ae.associate('localhost', 11112)
         assert assoc.is_established
         assoc.release()
@@ -237,15 +218,8 @@ class TestAssociation(object):
         assert assoc.is_released
         assoc.release()
         assert assoc.is_released
-        self.scp.stop()
 
         # Simple release, then abort
-        self.scp = DummyVerificationSCP()
-        self.scp.start()
-        ae = AE()
-        ae.add_requested_context(VerificationSOPClass)
-        ae.acse_timeout = 5
-        ae.dimse_timeout = 5
         assoc = ae.associate('localhost', 11112)
         assert assoc.is_established
         assoc.release()
@@ -254,31 +228,27 @@ class TestAssociation(object):
         assert not assoc.is_established
         assoc.abort()
         assert not assoc.is_aborted
-        self.scp.stop()
+
+        scp.shutdown()
 
     def test_assoc_abort(self):
         """Test Association abort"""
-        # Simple abort
-        self.scp = DummyVerificationSCP()
-        self.scp.start()
-        ae = AE()
-        ae.add_requested_context(VerificationSOPClass)
+        self.ae = ae = AE()
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
+        ae.network_timeout = 5
+        ae.add_supported_context(VerificationSOPClass)
+        scp = ae.start_server(('', 11112), block=False)
+
+        # Simple abort
+        ae.add_requested_context(VerificationSOPClass)
         assoc = ae.associate('localhost', 11112)
         assert assoc.is_established
         assoc.abort()
         assert not assoc.is_established
         assert assoc.is_aborted
-        self.scp.stop()
 
         # Simple abort, then release
-        self.scp = DummyVerificationSCP()
-        self.scp.start()
-        ae = AE()
-        ae.add_requested_context(VerificationSOPClass)
-        ae.acse_timeout = 5
-        ae.dimse_timeout = 5
         assoc = ae.associate('localhost', 11112)
         assert assoc.is_established
         assoc.abort()
@@ -287,94 +257,101 @@ class TestAssociation(object):
         assoc.release()
         assert assoc.is_aborted
         assert not assoc.is_released
-        self.scp.stop()
 
         # Simple abort, then abort again
-        self.scp = DummyVerificationSCP()
-        self.scp.start()
-        ae = AE()
-        ae.add_requested_context(VerificationSOPClass)
-        ae.acse_timeout = 5
-        ae.dimse_timeout = 5
         assoc = ae.associate('localhost', 11112)
         assert assoc.is_established
         assoc.abort()
         assert assoc.is_aborted
         assert not assoc.is_established
         assoc.abort()
-        self.scp.stop()
+
+        scp.shutdown()
 
     def test_scp_removed_ui(self):
         """Test SCP removes UI negotiation"""
-        self.scp = DummyVerificationSCP()
-        self.scp.start()
+        self.ae = ae = AE()
+        ae.acse_timeout = 5
+        ae.dimse_timeout = 5
+        ae.network_timeout = 5
+        ae.add_supported_context(VerificationSOPClass)
+        scp = ae.start_server(('', 11112), block=False)
+
         ui = UserIdentityNegotiation()
         ui.user_identity_type = 0x01
         ui.primary_field = b'pynetdicom'
 
-        ae = AE()
         ae.add_requested_context(VerificationSOPClass)
-        ae.acse_timeout = 5
-        ae.dimse_timeout = 5
         assoc = ae.associate('localhost', 11112, ext_neg=[ui])
         assert assoc.is_established
         assoc.release()
         assert assoc.is_released
-        self.scp.stop()
+
+        scp.shutdown()
 
     def test_scp_removed_ext_neg(self):
         """Test SCP removes ex negotiation"""
-        self.scp = DummyVerificationSCP()
-        self.scp.start()
+        self.ae = ae = AE()
+        ae.acse_timeout = 5
+        ae.dimse_timeout = 5
+        ae.network_timeout = 5
+        ae.add_supported_context(VerificationSOPClass)
+        scp = ae.start_server(('', 11112), block=False)
+
         ext = SOPClassExtendedNegotiation()
         ext.sop_class_uid = '1.1.1.1'
         ext.service_class_application_information = b'\x01\x02'
 
-        ae = AE()
         ae.add_requested_context(VerificationSOPClass)
-        ae.acse_timeout = 5
-        ae.dimse_timeout = 5
         assoc = ae.associate('localhost', 11112, ext_neg=[ext])
         assert assoc.is_established
         assoc.release()
         assert assoc.is_released
-        self.scp.stop()
+
+        scp.shutdown()
 
     def test_scp_removed_com_ext_neg(self):
         """Test SCP removes common ext negotiation"""
-        self.scp = DummyVerificationSCP()
-        self.scp.start()
+        self.ae = ae = AE()
+        ae.acse_timeout = 5
+        ae.dimse_timeout = 5
+        ae.network_timeout = 5
+        ae.add_supported_context(VerificationSOPClass)
+        scp = ae.start_server(('', 11112), block=False)
+
         ext = SOPClassCommonExtendedNegotiation()
         ext.related_general_sop_class_identification = ['1.2.1']
         ext.sop_class_uid = '1.1.1.1'
         ext.service_class_uid = '1.1.3'
 
-        ae = AE()
         ae.add_requested_context(VerificationSOPClass)
-        ae.acse_timeout = 5
-        ae.dimse_timeout = 5
         assoc = ae.associate('localhost', 11112, ext_neg=[ext])
         assert assoc.is_established
         assoc.release()
         assert assoc.is_released
-        self.scp.stop()
+
+        scp.shutdown()
 
     def test_scp_assoc_limit(self):
         """Test SCP limits associations"""
-        self.scp = DummyVerificationSCP()
-        self.scp.ae.maximum_associations = 1
-        self.scp.start()
-        ae = AE()
-        ae.add_requested_context(VerificationSOPClass)
+        self.ae = ae = AE()
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
+        ae.network_timeout = 5
+        ae.maximum_associations = 1
+        ae.add_supported_context(VerificationSOPClass)
+        scp = ae.start_server(('', 11112), block=False)
+
+        ae = AE()
+        ae.add_requested_context(VerificationSOPClass)
         assoc = ae.associate('localhost', 11112)
         assert assoc.is_established
         assoc_2 = ae.associate('localhost', 11112)
         assert not assoc_2.is_established
         assoc.release()
         assert assoc.is_released
-        self.scp.stop()
+
+        scp.shutdown()
 
     def test_require_called_aet(self):
         """SCP requires matching called AET"""
@@ -439,12 +416,14 @@ class TestAssociation(object):
 
     def test_multiple_association_release_cycles(self):
         """Test repeatedly associating and releasing"""
-        self.scp = DummyVerificationSCP()
-        self.scp.start()
-        ae = AE()
-        ae.add_requested_context(VerificationSOPClass)
+        self.ae = ae = AE()
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
+        ae.network_timeout = 5
+        ae.add_supported_context(VerificationSOPClass)
+        scp = ae.start_server(('', 11112), block=False)
+
+        ae.add_requested_context(VerificationSOPClass)
         for ii in range(10):
             assoc = ae.associate('localhost', 11112)
             assert assoc.is_established
@@ -454,7 +433,7 @@ class TestAssociation(object):
             assert assoc.is_released
             assert not assoc.is_established
 
-        self.scp.stop()
+        scp.shutdown()
 
     def test_local(self):
         """Test Association.local."""
@@ -515,7 +494,7 @@ class TestAssociation(object):
             ds = Dataset()
             ds.SOPClassUID = CTImageStorage
             ds.SOPInstanceUID = '1.2.3.4'
-            ds.file_meta = Dataset()
+            ds.file_meta = FileMetaDataset()
             ds.file_meta.TransferSyntaxUID = ImplicitVRLittleEndian
             result = assoc.send_c_store(ds)
             time.sleep(0.1)
@@ -838,33 +817,24 @@ class TestAssociationSendCEcho(object):
     """Run tests on Assocation evt.EVT_C_ECHO handler."""
     def setup(self):
         """Run prior to each test"""
-        self.scp = None
         self.ae = None
 
     def teardown(self):
         """Clear any active threads"""
-        if self.scp:
-            self.scp.abort()
-
         if self.ae:
             self.ae.shutdown()
-
-        time.sleep(0.1)
-
-        for thread in threading.enumerate():
-            if isinstance(thread, DummyBaseSCP):
-                thread.abort()
-                thread.stop()
 
     def test_must_be_associated(self):
         """Test can't send without association."""
         # Test raise if assoc not established
-        self.scp = DummyVerificationSCP()
-        self.scp.start()
-        ae = AE()
-        ae.add_requested_context(VerificationSOPClass)
+        self.ae = ae = AE()
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
+        ae.network_timeout = 5
+        ae.add_supported_context(VerificationSOPClass)
+        scp = ae.start_server(('', 11112), block=False)
+
+        ae.add_requested_context(VerificationSOPClass)
         assoc = ae.associate('localhost', 11112)
         assert assoc.is_established
         assoc.release()
@@ -872,32 +842,38 @@ class TestAssociationSendCEcho(object):
         assert not assoc.is_established
         with pytest.raises(RuntimeError):
             assoc.send_c_echo()
-        self.scp.stop()
+
+        scp.shutdown()
 
     def test_no_abstract_syntax_match(self):
         """Test SCU when no accepted abstract syntax"""
-        self.scp = DummyStorageSCP()
-        self.scp.start()
-        ae = AE()
-        ae.add_requested_context(CTImageStorage)
+        self.ae = ae = AE()
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
+        ae.network_timeout = 5
+        ae.add_supported_context(CTImageStorage)
+        scp = ae.start_server(('', 11112), block=False)
+
+        ae.add_requested_context(CTImageStorage)
         assoc = ae.associate('localhost', 11112)
         assert assoc.is_established
         with pytest.raises(ValueError):
             assoc.send_c_echo()
         assoc.release()
         assert assoc.is_released
-        self.scp.stop()
+
+        scp.shutdown()
 
     def test_rsp_none(self):
         """Test no response from peer"""
-        self.scp = DummyVerificationSCP()
-        self.scp.start()
-        ae = AE()
-        ae.add_requested_context(VerificationSOPClass)
+        self.ae = ae = AE()
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
+        ae.network_timeout = 5
+        ae.add_supported_context(VerificationSOPClass)
+        scp = ae.start_server(('', 11112), block=False)
+
+        ae.add_requested_context(VerificationSOPClass)
         assoc = ae.associate('localhost', 11112)
         class DummyDIMSE():
             msg_queue = queue.Queue()
@@ -913,16 +889,18 @@ class TestAssociationSendCEcho(object):
 
         assert assoc.is_aborted
 
-        self.scp.stop()
+        scp.shutdown()
 
     def test_rsp_invalid(self):
         """Test invalid response received from peer"""
-        self.scp = DummyVerificationSCP()
-        self.scp.start()
-        ae = AE()
-        ae.add_requested_context(VerificationSOPClass)
+        self.ae = ae = AE()
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
+        ae.network_timeout = 5
+        ae.add_supported_context(VerificationSOPClass)
+        scp = ae.start_server(('', 11112), block=False)
+
+        ae.add_requested_context(VerificationSOPClass)
         assoc = ae.associate('localhost', 11112)
 
         class DummyResponse():
@@ -942,7 +920,7 @@ class TestAssociationSendCEcho(object):
 
         assert assoc.is_aborted
 
-        self.scp.stop()
+        scp.shutdown()
 
     def test_rsp_success(self):
         """Test receiving a success response from the peer"""
@@ -1061,10 +1039,14 @@ class TestAssociationSendCEcho(object):
 
     def test_run_accept_scp_not_implemented(self):
         """Test association is aborted if non-implemented SCP requested."""
-        self.scp = DummyVerificationSCP()
-        self.scp.send_abort = True
-        self.scp.start()
-        ae = AE()
+        self.ae = ae = AE()
+        ae.acse_timeout = 5
+        ae.dimse_timeout = 5
+        ae.network_timeout = 5
+        ae.add_supported_context(VerificationSOPClass)
+        ae.add_supported_context('1.2.3.4')
+        scp = ae.start_server(('', 11112), block=False)
+
         ae.add_requested_context(VerificationSOPClass)
         ae.add_requested_context('1.2.3.4')
         ae.acse_timeout = 5
@@ -1076,17 +1058,20 @@ class TestAssociationSendCEcho(object):
 
         time.sleep(0.1)
         assert assoc.is_aborted
-        self.scp.stop()
+
+        scp.shutdown()
 
     def test_rejected_contexts(self):
         """Test receiving a success response from the peer"""
-        self.scp = DummyVerificationSCP()
-        self.scp.start()
-        ae = AE()
-        ae.add_requested_context(VerificationSOPClass)
-        ae.add_requested_context(CTImageStorage)
+        self.ae = ae = AE()
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
+        ae.network_timeout = 5
+        ae.add_supported_context(VerificationSOPClass)
+        scp = ae.start_server(('', 11112), block=False)
+
+        ae.add_requested_context(VerificationSOPClass)
+        ae.add_requested_context(CTImageStorage)
         assoc = ae.associate('localhost', 11112)
         assert assoc.is_established
         assert len(assoc.rejected_contexts) == 1
@@ -1094,7 +1079,8 @@ class TestAssociationSendCEcho(object):
         assert cx.abstract_syntax == CTImageStorage
         assoc.release()
         assert assoc.is_released
-        self.scp.stop()
+
+        scp.shutdown()
 
     def test_common_ext_neg_no_general_sop(self):
         """Test sending SOP Class Common Extended Negotiation."""
@@ -1283,7 +1269,7 @@ class TestAssociationSendCStore(object):
         ds.SOPClassUID = CTImageStorage
         ds.SOPInstanceUID = '1.2.3'
         ds.PerimeterValue = b'\x00\x01'
-        ds.file_meta = Dataset()
+        ds.file_meta = FileMetaDataset()
         ds.file_meta.TransferSyntaxUID = ImplicitVRLittleEndian
         msg = r"Failed to encode the supplied dataset"
         with pytest.raises(ValueError, match=msg):
@@ -1505,7 +1491,7 @@ class TestAssociationSendCStore(object):
 
         ds = Dataset()
         ds.SOPInstanceUID = '1.2.3.4'
-        ds.file_meta = Dataset()
+        ds.file_meta = FileMetaDataset()
         ds.file_meta.TransferSyntaxUID = ImplicitVRLittleEndian
 
         assert assoc.is_established
@@ -1552,7 +1538,7 @@ class TestAssociationSendCStore(object):
         with pytest.raises(AttributeError, match=msg):
             assoc.send_c_store(ds)
 
-        ds.file_meta = Dataset()
+        ds.file_meta = FileMetaDataset()
         assert 'TransferSyntaxUID' not in ds.file_meta
         msg = (
             r"Unable to determine the presentation context to use with "
@@ -1612,7 +1598,7 @@ class TestAssociationSendCStore(object):
         ds = Dataset()
         ds.SOPClassUID = '1.2.3'
         ds.SOPInstanceUID = '1.2.3.4'
-        ds.file_meta = Dataset()
+        ds.file_meta = FileMetaDataset()
         ds.file_meta.TransferSyntaxUID = ImplicitVRLittleEndian
         status = assoc.send_c_store(ds)
         assert status.Status == 0x0000
@@ -1769,7 +1755,7 @@ class TestAssociationSendCStore(object):
         ds = Dataset()
         ds.SOPClassUID = CTImageStorage
         ds.SOPInstanceUID = '1.2.3.4'
-        ds.file_meta = Dataset()
+        ds.file_meta = FileMetaDataset()
         ds.file_meta.TransferSyntaxUID = JPEGBaseline
 
         assert assoc.is_established
@@ -1830,49 +1816,45 @@ class TestAssociationSendCFind(object):
         self.ds.PatientName = '*'
         self.ds.QueryRetrieveLevel = "PATIENT"
 
-        self.scp = None
         self.ae = None
 
     def teardown(self):
         """Clear any active threads"""
-        if self.scp:
-            self.scp.abort()
-
         if self.ae:
             self.ae.shutdown()
-
-        time.sleep(0.1)
-
-        for thread in threading.enumerate():
-            if isinstance(thread, DummyBaseSCP):
-                thread.abort()
-                thread.stop()
 
     def test_must_be_associated(self):
         """Test can't send without association."""
         # Test raise if assoc not established
-        scp = DummyFindSCP()
-        scp.start()
-        ae = AE()
-        ae.add_requested_context(PatientRootQueryRetrieveInformationModelFind)
+        self.ae = ae = AE()
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
+        ae.network_timeout = 5
+        ae.add_supported_context(PatientRootQueryRetrieveInformationModelFind)
+        scp = ae.start_server(('', 11112), block=False)
+
+        ae.add_requested_context(PatientRootQueryRetrieveInformationModelFind)
         assoc = ae.associate('localhost', 11112)
         assoc.release()
         assert assoc.is_released
         assert not assoc.is_established
         with pytest.raises(RuntimeError):
-            next(assoc.send_c_find(self.ds, PatientRootQueryRetrieveInformationModelFind))
-        scp.stop()
+            next(assoc.send_c_find(
+                self.ds, PatientRootQueryRetrieveInformationModelFind)
+            )
+
+        scp.shutdown()
 
     def test_no_abstract_syntax_match(self):
         """Test when no accepted abstract syntax"""
-        scp = DummyVerificationSCP()
-        scp.start()
-        ae = AE()
-        ae.add_requested_context(VerificationSOPClass)
+        self.ae = ae = AE()
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
+        ae.network_timeout = 5
+        ae.add_supported_context(VerificationSOPClass)
+        scp = ae.start_server(('', 11112), block=False)
+
+        ae.add_requested_context(VerificationSOPClass)
         assoc = ae.associate('localhost', 11112)
         assert assoc.is_established
 
@@ -1886,45 +1868,56 @@ class TestAssociationSendCFind(object):
             test()
         assoc.release()
         assert assoc.is_released
-        scp.stop()
+
+        scp.shutdown()
 
     def test_bad_query_model(self):
         """Test invalid query_model value"""
-        scp = DummyFindSCP()
-        scp.start()
-        ae = AE()
-        ae.add_requested_context(PatientRootQueryRetrieveInformationModelFind)
+        self.ae = ae = AE()
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
+        ae.network_timeout = 5
+        ae.add_supported_context(PatientRootQueryRetrieveInformationModelFind)
+        scp = ae.start_server(('', 11112), block=False)
+
+        ae.add_requested_context(PatientRootQueryRetrieveInformationModelFind)
         assoc = ae.associate('localhost', 11112)
         assert assoc.is_established
         with pytest.raises(ValueError):
             next(assoc.send_c_find(self.ds, query_model='XXX'))
         assoc.release()
         assert assoc.is_released
-        scp.stop()
+
+        scp.shutdown()
 
     def test_fail_encode_identifier(self):
         """Test a failure in encoding the Identifier dataset"""
-        self.scp = DummyFindSCP()
-        self.scp.start()
-        ae = AE()
-        ae.add_requested_context(PatientRootQueryRetrieveInformationModelFind,
-                                 ExplicitVRLittleEndian)
+        self.ae = ae = AE()
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
+        ae.network_timeout = 5
+        ae.add_supported_context(PatientRootQueryRetrieveInformationModelFind)
+        scp = ae.start_server(('', 11112), block=False)
+
+        ae.add_requested_context(
+            PatientRootQueryRetrieveInformationModelFind,
+            ExplicitVRLittleEndian
+        )
         assoc = ae.associate('localhost', 11112)
         assert assoc.is_established
         DATASET.PerimeterValue = b'\x00\x01'
 
         def test():
-            next(assoc.send_c_find(DATASET, PatientRootQueryRetrieveInformationModelFind))
+            next(assoc.send_c_find(
+                DATASET, PatientRootQueryRetrieveInformationModelFind)
+            )
         with pytest.raises(ValueError):
             test()
         assoc.release()
         assert assoc.is_released
         del DATASET.PerimeterValue # Fix up our changes
-        self.scp.stop()
+
+        scp.shutdown()
 
     def test_rsp_failure(self):
         """Test receiving a failure response from the peer"""
@@ -1971,7 +1964,9 @@ class TestAssociationSendCFind(object):
         assoc = ae.associate('localhost', 11112)
         assert assoc.is_established
 
-        result = assoc.send_c_find(self.ds, PatientRootQueryRetrieveInformationModelFind)
+        result = assoc.send_c_find(
+            self.ds, PatientRootQueryRetrieveInformationModelFind
+        )
         (status, ds) = next(result)
         assert status.Status == 0xFF00
         assert 'PatientName' in ds
@@ -2001,7 +1996,9 @@ class TestAssociationSendCFind(object):
         assoc = ae.associate('localhost', 11112)
         assert assoc.is_established
 
-        for (status, ds) in assoc.send_c_find(self.ds, PatientRootQueryRetrieveInformationModelFind):
+        for (status, ds) in assoc.send_c_find(
+            self.ds, PatientRootQueryRetrieveInformationModelFind
+        ):
             assert status.Status == 0x0000
             assert ds is None
         assoc.release()
@@ -2028,7 +2025,9 @@ class TestAssociationSendCFind(object):
         assoc = ae.associate('localhost', 11112)
         assert assoc.is_established
 
-        for (status, ds) in assoc.send_c_find(self.ds, PatientRootQueryRetrieveInformationModelFind):
+        for (status, ds) in assoc.send_c_find(
+            self.ds, PatientRootQueryRetrieveInformationModelFind
+        ):
             assert status.Status == 0x0000
             assert ds is None
         assoc.release()
@@ -2054,7 +2053,9 @@ class TestAssociationSendCFind(object):
         assoc = ae.associate('localhost', 11112)
         assert assoc.is_established
 
-        for (status, ds) in assoc.send_c_find(self.ds, PatientRootQueryRetrieveInformationModelFind):
+        for (status, ds) in assoc.send_c_find(
+            self.ds, PatientRootQueryRetrieveInformationModelFind
+        ):
             assert status.Status == 0xFE00
             assert ds is None
         assoc.release()
@@ -2064,12 +2065,14 @@ class TestAssociationSendCFind(object):
 
     def test_rsp_invalid(self):
         """Test invalid DIMSE message response received from peer"""
-        self.scp = DummyFindSCP()
-        self.scp.start()
-        ae = AE()
-        ae.add_requested_context(PatientRootQueryRetrieveInformationModelFind)
+        self.ae = ae = AE()
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
+        ae.network_timeout = 5
+        ae.add_supported_context(PatientRootQueryRetrieveInformationModelFind)
+        scp = ae.start_server(('', 11112), block=False)
+
+        ae.add_requested_context(PatientRootQueryRetrieveInformationModelFind)
         assoc = ae.associate('localhost', 11112)
 
         class DummyResponse():
@@ -2084,12 +2087,14 @@ class TestAssociationSendCFind(object):
             time.sleep(0.01)
         assoc.dimse = DummyDIMSE()
         assert assoc.is_established
-        for (_, _) in assoc.send_c_find(self.ds, PatientRootQueryRetrieveInformationModelFind):
+        for (_, _) in assoc.send_c_find(
+            self.ds, PatientRootQueryRetrieveInformationModelFind
+        ):
             pass
 
         assert assoc.is_aborted
 
-        self.scp.stop()
+        scp.shutdown()
 
     def test_rsp_unknown_status(self):
         """Test unknown status value returned by peer"""
@@ -2109,7 +2114,9 @@ class TestAssociationSendCFind(object):
         assoc = ae.associate('localhost', 11112)
         assert assoc.is_established
 
-        for (status, ds) in assoc.send_c_find(self.ds, PatientRootQueryRetrieveInformationModelFind):
+        for (status, ds) in assoc.send_c_find(
+            self.ds, PatientRootQueryRetrieveInformationModelFind
+        ):
             assert status.Status == 0xFFF0
         assoc.release()
         assert assoc.is_released
@@ -2148,14 +2155,19 @@ class TestAssociationSendCFind(object):
 
     def test_connection_timeout(self):
         """Test the connection timing out"""
-        self.scp = DummyFindSCP()
-        self.scp.statuses = [0x0000]
-        self.scp.start()
-        ae = AE()
-        ae.add_requested_context(PatientRootQueryRetrieveInformationModelFind)
+        def handle(event):
+            yield 0x0000
 
+        hh = [(evt.EVT_C_FIND, handle)]
+
+        self.ae = ae = AE()
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
+        ae.network_timeout = 5
+        ae.add_supported_context(PatientRootQueryRetrieveInformationModelFind)
+        scp = ae.start_server(('', 11112), block=False, evt_handlers=hh)
+
+        ae.add_requested_context(PatientRootQueryRetrieveInformationModelFind)
         assoc = ae.associate('localhost', 11112)
 
         class DummyMessage():
@@ -2177,27 +2189,34 @@ class TestAssociationSendCFind(object):
         assoc.dimse = DummyDIMSE()
         assert assoc.is_established
 
-        results = assoc.send_c_find(self.ds, PatientRootQueryRetrieveInformationModelFind)
+        results = assoc.send_c_find(
+            self.ds, PatientRootQueryRetrieveInformationModelFind
+        )
         assert next(results) == (Dataset(), None)
         with pytest.raises(StopIteration):
             next(results)
 
         assert assoc.is_aborted
 
-        self.scp.stop()
+        scp.shutdown()
 
     def test_decode_failure(self):
         """Test the connection timing out"""
-        self.scp = DummyFindSCP()
-        self.scp.statuses = [0x0000]
-        self.scp.start()
-        ae = AE()
+        def handle(event):
+            yield 0x0000
+
+        hh = [(evt.EVT_C_FIND, handle)]
+
+        self.ae = ae = AE()
+        ae.acse_timeout = 5
+        ae.dimse_timeout = 5
+        ae.network_timeout = 5
+        ae.add_supported_context(PatientRootQueryRetrieveInformationModelFind)
+        scp = ae.start_server(('', 11112), block=False, evt_handlers=hh)
+
         ae.add_requested_context(PatientRootQueryRetrieveInformationModelFind,
                                  ExplicitVRLittleEndian)
         ae.add_requested_context(CTImageStorage)
-
-        ae.acse_timeout = 5
-        ae.dimse_timeout = 5
         assoc = ae.associate('localhost', 11112)
 
         class DummyDIMSE():
@@ -2221,13 +2240,15 @@ class TestAssociationSendCFind(object):
         assoc.dimse = DummyDIMSE()
         assert assoc.is_established
 
-        results = assoc.send_c_find(self.ds, PatientRootQueryRetrieveInformationModelFind)
+        results = assoc.send_c_find(
+            self.ds, PatientRootQueryRetrieveInformationModelFind
+        )
         status, ds = next(results)
 
         assert status.Status == 0xFF00
         assert ds is None
 
-        self.scp.stop()
+        scp.shutdown()
 
     def test_rsp_not_find(self, caplog):
         """Test receiving a non C-FIND message in response."""
@@ -2274,7 +2295,9 @@ class TestAssociationSendCFind(object):
             identifier = Dataset()
             identifier.PatientID = '*'
             assoc.is_established = True
-            results = assoc.send_c_find(identifier, PatientRootQueryRetrieveInformationModelFind)
+            results = assoc.send_c_find(
+                identifier, PatientRootQueryRetrieveInformationModelFind
+            )
             status, ds = next(results)
             assert status == Dataset()
             assert ds is None
@@ -2326,7 +2349,8 @@ class TestAssociationSendCFind(object):
             ae.network_timeout = 5
             ae.add_supported_context('1.2.3.4')
             scp = ae.start_server(
-                ('', 11112), block=False, evt_handlers=[(evt.EVT_C_FIND, handle)]
+                ('', 11112), block=False,
+                evt_handlers=[(evt.EVT_C_FIND, handle)]
             )
 
             ae.add_requested_context('1.2.3.4')
@@ -2348,49 +2372,47 @@ class TestAssociationSendCCancel(object):
     """Run tests on Assocation send_c_cancel."""
     def setup(self):
         """Run prior to each test"""
-        self.scp = None
+        self.ae = None
 
     def teardown(self):
         """Clear any active threads"""
-        if self.scp:
-            self.scp.abort()
-
-        time.sleep(0.1)
-
-        for thread in threading.enumerate():
-            if isinstance(thread, DummyBaseSCP):
-                thread.abort()
-                thread.stop()
+        if self.ae:
+            self.ae.shutdown()
 
     def test_must_be_associated(self):
         """Test can't send without association."""
         # Test raise if assoc not established
-        self.scp = DummyFindSCP()
-        self.scp.start()
-        ae = AE()
-        ae.add_requested_context(PatientRootQueryRetrieveInformationModelFind)
+        self.ae = ae = AE()
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
+        ae.network_timeout = 5
+        ae.add_supported_context(PatientRootQueryRetrieveInformationModelFind)
+        scp = ae.start_server(('', 11112), block=False)
+
+        ae.add_requested_context(PatientRootQueryRetrieveInformationModelFind)
         assoc = ae.associate('localhost', 11112)
         assoc.release()
         assert assoc.is_released
         assert not assoc.is_established
         with pytest.raises(RuntimeError):
             assoc.send_c_cancel(1, 1)
-        self.scp.stop()
+
+        scp.shutdown()
 
     def test_good_send(self):
         """Test send_c_cancel_move"""
-        self.scp = DummyFindSCP()
-        self.scp.start()
-        ae = AE()
-        ae.add_requested_context(PatientRootQueryRetrieveInformationModelFind)
+        self.ae = ae = AE()
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
+        ae.network_timeout = 5
+        ae.add_supported_context(PatientRootQueryRetrieveInformationModelFind)
+        scp = ae.start_server(('', 11112), block=False)
+
+        ae.add_requested_context(PatientRootQueryRetrieveInformationModelFind)
         assoc = ae.associate('localhost', 11112)
         assert assoc.is_established
         assoc.send_c_cancel(1, 1)
-        self.scp.stop()
+        scp.shutdown()
 
 
 class TestAssociationSendCGet(object):
@@ -2398,52 +2420,43 @@ class TestAssociationSendCGet(object):
     def setup(self):
         """Run prior to each test"""
         self.ds = Dataset()
-        #self.ds.SOPClassUID = PatientRootQueryRetrieveInformationModelGet.UID
         self.ds.PatientName = '*'
         self.ds.QueryRetrieveLevel = "PATIENT"
 
         self.good = Dataset()
-        self.good.file_meta = Dataset()
+        self.good.file_meta = FileMetaDataset()
         self.good.file_meta.TransferSyntaxUID = ImplicitVRLittleEndian
         self.good.SOPClassUID = CTImageStorage
         self.good.SOPInstanceUID = '1.1.1'
         self.good.PatientName = 'Test'
 
-        self.scp = None
-
         self.ae = None
 
     def teardown(self):
         """Clear any active threads"""
-        if self.scp:
-            self.scp.abort()
-
         if self.ae:
             self.ae.shutdown()
 
-        time.sleep(0.1)
-
-        for thread in threading.enumerate():
-            if isinstance(thread, DummyBaseSCP):
-                thread.abort()
-                thread.stop()
-
     def test_must_be_associated(self):
         """Test can't send without association."""
-        # Test raise if assoc not established
-        self.scp = DummyGetSCP()
-        self.scp.start()
-        ae = AE()
-        ae.add_requested_context(PatientRootQueryRetrieveInformationModelGet)
+        self.ae = ae = AE()
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
+        ae.network_timeout = 5
+        ae.add_supported_context(PatientRootQueryRetrieveInformationModelGet)
+        scp = ae.start_server(('', 11112), block=False)
+
+        ae.add_requested_context(PatientRootQueryRetrieveInformationModelGet)
         assoc = ae.associate('localhost', 11112)
         assoc.release()
         assert assoc.is_released
         assert not assoc.is_established
         with pytest.raises(RuntimeError):
-            next(assoc.send_c_get(self.ds, PatientRootQueryRetrieveInformationModelGet))
-        self.scp.stop()
+            next(assoc.send_c_get(
+                self.ds, PatientRootQueryRetrieveInformationModelGet)
+            )
+
+        scp.shutdown()
 
     def test_must_be_scp(self):
         """Test failure if not SCP for storage context."""
@@ -2464,9 +2477,13 @@ class TestAssociationSendCGet(object):
         ae.dimse_timeout = 5
         ae.network_timeout = 5
         ae.add_supported_context(PatientRootQueryRetrieveInformationModelGet)
-        ae.add_supported_context(CTImageStorage, scu_role=True, scp_role=True)
+        ae.add_supported_context(
+            CTImageStorage, scu_role=True, scp_role=True
+        )
         scp = ae.start_server(
-            ('', 11112), block=False, evt_handlers=[(evt.EVT_C_GET, handle_get)]
+            ('', 11112),
+            block=False,
+            evt_handlers=[(evt.EVT_C_GET, handle_get)]
         )
 
         ae.add_requested_context(PatientRootQueryRetrieveInformationModelGet)
@@ -2479,7 +2496,9 @@ class TestAssociationSendCGet(object):
         )
         assert assoc.is_established
 
-        result = assoc.send_c_get(self.ds, PatientRootQueryRetrieveInformationModelGet)
+        result = assoc.send_c_get(
+            self.ds, PatientRootQueryRetrieveInformationModelGet
+        )
         (status, ds) = next(result)
         assert status.Status == 0xff00
         assert ds is None
@@ -2496,62 +2515,74 @@ class TestAssociationSendCGet(object):
 
     def test_no_abstract_syntax_match(self):
         """Test when no accepted abstract syntax"""
-        self.scp = DummyStorageSCP()
-        self.scp.datasets = [self.good]
-        self.scp.start()
-        ae = AE()
+        self.ae = ae = AE()
+        ae.acse_timeout = 5
+        ae.dimse_timeout = 5
+        ae.network_timeout = 5
+        ae.add_supported_context(CTImageStorage)
+        scp = ae.start_server(('', 11112), block=False)
+
         ae.add_requested_context(CTImageStorage)
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
         assoc = ae.associate('localhost', 11112)
         assert assoc.is_established
 
-        def test():
-            next(assoc.send_c_get(self.ds, PatientRootQueryRetrieveInformationModelGet))
-
         with pytest.raises(ValueError):
-            test()
+            next(assoc.send_c_get(
+                self.ds, PatientRootQueryRetrieveInformationModelGet)
+            )
+
         assoc.release()
         assert assoc.is_released
-        self.scp.stop()
+
+        scp.shutdown()
 
     def test_bad_query_model(self):
         """Test bad query model parameter"""
-        self.scp = DummyGetSCP()
-        self.scp.start()
-        ae = AE()
-        ae.add_requested_context(PatientRootQueryRetrieveInformationModelGet)
+        self.ae = ae = AE()
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
+        ae.network_timeout = 5
+        ae.add_supported_context(PatientRootQueryRetrieveInformationModelGet)
+        scp = ae.start_server(('', 11112), block=False)
+
+        ae.add_requested_context(PatientRootQueryRetrieveInformationModelGet)
         assoc = ae.associate('localhost', 11112)
         assert assoc.is_established
         with pytest.raises(ValueError):
             next(assoc.send_c_get(self.ds, query_model='X'))
         assoc.release()
         assert assoc.is_released
-        self.scp.stop()
+
+        scp.shutdown()
 
     def test_fail_encode_identifier(self):
         """Test a failure in encoding the Identifier dataset"""
-        self.scp = DummyGetSCP()
-        self.scp.start()
-        ae = AE()
-        ae.add_requested_context(PatientRootQueryRetrieveInformationModelGet,
-                                 ExplicitVRLittleEndian)
+        self.ae = ae = AE()
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
+        ae.network_timeout = 5
+        ae.add_supported_context(PatientRootQueryRetrieveInformationModelGet)
+        scp = ae.start_server(('', 11112), block=False)
+
+        ae.add_requested_context(
+            PatientRootQueryRetrieveInformationModelGet, ExplicitVRLittleEndian
+        )
         assoc = ae.associate('localhost', 11112)
         assert assoc.is_established
         DATASET.PerimeterValue = b'\x00\x01'
 
-        def test():
-            next(assoc.send_c_get(DATASET, PatientRootQueryRetrieveInformationModelGet))
         with pytest.raises(ValueError):
-            test()
+            next(assoc.send_c_get(
+                DATASET, PatientRootQueryRetrieveInformationModelGet)
+            )
+
         assoc.release()
         assert assoc.is_released
         del DATASET.PerimeterValue # Fix up our changes
-        self.scp.stop()
+
+        scp.shutdown()
 
     def test_rsp_failure(self):
         """Test receiving a failure response"""
@@ -2935,13 +2966,21 @@ class TestAssociationSendCGet(object):
 
     def test_connection_timeout(self):
         """Test the connection timing out"""
-        self.scp = DummyGetSCP()
-        self.scp.no_suboperations = 2
-        self.scp.statuses = [0xFF00, 0xFF00]
-        self.scp.datasets = [self.good, self.good]
+        def handle(event):
+            yield 2
+            yield 0xFF00, self.good
+            yield 0xFF00, self.good
 
-        self.scp.start()
-        ae = AE()
+        hh = [(evt.EVT_C_GET, handle)]
+
+        self.ae = ae = AE()
+        ae.acse_timeout = 5
+        ae.dimse_timeout = 5
+        ae.network_timeout = 5
+        ae.add_supported_context(PatientRootQueryRetrieveInformationModelGet)
+        ae.add_supported_context(CTImageStorage, scp_role=True, scu_role=True)
+        scp = ae.start_server(('', 11112), block=False, evt_handlers=hh)
+
         ae.add_requested_context(PatientRootQueryRetrieveInformationModelGet)
         ae.add_requested_context(CTImageStorage)
 
@@ -2973,27 +3012,37 @@ class TestAssociationSendCGet(object):
         assoc.dimse = DummyDIMSE()
         assert assoc.is_established
 
-        results = assoc.send_c_get(self.ds, PatientRootQueryRetrieveInformationModelGet)
+        results = assoc.send_c_get(
+            self.ds, PatientRootQueryRetrieveInformationModelGet
+        )
         assert next(results) == (Dataset(), None)
         with pytest.raises(StopIteration):
             next(results)
 
         assert assoc.is_aborted
 
-        self.scp.stop()
+        scp.shutdown()
 
     def test_decode_failure(self):
         """Test the connection timing out"""
-        self.scp = DummyGetSCP()
-        self.scp.no_suboperations = 2
-        self.scp.ae.remove_supported_context(CTImageStorage, ImplicitVRLittleEndian)
-        self.scp.statuses = [0xFF00, 0xFF00]
-        self.scp.datasets = [self.good, self.good]
+        def handle(event):
+            yield 2
+            yield 0xFF00, self.good
+            yield 0xFF00, self.good
 
-        self.scp.start()
-        ae = AE()
-        ae.add_requested_context(PatientRootQueryRetrieveInformationModelGet,
-                                 ExplicitVRLittleEndian)
+        hh = [(evt.EVT_C_GET, handle)]
+
+        self.ae = ae = AE()
+        ae.acse_timeout = 5
+        ae.dimse_timeout = 5
+        ae.network_timeout = 5
+        ae.add_supported_context(PatientRootQueryRetrieveInformationModelGet)
+        ae.add_supported_context(CTImageStorage, scp_role=True, scu_role=True)
+        scp = ae.start_server(('', 11112), block=False, evt_handlers=hh)
+
+        ae.add_requested_context(
+            PatientRootQueryRetrieveInformationModelGet, ExplicitVRLittleEndian
+        )
         ae.add_requested_context(CTImageStorage)
 
         role = SCP_SCU_RoleSelectionNegotiation()
@@ -3001,8 +3050,6 @@ class TestAssociationSendCGet(object):
         role.scu_role = False
         role.scp_role = True
 
-        ae.acse_timeout = 5
-        ae.dimse_timeout = 5
         assoc = ae.associate('localhost', 11112, ext_neg=[role])
 
         class DummyMessage():
@@ -3029,13 +3076,15 @@ class TestAssociationSendCGet(object):
         assoc.dimse = DummyDIMSE()
         assert assoc.is_established
 
-        results = assoc.send_c_get(self.ds, PatientRootQueryRetrieveInformationModelGet)
+        results = assoc.send_c_get(
+            self.ds, PatientRootQueryRetrieveInformationModelGet
+        )
         status, ds = next(results)
 
         assert status.Status == 0xC000
         assert ds is None
 
-        self.scp.stop()
+        scp.shutdown()
 
     def test_rsp_not_get(self, caplog):
         """Test receiving a non C-GET/C-STORE message in response."""
@@ -3161,41 +3210,29 @@ class TestAssociationSendCMove(object):
         self.ds.QueryRetrieveLevel = "PATIENT"
 
         self.good = Dataset()
-        self.good.file_meta = Dataset()
+        self.good.file_meta = FileMetaDataset()
         self.good.file_meta.TransferSyntaxUID = ImplicitVRLittleEndian
         self.good.SOPClassUID = CTImageStorage
         self.good.SOPInstanceUID = '1.1.1'
         self.good.PatientName = 'Test'
 
-        self.scp = None
-        self.scp2 = None
-
         self.ae = None
 
     def teardown(self):
         """Clear any active threads"""
-        if self.scp:
-            self.scp.abort()
-
         if self.ae:
             self.ae.shutdown()
-
-        if self.scp2:
-            self.scp2.abort()
-
-        time.sleep(0.1)
-
-        for thread in threading.enumerate():
-            if isinstance(thread, DummyBaseSCP):
-                thread.abort()
-                thread.stop()
 
     def test_must_be_associated(self):
         """Test can't send without association."""
         # Test raise if assoc not established
-        self.scp = DummyMoveSCP()
-        self.scp.start()
-        ae = AE()
+        self.ae = ae = AE()
+        ae.acse_timeout = 5
+        ae.dimse_timeout = 5
+        ae.network_timeout = 5
+        ae.add_supported_context(PatientRootQueryRetrieveInformationModelMove)
+        scp = ae.start_server(('', 11112), block=False)
+
         ae.add_requested_context(PatientRootQueryRetrieveInformationModelMove)
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
@@ -3204,68 +3241,83 @@ class TestAssociationSendCMove(object):
         assert assoc.is_released
         assert not assoc.is_established
         with pytest.raises(RuntimeError):
-            next(assoc.send_c_move(self.ds, b'TESTMOVE', PatientRootQueryRetrieveInformationModelMove))
-        self.scp.stop()
+            next(assoc.send_c_move(
+                self.ds, b'TESTMOVE',
+                PatientRootQueryRetrieveInformationModelMove)
+            )
+        scp.shutdown()
 
     def test_no_abstract_syntax_match(self):
         """Test when no accepted abstract syntax"""
-        self.scp = DummyStorageSCP()
-        self.scp.start()
-        ae = AE()
-        ae.add_requested_context(CTImageStorage)
+        self.ae = ae = AE()
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
+        ae.network_timeout = 5
+        ae.add_supported_context(CTImageStorage)
+        scp = ae.start_server(('', 11112), block=False)
+
+        ae.add_requested_context(CTImageStorage)
         assoc = ae.associate('localhost', 11112)
         assert assoc.is_established
-        def test():
-            next(assoc.send_c_move(self.ds, b'TESTMOVE', PatientRootQueryRetrieveInformationModelMove))
 
         with pytest.raises(ValueError):
-            test()
+            next(assoc.send_c_move(
+                self.ds, b'TESTMOVE',
+                PatientRootQueryRetrieveInformationModelMove)
+            )
+
         assoc.release()
         assert assoc.is_released
-        self.scp.stop()
+
+        scp.shutdown()
 
     def test_bad_query_model(self):
         """Test bad query model parameter"""
-        self.scp = DummyMoveSCP()
-        self.scp.start()
-        ae = AE()
-        ae.add_requested_context(PatientRootQueryRetrieveInformationModelMove)
+        self.ae = ae = AE()
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
+        ae.network_timeout = 5
+        ae.add_supported_context(PatientRootQueryRetrieveInformationModelMove)
+        scp = ae.start_server(('', 11112), block=False)
+
+        ae.add_requested_context(PatientRootQueryRetrieveInformationModelMove)
         assoc = ae.associate('localhost', 11112)
         assert assoc.is_established
         with pytest.raises(ValueError):
             next(assoc.send_c_move(self.ds, b'TESTMOVE', query_model='X'))
         assoc.release()
         assert assoc.is_released
-        self.scp.stop()
+
+        scp.shutdown()
 
     def test_fail_encode_identifier(self):
         """Test a failure in encoding the Identifier dataset"""
-        self.scp = DummyMoveSCP()
-        self.scp.start()
-        ae = AE()
-        ae.add_requested_context(PatientRootQueryRetrieveInformationModelMove,
-                                 ExplicitVRLittleEndian)
+        self.ae = ae = AE()
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
+        ae.network_timeout = 5
+        ae.add_supported_context(PatientRootQueryRetrieveInformationModelMove)
+        scp = ae.start_server(('', 11112), block=False)
+
+        ae.add_requested_context(
+            PatientRootQueryRetrieveInformationModelMove,
+            ExplicitVRLittleEndian
+        )
         assoc = ae.associate('localhost', 11112)
         assert assoc.is_established
         DATASET.PerimeterValue = b'\x00\x01'
 
-        def test():
+        with pytest.raises(ValueError):
             next(assoc.send_c_move(
                 DATASET, b'SOMEPLACE',
                 PatientRootQueryRetrieveInformationModelMove)
             )
-        with pytest.raises(ValueError):
-            test()
+
         assoc.release()
         assert assoc.is_released
         del DATASET.PerimeterValue # Fix up our changes
-        self.scp.stop()
+
+        scp.shutdown()
 
     def test_move_destination_no_assoc(self):
         """Test move destination failed to assoc"""
@@ -3710,18 +3762,23 @@ class TestAssociationSendCMove(object):
 
     def test_connection_timeout(self):
         """Test the connection timing out"""
-        self.scp = DummyMoveSCP()
-        self.scp.no_suboperations = 2
-        self.scp.statuses = [0xFF00, 0xFF00]
-        self.scp.datasets = [self.good, self.good]
+        def handle(event):
+            yield ('localhost', 11112)
+            yield 2
+            yield 0xFF00, self.good
+            yield 0xFF00, self.good
 
-        self.scp.start()
-        ae = AE()
-        ae.add_requested_context(PatientRootQueryRetrieveInformationModelMove)
-        ae.add_requested_context(CTImageStorage)
+        hh = [(evt.EVT_C_MOVE, handle)]
 
+        self.ae = ae = AE()
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
+        ae.network_timeout = 5
+        ae.add_supported_context(PatientRootQueryRetrieveInformationModelMove)
+        scp = ae.start_server(('', 11112), block=False, evt_handlers=hh)
+
+        ae.add_requested_context(PatientRootQueryRetrieveInformationModelMove)
+        ae.add_requested_context(CTImageStorage)
         assoc = ae.associate('localhost', 11112)
 
         class DummyMessage():
@@ -3752,23 +3809,30 @@ class TestAssociationSendCMove(object):
 
         assert assoc.is_aborted
 
-        self.scp.stop()
+        scp.shutdown()
 
     def test_decode_failure(self):
         """Test the connection timing out"""
-        self.scp = DummyMoveSCP()
-        self.scp.no_suboperations = 2
-        self.scp.statuses = [0xFF00, 0xFF00]
-        self.scp.datasets = [self.good, self.good]
+        def handle(event):
+            yield ('localhost', 11112)
+            yield 2
+            yield 0xFF00, self.good
+            yield 0xFF00, self.good
 
-        self.scp.start()
-        ae = AE()
-        ae.add_requested_context(PatientRootQueryRetrieveInformationModelMove,
-                                 ExplicitVRLittleEndian)
-        ae.add_requested_context(CTImageStorage)
+        hh = [(evt.EVT_C_MOVE, handle)]
 
+        self.ae = ae = AE()
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
+        ae.network_timeout = 5
+        ae.add_supported_context(PatientRootQueryRetrieveInformationModelMove)
+        scp = ae.start_server(('', 11112), block=False, evt_handlers=hh)
+
+        ae.add_requested_context(
+            PatientRootQueryRetrieveInformationModelMove,
+            ExplicitVRLittleEndian
+        )
+        ae.add_requested_context(CTImageStorage)
         assoc = ae.associate('localhost', 11112)
 
         class DummyMessage():
@@ -3804,7 +3868,7 @@ class TestAssociationSendCMove(object):
         assert status.Status == 0xC000
         assert ds is None
 
-        self.scp.stop()
+        scp.shutdown()
 
     def test_rsp_not_move(self, caplog):
         """Test receiving a non C-MOVE/C-STORE message in response."""
@@ -3971,29 +4035,22 @@ class TestGetValidContext(object):
     """Tests for Association._get_valid_context."""
     def setup(self):
         """Run prior to each test"""
-        self.scp = None
         self.ae = None
 
     def teardown(self):
         """Clear any active threads"""
-        if self.scp:
-            self.scp.abort()
-
         if self.ae:
             self.ae.shutdown()
 
-        time.sleep(0.1)
-
-        for thread in threading.enumerate():
-            if isinstance(thread, DummyBaseSCP):
-                thread.abort()
-                thread.stop()
-
     def test_id_no_abstract_syntax_match(self):
         """Test exception raised if with ID no abstract syntax match"""
-        self.scp = DummyVerificationSCP()
-        self.scp.start()
-        ae = AE()
+        self.ae = ae = AE()
+        ae.acse_timeout = 5
+        ae.dimse_timeout = 5
+        ae.network_timeout = 5
+        ae.add_supported_context(VerificationSOPClass)
+        scp = ae.start_server(('', 11112), block=False)
+
         ae.add_requested_context(VerificationSOPClass)
         ae.add_requested_context(CTImageStorage)
         ae.acse_timeout = 5
@@ -4009,8 +4066,7 @@ class TestGetValidContext(object):
             assoc._get_valid_context(CTImageStorage, '', 'scu', context_id=1)
 
         assoc.release()
-        assert assoc.is_released
-        self.scp.stop()
+        scp.shutdown()
 
     def test_id_transfer_syntax(self):
         """Test match with context ID."""
@@ -4048,14 +4104,19 @@ class TestGetValidContext(object):
         assert cx.transfer_syntax[0] == JPEGBaseline
         assert cx.as_scu is True
 
+        assoc.release()
         scp.shutdown()
 
     def test_id_no_transfer_syntax(self):
         """Test exception raised if with ID no transfer syntax match."""
-        self.scp = DummyVerificationSCP()
-        self.scp.ae.add_supported_context(CTImageStorage, JPEGBaseline)
-        self.scp.start()
-        ae = AE()
+        self.ae = ae = AE()
+        ae.acse_timeout = 5
+        ae.dimse_timeout = 5
+        ae.network_timeout = 5
+        ae.add_supported_context(VerificationSOPClass)
+        ae.add_supported_context(CTImageStorage, JPEGBaseline)
+        scp = ae.start_server(('', 11112), block=False)
+
         ae.add_requested_context(VerificationSOPClass)
         ae.add_requested_context(CTImageStorage, JPEGBaseline)
         ae.acse_timeout = 5
@@ -4064,10 +4125,9 @@ class TestGetValidContext(object):
         assert assoc.is_established
 
         # Confirm otherwise OK
-        cx = assoc._get_valid_context('1.2.840.10008.1.1',
-                                      '',
-                                      'scu',
-                                      context_id=1)
+        cx = assoc._get_valid_context(
+            '1.2.840.10008.1.1', '', 'scu', context_id=1
+        )
         assert cx.context_id == 1
         assert cx.transfer_syntax[0] == ImplicitVRLittleEndian
 
@@ -4078,17 +4138,15 @@ class TestGetValidContext(object):
             r"transfer syntax for the SCU role"
         )
         with pytest.raises(ValueError, match=msg):
-            assoc._get_valid_context('1.2.840.10008.1.1',
-                                     JPEGBaseline,
-                                     'scu',
-                                     context_id=1)
+            assoc._get_valid_context(
+                '1.2.840.10008.1.1', JPEGBaseline, 'scu', context_id=1
+            )
 
         # Compressed (JPEGBaseline) accepted, uncompressed sent
         # Confirm otherwise OK
-        cx = assoc._get_valid_context(CTImageStorage,
-                                      JPEGBaseline,
-                                      'scu',
-                                      context_id=3)
+        cx = assoc._get_valid_context(
+            CTImageStorage, JPEGBaseline, 'scu', context_id=3
+        )
         assert cx.context_id == 3
         assert cx.transfer_syntax[0] == JPEGBaseline
 
@@ -4098,10 +4156,9 @@ class TestGetValidContext(object):
             r"transfer syntax for the SCU role"
         )
         with pytest.raises(ValueError, match=msg):
-            assoc._get_valid_context(CTImageStorage,
-                                     ImplicitVRLittleEndian,
-                                     'scu',
-                                     context_id=3)
+            assoc._get_valid_context(
+                CTImageStorage, ImplicitVRLittleEndian, 'scu', context_id=3
+            )
 
         # Compressed (JPEGBaseline) accepted, compressed (JPEG2000) sent
         msg = (
@@ -4110,21 +4167,23 @@ class TestGetValidContext(object):
             r"transfer syntax for the SCU role"
         )
         with pytest.raises(ValueError, match=msg):
-            assoc._get_valid_context(CTImageStorage,
-                                     JPEG2000,
-                                     'scu',
-                                     context_id=3)
+            assoc._get_valid_context(
+                CTImageStorage, JPEG2000, 'scu', context_id=3
+            )
 
         assoc.release()
-        assert assoc.is_released
-        self.scp.stop()
+        scp.shutdown()
 
     def test_id_no_role_scp(self):
         """Test exception raised if with ID no role match."""
-        self.scp = DummyVerificationSCP()
-        self.scp.ae.add_supported_context(CTImageStorage, JPEGBaseline)
-        self.scp.start()
-        ae = AE()
+        self.ae = ae = AE()
+        ae.acse_timeout = 5
+        ae.dimse_timeout = 5
+        ae.network_timeout = 5
+        ae.add_supported_context(VerificationSOPClass)
+        ae.add_supported_context(CTImageStorage, JPEGBaseline)
+        scp = ae.start_server(('', 11112), block=False)
+
         ae.add_requested_context(VerificationSOPClass)
         ae.add_requested_context(CTImageStorage, JPEGBaseline)
         ae.acse_timeout = 5
@@ -4133,10 +4192,9 @@ class TestGetValidContext(object):
         assert assoc.is_established
 
         # Confirm matching otherwise OK
-        cx = assoc._get_valid_context('1.2.840.10008.1.1',
-                                      '',
-                                      'scu',
-                                      context_id=1)
+        cx = assoc._get_valid_context(
+            '1.2.840.10008.1.1', '', 'scu', context_id=1
+        )
         assert cx.context_id == 1
         assert cx.as_scu is True
 
@@ -4147,10 +4205,9 @@ class TestGetValidContext(object):
             r"for the SCP role"
         )
         with pytest.raises(ValueError, match=msg):
-            assoc._get_valid_context('1.2.840.10008.1.1',
-                                     '',
-                                     'scp',
-                                     context_id=1)
+            assoc._get_valid_context(
+                '1.2.840.10008.1.1', '', 'scp', context_id=1
+            )
 
         # Transfer syntax used
         msg = (
@@ -4160,16 +4217,24 @@ class TestGetValidContext(object):
             r"for the SCP role"
         )
         with pytest.raises(ValueError, match=msg):
-            assoc._get_valid_context('1.2.840.10008.1.1',
-                                     ImplicitVRLittleEndian,
-                                     'scp',
-                                     context_id=1)
+            assoc._get_valid_context(
+                '1.2.840.10008.1.1', ImplicitVRLittleEndian,
+                'scp', context_id=1
+            )
+
+        assoc.release()
+        scp.shutdown()
 
     def test_id_no_role_scu(self):
         """Test exception raised if with ID no role match."""
-        self.scp = DummyGetSCP()
-        self.scp.start()
-        ae = AE()
+        self.ae = ae = AE()
+        ae.acse_timeout = 5
+        ae.dimse_timeout = 5
+        ae.network_timeout = 5
+        ae.add_supported_context(PatientRootQueryRetrieveInformationModelGet)
+        ae.add_supported_context(CTImageStorage, scp_role=True, scu_role=True)
+        scp = ae.start_server(('', 11112), block=False)
+
         ae.add_requested_context(PatientRootQueryRetrieveInformationModelGet)
         ae.add_requested_context(CTImageStorage)
 
@@ -4184,10 +4249,9 @@ class TestGetValidContext(object):
         assert assoc.is_established
 
         # Confirm matching otherwise OK
-        cx = assoc._get_valid_context(CTImageStorage,
-                                      '',
-                                      'scp',
-                                      context_id=3)
+        cx = assoc._get_valid_context(
+            CTImageStorage, '', 'scp', context_id=3
+        )
         assert cx.context_id == 3
         assert cx.as_scp is True
 
@@ -4198,10 +4262,9 @@ class TestGetValidContext(object):
             r"for the SCU role"
         )
         with pytest.raises(ValueError, match=msg):
-            assoc._get_valid_context(CTImageStorage,
-                                     '',
-                                     'scu',
-                                     context_id=3)
+            assoc._get_valid_context(
+                CTImageStorage, '', 'scu', context_id=3
+            )
 
         # Transfer syntax used
         msg = (
@@ -4211,16 +4274,22 @@ class TestGetValidContext(object):
             r"for the SCU role"
         )
         with pytest.raises(ValueError, match=msg):
-            assoc._get_valid_context(CTImageStorage,
-                                     ImplicitVRLittleEndian,
-                                     'scu',
-                                     context_id=3)
+            assoc._get_valid_context(
+                CTImageStorage, ImplicitVRLittleEndian, 'scu', context_id=3
+            )
+
+        assoc.release()
+        scp.shutdown()
 
     def test_no_id_no_abstract_syntax_match(self):
         """Test exception raised if no abstract syntax match"""
-        self.scp = DummyVerificationSCP()
-        self.scp.start()
-        ae = AE()
+        self.ae = ae = AE()
+        ae.acse_timeout = 5
+        ae.dimse_timeout = 5
+        ae.network_timeout = 5
+        ae.add_supported_context(VerificationSOPClass)
+        scp = ae.start_server(('', 11112), block=False)
+
         ae.add_requested_context(VerificationSOPClass)
         ae.add_requested_context(CTImageStorage)
         ae.acse_timeout = 5
@@ -4240,15 +4309,18 @@ class TestGetValidContext(object):
             assoc._get_valid_context(CTImageStorage, '', 'scu')
 
         assoc.release()
-        assert assoc.is_released
-        self.scp.stop()
+        scp.shutdown()
 
     def test_no_id_transfer_syntax(self):
         """Test match."""
-        self.scp = DummyVerificationSCP()
-        self.scp.ae.add_supported_context(CTImageStorage, JPEGBaseline)
-        self.scp.start()
-        ae = AE()
+        self.ae = ae = AE()
+        ae.acse_timeout = 5
+        ae.dimse_timeout = 5
+        ae.network_timeout = 5
+        ae.add_supported_context(VerificationSOPClass)
+        ae.add_supported_context(CTImageStorage, JPEGBaseline)
+        scp = ae.start_server(('', 11112), block=False)
+
         ae.add_requested_context(VerificationSOPClass)
         ae.add_requested_context(CTImageStorage, JPEGBaseline)
         ae.acse_timeout = 5
@@ -4257,20 +4329,27 @@ class TestGetValidContext(object):
         assert assoc.is_established
 
         # Uncompressed accepted, different uncompressed sent
-        cx = assoc._get_valid_context('1.2.840.10008.1.1',
-                                      ExplicitVRLittleEndian,
-                                      'scu')
+        cx = assoc._get_valid_context(
+            '1.2.840.10008.1.1', ExplicitVRLittleEndian, 'scu'
+        )
         assert cx.context_id == 1
         assert cx.abstract_syntax == VerificationSOPClass
         assert cx.transfer_syntax[0] == ImplicitVRLittleEndian
         assert cx.as_scu is True
 
+        assoc.release()
+        scp.shutdown()
+
     def test_no_id_no_transfer_syntax(self):
         """Test exception raised if no transfer syntax match."""
-        self.scp = DummyVerificationSCP()
-        self.scp.ae.add_supported_context(CTImageStorage, JPEGBaseline)
-        self.scp.start()
-        ae = AE()
+        self.ae = ae = AE()
+        ae.acse_timeout = 5
+        ae.dimse_timeout = 5
+        ae.network_timeout = 5
+        ae.add_supported_context(VerificationSOPClass)
+        ae.add_supported_context(CTImageStorage, JPEGBaseline)
+        scp = ae.start_server(('', 11112), block=False)
+
         ae.add_requested_context(VerificationSOPClass)
         ae.add_requested_context(CTImageStorage, JPEGBaseline)
         ae.acse_timeout = 5
@@ -4306,9 +4385,9 @@ class TestGetValidContext(object):
             r"for the SCU role"
         )
         with pytest.raises(ValueError, match=msg):
-            assoc._get_valid_context(CTImageStorage,
-                                     ImplicitVRLittleEndian,
-                                     'scu')
+            assoc._get_valid_context(
+                CTImageStorage, ImplicitVRLittleEndian, 'scu'
+            )
 
         # Compressed (JPEGBaseline) accepted, compressed (JPEG2000) sent
         msg = (
@@ -4321,15 +4400,18 @@ class TestGetValidContext(object):
             assoc._get_valid_context(CTImageStorage, JPEG2000, 'scu')
 
         assoc.release()
-        assert assoc.is_released
-        self.scp.stop()
+        scp.shutdown()
 
     def test_no_id_no_role_scp(self):
         """Test exception raised if no role match."""
-        self.scp = DummyVerificationSCP()
-        self.scp.ae.add_supported_context(CTImageStorage, JPEGBaseline)
-        self.scp.start()
-        ae = AE()
+        self.ae = ae = AE()
+        ae.acse_timeout = 5
+        ae.dimse_timeout = 5
+        ae.network_timeout = 5
+        ae.add_supported_context(VerificationSOPClass)
+        ae.add_supported_context(CTImageStorage, JPEGBaseline)
+        scp = ae.start_server(('', 11112), block=False)
+
         ae.add_requested_context(VerificationSOPClass)
         ae.add_requested_context(CTImageStorage, JPEGBaseline)
         ae.acse_timeout = 5
@@ -4359,15 +4441,23 @@ class TestGetValidContext(object):
             r"for the SCP role"
         )
         with pytest.raises(ValueError, match=msg):
-            assoc._get_valid_context('1.2.840.10008.1.1',
-                                     ImplicitVRLittleEndian,
-                                     'scp')
+            assoc._get_valid_context(
+                '1.2.840.10008.1.1', ImplicitVRLittleEndian, 'scp'
+            )
+
+        assoc.release()
+        scp.shutdown()
 
     def test_no_id_no_role_scu(self):
         """Test exception raised if no role match."""
-        self.scp = DummyGetSCP()
-        self.scp.start()
-        ae = AE()
+        self.ae = ae = AE()
+        ae.acse_timeout = 5
+        ae.dimse_timeout = 5
+        ae.network_timeout = 5
+        ae.add_supported_context(PatientRootQueryRetrieveInformationModelGet)
+        ae.add_supported_context(CTImageStorage, scp_role=True, scu_role=True)
+        scp = ae.start_server(('', 11112), block=False)
+
         ae.add_requested_context(PatientRootQueryRetrieveInformationModelGet)
         ae.add_requested_context(CTImageStorage)
 
@@ -4393,9 +4483,7 @@ class TestGetValidContext(object):
             r"for the SCU role"
         )
         with pytest.raises(ValueError, match=msg):
-            assoc._get_valid_context(CTImageStorage,
-                                     '',
-                                     'scu')
+            assoc._get_valid_context(CTImageStorage, '', 'scu')
 
         # Transfer syntax used
         msg = (
@@ -4405,17 +4493,24 @@ class TestGetValidContext(object):
             r"for the SCU role"
         )
         with pytest.raises(ValueError, match=msg):
-            assoc._get_valid_context(CTImageStorage,
-                                     ImplicitVRLittleEndian,
-                                     'scu')
+            assoc._get_valid_context(
+                CTImageStorage, ImplicitVRLittleEndian, 'scu'
+            )
+
+        assoc.release()
+        scp.shutdown()
 
     def test_implicit_explicit(self):
         """Test matching when both implicit and explicit are available."""
-        self.scp = DummyVerificationSCP()
-        self.scp.ae.add_supported_context(CTImageStorage, ImplicitVRLittleEndian)
-        self.scp.ae.add_supported_context(CTImageStorage, ExplicitVRLittleEndian)
-        self.scp.start()
-        ae = AE()
+        self.ae = ae = AE()
+        ae.acse_timeout = 5
+        ae.dimse_timeout = 5
+        ae.network_timeout = 5
+        ae.add_supported_context(VerificationSOPClass)
+        ae.add_supported_context(CTImageStorage, ImplicitVRLittleEndian)
+        ae.add_supported_context(CTImageStorage, ExplicitVRLittleEndian)
+        scp = ae.start_server(('', 11112), block=False)
+
         ae.add_requested_context(CTImageStorage, ImplicitVRLittleEndian)
         ae.add_requested_context(CTImageStorage, ExplicitVRLittleEndian)
         ae.acse_timeout = 5
@@ -4439,15 +4534,20 @@ class TestGetValidContext(object):
         assert cx.transfer_syntax[0] == ImplicitVRLittleEndian
         assert cx.as_scu is True
 
-        self.scp.abort()
+        assoc.release()
+        scp.shutdown()
 
     def test_explicit_implicit(self):
         """Test matching when both implicit and explicit are available."""
-        self.scp = DummyVerificationSCP()
-        self.scp.ae.add_supported_context(CTImageStorage, ExplicitVRLittleEndian)
-        self.scp.ae.add_supported_context(CTImageStorage, ImplicitVRLittleEndian)
-        self.scp.start()
-        ae = AE()
+        self.ae = ae = AE()
+        ae.acse_timeout = 5
+        ae.dimse_timeout = 5
+        ae.network_timeout = 5
+        ae.add_supported_context(VerificationSOPClass)
+        ae.add_supported_context(CTImageStorage, ExplicitVRLittleEndian)
+        ae.add_supported_context(CTImageStorage, ImplicitVRLittleEndian)
+        scp = ae.start_server(('', 11112), block=False)
+
         ae.add_requested_context(CTImageStorage, ExplicitVRLittleEndian)
         ae.add_requested_context(CTImageStorage, ImplicitVRLittleEndian)
         ae.acse_timeout = 5
@@ -4471,16 +4571,20 @@ class TestGetValidContext(object):
         assert cx.transfer_syntax[0] == ImplicitVRLittleEndian
         assert cx.as_scu is True
 
-        self.scp.abort()
+        assoc.release()
+        scp.shutdown
 
     def test_little_big(self):
         """Test no match from little to big endian."""
-        self.scp = DummyVerificationSCP()
-        self.scp.ae.add_supported_context(MRImageStorage, ExplicitVRLittleEndian)
-        self.scp.ae.add_supported_context(CTImageStorage, ImplicitVRLittleEndian)
-        self.scp.start()
+        self.ae = ae = AE()
+        ae.acse_timeout = 5
+        ae.dimse_timeout = 5
+        ae.network_timeout = 5
+        ae.add_supported_context(VerificationSOPClass)
+        ae.add_supported_context(MRImageStorage, ExplicitVRLittleEndian)
+        ae.add_supported_context(CTImageStorage, ImplicitVRLittleEndian)
+        scp = ae.start_server(('', 11112), block=False)
 
-        ae = AE()
         ae.add_requested_context(MRImageStorage, ExplicitVRBigEndian)
         ae.add_requested_context(MRImageStorage, ExplicitVRLittleEndian)
         ae.add_requested_context(CTImageStorage, ImplicitVRLittleEndian)
@@ -4499,7 +4603,8 @@ class TestGetValidContext(object):
                 MRImageStorage, ExplicitVRBigEndian, 'scu'
             )
 
-        self.scp.abort()
+        assoc.release()
+        scp.shutdown()
 
     def test_ups_push_action(self, caplog):
         """Test matching UPS Push to other UPS contexts."""

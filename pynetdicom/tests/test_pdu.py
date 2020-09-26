@@ -1440,6 +1440,7 @@ class TestEventHandlingAcceptor(object):
         assoc = ae.associate('localhost', 11112)
         assert assoc.is_established
 
+        assert len(triggered) == 0
         scp.bind(evt.EVT_PDU_SENT, handle)
 
         assert len(scp.active_associations) == 1
@@ -1454,13 +1455,11 @@ class TestEventHandlingAcceptor(object):
         while scp.active_associations:
             time.sleep(0.05)
 
-        assert len(triggered) == 1
         event = triggered[0]
         assert isinstance(event, Event)
         assert isinstance(event.assoc, Association)
         assert isinstance(event.timestamp, datetime)
         assert event.event.name == 'EVT_PDU_SENT'
-
         assert isinstance(triggered[0].pdu, A_RELEASE_RP)
 
         scp.shutdown()
@@ -1809,7 +1808,6 @@ class TestEventHandlingRequestor(object):
         while scp.active_associations:
             time.sleep(0.05)
 
-        assert len(triggered) == 1
         event = triggered[0]
         assert isinstance(event, Event)
         assert isinstance(event.assoc, Association)

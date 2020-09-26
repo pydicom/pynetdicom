@@ -140,7 +140,7 @@ class TestAssociationSocket(object):
         sock = AssociationSocket(self.assoc, address=('localhost', 0))
         assert sock.ready is False
         sock._is_connected = True
-        if platform.system() == 'Windows':
+        if platform.system() in ['Windows', 'Darwin']:
             assert sock.ready is False
         else:
             assert sock.ready is True
@@ -383,6 +383,8 @@ class TestTLS(object):
             ('', 11112), block=False, ssl_context=server_context,
         )
 
+        time.sleep(0.5)
+
         ae.add_requested_context('1.2.840.10008.1.1')
         assoc = ae.associate(
             'localhost', 11112, tls_args=(client_context, None)
@@ -498,6 +500,11 @@ class TestTLS(object):
         time.sleep(1)
 
         assoc.release()
+        timeout = 0
+        while not assoc.is_released and timeout < 5:
+            time.sleep(0.05)
+            timeout += 0.05
+
         assert assoc.is_released
 
     def test_multiple_pdu_acc(self, server_context, client_context):
@@ -532,6 +539,11 @@ class TestTLS(object):
         time.sleep(1)
 
         assoc.release()
+        timeout = 0
+        while not assoc.is_released and timeout < 5:
+            time.sleep(0.05)
+            timeout += 0.05
+
         assert assoc.is_released
 
         server.shutdown()
@@ -676,7 +688,7 @@ class TestAssociationServer(object):
     def test_shutdown(self):
         """test tring to shutdown a socket that's already closed."""
         self.ae = ae = AE()
-        ae.add_supported_context('1.2.840.10008.1.1')
+        ae.add_supported_context(VerificationSOPClass)
         server = ae.start_server(('', 11112), block=False)
         server.socket.close()
         server.shutdown()
@@ -707,6 +719,27 @@ class TestAssociationServer(object):
                 server.socket.fileno()
         else:
             assert server.socket.fileno() == -1
+
+    def test_blocking_process_request(self):
+        """Test AssociationServer.process_request."""
+        self.ae = ae = AE()
+        ae.acse_timeout = 5
+        ae.dimse_timeout = 5
+        ae.network_timeout = 5
+        ae.add_supported_context(VerificationSOPClass)
+
+        t = threading.Thread(
+            target=ae.start_server,
+            args=(('localhost', 11112),),
+            kwargs={'block': True}
+        )
+        t.start()
+
+        ae.add_requested_context(VerificationSOPClass)
+        assoc = ae.associate('localhost', 11112)
+        assert assoc.is_established
+        assoc.release()
+        ae.shutdown()
 
 
 class TestEventHandlingAcceptor(object):
@@ -1201,6 +1234,7 @@ class TestEventHandlingAcceptor(object):
 
         assoc = ae.associate('localhost', 11112)
         assert assoc.is_established
+        time.sleep(0.5)
 
         scp.bind(evt.EVT_DATA_SENT, handle)
 
@@ -1243,11 +1277,13 @@ class TestEventHandlingAcceptor(object):
 
         assoc = ae.associate('localhost', 11112)
         assert assoc.is_established
+        time.sleep(0.5)
         assert len(scp.active_associations) == 1
         assert scp.get_handlers(evt.EVT_DATA_SENT) == [(handle, None)]
         assert assoc.get_handlers(evt.EVT_DATA_SENT) == []
 
         child = scp.active_associations[0]
+        assert child.dul.state_machine.current_state == 'Sta6'
         assert child.get_handlers(evt.EVT_DATA_SENT) == [(handle, None)]
 
         scp.unbind(evt.EVT_DATA_SENT, handle)

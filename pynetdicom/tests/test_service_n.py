@@ -5,7 +5,7 @@ import time
 
 import pytest
 
-from pydicom.dataset import Dataset
+from pydicom.dataset import Dataset, FileMetaDataset
 from pydicom.uid import ImplicitVRLittleEndian, ExplicitVRLittleEndian
 
 from pynetdicom import AE, evt, debug_logger
@@ -1036,7 +1036,7 @@ class TestNServiceClass(object):
         ds = Dataset()
         ds.SOPClassUID = sop_class
         ds.SOPInstanceUID = '1.2.3.4'
-        ds.file_meta = Dataset()
+        ds.file_meta = FileMetaDataset()
         ds.file_meta.TransferSyntaxUID = ImplicitVRLittleEndian
 
         self.ae = ae = AE()
@@ -1237,7 +1237,8 @@ class TestUPSFindServiceClass(object):
         req.Identifier = BytesIO(b'\x08\x00\x01\x00\x40\x40\x00\x00\x00\x00\x00\x08\x00\x49')
         assoc._reactor_checkpoint.clear()
         assoc.dimse.send_msg(req, 1)
-        cx_id, rsp = assoc.dimse.get_msg(True)
+        with pytest.warns(UserWarning):
+            cx_id, rsp = assoc.dimse.get_msg(True)
         assoc._reactor_checkpoint.set()
         assert rsp.Status == 0xC310
 

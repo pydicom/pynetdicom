@@ -7,17 +7,19 @@ import time
 
 import pytest
 
-from pynetdicom import AE
+from pynetdicom import AE, debug_logger, evt
 from pynetdicom.dul import DULServiceProvider
-from pynetdicom.pdu import A_ASSOCIATE_RQ, A_ASSOCIATE_AC, A_ASSOCIATE_RJ, \
-                            A_RELEASE_RQ, A_RELEASE_RP, P_DATA_TF, A_ABORT_RQ
+from pynetdicom.pdu import (
+    A_ASSOCIATE_RQ, A_ASSOCIATE_AC, A_ASSOCIATE_RJ,
+    A_RELEASE_RQ, A_RELEASE_RP, P_DATA_TF, A_ABORT_RQ
+)
 from pynetdicom.pdu_primitives import A_ASSOCIATE, A_RELEASE, A_ABORT, P_DATA
 from .encoded_pdu_items import a_associate_ac, a_release_rq
-from .parrot import start_server, ThreadedParrot
+from .parrot import start_server, ThreadedParrot, ParrotRequest
+from .utils import sleep
 
-LOGGER = logging.getLogger('pynetdicom')
-LOGGER.setLevel(logging.CRITICAL)
-#LOGGER.setLevel(logging.DEBUG)
+
+#debug_logger()
 
 
 class DummyACSE(object):
@@ -45,7 +47,16 @@ class DummyAssociation(object):
 
 class TestDUL(object):
     """Run tests on DUL service provider."""
+    def setup(self):
+        self.scp = None
+
     def teardown(self):
+        if self.scp:
+            self.scp.commands = [('exit', None)]
+            self.scp.step
+            self.scp.commands = []
+            self.scp.shutdown()
+
         for thread in threading.enumerate():
             if isinstance(thread, ThreadedParrot):
                 thread.shutdown()
@@ -83,21 +94,35 @@ class TestDUL(object):
         commands = [
             ('recv', None),  # recv a-associate-rq
             ('send', a_associate_ac),
-            ('wait', 0.1),  # Don't want to accidentally kill the DUL
             ('send', b"\x07\x00\x00\x00\x00\x04"),
-            ('wait', 0.3)
+            ('exit', None)
         ]
-        scp = start_server(commands)
+        self.scp = scp = start_server(commands)
+
+        def handle(event):
+            scp.step()
+            scp.step()
+
+        hh = [(evt.EVT_REQUESTED, handle)]
 
         ae = AE()
+        ae.acse_timeout = 5
+        ae.dimse_timeout = 5
         ae.network_timeout = 0.2
         ae.add_requested_context('1.2.840.10008.1.1')
-        assoc = ae.associate('localhost', 11112)
+        assoc = ae.associate('localhost', 11112, evt_handlers=hh)
         assert assoc.is_established
-        time.sleep(0.4)
-        assert assoc.is_aborted
 
+        scp.step()  # send short pdu
+        scp.step()  # close connection
         scp.shutdown()
+
+        # Need to wait for network timeout to expire
+        timeout = 0
+        while not assoc.is_aborted and timeout < 1:
+            time.sleep(0.05)
+            timeout += 0.05
+        assert assoc.is_aborted
 
     def test_recv_short_aborts(self):
         """Test receiving short PDU causes abort."""
@@ -105,19 +130,72 @@ class TestDUL(object):
             ('recv', None),  # recv a-associate-rq
             ('send', a_associate_ac),
             ('send', b"\x07\x00\x00\x00\x00\x04\x00\x00"),  # Send short PDU
-            ('wait', 0.3),  # Keep connection open
+            ('exit', None)
         ]
-        scp = start_server(commands)
+        self.scp = scp = start_server(commands)
+
+        def handle(event):
+            scp.step()
+            scp.step()
+
+        hh = [(evt.EVT_REQUESTED, handle)]
 
         ae = AE()
+        ae.acse_timeout = 5
+        ae.dimse_timeout = 5
+        ae.network_timeout = 0.2
         ae.add_requested_context('1.2.840.10008.1.1')
-        # Sends a-associate-rq
-        assoc = ae.associate('localhost', 11112)
+        assoc = ae.associate('localhost', 11112, evt_handlers=hh)
         assert assoc.is_established
 
-        time.sleep(0.4)
+        scp.step()  # send short pdu
+        # Need to wait for network timeout to expire
+        timeout = 0
+        while not assoc.is_aborted and timeout < 1:
+            time.sleep(0.05)
+            timeout += 0.05
         assert assoc.is_aborted
 
+        scp.step()
+        scp.shutdown()
+
+    def test_recv_missing_data(self):
+        """Test missing data when receiving."""
+        commands = [
+            ('recv', None),  # recv a-associate-rq
+            ('send', a_associate_ac),
+            ('send', b"\x07\x00\x00\x00\x00\x02\x00"),  # Send short PDU
+            ('exit', None)
+        ]
+        self.scp = scp = start_server(commands)
+
+        def handle(event):
+            scp.step()
+            scp.step()
+
+        hh = [(evt.EVT_REQUESTED, handle)]
+
+        def recv(nr_bytes):
+            return assoc.dul.socket.socket.recv(6)
+
+        ae = AE()
+        ae.acse_timeout = 5
+        ae.dimse_timeout = 5
+        ae.network_timeout = 0.5
+        ae.add_requested_context('1.2.840.10008.1.1')
+        assoc = ae.associate('localhost', 11112, evt_handlers=hh)
+        assert assoc.is_established
+        assoc.dul.socket.recv = recv
+
+        scp.step()  # send short pdu
+        # Need to wait for network timeout to expire
+        timeout = 0
+        while not assoc.is_aborted and timeout < 1:
+            time.sleep(0.05)
+            timeout += 0.05
+        assert assoc.is_aborted
+
+        scp.step()
         scp.shutdown()
 
     def test_recv_bad_pdu_aborts(self):
@@ -125,20 +203,31 @@ class TestDUL(object):
         commands = [
             ('recv', None),  # recv a-associate-rq
             ('send', a_associate_ac),
-            ('wait', 0.1),  # Don't want to accidentally kill the DUL
             ('send', b"\x07\x00\x00\x00\x00\x02\x00\x00"),
+            ('recv', None),
+            ('exit', None)
         ]
-        scp = start_server(commands)
+        self.scp = scp = start_server(commands)
+
+        def handle(event):
+            scp.step()
+            scp.step()
+
+        hh = [(evt.EVT_REQUESTED, handle)]
 
         ae = AE()
-        ae.network_timeout = 0.2
+        ae.acse_timeout = 5
+        ae.dimse_timeout = 5
+        ae.network_timeout = 5
         ae.add_requested_context('1.2.840.10008.1.1')
-        assoc = ae.associate('localhost', 11112)
+        assoc = ae.associate('localhost', 11112, evt_handlers=hh)
         assert assoc.is_established
 
-        time.sleep(0.4)
+        scp.step()  # send bad PDU
+        scp.step()  # receive abort
         assert assoc.is_aborted
 
+        scp.step()
         scp.shutdown()
 
     def test_exception_in_reactor(self):
@@ -148,17 +237,25 @@ class TestDUL(object):
         commands = [
             ('recv', None),  # recv a-associate-rq
             ('send', a_associate_ac),
-            ('wait', 0.1),  # Give some time to monkey patch
             ('send', a_release_rq),  # Trigger the exception
             ('recv', None),  # recv a-abort
-            ('wait', 0.2),
+            ('exit', None),
         ]
-        scp = start_server(commands)
+        self.scp = scp = start_server(commands)
+
+        def handle(event):
+            scp.step()
+            scp.step()
+
+        hh = [(evt.EVT_REQUESTED, handle)]
 
         ae = AE()
-        ae.network_timeout = 0.2
+        ae.acse_timeout = 5
+        ae.dimse_timeout = 5
+        ae.network_timeout = 5
         ae.add_requested_context('1.2.840.10008.1.1')
-        assoc = ae.associate('localhost', 11112)
+        assoc = ae.associate('localhost', 11112, evt_handlers=hh)
+
         assert assoc.is_established
 
         def patch_read_pdu():
@@ -166,7 +263,9 @@ class TestDUL(object):
 
         assoc.dul._read_pdu_data = patch_read_pdu
 
-        time.sleep(0.4)
+        scp.step()
+        scp.step()
         assert assoc.is_aborted
 
+        scp.step()
         scp.shutdown()

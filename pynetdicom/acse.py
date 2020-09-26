@@ -309,13 +309,18 @@ class ACSE(object):
         reject_assoc_rsd = []
 
         # Calling AE Title not recognised
-        if (self.assoc.ae.require_calling_aet and assoc_rq.calling_ae_title
-                not in self.assoc.ae.require_calling_aet):
+        if (
+            self.assoc.ae.require_calling_aet
+            and assoc_rq.calling_ae_title
+            not in self.assoc.ae.require_calling_aet
+        ):
             reject_assoc_rsd = [0x01, 0x01, 0x03]
 
         # Called AE Title not recognised
-        if (self.assoc.ae.require_called_aet and assoc_rq.called_ae_title
-                != self.acceptor.ae_title):
+        if (
+            self.assoc.ae.require_called_aet
+            and assoc_rq.called_ae_title != self.acceptor.ae_title
+        ):
             reject_assoc_rsd = [0x01, 0x01, 0x07]
 
         ## Extended Negotiation items

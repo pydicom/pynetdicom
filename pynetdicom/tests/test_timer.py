@@ -6,6 +6,7 @@ import time
 import pytest
 
 from pynetdicom.timer import Timer
+from .utils import sleep
 
 LOGGER = logging.getLogger('pynetdicom')
 LOGGER.setLevel(logging.CRITICAL)
@@ -41,7 +42,7 @@ class TestTimer(object):
 
         timer.timeout = 0.2
         timer.start()
-        time.sleep(0.1)
+        sleep(0.15)
         assert timer.remaining < 0.1
         assert not timer.expired
         time.sleep(0.1)
@@ -56,17 +57,19 @@ class TestTimer(object):
         timer.start()
         time.sleep(0.1)
         timer.stop()
-        time.sleep(0.2)
+        time.sleep(0.5)
         assert not timer.expired
 
     def test_restart(self):
         """Test Timer restarts correctly."""
         timer = Timer(0.2)
         timer.start()
-        time.sleep(0.1)
+        # time.sleep() may be longer than the called amount - whoof
+        timeout = 0
+        sleep(0.1)
         assert timer.expired is False
         timer.restart()
-        time.sleep(0.15)
+        sleep(0.15)
         assert timer.expired is False
         time.sleep(0.1)
         assert timer.expired is True

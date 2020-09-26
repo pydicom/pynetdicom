@@ -47,4 +47,8 @@ setup(
         "Topic :: Software Development :: Libraries",
     ],
     install_requires = ["pydicom>=2.0.0"],
+    extras_require = {
+        'apps': ["sqlalchemy"],
+        'tests': ["pytest", "pyfakefs", "sqlalchemy"]
+    },
 )
