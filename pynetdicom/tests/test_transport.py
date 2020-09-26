@@ -688,7 +688,7 @@ class TestAssociationServer(object):
     def test_shutdown(self):
         """test tring to shutdown a socket that's already closed."""
         self.ae = ae = AE()
-        ae.add_supported_context('1.2.840.10008.1.1')
+        ae.add_supported_context(VerificationSOPClass)
         server = ae.start_server(('', 11112), block=False)
         server.socket.close()
         server.shutdown()
@@ -720,6 +720,19 @@ class TestAssociationServer(object):
         else:
             assert server.socket.fileno() == -1
 
+    def test_blocking_process_request(self):
+        """Test AssociationServer.process_request."""
+        self.ae = ae = AE()
+        ae.add_supported_context(VerificationSOPClass)
+        t = threading.Thread(
+            target=ae.start_server, args=(('', 11112),), kwargs={'block': True}
+        )
+        t.start()
+
+        ae.add_requested_context(VerificationSOPClass)
+        assoc = ae.associate('', 11112)
+        assert assoc.is_established
+        assoc.release()
 
 class TestEventHandlingAcceptor(object):
     """Test the transport events and handling as acceptor."""
