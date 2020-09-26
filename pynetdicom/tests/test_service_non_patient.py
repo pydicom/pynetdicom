@@ -18,10 +18,7 @@ from pynetdicom.sop_class import (
     NonPatientObjectStorageServiceClass,
     HangingProtocolStorage,
 )
-from .dummy_c_scp import (
-    DummyBaseSCP,
-    DummyStorageSCP
-)
+
 
 #debug_logger()
 

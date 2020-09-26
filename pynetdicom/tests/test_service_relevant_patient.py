@@ -20,11 +20,6 @@ from pynetdicom.sop_class import (
     CardiacRelevantPatientInformationQuery,
 )
 
-from .dummy_c_scp import (
-    DummyFindSCP,
-    DummyBaseSCP
-)
-
 
 #debug_logger()
 

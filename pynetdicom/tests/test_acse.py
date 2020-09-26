@@ -36,7 +36,6 @@ from pynetdicom.pdu import P_DATA_TF
 from pynetdicom.sop_class import VerificationSOPClass, CTImageStorage
 from pynetdicom.transport import AssociationSocket
 from pynetdicom.utils import validate_ae_title
-from .dummy_c_scp import DummyBaseSCP
 from .encoded_pdu_items import (
     a_associate_rq, a_associate_ac, a_release_rq, a_release_rp, p_data_tf,
     a_abort, a_p_abort,
@@ -172,7 +171,7 @@ class TestNegotiationRequestor(object):
     """Test ACSE negotiation as requestor."""
     def setup(self):
         """Run prior to each test"""
-        self.scp = None
+        self.ae = None
 
         self.assoc = DummyAssociation()
         self.assoc.requestor.requested_contexts = [
@@ -181,15 +180,8 @@ class TestNegotiationRequestor(object):
 
     def teardown(self):
         """Clear any active threads"""
-        if self.scp:
-            self.scp.abort()
-
-        time.sleep(0.1)
-
-        for thread in threading.enumerate():
-            if isinstance(thread, DummyBaseSCP):
-                thread.abort()
-                thread.stop()
+        if self.ae:
+            self.ae.shutdown()
 
     def test_no_requested_cx(self, caplog):
         """Test error logged if no requested contexts."""

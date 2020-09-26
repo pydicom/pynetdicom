@@ -24,7 +24,6 @@ from pynetdicom.pdu import A_RELEASE_RQ
 from pynetdicom.sop_class import VerificationSOPClass
 from pynetdicom.transport import AssociationSocket
 from pynetdicom.utils import validate_ae_title
-from .dummy_c_scp import DummyVerificationSCP, DummyBaseSCP
 from .encoded_pdu_items import (
     a_associate_ac, a_associate_rq, a_associate_rj, p_data_tf, a_abort,
     a_release_rq, a_release_rp,
@@ -7639,7 +7638,7 @@ class TestStateMachineFunctionalRequestor(object):
     """Functional tests for StateMachine as association requestor."""
     def setup(self):
         """Run prior to each test"""
-        self.scp = None
+        self.ae = None
 
         ae = AE()
         ae.add_requested_context(VerificationSOPClass)
@@ -7673,15 +7672,16 @@ class TestStateMachineFunctionalRequestor(object):
         self.assoc = assoc
         self.fsm = self.monkey_patch(assoc.dul.state_machine)
 
+        self.orig_ar2 = FINITE_STATE.ACTIONS['AR-2']
+        self.orig_ar4 = FINITE_STATE.ACTIONS['AR-4']
+
     def teardown(self):
         """Clear any active threads"""
-        if self.scp:
-            self.scp.abort()
+        if self.ae:
+            self.ae.shutdown()
 
-        for thread in threading.enumerate():
-            if isinstance(thread, DummyBaseSCP):
-                thread.abort()
-                thread.stop()
+        FINITE_STATE.ACTIONS['AR-4']= self.orig_ar4
+        FINITE_STATE.ACTIONS['AR-2']= self.orig_ar2
 
         time.sleep(0.1)
 
@@ -7732,8 +7732,9 @@ class TestStateMachineFunctionalRequestor(object):
 
     def test_associate_accept_release(self):
         """Test normal association/release."""
-        self.scp = DummyVerificationSCP()
-        self.scp.start()
+        self.ae = ae = AE()
+        ae.add_supported_context(VerificationSOPClass)
+        scp = ae.start_server(("", 11112), block=False)
 
         assert self.fsm.current_state == 'Sta1'
 
@@ -7775,13 +7776,14 @@ class TestStateMachineFunctionalRequestor(object):
 
         assert self.fsm.current_state == 'Sta1'
 
-        self.scp.stop()
+        scp.shutdown()
 
     def test_associate_reject(self):
         """Test normal association rejection."""
-        self.scp = DummyVerificationSCP()
-        self.scp.ae.require_called_aet = True
-        self.scp.start()
+        self.ae = ae = AE()
+        ae.require_called_aet = True
+        ae.add_supported_context(VerificationSOPClass)
+        scp = ae.start_server(("", 11112), block=False)
 
         assert self.fsm.current_state == 'Sta1'
 
@@ -7818,13 +7820,14 @@ class TestStateMachineFunctionalRequestor(object):
 
         assert self.fsm.current_state == 'Sta1'
 
-        self.scp.stop()
+        scp.shutdown()
 
     def test_associate_accept_abort(self):
         """Test association acceptance then local abort."""
-        self.scp = DummyVerificationSCP()
-        self.scp.ae.acse_timeout = 5
-        self.scp.start()
+        self.ae = ae = AE()
+        ae.acse_timeout = 5
+        ae.add_supported_context(VerificationSOPClass)
+        scp = ae.start_server(("", 11112), block=False)
 
         assert self.fsm.current_state == 'Sta1'
 
@@ -7866,13 +7869,14 @@ class TestStateMachineFunctionalRequestor(object):
 
         assert self.fsm.current_state == 'Sta1'
 
-        self.scp.stop()
+        scp.shutdown()
 
     def test_associate_accept_local_abort(self):
         """Test association acceptance then local abort if no cx."""
-        self.scp = DummyVerificationSCP()
-        self.scp.ae.acse_timeout = 5
-        self.scp.start()
+        self.ae = ae = AE()
+        ae.acse_timeout = 5
+        ae.add_supported_context(VerificationSOPClass)
+        scp = ae.start_server(("", 11112), block=False)
 
         assert self.fsm.current_state == 'Sta1'
 
@@ -7912,14 +7916,15 @@ class TestStateMachineFunctionalRequestor(object):
 
         assert self.fsm.current_state == 'Sta1'
 
-        self.scp.stop()
+        scp.shutdown()
 
     def test_associate_accept_peer_abort(self):
         """Test association acceptance then peer abort."""
-        self.scp = DummyVerificationSCP()
-        self.scp.ae.network_timeout = 0.5
-        self.scp.ae.acse_timeout = 5
-        self.scp.start()
+        self.ae = ae = AE()
+        ae.network_timeout = 0.5
+        ae.acse_timeout = 5
+        ae.add_supported_context(VerificationSOPClass)
+        scp = ae.start_server(("", 11112), block=False)
 
         assert self.fsm.current_state == 'Sta1'
 
@@ -7964,12 +7969,13 @@ class TestStateMachineFunctionalRequestor(object):
             ('Sta6', 'Evt16', 'AA-3'),  # A-ABORT-RQ PDV recv
         ]
 
-        self.scp.stop()
+        scp.shutdown()
 
     def test_associate_send_data(self):
         """Test association acceptance then send DIMSE message."""
-        self.scp = DummyVerificationSCP()
-        self.scp.start()
+        self.ae = ae = AE()
+        ae.add_supported_context(VerificationSOPClass)
+        scp = ae.start_server(("", 11112), block=False)
 
         assert self.fsm.current_state == 'Sta1'
 
@@ -8015,15 +8021,13 @@ class TestStateMachineFunctionalRequestor(object):
 
         assert self.fsm.current_state == 'Sta1'
 
-        self.scp.stop()
+        scp.shutdown()
 
     def test_release_AR6(self):
         """Test receive P-DATA-TF while waiting for A-RELEASE-RP."""
         # Requestor sends A-RELEASE-RQ, acceptor sends P-DATA-TF then
         #   A-RELEASE-RP
         # Patch AR-4 to also send a P-DATA-TF
-        orig_entry = FINITE_STATE.ACTIONS['AR-4']
-
         def AR_4(dul):
             # Send C-ECHO-RQ
             dul.socket.send(p_data_tf)
@@ -8039,8 +8043,9 @@ class TestStateMachineFunctionalRequestor(object):
         # In this case the association acceptor will hit AR_4
         FINITE_STATE.ACTIONS['AR-4'] = ('Bluh', AR_4, 'Sta13')
 
-        self.scp = DummyVerificationSCP()
-        self.scp.start()
+        self.ae = ae = AE()
+        ae.add_supported_context(VerificationSOPClass)
+        scp = ae.start_server(("", 11112), block=False)
 
         assert self.fsm.current_state == 'Sta1'
 
@@ -8083,14 +8088,10 @@ class TestStateMachineFunctionalRequestor(object):
 
         assert self.fsm.current_state == 'Sta1'
 
-        self.scp.stop()
-
-        FINITE_STATE.ACTIONS['AR-4']= orig_entry
+        scp.shutdown()
 
     def test_release_AR7(self):
         """Test receive P-DATA primitive after A-RELEASE-RQ PDU."""
-
-        orig_entry = FINITE_STATE.ACTIONS['AR-2']
 
         def AR_2(dul):
             """AR-2 occurs when an A-RELEASE-RQ PDU is received."""
@@ -8109,8 +8110,9 @@ class TestStateMachineFunctionalRequestor(object):
         # In this case the association acceptor will hit AR_2
         FINITE_STATE.ACTIONS['AR-2'] = ('Bluh', AR_2, 'Sta8')
 
-        self.scp = DummyVerificationSCP()
-        self.scp.start()
+        self.ae = ae = AE()
+        ae.add_supported_context(VerificationSOPClass)
+        scp = ae.start_server(("", 11112), block=False)
 
         assert self.fsm.current_state == 'Sta1'
 
@@ -8153,16 +8155,14 @@ class TestStateMachineFunctionalRequestor(object):
 
         assert self.fsm.current_state == 'Sta1'
 
-        self.scp.stop()
-
-        FINITE_STATE.ACTIONS['AR-2']= orig_entry
+        scp.shutdown()
 
 
 class TestStateMachineFunctionalAcceptor(object):
     """Functional tests for StateMachine as association acceptor."""
     def setup(self):
         """Run prior to each test"""
-        self.scp = None
+        self.ae = None
 
         ae = AE()
         ae.add_requested_context(VerificationSOPClass)
@@ -8200,15 +8200,8 @@ class TestStateMachineFunctionalAcceptor(object):
 
     def teardown(self):
         """Clear any active threads"""
-        if self.scp:
-            self.scp.abort()
-
-        time.sleep(0.1)
-
-        for thread in threading.enumerate():
-            if isinstance(thread, DummyBaseSCP):
-                thread.abort()
-                thread.stop()
+        if self.ae:
+            self.ae.shutdown()
 
         FINITE_STATE.ACTIONS['AE-2']= self.orig_entry
 
@@ -8241,8 +8234,9 @@ class TestStateMachineFunctionalAcceptor(object):
 
     def test_invalid_protocol_version(self):
         """Test receiving an A-ASSOC-RQ with invalid protocol version."""
-        self.scp = DummyVerificationSCP()
-        self.scp.start()
+        self.ae = ae = AE()
+        ae.add_supported_context(VerificationSOPClass)
+        scp = ae.start_server(("", 11112), block=False)
 
         assert self.fsm.current_state == 'Sta1'
 
@@ -8281,7 +8275,7 @@ class TestStateMachineFunctionalAcceptor(object):
 
         assert self.fsm.current_state == 'Sta1'
 
-        self.scp.stop()
+        scp.shutdown()
 
 
 class TestEventHandling(object):

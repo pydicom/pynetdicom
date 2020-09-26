@@ -17,10 +17,6 @@ from pynetdicom.service_class import (
 from pynetdicom.sop_class import (
     ProductCharacteristicsQueryInformationModelFind,
 )
-from .dummy_c_scp import (
-    DummyFindSCP,
-    DummyBaseSCP,
-)
 
 
 #debug_logger()

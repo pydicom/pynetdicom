@@ -19,8 +19,6 @@ from pynetdicom.pdu_primitives import (
 )
 from pynetdicom.sop_class import VerificationSOPClass
 
-from .dummy_c_scp import DummyVerificationSCP, DummyBaseSCP
-
 
 #debug_logger()
 
