@@ -729,6 +729,8 @@ class TestAssociationServer(object):
         )
         t.start()
 
+        time.sleep(0.5)
+
         ae.add_requested_context(VerificationSOPClass)
         assoc = ae.associate('', 11112)
         assert assoc.is_established
