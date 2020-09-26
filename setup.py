@@ -2,7 +2,7 @@ from setuptools import setup, find_packages
 import os
 import sys
 
-# Version
+# Version 
 BASE_DIR = os.path.dirname(os.path.realpath(__file__))
 VERSION_FILE = os.path.join(BASE_DIR, 'pynetdicom', '_version.py')
 with open(VERSION_FILE) as fp:
