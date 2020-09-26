@@ -723,26 +723,24 @@ class TestAssociationServer(object):
     def test_blocking_process_request(self):
         """Test AssociationServer.process_request."""
         self.ae = ae = AE()
+        ae.acse_timeout = 5
+        ae.dimse_timeout = 5
+        ae.network_timeout = 5
         ae.add_supported_context(VerificationSOPClass)
+
         t = threading.Thread(
             target=ae.start_server,
-            args=(('', 11112),),
+            args=(('localhost', 11112),),
             kwargs={'block': True}
         )
-        t.daemon = True
         t.start()
 
         ae.add_requested_context(VerificationSOPClass)
-        assoc = ae.associate('', 11112)
-        timeout = 0
-        while not assoc.is_established and timeout < 5:
-            time.sleep(0.05)
-            timeout += 0.05
-
+        assoc = ae.associate('localhost', 11112)
         assert assoc.is_established
         assoc.release()
-
         ae.shutdown()
+
 
 class TestEventHandlingAcceptor(object):
     """Test the transport events and handling as acceptor."""
