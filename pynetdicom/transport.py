@@ -536,6 +536,7 @@ class AssociationServer(TCPServer):
         self.contexts = contexts
         self.ssl_context = ssl_context
         self.allow_reuse_address = True
+        self.socket = None
 
         request_handler = request_handler or RequestHandler
         super().__init__(address, request_handler, bind_and_activate=True)
