@@ -155,12 +155,12 @@ class TestAssociationSendNEventReport(object):
     def test_rsp_none(self):
         """Test no response from peer"""
         def handle(event):
-            time.sleep(0.5)
+            time.sleep(5)
             return 0x0000, Dataset()
 
         self.ae = ae = AE()
         ae.acse_timeout = 5
-        ae.dimse_timeout = 0.4
+        ae.dimse_timeout = 0.2
         ae.network_timeout = 5
         ae.add_supported_context(ModalityPerformedProcedureStepNotificationSOPClass)
         scp = ae.start_server(
@@ -704,12 +704,12 @@ class TestAssociationSendNGet(object):
         def handle(event):
             ds = Dataset()
             ds.PatientName = 'Test^test'
-            time.sleep(0.5)
+            time.sleep(5)
             return 0x0000, ds
 
         self.ae = ae = AE()
         ae.acse_timeout = 5
-        ae.dimse_timeout = 0.4
+        ae.dimse_timeout = 0.1
         ae.network_timeout = 5
         ae.add_supported_context(DisplaySystemSOPClass)
         scp = ae.start_server(
@@ -1278,12 +1278,12 @@ class TestAssociationSendNSet(object):
         def handle(event):
             ds = Dataset()
             ds.PatientName = 'Test^test'
-            time.sleep(0.5)
+            time.sleep(5)
             return 0x0000, ds
 
         self.ae = ae = AE()
         ae.acse_timeout = 5
-        ae.dimse_timeout = 0.4
+        ae.dimse_timeout = 0.2
         ae.network_timeout = 5
         ae.add_supported_context(ModalityPerformedProcedureStepSOPClass)
         scp = ae.start_server(
@@ -1843,12 +1843,12 @@ class TestAssociationSendNAction(object):
     def test_rsp_none(self):
         """Test no response from peer"""
         def handle(event):
-            time.sleep(0.5)
+            time.sleep(5)
             return 0x0000, event.action_information
 
         self.ae = ae = AE()
         ae.acse_timeout = 5
-        ae.dimse_timeout = 0.4
+        ae.dimse_timeout = 0.2
         ae.network_timeout = 5
         ae.add_supported_context(ProceduralEventLoggingSOPClass)
         scp = ae.start_server(
@@ -2355,12 +2355,12 @@ class TestAssociationSendNCreate(object):
     def test_rsp_none(self):
         """Test no response from peer"""
         def handle(event):
-            time.sleep(0.5)
+            time.sleep(5)
             return 0x0000, Dataset()
 
         self.ae = ae = AE()
         ae.acse_timeout = 5
-        ae.dimse_timeout = 0.4
+        ae.dimse_timeout = 0.2
         ae.network_timeout = 5
         ae.add_supported_context(ModalityPerformedProcedureStepSOPClass)
 
@@ -2874,12 +2874,12 @@ class TestAssociationSendNDelete(object):
     def test_rsp_none(self):
         """Test no response from peer"""
         def handle(event):
-            time.sleep(0.5)
+            time.sleep(5)
             return 0x0000
 
         self.ae = ae = AE()
         ae.acse_timeout = 5
-        ae.dimse_timeout = 0.4
+        ae.dimse_timeout = 0.2
         ae.network_timeout = 5
         ae.add_supported_context(BasicFilmSessionSOPClass)
         scp = ae.start_server(

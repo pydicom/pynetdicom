@@ -2580,14 +2580,13 @@ class TestState05(TestStateBase):
         scp.step()
         scp.shutdown()
 
-        assert self.fsm._changes[:4] == [
+        assert self.fsm._changes[:3] == [
             ('Sta1', 'Evt1', 'AE-1'),
             ('Sta4', 'Evt2', 'AE-2'),
             ('Sta5', 'Evt15', 'AA-1'),
-            ('Sta13', 'Evt17', 'AR-5'),
         ]
-        assert self.fsm._transitions[:4] == ['Sta4', 'Sta5', 'Sta13', 'Sta1']
-        assert self.fsm._events[:4] == ['Evt1', 'Evt2', 'Evt15', 'Evt17']
+        assert self.fsm._transitions[:3] == ['Sta4', 'Sta5', 'Sta13']
+        assert self.fsm._events[:3] == ['Evt1', 'Evt2', 'Evt15']
 
         # Issue A-ABORT PDU
         assert scp.handlers[0].received[1] == (
@@ -3088,10 +3087,11 @@ class TestState06(TestStateBase):
         scp.step()
         scp.shutdown()
 
-        assert self.fsm._changes[:3] == [
+        assert self.fsm._changes[:4] == [
             ('Sta1', 'Evt1', 'AE-1'),
             ('Sta4', 'Evt2', 'AE-2'),
             ('Sta5', 'Evt3', 'AE-3'),
+            ('Sta6', 'Evt15', 'AA-1'),
         ]
         assert self.fsm._transitions[:3] == ['Sta4', 'Sta5', 'Sta6']
         assert self.fsm._events[:4] == ['Evt1', 'Evt2', 'Evt3', 'Evt15']
@@ -3612,6 +3612,7 @@ class TestState07(TestStateBase):
             ('recv', None),
             ('send', a_associate_ac),
             ('recv', None),
+            ('recv', None),
             ('exit', None),
         ]
         self.scp = scp = self.start_server(commands)
@@ -3620,16 +3621,20 @@ class TestState07(TestStateBase):
         self.assoc.dul.send_pdu(self.get_abort())
 
         scp.step()
+        scp.step()
         scp.shutdown()
 
-        assert self.fsm._changes[:4] == [
+        assert self.fsm._changes[:5] == [
             ('Sta1', 'Evt1', 'AE-1'),
             ('Sta4', 'Evt2', 'AE-2'),
             ('Sta5', 'Evt3', 'AE-3'),
             ('Sta6', 'Evt11', 'AR-1'),
+            ('Sta7', 'Evt15', 'AA-1'),
         ]
         assert self.fsm._transitions[:4] == ['Sta4', 'Sta5', 'Sta6', 'Sta7']
-        assert self.fsm._events[:5] == ['Evt1', 'Evt2', 'Evt3', 'Evt11', 'Evt15']
+        assert self.fsm._events[:5] == [
+            'Evt1', 'Evt2', 'Evt3', 'Evt11', 'Evt15'
+        ]
 
     def test_evt16(self):
         """Test Sta7 + Evt16."""
@@ -4133,6 +4138,7 @@ class TestState08(TestStateBase):
             ('recv', None),
             ('send', a_associate_ac),
             ('send', a_release_rq),
+            ('recv', None),
             ('exit', None)
         ]
         self.scp = scp = self.start_server(commands)
@@ -4141,16 +4147,20 @@ class TestState08(TestStateBase):
         self.assoc.dul.send_pdu(self.get_abort())
 
         scp.step()
+        scp.step()
         scp.shutdown()
 
-        assert self.fsm._changes[:4] == [
+        assert self.fsm._changes[:5] == [
             ('Sta1', 'Evt1', 'AE-1'),
             ('Sta4', 'Evt2', 'AE-2'),
             ('Sta5', 'Evt3', 'AE-3'),
             ('Sta6', 'Evt12', 'AR-2'),
+            ('Sta8', 'Evt15', 'AA-1'),
         ]
         assert self.fsm._transitions[:4] == ['Sta4', 'Sta5', 'Sta6', 'Sta8']
-        assert self.fsm._events[:5] == ['Evt1', 'Evt2', 'Evt3', 'Evt12', 'Evt15']
+        assert self.fsm._events[:5] == [
+            'Evt1', 'Evt2', 'Evt3', 'Evt12', 'Evt15'
+        ]
 
     def test_evt16(self):
         """Test Sta8 + Evt16."""
@@ -4768,12 +4778,13 @@ class TestState09(TestStateBase):
         scp.step()
         scp.shutdown()
 
-        assert self.fsm._changes[:5] == [
+        assert self.fsm._changes[:6] == [
             ('Sta1', 'Evt1', 'AE-1'),
             ('Sta4', 'Evt2', 'AE-2'),
             ('Sta5', 'Evt3', 'AE-3'),
             ('Sta6', 'Evt11', 'AR-1'),
             ('Sta7', 'Evt12', 'AR-8'),
+            ('Sta9', 'Evt15', 'AA-1'),
         ]
         assert self.fsm._transitions[:5] == [
             'Sta4', 'Sta5', 'Sta6', 'Sta7', 'Sta9'
@@ -6111,13 +6122,14 @@ class TestState11(TestStateBase):
         scp.step()
         scp.shutdown()
 
-        assert self.fsm._changes[:6] == [
+        assert self.fsm._changes[:7] == [
             ('Sta1', 'Evt1', 'AE-1'),
             ('Sta4', 'Evt2', 'AE-2'),
             ('Sta5', 'Evt3', 'AE-3'),
             ('Sta6', 'Evt11', 'AR-1'),
             ('Sta7', 'Evt12', 'AR-8'),
             ('Sta9', 'Evt14', 'AR-9'),
+            ('Sta11', 'Evt15', 'AA-1'),
         ]
         assert self.fsm._transitions[:6] == [
             'Sta4', 'Sta5', 'Sta6', 'Sta7', 'Sta9', "Sta11"
