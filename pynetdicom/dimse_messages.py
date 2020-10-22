@@ -8,7 +8,9 @@ from pathlib import Path
 from tempfile import NamedTemporaryFile
 
 from pydicom.dataset import Dataset
+from pydicom.datadict import tag_for_keyword
 from pydicom.filewriter import write_file_meta_info
+from pydicom.tag import Tag
 
 from pynetdicom import _config
 from pynetdicom.dimse_primitives import (
@@ -160,6 +162,11 @@ _MSG_TO_PRIMITVE = {
     'N_CREATE' : N_CREATE,
     'N_DELETE' : N_DELETE,
 }
+
+_REPEATING_TAGS = [
+    Tag(tag_for_keyword('OffendingElement')),
+    Tag(tag_for_keyword('AttributeIdentifierList'))
+]
 
 
 class DIMSEMessage(object):
@@ -585,7 +592,11 @@ class DIMSEMessage(object):
         #   from the Message's Command Set elements
         for elem in self.command_set:
             if hasattr(primitive, elem.keyword):
-                setattr(primitive, elem.keyword, elem.value)
+                value = elem.value
+                if elem.VM > 1 and elem.tag not in _REPEATING_TAGS:
+                    LOGGER.warning(f"Non-conformant VM {elem.VM} for '{elem.keyword}', taking the first value")
+                    value = value[0]
+                setattr(primitive, elem.keyword, value)
 
         # Datasets
         # Set the primitive's DataSet/Identifier/etc attribute
@@ -685,7 +696,6 @@ for _msg_name in _COMMAND_SET_KEYWORDS:
     cls = type(_msg_name.replace('-', '_'), (DIMSEMessage, ), {})
     globals()[cls.__name__] = cls
 
-
 # Values from PS3.5
 _MESSAGE_TYPES = {
     0x0001: ('C-STORE-RQ', C_STORE_RQ),
@@ -712,7 +722,6 @@ _MESSAGE_TYPES = {
     0x0150: ('N-DELETE-RQ', N_DELETE_RQ),
     0x8150: ('N-DELETE-RSP', N_DELETE_RSP),
 }
-
 
 _DATASET_KEYWORDS = {
     'C_STORE_RQ' : 'DataSet',

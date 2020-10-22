@@ -26,8 +26,8 @@ from .encoded_dimse_msg import (
     c_echo_rq_cmd, c_echo_rsp_cmd, c_store_rq_cmd, c_store_ds, c_store_rsp_cmd,
     c_find_rq_cmd, c_find_rq_ds, c_find_rsp_cmd, c_find_rsp_ds, c_get_rq_cmd,
     c_get_rq_ds, c_get_rsp_cmd, c_get_rsp_ds, c_move_rq_cmd, c_move_rq_ds,
-    c_move_rsp_cmd, c_move_rsp_ds
-)
+    c_move_rsp_cmd, c_move_rsp_ds,
+    c_move_rsp_cmd_with_dup)
 from .encoded_dimse_n_msg import (
     n_er_rq_cmd, n_er_rq_ds, n_er_rsp_cmd, n_er_rsp_ds,
     n_get_rq_cmd, n_get_rsp_cmd, n_get_rsp_ds,
@@ -38,7 +38,6 @@ from .encoded_dimse_n_msg import (
     n_create_rq_cmd_empty, n_set_rq_cmd_empty
 )
 
-
 LOGGER = logging.getLogger('pynetdicom')
 LOGGER.setLevel(logging.CRITICAL)
 
@@ -46,13 +45,14 @@ LOGGER.setLevel(logging.CRITICAL)
 def print_nice_bytes(bytestream):
     """Nice output for bytestream."""
     str_list = pretty_bytes(bytestream, prefix="b'\\x", delimiter='\\x',
-                        items_per_line=10, suffix="' \\")
+                            items_per_line=10, suffix="' \\")
     for string in str_list:
         print(string)
 
 
 class TestDIMSEMessage(object):
     """Test DIMSEMessage class"""
+
     def test_fragment_pdv(self):
         """Test that the PDV fragmenter is working correctly."""
         dimse_msg = C_STORE_RQ()
@@ -189,11 +189,11 @@ class TestDIMSEMessage(object):
         p_data = dimse_msg.encode_msg(12, 24)
 
         # Command set decoding
-        dimse_msg.decode_msg(next(p_data)) # MCHB 1
-        dimse_msg.decode_msg(next(p_data)) # MCHB 1
-        dimse_msg.decode_msg(next(p_data)) # MCHB 1
-        dimse_msg.decode_msg(next(p_data)) # MCHB 1
-        dimse_msg.decode_msg(next(p_data)) # MCHB 3 - end of command set
+        dimse_msg.decode_msg(next(p_data))  # MCHB 1
+        dimse_msg.decode_msg(next(p_data))  # MCHB 1
+        dimse_msg.decode_msg(next(p_data))  # MCHB 1
+        dimse_msg.decode_msg(next(p_data))  # MCHB 1
+        dimse_msg.decode_msg(next(p_data))  # MCHB 3 - end of command set
         assert dimse_msg.__class__ == C_STORE_RQ
 
         # Test decoded command set
@@ -208,8 +208,8 @@ class TestDIMSEMessage(object):
         assert cs.MoveOriginatorMessageID == 3
 
         # Test decoded dataset
-        dimse_msg.decode_msg(next(p_data)) # MCHB 1 # MCHB 0
-        dimse_msg.decode_msg(next(p_data)) # MCHB 1 # MCHB 2
+        dimse_msg.decode_msg(next(p_data))  # MCHB 1 # MCHB 0
+        dimse_msg.decode_msg(next(p_data))  # MCHB 1 # MCHB 2
         assert dimse_msg.data_set.getvalue() == c_store_ds[1:]
 
         # Test returns false
@@ -367,6 +367,32 @@ class TestDIMSEMessage(object):
         assert ds.QueryRetrieveLevel == 'PATIENT'
         assert ds.PatientID == '*'
 
+    def test_message_to_primitive_c_move_with_duplicate_command_fields(self):
+        msg = C_MOVE_RSP()
+        for data in [c_move_rsp_cmd_with_dup, c_move_rsp_ds]:
+            p_data = P_DATA()
+            p_data.presentation_data_value_list.append([0, data])
+            msg.decode_msg(p_data)
+        primitive = msg.message_to_primitive()
+        assert isinstance(primitive, C_MOVE)
+        assert isinstance(primitive.Identifier, BytesIO)
+        assert primitive.AffectedSOPClassUID == UID('1.2.840.10008.5.1.4.1.1.2')
+        assert primitive.Status == 65280
+        assert primitive.MessageIDBeingRespondedTo == 5
+
+        # Fields with VM > 1 that can only appear once
+        assert primitive.NumberOfRemainingSuboperations == 3
+        assert primitive.NumberOfCompletedSuboperations == 1
+        assert primitive.NumberOfFailedSuboperations == 2
+        assert primitive.NumberOfWarningSuboperations == 4
+
+        # Fields with VM > 1 that are allowed to appear multiple times
+        assert primitive.OffendingElement == [(0x0, 0x1), (0x0, 0x2)]
+
+        ds = decode(primitive.Identifier, True, True)
+        assert ds.QueryRetrieveLevel == 'PATIENT'
+        assert ds.PatientID == '*'
+
     def test_message_to_primitive_c_find(self):
         """Test converting C_FIND_RQ to C_FIND primitive."""
         msg = C_FIND_RQ()
@@ -464,7 +490,7 @@ class TestDIMSEMessage(object):
         assert primitive.RequestedSOPInstanceUID == UID('1.2.392.200036.9116.2.6.1.48')
         assert primitive.MessageID == 7
         primitive.AttributeIdentifierList = [
-            (0x7fe0,0x0010), (0x0000,0x0000), (0xFFFF,0xFFFF)
+            (0x7fe0, 0x0010), (0x0000, 0x0000), (0xFFFF, 0xFFFF)
         ]
 
         msg = N_GET_RSP()
@@ -652,6 +678,7 @@ class TestDIMSEMessage(object):
 
 class TestThreadSafety(object):
     """Tests for the thread safety of DIMSEMessage classes."""
+
     def setup(self):
         ds = Dataset()
         ds.SOPClassUID = '1.2.840.10008.5.1.4.1.1'
@@ -665,7 +692,7 @@ class TestThreadSafety(object):
         cs = msg.command_set
         ds = msg.data_set
         assert cs.CommandGroupLength is None
-        assert cs.AffectedSOPClassUID in ['', None] # pydicom upstream change
+        assert cs.AffectedSOPClassUID in ['', None]  # pydicom upstream change
         assert cs.CommandField is None
         assert cs.MessageID is None
         assert cs.Priority is None
@@ -707,7 +734,7 @@ class TestThreadSafety(object):
         cs = msg.command_set
         ds = msg.data_set
         assert cs.CommandGroupLength is None
-        assert cs.AffectedSOPClassUID in ['', None] # pydicom upstream change
+        assert cs.AffectedSOPClassUID in ['', None]  # pydicom upstream change
         assert cs.CommandField is None
         assert cs.MessageID is None
         assert cs.Priority is None

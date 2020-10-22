@@ -154,11 +154,9 @@ class TestDIMSEProvider(object):
         dimse.msg_queue.put((14, primitive))
         assert dimse.peek_msg() == (14, primitive)
 
+    @pytest.mark.skip()
     def test_invalid_message(self):
         """Test that an invalid message kills the association."""
-        class DummyDUL(object):
-            def __init__(self):
-                self.event_queue = queue.Queue()
 
         dimse = DIMSEServiceProvider(DummyAssociation())
 

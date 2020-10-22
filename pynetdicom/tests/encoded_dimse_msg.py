@@ -65,11 +65,11 @@ c_store_rsp_cmd = b'\x03\x00\x00\x00\x00\x04\x00\x00\x00\x4c' \
                   b'\x2e\x34\x2e\x35\x2e\x37\x2e\x38\x00'
 
 #################################### C-ECHO ####################################
-#(0000, 0000) Command Group Length                UL: 56
-#(0000, 0002) Affected SOP Class UID              UI: Verification SOP Class
-#(0000, 0100) Command Field                       US: 48
-#(0000, 0110) Message ID                          US: 7
-#(0000, 0800) Command Data Set Type               US: 257
+# (0000, 0000) Command Group Length                UL: 56
+# (0000, 0002) Affected SOP Class UID              UI: Verification SOP Class
+# (0000, 0100) Command Field                       US: 48
+# (0000, 0110) Message ID                          US: 7
+# (0000, 0800) Command Data Set Type               US: 257
 c_echo_rq_cmd = b'\x03\x00\x00\x00\x00\x04\x00\x00\x00\x38' \
                 b'\x00\x00\x00\x00\x00\x02\x00\x12\x00\x00' \
                 b'\x00\x31\x2e\x32\x2e\x38\x34\x30\x2e\x31' \
@@ -167,6 +167,23 @@ c_move_rsp_cmd = b'\x03\x00\x00\x00\x00\x04\x00\x00\x00\x72' \
 c_move_rsp_ds = b'\x02\x08\x00\x52\x00\x08\x00\x00\x00\x50' \
                 b'\x41\x54\x49\x45\x4e\x54\x20\x10\x00\x20' \
                 b'\x00\x02\x00\x00\x00\x2a\x20'
+
+c_move_rsp_cmd_with_dup = b'\x03\x00\x00\x00\x00\x04\x00\x00\x00\x72' \
+                          b'\x00\x00\x00\x00\x00\x02\x00\x1a\x00\x00' \
+                          b'\x00\x31\x2e\x32\x2e\x38\x34\x30\x2e\x31' \
+                          b'\x30\x30\x30\x38\x2e\x35\x2e\x31\x2e\x34' \
+                          b'\x2e\x31\x2e\x31\x2e\x32\x00\x00\x00\x00' \
+                          b'\x01\x02\x00\x00\x00\x21\x80\x00\x00\x20' \
+                          b'\x01\x02\x00\x00\x00\x05\x00\x00\x00\x00' \
+                          b'\x08\x02\x00\x00\x00\x01\x00\x00\x00\x00' \
+                          b'\x09\x02\x00\x00\x00\x00\xff\x00\x00\x01' \
+                          b'\x09\x08\x00\x00\x00\x00\x00\x01\x00\x00' \
+                          b'\x00\x02\x00\x00\x00\x20\x10\x04\x00\x00' \
+                          b'\x00\x03\x00\x00\x00\x00\x00\x21\x10\x04' \
+                          b'\x00\x00\x00\x01\x00\x00\x00\x00\x00\x22' \
+                          b'\x10\x04\x00\x00\x00\x02\x00\x00\x00\x00' \
+                          b'\x00\x23\x10\x04\x00\x00\x00\x04\x00\x00' \
+                          b'\x00'
 
 ##################################### C-GET ####################################
 # (0000, 0000) Command Group Length                UL: 74
