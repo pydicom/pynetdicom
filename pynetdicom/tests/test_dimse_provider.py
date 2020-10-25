@@ -154,11 +154,10 @@ class TestDIMSEProvider(object):
         dimse.msg_queue.put((14, primitive))
         assert dimse.peek_msg() == (14, primitive)
 
-    def test_invalid_message(self):
+    def test_invalid_message(self, monkeypatch):
         """Test that an invalid message kills the association."""
-        class DummyDUL(object):
-            def __init__(self):
-                self.event_queue = queue.Queue()
+
+        monkeypatch.setattr(_config, 'ENFORCE_UID_CONFORMANCE', True)
 
         dimse = DIMSEServiceProvider(DummyAssociation())
 
@@ -170,13 +169,13 @@ class TestDIMSEProvider(object):
             # C-ECHO-RQ
             # CommandGroupLen | len 4         | value 64
             b"\x00\x00\x00\x00\x04\x00\x00\x00\x40\x00\x00\x00"  # 12
-            #  AffSOPClass    | len 18        | value
+            #  AffSOPClass    | len 18        | 1.2.840.00008.1.1 - invalid
             b"\x00\x00\x02\x00\x12\x00\x00\x00"
-            b"\x31\x2e\x32\x2e\x38\x34\x30\x2e\x31\x30\x30\x30\x38\x2e\x31\x2e"
+            b"\x31\x2e\x32\x2e\x38\x34\x30\x2e\x30\x30\x30\x30\x38\x2e\x31\x2e"
             b"\x31\x00"  # 26
             # CommandField    | len 2         | 0x0030 -> C-ECHO-RQ
             b"\x00\x00\x00\x01\x02\x00\x00\x00\x30\x00"  # 10
-            # Message ID      | len 6         | -> should be invalid
+            # Message ID      | len 6         | value
             b"\x00\x00\x10\x01\x06\x00\x00\x00\xff\xff\xff\xff\xff\xff"  # 14
             # CommandDSType   | len 2         | no DS
             b"\x00\x00\x00\x08\x02\x00\x00\x00\x01\x01"  # 10
