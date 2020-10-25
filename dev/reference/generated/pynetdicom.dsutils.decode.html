@@ -208,7 +208,7 @@
 <h1>pynetdicom.dsutils.decode<a class="headerlink" href="#pynetdicom-dsutils-decode" title="Permalink to this headline">¶</a></h1>
 <dl class="py function">
 <dt id="pynetdicom.dsutils.decode">
-<code class="sig-prename descclassname">pynetdicom.dsutils.</code><code class="sig-name descname">decode</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">bytestring</span></em>, <em class="sig-param"><span class="n">is_implicit_vr</span></em>, <em class="sig-param"><span class="n">is_little_endian</span></em>, <em class="sig-param"><span class="n">deflated</span><span class="o">=</span><span class="default_value">False</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/b0529b2c/pynetdicom/dsutils.py#L70"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom.dsutils.decode" title="Permalink to this definition">¶</a></dt>
+<code class="sig-prename descclassname">pynetdicom.dsutils.</code><code class="sig-name descname">decode</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">bytestring</span></em>, <em class="sig-param"><span class="n">is_implicit_vr</span></em>, <em class="sig-param"><span class="n">is_little_endian</span></em>, <em class="sig-param"><span class="n">deflated</span><span class="o">=</span><span class="default_value">False</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/dffa77ef/pynetdicom/dsutils.py#L70"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom.dsutils.decode" title="Permalink to this definition">¶</a></dt>
 <dd><p>Decode <cite>bytestring</cite> to a <em>pydicom</em> <a class="reference external" href="https://pydicom.github.io/pydicom/stable/reference/generated/pydicom.dataset.Dataset.html#pydicom.dataset.Dataset" title="(in pydicom v2.0.0)"><code class="xref py py-class docutils literal notranslate"><span class="pre">Dataset</span></code></a>.</p>
 <div class="versionchanged">
 <p><span class="versionmodified changed">Changed in version 1.5: </span>Added <cite>deflated</cite> keyword parameter</p>
@@ -216,12 +216,12 @@
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>byestring</strong> (<a class="reference external" href="https://docs.python.org/3/library/io.html#io.BytesIO" title="(in Python v3.8)"><em>io.BytesIO</em></a>) – The encoded dataset in the DIMSE Message sent from the peer AE.</p></li>
-<li><p><strong>is_implicit_vr</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.8)"><em>bool</em></a>) – The dataset is encoded as implicit (<code class="docutils literal notranslate"><span class="pre">True</span></code>) or explicit VR
+<li><p><strong>byestring</strong> (<a class="reference external" href="https://docs.python.org/3/library/io.html#io.BytesIO" title="(in Python v3.9)"><em>io.BytesIO</em></a>) – The encoded dataset in the DIMSE Message sent from the peer AE.</p></li>
+<li><p><strong>is_implicit_vr</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.9)"><em>bool</em></a>) – The dataset is encoded as implicit (<code class="docutils literal notranslate"><span class="pre">True</span></code>) or explicit VR
 (<code class="docutils literal notranslate"><span class="pre">False</span></code>).</p></li>
-<li><p><strong>is_little_endian</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.8)"><em>bool</em></a>) – The byte ordering of the encoded dataset, <code class="docutils literal notranslate"><span class="pre">True</span></code> for little endian,
+<li><p><strong>is_little_endian</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.9)"><em>bool</em></a>) – The byte ordering of the encoded dataset, <code class="docutils literal notranslate"><span class="pre">True</span></code> for little endian,
 <code class="docutils literal notranslate"><span class="pre">False</span></code> for big endian.</p></li>
-<li><p><strong>deflated</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.8)"><em>bool</em></a><em>, </em><em>optional</em>) – <code class="docutils literal notranslate"><span class="pre">True</span></code> if the dataset has been encoded using <em>Deflated Explicit VR
+<li><p><strong>deflated</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.9)"><em>bool</em></a><em>, </em><em>optional</em>) – <code class="docutils literal notranslate"><span class="pre">True</span></code> if the dataset has been encoded using <em>Deflated Explicit VR
 Little Endian</em> transfer syntax (default <code class="docutils literal notranslate"><span class="pre">False</span></code>).</p></li>
 </ul>
 </dd>

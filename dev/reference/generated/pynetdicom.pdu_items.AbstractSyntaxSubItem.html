@@ -228,7 +228,7 @@
 <h1>pynetdicom.pdu_items.AbstractSyntaxSubItem<a class="headerlink" href="#pynetdicom-pdu-items-abstractsyntaxsubitem" title="Permalink to this headline">¶</a></h1>
 <dl class="py class">
 <dt id="pynetdicom.pdu_items.AbstractSyntaxSubItem">
-<em class="property">class </em><code class="sig-prename descclassname">pynetdicom.pdu_items.</code><code class="sig-name descname">AbstractSyntaxSubItem</code><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/b0529b2c/pynetdicom/pdu_items.py#L1278"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom.pdu_items.AbstractSyntaxSubItem" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="sig-prename descclassname">pynetdicom.pdu_items.</code><code class="sig-name descname">AbstractSyntaxSubItem</code><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/dffa77ef/pynetdicom/pdu_items.py#L1278"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom.pdu_items.AbstractSyntaxSubItem" title="Permalink to this definition">¶</a></dt>
 <dd><p>An Abstract Syntax Sub-item.</p>
 <p>An Abstract Syntax is the specification of data elements with associated
 semantics. In particular it allows communicating Application Entities to
@@ -240,7 +240,7 @@ Class definitions.</p>
 <dd><p>The <em>Abstract Syntax Name</em> field value.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Type</dt>
-<dd class="field-odd"><p><a class="reference external" href="https://pydicom.github.io/pydicom/stable/reference/generated/pydicom.uid.UID.html#pydicom.uid.UID" title="(in pydicom v2.0.0)">pydicom.uid.UID</a> or <a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.8)">None</a></p>
+<dd class="field-odd"><p><a class="reference external" href="https://pydicom.github.io/pydicom/stable/reference/generated/pydicom.uid.UID.html#pydicom.uid.UID" title="(in pydicom v2.0.0)">pydicom.uid.UID</a> or <a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.9)">None</a></p>
 </dd>
 </dl>
 </dd></dl>
@@ -252,7 +252,7 @@ Class definitions.</p>
 field to the last byte of the Item.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Type</dt>
-<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.8)">int</a></p>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.9)">int</a></p>
 </dd>
 </dl>
 </dd></dl>
@@ -263,7 +263,7 @@ field to the last byte of the Item.</p>
 <dd><p>The <em>Item Type</em> field value (<code class="docutils literal notranslate"><span class="pre">0x30</span></code>).</p>
 <dl class="field-list simple">
 <dt class="field-odd">Type</dt>
-<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.8)">int</a></p>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.9)">int</a></p>
 </dd>
 </dl>
 </dd></dl>
@@ -337,7 +337,7 @@ parameter follows the rules in Part 8,
 </ul>
 <dl class="py method">
 <dt id="pynetdicom.pdu_items.AbstractSyntaxSubItem.__init__">
-<code class="sig-name descname">__init__</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/b0529b2c/pynetdicom/pdu_items.py#L1349"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom.pdu_items.AbstractSyntaxSubItem.__init__" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">__init__</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/dffa77ef/pynetdicom/pdu_items.py#L1349"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom.pdu_items.AbstractSyntaxSubItem.__init__" title="Permalink to this definition">¶</a></dt>
 <dd><p>Initialise a new Abstract Syntax Item.</p>
 </dd></dl>
 
@@ -373,10 +373,10 @@ parameter follows the rules in Part 8,
 <td><p>Return the item’s <em>Abstract Syntax Name</em> field value.</p></td>
 </tr>
 <tr class="row-odd"><td><p><a class="reference internal" href="#id1" title="pynetdicom.pdu_items.AbstractSyntaxSubItem.item_length"><code class="xref py py-obj docutils literal notranslate"><span class="pre">item_length</span></code></a></p></td>
-<td><p>Return the item’s <em>Item Length</em> field value as <a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.8)"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></a>.</p></td>
+<td><p>Return the item’s <em>Item Length</em> field value as <a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.9)"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></a>.</p></td>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="#pynetdicom.pdu_items.AbstractSyntaxSubItem.item_type" title="pynetdicom.pdu_items.AbstractSyntaxSubItem.item_type"><code class="xref py py-obj docutils literal notranslate"><span class="pre">item_type</span></code></a></p></td>
-<td><p>Return the item’s <em>Item Type</em> field value as <a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.8)"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></a>.</p></td>
+<td><p>Return the item’s <em>Item Type</em> field value as <a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.9)"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></a>.</p></td>
 </tr>
 </tbody>
 </table>
@@ -395,7 +395,7 @@ parameter follows the rules in Part 8,
 <dl class="py method">
 <dt id="id1">
 <em class="property">property </em><code class="sig-name descname">item_length</code><a class="headerlink" href="#id1" title="Permalink to this definition">¶</a></dt>
-<dd><p>Return the item’s <em>Item Length</em> field value as <a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.8)"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></a>.</p>
+<dd><p>Return the item’s <em>Item Length</em> field value as <a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.9)"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></a>.</p>
 </dd></dl>
 
 </dd></dl>

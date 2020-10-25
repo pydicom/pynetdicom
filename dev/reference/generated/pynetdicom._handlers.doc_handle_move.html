@@ -225,7 +225,7 @@
 <h1>pynetdicom._handlers.doc_handle_move<a class="headerlink" href="#pynetdicom-handlers-doc-handle-move" title="Permalink to this headline">¶</a></h1>
 <dl class="py function">
 <dt id="pynetdicom._handlers.doc_handle_move">
-<code class="sig-prename descclassname">pynetdicom._handlers.</code><code class="sig-name descname">doc_handle_move</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">event</span></em>, <em class="sig-param"><span class="o">*</span><span class="n">args</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/b0529b2c/pynetdicom/_handlers.py#L2473"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom._handlers.doc_handle_move" title="Permalink to this definition">¶</a></dt>
+<code class="sig-prename descclassname">pynetdicom._handlers.</code><code class="sig-name descname">doc_handle_move</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">event</span></em>, <em class="sig-param"><span class="o">*</span><span class="n">args</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/dffa77ef/pynetdicom/_handlers.py#L2473"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom._handlers.doc_handle_move" title="Permalink to this definition">¶</a></dt>
 <dd><p>Documentation for handlers bound to <code class="docutils literal notranslate"><span class="pre">evt.EVT_C_MOVE</span></code>.</p>
 <p>User implementation of this event handler is required if one or more
 services that use C-MOVE are to be supported. If a handler is
@@ -233,12 +233,12 @@ not implemented and bound to <code class="docutils literal notranslate"><span cl
 will be responded to using a  <em>Status</em> value of <code class="docutils literal notranslate"><span class="pre">0xC511</span></code> - Failure.</p>
 <p>The first yield should be the <code class="docutils literal notranslate"><span class="pre">(addr,</span> <span class="pre">port)</span></code> of the move destination,
 however you may instead yield <code class="docutils literal notranslate"><span class="pre">(addr,</span> <span class="pre">port,</span> <span class="pre">kwargs)</span></code>, where <code class="docutils literal notranslate"><span class="pre">kwargs</span></code>
-is a <a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.8)"><code class="xref py py-class docutils literal notranslate"><span class="pre">dict</span></code></a> containing keyword parameters that will be passed
+is a <a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.9)"><code class="xref py py-class docutils literal notranslate"><span class="pre">dict</span></code></a> containing keyword parameters that will be passed
 to <a class="reference internal" href="pynetdicom.ae.ApplicationEntity.html#pynetdicom.ae.ApplicationEntity.associate" title="pynetdicom.ae.ApplicationEntity.associate"><code class="xref py py-meth docutils literal notranslate"><span class="pre">AE.associate()</span></code></a>. This
 allows you to customise the presentation contexts requested by the
 association with the Storage SCP via the <cite>contexts</cite> keyword parameter.</p>
 <p>The second yield should be the number of required C-STORE sub-operations
-as an <a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.8)"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></a>, and the remaining yields the <code class="docutils literal notranslate"><span class="pre">(status,</span> <span class="pre">dataset)</span></code>
+as an <a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.9)"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></a>, and the remaining yields the <code class="docutils literal notranslate"><span class="pre">(status,</span> <span class="pre">dataset)</span></code>
 pairs.</p>
 <p>Matching SOP Instances will be sent to the move destination Storage SCP
 over a new association. If the move destination is unknown then the
@@ -312,7 +312,7 @@ as a <a class="reference internal" href="pynetdicom.presentation.PresentationCon
 <a class="reference internal" href="pynetdicom.dimse_primitives.C_MOVE.html#pynetdicom.dimse_primitives.C_MOVE" title="pynetdicom.dimse_primitives.C_MOVE"><code class="xref py py-class docutils literal notranslate"><span class="pre">C-MOVE</span> <span class="pre">request</span></code></a></p></li>
 <li><p><a class="reference internal" href="pynetdicom.events.Event.html#pynetdicom.events.Event.timestamp" title="pynetdicom.events.Event.timestamp"><code class="xref py py-attr docutils literal notranslate"><span class="pre">timestamp</span></code></a>: the date and time
 that the C-MOVE request was processed by the service as
-<a class="reference external" href="https://docs.python.org/3/library/datetime.html#datetime.datetime" title="(in Python v3.8)"><code class="xref py py-class docutils literal notranslate"><span class="pre">datetime.datetime</span></code></a>.</p></li>
+<a class="reference external" href="https://docs.python.org/3/library/datetime.html#datetime.datetime" title="(in Python v3.9)"><code class="xref py py-class docutils literal notranslate"><span class="pre">datetime.datetime</span></code></a>.</p></li>
 </ul>
 <p><a class="reference internal" href="pynetdicom.events.Event.html#pynetdicom.events.Event" title="pynetdicom.events.Event"><code class="xref py py-class docutils literal notranslate"><span class="pre">Event</span></code></a> properties are:</p>
 <ul>
@@ -327,15 +327,15 @@ C-CANCEL request has been received, <code class="docutils literal notranslate"><
 C-CANCEL is received then the handler should yield a
 <code class="docutils literal notranslate"><span class="pre">(0xFE00,</span> <span class="pre">None)</span></code> status/dataset pair and <code class="docutils literal notranslate"><span class="pre">return</span></code>.</p></li>
 <li><p><a class="reference internal" href="pynetdicom.events.Event.html#pynetdicom.events.Event.message_id" title="pynetdicom.events.Event.message_id"><code class="xref py py-attr docutils literal notranslate"><span class="pre">message_id</span></code></a>: the C-MOVE request’s
-<em>Message ID</em> as <a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.8)"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></a>.</p></li>
+<em>Message ID</em> as <a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.9)"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></a>.</p></li>
 <li><p><a class="reference internal" href="pynetdicom.events.Event.html#pynetdicom.events.Event.move_destination" title="pynetdicom.events.Event.move_destination"><code class="xref py py-attr docutils literal notranslate"><span class="pre">move_destination</span></code></a>: the C-MOVE
-request’s <em>Move Destination</em> value as <a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#bytes" title="(in Python v3.8)"><code class="xref py py-class docutils literal notranslate"><span class="pre">bytes</span></code></a>.</p></li>
+request’s <em>Move Destination</em> value as <a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#bytes" title="(in Python v3.9)"><code class="xref py py-class docutils literal notranslate"><span class="pre">bytes</span></code></a>.</p></li>
 </ul>
 </p></li>
 <li><p><strong>args</strong> – If the handler was bound to the event using
 <code class="docutils literal notranslate"><span class="pre">bind(event,</span> <span class="pre">handler,</span> <span class="pre">args)</span></code> or by passing
 <code class="docutils literal notranslate"><span class="pre">evt_handlers=[(event,</span> <span class="pre">handler,</span> <span class="pre">args),</span> <span class="pre">...]</span></code>, where <cite>args</cite> is a
-<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.8)"><code class="xref py py-class docutils literal notranslate"><span class="pre">list</span></code></a> then there will be one or more optional extra parameters
+<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.9)"><code class="xref py py-class docutils literal notranslate"><span class="pre">list</span></code></a> then there will be one or more optional extra parameters
 matching the contents of <cite>args</cite>.</p></li>
 </ul>
 </dd>
@@ -347,7 +347,7 @@ destination AE (if known) or <code class="docutils literal notranslate"><span cl
 response with a ‘Failure’ Status of <code class="docutils literal notranslate"><span class="pre">0xA801</span></code> (move destination
 unknown), in which case nothing more needs to be yielded. You may
 instead yield <code class="docutils literal notranslate"><span class="pre">(addr,</span> <span class="pre">port,</span> <span class="pre">kwargs)</span></code>, where <code class="docutils literal notranslate"><span class="pre">kwargs</span></code> is
-a <a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.8)"><code class="xref py py-class docutils literal notranslate"><span class="pre">dict</span></code></a> containing keyword parameters to pass to
+a <a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.9)"><code class="xref py py-class docutils literal notranslate"><span class="pre">dict</span></code></a> containing keyword parameters to pass to
 <a class="reference internal" href="pynetdicom.ae.ApplicationEntity.html#pynetdicom.ae.ApplicationEntity.associate" title="pynetdicom.ae.ApplicationEntity.associate"><code class="xref py py-meth docutils literal notranslate"><span class="pre">AE.associate()</span></code></a>
 when the new association with the Storage SCP is initiated.</p></li>
 <li><p><em>int</em> – The second yield should be the number of C-STORE sub-operations
@@ -355,7 +355,7 @@ required to complete the C-MOVE operation. In other words, this is
 the number of matching SOP Instances to be sent to the peer.</p></li>
 <li><p><strong>status</strong> (<em>pydicom.dataset.Dataset or int</em>) – The status returned to the peer AE in the C-MOVE response. Must be
 a valid C-MOVE status value for the applicable Service Class as
-either an <a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.8)"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></a> or a <a class="reference external" href="https://pydicom.github.io/pydicom/stable/reference/generated/pydicom.dataset.Dataset.html#pydicom.dataset.Dataset" title="(in pydicom v2.0.0)"><code class="xref py py-class docutils literal notranslate"><span class="pre">Dataset</span></code></a>
+either an <a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.9)"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></a> or a <a class="reference external" href="https://pydicom.github.io/pydicom/stable/reference/generated/pydicom.dataset.Dataset.html#pydicom.dataset.Dataset" title="(in pydicom v2.0.0)"><code class="xref py py-class docutils literal notranslate"><span class="pre">Dataset</span></code></a>
 containing (at a minimum) a (0000,0900) <em>Status</em> element. If returning
 a <a class="reference external" href="https://pydicom.github.io/pydicom/stable/reference/generated/pydicom.dataset.Dataset.html#pydicom.dataset.Dataset" title="(in pydicom v2.0.0)"><code class="xref py py-class docutils literal notranslate"><span class="pre">Dataset</span></code></a> then it may also contain optional
 elements related to the <em>Status</em> (as in

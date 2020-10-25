@@ -219,7 +219,7 @@
 <h1>pynetdicom.pdu.P_DATA_TF<a class="headerlink" href="#pynetdicom-pdu-p-data-tf" title="Permalink to this headline">¶</a></h1>
 <dl class="py class">
 <dt id="pynetdicom.pdu.P_DATA_TF">
-<em class="property">class </em><code class="sig-prename descclassname">pynetdicom.pdu.</code><code class="sig-name descname">P_DATA_TF</code><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/b0529b2c/pynetdicom/pdu.py#L1308"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom.pdu.P_DATA_TF" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="sig-prename descclassname">pynetdicom.pdu.</code><code class="sig-name descname">P_DATA_TF</code><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/dffa77ef/pynetdicom/pdu.py#L1308"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom.pdu.P_DATA_TF" title="Permalink to this definition">¶</a></dt>
 <dd><p>A P-DATA-TF PDU.</p>
 <p>A P-DATA-TF PDU is used once an association has been established to send
 DIMSE message data.</p>
@@ -230,7 +230,7 @@ DIMSE message data.</p>
 field to the last byte of the PDU.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Type</dt>
-<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.8)">int</a></p>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.9)">int</a></p>
 </dd>
 </dl>
 </dd></dl>
@@ -241,7 +241,7 @@ field to the last byte of the PDU.</p>
 <dd><p>The <em>PDU Type</em> field value (<code class="docutils literal notranslate"><span class="pre">0x04</span></code>).</p>
 <dl class="field-list simple">
 <dt class="field-odd">Type</dt>
-<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.8)">int</a></p>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.9)">int</a></p>
 </dd>
 </dl>
 </dd></dl>
@@ -308,7 +308,7 @@ encoded using Big Endian.</p>
 </ul>
 <dl class="py method">
 <dt id="pynetdicom.pdu.P_DATA_TF.__init__">
-<code class="sig-name descname">__init__</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/b0529b2c/pynetdicom/pdu.py#L1358"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom.pdu.P_DATA_TF.__init__" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">__init__</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/dffa77ef/pynetdicom/pdu.py#L1358"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom.pdu.P_DATA_TF.__init__" title="Permalink to this definition">¶</a></dt>
 <dd><p>Initialise a new P-DATA-TF PDU.</p>
 </dd></dl>
 
@@ -326,7 +326,7 @@ encoded using Big Endian.</p>
 <td><p>Decode <cite>bytestream</cite> and use the result to set the field values of the PDU.</p></td>
 </tr>
 <tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">encode</span></code>()</p></td>
-<td><p>Return the encoded PDU as <a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#bytes" title="(in Python v3.8)"><code class="xref py py-class docutils literal notranslate"><span class="pre">bytes</span></code></a>.</p></td>
+<td><p>Return the encoded PDU as <a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#bytes" title="(in Python v3.9)"><code class="xref py py-class docutils literal notranslate"><span class="pre">bytes</span></code></a>.</p></td>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="#pynetdicom.pdu.P_DATA_TF.from_primitive" title="pynetdicom.pdu.P_DATA_TF.from_primitive"><code class="xref py py-obj docutils literal notranslate"><span class="pre">from_primitive</span></code></a>(primitive)</p></td>
 <td><p>Setup the current PDU using a P-DATA primitive.</p></td>
@@ -347,13 +347,13 @@ encoded using Big Endian.</p>
 <td><p>Return the <em>PDU Length</em> field value as an int.</p></td>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="#pynetdicom.pdu.P_DATA_TF.pdu_type" title="pynetdicom.pdu.P_DATA_TF.pdu_type"><code class="xref py py-obj docutils literal notranslate"><span class="pre">pdu_type</span></code></a></p></td>
-<td><p>Return the <em>PDU Type</em> field value as <a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.8)"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></a>.</p></td>
+<td><p>Return the <em>PDU Type</em> field value as <a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.9)"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></a>.</p></td>
 </tr>
 </tbody>
 </table>
 <dl class="py method">
 <dt id="pynetdicom.pdu.P_DATA_TF.from_primitive">
-<code class="sig-name descname">from_primitive</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">primitive</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/b0529b2c/pynetdicom/pdu.py#L1362"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom.pdu.P_DATA_TF.from_primitive" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">from_primitive</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">primitive</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/dffa77ef/pynetdicom/pdu.py#L1362"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom.pdu.P_DATA_TF.from_primitive" title="Permalink to this definition">¶</a></dt>
 <dd><p>Setup the current PDU using a P-DATA primitive.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -370,7 +370,7 @@ encoded using Big Endian.</p>
 
 <dl class="py method">
 <dt id="pynetdicom.pdu.P_DATA_TF.to_primitive">
-<code class="sig-name descname">to_primitive</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/b0529b2c/pynetdicom/pdu.py#L1376"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom.pdu.P_DATA_TF.to_primitive" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">to_primitive</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/dffa77ef/pynetdicom/pdu.py#L1376"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom.pdu.P_DATA_TF.to_primitive" title="Permalink to this definition">¶</a></dt>
 <dd><p>Return a P-DATA primitive from the current PDU.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Returns</dt>
