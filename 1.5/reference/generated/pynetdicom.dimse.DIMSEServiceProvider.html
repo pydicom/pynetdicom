@@ -7,7 +7,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>pynetdicom.dimse.DIMSEServiceProvider &mdash; pynetdicom 1.5.3 documentation</title>
+  <title>pynetdicom.dimse.DIMSEServiceProvider &mdash; pynetdicom 1.5.4 documentation</title>
   
 
   
@@ -67,7 +67,7 @@
             
             
               <div class="version">
-                1.5.3
+                1.5.4
               </div>
             
           
@@ -207,7 +207,7 @@
 <h1>pynetdicom.dimse.DIMSEServiceProvider<a class="headerlink" href="#pynetdicom-dimse-dimseserviceprovider" title="Permalink to this headline">¶</a></h1>
 <dl class="py class">
 <dt id="pynetdicom.dimse.DIMSEServiceProvider">
-<em class="property">class </em><code class="sig-prename descclassname">pynetdicom.dimse.</code><code class="sig-name descname">DIMSEServiceProvider</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">assoc</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/167f4f64/pynetdicom/dimse.py#L59"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom.dimse.DIMSEServiceProvider" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="sig-prename descclassname">pynetdicom.dimse.</code><code class="sig-name descname">DIMSEServiceProvider</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">assoc</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/a3696152/pynetdicom/dimse.py#L59"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom.dimse.DIMSEServiceProvider" title="Permalink to this definition">¶</a></dt>
 <dd><p>The DIMSE service provider.</p>
 <div class="versionchanged">
 <p><span class="versionmodified changed">Changed in version 1.2: </span>Added <cite>msg_queue</cite> attribute</p>
@@ -317,7 +317,7 @@ The dict is cleared out at the start and end of Service Class
 operations and is limited to a maximum of 10 messages.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Type</dt>
-<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.8)">dict</a></p>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.9)">dict</a></p>
 </dd>
 </dl>
 </dd></dl>
@@ -328,7 +328,7 @@ operations and is limited to a maximum of 10 messages.</p>
 <dd><p>The DIMSE message currently being received.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Type</dt>
-<dd class="field-odd"><p>dimse_messages.DIMSEMessage or <a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.8)">None</a></p>
+<dd class="field-odd"><p>dimse_messages.DIMSEMessage or <a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.9)">None</a></p>
 </dd>
 </dl>
 </dd></dl>
@@ -351,7 +351,7 @@ peer, except for C-CANCEL requests.</p>
 </ul>
 <dl class="py method">
 <dt id="pynetdicom.dimse.DIMSEServiceProvider.__init__">
-<code class="sig-name descname">__init__</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">assoc</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/167f4f64/pynetdicom/dimse.py#L135"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom.dimse.DIMSEServiceProvider.__init__" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">__init__</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">assoc</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/a3696152/pynetdicom/dimse.py#L135"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom.dimse.DIMSEServiceProvider.__init__" title="Permalink to this definition">¶</a></dt>
 <dd><p>Initialise the DIMSE service provider.</p>
 <div class="versionchanged">
 <p><span class="versionmodified changed">Changed in version 1.3: </span>Class initialisation now only takes <cite>assoc</cite> parameter.</p>
@@ -404,7 +404,7 @@ peer, except for C-CANCEL requests.</p>
 <td><p>Return the <a class="reference internal" href="pynetdicom.dul.DULServiceProvider.html#pynetdicom.dul.DULServiceProvider" title="pynetdicom.dul.DULServiceProvider"><code class="xref py py-class docutils literal notranslate"><span class="pre">DULServiceProvider</span></code></a>.</p></td>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="#pynetdicom.dimse.DIMSEServiceProvider.maximum_pdu_size" title="pynetdicom.dimse.DIMSEServiceProvider.maximum_pdu_size"><code class="xref py py-obj docutils literal notranslate"><span class="pre">maximum_pdu_size</span></code></a></p></td>
-<td><p>Return the peer’s maximum PDU length as <a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.8)"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></a>.</p></td>
+<td><p>Return the peer’s maximum PDU length as <a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.9)"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></a>.</p></td>
 </tr>
 </tbody>
 </table>
@@ -431,7 +431,7 @@ peer, except for C-CANCEL requests.</p>
 
 <dl class="py method">
 <dt id="pynetdicom.dimse.DIMSEServiceProvider.get_msg">
-<code class="sig-name descname">get_msg</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">block</span><span class="o">=</span><span class="default_value">False</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/167f4f64/pynetdicom/dimse.py#L171"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom.dimse.DIMSEServiceProvider.get_msg" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">get_msg</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">block</span><span class="o">=</span><span class="default_value">False</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/a3696152/pynetdicom/dimse.py#L171"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom.dimse.DIMSEServiceProvider.get_msg" title="Permalink to this definition">¶</a></dt>
 <dd><p>Get the next available DIMSE message.</p>
 <div class="versionadded">
 <p><span class="versionmodified added">New in version 1.2.</span></p>
@@ -442,7 +442,7 @@ association or the connection is closed.</p>
 </div>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>block</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.8)"><em>bool</em></a>) – If <code class="docutils literal notranslate"><span class="pre">True</span></code> then the function will block until either a message is
+<dd class="field-odd"><p><strong>block</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.9)"><em>bool</em></a>) – If <code class="docutils literal notranslate"><span class="pre">True</span></code> then the function will block until either a message is
 available or <a class="reference internal" href="#pynetdicom.dimse.DIMSEServiceProvider.dimse_timeout" title="pynetdicom.dimse.DIMSEServiceProvider.dimse_timeout"><code class="xref py py-attr docutils literal notranslate"><span class="pre">dimse_timeout</span></code></a> expires,
 otherwise non-blocking.</p>
 </dd>
@@ -454,7 +454,7 @@ available within the <a class="reference internal" href="#pynetdicom.dimse.DIMSE
 period.</p>
 </dd>
 <dt class="field-odd">Return type</dt>
-<dd class="field-odd"><p>(<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.8)">int</a>, dimse_messages.DIMSEMessage) or (<a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.8)">None</a>, <a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.8)">None</a>)</p>
+<dd class="field-odd"><p>(<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.9)">int</a>, dimse_messages.DIMSEMessage) or (<a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.9)">None</a>, <a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.9)">None</a>)</p>
 </dd>
 </dl>
 </dd></dl>
@@ -462,12 +462,12 @@ period.</p>
 <dl class="py method">
 <dt id="pynetdicom.dimse.DIMSEServiceProvider.maximum_pdu_size">
 <em class="property">property </em><code class="sig-name descname">maximum_pdu_size</code><a class="headerlink" href="#pynetdicom.dimse.DIMSEServiceProvider.maximum_pdu_size" title="Permalink to this definition">¶</a></dt>
-<dd><p>Return the peer’s maximum PDU length as <a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.8)"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></a>.</p>
+<dd><p>Return the peer’s maximum PDU length as <a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.9)"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></a>.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt id="pynetdicom.dimse.DIMSEServiceProvider.peek_msg">
-<code class="sig-name descname">peek_msg</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/167f4f64/pynetdicom/dimse.py#L210"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom.dimse.DIMSEServiceProvider.peek_msg" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">peek_msg</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/a3696152/pynetdicom/dimse.py#L210"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom.dimse.DIMSEServiceProvider.peek_msg" title="Permalink to this definition">¶</a></dt>
 <dd><p>Return the first message in the message queue or <code class="docutils literal notranslate"><span class="pre">None</span></code>.</p>
 <div class="versionadded">
 <p><span class="versionmodified added">New in version 1.2.</span></p>
@@ -479,14 +479,14 @@ available, otherwise <code class="docutils literal notranslate"><span class="pre
 of the queue.</p>
 </dd>
 <dt class="field-even">Return type</dt>
-<dd class="field-even"><p>(<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.8)">int</a>, dimse_messages.DIMSEMessage) or (<a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.8)">None</a>, <a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.8)">None</a>)</p>
+<dd class="field-even"><p>(<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.9)">int</a>, dimse_messages.DIMSEMessage) or (<a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.9)">None</a>, <a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.9)">None</a>)</p>
 </dd>
 </dl>
 </dd></dl>
 
 <dl class="py method">
 <dt id="pynetdicom.dimse.DIMSEServiceProvider.receive_primitive">
-<code class="sig-name descname">receive_primitive</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">primitive</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/167f4f64/pynetdicom/dimse.py#L227"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom.dimse.DIMSEServiceProvider.receive_primitive" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">receive_primitive</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">primitive</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/a3696152/pynetdicom/dimse.py#L227"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom.dimse.DIMSEServiceProvider.receive_primitive" title="Permalink to this definition">¶</a></dt>
 <dd><p>Process a P-DATA primitive received from the remote.</p>
 <div class="versionadded">
 <p><span class="versionmodified added">New in version 1.2.</span></p>
@@ -508,13 +508,13 @@ DIMSE messages while a service class implementation is running.</p>
 
 <dl class="py method">
 <dt id="pynetdicom.dimse.DIMSEServiceProvider.send_msg">
-<code class="sig-name descname">send_msg</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">primitive</span></em>, <em class="sig-param"><span class="n">context_id</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/167f4f64/pynetdicom/dimse.py#L288"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom.dimse.DIMSEServiceProvider.send_msg" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">send_msg</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">primitive</span></em>, <em class="sig-param"><span class="n">context_id</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/a3696152/pynetdicom/dimse.py#L288"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom.dimse.DIMSEServiceProvider.send_msg" title="Permalink to this definition">¶</a></dt>
 <dd><p>Encode and send a DIMSE-C or DIMSE-N message to the peer AE.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>primitive</strong> (<em>dimse_primitives DIMSE Primitive class</em>) – The DIMSE message primitive to send to the peer.</p></li>
-<li><p><strong>context_id</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.8)"><em>int</em></a>) – The ID of the presentation context that the message is to be
+<li><p><strong>context_id</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.9)"><em>int</em></a>) – The ID of the presentation context that the message is to be
 sent under.</p></li>
 </ul>
 </dd>

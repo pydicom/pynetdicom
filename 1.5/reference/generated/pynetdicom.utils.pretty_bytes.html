@@ -7,7 +7,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>pynetdicom.utils.pretty_bytes &mdash; pynetdicom 1.5.3 documentation</title>
+  <title>pynetdicom.utils.pretty_bytes &mdash; pynetdicom 1.5.4 documentation</title>
   
 
   
@@ -67,7 +67,7 @@
             
             
               <div class="version">
-                1.5.3
+                1.5.4
               </div>
             
           
@@ -202,19 +202,19 @@
 <h1>pynetdicom.utils.pretty_bytes<a class="headerlink" href="#pynetdicom-utils-pretty-bytes" title="Permalink to this headline">¶</a></h1>
 <dl class="py function">
 <dt id="pynetdicom.utils.pretty_bytes">
-<code class="sig-prename descclassname">pynetdicom.utils.</code><code class="sig-name descname">pretty_bytes</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">bytestream</span></em>, <em class="sig-param"><span class="n">prefix</span><span class="o">=</span><span class="default_value">'  '</span></em>, <em class="sig-param"><span class="n">delimiter</span><span class="o">=</span><span class="default_value">'  '</span></em>, <em class="sig-param"><span class="n">items_per_line</span><span class="o">=</span><span class="default_value">16</span></em>, <em class="sig-param"><span class="n">max_size</span><span class="o">=</span><span class="default_value">512</span></em>, <em class="sig-param"><span class="n">suffix</span><span class="o">=</span><span class="default_value">''</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/167f4f64/pynetdicom/utils.py#L14"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom.utils.pretty_bytes" title="Permalink to this definition">¶</a></dt>
-<dd><p>Turn the bytestring <cite>bytestream</cite> into a <a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.8)"><code class="xref py py-class docutils literal notranslate"><span class="pre">list</span></code></a> of nicely
-formatted <a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></a>.</p>
+<code class="sig-prename descclassname">pynetdicom.utils.</code><code class="sig-name descname">pretty_bytes</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">bytestream</span></em>, <em class="sig-param"><span class="n">prefix</span><span class="o">=</span><span class="default_value">'  '</span></em>, <em class="sig-param"><span class="n">delimiter</span><span class="o">=</span><span class="default_value">'  '</span></em>, <em class="sig-param"><span class="n">items_per_line</span><span class="o">=</span><span class="default_value">16</span></em>, <em class="sig-param"><span class="n">max_size</span><span class="o">=</span><span class="default_value">512</span></em>, <em class="sig-param"><span class="n">suffix</span><span class="o">=</span><span class="default_value">''</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/a3696152/pynetdicom/utils.py#L14"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom.utils.pretty_bytes" title="Permalink to this definition">¶</a></dt>
+<dd><p>Turn the bytestring <cite>bytestream</cite> into a <a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.9)"><code class="xref py py-class docutils literal notranslate"><span class="pre">list</span></code></a> of nicely
+formatted <a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></a>.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>bytestream</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#bytes" title="(in Python v3.8)"><em>bytes</em></a><em> or </em><a class="reference external" href="https://docs.python.org/3/library/io.html#io.BytesIO" title="(in Python v3.8)"><em>io.BytesIO</em></a>) – The bytes to convert to a nicely formatted string list</p></li>
-<li><p><strong>prefix</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)"><em>str</em></a>) – Insert <cite>prefix</cite> at the start of every item in the output string list</p></li>
-<li><p><strong>delimiter</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)"><em>str</em></a>) – Delimit each of the bytes in <cite>bytestream</cite> using <cite>delimiter</cite></p></li>
-<li><p><strong>items_per_line</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.8)"><em>int</em></a>) – The number of bytes in each item of the output string list.</p></li>
-<li><p><strong>max_size</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.8)"><em>int</em></a><em> or </em><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.8)"><em>None</em></a>) – The maximum number of bytes to add to the output string list. A value
+<li><p><strong>bytestream</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#bytes" title="(in Python v3.9)"><em>bytes</em></a><em> or </em><a class="reference external" href="https://docs.python.org/3/library/io.html#io.BytesIO" title="(in Python v3.9)"><em>io.BytesIO</em></a>) – The bytes to convert to a nicely formatted string list</p></li>
+<li><p><strong>prefix</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)"><em>str</em></a>) – Insert <cite>prefix</cite> at the start of every item in the output string list</p></li>
+<li><p><strong>delimiter</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)"><em>str</em></a>) – Delimit each of the bytes in <cite>bytestream</cite> using <cite>delimiter</cite></p></li>
+<li><p><strong>items_per_line</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.9)"><em>int</em></a>) – The number of bytes in each item of the output string list.</p></li>
+<li><p><strong>max_size</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.9)"><em>int</em></a><em> or </em><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.9)"><em>None</em></a>) – The maximum number of bytes to add to the output string list. A value
 of <code class="docutils literal notranslate"><span class="pre">None</span></code> indicates that all of <cite>bytestream</cite> should be output.</p></li>
-<li><p><strong>suffix</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)"><em>str</em></a>) – Append <cite>suffix</cite> to the end of every item in the output string list</p></li>
+<li><p><strong>suffix</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)"><em>str</em></a>) – Append <cite>suffix</cite> to the end of every item in the output string list</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns</dt>

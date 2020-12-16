@@ -7,7 +7,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>pynetdicom.utils.validate_ae_title &mdash; pynetdicom 1.5.3 documentation</title>
+  <title>pynetdicom.utils.validate_ae_title &mdash; pynetdicom 1.5.4 documentation</title>
   
 
   
@@ -67,7 +67,7 @@
             
             
               <div class="version">
-                1.5.3
+                1.5.4
               </div>
             
           
@@ -202,7 +202,7 @@
 <h1>pynetdicom.utils.validate_ae_title<a class="headerlink" href="#pynetdicom-utils-validate-ae-title" title="Permalink to this headline">¶</a></h1>
 <dl class="py function">
 <dt id="pynetdicom.utils.validate_ae_title">
-<code class="sig-prename descclassname">pynetdicom.utils.</code><code class="sig-name descname">validate_ae_title</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">ae_title</span></em>, <em class="sig-param"><span class="n">use_short</span><span class="o">=</span><span class="default_value">False</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/167f4f64/pynetdicom/utils.py#L74"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom.utils.validate_ae_title" title="Permalink to this definition">¶</a></dt>
+<code class="sig-prename descclassname">pynetdicom.utils.</code><code class="sig-name descname">validate_ae_title</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">ae_title</span></em>, <em class="sig-param"><span class="n">use_short</span><span class="o">=</span><span class="default_value">False</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/a3696152/pynetdicom/utils.py#L74"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom.utils.validate_ae_title" title="Permalink to this definition">¶</a></dt>
 <dd><p>Return a valid AE title from <cite>ae_title</cite>, if possible.</p>
 <p>An AE title:</p>
 <ul class="simple">
@@ -226,22 +226,22 @@ space (<code class="docutils literal notranslate"><span class="pre">0x20</span><
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>ae_title</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#bytes" title="(in Python v3.8)"><em>bytes</em></a>) – The AE title to check.</p></li>
-<li><p><strong>use_short</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.8)"><em>bool</em></a><em>, </em><em>optional</em>) – If <code class="docutils literal notranslate"><span class="pre">False</span></code> (default) then pad AE titles with trailing spaces up to
+<li><p><strong>ae_title</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#bytes" title="(in Python v3.9)"><em>bytes</em></a>) – The AE title to check.</p></li>
+<li><p><strong>use_short</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.9)"><em>bool</em></a><em>, </em><em>optional</em>) – If <code class="docutils literal notranslate"><span class="pre">False</span></code> (default) then pad AE titles with trailing spaces up to
 the maximum allowable length (16 bytes), otherwise no padding will
 be added.</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns</dt>
 <dd class="field-even"><p>A valid AE title truncated to 16 characters if necessary. If Python 3
-then only returns <a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#bytes" title="(in Python v3.8)"><code class="xref py py-class docutils literal notranslate"><span class="pre">bytes</span></code></a>, if Python 2 then returns
-<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></a>.</p>
+then only returns <a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#bytes" title="(in Python v3.9)"><code class="xref py py-class docutils literal notranslate"><span class="pre">bytes</span></code></a>, if Python 2 then returns
+<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></a>.</p>
 </dd>
 <dt class="field-odd">Return type</dt>
-<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)">str</a> or <a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#bytes" title="(in Python v3.8)">bytes</a></p>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)">str</a> or <a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#bytes" title="(in Python v3.9)">bytes</a></p>
 </dd>
 <dt class="field-even">Raises</dt>
-<dd class="field-even"><p><a class="reference external" href="https://docs.python.org/3/library/exceptions.html#ValueError" title="(in Python v3.8)"><strong>ValueError</strong></a> – If <cite>ae_title</cite> is an empty string, contains only spaces or contains
+<dd class="field-even"><p><a class="reference external" href="https://docs.python.org/3/library/exceptions.html#ValueError" title="(in Python v3.9)"><strong>ValueError</strong></a> – If <cite>ae_title</cite> is an empty string, contains only spaces or contains
     control characters or backslash.</p>
 </dd>
 </dl>

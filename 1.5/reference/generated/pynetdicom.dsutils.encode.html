@@ -7,7 +7,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>pynetdicom.dsutils.encode &mdash; pynetdicom 1.5.3 documentation</title>
+  <title>pynetdicom.dsutils.encode &mdash; pynetdicom 1.5.4 documentation</title>
   
 
   
@@ -67,7 +67,7 @@
             
             
               <div class="version">
-                1.5.3
+                1.5.4
               </div>
             
           
@@ -206,29 +206,29 @@
 <h1>pynetdicom.dsutils.encode<a class="headerlink" href="#pynetdicom-dsutils-encode" title="Permalink to this headline">¶</a></h1>
 <dl class="py function">
 <dt id="pynetdicom.dsutils.encode">
-<code class="sig-prename descclassname">pynetdicom.dsutils.</code><code class="sig-name descname">encode</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">ds</span></em>, <em class="sig-param"><span class="n">is_implicit_vr</span></em>, <em class="sig-param"><span class="n">is_little_endian</span></em>, <em class="sig-param"><span class="n">deflated</span><span class="o">=</span><span class="default_value">False</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/167f4f64/pynetdicom/dsutils.py#L70"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom.dsutils.encode" title="Permalink to this definition">¶</a></dt>
-<dd><p>Encode a <em>pydicom</em> <a class="reference external" href="https://pydicom.github.io/pydicom/stable/reference/generated/pydicom.dataset.Dataset.html#pydicom.dataset.Dataset" title="(in pydicom v2.0.0)"><code class="xref py py-class docutils literal notranslate"><span class="pre">Dataset</span></code></a> <cite>ds</cite>.</p>
+<code class="sig-prename descclassname">pynetdicom.dsutils.</code><code class="sig-name descname">encode</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">ds</span></em>, <em class="sig-param"><span class="n">is_implicit_vr</span></em>, <em class="sig-param"><span class="n">is_little_endian</span></em>, <em class="sig-param"><span class="n">deflated</span><span class="o">=</span><span class="default_value">False</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/a3696152/pynetdicom/dsutils.py#L70"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom.dsutils.encode" title="Permalink to this definition">¶</a></dt>
+<dd><p>Encode a <em>pydicom</em> <a class="reference external" href="https://pydicom.github.io/pydicom/stable/reference/generated/pydicom.dataset.Dataset.html#pydicom.dataset.Dataset" title="(in pydicom v2.1.2)"><code class="xref py py-class docutils literal notranslate"><span class="pre">Dataset</span></code></a> <cite>ds</cite>.</p>
 <div class="versionchanged">
 <p><span class="versionmodified changed">Changed in version 1.5: </span>Added <cite>deflated</cite> keyword parameter</p>
 </div>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>ds</strong> (<a class="reference external" href="https://pydicom.github.io/pydicom/stable/reference/generated/pydicom.dataset.Dataset.html#pydicom.dataset.Dataset" title="(in pydicom v2.0.0)"><em>pydicom.dataset.Dataset</em></a>) – The dataset to encode</p></li>
-<li><p><strong>is_implicit_vr</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.8)"><em>bool</em></a>) – The element encoding scheme the dataset will be encoded with, <code class="docutils literal notranslate"><span class="pre">True</span></code>
+<li><p><strong>ds</strong> (<a class="reference external" href="https://pydicom.github.io/pydicom/stable/reference/generated/pydicom.dataset.Dataset.html#pydicom.dataset.Dataset" title="(in pydicom v2.1.2)"><em>pydicom.dataset.Dataset</em></a>) – The dataset to encode</p></li>
+<li><p><strong>is_implicit_vr</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.9)"><em>bool</em></a>) – The element encoding scheme the dataset will be encoded with, <code class="docutils literal notranslate"><span class="pre">True</span></code>
 for implicit VR, <code class="docutils literal notranslate"><span class="pre">False</span></code> for explicit VR.</p></li>
-<li><p><strong>is_little_endian</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.8)"><em>bool</em></a>) – The byte ordering the dataset will be encoded in, <code class="docutils literal notranslate"><span class="pre">True</span></code> for little
+<li><p><strong>is_little_endian</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.9)"><em>bool</em></a>) – The byte ordering the dataset will be encoded in, <code class="docutils literal notranslate"><span class="pre">True</span></code> for little
 endian, <code class="docutils literal notranslate"><span class="pre">False</span></code> for big endian.</p></li>
-<li><p><strong>deflated</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.8)"><em>bool</em></a><em>, </em><em>optional</em>) – <code class="docutils literal notranslate"><span class="pre">True</span></code> if the dataset is to be encoded using <em>Deflated Explicit VR
+<li><p><strong>deflated</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.9)"><em>bool</em></a><em>, </em><em>optional</em>) – <code class="docutils literal notranslate"><span class="pre">True</span></code> if the dataset is to be encoded using <em>Deflated Explicit VR
 Little Endian</em> transfer syntax (default <code class="docutils literal notranslate"><span class="pre">False</span></code>).</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns</dt>
-<dd class="field-even"><p>The encoded dataset as <a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#bytes" title="(in Python v3.8)"><code class="xref py py-class docutils literal notranslate"><span class="pre">bytes</span></code></a> (if successful) or <code class="docutils literal notranslate"><span class="pre">None</span></code> if
+<dd class="field-even"><p>The encoded dataset as <a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#bytes" title="(in Python v3.9)"><code class="xref py py-class docutils literal notranslate"><span class="pre">bytes</span></code></a> (if successful) or <code class="docutils literal notranslate"><span class="pre">None</span></code> if
 the encoding failed.</p>
 </dd>
 <dt class="field-odd">Return type</dt>
-<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#bytes" title="(in Python v3.8)">bytes</a> or <a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.8)">None</a></p>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#bytes" title="(in Python v3.9)">bytes</a> or <a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.9)">None</a></p>
 </dd>
 </dl>
 </dd></dl>

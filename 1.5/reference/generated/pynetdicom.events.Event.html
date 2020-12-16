@@ -7,7 +7,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>pynetdicom.events.Event &mdash; pynetdicom 1.5.3 documentation</title>
+  <title>pynetdicom.events.Event &mdash; pynetdicom 1.5.4 documentation</title>
   
 
   
@@ -67,7 +67,7 @@
             
             
               <div class="version">
-                1.5.3
+                1.5.4
               </div>
             
           
@@ -205,7 +205,7 @@
 <h1>pynetdicom.events.Event<a class="headerlink" href="#pynetdicom-events-event" title="Permalink to this headline">¶</a></h1>
 <dl class="py class">
 <dt id="pynetdicom.events.Event">
-<em class="property">class </em><code class="sig-prename descclassname">pynetdicom.events.</code><code class="sig-name descname">Event</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">assoc</span></em>, <em class="sig-param"><span class="n">event</span></em>, <em class="sig-param"><span class="n">attrs</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/167f4f64/pynetdicom/events.py#L233"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom.events.Event" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="sig-prename descclassname">pynetdicom.events.</code><code class="sig-name descname">Event</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">assoc</span></em>, <em class="sig-param"><span class="n">event</span></em>, <em class="sig-param"><span class="n">attrs</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/a3696152/pynetdicom/events.py#L233"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom.events.Event" title="Permalink to this definition">¶</a></dt>
 <dd><p>Representation of an event.</p>
 <div class="versionadded">
 <p><span class="versionmodified added">New in version 1.3.</span></p>
@@ -233,7 +233,7 @@ are available for a given event.</p>
 <dl class="py attribute">
 <dt id="pynetdicom.events.Event.event">
 <code class="sig-name descname">event</code><a class="headerlink" href="#pynetdicom.events.Event.event" title="Permalink to this definition">¶</a></dt>
-<dd><p>A <a class="reference external" href="https://docs.python.org/3/library/collections.html#collections.namedtuple" title="(in Python v3.8)"><code class="xref py py-func docutils literal notranslate"><span class="pre">namedtuple</span></code></a> instance representing the
+<dd><p>A <a class="reference external" href="https://docs.python.org/3/library/collections.html#collections.namedtuple" title="(in Python v3.9)"><code class="xref py py-func docutils literal notranslate"><span class="pre">namedtuple</span></code></a> instance representing the
 event that occurred.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Type</dt>
@@ -249,21 +249,21 @@ event that occurred.</p>
 the actual event that this object represents.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Type</dt>
-<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/datetime.html#datetime.datetime" title="(in Python v3.8)">datetime.datetime</a></p>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/datetime.html#datetime.datetime" title="(in Python v3.9)">datetime.datetime</a></p>
 </dd>
 </dl>
 </dd></dl>
 
 <dl class="py method">
 <dt id="pynetdicom.events.Event.__init__">
-<code class="sig-name descname">__init__</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">assoc</span></em>, <em class="sig-param"><span class="n">event</span></em>, <em class="sig-param"><span class="n">attrs</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/167f4f64/pynetdicom/events.py#L258"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom.events.Event.__init__" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">__init__</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">assoc</span></em>, <em class="sig-param"><span class="n">event</span></em>, <em class="sig-param"><span class="n">attrs</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/a3696152/pynetdicom/events.py#L258"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom.events.Event.__init__" title="Permalink to this definition">¶</a></dt>
 <dd><p>Create a new Event.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>assoc</strong> (<a class="reference internal" href="pynetdicom.association.Association.html#pynetdicom.association.Association" title="pynetdicom.association.Association"><em>association.Association</em></a>) – The association in which the event occurred.</p></li>
 <li><p><strong>event</strong> (<a class="reference internal" href="pynetdicom.events.NotificationEvent.html#pynetdicom.events.NotificationEvent" title="pynetdicom.events.NotificationEvent"><em>events.NotificationEvent</em></a><em> or </em><a class="reference internal" href="pynetdicom.events.InterventionEvent.html#pynetdicom.events.InterventionEvent" title="pynetdicom.events.InterventionEvent"><em>events.InterventionEvent</em></a>) – The representation of the event that occurred.</p></li>
-<li><p><strong>attrs</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.8)"><em>dict</em></a><em>, </em><em>optional</em>) – The <code class="docutils literal notranslate"><span class="pre">{attribute</span> <span class="pre">:</span> <span class="pre">value}</span></code> pairs to use to set the
+<li><p><strong>attrs</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.9)"><em>dict</em></a><em>, </em><em>optional</em>) – The <code class="docutils literal notranslate"><span class="pre">{attribute</span> <span class="pre">:</span> <span class="pre">value}</span></code> pairs to use to set the
 <a class="reference internal" href="#pynetdicom.events.Event" title="pynetdicom.events.Event"><code class="xref py py-class docutils literal notranslate"><span class="pre">Event</span></code></a>’s  attributes.</p></li>
 </ul>
 </dd>
@@ -290,46 +290,46 @@ the actual event that this object represents.</p>
 </colgroup>
 <tbody>
 <tr class="row-odd"><td><p><a class="reference internal" href="#pynetdicom.events.Event.action_information" title="pynetdicom.events.Event.action_information"><code class="xref py py-obj docutils literal notranslate"><span class="pre">action_information</span></code></a></p></td>
-<td><p>Return an N-ACTION request’s <cite>Action Information</cite> as a <em>pydicom</em> <a class="reference external" href="https://pydicom.github.io/pydicom/stable/reference/generated/pydicom.dataset.Dataset.html#pydicom.dataset.Dataset" title="(in pydicom v2.0.0)"><code class="xref py py-class docutils literal notranslate"><span class="pre">Dataset</span></code></a>.</p></td>
+<td><p>Return an N-ACTION request’s <cite>Action Information</cite> as a <em>pydicom</em> <a class="reference external" href="https://pydicom.github.io/pydicom/stable/reference/generated/pydicom.dataset.Dataset.html#pydicom.dataset.Dataset" title="(in pydicom v2.1.2)"><code class="xref py py-class docutils literal notranslate"><span class="pre">Dataset</span></code></a>.</p></td>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="#pynetdicom.events.Event.action_type" title="pynetdicom.events.Event.action_type"><code class="xref py py-obj docutils literal notranslate"><span class="pre">action_type</span></code></a></p></td>
-<td><p>Return an N-ACTION request’s <cite>Action Type ID</cite> as an <a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.8)"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></a>.</p></td>
+<td><p>Return an N-ACTION request’s <cite>Action Type ID</cite> as an <a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.9)"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></a>.</p></td>
 </tr>
 <tr class="row-odd"><td><p><a class="reference internal" href="#pynetdicom.events.Event.attribute_identifiers" title="pynetdicom.events.Event.attribute_identifiers"><code class="xref py py-obj docutils literal notranslate"><span class="pre">attribute_identifiers</span></code></a></p></td>
-<td><p>Return an N-GET request’s <cite>Attribute Identifier List</cite> as a <a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.8)"><code class="xref py py-class docutils literal notranslate"><span class="pre">list</span></code></a> of <em>pydicom</em> <a class="reference external" href="https://pydicom.github.io/pydicom/stable/reference/generated/pydicom.tag.BaseTag.html#pydicom.tag.BaseTag" title="(in pydicom v2.0.0)"><code class="xref py py-class docutils literal notranslate"><span class="pre">BaseTag</span></code></a>.</p></td>
+<td><p>Return an N-GET request’s <cite>Attribute Identifier List</cite> as a <a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.9)"><code class="xref py py-class docutils literal notranslate"><span class="pre">list</span></code></a> of <em>pydicom</em> <a class="reference external" href="https://pydicom.github.io/pydicom/stable/reference/generated/pydicom.tag.BaseTag.html#pydicom.tag.BaseTag" title="(in pydicom v2.1.2)"><code class="xref py py-class docutils literal notranslate"><span class="pre">BaseTag</span></code></a>.</p></td>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="#pynetdicom.events.Event.attribute_list" title="pynetdicom.events.Event.attribute_list"><code class="xref py py-obj docutils literal notranslate"><span class="pre">attribute_list</span></code></a></p></td>
-<td><p>Return an N-CREATE request’s <cite>Attribute List</cite> as a <em>pydicom</em> <a class="reference external" href="https://pydicom.github.io/pydicom/stable/reference/generated/pydicom.dataset.Dataset.html#pydicom.dataset.Dataset" title="(in pydicom v2.0.0)"><code class="xref py py-class docutils literal notranslate"><span class="pre">Dataset</span></code></a>.</p></td>
+<td><p>Return an N-CREATE request’s <cite>Attribute List</cite> as a <em>pydicom</em> <a class="reference external" href="https://pydicom.github.io/pydicom/stable/reference/generated/pydicom.dataset.Dataset.html#pydicom.dataset.Dataset" title="(in pydicom v2.1.2)"><code class="xref py py-class docutils literal notranslate"><span class="pre">Dataset</span></code></a>.</p></td>
 </tr>
 <tr class="row-odd"><td><p><a class="reference internal" href="#pynetdicom.events.Event.dataset" title="pynetdicom.events.Event.dataset"><code class="xref py py-obj docutils literal notranslate"><span class="pre">dataset</span></code></a></p></td>
-<td><p>Return a C-STORE request’s <cite>Data Set</cite> as a <em>pydicom</em> <a class="reference external" href="https://pydicom.github.io/pydicom/stable/reference/generated/pydicom.dataset.Dataset.html#pydicom.dataset.Dataset" title="(in pydicom v2.0.0)"><code class="xref py py-class docutils literal notranslate"><span class="pre">Dataset</span></code></a>.</p></td>
+<td><p>Return a C-STORE request’s <cite>Data Set</cite> as a <em>pydicom</em> <a class="reference external" href="https://pydicom.github.io/pydicom/stable/reference/generated/pydicom.dataset.Dataset.html#pydicom.dataset.Dataset" title="(in pydicom v2.1.2)"><code class="xref py py-class docutils literal notranslate"><span class="pre">Dataset</span></code></a>.</p></td>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="#id0" title="pynetdicom.events.Event.event"><code class="xref py py-obj docutils literal notranslate"><span class="pre">event</span></code></a></p></td>
 <td><p>Return the corresponding event.</p></td>
 </tr>
 <tr class="row-odd"><td><p><a class="reference internal" href="#pynetdicom.events.Event.event_information" title="pynetdicom.events.Event.event_information"><code class="xref py py-obj docutils literal notranslate"><span class="pre">event_information</span></code></a></p></td>
-<td><p>Return an N-EVENT-REPORT request’s <cite>Event Information</cite> as a <em>pydicom</em> <a class="reference external" href="https://pydicom.github.io/pydicom/stable/reference/generated/pydicom.dataset.Dataset.html#pydicom.dataset.Dataset" title="(in pydicom v2.0.0)"><code class="xref py py-class docutils literal notranslate"><span class="pre">Dataset</span></code></a>.</p></td>
+<td><p>Return an N-EVENT-REPORT request’s <cite>Event Information</cite> as a <em>pydicom</em> <a class="reference external" href="https://pydicom.github.io/pydicom/stable/reference/generated/pydicom.dataset.Dataset.html#pydicom.dataset.Dataset" title="(in pydicom v2.1.2)"><code class="xref py py-class docutils literal notranslate"><span class="pre">Dataset</span></code></a>.</p></td>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="#pynetdicom.events.Event.event_type" title="pynetdicom.events.Event.event_type"><code class="xref py py-obj docutils literal notranslate"><span class="pre">event_type</span></code></a></p></td>
-<td><p>Return an N-EVENT-REPORT request’s <cite>Event Type ID</cite> as an <a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.8)"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></a>.</p></td>
+<td><p>Return an N-EVENT-REPORT request’s <cite>Event Type ID</cite> as an <a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.9)"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></a>.</p></td>
 </tr>
 <tr class="row-odd"><td><p><a class="reference internal" href="#pynetdicom.events.Event.file_meta" title="pynetdicom.events.Event.file_meta"><code class="xref py py-obj docutils literal notranslate"><span class="pre">file_meta</span></code></a></p></td>
-<td><p>Return a <em>pydicom</em> <a class="reference external" href="https://pydicom.github.io/pydicom/stable/reference/generated/pydicom.dataset.Dataset.html#pydicom.dataset.Dataset" title="(in pydicom v2.0.0)"><code class="xref py py-class docutils literal notranslate"><span class="pre">Dataset</span></code></a> with the <a class="reference external" href="http://dicom.nema.org/medical/dicom/current/output/chtml/part10/chapter_7.html#sect_7.1">File Meta Information</a> for a C-STORE request’s <cite>Data Set</cite>.</p></td>
+<td><p>Return a <em>pydicom</em> <a class="reference external" href="https://pydicom.github.io/pydicom/stable/reference/generated/pydicom.dataset.Dataset.html#pydicom.dataset.Dataset" title="(in pydicom v2.1.2)"><code class="xref py py-class docutils literal notranslate"><span class="pre">Dataset</span></code></a> with the <a class="reference external" href="http://dicom.nema.org/medical/dicom/current/output/chtml/part10/chapter_7.html#sect_7.1">File Meta Information</a> for a C-STORE request’s <cite>Data Set</cite>.</p></td>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="#pynetdicom.events.Event.identifier" title="pynetdicom.events.Event.identifier"><code class="xref py py-obj docutils literal notranslate"><span class="pre">identifier</span></code></a></p></td>
-<td><p>Return a C-FIND, C-GET or C-MOVE request’s <cite>Identifier</cite> as a <em>pydicom</em> <a class="reference external" href="https://pydicom.github.io/pydicom/stable/reference/generated/pydicom.dataset.Dataset.html#pydicom.dataset.Dataset" title="(in pydicom v2.0.0)"><code class="xref py py-class docutils literal notranslate"><span class="pre">Dataset</span></code></a>.</p></td>
+<td><p>Return a C-FIND, C-GET or C-MOVE request’s <cite>Identifier</cite> as a <em>pydicom</em> <a class="reference external" href="https://pydicom.github.io/pydicom/stable/reference/generated/pydicom.dataset.Dataset.html#pydicom.dataset.Dataset" title="(in pydicom v2.1.2)"><code class="xref py py-class docutils literal notranslate"><span class="pre">Dataset</span></code></a>.</p></td>
 </tr>
 <tr class="row-odd"><td><p><a class="reference internal" href="#pynetdicom.events.Event.is_cancelled" title="pynetdicom.events.Event.is_cancelled"><code class="xref py py-obj docutils literal notranslate"><span class="pre">is_cancelled</span></code></a></p></td>
 <td><p>Return <code class="docutils literal notranslate"><span class="pre">True</span></code> if a C-CANCEL request has been received.</p></td>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="#pynetdicom.events.Event.message_id" title="pynetdicom.events.Event.message_id"><code class="xref py py-obj docutils literal notranslate"><span class="pre">message_id</span></code></a></p></td>
-<td><p>Return a DIMSE service request’s <cite>Message ID</cite> as <a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.8)"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></a>.</p></td>
+<td><p>Return a DIMSE service request’s <cite>Message ID</cite> as <a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.9)"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></a>.</p></td>
 </tr>
 <tr class="row-odd"><td><p><a class="reference internal" href="#pynetdicom.events.Event.modification_list" title="pynetdicom.events.Event.modification_list"><code class="xref py py-obj docutils literal notranslate"><span class="pre">modification_list</span></code></a></p></td>
-<td><p>Return an N-SET request’s <cite>Modification List</cite> as a <em>pydicom</em> <a class="reference external" href="https://pydicom.github.io/pydicom/stable/reference/generated/pydicom.dataset.Dataset.html#pydicom.dataset.Dataset" title="(in pydicom v2.0.0)"><code class="xref py py-class docutils literal notranslate"><span class="pre">Dataset</span></code></a>.</p></td>
+<td><p>Return an N-SET request’s <cite>Modification List</cite> as a <em>pydicom</em> <a class="reference external" href="https://pydicom.github.io/pydicom/stable/reference/generated/pydicom.dataset.Dataset.html#pydicom.dataset.Dataset" title="(in pydicom v2.1.2)"><code class="xref py py-class docutils literal notranslate"><span class="pre">Dataset</span></code></a>.</p></td>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="#pynetdicom.events.Event.move_destination" title="pynetdicom.events.Event.move_destination"><code class="xref py py-obj docutils literal notranslate"><span class="pre">move_destination</span></code></a></p></td>
-<td><p>Return a C-MOVE request’s <cite>Move Destination</cite> as <a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#bytes" title="(in Python v3.8)"><code class="xref py py-class docutils literal notranslate"><span class="pre">bytes</span></code></a>.</p></td>
+<td><p>Return a C-MOVE request’s <cite>Move Destination</cite> as <a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#bytes" title="(in Python v3.9)"><code class="xref py py-class docutils literal notranslate"><span class="pre">bytes</span></code></a>.</p></td>
 </tr>
 </tbody>
 </table>
@@ -337,21 +337,21 @@ the actual event that this object represents.</p>
 <dt id="pynetdicom.events.Event.action_information">
 <em class="property">property </em><code class="sig-name descname">action_information</code><a class="headerlink" href="#pynetdicom.events.Event.action_information" title="Permalink to this definition">¶</a></dt>
 <dd><p>Return an N-ACTION request’s <cite>Action Information</cite> as a <em>pydicom</em>
-<a class="reference external" href="https://pydicom.github.io/pydicom/stable/reference/generated/pydicom.dataset.Dataset.html#pydicom.dataset.Dataset" title="(in pydicom v2.0.0)"><code class="xref py py-class docutils literal notranslate"><span class="pre">Dataset</span></code></a>.</p>
+<a class="reference external" href="https://pydicom.github.io/pydicom/stable/reference/generated/pydicom.dataset.Dataset.html#pydicom.dataset.Dataset" title="(in pydicom v2.1.2)"><code class="xref py py-class docutils literal notranslate"><span class="pre">Dataset</span></code></a>.</p>
 <p>Because <em>pydicom</em> defers data parsing during decoding until an element
-is actually required the returned <a class="reference external" href="https://pydicom.github.io/pydicom/stable/reference/generated/pydicom.dataset.Dataset.html#pydicom.dataset.Dataset" title="(in pydicom v2.0.0)"><code class="xref py py-class docutils literal notranslate"><span class="pre">Dataset</span></code></a>
+is actually required the returned <a class="reference external" href="https://pydicom.github.io/pydicom/stable/reference/generated/pydicom.dataset.Dataset.html#pydicom.dataset.Dataset" title="(in pydicom v2.1.2)"><code class="xref py py-class docutils literal notranslate"><span class="pre">Dataset</span></code></a>
 may raise an exception when any element is first accessed. It’s
 therefore important that proper error handling be part of any handler
-that uses the returned <a class="reference external" href="https://pydicom.github.io/pydicom/stable/reference/generated/pydicom.dataset.Dataset.html#pydicom.dataset.Dataset" title="(in pydicom v2.0.0)"><code class="xref py py-class docutils literal notranslate"><span class="pre">Dataset</span></code></a>.</p>
+that uses the returned <a class="reference external" href="https://pydicom.github.io/pydicom/stable/reference/generated/pydicom.dataset.Dataset.html#pydicom.dataset.Dataset" title="(in pydicom v2.1.2)"><code class="xref py py-class docutils literal notranslate"><span class="pre">Dataset</span></code></a>.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Returns</dt>
 <dd class="field-odd"><p>The decoded <em>Action Information</em> dataset.</p>
 </dd>
 <dt class="field-even">Return type</dt>
-<dd class="field-even"><p><a class="reference external" href="https://pydicom.github.io/pydicom/stable/reference/generated/pydicom.dataset.Dataset.html#pydicom.dataset.Dataset" title="(in pydicom v2.0.0)">pydicom.dataset.Dataset</a></p>
+<dd class="field-even"><p><a class="reference external" href="https://pydicom.github.io/pydicom/stable/reference/generated/pydicom.dataset.Dataset.html#pydicom.dataset.Dataset" title="(in pydicom v2.1.2)">pydicom.dataset.Dataset</a></p>
 </dd>
 <dt class="field-odd">Raises</dt>
-<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/exceptions.html#AttributeError" title="(in Python v3.8)"><strong>AttributeError</strong></a> – If the corresponding event is not an N-ACTION request.</p>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/exceptions.html#AttributeError" title="(in Python v3.9)"><strong>AttributeError</strong></a> – If the corresponding event is not an N-ACTION request.</p>
 </dd>
 </dl>
 </dd></dl>
@@ -359,7 +359,7 @@ that uses the returned <a class="reference external" href="https://pydicom.githu
 <dl class="py method">
 <dt id="pynetdicom.events.Event.action_type">
 <em class="property">property </em><code class="sig-name descname">action_type</code><a class="headerlink" href="#pynetdicom.events.Event.action_type" title="Permalink to this definition">¶</a></dt>
-<dd><p>Return an N-ACTION request’s <cite>Action Type ID</cite> as an <a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.8)"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></a>.</p>
+<dd><p>Return an N-ACTION request’s <cite>Action Type ID</cite> as an <a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.9)"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></a>.</p>
 <div class="versionadded">
 <p><span class="versionmodified added">New in version 1.4.</span></p>
 </div>
@@ -368,10 +368,10 @@ that uses the returned <a class="reference external" href="https://pydicom.githu
 <dd class="field-odd"><p>The request’s (0000,1008) <em>Action Type ID</em> value.</p>
 </dd>
 <dt class="field-even">Return type</dt>
-<dd class="field-even"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.8)">int</a></p>
+<dd class="field-even"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.9)">int</a></p>
 </dd>
 <dt class="field-odd">Raises</dt>
-<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/exceptions.html#AttributeError" title="(in Python v3.8)"><strong>AttributeError</strong></a> – If the corresponding event is not an N-ACTION request.</p>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/exceptions.html#AttributeError" title="(in Python v3.9)"><strong>AttributeError</strong></a> – If the corresponding event is not an N-ACTION request.</p>
 </dd>
 </dl>
 </dd></dl>
@@ -380,7 +380,7 @@ that uses the returned <a class="reference external" href="https://pydicom.githu
 <dt id="pynetdicom.events.Event.attribute_identifiers">
 <em class="property">property </em><code class="sig-name descname">attribute_identifiers</code><a class="headerlink" href="#pynetdicom.events.Event.attribute_identifiers" title="Permalink to this definition">¶</a></dt>
 <dd><p>Return an N-GET request’s <cite>Attribute Identifier List</cite> as a
-<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.8)"><code class="xref py py-class docutils literal notranslate"><span class="pre">list</span></code></a> of <em>pydicom</em> <a class="reference external" href="https://pydicom.github.io/pydicom/stable/reference/generated/pydicom.tag.BaseTag.html#pydicom.tag.BaseTag" title="(in pydicom v2.0.0)"><code class="xref py py-class docutils literal notranslate"><span class="pre">BaseTag</span></code></a>.</p>
+<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.9)"><code class="xref py py-class docutils literal notranslate"><span class="pre">list</span></code></a> of <em>pydicom</em> <a class="reference external" href="https://pydicom.github.io/pydicom/stable/reference/generated/pydicom.tag.BaseTag.html#pydicom.tag.BaseTag" title="(in pydicom v2.1.2)"><code class="xref py py-class docutils literal notranslate"><span class="pre">BaseTag</span></code></a>.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Returns</dt>
 <dd class="field-odd"><p>The (0000,1005) <em>Attribute Identifier List</em> tags, may be an empty
@@ -391,7 +391,7 @@ request.</p>
 <dd class="field-even"><p>list of pydicom.tag.BaseTag</p>
 </dd>
 <dt class="field-odd">Raises</dt>
-<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/exceptions.html#AttributeError" title="(in Python v3.8)"><strong>AttributeError</strong></a> – If the corresponding event is not an N-GET request.</p>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/exceptions.html#AttributeError" title="(in Python v3.9)"><strong>AttributeError</strong></a> – If the corresponding event is not an N-GET request.</p>
 </dd>
 </dl>
 </dd></dl>
@@ -400,21 +400,21 @@ request.</p>
 <dt id="pynetdicom.events.Event.attribute_list">
 <em class="property">property </em><code class="sig-name descname">attribute_list</code><a class="headerlink" href="#pynetdicom.events.Event.attribute_list" title="Permalink to this definition">¶</a></dt>
 <dd><p>Return an N-CREATE request’s <cite>Attribute List</cite> as a <em>pydicom</em>
-<a class="reference external" href="https://pydicom.github.io/pydicom/stable/reference/generated/pydicom.dataset.Dataset.html#pydicom.dataset.Dataset" title="(in pydicom v2.0.0)"><code class="xref py py-class docutils literal notranslate"><span class="pre">Dataset</span></code></a>.</p>
+<a class="reference external" href="https://pydicom.github.io/pydicom/stable/reference/generated/pydicom.dataset.Dataset.html#pydicom.dataset.Dataset" title="(in pydicom v2.1.2)"><code class="xref py py-class docutils literal notranslate"><span class="pre">Dataset</span></code></a>.</p>
 <p>Because <em>pydicom</em> defers data parsing during decoding until an element
-is actually required the returned <a class="reference external" href="https://pydicom.github.io/pydicom/stable/reference/generated/pydicom.dataset.Dataset.html#pydicom.dataset.Dataset" title="(in pydicom v2.0.0)"><code class="xref py py-class docutils literal notranslate"><span class="pre">Dataset</span></code></a>
+is actually required the returned <a class="reference external" href="https://pydicom.github.io/pydicom/stable/reference/generated/pydicom.dataset.Dataset.html#pydicom.dataset.Dataset" title="(in pydicom v2.1.2)"><code class="xref py py-class docutils literal notranslate"><span class="pre">Dataset</span></code></a>
 may raise an exception when any element is first accessed. It’s
 therefore important that proper error handling be part of any handler
-that uses the returned <a class="reference external" href="https://pydicom.github.io/pydicom/stable/reference/generated/pydicom.dataset.Dataset.html#pydicom.dataset.Dataset" title="(in pydicom v2.0.0)"><code class="xref py py-class docutils literal notranslate"><span class="pre">Dataset</span></code></a>.</p>
+that uses the returned <a class="reference external" href="https://pydicom.github.io/pydicom/stable/reference/generated/pydicom.dataset.Dataset.html#pydicom.dataset.Dataset" title="(in pydicom v2.1.2)"><code class="xref py py-class docutils literal notranslate"><span class="pre">Dataset</span></code></a>.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Returns</dt>
 <dd class="field-odd"><p>The decoded <em>Attribute List</em> dataset.</p>
 </dd>
 <dt class="field-even">Return type</dt>
-<dd class="field-even"><p><a class="reference external" href="https://pydicom.github.io/pydicom/stable/reference/generated/pydicom.dataset.Dataset.html#pydicom.dataset.Dataset" title="(in pydicom v2.0.0)">pydicom.dataset.Dataset</a></p>
+<dd class="field-even"><p><a class="reference external" href="https://pydicom.github.io/pydicom/stable/reference/generated/pydicom.dataset.Dataset.html#pydicom.dataset.Dataset" title="(in pydicom v2.1.2)">pydicom.dataset.Dataset</a></p>
 </dd>
 <dt class="field-odd">Raises</dt>
-<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/exceptions.html#AttributeError" title="(in Python v3.8)"><strong>AttributeError</strong></a> – If the corresponding event is not an N-CREATE request.</p>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/exceptions.html#AttributeError" title="(in Python v3.9)"><strong>AttributeError</strong></a> – If the corresponding event is not an N-CREATE request.</p>
 </dd>
 </dl>
 </dd></dl>
@@ -423,21 +423,21 @@ that uses the returned <a class="reference external" href="https://pydicom.githu
 <dt id="pynetdicom.events.Event.dataset">
 <em class="property">property </em><code class="sig-name descname">dataset</code><a class="headerlink" href="#pynetdicom.events.Event.dataset" title="Permalink to this definition">¶</a></dt>
 <dd><p>Return a C-STORE request’s <cite>Data Set</cite> as a <em>pydicom</em>
-<a class="reference external" href="https://pydicom.github.io/pydicom/stable/reference/generated/pydicom.dataset.Dataset.html#pydicom.dataset.Dataset" title="(in pydicom v2.0.0)"><code class="xref py py-class docutils literal notranslate"><span class="pre">Dataset</span></code></a>.</p>
+<a class="reference external" href="https://pydicom.github.io/pydicom/stable/reference/generated/pydicom.dataset.Dataset.html#pydicom.dataset.Dataset" title="(in pydicom v2.1.2)"><code class="xref py py-class docutils literal notranslate"><span class="pre">Dataset</span></code></a>.</p>
 <p>Because <em>pydicom</em> defers data parsing during decoding until an element
-is actually required the returned <a class="reference external" href="https://pydicom.github.io/pydicom/stable/reference/generated/pydicom.dataset.Dataset.html#pydicom.dataset.Dataset" title="(in pydicom v2.0.0)"><code class="xref py py-class docutils literal notranslate"><span class="pre">Dataset</span></code></a>
+is actually required the returned <a class="reference external" href="https://pydicom.github.io/pydicom/stable/reference/generated/pydicom.dataset.Dataset.html#pydicom.dataset.Dataset" title="(in pydicom v2.1.2)"><code class="xref py py-class docutils literal notranslate"><span class="pre">Dataset</span></code></a>
 may raise an exception when any element is first accessed. It’s
 therefore important that proper error handling be part of any handler
-that uses the returned <a class="reference external" href="https://pydicom.github.io/pydicom/stable/reference/generated/pydicom.dataset.Dataset.html#pydicom.dataset.Dataset" title="(in pydicom v2.0.0)"><code class="xref py py-class docutils literal notranslate"><span class="pre">Dataset</span></code></a>.</p>
+that uses the returned <a class="reference external" href="https://pydicom.github.io/pydicom/stable/reference/generated/pydicom.dataset.Dataset.html#pydicom.dataset.Dataset" title="(in pydicom v2.1.2)"><code class="xref py py-class docutils literal notranslate"><span class="pre">Dataset</span></code></a>.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Returns</dt>
 <dd class="field-odd"><p>The decoded <em>Data Set</em> dataset.</p>
 </dd>
 <dt class="field-even">Return type</dt>
-<dd class="field-even"><p><a class="reference external" href="https://pydicom.github.io/pydicom/stable/reference/generated/pydicom.dataset.Dataset.html#pydicom.dataset.Dataset" title="(in pydicom v2.0.0)">pydicom.dataset.Dataset</a></p>
+<dd class="field-even"><p><a class="reference external" href="https://pydicom.github.io/pydicom/stable/reference/generated/pydicom.dataset.Dataset.html#pydicom.dataset.Dataset" title="(in pydicom v2.1.2)">pydicom.dataset.Dataset</a></p>
 </dd>
 <dt class="field-odd">Raises</dt>
-<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/exceptions.html#AttributeError" title="(in Python v3.8)"><strong>AttributeError</strong></a> – If the corresponding event is not a C-STORE request.</p>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/exceptions.html#AttributeError" title="(in Python v3.9)"><strong>AttributeError</strong></a> – If the corresponding event is not a C-STORE request.</p>
 </dd>
 </dl>
 </dd></dl>
@@ -452,7 +452,7 @@ that uses the returned <a class="reference external" href="https://pydicom.githu
 <dl class="field-list simple">
 <dt class="field-odd">Returns</dt>
 <dd class="field-odd"><p>The corresponding event as a
-<a class="reference external" href="https://docs.python.org/3/library/collections.html#collections.namedtuple" title="(in Python v3.8)"><code class="xref py py-func docutils literal notranslate"><span class="pre">namedtuple</span></code></a>.</p>
+<a class="reference external" href="https://docs.python.org/3/library/collections.html#collections.namedtuple" title="(in Python v3.9)"><code class="xref py py-func docutils literal notranslate"><span class="pre">namedtuple</span></code></a>.</p>
 </dd>
 <dt class="field-even">Return type</dt>
 <dd class="field-even"><p><a class="reference internal" href="pynetdicom.events.InterventionEvent.html#pynetdicom.events.InterventionEvent" title="pynetdicom.events.InterventionEvent">events.InterventionEvent</a> or <a class="reference internal" href="pynetdicom.events.NotificationEvent.html#pynetdicom.events.NotificationEvent" title="pynetdicom.events.NotificationEvent">events.NotificationEvent</a></p>
@@ -464,21 +464,21 @@ that uses the returned <a class="reference external" href="https://pydicom.githu
 <dt id="pynetdicom.events.Event.event_information">
 <em class="property">property </em><code class="sig-name descname">event_information</code><a class="headerlink" href="#pynetdicom.events.Event.event_information" title="Permalink to this definition">¶</a></dt>
 <dd><p>Return an N-EVENT-REPORT request’s <cite>Event Information</cite> as a
-<em>pydicom</em> <a class="reference external" href="https://pydicom.github.io/pydicom/stable/reference/generated/pydicom.dataset.Dataset.html#pydicom.dataset.Dataset" title="(in pydicom v2.0.0)"><code class="xref py py-class docutils literal notranslate"><span class="pre">Dataset</span></code></a>.</p>
+<em>pydicom</em> <a class="reference external" href="https://pydicom.github.io/pydicom/stable/reference/generated/pydicom.dataset.Dataset.html#pydicom.dataset.Dataset" title="(in pydicom v2.1.2)"><code class="xref py py-class docutils literal notranslate"><span class="pre">Dataset</span></code></a>.</p>
 <p>Because <em>pydicom</em> defers data parsing during decoding until an element
-is actually required the returned <a class="reference external" href="https://pydicom.github.io/pydicom/stable/reference/generated/pydicom.dataset.Dataset.html#pydicom.dataset.Dataset" title="(in pydicom v2.0.0)"><code class="xref py py-class docutils literal notranslate"><span class="pre">Dataset</span></code></a>
+is actually required the returned <a class="reference external" href="https://pydicom.github.io/pydicom/stable/reference/generated/pydicom.dataset.Dataset.html#pydicom.dataset.Dataset" title="(in pydicom v2.1.2)"><code class="xref py py-class docutils literal notranslate"><span class="pre">Dataset</span></code></a>
 may raise an exception when any element is first accessed. It’s
 therefore important that proper error handling be part of any handler
-that uses the returned <a class="reference external" href="https://pydicom.github.io/pydicom/stable/reference/generated/pydicom.dataset.Dataset.html#pydicom.dataset.Dataset" title="(in pydicom v2.0.0)"><code class="xref py py-class docutils literal notranslate"><span class="pre">Dataset</span></code></a>.</p>
+that uses the returned <a class="reference external" href="https://pydicom.github.io/pydicom/stable/reference/generated/pydicom.dataset.Dataset.html#pydicom.dataset.Dataset" title="(in pydicom v2.1.2)"><code class="xref py py-class docutils literal notranslate"><span class="pre">Dataset</span></code></a>.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Returns</dt>
 <dd class="field-odd"><p>The decoded <em>Event Information</em> dataset.</p>
 </dd>
 <dt class="field-even">Return type</dt>
-<dd class="field-even"><p><a class="reference external" href="https://pydicom.github.io/pydicom/stable/reference/generated/pydicom.dataset.Dataset.html#pydicom.dataset.Dataset" title="(in pydicom v2.0.0)">pydicom.dataset.Dataset</a></p>
+<dd class="field-even"><p><a class="reference external" href="https://pydicom.github.io/pydicom/stable/reference/generated/pydicom.dataset.Dataset.html#pydicom.dataset.Dataset" title="(in pydicom v2.1.2)">pydicom.dataset.Dataset</a></p>
 </dd>
 <dt class="field-odd">Raises</dt>
-<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/exceptions.html#AttributeError" title="(in Python v3.8)"><strong>AttributeError</strong></a> – If the corresponding event is not an N-EVENT-REPORT request.</p>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/exceptions.html#AttributeError" title="(in Python v3.9)"><strong>AttributeError</strong></a> – If the corresponding event is not an N-EVENT-REPORT request.</p>
 </dd>
 </dl>
 </dd></dl>
@@ -487,7 +487,7 @@ that uses the returned <a class="reference external" href="https://pydicom.githu
 <dt id="pynetdicom.events.Event.event_type">
 <em class="property">property </em><code class="sig-name descname">event_type</code><a class="headerlink" href="#pynetdicom.events.Event.event_type" title="Permalink to this definition">¶</a></dt>
 <dd><p>Return an N-EVENT-REPORT request’s <cite>Event Type ID</cite> as an
-<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.8)"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></a>.</p>
+<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.9)"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></a>.</p>
 <div class="versionadded">
 <p><span class="versionmodified added">New in version 1.4.</span></p>
 </div>
@@ -496,10 +496,10 @@ that uses the returned <a class="reference external" href="https://pydicom.githu
 <dd class="field-odd"><p>The request’s (0000,1002) <em>Event Type ID</em> value.</p>
 </dd>
 <dt class="field-even">Return type</dt>
-<dd class="field-even"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.8)">int</a></p>
+<dd class="field-even"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.9)">int</a></p>
 </dd>
 <dt class="field-odd">Raises</dt>
-<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/exceptions.html#AttributeError" title="(in Python v3.8)"><strong>AttributeError</strong></a> – If the corresponding event is not an N-EVENT-REPORT request.</p>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/exceptions.html#AttributeError" title="(in Python v3.9)"><strong>AttributeError</strong></a> – If the corresponding event is not an N-EVENT-REPORT request.</p>
 </dd>
 </dl>
 </dd></dl>
@@ -507,7 +507,7 @@ that uses the returned <a class="reference external" href="https://pydicom.githu
 <dl class="py method">
 <dt id="pynetdicom.events.Event.file_meta">
 <em class="property">property </em><code class="sig-name descname">file_meta</code><a class="headerlink" href="#pynetdicom.events.Event.file_meta" title="Permalink to this definition">¶</a></dt>
-<dd><p>Return a <em>pydicom</em> <a class="reference external" href="https://pydicom.github.io/pydicom/stable/reference/generated/pydicom.dataset.Dataset.html#pydicom.dataset.Dataset" title="(in pydicom v2.0.0)"><code class="xref py py-class docutils literal notranslate"><span class="pre">Dataset</span></code></a> with the
+<dd><p>Return a <em>pydicom</em> <a class="reference external" href="https://pydicom.github.io/pydicom/stable/reference/generated/pydicom.dataset.Dataset.html#pydicom.dataset.Dataset" title="(in pydicom v2.1.2)"><code class="xref py py-class docutils literal notranslate"><span class="pre">Dataset</span></code></a> with the
 <a class="reference external" href="http://dicom.nema.org/medical/dicom/current/output/chtml/part10/chapter_7.html#sect_7.1">File Meta Information</a> for a
 C-STORE request’s <cite>Data Set</cite>.</p>
 <p>Contains the following File Meta Information elements:</p>
@@ -551,10 +551,10 @@ as in the previous example.</p>
 request’s <em>Data Set</em>.</p>
 </dd>
 <dt class="field-even">Return type</dt>
-<dd class="field-even"><p><a class="reference external" href="https://pydicom.github.io/pydicom/stable/reference/generated/pydicom.dataset.Dataset.html#pydicom.dataset.Dataset" title="(in pydicom v2.0.0)">pydicom.dataset.Dataset</a></p>
+<dd class="field-even"><p><a class="reference external" href="https://pydicom.github.io/pydicom/stable/reference/generated/pydicom.dataset.Dataset.html#pydicom.dataset.Dataset" title="(in pydicom v2.1.2)">pydicom.dataset.Dataset</a></p>
 </dd>
 <dt class="field-odd">Raises</dt>
-<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/exceptions.html#AttributeError" title="(in Python v3.8)"><strong>AttributeError</strong></a> – If the corresponding event is not a C-STORE request.</p>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/exceptions.html#AttributeError" title="(in Python v3.9)"><strong>AttributeError</strong></a> – If the corresponding event is not a C-STORE request.</p>
 </dd>
 </dl>
 </dd></dl>
@@ -563,21 +563,21 @@ request’s <em>Data Set</em>.</p>
 <dt id="pynetdicom.events.Event.identifier">
 <em class="property">property </em><code class="sig-name descname">identifier</code><a class="headerlink" href="#pynetdicom.events.Event.identifier" title="Permalink to this definition">¶</a></dt>
 <dd><p>Return a C-FIND, C-GET or C-MOVE request’s <cite>Identifier</cite> as a
-<em>pydicom</em> <a class="reference external" href="https://pydicom.github.io/pydicom/stable/reference/generated/pydicom.dataset.Dataset.html#pydicom.dataset.Dataset" title="(in pydicom v2.0.0)"><code class="xref py py-class docutils literal notranslate"><span class="pre">Dataset</span></code></a>.</p>
+<em>pydicom</em> <a class="reference external" href="https://pydicom.github.io/pydicom/stable/reference/generated/pydicom.dataset.Dataset.html#pydicom.dataset.Dataset" title="(in pydicom v2.1.2)"><code class="xref py py-class docutils literal notranslate"><span class="pre">Dataset</span></code></a>.</p>
 <p>Because <em>pydicom</em> defers data parsing during decoding until an element
-is actually required the returned <a class="reference external" href="https://pydicom.github.io/pydicom/stable/reference/generated/pydicom.dataset.Dataset.html#pydicom.dataset.Dataset" title="(in pydicom v2.0.0)"><code class="xref py py-class docutils literal notranslate"><span class="pre">Dataset</span></code></a>
+is actually required the returned <a class="reference external" href="https://pydicom.github.io/pydicom/stable/reference/generated/pydicom.dataset.Dataset.html#pydicom.dataset.Dataset" title="(in pydicom v2.1.2)"><code class="xref py py-class docutils literal notranslate"><span class="pre">Dataset</span></code></a>
 may raise an exception when any element is first accessed. It’s
 therefore important that proper error handling be part of any handler
-that uses the returned <a class="reference external" href="https://pydicom.github.io/pydicom/stable/reference/generated/pydicom.dataset.Dataset.html#pydicom.dataset.Dataset" title="(in pydicom v2.0.0)"><code class="xref py py-class docutils literal notranslate"><span class="pre">Dataset</span></code></a>.</p>
+that uses the returned <a class="reference external" href="https://pydicom.github.io/pydicom/stable/reference/generated/pydicom.dataset.Dataset.html#pydicom.dataset.Dataset" title="(in pydicom v2.1.2)"><code class="xref py py-class docutils literal notranslate"><span class="pre">Dataset</span></code></a>.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Returns</dt>
 <dd class="field-odd"><p>The decoded <em>Identifier</em> dataset.</p>
 </dd>
 <dt class="field-even">Return type</dt>
-<dd class="field-even"><p><a class="reference external" href="https://pydicom.github.io/pydicom/stable/reference/generated/pydicom.dataset.Dataset.html#pydicom.dataset.Dataset" title="(in pydicom v2.0.0)">pydicom.dataset.Dataset</a></p>
+<dd class="field-even"><p><a class="reference external" href="https://pydicom.github.io/pydicom/stable/reference/generated/pydicom.dataset.Dataset.html#pydicom.dataset.Dataset" title="(in pydicom v2.1.2)">pydicom.dataset.Dataset</a></p>
 </dd>
 <dt class="field-odd">Raises</dt>
-<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/exceptions.html#AttributeError" title="(in Python v3.8)"><strong>AttributeError</strong></a> – If the corresponding event is not a C-FIND, C-GET or C-MOVE
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/exceptions.html#AttributeError" title="(in Python v3.9)"><strong>AttributeError</strong></a> – If the corresponding event is not a C-FIND, C-GET or C-MOVE
     request.</p>
 </dd>
 </dl>
@@ -598,7 +598,7 @@ the event is not a C-FIND, C-GET or C-MOVE request then returns
 <code class="docutils literal notranslate"><span class="pre">False</span></code>.</p>
 </dd>
 <dt class="field-even">Return type</dt>
-<dd class="field-even"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.8)">bool</a></p>
+<dd class="field-even"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.9)">bool</a></p>
 </dd>
 </dl>
 </dd></dl>
@@ -606,7 +606,7 @@ the event is not a C-FIND, C-GET or C-MOVE request then returns
 <dl class="py method">
 <dt id="pynetdicom.events.Event.message_id">
 <em class="property">property </em><code class="sig-name descname">message_id</code><a class="headerlink" href="#pynetdicom.events.Event.message_id" title="Permalink to this definition">¶</a></dt>
-<dd><p>Return a DIMSE service request’s <cite>Message ID</cite> as <a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.8)"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></a>.</p>
+<dd><p>Return a DIMSE service request’s <cite>Message ID</cite> as <a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.9)"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></a>.</p>
 <div class="versionadded">
 <p><span class="versionmodified added">New in version 1.5.</span></p>
 </div>
@@ -615,10 +615,10 @@ the event is not a C-FIND, C-GET or C-MOVE request then returns
 <dd class="field-odd"><p>The request’s (0000,0110) <em>Message ID</em> value.</p>
 </dd>
 <dt class="field-even">Return type</dt>
-<dd class="field-even"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.8)">int</a></p>
+<dd class="field-even"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.9)">int</a></p>
 </dd>
 <dt class="field-odd">Raises</dt>
-<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/exceptions.html#AttributeError" title="(in Python v3.8)"><strong>AttributeError</strong></a> – If the corresponding event is not one of the DIMSE service
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/exceptions.html#AttributeError" title="(in Python v3.9)"><strong>AttributeError</strong></a> – If the corresponding event is not one of the DIMSE service
     requests.</p>
 </dd>
 </dl>
@@ -628,21 +628,21 @@ the event is not a C-FIND, C-GET or C-MOVE request then returns
 <dt id="pynetdicom.events.Event.modification_list">
 <em class="property">property </em><code class="sig-name descname">modification_list</code><a class="headerlink" href="#pynetdicom.events.Event.modification_list" title="Permalink to this definition">¶</a></dt>
 <dd><p>Return an N-SET request’s <cite>Modification List</cite> as a <em>pydicom</em>
-<a class="reference external" href="https://pydicom.github.io/pydicom/stable/reference/generated/pydicom.dataset.Dataset.html#pydicom.dataset.Dataset" title="(in pydicom v2.0.0)"><code class="xref py py-class docutils literal notranslate"><span class="pre">Dataset</span></code></a>.</p>
+<a class="reference external" href="https://pydicom.github.io/pydicom/stable/reference/generated/pydicom.dataset.Dataset.html#pydicom.dataset.Dataset" title="(in pydicom v2.1.2)"><code class="xref py py-class docutils literal notranslate"><span class="pre">Dataset</span></code></a>.</p>
 <p>Because <em>pydicom</em> defers data parsing during decoding until an element
-is actually required the returned <a class="reference external" href="https://pydicom.github.io/pydicom/stable/reference/generated/pydicom.dataset.Dataset.html#pydicom.dataset.Dataset" title="(in pydicom v2.0.0)"><code class="xref py py-class docutils literal notranslate"><span class="pre">Dataset</span></code></a>
+is actually required the returned <a class="reference external" href="https://pydicom.github.io/pydicom/stable/reference/generated/pydicom.dataset.Dataset.html#pydicom.dataset.Dataset" title="(in pydicom v2.1.2)"><code class="xref py py-class docutils literal notranslate"><span class="pre">Dataset</span></code></a>
 may raise an exception when any element is first accessed. It’s
 therefore important that proper error handling be part of any handler
-that uses the returned <a class="reference external" href="https://pydicom.github.io/pydicom/stable/reference/generated/pydicom.dataset.Dataset.html#pydicom.dataset.Dataset" title="(in pydicom v2.0.0)"><code class="xref py py-class docutils literal notranslate"><span class="pre">Dataset</span></code></a>.</p>
+that uses the returned <a class="reference external" href="https://pydicom.github.io/pydicom/stable/reference/generated/pydicom.dataset.Dataset.html#pydicom.dataset.Dataset" title="(in pydicom v2.1.2)"><code class="xref py py-class docutils literal notranslate"><span class="pre">Dataset</span></code></a>.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Returns</dt>
 <dd class="field-odd"><p>The decoded <em>Modification List</em> dataset.</p>
 </dd>
 <dt class="field-even">Return type</dt>
-<dd class="field-even"><p><a class="reference external" href="https://pydicom.github.io/pydicom/stable/reference/generated/pydicom.dataset.Dataset.html#pydicom.dataset.Dataset" title="(in pydicom v2.0.0)">pydicom.dataset.Dataset</a></p>
+<dd class="field-even"><p><a class="reference external" href="https://pydicom.github.io/pydicom/stable/reference/generated/pydicom.dataset.Dataset.html#pydicom.dataset.Dataset" title="(in pydicom v2.1.2)">pydicom.dataset.Dataset</a></p>
 </dd>
 <dt class="field-odd">Raises</dt>
-<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/exceptions.html#AttributeError" title="(in Python v3.8)"><strong>AttributeError</strong></a> – If the corresponding event is not an N-SET request.</p>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/exceptions.html#AttributeError" title="(in Python v3.9)"><strong>AttributeError</strong></a> – If the corresponding event is not an N-SET request.</p>
 </dd>
 </dl>
 </dd></dl>
@@ -650,7 +650,7 @@ that uses the returned <a class="reference external" href="https://pydicom.githu
 <dl class="py method">
 <dt id="pynetdicom.events.Event.move_destination">
 <em class="property">property </em><code class="sig-name descname">move_destination</code><a class="headerlink" href="#pynetdicom.events.Event.move_destination" title="Permalink to this definition">¶</a></dt>
-<dd><p>Return a C-MOVE request’s <cite>Move Destination</cite> as <a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#bytes" title="(in Python v3.8)"><code class="xref py py-class docutils literal notranslate"><span class="pre">bytes</span></code></a>.</p>
+<dd><p>Return a C-MOVE request’s <cite>Move Destination</cite> as <a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#bytes" title="(in Python v3.9)"><code class="xref py py-class docutils literal notranslate"><span class="pre">bytes</span></code></a>.</p>
 <div class="versionadded">
 <p><span class="versionmodified added">New in version 1.4.</span></p>
 </div>
@@ -660,10 +660,10 @@ that uses the returned <a class="reference external" href="https://pydicom.githu
 bytes (including trailing spaces as padding if required).</p>
 </dd>
 <dt class="field-even">Return type</dt>
-<dd class="field-even"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#bytes" title="(in Python v3.8)">bytes</a></p>
+<dd class="field-even"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#bytes" title="(in Python v3.9)">bytes</a></p>
 </dd>
 <dt class="field-odd">Raises</dt>
-<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/exceptions.html#AttributeError" title="(in Python v3.8)"><strong>AttributeError</strong></a> – If the corresponding event is not a C-MOVE request.</p>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/exceptions.html#AttributeError" title="(in Python v3.9)"><strong>AttributeError</strong></a> – If the corresponding event is not a C-MOVE request.</p>
 </dd>
 </dl>
 </dd></dl>

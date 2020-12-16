@@ -7,7 +7,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>pynetdicom.pdu_primitives.UserIdentityNegotiation &mdash; pynetdicom 1.5.3 documentation</title>
+  <title>pynetdicom.pdu_primitives.UserIdentityNegotiation &mdash; pynetdicom 1.5.4 documentation</title>
   
 
   
@@ -67,7 +67,7 @@
             
             
               <div class="version">
-                1.5.3
+                1.5.4
               </div>
             
           
@@ -214,7 +214,7 @@
 <h1>pynetdicom.pdu_primitives.UserIdentityNegotiation<a class="headerlink" href="#pynetdicom-pdu-primitives-useridentitynegotiation" title="Permalink to this headline">¶</a></h1>
 <dl class="py class">
 <dt id="pynetdicom.pdu_primitives.UserIdentityNegotiation">
-<em class="property">class </em><code class="sig-prename descclassname">pynetdicom.pdu_primitives.</code><code class="sig-name descname">UserIdentityNegotiation</code><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/167f4f64/pynetdicom/pdu_primitives.py#L2033"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom.pdu_primitives.UserIdentityNegotiation" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="sig-prename descclassname">pynetdicom.pdu_primitives.</code><code class="sig-name descname">UserIdentityNegotiation</code><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/a3696152/pynetdicom/pdu_primitives.py#L2028"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom.pdu_primitives.UserIdentityNegotiation" title="Permalink to this definition">¶</a></dt>
 <dd><p>Representation of the User Identity Negotiation primitive.</p>
 <p>Allows peer AEs to exchange generic application information.</p>
 <p>The SOP Class Common Extended Negotiation is optional and there may only be
@@ -252,7 +252,7 @@ whether or not this is supported by the <em>Acceptor</em>).</p>
 </ul>
 <dl class="field-list simple">
 <dt class="field-odd">Type</dt>
-<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.8)">int</a> or <a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.8)">None</a></p>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.9)">int</a> or <a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.9)">None</a></p>
 </dd>
 </dl>
 </dd></dl>
@@ -264,7 +264,7 @@ whether or not this is supported by the <em>Acceptor</em>).</p>
 otherwise (default is <code class="docutils literal notranslate"><span class="pre">False</span></code>)</p>
 <dl class="field-list simple">
 <dt class="field-odd">Type</dt>
-<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.8)">bool</a></p>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.9)">bool</a></p>
 </dd>
 </dl>
 </dd></dl>
@@ -276,7 +276,7 @@ otherwise (default is <code class="docutils literal notranslate"><span class="pr
 ticket or SAML assertion depending on <cite>user_identity_type</cite>.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Type</dt>
-<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#bytes" title="(in Python v3.8)">bytes</a> or <a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.8)">None</a></p>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#bytes" title="(in Python v3.9)">bytes</a> or <a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.9)">None</a></p>
 </dd>
 </dl>
 </dd></dl>
@@ -285,11 +285,11 @@ ticket or SAML assertion depending on <cite>user_identity_type</cite>.</p>
 <dt id="pynetdicom.pdu_primitives.UserIdentityNegotiation.secondary_field">
 <code class="sig-name descname">secondary_field</code><a class="headerlink" href="#pynetdicom.pdu_primitives.UserIdentityNegotiation.secondary_field" title="Permalink to this definition">¶</a></dt>
 <dd><p>A-ASSOCIATE-RQ only. Only required if the <cite>user_identity_type</cite> is
-<code class="docutils literal notranslate"><span class="pre">2</span></code>, when it should contain the passcode as <a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#bytes" title="(in Python v3.8)"><code class="xref py py-class docutils literal notranslate"><span class="pre">bytes</span></code></a>, <code class="docutils literal notranslate"><span class="pre">None</span></code>
+<code class="docutils literal notranslate"><span class="pre">2</span></code>, when it should contain the passcode as <a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#bytes" title="(in Python v3.9)"><code class="xref py py-class docutils literal notranslate"><span class="pre">bytes</span></code></a>, <code class="docutils literal notranslate"><span class="pre">None</span></code>
 otherwise.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Type</dt>
-<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#bytes" title="(in Python v3.8)">bytes</a> or <a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.8)">None</a></p>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#bytes" title="(in Python v3.9)">bytes</a> or <a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.9)">None</a></p>
 </dd>
 </dl>
 </dd></dl>
@@ -302,7 +302,7 @@ response if the <cite>user_identity_type</cite> is <code class="docutils literal
 be <code class="docutils literal notranslate"><span class="pre">None</span></code> if <cite>user_identity_type</cite> was <code class="docutils literal notranslate"><span class="pre">1</span></code> or <code class="docutils literal notranslate"><span class="pre">2</span></code>.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Type</dt>
-<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#bytes" title="(in Python v3.8)">bytes</a> or <a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.8)">None</a></p>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#bytes" title="(in Python v3.9)">bytes</a> or <a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.9)">None</a></p>
 </dd>
 </dl>
 </dd></dl>
@@ -322,7 +322,7 @@ be <code class="docutils literal notranslate"><span class="pre">None</span></cod
 </ul>
 <dl class="py method">
 <dt id="pynetdicom.pdu_primitives.UserIdentityNegotiation.__init__">
-<code class="sig-name descname">__init__</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/167f4f64/pynetdicom/pdu_primitives.py#L2105"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom.pdu_primitives.UserIdentityNegotiation.__init__" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">__init__</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/a3696152/pynetdicom/pdu_primitives.py#L2100"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom.pdu_primitives.UserIdentityNegotiation.__init__" title="Permalink to this definition">¶</a></dt>
 <dd><p>Initialize self.  See help(type(self)) for accurate signature.</p>
 </dd></dl>
 
@@ -367,7 +367,7 @@ be <code class="docutils literal notranslate"><span class="pre">None</span></cod
 </table>
 <dl class="py method">
 <dt id="pynetdicom.pdu_primitives.UserIdentityNegotiation.from_primitive">
-<code class="sig-name descname">from_primitive</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/167f4f64/pynetdicom/pdu_primitives.py#L2112"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom.pdu_primitives.UserIdentityNegotiation.from_primitive" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">from_primitive</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/a3696152/pynetdicom/pdu_primitives.py#L2107"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom.pdu_primitives.UserIdentityNegotiation.from_primitive" title="Permalink to this definition">¶</a></dt>
 <dd><p>Convert the primitive to a PDU item ready to be encoded.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Returns</dt>
@@ -378,9 +378,9 @@ be <code class="docutils literal notranslate"><span class="pre">None</span></cod
 </dd>
 <dt class="field-odd">Raises</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><a class="reference external" href="https://docs.python.org/3/library/exceptions.html#ValueError" title="(in Python v3.8)"><strong>ValueError</strong></a> – If server_response is None and user_identity_type or primary_field
+<li><p><a class="reference external" href="https://docs.python.org/3/library/exceptions.html#ValueError" title="(in Python v3.9)"><strong>ValueError</strong></a> – If server_response is None and user_identity_type or primary_field
     are None</p></li>
-<li><p><a class="reference external" href="https://docs.python.org/3/library/exceptions.html#ValueError" title="(in Python v3.8)"><strong>ValueError</strong></a> – If server_response is None and user_identity_type is 2 and
+<li><p><a class="reference external" href="https://docs.python.org/3/library/exceptions.html#ValueError" title="(in Python v3.9)"><strong>ValueError</strong></a> – If server_response is None and user_identity_type is 2 and
     secondary_field is None</p></li>
 </ul>
 </dd>

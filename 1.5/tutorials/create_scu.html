@@ -7,7 +7,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>Writing your first SCU &mdash; pynetdicom 1.5.3 documentation</title>
+  <title>Writing your first SCU &mdash; pynetdicom 1.5.4 documentation</title>
   
 
   
@@ -67,7 +67,7 @@
             
             
               <div class="version">
-                1.5.3
+                1.5.4
               </div>
             
           
@@ -352,7 +352,7 @@ application on earlier, so if you used a different port you should change this
 value accordingly.</p>
 <p>The <a class="reference internal" href="../reference/generated/pynetdicom.ae.ApplicationEntity.html#pynetdicom.ae.ApplicationEntity.associate" title="pynetdicom.ae.ApplicationEntity.associate"><code class="xref py py-meth docutils literal notranslate"><span class="pre">AE.associate()</span></code></a> method returns an
 <a class="reference internal" href="../reference/generated/pynetdicom.association.Association.html#pynetdicom.association.Association" title="pynetdicom.association.Association"><code class="xref py py-class docutils literal notranslate"><span class="pre">Association</span></code></a> instance <cite>assoc</cite>, which is a subclass of
-<a class="reference external" href="https://docs.python.org/3/library/threading.html#threading.Thread" title="(in Python v3.8)"><code class="xref py py-class docutils literal notranslate"><span class="pre">threading.Thread</span></code></a>. This allows us to make use of the
+<a class="reference external" href="https://docs.python.org/3/library/threading.html#threading.Thread" title="(in Python v3.9)"><code class="xref py py-class docutils literal notranslate"><span class="pre">threading.Thread</span></code></a>. This allows us to make use of the
 association while <em>pynetdicom</em> monitors the connection behind the scenes.</p>
 <div class="highlight-python notranslate"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre> 6
  7
@@ -602,12 +602,12 @@ request:</p>
 <p>The only thing we need to change is to include a call to
 <a class="reference internal" href="../reference/generated/pynetdicom.association.Association.html#pynetdicom.association.Association.send_c_echo" title="pynetdicom.association.Association.send_c_echo"><code class="xref py py-meth docutils literal notranslate"><span class="pre">send_c_echo()</span></code></a>, which sends
 the C-ECHO request and returns a <em>pydicom</em>
-<a class="reference external" href="https://pydicom.github.io/pydicom/stable/reference/generated/pydicom.dataset.Dataset.html#pydicom.dataset.Dataset" title="(in pydicom v2.0.0)"><code class="xref py py-class docutils literal notranslate"><span class="pre">Dataset</span></code></a> instance <em>status</em>. If we received a
+<a class="reference external" href="https://pydicom.github.io/pydicom/stable/reference/generated/pydicom.dataset.Dataset.html#pydicom.dataset.Dataset" title="(in pydicom v2.1.2)"><code class="xref py py-class docutils literal notranslate"><span class="pre">Dataset</span></code></a> instance <em>status</em>. If we received a
 response to our C-ECHO request, then <cite>status</cite> will contain at least an
 (0000,0900) <em>Status</em> element containing the outcome of our request. If no
 response was received (due to a connection failure, a timeout, or because the
 association was aborted) then <cite>status</cite> will be an empty
-<a class="reference external" href="https://pydicom.github.io/pydicom/stable/reference/generated/pydicom.dataset.Dataset.html#pydicom.dataset.Dataset" title="(in pydicom v2.0.0)"><code class="xref py py-class docutils literal notranslate"><span class="pre">Dataset</span></code></a>.</p>
+<a class="reference external" href="https://pydicom.github.io/pydicom/stable/reference/generated/pydicom.dataset.Dataset.html#pydicom.dataset.Dataset" title="(in pydicom v2.1.2)"><code class="xref py py-class docutils literal notranslate"><span class="pre">Dataset</span></code></a>.</p>
 <p>The <em>Status</em> element value is a code that indicates the result of the C-ECHO
 request. Each service class has a bunch of defined status codes which are
 usually a mix of generic codes for each DIMSE message type and code values

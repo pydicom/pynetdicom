@@ -7,7 +7,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>pynetdicom._handlers.doc_handle_event_report &mdash; pynetdicom 1.5.3 documentation</title>
+  <title>pynetdicom._handlers.doc_handle_event_report &mdash; pynetdicom 1.5.4 documentation</title>
   
 
   
@@ -67,7 +67,7 @@
             
             
               <div class="version">
-                1.5.3
+                1.5.4
               </div>
             
           
@@ -222,7 +222,7 @@
 <h1>pynetdicom._handlers.doc_handle_event_report<a class="headerlink" href="#pynetdicom-handlers-doc-handle-event-report" title="Permalink to this headline">¶</a></h1>
 <dl class="py function">
 <dt id="pynetdicom._handlers.doc_handle_event_report">
-<code class="sig-prename descclassname">pynetdicom._handlers.</code><code class="sig-name descname">doc_handle_event_report</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">event</span></em>, <em class="sig-param"><span class="o">*</span><span class="n">args</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/167f4f64/pynetdicom/_handlers.py#L3170"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom._handlers.doc_handle_event_report" title="Permalink to this definition">¶</a></dt>
+<code class="sig-prename descclassname">pynetdicom._handlers.</code><code class="sig-name descname">doc_handle_event_report</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">event</span></em>, <em class="sig-param"><span class="o">*</span><span class="n">args</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/a3696152/pynetdicom/_handlers.py#L3170"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom._handlers.doc_handle_event_report" title="Permalink to this definition">¶</a></dt>
 <dd><p>Documentation for handlers bound to <code class="docutils literal notranslate"><span class="pre">evt.EVT_N_EVENT_REPORT</span></code>.</p>
 <p>User implementation of this event handler is required if one or more
 services that use N-EVENT-REPORT are to be supported. If a handler is
@@ -281,26 +281,26 @@ as a <a class="reference internal" href="pynetdicom.presentation.PresentationCon
 <a class="reference internal" href="pynetdicom.dimse_primitives.N_EVENT_REPORT.html#pynetdicom.dimse_primitives.N_EVENT_REPORT" title="pynetdicom.dimse_primitives.N_EVENT_REPORT"><code class="xref py py-class docutils literal notranslate"><span class="pre">N-EVENT-REPORT</span> <span class="pre">request</span></code></a></p></li>
 <li><p><a class="reference internal" href="pynetdicom.events.Event.html#pynetdicom.events.Event.timestamp" title="pynetdicom.events.Event.timestamp"><code class="xref py py-attr docutils literal notranslate"><span class="pre">timestamp</span></code></a>: the date and time
 that the N-EVENT-REPORT request was processed by the service as
-<a class="reference external" href="https://docs.python.org/3/library/datetime.html#datetime.datetime" title="(in Python v3.8)"><code class="xref py py-class docutils literal notranslate"><span class="pre">datetime.datetime</span></code></a>.</p></li>
+<a class="reference external" href="https://docs.python.org/3/library/datetime.html#datetime.datetime" title="(in Python v3.9)"><code class="xref py py-class docutils literal notranslate"><span class="pre">datetime.datetime</span></code></a>.</p></li>
 </ul>
 <p><a class="reference internal" href="pynetdicom.events.Event.html#pynetdicom.events.Event" title="pynetdicom.events.Event"><code class="xref py py-class docutils literal notranslate"><span class="pre">Event</span></code></a> properties are:</p>
 <ul>
 <li><p><a class="reference internal" href="pynetdicom.events.Event.html#pynetdicom.events.Event.event_information" title="pynetdicom.events.Event.event_information"><code class="xref py py-attr docutils literal notranslate"><span class="pre">event_information</span></code></a>: the decoded
-<a class="reference external" href="https://pydicom.github.io/pydicom/stable/reference/generated/pydicom.dataset.Dataset.html#pydicom.dataset.Dataset" title="(in pydicom v2.0.0)"><code class="xref py py-class docutils literal notranslate"><span class="pre">Dataset</span></code></a> contained within the
+<a class="reference external" href="https://pydicom.github.io/pydicom/stable/reference/generated/pydicom.dataset.Dataset.html#pydicom.dataset.Dataset" title="(in pydicom v2.1.2)"><code class="xref py py-class docutils literal notranslate"><span class="pre">Dataset</span></code></a> contained within the
 N-EVENT-REPORT request’s <em>Event Information</em> parameter. Because
 <em>pydicom</em> uses a deferred read when decoding data, if the decode
-fails the returned <a class="reference external" href="https://pydicom.github.io/pydicom/stable/reference/generated/pydicom.dataset.Dataset.html#pydicom.dataset.Dataset" title="(in pydicom v2.0.0)"><code class="xref py py-class docutils literal notranslate"><span class="pre">Dataset</span></code></a> will only raise
+fails the returned <a class="reference external" href="https://pydicom.github.io/pydicom/stable/reference/generated/pydicom.dataset.Dataset.html#pydicom.dataset.Dataset" title="(in pydicom v2.1.2)"><code class="xref py py-class docutils literal notranslate"><span class="pre">Dataset</span></code></a> will only raise
 an exception at the time of use.</p></li>
 <li><p><a class="reference internal" href="pynetdicom.events.Event.html#pynetdicom.events.Event.event_type" title="pynetdicom.events.Event.event_type"><code class="xref py py-attr docutils literal notranslate"><span class="pre">event_type</span></code></a>: the N-EVENT-REPORT
-request’s <em>Event Type ID</em> parameter value as <a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.8)"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></a>.</p></li>
+request’s <em>Event Type ID</em> parameter value as <a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.9)"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></a>.</p></li>
 <li><p><a class="reference internal" href="pynetdicom.events.Event.html#pynetdicom.events.Event.message_id" title="pynetdicom.events.Event.message_id"><code class="xref py py-attr docutils literal notranslate"><span class="pre">message_id</span></code></a>: the N-EVENT-REPORT
-request’s <em>Message ID</em> as <a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.8)"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></a>.</p></li>
+request’s <em>Message ID</em> as <a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.9)"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></a>.</p></li>
 </ul>
 </p></li>
 <li><p><strong>args</strong> – If the handler was bound to the event using
 <code class="docutils literal notranslate"><span class="pre">bind(event,</span> <span class="pre">handler,</span> <span class="pre">args)</span></code> or by passing
 <code class="docutils literal notranslate"><span class="pre">evt_handlers=[(event,</span> <span class="pre">handler,</span> <span class="pre">args),</span> <span class="pre">...]</span></code>, where <cite>args</cite> is a
-<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.8)"><code class="xref py py-class docutils literal notranslate"><span class="pre">list</span></code></a> then there will be one or more optional extra parameters
+<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.9)"><code class="xref py py-class docutils literal notranslate"><span class="pre">list</span></code></a> then there will be one or more optional extra parameters
 matching the contents of <cite>args</cite>.</p></li>
 </ul>
 </dd>
@@ -308,13 +308,13 @@ matching the contents of <cite>args</cite>.</p></li>
 <dd class="field-even"><p><ul>
 <li><p><strong>status</strong> (<em>pydicom.dataset.Dataset or int</em>) – The status returned to the peer AE in the N-EVENT-REPORT response.
 Must be a valid N-EVENT-REPORT status value for the applicable Service
-Class as either an <a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.8)"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></a> or a <a class="reference external" href="https://pydicom.github.io/pydicom/stable/reference/generated/pydicom.dataset.Dataset.html#pydicom.dataset.Dataset" title="(in pydicom v2.0.0)"><code class="xref py py-class docutils literal notranslate"><span class="pre">Dataset</span></code></a>
+Class as either an <a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.9)"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></a> or a <a class="reference external" href="https://pydicom.github.io/pydicom/stable/reference/generated/pydicom.dataset.Dataset.html#pydicom.dataset.Dataset" title="(in pydicom v2.1.2)"><code class="xref py py-class docutils literal notranslate"><span class="pre">Dataset</span></code></a>
 object containing (at a minimum) a (0000,0900) <em>Status</em> element. If
 returning a Dataset object then it may also contain optional elements
 related to the Status (as in DICOM Standard, Part 7,
 <a class="reference external" href="http://dicom.nema.org/medical/dicom/current/output/chtml/part07/chapter_C.html">Annex C</a>).</p></li>
 <li><p><strong>dataset</strong> (<em>pydicom.dataset.Dataset or None</em>) – If the status category is ‘Success’ or ‘Warning’ then a
-<a class="reference external" href="https://pydicom.github.io/pydicom/stable/reference/generated/pydicom.dataset.Dataset.html#pydicom.dataset.Dataset" title="(in pydicom v2.0.0)"><code class="xref py py-class docutils literal notranslate"><span class="pre">Dataset</span></code></a> containing elements of the
+<a class="reference external" href="https://pydicom.github.io/pydicom/stable/reference/generated/pydicom.dataset.Dataset.html#pydicom.dataset.Dataset" title="(in pydicom v2.1.2)"><code class="xref py py-class docutils literal notranslate"><span class="pre">Dataset</span></code></a> containing elements of the
 response’s <em>Event Reply</em> conformant to the specifications in the
 corresponding Service Class.</p>
 <p>If the status category is not ‘Success’ or ‘Warning’ then <code class="docutils literal notranslate"><span class="pre">None</span></code>.</p>
@@ -323,7 +323,7 @@ corresponding Service Class.</p>
 </p>
 </dd>
 <dt class="field-odd">Raises</dt>
-<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/exceptions.html#NotImplementedError" title="(in Python v3.8)"><strong>NotImplementedError</strong></a> – If the handler has not been implemented and bound to
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/exceptions.html#NotImplementedError" title="(in Python v3.9)"><strong>NotImplementedError</strong></a> – If the handler has not been implemented and bound to
     <code class="docutils literal notranslate"><span class="pre">evt.EVT_N_EVENT_REPORT</span></code> by the user.</p>
 </dd>
 </dl>
