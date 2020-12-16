@@ -835,13 +835,13 @@ class A_ABORT(object):
     """
 
     def __init__(self):
-        self.abort_source = None
+        self._abort_source = None
 
     @property
     def abort_source(self):
         """Return the *Abort Source*."""
         if self._abort_source is None:
-            LOGGER.error("A_ABORT.abort_source parameter not set")
+            LOGGER.error("A_ABORT.abort_source value not set")
             raise ValueError("A_ABORT.abort_source value not set")
 
         return self._abort_source
@@ -849,16 +849,12 @@ class A_ABORT(object):
     @abort_source.setter
     def abort_source(self, value):
         """Set the Abort Source."""
-        # pylint: disable=attribute-defined-outside-init
-        if value in [0, 2]:
+        if value in [0, 1, 2, None]:
             self._abort_source = value
-        elif value is None:
-            self._abort_source = None
         else:
-            LOGGER.error("Attempted to set A_ABORT.abort_source to an "
-                         "invalid value")
-            raise ValueError("Attempted to set A_ABORT.abort_source to an "
-                             "invalid value")
+            msg = f"Invalid A-ABORT 'Source' value '{value}'"
+            LOGGER.error(msg)
+            raise ValueError(msg)
 
 
 class A_P_ABORT(object):
@@ -898,7 +894,7 @@ class A_P_ABORT(object):
     * DICOM Standard, Part 8, :dcm:`Section 7.4<part08/sect_7.4.html>`
     """
     def __init__(self):
-        self.provider_reason = None
+        self._provider_reason = None
 
     @property
     def provider_reason(self):
@@ -912,11 +908,8 @@ class A_P_ABORT(object):
     @provider_reason.setter
     def provider_reason(self, value):
         """Set the Provider Reason."""
-        # pylint: disable=attribute-defined-outside-init
-        if value in [0, 1, 2, 4, 5, 6]:
+        if value in [0, 1, 2, 4, 5, 6, None]:
             self._provider_reason = value
-        elif value is None:
-            self._provider_reason = None
         else:
             msg = (
                 "Attempted to set A_P_ABORT.provider_reason to an invalid "

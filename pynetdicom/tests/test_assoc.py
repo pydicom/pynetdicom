@@ -38,7 +38,7 @@ from pynetdicom._globals import MODE_REQUESTOR, MODE_ACCEPTOR
 from pynetdicom.pdu_primitives import (
     UserIdentityNegotiation, SOPClassExtendedNegotiation,
     SOPClassCommonExtendedNegotiation, SCP_SCU_RoleSelectionNegotiation,
-    AsynchronousOperationsWindowNegotiation, A_ASSOCIATE,
+    AsynchronousOperationsWindowNegotiation, A_ASSOCIATE
 )
 from pynetdicom.sop_class import (
     VerificationSOPClass,
@@ -53,7 +53,6 @@ from pynetdicom.sop_class import (
     UnifiedProcedureStepPushSOPClass,
     UnifiedProcedureStepWatchSOPClass
 )
-from .encoded_pdu_items import a_associate_ac
 
 
 #debug_logger()
@@ -558,6 +557,32 @@ class TestAssociation(object):
         assoc = ae.associate('localhost', 11112)
         assert not assoc.is_established
         assert assoc.is_rejected
+
+        scp.shutdown()
+
+    def test_unknown_abort_source(self):
+        """Test an unknown abort source handled correctly #561"""
+        def handle_req(event):
+            pdu = b"\x07\x00\x00\x00\x00\x04\x00\x00\x01\x00"
+            event.assoc.dul.socket.send(pdu)
+            # Give the requestor time to process the message before killing
+            #   the connection
+            time.sleep(0.1)
+
+        self.ae = ae = AE()
+        ae.acse_timeout = 5
+        ae.dimse_timeout = 5
+        ae.network_timeout = 5
+        ae.add_supported_context(VerificationSOPClass)
+
+        hh = [(evt.EVT_REQUESTED, handle_req)]
+
+        scp = ae.start_server(('', 11112), block=False, evt_handlers=hh)
+
+        ae.add_requested_context(VerificationSOPClass)
+        assoc = ae.associate('localhost', 11112)
+        assert not assoc.is_established
+        assert assoc.is_aborted
 
         scp.shutdown()
 
