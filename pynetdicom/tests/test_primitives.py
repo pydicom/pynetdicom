@@ -1013,6 +1013,8 @@ class TestPrimitive_A_ABORT(object):
         primitive = A_ABORT()
         primitive.abort_source = 0
         assert primitive.abort_source == 0
+        primitive.abort_source = 1
+        assert primitive.abort_source == 1
         primitive.abort_source = 2
         assert primitive.abort_source == 2
 
@@ -1021,7 +1023,7 @@ class TestPrimitive_A_ABORT(object):
         primitive = A_ABORT()
 
         with pytest.raises(ValueError):
-            primitive.abort_source = 1
+            primitive.abort_source = 3
 
         with pytest.raises(ValueError):
             primitive.abort_source

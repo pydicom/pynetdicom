@@ -1906,15 +1906,15 @@ class A_ABORT_RQ(PDU):
         """
         from pynetdicom.pdu_primitives import A_ABORT, A_P_ABORT
 
-        # User initiated abort
-        if self.source == 0x00:
+        if self.source == 0x02:
+            # User provider primitive abort
+            primitive = A_P_ABORT()
+            primitive.provider_reason = self.reason_diagnostic
+        else:
+            # User initiated abort and undefined abort source
             primitive = A_ABORT()
             primitive.abort_source = self.source
 
-        # User provider primitive abort
-        elif self.source == 0x02:
-            primitive = A_P_ABORT()
-            primitive.provider_reason = self.reason_diagnostic
 
         return primitive
 
