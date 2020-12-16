@@ -225,7 +225,7 @@
 <h1>pynetdicom._handlers.doc_handle_set<a class="headerlink" href="#pynetdicom-handlers-doc-handle-set" title="Permalink to this headline">¶</a></h1>
 <dl class="py function">
 <dt id="pynetdicom._handlers.doc_handle_set">
-<code class="sig-prename descclassname">pynetdicom._handlers.</code><code class="sig-name descname">doc_handle_set</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">event</span></em>, <em class="sig-param"><span class="o">*</span><span class="n">args</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/dffa77ef/pynetdicom/_handlers.py#L3491"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom._handlers.doc_handle_set" title="Permalink to this definition">¶</a></dt>
+<code class="sig-prename descclassname">pynetdicom._handlers.</code><code class="sig-name descname">doc_handle_set</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">event</span></em>, <em class="sig-param"><span class="o">*</span><span class="n">args</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/6fc49165/pynetdicom/_handlers.py#L3491"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom._handlers.doc_handle_set" title="Permalink to this definition">¶</a></dt>
 <dd><p>Documentation for handlers bound to <code class="docutils literal notranslate"><span class="pre">evt.EVT_N_SET</span></code>.</p>
 <p>User implementation of this event handler is required if one or more
 services that use N-SET are to be supported. If a handler is
@@ -325,10 +325,10 @@ that the N-SET request was processed by the service as
 <li><p><a class="reference internal" href="pynetdicom.events.Event.html#pynetdicom.events.Event.message_id" title="pynetdicom.events.Event.message_id"><code class="xref py py-attr docutils literal notranslate"><span class="pre">message_id</span></code></a>: the N-SET request’s
 <em>Message ID</em> as <a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.9)"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></a>.</p></li>
 <li><p><a class="reference internal" href="pynetdicom.events.Event.html#pynetdicom.events.Event.modification_list" title="pynetdicom.events.Event.modification_list"><code class="xref py py-attr docutils literal notranslate"><span class="pre">modification_list</span></code></a>: the decoded
-<a class="reference external" href="https://pydicom.github.io/pydicom/stable/reference/generated/pydicom.dataset.Dataset.html#pydicom.dataset.Dataset" title="(in pydicom v2.0.0)"><code class="xref py py-class docutils literal notranslate"><span class="pre">Dataset</span></code></a> contained within the
+<a class="reference external" href="https://pydicom.github.io/pydicom/stable/reference/generated/pydicom.dataset.Dataset.html#pydicom.dataset.Dataset" title="(in pydicom v2.1.2)"><code class="xref py py-class docutils literal notranslate"><span class="pre">Dataset</span></code></a> contained within the
 N-SET request’s <em>Modification List</em> parameter. Because <em>pydicom</em>
 uses a deferred read when decoding data, if the decode fails the
-returned <a class="reference external" href="https://pydicom.github.io/pydicom/stable/reference/generated/pydicom.dataset.Dataset.html#pydicom.dataset.Dataset" title="(in pydicom v2.0.0)"><code class="xref py py-class docutils literal notranslate"><span class="pre">Dataset</span></code></a> will only raise an
+returned <a class="reference external" href="https://pydicom.github.io/pydicom/stable/reference/generated/pydicom.dataset.Dataset.html#pydicom.dataset.Dataset" title="(in pydicom v2.1.2)"><code class="xref py py-class docutils literal notranslate"><span class="pre">Dataset</span></code></a> will only raise an
 exception at the time of use.</p></li>
 </ul>
 </p></li>
@@ -343,13 +343,13 @@ matching the contents of <cite>args</cite>.</p></li>
 <dd class="field-even"><p><ul>
 <li><p><strong>status</strong> (<em>pydicom.dataset.Dataset or int</em>) – The status returned to the peer AE in the N-SET response. Must be a
 valid N-SET status value for the applicable Service Class as either
-an <a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.9)"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></a> or a <a class="reference external" href="https://pydicom.github.io/pydicom/stable/reference/generated/pydicom.dataset.Dataset.html#pydicom.dataset.Dataset" title="(in pydicom v2.0.0)"><code class="xref py py-class docutils literal notranslate"><span class="pre">Dataset</span></code></a> object
+an <a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.9)"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></a> or a <a class="reference external" href="https://pydicom.github.io/pydicom/stable/reference/generated/pydicom.dataset.Dataset.html#pydicom.dataset.Dataset" title="(in pydicom v2.1.2)"><code class="xref py py-class docutils literal notranslate"><span class="pre">Dataset</span></code></a> object
 containing (at a minimum) a (0000,0900) <em>Status</em> element. If returning
-a <a class="reference external" href="https://pydicom.github.io/pydicom/stable/reference/generated/pydicom.dataset.Dataset.html#pydicom.dataset.Dataset" title="(in pydicom v2.0.0)"><code class="xref py py-class docutils literal notranslate"><span class="pre">Dataset</span></code></a> object then it may also contain
+a <a class="reference external" href="https://pydicom.github.io/pydicom/stable/reference/generated/pydicom.dataset.Dataset.html#pydicom.dataset.Dataset" title="(in pydicom v2.1.2)"><code class="xref py py-class docutils literal notranslate"><span class="pre">Dataset</span></code></a> object then it may also contain
 optional elements related to the <em>Status</em> (as in DICOM Standard, Part
 7, <a class="reference external" href="http://dicom.nema.org/medical/dicom/current/output/chtml/part07/chapter_C.html">Annex C</a>).</p></li>
 <li><p><strong>dataset</strong> (<em>pydicom.dataset.Dataset or None</em>) – If the status category is ‘Success’ or ‘Warning’ then a
-<a class="reference external" href="https://pydicom.github.io/pydicom/stable/reference/generated/pydicom.dataset.Dataset.html#pydicom.dataset.Dataset" title="(in pydicom v2.0.0)"><code class="xref py py-class docutils literal notranslate"><span class="pre">Dataset</span></code></a> containing elements of the response’s
+<a class="reference external" href="https://pydicom.github.io/pydicom/stable/reference/generated/pydicom.dataset.Dataset.html#pydicom.dataset.Dataset" title="(in pydicom v2.1.2)"><code class="xref py py-class docutils literal notranslate"><span class="pre">Dataset</span></code></a> containing elements of the response’s
 <em>Attribute List</em> conformant to the specifications in the corresponding
 Service Class.</p>
 <p>If the status category is not ‘Success’ or ‘Warning’ then <code class="docutils literal notranslate"><span class="pre">None</span></code>.</p>

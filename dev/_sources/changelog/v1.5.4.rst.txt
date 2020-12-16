@@ -1,0 +1,10 @@
+.. _v1.5.4:
+
+1.5.4
+=====
+
+Fixes
+.....
+
+* Fixed not handling an A-ABORT with a reserved (``0x01``) 'source' value
+  (:issue:`561`)

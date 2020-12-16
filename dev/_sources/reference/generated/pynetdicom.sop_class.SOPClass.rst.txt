@@ -77,6 +77,7 @@
       ~SOPClass.is_retired
       ~SOPClass.is_transfer_syntax
       ~SOPClass.is_valid
+      ~SOPClass.keyword
       ~SOPClass.name
       ~SOPClass.service_class
       ~SOPClass.type
