@@ -854,7 +854,7 @@ class A_ABORT(object):
         if value in [0, 1, 2, None]:
             self._abort_source = value
         else:
-            msg = f"Invalid A-ABORT 'source' value '{value}'"
+            msg = "Invalid A-ABORT 'source' value '{}'".format(value)
             LOGGER.error(msg)
             raise ValueError(msg)
 
