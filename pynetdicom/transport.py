@@ -148,6 +148,7 @@ class AssociationSocket(object):
                 )
             # Try and connect to remote at (address, port)
             #   raises socket.error if connection refused
+            self.socket.settimeout(self._assoc.network_timeout)
             self.socket.connect(address)
             # Trigger event - connection open
             evt.trigger(self.assoc, evt.EVT_CONN_OPEN, {'address' : address})
