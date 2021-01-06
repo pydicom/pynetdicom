@@ -46,7 +46,7 @@ DICOM Information Model
 
 Information Object Definition (IOD)
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-An IOD is an object-orientated abstract data model use to specify information
+An IOD is an object-orientated abstract data model used to specify information
 about a class of real-world objects that share the same properties.
 For example, a *Patient*, a *Study*, an imaging *Series* and a piece of imaging
 *Equipment* are all real world objects. An IOD, then, is the data model used to
