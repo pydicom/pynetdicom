@@ -1,0 +1,62 @@
+name: pypi-deploy
+
+on:
+  release:
+    types: [ published ]
+
+jobs:
+
+  deploy:
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: true
+      matrix:
+        python-version: [3.8]
+
+    steps:
+    - uses: actions/checkout@v2
+
+    - name: Set up Python ${{ matrix.python-version }}
+      uses: actions/setup-python@v2
+      with:
+        python-version: ${{ matrix.python-version }}
+
+    - name: Build package
+      run: |
+        python -m pip install --upgrade pip
+        pip install wheel
+        python setup.py sdist bdist_wheel
+
+    - name: Upload artifacts
+      if: ${{ success() }}
+      uses: actions/upload-artifact@v2
+      with:
+        name: wheels
+        path: dist/*.whl
+
+    - name: Publish package to Test PyPi
+      uses: pypa/gh-action-pypi-publish@master
+      with:
+        user: __token__
+        password: ${{ secrets.test_pypi_password }}
+        repository_url: https://test.pypi.org/legacy/
+
+    - name: Install dependencies
+      run: |
+        pip install virtualenvwrapper
+        mkvirtualenvwrapper testpynd
+        pip install pytest pydicom
+        pip install -i https://test.pypi.org/simple/ pynetdicom
+
+    - name: Test with pytest
+      run: |
+        cd ${HOME}
+        python -c "import pytest; pytest.main(['--pyargs', 'pynetdicom.tests'])"
+        deactivate
+        cd ${GITHUB_WORKSPACE}
+
+    - name: Publish package to PyPi
+      uses: pypa/gh-action-pypi-publish@master
+      with:
+        user: __token__
+        password: ${{ secrets.PYPI_PASSWORD }}

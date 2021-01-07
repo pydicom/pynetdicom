@@ -1032,6 +1032,53 @@ class TestQRFindServiceClass(object):
         assert assoc.is_released
         scp.shutdown()
 
+    def test_success_no_identifier(self):
+        """Test success response has no identifier dataset"""
+        # Regression test for #571
+        def handle(event):
+            status = Dataset()
+            status.Status = 0xFF00
+            yield status, self.query
+
+        handlers = [(evt.EVT_C_FIND, handle)]
+
+        has_dataset = []
+        def handle_dimse_in(event):
+            has_dataset.append(event.message.command_set.CommandDataSetType)
+
+        scu_handlers = [(evt.EVT_DIMSE_RECV, handle_dimse_in)]
+
+        self.ae = ae = AE()
+        ae.add_supported_context(PatientRootQueryRetrieveInformationModelFind)
+        ae.add_requested_context(
+            PatientRootQueryRetrieveInformationModelFind,
+            ExplicitVRLittleEndian
+        )
+        scp = ae.start_server(('', 11112), block=False, evt_handlers=handlers)
+
+        assoc = ae.associate('localhost', 11112, evt_handlers=scu_handlers)
+        assert assoc.is_established
+        result = assoc.send_c_find(
+            self.query, PatientRootQueryRetrieveInformationModelFind
+        )
+        status, identifier = next(result)
+        assert status.Status == 0xFF00
+        status, identifier = next(result)
+        assert status.Status == 0x0000
+        assert identifier is None
+        with pytest.raises(StopIteration):
+            next(result)
+
+        # Only the pending response should have a dataset
+        assert has_dataset[0] == 1
+        assert has_dataset[1] != 1
+        assert len(has_dataset) == 2
+
+        assoc.release()
+        assert assoc.is_released
+
+        scp.shutdown()
+
 
 class TestQRGetServiceClass(object):
     def setup(self):
@@ -3135,6 +3182,64 @@ class TestQRGetServiceClass(object):
 
         time.sleep(0.1)
         assert assoc.is_aborted
+        scp.shutdown()
+
+    def test_success_no_identifier(self):
+        """Test pending and success responses have no identifier dataset"""
+        # Regression test for #571
+        def handle(event):
+            yield 1
+            status = Dataset()
+            status.Status = 0xFF00
+            yield status, self.ds
+
+        def handle_store(event):
+            return 0x0000
+
+        handlers = [(evt.EVT_C_GET, handle)]
+
+        self.ae = ae = AE()
+        ae.add_supported_context(PatientRootQueryRetrieveInformationModelGet)
+        ae.add_supported_context(CTImageStorage, scu_role=False, scp_role=True)
+        ae.add_requested_context(PatientRootQueryRetrieveInformationModelGet)
+        ae.add_requested_context(CTImageStorage)
+        scp = ae.start_server(('', 11112), block=False, evt_handlers=handlers)
+
+        has_dataset = []
+        def handle_dimse_in(event):
+            has_dataset.append(event.message.command_set.CommandDataSetType)
+
+        role = build_role(CTImageStorage, scp_role=True)
+        handlers = [
+            (evt.EVT_C_STORE, handle_store),
+            (evt.EVT_DIMSE_RECV, handle_dimse_in)
+        ]
+
+        ae.acse_timeout = 5
+        ae.dimse_timeout = 5
+        assoc = ae.associate(
+            'localhost', 11112, ext_neg=[role], evt_handlers=handlers
+        )
+        assert assoc.is_established
+        result = assoc.send_c_get(
+            self.query, PatientRootQueryRetrieveInformationModelGet
+        )
+        status, identifier = next(result)
+        assert status.Status == 0xFF00
+        assert identifier is None
+        status, identifier = next(result)
+        assert status.Status == 0x0000
+        assert identifier is None
+        pytest.raises(StopIteration, next, result)
+
+        # The C-GET pending and success responses shouldn't have a dataset
+        assert len(has_dataset) == 3
+        assert has_dataset[0] == 1  # C-STORE rq
+        assert has_dataset[1] != 1  # C-GET rsp pending
+        assert has_dataset[2] != 1  # C-GET rsp success
+
+        assoc.release()
+        assert assoc.is_released
         scp.shutdown()
 
 
@@ -5372,6 +5477,58 @@ class TestQRMoveServiceClass(object):
         assoc.release()
         scp.shutdown()
 
+    def test_success_no_identifier(self):
+        """Test handler yielding a Dataset status"""
+        def handle(event):
+            yield self.destination
+            yield 1
+            status = Dataset()
+            status.Status = 0xFF00
+            yield status, self.ds
+
+        def handle_store(event):
+            return 0x0000
+
+        handlers = [(evt.EVT_C_MOVE, handle), (evt.EVT_C_STORE, handle_store)]
+
+        self.ae = ae = AE()
+        ae.add_supported_context(PatientRootQueryRetrieveInformationModelMove)
+        ae.add_supported_context(CTImageStorage, scu_role=False, scp_role=True)
+        ae.add_requested_context(PatientRootQueryRetrieveInformationModelMove)
+        ae.add_requested_context(CTImageStorage)
+        scp = ae.start_server(('', 11112), block=False, evt_handlers=handlers)
+
+        has_dataset = []
+        def handle_dimse_in(event):
+            has_dataset.append(event.message.command_set.CommandDataSetType)
+
+        scu_handlers = [(evt.EVT_DIMSE_RECV, handle_dimse_in)]
+
+        ae.acse_timeout = 5
+        ae.dimse_timeout = 5
+        assoc = ae.associate('localhost', 11112, evt_handlers=scu_handlers)
+        assert assoc.is_established
+        result = assoc.send_c_move(
+            self.query,
+            b'TESTMOVE',
+            PatientRootQueryRetrieveInformationModelMove
+        )
+        status, identifier = next(result)
+        assert status.Status == 0xFF00
+        assert identifier is None
+        status, identifier = next(result)
+        assert status.Status == 0x0000
+        assert identifier is None
+        pytest.raises(StopIteration, next, result)
+
+        # The C-MOVE pending and success responses shouldn't have a dataset
+        assert len(has_dataset) == 2
+        assert has_dataset[0] != 1  # C-MOVE rsp pending
+        assert has_dataset[1] != 1  # C-MOVE rsp success
+
+        assoc.release()
+        assert assoc.is_released
+        scp.shutdown()
 
 class TestQRCompositeInstanceWithoutBulk(object):
     """Tests for QR + Composite Instance Without Bulk Data"""
