@@ -314,7 +314,8 @@ class ServiceClass(object):
         if not self.assoc.is_established:
             return
 
-        # Send final success response
+        # Send final success response - make sure the identifier isn't present
+        rsp.Identifier = None
         rsp.Status = 0x0000
         LOGGER.info('Find SCP Response {}: 0x0000 (Success)'.format(ii + 2))
         self.dimse.send_msg(rsp, cx_id)
@@ -1861,6 +1862,7 @@ class QueryRetrieveServiceClass(ServiceClass):
             # Success response - no failures or warnings
             LOGGER.info('Get SCP Response {}: 0x0000 (Success)'.format(ii + 2))
             rsp.Status = 0x0000
+            rsp.Identifier = None
         else:
             # Warning response - one or more failures or warnings
             LOGGER.info('Get SCP Response {}: 0xB000 (Warning)'.format(ii + 2))
@@ -2271,6 +2273,7 @@ class QueryRetrieveServiceClass(ServiceClass):
                 'Move SCP Response {}: 0x0000 (Success)'.format(ii + 2)
             )
             rsp.Status = 0x0000
+            rsp.Identifier = None
         else:
             # Warning response - one or more failures or warnings
             LOGGER.info(
