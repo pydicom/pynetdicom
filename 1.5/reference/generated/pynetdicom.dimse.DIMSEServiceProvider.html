@@ -3,11 +3,11 @@
 <!DOCTYPE html>
 <html class="writer-html5" lang="en" >
 <head>
-  <meta charset="utf-8">
+  <meta charset="utf-8" />
   
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   
-  <title>pynetdicom.dimse.DIMSEServiceProvider &mdash; pynetdicom 1.5.4 documentation</title>
+  <title>pynetdicom.dimse.DIMSEServiceProvider &mdash; pynetdicom 1.5.5 documentation</title>
   
 
   
@@ -19,7 +19,10 @@
   
     <link rel="shortcut icon" href="../../_static/favicon.ico"/>
   
+
   
+  
+
   
 
   
@@ -32,7 +35,6 @@
         <script src="../../_static/jquery.js"></script>
         <script src="../../_static/underscore.js"></script>
         <script src="../../_static/doctools.js"></script>
-        <script src="../../_static/language_data.js"></script>
     
     <script type="text/javascript" src="../../_static/js/theme.js"></script>
 
@@ -54,7 +56,7 @@
           
 
           
-            <a href="../../index.html" class="icon icon-home" alt="Documentation Home"> pynetdicom
+            <a href="../../index.html" class="icon icon-home"> pynetdicom
           
 
           
@@ -67,7 +69,7 @@
             
             
               <div class="version">
-                1.5.4
+                1.5.5
               </div>
             
           
@@ -174,6 +176,8 @@
 
 
 
+
+
 <div role="navigation" aria-label="breadcrumbs navigation">
 
   <ul class="wy-breadcrumbs">
@@ -191,7 +195,7 @@
     
       <li class="wy-breadcrumbs-aside">
         
-            
+          
         
       </li>
     
@@ -207,7 +211,7 @@
 <h1>pynetdicom.dimse.DIMSEServiceProvider<a class="headerlink" href="#pynetdicom-dimse-dimseserviceprovider" title="Permalink to this headline">¶</a></h1>
 <dl class="py class">
 <dt id="pynetdicom.dimse.DIMSEServiceProvider">
-<em class="property">class </em><code class="sig-prename descclassname">pynetdicom.dimse.</code><code class="sig-name descname">DIMSEServiceProvider</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">assoc</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/a3696152/pynetdicom/dimse.py#L59"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom.dimse.DIMSEServiceProvider" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="sig-prename descclassname">pynetdicom.dimse.</code><code class="sig-name descname">DIMSEServiceProvider</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">assoc</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/d1701faa4/pynetdicom/dimse.py#L59"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom.dimse.DIMSEServiceProvider" title="Permalink to this definition">¶</a></dt>
 <dd><p>The DIMSE service provider.</p>
 <div class="versionchanged">
 <p><span class="versionmodified changed">Changed in version 1.2: </span>Added <cite>msg_queue</cite> attribute</p>
@@ -351,7 +355,7 @@ peer, except for C-CANCEL requests.</p>
 </ul>
 <dl class="py method">
 <dt id="pynetdicom.dimse.DIMSEServiceProvider.__init__">
-<code class="sig-name descname">__init__</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">assoc</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/a3696152/pynetdicom/dimse.py#L135"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom.dimse.DIMSEServiceProvider.__init__" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">__init__</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">assoc</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/d1701faa4/pynetdicom/dimse.py#L135"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom.dimse.DIMSEServiceProvider.__init__" title="Permalink to this definition">¶</a></dt>
 <dd><p>Initialise the DIMSE service provider.</p>
 <div class="versionchanged">
 <p><span class="versionmodified changed">Changed in version 1.3: </span>Class initialisation now only takes <cite>assoc</cite> parameter.</p>
@@ -431,7 +435,7 @@ peer, except for C-CANCEL requests.</p>
 
 <dl class="py method">
 <dt id="pynetdicom.dimse.DIMSEServiceProvider.get_msg">
-<code class="sig-name descname">get_msg</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">block</span><span class="o">=</span><span class="default_value">False</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/a3696152/pynetdicom/dimse.py#L171"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom.dimse.DIMSEServiceProvider.get_msg" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">get_msg</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">block</span><span class="o">=</span><span class="default_value">False</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/d1701faa4/pynetdicom/dimse.py#L171"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom.dimse.DIMSEServiceProvider.get_msg" title="Permalink to this definition">¶</a></dt>
 <dd><p>Get the next available DIMSE message.</p>
 <div class="versionadded">
 <p><span class="versionmodified added">New in version 1.2.</span></p>
@@ -467,7 +471,7 @@ period.</p>
 
 <dl class="py method">
 <dt id="pynetdicom.dimse.DIMSEServiceProvider.peek_msg">
-<code class="sig-name descname">peek_msg</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/a3696152/pynetdicom/dimse.py#L210"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom.dimse.DIMSEServiceProvider.peek_msg" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">peek_msg</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/d1701faa4/pynetdicom/dimse.py#L210"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom.dimse.DIMSEServiceProvider.peek_msg" title="Permalink to this definition">¶</a></dt>
 <dd><p>Return the first message in the message queue or <code class="docutils literal notranslate"><span class="pre">None</span></code>.</p>
 <div class="versionadded">
 <p><span class="versionmodified added">New in version 1.2.</span></p>
@@ -486,7 +490,7 @@ of the queue.</p>
 
 <dl class="py method">
 <dt id="pynetdicom.dimse.DIMSEServiceProvider.receive_primitive">
-<code class="sig-name descname">receive_primitive</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">primitive</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/a3696152/pynetdicom/dimse.py#L227"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom.dimse.DIMSEServiceProvider.receive_primitive" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">receive_primitive</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">primitive</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/d1701faa4/pynetdicom/dimse.py#L227"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom.dimse.DIMSEServiceProvider.receive_primitive" title="Permalink to this definition">¶</a></dt>
 <dd><p>Process a P-DATA primitive received from the remote.</p>
 <div class="versionadded">
 <p><span class="versionmodified added">New in version 1.2.</span></p>
@@ -508,7 +512,7 @@ DIMSE messages while a service class implementation is running.</p>
 
 <dl class="py method">
 <dt id="pynetdicom.dimse.DIMSEServiceProvider.send_msg">
-<code class="sig-name descname">send_msg</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">primitive</span></em>, <em class="sig-param"><span class="n">context_id</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/a3696152/pynetdicom/dimse.py#L288"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom.dimse.DIMSEServiceProvider.send_msg" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">send_msg</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">primitive</span></em>, <em class="sig-param"><span class="n">context_id</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/d1701faa4/pynetdicom/dimse.py#L288"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom.dimse.DIMSEServiceProvider.send_msg" title="Permalink to this definition">¶</a></dt>
 <dd><p>Encode and send a DIMSE-C or DIMSE-N message to the peer AE.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -530,37 +534,29 @@ sent under.</p></li>
            
           </div>
           <footer>
-  
     <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
-      
-        <a href="../dimse.primitives.html" class="btn btn-neutral float-right" title="Service Primitives (pynetdicom.dimse_primitives)" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
-      
-      
-        <a href="../dimse.provider.html" class="btn btn-neutral float-left" title="Service Provider (pynetdicom.dimse)" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
-      
+        <a href="../dimse.primitives.html" class="btn btn-neutral float-right" title="Service Primitives (pynetdicom.dimse_primitives)" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+        <a href="../dimse.provider.html" class="btn btn-neutral float-left" title="Service Provider (pynetdicom.dimse)" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
     </div>
-  
 
   <hr/>
 
   <div role="contentinfo">
     <p>
-        
-        &copy; Copyright 2018-20, pynetdicom contributors
+        &#169; Copyright 2018-20, pynetdicom contributors.
 
     </p>
   </div>
     
     
     
-    Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a
+    Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
     
-    <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a>
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
     
     provided by <a href="https://readthedocs.org">Read the Docs</a>. 
 
 </footer>
-
         </div>
       </div>
 

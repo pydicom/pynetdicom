@@ -3,11 +3,11 @@
 <!DOCTYPE html>
 <html class="writer-html5" lang="en" >
 <head>
-  <meta charset="utf-8">
+  <meta charset="utf-8" />
   
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   
-  <title>pynetdicom.pdu_items.MaximumLengthSubItem &mdash; pynetdicom 1.5.4 documentation</title>
+  <title>pynetdicom.pdu_items.MaximumLengthSubItem &mdash; pynetdicom 1.5.5 documentation</title>
   
 
   
@@ -19,7 +19,10 @@
   
     <link rel="shortcut icon" href="../../_static/favicon.ico"/>
   
+
   
+  
+
   
 
   
@@ -32,7 +35,6 @@
         <script src="../../_static/jquery.js"></script>
         <script src="../../_static/underscore.js"></script>
         <script src="../../_static/doctools.js"></script>
-        <script src="../../_static/language_data.js"></script>
     
     <script type="text/javascript" src="../../_static/js/theme.js"></script>
 
@@ -54,7 +56,7 @@
           
 
           
-            <a href="../../index.html" class="icon icon-home" alt="Documentation Home"> pynetdicom
+            <a href="../../index.html" class="icon icon-home"> pynetdicom
           
 
           
@@ -67,7 +69,7 @@
             
             
               <div class="version">
-                1.5.4
+                1.5.5
               </div>
             
           
@@ -190,6 +192,8 @@
 
 
 
+
+
 <div role="navigation" aria-label="breadcrumbs navigation">
 
   <ul class="wy-breadcrumbs">
@@ -209,7 +213,7 @@
     
       <li class="wy-breadcrumbs-aside">
         
-            
+          
         
       </li>
     
@@ -225,7 +229,7 @@
 <h1>pynetdicom.pdu_items.MaximumLengthSubItem<a class="headerlink" href="#pynetdicom-pdu-items-maximumlengthsubitem" title="Permalink to this headline">¶</a></h1>
 <dl class="py class">
 <dt id="pynetdicom.pdu_items.MaximumLengthSubItem">
-<em class="property">class </em><code class="sig-prename descclassname">pynetdicom.pdu_items.</code><code class="sig-name descname">MaximumLengthSubItem</code><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/a3696152/pynetdicom/pdu_items.py#L1640"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom.pdu_items.MaximumLengthSubItem" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="sig-prename descclassname">pynetdicom.pdu_items.</code><code class="sig-name descname">MaximumLengthSubItem</code><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/d1701faa4/pynetdicom/pdu_items.py#L1640"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom.pdu_items.MaximumLengthSubItem" title="Permalink to this definition">¶</a></dt>
 <dd><p>A Maximum Length Sub-item.</p>
 <p>The Maximum Length Sub-item allows the receivers to limit the size of the
 Presentation Data Values List parameters of each P-DATA PDU.</p>
@@ -317,7 +321,7 @@ always encoded using Big Endian.</p>
 </ul>
 <dl class="py method">
 <dt id="pynetdicom.pdu_items.MaximumLengthSubItem.__init__">
-<code class="sig-name descname">__init__</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/a3696152/pynetdicom/pdu_items.py#L1692"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom.pdu_items.MaximumLengthSubItem.__init__" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">__init__</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/d1701faa4/pynetdicom/pdu_items.py#L1692"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom.pdu_items.MaximumLengthSubItem.__init__" title="Permalink to this definition">¶</a></dt>
 <dd><p>Initialise a new Maximum Length Item.</p>
 </dd></dl>
 
@@ -362,7 +366,7 @@ always encoded using Big Endian.</p>
 </table>
 <dl class="py method">
 <dt id="pynetdicom.pdu_items.MaximumLengthSubItem.from_primitive">
-<code class="sig-name descname">from_primitive</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">primitive</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/a3696152/pynetdicom/pdu_items.py#L1696"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom.pdu_items.MaximumLengthSubItem.from_primitive" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">from_primitive</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">primitive</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/d1701faa4/pynetdicom/pdu_items.py#L1696"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom.pdu_items.MaximumLengthSubItem.from_primitive" title="Permalink to this definition">¶</a></dt>
 <dd><p>Set the item’s values using a Maximum Length <cite>primitive</cite>.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -379,7 +383,7 @@ always encoded using Big Endian.</p>
 
 <dl class="py method">
 <dt id="pynetdicom.pdu_items.MaximumLengthSubItem.to_primitive">
-<code class="sig-name descname">to_primitive</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/a3696152/pynetdicom/pdu_items.py#L1706"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom.pdu_items.MaximumLengthSubItem.to_primitive" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">to_primitive</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/d1701faa4/pynetdicom/pdu_items.py#L1706"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom.pdu_items.MaximumLengthSubItem.to_primitive" title="Permalink to this definition">¶</a></dt>
 <dd><p>Return a Maximum Length primitive from the current Item.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Returns</dt>
@@ -400,37 +404,29 @@ always encoded using Big Endian.</p>
            
           </div>
           <footer>
-  
     <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
-      
-        <a href="pynetdicom.pdu_items.ImplementationClassUIDSubItem.html" class="btn btn-neutral float-right" title="pynetdicom.pdu_items.ImplementationClassUIDSubItem" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
-      
-      
-        <a href="pynetdicom.pdu_items.TransferSyntaxSubItem.html" class="btn btn-neutral float-left" title="pynetdicom.pdu_items.TransferSyntaxSubItem" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
-      
+        <a href="pynetdicom.pdu_items.ImplementationClassUIDSubItem.html" class="btn btn-neutral float-right" title="pynetdicom.pdu_items.ImplementationClassUIDSubItem" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+        <a href="pynetdicom.pdu_items.TransferSyntaxSubItem.html" class="btn btn-neutral float-left" title="pynetdicom.pdu_items.TransferSyntaxSubItem" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
     </div>
-  
 
   <hr/>
 
   <div role="contentinfo">
     <p>
-        
-        &copy; Copyright 2018-20, pynetdicom contributors
+        &#169; Copyright 2018-20, pynetdicom contributors.
 
     </p>
   </div>
     
     
     
-    Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a
+    Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
     
-    <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a>
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
     
     provided by <a href="https://readthedocs.org">Read the Docs</a>. 
 
 </footer>
-
         </div>
       </div>
 

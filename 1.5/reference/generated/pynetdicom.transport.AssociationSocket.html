@@ -3,11 +3,11 @@
 <!DOCTYPE html>
 <html class="writer-html5" lang="en" >
 <head>
-  <meta charset="utf-8">
+  <meta charset="utf-8" />
   
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   
-  <title>pynetdicom.transport.AssociationSocket &mdash; pynetdicom 1.5.4 documentation</title>
+  <title>pynetdicom.transport.AssociationSocket &mdash; pynetdicom 1.5.5 documentation</title>
   
 
   
@@ -19,7 +19,10 @@
   
     <link rel="shortcut icon" href="../../_static/favicon.ico"/>
   
+
   
+  
+
   
 
   
@@ -32,7 +35,6 @@
         <script src="../../_static/jquery.js"></script>
         <script src="../../_static/underscore.js"></script>
         <script src="../../_static/doctools.js"></script>
-        <script src="../../_static/language_data.js"></script>
     
     <script type="text/javascript" src="../../_static/js/theme.js"></script>
 
@@ -54,7 +56,7 @@
           
 
           
-            <a href="../../index.html" class="icon icon-home" alt="Documentation Home"> pynetdicom
+            <a href="../../index.html" class="icon icon-home"> pynetdicom
           
 
           
@@ -67,7 +69,7 @@
             
             
               <div class="version">
-                1.5.4
+                1.5.5
               </div>
             
           
@@ -172,6 +174,8 @@
 
 
 
+
+
 <div role="navigation" aria-label="breadcrumbs navigation">
 
   <ul class="wy-breadcrumbs">
@@ -187,7 +191,7 @@
     
       <li class="wy-breadcrumbs-aside">
         
-            
+          
         
       </li>
     
@@ -203,7 +207,7 @@
 <h1>pynetdicom.transport.AssociationSocket<a class="headerlink" href="#pynetdicom-transport-associationsocket" title="Permalink to this headline">¶</a></h1>
 <dl class="py class">
 <dt id="pynetdicom.transport.AssociationSocket">
-<em class="property">class </em><code class="sig-prename descclassname">pynetdicom.transport.</code><code class="sig-name descname">AssociationSocket</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">assoc</span></em>, <em class="sig-param"><span class="n">client_socket</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">address</span><span class="o">=</span><span class="default_value">('', 0)</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/a3696152/pynetdicom/transport.py#L31"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom.transport.AssociationSocket" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="sig-prename descclassname">pynetdicom.transport.</code><code class="sig-name descname">AssociationSocket</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">assoc</span></em>, <em class="sig-param"><span class="n">client_socket</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">address</span><span class="o">=</span><span class="default_value">('', 0)</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/d1701faa4/pynetdicom/transport.py#L31"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom.transport.AssociationSocket" title="Permalink to this definition">¶</a></dt>
 <dd><p>A wrapper for a <a class="reference external" href="https://docs.python.org/3/library/socket.html#socket-objects">socket</a>
 object.</p>
 <div class="versionadded">
@@ -255,7 +259,7 @@ is not to be used then <code class="docutils literal notranslate"><span class="p
 
 <dl class="py method">
 <dt id="pynetdicom.transport.AssociationSocket.__init__">
-<code class="sig-name descname">__init__</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">assoc</span></em>, <em class="sig-param"><span class="n">client_socket</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">address</span><span class="o">=</span><span class="default_value">('', 0)</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/a3696152/pynetdicom/transport.py#L59"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom.transport.AssociationSocket.__init__" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">__init__</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">assoc</span></em>, <em class="sig-param"><span class="n">client_socket</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">address</span><span class="o">=</span><span class="default_value">('', 0)</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/d1701faa4/pynetdicom/transport.py#L59"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom.transport.AssociationSocket.__init__" title="Permalink to this definition">¶</a></dt>
 <dd><p>Create a new <a class="reference internal" href="#pynetdicom.transport.AssociationSocket" title="pynetdicom.transport.AssociationSocket"><code class="xref py py-class docutils literal notranslate"><span class="pre">AssociationSocket</span></code></a>.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -329,7 +333,7 @@ instance.</p>
 
 <dl class="py method">
 <dt id="pynetdicom.transport.AssociationSocket.close">
-<code class="sig-name descname">close</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/a3696152/pynetdicom/transport.py#L102"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom.transport.AssociationSocket.close" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">close</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/d1701faa4/pynetdicom/transport.py#L102"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom.transport.AssociationSocket.close" title="Permalink to this definition">¶</a></dt>
 <dd><p>Close the connection to the peer and shutdown the socket.</p>
 <p>Sets <a class="reference internal" href="#pynetdicom.transport.AssociationSocket.socket" title="pynetdicom.transport.AssociationSocket.socket"><code class="xref py py-attr docutils literal notranslate"><span class="pre">AssociationSocket.socket</span></code></a> to <code class="docutils literal notranslate"><span class="pre">None</span></code> once complete.</p>
 <p><strong>Events Emitted</strong></p>
@@ -340,7 +344,7 @@ instance.</p>
 
 <dl class="py method">
 <dt id="pynetdicom.transport.AssociationSocket.connect">
-<code class="sig-name descname">connect</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">address</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/a3696152/pynetdicom/transport.py#L125"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom.transport.AssociationSocket.connect" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">connect</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">address</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/d1701faa4/pynetdicom/transport.py#L125"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom.transport.AssociationSocket.connect" title="Permalink to this definition">¶</a></dt>
 <dd><p>Try and connect to a remote at <cite>address</cite>.</p>
 <p><strong>Events Emitted</strong></p>
 <ul class="simple">
@@ -363,7 +367,7 @@ queue.</p>
 
 <dl class="py method">
 <dt id="pynetdicom.transport.AssociationSocket.get_local_addr">
-<code class="sig-name descname">get_local_addr</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">host</span><span class="o">=</span><span class="default_value">('10.255.255.255', 1)</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/a3696152/pynetdicom/transport.py#L231"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom.transport.AssociationSocket.get_local_addr" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">get_local_addr</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">host</span><span class="o">=</span><span class="default_value">('10.255.255.255', 1)</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/d1701faa4/pynetdicom/transport.py#L231"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom.transport.AssociationSocket.get_local_addr" title="Permalink to this definition">¶</a></dt>
 <dd><p>Return an address for the local computer as <a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></a>.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -395,7 +399,7 @@ otherwise.</p>
 
 <dl class="py method">
 <dt id="pynetdicom.transport.AssociationSocket.recv">
-<code class="sig-name descname">recv</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">nr_bytes</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/a3696152/pynetdicom/transport.py#L286"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom.transport.AssociationSocket.recv" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">recv</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">nr_bytes</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/d1701faa4/pynetdicom/transport.py#L286"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom.transport.AssociationSocket.recv" title="Permalink to this definition">¶</a></dt>
 <dd><p>Read <cite>nr_bytes</cite> from the socket.</p>
 <p><em>Events Emitted</em></p>
 <ul class="simple">
@@ -416,7 +420,7 @@ otherwise.</p>
 
 <dl class="py method">
 <dt id="pynetdicom.transport.AssociationSocket.send">
-<code class="sig-name descname">send</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">bytestream</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/a3696152/pynetdicom/transport.py#L329"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom.transport.AssociationSocket.send" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">send</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">bytestream</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/d1701faa4/pynetdicom/transport.py#L329"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom.transport.AssociationSocket.send" title="Permalink to this definition">¶</a></dt>
 <dd><p>Try and send the data in <cite>bytestream</cite> to the remote.</p>
 <p><em>Events Emitted</em></p>
 <ul class="simple">
@@ -445,37 +449,29 @@ otherwise.</p>
            
           </div>
           <footer>
-  
     <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
-      
-        <a href="pynetdicom.transport.AssociationServer.html" class="btn btn-neutral float-right" title="pynetdicom.transport.AssociationServer" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
-      
-      
-        <a href="../transport.html" class="btn btn-neutral float-left" title="Transport Service (pynetdicom.transport)" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
-      
+        <a href="pynetdicom.transport.AssociationServer.html" class="btn btn-neutral float-right" title="pynetdicom.transport.AssociationServer" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+        <a href="../transport.html" class="btn btn-neutral float-left" title="Transport Service (pynetdicom.transport)" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
     </div>
-  
 
   <hr/>
 
   <div role="contentinfo">
     <p>
-        
-        &copy; Copyright 2018-20, pynetdicom contributors
+        &#169; Copyright 2018-20, pynetdicom contributors.
 
     </p>
   </div>
     
     
     
-    Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a
+    Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
     
-    <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a>
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
     
     provided by <a href="https://readthedocs.org">Read the Docs</a>. 
 
 </footer>
-
         </div>
       </div>
 
