@@ -20,6 +20,7 @@ from pynetdicom.pdu_primitives import (
     A_ASSOCIATE, A_RELEASE, A_ABORT, A_P_ABORT, P_DATA
 )
 from pynetdicom.timer import Timer
+from pynetdicom.utils import make_target
 
 
 LOGGER = logging.getLogger('pynetdicom.dul')
@@ -87,7 +88,7 @@ class DULServiceProvider(Thread):
         # TODO: try and make this event based rather than running loops
         self._run_loop_delay = 0.001
 
-        Thread.__init__(self)
+        Thread.__init__(self, target=make_target(self.run_reactor))
         self.daemon = False
         self._kill_thread = False
 
@@ -350,7 +351,7 @@ class DULServiceProvider(Thread):
         except queue.Empty:
             return None
 
-    def run(self):
+    def run_reactor(self):
         """Run the DUL reactor.
 
         The main :class:`threading.Thread` run loop. Runs constantly, checking

@@ -151,3 +151,23 @@ Examples
 >>> from pynetdicom import _config
 >>> _config.STORE_RECV_CHUNKED_DATASET = True
 """
+
+PASS_CONTEXTVARS = False
+"""Pass context-local state to concurrent pynetdicom code.
+
+.. versionadded:: 2.0
+
+If ``True``, then any ``contextvars.ContextVar`` instances defined in the
+calling context will be made available to pynetdicom's concurrent contexts. 
+This allows the caller to define contextual behavior without modifying
+pynetdicom. For example, one could add a logging filter to the pynetdicom
+logger that references an externally defined ``contextvars.ContextVar``.
+
+Default: ``False``.
+
+Examples
+--------
+
+>>> from pynetdicom import _config
+>>> _config.PASS_CONTEXTVARS = True
+"""
