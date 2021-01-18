@@ -606,8 +606,8 @@ def handle_store(event, args, app_logger):
             app_logger.error(f"    {args.output_directory}")
             app_logger.exception(exc)
             # Failed - Out of Resources - IOError
-            status.Status = 0xA700
-            return status
+            status_ds.Status = 0xA700
+            return status_ds
 
     try:
         if event.context.transfer_syntax == DeflatedExplicitVRLittleEndian:
