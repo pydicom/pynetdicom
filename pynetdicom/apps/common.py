@@ -588,10 +588,7 @@ def handle_store(event, args, app_logger):
         mode_prefix = 'UN'
 
     filename = f'{mode_prefix}.{sop_instance}'
-    app_logger.info(f'Storing DICOM file: {filename}')
-
-    if os.path.exists(filename):
-        app_logger.warning('DICOM file already exists, overwriting')
+    app_logger.info(f'Storing DICOM file: {filename}')    
 
     status_ds = Dataset()
     status_ds.Status = 0x0000
@@ -609,6 +606,9 @@ def handle_store(event, args, app_logger):
             status_ds.Status = 0xA700
             return status_ds
 
+    if os.path.exists(filename):
+        app_logger.warning('DICOM file already exists, overwriting')        
+        
     try:
         if event.context.transfer_syntax == DeflatedExplicitVRLittleEndian:
             # Workaround for pydicom issue #1086
