@@ -593,9 +593,6 @@ def handle_store(event, args, app_logger):
     filename = '{0!s}.{1!s}'.format(mode_prefix, sop_instance)
     app_logger.info('Storing DICOM file: {0!s}'.format(filename))
 
-    if os.path.exists(filename):
-        app_logger.warning('DICOM file already exists, overwriting')
-
     status_ds = Dataset()
     status_ds.Status = 0x0000
 
@@ -609,8 +606,11 @@ def handle_store(event, args, app_logger):
             app_logger.error("    {0!s}".format(args.output_directory))
             app_logger.exception(exc)
             # Failed - Out of Resources - IOError
-            status.Status = 0xA700
-            return status
+            status_ds.Status = 0xA700
+            return status_ds
+
+    if os.path.exists(filename):
+        app_logger.warning('DICOM file already exists, overwriting')
 
     try:
         if event.context.transfer_syntax == DeflatedExplicitVRLittleEndian:
