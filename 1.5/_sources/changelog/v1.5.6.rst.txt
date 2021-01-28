@@ -1,0 +1,11 @@
+.. _v1.5.6:
+
+1.5.6
+=====
+
+Fixes
+.....
+
+* Fixes for the C-STORE handler used by the `storescp`, `qrscp` and `movescu`
+  apps (:pr:`579`, :pr:`581`)
+* Fixed the `qrscp` app's missing `default.ini` file (:issue:`583`)
