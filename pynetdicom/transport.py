@@ -214,6 +214,8 @@ class AssociationSocket(object):
                 socket.SO_RCVTIMEO,
                 pack('ll', timeout_seconds, timeout_microsec)
             )
+            # Make timeout visible for ssl
+            sock.settimeout(self.assoc.network_timeout)
 
         sock.bind(address)
 
