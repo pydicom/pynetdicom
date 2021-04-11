@@ -56,14 +56,14 @@ def which(program):
 
 def start_movescu(args):
     """Start the movescu.py app and return the process."""
-    pargs = [which('python'), APP_FILE, 'localhost', '11112'] + [*args]
+    pargs = [sys.executable, APP_FILE, 'localhost', '11112'] + [*args]
     return subprocess.Popen(pargs)
 
 
 def start_movescu_cli(args):
     """Start the movescu.py app using CLI and return the process."""
     pargs = [
-        which('python'), '-m', 'pynetdicom', 'movescu', 'localhost', '11112'
+        sys.executable, '-m', 'pynetdicom', 'movescu', 'localhost', '11112'
     ] + [*args]
     return subprocess.Popen(pargs)
 

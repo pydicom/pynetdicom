@@ -48,19 +48,19 @@ def which(program):
 
 def start_qrscp(args):
     """Start the qrscp.py app and return the process."""
-    pargs = [which('python'), APP_FILE] + [*args]
+    pargs = [sys.executable, APP_FILE] + [*args]
     return subprocess.Popen(pargs)
 
 
 def start_qrscp_cli(args):
     """Start the qrscp app using CLI and return the process."""
-    pargs = [which('python'), '-m', 'pynetdicom', 'qrscp'] + [*args]
+    pargs = [sys.executable, '-m', 'pynetdicom', 'qrscp'] + [*args]
     return subprocess.Popen(pargs)
 
 
 def _send_datasets():
     pargs = [
-        which('python'), '-m', 'pynetdicom', 'storescu', 'localhost', '11112',
+        sys.executable, '-m', 'pynetdicom', 'storescu', 'localhost', '11112',
         DATA_DIR, '-cx'
     ]
     subprocess.Popen(pargs)

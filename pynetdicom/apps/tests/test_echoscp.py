@@ -45,13 +45,13 @@ def which(program):
 
 def start_echoscp(args):
     """Start the echoscp.py app and return the process."""
-    pargs = [which('python'), APP_FILE, '11112'] + [*args]
+    pargs = [sys.executable, APP_FILE, '11112'] + [*args]
     return subprocess.Popen(pargs)
 
 
 def start_echoscp_cli(args):
     """Start the echoscp app using CLI and return the process."""
-    pargs = [which('python'), '-m', 'pynetdicom', 'echoscp', '11112'] + [*args]
+    pargs = [sys.executable, '-m', 'pynetdicom', 'echoscp', '11112'] + [*args]
     return subprocess.Popen(pargs)
 
 

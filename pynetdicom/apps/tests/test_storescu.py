@@ -54,14 +54,14 @@ def which(program):
 
 def start_storescu(args):
     """Start the storescu.py app and return the process."""
-    pargs = [which('python'), APP_FILE, 'localhost', '11112'] + [*args]
+    pargs = [sys.executable, APP_FILE, 'localhost', '11112'] + [*args]
     return subprocess.Popen(pargs)
 
 
 def start_storescu_cli(args):
     """Start the storescu app using CLI and return the process."""
     pargs = [
-        which('python'), '-m', 'pynetdicom', 'storescu', 'localhost', '11112'
+        sys.executable, '-m', 'pynetdicom', 'storescu', 'localhost', '11112'
     ] + [*args]
     return subprocess.Popen(pargs)
 

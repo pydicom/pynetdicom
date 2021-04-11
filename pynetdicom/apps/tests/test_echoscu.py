@@ -42,14 +42,14 @@ def which(program):
 
 def start_echoscu(args):
     """Start the echoscu.py app and return the process."""
-    pargs = [which('python'), APP_FILE, 'localhost', '11112'] + [*args]
+    pargs = [sys.executable, APP_FILE, 'localhost', '11112'] + [*args]
     return subprocess.Popen(pargs)
 
 
 def start_echoscu_cli(args):
     """Start the echoscu app using CLI and return the process."""
     pargs = [
-        which('python'), '-m', 'pynetdicom', 'echoscu', 'localhost', '11112'
+        sys.executable, '-m', 'pynetdicom', 'echoscu', 'localhost', '11112'
     ] + [*args]
     return subprocess.Popen(pargs)
 

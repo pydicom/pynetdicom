@@ -46,14 +46,14 @@ def which(program):
 
 def start_storescp(args):
     """Start the storescp.py app and return the process."""
-    pargs = [which('python'), APP_FILE, '11112'] + [*args]
+    pargs = [sys.executable, APP_FILE, '11112'] + [*args]
     return subprocess.Popen(pargs)
 
 
 def start_storescp_cli(args):
     """Start the storescp app using CLI and return the process."""
     pargs = [
-        which('python'), '-m', 'pynetdicom', 'storescp', '11112'
+        sys.executable, '-m', 'pynetdicom', 'storescp', '11112'
     ] + [*args]
     return subprocess.Popen(pargs)
 
