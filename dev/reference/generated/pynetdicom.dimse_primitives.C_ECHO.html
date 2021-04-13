@@ -215,7 +215,7 @@
 <h1>pynetdicom.dimse_primitives.C_ECHO<a class="headerlink" href="#pynetdicom-dimse-primitives-c-echo" title="Permalink to this headline">¶</a></h1>
 <dl class="py class">
 <dt id="pynetdicom.dimse_primitives.C_ECHO">
-<em class="property">class </em><code class="sig-prename descclassname">pynetdicom.dimse_primitives.</code><code class="sig-name descname">C_ECHO</code><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/93b4a0983/pynetdicom/dimse_primitives.py#L1255"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom.dimse_primitives.C_ECHO" title="Permalink to this definition">¶</a></dt>
+<em class="property"><span class="pre">class</span> </em><code class="sig-prename descclassname"><span class="pre">pynetdicom.dimse_primitives.</span></code><code class="sig-name descname"><span class="pre">C_ECHO</span></code><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/b8d6b94f6/pynetdicom/dimse_primitives.py#L1255"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pynetdicom.dimse_primitives.C_ECHO" title="Permalink to this definition">¶</a></dt>
 <dd><p>Represents a C-ECHO primitive.</p>
 <table class="docutils align-default">
 <colgroup>
@@ -263,7 +263,7 @@ in the column to the left</div>
 </div>
 <dl class="py attribute">
 <dt id="pynetdicom.dimse_primitives.C_ECHO.MessageID">
-<code class="sig-name descname">MessageID</code><a class="headerlink" href="#pynetdicom.dimse_primitives.C_ECHO.MessageID" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname"><span class="pre">MessageID</span></code><a class="headerlink" href="#pynetdicom.dimse_primitives.C_ECHO.MessageID" title="Permalink to this definition">¶</a></dt>
 <dd><p>Identifies the operation and is used to distinguish this
 operation from other notifications or operations that may be in
 progress. No two identical values for the Message ID shall be used for
@@ -277,7 +277,7 @@ outstanding operations.</p>
 
 <dl class="py attribute">
 <dt id="pynetdicom.dimse_primitives.C_ECHO.MessageIDBeingRespondedTo">
-<code class="sig-name descname">MessageIDBeingRespondedTo</code><a class="headerlink" href="#pynetdicom.dimse_primitives.C_ECHO.MessageIDBeingRespondedTo" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname"><span class="pre">MessageIDBeingRespondedTo</span></code><a class="headerlink" href="#pynetdicom.dimse_primitives.C_ECHO.MessageIDBeingRespondedTo" title="Permalink to this definition">¶</a></dt>
 <dd><p>The Message ID of the operation request/indication to which this
 response/confirmation applies.</p>
 <dl class="field-list simple">
@@ -289,7 +289,7 @@ response/confirmation applies.</p>
 
 <dl class="py attribute">
 <dt id="pynetdicom.dimse_primitives.C_ECHO.AffectedSOPClassUID">
-<code class="sig-name descname">AffectedSOPClassUID</code><a class="headerlink" href="#pynetdicom.dimse_primitives.C_ECHO.AffectedSOPClassUID" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname"><span class="pre">AffectedSOPClassUID</span></code><a class="headerlink" href="#pynetdicom.dimse_primitives.C_ECHO.AffectedSOPClassUID" title="Permalink to this definition">¶</a></dt>
 <dd><p>For the request/indication this specifies the SOP Class for
 storage. If included in the response/confirmation, it shall be equal
 to the value in the request/indication</p>
@@ -302,7 +302,7 @@ to the value in the request/indication</p>
 
 <dl class="py attribute">
 <dt id="pynetdicom.dimse_primitives.C_ECHO.Status">
-<code class="sig-name descname">Status</code><a class="headerlink" href="#pynetdicom.dimse_primitives.C_ECHO.Status" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname"><span class="pre">Status</span></code><a class="headerlink" href="#pynetdicom.dimse_primitives.C_ECHO.Status" title="Permalink to this definition">¶</a></dt>
 <dd><p>The error or success notification of the operation.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Type</dt>
@@ -313,7 +313,7 @@ to the value in the request/indication</p>
 
 <dl class="py attribute">
 <dt id="pynetdicom.dimse_primitives.C_ECHO.ErrorComment">
-<code class="sig-name descname">ErrorComment</code><a class="headerlink" href="#pynetdicom.dimse_primitives.C_ECHO.ErrorComment" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname"><span class="pre">ErrorComment</span></code><a class="headerlink" href="#pynetdicom.dimse_primitives.C_ECHO.ErrorComment" title="Permalink to this definition">¶</a></dt>
 <dd><p>An optional status related field containing a text description
 of the error detected. 64 characters maximum.</p>
 <dl class="field-list simple">
@@ -325,7 +325,7 @@ of the error detected. 64 characters maximum.</p>
 
 <dl class="py method">
 <dt id="pynetdicom.dimse_primitives.C_ECHO.__init__">
-<code class="sig-name descname">__init__</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/93b4a0983/pynetdicom/dimse_primitives.py#L1303"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom.dimse_primitives.C_ECHO.__init__" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname"><span class="pre">__init__</span></code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/b8d6b94f6/pynetdicom/dimse_primitives.py#L1303"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pynetdicom.dimse_primitives.C_ECHO.__init__" title="Permalink to this definition">¶</a></dt>
 <dd><p>Initialize self.  See help(type(self)) for accurate signature.</p>
 </dd></dl>
 

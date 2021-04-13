@@ -223,13 +223,13 @@
 <h1>pynetdicom.pdu.A_RELEASE_RQ<a class="headerlink" href="#pynetdicom-pdu-a-release-rq" title="Permalink to this headline">¶</a></h1>
 <dl class="py class">
 <dt id="pynetdicom.pdu.A_RELEASE_RQ">
-<em class="property">class </em><code class="sig-prename descclassname">pynetdicom.pdu.</code><code class="sig-name descname">A_RELEASE_RQ</code><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/93b4a0983/pynetdicom/pdu.py#L1540"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom.pdu.A_RELEASE_RQ" title="Permalink to this definition">¶</a></dt>
+<em class="property"><span class="pre">class</span> </em><code class="sig-prename descclassname"><span class="pre">pynetdicom.pdu.</span></code><code class="sig-name descname"><span class="pre">A_RELEASE_RQ</span></code><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/b8d6b94f6/pynetdicom/pdu.py#L1540"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pynetdicom.pdu.A_RELEASE_RQ" title="Permalink to this definition">¶</a></dt>
 <dd><p>An A-RELEASE-RQ PDU.</p>
 <p>An A-RELEASE-RQ PDU is used once an association has been established to
 initiate the release of the association.</p>
 <dl class="py attribute">
 <dt id="pynetdicom.pdu.A_RELEASE_RQ.pdu_length">
-<code class="sig-name descname">pdu_length</code><a class="headerlink" href="#pynetdicom.pdu.A_RELEASE_RQ.pdu_length" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname"><span class="pre">pdu_length</span></code><a class="headerlink" href="#pynetdicom.pdu.A_RELEASE_RQ.pdu_length" title="Permalink to this definition">¶</a></dt>
 <dd><p>The number of bytes from the first byte following the <em>PDU Length</em>
 field to the last byte of the PDU.</p>
 <dl class="field-list simple">
@@ -241,7 +241,7 @@ field to the last byte of the PDU.</p>
 
 <dl class="py attribute">
 <dt id="pynetdicom.pdu.A_RELEASE_RQ.pdu_type">
-<code class="sig-name descname">pdu_type</code><a class="headerlink" href="#pynetdicom.pdu.A_RELEASE_RQ.pdu_type" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname"><span class="pre">pdu_type</span></code><a class="headerlink" href="#pynetdicom.pdu.A_RELEASE_RQ.pdu_type" title="Permalink to this definition">¶</a></dt>
 <dd><p>The <em>PDU Type</em> field value (<code class="docutils literal notranslate"><span class="pre">0x05</span></code>).</p>
 <dl class="field-list simple">
 <dt class="field-odd">Type</dt>
@@ -300,7 +300,7 @@ encoded using Big Endian.</p>
 </ul>
 <dl class="py method">
 <dt id="pynetdicom.pdu.A_RELEASE_RQ.__init__">
-<code class="sig-name descname">__init__</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/93b4a0983/pynetdicom/pdu.py#L1587"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom.pdu.A_RELEASE_RQ.__init__" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname"><span class="pre">__init__</span></code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/b8d6b94f6/pynetdicom/pdu.py#L1587"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pynetdicom.pdu.A_RELEASE_RQ.__init__" title="Permalink to this definition">¶</a></dt>
 <dd><p>Initialise a new A-RELEASE-RQ PDU.</p>
 </dd></dl>
 
@@ -345,7 +345,7 @@ encoded using Big Endian.</p>
 </table>
 <dl class="py method">
 <dt id="pynetdicom.pdu.A_RELEASE_RQ.from_primitive">
-<em class="property">static </em><code class="sig-name descname">from_primitive</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">primitive</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/93b4a0983/pynetdicom/pdu.py#L1591"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom.pdu.A_RELEASE_RQ.from_primitive" title="Permalink to this definition">¶</a></dt>
+<em class="property"><span class="pre">static</span> </em><code class="sig-name descname"><span class="pre">from_primitive</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">primitive</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/b8d6b94f6/pynetdicom/pdu.py#L1591"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pynetdicom.pdu.A_RELEASE_RQ.from_primitive" title="Permalink to this definition">¶</a></dt>
 <dd><p>Setup the current PDU using an A-RELEASE (request) primitive.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -356,13 +356,13 @@ encoded using Big Endian.</p>
 
 <dl class="py method">
 <dt id="id0">
-<em class="property">property </em><code class="sig-name descname">pdu_length</code><a class="headerlink" href="#id0" title="Permalink to this definition">¶</a></dt>
+<em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">pdu_length</span></code><a class="headerlink" href="#id0" title="Permalink to this definition">¶</a></dt>
 <dd><p>Return the <em>PDU Length</em> field value as an int.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt id="pynetdicom.pdu.A_RELEASE_RQ.to_primitive">
-<em class="property">static </em><code class="sig-name descname">to_primitive</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/93b4a0983/pynetdicom/pdu.py#L1602"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom.pdu.A_RELEASE_RQ.to_primitive" title="Permalink to this definition">¶</a></dt>
+<em class="property"><span class="pre">static</span> </em><code class="sig-name descname"><span class="pre">to_primitive</span></code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/b8d6b94f6/pynetdicom/pdu.py#L1602"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pynetdicom.pdu.A_RELEASE_RQ.to_primitive" title="Permalink to this definition">¶</a></dt>
 <dd><p>Return an A-RELEASE (request) primitive from the current PDU.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Returns</dt>

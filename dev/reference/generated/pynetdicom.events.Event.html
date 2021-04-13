@@ -212,7 +212,7 @@
 <h1>pynetdicom.events.Event<a class="headerlink" href="#pynetdicom-events-event" title="Permalink to this headline">¶</a></h1>
 <dl class="py class">
 <dt id="pynetdicom.events.Event">
-<em class="property">class </em><code class="sig-prename descclassname">pynetdicom.events.</code><code class="sig-name descname">Event</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">assoc</span></em>, <em class="sig-param"><span class="n">event</span></em>, <em class="sig-param"><span class="n">attrs</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/93b4a0983/pynetdicom/events.py#L236"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom.events.Event" title="Permalink to this definition">¶</a></dt>
+<em class="property"><span class="pre">class</span> </em><code class="sig-prename descclassname"><span class="pre">pynetdicom.events.</span></code><code class="sig-name descname"><span class="pre">Event</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">assoc</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">event</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">attrs</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/b8d6b94f6/pynetdicom/events.py#L236"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pynetdicom.events.Event" title="Permalink to this definition">¶</a></dt>
 <dd><p>Representation of an event.</p>
 <div class="versionadded">
 <p><span class="versionmodified added">New in version 1.3.</span></p>
@@ -228,7 +228,7 @@ are available for a given event.</p>
 </div>
 <dl class="py attribute">
 <dt id="pynetdicom.events.Event.assoc">
-<code class="sig-name descname">assoc</code><a class="headerlink" href="#pynetdicom.events.Event.assoc" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname"><span class="pre">assoc</span></code><a class="headerlink" href="#pynetdicom.events.Event.assoc" title="Permalink to this definition">¶</a></dt>
 <dd><p>The association in which the event occurred.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Type</dt>
@@ -239,7 +239,7 @@ are available for a given event.</p>
 
 <dl class="py attribute">
 <dt id="pynetdicom.events.Event.event">
-<code class="sig-name descname">event</code><a class="headerlink" href="#pynetdicom.events.Event.event" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname"><span class="pre">event</span></code><a class="headerlink" href="#pynetdicom.events.Event.event" title="Permalink to this definition">¶</a></dt>
 <dd><p>A <a class="reference external" href="https://docs.python.org/3/library/collections.html#collections.namedtuple" title="(in Python v3.9)"><code class="xref py py-func docutils literal notranslate"><span class="pre">namedtuple</span></code></a> instance representing the
 event that occurred.</p>
 <dl class="field-list simple">
@@ -251,7 +251,7 @@ event that occurred.</p>
 
 <dl class="py attribute">
 <dt id="pynetdicom.events.Event.timestamp">
-<code class="sig-name descname">timestamp</code><a class="headerlink" href="#pynetdicom.events.Event.timestamp" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname"><span class="pre">timestamp</span></code><a class="headerlink" href="#pynetdicom.events.Event.timestamp" title="Permalink to this definition">¶</a></dt>
 <dd><p>The date/time the event was created. Will be slightly before or after
 the actual event that this object represents.</p>
 <dl class="field-list simple">
@@ -263,7 +263,7 @@ the actual event that this object represents.</p>
 
 <dl class="py method">
 <dt id="pynetdicom.events.Event.__init__">
-<code class="sig-name descname">__init__</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">assoc</span></em>, <em class="sig-param"><span class="n">event</span></em>, <em class="sig-param"><span class="n">attrs</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/93b4a0983/pynetdicom/events.py#L261"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom.events.Event.__init__" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname"><span class="pre">__init__</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">assoc</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">event</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">attrs</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/b8d6b94f6/pynetdicom/events.py#L261"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pynetdicom.events.Event.__init__" title="Permalink to this definition">¶</a></dt>
 <dd><p>Create a new Event.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -345,7 +345,7 @@ the actual event that this object represents.</p>
 </table>
 <dl class="py method">
 <dt id="pynetdicom.events.Event.action_information">
-<em class="property">property </em><code class="sig-name descname">action_information</code><a class="headerlink" href="#pynetdicom.events.Event.action_information" title="Permalink to this definition">¶</a></dt>
+<em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">action_information</span></code><a class="headerlink" href="#pynetdicom.events.Event.action_information" title="Permalink to this definition">¶</a></dt>
 <dd><p>Return an N-ACTION request’s <cite>Action Information</cite> as a <em>pydicom</em>
 <a class="reference external" href="https://pydicom.github.io/pydicom/stable/reference/generated/pydicom.dataset.Dataset.html#pydicom.dataset.Dataset" title="(in pydicom v2.1.2)"><code class="xref py py-class docutils literal notranslate"><span class="pre">Dataset</span></code></a>.</p>
 <p>Because <em>pydicom</em> defers data parsing during decoding until an element
@@ -368,7 +368,7 @@ that uses the returned <a class="reference external" href="https://pydicom.githu
 
 <dl class="py method">
 <dt id="pynetdicom.events.Event.action_type">
-<em class="property">property </em><code class="sig-name descname">action_type</code><a class="headerlink" href="#pynetdicom.events.Event.action_type" title="Permalink to this definition">¶</a></dt>
+<em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">action_type</span></code><a class="headerlink" href="#pynetdicom.events.Event.action_type" title="Permalink to this definition">¶</a></dt>
 <dd><p>Return an N-ACTION request’s <cite>Action Type ID</cite> as an <a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.9)"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></a>.</p>
 <div class="versionadded">
 <p><span class="versionmodified added">New in version 1.4.</span></p>
@@ -388,7 +388,7 @@ that uses the returned <a class="reference external" href="https://pydicom.githu
 
 <dl class="py method">
 <dt id="pynetdicom.events.Event.attribute_identifiers">
-<em class="property">property </em><code class="sig-name descname">attribute_identifiers</code><a class="headerlink" href="#pynetdicom.events.Event.attribute_identifiers" title="Permalink to this definition">¶</a></dt>
+<em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">attribute_identifiers</span></code><a class="headerlink" href="#pynetdicom.events.Event.attribute_identifiers" title="Permalink to this definition">¶</a></dt>
 <dd><p>Return an N-GET request’s <cite>Attribute Identifier List</cite> as a
 <a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.9)"><code class="xref py py-class docutils literal notranslate"><span class="pre">list</span></code></a> of <em>pydicom</em> <a class="reference external" href="https://pydicom.github.io/pydicom/stable/reference/generated/pydicom.tag.BaseTag.html#pydicom.tag.BaseTag" title="(in pydicom v2.1.2)"><code class="xref py py-class docutils literal notranslate"><span class="pre">BaseTag</span></code></a>.</p>
 <dl class="field-list simple">
@@ -408,7 +408,7 @@ request.</p>
 
 <dl class="py method">
 <dt id="pynetdicom.events.Event.attribute_list">
-<em class="property">property </em><code class="sig-name descname">attribute_list</code><a class="headerlink" href="#pynetdicom.events.Event.attribute_list" title="Permalink to this definition">¶</a></dt>
+<em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">attribute_list</span></code><a class="headerlink" href="#pynetdicom.events.Event.attribute_list" title="Permalink to this definition">¶</a></dt>
 <dd><p>Return an N-CREATE request’s <cite>Attribute List</cite> as a <em>pydicom</em>
 <a class="reference external" href="https://pydicom.github.io/pydicom/stable/reference/generated/pydicom.dataset.Dataset.html#pydicom.dataset.Dataset" title="(in pydicom v2.1.2)"><code class="xref py py-class docutils literal notranslate"><span class="pre">Dataset</span></code></a>.</p>
 <p>Because <em>pydicom</em> defers data parsing during decoding until an element
@@ -431,7 +431,7 @@ that uses the returned <a class="reference external" href="https://pydicom.githu
 
 <dl class="py method">
 <dt id="pynetdicom.events.Event.dataset">
-<em class="property">property </em><code class="sig-name descname">dataset</code><a class="headerlink" href="#pynetdicom.events.Event.dataset" title="Permalink to this definition">¶</a></dt>
+<em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">dataset</span></code><a class="headerlink" href="#pynetdicom.events.Event.dataset" title="Permalink to this definition">¶</a></dt>
 <dd><p>Return a C-STORE request’s <cite>Data Set</cite> as a <em>pydicom</em>
 <a class="reference external" href="https://pydicom.github.io/pydicom/stable/reference/generated/pydicom.dataset.Dataset.html#pydicom.dataset.Dataset" title="(in pydicom v2.1.2)"><code class="xref py py-class docutils literal notranslate"><span class="pre">Dataset</span></code></a>.</p>
 <p>Because <em>pydicom</em> defers data parsing during decoding until an element
@@ -454,7 +454,7 @@ that uses the returned <a class="reference external" href="https://pydicom.githu
 
 <dl class="py method">
 <dt id="pynetdicom.events.Event.dataset_path">
-<em class="property">property </em><code class="sig-name descname">dataset_path</code><a class="headerlink" href="#pynetdicom.events.Event.dataset_path" title="Permalink to this definition">¶</a></dt>
+<em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">dataset_path</span></code><a class="headerlink" href="#pynetdicom.events.Event.dataset_path" title="Permalink to this definition">¶</a></dt>
 <dd><p>Return the path to the dataset when
 <a class="reference internal" href="pynetdicom._config.STORE_RECV_CHUNKED_DATASET.html#pynetdicom._config.STORE_RECV_CHUNKED_DATASET" title="pynetdicom._config.STORE_RECV_CHUNKED_DATASET"><code class="xref py py-attr docutils literal notranslate"><span class="pre">STORE_RECV_CHUNKED_DATASET</span></code></a> is <code class="docutils literal notranslate"><span class="pre">True</span></code>.</p>
 <dl class="field-list simple">
@@ -469,7 +469,7 @@ that uses the returned <a class="reference external" href="https://pydicom.githu
 
 <dl class="py method">
 <dt id="id0">
-<em class="property">property </em><code class="sig-name descname">event</code><a class="headerlink" href="#id0" title="Permalink to this definition">¶</a></dt>
+<em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">event</span></code><a class="headerlink" href="#id0" title="Permalink to this definition">¶</a></dt>
 <dd><p>Return the corresponding event.</p>
 <div class="versionadded">
 <p><span class="versionmodified added">New in version 1.4.</span></p>
@@ -487,7 +487,7 @@ that uses the returned <a class="reference external" href="https://pydicom.githu
 
 <dl class="py method">
 <dt id="pynetdicom.events.Event.event_information">
-<em class="property">property </em><code class="sig-name descname">event_information</code><a class="headerlink" href="#pynetdicom.events.Event.event_information" title="Permalink to this definition">¶</a></dt>
+<em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">event_information</span></code><a class="headerlink" href="#pynetdicom.events.Event.event_information" title="Permalink to this definition">¶</a></dt>
 <dd><p>Return an N-EVENT-REPORT request’s <cite>Event Information</cite> as a
 <em>pydicom</em> <a class="reference external" href="https://pydicom.github.io/pydicom/stable/reference/generated/pydicom.dataset.Dataset.html#pydicom.dataset.Dataset" title="(in pydicom v2.1.2)"><code class="xref py py-class docutils literal notranslate"><span class="pre">Dataset</span></code></a>.</p>
 <p>Because <em>pydicom</em> defers data parsing during decoding until an element
@@ -510,7 +510,7 @@ that uses the returned <a class="reference external" href="https://pydicom.githu
 
 <dl class="py method">
 <dt id="pynetdicom.events.Event.event_type">
-<em class="property">property </em><code class="sig-name descname">event_type</code><a class="headerlink" href="#pynetdicom.events.Event.event_type" title="Permalink to this definition">¶</a></dt>
+<em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">event_type</span></code><a class="headerlink" href="#pynetdicom.events.Event.event_type" title="Permalink to this definition">¶</a></dt>
 <dd><p>Return an N-EVENT-REPORT request’s <cite>Event Type ID</cite> as an
 <a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.9)"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></a>.</p>
 <div class="versionadded">
@@ -531,7 +531,7 @@ that uses the returned <a class="reference external" href="https://pydicom.githu
 
 <dl class="py method">
 <dt id="pynetdicom.events.Event.file_meta">
-<em class="property">property </em><code class="sig-name descname">file_meta</code><a class="headerlink" href="#pynetdicom.events.Event.file_meta" title="Permalink to this definition">¶</a></dt>
+<em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">file_meta</span></code><a class="headerlink" href="#pynetdicom.events.Event.file_meta" title="Permalink to this definition">¶</a></dt>
 <dd><p>Return a <em>pydicom</em> <a class="reference external" href="https://pydicom.github.io/pydicom/stable/reference/generated/pydicom.dataset.Dataset.html#pydicom.dataset.Dataset" title="(in pydicom v2.1.2)"><code class="xref py py-class docutils literal notranslate"><span class="pre">Dataset</span></code></a> with the
 <a class="reference external" href="http://dicom.nema.org/medical/dicom/current/output/chtml/part10/chapter_7.html#sect_7.1">File Meta Information</a> for a
 C-STORE request’s <cite>Data Set</cite>.</p>
@@ -586,7 +586,7 @@ request’s <em>Data Set</em>.</p>
 
 <dl class="py method">
 <dt id="pynetdicom.events.Event.identifier">
-<em class="property">property </em><code class="sig-name descname">identifier</code><a class="headerlink" href="#pynetdicom.events.Event.identifier" title="Permalink to this definition">¶</a></dt>
+<em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">identifier</span></code><a class="headerlink" href="#pynetdicom.events.Event.identifier" title="Permalink to this definition">¶</a></dt>
 <dd><p>Return a C-FIND, C-GET or C-MOVE request’s <cite>Identifier</cite> as a
 <em>pydicom</em> <a class="reference external" href="https://pydicom.github.io/pydicom/stable/reference/generated/pydicom.dataset.Dataset.html#pydicom.dataset.Dataset" title="(in pydicom v2.1.2)"><code class="xref py py-class docutils literal notranslate"><span class="pre">Dataset</span></code></a>.</p>
 <p>Because <em>pydicom</em> defers data parsing during decoding until an element
@@ -610,7 +610,7 @@ that uses the returned <a class="reference external" href="https://pydicom.githu
 
 <dl class="py method">
 <dt id="pynetdicom.events.Event.is_cancelled">
-<em class="property">property </em><code class="sig-name descname">is_cancelled</code><a class="headerlink" href="#pynetdicom.events.Event.is_cancelled" title="Permalink to this definition">¶</a></dt>
+<em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">is_cancelled</span></code><a class="headerlink" href="#pynetdicom.events.Event.is_cancelled" title="Permalink to this definition">¶</a></dt>
 <dd><p>Return <code class="docutils literal notranslate"><span class="pre">True</span></code> if a C-CANCEL request has been received.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Returns</dt>
@@ -630,7 +630,7 @@ the event is not a C-FIND, C-GET or C-MOVE request then returns
 
 <dl class="py method">
 <dt id="pynetdicom.events.Event.message_id">
-<em class="property">property </em><code class="sig-name descname">message_id</code><a class="headerlink" href="#pynetdicom.events.Event.message_id" title="Permalink to this definition">¶</a></dt>
+<em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">message_id</span></code><a class="headerlink" href="#pynetdicom.events.Event.message_id" title="Permalink to this definition">¶</a></dt>
 <dd><p>Return a DIMSE service request’s <cite>Message ID</cite> as <a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.9)"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></a>.</p>
 <div class="versionadded">
 <p><span class="versionmodified added">New in version 1.5.</span></p>
@@ -651,7 +651,7 @@ the event is not a C-FIND, C-GET or C-MOVE request then returns
 
 <dl class="py method">
 <dt id="pynetdicom.events.Event.modification_list">
-<em class="property">property </em><code class="sig-name descname">modification_list</code><a class="headerlink" href="#pynetdicom.events.Event.modification_list" title="Permalink to this definition">¶</a></dt>
+<em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">modification_list</span></code><a class="headerlink" href="#pynetdicom.events.Event.modification_list" title="Permalink to this definition">¶</a></dt>
 <dd><p>Return an N-SET request’s <cite>Modification List</cite> as a <em>pydicom</em>
 <a class="reference external" href="https://pydicom.github.io/pydicom/stable/reference/generated/pydicom.dataset.Dataset.html#pydicom.dataset.Dataset" title="(in pydicom v2.1.2)"><code class="xref py py-class docutils literal notranslate"><span class="pre">Dataset</span></code></a>.</p>
 <p>Because <em>pydicom</em> defers data parsing during decoding until an element
@@ -674,7 +674,7 @@ that uses the returned <a class="reference external" href="https://pydicom.githu
 
 <dl class="py method">
 <dt id="pynetdicom.events.Event.move_destination">
-<em class="property">property </em><code class="sig-name descname">move_destination</code><a class="headerlink" href="#pynetdicom.events.Event.move_destination" title="Permalink to this definition">¶</a></dt>
+<em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">move_destination</span></code><a class="headerlink" href="#pynetdicom.events.Event.move_destination" title="Permalink to this definition">¶</a></dt>
 <dd><p>Return a C-MOVE request’s <cite>Move Destination</cite> as <a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#bytes" title="(in Python v3.9)"><code class="xref py py-class docutils literal notranslate"><span class="pre">bytes</span></code></a>.</p>
 <div class="versionadded">
 <p><span class="versionmodified added">New in version 1.4.</span></p>
