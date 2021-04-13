@@ -37,32 +37,16 @@ DATA_DIR = os.path.join(APP_DIR, '../', 'tests', 'dicom_files')
 DATASET_FILE = os.path.join(DATA_DIR, 'CTImageStorage.dcm')
 
 
-def which(program):
-    # Determine if a given program is installed on PATH
-    def is_exe(fpath):
-        return os.path.isfile(fpath) and os.access(fpath, os.X_OK)
-
-    fpath, fname = os.path.split(program)
-    if fpath:
-        if is_exe(program):
-            return program
-    else:
-        for path in os.environ["PATH"].split(os.pathsep):
-            exe_file = os.path.join(path, program)
-            if is_exe(exe_file):
-                return exe_file
-
-
 def start_findscu(args):
     """Start the findscu.py app and return the process."""
-    pargs = [which('python'), APP_FILE, 'localhost', '11112'] + [*args]
+    pargs = [sys.executable, APP_FILE, 'localhost', '11112'] + [*args]
     return subprocess.Popen(pargs)
 
 
 def start_findscu_scli(args):
     """Start the findscu app using CLI and return the process."""
     pargs = [
-        which('python'), '-m', 'pynetdicom', 'findscu', 'localhost', '11112'
+        sys.executable, '-m', 'pynetdicom', 'findscu', 'localhost', '11112'
     ] + [*args]
     return subprocess.Popen(pargs)
 

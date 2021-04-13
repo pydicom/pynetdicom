@@ -27,31 +27,15 @@ DATA_DIR = os.path.join(APP_DIR, '../', 'tests', 'dicom_files')
 DATASET_FILE = os.path.join(DATA_DIR, 'CTImageStorage.dcm')
 
 
-def which(program):
-    # Determine if a given program is installed on PATH
-    def is_exe(fpath):
-        return os.path.isfile(fpath) and os.access(fpath, os.X_OK)
-
-    fpath, fname = os.path.split(program)
-    if fpath:
-        if is_exe(program):
-            return program
-    else:
-        for path in os.environ["PATH"].split(os.pathsep):
-            exe_file = os.path.join(path, program)
-            if is_exe(exe_file):
-                return exe_file
-
-
 def start_echoscp(args):
     """Start the echoscp.py app and return the process."""
-    pargs = [which('python'), APP_FILE, '11112'] + [*args]
+    pargs = [sys.executable, APP_FILE, '11112'] + [*args]
     return subprocess.Popen(pargs)
 
 
 def start_echoscp_cli(args):
     """Start the echoscp app using CLI and return the process."""
-    pargs = [which('python'), '-m', 'pynetdicom', 'echoscp', '11112'] + [*args]
+    pargs = [sys.executable, '-m', 'pynetdicom', 'echoscp', '11112'] + [*args]
     return subprocess.Popen(pargs)
 
 
