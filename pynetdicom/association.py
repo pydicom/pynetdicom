@@ -706,6 +706,7 @@ class Association(threading.Thread):
 
             # Check if idle timer has expired
             if self.dul.idle_timer_expired():
+                LOGGER.error("Network timeout reached")
                 self.abort()
                 self.kill()
                 return
