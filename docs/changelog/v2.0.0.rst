@@ -12,6 +12,9 @@ Fixes
   C-STORE-RQs when acting as a Move SCP (:issue:`541`)
 * Fixed C-FIND, C-GET and C-MOVE SCPs sending the previous pending
   Identifier with the final success response (:issue:`571`)
+* Fixed *Composite Instance Retrieve Without Bulk Data Get* SCPs not removing
+  *Overlay Data*, *Audio Sample Data* and *Curve Data* bulk data elements
+  (:pr:`608`)
 
 Enhancements
 ............

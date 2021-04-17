@@ -7,6 +7,7 @@ import sys
 import traceback
 
 from pydicom.dataset import Dataset
+from pydicom.tag import Tag
 
 from pynetdicom import evt, _config
 from pynetdicom.dsutils import decode, encode, pretty_dataset
@@ -1474,10 +1475,10 @@ class QueryRetrieveServiceClass(ServiceClass):
     """Implementation of the Query/Retrieve Service Class."""
     statuses = None
     # Used with Composite Instance Retrieve Without Bulk Data
+    # CurveData, AudioSampleData and OverlayData are repeating group elements
     _BULK_DATA_KEYWORDS = [
         'PixelData', 'FloatPixelData', 'DoubleFloatPixelData',
-        'PixelDataProviderURL', 'SpectroscopyData', 'OverlayData',
-        'CurveData', 'AudioSampleData', 'EncapsulatedDocument'
+        'PixelDataProviderURL', 'SpectroscopyData', 'EncapsulatedDocument'
     ]
 
     def SCP(self, req, context):
@@ -1782,7 +1783,8 @@ class QueryRetrieveServiceClass(ServiceClass):
                 #   is being used then we must remove the bulk data elements
                 #   (if present)
                 if context.abstract_syntax == '1.2.840.10008.5.1.4.1.2.5.3':
-                    # Doesn't include WaveformData
+                    # Doesn't include WaveformData, OverlayData
+                    #   or AudioSampleData
                     _bulk_data = [
                         kw for kw in self._BULK_DATA_KEYWORDS if kw in dataset
                     ]
@@ -1796,6 +1798,18 @@ class QueryRetrieveServiceClass(ServiceClass):
                                 del item.WaveformData
                                 if 'WaveformData' not in _bulk_data:
                                     _bulk_data.append('WaveformData')
+
+                    # Handle repeating group bulk data elements
+                    repeaters = [
+                        (0x5000, 0x200C),  # Audio Sample Data
+                        (0x5000, 0x3000),  # Curve Data
+                        (0x6000, 0x3000),  # Overlay Data
+                    ]
+                    for rpt in range(0, 256, 2):
+                        for base in repeaters:
+                            tag = Tag(base[0] + rpt, base[1])
+                            if tag in dataset:
+                                del dataset[tag]
 
                     if _bulk_data:
                         LOGGER.warning(

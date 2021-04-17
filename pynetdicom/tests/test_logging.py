@@ -6,14 +6,7 @@ import sys
 
 import pytest
 
-from pydicom.uid import (
-    ImplicitVRLittleEndian, ExplicitVRLittleEndian, ExplicitVRBigEndian,
-    DeflatedExplicitVRLittleEndian, JPEGBaseline, JPEGExtended,
-    JPEGLosslessP14, JPEGLossless, JPEGLSLossless, JPEGLSLossy,
-    JPEG2000Lossless, JPEG2000, JPEG2000MultiComponentLossless,
-    JPEG2000MultiComponent, RLELossless,
-    generate_uid,
-)
+from pydicom.uid import JPEGBaseline8Bit, generate_uid
 
 from pynetdicom import build_context, evt, AE, build_role, debug_logger
 from pynetdicom.acse import ACSE, APPLICATION_CONTEXT_NAME
@@ -287,7 +280,7 @@ class TestStandardLogging(object):
         primitive.called_presentation_address = ('0.0.0.0', 0)
         # Proposed presentation contexts
         contexts = [
-            build_context('1.2.3.4.5.6', JPEGBaseline),
+            build_context('1.2.3.4.5.6', JPEGBaseline8Bit),
             build_context('1.2.840.10008.1.1')
         ]
         for ii, cx in enumerate(contexts):
@@ -318,7 +311,7 @@ class TestStandardLogging(object):
         primitive.called_presentation_address = ('0.0.0.0', 0)
         # Proposed presentation contexts
         contexts = [
-            build_context('1.2.3.4.5.6', JPEGBaseline),
+            build_context('1.2.3.4.5.6', JPEGBaseline8Bit),
             build_context('1.2.840.10008.1.1'),
             build_context('1.2.840.10008.1.1'),
             build_context('1.2.840.10008.1.1'),

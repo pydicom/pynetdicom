@@ -19,7 +19,7 @@ from pydicom.uid import (
     UID,
     ImplicitVRLittleEndian,
     ExplicitVRLittleEndian,
-    JPEGBaseline,
+    JPEGBaseline8Bit,
     JPEG2000,
     JPEG2000Lossless,
     DeflatedExplicitVRLittleEndian,
@@ -1781,7 +1781,7 @@ class TestAssociationSendCStore(object):
         ds.SOPClassUID = CTImageStorage
         ds.SOPInstanceUID = '1.2.3.4'
         ds.file_meta = FileMetaDataset()
-        ds.file_meta.TransferSyntaxUID = JPEGBaseline
+        ds.file_meta.TransferSyntaxUID = JPEGBaseline8Bit
 
         assert assoc.is_established
 
@@ -4101,13 +4101,13 @@ class TestGetValidContext(object):
         ae.network_timeout = 5
         ae.add_supported_context(CTImageStorage)
         ae.add_supported_context(
-            CTImageStorage, [ExplicitVRLittleEndian, JPEGBaseline]
+            CTImageStorage, [ExplicitVRLittleEndian, JPEGBaseline8Bit]
         )
         scp = ae.start_server(('', 11112), block=False)
 
         ae.add_requested_context(VerificationSOPClass)
         ae.add_requested_context(CTImageStorage)
-        ae.add_requested_context(CTImageStorage, JPEGBaseline)
+        ae.add_requested_context(CTImageStorage, JPEGBaseline8Bit)
 
         assoc = ae.associate('localhost', 11112)
         assert assoc.is_established
@@ -4126,7 +4126,7 @@ class TestGetValidContext(object):
         )
         assert cx.context_id == 5
         assert cx.abstract_syntax == CTImageStorage
-        assert cx.transfer_syntax[0] == JPEGBaseline
+        assert cx.transfer_syntax[0] == JPEGBaseline8Bit
         assert cx.as_scu is True
 
         assoc.release()
@@ -4139,11 +4139,11 @@ class TestGetValidContext(object):
         ae.dimse_timeout = 5
         ae.network_timeout = 5
         ae.add_supported_context(VerificationSOPClass)
-        ae.add_supported_context(CTImageStorage, JPEGBaseline)
+        ae.add_supported_context(CTImageStorage, JPEGBaseline8Bit)
         scp = ae.start_server(('', 11112), block=False)
 
         ae.add_requested_context(VerificationSOPClass)
-        ae.add_requested_context(CTImageStorage, JPEGBaseline)
+        ae.add_requested_context(CTImageStorage, JPEGBaseline8Bit)
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
         assoc = ae.associate('localhost', 11112)
@@ -4164,16 +4164,16 @@ class TestGetValidContext(object):
         )
         with pytest.raises(ValueError, match=msg):
             assoc._get_valid_context(
-                '1.2.840.10008.1.1', JPEGBaseline, 'scu', context_id=1
+                '1.2.840.10008.1.1', JPEGBaseline8Bit, 'scu', context_id=1
             )
 
-        # Compressed (JPEGBaseline) accepted, uncompressed sent
+        # Compressed (JPEGBaseline8Bit) accepted, uncompressed sent
         # Confirm otherwise OK
         cx = assoc._get_valid_context(
-            CTImageStorage, JPEGBaseline, 'scu', context_id=3
+            CTImageStorage, JPEGBaseline8Bit, 'scu', context_id=3
         )
         assert cx.context_id == 3
-        assert cx.transfer_syntax[0] == JPEGBaseline
+        assert cx.transfer_syntax[0] == JPEGBaseline8Bit
 
         msg = (
             r"No presentation context for 'CT Image Storage' has been "
@@ -4185,7 +4185,7 @@ class TestGetValidContext(object):
                 CTImageStorage, ImplicitVRLittleEndian, 'scu', context_id=3
             )
 
-        # Compressed (JPEGBaseline) accepted, compressed (JPEG2000) sent
+        # Compressed (JPEGBaseline8Bit) accepted, compressed (JPEG2000) sent
         msg = (
             r"No presentation context for 'CT Image Storage' has been "
             r"accepted by the peer with 'JPEG 2000 Image Compression' "
@@ -4206,11 +4206,11 @@ class TestGetValidContext(object):
         ae.dimse_timeout = 5
         ae.network_timeout = 5
         ae.add_supported_context(VerificationSOPClass)
-        ae.add_supported_context(CTImageStorage, JPEGBaseline)
+        ae.add_supported_context(CTImageStorage, JPEGBaseline8Bit)
         scp = ae.start_server(('', 11112), block=False)
 
         ae.add_requested_context(VerificationSOPClass)
-        ae.add_requested_context(CTImageStorage, JPEGBaseline)
+        ae.add_requested_context(CTImageStorage, JPEGBaseline8Bit)
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
         assoc = ae.associate('localhost', 11112)
@@ -4343,11 +4343,11 @@ class TestGetValidContext(object):
         ae.dimse_timeout = 5
         ae.network_timeout = 5
         ae.add_supported_context(VerificationSOPClass)
-        ae.add_supported_context(CTImageStorage, JPEGBaseline)
+        ae.add_supported_context(CTImageStorage, JPEGBaseline8Bit)
         scp = ae.start_server(('', 11112), block=False)
 
         ae.add_requested_context(VerificationSOPClass)
-        ae.add_requested_context(CTImageStorage, JPEGBaseline)
+        ae.add_requested_context(CTImageStorage, JPEGBaseline8Bit)
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
         assoc = ae.associate('localhost', 11112)
@@ -4372,11 +4372,11 @@ class TestGetValidContext(object):
         ae.dimse_timeout = 5
         ae.network_timeout = 5
         ae.add_supported_context(VerificationSOPClass)
-        ae.add_supported_context(CTImageStorage, JPEGBaseline)
+        ae.add_supported_context(CTImageStorage, JPEGBaseline8Bit)
         scp = ae.start_server(('', 11112), block=False)
 
         ae.add_requested_context(VerificationSOPClass)
-        ae.add_requested_context(CTImageStorage, JPEGBaseline)
+        ae.add_requested_context(CTImageStorage, JPEGBaseline8Bit)
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
         assoc = ae.associate('localhost', 11112)
@@ -4395,13 +4395,13 @@ class TestGetValidContext(object):
             r"for the SCU role"
         )
         with pytest.raises(ValueError, match=msg):
-            assoc._get_valid_context('1.2.840.10008.1.1', JPEGBaseline, 'scu')
+            assoc._get_valid_context('1.2.840.10008.1.1', JPEGBaseline8Bit, 'scu')
 
-        # Compressed (JPEGBaseline) accepted, uncompressed sent
+        # Compressed (JPEGBaseline8Bit) accepted, uncompressed sent
         # Confirm otherwise OK
-        cx = assoc._get_valid_context(CTImageStorage, JPEGBaseline, 'scu')
+        cx = assoc._get_valid_context(CTImageStorage, JPEGBaseline8Bit, 'scu')
         assert cx.context_id == 3
-        assert cx.transfer_syntax[0] == JPEGBaseline
+        assert cx.transfer_syntax[0] == JPEGBaseline8Bit
 
         msg = (
             r"No presentation context for 'CT Image Storage' has been "
@@ -4414,7 +4414,7 @@ class TestGetValidContext(object):
                 CTImageStorage, ImplicitVRLittleEndian, 'scu'
             )
 
-        # Compressed (JPEGBaseline) accepted, compressed (JPEG2000) sent
+        # Compressed (JPEGBaseline8Bit) accepted, compressed (JPEG2000) sent
         msg = (
             r"No presentation context for 'CT Image Storage' has been "
             r"accepted by the peer "
@@ -4434,11 +4434,11 @@ class TestGetValidContext(object):
         ae.dimse_timeout = 5
         ae.network_timeout = 5
         ae.add_supported_context(VerificationSOPClass)
-        ae.add_supported_context(CTImageStorage, JPEGBaseline)
+        ae.add_supported_context(CTImageStorage, JPEGBaseline8Bit)
         scp = ae.start_server(('', 11112), block=False)
 
         ae.add_requested_context(VerificationSOPClass)
-        ae.add_requested_context(CTImageStorage, JPEGBaseline)
+        ae.add_requested_context(CTImageStorage, JPEGBaseline8Bit)
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
         assoc = ae.associate('localhost', 11112)

@@ -5601,10 +5601,14 @@ class TestQRCompositeInstanceWithoutBulk(object):
 
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
-        assoc = ae.associate('localhost', 11112, ext_neg=[role], evt_handlers=handlers)
+        assoc = ae.associate(
+            'localhost', 11112, ext_neg=[role], evt_handlers=handlers
+        )
 
         assert assoc.is_established
-        result = assoc.send_c_get(self.query, CompositeInstanceRetrieveWithoutBulkDataGet)
+        result = assoc.send_c_get(
+            self.query, CompositeInstanceRetrieveWithoutBulkDataGet
+        )
         status, identifier = next(result)
         assert status.Status == 0xFF00
         assert identifier is None
@@ -5658,10 +5662,14 @@ class TestQRCompositeInstanceWithoutBulk(object):
 
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
-        assoc = ae.associate('localhost', 11112, ext_neg=[role], evt_handlers=handlers)
+        assoc = ae.associate(
+            'localhost', 11112, ext_neg=[role], evt_handlers=handlers
+        )
 
         assert assoc.is_established
-        result = assoc.send_c_get(self.query, CompositeInstanceRetrieveWithoutBulkDataGet)
+        result = assoc.send_c_get(
+            self.query, CompositeInstanceRetrieveWithoutBulkDataGet
+        )
         status, identifier = next(result)
         assert status.Status == 0xFF00
         assert identifier is None
@@ -5674,6 +5682,73 @@ class TestQRCompositeInstanceWithoutBulk(object):
         pytest.raises(StopIteration, next, result)
 
         assert has_waveform_data == [False, False]
+
+        assoc.release()
+        scp.shutdown()
+
+    def test_repeating_group_elements(self):
+        """Test repeating group elements are removed"""
+        # Overlay Data
+        self.ds.add_new((0x601e, 0x3000), 'OW', b'\x01\0x2')
+        # Audio Sample Data
+        self.ds.add_new((0x50fe, 0x200C), 'OW', b'\x02\0x3')
+        # Curve Data
+        self.ds.add_new((0x50fe, 0x3000), 'OW', b'\x03\0x4')
+
+        def handle(event):
+            yield 1
+            yield 0xFF00, self.ds
+            yield 0x0000, None
+
+        has_repeaters = [True, True, True]
+        def handle_store(event):
+            if (0x601e, 0x3000) not in event.dataset:
+                has_repeaters[0] = False
+
+            if (0x50fe, 0x200C) not in event.dataset:
+                has_repeaters[1] = False
+
+            if (0x5000, 0x3000) not in event.dataset:
+                has_repeaters[2] = False
+
+            return 0x0000
+
+        handlers = [(evt.EVT_C_GET, handle)]
+
+        self.ae = ae = AE()
+        ae.add_supported_context(CompositeInstanceRetrieveWithoutBulkDataGet)
+        ae.add_supported_context(CTImageStorage, scu_role=False, scp_role=True)
+        ae.add_requested_context(CompositeInstanceRetrieveWithoutBulkDataGet)
+        ae.add_requested_context(CTImageStorage)
+        scp = ae.start_server(('', 11112), block=False, evt_handlers=handlers)
+
+        role = build_role(CTImageStorage, scp_role=True)
+        handlers = [(evt.EVT_C_STORE, handle_store)]
+
+        ae.acse_timeout = 5
+        ae.dimse_timeout = 5
+        assoc = ae.associate(
+            'localhost', 11112, ext_neg=[role], evt_handlers=handlers
+        )
+
+        assert assoc.is_established
+        result = assoc.send_c_get(
+            self.query, CompositeInstanceRetrieveWithoutBulkDataGet
+        )
+        status, identifier = next(result)
+        assert status.Status == 0xFF00
+        assert identifier is None
+        status, identifier = next(result)
+        assert status.Status == 0x0000
+        assert status.NumberOfFailedSuboperations == 0
+        assert status.NumberOfWarningSuboperations == 0
+        assert status.NumberOfCompletedSuboperations == 1
+        assert identifier is None
+        pytest.raises(StopIteration, next, result)
+
+        assert has_repeaters[0] is False
+        assert has_repeaters[1] is False
+        assert has_repeaters[2] is False
 
         assoc.release()
         scp.shutdown()
