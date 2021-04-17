@@ -13,7 +13,7 @@ jobs:
                 path: docs/_build/html
             - add_ssh_keys:
                 fingerprints:
-                    - "bc:5b:f1:d9:0c:61:4a:47:6a:0e:f3:83:f1:ad:51:74"
+                    - "13:8e:b6:7a:d2:8f:a0:4d:56:08:97:f2:c8:9c:10:e9"
             - deploy:
                 name: Deploy documentation
                 environment:
