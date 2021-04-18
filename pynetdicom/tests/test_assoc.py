@@ -931,6 +931,7 @@ class TestAssociationSendCEcho(object):
         class DummyResponse():
             is_valid_response = False
             is_valid_request = False
+            msg_type = None
 
         class DummyDIMSE():
             msg_queue = queue.Queue()
