@@ -930,6 +930,7 @@ class TestAssociationSendCEcho(object):
 
         class DummyResponse():
             is_valid_response = False
+            is_valid_request = False
 
         class DummyDIMSE():
             msg_queue = queue.Queue()
@@ -1554,7 +1555,7 @@ class TestAssociationSendCStore(object):
         ds.SOPInstanceUID = '1.2.3.4'
         ds.SOPClassUID = CTImageStorage
 
-        assert 'file_meta' not in ds
+        assert not hasattr(ds, 'file_meta')
         msg = (
             r"Unable to determine the presentation context to use with "
             r"`dataset` as it contains no '\(0002,0010\) Transfer Syntax "
@@ -3084,6 +3085,8 @@ class TestAssociationSendCGet(object):
             STATUS_OPTIONAL_KEYWORDS = []
 
         class DummyDIMSE():
+            msg_queue = queue.Queue()
+
             def send_msg(*args, **kwargs):
                 return
 
@@ -3867,6 +3870,8 @@ class TestAssociationSendCMove(object):
             STATUS_OPTIONAL_KEYWORDS = []
 
         class DummyDIMSE():
+            msg_queue = queue.Queue()
+
             def send_msg(*args, **kwargs):
                 return
 

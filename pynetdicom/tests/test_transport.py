@@ -12,7 +12,6 @@ from struct import pack
 import sys
 import threading
 import time
-import warnings
 
 import pytest
 
@@ -31,9 +30,6 @@ from pynetdicom.sop_class import VerificationSOPClass, RTImageStorage
 from .encoded_pdu_items import p_data_tf_rq
 from .hide_modules import hide_modules
 from .utils import wait_for_server_socket
-
-
-warnings.filterwarnings("ignore", message="InvalidEventError")
 
 
 # This is the directory that contains test data
