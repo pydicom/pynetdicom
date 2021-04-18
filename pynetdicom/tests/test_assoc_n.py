@@ -2072,6 +2072,8 @@ class TestAssociationSendNAction(object):
 
         class DummyMessage():
             is_valid_response = True
+            is_valid_request = False
+            msg_type = None
             ActionReply = DummyReply()
             Status = 0x0000
             STATUS_OPTIONAL_KEYWORDS = []

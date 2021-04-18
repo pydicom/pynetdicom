@@ -80,7 +80,7 @@ REFERENCE_GOOD_EVENTS = [
 ]
 
 
-class BadDUL(object):
+class BadDUL:
     """A DUL that always raises an exception during actions."""
     def __init__(self):
         self.is_killed = False
@@ -95,7 +95,7 @@ class BadDUL(object):
         return None
 
 
-class TestStateMachine(object):
+class TestStateMachine:
     """Non-functional unit tests for fsm.StateMachine."""
     def test_init(self):
         """Test creation of new StateMachine."""
@@ -183,7 +183,7 @@ class TestStateMachine(object):
             assert fsm.current_state == state
 
 
-class TestStateBase(object):
+class TestStateBase:
     """Base class for State tests."""
     def setup(self):
         ae = AE()
@@ -412,6 +412,7 @@ class TestStateBase(object):
             start += 0.05
 
 
+@pytest.mark.filterwarnings("ignore:.*:pytest.PytestUnhandledThreadExceptionWarning")
 class TestState01(TestStateBase):
     """Tests for State 01: Idle."""
     def move_to_state(self, assoc, scp):
@@ -793,6 +794,7 @@ class TestState01(TestStateBase):
         assert self.fsm._events[:1] == ['Evt19']
 
 
+@pytest.mark.filterwarnings("ignore:.*:pytest.PytestUnhandledThreadExceptionWarning")
 class TestState02(TestStateBase):
     """Tests for State 02: Connection open, waiting for A-ASSOCIATE-RQ."""
     def move_to_state(self, assoc, scp):
@@ -1252,6 +1254,7 @@ class TestState02(TestStateBase):
         assert fsm._events[:2] == ['Evt5', 'Evt19']
 
 
+@pytest.mark.filterwarnings("ignore:.*:pytest.PytestUnhandledThreadExceptionWarning")
 class TestState03(TestStateBase):
     """Tests for State 03: Awaiting A-ASSOCIATE (rsp) primitive."""
     def move_to_state(self, assoc, scp):
@@ -1828,6 +1831,7 @@ class TestState03(TestStateBase):
         assert fsm._events[:3] == ['Evt5', 'Evt6', 'Evt19']
 
 
+@pytest.mark.filterwarnings("ignore:.*:pytest.PytestUnhandledThreadExceptionWarning")
 class TestState04(TestStateBase):
     """Tests for State 04: Awaiting TRANSPORT_OPEN from <transport service>."""
     def move_to_state(self, assoc, scp):
@@ -2225,6 +2229,7 @@ class TestState04(TestStateBase):
         assert self.fsm._events[:2] == ['Evt1', 'Evt19']
 
 
+@pytest.mark.filterwarnings("ignore:.*:pytest.PytestUnhandledThreadExceptionWarning")
 class TestState05(TestStateBase):
     """Tests for State 05: Awaiting A-ASSOCIATE-AC or A-ASSOCIATE-RJ PDU."""
     def move_to_state(self, assoc, scp):
@@ -2702,6 +2707,7 @@ class TestState05(TestStateBase):
         )
 
 
+@pytest.mark.filterwarnings("ignore:.*:pytest.PytestUnhandledThreadExceptionWarning")
 class TestState06(TestStateBase):
     """Tests for State 06: Association established and ready for data."""
     def move_to_state(self, assoc, scp):
@@ -3216,6 +3222,7 @@ class TestState06(TestStateBase):
         )
 
 
+@pytest.mark.filterwarnings("ignore:.*:pytest.PytestUnhandledThreadExceptionWarning")
 class TestState07(TestStateBase):
     """Tests for State 07: Awaiting A-RELEASE-RP PDU."""
     def move_to_state(self, assoc, scp):
@@ -3759,6 +3766,7 @@ class TestState07(TestStateBase):
         )
 
 
+@pytest.mark.filterwarnings("ignore:.*:pytest.PytestUnhandledThreadExceptionWarning")
 class TestState08(TestStateBase):
     """Tests for State 08: Awaiting A-RELEASE (rp) primitive."""
     def move_to_state(self, assoc, scp):
@@ -4278,6 +4286,7 @@ class TestState08(TestStateBase):
         assert self.fsm._events[:5] == ['Evt1', 'Evt2', 'Evt3', 'Evt12', 'Evt19']
 
 
+@pytest.mark.filterwarnings("ignore:.*:pytest.PytestUnhandledThreadExceptionWarning")
 class TestState09(TestStateBase):
     """Tests for State 09: Release collision req - awaiting A-RELEASE (rp)."""
     def move_to_state(self, assoc, scp):
@@ -4941,6 +4950,7 @@ class TestState09(TestStateBase):
         )
 
 
+@pytest.mark.filterwarnings("ignore:.*:pytest.PytestUnhandledThreadExceptionWarning")
 class TestState10(TestStateBase):
     """Tests for State 10: Release collision acc - awaiting A-RELEASE-RP ."""
     def move_to_state(self, assoc, scp):
@@ -5609,6 +5619,7 @@ class TestState10(TestStateBase):
         )
 
 
+@pytest.mark.filterwarnings("ignore:.*:pytest.PytestUnhandledThreadExceptionWarning")
 class TestState11(TestStateBase):
     """Tests for State 11: Release collision req - awaiting A-RELEASE-RP PDU"""
     def move_to_state(self, assoc, scp):
@@ -6292,6 +6303,7 @@ class TestState11(TestStateBase):
         ]
 
 
+@pytest.mark.filterwarnings("ignore:.*:pytest.PytestUnhandledThreadExceptionWarning")
 class TestState12(TestStateBase):
     """Tests for State 12: Release collision acc - awaiting A-RELEASE (rp)"""
     def move_to_state(self, assoc, scp):
@@ -7006,6 +7018,7 @@ class TestState12(TestStateBase):
         )
 
 
+@pytest.mark.filterwarnings("ignore:.*:pytest.PytestUnhandledThreadExceptionWarning")
 class TestState13(TestStateBase):
     """Tests for State 13: Waiting for connection closed."""
     def move_to_state(self, assoc, scp):
@@ -7634,7 +7647,7 @@ class TestParrotAttack(TestStateBase):
         ] == fsm._changes[:30]
 
 
-class TestStateMachineFunctionalRequestor(object):
+class TestStateMachineFunctionalRequestor:
     """Functional tests for StateMachine as association requestor."""
     def setup(self):
         """Run prior to each test"""
@@ -8158,7 +8171,7 @@ class TestStateMachineFunctionalRequestor(object):
         scp.shutdown()
 
 
-class TestStateMachineFunctionalAcceptor(object):
+class TestStateMachineFunctionalAcceptor:
     """Functional tests for StateMachine as association acceptor."""
     def setup(self):
         """Run prior to each test"""
@@ -8278,7 +8291,7 @@ class TestStateMachineFunctionalAcceptor(object):
         scp.shutdown()
 
 
-class TestEventHandling(object):
+class TestEventHandling:
     """Test the FSM event handlers."""
     def setup(self):
         self.ae = None
