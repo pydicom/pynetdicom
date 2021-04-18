@@ -1337,6 +1337,13 @@ class ServiceClass(object):
         """
         try:
             for result in handler:
+                # Ensure we are still associated
+                if (
+                    self.assoc.acse.is_aborted()
+                    or self.assoc.acse.is_release_requested()
+                ):
+                    return
+
                 yield (result, None)
         except Exception as exc:
             yield (None, sys.exc_info())
@@ -1858,10 +1865,10 @@ class QueryRetrieveServiceClass(ServiceClass):
                 # Update the C-STORE sub-operation result tracker
                 if store_status[0] == STATUS_FAILURE:
                     store_results[1] += 1
+                    # PS3.4, C.4.3.1.3.2
                     _add_failed_instance(dataset)
                 elif store_status[0] == STATUS_WARNING:
                     store_results[2] += 1
-                    _add_failed_instance(dataset)
                 elif store_status[0] == STATUS_SUCCESS:
                     store_results[3] += 1
 
@@ -1885,10 +1892,16 @@ class QueryRetrieveServiceClass(ServiceClass):
             rsp.Status = 0x0000
             rsp.Identifier = None
         else:
-            # Warning response - one or more failures or warnings
-            LOGGER.info(f'Get SCP Response {ii + 2}: 0xB000 (Warning)')
-            rsp.Status = 0xB000
-            # If Warning response, need to return an Identifier with
+            if no_suboperations == store_results[1]:
+                # Failure response - all sub-operations failed
+                LOGGER.info(f'Get SCP Response {ii + 2}: 0xA702 (Failure)')
+                rsp.Status = 0xA702  # Unable to perform sub-ops
+            else:
+                # Warning response - one or more failures or warnings
+                LOGGER.info(f'Get SCP Response {ii + 2}: 0xB000 (Warning)')
+                rsp.Status = 0xB000
+
+            # If Failure or Warning response, need to return an Identifier with
             #   (0008,0058) Failed SOP Instance UID List element
             ds = Dataset()
             ds.FailedSOPInstanceUIDList = failed_instances
@@ -2140,8 +2153,10 @@ class QueryRetrieveServiceClass(ServiceClass):
                 store_assoc.release()
 
                 # In case user didn't include it
-                if (not isinstance(dataset, Dataset) or
-                        'FailedSOPInstanceUIDList' not in dataset):
+                if (
+                    not isinstance(dataset, Dataset)
+                    or 'FailedSOPInstanceUIDList' not in dataset
+                ):
                     dataset = Dataset()
                     dataset.FailedSOPInstanceUIDList = failed_instances
 
@@ -2260,10 +2275,10 @@ class QueryRetrieveServiceClass(ServiceClass):
                 # Update the C-STORE sub-operation result tracker
                 if store_status[0] == STATUS_FAILURE:
                     store_results[1] += 1
+                    # Part 4, C.4.2.1.4.2
                     _add_failed_instance(dataset)
                 elif store_status[0] == STATUS_WARNING:
                     store_results[2] += 1
-                    _add_failed_instance(dataset)
                 elif store_status[0] == STATUS_SUCCESS:
                     store_results[3] += 1
 
@@ -2292,12 +2307,16 @@ class QueryRetrieveServiceClass(ServiceClass):
             rsp.Status = 0x0000
             rsp.Identifier = None
         else:
-            # Warning response - one or more failures or warnings
-            LOGGER.info(
-                f"Move SCP Response {ii + 2}: 0xB000 (Warning)"
-            )
-            rsp.Status = 0xB000
-            # If Warning response, need to return an Identifier with
+            if no_suboperations == store_results[1]:
+                # Failure response - all sub-operations failed
+                LOGGER.info(f'Move SCP Response {ii + 2}: 0xA702 (Failure)')
+                rsp.Status = 0xA702  # Unable to perform sub-ops
+            else:
+                # Warning response - one or more failures or warnings
+                LOGGER.info(f'Move SCP Response {ii + 2}: 0xB000 (Warning)')
+                rsp.Status = 0xB000
+
+            # If Failure or Warning response, need to return an Identifier with
             #   (0008, 0058) Failed SOP Instance UID List element
             ds = Dataset()
             ds.FailedSOPInstanceUIDList = failed_instances
