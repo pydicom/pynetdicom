@@ -1865,7 +1865,7 @@ class QueryRetrieveServiceClass(ServiceClass):
                 # Update the C-STORE sub-operation result tracker
                 if store_status[0] == STATUS_FAILURE:
                     store_results[1] += 1
-                    # PS3.4, C.4.3.1.3.2
+                    # Part 4, C.4.3.1.3.2
                     _add_failed_instance(dataset)
                 elif store_status[0] == STATUS_WARNING:
                     store_results[2] += 1
