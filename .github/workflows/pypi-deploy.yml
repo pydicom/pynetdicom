@@ -9,7 +9,6 @@ jobs:
 
   build_and_test:
     runs-on: ubuntu-latest
-    python-version: [3.9]
 
     steps:
     - uses: actions/checkout@v2
@@ -17,7 +16,7 @@ jobs:
     - name: Set up Python ${{ matrix.python-version }}
       uses: actions/setup-python@v2
       with:
-        python-version: ${{ matrix.python-version }}
+        python-version: [3.9]
 
     - name: Build package
       run: |
