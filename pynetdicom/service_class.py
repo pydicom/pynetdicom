@@ -1840,7 +1840,6 @@ class QueryRetrieveServiceClass(ServiceClass):
                     _add_failed_instance(dataset)
                 elif store_status[0] == STATUS_WARNING:
                     store_results[2] += 1
-                    _add_failed_instance(dataset)
                 elif store_status[0] == STATUS_SUCCESS:
                     store_results[3] += 1
 
@@ -1864,9 +1863,15 @@ class QueryRetrieveServiceClass(ServiceClass):
             rsp.Status = 0x0000
             rsp.Identifier = None
         else:
-            # Warning response - one or more failures or warnings
-            LOGGER.info('Get SCP Response {}: 0xB000 (Warning)'.format(ii + 2))
-            rsp.Status = 0xB000
+            if no_suboperations == store_results[1]:
+                # Failure response - all sub-operations failed
+                LOGGER.info(f'Get SCP Response {ii + 2}: 0xA702 (Failure)')
+                rsp.Status = 0xA702  # Unable to perform sub-ops
+            else:
+                # Warning response - one or more failures or warnings
+                LOGGER.info(f'Get SCP Response {ii + 2}: 0xB000 (Warning)')
+                rsp.Status = 0xB000
+
             # If Warning response, need to return an Identifier with
             #   (0008,0058) Failed SOP Instance UID List element
             ds = Dataset()
@@ -2213,7 +2218,7 @@ class QueryRetrieveServiceClass(ServiceClass):
                         dataset,
                         msg_id=msg_id,
                         originator_aet=self.ae.ae_title,
-                        originator_id=1
+                        originator_id=req.MessageID
                     )
 
                     store_status_int = store_status.Status
@@ -2246,7 +2251,6 @@ class QueryRetrieveServiceClass(ServiceClass):
                     _add_failed_instance(dataset)
                 elif store_status[0] == STATUS_WARNING:
                     store_results[2] += 1
-                    _add_failed_instance(dataset)
                 elif store_status[0] == STATUS_SUCCESS:
                     store_results[3] += 1
 
@@ -2275,11 +2279,15 @@ class QueryRetrieveServiceClass(ServiceClass):
             rsp.Status = 0x0000
             rsp.Identifier = None
         else:
-            # Warning response - one or more failures or warnings
-            LOGGER.info(
-                'Move SCP Response {}: 0xB000 (Warning)'.format(ii + 2)
-            )
-            rsp.Status = 0xB000
+            if no_suboperations == store_results[1]:
+                # Failure response - all sub-operations failed
+                LOGGER.info(f'Move SCP Response {ii + 2}: 0xA702 (Failure)')
+                rsp.Status = 0xA702  # Unable to perform sub-ops
+            else:
+                # Warning response - one or more failures or warnings
+                LOGGER.info(f'Move SCP Response {ii + 2}: 0xB000 (Warning)')
+                rsp.Status = 0xB000
+
             # If Warning response, need to return an Identifier with
             #   (0008, 0058) Failed SOP Instance UID List element
             ds = Dataset()
