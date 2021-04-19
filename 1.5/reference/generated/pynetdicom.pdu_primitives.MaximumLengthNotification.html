@@ -218,7 +218,7 @@
 <h1>pynetdicom.pdu_primitives.MaximumLengthNotification<a class="headerlink" href="#pynetdicom-pdu-primitives-maximumlengthnotification" title="Permalink to this headline">¶</a></h1>
 <dl class="py class">
 <dt id="pynetdicom.pdu_primitives.MaximumLengthNotification">
-<em class="property">class </em><code class="sig-prename descclassname">pynetdicom.pdu_primitives.</code><code class="sig-name descname">MaximumLengthNotification</code><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/a4df46082/pynetdicom/pdu_primitives.py#L1028"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom.pdu_primitives.MaximumLengthNotification" title="Permalink to this definition">¶</a></dt>
+<em class="property"><span class="pre">class</span> </em><code class="sig-prename descclassname"><span class="pre">pynetdicom.pdu_primitives.</span></code><code class="sig-name descname"><span class="pre">MaximumLengthNotification</span></code><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/2f69ebcce/pynetdicom/pdu_primitives.py#L1028"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pynetdicom.pdu_primitives.MaximumLengthNotification" title="Permalink to this definition">¶</a></dt>
 <dd><p>A representation of a Maximum Length Negotiation primitive.</p>
 <p>The maximum length notification allows communicating AEs to limit the size
 of the data for each P-DATA indication. This notification is required for
@@ -227,7 +227,7 @@ all DICOM v3.0 conforming implementations.</p>
 there must only be a single <a class="reference internal" href="#pynetdicom.pdu_primitives.MaximumLengthNotification" title="pynetdicom.pdu_primitives.MaximumLengthNotification"><code class="xref py py-class docutils literal notranslate"><span class="pre">MaximumLengthNotification</span></code></a> item.</p>
 <dl class="py attribute">
 <dt id="pynetdicom.pdu_primitives.MaximumLengthNotification.maximum_length_received">
-<code class="sig-name descname">maximum_length_received</code><a class="headerlink" href="#pynetdicom.pdu_primitives.MaximumLengthNotification.maximum_length_received" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname"><span class="pre">maximum_length_received</span></code><a class="headerlink" href="#pynetdicom.pdu_primitives.MaximumLengthNotification.maximum_length_received" title="Permalink to this definition">¶</a></dt>
 <dd><p>The maximum length received value for the Maximum Length sub-item in
 bytes. A value of <code class="docutils literal notranslate"><span class="pre">0</span></code> indicates unlimited length (<code class="docutils literal notranslate"><span class="pre">31682</span></code> bytes
 default).</p>
@@ -246,7 +246,7 @@ default).</p>
 </ul>
 <dl class="py method">
 <dt id="pynetdicom.pdu_primitives.MaximumLengthNotification.__init__">
-<code class="sig-name descname">__init__</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/a4df46082/pynetdicom/pdu_primitives.py#L1053"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom.pdu_primitives.MaximumLengthNotification.__init__" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname"><span class="pre">__init__</span></code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/2f69ebcce/pynetdicom/pdu_primitives.py#L1053"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pynetdicom.pdu_primitives.MaximumLengthNotification.__init__" title="Permalink to this definition">¶</a></dt>
 <dd><p>Initialize self.  See help(type(self)) for accurate signature.</p>
 </dd></dl>
 
@@ -279,7 +279,7 @@ default).</p>
 </table>
 <dl class="py method">
 <dt id="pynetdicom.pdu_primitives.MaximumLengthNotification.from_primitive">
-<code class="sig-name descname">from_primitive</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/a4df46082/pynetdicom/pdu_primitives.py#L1056"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom.pdu_primitives.MaximumLengthNotification.from_primitive" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname"><span class="pre">from_primitive</span></code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/2f69ebcce/pynetdicom/pdu_primitives.py#L1056"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pynetdicom.pdu_primitives.MaximumLengthNotification.from_primitive" title="Permalink to this definition">¶</a></dt>
 <dd><p>Convert the primitive to a PDU item ready to be encoded.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Returns</dt>
@@ -293,7 +293,7 @@ default).</p>
 
 <dl class="py method">
 <dt id="id0">
-<em class="property">property </em><code class="sig-name descname">maximum_length_received</code><a class="headerlink" href="#id0" title="Permalink to this definition">¶</a></dt>
+<em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">maximum_length_received</span></code><a class="headerlink" href="#id0" title="Permalink to this definition">¶</a></dt>
 <dd><p>Return the <em>Maximum Length Received</em>.</p>
 </dd></dl>
 
