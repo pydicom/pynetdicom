@@ -1,0 +1,19 @@
+.. _v1.5.7:
+
+1.5.7
+=====
+
+Fixes
+.....
+
+* Fixed not sending a failure response if all C-GET or C-MOVE sub-operations
+  failed when acting as an Query/Retrieve SCP (:issue:`577`)
+* Fixed not using the correct *Move Originator Message ID* when sending
+  C-STORE-RQs when acting as a Move SCP (:issue:`541`)
+
+Changes
+.......
+
+* The Failed SOP Instance UID List sent with the final C-GET/C-MOVE SCP
+  failure or warning responses no longer includes the SOP Instances for
+  sub-operations that return a warning status

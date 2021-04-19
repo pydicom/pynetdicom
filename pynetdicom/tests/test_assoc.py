@@ -2382,7 +2382,7 @@ class TestAssociationSendCGet(object):
         assert status.Status == 0xff00
         assert ds is None
         (status, ds) = next(result)
-        assert status.Status == 0xb000
+        assert status.Status == 0xA702
         assert ds.FailedSOPInstanceUIDList == ['1.1.1', '1.1.1']
         assoc.release()
         assert assoc.is_released
@@ -3257,7 +3257,7 @@ class TestAssociationSendCMove(object):
         (status, ds) = next(result)
         assert status.Status == 0xFF00
         (status, ds) = next(result)
-        assert status.Status == 0xB000
+        assert status.Status == 0xA702
         with pytest.raises(StopIteration):
             next(result)
 
@@ -3293,6 +3293,7 @@ class TestAssociationSendCMove(object):
         )
 
         ae.add_requested_context(PatientRootQueryRetrieveInformationModelMove)
+        ae.add_requested_context(CTImageStorage)
         assoc = ae.associate('localhost', 11112)
         assert assoc.is_established
 
@@ -3382,6 +3383,7 @@ class TestAssociationSendCMove(object):
         )
 
         ae.add_requested_context(PatientRootQueryRetrieveInformationModelMove)
+        ae.add_requested_context(CTImageStorage)
         assoc = ae.associate('localhost', 11112)
         assert assoc.is_established
 
