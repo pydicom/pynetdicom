@@ -2533,7 +2533,7 @@ class TestAssociationSendCGet(object):
         assert status.Status == 0xff00
         assert ds is None
         (status, ds) = next(result)
-        assert status.Status == 0xb000
+        assert status.Status == 0xA702
         assert ds.FailedSOPInstanceUIDList == ['1.1.1', '1.1.1']
         assoc.release()
         assert assoc.is_released
@@ -3443,7 +3443,7 @@ class TestAssociationSendCMove(object):
         (status, ds) = next(result)
         assert status.Status == 0xFF00
         (status, ds) = next(result)
-        assert status.Status == 0xB000
+        assert status.Status == 0xA702
         with pytest.raises(StopIteration):
             next(result)
 
@@ -3470,15 +3470,20 @@ class TestAssociationSendCMove(object):
         ae.network_timeout = 5
         ae.add_supported_context(PatientRootQueryRetrieveInformationModelMove)
         move_scp = ae.start_server(
-            ('', 11112), block=False, evt_handlers=[(evt.EVT_C_MOVE, handle_move)]
+            ('', 11112),
+            block=False,
+            evt_handlers=[(evt.EVT_C_MOVE, handle_move)]
         )
 
         ae.add_supported_context(CTImageStorage)
         store_scp = ae.start_server(
-            ('', 11113), block=False, evt_handlers=[(evt.EVT_C_STORE, handle_store)]
+            ('', 11113),
+            block=False,
+            evt_handlers=[(evt.EVT_C_STORE, handle_store)]
         )
 
         ae.add_requested_context(PatientRootQueryRetrieveInformationModelMove)
+        ae.add_requested_context(CTImageStorage)
         assoc = ae.associate('localhost', 11112)
         assert assoc.is_established
 
@@ -3568,6 +3573,7 @@ class TestAssociationSendCMove(object):
         )
 
         ae.add_requested_context(PatientRootQueryRetrieveInformationModelMove)
+        ae.add_requested_context(CTImageStorage)
         assoc = ae.associate('localhost', 11112)
         assert assoc.is_established
 

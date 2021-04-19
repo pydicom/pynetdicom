@@ -15,6 +15,8 @@ Fixes
 * Fixed *Composite Instance Retrieve Without Bulk Data Get* SCPs not removing
   *Overlay Data*, *Audio Sample Data* and *Curve Data* bulk data elements
   (:pr:`608`)
+* Fixed not sending a failure response if all C-GET or C-MOVE sub-operations
+  failed when acting as an Query/Retrieve SCP (:issue:`577`)
 
 Enhancements
 ............
@@ -33,9 +35,14 @@ Enhancements
   reducing the memory needed when receiving datasets (:issue:`517`)
 * Allow parsing of dimse command sets that contain elements with non-conformant
   VMs (:issue:`554`)
+* Added a check when acting as a QR SCP that returns from the event handler
+  if the association is aborted or released (:issue:`592`)
 
 Changes
 .......
 
-* Removed support for Python 2.7 and 3.5
+* Removed support for Python 2.7 and 3.5, added it for Python 3.9
 * Minimum *pydicom* version is 2.0
+* The *Failed SOP Instance UID List* sent with the final C-GET/C-MOVE SCP
+  failure or warning responses no longer includes the SOP Instances for
+  sub-operations that return a warning status

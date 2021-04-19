@@ -57,7 +57,7 @@ def test_unknown_sop_class():
         service.SCP(None, context)
 
 
-class TestQRFindServiceClass(object):
+class TestQRFindServiceClass:
     """Test the QueryRetrieveFindServiceClass"""
     def setup(self):
         """Run prior to each test"""
@@ -577,7 +577,7 @@ class TestQRFindServiceClass(object):
         """Test handler yielding multiple pending then success status"""
         def handle(event):
             yield 0xFF00, self.query
-            yield 0xFF01,  self.query
+            yield 0xFF01, self.query
             yield 0xFF00, self.query
             yield 0x0000, self.query
             yield 0xA700, None
@@ -1080,8 +1080,57 @@ class TestQRFindServiceClass(object):
 
         scp.shutdown()
 
+    def test_peer_aborts_during_handler(self):
+        """Test the peer aborting during handler operation."""
+        abort = [False]
 
-class TestQRGetServiceClass(object):
+        def handle(event):
+            yield 0xFF00, self.query
+            yield 0xFF01, self.query
+            while not abort[0]:
+                time.sleep(0.1)
+
+            yield 0xFF00, self.query
+            yield 0x0000, self.query
+            yield 0xA700, None
+
+        handlers = [(evt.EVT_C_FIND, handle)]
+
+        self.ae = ae = AE()
+        ae.add_supported_context(PatientRootQueryRetrieveInformationModelFind)
+        ae.add_requested_context(
+            PatientRootQueryRetrieveInformationModelFind,
+            ExplicitVRLittleEndian
+        )
+        scp = ae.start_server(('', 11112), block=False, evt_handlers=handlers)
+
+        ae.acse_timeout = 5
+        ae.dimse_timeout = 1
+        assoc = ae.associate('localhost', 11112)
+        assert assoc.is_established
+        result = assoc.send_c_find(
+            self.query, PatientRootQueryRetrieveInformationModelFind
+        )
+        status, identifier = next(result)
+        assert status.Status == 0xFF00
+        assert identifier == self.query
+        status, identifier = next(result)
+        assert status.Status == 0xFF01
+        assert identifier == self.query
+        assoc.abort()
+        abort[0] = True
+
+        status, identifier = next(result)
+        assert status == Dataset()
+        assert identifier is None
+        with pytest.raises(StopIteration):
+            next(result)
+
+        assert assoc.is_aborted
+        scp.shutdown()
+
+
+class TestQRGetServiceClass:
     def setup(self):
         """Run prior to each test"""
         self.query = Dataset()
@@ -1604,14 +1653,18 @@ class TestQRGetServiceClass(object):
 
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
-        assoc = ae.associate('localhost', 11112, ext_neg=[role], evt_handlers=handlers)
+        assoc = ae.associate(
+            'localhost', 11112, ext_neg=[role], evt_handlers=handlers
+        )
         assert assoc.is_established
-        result = assoc.send_c_get(self.query, PatientRootQueryRetrieveInformationModelGet)
+        result = assoc.send_c_get(
+            self.query, PatientRootQueryRetrieveInformationModelGet
+        )
         status, identifier = next(result)
         assert status.Status == 0xFF00
         assert identifier is None
         status, identifier = next(result)
-        assert status.Status == 0xB000
+        assert status.Status == 0xA702
         assert identifier.FailedSOPInstanceUIDList == ''
         pytest.raises(StopIteration, next, result)
 
@@ -1691,14 +1744,18 @@ class TestQRGetServiceClass(object):
 
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
-        assoc = ae.associate('localhost', 11112, ext_neg=[role], evt_handlers=handlers)
+        assoc = ae.associate(
+            'localhost', 11112, ext_neg=[role], evt_handlers=handlers
+        )
         assert assoc.is_established
-        result = assoc.send_c_get(self.query, PatientRootQueryRetrieveInformationModelGet)
+        result = assoc.send_c_get(
+            self.query, PatientRootQueryRetrieveInformationModelGet
+        )
         status, identifier = next(result)
         assert status.Status == 0xFF00
         assert identifier is None
         status, identifier = next(result)
-        assert status.Status == 0xB000
+        assert status.Status == 0xA702
         assert identifier.FailedSOPInstanceUIDList == ''
         pytest.raises(StopIteration, next, result)
 
@@ -1782,7 +1839,7 @@ class TestQRGetServiceClass(object):
         assert status.Status == 0xFF00
         assert identifier is None
         status, identifier = next(result)
-        assert status.Status == 0xB000
+        assert status.Status == 0xA702
         assert status.NumberOfFailedSuboperations == 2
         assert status.NumberOfWarningSuboperations == 0
         assert status.NumberOfCompletedSuboperations == 0
@@ -1817,9 +1874,13 @@ class TestQRGetServiceClass(object):
 
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
-        assoc = ae.associate('localhost', 11112, ext_neg=[role], evt_handlers=handlers)
+        assoc = ae.associate(
+            'localhost', 11112, ext_neg=[role], evt_handlers=handlers
+        )
         assert assoc.is_established
-        result = assoc.send_c_get(self.query, PatientRootQueryRetrieveInformationModelGet)
+        result = assoc.send_c_get(
+            self.query, PatientRootQueryRetrieveInformationModelGet
+        )
         status, identifier = next(result)
         assert status.Status == 0xFF00
         assert identifier is None
@@ -1831,7 +1892,7 @@ class TestQRGetServiceClass(object):
         assert status.NumberOfFailedSuboperations == 0
         assert status.NumberOfWarningSuboperations == 2
         assert status.NumberOfCompletedSuboperations == 0
-        assert identifier.FailedSOPInstanceUIDList == ['1.1.1', '1.1.1']
+        assert identifier.FailedSOPInstanceUIDList == ''
         pytest.raises(StopIteration, next, result)
 
         assoc.release()
@@ -1915,7 +1976,7 @@ class TestQRGetServiceClass(object):
         assert status.NumberOfFailedSuboperations == 0
         assert status.NumberOfWarningSuboperations == 1
         assert status.NumberOfCompletedSuboperations == 0
-        assert identifier.FailedSOPInstanceUIDList == '1.1.1'
+        assert identifier.FailedSOPInstanceUIDList == ''
         pytest.raises(StopIteration, next, result)
 
         assoc.release()
@@ -1952,7 +2013,7 @@ class TestQRGetServiceClass(object):
         assert status.Status == 0xFF00
         assert identifier is None
         status, identifier = next(result)
-        assert status.Status == 0xB000
+        assert status.Status == 0xA702
         assert status.NumberOfFailedSuboperations == 1
         assert status.NumberOfWarningSuboperations == 0
         assert status.NumberOfCompletedSuboperations == 0
@@ -2056,9 +2117,7 @@ class TestQRGetServiceClass(object):
         assert status.NumberOfFailedSuboperations == 0
         assert status.NumberOfWarningSuboperations == 3
         assert status.NumberOfCompletedSuboperations == 0
-        assert identifier.FailedSOPInstanceUIDList == ['1.1.1',
-                                                       '1.1.1',
-                                                       '1.1.1']
+        assert identifier.FailedSOPInstanceUIDList == ''
         pytest.raises(StopIteration, next, result)
 
         assoc.release()
@@ -2104,7 +2163,7 @@ class TestQRGetServiceClass(object):
         assert status.Status == 0xFF00
         assert identifier is None
         status, identifier = next(result)
-        assert status.Status == 0xB000
+        assert status.Status == 0xA702
         assert status.NumberOfFailedSuboperations == 3
         assert status.NumberOfWarningSuboperations == 0
         assert status.NumberOfCompletedSuboperations == 0
@@ -2141,9 +2200,13 @@ class TestQRGetServiceClass(object):
 
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
-        assoc = ae.associate('localhost', 11112, ext_neg=[role], evt_handlers=handlers)
+        assoc = ae.associate(
+            'localhost', 11112, ext_neg=[role], evt_handlers=handlers
+        )
         assert assoc.is_established
-        result = assoc.send_c_get(self.query, PatientRootQueryRetrieveInformationModelGet)
+        result = assoc.send_c_get(
+            self.query, PatientRootQueryRetrieveInformationModelGet
+        )
         status, identifier = next(result)
         assert status.Status == 0xFF00
         assert identifier is None
@@ -2319,7 +2382,7 @@ class TestQRGetServiceClass(object):
         assert status.NumberOfFailedSuboperations == 0
         assert status.NumberOfWarningSuboperations == 1
         assert status.NumberOfCompletedSuboperations == 0
-        assert identifier.FailedSOPInstanceUIDList == '1.1.1'
+        assert identifier.FailedSOPInstanceUIDList == ''
         pytest.raises(StopIteration, next, result)
 
         assoc.release()
@@ -2732,7 +2795,7 @@ class TestQRGetServiceClass(object):
         assert status.Status == 0xFF00
         assert identifier is None
         status, identifier = next(result)
-        assert status.Status == 0xB000
+        assert status.Status == 0xA702
         assert identifier.FailedSOPInstanceUIDList == '1.1.1'
         pytest.raises(StopIteration, next, result)
 
@@ -3244,8 +3307,59 @@ class TestQRGetServiceClass(object):
         assert assoc.is_released
         scp.shutdown()
 
+    def test_scp_store_warning_failure(self):
+        """Test when handler returns warning status if not all failed"""
+        rsp = [0xC000, 0xB000]
 
-class TestQRMoveServiceClass(object):
+        def handle(event):
+            yield 2
+            yield 0xFF00, self.ds
+            yield 0xFF00, self.ds
+
+        def handle_store(event):
+            return rsp.pop()
+
+        handlers = [(evt.EVT_C_GET, handle)]
+
+        self.ae = ae = AE()
+        ae.add_supported_context(PatientRootQueryRetrieveInformationModelGet)
+        ae.add_supported_context(CTImageStorage, scu_role=False, scp_role=True)
+        ae.add_requested_context(PatientRootQueryRetrieveInformationModelGet)
+        ae.add_requested_context(CTImageStorage)
+        scp = ae.start_server(('', 11112), block=False, evt_handlers=handlers)
+
+        role = build_role(CTImageStorage, scp_role=True)
+        handlers = [(evt.EVT_C_STORE, handle_store)]
+
+        ae.acse_timeout = 5
+        ae.dimse_timeout = 5
+        assoc = ae.associate(
+            'localhost', 11112, ext_neg=[role], evt_handlers=handlers
+        )
+        assert assoc.is_established
+        result = assoc.send_c_get(
+            self.query, PatientRootQueryRetrieveInformationModelGet
+        )
+        status, identifier = next(result)
+        assert status.Status == 0xFF00
+        assert identifier is None
+        status, identifier = next(result)
+        assert status.Status == 0xFF00
+        assert identifier is None
+        status, identifier = next(result)
+        assert status.Status == 0xB000
+        assert status.NumberOfFailedSuboperations == 1
+        assert status.NumberOfWarningSuboperations == 1
+        assert status.NumberOfCompletedSuboperations == 0
+        assert identifier.FailedSOPInstanceUIDList == '1.1.1'
+        pytest.raises(StopIteration, next, result)
+
+        assoc.release()
+        assert assoc.is_released
+        scp.shutdown()
+
+
+class TestQRMoveServiceClass:
     def setup(self):
         """Run prior to each test"""
         self.query = Dataset()
@@ -3900,7 +4014,7 @@ class TestQRMoveServiceClass(object):
         assert status.Status == 0xFF00
         assert identifier is None
         status, identifier = next(result)
-        assert status.Status == 0xB000
+        assert status.Status == 0xA702
         assert identifier.FailedSOPInstanceUIDList == ''
         pytest.raises(StopIteration, next, result)
 
@@ -4024,7 +4138,7 @@ class TestQRMoveServiceClass(object):
         assert status.Status == 0xFF00
         assert identifier is None
         status, identifier = next(result)
-        assert status.Status == 0xB000
+        assert status.Status == 0xA702
         assert status.NumberOfFailedSuboperations == 2
         assert status.NumberOfWarningSuboperations == 0
         assert status.NumberOfCompletedSuboperations == 0
@@ -4108,7 +4222,7 @@ class TestQRMoveServiceClass(object):
         assert status.NumberOfFailedSuboperations == 0
         assert status.NumberOfWarningSuboperations == 2
         assert status.NumberOfCompletedSuboperations == 0
-        assert identifier.FailedSOPInstanceUIDList == ['1.1.1', '1.1.1']
+        assert identifier.FailedSOPInstanceUIDList == ''
         pytest.raises(StopIteration, next, result)
 
         assoc.release()
@@ -4186,7 +4300,7 @@ class TestQRMoveServiceClass(object):
         assert status.NumberOfFailedSuboperations == 0
         assert status.NumberOfWarningSuboperations == 1
         assert status.NumberOfCompletedSuboperations == 0
-        assert identifier.FailedSOPInstanceUIDList == '1.1.1'
+        assert identifier.FailedSOPInstanceUIDList == ''
         pytest.raises(StopIteration, next, result)
 
         assoc.release()
@@ -4221,7 +4335,7 @@ class TestQRMoveServiceClass(object):
         assert status.Status == 0xFF00
         assert identifier is None
         status, identifier = next(result)
-        assert status.Status == 0xB000
+        assert status.Status == 0xA702
         assert status.NumberOfFailedSuboperations == 1
         assert status.NumberOfWarningSuboperations == 0
         assert status.NumberOfCompletedSuboperations == 0
@@ -4319,9 +4433,7 @@ class TestQRMoveServiceClass(object):
         assert status.NumberOfFailedSuboperations == 0
         assert status.NumberOfWarningSuboperations == 3
         assert status.NumberOfCompletedSuboperations == 0
-        assert identifier.FailedSOPInstanceUIDList == ['1.1.1',
-                                                       '1.1.1',
-                                                       '1.1.1']
+        assert identifier.FailedSOPInstanceUIDList == ''
         pytest.raises(StopIteration, next, result)
 
         assoc.release()
@@ -4364,7 +4476,7 @@ class TestQRMoveServiceClass(object):
         assert status.Status == 0xFF00
         assert identifier is None
         status, identifier = next(result)
-        assert status.Status == 0xB000
+        assert status.Status == 0xA702
         assert status.NumberOfFailedSuboperations == 3
         assert status.NumberOfWarningSuboperations == 0
         assert status.NumberOfCompletedSuboperations == 0
@@ -4528,7 +4640,7 @@ class TestQRMoveServiceClass(object):
         assert status.NumberOfFailedSuboperations == 0
         assert status.NumberOfWarningSuboperations == 1
         assert status.NumberOfCompletedSuboperations == 0
-        assert identifier.FailedSOPInstanceUIDList == '1.1.1'
+        assert identifier.FailedSOPInstanceUIDList == ''
         pytest.raises(StopIteration, next, result)
 
         assoc.release()
@@ -5045,7 +5157,7 @@ class TestQRMoveServiceClass(object):
         assert status.NumberOfFailedSuboperations == 0
         assert status.NumberOfWarningSuboperations == 1
         assert status.NumberOfCompletedSuboperations == 0
-        assert identifier.FailedSOPInstanceUIDList == '1.1.1'
+        assert identifier.FailedSOPInstanceUIDList == ''
         pytest.raises(StopIteration, next, result)
 
         assoc.release()
@@ -5544,8 +5656,59 @@ class TestQRMoveServiceClass(object):
         assert assoc.is_released
         scp.shutdown()
 
+    def test_scp_store_warning_failure(self):
+        """Test when handler returns warning status if not all failed"""
+        rsp = [0xC000, 0xB000, 0xB000]
 
-class TestQRCompositeInstanceWithoutBulk(object):
+        def handle(event):
+            yield self.destination
+            yield 3
+            yield 0xFF00, self.ds
+            yield 0xFF00, self.ds
+            yield 0xFF00, self.ds
+            yield 0xB000, None
+
+        def handle_store(event):
+            return rsp.pop()
+
+        handlers = [(evt.EVT_C_MOVE, handle), (evt.EVT_C_STORE, handle_store)]
+
+        self.ae = ae = AE()
+        ae.add_supported_context(PatientRootQueryRetrieveInformationModelMove)
+        ae.add_supported_context(CTImageStorage, scu_role=False, scp_role=True)
+        ae.add_requested_context(PatientRootQueryRetrieveInformationModelMove)
+        ae.add_requested_context(CTImageStorage)
+        scp = ae.start_server(('', 11112), block=False, evt_handlers=handlers)
+
+        ae.acse_timeout = 5
+        ae.dimse_timeout = 5
+        assoc = ae.associate('localhost', 11112)
+        assert assoc.is_established
+        result = assoc.send_c_move(
+            self.query, b'TESTMOVE', PatientRootQueryRetrieveInformationModelMove
+        )
+        status, identifier = next(result)
+        assert status.Status == 0xFF00
+        assert identifier is None
+        status, identifier = next(result)
+        assert status.Status == 0xFF00
+        assert identifier is None
+        status, identifier = next(result)
+        assert status.Status == 0xFF00
+        assert identifier is None
+        status, identifier = next(result)
+        assert status.Status == 0xB000
+        assert status.NumberOfFailedSuboperations == 1
+        assert status.NumberOfWarningSuboperations == 2
+        assert status.NumberOfCompletedSuboperations == 0
+        assert identifier.FailedSOPInstanceUIDList == '1.1.1'
+        pytest.raises(StopIteration, next, result)
+
+        assoc.release()
+        scp.shutdown()
+
+
+class TestQRCompositeInstanceWithoutBulk:
     """Tests for QR + Composite Instance Without Bulk Data"""
     def setup(self):
         """Run prior to each test"""
@@ -5754,7 +5917,7 @@ class TestQRCompositeInstanceWithoutBulk(object):
         scp.shutdown()
 
 
-class TestBasicWorklistServiceClass(object):
+class TestBasicWorklistServiceClass:
     """Tests for BasicWorklistManagementServiceClass."""
     def setup(self):
         """Run prior to each test"""
