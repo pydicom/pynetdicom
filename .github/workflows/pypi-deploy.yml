@@ -1,17 +1,15 @@
 name: pypi-deploy
 
 on:
+  pull_request:
   release:
     types: [ published ]
 
 jobs:
 
-  deploy:
+  build_and_test:
     runs-on: ubuntu-latest
-    strategy:
-      fail-fast: true
-      matrix:
-        python-version: [3.8]
+    python-version: [3.9]
 
     steps:
     - uses: actions/checkout@v2
@@ -32,31 +30,40 @@ jobs:
       uses: actions/upload-artifact@v2
       with:
         name: wheels
-        path: dist/*.whl
+        path: dist/
 
-    - name: Publish package to Test PyPi
-      uses: pypa/gh-action-pypi-publish@master
-      with:
-        user: __token__
-        password: ${{ secrets.test_pypi_password }}
-        repository_url: https://test.pypi.org/legacy/
+    #- name: Publish package to Test PyPi
+    #  uses: pypa/gh-action-pypi-publish@master
+    #  with:
+    #    user: __token__
+    #    password: ${{ secrets.TEST_PYPI_PASSWORD }}
+    #    repository_url: https://test.pypi.org/legacy/
 
-    - name: Install dependencies
+    - name: Set up test environment
       run: |
-        pip install virtualenvwrapper
-        mkvirtualenv testpynd
         pip install pytest pydicom
         pip install -i https://test.pypi.org/simple/ pynetdicom
 
     - name: Test with pytest
       run: |
-        cd ${HOME}
+        python -m pynetdicom --version
         python -c "import pytest; pytest.main(['--pyargs', 'pynetdicom.tests'])"
-        deactivate
-        cd ${GITHUB_WORKSPACE}
 
-    - name: Publish package to PyPi
-      uses: pypa/gh-action-pypi-publish@master
+  deploy:
+    name: Upload package to PyPI
+    needs:
+    - build_and_test
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Download the package files
+      uses: actions/download-artifact@v2
       with:
-        user: __token__
-        password: ${{ secrets.PYPI_PASSWORD }}
+        name: wheels
+        path: dist/
+
+    #- name: Publish package to PyPi
+    #  uses: pypa/gh-action-pypi-publish@master
+    #  with:
+    #    user: __token__
+    #    password: ${{ secrets.PYPI_PASSWORD }}
