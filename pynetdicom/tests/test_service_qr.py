@@ -40,7 +40,7 @@ from pynetdicom.sop_class import (
 )
 
 
-#debug_logger()
+debug_logger()
 
 
 TEST_DS_DIR = os.path.join(os.path.dirname(__file__), 'dicom_files')
@@ -577,7 +577,7 @@ class TestQRFindServiceClass:
         """Test handler yielding multiple pending then success status"""
         def handle(event):
             yield 0xFF00, self.query
-            yield 0xFF01,  self.query
+            yield 0xFF01, self.query
             yield 0xFF00, self.query
             yield 0x0000, self.query
             yield 0xA700, None
@@ -1078,6 +1078,55 @@ class TestQRFindServiceClass:
         assoc.release()
         assert assoc.is_released
 
+        scp.shutdown()
+
+    def test_peer_aborts_during_handler(self):
+        """Test the peer aborting during handler operation."""
+        abort = [False]
+
+        def handle(event):
+            yield 0xFF00, self.query
+            yield 0xFF01, self.query
+            while not abort[0]:
+                time.sleep(0.1)
+
+            yield 0xFF00, self.query
+            yield 0x0000, self.query
+            yield 0xA700, None
+
+        handlers = [(evt.EVT_C_FIND, handle)]
+
+        self.ae = ae = AE()
+        ae.add_supported_context(PatientRootQueryRetrieveInformationModelFind)
+        ae.add_requested_context(
+            PatientRootQueryRetrieveInformationModelFind,
+            ExplicitVRLittleEndian
+        )
+        scp = ae.start_server(('', 11112), block=False, evt_handlers=handlers)
+
+        ae.acse_timeout = 5
+        ae.dimse_timeout = 1
+        assoc = ae.associate('localhost', 11112)
+        assert assoc.is_established
+        result = assoc.send_c_find(
+            self.query, PatientRootQueryRetrieveInformationModelFind
+        )
+        status, identifier = next(result)
+        assert status.Status == 0xFF00
+        assert identifier == self.query
+        status, identifier = next(result)
+        assert status.Status == 0xFF01
+        assert identifier == self.query
+        assoc.abort()
+        abort[0] = True
+
+        status, identifier = next(result)
+        assert status == Dataset()
+        assert identifier is None
+        with pytest.raises(StopIteration):
+            next(result)
+
+        assert assoc.is_aborted
         scp.shutdown()
 
 

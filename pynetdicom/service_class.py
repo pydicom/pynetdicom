@@ -1342,6 +1342,10 @@ class ServiceClass(object):
                     self.assoc.acse.is_aborted()
                     or self.assoc.acse.is_release_requested()
                 ):
+                    LOGGER.debug(
+                        "A-ABORT or A-RELEASE-RQ received during "
+                        "Q/R sub-operations"
+                    )
                     return
 
                 yield (result, None)
