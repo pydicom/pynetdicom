@@ -213,6 +213,8 @@ Identifier with the final success response (<a class="reference external" href="
 <li><p>Fixed <em>Composite Instance Retrieve Without Bulk Data Get</em> SCPs not removing
 <em>Overlay Data</em>, <em>Audio Sample Data</em> and <em>Curve Data</em> bulk data elements
 (<a class="reference external" href="https://github.com/pydicom/pynetdicom/pull/608">#608</a>)</p></li>
+<li><p>Fixed not sending a failure response if all C-GET or C-MOVE sub-operations
+failed when acting as an Query/Retrieve SCP (<a class="reference external" href="https://github.com/pydicom/pynetdicom/issues/577">#577</a>)</p></li>
 </ul>
 </div>
 <div class="section" id="enhancements">
@@ -232,13 +234,18 @@ to allow storing received C-STORE datasets directly to file,
 reducing the memory needed when receiving datasets (<a class="reference external" href="https://github.com/pydicom/pynetdicom/issues/517">#517</a>)</p></li>
 <li><p>Allow parsing of dimse command sets that contain elements with non-conformant
 VMs (<a class="reference external" href="https://github.com/pydicom/pynetdicom/issues/554">#554</a>)</p></li>
+<li><p>Added a check when acting as a QR SCP that returns from the event handler
+if the association is aborted or released (<a class="reference external" href="https://github.com/pydicom/pynetdicom/issues/592">#592</a>)</p></li>
 </ul>
 </div>
 <div class="section" id="changes">
 <h2>Changes<a class="headerlink" href="#changes" title="Permalink to this headline">¶</a></h2>
 <ul class="simple">
-<li><p>Removed support for Python 2.7 and 3.5</p></li>
+<li><p>Removed support for Python 2.7 and 3.5, added it for Python 3.9</p></li>
 <li><p>Minimum <em>pydicom</em> version is 2.0</p></li>
+<li><p>The <em>Failed SOP Instance UID List</em> sent with the final C-GET/C-MOVE SCP
+failure or warning responses no longer includes the SOP Instances for
+sub-operations that return a warning status</p></li>
 </ul>
 </div>
 </div>
