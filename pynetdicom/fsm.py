@@ -955,7 +955,7 @@ STATES = {
     # Association establishment
     'Sta2': 'Transport connection open (Awaiting A-ASSOCIATE-RQ PDU)',
     'Sta3': 'Awaiting local A-ASSOCIATE response primitive (from local user)',
-    'Sta4': 'Awaiting transport connection opening to complete (from local transport service',
+    'Sta4': 'Awaiting transport connection opening to complete (from local transport service)',
     'Sta5': 'Awaiting A-ASSOCIATE-AC or A-ASSOCIATE-RJ PDU',
     # Data transfer
     'Sta6': 'Association established and ready for data transfer',

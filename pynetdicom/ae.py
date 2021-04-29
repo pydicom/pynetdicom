@@ -37,6 +37,10 @@ class ApplicationEntity(object):
         messages. A value of ``None`` means no timeout. (default: ``30``)
     ae_title : bytes
         The local AE's *AE title*.
+    connection_timeout : int or float or None
+        The maximum amount of time (in seconds) to wait for a TCP connection to be
+        established. A value of ``None`` means no timeout. (default: ``None``)
+        This value is passed to :meth:`~socket.settimeout`.
     dimse_timeout : int or float or None
         The maximum amount of time (in seconds) to wait for DIMSE related
         messages. A value of ``None`` means no timeout. (default: ``30``)
@@ -93,6 +97,7 @@ class ApplicationEntity(object):
 
         # Default timeouts - None means no timeout
         self.acse_timeout = 30
+        self.connection_timeout = None
         self.dimse_timeout = 30
         self.network_timeout = 60
 
@@ -580,6 +585,27 @@ class ApplicationEntity(object):
         sock = AssociationSocket(assoc, address=address)
         sock.tls_args = tls_args or {}
         return sock
+
+    @property
+    def connection_timeout(self):
+        """The connection timeout (in seconds)."""
+        return self._connection_timeout
+
+    @connection_timeout.setter
+    def connection_timeout(self, value):
+        """Set the connection timeout."""
+        # pylint: disable=attribute-defined-outside-init
+        if value is None:
+            self._connection_timeout = None
+        # Explicitly excluding zero - this would make the socket non-blocking
+        elif isinstance(value, (int, float)) and value > 0:
+            self._connection_timeout = value
+        else:
+            LOGGER.warning("connection_timeout set to None")
+            self._connection_timeout = None
+
+        for assoc in self.active_associations:
+            assoc.connection_timeout = self.connection_timeout
 
     @property
     def dimse_timeout(self):

@@ -1692,12 +1692,12 @@ class TestEventHandlingRequestor(object):
         ae.add_requested_context(VerificationSOPClass)
         scp = ae.start_server(('', 11112), block=False)
         with caplog.at_level(logging.ERROR, logger='pynetdicom'):
-            assoc = ae.associate('unknown', 11112)
+            assoc = ae.associate('localhost', 11113)
             assert assoc.is_aborted
 
             messages = [
                 "Association request failed: unable to connect to remote",
-                "TCP Initialisation Error: Connection refused"
+                "TCP Initialisation Error"
             ]
             for msg in messages:
                 assert msg in caplog.text

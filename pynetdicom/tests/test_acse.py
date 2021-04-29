@@ -45,12 +45,19 @@ from .parrot import ThreadedParrot, ParrotRequest
 
 #debug_logger()
 
+class DummyAssociationSocket(object):
+    def __init__(self):
+        self._ready = threading.Event()
+        self._ready.set()
+        self._is_connected = True
+
 
 class DummyDUL(object):
     def __init__(self):
         self.queue = queue.Queue()
         self.received = queue.Queue()
         self.is_killed = False
+        self.socket = DummyAssociationSocket()
 
     def send_pdu(self, primitive):
         self.queue.put(primitive)
@@ -2771,17 +2778,28 @@ class TestEventHandlingRequestor(object):
 
         self.ae = ae = AE()
         ae.add_requested_context(VerificationSOPClass)
+        ae.add_supported_context(VerificationSOPClass)
         handlers = [(evt.EVT_ACSE_RECV, handle)]
-        assoc = ae.associate('localhost', 11113, evt_handlers=handlers)
+
+        scp = ae.start_server(('', 11112), block=False)
+        assoc = ae.associate('localhost', 11112, evt_handlers=handlers)
+        child = scp.active_associations[0]
+
+        child.acse.send_abort(0x02)
+        while scp.active_associations:
+            time.sleep(0.05)
+
         assert assoc.is_aborted
 
-        assert len(triggered) == 1
-        event = triggered[0]
+        assert len(triggered) == 2
+        event = triggered[1]
         assert isinstance(event, Event)
         assert isinstance(event.assoc, Association)
         assert isinstance(event.timestamp, datetime)
-        assert isinstance(triggered[0].primitive, A_P_ABORT)
+        assert isinstance(triggered[1].primitive, A_P_ABORT)
         assert event.event.name == 'EVT_ACSE_RECV'
+
+        scp.shutdown()
 
     def test_acse_recv_bind(self):
         """Test binding to EVT_ACSE_RECV."""

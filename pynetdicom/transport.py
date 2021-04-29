@@ -80,12 +80,15 @@ class AssociationSocket(object):
                 "and bind 'address'. The original socket will not be rebound"
             )
 
+        self._ready = threading.Event()
+
         if client_socket is None:
             self.socket = self._create_socket(address)
             self._is_connected = False
         else:
             self.socket = client_socket
             self._is_connected = True
+            self._ready.set()
             # Evt5: Transport connection indication
             self.event_queue.put('Evt5')
 
@@ -146,20 +149,24 @@ class AssociationSocket(object):
                     server_side=False,
                     server_hostname=server_hostname,
                 )
+            # Set ae connection timeout
+            self.socket.settimeout(self.assoc.connection_timeout)
             # Try and connect to remote at (address, port)
             #   raises socket.error if connection refused
             self.socket.connect(address)
+            # Clear ae connection timeout
+            self.socket.settimeout(None)
             # Trigger event - connection open
             evt.trigger(self.assoc, evt.EVT_CONN_OPEN, {'address' : address})
             self._is_connected = True
             # Evt2: Transport connection confirmation
             self.event_queue.put('Evt2')
-        except (socket.error, socket.timeout) as exc:
+        except OSError as exc:
             # Log connection failure
             LOGGER.error(
                 "Association request failed: unable to connect to remote"
             )
-            LOGGER.error("TCP Initialisation Error: Connection refused")
+            LOGGER.error(f"TCP Initialisation Error: {exc}")
             # Log exception if TLS issue to help with troubleshooting
             if isinstance(exc, ssl.SSLError):
                 LOGGER.exception(exc)
@@ -174,6 +181,8 @@ class AssociationSocket(object):
                 self.socket.close()
                 self.socket = None
             self.event_queue.put('Evt17')
+        finally:
+            self._ready.set()
 
     def _create_socket(self, address=('', 0)):
         """Create a new IPv4 TCP socket and set it up for use.

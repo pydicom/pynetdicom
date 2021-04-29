@@ -122,7 +122,7 @@ class FindSCUBase(object):
 
         out, err = capfd.readouterr()
         assert "Association request failed: unable to connect to remote" in err
-        assert "TCP Initialisation Error: Connection refused" in err
+        assert "TCP Initialisation Error" in err
         assert "Association Aborted" in err
 
     def test_bad_input(self, capfd):

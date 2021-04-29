@@ -240,6 +240,11 @@ class ACSE(object):
         """Return the :class:`~pynetdicom.dul.DULServiceProvider`."""
         return self.assoc.dul
 
+    @property
+    def socket(self):
+        """Return the :class:`~pynetdicom.transport.AssociationSocket`."""
+        return self.assoc.dul.socket
+
     def is_aborted(self, abort_type='both'):
         """Return ``True`` if an A-ABORT and/or A-P-ABORT request has been
         received.
@@ -421,6 +426,14 @@ class ACSE(object):
         # Build and send an A-ASSOCIATE (request) PDU to the peer
         self.send_request()
         evt.trigger(self.assoc, evt.EVT_REQUESTED, {})
+
+        # Wait for the transport to be ready
+        self.socket._ready.wait()
+
+        if not self.socket._is_connected:
+            # Failed to connect
+            self.assoc.abort()
+            return
 
         # Wait for response
         rsp = self.dul.receive_pdu(wait=True, timeout=self.acse_timeout)
