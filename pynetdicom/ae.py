@@ -13,7 +13,7 @@ from pynetdicom.presentation import PresentationContext
 from pynetdicom.transport import (
     AssociationSocket, AssociationServer, ThreadedAssociationServer
 )
-from pynetdicom.utils import validate_ae_title
+from pynetdicom.utils import make_target, validate_ae_title
 from pynetdicom._globals import (
     MODE_REQUESTOR,
     DEFAULT_MAX_LENGTH,
@@ -1216,7 +1216,7 @@ class ApplicationEntity(object):
             )
 
             thread = threading.Thread(
-                target=server.serve_forever,
+                target=make_target(server.serve_forever),
                 name=f"AcceptorServer@{timestamp}"
             )
             thread.daemon = True

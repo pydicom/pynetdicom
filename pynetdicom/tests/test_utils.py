@@ -1,14 +1,16 @@
 """Unit tests for the pynetdicom.utils module."""
 
 from io import BytesIO
+from threading import Thread
 import logging
+import sys
 
 import pytest
 
 from pydicom.uid import UID
 
 from pynetdicom import _config, debug_logger
-from pynetdicom.utils import validate_ae_title, pretty_bytes, validate_uid
+from pynetdicom.utils import validate_ae_title, pretty_bytes, validate_uid, make_target
 from .encoded_pdu_items import a_associate_rq
 
 
@@ -186,3 +188,52 @@ class TestPrettyBytes(object):
         result = pretty_bytes(bytestream, prefix='', delimiter='',
                            items_per_line=10)
         assert isinstance(result[0], str)
+
+
+class TestMakeTarget(object):
+    """Tests for utils.make_target()."""
+    @pytest.mark.skipif(sys.version_info[:2] < (3, 7), reason="Branch uncovered in this Python version.")
+    def test_make_target(self):
+        """Context Setup"""
+        from contextvars import ContextVar
+        foo = ContextVar("foo")
+        token = foo.set("foo")
+
+        """Test for ``_config.PASS_CONTEXTVARS = False`` (the default)."""
+        assert _config.PASS_CONTEXTVARS is False
+
+        def target_without_context():
+            with pytest.raises(LookupError):
+                foo.get()
+
+        thread_without_context = Thread(target=make_target(target_without_context))
+        thread_without_context.start()
+        thread_without_context.join()
+
+        """Test for ``_config.PASS_CONTEXTVARS = True``."""
+        _config.PASS_CONTEXTVARS = True
+
+        def target_with_context():
+            assert foo.get() == "foo"
+
+        thread_with_context = Thread(target=make_target(target_with_context))
+        thread_with_context.start()
+        thread_with_context.join()
+
+        _config.PASS_CONTEXTVARS = False
+
+        """Context Teardown"""
+        foo.reset(token)
+
+    @pytest.mark.skipif(sys.version_info[:2] >= (3, 7), reason="Branch uncovered in this Python version.")
+    def test_invalid_python_version(self):
+        """Test for ``_config.PASS_CONTEXTVARS = True`` and Python < 3.7"""
+        def noop():
+            pass
+
+        _config.PASS_CONTEXTVARS = True
+
+        with pytest.raises(RuntimeError, match="PASS_CONTEXTVARS requires Python >=3.7"):
+            make_target(noop)
+
+        _config.PASS_CONTEXTVARS = False
