@@ -37,6 +37,8 @@ Enhancements
   VMs (:issue:`554`)
 * Added a check when acting as a QR SCP that returns from the event handler
   if the association is aborted or released (:issue:`592`)
+* Added configuration option :attr:`~pynetdicom._config.PASS_CONTEXTVARS` to
+  allow user code to define contextual behavior.
 
 Changes
 .......

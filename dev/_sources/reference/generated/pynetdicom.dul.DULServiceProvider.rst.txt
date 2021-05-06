@@ -24,6 +24,7 @@
       ~DULServiceProvider.peek_next_pdu
       ~DULServiceProvider.receive_pdu
       ~DULServiceProvider.run
+      ~DULServiceProvider.run_reactor
       ~DULServiceProvider.send_pdu
       ~DULServiceProvider.setDaemon
       ~DULServiceProvider.setName
