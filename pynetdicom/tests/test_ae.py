@@ -1,5 +1,6 @@
 """Tests for the ae module."""
 
+import logging
 import os
 import signal
 import threading
@@ -302,6 +303,21 @@ class TestAEGoodTimeoutSetters(object):
         ae.network_timeout = 30
         assert ae.network_timeout == 30
 
+    def test_connection_timeout(self):
+        """ Check AE connection timeout change produces good value """
+        ae = AE()
+        assert ae.connection_timeout is None
+        ae.connection_timeout = None
+        assert ae.connection_timeout is None
+        ae.connection_timeout = -100
+        assert ae.connection_timeout is None
+        ae.connection_timeout = 'a'
+        assert ae.connection_timeout is None
+        ae.connection_timeout = 0
+        assert ae.connection_timeout is None
+        ae.connection_timeout = 30
+        assert ae.connection_timeout == 30
+
     def test_active_acse(self):
         """Test changing acse_timeout with active associations."""
         ae = AE()
@@ -352,6 +368,24 @@ class TestAEGoodTimeoutSetters(object):
         assert assoc.network_timeout == 60
         ae.network_timeout = 5
         assert assoc.network_timeout == 5
+
+        assoc.release()
+
+        scp.shutdown()
+
+    def test_active_connection(self):
+        """Test changing connection_timeout with active associations."""
+        ae = AE()
+        ae.add_supported_context('1.2.840.10008.1.1')
+        scp = ae.start_server(('', 11112), block=False)
+
+        ae.add_requested_context('1.2.840.10008.1.1')
+        assoc = ae.associate('localhost', 11112)
+        assert assoc.is_established
+
+        assert assoc.connection_timeout is None
+        ae.connection_timeout = 5
+        assert assoc.connection_timeout == 5
 
         assoc.release()
 
@@ -431,13 +465,18 @@ class TestAEGoodAssociation(object):
         """ Check that the Association timeouts are being set correctly and
         work """
 
-        DELAY = []
+        acse_delay = None
+        dimse_delay = None
 
-        def handle(event):
-            if DELAY:
-                time.sleep(DELAY[0])
+        def handle_echo(event):
+            if dimse_delay:
+                time.sleep(dimse_delay)
 
             return 0x0000
+
+        def handle_acse_recv(event):
+            if acse_delay:
+                time.sleep(acse_delay)
 
         self.ae = ae = AE()
         ae.acse_timeout = 5
@@ -445,7 +484,7 @@ class TestAEGoodAssociation(object):
         ae.network_timeout = 0.5
         ae.add_supported_context(VerificationSOPClass)
         scp = ae.start_server(
-            ('', 11112), block=False, evt_handlers=[(evt.EVT_C_ECHO, handle)]
+            ('', 11112), block=False, evt_handlers=[(evt.EVT_ACSE_RECV, handle_acse_recv), (evt.EVT_C_ECHO, handle_echo)]
         )
 
         scu_ae = AE()
@@ -468,7 +507,7 @@ class TestAEGoodAssociation(object):
         scu_ae.acse_timeout = 30
         scu_ae.dimse_timeout = 0
 
-        DELAY.append(1)
+        dimse_delay = 1
 
         assoc = scu_ae.associate('localhost', 11112)
         assert assoc.is_established
@@ -477,16 +516,35 @@ class TestAEGoodAssociation(object):
         assert assoc.is_aborted
         assert len(scp.active_associations) == 0
 
-        scu_ae.acse_timeout = 0
+        # FIXME: If this is `0` we can process an ABORT primitive where
+        # we expect an ASSOCIATION primitive.
+        scu_ae.acse_timeout = 0.5
         scu_ae.dimse_timeout = 30
+
+        acse_delay = 1
 
         assoc = scu_ae.associate('localhost', 11112)
         assert not assoc.is_established
+        assert assoc.is_aborted
+        time.sleep(1.5)
+        assert len(scp.active_associations) == 0
+
+        scu_ae.acse_timeout = 30
+        # `0` is an invalid value
+        scu_ae.connection_timeout = 0.5
+        scu_ae.dimse_timeout = 30
+
+        # The host exists and is routable, but there is a middlebox ignoring
+        # the initial TCP SYN.
+        assoc = scu_ae.associate('example.com', 11112)
+        assert not assoc.is_established
+        assert assoc.is_aborted
         assert len(scp.active_associations) == 0
 
         ae.acse_timeout = 21
         ae.dimse_timeout = 22
         scu_ae.acse_timeout = 31
+        scu_ae.connection_timeout = None
         scu_ae.dimse_timeout = 32
 
         assoc = scu_ae.associate('localhost', 11112)
@@ -500,6 +558,20 @@ class TestAEGoodAssociation(object):
         assoc.release()
 
         scp.shutdown()
+
+    def test_connection_timeout(self, caplog):
+        # * ACSE timeout does not start until connection timeout completes
+        # * Logs indicate that we hit the timeout case
+        scu_ae = AE()
+        scu_ae.acse_timeout = 1
+        scu_ae.connection_timeout = 2
+        scu_ae.add_requested_context(VerificationSOPClass)
+        with caplog.at_level(logging.ERROR, logger='pynetdicom'):
+            assoc = scu_ae.associate('example.com', 11112)
+            assert not assoc.is_established
+            assert assoc.is_aborted
+            assert "TCP Initialisation Error: timed out" in caplog.text
+            assert "ACSE timeout reached" not in caplog.text
 
     def test_select_timeout_okay(self):
         """Test that using start works OK with timeout."""

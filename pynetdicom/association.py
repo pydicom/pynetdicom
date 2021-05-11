@@ -131,6 +131,7 @@ class Association(threading.Thread):
 
         # Timeouts (in seconds), needs to be set after DUL init
         self.acse_timeout = self.ae.acse_timeout
+        self.connection_timeout = self.ae.connection_timeout
         self.dimse_timeout = self.ae.dimse_timeout
         self.network_timeout = self.ae.network_timeout
 
@@ -693,6 +694,8 @@ class Association(threading.Thread):
                 if self.acse.is_aborted('a-p-abort'):
                     msg += " (A-P-ABORT)"
                 LOGGER.info(msg)
+                # Ensure that EVT_ASCE_RECV fires for subscribers
+                self.dul.receive_pdu(wait=False)
                 self.is_aborted = True
                 self.is_established = False
                 evt.trigger(self, evt.EVT_ABORTED, {})
