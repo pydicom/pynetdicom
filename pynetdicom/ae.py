@@ -39,8 +39,9 @@ class ApplicationEntity(object):
         The local AE's *AE title*.
     connection_timeout : int or float or None
         The maximum amount of time (in seconds) to wait for a TCP connection to be
-        established. A value of ``None`` means no timeout. (default: ``None``)
-        This value is passed to :meth:`~socket.settimeout`.
+        established. A value of ``None`` (default) means no timeout.
+        The value is passed to :meth:`socket.settimeout` and is only used
+        during the connection phase of an association request.
     dimse_timeout : int or float or None
         The maximum amount of time (in seconds) to wait for DIMSE related
         messages. A value of ``None`` means no timeout. (default: ``30``)
