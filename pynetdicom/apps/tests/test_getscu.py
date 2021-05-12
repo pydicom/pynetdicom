@@ -51,7 +51,7 @@ def start_getscu_cli(args):
     return subprocess.Popen(pargs)
 
 
-class GetSCUBase(object):
+class GetSCUBase:
     """Tests for getscu.py"""
     def setup(self):
         """Run prior to each test"""

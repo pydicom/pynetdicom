@@ -38,7 +38,7 @@ def start_echoscu_cli(args):
     return subprocess.Popen(pargs)
 
 
-class EchoSCUBase(object):
+class EchoSCUBase:
     """Tests for echoscu.py"""
     def setup(self):
         """Run prior to each test"""

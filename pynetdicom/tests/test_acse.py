@@ -45,14 +45,14 @@ from .parrot import ThreadedParrot, ParrotRequest
 
 #debug_logger()
 
-class DummyAssociationSocket(object):
+class DummyAssociationSocket:
     def __init__(self):
         self._ready = threading.Event()
         self._ready.set()
         self._is_connected = True
 
 
-class DummyDUL(object):
+class DummyDUL:
     def __init__(self):
         self.queue = queue.Queue()
         self.received = queue.Queue()
@@ -78,7 +78,7 @@ class DummyDUL(object):
         self.is_killed = True
 
 
-class DummyAssociation(object):
+class DummyAssociation:
     def __init__(self):
         self.ae = AE()
         self.mode = None
@@ -126,7 +126,7 @@ class DummyAssociation(object):
         return self._handlers[event]
 
 
-class TestACSE(object):
+class TestACSE:
     """Tests for initialising the ACSE class"""
     def setup(self):
         self.assoc = DummyAssociation()
@@ -174,7 +174,7 @@ class TestACSE(object):
         assert acse.is_release_requested() is False
 
 
-class TestNegotiationRequestor(object):
+class TestNegotiationRequestor:
     """Test ACSE negotiation as requestor."""
     def setup(self):
         """Run prior to each test"""
@@ -326,7 +326,7 @@ class TestNegotiationRequestor(object):
         scp.shutdown()
 
 
-class TestNegotiationAcceptor(object):
+class TestNegotiationAcceptor:
     """Test ACSE negotiation as acceptor."""
     def setup(self):
         self.ae = None
@@ -370,7 +370,7 @@ REFERENCE_REJECT_GOOD = [
 ]
 
 
-class TestPrimitiveConstruction(object):
+class TestPrimitiveConstruction:
     """Test the primitive builders"""
     def setup(self):
         self.assoc = DummyAssociation()
@@ -574,7 +574,7 @@ REFERENCE_USER_IDENTITY_REQUEST = [
 ]
 
 
-class TestUserIdentityNegotiation(object):
+class TestUserIdentityNegotiation:
     """Tests for User Identity Negotiation."""
     def setup(self):
         """Run prior to each test"""
@@ -1013,7 +1013,7 @@ class TestUserIdentityNegotiation(object):
         scp.shutdown()
 
 
-class TestSOPClassExtendedNegotiation(object):
+class TestSOPClassExtendedNegotiation:
     """Tests for SOP Class Extended Negotiation."""
     def setup(self):
         """Run prior to each test"""
@@ -1418,7 +1418,7 @@ class TestSOPClassExtendedNegotiation(object):
         scp.shutdown()
 
 
-class TestSOPClassCommonExtendedNegotiation(object):
+class TestSOPClassCommonExtendedNegotiation:
     """Tests for SOP Class Extended Negotiation."""
     def setup(self):
         """Run prior to each test"""
@@ -1692,7 +1692,7 @@ class TestSOPClassCommonExtendedNegotiation(object):
         scp.shutdown()
 
 
-class TestAsyncOpsNegotiation(object):
+class TestAsyncOpsNegotiation:
     """Tests for Asynchronous Operations Window Negotiation."""
     def setup(self):
         """Run prior to each test"""
@@ -1864,7 +1864,7 @@ class TestAsyncOpsNegotiation(object):
         scp.shutdown()
 
 
-class TestNegotiateRelease(object):
+class TestNegotiateRelease:
     """Tests for ACSE.negotiate_release."""
     def setup(self):
         """Run prior to each test"""
@@ -2136,7 +2136,7 @@ class TestNegotiateRelease(object):
         assert scp.received[2] == a_release_rp
 
 
-class TestEventHandlingAcceptor(object):
+class TestEventHandlingAcceptor:
     """Test the transport events and handling as acceptor."""
     def setup(self):
         self.ae = None
@@ -2502,7 +2502,7 @@ class TestEventHandlingAcceptor(object):
             assert "Exception description" in caplog.text
 
 
-class TestEventHandlingRequestor(object):
+class TestEventHandlingRequestor:
     """Test the transport events and handling as requestor."""
     def setup(self):
         self.ae = None

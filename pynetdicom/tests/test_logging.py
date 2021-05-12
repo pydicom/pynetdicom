@@ -155,14 +155,14 @@ def test_debug_logger():
     assert isinstance(logger.handlers[0], logging.StreamHandler)
 
 
-class TestDocHandlers(object):
+class TestDocHandlers:
     """Dummy tests to coverage for handler documentation functions."""
     @pytest.mark.parametrize('handler', DOC_HANDLERS)
     def test_doc_handlers(self, handler):
         handler(None)
 
 
-class TestStandardDIMSE(object):
+class TestStandardDIMSE:
     def setup(self):
         """Setup each test."""
         self.ae = None
@@ -261,7 +261,7 @@ class TestStandardDIMSE(object):
         scp.shutdown()
 
 
-class TestStandardLogging(object):
+class TestStandardLogging:
     """Tests for standard logging handlers."""
     def setup(self):
         """Setup each test."""
@@ -1311,7 +1311,7 @@ class TestStandardLogging(object):
             scp.shutdown()
 
 
-class TestDebuggingLogging(object):
+class TestDebuggingLogging:
     """Tests for debugging handlers."""
     def setup(self):
         """Setup each test."""

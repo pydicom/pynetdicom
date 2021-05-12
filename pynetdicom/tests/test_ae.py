@@ -56,7 +56,7 @@ def test_blocking_handler():
     ae.shutdown()
 
 
-class TestMakeServer(object):
+class TestMakeServer:
     """Tests for AE.make_server()"""
     def setup(self):
         """Run prior to each test"""
@@ -85,7 +85,7 @@ class TestMakeServer(object):
         assert server.RequestHandlerClass is MyRequestHandler
 
 
-class TestStartServer(object):
+class TestStartServer:
     """Tests for AE.start_server()"""
     def setup(self):
         """Run prior to each test"""
@@ -147,7 +147,7 @@ class TestStartServer(object):
         server.shutdown()
 
 
-class TestAEVerificationSCP(object):
+class TestAEVerificationSCP:
     """Check verification SCP"""
     def setup(self):
         """Run prior to each test"""
@@ -197,7 +197,7 @@ class TestAEVerificationSCP(object):
         ae.__str__()
 
 
-class TestAEPresentationSCU(object):
+class TestAEPresentationSCU:
     """Tests for AE presentation contexts when running as an SCU"""
     def setup(self):
         """Run prior to each test"""
@@ -257,7 +257,7 @@ class TestAEPresentationSCU(object):
             assoc = ae.associate('localhost', 11112)
 
 
-class TestAEGoodTimeoutSetters(object):
+class TestAEGoodTimeoutSetters:
     def test_acse_timeout(self):
         """ Check AE ACSE timeout change produces good value """
         ae = AE()
@@ -392,7 +392,7 @@ class TestAEGoodTimeoutSetters(object):
         scp.shutdown()
 
 
-class TestAEGoodAssociation(object):
+class TestAEGoodAssociation:
     def setup(self):
         """Run prior to each test"""
         self.ae = None
@@ -596,7 +596,7 @@ class TestAEGoodAssociation(object):
             scp.shutdown()
 
 
-class TestAEBadAssociation(object):
+class TestAEBadAssociation:
     def test_raise(self):
         """Test bad associate call"""
         ae = AE()
@@ -608,7 +608,7 @@ class TestAEBadAssociation(object):
             ae.associate('localhost', '1.2.3.4')
 
 
-class TestAEGoodMiscSetters(object):
+class TestAEGoodMiscSetters:
     def setup(self):
         self.ae = None
 
@@ -785,7 +785,7 @@ class TestAEGoodMiscSetters(object):
         assert ae.implementation_version_name == PYNETDICOM_IMPLEMENTATION_VERSION
 
 
-class TestAEBadInitialisation(object):
+class TestAEBadInitialisation:
     def test_ae_title_all_spaces(self):
         """AE should fail if ae_title is all spaces"""
         with pytest.raises(ValueError):
@@ -802,7 +802,7 @@ class TestAEBadInitialisation(object):
             AE(ae_title=br'TEST\ME')
 
 
-class TestAE_GoodExit(object):
+class TestAE_GoodExit:
     def setup(self):
         """Run prior to each test"""
         self.ae = None
@@ -859,7 +859,7 @@ class TestAE_GoodExit(object):
         scp.shutdown()
 
 
-class TestAESupportedPresentationContexts(object):
+class TestAESupportedPresentationContexts:
     """Tests for AE's presentation contexts when acting as an SCP"""
     def setup(self):
         self.ae = AE()
@@ -1283,7 +1283,7 @@ class TestAESupportedPresentationContexts(object):
         assert self.ae.supported_contexts == []
 
 
-class TestAERequestedPresentationContexts(object):
+class TestAERequestedPresentationContexts:
     """Tests for AE's presentation contexts when acting as an SCU"""
     def setup(self):
         self.ae = AE()

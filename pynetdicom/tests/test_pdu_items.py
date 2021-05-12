@@ -82,7 +82,7 @@ def create_encoded_pdu():
     print_nice_bytes(pdu.encode())
 
 
-class TestPDU(object):
+class TestPDU:
     """Test the PDU equality/inequality operators."""
     def test_decode_raises(self):
         """Test the PDU.decode method raises NotImplementedError."""
@@ -260,7 +260,7 @@ class TestPDU(object):
         assert out == b'1.2.840.10008.1.10'
 
 
-class TestApplicationContext(object):
+class TestApplicationContext:
     def setup(self):
         self.default_conformance = _config.ENFORCE_UID_CONFORMANCE
 
@@ -422,7 +422,7 @@ class TestApplicationContext(object):
         assert item.encode() == b'\x10\x00\x00\x05\x31\x2e\x32\x2e\x33'
 
 
-class TestPresentationContextRQ(object):
+class TestPresentationContextRQ:
     def test_init(self):
         """Test a new PresentationContextRQ Item."""
         item = PresentationContextItemRQ()
@@ -507,7 +507,7 @@ class TestPresentationContextRQ(object):
         assert orig_item == new_item
 
 
-class TestPresentationContextAC(object):
+class TestPresentationContextAC:
     def test_init(self):
         """Test a new PresentationContextAC Item."""
         item = PresentationContextItemAC()
@@ -641,7 +641,7 @@ class TestPresentationContextAC(object):
         assert item.transfer_syntax_name is None
 
 
-class TestAbstractSyntax(object):
+class TestAbstractSyntax:
     def setup(self):
         self.default_conformance = _config.ENFORCE_UID_CONFORMANCE
 
@@ -775,7 +775,7 @@ class TestAbstractSyntax(object):
         assert item.encode() == b'\x30\x00\x00\x05\x31\x2e\x32\x2e\x33'
 
 
-class TestTransferSyntax(object):
+class TestTransferSyntax:
     def setup(self):
         self.default_conformance = _config.ENFORCE_UID_CONFORMANCE
 
@@ -938,7 +938,7 @@ class TestTransferSyntax(object):
         assert 'Transfer syntax name' not in item.__str__()
 
 
-class TestPresentationDataValue(object):
+class TestPresentationDataValue:
     def test_init(self):
         """Test a new PresentationDataValueItem"""
         item = PresentationDataValueItem()
@@ -1006,7 +1006,7 @@ class TestPresentationDataValue(object):
             assert item.message_control_header_byte == ref[value[0:1]]
 
 
-class TestUserInformation(object):
+class TestUserInformation:
     def test_init(self):
         """Test a new UserInformationItem."""
         item = UserInformationItem()
@@ -1165,7 +1165,7 @@ class TestUserInformation(object):
         assert ui.implementation_version_name is None
 
 
-class TestUserInformation_MaximumLength(object):
+class TestUserInformation_MaximumLength:
     def test_init(self):
         """Test a new MaximumLengthSubItem."""
         item = MaximumLengthSubItem()
@@ -1222,7 +1222,7 @@ class TestUserInformation_MaximumLength(object):
         assert orig_max_length == new_max_length
 
 
-class TestUserInformation_ImplementationUID(object):
+class TestUserInformation_ImplementationUID:
     def setup(self):
         self.default_conformance = _config.ENFORCE_UID_CONFORMANCE
 
@@ -1432,7 +1432,7 @@ class TestUserInformation_ImplementationUID(object):
         assert msg in caplog.text
 
 
-class TestUserInformation_ImplementationVersion(object):
+class TestUserInformation_ImplementationVersion:
     def test_init(self):
         """Test a new ImplementationVersionNameSubItem."""
         item = ImplementationVersionNameSubItem()
@@ -1506,7 +1506,7 @@ class TestUserInformation_ImplementationVersion(object):
         assert version.implementation_version_name == b'PYNETDICOM_090'
 
 
-class TestUserInformation_Asynchronous(object):
+class TestUserInformation_Asynchronous:
     def test_init(self):
         """Test a new AsynchronousOperationsWindowSubItem."""
         item = AsynchronousOperationsWindowSubItem()
@@ -1595,7 +1595,7 @@ class TestUserInformation_Asynchronous(object):
         assert item.max_operations_performed == 5
 
 
-class TestUserInformation_RoleSelection(object):
+class TestUserInformation_RoleSelection:
     def setup(self):
         self.default_conformance = _config.ENFORCE_UID_CONFORMANCE
 
@@ -1850,7 +1850,7 @@ class TestUserInformation_RoleSelection(object):
         )
 
 
-class TestUserIdentityRQ_UserNoPass(object):
+class TestUserIdentityRQ_UserNoPass:
     def test_init(self):
         """Test a new UserIdentitySubItemRQ."""
         item = UserIdentitySubItemRQ()
@@ -1957,7 +1957,7 @@ class TestUserIdentityRQ_UserNoPass(object):
         assert item.id_type_str == 'SAML'
 
 
-class TestUserIdentityRQ_UserPass(object):
+class TestUserIdentityRQ_UserPass:
     def test_string_output(self):
         """Test the string output"""
         pdu = A_ASSOCIATE_RQ()
@@ -2037,7 +2037,7 @@ class TestUserIdentityRQ_UserPass(object):
         assert item.secondary == b'p4ssw0rd'
 
 
-class TestUserIdentityAC_UserResponse(object):
+class TestUserIdentityAC_UserResponse:
     def test_init(self):
         """Test a new UserIdentitySubItemAC."""
         item = UserIdentitySubItemAC()
@@ -2110,7 +2110,7 @@ class TestUserIdentityAC_UserResponse(object):
         assert item.response == b'Accepted'
 
 
-class TestUserInformation_ExtendedNegotiation(object):
+class TestUserInformation_ExtendedNegotiation:
     def setup(self):
         self.default_conformance = _config.ENFORCE_UID_CONFORMANCE
 
@@ -2326,7 +2326,7 @@ class TestUserInformation_ExtendedNegotiation(object):
         )
 
 
-class TestUserInformation_CommonExtendedNegotiation(object):
+class TestUserInformation_CommonExtendedNegotiation:
     def setup(self):
         self.default_conformance = _config.ENFORCE_UID_CONFORMANCE
 

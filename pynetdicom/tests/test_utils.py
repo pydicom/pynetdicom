@@ -73,7 +73,7 @@ REFERENCE_BAD_AE_BYTES = [
 ]
 
 
-class TestValidateAETitle(object):
+class TestValidateAETitle:
     """Tests for utils.validate_ae_title()."""
     @pytest.mark.parametrize("aet, output", REFERENCE_GOOD_AE_STR)
     def test_good_ae_str(self, aet, output):
@@ -126,7 +126,7 @@ REFERENCE_UID = [
 ]
 
 
-class TestValidateUID(object):
+class TestValidateUID:
     """Tests for utils.validate_uid()."""
     def setup(self):
         self.default_conformance = _config.ENFORCE_UID_CONFORMANCE
@@ -145,7 +145,7 @@ class TestValidateUID(object):
         assert validate_uid(UID(uid)) == is_valid[1]
 
 
-class TestPrettyBytes(object):
+class TestPrettyBytes:
     """Tests for utils.pretty_bytes()."""
     def test_parameters(self):
         """Test parameters are correct."""
@@ -190,7 +190,7 @@ class TestPrettyBytes(object):
         assert isinstance(result[0], str)
 
 
-class TestMakeTarget(object):
+class TestMakeTarget:
     """Tests for utils.make_target()."""
     @pytest.mark.skipif(sys.version_info[:2] < (3, 7), reason="Branch uncovered in this Python version.")
     def test_make_target(self):

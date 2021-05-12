@@ -34,7 +34,7 @@ class DULServiceProvider(Thread):
     artim_timer : timer.Timer
         The :dcm:`ARTIM<part08/chapter_9.html#sect_9.1.5>` timer.
     socket : transport.AssociationSocket
-        A wrapped :pyd:`socket.socket<3/library/socket.html#socket-objects>`
+        A wrapped :class:`socket.socket<3/library/socket.html#socket-objects>`
         object used to communicate with the peer.
     to_provider_queue : queue.Queue
         Queue of PDUs from the DUL service user to be processed by the DUL

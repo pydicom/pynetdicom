@@ -23,7 +23,7 @@ from pynetdicom.sop_class import VerificationSOPClass
 #debug_logger()
 
 
-class TestServiceUserAcceptor(object):
+class TestServiceUserAcceptor:
     """Tests for ServiceUser as acceptor."""
     def setup(self):
         self.assoc = Association(AE(), mode='requestor')
@@ -1176,7 +1176,7 @@ class TestServiceUserAcceptor(object):
         assert user.writeable is False
 
 
-class TestServiceUserRequestor(object):
+class TestServiceUserRequestor:
     """Tests for ServiceUser as requestor."""
     def setup(self):
         self.assoc = Association(AE(), mode='requestor')

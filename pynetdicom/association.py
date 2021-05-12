@@ -7,7 +7,7 @@ import os
 from pathlib import Path
 import threading
 import time
-from typing import Union, Optional
+from typing import Union, Optional, List, Callable, Any, Dict
 
 from pydicom import dcmread
 from pydicom.dataset import Dataset
@@ -65,8 +65,6 @@ class Association(threading.Thread):
         Representation of the association's *acceptor* AE.
     acse : acse.ACSE
         The Association Control Service Element provider.
-    ae : ae.ApplicationEntity
-        The local AE.
     dimse : dimse.DIMSEServiceProvider
         The DICOM Message Service Element provider.
     dul : dul.DULServiceProvider
@@ -79,13 +77,10 @@ class Association(threading.Thread):
         ``True`` if the association was rejected, ``False`` otherwise.
     is_released : bool
         ``True`` if the association has been released, ``False`` otherwise.
-    mode : str
-        The mode of the local AE, either the association ``'requestor'`` or
-        association ``'acceptor'``.
     requestor : association.ServiceUser
         Representation of the association's *requestor* AE.
     """
-    def __init__(self, ae, mode):
+    def __init__(self, ae: "ApplicationEntity", mode: str) -> None:
         """Create a new :class:`Association` instance.
 
         The association starts in State 1 (idle). Association negotiation
@@ -155,7 +150,7 @@ class Association(threading.Thread):
         threading.Thread.__init__(self, target=make_target(self.run_reactor))
         self.daemon = True
 
-    def abort(self):
+    def abort(self) -> None:
         """Abort the :class:`Association` by sending an A-ABORT to the remote
         AE.
         """
@@ -179,30 +174,35 @@ class Association(threading.Thread):
         time.sleep(0.1)
 
     @property
-    def accepted_contexts(self):
+    def accepted_contexts(self) -> List[PresentationContext]:
         """Return a :class:`list` of accepted
         :class:`~pynetdicom.presentation.PresentationContext` items."""
         # Accepted contexts are stored internally as {context ID : context}
         return sorted(self._accepted_cx.values(), key=lambda x: x.context_id)
 
     @property
-    def acse_timeout(self):
+    def acse_timeout(self) -> Union[int, float, None]:
         """The ACSE timeout (in seconds)."""
         return self._acse_timeout
 
     @acse_timeout.setter
-    def acse_timeout(self, value):
+    def acse_timeout(self, value: Union[int, float, None]) -> None:
         """Set the ACSE timeout using numeric or ``None``."""
         with self.lock:
             self.dul.artim_timer.timeout = value
             self._acse_timeout = value
 
     @property
-    def ae(self):
+    def ae(self) -> "ApplicationEntity":
         """Return the parent :class:`~pynetdicom.ae.ApplicationEntity`."""
         return self._ae
 
-    def bind(self, event, handler, args=None):
+    def bind(
+        self,
+        event: evt.EventType,
+        handler: Callable,
+        args: Optional[List[Any]] = None
+    ):
         """Bind a callable `handler` to an `event`.
 
         .. versionadded:: 1.3
@@ -481,16 +481,16 @@ class Association(threading.Thread):
             self.abort()
 
     @property
-    def is_acceptor(self):
+    def is_acceptor(self) -> bool:
         """Return ``True`` if the local AE is the association *acceptor*."""
         return self.mode == MODE_ACCEPTOR
 
     @property
-    def is_requestor(self):
+    def is_requestor(self) -> bool:
         """Return ``True`` if the local AE is the association *requestor*."""
         return self.mode == MODE_REQUESTOR
 
-    def kill(self):
+    def kill(self) -> None:
         """Kill the :class:`Association` thread."""
         # Ensure the reactor is running so it can be exited
         self._reactor_checkpoint.set()
@@ -501,7 +501,7 @@ class Association(threading.Thread):
             time.sleep(0.01)
 
     @property
-    def local(self):
+    def local(self) -> Dict[str, Any]:
         """Return a :class:`dict` with information about the local AE."""
         if self.is_acceptor:
             return self.acceptor.info
@@ -514,13 +514,8 @@ class Association(threading.Thread):
         return self.ae._lock
 
     @property
-    def mode(self):
-        """The Association's `mode` as a :class:`str`."""
-        return self._mode
-
-    @mode.setter
-    def mode(self, mode):
-        """Set the Association's mode.
+    def mode(self) -> str:
+        """The Association's `mode` as a :class:`str`.
 
         Parameters
         ----------
@@ -532,6 +527,11 @@ class Association(threading.Thread):
             listening for association requests and (by default) acts as the
             SCP.
         """
+        return self._mode
+
+    @mode.setter
+    def mode(self, mode: str) -> None:
+        """Set the Association's mode."""
         mode = mode.lower()
         if mode not in [MODE_REQUESTOR, MODE_ACCEPTOR]:
             raise ValueError(
@@ -561,7 +561,7 @@ class Association(threading.Thread):
         """
         return self._rejected_cx
 
-    def release(self):
+    def release(self) -> None:
         """Initiate association release by send an A-RELEASE request."""
         if self.is_established:
             # Ensure the reactor is paused so it doesn't
@@ -582,7 +582,7 @@ class Association(threading.Thread):
 
         return self.acceptor.info
 
-    def request(self):
+    def request(self) -> None:
         """Request an association with a peer.
 
         A request can only be made once the :class:`Association` instance has
@@ -3385,7 +3385,7 @@ class Association(threading.Thread):
             return
 
 
-class ServiceUser(object):
+class ServiceUser:
     """Convenience class for the :class:`Association` service user.
 
     An :class:`Association` object has two :class:`ServiceUser` attributes, one

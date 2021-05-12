@@ -50,7 +50,7 @@ PACK_UINT2 = UINT2.pack
 PACK_UINT4 = UINT4.pack
 
 
-class PDU(object):
+class PDU:
     """Base class for PDUs.
 
     Protocol Data Units (PDUs) are the message formats exchanged between peer
@@ -323,30 +323,10 @@ class A_ASSOCIATE_RQ(PDU):
 
     Attributes
     ----------
-    application_context_name : pydicom.uid.UID or None
-        The Application Context Item's *Application Context Name* field value
-        (if available).
-    called_ae_title : bytes
-        The *Called AE Title* field value, which is the destination DICOM
-        application name as a fixed length 16-byte value (padded with trailing
-        spaces ``0x20``). Leading and trailing spaces are non-significant and a
-        value of 16 spaces is not allowed.
-    calling_ae_title : bytes
-        The *Calling AE Title* field value, which is the destination DICOM
-        application name as a fixed length 16-byte value (padded with trailing
-        spaces ``0x20``). Leading and trailing spaces are non-significant and a
-        value of 16 spaces is not allowed.
-    pdu_length : int
-        The number of bytes from the first byte following the *PDU Length*
-        field to the last byte of the PDU.
     pdu_type : int
         The *PDU Type* field value (``0x01``).
-    presentation_context : list of pdu_items.PresentationContextItemRQ
-        The *Presentation Context Item(s)*.
     protocol_version : int
         The *Protocol Version* field value (``0x01``).
-    user_information : pdu_items.UserInformationItem
-        The *User Information Item* (if available).
     variable_items : list
         A list containing the A-ASSOCIATE-RQ's *Variable Items*. Contains
         one Application Context item, one or more Presentation Context items
@@ -706,28 +686,10 @@ class A_ASSOCIATE_AC(PDU):
 
     Attributes
     ----------
-    application_context_name : pydicom.uid.UID
-        The Application Context Item's *Application Context Name* field value
-        (if available).
-    called_ae_title : bytes
-        The requestor's *Called AE Title* field value, which is the destination
-        DICOM application name as a 16-byte value. The value is not
-        guaranteed to be the actual title and shall not be tested.
-    calling_ae_title : bytes
-        The requestor's *Calling AE Title* field value, which is the source
-        DICOM application name as a 16-byte value. The value is not
-        guaranteed to be the actual title and shall not be tested.
-    pdu_length : int
-        The number of bytes from the first byte following the *PDU Length*
-        field to the last byte of the PDU.
     pdu_type : int
         The *PDU Type* field value (``0x02``).
-    presentation_context : list of pdu_items.PresentationContextItemAC
-        The *Presentation Context Item(s)*.
     protocol_version : int
         The *Protocol Version* field value (default ``0x01``).
-    user_information : pdu_items.UserInformationItem
-        The *User Information Item* (if available).
     variable_items : list
         A list containing the A-ASSOCIATE-AC's 'Variable Items'. Contains
         one Application Context item, one or more Presentation Context items
@@ -1074,9 +1036,6 @@ class A_ASSOCIATE_RJ(PDU):
 
     Attributes
     ----------
-    pdu_length : int
-        The number of bytes from the first byte following the *PDU Length*
-        field to the last byte of the PDU.
     pdu_type : int
         The *PDU Type* field value (``0x03``).
     reason_diagnostic : int
@@ -1313,9 +1272,6 @@ class P_DATA_TF(PDU):
 
     Attributes
     ----------
-    pdu_length : int
-        The number of bytes from the first byte following the *PDU Length*
-        field to the last byte of the PDU.
     pdu_type : int
         The *PDU Type* field value (``0x04``).
     presentation_data_value_items : list of pdu.PresentationDataValueItem
@@ -1545,9 +1501,6 @@ class A_RELEASE_RQ(PDU):
 
     Attributes
     ----------
-    pdu_length : int
-        The number of bytes from the first byte following the *PDU Length*
-        field to the last byte of the PDU.
     pdu_type : int
         The *PDU Type* field value (``0x05``).
 
@@ -1673,9 +1626,6 @@ class A_RELEASE_RP(PDU):
 
     Attributes
     ----------
-    pdu_length : int
-        The number of bytes from the first byte following the *PDU Length*
-        field to the last byte of the PDU.
     pdu_type : int
         The *PDU Type* field value (``0x06``).
 
@@ -1803,9 +1753,6 @@ class A_ABORT_RQ(PDU):
 
     Attributes
     ----------
-    pdu_length : int
-        The number of bytes from the first byte following the *PDU Length*
-        field to the last byte of the PDU.
     pdu_type : int
         The *PDU Type* field value (``0x07``).
     reason_diagnostic : int

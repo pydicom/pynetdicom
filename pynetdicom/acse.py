@@ -19,7 +19,7 @@ from pynetdicom.presentation import (
 LOGGER = logging.getLogger('pynetdicom.acse')
 
 
-class ACSE(object):
+class ACSE:
     """The Association Control Service Element (ACSE) service provider.
 
     The ACSE protocol handles association negotiation and establishment, and

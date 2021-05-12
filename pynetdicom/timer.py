@@ -8,7 +8,7 @@ import time
 LOGGER = logging.getLogger('pynetdicom.artim')
 
 
-class Timer(object):
+class Timer:
     """A generic timer.
 
     Implementation of the DICOM Upper Layer's ARTIM timer. The ARTIM timer is

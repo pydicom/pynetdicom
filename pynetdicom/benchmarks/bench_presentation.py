@@ -64,7 +64,7 @@ class TimePresentationContext:
                                   '1.2.840.10008.1.2.2']
 
 
-class TimePresentationAcceptorRoleNegotiation(object):
+class TimePresentationAcceptorRoleNegotiation:
     """Time presentation context negotiation as acceptor with SCP/SCU Role
     Selection
     """
@@ -99,7 +99,7 @@ class TimePresentationAcceptorRoleNegotiation(object):
             )
 
 
-class TimePresentationRequestorRoleNegotiation(object):
+class TimePresentationRequestorRoleNegotiation:
     """Time presentation context negotiation as requestor with SCP/SCU Role
     Selection
     """
@@ -133,7 +133,7 @@ class TimePresentationRequestorRoleNegotiation(object):
             )
 
 
-class TimePresentationAcceptor(object):
+class TimePresentationAcceptor:
     """Time presentation context negotiation as acceptor"""
     def setup(self):
         # Requestor presentation contexts - max 128
@@ -163,7 +163,7 @@ class TimePresentationAcceptor(object):
             )
 
 
-class TimePresentationRequestor(object):
+class TimePresentationRequestor:
     """Time presentation context negotiation as requestor"""
     def setup(self):
         # Requestor presentation contexts - max 126

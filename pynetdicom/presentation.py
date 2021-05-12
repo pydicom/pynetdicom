@@ -2,6 +2,7 @@
 
 from collections import namedtuple
 import logging
+from typing import Union, Optional, List
 
 from pydicom.uid import UID
 
@@ -112,7 +113,7 @@ SCP_SCU_ROLES = {
 }
 
 
-class PresentationContext(object):
+class PresentationContext:
     """A Presentation Context primitive.
 
     **Rules**
@@ -183,34 +184,10 @@ class PresentationContext(object):
 
     Attributes
     ---------
-    abstract_syntax : pydicom.uid.UID or None
-        The context's *Abstract Syntax*.
-    as_scp : bool or None
-        If ``True`` then the association *Acceptor* can act as SCP for the
-        current context, otherwise it cannot. A non-``None`` value is only
-        available after association negotiation has been completed.
-    as_scu : bool or None
-        If ``True`` then the association *Acceptor* can act as SCU for the
-        current context, otherwise it cannot. A non-``None`` value is only
-        available after association negotiation has been completed.
-    context_id : int or None
-        The context's *Context ID*.
     result : int or None
         If part of an A-ASSOCIATE (request) then ``None``. If part of an
         A-ASSOCIATE (response) then one of ``0x00``, ``0x01``, ``0x02``,
         ``0x03``, ``0x04``.
-    scp_role : bool or None
-        Only used when acting as an association *Acceptor*. If ``True``
-        then accept when the SCP role is proposed by the *Requestor*, otherwise
-        reject the proposal. If ``None`` (default) then no SCP/SCU Role
-        Selection reply will be sent and the default roles will be used.
-    scu_role : bool
-        Only used when acting as an association *Acceptor*. If ``True``
-        then accept when the SCU role is proposed by the *Requestor*, otherwise
-        reject the proposal. If ``None`` (default) then no SCP/SCU Role
-        Selection reply will be sent and the default roles will be used.
-    transfer_syntax : list of pydicom.uid.UID
-        The context's *Transfer Syntax(es)*.
 
     References
     ----------
@@ -221,7 +198,7 @@ class PresentationContext(object):
       <part08.html#sect_9.3.2.2>`, :dcm:`9.3.3.2 <part08.html#sect_9.3.3.2>`
       and :dcm:`Annex B <part08.html#chapter_B>`
     """
-    def __init__(self):
+    def __init__(self) -> None:
         """Create a new object."""
         self._context_id = None
         self._abstract_syntax = None
@@ -237,24 +214,19 @@ class PresentationContext(object):
         self._as_scu = None
 
     @property
-    def abstract_syntax(self):
+    def abstract_syntax(self) -> UID:
         """Return the context's *Abstract Syntax* as :class:`~pydicom.uid.UID`.
-
-        Returns
-        -------
-        pydicom.uid.UID
-        """
-        return self._abstract_syntax
-
-    @abstract_syntax.setter
-    def abstract_syntax(self, uid):
-        """Set the context's *Abstract Syntax*.
 
         Parameters
         ----------
         uid : str or bytes or pydicom.uid.UID
             The abstract syntax UID.
         """
+        return self._abstract_syntax
+
+    @abstract_syntax.setter
+    def abstract_syntax(self, uid: Union[str, UID]) -> None:
+        """Set the context's *Abstract Syntax*."""
         if isinstance(uid, bytes):
             uid = UID(uid.decode('ascii'))
         elif isinstance(uid, str):
@@ -312,13 +284,23 @@ class PresentationContext(object):
             self._transfer_syntax.append(syntax)
 
     @property
-    def as_scp(self):
-        """Return ``True`` if can act as an SCP for the context."""
+    def as_scp(self) -> Optional[bool]:
+        """Return ``True`` if can act as an SCP for the context.
+
+        If ``True`` then the association *Acceptor* can act as SCP for the
+        current context, otherwise it cannot. A non-``None`` value is only
+        available after association negotiation has been completed.
+        """
         return self._as_scp
 
     @property
-    def as_scu(self):
-        """Return ``True`` if can act as an SCU for the context."""
+    def as_scu(self) -> Optional[bool]:
+        """Return ``True`` if can act as an SCU for the context.
+
+        If ``True`` then the association *Acceptor* can act as SCU for the
+        current context, otherwise it cannot. A non-``None`` value is only
+        available after association negotiation has been completed.
+        """
         return self._as_scu
 
     @property
@@ -339,12 +321,12 @@ class PresentationContext(object):
         )
 
     @property
-    def context_id(self):
+    def context_id(self) -> Optional[int]:
         """Return the context's *ID* parameter as an :class:`int`."""
         return self._context_id
 
     @context_id.setter
-    def context_id(self, value):
+    def context_id(self, value: Optional[int]) -> None:
         """Set the context's *ID* parameter.
 
         Parameters
@@ -358,7 +340,7 @@ class PresentationContext(object):
 
         self._context_id = value
 
-    def __eq__(self, other):
+    def __eq__(self, other) -> bool:
         """Return ``True`` if `self` is equal to `other`."""
         if self is other:
             return True
@@ -368,7 +350,7 @@ class PresentationContext(object):
 
         return NotImplemented
 
-    def __hash__(self):
+    def __hash__(self) -> int:
         """Return a hash of the context."""
         return hash((
             self.abstract_syntax,
@@ -378,22 +360,17 @@ class PresentationContext(object):
             self.as_scu
         ))
 
-    def __ne__(self, other):
+    def __ne__(self, other) -> bool:
         """Return ``True`` if `self` does not equal `other`."""
         return not self == other
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         """Representation of the Presentation Context."""
         return self.abstract_syntax.name
 
     @property
-    def scp_role(self):
-        """Return ``True`` if a proposed SCP role will be accepted."""
-        return self._scp_role
-
-    @scp_role.setter
-    def scp_role(self, val):
-        """Set whether to accept the proposed SCP role (as *Acceptor*).
+    def scp_role(self) -> Optional[bool]:
+        """Return ``True`` if a proposed SCP role will be accepted.
 
         Parameters
         ----------
@@ -404,19 +381,19 @@ class PresentationContext(object):
             sent. If either of :attr:`scu_role` or :attr:`scp_role` is ``None``
             then both will assumed to be.
         """
+        return self._scp_role
+
+    @scp_role.setter
+    def scp_role(self, val: Optional[bool]) -> None:
+        """Set whether to accept the proposed SCP role (as *Acceptor*)."""
         if not isinstance(val, (bool, type(None))):
             raise TypeError("`scp_role` must be a bool or None")
 
         self._scp_role = val
 
     @property
-    def scu_role(self):
-        """Return ``True`` if a proposed SCU role will be accepted."""
-        return self._scu_role
-
-    @scu_role.setter
-    def scu_role(self, val):
-        """Set whether to accept the proposed SCU role (as *Acceptor*).
+    def scu_role(self) -> Optional[bool]:
+        """Return ``True`` if a proposed SCU role will be accepted.
 
         Parameters
         ----------
@@ -427,13 +404,18 @@ class PresentationContext(object):
             sent. If either of :attr:`scu_role` or :attr:`scp_role` is ``None``
             then both will assumed to be.
         """
+        return self._scu_role
+
+    @scu_role.setter
+    def scu_role(self, val: Optional[bool]) -> None:
+        """Set whether to accept the proposed SCU role (as *Acceptor*)."""
         if not isinstance(val, (bool, type(None))):
             raise TypeError("`scu_role` must be a bool or None")
 
         self._scu_role = val
 
     @property
-    def status(self):
+    def status(self) -> str:
         """Return a descriptive :class:`str` of the context's *Result*.
 
         Returns
@@ -458,7 +440,7 @@ class PresentationContext(object):
 
         return status
 
-    def __str__(self):
+    def __str__(self) -> str:
         """String representation of the Presentation Context."""
         s = ''
         if self.context_id is not None:
@@ -492,7 +474,7 @@ class PresentationContext(object):
         return s
 
     @property
-    def transfer_syntax(self):
+    def transfer_syntax(self) -> List[UID]:
         """Return the context's *Transfer Syntaxes* as a :class:`list`.
 
         Returns
@@ -503,7 +485,7 @@ class PresentationContext(object):
         return self._transfer_syntax
 
     @transfer_syntax.setter
-    def transfer_syntax(self, syntaxes):
+    def transfer_syntax(self, syntaxes: List[Union[str, bytes, UID]]) -> None:
         """Set the context's *Transfer Syntaxes*.
 
         Parameters
@@ -784,7 +766,10 @@ def negotiate_as_requestor(rq_contexts, ac_contexts, roles=None):
     return sorted(output, key=lambda x: x.context_id)
 
 
-def build_context(abstract_syntax, transfer_syntax=None):
+def build_context(
+    abstract_syntax: Union[str, UID],
+    transfer_syntax: Optional[Union[str, UID, List[Union[str, UID]]]] = None
+) -> PresentationContext:
     """Return a :class:`PresentationContext` built from the `abstract_syntax`.
 
     Parameters
@@ -857,7 +842,11 @@ def build_context(abstract_syntax, transfer_syntax=None):
     return context
 
 
-def build_role(uid, scu_role=False, scp_role=False):
+def build_role(
+    uid: Union[str, UID],
+    scu_role: bool = False,
+    scp_role: bool = False
+) -> "SCP_SCU_RoleSelectionNegotiation":
     """Return a SCP/SCU Role Selection Negotiation item.
 
     .. versionadded:: 1.2

@@ -47,7 +47,7 @@ def _send_datasets():
     subprocess.Popen(pargs)
 
 
-class StoreSCPBase(object):
+class StoreSCPBase:
     """Tests for qrscp.py"""
     def setup(self):
         """Run prior to each test"""

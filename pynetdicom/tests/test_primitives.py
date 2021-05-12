@@ -34,7 +34,7 @@ def print_nice_bytes(bytestream):
         print(string)
 
 
-class TestPrimitive_MaximumLengthNotification(object):
+class TestPrimitive_MaximumLengthNotification:
     def test_assignment_and_exceptions(self):
         """Test incorrect setter for maximum_length_received raises"""
         primitive = MaximumLengthNotification()
@@ -78,7 +78,7 @@ class TestPrimitive_MaximumLengthNotification(object):
         assert '16382 bytes' in primitive.__str__()
 
 
-class TestPrimitive_ImplementationClassUIDNotification(object):
+class TestPrimitive_ImplementationClassUIDNotification:
     def setup(self):
         self.default_conformance = _config.ENFORCE_UID_CONFORMANCE
 
@@ -166,7 +166,7 @@ class TestPrimitive_ImplementationClassUIDNotification(object):
         assert '1.2.826.0.1.3680043.9.3811.0.9.0' in primitive.__str__()
 
 
-class TestPrimitive_ImplementationVersionNameNotification(object):
+class TestPrimitive_ImplementationVersionNameNotification:
     def test_assignment_and_exceptions(self):
         """Check incorrect setting for implementation_version_name raises"""
         primitive = ImplementationVersionNameNotification()
@@ -231,7 +231,7 @@ class TestPrimitive_ImplementationVersionNameNotification(object):
         assert 'PYNETDICOM3_090' in primitive.__str__()
 
 
-class TestPrimitive_AsynchronousOperationsWindowNegotiation(object):
+class TestPrimitive_AsynchronousOperationsWindowNegotiation:
     def test_assignment_and_exceptions(self):
         """ Check incorrect types/values for properties raise exceptions """
         primitive = AsynchronousOperationsWindowNegotiation()
@@ -284,7 +284,7 @@ class TestPrimitive_AsynchronousOperationsWindowNegotiation(object):
         assert 'performed: 0' in primitive.__str__()
 
 
-class TestPrimitive_SCP_SCU_RoleSelectionNegotiation(object):
+class TestPrimitive_SCP_SCU_RoleSelectionNegotiation:
     def setup(self):
         self.default_conformance = _config.ENFORCE_UID_CONFORMANCE
 
@@ -399,7 +399,7 @@ class TestPrimitive_SCP_SCU_RoleSelectionNegotiation(object):
             primitive.from_primitive()
 
 
-class TestPrimitive_SOPClassExtendedNegotiation(object):
+class TestPrimitive_SOPClassExtendedNegotiation:
     def setup(self):
         self.default_conformance = _config.ENFORCE_UID_CONFORMANCE
 
@@ -494,7 +494,7 @@ class TestPrimitive_SOPClassExtendedNegotiation(object):
         )
 
 
-class TestPrimitive_SOPClassCommonExtendedNegotiation(object):
+class TestPrimitive_SOPClassCommonExtendedNegotiation:
     def setup(self):
         self.default_conformance = _config.ENFORCE_UID_CONFORMANCE
 
@@ -636,7 +636,7 @@ class TestPrimitive_SOPClassCommonExtendedNegotiation(object):
         )
 
 
-class TestPrimitive_UserIdentityNegotiation(object):
+class TestPrimitive_UserIdentityNegotiation:
     def test_assignment_and_exceptions(self):
         """ Check incorrect types/values for properties raise exceptions """
         primitive = UserIdentityNegotiation()
@@ -715,7 +715,7 @@ class TestPrimitive_UserIdentityNegotiation(object):
         assert item.encode() == b'\x59\x00\x00\x06\x00\x04\x54\x65\x73\x74'
 
 
-class TestPrimitive_A_ASSOCIATE(object):
+class TestPrimitive_A_ASSOCIATE:
     def setup(self):
         self.default_conformance = _config.ENFORCE_UID_CONFORMANCE
 
@@ -982,7 +982,7 @@ class TestPrimitive_A_ASSOCIATE(object):
         )
 
 
-class TestPrimitive_A_RELEASE(object):
+class TestPrimitive_A_RELEASE:
     def test_assignment(self):
         """ Check assignment works correctly """
         assoc = A_RELEASE()
@@ -1002,7 +1002,7 @@ class TestPrimitive_A_RELEASE(object):
             assoc.result = "accepted"
 
 
-class TestPrimitive_A_ABORT(object):
+class TestPrimitive_A_ABORT:
     def test_assignment(self):
         """ Check assignment works correctly """
         primitive = A_ABORT()
@@ -1035,7 +1035,7 @@ class TestPrimitive_A_ABORT(object):
         assert data == b"\x07\x00\x00\x00\x00\x04\x00\x00\x00\x00"
 
 
-class TestPrimitive_A_P_ABORT(object):
+class TestPrimitive_A_P_ABORT:
     def test_assignment(self):
         """ Check assignment works correctly """
         primitive = A_P_ABORT()
@@ -1073,7 +1073,7 @@ class TestPrimitive_A_P_ABORT(object):
         assert data == b"\x07\x00\x00\x00\x00\x04\x00\x00\x02\x04"
 
 
-class TestPrimitive_P_DATA(object):
+class TestPrimitive_P_DATA:
     def test_assignment(self):
         """ Check assignment works correctly """
         primitive = P_DATA()
@@ -1128,7 +1128,7 @@ class TestPrimitive_P_DATA(object):
         assert 'Byte: 00000011' in primitive.__str__()
 
 
-class TestServiceParameter(object):
+class TestServiceParameter:
     def test_equality(self):
         """Test equality of ServiceParameter subclasses."""
         prim_a = MaximumLengthNotification()

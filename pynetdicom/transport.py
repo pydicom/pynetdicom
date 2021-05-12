@@ -28,13 +28,13 @@ from pynetdicom._handlers import (
 LOGGER = logging.getLogger('pynetdicom.transport')
 
 
-class AssociationSocket(object):
-    """A wrapper for a :pyd:`socket<3/library/socket.html#socket-objects>`
+class AssociationSocket:
+    """A wrapper for a :class:`socket<3/library/socket.html#socket-objects>`
     object.
 
     .. versionadded:: 1.2
 
-    Provides an interface for :pyd:`socket
+    Provides an interface for :class:`socket
     <3/library/socket.html#socket-objects>` that is integrated nicely
     with an :class:`~pynetdicom.association.Association` instance and the
     state machine.
@@ -48,13 +48,6 @@ class AssociationSocket(object):
         connection is ready.
     socket : socket.socket or None
         The wrapped socket, will be ``None`` if :meth:`close` is called.
-    tls_args : 2-tuple or None
-        If the socket should be wrapped by TLS then this is
-        ``(context, hostname)``, where *context* is a :class:`ssl.SSLContext`
-        that will be used to wrap the socket and *hostname* is the value to
-        use for the *server_hostname* keyword argument for
-        :meth:`SSLContext.wrap_socket()<ssl.SSLContext.wrap_socket>`. If TLS
-        is not to be used then ``None`` (default).
     """
     def __init__(self, assoc, client_socket=None, address=('', 0)):
         """Create a new :class:`AssociationSocket`.
@@ -65,7 +58,7 @@ class AssociationSocket(object):
             The :class:`~pynetdicom.association.Association` instance that will
             be using the socket to communicate.
         client_socket : socket.socket, optional
-            The :pyd:`socket<3/library/socket.html#socket-objects>` to wrap,
+            The :class:`~socket.socket` to wrap,
             if not supplied then a new socket will be created instead.
         address : 2-tuple, optional
             If *client_socket* is ``None`` then this is the ``(host, port)`` to
@@ -367,12 +360,7 @@ class AssociationSocket(object):
 
     @property
     def tls_args(self):
-        """Return the TLS context and hostname (if set) or ``None``."""
-        return self._tls_args
-
-    @tls_args.setter
-    def tls_args(self, tls_args):
-        """Set the TLS arguments for the socket.
+        """Return the TLS context and hostname (if set) or ``None``.
 
         Parameters
         ----------
@@ -384,6 +372,11 @@ class AssociationSocket(object):
             argument for :meth:`SSLContext.wrap_socket()
             <ssl.SSLContext.wrap_socket>`.
         """
+        return self._tls_args
+
+    @tls_args.setter
+    def tls_args(self, tls_args):
+        """Set the TLS arguments for the socket."""
         if not _HAS_SSL:
             raise RuntimeError(
                 "Your Python installation lacks support for SSL"
@@ -508,9 +501,6 @@ class AssociationServer(TCPServer):
         Default ``5``.
     server_address : 2-tuple
         The ``(host, port)`` that the server is running on.
-    ssl_context : ssl.SSLContext or None
-        The :class:`ssl.SSLContext` used to wrap client sockets, or ``None`` if
-        no TLS is required (default).
     """
     def __init__(self, ae, address, ae_title, contexts, ssl_context=None,
                  evt_handlers=None, request_handler=None):
@@ -734,12 +724,7 @@ class AssociationServer(TCPServer):
 
     @property
     def ssl_context(self):
-        """Return the :class:`ssl.SSLContext` (if available)."""
-        return self._ssl_context
-
-    @ssl_context.setter
-    def ssl_context(self, context):
-        """Set the SSL context for the socket.
+        """Return the :class:`ssl.SSLContext` (if available).
 
         Parameters
         ----------
@@ -748,6 +733,11 @@ class AssociationServer(TCPServer):
             :class:`ssl.SSLContext` used to wrap the client sockets, otherwise
             if ``None`` then no TLS will be used (default).
         """
+        return self._ssl_context
+
+    @ssl_context.setter
+    def ssl_context(self, context):
+        """Set the SSL context for the socket."""
         if not _HAS_SSL:
             raise RuntimeError(
                 "Your Python installation lacks support for SSL"

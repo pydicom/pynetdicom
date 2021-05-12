@@ -31,7 +31,7 @@ LOGGER = logging.getLogger('pynetdicom')
 LOGGER.setLevel(logging.CRITICAL)
 
 
-class TestPrimitive_C_CANCEL(object):
+class TestPrimitive_C_CANCEL:
     """Test DIMSE C-CANCEL operations."""
     def test_assignment(self):
         """ Check assignment works correctly """
@@ -45,7 +45,7 @@ class TestPrimitive_C_CANCEL(object):
             primitive.MessageIDBeingRespondedTo = 'test'
 
 
-class TestPrimitive_C_STORE(object):
+class TestPrimitive_C_STORE:
     """Test DIMSE C-STORE operations."""
     def setup(self):
         self.default_conformance = _config.ENFORCE_UID_CONFORMANCE
@@ -354,7 +354,7 @@ class TestPrimitive_C_STORE(object):
         assert b'ABCDEFGHIJKLMNOP' == aet
 
 
-class TestPrimitive_C_FIND(object):
+class TestPrimitive_C_FIND:
     """Test DIMSE C-FIND operations."""
     def setup(self):
         self.default_conformance = _config.ENFORCE_UID_CONFORMANCE
@@ -563,7 +563,7 @@ class TestPrimitive_C_FIND(object):
         assert primitive.is_valid_response
 
 
-class TestPrimitive_C_GET(object):
+class TestPrimitive_C_GET:
     """Test DIMSE C-GET operations."""
     def setup(self):
         self.default_conformance = _config.ENFORCE_UID_CONFORMANCE
@@ -818,7 +818,7 @@ class TestPrimitive_C_GET(object):
         assert primitive.is_valid_response
 
 
-class TestPrimitive_C_MOVE(object):
+class TestPrimitive_C_MOVE:
     """Test DIMSE C-MOVE operations."""
     def setup(self):
         self.default_conformance = _config.ENFORCE_UID_CONFORMANCE
@@ -1111,7 +1111,7 @@ class TestPrimitive_C_MOVE(object):
         assert b'ABCDEFGHIJKLMNOP' == primitive.MoveDestination
 
 
-class TestPrimitive_C_ECHO(object):
+class TestPrimitive_C_ECHO:
     """Test DIMSE C-ECHO operations."""
     def setup(self):
         self.default_conformance = _config.ENFORCE_UID_CONFORMANCE

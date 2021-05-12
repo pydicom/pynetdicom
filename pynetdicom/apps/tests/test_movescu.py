@@ -52,7 +52,7 @@ def start_movescu_cli(args):
     return subprocess.Popen(pargs)
 
 
-class MoveSCUBase(object):
+class MoveSCUBase:
     """Tests for movescu.py"""
     def setup(self):
         """Run prior to each test"""

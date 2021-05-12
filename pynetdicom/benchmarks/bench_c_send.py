@@ -18,7 +18,7 @@ DS_DIR = os.path.join(os.path.dirname(__file__), '../tests', 'dicom_files')
 DATASET = dcmread(os.path.join(DS_DIR, 'CTImageStorage.dcm'))
 
 
-class TestSendCEcho(object):
+class TestSendCEcho:
     def setup(self):
         """Run prior to each test"""
         self.scp = DummyVerificationSCP()
@@ -52,7 +52,7 @@ class TestSendCEcho(object):
             raise RuntimeError('Unable to associate with the echo SCP')
 
 
-class TestSendCStore(object):
+class TestSendCStore:
     def setup(self):
         """Run prior to each test"""
         self.scp = DummyStorageSCP()

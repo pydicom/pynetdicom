@@ -27,7 +27,7 @@ DATASET = dcmread(os.path.join(TEST_DS_DIR, 'CTImageStorage.dcm'))
 DATASET.SOPClassUID = HangingProtocolStorage
 
 
-class TestNonPatientObjectStorageServiceClass(object):
+class TestNonPatientObjectStorageServiceClass:
     """Test the NonPatientObjectStorageServiceClass.
 
     Subclass of StorageServiceClass with its own set of statuses.

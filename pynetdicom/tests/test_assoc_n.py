@@ -34,7 +34,7 @@ from pynetdicom.service_class import ServiceClass
 #debug_logger()
 
 
-class DummyDIMSE(object):
+class DummyDIMSE:
     def __init__(self):
         self.status = None
 
@@ -46,7 +46,7 @@ class DummyDIMSE(object):
         return None, None
 
 
-class TestAssociationSendNEventReport(object):
+class TestAssociationSendNEventReport:
     """Run tests on Assocation send_n_event_report."""
     def setup(self):
         self.ae = None
@@ -630,7 +630,7 @@ class TestAssociationSendNEventReport(object):
         scp.shutdown()
 
 
-class TestAssociationSendNGet(object):
+class TestAssociationSendNGet:
     """Run tests on Assocation send_n_get."""
     def setup(self):
         """Run prior to each test"""
@@ -1168,7 +1168,7 @@ class TestAssociationSendNGet(object):
         scp.shutdown()
 
 
-class TestAssociationSendNSet(object):
+class TestAssociationSendNSet:
     """Run tests on Assocation send_n_set."""
     def setup(self):
         self.ae = None
@@ -1744,7 +1744,7 @@ class TestAssociationSendNSet(object):
         scp.shutdown()
 
 
-class TestAssociationSendNAction(object):
+class TestAssociationSendNAction:
     """Run tests on Assocation send_n_action."""
     def setup(self):
         self.ae = None
@@ -2256,7 +2256,7 @@ class TestAssociationSendNAction(object):
         scp.shutdown()
 
 
-class TestAssociationSendNCreate(object):
+class TestAssociationSendNCreate:
     """Run tests on Assocation send_n_create."""
     def setup(self):
         self.ae = None
@@ -2808,7 +2808,7 @@ class TestAssociationSendNCreate(object):
         scp.shutdown()
 
 
-class TestAssociationSendNDelete(object):
+class TestAssociationSendNDelete:
     """Run tests on Assocation send_n_delete."""
     def setup(self):
         self.ae = None

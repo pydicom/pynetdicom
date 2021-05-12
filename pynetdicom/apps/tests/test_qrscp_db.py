@@ -109,7 +109,7 @@ DATASETS = {
 }
 
 
-class TestConnect(object):
+class TestConnect:
     """Tests for db.connect()."""
     def test_create_new(self):
         """Test connecting to the instance database if it doesn't exist."""
@@ -143,7 +143,7 @@ class TestConnect(object):
         assert 'instance' in meta.tables
 
 
-class TestAddInstance(object):
+class TestAddInstance:
     """Tests for db.add_instance()."""
     def setup(self):
         """Run prior to each test"""
@@ -275,7 +275,7 @@ class TestAddInstance(object):
         assert 'CT' == result[0].modality
 
 
-class TestRemoveInstance(object):
+class TestRemoveInstance:
     """Tests for db.remove_instance()."""
     def setup(self):
         """Run prior to each test"""
@@ -320,7 +320,7 @@ class TestRemoveInstance(object):
         assert self.session.query(db.Instance).all()
 
 
-class TestClear(object):
+class TestClear:
     """Tests for db.clear()."""
     def setup(self):
         """Run prior to each test"""
@@ -342,7 +342,7 @@ class TestClear(object):
         assert not self.session.query(db.Instance).all()
 
 
-class TestSearch(object):
+class TestSearch:
     """Tests for db.search()."""
     def setup(self):
         """Run prior to each test"""
@@ -633,7 +633,7 @@ IDENTIFIERS = [
 ]
 
 
-class TestSearchFind(object):
+class TestSearchFind:
     """Tests for running C-FIND queries against the database."""
     def setup(self):
         """Run prior to each test"""

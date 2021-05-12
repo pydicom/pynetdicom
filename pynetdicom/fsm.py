@@ -20,7 +20,7 @@ class InvalidEventError(Exception):
 
 
 # pylint: disable=invalid-name
-class StateMachine(object):
+class StateMachine:
     """Implementation of the DICOM Upper Layer State Machine.
 
     Attributes

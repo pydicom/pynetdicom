@@ -18,7 +18,7 @@ LOGGER = logging.getLogger('pynetdicom')
 LOGGER.setLevel(logging.CRITICAL)
 
 
-class TestStatus(object):
+class TestStatus:
     """Test the status.py module"""
     def test_code_to_status(self):
         """Test converting a status code to a Dataset"""
@@ -262,7 +262,7 @@ class TestStatus(object):
 
 
 @pytest.mark.skipif(not HAS_STATUS, reason="No Status class available")
-class TestStatusEnum(object):
+class TestStatusEnum:
     """Tests for the Status enum class."""
     def test_default(self):
         """Test the default class."""

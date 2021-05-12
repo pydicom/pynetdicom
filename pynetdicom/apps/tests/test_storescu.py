@@ -50,7 +50,7 @@ def start_storescu_cli(args):
     return subprocess.Popen(pargs)
 
 
-class StoreSCUBase(object):
+class StoreSCUBase:
     """Tests for storescu.py"""
     def setup(self):
         """Run prior to each test"""

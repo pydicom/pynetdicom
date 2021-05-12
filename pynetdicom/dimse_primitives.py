@@ -25,7 +25,7 @@ LOGGER = logging.getLogger('pynetdicom.dimse_primitives')
 # pylint: disable=attribute-defined-outside-init
 # pylint: disable=too-many-instance-attributes
 # pylint: disable=anomalous-backslash-in-string
-class DIMSEPrimitive(object):
+class DIMSEPrimitive:
     """Base class for the DIMSE primitives."""
     STATUS_OPTIONAL_KEYWORDS = ()
     REQUEST_KEYWORDS = ()
@@ -293,7 +293,18 @@ class DIMSEPrimitive(object):
 
     @property
     def _Priority(self):
-        """Return the *Priority*."""
+        """Return the *Priority* as :class:`int`.
+
+        Parameters
+        ----------
+        int
+            The value to use for the *Priority* parameter. It shall be one
+            of the following:
+
+            * 0: Medium
+            * 1: High
+            * 2: Low (Default)
+        """
         return self._priority
 
     @_Priority.setter
@@ -463,26 +474,6 @@ class C_STORE(DIMSEPrimitive):
         For the request/indication this specifies the SOP Class for
         storage. If included in the response/confirmation, it shall be equal
         to the value in the request/indication
-    AffectedSOPInstanceUID : pydicom.uid.UID, bytes or str
-        For the request/indication this specifies the SOP Instance
-        for storage. If included in the response/confirmation, it shall be
-        equal to the value in the request/indication
-    Priority : int
-        The priority of the C-STORE operation. It shall be one of the
-        following:
-
-        * 0: Medium
-        * 1: High
-        * 2: Low (Default)
-    MoveOriginatorApplicationEntityTitle : bytes
-        The DICOM AE Title of the AE that invoked the C-MOVE operation
-        from which this C-STORE sub-operation is being performed
-    MoveOriginatorMessageID : int
-        The Message ID of the C-MOVE request/indication primitive from
-        which this C-STORE sub-operation is being performed
-    DataSet : io.BytesIO
-        A DICOM dataset containing the attributes of the Composite
-        SOP Instance to be stored.
     Status : int
         The error or success notification of the operation.
     OffendingElement : list of int or None
@@ -635,18 +626,23 @@ class C_STORE(DIMSEPrimitive):
 
     @property
     def Priority(self):
-        """Return the *Priority* as :class:`int`."""
-        return self._Priority
-
-    @Priority.setter
-    def Priority(self, value):
-        """Set the *Priority*.
+        """Return the *Priority* as :class:`int`.
 
         Parameters
         ----------
         int
-            The value to use for the *Priority* parameter.
+            The value to use for the *Priority* parameter. It shall be one
+            of the following:
+
+            * 0: Medium
+            * 1: High
+            * 2: Low (Default)
         """
+        return self._Priority
+
+    @Priority.setter
+    def Priority(self, value):
+        """Set the *Priority*."""
         self._Priority = value
 
 
@@ -695,17 +691,6 @@ class C_FIND(DIMSEPrimitive):
         For the request/indication this specifies the SOP Class
         for storage. If included in the response/confirmation, it shall be
         equal to the value in the request/indication
-    Priority : int
-        The priority of the C-STORE operation. It shall be one of the
-        following:
-
-        * 0: Medium
-        * 1: High
-        * 2: Low (Default)
-    Identifier : io.BytesIO
-        A DICOM dataset of attributes to be matched against the values of the
-        attributes in the instances of the composite objects known to the
-        performing DIMSE service-user.
     Status : int
         The error or success notification of the operation.
     OffendingElement : list of int or None
@@ -741,34 +726,39 @@ class C_FIND(DIMSEPrimitive):
 
     @property
     def Identifier(self):
-        """Return the *Identifier* as :class:`io.BytesIO`."""
-        return self._dataset_variant
-
-    @Identifier.setter
-    def Identifier(self, value):
-        """Set the *Identifier*.
+        """Return the *Identifier* as :class:`io.BytesIO`.
 
         Parameters
         ----------
         io.BytesIO
             The value to use for the *Identifier* parameter.
         """
+        return self._dataset_variant
+
+    @Identifier.setter
+    def Identifier(self, value):
+        """Set the *Identifier*."""
         self._dataset_variant = (value, 'Identifier')
 
     @property
     def Priority(self):
-        """Return the *Priority* as :class:`int`."""
-        return self._Priority
-
-    @Priority.setter
-    def Priority(self, value):
-        """Set the *Priority*.
+        """Return the *Priority* as :class:`int`.
 
         Parameters
         ----------
         int
-            The value to use for the *Priority* parameter.
+            The value to use for the *Priority* parameter. It shall be one
+            of the following:
+
+            * 0: Medium
+            * 1: High
+            * 2: Low (Default)
         """
+        return self._Priority
+
+    @Priority.setter
+    def Priority(self, value):
+        """Set the *Priority*."""
         self._Priority = value
 
 
@@ -825,35 +815,8 @@ class C_GET(DIMSEPrimitive):
         For the request/indication this specifies the SOP Class
         for storage. If included in the response/confirmation, it shall be
         equal to the value in the request/indication
-    Priority : int
-        The priority of the C-STORE operation. It shall be one of the
-        following:
-
-        * 0: Medium
-        * 1: High
-        * 2: Low (Default)
-    Identifier : io.BytesIO
-        A DICOM dataset of attributes to be matched against the values of the
-        attributes in the instances of the composite objects known to the
-        performing DIMSE service-user.
     Status : int
         The error or success notification of the operation.
-    NumberOfRemainingSuboperations : int
-        The number of remaining C-STORE sub-operations to be invoked
-        by this C-GET operation. It may be included in any response and shall
-        be included if the status is Pending
-    NumberOfCompletedSuboperations : int
-        The number of C-STORE sub-operations that have completed
-        successfully. It may be included in any response and shall be included
-        if the status is Pending
-    NumberOfFailedSuboperations : int
-        The number of C-STORE sub-operations that have failed. It may
-        be included in any response and shall be included if the status is
-        Pending
-    NumberOfWarningSuboperations : int
-        The number of C-STORE operations that generated Warning
-        responses. It may be included in any response and shall be included if
-        the status is Pending
     OffendingElement : list of int or None
         An optional status related field containing a list of the
         elements in which an error was detected.
@@ -898,18 +861,18 @@ class C_GET(DIMSEPrimitive):
 
     @property
     def Identifier(self):
-        """Return the *Identifier* as :class:`io.BytesIO`."""
-        return self._dataset_variant
-
-    @Identifier.setter
-    def Identifier(self, value):
-        """Set the *Identifier*.
+        """Return the *Identifier* as :class:`io.BytesIO`.
 
         Parameters
         ----------
         io.BytesIO
             The value to use for the *Identifier* parameter.
         """
+        return self._dataset_variant
+
+    @Identifier.setter
+    def Identifier(self, value):
+        """Set the *Identifier*."""
         self._dataset_variant = (value, 'Identifier')
 
     @property
@@ -982,18 +945,23 @@ class C_GET(DIMSEPrimitive):
 
     @property
     def Priority(self):
-        """Return the *Priority* as :class:`int`."""
-        return self._Priority
-
-    @Priority.setter
-    def Priority(self, value):
-        """Set the *Priority*.
+        """Return the *Priority* as :class:`int`.
 
         Parameters
         ----------
         int
-            The value to use for the *Priority* parameter.
+            The value to use for the *Priority* parameter. It shall be one
+            of the following:
+
+            * 0: Medium
+            * 1: High
+            * 2: Low (Default)
         """
+        return self._Priority
+
+    @Priority.setter
+    def Priority(self, value):
+        """Set the *Priority*."""
         self._Priority = value
 
 
@@ -1052,38 +1020,8 @@ class C_MOVE(DIMSEPrimitive):
         For the request/indication this specifies the SOP Class
         for storage. If included in the response/confirmation, it shall be
         equal to the value in the request/indication
-    Priority : int
-        The priority of the C-STORE operation. It shall be one of the
-        following:
-
-        * 0: Medium
-        * 1: High
-        * 2: Low (Default)
-    MoveDestination : bytes or str
-        Specifies the DICOM AE Title of the destination DICOM AE to
-        which the C-STORE sub-operations are being performed.
-    Identifier : io.BytesIO
-        A DICOM dataset of attributes to be matched against the values of the
-        attributes in the instances of the composite objects known to the
-        performing DIMSE service-user.
     Status : int
         The error or success notification of the operation.
-    NumberOfRemainingSuboperations : int
-        The number of remaining C-STORE sub-operations to be invoked
-        by this C-MOVE operation. It may be included in any response and shall
-        be included if the status is Pending
-    NumberOfCompletedSuboperations : int
-        The number of C-STORE sub-operations that have completed
-        successfully. It may be included in any response and shall be included
-        if the status is Pending
-    NumberOfFailedSuboperations : int
-        The number of C-STORE sub-operations that have failed. It may
-        be included in any response and shall be included if the status is
-        Pending
-    NumberOfWarningSuboperations : int
-        The number of C-STORE operations that generated Warning
-        responses. It may be included in any response and shall be included if
-        the status is Pending
     OffendingElement : list of int or None
         An optional status related field containing a list of the
         elements in which an error was detected.
@@ -1144,19 +1082,19 @@ class C_MOVE(DIMSEPrimitive):
 
     @property
     def MoveDestination(self):
-        """Return the *Move Destination* as bytes."""
-        return self._move_destination
-
-    @MoveDestination.setter
-    def MoveDestination(self, value):
-        """Set the *Move Destination*.
+        """Return the *Move Destination* as bytes.
 
         Parameters
         ----------
         bytes or str
             The value to use for the *Move Destination* parameter. Cannot
-            be an empty string and will be truncated to 16 characters long
+            be an empty string and will be truncated to 16 characters long.
         """
+        return self._move_destination
+
+    @MoveDestination.setter
+    def MoveDestination(self, value):
+        """Set the *Move Destination*."""
         if isinstance(value, str):
             value = codecs.encode(value, 'ascii')
 
@@ -1237,18 +1175,23 @@ class C_MOVE(DIMSEPrimitive):
 
     @property
     def Priority(self):
-        """Return the *Priority* as :class:`int`."""
-        return self._Priority
-
-    @Priority.setter
-    def Priority(self, value):
-        """Set the *Priority*.
+        """Return the *Priority* as :class:`int`.
 
         Parameters
         ----------
         int
-            The value to use for the *Priority* parameter.
+            The value to use for the *Priority* parameter. It shall be one
+            of the following:
+
+            * 0: Medium
+            * 1: High
+            * 2: Low (Default)
         """
+        return self._Priority
+
+    @Priority.setter
+    def Priority(self, value):
+        """Set the *Priority*."""
         self._Priority = value
 
 
@@ -1315,7 +1258,7 @@ class C_ECHO(DIMSEPrimitive):
         self.ErrorComment = None
 
 
-class C_CANCEL(object):
+class C_CANCEL:
     """Represents a C-CANCEL primitive.
 
     +-------------------------------+---------+
@@ -1331,12 +1274,6 @@ class C_CANCEL(object):
     | MF - Mandatory with a fixed value
     | U - The use of this parameter is a DIMSE service user option
     | UF - User option with a fixed value
-
-    Attributes
-    ----------
-    MessageIDBeingRespondedTo : int
-        The Message ID of the operation request/indication to which this
-        response/confirmation applies.
 
     References
     ----------
@@ -1424,20 +1361,6 @@ class N_EVENT_REPORT(DIMSEPrimitive):
         For the request/indication this specifies the SOP Class for
         storage. If included in the response/confirmation, it shall be equal
         to the value in the request/indication
-    AffectedSOPInstanceUID : pydicom.uid.UID, bytes or str
-        For the request/indication this specifies the SOP Instance
-        for storage. If included in the response/confirmation, it shall be
-        equal to the value in the request/indication
-    EventTypeID : int
-        The type of event being reported, depends on the Service Class
-        specification. Shall be included if Event Reply is included.
-    EventInformation : io.BytesIO
-        Contains information the invoking DIMSE user is able to supply about
-        the event. An encoded DICOM dataset containing additional Service
-        Class specific information related to the operation.
-    EventReply : io.BytesIO
-        Contains the optional reply to the event report. An encoded DICOM
-        dataset containing additional Service Class specific information.
     Status : int
         The error or success notification of the operation.
     """
@@ -1577,22 +1500,9 @@ class N_GET(DIMSEPrimitive):
     MessageIDBeingRespondedTo : int
         The Message ID of the operation request/indication to which this
         response/confirmation applies.
-    RequestedSOPClassUID : pydicom.uid.UID, bytes or str
-        The UID of the SOP Class for which attribute values are to be
-        retrieved.
-    RequestedSOPInstanceUID : pydicom.uid.UID, bytes or str
-        The SOP Instance for which attribute values are to be retrieved.
-    AttributeIdentifierList : list of pydicom.tag.Tag
-        A list of attribute tags to be sent to the peer.
     AffectedSOPClassUID : pydicom.uid.UID, bytes or str
         The SOP Class UID of the SOP Instance for which the attributes were
         retrieved.
-    AffectedSOPInstanceUID : pydicom.uid.UID, bytes or str
-        The SOP Instance UID of the SOP Instance for which the attributes were
-        retrieved.
-    AttributeList : pydicom.dataset.Dataset
-        A DICOM dataset containing elements matching those supplied in
-        Attribute Identifier List.
     Status : int
         The error or success notification of the operation.
     """
@@ -1770,21 +1680,8 @@ class N_SET(DIMSEPrimitive):
     MessageIDBeingRespondedTo : int
         The Message ID of the operation request/indication to which this
         response/confirmation applies.
-    RequestedSOPClassUID : pydicom.uid.UID, bytes or str
-        The UID of the SOP Class for which attribute values are to be
-        modified.
-    RequestedSOPInstanceUID : pydicom.uid.UID, bytes or str
-        The SOP Instance for which attribute values are to be modified.
-    ModificationList : io.BytesIO
-        A DICOM dataset containing the attributes and values that are to be
-        used to modify the SOP Instance.
-    AttributeList : io.BytesIO
-        A DICOM dataset containing the attributes and values that were used to
-        modify the SOP Instance.
     AffectedSOPClassUID : pydicom.uid.UID, bytes or str
         The SOP Class UID of the modified SOP Instance.
-    AffectedSOPInstanceUID : pydicom.uid.UID, bytes or str
-        The SOP Instance UID of the modified SOP Instance.
     Status : int
         The error or success notification of the operation.
     """
@@ -1942,24 +1839,10 @@ class N_ACTION(DIMSEPrimitive):
     MessageIDBeingRespondedTo : int
         The Message ID of the operation request/indication to which this
         response/confirmation applies.
-    RequestedSOPClassUID : pydicom.uid.UID, bytes or str
-        The SOP Class for which the action is to be performed.
-    RequestedSOPInstanceUID : pydicom.uid.UID, bytes or str
-        The SOP Instance for which the action is to be performed.
-    ActionTypeID : int
-        The type of action that is to be performed.
-    ActionInformation : io.BytesIO
-        Extra information required to perform the action.
     AffectedSOPClassUID : pydicom.uid.UID, bytes or str
         For the request/indication this specifies the SOP Class for
         storage. If included in the response/confirmation, it shall be equal
         to the value in the request/indication
-    AffectedSOPInstanceUID : pydicom.uid.UID, bytes or str
-        For the request/indication this specifies the SOP Instance for
-        storage. If included in the response/confirmation, it shall be equal
-        to the value in the request/indication
-    ActionReply : io.BytesIO
-        The reply to the action.
     Status : int
         The error or success notification of the operation.
     """
@@ -2132,13 +2015,6 @@ class N_CREATE(DIMSEPrimitive):
         For the request/indication this specifies the SOP Class for
         storage. If included in the response/confirmation, it shall be equal
         to the value in the request/indication
-    AffectedSOPInstanceUID : pydicom.uid.UID, bytes or str
-        For the request/indication this specifies the SOP Instance for
-        storage. If included in the response/confirmation, it shall be equal
-        to the value in the request/indication
-    AttributeList : io.BytesIO
-        A set of attributes and values that are to be assigned to the new
-        SOP Instance.
     Status : int
         The error or success notification of the operation. It shall be
         one of the following values:
@@ -2231,16 +2107,8 @@ class N_DELETE(DIMSEPrimitive):
     MessageIDBeingRespondedTo : int
         The Message ID of the operation request/indication to which this
         response/confirmation applies.
-    RequestedSOPClassUID : pydicom.uid.UID, bytes or str
-        The UID of the SOP Class to be deleted.
-    RequestedSOPInstanceUID : pydicom.uid.UID, bytes or str
-        The SOP Instance to be deleted.
     AffectedSOPClassUID : pydicom.uid.UID, bytes or str
         For the request/indication this specifies the SOP Class for
-        storage. If included in the response/confirmation, it shall be equal
-        to the value in the request/indication
-    AffectedSOPInstanceUID : pydicom.uid.UID, bytes or str
-        For the request/indication this specifies the SOP Instance for
         storage. If included in the response/confirmation, it shall be equal
         to the value in the request/indication
     Status : int

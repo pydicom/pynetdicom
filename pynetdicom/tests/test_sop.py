@@ -158,7 +158,7 @@ def test_all_sop_instances():
     assert UPSGlobalSubscriptionSOPInstance in UID_dictionary
 
 
-class TestUIDtoSOPlass(object):
+class TestUIDtoSOPlass:
     """Tests for uid_to_sop_class"""
     def test_missing_sop(self):
         """Test SOP Class if UID not found."""
@@ -177,7 +177,7 @@ class TestUIDtoSOPlass(object):
         assert id(sop_class) == id(original)
 
 
-class TestUIDToServiceClass(object):
+class TestUIDToServiceClass:
     """Tests for sop_class.uid_to_service_class."""
     def test_service_class_uid(self):
         uid = '1.2.840.10008.4.2'
@@ -298,7 +298,7 @@ class TestUIDToServiceClass(object):
         assert uid_to_service_class('1.2.3') == ServiceClass
 
 
-class TestSOPClass(object):
+class TestSOPClass:
     """Tests for sop_class.SOPClass."""
     def test_app_logging_sop(self):
         assert ProceduralEventLoggingSOPClass == '1.2.840.10008.1.40'

@@ -32,7 +32,7 @@ TEST_DS_DIR = os.path.join(os.path.dirname(__file__), 'dicom_files')
 DATASET = dcmread(os.path.join(TEST_DS_DIR, 'CTImageStorage.dcm'))
 
 
-class TestStorageServiceClass(object):
+class TestStorageServiceClass:
     """Test the StorageServiceClass"""
     def setup(self):
         """Run prior to each test"""

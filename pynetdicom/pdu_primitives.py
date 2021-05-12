@@ -25,7 +25,7 @@ LOGGER = logging.getLogger('pynetdicom.pdu_primitives')
 
 
 # TODO: Rename to UserInformation
-class ServiceParameter(object):
+class ServiceParameter:
     """ Base class for Service Parameters """
 
     def __eq__(self, other):
@@ -41,9 +41,8 @@ class ServiceParameter(object):
 
 
 # Association Service primitives
-class A_ASSOCIATE(object):
-    """
-    An A-ASSOCIATE primitive.
+class A_ASSOCIATE:
+    """An A-ASSOCIATE primitive.
 
     The establishment of an association between two AEs shall be performed
     through ACSE A-ASSOCIATE request, indication, response and confirmation
@@ -99,103 +98,6 @@ class A_ASSOCIATE(object):
     | NU  - Not used
     | (=) - shall have same value as request or response
 
-
-    Attributes
-    ----------
-    mode : str
-        Fixed value of ``'normal'``.
-    application_context_name : pydicom.uid.UID, bytes or str
-        The application context name proposed by the *Requestor*. *Acceptor*
-        returns either the same or a different name. Returned name specifies
-        the application context used for the association. See the DICOM
-        Standard, Part 8, :dcm:`Annex A<part08/chapter_A.html>`.
-        The application context name shall be a valid UID or UID string and for
-        version 3 of the DICOM Standard should be ``'1.2.840.10008.3.1.1.1'``
-    calling_ae_title : str or bytes
-        Identifies the *Requestor* of the A-ASSOCIATE service. Must be a valid
-        AE title.
-    called_ae_title : str or bytes
-        Identifies the intended *Acceptor* of the A-ASSOCIATE service. Must be
-        a valid AE title.
-    responding_ae_title : str or bytes
-        Identifies the AE that contains the actual acceptor of the
-        A-ASSOCIATE service. Shall always contain the same value as the
-        *Called AE Title* of the A-ASSOCIATE indication
-    user_information : list
-        Used by *Requestor* and *Acceptor* to include AE user information. See
-        the DICOM Standard, Part 8, :dcm:`Annex D<part08/chapter_D.html>` and
-        Part 7, :dcm:`Annex D.3<part07/sect_D.3.html>`
-    result : int
-        Provided either by the *Acceptor* of the A-ASSOCIATE request, the UL
-        service provider (ACSE related) or the UL service provider
-        (Presentation related). Indicates the result of the A-ASSOCIATE
-        service. Allowed values are:
-
-        * ``0``: accepted
-        * ``1``: rejected (permanent)
-        * ``2``: rejected (transient)
-
-    result_source : int
-        Identifies the creating source of the Result and Diagnostic parameters
-        Allowed values are:
-
-        * ``0``: UL service-user
-        * ``1``: UL service-provider (ACSE related function)
-        * ``2``: UL service-provider (presentation related function)
-
-    diagnostic : int
-        If the `result` parameter is ``0`` "rejected (permanent)" or ``1``
-        "rejected (transient)" then this supplies diagnostic information about
-        the result. If `result_source` is ``0`` "UL service-user" then allowed
-        valuesare:
-
-        * ``0``: no reason given
-        * ``1``: application context name not supported
-        * ``2``: calling AE title not recognised
-        * ``3``: called AE title not recognised
-
-        If `result_source` is ``1`` "UL service-provider (ACSE related
-        function)" then allowed values are:
-
-        * ``0``: no reason given
-        * ``1``: no common UL version
-
-        If `result_source` is ``2`` "UL service-provider (presentation related
-        function)" then allowed values are:
-
-        * ``0``: no reason given
-        * ``1``: temporary congestion
-        * ``2``: local limit exceeded
-        * ``3``: called presentation address unknown
-        * ``4``: presentation protocol version not supported
-        * ``5``: no presentation service access point available
-
-    calling_presentation_address : str
-        TCP/IP address of the *Requestor*
-    called_presentation_address : str
-        TCP/IP address of the intended *Acceptor*
-    responding_presentation_address : str
-        Shall always contain the same value as the
-        *Called Presentation Address*.
-    presentation_context_definition_list : list
-        List of one or more presentation contexts, with each item containing
-        a presentation context ID, an Abstract Syntax and a list of one or
-        more Transfer Syntax Names. Sent by the *Requestor* during
-        request/indication.
-    presentation_context_definition_results_list : list
-        Used in response/confirmation to indicate acceptance or rejection of
-        each presentation context definition.
-        List of result values, with a one-to-one correspondence between each
-        of the presentation contexts proposed in the Presentation Context
-        Definition List parameter.
-        The result values may be sent in any order and may be different than
-        the order proposed.
-        Only one Transfer Syntax per presentation context shall be agreed to
-    presentation_requirements : str
-        Fixed value of ``'Presentation Kernel'``.
-    session_requirements : str
-        Fixed value of ``''`` (empty string).
-
     References
     ----------
 
@@ -224,7 +126,20 @@ class A_ASSOCIATE(object):
 
     @property
     def application_context_name(self):
-        """Return the Application Context Name parameter."""
+        """Return the Application Context Name parameter.
+
+        Parameters
+        ----------
+        value : pydicom.uid.UID, bytes or str
+            The application context name proposed by the *Requestor*.
+            *Acceptor* returns either the same or a different name. Returned
+            name specifies the application context used for the association.
+            See the DICOM Standard, Part 8, :dcm:`Annex A
+            <part08/chapter_A.html>`.
+            The application context name shall be a valid UID or UID string
+            and for version 3 of the DICOM Standard should be
+            ``'1.2.840.10008.3.1.1.1'``
+        """
         return self._application_context_name
 
     @application_context_name.setter
@@ -742,7 +657,7 @@ class A_ASSOCIATE(object):
             self.user_information.append(imp_uid)
 
 
-class A_RELEASE(object):
+class A_RELEASE:
     """An A-RELEASE primitive.
 
     +------------------+---------+------------+----------+--------------+
@@ -763,15 +678,6 @@ class A_RELEASE(object):
     | NU  - Not used
     | (=) - shall have same value as request or response
 
-    Attributes
-    ----------
-    reason : str
-        Fixed value of ``'normal'``. Identifies the general level of urgency
-        of the request.
-    result : str or None
-        Must be ``None`` for request and indication, ``'affirmative'`` for
-        response and confirmation.
-
     References
     ----------
     * DICOM Standard, Part 8, :dcm:`Section 7.2<part08/sect_7.2.html>`
@@ -786,7 +692,14 @@ class A_RELEASE(object):
 
     @property
     def result(self):
-        """Return the *Result* parameter."""
+        """Return the *Result* parameter.
+
+        Parameters
+        ----------
+        value : str
+            Must be ``None`` for request and indication, ``'affirmative'``
+            for response and confirmation.
+        """
         return self._result
 
     @result.setter
@@ -800,9 +713,8 @@ class A_RELEASE(object):
         self._result = value
 
 
-class A_ABORT(object):
-    """
-    An A-ABORT primitive.
+class A_ABORT:
+    """An A-ABORT primitive.
 
     +------------------+---------+------------+
     | Parameter        | Request | Indication |
@@ -819,14 +731,6 @@ class A_ABORT(object):
     | MF  - Mandatory, fixed value
     | NU  - Not used
     | (=) - shall have same value as request or response
-
-    Attributes
-    ----------
-    abort_source : int
-        Indicates the initiating source of the abort. Allowed values are:
-
-        * ``0``: UL service-user
-        * ``2``: UL service-provider
 
     References
     ----------
@@ -857,7 +761,7 @@ class A_ABORT(object):
             raise ValueError(msg)
 
 
-class A_P_ABORT(object):
+class A_P_ABORT:
     """
     An A-P-ABORT primitive.
 
@@ -876,18 +780,6 @@ class A_P_ABORT(object):
     | P   - Provider initiated
     | (=) - shall have same value as request or response
 
-    Attributes
-    ----------
-    provider_reason : int
-        Indicates the reason for the abort. Allowed values are:
-
-        * ``0``: reason not specified
-        * ``1``: unrecognised PDU
-        * ``2``: unexpected PDU
-        * ``4``: unrecognised PDU parameter
-        * ``5``: unexpected PDU parameter
-        * ``6``: invalid PDU parameter value
-
     References
     ----------
 
@@ -898,7 +790,20 @@ class A_P_ABORT(object):
 
     @property
     def provider_reason(self):
-        """Return the *Provider Reason*."""
+        """Return the *Provider Reason*.
+
+        Parameters
+        ----------
+        value : int
+            Indicates the reason for the abort. Allowed values are:
+
+            * ``0``: reason not specified
+            * ``1``: unrecognised PDU
+            * ``2``: unexpected PDU
+            * ``4``: unrecognised PDU parameter
+            * ``5``: unexpected PDU parameter
+            * ``6``: invalid PDU parameter value
+        """
         if self._provider_reason is None:
             LOGGER.error("A_ABORT.provider_reason parameter not set")
             raise ValueError("A_ABORT.provider_reason value not set")
@@ -919,7 +824,7 @@ class A_P_ABORT(object):
             raise ValueError(msg)
 
 
-class P_DATA(object):
+class P_DATA:
     """
     A P-DATA primitive.
 
@@ -937,15 +842,6 @@ class P_DATA(object):
     | NU  - Not used
     | (=) - shall have same value as request or response
 
-    Attributes
-    ----------
-    presentation_data_value_list : list of [int, bytes]
-        Contains one or more Presentation Data Values (PDV), each consisting of
-        a Presentation Context ID and User Data values. The User Data values
-        are taken from the Abstract Syntax and encoded in the Transfer Syntax
-        identified by the Presentation Context ID. Each item in the list is
-        ``[Context ID, PDV Data]``
-
     References
     ----------
 
@@ -956,7 +852,17 @@ class P_DATA(object):
 
     @property
     def presentation_data_value_list(self):
-        """Return the *Presentation Data Value List*."""
+        """Return the *Presentation Data Value List*.
+
+        Parameters
+        ----------
+        presentation_data_value_list : list of [int, bytes]
+            Contains one or more Presentation Data Values (PDV), each
+            consisting of a Presentation Context ID and User Data values.
+            The User Data values are taken from the Abstract Syntax and
+            encoded in the Transfer Syntax identified by the Presentation
+            Context ID. Each item in the list is ``[Context ID, PDV Data]``
+        """
         return self._presentation_data_value_list
 
     @presentation_data_value_list.setter
@@ -1033,13 +939,6 @@ class MaximumLengthNotification(ServiceParameter):
     This User Information item is required during association negotiation and
     there must only be a single :class:`MaximumLengthNotification` item.
 
-    Attributes
-    ----------
-    maximum_length_received : int
-        The maximum length received value for the Maximum Length sub-item in
-        bytes. A value of ``0`` indicates unlimited length (``31682`` bytes
-        default).
-
     References
     ----------
 
@@ -1064,18 +963,14 @@ class MaximumLengthNotification(ServiceParameter):
 
     @property
     def maximum_length_received(self):
-        """Return the *Maximum Length Received*."""
-        return self._maximum_length
-
-    @maximum_length_received.setter
-    def maximum_length_received(self, val):
-        """User defined Maximum Length to be used during an Association.
+        """Return the *Maximum Length Received*.
 
         Parameters
         ----------
         val : int
             The maximum length of each P-DATA in bytes, must be equal to or
-            greater than 0. A value of 0 indicates an unlimited maximum length.
+            greater than 0. A value of ``0`` indicates unlimited length
+            (``31682`` bytes default).
 
         Raises
         ------
@@ -1084,6 +979,11 @@ class MaximumLengthNotification(ServiceParameter):
         TypeError
             If `maximum_length_received` is not an int
         """
+        return self._maximum_length
+
+    @maximum_length_received.setter
+    def maximum_length_received(self, val):
+        """User defined Maximum Length to be used during an Association."""
         # pylint: disable=attribute-defined-outside-init
         if isinstance(val, int):
             if val < 0:
@@ -1125,11 +1025,6 @@ class ImplementationClassUIDNotification(ServiceParameter):
     The Implementation Class UID is required during association negotiation and
     there must only be a single :class:`ImplementationClassUIDNotification`
     item.
-
-    Attributes
-    ----------
-    implementation_class_uid : pydicom.uid.UID, bytes or str
-        The UID to use.
 
     Examples
     --------
@@ -1238,11 +1133,6 @@ class ImplementationVersionNameNotification(ServiceParameter):
     The Implementation Version Name is optional and there may only be a single
     :class:`ImplementationVersionNameNotification` item.
 
-    Attributes
-    ----------
-    implementation_version_name : str or bytes
-        The version name to use, maximum of 16 characters.
-
     Examples
     --------
 
@@ -1341,15 +1231,6 @@ class AsynchronousOperationsWindowNegotiation(ServiceParameter):
 
     Identical for both A-ASSOCIATE-RQ and A-ASSOCIATE-AC.
 
-    Attributes
-    ----------
-    maximum_number_operations_invoked : int
-        The maximum number of asynchronous operations invoked by the AE. A
-        value of ``0`` indicates unlimited operations (default ``1``)
-    maximum_number_operations_performed : int
-        The maximum number of asynchronous operations performed by the AE. A
-        value of ``0`` indicates unlimited operations (default ``1``)
-
     Examples
     --------
 
@@ -1384,12 +1265,7 @@ class AsynchronousOperationsWindowNegotiation(ServiceParameter):
 
     @property
     def maximum_number_operations_invoked(self):
-        """Return the *Maximum Number Operations Invoked*."""
-        return self._maximum_number_operations_invoked
-
-    @maximum_number_operations_invoked.setter
-    def maximum_number_operations_invoked(self, value):
-        """Sets the Maximum Number Operations Invoked parameter.
+        """Return the *Maximum Number Operations Invoked*.
 
         Parameters
         ----------
@@ -1403,6 +1279,11 @@ class AsynchronousOperationsWindowNegotiation(ServiceParameter):
         ValueError
             If `value` is less than 0
         """
+        return self._maximum_number_operations_invoked
+
+    @maximum_number_operations_invoked.setter
+    def maximum_number_operations_invoked(self, value):
+        """Sets the Maximum Number Operations Invoked parameter."""
         # pylint: disable=attribute-defined-outside-init
         if isinstance(value, int):
             pass
@@ -1418,13 +1299,7 @@ class AsynchronousOperationsWindowNegotiation(ServiceParameter):
 
     @property
     def maximum_number_operations_performed(self):
-        """Return the *Maximum Number Operations Performed*."""
-        return self._maximum_number_operations_performed
-
-    @maximum_number_operations_performed.setter
-    def maximum_number_operations_performed(self, value):
-        """
-        Sets the Maximum Number Operations Performed parameter
+        """Return the *Maximum Number Operations Performed*.
 
         Parameters
         ----------
@@ -1438,6 +1313,11 @@ class AsynchronousOperationsWindowNegotiation(ServiceParameter):
         ValueError
             If `value` is less than 0
         """
+        return self._maximum_number_operations_performed
+
+    @maximum_number_operations_performed.setter
+    def maximum_number_operations_performed(self, value):
+        """Sets the Maximum Number Operations Performed parameter"""
         # pylint: disable=attribute-defined-outside-init
         if not isinstance(value, int):
             LOGGER.error("Maximum Number Operations Performed must be an int")
@@ -1481,15 +1361,6 @@ class SCP_SCU_RoleSelectionNegotiation(ServiceParameter):
     *Requestor* is SCU and for an *Acceptor* is SCP.
 
     Identical for both A-ASSOCIATE-RQ and A-ASSOCIATE-AC.
-
-    Attributes
-    ----------
-    sop_class_uid : pydicom.uid.UID, bytes or str
-        The UID of the corresponding Abstract Syntax
-    scu_role : bool
-        ``False`` for non-support of the SCU role, ``True`` for support.
-    scp_role : bool
-        ``False`` for non-support of the SCP role, ``True`` for support.
 
     Examples
     --------
@@ -1544,12 +1415,7 @@ class SCP_SCU_RoleSelectionNegotiation(ServiceParameter):
 
     @property
     def scp_role(self):
-        """Return the *SCP Role*."""
-        return self._scp_role
-
-    @scp_role.setter
-    def scp_role(self, value):
-        """Sets the SCP Role parameter.
+        """Return the *SCP Role*.
 
         Parameters
         ----------
@@ -1561,6 +1427,11 @@ class SCP_SCU_RoleSelectionNegotiation(ServiceParameter):
         TypeError
             If `value` is not a bool
         """
+        return self._scp_role
+
+    @scp_role.setter
+    def scp_role(self, value):
+        """Sets the SCP Role parameter."""
         # pylint: disable=attribute-defined-outside-init
         if isinstance(value, bool):
             pass
@@ -1574,12 +1445,7 @@ class SCP_SCU_RoleSelectionNegotiation(ServiceParameter):
 
     @property
     def scu_role(self):
-        """Return the *SCU Role*."""
-        return self._scu_role
-
-    @scu_role.setter
-    def scu_role(self, value):
-        """Sets the SCU Role parameter.
+        """Return the *SCU Role*.
 
         Parameters
         ----------
@@ -1591,6 +1457,11 @@ class SCP_SCU_RoleSelectionNegotiation(ServiceParameter):
         TypeError
             If `value` is not a bool
         """
+        return self._scu_role
+
+    @scu_role.setter
+    def scu_role(self, value):
+        """Sets the SCU Role parameter."""
         # pylint: disable=attribute-defined-outside-init
         if isinstance(value, bool):
             pass
@@ -1604,12 +1475,7 @@ class SCP_SCU_RoleSelectionNegotiation(ServiceParameter):
 
     @property
     def sop_class_uid(self):
-        """Return the *SOP Class UID*."""
-        return self._sop_class_uid
-
-    @sop_class_uid.setter
-    def sop_class_uid(self, value):
-        """Sets the SOP Class UID parameter.
+        """Return the *SOP Class UID*.
 
         Parameters
         ----------
@@ -1621,6 +1487,11 @@ class SCP_SCU_RoleSelectionNegotiation(ServiceParameter):
         TypeError
             If `value` is not a pydicom.uid.UID, bytes or str
         """
+        return self._sop_class_uid
+
+    @sop_class_uid.setter
+    def sop_class_uid(self, value):
+        """Sets the SOP Class UID parameter."""
         # pylint: disable=attribute-defined-outside-init
         if isinstance(value, UID):
             pass
@@ -1659,15 +1530,6 @@ class SOPClassExtendedNegotiation(ServiceParameter):
     Class UID.
 
     Identical for both A-ASSOCIATE-RQ and A-ASSOCIATE-AC
-
-    Attributes
-    ----------
-    sop_class_uid : pydicom.uid.UID, bytes or str
-        The UID of the SOP Class
-    service_class_application_information : bytes
-        The Service Class Application Information as per the Service Class
-        Specifications in :dcm:`Part 4<part04/PS3.4.html>` of the DICOM
-        Standard.
 
     Examples
     --------
@@ -1802,15 +1664,6 @@ class SOPClassCommonExtendedNegotiation(ServiceParameter):
     SOP Class UID.
 
     Identical for both A-ASSOCIATE-RQ and A-ASSOCIATE-AC
-
-    Attributes
-    ----------
-    sop_class_uid : pydicom.uid.UID, bytes or str
-        The UID of the SOP Class
-    service_class_uid : pydicom.uid.UID, bytes or str
-        The UID of the corresponding Service Class
-    related_general_sop_class_identification : list of UID str
-        Related General SOP Class UIDs (optional)
 
     Examples
     --------
@@ -2042,31 +1895,6 @@ class UserIdentityNegotiation(ServiceParameter):
     Identity Negotiation request is to be issued (although this depends on
     whether or not this is supported by the *Acceptor*).
 
-    Attributes
-    ----------
-    user_identity_type : int or None
-        A-ASSOCIATE-RQ only. One of the following values:
-
-        * ``1`` - Username as string in UTF-8
-        * ``2`` - Username as string in UTF-8 and passcode
-        * ``3`` - Kerberos Service ticket
-        * ``4`` - SAML Assertion
-        * ``5`` - JSON Web Token
-    positive_response_requested : bool
-        A-ASSOCIATE-RQ only. ``True`` when requesting a response, ``False``
-        otherwise (default is ``False``)
-    primary_field : bytes or None
-        A-ASSOCIATE-RQ only. Contains either the username, Kerberos Service
-        ticket or SAML assertion depending on `user_identity_type`.
-    secondary_field : bytes or None
-        A-ASSOCIATE-RQ only. Only required if the `user_identity_type` is
-        ``2``, when it should contain the passcode as :class:`bytes`, ``None``
-        otherwise.
-    server_response : bytes or None
-        A-ASSOCIATE-AC only. Shall contain the Kerberos Service ticket or SAML
-        response if the `user_identity_type` is ``3`` or ``4``. Shall
-        be ``None`` if `user_identity_type` was ``1`` or ``2``.
-
     Examples
     --------
 
@@ -2135,12 +1963,7 @@ class UserIdentityNegotiation(ServiceParameter):
 
     @property
     def positive_response_requested(self):
-        """Return *Positive Response Requested*."""
-        return self._positive_response_requested
-
-    @positive_response_requested.setter
-    def positive_response_requested(self, value):
-        """Sets the Positive Response Requested parameter.
+        """Return *Positive Response Requested*.
 
         Parameters
         ----------
@@ -2152,6 +1975,11 @@ class UserIdentityNegotiation(ServiceParameter):
         TypeError
             If `value` is not a bool
         """
+        return self._positive_response_requested
+
+    @positive_response_requested.setter
+    def positive_response_requested(self, value):
+        """Sets the Positive Response Requested parameter."""
         # pylint: disable=attribute-defined-outside-init
         if isinstance(value, bool):
             pass
@@ -2163,23 +1991,24 @@ class UserIdentityNegotiation(ServiceParameter):
 
     @property
     def primary_field(self):
-        """Return *Primary Field*."""
-        return self._primary_field
-
-    @primary_field.setter
-    def primary_field(self, value):
-        """Sets the Primary Field parameter.
+        """Return *Primary Field*.
 
         Parameters
         ----------
         value : bytes or None
-            The username or Kerberos Service ticket as a bytes object
+            The username, Kerberos Service ticket or SAML assertion as a
+            bytes object.
 
         Raises
         ------
         TypeError
             If `value` is not bytes or None
         """
+        return self._primary_field
+
+    @primary_field.setter
+    def primary_field(self, value):
+        """Sets the Primary Field parameter."""
         # pylint: disable=attribute-defined-outside-init
         if isinstance(value, bytes):
             pass
@@ -2195,12 +2024,7 @@ class UserIdentityNegotiation(ServiceParameter):
 
     @property
     def secondary_field(self):
-        """Return the *Secondary Field*."""
-        return self._secondary_field
-
-    @secondary_field.setter
-    def secondary_field(self, value):
-        """Sets the Secondary Field parameter.
+        """Return the *Secondary Field*.
 
         Only used when User Identity Type is equal to 2.
 
@@ -2214,6 +2038,11 @@ class UserIdentityNegotiation(ServiceParameter):
         TypeError
             If `value` is not bytes or None
         """
+        return self._secondary_field
+
+    @secondary_field.setter
+    def secondary_field(self, value):
+        """Sets the Secondary Field parameter."""
         # pylint: disable=attribute-defined-outside-init
         if isinstance(value, bytes):
             pass
@@ -2231,23 +2060,28 @@ class UserIdentityNegotiation(ServiceParameter):
 
     @property
     def server_response(self):
-        """Return the *Server Response*."""
-        return self._server_response
+        """Return the *Server Response*.
 
-    @server_response.setter
-    def server_response(self, value):
-        """Sets the Server Response parameter.
+        A-ASSOCIATE-AC only.
 
         Parameters
         ----------
         value : bytes or None
-            The server response as a bytes object
+            The server response as a bytes object. The Kerberos Service
+            ticket, SAML response or JSON web token if the
+            `user_identity_type` is ``3``, ``4`` or ``5``. Shall be
+            ``None`` if `user_identity_type` was ``1`` or ``2``.
 
         Raises
         ------
         TypeError
             If `value` is not bytes or None
         """
+        return self._server_response
+
+    @server_response.setter
+    def server_response(self, value):
+        """Sets the Server Response parameter."""
         # pylint: disable=attribute-defined-outside-init
         if isinstance(value, bytes):
             pass
@@ -2275,12 +2109,7 @@ class UserIdentityNegotiation(ServiceParameter):
 
     @property
     def user_identity_type(self):
-        """Return the *User Identity Type*."""
-        return self._user_identity_type
-
-    @user_identity_type.setter
-    def user_identity_type(self, value):
-        """Sets the User Identity Type parameter.
+        """Return the *User Identity Type*.
 
         Parameters
         ----------
@@ -2300,6 +2129,11 @@ class UserIdentityNegotiation(ServiceParameter):
         ValueError
             If `value` is an int and is not 1, 2, 3 or 4
         """
+        return self._user_identity_type
+
+    @user_identity_type.setter
+    def user_identity_type(self, value):
+        """Sets the User Identity Type parameter."""
         # pylint: disable=attribute-defined-outside-init
         if isinstance(value, int):
             if value not in [1, 2, 3, 4, 5]:
