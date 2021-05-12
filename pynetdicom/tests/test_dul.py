@@ -22,7 +22,7 @@ from .utils import sleep
 #debug_logger()
 
 
-class DummyACSE(object):
+class DummyACSE:
     """Dummy ACSE class"""
     @staticmethod
     def debug_receive_associate_rq(): pass
@@ -40,12 +40,12 @@ class DummyACSE(object):
     def debug_receive_abort(): pass
 
 
-class DummyAssociation(object):
+class DummyAssociation:
     """Dummy Association class"""
     acse = DummyACSE()
 
 
-class TestDUL(object):
+class TestDUL:
     """Run tests on DUL service provider."""
     def setup(self):
         self.scp = None

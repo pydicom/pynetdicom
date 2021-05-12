@@ -16,7 +16,7 @@ from pynetdicom.sop_class import VerificationSOPClass
 #debug_logger()
 
 
-class TestVerificationServiceClass(object):
+class TestVerificationServiceClass:
     """Test the VerifictionSOPClass"""
     def setup(self):
         """Run prior to each test"""

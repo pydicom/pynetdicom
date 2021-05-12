@@ -22,7 +22,7 @@ from pynetdicom.sop_class import (
 #debug_logger()
 
 
-class TestSubstanceAdministrationQueryServiceClass(object):
+class TestSubstanceAdministrationQueryServiceClass:
     """Test the SubstanceAdministrationQueryServiceClass.
 
     Subclass of QR Find Service class with its own statuses.

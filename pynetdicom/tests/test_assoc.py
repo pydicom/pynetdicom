@@ -73,7 +73,7 @@ DEFL_DATASET = dcmread(
 )
 
 
-class DummyDIMSE(object):
+class DummyDIMSE:
     def __init__(self):
         self.status = None
         self.msg_queue = queue.Queue()
@@ -86,7 +86,7 @@ class DummyDIMSE(object):
         return None, None
 
 
-class TestAssociation(object):
+class TestAssociation:
     """Run tests on Associtation."""
     def setup(self):
         """This function runs prior to all test methods"""
@@ -587,7 +587,7 @@ class TestAssociation(object):
         scp.shutdown()
 
 
-class TestCStoreSCP(object):
+class TestCStoreSCP:
     """Tests for Association._c_store_scp()."""
     # Used with C-GET (always) and C-MOVE (over the same association)
     def setup(self):
@@ -838,7 +838,7 @@ class TestCStoreSCP(object):
         scp.shutdown()
 
 
-class TestAssociationSendCEcho(object):
+class TestAssociationSendCEcho:
     """Run tests on Assocation evt.EVT_C_ECHO handler."""
     def setup(self):
         """Run prior to each test"""
@@ -1188,7 +1188,7 @@ class TestAssociationSendCEcho(object):
         scp.shutdown()
 
 
-class TestAssociationSendCStore(object):
+class TestAssociationSendCStore:
     """Run tests on Assocation send_c_store."""
     def setup(self):
         """Run prior to each test"""
@@ -1835,7 +1835,7 @@ class TestAssociationSendCStore(object):
         assert '^^^^' == recv_ds[0].PatientName
 
 
-class TestAssociationSendCFind(object):
+class TestAssociationSendCFind:
     """Run tests on Assocation send_c_find."""
     def setup(self):
         """Run prior to each test"""
@@ -2395,7 +2395,7 @@ class TestAssociationSendCFind(object):
             assert msg in caplog.text
 
 
-class TestAssociationSendCCancel(object):
+class TestAssociationSendCCancel:
     """Run tests on Assocation send_c_cancel."""
     def setup(self):
         """Run prior to each test"""
@@ -2442,7 +2442,7 @@ class TestAssociationSendCCancel(object):
         scp.shutdown()
 
 
-class TestAssociationSendCGet(object):
+class TestAssociationSendCGet:
     """Run tests on Assocation send_c_get."""
     def setup(self):
         """Run prior to each test"""
@@ -3230,7 +3230,7 @@ class TestAssociationSendCGet(object):
             assert msg in caplog.text
 
 
-class TestAssociationSendCMove(object):
+class TestAssociationSendCMove:
     """Run tests on Assocation send_c_move."""
     def setup(self):
         """Run prior to each test"""
@@ -4068,7 +4068,7 @@ class TestAssociationSendCMove(object):
             assert msg in caplog.text
 
 
-class TestGetValidContext(object):
+class TestGetValidContext:
     """Tests for Association._get_valid_context."""
     def setup(self):
         """Run prior to each test"""
@@ -4828,7 +4828,7 @@ class TestGetValidContext(object):
         scp.shutdown()
 
 
-class TestEventHandlingAcceptor(object):
+class TestEventHandlingAcceptor:
     """Test the transport events and handling as acceptor."""
     def setup(self):
         self.ae = None
@@ -6114,7 +6114,7 @@ class TestEventHandlingAcceptor(object):
         assert args == list(arguments[0])
 
 
-class TestEventHandlingRequestor(object):
+class TestEventHandlingRequestor:
     """Test the transport events and handling as acceptor."""
     def setup(self):
         self.ae = None

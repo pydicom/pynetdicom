@@ -53,7 +53,7 @@ DATASET = dcmread(os.path.join(DCM_DIR, 'RTImageStorage.dcm'))
 #debug_logger()
 
 
-class TestAssociationSocket(object):
+class TestAssociationSocket:
     """Tests for the transport.AssociationSocket class."""
     def setup(self):
         ae = AE()
@@ -303,7 +303,7 @@ def client_context(request):
     return context
 
 
-class TestTLS(object):
+class TestTLS:
     """Test using TLS to wrap the association."""
     def setup(self):
         self.ae = None
@@ -556,7 +556,7 @@ class TestTLS(object):
         assert 2 == len(events)
 
 
-class TestAssociationServer(object):
+class TestAssociationServer:
     def setup(self):
         self.ae = None
 
@@ -700,7 +700,7 @@ class TestAssociationServer(object):
 
     def test_exception_in_handler(self):
         """Test exc raised by the handler doesn't shut down the server."""
-        class DummyAE(object):
+        class DummyAE:
             network_timeout = 5
             _servers = []
 
@@ -747,7 +747,7 @@ class TestAssociationServer(object):
         ae.shutdown()
 
 
-class TestEventHandlingAcceptor(object):
+class TestEventHandlingAcceptor:
     """Test the transport events and handling as acceptor."""
     def setup(self):
         self.ae = None
@@ -1482,7 +1482,7 @@ class TestEventHandlingAcceptor(object):
             assert "Exception description" in caplog.text
 
 
-class TestEventHandlingRequestor(object):
+class TestEventHandlingRequestor:
     """Test the transport events and handling as requestor."""
     def setup(self):
         self.ae = None

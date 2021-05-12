@@ -24,7 +24,7 @@ from pynetdicom.sop_class import (
 #debug_logger()
 
 
-class TestRelevantPatientServiceClass(object):
+class TestRelevantPatientServiceClass:
     """Test the RelevantPatientInformationQueryServiceClass"""
     def setup(self):
         """Run prior to each test"""

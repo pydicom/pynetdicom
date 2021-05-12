@@ -39,7 +39,7 @@ def start_echoscp_cli(args):
     return subprocess.Popen(pargs)
 
 
-class EchoSCPBase(object):
+class EchoSCPBase:
     """Tests for echoscp.py"""
     def setup(self):
         """Run prior to each test"""

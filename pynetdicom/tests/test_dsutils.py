@@ -19,7 +19,7 @@ from pynetdicom.dsutils import decode, encode, pretty_dataset, pretty_element
 #debug_logger()
 
 
-class TestEncode(object):
+class TestEncode:
     """Test dsutils.encode(ds, is_implicit_vr, is_little_endian)."""
     def test_implicit_little(self):
         """Test encoding using implicit VR little endian."""
@@ -77,7 +77,7 @@ class TestEncode(object):
         assert out == b''
 
 
-class TestDecode(object):
+class TestDecode:
     """Test dsutils.decode(bytes, is_implicit_vr, is_little_endian)."""
     def test_implicit_little(self):
         """Test decoding using implicit VR little endian."""
@@ -107,7 +107,7 @@ class TestDecode(object):
         assert ds.PatientName == 'CITIZEN^Snips'
 
 
-class TestDecodeFailure(object):
+class TestDecodeFailure:
     """Tests that ensure dataset decoding fails as expected"""
     def test_failure(self):
         def dummy(): pass
@@ -115,7 +115,7 @@ class TestDecodeFailure(object):
             print(decode(dummy, False, True))
 
 
-class TestPrettyElement(object):
+class TestPrettyElement:
     """Tests for pretty_element()."""
     def teardown(self):
         config.DS_decimal(False)
@@ -526,7 +526,7 @@ class TestPrettyElement(object):
         ) == pretty_element(ds['PixelData'])
 
 
-class TestPrettyDataset(object):
+class TestPrettyDataset:
     """Tests for dsutils.pretty_dataset()."""
     def test_empty(self):
         """Test using an empty dataset."""

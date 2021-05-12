@@ -31,7 +31,7 @@ IN_GITHUB = get_envar("GITHUB_ACTIONS") == 'true'
 
 
 @pytest.mark.skipif(not IN_GITHUB, reason="Tests not running in Github")
-class TestBuilds(object):
+class TestBuilds:
     """Tests for the testing builds in Github Actions."""
     def test_python_version(self):
         """Test that the python version is correct."""
@@ -61,7 +61,7 @@ REFERENCE_VERSIONS = [
 ]
 
 
-class TestExtractComponents(object):
+class TestExtractComponents:
     @pytest.mark.parametrize("version", REFERENCE_VERSIONS)
     def test_extract_components(self, version):
         """Test various forms of the version components"""

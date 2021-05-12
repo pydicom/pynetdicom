@@ -13,7 +13,7 @@ from pydicom.tag import Tag
 from pynetdicom.apps.common import ElementPath, create_dataset, get_files
 
 
-class TestCreateDataset(object):
+class TestCreateDataset:
     """Tests for pynetdicom.apps.common.create_dataset()."""
     def test_element_new(self):
         """Test creating an element using keywords."""
@@ -58,7 +58,7 @@ class TestCreateDataset(object):
             create_dataset(args)
 
 
-class TestElementPath(object):
+class TestElementPath:
     """Tests for utils.ElementPath."""
     def test_child(self):
         """Tests for ElementPath.child."""

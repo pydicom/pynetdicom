@@ -14,9 +14,10 @@
 # values that are commented out
 # serve to show the default.
 
-import sys
+from datetime import datetime
 import os
 from pathlib import Path
+import sys
 
 import sphinx_rtd_theme
 
@@ -100,14 +101,7 @@ extlinks = {
         'http://dicom.nema.org/medical/dicom/current/output/chtml/%s',
         None
     ),
-    'gh': (
-        'https://github.com/pydicom/%s',
-        None
-    ),
-    'pyd': (
-        'https://docs.python.org/%s',
-        None
-    )
+    'gh': ('https://github.com/pydicom/%s', None),
 }
 
 # intersphinx configuration
@@ -116,10 +110,7 @@ intersphinx_mapping = {
         'https://docs.python.org/{.major}'.format(sys.version_info),
         None
     ),
-    'pydicom': (
-        'https://pydicom.github.io/pydicom/stable',
-        None
-    ),
+    'pydicom': ('https://pydicom.github.io/pydicom/stable', None),
 }
 
 napoleon_google_docstring = False
@@ -139,7 +130,8 @@ master_doc = 'index'
 
 # General information about the project.
 project = u'pynetdicom'
-copyright = u'2018-2020, pynetdicom contributors'
+year = datetime.now().strftime('%Y')
+copyright = u'2018-{}, pynetdicom contributors'.format(year)
 
 # The version info for the project you're documenting, acts as replacement for
 # |version| and |release|, also used in various other places throughout the
@@ -318,7 +310,7 @@ issues_github_path = 'pydicom/pynetdicom'
 
 def setup(app):
     #app.connect('autodoc-process-docstring', generate_example_rst)
-    app.add_stylesheet('css/pynetdicom.css')
+    app.add_css_file('css/pynetdicom.css')
 
 # Example configuration for intersphinx: refer to
 # the Python standard library.

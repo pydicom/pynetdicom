@@ -60,7 +60,7 @@ def good_init(request):
     return request.param
 
 
-class TestPresentationContext(object):
+class TestPresentationContext:
     """Test the PresentationContext class"""
     def setup(self):
         self.default_conformance = _config.ENFORCE_UID_CONFORMANCE
@@ -398,7 +398,7 @@ class TestPresentationContext(object):
         assert 'Verification SOP Class' == repr(cx)
 
 
-class TestNegotiateAsAcceptor(object):
+class TestNegotiateAsAcceptor:
     """Tests negotiation_as_acceptor."""
     def setup(self):
         self.test_func = negotiate_as_acceptor
@@ -739,7 +739,7 @@ REFERENCE_ROLES = [
 ]
 
 
-class TestNegotiateAsAcceptorWithRoleSelection(object):
+class TestNegotiateAsAcceptorWithRoleSelection:
     """Tests negotiate_as_acceptor with role selection."""
     @pytest.mark.parametrize("req, acc, out", REFERENCE_ROLES)
     def test_scp_scu_role_negotiation(self, req, acc, out):
@@ -974,7 +974,7 @@ class TestNegotiateAsAcceptorWithRoleSelection(object):
             assert cx.as_scp is False
 
 
-class TestNegotiateAsRequestorWithRoleSelection(object):
+class TestNegotiateAsRequestorWithRoleSelection:
     """Tests negotiate_as_requestor with role selection."""
     @pytest.mark.parametrize("req, acc, out", REFERENCE_ROLES)
     def test_scp_scu_role_negotiation(self, req, acc, out):
@@ -1279,7 +1279,7 @@ class TestNegotiateAsRequestorWithRoleSelection(object):
         scp.shutdown()
 
 
-class TestNegotiateAsRequestor(object):
+class TestNegotiateAsRequestor:
     """Tests negotiate_as_requestor."""
     def setup(self):
         self.test_acc = negotiate_as_acceptor
@@ -1666,7 +1666,7 @@ def test_build_context():
     assert context.context_id is None
 
 
-class TestServiceContexts(object):
+class TestServiceContexts:
     def test_application_event(self):
         """Tests with application event logging presentation contexts"""
         contexts = ApplicationEventLoggingPresentationContexts
@@ -1952,7 +1952,7 @@ class TestServiceContexts(object):
         assert contexts[0].context_id is None
 
 
-class TestBuildRole(object):
+class TestBuildRole:
     """Tests for presentation.build_role."""
     def test_default(self):
         """Test the default role."""

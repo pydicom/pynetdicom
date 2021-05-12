@@ -62,7 +62,7 @@ def test_notification_global():
     assert evt.EVT_DATA_RECV in evt._NOTIFICATION_EVENTS
 
 
-class TestEvent(object):
+class TestEvent:
     """Tests for event.Event."""
     def setup(self):
         self.ae = None

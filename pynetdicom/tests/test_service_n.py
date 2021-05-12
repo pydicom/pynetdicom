@@ -76,7 +76,7 @@ REFERENCE_REQUESTS = [
 ]
 
 
-class TestNServiceClass(object):
+class TestNServiceClass:
     """Generic tests for the DIMSE-N Service Classes"""
     def setup(self):
         """Run prior to each test"""
@@ -1189,7 +1189,7 @@ class TestNServiceClass(object):
         scp.shutdown()
 
 
-class TestUPSFindServiceClass(object):
+class TestUPSFindServiceClass:
     """Test the Unified Proecedure Step (Find) Service Class"""
     def setup(self):
         """Run prior to each test"""
@@ -2212,7 +2212,7 @@ class TestUPSFindServiceClass(object):
         scp.shutdown()
 
 
-class TestNEventReport(object):
+class TestNEventReport:
     """Functional tests for N-EVENT-REPORT services."""
     def setup(self):
         """Run prior to each test"""

@@ -51,7 +51,7 @@ def start_findscu_scli(args):
     return subprocess.Popen(pargs)
 
 
-class FindSCUBase(object):
+class FindSCUBase:
     """Tests for findscu.py"""
     def setup(self):
         """Run prior to each test"""

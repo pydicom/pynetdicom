@@ -42,7 +42,7 @@ def start_storescp_cli(args):
     return subprocess.Popen(pargs)
 
 
-class StoreSCPBase(object):
+class StoreSCPBase:
     """Tests for storescp.py"""
     def setup(self):
         """Run prior to each test"""

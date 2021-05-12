@@ -78,7 +78,7 @@ class attempt():
         return self._success
 
 
-class ServiceClass(object):
+class ServiceClass:
     """The base class for all the service classes.
 
     Attributes

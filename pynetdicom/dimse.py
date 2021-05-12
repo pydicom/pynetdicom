@@ -54,7 +54,7 @@ _RSP_TO_MESSAGE = {
 }
 
 
-class DIMSEServiceProvider(object):
+class DIMSEServiceProvider:
     """The DIMSE service provider.
 
     .. versionchanged:: 1.2

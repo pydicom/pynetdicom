@@ -50,7 +50,7 @@ def print_nice_bytes(bytestream):
         print(string)
 
 
-class TestDIMSEMessage(object):
+class TestDIMSEMessage:
     """Test DIMSEMessage class"""
 
     def test_fragment_pdv(self):
@@ -676,7 +676,7 @@ class TestDIMSEMessage(object):
         assert primitive.RequestedSOPInstanceUID is None
 
 
-class TestThreadSafety(object):
+class TestThreadSafety:
     """Tests for the thread safety of DIMSEMessage classes."""
 
     def setup(self):

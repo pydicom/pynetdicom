@@ -168,7 +168,7 @@ _MULTIVALUE_TAGS = [
 ]
 
 
-class DIMSEMessage(object):
+class DIMSEMessage:
     """Represents a DIMSE Message.
 
     Information is communicated across the DICOM network interface in a DICOM

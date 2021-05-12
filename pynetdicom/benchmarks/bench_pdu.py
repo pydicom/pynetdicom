@@ -16,7 +16,7 @@ from pynetdicom.tests.encoded_pdu_items import (
 )
 
 
-class TimePDUDecode(object):
+class TimePDUDecode:
     def setup(self):
         """Setup the test"""
         pass
@@ -64,7 +64,7 @@ class TimePDUDecode(object):
             pdu.decode(a_abort)
 
 
-class TimePDUEncode(object):
+class TimePDUEncode:
     def setup(self):
         """Setup the test"""
         self.assoc_rq = PDU_TYPES[0x01]()

@@ -10,8 +10,9 @@ import codecs
 from collections.abc import MutableSequence
 from io import BytesIO
 import logging
+from typing import Optional, List
 
-from pydicom.tag import Tag
+from pydicom.tag import Tag, BaseTag
 from pydicom.uid import UID
 
 from pynetdicom import _config
@@ -25,7 +26,7 @@ LOGGER = logging.getLogger('pynetdicom.dimse_primitives')
 # pylint: disable=attribute-defined-outside-init
 # pylint: disable=too-many-instance-attributes
 # pylint: disable=anomalous-backslash-in-string
-class DIMSEPrimitive(object):
+class DIMSEPrimitive:
     """Base class for the DIMSE primitives."""
     STATUS_OPTIONAL_KEYWORDS = ()
     REQUEST_KEYWORDS = ()
@@ -33,18 +34,19 @@ class DIMSEPrimitive(object):
 
     @property
     def AffectedSOPClassUID(self):
-        """Return the *Affected SOP Class UID* as :class:`~pydicom.uid.UID`."""
-        return self._affected_sop_class_uid
-
-    @AffectedSOPClassUID.setter
-    def AffectedSOPClassUID(self, value):
-        """Set the *Affected SOP Class UID*.
+        """Get or set the *Affected SOP Class UID* as
+        :class:`~pydicom.uid.UID`.
 
         Parameters
         ----------
         value : pydicom.uid.UID, bytes or str
             The value to use for the *Affected SOP Class UID* parameter.
         """
+        return self._affected_sop_class_uid
+
+    @AffectedSOPClassUID.setter
+    def AffectedSOPClassUID(self, value):
+        """Set the *Affected SOP Class UID*."""
         if isinstance(value, UID):
             pass
         elif isinstance(value, str):
@@ -167,18 +169,18 @@ class DIMSEPrimitive(object):
 
     @property
     def MessageID(self):
-        """Return the *Message ID* value as :class:`int`."""
-        return self._message_id
-
-    @MessageID.setter
-    def MessageID(self, value):
-        """Set the *Message ID*.
+        """Get or set the *Message ID* value as :class:`int`.
 
         Parameters
         ----------
         int
             The value to use for the *Message ID* parameter.
         """
+        return self._message_id
+
+    @MessageID.setter
+    def MessageID(self, value):
+        """Set the *Message ID*."""
         if isinstance(value, int):
             if 0 <= value < 2**16:
                 self._message_id = value
@@ -192,18 +194,18 @@ class DIMSEPrimitive(object):
 
     @property
     def MessageIDBeingRespondedTo(self):
-        """Return the *Message ID Being Responded To* as :class:`int`."""
-        return self._message_id_being_responded_to
-
-    @MessageIDBeingRespondedTo.setter
-    def MessageIDBeingRespondedTo(self, value):
-        """Set the *Message ID Being Responded To*.
+        """Get or set the *Message ID Being Responded To* as :class:`int`.
 
         Parameters
         ----------
         int
             The value to use for the *Message ID Being Responded To* parameter.
         """
+        return self._message_id_being_responded_to
+
+    @MessageIDBeingRespondedTo.setter
+    def MessageIDBeingRespondedTo(self, value):
+        """Set the *Message ID Being Responded To*."""
         if isinstance(value, int):
             if 0 <= value < 2**16:
                 self._message_id_being_responded_to = value
@@ -293,7 +295,18 @@ class DIMSEPrimitive(object):
 
     @property
     def _Priority(self):
-        """Return the *Priority*."""
+        """Return the *Priority* as :class:`int`.
+
+        Parameters
+        ----------
+        int
+            The value to use for the *Priority* parameter. It shall be one
+            of the following:
+
+            * 0: Medium
+            * 1: High
+            * 2: Low (Default)
+        """
         return self._priority
 
     @_Priority.setter
@@ -388,18 +401,18 @@ class DIMSEPrimitive(object):
 
     @property
     def Status(self):
-        """Return the *Status* as :class:`int`."""
-        return self._status
-
-    @Status.setter
-    def Status(self, value):
-        """Set the *Status*
+        """Get or set the *Status* as :class:`int`.
 
         Parameters
         ----------
         int
             The value to use for the *Status* parameter.
         """
+        return self._status
+
+    @Status.setter
+    def Status(self, value):
+        """Set the *Status*"""
         if isinstance(value, int) or value is None:
             self._status = value
         else:
@@ -463,26 +476,6 @@ class C_STORE(DIMSEPrimitive):
         For the request/indication this specifies the SOP Class for
         storage. If included in the response/confirmation, it shall be equal
         to the value in the request/indication
-    AffectedSOPInstanceUID : pydicom.uid.UID, bytes or str
-        For the request/indication this specifies the SOP Instance
-        for storage. If included in the response/confirmation, it shall be
-        equal to the value in the request/indication
-    Priority : int
-        The priority of the C-STORE operation. It shall be one of the
-        following:
-
-        * 0: Medium
-        * 1: High
-        * 2: Low (Default)
-    MoveOriginatorApplicationEntityTitle : bytes
-        The DICOM AE Title of the AE that invoked the C-MOVE operation
-        from which this C-STORE sub-operation is being performed
-    MoveOriginatorMessageID : int
-        The Message ID of the C-MOVE request/indication primitive from
-        which this C-STORE sub-operation is being performed
-    DataSet : io.BytesIO
-        A DICOM dataset containing the attributes of the Composite
-        SOP Instance to be stored.
     Status : int
         The error or success notification of the operation.
     OffendingElement : list of int or None
@@ -540,41 +533,35 @@ class C_STORE(DIMSEPrimitive):
         self._dataset_file = None
 
     @property
-    def AffectedSOPInstanceUID(self):
-        """Return the *Affected SOP Instance UID* as :class:`~pydicom.uid.UID`.
-        """
-        return self._AffectedSOPInstanceUID
-
-    @AffectedSOPInstanceUID.setter
-    def AffectedSOPInstanceUID(self, value):
-        """Set the *Affected SOP Instance UID*.
+    def AffectedSOPInstanceUID(self) -> Optional[UID]:
+        """Get or set the *Affected SOP Instance UID* as
+        :class:`~pydicom.uid.UID`.
 
         Parameters
         ----------
         value : pydicom.uid.UID, bytes or str
             The value to use for the *Affected SOP Class UID* parameter.
         """
+        return self._AffectedSOPInstanceUID
+
+    @AffectedSOPInstanceUID.setter
+    def AffectedSOPInstanceUID(self, value):
+        """Set the *Affected SOP Instance UID*."""
         self._AffectedSOPInstanceUID = value
 
     @property
-    def DataSet(self):
-        """Return the *Data Set* as :class:`io.BytesIO`."""
+    def DataSet(self) -> Optional[BytesIO]:
+        """Get or set the *Data Set* as :class:`io.BytesIO`."""
         return self._dataset_variant
 
     @DataSet.setter
     def DataSet(self, value):
-        """Set the *Data Set*.
-
-        Parameters
-        ----------
-        io.BytesIO
-            The value to use for the *Data Set* parameter.
-        """
+        """Set the *Data Set*."""
         self._dataset_variant = (value, 'DataSet')
 
     @property
-    def MoveOriginatorApplicationEntityTitle(self):
-        """Return the *Move Originator Application Entity Title* as
+    def MoveOriginatorApplicationEntityTitle(self) -> Optional[bytes]:
+        """Get or set the *Move Originator Application Entity Title* as
         :class:`bytes`.
         """
         return self._move_originator_application_entity_title
@@ -608,8 +595,8 @@ class C_STORE(DIMSEPrimitive):
             self._move_originator_application_entity_title = None
 
     @property
-    def MoveOriginatorMessageID(self):
-        """Return the *Move Originator Message ID* as :class:`int`."""
+    def MoveOriginatorMessageID(self) -> Optional[int]:
+        """Get or set the *Move Originator Message ID* as :class:`int`."""
         return self._move_originator_message_id
 
     @MoveOriginatorMessageID.setter
@@ -634,19 +621,24 @@ class C_STORE(DIMSEPrimitive):
             raise TypeError("Move Originator Message ID To must be an int")
 
     @property
-    def Priority(self):
-        """Return the *Priority* as :class:`int`."""
-        return self._Priority
-
-    @Priority.setter
-    def Priority(self, value):
-        """Set the *Priority*.
+    def Priority(self) -> Optional[int]:
+        """Get or set the *Priority* as :class:`int`.
 
         Parameters
         ----------
         int
-            The value to use for the *Priority* parameter.
+            The value to use for the *Priority* parameter. It shall be one
+            of the following:
+
+            * 0: Medium
+            * 1: High
+            * 2: Low (Default)
         """
+        return self._Priority
+
+    @Priority.setter
+    def Priority(self, value):
+        """Set the *Priority*."""
         self._Priority = value
 
 
@@ -695,17 +687,6 @@ class C_FIND(DIMSEPrimitive):
         For the request/indication this specifies the SOP Class
         for storage. If included in the response/confirmation, it shall be
         equal to the value in the request/indication
-    Priority : int
-        The priority of the C-STORE operation. It shall be one of the
-        following:
-
-        * 0: Medium
-        * 1: High
-        * 2: Low (Default)
-    Identifier : io.BytesIO
-        A DICOM dataset of attributes to be matched against the values of the
-        attributes in the instances of the composite objects known to the
-        performing DIMSE service-user.
     Status : int
         The error or success notification of the operation.
     OffendingElement : list of int or None
@@ -740,35 +721,40 @@ class C_FIND(DIMSEPrimitive):
         self.ErrorComment = None
 
     @property
-    def Identifier(self):
-        """Return the *Identifier* as :class:`io.BytesIO`."""
-        return self._dataset_variant
-
-    @Identifier.setter
-    def Identifier(self, value):
-        """Set the *Identifier*.
+    def Identifier(self) -> Optional[BytesIO]:
+        """Get or set the *Identifier* as :class:`io.BytesIO`.
 
         Parameters
         ----------
         io.BytesIO
             The value to use for the *Identifier* parameter.
         """
+        return self._dataset_variant
+
+    @Identifier.setter
+    def Identifier(self, value):
+        """Set the *Identifier*."""
         self._dataset_variant = (value, 'Identifier')
 
     @property
-    def Priority(self):
-        """Return the *Priority* as :class:`int`."""
-        return self._Priority
-
-    @Priority.setter
-    def Priority(self, value):
-        """Set the *Priority*.
+    def Priority(self) -> Optional[int]:
+        """Get or set the *Priority* as :class:`int`.
 
         Parameters
         ----------
         int
-            The value to use for the *Priority* parameter.
+            The value to use for the *Priority* parameter. It shall be one
+            of the following:
+
+            * 0: Medium
+            * 1: High
+            * 2: Low (Default)
         """
+        return self._Priority
+
+    @Priority.setter
+    def Priority(self, value):
+        """Set the *Priority*."""
         self._Priority = value
 
 
@@ -825,35 +811,8 @@ class C_GET(DIMSEPrimitive):
         For the request/indication this specifies the SOP Class
         for storage. If included in the response/confirmation, it shall be
         equal to the value in the request/indication
-    Priority : int
-        The priority of the C-STORE operation. It shall be one of the
-        following:
-
-        * 0: Medium
-        * 1: High
-        * 2: Low (Default)
-    Identifier : io.BytesIO
-        A DICOM dataset of attributes to be matched against the values of the
-        attributes in the instances of the composite objects known to the
-        performing DIMSE service-user.
     Status : int
         The error or success notification of the operation.
-    NumberOfRemainingSuboperations : int
-        The number of remaining C-STORE sub-operations to be invoked
-        by this C-GET operation. It may be included in any response and shall
-        be included if the status is Pending
-    NumberOfCompletedSuboperations : int
-        The number of C-STORE sub-operations that have completed
-        successfully. It may be included in any response and shall be included
-        if the status is Pending
-    NumberOfFailedSuboperations : int
-        The number of C-STORE sub-operations that have failed. It may
-        be included in any response and shall be included if the status is
-        Pending
-    NumberOfWarningSuboperations : int
-        The number of C-STORE operations that generated Warning
-        responses. It may be included in any response and shall be included if
-        the status is Pending
     OffendingElement : list of int or None
         An optional status related field containing a list of the
         elements in which an error was detected.
@@ -897,79 +856,60 @@ class C_GET(DIMSEPrimitive):
         # self.NumberOfWarningSuboperations
 
     @property
-    def Identifier(self):
-        """Return the *Identifier* as :class:`io.BytesIO`."""
-        return self._dataset_variant
-
-    @Identifier.setter
-    def Identifier(self, value):
-        """Set the *Identifier*.
+    def Identifier(self) -> Optional[BytesIO]:
+        """Get or set the *Identifier* as :class:`io.BytesIO`.
 
         Parameters
         ----------
         io.BytesIO
             The value to use for the *Identifier* parameter.
         """
+        return self._dataset_variant
+
+    @Identifier.setter
+    def Identifier(self, value: Optional[BytesIO]) -> None:
+        """Set the *Identifier*."""
         self._dataset_variant = (value, 'Identifier')
 
     @property
-    def NumberOfCompletedSuboperations(self):
-        """Return the *Number of Completed Suboperations* as :class:`int`."""
+    def NumberOfCompletedSuboperations(self) -> Optional[int]:
+        """Get or set the *Number of Completed Suboperations* as :class:`int`.
+        """
         return self._NumberOfCompletedSuboperations
 
     @NumberOfCompletedSuboperations.setter
-    def NumberOfCompletedSuboperations(self, value):
-        """Set the *Number of Completed Suboperations*.
-
-        Parameters
-        ----------
-        int
-            The value to use for the *Number of Completed Suboperations*
-            parameter.
-        """
+    def NumberOfCompletedSuboperations(self, value: Optional[int]) -> None:
+        """Set the *Number of Completed Suboperations*."""
         self._NumberOfCompletedSuboperations = value
 
     @property
-    def NumberOfFailedSuboperations(self):
-        """Return the *Number of Failed Suboperations* as :class:`int`."""
+    def NumberOfFailedSuboperations(self) -> Optional[int]:
+        """Get or set the *Number of Failed Suboperations* as :class:`int`."""
         return self._NumberOfFailedSuboperations
 
     @NumberOfFailedSuboperations.setter
-    def NumberOfFailedSuboperations(self, value):
-        """Set the *Number of Failed Suboperations*.
-
-        Parameters
-        ----------
-        int
-            The value to use for the *Number of Failed Suboperations*
-            parameter.
-        """
+    def NumberOfFailedSuboperations(self, value: Optional[int]) -> None:
+        """Set the *Number of Failed Suboperations*."""
         self._NumberOfFailedSuboperations = value
 
     @property
-    def NumberOfRemainingSuboperations(self):
-        """Return the *Number of Remaining Suboperations* as :class:`int`."""
+    def NumberOfRemainingSuboperations(self) -> Optional[int]:
+        """Get or set the *Number of Remaining Suboperations* as :class:`int`.
+        """
         return self._NumberOfRemainingSuboperations
 
     @NumberOfRemainingSuboperations.setter
-    def NumberOfRemainingSuboperations(self, value):
-        """Set the *Number of Remaining Suboperations*.
-
-        Parameters
-        ----------
-        int
-            The value to use for the *Number of Remaining Suboperations*
-            parameter.
-        """
+    def NumberOfRemainingSuboperations(self, value: Optional[int]) -> None:
+        """Set the *Number of Remaining Suboperations*."""
         self._NumberOfRemainingSuboperations = value
 
     @property
-    def NumberOfWarningSuboperations(self):
-        """Return the *Number of Warning Suboperations* as :class:`int`."""
+    def NumberOfWarningSuboperations(self) -> Optional[int]:
+        """Get or set the *Number of Warning Suboperations* as :class:`int`."""
         return self._NumberOfWarningSuboperations
 
     @NumberOfWarningSuboperations.setter
-    def NumberOfWarningSuboperations(self, value):
+    def NumberOfWarningSuboperations(self, value: Optional[int]) -> None:
         """Set the *Number of Warning Suboperations*.
 
         Parameters
@@ -981,19 +921,24 @@ class C_GET(DIMSEPrimitive):
         self._NumberOfWarningSuboperations = value
 
     @property
-    def Priority(self):
-        """Return the *Priority* as :class:`int`."""
-        return self._Priority
-
-    @Priority.setter
-    def Priority(self, value):
-        """Set the *Priority*.
+    def Priority(self) -> Optional[int]:
+        """Get or set the *Priority* as :class:`int`.
 
         Parameters
         ----------
         int
-            The value to use for the *Priority* parameter.
+            The value to use for the *Priority* parameter. It shall be one
+            of the following:
+
+            * 0: Medium
+            * 1: High
+            * 2: Low (Default)
         """
+        return self._Priority
+
+    @Priority.setter
+    def Priority(self, value: Optional[int]) -> None:
+        """Set the *Priority*."""
         self._Priority = value
 
 
@@ -1052,38 +997,8 @@ class C_MOVE(DIMSEPrimitive):
         For the request/indication this specifies the SOP Class
         for storage. If included in the response/confirmation, it shall be
         equal to the value in the request/indication
-    Priority : int
-        The priority of the C-STORE operation. It shall be one of the
-        following:
-
-        * 0: Medium
-        * 1: High
-        * 2: Low (Default)
-    MoveDestination : bytes or str
-        Specifies the DICOM AE Title of the destination DICOM AE to
-        which the C-STORE sub-operations are being performed.
-    Identifier : io.BytesIO
-        A DICOM dataset of attributes to be matched against the values of the
-        attributes in the instances of the composite objects known to the
-        performing DIMSE service-user.
     Status : int
         The error or success notification of the operation.
-    NumberOfRemainingSuboperations : int
-        The number of remaining C-STORE sub-operations to be invoked
-        by this C-MOVE operation. It may be included in any response and shall
-        be included if the status is Pending
-    NumberOfCompletedSuboperations : int
-        The number of C-STORE sub-operations that have completed
-        successfully. It may be included in any response and shall be included
-        if the status is Pending
-    NumberOfFailedSuboperations : int
-        The number of C-STORE sub-operations that have failed. It may
-        be included in any response and shall be included if the status is
-        Pending
-    NumberOfWarningSuboperations : int
-        The number of C-STORE operations that generated Warning
-        responses. It may be included in any response and shall be included if
-        the status is Pending
     OffendingElement : list of int or None
         An optional status related field containing a list of the
         elements in which an error was detected.
@@ -1127,36 +1042,36 @@ class C_MOVE(DIMSEPrimitive):
         self.ErrorComment = None
 
     @property
-    def Identifier(self):
-        """Return the *Identifier* as :class:`io.BytesIO`."""
-        return self._dataset_variant
-
-    @Identifier.setter
-    def Identifier(self, value):
-        """Set the *Identifier*.
+    def Identifier(self) -> Optional[BytesIO]:
+        """Get or set the *Identifier* as :class:`io.BytesIO`.
 
         Parameters
         ----------
         io.BytesIO
             The value to use for the *Identifier* parameter.
         """
+        return self._dataset_variant
+
+    @Identifier.setter
+    def Identifier(self, value):
+        """Set the *Identifier*."""
         self._dataset_variant = (value, 'Identifier')
 
     @property
-    def MoveDestination(self):
-        """Return the *Move Destination* as bytes."""
-        return self._move_destination
-
-    @MoveDestination.setter
-    def MoveDestination(self, value):
-        """Set the *Move Destination*.
+    def MoveDestination(self) -> Optional[bytes]:
+        """Get or set the *Move Destination* as :class:`bytes`.
 
         Parameters
         ----------
         bytes or str
             The value to use for the *Move Destination* parameter. Cannot
-            be an empty string and will be truncated to 16 characters long
+            be an empty string and will be truncated to 16 characters long.
         """
+        return self._move_destination
+
+    @MoveDestination.setter
+    def MoveDestination(self, value):
+        """Set the *Move Destination*."""
         if isinstance(value, str):
             value = codecs.encode(value, 'ascii')
 
@@ -1168,87 +1083,67 @@ class C_MOVE(DIMSEPrimitive):
             self._move_destination = None
 
     @property
-    def NumberOfCompletedSuboperations(self):
-        """Return the *Number of Completed Suboperations* as :class:`int`."""
+    def NumberOfCompletedSuboperations(self) -> Optional[int]:
+        """Get or set the *Number of Completed Suboperations* as :class:`int`.
+        """
         return self._NumberOfCompletedSuboperations
 
     @NumberOfCompletedSuboperations.setter
     def NumberOfCompletedSuboperations(self, value):
-        """Set the *Number of Completed Suboperations*.
-
-        Parameters
-        ----------
-        int
-            The value to use for the *Number of Completed Suboperations*
-            parameter.
-        """
+        """Set the *Number of Completed Suboperations*."""
         self._NumberOfCompletedSuboperations = value
 
     @property
-    def NumberOfFailedSuboperations(self):
-        """Return the *Number of Failed Suboperations* as :class:`int`."""
+    def NumberOfFailedSuboperations(self) -> Optional[int]:
+        """Get or set the *Number of Failed Suboperations* as :class:`int`."""
         return self._NumberOfFailedSuboperations
 
     @NumberOfFailedSuboperations.setter
     def NumberOfFailedSuboperations(self, value):
-        """Set the *Number of Failed Suboperations*.
-
-        Parameters
-        ----------
-        int
-            The value to use for the *Number of Failed Suboperations*
-            parameter.
-        """
+        """Set the *Number of Failed Suboperations*."""
         self._NumberOfFailedSuboperations = value
 
     @property
-    def NumberOfRemainingSuboperations(self):
-        """Return the *Number of Remaining Suboperations* as :class:`int`."""
+    def NumberOfRemainingSuboperations(self) -> Optional[int]:
+        """Get or set the *Number of Remaining Suboperations* as :class:`int`.
+        """
         return self._NumberOfRemainingSuboperations
 
     @NumberOfRemainingSuboperations.setter
     def NumberOfRemainingSuboperations(self, value):
-        """Set the *Number of Remaining Suboperations*.
-
-        Parameters
-        ----------
-        int
-            The value to use for the *Number of Remaining Suboperations*
-            parameter.
-        """
+        """Set the *Number of Remaining Suboperations*."""
         self._NumberOfRemainingSuboperations = value
 
     @property
-    def NumberOfWarningSuboperations(self):
-        """Return the *Number of Warning Suboperations* as :class:`int`."""
+    def NumberOfWarningSuboperations(self) -> Optional[int]:
+        """Get or set the *Number of Warning Suboperations* as :class:`int`.
+        """
         return self._NumberOfWarningSuboperations
 
     @NumberOfWarningSuboperations.setter
     def NumberOfWarningSuboperations(self, value):
-        """Set the *Number of Warning Suboperations*.
+        """Set the *Number of Warning Suboperations*."""
+        self._NumberOfWarningSuboperations = value
+
+    @property
+    def Priority(self) -> Optional[int]:
+        """Get or set the *Priority* as :class:`int`.
 
         Parameters
         ----------
         int
-            The value to use for the *Number of Warning Suboperations*
-            parameter.
-        """
-        self._NumberOfWarningSuboperations = value
+            The value to use for the *Priority* parameter. It shall be one
+            of the following:
 
-    @property
-    def Priority(self):
-        """Return the *Priority* as :class:`int`."""
+            * 0: Medium
+            * 1: High
+            * 2: Low (Default)
+        """
         return self._Priority
 
     @Priority.setter
     def Priority(self, value):
-        """Set the *Priority*.
-
-        Parameters
-        ----------
-        int
-            The value to use for the *Priority* parameter.
-        """
+        """Set the *Priority*."""
         self._Priority = value
 
 
@@ -1315,7 +1210,7 @@ class C_ECHO(DIMSEPrimitive):
         self.ErrorComment = None
 
 
-class C_CANCEL(object):
+class C_CANCEL:
     """Represents a C-CANCEL primitive.
 
     +-------------------------------+---------+
@@ -1331,12 +1226,6 @@ class C_CANCEL(object):
     | MF - Mandatory with a fixed value
     | U - The use of this parameter is a DIMSE service user option
     | UF - User option with a fixed value
-
-    Attributes
-    ----------
-    MessageIDBeingRespondedTo : int
-        The Message ID of the operation request/indication to which this
-        response/confirmation applies.
 
     References
     ----------
@@ -1354,18 +1243,18 @@ class C_CANCEL(object):
 
     @property
     def MessageIDBeingRespondedTo(self):
-        """Return the *Message ID Being Responded To* as an :class:`int`."""
-        return self._message_id_being_responded_to
-
-    @MessageIDBeingRespondedTo.setter
-    def MessageIDBeingRespondedTo(self, value):
-        """Set the *Message ID Being Responded To*.
+        """Get or set the *Message ID Being Responded To* as an :class:`int`.
 
         Parameters
         ----------
         int
             The value to use for the *Message ID Being Responded To* parameter.
         """
+        return self._message_id_being_responded_to
+
+    @MessageIDBeingRespondedTo.setter
+    def MessageIDBeingRespondedTo(self, value):
+        """Set the *Message ID Being Responded To*."""
         if isinstance(value, int):
             if 0 <= value < 2**16:
                 self._message_id_being_responded_to = value
@@ -1424,20 +1313,6 @@ class N_EVENT_REPORT(DIMSEPrimitive):
         For the request/indication this specifies the SOP Class for
         storage. If included in the response/confirmation, it shall be equal
         to the value in the request/indication
-    AffectedSOPInstanceUID : pydicom.uid.UID, bytes or str
-        For the request/indication this specifies the SOP Instance
-        for storage. If included in the response/confirmation, it shall be
-        equal to the value in the request/indication
-    EventTypeID : int
-        The type of event being reported, depends on the Service Class
-        specification. Shall be included if Event Reply is included.
-    EventInformation : io.BytesIO
-        Contains information the invoking DIMSE user is able to supply about
-        the event. An encoded DICOM dataset containing additional Service
-        Class specific information related to the operation.
-    EventReply : io.BytesIO
-        Contains the optional reply to the event report. An encoded DICOM
-        dataset containing additional Service Class specific information.
     Status : int
         The error or success notification of the operation.
     """
@@ -1466,8 +1341,9 @@ class N_EVENT_REPORT(DIMSEPrimitive):
         self.ErrorID = None
 
     @property
-    def AffectedSOPInstanceUID(self):
-        """Return the *Affected SOP Instance UID* as :class:`~pydicom.uid.UID`.
+    def AffectedSOPInstanceUID(self) -> Optional[UID]:
+        """Get or set the *Affected SOP Instance UID* as
+        :class:`~pydicom.uid.UID`.
         """
         return self._AffectedSOPInstanceUID
 
@@ -1483,8 +1359,8 @@ class N_EVENT_REPORT(DIMSEPrimitive):
         self._AffectedSOPInstanceUID = value
 
     @property
-    def EventInformation(self):
-        """Return the *Event Information* as :class:`io.BytesIO`."""
+    def EventInformation(self) -> Optional[BytesIO]:
+        """Get or set the *Event Information* as :class:`io.BytesIO`."""
         return self._dataset_variant
 
     @EventInformation.setter
@@ -1499,8 +1375,8 @@ class N_EVENT_REPORT(DIMSEPrimitive):
         self._dataset_variant = (value, 'EventInformation')
 
     @property
-    def EventReply(self):
-        """Return the *Event Reply* as :class:`io.BytesIO`."""
+    def EventReply(self) -> Optional[BytesIO]:
+        """Get or set the *Event Reply* as :class:`io.BytesIO`."""
         return self._dataset_variant
 
     @EventReply.setter
@@ -1515,8 +1391,8 @@ class N_EVENT_REPORT(DIMSEPrimitive):
         self._dataset_variant = (value, 'EventReply')
 
     @property
-    def EventTypeID(self):
-        """Return the *Event Type ID* as :class:`int`."""
+    def EventTypeID(self) -> Optional[int]:
+        """Get or set the *Event Type ID* as :class:`int`."""
         return self._event_type_id
 
     @EventTypeID.setter
@@ -1577,22 +1453,9 @@ class N_GET(DIMSEPrimitive):
     MessageIDBeingRespondedTo : int
         The Message ID of the operation request/indication to which this
         response/confirmation applies.
-    RequestedSOPClassUID : pydicom.uid.UID, bytes or str
-        The UID of the SOP Class for which attribute values are to be
-        retrieved.
-    RequestedSOPInstanceUID : pydicom.uid.UID, bytes or str
-        The SOP Instance for which attribute values are to be retrieved.
-    AttributeIdentifierList : list of pydicom.tag.Tag
-        A list of attribute tags to be sent to the peer.
     AffectedSOPClassUID : pydicom.uid.UID, bytes or str
         The SOP Class UID of the SOP Instance for which the attributes were
         retrieved.
-    AffectedSOPInstanceUID : pydicom.uid.UID, bytes or str
-        The SOP Instance UID of the SOP Instance for which the attributes were
-        retrieved.
-    AttributeList : pydicom.dataset.Dataset
-        A DICOM dataset containing elements matching those supplied in
-        Attribute Identifier List.
     Status : int
         The error or success notification of the operation.
     """
@@ -1619,8 +1482,9 @@ class N_GET(DIMSEPrimitive):
         self.ErrorID = None
 
     @property
-    def AffectedSOPInstanceUID(self):
-        """Return the *Affected SOP Instance UID* as :class:`~pydicom.uid.UID`.
+    def AffectedSOPInstanceUID(self) -> Optional[UID]:
+        """Get or set the *Affected SOP Instance UID* as
+        :class:`~pydicom.uid.UID`.
         """
         return self._AffectedSOPInstanceUID
 
@@ -1636,16 +1500,9 @@ class N_GET(DIMSEPrimitive):
         self._AffectedSOPInstanceUID = value
 
     @property
-    def AttributeIdentifierList(self):
-        """Return the *Attribute Identifier List* as a :class:`list` of
+    def AttributeIdentifierList(self) -> Optional[List[BaseTag]]:
+        """Get or set the *Attribute Identifier List* as a :class:`list` of
         :class:`~pydicom.tag.BaseTag`.
-
-        """
-        return self._attribute_identifier_list
-
-    @AttributeIdentifierList.setter
-    def AttributeIdentifierList(self, value):
-        """Set the *Attribute Identifier List*.
 
         Parameters
         ----------
@@ -1654,6 +1511,11 @@ class N_GET(DIMSEPrimitive):
             A list of pydicom :class:`pydicom.tag.BaseTag` instances or any
             values acceptable for creating them.
         """
+        return self._attribute_identifier_list
+
+    @AttributeIdentifierList.setter
+    def AttributeIdentifierList(self, value):
+        """Set the *Attribute Identifier List*."""
         if value is None:
             self._attribute_identifier_list = None
             return
@@ -1676,54 +1538,53 @@ class N_GET(DIMSEPrimitive):
             )
 
     @property
-    def AttributeList(self):
-        """Return the *Attribute List* as :class:`io.BytesIO`."""
-        return self._dataset_variant
-
-    @AttributeList.setter
-    def AttributeList(self, value):
-        """Set the *Attribute List*.
+    def AttributeList(self) -> Optional[BytesIO]:
+        """Get or set the *Attribute List* as :class:`io.BytesIO`.
 
         Parameters
         ----------
         io.BytesIO
             The value to use for the *Attribute List* parameter.
         """
+        return self._dataset_variant
+
+    @AttributeList.setter
+    def AttributeList(self, value):
+        """Set the *Attribute List*."""
         self._dataset_variant = (value, 'AttributeList')
 
     @property
-    def RequestedSOPClassUID(self):
-        """Return the *Requested SOP Class UID* as :class:`~pydicom.uid.UID`.
-        """
-        return self._RequestedSOPClassUID
-
-    @RequestedSOPClassUID.setter
-    def RequestedSOPClassUID(self, value):
-        """Set the *Requested SOP Class UID*.
+    def RequestedSOPClassUID(self) -> Optional[UID]:
+        """Get or set the *Requested SOP Class UID* as
+        :class:`~pydicom.uid.UID`.
 
         Parameters
         ----------
         pydicom.uid.UID, bytes or str
             The value to use for the *Requested SOP Class UID* parameter.
         """
+        return self._RequestedSOPClassUID
+
+    @RequestedSOPClassUID.setter
+    def RequestedSOPClassUID(self, value):
+        """Set the *Requested SOP Class UID*."""
         self._RequestedSOPClassUID = value
 
     @property
-    def RequestedSOPInstanceUID(self):
-        """Return the *Requested SOP Instance UID* as
+    def RequestedSOPInstanceUID(self) -> Optional[UID]:
+        """Get or set the *Requested SOP Instance UID* as
         :class:`~pydicom.uid.UID`.
-        """
-        return self._RequestedSOPInstanceUID
-
-    @RequestedSOPInstanceUID.setter
-    def RequestedSOPInstanceUID(self, value):
-        """Set the *Requested SOP Instance UID*.
 
         Parameters
         ----------
         pydicom.uid.UID, bytes or str
             The value to use for the *Requested SOP Instance UID* parameter.
         """
+        return self._RequestedSOPInstanceUID
+
+    @RequestedSOPInstanceUID.setter
+    def RequestedSOPInstanceUID(self, value):
+        """Set the *Requested SOP Instance UID*."""
         self._RequestedSOPInstanceUID = value
 
 
@@ -1770,21 +1631,8 @@ class N_SET(DIMSEPrimitive):
     MessageIDBeingRespondedTo : int
         The Message ID of the operation request/indication to which this
         response/confirmation applies.
-    RequestedSOPClassUID : pydicom.uid.UID, bytes or str
-        The UID of the SOP Class for which attribute values are to be
-        modified.
-    RequestedSOPInstanceUID : pydicom.uid.UID, bytes or str
-        The SOP Instance for which attribute values are to be modified.
-    ModificationList : io.BytesIO
-        A DICOM dataset containing the attributes and values that are to be
-        used to modify the SOP Instance.
-    AttributeList : io.BytesIO
-        A DICOM dataset containing the attributes and values that were used to
-        modify the SOP Instance.
     AffectedSOPClassUID : pydicom.uid.UID, bytes or str
         The SOP Class UID of the modified SOP Instance.
-    AffectedSOPInstanceUID : pydicom.uid.UID, bytes or str
-        The SOP Instance UID of the modified SOP Instance.
     Status : int
         The error or success notification of the operation.
     """
@@ -1813,87 +1661,85 @@ class N_SET(DIMSEPrimitive):
         self.AttributeIdentifierList = None
 
     @property
-    def AffectedSOPInstanceUID(self):
-        """Return the *Affected SOP Instance UID* as :class:`~pydicom.uid.UID`.
-        """
-        return self._AffectedSOPInstanceUID
-
-    @AffectedSOPInstanceUID.setter
-    def AffectedSOPInstanceUID(self, value):
-        """Set the *Affected SOP Instance UID*.
+    def AffectedSOPInstanceUID(self) -> Optional[UID]:
+        """Get or set the *Affected SOP Instance UID* as
+        :class:`~pydicom.uid.UID`.
 
         Parameters
         ----------
         value : pydicom.uid.UID, bytes or str
             The value to use for the *Affected SOP Class UID* parameter.
         """
+        return self._AffectedSOPInstanceUID
+
+    @AffectedSOPInstanceUID.setter
+    def AffectedSOPInstanceUID(self, value):
+        """Set the *Affected SOP Instance UID*."""
         self._AffectedSOPInstanceUID = value
 
     @property
-    def AttributeList(self):
-        """Return the *Attribute List* as :class:`io.BytesIO`."""
-        return self._dataset_variant
-
-    @AttributeList.setter
-    def AttributeList(self, value):
-        """Set the *Attribute List*.
+    def AttributeList(self) -> Optional[BytesIO]:
+        """Return the *Attribute List* as :class:`io.BytesIO`.
 
         Parameters
         ----------
         io.BytesIO
             The value to use for the *Attribute List* parameter.
         """
+        return self._dataset_variant
+
+    @AttributeList.setter
+    def AttributeList(self, value):
+        """Set the *Attribute List*."""
         self._dataset_variant = (value, 'AttributeList')
 
     @property
-    def ModificationList(self):
-        """Return the *Modification List* as :class:`io.BytesIO`."""
-        return self._dataset_variant
-
-    @ModificationList.setter
-    def ModificationList(self, value):
-        """Set the *Modification List*.
+    def ModificationList(self) -> Optional[BytesIO]:
+        """Return the *Modification List* as :class:`io.BytesIO`.
 
         Parameters
         ----------
         io.BytesIO
             The value to use for the *Modification List* parameter.
         """
+        return self._dataset_variant
+
+    @ModificationList.setter
+    def ModificationList(self, value):
+        """Set the *Modification List*."""
         self._dataset_variant = (value, 'ModificationList')
 
     @property
-    def RequestedSOPClassUID(self):
+    def RequestedSOPClassUID(self) -> Optional[UID]:
         """Return the *Requested SOP Class UID* as :class:`~pydicom.uid.UID`.
-        """
-        return self._RequestedSOPClassUID
-
-    @RequestedSOPClassUID.setter
-    def RequestedSOPClassUID(self, value):
-        """Set the *Requested SOP Class UID*.
 
         Parameters
         ----------
         pydicom.uid.UID, bytes or str
             The value to use for the *Requested SOP Class UID* parameter.
         """
+        return self._RequestedSOPClassUID
+
+    @RequestedSOPClassUID.setter
+    def RequestedSOPClassUID(self, value):
+        """Set the *Requested SOP Class UID*."""
         self._RequestedSOPClassUID = value
 
     @property
-    def RequestedSOPInstanceUID(self):
+    def RequestedSOPInstanceUID(self) -> Optional[UID]:
         """Return the *Requested SOP Instance UID* as
         :class:`~pydicom.uid.UID`.
-        """
-        return self._RequestedSOPInstanceUID
-
-    @RequestedSOPInstanceUID.setter
-    def RequestedSOPInstanceUID(self, value):
-        """Set the *Requested SOP Instance UID*.
 
         Parameters
         ----------
         pydicom.uid.UID, bytes or str
             The value to use for the *Requested SOP Instance UID* parameter.
         """
+        return self._RequestedSOPInstanceUID
+
+    @RequestedSOPInstanceUID.setter
+    def RequestedSOPInstanceUID(self, value):
+        """Set the *Requested SOP Instance UID*."""
         self._RequestedSOPInstanceUID = value
 
 
@@ -1942,24 +1788,10 @@ class N_ACTION(DIMSEPrimitive):
     MessageIDBeingRespondedTo : int
         The Message ID of the operation request/indication to which this
         response/confirmation applies.
-    RequestedSOPClassUID : pydicom.uid.UID, bytes or str
-        The SOP Class for which the action is to be performed.
-    RequestedSOPInstanceUID : pydicom.uid.UID, bytes or str
-        The SOP Instance for which the action is to be performed.
-    ActionTypeID : int
-        The type of action that is to be performed.
-    ActionInformation : io.BytesIO
-        Extra information required to perform the action.
     AffectedSOPClassUID : pydicom.uid.UID, bytes or str
         For the request/indication this specifies the SOP Class for
         storage. If included in the response/confirmation, it shall be equal
         to the value in the request/indication
-    AffectedSOPInstanceUID : pydicom.uid.UID, bytes or str
-        For the request/indication this specifies the SOP Instance for
-        storage. If included in the response/confirmation, it shall be equal
-        to the value in the request/indication
-    ActionReply : io.BytesIO
-        The reply to the action.
     Status : int
         The error or success notification of the operation.
     """
@@ -1988,106 +1820,103 @@ class N_ACTION(DIMSEPrimitive):
         self.ErrorID = None
 
     @property
-    def ActionInformation(self):
-        """Return the *Action Information* as :class:`io.BytesIO`."""
-        return self._dataset_variant
-
-    @ActionInformation.setter
-    def ActionInformation(self, value):
-        """Set the *Action Information*.
+    def ActionInformation(self) -> Optional[BytesIO]:
+        """Return the *Action Information* as :class:`io.BytesIO`.
 
         Parameters
         ----------
         io.BytesIO
             The value to use for the *Action Information* parameter.
         """
+        return self._dataset_variant
+
+    @ActionInformation.setter
+    def ActionInformation(self, value):
+        """Set the *Action Information*."""
         self._dataset_variant = (value, 'ActionInformation')
 
     @property
-    def ActionReply(self):
-        """Return the *Action Reply* as :class:`io.BytesIO`."""
-        return self._dataset_variant
-
-    @ActionReply.setter
-    def ActionReply(self, value):
-        """Set the *Action Reply*.
+    def ActionReply(self) -> Optional[BytesIO]:
+        """Return the *Action Reply* as :class:`io.BytesIO`.
 
         Parameters
         ----------
         io.BytesIO
             The value to use for the *Action Reply* parameter.
         """
+        return self._dataset_variant
+
+    @ActionReply.setter
+    def ActionReply(self, value):
+        """Set the *Action Reply*."""
         self._dataset_variant = (value, 'ActionReply')
 
     @property
-    def ActionTypeID(self):
-        """Return the *Action Type ID* as :class:`int`."""
-        return self._action_type_id
-
-    @ActionTypeID.setter
-    def ActionTypeID(self, value):
-        """Set the *Action Type ID*.
+    def ActionTypeID(self) -> Optional[int]:
+        """Return the *Action Type ID* as :class:`int`.
 
         Parameters
         ----------
         int
             The value to use for the *Action Type ID* parameter.
         """
+        return self._action_type_id
+
+    @ActionTypeID.setter
+    def ActionTypeID(self, value):
+        """Set the *Action Type ID*."""
         if isinstance(value, int) or value is None:
             self._action_type_id = value
         else:
             raise TypeError("'N_ACTION.ActionTypeID' must be an int.")
 
     @property
-    def AffectedSOPInstanceUID(self):
+    def AffectedSOPInstanceUID(self) -> Optional[UID]:
         """Return the *Affected SOP Instance UID* as :class:`~pydicom.uid.UID`.
-        """
-        return self._AffectedSOPInstanceUID
-
-    @AffectedSOPInstanceUID.setter
-    def AffectedSOPInstanceUID(self, value):
-        """Set the *Affected SOP Instance UID*.
 
         Parameters
         ----------
         value : pydicom.uid.UID, bytes or str
             The value to use for the *Affected SOP Class UID* parameter.
         """
+        return self._AffectedSOPInstanceUID
+
+    @AffectedSOPInstanceUID.setter
+    def AffectedSOPInstanceUID(self, value):
+        """Set the *Affected SOP Instance UID*."""
         self._AffectedSOPInstanceUID = value
 
     @property
-    def RequestedSOPClassUID(self):
+    def RequestedSOPClassUID(self) -> Optional[UID]:
         """Return the *Requested SOP Class UID* as :class:`~pydicom.uid.UID`.
-        """
-        return self._RequestedSOPClassUID
-
-    @RequestedSOPClassUID.setter
-    def RequestedSOPClassUID(self, value):
-        """Set the *Requested SOP Class UID*.
 
         Parameters
         ----------
         pydicom.uid.UID, bytes or str
             The value to use for the *Requested SOP Class UID* parameter.
         """
+        return self._RequestedSOPClassUID
+
+    @RequestedSOPClassUID.setter
+    def RequestedSOPClassUID(self, value):
+        """Set the *Requested SOP Class UID*."""
         self._RequestedSOPClassUID = value
 
     @property
-    def RequestedSOPInstanceUID(self):
+    def RequestedSOPInstanceUID(self) -> Optional[UID]:
         """Return the *Requested SOP Instance UID* as
         :class:`~pydicom.uid.UID`.
-        """
-        return self._RequestedSOPInstanceUID
-
-    @RequestedSOPInstanceUID.setter
-    def RequestedSOPInstanceUID(self, value):
-        """Set the *Requested SOP Instance UID*.
 
         Parameters
         ----------
         pydicom.uid.UID, bytes or str
             The value to use for the *Requested SOP Instance UID* parameter.
         """
+        return self._RequestedSOPInstanceUID
+
+    @RequestedSOPInstanceUID.setter
+    def RequestedSOPInstanceUID(self, value):
+        """Set the *Requested SOP Instance UID*."""
         self._RequestedSOPInstanceUID = value
 
 
@@ -2132,13 +1961,6 @@ class N_CREATE(DIMSEPrimitive):
         For the request/indication this specifies the SOP Class for
         storage. If included in the response/confirmation, it shall be equal
         to the value in the request/indication
-    AffectedSOPInstanceUID : pydicom.uid.UID, bytes or str
-        For the request/indication this specifies the SOP Instance for
-        storage. If included in the response/confirmation, it shall be equal
-        to the value in the request/indication
-    AttributeList : io.BytesIO
-        A set of attributes and values that are to be assigned to the new
-        SOP Instance.
     Status : int
         The error or success notification of the operation. It shall be
         one of the following values:
@@ -2159,36 +1981,35 @@ class N_CREATE(DIMSEPrimitive):
         self.ErrorID = None
 
     @property
-    def AffectedSOPInstanceUID(self):
+    def AffectedSOPInstanceUID(self) -> Optional[UID]:
         """Return the *Affected SOP Instance UID* as :class:`~pydicom.uid.UID`.
-        """
-        return self._AffectedSOPInstanceUID
-
-    @AffectedSOPInstanceUID.setter
-    def AffectedSOPInstanceUID(self, value):
-        """Set the *Affected SOP Instance UID*.
 
         Parameters
         ----------
         value : pydicom.uid.UID, bytes or str
             The value to use for the *Affected SOP Class UID* parameter.
         """
+        return self._AffectedSOPInstanceUID
+
+    @AffectedSOPInstanceUID.setter
+    def AffectedSOPInstanceUID(self, value):
+        """Set the *Affected SOP Instance UID*."""
         self._AffectedSOPInstanceUID = value
 
     @property
-    def AttributeList(self):
-        """Return the *Attribute List* as :class:`io.BytesIO`."""
-        return self._dataset_variant
-
-    @AttributeList.setter
-    def AttributeList(self, value):
-        """Set the *Attribute List*.
+    def AttributeList(self) -> Optional[BytesIO]:
+        """Return the *Attribute List* as :class:`io.BytesIO`.
 
         Parameters
         ----------
         io.BytesIO
             The value to use for the *Attribute List* parameter.
         """
+        return self._dataset_variant
+
+    @AttributeList.setter
+    def AttributeList(self, value):
+        """Set the *Attribute List*."""
         self._dataset_variant = (value, 'AttributeList')
 
 
@@ -2231,16 +2052,8 @@ class N_DELETE(DIMSEPrimitive):
     MessageIDBeingRespondedTo : int
         The Message ID of the operation request/indication to which this
         response/confirmation applies.
-    RequestedSOPClassUID : pydicom.uid.UID, bytes or str
-        The UID of the SOP Class to be deleted.
-    RequestedSOPInstanceUID : pydicom.uid.UID, bytes or str
-        The SOP Instance to be deleted.
     AffectedSOPClassUID : pydicom.uid.UID, bytes or str
         For the request/indication this specifies the SOP Class for
-        storage. If included in the response/confirmation, it shall be equal
-        to the value in the request/indication
-    AffectedSOPInstanceUID : pydicom.uid.UID, bytes or str
-        For the request/indication this specifies the SOP Instance for
         storage. If included in the response/confirmation, it shall be equal
         to the value in the request/indication
     Status : int
@@ -2265,53 +2078,50 @@ class N_DELETE(DIMSEPrimitive):
         self.ErrorID = None
 
     @property
-    def AffectedSOPInstanceUID(self):
+    def AffectedSOPInstanceUID(self) -> Optional[UID]:
         """Return the *Affected SOP Instance UID* as :class:`~pydicom.uid.UID`.
-        """
-        return self._AffectedSOPInstanceUID
-
-    @AffectedSOPInstanceUID.setter
-    def AffectedSOPInstanceUID(self, value):
-        """Set the *Affected SOP Instance UID*.
 
         Parameters
         ----------
         value : pydicom.uid.UID, bytes or str
             The value to use for the *Affected SOP Class UID* parameter.
         """
+        return self._AffectedSOPInstanceUID
+
+    @AffectedSOPInstanceUID.setter
+    def AffectedSOPInstanceUID(self, value):
+        """Set the *Affected SOP Instance UID*."""
         self._AffectedSOPInstanceUID = value
 
     @property
-    def RequestedSOPClassUID(self):
+    def RequestedSOPClassUID(self) -> Optional[UID]:
         """Return the *Requested SOP Class UID* as :class:`~pydicom.uid.UID`.
-        """
-        return self._RequestedSOPClassUID
-
-    @RequestedSOPClassUID.setter
-    def RequestedSOPClassUID(self, value):
-        """Set the *Requested SOP Class UID*.
 
         Parameters
         ----------
         pydicom.uid.UID, bytes or str
             The value to use for the *Requested SOP Class UID* parameter.
         """
+        return self._RequestedSOPClassUID
+
+    @RequestedSOPClassUID.setter
+    def RequestedSOPClassUID(self, value):
+        """Set the *Requested SOP Class UID*."""
         self._RequestedSOPClassUID = value
 
     @property
-    def RequestedSOPInstanceUID(self):
+    def RequestedSOPInstanceUID(self) -> Optional[UID]:
         """Return the *Requested SOP Instance UID* as
         :class:`~pydicom.uid.UID`.
-        """
-        return self._RequestedSOPInstanceUID
-
-    @RequestedSOPInstanceUID.setter
-    def RequestedSOPInstanceUID(self, value):
-        """Set the *Requested SOP Instance UID*.
 
         Parameters
         ----------
         pydicom.uid.UID, bytes or str
             The value to use for the *Requested SOP Instance UID* parameter.
         """
+        return self._RequestedSOPInstanceUID
+
+    @RequestedSOPInstanceUID.setter
+    def RequestedSOPInstanceUID(self, value):
+        """Set the *Requested SOP Instance UID*."""
         self._RequestedSOPInstanceUID = value

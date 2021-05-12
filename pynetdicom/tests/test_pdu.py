@@ -46,7 +46,7 @@ LOGGER = logging.getLogger('pynetdicom')
 LOGGER.setLevel(logging.CRITICAL)
 
 
-class TestPDU(object):
+class TestPDU:
     """Test the PDU equality/inequality operators."""
     def test_decode_raises(self):
         """Test the PDU.decode method raises NotImplementedError."""
@@ -202,7 +202,7 @@ class TestPDU(object):
         assert out == 1
 
 
-class TestASSOC_RQ(object):
+class TestASSOC_RQ:
     """Test the A_ASSOCIATE_RQ class."""
     def test_init(self):
         pdu = A_ASSOCIATE_RQ()
@@ -361,7 +361,7 @@ class TestASSOC_RQ(object):
         assert new_pdu.encode() == a_associate_rq
 
 
-class TestASSOC_RQ_ApplicationContext(object):
+class TestASSOC_RQ_ApplicationContext:
     def test_decode(self):
         """Check decoding assoc_rq produces the correct application context."""
         pdu = A_ASSOCIATE_RQ()
@@ -376,7 +376,7 @@ class TestASSOC_RQ_ApplicationContext(object):
         assert isinstance(app_context.application_context_name, UID)
 
 
-class TestASSOC_RQ_PresentationContext(object):
+class TestASSOC_RQ_PresentationContext:
     def test_decode(self):
         """Check decoding assoc_rq produces the correct presentation context."""
         pdu = A_ASSOCIATE_RQ()
@@ -417,7 +417,7 @@ class TestASSOC_RQ_PresentationContext(object):
         assert syntax == UID('1.2.840.10008.1.2')
 
 
-class TestASSOC_RQ_PresentationContext_AbstractSyntax(object):
+class TestASSOC_RQ_PresentationContext_AbstractSyntax:
     def test_decode(self):
         """Check decoding assoc_rq produces the correct abstract syntax."""
         pdu = A_ASSOCIATE_RQ()
@@ -434,7 +434,7 @@ class TestASSOC_RQ_PresentationContext_AbstractSyntax(object):
         assert isinstance(abstract_syntax.abstract_syntax_name, UID)
 
 
-class TestASSOC_RQ_PresentationContext_TransferSyntax(object):
+class TestASSOC_RQ_PresentationContext_TransferSyntax:
     def test_decode(self):
         """ Check decoding an assoc_rq produces the correct transfer syntax """
         pdu = A_ASSOCIATE_RQ()
@@ -455,7 +455,7 @@ class TestASSOC_RQ_PresentationContext_TransferSyntax(object):
         assert syntax, UID('1.2.840.10008.1.2')
 
 
-class TestASSOC_RQ_UserInformation(object):
+class TestASSOC_RQ_UserInformation:
     def test_decode(self):
         """Check decoding an assoc_rq produces the correct user information."""
         pdu = A_ASSOCIATE_RQ()
@@ -513,7 +513,7 @@ class TestASSOC_RQ_UserInformation(object):
         assert user_info.user_identity is None
 
 
-class TestASSOC_AC(object):
+class TestASSOC_AC:
     def test_init(self):
         """Test a new A_ASSOCIATE_AC PDU."""
         pdu = A_ASSOCIATE_AC()
@@ -679,7 +679,7 @@ class TestASSOC_AC(object):
         assert cx.context_id == 1
 
 
-class TestASSOC_AC_ApplicationContext(object):
+class TestASSOC_AC_ApplicationContext:
     def test_decode(self):
         """Check decoding produces the correct application context."""
         pdu = A_ASSOCIATE_AC()
@@ -693,7 +693,7 @@ class TestASSOC_AC_ApplicationContext(object):
         assert isinstance(app_context.application_context_name, UID)
 
 
-class TestASSOC_AC_PresentationContext(object):
+class TestASSOC_AC_PresentationContext:
     def test_decode(self):
         """Check decoding produces the correct presentation context."""
         pdu = A_ASSOCIATE_AC()
@@ -734,7 +734,7 @@ class TestASSOC_AC_PresentationContext(object):
         assert context.result_str == 'Accepted'
 
 
-class TestASSOC_AC_PresentationContext_TransferSyntax(object):
+class TestASSOC_AC_PresentationContext_TransferSyntax:
     def test_decode(self):
         """ Check decoding an assoc_ac produces the correct transfer syntax """
         pdu = A_ASSOCIATE_AC()
@@ -746,7 +746,7 @@ class TestASSOC_AC_PresentationContext_TransferSyntax(object):
         assert syntax == UID('1.2.840.10008.1.2')
 
 
-class TestASSOC_AC_UserInformation(object):
+class TestASSOC_AC_UserInformation:
     def test_decode(self):
         """ Check decoding an assoc_rq produces the correct user information """
         pdu = A_ASSOCIATE_AC()
@@ -804,7 +804,7 @@ class TestASSOC_AC_UserInformation(object):
         assert user_info.user_identity is None
 
 
-class TestASSOC_RJ(object):
+class TestASSOC_RJ:
     def test_init(self):
         """Test a new A_ASSOCIATE_RJ PDU."""
         pdu = A_ASSOCIATE_RJ()
@@ -985,7 +985,7 @@ class TestASSOC_RJ(object):
             pdu.reason_str
 
 
-class TestP_DATA_TF(object):
+class TestP_DATA_TF:
     def test_init(self):
         """Test a new P_DATA_TF"""
         pdu = P_DATA_TF()
@@ -1106,7 +1106,7 @@ class TestP_DATA_TF(object):
         assert out[1].presentation_data_value == b'\x03\x01\x02\x03'
 
 
-class TestRELEASE_RQ(object):
+class TestRELEASE_RQ:
     def test_init(self):
         """Test a new A_RELEASE_RQ PDU"""
         pdu = A_RELEASE_RQ()
@@ -1160,7 +1160,7 @@ class TestRELEASE_RQ(object):
         assert new_pdu == orig_pdu
 
 
-class TestRELEASE_RP(object):
+class TestRELEASE_RP:
     def test_init(self):
         """Test a new A_RELEASE_RQ PDU"""
         pdu = A_RELEASE_RP()
@@ -1214,7 +1214,7 @@ class TestRELEASE_RP(object):
         assert new_pdu == orig_pdu
 
 
-class TestABORT(object):
+class TestABORT:
     def test_init(self):
         """Test a new A_ABORT_RQ PDU"""
         pdu = A_ABORT_RQ()
@@ -1349,7 +1349,7 @@ class TestABORT(object):
         assert pdu.reason_str == "Invalid PDU parameter value"
 
 
-class TestEventHandlingAcceptor(object):
+class TestEventHandlingAcceptor:
     """Test the transport events and handling as acceptor."""
     def setup(self):
         self.ae = None
@@ -1672,7 +1672,7 @@ class TestEventHandlingAcceptor(object):
             assert "Exception description" in caplog.text
 
 
-class TestEventHandlingRequestor(object):
+class TestEventHandlingRequestor:
     """Test the transport events and handling as requestor."""
     def setup(self):
         self.ae = None

@@ -12,7 +12,7 @@ LOGGER = logging.getLogger('pynetdicom')
 LOGGER.setLevel(logging.CRITICAL)
 
 
-class TestTimer(object):
+class TestTimer:
     """Test the Timer class."""
     def test_init(self):
         """Test Timer initialisation"""

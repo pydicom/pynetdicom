@@ -50,7 +50,7 @@ def _send_datasets():
     subprocess.Popen(pargs)
 
 
-class FindSCPBase(object):
+class FindSCPBase:
     """Tests for qrscp.py"""
     def setup(self):
         """Run prior to each test"""

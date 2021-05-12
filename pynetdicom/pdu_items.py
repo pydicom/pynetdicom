@@ -66,7 +66,7 @@ PACK_UINT2 = UINT2.pack
 PACK_UINT4 = UINT4.pack
 
 
-class PDUItem(object):
+class PDUItem:
     """Base class for PDU Items and Sub-items.
 
     See Also
@@ -347,16 +347,6 @@ class ApplicationContextItem(PDUItem):
     elements, related options and any other information necessary for the
     inter-working of Application Entities on an association.
 
-    Attributes
-    ----------
-    application_context_name : pydicom.uid.UID
-        The *Application Context Name* field value.
-    item_length : int
-        The number of bytes from the first byte following the *Item Length*
-        field to the last byte of the Item.
-    item_type : int
-        The *Item Type* field value (``0x10``).
-
     Notes
     -----
     An Application Context Item requires the following parameters:
@@ -508,24 +498,6 @@ class PresentationContextItemRQ(PDUItem):
     Presentation Contexts (RQ) Items are used by the association requestor to
     propose Abstract Syntaxes (specifications of data elements with associated
     semantics) and Transfer Syntaxes (sets of encoding rules).
-
-    Attributes
-    ----------
-    abstract_syntax : pydicom.uid.UID or None.
-        The Presentation Context Item's Abstract Syntax (if available).
-    abstract_transfer_syntax_sub_items : list of AbstractSyntaxSubItem and TransferSyntaxSubItem
-        The *Abstract/Transfer Syntax Sub-Items* field value. The order of the
-        items is not guaranteed.
-    item_length : int
-        The number of bytes from the first byte following the *Item Length*
-        field to the last byte of the Item.
-    item_type : int
-        The *Item Type* field value (``0x20``).
-    presentation_context_id : int or None
-        The *Presentation Context ID* field value, an odd integer between 1 and
-        255.
-    transfer_syntax : list of pydicom.uid.UID
-        The Presentation Context Item's Transfer Syntax(es) (if available).
 
     Notes
     -----
@@ -753,23 +725,6 @@ class PresentationContextItemAC(PDUItem):
     Presentation Contexts (AC) Items are used by the association acceptor to
     signal which Abstract Syntaxes and Transfer Syntaxes have been accepted or
     rejected.
-
-    Attributes
-    ----------
-    item_length : int
-        The number of bytes from the first byte following the *Item Length*
-        field to the last byte of the Item.
-    item_type : int
-        The *Item Type* field value (``0x21``).
-    presentation_context_id : int or None
-        The *Presentation Context ID* field value, an odd integer between 1 and
-        255.
-    result_reason : int
-        The Presentation Context's *Result/reason* field value.
-    transfer_syntax : list of pydicom.uid.UID
-        The Presentation Context Item's Transfer Syntax (if available).
-    transfer_syntax_sub_item : list of pynetdicom.uid.UID
-        The Presentation Context Items' *Transfer Syntax Sub-item* field value.
 
     Notes
     -----
@@ -1000,34 +955,6 @@ class UserInformationItem(PDUItem):
 
     Used by the association requestor and acceptor to include user information
     in the association negotiation.
-
-    Attributes
-    ----------
-    async_ops_window : pdu_items.AsynchronousOperationsWindowSubItem or None
-        The *Asynchronous Operations Window Sub-item* or ``None`` if not
-        present.
-    common_ext_neg : list of pdu_items.SOPClassCommonExtendedNegotiationSubItem
-        The *SOP Class Common Extended Negotiation Sub-item(s)*.
-    ext_neg : list of pdu_items.SOPClassExtendedNegotiationSubItem
-        The *SOP Class Extended Negotiation Sub-item(s)*.
-    implementation_class_uid : pydicom.uid.UID or None
-        The implementation class UID from the *Implementation Class UID
-        Sub-item*, or ``None`` if not present.
-    implementation_version_name : bytes or None
-        The implementation version name for the *Implementation Version Name
-        Sub-item*, or ``None`` if not present.
-    item_length : int
-        The number of bytes from the first byte following the *Item Length*
-        field to the last byte of the Item.
-    item_type : int
-        The *Item Type* field value (``0x50``).
-    maximum_length : int or None
-        The maximum length received value for the *Maximum Length Sub-item*, or
-        ``None`` if not present.
-    role_selection : list of pdu_items.SCP_SCU_RoleSelectionSubItem
-        The *SCP/SCU Role Selection Sub-item(s)*.
-    user_identity : pdu_items.UserIdentitySubItemRQ or pdu_items.UserIdentitySubItemAC or None
-        The *User Identity Sub-item* (RQ or AC), or ``None`` if not present.
 
     Notes
     -----
@@ -1283,16 +1210,6 @@ class AbstractSyntaxSubItem(PDUItem):
     negotiate an agreed set of DICOM Data Elements and/or Information Object
     Class definitions.
 
-    Attributes
-    ----------
-    abstract_syntax_name : pydicom.uid.UID or None
-        The *Abstract Syntax Name* field value.
-    item_length : int
-        The number of bytes from the first byte following the *Item Length*
-        field to the last byte of the Item.
-    item_type : int
-        The *Item Type* field value (``0x30``).
-
     Notes
     -----
     An Abstract Syntax Sub-item requires the following parameters:
@@ -1455,16 +1372,6 @@ class TransferSyntaxSubItem(PDUItem):
     In particular, it allows communicating Application Entities to agree on the
     encoding techniques they are able to support (e.g. byte ordering,
     compression, etc).
-
-    Attributes
-    ----------
-    item_length : int
-        The number of bytes from the first byte following the *Item Length*
-        field to the last byte of the Item.
-    item_type : int
-        The *Item Type* field value (``0x40``).
-    transfer_syntax : pydicom.uid.UID or None
-        The *Transfer Syntax Name* field value.
 
     Notes
     -----
@@ -1633,16 +1540,6 @@ class MaximumLengthSubItem(PDUItem):
     The Maximum Length Sub-item allows the receivers to limit the size of the
     Presentation Data Values List parameters of each P-DATA PDU.
 
-    Attributes
-    ----------
-    item_length : int
-        The number of bytes from the first byte following the *Item Length*
-        field to the last byte of the Item.
-    item_type : int
-        The *Item Type* field value (``0x51``).
-    maximum_length_received : int
-        The *Maximum Length Received* field value.
-
     Notes
     -----
     A Maximum Length Sub-item requires the following parameters:
@@ -1773,16 +1670,6 @@ class ImplementationClassUIDSubItem(PDUItem):
 
     The Implementation Class UID Sub-item allows communicating Application
     Entities to identify each other at Association establishment.
-
-    Attributes
-    ----------
-    implementation_class_uid : pydicom.uid.UID or None
-        The *Implementation Class UID* field value.
-    item_length : int
-        The number of bytes from the first byte following the *Item Length*
-        field to the last byte of the Item.
-    item_type : int
-        The *Item Type* field value (``0x52``).
 
     Notes
     -----
@@ -1949,16 +1836,6 @@ class ImplementationVersionNameSubItem(PDUItem):
     The Implementation Version Name Sub-item allows communicating Application
     Entities to identify each other at Association establishment.
 
-    Attributes
-    ----------
-    implementation_version_name : bytes or None
-        The *Implementation Version Name* field value, 1 to 16 characters.
-    item_length : int
-        The number of bytes from the first byte following the *Item Length*
-        field to the last byte of the Item.
-    item_type : int
-        The *Item Type* field value (``0x55``).
-
     Notes
     -----
     The Implementation Class UID Sub Item requires the following parameters:
@@ -2113,18 +1990,6 @@ class AsynchronousOperationsWindowSubItem(PDUItem):
 
     Represents the Asynchronous Operations Window Sub Item used in
     A-ASSOCIATE-RQ and A-ASSOCIATE-AC PDUs.
-
-    Attributes
-    ----------
-    item_length : int
-        The number of bytes from the first byte following the *Item Length*
-        field to the last byte of the Item.
-    item_type : int
-        The *Item Type* field value (``0x53``).
-    maximum_number_operations_invoked : int or None
-        The 'Maximum Number Operations Invoked' field value.
-    maximum_number_operations_performed : int or None
-        The *Maximum Number Operations Performed* field value.
 
     Notes
     -----
@@ -2298,22 +2163,6 @@ class SCP_SCU_RoleSelectionSubItem(PDUItem):
     An SCU/SCU Role Selection Sub-item allows communicating Application
     Entities to negotiate the roles in which they will server for each SOP
     Class or Meta SOP Class supported on the association.
-
-    Attributes
-    ----------
-    item_length : int
-        The number of bytes from the first byte following the *Item Length*
-        field to the last byte of the Item.
-    item_type : int
-        The *Item Type* field value (``0x54``).
-    scu_role : int or None
-        The *SCU Role* field value, 0 or 1 or None.
-    scp_role : int or None
-        The *SCP Role* field value, 0 or 1 or None.
-    sop_class_uid : pydicom.uid.UID or None
-        The *SOP Class UID* field value.
-    uid_length : int
-        The *UID Length* field value.
 
     Notes
     -----
@@ -2578,20 +2427,6 @@ class SOPClassExtendedNegotiationSubItem(PDUItem):
     to exchange application information defined by specific Service Class
     specifications.
 
-    Attributes
-    ----------
-    item_length : int
-        The number of bytes from the first byte following the *Item Length*
-        field to the last byte of the Item.
-    item_type : int
-        The *Item Type* field value (``0x56``).
-    service_class_application_information : bytes
-        The *Service Class Application Information* field value.
-    sop_class_uid : uid
-        The *SOP Class UID* field value.
-    sop_class_uid_length : int
-        The *SOP Class UID Length* field value.
-
     Notes
     -----
     A SOP Class Extended Negotiation Sub-item requires the following
@@ -2816,29 +2651,6 @@ class SOPClassCommonExtendedNegotiationSubItem(PDUItem):
     A SOP Class Common Extended Negotiation Sub-item allows Application
     Entities to exchange application information in a generic non-Service
     class specific form.
-
-    Attributes
-    ----------
-    item_length : int
-        The number of bytes from the first byte following the *Item Length*
-        field to the last byte of the Item.
-    item_type : int
-        The *Item Type* field value (``0x57``).
-    sub_item_version : int
-        The *Sub Item Version* field value.
-    sop_class_uid_length : int
-        The *SOP Class UID Length* field value.
-    sop_class_uid : pydicom.uid.UID
-        The *SOP Class UID* field value.
-    service_class_uid_length : int
-        The *Service Class UID Length* field value.
-    service_class_uid : pydicom.uid.UID
-        The *Service Class UID* field value.
-    related_general_sop_class_identification_length : int
-        The *Related General SOP Class Identification Length* field value.
-    related_general_sop_class_identification : list of pydicom.uid.UID
-        The UIDs in the *Related General SOP Class UID Identification* field
-        value.
 
     Notes
     -----
@@ -3277,26 +3089,6 @@ class UserIdentitySubItemRQ(PDUItem):
     A User Identity (RQ) Sub-item is used to notify the association acceptor of
     the user identity of the requestor.
 
-    Attributes
-    ----------
-    item_length : int
-        The number of bytes from the first byte following the *Item Length*
-        field to the last byte of the Item.
-    item_type : int
-        The *Item Type* field value (``0x58``).
-    positive_response_requested : int
-        The *Positive Response Requested* field value.
-    primary_field : bytes
-        The *Primary Field* field value.
-    primary_field_length : int
-        The *Primary Field Length* field value.
-    secondary_field : bytes
-        The *Secondary Field* field value.
-    secondary_field_length : int
-        The *Secondary Field Length* field value.
-    user_identity_type : {1, 2, 3, 4}
-        The *User Identity Type* field value.
-
     Notes
     -----
     A User Identity (RQ) Sub-item requires the following parameters:
@@ -3560,18 +3352,6 @@ class UserIdentitySubItemAC(PDUItem):
     A User Identity (AC) Sub-item is used to response with the server identity
     to the association requestor.
 
-    Attributes
-    ----------
-    item_length : int
-        The number of bytes from the first byte following the *Item Length*
-        field to the last byte of the Item.
-    item_type : int
-        The *Item Type* field value (``0x59``).
-    server_response_length : int
-        The *Server Response Length* field value.
-    server_response : bytes
-        The *Server Response* field value.
-
     Notes
     -----
     A User Identity (RQ) Sub-item requires the following parameters:
@@ -3719,15 +3499,6 @@ class PresentationDataValueItem(PDUItem):
     Presentation Data Value (PDV) Items are used to contain DIMSE Messages
     that have been fragmented into Command and Data fragments, with each
     fragment placed into its own PDV Item.
-
-    Attributes
-    ----------
-    item_length : int
-        The *Item Length* field value.
-    presentation_context_id : int
-        The *Presentation Context ID* field value.
-    presentation_data_value : bytes
-        The *Presentation Data Value* field value.
 
     Notes
     -----

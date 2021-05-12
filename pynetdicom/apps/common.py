@@ -72,7 +72,7 @@ def create_dataset(args, logger=None):
     return ds
 
 
-class ElementPath(object):
+class ElementPath:
     """Class for parsing DICOM data elements defined using a string path.
 
     **Path Format**

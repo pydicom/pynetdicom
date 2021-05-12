@@ -8,6 +8,7 @@ import inspect
 from io import BytesIO
 import logging
 import sys
+from typing import Union, Callable, Any, Optional, Tuple, List
 
 from pydicom.dataset import Dataset
 from pydicom.filereader import dcmread
@@ -18,6 +19,12 @@ from pynetdicom.dsutils import decode, create_file_meta
 
 LOGGER = logging.getLogger('pynetdicom.events')
 
+
+EventType = Union["NotificationEvent", "InterventionEvent"]
+EventHandlerType = Union[
+    Tuple[EventType, Callable],
+    Tuple[EventType, Callable, List[Any]]
+]
 
 # Notification events
 #   No returns/yields needed, can have multiple handlers per event
@@ -233,7 +240,7 @@ def trigger(assoc, event, attrs=None):
         LOGGER.exception(exc)
 
 
-class Event(object):
+class Event:
     """Representation of an event.
 
     .. versionadded:: 1.3
@@ -251,9 +258,6 @@ class Event(object):
     ----------
     assoc : association.Association
         The association in which the event occurred.
-    event : events.InterventionEvent or events.NotificationEvent
-        A :func:`namedtuple<collections.namedtuple>` instance representing the
-        event that occurred.
     timestamp : datetime.datetime
         The date/time the event was created. Will be slightly before or after
         the actual event that this object represents.

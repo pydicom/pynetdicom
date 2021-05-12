@@ -16,7 +16,7 @@ TEST_DS_DIR = os.path.join(os.path.dirname(__file__), '../tests', 'dicom_files')
 DATASET = dcmread(os.path.join(TEST_DS_DIR, 'CTImageStorage.dcm'))
 
 
-class TestDecodeMessage(object):
+class TestDecodeMessage:
     def setup(self):
         """Run prior to each test"""
         primitive = C_STORE()
@@ -38,7 +38,7 @@ class TestDecodeMessage(object):
             for fragment in self.fragments:
                 msg.decode_msg(fragment)
 
-class TestEncodeMessage(object):
+class TestEncodeMessage:
     def setup(self):
         primitive = C_STORE()
         primitive.MessageID = 7

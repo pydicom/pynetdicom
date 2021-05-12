@@ -39,7 +39,7 @@ LOGGER = logging.getLogger('pynetdicom')
 LOGGER.setLevel(logging.CRITICAL)
 
 
-class TestPrimitive_N_EVENT(object):
+class TestPrimitive_N_EVENT:
     """Test DIMSE N-EVENT-REPORT operations."""
     def setup(self):
         self.default_conformance = _config.ENFORCE_UID_CONFORMANCE
@@ -292,7 +292,7 @@ class TestPrimitive_N_EVENT(object):
         assert primitive.is_valid_response
 
 
-class TestPrimitive_N_GET(object):
+class TestPrimitive_N_GET:
     """Test DIMSE N-GET operations."""
     def setup(self):
         self.default_conformance = _config.ENFORCE_UID_CONFORMANCE
@@ -583,7 +583,7 @@ class TestPrimitive_N_GET(object):
         assert primitive.is_valid_response
 
 
-class TestPrimitive_N_SET(object):
+class TestPrimitive_N_SET:
     """Test DIMSE N-SET operations."""
     def setup(self):
         self.default_conformance = _config.ENFORCE_UID_CONFORMANCE
@@ -882,7 +882,7 @@ class TestPrimitive_N_SET(object):
         assert primitive.is_valid_response
 
 
-class TestPrimitive_N_ACTION(object):
+class TestPrimitive_N_ACTION:
     """Test DIMSE N-ACTION operations."""
     def setup(self):
         self.default_conformance = _config.ENFORCE_UID_CONFORMANCE
@@ -1187,7 +1187,7 @@ class TestPrimitive_N_ACTION(object):
         assert primitive.is_valid_response
 
 
-class TestPrimitive_N_CREATE(object):
+class TestPrimitive_N_CREATE:
     """Test DIMSE N-CREATE operations."""
     def setup(self):
         self.default_conformance = _config.ENFORCE_UID_CONFORMANCE
@@ -1405,7 +1405,7 @@ class TestPrimitive_N_CREATE(object):
         assert primitive.is_valid_response
 
 
-class TestPrimitive_N_DELETE(object):
+class TestPrimitive_N_DELETE:
     """Test DIMSE N-DELETE operations."""
     def setup(self):
         self.default_conformance = _config.ENFORCE_UID_CONFORMANCE

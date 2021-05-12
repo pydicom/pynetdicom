@@ -14,12 +14,12 @@ from pynetdicom.service_class import (
 )
 
 
-class DummyAssoc(object):
+class DummyAssoc:
     def __init__(self):
         self.dimse = DummyDIMSE()
 
 
-class DummyDIMSE(object):
+class DummyDIMSE:
     def __init__(self):
         self.msg_queue = queue.Queue()
         self.dimse_timeout = 0.5
@@ -38,7 +38,7 @@ class DummyDIMSE(object):
             return (None, None)
 
 
-class TestServiceClass(object):
+class TestServiceClass:
     def test_is_valid_status(self):
         """Test that is_valid_status returns correct values"""
         sop = StorageServiceClass(None)

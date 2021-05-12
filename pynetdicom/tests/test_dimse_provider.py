@@ -45,7 +45,7 @@ from pynetdicom.sop_class import (
 #debug_logger()
 
 
-class DummyAssociation(object):
+class DummyAssociation:
     def __init__(self):
         self.ae = AE()
         self.mode = None
@@ -93,7 +93,7 @@ class DummyAssociation(object):
         return self._handlers[event]
 
 
-class DummyDUL(object):
+class DummyDUL:
     """Dummy DUL class for testing DIMSE provider"""
     def __init__(self):
         self.event_queue = queue.Queue()
@@ -132,7 +132,7 @@ REFERENCE_MSG = [
 ]
 
 
-class TestDIMSEProvider(object):
+class TestDIMSEProvider:
     """Test DIMSE service provider operations."""
     def setup(self):
         """Set up"""
@@ -188,7 +188,7 @@ class TestDIMSEProvider(object):
         assert dimse.assoc.dul.event_queue.get() == 'Evt19'
 
 
-class TestEventHandlingAcceptor(object):
+class TestEventHandlingAcceptor:
     """Test the transport events and handling as acceptor."""
     def setup(self):
         self.ae = None
@@ -550,7 +550,7 @@ class TestEventHandlingAcceptor(object):
             assert "Exception description" in caplog.text
 
 
-class TestEventHandlingRequestor(object):
+class TestEventHandlingRequestor:
     """Test the transport events and handling as requestor."""
     def setup(self):
         self.ae = None
