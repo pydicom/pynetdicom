@@ -318,7 +318,7 @@ issues_github_path = 'pydicom/pynetdicom'
 
 def setup(app):
     #app.connect('autodoc-process-docstring', generate_example_rst)
-    app.add_stylesheet('css/pynetdicom.css')
+    app.add_css_file('css/pynetdicom.css')
 
 # Example configuration for intersphinx: refer to
 # the Python standard library.
