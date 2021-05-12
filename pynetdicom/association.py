@@ -7,10 +7,11 @@ import os
 from pathlib import Path
 import threading
 import time
-from typing import Union, Optional, List, Callable, Any, Dict
+from typing import Union, Optional, List, Callable, Any, Dict, Iterable, Tuple
 
 from pydicom import dcmread
 from pydicom.dataset import Dataset
+from pydicom.tag import BaseTag
 from pydicom.uid import UID
 
 # pylint: disable=no-name-in-module
@@ -202,7 +203,7 @@ class Association(threading.Thread):
         event: evt.EventType,
         handler: Callable,
         args: Optional[List[Any]] = None
-    ):
+    ) -> None:
         """Bind a callable `handler` to an `event`.
 
         .. versionadded:: 1.3
@@ -235,7 +236,7 @@ class Association(threading.Thread):
             if event.is_intervention:
                 self._handlers[event] = (handler, args)
 
-    def _bind_defaults(self):
+    def _bind_defaults(self) -> None:
         """Bind the default event handlers."""
         # Intervention event handlers
         for event in evt._INTERVENTION_EVENTS:
@@ -249,7 +250,7 @@ class Association(threading.Thread):
             self.bind(evt.EVT_PDU_RECV, standard_pdu_recv_handler)
             self.bind(evt.EVT_PDU_SENT, standard_pdu_sent_handler)
 
-    def _check_received_status(self, rsp):
+    def _check_received_status(self, rsp) -> Dataset:
         """Return a :class:`~pydicom.dataset.Dataset` containing status
         related elements.
 
@@ -287,24 +288,24 @@ class Association(threading.Thread):
         return status
 
     @property
-    def dimse_timeout(self):
+    def dimse_timeout(self) -> Union[int, float, None]:
         """The DIMSE timeout (in seconds)."""
         return self._dimse_timeout
 
     @dimse_timeout.setter
-    def dimse_timeout(self, value):
+    def dimse_timeout(self, value: Union[int, float, None]) -> None:
         """Set the DIMSE timeout using numeric or ``None``."""
         with self.lock:
             self._dimse_timeout = value
 
-    def get_events(self):
+    def get_events(self) -> List[evt.EventType]:
         """Return a :class:`list` of currently bound events.
 
         .. versionadded:: 1.3
         """
         return sorted(self._handlers.keys(), key=lambda x: x.name)
 
-    def get_handlers(self, event):
+    def get_handlers(self, event: evt.EventType):
         """Return the handlers bound to a specific `event`.
 
         .. versionadded:: 1.3
@@ -463,7 +464,7 @@ class Association(threading.Thread):
         LOGGER.error(msg)
         raise ValueError(msg)
 
-    def _handle_no_response(self):
+    def _handle_no_response(self) -> None:
         """Common reaction when DIMSE timeout hit or no response message."""
         # Avoids writing the same unit test for each send_ method
         if self.acse.is_aborted('a-abort'):
@@ -509,7 +510,7 @@ class Association(threading.Thread):
         return self.requestor.info
 
     @property
-    def lock(self):
+    def lock(self) -> threading.Lock:
         """Return the AE's :class:`threading.Lock`."""
         return self.ae._lock
 
@@ -543,19 +544,19 @@ class Association(threading.Thread):
         self._mode = mode
 
     @property
-    def network_timeout(self):
+    def network_timeout(self) -> Union[int, float, None]:
         """The network timeout (in seconds)."""
         return self._network_timeout
 
     @network_timeout.setter
-    def network_timeout(self, value):
+    def network_timeout(self, value: Union[int, float, None]) -> None:
         """Set the network timeout using numeric or ``None``."""
         with self.lock:
             self.dul._idle_timer.timeout = value
             self._network_timeout = value
 
     @property
-    def rejected_contexts(self):
+    def rejected_contexts(self) -> List[PresentationContext]:
         """Return a :class:`list` of rejected
         :class:`~pynetdicom.presentation.PresentationContext`.
         """
@@ -575,7 +576,7 @@ class Association(threading.Thread):
             self._reactor_checkpoint.set()
 
     @property
-    def remote(self):
+    def remote(self) -> Dict[str, Any]:
         """Return a :class:`dict` with information about the peer AE."""
         if self.is_acceptor:
             return self.requestor.info
@@ -598,7 +599,7 @@ class Association(threading.Thread):
         LOGGER.info("Requesting Association")
         self.acse.negotiate_association()
 
-    def run_reactor(self):
+    def run_reactor(self) -> None:
         """The main :class:`Association` reactor."""
         # Start the DUL thread if not already started
         if not self._started_dul:
@@ -640,7 +641,7 @@ class Association(threading.Thread):
             if self.is_established:
                 self._run_reactor()
 
-    def _run_reactor(self):
+    def _run_reactor(self) -> None:
         """Run the ``Association`` acceptor reactor loop.
 
         Main acceptor run loop
@@ -715,7 +716,7 @@ class Association(threading.Thread):
                 self.kill()
                 return
 
-    def set_socket(self, socket):
+    def set_socket(self, socket: "AssociationSocket") -> None:
         """Set the `socket` to use for communicating with the peer.
 
         Parameters
@@ -733,7 +734,7 @@ class Association(threading.Thread):
 
         self.dul.socket = socket
 
-    def unbind(self, event, handler):
+    def unbind(self, event: evt.EventType, handler: Callable) -> None:
         """Unbind a callable `handler` from an `event`.
 
         .. versionadded:: 1.3
@@ -768,7 +769,7 @@ class Association(threading.Thread):
                 self._handlers[event] = (evt.get_default_handler(event), None)
 
     # DIMSE-C services provided by the Association
-    def _c_store_scp(self, req):
+    def _c_store_scp(self, req: C_STORE) -> None:
         """A C-STORE SCP implementation.
 
         Handles C-STORE requests from the peer over the same assocation as the
@@ -865,7 +866,7 @@ class Association(threading.Thread):
         # Send C-STORE confirmation back to peer
         self.dimse.send_msg(rsp, context.context_id)
 
-    def send_c_cancel(self, msg_id, context_id):
+    def send_c_cancel(self, msg_id: int, context_id: int) -> None:
         """Send a C-CANCEL request to the peer AE.
 
         Parameters
@@ -893,7 +894,7 @@ class Association(threading.Thread):
         # Send C-CANCEL request
         self.dimse.send_msg(primitive, context_id)
 
-    def send_c_echo(self, msg_id=1):
+    def send_c_echo(self, msg_id: int = 1) -> Dataset:
         """Send a C-ECHO request to the peer AE.
 
         Parameters
@@ -993,7 +994,13 @@ class Association(threading.Thread):
 
         return status
 
-    def send_c_find(self, dataset, query_model, msg_id=1, priority=2):
+    def send_c_find(
+        self,
+        dataset: Dataset,
+        query_model: Union[str, UID],
+        msg_id: int = 1,
+        priority: int = 2
+    ) -> Iterable[Tuple[Dataset, Optional[Dataset]]]:
         """Send a C-FIND request to the peer AE.
 
         Yields (*status*, *identifier*) pairs for each response from the peer.
@@ -1199,7 +1206,13 @@ class Association(threading.Thread):
         #   may end up being sent first unless next() is called
         return self._wrap_find_responses(transfer_syntax)
 
-    def send_c_get(self, dataset, query_model, msg_id=1, priority=2):
+    def send_c_get(
+        self,
+        dataset: Dataset,
+        query_model: Union[str, UID],
+        msg_id: int = 1,
+        priority: int = 2
+    ) -> Iterable[Tuple[Dataset, Optional[Dataset]]]:
         """Send a C-GET request to the peer AE.
 
         Yields (*status*, *identifier*) pairs for each response from the peer.
@@ -1396,8 +1409,14 @@ class Association(threading.Thread):
         #   may end up being sent first unless next() is called
         return self._wrap_get_move_responses(transfer_syntax)
 
-    def send_c_move(self, dataset, move_aet, query_model, msg_id=1,
-                    priority=2):
+    def send_c_move(
+        self,
+        dataset: Dataset,
+        move_aet: bytes,
+        query_model: Union[str, UID],
+        msg_id: int = 1,
+        priority: int = 2
+    ) -> Iterable[Tuple[Dataset, Optional[Dataset]]]:
         """Send a C-MOVE request to the peer AE.
 
         Yields (*status*, *identifier*) pairs for each response from the peer.
@@ -1592,8 +1611,14 @@ class Association(threading.Thread):
         #   may end up being sent first unless next() is called
         return self._wrap_get_move_responses(transfer_syntax)
 
-    def send_c_store(self, dataset, msg_id=1, priority=2, originator_aet=None,
-                     originator_id=None):
+    def send_c_store(
+        self,
+        dataset: Dataset,
+        msg_id: int = 1,
+        priority: int = 2,
+        originator_aet: Optional[bytes] = None,
+        originator_id: Optional[int] = None
+    ) -> Dataset:
         """Send a C-STORE request to the peer AE.
 
         .. versionchanged:: 2.0
@@ -1825,7 +1850,10 @@ class Association(threading.Thread):
 
         return status
 
-    def _wrap_find_responses(self, transfer_syntax):
+    def _wrap_find_responses(
+        self,
+        transfer_syntax: UID
+    ) -> Iterable[Tuple[Dataset, Optional[Dataset]]]:
         """Wrapper for the C-FIND response generator.
 
         Wrapping the response generators allows us to immediately send the
@@ -1940,7 +1968,10 @@ class Association(threading.Thread):
         # Unpause the reactor
         self._reactor_checkpoint.set()
 
-    def _wrap_get_move_responses(self, transfer_syntax):
+    def _wrap_get_move_responses(
+        self,
+        transfer_syntax: UID
+    ) -> Iterable[Tuple[Dataset, Optional[Dataset]]]:
         """Wrapper for the C-GET/C-MOVE response generators.
 
         Wrapping the response generators allows us to immediately send the
@@ -2082,8 +2113,15 @@ class Association(threading.Thread):
         self._reactor_checkpoint.set()
 
     # DIMSE-N services provided by the Association
-    def send_n_action(self, dataset, action_type, class_uid, instance_uid,
-                      msg_id=1, meta_uid=None):
+    def send_n_action(
+        self,
+        dataset: Dataset,
+        action_type: int,
+        class_uid: Union[str, UID],
+        instance_uid: Union[str, UID],
+        msg_id: int = 1,
+        meta_uid: Optional[Union[str, UID]] = None
+    ) -> Tuple[Dataset, Optional[Dataset]]:
         """Send an N-ACTION request to the peer AE.
 
         .. versionchanged:: 1.4
@@ -2288,8 +2326,14 @@ class Association(threading.Thread):
 
         return status, action_reply
 
-    def send_n_create(self, dataset, class_uid, instance_uid=None, msg_id=1,
-                      meta_uid=None):
+    def send_n_create(
+        self,
+        dataset: Dataset,
+        class_uid: Union[str, UID],
+        instance_uid: Optional[Union[str, UID]] = None,
+        msg_id: int = 1,
+        meta_uid: Optional[Union[str, UID]] = None
+    ) -> Tuple[Dataset, Optional[Dataset]]:
         """Send an N-CREATE request to the peer AE.
 
         .. versionchanged:: 1.4
@@ -2527,7 +2571,13 @@ class Association(threading.Thread):
 
         return status, attribute_list
 
-    def send_n_delete(self, class_uid, instance_uid, msg_id=1, meta_uid=None):
+    def send_n_delete(
+        self,
+        class_uid: Union[str, UID],
+        instance_uid: Union[str, UID],
+        msg_id: int = 1,
+        meta_uid: Optional[Union[str, UID]] = None
+    ) -> Dataset:
         """Send an N-DELETE request to the peer AE.
 
         .. versionchanged:: 1.4
@@ -2645,8 +2695,15 @@ class Association(threading.Thread):
 
         return status
 
-    def send_n_event_report(self, dataset, event_type, class_uid,
-                            instance_uid, msg_id=1, meta_uid=None):
+    def send_n_event_report(
+        self,
+        dataset: Dataset,
+        event_type: int,
+        class_uid: Union[str, UID],
+        instance_uid: Union[str, UID],
+        msg_id: int = 1,
+        meta_uid: Optional[Union[str, UID]] = None
+    ) -> Tuple[Dataset, Optional[Dataset]]:
         """Send an N-EVENT-REPORT request to the peer AE.
 
         .. versionchanged:: 1.4
@@ -2853,8 +2910,14 @@ class Association(threading.Thread):
 
         return status, event_reply
 
-    def send_n_get(self, identifier_list, class_uid, instance_uid, msg_id=1,
-                   meta_uid=None):
+    def send_n_get(
+        self,
+        identifier_list: List[BaseTag],
+        class_uid: Union[str, UID],
+        instance_uid: Union[str, UID],
+        msg_id: int = 1,
+        meta_uid: Optional[Union[str, UID]] = None
+    ) -> Tuple[Dataset, Optional[Dataset]]:
         """Send an N-GET request to the peer AE.
 
         .. versionchanged:: 1.4
@@ -2863,7 +2926,7 @@ class Association(threading.Thread):
 
         Parameters
         ----------
-        identifier_list : list of pydicom.tag.Tag
+        identifier_list : list of pydicom.tag.BaseTag
             A list of DICOM Data Element tags to be sent for the request's
             (0000,1005) *Attribute Identifier List* parameter. Should either be
             a list of *pydicom* :class:`~pydicom.tag.BaseTag` objects or a
@@ -3062,8 +3125,14 @@ class Association(threading.Thread):
 
         return status, attribute_list
 
-    def send_n_set(self, dataset, class_uid, instance_uid, msg_id=1,
-                   meta_uid=None):
+    def send_n_set(
+        self,
+        dataset: Dataset,
+        class_uid: Union[str, UID],
+        instance_uid: Union[str, UID],
+        msg_id: int = 1,
+        meta_uid: Optional[Union[str, UID]] = None
+    ) -> Tuple[Dataset, Optional[Dataset]]:
         """Send an N-SET request to the peer AE.
 
         .. versionchanged:: 1.4
@@ -3312,7 +3381,7 @@ class Association(threading.Thread):
 
         return status, attribute_list
 
-    def _serve_request(self, msg, context_id):
+    def _serve_request(self, msg, context_id: int) -> None:
         """Handle a DIMSE service request.
 
         Parameters
