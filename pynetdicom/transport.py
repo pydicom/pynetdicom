@@ -29,15 +29,14 @@ LOGGER = logging.getLogger('pynetdicom.transport')
 
 
 class AssociationSocket:
-    """A wrapper for a :class:`socket<3/library/socket.html#socket-objects>`
-    object.
+    """A wrapper for a `socket
+    <https://docs.python.org/3/library/socket.html#socket-objects>`_ object.
 
     .. versionadded:: 1.2
 
-    Provides an interface for :class:`socket
-    <3/library/socket.html#socket-objects>` that is integrated nicely
-    with an :class:`~pynetdicom.association.Association` instance and the
-    state machine.
+    Provides an interface for ``socket`` that is integrated
+    nicely with an :class:`~pynetdicom.association.Association` instance
+    and the state machine.
 
     Attributes
     ----------
@@ -58,7 +57,7 @@ class AssociationSocket:
             The :class:`~pynetdicom.association.Association` instance that will
             be using the socket to communicate.
         client_socket : socket.socket, optional
-            The :class:`~socket.socket` to wrap,
+            The ``socket.socket`` to wrap,
             if not supplied then a new socket will be created instead.
         address : 2-tuple, optional
             If *client_socket* is ``None`` then this is the ``(host, port)`` to

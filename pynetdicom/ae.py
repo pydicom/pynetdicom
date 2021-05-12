@@ -83,7 +83,7 @@ class ApplicationEntity:
 
         Parameters
         ----------
-        timeout : Union[int, float, None]
+        value : Union[int, float, None]
             The maximum amount of time (in seconds) to wait for association
             related messages. A value of ``None`` means no timeout. (default:
             ``30``)
@@ -112,7 +112,7 @@ class ApplicationEntity:
 
         Returns
         -------
-        list of association.Association
+        list of Association
             A list of all active association threads, both requestors and
             acceptors.
         """
@@ -123,10 +123,8 @@ class ApplicationEntity:
 
     def add_requested_context(
         self,
-        abstract_syntax: Union[str, UID],
-        transfer_syntax: Optional[
-            Union[str, UID, List[Union[str, UID]]]
-        ] = None
+        abstract_syntax: Union[str],
+        transfer_syntax: Optional[Union[str, List[str]]] = None
     ) -> None:
         """Add a :ref:`presentation context<user_presentation>` to be
         proposed when requesting an association.
@@ -250,10 +248,8 @@ class ApplicationEntity:
 
     def add_supported_context(
         self,
-        abstract_syntax: Union[str, UID],
-        transfer_syntax: Optional[
-            Union[str, UID, List[Union[str, UID]]]
-        ] = None,
+        abstract_syntax: Union[str],
+        transfer_syntax: Optional[Union[str, List[str]]] = None,
         scu_role: Optional[bool] = None,
         scp_role: Optional[bool] = None
     ) -> None:
@@ -272,7 +268,7 @@ class ApplicationEntity:
 
         Parameters
         ----------
-        abstract_syntax : str, pydicom.uid.UID or sop_class.SOPClass
+        abstract_syntax : str, pydicom.uid.UID
             The abstract syntax of the presentation context to be supported.
         transfer_syntax :  str/pydicom.uid.UID or list of str/pydicom.uid.UID
             The transfer syntax(es) to support (default: *Implicit VR Little
@@ -597,8 +593,11 @@ class ApplicationEntity:
         value : int, float or None
             The maximum amount of time (in seconds) to wait for a TCP
             connection to be established. A value of ``None`` (default) means
-            no timeout. The value is passed to :meth:`socket.settimeout` and
-            is only used during the connection phase of an association request.
+            no timeout. The value is passed to `socket.settimeout()
+            <https://docs.python.org/3/library/
+            socket.html#socket.socket.settimeout>`_
+            and is only used during the connection phase of an association
+            request.
         """
         return self._connection_timeout
 
@@ -646,19 +645,19 @@ class ApplicationEntity:
             assoc.dimse_timeout = self.dimse_timeout
 
     @property
-    def implementation_class_uid(self) -> str:
-        """The current *Implementation Class UID* as :class:`str`."""
-        return self._implementation_uid
-
-    @implementation_class_uid.setter
-    def implementation_class_uid(self, uid: Union[str, UID]) -> None:
-        """Set the *Implementation Class UID* used in association requests.
+    def implementation_class_uid(self) -> UID:
+        """The *Implementation Class UID* as :class:`~pydicom.uid.UID`.
 
         Parameters
         ----------
         uid : str or pydicom.uid.UID
             The A-ASSOCIATE-RQ's *Implementation Class UID* value.
         """
+        return self._implementation_uid
+
+    @implementation_class_uid.setter
+    def implementation_class_uid(self, uid: str) -> None:
+        """Set the *Implementation Class UID* used in association requests."""
         uid = UID(uid)
         if uid.is_valid:
             # pylint: disable=attribute-defined-outside-init
@@ -666,24 +665,31 @@ class ApplicationEntity:
 
     @property
     def implementation_version_name(self) -> bytes:
-        """The current *Implementation Version Name* as :class:`bytes`."""
-        return self._implementation_version
-
-    @implementation_version_name.setter
-    def implementation_version_name(self, value: bytes) -> None:
-        """Set the *Implementation Version Name* used in association requests.
+        """The *Implementation Version Name* as :class:`bytes`.
 
         Parameters
         ----------
         value : bytes
             The A-ASSOCIATE-RQ's *Implementation Version Name* value.
         """
+        return self._implementation_version
+
+    @implementation_version_name.setter
+    def implementation_version_name(self, value: bytes) -> None:
+        """Set the *Implementation Version Name* used in association requests.
+        """
         # pylint: disable=attribute-defined-outside-init
         self._implementation_version = value
 
-    def make_server(self, address, ae_title=None, contexts=None,
-                    ssl_context=None, evt_handlers=None,
-                    server_class=None, **kwargs):
+    def make_server(self,
+        address,
+        ae_title=None,
+        contexts=None,
+        ssl_context=None,
+        evt_handlers=None,
+        server_class=None,
+        **kwargs
+    ):
         """Return an association server.
 
         Allows the use of a custom association server class.
@@ -754,7 +760,7 @@ class ApplicationEntity:
         ----------
         value : int
             The maximum number of simultaneous associations requested by remote
-            AEs. Note that this does not include the number of associations
+            AEs. This does not include the number of associations
             requested by the local AE (default ``10``).
         """
         return self._maximum_associations
@@ -1081,24 +1087,8 @@ class ApplicationEntity:
 
     @property
     def requested_contexts(self) -> List[PresentationContext]:
-        """A list of the requested
+        """Set or get a list of the requested
         :class:`~pynetdicom.presentation.PresentationContext` items.
-
-        Returns
-        -------
-        list of presentation.PresentationContext
-            The SCU's requested presentation contexts.
-        """
-        return self._requested_contexts
-
-    @requested_contexts.setter
-    def requested_contexts(self, contexts: List[PresentationContext]) -> None:
-        """Set the requested presentation contexts.
-
-        Parameters
-        ----------
-        contexts : list of presentation.PresentationContext
-            The presentation contexts to request when acting as an SCU.
 
         Examples
         --------
@@ -1126,6 +1116,11 @@ class ApplicationEntity:
         Transfer Syntax(es):
             =Implicit VR Little Endian
 
+        Parameters
+        ----------
+        contexts : list of PresentationContext
+            The presentation contexts to request when acting as an SCU.
+
         Raises
         ------
         ValueError
@@ -1137,6 +1132,11 @@ class ApplicationEntity:
             Add a single presentation context to the requested contexts using
             an abstract syntax and (optionally) a list of transfer syntaxes.
         """
+        return self._requested_contexts
+
+    @requested_contexts.setter
+    def requested_contexts(self, contexts: List[PresentationContext]) -> None:
+        """Set the requested presentation contexts."""
         if not contexts:
             self._requested_contexts = []
             return
@@ -1207,6 +1207,22 @@ class ApplicationEntity:
         self._require_calling_aet = [
             validate_ae_title(aet) for aet in ae_titles
         ]
+
+    def shutdown(self) -> None:
+        """Stop any active association servers and threads.
+
+        .. versionadded:: 1.2
+        """
+        for assoc in self.active_associations:
+            assoc.abort()
+
+        # This is a bit hackish: server.shutdown() deletes the server
+        #   from `_servers` so we need to workaround this
+        original = self._servers[:]
+        for server in original:
+            server.shutdown()
+
+        self._servers = []
 
     def start_server(
         self,
@@ -1314,22 +1330,6 @@ class ApplicationEntity:
 
             return server
 
-    def shutdown(self) -> None:
-        """Stop any active association servers and threads.
-
-        .. versionadded:: 1.2
-        """
-        for assoc in self.active_associations:
-            assoc.abort()
-
-        # This is a bit hackish: server.shutdown() deletes the server
-        #   from `_servers` so we need to workaround this
-        original = self._servers[:]
-        for server in original:
-            server.shutdown()
-
-        self._servers = []
-
     def __str__(self) -> str:
         """ Prints out the attribute values and status for the AE """
         str_out = "\n"
@@ -1385,29 +1385,8 @@ class ApplicationEntity:
 
     @property
     def supported_contexts(self) -> List[PresentationContext]:
-        """A list of the supported
+        """Get or set a list of the supported
         :class:`~pynetdicom.presentation.PresentationContext` items.
-
-        Returns
-        -------
-        list of presentation.PresentationContext
-            The SCP's supported presentation contexts, ordered by abstract
-            syntax.
-        """
-        # The supported presentation contexts are stored internally as a dict
-        return sorted(
-            list(self._supported_contexts.values()),
-            key=lambda cx: cx.abstract_syntax
-        )
-
-    @supported_contexts.setter
-    def supported_contexts(self, contexts: List[PresentationContext]) -> None:
-        """Set the supported presentation contexts using a list.
-
-        Parameters
-        ----------
-        contexts : list of presentation.PresentationContext
-            The presentation contexts to support when acting as an SCP.
 
         Examples
         --------
@@ -1431,12 +1410,26 @@ class ApplicationEntity:
         >>> ae = AE()
         >>> ae.supported_contexts = StoragePresentationContexts
 
+        Parameters
+        ----------
+        contexts : list of presentation.PresentationContext
+            The presentation contexts to support when acting as an SCP.
+
         See Also
         --------
         ApplicationEntity.add_supported_context
             Add a single presentation context to the supported contexts using
             an abstract syntax and optionally a list of transfer syntaxes.
         """
+        # The supported presentation contexts are stored internally as a dict
+        return sorted(
+            list(self._supported_contexts.values()),
+            key=lambda cx: cx.abstract_syntax
+        )
+
+    @supported_contexts.setter
+    def supported_contexts(self, contexts: List[PresentationContext]) -> None:
+        """Set the supported presentation contexts using a list."""
         if not contexts:
             self._supported_contexts = {}
 

@@ -8,7 +8,7 @@ import inspect
 from io import BytesIO
 import logging
 import sys
-from typing import Union, Callable, Any, Optional, Tuple
+from typing import Union, Callable, Any, Optional, Tuple, List
 
 from pydicom.dataset import Dataset
 from pydicom.filereader import dcmread
@@ -23,7 +23,7 @@ LOGGER = logging.getLogger('pynetdicom.events')
 EventType = Union["NotificationEvent", "InterventionEvent"]
 EventHandlerType = Union[
     Tuple[EventType, Callable],
-    Tuple[EventType, Callable, Any]
+    Tuple[EventType, Callable, List[Any]]
 ]
 
 # Notification events
