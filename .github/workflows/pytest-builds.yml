@@ -27,7 +27,7 @@ jobs:
         conda-channels: anaconda, conda-forge
     - name: Install dependencies
       run: |
-        conda install pytest coverage pytest-cov
+        conda install pytest
         conda install -c conda-forge pydicom
     - name: Test with pytest
       env:
@@ -95,6 +95,8 @@ jobs:
 
     steps:
     - uses: actions/checkout@v2
+      with:
+        fetch-depth: 2
     - name: Set up Python ${{ matrix.python-version }}
       uses: actions/setup-python@v2
       with:
@@ -111,11 +113,7 @@ jobs:
         pytest --cov pynetdicom --ignore=pynetdicom/apps
     - name: Send coverage results
       if: ${{ success() }}
-      run: |
-        bash <(curl --connect-timeout 10 --retry 10 --retry-max-time \
-        0 https://codecov.io/bash) || (sleep 30 && bash <(curl \
-        --connect-timeout 10 --retry 10 --retry-max-time \
-        0 https://codecov.io/bash))
+      uses: codecov/codecov-action@v1
 
   pydicom-release:
     # Matrix builds with released pydicom
@@ -128,6 +126,8 @@ jobs:
 
     steps:
     - uses: actions/checkout@v2
+      with:
+        fetch-depth: 2
     - name: Set up Python ${{ matrix.python-version }}
       uses: actions/setup-python@v2
       with:
@@ -143,8 +143,4 @@ jobs:
         pytest --cov pynetdicom --ignore=pynetdicom/apps
     - name: Send coverage results
       if: ${{ success() }}
-      run: |
-        bash <(curl --connect-timeout 10 --retry 10 --retry-max-time \
-        0 https://codecov.io/bash) || (sleep 30 && bash <(curl \
-        --connect-timeout 10 --retry 10 --retry-max-time \
-        0 https://codecov.io/bash))
+      uses: codecov/codecov-action@v1
