@@ -2,7 +2,7 @@
 
 from collections import namedtuple
 import logging
-from typing import Union, Optional, List
+from typing import Union, Optional, List, Any
 
 from pydicom.uid import UID
 
@@ -200,22 +200,23 @@ class PresentationContext:
     """
     def __init__(self) -> None:
         """Create a new object."""
-        self._context_id = None
-        self._abstract_syntax = None
-        self._transfer_syntax = []
-        self.result = None
+        self._context_id: Optional[int] = None
+        self._abstract_syntax: Optional[UID] = None
+        self._transfer_syntax: List[UID] = []
+        self.result: Optional[int] = None
 
         # Used with SCP/SCU Role Selection negotiation
-        self._scu_role = None
-        self._scp_role = None
+        self._scu_role: Optional[bool] = None
+        self._scp_role: Optional[bool] = None
 
         # Used to track the allowed use of the context
-        self._as_scp = None
-        self._as_scu = None
+        self._as_scp: Optional[bool] = None
+        self._as_scu: Optional[bool] = None
 
     @property
-    def abstract_syntax(self) -> UID:
-        """Return the context's *Abstract Syntax* as :class:`~pydicom.uid.UID`.
+    def abstract_syntax(self) -> Optional[UID]:
+        """Get or set the context's *Abstract Syntax* as
+        :class:`~pydicom.uid.UID`.
 
         Parameters
         ----------
@@ -225,7 +226,7 @@ class PresentationContext:
         return self._abstract_syntax
 
     @abstract_syntax.setter
-    def abstract_syntax(self, uid: Union[str, UID]) -> None:
+    def abstract_syntax(self, uid: Union[str, UID, None]) -> None:
         """Set the context's *Abstract Syntax*."""
         if isinstance(uid, bytes):
             uid = UID(uid.decode('ascii'))
@@ -245,7 +246,7 @@ class PresentationContext:
 
         self._abstract_syntax = uid
 
-    def add_transfer_syntax(self, syntax):
+    def add_transfer_syntax(self, syntax: Union[str, bytes, UID]) -> None:
         """Append a transfer syntax to the presentation context.
 
         Parameters
@@ -304,7 +305,7 @@ class PresentationContext:
         return self._as_scu
 
     @property
-    def as_tuple(self):
+    def as_tuple(self) -> PresentationContextTuple:
         """Return a :func:`namedtuple<collections.namedtuple>` representation
         of the presentation context.
 
@@ -340,7 +341,7 @@ class PresentationContext:
 
         self._context_id = value
 
-    def __eq__(self, other) -> bool:
+    def __eq__(self, other: Any) -> bool:
         """Return ``True`` if `self` is equal to `other`."""
         if self is other:
             return True
@@ -360,7 +361,7 @@ class PresentationContext:
             self.as_scu
         ))
 
-    def __ne__(self, other) -> bool:
+    def __ne__(self, other: Any) -> bool:
         """Return ``True`` if `self` does not equal `other`."""
         return not self == other
 
@@ -370,7 +371,7 @@ class PresentationContext:
 
     @property
     def scp_role(self) -> Optional[bool]:
-        """Return ``True`` if a proposed SCP role will be accepted.
+        """Get or set if a proposed SCP role will be accepted.
 
         Parameters
         ----------
@@ -393,7 +394,7 @@ class PresentationContext:
 
     @property
     def scu_role(self) -> Optional[bool]:
-        """Return ``True`` if a proposed SCU role will be accepted.
+        """Get or set if a proposed SCU role will be accepted.
 
         Parameters
         ----------
@@ -475,7 +476,7 @@ class PresentationContext:
 
     @property
     def transfer_syntax(self) -> List[UID]:
-        """Return the context's *Transfer Syntaxes* as a :class:`list`.
+        """Get or set the context's *Transfer Syntaxes* as a :class:`list`.
 
         Returns
         -------
@@ -781,7 +782,7 @@ def build_context(
     transfer_syntax : str/UID or list of str/UID
         The transfer syntax UID(s) to use (default:
         ``[Implicit VR Little Endian, Explicit VR Little Endian,
-        Implicit VR Big Endian]``)
+        Deflated Explicit VR Little Endian, Implicit VR Big Endian]``)
 
     Examples
     --------
@@ -795,6 +796,7 @@ def build_context(
     Transfer Syntax(es):
         =Implicit VR Little Endian
         =Explicit VR Little Endian
+        =Deflated Explicit VR Little Endian
         =Explicit VR Big Endian
 
     Specifying the abstract syntax using a *pynetdicom*
