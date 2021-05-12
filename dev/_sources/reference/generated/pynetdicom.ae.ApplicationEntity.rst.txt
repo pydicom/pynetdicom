@@ -34,6 +34,7 @@
       ~ApplicationEntity.acse_timeout
       ~ApplicationEntity.active_associations
       ~ApplicationEntity.ae_title
+      ~ApplicationEntity.connection_timeout
       ~ApplicationEntity.dimse_timeout
       ~ApplicationEntity.implementation_class_uid
       ~ApplicationEntity.implementation_version_name

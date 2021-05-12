@@ -39,6 +39,8 @@ Enhancements
   if the association is aborted or released (:issue:`592`)
 * Added configuration option :attr:`~pynetdicom._config.PASS_CONTEXTVARS` to
   allow user code to define contextual behavior.
+* Added :attr:`AE.connection_timeout
+  <pynetdicom.ae.ApplicationEntity.connection_timeout>` (:issue:`616`)
 
 Changes
 .......

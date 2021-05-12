@@ -13,6 +13,8 @@
   
   <link rel="stylesheet" href="../_static/css/pynetdicom.css" type="text/css" />
   <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/css/pynetdicom.css" type="text/css" />
   <link rel="stylesheet" href="../_static/copybutton.css" type="text/css" />
   <link rel="stylesheet" href="../_static/css/pynetdicom.css" type="text/css" />
 
@@ -33,6 +35,7 @@
   
     
       <script type="text/javascript" id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+        <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
         <script src="../_static/jquery.js"></script>
         <script src="../_static/underscore.js"></script>
         <script src="../_static/doctools.js"></script>
@@ -484,7 +487,7 @@ doesn’t support the <em>CR Image Storage</em> abstract syntax.</p></li>
 <div class="section" id="implementation-note">
 <h3>Implementation Note<a class="headerlink" href="#implementation-note" title="Permalink to this headline">¶</a></h3>
 <p>When acting as an <em>acceptor</em>, <em>pynetdicom</em> will choose the first matching
-transfer syntax in <a class="reference internal" href="../reference/generated/pynetdicom.presentation.PresentationContext.html#id6" title="pynetdicom.presentation.PresentationContext.transfer_syntax"><code class="xref py py-attr docutils literal notranslate"><span class="pre">PresentationContext.transfer_syntax</span></code></a>.  For example, if
+transfer syntax in <a class="reference internal" href="../reference/generated/pynetdicom.presentation.PresentationContext.html#pynetdicom.presentation.PresentationContext.transfer_syntax" title="pynetdicom.presentation.PresentationContext.transfer_syntax"><code class="xref py py-attr docutils literal notranslate"><span class="pre">PresentationContext.transfer_syntax</span></code></a>.  For example, if
 the <em>requestor</em> proposes the following:</p>
 <blockquote>
 <div><div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">Abstract</span> <span class="n">Syntax</span><span class="p">:</span> <span class="n">Verification</span> <span class="n">SOP</span> <span class="n">Class</span>
@@ -677,7 +680,7 @@ so different implementations may not give the same outcomes.</p>
 
   <div role="contentinfo">
     <p>
-        &#169; Copyright 2018-2020, pynetdicom contributors.
+        &#169; Copyright 2018-2021, pynetdicom contributors.
 
     </p>
   </div>

@@ -13,6 +13,8 @@
   
   <link rel="stylesheet" href="../../_static/css/pynetdicom.css" type="text/css" />
   <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="../../_static/css/pynetdicom.css" type="text/css" />
   <link rel="stylesheet" href="../../_static/copybutton.css" type="text/css" />
   <link rel="stylesheet" href="../../_static/css/pynetdicom.css" type="text/css" />
 
@@ -33,6 +35,7 @@
   
     
       <script type="text/javascript" id="documentation_options" data-url_root="../../" src="../../_static/documentation_options.js"></script>
+        <script data-url_root="../../" id="documentation_options" src="../../_static/documentation_options.js"></script>
         <script src="../../_static/jquery.js"></script>
         <script src="../../_static/underscore.js"></script>
         <script src="../../_static/doctools.js"></script>
@@ -220,8 +223,8 @@
   <div class="section" id="pynetdicom-handlers-doc-handle-data">
 <h1>pynetdicom._handlers.doc_handle_data<a class="headerlink" href="#pynetdicom-handlers-doc-handle-data" title="Permalink to this headline">¶</a></h1>
 <dl class="py function">
-<dt id="pynetdicom._handlers.doc_handle_data">
-<code class="sig-prename descclassname"><span class="pre">pynetdicom._handlers.</span></code><code class="sig-name descname"><span class="pre">doc_handle_data</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">event</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/5b28410cd/pynetdicom/_handlers.py#L4012"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pynetdicom._handlers.doc_handle_data" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="pynetdicom._handlers.doc_handle_data">
+<span class="sig-prename descclassname"><span class="pre">pynetdicom._handlers.</span></span><span class="sig-name descname"><span class="pre">doc_handle_data</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">event</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/151e9cdff/pynetdicom/_handlers.py#L4012"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pynetdicom._handlers.doc_handle_data" title="Permalink to this definition">¶</a></dt>
 <dd><p>Documentation for handlers bound to <code class="docutils literal notranslate"><span class="pre">evt.EVT_DATA_RECV</span></code> or
 <code class="docutils literal notranslate"><span class="pre">evt.EVT_DATA_SENT</span></code>.</p>
 <dl class="field-list simple">
@@ -235,7 +238,7 @@ socket. <a class="reference internal" href="pynetdicom.events.Event.html#pynetdi
 event.</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">data</span></code>: the data sent to/received from the remote, as
 <a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#bytes" title="(in Python v3.9)"><code class="xref py py-class docutils literal notranslate"><span class="pre">bytes</span></code></a>.</p></li>
-<li><p><a class="reference internal" href="pynetdicom.events.Event.html#id0" title="pynetdicom.events.Event.event"><code class="xref py py-attr docutils literal notranslate"><span class="pre">event</span></code></a>: the event that occurred as
+<li><p><a class="reference internal" href="pynetdicom.events.Event.html#pynetdicom.events.Event.event" title="pynetdicom.events.Event.event"><code class="xref py py-attr docutils literal notranslate"><span class="pre">event</span></code></a>: the event that occurred as
 <a class="reference internal" href="pynetdicom.events.NotificationEvent.html#pynetdicom.events.NotificationEvent" title="pynetdicom.events.NotificationEvent"><code class="xref py py-class docutils literal notranslate"><span class="pre">NotificationEvent</span></code></a>.</p></li>
 <li><p><a class="reference internal" href="pynetdicom.events.Event.html#pynetdicom.events.Event.timestamp" title="pynetdicom.events.Event.timestamp"><code class="xref py py-attr docutils literal notranslate"><span class="pre">timestamp</span></code></a>: the date and time
 that the data was sent/received as <a class="reference external" href="https://docs.python.org/3/library/datetime.html#datetime.datetime" title="(in Python v3.9)"><code class="xref py py-class docutils literal notranslate"><span class="pre">datetime.datetime</span></code></a>.</p></li>
@@ -267,7 +270,7 @@ matching the contents of <cite>args</cite>.</p></li>
 
   <div role="contentinfo">
     <p>
-        &#169; Copyright 2018-2020, pynetdicom contributors.
+        &#169; Copyright 2018-2021, pynetdicom contributors.
 
     </p>
   </div>

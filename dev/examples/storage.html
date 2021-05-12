@@ -13,6 +13,8 @@
   
   <link rel="stylesheet" href="../_static/css/pynetdicom.css" type="text/css" />
   <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/css/pynetdicom.css" type="text/css" />
   <link rel="stylesheet" href="../_static/copybutton.css" type="text/css" />
   <link rel="stylesheet" href="../_static/css/pynetdicom.css" type="text/css" />
 
@@ -33,6 +35,7 @@
   
     
       <script type="text/javascript" id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+        <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
         <script src="../_static/jquery.js"></script>
         <script src="../_static/underscore.js"></script>
         <script src="../_static/doctools.js"></script>
@@ -325,9 +328,9 @@ to see the requirements for the <code class="docutils literal notranslate"><span
 </div>
 <p>If you’re optimising for speed you can:</p>
 <ul class="simple">
-<li><p>Increase the <a class="reference internal" href="../reference/generated/pynetdicom.ae.ApplicationEntity.html#id4" title="pynetdicom.ae.ApplicationEntity.maximum_pdu_size"><code class="xref py py-attr docutils literal notranslate"><span class="pre">maximum</span> <span class="pre">PDU</span> <span class="pre">size</span></code></a>: this reduces the number
+<li><p>Increase the <a class="reference internal" href="../reference/generated/pynetdicom.ae.ApplicationEntity.html#pynetdicom.ae.ApplicationEntity.maximum_pdu_size" title="pynetdicom.ae.ApplicationEntity.maximum_pdu_size"><code class="xref py py-attr docutils literal notranslate"><span class="pre">maximum</span> <span class="pre">PDU</span> <span class="pre">size</span></code></a>: this reduces the number
 of DIMSE messages required to transfer the data</p></li>
-<li><p>Write the received dataset’s <a class="reference internal" href="../reference/generated/pynetdicom.dimse_primitives.C_STORE.html#id1" title="pynetdicom.dimse_primitives.C_STORE.DataSet"><code class="xref py py-attr docutils literal notranslate"><span class="pre">raw</span> <span class="pre">bytes</span></code></a> directly to file: this skips
+<li><p>Write the received dataset’s <a class="reference internal" href="../reference/generated/pynetdicom.dimse_primitives.C_STORE.html#pynetdicom.dimse_primitives.C_STORE.DataSet" title="pynetdicom.dimse_primitives.C_STORE.DataSet"><code class="xref py py-attr docutils literal notranslate"><span class="pre">raw</span> <span class="pre">bytes</span></code></a> directly to file: this skips
 the dataset decode/re-encode step</p></li>
 </ul>
 <p>Using both options will result in around a 25% decrease in transfer time for
@@ -420,7 +423,7 @@ interested in.</p>
 
   <div role="contentinfo">
     <p>
-        &#169; Copyright 2018-2020, pynetdicom contributors.
+        &#169; Copyright 2018-2021, pynetdicom contributors.
 
     </p>
   </div>

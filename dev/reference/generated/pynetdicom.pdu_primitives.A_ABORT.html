@@ -13,6 +13,8 @@
   
   <link rel="stylesheet" href="../../_static/css/pynetdicom.css" type="text/css" />
   <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="../../_static/css/pynetdicom.css" type="text/css" />
   <link rel="stylesheet" href="../../_static/copybutton.css" type="text/css" />
   <link rel="stylesheet" href="../../_static/css/pynetdicom.css" type="text/css" />
 
@@ -33,6 +35,7 @@
   
     
       <script type="text/javascript" id="documentation_options" data-url_root="../../" src="../../_static/documentation_options.js"></script>
+        <script data-url_root="../../" id="documentation_options" src="../../_static/documentation_options.js"></script>
         <script src="../../_static/jquery.js"></script>
         <script src="../../_static/underscore.js"></script>
         <script src="../../_static/doctools.js"></script>
@@ -220,8 +223,8 @@
   <div class="section" id="pynetdicom-pdu-primitives-a-abort">
 <h1>pynetdicom.pdu_primitives.A_ABORT<a class="headerlink" href="#pynetdicom-pdu-primitives-a-abort" title="Permalink to this headline">¶</a></h1>
 <dl class="py class">
-<dt id="pynetdicom.pdu_primitives.A_ABORT">
-<em class="property"><span class="pre">class</span> </em><code class="sig-prename descclassname"><span class="pre">pynetdicom.pdu_primitives.</span></code><code class="sig-name descname"><span class="pre">A_ABORT</span></code><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/5b28410cd/pynetdicom/pdu_primitives.py#L803"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pynetdicom.pdu_primitives.A_ABORT" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="pynetdicom.pdu_primitives.A_ABORT">
+<em class="property"><span class="pre">class</span> </em><span class="sig-prename descclassname"><span class="pre">pynetdicom.pdu_primitives.</span></span><span class="sig-name descname"><span class="pre">A_ABORT</span></span><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/151e9cdff/pynetdicom/pdu_primitives.py#L738"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pynetdicom.pdu_primitives.A_ABORT" title="Permalink to this definition">¶</a></dt>
 <dd><p>An A-ABORT primitive.</p>
 <table class="docutils align-default">
 <colgroup>
@@ -253,28 +256,13 @@
 <div class="line">NU  - Not used</div>
 <div class="line">(=) - shall have same value as request or response</div>
 </div>
-<dl class="py attribute">
-<dt id="pynetdicom.pdu_primitives.A_ABORT.abort_source">
-<code class="sig-name descname"><span class="pre">abort_source</span></code><a class="headerlink" href="#pynetdicom.pdu_primitives.A_ABORT.abort_source" title="Permalink to this definition">¶</a></dt>
-<dd><p>Indicates the initiating source of the abort. Allowed values are:</p>
-<ul class="simple">
-<li><p><code class="docutils literal notranslate"><span class="pre">0</span></code>: UL service-user</p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">2</span></code>: UL service-provider</p></li>
-</ul>
-<dl class="field-list simple">
-<dt class="field-odd">Type</dt>
-<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.9)">int</a></p>
-</dd>
-</dl>
-</dd></dl>
-
 <p class="rubric">References</p>
 <ul class="simple">
 <li><p>DICOM Standard, Part 8, <a class="reference external" href="http://dicom.nema.org/medical/dicom/current/output/chtml/part08/sect_7.3.html">Section 7.3</a></p></li>
 </ul>
 <dl class="py method">
-<dt id="pynetdicom.pdu_primitives.A_ABORT.__init__">
-<code class="sig-name descname"><span class="pre">__init__</span></code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/5b28410cd/pynetdicom/pdu_primitives.py#L837"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pynetdicom.pdu_primitives.A_ABORT.__init__" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="pynetdicom.pdu_primitives.A_ABORT.__init__">
+<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> &#x2192; <a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.9)"><span class="pre">None</span></a><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/151e9cdff/pynetdicom/pdu_primitives.py#L763"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pynetdicom.pdu_primitives.A_ABORT.__init__" title="Permalink to this definition">¶</a></dt>
 <dd><p>Initialize self.  See help(type(self)) for accurate signature.</p>
 </dd></dl>
 
@@ -297,15 +285,26 @@
 <col style="width: 90%" />
 </colgroup>
 <tbody>
-<tr class="row-odd"><td><p><a class="reference internal" href="#id0" title="pynetdicom.pdu_primitives.A_ABORT.abort_source"><code class="xref py py-obj docutils literal notranslate"><span class="pre">abort_source</span></code></a></p></td>
-<td><p>Return the <em>Abort Source</em>.</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pynetdicom.pdu_primitives.A_ABORT.abort_source" title="pynetdicom.pdu_primitives.A_ABORT.abort_source"><code class="xref py py-obj docutils literal notranslate"><span class="pre">abort_source</span></code></a></p></td>
+<td><p>Get or set the <em>Abort Source</em>.</p></td>
 </tr>
 </tbody>
 </table>
-<dl class="py method">
-<dt id="id0">
-<em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">abort_source</span></code><a class="headerlink" href="#id0" title="Permalink to this definition">¶</a></dt>
-<dd><p>Return the <em>Abort Source</em>.</p>
+<dl class="py property">
+<dt class="sig sig-object py" id="pynetdicom.pdu_primitives.A_ABORT.abort_source">
+<em class="property"><span class="pre">property</span> </em><span class="sig-name descname"><span class="pre">abort_source</span></span><em class="property"><span class="pre">:</span> <span class="pre">Optional[int]</span></em><a class="headerlink" href="#pynetdicom.pdu_primitives.A_ABORT.abort_source" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get or set the <em>Abort Source</em>.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>value</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.9)"><em>int</em></a><em> or </em><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.9)"><em>None</em></a>) – <p>The abort source, one of:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">0</span></code>: Upper layer service user</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">1</span></code>: Reserved</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">2</span></code>: Upper layer service provider</p></li>
+</ul>
+</p>
+</dd>
+</dl>
 </dd></dl>
 
 </dd></dl>
@@ -326,7 +325,7 @@
 
   <div role="contentinfo">
     <p>
-        &#169; Copyright 2018-2020, pynetdicom contributors.
+        &#169; Copyright 2018-2021, pynetdicom contributors.
 
     </p>
   </div>

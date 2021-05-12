@@ -13,6 +13,8 @@
   
   <link rel="stylesheet" href="../../_static/css/pynetdicom.css" type="text/css" />
   <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="../../_static/css/pynetdicom.css" type="text/css" />
   <link rel="stylesheet" href="../../_static/copybutton.css" type="text/css" />
   <link rel="stylesheet" href="../../_static/css/pynetdicom.css" type="text/css" />
 
@@ -33,6 +35,7 @@
   
     
       <script type="text/javascript" id="documentation_options" data-url_root="../../" src="../../_static/documentation_options.js"></script>
+        <script data-url_root="../../" id="documentation_options" src="../../_static/documentation_options.js"></script>
         <script src="../../_static/jquery.js"></script>
         <script src="../../_static/underscore.js"></script>
         <script src="../../_static/doctools.js"></script>
@@ -220,38 +223,14 @@
   <div class="section" id="pynetdicom-pdu-primitives-asynchronousoperationswindownegotiation">
 <h1>pynetdicom.pdu_primitives.AsynchronousOperationsWindowNegotiation<a class="headerlink" href="#pynetdicom-pdu-primitives-asynchronousoperationswindownegotiation" title="Permalink to this headline">¶</a></h1>
 <dl class="py class">
-<dt id="pynetdicom.pdu_primitives.AsynchronousOperationsWindowNegotiation">
-<em class="property"><span class="pre">class</span> </em><code class="sig-prename descclassname"><span class="pre">pynetdicom.pdu_primitives.</span></code><code class="sig-name descname"><span class="pre">AsynchronousOperationsWindowNegotiation</span></code><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/5b28410cd/pynetdicom/pdu_primitives.py#L1332"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pynetdicom.pdu_primitives.AsynchronousOperationsWindowNegotiation" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="pynetdicom.pdu_primitives.AsynchronousOperationsWindowNegotiation">
+<em class="property"><span class="pre">class</span> </em><span class="sig-prename descclassname"><span class="pre">pynetdicom.pdu_primitives.</span></span><span class="sig-name descname"><span class="pre">AsynchronousOperationsWindowNegotiation</span></span><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/151e9cdff/pynetdicom/pdu_primitives.py#L1258"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pynetdicom.pdu_primitives.AsynchronousOperationsWindowNegotiation" title="Permalink to this definition">¶</a></dt>
 <dd><p>Representation of the Asynchronous Operations Window Negotiation primitive.</p>
 <p>Allows peer AEs to negotiate the maximum number of outstanding operation
 or sub-operation requests. This negotiation is optional.</p>
 <p>The Asynchronous Operations Window is optional and there may only be a
 single <a class="reference internal" href="#pynetdicom.pdu_primitives.AsynchronousOperationsWindowNegotiation" title="pynetdicom.pdu_primitives.AsynchronousOperationsWindowNegotiation"><code class="xref py py-class docutils literal notranslate"><span class="pre">AsynchronousOperationsWindowNegotiation</span></code></a> item</p>
 <p>Identical for both A-ASSOCIATE-RQ and A-ASSOCIATE-AC.</p>
-<dl class="py attribute">
-<dt id="pynetdicom.pdu_primitives.AsynchronousOperationsWindowNegotiation.maximum_number_operations_invoked">
-<code class="sig-name descname"><span class="pre">maximum_number_operations_invoked</span></code><a class="headerlink" href="#pynetdicom.pdu_primitives.AsynchronousOperationsWindowNegotiation.maximum_number_operations_invoked" title="Permalink to this definition">¶</a></dt>
-<dd><p>The maximum number of asynchronous operations invoked by the AE. A
-value of <code class="docutils literal notranslate"><span class="pre">0</span></code> indicates unlimited operations (default <code class="docutils literal notranslate"><span class="pre">1</span></code>)</p>
-<dl class="field-list simple">
-<dt class="field-odd">Type</dt>
-<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.9)">int</a></p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py attribute">
-<dt id="pynetdicom.pdu_primitives.AsynchronousOperationsWindowNegotiation.maximum_number_operations_performed">
-<code class="sig-name descname"><span class="pre">maximum_number_operations_performed</span></code><a class="headerlink" href="#pynetdicom.pdu_primitives.AsynchronousOperationsWindowNegotiation.maximum_number_operations_performed" title="Permalink to this definition">¶</a></dt>
-<dd><p>The maximum number of asynchronous operations performed by the AE. A
-value of <code class="docutils literal notranslate"><span class="pre">0</span></code> indicates unlimited operations (default <code class="docutils literal notranslate"><span class="pre">1</span></code>)</p>
-<dl class="field-list simple">
-<dt class="field-odd">Type</dt>
-<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.9)">int</a></p>
-</dd>
-</dl>
-</dd></dl>
-
 <p class="rubric">Examples</p>
 <div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">pynetdicom.pdu_primitives</span> <span class="kn">import</span> <span class="p">(</span>
 <span class="gp">... </span>    <span class="n">AsynchronousOperationsWindowNegotiation</span>
@@ -266,8 +245,8 @@ value of <code class="docutils literal notranslate"><span class="pre">0</span></
 <li><p>DICOM Standard, Part 7, <a class="reference external" href="http://dicom.nema.org/medical/dicom/current/output/chtml/part07/sect_D.3.3.3.html">Annex D.3.3.3</a></p></li>
 </ul>
 <dl class="py method">
-<dt id="pynetdicom.pdu_primitives.AsynchronousOperationsWindowNegotiation.__init__">
-<code class="sig-name descname"><span class="pre">__init__</span></code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/5b28410cd/pynetdicom/pdu_primitives.py#L1369"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pynetdicom.pdu_primitives.AsynchronousOperationsWindowNegotiation.__init__" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="pynetdicom.pdu_primitives.AsynchronousOperationsWindowNegotiation.__init__">
+<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> &#x2192; <a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.9)"><span class="pre">None</span></a><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/151e9cdff/pynetdicom/pdu_primitives.py#L1286"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pynetdicom.pdu_primitives.AsynchronousOperationsWindowNegotiation.__init__" title="Permalink to this definition">¶</a></dt>
 <dd><p>Initialize self.  See help(type(self)) for accurate signature.</p>
 </dd></dl>
 
@@ -293,17 +272,17 @@ value of <code class="docutils literal notranslate"><span class="pre">0</span></
 <col style="width: 90%" />
 </colgroup>
 <tbody>
-<tr class="row-odd"><td><p><a class="reference internal" href="#id0" title="pynetdicom.pdu_primitives.AsynchronousOperationsWindowNegotiation.maximum_number_operations_invoked"><code class="xref py py-obj docutils literal notranslate"><span class="pre">maximum_number_operations_invoked</span></code></a></p></td>
-<td><p>Return the <em>Maximum Number Operations Invoked</em>.</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pynetdicom.pdu_primitives.AsynchronousOperationsWindowNegotiation.maximum_number_operations_invoked" title="pynetdicom.pdu_primitives.AsynchronousOperationsWindowNegotiation.maximum_number_operations_invoked"><code class="xref py py-obj docutils literal notranslate"><span class="pre">maximum_number_operations_invoked</span></code></a></p></td>
+<td><p>Get or set the <em>Maximum Number Operations Invoked</em>.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#id1" title="pynetdicom.pdu_primitives.AsynchronousOperationsWindowNegotiation.maximum_number_operations_performed"><code class="xref py py-obj docutils literal notranslate"><span class="pre">maximum_number_operations_performed</span></code></a></p></td>
-<td><p>Return the <em>Maximum Number Operations Performed</em>.</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#pynetdicom.pdu_primitives.AsynchronousOperationsWindowNegotiation.maximum_number_operations_performed" title="pynetdicom.pdu_primitives.AsynchronousOperationsWindowNegotiation.maximum_number_operations_performed"><code class="xref py py-obj docutils literal notranslate"><span class="pre">maximum_number_operations_performed</span></code></a></p></td>
+<td><p>Get or set the <em>Maximum Number Operations Performed</em>.</p></td>
 </tr>
 </tbody>
 </table>
 <dl class="py method">
-<dt id="pynetdicom.pdu_primitives.AsynchronousOperationsWindowNegotiation.from_primitive">
-<code class="sig-name descname"><span class="pre">from_primitive</span></code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/5b28410cd/pynetdicom/pdu_primitives.py#L1373"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pynetdicom.pdu_primitives.AsynchronousOperationsWindowNegotiation.from_primitive" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="pynetdicom.pdu_primitives.AsynchronousOperationsWindowNegotiation.from_primitive">
+<span class="sig-name descname"><span class="pre">from_primitive</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> &#x2192; <a class="reference internal" href="pynetdicom.pdu_items.AsynchronousOperationsWindowSubItem.html#pynetdicom.pdu_items.AsynchronousOperationsWindowSubItem" title="pynetdicom.pdu_items.AsynchronousOperationsWindowSubItem"><span class="pre">pynetdicom.pdu_items.AsynchronousOperationsWindowSubItem</span></a><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/151e9cdff/pynetdicom/pdu_primitives.py#L1290"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pynetdicom.pdu_primitives.AsynchronousOperationsWindowNegotiation.from_primitive" title="Permalink to this definition">¶</a></dt>
 <dd><p>Convert the primitive to a PDU item ready to be encoded.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Returns</dt>
@@ -315,16 +294,38 @@ value of <code class="docutils literal notranslate"><span class="pre">0</span></
 </dl>
 </dd></dl>
 
-<dl class="py method">
-<dt id="id0">
-<em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">maximum_number_operations_invoked</span></code><a class="headerlink" href="#id0" title="Permalink to this definition">¶</a></dt>
-<dd><p>Return the <em>Maximum Number Operations Invoked</em>.</p>
+<dl class="py property">
+<dt class="sig sig-object py" id="pynetdicom.pdu_primitives.AsynchronousOperationsWindowNegotiation.maximum_number_operations_invoked">
+<em class="property"><span class="pre">property</span> </em><span class="sig-name descname"><span class="pre">maximum_number_operations_invoked</span></span><em class="property"><span class="pre">:</span> <span class="pre">int</span></em><a class="headerlink" href="#pynetdicom.pdu_primitives.AsynchronousOperationsWindowNegotiation.maximum_number_operations_invoked" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get or set the <em>Maximum Number Operations Invoked</em>.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>value</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.9)"><em>int</em></a>) – The maximum number of operations invoked</p>
+</dd>
+<dt class="field-even">Raises</dt>
+<dd class="field-even"><ul class="simple">
+<li><p><a class="reference external" href="https://docs.python.org/3/library/exceptions.html#TypeError" title="(in Python v3.9)"><strong>TypeError</strong></a> – If <cite>value</cite> is not an int</p></li>
+<li><p><a class="reference external" href="https://docs.python.org/3/library/exceptions.html#ValueError" title="(in Python v3.9)"><strong>ValueError</strong></a> – If <cite>value</cite> is less than 0</p></li>
+</ul>
+</dd>
+</dl>
 </dd></dl>
 
-<dl class="py method">
-<dt id="id1">
-<em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">maximum_number_operations_performed</span></code><a class="headerlink" href="#id1" title="Permalink to this definition">¶</a></dt>
-<dd><p>Return the <em>Maximum Number Operations Performed</em>.</p>
+<dl class="py property">
+<dt class="sig sig-object py" id="pynetdicom.pdu_primitives.AsynchronousOperationsWindowNegotiation.maximum_number_operations_performed">
+<em class="property"><span class="pre">property</span> </em><span class="sig-name descname"><span class="pre">maximum_number_operations_performed</span></span><em class="property"><span class="pre">:</span> <span class="pre">int</span></em><a class="headerlink" href="#pynetdicom.pdu_primitives.AsynchronousOperationsWindowNegotiation.maximum_number_operations_performed" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get or set the <em>Maximum Number Operations Performed</em>.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>value</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.9)"><em>int</em></a>) – The maximum number of operations performed</p>
+</dd>
+<dt class="field-even">Raises</dt>
+<dd class="field-even"><ul class="simple">
+<li><p><a class="reference external" href="https://docs.python.org/3/library/exceptions.html#TypeError" title="(in Python v3.9)"><strong>TypeError</strong></a> – If <cite>value</cite> is not an int</p></li>
+<li><p><a class="reference external" href="https://docs.python.org/3/library/exceptions.html#ValueError" title="(in Python v3.9)"><strong>ValueError</strong></a> – If <cite>value</cite> is less than 0</p></li>
+</ul>
+</dd>
+</dl>
 </dd></dl>
 
 </dd></dl>
@@ -345,7 +346,7 @@ value of <code class="docutils literal notranslate"><span class="pre">0</span></
 
   <div role="contentinfo">
     <p>
-        &#169; Copyright 2018-2020, pynetdicom contributors.
+        &#169; Copyright 2018-2021, pynetdicom contributors.
 
     </p>
   </div>

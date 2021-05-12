@@ -13,6 +13,8 @@
   
   <link rel="stylesheet" href="../../_static/css/pynetdicom.css" type="text/css" />
   <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="../../_static/css/pynetdicom.css" type="text/css" />
   <link rel="stylesheet" href="../../_static/copybutton.css" type="text/css" />
   <link rel="stylesheet" href="../../_static/css/pynetdicom.css" type="text/css" />
 
@@ -33,6 +35,7 @@
   
     
       <script type="text/javascript" id="documentation_options" data-url_root="../../" src="../../_static/documentation_options.js"></script>
+        <script data-url_root="../../" id="documentation_options" src="../../_static/documentation_options.js"></script>
         <script src="../../_static/jquery.js"></script>
         <script src="../../_static/underscore.js"></script>
         <script src="../../_static/doctools.js"></script>
@@ -214,8 +217,8 @@
   <div class="section" id="pynetdicom-dimse-primitives-c-get">
 <h1>pynetdicom.dimse_primitives.C_GET<a class="headerlink" href="#pynetdicom-dimse-primitives-c-get" title="Permalink to this headline">¶</a></h1>
 <dl class="py class">
-<dt id="pynetdicom.dimse_primitives.C_GET">
-<em class="property"><span class="pre">class</span> </em><code class="sig-prename descclassname"><span class="pre">pynetdicom.dimse_primitives.</span></code><code class="sig-name descname"><span class="pre">C_GET</span></code><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/5b28410cd/pynetdicom/dimse_primitives.py#L775"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pynetdicom.dimse_primitives.C_GET" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="pynetdicom.dimse_primitives.C_GET">
+<em class="property"><span class="pre">class</span> </em><span class="sig-prename descclassname"><span class="pre">pynetdicom.dimse_primitives.</span></span><span class="sig-name descname"><span class="pre">C_GET</span></span><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/151e9cdff/pynetdicom/dimse_primitives.py#L761"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pynetdicom.dimse_primitives.C_GET" title="Permalink to this definition">¶</a></dt>
 <dd><p>Represents a C-GET primitive.</p>
 <table class="docutils align-default">
 <colgroup>
@@ -290,8 +293,8 @@ in the column to the left</div>
 <div class="line">UF - User option with a fixed value</div>
 </div>
 <dl class="py attribute">
-<dt id="pynetdicom.dimse_primitives.C_GET.MessageID">
-<code class="sig-name descname"><span class="pre">MessageID</span></code><a class="headerlink" href="#pynetdicom.dimse_primitives.C_GET.MessageID" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="pynetdicom.dimse_primitives.C_GET.MessageID">
+<span class="sig-name descname"><span class="pre">MessageID</span></span><a class="headerlink" href="#pynetdicom.dimse_primitives.C_GET.MessageID" title="Permalink to this definition">¶</a></dt>
 <dd><p>Identifies the operation and is used to distinguish this
 operation from other notifications or operations that may be in
 progress. No two identical values for the Message ID shall be used for
@@ -304,8 +307,8 @@ outstanding operations.</p>
 </dd></dl>
 
 <dl class="py attribute">
-<dt id="pynetdicom.dimse_primitives.C_GET.MessageIDBeingRespondedTo">
-<code class="sig-name descname"><span class="pre">MessageIDBeingRespondedTo</span></code><a class="headerlink" href="#pynetdicom.dimse_primitives.C_GET.MessageIDBeingRespondedTo" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="pynetdicom.dimse_primitives.C_GET.MessageIDBeingRespondedTo">
+<span class="sig-name descname"><span class="pre">MessageIDBeingRespondedTo</span></span><a class="headerlink" href="#pynetdicom.dimse_primitives.C_GET.MessageIDBeingRespondedTo" title="Permalink to this definition">¶</a></dt>
 <dd><p>The Message ID of the operation request/indication to which
 this response/confirmation applies.</p>
 <dl class="field-list simple">
@@ -316,8 +319,8 @@ this response/confirmation applies.</p>
 </dd></dl>
 
 <dl class="py attribute">
-<dt id="pynetdicom.dimse_primitives.C_GET.AffectedSOPClassUID">
-<code class="sig-name descname"><span class="pre">AffectedSOPClassUID</span></code><a class="headerlink" href="#pynetdicom.dimse_primitives.C_GET.AffectedSOPClassUID" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="pynetdicom.dimse_primitives.C_GET.AffectedSOPClassUID">
+<span class="sig-name descname"><span class="pre">AffectedSOPClassUID</span></span><a class="headerlink" href="#pynetdicom.dimse_primitives.C_GET.AffectedSOPClassUID" title="Permalink to this definition">¶</a></dt>
 <dd><p>For the request/indication this specifies the SOP Class
 for storage. If included in the response/confirmation, it shall be
 equal to the value in the request/indication</p>
@@ -329,38 +332,8 @@ equal to the value in the request/indication</p>
 </dd></dl>
 
 <dl class="py attribute">
-<dt id="pynetdicom.dimse_primitives.C_GET.Priority">
-<code class="sig-name descname"><span class="pre">Priority</span></code><a class="headerlink" href="#pynetdicom.dimse_primitives.C_GET.Priority" title="Permalink to this definition">¶</a></dt>
-<dd><p>The priority of the C-STORE operation. It shall be one of the
-following:</p>
-<ul class="simple">
-<li><p>0: Medium</p></li>
-<li><p>1: High</p></li>
-<li><p>2: Low (Default)</p></li>
-</ul>
-<dl class="field-list simple">
-<dt class="field-odd">Type</dt>
-<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.9)">int</a></p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py attribute">
-<dt id="pynetdicom.dimse_primitives.C_GET.Identifier">
-<code class="sig-name descname"><span class="pre">Identifier</span></code><a class="headerlink" href="#pynetdicom.dimse_primitives.C_GET.Identifier" title="Permalink to this definition">¶</a></dt>
-<dd><p>A DICOM dataset of attributes to be matched against the values of the
-attributes in the instances of the composite objects known to the
-performing DIMSE service-user.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Type</dt>
-<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/io.html#io.BytesIO" title="(in Python v3.9)">io.BytesIO</a></p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py attribute">
-<dt id="pynetdicom.dimse_primitives.C_GET.Status">
-<code class="sig-name descname"><span class="pre">Status</span></code><a class="headerlink" href="#pynetdicom.dimse_primitives.C_GET.Status" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="pynetdicom.dimse_primitives.C_GET.Status">
+<span class="sig-name descname"><span class="pre">Status</span></span><a class="headerlink" href="#pynetdicom.dimse_primitives.C_GET.Status" title="Permalink to this definition">¶</a></dt>
 <dd><p>The error or success notification of the operation.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Type</dt>
@@ -370,60 +343,8 @@ performing DIMSE service-user.</p>
 </dd></dl>
 
 <dl class="py attribute">
-<dt id="pynetdicom.dimse_primitives.C_GET.NumberOfRemainingSuboperations">
-<code class="sig-name descname"><span class="pre">NumberOfRemainingSuboperations</span></code><a class="headerlink" href="#pynetdicom.dimse_primitives.C_GET.NumberOfRemainingSuboperations" title="Permalink to this definition">¶</a></dt>
-<dd><p>The number of remaining C-STORE sub-operations to be invoked
-by this C-GET operation. It may be included in any response and shall
-be included if the status is Pending</p>
-<dl class="field-list simple">
-<dt class="field-odd">Type</dt>
-<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.9)">int</a></p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py attribute">
-<dt id="pynetdicom.dimse_primitives.C_GET.NumberOfCompletedSuboperations">
-<code class="sig-name descname"><span class="pre">NumberOfCompletedSuboperations</span></code><a class="headerlink" href="#pynetdicom.dimse_primitives.C_GET.NumberOfCompletedSuboperations" title="Permalink to this definition">¶</a></dt>
-<dd><p>The number of C-STORE sub-operations that have completed
-successfully. It may be included in any response and shall be included
-if the status is Pending</p>
-<dl class="field-list simple">
-<dt class="field-odd">Type</dt>
-<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.9)">int</a></p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py attribute">
-<dt id="pynetdicom.dimse_primitives.C_GET.NumberOfFailedSuboperations">
-<code class="sig-name descname"><span class="pre">NumberOfFailedSuboperations</span></code><a class="headerlink" href="#pynetdicom.dimse_primitives.C_GET.NumberOfFailedSuboperations" title="Permalink to this definition">¶</a></dt>
-<dd><p>The number of C-STORE sub-operations that have failed. It may
-be included in any response and shall be included if the status is
-Pending</p>
-<dl class="field-list simple">
-<dt class="field-odd">Type</dt>
-<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.9)">int</a></p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py attribute">
-<dt id="pynetdicom.dimse_primitives.C_GET.NumberOfWarningSuboperations">
-<code class="sig-name descname"><span class="pre">NumberOfWarningSuboperations</span></code><a class="headerlink" href="#pynetdicom.dimse_primitives.C_GET.NumberOfWarningSuboperations" title="Permalink to this definition">¶</a></dt>
-<dd><p>The number of C-STORE operations that generated Warning
-responses. It may be included in any response and shall be included if
-the status is Pending</p>
-<dl class="field-list simple">
-<dt class="field-odd">Type</dt>
-<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.9)">int</a></p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py attribute">
-<dt id="pynetdicom.dimse_primitives.C_GET.OffendingElement">
-<code class="sig-name descname"><span class="pre">OffendingElement</span></code><a class="headerlink" href="#pynetdicom.dimse_primitives.C_GET.OffendingElement" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="pynetdicom.dimse_primitives.C_GET.OffendingElement">
+<span class="sig-name descname"><span class="pre">OffendingElement</span></span><a class="headerlink" href="#pynetdicom.dimse_primitives.C_GET.OffendingElement" title="Permalink to this definition">¶</a></dt>
 <dd><p>An optional status related field containing a list of the
 elements in which an error was detected.</p>
 <dl class="field-list simple">
@@ -434,8 +355,8 @@ elements in which an error was detected.</p>
 </dd></dl>
 
 <dl class="py attribute">
-<dt id="pynetdicom.dimse_primitives.C_GET.ErrorComment">
-<code class="sig-name descname"><span class="pre">ErrorComment</span></code><a class="headerlink" href="#pynetdicom.dimse_primitives.C_GET.ErrorComment" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="pynetdicom.dimse_primitives.C_GET.ErrorComment">
+<span class="sig-name descname"><span class="pre">ErrorComment</span></span><a class="headerlink" href="#pynetdicom.dimse_primitives.C_GET.ErrorComment" title="Permalink to this definition">¶</a></dt>
 <dd><p>An optional status related field containing a text
 description of the error detected. 64 characters maximum.</p>
 <dl class="field-list simple">
@@ -446,8 +367,8 @@ description of the error detected. 64 characters maximum.</p>
 </dd></dl>
 
 <dl class="py method">
-<dt id="pynetdicom.dimse_primitives.C_GET.__init__">
-<code class="sig-name descname"><span class="pre">__init__</span></code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/5b28410cd/pynetdicom/dimse_primitives.py#L873"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pynetdicom.dimse_primitives.C_GET.__init__" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="pynetdicom.dimse_primitives.C_GET.__init__">
+<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/151e9cdff/pynetdicom/dimse_primitives.py#L832"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pynetdicom.dimse_primitives.C_GET.__init__" title="Permalink to this definition">¶</a></dt>
 <dd><p>Initialize self.  See help(type(self)) for accurate signature.</p>
 </dd></dl>
 
@@ -471,31 +392,31 @@ description of the error detected. 64 characters maximum.</p>
 </colgroup>
 <tbody>
 <tr class="row-odd"><td><p><a class="reference internal" href="#pynetdicom.dimse_primitives.C_GET.AffectedSOPClassUID" title="pynetdicom.dimse_primitives.C_GET.AffectedSOPClassUID"><code class="xref py py-obj docutils literal notranslate"><span class="pre">AffectedSOPClassUID</span></code></a></p></td>
-<td><p>Return the <em>Affected SOP Class UID</em> as <a class="reference external" href="https://pydicom.github.io/pydicom/stable/reference/generated/pydicom.uid.UID.html#pydicom.uid.UID" title="(in pydicom v2.1.2)"><code class="xref py py-class docutils literal notranslate"><span class="pre">UID</span></code></a>.</p></td>
+<td><p>Get or set the <em>Affected SOP Class UID</em> as <a class="reference external" href="https://pydicom.github.io/pydicom/stable/reference/generated/pydicom.uid.UID.html#pydicom.uid.UID" title="(in pydicom v2.1.2)"><code class="xref py py-class docutils literal notranslate"><span class="pre">UID</span></code></a>.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#id0" title="pynetdicom.dimse_primitives.C_GET.Identifier"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Identifier</span></code></a></p></td>
-<td><p>Return the <em>Identifier</em> as <a class="reference external" href="https://docs.python.org/3/library/io.html#io.BytesIO" title="(in Python v3.9)"><code class="xref py py-class docutils literal notranslate"><span class="pre">io.BytesIO</span></code></a>.</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#pynetdicom.dimse_primitives.C_GET.Identifier" title="pynetdicom.dimse_primitives.C_GET.Identifier"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Identifier</span></code></a></p></td>
+<td><p>Get or set the <em>Identifier</em> as <a class="reference external" href="https://docs.python.org/3/library/io.html#io.BytesIO" title="(in Python v3.9)"><code class="xref py py-class docutils literal notranslate"><span class="pre">io.BytesIO</span></code></a>.</p></td>
 </tr>
 <tr class="row-odd"><td><p><a class="reference internal" href="#pynetdicom.dimse_primitives.C_GET.MessageID" title="pynetdicom.dimse_primitives.C_GET.MessageID"><code class="xref py py-obj docutils literal notranslate"><span class="pre">MessageID</span></code></a></p></td>
-<td><p>Return the <em>Message ID</em> value as <a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.9)"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></a>.</p></td>
+<td><p>Get or set the <em>Message ID</em> value as <a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.9)"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></a>.</p></td>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="#pynetdicom.dimse_primitives.C_GET.MessageIDBeingRespondedTo" title="pynetdicom.dimse_primitives.C_GET.MessageIDBeingRespondedTo"><code class="xref py py-obj docutils literal notranslate"><span class="pre">MessageIDBeingRespondedTo</span></code></a></p></td>
-<td><p>Return the <em>Message ID Being Responded To</em> as <a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.9)"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></a>.</p></td>
+<td><p>Get or set the <em>Message ID Being Responded To</em> as <a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.9)"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></a>.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#id1" title="pynetdicom.dimse_primitives.C_GET.NumberOfCompletedSuboperations"><code class="xref py py-obj docutils literal notranslate"><span class="pre">NumberOfCompletedSuboperations</span></code></a></p></td>
-<td><p>Return the <em>Number of Completed Suboperations</em> as <a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.9)"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></a>.</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pynetdicom.dimse_primitives.C_GET.NumberOfCompletedSuboperations" title="pynetdicom.dimse_primitives.C_GET.NumberOfCompletedSuboperations"><code class="xref py py-obj docutils literal notranslate"><span class="pre">NumberOfCompletedSuboperations</span></code></a></p></td>
+<td><p>Get or set the <em>Number of Completed Suboperations</em> as <a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.9)"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></a>.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#id2" title="pynetdicom.dimse_primitives.C_GET.NumberOfFailedSuboperations"><code class="xref py py-obj docutils literal notranslate"><span class="pre">NumberOfFailedSuboperations</span></code></a></p></td>
-<td><p>Return the <em>Number of Failed Suboperations</em> as <a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.9)"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></a>.</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#pynetdicom.dimse_primitives.C_GET.NumberOfFailedSuboperations" title="pynetdicom.dimse_primitives.C_GET.NumberOfFailedSuboperations"><code class="xref py py-obj docutils literal notranslate"><span class="pre">NumberOfFailedSuboperations</span></code></a></p></td>
+<td><p>Get or set the <em>Number of Failed Suboperations</em> as <a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.9)"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></a>.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#id3" title="pynetdicom.dimse_primitives.C_GET.NumberOfRemainingSuboperations"><code class="xref py py-obj docutils literal notranslate"><span class="pre">NumberOfRemainingSuboperations</span></code></a></p></td>
-<td><p>Return the <em>Number of Remaining Suboperations</em> as <a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.9)"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></a>.</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pynetdicom.dimse_primitives.C_GET.NumberOfRemainingSuboperations" title="pynetdicom.dimse_primitives.C_GET.NumberOfRemainingSuboperations"><code class="xref py py-obj docutils literal notranslate"><span class="pre">NumberOfRemainingSuboperations</span></code></a></p></td>
+<td><p>Get or set the <em>Number of Remaining Suboperations</em> as <a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.9)"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></a>.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#id4" title="pynetdicom.dimse_primitives.C_GET.NumberOfWarningSuboperations"><code class="xref py py-obj docutils literal notranslate"><span class="pre">NumberOfWarningSuboperations</span></code></a></p></td>
-<td><p>Return the <em>Number of Warning Suboperations</em> as <a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.9)"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></a>.</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#pynetdicom.dimse_primitives.C_GET.NumberOfWarningSuboperations" title="pynetdicom.dimse_primitives.C_GET.NumberOfWarningSuboperations"><code class="xref py py-obj docutils literal notranslate"><span class="pre">NumberOfWarningSuboperations</span></code></a></p></td>
+<td><p>Get or set the <em>Number of Warning Suboperations</em> as <a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.9)"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></a>.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#id5" title="pynetdicom.dimse_primitives.C_GET.Priority"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Priority</span></code></a></p></td>
-<td><p>Return the <em>Priority</em> as <a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.9)"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></a>.</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pynetdicom.dimse_primitives.C_GET.Priority" title="pynetdicom.dimse_primitives.C_GET.Priority"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Priority</span></code></a></p></td>
+<td><p>Get or set the <em>Priority</em> as <a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.9)"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></a>.</p></td>
 </tr>
 <tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">REQUEST_KEYWORDS</span></code></p></td>
 <td><p></p></td>
@@ -507,7 +428,7 @@ description of the error detected. 64 characters maximum.</p>
 <td><p></p></td>
 </tr>
 <tr class="row-odd"><td><p><a class="reference internal" href="#pynetdicom.dimse_primitives.C_GET.Status" title="pynetdicom.dimse_primitives.C_GET.Status"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Status</span></code></a></p></td>
-<td><p>Return the <em>Status</em> as <a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.9)"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></a>.</p></td>
+<td><p>Get or set the <em>Status</em> as <a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.9)"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></a>.</p></td>
 </tr>
 <tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">is_valid_request</span></code></p></td>
 <td><p>Return <code class="docutils literal notranslate"><span class="pre">True</span></code> if the request is valid, <code class="docutils literal notranslate"><span class="pre">False</span></code> otherwise.</p></td>
@@ -520,40 +441,57 @@ description of the error detected. 64 characters maximum.</p>
 </tr>
 </tbody>
 </table>
-<dl class="py method">
-<dt id="id0">
-<em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">Identifier</span></code><a class="headerlink" href="#id0" title="Permalink to this definition">¶</a></dt>
-<dd><p>Return the <em>Identifier</em> as <a class="reference external" href="https://docs.python.org/3/library/io.html#io.BytesIO" title="(in Python v3.9)"><code class="xref py py-class docutils literal notranslate"><span class="pre">io.BytesIO</span></code></a>.</p>
+<dl class="py property">
+<dt class="sig sig-object py" id="pynetdicom.dimse_primitives.C_GET.Identifier">
+<em class="property"><span class="pre">property</span> </em><span class="sig-name descname"><span class="pre">Identifier</span></span><em class="property"><span class="pre">:</span> <span class="pre">Optional[_io.BytesIO]</span></em><a class="headerlink" href="#pynetdicom.dimse_primitives.C_GET.Identifier" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get or set the <em>Identifier</em> as <a class="reference external" href="https://docs.python.org/3/library/io.html#io.BytesIO" title="(in Python v3.9)"><code class="xref py py-class docutils literal notranslate"><span class="pre">io.BytesIO</span></code></a>.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>io.BytesIO</strong> – The value to use for the <em>Identifier</em> parameter.</p>
+</dd>
+</dl>
 </dd></dl>
 
-<dl class="py method">
-<dt id="id1">
-<em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">NumberOfCompletedSuboperations</span></code><a class="headerlink" href="#id1" title="Permalink to this definition">¶</a></dt>
-<dd><p>Return the <em>Number of Completed Suboperations</em> as <a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.9)"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></a>.</p>
+<dl class="py property">
+<dt class="sig sig-object py" id="pynetdicom.dimse_primitives.C_GET.NumberOfCompletedSuboperations">
+<em class="property"><span class="pre">property</span> </em><span class="sig-name descname"><span class="pre">NumberOfCompletedSuboperations</span></span><em class="property"><span class="pre">:</span> <span class="pre">Optional[int]</span></em><a class="headerlink" href="#pynetdicom.dimse_primitives.C_GET.NumberOfCompletedSuboperations" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get or set the <em>Number of Completed Suboperations</em> as <a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.9)"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></a>.</p>
 </dd></dl>
 
-<dl class="py method">
-<dt id="id2">
-<em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">NumberOfFailedSuboperations</span></code><a class="headerlink" href="#id2" title="Permalink to this definition">¶</a></dt>
-<dd><p>Return the <em>Number of Failed Suboperations</em> as <a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.9)"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></a>.</p>
+<dl class="py property">
+<dt class="sig sig-object py" id="pynetdicom.dimse_primitives.C_GET.NumberOfFailedSuboperations">
+<em class="property"><span class="pre">property</span> </em><span class="sig-name descname"><span class="pre">NumberOfFailedSuboperations</span></span><em class="property"><span class="pre">:</span> <span class="pre">Optional[int]</span></em><a class="headerlink" href="#pynetdicom.dimse_primitives.C_GET.NumberOfFailedSuboperations" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get or set the <em>Number of Failed Suboperations</em> as <a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.9)"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></a>.</p>
 </dd></dl>
 
-<dl class="py method">
-<dt id="id3">
-<em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">NumberOfRemainingSuboperations</span></code><a class="headerlink" href="#id3" title="Permalink to this definition">¶</a></dt>
-<dd><p>Return the <em>Number of Remaining Suboperations</em> as <a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.9)"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></a>.</p>
+<dl class="py property">
+<dt class="sig sig-object py" id="pynetdicom.dimse_primitives.C_GET.NumberOfRemainingSuboperations">
+<em class="property"><span class="pre">property</span> </em><span class="sig-name descname"><span class="pre">NumberOfRemainingSuboperations</span></span><em class="property"><span class="pre">:</span> <span class="pre">Optional[int]</span></em><a class="headerlink" href="#pynetdicom.dimse_primitives.C_GET.NumberOfRemainingSuboperations" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get or set the <em>Number of Remaining Suboperations</em> as <a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.9)"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></a>.</p>
 </dd></dl>
 
-<dl class="py method">
-<dt id="id4">
-<em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">NumberOfWarningSuboperations</span></code><a class="headerlink" href="#id4" title="Permalink to this definition">¶</a></dt>
-<dd><p>Return the <em>Number of Warning Suboperations</em> as <a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.9)"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></a>.</p>
+<dl class="py property">
+<dt class="sig sig-object py" id="pynetdicom.dimse_primitives.C_GET.NumberOfWarningSuboperations">
+<em class="property"><span class="pre">property</span> </em><span class="sig-name descname"><span class="pre">NumberOfWarningSuboperations</span></span><em class="property"><span class="pre">:</span> <span class="pre">Optional[int]</span></em><a class="headerlink" href="#pynetdicom.dimse_primitives.C_GET.NumberOfWarningSuboperations" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get or set the <em>Number of Warning Suboperations</em> as <a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.9)"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></a>.</p>
 </dd></dl>
 
-<dl class="py method">
-<dt id="id5">
-<em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">Priority</span></code><a class="headerlink" href="#id5" title="Permalink to this definition">¶</a></dt>
-<dd><p>Return the <em>Priority</em> as <a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.9)"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></a>.</p>
+<dl class="py property">
+<dt class="sig sig-object py" id="pynetdicom.dimse_primitives.C_GET.Priority">
+<em class="property"><span class="pre">property</span> </em><span class="sig-name descname"><span class="pre">Priority</span></span><em class="property"><span class="pre">:</span> <span class="pre">Optional[int]</span></em><a class="headerlink" href="#pynetdicom.dimse_primitives.C_GET.Priority" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get or set the <em>Priority</em> as <a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.9)"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></a>.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>int</strong> – <p>The value to use for the <em>Priority</em> parameter. It shall be one
+of the following:</p>
+<ul class="simple">
+<li><p>0: Medium</p></li>
+<li><p>1: High</p></li>
+<li><p>2: Low (Default)</p></li>
+</ul>
+</p>
+</dd>
+</dl>
 </dd></dl>
 
 </dd></dl>
@@ -574,7 +512,7 @@ description of the error detected. 64 characters maximum.</p>
 
   <div role="contentinfo">
     <p>
-        &#169; Copyright 2018-2020, pynetdicom contributors.
+        &#169; Copyright 2018-2021, pynetdicom contributors.
 
     </p>
   </div>

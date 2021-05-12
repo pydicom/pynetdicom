@@ -13,6 +13,8 @@
   
   <link rel="stylesheet" href="../../_static/css/pynetdicom.css" type="text/css" />
   <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="../../_static/css/pynetdicom.css" type="text/css" />
   <link rel="stylesheet" href="../../_static/copybutton.css" type="text/css" />
   <link rel="stylesheet" href="../../_static/css/pynetdicom.css" type="text/css" />
 
@@ -33,6 +35,7 @@
   
     
       <script type="text/javascript" id="documentation_options" data-url_root="../../" src="../../_static/documentation_options.js"></script>
+        <script data-url_root="../../" id="documentation_options" src="../../_static/documentation_options.js"></script>
         <script src="../../_static/jquery.js"></script>
         <script src="../../_static/underscore.js"></script>
         <script src="../../_static/doctools.js"></script>
@@ -228,8 +231,8 @@
   <div class="section" id="pynetdicom-handlers-doc-handle-userid">
 <h1>pynetdicom._handlers.doc_handle_userid<a class="headerlink" href="#pynetdicom-handlers-doc-handle-userid" title="Permalink to this headline">¶</a></h1>
 <dl class="py function">
-<dt id="pynetdicom._handlers.doc_handle_userid">
-<code class="sig-prename descclassname"><span class="pre">pynetdicom._handlers.</span></code><code class="sig-name descname"><span class="pre">doc_handle_userid</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">event</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/5b28410cd/pynetdicom/_handlers.py#L3825"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pynetdicom._handlers.doc_handle_userid" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="pynetdicom._handlers.doc_handle_userid">
+<span class="sig-prename descclassname"><span class="pre">pynetdicom._handlers.</span></span><span class="sig-name descname"><span class="pre">doc_handle_userid</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">event</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/151e9cdff/pynetdicom/_handlers.py#L3825"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pynetdicom._handlers.doc_handle_userid" title="Permalink to this definition">¶</a></dt>
 <dd><p>Documentation for handlers bound to <code class="docutils literal notranslate"><span class="pre">evt.EVT_USER_ID</span></code>.</p>
 <p>User implementation of this handler is required if
 <a class="reference external" href="http://dicom.nema.org/medical/dicom/current/output/chtml/part07/sect_D.3.3.7.html">User Identity Negotiation</a>
@@ -251,7 +254,7 @@ contains a User Identity Negotiation item.
 <a class="reference internal" href="pynetdicom.association.Association.html#pynetdicom.association.Association" title="pynetdicom.association.Association"><code class="xref py py-class docutils literal notranslate"><span class="pre">Association</span></code></a>
 that is running the service that received the user identity
 negotiation request.</p></li>
-<li><p><a class="reference internal" href="pynetdicom.events.Event.html#id0" title="pynetdicom.events.Event.event"><code class="xref py py-attr docutils literal notranslate"><span class="pre">event</span></code></a>: the event that occurred as
+<li><p><a class="reference internal" href="pynetdicom.events.Event.html#pynetdicom.events.Event.event" title="pynetdicom.events.Event.event"><code class="xref py py-attr docutils literal notranslate"><span class="pre">event</span></code></a>: the event that occurred as
 <a class="reference internal" href="pynetdicom.events.InterventionEvent.html#pynetdicom.events.InterventionEvent" title="pynetdicom.events.InterventionEvent"><code class="xref py py-class docutils literal notranslate"><span class="pre">InterventionEvent</span></code></a>.</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">primary_field</span></code>: the <em>Primary Field</em> value (as <a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#bytes" title="(in Python v3.9)"><code class="xref py py-class docutils literal notranslate"><span class="pre">bytes</span></code></a>),
 contains the username, the encoded Kerberos ticket or the JSON web
@@ -320,7 +323,7 @@ to proceed with association establishment, <code class="docutils literal notrans
 
   <div role="contentinfo">
     <p>
-        &#169; Copyright 2018-2020, pynetdicom contributors.
+        &#169; Copyright 2018-2021, pynetdicom contributors.
 
     </p>
   </div>

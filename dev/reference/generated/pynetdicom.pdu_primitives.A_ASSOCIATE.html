@@ -13,6 +13,8 @@
   
   <link rel="stylesheet" href="../../_static/css/pynetdicom.css" type="text/css" />
   <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="../../_static/css/pynetdicom.css" type="text/css" />
   <link rel="stylesheet" href="../../_static/copybutton.css" type="text/css" />
   <link rel="stylesheet" href="../../_static/css/pynetdicom.css" type="text/css" />
 
@@ -33,6 +35,7 @@
   
     
       <script type="text/javascript" id="documentation_options" data-url_root="../../" src="../../_static/documentation_options.js"></script>
+        <script data-url_root="../../" id="documentation_options" src="../../_static/documentation_options.js"></script>
         <script src="../../_static/jquery.js"></script>
         <script src="../../_static/underscore.js"></script>
         <script src="../../_static/doctools.js"></script>
@@ -220,8 +223,8 @@
   <div class="section" id="pynetdicom-pdu-primitives-a-associate">
 <h1>pynetdicom.pdu_primitives.A_ASSOCIATE<a class="headerlink" href="#pynetdicom-pdu-primitives-a-associate" title="Permalink to this headline">¶</a></h1>
 <dl class="py class">
-<dt id="pynetdicom.pdu_primitives.A_ASSOCIATE">
-<em class="property"><span class="pre">class</span> </em><code class="sig-prename descclassname"><span class="pre">pynetdicom.pdu_primitives.</span></code><code class="sig-name descname"><span class="pre">A_ASSOCIATE</span></code><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/5b28410cd/pynetdicom/pdu_primitives.py#L44"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pynetdicom.pdu_primitives.A_ASSOCIATE" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="pynetdicom.pdu_primitives.A_ASSOCIATE">
+<em class="property"><span class="pre">class</span> </em><span class="sig-prename descclassname"><span class="pre">pynetdicom.pdu_primitives.</span></span><span class="sig-name descname"><span class="pre">A_ASSOCIATE</span></span><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/151e9cdff/pynetdicom/pdu_primitives.py#L46"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pynetdicom.pdu_primitives.A_ASSOCIATE" title="Permalink to this definition">¶</a></dt>
 <dd><p>An A-ASSOCIATE primitive.</p>
 <p>The establishment of an association between two AEs shall be performed
 through ACSE A-ASSOCIATE request, indication, response and confirmation
@@ -348,251 +351,14 @@ gets deconverted from -RQ, -AC, -RJ PDUs received from the peer.</p>
 <div class="line">NU  - Not used</div>
 <div class="line">(=) - shall have same value as request or response</div>
 </div>
-<dl class="py attribute">
-<dt id="pynetdicom.pdu_primitives.A_ASSOCIATE.mode">
-<code class="sig-name descname"><span class="pre">mode</span></code><a class="headerlink" href="#pynetdicom.pdu_primitives.A_ASSOCIATE.mode" title="Permalink to this definition">¶</a></dt>
-<dd><p>Fixed value of <code class="docutils literal notranslate"><span class="pre">'normal'</span></code>.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Type</dt>
-<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)">str</a></p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py attribute">
-<dt id="pynetdicom.pdu_primitives.A_ASSOCIATE.application_context_name">
-<code class="sig-name descname"><span class="pre">application_context_name</span></code><a class="headerlink" href="#pynetdicom.pdu_primitives.A_ASSOCIATE.application_context_name" title="Permalink to this definition">¶</a></dt>
-<dd><p>The application context name proposed by the <em>Requestor</em>. <em>Acceptor</em>
-returns either the same or a different name. Returned name specifies
-the application context used for the association. See the DICOM
-Standard, Part 8, <a class="reference external" href="http://dicom.nema.org/medical/dicom/current/output/chtml/part08/chapter_A.html">Annex A</a>.
-The application context name shall be a valid UID or UID string and for
-version 3 of the DICOM Standard should be <code class="docutils literal notranslate"><span class="pre">'1.2.840.10008.3.1.1.1'</span></code></p>
-<dl class="field-list simple">
-<dt class="field-odd">Type</dt>
-<dd class="field-odd"><p><a class="reference external" href="https://pydicom.github.io/pydicom/stable/reference/generated/pydicom.uid.UID.html#pydicom.uid.UID" title="(in pydicom v2.1.2)">pydicom.uid.UID</a>, <a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#bytes" title="(in Python v3.9)">bytes</a> or <a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)">str</a></p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py attribute">
-<dt id="pynetdicom.pdu_primitives.A_ASSOCIATE.calling_ae_title">
-<code class="sig-name descname"><span class="pre">calling_ae_title</span></code><a class="headerlink" href="#pynetdicom.pdu_primitives.A_ASSOCIATE.calling_ae_title" title="Permalink to this definition">¶</a></dt>
-<dd><p>Identifies the <em>Requestor</em> of the A-ASSOCIATE service. Must be a valid
-AE title.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Type</dt>
-<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)">str</a> or <a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#bytes" title="(in Python v3.9)">bytes</a></p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py attribute">
-<dt id="pynetdicom.pdu_primitives.A_ASSOCIATE.called_ae_title">
-<code class="sig-name descname"><span class="pre">called_ae_title</span></code><a class="headerlink" href="#pynetdicom.pdu_primitives.A_ASSOCIATE.called_ae_title" title="Permalink to this definition">¶</a></dt>
-<dd><p>Identifies the intended <em>Acceptor</em> of the A-ASSOCIATE service. Must be
-a valid AE title.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Type</dt>
-<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)">str</a> or <a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#bytes" title="(in Python v3.9)">bytes</a></p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py attribute">
-<dt id="pynetdicom.pdu_primitives.A_ASSOCIATE.responding_ae_title">
-<code class="sig-name descname"><span class="pre">responding_ae_title</span></code><a class="headerlink" href="#pynetdicom.pdu_primitives.A_ASSOCIATE.responding_ae_title" title="Permalink to this definition">¶</a></dt>
-<dd><p>Identifies the AE that contains the actual acceptor of the
-A-ASSOCIATE service. Shall always contain the same value as the
-<em>Called AE Title</em> of the A-ASSOCIATE indication</p>
-<dl class="field-list simple">
-<dt class="field-odd">Type</dt>
-<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)">str</a> or <a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#bytes" title="(in Python v3.9)">bytes</a></p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py attribute">
-<dt id="pynetdicom.pdu_primitives.A_ASSOCIATE.user_information">
-<code class="sig-name descname"><span class="pre">user_information</span></code><a class="headerlink" href="#pynetdicom.pdu_primitives.A_ASSOCIATE.user_information" title="Permalink to this definition">¶</a></dt>
-<dd><p>Used by <em>Requestor</em> and <em>Acceptor</em> to include AE user information. See
-the DICOM Standard, Part 8, <a class="reference external" href="http://dicom.nema.org/medical/dicom/current/output/chtml/part08/chapter_D.html">Annex D</a> and
-Part 7, <a class="reference external" href="http://dicom.nema.org/medical/dicom/current/output/chtml/part07/sect_D.3.html">Annex D.3</a></p>
-<dl class="field-list simple">
-<dt class="field-odd">Type</dt>
-<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.9)">list</a></p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py attribute">
-<dt id="pynetdicom.pdu_primitives.A_ASSOCIATE.result">
-<code class="sig-name descname"><span class="pre">result</span></code><a class="headerlink" href="#pynetdicom.pdu_primitives.A_ASSOCIATE.result" title="Permalink to this definition">¶</a></dt>
-<dd><p>Provided either by the <em>Acceptor</em> of the A-ASSOCIATE request, the UL
-service provider (ACSE related) or the UL service provider
-(Presentation related). Indicates the result of the A-ASSOCIATE
-service. Allowed values are:</p>
-<ul class="simple">
-<li><p><code class="docutils literal notranslate"><span class="pre">0</span></code>: accepted</p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">1</span></code>: rejected (permanent)</p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">2</span></code>: rejected (transient)</p></li>
-</ul>
-<dl class="field-list simple">
-<dt class="field-odd">Type</dt>
-<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.9)">int</a></p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py attribute">
-<dt id="pynetdicom.pdu_primitives.A_ASSOCIATE.result_source">
-<code class="sig-name descname"><span class="pre">result_source</span></code><a class="headerlink" href="#pynetdicom.pdu_primitives.A_ASSOCIATE.result_source" title="Permalink to this definition">¶</a></dt>
-<dd><p>Identifies the creating source of the Result and Diagnostic parameters
-Allowed values are:</p>
-<ul class="simple">
-<li><p><code class="docutils literal notranslate"><span class="pre">0</span></code>: UL service-user</p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">1</span></code>: UL service-provider (ACSE related function)</p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">2</span></code>: UL service-provider (presentation related function)</p></li>
-</ul>
-<dl class="field-list simple">
-<dt class="field-odd">Type</dt>
-<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.9)">int</a></p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py attribute">
-<dt id="pynetdicom.pdu_primitives.A_ASSOCIATE.diagnostic">
-<code class="sig-name descname"><span class="pre">diagnostic</span></code><a class="headerlink" href="#pynetdicom.pdu_primitives.A_ASSOCIATE.diagnostic" title="Permalink to this definition">¶</a></dt>
-<dd><p>If the <cite>result</cite> parameter is <code class="docutils literal notranslate"><span class="pre">0</span></code> “rejected (permanent)” or <code class="docutils literal notranslate"><span class="pre">1</span></code>
-“rejected (transient)” then this supplies diagnostic information about
-the result. If <cite>result_source</cite> is <code class="docutils literal notranslate"><span class="pre">0</span></code> “UL service-user” then allowed
-valuesare:</p>
-<ul class="simple">
-<li><p><code class="docutils literal notranslate"><span class="pre">0</span></code>: no reason given</p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">1</span></code>: application context name not supported</p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">2</span></code>: calling AE title not recognised</p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">3</span></code>: called AE title not recognised</p></li>
-</ul>
-<p>If <cite>result_source</cite> is <code class="docutils literal notranslate"><span class="pre">1</span></code> “UL service-provider (ACSE related
-function)” then allowed values are:</p>
-<ul class="simple">
-<li><p><code class="docutils literal notranslate"><span class="pre">0</span></code>: no reason given</p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">1</span></code>: no common UL version</p></li>
-</ul>
-<p>If <cite>result_source</cite> is <code class="docutils literal notranslate"><span class="pre">2</span></code> “UL service-provider (presentation related
-function)” then allowed values are:</p>
-<ul class="simple">
-<li><p><code class="docutils literal notranslate"><span class="pre">0</span></code>: no reason given</p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">1</span></code>: temporary congestion</p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">2</span></code>: local limit exceeded</p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">3</span></code>: called presentation address unknown</p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">4</span></code>: presentation protocol version not supported</p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">5</span></code>: no presentation service access point available</p></li>
-</ul>
-<dl class="field-list simple">
-<dt class="field-odd">Type</dt>
-<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.9)">int</a></p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py attribute">
-<dt id="pynetdicom.pdu_primitives.A_ASSOCIATE.calling_presentation_address">
-<code class="sig-name descname"><span class="pre">calling_presentation_address</span></code><a class="headerlink" href="#pynetdicom.pdu_primitives.A_ASSOCIATE.calling_presentation_address" title="Permalink to this definition">¶</a></dt>
-<dd><p>TCP/IP address of the <em>Requestor</em></p>
-<dl class="field-list simple">
-<dt class="field-odd">Type</dt>
-<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)">str</a></p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py attribute">
-<dt id="pynetdicom.pdu_primitives.A_ASSOCIATE.called_presentation_address">
-<code class="sig-name descname"><span class="pre">called_presentation_address</span></code><a class="headerlink" href="#pynetdicom.pdu_primitives.A_ASSOCIATE.called_presentation_address" title="Permalink to this definition">¶</a></dt>
-<dd><p>TCP/IP address of the intended <em>Acceptor</em></p>
-<dl class="field-list simple">
-<dt class="field-odd">Type</dt>
-<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)">str</a></p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py attribute">
-<dt id="pynetdicom.pdu_primitives.A_ASSOCIATE.responding_presentation_address">
-<code class="sig-name descname"><span class="pre">responding_presentation_address</span></code><a class="headerlink" href="#pynetdicom.pdu_primitives.A_ASSOCIATE.responding_presentation_address" title="Permalink to this definition">¶</a></dt>
-<dd><p>Shall always contain the same value as the
-<em>Called Presentation Address</em>.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Type</dt>
-<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)">str</a></p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py attribute">
-<dt id="pynetdicom.pdu_primitives.A_ASSOCIATE.presentation_context_definition_list">
-<code class="sig-name descname"><span class="pre">presentation_context_definition_list</span></code><a class="headerlink" href="#pynetdicom.pdu_primitives.A_ASSOCIATE.presentation_context_definition_list" title="Permalink to this definition">¶</a></dt>
-<dd><p>List of one or more presentation contexts, with each item containing
-a presentation context ID, an Abstract Syntax and a list of one or
-more Transfer Syntax Names. Sent by the <em>Requestor</em> during
-request/indication.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Type</dt>
-<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.9)">list</a></p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py attribute">
-<dt id="pynetdicom.pdu_primitives.A_ASSOCIATE.presentation_context_definition_results_list">
-<code class="sig-name descname"><span class="pre">presentation_context_definition_results_list</span></code><a class="headerlink" href="#pynetdicom.pdu_primitives.A_ASSOCIATE.presentation_context_definition_results_list" title="Permalink to this definition">¶</a></dt>
-<dd><p>Used in response/confirmation to indicate acceptance or rejection of
-each presentation context definition.
-List of result values, with a one-to-one correspondence between each
-of the presentation contexts proposed in the Presentation Context
-Definition List parameter.
-The result values may be sent in any order and may be different than
-the order proposed.
-Only one Transfer Syntax per presentation context shall be agreed to</p>
-<dl class="field-list simple">
-<dt class="field-odd">Type</dt>
-<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.9)">list</a></p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py attribute">
-<dt id="pynetdicom.pdu_primitives.A_ASSOCIATE.presentation_requirements">
-<code class="sig-name descname"><span class="pre">presentation_requirements</span></code><a class="headerlink" href="#pynetdicom.pdu_primitives.A_ASSOCIATE.presentation_requirements" title="Permalink to this definition">¶</a></dt>
-<dd><p>Fixed value of <code class="docutils literal notranslate"><span class="pre">'Presentation</span> <span class="pre">Kernel'</span></code>.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Type</dt>
-<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)">str</a></p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py attribute">
-<dt id="pynetdicom.pdu_primitives.A_ASSOCIATE.session_requirements">
-<code class="sig-name descname"><span class="pre">session_requirements</span></code><a class="headerlink" href="#pynetdicom.pdu_primitives.A_ASSOCIATE.session_requirements" title="Permalink to this definition">¶</a></dt>
-<dd><p>Fixed value of <code class="docutils literal notranslate"><span class="pre">''</span></code> (empty string).</p>
-<dl class="field-list simple">
-<dt class="field-odd">Type</dt>
-<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)">str</a></p>
-</dd>
-</dl>
-</dd></dl>
-
 <p class="rubric">References</p>
 <ul class="simple">
 <li><p>DICOM Standard, Part 8,
 <a class="reference external" href="http://dicom.nema.org/medical/dicom/current/output/chtml/part08/chapter_7.html#sect_7.1.1">Section 7.1.1</a></p></li>
 </ul>
 <dl class="py method">
-<dt id="pynetdicom.pdu_primitives.A_ASSOCIATE.__init__">
-<code class="sig-name descname"><span class="pre">__init__</span></code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/5b28410cd/pynetdicom/pdu_primitives.py#L207"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pynetdicom.pdu_primitives.A_ASSOCIATE.__init__" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="pynetdicom.pdu_primitives.A_ASSOCIATE.__init__">
+<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> &#x2192; <a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.9)"><span class="pre">None</span></a><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/151e9cdff/pynetdicom/pdu_primitives.py#L111"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pynetdicom.pdu_primitives.A_ASSOCIATE.__init__" title="Permalink to this definition">¶</a></dt>
 <dd><p>Initialize self.  See help(type(self)) for accurate signature.</p>
 </dd></dl>
 
@@ -615,195 +381,312 @@ Only one Transfer Syntax per presentation context shall be agreed to</p>
 <col style="width: 90%" />
 </colgroup>
 <tbody>
-<tr class="row-odd"><td><p><a class="reference internal" href="#id0" title="pynetdicom.pdu_primitives.A_ASSOCIATE.application_context_name"><code class="xref py py-obj docutils literal notranslate"><span class="pre">application_context_name</span></code></a></p></td>
-<td><p>Return the Application Context Name parameter.</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pynetdicom.pdu_primitives.A_ASSOCIATE.application_context_name" title="pynetdicom.pdu_primitives.A_ASSOCIATE.application_context_name"><code class="xref py py-obj docutils literal notranslate"><span class="pre">application_context_name</span></code></a></p></td>
+<td><p>Get or set the <em>Application Context Name</em> parameter.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#id1" title="pynetdicom.pdu_primitives.A_ASSOCIATE.called_ae_title"><code class="xref py py-obj docutils literal notranslate"><span class="pre">called_ae_title</span></code></a></p></td>
-<td><p>Return the Called AE Title parameter.</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#pynetdicom.pdu_primitives.A_ASSOCIATE.called_ae_title" title="pynetdicom.pdu_primitives.A_ASSOCIATE.called_ae_title"><code class="xref py py-obj docutils literal notranslate"><span class="pre">called_ae_title</span></code></a></p></td>
+<td><p>Get or set the <em>Called AE Title</em> parameter.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#id2" title="pynetdicom.pdu_primitives.A_ASSOCIATE.called_presentation_address"><code class="xref py py-obj docutils literal notranslate"><span class="pre">called_presentation_address</span></code></a></p></td>
-<td><p>Return the Called Presentation Address parameter.</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pynetdicom.pdu_primitives.A_ASSOCIATE.called_presentation_address" title="pynetdicom.pdu_primitives.A_ASSOCIATE.called_presentation_address"><code class="xref py py-obj docutils literal notranslate"><span class="pre">called_presentation_address</span></code></a></p></td>
+<td><p>Get or set the <em>Called Presentation Address</em> parameter.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#id3" title="pynetdicom.pdu_primitives.A_ASSOCIATE.calling_ae_title"><code class="xref py py-obj docutils literal notranslate"><span class="pre">calling_ae_title</span></code></a></p></td>
-<td><p>Return the Calling AE Title parameter.</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#pynetdicom.pdu_primitives.A_ASSOCIATE.calling_ae_title" title="pynetdicom.pdu_primitives.A_ASSOCIATE.calling_ae_title"><code class="xref py py-obj docutils literal notranslate"><span class="pre">calling_ae_title</span></code></a></p></td>
+<td><p>Get or set the <em>Calling AE Title</em> parameter.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#id4" title="pynetdicom.pdu_primitives.A_ASSOCIATE.calling_presentation_address"><code class="xref py py-obj docutils literal notranslate"><span class="pre">calling_presentation_address</span></code></a></p></td>
-<td><p>Return the Calling Presentation Address parameter.</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pynetdicom.pdu_primitives.A_ASSOCIATE.calling_presentation_address" title="pynetdicom.pdu_primitives.A_ASSOCIATE.calling_presentation_address"><code class="xref py py-obj docutils literal notranslate"><span class="pre">calling_presentation_address</span></code></a></p></td>
+<td><p>Get or set the <em>Calling Presentation Address</em> parameter.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#id5" title="pynetdicom.pdu_primitives.A_ASSOCIATE.diagnostic"><code class="xref py py-obj docutils literal notranslate"><span class="pre">diagnostic</span></code></a></p></td>
-<td><p>Return the Diagnostic parameter.</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#pynetdicom.pdu_primitives.A_ASSOCIATE.diagnostic" title="pynetdicom.pdu_primitives.A_ASSOCIATE.diagnostic"><code class="xref py py-obj docutils literal notranslate"><span class="pre">diagnostic</span></code></a></p></td>
+<td><p>Get or set the <em>Diagnostic</em> parameter.</p></td>
 </tr>
 <tr class="row-odd"><td><p><a class="reference internal" href="#pynetdicom.pdu_primitives.A_ASSOCIATE.implementation_class_uid" title="pynetdicom.pdu_primitives.A_ASSOCIATE.implementation_class_uid"><code class="xref py py-obj docutils literal notranslate"><span class="pre">implementation_class_uid</span></code></a></p></td>
-<td><p>Return the Implementation Class UID.</p></td>
+<td><p>Get or set the <em>Implementation Class UID</em> as <a class="reference external" href="https://pydicom.github.io/pydicom/stable/reference/generated/pydicom.uid.UID.html#pydicom.uid.UID" title="(in pydicom v2.1.2)"><code class="xref py py-class docutils literal notranslate"><span class="pre">UID</span></code></a>.</p></td>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="#pynetdicom.pdu_primitives.A_ASSOCIATE.maximum_length_received" title="pynetdicom.pdu_primitives.A_ASSOCIATE.maximum_length_received"><code class="xref py py-obj docutils literal notranslate"><span class="pre">maximum_length_received</span></code></a></p></td>
-<td><p>Get the Maximum Length Received.</p></td>
+<td><p>Get or set the <em>Maximum Length Received</em> as <a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.9)"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></a>.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#id6" title="pynetdicom.pdu_primitives.A_ASSOCIATE.mode"><code class="xref py py-obj docutils literal notranslate"><span class="pre">mode</span></code></a></p></td>
-<td><p>Return the Mode parameter.</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pynetdicom.pdu_primitives.A_ASSOCIATE.mode" title="pynetdicom.pdu_primitives.A_ASSOCIATE.mode"><code class="xref py py-obj docutils literal notranslate"><span class="pre">mode</span></code></a></p></td>
+<td><p>Return the <em>Mode</em> parameter as <a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></a>.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#id7" title="pynetdicom.pdu_primitives.A_ASSOCIATE.presentation_context_definition_list"><code class="xref py py-obj docutils literal notranslate"><span class="pre">presentation_context_definition_list</span></code></a></p></td>
-<td><p>Get the Presentation Context Definition List.</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#pynetdicom.pdu_primitives.A_ASSOCIATE.presentation_context_definition_list" title="pynetdicom.pdu_primitives.A_ASSOCIATE.presentation_context_definition_list"><code class="xref py py-obj docutils literal notranslate"><span class="pre">presentation_context_definition_list</span></code></a></p></td>
+<td><p>Get or set the <em>Presentation Context Definition List</em>.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#id8" title="pynetdicom.pdu_primitives.A_ASSOCIATE.presentation_context_definition_results_list"><code class="xref py py-obj docutils literal notranslate"><span class="pre">presentation_context_definition_results_list</span></code></a></p></td>
-<td><p>Get the Presentation Context Definition Results List.</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pynetdicom.pdu_primitives.A_ASSOCIATE.presentation_context_definition_results_list" title="pynetdicom.pdu_primitives.A_ASSOCIATE.presentation_context_definition_results_list"><code class="xref py py-obj docutils literal notranslate"><span class="pre">presentation_context_definition_results_list</span></code></a></p></td>
+<td><p>Get or set the <em>Presentation Context Definition Results List</em>.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#id9" title="pynetdicom.pdu_primitives.A_ASSOCIATE.presentation_requirements"><code class="xref py py-obj docutils literal notranslate"><span class="pre">presentation_requirements</span></code></a></p></td>
-<td><p>Get the Presentation Kernel.</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#pynetdicom.pdu_primitives.A_ASSOCIATE.presentation_requirements" title="pynetdicom.pdu_primitives.A_ASSOCIATE.presentation_requirements"><code class="xref py py-obj docutils literal notranslate"><span class="pre">presentation_requirements</span></code></a></p></td>
+<td><p>Return the <em>Presentation Kernel</em> as <a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></a>.</p></td>
 </tr>
 <tr class="row-odd"><td><p><a class="reference internal" href="#pynetdicom.pdu_primitives.A_ASSOCIATE.reason_str" title="pynetdicom.pdu_primitives.A_ASSOCIATE.reason_str"><code class="xref py py-obj docutils literal notranslate"><span class="pre">reason_str</span></code></a></p></td>
 <td><p>Return the rejection reason as str.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#id10" title="pynetdicom.pdu_primitives.A_ASSOCIATE.responding_ae_title"><code class="xref py py-obj docutils literal notranslate"><span class="pre">responding_ae_title</span></code></a></p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#pynetdicom.pdu_primitives.A_ASSOCIATE.responding_ae_title" title="pynetdicom.pdu_primitives.A_ASSOCIATE.responding_ae_title"><code class="xref py py-obj docutils literal notranslate"><span class="pre">responding_ae_title</span></code></a></p></td>
 <td><p>Return the Responding AE Title parameter.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#id11" title="pynetdicom.pdu_primitives.A_ASSOCIATE.responding_presentation_address"><code class="xref py py-obj docutils literal notranslate"><span class="pre">responding_presentation_address</span></code></a></p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pynetdicom.pdu_primitives.A_ASSOCIATE.responding_presentation_address" title="pynetdicom.pdu_primitives.A_ASSOCIATE.responding_presentation_address"><code class="xref py py-obj docutils literal notranslate"><span class="pre">responding_presentation_address</span></code></a></p></td>
 <td><p>Get the Responding Presentation Address parameter.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#id12" title="pynetdicom.pdu_primitives.A_ASSOCIATE.result"><code class="xref py py-obj docutils literal notranslate"><span class="pre">result</span></code></a></p></td>
-<td><p>Return te Result parameter.</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#pynetdicom.pdu_primitives.A_ASSOCIATE.result" title="pynetdicom.pdu_primitives.A_ASSOCIATE.result"><code class="xref py py-obj docutils literal notranslate"><span class="pre">result</span></code></a></p></td>
+<td><p>Get or set the <em>Result</em> parameter.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#id13" title="pynetdicom.pdu_primitives.A_ASSOCIATE.result_source"><code class="xref py py-obj docutils literal notranslate"><span class="pre">result_source</span></code></a></p></td>
-<td><p>Return the Result Source parameter.</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pynetdicom.pdu_primitives.A_ASSOCIATE.result_source" title="pynetdicom.pdu_primitives.A_ASSOCIATE.result_source"><code class="xref py py-obj docutils literal notranslate"><span class="pre">result_source</span></code></a></p></td>
+<td><p>Get or set the <em>Result Source</em> parameter.</p></td>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="#pynetdicom.pdu_primitives.A_ASSOCIATE.result_str" title="pynetdicom.pdu_primitives.A_ASSOCIATE.result_str"><code class="xref py py-obj docutils literal notranslate"><span class="pre">result_str</span></code></a></p></td>
 <td><p>Return the result as str.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#id14" title="pynetdicom.pdu_primitives.A_ASSOCIATE.session_requirements"><code class="xref py py-obj docutils literal notranslate"><span class="pre">session_requirements</span></code></a></p></td>
-<td><p>Get the Session Requirements.</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pynetdicom.pdu_primitives.A_ASSOCIATE.session_requirements" title="pynetdicom.pdu_primitives.A_ASSOCIATE.session_requirements"><code class="xref py py-obj docutils literal notranslate"><span class="pre">session_requirements</span></code></a></p></td>
+<td><p>Return the <em>Session Requirements</em> as <a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></a>.</p></td>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="#pynetdicom.pdu_primitives.A_ASSOCIATE.source_str" title="pynetdicom.pdu_primitives.A_ASSOCIATE.source_str"><code class="xref py py-obj docutils literal notranslate"><span class="pre">source_str</span></code></a></p></td>
 <td><p>Return the reject source as str.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#id15" title="pynetdicom.pdu_primitives.A_ASSOCIATE.user_information"><code class="xref py py-obj docutils literal notranslate"><span class="pre">user_information</span></code></a></p></td>
-<td><p>Return the User Information parameter.</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pynetdicom.pdu_primitives.A_ASSOCIATE.user_information" title="pynetdicom.pdu_primitives.A_ASSOCIATE.user_information"><code class="xref py py-obj docutils literal notranslate"><span class="pre">user_information</span></code></a></p></td>
+<td><p>Get or set the <em>User Information</em> parameter.</p></td>
 </tr>
 </tbody>
 </table>
-<dl class="py method">
-<dt id="id0">
-<em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">application_context_name</span></code><a class="headerlink" href="#id0" title="Permalink to this definition">¶</a></dt>
-<dd><p>Return the Application Context Name parameter.</p>
+<dl class="py property">
+<dt class="sig sig-object py" id="pynetdicom.pdu_primitives.A_ASSOCIATE.application_context_name">
+<em class="property"><span class="pre">property</span> </em><span class="sig-name descname"><span class="pre">application_context_name</span></span><em class="property"><span class="pre">:</span> <span class="pre">Optional[pydicom.uid.UID]</span></em><a class="headerlink" href="#pynetdicom.pdu_primitives.A_ASSOCIATE.application_context_name" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get or set the <em>Application Context Name</em> parameter.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>value</strong> (<a class="reference external" href="https://pydicom.github.io/pydicom/stable/reference/generated/pydicom.uid.UID.html#pydicom.uid.UID" title="(in pydicom v2.1.2)"><em>pydicom.uid.UID</em></a><em>, </em><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#bytes" title="(in Python v3.9)"><em>bytes</em></a><em> or </em><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)"><em>str</em></a>) – The application context name proposed by the <em>Requestor</em>.
+<em>Acceptor</em> returns either the same or a different name. Returned
+name specifies the application context used for the association.
+See the DICOM Standard, Part 8, <a class="reference external" href="http://dicom.nema.org/medical/dicom/current/output/chtml/part08/chapter_A.html">Annex A</a>. The application context name shall
+be a valid UID or UID string and for version 3 of the DICOM
+Standard should be <code class="docutils literal notranslate"><span class="pre">'1.2.840.10008.3.1.1.1'</span></code></p>
+</dd>
+</dl>
 </dd></dl>
 
-<dl class="py method">
-<dt id="id1">
-<em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">called_ae_title</span></code><a class="headerlink" href="#id1" title="Permalink to this definition">¶</a></dt>
-<dd><p>Return the Called AE Title parameter.</p>
+<dl class="py property">
+<dt class="sig sig-object py" id="pynetdicom.pdu_primitives.A_ASSOCIATE.called_ae_title">
+<em class="property"><span class="pre">property</span> </em><span class="sig-name descname"><span class="pre">called_ae_title</span></span><em class="property"><span class="pre">:</span> <span class="pre">Optional[bytes]</span></em><a class="headerlink" href="#pynetdicom.pdu_primitives.A_ASSOCIATE.called_ae_title" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get or set the <em>Called AE Title</em> parameter.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>value</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)"><em>str</em></a><em> or </em><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#bytes" title="(in Python v3.9)"><em>bytes</em></a>) – The Called AE Title as a string or bytes object. Cannot be an empty
+string and will be truncated to 16 characters long</p>
+</dd>
+</dl>
 </dd></dl>
 
-<dl class="py method">
-<dt id="id2">
-<em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">called_presentation_address</span></code><a class="headerlink" href="#id2" title="Permalink to this definition">¶</a></dt>
-<dd><p>Return the Called Presentation Address parameter.</p>
+<dl class="py property">
+<dt class="sig sig-object py" id="pynetdicom.pdu_primitives.A_ASSOCIATE.called_presentation_address">
+<em class="property"><span class="pre">property</span> </em><span class="sig-name descname"><span class="pre">called_presentation_address</span></span><em class="property"><span class="pre">:</span> <span class="pre">Optional[Tuple[str,</span> <span class="pre">int]]</span></em><a class="headerlink" href="#pynetdicom.pdu_primitives.A_ASSOCIATE.called_presentation_address" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get or set the <em>Called Presentation Address</em> parameter.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>value</strong> (<em>(</em><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)"><em>str</em></a><em>, </em><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.9)"><em>int</em></a><em>) </em><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#tuple" title="(in Python v3.9)"><em>tuple</em></a>) – A tuple containing a valid TCP/IP address string and the port
+number as an int</p>
+</dd>
+</dl>
 </dd></dl>
 
-<dl class="py method">
-<dt id="id3">
-<em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">calling_ae_title</span></code><a class="headerlink" href="#id3" title="Permalink to this definition">¶</a></dt>
-<dd><p>Return the Calling AE Title parameter.</p>
+<dl class="py property">
+<dt class="sig sig-object py" id="pynetdicom.pdu_primitives.A_ASSOCIATE.calling_ae_title">
+<em class="property"><span class="pre">property</span> </em><span class="sig-name descname"><span class="pre">calling_ae_title</span></span><em class="property"><span class="pre">:</span> <span class="pre">Optional[bytes]</span></em><a class="headerlink" href="#pynetdicom.pdu_primitives.A_ASSOCIATE.calling_ae_title" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get or set the <em>Calling AE Title</em> parameter.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>value</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)"><em>str</em></a><em> or </em><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#bytes" title="(in Python v3.9)"><em>bytes</em></a>) – The Calling AE Title as a string or bytes object. Cannot be an
+empty string and will be truncated to 16 characters long</p>
+</dd>
+</dl>
 </dd></dl>
 
-<dl class="py method">
-<dt id="id4">
-<em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">calling_presentation_address</span></code><a class="headerlink" href="#id4" title="Permalink to this definition">¶</a></dt>
-<dd><p>Return the Calling Presentation Address parameter.</p>
+<dl class="py property">
+<dt class="sig sig-object py" id="pynetdicom.pdu_primitives.A_ASSOCIATE.calling_presentation_address">
+<em class="property"><span class="pre">property</span> </em><span class="sig-name descname"><span class="pre">calling_presentation_address</span></span><em class="property"><span class="pre">:</span> <span class="pre">Optional[Tuple[str,</span> <span class="pre">int]]</span></em><a class="headerlink" href="#pynetdicom.pdu_primitives.A_ASSOCIATE.calling_presentation_address" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get or set the <em>Calling Presentation Address</em> parameter.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>value</strong> (<em>(</em><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)"><em>str</em></a><em>, </em><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.9)"><em>int</em></a><em>) </em><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#tuple" title="(in Python v3.9)"><em>tuple</em></a>) – A tuple containing a valid TCP/IP address string and the port
+number as an int</p>
+</dd>
+</dl>
 </dd></dl>
 
-<dl class="py method">
-<dt id="id5">
-<em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">diagnostic</span></code><a class="headerlink" href="#id5" title="Permalink to this definition">¶</a></dt>
-<dd><p>Return the Diagnostic parameter.</p>
+<dl class="py property">
+<dt class="sig sig-object py" id="pynetdicom.pdu_primitives.A_ASSOCIATE.diagnostic">
+<em class="property"><span class="pre">property</span> </em><span class="sig-name descname"><span class="pre">diagnostic</span></span><em class="property"><span class="pre">:</span> <span class="pre">Optional[int]</span></em><a class="headerlink" href="#pynetdicom.pdu_primitives.A_ASSOCIATE.diagnostic" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get or set the <em>Diagnostic</em> parameter.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>value</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.9)"><em>int</em></a>) – <p>If <cite>result_source</cite> is “UL service-user” then allowed values are:</p>
+<ul class="simple">
+<li><p>1: no reason given</p></li>
+<li><p>2: application context name not supported</p></li>
+<li><p>3: calling AE title not recognised</p></li>
+<li><p>7: called AE title not recognised</p></li>
+</ul>
+<p>If <cite>result_source</cite> is “UL service-provider (ACSE related function)”
+then allowed values are:</p>
+<ul class="simple">
+<li><p>1: no reason given</p></li>
+<li><p>2: protocol version not supported”</p></li>
+</ul>
+<p>If <cite>result_source</cite> is “UL service-provider (Presentation related
+function)” then allowed values are:</p>
+<ul class="simple">
+<li><p>1: temporary congestion</p></li>
+<li><p>2: local limit exceeded</p></li>
+</ul>
+</p>
+</dd>
+</dl>
 </dd></dl>
 
-<dl class="py method">
-<dt id="pynetdicom.pdu_primitives.A_ASSOCIATE.implementation_class_uid">
-<em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">implementation_class_uid</span></code><a class="headerlink" href="#pynetdicom.pdu_primitives.A_ASSOCIATE.implementation_class_uid" title="Permalink to this definition">¶</a></dt>
-<dd><p>Return the Implementation Class UID.</p>
+<dl class="py property">
+<dt class="sig sig-object py" id="pynetdicom.pdu_primitives.A_ASSOCIATE.implementation_class_uid">
+<em class="property"><span class="pre">property</span> </em><span class="sig-name descname"><span class="pre">implementation_class_uid</span></span><em class="property"><span class="pre">:</span> <span class="pre">Optional[pydicom.uid.UID]</span></em><a class="headerlink" href="#pynetdicom.pdu_primitives.A_ASSOCIATE.implementation_class_uid" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get or set the <em>Implementation Class UID</em> as
+<a class="reference external" href="https://pydicom.github.io/pydicom/stable/reference/generated/pydicom.uid.UID.html#pydicom.uid.UID" title="(in pydicom v2.1.2)"><code class="xref py py-class docutils literal notranslate"><span class="pre">UID</span></code></a>.</p>
+<p>If the A_ASSOCIATE.user_information list contains an
+ImplementationClassUIDNotification item then set its
+implementation_class_uid value. If not then add a
+ImplementationClassUIDNotification item and set its
+implementation_class_uid value.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>value</strong> (<a class="reference external" href="https://pydicom.github.io/pydicom/stable/reference/generated/pydicom.uid.UID.html#pydicom.uid.UID" title="(in pydicom v2.1.2)"><em>pydicom.uid.UID</em></a><em>, </em><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#bytes" title="(in Python v3.9)"><em>bytes</em></a><em> or </em><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)"><em>str</em></a>) – The value for the Implementation Class UID</p>
+</dd>
+</dl>
 </dd></dl>
 
-<dl class="py method">
-<dt id="pynetdicom.pdu_primitives.A_ASSOCIATE.maximum_length_received">
-<em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">maximum_length_received</span></code><a class="headerlink" href="#pynetdicom.pdu_primitives.A_ASSOCIATE.maximum_length_received" title="Permalink to this definition">¶</a></dt>
-<dd><p>Get the Maximum Length Received.</p>
+<dl class="py property">
+<dt class="sig sig-object py" id="pynetdicom.pdu_primitives.A_ASSOCIATE.maximum_length_received">
+<em class="property"><span class="pre">property</span> </em><span class="sig-name descname"><span class="pre">maximum_length_received</span></span><em class="property"><span class="pre">:</span> <span class="pre">Optional[int]</span></em><a class="headerlink" href="#pynetdicom.pdu_primitives.A_ASSOCIATE.maximum_length_received" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get or set the <em>Maximum Length Received</em> as <a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.9)"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></a>.</p>
+<p>If the A_ASSOCIATE.user_information list contains a
+MaximumLengthNotification item then set its maximum_length_received
+value. If not then add a MaximumLengthNotification item and set its
+maximum_length_received value.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>value</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.9)"><em>int</em></a>) – The maximum length of each P-DATA in bytes</p>
+</dd>
+</dl>
 </dd></dl>
 
-<dl class="py method">
-<dt id="id6">
-<em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">mode</span></code><a class="headerlink" href="#id6" title="Permalink to this definition">¶</a></dt>
-<dd><p>Return the Mode parameter.</p>
+<dl class="py property">
+<dt class="sig sig-object py" id="pynetdicom.pdu_primitives.A_ASSOCIATE.mode">
+<em class="property"><span class="pre">property</span> </em><span class="sig-name descname"><span class="pre">mode</span></span><em class="property"><span class="pre">:</span> <span class="pre">str</span></em><a class="headerlink" href="#pynetdicom.pdu_primitives.A_ASSOCIATE.mode" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return the <em>Mode</em> parameter as <a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></a>.</p>
 </dd></dl>
 
-<dl class="py method">
-<dt id="id7">
-<em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">presentation_context_definition_list</span></code><a class="headerlink" href="#id7" title="Permalink to this definition">¶</a></dt>
-<dd><p>Get the Presentation Context Definition List.</p>
+<dl class="py property">
+<dt class="sig sig-object py" id="pynetdicom.pdu_primitives.A_ASSOCIATE.presentation_context_definition_list">
+<em class="property"><span class="pre">property</span> </em><span class="sig-name descname"><span class="pre">presentation_context_definition_list</span></span><em class="property"><span class="pre">:</span> <span class="pre">List[pynetdicom.presentation.PresentationContext]</span></em><a class="headerlink" href="#pynetdicom.pdu_primitives.A_ASSOCIATE.presentation_context_definition_list" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get or set the <em>Presentation Context Definition List</em>.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>value_list</strong> (<em>list of presentation.PresentationContext</em>) – The Presentation Contexts proposed by the Association Requestor</p>
+</dd>
+</dl>
 </dd></dl>
 
-<dl class="py method">
-<dt id="id8">
-<em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">presentation_context_definition_results_list</span></code><a class="headerlink" href="#id8" title="Permalink to this definition">¶</a></dt>
-<dd><p>Get the Presentation Context Definition Results List.</p>
+<dl class="py property">
+<dt class="sig sig-object py" id="pynetdicom.pdu_primitives.A_ASSOCIATE.presentation_context_definition_results_list">
+<em class="property"><span class="pre">property</span> </em><span class="sig-name descname"><span class="pre">presentation_context_definition_results_list</span></span><em class="property"><span class="pre">:</span> <span class="pre">List[pynetdicom.presentation.PresentationContext]</span></em><a class="headerlink" href="#pynetdicom.pdu_primitives.A_ASSOCIATE.presentation_context_definition_results_list" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get or set the <em>Presentation Context Definition Results List</em>.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>value_list</strong> (<em>list of presentation.PresentationContext</em>) – The results of the Presentation Contexts proposal by the
+Association Requestor</p>
+</dd>
+</dl>
 </dd></dl>
 
-<dl class="py method">
-<dt id="id9">
-<em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">presentation_requirements</span></code><a class="headerlink" href="#id9" title="Permalink to this definition">¶</a></dt>
-<dd><p>Get the Presentation Kernel.</p>
+<dl class="py property">
+<dt class="sig sig-object py" id="pynetdicom.pdu_primitives.A_ASSOCIATE.presentation_requirements">
+<em class="property"><span class="pre">property</span> </em><span class="sig-name descname"><span class="pre">presentation_requirements</span></span><em class="property"><span class="pre">:</span> <span class="pre">str</span></em><a class="headerlink" href="#pynetdicom.pdu_primitives.A_ASSOCIATE.presentation_requirements" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return the <em>Presentation Kernel</em> as <a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></a>.</p>
 </dd></dl>
 
-<dl class="py method">
-<dt id="pynetdicom.pdu_primitives.A_ASSOCIATE.reason_str">
-<em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">reason_str</span></code><a class="headerlink" href="#pynetdicom.pdu_primitives.A_ASSOCIATE.reason_str" title="Permalink to this definition">¶</a></dt>
+<dl class="py property">
+<dt class="sig sig-object py" id="pynetdicom.pdu_primitives.A_ASSOCIATE.reason_str">
+<em class="property"><span class="pre">property</span> </em><span class="sig-name descname"><span class="pre">reason_str</span></span><em class="property"><span class="pre">:</span> <span class="pre">str</span></em><a class="headerlink" href="#pynetdicom.pdu_primitives.A_ASSOCIATE.reason_str" title="Permalink to this definition">¶</a></dt>
 <dd><p>Return the rejection reason as str.</p>
 </dd></dl>
 
-<dl class="py method">
-<dt id="id10">
-<em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">responding_ae_title</span></code><a class="headerlink" href="#id10" title="Permalink to this definition">¶</a></dt>
+<dl class="py property">
+<dt class="sig sig-object py" id="pynetdicom.pdu_primitives.A_ASSOCIATE.responding_ae_title">
+<em class="property"><span class="pre">property</span> </em><span class="sig-name descname"><span class="pre">responding_ae_title</span></span><em class="property"><span class="pre">:</span> <span class="pre">Optional[bytes]</span></em><a class="headerlink" href="#pynetdicom.pdu_primitives.A_ASSOCIATE.responding_ae_title" title="Permalink to this definition">¶</a></dt>
 <dd><p>Return the Responding AE Title parameter.</p>
 </dd></dl>
 
-<dl class="py method">
-<dt id="id11">
-<em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">responding_presentation_address</span></code><a class="headerlink" href="#id11" title="Permalink to this definition">¶</a></dt>
+<dl class="py property">
+<dt class="sig sig-object py" id="pynetdicom.pdu_primitives.A_ASSOCIATE.responding_presentation_address">
+<em class="property"><span class="pre">property</span> </em><span class="sig-name descname"><span class="pre">responding_presentation_address</span></span><em class="property"><span class="pre">:</span> <span class="pre">Optional[Tuple[str,</span> <span class="pre">int]]</span></em><a class="headerlink" href="#pynetdicom.pdu_primitives.A_ASSOCIATE.responding_presentation_address" title="Permalink to this definition">¶</a></dt>
 <dd><p>Get the Responding Presentation Address parameter.</p>
 </dd></dl>
 
-<dl class="py method">
-<dt id="id12">
-<em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">result</span></code><a class="headerlink" href="#id12" title="Permalink to this definition">¶</a></dt>
-<dd><p>Return te Result parameter.</p>
+<dl class="py property">
+<dt class="sig sig-object py" id="pynetdicom.pdu_primitives.A_ASSOCIATE.result">
+<em class="property"><span class="pre">property</span> </em><span class="sig-name descname"><span class="pre">result</span></span><em class="property"><span class="pre">:</span> <span class="pre">Optional[str]</span></em><a class="headerlink" href="#pynetdicom.pdu_primitives.A_ASSOCIATE.result" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get or set the <em>Result</em> parameter.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>value</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)"><em>str</em></a>) – <p>One of the following:</p>
+<ul class="simple">
+<li><p>0: accepted</p></li>
+<li><p>1: rejected (permanent)</p></li>
+<li><p>2: rejected (transient)</p></li>
+</ul>
+</p>
+</dd>
+</dl>
 </dd></dl>
 
-<dl class="py method">
-<dt id="id13">
-<em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">result_source</span></code><a class="headerlink" href="#id13" title="Permalink to this definition">¶</a></dt>
-<dd><p>Return the Result Source parameter.</p>
+<dl class="py property">
+<dt class="sig sig-object py" id="pynetdicom.pdu_primitives.A_ASSOCIATE.result_source">
+<em class="property"><span class="pre">property</span> </em><span class="sig-name descname"><span class="pre">result_source</span></span><em class="property"><span class="pre">:</span> <span class="pre">Optional[int]</span></em><a class="headerlink" href="#pynetdicom.pdu_primitives.A_ASSOCIATE.result_source" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get or set the <em>Result Source</em> parameter.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>value</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.9)"><em>int</em></a>) – <p>One of the following:</p>
+<ul class="simple">
+<li><p>1: UL service-user</p></li>
+<li><p>2: UL service-provider (ACSE related function)</p></li>
+<li><p>3: UL service-provider (presentation related function)</p></li>
+</ul>
+</p>
+</dd>
+</dl>
 </dd></dl>
 
-<dl class="py method">
-<dt id="pynetdicom.pdu_primitives.A_ASSOCIATE.result_str">
-<em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">result_str</span></code><a class="headerlink" href="#pynetdicom.pdu_primitives.A_ASSOCIATE.result_str" title="Permalink to this definition">¶</a></dt>
+<dl class="py property">
+<dt class="sig sig-object py" id="pynetdicom.pdu_primitives.A_ASSOCIATE.result_str">
+<em class="property"><span class="pre">property</span> </em><span class="sig-name descname"><span class="pre">result_str</span></span><em class="property"><span class="pre">:</span> <span class="pre">str</span></em><a class="headerlink" href="#pynetdicom.pdu_primitives.A_ASSOCIATE.result_str" title="Permalink to this definition">¶</a></dt>
 <dd><p>Return the result as str.</p>
 </dd></dl>
 
-<dl class="py method">
-<dt id="id14">
-<em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">session_requirements</span></code><a class="headerlink" href="#id14" title="Permalink to this definition">¶</a></dt>
-<dd><p>Get the Session Requirements.</p>
+<dl class="py property">
+<dt class="sig sig-object py" id="pynetdicom.pdu_primitives.A_ASSOCIATE.session_requirements">
+<em class="property"><span class="pre">property</span> </em><span class="sig-name descname"><span class="pre">session_requirements</span></span><em class="property"><span class="pre">:</span> <span class="pre">str</span></em><a class="headerlink" href="#pynetdicom.pdu_primitives.A_ASSOCIATE.session_requirements" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return the <em>Session Requirements</em> as <a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></a>.</p>
 </dd></dl>
 
-<dl class="py method">
-<dt id="pynetdicom.pdu_primitives.A_ASSOCIATE.source_str">
-<em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">source_str</span></code><a class="headerlink" href="#pynetdicom.pdu_primitives.A_ASSOCIATE.source_str" title="Permalink to this definition">¶</a></dt>
+<dl class="py property">
+<dt class="sig sig-object py" id="pynetdicom.pdu_primitives.A_ASSOCIATE.source_str">
+<em class="property"><span class="pre">property</span> </em><span class="sig-name descname"><span class="pre">source_str</span></span><em class="property"><span class="pre">:</span> <span class="pre">str</span></em><a class="headerlink" href="#pynetdicom.pdu_primitives.A_ASSOCIATE.source_str" title="Permalink to this definition">¶</a></dt>
 <dd><p>Return the reject source as str.</p>
 </dd></dl>
 
-<dl class="py method">
-<dt id="id15">
-<em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">user_information</span></code><a class="headerlink" href="#id15" title="Permalink to this definition">¶</a></dt>
-<dd><p>Return the User Information parameter.</p>
+<dl class="py property">
+<dt class="sig sig-object py" id="pynetdicom.pdu_primitives.A_ASSOCIATE.user_information">
+<em class="property"><span class="pre">property</span> </em><span class="sig-name descname"><span class="pre">user_information</span></span><em class="property"><span class="pre">:</span> <span class="pre">List[Any]</span></em><a class="headerlink" href="#pynetdicom.pdu_primitives.A_ASSOCIATE.user_information" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get or set the <em>User Information</em> parameter.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>value_list</strong> (<em>list of user information class objects</em>) – A list of user information objects, must contain at least
+MaximumLengthNotification and ImplementationClassUIDNotification</p>
+</dd>
+</dl>
 </dd></dl>
 
 </dd></dl>
@@ -824,7 +707,7 @@ Only one Transfer Syntax per presentation context shall be agreed to</p>
 
   <div role="contentinfo">
     <p>
-        &#169; Copyright 2018-2020, pynetdicom contributors.
+        &#169; Copyright 2018-2021, pynetdicom contributors.
 
     </p>
   </div>

@@ -13,6 +13,8 @@
   
   <link rel="stylesheet" href="../../_static/css/pynetdicom.css" type="text/css" />
   <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="../../_static/css/pynetdicom.css" type="text/css" />
   <link rel="stylesheet" href="../../_static/copybutton.css" type="text/css" />
   <link rel="stylesheet" href="../../_static/css/pynetdicom.css" type="text/css" />
 
@@ -33,6 +35,7 @@
   
     
       <script type="text/javascript" id="documentation_options" data-url_root="../../" src="../../_static/documentation_options.js"></script>
+        <script data-url_root="../../" id="documentation_options" src="../../_static/documentation_options.js"></script>
         <script src="../../_static/jquery.js"></script>
         <script src="../../_static/underscore.js"></script>
         <script src="../../_static/doctools.js"></script>
@@ -222,26 +225,14 @@
   <div class="section" id="pynetdicom-pdu-p-data-tf">
 <h1>pynetdicom.pdu.P_DATA_TF<a class="headerlink" href="#pynetdicom-pdu-p-data-tf" title="Permalink to this headline">¶</a></h1>
 <dl class="py class">
-<dt id="pynetdicom.pdu.P_DATA_TF">
-<em class="property"><span class="pre">class</span> </em><code class="sig-prename descclassname"><span class="pre">pynetdicom.pdu.</span></code><code class="sig-name descname"><span class="pre">P_DATA_TF</span></code><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/5b28410cd/pynetdicom/pdu.py#L1308"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pynetdicom.pdu.P_DATA_TF" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="pynetdicom.pdu.P_DATA_TF">
+<em class="property"><span class="pre">class</span> </em><span class="sig-prename descclassname"><span class="pre">pynetdicom.pdu.</span></span><span class="sig-name descname"><span class="pre">P_DATA_TF</span></span><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/151e9cdff/pynetdicom/pdu.py#L1267"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pynetdicom.pdu.P_DATA_TF" title="Permalink to this definition">¶</a></dt>
 <dd><p>A P-DATA-TF PDU.</p>
 <p>A P-DATA-TF PDU is used once an association has been established to send
 DIMSE message data.</p>
 <dl class="py attribute">
-<dt id="pynetdicom.pdu.P_DATA_TF.pdu_length">
-<code class="sig-name descname"><span class="pre">pdu_length</span></code><a class="headerlink" href="#pynetdicom.pdu.P_DATA_TF.pdu_length" title="Permalink to this definition">¶</a></dt>
-<dd><p>The number of bytes from the first byte following the <em>PDU Length</em>
-field to the last byte of the PDU.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Type</dt>
-<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.9)">int</a></p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py attribute">
-<dt id="pynetdicom.pdu.P_DATA_TF.pdu_type">
-<code class="sig-name descname"><span class="pre">pdu_type</span></code><a class="headerlink" href="#pynetdicom.pdu.P_DATA_TF.pdu_type" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="pynetdicom.pdu.P_DATA_TF.pdu_type">
+<span class="sig-name descname"><span class="pre">pdu_type</span></span><a class="headerlink" href="#pynetdicom.pdu.P_DATA_TF.pdu_type" title="Permalink to this definition">¶</a></dt>
 <dd><p>The <em>PDU Type</em> field value (<code class="docutils literal notranslate"><span class="pre">0x04</span></code>).</p>
 <dl class="field-list simple">
 <dt class="field-odd">Type</dt>
@@ -251,8 +242,8 @@ field to the last byte of the PDU.</p>
 </dd></dl>
 
 <dl class="py attribute">
-<dt id="pynetdicom.pdu.P_DATA_TF.presentation_data_value_items">
-<code class="sig-name descname"><span class="pre">presentation_data_value_items</span></code><a class="headerlink" href="#pynetdicom.pdu.P_DATA_TF.presentation_data_value_items" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="pynetdicom.pdu.P_DATA_TF.presentation_data_value_items">
+<span class="sig-name descname"><span class="pre">presentation_data_value_items</span></span><a class="headerlink" href="#pynetdicom.pdu.P_DATA_TF.presentation_data_value_items" title="Permalink to this definition">¶</a></dt>
 <dd><p>The <em>Presentation Data Value Item(s)</em> field value.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Type</dt>
@@ -311,8 +302,8 @@ encoded using Big Endian.</p>
 <a class="reference external" href="http://dicom.nema.org/medical/dicom/current/output/chtml/part08/sect_9.3.html#sect_9.3.1">Section 9.3.1</a></p></li>
 </ul>
 <dl class="py method">
-<dt id="pynetdicom.pdu.P_DATA_TF.__init__">
-<code class="sig-name descname"><span class="pre">__init__</span></code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/5b28410cd/pynetdicom/pdu.py#L1358"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pynetdicom.pdu.P_DATA_TF.__init__" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="pynetdicom.pdu.P_DATA_TF.__init__">
+<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/151e9cdff/pynetdicom/pdu.py#L1314"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pynetdicom.pdu.P_DATA_TF.__init__" title="Permalink to this definition">¶</a></dt>
 <dd><p>Initialise a new P-DATA-TF PDU.</p>
 </dd></dl>
 
@@ -347,7 +338,7 @@ encoded using Big Endian.</p>
 <col style="width: 90%" />
 </colgroup>
 <tbody>
-<tr class="row-odd"><td><p><a class="reference internal" href="#id0" title="pynetdicom.pdu.P_DATA_TF.pdu_length"><code class="xref py py-obj docutils literal notranslate"><span class="pre">pdu_length</span></code></a></p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pynetdicom.pdu.P_DATA_TF.pdu_length" title="pynetdicom.pdu.P_DATA_TF.pdu_length"><code class="xref py py-obj docutils literal notranslate"><span class="pre">pdu_length</span></code></a></p></td>
 <td><p>Return the <em>PDU Length</em> field value as an int.</p></td>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="#pynetdicom.pdu.P_DATA_TF.pdu_type" title="pynetdicom.pdu.P_DATA_TF.pdu_type"><code class="xref py py-obj docutils literal notranslate"><span class="pre">pdu_type</span></code></a></p></td>
@@ -356,8 +347,8 @@ encoded using Big Endian.</p>
 </tbody>
 </table>
 <dl class="py method">
-<dt id="pynetdicom.pdu.P_DATA_TF.from_primitive">
-<code class="sig-name descname"><span class="pre">from_primitive</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">primitive</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/5b28410cd/pynetdicom/pdu.py#L1362"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pynetdicom.pdu.P_DATA_TF.from_primitive" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="pynetdicom.pdu.P_DATA_TF.from_primitive">
+<span class="sig-name descname"><span class="pre">from_primitive</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">primitive</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/151e9cdff/pynetdicom/pdu.py#L1318"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pynetdicom.pdu.P_DATA_TF.from_primitive" title="Permalink to this definition">¶</a></dt>
 <dd><p>Setup the current PDU using a P-DATA primitive.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -366,15 +357,15 @@ encoded using Big Endian.</p>
 </dl>
 </dd></dl>
 
-<dl class="py method">
-<dt id="id0">
-<em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">pdu_length</span></code><a class="headerlink" href="#id0" title="Permalink to this definition">¶</a></dt>
+<dl class="py property">
+<dt class="sig sig-object py" id="pynetdicom.pdu.P_DATA_TF.pdu_length">
+<em class="property"><span class="pre">property</span> </em><span class="sig-name descname"><span class="pre">pdu_length</span></span><a class="headerlink" href="#pynetdicom.pdu.P_DATA_TF.pdu_length" title="Permalink to this definition">¶</a></dt>
 <dd><p>Return the <em>PDU Length</em> field value as an int.</p>
 </dd></dl>
 
 <dl class="py method">
-<dt id="pynetdicom.pdu.P_DATA_TF.to_primitive">
-<code class="sig-name descname"><span class="pre">to_primitive</span></code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/5b28410cd/pynetdicom/pdu.py#L1376"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pynetdicom.pdu.P_DATA_TF.to_primitive" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="pynetdicom.pdu.P_DATA_TF.to_primitive">
+<span class="sig-name descname"><span class="pre">to_primitive</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/151e9cdff/pynetdicom/pdu.py#L1332"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pynetdicom.pdu.P_DATA_TF.to_primitive" title="Permalink to this definition">¶</a></dt>
 <dd><p>Return a P-DATA primitive from the current PDU.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Returns</dt>
@@ -404,7 +395,7 @@ encoded using Big Endian.</p>
 
   <div role="contentinfo">
     <p>
-        &#169; Copyright 2018-2020, pynetdicom contributors.
+        &#169; Copyright 2018-2021, pynetdicom contributors.
 
     </p>
   </div>

@@ -13,6 +13,8 @@
   
   <link rel="stylesheet" href="../_static/css/pynetdicom.css" type="text/css" />
   <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/css/pynetdicom.css" type="text/css" />
   <link rel="stylesheet" href="../_static/copybutton.css" type="text/css" />
   <link rel="stylesheet" href="../_static/css/pynetdicom.css" type="text/css" />
 
@@ -33,6 +35,7 @@
   
     
       <script type="text/javascript" id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+        <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
         <script src="../_static/jquery.js"></script>
         <script src="../_static/underscore.js"></script>
         <script src="../_static/doctools.js"></script>
@@ -239,49 +242,34 @@ tutorial.</p>
 <p>Let’s create a simple Storage SCP for receiving <em>CT Image</em> datasets encoded
 using the <em>Explicit VR Little Endian</em> transfer syntax. Create a new file
 <code class="docutils literal notranslate"><span class="pre">my_scp.py</span></code>, open it in a text editor and add the following:</p>
-<div class="highlight-python notranslate"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span class="normal"> 1</span>
-<span class="normal"> 2</span>
-<span class="normal"> 3</span>
-<span class="normal"> 4</span>
-<span class="normal"> 5</span>
-<span class="normal"> 6</span>
-<span class="normal"> 7</span>
-<span class="normal"> 8</span>
-<span class="normal"> 9</span>
-<span class="normal">10</span></pre></div></td><td class="code"><div class="highlight"><pre><span></span> <span class="kn">from</span> <span class="nn">pydicom.uid</span> <span class="kn">import</span> <span class="n">ExplicitVRLittleEndian</span>
-
- <span class="kn">from</span> <span class="nn">pynetdicom</span> <span class="kn">import</span> <span class="n">AE</span><span class="p">,</span> <span class="n">debug_logger</span>
- <span class="kn">from</span> <span class="nn">pynetdicom.sop_class</span> <span class="kn">import</span> <span class="n">CTImageStorage</span>
-
- <span class="n">debug_logger</span><span class="p">()</span>
-
- <span class="n">ae</span> <span class="o">=</span> <span class="n">AE</span><span class="p">()</span>
- <span class="n">ae</span><span class="o">.</span><span class="n">add_supported_context</span><span class="p">(</span><span class="n">CTImageStorage</span><span class="p">,</span> <span class="n">ExplicitVRLittleEndian</span><span class="p">)</span>
- <span class="n">ae</span><span class="o">.</span><span class="n">start_server</span><span class="p">((</span><span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="mi">11112</span><span class="p">),</span> <span class="n">block</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="linenos"> 1</span> <span class="kn">from</span> <span class="nn">pydicom.uid</span> <span class="kn">import</span> <span class="n">ExplicitVRLittleEndian</span>
+<span class="linenos"> 2</span>
+<span class="linenos"> 3</span> <span class="kn">from</span> <span class="nn">pynetdicom</span> <span class="kn">import</span> <span class="n">AE</span><span class="p">,</span> <span class="n">debug_logger</span>
+<span class="linenos"> 4</span> <span class="kn">from</span> <span class="nn">pynetdicom.sop_class</span> <span class="kn">import</span> <span class="n">CTImageStorage</span>
+<span class="linenos"> 5</span>
+<span class="linenos"> 6</span> <span class="n">debug_logger</span><span class="p">()</span>
+<span class="linenos"> 7</span>
+<span class="linenos"> 8</span> <span class="n">ae</span> <span class="o">=</span> <span class="n">AE</span><span class="p">()</span>
+<span class="linenos"> 9</span> <span class="n">ae</span><span class="o">.</span><span class="n">add_supported_context</span><span class="p">(</span><span class="n">CTImageStorage</span><span class="p">,</span> <span class="n">ExplicitVRLittleEndian</span><span class="p">)</span>
+<span class="linenos">10</span> <span class="n">ae</span><span class="o">.</span><span class="n">start_server</span><span class="p">((</span><span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="mi">11112</span><span class="p">),</span> <span class="n">block</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 </pre></div>
-</td></tr></table></div>
+</div>
 <p>Let’s break this down</p>
-<div class="highlight-python notranslate"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span class="normal">1</span>
-<span class="normal">2</span>
-<span class="normal">3</span>
-<span class="normal">4</span></pre></div></td><td class="code"><div class="highlight"><pre><span></span> <span class="kn">from</span> <span class="nn">pydicom.uid</span> <span class="kn">import</span> <span class="n">ExplicitVRLittleEndian</span>
-
- <span class="kn">from</span> <span class="nn">pynetdicom</span> <span class="kn">import</span> <span class="n">AE</span><span class="p">,</span> <span class="n">debug_logger</span>
- <span class="kn">from</span> <span class="nn">pynetdicom.sop_class</span> <span class="kn">import</span> <span class="n">CTImageStorage</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="linenos">1</span> <span class="kn">from</span> <span class="nn">pydicom.uid</span> <span class="kn">import</span> <span class="n">ExplicitVRLittleEndian</span>
+<span class="linenos">2</span>
+<span class="linenos">3</span> <span class="kn">from</span> <span class="nn">pynetdicom</span> <span class="kn">import</span> <span class="n">AE</span><span class="p">,</span> <span class="n">debug_logger</span>
+<span class="linenos">4</span> <span class="kn">from</span> <span class="nn">pynetdicom.sop_class</span> <span class="kn">import</span> <span class="n">CTImageStorage</span>
 </pre></div>
-</td></tr></table></div>
+</div>
 <p>We import the <a class="reference internal" href="../user/concepts.html#concepts-uids"><span class="std std-ref">UID</span></a> for <a class="reference external" href="https://pydicom.github.io/pydicom/stable/reference/generated/pydicom.uid.ExplicitVRLittleEndian.html#pydicom.uid.ExplicitVRLittleEndian" title="(in pydicom v2.1.2)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Explicit</span> <span class="pre">VR</span> <span class="pre">Little</span> <span class="pre">Endian</span></code></a> from <em>pydicom</em>, and
 the <a class="reference internal" href="../reference/generated/pynetdicom.ae.ApplicationEntity.html#pynetdicom.ae.ApplicationEntity" title="pynetdicom.ae.ApplicationEntity"><code class="xref py py-class docutils literal notranslate"><span class="pre">AE</span></code></a> class, <a class="reference internal" href="../reference/generated/pynetdicom.debug_logger.html#pynetdicom.debug_logger" title="pynetdicom.debug_logger"><code class="xref py py-func docutils literal notranslate"><span class="pre">debug_logger()</span></code></a> function and
 the UID for <a class="reference internal" href="../reference/generated/pynetdicom.sop_class.CTImageStorage.html#pynetdicom.sop_class.CTImageStorage" title="pynetdicom.sop_class.CTImageStorage"><code class="xref py py-attr docutils literal notranslate"><span class="pre">CT</span> <span class="pre">Image</span> <span class="pre">Storage</span></code></a> from <em>pynetdicom</em>.</p>
-<div class="highlight-python notranslate"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span class="normal">6</span>
-<span class="normal">7</span>
-<span class="normal">8</span>
-<span class="normal">9</span></pre></div></td><td class="code"><div class="highlight"><pre><span></span> <span class="n">debug_logger</span><span class="p">()</span>
-
- <span class="n">ae</span> <span class="o">=</span> <span class="n">AE</span><span class="p">()</span>
- <span class="n">ae</span><span class="o">.</span><span class="n">add_supported_context</span><span class="p">(</span><span class="n">CTImageStorage</span><span class="p">,</span> <span class="n">ExplicitVRLittleEndian</span><span class="p">)</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="linenos">6</span> <span class="n">debug_logger</span><span class="p">()</span>
+<span class="linenos">7</span>
+<span class="linenos">8</span> <span class="n">ae</span> <span class="o">=</span> <span class="n">AE</span><span class="p">()</span>
+<span class="linenos">9</span> <span class="n">ae</span><span class="o">.</span><span class="n">add_supported_context</span><span class="p">(</span><span class="n">CTImageStorage</span><span class="p">,</span> <span class="n">ExplicitVRLittleEndian</span><span class="p">)</span>
 </pre></div>
-</td></tr></table></div>
+</div>
 <p>Just as with the Echo SCU from the previous tutorial, we create a
 new <a class="reference internal" href="../reference/generated/pynetdicom.ae.ApplicationEntity.html#pynetdicom.ae.ApplicationEntity" title="pynetdicom.ae.ApplicationEntity"><code class="xref py py-class docutils literal notranslate"><span class="pre">AE</span></code></a> instance. However, because this time
 we’ll be the association <em>acceptor</em>, its up to us to specify what
@@ -290,9 +278,9 @@ we’ll be the association <em>acceptor</em>, its up to us to specify what
 using the <em>Explicit VR Little Endian</em> transfer syntax we use
 <a class="reference internal" href="../reference/generated/pynetdicom.ae.ApplicationEntity.html#pynetdicom.ae.ApplicationEntity.add_supported_context" title="pynetdicom.ae.ApplicationEntity.add_supported_context"><code class="xref py py-meth docutils literal notranslate"><span class="pre">add_supported_context()</span></code></a> to add a corresponding
 presentation context.</p>
-<div class="highlight-python notranslate"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span class="normal">10</span></pre></div></td><td class="code"><div class="highlight"><pre><span></span> <span class="n">ae</span><span class="o">.</span><span class="n">start_server</span><span class="p">((</span><span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="mi">11112</span><span class="p">),</span> <span class="n">block</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="linenos">10</span> <span class="n">ae</span><span class="o">.</span><span class="n">start_server</span><span class="p">((</span><span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="mi">11112</span><span class="p">),</span> <span class="n">block</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 </pre></div>
-</td></tr></table></div>
+</div>
 <p>The call to <a class="reference internal" href="../reference/generated/pynetdicom.ae.ApplicationEntity.html#pynetdicom.ae.ApplicationEntity.start_server" title="pynetdicom.ae.ApplicationEntity.start_server"><code class="xref py py-meth docutils literal notranslate"><span class="pre">start_server()</span></code></a> starts our SCP listening
 for association requests on port <code class="docutils literal notranslate"><span class="pre">11112</span></code> in <em>blocking</em> mode.</p>
 <p>Open a new terminal and start our SCP running:</p>
@@ -371,39 +359,24 @@ that sounds familiar…</p></li>
 </ol>
 <p>So we need to <a class="reference internal" href="../reference/generated/pynetdicom._handlers.doc_handle_store.html#pynetdicom._handlers.doc_handle_store" title="pynetdicom._handlers.doc_handle_store"><code class="xref py py-func docutils literal notranslate"><span class="pre">bind</span> <span class="pre">a</span> <span class="pre">handler</span></code></a> to
 <code class="docutils literal notranslate"><span class="pre">evt.EVT_C_STORE</span></code> to respond to incoming store requests.</p>
-<div class="highlight-python notranslate"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span class="normal"> 1</span>
-<span class="normal"> 2</span>
-<span class="normal"> 3</span>
-<span class="normal"> 4</span>
-<span class="normal"> 5</span>
-<span class="normal"> 6</span>
-<span class="normal"> 7</span>
-<span class="normal"> 8</span>
-<span class="normal"> 9</span>
-<span class="normal">10</span>
-<span class="normal">11</span>
-<span class="normal">12</span>
-<span class="normal">13</span>
-<span class="normal">14</span>
-<span class="normal">15</span>
-<span class="normal">16</span></pre></div></td><td class="code"><div class="highlight"><pre><span></span> <span class="kn">from</span> <span class="nn">pydicom.uid</span> <span class="kn">import</span> <span class="n">ExplicitVRLittleEndian</span>
-
-<span class="hll"> <span class="kn">from</span> <span class="nn">pynetdicom</span> <span class="kn">import</span> <span class="n">AE</span><span class="p">,</span> <span class="n">debug_logger</span><span class="p">,</span> <span class="n">evt</span>
-</span> <span class="kn">from</span> <span class="nn">pynetdicom.sop_class</span> <span class="kn">import</span> <span class="n">CTImageStorage</span>
-
- <span class="n">debug_logger</span><span class="p">()</span>
-
-<span class="hll"> <span class="k">def</span> <span class="nf">handle_store</span><span class="p">(</span><span class="n">event</span><span class="p">):</span>
-</span><span class="hll">     <span class="sd">&quot;&quot;&quot;Handle EVT_C_STORE events.&quot;&quot;&quot;</span>
-</span><span class="hll">     <span class="k">return</span> <span class="mh">0x0000</span>
-</span>
-<span class="hll"> <span class="n">handlers</span> <span class="o">=</span> <span class="p">[(</span><span class="n">evt</span><span class="o">.</span><span class="n">EVT_C_STORE</span><span class="p">,</span> <span class="n">handle_store</span><span class="p">)]</span>
-</span>
- <span class="n">ae</span> <span class="o">=</span> <span class="n">AE</span><span class="p">()</span>
- <span class="n">ae</span><span class="o">.</span><span class="n">add_supported_context</span><span class="p">(</span><span class="n">CTImageStorage</span><span class="p">,</span> <span class="n">ExplicitVRLittleEndian</span><span class="p">)</span>
-<span class="hll"> <span class="n">ae</span><span class="o">.</span><span class="n">start_server</span><span class="p">((</span><span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="mi">11112</span><span class="p">),</span> <span class="n">block</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">evt_handlers</span><span class="o">=</span><span class="n">handlers</span><span class="p">)</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="linenos"> 1</span> <span class="kn">from</span> <span class="nn">pydicom.uid</span> <span class="kn">import</span> <span class="n">ExplicitVRLittleEndian</span>
+<span class="linenos"> 2</span>
+<span class="hll"><span class="linenos"> 3</span> <span class="kn">from</span> <span class="nn">pynetdicom</span> <span class="kn">import</span> <span class="n">AE</span><span class="p">,</span> <span class="n">debug_logger</span><span class="p">,</span> <span class="n">evt</span>
+</span><span class="linenos"> 4</span> <span class="kn">from</span> <span class="nn">pynetdicom.sop_class</span> <span class="kn">import</span> <span class="n">CTImageStorage</span>
+<span class="linenos"> 5</span>
+<span class="linenos"> 6</span> <span class="n">debug_logger</span><span class="p">()</span>
+<span class="linenos"> 7</span>
+<span class="hll"><span class="linenos"> 8</span> <span class="k">def</span> <span class="nf">handle_store</span><span class="p">(</span><span class="n">event</span><span class="p">):</span>
+</span><span class="hll"><span class="linenos"> 9</span>     <span class="sd">&quot;&quot;&quot;Handle EVT_C_STORE events.&quot;&quot;&quot;</span>
+</span><span class="hll"><span class="linenos">10</span>     <span class="k">return</span> <span class="mh">0x0000</span>
+</span><span class="linenos">11</span>
+<span class="hll"><span class="linenos">12</span> <span class="n">handlers</span> <span class="o">=</span> <span class="p">[(</span><span class="n">evt</span><span class="o">.</span><span class="n">EVT_C_STORE</span><span class="p">,</span> <span class="n">handle_store</span><span class="p">)]</span>
+</span><span class="linenos">13</span>
+<span class="linenos">14</span> <span class="n">ae</span> <span class="o">=</span> <span class="n">AE</span><span class="p">()</span>
+<span class="linenos">15</span> <span class="n">ae</span><span class="o">.</span><span class="n">add_supported_context</span><span class="p">(</span><span class="n">CTImageStorage</span><span class="p">,</span> <span class="n">ExplicitVRLittleEndian</span><span class="p">)</span>
+<span class="hll"><span class="linenos">16</span> <span class="n">ae</span><span class="o">.</span><span class="n">start_server</span><span class="p">((</span><span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="mi">11112</span><span class="p">),</span> <span class="n">block</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">evt_handlers</span><span class="o">=</span><span class="n">handlers</span><span class="p">)</span>
 </span></pre></div>
-</td></tr></table></div>
+</div>
 <p>We import <code class="docutils literal notranslate"><span class="pre">evt</span></code>, which contains all the events, and add a function
 <code class="docutils literal notranslate"><span class="pre">handle_store</span></code> which will be our handler. All handlers must, at a minimum,
 take a single parameter <cite>event</cite>, which is an <a class="reference internal" href="../reference/generated/pynetdicom.events.Event.html#pynetdicom.events.Event" title="pynetdicom.events.Event"><code class="xref py py-class docutils literal notranslate"><span class="pre">Event</span></code></a> instance.
@@ -541,57 +514,33 @@ directory containing <code class="docutils literal notranslate"><span class="pre
 dataset (technically, one <em>SOP Class</em>) encoded in a particular way. We can
 change that to handle all the storage service’s SOP Classes by adding more
 supported presentation contexts:</p>
-<div class="highlight-python notranslate"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span class="normal"> 1</span>
-<span class="normal"> 2</span>
-<span class="normal"> 3</span>
-<span class="normal"> 4</span>
-<span class="normal"> 5</span>
-<span class="normal"> 6</span>
-<span class="normal"> 7</span>
-<span class="normal"> 8</span>
-<span class="normal"> 9</span>
-<span class="normal">10</span>
-<span class="normal">11</span>
-<span class="normal">12</span>
-<span class="normal">13</span>
-<span class="normal">14</span>
-<span class="normal">15</span>
-<span class="normal">16</span>
-<span class="normal">17</span>
-<span class="normal">18</span>
-<span class="normal">19</span>
-<span class="normal">20</span>
-<span class="normal">21</span>
-<span class="normal">22</span>
-<span class="normal">23</span>
-<span class="normal">24</span>
-<span class="normal">25</span></pre></div></td><td class="code"><div class="highlight"><pre><span></span><span class="hll"> <span class="kn">from</span> <span class="nn">pynetdicom</span> <span class="kn">import</span> <span class="p">(</span>
-</span><span class="hll">     <span class="n">AE</span><span class="p">,</span> <span class="n">debug_logger</span><span class="p">,</span> <span class="n">evt</span><span class="p">,</span> <span class="n">AllStoragePresentationContexts</span><span class="p">,</span>
-</span><span class="hll">     <span class="n">ALL_TRANSFER_SYNTAXES</span>
-</span><span class="hll"> <span class="p">)</span>
-</span>
- <span class="n">debug_logger</span><span class="p">()</span>
-
- <span class="k">def</span> <span class="nf">handle_store</span><span class="p">(</span><span class="n">event</span><span class="p">):</span>
-     <span class="sd">&quot;&quot;&quot;Handle EVT_C_STORE events.&quot;&quot;&quot;</span>
-     <span class="n">ds</span> <span class="o">=</span> <span class="n">event</span><span class="o">.</span><span class="n">dataset</span>
-     <span class="n">ds</span><span class="o">.</span><span class="n">file_meta</span> <span class="o">=</span> <span class="n">event</span><span class="o">.</span><span class="n">file_meta</span>
-     <span class="n">ds</span><span class="o">.</span><span class="n">save_as</span><span class="p">(</span><span class="n">ds</span><span class="o">.</span><span class="n">SOPInstanceUID</span><span class="p">,</span> <span class="n">write_like_original</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
-
-     <span class="k">return</span> <span class="mh">0x0000</span>
-
- <span class="n">handlers</span> <span class="o">=</span> <span class="p">[(</span><span class="n">evt</span><span class="o">.</span><span class="n">EVT_C_STORE</span><span class="p">,</span> <span class="n">handle_store</span><span class="p">)]</span>
-
- <span class="n">ae</span> <span class="o">=</span> <span class="n">AE</span><span class="p">()</span>
-<span class="hll"> <span class="n">storage_sop_classes</span> <span class="o">=</span> <span class="p">[</span>
-</span><span class="hll">     <span class="n">cx</span><span class="o">.</span><span class="n">abstract_syntax</span> <span class="k">for</span> <span class="n">cx</span> <span class="ow">in</span> <span class="n">AllStoragePresentationContexts</span>
-</span><span class="hll"> <span class="p">]</span>
-</span><span class="hll"> <span class="k">for</span> <span class="n">uid</span> <span class="ow">in</span> <span class="n">storage_sop_classes</span><span class="p">:</span>
-</span><span class="hll">     <span class="n">ae</span><span class="o">.</span><span class="n">add_supported_context</span><span class="p">(</span><span class="n">uid</span><span class="p">,</span> <span class="n">ALL_TRANSFER_SYNTAXES</span><span class="p">)</span>
-</span>
- <span class="n">ae</span><span class="o">.</span><span class="n">start_server</span><span class="p">((</span><span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="mi">11112</span><span class="p">),</span> <span class="n">block</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">evt_handlers</span><span class="o">=</span><span class="n">handlers</span><span class="p">)</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="hll"><span class="linenos"> 1</span> <span class="kn">from</span> <span class="nn">pynetdicom</span> <span class="kn">import</span> <span class="p">(</span>
+</span><span class="hll"><span class="linenos"> 2</span>     <span class="n">AE</span><span class="p">,</span> <span class="n">debug_logger</span><span class="p">,</span> <span class="n">evt</span><span class="p">,</span> <span class="n">AllStoragePresentationContexts</span><span class="p">,</span>
+</span><span class="hll"><span class="linenos"> 3</span>     <span class="n">ALL_TRANSFER_SYNTAXES</span>
+</span><span class="hll"><span class="linenos"> 4</span> <span class="p">)</span>
+</span><span class="linenos"> 5</span>
+<span class="linenos"> 6</span> <span class="n">debug_logger</span><span class="p">()</span>
+<span class="linenos"> 7</span>
+<span class="linenos"> 8</span> <span class="k">def</span> <span class="nf">handle_store</span><span class="p">(</span><span class="n">event</span><span class="p">):</span>
+<span class="linenos"> 9</span>     <span class="sd">&quot;&quot;&quot;Handle EVT_C_STORE events.&quot;&quot;&quot;</span>
+<span class="linenos">10</span>     <span class="n">ds</span> <span class="o">=</span> <span class="n">event</span><span class="o">.</span><span class="n">dataset</span>
+<span class="linenos">11</span>     <span class="n">ds</span><span class="o">.</span><span class="n">file_meta</span> <span class="o">=</span> <span class="n">event</span><span class="o">.</span><span class="n">file_meta</span>
+<span class="linenos">12</span>     <span class="n">ds</span><span class="o">.</span><span class="n">save_as</span><span class="p">(</span><span class="n">ds</span><span class="o">.</span><span class="n">SOPInstanceUID</span><span class="p">,</span> <span class="n">write_like_original</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+<span class="linenos">13</span>
+<span class="linenos">14</span>     <span class="k">return</span> <span class="mh">0x0000</span>
+<span class="linenos">15</span>
+<span class="linenos">16</span> <span class="n">handlers</span> <span class="o">=</span> <span class="p">[(</span><span class="n">evt</span><span class="o">.</span><span class="n">EVT_C_STORE</span><span class="p">,</span> <span class="n">handle_store</span><span class="p">)]</span>
+<span class="linenos">17</span>
+<span class="linenos">18</span> <span class="n">ae</span> <span class="o">=</span> <span class="n">AE</span><span class="p">()</span>
+<span class="hll"><span class="linenos">19</span> <span class="n">storage_sop_classes</span> <span class="o">=</span> <span class="p">[</span>
+</span><span class="hll"><span class="linenos">20</span>     <span class="n">cx</span><span class="o">.</span><span class="n">abstract_syntax</span> <span class="k">for</span> <span class="n">cx</span> <span class="ow">in</span> <span class="n">AllStoragePresentationContexts</span>
+</span><span class="hll"><span class="linenos">21</span> <span class="p">]</span>
+</span><span class="hll"><span class="linenos">22</span> <span class="k">for</span> <span class="n">uid</span> <span class="ow">in</span> <span class="n">storage_sop_classes</span><span class="p">:</span>
+</span><span class="hll"><span class="linenos">23</span>     <span class="n">ae</span><span class="o">.</span><span class="n">add_supported_context</span><span class="p">(</span><span class="n">uid</span><span class="p">,</span> <span class="n">ALL_TRANSFER_SYNTAXES</span><span class="p">)</span>
+</span><span class="linenos">24</span>
+<span class="linenos">25</span> <span class="n">ae</span><span class="o">.</span><span class="n">start_server</span><span class="p">((</span><span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="mi">11112</span><span class="p">),</span> <span class="n">block</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">evt_handlers</span><span class="o">=</span><span class="n">handlers</span><span class="p">)</span>
 </pre></div>
-</td></tr></table></div>
+</div>
 <p><a class="reference internal" href="../reference/generated/pynetdicom.presentation.AllStoragePresentationContexts.html#pynetdicom.presentation.AllStoragePresentationContexts" title="pynetdicom.presentation.AllStoragePresentationContexts"><code class="xref py py-attr docutils literal notranslate"><span class="pre">AllStoragePresentationContexts</span></code></a> is a list of pre-built
 presentation contexts, one for every SOP Class in the storage service. However,
 by default these contexts only support the uncompressed transfer syntaxes. To
@@ -605,93 +554,53 @@ with <a class="reference internal" href="../reference/generated/pynetdicom.ALL_T
 then it’s faster to write the encoded dataset directly to file; this skips
 having to decode and then re-encode the dataset at the cost of slightly more
 complex code:</p>
-<div class="highlight-python notranslate"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span class="normal"> 1</span>
-<span class="normal"> 2</span>
-<span class="normal"> 3</span>
-<span class="normal"> 4</span>
-<span class="normal"> 5</span>
-<span class="normal"> 6</span>
-<span class="normal"> 7</span>
-<span class="normal"> 8</span>
-<span class="normal"> 9</span>
-<span class="normal">10</span>
-<span class="normal">11</span>
-<span class="normal">12</span>
-<span class="normal">13</span>
-<span class="normal">14</span>
-<span class="normal">15</span>
-<span class="normal">16</span>
-<span class="normal">17</span>
-<span class="normal">18</span>
-<span class="normal">19</span>
-<span class="normal">20</span>
-<span class="normal">21</span>
-<span class="normal">22</span>
-<span class="normal">23</span>
-<span class="normal">24</span>
-<span class="normal">25</span>
-<span class="normal">26</span>
-<span class="normal">27</span>
-<span class="normal">28</span>
-<span class="normal">29</span>
-<span class="normal">30</span>
-<span class="normal">31</span>
-<span class="normal">32</span>
-<span class="normal">33</span>
-<span class="normal">34</span>
-<span class="normal">35</span>
-<span class="normal">36</span>
-<span class="normal">37</span>
-<span class="normal">38</span>
-<span class="normal">39</span>
-<span class="normal">40</span>
-<span class="normal">41</span></pre></div></td><td class="code"><div class="highlight"><pre><span></span><span class="hll"> <span class="kn">import</span> <span class="nn">os</span>
-</span>
-<span class="hll"> <span class="kn">from</span> <span class="nn">pydicom.filewriter</span> <span class="kn">import</span> <span class="n">write_file_meta_info</span>
-</span>
- <span class="kn">from</span> <span class="nn">pynetdicom</span> <span class="kn">import</span> <span class="p">(</span>
-     <span class="n">AE</span><span class="p">,</span> <span class="n">debug_logger</span><span class="p">,</span> <span class="n">evt</span><span class="p">,</span> <span class="n">AllStoragePresentationContexts</span><span class="p">,</span>
-     <span class="n">ALL_TRANSFER_SYNTAXES</span>
- <span class="p">)</span>
-
- <span class="n">debug_logger</span><span class="p">()</span>
-
-<span class="hll"> <span class="k">def</span> <span class="nf">handle_store</span><span class="p">(</span><span class="n">event</span><span class="p">,</span> <span class="n">storage_dir</span><span class="p">):</span>
-</span>     <span class="sd">&quot;&quot;&quot;Handle EVT_C_STORE events.&quot;&quot;&quot;</span>
-<span class="hll">     <span class="k">try</span><span class="p">:</span>
-</span><span class="hll">         <span class="n">os</span><span class="o">.</span><span class="n">makedirs</span><span class="p">(</span><span class="n">storage_dir</span><span class="p">,</span> <span class="n">exist_ok</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
-</span><span class="hll">     <span class="k">except</span><span class="p">:</span>
-</span><span class="hll">         <span class="c1"># Unable to create output dir, return failure status</span>
-</span><span class="hll">         <span class="k">return</span> <span class="mh">0xC001</span>
-</span>
-     <span class="c1"># We rely on the UID from the C-STORE request instead of decoding</span>
-<span class="hll">     <span class="n">fname</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">storage_dir</span><span class="p">,</span> <span class="n">event</span><span class="o">.</span><span class="n">request</span><span class="o">.</span><span class="n">AffectedSOPInstanceUID</span><span class="p">)</span>
-</span><span class="hll">     <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">fname</span><span class="p">,</span> <span class="s1">&#39;wb&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
-</span><span class="hll">         <span class="c1"># Write the preamble, prefix and file meta information elements</span>
-</span><span class="hll">         <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="sa">b</span><span class="s1">&#39;</span><span class="se">\x00</span><span class="s1">&#39;</span> <span class="o">*</span> <span class="mi">128</span><span class="p">)</span>
-</span><span class="hll">         <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="sa">b</span><span class="s1">&#39;DICM&#39;</span><span class="p">)</span>
-</span><span class="hll">         <span class="n">write_file_meta_info</span><span class="p">(</span><span class="n">f</span><span class="p">,</span> <span class="n">event</span><span class="o">.</span><span class="n">file_meta</span><span class="p">)</span>
-</span><span class="hll">         <span class="c1"># Write the raw encoded dataset</span>
-</span><span class="hll">         <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">event</span><span class="o">.</span><span class="n">request</span><span class="o">.</span><span class="n">DataSet</span><span class="o">.</span><span class="n">getvalue</span><span class="p">())</span>
-</span>
-     <span class="k">return</span> <span class="mh">0x0000</span>
-
-<span class="hll"> <span class="n">handlers</span> <span class="o">=</span> <span class="p">[(</span><span class="n">evt</span><span class="o">.</span><span class="n">EVT_C_STORE</span><span class="p">,</span> <span class="n">handle_store</span><span class="p">,</span> <span class="p">[</span><span class="s1">&#39;out&#39;</span><span class="p">])]</span>
-</span>
- <span class="n">ae</span> <span class="o">=</span> <span class="n">AE</span><span class="p">()</span>
- <span class="n">storage_sop_classes</span> <span class="o">=</span> <span class="p">[</span>
-     <span class="n">cx</span><span class="o">.</span><span class="n">abstract_syntax</span> <span class="k">for</span> <span class="n">cx</span> <span class="ow">in</span> <span class="n">AllStoragePresentationContexts</span>
- <span class="p">]</span>
- <span class="k">for</span> <span class="n">uid</span> <span class="ow">in</span> <span class="n">storage_sop_classes</span><span class="p">:</span>
-     <span class="n">ae</span><span class="o">.</span><span class="n">add_supported_context</span><span class="p">(</span><span class="n">uid</span><span class="p">,</span> <span class="n">ALL_TRANSFER_SYNTAXES</span><span class="p">)</span>
-
- <span class="n">ae</span><span class="o">.</span><span class="n">start_server</span><span class="p">((</span><span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="mi">11112</span><span class="p">),</span> <span class="n">block</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">evt_handlers</span><span class="o">=</span><span class="n">handlers</span><span class="p">)</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="hll"><span class="linenos"> 1</span> <span class="kn">import</span> <span class="nn">os</span>
+</span><span class="linenos"> 2</span>
+<span class="hll"><span class="linenos"> 3</span> <span class="kn">from</span> <span class="nn">pydicom.filewriter</span> <span class="kn">import</span> <span class="n">write_file_meta_info</span>
+</span><span class="linenos"> 4</span>
+<span class="linenos"> 5</span> <span class="kn">from</span> <span class="nn">pynetdicom</span> <span class="kn">import</span> <span class="p">(</span>
+<span class="linenos"> 6</span>     <span class="n">AE</span><span class="p">,</span> <span class="n">debug_logger</span><span class="p">,</span> <span class="n">evt</span><span class="p">,</span> <span class="n">AllStoragePresentationContexts</span><span class="p">,</span>
+<span class="linenos"> 7</span>     <span class="n">ALL_TRANSFER_SYNTAXES</span>
+<span class="linenos"> 8</span> <span class="p">)</span>
+<span class="linenos"> 9</span>
+<span class="linenos">10</span> <span class="n">debug_logger</span><span class="p">()</span>
+<span class="linenos">11</span>
+<span class="hll"><span class="linenos">12</span> <span class="k">def</span> <span class="nf">handle_store</span><span class="p">(</span><span class="n">event</span><span class="p">,</span> <span class="n">storage_dir</span><span class="p">):</span>
+</span><span class="linenos">13</span>     <span class="sd">&quot;&quot;&quot;Handle EVT_C_STORE events.&quot;&quot;&quot;</span>
+<span class="hll"><span class="linenos">14</span>     <span class="k">try</span><span class="p">:</span>
+</span><span class="hll"><span class="linenos">15</span>         <span class="n">os</span><span class="o">.</span><span class="n">makedirs</span><span class="p">(</span><span class="n">storage_dir</span><span class="p">,</span> <span class="n">exist_ok</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+</span><span class="hll"><span class="linenos">16</span>     <span class="k">except</span><span class="p">:</span>
+</span><span class="hll"><span class="linenos">17</span>         <span class="c1"># Unable to create output dir, return failure status</span>
+</span><span class="hll"><span class="linenos">18</span>         <span class="k">return</span> <span class="mh">0xC001</span>
+</span><span class="linenos">19</span>
+<span class="linenos">20</span>     <span class="c1"># We rely on the UID from the C-STORE request instead of decoding</span>
+<span class="hll"><span class="linenos">21</span>     <span class="n">fname</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">storage_dir</span><span class="p">,</span> <span class="n">event</span><span class="o">.</span><span class="n">request</span><span class="o">.</span><span class="n">AffectedSOPInstanceUID</span><span class="p">)</span>
+</span><span class="hll"><span class="linenos">22</span>     <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">fname</span><span class="p">,</span> <span class="s1">&#39;wb&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+</span><span class="hll"><span class="linenos">23</span>         <span class="c1"># Write the preamble, prefix and file meta information elements</span>
+</span><span class="hll"><span class="linenos">24</span>         <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="sa">b</span><span class="s1">&#39;</span><span class="se">\x00</span><span class="s1">&#39;</span> <span class="o">*</span> <span class="mi">128</span><span class="p">)</span>
+</span><span class="hll"><span class="linenos">25</span>         <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="sa">b</span><span class="s1">&#39;DICM&#39;</span><span class="p">)</span>
+</span><span class="hll"><span class="linenos">26</span>         <span class="n">write_file_meta_info</span><span class="p">(</span><span class="n">f</span><span class="p">,</span> <span class="n">event</span><span class="o">.</span><span class="n">file_meta</span><span class="p">)</span>
+</span><span class="hll"><span class="linenos">27</span>         <span class="c1"># Write the raw encoded dataset</span>
+</span><span class="hll"><span class="linenos">28</span>         <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">event</span><span class="o">.</span><span class="n">request</span><span class="o">.</span><span class="n">DataSet</span><span class="o">.</span><span class="n">getvalue</span><span class="p">())</span>
+</span><span class="linenos">29</span>
+<span class="linenos">30</span>     <span class="k">return</span> <span class="mh">0x0000</span>
+<span class="linenos">31</span>
+<span class="hll"><span class="linenos">32</span> <span class="n">handlers</span> <span class="o">=</span> <span class="p">[(</span><span class="n">evt</span><span class="o">.</span><span class="n">EVT_C_STORE</span><span class="p">,</span> <span class="n">handle_store</span><span class="p">,</span> <span class="p">[</span><span class="s1">&#39;out&#39;</span><span class="p">])]</span>
+</span><span class="linenos">33</span>
+<span class="linenos">34</span> <span class="n">ae</span> <span class="o">=</span> <span class="n">AE</span><span class="p">()</span>
+<span class="linenos">35</span> <span class="n">storage_sop_classes</span> <span class="o">=</span> <span class="p">[</span>
+<span class="linenos">36</span>     <span class="n">cx</span><span class="o">.</span><span class="n">abstract_syntax</span> <span class="k">for</span> <span class="n">cx</span> <span class="ow">in</span> <span class="n">AllStoragePresentationContexts</span>
+<span class="linenos">37</span> <span class="p">]</span>
+<span class="linenos">38</span> <span class="k">for</span> <span class="n">uid</span> <span class="ow">in</span> <span class="n">storage_sop_classes</span><span class="p">:</span>
+<span class="linenos">39</span>     <span class="n">ae</span><span class="o">.</span><span class="n">add_supported_context</span><span class="p">(</span><span class="n">uid</span><span class="p">,</span> <span class="n">ALL_TRANSFER_SYNTAXES</span><span class="p">)</span>
+<span class="linenos">40</span>
+<span class="linenos">41</span> <span class="n">ae</span><span class="o">.</span><span class="n">start_server</span><span class="p">((</span><span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="mi">11112</span><span class="p">),</span> <span class="n">block</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">evt_handlers</span><span class="o">=</span><span class="n">handlers</span><span class="p">)</span>
 </pre></div>
-</td></tr></table></div>
+</div>
 <p>We’ve modified the handler to write the preamble and prefix to file,
 encode and write the file meta information elements using <em>pydicom’s</em>
 <a class="reference external" href="https://pydicom.github.io/pydicom/stable/reference/generated/pydicom.filewriter.write_file_meta_info.html#pydicom.filewriter.write_file_meta_info" title="(in pydicom v2.1.2)"><code class="xref py py-func docutils literal notranslate"><span class="pre">write_file_meta_info()</span></code></a> function, then finally write
-the encoded dataset using the <a class="reference internal" href="../reference/generated/pynetdicom.dimse_primitives.C_STORE.html#id1" title="pynetdicom.dimse_primitives.C_STORE.DataSet"><code class="xref py py-attr docutils literal notranslate"><span class="pre">raw</span> <span class="pre">dataset</span></code></a> received directly from the C-STORE
+the encoded dataset using the <a class="reference internal" href="../reference/generated/pynetdicom.dimse_primitives.C_STORE.html#pynetdicom.dimse_primitives.C_STORE.DataSet" title="pynetdicom.dimse_primitives.C_STORE.DataSet"><code class="xref py py-attr docutils literal notranslate"><span class="pre">raw</span> <span class="pre">dataset</span></code></a> received directly from the C-STORE
 request via the <code class="docutils literal notranslate"><span class="pre">event.request</span></code> attribute.</p>
 <p>The second change we’ve made is to demonstrate how extra parameters can be
 passed to the handler by binding using a 3-tuple rather than a 2-tuple. The
@@ -733,7 +642,7 @@ or the <a class="reference internal" href="../apps/index.html"><span class="doc"
 
   <div role="contentinfo">
     <p>
-        &#169; Copyright 2018-2020, pynetdicom contributors.
+        &#169; Copyright 2018-2021, pynetdicom contributors.
 
     </p>
   </div>

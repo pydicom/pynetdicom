@@ -38,5 +38,6 @@
       ~ACSE.assoc
       ~ACSE.dul
       ~ACSE.requestor
+      ~ACSE.socket
    
    
