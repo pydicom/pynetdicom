@@ -1,7 +1,7 @@
 """pynetdicom configuration options"""
 
 
-LOG_HANDLER_LEVEL = 'standard'
+LOG_HANDLER_LEVEL: str = 'standard'
 """Default (non-user) event logging
 
 * If ``'none'`` then events will not be logged at all, however there will still
@@ -17,7 +17,7 @@ Examples
 """
 
 
-ENFORCE_UID_CONFORMANCE = False
+ENFORCE_UID_CONFORMANCE: bool = False
 """Enforce UID conformance
 
 .. versionadded:: 1.3
@@ -35,7 +35,7 @@ Examples
 """
 
 
-USE_SHORT_DIMSE_AET = True
+USE_SHORT_DIMSE_AET: bool = True
 """Use short AE titles in DIMSE messages.
 
 .. versionadded:: 1.5
@@ -52,7 +52,7 @@ Examples
 """
 
 
-ALLOW_LONG_DIMSE_AET = False
+ALLOW_LONG_DIMSE_AET: bool = False
 """Allow the use of non-conformant AE titles.
 
 .. versionadded:: 2.0
@@ -69,7 +69,7 @@ Examples
 """
 
 
-LOG_RESPONSE_IDENTIFIERS = True
+LOG_RESPONSE_IDENTIFIERS: bool = True
 """Log incoming C-FIND, C-GET and C-MOVE response *Identifier* datasets.
 
 .. versionadded:: 1.5
@@ -85,7 +85,7 @@ Examples
 """
 
 
-LOG_REQUEST_IDENTIFIERS = True
+LOG_REQUEST_IDENTIFIERS: bool = True
 """Log incoming C-FIND, C-GET and C-MOVE request *Identifier* datasets.
 
 .. versionadded:: 1.5
@@ -101,7 +101,7 @@ Examples
 """
 
 
-STORE_SEND_CHUNKED_DATASET = False
+STORE_SEND_CHUNKED_DATASET: bool = False
 """Chunk a dataset file when sending it to minimise memory usage.
 
 .. versionadded:: 2.0
@@ -128,7 +128,7 @@ Examples
 >>> _config.STORE_SEND_CHUNKED_DATASET = True
 """
 
-STORE_RECV_CHUNKED_DATASET = False
+STORE_RECV_CHUNKED_DATASET: bool = False
 """Chunk a dataset file when receiving it to minimise memory usage.
 
 .. versionadded:: 2.0
@@ -152,13 +152,13 @@ Examples
 >>> _config.STORE_RECV_CHUNKED_DATASET = True
 """
 
-PASS_CONTEXTVARS = False
+PASS_CONTEXTVARS: bool = False
 """Pass context-local state to concurrent pynetdicom code.
 
 .. versionadded:: 2.0
 
 If ``True``, then any ``contextvars.ContextVar`` instances defined in the
-calling context will be made available to pynetdicom's concurrent contexts. 
+calling context will be made available to pynetdicom's concurrent contexts.
 This allows the caller to define contextual behavior without modifying
 pynetdicom. For example, one could add a logging filter to the pynetdicom
 logger that references an externally defined ``contextvars.ContextVar``.
@@ -170,4 +170,28 @@ Examples
 
 >>> from pynetdicom import _config
 >>> _config.PASS_CONTEXTVARS = True
+"""
+
+
+WINDOWS_TIMER_RESOLUTION: float = 0.1
+"""Set the minimum timer resolution for Microsoft Windows.
+
+.. versionadded:: 2.0
+
+When running on Windows, the default minimum timer resolution is around 15
+milliseconds, however by default *pynetdicom* runs with a resolution of 1
+millisecond. This means that *pynetdicom* running on Windows may be up to 15
+times slower than expected. To counteract this, *pynetdicom* uses the
+:mod:`ctypes` module to set the `timeBeginPeriod <https://docs.microsoft.com
+/en-us/windows/win32/api/timeapi/nf-timeapi-timebeginperiod>`_ when an
+:class:`~pynetdicom.association.Association` has been started and to reset the
+timer resolution once the ``Association`` has ended.
+
+Default: ``0.1`` (milliseconds)
+
+Examples
+--------
+
+>>> from pynetdicom import _config
+>>> _config.WINDOWS_TIMER_RESOLUTION = 0.05
 """

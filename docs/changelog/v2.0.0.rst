@@ -41,6 +41,11 @@ Enhancements
   allow user code to define contextual behavior.
 * Added :attr:`AE.connection_timeout
   <pynetdicom.ae.ApplicationEntity.connection_timeout>` (:issue:`616`)
+* When running on Windows the minimum timer resolution now defaults to 1
+  millisecond when an :class:`~pynetdicom.association.Association` is started
+  and cleared when the ``Association`` ends. The timer resolution value can be
+  customised with the :attr:`~pynetdicom._config.WINDOWS_TIMER_RESOLUTION`
+  option (:issue:`620`)
 
 Changes
 .......

@@ -1,9 +1,15 @@
-"""
-Defines the Association class which handles associating with peers.
-"""
+"""Defines the Association class which handles associating with peers."""
+
+try:
+    import ctypes
+    HAVE_CTYPES = True
+except ImportError:
+    HAVE_CTYPES = False
+
 from io import BytesIO
 import logging
 import os
+import sys
 from pathlib import Path
 import threading
 import time
@@ -146,6 +152,9 @@ class Association(threading.Thread):
         self._reactor_checkpoint.set()
         # Used to ensure the reactor is paused before DIMSE messaging
         self._is_paused = False
+
+        # Windows timer resolution
+        self._win_timer_resolution = _config.WINDOWS_TIMER_RESOLUTION
 
         # Thread setup
         threading.Thread.__init__(self, target=make_target(self.run_reactor))
@@ -493,6 +502,11 @@ class Association(threading.Thread):
 
     def kill(self) -> None:
         """Kill the :class:`Association` thread."""
+        # Reset the windows timer resolution
+        if HAVE_CTYPES and sys.platform == 'win32':
+            ntdll = ctypes.WinDLL('WINMM.DLL')
+            ntdll.timeEndPeriod(self._win_timer_resolution)
+
         # Ensure the reactor is running so it can be exited
         self._reactor_checkpoint.set()
         self._kill = True
@@ -661,6 +675,9 @@ class Association(threading.Thread):
         while not self._kill:
             time.sleep(0.001)
 
+            # Set the timer resolution if on Windows
+            self._set_windows_timer_resolution()
+
             # A race condition may occur if the Acceptor uses the send_*()
             #   methods as the received DIMSE message may be taken off the
             #   queue before the send_*() method gets to it, so we allow
@@ -733,6 +750,11 @@ class Association(threading.Thread):
             raise RuntimeError("The Association already has a socket set.")
 
         self.dul.socket = socket
+
+    def _set_windows_timer_resolution(self) -> None:
+        if HAVE_CTYPES and sys.platform == 'win32':
+            ntdll = ctypes.WinDLL('WINMM.DLL')
+            ntdll.timeBeginPeriod(self._win_timer_resolution)
 
     def unbind(self, event: evt.EventType, handler: Callable) -> None:
         """Unbind a callable `handler` from an `event`.
