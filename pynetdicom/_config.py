@@ -173,7 +173,7 @@ Examples
 """
 
 
-WINDOWS_TIMER_RESOLUTION: float = 0.1
+WINDOWS_TIMER_RESOLUTION: Optional[float] = 1
 """Set the minimum timer resolution for Microsoft Windows.
 
 .. versionadded:: 2.0
@@ -187,11 +187,14 @@ times slower than expected. To counteract this, *pynetdicom* uses the
 :class:`~pynetdicom.association.Association` has been started and to reset the
 timer resolution once the ``Association`` has ended.
 
-Default: ``0.1`` (milliseconds)
+If ``WINDOWS_TIMER_RESOLUTION`` is set to ``None`` then no changes to the
+timer resolution will be made.
+
+Default: ``1`` (in milliseconds)
 
 Examples
 --------
 
 >>> from pynetdicom import _config
->>> _config.WINDOWS_TIMER_RESOLUTION = 0.05
+>>> _config.WINDOWS_TIMER_RESOLUTION = 5
 """

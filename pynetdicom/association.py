@@ -503,9 +503,13 @@ class Association(threading.Thread):
     def kill(self) -> None:
         """Kill the :class:`Association` thread."""
         # Reset the windows timer resolution
-        if HAVE_CTYPES and sys.platform == 'win32':
-            ntdll = ctypes.WinDLL('WINMM.DLL')
-            ntdll.timeEndPeriod(self._win_timer_resolution)
+        if (
+            HAVE_CTYPES
+            and sys.platform == 'win32'
+            and self._win_timer_resolution is not None
+        ):
+            dll = ctypes.WinDLL('WINMM.DLL')
+            dll.timeEndPeriod(self._win_timer_resolution)
 
         # Ensure the reactor is running so it can be exited
         self._reactor_checkpoint.set()
@@ -752,9 +756,14 @@ class Association(threading.Thread):
         self.dul.socket = socket
 
     def _set_windows_timer_resolution(self) -> None:
-        if HAVE_CTYPES and sys.platform == 'win32':
-            ntdll = ctypes.WinDLL('WINMM.DLL')
-            ntdll.timeBeginPeriod(self._win_timer_resolution)
+        """Set the Windows timer resolution."""
+        if (
+            HAVE_CTYPES
+            and sys.platform == 'win32'
+            and self._win_timer_resolution is not None
+        ):
+            dll = ctypes.WinDLL('WINMM.DLL')
+            dll.timeBeginPeriod(self._win_timer_resolution)
 
     def unbind(self, event: evt.EventType, handler: Callable) -> None:
         """Unbind a callable `handler` from an `event`.

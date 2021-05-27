@@ -1,5 +1,11 @@
 """Association testing"""
 
+try:
+    import ctypes
+    HAVE_CTYPES = True
+except ImportError:
+    HAVE_CTYPES = False
+
 from datetime import datetime
 from io import BytesIO
 import logging
@@ -54,9 +60,13 @@ from pynetdicom.sop_class import (
     UnifiedProcedureStepWatchSOPClass
 )
 
+from .hide_modules import hide_modules
+
 
 #debug_logger()
 
+
+ON_WINDOWS = sys.platform == "win32"
 
 TEST_DS_DIR = os.path.join(os.path.dirname(__file__), 'dicom_files')
 BIG_DATASET = dcmread(os.path.join(TEST_DS_DIR, 'RTImageStorage.dcm')) # 2.1 M
@@ -6864,3 +6874,79 @@ class TestEventHandlingRequestor:
 
         assert len(arguments) == 1
         assert args == list(arguments[0])
+
+
+@pytest.mark.skipif(not ON_WINDOWS, reason="Not running on Windows")
+class TestAssociationWindows:
+    """Windows specific association tests."""
+    def setup(self):
+        """This function runs prior to all test methods"""
+        self.ae = None
+
+    def teardown(self):
+        """This function runs after all test methods"""
+        if self.ae:
+            self.ae.shutdown()
+
+    def get_timer_info(self):
+        """Get the current timer resolution."""
+        dll = ctypes.WinDLL("NTDLL.DLL")
+
+        minimum = ctypes.c_ulong()
+        maximum = ctypes.c_ulong()
+        current = ctypes.c_ulong()
+
+        dll.NtQueryTimerResolution(
+            ctypes.byref(minimum), ctypes.byref(maximum), ctypes.byref(current)
+        )
+
+        return current.value
+
+    @pytest.mark.skipif(not HAVE_CTYPES, reason="No ctypes module")
+    @hide_modules(['ctypes'])
+    def test_no_ctypes(self):
+        """Test no exception raised if ctypes not available."""
+        # Reload pynetdicom package
+        import importlib
+        importlib.reload(pynetdicom.association)
+
+        self.ae = ae = AE()
+        ae.acse_timeout = 5
+        ae.dimse_timeout = 5
+        ae.network_timeout = 5
+        ae.add_supported_context(VerificationSOPClass)
+        ae.add_requested_context(VerificationSOPClass)
+
+        scp = ae.start_server(('', 11112), block=False])
+
+        assoc = ae.associate('localhost', 11112)
+        assert assoc.send_c_echo() = 0x0000
+        assoc.release()
+        assert assoc.is_released
+
+        scp.shutdown()
+
+    @pytest.mark.skipif(not HAVE_CTYPES, reason="No ctypes module")
+    def test_timer_resolution(self):
+        """Test setting the windows timer resolution works."""
+        current = self.get_timer_info()
+        print(current)
+
+        self.ae = ae = AE()
+        ae.acse_timeout = 5
+        ae.dimse_timeout = 5
+        ae.network_timeout = 5
+        ae.add_supported_context(VerificationSOPClass)
+        ae.add_requested_context(VerificationSOPClass)
+
+        scp = ae.start_server(('', 11112), block=False])
+
+        assoc = ae.associate('localhost', 11112)
+
+        new = self.get_timer_info()
+        print(new)
+
+        assoc.release()
+        assert assoc.is_released
+
+        scp.shutdown()

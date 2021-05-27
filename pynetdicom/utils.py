@@ -10,6 +10,37 @@ from pynetdicom import _config
 LOGGER = logging.getLogger('pynetdicom.utils')
 
 
+def make_target(target_fn):
+    """Wraps `target_fn` in a thunk that passes all contextvars from the
+    current context. It is assumed that `target_fn` is the target of a new
+    ``threading.Thread``.
+
+    Requires:
+    * Python >=3.7
+    * :attr:`~pynetdicom._config.PASS_CONTEXTVARS` set ``True``
+
+    If the requirements are not met, the original `target_fn` is returned.
+
+    Parameters
+    ----------
+    target_fn : Callable
+        The function to wrap
+
+    Returns
+    -------
+    Callable
+        The wrapped `target_fn` if requirements are met, else the original `target_fn`.
+    """
+    if _config.PASS_CONTEXTVARS:
+        try:
+            from contextvars import copy_context
+        except ImportError as e:
+            raise RuntimeError("PASS_CONTEXTVARS requires Python >=3.7") from e
+        ctx = copy_context()
+        return lambda: ctx.run(target_fn)
+    return target_fn
+
+
 def pretty_bytes(bytestream, prefix='  ', delimiter='  ', items_per_line=16,
                  max_size=512, suffix=''):
     """Turn the bytestring `bytestream` into a :class:`list` of nicely
@@ -182,34 +213,3 @@ def validate_uid(uid):
         return True
 
     return False
-
-
-def make_target(target_fn):
-    """Wraps `target_fn` in a thunk that passes all contextvars from the
-    current context. It is assumed that `target_fn` is the target of a new
-    ``threading.Thread``.
-
-    Requires:
-    * Python >=3.7
-    * :attr:`~pynetdicom._config.PASS_CONTEXTVARS` set ``True``
-
-    If the requirements are not met, the original `target_fn` is returned.
-
-    Parameters
-    ----------
-    target_fn : Callable
-        The function to wrap
-
-    Returns
-    -------
-    Callable
-        The wrapped `target_fn` if requirements are met, else the original `target_fn`.
-    """
-    if _config.PASS_CONTEXTVARS:
-        try:
-            from contextvars import copy_context
-        except ImportError as e:
-            raise RuntimeError("PASS_CONTEXTVARS requires Python >=3.7") from e
-        ctx = copy_context()
-        return lambda: ctx.run(target_fn)
-    return target_fn
