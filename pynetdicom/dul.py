@@ -85,9 +85,9 @@ class DULServiceProvider(Thread):
         # State machine - PS3.8 Section 9.2
         self.state_machine = StateMachine(self)
 
-        # Controls the minimum delay between loops in run()
+        # Controls the minimum delay between loops in run() in seconds
         # TODO: try and make this event based rather than running loops
-        self._run_loop_delay = 0.001
+        self._run_loop_delay: float = 0.001
 
         Thread.__init__(self, target=make_target(self.run_reactor))
         self.daemon = False

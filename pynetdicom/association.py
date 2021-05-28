@@ -1,6 +1,5 @@
-"""
-Defines the Association class which handles associating with peers.
-"""
+"""Defines the Association class which handles associating with peers."""
+
 from io import BytesIO
 import logging
 import os
@@ -50,7 +49,7 @@ from pynetdicom.sop_class import (
     UnifiedProcedureStepQuerySOPClass
 )
 from pynetdicom.status import code_to_category, STORAGE_SERVICE_CLASS_STATUS
-from pynetdicom.utils import make_target
+from pynetdicom.utils import make_target, set_timer_resolution
 
 
 # pylint: enable=no-name-in-module
@@ -146,6 +145,9 @@ class Association(threading.Thread):
         self._reactor_checkpoint.set()
         # Used to ensure the reactor is paused before DIMSE messaging
         self._is_paused = False
+
+        # Windows timer resolution
+        self._timer_resolution = _config.WINDOWS_TIMER_RESOLUTION
 
         # Thread setup
         threading.Thread.__init__(self, target=make_target(self.run_reactor))
@@ -626,7 +628,8 @@ class Association(threading.Thread):
                 self.acse.negotiate_association()
 
             if self.is_established:
-                self._run_reactor()
+                with set_timer_resolution(self._timer_resolution):
+                    self._run_reactor()
 
             # Ensure the connection is shutdown properly
             if self._server and self.dul.socket.socket:
@@ -639,7 +642,8 @@ class Association(threading.Thread):
                 self.acse.negotiate_association()
 
             if self.is_established:
-                self._run_reactor()
+                with set_timer_resolution(self._timer_resolution):
+                    self._run_reactor()
 
     def _run_reactor(self) -> None:
         """Run the ``Association`` acceptor reactor loop.
