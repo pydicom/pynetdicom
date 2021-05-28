@@ -6884,8 +6884,6 @@ class TestAssociationWindows:
         """This function runs prior to all test methods"""
         self.ae = None
 
-        #self.mod = pynetdicom.association
-
     def teardown(self):
         """This function runs after all test methods"""
         if self.ae:
@@ -6893,8 +6891,6 @@ class TestAssociationWindows:
 
         import importlib
         importlib.reload(pynetdicom.utils)
-
-        #pynetdicom.association = self.mod
 
     def get_timer_info(self):
         """Get the current timer resolution."""

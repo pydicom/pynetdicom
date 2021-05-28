@@ -1,15 +1,8 @@
 """Defines the Association class which handles associating with peers."""
 
-try:
-    import ctypes
-    HAVE_CTYPES = True
-except ImportError:
-    HAVE_CTYPES = False
-
 from io import BytesIO
 import logging
 import os
-import sys
 from pathlib import Path
 import threading
 import time
