@@ -6889,6 +6889,9 @@ class TestAssociationWindows:
         if self.ae:
             self.ae.shutdown()
 
+        import importlib
+        importlib.reload(pynetdicom.association)
+
     def get_timer_info(self):
         """Get the current timer resolution."""
         dll = ctypes.WinDLL("NTDLL.DLL")
@@ -6925,32 +6928,3 @@ class TestAssociationWindows:
         assert assoc.is_released
 
         scp.shutdown()
-
-    @pytest.mark.skipif(not HAVE_CTYPES, reason="No ctypes module")
-    def test_set_timer_resolution(self):
-        """Test setting the windows timer resolution works."""
-        import importlib
-        importlib.reload(pynetdicom.association)
-
-        pre_timer = self.get_timer_info()
-
-        self.ae = ae = AE()
-        ae.acse_timeout = 5
-        ae.dimse_timeout = 5
-        ae.network_timeout = 5
-        ae.add_supported_context(VerificationSOPClass)
-        ae.add_requested_context(VerificationSOPClass)
-
-        scp = ae.start_server(('', 11112), block=False)
-
-        assoc = ae.associate('localhost', 11112)
-
-        during_timer = self.get_timer_info()
-        assert during_timer < pre_timer
-        assoc.release()
-        assert assoc.is_released
-
-        scp.shutdown()
-        time.sleep(0.5)
-
-        assert self.get_timer_info() > during_timer
