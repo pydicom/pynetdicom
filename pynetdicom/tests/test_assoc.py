@@ -32,6 +32,7 @@ from pydicom.uid import (
     ExplicitVRBigEndian
 )
 
+import pynetdicom
 from pynetdicom import (
     AE, VerificationPresentationContexts, build_context, evt, _config,
     debug_logger, build_role
@@ -6902,7 +6903,6 @@ class TestAssociationWindows:
 
         return current.value
 
-    @pytest.mark.skipif(not HAVE_CTYPES, reason="No ctypes module")
     @hide_modules(['ctypes'])
     def test_no_ctypes(self):
         """Test no exception raised if ctypes not available."""
@@ -6917,20 +6917,22 @@ class TestAssociationWindows:
         ae.add_supported_context(VerificationSOPClass)
         ae.add_requested_context(VerificationSOPClass)
 
-        scp = ae.start_server(('', 11112), block=False])
+        scp = ae.start_server(('', 11112), block=False)
 
         assoc = ae.associate('localhost', 11112)
-        assert assoc.send_c_echo() = 0x0000
+        assert assoc.send_c_echo().Status == 0x0000
         assoc.release()
         assert assoc.is_released
 
         scp.shutdown()
 
     @pytest.mark.skipif(not HAVE_CTYPES, reason="No ctypes module")
-    def test_timer_resolution(self):
+    def test_set_timer_resolution(self):
         """Test setting the windows timer resolution works."""
-        current = self.get_timer_info()
-        print(current)
+        import importlib
+        importlib.reload(pynetdicom.association)
+
+        pre_timer = self.get_timer_info()
 
         self.ae = ae = AE()
         ae.acse_timeout = 5
@@ -6939,14 +6941,16 @@ class TestAssociationWindows:
         ae.add_supported_context(VerificationSOPClass)
         ae.add_requested_context(VerificationSOPClass)
 
-        scp = ae.start_server(('', 11112), block=False])
+        scp = ae.start_server(('', 11112), block=False)
 
         assoc = ae.associate('localhost', 11112)
 
-        new = self.get_timer_info()
-        print(new)
-
+        during_timer = self.get_timer_info()
+        assert during_timer < pre_timer
         assoc.release()
         assert assoc.is_released
 
         scp.shutdown()
+        time.sleep(0.5)
+
+        assert self.get_timer_info() > during_timer

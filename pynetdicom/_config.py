@@ -1,5 +1,7 @@
 """pynetdicom configuration options"""
 
+from typing import Optional
+
 
 LOG_HANDLER_LEVEL: str = 'standard'
 """Default (non-user) event logging

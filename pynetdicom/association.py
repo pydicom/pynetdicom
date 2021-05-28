@@ -675,12 +675,12 @@ class Association(threading.Thread):
         5. Checks DUL idle timeout
             If timed out then kill thread
         """
+        # Set the timer resolution if on Windows
+        self._set_windows_timer_resolution()
+
         self._is_paused = False
         while not self._kill:
             time.sleep(0.001)
-
-            # Set the timer resolution if on Windows
-            self._set_windows_timer_resolution()
 
             # A race condition may occur if the Acceptor uses the send_*()
             #   methods as the received DIMSE message may be taken off the
