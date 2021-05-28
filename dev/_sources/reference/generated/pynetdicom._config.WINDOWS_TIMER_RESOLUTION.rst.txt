@@ -1,0 +1,6 @@
+﻿pynetdicom.\_config.WINDOWS\_TIMER\_RESOLUTION
+==============================================
+
+.. currentmodule:: pynetdicom._config
+
+.. autodata:: WINDOWS_TIMER_RESOLUTION

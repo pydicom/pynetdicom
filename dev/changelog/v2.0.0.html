@@ -242,6 +242,11 @@ if the association is aborted or released (<a class="reference external" href="h
 <li><p>Added configuration option <a class="reference internal" href="../reference/generated/pynetdicom._config.PASS_CONTEXTVARS.html#pynetdicom._config.PASS_CONTEXTVARS" title="pynetdicom._config.PASS_CONTEXTVARS"><code class="xref py py-attr docutils literal notranslate"><span class="pre">PASS_CONTEXTVARS</span></code></a> to
 allow user code to define contextual behavior.</p></li>
 <li><p>Added <a class="reference internal" href="../reference/generated/pynetdicom.ae.ApplicationEntity.html#pynetdicom.ae.ApplicationEntity.connection_timeout" title="pynetdicom.ae.ApplicationEntity.connection_timeout"><code class="xref py py-attr docutils literal notranslate"><span class="pre">AE.connection_timeout</span></code></a> (<a class="reference external" href="https://github.com/pydicom/pynetdicom/issues/616">#616</a>)</p></li>
+<li><p>When running on Windows the minimum timer resolution now defaults to 1
+millisecond when an <a class="reference internal" href="../reference/generated/pynetdicom.association.Association.html#pynetdicom.association.Association" title="pynetdicom.association.Association"><code class="xref py py-class docutils literal notranslate"><span class="pre">Association</span></code></a> is started
+and cleared when the <code class="docutils literal notranslate"><span class="pre">Association</span></code> ends. The timer resolution value can be
+customised with the <a class="reference internal" href="../reference/generated/pynetdicom._config.WINDOWS_TIMER_RESOLUTION.html#pynetdicom._config.WINDOWS_TIMER_RESOLUTION" title="pynetdicom._config.WINDOWS_TIMER_RESOLUTION"><code class="xref py py-attr docutils literal notranslate"><span class="pre">WINDOWS_TIMER_RESOLUTION</span></code></a>
+option (<a class="reference external" href="https://github.com/pydicom/pynetdicom/issues/620">#620</a>)</p></li>
 </ul>
 </div>
 <div class="section" id="changes">
