@@ -56,7 +56,7 @@ from pynetdicom.sop_class import (
     UnifiedProcedureStepQuerySOPClass
 )
 from pynetdicom.status import code_to_category, STORAGE_SERVICE_CLASS_STATUS
-from pynetdicom.utils import make_target
+from pynetdicom.utils import make_target, set_timer_resolution
 
 
 # pylint: enable=no-name-in-module
@@ -154,7 +154,7 @@ class Association(threading.Thread):
         self._is_paused = False
 
         # Windows timer resolution
-        self._win_timer_resolution = _config.WINDOWS_TIMER_RESOLUTION
+        self._timer_resolution = _config.WINDOWS_TIMER_RESOLUTION
 
         # Thread setup
         threading.Thread.__init__(self, target=make_target(self.run_reactor))
@@ -502,15 +502,6 @@ class Association(threading.Thread):
 
     def kill(self) -> None:
         """Kill the :class:`Association` thread."""
-        # Reset the windows timer resolution
-        if (
-            HAVE_CTYPES
-            and sys.platform == 'win32'
-            and self._win_timer_resolution is not None
-        ):
-            dll = ctypes.WinDLL('WINMM.DLL')
-            dll.timeEndPeriod(self._win_timer_resolution)
-
         # Ensure the reactor is running so it can be exited
         self._reactor_checkpoint.set()
         self._kill = True
@@ -644,7 +635,8 @@ class Association(threading.Thread):
                 self.acse.negotiate_association()
 
             if self.is_established:
-                self._run_reactor()
+                with set_timer_resolution(self._timer_resolution):
+                    self._run_reactor()
 
             # Ensure the connection is shutdown properly
             if self._server and self.dul.socket.socket:
@@ -657,7 +649,8 @@ class Association(threading.Thread):
                 self.acse.negotiate_association()
 
             if self.is_established:
-                self._run_reactor()
+                with set_timer_resolution(self._timer_resolution):
+                    self._run_reactor()
 
     def _run_reactor(self) -> None:
         """Run the ``Association`` acceptor reactor loop.
@@ -675,9 +668,6 @@ class Association(threading.Thread):
         5. Checks DUL idle timeout
             If timed out then kill thread
         """
-        # Set the timer resolution if on Windows
-        self._set_windows_timer_resolution()
-
         self._is_paused = False
         while not self._kill:
             time.sleep(0.001)
@@ -754,16 +744,6 @@ class Association(threading.Thread):
             raise RuntimeError("The Association already has a socket set.")
 
         self.dul.socket = socket
-
-    def _set_windows_timer_resolution(self) -> None:
-        """Set the Windows timer resolution."""
-        if (
-            HAVE_CTYPES
-            and sys.platform == 'win32'
-            and self._win_timer_resolution is not None
-        ):
-            dll = ctypes.WinDLL('WINMM.DLL')
-            dll.timeBeginPeriod(self._win_timer_resolution)
 
     def unbind(self, event: evt.EventType, handler: Callable) -> None:
         """Unbind a callable `handler` from an `event`.

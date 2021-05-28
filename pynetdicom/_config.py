@@ -182,12 +182,10 @@ WINDOWS_TIMER_RESOLUTION: Optional[float] = 1
 
 When running on Windows, the default minimum timer resolution is around 15
 milliseconds, however by default *pynetdicom* runs with a resolution of 1
-millisecond. This means that *pynetdicom* running on Windows may be up to 15
-times slower than expected. To counteract this, *pynetdicom* uses the
-:mod:`ctypes` module to set the `timeBeginPeriod <https://docs.microsoft.com
-/en-us/windows/win32/api/timeapi/nf-timeapi-timebeginperiod>`_ when an
-:class:`~pynetdicom.association.Association` has been started and to reset the
-timer resolution once the ``Association`` has ended.
+millisecond. This means that *pynetdicom* running on Windows may be much slower
+than expected. To counteract this, *pynetdicom* uses the :mod:`ctypes` module
+to set the timer resolution to ``WINDOWS_TIMER_RESOLUTION`` while the
+:class:`~pynetdicom.association.Association` is active.
 
 If ``WINDOWS_TIMER_RESOLUTION`` is set to ``None`` then no changes to the
 timer resolution will be made.

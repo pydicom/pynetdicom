@@ -1,9 +1,19 @@
 """Various utility functions."""
 
+from contextlib import contextmanager
 from io import BytesIO
 import logging
+import sys
+from typing import List, Optional, Iterator
 import unicodedata
 
+try:
+    import ctypes
+    HAVE_CTYPES = True
+except ImportError:
+    HAVE_CTYPES = False
+
+from pydicom.uid import UID
 from pynetdicom import _config
 
 
@@ -41,8 +51,14 @@ def make_target(target_fn):
     return target_fn
 
 
-def pretty_bytes(bytestream, prefix='  ', delimiter='  ', items_per_line=16,
-                 max_size=512, suffix=''):
+def pretty_bytes(
+    bytestream: bytes,
+    prefix: str = '  ',
+    delimiter: str = '  ',
+    items_per_line: int = 16,
+    max_size: int = 512,
+    suffix: str = ''
+) -> List[str]:
     """Turn the bytestring `bytestream` into a :class:`list` of nicely
     formatted :class:`str`.
 
@@ -95,7 +111,52 @@ def pretty_bytes(bytestream, prefix='  ', delimiter='  ', items_per_line=16,
     return lines
 
 
-def validate_ae_title(ae_title, use_short=False):
+@contextmanager
+def set_timer_resolution(resolution: Optional[float]) -> Iterator[None]:
+    """Set the Windows timer resolution.
+
+    Parameters
+    ----------
+    resolution: float or None
+        The desired timer resolution in milliseconds. If `resolution` is not in
+        the allowed range then the timer resolution will be set to the minimum
+        or maximum allowed instead. If ``None`` then the timer resolution will
+        not be changed.
+
+    Yields
+    ------
+    None
+    """
+    ON_WINDOWS = sys.platform == "win32"
+
+    if HAVE_CTYPES and ON_WINDOWS and resolution is not None:
+        dll = ctypes.WinDLL("NTDLL.DLL")
+
+        minimum = ctypes.c_ulong()  # Minimum delay allowed
+        maximum = ctypes.c_ulong()  # Maximum delay allowed
+        current = ctypes.c_ulong()  # Current delay
+
+        dll.NtQueryTimerResolution(
+            ctypes.byref(maximum), ctypes.byref(minimum), ctypes.byref(current)
+        )
+
+        # Make sure the desired resolution is in the valid range
+        # Timer resolution is in 100 ns units -> 10,000 == 1 ms
+        resolution = max(int(resolution * 10000), minimum.value)
+        resolution = min(resolution, maximum.value)
+
+        # Set the timer resolution
+        dll.NtSetTimerResolution(resolution, 1, ctypes.byref(current))
+
+        yield None
+
+        # Reset the timer resolution
+        dll.NtSetTimerResolution(resolution, 0, ctypes.byref(current))
+    else:
+        yield None
+
+
+def validate_ae_title(ae_title: bytes, use_short: bool = False) -> bytes:
     """Return a valid AE title from `ae_title`, if possible.
 
     An AE title:
@@ -179,7 +240,7 @@ def validate_ae_title(ae_title, use_short=False):
     return ae_title.encode('ascii', errors='strict')
 
 
-def validate_uid(uid):
+def validate_uid(uid: UID) -> bool:
     """Return True if `uid` is considered valid.
 
     If :attr:`~pynetdicom._config.ENFORCE_UID_CONFORMANCE` is ``True`` then the
