@@ -10,16 +10,42 @@ import codecs
 from collections.abc import MutableSequence
 from io import BytesIO
 import logging
-from typing import Optional, List
+from pathlib import Path
+from typing import Optional, List, Tuple, Union, TYPE_CHECKING
 
 from pydicom.tag import Tag, BaseTag
 from pydicom.uid import UID
 
 from pynetdicom import _config
+from pynetdicom._globals import OptionalUIDType
 from pynetdicom.utils import validate_ae_title, validate_uid
 
 
+if TYPE_CHECKING:  # pragma: no cover
+    from typing import Protocol  # Python 3.8+
+
+    class NTF(Protocol):
+        name: str
+        def write(self, data: bytes) -> bytes: ...
+
+
 LOGGER = logging.getLogger('pynetdicom.dimse_primitives')
+
+
+DimsePrimitiveType = Union[
+    #DIMSEPrimitive,
+    C_CANCEL,
+    C_FIND,
+    C_GET,
+    C_MOVE,
+    C_STORE,
+    N_ACTION,
+    N_CREATE,
+    N_DELETE,
+    N_EVENT_REPORT,
+    N_GET,
+    N_SET
+]
 
 
 # pylint: disable=invalid-name
@@ -28,12 +54,38 @@ LOGGER = logging.getLogger('pynetdicom.dimse_primitives')
 # pylint: disable=anomalous-backslash-in-string
 class DIMSEPrimitive:
     """Base class for the DIMSE primitives."""
-    STATUS_OPTIONAL_KEYWORDS = ()
-    REQUEST_KEYWORDS = ()
-    RESPONSE_KEYWORDS = ('MessageIDBeingRespondedTo', 'Status')
+    STATUS_OPTIONAL_KEYWORDS: Tuple[str, ...] = ()
+    REQUEST_KEYWORDS: Tuple[str, ...] = ()
+    RESPONSE_KEYWORDS: Tuple[str, ...] = (
+        'MessageIDBeingRespondedTo', 'Status'
+    )
+
+    _action_type_id: Optional[int] = None
+    _affected_sop_class_uid: Optional[UID] = None
+    _affected_sop_instance_uid: Optional[UID] = None
+    _attribute_identifier_list: Optional[List[BaseTag]] = None
+    _dataset: Optional[BytesIO] = None
+    _event_type_id: Optional[int] = None
+    _message_id: Optional[int] = None
+    _message_id_being_responded_to: Optional[int] = None
+    _move_destination: Optional[bytes] = None
+    _move_originator_application_entity_title: Optional[bytes] = None
+    _move_originator_message_id: Optional[int] = None
+    _number_of_completed_suboperations: Optional[int] = None
+    _number_of_failed_suboperations: Optional[int] = None
+    _number_of_remaining_suboperations: Optional[int] = None
+    _number_of_warning_suboperations: Optional[int] = None
+    _priority: int = 0x02
+    _requested_sop_class_uid: Optional[UID] = None
+    _requested_sop_instance_uid: Optional[UID] = None
+    _status: Optional[int] = None
+
+    _context_id: Optional[int] = None
+    _dataset_path: Optional[Union[Path, Tuple[Path, int]]] = None
+    _dataset_file: Optional[NTF] = None
 
     @property
-    def AffectedSOPClassUID(self):
+    def AffectedSOPClassUID(self) -> Optional[UID]:
         """Get or set the *Affected SOP Class UID* as
         :class:`~pydicom.uid.UID`.
 
@@ -45,7 +97,7 @@ class DIMSEPrimitive:
         return self._affected_sop_class_uid
 
     @AffectedSOPClassUID.setter
-    def AffectedSOPClassUID(self, value):
+    def AffectedSOPClassUID(self, value: OptionalUIDType) -> None:
         """Set the *Affected SOP Class UID*."""
         if isinstance(value, UID):
             pass
@@ -74,13 +126,13 @@ class DIMSEPrimitive:
             self._affected_sop_class_uid = None
 
     @property
-    def _AffectedSOPInstanceUID(self):
+    def _AffectedSOPInstanceUID(self) -> Optional[UID]:
         """Return the *Affected SOP Instance UID* as :class:`~pydicom.uid.UID`.
         """
         return self._affected_sop_instance_uid
 
     @_AffectedSOPInstanceUID.setter
-    def _AffectedSOPInstanceUID(self, value):
+    def _AffectedSOPInstanceUID(self, value: OptionalUIDType) -> None:
         """Set the *Affected SOP Instance UID*.
 
         Parameters
@@ -115,7 +167,7 @@ class DIMSEPrimitive:
             self._affected_sop_instance_uid = None
 
     @property
-    def _dataset_variant(self):
+    def _dataset_variant(self) -> Optional[BytesIO]:
         """Return the Dataset-like parameter value.
 
         Used for EventInformation, EventReply, AttributeList,
@@ -129,7 +181,7 @@ class DIMSEPrimitive:
         return self._dataset
 
     @_dataset_variant.setter
-    def _dataset_variant(self, value):
+    def _dataset_variant(self, value: Tuple[Optional[BytesIO], str]) -> None:
         """Set the Dataset-like parameter.
 
         Used for EventInformation, EventReply, AttributeList,
@@ -150,7 +202,7 @@ class DIMSEPrimitive:
             raise TypeError(f"'{value[1]}' parameter must be a BytesIO object")
 
     @property
-    def is_valid_request(self):
+    def is_valid_request(self) -> bool:
         """Return ``True`` if the request is valid, ``False`` otherwise."""
         for keyword in self.REQUEST_KEYWORDS:
             if getattr(self, keyword) is None:
@@ -159,7 +211,7 @@ class DIMSEPrimitive:
         return True
 
     @property
-    def is_valid_response(self):
+    def is_valid_response(self) -> bool:
         """Return ``True`` if the response is valid, ``False`` otherwise."""
         for keyword in self.RESPONSE_KEYWORDS:
             if getattr(self, keyword) is None:
@@ -168,7 +220,7 @@ class DIMSEPrimitive:
         return True
 
     @property
-    def MessageID(self):
+    def MessageID(self) -> Optional[int]:
         """Get or set the *Message ID* value as :class:`int`.
 
         Parameters
@@ -179,21 +231,22 @@ class DIMSEPrimitive:
         return self._message_id
 
     @MessageID.setter
-    def MessageID(self, value):
+    def MessageID(self, value: Optional[int]) -> None:
         """Set the *Message ID*."""
         if isinstance(value, int):
             if 0 <= value < 2**16:
                 self._message_id = value
             else:
-                raise ValueError("Message ID must be between 0 and 65535, "
-                                 "inclusive")
+                raise ValueError(
+                    "Message ID must be between 0 and 65535, inclusive"
+                )
         elif value is None:
             self._message_id = value
         else:
             raise TypeError("Message ID must be an int")
 
     @property
-    def MessageIDBeingRespondedTo(self):
+    def MessageIDBeingRespondedTo(self) -> Optional[int]:
         """Get or set the *Message ID Being Responded To* as :class:`int`.
 
         Parameters
@@ -204,7 +257,7 @@ class DIMSEPrimitive:
         return self._message_id_being_responded_to
 
     @MessageIDBeingRespondedTo.setter
-    def MessageIDBeingRespondedTo(self, value):
+    def MessageIDBeingRespondedTo(self, value: Optional[int]) -> None:
         """Set the *Message ID Being Responded To*."""
         if isinstance(value, int):
             if 0 <= value < 2**16:
@@ -218,12 +271,12 @@ class DIMSEPrimitive:
             raise TypeError("Message ID Being Responded To must be an int")
 
     @property
-    def _NumberOfCompletedSuboperations(self):
+    def _NumberOfCompletedSuboperations(self) -> Optional[int]:
         """Return the *Number of Completed Suboperations*."""
         return self._number_of_completed_suboperations
 
     @_NumberOfCompletedSuboperations.setter
-    def _NumberOfCompletedSuboperations(self, value):
+    def _NumberOfCompletedSuboperations(self, value: Optional[int]) -> None:
         """Set the *Number of Completed Suboperations*."""
         if isinstance(value, int):
             if value >= 0:
@@ -237,12 +290,12 @@ class DIMSEPrimitive:
             raise TypeError("Number of Completed Suboperations must be an int")
 
     @property
-    def _NumberOfFailedSuboperations(self):
+    def _NumberOfFailedSuboperations(self) -> Optional[int]:
         """Return the *Number of Failed Suboperations*."""
         return self._number_of_failed_suboperations
 
     @_NumberOfFailedSuboperations.setter
-    def _NumberOfFailedSuboperations(self, value):
+    def _NumberOfFailedSuboperations(self, value: Optional[int]) -> None:
         """Set the *Number of Failed Suboperations*."""
         if isinstance(value, int):
             if value >= 0:
@@ -256,12 +309,12 @@ class DIMSEPrimitive:
             raise TypeError("Number of Failed Suboperations must be an int")
 
     @property
-    def _NumberOfRemainingSuboperations(self):
+    def _NumberOfRemainingSuboperations(self) -> Optional[int]:
         """Return the *Number of Remaining Suboperations*."""
         return self._number_of_remaining_suboperations
 
     @_NumberOfRemainingSuboperations.setter
-    def _NumberOfRemainingSuboperations(self, value):
+    def _NumberOfRemainingSuboperations(self, value: Optional[int]) -> None:
         """Set the *Number of Remaining Suboperations*."""
         if isinstance(value, int):
             if value >= 0:
@@ -275,12 +328,12 @@ class DIMSEPrimitive:
             raise TypeError("Number of Remaining Suboperations must be an int")
 
     @property
-    def _NumberOfWarningSuboperations(self):
+    def _NumberOfWarningSuboperations(self) -> Optional[int]:
         """Return the *Number of Warning Suboperations*."""
         return self._number_of_warning_suboperations
 
     @_NumberOfWarningSuboperations.setter
-    def _NumberOfWarningSuboperations(self, value):
+    def _NumberOfWarningSuboperations(self, value: Optional[int]) -> None:
         """Set the *Number of Warning Suboperations*."""
         if isinstance(value, int):
             if value >= 0:
@@ -294,7 +347,7 @@ class DIMSEPrimitive:
             raise TypeError("Number of Warning Suboperations must be an int")
 
     @property
-    def _Priority(self):
+    def _Priority(self) -> int:
         """Return the *Priority* as :class:`int`.
 
         Parameters
@@ -310,7 +363,7 @@ class DIMSEPrimitive:
         return self._priority
 
     @_Priority.setter
-    def _Priority(self, value):
+    def _Priority(self, value: int) -> None:
         """Set the *Priority*."""
         if value in [0, 1, 2]:
             self._priority = value
@@ -320,12 +373,12 @@ class DIMSEPrimitive:
             raise ValueError("Priority must be 0, 1, or 2")
 
     @property
-    def _RequestedSOPClassUID(self):
+    def _RequestedSOPClassUID(self) -> Optional[UID]:
         """Return the *Requested SOP Class UID*."""
         return self._requested_sop_class_uid
 
     @_RequestedSOPClassUID.setter
-    def _RequestedSOPClassUID(self, value):
+    def _RequestedSOPClassUID(self, value: OptionalUIDType) -> None:
         """Set the *Requested SOP Class UID*.
 
         Parameters
@@ -360,12 +413,12 @@ class DIMSEPrimitive:
             self._requested_sop_class_uid = None
 
     @property
-    def _RequestedSOPInstanceUID(self):
+    def _RequestedSOPInstanceUID(self) -> Optional[UID]:
         """Return the *Requested SOP Instance UID*."""
         return self._requested_sop_instance_uid
 
     @_RequestedSOPInstanceUID.setter
-    def _RequestedSOPInstanceUID(self, value):
+    def _RequestedSOPInstanceUID(self, value: OptionalUIDType) -> None:
         """Set the *Requested SOP Instance UID*.
 
         Parameters
@@ -400,7 +453,7 @@ class DIMSEPrimitive:
             self._requested_sop_instance_uid = None
 
     @property
-    def Status(self):
+    def Status(self) -> Optional[int]:
         """Get or set the *Status* as :class:`int`.
 
         Parameters
@@ -411,7 +464,7 @@ class DIMSEPrimitive:
         return self._status
 
     @Status.setter
-    def Status(self, value):
+    def Status(self, value: Optional[int]) -> None:
         """Set the *Status*"""
         if isinstance(value, int) or value is None:
             self._status = value
@@ -419,7 +472,7 @@ class DIMSEPrimitive:
             raise TypeError("DIMSE primitive's 'Status' must be an int")
 
     @property
-    def msg_type(self):
+    def msg_type(self) -> str:
         """Return the DIMSE message type as :class:`str`."""
         return self.__class__.__name__.replace('_', '-')
 
@@ -491,21 +544,21 @@ class C_STORE(DIMSEPrimitive):
         'Priority', 'DataSet'
     )
 
-    def __init__(self):
+    def __init__(self) -> None:
         # Variable names need to match the corresponding DICOM Element keywords
         #   in order for the DIMSE Message classes to be built correctly.
         # Changes to the variable names can be made provided the DIMSEMessage()
         #   class' message_to_primitive() and primitive_to_message() methods
         #   are also changed
-        self.MessageID = None
-        self.MessageIDBeingRespondedTo = None
-        self.AffectedSOPClassUID = None
-        self.AffectedSOPInstanceUID = None
-        self.Priority = 0x02
+        #self.MessageID: Optional[int] = None
+        #self.MessageIDBeingRespondedTo: Optional[int] = None
+        #self.AffectedSOPClassUID: Optional[UID] = None
+        #self.AffectedSOPInstanceUID: Optional[UID] = None
+        #self.Priority = 0x02
         self.MoveOriginatorApplicationEntityTitle = None
-        self.MoveOriginatorMessageID = None
-        self.DataSet = None
-        self.Status = None
+        self.MoveOriginatorMessageID: Optional[int] = None
+        self.DataSet: Optional[BytesIO] = None
+        #self.Status: Optional[int] = None
 
         # Optional Command Set elements used with specific Status values
         # For Warning statuses 0xB000, 0xB006, 0xB007
@@ -523,14 +576,14 @@ class C_STORE(DIMSEPrimitive):
         # If we are receiving a C-STORE service primitive:
         #   If None then the dataset is encoded as BytesIO
         #   If not None then the dataset is stored at _dataset_path
-        self._dataset_path = None
+        #self._dataset_path = None
         # If we are sending a C-STORE service primitive:
         #   Always None
         # If we are receiving a C-STORE service primitive:
         #   If None then the dataset is encoded as BytesIO
         #   If not None then _dataset_file backs the dataset stored
         #   at _dataset_path
-        self._dataset_file = None
+        #self._dataset_file = None
 
     @property
     def AffectedSOPInstanceUID(self) -> Optional[UID]:
@@ -545,9 +598,9 @@ class C_STORE(DIMSEPrimitive):
         return self._AffectedSOPInstanceUID
 
     @AffectedSOPInstanceUID.setter
-    def AffectedSOPInstanceUID(self, value):
+    def AffectedSOPInstanceUID(self, value: OptionalUIDType) -> None:
         """Set the *Affected SOP Instance UID*."""
-        self._AffectedSOPInstanceUID = value
+        self._AffectedSOPInstanceUID = value  # type: ignore
 
     @property
     def DataSet(self) -> Optional[BytesIO]:
@@ -555,9 +608,9 @@ class C_STORE(DIMSEPrimitive):
         return self._dataset_variant
 
     @DataSet.setter
-    def DataSet(self, value):
+    def DataSet(self, value: Optional[BytesIO]) -> None:
         """Set the *Data Set*."""
-        self._dataset_variant = (value, 'DataSet')
+        self._dataset_variant = (value, 'DataSet')  # type: ignore
 
     @property
     def MoveOriginatorApplicationEntityTitle(self) -> Optional[bytes]:
@@ -567,7 +620,9 @@ class C_STORE(DIMSEPrimitive):
         return self._move_originator_application_entity_title
 
     @MoveOriginatorApplicationEntityTitle.setter
-    def MoveOriginatorApplicationEntityTitle(self, value):
+    def MoveOriginatorApplicationEntityTitle(
+        self, value: Optional[Union[str, bytes]]
+    ) -> None:
         """Set the *Move Originator Application Entity Title*.
 
         Parameters
@@ -600,7 +655,7 @@ class C_STORE(DIMSEPrimitive):
         return self._move_originator_message_id
 
     @MoveOriginatorMessageID.setter
-    def MoveOriginatorMessageID(self, value):
+    def MoveOriginatorMessageID(self, value: Optional[int]) -> None:
         """Set the *Move Originator Message ID*.
 
         Parameters
@@ -621,7 +676,7 @@ class C_STORE(DIMSEPrimitive):
             raise TypeError("Move Originator Message ID To must be an int")
 
     @property
-    def Priority(self) -> Optional[int]:
+    def Priority(self) -> int:
         """Get or set the *Priority* as :class:`int`.
 
         Parameters
@@ -637,7 +692,7 @@ class C_STORE(DIMSEPrimitive):
         return self._Priority
 
     @Priority.setter
-    def Priority(self, value):
+    def Priority(self, value: int) -> None:
         """Set the *Priority*."""
         self._Priority = value
 
@@ -701,18 +756,18 @@ class C_FIND(DIMSEPrimitive):
         'MessageID', 'AffectedSOPClassUID', 'Priority', 'Identifier'
     )
 
-    def __init__(self):
+    def __init__(self) -> None:
         # Variable names need to match the corresponding DICOM Element keywords
         #   in order for the DIMSE Message classes to be built correctly.
         # Changes to the variable names can be made provided the DIMSEMessage()
         #   class' message_to_primitive() and primitive_to_message() methods
         #   are also changed
-        self.MessageID = None
-        self.MessageIDBeingRespondedTo = None
-        self.AffectedSOPClassUID = None
-        self.Priority = 0x02
+        #self.MessageID = None
+        #self.MessageIDBeingRespondedTo = None
+        #self.AffectedSOPClassUID = None
+        #self.Priority = 0x02
         self.Identifier = None
-        self.Status = None
+        #self.Status = None
 
         # Optional Command Set elements used in with specific Status values
         # For Failure statuses 0xA900, 0xCxxx
@@ -732,12 +787,12 @@ class C_FIND(DIMSEPrimitive):
         return self._dataset_variant
 
     @Identifier.setter
-    def Identifier(self, value):
+    def Identifier(self, value: Optional[BytesIO]) -> None:
         """Set the *Identifier*."""
-        self._dataset_variant = (value, 'Identifier')
+        self._dataset_variant = (value, 'Identifier')  # type: ignore
 
     @property
-    def Priority(self) -> Optional[int]:
+    def Priority(self) -> int:
         """Get or set the *Priority* as :class:`int`.
 
         Parameters
@@ -753,7 +808,7 @@ class C_FIND(DIMSEPrimitive):
         return self._Priority
 
     @Priority.setter
-    def Priority(self, value):
+    def Priority(self, value: int) -> None:
         """Set the *Priority*."""
         self._Priority = value
 
@@ -829,18 +884,18 @@ class C_GET(DIMSEPrimitive):
         'MessageID', 'AffectedSOPClassUID', 'Priority', 'Identifier'
     )
 
-    def __init__(self):
+    def __init__(self) -> None:
         # Variable names need to match the corresponding DICOM Element keywords
         #   in order for the DIMSE Message classes to be built correctly.
         # Changes to the variable names can be made provided the DIMSEMessage()
         #   class' message_to_primitive() and primitive_to_message() methods
         #   are also changed
-        self.MessageID = None
-        self.MessageIDBeingRespondedTo = None
-        self.AffectedSOPClassUID = None
-        self.Priority = 0x02
+        #self.MessageID = None
+        #self.MessageIDBeingRespondedTo = None
+        #self.AffectedSOPClassUID = None
+        #self.Priority = 0x02
         self.Identifier = None
-        self.Status = None
+        #self.Status = None
         self.NumberOfRemainingSuboperations = None
         self.NumberOfCompletedSuboperations = None
         self.NumberOfFailedSuboperations = None
@@ -869,7 +924,7 @@ class C_GET(DIMSEPrimitive):
     @Identifier.setter
     def Identifier(self, value: Optional[BytesIO]) -> None:
         """Set the *Identifier*."""
-        self._dataset_variant = (value, 'Identifier')
+        self._dataset_variant = (value, 'Identifier')  # type: ignore
 
     @property
     def NumberOfCompletedSuboperations(self) -> Optional[int]:
@@ -921,7 +976,7 @@ class C_GET(DIMSEPrimitive):
         self._NumberOfWarningSuboperations = value
 
     @property
-    def Priority(self) -> Optional[int]:
+    def Priority(self) -> int:
         """Get or set the *Priority* as :class:`int`.
 
         Parameters
@@ -937,7 +992,7 @@ class C_GET(DIMSEPrimitive):
         return self._Priority
 
     @Priority.setter
-    def Priority(self, value: Optional[int]) -> None:
+    def Priority(self, value: int) -> None:
         """Set the *Priority*."""
         self._Priority = value
 
@@ -1016,19 +1071,19 @@ class C_MOVE(DIMSEPrimitive):
         'MoveDestination'
     )
 
-    def __init__(self):
+    def __init__(self) -> None:
         # Variable names need to match the corresponding DICOM Element keywords
         #   in order for the DIMSE Message classes to be built correctly.
         # Changes to the variable names can be made provided the DIMSEMessage()
         #   class' message_to_primitive() and primitive_to_message() methods
         #   are also changed
-        self.MessageID = None
-        self.MessageIDBeingRespondedTo = None
-        self.AffectedSOPClassUID = None
-        self.Priority = 0x02
+        #self.MessageID = None
+        #self.MessageIDBeingRespondedTo = None
+        #self.AffectedSOPClassUID = None
+        #self.Priority = 0x02
         self.MoveDestination = None
         self.Identifier = None
-        self.Status = None
+        #self.Status = None
         self.NumberOfRemainingSuboperations = None
         self.NumberOfCompletedSuboperations = None
         self.NumberOfFailedSuboperations = None
@@ -1053,9 +1108,9 @@ class C_MOVE(DIMSEPrimitive):
         return self._dataset_variant
 
     @Identifier.setter
-    def Identifier(self, value):
+    def Identifier(self, value: Optional[BytesIO]) -> None:
         """Set the *Identifier*."""
-        self._dataset_variant = (value, 'Identifier')
+        self._dataset_variant = (value, 'Identifier')  # type: ignore
 
     @property
     def MoveDestination(self) -> Optional[bytes]:
@@ -1070,7 +1125,7 @@ class C_MOVE(DIMSEPrimitive):
         return self._move_destination
 
     @MoveDestination.setter
-    def MoveDestination(self, value):
+    def MoveDestination(self, value: Optional[Union[str, bytes]]) -> None:
         """Set the *Move Destination*."""
         if isinstance(value, str):
             value = codecs.encode(value, 'ascii')
@@ -1089,7 +1144,7 @@ class C_MOVE(DIMSEPrimitive):
         return self._NumberOfCompletedSuboperations
 
     @NumberOfCompletedSuboperations.setter
-    def NumberOfCompletedSuboperations(self, value):
+    def NumberOfCompletedSuboperations(self, value: Optional[int]) -> None:
         """Set the *Number of Completed Suboperations*."""
         self._NumberOfCompletedSuboperations = value
 
@@ -1099,7 +1154,7 @@ class C_MOVE(DIMSEPrimitive):
         return self._NumberOfFailedSuboperations
 
     @NumberOfFailedSuboperations.setter
-    def NumberOfFailedSuboperations(self, value):
+    def NumberOfFailedSuboperations(self, value: Optional[int]) -> None:
         """Set the *Number of Failed Suboperations*."""
         self._NumberOfFailedSuboperations = value
 
@@ -1110,7 +1165,7 @@ class C_MOVE(DIMSEPrimitive):
         return self._NumberOfRemainingSuboperations
 
     @NumberOfRemainingSuboperations.setter
-    def NumberOfRemainingSuboperations(self, value):
+    def NumberOfRemainingSuboperations(self, value: Optional[int]) -> None:
         """Set the *Number of Remaining Suboperations*."""
         self._NumberOfRemainingSuboperations = value
 
@@ -1121,12 +1176,12 @@ class C_MOVE(DIMSEPrimitive):
         return self._NumberOfWarningSuboperations
 
     @NumberOfWarningSuboperations.setter
-    def NumberOfWarningSuboperations(self, value):
+    def NumberOfWarningSuboperations(self, value: Optional[int]) -> None:
         """Set the *Number of Warning Suboperations*."""
         self._NumberOfWarningSuboperations = value
 
     @property
-    def Priority(self) -> Optional[int]:
+    def Priority(self) -> int:
         """Get or set the *Priority* as :class:`int`.
 
         Parameters
@@ -1142,7 +1197,7 @@ class C_MOVE(DIMSEPrimitive):
         return self._Priority
 
     @Priority.setter
-    def Priority(self, value):
+    def Priority(self, value: int) -> None:
         """Set the *Priority*."""
         self._Priority = value
 
@@ -1195,16 +1250,16 @@ class C_ECHO(DIMSEPrimitive):
     STATUS_OPTIONAL_KEYWORDS = ('ErrorComment', )
     REQUEST_KEYWORDS = ('MessageID', 'AffectedSOPClassUID')
 
-    def __init__(self):
+    def __init__(self) -> None:
         # Variable names need to match the corresponding DICOM Element keywords
         #   in order for the DIMSE Message classes to be built correctly.
         # Changes to the variable names can be made provided the DIMSEMessage()
         #   class' message_to_primitive() and primitive_to_message() methods
         #   are also changed
-        self.MessageID = None
-        self.MessageIDBeingRespondedTo = None
-        self.AffectedSOPClassUID = None
-        self.Status = None
+        #self.MessageID = None
+        #self.MessageIDBeingRespondedTo = None
+        #self.AffectedSOPClassUID = None
+        #self.Status = None
 
         # (Optional) for Failure status 0x0122
         self.ErrorComment = None
@@ -1232,17 +1287,20 @@ class C_CANCEL:
 
     * DICOM Standard, Part 7, :dcm:`Section 9.3.2.3<part07/sect_9.3.2.3.html>`
     """
-    def __init__(self):
+    def __init__(self) -> None:
         """Initialise the C_CANCEL"""
         # Variable names need to match the corresponding DICOM Element keywords
         #   in order for the DIMSE Message classes to be built correctly.
         # Changes to the variable names can be made provided the DIMSEMessage()
         #   class' message_to_primitive() and primitive_to_message() methods
         #   are also changed
-        self.MessageIDBeingRespondedTo = None
+        self._message_id_being_responded_to: Optional[int] = None
+        self._context_id: Optional[int] = None
+        self._dataset_path: Optional[Union[Path, Tuple[Path, int]]] = None
+        self._dataset_file: Optional[NTF] = None
 
     @property
-    def MessageIDBeingRespondedTo(self):
+    def MessageIDBeingRespondedTo(self) -> Optional[int]:
         """Get or set the *Message ID Being Responded To* as an :class:`int`.
 
         Parameters
@@ -1253,7 +1311,7 @@ class C_CANCEL:
         return self._message_id_being_responded_to
 
     @MessageIDBeingRespondedTo.setter
-    def MessageIDBeingRespondedTo(self, value):
+    def MessageIDBeingRespondedTo(self, value: Optional[int]) -> None:
         """Set the *Message ID Being Responded To*."""
         if isinstance(value, int):
             if 0 <= value < 2**16:
@@ -1326,15 +1384,15 @@ class N_EVENT_REPORT(DIMSEPrimitive):
         'AffectedSOPInstanceUID'
     )
 
-    def __init__(self):
-        self.MessageID = None
-        self.MessageIDBeingRespondedTo = None
-        self.AffectedSOPClassUID = None
-        self.AffectedSOPInstanceUID = None
+    def __init__(self) -> None:
+        #self.MessageID = None
+        #self.MessageIDBeingRespondedTo = None
+        #self.AffectedSOPClassUID = None
+        #self.AffectedSOPInstanceUID = None
         self.EventTypeID = None
         self.EventInformation = None
         self.EventReply = None
-        self.Status = None
+        #self.Status = None
 
         # Optional status elements
         self.ErrorComment = None
@@ -1348,7 +1406,7 @@ class N_EVENT_REPORT(DIMSEPrimitive):
         return self._AffectedSOPInstanceUID
 
     @AffectedSOPInstanceUID.setter
-    def AffectedSOPInstanceUID(self, value):
+    def AffectedSOPInstanceUID(self, value: OptionalUIDType) -> None:
         """Set the *Affected SOP Instance UID*.
 
         Parameters
@@ -1356,7 +1414,7 @@ class N_EVENT_REPORT(DIMSEPrimitive):
         value : pydicom.uid.UID, bytes or str
             The value to use for the *Affected SOP Class UID* parameter.
         """
-        self._AffectedSOPInstanceUID = value
+        self._AffectedSOPInstanceUID = value  # type: ignore
 
     @property
     def EventInformation(self) -> Optional[BytesIO]:
@@ -1364,7 +1422,7 @@ class N_EVENT_REPORT(DIMSEPrimitive):
         return self._dataset_variant
 
     @EventInformation.setter
-    def EventInformation(self, value):
+    def EventInformation(self, value: Optional[BytesIO]) -> None:
         """Set the *Event Information*.
 
         Parameters
@@ -1372,7 +1430,7 @@ class N_EVENT_REPORT(DIMSEPrimitive):
         io.BytesIO
             The value to use for the *Event Information* parameter.
         """
-        self._dataset_variant = (value, 'EventInformation')
+        self._dataset_variant = (value, 'EventInformation')  # type: ignore
 
     @property
     def EventReply(self) -> Optional[BytesIO]:
@@ -1380,7 +1438,7 @@ class N_EVENT_REPORT(DIMSEPrimitive):
         return self._dataset_variant
 
     @EventReply.setter
-    def EventReply(self, value):
+    def EventReply(self, value: Optional[BytesIO]):
         """Set the *Event Reply*.
 
         Parameters
@@ -1388,7 +1446,7 @@ class N_EVENT_REPORT(DIMSEPrimitive):
         io.BytesIO
             The value to use for the *Event Reply* parameter.
         """
-        self._dataset_variant = (value, 'EventReply')
+        self._dataset_variant = (value, 'EventReply')  # type: ignore
 
     @property
     def EventTypeID(self) -> Optional[int]:
@@ -1396,7 +1454,7 @@ class N_EVENT_REPORT(DIMSEPrimitive):
         return self._event_type_id
 
     @EventTypeID.setter
-    def EventTypeID(self, value):
+    def EventTypeID(self, value: Optional[int]) -> None:
         """Set the *Event Type ID*.
 
         Parameters
@@ -1466,16 +1524,16 @@ class N_GET(DIMSEPrimitive):
         'MessageID', 'RequestedSOPClassUID', 'RequestedSOPInstanceUID'
     )
 
-    def __init__(self):
-        self.MessageID = None
-        self.MessageIDBeingRespondedTo = None
-        self.RequestedSOPClassUID = None
-        self.RequestedSOPInstanceUID = None
+    def __init__(self) -> None:
+        #self.MessageID = None
+        #self.MessageIDBeingRespondedTo = None
+        #self.RequestedSOPClassUID = None
+        #self.RequestedSOPInstanceUID = None
         self.AttributeIdentifierList = None
-        self.AffectedSOPClassUID = None
-        self.AffectedSOPInstanceUID = None
+        #self.AffectedSOPClassUID = None
+        #self.AffectedSOPInstanceUID = None
         self.AttributeList = None
-        self.Status = None
+        #self.Status = None
 
         # (Optional) elements for specific status values
         self.ErrorComment = None
@@ -1489,7 +1547,7 @@ class N_GET(DIMSEPrimitive):
         return self._AffectedSOPInstanceUID
 
     @AffectedSOPInstanceUID.setter
-    def AffectedSOPInstanceUID(self, value):
+    def AffectedSOPInstanceUID(self, value: OptionalUIDType) -> None:
         """Set the *Affected SOP Instance UID*.
 
         Parameters
@@ -1497,7 +1555,7 @@ class N_GET(DIMSEPrimitive):
         value : pydicom.uid.UID, bytes or str
             The value to use for the *Affected SOP Class UID* parameter.
         """
-        self._AffectedSOPInstanceUID = value
+        self._AffectedSOPInstanceUID = value  # type: ignore
 
     @property
     def AttributeIdentifierList(self) -> Optional[List[BaseTag]]:
@@ -1514,7 +1572,9 @@ class N_GET(DIMSEPrimitive):
         return self._attribute_identifier_list
 
     @AttributeIdentifierList.setter
-    def AttributeIdentifierList(self, value):
+    def AttributeIdentifierList(
+        self, value: Optional[Union[BaseTag, List[BaseTag]]]
+    ) -> None:
         """Set the *Attribute Identifier List*."""
         if value is None:
             self._attribute_identifier_list = None
@@ -1549,9 +1609,9 @@ class N_GET(DIMSEPrimitive):
         return self._dataset_variant
 
     @AttributeList.setter
-    def AttributeList(self, value):
+    def AttributeList(self, value: Optional[BytesIO]) -> None:
         """Set the *Attribute List*."""
-        self._dataset_variant = (value, 'AttributeList')
+        self._dataset_variant = (value, 'AttributeList')  # type: ignore
 
     @property
     def RequestedSOPClassUID(self) -> Optional[UID]:
@@ -1566,9 +1626,9 @@ class N_GET(DIMSEPrimitive):
         return self._RequestedSOPClassUID
 
     @RequestedSOPClassUID.setter
-    def RequestedSOPClassUID(self, value):
+    def RequestedSOPClassUID(self, value: OptionalUIDType) -> None:
         """Set the *Requested SOP Class UID*."""
-        self._RequestedSOPClassUID = value
+        self._RequestedSOPClassUID = value  # type: ignore
 
     @property
     def RequestedSOPInstanceUID(self) -> Optional[UID]:
@@ -1583,9 +1643,9 @@ class N_GET(DIMSEPrimitive):
         return self._RequestedSOPInstanceUID
 
     @RequestedSOPInstanceUID.setter
-    def RequestedSOPInstanceUID(self, value):
+    def RequestedSOPInstanceUID(self, value: OptionalUIDType) -> None:
         """Set the *Requested SOP Instance UID*."""
-        self._RequestedSOPInstanceUID = value
+        self._RequestedSOPInstanceUID = value  # type: ignore
 
 
 class N_SET(DIMSEPrimitive):
@@ -1644,16 +1704,16 @@ class N_SET(DIMSEPrimitive):
         'ModificationList'
     )
 
-    def __init__(self):
-        self.MessageID = None
-        self.MessageIDBeingRespondedTo = None
-        self.RequestedSOPClassUID = None
-        self.RequestedSOPInstanceUID = None
+    def __init__(self) -> None:
+        #self.MessageID = None
+        #self.MessageIDBeingRespondedTo = None
+        #self.RequestedSOPClassUID = None
+        #self.RequestedSOPInstanceUID = None
         self.ModificationList = None
         self.AttributeList = None
-        self.AffectedSOPClassUID = None
-        self.AffectedSOPInstanceUID = None
-        self.Status = None
+        #self.AffectedSOPClassUID = None
+        #self.AffectedSOPInstanceUID = None
+        #self.Status = None
 
         # Optional
         self.ErrorComment = None
@@ -1673,9 +1733,9 @@ class N_SET(DIMSEPrimitive):
         return self._AffectedSOPInstanceUID
 
     @AffectedSOPInstanceUID.setter
-    def AffectedSOPInstanceUID(self, value):
+    def AffectedSOPInstanceUID(self, value: OptionalUIDType) -> None:
         """Set the *Affected SOP Instance UID*."""
-        self._AffectedSOPInstanceUID = value
+        self._AffectedSOPInstanceUID = value  # type: ignore
 
     @property
     def AttributeList(self) -> Optional[BytesIO]:
@@ -1689,9 +1749,9 @@ class N_SET(DIMSEPrimitive):
         return self._dataset_variant
 
     @AttributeList.setter
-    def AttributeList(self, value):
+    def AttributeList(self, value: Optional[BytesIO]) -> None:
         """Set the *Attribute List*."""
-        self._dataset_variant = (value, 'AttributeList')
+        self._dataset_variant = (value, 'AttributeList')  # type: ignore
 
     @property
     def ModificationList(self) -> Optional[BytesIO]:
@@ -1705,9 +1765,9 @@ class N_SET(DIMSEPrimitive):
         return self._dataset_variant
 
     @ModificationList.setter
-    def ModificationList(self, value):
+    def ModificationList(self, value: Optional[BytesIO]) -> None:
         """Set the *Modification List*."""
-        self._dataset_variant = (value, 'ModificationList')
+        self._dataset_variant = (value, 'ModificationList')  # type: ignore
 
     @property
     def RequestedSOPClassUID(self) -> Optional[UID]:
@@ -1721,9 +1781,9 @@ class N_SET(DIMSEPrimitive):
         return self._RequestedSOPClassUID
 
     @RequestedSOPClassUID.setter
-    def RequestedSOPClassUID(self, value):
+    def RequestedSOPClassUID(self, value: OptionalUIDType) -> None:
         """Set the *Requested SOP Class UID*."""
-        self._RequestedSOPClassUID = value
+        self._RequestedSOPClassUID = value  # type: ignore
 
     @property
     def RequestedSOPInstanceUID(self) -> Optional[UID]:
@@ -1738,9 +1798,9 @@ class N_SET(DIMSEPrimitive):
         return self._RequestedSOPInstanceUID
 
     @RequestedSOPInstanceUID.setter
-    def RequestedSOPInstanceUID(self, value):
+    def RequestedSOPInstanceUID(self, value: OptionalUIDType) -> None:
         """Set the *Requested SOP Instance UID*."""
-        self._RequestedSOPInstanceUID = value
+        self._RequestedSOPInstanceUID = value  # type: ignore
 
 
 class N_ACTION(DIMSEPrimitive):
@@ -1803,17 +1863,17 @@ class N_ACTION(DIMSEPrimitive):
         'ActionTypeID'
     )
 
-    def __init__(self):
-        self.MessageID = None
-        self.MessageIDBeingRespondedTo = None
-        self.RequestedSOPClassUID = None
-        self.RequestedSOPInstanceUID = None
+    def __init__(self) -> None:
+        #self.MessageID = None
+        #self.MessageIDBeingRespondedTo = None
+        #self.RequestedSOPClassUID = None
+        #self.RequestedSOPInstanceUID = None
         self.ActionTypeID = None
         self.ActionInformation = None
-        self.AffectedSOPClassUID = None
-        self.AffectedSOPInstanceUID = None
+        #self.AffectedSOPClassUID = None
+        #self.AffectedSOPInstanceUID = None
         self.ActionReply = None
-        self.Status = None
+        #self.Status = None
 
         # Optional status elements
         self.ErrorComment = None
@@ -1831,9 +1891,9 @@ class N_ACTION(DIMSEPrimitive):
         return self._dataset_variant
 
     @ActionInformation.setter
-    def ActionInformation(self, value):
+    def ActionInformation(self, value: Optional[BytesIO]) -> None:
         """Set the *Action Information*."""
-        self._dataset_variant = (value, 'ActionInformation')
+        self._dataset_variant = (value, 'ActionInformation')  # type: ignore
 
     @property
     def ActionReply(self) -> Optional[BytesIO]:
@@ -1847,9 +1907,9 @@ class N_ACTION(DIMSEPrimitive):
         return self._dataset_variant
 
     @ActionReply.setter
-    def ActionReply(self, value):
+    def ActionReply(self, value: Optional[BytesIO]) -> None:
         """Set the *Action Reply*."""
-        self._dataset_variant = (value, 'ActionReply')
+        self._dataset_variant = (value, 'ActionReply')  # type: ignore
 
     @property
     def ActionTypeID(self) -> Optional[int]:
@@ -1863,7 +1923,7 @@ class N_ACTION(DIMSEPrimitive):
         return self._action_type_id
 
     @ActionTypeID.setter
-    def ActionTypeID(self, value):
+    def ActionTypeID(self, value: Optional[int]) -> None:
         """Set the *Action Type ID*."""
         if isinstance(value, int) or value is None:
             self._action_type_id = value
@@ -1882,9 +1942,9 @@ class N_ACTION(DIMSEPrimitive):
         return self._AffectedSOPInstanceUID
 
     @AffectedSOPInstanceUID.setter
-    def AffectedSOPInstanceUID(self, value):
+    def AffectedSOPInstanceUID(self, value: OptionalUIDType) -> None:
         """Set the *Affected SOP Instance UID*."""
-        self._AffectedSOPInstanceUID = value
+        self._AffectedSOPInstanceUID = value  # type: ignore
 
     @property
     def RequestedSOPClassUID(self) -> Optional[UID]:
@@ -1898,9 +1958,9 @@ class N_ACTION(DIMSEPrimitive):
         return self._RequestedSOPClassUID
 
     @RequestedSOPClassUID.setter
-    def RequestedSOPClassUID(self, value):
+    def RequestedSOPClassUID(self, value: OptionalUIDType) -> None:
         """Set the *Requested SOP Class UID*."""
-        self._RequestedSOPClassUID = value
+        self._RequestedSOPClassUID = value  # type: ignore
 
     @property
     def RequestedSOPInstanceUID(self) -> Optional[UID]:
@@ -1915,9 +1975,9 @@ class N_ACTION(DIMSEPrimitive):
         return self._RequestedSOPInstanceUID
 
     @RequestedSOPInstanceUID.setter
-    def RequestedSOPInstanceUID(self, value):
+    def RequestedSOPInstanceUID(self, value: OptionalUIDType) -> None:
         """Set the *Requested SOP Instance UID*."""
-        self._RequestedSOPInstanceUID = value
+        self._RequestedSOPInstanceUID = value  # type: ignore
 
 
 class N_CREATE(DIMSEPrimitive):
@@ -1968,13 +2028,13 @@ class N_CREATE(DIMSEPrimitive):
     STATUS_OPTIONAL_KEYWORDS = ('ErrorComment', 'ErrorID', )
     REQUEST_KEYWORDS = ('MessageID', 'AffectedSOPClassUID')
 
-    def __init__(self):
-        self.MessageID = None
-        self.MessageIDBeingRespondedTo = None
-        self.AffectedSOPClassUID = None
-        self.AffectedSOPInstanceUID = None
+    def __init__(self) -> None:
+        #self.MessageID = None
+        #self.MessageIDBeingRespondedTo = None
+        #self.AffectedSOPClassUID = None
+        #self.AffectedSOPInstanceUID = None
         self.AttributeList = None
-        self.Status = None
+        #self.Status = None
 
         # Optional elements
         self.ErrorComment = None
@@ -1992,9 +2052,9 @@ class N_CREATE(DIMSEPrimitive):
         return self._AffectedSOPInstanceUID
 
     @AffectedSOPInstanceUID.setter
-    def AffectedSOPInstanceUID(self, value):
+    def AffectedSOPInstanceUID(self, value: OptionalUIDType) -> None:
         """Set the *Affected SOP Instance UID*."""
-        self._AffectedSOPInstanceUID = value
+        self._AffectedSOPInstanceUID = value  # type: ignore
 
     @property
     def AttributeList(self) -> Optional[BytesIO]:
@@ -2008,9 +2068,9 @@ class N_CREATE(DIMSEPrimitive):
         return self._dataset_variant
 
     @AttributeList.setter
-    def AttributeList(self, value):
+    def AttributeList(self, value: Optional[BytesIO]) -> None:
         """Set the *Attribute List*."""
-        self._dataset_variant = (value, 'AttributeList')
+        self._dataset_variant = (value, 'AttributeList')  # type: ignore
 
 
 class N_DELETE(DIMSEPrimitive):
@@ -2064,14 +2124,14 @@ class N_DELETE(DIMSEPrimitive):
         'MessageID', 'RequestedSOPClassUID', 'RequestedSOPInstanceUID'
     )
 
-    def __init__(self):
-        self.MessageID = None
-        self.MessageIDBeingRespondedTo = None
-        self.RequestedSOPClassUID = None
-        self.RequestedSOPInstanceUID = None
-        self.AffectedSOPClassUID = None
-        self.AffectedSOPInstanceUID = None
-        self.Status = None
+    def __init__(self) -> None:
+        #self.MessageID = None
+        #self.MessageIDBeingRespondedTo = None
+        #self.RequestedSOPClassUID = None
+        #self.RequestedSOPInstanceUID = None
+        #self.AffectedSOPClassUID = None
+        #self.AffectedSOPInstanceUID = None
+        #self.Status = None
 
         # Optional
         self.ErrorComment = None
@@ -2089,9 +2149,9 @@ class N_DELETE(DIMSEPrimitive):
         return self._AffectedSOPInstanceUID
 
     @AffectedSOPInstanceUID.setter
-    def AffectedSOPInstanceUID(self, value):
+    def AffectedSOPInstanceUID(self, value: OptionalUIDType) -> None:
         """Set the *Affected SOP Instance UID*."""
-        self._AffectedSOPInstanceUID = value
+        self._AffectedSOPInstanceUID = value  # type: ignore
 
     @property
     def RequestedSOPClassUID(self) -> Optional[UID]:
@@ -2105,9 +2165,9 @@ class N_DELETE(DIMSEPrimitive):
         return self._RequestedSOPClassUID
 
     @RequestedSOPClassUID.setter
-    def RequestedSOPClassUID(self, value):
+    def RequestedSOPClassUID(self, value: OptionalUIDType) -> None:
         """Set the *Requested SOP Class UID*."""
-        self._RequestedSOPClassUID = value
+        self._RequestedSOPClassUID = value  # type: ignore
 
     @property
     def RequestedSOPInstanceUID(self) -> Optional[UID]:
@@ -2122,6 +2182,6 @@ class N_DELETE(DIMSEPrimitive):
         return self._RequestedSOPInstanceUID
 
     @RequestedSOPInstanceUID.setter
-    def RequestedSOPInstanceUID(self, value):
+    def RequestedSOPInstanceUID(self, value: OptionalUIDType) -> None:
         """Set the *Requested SOP Instance UID*."""
-        self._RequestedSOPInstanceUID = value
+        self._RequestedSOPInstanceUID = value  # type: ignore

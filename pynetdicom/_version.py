@@ -8,6 +8,7 @@ Parts of `extract_components` are taken from the pypa packaging project
 """
 
 import re
+from typing import Dict, Any, cast, Match
 
 
 __version__ = '2.0.0.dev0'
@@ -45,7 +46,7 @@ VERSION_PATTERN = r"""
 """
 
 
-def is_canonical(version):
+def is_canonical(version: str) -> bool:
     """Return True if `version` is a PEP440 conformant version."""
     match = re.match(
         r'^([1-9]\d*!)?(0|[1-9]\d*)'
@@ -57,7 +58,7 @@ def is_canonical(version):
     return match is not None
 
 
-def extract_components(version):
+def extract_components(version: str) -> Dict[str, Any]:
     """Return the components from `version` as a dict"""
     if not is_canonical(version):
         raise ValueError(
@@ -68,7 +69,7 @@ def extract_components(version):
         r"^\s*" + VERSION_PATTERN + r"\s*$",
         re.VERBOSE | re.IGNORECASE,
     )
-    match = _regex.search(version)
+    match = cast(Match[str], _regex.search(version))
 
     _pre = None
     if match.group("pre_l"):

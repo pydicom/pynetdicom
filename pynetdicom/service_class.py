@@ -20,6 +20,7 @@ from pynetdicom._globals import (
     STATUS_CANCEL,
 )
 from pynetdicom.status import (
+    StatusDictType,
     GENERAL_STATUS,
     QR_FIND_SERVICE_CLASS_STATUS,
     QR_GET_SERVICE_CLASS_STATUS,
@@ -1484,7 +1485,7 @@ class StorageServiceClass(ServiceClass):
 
 class QueryRetrieveServiceClass(ServiceClass):
     """Implementation of the Query/Retrieve Service Class."""
-    statuses = None
+    statuses: StatusDictType
     # Used with Composite Instance Retrieve Without Bulk Data
     # CurveData, AudioSampleData and OverlayData are repeating group elements
     _BULK_DATA_KEYWORDS = [

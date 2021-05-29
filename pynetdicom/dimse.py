@@ -5,6 +5,7 @@ from io import BytesIO
 import logging
 import queue
 import threading
+from typing import TYPE_CHECKING, Tuple, Optional, Dict, Union, cast
 
 from pynetdicom import evt
 # pylint: disable=no-name-in-module
@@ -19,8 +20,14 @@ from pynetdicom.dimse_messages import (
 from pynetdicom.dimse_primitives import (
     C_STORE, C_FIND, C_GET, C_MOVE, C_ECHO, C_CANCEL,
     N_EVENT_REPORT, N_GET, N_SET, N_ACTION, N_CREATE, N_DELETE,
+    DimsePrimitiveType
 )
 from pynetdicom.utils import make_target
+
+if TYPE_CHECKING:  # pragma: no cover
+    from pynetdicom.association import Association
+    from pynetdicom.dul import DULServiceProvider
+    from pynetdicom.pdu_primitives import P_DATA
 
 
 LOGGER = logging.getLogger('pynetdicom.dimse')
@@ -130,7 +137,7 @@ class DIMSEServiceProvider:
 
     * DICOM Standard, :dcm:`Part 7<part07/PS3.7.html>`
     """
-    def __init__(self, assoc):
+    def __init__(self, assoc: "Association") -> None:
         """Initialise the DIMSE service provider.
 
         .. versionchanged:: 1.3
@@ -144,12 +151,12 @@ class DIMSEServiceProvider:
         """
         self._assoc = assoc
 
-        self.cancel_req = {}
-        self.message = None
-        self.msg_queue = queue.Queue()
+        self.cancel_req: Dict[int, C_CANCEL] = {}
+        self.message: Optional[DIMSEMessage] = None
+        self.msg_queue: queue.Queue[Tuple[int, DIMSEMessage]]  = queue.Queue()
 
     @property
-    def assoc(self):
+    def assoc(self) -> "Association":
         """Return the parent :class:`~pynetdicom.association.Association`.
 
         .. versionadded:: 1.3
@@ -157,16 +164,18 @@ class DIMSEServiceProvider:
         return self._assoc
 
     @property
-    def dimse_timeout(self):
+    def dimse_timeout(self) -> Optional[float]:
         """Return the DIMSE timeout as numeric or ``None``."""
         return self.assoc.dimse_timeout
 
     @property
-    def dul(self):
+    def dul(self) -> "DULServiceProvider":
         """Return the :class:`~pynetdicom.dul.DULServiceProvider`."""
         return self.assoc.dul
 
-    def get_msg(self, block=False):
+    def get_msg(
+        self, block: bool = False
+    ) -> Union[Tuple[int, DIMSEMessage], Tuple[None, None]]:
         """Get the next available DIMSE message.
 
         .. versionadded:: 1.2
@@ -198,14 +207,14 @@ class DIMSEServiceProvider:
             return None, None
 
     @property
-    def maximum_pdu_size(self):
+    def maximum_pdu_size(self) -> int:
         """Return the peer's maximum PDU length as :class:`int`."""
         if self.assoc.is_requestor:
             return self.assoc.acceptor.maximum_length
 
         return self.assoc.requestor.maximum_length
 
-    def peek_msg(self):
+    def peek_msg(self) -> Union[Tuple[int, DIMSEMessage], Tuple[None, None]]:
         """Return the first message in the message queue or ``None``.
 
         .. versionadded:: 1.2
@@ -218,11 +227,11 @@ class DIMSEServiceProvider:
             of the queue.
         """
         try:
-            return self.msg_queue.queue[0]
+            return cast(Tuple[int, DIMSEMessage], self.msg_queue.queue[0])
         except (queue.Empty, IndexError):
             return None, None
 
-    def receive_primitive(self, primitive):
+    def receive_primitive(self, primitive: "P_DATA") -> None:
         """Process a P-DATA primitive received from the remote.
 
         .. versionadded:: 1.2
@@ -251,9 +260,9 @@ class DIMSEServiceProvider:
                 self.assoc, evt.EVT_DIMSE_RECV, {'message' : self.message}
             )
 
-            context_id = self.message.context_id
+            context_id = cast(int, self.message.context_id)
             try:
-                primitive = self.message.message_to_primitive()
+                d_primitive = self.message.message_to_primitive()
             except Exception as exc:
                 LOGGER.error("Received an invalid DIMSE message")
                 LOGGER.exception(exc)
@@ -262,20 +271,22 @@ class DIMSEServiceProvider:
 
             # Keep C-CANCEL requests separate from other messages
             # Only allow up to 10 C-CANCEL requests
-            if isinstance(primitive, C_CANCEL) and len(self.cancel_req) < 10:
-                msg_id = primitive.MessageIDBeingRespondedTo
-                self.cancel_req[msg_id] = primitive
-            elif (isinstance(primitive, N_EVENT_REPORT) and
-                  primitive.is_valid_request):
+            if isinstance(d_primitive, C_CANCEL) and len(self.cancel_req) < 10:
+                msg_id = cast(int, d_primitive.MessageIDBeingRespondedTo)
+                self.cancel_req[msg_id] = d_primitive
+            elif (isinstance(d_primitive, N_EVENT_REPORT) and
+                  d_primitive.is_valid_request):
                 # N-EVENT-REPORT service requests are handled immediately
                 # Ugly hack, but would block the DUL otherwise
                 t = threading.Thread(
                     target=make_target(self.assoc._serve_request),
-                    args=(primitive, context_id)
+                    args=(d_primitive, context_id)
                 )
                 t.start()
             else:
-                self.msg_queue.put((context_id, primitive))
+                self.msg_queue.put(
+                    (context_id, cast(DIMSEMessage, d_primitive))
+                )
 
             # Fix for memory leak, Issue #41
             #   Reset the DIMSE message, ready for the next one
@@ -283,7 +294,7 @@ class DIMSEServiceProvider:
             self.message.data_set = BytesIO()
             self.message = None
 
-    def send_msg(self, primitive, context_id):
+    def send_msg(self, primitive: DimsePrimitiveType, context_id: int) -> None:
         """Encode and send a DIMSE-C or DIMSE-N message to the peer AE.
 
         Parameters
@@ -295,7 +306,7 @@ class DIMSEServiceProvider:
             sent under.
         """
         if primitive.MessageIDBeingRespondedTo is None:
-            dimse_msg = _RQ_TO_MESSAGE[primitive.__class__]()
+            dimse_msg = _RQ_TO_MESSAGE[primitive.__class__]()  # type: ignore
         else:
             dimse_msg = _RSP_TO_MESSAGE[primitive.__class__]()
 

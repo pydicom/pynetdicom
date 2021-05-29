@@ -1,6 +1,7 @@
 """Implementation of the DIMSE Status values."""
 
 from enum import IntEnum
+from typing import Dict, Tuple
 
 from pydicom.dataset import Dataset
 
@@ -12,6 +13,9 @@ from pynetdicom._globals import (
     STATUS_PENDING,
     STATUS_UNKNOWN,
 )
+
+
+StatusDictType = Dict[int, Tuple[str, str]]
 
 
 # Non-Service Class specific statuses - PS3.7 Annex C
@@ -429,7 +433,7 @@ RT_MACHINE_VERIFICATION_SERVICE_CLASS_STATUS = {
 RT_MACHINE_VERIFICATION_SERVICE_CLASS_STATUS.update(GENERAL_STATUS)
 
 
-def code_to_status(code):
+def code_to_status(code: int) -> Dataset:
     """Return a :class:`~pydicom.dataset.Dataset` with a *Status* element
     value of `code`.
     """
@@ -441,7 +445,7 @@ def code_to_status(code):
         raise ValueError("'code' must be a positive integer.")
 
 
-def code_to_category(code):
+def code_to_category(code: int) -> str:
     """Return a *Status* category as :class:`str` or ``'Unknown'`` if not
     recognised.
     """
@@ -512,7 +516,7 @@ class Status(IntEnum):
     """``0xA801`` - Move destination unknown"""
 
     @classmethod
-    def add(cls, name, code):
+    def add(cls, name: str, code: int) -> None:
         """Add a new constant to `Status`.
 
         Parameters

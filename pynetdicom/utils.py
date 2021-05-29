@@ -4,7 +4,7 @@ from contextlib import contextmanager
 from io import BytesIO
 import logging
 import sys
-from typing import List, Optional, Iterator
+from typing import List, Optional, Iterator, Union, cast
 import unicodedata
 
 try:
@@ -52,7 +52,7 @@ def make_target(target_fn):
 
 
 def pretty_bytes(
-    bytestream: bytes,
+    bytestream: Union[bytes, BytesIO],
     prefix: str = '  ',
     delimiter: str = '  ',
     items_per_line: int = 16,
@@ -128,7 +128,7 @@ def set_timer_resolution(resolution: Optional[float]) -> Iterator[None]:
     None
     """
     if HAVE_CTYPES and sys.platform == "win32" and resolution is not None:
-        dll = ctypes.WinDLL("NTDLL.DLL")
+        dll = ctypes.WinDLL("NTDLL.DLL")  # type: ignore
 
         minimum = ctypes.c_ulong()  # Minimum delay allowed
         maximum = ctypes.c_ulong()  # Maximum delay allowed
@@ -140,6 +140,7 @@ def set_timer_resolution(resolution: Optional[float]) -> Iterator[None]:
 
         # Make sure the desired resolution is in the valid range
         # Timer resolution is in 100 ns units -> 10,000 == 1 ms
+        resolution = cast(float, resolution)
         resolution = max(int(resolution * 10000), minimum.value)
         resolution = min(resolution, maximum.value)
 
@@ -154,7 +155,9 @@ def set_timer_resolution(resolution: Optional[float]) -> Iterator[None]:
         yield None
 
 
-def validate_ae_title(ae_title: bytes, use_short: bool = False) -> bytes:
+def validate_ae_title(
+    ae_title: Union[str, bytes], use_short: bool = False
+) -> bytes:
     """Return a valid AE title from `ae_title`, if possible.
 
     An AE title:
@@ -192,7 +195,7 @@ def validate_ae_title(ae_title: bytes, use_short: bool = False) -> bytes:
     Returns
     -------
     bytes
-        A valid AE title truncated to 16 characters if necessary.
+        A valid AE title, truncated to 16 characters if necessary.
 
     Raises
     ------
@@ -234,7 +237,6 @@ def validate_ae_title(ae_title: bytes, use_short: bool = False) -> bytes:
             "AE titles must not contain any control characters or backslashes"
         )
 
-    # Return as bytes (python 3) or str (python 2)
     return ae_title.encode('ascii', errors='strict')
 
 

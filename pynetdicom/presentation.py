@@ -2,7 +2,7 @@
 
 from collections import namedtuple
 import logging
-from typing import Union, Optional, List, Any
+from typing import Union, Optional, List, Any, TYPE_CHECKING
 
 from pydicom.uid import UID
 
@@ -32,6 +32,9 @@ from pynetdicom.sop_class import (
     _VERIFICATION_CLASSES,
 )
 from pynetdicom.utils import validate_uid
+
+if TYPE_CHECKING:  # pragma: no cover
+    from pynetdicom.pdu_primitives import SCP_SCU_RoleSelectionNegotiation
 
 
 LOGGER = logging.getLogger('pynetdicom.presentation')
@@ -246,7 +249,9 @@ class PresentationContext:
 
         self._abstract_syntax = uid
 
-    def add_transfer_syntax(self, syntax: Union[str, bytes, UID]) -> None:
+    def add_transfer_syntax(
+        self, syntax: Union[None, str, bytes, UID]
+    ) -> None:
         """Append a transfer syntax to the presentation context.
 
         Parameters
@@ -254,6 +259,9 @@ class PresentationContext:
         syntax : pydicom.uid.UID, bytes or str
             The transfer syntax to add to the presentation context.
         """
+        if syntax is None:
+            return
+
         if isinstance(syntax, str):
             syntax = UID(syntax)
         elif isinstance(syntax, bytes):

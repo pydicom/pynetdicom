@@ -3,6 +3,7 @@ A generic timer class suitable for use as the DICOM UL's ARTIM timer.
 """
 import logging
 import time
+from typing import Optional
 
 
 LOGGER = logging.getLogger('pynetdicom.artim')
@@ -38,7 +39,7 @@ class Timer:
     * DICOM Standard, Part 8,
       :dcm:`Section 9.1.5<part08/chapter_9.html#sect_9.1.5>`.
     """
-    def __init__(self, timeout):
+    def __init__(self, timeout: Optional[float]) -> None:
         """Create a new :class:`Timer`.
 
         Parameters
@@ -47,12 +48,12 @@ class Timer:
             The number of seconds before the timer expires. A value of ``None``
             means the timer never expires.
         """
-        self._start_time = None
-        self._end_time = None
+        self._start_time: Optional[float] = None
+        self._end_time: Optional[float] = None
         self.timeout = timeout
 
     @property
-    def expired(self):
+    def expired(self) -> bool:
         """Check if the timer has expired.
 
         Returns
@@ -75,7 +76,7 @@ class Timer:
         return False
 
     @property
-    def remaining(self):
+    def remaining(self) -> float:
         """Return the number of seconds remaining until timeout.
 
         Returns ``1`` if the timer is set to never expire.
@@ -95,26 +96,26 @@ class Timer:
         # Time has been start and been stopped
         return self.timeout - (self._end_time - self._start_time)
 
-    def restart(self):
+    def restart(self) -> None:
         """Restart the timer."""
         self.start()
 
-    def start(self):
+    def start(self) -> None:
         """Resets and starts the timer running."""
         self._start_time = time.time()
         self._end_time = None
 
-    def stop(self):
+    def stop(self) -> None:
         """Stops the timer and resets it."""
         self._end_time = time.time()
 
     @property
-    def timeout(self):
+    def timeout(self) -> Optional[float]:
         """Return the number of seconds set for :attr:`~Timer.timeout`."""
         return self._timeout
 
     @timeout.setter
-    def timeout(self, value):
+    def timeout(self, value: Optional[None]) -> None:
         """Set the number of seconds before the timer expires.
 
         Parameters

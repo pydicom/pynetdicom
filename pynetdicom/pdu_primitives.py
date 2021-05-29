@@ -3,7 +3,7 @@ Implementaion of the service parameter primitives.
 """
 import codecs
 import logging
-from typing import Optional, List, Any, Union, Tuple
+from typing import Optional, List, Any, Union, Tuple, cast
 
 from pydicom.uid import UID
 
@@ -109,17 +109,17 @@ class A_ASSOCIATE:
     # pylint: disable=too-many-instance-attributes
 
     def __init__(self) -> None:
-        self.application_context_name: Optional[UID] = None
-        self.calling_ae_title: Optional[bytes] = None
-        self.called_ae_title: Optional[bytes] = None
-        self.user_information: List[Any] = []
-        self.result = None
-        self.result_source = None
-        self.diagnostic = None
-        self.calling_presentation_address = None
-        self.called_presentation_address = None
-        self.presentation_context_definition_list = []
-        self.presentation_context_definition_results_list = []
+        self._application_context_name: Optional[UID] = None
+        self._calling_ae_title: Optional[bytes] = None
+        self._called_ae_title: Optional[bytes] = None
+        self._user_information: List[Any] = []
+        self._result: Optional[int] = None
+        self._result_source: Optional[int] = None
+        self._diagnostic: Optional[int] = None
+        self._calling_presentation_address: Optional[Tuple[str, int]] = None
+        self._called_presentation_address: Optional[Tuple[str, int]] = None
+        self._presentation_context_definition_list: List[PresentationContext] = []
+        self._presentation_context_definition_results_list: List[PresentationContext] = []
 
     @property
     def mode(self) -> str:
@@ -266,7 +266,7 @@ class A_ASSOCIATE:
         self._user_information = valid_usr_info_items
 
     @property
-    def result(self) -> Optional[str]:
+    def result(self) -> Optional[int]:
         """Get or set the *Result* parameter.
 
         Parameters
@@ -281,7 +281,7 @@ class A_ASSOCIATE:
         return self._result
 
     @result.setter
-    def result(self, value: Optional[str]) -> None:
+    def result(self, value: Optional[int]) -> None:
         """Set the A-ASSOCIATE Service primitive's Result parameter."""
         # pylint: disable=attribute-defined-outside-init
         if value is None:
@@ -296,7 +296,7 @@ class A_ASSOCIATE:
     def result_str(self) -> str:
         """Return the result as str."""
         results = {1 : "Rejected Permanent", 2 : "Rejected Transient"}
-        return results[self.result]
+        return results[cast(int, self.result)]
 
     @property
     def result_source(self) -> Optional[int]:
@@ -314,7 +314,7 @@ class A_ASSOCIATE:
         return self._result_source
 
     @result_source.setter
-    def result_source(self, value: Optional[int]) -> int:
+    def result_source(self, value: Optional[int]) -> None:
         """Set the A-ASSOCIATE Service primitive's Result Source parameter."""
         # pylint: disable=attribute-defined-outside-init
         if value is None:
@@ -333,7 +333,7 @@ class A_ASSOCIATE:
             2 : 'Service Provider (ACSE)',
             3 : 'Service Provider (Presentation)'
         }
-        return sources[self.result_source]
+        return sources[cast(int, self.result_source)]
 
     @property
     def diagnostic(self) -> Optional[int]:
@@ -407,7 +407,9 @@ class A_ASSOCIATE:
                 7 : 'Reserved',
             }
         }
-        return reasons[self.result_source][self.diagnostic]
+        result = cast(int, self.result_source)
+        diagnostic = cast(int, self.diagnostic)
+        return reasons[result][diagnostic]
 
     @property
     def calling_presentation_address(self) -> Optional[Tuple[str, int]]:
@@ -612,7 +614,7 @@ class A_ASSOCIATE:
         return None
 
     @maximum_length_received.setter
-    def maximum_length_received(self, value: Optional[int]) -> None:
+    def maximum_length_received(self, value: int) -> None:
         """Set the Maximum Length Received."""
         # Type and value checking for the maximum_length_received parameter is
         #   done by the MaximumLengthNotification class
@@ -879,11 +881,11 @@ class P_DATA:
 
     * DICOM Standard, Part 8, :dcm:`Section 7.6<part08/sect_7.6.html>`
     """
-    def __init__(self) -> int:
-        self.presentation_data_value_list: List[List[Union[int, bytes]]] = []
+    def __init__(self) -> None:
+        self.presentation_data_value_list: List[Tuple[int, bytes]] = []
 
     @property
-    def presentation_data_value_list(self) -> List[List[Union[int, bytes]]]:
+    def presentation_data_value_list(self) -> List[Tuple[int, bytes]]:
         """Get or set the *Presentation Data Value List*.
 
         Parameters
@@ -899,7 +901,7 @@ class P_DATA:
 
     @presentation_data_value_list.setter
     def presentation_data_value_list(
-        self, value_list: List[List[Union[int, bytes]]]
+        self, value_list: List[Tuple[int, bytes]]
     ) -> None:
         """Set the Presentation Data Value List."""
         # pylint: disable=attribute-defined-outside-init
@@ -981,6 +983,7 @@ class MaximumLengthNotification(ServiceParameter):
     * DICOM Standard, Part 8, :dcm:`Annex D.1<part08/chapter_D.html#sect_D.1>`
     """
     def __init__(self) -> None:
+        self._maximum_length: int
         self.maximum_length_received = DEFAULT_MAX_LENGTH
 
     def from_primitive(self) -> MaximumLengthSubItem:
@@ -1250,7 +1253,7 @@ class ImplementationVersionNameNotification(ServiceParameter):
         """String representation of the class."""
         version = self.implementation_version_name
         s = "Implementation Version Name\n"
-        s += f"  Implementation version name: {version}\n"
+        s += f"  Implementation version name: {version!r}\n"
 
         return s
 
@@ -1412,7 +1415,7 @@ class SCP_SCU_RoleSelectionNegotiation(ServiceParameter):
 
     * DICOM Standard, Part 7, :dcm:`Annex D.3.3.4<part07/sect_D.3.3.4.html>`
     """
-    def __init__(self) -> str:
+    def __init__(self) -> None:
         self.sop_class_uid: Optional[UID] = None
         self.scu_role: Optional[bool] = None
         self.scp_role: Optional[bool] = None
@@ -1954,11 +1957,11 @@ class UserIdentityNegotiation(ServiceParameter):
     """
 
     def __init__(self) -> None:
-        self.user_identity_type: Optional[int] = None
-        self.positive_response_requested: bool = False
-        self.primary_field: Optional[bytes] = None
-        self.secondary_field: Optional[bytes] = b''
-        self.server_response: Optional[bytes] = None
+        self._user_identity_type: Optional[int] = None
+        self._positive_response_requested: bool = False
+        self._primary_field: Optional[bytes] = None
+        self._secondary_field: Optional[bytes] = b''
+        self._server_response: Optional[bytes] = None
 
     def from_primitive(
         self
@@ -1980,6 +1983,7 @@ class UserIdentityNegotiation(ServiceParameter):
             secondary_field is None
         """
         # Determine if this primitive is an -RQ or -AC
+        item: Union[UserIdentitySubItemRQ, UserIdentitySubItemAC]
         if self.server_response is None:
             # Then an -RQ
             if self.user_identity_type is None or self.primary_field is None:
@@ -2074,13 +2078,8 @@ class UserIdentityNegotiation(ServiceParameter):
 
         Parameters
         ----------
-        value : bytes or None
+        value : bytes
             The passcode as a bytes object
-
-        Raises
-        ------
-        TypeError
-            If `value` is not bytes or None
         """
         return self._secondary_field
 
@@ -2088,9 +2087,7 @@ class UserIdentityNegotiation(ServiceParameter):
     def secondary_field(self, value: Optional[bytes]) -> None:
         """Sets the Secondary Field parameter."""
         # pylint: disable=attribute-defined-outside-init
-        if isinstance(value, bytes):
-            pass
-        elif value is None:
+        if isinstance(value, bytes) or value is None:
             pass
         else:
             LOGGER.error("Secondary Field must be bytes if requesting "
@@ -2144,10 +2141,10 @@ class UserIdentityNegotiation(ServiceParameter):
             rsp_req = self.positive_response_requested
             s += f'  User identity type: {self.user_identity_type:d}\n'
             s += f'  Positive response requested: {rsp_req}\n'
-            s += f'  Primary field: {self.primary_field}\n'
-            s += f'  Secondary field: {self.secondary_field}\n'
+            s += f'  Primary field: {self.primary_field!r}\n'
+            s += f'  Secondary field: {self.secondary_field!r}\n'
         else:
-            s += f'  Server response: {self.server_response}\n'
+            s += f'  Server response: {self.server_response!r}\n'
 
         return s
 

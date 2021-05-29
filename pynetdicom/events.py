@@ -8,7 +8,7 @@ import inspect
 from io import BytesIO
 import logging
 import sys
-from typing import Union, Callable, Any, Optional, Tuple, List
+from typing import Union, Callable, Any, Optional, Tuple, List, NamedTuple
 
 from pydicom.dataset import Dataset
 from pydicom.filereader import dcmread
@@ -28,33 +28,36 @@ EventHandlerType = Union[
 
 # Notification events
 #   No returns/yields needed, can have multiple handlers per event
-NotificationEvent = namedtuple('NotificationEvent', ['name', 'description'])
-"""Representation of a notification event.
+class NotificationEvent(NamedTuple):
+    """Representation of a notification event.
 
-.. versionadded:: 1.3
+    .. versionadded:: 1.3
 
-Possible notification events are:
+    Possible notification events are:
 
-* :class:`EVT_ABORTED`
-* :class:`EVT_ACCEPTED`
-* :class:`EVT_ACSE_RECV`
-* :class:`EVT_ACSE_SENT`
-* :class:`EVT_CONN_CLOSE`
-* :class:`EVT_CONN_OPEN`
-* :class:`EVT_DATA_RECV`
-* :class:`EVT_DATA_SENT`
-* :class:`EVT_DIMSE_RECV`
-* :class:`EVT_DIMSE_SENT`
-* :class:`EVT_ESTABLISHED`
-* :class:`EVT_FSM_TRANSITION`
-* :class:`EVT_PDU_RECV`
-* :class:`EVT_PDU_SENT`
-* :class:`EVT_REJECTED`
-* :class:`EVT_RELEASED`
-* :class:`EVT_REQUESTED`
-"""
-NotificationEvent.is_intervention = False
-NotificationEvent.is_notification = True
+    * :class:`EVT_ABORTED`
+    * :class:`EVT_ACCEPTED`
+    * :class:`EVT_ACSE_RECV`
+    * :class:`EVT_ACSE_SENT`
+    * :class:`EVT_CONN_CLOSE`
+    * :class:`EVT_CONN_OPEN`
+    * :class:`EVT_DATA_RECV`
+    * :class:`EVT_DATA_SENT`
+    * :class:`EVT_DIMSE_RECV`
+    * :class:`EVT_DIMSE_SENT`
+    * :class:`EVT_ESTABLISHED`
+    * :class:`EVT_FSM_TRANSITION`
+    * :class:`EVT_PDU_RECV`
+    * :class:`EVT_PDU_SENT`
+    * :class:`EVT_REJECTED`
+    * :class:`EVT_RELEASED`
+    * :class:`EVT_REQUESTED`
+    """
+    name: str
+    description: str
+    is_intervention: bool = False
+    is_notification: bool = True
+
 
 # pylint: disable=line-too-long
 EVT_ABORTED = NotificationEvent("EVT_ABORTED", "Association aborted")
@@ -77,31 +80,34 @@ EVT_REQUESTED = NotificationEvent("EVT_REQUESTED", "Association requested")
 
 # Intervention events
 #   Returns/yields needed if bound, can only have one handler per event
-InterventionEvent = namedtuple('InterventionEvent', ['name', 'description'])
-"""Representation of an intervention event.
+class InterventionEvent(NamedTuple):
+    """Representation of an intervention event.
 
-.. versionadded:: 1.3
+    .. versionadded:: 1.3
 
-Possible intervention events are:
+    Possible intervention events are:
 
-* :class:`EVT_ASYNC_OPS`
-* :class:`EVT_SOP_COMMON`
-* :class:`EVT_SOP_EXTENDED`
-* :class:`EVT_USER_ID`
-* :class:`EVT_C_ECHO`
-* :class:`EVT_C_FIND`
-* :class:`EVT_C_GET`
-* :class:`EVT_C_MOVE`
-* :class:`EVT_C_STORE`
-* :class:`EVT_N_ACTION`
-* :class:`EVT_N_CREATE`
-* :class:`EVT_N_DELETE`
-* :class:`EVT_N_EVENT_REPORT`
-* :class:`EVT_N_GET`
-* :class:`EVT_N_SET`
-"""
-InterventionEvent.is_intervention = True
-InterventionEvent.is_notification = False
+    * :class:`EVT_ASYNC_OPS`
+    * :class:`EVT_SOP_COMMON`
+    * :class:`EVT_SOP_EXTENDED`
+    * :class:`EVT_USER_ID`
+    * :class:`EVT_C_ECHO`
+    * :class:`EVT_C_FIND`
+    * :class:`EVT_C_GET`
+    * :class:`EVT_C_MOVE`
+    * :class:`EVT_C_STORE`
+    * :class:`EVT_N_ACTION`
+    * :class:`EVT_N_CREATE`
+    * :class:`EVT_N_DELETE`
+    * :class:`EVT_N_EVENT_REPORT`
+    * :class:`EVT_N_GET`
+    * :class:`EVT_N_SET`
+    """
+    name: str
+    description: str
+    is_intervention: bool = True
+    is_notification: bool = False
+
 
 EVT_ASYNC_OPS = InterventionEvent("EVT_ASYNC_OPS", "Asynchronous operations negotiation requested")
 EVT_SOP_COMMON = InterventionEvent("EVT_SOP_COMMON", "SOP class common extended negotiation requested")

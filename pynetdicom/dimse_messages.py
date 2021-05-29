@@ -6,6 +6,7 @@ import logging
 from math import ceil
 from pathlib import Path
 from tempfile import NamedTemporaryFile
+from typing import Iterator, Optional, TYPE_CHECKING, cast, Union, Tuple, Type
 
 from pydicom.dataset import Dataset
 from pydicom.filewriter import write_file_meta_info
@@ -14,10 +15,14 @@ from pydicom.tag import Tag
 from pynetdicom import _config
 from pynetdicom.dimse_primitives import (
     C_STORE, C_FIND, C_GET, C_MOVE, C_ECHO, C_CANCEL,
-    N_EVENT_REPORT, N_GET, N_SET, N_ACTION, N_CREATE, N_DELETE
+    N_EVENT_REPORT, N_GET, N_SET, N_ACTION, N_CREATE, N_DELETE,
+    DimsePrimitiveType, NTF
 )
 from pynetdicom.dsutils import encode, decode, create_file_meta
 from pynetdicom.pdu_primitives import P_DATA
+
+if TYPE_CHECKING:  # pragma: no cover
+    from pynetdicom.association import Association
 
 
 LOGGER = logging.getLogger('pynetdicom.dimse')
@@ -211,27 +216,27 @@ class DIMSEMessage:
         The presentation context ID.
     data_set : io.BytesIO
         The encoded message Data Set (see PS3.7 6.3).
-    encoded_command_set : BytesIO
+    encoded_command_set : io.BytesIO
         During decoding of an incoming P-DATA primitive this stores the
         encoded Command Set data from the fragments.
     """
-    def __init__(self):
+    def __init__(self) -> None:
         """Create a new DIMSE Message."""
-        self.context_id = None
+        self.context_id: Optional[int] = None
 
         # Required to save command set data from multiple fragments
         self.encoded_command_set = BytesIO()
-        self.data_set = BytesIO()
+        self.data_set: Optional[BytesIO] = BytesIO()
         self.command_set = Dataset()
 
         # If reading the dataset in chunks this will be a tuple:
         #   (its file path, a byte offset to the start of the dataset)
         # If writing the dataset in chunks this will be a Path:
         #   its file path
-        self._data_set_path = None
+        self._data_set_path: Optional[Union[Path, Tuple[Path, int]]] = None
         # If writing the dataset in chunks this will be a NamedTemporaryFile:
         #   the file object backing its file path
-        self._data_set_file = None
+        self._data_set_file: Optional[NTF] = None
 
         cls_name = self.__class__.__name__
         if cls_name == 'DIMSEMessage':
@@ -241,7 +246,9 @@ class DIMSEMessage:
         for keyword in _COMMAND_SET_KEYWORDS[cls_name.replace('_', '-')]:
             setattr(self.command_set, keyword, None)
 
-    def decode_msg(self, primitive, assoc=None):
+    def decode_msg(
+        self, primitive: P_DATA, assoc: Optional["Association"] = None
+    ) -> bool:
         """Converts P-DATA primitives into a ``DIMSEMessage`` sub-class.
 
         Decodes the data from the P-DATA service primitive (which
@@ -344,10 +351,13 @@ class DIMSEMessage:
                         # Setting delete=True prevents us from re-opening
                         # the file after it is opened by NamedTemporaryFile
                         # below.
-                        self._data_set_file = NamedTemporaryFile(
-                            delete=False,
-                            mode="wb",
-                            suffix=".dcm"
+                        self._data_set_file = cast(
+                            NTF,
+                            NamedTemporaryFile(
+                                delete=False,
+                                mode="wb",
+                                suffix=".dcm"
+                            )
                         )
                         self._data_set_path = Path(self._data_set_file.name)
                         # Write the File Meta
@@ -355,9 +365,9 @@ class DIMSEMessage:
                         self._data_set_file.write(b'DICM')
 
                         cs = self.command_set
-                        cx = assoc._accepted_cx[context_id]
+                        cx = cast("Association",assoc)._accepted_cx[context_id]
                         write_file_meta_info(
-                            self._data_set_file,
+                            self._data_set_file,  # type: ignore
                             create_file_meta(
                                 sop_class_uid=cs.AffectedSOPClassUID,
                                 sop_instance_uid=cs.AffectedSOPInstanceUID,
@@ -375,7 +385,7 @@ class DIMSEMessage:
                 if self._data_set_file:
                     self._data_set_file.write(data[1:])
                 else:
-                    self.data_set.write(data[1:])
+                    cast(BytesIO, self.data_set).write(data[1:])
 
                 # The final data set fragment (xxxxxx10) has been added
                 if control_header_byte & 2 != 0:
@@ -386,7 +396,9 @@ class DIMSEMessage:
         # We return False to indicate that the message isn't yet fully decoded
         return False
 
-    def encode_msg(self, context_id, max_pdu_length):
+    def encode_msg(
+        self, context_id: int, max_pdu_length: int
+    ) -> Iterator[P_DATA]:
         """Yield P-DATA primitives for the current DIMSE Message.
 
         **Encoding**
@@ -429,7 +441,7 @@ class DIMSEMessage:
 
         # The Command Set is always Little Endian Implicit VR (PS3.7 6.3.1)
         #   encode(dataset, is_implicit_VR, is_little_endian)
-        encoded_command_set = encode(self.command_set, True, True)
+        encoded_command_set = cast(bytes, encode(self.command_set, True, True))
 
         # COMMAND SET (always)
         # Split the command set into fragments with maximum size max_pdu_length
@@ -448,14 +460,14 @@ class DIMSEMessage:
         for ii in range(int(nr_fragments - 1)):
             pdata = P_DATA()
             pdata.presentation_data_value_list.append(
-                [context_id, b'\x01' + next(cmd_fragments)]
+                (context_id, b'\x01' + next(cmd_fragments))
             )
             yield pdata
 
         # Last command data fragment - bits xxxxxx11
         pdata = P_DATA()
         pdata.presentation_data_value_list.append(
-            [context_id, b'\x03' + next(cmd_fragments)]
+            (context_id, b'\x03' + next(cmd_fragments))
         )
         yield pdata
 
@@ -481,19 +493,20 @@ class DIMSEMessage:
                 for ii in range(int(nr_fragments - 1)):
                     pdata = P_DATA()
                     pdata.presentation_data_value_list.append(
-                        [context_id, b'\x00' + next(ds_fragments)]
+                        (context_id, b'\x00' + next(ds_fragments))
                     )
                     yield pdata
 
                 # Last dataset fragment - bits xxxxxx10
                 pdata = P_DATA()
                 pdata.presentation_data_value_list.append(
-                    [context_id, b'\x02' + next(ds_fragments)]
+                    (context_id, b'\x02' + next(ds_fragments))
                 )
                 yield pdata
         elif self._data_set_path is not None:
             # Read and send encoded dataset from file
             # Buffer size determined by io.DEFAULT_BUFFER_SIZE
+            self._data_set_path = cast(Tuple[Path, int], self._data_set_path)
             with open(self._data_set_path[0], 'rb') as f:
                 end = f.seek(0, 2)
                 length = end - f.seek(self._data_set_path[1])
@@ -508,19 +521,21 @@ class DIMSEMessage:
                 for ii in range(int(nr_fragments - 1)):
                     pdata = P_DATA()
                     pdata.presentation_data_value_list.append(
-                        [context_id, b'\x00' + f.read(max_pdu_length - 6)]
+                        (context_id, b'\x00' + f.read(max_pdu_length - 6))
                     )
                     yield pdata
 
                 # Last dataset fragment - bits xxxxxx10
                 pdata = P_DATA()
                 pdata.presentation_data_value_list.append(
-                    [context_id, b'\x02' + f.read(max_pdu_length - 6)]
+                    (context_id, b'\x02' + f.read(max_pdu_length - 6))
                 )
                 yield pdata
 
     @staticmethod
-    def _generate_pdv_fragments(bytestream, fragment_length):
+    def _generate_pdv_fragments(
+        bytestream: bytes, fragment_length: int
+    ) -> Iterator[bytes]:
         """Fragment `bytestream` into chunks, each `fragment_length` long.
 
         Fragments bytestream data for use in PDVs.
@@ -572,7 +587,7 @@ class DIMSEMessage:
             yield bytestream[offset:offset + fragment_length]
             offset += fragment_length
 
-    def message_to_primitive(self):
+    def message_to_primitive(self) -> DimsePrimitiveType:
         """Convert the ``DIMSEMessage`` class to a DIMSE primitive.
 
         Returns
@@ -584,7 +599,10 @@ class DIMSEMessage:
         """
         cls_type_name = self.__class__.__name__
         final_underscore = cls_type_name.rfind('_R')
-        primitive = _MSG_TO_PRIMITVE[cls_type_name[:final_underscore]]()
+        primitive = cast(
+            DimsePrimitiveType,
+            _MSG_TO_PRIMITVE[cls_type_name[:final_underscore]]()
+        )
 
         # Command Set
         # For each parameter in the primitive, set the appropriate value
@@ -593,7 +611,10 @@ class DIMSEMessage:
             if hasattr(primitive, elem.keyword):
                 value = elem.value
                 if elem.VM > 1 and elem.tag not in _MULTIVALUE_TAGS:
-                    LOGGER.warning(f"Non-conformant VM {elem.VM} for '{elem.keyword}', taking the first value")
+                    LOGGER.warning(
+                        f"Non-conformant VM {elem.VM} for '{elem.keyword}', "
+                        "taking the first value"
+                    )
                     value = value[0]
                 setattr(primitive, elem.keyword, value)
 
@@ -613,7 +634,7 @@ class DIMSEMessage:
 
         return primitive
 
-    def primitive_to_message(self, primitive):
+    def primitive_to_message(self, primitive: DimsePrimitiveType) -> None:
         """Convert a DIMSE `primitive` to the current ``DIMSEMessage`` object.
 
         Parameters
@@ -674,7 +695,7 @@ class DIMSEMessage:
         # Set the Command Set length
         self._set_command_group_length()
 
-    def _set_command_group_length(self):
+    def _set_command_group_length(self) -> None:
         """Reset the Command Group Length element value.
 
         Once the `command_set` Dataset has been built and filled with
@@ -686,11 +707,35 @@ class DIMSEMessage:
 
         # The Command Set is always Implicit VR Little Endian
         self.command_set.CommandGroupLength = len(
-            encode(self.command_set, True, True)
+            cast(bytes, encode(self.command_set, True, True))
         )
 
 
 # Create DIMSEMessage subclasses and add them to the module
+C_STORE_RQ: Type[DIMSEMessage]
+C_STORE_RSP: Type[DIMSEMessage]
+C_FIND_RQ: Type[DIMSEMessage]
+C_FIND_RSP: Type[DIMSEMessage]
+C_GET_RQ: Type[DIMSEMessage]
+C_GET_RSP: Type[DIMSEMessage]
+C_MOVE_RQ: Type[DIMSEMessage]
+C_MOVE_RSP: Type[DIMSEMessage]
+C_ECHO_RQ: Type[DIMSEMessage]
+C_ECHO_RSP: Type[DIMSEMessage]
+C_CANCEL_RQ: Type[DIMSEMessage]
+N_EVENT_REPORT_RQ: Type[DIMSEMessage]
+N_EVENT_REPORT_RSP: Type[DIMSEMessage]
+N_GET_RQ: Type[DIMSEMessage]
+N_GET_RSP: Type[DIMSEMessage]
+N_SET_RQ: Type[DIMSEMessage]
+N_SET_RSP: Type[DIMSEMessage]
+N_ACTION_RQ: Type[DIMSEMessage]
+N_ACTION_RSP: Type[DIMSEMessage]
+N_CREATE_RQ: Type[DIMSEMessage]
+N_CREATE_RSP: Type[DIMSEMessage]
+N_DELETE_RQ: Type[DIMSEMessage]
+N_DELETE_RSP: Type[DIMSEMessage]
+
 for _msg_name in _COMMAND_SET_KEYWORDS:
     cls = type(_msg_name.replace('-', '_'), (DIMSEMessage, ), {})
     globals()[cls.__name__] = cls

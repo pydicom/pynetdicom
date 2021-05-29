@@ -116,8 +116,8 @@ class Association(threading.Thread):
         self._sent_abort = False
 
         # Accepted and rejected presentation contexts
-        self._accepted_cx = {}
-        self._rejected_cx = []
+        self._accepted_cx: Dict[int, PresentationContext] = {}
+        self._rejected_cx: List[PresentationContext] = []
 
         # Service providers
         self.acse = ACSE(self)
