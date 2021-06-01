@@ -8,7 +8,7 @@ import threading
 import time
 from typing import (
     Union, Optional, List, Callable, Any, Dict, Iterator, Tuple, TYPE_CHECKING,
-    cast, Type
+    cast
 )
 
 from pydicom import dcmread
@@ -43,7 +43,6 @@ from pynetdicom.pdu_primitives import (
     SOPClassExtendedNegotiation,
     SOPClassCommonExtendedNegotiation,
     SCP_SCU_RoleSelectionNegotiation,
-    _UserInformationPrimitiveType,
     A_ASSOCIATE,
     _UI,
     _UITypes
@@ -1818,7 +1817,7 @@ class Association(threading.Thread):
 
                 sop_class = cast(UID, file_meta.MediaStorageSOPClassUID)
                 sop_instance = cast(UID, file_meta.MediaStorageSOPInstanceUID)
-                tsyntax = file_meta.TransferSyntaxUID
+                tsyntax = cast(UID, file_meta.TransferSyntaxUID)
 
         if dataset:
             dataset = cast(Dataset, dataset)
@@ -1834,7 +1833,7 @@ class Association(threading.Thread):
             sop_instance = cast(UID, dataset.SOPInstanceUID)
 
             try:
-                tsyntax = dataset.file_meta.TransferSyntaxUID
+                tsyntax = cast(UID, dataset.file_meta.TransferSyntaxUID)
             except (AssertionError, AttributeError):
                 raise AttributeError(
                     "Unable to determine the presentation context to use with "

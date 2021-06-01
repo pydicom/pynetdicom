@@ -1390,7 +1390,7 @@ class ApplicationEntity:
             s.append(
                 f"\tPeer: {assoc.remote['ae_title']} on "
                 f"{assoc.remote['address']}:{assoc.remote['port']}"
-           )
+            )
 
         return "\n".join(s)
 

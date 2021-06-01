@@ -7,17 +7,15 @@ from pathlib import Path
 
 import pytest
 
-from pydicom import config, dcmread
+from pydicom import config
 from pydicom.dataset import Dataset
-from pydicom.dataelem import DataElement
 from pydicom.valuerep import DA, DSfloat, DSdecimal, DT, IS, TM
-from pydicom.uid import UID
 
 from pynetdicom import debug_logger
 from pynetdicom.dsutils import decode, encode, pretty_dataset, pretty_element
 
 
-#debug_logger()
+# debug_logger()
 
 
 DEFL_DATASET = (
