@@ -2,7 +2,7 @@
 
 import logging
 from struct import unpack, calcsize
-from typing import TYPE_CHECKING, List, Optional, cast
+from typing import TYPE_CHECKING, List, Optional, cast, Union
 
 from pydicom.uid import UID
 
@@ -16,10 +16,6 @@ from pynetdicom.utils import pretty_bytes
 
 if TYPE_CHECKING:  # pragma: no cover
     from pynetdicom.events import Event
-    from pynetdicom.pdu import (
-        A_ABORT_RQ, A_ASSOCIATE_RQ, A_ASSOCIATE_AC, A_ASSOCIATE_RJ,
-        A_RELEASE_RQ, A_RELEASE_RP, P_DATA_TF
-    )
     from pynetdicom.pdu_items import (
         UserInformationItem, UserIdentitySubItemRQ
     )
