@@ -39,7 +39,8 @@ def make_target(target_fn):
     Returns
     -------
     Callable
-        The wrapped `target_fn` if requirements are met, else the original `target_fn`.
+        The wrapped `target_fn` if requirements are met, else the original
+        `target_fn`.
     """
     if _config.PASS_CONTEXTVARS:
         try:

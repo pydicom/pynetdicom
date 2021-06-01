@@ -154,18 +154,18 @@ _COMMAND_SET_KEYWORDS = {
 
 # Used with DIMSEMessage.message_to_primitive
 _MSG_TO_PRIMITVE = {
-    'C_ECHO' : C_ECHO,
-    'C_STORE' : C_STORE,
-    'C_FIND' : C_FIND,
-    'C_GET' : C_GET,
-    'C_MOVE' : C_MOVE,
-    'C_CANCEL' : C_CANCEL,
-    'N_EVENT_REPORT' : N_EVENT_REPORT,
-    'N_GET' : N_GET,
-    'N_SET' : N_SET,
-    'N_ACTION' : N_ACTION,
-    'N_CREATE' : N_CREATE,
-    'N_DELETE' : N_DELETE,
+    'C_ECHO': C_ECHO,
+    'C_STORE': C_STORE,
+    'C_FIND': C_FIND,
+    'C_GET': C_GET,
+    'C_MOVE': C_MOVE,
+    'C_CANCEL': C_CANCEL,
+    'N_EVENT_REPORT': N_EVENT_REPORT,
+    'N_GET': N_GET,
+    'N_SET': N_SET,
+    'N_ACTION': N_ACTION,
+    'N_CREATE': N_CREATE,
+    'N_DELETE': N_DELETE,
 }
 
 _MULTIVALUE_TAGS = [
@@ -302,7 +302,7 @@ class DIMSEMessage:
             control_header_byte = data[0]
 
             # LOGGER.debug('Control header byte %s', control_header_byte)
-            #print(f'Control header byte {control_header_byte}')
+            # print(f'Control header byte {control_header_byte}')
 
             # COMMAND SET
             # P-DATA fragment contains Command Set information
@@ -366,7 +366,9 @@ class DIMSEMessage:
                         self._data_set_file.write(b'DICM')
 
                         cs = self.command_set
-                        cx = cast("Association",assoc)._accepted_cx[context_id]
+                        cx = cast(
+                            "Association", assoc
+                        )._accepted_cx[context_id]
                         write_file_meta_info(
                             self._data_set_file,  # type: ignore
                             create_file_meta(
@@ -769,20 +771,20 @@ _MESSAGE_TYPES = {
 }
 
 _DATASET_KEYWORDS = {
-    'C_STORE_RQ' : 'DataSet',
-    'C_FIND_RQ' : 'Identifier',
-    'C_GET_RQ' : 'Identifier',
-    'C_MOVE_RQ' : 'Identifier',
-    'C_FIND_RSP' : 'Identifier',
-    'C_GET_RSP' : 'Identifier',
-    'C_MOVE_RSP' : 'Identifier',
-    'N_EVENT_REPORT_RQ' : 'EventInformation',
-    'N_EVENT_REPORT_RSP' : 'EventReply',
-    'N_GET_RSP' : 'AttributeList',
-    'N_SET_RSP' : 'AttributeList',
-    'N_CREATE_RQ' : 'AttributeList',
-    'N_CREATE_RSP' : 'AttributeList',
-    'N_SET_RQ' : 'ModificationList',
-    'N_ACTION_RQ' : 'ActionInformation',
-    'N_ACTION_RSP' : 'ActionReply',
+    'C_STORE_RQ': 'DataSet',
+    'C_FIND_RQ': 'Identifier',
+    'C_GET_RQ': 'Identifier',
+    'C_MOVE_RQ': 'Identifier',
+    'C_FIND_RSP': 'Identifier',
+    'C_GET_RSP': 'Identifier',
+    'C_MOVE_RSP': 'Identifier',
+    'N_EVENT_REPORT_RQ': 'EventInformation',
+    'N_EVENT_REPORT_RSP': 'EventReply',
+    'N_GET_RSP': 'AttributeList',
+    'N_SET_RSP': 'AttributeList',
+    'N_CREATE_RQ': 'AttributeList',
+    'N_CREATE_RSP': 'AttributeList',
+    'N_SET_RQ': 'ModificationList',
+    'N_ACTION_RQ': 'ActionInformation',
+    'N_ACTION_RSP': 'ActionReply',
 }

@@ -345,7 +345,7 @@ class A_ASSOCIATE:
     @property
     def result_str(self) -> str:
         """Return the result as str."""
-        results = {1 : "Rejected Permanent", 2 : "Rejected Transient"}
+        results = {1: "Rejected Permanent", 2: "Rejected Transient"}
         return results[cast(int, self.result)]
 
     @property
@@ -383,9 +383,9 @@ class A_ASSOCIATE:
     def source_str(self) -> str:
         """Return the reject source as str."""
         sources = {
-            1 : 'Service User',
-            2 : 'Service Provider (ACSE)',
-            3 : 'Service Provider (Presentation)'
+            1: 'Service User',
+            2: 'Service Provider (ACSE)',
+            3: 'Service Provider (Presentation)'
         }
         return sources[cast(int, self.result_source)]
 
@@ -434,31 +434,31 @@ class A_ASSOCIATE:
     def reason_str(self) -> str:
         """Return the rejection reason as str."""
         reasons = {
-            1 : {
-                1 : 'No reason given',
-                2 : 'Application context name not supported',
-                3 : 'Calling AE title not recognised',
-                4 : 'Reserved',
-                5 : 'Reserved',
-                6 : 'Reserved',
-                7 : 'Called AE title not recognised',
-                8 : 'Reserved',
-                9 : 'Reserved',
-                10 : 'Reserved',
+            1: {
+                1: 'No reason given',
+                2: 'Application context name not supported',
+                3: 'Calling AE title not recognised',
+                4: 'Reserved',
+                5: 'Reserved',
+                6: 'Reserved',
+                7: 'Called AE title not recognised',
+                8: 'Reserved',
+                9: 'Reserved',
+                10: 'Reserved',
             },
-            2 : {
-                1 : 'No reason given',
-                2 : 'Protocol version not supported'
+            2: {
+                1: 'No reason given',
+                2: 'Protocol version not supported'
             },
-            3 : {
-                0 : "Reserved",
-                1 : "Temporary congestion",
-                2 : "Local limit exceeded",
-                3 : 'Reserved',
-                4 : 'Reserved',
-                5 : 'Reserved',
-                6 : 'Reserved',
-                7 : 'Reserved',
+            3: {
+                0: "Reserved",
+                1: "Temporary congestion",
+                2: "Local limit exceeded",
+                3: 'Reserved',
+                4: 'Reserved',
+                5: 'Reserved',
+                6: 'Reserved',
+                7: 'Reserved',
             }
         }
         result = cast(int, self.result_source)

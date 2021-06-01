@@ -7,7 +7,7 @@ import logging
 from ssl import SSLContext
 import threading
 from typing import (
-    Union, Optional, List, Tuple, Callable, Any, Dict, cast, TypeVar, Type
+    Union, Optional, List, Tuple, Dict, cast, TypeVar, Type
 )
 
 from pydicom.uid import UID
@@ -692,7 +692,8 @@ class ApplicationEntity:
         """
         self._implementation_version = value
 
-    def make_server(self,
+    def make_server(
+        self,
         address: Tuple[str, int],
         ae_title: Optional[bytes] = None,
         contexts: Optional[List[PresentationContext]] = None,
@@ -1380,15 +1381,15 @@ class ApplicationEntity:
         s.append("")
 
         # Association information
-        s.append((
+        s.append(
             f"  Association(s): {len(self.active_associations)}"
-            f"/{self.maximum_associations}")
+            f"/{self.maximum_associations}"
         )
 
         for assoc in self.active_associations:
-            s.append((
+            s.append(
                 f"\tPeer: {assoc.remote['ae_title']} on "
-                f"{assoc.remote['address']}:{assoc.remote['port']}")
+                f"{assoc.remote['address']}:{assoc.remote['port']}"
            )
 
         return "\n".join(s)

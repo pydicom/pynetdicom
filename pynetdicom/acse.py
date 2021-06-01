@@ -62,7 +62,9 @@ class ACSE:
         """
         return self._assoc
 
-    def _check_async_ops(self) -> Optional[AsynchronousOperationsWindowNegotiation]:
+    def _check_async_ops(
+        self
+    ) -> Optional[AsynchronousOperationsWindowNegotiation]:
         """Check the user's response to an Asynchronous Operations request.
 
         .. currentmodule:: pynetdicom.pdu_primitives
@@ -83,7 +85,7 @@ class ACSE:
             _ = evt.trigger(
                 self.assoc,
                 evt.EVT_ASYNC_OPS,
-                {'nr_invoked' : inv, 'nr_performed' : perf}
+                {'nr_invoked': inv, 'nr_performed': perf}
             )
         except NotImplementedError:
             return None
@@ -99,7 +101,9 @@ class ACSE:
 
         return item
 
-    def _check_sop_class_common_extended(self) -> Dict[UID, SOPClassCommonExtendedNegotiation]:
+    def _check_sop_class_common_extended(
+        self
+    ) -> Dict[UID, SOPClassCommonExtendedNegotiation]:
         """Check the user's response to a SOP Class Common Extended request.
 
         Returns
@@ -114,7 +118,7 @@ class ACSE:
             rsp = evt.trigger(
                 self.assoc,
                 evt.EVT_SOP_COMMON,
-                {'items' : self.requestor.sop_class_common_extended}
+                {'items': self.requestor.sop_class_common_extended}
             )
         except Exception as exc:
             LOGGER.error(
@@ -125,7 +129,7 @@ class ACSE:
 
         try:
             rsp = {
-                uid:ii for uid, ii in rsp.items()
+                uid: ii for uid, ii in rsp.items()
                 if isinstance(ii, SOPClassCommonExtendedNegotiation)
             }
         except Exception as exc:
@@ -151,7 +155,7 @@ class ACSE:
             user_response = evt.trigger(
                 self.assoc,
                 evt.EVT_SOP_EXTENDED,
-                {'app_info' : self.requestor.sop_class_extended}
+                {'app_info': self.requestor.sop_class_extended}
             )
         except Exception as exc:
             user_response = {}
@@ -186,7 +190,9 @@ class ACSE:
 
         return items
 
-    def _check_user_identity(self) -> Tuple[bool, Optional[UserIdentityNegotiation]]:
+    def _check_user_identity(
+        self
+    ) -> Tuple[bool, Optional[UserIdentityNegotiation]]:
         """Check the user's response to a User Identity request.
 
         Returns
@@ -208,9 +214,9 @@ class ACSE:
                 self.assoc,
                 evt.EVT_USER_ID,
                 {
-                    'user_id_type' : req.user_identity_type,
-                    'primary_field' : req.primary_field,
-                    'secondary_field' : req.secondary_field,
+                    'user_id_type': req.user_identity_type,
+                    'primary_field': req.primary_field,
+                    'secondary_field': req.secondary_field,
                 }
             )
         except NotImplementedError:
@@ -340,7 +346,7 @@ class ACSE:
         ):
             reject_assoc_rsd = [0x01, 0x01, 0x07]
 
-        ## Extended Negotiation items
+        # Extended Negotiation items
         # User Identity Negotiation items
         if self.requestor.user_identity:
             is_valid, id_response = self._check_user_identity()
@@ -372,7 +378,7 @@ class ACSE:
             if async_rsp:
                 self.acceptor.add_negotiation_item(async_rsp)
 
-        ## DUL Presentation Related Rejections
+        # DUL Presentation Related Rejections
         # Maximum number of associations reached (local-limit-exceeded)
         active_acceptors = [
             tt for tt in self.assoc.ae.active_associations if tt.is_acceptor
@@ -388,11 +394,11 @@ class ACSE:
             self.assoc.kill()
             return
 
-        ## Negotiate Presentation Contexts
+        # Negotiate Presentation Contexts
         # SCP/SCU Role Selection Negotiation request items
         # {SOP Class UID : (SCU role, SCP role)}
         rq_roles = {
-            uid:(item.scu_role, item.scp_role)
+            uid: (item.scu_role, item.scp_role)
             for uid, item in self.requestor.role_selection.items()
         }
 
@@ -405,7 +411,7 @@ class ACSE:
         # pylint: disable=protected-access
         # Accepted contexts are stored as {context ID : context}
         self.assoc._accepted_cx = {
-            cast(int, cx.context_id):cx for cx in result if cx.result == 0x00
+            cast(int, cx.context_id): cx for cx in result if cx.result == 0x00
         }
         self.assoc._rejected_cx = [cx for cx in result if cx.result != 0x00]
         # pylint: enable=protected-access
@@ -426,7 +432,8 @@ class ACSE:
         evt.trigger(self.assoc, evt.EVT_ESTABLISHED, {})
 
     def _negotiate_as_requestor(self) -> None:
-        """Perform an association negotiation as the association *requestor*."""
+        """Perform an association negotiation as the association *requestor*.
+        """
         if not self.requestor.requested_contexts:
             LOGGER.error(
                 "One or more requested presentation contexts must be set "
@@ -456,11 +463,11 @@ class ACSE:
             self.acceptor.primitive = rsp
             # Accepted
             if rsp.result == 0x00:
-                ## Handle SCP/SCU Role Selection response
+                # Handle SCP/SCU Role Selection response
                 # Apply requestor's proposed SCP/SCU role selection (if any)
                 #   to the requested contexts
                 rq_roles = {
-                    uid:(ii.scu_role, ii.scp_role)
+                    uid: (ii.scu_role, ii.scp_role)
                     for uid, ii in self.requestor.role_selection.items()
                 }
                 if rq_roles:
@@ -478,7 +485,7 @@ class ACSE:
 
                 # Collate the acceptor's SCP/SCU role selection responses
                 ac_roles = {
-                    uid:(ii.scu_role, ii.scp_role)
+                    uid: (ii.scu_role, ii.scp_role)
                     for uid, ii in self.acceptor.role_selection.items()
                 }
 
@@ -493,7 +500,7 @@ class ACSE:
                 # pylint: disable=protected-access
                 # Accepted contexts are stored as {context ID : context}
                 self.assoc._accepted_cx = {
-                    cast(int, cx.context_id):cx
+                    cast(int, cx.context_id): cx
                     for cx in negotiated_contexts if cx.result == 0x00
                 }
                 self.assoc._rejected_cx = [
@@ -696,7 +703,7 @@ class ACSE:
             self.assoc.accepted_contexts + self.assoc.rejected_contexts
         )
 
-        ## User Information - PS3.7 Annex D.3.3
+        # User Information - PS3.7 Annex D.3.3
         primitive.user_information = self.acceptor.user_information
 
         self.acceptor.primitive = primitive
@@ -774,9 +781,9 @@ class ACSE:
             raise ValueError("Invalid 'result' parameter value")
 
         _valid_reason_diagnostic = {
-            0x01 : [0x01, 0x02, 0x03, 0x07],
-            0x02 : [0x01, 0x02],
-            0x03 : [0x01, 0x02],
+            0x01: [0x01, 0x02, 0x03, 0x07],
+            0x02: [0x01, 0x02],
+            0x03: [0x01, 0x02],
         }
 
         try:
@@ -851,7 +858,7 @@ class ACSE:
             self.requestor.requested_contexts
         )
 
-        ## User Information - PS3.7 Annex D.3.3
+        # User Information - PS3.7 Annex D.3.3
         # Mandatory items:
         #   Maximum Length Notification (1)
         #   Implementation Class UID Notification (1)

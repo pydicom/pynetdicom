@@ -205,9 +205,9 @@ class ServiceClass:
                 self.assoc,
                 evt.EVT_C_FIND,
                 {
-                    'request' : req,
-                    'context' : context.as_tuple,
-                    '_is_cancelled' : self.is_cancelled
+                    'request': req,
+                    'context': context.as_tuple,
+                    '_is_cancelled': self.is_cancelled
                 }
             )
 
@@ -229,8 +229,8 @@ class ServiceClass:
             if exc:
                 LOGGER.error("Exception in handler bound to 'evt.EVT_C_FIND'")
                 LOGGER.error(
-                    f"\nTraceback (most recent call last):\n" +
-                    f"".join(traceback.format_tb(exc[2])) +
+                    "\nTraceback (most recent call last):\n" +
+                    "".join(traceback.format_tb(exc[2])) +
                     f"{exc[0].__name__}: {str(exc[1])}"
                 )
                 rsp_status = 0xC311
@@ -521,7 +521,7 @@ class ServiceClass:
             status, ds = evt.trigger(
                 self.assoc,
                 evt.EVT_N_ACTION,
-                {'request' : req, 'context' : context.as_tuple}
+                {'request': req, 'context': context.as_tuple}
             )
 
         # Exception in context or handler aborted/released
@@ -675,7 +675,7 @@ class ServiceClass:
             status, ds = evt.trigger(
                 self.assoc,
                 evt.EVT_N_CREATE,
-                {'request' : req, 'context' : context.as_tuple}
+                {'request': req, 'context': context.as_tuple}
             )
 
         # Exception in context or handler aborted/released
@@ -794,7 +794,7 @@ class ServiceClass:
             status = evt.trigger(
                 self.assoc,
                 evt.EVT_N_DELETE,
-                {'request' : req, 'context' : context.as_tuple}
+                {'request': req, 'context': context.as_tuple}
             )
 
         # Exception in context or handler aborted/released
@@ -899,7 +899,7 @@ class ServiceClass:
             status, ds = evt.trigger(
                 self.assoc,
                 evt.EVT_N_EVENT_REPORT,
-                {'request' : req, 'context' : context.as_tuple}
+                {'request': req, 'context': context.as_tuple}
             )
 
         # Exception in context or handler aborted/released
@@ -1047,10 +1047,7 @@ class ServiceClass:
             status, ds = evt.trigger(
                 self.assoc,
                 evt.EVT_N_GET,
-                {
-                    'request' : req,
-                    'context' : context.as_tuple,
-                }
+                {'request': req, 'context': context.as_tuple}
             )
 
         # Exception in context or handler aborted/released
@@ -1209,7 +1206,7 @@ class ServiceClass:
             status, ds = evt.trigger(
                 self.assoc,
                 evt.EVT_N_SET,
-                {'request' : req, 'context' : context.as_tuple}
+                {'request': req, 'context': context.as_tuple}
             )
 
         # Exception in context or handler aborted/released
@@ -1382,7 +1379,7 @@ class VerificationServiceClass(ServiceClass):
             status = evt.trigger(
                 self.assoc,
                 evt.EVT_C_ECHO,
-                {'request' : req, 'context' : context.as_tuple}
+                {'request': req, 'context': context.as_tuple}
             )
             # Event hander has aborted or released
             if not self.assoc.is_established:
@@ -1461,7 +1458,7 @@ class StorageServiceClass(ServiceClass):
             rsp_status = evt.trigger(
                 self.assoc,
                 evt.EVT_C_STORE,
-                {'request' : req, 'context' : context.as_tuple,}
+                {'request': req, 'context': context.as_tuple}
             )
             if req._dataset_file:
                 req._dataset_file.close()
@@ -1603,9 +1600,9 @@ class QueryRetrieveServiceClass(ServiceClass):
                 self.assoc,
                 evt.EVT_C_GET,
                 {
-                    'request' : req,
-                    'context' : context.as_tuple,
-                    '_is_cancelled' : self.is_cancelled
+                    'request': req,
+                    'context': context.as_tuple,
+                    '_is_cancelled': self.is_cancelled
                 }
             )
 
@@ -1622,7 +1619,8 @@ class QueryRetrieveServiceClass(ServiceClass):
             ctx.error_status = 0xC413
             no_suboperations = int(next(generator))
 
-        if not ctx.success: return
+        if not ctx.success:
+            return
 
         if no_suboperations < 1:
             rsp.Status = 0x0000
@@ -1639,6 +1637,7 @@ class QueryRetrieveServiceClass(ServiceClass):
 
         # Store the SOP Instance UIDs from any failed C-STORE sub-operations
         failed_instances = []
+
         def _add_failed_instance(ds):
             if hasattr(ds, 'SOPInstanceUID'):
                 failed_instances.append(ds.SOPInstanceUID)
@@ -1654,8 +1653,8 @@ class QueryRetrieveServiceClass(ServiceClass):
             if exc:
                 LOGGER.error("Exception in handler bound to 'evt.EVT_C_GET'")
                 LOGGER.error(
-                    f"\nTraceback (most recent call last):\n" +
-                    f"".join(traceback.format_tb(exc[2])) +
+                    "\nTraceback (most recent call last):\n" +
+                    "".join(traceback.format_tb(exc[2])) +
                     f"{exc[0].__name__}: {str(exc[1])}"
                 )
                 rsp_status = 0xC411
@@ -1970,9 +1969,9 @@ class QueryRetrieveServiceClass(ServiceClass):
                 self.assoc,
                 evt.EVT_C_MOVE,
                 {
-                    'request' : req,
-                    'context' : context.as_tuple,
-                    '_is_cancelled' : self.is_cancelled
+                    'request': req,
+                    'context': context.as_tuple,
+                    '_is_cancelled': self.is_cancelled
                 }
             )
 
@@ -2010,7 +2009,8 @@ class QueryRetrieveServiceClass(ServiceClass):
                 self.dimse.send_msg(rsp, cx_id)
                 return
 
-        if not ctx.success: return
+        if not ctx.success:
+            return
 
         # Try to check number of C-STORE sub-operations yield is OK
         with attempt(rsp, self.dimse, cx_id) as ctx:
@@ -2049,7 +2049,8 @@ class QueryRetrieveServiceClass(ServiceClass):
                 destination[0], destination[1], **kwargs
             )
 
-        if not ctx.success: return
+        if not ctx.success:
+            return
 
         if not store_assoc.is_established:
             # Failed to associate with Move Destination AE
@@ -2082,8 +2083,8 @@ class QueryRetrieveServiceClass(ServiceClass):
             if exc:
                 LOGGER.error("Exception in handler bound to 'evt.EVT_C_MOVE'")
                 LOGGER.error(
-                    f"\nTraceback (most recent call last):\n" +
-                    f"".join(traceback.format_tb(exc[2])) +
+                    "\nTraceback (most recent call last):\n" +
+                    "".join(traceback.format_tb(exc[2])) +
                     f"{exc[0].__name__}: {str(exc[1])}"
                 )
                 rsp_status = 0xC511
@@ -2442,9 +2443,9 @@ class RelevantPatientInformationQueryServiceClass(ServiceClass):
                 self.assoc,
                 evt.EVT_C_FIND,
                 {
-                    'request' : req,
-                    'context' : context.as_tuple,
-                    '_is_cancelled' : self.is_cancelled
+                    'request': req,
+                    'context': context.as_tuple,
+                    '_is_cancelled': self.is_cancelled
                 }
             )
             (rsp_status, rsp_identifier) = next(responses)

@@ -85,12 +85,12 @@ def extract_components(version: str) -> Dict[str, Any]:
         _dev = (match.group("dev_l"), int(match.group("dev_n")))
 
     components = {
-        'epoch' : int(match.group("epoch")) if match.group("epoch") else 0,
-        'release' : tuple(int(ii) for ii in match.group("release").split(".")),
-        'pre' : _pre,
-        'post' : _post,
-        'dev' : _dev,
-        'local' : match.group("local"),
+        'epoch': int(match.group("epoch")) if match.group("epoch") else 0,
+        'release': tuple(int(ii) for ii in match.group("release").split(".")),
+        'pre': _pre,
+        'post': _post,
+        'dev': _dev,
+        'local': match.group("local"),
     }
 
     return components

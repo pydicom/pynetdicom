@@ -72,15 +72,17 @@ class DULServiceProvider(Thread):
         self.pdu: Optional[_PDUType] = None
 
         # Tracks the events the state machine needs to process
-        self.event_queue: queue.Queue[str] = queue.Queue()
+        self.event_queue: "queue.Queue[str]" = queue.Queue()
         # These queues provide communication between the DUL service
         #   user and the DUL service provider.
         # An event occurs when the DUL service user adds to
         #   the to_provider_queue
-        self.to_provider_queue: queue.Queue[_PDUPrimitiveType] = queue.Queue()
+        self.to_provider_queue: "queue.Queue[_PDUPrimitiveType]" = (
+            queue.Queue()
+        )
         # A primitive is sent to the service user when the DUL service provider
         # adds to the to_user_queue.
-        self.to_user_queue: queue.Queue[_PDUPrimitiveType] = queue.Queue()
+        self.to_user_queue: "queue.Queue[_PDUPrimitiveType]" = queue.Queue()
 
         # Set the (network) idle and ARTIM timers
         # Timeouts gets set after DUL init so these are temporary
@@ -130,13 +132,13 @@ class DULServiceProvider(Thread):
         """
         # Trigger before data is decoded in case of exception in decoding
         b = bytes(bytestream)
-        evt.trigger(self.assoc, evt.EVT_DATA_RECV, {'data' : b})
+        evt.trigger(self.assoc, evt.EVT_DATA_RECV, {'data': b})
 
         pdu_cls, event = _PDU_TYPES[b[0:1]]
         pdu = pdu_cls()
         pdu.decode(b)
 
-        evt.trigger(self.assoc, evt.EVT_PDU_RECV, {'pdu' : pdu})
+        evt.trigger(self.assoc, evt.EVT_PDU_RECV, {'pdu': pdu})
 
         return pdu, event
 
@@ -356,7 +358,7 @@ class DULServiceProvider(Thread):
             acse_primitives = (A_ASSOCIATE, A_RELEASE, A_ABORT, A_P_ABORT)
             if isinstance(queue_item, acse_primitives):
                 evt.trigger(
-                    self.assoc, evt.EVT_ACSE_RECV, {'primitive' : queue_item}
+                    self.assoc, evt.EVT_ACSE_RECV, {'primitive': queue_item}
                 )
 
             return queue_item
@@ -449,7 +451,7 @@ class DULServiceProvider(Thread):
         acse_primitives = (A_ASSOCIATE, A_RELEASE, A_ABORT, A_P_ABORT)
         if isinstance(primitive, acse_primitives):
             evt.trigger(
-                self.assoc, evt.EVT_ACSE_SENT, {'primitive' : primitive}
+                self.assoc, evt.EVT_ACSE_SENT, {'primitive': primitive}
             )
 
         self.to_provider_queue.put(primitive)

@@ -101,7 +101,6 @@ def decode(
     pydicom.dataset.Dataset
         The decoded dataset.
     """
-    ## Logging
     transfer_syntax = ''
     if deflated:
         transfer_syntax = "Deflated "

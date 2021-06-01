@@ -186,13 +186,13 @@ def standard_pdu_recv_handler(event):
     """
     pdu = event.pdu
     handlers = {
-        A_ASSOCIATE_AC : _receive_associate_ac,
-        A_ASSOCIATE_RJ : _receive_associate_rj,
-        A_ASSOCIATE_RQ : _receive_associate_rq,
-        A_RELEASE_RQ : _receive_release_rq,
-        A_RELEASE_RP : _receive_release_rp,
-        A_ABORT_RQ : _receive_abort_pdu,
-        P_DATA_TF : _receive_data_tf,
+        A_ASSOCIATE_AC: _receive_associate_ac,
+        A_ASSOCIATE_RJ: _receive_associate_rj,
+        A_ASSOCIATE_RQ: _receive_associate_rq,
+        A_RELEASE_RQ: _receive_release_rq,
+        A_RELEASE_RP: _receive_release_rp,
+        A_ABORT_RQ: _receive_abort_pdu,
+        P_DATA_TF: _receive_data_tf,
     }
     with event.assoc.lock:
         return handlers[type(pdu)](event)
@@ -219,13 +219,13 @@ def standard_pdu_sent_handler(event):
     """
     pdu = event.pdu
     handlers = {
-        A_ASSOCIATE_AC : _send_associate_ac,
-        A_ASSOCIATE_RJ : _send_associate_rj,
-        A_ASSOCIATE_RQ : _send_associate_rq,
-        A_RELEASE_RQ : _send_release_rq,
-        A_RELEASE_RP : _send_release_rp,
-        A_ABORT_RQ : _send_abort,
-        P_DATA_TF : _send_data_tf,
+        A_ASSOCIATE_AC: _send_associate_ac,
+        A_ASSOCIATE_RJ: _send_associate_rj,
+        A_ASSOCIATE_RQ: _send_associate_rq,
+        A_RELEASE_RQ: _send_release_rq,
+        A_RELEASE_RP: _send_release_rp,
+        A_ABORT_RQ: _send_abort,
+        P_DATA_TF: _send_data_tf,
     }
     with event.assoc.lock:
         return handlers[type(pdu)](event)
@@ -400,7 +400,7 @@ def _receive_associate_ac(event):
                 f"    Accepted Transfer Syntax: ={cx.transfer_syntax.name}"
             )
 
-    ## Extended Negotiation
+    # Extended Negotiation
     if user_info.ext_neg:
         s.append("Accepted Extended Negotiation:")
         for item in user_info.ext_neg:
@@ -409,7 +409,7 @@ def _receive_associate_ac(event):
     else:
         s.append("Accepted Extended Negotiation: None")
 
-    ## Asynchronous Operations
+    # Asynchronous Operations
     if async_ops:
         max_invoked = async_ops.maximum_number_operations_invoked
         max_performed = async_ops.maximum_number_operations_performed
@@ -419,7 +419,7 @@ def _receive_associate_ac(event):
     else:
         s.append("Accepted Asynchronous Operations Window Negotiation: None")
 
-    ## User Identity
+    # User Identity
     usr_id = "Yes" if user_info.user_identity else "None"
     s.append(f"User Identity Negotiation Response: {usr_id}")
     s.append(f"{' END A-ASSOCIATE-AC PDU ':=^76}")
@@ -476,7 +476,7 @@ def _receive_associate_rq(event):
         f"Their Max PDU Receive Size:  {user_info.maximum_length}"
     ]
 
-    ## Presentation Contexts
+    # Presentation Contexts
     if len(pres_contexts) == 1:
         s.append("Presentation Context:")
     else:
@@ -514,7 +514,7 @@ def _receive_associate_rq(event):
             s.append("    Proposed Transfer Syntaxes:")
         s.extend([f"      ={ts.name}" for ts in context.transfer_syntax])
 
-    ## Extended Negotiation
+    # Extended Negotiation
     if pdu.user_information.ext_neg:
         s.append("Requested Extended Negotiation:")
         for item in pdu.user_information.ext_neg:
@@ -523,7 +523,7 @@ def _receive_associate_rq(event):
     else:
         s.append("Requested Extended Negotiation: None")
 
-    ## Common Extended Negotiation
+    # Common Extended Negotiation
     if pdu.user_information.common_ext_neg:
         s.append("Requested Common Extended Negotiation:")
 
@@ -540,7 +540,7 @@ def _receive_associate_rq(event):
     else:
         s.append("Requested Common Extended Negotiation: None")
 
-    ## Asynchronous Operations Window Negotiation
+    # Asynchronous Operations Window Negotiation
     async_ops = pdu.user_information.async_ops_window
     if async_ops is not None:
         max_invoked = async_ops.maximum_number_operations_invoked
@@ -551,7 +551,7 @@ def _receive_associate_rq(event):
     else:
         s.append("Requested Asynchronous Operations Window Negotiation: None")
 
-    ## User Identity
+    # User Identity
     if user_info.user_identity is not None:
         usid = user_info.user_identity
         p_len = len(usid.primary)
@@ -613,7 +613,7 @@ def _send_associate_ac(event):
     assoc_ac = event.pdu
 
     req_contexts = event.assoc.requestor.get_contexts('pcdl')
-    req_contexts = {ii.context_id:ii for ii in req_contexts}
+    req_contexts = {ii.context_id: ii for ii in req_contexts}
 
     # Needs some cleanup
     app_context = assoc_ac.application_context_name.title()
@@ -666,7 +666,7 @@ def _send_associate_ac(event):
                 f"    Accepted Transfer Syntax: ={cx.transfer_syntax.name}"
             )
 
-    ## Extended Negotiation
+    # Extended Negotiation
     if user_info.ext_neg:
         s.append("Accepted Extended Negotiation:")
         for item in user_info.ext_neg:
@@ -675,7 +675,7 @@ def _send_associate_ac(event):
     else:
         s.append("Accepted Extended Negotiation: None")
 
-    ## Asynchronous Operations
+    # Asynchronous Operations
     if async_ops:
         max_invoked = async_ops.maximum_number_operations_invoked
         max_performed = async_ops.maximum_number_operations_performed
@@ -685,7 +685,7 @@ def _send_associate_ac(event):
     else:
         s.append("Accepted Asynchronous Operations Window Negotiation: None")
 
-    ## User Identity Negotiation
+    # User Identity Negotiation
     usr_id = "Yes" if user_info.user_identity is not None else "None"
     s.append(f"User Identity Negotiation Response: {usr_id}")
     s.append(f"{' END A-ASSOCIATE-AC PDU ':=^76}")
@@ -735,7 +735,7 @@ def _send_associate_rq(event):
     s.append(f"Called Application Name:     {called_aet}")
     s.append(f"Our Max PDU Receive Size:    {user_info.maximum_length}")
 
-    ## Presentation Contexts
+    # Presentation Contexts
     if len(pres_contexts) == 1:
         s.append("Presentation Context:")
     else:
@@ -773,7 +773,7 @@ def _send_associate_rq(event):
             s.append("    Proposed Transfer Syntaxes:")
         s.extend([f"      ={ts.name}" for ts in context.transfer_syntax])
 
-    ## Extended Negotiation
+    # Extended Negotiation
     if pdu.user_information.ext_neg:
         s.append("Requested Extended Negotiation:")
         for item in pdu.user_information.ext_neg:
@@ -782,7 +782,7 @@ def _send_associate_rq(event):
     else:
         s.append("Requested Extended Negotiation: None")
 
-    ## Common Extended Negotiation
+    # Common Extended Negotiation
     if pdu.user_information.common_ext_neg:
         s.append("Requested Common Extended Negotiation:")
         for item in pdu.user_information.common_ext_neg:
@@ -798,7 +798,7 @@ def _send_associate_rq(event):
     else:
         s.append("Requested Common Extended Negotiation: None")
 
-    ## Asynchronous Operations Window Negotiation
+    # Asynchronous Operations Window Negotiation
     async_ops = pdu.user_information.async_ops_window
     if async_ops is not None:
         max_invoked = async_ops.maximum_number_operations_invoked
@@ -809,7 +809,7 @@ def _send_associate_rq(event):
     else:
         s.append("Requested Asynchronous Operations Window Negotiation: None")
 
-    ## User Identity
+    # User Identity
     if user_info.user_identity is not None:
         usid = user_info.user_identity
         p_len = len(usid.primary)

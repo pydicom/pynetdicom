@@ -861,7 +861,7 @@ class Association(threading.Thread):
             status = evt.trigger(
                 self,
                 evt.EVT_C_STORE,
-                {'request' : req, 'context' : context.as_tuple}
+                {'request': req, 'context': context.as_tuple}
             )
         except Exception as ex:
             LOGGER.error(
@@ -895,7 +895,7 @@ class Association(threading.Thread):
             LOGGER.error("Invalid status returned by user callback.")
             rsp.Status = 0xC002
 
-        if not rsp.Status in STORAGE_SERVICE_CLASS_STATUS:
+        if rsp.Status not in STORAGE_SERVICE_CLASS_STATUS:
             LOGGER.warning(
                 f"Unknown status value returned by callback 0x{rsp.Status:04X}"
             )
@@ -2035,7 +2035,7 @@ class Association(threading.Thread):
             cx_id, rsp = self.dimse.get_msg(block=True)
             # Used to describe the response in the log output
             rsp_type = rsp.__class__.__name__.replace('_', '-')
-            rsp_name = {'C-GET' : 'Get', 'C-MOVE' : 'Move'}
+            rsp_name = {'C-GET': 'Get', 'C-MOVE': 'Move'}
 
             # If `rsp` is None then the DIMSE timeout expired
             #   so abort if the association hasn't already been aborted
@@ -3760,24 +3760,24 @@ class ServiceUser:
             presentation contexts from the A-ASSOCIATE (accept) primitive's
             Presentation Context Definition Results List parameter.
         """
-        contexts = {'requested' : self._contexts, 'supported' : self._contexts}
+        contexts = {'requested': self._contexts, 'supported': self._contexts}
         self.primitive = cast(A_ASSOCIATE, self.primitive)
         if not self.writeable:
             contexts.update({
-                'pcdl' : self.primitive.presentation_context_definition_list,
-                'pcdrl' : (
+                'pcdl': self.primitive.presentation_context_definition_list,
+                'pcdrl': (
                     self.primitive.presentation_context_definition_results_list
                 )
             })
 
         possible = {
-            True : {
-                True : ['requested'],
-                False : ['supported'],
+            True: {
+                True: ['requested'],
+                False: ['supported'],
             },
-            False : {
-                True : ['requested', 'pcdl'],
-                False : ['supported', 'pcdrl'],
+            False: {
+                True: ['requested', 'pcdl'],
+                False: ['supported', 'pcdrl'],
             }
         }
 
@@ -3893,10 +3893,10 @@ class ServiceUser:
         :class:`ServiceUser`.
         """
         info = {
-            'ae_title' : self.ae_title,
-            'address' : self.address,
-            'port' : self.port,
-            'mode' : self.mode,
+            'ae_title': self.ae_title,
+            'address': self.address,
+            'port': self.port,
+            'mode': self.mode,
         }
         if not self.writeable:
             info['pdv_size'] = self.maximum_length
@@ -4071,10 +4071,10 @@ class ServiceUser:
             )
 
         self._ext_neg = {
-            SCP_SCU_RoleSelectionNegotiation : [],
-            AsynchronousOperationsWindowNegotiation : [],
-            UserIdentityNegotiation : [],
-            SOPClassExtendedNegotiation : [],
+            SCP_SCU_RoleSelectionNegotiation: [],
+            AsynchronousOperationsWindowNegotiation: [],
+            UserIdentityNegotiation: [],
+            SOPClassExtendedNegotiation: [],
         }
         if self.is_requestor:
             self._ext_neg[SOPClassCommonExtendedNegotiation] = []

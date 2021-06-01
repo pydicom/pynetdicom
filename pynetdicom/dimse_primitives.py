@@ -33,7 +33,6 @@ LOGGER = logging.getLogger('pynetdicom.dimse_primitives')
 
 
 DimsePrimitiveType = Union[
-    #DIMSEPrimitive,
     "C_CANCEL",
     "C_ECHO",
     "C_FIND",
@@ -551,15 +550,15 @@ class C_STORE(DIMSEPrimitive):
         # Changes to the variable names can be made provided the DIMSEMessage()
         #   class' message_to_primitive() and primitive_to_message() methods
         #   are also changed
-        #self.MessageID: Optional[int] = None
-        #self.MessageIDBeingRespondedTo: Optional[int] = None
-        #self.AffectedSOPClassUID: Optional[UID] = None
-        #self.AffectedSOPInstanceUID: Optional[UID] = None
-        #self.Priority = 0x02
+        # self.MessageID: Optional[int] = None
+        # self.MessageIDBeingRespondedTo: Optional[int] = None
+        # self.AffectedSOPClassUID: Optional[UID] = None
+        # self.AffectedSOPInstanceUID: Optional[UID] = None
+        # self.Priority = 0x02
         self.MoveOriginatorApplicationEntityTitle = None
         self.MoveOriginatorMessageID: Optional[int] = None
         self.DataSet: Optional[BytesIO] = None
-        #self.Status: Optional[int] = None
+        # self.Status: Optional[int] = None
 
         # Optional Command Set elements used with specific Status values
         # For Warning statuses 0xB000, 0xB006, 0xB007
@@ -577,14 +576,14 @@ class C_STORE(DIMSEPrimitive):
         # If we are receiving a C-STORE service primitive:
         #   If None then the dataset is encoded as BytesIO
         #   If not None then the dataset is stored at _dataset_path
-        #self._dataset_path = None
+        # self._dataset_path = None
         # If we are sending a C-STORE service primitive:
         #   Always None
         # If we are receiving a C-STORE service primitive:
         #   If None then the dataset is encoded as BytesIO
         #   If not None then _dataset_file backs the dataset stored
         #   at _dataset_path
-        #self._dataset_file = None
+        # self._dataset_file = None
 
     @property
     def AffectedSOPInstanceUID(self) -> Optional[UID]:
@@ -763,12 +762,12 @@ class C_FIND(DIMSEPrimitive):
         # Changes to the variable names can be made provided the DIMSEMessage()
         #   class' message_to_primitive() and primitive_to_message() methods
         #   are also changed
-        #self.MessageID = None
-        #self.MessageIDBeingRespondedTo = None
-        #self.AffectedSOPClassUID = None
-        #self.Priority = 0x02
+        # self.MessageID = None
+        # self.MessageIDBeingRespondedTo = None
+        # self.AffectedSOPClassUID = None
+        # self.Priority = 0x02
         self.Identifier = None
-        #self.Status = None
+        # self.Status = None
 
         # Optional Command Set elements used in with specific Status values
         # For Failure statuses 0xA900, 0xCxxx
@@ -891,12 +890,12 @@ class C_GET(DIMSEPrimitive):
         # Changes to the variable names can be made provided the DIMSEMessage()
         #   class' message_to_primitive() and primitive_to_message() methods
         #   are also changed
-        #self.MessageID = None
-        #self.MessageIDBeingRespondedTo = None
-        #self.AffectedSOPClassUID = None
-        #self.Priority = 0x02
+        # self.MessageID = None
+        # self.MessageIDBeingRespondedTo = None
+        # self.AffectedSOPClassUID = None
+        # self.Priority = 0x02
         self.Identifier = None
-        #self.Status = None
+        # self.Status = None
         self.NumberOfRemainingSuboperations = None
         self.NumberOfCompletedSuboperations = None
         self.NumberOfFailedSuboperations = None
@@ -1078,13 +1077,13 @@ class C_MOVE(DIMSEPrimitive):
         # Changes to the variable names can be made provided the DIMSEMessage()
         #   class' message_to_primitive() and primitive_to_message() methods
         #   are also changed
-        #self.MessageID = None
-        #self.MessageIDBeingRespondedTo = None
-        #self.AffectedSOPClassUID = None
-        #self.Priority = 0x02
+        # self.MessageID = None
+        # self.MessageIDBeingRespondedTo = None
+        # self.AffectedSOPClassUID = None
+        # self.Priority = 0x02
         self.MoveDestination = None
         self.Identifier = None
-        #self.Status = None
+        # self.Status = None
         self.NumberOfRemainingSuboperations = None
         self.NumberOfCompletedSuboperations = None
         self.NumberOfFailedSuboperations = None
@@ -1257,10 +1256,10 @@ class C_ECHO(DIMSEPrimitive):
         # Changes to the variable names can be made provided the DIMSEMessage()
         #   class' message_to_primitive() and primitive_to_message() methods
         #   are also changed
-        #self.MessageID = None
-        #self.MessageIDBeingRespondedTo = None
-        #self.AffectedSOPClassUID = None
-        #self.Status = None
+        # self.MessageID = None
+        # self.MessageIDBeingRespondedTo = None
+        # self.AffectedSOPClassUID = None
+        # self.Status = None
 
         # (Optional) for Failure status 0x0122
         self.ErrorComment = None
@@ -1378,7 +1377,7 @@ class N_EVENT_REPORT(DIMSEPrimitive):
     # Optional status element keywords other than 'Status'
     STATUS_OPTIONAL_KEYWORDS = (
         'AffectedSOPClassUID', 'AffectedSOPInstanceUID', 'EventTypeID',
-        'ErrorComment', 'ErrorID' # EventInformation
+        'ErrorComment', 'ErrorID'  # EventInformation
     )
     REQUEST_KEYWORDS = (
         'MessageID', 'AffectedSOPClassUID', 'EventTypeID',
@@ -1386,14 +1385,14 @@ class N_EVENT_REPORT(DIMSEPrimitive):
     )
 
     def __init__(self) -> None:
-        #self.MessageID = None
-        #self.MessageIDBeingRespondedTo = None
-        #self.AffectedSOPClassUID = None
-        #self.AffectedSOPInstanceUID = None
+        # self.MessageID = None
+        # self.MessageIDBeingRespondedTo = None
+        # self.AffectedSOPClassUID = None
+        # self.AffectedSOPInstanceUID = None
         self.EventTypeID = None
         self.EventInformation = None
         self.EventReply = None
-        #self.Status = None
+        # self.Status = None
 
         # Optional status elements
         self.ErrorComment = None
@@ -1526,15 +1525,15 @@ class N_GET(DIMSEPrimitive):
     )
 
     def __init__(self) -> None:
-        #self.MessageID = None
-        #self.MessageIDBeingRespondedTo = None
-        #self.RequestedSOPClassUID = None
-        #self.RequestedSOPInstanceUID = None
+        # self.MessageID = None
+        # self.MessageIDBeingRespondedTo = None
+        # self.RequestedSOPClassUID = None
+        # self.RequestedSOPInstanceUID = None
         self.AttributeIdentifierList = None
-        #self.AffectedSOPClassUID = None
-        #self.AffectedSOPInstanceUID = None
+        # self.AffectedSOPClassUID = None
+        # self.AffectedSOPInstanceUID = None
         self.AttributeList = None
-        #self.Status = None
+        # self.Status = None
 
         # (Optional) elements for specific status values
         self.ErrorComment = None
@@ -1706,15 +1705,15 @@ class N_SET(DIMSEPrimitive):
     )
 
     def __init__(self) -> None:
-        #self.MessageID = None
-        #self.MessageIDBeingRespondedTo = None
-        #self.RequestedSOPClassUID = None
-        #self.RequestedSOPInstanceUID = None
+        # self.MessageID = None
+        # self.MessageIDBeingRespondedTo = None
+        # self.RequestedSOPClassUID = None
+        # self.RequestedSOPInstanceUID = None
         self.ModificationList = None
         self.AttributeList = None
-        #self.AffectedSOPClassUID = None
-        #self.AffectedSOPInstanceUID = None
-        #self.Status = None
+        # self.AffectedSOPClassUID = None
+        # self.AffectedSOPInstanceUID = None
+        # self.Status = None
 
         # Optional
         self.ErrorComment = None
@@ -1865,16 +1864,16 @@ class N_ACTION(DIMSEPrimitive):
     )
 
     def __init__(self) -> None:
-        #self.MessageID = None
-        #self.MessageIDBeingRespondedTo = None
-        #self.RequestedSOPClassUID = None
-        #self.RequestedSOPInstanceUID = None
+        # self.MessageID = None
+        # self.MessageIDBeingRespondedTo = None
+        # self.RequestedSOPClassUID = None
+        # self.RequestedSOPInstanceUID = None
         self.ActionTypeID = None
         self.ActionInformation = None
-        #self.AffectedSOPClassUID = None
-        #self.AffectedSOPInstanceUID = None
+        # self.AffectedSOPClassUID = None
+        # self.AffectedSOPInstanceUID = None
         self.ActionReply = None
-        #self.Status = None
+        # self.Status = None
 
         # Optional status elements
         self.ErrorComment = None
@@ -2030,12 +2029,12 @@ class N_CREATE(DIMSEPrimitive):
     REQUEST_KEYWORDS = ('MessageID', 'AffectedSOPClassUID')
 
     def __init__(self) -> None:
-        #self.MessageID = None
-        #self.MessageIDBeingRespondedTo = None
-        #self.AffectedSOPClassUID = None
-        #self.AffectedSOPInstanceUID = None
+        # self.MessageID = None
+        # self.MessageIDBeingRespondedTo = None
+        # self.AffectedSOPClassUID = None
+        # self.AffectedSOPInstanceUID = None
         self.AttributeList = None
-        #self.Status = None
+        # self.Status = None
 
         # Optional elements
         self.ErrorComment = None
@@ -2126,13 +2125,13 @@ class N_DELETE(DIMSEPrimitive):
     )
 
     def __init__(self) -> None:
-        #self.MessageID = None
-        #self.MessageIDBeingRespondedTo = None
-        #self.RequestedSOPClassUID = None
-        #self.RequestedSOPInstanceUID = None
-        #self.AffectedSOPClassUID = None
-        #self.AffectedSOPInstanceUID = None
-        #self.Status = None
+        # self.MessageID = None
+        # self.MessageIDBeingRespondedTo = None
+        # self.RequestedSOPClassUID = None
+        # self.RequestedSOPInstanceUID = None
+        # self.AffectedSOPClassUID = None
+        # self.AffectedSOPInstanceUID = None
+        # self.Status = None
 
         # Optional
         self.ErrorComment = None

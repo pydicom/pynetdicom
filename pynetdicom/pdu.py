@@ -35,7 +35,6 @@ from pynetdicom.pdu_items import (
     UserInformationItem,
     PresentationDataValueItem,
     PDU_ITEM_TYPES,
-    _UserInformationType,
     _PDUItemType,
     PDUItem
 )
@@ -139,11 +138,11 @@ class PDU:
         # pylint: disable=protected-access
         if isinstance(other, self.__class__):
             self_dict = {
-                enc[0] : getattr(self, enc[0])
+                enc[0]: getattr(self, enc[0])
                 for enc in self._encoders if enc[0]
             }
             other_dict = {
-                enc[0] : getattr(other, enc[0])
+                enc[0]: getattr(other, enc[0])
                 for enc in other._encoders if enc[0]
             }
             return self_dict == other_dict
@@ -1197,31 +1196,31 @@ class A_ASSOCIATE_RJ(PDU):
     def reason_str(self) -> str:
         """Return a str describing the *Reason/Diagnostic* field value."""
         _reasons = {
-            1 : {
-                1 : "No reason given",
-                2 : "Application context name not supported",
-                3 : "Calling AE title not recognised",
-                4 : "Reserved",
-                5 : "Reserved",
-                6 : "Reserved",
-                7 : "Called AE title not recognised",
-                8 : "Reserved",
-                9 : "Reserved",
-                10 : "Reserved"
-            },
-            2 : {
-                1 : "No reason given",
-                2 : "Protocol version not supported"
-            },
-            3 : {
-                0 : "Reserved",
-                1 : "Temporary congestion",
-                2 : "Local limit exceeded",
-                3 : "Reserved",
-                4 : "Reserved",
+            1: {
+                1: "No reason given",
+                2: "Application context name not supported",
+                3: "Calling AE title not recognised",
+                4: "Reserved",
                 5: "Reserved",
-                6 : "Reserved",
-                7 : "Reserved"
+                6: "Reserved",
+                7: "Called AE title not recognised",
+                8: "Reserved",
+                9: "Reserved",
+                10: "Reserved"
+            },
+            2: {
+                1: "No reason given",
+                2: "Protocol version not supported"
+            },
+            3: {
+                0: "Reserved",
+                1: "Temporary congestion",
+                2: "Local limit exceeded",
+                3: "Reserved",
+                4: "Reserved",
+                5: "Reserved",
+                6: "Reserved",
+                7: "Reserved"
             }
         }
 
@@ -1243,8 +1242,8 @@ class A_ASSOCIATE_RJ(PDU):
     def result_str(self) -> str:
         """Return a str describing the *Result* field value."""
         _results = {
-            1 : 'Rejected (Permanent)',
-            2 : 'Rejected (Transient)'
+            1: 'Rejected (Permanent)',
+            2: 'Rejected (Transient)'
         }
 
         if self.result not in _results:
@@ -1259,9 +1258,9 @@ class A_ASSOCIATE_RJ(PDU):
     def source_str(self) -> str:
         """Return a str describing the *Source* field value."""
         _sources = {
-            1 : 'DUL service-user',
-            2 : 'DUL service-provider (ACSE related)',
-            3 : 'DUL service-provider (presentation related)'
+            1: 'DUL service-user',
+            2: 'DUL service-provider (ACSE related)',
+            3: 'DUL service-provider (presentation related)'
         }
 
         if self.source not in _sources:
@@ -1495,7 +1494,9 @@ class P_DATA_TF(PDU):
 
         return s
 
-    def _wrap_generate_items(self, bytestream: bytes) -> _PDVItem:  # type: ignore
+    def _wrap_generate_items(  # type: ignore
+        self, bytestream: bytes
+    ) -> _PDVItem:
         """Return a list of PDV Items generated from `bytestream`.
 
         Parameters
@@ -1939,9 +1940,9 @@ class A_ABORT_RQ(PDU):
     def source_str(self) -> str:
         """Return a str description of the *Source* field value."""
         _sources = {
-            0 : 'DUL service-user',
-            1 : 'Reserved',
-            2 : 'DUL service-provider'
+            0: 'DUL service-user',
+            1: 'Reserved',
+            2: 'DUL service-provider'
         }
 
         return _sources[self.source]  # type: ignore
@@ -1951,13 +1952,13 @@ class A_ABORT_RQ(PDU):
         """Return a str description of the *Reason/Diagnostic* field value."""
         if self.source == 2:
             _reason_str = {
-                0 : "No reason given",
-                1 : "Unrecognised PDU",
-                2 : "Unexpected PDU",
-                3 : "Reserved",
-                4 : "Unrecognised PDU parameter",
-                5 : "Unexpected PDU parameter",
-                6 : "Invalid PDU parameter value"
+                0: "No reason given",
+                1: "Unrecognised PDU",
+                2: "Unexpected PDU",
+                3: "Reserved",
+                4: "Unrecognised PDU parameter",
+                5: "Unexpected PDU parameter",
+                6: "Invalid PDU parameter value"
             }
             return _reason_str[self.reason_diagnostic]  # type: ignore
 
@@ -1966,11 +1967,11 @@ class A_ABORT_RQ(PDU):
 
 # PDUs indexed by their class
 PDU_TYPES = {
-    A_ASSOCIATE_RQ : 0x01,
-    A_ASSOCIATE_AC : 0x02,
-    A_ASSOCIATE_RJ : 0x03,
-    P_DATA_TF : 0x04,
-    A_RELEASE_RQ : 0x05,
-    A_RELEASE_RP : 0x06,
-    A_ABORT_RQ : 0x07,
+    A_ASSOCIATE_RQ: 0x01,
+    A_ASSOCIATE_AC: 0x02,
+    A_ASSOCIATE_RJ: 0x03,
+    P_DATA_TF: 0x04,
+    A_RELEASE_RQ: 0x05,
+    A_RELEASE_RP: 0x06,
+    A_ABORT_RQ: 0x07,
 }

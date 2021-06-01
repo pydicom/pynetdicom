@@ -33,31 +33,31 @@ if TYPE_CHECKING:  # pragma: no cover
 LOGGER = logging.getLogger('pynetdicom.dimse')
 
 _RQ_TO_MESSAGE = {
-    C_ECHO : C_ECHO_RQ,
-    C_STORE : C_STORE_RQ,
-    C_FIND : C_FIND_RQ,
-    C_MOVE : C_MOVE_RQ,
-    C_GET : C_GET_RQ,
-    N_EVENT_REPORT : N_EVENT_REPORT_RQ,
-    N_GET : N_GET_RQ,
-    N_SET : N_SET_RQ,
-    N_ACTION : N_ACTION_RQ,
-    N_CREATE : N_CREATE_RQ,
-    N_DELETE : N_DELETE_RQ
+    C_ECHO: C_ECHO_RQ,
+    C_STORE: C_STORE_RQ,
+    C_FIND: C_FIND_RQ,
+    C_MOVE: C_MOVE_RQ,
+    C_GET: C_GET_RQ,
+    N_EVENT_REPORT: N_EVENT_REPORT_RQ,
+    N_GET: N_GET_RQ,
+    N_SET: N_SET_RQ,
+    N_ACTION: N_ACTION_RQ,
+    N_CREATE: N_CREATE_RQ,
+    N_DELETE: N_DELETE_RQ
 }
 _RSP_TO_MESSAGE = {
-    C_ECHO : C_ECHO_RSP,
-    C_STORE : C_STORE_RSP,
-    C_FIND : C_FIND_RSP,
-    C_MOVE : C_MOVE_RSP,
-    C_GET : C_GET_RSP,
-    C_CANCEL : C_CANCEL_RQ,
-    N_EVENT_REPORT : N_EVENT_REPORT_RSP,
-    N_GET : N_GET_RSP,
-    N_SET : N_SET_RSP,
-    N_ACTION : N_ACTION_RSP,
-    N_CREATE : N_CREATE_RSP,
-    N_DELETE : N_DELETE_RSP
+    C_ECHO: C_ECHO_RSP,
+    C_STORE: C_STORE_RSP,
+    C_FIND: C_FIND_RSP,
+    C_MOVE: C_MOVE_RSP,
+    C_GET: C_GET_RSP,
+    C_CANCEL: C_CANCEL_RQ,
+    N_EVENT_REPORT: N_EVENT_REPORT_RSP,
+    N_GET: N_GET_RSP,
+    N_SET: N_SET_RSP,
+    N_ACTION: N_ACTION_RSP,
+    N_CREATE: N_CREATE_RSP,
+    N_DELETE: N_DELETE_RSP
 }
 
 
@@ -153,7 +153,7 @@ class DIMSEServiceProvider:
 
         self.cancel_req: Dict[int, C_CANCEL] = {}
         self.message: Optional[DIMSEMessage] = None
-        self.msg_queue: queue.Queue[Tuple[int, DIMSEMessage]]  = queue.Queue()
+        self.msg_queue: "queue.Queue[Tuple[int, DIMSEMessage]]" = queue.Queue()
 
     @property
     def assoc(self) -> "Association":
@@ -257,7 +257,7 @@ class DIMSEServiceProvider:
         if self.message.decode_msg(primitive, self.assoc):
             # Trigger event
             evt.trigger(
-                self.assoc, evt.EVT_DIMSE_RECV, {'message' : self.message}
+                self.assoc, evt.EVT_DIMSE_RECV, {'message': self.message}
             )
 
             context_id = cast(int, self.message.context_id)
@@ -315,7 +315,7 @@ class DIMSEServiceProvider:
         dimse_msg.context_id = context_id
 
         # Trigger event
-        evt.trigger(self.assoc, evt.EVT_DIMSE_SENT, {'message' : dimse_msg})
+        evt.trigger(self.assoc, evt.EVT_DIMSE_SENT, {'message': dimse_msg})
 
         # Split the full messages into P-DATA chunks,
         #   each below the max_pdu size

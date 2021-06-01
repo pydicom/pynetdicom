@@ -18,7 +18,7 @@ except ImportError:
 from struct import pack
 import threading
 from typing import (
-    TYPE_CHECKING, Optional, Any, Tuple, cast, List, Dict, Union, Callable
+    TYPE_CHECKING, Optional, Any, Tuple, cast, List, Dict, Callable
 )
 
 from pynetdicom import evt, _config
@@ -32,7 +32,6 @@ from pynetdicom.presentation import PresentationContext
 if TYPE_CHECKING:  # pragma: no cover
     from pynetdicom.ae import ApplicationEntity
     from pynetdicom.association import Association
-    from pynetdicom.dul import DULServiceProvider
 
 
 LOGGER = logging.getLogger('pynetdicom.transport')
@@ -168,7 +167,7 @@ class AssociationSocket:
             # Clear ae connection timeout
             self.socket.settimeout(None)
             # Trigger event - connection open
-            evt.trigger(self.assoc, evt.EVT_CONN_OPEN, {'address' : address})
+            evt.trigger(self.assoc, evt.EVT_CONN_OPEN, {'address': address})
             self._is_connected = True
             # Evt2: Transport connection confirmation
             self.event_queue.put('Evt2')
@@ -244,7 +243,7 @@ class AssociationSocket:
         return sock
 
     @property
-    def event_queue(self) -> queue.Queue[str]:
+    def event_queue(self) -> "queue.Queue[str]":
         """Return the :class:`~pynetdicom.association.Association`'s event
         queue.
         """
@@ -373,7 +372,7 @@ class AssociationSocket:
                 nr_sent = self.socket.send(bytestream[total_sent:])
                 total_sent += nr_sent
 
-            evt.trigger(self.assoc, evt.EVT_DATA_SENT, {'data' : bytestream})
+            evt.trigger(self.assoc, evt.EVT_DATA_SENT, {'data': bytestream})
         except (socket.error, socket.timeout):
             # Evt17: Transport connection closed
             self.event_queue.put('Evt17')
@@ -403,7 +402,9 @@ class AssociationSocket:
         return self._tls_args
 
     @tls_args.setter
-    def tls_args(self, tls_args: Optional[Tuple["ssl.SSLContext", str]]) -> None:
+    def tls_args(
+        self, tls_args: Optional[Tuple["ssl.SSLContext", str]]
+    ) -> None:
         """Set the TLS arguments for the socket."""
         if not _HAS_SSL:
             raise RuntimeError(
@@ -445,7 +446,7 @@ class RequestHandler(BaseRequestHandler):
 
         # Trigger must be after binding the events
         evt.trigger(
-            assoc, evt.EVT_CONN_OPEN, {'address' : self.client_address}
+            assoc, evt.EVT_CONN_OPEN, {'address': self.client_address}
         )
 
         assoc.start()

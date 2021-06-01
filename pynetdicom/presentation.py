@@ -63,61 +63,61 @@ _RoleType = Dict[
 SCP_SCU_ROLES: _RoleType = {
     # (Requestor role, Acceptor role) : Outcome
     # No SCP/SCU Role Selection proposed
-    (None, None) : {
-        (None, None) : DEFAULT_ROLE,
-        (None, True) : DEFAULT_ROLE,
-        (None, False) : DEFAULT_ROLE,
-        (True, None) : DEFAULT_ROLE,
-        (False, None) : DEFAULT_ROLE,
-        (True, True) : DEFAULT_ROLE,
-        (True, False) : DEFAULT_ROLE,
-        (False, False) : DEFAULT_ROLE,
-        (False, True) : DEFAULT_ROLE,
+    (None, None): {
+        (None, None): DEFAULT_ROLE,
+        (None, True): DEFAULT_ROLE,
+        (None, False): DEFAULT_ROLE,
+        (True, None): DEFAULT_ROLE,
+        (False, None): DEFAULT_ROLE,
+        (True, True): DEFAULT_ROLE,
+        (True, False): DEFAULT_ROLE,
+        (False, False): DEFAULT_ROLE,
+        (False, True): DEFAULT_ROLE,
     },
-    (True, True) : {
-        (None, None) : DEFAULT_ROLE,
-        (None, True) : DEFAULT_ROLE,
-        (None, False) : DEFAULT_ROLE,
-        (True, None) : DEFAULT_ROLE,
-        (False, None) : DEFAULT_ROLE,
-        (True, True) : BOTH_SCU_SCP_ROLE,
-        (True, False) : DEFAULT_ROLE,
-        (False, False) : CONTEXT_REJECTED,
-        (False, True) : INVERTED_ROLE,
+    (True, True): {
+        (None, None): DEFAULT_ROLE,
+        (None, True): DEFAULT_ROLE,
+        (None, False): DEFAULT_ROLE,
+        (True, None): DEFAULT_ROLE,
+        (False, None): DEFAULT_ROLE,
+        (True, True): BOTH_SCU_SCP_ROLE,
+        (True, False): DEFAULT_ROLE,
+        (False, False): CONTEXT_REJECTED,
+        (False, True): INVERTED_ROLE,
     },
-    (True, False) : {
-        (None, None) : DEFAULT_ROLE,
-        (None, True) : DEFAULT_ROLE,
-        (None, False) : DEFAULT_ROLE,
-        (True, None) : DEFAULT_ROLE,
-        (False, None) : DEFAULT_ROLE,
-        (True, True) : DEFAULT_ROLE,  # Invalid
-        (True, False) : DEFAULT_ROLE,
-        (False, False) : CONTEXT_REJECTED,
-        (False, True) : CONTEXT_REJECTED,  # Invalid
+    (True, False): {
+        (None, None): DEFAULT_ROLE,
+        (None, True): DEFAULT_ROLE,
+        (None, False): DEFAULT_ROLE,
+        (True, None): DEFAULT_ROLE,
+        (False, None): DEFAULT_ROLE,
+        (True, True): DEFAULT_ROLE,  # Invalid
+        (True, False): DEFAULT_ROLE,
+        (False, False): CONTEXT_REJECTED,
+        (False, True): CONTEXT_REJECTED,  # Invalid
     },
-    (False, True) : {
-        (None, None) : DEFAULT_ROLE,
-        (None, True) : DEFAULT_ROLE,
-        (None, False) : DEFAULT_ROLE,
-        (True, None) : DEFAULT_ROLE,
-        (False, None) : DEFAULT_ROLE,
-        (True, True) : INVERTED_ROLE,  # Invalid
-        (True, False) : CONTEXT_REJECTED,  # Invalid
-        (False, False) : CONTEXT_REJECTED,
-        (False, True) : INVERTED_ROLE,
+    (False, True): {
+        (None, None): DEFAULT_ROLE,
+        (None, True): DEFAULT_ROLE,
+        (None, False): DEFAULT_ROLE,
+        (True, None): DEFAULT_ROLE,
+        (False, None): DEFAULT_ROLE,
+        (True, True): INVERTED_ROLE,  # Invalid
+        (True, False): CONTEXT_REJECTED,  # Invalid
+        (False, False): CONTEXT_REJECTED,
+        (False, True): INVERTED_ROLE,
     },
     # False, False proposed x
-    (False, False) : {
-        (None, None) : DEFAULT_ROLE,
-        (None, True) : DEFAULT_ROLE,
-        (None, False) : DEFAULT_ROLE,
-        (True, None) : DEFAULT_ROLE,
-        (False, None) : DEFAULT_ROLE,
-        (True, True) : CONTEXT_REJECTED,  # Invalid
-        (True, False) : CONTEXT_REJECTED,  # Invalid
-        (False, False) : CONTEXT_REJECTED,
-        (False, True) : CONTEXT_REJECTED,  # Invalid
+    (False, False): {
+        (None, None): DEFAULT_ROLE,
+        (None, True): DEFAULT_ROLE,
+        (None, False): DEFAULT_ROLE,
+        (True, None): DEFAULT_ROLE,
+        (False, None): DEFAULT_ROLE,
+        (True, True): CONTEXT_REJECTED,  # Invalid
+        (True, False): CONTEXT_REJECTED,  # Invalid
+        (False, False): CONTEXT_REJECTED,
+        (False, True): CONTEXT_REJECTED,  # Invalid
     },
 }
 
@@ -158,31 +158,31 @@ class PresentationContext:
     - The association *Requestor* may be SCP only, SCU only or both SCU and
       SCP.
 
-    +---------------------+---------------------+-------------------+----------+
-    | Requestor           | Acceptor            | Outcome           | Notes    |
-    +----------+----------+----------+----------+---------+---------+          |
-    | scu_role | scp_role | scu_role | scp_role | Req.    | Acc.    |          |
-    +==========+==========+==========+==========+=========+=========+==========+
-    | N/A      | N/A      | N/A      | N/A      | SCU     | SCP     | Default  |
-    +----------+----------+----------+----------+---------+---------+----------+
-    | True     | True     | False    | False    | N/A     | N/A     | Rejected |
-    |          |          |          +----------+---------+---------+----------+
-    |          |          |          | True     | SCP     | SCU     |          |
-    |          |          +----------+----------+---------+---------+----------+
-    |          |          | True     | False    | SCU     | SCP     | Default  |
-    |          |          |          +----------+---------+---------+----------+
-    |          |          |          | True     | SCU/SCP | SCU/SCP |          |
-    +----------+----------+----------+----------+---------+---------+----------+
-    | True     | False    | False    | False    | N/A     | N/A     | Rejected |
-    |          |          +----------+          +---------+---------+----------+
-    |          |          | True     |          | SCU     | SCP     | Default  |
-    +----------+----------+----------+----------+---------+---------+----------+
-    | False    | True     | False    | False    | N/A     | N/A     | Rejected |
-    |          |          |          +----------+---------+---------+----------+
-    |          |          |          | True     | SCP     | SCU     |          |
-    +----------+----------+----------+----------+---------+---------+----------+
-    | False    | False    | False    | False    | N/A     | N/A     | Rejected |
-    +----------+----------+----------+----------+---------+---------+----------+
+    +---------------------+---------------------+-------------------+---------+
+    | Requestor           | Acceptor            | Outcome           | Notes   |
+    +----------+----------+----------+----------+---------+---------+         |
+    | scu_role | scp_role | scu_role | scp_role | Req.    | Acc.    |         |
+    +==========+==========+==========+==========+=========+=========+=========+
+    | N/A      | N/A      | N/A      | N/A      | SCU     | SCP     | Default |
+    +----------+----------+----------+----------+---------+---------+---------+
+    | True     | True     | False    | False    | N/A     | N/A     | Rejected|
+    |          |          |          +----------+---------+---------+---------+
+    |          |          |          | True     | SCP     | SCU     |         |
+    |          |          +----------+----------+---------+---------+---------+
+    |          |          | True     | False    | SCU     | SCP     | Default |
+    |          |          |          +----------+---------+---------+---------+
+    |          |          |          | True     | SCU/SCP | SCU/SCP |         |
+    +----------+----------+----------+----------+---------+---------+---------+
+    | True     | False    | False    | False    | N/A     | N/A     | Rejected|
+    |          |          +----------+          +---------+---------+---------+
+    |          |          | True     |          | SCU     | SCP     | Default |
+    +----------+----------+----------+----------+---------+---------+---------+
+    | False    | True     | False    | False    | N/A     | N/A     | Rejected|
+    |          |          |          +----------+---------+---------+---------+
+    |          |          |          | True     | SCP     | SCU     |         |
+    +----------+----------+----------+----------+---------+---------+---------+
+    | False    | False    | False    | False    | N/A     | N/A     | Rejected|
+    +----------+----------+----------+----------+---------+---------+---------+
 
     As can be seen from the above table there are four possible outcomes:
 
@@ -523,7 +523,9 @@ def negotiate_as_acceptor(
     rq_contexts: List[PresentationContext],
     ac_contexts: List[PresentationContext],
     roles: Optional[Dict[UID, Tuple[Optional[bool], Optional[bool]]]] = None
-) -> Tuple[List[PresentationContext], List["SCP_SCU_RoleSelectionNegotiation"]]:
+) -> Tuple[
+    List[PresentationContext], List["SCP_SCU_RoleSelectionNegotiation"]
+]:
     """Process the Presentation Contexts as an Association *Acceptor*.
 
     Parameters
@@ -581,11 +583,11 @@ def negotiate_as_acceptor(
     # Requestor may use the same Abstract Syntax in multiple Presentation
     #   Contexts so we need a more specific key than UID
     requestor_contexts = {
-        (cx.context_id, cx.abstract_syntax):cx for cx in rq_contexts
+        (cx.context_id, cx.abstract_syntax): cx for cx in rq_contexts
     }
     # Acceptor supported SOP Classes must be unique so we can use UID as
     #   the key
-    acceptor_contexts = {cx.abstract_syntax:cx for cx in ac_contexts}
+    acceptor_contexts = {cx.abstract_syntax: cx for cx in ac_contexts}
 
     for (cntx_id, ab_syntax) in requestor_contexts:
         # Convenience variable
@@ -622,7 +624,7 @@ def negotiate_as_acceptor(
                     result_contexts.append(context)
                     break
 
-            ## SCP/SCU Role Selection Negotiation
+            # SCP/SCU Role Selection Negotiation
             #   Only for (provisionally) accepted contexts
             if context.result == 0x00:
                 if None in ac_roles:
@@ -743,10 +745,10 @@ def negotiate_as_requestor(
 
     # Create dicts, indexed by the presentation context ID
     requestor_contexts = {
-        context.context_id:context for context in rq_contexts
+        context.context_id: context for context in rq_contexts
     }
     acceptor_contexts = {
-        context.context_id:context for context in ac_contexts
+        context.context_id: context for context in ac_contexts
     }
 
     for context_id in requestor_contexts:
@@ -769,7 +771,7 @@ def negotiate_as_requestor(
                 context.transfer_syntax = [ac_context.transfer_syntax[0]]
             context.result = ac_context.result
 
-            ## SCP/SCU Role Selection Negotiation
+            # SCP/SCU Role Selection Negotiation
             rq_roles = (rq_context.scu_role, rq_context.scp_role)
             ac_roles: Tuple[Optional[bool], Optional[bool]]
             try:

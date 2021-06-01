@@ -107,7 +107,6 @@ _UserInformationType = List[Union[
 ]]
 
 
-
 class PDUItem:
     """Base class for PDU Items and Sub-items.
 
@@ -378,7 +377,7 @@ class PDUItem:
         return unpacker(bytestream)[0]
 
 
-## A-ASSOCIATE-RQ and -AC items
+# A-ASSOCIATE-RQ and -AC items
 class ApplicationContextItem(PDUItem):
     """An Application Context Item.
 
@@ -942,11 +941,11 @@ class PresentationContextItemAC(PDUItem):
     def result_str(self) -> str:
         """Get a string describing the result."""
         _result = {
-            0 : 'Accepted',
-            1 : 'User Rejection',
-            2 : 'Provider Rejection',
-            3 : 'Rejected - Abstract Syntax Not Supported',
-            4 : 'Rejected - Transfer Syntax Not Supported'
+            0: 'Accepted',
+            1: 'User Rejection',
+            2: 'Provider Rejection',
+            3: 'Rejected - Abstract Syntax Not Supported',
+            4: 'Rejected - Transfer Syntax Not Supported'
         }
         return _result[self.result_reason]  # type: ignore
 
@@ -1257,7 +1256,7 @@ class UserInformationItem(PDUItem):
         return None
 
 
-## Presentation Context Item sub-items
+# Presentation Context Item sub-items
 class AbstractSyntaxSubItem(PDUItem):
     """An Abstract Syntax Sub-item.
 
@@ -1593,7 +1592,7 @@ class TransferSyntaxSubItem(PDUItem):
         self._transfer_syntax_name = value or None
 
 
-## User Information Item sub-items
+# User Information Item sub-items
 class MaximumLengthSubItem(PDUItem):
     """A Maximum Length Sub-item.
 
@@ -3114,7 +3113,8 @@ class SOPClassCommonExtendedNegotiationSubItem(PDUItem):
             f"  SOP class: ={self.sop_class_uid.name}",  # type: ignore
             f"  Service class UID length: "
             f"{self.service_class_uid_length} bytes",
-            f"  Service class UID: ={self.service_class_uid.name}",  # type: ignore
+            "  Service class UID: ="
+            f"{self.service_class_uid.name}",  # type: ignore
             f"  Related general SOP class ID length: "
             f"{self.related_general_sop_class_identification_length} bytes",
             "  Related general SOP class ID(s):"
@@ -3350,11 +3350,11 @@ class UserIdentitySubItemRQ(PDUItem):
     def id_type_str(self) -> str:
         """Return a string description of the *User Identity Type* field."""
         _types = {
-            1 : 'Username',
-            2 : 'Username/Password',
-            3 : 'Kerberos',
-            4 : 'SAML',
-            5 : 'JSON Web Token',
+            1: 'Username',
+            2: 'Username/Password',
+            3: 'Kerberos',
+            4: 'SAML',
+            5: 'JSON Web Token',
         }
 
         return _types[self.user_identity_type]  # type: ignore
@@ -3570,7 +3570,7 @@ class UserIdentitySubItemAC(PDUItem):
         return '\n'.join(s)
 
 
-## P-DATA-TF Item
+# P-DATA-TF Item
 # Overriden item_type
 class PresentationDataValueItem(PDUItem):
     """A Presentation Data Value Item.
@@ -3708,7 +3708,8 @@ class PresentationDataValueItem(PDUItem):
         s.append(f"  Context ID: {self.presentation_context_id}")
 
         pdv_sample = [
-            f"0x{b:02X}" for b in self.presentation_data_value[:10] # type: ignore
+            f"0x{b:02X}" for b
+            in self.presentation_data_value[:10]  # type: ignore
         ]
         s.append(f"  Data value: {' '.join(pdv_sample)} ...")
 
@@ -3717,21 +3718,21 @@ class PresentationDataValueItem(PDUItem):
 
 # PDU items and sub-items, indexed by their type
 PDU_ITEM_TYPES = {
-    0x10 : ApplicationContextItem,
-    0x20 : PresentationContextItemRQ,
-    0x21 : PresentationContextItemAC,
-    0x30 : AbstractSyntaxSubItem,
-    0x40 : TransferSyntaxSubItem,
-    0x50 : UserInformationItem,
-    0x51 : MaximumLengthSubItem,
-    0x52 : ImplementationClassUIDSubItem,
-    0x53 : AsynchronousOperationsWindowSubItem,
-    0x54 : SCP_SCU_RoleSelectionSubItem,
-    0x55 : ImplementationVersionNameSubItem,
-    0x56 : SOPClassExtendedNegotiationSubItem,
-    0x57 : SOPClassCommonExtendedNegotiationSubItem,
-    0x58 : UserIdentitySubItemRQ,
-    0x59 : UserIdentitySubItemAC
+    0x10: ApplicationContextItem,
+    0x20: PresentationContextItemRQ,
+    0x21: PresentationContextItemAC,
+    0x30: AbstractSyntaxSubItem,
+    0x40: TransferSyntaxSubItem,
+    0x50: UserInformationItem,
+    0x51: MaximumLengthSubItem,
+    0x52: ImplementationClassUIDSubItem,
+    0x53: AsynchronousOperationsWindowSubItem,
+    0x54: SCP_SCU_RoleSelectionSubItem,
+    0x55: ImplementationVersionNameSubItem,
+    0x56: SOPClassExtendedNegotiationSubItem,
+    0x57: SOPClassCommonExtendedNegotiationSubItem,
+    0x58: UserIdentitySubItemRQ,
+    0x59: UserIdentitySubItemAC
 }
 
 _TYPE_TO_PDU_ITEM = {vv: kk for kk, vv in PDU_ITEM_TYPES.items()}
