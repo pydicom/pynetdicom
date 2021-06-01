@@ -2,7 +2,7 @@
 
 import logging
 from struct import unpack, calcsize
-from typing import TYPE_CHECKING, List, Optional
+from typing import TYPE_CHECKING, List, Optional, cast
 
 from pydicom.uid import UID
 
@@ -21,10 +21,7 @@ if TYPE_CHECKING:  # pragma: no cover
         A_RELEASE_RQ, A_RELEASE_RP, P_DATA_TF
     )
     from pynetdicom.pdu_items import (
-        UserInformationItem, UserIdentitySubItemAC, UserIdentitySubItemRQ
-    )
-    from pynetdicom.dimse_messages import (
-        DIMSEMessage
+        UserInformationItem, UserIdentitySubItemRQ
     )
 
 
@@ -361,11 +358,11 @@ def _receive_associate_ac(event: "Event") -> List[str]:
     """Standard logging handler for receiving an A-ASSOCIATE-AC PDU."""
     assoc_ac = cast("A_ASSOCIATE_AC", event.pdu)
 
-    app_context = cast(UID, assoc_ac.application_context_name).name
+    app_context = cast(UID, assoc_ac.application_context_name)
     pres_contexts = sorted(
         assoc_ac.presentation_context, key=lambda x: cast(int, x.context_id)
     )
-    user_info = cast(UserInformationItem, assoc_ac.user_information)
+    user_info = cast("UserInformationItem", assoc_ac.user_information)
     async_ops = user_info.async_ops_window
     roles = user_info.role_selection
 
@@ -473,11 +470,11 @@ def _receive_associate_rq(event: "Event") -> List[str]:
     """Standard logging handler for receiving an A-ASSOCIATE-RQ PDU."""
     pdu = cast("A_ASSOCIATE_RQ", event.pdu)
 
-    app_context = cast(UID, pdu.application_context_name).name
+    app_context = cast(UID, pdu.application_context_name)
     pres_contexts = sorted(
         pdu.presentation_context, key=lambda x: cast(int, x.context_id)
     )
-    user_info = cast(UserInformationItem, pdu.user_information)
+    user_info = cast("UserInformationItem", pdu.user_information)
 
     their_class_uid: Union[str, UID] = "unknown"
     their_version: Union[str, bytes] = b"unknown"
@@ -582,7 +579,7 @@ def _receive_associate_rq(event: "Event") -> List[str]:
 
     # User Identity
     if user_info.user_identity is not None:
-        usid = cast(UserIdentitySubItemRQ, user_info.user_identity)
+        usid = cast("UserIdentitySubItemRQ", user_info.user_identity)
         primary = cast(bytes, usid.primary)
         p_len = len(primary)
         s.append("Requested User Identity Negotiation:")
@@ -649,9 +646,9 @@ def _send_associate_ac(event: "Event") -> List[str]:
     }
 
     # Needs some cleanup
-    app_context = cast(UID, assoc_ac.application_context_name).name
+    app_context = cast(UID, assoc_ac.application_context_name)
     pres_contexts = assoc_ac.presentation_context
-    user_info = cast(UserInformationItem, assoc_ac.user_information)
+    user_info = cast("UserInformationItem", assoc_ac.user_information)
     async_ops = user_info.async_ops_window
     roles = user_info.role_selection
 
@@ -750,9 +747,9 @@ def _send_associate_rq(event: "Event") -> List[str]:
     """Standard logging handler for sending an A-ASSOCIATE-RQ PDU."""
     pdu = cast("A_ASSOCIATE_RQ", event.pdu)
 
-    app_context = cast(UID, pdu.application_context_name).name
+    app_context = cast(UID, pdu.application_context_name)
     pres_contexts = pdu.presentation_context
-    user_info = cast(UserInformationItem, pdu.user_information)
+    user_info = cast("UserInformationItem", pdu.user_information)
     class_uid = user_info.implementation_class_uid
 
     s = [
@@ -851,7 +848,7 @@ def _send_associate_rq(event: "Event") -> List[str]:
 
     # User Identity
     if user_info.user_identity is not None:
-        usid = cast(UserIdentitySubItemRQ, user_info.user_identity)
+        usid = cast("UserIdentitySubItemRQ", user_info.user_identity)
         primary = cast(bytes, usid.primary)
         p_len = len(primary)
         s.append("Requested User Identity Negotiation:")

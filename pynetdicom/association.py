@@ -23,7 +23,7 @@ from pynetdicom.dimse import DIMSEServiceProvider
 from pynetdicom.dimse_primitives import (
     C_ECHO, C_MOVE, C_STORE, C_GET, C_FIND, C_CANCEL,
     N_EVENT_REPORT, N_GET, N_SET, N_CREATE, N_ACTION, N_DELETE,
-    DIMSEPrimitive, DimseServiceType
+    DimseServiceType
 )
 from pynetdicom.dsutils import decode, encode, pretty_dataset, split_dataset
 from pynetdicom.dul import DULServiceProvider
@@ -60,7 +60,6 @@ from pynetdicom.utils import make_target, set_timer_resolution
 
 if TYPE_CHECKING:  # pragma: no cover
     from pynetdicom.ae import ApplicationEntity
-    from pynetdicom.dimse_messages import DIMSEMessage
     from pynetdicom.transport import AssociationServer, AssociationSocket
 
 

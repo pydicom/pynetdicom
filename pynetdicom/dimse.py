@@ -20,7 +20,7 @@ from pynetdicom.dimse_messages import (
 from pynetdicom.dimse_primitives import (
     C_STORE, C_FIND, C_GET, C_MOVE, C_ECHO, C_CANCEL,
     N_EVENT_REPORT, N_GET, N_SET, N_ACTION, N_CREATE, N_DELETE,
-    DimsePrimitiveType, DIMSEPrimitive, DimseServiceType
+    DimsePrimitiveType, DimseServiceType
 )
 from pynetdicom.utils import make_target
 
