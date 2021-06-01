@@ -22,7 +22,8 @@ from pynetdicom import _config, evt
 from pynetdicom.dimse import DIMSEServiceProvider
 from pynetdicom.dimse_primitives import (
     C_ECHO, C_MOVE, C_STORE, C_GET, C_FIND, C_CANCEL,
-    N_EVENT_REPORT, N_GET, N_SET, N_CREATE, N_ACTION, N_DELETE
+    N_EVENT_REPORT, N_GET, N_SET, N_CREATE, N_ACTION, N_DELETE,
+    DIMSEPrimitive, DimseServiceType
 )
 from pynetdicom.dsutils import decode, encode, pretty_dataset, split_dataset
 from pynetdicom.dul import DULServiceProvider
@@ -59,6 +60,7 @@ from pynetdicom.utils import make_target, set_timer_resolution
 
 if TYPE_CHECKING:  # pragma: no cover
     from pynetdicom.ae import ApplicationEntity
+    from pynetdicom.dimse_messages import DIMSEMessage
     from pynetdicom.transport import AssociationServer, AssociationSocket
 
 
@@ -132,7 +134,7 @@ class Association(threading.Thread):
         # Service providers
         self.acse = ACSE(self)
         self.dul: DULServiceProvider = DULServiceProvider(self)
-        self.dimse = DIMSEServiceProvider(self)
+        self.dimse: DIMSEServiceProvider = DIMSEServiceProvider(self)
 
         # Timeouts (in seconds), needs to be set after DUL init
         self.acse_timeout: Optional[float] = self.ae.acse_timeout
@@ -245,21 +247,7 @@ class Association(threading.Thread):
         """
         # Make sure no access to `_handlers` while its being changed
         with self.lock:
-            # Notification events - multiple handlers allowed
-            if event.is_notification:
-                if event not in self._handlers:
-                    self._handlers[event] = []
-
-                handlers = cast(
-                    List[Tuple[Callable, Optional[List[Any]]]],
-                    self._handlers[event]
-                )
-                if (handler, args) not in handlers:
-                    handlers.append((handler, args))
-
-            # Intervention events - only one handler allowed
-            if event.is_intervention:
-                self._handlers[event] = (handler, args)
+            evt._add_handler(event, self._handlers, (handler, args))
 
     def _bind_defaults(self) -> None:
         """Bind the default event handlers."""
@@ -275,7 +263,7 @@ class Association(threading.Thread):
             self.bind(evt.EVT_PDU_RECV, standard_pdu_recv_handler)
             self.bind(evt.EVT_PDU_SENT, standard_pdu_sent_handler)
 
-    def _check_received_status(self, rsp) -> Dataset:
+    def _check_received_status(self, rsp: DimseServiceType) -> Dataset:
         """Return a :class:`~pydicom.dataset.Dataset` containing status
         related elements.
 
@@ -330,7 +318,7 @@ class Association(threading.Thread):
         """
         return sorted(self._handlers.keys(), key=lambda x: x.name)
 
-    def get_handlers(self, event: evt.EventType):
+    def get_handlers(self, event: evt.EventType) -> evt.HandlerArgType:
         """Return the handlers bound to a specific `event`.
 
         .. versionadded:: 1.3
@@ -778,31 +766,9 @@ class Association(threading.Thread):
         handler : callable
             The function that will no longer be called if the event occurs.
         """
-        if event not in self._handlers:
-            return
-
         # Make sure no access to `_handlers` while its being changed
         with self.lock:
-
-            # Notification events
-            if event.is_notification:
-                handlers = cast(
-                    List[Tuple[Callable, Optional[List[Any]]]],
-                    self._handlers[event]
-                )
-                funcs = [hh[0] for hh in handlers]
-                try:
-                    ii = funcs.index(handler)
-                    del handlers[ii]
-                except ValueError:
-                    pass
-
-                if not self._handlers[event]:
-                    del self._handlers[event]
-
-            # Intervention events - unbind and replace with default
-            if event.is_intervention and handler in self._handlers[event]:
-                self._handlers[event] = (evt.get_default_handler(event), None)
+            evt._remove_handler(event, self._handlers, handler)
 
     # DIMSE-C services provided by the Association
     def _c_store_scp(self, req: C_STORE) -> None:
@@ -2342,7 +2308,7 @@ class Association(threading.Thread):
             if category not in [STATUS_WARNING, STATUS_SUCCESS]:
                 return status, action_reply
 
-            b: BytesIO = rsp.ActionReply  # type: ignore[attr-defined]
+            b: BytesIO = rsp.ActionReply  # type: ignore
             if b and b.getvalue() != b'':
                 # Attempt to decode the response's dataset
                 # pylint: disable=broad-except
@@ -2586,7 +2552,7 @@ class Association(threading.Thread):
             if category not in [STATUS_WARNING, STATUS_SUCCESS]:
                 return status, attribute_list
 
-            b: BytesIO = rsp.AttributeList  # type: ignore[attr-defined]
+            b: BytesIO = rsp.AttributeList  # type: ignore
             if b and b.getvalue() != b'':
                 # Attempt to decode the response's dataset
                 # pylint: disable=broad-except
@@ -2927,7 +2893,7 @@ class Association(threading.Thread):
             if category not in [STATUS_WARNING, STATUS_SUCCESS]:
                 return status, event_reply
 
-            b: BytesIO = rsp.EventReply  # type: ignore[attr-defined]
+            b: BytesIO = rsp.EventReply  # type: ignore
             if b and b.getvalue() != b'':
                 # Attempt to decode the response's dataset
                 # pylint: disable=broad-except
@@ -3142,7 +3108,7 @@ class Association(threading.Thread):
             if category not in [STATUS_WARNING, STATUS_SUCCESS]:
                 return status, attribute_list
 
-            b: BytesIO = rsp.AttributeList  # type: ignore[attr-defined]
+            b: BytesIO = rsp.AttributeList  # type: ignore
             if b and b.getvalue() != b'':
                 # Attempt to decode the response's dataset
                 # pylint: disable=broad-except
@@ -3399,7 +3365,7 @@ class Association(threading.Thread):
             if category not in [STATUS_WARNING, STATUS_SUCCESS]:
                 return status, attribute_list
 
-            b: BytesIO = rsp.AttributeList  # type: ignore[attr-defined]
+            b: BytesIO = rsp.AttributeList  # type: ignore
             if b and b.getvalue() != b'':
                 # Attempt to decode the response's dataset
                 # pylint: disable=broad-except
@@ -3424,7 +3390,7 @@ class Association(threading.Thread):
 
         return status, attribute_list
 
-    def _serve_request(self, msg, context_id: int) -> None:
+    def _serve_request(self, msg: DimseServiceType, context_id: int) -> None:
         """Handle a DIMSE service request.
 
         Parameters
@@ -3447,10 +3413,10 @@ class Association(threading.Thread):
         class_uid: Union[str, UID] = ''
         if getattr(msg, 'AffectedSOPClassUID', None) is not None:
             # DIMSE-C, N-EVENT-REPORT, N-CREATE use AffectedSOPClassUID
-            class_uid = msg.AffectedSOPClassUID
+            class_uid = cast(UID, msg.AffectedSOPClassUID)
         elif getattr(msg, 'RequestedSOPClassUID', None) is not None:
             # N-GET, N-SET, N-ACTION, N-DELETE use RequestedSOPClassUID
-            class_uid = msg.RequestedSOPClassUID
+            class_uid = msg.RequestedSOPClassUID  # type: ignore
 
         # SOP Class Common Extended Negotiation
         class_uid = cast(UID, class_uid)

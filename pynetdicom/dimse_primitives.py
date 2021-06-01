@@ -32,8 +32,7 @@ if TYPE_CHECKING:  # pragma: no cover
 LOGGER = logging.getLogger('pynetdicom.dimse_primitives')
 
 
-DimsePrimitiveType = Union[
-    "C_CANCEL",
+DimseServiceType = Union[
     "C_ECHO",
     "C_FIND",
     "C_GET",
@@ -46,6 +45,7 @@ DimsePrimitiveType = Union[
     "N_GET",
     "N_SET"
 ]
+DimsePrimitiveType = Union["C_CANCEL", DimseServiceType]
 
 
 # pylint: disable=invalid-name
@@ -1438,7 +1438,7 @@ class N_EVENT_REPORT(DIMSEPrimitive):
         return self._dataset_variant
 
     @EventReply.setter
-    def EventReply(self, value: Optional[BytesIO]):
+    def EventReply(self, value: Optional[BytesIO]) -> None:
         """Set the *Event Reply*.
 
         Parameters

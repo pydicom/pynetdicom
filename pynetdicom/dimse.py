@@ -20,7 +20,7 @@ from pynetdicom.dimse_messages import (
 from pynetdicom.dimse_primitives import (
     C_STORE, C_FIND, C_GET, C_MOVE, C_ECHO, C_CANCEL,
     N_EVENT_REPORT, N_GET, N_SET, N_ACTION, N_CREATE, N_DELETE,
-    DimsePrimitiveType
+    DimsePrimitiveType, DIMSEPrimitive, DimseServiceType
 )
 from pynetdicom.utils import make_target
 
@@ -59,6 +59,8 @@ _RSP_TO_MESSAGE = {
     N_CREATE: N_CREATE_RSP,
     N_DELETE: N_DELETE_RSP
 }
+
+_QueueItem = Union[Tuple[None, None], Tuple[int, DimseServiceType]]
 
 
 class DIMSEServiceProvider:
@@ -153,7 +155,7 @@ class DIMSEServiceProvider:
 
         self.cancel_req: Dict[int, C_CANCEL] = {}
         self.message: Optional[DIMSEMessage] = None
-        self.msg_queue: "queue.Queue[Tuple[int, DIMSEMessage]]" = queue.Queue()
+        self.msg_queue: "queue.Queue[_QueueItem]" = queue.Queue()
 
     @property
     def assoc(self) -> "Association":
@@ -175,7 +177,7 @@ class DIMSEServiceProvider:
 
     def get_msg(
         self, block: bool = False
-    ) -> Union[Tuple[int, DIMSEMessage], Tuple[None, None]]:
+    ) -> _QueueItem:
         """Get the next available DIMSE message.
 
         .. versionadded:: 1.2
@@ -214,7 +216,7 @@ class DIMSEServiceProvider:
 
         return cast(int, self.assoc.requestor.maximum_length)
 
-    def peek_msg(self) -> Union[Tuple[int, DIMSEMessage], Tuple[None, None]]:
+    def peek_msg(self) -> _QueueItem:
         """Return the first message in the message queue or ``None``.
 
         .. versionadded:: 1.2
@@ -227,7 +229,7 @@ class DIMSEServiceProvider:
             of the queue.
         """
         try:
-            return cast(Tuple[int, DIMSEMessage], self.msg_queue.queue[0])
+            return cast(_QueueItem, self.msg_queue.queue[0])
         except (queue.Empty, IndexError):
             return None, None
 
@@ -285,7 +287,7 @@ class DIMSEServiceProvider:
                 t.start()
             else:
                 self.msg_queue.put(
-                    (context_id, cast(DIMSEMessage, d_primitive))
+                    (context_id, cast(DimseServiceType, d_primitive))
                 )
 
             # Fix for memory leak, Issue #41

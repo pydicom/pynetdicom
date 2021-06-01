@@ -113,7 +113,6 @@ class ACSE:
             the accepted SOP Class Common Extended negotiation items.
         """
         # pylint: disable=broad-except
-        rsp: Dict[UID, SOPClassCommonExtendedNegotiation]
         try:
             rsp = evt.trigger(
                 self.assoc,
@@ -126,6 +125,8 @@ class ACSE:
             )
             LOGGER.exception(exc)
             return {}
+
+        rsp = cast(Dict[UID, SOPClassCommonExtendedNegotiation], rsp)
 
         try:
             rsp = {
@@ -210,7 +211,7 @@ class ACSE:
             return True, None
 
         try:
-            identity_verified, response = evt.trigger(
+            rsp = evt.trigger(
                 self.assoc,
                 evt.EVT_USER_ID,
                 {
@@ -229,6 +230,8 @@ class ACSE:
             LOGGER.error("Exception in handler bound to 'evt.EVT_USER_ID'")
             LOGGER.exception(exc)
             return False, None
+
+        identity_verified, response = cast(Tuple[bool, Optional[bytes]], rsp)
 
         if not identity_verified:
             # Reject association as the user isn't authorised

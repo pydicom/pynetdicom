@@ -315,6 +315,8 @@ class DULServiceProvider(Thread):
             LOGGER.exception(exc)
             # Evt19: Unrecognised or invalid PDU received
             self.event_queue.put('Evt19')
+            self.pdu = None
+            self.primitive = None
             return
 
         self.pdu = pdu

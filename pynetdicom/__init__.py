@@ -71,7 +71,7 @@ from pynetdicom.presentation import (
 logging.getLogger('pynetdicom').addHandler(logging.NullHandler())
 
 
-def debug_logger():
+def debug_logger() -> None:
     """Setup the logging for debugging."""
     logger = logging.getLogger('pynetdicom')
     # Ensure only have one StreamHandler
