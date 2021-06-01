@@ -274,8 +274,6 @@ class TestApplicationContext:
         assert item.item_length == 21
         assert len(item) == 25
         assert item.application_context_name == UID('1.2.840.10008.3.1.1.1')
-        item.application_context_name = None
-        assert item.application_context_name is None
 
     def test_uid_conformance(self):
         """Test the UID conformance with ENFORCE_UID_CONFORMANCE."""
@@ -658,6 +656,8 @@ class TestAbstractSyntax:
         assert len(item) == 4
         assert item.abstract_syntax_name is None
         assert item.abstract_syntax is None
+        item.abstract_syntax_name = None
+        assert item.abstract_syntax_name is None
 
     def test_uid_conformance(self):
         """Test the UID conformance with ENFORCE_UID_CONFORMANCE."""
@@ -2155,8 +2155,8 @@ class TestUserInformation_ExtendedNegotiation:
         assert item.service_class_application_information is None
 
         assert item.app_info is None
-        item.uid = None
-        assert item.uid is None
+        item.sop_class_uid = None
+        assert item.sop_class_uid is None
 
     def test_string_output(self):
         """Test the string output"""

@@ -633,8 +633,6 @@ class TestAEGoodMiscSetters:
     def test_implementation(self):
         """Check the implementation version name and class UID setters"""
         ae = AE()
-        ae.implementation_class_uid = None
-        assert ae.implementation_class_uid is None
         ae.implementation_version_name = None
         assert ae.implementation_version_name is None
 
