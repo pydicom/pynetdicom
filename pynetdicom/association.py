@@ -1816,8 +1816,8 @@ class Association(threading.Thread):
                         f"{','.join(missing)}"
                     )
 
-                sop_class = file_meta.MediaStorageSOPClassUID
-                sop_instance = file_meta.MediaStorageSOPInstanceUID
+                sop_class = cast(UID, file_meta.MediaStorageSOPClassUID)
+                sop_instance = cast(UID, file_meta.MediaStorageSOPInstanceUID)
                 tsyntax = file_meta.TransferSyntaxUID
 
         if dataset:

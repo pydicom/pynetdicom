@@ -333,7 +333,9 @@ class DIMSEMessage:
 
                     # Determine which DIMSE Message class to use
                     self.__class__ = (
-                        _MESSAGE_TYPES[self.command_set.CommandField][1]
+                        _MESSAGE_TYPES[
+                            cast(int, self.command_set.CommandField)
+                        ][1]
                     )
 
                     # Determine if a Data Set is present by checking for
