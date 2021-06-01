@@ -2,18 +2,15 @@
 the state machine events.
 """
 
-from collections import namedtuple
 from datetime import datetime
 import inspect
-from io import BytesIO
 import logging
 import sys
-from typing import Union, Callable, Any, Optional, Tuple, List
+from typing import Union, Callable, Any, Tuple, List, NamedTuple
 
 from pydicom.dataset import Dataset
 from pydicom.filereader import dcmread
 
-from pynetdicom import _config
 from pynetdicom.dsutils import decode, create_file_meta
 
 
@@ -26,87 +23,95 @@ EventHandlerType = Union[
     Tuple[EventType, Callable, List[Any]]
 ]
 
+
 # Notification events
 #   No returns/yields needed, can have multiple handlers per event
-NotificationEvent = namedtuple('NotificationEvent', ['name', 'description'])
-"""Representation of a notification event.
+class NotificationEvent(NamedTuple):
+    """Representation of a notification event.
 
-.. versionadded:: 1.3
+    .. versionadded:: 1.3
 
-Possible notification events are:
+    Possible notification events are:
 
-* :class:`EVT_ABORTED`
-* :class:`EVT_ACCEPTED`
-* :class:`EVT_ACSE_RECV`
-* :class:`EVT_ACSE_SENT`
-* :class:`EVT_CONN_CLOSE`
-* :class:`EVT_CONN_OPEN`
-* :class:`EVT_DATA_RECV`
-* :class:`EVT_DATA_SENT`
-* :class:`EVT_DIMSE_RECV`
-* :class:`EVT_DIMSE_SENT`
-* :class:`EVT_ESTABLISHED`
-* :class:`EVT_FSM_TRANSITION`
-* :class:`EVT_PDU_RECV`
-* :class:`EVT_PDU_SENT`
-* :class:`EVT_REJECTED`
-* :class:`EVT_RELEASED`
-* :class:`EVT_REQUESTED`
-"""
-NotificationEvent.is_intervention = False
-NotificationEvent.is_notification = True
+    * :class:`EVT_ABORTED`
+    * :class:`EVT_ACCEPTED`
+    * :class:`EVT_ACSE_RECV`
+    * :class:`EVT_ACSE_SENT`
+    * :class:`EVT_CONN_CLOSE`
+    * :class:`EVT_CONN_OPEN`
+    * :class:`EVT_DATA_RECV`
+    * :class:`EVT_DATA_SENT`
+    * :class:`EVT_DIMSE_RECV`
+    * :class:`EVT_DIMSE_SENT`
+    * :class:`EVT_ESTABLISHED`
+    * :class:`EVT_FSM_TRANSITION`
+    * :class:`EVT_PDU_RECV`
+    * :class:`EVT_PDU_SENT`
+    * :class:`EVT_REJECTED`
+    * :class:`EVT_RELEASED`
+    * :class:`EVT_REQUESTED`
+    """
+    name: str
+    description: str
+    is_intervention: bool = False
+    is_notification: bool = True
+
 
 # pylint: disable=line-too-long
 EVT_ABORTED = NotificationEvent("EVT_ABORTED", "Association aborted")
-EVT_ACCEPTED = NotificationEvent("EVT_ACCEPTED", "Association request accepted")
-EVT_ACSE_RECV = NotificationEvent("EVT_ACSE_RECV", "ACSE primitive received from DUL")
-EVT_ACSE_SENT = NotificationEvent("EVT_ACSE_SENT", "ACSE primitive sent to DUL")
+EVT_ACCEPTED = NotificationEvent("EVT_ACCEPTED", "Association request accepted")  # noqa
+EVT_ACSE_RECV = NotificationEvent("EVT_ACSE_RECV", "ACSE primitive received from DUL")  # noqa
+EVT_ACSE_SENT = NotificationEvent("EVT_ACSE_SENT", "ACSE primitive sent to DUL")  # noqa
 EVT_CONN_CLOSE = NotificationEvent("EVT_CONN_CLOSE", "Connection closed")
 EVT_CONN_OPEN = NotificationEvent("EVT_CONN_OPEN", "Connection opened")
-EVT_DATA_RECV = NotificationEvent("EVT_DATA_RECV", "PDU data received from remote")
+EVT_DATA_RECV = NotificationEvent("EVT_DATA_RECV", "PDU data received from remote")  # noqa
 EVT_DATA_SENT = NotificationEvent("EVT_DATA_SENT", "PDU data sent to remote")
-EVT_DIMSE_RECV = NotificationEvent("EVT_DIMSE_RECV", "Complete DIMSE message received and decoded")
-EVT_DIMSE_SENT = NotificationEvent("EVT_DIMSE_SENT", "DIMSE message encoded and P-DATA primitives sent to DUL")
-EVT_ESTABLISHED = NotificationEvent("EVT_ESTABLISHED", "Association established")
-EVT_FSM_TRANSITION = NotificationEvent("EVT_FSM_TRANSITION", "State machine about to transition")
+EVT_DIMSE_RECV = NotificationEvent("EVT_DIMSE_RECV", "Complete DIMSE message received and decoded")  # noqa
+EVT_DIMSE_SENT = NotificationEvent("EVT_DIMSE_SENT", "DIMSE message encoded and P-DATA primitives sent to DUL")  # noqa
+EVT_ESTABLISHED = NotificationEvent("EVT_ESTABLISHED", "Association established")  # noqa
+EVT_FSM_TRANSITION = NotificationEvent("EVT_FSM_TRANSITION", "State machine about to transition")  # noqa
 EVT_PDU_RECV = NotificationEvent("EVT_PDU_RECV", "PDU received and decoded")
 EVT_PDU_SENT = NotificationEvent("EVT_PDU_SENT", "PDU encoded and sent")
-EVT_REJECTED = NotificationEvent("EVT_REJECTED", "Association request rejected")
+EVT_REJECTED = NotificationEvent("EVT_REJECTED", "Association request rejected")  # noqa
 EVT_RELEASED = NotificationEvent("EVT_RELEASED", "Association released")
 EVT_REQUESTED = NotificationEvent("EVT_REQUESTED", "Association requested")
 
+
 # Intervention events
 #   Returns/yields needed if bound, can only have one handler per event
-InterventionEvent = namedtuple('InterventionEvent', ['name', 'description'])
-"""Representation of an intervention event.
+class InterventionEvent(NamedTuple):
+    """Representation of an intervention event.
 
-.. versionadded:: 1.3
+    .. versionadded:: 1.3
 
-Possible intervention events are:
+    Possible intervention events are:
 
-* :class:`EVT_ASYNC_OPS`
-* :class:`EVT_SOP_COMMON`
-* :class:`EVT_SOP_EXTENDED`
-* :class:`EVT_USER_ID`
-* :class:`EVT_C_ECHO`
-* :class:`EVT_C_FIND`
-* :class:`EVT_C_GET`
-* :class:`EVT_C_MOVE`
-* :class:`EVT_C_STORE`
-* :class:`EVT_N_ACTION`
-* :class:`EVT_N_CREATE`
-* :class:`EVT_N_DELETE`
-* :class:`EVT_N_EVENT_REPORT`
-* :class:`EVT_N_GET`
-* :class:`EVT_N_SET`
-"""
-InterventionEvent.is_intervention = True
-InterventionEvent.is_notification = False
+    * :class:`EVT_ASYNC_OPS`
+    * :class:`EVT_SOP_COMMON`
+    * :class:`EVT_SOP_EXTENDED`
+    * :class:`EVT_USER_ID`
+    * :class:`EVT_C_ECHO`
+    * :class:`EVT_C_FIND`
+    * :class:`EVT_C_GET`
+    * :class:`EVT_C_MOVE`
+    * :class:`EVT_C_STORE`
+    * :class:`EVT_N_ACTION`
+    * :class:`EVT_N_CREATE`
+    * :class:`EVT_N_DELETE`
+    * :class:`EVT_N_EVENT_REPORT`
+    * :class:`EVT_N_GET`
+    * :class:`EVT_N_SET`
+    """
+    name: str
+    description: str
+    is_intervention: bool = True
+    is_notification: bool = False
 
-EVT_ASYNC_OPS = InterventionEvent("EVT_ASYNC_OPS", "Asynchronous operations negotiation requested")
-EVT_SOP_COMMON = InterventionEvent("EVT_SOP_COMMON", "SOP class common extended negotiation requested")
-EVT_SOP_EXTENDED = InterventionEvent("EVT_SOP_EXTENDED", "SOP class extended negotiation requested")
-EVT_USER_ID = InterventionEvent("EVT_USER_ID", "User identity negotiation requested")
+
+EVT_ASYNC_OPS = InterventionEvent("EVT_ASYNC_OPS", "Asynchronous operations negotiation requested")  # noqa
+EVT_SOP_COMMON = InterventionEvent("EVT_SOP_COMMON", "SOP class common extended negotiation requested")  # noqa
+EVT_SOP_EXTENDED = InterventionEvent("EVT_SOP_EXTENDED", "SOP class extended negotiation requested")  # noqa
+EVT_USER_ID = InterventionEvent("EVT_USER_ID", "User identity negotiation requested")  # noqa
 EVT_C_ECHO = InterventionEvent("EVT_C_ECHO", "C-ECHO request received")
 EVT_C_FIND = InterventionEvent("EVT_C_FIND", "C-FIND request received")
 EVT_C_GET = InterventionEvent("EVT_C_GET", "C-GET request received")
@@ -115,7 +120,7 @@ EVT_C_STORE = InterventionEvent("EVT_C_STORE", "C-STORE request received")
 EVT_N_ACTION = InterventionEvent("EVT_N_ACTION", "N-ACTION request received")
 EVT_N_CREATE = InterventionEvent("EVT_N_CREATE", "N-CREATE request received")
 EVT_N_DELETE = InterventionEvent("EVT_N_DELETE", "N-DELETE request received")
-EVT_N_EVENT_REPORT = InterventionEvent("EVT_N_EVENT_REPORT", "N-EVENT-REPORT request received")
+EVT_N_EVENT_REPORT = InterventionEvent("EVT_N_EVENT_REPORT", "N-EVENT-REPORT request received")  # noqa
 EVT_N_GET = InterventionEvent("EVT_N_GET", "N-GET request received")
 EVT_N_SET = InterventionEvent("EVT_N_SET", "N-SET request received")
 # pylint: enable=line-too-long
@@ -138,21 +143,21 @@ def get_default_handler(event):
     .. versionadded:: 1.3
     """
     handlers = {
-        EVT_ASYNC_OPS : _async_ops_handler,
-        EVT_SOP_COMMON : _sop_common_handler,
-        EVT_SOP_EXTENDED : _sop_extended_handler,
-        EVT_USER_ID : _user_identity_handler,
-        EVT_C_ECHO : _c_echo_handler,
-        EVT_C_FIND : _c_find_handler,
-        EVT_C_GET : _c_get_handler,
-        EVT_C_MOVE : _c_move_handler,
-        EVT_C_STORE : _c_store_handler,
-        EVT_N_ACTION : _n_action_handler,
-        EVT_N_CREATE : _n_create_handler,
-        EVT_N_DELETE : _n_delete_handler,
-        EVT_N_EVENT_REPORT : _n_event_report_handler,
-        EVT_N_GET : _n_get_handler,
-        EVT_N_SET : _n_set_handler,
+        EVT_ASYNC_OPS: _async_ops_handler,
+        EVT_SOP_COMMON: _sop_common_handler,
+        EVT_SOP_EXTENDED: _sop_extended_handler,
+        EVT_USER_ID: _user_identity_handler,
+        EVT_C_ECHO: _c_echo_handler,
+        EVT_C_FIND: _c_find_handler,
+        EVT_C_GET: _c_get_handler,
+        EVT_C_MOVE: _c_move_handler,
+        EVT_C_STORE: _c_store_handler,
+        EVT_N_ACTION: _n_action_handler,
+        EVT_N_CREATE: _n_create_handler,
+        EVT_N_DELETE: _n_delete_handler,
+        EVT_N_EVENT_REPORT: _n_event_report_handler,
+        EVT_N_GET: _n_get_handler,
+        EVT_N_SET: _n_set_handler,
     }
     return handlers[event]
 

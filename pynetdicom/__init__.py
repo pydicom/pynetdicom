@@ -15,13 +15,13 @@ The UID root used by *pynetdicom*.
 """
 
 # Encoded as SH, 16 bytes maximum
-PYNETDICOM_IMPLEMENTATION_VERSION = (
+PYNETDICOM_IMPLEMENTATION_VERSION: str = (
     'PYNETDICOM_' + ''.join([str(ii) for ii in __version_info__['release']])
 )
 """The (0002,0013) *Implementation Version Name* used by *pynetdicom*"""
 assert 1 <= len(PYNETDICOM_IMPLEMENTATION_VERSION) <= 16
 
-PYNETDICOM_IMPLEMENTATION_UID = UID(
+PYNETDICOM_IMPLEMENTATION_UID: UID = UID(
     PYNETDICOM_UID_PREFIX + '.'.join(
         [str(ii) for ii in __version_info__['release']]
     )

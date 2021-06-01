@@ -1,8 +1,9 @@
 """Implementation of the Presentation service."""
 
-from collections import namedtuple
 import logging
-from typing import Union, Optional, List, Any
+from typing import (
+    Union, Optional, List, Any, TYPE_CHECKING, NamedTuple, cast, Dict, Tuple
+)
 
 from pydicom.uid import UID
 
@@ -33,82 +34,90 @@ from pynetdicom.sop_class import (
 )
 from pynetdicom.utils import validate_uid
 
+if TYPE_CHECKING:  # pragma: no cover
+    from pynetdicom.pdu_primitives import SCP_SCU_RoleSelectionNegotiation
+
 
 LOGGER = logging.getLogger('pynetdicom.presentation')
 
 
 # Used with the event handlers to give the users access to the context
-PresentationContextTuple = namedtuple(
-    'PresentationContextTuple',
-    ['context_id', 'abstract_syntax', 'transfer_syntax']
-)
-""":func:`namedtuple<collections.namedtuple>` representation of an accepted
-:class:`PresentationContext`.
-"""
+class PresentationContextTuple(NamedTuple):
+    """:func:`namedtuple<collections.namedtuple>` representation of an accepted
+    :class:`PresentationContext`.
+    """
+    context_id: int
+    abstract_syntax: UID
+    transfer_syntax: UID
 
 
 DEFAULT_ROLE = (True, False, False, True)
 BOTH_SCU_SCP_ROLE = (True, True, True, True)
 CONTEXT_REJECTED = (False, False, False, False)
 INVERTED_ROLE = (False, True, True, False)
-SCP_SCU_ROLES = {
+_RoleType = Dict[
+    Tuple[Optional[bool], Optional[bool]], Dict[
+        Tuple[Optional[bool], Optional[bool]], Tuple[bool, bool, bool, bool]
+    ]
+]
+SCP_SCU_ROLES: _RoleType = {
     # (Requestor role, Acceptor role) : Outcome
     # No SCP/SCU Role Selection proposed
-    (None, None) : {
-        (None, None) : DEFAULT_ROLE,
-        (None, True) : DEFAULT_ROLE,
-        (None, False) : DEFAULT_ROLE,
-        (True, None) : DEFAULT_ROLE,
-        (False, None) : DEFAULT_ROLE,
-        (True, True) : DEFAULT_ROLE,
-        (True, False) : DEFAULT_ROLE,
-        (False, False) : DEFAULT_ROLE,
-        (False, True) : DEFAULT_ROLE,
+    (None, None): {
+        (None, None): DEFAULT_ROLE,
+        (None, True): DEFAULT_ROLE,
+        (None, False): DEFAULT_ROLE,
+        (True, None): DEFAULT_ROLE,
+        (False, None): DEFAULT_ROLE,
+        (True, True): DEFAULT_ROLE,
+        (True, False): DEFAULT_ROLE,
+        (False, False): DEFAULT_ROLE,
+        (False, True): DEFAULT_ROLE,
     },
-    (True, True) : {
-        (None, None) : DEFAULT_ROLE,
-        (None, True) : DEFAULT_ROLE,
-        (None, False) : DEFAULT_ROLE,
-        (True, None) : DEFAULT_ROLE,
-        (False, None) : DEFAULT_ROLE,
-        (True, True) : BOTH_SCU_SCP_ROLE,
-        (True, False) : DEFAULT_ROLE,
-        (False, False) : CONTEXT_REJECTED,
-        (False, True) : INVERTED_ROLE,
+    (True, True): {
+        (None, None): DEFAULT_ROLE,
+        (None, True): DEFAULT_ROLE,
+        (None, False): DEFAULT_ROLE,
+        (True, None): DEFAULT_ROLE,
+        (False, None): DEFAULT_ROLE,
+        (True, True): BOTH_SCU_SCP_ROLE,
+        (True, False): DEFAULT_ROLE,
+        (False, False): CONTEXT_REJECTED,
+        (False, True): INVERTED_ROLE,
     },
-    (True, False) : {
-        (None, None) : DEFAULT_ROLE,
-        (None, True) : DEFAULT_ROLE,
-        (None, False) : DEFAULT_ROLE,
-        (True, None) : DEFAULT_ROLE,
-        (False, None) : DEFAULT_ROLE,
-        (True, True) : DEFAULT_ROLE,  # Invalid
-        (True, False) : DEFAULT_ROLE,
-        (False, False) : CONTEXT_REJECTED,
-        (False, True) : CONTEXT_REJECTED,  # Invalid
+    (True, False): {
+        (None, None): DEFAULT_ROLE,
+        (None, True): DEFAULT_ROLE,
+        (None, False): DEFAULT_ROLE,
+        (True, None): DEFAULT_ROLE,
+        (False, None): DEFAULT_ROLE,
+        (True, True): DEFAULT_ROLE,  # Invalid
+        (True, False): DEFAULT_ROLE,
+        (False, False): CONTEXT_REJECTED,
+        (False, True): CONTEXT_REJECTED,  # Invalid
     },
-    (False, True) : {
-        (None, None) : DEFAULT_ROLE,
-        (None, True) : DEFAULT_ROLE,
-        (None, False) : DEFAULT_ROLE,
-        (True, None) : DEFAULT_ROLE,
-        (False, None) : DEFAULT_ROLE,
-        (True, True) : INVERTED_ROLE,  # Invalid
-        (True, False) : CONTEXT_REJECTED,  # Invalid
-        (False, False) : CONTEXT_REJECTED,
-        (False, True) : INVERTED_ROLE,
+    (False, True): {
+        (None, None): DEFAULT_ROLE,
+        (None, True): DEFAULT_ROLE,
+        (None, False): DEFAULT_ROLE,
+        (True, None): DEFAULT_ROLE,
+        (False, None): DEFAULT_ROLE,
+        (True, True): INVERTED_ROLE,  # Invalid
+        (True, False): CONTEXT_REJECTED,  # Invalid
+        (False, False): CONTEXT_REJECTED,
+        (False, True): INVERTED_ROLE,
     },
     # False, False proposed x
-    (False, False) : {
-        (None, None) : DEFAULT_ROLE,
-        (None, True) : DEFAULT_ROLE,
-        (None, False) : DEFAULT_ROLE,
-        (True, None) : DEFAULT_ROLE,
-        (False, None) : DEFAULT_ROLE,
-        (True, True) : CONTEXT_REJECTED,  # Invalid
-        (True, False) : CONTEXT_REJECTED,  # Invalid
-        (False, False) : CONTEXT_REJECTED,
-        (False, True) : CONTEXT_REJECTED,  # Invalid
+    (False, False): {
+        (None, None): DEFAULT_ROLE,
+        (None, True): DEFAULT_ROLE,
+        (None, False): DEFAULT_ROLE,
+        (True, None): DEFAULT_ROLE,
+        (False, None): DEFAULT_ROLE,
+        (True, True): CONTEXT_REJECTED,  # Invalid
+        (True, False): CONTEXT_REJECTED,  # Invalid
+        (False, False): CONTEXT_REJECTED,
+        (False, True): CONTEXT_REJECTED,  # Invalid
     },
 }
 
@@ -149,31 +158,31 @@ class PresentationContext:
     - The association *Requestor* may be SCP only, SCU only or both SCU and
       SCP.
 
-    +---------------------+---------------------+-------------------+----------+
-    | Requestor           | Acceptor            | Outcome           | Notes    |
-    +----------+----------+----------+----------+---------+---------+          |
-    | scu_role | scp_role | scu_role | scp_role | Req.    | Acc.    |          |
-    +==========+==========+==========+==========+=========+=========+==========+
-    | N/A      | N/A      | N/A      | N/A      | SCU     | SCP     | Default  |
-    +----------+----------+----------+----------+---------+---------+----------+
-    | True     | True     | False    | False    | N/A     | N/A     | Rejected |
-    |          |          |          +----------+---------+---------+----------+
-    |          |          |          | True     | SCP     | SCU     |          |
-    |          |          +----------+----------+---------+---------+----------+
-    |          |          | True     | False    | SCU     | SCP     | Default  |
-    |          |          |          +----------+---------+---------+----------+
-    |          |          |          | True     | SCU/SCP | SCU/SCP |          |
-    +----------+----------+----------+----------+---------+---------+----------+
-    | True     | False    | False    | False    | N/A     | N/A     | Rejected |
-    |          |          +----------+          +---------+---------+----------+
-    |          |          | True     |          | SCU     | SCP     | Default  |
-    +----------+----------+----------+----------+---------+---------+----------+
-    | False    | True     | False    | False    | N/A     | N/A     | Rejected |
-    |          |          |          +----------+---------+---------+----------+
-    |          |          |          | True     | SCP     | SCU     |          |
-    +----------+----------+----------+----------+---------+---------+----------+
-    | False    | False    | False    | False    | N/A     | N/A     | Rejected |
-    +----------+----------+----------+----------+---------+---------+----------+
+    +---------------------+---------------------+-------------------+---------+
+    | Requestor           | Acceptor            | Outcome           | Notes   |
+    +----------+----------+----------+----------+---------+---------+         |
+    | scu_role | scp_role | scu_role | scp_role | Req.    | Acc.    |         |
+    +==========+==========+==========+==========+=========+=========+=========+
+    | N/A      | N/A      | N/A      | N/A      | SCU     | SCP     | Default |
+    +----------+----------+----------+----------+---------+---------+---------+
+    | True     | True     | False    | False    | N/A     | N/A     | Rejected|
+    |          |          |          +----------+---------+---------+---------+
+    |          |          |          | True     | SCP     | SCU     |         |
+    |          |          +----------+----------+---------+---------+---------+
+    |          |          | True     | False    | SCU     | SCP     | Default |
+    |          |          |          +----------+---------+---------+---------+
+    |          |          |          | True     | SCU/SCP | SCU/SCP |         |
+    +----------+----------+----------+----------+---------+---------+---------+
+    | True     | False    | False    | False    | N/A     | N/A     | Rejected|
+    |          |          +----------+          +---------+---------+---------+
+    |          |          | True     |          | SCU     | SCP     | Default |
+    +----------+----------+----------+----------+---------+---------+---------+
+    | False    | True     | False    | False    | N/A     | N/A     | Rejected|
+    |          |          |          +----------+---------+---------+---------+
+    |          |          |          | True     | SCP     | SCU     |         |
+    +----------+----------+----------+----------+---------+---------+---------+
+    | False    | False    | False    | False    | N/A     | N/A     | Rejected|
+    +----------+----------+----------+----------+---------+---------+---------+
 
     As can be seen from the above table there are four possible outcomes:
 
@@ -226,7 +235,7 @@ class PresentationContext:
         return self._abstract_syntax
 
     @abstract_syntax.setter
-    def abstract_syntax(self, uid: Union[str, UID, None]) -> None:
+    def abstract_syntax(self, uid: Union[str, bytes, UID]) -> None:
         """Set the context's *Abstract Syntax*."""
         if isinstance(uid, bytes):
             uid = UID(uid.decode('ascii'))
@@ -246,7 +255,9 @@ class PresentationContext:
 
         self._abstract_syntax = uid
 
-    def add_transfer_syntax(self, syntax: Union[str, bytes, UID]) -> None:
+    def add_transfer_syntax(
+        self, syntax: Union[None, str, bytes, UID]
+    ) -> None:
         """Append a transfer syntax to the presentation context.
 
         Parameters
@@ -254,6 +265,9 @@ class PresentationContext:
         syntax : pydicom.uid.UID, bytes or str
             The transfer syntax to add to the presentation context.
         """
+        if syntax is None:
+            return
+
         if isinstance(syntax, str):
             syntax = UID(syntax)
         elif isinstance(syntax, bytes):
@@ -318,7 +332,9 @@ class PresentationContext:
             A representation of an accepted presentation context.
         """
         return PresentationContextTuple(
-            self.context_id, self.abstract_syntax, self.transfer_syntax[0]
+            cast(int, self.context_id),
+            cast(UID, self.abstract_syntax),
+            self.transfer_syntax[0]
         )
 
     @property
@@ -367,7 +383,7 @@ class PresentationContext:
 
     def __repr__(self) -> str:
         """Representation of the Presentation Context."""
-        return self.abstract_syntax.name
+        return cast(UID, self.abstract_syntax).name
 
     @property
     def scp_role(self) -> Optional[bool]:
@@ -503,7 +519,13 @@ class PresentationContext:
             self.add_transfer_syntax(syntax)
 
 
-def negotiate_as_acceptor(rq_contexts, ac_contexts, roles=None):
+def negotiate_as_acceptor(
+    rq_contexts: List[PresentationContext],
+    ac_contexts: List[PresentationContext],
+    roles: Optional[Dict[UID, Tuple[Optional[bool], Optional[bool]]]] = None
+) -> Tuple[
+    List[PresentationContext], List["SCP_SCU_RoleSelectionNegotiation"]
+]:
     """Process the Presentation Contexts as an Association *Acceptor*.
 
     Parameters
@@ -534,8 +556,8 @@ def negotiate_as_acceptor(rq_contexts, ac_contexts, roles=None):
     from pynetdicom.pdu_primitives import SCP_SCU_RoleSelectionNegotiation
 
     roles = roles or {}
-    result_contexts = []
-    reply_roles = {}
+    result_contexts: List[PresentationContext] = []
+    reply_roles: Dict[UID, SCP_SCU_RoleSelectionNegotiation] = {}
 
     # No requestor presentation contexts
     if not rq_contexts:
@@ -561,11 +583,11 @@ def negotiate_as_acceptor(rq_contexts, ac_contexts, roles=None):
     # Requestor may use the same Abstract Syntax in multiple Presentation
     #   Contexts so we need a more specific key than UID
     requestor_contexts = {
-        (cx.context_id, cx.abstract_syntax):cx for cx in rq_contexts
+        (cx.context_id, cx.abstract_syntax): cx for cx in rq_contexts
     }
     # Acceptor supported SOP Classes must be unique so we can use UID as
     #   the key
-    acceptor_contexts = {cx.abstract_syntax:cx for cx in ac_contexts}
+    acceptor_contexts = {cx.abstract_syntax: cx for cx in ac_contexts}
 
     for (cntx_id, ab_syntax) in requestor_contexts:
         # Convenience variable
@@ -582,8 +604,10 @@ def negotiate_as_acceptor(rq_contexts, ac_contexts, roles=None):
         # Check if the acceptor supports the Abstract Syntax
         if ab_syntax in acceptor_contexts:
             # Convenience variables
+            ab_syntax = cast(UID, ab_syntax)
             ac_context = acceptor_contexts[ab_syntax]
             ac_roles = (ac_context.scu_role, ac_context.scp_role)
+            rq_roles: Tuple[Optional[bool], Optional[bool]]
             try:
                 rq_roles = roles[ab_syntax]
                 has_role = True
@@ -600,7 +624,7 @@ def negotiate_as_acceptor(rq_contexts, ac_contexts, roles=None):
                     result_contexts.append(context)
                     break
 
-            ## SCP/SCU Role Selection Negotiation
+            # SCP/SCU Role Selection Negotiation
             #   Only for (provisionally) accepted contexts
             if context.result == 0x00:
                 if None in ac_roles:
@@ -644,7 +668,7 @@ def negotiate_as_acceptor(rq_contexts, ac_contexts, roles=None):
                 else:
                     role.scp_role = ac_context.scp_role
 
-                reply_roles[context.abstract_syntax] = role
+                reply_roles[cast(UID, context.abstract_syntax)] = role
         else:
             # Reject context - abstract syntax not supported
             context.result = 0x03
@@ -653,15 +677,23 @@ def negotiate_as_acceptor(rq_contexts, ac_contexts, roles=None):
 
     # Sort by presentation context ID
     #   This isn't required by the DICOM Standard but its a nice thing to do
-    result_contexts = sorted(result_contexts, key=lambda x: x.context_id)
+    result_contexts = sorted(
+        result_contexts, key=lambda x: cast(int, x.context_id)
+    )
 
     # Sort role selection by abstract syntax, also not required but nice
-    reply_roles = sorted(reply_roles.values(), key=lambda x: x.sop_class_uid)
+    result_roles = sorted(
+        reply_roles.values(), key=lambda x: cast(UID, x.sop_class_uid)
+    )
 
-    return result_contexts, reply_roles
+    return result_contexts, result_roles
 
 
-def negotiate_as_requestor(rq_contexts, ac_contexts, roles=None):
+def negotiate_as_requestor(
+    rq_contexts: List[PresentationContext],
+    ac_contexts: List[PresentationContext],
+    roles: Optional[Dict[UID, Tuple[Optional[bool], Optional[bool]]]] = None
+) -> List[PresentationContext]:
     """Process the Presentation Contexts as an Association *Requestor*.
 
     The *Acceptor* has processed the *Requestor's* presentation context
@@ -713,10 +745,10 @@ def negotiate_as_requestor(rq_contexts, ac_contexts, roles=None):
 
     # Create dicts, indexed by the presentation context ID
     requestor_contexts = {
-        context.context_id:context for context in rq_contexts
+        context.context_id: context for context in rq_contexts
     }
     acceptor_contexts = {
-        context.context_id:context for context in ac_contexts
+        context.context_id: context for context in ac_contexts
     }
 
     for context_id in requestor_contexts:
@@ -739,10 +771,11 @@ def negotiate_as_requestor(rq_contexts, ac_contexts, roles=None):
                 context.transfer_syntax = [ac_context.transfer_syntax[0]]
             context.result = ac_context.result
 
-            ## SCP/SCU Role Selection Negotiation
+            # SCP/SCU Role Selection Negotiation
             rq_roles = (rq_context.scu_role, rq_context.scp_role)
+            ac_roles: Tuple[Optional[bool], Optional[bool]]
             try:
-                ac_roles = roles[context.abstract_syntax]
+                ac_roles = roles[cast(UID, context.abstract_syntax)]
             except KeyError:
                 ac_roles = (None, None)
 
@@ -764,7 +797,7 @@ def negotiate_as_requestor(rq_contexts, ac_contexts, roles=None):
         output.append(context)
 
     # Sort returned list by context ID
-    return sorted(output, key=lambda x: x.context_id)
+    return sorted(output, key=lambda x: cast(int, x.context_id))
 
 
 def build_context(
@@ -839,7 +872,7 @@ def build_context(
 
     context = PresentationContext()
     context.abstract_syntax = abstract_syntax
-    context.transfer_syntax = transfer_syntax
+    context.transfer_syntax = transfer_syntax  # type: ignore
 
     return context
 
@@ -874,7 +907,7 @@ def build_role(
     from pynetdicom.pdu_primitives import SCP_SCU_RoleSelectionNegotiation
 
     role = SCP_SCU_RoleSelectionNegotiation()
-    role.sop_class_uid = uid
+    role.sop_class_uid = UID(uid)
     role.scu_role = scu_role
     role.scp_role = scp_role
     return role

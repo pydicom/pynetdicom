@@ -721,6 +721,35 @@ class TestUserIdentityNegotiation:
 
         scp.shutdown()
 
+    def test_check_usrid_none(self):
+        """Check _check_user_identity if exception in callback"""
+        def handle(event):
+            raise ValueError
+            return True, rsp[1]
+
+        handlers = [(evt.EVT_USER_ID, handle)]
+
+        self.ae = ae = AE()
+        ae.add_supported_context(VerificationSOPClass)
+        ae.add_requested_context(VerificationSOPClass)
+        scp = ae.start_server(('', 11112), block=False, evt_handlers=handlers)
+
+        ae.acse_timeout = 5
+        ae.dimse_timeout = 5
+        assoc = ae.associate('localhost', 11112)
+
+        assert assoc.is_established
+
+        scp_assoc = scp.active_associations[0]
+        is_valid, response = scp_assoc.acse._check_user_identity()
+
+        assert is_valid is True
+        assert response is None
+
+        assoc.release()
+
+        scp.shutdown()
+
     def test_check_usrid_server_response_exception(self):
         """Check _check_user_identity exception in setting server response"""
 

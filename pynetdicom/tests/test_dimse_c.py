@@ -37,6 +37,8 @@ class TestPrimitive_C_CANCEL:
         """ Check assignment works correctly """
         primitive = C_CANCEL()
 
+        primitive.MessageIDBeingRespondedTo = None
+        assert primitive.MessageIDBeingRespondedTo is None
         primitive.MessageIDBeingRespondedTo = 13
         assert primitive.MessageIDBeingRespondedTo == 13
         with pytest.raises(ValueError):
@@ -59,13 +61,19 @@ class TestPrimitive_C_STORE:
         """ Check assignment works correctly """
         primitive = C_STORE()
 
+        primitive.MessageID = None
+        assert primitive.MessageID is None
         primitive.MessageID = 11
         assert primitive.MessageID == 11
 
+        primitive.MessageIDBeingRespondedTo = None
+        assert primitive.MessageIDBeingRespondedTo is None
         primitive.MessageIDBeingRespondedTo = 13
         assert primitive.MessageIDBeingRespondedTo == 13
 
         # AffectedSOPClassUID
+        primitive.AffectedSOPClassUID = None
+        assert primitive.AffectedSOPClassUID is None
         primitive.AffectedSOPClassUID = '1.1.1'
         assert primitive.AffectedSOPClassUID == UID('1.1.1')
         assert isinstance(primitive.AffectedSOPClassUID, UID)
@@ -77,6 +85,8 @@ class TestPrimitive_C_STORE:
         assert isinstance(primitive.AffectedSOPClassUID, UID)
 
         # AffectedSOPInstanceUID
+        primitive.AffectedSOPInstanceUID = None
+        assert primitive.AffectedSOPInstanceUID is None
         primitive.AffectedSOPInstanceUID = b'1.2.1'
         assert primitive.AffectedSOPInstanceUID == UID('1.2.1')
         assert isinstance(primitive.AffectedSOPClassUID, UID)

@@ -80,10 +80,10 @@ class StateMachine:
                 self.dul.assoc,
                 evt.EVT_FSM_TRANSITION,
                 {
-                    'action' : action_name,
-                    'current_state' : self.current_state,
-                    'fsm_event' : event,
-                    'next_state' : next_state
+                    'action': action_name,
+                    'current_state': self.current_state,
+                    'fsm_event': event,
+                    'next_state': next_state
                 }
             )
             #print(
@@ -181,7 +181,7 @@ def AE_2(dul):
     dul.pdu.from_primitive(dul.primitive)
 
     dul.socket.send(dul.pdu.encode())
-    evt.trigger(dul.assoc, evt.EVT_PDU_SENT, {'pdu' : dul.pdu})
+    evt.trigger(dul.assoc, evt.EVT_PDU_SENT, {'pdu': dul.pdu})
 
     return 'Sta5'
 
@@ -234,7 +234,7 @@ def AE_4(dul):
     remote = assoc.acceptor if assoc.is_requestor else assoc.requestor
 
     address = (remote.address, remote.port)
-    evt.trigger(dul.assoc, evt.EVT_CONN_CLOSE, {'address' : address})
+    evt.trigger(dul.assoc, evt.EVT_CONN_CLOSE, {'address': address})
 
     dul.kill_dul()
 
@@ -308,7 +308,7 @@ def AE_6(dul):
         dul.pdu.from_primitive(dul.primitive)
 
         dul.socket.send(dul.pdu.encode())
-        evt.trigger(dul.assoc, evt.EVT_PDU_SENT, {'pdu' : dul.pdu})
+        evt.trigger(dul.assoc, evt.EVT_PDU_SENT, {'pdu': dul.pdu})
         dul.artim_timer.start()
 
         return 'Sta13'
@@ -341,7 +341,7 @@ def AE_7(dul):
     dul.pdu.from_primitive(dul.primitive)
 
     dul.socket.send(dul.pdu.encode())
-    evt.trigger(dul.assoc, evt.EVT_PDU_SENT, {'pdu' : dul.pdu})
+    evt.trigger(dul.assoc, evt.EVT_PDU_SENT, {'pdu': dul.pdu})
 
     return 'Sta6'
 
@@ -367,7 +367,7 @@ def AE_8(dul):
     dul.pdu.from_primitive(dul.primitive)
 
     dul.socket.send(dul.pdu.encode())
-    evt.trigger(dul.assoc, evt.EVT_PDU_SENT, {'pdu' : dul.pdu})
+    evt.trigger(dul.assoc, evt.EVT_PDU_SENT, {'pdu': dul.pdu})
     dul.artim_timer.start()
 
     return 'Sta13'
@@ -396,7 +396,7 @@ def DT_1(dul):
     dul.primitive = None  # Why this?
 
     dul.socket.send(dul.pdu.encode())
-    evt.trigger(dul.assoc, evt.EVT_PDU_SENT, {'pdu' : dul.pdu})
+    evt.trigger(dul.assoc, evt.EVT_PDU_SENT, {'pdu': dul.pdu})
 
     return 'Sta6'
 
@@ -445,7 +445,7 @@ def AR_1(dul):
     dul.pdu.from_primitive(dul.primitive)
 
     dul.socket.send(dul.pdu.encode())
-    evt.trigger(dul.assoc, evt.EVT_PDU_SENT, {'pdu' : dul.pdu})
+    evt.trigger(dul.assoc, evt.EVT_PDU_SENT, {'pdu': dul.pdu})
 
     return 'Sta7'
 
@@ -497,7 +497,7 @@ def AR_3(dul):
     remote = assoc.acceptor if assoc.is_requestor else assoc.requestor
 
     address = (remote.address, remote.port)
-    evt.trigger(dul.assoc, evt.EVT_CONN_CLOSE, {'address' : address})
+    evt.trigger(dul.assoc, evt.EVT_CONN_CLOSE, {'address': address})
 
     dul.kill_dul()
 
@@ -525,7 +525,7 @@ def AR_4(dul):
     dul.pdu.from_primitive(dul.primitive)
 
     dul.socket.send(dul.pdu.encode())
-    evt.trigger(dul.assoc, evt.EVT_PDU_SENT, {'pdu' : dul.pdu})
+    evt.trigger(dul.assoc, evt.EVT_PDU_SENT, {'pdu': dul.pdu})
     dul.artim_timer.start()
 
     return 'Sta13'
@@ -552,7 +552,7 @@ def AR_5(dul):
     remote = assoc.acceptor if assoc.is_requestor else assoc.requestor
 
     address = (remote.address, remote.port)
-    evt.trigger(dul.assoc, evt.EVT_CONN_CLOSE, {'address' : address})
+    evt.trigger(dul.assoc, evt.EVT_CONN_CLOSE, {'address': address})
 
     # Stop ARTIM timer
     dul.artim_timer.stop()
@@ -606,7 +606,7 @@ def AR_7(dul):
     dul.pdu.from_primitive(dul.primitive)
 
     dul.socket.send(dul.pdu.encode())
-    evt.trigger(dul.assoc, evt.EVT_PDU_SENT, {'pdu' : dul.pdu})
+    evt.trigger(dul.assoc, evt.EVT_PDU_SENT, {'pdu': dul.pdu})
 
     return 'Sta8'
 
@@ -657,7 +657,7 @@ def AR_9(dul):
     dul.pdu.from_primitive(dul.primitive)
 
     dul.socket.send(dul.pdu.encode())
-    evt.trigger(dul.assoc, evt.EVT_PDU_SENT, {'pdu' : dul.pdu})
+    evt.trigger(dul.assoc, evt.EVT_PDU_SENT, {'pdu': dul.pdu})
 
     return 'Sta11'
 
@@ -712,7 +712,7 @@ def AA_1(dul):
     dul.pdu.from_primitive(dul.primitive)
 
     dul.socket.send(dul.pdu.encode())
-    evt.trigger(dul.assoc, evt.EVT_PDU_SENT, {'pdu' : dul.pdu})
+    evt.trigger(dul.assoc, evt.EVT_PDU_SENT, {'pdu': dul.pdu})
     dul.artim_timer.restart()
 
     return 'Sta13'
@@ -744,7 +744,7 @@ def AA_2(dul):
 
     remote = assoc.acceptor if assoc.is_requestor else assoc.requestor
     address = (remote.address, remote.port)
-    evt.trigger(dul.assoc, evt.EVT_CONN_CLOSE, {'address' : address})
+    evt.trigger(dul.assoc, evt.EVT_CONN_CLOSE, {'address': address})
 
     dul.kill_dul()
 
@@ -782,7 +782,7 @@ def AA_3(dul):
 
     remote = assoc.acceptor if assoc.is_requestor else assoc.requestor
     address = (remote.address, remote.port)
-    evt.trigger(dul.assoc, evt.EVT_CONN_CLOSE, {'address' : address})
+    evt.trigger(dul.assoc, evt.EVT_CONN_CLOSE, {'address': address})
 
     dul.kill_dul()
 
@@ -811,7 +811,7 @@ def AA_4(dul):
 
     remote = assoc.acceptor if assoc.is_requestor else assoc.requestor
     address = (remote.address, remote.port)
-    evt.trigger(dul.assoc, evt.EVT_CONN_CLOSE, {'address' : address})
+    evt.trigger(dul.assoc, evt.EVT_CONN_CLOSE, {'address': address})
 
     # Issue A-P-ABORT indication primitive.
     primitive = A_P_ABORT()
@@ -843,7 +843,7 @@ def AA_5(dul):
     remote = assoc.acceptor if assoc.is_requestor else assoc.requestor
 
     address = (remote.address, remote.port)
-    evt.trigger(dul.assoc, evt.EVT_CONN_CLOSE, {'address' : address})
+    evt.trigger(dul.assoc, evt.EVT_CONN_CLOSE, {'address': address})
 
     # Stop ARTIM timer.
     dul.artim_timer.stop()
@@ -899,7 +899,7 @@ def AA_7(dul):
     pdu.from_primitive(primitive)
 
     dul.socket.send(dul.pdu.encode())
-    evt.trigger(dul.assoc, evt.EVT_PDU_SENT, {'pdu' : dul.pdu})
+    evt.trigger(dul.assoc, evt.EVT_PDU_SENT, {'pdu': dul.pdu})
 
     return 'Sta13'
 
@@ -936,7 +936,7 @@ def AA_8(dul):
     dul.primitive.diagnostic = 0x01
 
     dul.socket.send(dul.pdu.encode())
-    evt.trigger(dul.assoc, evt.EVT_PDU_SENT, {'pdu' : dul.pdu})
+    evt.trigger(dul.assoc, evt.EVT_PDU_SENT, {'pdu': dul.pdu})
 
     # Issue A-P-ABORT to user
     primitive = A_P_ABORT()

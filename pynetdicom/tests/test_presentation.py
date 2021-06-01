@@ -96,6 +96,10 @@ class TestPresentationContext:
         pc.add_transfer_syntax(1234)
         assert 1234 not in pc.transfer_syntax
 
+        # Test adding None does nothing
+        pc.add_transfer_syntax(None)
+        assert None not in pc.transfer_syntax
+
     def test_add_transfer_syntax_nonconformant(self, caplog):
         """Test adding non-conformant transfer syntaxes"""
         _config.ENFORCE_UID_CONFORMANCE = True

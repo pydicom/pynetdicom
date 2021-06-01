@@ -1,6 +1,9 @@
 """ACSE service provider"""
 
 import logging
+from typing import TYPE_CHECKING, Optional, Dict, List, cast, Tuple
+
+from pydicom.uid import UID
 
 from pynetdicom import evt
 from pynetdicom._globals import APPLICATION_CONTEXT_NAME
@@ -15,6 +18,11 @@ from pynetdicom.presentation import (
     negotiate_as_requestor, negotiate_as_acceptor
 )
 
+if TYPE_CHECKING:  # pragma: no cover
+    from pynetdicom.association import Association, ServiceUser
+    from pynetdicom.dul import DULServiceProvider
+    from pynetdicom.transport import AssociationSocket
+
 
 LOGGER = logging.getLogger('pynetdicom.acse')
 
@@ -25,7 +33,7 @@ class ACSE:
     The ACSE protocol handles association negotiation and establishment, and
     normal and abnormal release of an association.
     """
-    def __init__(self, assoc):
+    def __init__(self, assoc: "Association") -> None:
         """Create the ACSE service provider.
 
         Parameters
@@ -36,25 +44,27 @@ class ACSE:
         self._assoc = assoc
 
     @property
-    def acceptor(self):
+    def acceptor(self) -> "ServiceUser":
         """Return the *acceptor* :class:`~pynetdicom.association.ServiceUser`.
         """
         return self.assoc.acceptor
 
     @property
-    def acse_timeout(self):
+    def acse_timeout(self) -> Optional[float]:
         """Return the ACSE timeout (in seconds)."""
         return self.assoc.acse_timeout
 
     @property
-    def assoc(self):
+    def assoc(self) -> "Association":
         """Return the parent :class:`~pynetdicom.association.Association`.
 
         .. versionadded:: 1.3
         """
         return self._assoc
 
-    def _check_async_ops(self):
+    def _check_async_ops(
+        self
+    ) -> Optional[AsynchronousOperationsWindowNegotiation]:
         """Check the user's response to an Asynchronous Operations request.
 
         .. currentmodule:: pynetdicom.pdu_primitives
@@ -75,7 +85,7 @@ class ACSE:
             _ = evt.trigger(
                 self.assoc,
                 evt.EVT_ASYNC_OPS,
-                {'nr_invoked' : inv, 'nr_performed' : perf}
+                {'nr_invoked': inv, 'nr_performed': perf}
             )
         except NotImplementedError:
             return None
@@ -91,7 +101,9 @@ class ACSE:
 
         return item
 
-    def _check_sop_class_common_extended(self):
+    def _check_sop_class_common_extended(
+        self
+    ) -> Dict[UID, SOPClassCommonExtendedNegotiation]:
         """Check the user's response to a SOP Class Common Extended request.
 
         Returns
@@ -101,11 +113,12 @@ class ACSE:
             the accepted SOP Class Common Extended negotiation items.
         """
         # pylint: disable=broad-except
+        rsp: Dict[UID, SOPClassCommonExtendedNegotiation]
         try:
             rsp = evt.trigger(
                 self.assoc,
                 evt.EVT_SOP_COMMON,
-                {'items' : self.requestor.sop_class_common_extended}
+                {'items': self.requestor.sop_class_common_extended}
             )
         except Exception as exc:
             LOGGER.error(
@@ -116,7 +129,7 @@ class ACSE:
 
         try:
             rsp = {
-                uid:ii for uid, ii in rsp.items()
+                uid: ii for uid, ii in rsp.items()
                 if isinstance(ii, SOPClassCommonExtendedNegotiation)
             }
         except Exception as exc:
@@ -129,7 +142,7 @@ class ACSE:
 
         return rsp
 
-    def _check_sop_class_extended(self):
+    def _check_sop_class_extended(self) -> List[SOPClassExtendedNegotiation]:
         """Check the user's response to a SOP Class Extended request.
 
         Returns
@@ -142,7 +155,7 @@ class ACSE:
             user_response = evt.trigger(
                 self.assoc,
                 evt.EVT_SOP_EXTENDED,
-                {'app_info' : self.requestor.sop_class_extended}
+                {'app_info': self.requestor.sop_class_extended}
             )
         except Exception as exc:
             user_response = {}
@@ -177,7 +190,9 @@ class ACSE:
 
         return items
 
-    def _check_user_identity(self):
+    def _check_user_identity(
+        self
+    ) -> Tuple[bool, Optional[UserIdentityNegotiation]]:
         """Check the user's response to a User Identity request.
 
         Returns
@@ -191,14 +206,17 @@ class ACSE:
         # pylint: disable=broad-except
         # The UserIdentityNegotiation (request) item
         req = self.requestor.user_identity
+        if req is None:
+            return True, None
+
         try:
             identity_verified, response = evt.trigger(
                 self.assoc,
                 evt.EVT_USER_ID,
                 {
-                    'user_id_type' : req.user_identity_type,
-                    'primary_field' : req.primary_field,
-                    'secondary_field' : req.secondary_field,
+                    'user_id_type': req.user_identity_type,
+                    'primary_field': req.primary_field,
+                    'secondary_field': req.secondary_field,
                 }
             )
         except NotImplementedError:
@@ -236,16 +254,16 @@ class ACSE:
         return True, None
 
     @property
-    def dul(self):
+    def dul(self) -> "DULServiceProvider":
         """Return the :class:`~pynetdicom.dul.DULServiceProvider`."""
         return self.assoc.dul
 
     @property
-    def socket(self):
+    def socket(self) -> Optional["AssociationSocket"]:
         """Return the :class:`~pynetdicom.transport.AssociationSocket`."""
         return self.assoc.dul.socket
 
-    def is_aborted(self, abort_type='both'):
+    def is_aborted(self, abort_type: str = 'both') -> bool:
         """Return ``True`` if an A-ABORT and/or A-P-ABORT request has been
         received.
 
@@ -281,7 +299,7 @@ class ACSE:
 
         return False
 
-    def is_release_requested(self):
+    def is_release_requested(self) -> bool:
         """Return ``True`` if an A-RELEASE request has been received.
 
         .. versionadded:: 1.1
@@ -293,7 +311,7 @@ class ACSE:
 
         return False
 
-    def negotiate_association(self):
+    def negotiate_association(self) -> None:
         """Perform an association negotiation as either the *requestor* or
         *acceptor*.
         """
@@ -302,13 +320,13 @@ class ACSE:
         elif self.assoc.is_acceptor:
             self._negotiate_as_acceptor()
 
-    def _negotiate_as_acceptor(self):
+    def _negotiate_as_acceptor(self) -> None:
         """Perform an association negotiation as the association *acceptor*.
         """
         # For convenience
-        assoc_rq = self.requestor.primitive
+        assoc_rq = cast(A_ASSOCIATE, self.requestor.primitive)
         # Set the Requestor's AE Title
-        self.requestor.ae_title = assoc_rq.calling_ae_title
+        self.requestor.ae_title = cast(bytes, assoc_rq.calling_ae_title)
 
         # If we reject association -> [result, source, diagnostic]
         reject_assoc_rsd = []
@@ -328,7 +346,7 @@ class ACSE:
         ):
             reject_assoc_rsd = [0x01, 0x01, 0x07]
 
-        ## Extended Negotiation items
+        # Extended Negotiation items
         # User Identity Negotiation items
         if self.requestor.user_identity:
             is_valid, id_response = self._check_user_identity()
@@ -360,7 +378,7 @@ class ACSE:
             if async_rsp:
                 self.acceptor.add_negotiation_item(async_rsp)
 
-        ## DUL Presentation Related Rejections
+        # DUL Presentation Related Rejections
         # Maximum number of associations reached (local-limit-exceeded)
         active_acceptors = [
             tt for tt in self.assoc.ae.active_associations if tt.is_acceptor
@@ -376,11 +394,11 @@ class ACSE:
             self.assoc.kill()
             return
 
-        ## Negotiate Presentation Contexts
+        # Negotiate Presentation Contexts
         # SCP/SCU Role Selection Negotiation request items
         # {SOP Class UID : (SCU role, SCP role)}
         rq_roles = {
-            uid:(item.scu_role, item.scp_role)
+            uid: (item.scu_role, item.scp_role)
             for uid, item in self.requestor.role_selection.items()
         }
 
@@ -393,14 +411,14 @@ class ACSE:
         # pylint: disable=protected-access
         # Accepted contexts are stored as {context ID : context}
         self.assoc._accepted_cx = {
-            cx.context_id:cx for cx in result if cx.result == 0x00
+            cast(int, cx.context_id): cx for cx in result if cx.result == 0x00
         }
         self.assoc._rejected_cx = [cx for cx in result if cx.result != 0x00]
         # pylint: enable=protected-access
 
         # Add any SCP/SCU Role Selection Negotiation response items
-        for item in ac_roles:
-            self.acceptor.add_negotiation_item(item)
+        for role_item in ac_roles:
+            self.acceptor.add_negotiation_item(role_item)
 
         # Send the A-ASSOCIATE (accept) primitive
         LOGGER.info("Accepting Association")
@@ -413,8 +431,9 @@ class ACSE:
         self.assoc.is_established = True
         evt.trigger(self.assoc, evt.EVT_ESTABLISHED, {})
 
-    def _negotiate_as_requestor(self):
-        """Perform an association negotiation as the association *requestor*."""
+    def _negotiate_as_requestor(self) -> None:
+        """Perform an association negotiation as the association *requestor*.
+        """
         if not self.requestor.requested_contexts:
             LOGGER.error(
                 "One or more requested presentation contexts must be set "
@@ -428,9 +447,10 @@ class ACSE:
         evt.trigger(self.assoc, evt.EVT_REQUESTED, {})
 
         # Wait for the transport to be ready
-        self.socket._ready.wait()
+        socket = cast("AssociationSocket", self.socket)
+        socket._ready.wait()
 
-        if not self.socket._is_connected:
+        if not socket._is_connected:
             # Failed to connect
             self.assoc.abort()
             return
@@ -443,18 +463,18 @@ class ACSE:
             self.acceptor.primitive = rsp
             # Accepted
             if rsp.result == 0x00:
-                ## Handle SCP/SCU Role Selection response
+                # Handle SCP/SCU Role Selection response
                 # Apply requestor's proposed SCP/SCU role selection (if any)
                 #   to the requested contexts
                 rq_roles = {
-                    uid:(ii.scu_role, ii.scp_role)
+                    uid: (ii.scu_role, ii.scp_role)
                     for uid, ii in self.requestor.role_selection.items()
                 }
                 if rq_roles:
                     for cx in self.requestor.requested_contexts:
                         try:
                             (cx.scu_role, cx.scp_role) = rq_roles[
-                                cx.abstract_syntax
+                                cast(UID, cx.abstract_syntax)
                             ]
                             # If no role was specified then use False
                             #   see SCP_SCU_RoleSelectionSubItem.from_primitive
@@ -465,7 +485,7 @@ class ACSE:
 
                 # Collate the acceptor's SCP/SCU role selection responses
                 ac_roles = {
-                    uid:(ii.scu_role, ii.scp_role)
+                    uid: (ii.scu_role, ii.scp_role)
                     for uid, ii in self.acceptor.role_selection.items()
                 }
 
@@ -480,7 +500,7 @@ class ACSE:
                 # pylint: disable=protected-access
                 # Accepted contexts are stored as {context ID : context}
                 self.assoc._accepted_cx = {
-                    cx.context_id:cx
+                    cast(int, cx.context_id): cx
                     for cx in negotiated_contexts if cx.result == 0x00
                 }
                 self.assoc._rejected_cx = [
@@ -546,7 +566,7 @@ class ACSE:
             self.assoc.is_established = False
             self.dul.kill_dul()
 
-    def negotiate_release(self):
+    def negotiate_release(self) -> None:
         """Negotiate association release.
 
         .. versionadded:: 1.1
@@ -623,12 +643,12 @@ class ACSE:
                 return
 
     @property
-    def requestor(self):
+    def requestor(self) -> "ServiceUser":
         """Return the *requestor* :class:`~pynetdicom.association.ServiceUser`.
         """
         return self.assoc.requestor
 
-    def send_abort(self, source):
+    def send_abort(self, source: int) -> None:
         """Send an A-ABORT request to the peer.
 
         Parameters
@@ -658,7 +678,7 @@ class ACSE:
         self.assoc.is_aborted = True
         self.assoc.is_established = False
 
-    def send_accept(self):
+    def send_accept(self) -> None:
         """Send an A-ASSOCIATE (accept) to the peer."""
         # The following parameters must be set for an A-ASSOCIATE (accept)
         # primitive (* sent in A-ASSOCIATE-AC PDU):
@@ -671,10 +691,11 @@ class ACSE:
         #   Result
         #   Result Source
         #   Presentation Context Definition List Result*
+        req = cast(A_ASSOCIATE, self.requestor.primitive)
         primitive = A_ASSOCIATE()
-        primitive.application_context_name = APPLICATION_CONTEXT_NAME
-        primitive.calling_ae_title = self.requestor.primitive.calling_ae_title
-        primitive.called_ae_title = self.requestor.primitive.called_ae_title
+        primitive.application_context_name = UID(APPLICATION_CONTEXT_NAME)
+        primitive.calling_ae_title = req.calling_ae_title
+        primitive.called_ae_title = req.called_ae_title
         primitive.result = 0x00
         primitive.result_source = 0x01
 
@@ -682,13 +703,13 @@ class ACSE:
             self.assoc.accepted_contexts + self.assoc.rejected_contexts
         )
 
-        ## User Information - PS3.7 Annex D.3.3
+        # User Information - PS3.7 Annex D.3.3
         primitive.user_information = self.acceptor.user_information
 
         self.acceptor.primitive = primitive
         self.dul.send_pdu(primitive)
 
-    def send_ap_abort(self, reason):
+    def send_ap_abort(self, reason: int) -> None:
         """Send an A-P-ABORT to the peer.
 
         Parameters
@@ -722,7 +743,7 @@ class ACSE:
         self.assoc.is_aborted = True
         self.assoc.is_established = False
 
-    def send_reject(self, result, source, diagnostic):
+    def send_reject(self, result: int, source: int, diagnostic: int) -> None:
         """Send an A-ASSOCIATE (reject) to the peer.
 
         Parameters
@@ -760,9 +781,9 @@ class ACSE:
             raise ValueError("Invalid 'result' parameter value")
 
         _valid_reason_diagnostic = {
-            0x01 : [0x01, 0x02, 0x03, 0x07],
-            0x02 : [0x01, 0x02],
-            0x03 : [0x01, 0x02],
+            0x01: [0x01, 0x02, 0x03, 0x07],
+            0x02: [0x01, 0x02],
+            0x03: [0x01, 0x02],
         }
 
         try:
@@ -788,7 +809,7 @@ class ACSE:
         self.assoc.is_rejected = True
         self.assoc.is_established = False
 
-    def send_release(self, is_response=False):
+    def send_release(self, is_response: bool = False) -> None:
         """Send an A-RELEASE (request or response) to the peer.
 
         Parameters
@@ -804,7 +825,7 @@ class ACSE:
 
         self.dul.send_pdu(primitive)
 
-    def send_request(self):
+    def send_request(self) -> None:
         """Send an A-ASSOCIATE (request) to the peer."""
         # The following parameters must be set for a request primitive
         # (* sent in A-ASSOCIATE-RQ PDU)
@@ -819,25 +840,25 @@ class ACSE:
         #   Presentation Context Definition List*
         primitive = A_ASSOCIATE()
         # DICOM Application Context Name, see PS3.7 Annex A.2.1
-        primitive.application_context_name = APPLICATION_CONTEXT_NAME
+        primitive.application_context_name = UID(APPLICATION_CONTEXT_NAME)
         # Calling AE Title is the source DICOM AE title
         primitive.calling_ae_title = self.requestor.ae_title
         # Called AE Title is the destination DICOM AE title
         primitive.called_ae_title = self.acceptor.ae_title
         # The TCP/IP address of the source, pynetdicom includes port too
         primitive.calling_presentation_address = (
-            self.requestor.address, self.requestor.port
+            cast(str, self.requestor.address), cast(int, self.requestor.port)
         )
         # The TCP/IP address of the destination, pynetdicom includes port too
         primitive.called_presentation_address = (
-            self.acceptor.address, self.acceptor.port
+            cast(str, self.acceptor.address), cast(int, self.acceptor.port)
         )
         # Proposed presentation contexts
         primitive.presentation_context_definition_list = (
             self.requestor.requested_contexts
         )
 
-        ## User Information - PS3.7 Annex D.3.3
+        # User Information - PS3.7 Annex D.3.3
         # Mandatory items:
         #   Maximum Length Notification (1)
         #   Implementation Class UID Notification (1)

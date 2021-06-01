@@ -1,9 +1,7 @@
 """Tests for the pynetdicom.pdu module."""
 
 from datetime import datetime
-from io import BytesIO
 import logging
-import sys
 import time
 
 import pytest
@@ -16,23 +14,17 @@ from pynetdicom.pdu import (
     A_ASSOCIATE_RQ, A_ASSOCIATE_AC, A_ASSOCIATE_RJ, P_DATA_TF, A_RELEASE_RQ,
     A_RELEASE_RP, A_ABORT_RQ, PDU, ApplicationContextItem,
     PresentationContextItemAC, PresentationContextItemRQ, UserInformationItem,
-    PDU_ITEM_TYPES, PDU_TYPES,
     PACK_UCHAR, UNPACK_UCHAR
 )
 from pynetdicom.pdu_items import (
     PresentationDataValueItem,
     TransferSyntaxSubItem,
     MaximumLengthSubItem,
-    ImplementationClassUIDSubItem, ImplementationVersionNameSubItem,
-    AsynchronousOperationsWindowSubItem, SCP_SCU_RoleSelectionSubItem,
-    SOPClassExtendedNegotiationSubItem,
-    SOPClassCommonExtendedNegotiationSubItem, UserIdentitySubItemRQ,
-    UserIdentitySubItemAC,
+    ImplementationClassUIDSubItem, ImplementationVersionNameSubItem
 )
 from pynetdicom.pdu_primitives import (
     MaximumLengthNotification, ImplementationClassUIDNotification,
-    ImplementationVersionNameNotification, A_P_ABORT, A_ABORT, A_ASSOCIATE,
-    P_DATA
+    ImplementationVersionNameNotification, A_P_ABORT, A_ABORT,
 )
 from .encoded_pdu_items import (
     a_associate_rq, a_associate_ac, a_associate_rj, a_release_rq, a_release_rq,
@@ -1000,6 +992,7 @@ class TestP_DATA_TF:
         pdu.decode(p_data_tf)
         assert "80 bytes" in pdu.__str__()
         assert "0x03 0x00" in pdu.__str__()
+        assert "0x00 0x42" in pdu.__str__()
 
     def test_decode(self):
         """ Check decoding the p_data stream produces the correct objects """
@@ -1037,7 +1030,7 @@ class TestP_DATA_TF:
 
         primitive = pdu.to_primitive()
 
-        assert primitive.presentation_data_value_list == [[1, p_data_tf[11:]]]
+        assert primitive.presentation_data_value_list == [(1, p_data_tf[11:])]
         assert isinstance(primitive.presentation_data_value_list, list)
 
     def test_from_primitive(self):

@@ -359,6 +359,8 @@ class TestPrimitive_N_GET:
         assert 13 == primitive.MessageIDBeingRespondedTo
 
         # RequestedSOPClassUID
+        primitive.RequestedSOPClassUID = None
+        assert primitive.RequestedSOPClassUID is None
         primitive.RequestedSOPClassUID = '1.1.1'
         assert primitive.RequestedSOPClassUID == UID('1.1.1')
         assert isinstance(primitive.RequestedSOPClassUID, UID)
@@ -370,6 +372,8 @@ class TestPrimitive_N_GET:
         assert isinstance(primitive.RequestedSOPClassUID, UID)
 
         # RequestedSOPInstanceUID
+        primitive.RequestedSOPInstanceUID = None
+        assert primitive.RequestedSOPInstanceUID is None
         primitive.RequestedSOPInstanceUID = b'1.2.1'
         assert primitive.RequestedSOPInstanceUID == UID('1.2.1')
         assert isinstance(primitive.RequestedSOPInstanceUID, UID)

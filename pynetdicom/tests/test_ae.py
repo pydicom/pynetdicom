@@ -630,6 +630,14 @@ class TestAEGoodMiscSetters:
         ae.ae_title = 'a        TEST'
         assert ae.ae_title == b'a        TEST   '
 
+    def test_implementation(self):
+        """Check the implementation version name and class UID setters"""
+        ae = AE()
+        ae.implementation_version_name = None
+        assert ae.implementation_version_name is None
+        ae.implementation_class_uid = '1.2.3'
+        assert ae.implementation_class_uid == '1.2.3'
+
     def test_max_assoc_good(self):
         """ Check AE maximum association change produces good value """
         ae = AE()

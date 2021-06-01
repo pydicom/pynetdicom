@@ -656,6 +656,8 @@ class TestAbstractSyntax:
         assert len(item) == 4
         assert item.abstract_syntax_name is None
         assert item.abstract_syntax is None
+        item.abstract_syntax_name = None
+        assert item.abstract_syntax_name is None
 
     def test_uid_conformance(self):
         """Test the UID conformance with ENFORCE_UID_CONFORMANCE."""
@@ -790,6 +792,9 @@ class TestTransferSyntax:
         assert len(item) == 4
         assert item.transfer_syntax_name is None
         assert item.transfer_syntax is None
+
+        item.transfer_syntax_name = None
+        assert item.transfer_syntax_name is None
 
     def test_uid_conformance(self):
         """Test the UID conformance with ENFORCE_UID_CONFORMANCE."""
@@ -1258,6 +1263,9 @@ class TestUserInformation_ImplementationUID:
         )
         primitive = item.to_primitive()
 
+        item.implementation_class_uid = None
+        assert item.implementation_class_uid is None
+
     def test_string_output(self):
         """Test the string output"""
         pdu = A_ASSOCIATE_RQ()
@@ -1632,6 +1640,9 @@ class TestUserInformation_RoleSelection:
         assert item.scu is None
         assert item.scp is None
         assert item.uid is None
+
+        item.sop_class_uid = None
+        assert item.sop_class_uid is None
 
     def test_string_output(self):
         """Test the string output"""
@@ -2144,7 +2155,8 @@ class TestUserInformation_ExtendedNegotiation:
         assert item.service_class_application_information is None
 
         assert item.app_info is None
-        assert item.uid is None
+        item.sop_class_uid = None
+        assert item.sop_class_uid is None
 
     def test_string_output(self):
         """Test the string output"""
@@ -2338,8 +2350,12 @@ class TestUserInformation_CommonExtendedNegotiation:
         _config.ENFORCE_UID_CONFORMANCE = False
 
         item = SOPClassCommonExtendedNegotiationSubItem()
+        item.sop_class_uid = None
+        assert item.sop_class_uid is None
         item.sop_class_uid = 'abc'
         assert item.sop_class_uid == 'abc'
+        item.service_class_uid = None
+        assert item.service_class_uid is None
         item.service_class_uid = 'abc'
         assert item.service_class_uid == 'abc'
         item.related_general_sop_class_identification = ['abc']

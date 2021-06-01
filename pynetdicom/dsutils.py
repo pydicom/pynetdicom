@@ -1,13 +1,18 @@
 """DICOM dataset utility functions."""
 
+from io import BytesIO
 import logging
+from pathlib import Path
+from typing import Optional, List, Tuple, cast
 import zlib
 
 from pydicom import Dataset
 from pydicom.dataset import FileMetaDataset
+from pydicom.dataelem import DataElement
 from pydicom.filebase import DicomBytesIO
 from pydicom.filereader import read_dataset, read_preamble
 from pydicom.filewriter import write_dataset
+from pydicom.uid import UID
 
 from pynetdicom import (
     PYNETDICOM_IMPLEMENTATION_UID, PYNETDICOM_IMPLEMENTATION_VERSION
@@ -18,16 +23,14 @@ from pynetdicom.utils import pretty_bytes
 LOGGER = logging.getLogger('pynetdicom.dsutils')
 
 
-
-
 def create_file_meta(
     *,
-    sop_class_uid,
-    sop_instance_uid,
-    transfer_syntax,
-    implementation_uid=PYNETDICOM_IMPLEMENTATION_UID,
-    implementation_version=PYNETDICOM_IMPLEMENTATION_VERSION,
-):
+    sop_class_uid: UID,
+    sop_instance_uid: UID,
+    transfer_syntax: UID,
+    implementation_uid: UID = PYNETDICOM_IMPLEMENTATION_UID,
+    implementation_version: str = PYNETDICOM_IMPLEMENTATION_VERSION,
+) -> FileMetaDataset:
     """Return a new file meta dataset
 
     .. versionadded:: 2.0
@@ -67,7 +70,12 @@ def create_file_meta(
     return file_meta
 
 
-def decode(bytestring, is_implicit_vr, is_little_endian, deflated=False):
+def decode(
+    bytestring: BytesIO,
+    is_implicit_vr: bool,
+    is_little_endian: bool,
+    deflated: bool = False
+) -> Dataset:
     """Decode `bytestring` to a *pydicom* :class:`~pydicom.dataset.Dataset`.
 
     .. versionchanged:: 1.5
@@ -93,10 +101,11 @@ def decode(bytestring, is_implicit_vr, is_little_endian, deflated=False):
     pydicom.dataset.Dataset
         The decoded dataset.
     """
-    ## Logging
     transfer_syntax = ''
     if deflated:
         transfer_syntax = "Deflated "
+        is_implicit_vr = False
+        is_little_endian = True
 
     transfer_syntax += "Little Endian" if is_little_endian else "Big Endian"
     if is_implicit_vr:
@@ -111,17 +120,21 @@ def decode(bytestring, is_implicit_vr, is_little_endian, deflated=False):
 
     if deflated:
         # Decompress the dataset
-        bytestring = DicomBytesIO(
+        bytestring = BytesIO(
             zlib.decompress(bytestring.getvalue(), -zlib.MAX_WBITS)
         )
-        bytestring.is_implicit_VR = is_implicit_vr
-        bytestring.is_little_endian = is_little_endian
+        bytestring.seek(0)
 
     # Decode the dataset
     return read_dataset(bytestring, is_implicit_vr, is_little_endian)
 
 
-def encode(ds, is_implicit_vr, is_little_endian, deflated=False):
+def encode(
+    ds: Dataset,
+    is_implicit_vr: bool,
+    is_little_endian: bool,
+    deflated: bool = False
+) -> Optional[bytes]:
     """Encode a *pydicom* :class:`~pydicom.dataset.Dataset` `ds`.
 
     .. versionchanged:: 1.5
@@ -160,7 +173,7 @@ def encode(ds, is_implicit_vr, is_little_endian, deflated=False):
         fp.close()
         return None
 
-    bytestring = fp.parent.getvalue()
+    bytestring: bytes = fp.parent.getvalue()  # type: ignore
     fp.close()
 
     if deflated:
@@ -175,7 +188,9 @@ def encode(ds, is_implicit_vr, is_little_endian, deflated=False):
     return bytestring
 
 
-def pretty_dataset(ds, indent=0, indent_char='  '):
+def pretty_dataset(
+    ds: Dataset, indent: int = 0, indent_char: str = '  '
+) -> List[str]:
     """Return a list of pretty dataset strings.
 
     .. versionadded:: 1.5
@@ -194,7 +209,8 @@ def pretty_dataset(ds, indent=0, indent_char='  '):
     list of str
     """
     out = []
-    for elem in iter(ds):
+    for element in iter(ds):
+        elem = cast(DataElement, element)
         if elem.VR == 'SQ':
             out.append(pretty_element(elem))
             for ii, item in enumerate(elem.value):
@@ -207,7 +223,7 @@ def pretty_dataset(ds, indent=0, indent_char='  '):
     return out
 
 
-def pretty_element(elem):
+def pretty_element(elem: DataElement) -> str:
     """Return a pretty element string.
 
     .. versionadded:: 1.5
@@ -266,14 +282,14 @@ def pretty_element(elem):
     )
 
 
-def split_dataset(fpath):
+def split_dataset(path: Path) -> Tuple[Dataset, int]:
     """Return the file meta elements and the offset to the start of the dataset
 
     .. versionadded:: 2.0
 
     Parameters
     ----------
-    fpath : pathlib.Path
+    path : pathlib.Path
         The path to a dataset written in the DICOM File Format.
 
     Returns
@@ -287,7 +303,7 @@ def split_dataset(fpath):
         """Return True if the tag is not in group 0x0002, False otherwise."""
         return tag.group != 2
 
-    with open(fpath, 'rb') as fp:
+    with open(path, 'rb') as fp:
         read_preamble(fp, False)
         file_meta = read_dataset(
             fp,

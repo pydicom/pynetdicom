@@ -1,4 +1,4 @@
-name: pypi-deploy
+name: publish-pypi-deploy
 
 on:
   release:

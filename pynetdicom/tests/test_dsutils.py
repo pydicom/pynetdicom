@@ -3,20 +3,24 @@
 from copy import deepcopy
 from io import BytesIO
 import logging
+from pathlib import Path
 
 import pytest
 
 from pydicom import config
 from pydicom.dataset import Dataset
-from pydicom.dataelem import DataElement
 from pydicom.valuerep import DA, DSfloat, DSdecimal, DT, IS, TM
-from pydicom.uid import UID
 
 from pynetdicom import debug_logger
 from pynetdicom.dsutils import decode, encode, pretty_dataset, pretty_element
 
 
-#debug_logger()
+# debug_logger()
+
+
+DEFL_DATASET = (
+    Path(__file__).parent / 'dicom_files' / 'SCImageStorage_Deflated.dcm'
+).resolve(strict=True)
 
 
 class TestEncode:
@@ -82,29 +86,45 @@ class TestDecode:
     def test_implicit_little(self):
         """Test decoding using implicit VR little endian."""
         bytestring = BytesIO()
-        bytestring.write(b'\x10\x00\x10\x00\x0e\x00\x00\x00\x43\x49' \
-                         b'\x54\x49\x5a\x45\x4e\x5e\x53\x6e\x69\x70' \
-                         b'\x73\x20')
+        bytestring.write(
+            b'\x10\x00\x10\x00\x0e\x00\x00\x00\x43\x49'
+            b'\x54\x49\x5a\x45\x4e\x5e\x53\x6e\x69\x70'
+            b'\x73\x20'
+        )
         ds = decode(bytestring, True, True)
         assert ds.PatientName == 'CITIZEN^Snips'
 
     def test_explicit_little(self):
         """Test decoding using explicit VR little endian."""
         bytestring = BytesIO()
-        bytestring.write(b'\x10\x00\x10\x00\x50\x4e\x0e\x00\x43\x49' \
-                         b'\x54\x49\x5a\x45\x4e\x5e\x53\x6e\x69\x70' \
-                         b'\x73\x20')
+        bytestring.write(
+            b'\x10\x00\x10\x00\x50\x4e\x0e\x00\x43\x49'
+            b'\x54\x49\x5a\x45\x4e\x5e\x53\x6e\x69\x70'
+            b'\x73\x20'
+        )
         ds = decode(bytestring, False, True)
         assert ds.PatientName == 'CITIZEN^Snips'
 
     def test_explicit_big(self):
         """Test decoding using explicit VR big endian."""
         bytestring = BytesIO()
-        bytestring.write(b'\x00\x10\x00\x10\x50\x4e\x00\x0e\x43\x49' \
-                         b'\x54\x49\x5a\x45\x4e\x5e\x53\x6e\x69\x70' \
-                         b'\x73\x20')
+        bytestring.write(
+            b'\x00\x10\x00\x10\x50\x4e\x00\x0e\x43\x49'
+            b'\x54\x49\x5a\x45\x4e\x5e\x53\x6e\x69\x70'
+            b'\x73\x20'
+        )
         ds = decode(bytestring, False, False)
         assert ds.PatientName == 'CITIZEN^Snips'
+
+    def test_deflated(self):
+        """Test decoding a deflated explicit VR little endian dataset."""
+        with open(DEFL_DATASET, 'rb') as f:
+            # Only the main dataset uses deflated encoding
+            f.seek(334)
+            b = BytesIO(f.read())
+
+        ds = decode(b, False, True, True)
+        assert ds.PatientName == "^^^^"
 
 
 class TestDecodeFailure:
