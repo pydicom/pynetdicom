@@ -635,6 +635,8 @@ class TestAEGoodMiscSetters:
         ae = AE()
         ae.implementation_version_name = None
         assert ae.implementation_version_name is None
+        ae.implementation_class_uid = '1.2.3'
+        assert ae.implementation_class_uid == '1.2.3'
 
     def test_max_assoc_good(self):
         """ Check AE maximum association change produces good value """

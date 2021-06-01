@@ -2350,8 +2350,12 @@ class TestUserInformation_CommonExtendedNegotiation:
         _config.ENFORCE_UID_CONFORMANCE = False
 
         item = SOPClassCommonExtendedNegotiationSubItem()
+        item.sop_class_uid = None
+        assert item.sop_class_uid is None
         item.sop_class_uid = 'abc'
         assert item.sop_class_uid == 'abc'
+        item.service_class_uid = None
+        assert item.service_class_uid is None
         item.service_class_uid = 'abc'
         assert item.service_class_uid == 'abc'
         item.related_general_sop_class_identification = ['abc']
@@ -2401,8 +2405,6 @@ class TestUserInformation_CommonExtendedNegotiation:
         assert item.service_class_uid is None
         assert item.related_general_sop_class_identification_length == 0
         assert item.related_general_sop_class_identification == []
-        item.sop_class_uid = None
-        assert item.sop_class_uid is None
 
     def test_string_output(self):
         """Test the string output"""
