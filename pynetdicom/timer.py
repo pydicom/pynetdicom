@@ -50,7 +50,7 @@ class Timer:
         """
         self._start_time: Optional[float] = None
         self._end_time: Optional[float] = None
-        self.timeout = timeout
+        self._timeout = timeout
 
     @property
     def expired(self) -> bool:
@@ -115,7 +115,7 @@ class Timer:
         return self._timeout
 
     @timeout.setter
-    def timeout(self, value: Optional[None]) -> None:
+    def timeout(self, value: Optional[float]) -> None:
         """Set the number of seconds before the timer expires.
 
         Parameters
@@ -124,5 +124,4 @@ class Timer:
             The number of seconds before the timer expires. A value of ``None``
             means the timer never expires.
         """
-        # pylint: disable=attribute-defined-outside-init
         self._timeout = value

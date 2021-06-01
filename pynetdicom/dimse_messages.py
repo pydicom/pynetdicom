@@ -237,7 +237,7 @@ class DIMSEMessage:
         self._data_set_path: Optional[Union[Path, Tuple[Path, int]]] = None
         # If writing the dataset in chunks this will be a NamedTemporaryFile:
         #   the file object backing its file path
-        self._data_set_file: Optional[NTF] = None
+        self._data_set_file: Optional["NTF"] = None
 
         cls_name = self.__class__.__name__
         if cls_name == 'DIMSEMessage':
@@ -353,7 +353,7 @@ class DIMSEMessage:
                         # the file after it is opened by NamedTemporaryFile
                         # below.
                         self._data_set_file = cast(
-                            NTF,
+                            "NTF",
                             NamedTemporaryFile(
                                 delete=False,
                                 mode="wb",

@@ -129,7 +129,7 @@ class ApplicationEntity:
 
     def add_requested_context(
         self,
-        abstract_syntax: Union[str],
+        abstract_syntax: Union[str, UID],
         transfer_syntax: Optional[
             Union[str, UID, List[str], List[UID]]
         ] = None,
@@ -1341,7 +1341,7 @@ class ApplicationEntity:
 
     def __str__(self) -> str:
         """ Prints out the attribute values and status for the AE """
-        s = ["\n"]
+        s = [""]
         s.append(f"Application Entity {self.ae_title!r}")
 
         s.append("")

@@ -437,8 +437,10 @@ class A_ASSOCIATE_RQ(PDU):
         # We allow the user to modify the protocol version if so desired
         self.protocol_version = 0x01
         # Set some default values
-        self._called_aet = b"Default"
-        self._calling_aet = b"Default"
+        self._called_aet = b""
+        self.called_ae_title = b"Default"
+        self._calling_aet = b""
+        self.calling_ae_title = b"Default"
 
         # `variable_items` is a list containing the following:
         #   1 ApplicationContextItem
@@ -1488,7 +1490,7 @@ class P_DATA_TF(PDU):
             item_str = f'{ii}'
             item_str_list = item_str.split('\n')
             s += f'  *  {item_str_list[0]}\n'
-            for jj in item_str_list[1:-1]:
+            for jj in item_str_list[1:]:
                 s += f'     {jj}\n'
 
         return s
@@ -1847,7 +1849,7 @@ class A_ABORT_RQ(PDU):
             self.source = primitive.abort_source
 
         # User provider primitive abort
-        else:
+        elif isinstance(primitive, A_P_ABORT):
             self.reason_diagnostic = primitive.provider_reason
             self.source = 2
 

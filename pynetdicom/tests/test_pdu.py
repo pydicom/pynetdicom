@@ -1000,6 +1000,7 @@ class TestP_DATA_TF:
         pdu.decode(p_data_tf)
         assert "80 bytes" in pdu.__str__()
         assert "0x03 0x00" in pdu.__str__()
+        assert "0x00 0x42" in pdu.__str__()
 
     def test_decode(self):
         """ Check decoding the p_data stream produces the correct objects """
@@ -1037,7 +1038,7 @@ class TestP_DATA_TF:
 
         primitive = pdu.to_primitive()
 
-        assert primitive.presentation_data_value_list == [[1, p_data_tf[11:]]]
+        assert primitive.presentation_data_value_list == [(1, p_data_tf[11:])]
         assert isinstance(primitive.presentation_data_value_list, list)
 
     def test_from_primitive(self):

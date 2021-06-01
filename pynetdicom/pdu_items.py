@@ -528,7 +528,11 @@ class ApplicationContextItem(PDUItem):
     def __str__(self) -> str:
         """Return a string representation of the Item."""
         cx = self.application_context_name
-        return f'{cx} ({cx.name})\n'
+        s = "Application Context Item\n"
+        s += f"  Item type: 0x{self.item_type:02X}\n"
+        s += f"  Item length: {self.item_length} bytes\n"
+        s += f"  Application context name: ={cx}\n"
+        return s
 
 
 class PresentationContextItemRQ(PDUItem):
@@ -739,7 +743,7 @@ class PresentationContextItemRQ(PDUItem):
             item_str = f'{ii}'
             item_str_list = item_str.split('\n')
             s += f'  + {item_str_list[0]}\n'
-            for jj in item_str_list[1:-1]:
+            for jj in item_str_list[1:]:
                 s += f'    {jj}\n'
 
         return s
@@ -1536,13 +1540,15 @@ class TransferSyntaxSubItem(PDUItem):
 
     def __str__(self) -> str:
         """Return a string representation of the Item."""
-        s = "Transfer syntax sub item\n"
-        s += f"  Item type: 0x{self.item_type:02X}\n"
-        s += f"  Item length: {self.item_length} bytes\n"
+        s = ["Transfer syntax sub item"]
+        s.append(f"  Item type: 0x{self.item_type:02X}")
+        s.append(f"  Item length: {self.item_length} bytes")
         if self.transfer_syntax_name:
-            s += f'  Transfer syntax name: ={self.transfer_syntax_name.name}\n'
+            s.append(
+                f'  Transfer syntax name: ={self.transfer_syntax_name.name}'
+            )
 
-        return s
+        return "\n".join(s)
 
     @property
     def transfer_syntax(self) -> Optional[UID]:

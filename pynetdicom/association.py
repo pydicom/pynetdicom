@@ -656,9 +656,9 @@ class Association(threading.Thread):
                     self._run_reactor()
 
             # Ensure the connection is shutdown properly
-            socket = cast("AssociationSocket", self.dul.socket)
-            if self._server and socket.socket:
-                self._server.shutdown_request(socket.socket)
+            sock = cast("AssociationSocket", self.dul.socket)
+            if self._server and sock.socket:
+                self._server.shutdown_request(sock.socket)
         else:
             # Association requestor
             # Allow non-blocking negotiation

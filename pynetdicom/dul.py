@@ -130,7 +130,7 @@ class DULServiceProvider(Thread):
         """
         # Trigger before data is decoded in case of exception in decoding
         b = bytes(bytestream)
-        evt.trigger(self.assoc, evt.EVT_DATA_RECV, {'data' : bytestream})
+        evt.trigger(self.assoc, evt.EVT_DATA_RECV, {'data' : b})
 
         pdu_cls, event = _PDU_TYPES[b[0:1]]
         pdu = pdu_cls()
@@ -156,7 +156,7 @@ class DULServiceProvider(Thread):
         """
         # Sta13: waiting for the transport connection to close
         # however it may still receive data that needs to be acted on
-        self.socket = cast("AssociationSocket", socket)
+        self.socket = cast("AssociationSocket", self.socket)
         if self.state_machine.current_state == 'Sta13':
             # Check to see if there's more data to be read
             #   Might be any incoming PDU or valid/invalid data
