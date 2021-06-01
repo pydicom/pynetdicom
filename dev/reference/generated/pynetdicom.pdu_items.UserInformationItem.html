@@ -235,7 +235,7 @@
 <h1>pynetdicom.pdu_items.UserInformationItem<a class="headerlink" href="#pynetdicom-pdu-items-userinformationitem" title="Permalink to this headline">¶</a></h1>
 <dl class="py class">
 <dt class="sig sig-object py" id="pynetdicom.pdu_items.UserInformationItem">
-<em class="property"><span class="pre">class</span> </em><span class="sig-prename descclassname"><span class="pre">pynetdicom.pdu_items.</span></span><span class="sig-name descname"><span class="pre">UserInformationItem</span></span><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/086a0f55d/pynetdicom/pdu_items.py#L953"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pynetdicom.pdu_items.UserInformationItem" title="Permalink to this definition">¶</a></dt>
+<em class="property"><span class="pre">class</span> </em><span class="sig-prename descclassname"><span class="pre">pynetdicom.pdu_items.</span></span><span class="sig-name descname"><span class="pre">UserInformationItem</span></span><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/0e8ac4be8/pynetdicom/pdu_items.py#L999"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pynetdicom.pdu_items.UserInformationItem" title="Permalink to this definition">¶</a></dt>
 <dd><p>A User Information Item.</p>
 <p>Used by the association requestor and acceptor to include user information
 in the association negotiation.</p>
@@ -297,7 +297,7 @@ Python indexing). Items are always encoded using Big Endian.</p>
 </ul>
 <dl class="py method">
 <dt class="sig sig-object py" id="pynetdicom.pdu_items.UserInformationItem.__init__">
-<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/086a0f55d/pynetdicom/pdu_items.py#L999"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pynetdicom.pdu_items.UserInformationItem.__init__" title="Permalink to this definition">¶</a></dt>
+<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> &#x2192; <a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.9)"><span class="pre">None</span></a><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/0e8ac4be8/pynetdicom/pdu_items.py#L1045"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pynetdicom.pdu_items.UserInformationItem.__init__" title="Permalink to this definition">¶</a></dt>
 <dd><p>Initialise a new User Information Item.</p>
 </dd></dl>
 
@@ -366,26 +366,26 @@ Python indexing). Items are always encoded using Big Endian.</p>
 </table>
 <dl class="py property">
 <dt class="sig sig-object py" id="pynetdicom.pdu_items.UserInformationItem.async_ops_window">
-<em class="property"><span class="pre">property</span> </em><span class="sig-name descname"><span class="pre">async_ops_window</span></span><a class="headerlink" href="#pynetdicom.pdu_items.UserInformationItem.async_ops_window" title="Permalink to this definition">¶</a></dt>
+<em class="property"><span class="pre">property</span> </em><span class="sig-name descname"><span class="pre">async_ops_window</span></span><em class="property"><span class="pre">:</span> <span class="pre">Optional[pynetdicom.pdu_items.AsynchronousOperationsWindowSubItem]</span></em><a class="headerlink" href="#pynetdicom.pdu_items.UserInformationItem.async_ops_window" title="Permalink to this definition">¶</a></dt>
 <dd><p>Return the <em>Asynchronous Operations Window Sub-item</em>, if
 available.</p>
 </dd></dl>
 
 <dl class="py property">
 <dt class="sig sig-object py" id="pynetdicom.pdu_items.UserInformationItem.common_ext_neg">
-<em class="property"><span class="pre">property</span> </em><span class="sig-name descname"><span class="pre">common_ext_neg</span></span><a class="headerlink" href="#pynetdicom.pdu_items.UserInformationItem.common_ext_neg" title="Permalink to this definition">¶</a></dt>
+<em class="property"><span class="pre">property</span> </em><span class="sig-name descname"><span class="pre">common_ext_neg</span></span><em class="property"><span class="pre">:</span> <span class="pre">List[pynetdicom.pdu_items.SOPClassCommonExtendedNegotiationSubItem]</span></em><a class="headerlink" href="#pynetdicom.pdu_items.UserInformationItem.common_ext_neg" title="Permalink to this definition">¶</a></dt>
 <dd><p>Return the <em>SOP Class Common Extended Negotiation Sub-items</em>.</p>
 </dd></dl>
 
 <dl class="py property">
 <dt class="sig sig-object py" id="pynetdicom.pdu_items.UserInformationItem.ext_neg">
-<em class="property"><span class="pre">property</span> </em><span class="sig-name descname"><span class="pre">ext_neg</span></span><a class="headerlink" href="#pynetdicom.pdu_items.UserInformationItem.ext_neg" title="Permalink to this definition">¶</a></dt>
+<em class="property"><span class="pre">property</span> </em><span class="sig-name descname"><span class="pre">ext_neg</span></span><em class="property"><span class="pre">:</span> <span class="pre">List[pynetdicom.pdu_items.SOPClassExtendedNegotiationSubItem]</span></em><a class="headerlink" href="#pynetdicom.pdu_items.UserInformationItem.ext_neg" title="Permalink to this definition">¶</a></dt>
 <dd><p>Return the <em>SOP Class Extended Negotiation Sub-items</em>.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="pynetdicom.pdu_items.UserInformationItem.from_primitive">
-<span class="sig-name descname"><span class="pre">from_primitive</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">primitive</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/086a0f55d/pynetdicom/pdu_items.py#L1003"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pynetdicom.pdu_items.UserInformationItem.from_primitive" title="Permalink to this definition">¶</a></dt>
+<span class="sig-name descname"><span class="pre">from_primitive</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">primitive</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">_UserInformationPrimitiveType</span></span></em><span class="sig-paren">)</span> &#x2192; <a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.9)"><span class="pre">None</span></a><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/0e8ac4be8/pynetdicom/pdu_items.py#L1049"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pynetdicom.pdu_items.UserInformationItem.from_primitive" title="Permalink to this definition">¶</a></dt>
 <dd><p>Set up the current Item using User Information primitives.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -396,7 +396,7 @@ available.</p>
 </ul>
 <p>May optionally contain one or more:</p>
 <ul class="simple">
-<li><p>ImplementationVersionnameNotification</p></li>
+<li><p>ImplementationVersionNameNotification</p></li>
 <li><p>AsynchronousOperationsWindowNegotiation</p></li>
 <li><p>SCP_SCU_RoleSelectionNegotiation</p></li>
 <li><p>SOPClassExtendedNegotiation</p></li>
@@ -410,34 +410,34 @@ available.</p>
 
 <dl class="py property">
 <dt class="sig sig-object py" id="pynetdicom.pdu_items.UserInformationItem.implementation_class_uid">
-<em class="property"><span class="pre">property</span> </em><span class="sig-name descname"><span class="pre">implementation_class_uid</span></span><a class="headerlink" href="#pynetdicom.pdu_items.UserInformationItem.implementation_class_uid" title="Permalink to this definition">¶</a></dt>
+<em class="property"><span class="pre">property</span> </em><span class="sig-name descname"><span class="pre">implementation_class_uid</span></span><em class="property"><span class="pre">:</span> <span class="pre">Optional[pydicom.uid.UID]</span></em><a class="headerlink" href="#pynetdicom.pdu_items.UserInformationItem.implementation_class_uid" title="Permalink to this definition">¶</a></dt>
 <dd><p>Return the item’s <em>Implementation Class UID</em> field value, if
 available.</p>
 </dd></dl>
 
 <dl class="py property">
 <dt class="sig sig-object py" id="pynetdicom.pdu_items.UserInformationItem.implementation_version_name">
-<em class="property"><span class="pre">property</span> </em><span class="sig-name descname"><span class="pre">implementation_version_name</span></span><a class="headerlink" href="#pynetdicom.pdu_items.UserInformationItem.implementation_version_name" title="Permalink to this definition">¶</a></dt>
+<em class="property"><span class="pre">property</span> </em><span class="sig-name descname"><span class="pre">implementation_version_name</span></span><em class="property"><span class="pre">:</span> <span class="pre">Optional[bytes]</span></em><a class="headerlink" href="#pynetdicom.pdu_items.UserInformationItem.implementation_version_name" title="Permalink to this definition">¶</a></dt>
 <dd><p>Return the item’s <em>Implementation Version Name</em> field value, if
 available.</p>
 </dd></dl>
 
 <dl class="py property">
 <dt class="sig sig-object py" id="pynetdicom.pdu_items.UserInformationItem.item_length">
-<em class="property"><span class="pre">property</span> </em><span class="sig-name descname"><span class="pre">item_length</span></span><a class="headerlink" href="#pynetdicom.pdu_items.UserInformationItem.item_length" title="Permalink to this definition">¶</a></dt>
+<em class="property"><span class="pre">property</span> </em><span class="sig-name descname"><span class="pre">item_length</span></span><em class="property"><span class="pre">:</span> <span class="pre">int</span></em><a class="headerlink" href="#pynetdicom.pdu_items.UserInformationItem.item_length" title="Permalink to this definition">¶</a></dt>
 <dd><p>Return the item’s <em>Item Length</em> field value as <a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.9)"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></a>.</p>
 </dd></dl>
 
 <dl class="py property">
 <dt class="sig sig-object py" id="pynetdicom.pdu_items.UserInformationItem.maximum_length">
-<em class="property"><span class="pre">property</span> </em><span class="sig-name descname"><span class="pre">maximum_length</span></span><a class="headerlink" href="#pynetdicom.pdu_items.UserInformationItem.maximum_length" title="Permalink to this definition">¶</a></dt>
+<em class="property"><span class="pre">property</span> </em><span class="sig-name descname"><span class="pre">maximum_length</span></span><em class="property"><span class="pre">:</span> <span class="pre">Optional[int]</span></em><a class="headerlink" href="#pynetdicom.pdu_items.UserInformationItem.maximum_length" title="Permalink to this definition">¶</a></dt>
 <dd><p>Return the item’s <em>Maximum Length Received</em> field value, if
 available.</p>
 </dd></dl>
 
 <dl class="py property">
 <dt class="sig sig-object py" id="pynetdicom.pdu_items.UserInformationItem.role_selection">
-<em class="property"><span class="pre">property</span> </em><span class="sig-name descname"><span class="pre">role_selection</span></span><a class="headerlink" href="#pynetdicom.pdu_items.UserInformationItem.role_selection" title="Permalink to this definition">¶</a></dt>
+<em class="property"><span class="pre">property</span> </em><span class="sig-name descname"><span class="pre">role_selection</span></span><em class="property"><span class="pre">:</span> <span class="pre">Dict[pydicom.uid.UID,</span> <span class="pre">pynetdicom.pdu_items.SCP_SCU_RoleSelectionSubItem]</span></em><a class="headerlink" href="#pynetdicom.pdu_items.UserInformationItem.role_selection" title="Permalink to this definition">¶</a></dt>
 <dd><p>Return the <em>SCP/SCU Role Selection Sub-items</em>.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Returns</dt>
@@ -451,7 +451,7 @@ available.</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="pynetdicom.pdu_items.UserInformationItem.to_primitive">
-<span class="sig-name descname"><span class="pre">to_primitive</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/086a0f55d/pynetdicom/pdu_items.py#L1026"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pynetdicom.pdu_items.UserInformationItem.to_primitive" title="Permalink to this definition">¶</a></dt>
+<span class="sig-name descname"><span class="pre">to_primitive</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> &#x2192; <span class="pre">_UserInformationPrimitiveType</span><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/0e8ac4be8/pynetdicom/pdu_items.py#L1074"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pynetdicom.pdu_items.UserInformationItem.to_primitive" title="Permalink to this definition">¶</a></dt>
 <dd><p>Return a list of User Information primitives from the current Item.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Returns</dt>
@@ -479,7 +479,7 @@ available.</p>
 
 <dl class="py property">
 <dt class="sig sig-object py" id="pynetdicom.pdu_items.UserInformationItem.user_identity">
-<em class="property"><span class="pre">property</span> </em><span class="sig-name descname"><span class="pre">user_identity</span></span><a class="headerlink" href="#pynetdicom.pdu_items.UserInformationItem.user_identity" title="Permalink to this definition">¶</a></dt>
+<em class="property"><span class="pre">property</span> </em><span class="sig-name descname"><span class="pre">user_identity</span></span><em class="property"><span class="pre">:</span> <span class="pre">Optional[Union[pynetdicom.pdu_items.UserIdentitySubItemAC,</span> <span class="pre">pynetdicom.pdu_items.UserIdentitySubItemRQ]]</span></em><a class="headerlink" href="#pynetdicom.pdu_items.UserInformationItem.user_identity" title="Permalink to this definition">¶</a></dt>
 <dd><p>Return the <em>User Identity Sub-item</em>, if available.</p>
 </dd></dl>
 

@@ -213,7 +213,7 @@
 <h1>pynetdicom.utils.make_target<a class="headerlink" href="#pynetdicom-utils-make-target" title="Permalink to this headline">¶</a></h1>
 <dl class="py function">
 <dt class="sig sig-object py" id="pynetdicom.utils.make_target">
-<span class="sig-prename descclassname"><span class="pre">pynetdicom.utils.</span></span><span class="sig-name descname"><span class="pre">make_target</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">target_fn</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/086a0f55d/pynetdicom/utils.py#L23"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pynetdicom.utils.make_target" title="Permalink to this definition">¶</a></dt>
+<span class="sig-prename descclassname"><span class="pre">pynetdicom.utils.</span></span><span class="sig-name descname"><span class="pre">make_target</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">target_fn</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/0e8ac4be8/pynetdicom/utils.py#L23"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pynetdicom.utils.make_target" title="Permalink to this definition">¶</a></dt>
 <dd><p>Wraps <cite>target_fn</cite> in a thunk that passes all contextvars from the
 current context. It is assumed that <cite>target_fn</cite> is the target of a new
 <code class="docutils literal notranslate"><span class="pre">threading.Thread</span></code>.</p>
@@ -226,7 +226,8 @@ current context. It is assumed that <cite>target_fn</cite> is the target of a ne
 <dd class="field-odd"><p><strong>target_fn</strong> (<em>Callable</em>) – The function to wrap</p>
 </dd>
 <dt class="field-even">Returns</dt>
-<dd class="field-even"><p>The wrapped <cite>target_fn</cite> if requirements are met, else the original <cite>target_fn</cite>.</p>
+<dd class="field-even"><p>The wrapped <cite>target_fn</cite> if requirements are met, else the original
+<cite>target_fn</cite>.</p>
 </dd>
 <dt class="field-odd">Return type</dt>
 <dd class="field-odd"><p>Callable</p>

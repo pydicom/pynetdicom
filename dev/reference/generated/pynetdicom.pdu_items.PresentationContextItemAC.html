@@ -235,7 +235,7 @@
 <h1>pynetdicom.pdu_items.PresentationContextItemAC<a class="headerlink" href="#pynetdicom-pdu-items-presentationcontextitemac" title="Permalink to this headline">¶</a></h1>
 <dl class="py class">
 <dt class="sig sig-object py" id="pynetdicom.pdu_items.PresentationContextItemAC">
-<em class="property"><span class="pre">class</span> </em><span class="sig-prename descclassname"><span class="pre">pynetdicom.pdu_items.</span></span><span class="sig-name descname"><span class="pre">PresentationContextItemAC</span></span><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/086a0f55d/pynetdicom/pdu_items.py#L722"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pynetdicom.pdu_items.PresentationContextItemAC" title="Permalink to this definition">¶</a></dt>
+<em class="property"><span class="pre">class</span> </em><span class="sig-prename descclassname"><span class="pre">pynetdicom.pdu_items.</span></span><span class="sig-name descname"><span class="pre">PresentationContextItemAC</span></span><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/0e8ac4be8/pynetdicom/pdu_items.py#L766"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pynetdicom.pdu_items.PresentationContextItemAC" title="Permalink to this definition">¶</a></dt>
 <dd><p>A Presentation Context (AC) Ttem.</p>
 <p>Presentation Contexts (AC) Items are used by the association acceptor to
 signal which Abstract Syntaxes and Transfer Syntaxes have been accepted or
@@ -316,7 +316,7 @@ Python indexing). Items are always encoded using Big Endian.</p>
 </ul>
 <dl class="py method">
 <dt class="sig sig-object py" id="pynetdicom.pdu_items.PresentationContextItemAC.__init__">
-<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/086a0f55d/pynetdicom/pdu_items.py#L776"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pynetdicom.pdu_items.PresentationContextItemAC.__init__" title="Permalink to this definition">¶</a></dt>
+<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> &#x2192; <a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.9)"><span class="pre">None</span></a><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/0e8ac4be8/pynetdicom/pdu_items.py#L820"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pynetdicom.pdu_items.PresentationContextItemAC.__init__" title="Permalink to this definition">¶</a></dt>
 <dd><p>Initialise a new Presentation Context (AC) Item.</p>
 </dd></dl>
 
@@ -373,13 +373,13 @@ Python indexing). Items are always encoded using Big Endian.</p>
 </table>
 <dl class="py property">
 <dt class="sig sig-object py" id="pynetdicom.pdu_items.PresentationContextItemAC.context_id">
-<em class="property"><span class="pre">property</span> </em><span class="sig-name descname"><span class="pre">context_id</span></span><a class="headerlink" href="#pynetdicom.pdu_items.PresentationContextItemAC.context_id" title="Permalink to this definition">¶</a></dt>
+<em class="property"><span class="pre">property</span> </em><span class="sig-name descname"><span class="pre">context_id</span></span><em class="property"><span class="pre">:</span> <span class="pre">Optional[int]</span></em><a class="headerlink" href="#pynetdicom.pdu_items.PresentationContextItemAC.context_id" title="Permalink to this definition">¶</a></dt>
 <dd><p>Return the item’s <em>Presentation Context ID</em> field value.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="pynetdicom.pdu_items.PresentationContextItemAC.from_primitive">
-<span class="sig-name descname"><span class="pre">from_primitive</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">primitive</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/086a0f55d/pynetdicom/pdu_items.py#L782"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pynetdicom.pdu_items.PresentationContextItemAC.from_primitive" title="Permalink to this definition">¶</a></dt>
+<span class="sig-name descname"><span class="pre">from_primitive</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">primitive</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><a class="reference internal" href="pynetdicom.presentation.PresentationContext.html#pynetdicom.presentation.PresentationContext" title="pynetdicom.presentation.PresentationContext"><span class="pre">pynetdicom.presentation.PresentationContext</span></a></span></em><span class="sig-paren">)</span> &#x2192; <a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.9)"><span class="pre">None</span></a><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/0e8ac4be8/pynetdicom/pdu_items.py#L826"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pynetdicom.pdu_items.PresentationContextItemAC.from_primitive" title="Permalink to this definition">¶</a></dt>
 <dd><p>Set the item’s values using a Presentation Context primitive.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -390,25 +390,25 @@ Python indexing). Items are always encoded using Big Endian.</p>
 
 <dl class="py property">
 <dt class="sig sig-object py" id="pynetdicom.pdu_items.PresentationContextItemAC.item_length">
-<em class="property"><span class="pre">property</span> </em><span class="sig-name descname"><span class="pre">item_length</span></span><a class="headerlink" href="#pynetdicom.pdu_items.PresentationContextItemAC.item_length" title="Permalink to this definition">¶</a></dt>
+<em class="property"><span class="pre">property</span> </em><span class="sig-name descname"><span class="pre">item_length</span></span><em class="property"><span class="pre">:</span> <span class="pre">int</span></em><a class="headerlink" href="#pynetdicom.pdu_items.PresentationContextItemAC.item_length" title="Permalink to this definition">¶</a></dt>
 <dd><p>Return the item’s <em>Item Length</em> field value as <a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.9)"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></a>.</p>
 </dd></dl>
 
 <dl class="py property">
 <dt class="sig sig-object py" id="pynetdicom.pdu_items.PresentationContextItemAC.result">
-<em class="property"><span class="pre">property</span> </em><span class="sig-name descname"><span class="pre">result</span></span><a class="headerlink" href="#pynetdicom.pdu_items.PresentationContextItemAC.result" title="Permalink to this definition">¶</a></dt>
+<em class="property"><span class="pre">property</span> </em><span class="sig-name descname"><span class="pre">result</span></span><em class="property"><span class="pre">:</span> <span class="pre">Optional[int]</span></em><a class="headerlink" href="#pynetdicom.pdu_items.PresentationContextItemAC.result" title="Permalink to this definition">¶</a></dt>
 <dd><p>Return the item’s <em>Result/reason</em> field value.</p>
 </dd></dl>
 
 <dl class="py property">
 <dt class="sig sig-object py" id="pynetdicom.pdu_items.PresentationContextItemAC.result_str">
-<em class="property"><span class="pre">property</span> </em><span class="sig-name descname"><span class="pre">result_str</span></span><a class="headerlink" href="#pynetdicom.pdu_items.PresentationContextItemAC.result_str" title="Permalink to this definition">¶</a></dt>
+<em class="property"><span class="pre">property</span> </em><span class="sig-name descname"><span class="pre">result_str</span></span><em class="property"><span class="pre">:</span> <span class="pre">str</span></em><a class="headerlink" href="#pynetdicom.pdu_items.PresentationContextItemAC.result_str" title="Permalink to this definition">¶</a></dt>
 <dd><p>Get a string describing the result.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="pynetdicom.pdu_items.PresentationContextItemAC.to_primitive">
-<span class="sig-name descname"><span class="pre">to_primitive</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/086a0f55d/pynetdicom/pdu_items.py#L801"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pynetdicom.pdu_items.PresentationContextItemAC.to_primitive" title="Permalink to this definition">¶</a></dt>
+<span class="sig-name descname"><span class="pre">to_primitive</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> &#x2192; <a class="reference internal" href="pynetdicom.presentation.PresentationContext.html#pynetdicom.presentation.PresentationContext" title="pynetdicom.presentation.PresentationContext"><span class="pre">pynetdicom.presentation.PresentationContext</span></a><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/0e8ac4be8/pynetdicom/pdu_items.py#L845"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pynetdicom.pdu_items.PresentationContextItemAC.to_primitive" title="Permalink to this definition">¶</a></dt>
 <dd><p>Return a PresentationContext primitive from the current Item.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Returns</dt>
@@ -422,7 +422,7 @@ Python indexing). Items are always encoded using Big Endian.</p>
 
 <dl class="py property">
 <dt class="sig sig-object py" id="pynetdicom.pdu_items.PresentationContextItemAC.transfer_syntax">
-<em class="property"><span class="pre">property</span> </em><span class="sig-name descname"><span class="pre">transfer_syntax</span></span><a class="headerlink" href="#pynetdicom.pdu_items.PresentationContextItemAC.transfer_syntax" title="Permalink to this definition">¶</a></dt>
+<em class="property"><span class="pre">property</span> </em><span class="sig-name descname"><span class="pre">transfer_syntax</span></span><em class="property"><span class="pre">:</span> <span class="pre">Optional[pydicom.uid.UID]</span></em><a class="headerlink" href="#pynetdicom.pdu_items.PresentationContextItemAC.transfer_syntax" title="Permalink to this definition">¶</a></dt>
 <dd><p>Return the <em>Transfer Syntax</em>, if available.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Returns</dt>

@@ -226,7 +226,7 @@
 <h1>pynetdicom.pdu.A_ASSOCIATE_RQ<a class="headerlink" href="#pynetdicom-pdu-a-associate-rq" title="Permalink to this headline">¶</a></h1>
 <dl class="py class">
 <dt class="sig sig-object py" id="pynetdicom.pdu.A_ASSOCIATE_RQ">
-<em class="property"><span class="pre">class</span> </em><span class="sig-prename descclassname"><span class="pre">pynetdicom.pdu.</span></span><span class="sig-name descname"><span class="pre">A_ASSOCIATE_RQ</span></span><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/086a0f55d/pynetdicom/pdu.py#L318"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pynetdicom.pdu.A_ASSOCIATE_RQ" title="Permalink to this definition">¶</a></dt>
+<em class="property"><span class="pre">class</span> </em><span class="sig-prename descclassname"><span class="pre">pynetdicom.pdu.</span></span><span class="sig-name descname"><span class="pre">A_ASSOCIATE_RQ</span></span><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/0e8ac4be8/pynetdicom/pdu.py#L339"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pynetdicom.pdu.A_ASSOCIATE_RQ" title="Permalink to this definition">¶</a></dt>
 <dd><p>An A-ASSOCIATE-RQ PDU.</p>
 <p>An A-ASSOCIATE-RQ PDU is sent by an association requestor to initiate
 association negotiation with an acceptor.</p>
@@ -388,7 +388,7 @@ and <a class="reference external" href="http://dicom.nema.org/medical/dicom/curr
 </ul>
 <dl class="py method">
 <dt class="sig sig-object py" id="pynetdicom.pdu.A_ASSOCIATE_RQ.__init__">
-<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/086a0f55d/pynetdicom/pdu.py#L413"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pynetdicom.pdu.A_ASSOCIATE_RQ.__init__" title="Permalink to this definition">¶</a></dt>
+<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> &#x2192; <a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.9)"><span class="pre">None</span></a><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/0e8ac4be8/pynetdicom/pdu.py#L434"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pynetdicom.pdu.A_ASSOCIATE_RQ.__init__" title="Permalink to this definition">¶</a></dt>
 <dd><p>Initialise a new A-ASSOCIATE-RQ PDU.</p>
 </dd></dl>
 
@@ -448,7 +448,7 @@ and <a class="reference external" href="http://dicom.nema.org/medical/dicom/curr
 </table>
 <dl class="py property">
 <dt class="sig sig-object py" id="pynetdicom.pdu.A_ASSOCIATE_RQ.application_context_name">
-<em class="property"><span class="pre">property</span> </em><span class="sig-name descname"><span class="pre">application_context_name</span></span><a class="headerlink" href="#pynetdicom.pdu.A_ASSOCIATE_RQ.application_context_name" title="Permalink to this definition">¶</a></dt>
+<em class="property"><span class="pre">property</span> </em><span class="sig-name descname"><span class="pre">application_context_name</span></span><em class="property"><span class="pre">:</span> <span class="pre">Optional[pydicom.uid.UID]</span></em><a class="headerlink" href="#pynetdicom.pdu.A_ASSOCIATE_RQ.application_context_name" title="Permalink to this definition">¶</a></dt>
 <dd><p>Return the <em>Application Context Name</em>, if available.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Returns</dt>
@@ -463,19 +463,19 @@ available.</p>
 
 <dl class="py property">
 <dt class="sig sig-object py" id="pynetdicom.pdu.A_ASSOCIATE_RQ.called_ae_title">
-<em class="property"><span class="pre">property</span> </em><span class="sig-name descname"><span class="pre">called_ae_title</span></span><a class="headerlink" href="#pynetdicom.pdu.A_ASSOCIATE_RQ.called_ae_title" title="Permalink to this definition">¶</a></dt>
+<em class="property"><span class="pre">property</span> </em><span class="sig-name descname"><span class="pre">called_ae_title</span></span><em class="property"><span class="pre">:</span> <span class="pre">bytes</span></em><a class="headerlink" href="#pynetdicom.pdu.A_ASSOCIATE_RQ.called_ae_title" title="Permalink to this definition">¶</a></dt>
 <dd><p>Return the <em>Called AE Title</em> field value as <a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#bytes" title="(in Python v3.9)"><code class="xref py py-class docutils literal notranslate"><span class="pre">bytes</span></code></a>.</p>
 </dd></dl>
 
 <dl class="py property">
 <dt class="sig sig-object py" id="pynetdicom.pdu.A_ASSOCIATE_RQ.calling_ae_title">
-<em class="property"><span class="pre">property</span> </em><span class="sig-name descname"><span class="pre">calling_ae_title</span></span><a class="headerlink" href="#pynetdicom.pdu.A_ASSOCIATE_RQ.calling_ae_title" title="Permalink to this definition">¶</a></dt>
+<em class="property"><span class="pre">property</span> </em><span class="sig-name descname"><span class="pre">calling_ae_title</span></span><em class="property"><span class="pre">:</span> <span class="pre">bytes</span></em><a class="headerlink" href="#pynetdicom.pdu.A_ASSOCIATE_RQ.calling_ae_title" title="Permalink to this definition">¶</a></dt>
 <dd><p>Return the <em>Calling AE Title</em> field value as <a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#bytes" title="(in Python v3.9)"><code class="xref py py-class docutils literal notranslate"><span class="pre">bytes</span></code></a>.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="pynetdicom.pdu.A_ASSOCIATE_RQ.from_primitive">
-<span class="sig-name descname"><span class="pre">from_primitive</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">primitive</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/086a0f55d/pynetdicom/pdu.py#L428"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pynetdicom.pdu.A_ASSOCIATE_RQ.from_primitive" title="Permalink to this definition">¶</a></dt>
+<span class="sig-name descname"><span class="pre">from_primitive</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">primitive</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">A_ASSOCIATE</span></span></em><span class="sig-paren">)</span> &#x2192; <a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.9)"><span class="pre">None</span></a><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/0e8ac4be8/pynetdicom/pdu.py#L451"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pynetdicom.pdu.A_ASSOCIATE_RQ.from_primitive" title="Permalink to this definition">¶</a></dt>
 <dd><p>Setup the current PDU using an A-ASSOCIATE (request) primitive.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -486,13 +486,13 @@ available.</p>
 
 <dl class="py property">
 <dt class="sig sig-object py" id="pynetdicom.pdu.A_ASSOCIATE_RQ.pdu_length">
-<em class="property"><span class="pre">property</span> </em><span class="sig-name descname"><span class="pre">pdu_length</span></span><a class="headerlink" href="#pynetdicom.pdu.A_ASSOCIATE_RQ.pdu_length" title="Permalink to this definition">¶</a></dt>
+<em class="property"><span class="pre">property</span> </em><span class="sig-name descname"><span class="pre">pdu_length</span></span><em class="property"><span class="pre">:</span> <span class="pre">int</span></em><a class="headerlink" href="#pynetdicom.pdu.A_ASSOCIATE_RQ.pdu_length" title="Permalink to this definition">¶</a></dt>
 <dd><p>Return the <em>PDU Length</em> field value as <a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.9)"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></a>.</p>
 </dd></dl>
 
 <dl class="py property">
 <dt class="sig sig-object py" id="pynetdicom.pdu.A_ASSOCIATE_RQ.presentation_context">
-<em class="property"><span class="pre">property</span> </em><span class="sig-name descname"><span class="pre">presentation_context</span></span><a class="headerlink" href="#pynetdicom.pdu.A_ASSOCIATE_RQ.presentation_context" title="Permalink to this definition">¶</a></dt>
+<em class="property"><span class="pre">property</span> </em><span class="sig-name descname"><span class="pre">presentation_context</span></span><em class="property"><span class="pre">:</span> <span class="pre">List[pynetdicom.pdu_items.PresentationContextItemRQ]</span></em><a class="headerlink" href="#pynetdicom.pdu.A_ASSOCIATE_RQ.presentation_context" title="Permalink to this definition">¶</a></dt>
 <dd><p>Return a list of the Presentation Context items.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Returns</dt>
@@ -506,7 +506,7 @@ available.</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="pynetdicom.pdu.A_ASSOCIATE_RQ.to_primitive">
-<span class="sig-name descname"><span class="pre">to_primitive</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/086a0f55d/pynetdicom/pdu.py#L457"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pynetdicom.pdu.A_ASSOCIATE_RQ.to_primitive" title="Permalink to this definition">¶</a></dt>
+<span class="sig-name descname"><span class="pre">to_primitive</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> &#x2192; <span class="pre">A_ASSOCIATE</span><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/0e8ac4be8/pynetdicom/pdu.py#L480"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pynetdicom.pdu.A_ASSOCIATE_RQ.to_primitive" title="Permalink to this definition">¶</a></dt>
 <dd><p>Return an A-ASSOCIATE (request) primitive from the current PDU.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Returns</dt>
@@ -520,7 +520,7 @@ available.</p>
 
 <dl class="py property">
 <dt class="sig sig-object py" id="pynetdicom.pdu.A_ASSOCIATE_RQ.user_information">
-<em class="property"><span class="pre">property</span> </em><span class="sig-name descname"><span class="pre">user_information</span></span><a class="headerlink" href="#pynetdicom.pdu.A_ASSOCIATE_RQ.user_information" title="Permalink to this definition">¶</a></dt>
+<em class="property"><span class="pre">property</span> </em><span class="sig-name descname"><span class="pre">user_information</span></span><em class="property"><span class="pre">:</span> <span class="pre">Optional[pynetdicom.pdu_items.UserInformationItem]</span></em><a class="headerlink" href="#pynetdicom.pdu.A_ASSOCIATE_RQ.user_information" title="Permalink to this definition">¶</a></dt>
 <dd><p>Return the User Information Item, if available.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Returns</dt>
