@@ -11,6 +11,7 @@ from typing import Iterator, Optional, TYPE_CHECKING, cast, Union, Tuple, Type
 from pydicom.dataset import Dataset
 from pydicom.filewriter import write_file_meta_info
 from pydicom.tag import Tag
+from pydicom.uid import UID
 
 from pynetdicom import _config
 from pynetdicom.dimse_primitives import (
@@ -369,11 +370,13 @@ class DIMSEMessage:
                         cx = cast(
                             "Association", assoc
                         )._accepted_cx[context_id]
+                        sop_class = cast(UID, cs.AffectedSOPClassUID)
+                        sop_instance = cast(UID, cs.AffectedSOPInstanceUID)
                         write_file_meta_info(
                             self._data_set_file,  # type: ignore
                             create_file_meta(
-                                sop_class_uid=cs.AffectedSOPClassUID,
-                                sop_instance_uid=cs.AffectedSOPInstanceUID,
+                                sop_class_uid=sop_class,
+                                sop_instance_uid=sop_instance,
                                 transfer_syntax=cx.transfer_syntax[0]
                             )
                         )

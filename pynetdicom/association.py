@@ -1830,8 +1830,8 @@ class Association(threading.Thread):
                     f"element are missing: {','.join(missing)}"
                 )
 
-            sop_class = dataset.SOPClassUID
-            sop_instance = dataset.SOPInstanceUID
+            sop_class = cast(UID, dataset.SOPClassUID)
+            sop_instance = cast(UID, dataset.SOPInstanceUID)
 
             try:
                 tsyntax = dataset.file_meta.TransferSyntaxUID
@@ -2339,7 +2339,7 @@ class Association(threading.Thread):
         #   we check against None as 0x0000 is a possible status
         action_reply = None
         if getattr(status, 'Status', None) is not None:
-            category = code_to_category(status.Status)
+            category = code_to_category(cast(int, status.Status))
             if category not in [STATUS_WARNING, STATUS_SUCCESS]:
                 return status, action_reply
 
@@ -2583,7 +2583,7 @@ class Association(threading.Thread):
         #   we check against None as 0x0000 is a possible status
         attribute_list = None
         if getattr(status, 'Status', None) is not None:
-            category = code_to_category(status.Status)
+            category = code_to_category(cast(int, status.Status))
             if category not in [STATUS_WARNING, STATUS_SUCCESS]:
                 return status, attribute_list
 
@@ -2924,7 +2924,7 @@ class Association(threading.Thread):
         #   we check against None as 0x0000 is a possible status
         event_reply = None
         if getattr(status, 'Status', None) is not None:
-            category = code_to_category(status.Status)
+            category = code_to_category(cast(int, status.Status))
             if category not in [STATUS_WARNING, STATUS_SUCCESS]:
                 return status, event_reply
 
@@ -3139,7 +3139,7 @@ class Association(threading.Thread):
         #   we check against None as 0x0000 is a possible status
         attribute_list = None
         if getattr(status, 'Status', None) is not None:
-            category = code_to_category(status.Status)
+            category = code_to_category(cast(int, status.Status))
             if category not in [STATUS_WARNING, STATUS_SUCCESS]:
                 return status, attribute_list
 
@@ -3396,7 +3396,7 @@ class Association(threading.Thread):
         #   we check against None as 0x0000 is a possible status
         attribute_list = None
         if getattr(status, 'Status', None) is not None:
-            category = code_to_category(status.Status)
+            category = code_to_category(cast(int, status.Status))
             if category not in [STATUS_WARNING, STATUS_SUCCESS]:
                 return status, attribute_list
 
