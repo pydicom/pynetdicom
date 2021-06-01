@@ -57,8 +57,8 @@ class ApplicationEntity:
         )
 
         # Default Implementation Class UID and Version Name
-        self._implementation_uid = PYNETDICOM_IMPLEMENTATION_UID
-        self._implementation_version = PYNETDICOM_IMPLEMENTATION_VERSION
+        self._implementation_uid: UID = PYNETDICOM_IMPLEMENTATION_UID
+        self._implementation_version: str = PYNETDICOM_IMPLEMENTATION_VERSION
 
         # List of PresentationContext
         self._requested_contexts: List[PresentationContext] = []

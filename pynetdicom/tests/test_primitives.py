@@ -315,20 +315,24 @@ class TestPrimitive_SCP_SCU_RoleSelectionNegotiation:
         # SOP Class UID
         reference_uid = UID('1.2.840.10008.5.1.4.1.1.2')
 
+        primitive.sop_class_uid = None
+        assert primitive.sop_class_uid is None
         primitive.sop_class_uid = b'1.2.840.10008.5.1.4.1.1.2'
         assert primitive.sop_class_uid == reference_uid
-
         primitive.sop_class_uid = '1.2.840.10008.5.1.4.1.1.2'
         assert primitive.sop_class_uid == reference_uid
-
         primitive.sop_class_uid = UID('1.2.840.10008.5.1.4.1.1.2')
         assert primitive.sop_class_uid == reference_uid
 
         # SCP Role
+        primitive.scp_role = None
+        assert primitive.scp_role is None
         primitive.scp_role = False
         assert primitive.scp_role is False
 
         # SCU Role
+        primitive.scu_role = None
+        assert primitive.scu_role is None
         primitive.scu_role = True
         assert primitive.scu_role is True
 
@@ -430,16 +434,18 @@ class TestPrimitive_SOPClassExtendedNegotiation:
         # SOP Class UID
         reference_uid = UID('1.2.840.10008.5.1.4.1.1.2')
 
+        primitive.sop_class_uid = None
+        assert primitive.sop_class_uid is None
         primitive.sop_class_uid = b'1.2.840.10008.5.1.4.1.1.2'
         assert primitive.sop_class_uid == reference_uid
-
         primitive.sop_class_uid = '1.2.840.10008.5.1.4.1.1.2'
         assert primitive.sop_class_uid == reference_uid
-
         primitive.sop_class_uid = UID('1.2.840.10008.5.1.4.1.1.2')
         assert primitive.sop_class_uid == reference_uid
 
         # Service Class Application Information
+        primitive.service_class_application_information = None
+        assert primitive.service_class_application_information is None
         primitive.service_class_application_information = (
             b'\x02\x00\x03\x00\x01\x00'
         )
@@ -506,8 +512,12 @@ class TestPrimitive_SOPClassCommonExtendedNegotiation:
         _config.ENFORCE_UID_CONFORMANCE = False
         primitive = SOPClassCommonExtendedNegotiation()
 
+        primitive.sop_class_uid = None
+        assert primitive.sop_class_uid is None
         primitive.sop_class_uid = 'abc'
         assert primitive.sop_class_uid == 'abc'
+        primitive.service_class_uid = None
+        assert primitive.service_class_uid is None
         primitive.service_class_uid = 'abc'
         assert primitive.service_class_uid == 'abc'
         primitive.related_general_sop_class_identification = ['abc']
@@ -655,6 +665,8 @@ class TestPrimitive_UserIdentityNegotiation:
         with pytest.raises(TypeError):
             primitive.positive_response_requested = 'test'
 
+        primitive.primary_field = None
+        assert primitive.primary_field is None
         primitive.primary_field = b'\x00\x01'
         assert primitive.primary_field == b'\x00\x01'
         with pytest.raises(TypeError):
@@ -667,6 +679,8 @@ class TestPrimitive_UserIdentityNegotiation:
         with pytest.raises(TypeError):
             primitive.secondary_field = ['test']
 
+        primitive.server_response = None
+        assert primitive.server_response is None
         primitive.server_response = b'\x00\x31'
         assert primitive.server_response == b'\x00\x31'
         with pytest.raises(TypeError):
@@ -676,6 +690,8 @@ class TestPrimitive_UserIdentityNegotiation:
         with pytest.raises(ValueError):
             primitive.from_primitive()
 
+        primitive.user_identity_type = None
+        assert primitive.user_identity_type is None
         primitive.user_identity_type = 2
         with pytest.raises(ValueError):
             primitive.from_primitive()
@@ -751,6 +767,8 @@ class TestPrimitive_A_ASSOCIATE:
         with pytest.raises(AttributeError):
             assoc.session_requirements = "test value3"
 
+        assoc.application_context_name = None
+        assert assoc.application_context_name is None
         assoc.application_context_name = "1.2.840.10008.3.1.1.1"
         assert assoc.application_context_name == UID('1.2.840.10008.3.1.1.1')
         assoc.application_context_name = b"1.2.840.10008.3.1.1.1"
@@ -758,9 +776,13 @@ class TestPrimitive_A_ASSOCIATE:
         assoc.application_context_name = UID("1.2.840.10008.3.1.1.1")
         assert assoc.application_context_name == UID('1.2.840.10008.3.1.1.1')
 
+        assoc.calling_ae_title = None
+        assert assoc.calling_ae_title is None
         assoc.calling_ae_title = 'ABCD1234ABCD12345'
         assert assoc.calling_ae_title == b'ABCD1234ABCD1234'
 
+        assoc.called_ae_title = None
+        assert assoc.called_ae_title is None
         assoc.called_ae_title = 'ABCD1234ABCD12345'
         assert assoc.called_ae_title == b'ABCD1234ABCD1234'
         assert assoc.responding_ae_title == b'ABCD1234ABCD1234'
@@ -773,13 +795,16 @@ class TestPrimitive_A_ASSOCIATE:
         assoc.user_information = ['a', max_length]
         assert assoc.user_information == [max_length]
 
+        assoc.result = None
+        assert assoc.result is None
         assoc.result = 0
-        assert assoc.result == 0
         assoc.result = 1
         assert assoc.result == 1
         assoc.result = 2
         assert assoc.result == 2
 
+        assoc.result_source = None
+        assert assoc.result_source is None
         assoc.result_source = 1
         assert assoc.result_source == 1
         assoc.result_source = 2
@@ -787,6 +812,8 @@ class TestPrimitive_A_ASSOCIATE:
         assoc.result_source = 3
         assert assoc.result_source == 3
 
+        assoc.diagnostic = None
+        assert assoc.diagnostic is None
         assoc.diagnostic = 1
         assert assoc.diagnostic == 1
         assoc.diagnostic = 2
@@ -796,9 +823,13 @@ class TestPrimitive_A_ASSOCIATE:
         assoc.diagnostic = 7
         assert assoc.diagnostic == 7
 
+        assoc.calling_presentation_address = None
+        assert assoc.calling_presentation_address is None
         assoc.calling_presentation_address = ('10.40.94.43', 105)
         assert assoc.calling_presentation_address == ('10.40.94.43', 105)
 
+        assoc.called_presentation_address = None
+        assert assoc.called_presentation_address is None
         assoc.called_presentation_address = ('10.40.94.44', 106)
         assert assoc.called_presentation_address == ('10.40.94.44', 106)
 
