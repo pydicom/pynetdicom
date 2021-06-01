@@ -9,18 +9,23 @@ from struct import unpack
 import struct
 from threading import Thread
 import time
+from typing import TYPE_CHECKING, Optional, Tuple, cast, Dict, Type
 
 from pynetdicom import evt
 from pynetdicom.fsm import StateMachine
 from pynetdicom.pdu import (
     A_ASSOCIATE_RQ, A_ASSOCIATE_AC, A_ASSOCIATE_RJ,
-    P_DATA_TF, A_RELEASE_RQ, A_RELEASE_RP, A_ABORT_RQ
+    P_DATA_TF, A_RELEASE_RQ, A_RELEASE_RP, A_ABORT_RQ, _PDUType
 )
 from pynetdicom.pdu_primitives import (
-    A_ASSOCIATE, A_RELEASE, A_ABORT, A_P_ABORT, P_DATA
+    A_ASSOCIATE, A_RELEASE, A_ABORT, A_P_ABORT, P_DATA, _PDUPrimitiveType
 )
 from pynetdicom.timer import Timer
 from pynetdicom.utils import make_target
+
+if TYPE_CHECKING:  # pragma: no cover
+    from pynetdicom.association import Association
+    from pynetdicom.transport import AssociationSocket
 
 
 LOGGER = logging.getLogger('pynetdicom.dul')
@@ -48,7 +53,7 @@ class DULServiceProvider(Thread):
     state_machine : fsm.StateMachine
         The DICOM Upper Layer's State Machine.
     """
-    def __init__(self, assoc):
+    def __init__(self, assoc: "Association") -> None:
         """Create a new DUL service provider for `assoc`.
 
         Parameters
@@ -59,23 +64,23 @@ class DULServiceProvider(Thread):
         """
         # The association thread
         self._assoc = assoc
-        self.socket = None
+        self.socket: Optional["AssociationSocket"] = None
 
         # Current primitive and PDU
         # TODO: Don't do it this way
-        self.primitive = None
-        self.pdu = None
+        self.primitive: Optional[_PDUPrimitiveType] = None
+        self.pdu: Optional[_PDUType] = None
 
         # Tracks the events the state machine needs to process
-        self.event_queue = queue.Queue()
+        self.event_queue: queue.Queue[str] = queue.Queue()
         # These queues provide communication between the DUL service
         #   user and the DUL service provider.
         # An event occurs when the DUL service user adds to
         #   the to_provider_queue
-        self.to_provider_queue = queue.Queue()
+        self.to_provider_queue: queue.Queue[_PDUPrimitiveType] = queue.Queue()
         # A primitive is sent to the service user when the DUL service provider
         # adds to the to_user_queue.
-        self.to_user_queue = queue.Queue()
+        self.to_user_queue: queue.Queue[_PDUPrimitiveType] = queue.Queue()
 
         # Set the (network) idle and ARTIM timers
         # Timeouts gets set after DUL init so these are temporary
@@ -87,18 +92,18 @@ class DULServiceProvider(Thread):
 
         # Controls the minimum delay between loops in run() in seconds
         # TODO: try and make this event based rather than running loops
-        self._run_loop_delay: float = 0.001
+        self._run_loop_delay = 0.001
 
         Thread.__init__(self, target=make_target(self.run_reactor))
         self.daemon = False
         self._kill_thread = False
 
     @property
-    def assoc(self):
+    def assoc(self) -> "Association":
         """Return the parent :class:`~pynetdicom.association.Association`."""
         return self._assoc
 
-    def _check_incoming_primitive(self):
+    def _check_incoming_primitive(self) -> bool:
         """Check the incoming primitive."""
         try:
             # Check the queue and see if there are any primitives
@@ -109,7 +114,7 @@ class DULServiceProvider(Thread):
         except queue.Empty:
             return False
 
-    def _decode_pdu(self, bytestream):
+    def _decode_pdu(self, bytestream: bytearray) -> Tuple[_PDUType, str]:
         """Decode a received PDU.
 
         Parameters
@@ -124,22 +129,22 @@ class DULServiceProvider(Thread):
             corresponding to receiving that PDU type.
         """
         # Trigger before data is decoded in case of exception in decoding
-        bytestream = bytes(bytestream)
+        b = bytes(bytestream)
         evt.trigger(self.assoc, evt.EVT_DATA_RECV, {'data' : bytestream})
 
-        pdu, event = _PDU_TYPES[bytestream[0:1]]
-        pdu = pdu()
-        pdu.decode(bytestream)
+        pdu_cls, event = _PDU_TYPES[b[0:1]]
+        pdu = pdu_cls()
+        pdu.decode(b)
 
         evt.trigger(self.assoc, evt.EVT_PDU_RECV, {'pdu' : pdu})
 
         return pdu, event
 
-    def idle_timer_expired(self):
+    def idle_timer_expired(self) -> bool:
         """Return ``True`` if the network idle timer has expired."""
         return self._idle_timer.expired
 
-    def _is_transport_event(self):
+    def _is_transport_event(self) -> bool:
         """Check to see if the socket has incoming data
 
         Returns
@@ -151,6 +156,7 @@ class DULServiceProvider(Thread):
         """
         # Sta13: waiting for the transport connection to close
         # however it may still receive data that needs to be acted on
+        self.socket = cast("AssociationSocket", socket)
         if self.state_machine.current_state == 'Sta13':
             # Check to see if there's more data to be read
             #   Might be any incoming PDU or valid/invalid data
@@ -176,24 +182,24 @@ class DULServiceProvider(Thread):
 
         return False
 
-    def kill_dul(self):
+    def kill_dul(self) -> None:
         """Kill the DUL reactor and stop the thread"""
         self._kill_thread = True
 
     @property
-    def network_timeout(self):
+    def network_timeout(self) -> Optional[float]:
         """Return the network timeout (in seconds)."""
         return self.assoc.network_timeout
 
-    def peek_next_pdu(self):
+    def peek_next_pdu(self) -> Optional[_PDUPrimitiveType]:
         """Check the next PDU to be processed."""
         try:
-            return self.to_user_queue.queue[0]
+            return cast(_PDUPrimitiveType, self.to_user_queue.queue[0])
         except (queue.Empty, IndexError):
             return None
 
     @staticmethod
-    def _primitive_to_event(primitive):
+    def _primitive_to_event(primitive: _PDUPrimitiveType) -> str:
         """Returns the state machine event associated with sending a primitive.
 
         Parameters
@@ -206,34 +212,36 @@ class DULServiceProvider(Thread):
         str
             The event associated with the primitive
         """
-        if primitive.__class__ == A_ASSOCIATE:
+        if isinstance(primitive, A_ASSOCIATE):
             if primitive.result is None:
                 # A-ASSOCIATE Request
-                event_str = 'Evt1'
-            elif primitive.result == 0x00:
+                return 'Evt1'
+
+            if primitive.result == 0x00:
                 # A-ASSOCIATE Response (accept)
-                event_str = 'Evt7'
-            else:
-                # A-ASSOCIATE Response (reject)
-                event_str = 'Evt8'
-        elif primitive.__class__ == A_RELEASE:
+                return 'Evt7'
+
+            # A-ASSOCIATE Response (reject)
+            return 'Evt8'
+
+        if isinstance(primitive, A_RELEASE):
             if primitive.result is None:
                 # A-Release Request
-                event_str = 'Evt11'
-            else:
-                # A-Release Response
-                # result is 'affirmative'
-                event_str = 'Evt14'
-        elif primitive.__class__ in (A_ABORT, A_P_ABORT):
-            event_str = 'Evt15'
-        elif primitive.__class__ == P_DATA:
-            event_str = 'Evt9'
-        else:
-            raise ValueError("_primitive_to_event(): invalid primitive")
+                return 'Evt11'
 
-        return event_str
+            # A-Release Response
+            # result is 'affirmative'
+            return 'Evt14'
 
-    def _read_pdu_data(self):
+        if isinstance(primitive, (A_ABORT, A_P_ABORT)):
+            return 'Evt15'
+
+        if isinstance(primitive, P_DATA):
+            return 'Evt9'
+
+        raise ValueError("_primitive_to_event(): invalid primitive")
+
+    def _read_pdu_data(self) -> None:
         """Read PDU data sent by the peer from the socket.
 
         Receives the PDU, attempts to decode it, places the corresponding
@@ -255,6 +263,7 @@ class DULServiceProvider(Thread):
         - Evt19: Invalid or unrecognised PDU
         """
         bytestream = bytearray()
+        self.socket = cast("AssociationSocket", self.socket)
 
         # Try and read the PDU type and length from the socket
         try:
@@ -309,7 +318,9 @@ class DULServiceProvider(Thread):
         self.pdu = pdu
         self.primitive = self.pdu.to_primitive()
 
-    def receive_pdu(self, wait=False, timeout=None):
+    def receive_pdu(
+        self, wait: bool = False, timeout: Optional[float] = None
+    ) -> Optional[_PDUPrimitiveType]:
         """Return an item from the queue if one is available.
 
         Get the next item to be processed out of the queue of items sent
@@ -352,7 +363,7 @@ class DULServiceProvider(Thread):
         except queue.Empty:
             return None
 
-    def run_reactor(self):
+    def run_reactor(self) -> None:
         """Run the DUL reactor.
 
         The main :class:`threading.Thread` run loop. Runs constantly, checking
@@ -362,6 +373,7 @@ class DULServiceProvider(Thread):
         """
         # Main DUL loop
         self._idle_timer.start()
+        self.socket = cast("AssociationSocket", self.socket)
 
         while True:
             # Let the assoc reactor off the leash
@@ -414,7 +426,7 @@ class DULServiceProvider(Thread):
 
             self.state_machine.do_action(event)
 
-    def send_pdu(self, primitive):
+    def send_pdu(self, primitive: _PDUPrimitiveType) -> None:
         """Place a primitive in the provider queue to be sent to the peer.
 
         Primitives are converted to the corresponding PDU and encoded before
@@ -442,7 +454,7 @@ class DULServiceProvider(Thread):
 
         self.to_provider_queue.put(primitive)
 
-    def stop_dul(self):
+    def stop_dul(self) -> bool:
         """Stop the reactor if current state is ``'Sta1'``
 
         Returns
@@ -463,12 +475,12 @@ class DULServiceProvider(Thread):
         return False
 
 
-_PDU_TYPES = {
-    b'\x01' : (A_ASSOCIATE_RQ, 'Evt6'),
-    b'\x02' : (A_ASSOCIATE_AC, 'Evt3'),
-    b'\x03' : (A_ASSOCIATE_RJ, 'Evt4'),
-    b'\x04' : (P_DATA_TF, 'Evt10'),
-    b'\x05' : (A_RELEASE_RQ, 'Evt12'),
-    b'\x06' : (A_RELEASE_RP, 'Evt13'),
-    b'\x07' : (A_ABORT_RQ, 'Evt16')
+_PDU_TYPES: Dict[bytes, Tuple[Type[_PDUType], str]] = {
+    b'\x01': (A_ASSOCIATE_RQ, 'Evt6'),
+    b'\x02': (A_ASSOCIATE_AC, 'Evt3'),
+    b'\x03': (A_ASSOCIATE_RJ, 'Evt4'),
+    b'\x04': (P_DATA_TF, 'Evt10'),
+    b'\x05': (A_RELEASE_RQ, 'Evt12'),
+    b'\x06': (A_RELEASE_RP, 'Evt13'),
+    b'\x07': (A_ABORT_RQ, 'Evt16')
 }

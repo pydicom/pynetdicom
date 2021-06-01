@@ -6,13 +6,16 @@ from datetime import datetime
 import logging
 from ssl import SSLContext
 import threading
-from typing import Union, Optional, List, Tuple, Callable, Any
+from typing import (
+    Union, Optional, List, Tuple, Callable, Any, Dict, cast, TypeVar, Type
+)
 
 from pydicom.uid import UID
 
 from pynetdicom.association import Association
 from pynetdicom.events import EventHandlerType
 from pynetdicom.presentation import PresentationContext
+from pynetdicom.pdu_primitives import _UI
 from pynetdicom.transport import (
     AssociationSocket, AssociationServer, ThreadedAssociationServer
 )
@@ -25,6 +28,9 @@ from pynetdicom._globals import (
 
 
 LOGGER = logging.getLogger('pynetdicom.ae')
+
+
+_T = TypeVar("_T")
 
 
 class ApplicationEntity:
@@ -42,6 +48,7 @@ class ApplicationEntity:
         ae_title : bytes, optional
             The AE title of the Application Entity (default: ``b'PYNETDICOM'``)
         """
+        self._ae_title: bytes
         self.ae_title = ae_title
 
         from pynetdicom import (
@@ -50,35 +57,35 @@ class ApplicationEntity:
         )
 
         # Default Implementation Class UID and Version Name
-        self.implementation_class_uid = PYNETDICOM_IMPLEMENTATION_UID
-        self.implementation_version_name = PYNETDICOM_IMPLEMENTATION_VERSION
+        self._implementation_uid = PYNETDICOM_IMPLEMENTATION_UID
+        self._implementation_version = PYNETDICOM_IMPLEMENTATION_VERSION
 
         # List of PresentationContext
-        self._requested_contexts = []
+        self._requested_contexts: List[PresentationContext] = []
         # {abstract_syntax : PresentationContext}
-        self._supported_contexts = {}
+        self._supported_contexts: Dict[UID, PresentationContext] = {}
 
         # Default maximum simultaneous associations
-        self.maximum_associations = 10
+        self._maximum_associations = 10
 
         # Default maximum PDU receive size (in bytes)
-        self.maximum_pdu_size = DEFAULT_MAX_LENGTH
+        self._maximum_pdu_size = DEFAULT_MAX_LENGTH
 
         # Default timeouts - None means no timeout
-        self.acse_timeout = 30
-        self.connection_timeout = None
-        self.dimse_timeout = 30
-        self.network_timeout = 60
+        self._acse_timeout: Optional[float] = 30
+        self._connection_timeout: Optional[float] = None
+        self._dimse_timeout: Optional[float] = 30
+        self._network_timeout: Optional[float] = 60
 
         # Require Calling/Called AE titles to match if value is non-empty str
-        self.require_calling_aet = []
-        self.require_called_aet = False
+        self._require_calling_aet: List[bytes] = []
+        self._require_called_aet = False
 
-        self._servers = []
-        self._lock = threading.Lock()
+        self._servers: List[ThreadedAssociationServer] = []
+        self._lock: threading.Lock = threading.Lock()
 
     @property
-    def acse_timeout(self) -> Union[int, float, None]:
+    def acse_timeout(self) -> Optional[float]:
         """The ACSE timeout value (in seconds).
 
         Parameters
@@ -91,9 +98,8 @@ class ApplicationEntity:
         return self._acse_timeout
 
     @acse_timeout.setter
-    def acse_timeout(self, value: Union[int, float, None]) -> None:
+    def acse_timeout(self, value: Optional[float]) -> None:
         """Set the ACSE timeout (in seconds)."""
-        # pylint: disable=attribute-defined-outside-init
         if value is None:
             self._acse_timeout = None
         elif isinstance(value, (int, float)) and value >= 0:
@@ -124,7 +130,9 @@ class ApplicationEntity:
     def add_requested_context(
         self,
         abstract_syntax: Union[str],
-        transfer_syntax: Optional[Union[str, List[str]]] = None
+        transfer_syntax: Optional[
+            Union[str, UID, List[str], List[UID]]
+        ] = None,
     ) -> None:
         """Add a :ref:`presentation context<user_presentation>` to be
         proposed when requesting an association.
@@ -248,8 +256,10 @@ class ApplicationEntity:
 
     def add_supported_context(
         self,
-        abstract_syntax: Union[str],
-        transfer_syntax: Optional[Union[str, List[str]]] = None,
+        abstract_syntax: Union[str, UID],
+        transfer_syntax: Optional[
+            Union[str, UID, List[str], List[UID]]
+        ] = None,
         scu_role: Optional[bool] = None,
         scp_role: Optional[bool] = None
     ) -> None:
@@ -365,7 +375,7 @@ class ApplicationEntity:
         >>> ae.add_supported_context(CTImageStorage, scu_role=True, scp_role=True)
         """
         if transfer_syntax is None:
-            transfer_syntax = DEFAULT_TRANSFER_SYNTAXES
+            transfer_syntax = DEFAULT_TRANSFER_SYNTAXES  # List[str]
 
         abstract_syntax = UID(abstract_syntax)
 
@@ -378,7 +388,8 @@ class ApplicationEntity:
         # For convenience allow single transfer syntax values
         if isinstance(transfer_syntax, str):
             transfer_syntax = [transfer_syntax]
-        transfer_syntax = [UID(syntax) for syntax in transfer_syntax]
+
+        transfer_syntax = [UID(ts) for ts in transfer_syntax]
 
         # If the abstract syntax is already supported then update the transfer
         #   syntaxes
@@ -412,7 +423,6 @@ class ApplicationEntity:
     @ae_title.setter
     def ae_title(self, value: bytes) -> None:
         """Set the AE title using :class:`bytes`."""
-        # pylint: disable=attribute-defined-outside-init
         self._ae_title = validate_ae_title(value)
 
     def associate(
@@ -422,10 +432,10 @@ class ApplicationEntity:
         contexts: Optional[List[PresentationContext]] = None,
         ae_title: bytes = b'ANY-SCP',
         max_pdu: int = DEFAULT_MAX_LENGTH,
-        ext_neg: Optional[List] = None,
+        ext_neg: Optional[List[_UI]] = None,
         bind_address: Tuple[str, int] = ('', 0),
         tls_args: Optional[Tuple[SSLContext, str]] = None,
-        evt_handlers: Optional[EventHandlerType] = None
+        evt_handlers: Optional[List[EventHandlerType]] = None
     ) -> Association:
         """Request an association with a remote AE.
 
@@ -531,7 +541,7 @@ class ApplicationEntity:
             self.implementation_class_uid
         )
         assoc.requestor.implementation_version_name = (
-            self.implementation_version_name
+            self.implementation_version_name  # type: ignore
         )
         for item in (ext_neg or []):
             assoc.requestor.add_negotiation_item(item)
@@ -558,7 +568,7 @@ class ApplicationEntity:
         assoc.requestor.requested_contexts = contexts
 
         # Bind events to the handlers
-        evt_handlers = evt_handlers or {}
+        evt_handlers = evt_handlers or []
         for evt_hh_args in evt_handlers:
             assoc.bind(*evt_hh_args)
 
@@ -572,18 +582,23 @@ class ApplicationEntity:
 
         return assoc
 
-    def _create_socket(self, assoc, address, tls_args) -> AssociationSocket:
+    def _create_socket(
+        self,
+        assoc: Association,
+        address: Tuple[str, int],
+        tls_args: Optional[Tuple[SSLContext, str]]
+    ) -> AssociationSocket:
         """Create an :class:`~pynetdicom.transport.AssociationSocket` for the
         current association.
 
         .. versionadded:: 1.5
         """
         sock = AssociationSocket(assoc, address=address)
-        sock.tls_args = tls_args or {}
+        sock.tls_args = tls_args
         return sock
 
     @property
-    def connection_timeout(self) -> Union[int, float, None]:
+    def connection_timeout(self) -> Optional[float]:
         """The connection timeout (in seconds).
 
         .. versionadded:: 2.0
@@ -602,9 +617,8 @@ class ApplicationEntity:
         return self._connection_timeout
 
     @connection_timeout.setter
-    def connection_timeout(self, value: Union[int, float, None]) -> None:
+    def connection_timeout(self, value: Optional[float]) -> None:
         """Set the connection timeout."""
-        # pylint: disable=attribute-defined-outside-init
         if value is None:
             self._connection_timeout = None
         # Explicitly excluding zero - this would make the socket non-blocking
@@ -618,7 +632,7 @@ class ApplicationEntity:
             assoc.connection_timeout = self.connection_timeout
 
     @property
-    def dimse_timeout(self) -> Union[int, float, None]:
+    def dimse_timeout(self) -> Optional[float]:
         """The DIMSE timeout (in seconds).
 
         Parameters
@@ -630,9 +644,8 @@ class ApplicationEntity:
         return self._dimse_timeout
 
     @dimse_timeout.setter
-    def dimse_timeout(self, value: Union[int, float, None]) -> None:
+    def dimse_timeout(self, value: Optional[float]) -> None:
         """Set the DIMSE timeout in seconds."""
-        # pylint: disable=attribute-defined-outside-init
         if value is None:
             self._dimse_timeout = None
         elif isinstance(value, (int, float)) and value >= 0:
@@ -660,36 +673,34 @@ class ApplicationEntity:
         """Set the *Implementation Class UID* used in association requests."""
         uid = UID(uid)
         if uid.is_valid:
-            # pylint: disable=attribute-defined-outside-init
             self._implementation_uid = uid
 
     @property
-    def implementation_version_name(self) -> bytes:
-        """The *Implementation Version Name* as :class:`bytes`.
+    def implementation_version_name(self) -> str:
+        """Get or set the *Implementation Version Name* as :class:`str`.
 
         Parameters
         ----------
-        value : bytes
+        value : str
             The A-ASSOCIATE-RQ's *Implementation Version Name* value.
         """
         return self._implementation_version
 
     @implementation_version_name.setter
-    def implementation_version_name(self, value: bytes) -> None:
+    def implementation_version_name(self, value: str) -> None:
         """Set the *Implementation Version Name* used in association requests.
         """
-        # pylint: disable=attribute-defined-outside-init
         self._implementation_version = value
 
     def make_server(self,
-        address,
-        ae_title=None,
-        contexts=None,
-        ssl_context=None,
-        evt_handlers=None,
-        server_class=None,
+        address: Tuple[str, int],
+        ae_title: Optional[bytes] = None,
+        contexts: Optional[List[PresentationContext]] = None,
+        ssl_context: Optional[SSLContext] = None,
+        evt_handlers: Optional[List[EventHandlerType]] = None,
+        server_class: Optional[Type[_T]] = None,
         **kwargs
-    ):
+    ) -> Union[_T, ThreadedAssociationServer]:
         """Return an association server.
 
         Allows the use of a custom association server class.
@@ -736,13 +747,13 @@ class ApplicationEntity:
                 "The following presentation contexts have inconsistent "
                 "scu_role/scp_role values (if one is None, both must be):\n  "
             )
-            msg += '\n  '.join(bad_contexts)
+            msg += '\n  '.join([str(cx) for cx in bad_contexts])
             raise ValueError(msg)
 
-        evt_handlers = evt_handlers or {}
+        evt_handlers = evt_handlers or []
 
         server_class = server_class or AssociationServer
-        return server_class(
+        return server_class(  # type: ignore
             self,
             address,
             ae_title,
@@ -768,7 +779,6 @@ class ApplicationEntity:
     @maximum_associations.setter
     def maximum_associations(self, value: int) -> None:
         """Set the number of maximum associations."""
-        # pylint: disable=attribute-defined-outside-init
         if isinstance(value, int) and value >= 1:
             self._maximum_associations = value
         else:
@@ -793,7 +803,6 @@ class ApplicationEntity:
     @maximum_pdu_size.setter
     def maximum_pdu_size(self, value: int) -> None:
         """Set the maximum PDU size."""
-        # pylint: disable=attribute-defined-outside-init
         # Bounds and type checking of the received maximum length of the
         #   variable field of P-DATA-TF PDUs (in bytes)
         #   * Must be numerical, greater than or equal to 0 (0 indicates
@@ -804,7 +813,7 @@ class ApplicationEntity:
             LOGGER.warning(f"maximum_pdu_size set to {DEFAULT_MAX_LENGTH}")
 
     @property
-    def network_timeout(self) -> Union[int, float, None]:
+    def network_timeout(self) -> Optional[float]:
         """The network timeout (in seconds).
 
         Parameters
@@ -816,9 +825,8 @@ class ApplicationEntity:
         return self._network_timeout
 
     @network_timeout.setter
-    def network_timeout(self, value: Union[int, float, None]) -> None:
+    def network_timeout(self, value: Optional[float]) -> None:
         """Set the network timeout."""
-        # pylint: disable=attribute-defined-outside-init
         if value is None:
             self._network_timeout = None
         elif isinstance(value, (int, float)) and value >= 0:
@@ -1144,8 +1152,9 @@ class ApplicationEntity:
         self._validate_requested_contexts(contexts)
 
         for context in contexts:
-            self.add_requested_context(context.abstract_syntax,
-                                       context.transfer_syntax)
+            self.add_requested_context(
+                cast(UID, context.abstract_syntax), context.transfer_syntax
+            )
 
     @property
     def require_called_aet(self) -> bool:
@@ -1173,7 +1182,6 @@ class ApplicationEntity:
     @require_called_aet.setter
     def require_called_aet(self, require_match: bool) -> None:
         """Set whether the *Called AE Title* must match the AE title."""
-        # pylint: disable=attribute-defined-outside-init
         self._require_called_aet = require_match
 
     @property
@@ -1203,7 +1211,6 @@ class ApplicationEntity:
     @require_calling_aet.setter
     def require_calling_aet(self, ae_titles: List[bytes]) -> None:
         """Set the required calling AE title."""
-        # pylint: disable=attribute-defined-outside-init
         self._require_calling_aet = [
             validate_ae_title(aet) for aet in ae_titles
         ]
@@ -1229,7 +1236,7 @@ class ApplicationEntity:
         address: Tuple[str, int],
         block: bool = True,
         ssl_context: Optional[SSLContext] = None,
-        evt_handlers: Optional[EventHandlerType] = None,
+        evt_handlers: Optional[List[EventHandlerType]] = None,
         ae_title: Optional[bytes] = None,
         contexts: Optional[List[PresentationContext]] = None
     ) -> Optional[ThreadedAssociationServer]:
@@ -1307,81 +1314,84 @@ class ApplicationEntity:
                 server.serve_forever()
             except KeyboardInterrupt:
                 server.shutdown()
-        else:
-            # Non-blocking server
-            timestamp = datetime.strftime(datetime.now(), "%Y%m%d%H%M%S")
-            server = self.make_server(
-                address,
-                ae_title=ae_title,
-                contexts=contexts,
-                ssl_context=ssl_context,
-                evt_handlers=evt_handlers,
-                server_class=ThreadedAssociationServer,
-            )
 
-            thread = threading.Thread(
-                target=make_target(server.serve_forever),
-                name=f"AcceptorServer@{timestamp}"
-            )
-            thread.daemon = True
-            thread.start()
+            return None
 
-            self._servers.append(server)
+        # Non-blocking server
+        timestamp = datetime.strftime(datetime.now(), "%Y%m%d%H%M%S")
+        server = self.make_server(
+            address,
+            ae_title=ae_title,
+            contexts=contexts,
+            ssl_context=ssl_context,
+            evt_handlers=evt_handlers,
+            server_class=ThreadedAssociationServer,
+        )
 
-            return server
+        thread = threading.Thread(
+            target=make_target(server.serve_forever),
+            name=f"AcceptorServer@{timestamp}"
+        )
+        thread.daemon = True
+        thread.start()
+
+        self._servers.append(server)
+
+        return server
 
     def __str__(self) -> str:
         """ Prints out the attribute values and status for the AE """
-        str_out = "\n"
-        str_out += f"Application Entity '{self.ae_title}'\n"
+        s = ["\n"]
+        s.append(f"Application Entity {self.ae_title!r}")
 
-        str_out += "\n"
-        str_out += "  Requested Presentation Contexts:\n"
+        s.append("")
+        s.append("  Requested Presentation Contexts:")
         if not self.requested_contexts:
-            str_out += "\tNone\n"
+            s.append("\tNone")
         for context in self.requested_contexts:
-            str_out += f"\t{context.abstract_syntax.name}\n"
+            s.append(f"\t{cast(UID, context.abstract_syntax).name}")
             for transfer_syntax in context.transfer_syntax:
-                str_out += f"\t\t{transfer_syntax.name}\n"
+                s.append(f"\t\t{transfer_syntax.name}")
 
-        str_out += "\n"
-        str_out += "  Supported Presentation Contexts:\n"
+        s.append("")
+        s.append("  Supported Presentation Contexts:")
         if not self.supported_contexts:
-            str_out += "\tNone\n"
+            s.append("\tNone")
         for context in self.supported_contexts:
-            str_out += f"\t{context.abstract_syntax.name}\n"
+            s.append(f"\t{cast(UID, context.abstract_syntax).name}")
             for transfer_syntax in context.transfer_syntax:
-                str_out += f"\t\t{transfer_syntax.name}\n"
+                s.append(f"\t\t{transfer_syntax.name}")
 
-        str_out += "\n"
-        str_out += f"  ACSE timeout: {self.acse_timeout} s\n"
-        str_out += f"  DIMSE timeout: {self.dimse_timeout} s\n"
-        str_out += f"  Network timeout: {self.network_timeout} s\n"
+        s.append("")
+        s.append(f"  ACSE timeout: {self.acse_timeout} s")
+        s.append(f"  DIMSE timeout: {self.dimse_timeout} s")
+        s.append(f"  Network timeout: {self.network_timeout} s")
+        s.append(f"  Connection timeout: {self.connection_timeout} s")
 
-        str_out += "\n"
+        s.append("")
         if self.require_calling_aet != []:
             ae_titles = [
                 aet.decode('ascii') for aet in self.require_calling_aet
             ]
-            str_out += (
-                f"  Required calling AE title(s): {', '.join(ae_titles)}\n"
+            s.append((
+                f"  Required calling AE title(s): {', '.join(ae_titles)}")
             )
-        str_out += f"  Require called AE title: {self.require_called_aet}\n"
-        str_out += "\n"
+        s.append(f"  Require called AE title: {self.require_called_aet}")
+        s.append("")
 
         # Association information
-        str_out += (
+        s.append((
             f"  Association(s): {len(self.active_associations)}"
-            f"/{self.maximum_associations}\n"
+            f"/{self.maximum_associations}")
         )
 
         for assoc in self.active_associations:
-            str_out += (
+            s.append((
                 f"\tPeer: {assoc.remote['ae_title']} on "
-                f"{assoc.remote['address']}:{assoc.remote['port']}\n"
+                f"{assoc.remote['address']}:{assoc.remote['port']}")
            )
 
-        return str_out
+        return "\n".join(s)
 
     @property
     def supported_contexts(self) -> List[PresentationContext]:
@@ -1424,7 +1434,7 @@ class ApplicationEntity:
         # The supported presentation contexts are stored internally as a dict
         return sorted(
             list(self._supported_contexts.values()),
-            key=lambda cx: cx.abstract_syntax
+            key=lambda cx: cast(UID, cx.abstract_syntax)
         )
 
     @supported_contexts.setter
@@ -1439,8 +1449,9 @@ class ApplicationEntity:
                     "'contexts' must be a list of PresentationContext items"
                 )
 
-            self.add_supported_context(item.abstract_syntax,
-                                       item.transfer_syntax)
+            self.add_supported_context(
+                cast(UID, item.abstract_syntax), item.transfer_syntax
+            )
 
     @staticmethod
     def _validate_requested_contexts(

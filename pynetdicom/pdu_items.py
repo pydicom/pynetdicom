@@ -64,6 +64,7 @@ if TYPE_CHECKING:  # pragma: no cover
         SCP_SCU_RoleSelectionNegotiation,
         UserIdentityNegotiation,
         AsynchronousOperationsWindowNegotiation,
+        _UserInformationPrimitiveType
     )
 
 
@@ -87,27 +88,24 @@ _DecoderType = List[
     Tuple[int, Optional[int], str, Callable[[Any], bytes], List[Any]]
 ]
 _EncoderType = List[Tuple[str, Callable[[Any], bytes], List[Any]]]
+_PDUItemType = List[Union[
+    "ApplicationContextItem",
+    "PresentationContextItemRQ",
+    "PresentationContextItemAC",
+    "UserInformationItem",
+]]
 _UserInformationType = List[Union[
-    MaximumLengthSubItem,
-    ImplementationClassUIDSubItem,
-    ImplementationVersionNameSubItem,
-    AsynchronousOperationsWindowSubItem,
-    SCP_SCU_RoleSelectionSubItem,
-    SOPClassExtendedNegotiationSubItem,
-    SOPClassCommonExtendedNegotiationSubItem,
-    UserIdentitySubItemAC,
-    UserIdentitySubItemRQ,
+    "MaximumLengthSubItem",
+    "ImplementationClassUIDSubItem",
+    "ImplementationVersionNameSubItem",
+    "AsynchronousOperationsWindowSubItem",
+    "SCP_SCU_RoleSelectionSubItem",
+    "SOPClassExtendedNegotiationSubItem",
+    "SOPClassCommonExtendedNegotiationSubItem",
+    "UserIdentitySubItemAC",
+    "UserIdentitySubItemRQ",
 ]]
-_UserInformationPrimitiveType = List[Union[
-    MaximumLengthNotification,
-    ImplementationClassUIDNotification,
-    ImplementationVersionNameNotification,
-    AsynchronousOperationsWindowNegotiation,
-    SCP_SCU_RoleSelectionNegotiation,
-    SOPClassExtendedNegotiation,
-    SOPClassCommonExtendedNegotiation,
-    UserIdentityNegotiation
-]]
+
 
 
 class PDUItem:
@@ -1045,7 +1043,9 @@ class UserInformationItem(PDUItem):
         """Initialise a new User Information Item."""
         self.user_data: _UserInformationType = []
 
-    def from_primitive(self, primitive: _UserInformationPrimitiveType) -> None:
+    def from_primitive(
+        self, primitive: "_UserInformationPrimitiveType"
+    ) -> None:
         """Set up the current Item using User Information primitives.
 
         Parameters
@@ -1068,7 +1068,7 @@ class UserInformationItem(PDUItem):
         for item in primitive:
             self.user_data.append(item.from_primitive())
 
-    def to_primitive(self) -> _UserInformationPrimitiveType:
+    def to_primitive(self) -> "_UserInformationPrimitiveType":
         """Return a list of User Information primitives from the current Item.
 
         Returns

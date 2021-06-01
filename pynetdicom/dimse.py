@@ -210,9 +210,9 @@ class DIMSEServiceProvider:
     def maximum_pdu_size(self) -> int:
         """Return the peer's maximum PDU length as :class:`int`."""
         if self.assoc.is_requestor:
-            return self.assoc.acceptor.maximum_length
+            return cast(int, self.assoc.acceptor.maximum_length)
 
-        return self.assoc.requestor.maximum_length
+        return cast(int, self.assoc.requestor.maximum_length)
 
     def peek_msg(self) -> Union[Tuple[int, DIMSEMessage], Tuple[None, None]]:
         """Return the first message in the message queue or ``None``.

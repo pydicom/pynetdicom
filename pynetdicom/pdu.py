@@ -22,6 +22,11 @@ There are seven different PDUs:
 import codecs
 import logging
 from struct import Struct
+from typing import (
+    Iterator, Optional, Any, Callable, List, Tuple, TYPE_CHECKING, Union, cast
+)
+
+from pydicom.uid import UID
 
 from pynetdicom.pdu_items import (
     ApplicationContextItem,
@@ -29,12 +34,27 @@ from pynetdicom.pdu_items import (
     PresentationContextItemAC,
     UserInformationItem,
     PresentationDataValueItem,
-    PDU_ITEM_TYPES
+    PDU_ITEM_TYPES,
+    _UserInformationType,
+    _PDUItemType,
+    PDUItem
 )
 from pynetdicom.utils import validate_ae_title
 
+if TYPE_CHECKING:  # pragma: no cover
+    from pynetdicom.pdu_primitives import (
+        A_ASSOCIATE, P_DATA, A_RELEASE, A_ABORT, A_P_ABORT
+    )
+
 
 LOGGER = logging.getLogger('pynetdicom.pdu')
+
+_PDVItem = List[PresentationDataValueItem]
+_AbortType = Union["A_ABORT", "A_P_ABORT"]
+_PDUType = Union[
+    "A_ASSOCIATE_RQ", "A_ASSOCIATE_AC", "A_ASSOCIATE_RJ", "P_DATA_TF",
+    "A_RELEASE_RQ", "A_RELEASE_RP", "A_ABORT_RQ"
+]
 
 # Predefine some structs to make decoding and encoding faster
 UCHAR = Struct('B')
@@ -63,7 +83,7 @@ class PDU:
     DICOM Standard, Part 8, :dcm:`Section 9.3 <part08/sect_9.3.html>`
     """
 
-    def decode(self, bytestream):
+    def decode(self, bytestream: bytes) -> None:
         """Decode `bytestream` and use the result to set the field values of
         the PDU.
 
@@ -88,7 +108,7 @@ class PDU:
         """Return an iterable of tuples that contain field decoders."""
         raise NotImplementedError
 
-    def encode(self):
+    def encode(self) -> bytes:
         """Return the encoded PDU as :class:`bytes`.
 
         Returns
@@ -111,7 +131,7 @@ class PDU:
         """Return an iterable of tuples that contain field encoders."""
         raise NotImplementedError
 
-    def __eq__(self, other):
+    def __eq__(self, other: Any) -> bool:
         """Return ``True`` if `self` equals `other`."""
         if other is self:
             return True
@@ -131,7 +151,7 @@ class PDU:
         return NotImplemented
 
     @staticmethod
-    def _generate_items(bytestream):
+    def _generate_items(bytestream: bytes) -> Iterator[Tuple[int, bytes]]:
         """Yield PDU item data from `bytestream`.
 
         Parameters
@@ -197,31 +217,31 @@ class PDU:
             # Move `offset` to the start of the next item
             offset += 4 + item_length
 
-    def __len__(self):
+    def __len__(self) -> int:
         """Return the total length of the encoded PDU as :class:`int`."""
         return 6 + self.pdu_length
 
-    def __ne__(self, other):
+    def __ne__(self, other: Any) -> bool:
         """Return ``True`` if `self` does not equal `other`."""
         return not self == other
 
     @property
-    def pdu_length(self):
+    def pdu_length(self) -> int:
         """Return the *PDU Length* field value as :class:`int`."""
         raise NotImplementedError
 
     @property
-    def pdu_type(self):
+    def pdu_type(self) -> int:
         """Return the *PDU Type* field value as :class:`int`."""
         return PDU_TYPES[self.__class__]
 
     @staticmethod
-    def _wrap_bytes(bytestream):
+    def _wrap_bytes(bytestream: bytes) -> bytes:
         """Return `bytestream` without changing it."""
         return bytestream
 
     @staticmethod
-    def _wrap_encode_items(items):
+    def _wrap_encode_items(items: List[PDUItem]) -> bytes:
         """Return `items` encoded as bytes.
 
         Parameters
@@ -241,7 +261,7 @@ class PDU:
         return bytestream
 
     @staticmethod
-    def _wrap_encode_uid(uid):
+    def _wrap_encode_uid(uid: UID) -> bytes:
         """Return `uid` as bytes encoded using ASCII.
 
         Each component of Application Context, Abstract Syntax and Transfer
@@ -270,8 +290,8 @@ class PDU:
         """
         return codecs.encode(uid, 'ascii')
 
-    def _wrap_generate_items(self, bytestream):
-        """Return a list of encoded PDU items generated from `bytestream`."""
+    def _wrap_generate_items(self, bytestream: bytes) -> List[PDUItem]:
+        """Return a list of decoded PDU items generated from `bytestream`."""
         item_list = []
         for item_type, item_bytes in self._generate_items(bytestream):
             item = PDU_ITEM_TYPES[item_type]()
@@ -281,7 +301,7 @@ class PDU:
         return item_list
 
     @staticmethod
-    def _wrap_pack(value, packer):
+    def _wrap_pack(value: Any, packer: Callable[[Any], bytes]) -> bytes:
         """Return `value` encoded as bytes using `packer`.
 
         Parameters
@@ -300,7 +320,9 @@ class PDU:
         return packer(value)
 
     @staticmethod
-    def _wrap_unpack(bytestream, unpacker):
+    def _wrap_unpack(
+        bytestream: bytes, unpacker: Callable[[bytes], Tuple[Any]]
+    ) -> Any:
         """Return the first value when `unpacker` is run on `bytestream`.
 
         Parameters
@@ -410,22 +432,22 @@ class A_ASSOCIATE_RQ(PDU):
       and :dcm:`9.3.1<part08/sect_9.3.html#sect_9.3.1>`
     """
 
-    def __init__(self):
+    def __init__(self) -> None:
         """Initialise a new A-ASSOCIATE-RQ PDU."""
         # We allow the user to modify the protocol version if so desired
         self.protocol_version = 0x01
         # Set some default values
-        self.called_ae_title = "Default"
-        self.calling_ae_title = "Default"
+        self._called_aet = b"Default"
+        self._calling_aet = b"Default"
 
         # `variable_items` is a list containing the following:
         #   1 ApplicationContextItem
         #   1 or more PresentationContextItemRQ
         #   1 UserInformationItem
         # The order of the items in the list may not be as given above
-        self.variable_items = []
+        self.variable_items: _PDUItemType = []
 
-    def from_primitive(self, primitive):
+    def from_primitive(self, primitive: "A_ASSOCIATE") -> None:
         """Setup the current PDU using an A-ASSOCIATE (request) primitive.
 
         Parameters
@@ -433,13 +455,13 @@ class A_ASSOCIATE_RQ(PDU):
         primitive : pdu_primitives.A_ASSOCIATE
             The primitive to use to set the current PDU field values.
         """
-        self.calling_ae_title = primitive.calling_ae_title
-        self.called_ae_title = primitive.called_ae_title
+        self.calling_ae_title = cast(bytes, primitive.calling_ae_title)
+        self.called_ae_title = cast(bytes, primitive.called_ae_title)
 
         # Add Application Context
         application_context = ApplicationContextItem()
-        application_context.application_context_name = (
-            primitive.application_context_name
+        application_context.application_context_name = cast(
+            UID, primitive.application_context_name
         )
         self.variable_items.append(application_context)
 
@@ -454,7 +476,7 @@ class A_ASSOCIATE_RQ(PDU):
         user_information.from_primitive(primitive.user_information)
         self.variable_items.append(user_information)
 
-    def to_primitive(self):
+    def to_primitive(self) -> "A_ASSOCIATE":
         """Return an A-ASSOCIATE (request) primitive from the current PDU.
 
         Returns
@@ -482,7 +504,7 @@ class A_ASSOCIATE_RQ(PDU):
         return primitive
 
     @property
-    def application_context_name(self):
+    def application_context_name(self) -> Optional[UID]:
         """Return the *Application Context Name*, if available.
 
         Returns
@@ -498,12 +520,12 @@ class A_ASSOCIATE_RQ(PDU):
         return None
 
     @property
-    def called_ae_title(self):
+    def called_ae_title(self) -> bytes:
         """Return the *Called AE Title* field value as :class:`bytes`."""
         return self._called_aet
 
     @called_ae_title.setter
-    def called_ae_title(self, ae_title):
+    def called_ae_title(self, ae_title: Union[str, bytes]) -> None:
         """Set the *Called AE Title* field value.
 
         Will be converted to a fixed length 16-byte value (padded with trailing
@@ -523,12 +545,12 @@ class A_ASSOCIATE_RQ(PDU):
         self._called_aet = validate_ae_title(ae_title)
 
     @property
-    def calling_ae_title(self):
+    def calling_ae_title(self) -> bytes:
         """Return the *Calling AE Title* field value as :class:`bytes`."""
         return self._calling_aet
 
     @calling_ae_title.setter
-    def calling_ae_title(self, ae_title):
+    def calling_ae_title(self, ae_title: Union[str, bytes]) -> None:
         """Set the *Calling AE Title* field value.
 
         Will be converted to a fixed length 16-byte value (padded with trailing
@@ -607,7 +629,7 @@ class A_ASSOCIATE_RQ(PDU):
         ]
 
     @property
-    def pdu_length(self):
+    def pdu_length(self) -> int:
         """Return the *PDU Length* field value as :class:`int`."""
         length = 68
         for item in self.variable_items:
@@ -616,7 +638,7 @@ class A_ASSOCIATE_RQ(PDU):
         return length
 
     @property
-    def presentation_context(self):
+    def presentation_context(self) -> List[PresentationContextItemRQ]:
         """Return a list of the Presentation Context items.
 
         Returns
@@ -624,45 +646,45 @@ class A_ASSOCIATE_RQ(PDU):
         list of pdu_items.PresentationContextItemRQ
             The Presentation Context items.
         """
-        return [item for item in self.variable_items if
-                isinstance(item, PresentationContextItemRQ)]
+        return [
+            item for item in self.variable_items if
+            isinstance(item, PresentationContextItemRQ)
+        ]
 
-    def __str__(self):
+    def __str__(self) -> str:
         """Return a string representation of the PDU."""
-        s = 'A-ASSOCIATE-RQ PDU\n'
-        s += '==================\n'
-        s += f'  PDU type: 0x{self.pdu_type:02x}\n'
-        s += f'  PDU length: {self.pdu_length:d} bytes\n'
-        s += f'  Protocol version: {self.protocol_version:d}\n'
-        s += f'  Called AET:  {self.called_ae_title}\n'
-        s += f'  Calling AET: {self.calling_ae_title}\n'
-        s += '\n'
+        s = ['A-ASSOCIATE-RQ PDU']
+        s.append('==================')
+        s.append(f'  PDU type: 0x{self.pdu_type:02X}')
+        s.append(f'  PDU length: {self.pdu_length} bytes')
+        s.append(f'  Protocol version: {self.protocol_version}')
+        s.append(f'  Called AET:  {self.called_ae_title!r}')
+        s.append(f'  Calling AET: {self.calling_ae_title!r}')
+        s.append('')
 
-        s += '  Variable Items:\n'
-        s += '  ---------------\n'
-        s += '  * Application Context Item\n'
-        s += f'    - Context name: ={self.application_context_name}\n'
-        s += '  * Presentation Context Item(s):\n'
+        s.append('  Variable Items')
+        s.append('  ---------------')
+        s.append('  * Application Context Item')
+        s.append(f'    - Context name: ={self.application_context_name}')
+        s.append('  * Presentation Context Item(s):')
 
-        for ii in self.presentation_context:
-            item_str = f'{ii}'
-            item_str_list = item_str.split('\n')
-            s += f'    - {item_str_list[0]}\n'
+        for cx in self.presentation_context:
+            item_str_list = str(cx).split('\n')
+            s.append(f'    - {item_str_list[0]}')
             for jj in item_str_list[1:-1]:
-                s += f'      {jj}\n'
+                s.append(f'      {jj}')
 
-        s += '  * User Information Item(s):\n'
-        for ii in self.user_information.user_data:
-            item_str = f'{ii}'
-            item_str_list = item_str.split('\n')
-            s += f'    - {item_str_list[0]}\n'
+        s.append('  * User Information Item(s):')
+        for item in cast(UserInformationItem, self.user_information).user_data:
+            item_str_list = str(item).split('\n')
+            s.append(f'    - {item_str_list[0]}')
             for jj in item_str_list[1:-1]:
-                s += f'      {jj}\n'
+                s.append(f'      {jj}')
 
-        return s
+        return "\n".join(s)
 
     @property
-    def user_information(self):
+    def user_information(self) -> Optional[UserInformationItem]:
         """Return the User Information Item, if available.
 
         Returns
@@ -770,23 +792,23 @@ class A_ASSOCIATE_AC(PDU):
       :dcm:`Section 9.3.1<part08/sect_9.3.html#sect_9.3.1>`
     """
 
-    def __init__(self):
+    def __init__(self) -> None:
         """Initialise a new A-ASSOCIATE-AC PDU."""
         # We allow the user to modify the protocol version if so desired
         self.protocol_version = 0x01
         # Called AE Title, should be present, but no guarantees
-        self._reserved_aet = None
+        self._reserved_aet: Optional[bytes] = None
         # Calling AE Title, should be present, but no guarantees
-        self._reserved_aec = None
+        self._reserved_aec: Optional[bytes] = None
 
         # `variable_items` is a list containing the following:
         #   1 ApplicationContextItem
         #   1 or more PresentationContextItemAC
         #   1 UserInformationItem
         # The order of the items in the list may not be as given above
-        self.variable_items = []
+        self.variable_items: _PDUItemType = []
 
-    def from_primitive(self, primitive):
+    def from_primitive(self, primitive: "A_ASSOCIATE") -> None:
         """Setup the current PDU using an A-ASSOCIATE (accept) primitive.
 
         Parameters
@@ -799,8 +821,8 @@ class A_ASSOCIATE_AC(PDU):
 
         # Make application context
         application_context = ApplicationContextItem()
-        application_context.application_context_name = (
-            primitive.application_context_name
+        application_context.application_context_name = cast(
+            UID, primitive.application_context_name
         )
         self.variable_items.append(application_context)
 
@@ -815,7 +837,7 @@ class A_ASSOCIATE_AC(PDU):
         user_information.from_primitive(primitive.user_information)
         self.variable_items.append(user_information)
 
-    def to_primitive(self):
+    def to_primitive(self) -> "A_ASSOCIATE":
         """Return an A-ASSOCIATE (accept) primitive from the current PDU.
 
         Returns
@@ -856,7 +878,7 @@ class A_ASSOCIATE_AC(PDU):
         return primitive
 
     @property
-    def application_context_name(self):
+    def application_context_name(self) -> Optional[UID]:
         """Return the *Application Context Name*, if available.
 
         Returns
@@ -871,7 +893,7 @@ class A_ASSOCIATE_AC(PDU):
         return None
 
     @property
-    def called_ae_title(self):
+    def called_ae_title(self) -> Optional[bytes]:
         """Return the value sent in the *Called AE Title* reserved space.
 
         While the standard says this value should match the A-ASSOCIATE-RQ
@@ -887,7 +909,7 @@ class A_ASSOCIATE_AC(PDU):
         return self._reserved_aet
 
     @property
-    def calling_ae_title(self):
+    def calling_ae_title(self) -> Optional[bytes]:
         """Return the value sent in the *Calling AE Title* reserved space.
 
         While the standard says this value should match the A-ASSOCIATE-RQ
@@ -958,7 +980,7 @@ class A_ASSOCIATE_AC(PDU):
         ]
 
     @property
-    def pdu_length(self):
+    def pdu_length(self) -> int:
         """Return the *PDU Length* field value as an int."""
         length = 68
         for item in self.variable_items:
@@ -967,7 +989,7 @@ class A_ASSOCIATE_AC(PDU):
         return length
 
     @property
-    def presentation_context(self):
+    def presentation_context(self) -> List[PresentationContextItemAC]:
         """Return a list of the Presentation Context Items.
 
         Returns
@@ -978,42 +1000,40 @@ class A_ASSOCIATE_AC(PDU):
         return [item for item in self.variable_items if
                 isinstance(item, PresentationContextItemAC)]
 
-    def __str__(self):
+    def __str__(self) -> str:
         """Return a string representation of the PDU."""
-        s = 'A-ASSOCIATE-AC PDU\n'
-        s += '==================\n'
-        s += f'  PDU type: 0x{self.pdu_type:02x}\n'
-        s += f'  PDU length: {self.pdu_length:d} bytes\n'
-        s += f'  Protocol version: {self.protocol_version:d}\n'
-        s += f'  Reserved (Called AET):  {self._reserved_aet}\n'
-        s += f'  Reserved (Calling AET): {self._reserved_aec}\n'
-        s += '\n'
+        s = ['A-ASSOCIATE-AC PDU']
+        s.append('==================')
+        s.append(f'  PDU type: 0x{self.pdu_type:02X}')
+        s.append(f'  PDU length: {self.pdu_length} bytes')
+        s.append(f'  Protocol version: {self.protocol_version}')
+        s.append(f'  Reserved (Called AET):  {self._reserved_aet!r}')
+        s.append(f'  Reserved (Calling AET): {self._reserved_aec!r}')
+        s.append('')
 
-        s += '  Variable Items:\n'
-        s += '  ---------------\n'
-        s += '  * Application Context Item\n'
-        s += f'    -  Context name: ={self.application_context_name}\n'
-        s += '  * Presentation Context Item(s):\n'
+        s.append('  Variable Items:')
+        s.append('  ---------------')
+        s.append('  * Application Context Item')
+        s.append(f'    -  Context name: ={self.application_context_name}')
+        s.append('  * Presentation Context Item(s):')
 
-        for ii in self.presentation_context:
-            item_str = f'{ii}'
-            item_str_list = item_str.split('\n')
-            s += f'    -  {item_str_list[0]}\n'
+        for cx in self.presentation_context:
+            item_str_list = str(cx).split('\n')
+            s.append(f'    -  {item_str_list[0]}')
             for jj in item_str_list[1:-1]:
-                s += f'       {jj}\n'
+                s.append(f'       {jj}')
 
-        s += '  * User Information Item(s):\n'
-        for item in self.user_information.user_data:
-            item_str = f'{item}'
-            item_str_list = item_str.split('\n')
-            s += f'    -  {item_str_list[0]}\n'
+        s.append('  * User Information Item(s):')
+        for item in cast(UserInformationItem, self.user_information).user_data:
+            item_str_list = str(item).split('\n')
+            s.append(f'    -  {item_str_list[0]}')
             for jj in item_str_list[1:-1]:
-                s += f'       {jj}\n'
+                s.append(f'       {jj}')
 
-        return s
+        return "\n".join(s)
 
     @property
-    def user_information(self):
+    def user_information(self) -> Optional[UserInformationItem]:
         """Return the User Information Item, if available.
 
         Returns
@@ -1086,13 +1106,13 @@ class A_ASSOCIATE_RJ(PDU):
     * DICOM Standard, Part 8,
       :dcm:`Section 9.3.1<part08/sect_9.3.html#sect_9.3.1>`
     """
-    def __init__(self):
+    def __init__(self) -> None:
         """Initialise a new A-ASSOCIATE-RJ PDU."""
-        self.result = None
-        self.source = None
-        self.reason_diagnostic = None
+        self.result: Optional[int] = None
+        self.source: Optional[int] = None
+        self.reason_diagnostic: Optional[int] = None
 
-    def from_primitive(self, primitive):
+    def from_primitive(self, primitive: "A_ASSOCIATE") -> None:
         """Setup the current PDU using an A-ASSOCIATE (reject) primitive.
 
         Parameters
@@ -1104,7 +1124,7 @@ class A_ASSOCIATE_RJ(PDU):
         self.source = primitive.result_source
         self.reason_diagnostic = primitive.diagnostic
 
-    def to_primitive(self):
+    def to_primitive(self) -> "A_ASSOCIATE":
         """Return an A-ASSOCIATE (reject) primitive from the current PDU.
 
         Returns
@@ -1167,12 +1187,12 @@ class A_ASSOCIATE_RJ(PDU):
         ]
 
     @property
-    def pdu_length(self):
+    def pdu_length(self) -> int:
         """Return the *PDU Length* field value as an int."""
         return 4
 
     @property
-    def reason_str(self):
+    def reason_str(self) -> str:
         """Return a str describing the *Reason/Diagnostic* field value."""
         _reasons = {
             1 : {
@@ -1218,7 +1238,7 @@ class A_ASSOCIATE_RJ(PDU):
         return _reasons[self.source][self.reason_diagnostic]
 
     @property
-    def result_str(self):
+    def result_str(self) -> str:
         """Return a str describing the *Result* field value."""
         _results = {
             1 : 'Rejected (Permanent)',
@@ -1234,7 +1254,7 @@ class A_ASSOCIATE_RJ(PDU):
         return _results[self.result]
 
     @property
-    def source_str(self):
+    def source_str(self) -> str:
         """Return a str describing the *Source* field value."""
         _sources = {
             1 : 'DUL service-user',
@@ -1250,12 +1270,12 @@ class A_ASSOCIATE_RJ(PDU):
 
         return _sources[self.source]
 
-    def __str__(self):
+    def __str__(self) -> str:
         """Return a string representation of the PDU."""
         s = 'A-ASSOCIATE-RJ PDU\n'
         s += '==================\n'
-        s += f'  PDU type: 0x{self.pdu_type:02x}\n'
-        s += f'  PDU length: {self.pdu_length:d} bytes\n'
+        s += f'  PDU type: 0x{self.pdu_type:02X}\n'
+        s += f'  PDU length: {self.pdu_length} bytes\n'
         s += f'  Result: {self.result_str}\n'
         s += f'  Source: {self.source_str}\n'
         s += f'  Reason/Diagnostic: {self.reason_str}\n'
@@ -1311,11 +1331,11 @@ class P_DATA_TF(PDU):
       :dcm:`Section 9.3.1<part08/sect_9.3.html#sect_9.3.1>`
     """
 
-    def __init__(self):
+    def __init__(self) -> None:
         """Initialise a new P-DATA-TF PDU."""
-        self.presentation_data_value_items = []
+        self.presentation_data_value_items: _PDVItem = []
 
-    def from_primitive(self, primitive):
+    def from_primitive(self, primitive: "P_DATA") -> None:
         """Setup the current PDU using a P-DATA primitive.
 
         Parameters
@@ -1329,7 +1349,7 @@ class P_DATA_TF(PDU):
             presentation_data_value.presentation_data_value = item[1]
             self.presentation_data_value_items.append(presentation_data_value)
 
-    def to_primitive(self):
+    def to_primitive(self) -> "P_DATA":
         """Return a P-DATA primitive from the current PDU.
 
         Returns
@@ -1344,7 +1364,10 @@ class P_DATA_TF(PDU):
         primitive.presentation_data_value_list = []
         for item in self.presentation_data_value_items:
             primitive.presentation_data_value_list.append(
-                [item.presentation_context_id, item.presentation_data_value]
+                (
+                    cast(int, item.presentation_context_id),
+                    cast(bytes, item.presentation_data_value)
+                )
             )
         return primitive
 
@@ -1392,7 +1415,7 @@ class P_DATA_TF(PDU):
         ]
 
     @staticmethod
-    def _generate_items(bytestream):
+    def _generate_items(bytestream: bytes) -> Iterator[Tuple[int, bytes]]:
         """Yield the variable PDV item data from `bytestream`.
 
         Parameters
@@ -1443,7 +1466,7 @@ class P_DATA_TF(PDU):
             offset += 4 + item_length
 
     @property
-    def pdu_length(self):
+    def pdu_length(self) -> int:
         """Return the *PDU Length* field value as an int."""
         length = 0
         for item in self.presentation_data_value_items:
@@ -1451,12 +1474,12 @@ class P_DATA_TF(PDU):
 
         return length
 
-    def __str__(self):
+    def __str__(self) -> str:
         """Return a string representation of the PDU."""
         s = 'P-DATA-TF PDU\n'
         s += '=============\n'
-        s += f'  PDU type: 0x{self.pdu_type:02x}\n'
-        s += f'  PDU length: {self.pdu_length:d} bytes\n'
+        s += f'  PDU type: 0x{self.pdu_type:02X}\n'
+        s += f'  PDU length: {self.pdu_length} bytes\n'
         s += '\n'
         s += '  Presentation Data Value Item(s):\n'
         s += '  --------------------------------\n'
@@ -1470,7 +1493,7 @@ class P_DATA_TF(PDU):
 
         return s
 
-    def _wrap_generate_items(self, bytestream):
+    def _wrap_generate_items(self, bytestream: bytes) -> _PDVItem:  # type: ignore
         """Return a list of PDV Items generated from `bytestream`.
 
         Parameters
@@ -1537,12 +1560,12 @@ class A_RELEASE_RQ(PDU):
       :dcm:`Section 9.3.1<part08/sect_9.3.html#sect_9.3.1>`
     """
 
-    def __init__(self):
+    def __init__(self) -> None:
         """Initialise a new A-RELEASE-RQ PDU."""
         pass
 
     @staticmethod
-    def from_primitive(primitive):
+    def from_primitive(primitive: "A_RELEASE") -> None:
         """Setup the current PDU using an A-RELEASE (request) primitive.
 
         Parameters
@@ -1553,7 +1576,7 @@ class A_RELEASE_RQ(PDU):
         pass
 
     @staticmethod
-    def to_primitive():
+    def to_primitive() -> "A_RELEASE":
         """Return an A-RELEASE (request) primitive from the current PDU.
 
         Returns
@@ -1604,16 +1627,16 @@ class A_RELEASE_RQ(PDU):
         ]
 
     @property
-    def pdu_length(self):
+    def pdu_length(self) -> int:
         """Return the *PDU Length* field value as an int."""
         return 4
 
-    def __str__(self):
+    def __str__(self) -> str:
         """Return a string representation of the PDU."""
         s = 'A-RELEASE-RQ PDU\n'
         s += '================\n'
-        s += f'  PDU type: 0x{self.pdu_type:02x}\n'
-        s += f'  PDU length: {self.pdu_length:d} bytes\n'
+        s += f'  PDU type: 0x{self.pdu_type:02X}\n'
+        s += f'  PDU length: {self.pdu_length} bytes\n'
 
         return s
 
@@ -1662,12 +1685,12 @@ class A_RELEASE_RP(PDU):
       :dcm:`Section 9.3.1<part08/sect_9.3.html#sect_9.3.1>`
     """
 
-    def __init__(self):
+    def __init__(self) -> None:
         """Initialise a new A-RELEASE-RP PDU."""
         pass
 
     @staticmethod
-    def from_primitive(primitive):
+    def from_primitive(primitive: "A_RELEASE") -> None:
         """Setup the current PDU using an A-release (response) primitive.
 
         Parameters
@@ -1678,7 +1701,7 @@ class A_RELEASE_RP(PDU):
         pass
 
     @staticmethod
-    def to_primitive():
+    def to_primitive() -> "A_RELEASE":
         """Return an A-RELEASE (response) primitive from the current PDU.
 
         Returns
@@ -1732,16 +1755,16 @@ class A_RELEASE_RP(PDU):
         ]
 
     @property
-    def pdu_length(self):
+    def pdu_length(self) -> int:
         """Return the *PDU Length* field value as an int."""
         return 4
 
-    def __str__(self):
+    def __str__(self) -> str:
         """Return a string representation of the PDU."""
         s = 'A-RELEASE-RP PDU\n'
         s += '================\n'
-        s += f'  PDU type: 0x{self.pdu_type:02x}\n'
-        s += f'  PDU length: {self.pdu_length:d} bytes\n'
+        s += f'  PDU type: 0x{self.pdu_type:02X}\n'
+        s += f'  PDU length: {self.pdu_length} bytes\n'
 
         return s
 
@@ -1801,12 +1824,12 @@ class A_ABORT_RQ(PDU):
       :dcm:`Section 9.3.1<part08/sect_9.3.html#sect_9.3.1>`
     """
 
-    def __init__(self):
+    def __init__(self) -> None:
         """Initialise a new A-ABORT-RQ PDU."""
-        self.source = None
-        self.reason_diagnostic = None
+        self.source: Optional[int] = None
+        self.reason_diagnostic: Optional[int] = None
 
-    def from_primitive(self, primitive):
+    def from_primitive(self, primitive: _AbortType) -> None:
         """Setup the current PDU using an A-ABORT or A-P-ABORT primitive.
 
         Parameters
@@ -1817,18 +1840,18 @@ class A_ABORT_RQ(PDU):
         from pynetdicom.pdu_primitives import A_ABORT, A_P_ABORT
 
         # User initiated abort
-        if primitive.__class__ == A_ABORT:
+        if isinstance(primitive, A_ABORT):
             # The reason field shall be 0x00 when the source is DUL
             # service-user
             self.reason_diagnostic = 0
             self.source = primitive.abort_source
 
         # User provider primitive abort
-        elif primitive.__class__ == A_P_ABORT:
+        else:
             self.reason_diagnostic = primitive.provider_reason
             self.source = 2
 
-    def to_primitive(self):
+    def to_primitive(self) -> _AbortType:
         """Return an A-ABORT or A-P-ABORT primitive from the current PDU.
 
         Returns
@@ -1838,6 +1861,7 @@ class A_ABORT_RQ(PDU):
         """
         from pynetdicom.pdu_primitives import A_ABORT, A_P_ABORT
 
+        primitive: _AbortType
         if self.source == 0x02:
             # User provider primitive abort
             primitive = A_P_ABORT()
@@ -1894,23 +1918,23 @@ class A_ABORT_RQ(PDU):
         ]
 
     @property
-    def pdu_length(self):
+    def pdu_length(self) -> int:
         """Return the *PDU Length* field value as an int."""
         return 4
 
-    def __str__(self):
+    def __str__(self) -> str:
         """Return a string representation of the PDU."""
         s = "A-ABORT PDU\n"
         s += "===========\n"
-        s += f"  PDU type: 0x{self.pdu_type:02x}\n"
-        s += f"  PDU length: {self.pdu_length:d} bytes\n"
+        s += f"  PDU type: 0x{self.pdu_type:02X}\n"
+        s += f"  PDU length: {self.pdu_length} bytes\n"
         s += f"  Abort Source: {self.source_str}\n"
         s += f"  Reason/Diagnostic: {self.reason_str}\n"
 
         return s
 
     @property
-    def source_str(self):
+    def source_str(self) -> str:
         """Return a str description of the *Source* field value."""
         _sources = {
             0 : 'DUL service-user',
@@ -1918,10 +1942,10 @@ class A_ABORT_RQ(PDU):
             2 : 'DUL service-provider'
         }
 
-        return _sources[self.source]
+        return _sources[self.source]  # type: ignore
 
     @property
-    def reason_str(self):
+    def reason_str(self) -> str:
         """Return a str description of the *Reason/Diagnostic* field value."""
         if self.source == 2:
             _reason_str = {
@@ -1933,7 +1957,7 @@ class A_ABORT_RQ(PDU):
                 5 : "Unexpected PDU parameter",
                 6 : "Invalid PDU parameter value"
             }
-            return _reason_str[self.reason_diagnostic]
+            return _reason_str[self.reason_diagnostic]  # type: ignore
 
         return 'No reason given'
 

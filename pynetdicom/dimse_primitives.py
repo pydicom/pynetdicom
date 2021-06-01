@@ -34,17 +34,18 @@ LOGGER = logging.getLogger('pynetdicom.dimse_primitives')
 
 DimsePrimitiveType = Union[
     #DIMSEPrimitive,
-    C_CANCEL,
-    C_FIND,
-    C_GET,
-    C_MOVE,
-    C_STORE,
-    N_ACTION,
-    N_CREATE,
-    N_DELETE,
-    N_EVENT_REPORT,
-    N_GET,
-    N_SET
+    "C_CANCEL",
+    "C_ECHO",
+    "C_FIND",
+    "C_GET",
+    "C_MOVE",
+    "C_STORE",
+    "N_ACTION",
+    "N_CREATE",
+    "N_DELETE",
+    "N_EVENT_REPORT",
+    "N_GET",
+    "N_SET"
 ]
 
 
@@ -82,7 +83,7 @@ class DIMSEPrimitive:
 
     _context_id: Optional[int] = None
     _dataset_path: Optional[Union[Path, Tuple[Path, int]]] = None
-    _dataset_file: Optional[NTF] = None
+    _dataset_file: Optional["NTF"] = None
 
     @property
     def AffectedSOPClassUID(self) -> Optional[UID]:
@@ -1297,7 +1298,7 @@ class C_CANCEL:
         self._message_id_being_responded_to: Optional[int] = None
         self._context_id: Optional[int] = None
         self._dataset_path: Optional[Union[Path, Tuple[Path, int]]] = None
-        self._dataset_file: Optional[NTF] = None
+        self._dataset_file: Optional["NTF"] = None
 
     @property
     def MessageIDBeingRespondedTo(self) -> Optional[int]:

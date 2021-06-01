@@ -3,10 +3,11 @@ Implementaion of the service parameter primitives.
 """
 import codecs
 import logging
-from typing import Optional, List, Any, Union, Tuple, cast
+from typing import Optional, List, Any, Union, Tuple, cast, Type
 
 from pydicom.uid import UID
 
+from pynetdicom._globals import OptionalUIDType
 from pynetdicom.pdu_items import (
     MaximumLengthSubItem,
     ImplementationClassUIDSubItem,
@@ -24,7 +25,39 @@ from pynetdicom._globals import DEFAULT_MAX_LENGTH
 
 LOGGER = logging.getLogger('pynetdicom.pdu_primitives')
 
-OptionalUID = Union[str, bytes, UID, None]
+_PDUPrimitiveType = Union[
+    "A_ASSOCIATE", "A_RELEASE", "A_ABORT", "A_P_ABORT", "P_DATA"
+]
+_UserInformationPrimitiveType = List[Union[
+    "MaximumLengthNotification",
+    "ImplementationClassUIDNotification",
+    "ImplementationVersionNameNotification",
+    "AsynchronousOperationsWindowNegotiation",
+    "SCP_SCU_RoleSelectionNegotiation",
+    "SOPClassExtendedNegotiation",
+    "UserIdentityNegotiation",
+    "SOPClassCommonExtendedNegotiation",
+]]
+_UI = Union[
+    "MaximumLengthNotification",
+    "ImplementationClassUIDNotification",
+    "ImplementationVersionNameNotification",
+    "AsynchronousOperationsWindowNegotiation",
+    "SCP_SCU_RoleSelectionNegotiation",
+    "SOPClassExtendedNegotiation",
+    "SOPClassCommonExtendedNegotiation",
+    "UserIdentityNegotiation"
+]
+_UITypes = Union[
+    Type["MaximumLengthNotification"],
+    Type["ImplementationClassUIDNotification"],
+    Type["ImplementationVersionNameNotification"],
+    Type["AsynchronousOperationsWindowNegotiation"],
+    Type["SCP_SCU_RoleSelectionNegotiation"],
+    Type["SOPClassExtendedNegotiation"],
+    Type["SOPClassCommonExtendedNegotiation"],
+    Type["UserIdentityNegotiation"],
+]
 
 
 # TODO: Rename to UserInformation
@@ -112,7 +145,7 @@ class A_ASSOCIATE:
         self._application_context_name: Optional[UID] = None
         self._calling_ae_title: Optional[bytes] = None
         self._called_ae_title: Optional[bytes] = None
-        self._user_information: List[Any] = []
+        self._user_information: _UserInformationPrimitiveType = []
         self._result: Optional[int] = None
         self._result_source: Optional[int] = None
         self._diagnostic: Optional[int] = None
@@ -140,11 +173,15 @@ class A_ASSOCIATE:
             <part08/chapter_A.html>`. The application context name shall
             be a valid UID or UID string and for version 3 of the DICOM
             Standard should be ``'1.2.840.10008.3.1.1.1'``
+
+        Returns
+        -------
+        pydicom.uid.UID
         """
         return self._application_context_name
 
     @application_context_name.setter
-    def application_context_name(self, value: OptionalUID) -> None:
+    def application_context_name(self, value: OptionalUIDType) -> None:
         """Set the Application Context Name parameter."""
         # pylint: disable=attribute-defined-outside-init
         if isinstance(value, UID):
@@ -178,7 +215,11 @@ class A_ASSOCIATE:
         ----------
         value : str or bytes
             The Calling AE Title as a string or bytes object. Cannot be an
-            empty string and will be truncated to 16 characters long
+            empty string and will be truncated to 16 characters long.
+
+        Returns
+        -------
+        bytes
         """
         return self._calling_ae_title
 
@@ -204,6 +245,9 @@ class A_ASSOCIATE:
             The Called AE Title as a string or bytes object. Cannot be an empty
             string and will be truncated to 16 characters long
 
+        Returns
+        -------
+        bytes
         """
         return self._called_ae_title
 
@@ -221,11 +265,11 @@ class A_ASSOCIATE:
 
     @property
     def responding_ae_title(self) -> Optional[bytes]:
-        """Return the Responding AE Title parameter."""
+        """Return the *Responding AE Title* parameter."""
         return self.called_ae_title
 
     @property
-    def user_information(self) -> List[Any]:
+    def user_information(self) -> _UserInformationPrimitiveType:
         """Get or set the *User Information* parameter.
 
         Parameters
@@ -237,7 +281,9 @@ class A_ASSOCIATE:
         return self._user_information
 
     @user_information.setter
-    def user_information(self, value_list: List[Any]) -> None:
+    def user_information(
+        self, value_list: _UserInformationPrimitiveType
+    ) -> None:
         """Set the A-ASSOCIATE primitive's User Information parameter."""
         # pylint: disable=attribute-defined-outside-init
         valid_usr_info_items = []
@@ -271,12 +317,16 @@ class A_ASSOCIATE:
 
         Parameters
         ----------
-        value : str
+        value : int
             One of the following:
 
             * 0: accepted
             * 1: rejected (permanent)
             * 2: rejected (transient)
+
+        Returns
+        -------
+        int
         """
         return self._result
 
@@ -310,6 +360,10 @@ class A_ASSOCIATE:
             * 1: UL service-user
             * 2: UL service-provider (ACSE related function)
             * 3: UL service-provider (presentation related function)
+
+        Returns
+        -------
+        int
         """
         return self._result_source
 
@@ -432,8 +486,11 @@ class A_ASSOCIATE:
         """
         # pylint: disable=attribute-defined-outside-init
         if isinstance(value, tuple):
-            if len(value) == 2 and isinstance(value[0], str) \
-                    and isinstance(value[1], int):
+            if (
+                len(value) == 2
+                and isinstance(value[0], str)
+                and isinstance(value[1], int)
+            ):
                 self._calling_presentation_address = value
             else:
                 LOGGER.error("A_ASSOCIATE.calling_presentation_address must "
@@ -662,7 +719,7 @@ class A_ASSOCIATE:
         raise ValueError("Implementation Class UID has not been set")
 
     @implementation_class_uid.setter
-    def implementation_class_uid(self, value: OptionalUID) -> None:
+    def implementation_class_uid(self, value: OptionalUIDType) -> None:
         """Set the Implementation Class UID."""
         # Type and value checking for the implementation_class_uid parameter is
         #   done by the ImplementationClassUIDNotification class
@@ -672,12 +729,12 @@ class A_ASSOCIATE:
         for item in self.user_information:
             if isinstance(item, ImplementationClassUIDNotification):
                 found_item = True
-                item.implementation_class_uid = value
+                item.implementation_class_uid = value  # type: ignore
 
         # No ImplementationClassUIDNotification item found
         if not found_item:
             imp_uid = ImplementationClassUIDNotification()
-            imp_uid.implementation_class_uid = value
+            imp_uid.implementation_class_uid = value  # type: ignore
             self.user_information.append(imp_uid)
 
 
@@ -707,7 +764,7 @@ class A_RELEASE:
     * DICOM Standard, Part 8, :dcm:`Section 7.2<part08/sect_7.2.html>`
     """
     def __init__(self) -> None:
-        self.result: Optional[str] = None
+        self._result: Optional[str] = None
 
     @property
     def reason(self) -> str:
@@ -882,7 +939,7 @@ class P_DATA:
     * DICOM Standard, Part 8, :dcm:`Section 7.6<part08/sect_7.6.html>`
     """
     def __init__(self) -> None:
-        self.presentation_data_value_list: List[Tuple[int, bytes]] = []
+        self._presentation_data_value_list: List[Tuple[int, bytes]] = []
 
     @property
     def presentation_data_value_list(self) -> List[Tuple[int, bytes]]:
@@ -1115,7 +1172,7 @@ class ImplementationClassUIDNotification(ServiceParameter):
         return self._implementation_class_uid
 
     @implementation_class_uid.setter
-    def implementation_class_uid(self, value: OptionalUID) -> None:
+    def implementation_class_uid(self, value: OptionalUIDType) -> None:
         """Sets the Implementation Class UID parameter."""
         # pylint: disable=attribute-defined-outside-init
         if isinstance(value, UID):
@@ -1287,8 +1344,8 @@ class AsynchronousOperationsWindowNegotiation(ServiceParameter):
     """
 
     def __init__(self) -> None:
-        self.maximum_number_operations_invoked = 1
-        self.maximum_number_operations_performed = 1
+        self._maximum_number_operations_invoked = 1
+        self._maximum_number_operations_performed = 1
 
     def from_primitive(self) -> AsynchronousOperationsWindowSubItem:
         """Convert the primitive to a PDU item ready to be encoded.
@@ -1416,9 +1473,9 @@ class SCP_SCU_RoleSelectionNegotiation(ServiceParameter):
     * DICOM Standard, Part 7, :dcm:`Annex D.3.3.4<part07/sect_D.3.3.4.html>`
     """
     def __init__(self) -> None:
-        self.sop_class_uid: Optional[UID] = None
-        self.scu_role: Optional[bool] = None
-        self.scp_role: Optional[bool] = None
+        self._sop_class_uid: Optional[UID] = None
+        self._scu_role: Optional[bool] = None
+        self._scp_role: Optional[bool] = None
 
     def from_primitive(self) -> SCP_SCU_RoleSelectionSubItem:
         """Convert the primitive to a PDU item ready to be encoded
@@ -1472,9 +1529,7 @@ class SCP_SCU_RoleSelectionNegotiation(ServiceParameter):
     def scp_role(self, value: Optional[bool]) -> None:
         """Sets the SCP Role parameter."""
         # pylint: disable=attribute-defined-outside-init
-        if isinstance(value, bool):
-            pass
-        elif value is None:
+        if isinstance(value, bool) or value is None:
             pass
         else:
             LOGGER.error("SCP Role must be boolean")
@@ -1502,9 +1557,7 @@ class SCP_SCU_RoleSelectionNegotiation(ServiceParameter):
     def scu_role(self, value: Optional[bool]) -> None:
         """Sets the SCU Role parameter."""
         # pylint: disable=attribute-defined-outside-init
-        if isinstance(value, bool):
-            pass
-        elif value is None:
+        if isinstance(value, bool) or value is None:
             pass
         else:
             LOGGER.error("SCU Role must be boolean")
@@ -1529,17 +1582,15 @@ class SCP_SCU_RoleSelectionNegotiation(ServiceParameter):
         return self._sop_class_uid
 
     @sop_class_uid.setter
-    def sop_class_uid(self, value: OptionalUID) -> None:
+    def sop_class_uid(self, value: OptionalUIDType) -> None:
         """Sets the SOP Class UID parameter."""
         # pylint: disable=attribute-defined-outside-init
-        if isinstance(value, UID):
+        if isinstance(value, UID) or value is None:
             pass
         elif isinstance(value, str):
             value = UID(value)
         elif isinstance(value, bytes):
             value = UID(value.decode('ascii'))
-        elif value is None:
-            pass
         else:
             msg = "SOP Class UID must be a pydicom.uid.UID, str or bytes"
             LOGGER.error(msg)
@@ -1586,8 +1637,8 @@ class SOPClassExtendedNegotiation(ServiceParameter):
     * DICOM Standard, Part 7, :dcm:`Annex D.3.3.5<part07/sect_D.3.3.5.html>`
     """
     def __init__(self) -> None:
-        self.sop_class_uid: Optional[UID] = None
-        self.service_class_application_information: Optional[bytes] = None
+        self._sop_class_uid: Optional[UID] = None
+        self._service_class_application_information: Optional[bytes] = None
 
     def from_primitive(self) -> SOPClassExtendedNegotiationSubItem:
         """Convert the primitive to a PDU item ready to be encoded.
@@ -1641,9 +1692,7 @@ class SOPClassExtendedNegotiation(ServiceParameter):
     ) -> None:
         """Sets the Service Class Application Information parameter."""
         # pylint: disable=attribute-defined-outside-init
-        if isinstance(value, bytes):
-            pass
-        elif value is None:
+        if isinstance(value, bytes) or value is None:
             pass
         else:
             LOGGER.error("Service Class Application Information should be a "
@@ -1670,17 +1719,15 @@ class SOPClassExtendedNegotiation(ServiceParameter):
         return self._sop_class_uid
 
     @sop_class_uid.setter
-    def sop_class_uid(self, value: OptionalUID) -> None:
+    def sop_class_uid(self, value: OptionalUIDType) -> None:
         """Sets the SOP Class UID parameter."""
         # pylint: disable=attribute-defined-outside-init
-        if isinstance(value, UID):
+        if isinstance(value, UID) or value is None:
             pass
         elif isinstance(value, str):
             value = UID(value)
         elif isinstance(value, bytes):
             value = UID(value.decode('ascii'))
-        elif value is None:
-            pass
         else:
             msg = "SOP Class UID must be a pydicom.uid.UID, str or bytes"
             LOGGER.error(msg)
@@ -1725,9 +1772,9 @@ class SOPClassCommonExtendedNegotiation(ServiceParameter):
     * DICOM Standard, Part 7, :dcm:`Annex D.3.3.6<part07/sect_D.3.3.6.html>`
     """
     def __init__(self) -> None:
-        self.sop_class_uid: Optional[UID] = None
-        self.service_class_uid: Optional[UID] = None
-        self.related_general_sop_class_identification: List[UID] = []
+        self._service_class_uid: Optional[UID] = None
+        self._sop_class_uid: Optional[UID] = None
+        self._related_general_sop_class_identification: List[UID] = []
 
     def from_primitive(self) -> SOPClassCommonExtendedNegotiationSubItem:
         """Convert the primitive to a PDU item ready to be encoded.
@@ -1839,17 +1886,15 @@ class SOPClassCommonExtendedNegotiation(ServiceParameter):
         return self._service_class_uid
 
     @service_class_uid.setter
-    def service_class_uid(self, value: OptionalUID) -> None:
+    def service_class_uid(self, value: OptionalUIDType) -> None:
         """Sets the Service Class UID parameter."""
         # pylint: disable=attribute-defined-outside-init
-        if isinstance(value, UID):
+        if isinstance(value, UID) or value is None:
             pass
         elif isinstance(value, str):
             value = UID(value)
         elif isinstance(value, bytes):
             value = UID(value.decode('ascii'))
-        elif value is None:
-            pass
         else:
             msg = "Service Class UID must be a pydicom.uid.UID, str or bytes"
             LOGGER.error(msg)
@@ -1883,17 +1928,15 @@ class SOPClassCommonExtendedNegotiation(ServiceParameter):
         return self._sop_class_uid
 
     @sop_class_uid.setter
-    def sop_class_uid(self, value: OptionalUID) -> None:
+    def sop_class_uid(self, value: OptionalUIDType) -> None:
         """Sets the SOP Class UID parameter."""
         # pylint: disable=attribute-defined-outside-init
-        if isinstance(value, UID):
+        if isinstance(value, UID) or value is None:
             pass
         elif isinstance(value, str):
             value = UID(value)
         elif isinstance(value, bytes):
             value = UID(value.decode('ascii'))
-        elif value is None:
-            pass
         else:
             msg = "SOP Class UID must be a pydicom.uid.UID, str or bytes"
             LOGGER.error(msg)

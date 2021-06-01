@@ -6,7 +6,10 @@ import os
 from pathlib import Path
 import threading
 import time
-from typing import Union, Optional, List, Callable, Any, Dict, Iterable, Tuple
+from typing import (
+    Union, Optional, List, Callable, Any, Dict, Iterator, Tuple, TYPE_CHECKING,
+    cast, Type
+)
 
 from pydicom import dcmread
 from pydicom.dataset import Dataset
@@ -40,9 +43,13 @@ from pynetdicom.pdu_primitives import (
     SOPClassExtendedNegotiation,
     SOPClassCommonExtendedNegotiation,
     SCP_SCU_RoleSelectionNegotiation,
+    _UserInformationPrimitiveType,
+    A_ASSOCIATE,
+    _UI,
+    _UITypes
 )
 from pynetdicom.presentation import PresentationContext
-from pynetdicom.sop_class import (
+from pynetdicom.sop_class import (  # type: ignore
     uid_to_service_class, VerificationSOPClass,
     UnifiedProcedureStepPullSOPClass, UnifiedProcedureStepPushSOPClass,
     UnifiedProcedureStepWatchSOPClass, UnifiedProcedureStepEventSOPClass,
@@ -50,6 +57,10 @@ from pynetdicom.sop_class import (
 )
 from pynetdicom.status import code_to_category, STORAGE_SERVICE_CLASS_STATUS
 from pynetdicom.utils import make_target, set_timer_resolution
+
+if TYPE_CHECKING:  # pragma: no cover
+    from pynetdicom.ae import ApplicationEntity
+    from pynetdicom.transport import AssociationServer, AssociationSocket
 
 
 # pylint: enable=no-name-in-module
@@ -95,25 +106,25 @@ class Association(threading.Thread):
         mode : str
             Must be ``'requestor'`` or ``'acceptor'``.
         """
-        self._ae = ae
-        self.mode = mode
+        self._ae: "ApplicationEntity" = ae
+        self.mode: str = mode
 
         # If acceptor this is the parent AssociationServer, used to identify
         #   the thread when updating bound event-handlers
-        self._server = None
+        self._server: Optional["AssociationServer"] = None
 
         # Represents the association requestor and acceptor users
-        self.requestor = ServiceUser(self, MODE_REQUESTOR)
-        self.acceptor = ServiceUser(self, MODE_ACCEPTOR)
+        self.requestor: ServiceUser = ServiceUser(self, MODE_REQUESTOR)
+        self.acceptor: ServiceUser = ServiceUser(self, MODE_ACCEPTOR)
 
         # Status attributes
-        self.is_established = False
-        self.is_rejected = False
-        self.is_aborted = False
-        self.is_released = False
+        self.is_established: bool = False
+        self.is_rejected: bool = False
+        self.is_aborted: bool = False
+        self.is_released: bool = False
 
         # Track whether we've sent an abort or not for the abort() method
-        self._sent_abort = False
+        self._sent_abort: bool = False
 
         # Accepted and rejected presentation contexts
         self._accepted_cx: Dict[int, PresentationContext] = {}
@@ -121,37 +132,44 @@ class Association(threading.Thread):
 
         # Service providers
         self.acse = ACSE(self)
-        self.dul = DULServiceProvider(self)
+        self.dul: DULServiceProvider = DULServiceProvider(self)
         self.dimse = DIMSEServiceProvider(self)
 
         # Timeouts (in seconds), needs to be set after DUL init
-        self.acse_timeout = self.ae.acse_timeout
-        self.connection_timeout = self.ae.connection_timeout
-        self.dimse_timeout = self.ae.dimse_timeout
-        self.network_timeout = self.ae.network_timeout
+        self.acse_timeout: Optional[float] = self.ae.acse_timeout
+        self.connection_timeout: Optional[float] = self.ae.connection_timeout
+        self.dimse_timeout: Optional[float] = self.ae.dimse_timeout
+        self.network_timeout: Optional[float] = self.ae.network_timeout
 
         # Event handlers
-        self._handlers = {}
+        self._handlers: Dict[
+            evt.EventType, Union[
+                List[Tuple[Callable, Optional[List[Any]]]],
+                Tuple[Callable, Optional[List[Any]]]
+            ]
+        ] = {}
         self._bind_defaults()
 
         # Kills the thread loop in run()
-        self._kill = False
+        self._kill: bool = False
         # Flag for whether or not the DUL thread has been started
-        self._started_dul = False
+        self._started_dul: bool = False
         # Used to pause the association reactor until the DUL is ready
-        self._dul_ready = threading.Event()
+        self._dul_ready: threading.Event = threading.Event()
         # Used to pause the association reactor while a service is being used
-        self._reactor_checkpoint = threading.Event()
+        self._reactor_checkpoint: threading.Event = threading.Event()
         self._reactor_checkpoint.set()
         # Used to ensure the reactor is paused before DIMSE messaging
-        self._is_paused = False
+        self._is_paused: bool = False
 
         # Windows timer resolution
-        self._timer_resolution = _config.WINDOWS_TIMER_RESOLUTION
+        self._timer_resolution: Optional[float] = (
+            _config.WINDOWS_TIMER_RESOLUTION
+        )
 
         # Thread setup
         threading.Thread.__init__(self, target=make_target(self.run_reactor))
-        self.daemon = True
+        self.daemon: bool = True
 
     def abort(self) -> None:
         """Abort the :class:`Association` by sending an A-ABORT to the remote
@@ -181,15 +199,17 @@ class Association(threading.Thread):
         """Return a :class:`list` of accepted
         :class:`~pynetdicom.presentation.PresentationContext` items."""
         # Accepted contexts are stored internally as {context ID : context}
-        return sorted(self._accepted_cx.values(), key=lambda x: x.context_id)
+        return sorted(
+            self._accepted_cx.values(), key=lambda x: cast(int, x.context_id)
+        )
 
     @property
-    def acse_timeout(self) -> Union[int, float, None]:
+    def acse_timeout(self) -> Optional[float]:
         """The ACSE timeout (in seconds)."""
         return self._acse_timeout
 
     @acse_timeout.setter
-    def acse_timeout(self, value: Union[int, float, None]) -> None:
+    def acse_timeout(self, value: Optional[float]) -> None:
         """Set the ACSE timeout using numeric or ``None``."""
         with self.lock:
             self.dul.artim_timer.timeout = value
@@ -231,8 +251,12 @@ class Association(threading.Thread):
                 if event not in self._handlers:
                     self._handlers[event] = []
 
-                if (handler, args) not in self._handlers[event]:
-                    self._handlers[event].append((handler, args))
+                handlers = cast(
+                    List[Tuple[Callable, Optional[List[Any]]]],
+                    self._handlers[event]
+                )
+                if (handler, args) not in handlers:
+                    handlers.append((handler, args))
 
             # Intervention events - only one handler allowed
             if event.is_intervention:
@@ -338,8 +362,8 @@ class Association(threading.Thread):
 
     def _get_valid_context(
         self,
-        ab_syntax: UID,
-        tr_syntax: UID,
+        ab_syntax: Union[str, UID],
+        tr_syntax: Union[str, UID],
         role: Optional[str] = None,
         context_id: Optional[int] = None,
         allow_conversion: bool = True
@@ -386,7 +410,7 @@ class Association(threading.Thread):
         tr_syntax = UID(tr_syntax)
 
         try:
-            possible_contexts = [self._accepted_cx[context_id]]
+            possible_contexts = [self._accepted_cx[context_id]]  # type: ignore
         except KeyError:
             possible_contexts = self.accepted_contexts
 
@@ -620,7 +644,7 @@ class Association(threading.Thread):
                 self.kill()
                 return
 
-            self.requestor.primitive = primitive
+            self.requestor.primitive = cast(A_ASSOCIATE, primitive)
             evt.trigger(self, evt.EVT_REQUESTED, {})
 
             # User used EVT_REQUESTED to send an A-ABORT or A-ASSOCIATE-RJ
@@ -632,13 +656,18 @@ class Association(threading.Thread):
                     self._run_reactor()
 
             # Ensure the connection is shutdown properly
-            if self._server and self.dul.socket.socket:
-                self._server.shutdown_request(self.dul.socket.socket)
+            socket = cast("AssociationSocket", self.dul.socket)
+            if self._server and socket.socket:
+                self._server.shutdown_request(socket.socket)
         else:
             # Association requestor
             # Allow non-blocking negotiation
-            if (not self.is_established and not self.is_aborted
-                    and not self.is_released and not self.is_rejected):
+            if (
+                not self.is_established
+                and not self.is_aborted
+                and not self.is_released
+                and not self.is_rejected
+            ):
                 self.acse.negotiate_association()
 
             if self.is_established:
@@ -680,7 +709,7 @@ class Association(threading.Thread):
             #   message is available
             context_id, msg = self.dimse.get_msg(block=False)
             if msg:
-                self._serve_request(msg, context_id)
+                self._serve_request(msg, cast(int, context_id))
 
             # Check for release request
             if self.acse.is_release_requested():
@@ -695,10 +724,10 @@ class Association(threading.Thread):
 
             # Check for abort
             if self.acse.is_aborted():
-                msg = "Association Aborted"
+                log_msg = "Association Aborted"
                 if self.acse.is_aborted('a-p-abort'):
-                    msg += " (A-P-ABORT)"
-                LOGGER.info(msg)
+                    log_msg += " (A-P-ABORT)"
+                LOGGER.info(log_msg)
                 # Ensure that EVT_ASCE_RECV fires for subscribers
                 self.dul.receive_pdu(wait=False)
                 self.is_aborted = True
@@ -758,10 +787,14 @@ class Association(threading.Thread):
 
             # Notification events
             if event.is_notification:
-                handlers = [hh[0] for hh in self._handlers[event]]
+                handlers = cast(
+                    List[Tuple[Callable, Optional[List[Any]]]],
+                    self._handlers[event]
+                )
+                funcs = [hh[0] for hh in handlers]
                 try:
-                    ii = handlers.index(handler)
-                    del self._handlers[event][ii]
+                    ii = funcs.index(handler)
+                    del handlers[ii]
                 except ValueError:
                     pass
 
@@ -812,7 +845,7 @@ class Association(threading.Thread):
 
         try:
             context = self._get_valid_context(
-                req.AffectedSOPClassUID,
+                cast(UID, req.AffectedSOPClassUID),
                 '',
                 'scp',
                 context_id=req._context_id
@@ -836,7 +869,7 @@ class Association(threading.Thread):
             )
             LOGGER.exception(ex)
             rsp.Status = 0xC211
-            self.dimse.send_msg(rsp, context.context_id)
+            self.dimse.send_msg(rsp, cast(int, context.context_id))
             return
 
         # Check the callback's returned status
@@ -868,7 +901,7 @@ class Association(threading.Thread):
             )
 
         # Send C-STORE confirmation back to peer
-        self.dimse.send_msg(rsp, context.context_id)
+        self.dimse.send_msg(rsp, cast(int, context.context_id))
 
     def send_c_cancel(self, msg_id: int, context_id: int) -> None:
         """Send a C-CANCEL request to the peer AE.
@@ -982,7 +1015,7 @@ class Association(threading.Thread):
         while not self._is_paused:
             time.sleep(0.0001)
 
-        self.dimse.send_msg(primitive, context.context_id)
+        self.dimse.send_msg(primitive, cast(int, context.context_id))
         cx_id, rsp = self.dimse.get_msg(block=True)
 
         # Unpause the reactor
@@ -1004,7 +1037,7 @@ class Association(threading.Thread):
         query_model: Union[str, UID],
         msg_id: int = 1,
         priority: int = 2
-    ) -> Iterable[Tuple[Dataset, Optional[Dataset]]]:
+    ) -> Iterator[Tuple[Dataset, Optional[Dataset]]]:
         """Send a C-FIND request to the peer AE.
 
         Yields (*status*, *identifier*) pairs for each response from the peer.
@@ -1160,7 +1193,8 @@ class Association(threading.Thread):
             LOGGER.info("Using Presentation Context:")
             LOGGER.info(f"  Context ID:        {context.context_id}")
             LOGGER.info(
-                f"  Abstract Syntax:   ={context.abstract_syntax.name}"
+                "  Abstract Syntax:   ="
+                f"{cast(UID, context.abstract_syntax).name}"
             )
 
         # Build C-FIND request primitive
@@ -1170,7 +1204,7 @@ class Association(threading.Thread):
         #   (M) Identifier
         req = C_FIND()
         req.MessageID = msg_id
-        req.AffectedSOPClassUID = query_model
+        req.AffectedSOPClassUID = UID(query_model)
         req.Priority = priority
 
         # Encode the Identifier `dataset` using the agreed transfer syntax
@@ -1202,7 +1236,7 @@ class Association(threading.Thread):
             time.sleep(0.0001)
 
         # Send C-FIND request to the peer via DIMSE
-        self.dimse.send_msg(req, context.context_id)
+        self.dimse.send_msg(req, cast(int, context.context_id))
 
         # Get the responses from the peer
         # Wrap the generator so the C-FIND-RQ is sent immediately on
@@ -1216,7 +1250,7 @@ class Association(threading.Thread):
         query_model: Union[str, UID],
         msg_id: int = 1,
         priority: int = 2
-    ) -> Iterable[Tuple[Dataset, Optional[Dataset]]]:
+    ) -> Iterator[Tuple[Dataset, Optional[Dataset]]]:
         """Send a C-GET request to the peer AE.
 
         Yields (*status*, *identifier*) pairs for each response from the peer.
@@ -1372,7 +1406,7 @@ class Association(threading.Thread):
         #   (M) Identifier
         req = C_GET()
         req.MessageID = msg_id
-        req.AffectedSOPClassUID = query_model
+        req.AffectedSOPClassUID = UID(query_model)
         req.Priority = priority
 
         # Encode the Identifier `dataset` using the agreed transfer syntax
@@ -1405,7 +1439,7 @@ class Association(threading.Thread):
             time.sleep(0.0001)
 
         # Send C-GET request to the peer via DIMSE
-        self.dimse.send_msg(req, context.context_id)
+        self.dimse.send_msg(req, cast(int, context.context_id))
 
         # Get the responses from the peer
         # Wrap the generator so the C-GET-RQ is sent immediately on
@@ -1420,7 +1454,7 @@ class Association(threading.Thread):
         query_model: Union[str, UID],
         msg_id: int = 1,
         priority: int = 2
-    ) -> Iterable[Tuple[Dataset, Optional[Dataset]]]:
+    ) -> Iterator[Tuple[Dataset, Optional[Dataset]]]:
         """Send a C-MOVE request to the peer AE.
 
         Yields (*status*, *identifier*) pairs for each response from the peer.
@@ -1573,7 +1607,7 @@ class Association(threading.Thread):
         #   (M) Identifier
         req = C_MOVE()
         req.MessageID = msg_id
-        req.AffectedSOPClassUID = query_model
+        req.AffectedSOPClassUID = UID(query_model)
         req.Priority = priority
         req.MoveDestination = move_aet
 
@@ -1607,7 +1641,7 @@ class Association(threading.Thread):
             time.sleep(0.0001)
 
         # Send C-MOVE request to the peer via DIMSE and wait for the response
-        self.dimse.send_msg(req, context.context_id)
+        self.dimse.send_msg(req, cast(int, context.context_id))
 
         # Get the responses from the peer
         # Wrap the generator so the C-MOVE-RQ is sent immediately on
@@ -1617,7 +1651,7 @@ class Association(threading.Thread):
 
     def send_c_store(
         self,
-        dataset: Dataset,
+        dataset: Union[str, Path, Dataset],
         msg_id: int = 1,
         priority: int = 2,
         originator_aet: Optional[bytes] = None,
@@ -1763,7 +1797,7 @@ class Association(threading.Thread):
             if not _config.STORE_SEND_CHUNKED_DATASET:
                 dataset = dcmread(os.fspath(fpath))
             else:
-                dataset = None
+                dataset = None  # type:ignore[assignment]
                 allow_conversion = False
                 file_meta, offset = split_dataset(fpath)
                 req._dataset_path = (fpath, offset)
@@ -1787,6 +1821,7 @@ class Association(threading.Thread):
                 tsyntax = file_meta.TransferSyntaxUID
 
         if dataset:
+            dataset = cast(Dataset, dataset)
             missing = ['SOPClassUID', 'SOPInstanceUID']
             missing = [kw for kw in missing if kw not in dataset]
             if missing:
@@ -1820,7 +1855,7 @@ class Association(threading.Thread):
         #   Will return None if failed to encode
         if dataset:
             bytestream = encode(
-                dataset,
+                cast(Dataset, dataset),
                 transfer_syntax.is_implicit_VR,
                 transfer_syntax.is_little_endian,
                 transfer_syntax.is_deflated
@@ -1838,7 +1873,7 @@ class Association(threading.Thread):
             time.sleep(0.0001)
 
         # Send C-STORE request to the peer via DIMSE and wait for the response
-        self.dimse.send_msg(req, context.context_id)
+        self.dimse.send_msg(req, cast(int, context.context_id))
         cx_id, rsp = self.dimse.get_msg(block=True)
 
         # Unpause the reactor
@@ -1857,7 +1892,7 @@ class Association(threading.Thread):
     def _wrap_find_responses(
         self,
         transfer_syntax: UID
-    ) -> Iterable[Tuple[Dataset, Optional[Dataset]]]:
+    ) -> Iterator[Tuple[Dataset, Optional[Dataset]]]:
         """Wrapper for the C-FIND response generator.
 
         Wrapping the response generators allows us to immediately send the
@@ -1920,7 +1955,7 @@ class Association(threading.Thread):
             #   matches and sub-operations is initiated or continuing
             # If the Status is 'Cancel', 'Failure', 'Warning' or 'Success'
             #   then we are finished
-            category = code_to_category(status.Status)
+            category = code_to_category(cast(int, status.Status))
 
             LOGGER.debug('')
             if category == STATUS_PENDING:
@@ -1942,7 +1977,7 @@ class Association(threading.Thread):
                 with self.lock:
                     try:
                         identifier = decode(
-                            rsp.Identifier,
+                            cast(BytesIO, rsp.Identifier),
                             transfer_syntax.is_implicit_VR,
                             transfer_syntax.is_little_endian,
                             transfer_syntax.is_deflated
@@ -1975,7 +2010,7 @@ class Association(threading.Thread):
     def _wrap_get_move_responses(
         self,
         transfer_syntax: UID
-    ) -> Iterable[Tuple[Dataset, Optional[Dataset]]]:
+    ) -> Iterator[Tuple[Dataset, Optional[Dataset]]]:
         """Wrapper for the C-GET/C-MOVE response generators.
 
         Wrapping the response generators allows us to immediately send the
@@ -2047,7 +2082,7 @@ class Association(threading.Thread):
             #   matches and sub-operations is initiated or continuing
             # If the Status is 'Cancel', 'Failure', 'Warning' or 'Success'
             #   then we are finished
-            category = code_to_category(status.Status)
+            category = code_to_category(cast(int, status.Status))
 
             LOGGER.debug('')
             if category == STATUS_PENDING:
@@ -2240,7 +2275,8 @@ class Association(threading.Thread):
             LOGGER.info("Using Presentation Context:")
             LOGGER.info(f"  Context ID:        {context.context_id}")
             LOGGER.info(
-                f"  Abstract Syntax:   ={context.abstract_syntax.name}"
+                "  Abstract Syntax:   ="
+                f"{cast(UID, context.abstract_syntax).name}"
             )
         transfer_syntax = context.transfer_syntax[0]
 
@@ -2252,8 +2288,8 @@ class Association(threading.Thread):
         #   (U) Action Information
         req = N_ACTION()
         req.MessageID = msg_id
-        req.RequestedSOPClassUID = class_uid
-        req.RequestedSOPInstanceUID = instance_uid
+        req.RequestedSOPClassUID = UID(class_uid)
+        req.RequestedSOPInstanceUID = UID(instance_uid)
         req.ActionTypeID = action_type
 
         # Action Information is optional
@@ -2285,7 +2321,7 @@ class Association(threading.Thread):
         while not self._is_paused:
             time.sleep(0.0001)
 
-        self.dimse.send_msg(req, context.context_id)
+        self.dimse.send_msg(req, cast(int, context.context_id))
         cx_id, rsp = self.dimse.get_msg(block=True)
 
         # Unpause the reactor
@@ -2307,13 +2343,13 @@ class Association(threading.Thread):
             if category not in [STATUS_WARNING, STATUS_SUCCESS]:
                 return status, action_reply
 
-            bytestream = rsp.ActionReply
-            if bytestream and bytestream.getvalue() != b'':
+            b: BytesIO = rsp.ActionReply  # type: ignore[attr-defined]
+            if b and b.getvalue() != b'':
                 # Attempt to decode the response's dataset
                 # pylint: disable=broad-except
                 try:
                     action_reply = decode(
-                        bytestream,
+                        b,
                         transfer_syntax.is_implicit_VR,
                         transfer_syntax.is_little_endian,
                         transfer_syntax.is_deflated
@@ -2499,7 +2535,8 @@ class Association(threading.Thread):
         #   (U) Attribute List
         req = N_CREATE()
         req.MessageID = msg_id
-        req.AffectedSOPClassUID = class_uid
+        req.AffectedSOPClassUID = UID(class_uid)
+        instance_uid = UID(instance_uid) if instance_uid else None
         req.AffectedSOPInstanceUID = instance_uid
 
         # Attribute List is optional
@@ -2528,7 +2565,7 @@ class Association(threading.Thread):
         while not self._is_paused:
             time.sleep(0.0001)
 
-        self.dimse.send_msg(req, context.context_id)
+        self.dimse.send_msg(req, cast(int, context.context_id))
         cx_id, rsp = self.dimse.get_msg(block=True)
 
         # Unpause the reactor
@@ -2550,13 +2587,13 @@ class Association(threading.Thread):
             if category not in [STATUS_WARNING, STATUS_SUCCESS]:
                 return status, attribute_list
 
-            bytestream = rsp.AttributeList
-            if bytestream and bytestream.getvalue() != b'':
+            b: BytesIO = rsp.AttributeList  # type: ignore[attr-defined]
+            if b and b.getvalue() != b'':
                 # Attempt to decode the response's dataset
                 # pylint: disable=broad-except
                 try:
                     attribute_list = decode(
-                        bytestream,
+                        b,
                         transfer_syntax.is_implicit_VR,
                         transfer_syntax.is_little_endian,
                         transfer_syntax.is_deflated
@@ -2672,8 +2709,8 @@ class Association(threading.Thread):
         #   (M) Requested SOP Instance UID
         req = N_DELETE()
         req.MessageID = msg_id
-        req.RequestedSOPClassUID = class_uid
-        req.RequestedSOPInstanceUID = instance_uid
+        req.RequestedSOPClassUID = UID(class_uid)
+        req.RequestedSOPInstanceUID = UID(instance_uid)
 
         # Send N-DELETE request to the peer via DIMSE and wait for the response
         LOGGER.info(f'Sending Delete Request: MsgID {msg_id}')
@@ -2683,7 +2720,7 @@ class Association(threading.Thread):
         while not self._is_paused:
             time.sleep(0.0001)
 
-        self.dimse.send_msg(req, context.context_id)
+        self.dimse.send_msg(req, cast(int, context.context_id))
         cx_id, rsp = self.dimse.get_msg(block=True)
 
         # Unpause the reactor
@@ -2823,7 +2860,8 @@ class Association(threading.Thread):
             LOGGER.info("Using Presentation Context:")
             LOGGER.info(f"  Context ID:        {context.context_id}")
             LOGGER.info(
-                f"  Abstract Syntax:   ={context.abstract_syntax.name}"
+                "  Abstract Syntax:   ="
+                f"{cast(UID, context.abstract_syntax).name}"
             )
         transfer_syntax = context.transfer_syntax[0]
 
@@ -2835,8 +2873,8 @@ class Association(threading.Thread):
         #   (U) Event Information
         req = N_EVENT_REPORT()
         req.MessageID = msg_id
-        req.AffectedSOPClassUID = class_uid
-        req.AffectedSOPInstanceUID = instance_uid
+        req.AffectedSOPClassUID = UID(class_uid)
+        req.AffectedSOPInstanceUID = UID(instance_uid)
         req.EventTypeID = event_type
 
         # *Event Information* is optional
@@ -2868,7 +2906,7 @@ class Association(threading.Thread):
         while not self._is_paused:
             time.sleep(0.0001)
 
-        self.dimse.send_msg(req, context.context_id)
+        self.dimse.send_msg(req, cast(int, context.context_id))
         cx_id, rsp = self.dimse.get_msg(block=True)
 
         # Unpause the reactor
@@ -2890,13 +2928,13 @@ class Association(threading.Thread):
             if category not in [STATUS_WARNING, STATUS_SUCCESS]:
                 return status, event_reply
 
-            bytestream = rsp.EventReply
-            if bytestream and bytestream.getvalue() != b'':
+            b: BytesIO = rsp.EventReply  # type: ignore[attr-defined]
+            if b and b.getvalue() != b'':
                 # Attempt to decode the response's dataset
                 # pylint: disable=broad-except
                 try:
                     event_reply = decode(
-                        bytestream,
+                        b,
                         transfer_syntax.is_implicit_VR,
                         transfer_syntax.is_little_endian,
                         transfer_syntax.is_deflated
@@ -3059,7 +3097,8 @@ class Association(threading.Thread):
             LOGGER.info("Using Presentation Context:")
             LOGGER.info(f"  Context ID:        {context.context_id}")
             LOGGER.info(
-                f"  Abstract Syntax:   ={context.abstract_syntax.name}"
+                "  Abstract Syntax:   ="
+                f"{cast(UID, context.abstract_syntax).name}"
             )
         transfer_syntax = context.transfer_syntax[0]
 
@@ -3070,8 +3109,8 @@ class Association(threading.Thread):
         #   (U) Attribute Identifier List
         req = N_GET()
         req.MessageID = msg_id
-        req.RequestedSOPClassUID = class_uid
-        req.RequestedSOPInstanceUID = instance_uid
+        req.RequestedSOPClassUID = UID(class_uid)
+        req.RequestedSOPInstanceUID = UID(instance_uid)
         req.AttributeIdentifierList = identifier_list
 
         # Send N-GET request to the peer via DIMSE and wait for the response
@@ -3082,7 +3121,7 @@ class Association(threading.Thread):
         while not self._is_paused:
             time.sleep(0.0001)
 
-        self.dimse.send_msg(req, context.context_id)
+        self.dimse.send_msg(req, cast(int, context.context_id))
         cx_id, rsp = self.dimse.get_msg(block=True)
 
         # Unpause the reactor
@@ -3104,13 +3143,13 @@ class Association(threading.Thread):
             if category not in [STATUS_WARNING, STATUS_SUCCESS]:
                 return status, attribute_list
 
-            bytestream = rsp.AttributeList
-            if bytestream and bytestream.getvalue() != b'':
+            b: BytesIO = rsp.AttributeList  # type: ignore[attr-defined]
+            if b and b.getvalue() != b'':
                 # Attempt to decode the response's dataset
                 # pylint: disable=broad-except
                 try:
                     attribute_list = decode(
-                        bytestream,
+                        b,
                         transfer_syntax.is_implicit_VR,
                         transfer_syntax.is_little_endian,
                         transfer_syntax.is_deflated
@@ -3300,7 +3339,8 @@ class Association(threading.Thread):
             LOGGER.info("Using Presentation Context:")
             LOGGER.info(f"  Context ID:        {context.context_id}")
             LOGGER.info(
-                f"  Abstract Syntax:   ={context.abstract_syntax.name}"
+                "  Abstract Syntax:   ="
+                f"{cast(UID, context.abstract_syntax).name}"
             )
         transfer_syntax = context.transfer_syntax[0]
 
@@ -3311,8 +3351,8 @@ class Association(threading.Thread):
         #   (M) Modification List
         req = N_SET()
         req.MessageID = msg_id
-        req.RequestedSOPClassUID = class_uid
-        req.RequestedSOPInstanceUID = instance_uid
+        req.RequestedSOPClassUID = UID(class_uid)
+        req.RequestedSOPInstanceUID = UID(instance_uid)
 
         # Encode the `dataset` using the agreed transfer syntax
         #   Will return None if failed to encode
@@ -3338,7 +3378,7 @@ class Association(threading.Thread):
         while not self._is_paused:
             time.sleep(0.0001)
 
-        self.dimse.send_msg(req, context.context_id)
+        self.dimse.send_msg(req, cast(int, context.context_id))
         cx_id, rsp = self.dimse.get_msg(block=True)
 
         # Unpause the reactor
@@ -3360,13 +3400,13 @@ class Association(threading.Thread):
             if category not in [STATUS_WARNING, STATUS_SUCCESS]:
                 return status, attribute_list
 
-            bytestream = rsp.AttributeList
-            if bytestream and bytestream.getvalue() != b'':
+            b: BytesIO = rsp.AttributeList  # type: ignore[attr-defined]
+            if b and b.getvalue() != b'':
                 # Attempt to decode the response's dataset
                 # pylint: disable=broad-except
                 try:
                     attribute_list = decode(
-                        bytestream,
+                        b,
                         transfer_syntax.is_implicit_VR,
                         transfer_syntax.is_little_endian,
                         transfer_syntax.is_deflated
@@ -3405,7 +3445,7 @@ class Association(threading.Thread):
 
         # Use the Message's Affected SOP Class UID or Requested SOP
         #   Class UID to determine which service to use
-        class_uid = ''
+        class_uid: Union[str, UID] = ''
         if getattr(msg, 'AffectedSOPClassUID', None) is not None:
             # DIMSE-C, N-EVENT-REPORT, N-CREATE use AffectedSOPClassUID
             class_uid = msg.AffectedSOPClassUID
@@ -3414,6 +3454,7 @@ class Association(threading.Thread):
             class_uid = msg.RequestedSOPClassUID
 
         # SOP Class Common Extended Negotiation
+        class_uid = cast(UID, class_uid)
         try:
             # The service class UID
             class_uid = self.acceptor.accepted_common_extended[class_uid][0]
@@ -3506,7 +3547,7 @@ class ServiceUser:
         accept/reject if mode is ``'acceptor'``) sent or received by the AE
         during association negotiation.
     """
-    def __init__(self, assoc, mode):
+    def __init__(self, assoc: Association, mode: str) -> None:
         """Create a new :class:`ServiceUser`.
 
         Parameters
@@ -3525,33 +3566,35 @@ class ServiceUser:
                 "The 'mode' must be either 'requestor' or 'acceptor'"
             )
 
-        self.assoc = assoc
-        self._mode = mode
-        self.primitive = None
-        self.ae_title = b''
-        self.port = None
-        self.address = ''
+        self.assoc: Association = assoc
+        self._mode: str = mode
+        self.primitive: Optional[A_ASSOCIATE] = None
+        self.ae_title: bytes = b''
+        self.port: Optional[int] = None
+        self.address: Optional[str] = ''
 
         # If Requestor this is the requested contexts, otherwise this is
         #   the supported contexts
-        self._contexts = []
+        self._contexts: List[PresentationContext] = []
 
         # User Information items
-        self._user_info = []
+        self._user_info: List[_UI] = []
         # Must always be set
-        self.maximum_length = DEFAULT_MAX_LENGTH
-        self.implementation_class_uid = assoc.ae.implementation_class_uid
+        self.maximum_length: int = DEFAULT_MAX_LENGTH
+        self.implementation_class_uid: UID = assoc.ae.implementation_class_uid
 
-        # The are the proposed extended negotiation items,
-        self._ext_neg = {}
+        # These are the proposed extended negotiation items,
+        self._ext_neg: Dict[_UITypes, List[_UI]] = {}
         self.reset_negotiation_items()
 
         # If Acceptor then this the accepted SOP Class Common Extended
         #   negotiation items
-        self._common_ext = {}
+        self._common_ext: Dict[
+            UID, SOPClassCommonExtendedNegotiation
+        ] = {}
 
     @property
-    def accepted_common_extended(self):
+    def accepted_common_extended(self) -> Dict[UID, Tuple[UID, List[UID]]]:
         """Return a :class:`dict` of the accepted SOP Class Common Extended
         Negotiation.
 
@@ -3575,14 +3618,14 @@ class ServiceUser:
 
         out = {}
         for item in self._common_ext.values():
-            out[item.sop_class_uid] = (
-                item.service_class_uid,
+            out[cast(UID, item.sop_class_uid)] = (
+                cast(UID, item.service_class_uid),
                 item.related_general_sop_class_identification
             )
 
         return out
 
-    def add_negotiation_item(self, item):
+    def add_negotiation_item(self, item: _UI) -> None:
         """Add an extended negotiation item to the user information.
 
         Items can only be added prior to starting the association negotiation.
@@ -3614,6 +3657,7 @@ class ServiceUser:
                 "has started"
             )
 
+        #
         try:
             self._ext_neg[type(item)].append(item)
         except KeyError:
@@ -3622,7 +3666,7 @@ class ServiceUser:
             )
 
     @property
-    def asynchronous_operations(self):
+    def asynchronous_operations(self) -> Tuple[int, int]:
         """Return the Asynchronous Operations Window operations numbers.
 
         Returns
@@ -3634,22 +3678,23 @@ class ServiceUser:
         """
         if self.writeable:
             for item in self._ext_neg[AsynchronousOperationsWindowNegotiation]:
+                item = cast(AsynchronousOperationsWindowNegotiation, item)
                 return (
                     item.maximum_number_operations_invoked,
                     item.maximum_number_operations_performed
                 )
-        else:
-            for item in self.user_information:
-                if isinstance(item, AsynchronousOperationsWindowNegotiation):
-                    return (
-                        item.maximum_number_operations_invoked,
-                        item.maximum_number_operations_performed
-                    )
+
+        for item in self.user_information:
+            if isinstance(item, AsynchronousOperationsWindowNegotiation):
+                return (
+                    item.maximum_number_operations_invoked,
+                    item.maximum_number_operations_performed
+                )
 
         return (1, 1)
 
     @property
-    def extended_negotiation(self):
+    def extended_negotiation(self) -> List[_UI]:
         """Return a :class:`list` of Extended Negotiation items.
 
         Extended Negotiation items are:
@@ -3670,8 +3715,8 @@ class ServiceUser:
         """
         items = []
         if self.writeable:
-            for negotiation_type in self._ext_neg:
-                items.extend(self._ext_neg[negotiation_type])
+            for item_type in self._ext_neg:
+                items.extend(self._ext_neg[item_type])
 
             return items
 
@@ -3682,7 +3727,7 @@ class ServiceUser:
 
         return items
 
-    def get_contexts(self, cx_type):
+    def get_contexts(self, cx_type: str) -> List[PresentationContext]:
         """Return a :class:`list` of
         :class:`~pynetdicom.presentation.PresentationContext` items
         corresponding to `cx_type`.
@@ -3716,6 +3761,7 @@ class ServiceUser:
             Presentation Context Definition Results List parameter.
         """
         contexts = {'requested' : self._contexts, 'supported' : self._contexts}
+        self.primitive = cast(A_ASSOCIATE, self.primitive)
         if not self.writeable:
             contexts.update({
                 'pcdl' : self.primitive.presentation_context_definition_list,
@@ -3745,7 +3791,7 @@ class ServiceUser:
         )
 
     @property
-    def implementation_class_uid(self):
+    def implementation_class_uid(self) -> Optional[UID]:
         """The Implementation Class UID as a :class:`~pydicom.uid.UID`.
 
         Returns
@@ -3769,7 +3815,7 @@ class ServiceUser:
         return None
 
     @implementation_class_uid.setter
-    def implementation_class_uid(self, value):
+    def implementation_class_uid(self, value: UID) -> None:
         """Set the Implementation Class UID (only prior to association).
 
         Parameters
@@ -3793,7 +3839,7 @@ class ServiceUser:
             self._user_info.append(item)
 
     @property
-    def implementation_version_name(self):
+    def implementation_version_name(self) -> Optional[bytes]:
         """The Implementation Version Name as :class:`str` (if available).
 
         Returns
@@ -3818,7 +3864,7 @@ class ServiceUser:
         return None
 
     @implementation_version_name.setter
-    def implementation_version_name(self, value):
+    def implementation_version_name(self, value: Union[str, bytes]) -> None:
         """Set the Implementation Version Name (only prior to association).
 
         Parameters
@@ -3834,15 +3880,15 @@ class ServiceUser:
 
         for item in self._user_info:
             if isinstance(item, ImplementationVersionNameNotification):
-                item.implementation_version_name = value
+                item.implementation_version_name = value  # type: ignore
                 break
         else:
             item = ImplementationVersionNameNotification()
-            item.implementation_version_name = value
+            item.implementation_version_name = value  # type: ignore
             self._user_info.append(item)
 
     @property
-    def info(self):
+    def info(self) -> Dict[str, Any]:
         """Return a :class:`dict` with information about the
         :class:`ServiceUser`.
         """
@@ -3858,21 +3904,21 @@ class ServiceUser:
         return info
 
     @property
-    def is_acceptor(self):
+    def is_acceptor(self) -> bool:
         """Return ``True`` if the :class:`ServiceUser` is the association
         acceptor.
         """
         return self.mode == MODE_ACCEPTOR
 
     @property
-    def is_requestor(self):
+    def is_requestor(self) -> bool:
         """Return ``True`` if the :class:`ServiceUser` is the association
         requestor.
         """
         return self.mode == MODE_REQUESTOR
 
     @property
-    def maximum_length(self):
+    def maximum_length(self) -> Optional[int]:
         """The maximum PDV size as :class:`int`.
 
         Returns
@@ -3896,7 +3942,7 @@ class ServiceUser:
         return None
 
     @maximum_length.setter
-    def maximum_length(self, value):
+    def maximum_length(self, value: int) -> None:
         """Set the Maximum PDU Length (only prior to association).
 
         Parameters
@@ -3919,21 +3965,21 @@ class ServiceUser:
             self._user_info.append(item)
 
     @property
-    def mode(self):
+    def mode(self) -> str:
         """Return the mode as :class:`str`, either ``'requestor'`` or
         ``'acceptor'``.
         """
         return self._mode
 
     @property
-    def requested_contexts(self):
+    def requested_contexts(self) -> List[PresentationContext]:
         """A :class:`list` of the requestor's requested presentation
         contexts.
         """
         return self.get_contexts('requested')
 
     @requested_contexts.setter
-    def requested_contexts(self, value):
+    def requested_contexts(self, value: List[PresentationContext]) -> None:
         """Set the requested presentation contexts.
 
         Parameters
@@ -3963,7 +4009,7 @@ class ServiceUser:
 
         self._contexts = value
 
-    def remove_negotiation_item(self, item):
+    def remove_negotiation_item(self, item: _UI) -> None:
         """Remove an extended negotiation item from the user information.
 
         Items can only be removed prior to starting the association
@@ -4006,7 +4052,7 @@ class ServiceUser:
                 "'item' is not a valid extended negotiation item"
             )
 
-    def reset_negotiation_items(self):
+    def reset_negotiation_items(self) -> None:
         """Remove all extended negotiation items.
 
         Items can only be removed prior to starting the association
@@ -4034,7 +4080,7 @@ class ServiceUser:
             self._ext_neg[SOPClassCommonExtendedNegotiation] = []
 
     @property
-    def role_selection(self):
+    def role_selection(self) -> Dict[UID, SCP_SCU_RoleSelectionNegotiation]:
         """Return any SCP/SCU Role Selection items.
 
         Returns
@@ -4046,18 +4092,21 @@ class ServiceUser:
         roles = {}
         if self.writeable:
             for item in self._ext_neg[SCP_SCU_RoleSelectionNegotiation]:
-                roles[item.sop_class_uid] = item
+                item = cast(SCP_SCU_RoleSelectionNegotiation, item)
+                roles[cast(UID, item.sop_class_uid)] = item
 
             return roles
 
         for item in self.user_information:
             if isinstance(item, SCP_SCU_RoleSelectionNegotiation):
-                roles[item.sop_class_uid] = item
+                roles[cast(UID, item.sop_class_uid)] = item
 
         return roles
 
     @property
-    def sop_class_common_extended(self):
+    def sop_class_common_extended(
+        self
+    ) -> Dict[UID, SOPClassCommonExtendedNegotiation]:
         """Return the SOP Class Common Extended items.
 
         If the :class:`ServiceUser` is the association acceptor then no SOP
@@ -4075,18 +4124,19 @@ class ServiceUser:
         sop_classes = {}
         if self.writeable:
             for item in self._ext_neg[SOPClassCommonExtendedNegotiation]:
-                sop_classes[item.sop_class_uid] = item
+                item = cast(SOPClassCommonExtendedNegotiation, item)
+                sop_classes[cast(UID, item.sop_class_uid)] = item
 
             return sop_classes
 
         for item in self.user_information:
             if isinstance(item, SOPClassCommonExtendedNegotiation):
-                sop_classes[item.sop_class_uid] = item
+                sop_classes[cast(UID, item.sop_class_uid)] = item
 
         return sop_classes
 
     @property
-    def sop_class_extended(self):
+    def sop_class_extended(self) -> Dict[UID, bytes]:
         """Return any SOP Class Extended items.
 
         Returns
@@ -4098,22 +4148,23 @@ class ServiceUser:
         sop_classes = {}
         if self.writeable:
             for item in self._ext_neg[SOPClassExtendedNegotiation]:
-                sop_classes[item.sop_class_uid] = (
-                    item.service_class_application_information
+                item = cast(SOPClassExtendedNegotiation, item)
+                sop_classes[cast(UID, item.sop_class_uid)] = (
+                    cast(bytes, item.service_class_application_information)
                 )
 
             return sop_classes
 
         for item in self.user_information:
             if isinstance(item, SOPClassExtendedNegotiation):
-                sop_classes[item.sop_class_uid] = (
-                    item.service_class_application_information
+                sop_classes[cast(UID, item.sop_class_uid)] = (
+                    cast(bytes, item.service_class_application_information)
                 )
 
         return sop_classes
 
     @property
-    def supported_contexts(self):
+    def supported_contexts(self) -> List[PresentationContext]:
         """The supported presentation contexts.
 
         Returns
@@ -4124,7 +4175,7 @@ class ServiceUser:
         return self.get_contexts('supported')
 
     @supported_contexts.setter
-    def supported_contexts(self, value):
+    def supported_contexts(self, value: List[PresentationContext]) -> None:
         """Set the supported presentation contexts.
 
         Parameters
@@ -4155,7 +4206,7 @@ class ServiceUser:
         self._contexts = value
 
     @property
-    def user_identity(self):
+    def user_identity(self) -> Optional[UserIdentityNegotiation]:
         """Return the User Identity Negotiation Item (if available).
 
         Returns
@@ -4167,7 +4218,7 @@ class ServiceUser:
         if self.writeable:
             items = self._ext_neg[UserIdentityNegotiation]
             if items:
-                return items[0]
+                return cast(UserIdentityNegotiation, items[0])
 
             return None
 
@@ -4178,14 +4229,14 @@ class ServiceUser:
         return None
 
     @property
-    def user_information(self):
+    def user_information(self) -> List[_UI]:
         """Returns a :class:`list` of the User Information items."""
         if not self.writeable:
-            return self.primitive.user_information
+            return cast(A_ASSOCIATE, self.primitive).user_information
 
         return self._user_info + self.extended_negotiation
 
     @property
-    def writeable(self):
+    def writeable(self) -> bool:
         """Return ``True`` if the current object can be changed."""
         return self.primitive is None
