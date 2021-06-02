@@ -565,8 +565,6 @@ class ServiceClass:
                 {'request': req, 'context': context.as_tuple}
             )
 
-        usr_status, ds = cast(UserReturnType, user_response)
-
         # Exception in context or handler aborted/released
         if not ctx.success or not self.assoc.is_established:
             return
@@ -724,8 +722,6 @@ class ServiceClass:
                 evt.EVT_N_CREATE,
                 {'request': req, 'context': context.as_tuple}
             )
-
-        usr_status, ds = cast(UserReturnType, user_response)
 
         # Exception in context or handler aborted/released
         if not ctx.success or not self.assoc.is_established:
@@ -957,8 +953,6 @@ class ServiceClass:
                 {'request': req, 'context': context.as_tuple}
             )
 
-        usr_status, ds = cast(UserReturnType, user_response)
-
         # Exception in context or handler aborted/released
         if not ctx.success or not self.assoc.is_established:
             return
@@ -1108,8 +1102,6 @@ class ServiceClass:
                 evt.EVT_N_GET,
                 {'request': req, 'context': context.as_tuple}
             )
-
-        usr_status, ds = cast(UserReturnType, user_response)
 
         # Exception in context or handler aborted/released
         if not ctx.success or not self.assoc.is_established:
@@ -1271,8 +1263,6 @@ class ServiceClass:
                 evt.EVT_N_SET,
                 {'request': req, 'context': context.as_tuple}
             )
-
-        usr_status, ds = cast(UserReturnType, user_response)
 
         # Exception in context or handler aborted/released
         if not ctx.success or not self.assoc.is_established:
@@ -1676,8 +1666,6 @@ class QueryRetrieveServiceClass(ServiceClass):
                     '_is_cancelled': self.is_cancelled
                 }
             )
-
-        generator = cast(Iterator[Any], generator)
 
         # Exception in context or handler aborted/released - before any yields
         if not ctx.success or not self.assoc.is_established:
