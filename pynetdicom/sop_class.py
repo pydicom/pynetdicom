@@ -138,6 +138,25 @@ def _generate_sop_classes(sop_class_dict: Dict[str, str]) -> None:
         '1.2.840.10008.5.1.4.1.1.481.12',
         '1.2.840.10008.5.1.4.1.1.481.13',
     )
+    _2021b = (
+        '1.2.840.10008.5.1.4.1.1.9.6.2',
+        '1.2.840.10008.5.1.4.1.1.9.7.1',
+        '1.2.840.10008.5.1.4.1.1.9.7.2',
+        '1.2.840.10008.5.1.4.1.1.9.7.3',
+        '1.2.840.10008.5.1.4.1.1.9.7.4',
+        '1.2.840.10008.5.1.4.1.1.9.8.1',
+        '1.2.840.10008.5.1.4.1.1.77.1.7',
+        '1.2.840.10008.5.1.4.1.1.88.76',
+        '1.2.840.10008.5.1.4.1.1.104.4',
+        '1.2.840.10008.5.1.4.1.1.104.5',
+        '1.2.840.10008.5.1.4.1.1.481.14',
+        '1.2.840.10008.5.1.4.1.1.481.15',
+        '1.2.840.10008.5.1.4.1.1.481.16',
+        '1.2.840.10008.5.1.4.1.1.481.17',
+        '1.2.840.10008.5.1.4.1.1.481.18',
+        '1.2.840.10008.5.1.4.1.1.481.19',
+        '1.2.840.10008.5.1.4.1.1.481.20',
+    )
 
     for name in sop_class_dict:
         uid = sop_class_dict[name]
@@ -148,6 +167,8 @@ def _generate_sop_classes(sop_class_dict: Dict[str, str]) -> None:
             docstring += "\n\n.. versionadded:: 1.4"
         elif uid in _2019e:
             docstring += "\n\n.. versionadded:: 1.5"
+        elif uid in _2021b:
+            docstring += "\n\n.. versionadded:: 2.0"
 
         sop_class.__doc__ = docstring
         globals()[name] = sop_class
@@ -383,7 +404,7 @@ _STORAGE_CLASSES = {
     'SimplifiedAdultEchoSRStorage': '1.2.840.10008.5.1.4.1.1.88.72',  # A.35.17
     'PatientRadiationDoseSRStorage': '1.2.840.10008.5.1.4.1.1.88.73',  # A.35.18
     'PlannedImagingAgentAdministrationSRStorage': '1.2.840.10008.5.1.4.1.1.88.74',  # A.35.19
-    'PerformedImagingAgestAdministrationSRStorage': '1.2.840.10008.5.1.4.1.1.88.75',  # A.35.20
+    'PerformedImagingAgentAdministrationSRStorage': '1.2.840.10008.5.1.4.1.1.88.75',  # A.35.20
     'EnhancedXRayRadiationDoseSRStorage': '1.2.840.10008.5.1.4.1.1.88.76',  # A.35.
     'ContentAssessmentResultsStorage': '1.2.840.10008.5.1.4.1.1.90.1',  # A.81
     'EncapsulatedPDFStorage': '1.2.840.10008.5.1.4.1.1.104.1',  # A.45.1

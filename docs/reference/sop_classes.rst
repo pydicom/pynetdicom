@@ -226,6 +226,7 @@ Storage
    BreastTomosynthesisImageStorage
    CardiacElectrophysiologyWaveformStorage
    CArmPhotonElectronRadiationRecordStorage
+   CArmPhotonElectronRadiationStorage
    ChestCADSRStorage
    ColonCADSRStorage
    ColorSoftcopyPresentationStateStorage
@@ -298,6 +299,8 @@ Storage
    OphthalmicVisualFieldStaticPerimetryMeasurementsStorage
    ParametricMapStorage
    PatientRadiationDoseSRStorage
+   PerformedImagingAgentAdministrationSRStorage
+   PlannedImagingAgentAdministrationSRStorage
    PositronEmissionTomographyImageStorage
    ProcedureLogStorage
    PseudoColorSoftcopyPresentationStageStorage
@@ -316,9 +319,12 @@ Storage
    RTImageStorage
    RTIonBeamsTreatmentRecordStorage
    RTIonPlanStorage
+   RTPhysicianIntentStorage
    RTPlanStorage
    RTRadiationRecordSetStorage
    RTRadiationSalvageRecordStorage
+   RTRadiationSetStorage
+   RTSegmentAnnotationStorage
    RTStructureSetStorage
    RTTreatmentSummaryRecordStorage
    SecondaryCaptureImageStorage

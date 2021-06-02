@@ -47,6 +47,7 @@ Enhancements
   customised with the :attr:`~pynetdicom._config.WINDOWS_TIMER_RESOLUTION`
   option (:issue:`620`)
 * Updated to meet the 2021b version of the DICOM Standard
+* Added type hints
 
 Changes
 .......
