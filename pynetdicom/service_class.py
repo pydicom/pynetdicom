@@ -571,6 +571,8 @@ class ServiceClass:
         if not ctx.success or not self.assoc.is_established:
             return
 
+        usr_status, ds = cast(UserReturnType, user_response)
+
         # Check Status validity
         # Validate rsp_status and set rsp.Status accordingly
         rsp = self.validate_status(usr_status, rsp)
@@ -728,6 +730,8 @@ class ServiceClass:
         # Exception in context or handler aborted/released
         if not ctx.success or not self.assoc.is_established:
             return
+
+        usr_status, ds = cast(UserReturnType, user_response)
 
         # Check Status validity
         # Validate rsp_status and set rsp.Status accordingly
@@ -959,6 +963,8 @@ class ServiceClass:
         if not ctx.success or not self.assoc.is_established:
             return
 
+        usr_status, ds = cast(UserReturnType, user_response)
+
         # Check Status validity
         # Validate rsp_status and set rsp.Status accordingly
         rsp = self.validate_status(usr_status, rsp)
@@ -1108,6 +1114,8 @@ class ServiceClass:
         # Exception in context or handler aborted/released
         if not ctx.success or not self.assoc.is_established:
             return
+
+        usr_status, ds = cast(UserReturnType, user_response)
 
         # Validate rsp_status and set rsp.Status accordingly
         rsp = self.validate_status(usr_status, rsp)
@@ -1269,6 +1277,8 @@ class ServiceClass:
         # Exception in context or handler aborted/released
         if not ctx.success or not self.assoc.is_established:
             return
+
+        usr_status, ds = cast(UserReturnType, user_response)
 
         # Validate rsp_status and set rsp.Status accordingly
         rsp = self.validate_status(usr_status, rsp)
@@ -1672,6 +1682,8 @@ class QueryRetrieveServiceClass(ServiceClass):
         # Exception in context or handler aborted/released - before any yields
         if not ctx.success or not self.assoc.is_established:
             return
+
+        generator = cast(Iterator[Any], generator)
 
         # Try to check number of C-STORE sub-operations yield is OK
         with attempt(rsp, self.dimse, cx_id) as ctx:
