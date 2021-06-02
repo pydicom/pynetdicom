@@ -565,11 +565,11 @@ class ServiceClass:
                 {'request': req, 'context': context.as_tuple}
             )
 
-        usr_status, ds = cast(UserReturnType, user_response)
-
         # Exception in context or handler aborted/released
         if not ctx.success or not self.assoc.is_established:
             return
+
+        usr_status, ds = cast(UserReturnType, user_response)
 
         # Check Status validity
         # Validate rsp_status and set rsp.Status accordingly
@@ -723,11 +723,11 @@ class ServiceClass:
                 {'request': req, 'context': context.as_tuple}
             )
 
-        usr_status, ds = cast(UserReturnType, user_response)
-
         # Exception in context or handler aborted/released
         if not ctx.success or not self.assoc.is_established:
             return
+
+        usr_status, ds = cast(UserReturnType, user_response)
 
         # Check Status validity
         # Validate rsp_status and set rsp.Status accordingly
@@ -953,11 +953,11 @@ class ServiceClass:
                 {'request': req, 'context': context.as_tuple}
             )
 
-        usr_status, ds = cast(UserReturnType, user_response)
-
         # Exception in context or handler aborted/released
         if not ctx.success or not self.assoc.is_established:
             return
+
+        usr_status, ds = cast(UserReturnType, user_response)
 
         # Check Status validity
         # Validate rsp_status and set rsp.Status accordingly
@@ -1103,11 +1103,11 @@ class ServiceClass:
                 {'request': req, 'context': context.as_tuple}
             )
 
-        usr_status, ds = cast(UserReturnType, user_response)
-
         # Exception in context or handler aborted/released
         if not ctx.success or not self.assoc.is_established:
             return
+
+        usr_status, ds = cast(UserReturnType, user_response)
 
         # Validate rsp_status and set rsp.Status accordingly
         rsp = self.validate_status(usr_status, rsp)
@@ -1264,11 +1264,11 @@ class ServiceClass:
                 {'request': req, 'context': context.as_tuple}
             )
 
-        usr_status, ds = cast(UserReturnType, user_response)
-
         # Exception in context or handler aborted/released
         if not ctx.success or not self.assoc.is_established:
             return
+
+        usr_status, ds = cast(UserReturnType, user_response)
 
         # Validate rsp_status and set rsp.Status accordingly
         rsp = self.validate_status(usr_status, rsp)
@@ -1667,11 +1667,11 @@ class QueryRetrieveServiceClass(ServiceClass):
                 }
             )
 
-        generator = cast(Iterator[Any], generator)
-
         # Exception in context or handler aborted/released - before any yields
         if not ctx.success or not self.assoc.is_established:
             return
+
+        generator = cast(Iterator[Any], generator)
 
         # Try to check number of C-STORE sub-operations yield is OK
         with attempt(rsp, self.dimse, cx_id) as ctx:
