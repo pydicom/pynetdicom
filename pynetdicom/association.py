@@ -50,10 +50,10 @@ from pynetdicom.pdu_primitives import (
 )
 from pynetdicom.presentation import PresentationContext
 from pynetdicom.sop_class import (  # type: ignore
-    uid_to_service_class, VerificationSOPClass,
-    UnifiedProcedureStepPullSOPClass, UnifiedProcedureStepPushSOPClass,
-    UnifiedProcedureStepWatchSOPClass, UnifiedProcedureStepEventSOPClass,
-    UnifiedProcedureStepQuerySOPClass
+    uid_to_service_class, Verification,
+    UnifiedProcedureStepPull, UnifiedProcedureStepPush,
+    UnifiedProcedureStepWatch, UnifiedProcedureStepEvent,
+    UnifiedProcedureStepQuery
 )
 from pynetdicom.status import code_to_category, STORAGE_SERVICE_CLASS_STATUS
 from pynetdicom.utils import make_target, set_timer_resolution
@@ -407,7 +407,7 @@ class Association(threading.Thread):
 
         # For UPS we can also match UPS Push to Pull/Watch/Event/Query
         if (
-            ab_syntax == UnifiedProcedureStepPushSOPClass
+            ab_syntax == UnifiedProcedureStepPush
             and not possible_contexts
         ):
             LOGGER.info(
@@ -416,10 +416,10 @@ class Association(threading.Thread):
                 "SOP classes"
             )
             ups = [
-                UnifiedProcedureStepPullSOPClass,
-                UnifiedProcedureStepWatchSOPClass,
-                UnifiedProcedureStepEventSOPClass,
-                UnifiedProcedureStepQuerySOPClass
+                UnifiedProcedureStepPull,
+                UnifiedProcedureStepWatch,
+                UnifiedProcedureStepEvent,
+                UnifiedProcedureStepQuery
             ]
             possible_contexts.extend(
                 [
@@ -962,14 +962,14 @@ class Association(threading.Thread):
                                "established before sending a C-ECHO request")
 
         # Get a Presentation Context to use for sending the message
-        context = self._get_valid_context(VerificationSOPClass, '', 'scu')
+        context = self._get_valid_context(Verification, '', 'scu')
 
         # Build C-STORE request primitive
         #   (M) Message ID
         #   (M) Affected SOP Class UID
         primitive = C_ECHO()
         primitive.MessageID = msg_id
-        primitive.AffectedSOPClassUID = VerificationSOPClass
+        primitive.AffectedSOPClassUID = Verification
 
         # Send C-ECHO request to the peer via DIMSE and wait for the response
         LOGGER.info(f"Sending Echo Request: MsgID {msg_id}")

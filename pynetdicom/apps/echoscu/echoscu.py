@@ -16,7 +16,7 @@ from pydicom.uid import (
 from pynetdicom import AE
 from pynetdicom.apps.common import setup_logging
 from pynetdicom._globals import DEFAULT_MAX_LENGTH
-from pynetdicom.sop_class import VerificationSOPClass
+from pynetdicom.sop_class import Verification
 
 
 __version__ = '0.7.0'
@@ -188,7 +188,7 @@ def main(args=None):
 
     # Create local AE
     ae = AE(ae_title=args.calling_aet)
-    ae.add_requested_context(VerificationSOPClass, transfer_syntax)
+    ae.add_requested_context(Verification, transfer_syntax)
 
     # Set timeouts
     ae.acse_timeout = args.acse_timeout

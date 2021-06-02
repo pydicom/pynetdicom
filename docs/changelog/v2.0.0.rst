@@ -46,6 +46,7 @@ Enhancements
   and cleared when the ``Association`` ends. The timer resolution value can be
   customised with the :attr:`~pynetdicom._config.WINDOWS_TIMER_RESOLUTION`
   option (:issue:`620`)
+* Updated to meet the 2021b version of the DICOM Standard
 
 Changes
 .......
@@ -55,3 +56,6 @@ Changes
 * The *Failed SOP Instance UID List* sent with the final C-GET/C-MOVE SCP
   failure or warning responses no longer includes the SOP Instances for
   sub-operations that return a warning status
+* SOP Class and Instance variable names changed to match the new UID keywords
+  from the DICOM Standard. In particular ``VerificationSOPClass`` is now simply
+  ``Verification``

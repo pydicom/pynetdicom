@@ -8,6 +8,9 @@ Release Notes
    :maxdepth: 1
 
    v2.0.0
+   v1.5.7
+   v1.5.6
+   v1.5.5
    v1.5.4
    v1.5.3
    v1.5.2

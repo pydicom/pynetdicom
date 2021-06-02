@@ -15,7 +15,7 @@ from pynetdicom import (
 from pynetdicom import _config, _handlers
 from pynetdicom.apps.common import setup_logging
 from pynetdicom.sop_class import (
-    VerificationSOPClass,
+    Verification,
     PatientRootQueryRetrieveInformationModelFind,
     PatientRootQueryRetrieveInformationModelMove,
     PatientRootQueryRetrieveInformationModelGet,
@@ -342,7 +342,7 @@ def main(args=None):
 
     ## Add supported presentation contexts
     # Verification SCP
-    ae.add_supported_context(VerificationSOPClass, ALL_TRANSFER_SYNTAXES)
+    ae.add_supported_context(Verification, ALL_TRANSFER_SYNTAXES)
 
     # Storage SCP - support all transfer syntaxes
     for cx in AllStoragePresentationContexts:

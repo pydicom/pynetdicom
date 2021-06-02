@@ -21,7 +21,7 @@ from pynetdicom.pdu_primitives import (
     MaximumLengthNotification, ImplementationClassUIDNotification
 )
 from pynetdicom.pdu import A_RELEASE_RQ
-from pynetdicom.sop_class import VerificationSOPClass
+from pynetdicom.sop_class import Verification
 from pynetdicom.transport import AssociationSocket
 from pynetdicom.utils import validate_ae_title
 from .encoded_pdu_items import (
@@ -100,7 +100,7 @@ class TestStateMachine:
     def test_init(self):
         """Test creation of new StateMachine."""
         ae = AE()
-        ae.add_requested_context(VerificationSOPClass)
+        ae.add_requested_context(Verification)
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
 
@@ -113,7 +113,7 @@ class TestStateMachine:
     def test_invalid_transition_raises(self):
         """Test StateMachine.transition using invalid states raises."""
         ae = AE()
-        ae.add_requested_context(VerificationSOPClass)
+        ae.add_requested_context(Verification)
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
 
@@ -127,7 +127,7 @@ class TestStateMachine:
     def test_valid_transition(self):
         """Test StateMachine.transition using valid states."""
         ae = AE()
-        ae.add_requested_context(VerificationSOPClass)
+        ae.add_requested_context(Verification)
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
 
@@ -143,7 +143,7 @@ class TestStateMachine:
     def test_invalid_action_raises(self, event, states):
         """Test StateMachine.do_action raises exception if action invalid."""
         ae = AE()
-        ae.add_requested_context(VerificationSOPClass)
+        ae.add_requested_context(Verification)
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
 
@@ -165,7 +165,7 @@ class TestStateMachine:
     def test_exception_during_action(self, event, states):
         """Test an exception raised during an action kill the DUL."""
         ae = AE()
-        ae.add_requested_context(VerificationSOPClass)
+        ae.add_requested_context(Verification)
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
 
@@ -187,7 +187,7 @@ class TestStateBase:
     """Base class for State tests."""
     def setup(self):
         ae = AE()
-        ae.add_requested_context(VerificationSOPClass)
+        ae.add_requested_context(Verification)
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
 
@@ -212,7 +212,7 @@ class TestStateBase:
             ae.implementation_version_name
         )
 
-        cx = build_context(VerificationSOPClass)
+        cx = build_context(Verification)
         cx.context_id = 1
         assoc.requestor.requested_contexts = [cx]
 
@@ -241,7 +241,7 @@ class TestStateBase:
             # The TCP/IP address of the destination, pynetdicom includes port too
             primitive.called_presentation_address = ('localhost', 11112)
             # Proposed presentation contexts
-            cx = build_context(VerificationSOPClass)
+            cx = build_context(Verification)
             cx.context_id = 1
             primitive.presentation_context_definition_list = [cx]
 
@@ -265,7 +265,7 @@ class TestStateBase:
             primitive.result = 0x00
             primitive.result_source = 0x01
             # Proposed presentation contexts
-            cx = build_context(VerificationSOPClass)
+            cx = build_context(Verification)
             cx.context_id = 1
             primitive.presentation_context_definition_results_list = [cx]
 
@@ -373,7 +373,7 @@ class TestStateBase:
         sock.connect(('localhost', 11112))
 
         ae = AE()
-        ae.add_supported_context(VerificationSOPClass)
+        ae.add_supported_context(Verification)
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
 
@@ -398,7 +398,7 @@ class TestStateBase:
             ae.implementation_version_name
         )
 
-        cx = build_context(VerificationSOPClass)
+        cx = build_context(Verification)
         cx.context_id = 1
         assoc.acceptor.supported_contexts = [cx]
 
@@ -7686,7 +7686,7 @@ class TestStateMachineFunctionalRequestor:
         self.ae = None
 
         ae = AE()
-        ae.add_requested_context(VerificationSOPClass)
+        ae.add_requested_context(Verification)
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
 
@@ -7710,7 +7710,7 @@ class TestStateMachineFunctionalRequestor:
             ae.implementation_version_name
         )
 
-        cx = build_context(VerificationSOPClass)
+        cx = build_context(Verification)
         cx.context_id = 1
         assoc.requestor.requested_contexts = [cx]
 
@@ -7760,7 +7760,7 @@ class TestStateMachineFunctionalRequestor:
     def test_monkey_patch(self):
         """Test monkey patching of StateMachine works as intended."""
         ae = AE()
-        ae.add_requested_context(VerificationSOPClass)
+        ae.add_requested_context(Verification)
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
 
@@ -7778,7 +7778,7 @@ class TestStateMachineFunctionalRequestor:
     def test_associate_accept_release(self):
         """Test normal association/release."""
         self.ae = ae = AE()
-        ae.add_supported_context(VerificationSOPClass)
+        ae.add_supported_context(Verification)
         scp = ae.start_server(("", 11112), block=False)
 
         assert self.fsm.current_state == 'Sta1'
@@ -7827,7 +7827,7 @@ class TestStateMachineFunctionalRequestor:
         """Test normal association rejection."""
         self.ae = ae = AE()
         ae.require_called_aet = True
-        ae.add_supported_context(VerificationSOPClass)
+        ae.add_supported_context(Verification)
         scp = ae.start_server(("", 11112), block=False)
 
         assert self.fsm.current_state == 'Sta1'
@@ -7871,7 +7871,7 @@ class TestStateMachineFunctionalRequestor:
         """Test association acceptance then local abort."""
         self.ae = ae = AE()
         ae.acse_timeout = 5
-        ae.add_supported_context(VerificationSOPClass)
+        ae.add_supported_context(Verification)
         scp = ae.start_server(("", 11112), block=False)
 
         assert self.fsm.current_state == 'Sta1'
@@ -7920,7 +7920,7 @@ class TestStateMachineFunctionalRequestor:
         """Test association acceptance then local abort if no cx."""
         self.ae = ae = AE()
         ae.acse_timeout = 5
-        ae.add_supported_context(VerificationSOPClass)
+        ae.add_supported_context(Verification)
         scp = ae.start_server(("", 11112), block=False)
 
         assert self.fsm.current_state == 'Sta1'
@@ -7968,7 +7968,7 @@ class TestStateMachineFunctionalRequestor:
         self.ae = ae = AE()
         ae.network_timeout = 0.5
         ae.acse_timeout = 5
-        ae.add_supported_context(VerificationSOPClass)
+        ae.add_supported_context(Verification)
         scp = ae.start_server(("", 11112), block=False)
 
         assert self.fsm.current_state == 'Sta1'
@@ -8019,7 +8019,7 @@ class TestStateMachineFunctionalRequestor:
     def test_associate_send_data(self):
         """Test association acceptance then send DIMSE message."""
         self.ae = ae = AE()
-        ae.add_supported_context(VerificationSOPClass)
+        ae.add_supported_context(Verification)
         scp = ae.start_server(("", 11112), block=False)
 
         assert self.fsm.current_state == 'Sta1'
@@ -8089,7 +8089,7 @@ class TestStateMachineFunctionalRequestor:
         FINITE_STATE.ACTIONS['AR-4'] = ('Bluh', AR_4, 'Sta13')
 
         self.ae = ae = AE()
-        ae.add_supported_context(VerificationSOPClass)
+        ae.add_supported_context(Verification)
         scp = ae.start_server(("", 11112), block=False)
 
         assert self.fsm.current_state == 'Sta1'
@@ -8143,7 +8143,7 @@ class TestStateMachineFunctionalRequestor:
             # Add P-DATA primitive request
             primitive = C_ECHO()
             primitive.MessageID = 1
-            primitive.AffectedSOPClassUID = VerificationSOPClass
+            primitive.AffectedSOPClassUID = Verification
 
             # Send C-ECHO request to the peer via DIMSE and wait for the response
             dul.assoc.dimse.send_msg(primitive, 1)
@@ -8156,7 +8156,7 @@ class TestStateMachineFunctionalRequestor:
         FINITE_STATE.ACTIONS['AR-2'] = ('Bluh', AR_2, 'Sta8')
 
         self.ae = ae = AE()
-        ae.add_supported_context(VerificationSOPClass)
+        ae.add_supported_context(Verification)
         scp = ae.start_server(("", 11112), block=False)
 
         assert self.fsm.current_state == 'Sta1'
@@ -8210,7 +8210,7 @@ class TestStateMachineFunctionalAcceptor:
         self.ae = None
 
         ae = AE()
-        ae.add_requested_context(VerificationSOPClass)
+        ae.add_requested_context(Verification)
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
 
@@ -8234,7 +8234,7 @@ class TestStateMachineFunctionalAcceptor:
             ae.implementation_version_name
         )
 
-        cx = build_context(VerificationSOPClass)
+        cx = build_context(Verification)
         cx.context_id = 1
         assoc.requestor.requested_contexts = [cx]
 
@@ -8280,7 +8280,7 @@ class TestStateMachineFunctionalAcceptor:
     def test_invalid_protocol_version(self):
         """Test receiving an A-ASSOC-RQ with invalid protocol version."""
         self.ae = ae = AE()
-        ae.add_supported_context(VerificationSOPClass)
+        ae.add_supported_context(Verification)
         scp = ae.start_server(("", 11112), block=False)
 
         assert self.fsm.current_state == 'Sta1'
@@ -8618,8 +8618,8 @@ class TestEventHandling:
             raise NotImplementedError("Exception description")
 
         self.ae = ae = AE()
-        ae.add_supported_context(VerificationSOPClass)
-        ae.add_requested_context(VerificationSOPClass)
+        ae.add_supported_context(Verification)
+        ae.add_requested_context(Verification)
         handlers = [(evt.EVT_FSM_TRANSITION, handle)]
         scp = ae.start_server(('', 11112), block=False, evt_handlers=handlers)
 

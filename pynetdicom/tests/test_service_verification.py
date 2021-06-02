@@ -10,7 +10,7 @@ from pydicom.dataset import Dataset
 from pynetdicom import AE, evt, debug_logger
 from pynetdicom.dimse_primitives import C_ECHO
 from pynetdicom.service_class import VerificationServiceClass
-from pynetdicom.sop_class import VerificationSOPClass
+from pynetdicom.sop_class import Verification
 
 
 #debug_logger()
@@ -37,8 +37,8 @@ class TestVerificationServiceClass:
         handlers = [(evt.EVT_C_ECHO, handle)]
 
         self.ae = ae = AE()
-        ae.add_supported_context(VerificationSOPClass)
-        ae.add_requested_context(VerificationSOPClass)
+        ae.add_supported_context(Verification)
+        ae.add_requested_context(Verification)
         scp = ae.start_server(('', 11112), block=False, evt_handlers=handlers)
 
         assoc = ae.associate('localhost', 11112)
@@ -58,8 +58,8 @@ class TestVerificationServiceClass:
         handlers = [(evt.EVT_C_ECHO, handle)]
 
         self.ae = ae = AE()
-        ae.add_supported_context(VerificationSOPClass)
-        ae.add_requested_context(VerificationSOPClass)
+        ae.add_supported_context(Verification)
+        ae.add_requested_context(Verification)
         scp = ae.start_server(('', 11112), block=False, evt_handlers=handlers)
 
         assoc = ae.associate('localhost', 11112)
@@ -82,8 +82,8 @@ class TestVerificationServiceClass:
         handlers = [(evt.EVT_C_ECHO, handle)]
 
         self.ae = ae = AE()
-        ae.add_supported_context(VerificationSOPClass)
-        ae.add_requested_context(VerificationSOPClass)
+        ae.add_supported_context(Verification)
+        ae.add_requested_context(Verification)
         scp = ae.start_server(('', 11112), block=False, evt_handlers=handlers)
 
         assoc = ae.associate('localhost', 11112)
@@ -107,8 +107,8 @@ class TestVerificationServiceClass:
         handlers = [(evt.EVT_C_ECHO, handle)]
 
         self.ae = ae = AE()
-        ae.add_supported_context(VerificationSOPClass)
-        ae.add_requested_context(VerificationSOPClass)
+        ae.add_supported_context(Verification)
+        ae.add_requested_context(Verification)
         scp = ae.start_server(('', 11112), block=False, evt_handlers=handlers)
 
         assoc = ae.associate('localhost', 11112)
@@ -128,8 +128,8 @@ class TestVerificationServiceClass:
         handlers = [(evt.EVT_C_ECHO, handle)]
 
         self.ae = ae = AE()
-        ae.add_supported_context(VerificationSOPClass)
-        ae.add_requested_context(VerificationSOPClass)
+        ae.add_supported_context(Verification)
+        ae.add_requested_context(Verification)
         scp = ae.start_server(('', 11112), block=False, evt_handlers=handlers)
 
         assoc = ae.associate('localhost', 11112)
@@ -150,8 +150,8 @@ class TestVerificationServiceClass:
         handlers = [(evt.EVT_C_ECHO, handle)]
 
         self.ae = ae = AE()
-        ae.add_supported_context(VerificationSOPClass)
-        ae.add_requested_context(VerificationSOPClass)
+        ae.add_supported_context(Verification)
+        ae.add_requested_context(Verification)
         scp = ae.start_server(('', 11112), block=False, evt_handlers=handlers)
 
         assoc = ae.associate('localhost', 11112)
@@ -171,8 +171,8 @@ class TestVerificationServiceClass:
         handlers = [(evt.EVT_C_ECHO, handle)]
 
         self.ae = ae = AE()
-        ae.add_supported_context(VerificationSOPClass)
-        ae.add_requested_context(VerificationSOPClass)
+        ae.add_supported_context(Verification)
+        ae.add_requested_context(Verification)
         scp = ae.start_server(('', 11112), block=False, evt_handlers=handlers)
 
         assoc = ae.associate('localhost', 11112)
@@ -192,8 +192,8 @@ class TestVerificationServiceClass:
         handlers = [(evt.EVT_C_ECHO, handle)]
 
         self.ae = ae = AE()
-        ae.add_supported_context(VerificationSOPClass)
-        ae.add_requested_context(VerificationSOPClass)
+        ae.add_supported_context(Verification)
+        ae.add_requested_context(Verification)
         scp = ae.start_server(('', 11112), block=False, evt_handlers=handlers)
 
         assoc = ae.associate('localhost', 11112)
@@ -217,8 +217,8 @@ class TestVerificationServiceClass:
         handlers = [(evt.EVT_C_ECHO, handle)]
 
         self.ae = ae = AE()
-        ae.add_supported_context(VerificationSOPClass)
-        ae.add_requested_context(VerificationSOPClass)
+        ae.add_supported_context(Verification)
+        ae.add_requested_context(Verification)
         scp = ae.start_server(('', 11112), block=False, evt_handlers=handlers)
 
         assoc = ae.associate('localhost', 11112)
@@ -247,8 +247,8 @@ class TestVerificationServiceClass:
         handlers = [(evt.EVT_C_ECHO, handle)]
 
         self.ae = ae = AE()
-        ae.add_supported_context(VerificationSOPClass)
-        ae.add_requested_context(VerificationSOPClass)
+        ae.add_supported_context(Verification)
+        ae.add_requested_context(Verification)
         scp = ae.start_server(('', 11112), block=False, evt_handlers=handlers)
 
         assoc = ae.associate('localhost', 11112)
@@ -276,8 +276,8 @@ class TestVerificationServiceClass:
         handlers = [(evt.EVT_C_ECHO, handle)]
 
         self.ae = ae = AE()
-        ae.add_supported_context(VerificationSOPClass)
-        ae.add_requested_context(VerificationSOPClass)
+        ae.add_supported_context(Verification)
+        ae.add_requested_context(Verification)
         scp = ae.start_server(('', 11112), block=False, evt_handlers=handlers)
 
         assoc = ae.associate('localhost', 11112)
@@ -302,8 +302,8 @@ class TestVerificationServiceClass:
         handlers = [(evt.EVT_C_ECHO, handle)]
 
         self.ae = ae = AE()
-        ae.add_supported_context(VerificationSOPClass)
-        ae.add_requested_context(VerificationSOPClass)
+        ae.add_supported_context(Verification)
+        ae.add_requested_context(Verification)
         scp = ae.start_server(('', 11112), block=False, evt_handlers=handlers)
 
         assoc = ae.associate('localhost', 11112)
@@ -330,8 +330,8 @@ class TestVerificationServiceClass:
         handlers = [(evt.EVT_C_ECHO, handle)]
 
         self.ae = ae = AE()
-        ae.add_supported_context(VerificationSOPClass)
-        ae.add_requested_context(VerificationSOPClass)
+        ae.add_supported_context(Verification)
+        ae.add_requested_context(Verification)
         scp = ae.start_server(('', 11112), block=False, evt_handlers=handlers)
 
         assoc = ae.associate('localhost', 11112)
@@ -357,8 +357,8 @@ class TestVerificationServiceClass:
 
         self.ae = ae = AE()
         ae.dimse_timeout = 0.05
-        ae.add_supported_context(VerificationSOPClass)
-        ae.add_requested_context(VerificationSOPClass)
+        ae.add_supported_context(Verification)
+        ae.add_requested_context(Verification)
         scp = ae.start_server(('', 11112), block=False, evt_handlers=handlers)
 
         assoc = ae.associate('localhost', 11112)
@@ -384,8 +384,8 @@ class TestVerificationServiceClass:
 
         self.ae = ae = AE()
         ae.dimse_timeout = 0.05
-        ae.add_supported_context(VerificationSOPClass)
-        ae.add_requested_context(VerificationSOPClass)
+        ae.add_supported_context(Verification)
+        ae.add_requested_context(Verification)
         scp = ae.start_server(('', 11112), block=False, evt_handlers=handlers)
 
         assoc = ae.associate('localhost', 11112)

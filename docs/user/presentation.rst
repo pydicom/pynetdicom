@@ -96,10 +96,10 @@ In *pynetdicom* this is accomplished through one of the following methods:
    .. code-block:: python
 
       from pynetdicom import AE, build_context
-      from pynetdicom.sop_class import VerificationSOPClass
+      from pynetdicom.sop_class import Verification
 
       ae = AE()
-      ae.requested_contexts = [build_context(VerificationSOPClass)]
+      ae.requested_contexts = [build_context(Verification)]
       assoc = ae.associate('127.0.0.1', 11112)
 
 2. Using the
@@ -112,10 +112,10 @@ In *pynetdicom* this is accomplished through one of the following methods:
    .. code-block:: python
 
       from pynetdicom import AE
-      from pynetdicom.sop_class import VerificationSOPClass
+      from pynetdicom.sop_class import Verification
 
       ae = AE()
-      ae.add_requested_context(VerificationSOPClass)
+      ae.add_requested_context(Verification)
       assoc = ae.associate('127.0.0.1', 11112)
 
 3. Supplying a list of :class:`PresentationContext` items to
@@ -125,10 +125,10 @@ In *pynetdicom* this is accomplished through one of the following methods:
    .. code-block:: python
 
       from pynetdicom import AE, build_context
-      from pynetdicom.sop_class import VerificationSOPClass
+      from pynetdicom.sop_class import Verification
 
       ae = AE()
-      requested = [build_context(VerificationSOPClass)]
+      requested = [build_context(Verification)]
       assoc = ae.associate('127.0.0.1', 11112, contexts=requested)
 
 
@@ -195,10 +195,10 @@ In *pynetdicom* this is accomplished through one of the following methods:
    .. code-block:: python
 
         from pynetdicom import AE, build_context
-        from pynetdicom.sop_class import VerificationSOPClass
+        from pynetdicom.sop_class import Verification
 
         ae = AE()
-        ae.supported_contexts = [build_context(VerificationSOPClass)]
+        ae.supported_contexts = [build_context(Verification)]
         ae.start_server(('', 11112))
 
 
@@ -212,10 +212,10 @@ In *pynetdicom* this is accomplished through one of the following methods:
    .. code-block:: python
 
         from pynetdicom import AE
-        from pynetdicom.sop_class import VerificationSOPClass
+        from pynetdicom.sop_class import Verification
 
         ae = AE()
-        ae.add_supported_context(VerificationSOPClass)
+        ae.add_supported_context(Verification)
         ae.start_server(('', 11112))
 
 3. Supplying a list of :class:`PresentationContext` items to
@@ -225,10 +225,10 @@ In *pynetdicom* this is accomplished through one of the following methods:
    .. code-block:: python
 
        from pynetdicom import AE, build_context
-       from pynetdicom.sop_class import VerificationSOPClass
+       from pynetdicom.sop_class import Verification
 
        ae = AE()
-       supported = [build_context(VerificationSOPClass)]
+       supported = [build_context(Verification)]
        ae.start_server(('', 11112), contexts=supported)
 
 

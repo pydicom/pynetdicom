@@ -26,7 +26,7 @@ from pynetdicom import transport
 from pynetdicom.transport import (
     AssociationSocket, AssociationServer, ThreadedAssociationServer
 )
-from pynetdicom.sop_class import VerificationSOPClass, RTImageStorage
+from pynetdicom.sop_class import Verification, RTImageStorage
 from .encoded_pdu_items import p_data_tf_rq
 from .hide_modules import hide_modules
 from .utils import wait_for_server_socket
@@ -165,10 +165,10 @@ class TestAssociationSocket:
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
         ae.network_timeout = 5
-        ae.add_supported_context(VerificationSOPClass)
+        ae.add_supported_context(Verification)
         scp = ae.start_server(('', 11113), block=False, evt_handlers=hh)
 
-        ae.add_requested_context(VerificationSOPClass)
+        ae.add_requested_context(Verification)
         assoc = ae.associate('localhost', 11113)
         assert assoc.is_established
 
@@ -184,7 +184,7 @@ class TestAssociationSocket:
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
         ae.network_timeout = 5
-        ae.add_requested_context(VerificationSOPClass)
+        ae.add_requested_context(Verification)
         assoc = ae.associate('localhost', 11113)
         assert not assoc.is_established
         assert isinstance(assoc.requestor.address, str)
@@ -612,7 +612,7 @@ class TestAssociationServer:
             (evt.EVT_DATA_SENT, handle_echo),
             (evt.EVT_DATA_SENT, handle),
         ]
-        ae.add_supported_context(VerificationSOPClass)
+        ae.add_supported_context(Verification)
         scp = ae.start_server(('', 11112), block=False, evt_handlers=handlers)
 
         assert evt.EVT_DATA_RECV in scp._handlers
@@ -645,7 +645,7 @@ class TestAssociationServer:
             (evt.EVT_DATA_SENT, handle_echo),
             (evt.EVT_DATA_SENT, handle),
         ]
-        ae.add_supported_context(VerificationSOPClass)
+        ae.add_supported_context(Verification)
         scp = ae.start_server(('', 11112), block=False, evt_handlers=handlers)
 
         bound_events = scp.get_events()
@@ -678,7 +678,7 @@ class TestAssociationServer:
             (evt.EVT_DATA_SENT, handle_echo),
             (evt.EVT_DATA_SENT, handle),
         ]
-        ae.add_supported_context(VerificationSOPClass)
+        ae.add_supported_context(Verification)
         scp = ae.start_server(('', 11112), block=False, evt_handlers=handlers)
 
         assert scp.get_handlers(evt.EVT_DATA_RECV) == [(handle, None)]
@@ -693,7 +693,7 @@ class TestAssociationServer:
     def test_shutdown(self):
         """test tring to shutdown a socket that's already closed."""
         self.ae = ae = AE()
-        ae.add_supported_context(VerificationSOPClass)
+        ae.add_supported_context(Verification)
         server = ae.start_server(('', 11112), block=False)
         server.socket.close()
         server.shutdown()
@@ -731,7 +731,7 @@ class TestAssociationServer:
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
         ae.network_timeout = 5
-        ae.add_supported_context(VerificationSOPClass)
+        ae.add_supported_context(Verification)
 
         t = threading.Thread(
             target=ae.start_server,
@@ -740,7 +740,7 @@ class TestAssociationServer:
         )
         t.start()
 
-        ae.add_requested_context(VerificationSOPClass)
+        ae.add_requested_context(Verification)
         assoc = ae.associate('localhost', 11112)
         assert assoc.is_established
         assoc.release()
@@ -759,8 +759,8 @@ class TestEventHandlingAcceptor:
     def test_no_handlers(self):
         """Test with no transport event handlers bound."""
         self.ae = ae = AE()
-        ae.add_supported_context(VerificationSOPClass)
-        ae.add_requested_context(VerificationSOPClass)
+        ae.add_supported_context(Verification)
+        ae.add_requested_context(Verification)
         scp = ae.start_server(('', 11112), block=False)
         assert scp.get_handlers(evt.EVT_CONN_OPEN) == []
         assert scp.get_handlers(evt.EVT_CONN_CLOSE) == []
@@ -787,8 +787,8 @@ class TestEventHandlingAcceptor:
             triggered_events.append(event)
 
         self.ae = ae = AE()
-        ae.add_supported_context(VerificationSOPClass)
-        ae.add_requested_context(VerificationSOPClass)
+        ae.add_supported_context(Verification)
+        ae.add_requested_context(Verification)
         scp = ae.start_server(
             ('', 11112),
             block=False,
@@ -828,8 +828,8 @@ class TestEventHandlingAcceptor:
             triggered_events.append(event)
 
         self.ae = ae = AE()
-        ae.add_supported_context(VerificationSOPClass)
-        ae.add_requested_context(VerificationSOPClass)
+        ae.add_supported_context(Verification)
+        ae.add_requested_context(Verification)
         scp = ae.start_server(('', 11112), block=False)
         assert scp.get_handlers(evt.EVT_CONN_OPEN) == []
         assert scp.get_handlers(evt.EVT_CONN_CLOSE) == []
@@ -890,8 +890,8 @@ class TestEventHandlingAcceptor:
             triggered_events.append(event)
 
         self.ae = ae = AE()
-        ae.add_supported_context(VerificationSOPClass)
-        ae.add_requested_context(VerificationSOPClass)
+        ae.add_supported_context(Verification)
+        ae.add_requested_context(Verification)
         scp = ae.start_server(
             ('', 11112),
             block=False,
@@ -952,8 +952,8 @@ class TestEventHandlingAcceptor:
             pass
 
         self.ae = ae = AE()
-        ae.add_supported_context(VerificationSOPClass)
-        ae.add_requested_context(VerificationSOPClass)
+        ae.add_supported_context(Verification)
+        ae.add_requested_context(Verification)
         scp = ae.start_server(('', 11112), block=False)
         assert scp.get_handlers(evt.EVT_CONN_CLOSE) == []
 
@@ -968,8 +968,8 @@ class TestEventHandlingAcceptor:
             pass
 
         self.ae = ae = AE()
-        ae.add_supported_context(VerificationSOPClass)
-        ae.add_requested_context(VerificationSOPClass)
+        ae.add_supported_context(Verification)
+        ae.add_requested_context(Verification)
         scp = ae.start_server(('', 11112), block=False)
         scp.bind(evt.EVT_CONN_CLOSE, dummy)
         assert scp.get_handlers(evt.EVT_CONN_CLOSE) == [(dummy, None)]
@@ -986,8 +986,8 @@ class TestEventHandlingAcceptor:
             raise NotImplementedError("Exception description")
 
         self.ae = ae = AE()
-        ae.add_supported_context(VerificationSOPClass)
-        ae.add_requested_context(VerificationSOPClass)
+        ae.add_supported_context(Verification)
+        ae.add_requested_context(Verification)
         handlers = [(evt.EVT_CONN_OPEN, handle)]
         scp = ae.start_server(('', 11112), block=False, evt_handlers=handlers)
 
@@ -1016,8 +1016,8 @@ class TestEventHandlingAcceptor:
                 triggered_events.append(event)
 
         self.ae = ae = AE()
-        ae.add_supported_context(VerificationSOPClass)
-        ae.add_requested_context(VerificationSOPClass)
+        ae.add_supported_context(Verification)
+        ae.add_requested_context(Verification)
         scp = ae.start_server(
             ('', 11112),
             block=False,
@@ -1061,8 +1061,8 @@ class TestEventHandlingAcceptor:
             triggered_events.append(event)
 
         self.ae = ae = AE()
-        ae.add_supported_context(VerificationSOPClass)
-        ae.add_requested_context(VerificationSOPClass)
+        ae.add_supported_context(Verification)
+        ae.add_requested_context(Verification)
         scp = ae.start_server(('', 11112), block=False,)
         assert scp.get_handlers(evt.EVT_CONN_OPEN) == []
         assert scp.get_handlers(evt.EVT_CONN_CLOSE) == []
@@ -1119,8 +1119,8 @@ class TestEventHandlingAcceptor:
             triggered_events.append(event)
 
         self.ae = ae = AE()
-        ae.add_supported_context(VerificationSOPClass)
-        ae.add_requested_context(VerificationSOPClass)
+        ae.add_supported_context(Verification)
+        ae.add_requested_context(Verification)
         scp = ae.start_server(
             ('', 11112),
             block=False,
@@ -1162,8 +1162,8 @@ class TestEventHandlingAcceptor:
             raise NotImplementedError("Exception description")
 
         self.ae = ae = AE()
-        ae.add_supported_context(VerificationSOPClass)
-        ae.add_requested_context(VerificationSOPClass)
+        ae.add_supported_context(Verification)
+        ae.add_requested_context(Verification)
         handlers = [(evt.EVT_CONN_CLOSE, handle)]
         scp = ae.start_server(('', 11112), block=False, evt_handlers=handlers)
 
@@ -1191,8 +1191,8 @@ class TestEventHandlingAcceptor:
             triggered.append(event)
 
         self.ae = ae = AE()
-        ae.add_supported_context(VerificationSOPClass)
-        ae.add_requested_context(VerificationSOPClass)
+        ae.add_supported_context(Verification)
+        ae.add_requested_context(Verification)
         handlers = [(evt.EVT_DATA_SENT, handle)]
         scp = ae.start_server(('', 11112), block=False, evt_handlers=handlers)
         assert scp.get_handlers(evt.EVT_DATA_SENT) == [(handle, None)]
@@ -1231,8 +1231,8 @@ class TestEventHandlingAcceptor:
             triggered.append(event)
 
         self.ae = ae = AE()
-        ae.add_supported_context(VerificationSOPClass)
-        ae.add_requested_context(VerificationSOPClass)
+        ae.add_supported_context(Verification)
+        ae.add_requested_context(Verification)
         handlers = [(evt.EVT_DATA_SENT, handle)]
         scp = ae.start_server(('', 11112), block=False)
         assert scp.get_handlers(evt.EVT_DATA_SENT) == []
@@ -1274,8 +1274,8 @@ class TestEventHandlingAcceptor:
             triggered.append(event)
 
         self.ae = ae = AE()
-        ae.add_supported_context(VerificationSOPClass)
-        ae.add_requested_context(VerificationSOPClass)
+        ae.add_supported_context(Verification)
+        ae.add_requested_context(Verification)
         handlers = [(evt.EVT_DATA_SENT, handle)]
         scp = ae.start_server(('', 11112), block=False, evt_handlers=handlers)
         assert scp.get_handlers(evt.EVT_DATA_SENT) == [(handle, None)]
@@ -1311,8 +1311,8 @@ class TestEventHandlingAcceptor:
             raise NotImplementedError("Exception description")
 
         self.ae = ae = AE()
-        ae.add_supported_context(VerificationSOPClass)
-        ae.add_requested_context(VerificationSOPClass)
+        ae.add_supported_context(Verification)
+        ae.add_requested_context(Verification)
         handlers = [(evt.EVT_DATA_SENT, handle)]
         scp = ae.start_server(('', 11112), block=False, evt_handlers=handlers)
 
@@ -1340,8 +1340,8 @@ class TestEventHandlingAcceptor:
             triggered.append(event)
 
         self.ae = ae = AE()
-        ae.add_supported_context(VerificationSOPClass)
-        ae.add_requested_context(VerificationSOPClass)
+        ae.add_supported_context(Verification)
+        ae.add_requested_context(Verification)
         handlers = [(evt.EVT_DATA_RECV, handle)]
         scp = ae.start_server(('', 11112), block=False, evt_handlers=handlers)
         assert scp.get_handlers(evt.EVT_DATA_RECV) == [(handle, None)]
@@ -1379,8 +1379,8 @@ class TestEventHandlingAcceptor:
             triggered.append(event)
 
         self.ae = ae = AE()
-        ae.add_supported_context(VerificationSOPClass)
-        ae.add_requested_context(VerificationSOPClass)
+        ae.add_supported_context(Verification)
+        ae.add_requested_context(Verification)
         scp = ae.start_server(('', 11112), block=False)
         assert scp.get_handlers(evt.EVT_DATA_RECV) == []
 
@@ -1419,8 +1419,8 @@ class TestEventHandlingAcceptor:
             triggered.append(event)
 
         self.ae = ae = AE()
-        ae.add_supported_context(VerificationSOPClass)
-        ae.add_requested_context(VerificationSOPClass)
+        ae.add_supported_context(Verification)
+        ae.add_requested_context(Verification)
         handlers = [(evt.EVT_DATA_RECV, handle)]
         scp = ae.start_server(('', 11112), block=False, evt_handlers=handlers)
         assert scp.get_handlers(evt.EVT_DATA_RECV) == [(handle, None)]
@@ -1459,8 +1459,8 @@ class TestEventHandlingAcceptor:
             raise NotImplementedError("Exception description")
 
         self.ae = ae = AE()
-        ae.add_supported_context(VerificationSOPClass)
-        ae.add_requested_context(VerificationSOPClass)
+        ae.add_supported_context(Verification)
+        ae.add_requested_context(Verification)
         handlers = [(evt.EVT_DATA_RECV, handle)]
         scp = ae.start_server(('', 11112), block=False, evt_handlers=handlers)
 
@@ -1494,8 +1494,8 @@ class TestEventHandlingRequestor:
     def test_no_handlers(self):
         """Test associations as requestor with no handlers bound."""
         self.ae = ae = AE()
-        ae.add_supported_context(VerificationSOPClass)
-        ae.add_requested_context(VerificationSOPClass)
+        ae.add_supported_context(Verification)
+        ae.add_requested_context(Verification)
         scp = ae.start_server(('', 11112), block=False)
         assoc = ae.associate('localhost', 11112)
 
@@ -1513,8 +1513,8 @@ class TestEventHandlingRequestor:
             triggered_events.append(event)
 
         self.ae = ae = AE()
-        ae.add_supported_context(VerificationSOPClass)
-        ae.add_requested_context(VerificationSOPClass)
+        ae.add_supported_context(Verification)
+        ae.add_requested_context(Verification)
         scp = ae.start_server(('', 11112), block=False)
 
         assoc = ae.associate(
@@ -1547,8 +1547,8 @@ class TestEventHandlingRequestor:
             triggered_events.append(event)
 
         self.ae = ae = AE()
-        ae.add_supported_context(VerificationSOPClass)
-        ae.add_requested_context(VerificationSOPClass)
+        ae.add_supported_context(Verification)
+        ae.add_requested_context(Verification)
         scp = ae.start_server(('', 11112), block=False)
 
         assoc = ae.associate(
@@ -1581,8 +1581,8 @@ class TestEventHandlingRequestor:
             triggered_events.append(event)
 
         self.ae = ae = AE()
-        ae.add_supported_context(VerificationSOPClass)
-        ae.add_requested_context(VerificationSOPClass)
+        ae.add_supported_context(Verification)
+        ae.add_requested_context(Verification)
         scp = ae.start_server(('', 11112), block=False)
 
         assoc = ae.associate(
@@ -1618,8 +1618,8 @@ class TestEventHandlingRequestor:
             triggered_events.append(event)
 
         self.ae = ae = AE()
-        ae.add_supported_context(VerificationSOPClass)
-        ae.add_requested_context(VerificationSOPClass)
+        ae.add_supported_context(Verification)
+        ae.add_requested_context(Verification)
         scp = ae.start_server(('', 11112), block=False)
 
         assoc = ae.associate('localhost', 11112)
@@ -1656,8 +1656,8 @@ class TestEventHandlingRequestor:
             triggered_events.append(event)
 
         self.ae = ae = AE()
-        ae.add_supported_context(VerificationSOPClass)
-        ae.add_requested_context(VerificationSOPClass)
+        ae.add_supported_context(Verification)
+        ae.add_requested_context(Verification)
         scp = ae.start_server(('', 11112), block=False)
 
         assoc = ae.associate(
@@ -1688,8 +1688,8 @@ class TestEventHandlingRequestor:
     def test_connection_failure_log(self, caplog):
         """Test that a connection failure is logged."""
         self.ae = ae = AE()
-        ae.add_supported_context(VerificationSOPClass)
-        ae.add_requested_context(VerificationSOPClass)
+        ae.add_supported_context(Verification)
+        ae.add_requested_context(Verification)
         scp = ae.start_server(('', 11112), block=False)
         with caplog.at_level(logging.ERROR, logger='pynetdicom'):
             assoc = ae.associate('localhost', 11113)
@@ -1711,8 +1711,8 @@ class TestEventHandlingRequestor:
             triggered.append(event)
 
         self.ae = ae = AE()
-        ae.add_supported_context(VerificationSOPClass)
-        ae.add_requested_context(VerificationSOPClass)
+        ae.add_supported_context(Verification)
+        ae.add_requested_context(Verification)
         handlers = [(evt.EVT_DATA_SENT, handle)]
         scp = ae.start_server(('', 11112), block=False)
         assert scp.get_handlers(evt.EVT_DATA_SENT) == []
@@ -1751,8 +1751,8 @@ class TestEventHandlingRequestor:
             triggered.append(event)
 
         self.ae = ae = AE()
-        ae.add_supported_context(VerificationSOPClass)
-        ae.add_requested_context(VerificationSOPClass)
+        ae.add_supported_context(Verification)
+        ae.add_requested_context(Verification)
         handlers = [(evt.EVT_DATA_SENT, handle)]
         scp = ae.start_server(('', 11112), block=False)
         assert scp.get_handlers(evt.EVT_DATA_SENT) == []
@@ -1793,8 +1793,8 @@ class TestEventHandlingRequestor:
             triggered.append(event)
 
         self.ae = ae = AE()
-        ae.add_supported_context(VerificationSOPClass)
-        ae.add_requested_context(VerificationSOPClass)
+        ae.add_supported_context(Verification)
+        ae.add_requested_context(Verification)
         handlers = [(evt.EVT_DATA_SENT, handle)]
         scp = ae.start_server(('', 11112), block=False)
         assert scp.get_handlers(evt.EVT_DATA_SENT) == []
@@ -1827,8 +1827,8 @@ class TestEventHandlingRequestor:
             triggered.append(event)
 
         self.ae = ae = AE()
-        ae.add_supported_context(VerificationSOPClass)
-        ae.add_requested_context(VerificationSOPClass)
+        ae.add_supported_context(Verification)
+        ae.add_requested_context(Verification)
         handlers = [(evt.EVT_DATA_RECV, handle)]
         scp = ae.start_server(('', 11112), block=False)
         assert scp.get_handlers(evt.EVT_DATA_RECV) == []
@@ -1866,8 +1866,8 @@ class TestEventHandlingRequestor:
             triggered.append(event)
 
         self.ae = ae = AE()
-        ae.add_supported_context(VerificationSOPClass)
-        ae.add_requested_context(VerificationSOPClass)
+        ae.add_supported_context(Verification)
+        ae.add_requested_context(Verification)
         scp = ae.start_server(('', 11112), block=False)
         assert scp.get_handlers(evt.EVT_DATA_RECV) == []
 
@@ -1906,8 +1906,8 @@ class TestEventHandlingRequestor:
             triggered.append(event)
 
         self.ae = ae = AE()
-        ae.add_supported_context(VerificationSOPClass)
-        ae.add_requested_context(VerificationSOPClass)
+        ae.add_supported_context(Verification)
+        ae.add_requested_context(Verification)
         handlers = [(evt.EVT_DATA_RECV, handle)]
         scp = ae.start_server(('', 11112), block=False)
         assert scp.get_handlers(evt.EVT_DATA_RECV) == []

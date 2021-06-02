@@ -16,17 +16,17 @@ from pynetdicom.dimse_primitives import (
 )
 from pynetdicom.dsutils import encode, decode
 from pynetdicom.sop_class import (
-    DisplaySystemSOPClass,
-    VerificationSOPClass,
-    PrintJobSOPClass,
-    ModalityPerformedProcedureStepNotificationSOPClass,
-    ModalityPerformedProcedureStepRetrieveSOPClass,
-    ModalityPerformedProcedureStepSOPClass,
-    ProceduralEventLoggingSOPClass,
-    BasicFilmSessionSOPClass,
-    BasicGrayscalePrintManagementMetaSOPClass,
-    BasicColorPrintManagementMetaSOPClass,
-    PrinterSOPClass,
+    DisplaySystem,
+    Verification,
+    PrintJob,
+    ModalityPerformedProcedureStepNotification,
+    ModalityPerformedProcedureStepRetrieve,
+    ModalityPerformedProcedureStep,
+    ProceduralEventLogging,
+    BasicFilmSession,
+    BasicGrayscalePrintManagementMeta,
+    BasicColorPrintManagementMeta,
+    Printer,
 )
 from pynetdicom.service_class import ServiceClass
 
@@ -65,13 +65,13 @@ class TestAssociationSendNEventReport:
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
         ae.network_timeout = 5
-        ae.add_supported_context(ModalityPerformedProcedureStepNotificationSOPClass)
+        ae.add_supported_context(ModalityPerformedProcedureStepNotification)
         scp = ae.start_server(
             ('', 11112), block=False,
             evt_handlers=[(evt.EVT_N_EVENT_REPORT, handle)]
         )
 
-        ae.add_requested_context(ModalityPerformedProcedureStepNotificationSOPClass)
+        ae.add_requested_context(ModalityPerformedProcedureStepNotification)
         assoc = ae.associate('localhost', 11112)
         assert assoc.is_established
         assoc.release()
@@ -91,13 +91,13 @@ class TestAssociationSendNEventReport:
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
         ae.network_timeout = 5
-        ae.add_supported_context(ModalityPerformedProcedureStepNotificationSOPClass)
+        ae.add_supported_context(ModalityPerformedProcedureStepNotification)
         scp = ae.start_server(
             ('', 11112), block=False,
             evt_handlers=[(evt.EVT_N_EVENT_REPORT, handle)]
         )
 
-        ae.add_requested_context(ModalityPerformedProcedureStepNotificationSOPClass)
+        ae.add_requested_context(ModalityPerformedProcedureStepNotification)
         assoc = ae.associate('localhost', 11112)
         assert assoc.is_established
 
@@ -107,7 +107,7 @@ class TestAssociationSendNEventReport:
         )
         with pytest.raises(ValueError, match=msg):
             assoc.send_n_event_report(
-                None, None, VerificationSOPClass, None
+                None, None, Verification, None
             )
 
         assoc.release()
@@ -124,14 +124,14 @@ class TestAssociationSendNEventReport:
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
         ae.network_timeout = 5
-        ae.add_supported_context(ModalityPerformedProcedureStepNotificationSOPClass)
+        ae.add_supported_context(ModalityPerformedProcedureStepNotification)
         scp = ae.start_server(
             ('', 11112), block=False,
             evt_handlers=[(evt.EVT_N_EVENT_REPORT, handle)]
         )
 
         ae.add_requested_context(
-            ModalityPerformedProcedureStepNotificationSOPClass,
+            ModalityPerformedProcedureStepNotification,
             ExplicitVRLittleEndian
         )
         assoc = ae.associate('localhost', 11112)
@@ -143,7 +143,7 @@ class TestAssociationSendNEventReport:
         with pytest.raises(ValueError, match=msg):
             assoc.send_n_event_report(
                 ds, 1,
-                ModalityPerformedProcedureStepNotificationSOPClass,
+                ModalityPerformedProcedureStepNotification,
                 '1.2.3'
             )
 
@@ -162,13 +162,13 @@ class TestAssociationSendNEventReport:
         ae.acse_timeout = 5
         ae.dimse_timeout = 0.2
         ae.network_timeout = 5
-        ae.add_supported_context(ModalityPerformedProcedureStepNotificationSOPClass)
+        ae.add_supported_context(ModalityPerformedProcedureStepNotification)
         scp = ae.start_server(
             ('', 11112), block=False,
             evt_handlers=[(evt.EVT_N_EVENT_REPORT, handle)]
         )
 
-        ae.add_requested_context(ModalityPerformedProcedureStepNotificationSOPClass)
+        ae.add_requested_context(ModalityPerformedProcedureStepNotification)
         assoc = ae.associate('localhost', 11112)
         assert assoc.is_established
 
@@ -176,7 +176,7 @@ class TestAssociationSendNEventReport:
         ds.PatientName = 'Test^test'
         status, ds = assoc.send_n_event_report(
             ds, 1,
-            ModalityPerformedProcedureStepNotificationSOPClass,
+            ModalityPerformedProcedureStepNotification,
             '1.2.840.10008.5.1.1.40.1'
         )
         assert status == Dataset()
@@ -194,13 +194,13 @@ class TestAssociationSendNEventReport:
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
         ae.network_timeout = 5
-        ae.add_supported_context(ModalityPerformedProcedureStepNotificationSOPClass)
+        ae.add_supported_context(ModalityPerformedProcedureStepNotification)
         scp = ae.start_server(
             ('', 11112), block=False,
             evt_handlers=[(evt.EVT_N_EVENT_REPORT, handle)]
         )
 
-        ae.add_requested_context(ModalityPerformedProcedureStepNotificationSOPClass)
+        ae.add_requested_context(ModalityPerformedProcedureStepNotification)
         assoc = ae.associate('localhost', 11112)
         assert assoc.is_established
 
@@ -226,7 +226,7 @@ class TestAssociationSendNEventReport:
         ds.PatientName = 'Test^test'
         status, ds = assoc.send_n_event_report(
             ds, 1,
-            ModalityPerformedProcedureStepNotificationSOPClass,
+            ModalityPerformedProcedureStepNotification,
             '1.2.840.10008.5.1.1.40.1'
         )
 
@@ -245,13 +245,13 @@ class TestAssociationSendNEventReport:
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
         ae.network_timeout = 5
-        ae.add_supported_context(ModalityPerformedProcedureStepNotificationSOPClass)
+        ae.add_supported_context(ModalityPerformedProcedureStepNotification)
         scp = ae.start_server(
             ('', 11112), block=False,
             evt_handlers=[(evt.EVT_N_EVENT_REPORT, handle)]
         )
 
-        ae.add_requested_context(ModalityPerformedProcedureStepNotificationSOPClass)
+        ae.add_requested_context(ModalityPerformedProcedureStepNotification)
         assoc = ae.associate('localhost', 11112)
         assert assoc.is_established
 
@@ -259,7 +259,7 @@ class TestAssociationSendNEventReport:
         ds.PatientName = 'Test^test'
         status, ds = assoc.send_n_event_report(
             ds, 1,
-            ModalityPerformedProcedureStepNotificationSOPClass,
+            ModalityPerformedProcedureStepNotification,
             '1.2.840.10008.5.1.1.40.1'
         )
         assert status.Status == 0x0112
@@ -278,13 +278,13 @@ class TestAssociationSendNEventReport:
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
         ae.network_timeout = 5
-        ae.add_supported_context(ModalityPerformedProcedureStepNotificationSOPClass)
+        ae.add_supported_context(ModalityPerformedProcedureStepNotification)
         scp = ae.start_server(
             ('', 11112), block=False,
             evt_handlers=[(evt.EVT_N_EVENT_REPORT, handle)]
         )
 
-        ae.add_requested_context(ModalityPerformedProcedureStepNotificationSOPClass)
+        ae.add_requested_context(ModalityPerformedProcedureStepNotification)
         assoc = ae.associate('localhost', 11112)
         assert assoc.is_established
 
@@ -292,7 +292,7 @@ class TestAssociationSendNEventReport:
         ds.PatientName = 'Test^test'
         status, ds = assoc.send_n_event_report(
             ds, 1,
-            ModalityPerformedProcedureStepNotificationSOPClass,
+            ModalityPerformedProcedureStepNotification,
             '1.2.840.10008.5.1.1.40.1'
         )
         assert status.Status == 0x0116
@@ -311,13 +311,13 @@ class TestAssociationSendNEventReport:
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
         ae.network_timeout = 5
-        ae.add_supported_context(ModalityPerformedProcedureStepNotificationSOPClass)
+        ae.add_supported_context(ModalityPerformedProcedureStepNotification)
         scp = ae.start_server(
             ('', 11112), block=False,
             evt_handlers=[(evt.EVT_N_EVENT_REPORT, handle)]
         )
 
-        ae.add_requested_context(ModalityPerformedProcedureStepNotificationSOPClass)
+        ae.add_requested_context(ModalityPerformedProcedureStepNotification)
         assoc = ae.associate('localhost', 11112)
         assert assoc.is_established
 
@@ -325,7 +325,7 @@ class TestAssociationSendNEventReport:
         ds.PatientName = 'Test^test'
         status, ds = assoc.send_n_event_report(
             ds, 1,
-            ModalityPerformedProcedureStepNotificationSOPClass,
+            ModalityPerformedProcedureStepNotification,
             '1.2.840.10008.5.1.1.40.1'
         )
         assert status.Status == 0x0000
@@ -344,13 +344,13 @@ class TestAssociationSendNEventReport:
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
         ae.network_timeout = 5
-        ae.add_supported_context(ModalityPerformedProcedureStepNotificationSOPClass)
+        ae.add_supported_context(ModalityPerformedProcedureStepNotification)
         scp = ae.start_server(
             ('', 11112), block=False,
             evt_handlers=[(evt.EVT_N_EVENT_REPORT, handle)]
         )
 
-        ae.add_requested_context(ModalityPerformedProcedureStepNotificationSOPClass)
+        ae.add_requested_context(ModalityPerformedProcedureStepNotification)
         assoc = ae.associate('localhost', 11112)
         assert assoc.is_established
 
@@ -358,7 +358,7 @@ class TestAssociationSendNEventReport:
         ds.PatientName = 'Test^test'
         status, ds = assoc.send_n_event_report(
             ds, 1,
-            ModalityPerformedProcedureStepNotificationSOPClass,
+            ModalityPerformedProcedureStepNotification,
             '1.2.840.10008.5.1.1.40.1'
         )
         assert status.Status == 0xFFF0
@@ -375,8 +375,8 @@ class TestAssociationSendNEventReport:
             return 0x0000, test
 
         self.ae = ae = AE()
-        ae.add_requested_context(ModalityPerformedProcedureStepNotificationSOPClass)
-        ae.add_supported_context(ModalityPerformedProcedureStepNotificationSOPClass)
+        ae.add_requested_context(ModalityPerformedProcedureStepNotification)
+        ae.add_supported_context(ModalityPerformedProcedureStepNotification)
 
         handlers = [(evt.EVT_N_EVENT_REPORT, handle)]
         scp = ae.start_server(('', 11112), evt_handlers=handlers, block=False)
@@ -393,7 +393,7 @@ class TestAssociationSendNEventReport:
         status, ds = assoc.send_n_event_report(
             ds,
             1,
-            ModalityPerformedProcedureStepNotificationSOPClass,
+            ModalityPerformedProcedureStepNotification,
             '1.2.840.10008.5.1.1.40.1'
         )
 
@@ -411,10 +411,10 @@ class TestAssociationSendNEventReport:
 
         self.ae = ae = AE()
         ae.add_requested_context(
-            ModalityPerformedProcedureStepNotificationSOPClass,
+            ModalityPerformedProcedureStepNotification,
             ExplicitVRLittleEndian
         )
-        ae.add_supported_context(ModalityPerformedProcedureStepNotificationSOPClass)
+        ae.add_supported_context(ModalityPerformedProcedureStepNotification)
 
         handlers = [(evt.EVT_N_EVENT_REPORT, handle)]
         scp = ae.start_server(('', 11112), evt_handlers=handlers, block=False)
@@ -459,7 +459,7 @@ class TestAssociationSendNEventReport:
         status, ds = assoc.send_n_event_report(
             ds,
             1,
-            ModalityPerformedProcedureStepNotificationSOPClass,
+            ModalityPerformedProcedureStepNotification,
             '1.2.840.10008.5.1.1.40.1'
         )
 
@@ -484,13 +484,13 @@ class TestAssociationSendNEventReport:
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
         ae.network_timeout = 5
-        ae.add_supported_context(ModalityPerformedProcedureStepNotificationSOPClass)
+        ae.add_supported_context(ModalityPerformedProcedureStepNotification)
         scp = ae.start_server(
             ('', 11112), block=False,
             evt_handlers=[(evt.EVT_N_EVENT_REPORT, handle)]
         )
 
-        ae.add_requested_context(ModalityPerformedProcedureStepNotificationSOPClass)
+        ae.add_requested_context(ModalityPerformedProcedureStepNotification)
         assoc = ae.associate('localhost', 11112)
         assert assoc.is_established
 
@@ -498,7 +498,7 @@ class TestAssociationSendNEventReport:
         ds.PatientName = 'Test^test'
         status, ds = assoc.send_n_event_report(
             ds, 1,
-            ModalityPerformedProcedureStepNotificationSOPClass,
+            ModalityPerformedProcedureStepNotification,
             '1.2.840.10008.5.1.1.40.1'
         )
         assert status.Status == 0xFFF0
@@ -518,12 +518,12 @@ class TestAssociationSendNEventReport:
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
         ae.network_timeout = 5
-        ae.add_supported_context(BasicGrayscalePrintManagementMetaSOPClass)
-        ae.add_supported_context(PrinterSOPClass)
+        ae.add_supported_context(BasicGrayscalePrintManagementMeta)
+        ae.add_supported_context(Printer)
         scp = ae.start_server(('', 11112), block=False)
 
-        ae.add_requested_context(BasicGrayscalePrintManagementMetaSOPClass)
-        ae.add_requested_context(PrinterSOPClass)
+        ae.add_requested_context(BasicGrayscalePrintManagementMeta)
+        ae.add_requested_context(Printer)
         assoc = ae.associate('localhost', 11112)
         assert assoc.is_established
 
@@ -534,17 +534,17 @@ class TestAssociationSendNEventReport:
         # Receives None, None from DummyDIMSE, aborts
         status, ds = assoc.send_n_event_report(
             ds, 1,
-            PrinterSOPClass,
+            Printer,
             '1.2.840.10008.5.1.1.40.1',
-            meta_uid=BasicGrayscalePrintManagementMetaSOPClass
+            meta_uid=BasicGrayscalePrintManagementMeta
         )
         assert assoc.is_aborted
 
         scp.shutdown()
 
-        assert assoc.dimse.req.AffectedSOPClassUID == PrinterSOPClass
+        assert assoc.dimse.req.AffectedSOPClassUID == Printer
         assert assoc.dimse.context_id == 1
-        assert assoc._accepted_cx[1].abstract_syntax == BasicGrayscalePrintManagementMetaSOPClass
+        assert assoc._accepted_cx[1].abstract_syntax == BasicGrayscalePrintManagementMeta
 
     def test_meta_uid_good(self):
         """Test sending a request using a Meta SOP Class."""
@@ -558,13 +558,13 @@ class TestAssociationSendNEventReport:
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
         ae.network_timeout = 5
-        ae.add_supported_context(BasicGrayscalePrintManagementMetaSOPClass)
+        ae.add_supported_context(BasicGrayscalePrintManagementMeta)
         scp = ae.start_server(
             ('', 11112), block=False,
             evt_handlers=[(evt.EVT_N_EVENT_REPORT, handle)]
         )
 
-        ae.add_requested_context(BasicGrayscalePrintManagementMetaSOPClass)
+        ae.add_requested_context(BasicGrayscalePrintManagementMeta)
         assoc = ae.associate('localhost', 11112)
         assert assoc.is_established
 
@@ -572,9 +572,9 @@ class TestAssociationSendNEventReport:
         ds.PatientName = 'Test^test'
         status, ds = assoc.send_n_event_report(
             ds, 1,
-            BasicFilmSessionSOPClass,
+            BasicFilmSession,
             '1.2.840.10008.5.1.1.40.1',
-            meta_uid=BasicGrayscalePrintManagementMetaSOPClass
+            meta_uid=BasicGrayscalePrintManagementMeta
         )
         assert status.Status == 0x0000
         assert ds.PatientName == 'Test^test'
@@ -586,8 +586,8 @@ class TestAssociationSendNEventReport:
         req = handler_data[0].request
         cx = handler_data[0].context
 
-        assert req.AffectedSOPClassUID == BasicFilmSessionSOPClass
-        assert cx.abstract_syntax == BasicGrayscalePrintManagementMetaSOPClass
+        assert req.AffectedSOPClassUID == BasicFilmSession
+        assert cx.abstract_syntax == BasicGrayscalePrintManagementMeta
 
     def test_meta_uid_bad(self):
         """Test sending a request using a Meta SOP Class."""
@@ -598,13 +598,13 @@ class TestAssociationSendNEventReport:
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
         ae.network_timeout = 5
-        ae.add_supported_context(BasicGrayscalePrintManagementMetaSOPClass)
+        ae.add_supported_context(BasicGrayscalePrintManagementMeta)
         scp = ae.start_server(
             ('', 11112), block=False,
             evt_handlers=[(evt.EVT_N_EVENT_REPORT, handle)]
         )
 
-        ae.add_requested_context(BasicGrayscalePrintManagementMetaSOPClass)
+        ae.add_requested_context(BasicGrayscalePrintManagementMeta)
         assoc = ae.associate('localhost', 11112)
         assert assoc.is_established
 
@@ -619,9 +619,9 @@ class TestAssociationSendNEventReport:
         with pytest.raises(ValueError, match=msg):
             assoc.send_n_event_report(
                 ds, 1,
-                BasicFilmSessionSOPClass,
+                BasicFilmSession,
                 '1.2.840.10008.5.1.1.40.1',
-                meta_uid=BasicColorPrintManagementMetaSOPClass
+                meta_uid=BasicColorPrintManagementMeta
             )
 
         assoc.release()
@@ -652,12 +652,12 @@ class TestAssociationSendNGet:
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
         ae.network_timeout = 5
-        ae.add_supported_context(DisplaySystemSOPClass)
+        ae.add_supported_context(DisplaySystem)
         scp = ae.start_server(
             ('', 11112), block=False, evt_handlers=[(evt.EVT_N_GET, handle)]
         )
 
-        ae.add_requested_context(DisplaySystemSOPClass)
+        ae.add_requested_context(DisplaySystem)
         assoc = ae.associate('localhost', 11112)
         assoc.release()
         assert assoc.is_released
@@ -678,12 +678,12 @@ class TestAssociationSendNGet:
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
         ae.network_timeout = 5
-        ae.add_supported_context(DisplaySystemSOPClass)
+        ae.add_supported_context(DisplaySystem)
         scp = ae.start_server(
             ('', 11112), block=False, evt_handlers=[(evt.EVT_N_GET, handle)]
         )
 
-        ae.add_requested_context(DisplaySystemSOPClass)
+        ae.add_requested_context(DisplaySystem)
         assoc = ae.associate('localhost', 11112)
         assert assoc.is_established
         msg = (
@@ -692,7 +692,7 @@ class TestAssociationSendNGet:
             r"for the SCU role"
         )
         with pytest.raises(ValueError, match=msg):
-            assoc.send_n_get(None, VerificationSOPClass, None)
+            assoc.send_n_get(None, Verification, None)
 
         assoc.release()
         assert assoc.is_released
@@ -711,18 +711,18 @@ class TestAssociationSendNGet:
         ae.acse_timeout = 5
         ae.dimse_timeout = 0.1
         ae.network_timeout = 5
-        ae.add_supported_context(DisplaySystemSOPClass)
+        ae.add_supported_context(DisplaySystem)
         scp = ae.start_server(
             ('', 11112), block=False, evt_handlers=[(evt.EVT_N_GET, handle)]
         )
 
-        ae.add_requested_context(DisplaySystemSOPClass)
+        ae.add_requested_context(DisplaySystem)
         assoc = ae.associate('localhost', 11112)
         assert assoc.is_established
 
         status, ds = assoc.send_n_get(
             [(0x7fe0,0x0010)],
-            DisplaySystemSOPClass,
+            DisplaySystem,
             '1.2.840.10008.5.1.1.40.1'
         )
 
@@ -743,12 +743,12 @@ class TestAssociationSendNGet:
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
         ae.network_timeout = 5
-        ae.add_supported_context(DisplaySystemSOPClass)
+        ae.add_supported_context(DisplaySystem)
         scp = ae.start_server(
             ('', 11112), block=False, evt_handlers=[(evt.EVT_N_GET, handle)]
         )
 
-        ae.add_requested_context(DisplaySystemSOPClass)
+        ae.add_requested_context(DisplaySystem)
         assoc = ae.associate('localhost', 11112)
         assert assoc.is_established
 
@@ -771,7 +771,7 @@ class TestAssociationSendNGet:
         assoc.dimse = DummyDIMSE()
         assert assoc.is_established
         status, ds = assoc.send_n_get([(0x7fe0,0x0010)],
-        DisplaySystemSOPClass,
+        DisplaySystem,
         '1.2.840.10008.5.1.1.40.1')
         assert status == Dataset()
         assert ds is None
@@ -788,17 +788,17 @@ class TestAssociationSendNGet:
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
         ae.network_timeout = 5
-        ae.add_supported_context(DisplaySystemSOPClass)
+        ae.add_supported_context(DisplaySystem)
         scp = ae.start_server(
             ('', 11112), block=False, evt_handlers=[(evt.EVT_N_GET, handle)]
         )
 
-        ae.add_requested_context(DisplaySystemSOPClass)
+        ae.add_requested_context(DisplaySystem)
         assoc = ae.associate('localhost', 11112)
         assert assoc.is_established
 
         status, ds = assoc.send_n_get([(0x7fe0, 0x0010)],
-                                      DisplaySystemSOPClass,
+                                      DisplaySystem,
                                       '1.2.840.10008.5.1.1.40.1')
         assert status.Status == 0x0112
         assert ds is None
@@ -812,7 +812,7 @@ class TestAssociationSendNGet:
         def handle(event):
             ds = Dataset()
             ds.PatientName = 'Test'
-            ds.SOPClassUID = DisplaySystemSOPClass
+            ds.SOPClassUID = DisplaySystem
             ds.SOPInstanceUID = '1.2.3.4'
             return 0x0116, ds
 
@@ -820,23 +820,23 @@ class TestAssociationSendNGet:
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
         ae.network_timeout = 5
-        ae.add_supported_context(DisplaySystemSOPClass)
+        ae.add_supported_context(DisplaySystem)
         scp = ae.start_server(
             ('', 11112), block=False, evt_handlers=[(evt.EVT_N_GET, handle)]
         )
 
-        ae.add_requested_context(DisplaySystemSOPClass)
+        ae.add_requested_context(DisplaySystem)
         assoc = ae.associate('localhost', 11112)
         assert assoc.is_established
 
         status, ds = assoc.send_n_get([(0x7fe0,0x0010)],
-                                      DisplaySystemSOPClass,
+                                      DisplaySystem,
                                       '1.2.840.10008.5.1.1.40.1')
         assert status.Status == 0x0116
         assert ds is not None
         assert isinstance(ds, Dataset)
         assert ds.PatientName == 'Test'
-        assert ds.SOPClassUID == DisplaySystemSOPClass
+        assert ds.SOPClassUID == DisplaySystem
         assert ds.SOPInstanceUID == '1.2.3.4'
         assoc.release()
         assert assoc.is_released
@@ -848,7 +848,7 @@ class TestAssociationSendNGet:
         def handle(event):
             ds = Dataset()
             ds.PatientName = 'Test'
-            ds.SOPClassUID = DisplaySystemSOPClass
+            ds.SOPClassUID = DisplaySystem
             ds.SOPInstanceUID = '1.2.3.4'
             return 0x0000, ds
 
@@ -856,23 +856,23 @@ class TestAssociationSendNGet:
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
         ae.network_timeout = 5
-        ae.add_supported_context(DisplaySystemSOPClass)
+        ae.add_supported_context(DisplaySystem)
         scp = ae.start_server(
             ('', 11112), block=False, evt_handlers=[(evt.EVT_N_GET, handle)]
         )
 
-        ae.add_requested_context(DisplaySystemSOPClass)
+        ae.add_requested_context(DisplaySystem)
         assoc = ae.associate('localhost', 11112)
         assert assoc.is_established
 
         status, ds = assoc.send_n_get([(0x7fe0,0x0010)],
-                                      DisplaySystemSOPClass,
+                                      DisplaySystem,
                                       '1.2.840.10008.5.1.1.40.1')
         assert status.Status == 0x0000
         assert ds is not None
         assert isinstance(ds, Dataset)
         assert ds.PatientName == 'Test'
-        assert ds.SOPClassUID == DisplaySystemSOPClass
+        assert ds.SOPClassUID == DisplaySystem
         assert ds.SOPInstanceUID == '1.2.3.4'
         assoc.release()
         assert assoc.is_released
@@ -884,7 +884,7 @@ class TestAssociationSendNGet:
         def handle(event):
             ds = Dataset()
             ds.PatientName = 'Test'
-            ds.SOPClassUID = DisplaySystemSOPClass
+            ds.SOPClassUID = DisplaySystem
             ds.SOPInstanceUID = '1.2.3.4'
             return 0xFFF0, ds
 
@@ -892,17 +892,17 @@ class TestAssociationSendNGet:
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
         ae.network_timeout = 5
-        ae.add_supported_context(DisplaySystemSOPClass)
+        ae.add_supported_context(DisplaySystem)
         scp = ae.start_server(
             ('', 11112), block=False, evt_handlers=[(evt.EVT_N_GET, handle)]
         )
 
-        ae.add_requested_context(DisplaySystemSOPClass)
+        ae.add_requested_context(DisplaySystem)
         assoc = ae.associate('localhost', 11112)
         assert assoc.is_established
 
         status, ds = assoc.send_n_get([(0x7fe0,0x0010)],
-                                      DisplaySystemSOPClass,
+                                      DisplaySystem,
                                       '1.2.840.10008.5.1.1.40.1')
         assert status.Status == 0xFFF0
         assert ds is None
@@ -918,8 +918,8 @@ class TestAssociationSendNGet:
             return 0x0000, test
 
         self.ae = ae = AE()
-        ae.add_requested_context(ModalityPerformedProcedureStepRetrieveSOPClass)
-        ae.add_supported_context(ModalityPerformedProcedureStepRetrieveSOPClass)
+        ae.add_requested_context(ModalityPerformedProcedureStepRetrieve)
+        ae.add_supported_context(ModalityPerformedProcedureStepRetrieve)
 
         handlers = [(evt.EVT_N_GET, handle)]
         scp = ae.start_server(('', 11112), evt_handlers=handlers, block=False)
@@ -934,7 +934,7 @@ class TestAssociationSendNGet:
         attrs = [0x00100010, 0x00100020]
         status, ds = assoc.send_n_get(
             attrs,
-            ModalityPerformedProcedureStepRetrieveSOPClass,
+            ModalityPerformedProcedureStepRetrieve,
             '1.2.840.10008.5.1.1.40.1'
         )
 
@@ -955,12 +955,12 @@ class TestAssociationSendNGet:
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
         ae.network_timeout = 5
-        ae.add_supported_context(DisplaySystemSOPClass)
+        ae.add_supported_context(DisplaySystem)
         scp = ae.start_server(
             ('', 11112), block=False, evt_handlers=[(evt.EVT_N_GET, handle)]
         )
 
-        ae.add_requested_context(DisplaySystemSOPClass)
+        ae.add_requested_context(DisplaySystem)
         assoc = ae.associate('localhost', 11112)
         assert assoc.is_established
 
@@ -995,7 +995,7 @@ class TestAssociationSendNGet:
         assert assoc.is_established
         status, ds = assoc.send_n_get(
             [(0x7fe0,0x0010)],
-            DisplaySystemSOPClass,
+            DisplaySystem,
             '1.2.840.10008.5.1.1.40.1'
         )
 
@@ -1018,17 +1018,17 @@ class TestAssociationSendNGet:
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
         ae.network_timeout = 5
-        ae.add_supported_context(DisplaySystemSOPClass)
+        ae.add_supported_context(DisplaySystem)
         scp = ae.start_server(
             ('', 11112), block=False, evt_handlers=[(evt.EVT_N_GET, handle)]
         )
 
-        ae.add_requested_context(DisplaySystemSOPClass)
+        ae.add_requested_context(DisplaySystem)
         assoc = ae.associate('localhost', 11112)
         assert assoc.is_established
 
         status, ds = assoc.send_n_get([(0x7fe0,0x0010)],
-                                      DisplaySystemSOPClass,
+                                      DisplaySystem,
                                       '1.2.840.10008.5.1.1.40.1')
         assert status.Status == 0xFFF0
         assert status.ErrorComment == 'Some comment'
@@ -1046,12 +1046,12 @@ class TestAssociationSendNGet:
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
         ae.network_timeout = 5
-        ae.add_supported_context(BasicGrayscalePrintManagementMetaSOPClass)
-        ae.add_supported_context(PrinterSOPClass)
+        ae.add_supported_context(BasicGrayscalePrintManagementMeta)
+        ae.add_supported_context(Printer)
         scp = ae.start_server(('', 11112), block=False)
 
-        ae.add_requested_context(BasicGrayscalePrintManagementMetaSOPClass)
-        ae.add_requested_context(PrinterSOPClass)
+        ae.add_requested_context(BasicGrayscalePrintManagementMeta)
+        ae.add_requested_context(Printer)
         assoc = ae.associate('localhost', 11112)
         assert assoc.is_established
 
@@ -1062,17 +1062,17 @@ class TestAssociationSendNGet:
         # Receives None, None from DummyDIMSE, aborts
         status, ds = assoc.send_n_get(
             [(0x00100010)],
-            PrinterSOPClass,
+            Printer,
             '1.2.840.10008.5.1.1.40.1',
-            meta_uid=BasicGrayscalePrintManagementMetaSOPClass
+            meta_uid=BasicGrayscalePrintManagementMeta
         )
         assert assoc.is_aborted
 
         scp.shutdown()
 
-        assert assoc.dimse.req.RequestedSOPClassUID == PrinterSOPClass
+        assert assoc.dimse.req.RequestedSOPClassUID == Printer
         assert assoc.dimse.context_id == 1
-        assert assoc._accepted_cx[1].abstract_syntax == BasicGrayscalePrintManagementMetaSOPClass
+        assert assoc._accepted_cx[1].abstract_syntax == BasicGrayscalePrintManagementMeta
 
     def test_meta_uid_good(self):
         """Test sending a request using a Meta SOP Class."""
@@ -1082,7 +1082,7 @@ class TestAssociationSendNGet:
             handler_data.append(event)
             ds = Dataset()
             ds.PatientName = 'Test'
-            ds.SOPClassUID = DisplaySystemSOPClass
+            ds.SOPClassUID = DisplaySystem
             ds.SOPInstanceUID = '1.2.3.4'
             return 0x0000, ds
 
@@ -1090,12 +1090,12 @@ class TestAssociationSendNGet:
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
         ae.network_timeout = 5
-        ae.add_supported_context(BasicGrayscalePrintManagementMetaSOPClass)
+        ae.add_supported_context(BasicGrayscalePrintManagementMeta)
         scp = ae.start_server(
             ('', 11112), block=False, evt_handlers=[(evt.EVT_N_GET, handle)]
         )
 
-        ae.add_requested_context(BasicGrayscalePrintManagementMetaSOPClass)
+        ae.add_requested_context(BasicGrayscalePrintManagementMeta)
         assoc = ae.associate('localhost', 11112)
         assert assoc.is_established
 
@@ -1103,15 +1103,15 @@ class TestAssociationSendNGet:
         ds.PatientName = 'Test^test'
         status, ds = assoc.send_n_get(
             [(0x7fe0,0x0010)],
-            DisplaySystemSOPClass, '1.2.840.10008.5.1.1.40.1',
-            meta_uid=BasicGrayscalePrintManagementMetaSOPClass
+            DisplaySystem, '1.2.840.10008.5.1.1.40.1',
+            meta_uid=BasicGrayscalePrintManagementMeta
         )
 
         assert status.Status == 0x0000
         assert ds is not None
         assert isinstance(ds, Dataset)
         assert ds.PatientName == 'Test'
-        assert ds.SOPClassUID == DisplaySystemSOPClass
+        assert ds.SOPClassUID == DisplaySystem
         assert ds.SOPInstanceUID == '1.2.3.4'
         assoc.release()
         assert assoc.is_released
@@ -1121,15 +1121,15 @@ class TestAssociationSendNGet:
         req = handler_data[0].request
         cx = handler_data[0].context
 
-        assert req.RequestedSOPClassUID == DisplaySystemSOPClass
-        assert cx.abstract_syntax == BasicGrayscalePrintManagementMetaSOPClass
+        assert req.RequestedSOPClassUID == DisplaySystem
+        assert cx.abstract_syntax == BasicGrayscalePrintManagementMeta
 
     def test_meta_uid_bad(self):
         """Test sending a request using a Meta SOP Class."""
         def handle(event):
             ds = Dataset()
             ds.PatientName = 'Test'
-            ds.SOPClassUID = DisplaySystemSOPClass
+            ds.SOPClassUID = DisplaySystem
             ds.SOPInstanceUID = '1.2.3.4'
             return 0x0000, ds
 
@@ -1137,13 +1137,13 @@ class TestAssociationSendNGet:
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
         ae.network_timeout = 5
-        ae.add_supported_context(BasicGrayscalePrintManagementMetaSOPClass)
+        ae.add_supported_context(BasicGrayscalePrintManagementMeta)
         scp = ae.start_server(
             ('', 11112), block=False,
             evt_handlers=[(evt.EVT_N_GET, handle)]
         )
 
-        ae.add_requested_context(BasicGrayscalePrintManagementMetaSOPClass)
+        ae.add_requested_context(BasicGrayscalePrintManagementMeta)
         assoc = ae.associate('localhost', 11112)
         assert assoc.is_established
 
@@ -1158,8 +1158,8 @@ class TestAssociationSendNGet:
         with pytest.raises(ValueError, match=msg):
             assoc.send_n_get(
                 [(0x7fe0,0x0010)],
-                DisplaySystemSOPClass, '1.2.840.10008.5.1.1.40.1',
-                meta_uid=BasicColorPrintManagementMetaSOPClass
+                DisplaySystem, '1.2.840.10008.5.1.1.40.1',
+                meta_uid=BasicColorPrintManagementMeta
             )
 
         assoc.release()
@@ -1189,12 +1189,12 @@ class TestAssociationSendNSet:
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
         ae.network_timeout = 5
-        ae.add_supported_context(ModalityPerformedProcedureStepSOPClass)
+        ae.add_supported_context(ModalityPerformedProcedureStep)
         scp = ae.start_server(
             ('', 11112), block=False, evt_handlers=[(evt.EVT_N_SET, handle)]
         )
 
-        ae.add_requested_context(ModalityPerformedProcedureStepSOPClass)
+        ae.add_requested_context(ModalityPerformedProcedureStep)
         assoc = ae.associate('localhost', 11112)
         assoc.release()
         assert assoc.is_released
@@ -1215,12 +1215,12 @@ class TestAssociationSendNSet:
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
         ae.network_timeout = 5
-        ae.add_supported_context(ModalityPerformedProcedureStepSOPClass)
+        ae.add_supported_context(ModalityPerformedProcedureStep)
         scp = ae.start_server(
             ('', 11112), block=False, evt_handlers=[(evt.EVT_N_SET, handle)]
         )
 
-        ae.add_requested_context(ModalityPerformedProcedureStepSOPClass)
+        ae.add_requested_context(ModalityPerformedProcedureStep)
         assoc = ae.associate('localhost', 11112)
         assert assoc.is_established
 
@@ -1230,7 +1230,7 @@ class TestAssociationSendNSet:
             r"for the SCU role"
         )
         with pytest.raises(ValueError, match=msg):
-            assoc.send_n_set(None, VerificationSOPClass, None)
+            assoc.send_n_set(None, Verification, None)
 
         assoc.release()
         assert assoc.is_released
@@ -1248,13 +1248,13 @@ class TestAssociationSendNSet:
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
         ae.network_timeout = 5
-        ae.add_supported_context(ModalityPerformedProcedureStepSOPClass)
+        ae.add_supported_context(ModalityPerformedProcedureStep)
         scp = ae.start_server(
             ('', 11112), block=False, evt_handlers=[(evt.EVT_N_SET, handle)]
         )
 
         ae.add_requested_context(
-            ModalityPerformedProcedureStepSOPClass,
+            ModalityPerformedProcedureStep,
             ExplicitVRLittleEndian
         )
         assoc = ae.associate('localhost', 11112)
@@ -1265,7 +1265,7 @@ class TestAssociationSendNSet:
         msg = r"Failed to encode the supplied 'Modification List' dataset"
         with pytest.raises(ValueError, match=msg):
             assoc.send_n_set(
-                mod_list, ModalityPerformedProcedureStepSOPClass, '1.2.3'
+                mod_list, ModalityPerformedProcedureStep, '1.2.3'
             )
 
         assoc.release()
@@ -1285,19 +1285,19 @@ class TestAssociationSendNSet:
         ae.acse_timeout = 5
         ae.dimse_timeout = 0.2
         ae.network_timeout = 5
-        ae.add_supported_context(ModalityPerformedProcedureStepSOPClass)
+        ae.add_supported_context(ModalityPerformedProcedureStep)
         scp = ae.start_server(
             ('', 11112), block=False, evt_handlers=[(evt.EVT_N_SET, handle)]
         )
 
-        ae.add_requested_context(ModalityPerformedProcedureStepSOPClass)
+        ae.add_requested_context(ModalityPerformedProcedureStep)
         assoc = ae.associate('localhost', 11112)
         assert assoc.is_established
 
         mod_list = Dataset()
         mod_list.PatientName = 'Test^test'
         status, ds = assoc.send_n_set(
-            mod_list, ModalityPerformedProcedureStepSOPClass,
+            mod_list, ModalityPerformedProcedureStep,
             '1.2.840.10008.5.1.1.40.1'
         )
 
@@ -1318,12 +1318,12 @@ class TestAssociationSendNSet:
         ae.acse_timeout = 5
         ae.dimse_timeout = 0.4
         ae.network_timeout = 5
-        ae.add_supported_context(ModalityPerformedProcedureStepSOPClass)
+        ae.add_supported_context(ModalityPerformedProcedureStep)
         scp = ae.start_server(
             ('', 11112), block=False, evt_handlers=[(evt.EVT_N_SET, handle)]
         )
 
-        ae.add_requested_context(ModalityPerformedProcedureStepSOPClass)
+        ae.add_requested_context(ModalityPerformedProcedureStep)
         assoc = ae.associate('localhost', 11112)
         assert assoc.is_established
 
@@ -1348,7 +1348,7 @@ class TestAssociationSendNSet:
         mod_list.PatientName = 'Test^test'
         status, ds = assoc.send_n_set(
             mod_list,
-            ModalityPerformedProcedureStepSOPClass,
+            ModalityPerformedProcedureStep,
             '1.2.840.10008.5.1.1.40.1'
         )
 
@@ -1367,12 +1367,12 @@ class TestAssociationSendNSet:
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
         ae.network_timeout = 5
-        ae.add_supported_context(ModalityPerformedProcedureStepSOPClass)
+        ae.add_supported_context(ModalityPerformedProcedureStep)
         scp = ae.start_server(
             ('', 11112), block=False, evt_handlers=[(evt.EVT_N_SET, handle)]
         )
 
-        ae.add_requested_context(ModalityPerformedProcedureStepSOPClass)
+        ae.add_requested_context(ModalityPerformedProcedureStep)
         assoc = ae.associate('localhost', 11112)
         assert assoc.is_established
 
@@ -1380,7 +1380,7 @@ class TestAssociationSendNSet:
         ds.PatientName = 'Test^test'
         status, ds = assoc.send_n_set(
             ds,
-            ModalityPerformedProcedureStepSOPClass,
+            ModalityPerformedProcedureStep,
             '1.2.840.10008.5.1.1.40.1'
         )
         assert status.Status == 0x0112
@@ -1399,12 +1399,12 @@ class TestAssociationSendNSet:
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
         ae.network_timeout = 5
-        ae.add_supported_context(ModalityPerformedProcedureStepSOPClass)
+        ae.add_supported_context(ModalityPerformedProcedureStep)
         scp = ae.start_server(
             ('', 11112), block=False, evt_handlers=[(evt.EVT_N_SET, handle)]
         )
 
-        ae.add_requested_context(ModalityPerformedProcedureStepSOPClass)
+        ae.add_requested_context(ModalityPerformedProcedureStep)
         assoc = ae.associate('localhost', 11112)
         assert assoc.is_established
 
@@ -1412,7 +1412,7 @@ class TestAssociationSendNSet:
         ds.PatientName = 'Test^test'
         status, ds = assoc.send_n_set(
             ds,
-            ModalityPerformedProcedureStepSOPClass,
+            ModalityPerformedProcedureStep,
             '1.2.840.10008.5.1.1.40.1'
         )
         assert status.Status == 0x0116
@@ -1429,12 +1429,12 @@ class TestAssociationSendNSet:
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
         ae.network_timeout = 5
-        ae.add_supported_context(ModalityPerformedProcedureStepSOPClass)
+        ae.add_supported_context(ModalityPerformedProcedureStep)
         scp = ae.start_server(
             ('', 11112), block=False, evt_handlers=[(evt.EVT_N_SET, handle)]
         )
 
-        ae.add_requested_context(ModalityPerformedProcedureStepSOPClass)
+        ae.add_requested_context(ModalityPerformedProcedureStep)
         assoc = ae.associate('localhost', 11112)
         assert assoc.is_established
 
@@ -1442,7 +1442,7 @@ class TestAssociationSendNSet:
         ds.PatientName = 'Test^test'
         status, ds = assoc.send_n_set(
             ds,
-            ModalityPerformedProcedureStepSOPClass,
+            ModalityPerformedProcedureStep,
             '1.2.840.10008.5.1.1.40.1'
         )
         assert status.Status == 0x0000
@@ -1459,12 +1459,12 @@ class TestAssociationSendNSet:
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
         ae.network_timeout = 5
-        ae.add_supported_context(ModalityPerformedProcedureStepSOPClass)
+        ae.add_supported_context(ModalityPerformedProcedureStep)
         scp = ae.start_server(
             ('', 11112), block=False, evt_handlers=[(evt.EVT_N_SET, handle)]
         )
 
-        ae.add_requested_context(ModalityPerformedProcedureStepSOPClass)
+        ae.add_requested_context(ModalityPerformedProcedureStep)
         assoc = ae.associate('localhost', 11112)
         assert assoc.is_established
 
@@ -1472,7 +1472,7 @@ class TestAssociationSendNSet:
         ds.PatientName = 'Test^test'
         status, ds = assoc.send_n_set(
             ds,
-            ModalityPerformedProcedureStepSOPClass,
+            ModalityPerformedProcedureStep,
             '1.2.840.10008.5.1.1.40.1'
         )
         assert status.Status == 0xFFF0
@@ -1487,8 +1487,8 @@ class TestAssociationSendNSet:
             return 0x0000, test
 
         self.ae = ae = AE()
-        ae.add_requested_context(ModalityPerformedProcedureStepSOPClass)
-        ae.add_supported_context(ModalityPerformedProcedureStepSOPClass)
+        ae.add_requested_context(ModalityPerformedProcedureStep)
+        ae.add_supported_context(ModalityPerformedProcedureStep)
 
         handlers = [(evt.EVT_N_SET, handle)]
         scp = ae.start_server(('', 11112), evt_handlers=handlers, block=False)
@@ -1504,7 +1504,7 @@ class TestAssociationSendNSet:
         ds.PatientName = 'Test^test'
         status, ds = assoc.send_n_set(
             ds,
-            ModalityPerformedProcedureStepSOPClass,
+            ModalityPerformedProcedureStep,
             '1.2.840.10008.5.1.1.40.1'
         )
 
@@ -1525,13 +1525,13 @@ class TestAssociationSendNSet:
         ae.acse_timeout = 5
         ae.dimse_timeout = 0.4
         ae.network_timeout = 5
-        ae.add_supported_context(ModalityPerformedProcedureStepSOPClass)
+        ae.add_supported_context(ModalityPerformedProcedureStep)
         scp = ae.start_server(
             ('', 11112), block=False, evt_handlers=[(evt.EVT_N_SET, handle)]
         )
 
         ae.add_requested_context(
-            ModalityPerformedProcedureStepSOPClass,
+            ModalityPerformedProcedureStep,
             ExplicitVRLittleEndian
         )
         assoc = ae.associate('localhost', 11112)
@@ -1570,7 +1570,7 @@ class TestAssociationSendNSet:
         mod_list.PatientName = 'Test^test'
         status, ds = assoc.send_n_set(
             mod_list,
-            ModalityPerformedProcedureStepSOPClass,
+            ModalityPerformedProcedureStep,
             '1.2.840.10008.5.1.1.40.1'
         )
 
@@ -1593,12 +1593,12 @@ class TestAssociationSendNSet:
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
         ae.network_timeout = 5
-        ae.add_supported_context(ModalityPerformedProcedureStepSOPClass)
+        ae.add_supported_context(ModalityPerformedProcedureStep)
         scp = ae.start_server(
             ('', 11112), block=False, evt_handlers=[(evt.EVT_N_SET, handle)]
         )
 
-        ae.add_requested_context(ModalityPerformedProcedureStepSOPClass)
+        ae.add_requested_context(ModalityPerformedProcedureStep)
         assoc = ae.associate('localhost', 11112)
         assert assoc.is_established
 
@@ -1606,7 +1606,7 @@ class TestAssociationSendNSet:
         ds.PatientName = 'Test^test'
         status, ds = assoc.send_n_set(
             ds,
-            ModalityPerformedProcedureStepSOPClass,
+            ModalityPerformedProcedureStep,
             '1.2.840.10008.5.1.1.40.1'
         )
         assert status.Status == 0xFFF0
@@ -1625,12 +1625,12 @@ class TestAssociationSendNSet:
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
         ae.network_timeout = 5
-        ae.add_supported_context(BasicGrayscalePrintManagementMetaSOPClass)
-        ae.add_supported_context(PrinterSOPClass)
+        ae.add_supported_context(BasicGrayscalePrintManagementMeta)
+        ae.add_supported_context(Printer)
         scp = ae.start_server(('', 11112), block=False)
 
-        ae.add_requested_context(BasicGrayscalePrintManagementMetaSOPClass)
-        ae.add_requested_context(PrinterSOPClass)
+        ae.add_requested_context(BasicGrayscalePrintManagementMeta)
+        ae.add_requested_context(Printer)
         assoc = ae.associate('localhost', 11112)
         assert assoc.is_established
 
@@ -1641,17 +1641,17 @@ class TestAssociationSendNSet:
         # Receives None, None from DummyDIMSE, aborts
         status, ds = assoc.send_n_set(
             ds,
-            PrinterSOPClass,
+            Printer,
             '1.2.840.10008.5.1.1.40.1',
-            meta_uid=BasicGrayscalePrintManagementMetaSOPClass
+            meta_uid=BasicGrayscalePrintManagementMeta
         )
         assert assoc.is_aborted
 
         scp.shutdown()
 
-        assert assoc.dimse.req.RequestedSOPClassUID == PrinterSOPClass
+        assert assoc.dimse.req.RequestedSOPClassUID == Printer
         assert assoc.dimse.context_id == 1
-        assert assoc._accepted_cx[1].abstract_syntax == BasicGrayscalePrintManagementMetaSOPClass
+        assert assoc._accepted_cx[1].abstract_syntax == BasicGrayscalePrintManagementMeta
 
     def test_meta_uid_good(self):
         """Test sending a request using a Meta SOP Class."""
@@ -1665,12 +1665,12 @@ class TestAssociationSendNSet:
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
         ae.network_timeout = 5
-        ae.add_supported_context(BasicGrayscalePrintManagementMetaSOPClass)
+        ae.add_supported_context(BasicGrayscalePrintManagementMeta)
         scp = ae.start_server(
             ('', 11112), block=False, evt_handlers=[(evt.EVT_N_SET, handle)]
         )
 
-        ae.add_requested_context(BasicGrayscalePrintManagementMetaSOPClass)
+        ae.add_requested_context(BasicGrayscalePrintManagementMeta)
         assoc = ae.associate('localhost', 11112)
         assert assoc.is_established
 
@@ -1678,9 +1678,9 @@ class TestAssociationSendNSet:
         ds.PatientName = 'Test^test'
         status, ds = assoc.send_n_set(
             ds,
-            ModalityPerformedProcedureStepSOPClass,
+            ModalityPerformedProcedureStep,
             '1.2.840.10008.5.1.1.40.1',
-            meta_uid=BasicGrayscalePrintManagementMetaSOPClass
+            meta_uid=BasicGrayscalePrintManagementMeta
         )
 
         assert status.Status == 0x0000
@@ -1696,15 +1696,15 @@ class TestAssociationSendNSet:
         req = handler_data[0].request
         cx = handler_data[0].context
 
-        assert req.RequestedSOPClassUID == ModalityPerformedProcedureStepSOPClass
-        assert cx.abstract_syntax == BasicGrayscalePrintManagementMetaSOPClass
+        assert req.RequestedSOPClassUID == ModalityPerformedProcedureStep
+        assert cx.abstract_syntax == BasicGrayscalePrintManagementMeta
 
     def test_meta_uid_bad(self):
         """Test sending a request using a Meta SOP Class."""
         def handle(event):
             ds = Dataset()
             ds.PatientName = 'Test'
-            ds.SOPClassUID = DisplaySystemSOPClass
+            ds.SOPClassUID = DisplaySystem
             ds.SOPInstanceUID = '1.2.3.4'
             return 0x0000, ds
 
@@ -1712,13 +1712,13 @@ class TestAssociationSendNSet:
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
         ae.network_timeout = 5
-        ae.add_supported_context(BasicGrayscalePrintManagementMetaSOPClass)
+        ae.add_supported_context(BasicGrayscalePrintManagementMeta)
         scp = ae.start_server(
             ('', 11112), block=False,
             evt_handlers=[(evt.EVT_N_SET, handle)]
         )
 
-        ae.add_requested_context(BasicGrayscalePrintManagementMetaSOPClass)
+        ae.add_requested_context(BasicGrayscalePrintManagementMeta)
         assoc = ae.associate('localhost', 11112)
         assert assoc.is_established
 
@@ -1733,9 +1733,9 @@ class TestAssociationSendNSet:
         with pytest.raises(ValueError, match=msg):
             assoc.send_n_set(
                 ds,
-                ModalityPerformedProcedureStepSOPClass,
+                ModalityPerformedProcedureStep,
                 '1.2.840.10008.5.1.1.40.1',
-                meta_uid=BasicColorPrintManagementMetaSOPClass
+                meta_uid=BasicColorPrintManagementMeta
             )
 
         assoc.release()
@@ -1763,12 +1763,12 @@ class TestAssociationSendNAction:
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
         ae.network_timeout = 5
-        ae.add_supported_context(ProceduralEventLoggingSOPClass)
+        ae.add_supported_context(ProceduralEventLogging)
         scp = ae.start_server(
             ('', 11112), block=False, evt_handlers=[(evt.EVT_N_ACTION, handle)]
         )
 
-        ae.add_requested_context(ProceduralEventLoggingSOPClass)
+        ae.add_requested_context(ProceduralEventLogging)
         assoc = ae.associate('localhost', 11112)
         assert assoc.is_established
 
@@ -1789,12 +1789,12 @@ class TestAssociationSendNAction:
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
         ae.network_timeout = 5
-        ae.add_supported_context(ProceduralEventLoggingSOPClass)
+        ae.add_supported_context(ProceduralEventLogging)
         scp = ae.start_server(
             ('', 11112), block=False, evt_handlers=[(evt.EVT_N_ACTION, handle)]
         )
 
-        ae.add_requested_context(ProceduralEventLoggingSOPClass)
+        ae.add_requested_context(ProceduralEventLogging)
         assoc = ae.associate('localhost', 11112)
         assert assoc.is_established
 
@@ -1803,7 +1803,7 @@ class TestAssociationSendNAction:
             r"accepted by the peer for the SCU role"
         )
         with pytest.raises(ValueError, match=msg):
-            assoc.send_n_action(None, 1, VerificationSOPClass, None)
+            assoc.send_n_action(None, 1, Verification, None)
         assoc.release()
         assert assoc.is_released
 
@@ -1818,13 +1818,13 @@ class TestAssociationSendNAction:
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
         ae.network_timeout = 5
-        ae.add_supported_context(ProceduralEventLoggingSOPClass)
+        ae.add_supported_context(ProceduralEventLogging)
         scp = ae.start_server(
             ('', 11112), block=False, evt_handlers=[(evt.EVT_N_ACTION, handle)]
         )
 
         ae.add_requested_context(
-            ProceduralEventLoggingSOPClass,
+            ProceduralEventLogging,
             ExplicitVRLittleEndian
         )
         assoc = ae.associate('localhost', 11112)
@@ -1834,7 +1834,7 @@ class TestAssociationSendNAction:
         ds.PerimeterValue = b'\x00\x01'
         msg = r"Failed to encode the supplied 'Action Information' dataset"
         with pytest.raises(ValueError, match=msg):
-            assoc.send_n_action(ds, 1, ProceduralEventLoggingSOPClass, '1.2.3')
+            assoc.send_n_action(ds, 1, ProceduralEventLogging, '1.2.3')
         assoc.release()
         assert assoc.is_released
 
@@ -1850,12 +1850,12 @@ class TestAssociationSendNAction:
         ae.acse_timeout = 5
         ae.dimse_timeout = 0.2
         ae.network_timeout = 5
-        ae.add_supported_context(ProceduralEventLoggingSOPClass)
+        ae.add_supported_context(ProceduralEventLogging)
         scp = ae.start_server(
             ('', 11112), block=False, evt_handlers=[(evt.EVT_N_ACTION, handle)]
         )
 
-        ae.add_requested_context(ProceduralEventLoggingSOPClass)
+        ae.add_requested_context(ProceduralEventLogging)
         assoc = ae.associate('localhost', 11112)
         assert assoc.is_established
 
@@ -1872,7 +1872,7 @@ class TestAssociationSendNAction:
         ds = Dataset()
         ds.PatientName = 'Test^test'
         status, ds = assoc.send_n_action(
-            ds, 1, ProceduralEventLoggingSOPClass, '1.2.840.10008.5.1.1.40.1'
+            ds, 1, ProceduralEventLogging, '1.2.840.10008.5.1.1.40.1'
         )
 
         assert status == Dataset()
@@ -1890,12 +1890,12 @@ class TestAssociationSendNAction:
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
         ae.network_timeout = 5
-        ae.add_supported_context(ProceduralEventLoggingSOPClass)
+        ae.add_supported_context(ProceduralEventLogging)
         scp = ae.start_server(
             ('', 11112), block=False, evt_handlers=[(evt.EVT_N_ACTION, handle)]
         )
 
-        ae.add_requested_context(ProceduralEventLoggingSOPClass)
+        ae.add_requested_context(ProceduralEventLogging)
         assoc = ae.associate('localhost', 11112)
         assert assoc.is_established
 
@@ -1919,7 +1919,7 @@ class TestAssociationSendNAction:
         ds = Dataset()
         ds.PatientName = 'Test^test'
         status, ds = assoc.send_n_action(
-            ds, 1, ProceduralEventLoggingSOPClass, '1.2.840.10008.5.1.1.40.1'
+            ds, 1, ProceduralEventLogging, '1.2.840.10008.5.1.1.40.1'
         )
         assert status == Dataset()
         assert ds is None
@@ -1936,19 +1936,19 @@ class TestAssociationSendNAction:
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
         ae.network_timeout = 5
-        ae.add_supported_context(ProceduralEventLoggingSOPClass)
+        ae.add_supported_context(ProceduralEventLogging)
         scp = ae.start_server(
             ('', 11112), block=False, evt_handlers=[(evt.EVT_N_ACTION, handle)]
         )
 
-        ae.add_requested_context(ProceduralEventLoggingSOPClass)
+        ae.add_requested_context(ProceduralEventLogging)
         assoc = ae.associate('localhost', 11112)
         assert assoc.is_established
 
         ds = Dataset()
         ds.PatientName = 'Test^test'
         status, ds = assoc.send_n_action(
-            ds, 1, ProceduralEventLoggingSOPClass, '1.2.840.10008.5.1.1.40.1'
+            ds, 1, ProceduralEventLogging, '1.2.840.10008.5.1.1.40.1'
         )
         assert status.Status == 0x0112
         assert ds is None
@@ -1966,19 +1966,19 @@ class TestAssociationSendNAction:
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
         ae.network_timeout = 5
-        ae.add_supported_context(ProceduralEventLoggingSOPClass)
+        ae.add_supported_context(ProceduralEventLogging)
         scp = ae.start_server(
             ('', 11112), block=False, evt_handlers=[(evt.EVT_N_ACTION, handle)]
         )
 
-        ae.add_requested_context(ProceduralEventLoggingSOPClass)
+        ae.add_requested_context(ProceduralEventLogging)
         assoc = ae.associate('localhost', 11112)
         assert assoc.is_established
 
         ds = Dataset()
         ds.PatientName = 'Test^test'
         status, ds = assoc.send_n_action(
-            ds, 1, ProceduralEventLoggingSOPClass, '1.2.840.10008.5.1.1.40.1'
+            ds, 1, ProceduralEventLogging, '1.2.840.10008.5.1.1.40.1'
         )
         assert status.Status == 0x0116
         assert ds.PatientName == 'Test^test'
@@ -1996,19 +1996,19 @@ class TestAssociationSendNAction:
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
         ae.network_timeout = 5
-        ae.add_supported_context(ProceduralEventLoggingSOPClass)
+        ae.add_supported_context(ProceduralEventLogging)
         scp = ae.start_server(
             ('', 11112), block=False, evt_handlers=[(evt.EVT_N_ACTION, handle)]
         )
 
-        ae.add_requested_context(ProceduralEventLoggingSOPClass)
+        ae.add_requested_context(ProceduralEventLogging)
         assoc = ae.associate('localhost', 11112)
         assert assoc.is_established
 
         ds = Dataset()
         ds.PatientName = 'Test^test'
         status, ds = assoc.send_n_action(
-            ds, 1, ProceduralEventLoggingSOPClass, '1.2.840.10008.5.1.1.40.1'
+            ds, 1, ProceduralEventLogging, '1.2.840.10008.5.1.1.40.1'
         )
         assert status.Status == 0x0000
         assert ds.PatientName == 'Test^test'
@@ -2026,19 +2026,19 @@ class TestAssociationSendNAction:
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
         ae.network_timeout = 5
-        ae.add_supported_context(ProceduralEventLoggingSOPClass)
+        ae.add_supported_context(ProceduralEventLogging)
         scp = ae.start_server(
             ('', 11112), block=False, evt_handlers=[(evt.EVT_N_ACTION, handle)]
         )
 
-        ae.add_requested_context(ProceduralEventLoggingSOPClass)
+        ae.add_requested_context(ProceduralEventLogging)
         assoc = ae.associate('localhost', 11112)
         assert assoc.is_established
 
         ds = Dataset()
         ds.PatientName = 'Test^test'
         status, ds = assoc.send_n_action(
-            ds, 1, ProceduralEventLoggingSOPClass, '1.2.840.10008.5.1.1.40.1'
+            ds, 1, ProceduralEventLogging, '1.2.840.10008.5.1.1.40.1'
         )
         assert status.Status == 0xFFF0
         assert ds is None
@@ -2056,12 +2056,12 @@ class TestAssociationSendNAction:
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
         ae.network_timeout = 5
-        ae.add_supported_context(PrintJobSOPClass)
+        ae.add_supported_context(PrintJob)
         scp = ae.start_server(
             ('', 11112), block=False, evt_handlers=[(evt.EVT_N_ACTION, handle)]
         )
 
-        ae.add_requested_context(PrintJobSOPClass)
+        ae.add_requested_context(PrintJob)
         assoc = ae.associate('localhost', 11112)
         assert assoc.is_established
 
@@ -2094,7 +2094,7 @@ class TestAssociationSendNAction:
         ds = Dataset()
         ds.PatientName = 'Test^test'
         status, ds = assoc.send_n_action(
-            ds, 1, PrintJobSOPClass, '1.2.840.10008.5.1.1.40.1'
+            ds, 1, PrintJob, '1.2.840.10008.5.1.1.40.1'
         )
 
         assert status.Status == 0x0110
@@ -2115,19 +2115,19 @@ class TestAssociationSendNAction:
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
         ae.network_timeout = 5
-        ae.add_supported_context(PrintJobSOPClass)
+        ae.add_supported_context(PrintJob)
         scp = ae.start_server(
             ('', 11112), block=False, evt_handlers=[(evt.EVT_N_ACTION, handle)]
         )
 
-        ae.add_requested_context(PrintJobSOPClass)
+        ae.add_requested_context(PrintJob)
         assoc = ae.associate('localhost', 11112)
         assert assoc.is_established
 
         ds = Dataset()
         ds.PatientName = 'Test^test'
         status, ds = assoc.send_n_action(
-            ds, 1, PrintJobSOPClass, '1.2.840.10008.5.1.1.40.1'
+            ds, 1, PrintJob, '1.2.840.10008.5.1.1.40.1'
         )
         assert status.Status == 0xFFF0
         assert status.ErrorComment == 'Some comment'
@@ -2144,12 +2144,12 @@ class TestAssociationSendNAction:
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
         ae.network_timeout = 5
-        ae.add_supported_context(BasicGrayscalePrintManagementMetaSOPClass)
-        ae.add_supported_context(PrinterSOPClass)
+        ae.add_supported_context(BasicGrayscalePrintManagementMeta)
+        ae.add_supported_context(Printer)
         scp = ae.start_server(('', 11112), block=False)
 
-        ae.add_requested_context(BasicGrayscalePrintManagementMetaSOPClass)
-        ae.add_requested_context(PrinterSOPClass)
+        ae.add_requested_context(BasicGrayscalePrintManagementMeta)
+        ae.add_requested_context(Printer)
         assoc = ae.associate('localhost', 11112)
         assert assoc.is_established
 
@@ -2160,17 +2160,17 @@ class TestAssociationSendNAction:
         # Receives None, None from DummyDIMSE, aborts
         status, ds = assoc.send_n_action(
             ds, 1,
-            PrinterSOPClass,
+            Printer,
             '1.2.840.10008.5.1.1.40.1',
-            meta_uid=BasicGrayscalePrintManagementMetaSOPClass
+            meta_uid=BasicGrayscalePrintManagementMeta
         )
         assert assoc.is_aborted
 
         scp.shutdown()
 
-        assert assoc.dimse.req.RequestedSOPClassUID == PrinterSOPClass
+        assert assoc.dimse.req.RequestedSOPClassUID == Printer
         assert assoc.dimse.context_id == 1
-        assert assoc._accepted_cx[1].abstract_syntax == BasicGrayscalePrintManagementMetaSOPClass
+        assert assoc._accepted_cx[1].abstract_syntax == BasicGrayscalePrintManagementMeta
 
     def test_meta_uid_good(self):
         """Test sending a request using a Meta SOP Class."""
@@ -2184,20 +2184,20 @@ class TestAssociationSendNAction:
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
         ae.network_timeout = 5
-        ae.add_supported_context(BasicGrayscalePrintManagementMetaSOPClass)
+        ae.add_supported_context(BasicGrayscalePrintManagementMeta)
         scp = ae.start_server(
             ('', 11112), block=False, evt_handlers=[(evt.EVT_N_ACTION, handle)]
         )
 
-        ae.add_requested_context(BasicGrayscalePrintManagementMetaSOPClass)
+        ae.add_requested_context(BasicGrayscalePrintManagementMeta)
         assoc = ae.associate('localhost', 11112)
         assert assoc.is_established
 
         ds = Dataset()
         ds.PatientName = 'Test^test'
         status, ds = assoc.send_n_action(
-            ds, 1, ProceduralEventLoggingSOPClass, '1.2.840.10008.5.1.1.40.1',
-            meta_uid=BasicGrayscalePrintManagementMetaSOPClass
+            ds, 1, ProceduralEventLogging, '1.2.840.10008.5.1.1.40.1',
+            meta_uid=BasicGrayscalePrintManagementMeta
         )
         assert status.Status == 0x0000
         assert ds.PatientName == 'Test^test'
@@ -2209,15 +2209,15 @@ class TestAssociationSendNAction:
         req = handler_data[0].request
         cx = handler_data[0].context
 
-        assert req.RequestedSOPClassUID == ProceduralEventLoggingSOPClass
-        assert cx.abstract_syntax == BasicGrayscalePrintManagementMetaSOPClass
+        assert req.RequestedSOPClassUID == ProceduralEventLogging
+        assert cx.abstract_syntax == BasicGrayscalePrintManagementMeta
 
     def test_meta_uid_bad(self):
         """Test sending a request using a Meta SOP Class."""
         def handle(event):
             ds = Dataset()
             ds.PatientName = 'Test'
-            ds.SOPClassUID = DisplaySystemSOPClass
+            ds.SOPClassUID = DisplaySystem
             ds.SOPInstanceUID = '1.2.3.4'
             return 0x0000, ds
 
@@ -2225,13 +2225,13 @@ class TestAssociationSendNAction:
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
         ae.network_timeout = 5
-        ae.add_supported_context(BasicGrayscalePrintManagementMetaSOPClass)
+        ae.add_supported_context(BasicGrayscalePrintManagementMeta)
         scp = ae.start_server(
             ('', 11112), block=False,
             evt_handlers=[(evt.EVT_N_ACTION, handle)]
         )
 
-        ae.add_requested_context(BasicGrayscalePrintManagementMetaSOPClass)
+        ae.add_requested_context(BasicGrayscalePrintManagementMeta)
         assoc = ae.associate('localhost', 11112)
         assert assoc.is_established
 
@@ -2245,9 +2245,9 @@ class TestAssociationSendNAction:
         )
         with pytest.raises(ValueError, match=msg):
             assoc.send_n_action(
-                ds, 1, ProceduralEventLoggingSOPClass,
+                ds, 1, ProceduralEventLogging,
                 '1.2.840.10008.5.1.1.40.1',
-                meta_uid=BasicColorPrintManagementMetaSOPClass
+                meta_uid=BasicColorPrintManagementMeta
             )
 
         assoc.release()
@@ -2275,12 +2275,12 @@ class TestAssociationSendNCreate:
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
         ae.network_timeout = 5
-        ae.add_supported_context(ModalityPerformedProcedureStepSOPClass)
+        ae.add_supported_context(ModalityPerformedProcedureStep)
 
         handlers = [(evt.EVT_N_CREATE, handle)]
         scp = ae.start_server(('', 11112), evt_handlers=handlers, block=False)
 
-        ae.add_requested_context(ModalityPerformedProcedureStepSOPClass)
+        ae.add_requested_context(ModalityPerformedProcedureStep)
         assoc = ae.associate('localhost', 11112)
         assert assoc.is_established
 
@@ -2301,12 +2301,12 @@ class TestAssociationSendNCreate:
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
         ae.network_timeout = 5
-        ae.add_supported_context(ModalityPerformedProcedureStepSOPClass)
+        ae.add_supported_context(ModalityPerformedProcedureStep)
 
         handlers = [(evt.EVT_N_CREATE, handle)]
         scp = ae.start_server(('', 11112), evt_handlers=handlers, block=False)
 
-        ae.add_requested_context(ModalityPerformedProcedureStepSOPClass)
+        ae.add_requested_context(ModalityPerformedProcedureStep)
         assoc = ae.associate('localhost', 11112)
         assert assoc.is_established
 
@@ -2315,7 +2315,7 @@ class TestAssociationSendNCreate:
             r"accepted by the peer for the SCU role"
         )
         with pytest.raises(ValueError, match=msg):
-            assoc.send_n_create(None, VerificationSOPClass, None)
+            assoc.send_n_create(None, Verification, None)
         assoc.release()
         assert assoc.is_released
 
@@ -2330,13 +2330,13 @@ class TestAssociationSendNCreate:
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
         ae.network_timeout = 5
-        ae.add_supported_context(ModalityPerformedProcedureStepSOPClass)
+        ae.add_supported_context(ModalityPerformedProcedureStep)
 
         handlers = [(evt.EVT_N_CREATE, handle)]
         scp = ae.start_server(('', 11112), evt_handlers=handlers, block=False)
 
         ae.add_requested_context(
-            ModalityPerformedProcedureStepSOPClass,
+            ModalityPerformedProcedureStep,
             ExplicitVRLittleEndian
         )
         assoc = ae.associate('localhost', 11112)
@@ -2347,7 +2347,7 @@ class TestAssociationSendNCreate:
         msg = r"Failed to encode the supplied 'Attribute List' dataset"
         with pytest.raises(ValueError, match=msg):
             assoc.send_n_create(
-                ds, ModalityPerformedProcedureStepSOPClass, '1.2.3'
+                ds, ModalityPerformedProcedureStep, '1.2.3'
             )
         assoc.release()
         assert assoc.is_released
@@ -2364,19 +2364,19 @@ class TestAssociationSendNCreate:
         ae.acse_timeout = 5
         ae.dimse_timeout = 0.2
         ae.network_timeout = 5
-        ae.add_supported_context(ModalityPerformedProcedureStepSOPClass)
+        ae.add_supported_context(ModalityPerformedProcedureStep)
 
         handlers = [(evt.EVT_N_CREATE, handle)]
         scp = ae.start_server(('', 11112), evt_handlers=handlers, block=False)
 
-        ae.add_requested_context(ModalityPerformedProcedureStepSOPClass)
+        ae.add_requested_context(ModalityPerformedProcedureStep)
         assoc = ae.associate('localhost', 11112)
         assert assoc.is_established
 
         ds = Dataset()
         ds.PatientName = 'Test^test'
         status, ds = assoc.send_n_create(
-            ds, ModalityPerformedProcedureStepSOPClass,
+            ds, ModalityPerformedProcedureStep,
             '1.2.840.10008.5.1.1.40.1'
         )
 
@@ -2395,12 +2395,12 @@ class TestAssociationSendNCreate:
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
         ae.network_timeout = 5
-        ae.add_supported_context(ModalityPerformedProcedureStepSOPClass)
+        ae.add_supported_context(ModalityPerformedProcedureStep)
 
         handlers = [(evt.EVT_N_CREATE, handle)]
         scp = ae.start_server(('', 11112), evt_handlers=handlers, block=False)
 
-        ae.add_requested_context(ModalityPerformedProcedureStepSOPClass)
+        ae.add_requested_context(ModalityPerformedProcedureStep)
         assoc = ae.associate('localhost', 11112)
         assert assoc.is_established
 
@@ -2424,7 +2424,7 @@ class TestAssociationSendNCreate:
         ds = Dataset()
         ds.PatientName = 'Test^test'
         status, ds = assoc.send_n_create(
-            ds, ModalityPerformedProcedureStepSOPClass,
+            ds, ModalityPerformedProcedureStep,
             '1.2.840.10008.5.1.1.40.1'
         )
         assert status == Dataset()
@@ -2442,19 +2442,19 @@ class TestAssociationSendNCreate:
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
         ae.network_timeout = 5
-        ae.add_supported_context(ModalityPerformedProcedureStepSOPClass)
+        ae.add_supported_context(ModalityPerformedProcedureStep)
 
         handlers = [(evt.EVT_N_CREATE, handle)]
         scp = ae.start_server(('', 11112), evt_handlers=handlers, block=False)
 
-        ae.add_requested_context(ModalityPerformedProcedureStepSOPClass)
+        ae.add_requested_context(ModalityPerformedProcedureStep)
         assoc = ae.associate('localhost', 11112)
         assert assoc.is_established
 
         ds = Dataset()
         ds.PatientName = 'Test^test'
         status, ds = assoc.send_n_create(
-            ds, ModalityPerformedProcedureStepSOPClass,
+            ds, ModalityPerformedProcedureStep,
             '1.2.840.10008.5.1.1.40.1'
         )
         assert status.Status == 0x0112
@@ -2473,19 +2473,19 @@ class TestAssociationSendNCreate:
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
         ae.network_timeout = 5
-        ae.add_supported_context(ModalityPerformedProcedureStepSOPClass)
+        ae.add_supported_context(ModalityPerformedProcedureStep)
 
         handlers = [(evt.EVT_N_CREATE, handle)]
         scp = ae.start_server(('', 11112), evt_handlers=handlers, block=False)
 
-        ae.add_requested_context(ModalityPerformedProcedureStepSOPClass)
+        ae.add_requested_context(ModalityPerformedProcedureStep)
         assoc = ae.associate('localhost', 11112)
         assert assoc.is_established
 
         ds = Dataset()
         ds.PatientName = 'Test^test'
         status, ds = assoc.send_n_create(
-            ds, ModalityPerformedProcedureStepSOPClass,
+            ds, ModalityPerformedProcedureStep,
             '1.2.840.10008.5.1.1.40.1'
         )
         assert status.Status == 0x0116
@@ -2504,19 +2504,19 @@ class TestAssociationSendNCreate:
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
         ae.network_timeout = 5
-        ae.add_supported_context(ModalityPerformedProcedureStepSOPClass)
+        ae.add_supported_context(ModalityPerformedProcedureStep)
 
         handlers = [(evt.EVT_N_CREATE, handle)]
         scp = ae.start_server(('', 11112), evt_handlers=handlers, block=False)
 
-        ae.add_requested_context(ModalityPerformedProcedureStepSOPClass)
+        ae.add_requested_context(ModalityPerformedProcedureStep)
         assoc = ae.associate('localhost', 11112)
         assert assoc.is_established
 
         ds = Dataset()
         ds.PatientName = 'Test^test'
         status, ds = assoc.send_n_create(
-            ds, ModalityPerformedProcedureStepSOPClass,
+            ds, ModalityPerformedProcedureStep,
             '1.2.840.10008.5.1.1.40.1'
         )
         assert status.Status == 0x0000
@@ -2535,19 +2535,19 @@ class TestAssociationSendNCreate:
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
         ae.network_timeout = 5
-        ae.add_supported_context(ModalityPerformedProcedureStepSOPClass)
+        ae.add_supported_context(ModalityPerformedProcedureStep)
 
         handlers = [(evt.EVT_N_CREATE, handle)]
         scp = ae.start_server(('', 11112), evt_handlers=handlers, block=False)
 
-        ae.add_requested_context(ModalityPerformedProcedureStepSOPClass)
+        ae.add_requested_context(ModalityPerformedProcedureStep)
         assoc = ae.associate('localhost', 11112)
         assert assoc.is_established
 
         ds = Dataset()
         ds.PatientName = 'Test^test'
         status, ds = assoc.send_n_create(
-            ds, ModalityPerformedProcedureStepSOPClass,
+            ds, ModalityPerformedProcedureStep,
             '1.2.840.10008.5.1.1.40.1'
         )
         assert status.Status == 0xFFF0
@@ -2564,8 +2564,8 @@ class TestAssociationSendNCreate:
             return 0x0000, test
 
         self.ae = ae = AE()
-        ae.add_requested_context(ModalityPerformedProcedureStepSOPClass)
-        ae.add_supported_context(ModalityPerformedProcedureStepSOPClass)
+        ae.add_requested_context(ModalityPerformedProcedureStep)
+        ae.add_supported_context(ModalityPerformedProcedureStep)
 
         handlers = [(evt.EVT_N_CREATE, handle)]
         scp = ae.start_server(('', 11112), evt_handlers=handlers, block=False)
@@ -2581,7 +2581,7 @@ class TestAssociationSendNCreate:
         ds.PatientName = 'Test^test'
         status, ds = assoc.send_n_create(
             ds,
-            ModalityPerformedProcedureStepSOPClass,
+            ModalityPerformedProcedureStep,
             '1.2.840.10008.5.1.1.40.1'
         )
 
@@ -2600,12 +2600,12 @@ class TestAssociationSendNCreate:
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
         ae.network_timeout = 5
-        ae.add_supported_context(ModalityPerformedProcedureStepSOPClass)
+        ae.add_supported_context(ModalityPerformedProcedureStep)
 
         handlers = [(evt.EVT_N_CREATE, handle)]
         scp = ae.start_server(('', 11112), evt_handlers=handlers, block=False)
 
-        ae.add_requested_context(ModalityPerformedProcedureStepSOPClass)
+        ae.add_requested_context(ModalityPerformedProcedureStep)
         assoc = ae.associate('localhost', 11112)
         assert assoc.is_established
 
@@ -2642,7 +2642,7 @@ class TestAssociationSendNCreate:
         ds = Dataset()
         ds.PatientName = 'Test^test'
         status, ds = assoc.send_n_create(
-            ds, ModalityPerformedProcedureStepSOPClass,
+            ds, ModalityPerformedProcedureStep,
             '1.2.840.10008.5.1.1.40.1'
         )
         assert status.Status == 0x0110
@@ -2665,19 +2665,19 @@ class TestAssociationSendNCreate:
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
         ae.network_timeout = 5
-        ae.add_supported_context(ModalityPerformedProcedureStepSOPClass)
+        ae.add_supported_context(ModalityPerformedProcedureStep)
 
         handlers = [(evt.EVT_N_CREATE, handle)]
         scp = ae.start_server(('', 11112), evt_handlers=handlers, block=False)
 
-        ae.add_requested_context(ModalityPerformedProcedureStepSOPClass)
+        ae.add_requested_context(ModalityPerformedProcedureStep)
         assoc = ae.associate('localhost', 11112)
         assert assoc.is_established
 
         ds = Dataset()
         ds.PatientName = 'Test^test'
         status, ds = assoc.send_n_create(
-            ds, ModalityPerformedProcedureStepSOPClass,
+            ds, ModalityPerformedProcedureStep,
             '1.2.840.10008.5.1.1.40.1'
         )
         assert status.Status == 0xFFF0
@@ -2695,12 +2695,12 @@ class TestAssociationSendNCreate:
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
         ae.network_timeout = 5
-        ae.add_supported_context(BasicGrayscalePrintManagementMetaSOPClass)
-        ae.add_supported_context(PrinterSOPClass)
+        ae.add_supported_context(BasicGrayscalePrintManagementMeta)
+        ae.add_supported_context(Printer)
         scp = ae.start_server(('', 11112), block=False)
 
-        ae.add_requested_context(BasicGrayscalePrintManagementMetaSOPClass)
-        ae.add_requested_context(PrinterSOPClass)
+        ae.add_requested_context(BasicGrayscalePrintManagementMeta)
+        ae.add_requested_context(Printer)
         assoc = ae.associate('localhost', 11112)
         assert assoc.is_established
 
@@ -2711,17 +2711,17 @@ class TestAssociationSendNCreate:
         # Receives None, None from DummyDIMSE, aborts
         status, ds = assoc.send_n_create(
             ds,
-            PrinterSOPClass,
+            Printer,
             '1.2.840.10008.5.1.1.40.1',
-            meta_uid=BasicGrayscalePrintManagementMetaSOPClass
+            meta_uid=BasicGrayscalePrintManagementMeta
         )
         assert assoc.is_aborted
 
         scp.shutdown()
 
-        assert assoc.dimse.req.AffectedSOPClassUID == PrinterSOPClass
+        assert assoc.dimse.req.AffectedSOPClassUID == Printer
         assert assoc.dimse.context_id == 1
-        assert assoc._accepted_cx[1].abstract_syntax == BasicGrayscalePrintManagementMetaSOPClass
+        assert assoc._accepted_cx[1].abstract_syntax == BasicGrayscalePrintManagementMeta
 
     def test_meta_uid_good(self):
         """Test sending a request using a Meta SOP Class."""
@@ -2735,21 +2735,21 @@ class TestAssociationSendNCreate:
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
         ae.network_timeout = 5
-        ae.add_supported_context(BasicGrayscalePrintManagementMetaSOPClass)
+        ae.add_supported_context(BasicGrayscalePrintManagementMeta)
         scp = ae.start_server(
             ('', 11112), block=False, evt_handlers=[(evt.EVT_N_CREATE, handle)]
         )
 
-        ae.add_requested_context(BasicGrayscalePrintManagementMetaSOPClass)
+        ae.add_requested_context(BasicGrayscalePrintManagementMeta)
         assoc = ae.associate('localhost', 11112)
         assert assoc.is_established
 
         ds = Dataset()
         ds.PatientName = 'Test^test'
         status, ds = assoc.send_n_create(
-            ds, ModalityPerformedProcedureStepSOPClass,
+            ds, ModalityPerformedProcedureStep,
             '1.2.840.10008.5.1.1.40.1',
-            meta_uid=BasicGrayscalePrintManagementMetaSOPClass
+            meta_uid=BasicGrayscalePrintManagementMeta
         )
         assert status.Status == 0x0000
         assert ds.PatientName == 'Test^test'
@@ -2761,15 +2761,15 @@ class TestAssociationSendNCreate:
         req = handler_data[0].request
         cx = handler_data[0].context
 
-        assert req.AffectedSOPClassUID == ModalityPerformedProcedureStepSOPClass
-        assert cx.abstract_syntax == BasicGrayscalePrintManagementMetaSOPClass
+        assert req.AffectedSOPClassUID == ModalityPerformedProcedureStep
+        assert cx.abstract_syntax == BasicGrayscalePrintManagementMeta
 
     def test_meta_uid_bad(self):
         """Test sending a request using a Meta SOP Class."""
         def handle(event):
             ds = Dataset()
             ds.PatientName = 'Test'
-            ds.SOPClassUID = DisplaySystemSOPClass
+            ds.SOPClassUID = DisplaySystem
             ds.SOPInstanceUID = '1.2.3.4'
             return 0x0000, ds
 
@@ -2777,13 +2777,13 @@ class TestAssociationSendNCreate:
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
         ae.network_timeout = 5
-        ae.add_supported_context(BasicGrayscalePrintManagementMetaSOPClass)
+        ae.add_supported_context(BasicGrayscalePrintManagementMeta)
         scp = ae.start_server(
             ('', 11112), block=False,
             evt_handlers=[(evt.EVT_N_CREATE, handle)]
         )
 
-        ae.add_requested_context(BasicGrayscalePrintManagementMetaSOPClass)
+        ae.add_requested_context(BasicGrayscalePrintManagementMeta)
         assoc = ae.associate('localhost', 11112)
         assert assoc.is_established
 
@@ -2797,9 +2797,9 @@ class TestAssociationSendNCreate:
         )
         with pytest.raises(ValueError, match=msg):
             assoc.send_n_create(
-                ds, ModalityPerformedProcedureStepSOPClass,
+                ds, ModalityPerformedProcedureStep,
                 '1.2.840.10008.5.1.1.40.1',
-                meta_uid=BasicColorPrintManagementMetaSOPClass
+                meta_uid=BasicColorPrintManagementMeta
             )
 
         assoc.release()
@@ -2827,12 +2827,12 @@ class TestAssociationSendNDelete:
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
         ae.network_timeout = 5
-        ae.add_supported_context(BasicFilmSessionSOPClass)
+        ae.add_supported_context(BasicFilmSession)
         scp = ae.start_server(
             ('', 11112), block=False, evt_handlers=[(evt.EVT_N_DELETE, handle)]
         )
 
-        ae.add_requested_context(BasicFilmSessionSOPClass)
+        ae.add_requested_context(BasicFilmSession)
         assoc = ae.associate('localhost', 11112)
         assert assoc.is_established
 
@@ -2853,12 +2853,12 @@ class TestAssociationSendNDelete:
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
         ae.network_timeout = 5
-        ae.add_supported_context(BasicFilmSessionSOPClass)
+        ae.add_supported_context(BasicFilmSession)
         scp = ae.start_server(
             ('', 11112), block=False, evt_handlers=[(evt.EVT_N_DELETE, handle)]
         )
 
-        ae.add_requested_context(BasicFilmSessionSOPClass)
+        ae.add_requested_context(BasicFilmSession)
         assoc = ae.associate('localhost', 11112)
         assert assoc.is_established
 
@@ -2867,7 +2867,7 @@ class TestAssociationSendNDelete:
             r"accepted by the peer for the SCU role"
         )
         with pytest.raises(ValueError, match=msg):
-            assoc.send_n_delete(VerificationSOPClass, None)
+            assoc.send_n_delete(Verification, None)
         assoc.release()
         assert assoc.is_released
 
@@ -2883,16 +2883,16 @@ class TestAssociationSendNDelete:
         ae.acse_timeout = 5
         ae.dimse_timeout = 0.2
         ae.network_timeout = 5
-        ae.add_supported_context(BasicFilmSessionSOPClass)
+        ae.add_supported_context(BasicFilmSession)
         scp = ae.start_server(
             ('', 11112), block=False, evt_handlers=[(evt.EVT_N_DELETE, handle)]
         )
 
-        ae.add_requested_context(BasicFilmSessionSOPClass)
+        ae.add_requested_context(BasicFilmSession)
         assoc = ae.associate('localhost', 11112)
         assert assoc.is_established
 
-        status = assoc.send_n_delete(BasicFilmSessionSOPClass,
+        status = assoc.send_n_delete(BasicFilmSession,
                                      '1.2.840.10008.5.1.1.40.1')
         assert status == Dataset()
         assert assoc.is_aborted
@@ -2908,12 +2908,12 @@ class TestAssociationSendNDelete:
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
         ae.network_timeout = 5
-        ae.add_supported_context(BasicFilmSessionSOPClass)
+        ae.add_supported_context(BasicFilmSession)
         scp = ae.start_server(
             ('', 11112), block=False, evt_handlers=[(evt.EVT_N_DELETE, handle)]
         )
 
-        ae.add_requested_context(BasicFilmSessionSOPClass)
+        ae.add_requested_context(BasicFilmSession)
         assoc = ae.associate('localhost', 11112)
         assert assoc.is_established
 
@@ -2934,7 +2934,7 @@ class TestAssociationSendNDelete:
         while not assoc._is_paused:
             time.sleep(0.01)
         assoc.dimse = DummyDIMSE()
-        status = assoc.send_n_delete(BasicFilmSessionSOPClass,
+        status = assoc.send_n_delete(BasicFilmSession,
                                      '1.2.840.10008.5.1.1.40.1')
         assert status == Dataset()
         assert assoc.is_aborted
@@ -2950,16 +2950,16 @@ class TestAssociationSendNDelete:
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
         ae.network_timeout = 5
-        ae.add_supported_context(BasicFilmSessionSOPClass)
+        ae.add_supported_context(BasicFilmSession)
         scp = ae.start_server(
             ('', 11112), block=False, evt_handlers=[(evt.EVT_N_DELETE, handle)]
         )
 
-        ae.add_requested_context(BasicFilmSessionSOPClass)
+        ae.add_requested_context(BasicFilmSession)
         assoc = ae.associate('localhost', 11112)
         assert assoc.is_established
 
-        status = assoc.send_n_delete(BasicFilmSessionSOPClass,
+        status = assoc.send_n_delete(BasicFilmSession,
                                      '1.2.840.10008.5.1.1.40.1')
         assert status.Status == 0x0112
         assoc.release()
@@ -2976,16 +2976,16 @@ class TestAssociationSendNDelete:
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
         ae.network_timeout = 5
-        ae.add_supported_context(BasicFilmSessionSOPClass)
+        ae.add_supported_context(BasicFilmSession)
         scp = ae.start_server(
             ('', 11112), block=False, evt_handlers=[(evt.EVT_N_DELETE, handle)]
         )
 
-        ae.add_requested_context(BasicFilmSessionSOPClass)
+        ae.add_requested_context(BasicFilmSession)
         assoc = ae.associate('localhost', 11112)
         assert assoc.is_established
 
-        status = assoc.send_n_delete(BasicFilmSessionSOPClass,
+        status = assoc.send_n_delete(BasicFilmSession,
                                      '1.2.840.10008.5.1.1.40.1')
         assert status.Status == 0x0000
         assoc.release()
@@ -3002,16 +3002,16 @@ class TestAssociationSendNDelete:
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
         ae.network_timeout = 5
-        ae.add_supported_context(BasicFilmSessionSOPClass)
+        ae.add_supported_context(BasicFilmSession)
         scp = ae.start_server(
             ('', 11112), block=False, evt_handlers=[(evt.EVT_N_DELETE, handle)]
         )
 
-        ae.add_requested_context(BasicFilmSessionSOPClass)
+        ae.add_requested_context(BasicFilmSession)
         assoc = ae.associate('localhost', 11112)
         assert assoc.is_established
 
-        status = assoc.send_n_delete(BasicFilmSessionSOPClass,
+        status = assoc.send_n_delete(BasicFilmSession,
                                      '1.2.840.10008.5.1.1.40.1')
         assert status.Status == 0xFFF0
         assoc.release()
@@ -3032,16 +3032,16 @@ class TestAssociationSendNDelete:
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
         ae.network_timeout = 5
-        ae.add_supported_context(BasicFilmSessionSOPClass)
+        ae.add_supported_context(BasicFilmSession)
         scp = ae.start_server(
             ('', 11112), block=False, evt_handlers=[(evt.EVT_N_DELETE, handle)]
         )
 
-        ae.add_requested_context(BasicFilmSessionSOPClass)
+        ae.add_requested_context(BasicFilmSession)
         assoc = ae.associate('localhost', 11112)
         assert assoc.is_established
 
-        status = assoc.send_n_delete(BasicFilmSessionSOPClass,
+        status = assoc.send_n_delete(BasicFilmSession,
                                      '1.2.840.10008.5.1.1.40.1')
         assert status.Status == 0xFFF0
         assert status.ErrorComment == 'Some comment'
@@ -3057,12 +3057,12 @@ class TestAssociationSendNDelete:
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
         ae.network_timeout = 5
-        ae.add_supported_context(BasicGrayscalePrintManagementMetaSOPClass)
-        ae.add_supported_context(PrinterSOPClass)
+        ae.add_supported_context(BasicGrayscalePrintManagementMeta)
+        ae.add_supported_context(Printer)
         scp = ae.start_server(('', 11112), block=False)
 
-        ae.add_requested_context(BasicGrayscalePrintManagementMetaSOPClass)
-        ae.add_requested_context(PrinterSOPClass)
+        ae.add_requested_context(BasicGrayscalePrintManagementMeta)
+        ae.add_requested_context(Printer)
         assoc = ae.associate('localhost', 11112)
         assert assoc.is_established
 
@@ -3072,17 +3072,17 @@ class TestAssociationSendNDelete:
         ds.PatientName = 'Test^test'
         # Receives None, None from DummyDIMSE, aborts
         status = assoc.send_n_delete(
-            PrinterSOPClass,
+            Printer,
             '1.2.840.10008.5.1.1.40.1',
-            meta_uid=BasicGrayscalePrintManagementMetaSOPClass
+            meta_uid=BasicGrayscalePrintManagementMeta
         )
         assert assoc.is_aborted
 
         scp.shutdown()
 
-        assert assoc.dimse.req.RequestedSOPClassUID == PrinterSOPClass
+        assert assoc.dimse.req.RequestedSOPClassUID == Printer
         assert assoc.dimse.context_id == 1
-        assert assoc._accepted_cx[1].abstract_syntax == BasicGrayscalePrintManagementMetaSOPClass
+        assert assoc._accepted_cx[1].abstract_syntax == BasicGrayscalePrintManagementMeta
 
     def test_meta_uid_good(self):
         """Test sending a request using a Meta SOP Class."""
@@ -3096,18 +3096,18 @@ class TestAssociationSendNDelete:
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
         ae.network_timeout = 5
-        ae.add_supported_context(BasicGrayscalePrintManagementMetaSOPClass)
+        ae.add_supported_context(BasicGrayscalePrintManagementMeta)
         scp = ae.start_server(
             ('', 11112), block=False, evt_handlers=[(evt.EVT_N_DELETE, handle)]
         )
 
-        ae.add_requested_context(BasicGrayscalePrintManagementMetaSOPClass)
+        ae.add_requested_context(BasicGrayscalePrintManagementMeta)
         assoc = ae.associate('localhost', 11112)
         assert assoc.is_established
 
         status = assoc.send_n_delete(
-            BasicFilmSessionSOPClass, '1.2.840.10008.5.1.1.40.1',
-            meta_uid=BasicGrayscalePrintManagementMetaSOPClass
+            BasicFilmSession, '1.2.840.10008.5.1.1.40.1',
+            meta_uid=BasicGrayscalePrintManagementMeta
         )
         assert status.Status == 0x0000
         assoc.release()
@@ -3118,15 +3118,15 @@ class TestAssociationSendNDelete:
         req = handler_data[0].request
         cx = handler_data[0].context
 
-        assert req.RequestedSOPClassUID == BasicFilmSessionSOPClass
-        assert cx.abstract_syntax == BasicGrayscalePrintManagementMetaSOPClass
+        assert req.RequestedSOPClassUID == BasicFilmSession
+        assert cx.abstract_syntax == BasicGrayscalePrintManagementMeta
 
     def test_meta_uid_bad(self):
         """Test sending a request using a Meta SOP Class."""
         def handle(event):
             ds = Dataset()
             ds.PatientName = 'Test'
-            ds.SOPClassUID = DisplaySystemSOPClass
+            ds.SOPClassUID = DisplaySystem
             ds.SOPInstanceUID = '1.2.3.4'
             return 0x0000, ds
 
@@ -3134,13 +3134,13 @@ class TestAssociationSendNDelete:
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
         ae.network_timeout = 5
-        ae.add_supported_context(BasicGrayscalePrintManagementMetaSOPClass)
+        ae.add_supported_context(BasicGrayscalePrintManagementMeta)
         scp = ae.start_server(
             ('', 11112), block=False,
             evt_handlers=[(evt.EVT_N_DELETE, handle)]
         )
 
-        ae.add_requested_context(BasicGrayscalePrintManagementMetaSOPClass)
+        ae.add_requested_context(BasicGrayscalePrintManagementMeta)
         assoc = ae.associate('localhost', 11112)
         assert assoc.is_established
 
@@ -3154,8 +3154,8 @@ class TestAssociationSendNDelete:
         )
         with pytest.raises(ValueError, match=msg):
             assoc.send_n_delete(
-                BasicFilmSessionSOPClass, '1.2.840.10008.5.1.1.40.1',
-                meta_uid=BasicColorPrintManagementMetaSOPClass
+                BasicFilmSession, '1.2.840.10008.5.1.1.40.1',
+                meta_uid=BasicColorPrintManagementMeta
             )
 
         assoc.release()

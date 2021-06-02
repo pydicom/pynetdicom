@@ -17,7 +17,7 @@ from pynetdicom.pdu_primitives import (
     UserIdentityNegotiation, SOPClassExtendedNegotiation,
     SOPClassCommonExtendedNegotiation, AsynchronousOperationsWindowNegotiation
 )
-from pynetdicom.sop_class import VerificationSOPClass
+from pynetdicom.sop_class import Verification
 
 
 #debug_logger()

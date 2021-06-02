@@ -180,21 +180,21 @@ class ApplicationEntity:
 
         Add a requested presentation context for *Verification SOP Class* with
         the default transfer syntaxes by using the inbuilt
-        :class:`~pynetdicom.sop_class.VerificationSOPClass` object.
+        :class:`~pynetdicom.sop_class.Verification` object.
 
         >>> from pynetdicom import AE
-        >>> from pynetdicom.sop_class import VerificationSOPClass
+        >>> from pynetdicom.sop_class import Verification
         >>> ae = AE()
-        >>> ae.add_requested_context(VerificationSOPClass)
+        >>> ae.add_requested_context(Verification)
 
         Add a requested presentation context for *Verification SOP Class* with
         a transfer syntax of *Implicit VR Little Endian*.
 
         >>> from pydicom.uid import ImplicitVRLittleEndian
         >>> from pynetdicom import AE
-        >>> from pynetdicom.sop_class import VerificationSOPClass
+        >>> from pynetdicom.sop_class import Verification
         >>> ae = AE()
-        >>> ae.add_requested_context(VerificationSOPClass, ImplicitVRLittleEndian)
+        >>> ae.add_requested_context(Verification, ImplicitVRLittleEndian)
         >>> print(ae.requested_contexts[0])
         Abstract Syntax: Verification SOP Class
         Transfer Syntax(es):
@@ -207,12 +207,12 @@ class ApplicationEntity:
         ...     ImplicitVRLittleEndian, ExplicitVRLittleEndian, ExplicitVRBigEndian
         ... )
         >>> from pynetdicom import AE
-        >>> from pynetdicom.sop_class import VerificationSOPClass
+        >>> from pynetdicom.sop_class import Verification
         >>> ae = AE()
         >>> ae.add_requested_context(
-        ...     VerificationSOPClass, [ImplicitVRLittleEndian, ExplicitVRBigEndian]
+        ...     Verification, [ImplicitVRLittleEndian, ExplicitVRBigEndian]
         ... )
-        >>> ae.add_requested_context(VerificationSOPClass, ExplicitVRLittleEndian)
+        >>> ae.add_requested_context(Verification, ExplicitVRLittleEndian)
         >>> len(ae.requested_contexts)
         2
         >>> print(ae.requested_contexts[0])
@@ -322,12 +322,12 @@ class ApplicationEntity:
 
         Add support for presentation contexts with an abstract syntax of
         *Verification SOP Class* and the default transfer syntaxes by using the
-        inbuilt :class:`~pynetdicom.sop_class.VerificationSOPClass` object.
+        inbuilt :class:`~pynetdicom.sop_class.Verification` object.
 
         >>> from pynetdicom import AE
-        >>> from pynetdicom.sop_class import VerificationSOPClass
+        >>> from pynetdicom.sop_class import Verification
         >>> ae = AE()
-        >>> ae.add_supported_context(VerificationSOPClass)
+        >>> ae.add_supported_context(Verification)
 
         Add support for presentation contexts with an abstract syntax of
         *Verification SOP Class* and a transfer syntax of *Implicit VR Little
@@ -335,9 +335,9 @@ class ApplicationEntity:
 
         >>> from pydicom.uid import ImplicitVRLittleEndian
         >>> from pynetdicom import AE
-        >>> from pynetdicom.sop_class import VerificationSOPClass
+        >>> from pynetdicom.sop_class import Verification
         >>> ae = AE()
-        >>> ae.add_supported_context(VerificationSOPClass, ImplicitVRLittleEndian)
+        >>> ae.add_supported_context(Verification, ImplicitVRLittleEndian)
         >>> print(ae.supported_contexts[0])
         Abstract Syntax: Verification SOP Class
         Transfer Syntax(es):
@@ -352,12 +352,12 @@ class ApplicationEntity:
         ...     ImplicitVRLittleEndian, ExplicitVRLittleEndian, ExplicitVRBigEndian
         ... )
         >>> from pynetdicom import AE
-        >>> from pynetdicom.sop_class import VerificationSOPClass
+        >>> from pynetdicom.sop_class import Verification
         >>> ae = AE()
         >>> ae.add_supported_context(
-        ...     VerificationSOPClass, [ImplicitVRLittleEndian, ExplicitVRBigEndian]
+        ...     Verification, [ImplicitVRLittleEndian, ExplicitVRBigEndian]
         ... )
-        >>> ae.add_supported_context(VerificationSOPClass, ExplicitVRLittleEndian)
+        >>> ae.add_supported_context(Verification, ExplicitVRLittleEndian)
         >>> print(ae.supported_contexts[0])
         Abstract Syntax: Verification SOP Class
         Transfer Syntax(es):
@@ -890,13 +890,13 @@ class ApplicationEntity:
 
         Remove all requested presentation contexts with an abstract syntax of
         *Verification SOP Class* using the inbuilt
-        :class:`~pynetdicom.sop_class.VerificationSOPClass` object.
+        :class:`~pynetdicom.sop_class.Verification` object.
 
         >>> from pynetdicom import AE
-        >>> from pynetdicom.sop_class import VerificationSOPClass
+        >>> from pynetdicom.sop_class import Verification
         >>> ae = AE()
-        >>> ae.add_requested_context(VerificationSOPClass)
-        >>> ae.remove_requested_context(VerificationSOPClass)
+        >>> ae.add_requested_context(Verification)
+        >>> ae.remove_requested_context(Verification)
         >>> len(ae.requested_contexts)
         0
 
@@ -911,13 +911,13 @@ class ApplicationEntity:
 
         >>> from pydicom.uid import ImplicitVRLittleEndian
         >>> from pynetdicom import AE
-        >>> from pynetdicom.sop_class import VerificationSOPClass
-        >>> ae.add_requested_context(VerificationSOPClass, ImplicitVRLittleEndian)
+        >>> from pynetdicom.sop_class import Verification
+        >>> ae.add_requested_context(Verification, ImplicitVRLittleEndian)
         >>> print(ae.requested_contexts[0])
         Abstract Syntax: Verification SOP Class
         Transfer Syntax(es):
             =Implicit VR Little Endian
-        >>> ae.remove_requested_context(VerificationSOPClass, ImplicitVRLittleEndian)
+        >>> ae.remove_requested_context(Verification, ImplicitVRLittleEndian)
         >>> len(ae.requested_contexts)
         0
 
@@ -925,9 +925,9 @@ class ApplicationEntity:
 
         >>> from pydicom.uid import ImplicitVRLittleEndian, ExplicitVRLittleEndian
         >>> from pynetdicom import AE
-        >>> from pynetdicom.sop_class import VerificationSOPClass
+        >>> from pynetdicom.sop_class import Verification
         >>> ae = AE()
-        >>> ae.add_requested_context(VerificationSOPClass)
+        >>> ae.add_requested_context(Verification)
         >>> print(ae.requested_contexts[0])
         Abstract Syntax: Verification SOP Class
         Transfer Syntax(es):
@@ -935,7 +935,7 @@ class ApplicationEntity:
             =Explicit VR Little Endian
             =Explicit VR Big Endian
         >>> ae.remove_requested_context(
-        ...     VerificationSOPClass, [ImplicitVRLittleEndian, ExplicitVRLittleEndian]
+        ...     Verification, [ImplicitVRLittleEndian, ExplicitVRLittleEndian]
         ... )
         >>> print(ae.requested_contexts[0])
         Abstract Syntax: Verification SOP Class
@@ -1019,13 +1019,13 @@ class ApplicationEntity:
 
         Remove the supported presentation context with an abstract syntax of
         *Verification SOP Class* using the inbuilt
-        :class:`~pynetdicom.sop_class.VerificationSOPClass` object.
+        :class:`~pynetdicom.sop_class.Verification` object.
 
         >>> from pynetdicom import AE, VerificationPresentationContexts
-        >>> from pynetdicom.sop_class import VerificationSOPClass
+        >>> from pynetdicom.sop_class import Verification
         >>> ae = AE()
         >>> ae.supported_contexts = VerificationPresentationContexts
-        >>> ae.remove_supported_context(VerificationSOPClass)
+        >>> ae.remove_supported_context(Verification)
 
         For the presentation contexts with an abstract syntax of
         *Verification SOP Class*, stop supporting the *Implicit VR Little
@@ -1038,14 +1038,14 @@ class ApplicationEntity:
 
         >>> from pydicom.uid import ImplicitVRLittleEndian
         >>> from pynetdicom import AE
-        >>> from pynetdicom.sop_class import VerificationSOPClass
+        >>> from pynetdicom.sop_class import Verification
         >>> ae = AE()
-        >>> ae.add_supported_context(VerificationSOPClass, ImplicitVRLittleEndian)
+        >>> ae.add_supported_context(Verification, ImplicitVRLittleEndian)
         >>> print(ae.supported_contexts[0])
         Abstract Syntax: Verification SOP Class
         Transfer Syntax(es):
             =Implicit VR Little Endian
-        >>> ae.remove_supported_context(VerificationSOPClass, ImplicitVRLittleEndian)
+        >>> ae.remove_supported_context(Verification, ImplicitVRLittleEndian)
         >>> len(ae.supported_contexts)
         0
 
@@ -1053,9 +1053,9 @@ class ApplicationEntity:
 
         >>> from pydicom.uid import ImplicitVRLittleEndian, ExplicitVRLittleEndian
         >>> from pynetdicom import AE
-        >>> from pynetdicom.sop_class import VerificationSOPClass
+        >>> from pynetdicom.sop_class import Verification
         >>> ae = AE()
-        >>> ae.add_supported_context(VerificationSOPClass)
+        >>> ae.add_supported_context(Verification)
         >>> print(ae.supported_contexts[0])
         Abstract Syntax: Verification SOP Class
         Transfer Syntax(es):
@@ -1063,7 +1063,7 @@ class ApplicationEntity:
             =Explicit VR Little Endian
             =Explicit VR Big Endian
         >>> ae.remove_supported_context(
-        ...     VerificationSOPClass, [ImplicitVRLittleEndian, ExplicitVRLittleEndian]
+        ...     Verification, [ImplicitVRLittleEndian, ExplicitVRLittleEndian]
         ... )
         >>> print(ae.supported_contexts[0])
         Abstract Syntax: Verification SOP Class

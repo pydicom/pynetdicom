@@ -134,10 +134,10 @@ Combining the all-at-once and one-by-one approaches:
 .. doctest::
 
     >>> from pynetdicom import AE, StoragePresentationContexts
-    >>> from pynetdicom.sop_class import VerificationSOPClass
+    >>> from pynetdicom.sop_class import Verification
     >>> ae = AE()
     >>> ae.requested_contexts = StoragePresentationContexts[:127]
-    >>> ae.add_requested_context(VerificationSOPClass)
+    >>> ae.add_requested_context(Verification)
 
 As the association *Requestor* you're limited to a total of 128 requested
 presentation contexts, so attempting to add more than 128 contexts will raise
@@ -188,11 +188,11 @@ property and they are returned in the order they were added:
 .. doctest::
 
     >>> from pynetdicom import AE
-    >>> from pynetdicom.sop_class import VerificationSOPClass
+    >>> from pynetdicom.sop_class import Verification
     >>> ae = AE()
     >>> len(ae.requested_contexts)
     0
-    >>> ae.add_requested_context(VerificationSOPClass)
+    >>> ae.add_requested_context(Verification)
     >>> len(ae.requested_contexts)
     1
     >>> print(ae.requested_contexts[0])
@@ -319,10 +319,10 @@ Combining the all-at-once and one-by-one approaches:
 .. doctest::
 
     >>> from pynetdicom import AE, AllStoragePresentationContexts
-    >>> from pynetdicom.sop_class import VerificationSOPClass
+    >>> from pynetdicom.sop_class import Verification
     >>> ae = AE()
     >>> ae.supported_contexts = AllStoragePresentationContexts
-    >>> ae.add_supported_context(VerificationSOPClass)
+    >>> ae.add_supported_context(Verification)
 
 As the association *Acceptor* you're not limited in the number of presentation
 contexts that you can support.
@@ -372,11 +372,11 @@ property and they are returned in order of their abstract syntax UID value:
 .. doctest::
 
     >>> from pynetdicom import AE
-    >>> from pynetdicom.sop_class import VerificationSOPClass
+    >>> from pynetdicom.sop_class import Verification
     >>> ae = AE()
     >>> len(ae.supported_contexts)
     0
-    >>> ae.add_supported_context(VerificationSOPClass)
+    >>> ae.add_supported_context(Verification)
     >>> len(ae.supported_contexts)
     1
     >>> print(ae.supported_contexts[0])
@@ -483,7 +483,7 @@ to see the requirements for implementations of the ``evt.EVT_USER_ID`` handler.
 .. code-block:: python
 
     from pynetdicom import AE, evt
-    from pynetdicom.sop_class import VerificationSOPClass
+    from pynetdicom.sop_class import Verification
 
     from my_code import some_user_function
 
@@ -497,7 +497,7 @@ to see the requirements for implementations of the ``evt.EVT_USER_ID`` handler.
     handlers = [(evt.EVT_USER_ID, handle_user_id)]
 
     ae = AE()
-    ae.add_supported_context(VerificationSOPClass)
+    ae.add_supported_context(Verification)
     ae.start_server(('', 11112), evt_handlers=handlers)
 
 

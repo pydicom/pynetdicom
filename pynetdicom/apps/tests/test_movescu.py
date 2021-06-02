@@ -22,7 +22,7 @@ from pynetdicom import (
     StoragePresentationContexts
 )
 from pynetdicom.sop_class import (
-    VerificationSOPClass, CTImageStorage,
+    Verification, CTImageStorage,
     PatientRootQueryRetrieveInformationModelMove,
     StudyRootQueryRetrieveInformationModelMove,
     PatientStudyOnlyQueryRetrieveInformationModelMove,
@@ -166,7 +166,7 @@ class MoveSCUBase:
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
         ae.network_timeout = 5
-        ae.add_supported_context(VerificationSOPClass)
+        ae.add_supported_context(Verification)
         scp = ae.start_server(('', 11112), block=False)
 
         p = self.func(['-q', '-k', 'PatientName='])

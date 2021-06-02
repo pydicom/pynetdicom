@@ -837,8 +837,8 @@ def build_context(
     syntax
 
     >>> from pynetdicom import build_context
-    >>> from pynetdicom.sop_class import VerificationSOPClass
-    >>> context = build_context(VerificationSOPClass, '1.2.840.10008.1.2')
+    >>> from pynetdicom.sop_class import Verification
+    >>> context = build_context(Verification, '1.2.840.10008.1.2')
     >>> print(context)
     Abstract Syntax: Verification SOP Class
     Transfer Syntax(es):

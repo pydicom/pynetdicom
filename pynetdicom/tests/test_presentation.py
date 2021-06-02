@@ -41,7 +41,7 @@ from pynetdicom.presentation import (
     VerificationPresentationContexts,
 )
 from pynetdicom.sop_class import (
-    VerificationSOPClass,
+    Verification,
     CompositeInstanceRetrieveWithoutBulkDataGet,
     CTImageStorage,
 )
@@ -1664,7 +1664,7 @@ def test_build_context():
     assert context.transfer_syntax == ['12.3']
     assert context.context_id is None
 
-    context = build_context(VerificationSOPClass)
+    context = build_context(Verification)
     assert context.abstract_syntax == '1.2.840.10008.1.1'
     assert context.transfer_syntax == DEFAULT_TRANSFER_SYNTAXES
     assert context.context_id is None

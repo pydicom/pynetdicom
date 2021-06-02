@@ -7,7 +7,7 @@ import time
 from pydicom import dcmread
 
 from pynetdicom import AE
-from pynetdicom.sop_class import CTImageStorage, VerificationSOPClass
+from pynetdicom.sop_class import CTImageStorage, Verification
 from pynetdicom.tests.dummy_c_scp import (
     DummyVerificationSCP, DummyStorageSCP, DummyFindSCP, DummyBaseSCP,
     DummyGetSCP, DummyMoveSCP
@@ -25,7 +25,7 @@ class TestSendCEcho:
         self.scp.start()
 
         ae = AE()
-        ae.add_requested_context(VerificationSOPClass)
+        ae.add_requested_context(Verification)
         self.assoc = ae.associate('localhost', 11112)
 
     def teardown(self):

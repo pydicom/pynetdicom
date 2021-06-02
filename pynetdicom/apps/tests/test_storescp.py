@@ -16,7 +16,7 @@ from pydicom.uid import (
 )
 
 from pynetdicom import AE, evt, debug_logger, DEFAULT_TRANSFER_SYNTAXES
-from pynetdicom.sop_class import VerificationSOPClass, CTImageStorage
+from pynetdicom.sop_class import Verification, CTImageStorage
 
 
 #debug_logger()
@@ -65,7 +65,7 @@ class StoreSCPBase:
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
         ae.network_timeout = 5
-        ae.add_requested_context(VerificationSOPClass)
+        ae.add_requested_context(Verification)
         ae.add_requested_context(CTImageStorage)
 
         self.p = p = self.func([])
@@ -84,7 +84,7 @@ class StoreSCPBase:
         assert len(cxs) == 2
         cxs = {cx.abstract_syntax: cx for cx in cxs}
         assert CTImageStorage in cxs
-        assert VerificationSOPClass in cxs
+        assert Verification in cxs
 
     def test_flag_version(self, capfd):
         """Test --version flag."""
@@ -101,7 +101,7 @@ class StoreSCPBase:
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
         ae.network_timeout = 5
-        ae.add_requested_context(VerificationSOPClass)
+        ae.add_requested_context(Verification)
         ae.add_requested_context(CTImageStorage)
 
         self.p = p = self.func(['-q'])
@@ -125,7 +125,7 @@ class StoreSCPBase:
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
         ae.network_timeout = 5
-        ae.add_requested_context(VerificationSOPClass)
+        ae.add_requested_context(Verification)
         ae.add_requested_context(CTImageStorage)
 
         self.p = p = self.func(['-v'])
@@ -151,7 +151,7 @@ class StoreSCPBase:
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
         ae.network_timeout = 5
-        ae.add_requested_context(VerificationSOPClass)
+        ae.add_requested_context(Verification)
         ae.add_requested_context(CTImageStorage)
 
         self.p = p = self.func(['-d'])
@@ -202,7 +202,7 @@ class StoreSCPBase:
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
         ae.network_timeout = 5
-        ae.add_requested_context(VerificationSOPClass)
+        ae.add_requested_context(Verification)
 
         self.p = p = self.func(['--max-pdu', '123456'])
         time.sleep(0.5)
@@ -222,7 +222,7 @@ class StoreSCPBase:
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
         ae.network_timeout = 5
-        ae.add_requested_context(VerificationSOPClass)
+        ae.add_requested_context(Verification)
 
         self.p = p = self.func(['-x='])
         time.sleep(0.5)
@@ -243,7 +243,7 @@ class StoreSCPBase:
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
         ae.network_timeout = 5
-        ae.add_requested_context(VerificationSOPClass)
+        ae.add_requested_context(Verification)
 
         self.p = p = self.func(['-xe'])
         time.sleep(0.5)
@@ -264,7 +264,7 @@ class StoreSCPBase:
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
         ae.network_timeout = 5
-        ae.add_requested_context(VerificationSOPClass)
+        ae.add_requested_context(Verification)
 
         self.p = p = self.func(['-xb'])
         time.sleep(0.5)
@@ -285,7 +285,7 @@ class StoreSCPBase:
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
         ae.network_timeout = 5
-        ae.add_requested_context(VerificationSOPClass)
+        ae.add_requested_context(Verification)
 
         self.p = p = self.func(['-xi'])
         time.sleep(0.5)
@@ -306,7 +306,7 @@ class StoreSCPBase:
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
         ae.network_timeout = 5
-        ae.add_requested_context(VerificationSOPClass)
+        ae.add_requested_context(Verification)
         ae.add_requested_context(CTImageStorage)
 
         assert 'test_dir' not in os.listdir()
@@ -332,7 +332,7 @@ class StoreSCPBase:
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
         ae.network_timeout = 5
-        ae.add_requested_context(VerificationSOPClass)
+        ae.add_requested_context(Verification)
         ae.add_requested_context(CTImageStorage)
 
         self.p = p = self.func(['--ignore'])

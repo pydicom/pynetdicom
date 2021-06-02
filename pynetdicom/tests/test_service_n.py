@@ -13,26 +13,26 @@ from pynetdicom.dimse_primitives import (
     N_ACTION, N_CREATE, N_DELETE, N_EVENT_REPORT, N_GET, N_SET, C_FIND
 )
 from pynetdicom.sop_class import (
-    DisplaySystemSOPClass,  # Display Sysyem Management - N-GET
+    DisplaySystem,  # Display Sysyem Management - N-GET
     # Modality Performed Procedure - N-CREATE, N-SET
-    ModalityPerformedProcedureStepSOPClass,
-    ModalityPerformedProcedureStepRetrieveSOPClass,  # N-GET
-    ModalityPerformedProcedureStepNotificationSOPClass,  # N-EVENT-REPORT
+    ModalityPerformedProcedureStep,
+    ModalityPerformedProcedureStepRetrieve,  # N-GET
+    ModalityPerformedProcedureStepNotification,  # N-EVENT-REPORT
     # Print Management - N-ACTION, N-CREATE, N-DELETE, N-SET
-    BasicFilmSessionSOPClass,
-    PrintJobSOPClass,  # N-EVENT-REPORT, N-GET
+    BasicFilmSession,
+    PrintJob,  # N-EVENT-REPORT, N-GET
     # Storage Commitment - N-ACTION, N-EVENT-REPORT
-    StorageCommitmentPushModelSOPClass,
+    StorageCommitmentPushModel,
     # Application Event Logging - N-ACTION
-    ProceduralEventLoggingSOPClass,
+    ProceduralEventLogging,
     # Instance Availability - N-CREATE
-    InstanceAvailabilityNotificationSOPClass,
+    InstanceAvailabilityNotification,
     # Media Creation - N-ACTION, N-CREATE, N-GET
-    MediaCreationManagementSOPClass,
+    MediaCreationManagement,
     # Unified Procedure Step - N-ACTION, N-CREATE, N-GET
-    UnifiedProcedureStepPushSOPClass,
-    UnifiedProcedureStepPullSOPClass,  # N-GET, N-SET, C-FIND
-    UnifiedProcedureStepEventSOPClass,  # N-EVENT-REPORT
+    UnifiedProcedureStepPush,
+    UnifiedProcedureStepPull,  # N-GET, N-SET, C-FIND
+    UnifiedProcedureStepEvent,  # N-EVENT-REPORT
     # RT Machine Verification - All DIMSE-N
     RTConventionalMachineVerification,
 )
@@ -43,30 +43,30 @@ from pynetdicom.sop_class import (
 
 REFERENCE_REQUESTS = [
     # SOP Class, DIMSE msg, warning status, custom failure status
-    (DisplaySystemSOPClass, "N-GET", None, None),
-    (ModalityPerformedProcedureStepSOPClass, "N-CREATE", None, None),
-    (ModalityPerformedProcedureStepSOPClass, "N-SET", None, None),
-    (ModalityPerformedProcedureStepRetrieveSOPClass, "N-GET", 0x0001, None),
-    (ModalityPerformedProcedureStepNotificationSOPClass, "N-EVENT-REPORT", None, None),
-    (BasicFilmSessionSOPClass, "N-ACTION", None, None),
-    (BasicFilmSessionSOPClass, "N-CREATE", 0xB600, 0xC616),
-    (BasicFilmSessionSOPClass, "N-DELETE", None, None),
-    (BasicFilmSessionSOPClass, "N-SET", 0xB600, 0xC616),
-    (PrintJobSOPClass, "N-EVENT-REPORT", None, None),
-    (PrintJobSOPClass, "N-GET", None, None),
-    (StorageCommitmentPushModelSOPClass, "N-ACTION", None, None),
-    (StorageCommitmentPushModelSOPClass, "N-EVENT-REPORT", None, None),
-    (ProceduralEventLoggingSOPClass, "N-ACTION", 0xB101, 0xC101),
-    (InstanceAvailabilityNotificationSOPClass, "N-CREATE", None, None),
-    (MediaCreationManagementSOPClass, "N-ACTION", None, 0xC201),
-    (MediaCreationManagementSOPClass, "N-CREATE", None, 0xA510),
-    (MediaCreationManagementSOPClass, "N-GET", 0x0001, None),
-    (UnifiedProcedureStepPushSOPClass, "N-ACTION", 0xB301, 0xC300),
-    (UnifiedProcedureStepPushSOPClass, "N-CREATE", 0xB300, 0xC309),
-    (UnifiedProcedureStepPushSOPClass, "N-GET", 0x0001, 0xC307),
-    (UnifiedProcedureStepPullSOPClass, "N-SET", 0xB305, 0xC310),
-    #(UnifiedProcedureStepPullSOPClass, "C_FIND", None, 0xA700),
-    (UnifiedProcedureStepEventSOPClass, "N-EVENT-REPORT", None, None),
+    (DisplaySystem, "N-GET", None, None),
+    (ModalityPerformedProcedureStep, "N-CREATE", None, None),
+    (ModalityPerformedProcedureStep, "N-SET", None, None),
+    (ModalityPerformedProcedureStepRetrieve, "N-GET", 0x0001, None),
+    (ModalityPerformedProcedureStepNotification, "N-EVENT-REPORT", None, None),
+    (BasicFilmSession, "N-ACTION", None, None),
+    (BasicFilmSession, "N-CREATE", 0xB600, 0xC616),
+    (BasicFilmSession, "N-DELETE", None, None),
+    (BasicFilmSession, "N-SET", 0xB600, 0xC616),
+    (PrintJob, "N-EVENT-REPORT", None, None),
+    (PrintJob, "N-GET", None, None),
+    (StorageCommitmentPushModel, "N-ACTION", None, None),
+    (StorageCommitmentPushModel, "N-EVENT-REPORT", None, None),
+    (ProceduralEventLogging, "N-ACTION", 0xB101, 0xC101),
+    (InstanceAvailabilityNotification, "N-CREATE", None, None),
+    (MediaCreationManagement, "N-ACTION", None, 0xC201),
+    (MediaCreationManagement, "N-CREATE", None, 0xA510),
+    (MediaCreationManagement, "N-GET", 0x0001, None),
+    (UnifiedProcedureStepPush, "N-ACTION", 0xB301, 0xC300),
+    (UnifiedProcedureStepPush, "N-CREATE", 0xB300, 0xC309),
+    (UnifiedProcedureStepPush, "N-GET", 0x0001, 0xC307),
+    (UnifiedProcedureStepPull, "N-SET", 0xB305, 0xC310),
+    #(UnifiedProcedureStepPull, "C_FIND", None, 0xA700),
+    (UnifiedProcedureStepEvent, "N-EVENT-REPORT", None, None),
     (RTConventionalMachineVerification, "N-ACTION", None, 0xC112),
     (RTConventionalMachineVerification, "N-CREATE", None, 0xC227),
     (RTConventionalMachineVerification, "N-DELETE", None, None),
@@ -84,7 +84,7 @@ class TestNServiceClass:
 
         ds = Dataset()
         ds.PatientName = 'Test'
-        ds.SOPClassUID = DisplaySystemSOPClass
+        ds.SOPClassUID = DisplaySystem
         ds.SOPInstanceUID = '1.2.3.4'
         self.ds = ds
 
@@ -1064,15 +1064,15 @@ class TestNServiceClass:
         handlers = [(evt.EVT_N_GET, self.handle_dual(0x0000, ds))]
 
         self.ae = ae = AE()
-        ae.add_supported_context(DisplaySystemSOPClass)
-        ae.add_requested_context(DisplaySystemSOPClass)
+        ae.add_supported_context(DisplaySystem)
+        ae.add_requested_context(DisplaySystem)
         scp = ae.start_server(('', 11112), block=False, evt_handlers=handlers)
 
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
         assoc = ae.associate('localhost', 11112)
         assert assoc.is_established
-        status, ds = assoc.send_n_get([], DisplaySystemSOPClass, '1.2.3.4')
+        status, ds = assoc.send_n_get([], DisplaySystem, '1.2.3.4')
         assert status.Status == 0x0000
         assert ds.PatientName == 'Test^test'
 
@@ -1220,9 +1220,9 @@ class TestUPSFindServiceClass:
         handlers = [(evt.EVT_C_FIND, handle)]
 
         self.ae = ae = AE()
-        ae.add_supported_context(UnifiedProcedureStepPullSOPClass)
+        ae.add_supported_context(UnifiedProcedureStepPull)
         ae.add_requested_context(
-            UnifiedProcedureStepPullSOPClass,
+            UnifiedProcedureStepPull,
             ExplicitVRLittleEndian
         )
         scp = ae.start_server(('', 11112), block=False, evt_handlers=handlers)
@@ -1232,7 +1232,7 @@ class TestUPSFindServiceClass:
 
         req = C_FIND()
         req.MessageID = 1
-        req.AffectedSOPClassUID = UnifiedProcedureStepPullSOPClass
+        req.AffectedSOPClassUID = UnifiedProcedureStepPull
         req.Priority = 2
         req.Identifier = BytesIO(b'\x08\x00\x01\x00\x40\x40\x00\x00\x00\x00\x00\x08\x00\x49')
         assoc._reactor_checkpoint.clear()
@@ -1257,9 +1257,9 @@ class TestUPSFindServiceClass:
         handlers = [(evt.EVT_C_FIND, handle)]
 
         self.ae = ae = AE()
-        ae.add_supported_context(UnifiedProcedureStepPullSOPClass)
+        ae.add_supported_context(UnifiedProcedureStepPull)
         ae.add_requested_context(
-            UnifiedProcedureStepPullSOPClass,
+            UnifiedProcedureStepPull,
             ExplicitVRLittleEndian
         )
         scp = ae.start_server(('', 11112), block=False, evt_handlers=handlers)
@@ -1268,7 +1268,7 @@ class TestUPSFindServiceClass:
         assert assoc.is_established
         result = assoc.send_c_find(
             self.query,
-            UnifiedProcedureStepPullSOPClass
+            UnifiedProcedureStepPull
         )
         status, identifier = next(result)
         assert status.Status == 0xFF00
@@ -1294,9 +1294,9 @@ class TestUPSFindServiceClass:
         handlers = [(evt.EVT_C_FIND, handle)]
 
         self.ae = ae = AE()
-        ae.add_supported_context(UnifiedProcedureStepPullSOPClass)
+        ae.add_supported_context(UnifiedProcedureStepPull)
         ae.add_requested_context(
-            UnifiedProcedureStepPullSOPClass,
+            UnifiedProcedureStepPull,
             ExplicitVRLittleEndian
         )
         scp = ae.start_server(('', 11112), block=False, evt_handlers=handlers)
@@ -1307,7 +1307,7 @@ class TestUPSFindServiceClass:
         assert assoc.is_established
         result = assoc.send_c_find(
             self.query,
-            query_model=UnifiedProcedureStepPullSOPClass
+            query_model=UnifiedProcedureStepPull
         )
         status, identifier = next(result)
         assert status.Status == 0xFF00
@@ -1330,9 +1330,9 @@ class TestUPSFindServiceClass:
         handlers = [(evt.EVT_C_FIND, handle)]
 
         self.ae = ae = AE()
-        ae.add_supported_context(UnifiedProcedureStepPullSOPClass)
+        ae.add_supported_context(UnifiedProcedureStepPull)
         ae.add_requested_context(
-            UnifiedProcedureStepPullSOPClass,
+            UnifiedProcedureStepPull,
             ExplicitVRLittleEndian
         )
         scp = ae.start_server(('', 11112), block=False, evt_handlers=handlers)
@@ -1343,7 +1343,7 @@ class TestUPSFindServiceClass:
         assert assoc.is_established
         result = assoc.send_c_find(
             self.query,
-            query_model=UnifiedProcedureStepPullSOPClass
+            query_model=UnifiedProcedureStepPull
         )
         status, identifier = next(result)
         assert status.Status == 0xFF00
@@ -1364,9 +1364,9 @@ class TestUPSFindServiceClass:
         handlers = [(evt.EVT_C_FIND, handle)]
 
         self.ae = ae = AE()
-        ae.add_supported_context(UnifiedProcedureStepPullSOPClass)
+        ae.add_supported_context(UnifiedProcedureStepPull)
         ae.add_requested_context(
-            UnifiedProcedureStepPullSOPClass,
+            UnifiedProcedureStepPull,
             ExplicitVRLittleEndian
         )
         scp = ae.start_server(('', 11112), block=False, evt_handlers=handlers)
@@ -1377,7 +1377,7 @@ class TestUPSFindServiceClass:
         assert assoc.is_established
         result = assoc.send_c_find(
             self.query,
-            query_model=UnifiedProcedureStepPullSOPClass
+            query_model=UnifiedProcedureStepPull
         )
         status, identifier = next(result)
         assert status.Status == 0xFFF0
@@ -1396,9 +1396,9 @@ class TestUPSFindServiceClass:
         handlers = [(evt.EVT_C_FIND, handle)]
 
         self.ae = ae = AE()
-        ae.add_supported_context(UnifiedProcedureStepPullSOPClass)
+        ae.add_supported_context(UnifiedProcedureStepPull)
         ae.add_requested_context(
-            UnifiedProcedureStepPullSOPClass,
+            UnifiedProcedureStepPull,
             ExplicitVRLittleEndian
         )
         scp = ae.start_server(('', 11112), block=False, evt_handlers=handlers)
@@ -1409,7 +1409,7 @@ class TestUPSFindServiceClass:
         assert assoc.is_established
         result = assoc.send_c_find(
             self.query,
-            query_model=UnifiedProcedureStepPullSOPClass
+            query_model=UnifiedProcedureStepPull
         )
         status, identifier = next(result)
         assert status.Status == 0xC002
@@ -1428,9 +1428,9 @@ class TestUPSFindServiceClass:
         handlers = [(evt.EVT_C_FIND, handle)]
 
         self.ae = ae = AE()
-        ae.add_supported_context(UnifiedProcedureStepPullSOPClass)
+        ae.add_supported_context(UnifiedProcedureStepPull)
         ae.add_requested_context(
-            UnifiedProcedureStepPullSOPClass,
+            UnifiedProcedureStepPull,
             ExplicitVRLittleEndian
         )
         scp = ae.start_server(('', 11112), block=False, evt_handlers=handlers)
@@ -1441,7 +1441,7 @@ class TestUPSFindServiceClass:
         assert assoc.is_established
         result = assoc.send_c_find(
             self.query,
-            query_model=UnifiedProcedureStepPullSOPClass
+            query_model=UnifiedProcedureStepPull
         )
         status, identifier = next(result)
         assert status.Status == 0xC002
@@ -1460,9 +1460,9 @@ class TestUPSFindServiceClass:
         handlers = [(evt.EVT_C_FIND, handle)]
 
         self.ae = ae = AE()
-        ae.add_supported_context(UnifiedProcedureStepPullSOPClass)
+        ae.add_supported_context(UnifiedProcedureStepPull)
         ae.add_requested_context(
-            UnifiedProcedureStepPullSOPClass,
+            UnifiedProcedureStepPull,
             ExplicitVRLittleEndian
         )
         scp = ae.start_server(('', 11112), block=False, evt_handlers=handlers)
@@ -1473,7 +1473,7 @@ class TestUPSFindServiceClass:
         assert assoc.is_established
         result = assoc.send_c_find(
             self.query,
-            query_model=UnifiedProcedureStepPullSOPClass
+            query_model=UnifiedProcedureStepPull
         )
         status, identifier = next(result)
         assert status.Status == 0x0000
@@ -1494,9 +1494,9 @@ class TestUPSFindServiceClass:
         handlers = [(evt.EVT_C_FIND, handle)]
 
         self.ae = ae = AE()
-        ae.add_supported_context(UnifiedProcedureStepPullSOPClass)
+        ae.add_supported_context(UnifiedProcedureStepPull)
         ae.add_requested_context(
-            UnifiedProcedureStepPullSOPClass,
+            UnifiedProcedureStepPull,
             ExplicitVRLittleEndian
         )
         scp = ae.start_server(('', 11112), block=False, evt_handlers=handlers)
@@ -1507,7 +1507,7 @@ class TestUPSFindServiceClass:
         assert assoc.is_established
         result = assoc.send_c_find(
             self.query,
-            query_model=UnifiedProcedureStepPullSOPClass
+            query_model=UnifiedProcedureStepPull
         )
         status, identifier = next(result)
         assert status.Status == 0xC311
@@ -1522,9 +1522,9 @@ class TestUPSFindServiceClass:
     def test_handler_exception_default(self):
         """Test default handler raises exception"""
         self.ae = ae = AE()
-        ae.add_supported_context(UnifiedProcedureStepPullSOPClass)
+        ae.add_supported_context(UnifiedProcedureStepPull)
         ae.add_requested_context(
-            UnifiedProcedureStepPullSOPClass,
+            UnifiedProcedureStepPull,
             ExplicitVRLittleEndian
         )
         scp = ae.start_server(('', 11112), block=False)
@@ -1535,7 +1535,7 @@ class TestUPSFindServiceClass:
         assert assoc.is_established
         result = assoc.send_c_find(
             self.query,
-            query_model=UnifiedProcedureStepPullSOPClass
+            query_model=UnifiedProcedureStepPull
         )
         status, identifier = next(result)
         assert status.Status == 0xC311
@@ -1556,9 +1556,9 @@ class TestUPSFindServiceClass:
         handlers = [(evt.EVT_C_FIND, handle)]
 
         self.ae = ae = AE()
-        ae.add_supported_context(UnifiedProcedureStepPullSOPClass)
+        ae.add_supported_context(UnifiedProcedureStepPull)
         ae.add_requested_context(
-            UnifiedProcedureStepPullSOPClass,
+            UnifiedProcedureStepPull,
             ExplicitVRLittleEndian
         )
         scp = ae.start_server(('', 11112), block=False, evt_handlers=handlers)
@@ -1569,7 +1569,7 @@ class TestUPSFindServiceClass:
         assert assoc.is_established
         result = assoc.send_c_find(
             self.query,
-            query_model=UnifiedProcedureStepPullSOPClass
+            query_model=UnifiedProcedureStepPull
         )
         status, identifier = next(result)
         assert status.Status == 0xFF00
@@ -1593,9 +1593,9 @@ class TestUPSFindServiceClass:
         handlers = [(evt.EVT_C_FIND, handle)]
 
         self.ae = ae = AE()
-        ae.add_supported_context(UnifiedProcedureStepPullSOPClass)
+        ae.add_supported_context(UnifiedProcedureStepPull)
         ae.add_requested_context(
-            UnifiedProcedureStepPullSOPClass,
+            UnifiedProcedureStepPull,
             ExplicitVRLittleEndian
         )
         scp = ae.start_server(('', 11112), block=False, evt_handlers=handlers)
@@ -1606,7 +1606,7 @@ class TestUPSFindServiceClass:
         assert assoc.is_established
         result = assoc.send_c_find(
             self.query,
-            query_model=UnifiedProcedureStepPullSOPClass
+            query_model=UnifiedProcedureStepPull
         )
         status, identifier = next(result)
         assert status.Status == 0xC312
@@ -1626,9 +1626,9 @@ class TestUPSFindServiceClass:
         handlers = [(evt.EVT_C_FIND, handle)]
 
         self.ae = ae = AE()
-        ae.add_supported_context(UnifiedProcedureStepPullSOPClass)
+        ae.add_supported_context(UnifiedProcedureStepPull)
         ae.add_requested_context(
-            UnifiedProcedureStepPullSOPClass,
+            UnifiedProcedureStepPull,
             ExplicitVRLittleEndian
         )
         scp = ae.start_server(('', 11112), block=False, evt_handlers=handlers)
@@ -1639,7 +1639,7 @@ class TestUPSFindServiceClass:
         assert assoc.is_established
         result = assoc.send_c_find(
             self.query,
-            query_model=UnifiedProcedureStepPullSOPClass
+            query_model=UnifiedProcedureStepPull
         )
         status, identifier = next(result)
         assert status.Status == 0xFF00
@@ -1664,9 +1664,9 @@ class TestUPSFindServiceClass:
         handlers = [(evt.EVT_C_FIND, handle)]
 
         self.ae = ae = AE()
-        ae.add_supported_context(UnifiedProcedureStepPullSOPClass)
+        ae.add_supported_context(UnifiedProcedureStepPull)
         ae.add_requested_context(
-            UnifiedProcedureStepPullSOPClass,
+            UnifiedProcedureStepPull,
             ExplicitVRLittleEndian
         )
         scp = ae.start_server(('', 11112), block=False, evt_handlers=handlers)
@@ -1677,7 +1677,7 @@ class TestUPSFindServiceClass:
         assert assoc.is_established
         result = assoc.send_c_find(
             self.query,
-            query_model=UnifiedProcedureStepPullSOPClass
+            query_model=UnifiedProcedureStepPull
         )
         status, identifier = next(result)
         assert status.Status == 0xFF01
@@ -1702,9 +1702,9 @@ class TestUPSFindServiceClass:
         handlers = [(evt.EVT_C_FIND, handle)]
 
         self.ae = ae = AE()
-        ae.add_supported_context(UnifiedProcedureStepPullSOPClass)
+        ae.add_supported_context(UnifiedProcedureStepPull)
         ae.add_requested_context(
-            UnifiedProcedureStepPullSOPClass,
+            UnifiedProcedureStepPull,
             ExplicitVRLittleEndian
         )
         scp = ae.start_server(('', 11112), block=False, evt_handlers=handlers)
@@ -1715,7 +1715,7 @@ class TestUPSFindServiceClass:
         assert assoc.is_established
         result = assoc.send_c_find(
             self.query,
-            query_model=UnifiedProcedureStepPullSOPClass
+            query_model=UnifiedProcedureStepPull
         )
         status, identifier = next(result)
         assert status.Status == 0xFF00
@@ -1742,9 +1742,9 @@ class TestUPSFindServiceClass:
         handlers = [(evt.EVT_C_FIND, handle)]
 
         self.ae = ae = AE()
-        ae.add_supported_context(UnifiedProcedureStepPullSOPClass)
+        ae.add_supported_context(UnifiedProcedureStepPull)
         ae.add_requested_context(
-            UnifiedProcedureStepPullSOPClass,
+            UnifiedProcedureStepPull,
             ExplicitVRLittleEndian
         )
         scp = ae.start_server(('', 11112), block=False, evt_handlers=handlers)
@@ -1755,7 +1755,7 @@ class TestUPSFindServiceClass:
         assert assoc.is_established
         result = assoc.send_c_find(
             self.query,
-            query_model=UnifiedProcedureStepPullSOPClass
+            query_model=UnifiedProcedureStepPull
         )
         status, identifier = next(result)
         assert status.Status == 0xFF00
@@ -1788,9 +1788,9 @@ class TestUPSFindServiceClass:
         handlers = [(evt.EVT_C_FIND, handle)]
 
         self.ae = ae = AE()
-        ae.add_supported_context(UnifiedProcedureStepPullSOPClass)
+        ae.add_supported_context(UnifiedProcedureStepPull)
         ae.add_requested_context(
-            UnifiedProcedureStepPullSOPClass,
+            UnifiedProcedureStepPull,
             ExplicitVRLittleEndian
         )
         scp = ae.start_server(('', 11112), block=False, evt_handlers=handlers)
@@ -1801,7 +1801,7 @@ class TestUPSFindServiceClass:
         assert assoc.is_established
         result = assoc.send_c_find(
             self.query,
-            query_model=UnifiedProcedureStepPullSOPClass
+            query_model=UnifiedProcedureStepPull
         )
         status, identifier = next(result)
         assert status.Status == 0xFF00
@@ -1834,9 +1834,9 @@ class TestUPSFindServiceClass:
         handlers = [(evt.EVT_C_FIND, handle)]
 
         self.ae = ae = AE()
-        ae.add_supported_context(UnifiedProcedureStepPullSOPClass)
+        ae.add_supported_context(UnifiedProcedureStepPull)
         ae.add_requested_context(
-            UnifiedProcedureStepPullSOPClass,
+            UnifiedProcedureStepPull,
             ExplicitVRLittleEndian
         )
         scp = ae.start_server(('', 11112), block=False, evt_handlers=handlers)
@@ -1847,7 +1847,7 @@ class TestUPSFindServiceClass:
         assert assoc.is_established
         result = assoc.send_c_find(
             self.query,
-            query_model=UnifiedProcedureStepPullSOPClass
+            query_model=UnifiedProcedureStepPull
         )
         status, identifier = next(result)
         assert status.Status == 0xFF00
@@ -1881,8 +1881,8 @@ class TestUPSFindServiceClass:
         handlers = [(evt.EVT_C_FIND, handle)]
 
         self.ae = ae = AE()
-        ae.add_supported_context(UnifiedProcedureStepPullSOPClass)
-        ae.add_requested_context(UnifiedProcedureStepPullSOPClass)
+        ae.add_supported_context(UnifiedProcedureStepPull)
+        ae.add_requested_context(UnifiedProcedureStepPull)
         scp = ae.start_server(('', 11112), block=False, evt_handlers=handlers)
 
         ae.acse_timeout = 5
@@ -1891,7 +1891,7 @@ class TestUPSFindServiceClass:
         assert assoc.is_established
         result = assoc.send_c_find(
             self.query,
-            query_model=UnifiedProcedureStepPullSOPClass
+            query_model=UnifiedProcedureStepPull
         )
         status, identifier = next(result)
         assert status.Status == 0xFF00
@@ -1905,7 +1905,7 @@ class TestUPSFindServiceClass:
 
         cx = attrs['context']
         assert cx.context_id == 1
-        assert cx.abstract_syntax == UnifiedProcedureStepPullSOPClass
+        assert cx.abstract_syntax == UnifiedProcedureStepPull
         assert cx.transfer_syntax == '1.2.840.10008.1.2'
 
         scp.shutdown()
@@ -1923,8 +1923,8 @@ class TestUPSFindServiceClass:
         handlers = [(evt.EVT_C_FIND, handle)]
 
         self.ae = ae = AE()
-        ae.add_supported_context(UnifiedProcedureStepPullSOPClass)
-        ae.add_requested_context(UnifiedProcedureStepPullSOPClass)
+        ae.add_supported_context(UnifiedProcedureStepPull)
+        ae.add_requested_context(UnifiedProcedureStepPull)
         scp = ae.start_server(('', 11112), block=False, evt_handlers=handlers)
 
         ae.acse_timeout = 5
@@ -1933,7 +1933,7 @@ class TestUPSFindServiceClass:
         assert assoc.is_established
         result = assoc.send_c_find(
             self.query,
-            query_model=UnifiedProcedureStepPullSOPClass
+            query_model=UnifiedProcedureStepPull
         )
         status, identifier = next(result)
         assert status.Status == 0xFF00
@@ -1963,8 +1963,8 @@ class TestUPSFindServiceClass:
         handlers = [(evt.EVT_C_FIND, handle)]
 
         self.ae = ae = AE()
-        ae.add_supported_context(UnifiedProcedureStepPullSOPClass)
-        ae.add_requested_context(UnifiedProcedureStepPullSOPClass)
+        ae.add_supported_context(UnifiedProcedureStepPull)
+        ae.add_requested_context(UnifiedProcedureStepPull)
         scp = ae.start_server(('', 11112), block=False, evt_handlers=handlers)
 
         ae.acse_timeout = 5
@@ -1973,7 +1973,7 @@ class TestUPSFindServiceClass:
         assert assoc.is_established
         result = assoc.send_c_find(
             self.query,
-            query_model=UnifiedProcedureStepPullSOPClass
+            query_model=UnifiedProcedureStepPull
         )
         status, identifier = next(result)
         assert status.Status == 0xFF00
@@ -2006,8 +2006,8 @@ class TestUPSFindServiceClass:
         handlers = [(evt.EVT_C_FIND, handle)]
 
         self.ae = ae = AE()
-        ae.add_supported_context(UnifiedProcedureStepPullSOPClass)
-        ae.add_requested_context(UnifiedProcedureStepPullSOPClass)
+        ae.add_supported_context(UnifiedProcedureStepPull)
+        ae.add_requested_context(UnifiedProcedureStepPull)
         scp = ae.start_server(('', 11112), block=False, evt_handlers=handlers)
 
         ae.acse_timeout = 5
@@ -2016,7 +2016,7 @@ class TestUPSFindServiceClass:
         assert assoc.is_established
         result = assoc.send_c_find(
             self.query,
-            query_model=UnifiedProcedureStepPullSOPClass
+            query_model=UnifiedProcedureStepPull
         )
         status, identifier = next(result)
         assert status.Status == 0xFF00
@@ -2050,8 +2050,8 @@ class TestUPSFindServiceClass:
         handlers = [(evt.EVT_C_FIND, handle)]
 
         self.ae = ae = AE()
-        ae.add_supported_context(UnifiedProcedureStepPullSOPClass)
-        ae.add_requested_context(UnifiedProcedureStepPullSOPClass)
+        ae.add_supported_context(UnifiedProcedureStepPull)
+        ae.add_requested_context(UnifiedProcedureStepPull)
         scp = ae.start_server(('', 11112), block=False, evt_handlers=handlers)
 
         assoc = ae.associate('localhost', 11112)
@@ -2062,7 +2062,7 @@ class TestUPSFindServiceClass:
         results = assoc.send_c_find(
             identifier,
             msg_id=11142,
-            query_model=UnifiedProcedureStepPullSOPClass
+            query_model=UnifiedProcedureStepPull
         )
         time.sleep(0.2)
         assoc.send_c_cancel(1, 3)
@@ -2094,8 +2094,8 @@ class TestUPSFindServiceClass:
         handlers = [(evt.EVT_C_FIND, handle)]
 
         self.ae = ae = AE()
-        ae.add_supported_context(UnifiedProcedureStepPullSOPClass)
-        ae.add_requested_context(UnifiedProcedureStepPullSOPClass)
+        ae.add_supported_context(UnifiedProcedureStepPull)
+        ae.add_requested_context(UnifiedProcedureStepPull)
         scp = ae.start_server(('', 11112), block=False, evt_handlers=handlers)
 
         ae.acse_timeout = 5
@@ -2103,7 +2103,7 @@ class TestUPSFindServiceClass:
         assoc = ae.associate('localhost', 11112)
         assert assoc.is_established
         result = assoc.send_c_find(
-            self.query, UnifiedProcedureStepPullSOPClass
+            self.query, UnifiedProcedureStepPull
         )
         status, identifier = next(result)
         assert status == Dataset()
@@ -2123,8 +2123,8 @@ class TestUPSFindServiceClass:
         handlers = [(evt.EVT_C_FIND, handle)]
 
         self.ae = ae = AE()
-        ae.add_supported_context(UnifiedProcedureStepPullSOPClass)
-        ae.add_requested_context(UnifiedProcedureStepPullSOPClass)
+        ae.add_supported_context(UnifiedProcedureStepPull)
+        ae.add_requested_context(UnifiedProcedureStepPull)
         scp = ae.start_server(('', 11112), block=False, evt_handlers=handlers)
 
         ae.acse_timeout = 5
@@ -2132,7 +2132,7 @@ class TestUPSFindServiceClass:
         assoc = ae.associate('localhost', 11112)
         assert assoc.is_established
         result = assoc.send_c_find(
-            self.query, UnifiedProcedureStepPullSOPClass
+            self.query, UnifiedProcedureStepPull
         )
         status, identifier = next(result)
         assert status == Dataset()
@@ -2154,8 +2154,8 @@ class TestUPSFindServiceClass:
         handlers = [(evt.EVT_C_FIND, handle)]
 
         self.ae = ae = AE()
-        ae.add_supported_context(UnifiedProcedureStepPullSOPClass)
-        ae.add_requested_context(UnifiedProcedureStepPullSOPClass)
+        ae.add_supported_context(UnifiedProcedureStepPull)
+        ae.add_requested_context(UnifiedProcedureStepPull)
         scp = ae.start_server(('', 11112), block=False, evt_handlers=handlers)
 
         ae.acse_timeout = 5
@@ -2163,7 +2163,7 @@ class TestUPSFindServiceClass:
         assoc = ae.associate('localhost', 11112)
         assert assoc.is_established
         result = assoc.send_c_find(
-            self.query, UnifiedProcedureStepPullSOPClass
+            self.query, UnifiedProcedureStepPull
         )
         status, identifier = next(result)
         assert status.Status == 0xFF00
@@ -2186,8 +2186,8 @@ class TestUPSFindServiceClass:
         handlers = [(evt.EVT_C_FIND, handle)]
 
         self.ae = ae = AE()
-        ae.add_supported_context(UnifiedProcedureStepPullSOPClass)
-        ae.add_requested_context(UnifiedProcedureStepPullSOPClass)
+        ae.add_supported_context(UnifiedProcedureStepPull)
+        ae.add_requested_context(UnifiedProcedureStepPull)
         scp = ae.start_server(('', 11112), block=False, evt_handlers=handlers)
 
         ae.acse_timeout = 5
@@ -2195,7 +2195,7 @@ class TestUPSFindServiceClass:
         assoc = ae.associate('localhost', 11112)
         assert assoc.is_established
         result = assoc.send_c_find(
-            self.query, UnifiedProcedureStepPullSOPClass
+            self.query, UnifiedProcedureStepPull
         )
         status, identifier = next(result)
         assert status.Status == 0xFF00
@@ -2231,7 +2231,7 @@ class TestNEventReport:
             event.assoc.send_n_event_report(
                 ds,
                 1,
-                PrintJobSOPClass,
+                PrintJob,
                 '1.2.3'
             )
 
@@ -2245,7 +2245,7 @@ class TestNEventReport:
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
         ae.network_timeout = 5
-        ae.add_supported_context(PrintJobSOPClass)
+        ae.add_supported_context(PrintJob)
         scp = ae.start_server(('', 11112), block=False, evt_handlers=scp_hh)
 
         events = []
@@ -2257,13 +2257,13 @@ class TestNEventReport:
 
         scu_hh = [(evt.EVT_N_EVENT_REPORT, handle_ner)]
 
-        ae.add_requested_context(PrintJobSOPClass)
+        ae.add_requested_context(PrintJob)
         assoc = ae.associate('localhost', 11112, evt_handlers=scu_hh)
         assert assoc.is_established
 
         status, attr = assoc.send_n_get(
             [(0x00080008)],
-            PrintJobSOPClass,
+            PrintJob,
             '1.2.3.4'
         )
 
@@ -2287,7 +2287,7 @@ class TestNEventReport:
             assoc.send_n_event_report(
                 ds,
                 1,
-                PrintJobSOPClass,
+                PrintJob,
                 '1.2.3'
             )
             assoc.release()
@@ -2298,7 +2298,7 @@ class TestNEventReport:
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
         ae.network_timeout = 5
-        ae.add_supported_context(PrintJobSOPClass)
+        ae.add_supported_context(PrintJob)
         scp = ae.start_server(('', 11112), block=False, evt_handlers=scp_hh)
 
         events = []
@@ -2311,7 +2311,7 @@ class TestNEventReport:
         scu_hh = [(evt.EVT_N_EVENT_REPORT, handle_ner)]
         ner_scp = ae.start_server(('', 11113), block=False, evt_handlers=scu_hh)
 
-        ae.add_requested_context(PrintJobSOPClass)
+        ae.add_requested_context(PrintJob)
         assoc = ae.associate('localhost', 11112)
         assert assoc.is_established
 

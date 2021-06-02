@@ -14,7 +14,7 @@ from pydicom.uid import (
 )
 
 from pynetdicom import AE, evt, debug_logger, DEFAULT_TRANSFER_SYNTAXES
-from pynetdicom.sop_class import VerificationSOPClass, CTImageStorage
+from pynetdicom.sop_class import Verification, CTImageStorage
 
 
 #debug_logger()
@@ -70,7 +70,7 @@ class EchoSCUBase:
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
         ae.network_timeout = 5
-        ae.add_supported_context(VerificationSOPClass)
+        ae.add_supported_context(Verification)
         scp = ae.start_server(('', 11112), block=False, evt_handlers=handlers)
 
         p = self.func([])
@@ -92,7 +92,7 @@ class EchoSCUBase:
         assert requestor.user_identity == None
         cxs = requestor.primitive.presentation_context_definition_list
         assert len(cxs) == 1
-        assert cxs[0].abstract_syntax == VerificationSOPClass
+        assert cxs[0].abstract_syntax == Verification
         assert cxs[0].transfer_syntax == [
             ExplicitVRLittleEndian,
             ImplicitVRLittleEndian,
@@ -144,7 +144,7 @@ class EchoSCUBase:
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
         ae.network_timeout = 5
-        ae.add_supported_context(VerificationSOPClass)
+        ae.add_supported_context(Verification)
         scp = ae.start_server(('', 11112), block=False)
 
         p = self.func(['-v'])
@@ -167,7 +167,7 @@ class EchoSCUBase:
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
         ae.network_timeout = 5
-        ae.add_supported_context(VerificationSOPClass)
+        ae.add_supported_context(Verification)
         scp = ae.start_server(('', 11112), block=False)
 
         p = self.func(['-d'])
@@ -211,7 +211,7 @@ class EchoSCUBase:
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
         ae.network_timeout = 5
-        ae.add_supported_context(VerificationSOPClass)
+        ae.add_supported_context(Verification)
         scp = ae.start_server(('', 11112), block=False, evt_handlers=handlers)
 
         p = self.func(['-aet', 'MYSCU'])
@@ -245,7 +245,7 @@ class EchoSCUBase:
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
         ae.network_timeout = 5
-        ae.add_supported_context(VerificationSOPClass)
+        ae.add_supported_context(Verification)
         scp = ae.start_server(('', 11112), block=False, evt_handlers=handlers)
 
         p = self.func(['-aec', 'YOURSCP'])
@@ -284,7 +284,7 @@ class EchoSCUBase:
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
         ae.network_timeout = 5
-        ae.add_supported_context(VerificationSOPClass)
+        ae.add_supported_context(Verification)
         scp = ae.start_server(('', 11112), block=False, evt_handlers=handlers)
 
         p = self.func(['-ta', '0.05', '-d'])
@@ -321,7 +321,7 @@ class EchoSCUBase:
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
         ae.network_timeout = 5
-        ae.add_supported_context(VerificationSOPClass)
+        ae.add_supported_context(Verification)
         scp = ae.start_server(('', 11112), block=False, evt_handlers=handlers)
 
         p = self.func(['-td', '0.05', '-d'])
@@ -362,7 +362,7 @@ class EchoSCUBase:
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
         ae.network_timeout = 5
-        ae.add_supported_context(VerificationSOPClass)
+        ae.add_supported_context(Verification)
         scp = ae.start_server(('', 11112), block=False, evt_handlers=handlers)
 
         p = self.func(['--max-pdu', '123456'])
@@ -396,7 +396,7 @@ class EchoSCUBase:
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
         ae.network_timeout = 5
-        ae.add_supported_context(VerificationSOPClass)
+        ae.add_supported_context(Verification)
         scp = ae.start_server(('', 11112), block=False, evt_handlers=handlers)
 
         p = self.func(['-xe'])
@@ -410,7 +410,7 @@ class EchoSCUBase:
         requestor = events[1].assoc.requestor
         cxs = requestor.primitive.presentation_context_definition_list
         assert len(cxs) == 1
-        assert cxs[0].abstract_syntax == VerificationSOPClass
+        assert cxs[0].abstract_syntax == Verification
         assert cxs[0].transfer_syntax == [ExplicitVRLittleEndian]
 
     def test_flag_xb(self):
@@ -433,7 +433,7 @@ class EchoSCUBase:
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
         ae.network_timeout = 5
-        ae.add_supported_context(VerificationSOPClass)
+        ae.add_supported_context(Verification)
         scp = ae.start_server(('', 11112), block=False, evt_handlers=handlers)
 
         p = self.func(['-xb'])
@@ -447,7 +447,7 @@ class EchoSCUBase:
         requestor = events[1].assoc.requestor
         cxs = requestor.primitive.presentation_context_definition_list
         assert len(cxs) == 1
-        assert cxs[0].abstract_syntax == VerificationSOPClass
+        assert cxs[0].abstract_syntax == Verification
         assert cxs[0].transfer_syntax == [ExplicitVRBigEndian]
 
     def test_flag_xi(self):
@@ -470,7 +470,7 @@ class EchoSCUBase:
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
         ae.network_timeout = 5
-        ae.add_supported_context(VerificationSOPClass)
+        ae.add_supported_context(Verification)
         scp = ae.start_server(('', 11112), block=False, evt_handlers=handlers)
 
         p = self.func(['-xi'])
@@ -484,7 +484,7 @@ class EchoSCUBase:
         requestor = events[1].assoc.requestor
         cxs = requestor.primitive.presentation_context_definition_list
         assert len(cxs) == 1
-        assert cxs[0].abstract_syntax == VerificationSOPClass
+        assert cxs[0].abstract_syntax == Verification
         assert cxs[0].transfer_syntax == [ImplicitVRLittleEndian]
 
     def test_flag_repeat(self):
@@ -507,7 +507,7 @@ class EchoSCUBase:
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
         ae.network_timeout = 5
-        ae.add_supported_context(VerificationSOPClass)
+        ae.add_supported_context(Verification)
         scp = ae.start_server(('', 11112), block=False, evt_handlers=handlers)
 
         p = self.func(['--repeat', '3'])
@@ -545,7 +545,7 @@ class EchoSCUBase:
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
         ae.network_timeout = 5
-        ae.add_supported_context(VerificationSOPClass)
+        ae.add_supported_context(Verification)
         scp = ae.start_server(('', 11112), block=False, evt_handlers=handlers)
 
         p = self.func(['--abort'])

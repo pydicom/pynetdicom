@@ -34,7 +34,7 @@ from pynetdicom.pdu_primitives import (
     SOPClassCommonExtendedNegotiation,
     UserIdentityNegotiation,
 )
-from pynetdicom.sop_class import CTImageStorage, VerificationSOPClass
+from pynetdicom.sop_class import CTImageStorage, Verification
 
 
 #debug_logger()
@@ -437,8 +437,8 @@ class TestStandardLogging:
         """Test standard PDU logging handler with minimal A-ASSOCIATE-RQ."""
         with caplog.at_level(logging.DEBUG, logger='pynetdicom'):
             self.ae = ae = AE()
-            ae.add_supported_context(VerificationSOPClass)
-            ae.add_requested_context(VerificationSOPClass)
+            ae.add_supported_context(Verification)
+            ae.add_requested_context(Verification)
             scp = ae.start_server(('', 11112), block=False)
             assoc = ae.associate('localhost', 11112)
 
@@ -483,8 +483,8 @@ class TestStandardLogging:
         """Test A-ASSOCIATE-RQ with role selection."""
         with caplog.at_level(logging.DEBUG, logger='pynetdicom'):
             self.ae = ae = AE()
-            ae.add_supported_context(VerificationSOPClass)
-            ae.add_requested_context(VerificationSOPClass)
+            ae.add_supported_context(Verification)
+            ae.add_requested_context(Verification)
             scp = ae.start_server(('', 11112), block=False)
             assoc = ae.associate('localhost', 11112)
 
@@ -516,8 +516,8 @@ class TestStandardLogging:
         """Test A-ASSOCIATE-RQ with async ops."""
         with caplog.at_level(logging.DEBUG, logger='pynetdicom'):
             self.ae = ae = AE()
-            ae.add_supported_context(VerificationSOPClass)
-            ae.add_requested_context(VerificationSOPClass)
+            ae.add_supported_context(Verification)
+            ae.add_requested_context(Verification)
             scp = ae.start_server(('', 11112), block=False)
             assoc = ae.associate('localhost', 11112)
 
@@ -547,8 +547,8 @@ class TestStandardLogging:
         """Test ACSE.debug_send_associate_rq with SOP Class Extended."""
         with caplog.at_level(logging.DEBUG, logger='pynetdicom'):
             self.ae = ae = AE()
-            ae.add_supported_context(VerificationSOPClass)
-            ae.add_requested_context(VerificationSOPClass)
+            ae.add_supported_context(Verification)
+            ae.add_requested_context(Verification)
             scp = ae.start_server(('', 11112), block=False)
             assoc = ae.associate('localhost', 11112)
 
@@ -584,8 +584,8 @@ class TestStandardLogging:
         """Test ACSE.debug_send_associate_rq with SOP Class Common."""
         with caplog.at_level(logging.DEBUG, logger='pynetdicom'):
             self.ae = ae = AE()
-            ae.add_supported_context(VerificationSOPClass)
-            ae.add_requested_context(VerificationSOPClass)
+            ae.add_supported_context(Verification)
+            ae.add_requested_context(Verification)
             scp = ae.start_server(('', 11112), block=False)
             assoc = ae.associate('localhost', 11112)
 
@@ -622,8 +622,8 @@ class TestStandardLogging:
         """Test ACSE.debug_send_associate_rq with SOP User Identity."""
         with caplog.at_level(logging.DEBUG, logger='pynetdicom'):
             self.ae = ae = AE()
-            ae.add_supported_context(VerificationSOPClass)
-            ae.add_requested_context(VerificationSOPClass)
+            ae.add_supported_context(Verification)
+            ae.add_requested_context(Verification)
             scp = ae.start_server(('', 11112), block=False)
             assoc = ae.associate('localhost', 11112)
 
@@ -653,8 +653,8 @@ class TestStandardLogging:
         """Test minimal ACSE.debug_receive_associate_rq."""
         with caplog.at_level(logging.DEBUG, logger='pynetdicom'):
             self.ae = ae = AE()
-            ae.add_supported_context(VerificationSOPClass)
-            ae.add_requested_context(VerificationSOPClass)
+            ae.add_supported_context(Verification)
+            ae.add_requested_context(Verification)
             scp = ae.start_server(('', 11112), block=False)
             assoc = ae.associate('localhost', 11112)
 
@@ -700,8 +700,8 @@ class TestStandardLogging:
         """Test ACSE.debug_receive_associate_rq with role selection."""
         with caplog.at_level(logging.DEBUG, logger='pynetdicom'):
             self.ae = ae = AE()
-            ae.add_supported_context(VerificationSOPClass)
-            ae.add_requested_context(VerificationSOPClass)
+            ae.add_supported_context(Verification)
+            ae.add_requested_context(Verification)
             scp = ae.start_server(('', 11112), block=False)
             assoc = ae.associate('localhost', 11112)
 
@@ -733,8 +733,8 @@ class TestStandardLogging:
         """Test ACSE.debug_receive_associate_rq with async ops."""
         with caplog.at_level(logging.DEBUG, logger='pynetdicom'):
             self.ae = ae = AE()
-            ae.add_supported_context(VerificationSOPClass)
-            ae.add_requested_context(VerificationSOPClass)
+            ae.add_supported_context(Verification)
+            ae.add_requested_context(Verification)
             scp = ae.start_server(('', 11112), block=False)
             assoc = ae.associate('localhost', 11112)
 
@@ -764,8 +764,8 @@ class TestStandardLogging:
         """Test ACSE.debug_receive_associate_rq with SOP Class Extended."""
         with caplog.at_level(logging.DEBUG, logger='pynetdicom'):
             self.ae = ae = AE()
-            ae.add_supported_context(VerificationSOPClass)
-            ae.add_requested_context(VerificationSOPClass)
+            ae.add_supported_context(Verification)
+            ae.add_requested_context(Verification)
             scp = ae.start_server(('', 11112), block=False)
             assoc = ae.associate('localhost', 11112)
 
@@ -801,8 +801,8 @@ class TestStandardLogging:
         """Test ACSE.debug_receive_associate_rq with SOP Class Common."""
         with caplog.at_level(logging.DEBUG, logger='pynetdicom'):
             self.ae = ae = AE()
-            ae.add_supported_context(VerificationSOPClass)
-            ae.add_requested_context(VerificationSOPClass)
+            ae.add_supported_context(Verification)
+            ae.add_requested_context(Verification)
             scp = ae.start_server(('', 11112), block=False)
             assoc = ae.associate('localhost', 11112)
 
@@ -839,8 +839,8 @@ class TestStandardLogging:
         """Test ACSE.debug_receive_associate_rq with User Identity."""
         with caplog.at_level(logging.DEBUG, logger='pynetdicom'):
             self.ae = ae = AE()
-            ae.add_supported_context(VerificationSOPClass)
-            ae.add_requested_context(VerificationSOPClass)
+            ae.add_supported_context(Verification)
+            ae.add_requested_context(Verification)
             scp = ae.start_server(('', 11112), block=False)
             assoc = ae.associate('localhost', 11112)
 
@@ -870,12 +870,12 @@ class TestStandardLogging:
         """Test minimal ACSE.debug_send_associate_ac."""
         with caplog.at_level(logging.DEBUG, logger='pynetdicom'):
             self.ae = ae = AE()
-            ae.add_supported_context(VerificationSOPClass)
-            ae.add_requested_context(VerificationSOPClass)
-            ae.add_requested_context(VerificationSOPClass)
-            ae.add_requested_context(VerificationSOPClass)
-            ae.add_requested_context(VerificationSOPClass)
-            ae.add_requested_context(VerificationSOPClass)
+            ae.add_supported_context(Verification)
+            ae.add_requested_context(Verification)
+            ae.add_requested_context(Verification)
+            ae.add_requested_context(Verification)
+            ae.add_requested_context(Verification)
+            ae.add_requested_context(Verification)
             scp = ae.start_server(('', 11112), block=False)
             assoc = ae.associate('localhost', 11112)
 
@@ -924,8 +924,8 @@ class TestStandardLogging:
             ae.add_requested_context('1.2.840.10008.1.2')
             ae.add_requested_context('1.2.840.10008.1.3')
             ae.add_requested_context('1.2.840.10008.1.4')
-            ae.add_requested_context(VerificationSOPClass)
-            ae.add_requested_context(VerificationSOPClass)
+            ae.add_requested_context(Verification)
+            ae.add_requested_context(Verification)
             scp = ae.start_server(('', 11112), block=False)
 
             ext_neg = []
@@ -968,12 +968,12 @@ class TestStandardLogging:
         """Test ACSE.debug_send_associate_ac with async ops."""
         with caplog.at_level(logging.DEBUG, logger='pynetdicom'):
             self.ae = ae = AE()
-            ae.add_supported_context(VerificationSOPClass)
-            ae.add_requested_context(VerificationSOPClass)
-            ae.add_requested_context(VerificationSOPClass)
-            ae.add_requested_context(VerificationSOPClass)
-            ae.add_requested_context(VerificationSOPClass)
-            ae.add_requested_context(VerificationSOPClass)
+            ae.add_supported_context(Verification)
+            ae.add_requested_context(Verification)
+            ae.add_requested_context(Verification)
+            ae.add_requested_context(Verification)
+            ae.add_requested_context(Verification)
+            ae.add_requested_context(Verification)
             scp = ae.start_server(('', 11112), block=False)
             assoc = ae.associate('localhost', 11112)
 
@@ -1002,12 +1002,12 @@ class TestStandardLogging:
         """Test ACSE.debug_send_associate_ac with SOP Class Extended."""
         with caplog.at_level(logging.DEBUG, logger='pynetdicom'):
             self.ae = ae = AE()
-            ae.add_supported_context(VerificationSOPClass)
-            ae.add_requested_context(VerificationSOPClass)
-            ae.add_requested_context(VerificationSOPClass)
-            ae.add_requested_context(VerificationSOPClass)
-            ae.add_requested_context(VerificationSOPClass)
-            ae.add_requested_context(VerificationSOPClass)
+            ae.add_supported_context(Verification)
+            ae.add_requested_context(Verification)
+            ae.add_requested_context(Verification)
+            ae.add_requested_context(Verification)
+            ae.add_requested_context(Verification)
+            ae.add_requested_context(Verification)
             scp = ae.start_server(('', 11112), block=False)
             assoc = ae.associate('localhost', 11112)
 
@@ -1042,12 +1042,12 @@ class TestStandardLogging:
         """Test ACSE.debug_send_associate_ac with User Identity."""
         with caplog.at_level(logging.DEBUG, logger='pynetdicom'):
             self.ae = ae = AE()
-            ae.add_supported_context(VerificationSOPClass)
-            ae.add_requested_context(VerificationSOPClass)
-            ae.add_requested_context(VerificationSOPClass)
-            ae.add_requested_context(VerificationSOPClass)
-            ae.add_requested_context(VerificationSOPClass)
-            ae.add_requested_context(VerificationSOPClass)
+            ae.add_supported_context(Verification)
+            ae.add_requested_context(Verification)
+            ae.add_requested_context(Verification)
+            ae.add_requested_context(Verification)
+            ae.add_requested_context(Verification)
+            ae.add_requested_context(Verification)
             scp = ae.start_server(('', 11112), block=False)
             assoc = ae.associate('localhost', 11112)
 
@@ -1074,12 +1074,12 @@ class TestStandardLogging:
         """Test _send_associate_ac logger with no presentations contexts"""
         with caplog.at_level(logging.DEBUG, logger='pynetdicom'):
             self.ae = ae = AE()
-            ae.add_supported_context(VerificationSOPClass)
-            ae.add_requested_context(VerificationSOPClass)
-            ae.add_requested_context(VerificationSOPClass)
-            ae.add_requested_context(VerificationSOPClass)
-            ae.add_requested_context(VerificationSOPClass)
-            ae.add_requested_context(VerificationSOPClass)
+            ae.add_supported_context(Verification)
+            ae.add_requested_context(Verification)
+            ae.add_requested_context(Verification)
+            ae.add_requested_context(Verification)
+            ae.add_requested_context(Verification)
+            ae.add_requested_context(Verification)
             scp = ae.start_server(('', 11112), block=False)
             assoc = ae.associate('localhost', 11112)
 
@@ -1114,12 +1114,12 @@ class TestStandardLogging:
         """Test minimal ACSE.debug_receive_associate_ac."""
         with caplog.at_level(logging.DEBUG, logger='pynetdicom'):
             self.ae = ae = AE()
-            ae.add_supported_context(VerificationSOPClass)
-            ae.add_requested_context(VerificationSOPClass)
-            ae.add_requested_context(VerificationSOPClass)
-            ae.add_requested_context(VerificationSOPClass)
-            ae.add_requested_context(VerificationSOPClass)
-            ae.add_requested_context(VerificationSOPClass)
+            ae.add_supported_context(Verification)
+            ae.add_requested_context(Verification)
+            ae.add_requested_context(Verification)
+            ae.add_requested_context(Verification)
+            ae.add_requested_context(Verification)
+            ae.add_requested_context(Verification)
             scp = ae.start_server(('', 11112), block=False)
             assoc = ae.associate('localhost', 11112)
 
@@ -1168,8 +1168,8 @@ class TestStandardLogging:
             ae.add_requested_context('1.2.840.10008.1.2')
             ae.add_requested_context('1.2.840.10008.1.3')
             ae.add_requested_context('1.2.840.10008.1.4')
-            ae.add_requested_context(VerificationSOPClass)
-            ae.add_requested_context(VerificationSOPClass)
+            ae.add_requested_context(Verification)
+            ae.add_requested_context(Verification)
             scp = ae.start_server(('', 11112), block=False)
 
             ext_neg = []
@@ -1208,12 +1208,12 @@ class TestStandardLogging:
         """Test ACSE.debug_receive_associate_ac with async ops."""
         with caplog.at_level(logging.DEBUG, logger='pynetdicom'):
             self.ae = ae = AE()
-            ae.add_supported_context(VerificationSOPClass)
-            ae.add_requested_context(VerificationSOPClass)
-            ae.add_requested_context(VerificationSOPClass)
-            ae.add_requested_context(VerificationSOPClass)
-            ae.add_requested_context(VerificationSOPClass)
-            ae.add_requested_context(VerificationSOPClass)
+            ae.add_supported_context(Verification)
+            ae.add_requested_context(Verification)
+            ae.add_requested_context(Verification)
+            ae.add_requested_context(Verification)
+            ae.add_requested_context(Verification)
+            ae.add_requested_context(Verification)
             scp = ae.start_server(('', 11112), block=False)
             assoc = ae.associate('localhost', 11112)
 
@@ -1242,12 +1242,12 @@ class TestStandardLogging:
         """Test ACSE.debug_receive_associate_ac with SOP Class Extended."""
         with caplog.at_level(logging.DEBUG, logger='pynetdicom'):
             self.ae = ae = AE()
-            ae.add_supported_context(VerificationSOPClass)
-            ae.add_requested_context(VerificationSOPClass)
-            ae.add_requested_context(VerificationSOPClass)
-            ae.add_requested_context(VerificationSOPClass)
-            ae.add_requested_context(VerificationSOPClass)
-            ae.add_requested_context(VerificationSOPClass)
+            ae.add_supported_context(Verification)
+            ae.add_requested_context(Verification)
+            ae.add_requested_context(Verification)
+            ae.add_requested_context(Verification)
+            ae.add_requested_context(Verification)
+            ae.add_requested_context(Verification)
             scp = ae.start_server(('', 11112), block=False)
             assoc = ae.associate('localhost', 11112)
 
@@ -1282,12 +1282,12 @@ class TestStandardLogging:
         """Test ACSE.debug_receive_associate_ac with User Identity."""
         with caplog.at_level(logging.DEBUG, logger='pynetdicom'):
             self.ae = ae = AE()
-            ae.add_supported_context(VerificationSOPClass)
-            ae.add_requested_context(VerificationSOPClass)
-            ae.add_requested_context(VerificationSOPClass)
-            ae.add_requested_context(VerificationSOPClass)
-            ae.add_requested_context(VerificationSOPClass)
-            ae.add_requested_context(VerificationSOPClass)
+            ae.add_supported_context(Verification)
+            ae.add_requested_context(Verification)
+            ae.add_requested_context(Verification)
+            ae.add_requested_context(Verification)
+            ae.add_requested_context(Verification)
+            ae.add_requested_context(Verification)
             scp = ae.start_server(('', 11112), block=False)
             assoc = ae.associate('localhost', 11112)
 

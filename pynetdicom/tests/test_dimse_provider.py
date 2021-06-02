@@ -37,8 +37,8 @@ from .encoded_dimse_n_msg import (
 )
 from .encoded_pdu_items import p_data_tf
 from pynetdicom.sop_class import (
-    VerificationSOPClass, BasicGrayscalePrintManagementMetaSOPClass,
-    PrinterSOPClass
+    Verification, BasicGrayscalePrintManagementMeta,
+    Printer
 )
 
 
@@ -203,8 +203,8 @@ class TestEventHandlingAcceptor:
     def test_no_handlers(self):
         """Test with no transport event handlers bound."""
         self.ae = ae = AE()
-        ae.add_supported_context(VerificationSOPClass)
-        ae.add_requested_context(VerificationSOPClass)
+        ae.add_supported_context(Verification)
+        ae.add_requested_context(Verification)
         scp = ae.start_server(('', 11112), block=False)
         assert scp.get_handlers(evt.EVT_DIMSE_RECV) == []
         assert scp.get_handlers(evt.EVT_DIMSE_SENT) == []
@@ -231,8 +231,8 @@ class TestEventHandlingAcceptor:
             triggered.append(event)
 
         self.ae = ae = AE()
-        ae.add_supported_context(VerificationSOPClass)
-        ae.add_requested_context(VerificationSOPClass)
+        ae.add_supported_context(Verification)
+        ae.add_requested_context(Verification)
         handlers = [(evt.EVT_DIMSE_SENT, handle)]
         scp = ae.start_server(('', 11112), block=False, evt_handlers=handlers)
         assert scp.get_handlers(evt.EVT_DIMSE_SENT) == [(handle, None)]
@@ -271,8 +271,8 @@ class TestEventHandlingAcceptor:
             triggered.append(event)
 
         self.ae = ae = AE()
-        ae.add_supported_context(VerificationSOPClass)
-        ae.add_requested_context(VerificationSOPClass)
+        ae.add_supported_context(Verification)
+        ae.add_requested_context(Verification)
         handlers = [(evt.EVT_DIMSE_SENT, handle)]
         scp = ae.start_server(('', 11112), block=False)
         assert scp.get_handlers(evt.EVT_DIMSE_SENT) == []
@@ -317,8 +317,8 @@ class TestEventHandlingAcceptor:
             triggered.append(event)
 
         self.ae = ae = AE()
-        ae.add_supported_context(VerificationSOPClass)
-        ae.add_requested_context(VerificationSOPClass)
+        ae.add_supported_context(Verification)
+        ae.add_requested_context(Verification)
         handlers = [(evt.EVT_DIMSE_SENT, handle)]
         scp = ae.start_server(('', 11112), block=False, evt_handlers=handlers)
         assert scp.get_handlers(evt.EVT_DIMSE_SENT) == [(handle, None)]
@@ -366,8 +366,8 @@ class TestEventHandlingAcceptor:
             raise NotImplementedError("Exception description")
 
         self.ae = ae = AE()
-        ae.add_supported_context(VerificationSOPClass)
-        ae.add_requested_context(VerificationSOPClass)
+        ae.add_supported_context(Verification)
+        ae.add_requested_context(Verification)
         handlers = [(evt.EVT_DIMSE_SENT, handle)]
         scp = ae.start_server(('', 11112), block=False, evt_handlers=handlers)
 
@@ -396,8 +396,8 @@ class TestEventHandlingAcceptor:
             triggered.append(event)
 
         self.ae = ae = AE()
-        ae.add_supported_context(VerificationSOPClass)
-        ae.add_requested_context(VerificationSOPClass)
+        ae.add_supported_context(Verification)
+        ae.add_requested_context(Verification)
         handlers = [(evt.EVT_DIMSE_RECV, handle)]
         scp = ae.start_server(('', 11112), block=False, evt_handlers=handlers)
         assert scp.get_handlers(evt.EVT_DIMSE_RECV) == [(handle, None)]
@@ -435,8 +435,8 @@ class TestEventHandlingAcceptor:
             triggered.append(event)
 
         self.ae = ae = AE()
-        ae.add_supported_context(VerificationSOPClass)
-        ae.add_requested_context(VerificationSOPClass)
+        ae.add_supported_context(Verification)
+        ae.add_requested_context(Verification)
         scp = ae.start_server(('', 11112), block=False)
         assert scp.get_handlers(evt.EVT_DIMSE_RECV) == []
 
@@ -479,8 +479,8 @@ class TestEventHandlingAcceptor:
             triggered.append(event)
 
         self.ae = ae = AE()
-        ae.add_supported_context(VerificationSOPClass)
-        ae.add_requested_context(VerificationSOPClass)
+        ae.add_supported_context(Verification)
+        ae.add_requested_context(Verification)
         handlers = [(evt.EVT_DIMSE_RECV, handle)]
         scp = ae.start_server(('', 11112), block=False, evt_handlers=handlers)
         assert scp.get_handlers(evt.EVT_DIMSE_RECV) == [(handle, None)]
@@ -526,8 +526,8 @@ class TestEventHandlingAcceptor:
             raise NotImplementedError("Exception description")
 
         self.ae = ae = AE()
-        ae.add_supported_context(VerificationSOPClass)
-        ae.add_requested_context(VerificationSOPClass)
+        ae.add_supported_context(Verification)
+        ae.add_requested_context(Verification)
         handlers = [(evt.EVT_DIMSE_RECV, handle)]
         scp = ae.start_server(('', 11112), block=False, evt_handlers=handlers)
 
@@ -565,8 +565,8 @@ class TestEventHandlingRequestor:
     def test_no_handlers(self):
         """Test with no transport event handlers bound."""
         self.ae = ae = AE()
-        ae.add_supported_context(VerificationSOPClass)
-        ae.add_requested_context(VerificationSOPClass)
+        ae.add_supported_context(Verification)
+        ae.add_requested_context(Verification)
         scp = ae.start_server(('', 11112), block=False)
         assert scp.get_handlers(evt.EVT_DIMSE_RECV) == []
         assert scp.get_handlers(evt.EVT_DIMSE_SENT) == []
@@ -593,8 +593,8 @@ class TestEventHandlingRequestor:
             triggered.append(event)
 
         self.ae = ae = AE()
-        ae.add_supported_context(VerificationSOPClass)
-        ae.add_requested_context(VerificationSOPClass)
+        ae.add_supported_context(Verification)
+        ae.add_requested_context(Verification)
         handlers = [(evt.EVT_DIMSE_SENT, handle)]
         scp = ae.start_server(('', 11112), block=False)
         assert scp.get_handlers(evt.EVT_DIMSE_SENT) == []
@@ -632,8 +632,8 @@ class TestEventHandlingRequestor:
             triggered.append(event)
 
         self.ae = ae = AE()
-        ae.add_supported_context(VerificationSOPClass)
-        ae.add_requested_context(VerificationSOPClass)
+        ae.add_supported_context(Verification)
+        ae.add_requested_context(Verification)
         handlers = [(evt.EVT_DIMSE_SENT, handle)]
         scp = ae.start_server(('', 11112), block=False)
         assert scp.get_handlers(evt.EVT_DIMSE_SENT) == []
@@ -678,8 +678,8 @@ class TestEventHandlingRequestor:
             triggered.append(event)
 
         self.ae = ae = AE()
-        ae.add_supported_context(VerificationSOPClass)
-        ae.add_requested_context(VerificationSOPClass)
+        ae.add_supported_context(Verification)
+        ae.add_requested_context(Verification)
         handlers = [(evt.EVT_DIMSE_SENT, handle)]
         scp = ae.start_server(('', 11112), block=False)
         assert scp.get_handlers(evt.EVT_DIMSE_SENT) == []
@@ -716,8 +716,8 @@ class TestEventHandlingRequestor:
             raise NotImplementedError("Exception description")
 
         self.ae = ae = AE()
-        ae.add_supported_context(VerificationSOPClass)
-        ae.add_requested_context(VerificationSOPClass)
+        ae.add_supported_context(Verification)
+        ae.add_requested_context(Verification)
         handlers = [(evt.EVT_DIMSE_SENT, handle)]
         scp = ae.start_server(('', 11112), block=False)
 
@@ -746,8 +746,8 @@ class TestEventHandlingRequestor:
             triggered.append(event)
 
         self.ae = ae = AE()
-        ae.add_supported_context(VerificationSOPClass)
-        ae.add_requested_context(VerificationSOPClass)
+        ae.add_supported_context(Verification)
+        ae.add_requested_context(Verification)
         handlers = [(evt.EVT_DIMSE_RECV, handle)]
         scp = ae.start_server(('', 11112), block=False)
         assert scp.get_handlers(evt.EVT_DIMSE_RECV) == []
@@ -785,8 +785,8 @@ class TestEventHandlingRequestor:
             triggered.append(event)
 
         self.ae = ae = AE()
-        ae.add_supported_context(VerificationSOPClass)
-        ae.add_requested_context(VerificationSOPClass)
+        ae.add_supported_context(Verification)
+        ae.add_requested_context(Verification)
         scp = ae.start_server(('', 11112), block=False)
         assert scp.get_handlers(evt.EVT_DIMSE_RECV) == []
 
@@ -829,8 +829,8 @@ class TestEventHandlingRequestor:
             triggered.append(event)
 
         self.ae = ae = AE()
-        ae.add_supported_context(VerificationSOPClass)
-        ae.add_requested_context(VerificationSOPClass)
+        ae.add_supported_context(Verification)
+        ae.add_requested_context(Verification)
         handlers = [(evt.EVT_DIMSE_RECV, handle)]
         scp = ae.start_server(('', 11112), block=False)
         assert scp.get_handlers(evt.EVT_DIMSE_RECV) == []
@@ -873,8 +873,8 @@ class TestEventHandlingRequestor:
             raise NotImplementedError("Exception description")
 
         self.ae = ae = AE()
-        ae.add_supported_context(VerificationSOPClass)
-        ae.add_requested_context(VerificationSOPClass)
+        ae.add_supported_context(Verification)
+        ae.add_requested_context(Verification)
         handlers = [(evt.EVT_DIMSE_RECV, handle)]
         scp = ae.start_server(('', 11112), block=False, evt_handlers=handlers)
 

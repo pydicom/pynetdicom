@@ -16,7 +16,7 @@ from pydicom.uid import (
 )
 
 from pynetdicom import AE, evt, debug_logger, DEFAULT_TRANSFER_SYNTAXES
-from pynetdicom.sop_class import VerificationSOPClass, CTImageStorage
+from pynetdicom.sop_class import Verification, CTImageStorage
 
 
 #debug_logger()
@@ -67,7 +67,7 @@ class EchoSCPBase:
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
         ae.network_timeout = 5
-        ae.add_requested_context(VerificationSOPClass)
+        ae.add_requested_context(Verification)
 
         self.p = p = self.func([
             '--database-location', self.db_location,
@@ -87,7 +87,7 @@ class EchoSCPBase:
         cxs = assoc.accepted_contexts
         assert len(cxs) == 1
         cxs = {cx.abstract_syntax: cx for cx in cxs}
-        assert VerificationSOPClass in cxs
+        assert Verification in cxs
 
     def test_flag_version(self, capfd):
         """Test --version flag."""
@@ -108,7 +108,7 @@ class EchoSCPBase:
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
         ae.network_timeout = 5
-        ae.add_requested_context(VerificationSOPClass)
+        ae.add_requested_context(Verification)
 
         self.p = p = self.func([
             '--database-location', self.db_location,
@@ -135,7 +135,7 @@ class EchoSCPBase:
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
         ae.network_timeout = 5
-        ae.add_requested_context(VerificationSOPClass)
+        ae.add_requested_context(Verification)
 
         out, err = [], []
 
@@ -166,7 +166,7 @@ class EchoSCPBase:
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
         ae.network_timeout = 5
-        ae.add_requested_context(VerificationSOPClass)
+        ae.add_requested_context(Verification)
 
         self.p = p = self.func([
             '--database-location', self.db_location,

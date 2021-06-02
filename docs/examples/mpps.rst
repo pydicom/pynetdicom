@@ -33,7 +33,7 @@ SOP Instance.
 
     from pynetdicom import AE, debug_logger
     from pynetdicom.sop_class import (
-        ModalityPerformedProcedureStepSOPClass,
+        ModalityPerformedProcedureStep,
         CTImageStorage
     )
     from pynetdicom.status import code_to_category
@@ -87,7 +87,7 @@ SOP Instance.
     ae = AE()
 
     # Add a requested presentation context
-    ae.add_requested_context(ModalityPerformedProcedureStepSOPClass)
+    ae.add_requested_context(ModalityPerformedProcedureStep)
 
     # Associate with peer AE at IP 127.0.0.1 and port 11112
     assoc = ae.associate('127.0.0.1', 11112)
@@ -97,7 +97,7 @@ SOP Instance.
         # should return the Instance itself
         status, attr_list = assoc.send_n_create(
             build_attr_list(),
-            ModalityPerformedProcedureStepSOPClass,
+            ModalityPerformedProcedureStep,
             mpps_instance_uid
         )
 
@@ -175,7 +175,7 @@ Procedure Step Status* of ``"COMPLETED"``.
         # Use the N-SET service to update the SOP Instance
         status, attr_list = assoc.send_n_set(
             build_mod_list(ct_series_uid, ct_instance_uids),
-            ModalityPerformedProcedureStepSOPClass,
+            ModalityPerformedProcedureStep,
             mpps_instance_uid
         )
 
@@ -186,7 +186,7 @@ Procedure Step Status* of ``"COMPLETED"``.
                 # Send completion
                 status, attr_list = assoc.send_n_set(
                     final_ds,
-                    ModalityPerformedProcedureStepSOPClass,
+                    ModalityPerformedProcedureStep,
                     mpps_instance_uid
                 )
                 if status:
@@ -216,7 +216,7 @@ handlers.
     from pydicom.dataset import Dataset
 
     from pynetdicom import AE, evt
-    from pynetdicom.sop_class import ModalityPerformedProcedureStepSOPClass
+    from pynetdicom.sop_class import ModalityPerformedProcedureStep
 
     managed_instances = {}
 
@@ -250,7 +250,7 @@ handlers.
         ds = Dataset()
 
         # Add the SOP Common module elements (Annex C.12.1)
-        ds.SOPClassUID = ModalityPerformedProcedureStepSOPClass
+        ds.SOPClassUID = ModalityPerformedProcedureStep
         ds.SOPInstanceUID = req.AffectedSOPInstanceUID
 
         # Update with the requested attributes
@@ -287,7 +287,7 @@ handlers.
     ae = AE()
 
     # Add the supported presentation context
-    ae.add_supported_context(ModalityPerformedProcedureStepSOPClass)
+    ae.add_supported_context(ModalityPerformedProcedureStep)
 
     # Start listening for incoming association requests
     ae.start_server(('', 11112), evt_handlers=handlers)

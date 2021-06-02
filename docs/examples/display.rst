@@ -16,7 +16,7 @@ Display System Management Service.
 
     from pynetdicom import AE, debug_logger
     from pynetdicom.sop_class import (
-        DisplaySystemSOPClass, DisplaySystemSOPInstance
+        DisplaySystem, DisplaySystemInstance
     )
     from pynetdicom.status import code_to_category
 
@@ -26,7 +26,7 @@ Display System Management Service.
     ae = AE()
 
     # Add a requested presentation context
-    ae.add_requested_context(DisplaySystemSOPClass)
+    ae.add_requested_context(DisplaySystem)
 
     # Associate with peer AE at IP 127.0.0.1 and port 11112
     assoc = ae.associate('127.0.0.1', 11112)
@@ -36,8 +36,8 @@ Display System Management Service.
         #  response status a pydicom Dataset and the AttributeList dataset
         status, attr_list = assoc.send_n_get(
             [(0x0008, 0x0070)],
-            DisplaySystemSOPClass,
-            DisplaySystemSOPInstance  # Well-known SOP Instance
+            DisplaySystem,
+            DisplaySystemInstance  # Well-known SOP Instance
         )
 
         # Check the status of the display system request
@@ -76,7 +76,7 @@ to see the requirements for the ``evt.EVT_N_GET`` handler.
 .. code-block:: python
 
     from pynetdicom import AE, evt
-    from pynetdicom.sop_class import DisplaySystemSOPClass
+    from pynetdicom.sop_class import DisplaySystem
 
     from my_code import create_attribute_list
 
@@ -98,7 +98,7 @@ to see the requirements for the ``evt.EVT_N_GET`` handler.
     ae = AE()
 
     # Add the supported presentation context
-    ae.add_supported_context(DisplaySystemSOPClass)
+    ae.add_supported_context(DisplaySystem)
 
     # Start listening for incoming association requests
     ae.start_server(('', 11112), evt_handlers=handlers)
