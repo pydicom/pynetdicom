@@ -1,0 +1,10 @@
+.. _v1.5.5:
+
+1.5.5
+=====
+
+Fixes
+.....
+
+* Fixed C-FIND SCPs sending the previous pending Identifier with the final
+  success response (#571)

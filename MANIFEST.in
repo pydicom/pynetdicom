@@ -1,3 +1,4 @@
 include pynetdicom/tests/cert_files/*
 include pynetdicom/tests/dicom_files/*
 include pynetdicom/apps/qrscp/default.ini
+include pynetdicom/py.typed

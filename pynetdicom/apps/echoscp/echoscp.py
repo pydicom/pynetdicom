@@ -11,7 +11,7 @@ from pydicom.uid import (
 from pynetdicom import AE, evt
 from pynetdicom.apps.common import setup_logging
 from pynetdicom._globals import ALL_TRANSFER_SYNTAXES, DEFAULT_MAX_LENGTH
-from pynetdicom.sop_class import VerificationSOPClass
+from pynetdicom.sop_class import Verification
 
 
 __version__ = '0.7.0'
@@ -187,7 +187,7 @@ def main(args=None):
 
     # Create application entity
     ae = AE(ae_title=args.ae_title)
-    ae.add_supported_context(VerificationSOPClass, transfer_syntax)
+    ae.add_supported_context(Verification, transfer_syntax)
     ae.maximum_pdu_size = args.max_pdu
     ae.network_timeout = args.network_timeout
     ae.acse_timeout = args.acse_timeout

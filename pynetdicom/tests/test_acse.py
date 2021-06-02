@@ -33,7 +33,7 @@ from pynetdicom.pdu_primitives import (
     SCP_SCU_RoleSelectionNegotiation,
 )
 from pynetdicom.pdu import P_DATA_TF
-from pynetdicom.sop_class import VerificationSOPClass, CTImageStorage
+from pynetdicom.sop_class import Verification, CTImageStorage
 from pynetdicom.transport import AssociationSocket
 from pynetdicom.utils import validate_ae_title
 from .encoded_pdu_items import (
@@ -193,7 +193,7 @@ class TestNegotiationRequestor:
     def test_no_requested_cx(self, caplog):
         """Test error logged if no requested contexts."""
         ae = AE()
-        ae.add_requested_context(VerificationSOPClass)
+        ae.add_requested_context(Verification)
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
 
@@ -315,10 +315,10 @@ class TestNegotiationRequestor:
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
         ae.network_timeout = 5
-        ae.add_supported_context(VerificationSOPClass)
+        ae.add_supported_context(Verification)
         scp = ae.start_server(('', 11112), block=False)
 
-        ae.add_requested_context(VerificationSOPClass)
+        ae.add_requested_context(Verification)
         assoc = ae.associate('localhost', 11112)
         assert assoc.is_established is True
         assoc.release()
@@ -341,10 +341,10 @@ class TestNegotiationAcceptor:
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
         ae.network_timeout = 5
-        ae.add_supported_context(VerificationSOPClass)
+        ae.add_supported_context(Verification)
         scp = ae.start_server(('', 11112), block=False)
 
-        ae.add_requested_context(VerificationSOPClass)
+        ae.add_requested_context(Verification)
         ae.add_requested_context(CTImageStorage)
         assoc = ae.associate('localhost', 11112)
         assert assoc.is_established
@@ -589,7 +589,7 @@ class TestUserIdentityNegotiation:
     def test_check_usrid_not_implemented(self, req, rsp):
         """Check _check_user_identity if user hasn't implemented."""
         self.ae = ae = AE()
-        ae.add_requested_context(VerificationSOPClass)
+        ae.add_requested_context(Verification)
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
 
@@ -617,8 +617,8 @@ class TestUserIdentityNegotiation:
         handlers = [(evt.EVT_USER_ID, handle)]
 
         self.ae = ae = AE()
-        ae.add_supported_context(VerificationSOPClass)
-        ae.add_requested_context(VerificationSOPClass)
+        ae.add_supported_context(Verification)
+        ae.add_requested_context(Verification)
         scp = ae.start_server(('', 11112), block=False, evt_handlers=handlers)
 
         ae.acse_timeout = 2
@@ -654,8 +654,8 @@ class TestUserIdentityNegotiation:
         handlers = [(evt.EVT_USER_ID, handle)]
 
         self.ae = ae = AE()
-        ae.add_supported_context(VerificationSOPClass)
-        ae.add_requested_context(VerificationSOPClass)
+        ae.add_supported_context(Verification)
+        ae.add_requested_context(Verification)
         scp = ae.start_server(('', 11112), block=False, evt_handlers=handlers)
 
         ae.acse_timeout = 5
@@ -694,8 +694,8 @@ class TestUserIdentityNegotiation:
         handlers = [(evt.EVT_USER_ID, handle)]
 
         self.ae = ae = AE()
-        ae.add_supported_context(VerificationSOPClass)
-        ae.add_requested_context(VerificationSOPClass)
+        ae.add_supported_context(Verification)
+        ae.add_requested_context(Verification)
         scp = ae.start_server(('', 11112), block=False, evt_handlers=handlers)
 
         ae.acse_timeout = 5
@@ -730,8 +730,8 @@ class TestUserIdentityNegotiation:
         handlers = [(evt.EVT_USER_ID, handle)]
 
         self.ae = ae = AE()
-        ae.add_supported_context(VerificationSOPClass)
-        ae.add_requested_context(VerificationSOPClass)
+        ae.add_supported_context(Verification)
+        ae.add_requested_context(Verification)
         scp = ae.start_server(('', 11112), block=False, evt_handlers=handlers)
 
         ae.acse_timeout = 5
@@ -759,8 +759,8 @@ class TestUserIdentityNegotiation:
         handlers = [(evt.EVT_USER_ID, handle)]
 
         self.ae = ae = AE()
-        ae.add_supported_context(VerificationSOPClass)
-        ae.add_requested_context(VerificationSOPClass)
+        ae.add_supported_context(Verification)
+        ae.add_requested_context(Verification)
         scp = ae.start_server(('', 11112), block=False, evt_handlers=handlers)
 
         ae.acse_timeout = 5
@@ -800,8 +800,8 @@ class TestUserIdentityNegotiation:
         handlers = [(evt.EVT_USER_ID, handle)]
 
         self.ae = ae = AE()
-        ae.add_supported_context(VerificationSOPClass)
-        ae.add_requested_context(VerificationSOPClass)
+        ae.add_supported_context(Verification)
+        ae.add_requested_context(Verification)
         scp = ae.start_server(('', 11112), block=False, evt_handlers=handlers)
 
         ae.acse_timeout = 5
@@ -843,8 +843,8 @@ class TestUserIdentityNegotiation:
         handlers = [(evt.EVT_USER_ID, handle)]
 
         self.ae = ae = AE()
-        ae.add_supported_context(VerificationSOPClass)
-        ae.add_requested_context(VerificationSOPClass)
+        ae.add_supported_context(Verification)
+        ae.add_requested_context(Verification)
         scp = ae.start_server(('', 11112), block=False, evt_handlers=handlers)
 
         ae.acse_timeout = 5
@@ -872,8 +872,8 @@ class TestUserIdentityNegotiation:
         handlers = [(evt.EVT_USER_ID, handle)]
 
         self.ae = ae = AE()
-        ae.add_supported_context(VerificationSOPClass)
-        ae.add_requested_context(VerificationSOPClass)
+        ae.add_supported_context(Verification)
+        ae.add_requested_context(Verification)
         scp = ae.start_server(('', 11112), block=False, evt_handlers=handlers)
 
         ae.acse_timeout = 5
@@ -901,8 +901,8 @@ class TestUserIdentityNegotiation:
         handlers = [(evt.EVT_USER_ID, handle)]
 
         self.ae = ae = AE()
-        ae.add_supported_context(VerificationSOPClass)
-        ae.add_requested_context(VerificationSOPClass)
+        ae.add_supported_context(Verification)
+        ae.add_requested_context(Verification)
         scp = ae.start_server(('', 11112), block=False, evt_handlers=handlers)
 
         ae.acse_timeout = 5
@@ -929,8 +929,8 @@ class TestUserIdentityNegotiation:
 
         self.ae = ae = AE()
         ae.require_calling_aet = [b'HAHA NOPE']
-        ae.add_supported_context(VerificationSOPClass)
-        ae.add_requested_context(VerificationSOPClass)
+        ae.add_supported_context(Verification)
+        ae.add_requested_context(Verification)
         scp = ae.start_server(('', 11112), block=False, evt_handlers=handlers)
 
         ae.acse_timeout = 5
@@ -959,8 +959,8 @@ class TestUserIdentityNegotiation:
         handlers = [(evt.EVT_USER_ID, handle)]
 
         self.ae = ae = AE()
-        ae.add_supported_context(VerificationSOPClass)
-        ae.add_requested_context(VerificationSOPClass)
+        ae.add_supported_context(Verification)
+        ae.add_requested_context(Verification)
         scp = ae.start_server(('', 11112), block=False, evt_handlers=handlers)
 
         ae.acse_timeout = 5
@@ -989,8 +989,8 @@ class TestUserIdentityNegotiation:
         handlers = [(evt.EVT_USER_ID, handle)]
 
         self.ae = ae = AE()
-        ae.add_supported_context(VerificationSOPClass)
-        ae.add_requested_context(VerificationSOPClass)
+        ae.add_supported_context(Verification)
+        ae.add_requested_context(Verification)
         scp = ae.start_server(('', 11112), block=False, evt_handlers=handlers)
 
         ae.acse_timeout = 5
@@ -1020,8 +1020,8 @@ class TestUserIdentityNegotiation:
         handlers = [(evt.EVT_USER_ID, handle)]
 
         self.ae = ae = AE()
-        ae.add_supported_context(VerificationSOPClass)
-        ae.add_requested_context(VerificationSOPClass)
+        ae.add_supported_context(Verification)
+        ae.add_requested_context(Verification)
         scp = ae.start_server(('', 11112), block=False, evt_handlers=handlers)
 
         ae.acse_timeout = 5
@@ -1056,8 +1056,8 @@ class TestSOPClassExtendedNegotiation:
     def test_check_ext_no_req(self):
         """Test the an empty SOP Extended request"""
         self.ae = ae = AE()
-        ae.add_supported_context(VerificationSOPClass)
-        ae.add_requested_context(VerificationSOPClass)
+        ae.add_supported_context(Verification)
+        ae.add_requested_context(Verification)
         scp = ae.start_server(('', 11112), block=False)
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
@@ -1079,8 +1079,8 @@ class TestSOPClassExtendedNegotiation:
     def test_check_ext_default(self):
         """Test the default handler bound to evt.EVT_SOP_EXTENDED"""
         self.ae = ae = AE()
-        ae.add_supported_context(VerificationSOPClass)
-        ae.add_requested_context(VerificationSOPClass)
+        ae.add_supported_context(Verification)
+        ae.add_requested_context(Verification)
         scp = ae.start_server(('', 11112), block=False)
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
@@ -1114,8 +1114,8 @@ class TestSOPClassExtendedNegotiation:
         handlers = [(evt.EVT_SOP_EXTENDED, handle)]
 
         self.ae = ae = AE()
-        ae.add_supported_context(VerificationSOPClass)
-        ae.add_requested_context(VerificationSOPClass)
+        ae.add_supported_context(Verification)
+        ae.add_requested_context(Verification)
         scp = ae.start_server(('', 11112), block=False, evt_handlers=handlers)
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
@@ -1159,8 +1159,8 @@ class TestSOPClassExtendedNegotiation:
         handlers = [(evt.EVT_SOP_EXTENDED, handle)]
 
         self.ae = ae = AE()
-        ae.add_supported_context(VerificationSOPClass)
-        ae.add_requested_context(VerificationSOPClass)
+        ae.add_supported_context(Verification)
+        ae.add_requested_context(Verification)
         scp = ae.start_server(('', 11112), block=False, evt_handlers=handlers)
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
@@ -1195,8 +1195,8 @@ class TestSOPClassExtendedNegotiation:
         handlers = [(evt.EVT_SOP_EXTENDED, handle)]
 
         self.ae = ae = AE()
-        ae.add_supported_context(VerificationSOPClass)
-        ae.add_requested_context(VerificationSOPClass)
+        ae.add_supported_context(Verification)
+        ae.add_requested_context(Verification)
         scp = ae.start_server(('', 11112), block=False, evt_handlers=handlers)
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
@@ -1238,8 +1238,8 @@ class TestSOPClassExtendedNegotiation:
         handlers = [(evt.EVT_SOP_EXTENDED, handle)]
 
         self.ae = ae = AE()
-        ae.add_supported_context(VerificationSOPClass)
-        ae.add_requested_context(VerificationSOPClass)
+        ae.add_supported_context(Verification)
+        ae.add_requested_context(Verification)
         scp = ae.start_server(('', 11112), block=False, evt_handlers=handlers)
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
@@ -1279,8 +1279,8 @@ class TestSOPClassExtendedNegotiation:
         handlers = [(evt.EVT_SOP_EXTENDED, handle)]
 
         self.ae = ae = AE()
-        ae.add_supported_context(VerificationSOPClass)
-        ae.add_requested_context(VerificationSOPClass)
+        ae.add_supported_context(Verification)
+        ae.add_requested_context(Verification)
         scp = ae.start_server(('', 11112), block=False, evt_handlers=handlers)
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
@@ -1319,8 +1319,8 @@ class TestSOPClassExtendedNegotiation:
         handlers = [(evt.EVT_SOP_EXTENDED, handle)]
 
         self.ae = ae = AE()
-        ae.add_supported_context(VerificationSOPClass)
-        ae.add_requested_context(VerificationSOPClass)
+        ae.add_supported_context(Verification)
+        ae.add_requested_context(Verification)
         scp = ae.start_server(('', 11112), block=False, evt_handlers=handlers)
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
@@ -1352,8 +1352,8 @@ class TestSOPClassExtendedNegotiation:
 
         self.ae = ae = AE()
         ae.require_calling_aet = [b'HAHA NOPE']
-        ae.add_supported_context(VerificationSOPClass)
-        ae.add_requested_context(VerificationSOPClass)
+        ae.add_supported_context(Verification)
+        ae.add_requested_context(Verification)
         scp = ae.start_server(('', 11112), block=False, evt_handlers=handlers)
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
@@ -1381,8 +1381,8 @@ class TestSOPClassExtendedNegotiation:
     def test_req_response_no_response(self):
         """Test requestor response if no response from acceptor."""
         self.ae = ae = AE()
-        ae.add_supported_context(VerificationSOPClass)
-        ae.add_requested_context(VerificationSOPClass)
+        ae.add_supported_context(Verification)
+        ae.add_requested_context(Verification)
         scp = ae.start_server(('', 11112), block=False)
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
@@ -1415,8 +1415,8 @@ class TestSOPClassExtendedNegotiation:
         handlers = [(evt.EVT_SOP_EXTENDED, handle)]
 
         self.ae = ae = AE()
-        ae.add_supported_context(VerificationSOPClass)
-        ae.add_requested_context(VerificationSOPClass)
+        ae.add_supported_context(Verification)
+        ae.add_requested_context(Verification)
         scp = ae.start_server(('', 11112), block=False, evt_handlers=handlers)
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
@@ -1461,8 +1461,8 @@ class TestSOPClassCommonExtendedNegotiation:
     def test_check_ext_no_req(self):
         """Test the default handler for evt.EVT_SOP_COMMON"""
         self.ae = ae = AE()
-        ae.add_supported_context(VerificationSOPClass)
-        ae.add_requested_context(VerificationSOPClass)
+        ae.add_supported_context(Verification)
+        ae.add_requested_context(Verification)
         scp = ae.start_server(('', 11112), block=False)
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
@@ -1482,8 +1482,8 @@ class TestSOPClassCommonExtendedNegotiation:
     def test_check_ext_default(self):
         """Test the default handler implementation"""
         self.ae = ae = AE()
-        ae.add_supported_context(VerificationSOPClass)
-        ae.add_requested_context(VerificationSOPClass)
+        ae.add_supported_context(Verification)
+        ae.add_requested_context(Verification)
         scp = ae.start_server(('', 11112), block=False)
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
@@ -1522,8 +1522,8 @@ class TestSOPClassCommonExtendedNegotiation:
         handlers = [(evt.EVT_SOP_COMMON, handle)]
 
         self.ae = ae = AE()
-        ae.add_supported_context(VerificationSOPClass)
-        ae.add_requested_context(VerificationSOPClass)
+        ae.add_supported_context(Verification)
+        ae.add_requested_context(Verification)
         scp = ae.start_server(('', 11112), block=False, evt_handlers=handlers)
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
@@ -1563,8 +1563,8 @@ class TestSOPClassCommonExtendedNegotiation:
         handlers = [(evt.EVT_SOP_COMMON, handle)]
 
         self.ae = ae = AE()
-        ae.add_supported_context(VerificationSOPClass)
-        ae.add_requested_context(VerificationSOPClass)
+        ae.add_supported_context(Verification)
+        ae.add_requested_context(Verification)
         scp = ae.start_server(('', 11112), block=False, evt_handlers=handlers)
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
@@ -1604,8 +1604,8 @@ class TestSOPClassCommonExtendedNegotiation:
         handlers = [(evt.EVT_SOP_COMMON, handle)]
 
         self.ae = ae = AE()
-        ae.add_supported_context(VerificationSOPClass)
-        ae.add_requested_context(VerificationSOPClass)
+        ae.add_supported_context(Verification)
+        ae.add_requested_context(Verification)
         scp = ae.start_server(('', 11112), block=False, evt_handlers=handlers)
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
@@ -1645,8 +1645,8 @@ class TestSOPClassCommonExtendedNegotiation:
         handlers = [(evt.EVT_SOP_COMMON, handle)]
 
         self.ae = ae = AE()
-        ae.add_supported_context(VerificationSOPClass)
-        ae.add_requested_context(VerificationSOPClass)
+        ae.add_supported_context(Verification)
+        ae.add_requested_context(Verification)
         scp = ae.start_server(('', 11112), block=False, evt_handlers=handlers)
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
@@ -1685,8 +1685,8 @@ class TestSOPClassCommonExtendedNegotiation:
         handlers = [(evt.EVT_SOP_COMMON, handle)]
 
         self.ae = ae = AE()
-        ae.add_supported_context(VerificationSOPClass)
-        ae.add_requested_context(VerificationSOPClass)
+        ae.add_supported_context(Verification)
+        ae.add_requested_context(Verification)
         scp = ae.start_server(('', 11112), block=False, evt_handlers=handlers)
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
@@ -1735,8 +1735,8 @@ class TestAsyncOpsNegotiation:
     def test_check_async_no_req(self):
         """Test the default evt.EVT_ASYNC_OPS handler"""
         self.ae = ae = AE()
-        ae.add_supported_context(VerificationSOPClass)
-        ae.add_requested_context(VerificationSOPClass)
+        ae.add_supported_context(Verification)
+        ae.add_requested_context(Verification)
         scp = ae.start_server(('', 11112), block=False)
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
@@ -1759,8 +1759,8 @@ class TestAsyncOpsNegotiation:
         handlers = [(evt.EVT_ASYNC_OPS, handle)]
 
         self.ae = ae = AE()
-        ae.add_supported_context(VerificationSOPClass)
-        ae.add_requested_context(VerificationSOPClass)
+        ae.add_supported_context(Verification)
+        ae.add_requested_context(Verification)
         scp = ae.start_server(('', 11112), block=False, evt_handlers=handlers)
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
@@ -1787,8 +1787,8 @@ class TestAsyncOpsNegotiation:
         handlers = [(evt.EVT_ASYNC_OPS, handle)]
 
         self.ae = ae = AE()
-        ae.add_supported_context(VerificationSOPClass)
-        ae.add_requested_context(VerificationSOPClass)
+        ae.add_supported_context(Verification)
+        ae.add_requested_context(Verification)
         scp = ae.start_server(('', 11112), block=False, evt_handlers=handlers)
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
@@ -1816,8 +1816,8 @@ class TestAsyncOpsNegotiation:
 
         self.ae = ae = AE()
         ae.require_calling_aet = [b'HAHA NOPE']
-        ae.add_supported_context(VerificationSOPClass)
-        ae.add_requested_context(VerificationSOPClass)
+        ae.add_supported_context(Verification)
+        ae.add_requested_context(Verification)
         scp = ae.start_server(('', 11112), block=False, evt_handlers=handlers)
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
@@ -1841,8 +1841,8 @@ class TestAsyncOpsNegotiation:
     def test_req_response_no_response(self):
         """Test requestor response if no response from acceptor."""
         self.ae = ae = AE()
-        ae.add_supported_context(VerificationSOPClass)
-        ae.add_requested_context(VerificationSOPClass)
+        ae.add_supported_context(Verification)
+        ae.add_requested_context(Verification)
         scp = ae.start_server(('', 11112), block=False)
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
@@ -1870,8 +1870,8 @@ class TestAsyncOpsNegotiation:
         handlers = [(evt.EVT_ASYNC_OPS, handle)]
 
         self.ae = ae = AE()
-        ae.add_supported_context(VerificationSOPClass)
-        ae.add_requested_context(VerificationSOPClass)
+        ae.add_supported_context(Verification)
+        ae.add_requested_context(Verification)
         scp = ae.start_server(('', 11112), block=False, evt_handlers=handlers)
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
@@ -1906,7 +1906,7 @@ class TestNegotiateRelease:
 
     def create_assoc(self):
         ae = AE()
-        ae.add_requested_context(VerificationSOPClass)
+        ae.add_requested_context(Verification)
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
 
@@ -1931,7 +1931,7 @@ class TestNegotiateRelease:
             ae.implementation_version_name
         )
 
-        cx = build_context(VerificationSOPClass)
+        cx = build_context(Verification)
         cx.context_id = 1
         assoc.requestor.requested_contexts = [cx]
 
@@ -1949,7 +1949,7 @@ class TestNegotiateRelease:
         sock.connect(('localhost', 11112))
 
         ae = AE()
-        ae.add_supported_context(VerificationSOPClass)
+        ae.add_supported_context(Verification)
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
 
@@ -1974,7 +1974,7 @@ class TestNegotiateRelease:
             ae.implementation_version_name
         )
 
-        cx = build_context(VerificationSOPClass)
+        cx = build_context(Verification)
         cx.context_id = 1
         assoc.acceptor.supported_contexts = [cx]
 
@@ -2180,8 +2180,8 @@ class TestEventHandlingAcceptor:
     def test_no_handlers(self):
         """Test with no transport event handlers bound."""
         self.ae = ae = AE()
-        ae.add_supported_context(VerificationSOPClass)
-        ae.add_requested_context(VerificationSOPClass)
+        ae.add_supported_context(Verification)
+        ae.add_requested_context(Verification)
         scp = ae.start_server(('', 11112), block=False)
         assert scp.get_handlers(evt.EVT_ACSE_RECV) == []
         assert scp.get_handlers(evt.EVT_ACSE_SENT) == []
@@ -2208,8 +2208,8 @@ class TestEventHandlingAcceptor:
             triggered.append(event)
 
         self.ae = ae = AE()
-        ae.add_supported_context(VerificationSOPClass)
-        ae.add_requested_context(VerificationSOPClass)
+        ae.add_supported_context(Verification)
+        ae.add_requested_context(Verification)
         handlers = [(evt.EVT_ACSE_SENT, handle)]
         scp = ae.start_server(('', 11112), block=False, evt_handlers=handlers)
         assert scp.get_handlers(evt.EVT_ACSE_SENT) == [(handle, None)]
@@ -2252,8 +2252,8 @@ class TestEventHandlingAcceptor:
             triggered.append(event)
 
         self.ae = ae = AE()
-        ae.add_supported_context(VerificationSOPClass)
-        ae.add_requested_context(VerificationSOPClass)
+        ae.add_supported_context(Verification)
+        ae.add_requested_context(Verification)
         handlers = [(evt.EVT_ACSE_SENT, handle)]
         scp = ae.start_server(('', 11112), block=False)
         assert scp.get_handlers(evt.EVT_ACSE_SENT) == []
@@ -2297,8 +2297,8 @@ class TestEventHandlingAcceptor:
             triggered.append(event)
 
         self.ae = ae = AE()
-        ae.add_supported_context(VerificationSOPClass)
-        ae.add_requested_context(VerificationSOPClass)
+        ae.add_supported_context(Verification)
+        ae.add_requested_context(Verification)
         handlers = [(evt.EVT_ACSE_SENT, handle)]
         scp = ae.start_server(('', 11112), block=False, evt_handlers=handlers)
         assert scp.get_handlers(evt.EVT_ACSE_SENT) == [(handle, None)]
@@ -2345,8 +2345,8 @@ class TestEventHandlingAcceptor:
             raise NotImplementedError("Exception description")
 
         self.ae = ae = AE()
-        ae.add_supported_context(VerificationSOPClass)
-        ae.add_requested_context(VerificationSOPClass)
+        ae.add_supported_context(Verification)
+        ae.add_requested_context(Verification)
         handlers = [(evt.EVT_ACSE_SENT, handle)]
         scp = ae.start_server(('', 11112), block=False, evt_handlers=handlers)
 
@@ -2375,8 +2375,8 @@ class TestEventHandlingAcceptor:
             triggered.append(event)
 
         self.ae = ae = AE()
-        ae.add_supported_context(VerificationSOPClass)
-        ae.add_requested_context(VerificationSOPClass)
+        ae.add_supported_context(Verification)
+        ae.add_requested_context(Verification)
         handlers = [(evt.EVT_ACSE_RECV, handle)]
         scp = ae.start_server(('', 11112), block=False, evt_handlers=handlers)
         assert scp.get_handlers(evt.EVT_ACSE_RECV) == [(handle, None)]
@@ -2418,8 +2418,8 @@ class TestEventHandlingAcceptor:
             triggered.append(event)
 
         self.ae = ae = AE()
-        ae.add_supported_context(VerificationSOPClass)
-        ae.add_requested_context(VerificationSOPClass)
+        ae.add_supported_context(Verification)
+        ae.add_requested_context(Verification)
         scp = ae.start_server(('', 11112), block=False)
         assert scp.get_handlers(evt.EVT_ACSE_RECV) == []
 
@@ -2461,8 +2461,8 @@ class TestEventHandlingAcceptor:
             triggered.append(event)
 
         self.ae = ae = AE()
-        ae.add_supported_context(VerificationSOPClass)
-        ae.add_requested_context(VerificationSOPClass)
+        ae.add_supported_context(Verification)
+        ae.add_requested_context(Verification)
         handlers = [(evt.EVT_ACSE_RECV, handle)]
         scp = ae.start_server(('', 11112), block=False, evt_handlers=handlers)
         assert scp.get_handlers(evt.EVT_ACSE_RECV) == [(handle, None)]
@@ -2507,8 +2507,8 @@ class TestEventHandlingAcceptor:
             raise NotImplementedError("Exception description")
 
         self.ae = ae = AE()
-        ae.add_supported_context(VerificationSOPClass)
-        ae.add_requested_context(VerificationSOPClass)
+        ae.add_supported_context(Verification)
+        ae.add_requested_context(Verification)
         handlers = [(evt.EVT_ACSE_RECV, handle)]
         scp = ae.start_server(('', 11112), block=False, evt_handlers=handlers)
 
@@ -2546,8 +2546,8 @@ class TestEventHandlingRequestor:
     def test_no_handlers(self):
         """Test with no transport event handlers bound."""
         self.ae = ae = AE()
-        ae.add_supported_context(VerificationSOPClass)
-        ae.add_requested_context(VerificationSOPClass)
+        ae.add_supported_context(Verification)
+        ae.add_requested_context(Verification)
         scp = ae.start_server(('', 11112), block=False)
         assert scp.get_handlers(evt.EVT_ACSE_RECV) == []
         assert scp.get_handlers(evt.EVT_ACSE_SENT) == []
@@ -2574,8 +2574,8 @@ class TestEventHandlingRequestor:
             triggered.append(event)
 
         self.ae = ae = AE()
-        ae.add_supported_context(VerificationSOPClass)
-        ae.add_requested_context(VerificationSOPClass)
+        ae.add_supported_context(Verification)
+        ae.add_requested_context(Verification)
         handlers = [(evt.EVT_ACSE_SENT, handle)]
         scp = ae.start_server(('', 11112), block=False)
         assert scp.get_handlers(evt.EVT_ACSE_SENT) == []
@@ -2614,8 +2614,8 @@ class TestEventHandlingRequestor:
             triggered.append(event)
 
         self.ae = ae = AE()
-        ae.add_supported_context(VerificationSOPClass)
-        ae.add_requested_context(VerificationSOPClass)
+        ae.add_supported_context(Verification)
+        ae.add_requested_context(Verification)
         handlers = [(evt.EVT_ACSE_SENT, handle)]
         scp = ae.start_server(('', 11112), block=False)
         assert scp.get_handlers(evt.EVT_ACSE_SENT) == []
@@ -2653,8 +2653,8 @@ class TestEventHandlingRequestor:
             triggered.append(event)
 
         self.ae = ae = AE()
-        ae.add_supported_context(VerificationSOPClass)
-        ae.add_requested_context(VerificationSOPClass)
+        ae.add_supported_context(Verification)
+        ae.add_requested_context(Verification)
         handlers = [(evt.EVT_ACSE_SENT, handle)]
         scp = ae.start_server(('', 11112), block=False)
         assert scp.get_handlers(evt.EVT_ACSE_SENT) == []
@@ -2698,8 +2698,8 @@ class TestEventHandlingRequestor:
             triggered.append(event)
 
         self.ae = ae = AE()
-        ae.add_supported_context(VerificationSOPClass)
-        ae.add_requested_context(VerificationSOPClass)
+        ae.add_supported_context(Verification)
+        ae.add_requested_context(Verification)
         handlers = [(evt.EVT_ACSE_SENT, handle)]
         scp = ae.start_server(('', 11112), block=False)
         assert scp.get_handlers(evt.EVT_ACSE_SENT) == []
@@ -2736,8 +2736,8 @@ class TestEventHandlingRequestor:
             raise NotImplementedError("Exception description")
 
         self.ae = ae = AE()
-        ae.add_supported_context(VerificationSOPClass)
-        ae.add_requested_context(VerificationSOPClass)
+        ae.add_supported_context(Verification)
+        ae.add_requested_context(Verification)
         handlers = [(evt.EVT_ACSE_SENT, handle)]
         scp = ae.start_server(('', 11112), block=False)
 
@@ -2766,8 +2766,8 @@ class TestEventHandlingRequestor:
             triggered.append(event)
 
         self.ae = ae = AE()
-        ae.add_supported_context(VerificationSOPClass)
-        ae.add_requested_context(VerificationSOPClass)
+        ae.add_supported_context(Verification)
+        ae.add_requested_context(Verification)
         handlers = [(evt.EVT_ACSE_RECV, handle)]
         scp = ae.start_server(('', 11112), block=False)
         assert scp.get_handlers(evt.EVT_ACSE_RECV) == []
@@ -2806,8 +2806,8 @@ class TestEventHandlingRequestor:
             triggered.append(event)
 
         self.ae = ae = AE()
-        ae.add_requested_context(VerificationSOPClass)
-        ae.add_supported_context(VerificationSOPClass)
+        ae.add_requested_context(Verification)
+        ae.add_supported_context(Verification)
         handlers = [(evt.EVT_ACSE_RECV, handle)]
 
         scp = ae.start_server(('', 11112), block=False)
@@ -2837,8 +2837,8 @@ class TestEventHandlingRequestor:
             triggered.append(event)
 
         self.ae = ae = AE()
-        ae.add_supported_context(VerificationSOPClass)
-        ae.add_requested_context(VerificationSOPClass)
+        ae.add_supported_context(Verification)
+        ae.add_requested_context(Verification)
         scp = ae.start_server(('', 11112), block=False)
         assert scp.get_handlers(evt.EVT_ACSE_RECV) == []
 
@@ -2874,8 +2874,8 @@ class TestEventHandlingRequestor:
             triggered.append(event)
 
         self.ae = ae = AE()
-        ae.add_supported_context(VerificationSOPClass)
-        ae.add_requested_context(VerificationSOPClass)
+        ae.add_supported_context(Verification)
+        ae.add_requested_context(Verification)
         handlers = [(evt.EVT_ACSE_RECV, handle)]
         scp = ae.start_server(('', 11112), block=False)
         assert scp.get_handlers(evt.EVT_ACSE_RECV) == []
@@ -2917,8 +2917,8 @@ class TestEventHandlingRequestor:
             raise NotImplementedError("Exception description")
 
         self.ae = ae = AE()
-        ae.add_supported_context(VerificationSOPClass)
-        ae.add_requested_context(VerificationSOPClass)
+        ae.add_supported_context(Verification)
+        ae.add_requested_context(Verification)
         handlers = [(evt.EVT_ACSE_RECV, handle)]
         scp = ae.start_server(('', 11112), block=False, evt_handlers=handlers)
 

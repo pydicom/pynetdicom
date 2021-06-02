@@ -16,7 +16,7 @@ from pynetdicom.dimse_primitives import C_STORE
 from pynetdicom.pdu_primitives import SOPClassExtendedNegotiation
 from pynetdicom.service_class import StorageServiceClass
 from pynetdicom.sop_class import (
-    VerificationSOPClass, CTImageStorage, RTImageStorage,
+    Verification, CTImageStorage, RTImageStorage,
 )
 try:
     from pynetdicom.status import Status
@@ -686,8 +686,8 @@ class TestStorageServiceClass:
         handlers = [(evt.EVT_C_ECHO, handle)]
 
         self.ae = ae = AE()
-        ae.add_supported_context(VerificationSOPClass)
-        ae.add_requested_context(VerificationSOPClass)
+        ae.add_supported_context(Verification)
+        ae.add_requested_context(Verification)
         scp = ae.start_server(('', 11112), block=False, evt_handlers=handlers)
 
         assoc = ae.associate('localhost', 11112)

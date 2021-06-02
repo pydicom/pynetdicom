@@ -21,7 +21,7 @@ from pynetdicom import (
     QueryRetrievePresentationContexts,
 )
 from pynetdicom.sop_class import (
-    VerificationSOPClass, CTImageStorage,
+    Verification, CTImageStorage,
     PatientRootQueryRetrieveInformationModelGet,
     StudyRootQueryRetrieveInformationModelGet,
     PatientStudyOnlyQueryRetrieveInformationModelGet,
@@ -155,7 +155,7 @@ class GetSCUBase:
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
         ae.network_timeout = 5
-        ae.add_supported_context(VerificationSOPClass)
+        ae.add_supported_context(Verification)
         scp = ae.start_server(('', 11112), block=False)
 
         p = self.func(['-q', '-k', 'PatientName='])

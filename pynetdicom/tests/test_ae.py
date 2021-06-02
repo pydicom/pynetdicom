@@ -21,7 +21,7 @@ from pynetdicom import (
     PYNETDICOM_IMPLEMENTATION_VERSION
 )
 from pynetdicom.presentation import build_context
-from pynetdicom.sop_class import RTImageStorage, VerificationSOPClass
+from pynetdicom.sop_class import RTImageStorage, Verification
 from pynetdicom.transport import AssociationServer, RequestHandler
 
 
@@ -69,7 +69,7 @@ class TestMakeServer:
 
     def test_default_arguments(self):
         self.ae = ae = AE()
-        ae.add_supported_context(VerificationSOPClass)
+        ae.add_supported_context(Verification)
 
         server = ae.make_server(('', 11112))
         assert isinstance(server, AssociationServer)
@@ -79,7 +79,7 @@ class TestMakeServer:
             pass
 
         self.ae = ae = AE()
-        ae.add_supported_context(VerificationSOPClass)
+        ae.add_supported_context(Verification)
 
         server = ae.make_server(('', 11112), request_handler=MyRequestHandler)
         assert server.RequestHandlerClass is MyRequestHandler
@@ -105,7 +105,7 @@ class TestStartServer:
         ae.ae_title = b'TESTAET'
         assert ae.ae_title == b'TESTAET         '
 
-        ae.add_supported_context(VerificationSOPClass)
+        ae.add_supported_context(Verification)
         server = ae.start_server(('', 11112), block=False)
         assert server.ae_title == ae.ae_title
 
@@ -115,7 +115,7 @@ class TestStartServer:
         assert server.ae_title == b'MYAE            '
         ae.require_called_aet = True
 
-        ae.add_requested_context(VerificationSOPClass)
+        ae.add_requested_context(Verification)
         assoc = ae.associate('localhost', 11112, ae_title=b'MYAE')
         assert assoc.is_established
         assoc.release()
@@ -132,14 +132,14 @@ class TestStartServer:
         ae.ae_title = b'TESTAET'
         assert ae.ae_title == b'TESTAET         '
 
-        cx = build_context(VerificationSOPClass)
+        cx = build_context(Verification)
         server = ae.start_server(('', 11112), block=False, contexts=[cx])
 
-        ae.add_requested_context(VerificationSOPClass)
+        ae.add_requested_context(Verification)
         assoc = ae.associate('localhost', 11112, ae_title=b'MYAE')
         assert assoc.is_established
         assert (
-            assoc.accepted_contexts[0].abstract_syntax == VerificationSOPClass
+            assoc.accepted_contexts[0].abstract_syntax == Verification
         )
         assoc.release()
         assert assoc.is_released
@@ -212,7 +212,7 @@ class TestAEPresentationSCU:
         """Test that AE.associate doesn't modify the supplied contexts"""
         # Test AE.requested_contexts
         self.ae = ae = AE()
-        ae.add_supported_context(VerificationSOPClass)
+        ae.add_supported_context(Verification)
         scp = ae.start_server(('', 11112), block=False)
 
         ae.requested_contexts = VerificationPresentationContexts
@@ -408,10 +408,10 @@ class TestAEGoodAssociation:
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
         ae.network_timeout = 5
-        ae.add_supported_context(VerificationSOPClass)
+        ae.add_supported_context(Verification)
         scp = ae.start_server(('', 11112), block=False)
 
-        ae.add_requested_context(VerificationSOPClass)
+        ae.add_requested_context(Verification)
         assoc = ae.associate('localhost', 11112)
         assert assoc.is_established
 
@@ -428,14 +428,14 @@ class TestAEGoodAssociation:
         ae.dimse_timeout = 5
         ae.network_timeout = 5
         ae.maximum_pdu_size = 54321
-        ae.add_supported_context(VerificationSOPClass)
+        ae.add_supported_context(Verification)
         scp = ae.start_server(('', 11112), block=False)
 
         scu_ae = AE()
         scu_ae.acse_timeout = 5
         scu_ae.dimse_timeout = 5
         scu_ae.network_timeout = 5
-        scu_ae.add_requested_context(VerificationSOPClass)
+        scu_ae.add_requested_context(Verification)
         assoc = scu_ae.associate('localhost', 11112, max_pdu=12345)
         assert assoc.is_established
 
@@ -482,7 +482,7 @@ class TestAEGoodAssociation:
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
         ae.network_timeout = 0.5
-        ae.add_supported_context(VerificationSOPClass)
+        ae.add_supported_context(Verification)
         scp = ae.start_server(
             ('', 11112), block=False, evt_handlers=[(evt.EVT_ACSE_RECV, handle_acse_recv), (evt.EVT_C_ECHO, handle_echo)]
         )
@@ -491,7 +491,7 @@ class TestAEGoodAssociation:
         scu_ae.acse_timeout = 30
         scu_ae.dimse_timeout = 30
         scu_ae.network_timeout = 30
-        scu_ae.add_requested_context(VerificationSOPClass)
+        scu_ae.add_requested_context(Verification)
         assoc = scu_ae.associate('localhost', 11112)
         assert assoc.is_established
 
@@ -565,7 +565,7 @@ class TestAEGoodAssociation:
         scu_ae = AE()
         scu_ae.acse_timeout = 1
         scu_ae.connection_timeout = 2
-        scu_ae.add_requested_context(VerificationSOPClass)
+        scu_ae.add_requested_context(Verification)
         with caplog.at_level(logging.ERROR, logger='pynetdicom'):
             assoc = scu_ae.associate('example.com', 11112)
             assert not assoc.is_established
@@ -583,10 +583,10 @@ class TestAEGoodAssociation:
             ae.acse_timeout = 5
             ae.dimse_timeout = 5
             ae.network_timeout = 5
-            ae.add_supported_context(VerificationSOPClass)
+            ae.add_supported_context(Verification)
             scp = ae.start_server(('', 11112), block=False)
 
-            ae.add_requested_context(VerificationSOPClass)
+            ae.add_requested_context(Verification)
             assoc = ae.associate('localhost', 11112)
             assert assoc.is_established
             assoc.release()
@@ -600,7 +600,7 @@ class TestAEBadAssociation:
     def test_raise(self):
         """Test bad associate call"""
         ae = AE()
-        ae.add_requested_context(VerificationSOPClass)
+        ae.add_requested_context(Verification)
 
         with pytest.raises(TypeError):
             ae.associate(1112, 11112)
@@ -668,10 +668,10 @@ class TestAEGoodMiscSetters:
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
         ae.network_timeout = 5
-        ae.add_supported_context(VerificationSOPClass)
+        ae.add_supported_context(Verification)
         scp = ae.start_server(('', 11112), block=False)
 
-        ae.add_requested_context(VerificationSOPClass)
+        ae.add_requested_context(Verification)
         assoc = ae.associate('localhost', 11112)
         assert assoc.is_established
         assoc.release()
@@ -704,10 +704,10 @@ class TestAEGoodMiscSetters:
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
         ae.network_timeout = 5
-        ae.add_supported_context(VerificationSOPClass)
+        ae.add_supported_context(Verification)
         scp = ae.start_server(('', 11112), block=False)
 
-        ae.add_requested_context(VerificationSOPClass)
+        ae.add_requested_context(Verification)
         assoc = ae.associate('localhost', 11112)
         assert assoc.is_established
         assoc.release()
@@ -746,7 +746,7 @@ class TestAEGoodMiscSetters:
     def test_string_output(self):
         """Test string output"""
         ae = AE()
-        ae.add_requested_context(VerificationSOPClass)
+        ae.add_requested_context(Verification)
         ae.require_calling_aet = [b'something']
         ae.require_called_aet = True
         assert 'Explicit VR' in ae.__str__()
@@ -758,17 +758,17 @@ class TestAEGoodMiscSetters:
         assert 'CT Image' in ae.__str__()
 
         ae = AE()
-        ae.add_requested_context(VerificationSOPClass)
+        ae.add_requested_context(Verification)
         assert 'None' in ae.__str__()
 
         self.ae = ae = AE()
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
         ae.network_timeout = 5
-        ae.add_supported_context(VerificationSOPClass)
+        ae.add_supported_context(Verification)
         scp = ae.start_server(('', 11112), block=False)
 
-        ae.add_requested_context(VerificationSOPClass)
+        ae.add_requested_context(Verification)
         assoc = ae.associate('localhost', 11112)
 
         assert assoc.is_established
@@ -826,10 +826,10 @@ class TestAE_GoodExit:
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
         ae.network_timeout = 5
-        ae.add_supported_context(VerificationSOPClass)
+        ae.add_supported_context(Verification)
         scp = ae.start_server(('', 11112), block=False)
 
-        ae.add_requested_context(VerificationSOPClass)
+        ae.add_requested_context(Verification)
 
         # Test N associate/release cycles
         for ii in range(5):
@@ -849,10 +849,10 @@ class TestAE_GoodExit:
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
         ae.network_timeout = 5
-        ae.add_supported_context(VerificationSOPClass)
+        ae.add_supported_context(Verification)
         scp = ae.start_server(('', 11112), block=False)
 
-        ae.add_requested_context(VerificationSOPClass)
+        ae.add_requested_context(Verification)
 
         # Test N associate/abort cycles
         for ii in range(5):

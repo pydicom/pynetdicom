@@ -15,7 +15,7 @@ from pynetdicom.service_class import (
     SubstanceAdministrationQueryServiceClass,
 )
 from pynetdicom.sop_class import (
-    ProductCharacteristicsQueryInformationModelFind,
+    ProductCharacteristicsQuery,
 )
 
 
@@ -65,16 +65,16 @@ class TestSubstanceAdministrationQueryServiceClass:
         handlers = [(evt.EVT_C_FIND, handle)]
 
         self.ae = ae = AE()
-        ae.add_supported_context(ProductCharacteristicsQueryInformationModelFind)
+        ae.add_supported_context(ProductCharacteristicsQuery)
         ae.add_requested_context(
-            ProductCharacteristicsQueryInformationModelFind,
+            ProductCharacteristicsQuery,
             ExplicitVRLittleEndian
         )
         scp = ae.start_server(('', 11112), block=False, evt_handlers=handlers)
 
         assoc = ae.associate('localhost', 11112)
         assert assoc.is_established
-        result = assoc.send_c_find(self.query, ProductCharacteristicsQueryInformationModelFind)
+        result = assoc.send_c_find(self.query, ProductCharacteristicsQuery)
         status, identifier = next(result)
         assert status.Status == 0xFF00
         status, identifier = next(result)
@@ -99,9 +99,9 @@ class TestSubstanceAdministrationQueryServiceClass:
         handlers = [(evt.EVT_C_FIND, handle)]
 
         self.ae = ae = AE()
-        ae.add_supported_context(ProductCharacteristicsQueryInformationModelFind)
+        ae.add_supported_context(ProductCharacteristicsQuery)
         ae.add_requested_context(
-            ProductCharacteristicsQueryInformationModelFind,
+            ProductCharacteristicsQuery,
             ExplicitVRLittleEndian
         )
         scp = ae.start_server(('', 11112), block=False, evt_handlers=handlers)
@@ -110,7 +110,7 @@ class TestSubstanceAdministrationQueryServiceClass:
         ae.dimse_timeout = 5
         assoc = ae.associate('localhost', 11112)
         assert assoc.is_established
-        result = assoc.send_c_find(self.query, ProductCharacteristicsQueryInformationModelFind)
+        result = assoc.send_c_find(self.query, ProductCharacteristicsQuery)
         status, identifier = next(result)
         assert status.Status == 0xFF00
         assert status.ErrorComment == 'Test'
@@ -132,9 +132,9 @@ class TestSubstanceAdministrationQueryServiceClass:
         handlers = [(evt.EVT_C_FIND, handle)]
 
         self.ae = ae = AE()
-        ae.add_supported_context(ProductCharacteristicsQueryInformationModelFind)
+        ae.add_supported_context(ProductCharacteristicsQuery)
         ae.add_requested_context(
-            ProductCharacteristicsQueryInformationModelFind,
+            ProductCharacteristicsQuery,
             ExplicitVRLittleEndian
         )
         scp = ae.start_server(('', 11112), block=False, evt_handlers=handlers)
@@ -143,7 +143,7 @@ class TestSubstanceAdministrationQueryServiceClass:
         ae.dimse_timeout = 5
         assoc = ae.associate('localhost', 11112)
         assert assoc.is_established
-        result = assoc.send_c_find(self.query, ProductCharacteristicsQueryInformationModelFind)
+        result = assoc.send_c_find(self.query, ProductCharacteristicsQuery)
         status, identifier = next(result)
         assert status.Status == 0xFF00
         status, identifier = next(result)
@@ -163,9 +163,9 @@ class TestSubstanceAdministrationQueryServiceClass:
         handlers = [(evt.EVT_C_FIND, handle)]
 
         self.ae = ae = AE()
-        ae.add_supported_context(ProductCharacteristicsQueryInformationModelFind)
+        ae.add_supported_context(ProductCharacteristicsQuery)
         ae.add_requested_context(
-            ProductCharacteristicsQueryInformationModelFind,
+            ProductCharacteristicsQuery,
             ExplicitVRLittleEndian
         )
         scp = ae.start_server(('', 11112), block=False, evt_handlers=handlers)
@@ -174,7 +174,7 @@ class TestSubstanceAdministrationQueryServiceClass:
         ae.dimse_timeout = 5
         assoc = ae.associate('localhost', 11112)
         assert assoc.is_established
-        result = assoc.send_c_find(self.query, ProductCharacteristicsQueryInformationModelFind)
+        result = assoc.send_c_find(self.query, ProductCharacteristicsQuery)
         status, identifier = next(result)
         assert status.Status == 0xFFF0
         with pytest.raises(StopIteration):
@@ -192,9 +192,9 @@ class TestSubstanceAdministrationQueryServiceClass:
         handlers = [(evt.EVT_C_FIND, handle)]
 
         self.ae = ae = AE()
-        ae.add_supported_context(ProductCharacteristicsQueryInformationModelFind)
+        ae.add_supported_context(ProductCharacteristicsQuery)
         ae.add_requested_context(
-            ProductCharacteristicsQueryInformationModelFind,
+            ProductCharacteristicsQuery,
             ExplicitVRLittleEndian
         )
         scp = ae.start_server(('', 11112), block=False, evt_handlers=handlers)
@@ -203,7 +203,7 @@ class TestSubstanceAdministrationQueryServiceClass:
         ae.dimse_timeout = 5
         assoc = ae.associate('localhost', 11112)
         assert assoc.is_established
-        result = assoc.send_c_find(self.query, ProductCharacteristicsQueryInformationModelFind)
+        result = assoc.send_c_find(self.query, ProductCharacteristicsQuery)
         status, identifier = next(result)
         assert status.Status == 0xC002
         with pytest.raises(StopIteration):
@@ -221,9 +221,9 @@ class TestSubstanceAdministrationQueryServiceClass:
         handlers = [(evt.EVT_C_FIND, handle)]
 
         self.ae = ae = AE()
-        ae.add_supported_context(ProductCharacteristicsQueryInformationModelFind)
+        ae.add_supported_context(ProductCharacteristicsQuery)
         ae.add_requested_context(
-            ProductCharacteristicsQueryInformationModelFind,
+            ProductCharacteristicsQuery,
             ExplicitVRLittleEndian
         )
         scp = ae.start_server(('', 11112), block=False, evt_handlers=handlers)
@@ -232,7 +232,7 @@ class TestSubstanceAdministrationQueryServiceClass:
         ae.dimse_timeout = 5
         assoc = ae.associate('localhost', 11112)
         assert assoc.is_established
-        result = assoc.send_c_find(self.query, ProductCharacteristicsQueryInformationModelFind)
+        result = assoc.send_c_find(self.query, ProductCharacteristicsQuery)
         status, identifier = next(result)
         assert status.Status == 0xC002
         with pytest.raises(StopIteration):

@@ -29,7 +29,7 @@ from pynetdicom.events import (
 from pynetdicom.dimse_messages import (
     N_ACTION, N_CREATE, N_EVENT_REPORT, N_SET, N_GET, N_DELETE, C_STORE
 )
-from pynetdicom.sop_class import VerificationSOPClass
+from pynetdicom.sop_class import Verification
 
 
 #debug_logger()

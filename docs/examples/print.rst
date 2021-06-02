@@ -158,12 +158,12 @@ notifications over the same association (and ignore them).
 
     from pynetdicom import AE, evt, debug_logger
     from pynetdicom.sop_class import (
-        BasicGrayscalePrintManagementMetaSOPClass,
-        BasicFilmSessionSOPClass,
-        BasicFilmBoxSOPClass,
-        BasicGrayscaleImageBoxSOPClass,
-        PrinterSOPClass,
-        PrinterSOPInstance
+        BasicGrayscalePrintManagementMeta,
+        BasicFilmSession,
+        BasicFilmBox,
+        BasicGrayscaleImageBox,
+        Printer,
+        PrinterInstance
     )
 
     debug_logger()
@@ -264,7 +264,7 @@ notifications over the same association (and ignore them).
     handlers = [(evt.EVT_N_EVENT_REPORT, handle_n_er)]
 
     ae = AE()
-    ae.add_requested_context(BasicGrayscalePrintManagementMetaSOPClass)
+    ae.add_requested_context(BasicGrayscalePrintManagementMeta)
     assoc = ae.associate('localhost', 11112, evt_handlers=handlers)
 
     if assoc.is_established:
@@ -276,9 +276,9 @@ notifications over the same association (and ignore them).
         #   parameter to ensure we use the correct context
         status, attr_list = assoc.send_n_get(
             [0x21100010, 0x21100020],  # Attribute Identifier List
-            PrinterSOPClass,  # Affected SOP Class UID
-            PrinterSOPInstance,  # Well-known Printer SOP Instance
-            meta_uid=BasicGrayscalePrintManagementMetaSOPClass
+            Printer,  # Affected SOP Class UID
+            PrinterInstance,  # Well-known Printer SOP Instance
+            meta_uid=BasicGrayscalePrintManagementMeta
         )
         if status and status.Status == 0x0000:
             if getattr(attr_list, 'PrinterStatus', None) != "NORMAL":
@@ -299,9 +299,9 @@ notifications over the same association (and ignore them).
         # Step 2: Create *Film Session* instance
         status, film_session = assoc.send_n_create(
             build_session(),  # Attribute List
-            BasicFilmSessionSOPClass,  # Affected SOP Class UID
+            BasicFilmSession,  # Affected SOP Class UID
             generate_uid(),  # Affected SOP Instance UID
-            meta_uid=BasicGrayscalePrintManagementMetaSOPClass
+            meta_uid=BasicGrayscalePrintManagementMeta
         )
 
         if not status or status.Status != 0x0000:
@@ -314,9 +314,9 @@ notifications over the same association (and ignore them).
         # Step 3: Create *Film Box* and *Image Box(es)*
         status, film_box = assoc.send_n_create(
             build_film_box(film_session),
-            BasicFilmBoxSOPClass,
+            BasicFilmBox,
             generate_uid(),
-            meta_uid=BasicGrayscalePrintManagementMetaSOPClass
+            meta_uid=BasicGrayscalePrintManagementMeta
         )
         if not status or status.Status != 0x0000:
             print('Creation of the Film Box failed, releasing association')
@@ -333,7 +333,7 @@ notifications over the same association (and ignore them).
             build_image_box(DATASET),
             item.ReferencedSOPClassUID,
             item.ReferencedSOPInstanceUID,
-            meta_uid=BasicGrayscalePrintManagementMetaSOPClass
+            meta_uid=BasicGrayscalePrintManagementMeta
         )
         if not status or status.Status != 0x0000:
             print('Updating the Image Box failed, releasing association')
@@ -348,7 +348,7 @@ notifications over the same association (and ignore them).
             1,  # Print the Film Box
             film_box.SOPClassUID,
             film_box.SOPInstanceUID,
-            meta_uid=BasicGrayscalePrintManagementMetaSOPClass
+            meta_uid=BasicGrayscalePrintManagementMeta
         )
         if not status or status.Status != 0x0000:
             print('Printing the Film Box failed, releasing association')

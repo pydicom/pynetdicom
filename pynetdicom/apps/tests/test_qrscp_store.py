@@ -16,7 +16,7 @@ from pydicom.uid import (
 )
 
 from pynetdicom import AE, evt, debug_logger, DEFAULT_TRANSFER_SYNTAXES
-from pynetdicom.sop_class import VerificationSOPClass, CTImageStorage
+from pynetdicom.sop_class import Verification, CTImageStorage
 
 
 #debug_logger()

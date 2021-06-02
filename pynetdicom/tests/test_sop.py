@@ -2,6 +2,7 @@
 
 import pytest
 
+from pynetdicom import __version__
 from pydicom._uid_dict import UID_dictionary
 
 from pynetdicom.sop_class import (
@@ -10,7 +11,7 @@ from pynetdicom.sop_class import (
     SOPClass,
     _SERVICE_CLASSES,
     _APPLICATION_EVENT_CLASSES,
-    ProceduralEventLoggingSOPClass,
+    ProceduralEventLogging,
     _BASIC_WORKLIST_CLASSES,
     ModalityWorklistInformationFind,
     _COLOR_PALETTE_CLASSES,
@@ -18,23 +19,23 @@ from pynetdicom.sop_class import (
     _DEFINED_PROCEDURE_CLASSES,
     DefinedProcedureProtocolInformationModelFind,
     _DISPLAY_SYSTEM_CLASSES,
-    DisplaySystemSOPClass,
+    DisplaySystem,
     _HANGING_PROTOCOL_CLASSES,
     HangingProtocolInformationModelGet,
     _IMPLANT_TEMPLATE_CLASSES,
     ImplantTemplateGroupInformationModelFind,
     _INSTANCE_AVAILABILITY_CLASSES,
-    InstanceAvailabilityNotificationSOPClass,
+    InstanceAvailabilityNotification,
     _MEDIA_CREATION_CLASSES,
-    MediaCreationManagementSOPClass,
+    MediaCreationManagement,
     _MEDIA_STORAGE_CLASSES,
     MediaStorageDirectoryStorage,
     _NON_PATIENT_OBJECT_CLASSES,
     HangingProtocolStorage,
     _PRINT_MANAGEMENT_CLASSES,
-    PrintJobSOPClass,
+    PrintJob,
     _PROCEDURE_STEP_CLASSES,
-    ModalityPerformedProcedureStepSOPClass,
+    ModalityPerformedProcedureStep,
     _PROTOCOL_APPROVAL_CLASSES,
     ProtocolApprovalInformationModelFind,
     ProtocolApprovalInformationModelMove,
@@ -48,21 +49,21 @@ from pynetdicom.sop_class import (
     _STORAGE_CLASSES,
     CTImageStorage,
     _STORAGE_COMMITMENT_CLASSES,
-    StorageCommitmentPushModelSOPClass,
+    StorageCommitmentPushModel,
     _SUBSTANCE_ADMINISTRATION_CLASSES,
-    ProductCharacteristicsQueryInformationModelFind,
+    ProductCharacteristicsQuery,
     _UNIFIED_PROCEDURE_STEP_CLASSES,
-    UnifiedProcedureStepPullSOPClass,
+    UnifiedProcedureStepPull,
     _VERIFICATION_CLASSES,
-    VerificationSOPClass,
-    DisplaySystemSOPInstance,
-    PrinterConfigurationRetrievalSOPInstance,
-    PrinterSOPInstance,
-    ProceduralEventLoggingSOPInstance,
-    StorageCommitmentPushModelSOPInstance,
-    SubstanceAdministrationLoggingSOPInstance,
-    UPSFilteredGlobalSubscriptionSOPInstance,
-    UPSGlobalSubscriptionSOPInstance
+    Verification,
+    DisplaySystemInstance,
+    PrinterConfigurationRetrievalInstance,
+    PrinterInstance,
+    ProceduralEventLoggingInstance,
+    StorageCommitmentPushModelInstance,
+    SubstanceAdministrationLoggingInstance,
+    UPSFilteredGlobalSubscriptionInstance,
+    UPSGlobalSubscriptionInstance
 )
 from pynetdicom.service_class import (
     ServiceClass,
@@ -90,6 +91,9 @@ from pynetdicom.service_class_n import (
     StorageCommitmentServiceClass,
     UnifiedProcedureStepServiceClass,
 )
+
+
+PYDICOM_VERSION = __version__.split('.')[:2]
 
 
 def test_all_sop_classes():
@@ -128,8 +132,9 @@ def test_all_sop_classes():
         assert uid in UID_dictionary
     for uid in _RT_MACHINE_VERIFICATION_CLASSES.values():
         assert uid in UID_dictionary
-    for uid in _STORAGE_CLASSES.values():
-        assert uid in UID_dictionary
+    if PYDICOM_VERSION >= ['2', '2']:
+        for uid in _STORAGE_CLASSES.values():
+            assert uid in UID_dictionary
     for uid in _STORAGE_COMMITMENT_CLASSES.values():
         assert uid in UID_dictionary
     for uid in _SUBSTANCE_ADMINISTRATION_CLASSES.values():
@@ -148,14 +153,14 @@ def test_all_service_classes():
 
 def test_all_sop_instances():
     """Test the well-known SOP Instances are correct."""
-    assert DisplaySystemSOPInstance in UID_dictionary
-    assert PrinterConfigurationRetrievalSOPInstance in UID_dictionary
-    assert PrinterSOPInstance in UID_dictionary
-    assert ProceduralEventLoggingSOPInstance in UID_dictionary
-    assert StorageCommitmentPushModelSOPInstance in UID_dictionary
-    assert SubstanceAdministrationLoggingSOPInstance in UID_dictionary
-    assert UPSFilteredGlobalSubscriptionSOPInstance in UID_dictionary
-    assert UPSGlobalSubscriptionSOPInstance in UID_dictionary
+    assert DisplaySystemInstance in UID_dictionary
+    assert PrinterConfigurationRetrievalInstance in UID_dictionary
+    assert PrinterInstance in UID_dictionary
+    assert ProceduralEventLoggingInstance in UID_dictionary
+    assert StorageCommitmentPushModelInstance in UID_dictionary
+    assert SubstanceAdministrationLoggingInstance in UID_dictionary
+    assert UPSFilteredGlobalSubscriptionInstance in UID_dictionary
+    assert UPSGlobalSubscriptionInstance in UID_dictionary
 
 
 class TestUIDtoSOPlass:
@@ -168,11 +173,11 @@ class TestUIDtoSOPlass:
 
     def test_verification_uid(self):
         """Test normal function"""
-        assert uid_to_sop_class('1.2.840.10008.1.1') == VerificationSOPClass
+        assert uid_to_sop_class('1.2.840.10008.1.1') == Verification
 
     def test_existing(self):
         """Test that the existing class is returned."""
-        original = VerificationSOPClass
+        original = Verification
         sop_class = uid_to_sop_class('1.2.840.10008.1.1')
         assert id(sop_class) == id(original)
 
@@ -301,8 +306,8 @@ class TestUIDToServiceClass:
 class TestSOPClass:
     """Tests for sop_class.SOPClass."""
     def test_app_logging_sop(self):
-        assert ProceduralEventLoggingSOPClass == '1.2.840.10008.1.40'
-        assert ProceduralEventLoggingSOPClass.service_class == ApplicationEventLoggingServiceClass
+        assert ProceduralEventLogging == '1.2.840.10008.1.40'
+        assert ProceduralEventLogging.service_class == ApplicationEventLoggingServiceClass
 
     def test_basic_worklist_sop(self):
         """Test a Basic Worklist Service SOP Class."""
@@ -320,8 +325,8 @@ class TestSOPClass:
         assert DefinedProcedureProtocolInformationModelFind.service_class == DefinedProcedureProtocolQueryRetrieveServiceClass
 
     def test_display_sop(self):
-        assert DisplaySystemSOPClass == '1.2.840.10008.5.1.1.40'
-        assert DisplaySystemSOPClass.service_class == DisplaySystemManagementServiceClass
+        assert DisplaySystem == '1.2.840.10008.5.1.1.40'
+        assert DisplaySystem.service_class == DisplaySystemManagementServiceClass
 
     def test_hanging_protocol_sop(self):
         """Test a Hanging Protocol Service SOP Class."""
@@ -334,12 +339,12 @@ class TestSOPClass:
         assert ImplantTemplateGroupInformationModelFind.service_class == ImplantTemplateQueryRetrieveServiceClass
 
     def test_instance_sop(self):
-        assert InstanceAvailabilityNotificationSOPClass == '1.2.840.10008.5.1.4.33'
-        assert InstanceAvailabilityNotificationSOPClass.service_class == InstanceAvailabilityNotificationServiceClass
+        assert InstanceAvailabilityNotification == '1.2.840.10008.5.1.4.33'
+        assert InstanceAvailabilityNotification.service_class == InstanceAvailabilityNotificationServiceClass
 
     def test_media_creation_sop(self):
-        assert MediaCreationManagementSOPClass == '1.2.840.10008.5.1.1.33'
-        assert MediaCreationManagementSOPClass.service_class == MediaCreationManagementServiceClass
+        assert MediaCreationManagement == '1.2.840.10008.5.1.1.33'
+        assert MediaCreationManagement.service_class == MediaCreationManagementServiceClass
 
     def test_media_storage_sop(self):
         assert MediaStorageDirectoryStorage == '1.2.840.10008.1.3.10'
@@ -351,12 +356,12 @@ class TestSOPClass:
         assert HangingProtocolStorage.service_class == NonPatientObjectStorageServiceClass
 
     def test_print_sop(self):
-        assert PrintJobSOPClass == '1.2.840.10008.5.1.1.14'
-        assert PrintJobSOPClass.service_class == PrintManagementServiceClass
+        assert PrintJob == '1.2.840.10008.5.1.1.14'
+        assert PrintJob.service_class == PrintManagementServiceClass
 
     def test_procedure_step_sop(self):
-        assert ModalityPerformedProcedureStepSOPClass == '1.2.840.10008.3.1.2.3.3'
-        assert ModalityPerformedProcedureStepSOPClass.service_class == ProcedureStepServiceClass
+        assert ModalityPerformedProcedureStep == '1.2.840.10008.3.1.2.3.3'
+        assert ModalityPerformedProcedureStep.service_class == ProcedureStepServiceClass
 
     def test_protocol_approval_sop(self):
         """Test an Protocol Approval Service SOP Class."""
@@ -383,22 +388,22 @@ class TestSOPClass:
         assert CTImageStorage.service_class == StorageServiceClass
 
     def test_storage_commitment_sop(self):
-        assert StorageCommitmentPushModelSOPClass == '1.2.840.10008.1.20.1'
-        assert StorageCommitmentPushModelSOPClass.service_class == StorageCommitmentServiceClass
+        assert StorageCommitmentPushModel == '1.2.840.10008.1.20.1'
+        assert StorageCommitmentPushModel.service_class == StorageCommitmentServiceClass
 
     def test_substance_admin_sop(self):
         """Test s Substance Administration Query Service SOP Class."""
-        assert ProductCharacteristicsQueryInformationModelFind == '1.2.840.10008.5.1.4.41'
-        assert ProductCharacteristicsQueryInformationModelFind.service_class == SubstanceAdministrationQueryServiceClass
+        assert ProductCharacteristicsQuery == '1.2.840.10008.5.1.4.41'
+        assert ProductCharacteristicsQuery.service_class == SubstanceAdministrationQueryServiceClass
 
     def test_ups_sop(self):
-        assert UnifiedProcedureStepPullSOPClass == '1.2.840.10008.5.1.4.34.6.3'
-        assert UnifiedProcedureStepPullSOPClass.service_class == UnifiedProcedureStepServiceClass
+        assert UnifiedProcedureStepPull == '1.2.840.10008.5.1.4.34.6.3'
+        assert UnifiedProcedureStepPull.service_class == UnifiedProcedureStepServiceClass
 
     def test_verification_sop(self):
         """Test a Verification Service SOP Class."""
-        assert VerificationSOPClass == '1.2.840.10008.1.1'
-        assert VerificationSOPClass.service_class == VerificationServiceClass
+        assert Verification == '1.2.840.10008.1.1'
+        assert Verification.service_class == VerificationServiceClass
 
     def test_uid_creation(self):
         """Test creating a new UIDSOPClass."""

@@ -133,7 +133,7 @@ with :meth:`AE.associate()<pynetdicom.ae.ApplicationEntity.associate>` and
 *evt_handlers* should be a list of 2- or 3-tuples::
 
     from pynetdicom import evt, AE
-    from pynetdicom.sop_class import VerificationSOPClass, CTImageStorage
+    from pynetdicom.sop_class import Verification, CTImageStorage
 
     def handle_echo(event):
         # Because we used a 2-tuple to bind `handle_echo` we
@@ -153,7 +153,7 @@ with :meth:`AE.associate()<pynetdicom.ae.ApplicationEntity.associate>` and
     ]
 
     ae = AE()
-    ae.add_supported_context(VerificationSOPClass)
+    ae.add_supported_context(Verification)
     ae.add_supported_context(CTImageStorage)
     ae.start_server(('localhost', 11112), evt_handlers=handlers)
 

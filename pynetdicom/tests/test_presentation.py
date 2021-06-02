@@ -5,6 +5,7 @@ import sys
 
 import pytest
 
+from pydicom import __version__
 from pydicom._uid_dict import UID_dictionary
 from pydicom.uid import UID
 
@@ -41,10 +42,13 @@ from pynetdicom.presentation import (
     VerificationPresentationContexts,
 )
 from pynetdicom.sop_class import (
-    VerificationSOPClass,
+    Verification,
     CompositeInstanceRetrieveWithoutBulkDataGet,
     CTImageStorage,
 )
+
+
+PYDICOM_VERSION = __version__.split('.')[:2]
 
 
 @pytest.fixture(params=[
@@ -624,6 +628,7 @@ class TestNegotiateAsAcceptor:
         assert context.result == 0x00
         assert context.transfer_syntax == ['1.2.840.10008.1.2.1']
 
+    @pytest.mark.skipif(PYDICOM_VERSION < ['2', '2'], reason="Old data dict")
     def test_typical(self):
         """Test a typical set of presentation context negotiations."""
         req_contexts = []
@@ -1555,6 +1560,7 @@ class TestNegotiateAsRequestor:
         assert context.result == 0x00
         assert context.transfer_syntax == ['1.2.840.10008.1.2.1']
 
+    @pytest.mark.skipif(PYDICOM_VERSION < ['2', '2'], reason="Old data dict")
     def test_typical(self):
         """Test a typical set of presentation context negotiations."""
         req_contexts = []
@@ -1621,11 +1627,9 @@ class TestNegotiateAsRequestor:
         context_d.result = 0x01
         acc_contexts = [context_c, context_d]
 
-        #acc_contexts, roles = self.test_acc(rq_contexts, [context_b])
-
         result = self.test_func(rq_contexts, acc_contexts)
         for ii in result:
-            print(ii)
+            str(ii)
 
         assert len(result) == 2
         context = result[0]
@@ -1664,7 +1668,7 @@ def test_build_context():
     assert context.transfer_syntax == ['12.3']
     assert context.context_id is None
 
-    context = build_context(VerificationSOPClass)
+    context = build_context(Verification)
     assert context.abstract_syntax == '1.2.840.10008.1.1'
     assert context.transfer_syntax == DEFAULT_TRANSFER_SYNTAXES
     assert context.context_id is None
@@ -1906,8 +1910,8 @@ class TestServiceContexts:
             assert context.context_id is None
 
         assert contexts[0].abstract_syntax == '1.2.840.10008.5.1.4.1.1.1'
-        assert contexts[80].abstract_syntax == '1.2.840.10008.5.1.4.1.1.77.1.2'
-        assert contexts[-1].abstract_syntax == '1.2.840.10008.5.1.4.1.1.9.2.1'
+        assert contexts[80].abstract_syntax == '1.2.840.10008.5.1.4.1.1.68.1'
+        assert contexts[-1].abstract_syntax == '1.2.840.10008.5.1.4.1.1.88.69'
 
     def test_storage_commitement(self):
         """Tests with storage commitment presentation contexts"""
