@@ -53,10 +53,10 @@ Changes
 .......
 
 * Removed support for Python 2.7 and 3.5, added it for Python 3.9
-* Minimum *pydicom* version is 2.0
+* Minimum *pydicom* version is 2.2
 * The *Failed SOP Instance UID List* sent with the final C-GET/C-MOVE SCP
   failure or warning responses no longer includes the SOP Instances for
   sub-operations that return a warning status
 * SOP Class and Instance variable names changed to match the new UID keywords
   from the DICOM Standard. In particular ``VerificationSOPClass`` is now simply
-  ``Verification``
+  :attr:`~pynetdicom.sop_class.Verification`

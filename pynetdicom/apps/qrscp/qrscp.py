@@ -25,7 +25,6 @@ from pynetdicom.sop_class import (
 )
 from pynetdicom.utils import validate_ae_title
 
-#from pynetdicom.apps.qrscp import config
 from pynetdicom.apps.qrscp.handlers import (
     handle_echo, handle_find, handle_get, handle_move, handle_store
 )
