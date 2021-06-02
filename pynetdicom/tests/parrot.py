@@ -3,6 +3,7 @@
 import queue
 import select
 import socket
+import struct
 try:
     from SocketServer import TCPServer, ThreadingMixIn, BaseRequestHandler
 except ImportError:

@@ -2,6 +2,7 @@
 The DUL's finite state machine representation.
 """
 import logging
+from typing import TYPE_CHECKING, cast, Tuple
 
 from pynetdicom import evt
 from pynetdicom.pdu import (
@@ -9,6 +10,13 @@ from pynetdicom.pdu import (
     P_DATA_TF, A_RELEASE_RQ, A_RELEASE_RP, A_ABORT_RQ
 )
 from pynetdicom.pdu_primitives import A_P_ABORT
+
+if TYPE_CHECKING:  # pragma: no cover
+    from pynetdicom.dul import DULServiceProvider
+    from pynetdicom.transport import AssociationSocket
+    from pynetdicom.pdu_primitives import (
+        A_ASSOCIATE, P_DATA, A_RELEASE, A_ABORT
+    )
 
 
 LOGGER = logging.getLogger('pynetdicom.sm')
@@ -35,7 +43,7 @@ class StateMachine:
 
     * DICOM Standard, Part 8, :dcm:`Section 9.2<part08/sect_9.2.html>`
     """
-    def __init__(self, dul):
+    def __init__(self, dul: "DULServiceProvider"):
         """Create a new :class:`StateMachine`.
 
         Parameters
@@ -46,7 +54,7 @@ class StateMachine:
         self.current_state = 'Sta1'
         self.dul = dul
 
-    def do_action(self, event):
+    def do_action(self, event: str) -> None:
         """Execute the action triggered by `event`.
 
         Parameters
@@ -86,12 +94,12 @@ class StateMachine:
                     'next_state': next_state
                 }
             )
-            #print(
+            # print(
             #    "{}: {} + {} -> {} -> {}".format(
             #        self.dul.assoc.mode[0].upper(), self.current_state,
             #        event, action_name, next_state
             #    )
-            #)
+            # )
 
             # Move the state machine to the next state
             self.transition(next_state)
@@ -104,7 +112,7 @@ class StateMachine:
             self.dul.kill_dul()
             raise
 
-    def transition(self, state):
+    def transition(self, state: str) -> None:
         """Transition the state machine to the next state.
 
         Parameters
@@ -126,7 +134,7 @@ class StateMachine:
             raise ValueError(msg)
 
 
-def AE_1(dul):
+def AE_1(dul: "DULServiceProvider") -> str:
     """Association establishment action AE-1.
 
     *Event*
@@ -154,11 +162,15 @@ def AE_1(dul):
     # Issue TRANSPORT CONNECT request primitive to local transport service
     # This is our "TRANSPORT CONNECT" primitive - it attempts to connect
     #   to the peer, emitting either Evt2 or Evt17
-    dul.socket.connect(dul.primitive.called_presentation_address)
+    sock = cast("AssociationSocket", dul.socket)
+    primitive = cast("A_ASSOCIATE", dul.primitive)
+    sock.connect(
+        cast(Tuple[str, int], primitive.called_presentation_address)
+    )
 
     return 'Sta4'
 
-def AE_2(dul):
+def AE_2(dul: "DULServiceProvider") -> str:
     """Association establishment action AE-2.
 
     On receiving connection confirmation, send A-ASSOCIATE-RQ to the peer AE
@@ -178,14 +190,15 @@ def AE_2(dul):
     """
     # Send A-ASSOCIATE-RQ PDU
     dul.pdu = A_ASSOCIATE_RQ()
-    dul.pdu.from_primitive(dul.primitive)
+    dul.pdu.from_primitive(cast("A_ASSOCIATE", dul.primitive))
 
-    dul.socket.send(dul.pdu.encode())
+    sock = cast("AssociationSocket", dul.socket)
+    sock.send(dul.pdu.encode())
     evt.trigger(dul.assoc, evt.EVT_PDU_SENT, {'pdu': dul.pdu})
 
     return 'Sta5'
 
-def AE_3(dul):
+def AE_3(dul: "DULServiceProvider") -> str:
     """Association establishment action AE-3.
 
     On receiving A-ASSOCIATE-AC, issue acceptance confirmation
@@ -203,11 +216,11 @@ def AE_3(dul):
         ``'Sta6'``, the next state of the state machine
     """
     # Issue A-ASSOCIATE confirmation (accept) primitive
-    dul.to_user_queue.put(dul.primitive)
+    dul.to_user_queue.put(cast("A_ASSOCIATE", dul.primitive))
 
     return 'Sta6'
 
-def AE_4(dul):
+def AE_4(dul: "DULServiceProvider") -> str:
     """Association establishment action AE-4.
 
     On receiving A-ASSOCIATE-RJ, issue rejection confirmation and close
@@ -227,8 +240,9 @@ def AE_4(dul):
     """
     # Issue A-ASSOCIATE confirmation (reject) primitive and close transport
     # connection
-    dul.to_user_queue.put(dul.primitive)
-    dul.socket.close()
+    dul.to_user_queue.put(cast("A_ASSOCIATE", dul.primitive))
+    sock = cast("AssociationSocket", dul.socket)
+    sock.close()
 
     assoc = dul.assoc
     remote = assoc.acceptor if assoc.is_requestor else assoc.requestor
@@ -240,7 +254,7 @@ def AE_4(dul):
 
     return 'Sta1'
 
-def AE_5(dul):
+def AE_5(dul: "DULServiceProvider") -> str:
     """Association establishment action AE-5.
 
     From Idle state, on receiving a remote connection attempt, respond and
@@ -264,7 +278,7 @@ def AE_5(dul):
 
     return 'Sta2'
 
-def AE_6(dul):
+def AE_6(dul: "DULServiceProvider") -> str:
     """Association establishment action AE-6.
 
     On receiving an A-ASSOCIATE-RQ PDU from the peer then stop the ARTIM timer
@@ -293,21 +307,26 @@ def AE_6(dul):
 
     # If A-ASSOCIATE-RQ not acceptable by service dul provider
     #   Then set reason and send -RJ PDU back to peer
-    if dul.pdu.protocol_version != 0x0001:
-        LOGGER.error("A-ASSOCIATE-RQ: Unsupported protocol "
-                     "version '0x%04x'",
-                     dul.pdu.protocol_version)
+    pdu = cast(A_ASSOCIATE_RQ, dul.pdu)
+    primitive = cast("A_ASSOCIATE", dul.primitive)
+    if pdu.protocol_version != 0x0001:
+        LOGGER.error(
+            "A-ASSOCIATE-RQ: Unsupported protocol version "
+            f"'0x{pdu.protocol_version:04X}'"
+        )
 
         # Send A-ASSOCIATE-RJ PDU and start ARTIM timer
         # dul.primitive is A_ASSOCIATE
-        dul.primitive.result = 0x01
-        dul.primitive.result_source = 0x02
-        dul.primitive.diagnostic = 0x02
+
+        primitive.result = 0x01
+        primitive.result_source = 0x02
+        primitive.diagnostic = 0x02
 
         dul.pdu = A_ASSOCIATE_RJ()
-        dul.pdu.from_primitive(dul.primitive)
+        dul.pdu.from_primitive(primitive)
 
-        dul.socket.send(dul.pdu.encode())
+        sock = cast("AssociationSocket", dul.socket)
+        sock.send(dul.pdu.encode())
         evt.trigger(dul.assoc, evt.EVT_PDU_SENT, {'pdu': dul.pdu})
         dul.artim_timer.start()
 
@@ -315,11 +334,11 @@ def AE_6(dul):
 
     # If A-ASSOCIATE-RQ acceptable by service dul provider
     #   issue A-ASSOCIATE indication primitive and move to Sta3
-    dul.to_user_queue.put(dul.primitive)
+    dul.to_user_queue.put(primitive)
 
     return 'Sta3'
 
-def AE_7(dul):
+def AE_7(dul: "DULServiceProvider") -> str:
     """Association establishment action AE-7.
 
     On receiving association request acceptance, issue A-ASSOCIATE-AC
@@ -338,14 +357,15 @@ def AE_7(dul):
     """
     # Send A-ASSOCIATE-AC PDU
     dul.pdu = A_ASSOCIATE_AC()
-    dul.pdu.from_primitive(dul.primitive)
+    dul.pdu.from_primitive(cast("A_ASSOCIATE", dul.primitive))
 
-    dul.socket.send(dul.pdu.encode())
+    sock = cast("AssociationSocket", dul.socket)
+    sock.send(dul.pdu.encode())
     evt.trigger(dul.assoc, evt.EVT_PDU_SENT, {'pdu': dul.pdu})
 
     return 'Sta6'
 
-def AE_8(dul):
+def AE_8(dul: "DULServiceProvider") -> str:
     """Association establishment action AE-8.
 
     On receiving association request rejection, issue A-ASSOCIATE-RJ
@@ -364,16 +384,17 @@ def AE_8(dul):
     """
     # Send A-ASSOCIATE-RJ PDU and start ARTIM timer
     dul.pdu = A_ASSOCIATE_RJ()
-    dul.pdu.from_primitive(dul.primitive)
+    dul.pdu.from_primitive(cast("A_ASSOCIATE", dul.primitive))
 
-    dul.socket.send(dul.pdu.encode())
+    sock = cast("AssociationSocket", dul.socket)
+    sock.send(dul.pdu.encode())
     evt.trigger(dul.assoc, evt.EVT_PDU_SENT, {'pdu': dul.pdu})
     dul.artim_timer.start()
 
     return 'Sta13'
 
 
-def DT_1(dul):
+def DT_1(dul: "DULServiceProvider") -> str:
     """Data transfer DT-1.
 
     On receiving a P-DATA request, send P-DATA-TF
@@ -392,15 +413,16 @@ def DT_1(dul):
     """
     # Send P-DATA-TF PDU
     dul.pdu = P_DATA_TF()
-    dul.pdu.from_primitive(dul.primitive)
+    dul.pdu.from_primitive(cast("P_DATA", dul.primitive))
     dul.primitive = None  # Why this?
 
-    dul.socket.send(dul.pdu.encode())
+    sock = cast("AssociationSocket", dul.socket)
+    sock.send(dul.pdu.encode())
     evt.trigger(dul.assoc, evt.EVT_PDU_SENT, {'pdu': dul.pdu})
 
     return 'Sta6'
 
-def DT_2(dul):
+def DT_2(dul: "DULServiceProvider") -> str:
     """Data transfer DT-2.
 
     On receiving a P-DATA-TF request, send P-DATA indication
@@ -418,12 +440,12 @@ def DT_2(dul):
         ``'Sta6'``, the next state of the state machine
     """
     # Send P-DATA indication primitive directly to DIMSE for processing
-    dul.assoc.dimse.receive_primitive(dul.primitive)
+    dul.assoc.dimse.receive_primitive(cast("P_DATA", dul.primitive))
 
     return 'Sta6'
 
 
-def AR_1(dul):
+def AR_1(dul: "DULServiceProvider") -> str:
     """Association release AR-1.
 
     Send Association release request
@@ -442,14 +464,15 @@ def AR_1(dul):
     """
     # Send A-RELEASE-RQ PDU
     dul.pdu = A_RELEASE_RQ()
-    dul.pdu.from_primitive(dul.primitive)
+    dul.pdu.from_primitive(cast("A_RELEASE", dul.primitive))
 
-    dul.socket.send(dul.pdu.encode())
+    sock = cast("AssociationSocket", dul.socket)
+    sock.send(dul.pdu.encode())
     evt.trigger(dul.assoc, evt.EVT_PDU_SENT, {'pdu': dul.pdu})
 
     return 'Sta7'
 
-def AR_2(dul):
+def AR_2(dul: "DULServiceProvider") -> str:
     """Association release AR-2.
 
     On receiving an association release request, send release indication
@@ -467,11 +490,11 @@ def AR_2(dul):
         ``'Sta8'``, the next state of the state machine
     """
     # Send A-RELEASE indication primitive
-    dul.to_user_queue.put(dul.primitive)
+    dul.to_user_queue.put(cast("A_RELEASE", dul.primitive))
 
     return 'Sta8'
 
-def AR_3(dul):
+def AR_3(dul: "DULServiceProvider") -> str:
     """Association release AR-3.
 
     On receiving an association release response, send release confirmation,
@@ -490,8 +513,9 @@ def AR_3(dul):
         ``'Sta1'``, the next state of the state machine
     """
     # Issue A-RELEASE confirmation primitive and close transport connection
-    dul.to_user_queue.put(dul.primitive)
-    dul.socket.close()
+    dul.to_user_queue.put(cast("A_RELEASE", dul.primitive))
+    sock = cast("AssociationSocket", dul.socket)
+    sock.close()
 
     assoc = dul.assoc
     remote = assoc.acceptor if assoc.is_requestor else assoc.requestor
@@ -503,7 +527,7 @@ def AR_3(dul):
 
     return 'Sta1'
 
-def AR_4(dul):
+def AR_4(dul: "DULServiceProvider") -> str:
     """Association release AR-4.
 
     On receiving an association release response, send release response
@@ -522,15 +546,16 @@ def AR_4(dul):
     """
     # Issue A-RELEASE-RP PDU and start ARTIM timer
     dul.pdu = A_RELEASE_RP()
-    dul.pdu.from_primitive(dul.primitive)
+    dul.pdu.from_primitive(cast("A_RELEASE", dul.primitive))
 
-    dul.socket.send(dul.pdu.encode())
+    sock = cast("AssociationSocket", dul.socket)
+    sock.send(dul.pdu.encode())
     evt.trigger(dul.assoc, evt.EVT_PDU_SENT, {'pdu': dul.pdu})
     dul.artim_timer.start()
 
     return 'Sta13'
 
-def AR_5(dul):
+def AR_5(dul: "DULServiceProvider") -> str:
     """Association release AR-5.
 
     On receiving transport connection closed, stop the ARTIM timer and go back
@@ -560,7 +585,7 @@ def AR_5(dul):
 
     return 'Sta1'
 
-def AR_6(dul):
+def AR_6(dul: "DULServiceProvider") -> str:
     """Association release AR-6.
 
     On receiving P-DATA-TF during attempted association release request
@@ -579,11 +604,11 @@ def AR_6(dul):
         ``'Sta7'``, the next state of the state machine
     """
     # Issue P-DATA indication
-    dul.to_user_queue.put(dul.primitive)
+    dul.to_user_queue.put(cast("A_RELEASE", dul.primitive))
 
     return 'Sta7'
 
-def AR_7(dul):
+def AR_7(dul: "DULServiceProvider") -> str:
     """Association release AR-7.
 
     On receiving P-DATA request during attempted association release request
@@ -603,14 +628,15 @@ def AR_7(dul):
     """
     # Issue P-DATA-TF PDU
     dul.pdu = P_DATA_TF()
-    dul.pdu.from_primitive(dul.primitive)
+    dul.pdu.from_primitive(cast("P_DATA", dul.primitive))
 
-    dul.socket.send(dul.pdu.encode())
+    sock = cast("AssociationSocket", dul.socket)
+    sock.send(dul.pdu.encode())
     evt.trigger(dul.assoc, evt.EVT_PDU_SENT, {'pdu': dul.pdu})
 
     return 'Sta8'
 
-def AR_8(dul):
+def AR_8(dul: "DULServiceProvider") -> str:
     """Association release AR-8.
 
     On receiving association release request while local is requesting release
@@ -629,13 +655,13 @@ def AR_8(dul):
         Either ``'Sta9'`` or ``'Sta10'``, the next state of the state machine
     """
     # Issue A-RELEASE indication (release collision)
-    dul.to_user_queue.put(dul.primitive)
+    dul.to_user_queue.put(cast("A_RELEASE", dul.primitive))
     if dul.assoc.is_requestor:
         return 'Sta9'
 
     return 'Sta10'
 
-def AR_9(dul):
+def AR_9(dul: "DULServiceProvider") -> str:
     """Association release AR-9.
 
     On receiving A-RELEASE primitive, send release response
@@ -654,14 +680,15 @@ def AR_9(dul):
     """
     # Send A-RELEASE-RP PDU
     dul.pdu = A_RELEASE_RP()
-    dul.pdu.from_primitive(dul.primitive)
+    dul.pdu.from_primitive(cast("A_RELEASE", dul.primitive))
 
-    dul.socket.send(dul.pdu.encode())
+    sock = cast("AssociationSocket", dul.socket)
+    sock.send(dul.pdu.encode())
     evt.trigger(dul.assoc, evt.EVT_PDU_SENT, {'pdu': dul.pdu})
 
     return 'Sta11'
 
-def AR_10(dul):
+def AR_10(dul: "DULServiceProvider") -> str:
     """Association release AR-10.
 
     On receiving A-RELEASE-RP, issue release confirmation
@@ -679,12 +706,12 @@ def AR_10(dul):
         ``'Sta12'``, the next state of the state machine
     """
     # Issue A-RELEASE confirmation primitive
-    dul.to_user_queue.put(dul.primitive)
+    dul.to_user_queue.put(cast("A_RELEASE", dul.primitive))
 
     return 'Sta12'
 
 
-def AA_1(dul):
+def AA_1(dul: "DULServiceProvider") -> str:
     """Association abort AA-1.
 
     If on sending A-ASSOCIATE-RQ we receive an invalid reply, or an abort
@@ -709,15 +736,16 @@ def AA_1(dul):
     dul.pdu.source = 0x00
     # Reason not specified
     dul.pdu.reason_diagnostic = 0x00
-    dul.pdu.from_primitive(dul.primitive)
+    dul.pdu.from_primitive(cast("A_ABORT", dul.primitive))
 
-    dul.socket.send(dul.pdu.encode())
+    sock = cast("AssociationSocket", dul.socket)
+    sock.send(dul.pdu.encode())
     evt.trigger(dul.assoc, evt.EVT_PDU_SENT, {'pdu': dul.pdu})
     dul.artim_timer.restart()
 
     return 'Sta13'
 
-def AA_2(dul):
+def AA_2(dul: "DULServiceProvider") -> str:
     """Association abort AA-2.
 
     On receiving an A-ABORT or if the ARTIM timer expires, close connection and
@@ -737,7 +765,8 @@ def AA_2(dul):
     """
     # Stop ARTIM timer if running. Close transport connection.
     dul.artim_timer.stop()
-    dul.socket.close()
+    sock = cast("AssociationSocket", dul.socket)
+    sock.close()
 
     assoc = dul.assoc
     assoc.dimse.msg_queue.put((None, None))
@@ -750,7 +779,7 @@ def AA_2(dul):
 
     return 'Sta1'
 
-def AA_3(dul):
+def AA_3(dul: "DULServiceProvider") -> str:
     """Association abort AA-3.
 
     On receiving A-ABORT, issue abort indication, close connection and
@@ -774,8 +803,9 @@ def AA_3(dul):
     # Otherwise (service-dul initiated abort):
     #   - Issue A-P-ABORT indication and close transport connection.
     # This action is triggered by the reception of an A-ABORT PDU
-    dul.to_user_queue.put(dul.primitive)
-    dul.socket.close()
+    dul.to_user_queue.put(cast("A_ABORT", dul.primitive))
+    sock = cast("AssociationSocket", dul.socket)
+    sock.close()
 
     assoc = dul.assoc
     assoc.dimse.msg_queue.put((None, None))
@@ -788,7 +818,7 @@ def AA_3(dul):
 
     return 'Sta1'
 
-def AA_4(dul):
+def AA_4(dul: "DULServiceProvider") -> str:
     """Association abort AA-4.
 
     If connection closed, issue A-P-ABORT and return to Idle
@@ -821,7 +851,7 @@ def AA_4(dul):
 
     return 'Sta1'
 
-def AA_5(dul):
+def AA_5(dul: "DULServiceProvider") -> str:
     """Association abort AA-5.
 
     If connection closed during association request, stop ARTIM timer and
@@ -851,7 +881,7 @@ def AA_5(dul):
 
     return 'Sta1'
 
-def AA_6(dul):
+def AA_6(dul: "DULServiceProvider") -> str:
     """Association abort AA-6.
 
     If receive a PDU while waiting for connection to close, ignore it
@@ -873,7 +903,7 @@ def AA_6(dul):
 
     return 'Sta13'
 
-def AA_7(dul):
+def AA_7(dul: "DULServiceProvider") -> str:
     """Association abort AA-7.
 
     If receive a association request or invalid PDU while waiting for
@@ -894,19 +924,20 @@ def AA_7(dul):
     primitive = A_P_ABORT()
     primitive.provider_reason = 0x02
 
-    # Send A-ABORT PDU.
+    # Send A-ABORT PDU
     pdu = A_ABORT_RQ()
     pdu.from_primitive(primitive)
 
-    dul.socket.send(dul.pdu.encode())
-    evt.trigger(dul.assoc, evt.EVT_PDU_SENT, {'pdu': dul.pdu})
+    sock = cast("AssociationSocket", dul.socket)
+    sock.send(pdu.encode())
+    evt.trigger(dul.assoc, evt.EVT_PDU_SENT, {'pdu': pdu})
 
     return 'Sta13'
 
-def AA_8(dul):
+def AA_8(dul: "DULServiceProvider") -> str:
     """Association abort AA-8.
 
-    If receive invalid event, send A-ABORT, issue A-P-ABORT indication and
+    If receive invalid event, send A-ABORT PDU, issue A-P-ABORT indication and
     start ARTIM timer
 
     State-event triggers: Evt3 + Sta3/6/7/8/9/10/11/12,
@@ -926,17 +957,14 @@ def AA_8(dul):
     """
     # Send A-ABORT PDU (service-dul source), issue A-P-ABORT
     # indication, and start ARTIM timer.
-    dul.pdu = A_ABORT_RQ()
-    dul.pdu.source = 0x02
-    dul.pdu.reason_diagnostic = 0x00
+    # Send A-ABORT PDU
+    pdu = A_ABORT_RQ()
+    pdu.source = 0x02  # A-P-ABORT
+    pdu.reason_diagnostic = 0x00
 
-    dul.primitive = dul.pdu.to_primitive()
-    dul.primitive.abort_source = 0x02
-    dul.primitive.result = 0x01
-    dul.primitive.diagnostic = 0x01
-
-    dul.socket.send(dul.pdu.encode())
-    evt.trigger(dul.assoc, evt.EVT_PDU_SENT, {'pdu': dul.pdu})
+    sock = cast("AssociationSocket", dul.socket)
+    sock.send(pdu.encode())
+    evt.trigger(dul.assoc, evt.EVT_PDU_SENT, {'pdu': pdu})
 
     # Issue A-P-ABORT to user
     primitive = A_P_ABORT()

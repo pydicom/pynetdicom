@@ -3,6 +3,7 @@
 import inspect
 import logging
 import sys
+from typing import Optional, Type, Any, cast, Dict
 
 from pydicom.uid import UID
 
@@ -37,7 +38,7 @@ from pynetdicom.service_class_n import (
 LOGGER = logging.getLogger('pynetdicom.sop')
 
 
-def uid_to_service_class(uid):
+def uid_to_service_class(uid: str) -> Type[ServiceClass]:
     """Return the :class:`~pynetdicom.service_class.ServiceClass` object
     corresponding to `uid`.
 
@@ -109,24 +110,24 @@ class SOPClass(UID):
     Class.
 
     """
-    _service_class = None
+    _service_class: Optional[Type[ServiceClass]] = None
 
-    def __new__(cls, val):
+    def __new__(cls: Type["SOPClass"], val: str) -> "SOPClass":
         if isinstance(val, SOPClass):
             return val
 
         return super(SOPClass, cls).__new__(cls, val)
 
-    def __getattribute__(self, name):
+    def __getattribute__(self, name: str) -> Any:
         return super(SOPClass, self).__getattribute__(name)
 
     @property
-    def service_class(self):
+    def service_class(self) -> ServiceClass:
         """Return the corresponding Service Class implementation."""
-        return self._service_class
+        return cast(ServiceClass, self._service_class)
 
 
-def _generate_sop_classes(sop_class_dict):
+def _generate_sop_classes(sop_class_dict: Dict[str, str]) -> None:
     """Generate the SOP Classes."""
 
     _2019e = (
@@ -140,7 +141,7 @@ def _generate_sop_classes(sop_class_dict):
 
     for name in sop_class_dict:
         uid = sop_class_dict[name]
-        sop_class = SOPClass(uid)
+        sop_class: SOPClass = SOPClass(uid)
         sop_class._service_class = uid_to_service_class(uid)
         docstring = f"``{uid}``"
         if uid in ('1.2.840.10008.5.1.1.9', '1.2.840.10008.5.1.1.18'):
@@ -445,7 +446,7 @@ _generate_sop_classes(_UNIFIED_PROCEDURE_STEP_CLASSES)
 _generate_sop_classes(_VERIFICATION_CLASSES)
 
 
-def uid_to_sop_class(uid):
+def uid_to_sop_class(uid: str) -> SOPClass:
     """Return the :class:`SOPClass` object corresponding to `uid`.
 
     Parameters
@@ -472,7 +473,7 @@ def uid_to_sop_class(uid):
 
     for obj in members:
         if hasattr(obj[1], 'service_class') and obj[1] == uid:
-            return obj[1]
+            return cast(SOPClass, obj[1])
 
     sop_class = SOPClass(uid)
     sop_class._service_class = ServiceClass

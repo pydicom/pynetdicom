@@ -2,6 +2,7 @@
 
 import logging
 from struct import unpack, calcsize
+from typing import TYPE_CHECKING, List, Optional, cast, Union
 
 from pydicom.uid import UID
 
@@ -13,12 +14,18 @@ from pynetdicom.pdu import (
 from pynetdicom.sop_class import uid_to_service_class
 from pynetdicom.utils import pretty_bytes
 
+if TYPE_CHECKING:  # pragma: no cover
+    from pynetdicom.events import Event
+    from pynetdicom.pdu_items import (
+        UserInformationItem, UserIdentitySubItemRQ
+    )
+
 
 LOGGER = logging.getLogger('pynetdicom.events')
 
 
 # Debugging handlers
-def debug_fsm(event):
+def debug_fsm(event: "Event") -> None:
     """Debugging handler for the FSM."""
     LOGGER.debug(
         "{}: {} + {} -> {} -> {}"
@@ -31,7 +38,12 @@ def debug_fsm(event):
         )
     )
 
-def debug_data(event, pdu_type=None, print_raw=True, print_summary=False):
+def debug_data(
+    event: "Event",
+    pdu_type: Optional[int] = None,
+    print_raw: bool = True,
+    print_summary: bool = False
+) -> None:
     """Debugging handler for parsing raw encoded PDUs
 
     Usable with ``evt.EVT_DATA_RECV`` and ``evt.EVT_DATA_SENT``.
@@ -163,7 +175,7 @@ def debug_data(event, pdu_type=None, print_raw=True, print_summary=False):
 
 
 # Standard logging handlers
-def standard_pdu_recv_handler(event):
+def standard_pdu_recv_handler(event: "Event") -> List[str]:
     """Standard handler when a PDU is received and decoded.
 
     **Event**
@@ -197,7 +209,7 @@ def standard_pdu_recv_handler(event):
     with event.assoc.lock:
         return handlers[type(pdu)](event)
 
-def standard_pdu_sent_handler(event):
+def standard_pdu_sent_handler(event: "Event") -> List[str]:
     """Standard handler when a PDU is encoded and sent.
 
     **Event**
@@ -230,7 +242,7 @@ def standard_pdu_sent_handler(event):
     with event.assoc.lock:
         return handlers[type(pdu)](event)
 
-def standard_dimse_recv_handler(event):
+def standard_dimse_recv_handler(event: "Event") -> List[str]:
     """Standard handler for the ACSE receiving a primitive from the DUL.
 
     Parameters
@@ -276,7 +288,7 @@ def standard_dimse_recv_handler(event):
     with event.assoc.lock:
         return handlers[type(event.message)](event)
 
-def standard_dimse_sent_handler(event):
+def standard_dimse_sent_handler(event: "Event") -> List[str]:
     """Standard handler for the ACSE receiving a primitive from the DUL.
 
     Parameters
@@ -324,33 +336,35 @@ def standard_dimse_sent_handler(event):
 
 
 # PDU sub-handlers
-def _receive_abort_pdu(event):
+def _receive_abort_pdu(event: "Event") -> List[str]:
     """Standard logging handler for receiving an A-ABORT PDU."""
+    pdu = cast("A_ABORT_RQ", event.pdu)
     s = [
         "Abort Parameters:",
         f"{' INCOMING A-ABORT PDU ':=^76}",
-        f"Abort Source: {event.pdu.source_str}",
-        f"Abort Reason: {event.pdu.reason_str}",
+        f"Abort Source: {pdu.source_str}",
+        f"Abort Reason: {pdu.reason_str}",
         f"{' END A-ABORT PDU ':=^76}"
     ]
     for line in s:
         LOGGER.debug(line)
     return s
 
-def _receive_associate_ac(event):
+def _receive_associate_ac(event: "Event") -> List[str]:
     """Standard logging handler for receiving an A-ASSOCIATE-AC PDU."""
-    assoc_ac = event.pdu
+    assoc_ac = cast("A_ASSOCIATE_AC", event.pdu)
 
-    app_context = assoc_ac.application_context_name.title()
+    app_context = cast(UID, assoc_ac.application_context_name)
     pres_contexts = sorted(
-        assoc_ac.presentation_context, key=lambda x: x.context_id
+        assoc_ac.presentation_context, key=lambda x: cast(int, x.context_id)
     )
-    user_info = assoc_ac.user_information
+    user_info = cast("UserInformationItem", assoc_ac.user_information)
     async_ops = user_info.async_ops_window
     roles = user_info.role_selection
 
-    req_contexts = event.assoc.requestor.requested_contexts
-    req_contexts = {ii.context_id:ii for ii in req_contexts}
+    req_contexts = {
+        ii.context_id:ii for ii in event.assoc.requestor.requested_contexts
+    }
 
     their_class_uid = "unknown"
     their_version = b"unknown"
@@ -360,8 +374,8 @@ def _receive_associate_ac(event):
     if user_info.implementation_version_name:
         their_version = user_info.implementation_version_name
 
-    calling_aet = assoc_ac.calling_ae_title.decode('ascii')
-    called_aet = assoc_ac.called_ae_title.decode('ascii')
+    calling_aet = cast(bytes, assoc_ac.calling_ae_title).decode('ascii')
+    called_aet = cast(bytes, assoc_ac.called_ae_title).decode('ascii')
 
     s = [
         "Accept Parameters:",
@@ -378,7 +392,7 @@ def _receive_associate_ac(event):
     for cx in pres_contexts:
         s.append(f"  Context ID:        {cx.context_id} ({cx.result_str})")
         # Grab the abstract syntax from the requestor
-        a_syntax = req_contexts[cx.context_id].abstract_syntax
+        a_syntax = cast(UID, req_contexts[cx.context_id].abstract_syntax)
         s.append(f"    Abstract Syntax: ={a_syntax.name}")
 
         # Add SCP/SCU Role Selection Negotiation
@@ -397,7 +411,8 @@ def _receive_associate_ac(event):
 
             s.append(f"    Accepted SCP/SCU Role: {scp_scu_role}")
             s.append(
-                f"    Accepted Transfer Syntax: ={cx.transfer_syntax.name}"
+                "    Accepted Transfer Syntax: "
+                f"={cast(UID, cx.transfer_syntax).name}"
             )
 
     # Extended Negotiation
@@ -405,7 +420,9 @@ def _receive_associate_ac(event):
         s.append("Accepted Extended Negotiation:")
         for item in user_info.ext_neg:
             s.append(f"  SOP Class: ={item.uid}")
-            s.extend([f"  {line}" for line in pretty_bytes(item.app_info)])
+            s.extend(
+                [f"  {s}" for s in pretty_bytes(cast(bytes, item.app_info))]
+            )
     else:
         s.append("Accepted Extended Negotiation: None")
 
@@ -429,39 +446,41 @@ def _receive_associate_ac(event):
 
     return s
 
-def _receive_associate_rj(event):
+def _receive_associate_rj(event: "Event") -> List[str]:
     """Standard logging handler for receiving an A-ASSOCIATE-RJ PDU."""
+    assoc_rj = cast("A_ASSOCIATE_RJ", event.pdu)
+
     s = [
         "Reject Parameters:",
         f"{' INCOMING A-ASSOCIATE-RJ PDU ':=^76}",
-        f"Result:    {event.pdu.result_str}",
-        f"Source:    {event.pdu.source_str}",
-        f"Reason:    {event.pdu.reason_str}",
+        f"Result:    {assoc_rj.result_str}",
+        f"Source:    {assoc_rj.source_str}",
+        f"Reason:    {assoc_rj.reason_str}",
         f"{' END A-ASSOCIATE-RJ PDU ':=^76}"
     ]
     for line in s:
         LOGGER.debug(line)
     return s
 
-def _receive_associate_rq(event):
+def _receive_associate_rq(event: "Event") -> List[str]:
     """Standard logging handler for receiving an A-ASSOCIATE-RQ PDU."""
-    pdu = event.pdu
+    pdu = cast("A_ASSOCIATE_RQ", event.pdu)
 
-    app_context = pdu.application_context_name.title()
+    app_context = cast(UID, pdu.application_context_name)
     pres_contexts = sorted(
-        pdu.presentation_context, key=lambda x: x.context_id
+        pdu.presentation_context, key=lambda x: cast(int, x.context_id)
     )
-    user_info = pdu.user_information
+    user_info = cast("UserInformationItem", pdu.user_information)
 
-    their_class_uid = "unknown"
-    their_version = b"unknown"
+    their_class_uid: Union[str, UID] = "unknown"
+    their_version: Union[str, bytes] = b"unknown"
 
     if user_info.implementation_class_uid:
         their_class_uid = user_info.implementation_class_uid
     if user_info.implementation_version_name:
         their_version = user_info.implementation_version_name
 
-    their_version = their_version.decode("ascii")
+    their_version = cast(bytes, their_version).decode("ascii")
     calling_aet = pdu.calling_ae_title.decode("ascii")
     called_aet = pdu.called_ae_title.decode("ascii")
 
@@ -483,16 +502,15 @@ def _receive_associate_rq(event):
         s.append("Presentation Contexts:")
 
     for context in pres_contexts:
+        asyntax = cast(UID, context.abstract_syntax)
         s.append(f"  Context ID:        {context.context_id} (Proposed)")
-        s.append(f"    Abstract Syntax: ={context.abstract_syntax.name}")
+        s.append(f"    Abstract Syntax: ={asyntax.name}")
 
         # Add SCP/SCU Role Selection Negotiation
         # Roles are: SCU, SCP/SCU, SCP, Default
-        if pdu.user_information.role_selection:
+        if user_info.role_selection:
             try:
-                role = pdu.user_information.role_selection[
-                    context.abstract_syntax
-                ]
+                role = user_info.role_selection[asyntax]
                 roles = []
                 if role.scp_role:
                     roles.append("SCP")
@@ -515,23 +533,27 @@ def _receive_associate_rq(event):
         s.extend([f"      ={ts.name}" for ts in context.transfer_syntax])
 
     # Extended Negotiation
-    if pdu.user_information.ext_neg:
+    if user_info.ext_neg:
         s.append("Requested Extended Negotiation:")
-        for item in pdu.user_information.ext_neg:
-            s.append(f"  SOP Class: ={item.uid}")
-            s.extend([f"  {line}" for line in pretty_bytes(item.app_info)])
+        for item_a in user_info.ext_neg:
+            s.append(f"  SOP Class: ={item_a.uid}")
+            s.extend(
+                [f"  {s}" for s in pretty_bytes(cast(bytes, item_a.app_info))]
+            )
     else:
         s.append("Requested Extended Negotiation: None")
 
     # Common Extended Negotiation
-    if pdu.user_information.common_ext_neg:
+    if user_info.common_ext_neg:
         s.append("Requested Common Extended Negotiation:")
 
-        for item in pdu.user_information.common_ext_neg:
-            s.append(f"  SOP Class: ={item.sop_class_uid.name}")
-            s.append(f"    Service Class: ={item.service_class_uid.name}")
+        for ib in user_info.common_ext_neg:
+            s.append(f"  SOP Class: ={cast(UID, ib.sop_class_uid).name}")
+            s.append(
+                f"    Service Class: ={cast(UID, ib.service_class_uid).name}"
+            )
 
-            related_uids = item.related_general_sop_class_identification
+            related_uids = ib.related_general_sop_class_identification
             if related_uids:
                 s.append("    Related General SOP Class(es):")
                 s.extend([f"      ={uid.name}" for uid in related_uids])
@@ -541,7 +563,7 @@ def _receive_associate_rq(event):
         s.append("Requested Common Extended Negotiation: None")
 
     # Asynchronous Operations Window Negotiation
-    async_ops = pdu.user_information.async_ops_window
+    async_ops = user_info.async_ops_window
     if async_ops is not None:
         max_invoked = async_ops.maximum_number_operations_invoked
         max_performed = async_ops.maximum_number_operations_performed
@@ -553,15 +575,17 @@ def _receive_associate_rq(event):
 
     # User Identity
     if user_info.user_identity is not None:
-        usid = user_info.user_identity
-        p_len = len(usid.primary)
+        usid = cast("UserIdentitySubItemRQ", user_info.user_identity)
+        primary = cast(bytes, usid.primary)
+        p_len = len(primary)
         s.append("Requested User Identity Negotiation:")
         s.append(f"  Authentication Mode: {usid.id_type} - {usid.id_type_str}")
         if usid.id_type == 1:
-            s.append(f"  Username: [{usid.primary.decode('utf-8')}]")
+            s.append(f"  Username: [{primary.decode('utf-8')}]")
         elif usid.id_type == 2:
-            s.append(f"  Username: [{usid.primary.decode('utf-8')}]")
-            s.append(f"  Password: [{usid.secondary.decode('utf-8')}]")
+            secondary = cast(bytes, usid.secondary)
+            s.append(f"  Username: [{primary.decode('utf-8')}]")
+            s.append(f"  Password: [{secondary.decode('utf-8')}]")
         elif usid.id_type == 3:
             s.append(f"  Kerberos Service Ticket (not dumped) length: {p_len}")
         elif usid.id_type == 4:
@@ -583,42 +607,44 @@ def _receive_associate_rq(event):
 
     return s
 
-def _receive_data_tf(event):
+def _receive_data_tf(event: "Event") -> List[str]:
     """Standard logging handler for receiving a P-DATA-TF PDU."""
     pass
 
-def _receive_release_rp(event):
+def _receive_release_rp(event: "Event") -> List[str]:
     """Standard logging handler for receiving an A-RELEASE-RP PDU."""
     pass
 
-def _receive_release_rq(event):
+def _receive_release_rq(event: "Event") -> List[str]:
     """Standard logging handler for receiving an A-RELEASE-RQ PDU."""
     pass
 
-def _send_abort(event):
+def _send_abort(event: "Event") -> List[str]:
     """Standard logging handler for sending an A-ABORT PDU."""
+    pdu = cast("A_ABORT_RQ", event.pdu)
     s = [
         "Abort Parameters:",
         f"{' OUTGOING A-ABORT PDU ':=^76}",
-        f"Abort Source: {event.pdu.source_str}",
-        f"Abort Reason: {event.pdu.reason_str}",
+        f"Abort Source: {pdu.source_str}",
+        f"Abort Reason: {pdu.reason_str}",
         f"{' END A-ABORT PDU ':=^76}"
     ]
     for line in s:
         LOGGER.debug(line)
     return s
 
-def _send_associate_ac(event):
+def _send_associate_ac(event: "Event") -> List[str]:
     """Standard logging handler for sending an A-ASSOCIATE-AC PDU."""
-    assoc_ac = event.pdu
+    assoc_ac = cast("A_ASSOCIATE_AC", event.pdu)
 
-    req_contexts = event.assoc.requestor.get_contexts('pcdl')
-    req_contexts = {ii.context_id: ii for ii in req_contexts}
+    req_contexts = {
+        ii.context_id: ii for ii in event.assoc.requestor.get_contexts('pcdl')
+    }
 
     # Needs some cleanup
-    app_context = assoc_ac.application_context_name.title()
+    app_context = cast(UID, assoc_ac.application_context_name)
     pres_contexts = assoc_ac.presentation_context
-    user_info = assoc_ac.user_information
+    user_info = cast("UserInformationItem", assoc_ac.user_information)
     async_ops = user_info.async_ops_window
     roles = user_info.role_selection
 
@@ -643,9 +669,9 @@ def _send_associate_ac(event):
         s.append("Presentation Contexts: None")
 
     # Sort by context ID
-    for cx in sorted(pres_contexts, key=lambda x: x.context_id):
+    for cx in sorted(pres_contexts, key=lambda x: cast(int, x.context_id)):
         s.append(f"  Context ID:        {cx.context_id} ({cx.result_str})")
-        a_syntax = req_contexts[cx.context_id].abstract_syntax
+        a_syntax = cast(UID, req_contexts[cx.context_id].abstract_syntax)
         s.append(f"    Abstract Syntax: ={a_syntax.name}")
 
         # If Presentation Context was accepted
@@ -663,7 +689,8 @@ def _send_associate_ac(event):
 
             s.append(f"    Accepted SCP/SCU Role: {scp_scu_role}")
             s.append(
-                f"    Accepted Transfer Syntax: ={cx.transfer_syntax.name}"
+                "    Accepted Transfer Syntax: "
+                f"={cast(UID, cx.transfer_syntax).name}"
             )
 
     # Extended Negotiation
@@ -671,7 +698,9 @@ def _send_associate_ac(event):
         s.append("Accepted Extended Negotiation:")
         for item in user_info.ext_neg:
             s.append(f"  SOP Class: ={item.uid}")
-            s.extend([f"  {line}" for line in pretty_bytes(item.app_info)])
+            s.extend(
+                [f"  {s}" for s in pretty_bytes(cast(bytes, item.app_info))]
+            )
     else:
         s.append("Accepted Extended Negotiation: None")
 
@@ -695,27 +724,28 @@ def _send_associate_ac(event):
 
     return s
 
-def _send_associate_rj(event):
+def _send_associate_rj(event: "Event") -> List[str]:
     """Standard logging handler for sending an A-ASSOCIATE-RJ PDU."""
+    assoc_rj = cast("A_ASSOCIATE_RJ", event.pdu)
     s = [
         "Reject Parameters:",
         f"{' OUTGOING A-ASSOCIATE-RJ PDU ':=^76}",
-        f"Result:    {event.pdu.result_str}",
-        f"Source:    {event.pdu.source_str}",
-        f"Reason:    {event.pdu.reason_str}",
+        f"Result:    {assoc_rj.result_str}",
+        f"Source:    {assoc_rj.source_str}",
+        f"Reason:    {assoc_rj.reason_str}",
         f"{' END A-ASSOCIATE-RJ PDU ':=^76}"
     ]
     for line in s:
         LOGGER.debug(line)
     return s
 
-def _send_associate_rq(event):
+def _send_associate_rq(event: "Event") -> List[str]:
     """Standard logging handler for sending an A-ASSOCIATE-RQ PDU."""
-    pdu = event.pdu
+    pdu = cast("A_ASSOCIATE_RQ", event.pdu)
 
-    app_context = pdu.application_context_name.title()
+    app_context = cast(UID, pdu.application_context_name)
     pres_contexts = pdu.presentation_context
-    user_info = pdu.user_information
+    user_info = cast("UserInformationItem", pdu.user_information)
     class_uid = user_info.implementation_class_uid
 
     s = [
@@ -742,16 +772,15 @@ def _send_associate_rq(event):
         s.append("Presentation Contexts:")
 
     for context in pres_contexts:
+        asyntax = cast(UID, context.abstract_syntax)
         s.append(f"  Context ID:        {context.context_id} (Proposed)")
-        s.append(f"    Abstract Syntax: ={context.abstract_syntax.name}")
+        s.append(f"    Abstract Syntax: ={asyntax.name}")
 
         # Add SCP/SCU Role Selection Negotiation
         # Roles are: SCU, SCP/SCU, SCP, Default
-        if pdu.user_information.role_selection:
+        if user_info.role_selection:
             try:
-                role = pdu.user_information.role_selection[
-                    context.abstract_syntax
-                ]
+                role = user_info.role_selection[asyntax]
                 roles = []
                 if role.scp_role:
                     roles.append("SCP")
@@ -774,20 +803,24 @@ def _send_associate_rq(event):
         s.extend([f"      ={ts.name}" for ts in context.transfer_syntax])
 
     # Extended Negotiation
-    if pdu.user_information.ext_neg:
+    if user_info.ext_neg:
         s.append("Requested Extended Negotiation:")
-        for item in pdu.user_information.ext_neg:
-            s.append(f"  SOP Class: ={item.uid}")
-            s.extend([f"  {line}" for line in pretty_bytes(item.app_info)])
+        for ia in user_info.ext_neg:
+            s.append(f"  SOP Class: ={ia.uid}")
+            s.extend(
+                [f"  {s}" for s in pretty_bytes(cast(bytes, ia.app_info))]
+            )
     else:
         s.append("Requested Extended Negotiation: None")
 
     # Common Extended Negotiation
-    if pdu.user_information.common_ext_neg:
+    if user_info.common_ext_neg:
         s.append("Requested Common Extended Negotiation:")
-        for item in pdu.user_information.common_ext_neg:
-            s.append(f"  SOP Class: ={item.sop_class_uid.name}")
-            s.append(f"    Service Class: ={item.service_class_uid.name}")
+        for item in user_info.common_ext_neg:
+            s.append(f"  SOP Class: ={cast(UID, item.sop_class_uid).name}")
+            s.append(
+                f"    Service Class: ={cast(UID, item.service_class_uid).name}"
+            )
 
             related_uids = item.related_general_sop_class_identification
             if related_uids:
@@ -799,7 +832,7 @@ def _send_associate_rq(event):
         s.append("Requested Common Extended Negotiation: None")
 
     # Asynchronous Operations Window Negotiation
-    async_ops = pdu.user_information.async_ops_window
+    async_ops = user_info.async_ops_window
     if async_ops is not None:
         max_invoked = async_ops.maximum_number_operations_invoked
         max_performed = async_ops.maximum_number_operations_performed
@@ -811,15 +844,17 @@ def _send_associate_rq(event):
 
     # User Identity
     if user_info.user_identity is not None:
-        usid = user_info.user_identity
-        p_len = len(usid.primary)
+        usid = cast("UserIdentitySubItemRQ", user_info.user_identity)
+        primary = cast(bytes, usid.primary)
+        p_len = len(primary)
         s.append("Requested User Identity Negotiation:")
         s.append(f"  Authentication Mode: {usid.id_type} - {usid.id_type_str}")
         if usid.id_type == 1:
-            s.append(f"  Username: [{usid.primary.decode('utf-8')}]")
+            s.append(f"  Username: [{primary.decode('utf-8')}]")
         elif usid.id_type == 2:
-            s.append(f"  Username: [{usid.primary.decode('utf-8')}]")
-            s.append(f"  Password: [{usid.secondary.decode('utf-8')}]")
+            secondary = cast(bytes, usid.secondary)
+            s.append(f"  Username: [{primary.decode('utf-8')}]")
+            s.append(f"  Password: [{secondary.decode('utf-8')}]")
         elif usid.id_type == 3:
             s.append(f"  Kerberos Service Ticket (not dumped) length: {p_len}")
         elif usid.id_type == 4:
@@ -841,21 +876,21 @@ def _send_associate_rq(event):
 
     return s
 
-def _send_data_tf(event):
+def _send_data_tf(event: "Event") -> List[str]:
     """Standard logging handler for sending a P-DATA-TF PDU."""
     pass
 
-def _send_release_rp(event):
+def _send_release_rp(event: "Event") -> List[str]:
     """Standard logging handler for sending an A-RELEASE-RP PDU."""
     pass
 
-def _send_release_rq(event):
+def _send_release_rq(event: "Event") -> List[str]:
     """Standard logging handler for sending an A-RELEASE-RQ PDU."""
     pass
 
 
 # DIMSE sub-handlers
-def _send_c_echo_rq(event):
+def _send_c_echo_rq(event: "Event") -> List[str]:
     """Logging handler for when a C-ECHO-RQ is sent.
 
     **C-ECHO Request Parameters**
@@ -870,7 +905,7 @@ def _send_c_echo_rq(event):
     """
     pass
 
-def _send_c_echo_rsp(event):
+def _send_c_echo_rsp(event: "Event") -> List[str]:
     """Logging handler for when a C-ECHO-RSP is sent.
 
     **C-ECHO Response Parameters**
@@ -887,7 +922,7 @@ def _send_c_echo_rsp(event):
     """
     pass
 
-def _send_c_store_rq(event):
+def _send_c_store_rq(event: "Event") -> List[str]:
     """Logging handler when a C-STORE-RQ is sent.
 
     **C-STORE Request Elements**
@@ -905,11 +940,11 @@ def _send_c_store_rq(event):
     event : events.Event
         The evt.EVT_DIMSE_SENT event that occurred.
     """
-    msg = event.message
+    msg = cast("DIMSEMessage", event.message)
     cs = msg.command_set
 
     priority_str = {2: "Low", 0: "Medium", 1: "High"}
-    priority = priority_str[cs.Priority]
+    priority = priority_str[cast(int, cs.Priority)]
 
     dataset = "None"
     if msg.data_set and msg.data_set.getvalue() != b"":
@@ -917,9 +952,10 @@ def _send_c_store_rq(event):
     elif msg._data_set_path is not None:
         dataset = "Present"
 
-    if cs.AffectedSOPClassUID.name == "CT Image Storage":
+    sop_class = cast(UID, cs.AffectedSOPClassUID)
+    if sop_class.name == "CT Image Storage":
         dataset_type = ", (CT)"
-    elif cs.AffectedSOPClassUID.name == "MR Image Storage":
+    elif sop_class.name == "MR Image Storage":
         dataset_type = ", (MR)"
     else:
         dataset_type = ""
@@ -930,7 +966,7 @@ def _send_c_store_rq(event):
         f"{' OUTGOING DIMSE MESSAGE ':=^76}",
         "Message Type                  : C-STORE RQ",
         f"Message ID                    : {cs.MessageID}",
-        f"Affected SOP Class UID        : {cs.AffectedSOPClassUID.name}",
+        f"Affected SOP Class UID        : {sop_class.name}",
         f"Affected SOP Instance UID     : {cs.AffectedSOPInstanceUID}",
         f"Data Set                      : {dataset}",
         f"Priority                      : {priority}",
@@ -940,7 +976,7 @@ def _send_c_store_rq(event):
         LOGGER.debug(line)
     return s
 
-def _send_c_store_rsp(event):
+def _send_c_store_rsp(event: "Event") -> List[str]:
     """Logging handler when a C-STORE-RSP is sent.
 
     **C-STORE Response Elements**
@@ -958,7 +994,7 @@ def _send_c_store_rsp(event):
     """
     pass
 
-def _send_c_find_rq(event):
+def _send_c_find_rq(event: "Event") -> List[str]:
     """Logging handler when a C-FIND-RQ is sent.
 
     **C-FIND Request Parameters**
@@ -973,22 +1009,24 @@ def _send_c_find_rq(event):
     event : events.Event
         The evt.EVT_DIMSE_SENT event that occurred.
     """
-    msg = event.message
+    msg = cast("DIMSEMessage", event.message)
     cs = msg.command_set
 
     priority_str = {2: "Low", 0: "Medium", 1: "High"}
-    priority = priority_str[cs.Priority]
+    priority = priority_str[cast(int, cs.Priority)]
 
     dataset = "None"
     if msg.data_set and msg.data_set.getvalue() != b"":
         dataset = "Present"
+
+    sop_class = cast(UID, cs.AffectedSOPClassUID)
 
     s = [
         f"{' OUTGOING DIMSE MESSAGE ':=^76}",
         "Message Type                  : C-FIND RQ",
         f"Presentation Context ID       : {msg.context_id}",
         f"Message ID                    : {cs.MessageID}",
-        f"Affected SOP Class UID        : {cs.AffectedSOPClassUID.name}",
+        f"Affected SOP Class UID        : {sop_class.name}",
         f"Identifier                    : {dataset}",
         f"Priority                      : {priority}",
         f"{' END DIMSE MESSAGE ':=^76}"
@@ -997,7 +1035,7 @@ def _send_c_find_rq(event):
         LOGGER.debug(line)
     return s
 
-def _send_c_find_rsp(event):
+def _send_c_find_rsp(event: "Event") -> List[str]:
     """Logging handler when a C-FIND-RSP is sent.
 
     **C-FIND Response Parameters**
@@ -1035,7 +1073,7 @@ def _send_c_find_rsp(event):
         LOGGER.debug(line)
     return s
 
-def _send_c_get_rq(event):
+def _send_c_get_rq(event: "Event") -> List[str]:
     """Logging handler when a C-GET-RQ is sent.
 
     **C-GET Request Parameters**
@@ -1073,7 +1111,7 @@ def _send_c_get_rq(event):
         LOGGER.debug(line)
     return s
 
-def _send_c_get_rsp(event):
+def _send_c_get_rsp(event: "Event") -> List[str]:
     """Logging handler when a C-GET-RSP is sent.
 
     **C-GET Response Parameters**
@@ -1115,7 +1153,7 @@ def _send_c_get_rsp(event):
         LOGGER.debug(line)
     return s
 
-def _send_c_move_rq(event):
+def _send_c_move_rq(event: "Event") -> List[str]:
     """Logging handler when a C-MOVE-RQ is sent.
 
     **C-MOVE Request Parameters**
@@ -1155,7 +1193,7 @@ def _send_c_move_rq(event):
         LOGGER.debug(line)
     return s
 
-def _send_c_move_rsp(event):
+def _send_c_move_rsp(event: "Event") -> List[str]:
     """Logging handler when a C-MOVE-RSP is sent.
 
     **C-MOVE Response Parameters**
@@ -1197,7 +1235,7 @@ def _send_c_move_rsp(event):
         LOGGER.debug(line)
     return s
 
-def _send_c_cancel_rq(event):
+def _send_c_cancel_rq(event: "Event") -> List[str]:
     """Logging handler when a C-CANCEL-RQ is sent.
 
     Covers C-CANCEL-FIND-RQ, C-CANCEL-GET-RQ and C-CANCEL-MOVE-RQ.
@@ -1209,7 +1247,7 @@ def _send_c_cancel_rq(event):
     """
     pass
 
-def _recv_c_echo_rq(event):
+def _recv_c_echo_rq(event: "Event") -> List[str]:
     """Logging handler when a C-ECHO-RQ is received.
 
     **C-ECHO Request Parameters**
@@ -1239,7 +1277,7 @@ def _recv_c_echo_rq(event):
         LOGGER.debug(line)
     return s
 
-def _recv_c_echo_rsp(event):
+def _recv_c_echo_rsp(event: "Event") -> List[str]:
     """Logging handler when a C-ECHO-RSP is received.
 
     **C-ECHO Response Parameters**
@@ -1275,7 +1313,7 @@ def _recv_c_echo_rsp(event):
 
     return s
 
-def _recv_c_store_rq(event):
+def _recv_c_store_rq(event: "Event") -> List[str]:
     """Logging handler when a C-STORE-RQ is received.
 
     **C-STORE Request Elements**
@@ -1323,7 +1361,7 @@ def _recv_c_store_rq(event):
         LOGGER.debug(line)
     return s
 
-def _recv_c_store_rsp(event):
+def _recv_c_store_rsp(event: "Event") -> List[str]:
     """Logging handler when a C-STORE-RSP is received.
 
     **C-STORE Response Elements**
@@ -1371,7 +1409,7 @@ def _recv_c_store_rsp(event):
         LOGGER.debug(line)
     return s
 
-def _recv_c_find_rq(event):
+def _recv_c_find_rq(event: "Event") -> List[str]:
     """Logging handler when a C-FIND-RQ is received.
 
     **C-FIND Request Parameters**
@@ -1409,7 +1447,7 @@ def _recv_c_find_rq(event):
         LOGGER.debug(line)
     return s
 
-def _recv_c_find_rsp(event):
+def _recv_c_find_rsp(event: "Event") -> List[str]:
     """Logging handler when a C-FIND-RSP is received.
 
     **C-FIND Response Parameters**
@@ -1428,7 +1466,7 @@ def _recv_c_find_rsp(event):
     msg = event.message
     cs = msg.command_set
     if cs.Status != 0x0000:
-        return
+        return ['']
 
     dataset = "None"
     if msg.data_set and msg.data_set.getvalue() != b"":
@@ -1449,7 +1487,7 @@ def _recv_c_find_rsp(event):
         LOGGER.debug(line)
     return s
 
-def _recv_c_cancel_rq(event):
+def _recv_c_cancel_rq(event: "Event") -> List[str]:
     """Logging handler when a C-CANCEL-RQ is received.
 
     Covers C-CANCEL-FIND-RQ, C-CANCEL-GET-RQ and C-CANCEL-MOVE-RQ
@@ -1471,7 +1509,7 @@ def _recv_c_cancel_rq(event):
         LOGGER.debug(line)
     return s
 
-def _recv_c_get_rq(event):
+def _recv_c_get_rq(event: "Event") -> List[str]:
     """Logging handler when a C-GET-RQ is received.
 
     **C-GET Request Parameters**
@@ -1509,7 +1547,7 @@ def _recv_c_get_rq(event):
         LOGGER.debug(line)
     return s
 
-def _recv_c_get_rsp(event):
+def _recv_c_get_rsp(event: "Event") -> List[str]:
     """Logging handler when a C-GET-RSP is received.
 
     **C-GET Response Parameters**
@@ -1568,7 +1606,7 @@ def _recv_c_get_rsp(event):
 
     return s
 
-def _recv_c_move_rq(event):
+def _recv_c_move_rq(event: "Event") -> List[str]:
     """Logging handler when a C-MOVE-RQ is received.
 
     **C-MOVE Request Parameters**
@@ -1584,9 +1622,9 @@ def _recv_c_move_rq(event):
     event : events.Event
         The evt.EVT_DIMSE_RECV event that occurred.
     """
-    pass
+    return []
 
-def _recv_c_move_rsp(event):
+def _recv_c_move_rsp(event: "Event") -> List[str]:
     """Logging handler when a C-MOVE-RSP is received.
 
     **C-MOVE Response Parameters**
@@ -1645,7 +1683,7 @@ def _recv_c_move_rsp(event):
 
     return s
 
-def _send_n_event_report_rq(event):
+def _send_n_event_report_rq(event: "Event") -> List[str]:
     """Logging handler when an N-EVENT-REPORT-RQ is sent.
 
     Parameters
@@ -1674,7 +1712,7 @@ def _send_n_event_report_rq(event):
         LOGGER.debug(line)
     return s
 
-def _send_n_event_report_rsp(event):
+def _send_n_event_report_rsp(event: "Event") -> List[str]:
     """Logging handler when an N-EVENT-REPORT-RSP is sent.
 
     Parameters
@@ -1710,7 +1748,7 @@ def _send_n_event_report_rsp(event):
         LOGGER.debug(line)
     return s
 
-def _send_n_get_rq(event):
+def _send_n_get_rq(event: "Event") -> List[str]:
     """Logging handler when an N-GET-RQ is sent.
 
     Parameters
@@ -1738,7 +1776,7 @@ def _send_n_get_rq(event):
         LOGGER.debug(line)
     return s
 
-def _send_n_get_rsp(event):
+def _send_n_get_rsp(event: "Event") -> List[str]:
     """Logging handler when an N-GET-RSP is sent.
 
     Parameters
@@ -1772,7 +1810,7 @@ def _send_n_get_rsp(event):
         LOGGER.debug(line)
     return s
 
-def _send_n_set_rq(event):
+def _send_n_set_rq(event: "Event") -> List[str]:
     """Logging handler when an N-SET-RQ is sent.
 
     Parameters
@@ -1800,7 +1838,7 @@ def _send_n_set_rq(event):
         LOGGER.debug(line)
     return s
 
-def _send_n_set_rsp(event):
+def _send_n_set_rsp(event: "Event") -> List[str]:
     """Logging handler when an N-SET-RSP is sent.
 
     Parameters
@@ -1834,7 +1872,7 @@ def _send_n_set_rsp(event):
         LOGGER.debug(line)
     return s
 
-def _send_n_action_rq(event):
+def _send_n_action_rq(event: "Event") -> List[str]:
     """Logging handler when an N-ACTION-RQ is sent.
 
     Parameters
@@ -1842,9 +1880,9 @@ def _send_n_action_rq(event):
     event : events.Event
         The evt.EVT_DIMSE_SENT event that occurred.
     """
-    pass
+    return []
 
-def _send_n_action_rsp(event):
+def _send_n_action_rsp(event: "Event") -> List[str]:
     """Logging handler when an N-ACTION-RSP is sent.
 
     Parameters
@@ -1852,9 +1890,9 @@ def _send_n_action_rsp(event):
     event : events.Event
         The evt.EVT_DIMSE_SENT event that occurred.
     """
-    pass
+    return []
 
-def _send_n_create_rq(event):
+def _send_n_create_rq(event: "Event") -> List[str]:
     """Logging handler when an N-CREATE-RQ is sent.
 
     Parameters
@@ -1862,9 +1900,9 @@ def _send_n_create_rq(event):
     event : events.Event
         The evt.EVT_DIMSE_SENT event that occurred.
     """
-    pass
+    return []
 
-def _send_n_create_rsp(event):
+def _send_n_create_rsp(event: "Event") -> List[str]:
     """Logging handler when an N-CREATE-RSP is sent.
 
     Parameters
@@ -1872,9 +1910,9 @@ def _send_n_create_rsp(event):
     event : events.Event
         The evt.EVT_DIMSE_SENT event that occurred.
     """
-    pass
+    return []
 
-def _send_n_delete_rq(event):
+def _send_n_delete_rq(event: "Event") -> List[str]:
     """Logging handler when an N-DELETE-RQ is sent.
 
     Parameters
@@ -1897,7 +1935,7 @@ def _send_n_delete_rq(event):
         LOGGER.debug(line)
     return s
 
-def _send_n_delete_rsp(event):
+def _send_n_delete_rsp(event: "Event") -> List[str]:
     """Logging handler when an N-DELETE-RSP is sent.
 
     Parameters
@@ -1927,7 +1965,7 @@ def _send_n_delete_rsp(event):
         LOGGER.debug(line)
     return s
 
-def _recv_n_event_report_rq(event):
+def _recv_n_event_report_rq(event: "Event") -> List[str]:
     """Logging handler when an N-EVENT-REPORT-RQ is received.
 
     Parameters
@@ -1935,9 +1973,9 @@ def _recv_n_event_report_rq(event):
     event : events.Event
         The evt.EVT_DIMSE_RECV event that occurred.
     """
-    pass
+    return []
 
-def _recv_n_event_report_rsp(event):
+def _recv_n_event_report_rsp(event: "Event") -> List[str]:
     """Logging handler when an N-EVENT-REPORT-RSP is received.
 
     Parameters
@@ -1945,9 +1983,9 @@ def _recv_n_event_report_rsp(event):
     event : events.Event
         The evt.EVT_DIMSE_RECV event that occurred.
     """
-    pass
+    return []
 
-def _recv_n_get_rq(event):
+def _recv_n_get_rq(event: "Event") -> List[str]:
     """Logging handler when an N-GET-RQ is received.
 
     Parameters
@@ -1955,9 +1993,9 @@ def _recv_n_get_rq(event):
     event : events.Event
         The evt.EVT_DIMSE_RECV event that occurred.
     """
-    pass
+    return []
 
-def _recv_n_get_rsp(event):
+def _recv_n_get_rsp(event: "Event") -> List[str]:
     """Logging handler when an N-GET-RSP is received.
 
     Parameters
@@ -1993,7 +2031,7 @@ def _recv_n_get_rsp(event):
         LOGGER.debug(line)
     return s
 
-def _recv_n_set_rq(event):
+def _recv_n_set_rq(event: "Event") -> List[str]:
     """Logging handler when an N-SET-RQ is received.
 
     Parameters
@@ -2001,9 +2039,9 @@ def _recv_n_set_rq(event):
     event : events.Event
         The evt.EVT_DIMSE_RECV event that occurred.
     """
-    pass
+    return []
 
-def _recv_n_set_rsp(event):
+def _recv_n_set_rsp(event: "Event") -> List[str]:
     """Logging handler when an N-SET-RSP is received.
 
     Parameters
@@ -2011,9 +2049,9 @@ def _recv_n_set_rsp(event):
     event : events.Event
         The evt.EVT_DIMSE_RECV event that occurred.
     """
-    pass
+    return []
 
-def _recv_n_action_rq(event):
+def _recv_n_action_rq(event: "Event") -> List[str]:
     """Logging handler when an N-ACTION-RQ is received.
 
     Parameters
@@ -2021,9 +2059,9 @@ def _recv_n_action_rq(event):
     event : events.Event
         The evt.EVT_DIMSE_RECV event that occurred.
     """
-    pass
+    return []
 
-def _recv_n_action_rsp(event):
+def _recv_n_action_rsp(event: "Event") -> List[str]:
     """Logging handler when an N-ACTION-RSP is received.
 
     Parameters
@@ -2031,9 +2069,9 @@ def _recv_n_action_rsp(event):
     event : events.Event
         The evt.EVT_DIMSE_RECV event that occurred.
     """
-    pass
+    return []
 
-def _recv_n_create_rq(event):
+def _recv_n_create_rq(event: "Event") -> List[str]:
     """Logging handler when an N-CREATE-RQ is received.
 
     Parameters
@@ -2041,9 +2079,9 @@ def _recv_n_create_rq(event):
     event : events.Event
         The evt.EVT_DIMSE_RECV event that occurred.
     """
-    pass
+    return []
 
-def _recv_n_create_rsp(event):
+def _recv_n_create_rsp(event: "Event") -> List[str]:
     """Logging handler when an N-CREATE-RSP is received.
 
     Parameters
@@ -2051,9 +2089,9 @@ def _recv_n_create_rsp(event):
     event : events.Event
         The evt.EVT_DIMSE_RECV event that occurred.
     """
-    pass
+    return []
 
-def _recv_n_delete_rq(event):
+def _recv_n_delete_rq(event: "Event") -> List[str]:
     """Logging handler when an N-DELETE-RQ is received.
 
     Parameters
@@ -2061,9 +2099,9 @@ def _recv_n_delete_rq(event):
     event : events.Event
         The evt.EVT_DIMSE_RECV event that occurred.
     """
-    pass
+    return []
 
-def _recv_n_delete_rsp(event):
+def _recv_n_delete_rsp(event: "Event") -> List[str]:
     """Logging handler when an N-DELETE-RSP is received.
 
     Parameters
@@ -2071,7 +2109,7 @@ def _recv_n_delete_rsp(event):
     event : events.Event
         The evt.EVT_DIMSE_RECV event that occurred.
     """
-    pass
+    return []
 
 
 # Example handlers used for the documentation

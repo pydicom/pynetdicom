@@ -4,7 +4,7 @@ from contextlib import contextmanager
 from io import BytesIO
 import logging
 import sys
-from typing import List, Optional, Iterator, Union, cast
+from typing import List, Optional, Iterator, Union, cast, Callable
 import unicodedata
 
 try:
@@ -20,7 +20,7 @@ from pynetdicom import _config
 LOGGER = logging.getLogger('pynetdicom.utils')
 
 
-def make_target(target_fn):
+def make_target(target_fn: Callable) -> Callable:
     """Wraps `target_fn` in a thunk that passes all contextvars from the
     current context. It is assumed that `target_fn` is the target of a new
     ``threading.Thread``.
@@ -57,7 +57,7 @@ def pretty_bytes(
     prefix: str = '  ',
     delimiter: str = '  ',
     items_per_line: int = 16,
-    max_size: int = 512,
+    max_size: Optional[int] = 512,
     suffix: str = ''
 ) -> List[str]:
     """Turn the bytestring `bytestream` into a :class:`list` of nicely

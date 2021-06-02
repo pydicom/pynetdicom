@@ -1307,6 +1307,7 @@ class TestState03(TestStateBase):
         commands = [
             ('send', a_associate_rq),
             ('send', a_associate_ac),
+            ('recv', None),
             ('exit', None)
         ]
         self.scp = scp = self.start_server(commands)
@@ -1321,7 +1322,18 @@ class TestState03(TestStateBase):
 
         scp.step()
         scp.step()
+        scp.step()
+
         scp.shutdown()
+
+        # Check A-ABORT-RQ sent
+        pdu = A_ABORT_RQ()
+        pdu.decode(scp.received[0])
+        assert pdu.source == 2
+        assert pdu.reason_diagnostic == 0
+
+        # Check local got A-P-ABORT
+        assert assoc.acse.is_aborted('a-p-abort')
 
         assert fsm._transitions[:2] == ['Sta2', 'Sta3']
         assert fsm._changes[:3] == [
@@ -7153,6 +7165,8 @@ class TestState13(TestStateBase):
             ('recv', None),
             ('send', a_associate_rq),
             ('send', a_associate_rq),
+            ('recv', None),
+            ('recv', None),
             ('exit', None),
         ]
         self.scp = scp = self.start_server(commands)
@@ -7160,7 +7174,15 @@ class TestState13(TestStateBase):
 
         scp.step()
         scp.step()
+        scp.step()
+        scp.step()
+
         scp.shutdown()
+
+        pdu = A_ABORT_RQ()
+        pdu.decode(scp.received[2])
+        assert pdu.source == 2
+        assert pdu.reason_diagnostic == 2
 
         assert self.fsm._changes[:4] == [
             ('Sta1', 'Evt1', 'AE-1'),
@@ -7494,6 +7516,8 @@ class TestState13(TestStateBase):
             ('recv', None),
             ('send', a_associate_rq),
             ('send', b'\x08\x00\x00\x00\x00\x00\x00\x00'),
+            ('recv', None),
+            ('recv', None),
             ('exit', None),
         ]
         self.scp = scp = self.start_server(commands)
@@ -7501,7 +7525,15 @@ class TestState13(TestStateBase):
 
         scp.step()
         scp.step()
+        scp.step()
+        scp.step()
+
         scp.shutdown()
+
+        pdu = A_ABORT_RQ()
+        pdu.decode(scp.received[2])
+        assert pdu.source == 2
+        assert pdu.reason_diagnostic == 2
 
         assert self.fsm._changes[:4] == [
             ('Sta1', 'Evt1', 'AE-1'),

@@ -5,13 +5,38 @@ the state machine events.
 from datetime import datetime
 import inspect
 import logging
+from pathlib import Path
 import sys
-from typing import Union, Callable, Any, Tuple, List, NamedTuple
+from typing import (
+    Union, Callable, Any, Tuple, List, NamedTuple, Optional, TYPE_CHECKING,
+    Dict, cast, Iterator
+)
 
-from pydicom.dataset import Dataset
+from pydicom.dataset import Dataset, FileMetaDataset
 from pydicom.filereader import dcmread
+from pydicom.tag import BaseTag
+from pydicom.uid import UID
 
 from pynetdicom.dsutils import decode, create_file_meta
+
+if TYPE_CHECKING:  # pragma: no cover
+    from pynetdicom.association import Association
+    from pnetdicom.dimse_messages import (
+        C_ECHO_RQ, C_FIND_RQ, C_GET_RQ, C_MOVE_RQ, C_STORE_RQ,
+        N_ACTION_RQ, N_CREATE_RQ, N_DELETE_RQ, N_EVENT_REPORT_RQ, N_GET_RQ,
+        N_SET_RQ, DIMSEMessage
+    )
+    from pynetdicom.pdu import _PDUType
+    from pynetdicom.pdu_primitives import (
+        SOPClassCommonExtendedNegotiation
+    )
+    from pynetdicom.presentation import PresentationContextTuple
+
+    _RequestType = Union[
+        C_ECHO_RQ, C_FIND_RQ, C_GET_RQ, C_MOVE_RQ, C_STORE_RQ,
+        N_ACTION_RQ, N_CREATE_RQ, N_DELETE_RQ, N_EVENT_REPORT_RQ, N_GET_RQ,
+        N_SET_RQ
+    ]
 
 
 LOGGER = logging.getLogger('pynetdicom.events')
@@ -22,6 +47,9 @@ EventHandlerType = Union[
     Tuple[EventType, Callable],
     Tuple[EventType, Callable, List[Any]]
 ]
+_BasicReturnType = Union[Dataset, int]
+_DatasetReturnType = Tuple[_BasicReturnType, Optional[Dataset]]
+_IteratorType = Iterator[Tuple[_BasicReturnType, Optional[Dataset]]]
 
 
 # Notification events
@@ -137,7 +165,79 @@ _NOTIFICATION_EVENTS = [
 ]
 
 
-def get_default_handler(event):
+_HandlerBase = Tuple[Callable, Optional[List[Any]]]
+_NotificationHandlerAttr = List[_HandlerBase]
+_InterventionHandlerAttr = _HandlerBase
+HandlerArgType = Union[_NotificationHandlerAttr, _InterventionHandlerAttr]
+_HandlerAttr = Dict[EventType, HandlerArgType]
+
+
+def _add_handler(
+    event: EventType, handlers_attr: _HandlerAttr, handler_arg: _HandlerBase
+) -> None:
+    """Add a handler to an object's handler recording attribute.
+
+    Parameters
+    ----------
+    event : NotificationEvent or InterventionEvent
+        The event the handler should be bound to.
+    handlers_attr : dict
+        The object attribute of {event: Union[
+            [(handler, Optional[args])],
+            (handler, Optional[args])
+        ]} used to record bindings.
+    handler_arg : Tuple[Callable, Optional[List[Any]]]
+        The handler and optional arguments to be bound.
+    """
+    if isinstance(event, NotificationEvent):
+        if event not in handlers_attr:
+            handlers_attr[event] = []
+
+        if handler_arg not in handlers_attr[event]:
+            h = cast(_NotificationHandlerAttr, handlers_attr[event])
+            h.append(handler_arg)
+
+    elif isinstance(event, InterventionEvent):
+        # Intervention events - only one handler allowed
+        handlers_attr[event] = handler_arg
+
+
+def _remove_handler(
+    event: EventType, handlers_attr: _HandlerAttr, handler: Callable
+) -> None:
+    """Remove a handler from an object's handler recording attribute.
+
+    Parameters
+    ----------
+    event : NotificationEvent or InterventionEvent
+        The event the handler should be unbound from.
+    handlers_attr : dict
+        The object attribute of
+        {
+            event: Union[
+                List[(handler, Optional[args])],
+                (handler, Optional[args])
+            ]
+        } used to record bindings.
+    handler_arg : Callable
+        The handler to be unbound.
+    """
+    if event not in handlers_attr:
+        return
+
+    if isinstance(event, NotificationEvent):
+        handlers_list = cast(_NotificationHandlerAttr, handlers_attr[event])
+        handlers_attr[event] = [h for h in handlers_list if h[0] != handler]
+        if not handlers_attr[event]:
+            del handlers_attr[event]
+
+    elif isinstance(event, InterventionEvent):
+        # Unbind and replace with default
+        if handler in handlers_attr[event]:
+            handlers_attr[event] = (get_default_handler(event), None)
+
+
+def get_default_handler(event: InterventionEvent) -> Callable[["Event"], Any]:
     """Return the default handler for an intervention `event`.
 
     .. versionadded:: 1.3
@@ -162,7 +262,11 @@ def get_default_handler(event):
     return handlers[event]
 
 
-def trigger(assoc, event, attrs=None):
+def trigger(
+    assoc: "Association",
+    event: EventType,
+    attrs: Optional[Dict[str, Any]] = None
+) -> Optional[Any]:
     """Trigger an `event` and call any bound handler(s).
 
     .. versionadded:: 1.3
@@ -214,19 +318,21 @@ def trigger(assoc, event, attrs=None):
     handlers = assoc.get_handlers(event)
     # Empty list or (None, None)
     if not handlers or handlers[0] is None:
-        return
+        return None
 
     evt = Event(assoc, event, attrs or {})
 
     try:
         # Intervention event - only single handler allowed
-        if event.is_intervention:
+        if isinstance(event, InterventionEvent):
+            handlers = cast(_InterventionHandlerAttr, handlers)
             if handlers[1] is not None:
                 return handlers[0](evt, *handlers[1])
 
             return handlers[0](evt)
 
         # Notification event - multiple handlers are allowed
+        handlers = cast(_NotificationHandlerAttr, handlers)
         for func, args in handlers:
             if args:
                 func(evt, *args)
@@ -234,7 +340,7 @@ def trigger(assoc, event, attrs=None):
                 func(evt)
     except Exception as exc:
         # Intervention exceptions get raised
-        if event.is_intervention:
+        if isinstance(event, InterventionEvent):
             raise
 
         # Capture exceptions for notification events
@@ -243,6 +349,8 @@ def trigger(assoc, event, attrs=None):
             f"event handler '{func.__name__}'"
         )
         LOGGER.exception(exc)
+
+    return None
 
 
 class Event:
@@ -267,7 +375,12 @@ class Event:
         The date/time the event was created. Will be slightly before or after
         the actual event that this object represents.
     """
-    def __init__(self, assoc, event, attrs=None):
+    def __init__(
+        self,
+        assoc: "Association",
+        event: EventType,
+        attrs: Optional[Dict[str, Any]] = None
+    ) -> None:
         """Create a new Event.
 
         Parameters
@@ -285,8 +398,20 @@ class Event:
         self.timestamp = datetime.now()
 
         # Only decode a dataset when necessary
-        self._hash = None
-        self._decoded = None
+        self._hash: Optional[int] = None
+        self._decoded: Optional[Dataset] = None
+
+        # Define type hints for dynamic attributes
+        self.request: "_RequestType"
+        self._is_cancelled: Callable[[int], bool]
+        self.context: "PresentationContextTuple"
+        self.current_state: str
+        self.fsm_event: str
+        self.next_state: str
+        self.action: str
+        self.data: bytes
+        self.message: DIMSEMessage
+        self.pdu: _PDUType
 
         attrs = attrs or {}
         for kk, vv in attrs.items():
@@ -297,7 +422,7 @@ class Event:
             setattr(self, kk, vv)
 
     @property
-    def action_information(self):
+    def action_information(self) -> Dataset:
         """Return an N-ACTION request's `Action Information` as a *pydicom*
         :class:`~pydicom.dataset.Dataset`.
 
@@ -324,7 +449,7 @@ class Event:
         return self._get_dataset("ActionInformation", msg)
 
     @property
-    def action_type(self):
+    def action_type(self) -> int:
         """Return an N-ACTION request's `Action Type ID` as an :class:`int`.
 
         .. versionadded:: 1.4
@@ -340,7 +465,8 @@ class Event:
             If the corresponding event is not an N-ACTION request.
         """
         try:
-            return self.request.ActionTypeID
+            req = cast("N_ACTION_RQ", self.request)
+            return cast(int, req.ActionTypeID)
         except AttributeError:
             raise AttributeError(
                 "The corresponding event is not an N-ACTION request and has "
@@ -348,7 +474,7 @@ class Event:
             )
 
     @property
-    def attribute_identifiers(self):
+    def attribute_identifiers(self) -> List[BaseTag]:
         """Return an N-GET request's `Attribute Identifier List` as a
         :class:`list` of *pydicom* :class:`~pydicom.tag.BaseTag`.
 
@@ -365,11 +491,12 @@ class Event:
             If the corresponding event is not an N-GET request.
         """
         try:
-            attr_list = self.request.AttributeIdentifierList
+            req = cast("N_GET_RQ", self.request)
+            attr_list = req.AttributeIdentifierList
             if attr_list is None:
                 return []
 
-            return attr_list
+            return cast(List[BaseTag], attr_list)
         except AttributeError:
             pass
 
@@ -379,7 +506,7 @@ class Event:
         )
 
     @property
-    def attribute_list(self):
+    def attribute_list(self) -> Dataset:
         """Return an N-CREATE request's `Attribute List` as a *pydicom*
         :class:`~pydicom.dataset.Dataset`.
 
@@ -406,7 +533,7 @@ class Event:
         return self._get_dataset("AttributeList", msg)
 
     @property
-    def dataset(self):
+    def dataset(self) -> Dataset:
         """Return a C-STORE request's `Data Set` as a *pydicom*
         :class:`~pydicom.dataset.Dataset`.
 
@@ -438,7 +565,7 @@ class Event:
         return self._get_dataset("DataSet", msg)
 
     @property
-    def dataset_path(self):
+    def dataset_path(self) -> Path:
         """Return the path to the dataset when
         :attr:`~pynetdicom._config.STORE_RECV_CHUNKED_DATASET` is ``True``.
 
@@ -448,7 +575,8 @@ class Event:
             The path to the dataset.
         """
         try:
-            dataset_path = self.request._dataset_path
+            req = cast("C_STORE_RQ", self.request)
+            dataset_path = req._dataset_path
         except AttributeError:
             msg = (
                 "The corresponding event is either not a C-STORE request or "
@@ -456,10 +584,10 @@ class Event:
             )
             raise AttributeError(msg)
 
-        return dataset_path
+        return cast(Path, dataset_path)
 
     @property
-    def event(self):
+    def event(self) -> EventType:
         """Return the corresponding event.
 
         .. versionadded:: 1.4
@@ -473,7 +601,7 @@ class Event:
         return self._event
 
     @property
-    def event_information(self):
+    def event_information(self) -> Dataset:
         """Return an N-EVENT-REPORT request's `Event Information` as a
         *pydicom* :class:`~pydicom.dataset.Dataset`.
 
@@ -500,7 +628,7 @@ class Event:
         return self._get_dataset("EventInformation", msg)
 
     @property
-    def event_type(self):
+    def event_type(self) -> int:
         """Return an N-EVENT-REPORT request's `Event Type ID` as an
         :class:`int`.
 
@@ -517,7 +645,8 @@ class Event:
             If the corresponding event is not an N-EVENT-REPORT request.
         """
         try:
-            return self.request.EventTypeID
+            req = cast("N_EVENT_REPORT_RQ", self.request)
+            return cast(int, req.EventTypeID)
         except AttributeError:
             raise AttributeError(
                 "The corresponding event is not an N-EVENT-REPORT request "
@@ -525,7 +654,7 @@ class Event:
             )
 
     @property
-    def file_meta(self):
+    def file_meta(self) -> FileMetaDataset:
         r"""Return a *pydicom* :class:`~pydicom.dataset.Dataset` with the
         :dcm:`File Meta Information<part10/chapter_7.html#sect_7.1>` for a
         C-STORE request's `Data Set`.
@@ -595,7 +724,7 @@ class Event:
             transfer_syntax=self.context.transfer_syntax,
         )
 
-    def _get_dataset(self, attr, exc_msg):
+    def _get_dataset(self, attr: str, exc_msg: str) -> Dataset:
         """Return DIMSE dataset-like parameter as a *pydicom* Dataset.
 
         Parameters
@@ -624,7 +753,7 @@ class Event:
 
             # If no change in encoded data then return stored decode
             if self._hash == hash(bytestream):
-                return self._decoded
+                return cast(Dataset, self._decoded)
 
             # Some dataset-like parameters are optional
             if bytestream and bytestream.getvalue() != b'':
@@ -655,7 +784,7 @@ class Event:
         raise AttributeError(exc_msg)
 
     @property
-    def identifier(self):
+    def identifier(self) -> Dataset:
         """Return a C-FIND, C-GET or C-MOVE request's `Identifier` as a
         *pydicom* :class:`~pydicom.dataset.Dataset`.
 
@@ -683,7 +812,7 @@ class Event:
         return self._get_dataset("Identifier", msg)
 
     @property
-    def is_cancelled(self):
+    def is_cancelled(self) -> bool:
         """Return ``True`` if a C-CANCEL request has been received.
 
         Returns
@@ -705,7 +834,7 @@ class Event:
         return False
 
     @property
-    def message_id(self):
+    def message_id(self) -> int:
         """Return a DIMSE service request's `Message ID` as :class:`int`.
 
         .. versionadded:: 1.5
@@ -722,7 +851,7 @@ class Event:
             requests.
         """
         try:
-            return self.request.MessageID
+            return cast(int, self.request.MessageID)
         except AttributeError:
             raise AttributeError(
                 "The corresponding event is not a DIMSE service request and "
@@ -730,7 +859,7 @@ class Event:
             )
 
     @property
-    def modification_list(self):
+    def modification_list(self) -> Dataset:
         """Return an N-SET request's `Modification List` as a *pydicom*
         :class:`~pydicom.dataset.Dataset`.
 
@@ -757,7 +886,7 @@ class Event:
         return self._get_dataset("ModificationList", msg)
 
     @property
-    def move_destination(self):
+    def move_destination(self) -> bytes:
         """Return a C-MOVE request's `Move Destination` as :class:`bytes`.
 
         .. versionadded:: 1.4
@@ -774,7 +903,7 @@ class Event:
             If the corresponding event is not a C-MOVE request.
         """
         try:
-            return self.request.MoveDestination
+            return cast(bytes, self.request.MoveDestination)
         except AttributeError:
             raise AttributeError(
                 "The corresponding event is not a C-MOVE request and has no "
@@ -783,7 +912,7 @@ class Event:
 
 
 # Default extended negotiation event handlers
-def _async_ops_handler(event):
+def _async_ops_handler(event: Event) -> Tuple[int, int]:
     """Default handler for when an Asynchronous Operations Window Negotiation
     item is include in the association request.
 
@@ -795,7 +924,9 @@ def _async_ops_handler(event):
         "sent"
     )
 
-def _sop_common_handler(event):
+def _sop_common_handler(
+    event: Event
+) -> Dict[UID, "SOPClassCommonExtendedNegotiation"]:
     """Default handler for when one or more SOP Class Common Extended
     Negotiation items are included in the association request.
 
@@ -803,7 +934,7 @@ def _sop_common_handler(event):
     """
     return {}
 
-def _sop_extended_handler(event):
+def _sop_extended_handler(event: Event) -> Dict[UID, bytes]:
     """Default handler for when one or more SOP Class Extended Negotiation
     items are included in the association request.
 
@@ -811,7 +942,7 @@ def _sop_extended_handler(event):
     """
     return {}
 
-def _user_identity_handler(event):
+def _user_identity_handler(event: Event) -> Tuple[bool, Optional[bytes]]:
     """Default hander for when a user identity negotiation item is included
     with the association request.
 
@@ -824,42 +955,42 @@ def _user_identity_handler(event):
     )
 
 # Default service class request handlers
-def _c_echo_handler(event):
+def _c_echo_handler(event: Event) -> _BasicReturnType:
     """Default handler for when a C-ECHO request is received.
 
     See _handlers.doc_handle_echo for detailed documentation.
     """
     return 0x0000
 
-def _c_find_handler(event):
+def _c_find_handler(event: Event) -> _IteratorType:
     """Default handler for when a C-FIND request is received.
 
     See _handlers.doc_handle_find for detailed documentation.
     """
     raise NotImplementedError("No handler has been bound to 'evt.EVT_C_FIND'")
 
-def _c_get_handler(event):
+def _c_get_handler(event: Event) -> _IteratorType:
     """Default handler for when a C-GET request is received.
 
     See _handlers.doc_handle_c_get for detailed documentation.
     """
     raise NotImplementedError("No handler has been bound to 'evt.EVT_C_GET'")
 
-def _c_move_handler(event):
+def _c_move_handler(event: Event) -> _IteratorType:
     """Default handler for when a C-MOVE request is received.
 
     See _handlers.doc_handle_move for detailed documentation.
     """
     raise NotImplementedError("No handler has been bound to 'evt.EVT_C_MOVE'")
 
-def _c_store_handler(event):
+def _c_store_handler(event: Event) -> _BasicReturnType:
     """Default handler for when a C-STORE request is received.
 
     See _handlers.doc_handle_store for detailed documentation.
     """
     raise NotImplementedError("No handler has been bound to 'evt.EVT_C_STORE'")
 
-def _n_action_handler(event):
+def _n_action_handler(event: Event) -> _DatasetReturnType:
     """Default handler for when an N-ACTION request is received.
 
     See _handlers.doc_handle_action for detailed documentation.
@@ -868,7 +999,7 @@ def _n_action_handler(event):
         "No handler has been bound to 'evt.EVT_N_ACTION'"
     )
 
-def _n_create_handler(event):
+def _n_create_handler(event: Event) -> _DatasetReturnType:
     """Default handler for when an N-CREATE request is received.
 
     See _handlers.doc_handle_create for detailed documentation.
@@ -877,7 +1008,7 @@ def _n_create_handler(event):
         "No handler has been bound to 'evt.EVT_N_CREATE'"
     )
 
-def _n_delete_handler(event):
+def _n_delete_handler(event: Event) -> _BasicReturnType:
     """Default handler for when an N-DELETE request is received.
 
     See _handlers.doc_handle_delete for detailed documentation.
@@ -886,7 +1017,7 @@ def _n_delete_handler(event):
         "No handler has been bound to 'evt.EVT_N_DELETE'"
     )
 
-def _n_event_report_handler(event):
+def _n_event_report_handler(event: Event) -> _DatasetReturnType:
     """Default handler for when an N-EVENT-REPORT request is received.
 
     See _handlers.doc_handle_event_report for detailed documentation.
@@ -895,14 +1026,14 @@ def _n_event_report_handler(event):
         "No handler has been bound to 'evt.EVT_N_EVENT_REPORT'"
     )
 
-def _n_get_handler(event):
+def _n_get_handler(event: Event) -> _DatasetReturnType:
     """Default handler for when an N-GET request is received.
 
     See _handlers.doc_handle_n_get for detailed documentation.
     """
     raise NotImplementedError("No handler has been bound to 'evt.EVT_N_GET'")
 
-def _n_set_handler(event):
+def _n_set_handler(event: Event) -> _DatasetReturnType:
     """Default handler for when an N-SET request is received.
 
     See _handlers.doc_handle_set for detailed documentation.

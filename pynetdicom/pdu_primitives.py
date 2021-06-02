@@ -859,7 +859,7 @@ class A_P_ABORT:
     +------------------+------------+
     | Parameter        | Indication |
     +------------------+------------+
-    | abort source     | P          |
+    | provider reason  | P          |
     +------------------+------------+
 
     | U   - User option
