@@ -5,6 +5,11 @@ import logging
 import os
 import sys
 import traceback
+from types import TracebackType
+from typing import (
+    TYPE_CHECKING, Optional, Type, cast, Union, Tuple, Any, TypeVar, Iterator,
+    Sequence, Dict
+)
 
 from pydicom.dataset import Dataset
 from pydicom.tag import Tag
@@ -13,7 +18,8 @@ from pynetdicom import evt, _config
 from pynetdicom.dsutils import decode, encode, pretty_dataset
 from pynetdicom.dimse_primitives import (
     C_STORE, C_ECHO, C_MOVE, C_GET, C_FIND,
-    N_ACTION, N_CREATE, N_DELETE, N_EVENT_REPORT, N_GET, N_SET
+    N_ACTION, N_CREATE, N_DELETE, N_EVENT_REPORT, N_GET, N_SET,
+    DimseServiceType, DIMSEPrimitive
 )
 from pynetdicom._globals import (
     STATUS_FAILURE, STATUS_SUCCESS, STATUS_WARNING, STATUS_PENDING,
@@ -32,6 +38,26 @@ from pynetdicom.status import (
     VERIFICATION_SERVICE_CLASS_STATUS,
 )
 
+if TYPE_CHECKING:  # pragma: no cover
+    from pynetdicom.ae import ApplicationEntity
+    from pynetdicom.association import Association
+    from pynetdicom.dimse import DIMSEServiceProvider
+    from pynetdicom.presentation import PresentationContext
+    from pynetdicom.transport import AssociationSocket
+
+    _QR = Union[C_FIND, C_MOVE, C_GET]
+
+
+StatusType = Union[int, Dataset]
+DatasetType = Optional[Dataset]
+UserReturnType = Tuple[StatusType, DatasetType]
+_T = TypeVar("_T", bound=DIMSEPrimitive)
+_ExcInfoType = Union[
+    Tuple[None, None, None],
+    Tuple[Type[BaseException], BaseException, TracebackType]
+]
+DestinationType = Union[Tuple[str, int], Tuple[str, int, Dict[str, Any]]]
+
 
 LOGGER = logging.getLogger('pynetdicom.service-c')
 
@@ -43,7 +69,12 @@ class attempt():
     then it's logged and a DIMSE message is sent to the peer using the
     set error message and status code.
     """
-    def __init__(self, rsp, dimse, cx_id):
+    def __init__(
+        self,
+        rsp: "DimseServiceType",
+        dimse: "DIMSEServiceProvider",
+        cx_id: int
+    ) -> None:
         self._success = True
         # Should be customised within the context
         self.error_msg = "Exception occurred"
@@ -53,17 +84,22 @@ class attempt():
         self._dimse = dimse
         self._cx_id = cx_id
 
-    def __enter__(self):
+    def __enter__(self) -> "attempt":
         return self
 
-    def __exit__(self, exc_type, exc_value, traceback):
+    def __exit__(
+        self,
+        exc_type: Optional[Type[BaseException]],
+        exc_val: Optional[BaseException],
+        exc_tb: Optional[TracebackType]
+    ) -> Optional[bool]:
         if exc_type is None:
             # No exceptions raised
-            return
+            return None
 
         # Exception raised within the context
         LOGGER.error(self.error_msg)
-        LOGGER.exception(exc_value)
+        LOGGER.exception(exc_val)
         self._rsp.Status = self.error_status
         self._dimse.send_msg(self._rsp, self._cx_id)
         self._success = False
@@ -72,7 +108,7 @@ class attempt():
         return True
 
     @property
-    def success(self):
+    def success(self) -> bool:
         """Return ``True`` if the code within the context executed without
         raising an exception, ``False`` otherwise.
         """
@@ -89,16 +125,16 @@ class ServiceClass:
     """
     statuses = GENERAL_STATUS
 
-    def __init__(self, assoc):
+    def __init__(self, assoc: "Association") -> None:
         """Create a new ServiceClass."""
         self.assoc = assoc
 
     @property
-    def ae(self):
+    def ae(self) -> "ApplicationEntity":
         """Return the AE."""
         return self.assoc.ae
 
-    def _c_find_scp(self, req, context):
+    def _c_find_scp(self, req: C_FIND, context: "PresentationContext") -> None:
         """Implementation of the DIMSE C-FIND service.
 
         Parameters
@@ -169,7 +205,7 @@ class ServiceClass:
           :dcm:`9.3.2<part07/sect_9.3.2.html>` and
           :dcm:`Annex C<part07/chapter_C.html>`
         """
-        cx_id = context.context_id
+        cx_id = cast(int, context.context_id)
         transfer_syntax = context.transfer_syntax[0]
 
         # Build C-FIND response primitive
@@ -182,7 +218,7 @@ class ServiceClass:
         if _config.LOG_REQUEST_IDENTIFIERS:
             try:
                 identifier = decode(
-                    req.Identifier,
+                    cast(BytesIO, req.Identifier),
                     transfer_syntax.is_implicit_VR,
                     transfer_syntax.is_little_endian,
                     transfer_syntax.is_deflated
@@ -224,6 +260,8 @@ class ServiceClass:
         for ii, (result, exc) in enumerate(self._wrap_handler(generator)):
             # Reset the response Identifier
             rsp.Identifier = None
+            dataset: Optional[Dataset]
+            rsp_status: StatusType
 
             # Exception raised by user's generator
             if exc:
@@ -231,12 +269,12 @@ class ServiceClass:
                 LOGGER.error(
                     "\nTraceback (most recent call last):\n" +
                     "".join(traceback.format_tb(exc[2])) +
-                    f"{exc[0].__name__}: {str(exc[1])}"
+                    f"{exc[0].__name__}: {str(exc[1])}"  # type: ignore
                 )
                 rsp_status = 0xC311
                 dataset = None
             else:
-                (rsp_status, dataset) = result
+                (rsp_status, dataset) = cast(UserReturnType, result)
 
             # Event hander has aborted or released
             if not self.assoc.is_established:
@@ -278,13 +316,14 @@ class ServiceClass:
                 return
             elif status[0] == STATUS_PENDING:
                 # If pending, `dataset` is the Identifier
-                bytestream = encode(
+                dataset = cast(Dataset, dataset)
+                enc = encode(
                     dataset,
                     transfer_syntax.is_implicit_VR,
                     transfer_syntax.is_little_endian,
                     transfer_syntax.is_deflated
                 )
-                bytestream = BytesIO(bytestream)
+                bytestream = BytesIO(cast(bytes, enc))
 
                 if bytestream.getvalue() == b'':
                     LOGGER.error(
@@ -322,11 +361,11 @@ class ServiceClass:
         self.dimse.send_msg(rsp, cx_id)
 
     @property
-    def dimse(self):
+    def dimse(self) -> "DIMSEServiceProvider":
         """Return the DIMSE service provider."""
         return self.assoc.dimse
 
-    def is_cancelled(self, msg_id):
+    def is_cancelled(self, msg_id: int) -> bool:
         """Return True if a C-CANCEL message with `msg_id` has been received.
 
         .. versionadded:: 1.2
@@ -349,7 +388,7 @@ class ServiceClass:
 
         return False
 
-    def is_valid_status(self, status):
+    def is_valid_status(self, status: int) -> bool:
         """Return ``True`` if `status` is valid for the service class.
 
         Parameters
@@ -367,7 +406,9 @@ class ServiceClass:
 
         return False
 
-    def _n_action_scp(self, req, context):
+    def _n_action_scp(
+        self, req: N_ACTION, context: "PresentationContext"
+    ) -> None:
         """Implementation of the DIMSE N-ACTION service.
 
         Parameters
@@ -504,7 +545,7 @@ class ServiceClass:
           :dcm:`10.3.4<part07/sect_10.3.4.html>` and
           :dcm:`Annex C<part07/chapter_C.html>`
         """
-        cx_id = context.context_id
+        cx_id = cast(int, context.context_id)
 
         # Build N-CREATE response primitive
         rsp = N_ACTION()
@@ -518,7 +559,7 @@ class ServiceClass:
                 "Exception in the handler bound to 'evt.EVT_N_ACTION"
             )
             ctx.error_status = 0x0110
-            status, ds = evt.trigger(
+            user_response = evt.trigger(
                 self.assoc,
                 evt.EVT_N_ACTION,
                 {'request': req, 'context': context.as_tuple}
@@ -528,9 +569,11 @@ class ServiceClass:
         if not ctx.success or not self.assoc.is_established:
             return
 
+        usr_status, ds = cast(UserReturnType, user_response)
+
         # Check Status validity
         # Validate rsp_status and set rsp.Status accordingly
-        rsp = self.validate_status(status, rsp)
+        rsp = self.validate_status(usr_status, rsp)
 
         if rsp.Status in self.statuses:
             status = self.statuses[rsp.Status]
@@ -562,7 +605,9 @@ class ServiceClass:
         # Send response primitive
         self.dimse.send_msg(rsp, cx_id)
 
-    def _n_create_scp(self, req, context):
+    def _n_create_scp(
+        self, req: N_CREATE, context: "PresentationContext"
+    ) -> None:
         """Implementation of the DIMSE N-CREATE service.
 
         Parameters
@@ -659,7 +704,7 @@ class ServiceClass:
           :dcm:`10.3.5<part07/sect_10.3.5.html>`
           and :dcm:`Annex C<part07/chapter_C.html>`
         """
-        cx_id = context.context_id
+        cx_id = cast(int, context.context_id)
 
         # Build N-CREATE response primitive
         rsp = N_CREATE()
@@ -672,7 +717,7 @@ class ServiceClass:
                 "Exception in the handler bound to 'evt.EVT_N_CREATE"
             )
             ctx.error_status = 0x0110
-            status, ds = evt.trigger(
+            user_response = evt.trigger(
                 self.assoc,
                 evt.EVT_N_CREATE,
                 {'request': req, 'context': context.as_tuple}
@@ -682,9 +727,11 @@ class ServiceClass:
         if not ctx.success or not self.assoc.is_established:
             return
 
+        usr_status, ds = cast(UserReturnType, user_response)
+
         # Check Status validity
         # Validate rsp_status and set rsp.Status accordingly
-        rsp = self.validate_status(status, rsp)
+        rsp = self.validate_status(usr_status, rsp)
 
         if rsp.Status in self.statuses:
             status = self.statuses[rsp.Status]
@@ -716,7 +763,9 @@ class ServiceClass:
         # Send response primitive
         self.dimse.send_msg(rsp, cx_id)
 
-    def _n_delete_scp(self, req, context):
+    def _n_delete_scp(
+        self, req: N_DELETE, context: "PresentationContext"
+    ) -> None:
         """Implementation of the DIMSE N-DELETE service.
 
         Parameters
@@ -778,7 +827,7 @@ class ServiceClass:
           :dcm:`10.3.6<part07/sect_10.3.6.html>`
           and :dcm:`Annex C<part07/chapter_C.html>`
         """
-        cx_id = context.context_id
+        cx_id = cast(int, context.context_id)
 
         # Build N-DELETE response primitive
         rsp = N_DELETE()
@@ -803,12 +852,14 @@ class ServiceClass:
 
         # Check Status validity
         # Validate 'status' and set 'rsp.Status' accordingly
-        rsp = self.validate_status(status, rsp)
+        rsp = self.validate_status(cast(StatusType, status), rsp)
 
         # Send response primitive
         self.dimse.send_msg(rsp, cx_id)
 
-    def _n_event_report_scp(self, req, context):
+    def _n_event_report_scp(
+        self, req: N_EVENT_REPORT, context: "PresentationContext"
+    ) -> None:
         """Implementation of the DIMSE N-EVENT-REPORT service.
 
         Parameters
@@ -882,7 +933,7 @@ class ServiceClass:
           :dcm:`10.3.1 <part07/sect_10.3.html#sect_10.3.1>`
           and :dcm:`Annex C <part07/chapter_C.html>`
         """
-        cx_id = context.context_id
+        cx_id = cast(int, context.context_id)
 
         # Build N-EVENT-REPLY response primitive
         rsp = N_EVENT_REPORT()
@@ -896,7 +947,7 @@ class ServiceClass:
                 "Exception in the handler bound to 'evt.EVT_N_EVENT_REPORT"
             )
             ctx.error_status = 0x0110
-            status, ds = evt.trigger(
+            user_response = evt.trigger(
                 self.assoc,
                 evt.EVT_N_EVENT_REPORT,
                 {'request': req, 'context': context.as_tuple}
@@ -906,9 +957,11 @@ class ServiceClass:
         if not ctx.success or not self.assoc.is_established:
             return
 
+        usr_status, ds = cast(UserReturnType, user_response)
+
         # Check Status validity
         # Validate rsp_status and set rsp.Status accordingly
-        rsp = self.validate_status(status, rsp)
+        rsp = self.validate_status(usr_status, rsp)
 
         if rsp.Status in self.statuses:
             status = self.statuses[rsp.Status]
@@ -940,7 +993,7 @@ class ServiceClass:
         # Send response primitive
         self.dimse.send_msg(rsp, cx_id)
 
-    def _n_get_scp(self, req, context):
+    def _n_get_scp(self, req: N_GET, context: "PresentationContext") -> None:
         """Implementation of the DIMSE N-GET service.
 
         Parameters
@@ -1033,7 +1086,7 @@ class ServiceClass:
           :dcm:`10.3.2 <part07/sect_10.3.2.html>`
           and :dcm:`Annex C <part07/chapter_C.html>`
         """
-        cx_id = context.context_id
+        cx_id = cast(int, context.context_id)
 
         # Build N-GET response primitive
         rsp = N_GET()
@@ -1044,7 +1097,7 @@ class ServiceClass:
         with attempt(rsp, self.dimse, cx_id) as ctx:
             ctx.error_msg = "Exception in the handler bound to 'evt.EVT_N_GET'"
             ctx.error_status = 0x0110
-            status, ds = evt.trigger(
+            user_response = evt.trigger(
                 self.assoc,
                 evt.EVT_N_GET,
                 {'request': req, 'context': context.as_tuple}
@@ -1054,8 +1107,10 @@ class ServiceClass:
         if not ctx.success or not self.assoc.is_established:
             return
 
+        usr_status, ds = cast(UserReturnType, user_response)
+
         # Validate rsp_status and set rsp.Status accordingly
-        rsp = self.validate_status(status, rsp)
+        rsp = self.validate_status(usr_status, rsp)
 
         if rsp.Status in self.statuses:
             status = self.statuses[rsp.Status]
@@ -1086,7 +1141,7 @@ class ServiceClass:
 
         self.dimse.send_msg(rsp, cx_id)
 
-    def _n_set_scp(self, req, context):
+    def _n_set_scp(self, req: N_SET, context: "PresentationContext") -> None:
         """Implementation of the DIMSE N-SET service.
 
         Parameters
@@ -1192,7 +1247,7 @@ class ServiceClass:
           :dcm:`10.3.3 <part07/sect_10.3.3.html>`
           and :dcm:`Annex C <part07/chapter_C.html>`
         """
-        cx_id = context.context_id
+        cx_id = cast(int, context.context_id)
 
         # Build N-CREATE response primitive
         rsp = N_SET()
@@ -1203,7 +1258,7 @@ class ServiceClass:
         with attempt(rsp, self.dimse, cx_id) as ctx:
             ctx.error_msg = "Exception in the handler bound to 'evt.EVT_N_SET'"
             ctx.error_status = 0x0110
-            status, ds = evt.trigger(
+            user_response = evt.trigger(
                 self.assoc,
                 evt.EVT_N_SET,
                 {'request': req, 'context': context.as_tuple}
@@ -1213,8 +1268,10 @@ class ServiceClass:
         if not ctx.success or not self.assoc.is_established:
             return
 
+        usr_status, ds = cast(UserReturnType, user_response)
+
         # Validate rsp_status and set rsp.Status accordingly
-        rsp = self.validate_status(status, rsp)
+        rsp = self.validate_status(usr_status, rsp)
 
         if rsp.Status in self.statuses:
             status = self.statuses[rsp.Status]
@@ -1246,7 +1303,7 @@ class ServiceClass:
         # Send response primitive
         self.dimse.send_msg(rsp, cx_id)
 
-    def SCP(self, req, context):
+    def SCP(self, req: Any, context: "PresentationContext") -> None:
         """The implementation of the corresponding service class.
 
         Parameters
@@ -1262,7 +1319,7 @@ class ServiceClass:
         )
         raise NotImplementedError(msg)
 
-    def validate_status(self, status, rsp):
+    def validate_status(self, status: Union[int, Dataset], rsp: _T) -> _T:
         """Validate `status` and set `rsp.Status` accordingly.
 
         Parameters
@@ -1308,17 +1365,19 @@ class ServiceClass:
             #   a valid status type
             rsp.Status = 0xC002
 
-        if not self.is_valid_status(rsp.Status):
+        if not self.is_valid_status(cast(int, rsp.Status)):
             # Failure: Cannot Understand - Unknown status returned by the
             #   callback
             LOGGER.warning(
                 f"Unknown status value returned by callback - "
-                f"0x{rsp.Status:04x}"
+                f"0x{rsp.Status:04X}"
             )
 
         return rsp
 
-    def _wrap_handler(self, handler):
+    def _wrap_handler(
+        self, handler: Iterator
+    ) -> Iterator[Union[Tuple[None, _ExcInfoType], Tuple[UserReturnType, None]]]:
         """Wrap a generator handler to catch exceptions.
 
         Parameters
@@ -1356,7 +1415,7 @@ class VerificationServiceClass(ServiceClass):
     """Implementation of the Verification Service Class."""
     statuses = VERIFICATION_SERVICE_CLASS_STATUS
 
-    def SCP(self, req, context):
+    def SCP(self, req: C_ECHO, context: "PresentationContext") -> None:
         """The SCP implementation for the Verification Service Class.
 
         Will always return 0x0000 (Success) unless the user returns a different
@@ -1419,14 +1478,14 @@ class VerificationServiceClass(ServiceClass):
             rsp.Status = 0x0000
 
         # Check Status validity
-        if not self.is_valid_status(rsp.Status):
+        if not self.is_valid_status(cast(int, rsp.Status)):
             LOGGER.warning(
                 f"Unknown 'status' value returned by the handler bound to "
-                f"'evt.EVT_C_ECHO' - 0x{rsp.Status:04x}"
+                f"'evt.EVT_C_ECHO' - 0x{rsp.Status:04X}"
             )
 
         # Send primitive
-        self.dimse.send_msg(rsp, context.context_id)
+        self.dimse.send_msg(rsp, cast(int, context.context_id))
 
 
 class StorageServiceClass(ServiceClass):
@@ -1434,7 +1493,7 @@ class StorageServiceClass(ServiceClass):
     uid = '1.2.840.10008.4.2'
     statuses = STORAGE_SERVICE_CLASS_STATUS
 
-    def SCP(self, req, context):
+    def SCP(self, req: C_STORE, context: "PresentationContext") -> None:
         """The SCP implementation for the Storage Service Class.
 
         Parameters
@@ -1451,8 +1510,10 @@ class StorageServiceClass(ServiceClass):
         rsp.AffectedSOPInstanceUID = req.AffectedSOPInstanceUID
         rsp.AffectedSOPClassUID = req.AffectedSOPClassUID
 
+        cx_id = cast(int, context.context_id)
+
         # Try and trigger EVT_C_STORE
-        with attempt(rsp, self.dimse, context.context_id) as ctx:
+        with attempt(rsp, self.dimse, cx_id) as ctx:
             ctx.error_msg = "Exception in handler bound to 'evt.EVT_C_STORE'"
             ctx.error_status = 0xC211
             rsp_status = evt.trigger(
@@ -1476,8 +1537,8 @@ class StorageServiceClass(ServiceClass):
             return
 
         # Validate rsp_status and set rsp.Status accordingly
-        rsp = self.validate_status(rsp_status, rsp)
-        self.dimse.send_msg(rsp, context.context_id)
+        rsp = self.validate_status(cast(StatusType, rsp_status), rsp)
+        self.dimse.send_msg(rsp, cx_id)
 
 
 class QueryRetrieveServiceClass(ServiceClass):
@@ -1490,7 +1551,7 @@ class QueryRetrieveServiceClass(ServiceClass):
         'PixelDataProviderURL', 'SpectroscopyData', 'EncapsulatedDocument'
     ]
 
-    def SCP(self, req, context):
+    def SCP(self, req: "_QR", context: "PresentationContext") -> None:
         """The SCP implementation for the Query/Retrieve Service Class.
 
         Parameters
@@ -1540,13 +1601,13 @@ class QueryRetrieveServiceClass(ServiceClass):
             '1.2.840.10008.5.1.4.1.1.200.5'
         ]
 
-        if context.abstract_syntax in _find_uids:
+        if isinstance(req, C_FIND) and context.abstract_syntax in _find_uids:
             self.statuses = QR_FIND_SERVICE_CLASS_STATUS
             self._c_find_scp(req, context)
-        elif context.abstract_syntax in _get_uids:
+        elif isinstance(req, C_GET) and context.abstract_syntax in _get_uids:
             self.statuses = QR_GET_SERVICE_CLASS_STATUS
             self._get_scp(req, context)
-        elif context.abstract_syntax in _move_uids:
+        elif isinstance(req, C_MOVE) and context.abstract_syntax in _move_uids:
             self.statuses = QR_MOVE_SERVICE_CLASS_STATUS
             self._move_scp(req, context)
         else:
@@ -1555,7 +1616,7 @@ class QueryRetrieveServiceClass(ServiceClass):
                 'Query/Retrieve Service Class'
             )
 
-    def _get_scp(self, req, context):
+    def _get_scp(self, req: C_GET, context: "PresentationContext") -> None:
         """The SCP implementation for Query/Retrieve - Get.
 
         Parameters
@@ -1565,7 +1626,7 @@ class QueryRetrieveServiceClass(ServiceClass):
         context : presentation.PresentationContext
             The presentation context that the SCP is operating under.
         """
-        cx_id = context.context_id
+        cx_id = cast(int, context.context_id)
         transfer_syntax = context.transfer_syntax[0]
 
         # Build C-GET response primitive
@@ -1577,7 +1638,7 @@ class QueryRetrieveServiceClass(ServiceClass):
         if _config.LOG_REQUEST_IDENTIFIERS:
             try:
                 identifier = decode(
-                    req.Identifier,
+                    cast(BytesIO, req.Identifier),
                     transfer_syntax.is_implicit_VR,
                     transfer_syntax.is_little_endian,
                     transfer_syntax.is_deflated
@@ -1610,6 +1671,8 @@ class QueryRetrieveServiceClass(ServiceClass):
         if not ctx.success or not self.assoc.is_established:
             return
 
+        generator = cast(Iterator[Any], generator)
+
         # Try to check number of C-STORE sub-operations yield is OK
         with attempt(rsp, self.dimse, cx_id) as ctx:
             ctx.error_msg = (
@@ -1638,7 +1701,7 @@ class QueryRetrieveServiceClass(ServiceClass):
         # Store the SOP Instance UIDs from any failed C-STORE sub-operations
         failed_instances = []
 
-        def _add_failed_instance(ds):
+        def _add_failed_instance(ds: Dataset) -> None:
             if hasattr(ds, 'SOPInstanceUID'):
                 failed_instances.append(ds.SOPInstanceUID)
 
@@ -1648,6 +1711,7 @@ class QueryRetrieveServiceClass(ServiceClass):
         for ii, (result, exc) in enumerate(self._wrap_handler(generator)):
             # Reset the response Identifier
             rsp.Identifier = None
+            rsp_status: StatusType
 
             # Exception raised by user's generator
             if exc:
@@ -1655,12 +1719,12 @@ class QueryRetrieveServiceClass(ServiceClass):
                 LOGGER.error(
                     "\nTraceback (most recent call last):\n" +
                     "".join(traceback.format_tb(exc[2])) +
-                    f"{exc[0].__name__}: {str(exc[1])}"
+                    f"{exc[0].__name__}: {str(exc[1])}"  # type: ignore
                 )
                 rsp_status = 0xC411
                 dataset = None
             else:
-                (rsp_status, dataset) = result
+                (rsp_status, dataset) = cast(UserReturnType, result)
 
             # Event hander has aborted or released - after any yields
             if not self.assoc.is_established:
@@ -1709,7 +1773,7 @@ class QueryRetrieveServiceClass(ServiceClass):
                     transfer_syntax.is_little_endian,
                     transfer_syntax.is_deflated
                 )
-                rsp.Identifier = BytesIO(bytestream)
+                rsp.Identifier = BytesIO(cast(bytes, bytestream))
                 self.dimse.send_msg(rsp, cx_id)
                 return
             elif status[0] in [STATUS_FAILURE, STATUS_WARNING]:
@@ -1727,8 +1791,10 @@ class QueryRetrieveServiceClass(ServiceClass):
                 rsp.NumberOfCompletedSuboperations = store_results[3]
 
                 # In case user didn't include it
-                if (not isinstance(dataset, Dataset) or
-                        'FailedSOPInstanceUIDList' not in dataset):
+                if (
+                    not isinstance(dataset, Dataset)
+                    or 'FailedSOPInstanceUIDList' not in dataset
+                ):
                     dataset = Dataset()
                     dataset.FailedSOPInstanceUIDList = failed_instances
 
@@ -1738,7 +1804,7 @@ class QueryRetrieveServiceClass(ServiceClass):
                     transfer_syntax.is_little_endian,
                     transfer_syntax.is_deflated
                 )
-                rsp.Identifier = BytesIO(bytestream)
+                rsp.Identifier = BytesIO(cast(bytes, bytestream))
                 self.dimse.send_msg(rsp, cx_id)
                 return
             elif status[0] == STATUS_SUCCESS:
@@ -1757,7 +1823,7 @@ class QueryRetrieveServiceClass(ServiceClass):
                         transfer_syntax.is_little_endian,
                         transfer_syntax.is_deflated
                     )
-                    rsp.Identifier = BytesIO(bytestream)
+                    rsp.Identifier = BytesIO(cast(bytes, bytestream))
                 else:
                     LOGGER.info(
                         f'Get SCP Response {ii + 1}: 0x0000 (Success)'
@@ -1804,7 +1870,8 @@ class QueryRetrieveServiceClass(ServiceClass):
 
                     # Needs to be handled separately
                     if 'WaveformSequence' in dataset:
-                        for item in dataset.WaveformSequence:
+                        seq = cast(Sequence[Dataset], dataset.WaveformSequence)
+                        for item in seq:
                             if 'WaveformData' in item:
                                 del item.WaveformData
                                 if 'WaveformData' not in _bulk_data:
@@ -1836,23 +1903,23 @@ class QueryRetrieveServiceClass(ServiceClass):
                 #   is a known value
                 try:
                     # Message ID is VR 'US' and has range 0 <= n < 2**16
-                    msg_id = req.MessageID + ii + 1
+                    msg_id = cast(int, req.MessageID) + ii + 1
                     if msg_id > 65535:
                         msg_id -= 65535
 
-                    store_status = self.assoc.send_c_store(
+                    status_ds = self.assoc.send_c_store(
                         dataset, msg_id=msg_id
                     )
-                    store_status_int = store_status.Status
+                    store_status_int = status_ds.Status
                     store_status = (
-                        STORAGE_SERVICE_CLASS_STATUS[store_status.Status]
+                        STORAGE_SERVICE_CLASS_STATUS[store_status_int]
                     )
                 except Exception as exc:
                     # An exception implies a C-STORE failure
                     LOGGER.warning("C-STORE sub-operation failed.")
                     LOGGER.error(str(exc))
                     store_status_int = None
-                    store_status = [STATUS_FAILURE, 'Unknown']
+                    store_status = (STATUS_FAILURE, 'Unknown')
 
                 if store_status_int is not None:
                     msg = (
@@ -1915,7 +1982,7 @@ class QueryRetrieveServiceClass(ServiceClass):
                 transfer_syntax.is_little_endian,
                 transfer_syntax.is_deflated
             )
-            rsp.Identifier = BytesIO(bytestream)
+            rsp.Identifier = BytesIO(cast(bytes, bytestream))
 
         rsp.NumberOfRemainingSuboperations = None
         rsp.NumberOfFailedSuboperations = store_results[1]
@@ -1924,7 +1991,7 @@ class QueryRetrieveServiceClass(ServiceClass):
 
         self.dimse.send_msg(rsp, cx_id)
 
-    def _move_scp(self, req, context):
+    def _move_scp(self, req: C_MOVE, context: "PresentationContext") -> None:
         """The SCP implementation for Query/Retrieve - Move.
 
         Parameters
@@ -1934,7 +2001,7 @@ class QueryRetrieveServiceClass(ServiceClass):
         context : presentation.PresentationContext
             The presentation context that the SCP is operating under.
         """
-        cx_id = context.context_id
+        cx_id = cast(int, context.context_id)
         transfer_syntax = context.transfer_syntax[0]
 
         # Build C-MOVE response primitive
@@ -1946,7 +2013,7 @@ class QueryRetrieveServiceClass(ServiceClass):
         if _config.LOG_REQUEST_IDENTIFIERS:
             try:
                 identifier = decode(
-                    req.Identifier,
+                    cast(BytesIO, req.Identifier),
                     transfer_syntax.is_implicit_VR,
                     transfer_syntax.is_little_endian,
                     transfer_syntax.is_deflated
@@ -1979,6 +2046,8 @@ class QueryRetrieveServiceClass(ServiceClass):
         if not ctx.success or not self.assoc.is_established:
             return
 
+        generator = cast(Iterator[Any], generator)
+
         # Try and get the first yield
         with attempt(rsp, self.dimse, cx_id) as ctx:
             ctx.error_msg = (
@@ -1987,7 +2056,8 @@ class QueryRetrieveServiceClass(ServiceClass):
                 "then yield (status, dataset) pairs."
             )
             ctx.error_status = 0xC514
-            destination = next(generator)
+
+            destination: DestinationType = next(generator)
 
         # Exception in context or handler aborted/released - first yield
         if not ctx.success or not self.assoc.is_established:
@@ -2002,7 +2072,7 @@ class QueryRetrieveServiceClass(ServiceClass):
             ctx.error_status = 0xC515
             if None in destination[:2]:
                 LOGGER.error(
-                    f'Unknown Move Destination: {req.MoveDestination}'
+                    f'Unknown Move Destination: {req.MoveDestination!r}'
                 )
                 # Failure - Move destination unknown
                 rsp.Status = 0xA801
@@ -2042,11 +2112,11 @@ class QueryRetrieveServiceClass(ServiceClass):
             )
             ctx.error_status = 0xC515
             kwargs = {'ae_title': req.MoveDestination}
-            if len(destination) >= 3 and destination[2]:
-                kwargs.update(destination[2])
+            if len(destination) >= 3 and destination[2]:  # type: ignore
+                kwargs.update(destination[2])  # type: ignore
 
             store_assoc = self.ae.associate(
-                destination[0], destination[1], **kwargs
+                destination[0], destination[1], **kwargs  # type: ignore
             )
 
         if not ctx.success:
@@ -2059,7 +2129,8 @@ class QueryRetrieveServiceClass(ServiceClass):
             self.dimse.send_msg(rsp, cx_id)
 
             # FIXME - shouldn't have to manually close the socket like this
-            store_assoc.dul.socket.close()
+            sock = cast("AssociationSocket", store_assoc.dul.socket)
+            sock.close()
             return
 
         # Track the sub operation results
@@ -2068,7 +2139,7 @@ class QueryRetrieveServiceClass(ServiceClass):
 
         # Store the SOP Instance UIDs from any failed C-STORE sub-operations
         failed_instances = []
-        def _add_failed_instance(ds):
+        def _add_failed_instance(ds: Dataset) -> None:
             if hasattr(ds, 'SOPInstanceUID'):
                 failed_instances.append(ds.SOPInstanceUID)
 
@@ -2078,6 +2149,7 @@ class QueryRetrieveServiceClass(ServiceClass):
         for ii, (result, exc) in enumerate(self._wrap_handler(generator)):
             # Reset the response Identifier
             rsp.Identifier = None
+            rsp_status: StatusType
 
             # Exception raised by handler
             if exc:
@@ -2085,12 +2157,12 @@ class QueryRetrieveServiceClass(ServiceClass):
                 LOGGER.error(
                     "\nTraceback (most recent call last):\n" +
                     "".join(traceback.format_tb(exc[2])) +
-                    f"{exc[0].__name__}: {str(exc[1])}"
+                    f"{exc[0].__name__}: {str(exc[1])}"  # type: ignore
                 )
                 rsp_status = 0xC511
                 dataset = None
             else:
-                (rsp_status, dataset) = result
+                (rsp_status, dataset) = cast(UserReturnType, result)
 
             # Event hander has aborted or released - during any status yields
             if not self.assoc.is_established:
@@ -2141,7 +2213,7 @@ class QueryRetrieveServiceClass(ServiceClass):
                     transfer_syntax.is_deflated
                 )
 
-                rsp.Identifier = BytesIO(bytestream)
+                rsp.Identifier = BytesIO(cast(bytes, bytestream))
                 rsp.NumberOfRemainingSuboperations = store_results[0]
                 rsp.NumberOfFailedSuboperations = store_results[1]
                 rsp.NumberOfWarningSuboperations = store_results[2]
@@ -2173,7 +2245,7 @@ class QueryRetrieveServiceClass(ServiceClass):
                     transfer_syntax.is_deflated
                 )
 
-                rsp.Identifier = BytesIO(bytestream)
+                rsp.Identifier = BytesIO(cast(bytes, bytestream))
                 rsp.NumberOfRemainingSuboperations = None
                 rsp.NumberOfFailedSuboperations = (
                     store_results[1] + store_results[0]
@@ -2203,7 +2275,7 @@ class QueryRetrieveServiceClass(ServiceClass):
                         transfer_syntax.is_deflated
                     )
 
-                    rsp.Identifier = BytesIO(bytestream)
+                    rsp.Identifier = BytesIO(cast(bytes, bytestream))
                     rsp.Status = 0xB000
                 else:
                     # No failures or warnings
@@ -2243,27 +2315,27 @@ class QueryRetrieveServiceClass(ServiceClass):
                 #   and is a known value
                 try:
                     # Message ID is VR 'US' and has range 0 <= n < 2**16
-                    msg_id = req.MessageID + ii + 1
+                    msg_id = cast(int, req.MessageID) + ii + 1
                     if msg_id > 65535:
                         msg_id -= 65535
 
-                    store_status = store_assoc.send_c_store(
+                    status_ds = store_assoc.send_c_store(
                         dataset,
                         msg_id=msg_id,
                         originator_aet=self.ae.ae_title,
                         originator_id=req.MessageID
                     )
 
-                    store_status_int = store_status.Status
+                    store_status_int = status_ds.Status
                     store_status = STORAGE_SERVICE_CLASS_STATUS[
-                        store_status.Status
+                        store_status_int
                     ]
                 except Exception as exc:
                     # An exception implies a C-STORE failure
                     LOGGER.warning("C-STORE sub-operation failed.")
                     LOGGER.error(str(exc))
                     store_status_int = None
-                    store_status = [STATUS_FAILURE, 'Unknown']
+                    store_status = (STATUS_FAILURE, 'Unknown')
 
                 if store_status_int is not None:
                     msg = (
@@ -2332,7 +2404,7 @@ class QueryRetrieveServiceClass(ServiceClass):
                 transfer_syntax.is_little_endian,
                 transfer_syntax.is_deflated
             )
-            rsp.Identifier = BytesIO(bytestream)
+            rsp.Identifier = BytesIO(cast(bytes, bytestream))
 
         rsp.NumberOfRemainingSuboperations = None
         rsp.NumberOfFailedSuboperations = store_results[1]
@@ -2346,7 +2418,7 @@ class BasicWorklistManagementServiceClass(QueryRetrieveServiceClass):
     """Implementation of the Basic Worklist Management Service Class."""
     statuses = QR_FIND_SERVICE_CLASS_STATUS
 
-    def SCP(self, req, context):
+    def SCP(self, req: "_QR", context: "PresentationContext") -> None:
         """The SCP implementation for Basic Worklist Management.
 
         Parameters
@@ -2356,7 +2428,10 @@ class BasicWorklistManagementServiceClass(QueryRetrieveServiceClass):
         context : presentation.PresentationContext
             The presentation context that the SCP is operating under.
         """
-        if context.abstract_syntax == '1.2.840.10008.5.1.4.31':
+        if (
+            isinstance(req, C_FIND)
+            and context.abstract_syntax == '1.2.840.10008.5.1.4.31'
+        ):
             self._c_find_scp(req, context)
         else:
             raise ValueError(
@@ -2399,7 +2474,7 @@ class RelevantPatientInformationQueryServiceClass(ServiceClass):
     """Implementation of the Relevant Patient Information Query"""
     statuses = RELEVANT_PATIENT_SERVICE_CLASS_STATUS
 
-    def SCP(self, req, context):
+    def SCP(self, req: C_FIND, context: "PresentationContext") -> None:
         """The SCP implementation for the Relevant Patient Information Query
         Service Class.
 
@@ -2410,7 +2485,7 @@ class RelevantPatientInformationQueryServiceClass(ServiceClass):
         context : presentation.PresentationContext
             The presentation context that the SCP is operating under.
         """
-        cx_id = context.context_id
+        cx_id = cast(int, context.context_id)
         transfer_syntax = context.transfer_syntax[0]
 
         # Build C-FIND response primitive
@@ -2423,7 +2498,7 @@ class RelevantPatientInformationQueryServiceClass(ServiceClass):
         if _config.LOG_REQUEST_IDENTIFIERS:
             try:
                 identifier = decode(
-                    req.Identifier,
+                    cast(BytesIO, req.Identifier),
                     transfer_syntax.is_implicit_VR,
                     transfer_syntax.is_little_endian,
                     transfer_syntax.is_deflated
@@ -2448,6 +2523,7 @@ class RelevantPatientInformationQueryServiceClass(ServiceClass):
                     '_is_cancelled': self.is_cancelled
                 }
             )
+            responses = cast(Iterator[UserReturnType], responses)
             (rsp_status, rsp_identifier) = next(responses)
         except (StopIteration, TypeError):
             # Event hander has aborted or released - before any yields
@@ -2499,13 +2575,14 @@ class RelevantPatientInformationQueryServiceClass(ServiceClass):
             return
         elif status[0] == STATUS_PENDING:
             # If pending, the rsp_identifier is the Identifier dataset
-            bytestream = encode(
+            rsp_identifier = cast(Dataset, rsp_identifier)
+            enc = encode(
                 rsp_identifier,
                 transfer_syntax.is_implicit_VR,
                 transfer_syntax.is_little_endian,
                 transfer_syntax.is_deflated
             )
-            bytestream = BytesIO(bytestream)
+            bytestream = BytesIO(cast(bytes, enc))
 
             if bytestream.getvalue() == b'':
                 LOGGER.error(
@@ -2541,7 +2618,7 @@ class SubstanceAdministrationQueryServiceClass(QueryRetrieveServiceClass):
     """Implementation of the Substance Administration Query Service"""
     statuses = SUBSTANCE_ADMINISTRATION_SERVICE_CLASS_STATUS
 
-    def SCP(self, req, context):
+    def SCP(self, req: "_QR", context: "PresentationContext") -> None:
         """The SCP implementation for the Relevant Patient Information Query
         Service Class.
 
@@ -2552,4 +2629,11 @@ class SubstanceAdministrationQueryServiceClass(QueryRetrieveServiceClass):
         context : presentation.PresentationContext
             The presentation context that the SCP is operating under.
         """
-        self._c_find_scp(req, context)
+        uids = ['1.2.840.10008.5.1.4.41', '1.2.840.10008.5.1.4.42']
+        if isinstance(req, C_FIND) and context.abstract_syntax in uids:
+            self._c_find_scp(req, context)
+        else:
+            raise ValueError(
+                'The supplied abstract syntax is not valid for use with the '
+                'Substance Administration Query Service Class'
+            )

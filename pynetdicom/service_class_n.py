@@ -1,6 +1,7 @@
 """Implements the supported Service Classes that make use of DIMSE-N."""
 
 import logging
+from typing import TYPE_CHECKING, Union
 
 from pynetdicom.dimse_primitives import (
     N_ACTION, N_CREATE, N_DELETE, N_EVENT_REPORT, N_GET, N_SET, C_FIND
@@ -17,6 +18,15 @@ from pynetdicom.status import (
     UNIFIED_PROCEDURE_STEP_SERVICE_CLASS_STATUS,
 )
 
+if TYPE_CHECKING:  # pragma: no cover
+    from pynetdicom.presentation import PresentationContext
+
+    _MCM = Union[N_CREATE, N_GET, N_ACTION]
+    _PJ = Union[N_CREATE, N_EVENT_REPORT, N_GET, N_SET, N_ACTION, N_DELETE]
+    _PS = Union[N_CREATE, N_EVENT_REPORT, N_GET, N_SET]
+    _SCS = Union[N_EVENT_REPORT, N_ACTION]
+    _UPS = Union[N_CREATE, N_EVENT_REPORT, N_GET, N_SET, N_ACTION, C_FIND]
+
 
 LOGGER = logging.getLogger('pynetdicom.service-n')
 
@@ -28,7 +38,7 @@ class ApplicationEventLoggingServiceClass(ServiceClass):
     """
     statuses = APPLICATION_EVENT_LOGGING_SERVICE_CLASS_STATUS
 
-    def SCP(self, req, context):
+    def SCP(self, req: N_ACTION, context: "PresentationContext") -> None:
         """The SCP implementation for Application Event Logging Service Class.
 
         Parameters
@@ -51,7 +61,7 @@ class DisplaySystemManagementServiceClass(ServiceClass):
     """Implementation of the Display System Management Service Class."""
     statuses = GENERAL_STATUS
 
-    def SCP(self, req, context):
+    def SCP(self, req: N_GET, context: "PresentationContext") -> None:
         """The SCP implementation for Display System Management.
 
         Parameters
@@ -77,7 +87,7 @@ class InstanceAvailabilityNotificationServiceClass(ServiceClass):
     """
     statuses = GENERAL_STATUS
 
-    def SCP(self, req, context):
+    def SCP(self, req: N_CREATE, context: "PresentationContext") -> None:
         """The SCP implementation for Instance Availability Service Class.
 
         Parameters
@@ -103,7 +113,7 @@ class MediaCreationManagementServiceClass(ServiceClass):
     """
     statuses = MEDIA_CREATION_MANAGEMENT_SERVICE_CLASS_STATUS
 
-    def SCP(self, req, context):
+    def SCP(self, req: "_MCM", context: "PresentationContext") -> None:
         """The SCP implementation for Media Creation Management Service Class.
 
         Parameters
@@ -133,7 +143,7 @@ class PrintManagementServiceClass(ServiceClass):
     """
     statuses = PRINT_JOB_MANAGEMENT_SERVICE_CLASS_STATUS
 
-    def SCP(self, req, context):
+    def SCP(self, req: "_PJ", context: "PresentationContext") -> None:
         """The SCP implementation for Print Management Service Class.
 
         Parameters
@@ -170,7 +180,7 @@ class ProcedureStepServiceClass(ServiceClass):
     """
     statuses = PROCEDURE_STEP_STATUS
 
-    def SCP(self, req, context):
+    def SCP(self, req: "_PS", context: "PresentationContext") -> None:
         """The SCP implementation for Modality Performed Procedure Step.
 
         Parameters
@@ -207,7 +217,7 @@ class RTMachineVerificationServiceClass(ServiceClass):
     """
     statuses = RT_MACHINE_VERIFICATION_SERVICE_CLASS_STATUS
 
-    def SCP(self, req, context):
+    def SCP(self, req: "_PJ", context: "PresentationContext") -> None:
         """The SCP implementation for RT Machine Verification Service Class.
 
         Parameters
@@ -244,7 +254,7 @@ class StorageCommitmentServiceClass(ServiceClass):
     """
     statuses = STORAGE_COMMITMENT_SERVICE_CLASS_STATUS
 
-    def SCP(self, req, context):
+    def SCP(self, req: "_SCS", context: "PresentationContext") -> None:
         """The SCP implementation for Storage Commitment Service Class.
 
         Parameters
@@ -272,7 +282,7 @@ class UnifiedProcedureStepServiceClass(ServiceClass):
     """
     statuses = UNIFIED_PROCEDURE_STEP_SERVICE_CLASS_STATUS
 
-    def SCP(self, req, context):
+    def SCP(self, req: "_UPS", context: "PresentationContext") -> None:
         """The SCP implementation for Unified Procedure Step Service Class.
 
         Parameters

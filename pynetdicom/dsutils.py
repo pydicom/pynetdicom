@@ -12,6 +12,7 @@ from pydicom.dataelem import DataElement
 from pydicom.filebase import DicomBytesIO
 from pydicom.filereader import read_dataset, read_preamble
 from pydicom.filewriter import write_dataset
+from pydicom.tag import BaseTag
 from pydicom.uid import UID
 
 from pynetdicom import (
@@ -299,7 +300,7 @@ def split_dataset(path: Path) -> Tuple[Dataset, int]:
         the start of the dataset itself. The File Meta dataset may be empty if
         no File Meta is present.
     """
-    def _not_group_0002(tag, VR, length):
+    def _not_group_0002(tag: BaseTag, VR: Optional[str], length: int) -> bool:
         """Return True if the tag is not in group 0x0002, False otherwise."""
         return tag.group != 2
 

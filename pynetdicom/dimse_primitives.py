@@ -27,6 +27,7 @@ if TYPE_CHECKING:  # pragma: no cover
     class NTF(Protocol):
         name: str
         def write(self, data: bytes) -> bytes: ...
+        def close(self) -> None: ...
 
 
 LOGGER = logging.getLogger('pynetdicom.dimse_primitives')

@@ -175,9 +175,7 @@ class DIMSEServiceProvider:
         """Return the :class:`~pynetdicom.dul.DULServiceProvider`."""
         return self.assoc.dul
 
-    def get_msg(
-        self, block: bool = False
-    ) -> _QueueItem:
+    def get_msg(self, block: bool = False) -> _QueueItem:
         """Get the next available DIMSE message.
 
         .. versionadded:: 1.2
