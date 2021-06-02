@@ -1,0 +1,6 @@
+﻿pynetdicom.sop\_class.SubstanceAdministrationLogging
+====================================================
+
+.. currentmodule:: pynetdicom.sop_class
+
+.. autodata:: SubstanceAdministrationLogging

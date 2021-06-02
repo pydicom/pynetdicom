@@ -1,0 +1,6 @@
+﻿pynetdicom.sop\_class.PerformedImagingAgentAdministrationSRStorage
+==================================================================
+
+.. currentmodule:: pynetdicom.sop_class
+
+.. autodata:: PerformedImagingAgentAdministrationSRStorage

@@ -1,0 +1,6 @@
+﻿pynetdicom.sop\_class.TomotherapeuticRadiationStorage
+=====================================================
+
+.. currentmodule:: pynetdicom.sop_class
+
+.. autodata:: TomotherapeuticRadiationStorage

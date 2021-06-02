@@ -226,7 +226,7 @@ SOP Instance.</p>
 
 <span class="kn">from</span> <span class="nn">pynetdicom</span> <span class="kn">import</span> <span class="n">AE</span><span class="p">,</span> <span class="n">debug_logger</span>
 <span class="kn">from</span> <span class="nn">pynetdicom.sop_class</span> <span class="kn">import</span> <span class="p">(</span>
-    <span class="n">ModalityPerformedProcedureStepSOPClass</span><span class="p">,</span>
+    <span class="n">ModalityPerformedProcedureStep</span><span class="p">,</span>
     <span class="n">CTImageStorage</span>
 <span class="p">)</span>
 <span class="kn">from</span> <span class="nn">pynetdicom.status</span> <span class="kn">import</span> <span class="n">code_to_category</span>
@@ -280,7 +280,7 @@ SOP Instance.</p>
 <span class="n">ae</span> <span class="o">=</span> <span class="n">AE</span><span class="p">()</span>
 
 <span class="c1"># Add a requested presentation context</span>
-<span class="n">ae</span><span class="o">.</span><span class="n">add_requested_context</span><span class="p">(</span><span class="n">ModalityPerformedProcedureStepSOPClass</span><span class="p">)</span>
+<span class="n">ae</span><span class="o">.</span><span class="n">add_requested_context</span><span class="p">(</span><span class="n">ModalityPerformedProcedureStep</span><span class="p">)</span>
 
 <span class="c1"># Associate with peer AE at IP 127.0.0.1 and port 11112</span>
 <span class="n">assoc</span> <span class="o">=</span> <span class="n">ae</span><span class="o">.</span><span class="n">associate</span><span class="p">(</span><span class="s1">&#39;127.0.0.1&#39;</span><span class="p">,</span> <span class="mi">11112</span><span class="p">)</span>
@@ -290,7 +290,7 @@ SOP Instance.</p>
     <span class="c1"># should return the Instance itself</span>
     <span class="n">status</span><span class="p">,</span> <span class="n">attr_list</span> <span class="o">=</span> <span class="n">assoc</span><span class="o">.</span><span class="n">send_n_create</span><span class="p">(</span>
         <span class="n">build_attr_list</span><span class="p">(),</span>
-        <span class="n">ModalityPerformedProcedureStepSOPClass</span><span class="p">,</span>
+        <span class="n">ModalityPerformedProcedureStep</span><span class="p">,</span>
         <span class="n">mpps_instance_uid</span>
     <span class="p">)</span>
 
@@ -366,7 +366,7 @@ Procedure Step Status</em> of <code class="docutils literal notranslate"><span c
     <span class="c1"># Use the N-SET service to update the SOP Instance</span>
     <span class="n">status</span><span class="p">,</span> <span class="n">attr_list</span> <span class="o">=</span> <span class="n">assoc</span><span class="o">.</span><span class="n">send_n_set</span><span class="p">(</span>
         <span class="n">build_mod_list</span><span class="p">(</span><span class="n">ct_series_uid</span><span class="p">,</span> <span class="n">ct_instance_uids</span><span class="p">),</span>
-        <span class="n">ModalityPerformedProcedureStepSOPClass</span><span class="p">,</span>
+        <span class="n">ModalityPerformedProcedureStep</span><span class="p">,</span>
         <span class="n">mpps_instance_uid</span>
     <span class="p">)</span>
 
@@ -377,7 +377,7 @@ Procedure Step Status</em> of <code class="docutils literal notranslate"><span c
             <span class="c1"># Send completion</span>
             <span class="n">status</span><span class="p">,</span> <span class="n">attr_list</span> <span class="o">=</span> <span class="n">assoc</span><span class="o">.</span><span class="n">send_n_set</span><span class="p">(</span>
                 <span class="n">final_ds</span><span class="p">,</span>
-                <span class="n">ModalityPerformedProcedureStepSOPClass</span><span class="p">,</span>
+                <span class="n">ModalityPerformedProcedureStep</span><span class="p">,</span>
                 <span class="n">mpps_instance_uid</span>
             <span class="p">)</span>
             <span class="k">if</span> <span class="n">status</span><span class="p">:</span>
@@ -400,7 +400,7 @@ handlers.</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">pydicom.dataset</span> <span class="kn">import</span> <span class="n">Dataset</span>
 
 <span class="kn">from</span> <span class="nn">pynetdicom</span> <span class="kn">import</span> <span class="n">AE</span><span class="p">,</span> <span class="n">evt</span>
-<span class="kn">from</span> <span class="nn">pynetdicom.sop_class</span> <span class="kn">import</span> <span class="n">ModalityPerformedProcedureStepSOPClass</span>
+<span class="kn">from</span> <span class="nn">pynetdicom.sop_class</span> <span class="kn">import</span> <span class="n">ModalityPerformedProcedureStep</span>
 
 <span class="n">managed_instances</span> <span class="o">=</span> <span class="p">{}</span>
 
@@ -434,7 +434,7 @@ handlers.</p>
     <span class="n">ds</span> <span class="o">=</span> <span class="n">Dataset</span><span class="p">()</span>
 
     <span class="c1"># Add the SOP Common module elements (Annex C.12.1)</span>
-    <span class="n">ds</span><span class="o">.</span><span class="n">SOPClassUID</span> <span class="o">=</span> <span class="n">ModalityPerformedProcedureStepSOPClass</span>
+    <span class="n">ds</span><span class="o">.</span><span class="n">SOPClassUID</span> <span class="o">=</span> <span class="n">ModalityPerformedProcedureStep</span>
     <span class="n">ds</span><span class="o">.</span><span class="n">SOPInstanceUID</span> <span class="o">=</span> <span class="n">req</span><span class="o">.</span><span class="n">AffectedSOPInstanceUID</span>
 
     <span class="c1"># Update with the requested attributes</span>
@@ -471,7 +471,7 @@ handlers.</p>
 <span class="n">ae</span> <span class="o">=</span> <span class="n">AE</span><span class="p">()</span>
 
 <span class="c1"># Add the supported presentation context</span>
-<span class="n">ae</span><span class="o">.</span><span class="n">add_supported_context</span><span class="p">(</span><span class="n">ModalityPerformedProcedureStepSOPClass</span><span class="p">)</span>
+<span class="n">ae</span><span class="o">.</span><span class="n">add_supported_context</span><span class="p">(</span><span class="n">ModalityPerformedProcedureStep</span><span class="p">)</span>
 
 <span class="c1"># Start listening for incoming association requests</span>
 <span class="n">ae</span><span class="o">.</span><span class="n">start_server</span><span class="p">((</span><span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="mi">11112</span><span class="p">),</span> <span class="n">evt_handlers</span><span class="o">=</span><span class="n">handlers</span><span class="p">)</span>

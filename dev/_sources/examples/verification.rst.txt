@@ -28,13 +28,13 @@ Verification Service.
 .. code-block:: python
 
    from pynetdicom import AE
-   from pynetdicom.sop_class import VerificationSOPClass
+   from pynetdicom.sop_class import Verification
 
    # Initialise the Application Entity
    ae = AE()
 
    # Add a requested presentation context
-   ae.add_requested_context(VerificationSOPClass)
+   ae.add_requested_context(Verification)
 
    # Associate with peer AE at IP 127.0.0.1 and port 11112
    assoc = ae.associate('127.0.0.1', 11112)
@@ -82,13 +82,13 @@ to return an ``0x0000`` *Success* :ref:`status <verification_statuses>`.
 .. code-block:: python
 
     from pynetdicom import AE
-    from pynetdicom.sop_class import VerificationSOPClass
+    from pynetdicom.sop_class import Verification
 
     # Initialise the Application Entity
     ae = AE()
 
     # Add the supported presentation context
-    ae.add_supported_context(VerificationSOPClass)
+    ae.add_supported_context(Verification)
 
    # Start listening for incoming association requests in blocking mode
    ae.start_server(('', 11112), block=True)
@@ -101,7 +101,7 @@ to see the requirements for the ``evt.EVT_C_ECHO`` handler.
 .. code-block:: python
 
     from pynetdicom import AE, evt
-    from pynetdicom.sop_class import VerificationSOPClass
+    from pynetdicom.sop_class import Verification
 
     # Implement a handler for evt.EVT_C_ECHO
     def handle_echo(event):
@@ -111,5 +111,5 @@ to see the requirements for the ``evt.EVT_C_ECHO`` handler.
     handlers = [(evt.EVT_C_ECHO, handle_echo)]
 
     ae = AE()
-    ae.add_supported_context(VerificationSOPClass)
+    ae.add_supported_context(Verification)
     ae.start_server(('', 11112), evt_handlers=handlers)

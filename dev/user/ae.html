@@ -311,10 +311,10 @@ convenience function:</p>
 </div>
 <p>Combining the all-at-once and one-by-one approaches:</p>
 <div class="highlight-pycon3 notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">pynetdicom</span> <span class="kn">import</span> <span class="n">AE</span><span class="p">,</span> <span class="n">StoragePresentationContexts</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">pynetdicom.sop_class</span> <span class="kn">import</span> <span class="n">VerificationSOPClass</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">pynetdicom.sop_class</span> <span class="kn">import</span> <span class="n">Verification</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">ae</span> <span class="o">=</span> <span class="n">AE</span><span class="p">()</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">ae</span><span class="o">.</span><span class="n">requested_contexts</span> <span class="o">=</span> <span class="n">StoragePresentationContexts</span><span class="p">[:</span><span class="mi">127</span><span class="p">]</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">ae</span><span class="o">.</span><span class="n">add_requested_context</span><span class="p">(</span><span class="n">VerificationSOPClass</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">ae</span><span class="o">.</span><span class="n">add_requested_context</span><span class="p">(</span><span class="n">Verification</span><span class="p">)</span>
 </pre></div>
 </div>
 <p>As the association <em>Requestor</em> you’re limited to a total of 128 requested
@@ -367,11 +367,11 @@ str/UIDs:</p>
 <a class="reference internal" href="../reference/generated/pynetdicom.ae.ApplicationEntity.html#pynetdicom.ae.ApplicationEntity.requested_contexts" title="pynetdicom.ae.ApplicationEntity.requested_contexts"><code class="xref py py-attr docutils literal notranslate"><span class="pre">AE.requested_contexts</span></code></a>
 property and they are returned in the order they were added:</p>
 <div class="highlight-pycon3 notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">pynetdicom</span> <span class="kn">import</span> <span class="n">AE</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">pynetdicom.sop_class</span> <span class="kn">import</span> <span class="n">VerificationSOPClass</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">pynetdicom.sop_class</span> <span class="kn">import</span> <span class="n">Verification</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">ae</span> <span class="o">=</span> <span class="n">AE</span><span class="p">()</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="nb">len</span><span class="p">(</span><span class="n">ae</span><span class="o">.</span><span class="n">requested_contexts</span><span class="p">)</span>
 <span class="go">0</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">ae</span><span class="o">.</span><span class="n">add_requested_context</span><span class="p">(</span><span class="n">VerificationSOPClass</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">ae</span><span class="o">.</span><span class="n">add_requested_context</span><span class="p">(</span><span class="n">Verification</span><span class="p">)</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="nb">len</span><span class="p">(</span><span class="n">ae</span><span class="o">.</span><span class="n">requested_contexts</span><span class="p">)</span>
 <span class="go">1</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="n">ae</span><span class="o">.</span><span class="n">requested_contexts</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
@@ -484,10 +484,10 @@ of presentation contexts, either through creating new
 </div>
 <p>Combining the all-at-once and one-by-one approaches:</p>
 <div class="highlight-pycon3 notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">pynetdicom</span> <span class="kn">import</span> <span class="n">AE</span><span class="p">,</span> <span class="n">AllStoragePresentationContexts</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">pynetdicom.sop_class</span> <span class="kn">import</span> <span class="n">VerificationSOPClass</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">pynetdicom.sop_class</span> <span class="kn">import</span> <span class="n">Verification</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">ae</span> <span class="o">=</span> <span class="n">AE</span><span class="p">()</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">ae</span><span class="o">.</span><span class="n">supported_contexts</span> <span class="o">=</span> <span class="n">AllStoragePresentationContexts</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">ae</span><span class="o">.</span><span class="n">add_supported_context</span><span class="p">(</span><span class="n">VerificationSOPClass</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">ae</span><span class="o">.</span><span class="n">add_supported_context</span><span class="p">(</span><span class="n">Verification</span><span class="p">)</span>
 </pre></div>
 </div>
 <p>As the association <em>Acceptor</em> you’re not limited in the number of presentation
@@ -539,11 +539,11 @@ list of str/UIDs:</p>
 <a class="reference internal" href="../reference/generated/pynetdicom.ae.ApplicationEntity.html#pynetdicom.ae.ApplicationEntity.supported_contexts" title="pynetdicom.ae.ApplicationEntity.supported_contexts"><code class="xref py py-attr docutils literal notranslate"><span class="pre">AE.supported_contexts</span></code></a>
 property and they are returned in order of their abstract syntax UID value:</p>
 <div class="highlight-pycon3 notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">pynetdicom</span> <span class="kn">import</span> <span class="n">AE</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">pynetdicom.sop_class</span> <span class="kn">import</span> <span class="n">VerificationSOPClass</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">pynetdicom.sop_class</span> <span class="kn">import</span> <span class="n">Verification</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">ae</span> <span class="o">=</span> <span class="n">AE</span><span class="p">()</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="nb">len</span><span class="p">(</span><span class="n">ae</span><span class="o">.</span><span class="n">supported_contexts</span><span class="p">)</span>
 <span class="go">0</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">ae</span><span class="o">.</span><span class="n">add_supported_context</span><span class="p">(</span><span class="n">VerificationSOPClass</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">ae</span><span class="o">.</span><span class="n">add_supported_context</span><span class="p">(</span><span class="n">Verification</span><span class="p">)</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="nb">len</span><span class="p">(</span><span class="n">ae</span><span class="o">.</span><span class="n">supported_contexts</span><span class="p">)</span>
 <span class="go">1</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="n">ae</span><span class="o">.</span><span class="n">supported_contexts</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
@@ -637,7 +637,7 @@ should implement and bind a <a class="reference internal" href="events.html#user
 <a class="reference external" href="../reference/generated/pynetdicom._handlers.doc_handle_userid.html">documentation</a>
 to see the requirements for implementations of the <code class="docutils literal notranslate"><span class="pre">evt.EVT_USER_ID</span></code> handler.</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">pynetdicom</span> <span class="kn">import</span> <span class="n">AE</span><span class="p">,</span> <span class="n">evt</span>
-<span class="kn">from</span> <span class="nn">pynetdicom.sop_class</span> <span class="kn">import</span> <span class="n">VerificationSOPClass</span>
+<span class="kn">from</span> <span class="nn">pynetdicom.sop_class</span> <span class="kn">import</span> <span class="n">Verification</span>
 
 <span class="kn">from</span> <span class="nn">my_code</span> <span class="kn">import</span> <span class="n">some_user_function</span>
 
@@ -651,7 +651,7 @@ to see the requirements for implementations of the <code class="docutils literal
 <span class="n">handlers</span> <span class="o">=</span> <span class="p">[(</span><span class="n">evt</span><span class="o">.</span><span class="n">EVT_USER_ID</span><span class="p">,</span> <span class="n">handle_user_id</span><span class="p">)]</span>
 
 <span class="n">ae</span> <span class="o">=</span> <span class="n">AE</span><span class="p">()</span>
-<span class="n">ae</span><span class="o">.</span><span class="n">add_supported_context</span><span class="p">(</span><span class="n">VerificationSOPClass</span><span class="p">)</span>
+<span class="n">ae</span><span class="o">.</span><span class="n">add_supported_context</span><span class="p">(</span><span class="n">Verification</span><span class="p">)</span>
 <span class="n">ae</span><span class="o">.</span><span class="n">start_server</span><span class="p">((</span><span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="mi">11112</span><span class="p">),</span> <span class="n">evt_handlers</span><span class="o">=</span><span class="n">handlers</span><span class="p">)</span>
 </pre></div>
 </div>

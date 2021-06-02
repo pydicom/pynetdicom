@@ -1,0 +1,6 @@
+﻿pynetdicom.sop\_class.MacularGridThicknessAndVolumeReportStorage
+================================================================
+
+.. currentmodule:: pynetdicom.sop_class
+
+.. autodata:: MacularGridThicknessAndVolumeReportStorage

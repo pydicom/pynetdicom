@@ -1,6 +1,0 @@
-﻿pynetdicom.sop\_class.MultiframeGrayscaleByteSecondaryCaptureImageStorage
-=========================================================================
-
-.. currentmodule:: pynetdicom.sop_class
-
-.. autodata:: MultiframeGrayscaleByteSecondaryCaptureImageStorage

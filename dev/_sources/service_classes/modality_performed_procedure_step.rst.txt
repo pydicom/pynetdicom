@@ -14,11 +14,11 @@ Supported SOP Classes
 +-----------------------------+----------------------------------------------------+
 | UID                         | SOP Class                                          |
 +=============================+====================================================+
-| 1.2.840.10008.3.1.2.3.3     | ModalityPerformedProcedureStepSOPClass             |
+| 1.2.840.10008.3.1.2.3.3     | ModalityPerformedProcedureStep                     |
 +-----------------------------+----------------------------------------------------+
-| 1.2.840.10008.3.1.2.3.4     | ModalityPerformedProcedureStepRetrieveSOPClass     |
+| 1.2.840.10008.3.1.2.3.4     | ModalityPerformedProcedureStepRetrieve             |
 +-----------------------------+----------------------------------------------------+
-| 1.2.840.10008.3.1.2.3.5     | ModalityPerformedProcedureStepNotificationSOPClass |
+| 1.2.840.10008.3.1.2.3.5     | ModalityPerformedProcedureStepNotification         |
 +-----------------------------+----------------------------------------------------+
 
 

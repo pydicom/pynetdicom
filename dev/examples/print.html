@@ -377,12 +377,12 @@ notifications over the same association (and ignore them).</p>
 
 <span class="kn">from</span> <span class="nn">pynetdicom</span> <span class="kn">import</span> <span class="n">AE</span><span class="p">,</span> <span class="n">evt</span><span class="p">,</span> <span class="n">debug_logger</span>
 <span class="kn">from</span> <span class="nn">pynetdicom.sop_class</span> <span class="kn">import</span> <span class="p">(</span>
-    <span class="n">BasicGrayscalePrintManagementMetaSOPClass</span><span class="p">,</span>
-    <span class="n">BasicFilmSessionSOPClass</span><span class="p">,</span>
-    <span class="n">BasicFilmBoxSOPClass</span><span class="p">,</span>
-    <span class="n">BasicGrayscaleImageBoxSOPClass</span><span class="p">,</span>
-    <span class="n">PrinterSOPClass</span><span class="p">,</span>
-    <span class="n">PrinterSOPInstance</span>
+    <span class="n">BasicGrayscalePrintManagementMeta</span><span class="p">,</span>
+    <span class="n">BasicFilmSession</span><span class="p">,</span>
+    <span class="n">BasicFilmBox</span><span class="p">,</span>
+    <span class="n">BasicGrayscaleImageBox</span><span class="p">,</span>
+    <span class="n">Printer</span><span class="p">,</span>
+    <span class="n">PrinterInstance</span>
 <span class="p">)</span>
 
 <span class="n">debug_logger</span><span class="p">()</span>
@@ -483,7 +483,7 @@ notifications over the same association (and ignore them).</p>
 <span class="n">handlers</span> <span class="o">=</span> <span class="p">[(</span><span class="n">evt</span><span class="o">.</span><span class="n">EVT_N_EVENT_REPORT</span><span class="p">,</span> <span class="n">handle_n_er</span><span class="p">)]</span>
 
 <span class="n">ae</span> <span class="o">=</span> <span class="n">AE</span><span class="p">()</span>
-<span class="n">ae</span><span class="o">.</span><span class="n">add_requested_context</span><span class="p">(</span><span class="n">BasicGrayscalePrintManagementMetaSOPClass</span><span class="p">)</span>
+<span class="n">ae</span><span class="o">.</span><span class="n">add_requested_context</span><span class="p">(</span><span class="n">BasicGrayscalePrintManagementMeta</span><span class="p">)</span>
 <span class="n">assoc</span> <span class="o">=</span> <span class="n">ae</span><span class="o">.</span><span class="n">associate</span><span class="p">(</span><span class="s1">&#39;localhost&#39;</span><span class="p">,</span> <span class="mi">11112</span><span class="p">,</span> <span class="n">evt_handlers</span><span class="o">=</span><span class="n">handlers</span><span class="p">)</span>
 
 <span class="k">if</span> <span class="n">assoc</span><span class="o">.</span><span class="n">is_established</span><span class="p">:</span>
@@ -495,9 +495,9 @@ notifications over the same association (and ignore them).</p>
     <span class="c1">#   parameter to ensure we use the correct context</span>
     <span class="n">status</span><span class="p">,</span> <span class="n">attr_list</span> <span class="o">=</span> <span class="n">assoc</span><span class="o">.</span><span class="n">send_n_get</span><span class="p">(</span>
         <span class="p">[</span><span class="mh">0x21100010</span><span class="p">,</span> <span class="mh">0x21100020</span><span class="p">],</span>  <span class="c1"># Attribute Identifier List</span>
-        <span class="n">PrinterSOPClass</span><span class="p">,</span>  <span class="c1"># Affected SOP Class UID</span>
-        <span class="n">PrinterSOPInstance</span><span class="p">,</span>  <span class="c1"># Well-known Printer SOP Instance</span>
-        <span class="n">meta_uid</span><span class="o">=</span><span class="n">BasicGrayscalePrintManagementMetaSOPClass</span>
+        <span class="n">Printer</span><span class="p">,</span>  <span class="c1"># Affected SOP Class UID</span>
+        <span class="n">PrinterInstance</span><span class="p">,</span>  <span class="c1"># Well-known Printer SOP Instance</span>
+        <span class="n">meta_uid</span><span class="o">=</span><span class="n">BasicGrayscalePrintManagementMeta</span>
     <span class="p">)</span>
     <span class="k">if</span> <span class="n">status</span> <span class="ow">and</span> <span class="n">status</span><span class="o">.</span><span class="n">Status</span> <span class="o">==</span> <span class="mh">0x0000</span><span class="p">:</span>
         <span class="k">if</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">attr_list</span><span class="p">,</span> <span class="s1">&#39;PrinterStatus&#39;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span> <span class="o">!=</span> <span class="s2">&quot;NORMAL&quot;</span><span class="p">:</span>
@@ -518,9 +518,9 @@ notifications over the same association (and ignore them).</p>
     <span class="c1"># Step 2: Create *Film Session* instance</span>
     <span class="n">status</span><span class="p">,</span> <span class="n">film_session</span> <span class="o">=</span> <span class="n">assoc</span><span class="o">.</span><span class="n">send_n_create</span><span class="p">(</span>
         <span class="n">build_session</span><span class="p">(),</span>  <span class="c1"># Attribute List</span>
-        <span class="n">BasicFilmSessionSOPClass</span><span class="p">,</span>  <span class="c1"># Affected SOP Class UID</span>
+        <span class="n">BasicFilmSession</span><span class="p">,</span>  <span class="c1"># Affected SOP Class UID</span>
         <span class="n">generate_uid</span><span class="p">(),</span>  <span class="c1"># Affected SOP Instance UID</span>
-        <span class="n">meta_uid</span><span class="o">=</span><span class="n">BasicGrayscalePrintManagementMetaSOPClass</span>
+        <span class="n">meta_uid</span><span class="o">=</span><span class="n">BasicGrayscalePrintManagementMeta</span>
     <span class="p">)</span>
 
     <span class="k">if</span> <span class="ow">not</span> <span class="n">status</span> <span class="ow">or</span> <span class="n">status</span><span class="o">.</span><span class="n">Status</span> <span class="o">!=</span> <span class="mh">0x0000</span><span class="p">:</span>
@@ -533,9 +533,9 @@ notifications over the same association (and ignore them).</p>
     <span class="c1"># Step 3: Create *Film Box* and *Image Box(es)*</span>
     <span class="n">status</span><span class="p">,</span> <span class="n">film_box</span> <span class="o">=</span> <span class="n">assoc</span><span class="o">.</span><span class="n">send_n_create</span><span class="p">(</span>
         <span class="n">build_film_box</span><span class="p">(</span><span class="n">film_session</span><span class="p">),</span>
-        <span class="n">BasicFilmBoxSOPClass</span><span class="p">,</span>
+        <span class="n">BasicFilmBox</span><span class="p">,</span>
         <span class="n">generate_uid</span><span class="p">(),</span>
-        <span class="n">meta_uid</span><span class="o">=</span><span class="n">BasicGrayscalePrintManagementMetaSOPClass</span>
+        <span class="n">meta_uid</span><span class="o">=</span><span class="n">BasicGrayscalePrintManagementMeta</span>
     <span class="p">)</span>
     <span class="k">if</span> <span class="ow">not</span> <span class="n">status</span> <span class="ow">or</span> <span class="n">status</span><span class="o">.</span><span class="n">Status</span> <span class="o">!=</span> <span class="mh">0x0000</span><span class="p">:</span>
         <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Creation of the Film Box failed, releasing association&#39;</span><span class="p">)</span>
@@ -552,7 +552,7 @@ notifications over the same association (and ignore them).</p>
         <span class="n">build_image_box</span><span class="p">(</span><span class="n">DATASET</span><span class="p">),</span>
         <span class="n">item</span><span class="o">.</span><span class="n">ReferencedSOPClassUID</span><span class="p">,</span>
         <span class="n">item</span><span class="o">.</span><span class="n">ReferencedSOPInstanceUID</span><span class="p">,</span>
-        <span class="n">meta_uid</span><span class="o">=</span><span class="n">BasicGrayscalePrintManagementMetaSOPClass</span>
+        <span class="n">meta_uid</span><span class="o">=</span><span class="n">BasicGrayscalePrintManagementMeta</span>
     <span class="p">)</span>
     <span class="k">if</span> <span class="ow">not</span> <span class="n">status</span> <span class="ow">or</span> <span class="n">status</span><span class="o">.</span><span class="n">Status</span> <span class="o">!=</span> <span class="mh">0x0000</span><span class="p">:</span>
         <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Updating the Image Box failed, releasing association&#39;</span><span class="p">)</span>
@@ -567,7 +567,7 @@ notifications over the same association (and ignore them).</p>
         <span class="mi">1</span><span class="p">,</span>  <span class="c1"># Print the Film Box</span>
         <span class="n">film_box</span><span class="o">.</span><span class="n">SOPClassUID</span><span class="p">,</span>
         <span class="n">film_box</span><span class="o">.</span><span class="n">SOPInstanceUID</span><span class="p">,</span>
-        <span class="n">meta_uid</span><span class="o">=</span><span class="n">BasicGrayscalePrintManagementMetaSOPClass</span>
+        <span class="n">meta_uid</span><span class="o">=</span><span class="n">BasicGrayscalePrintManagementMeta</span>
     <span class="p">)</span>
     <span class="k">if</span> <span class="ow">not</span> <span class="n">status</span> <span class="ow">or</span> <span class="n">status</span><span class="o">.</span><span class="n">Status</span> <span class="o">!=</span> <span class="mh">0x0000</span><span class="p">:</span>
         <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Printing the Film Box failed, releasing association&#39;</span><span class="p">)</span>

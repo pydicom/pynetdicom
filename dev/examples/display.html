@@ -210,7 +210,7 @@ peer by using the N-GET service. It only has a single
 Display System Management Service.</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">pynetdicom</span> <span class="kn">import</span> <span class="n">AE</span><span class="p">,</span> <span class="n">debug_logger</span>
 <span class="kn">from</span> <span class="nn">pynetdicom.sop_class</span> <span class="kn">import</span> <span class="p">(</span>
-    <span class="n">DisplaySystemSOPClass</span><span class="p">,</span> <span class="n">DisplaySystemSOPInstance</span>
+    <span class="n">DisplaySystem</span><span class="p">,</span> <span class="n">DisplaySystemInstance</span>
 <span class="p">)</span>
 <span class="kn">from</span> <span class="nn">pynetdicom.status</span> <span class="kn">import</span> <span class="n">code_to_category</span>
 
@@ -220,7 +220,7 @@ Display System Management Service.</p>
 <span class="n">ae</span> <span class="o">=</span> <span class="n">AE</span><span class="p">()</span>
 
 <span class="c1"># Add a requested presentation context</span>
-<span class="n">ae</span><span class="o">.</span><span class="n">add_requested_context</span><span class="p">(</span><span class="n">DisplaySystemSOPClass</span><span class="p">)</span>
+<span class="n">ae</span><span class="o">.</span><span class="n">add_requested_context</span><span class="p">(</span><span class="n">DisplaySystem</span><span class="p">)</span>
 
 <span class="c1"># Associate with peer AE at IP 127.0.0.1 and port 11112</span>
 <span class="n">assoc</span> <span class="o">=</span> <span class="n">ae</span><span class="o">.</span><span class="n">associate</span><span class="p">(</span><span class="s1">&#39;127.0.0.1&#39;</span><span class="p">,</span> <span class="mi">11112</span><span class="p">)</span>
@@ -230,8 +230,8 @@ Display System Management Service.</p>
     <span class="c1">#  response status a pydicom Dataset and the AttributeList dataset</span>
     <span class="n">status</span><span class="p">,</span> <span class="n">attr_list</span> <span class="o">=</span> <span class="n">assoc</span><span class="o">.</span><span class="n">send_n_get</span><span class="p">(</span>
         <span class="p">[(</span><span class="mh">0x0008</span><span class="p">,</span> <span class="mh">0x0070</span><span class="p">)],</span>
-        <span class="n">DisplaySystemSOPClass</span><span class="p">,</span>
-        <span class="n">DisplaySystemSOPInstance</span>  <span class="c1"># Well-known SOP Instance</span>
+        <span class="n">DisplaySystem</span><span class="p">,</span>
+        <span class="n">DisplaySystemInstance</span>  <span class="c1"># Well-known SOP Instance</span>
     <span class="p">)</span>
 
     <span class="c1"># Check the status of the display system request</span>
@@ -263,7 +263,7 @@ containing the single tag (0008,0070).</p>
 <a class="reference internal" href="../reference/generated/pynetdicom._handlers.doc_handle_n_get.html#pynetdicom._handlers.doc_handle_n_get" title="pynetdicom._handlers.doc_handle_n_get"><code class="xref py py-attr docutils literal notranslate"><span class="pre">handler</span> <span class="pre">implementation</span> <span class="pre">documentation</span></code></a>
 to see the requirements for the <code class="docutils literal notranslate"><span class="pre">evt.EVT_N_GET</span></code> handler.</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">pynetdicom</span> <span class="kn">import</span> <span class="n">AE</span><span class="p">,</span> <span class="n">evt</span>
-<span class="kn">from</span> <span class="nn">pynetdicom.sop_class</span> <span class="kn">import</span> <span class="n">DisplaySystemSOPClass</span>
+<span class="kn">from</span> <span class="nn">pynetdicom.sop_class</span> <span class="kn">import</span> <span class="n">DisplaySystem</span>
 
 <span class="kn">from</span> <span class="nn">my_code</span> <span class="kn">import</span> <span class="n">create_attribute_list</span>
 
@@ -285,7 +285,7 @@ to see the requirements for the <code class="docutils literal notranslate"><span
 <span class="n">ae</span> <span class="o">=</span> <span class="n">AE</span><span class="p">()</span>
 
 <span class="c1"># Add the supported presentation context</span>
-<span class="n">ae</span><span class="o">.</span><span class="n">add_supported_context</span><span class="p">(</span><span class="n">DisplaySystemSOPClass</span><span class="p">)</span>
+<span class="n">ae</span><span class="o">.</span><span class="n">add_supported_context</span><span class="p">(</span><span class="n">DisplaySystem</span><span class="p">)</span>
 
 <span class="c1"># Start listening for incoming association requests</span>
 <span class="n">ae</span><span class="o">.</span><span class="n">start_server</span><span class="p">((</span><span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="mi">11112</span><span class="p">),</span> <span class="n">evt_handlers</span><span class="o">=</span><span class="n">handlers</span><span class="p">)</span>

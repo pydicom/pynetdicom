@@ -26,8 +26,8 @@ Application Event
 .. autosummary::
    :toctree: generated/
 
-   ProceduralEventLoggingSOPClass
-   SubstanceAdministrationLoggingSOPClass
+   ProceduralEventLogging
+   SubstanceAdministrationLogging
 
 Basic Worklist
 ..............
@@ -63,7 +63,7 @@ Display System
 .. autosummary::
    :toctree: generated/
 
-   DisplaySystemSOPClass
+   DisplaySystem
 
 Hanging Protocol
 ................
@@ -97,7 +97,7 @@ Instance Availability
 .. autosummary::
    :toctree: generated/
 
-   InstanceAvailabilityNotificationSOPClass
+   InstanceAvailabilityNotification
 
 Media Creation
 ..............
@@ -105,7 +105,7 @@ Media Creation
 .. autosummary::
    :toctree: generated/
 
-   MediaCreationManagementSOPClass
+   MediaCreationManagement
 
 Media Storage
 .............
@@ -135,17 +135,17 @@ Print Management
 .. autosummary::
    :toctree: generated/
 
-   BasicFilmSessionSOPClass
-   BasicFilmBoxSOPClass
-   BasicGrayscaleImageBoxSOPClass
-   BasicColorImageBoxSOPClass
-   PrintJobSOPClass
-   BasicAnnotationBoxSOPClass
-   PrinterSOPClass
-   PrinterConfigurationRetrievalSOPClass
-   PresentationLUTSOPClass
-   BasicGrayscalePrintManagementMetaSOPClass
-   BasicColorPrintManagementMetaSOPClass
+   BasicFilmSession
+   BasicFilmBox
+   BasicGrayscaleImageBox
+   BasicColorImageBox
+   PrintJob
+   BasicAnnotationBox
+   Printer
+   PrinterConfigurationRetrieval
+   PresentationLUT
+   BasicGrayscalePrintManagementMeta
+   BasicColorPrintManagementMeta
 
 Procedure Step
 ..............
@@ -153,9 +153,9 @@ Procedure Step
 .. autosummary::
    :toctree: generated/
 
-   ModalityPerformedProcedureStepNotificationSOPClass
-   ModalityPerformedProcedureStepRetrieveSOPClass
-   ModalityPerformedProcedureStepSOPClass
+   ModalityPerformedProcedureStepNotification
+   ModalityPerformedProcedureStepRetrieve
+   ModalityPerformedProcedureStep
 
 Protocol Approval
 .................
@@ -219,11 +219,14 @@ Storage
    BasicStructuredDisplayStorage
    BasicTextSRStorage
    BasicVoiceAudioWaveformStorage
+   BodyPositionWaveformStorage
    BlendingSoftcopyPresentationStateStorage
-   BreastProjectionXRayImagePresentationStorage
-   BreastProjectionXRayImageProcessingStorage
+   BreastProjectionXRayImageStorageForPresentation
+   BreastProjectionXRayImageStorageForProcessing
    BreastTomosynthesisImageStorage
    CardiacElectrophysiologyWaveformStorage
+   CArmPhotonElectronRadiationRecordStorage
+   CArmPhotonElectronRadiationStorage
    ChestCADSRStorage
    ColonCADSRStorage
    ColorSoftcopyPresentationStateStorage
@@ -236,13 +239,18 @@ Storage
    CTImageStorage
    CTPerformedProcedureProtocolStorage
    DeformableSpatialRegistrationStorage
-   DigitalIntraOralXRayImagePresentationStorage
-   DigitalIntraOralXRayImageProcessingStorage
-   DigitalMammographyXRayImagePresentationStorage
-   DigitalMammographyXRayImageProcessingStorage
-   DigitalXRayImagePresentationStorage
-   DigitalXRayImageProcessingStorage
+   DermoscopicPhotographyImageStorage
+   DigitalIntraOralXRayImageStorageForPresentation
+   DigitalIntraOralXRayImageStorageForProcessing
+   DigitalMammographyXRayImageStorageForPresentation
+   DigitalMammographyXRayImageStorageForProcessing
+   DigitalXRayImageStorageForPresentation
+   DigitalXRayImageStorageForProcessing
+   ElectromyogramWaveformStorage
+   ElectrooculogramWaveformStorage
    EncapsulatedCDAStorage
+   EncapsulatedMTLStorage
+   EncapsulatedOBJStorage
    EncapsulatedPDFStorage
    EncapsulatedSTLStorage
    EnhancedCTImageStorage
@@ -252,6 +260,7 @@ Storage
    EnhancedSRStorage
    EnhancedUSVolumeStorage
    EnhancedXAImageStorage
+   EnhancedXRayRadiationDoseSRStorage
    EnhancedXRFImageStorage
    ExtensibleSRStorage
    GeneralAudioWaveformStorage
@@ -261,26 +270,27 @@ Storage
    HemodynamicWaveformStorage
    ImplantationPlanSRStorage
    IntraocularLensCalculationsStorage
-   IntravascularOpticalCoherenceTomographyImagePresentationStorage
-   IntravascularOpticalCoherenceTomographyImageProcessingStorage
+   IntravascularOpticalCoherenceTomographyImageStorageForPresentation
+   IntravascularOpticalCoherenceTomographyImageStorageForProcessing
    KeratometryMeasurementsStorage
-   KeyObjectSelectionStorage
+   KeyObjectSelectionDocumentStorage
    LegacyConvertedEnhancedCTImageStorage
    LegacyConvertedEnhancedMRImageStorage
    LegacyConvertedEnhancedPETImageStorage
    LensometryMeasurementsStorage
-   MacularGridThicknessAndVolumeReport
+   MacularGridThicknessAndVolumeReportStorage
    MammographyCADSRStorage
    MRImageStorage
    MRSpectroscopyStorage
-   MultiframeGrayscaleByteSecondaryCaptureImageStorage
-   MultiframeGrayscaleWordSecondaryCaptureImageStorage
-   MultiframeSingleBitSecondaryCaptureImageStorage
-   MultiframeTrueColorSecondaryCaptureImageStorage
+   MultichannelRespiratoryWaveformStorage
+   MultiFrameGrayscaleByteSecondaryCaptureImageStorage
+   MultiFrameGrayscaleWordSecondaryCaptureImageStorage
+   MultiFrameSingleBitSecondaryCaptureImageStorage
+   MultiFrameTrueColorSecondaryCaptureImageStorage
    MultipleVolumeRenderingVolumetricPresentationStateStorage
    NuclearMedicineImageStorage
    OphthalmicAxialMeasurementsStorage
-   OphthlamicOpticalCoherenceTomographyBScanVolumeAnalysisStorage
+   OphthlamicOpticalCoherenceTomographyBscanVolumeAnalysisStorage
    OphthalmicOpticalCoherenceTomographyEnFaceImageStorage
    OphthalmicPhotography16BitImageStorage
    OphthalmicPhotography8BitImageStorage
@@ -289,13 +299,18 @@ Storage
    OphthalmicVisualFieldStaticPerimetryMeasurementsStorage
    ParametricMapStorage
    PatientRadiationDoseSRStorage
+   PerformedImagingAgentAdministrationSRStorage
+   PlannedImagingAgentAdministrationSRStorage
    PositronEmissionTomographyImageStorage
-   ProcedureSRStorage
-   PseudocolorSoftcopyPresentationStageStorage
+   ProcedureLogStorage
+   PseudoColorSoftcopyPresentationStageStorage
    RadiopharmaceuticalRadiationDoseSRStorage
    RawDataStorage
    RealWorldValueMappingStorage
    RespiratoryWaveformStorage
+   RoboticArmRadiationRecordStorage
+   RoboticArmRadiationStorage
+   RoutineScalpElectroencephalogramWaveformStorage
    RTBeamsDeliveryInstructionStorage
    RTBeamsTreatmentRecordStorage
    RTBrachyApplicationSetupDeliveryInstructionsStorage
@@ -304,13 +319,19 @@ Storage
    RTImageStorage
    RTIonBeamsTreatmentRecordStorage
    RTIonPlanStorage
+   RTPhysicianIntentStorage
    RTPlanStorage
+   RTRadiationRecordSetStorage
+   RTRadiationSalvageRecordStorage
+   RTRadiationSetStorage
+   RTSegmentAnnotationStorage
    RTStructureSetStorage
    RTTreatmentSummaryRecordStorage
    SecondaryCaptureImageStorage
    SegmentationStorage
    SegmentedVolumeRenderingVolumetricPresentationStateStorage
    SimplifiedAdultEchoSRStorage
+   SleepElectroencephalogramWaveformStorage
    SpatialFiducialsStorage
    SpatialRegistrationStorage
    SpectaclePrescriptionReportStorage
@@ -319,10 +340,12 @@ Storage
    SurfaceScanMeshStorage
    SurfaceScanPointCloudStorage
    SurfaceSegmentationStorage
+   TomotherapeuticRadiationRecordStorage
+   TomotherapeuticRadiationStorage
    TractographyResultsStorage
    TwelveLeadECGWaveformStorage
    UltrasoundImageStorage
-   UltrasoundMultiframeImageStorage
+   UltrasoundMultiFrameImageStorage
    VideoEndoscopicImageStorage
    VideoMicroscopicImageStorage
    VideoPhotographicImageStorage
@@ -348,7 +371,7 @@ Storage Commitment
 .. autosummary::
    :toctree: generated/
 
-   StorageCommitmentPushModelSOPClass
+   StorageCommitmentPushModel
 
 Substance Availability
 ......................
@@ -356,8 +379,8 @@ Substance Availability
 .. autosummary::
    :toctree: generated/
 
-   ProductCharacteristicsQueryInformationModelFind
-   SubstanceApprovalQueryInformationModelFind
+   ProductCharacteristicsQuery
+   SubstanceApprovalQuery
 
 Unified Procedure Step
 ......................
@@ -365,11 +388,11 @@ Unified Procedure Step
 .. autosummary::
    :toctree: generated/
 
-   UnifiedProcedureStepEventSOPClass
-   UnifiedProcedureStepPullSOPClass
-   UnifiedProcedureStepPushSOPClass
-   UnifiedProcedureStepQuerySOPClass
-   UnifiedProcedureStepWatchSOPClass
+   UnifiedProcedureStepEvent
+   UnifiedProcedureStepPull
+   UnifiedProcedureStepPush
+   UnifiedProcedureStepQuery
+   UnifiedProcedureStepWatch
 
 Verification
 ............
@@ -377,7 +400,7 @@ Verification
 .. autosummary::
    :toctree: generated/
 
-   VerificationSOPClass
+   Verification
 
 
 Well-known SOP Instances
@@ -386,11 +409,11 @@ Well-known SOP Instances
 .. autosummary::
    :toctree: generated/
 
-   DisplaySystemSOPInstance
-   PrinterConfigurationRetrievalSOPInstance
-   PrinterSOPInstance
-   ProceduralEventLoggingSOPInstance
-   StorageCommitmentPushModelSOPInstance
-   SubstanceAdministrationLoggingSOPInstance
-   UPSFilteredGlobalSubscriptionSOPInstance
-   UPSGlobalSubscriptionSOPInstance
+   DisplaySystemInstance
+   PrinterConfigurationRetrievalInstance
+   PrinterInstance
+   ProceduralEventLoggingInstance
+   StorageCommitmentPushModelInstance
+   SubstanceAdministrationLoggingInstance
+   UPSFilteredGlobalSubscriptionInstance
+   UPSGlobalSubscriptionInstance

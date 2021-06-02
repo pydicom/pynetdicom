@@ -1,6 +1,0 @@
-﻿pynetdicom.sop\_class.UnifiedProcedureStepPullSOPClass
-======================================================
-
-.. currentmodule:: pynetdicom.sop_class
-
-.. autodata:: UnifiedProcedureStepPullSOPClass

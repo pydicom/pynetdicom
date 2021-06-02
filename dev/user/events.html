@@ -397,7 +397,7 @@ with <a class="reference internal" href="../reference/generated/pynetdicom.ae.Ap
 <a class="reference internal" href="../reference/generated/pynetdicom.ae.ApplicationEntity.html#pynetdicom.ae.ApplicationEntity.start_server" title="pynetdicom.ae.ApplicationEntity.start_server"><code class="xref py py-meth docutils literal notranslate"><span class="pre">AE.start_server()</span></code></a>.
 <em>evt_handlers</em> should be a list of 2- or 3-tuples:</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">pynetdicom</span> <span class="kn">import</span> <span class="n">evt</span><span class="p">,</span> <span class="n">AE</span>
-<span class="kn">from</span> <span class="nn">pynetdicom.sop_class</span> <span class="kn">import</span> <span class="n">VerificationSOPClass</span><span class="p">,</span> <span class="n">CTImageStorage</span>
+<span class="kn">from</span> <span class="nn">pynetdicom.sop_class</span> <span class="kn">import</span> <span class="n">Verification</span><span class="p">,</span> <span class="n">CTImageStorage</span>
 
 <span class="k">def</span> <span class="nf">handle_echo</span><span class="p">(</span><span class="n">event</span><span class="p">):</span>
     <span class="c1"># Because we used a 2-tuple to bind `handle_echo` we</span>
@@ -417,7 +417,7 @@ with <a class="reference internal" href="../reference/generated/pynetdicom.ae.Ap
 <span class="p">]</span>
 
 <span class="n">ae</span> <span class="o">=</span> <span class="n">AE</span><span class="p">()</span>
-<span class="n">ae</span><span class="o">.</span><span class="n">add_supported_context</span><span class="p">(</span><span class="n">VerificationSOPClass</span><span class="p">)</span>
+<span class="n">ae</span><span class="o">.</span><span class="n">add_supported_context</span><span class="p">(</span><span class="n">Verification</span><span class="p">)</span>
 <span class="n">ae</span><span class="o">.</span><span class="n">add_supported_context</span><span class="p">(</span><span class="n">CTImageStorage</span><span class="p">)</span>
 <span class="n">ae</span><span class="o">.</span><span class="n">start_server</span><span class="p">((</span><span class="s1">&#39;localhost&#39;</span><span class="p">,</span> <span class="mi">11112</span><span class="p">),</span> <span class="n">evt_handlers</span><span class="o">=</span><span class="n">handlers</span><span class="p">)</span>
 </pre></div>

@@ -47,7 +47,7 @@
     
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
-    <link rel="next" title="1.5.4" href="v1.5.4.html" />
+    <link rel="next" title="1.5.7" href="v1.5.7.html" />
     <link rel="prev" title="Release Notes" href="index.html" /> 
 </head>
 
@@ -121,6 +121,9 @@
 <li class="toctree-l3"><a class="reference internal" href="#changes">Changes</a></li>
 </ul>
 </li>
+<li class="toctree-l2"><a class="reference internal" href="v1.5.7.html">1.5.7</a></li>
+<li class="toctree-l2"><a class="reference internal" href="v1.5.6.html">1.5.6</a></li>
+<li class="toctree-l2"><a class="reference internal" href="v1.5.5.html">1.5.5</a></li>
 <li class="toctree-l2"><a class="reference internal" href="v1.5.4.html">1.5.4</a></li>
 <li class="toctree-l2"><a class="reference internal" href="v1.5.3.html">1.5.3</a></li>
 <li class="toctree-l2"><a class="reference internal" href="v1.5.2.html">1.5.2</a></li>
@@ -247,16 +250,21 @@ millisecond when an <a class="reference internal" href="../reference/generated/p
 and cleared when the <code class="docutils literal notranslate"><span class="pre">Association</span></code> ends. The timer resolution value can be
 customised with the <a class="reference internal" href="../reference/generated/pynetdicom._config.WINDOWS_TIMER_RESOLUTION.html#pynetdicom._config.WINDOWS_TIMER_RESOLUTION" title="pynetdicom._config.WINDOWS_TIMER_RESOLUTION"><code class="xref py py-attr docutils literal notranslate"><span class="pre">WINDOWS_TIMER_RESOLUTION</span></code></a>
 option (<a class="reference external" href="https://github.com/pydicom/pynetdicom/issues/620">#620</a>)</p></li>
+<li><p>Updated to meet the 2021b version of the DICOM Standard</p></li>
+<li><p>Added type hints</p></li>
 </ul>
 </div>
 <div class="section" id="changes">
 <h2>Changes<a class="headerlink" href="#changes" title="Permalink to this headline">¶</a></h2>
 <ul class="simple">
 <li><p>Removed support for Python 2.7 and 3.5, added it for Python 3.9</p></li>
-<li><p>Minimum <em>pydicom</em> version is 2.0</p></li>
+<li><p>Minimum <em>pydicom</em> version is 2.2</p></li>
 <li><p>The <em>Failed SOP Instance UID List</em> sent with the final C-GET/C-MOVE SCP
 failure or warning responses no longer includes the SOP Instances for
 sub-operations that return a warning status</p></li>
+<li><p>SOP Class and Instance variable names changed to match the new UID keywords
+from the DICOM Standard. In particular <code class="docutils literal notranslate"><span class="pre">VerificationSOPClass</span></code> is now simply
+<a class="reference internal" href="../reference/generated/pynetdicom.sop_class.Verification.html#pynetdicom.sop_class.Verification" title="pynetdicom.sop_class.Verification"><code class="xref py py-attr docutils literal notranslate"><span class="pre">Verification</span></code></a></p></li>
 </ul>
 </div>
 </div>
@@ -267,7 +275,7 @@ sub-operations that return a warning status</p></li>
           </div>
           <footer>
     <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
-        <a href="v1.5.4.html" class="btn btn-neutral float-right" title="1.5.4" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+        <a href="v1.5.7.html" class="btn btn-neutral float-right" title="1.5.7" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
         <a href="index.html" class="btn btn-neutral float-left" title="Release Notes" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
     </div>
 
