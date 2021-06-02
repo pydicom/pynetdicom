@@ -2,6 +2,7 @@
 
 import pytest
 
+from pynetdicom import __version__
 from pydicom._uid_dict import UID_dictionary
 
 from pynetdicom.sop_class import (
@@ -92,6 +93,9 @@ from pynetdicom.service_class_n import (
 )
 
 
+PYDICOM_VERSION = __version__.split('.')[:2]
+
+
 def test_all_sop_classes():
     """Test that all the SOP Class UIDs are correct."""
     for uid in _APPLICATION_EVENT_CLASSES.values():
@@ -128,8 +132,9 @@ def test_all_sop_classes():
         assert uid in UID_dictionary
     for uid in _RT_MACHINE_VERIFICATION_CLASSES.values():
         assert uid in UID_dictionary
-    for uid in _STORAGE_CLASSES.values():
-        assert uid in UID_dictionary
+    if PYDICOM_VERSION >= ['2', '2']:
+        for uid in _STORAGE_CLASSES.values():
+            assert uid in UID_dictionary
     for uid in _STORAGE_COMMITMENT_CLASSES.values():
         assert uid in UID_dictionary
     for uid in _SUBSTANCE_ADMINISTRATION_CLASSES.values():
