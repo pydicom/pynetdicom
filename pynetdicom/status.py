@@ -19,7 +19,7 @@ StatusDictType = Dict[int, Tuple[str, str]]
 
 
 # Non-Service Class specific statuses - PS3.7 Annex C
-GENERAL_STATUS = {
+GENERAL_STATUS: StatusDictType = {
     0x0000: (STATUS_SUCCESS, ''),
     0x0105: (STATUS_FAILURE, 'No Such Attribute'),
     0x0106: (STATUS_FAILURE, 'Invalid Attribute Value'),
@@ -53,7 +53,7 @@ VERIFICATION_SERVICE_CLASS_STATUS = GENERAL_STATUS
 
 
 # Storage Service Class specific status code values - PS3.4 Annex B.2.3
-STORAGE_SERVICE_CLASS_STATUS = {
+STORAGE_SERVICE_CLASS_STATUS: StatusDictType = {
     0xB000: (STATUS_WARNING, 'Coercion of Data Elements'),
     0xB007: (STATUS_WARNING, 'Data Set Does Not Match SOP Class'),
     0xB006: (STATUS_WARNING, 'Element Discarded')
@@ -83,7 +83,7 @@ STORAGE_SERVICE_CLASS_STATUS.update(GENERAL_STATUS)
 #   PS3.4 Annex BB
 # Defined Procedure Protocol - FIND specific status code values
 #   PS3.4 Annex HH
-QR_FIND_SERVICE_CLASS_STATUS = {
+QR_FIND_SERVICE_CLASS_STATUS: StatusDictType = {
     0xA700: (STATUS_FAILURE, 'Refused: Out of Resources'),
     0xA900: (STATUS_FAILURE, 'Identifier Does Not Match SOP Class'),
     0xFF00: (STATUS_PENDING,
@@ -109,7 +109,7 @@ QR_FIND_SERVICE_CLASS_STATUS.update(GENERAL_STATUS)
 #   PS3.4 Annex BB
 # Defined Procedure Protocol - MOVE specific status code values
 #   PS3.4 Annex HH
-QR_MOVE_SERVICE_CLASS_STATUS = {
+QR_MOVE_SERVICE_CLASS_STATUS: StatusDictType = {
     0xA701: (STATUS_FAILURE,
               'Refused: Out of resources, unable to calculate '
               'number of matches'),
@@ -148,7 +148,7 @@ QR_MOVE_SERVICE_CLASS_STATUS.update(GENERAL_STATUS)
 #   PS3.4 Annex BB
 # Defined Procedure Protocol - GET specific status code values
 #   PS3.4 Annex HH
-QR_GET_SERVICE_CLASS_STATUS = {
+QR_GET_SERVICE_CLASS_STATUS: StatusDictType = {
     0xA701: (STATUS_FAILURE,
               'Refused: Out of resources, unable to calculate '
               'number of matches'),
@@ -179,7 +179,7 @@ QR_GET_SERVICE_CLASS_STATUS.update(GENERAL_STATUS)
 
 # Modality Worklist Service Class specific status code values
 #   PS3.4 Annex K
-MODALITY_WORKLIST_SERVICE_CLASS_STATUS = {
+MODALITY_WORKLIST_SERVICE_CLASS_STATUS: StatusDictType = {
     0xA700: (STATUS_FAILURE, 'Refused: Out of resources'),
     0xA900: (STATUS_FAILURE, 'Identifier does not match SOP class'),
     0xFF00: (STATUS_PENDING,
@@ -202,7 +202,7 @@ MODALITY_WORKLIST_SERVICE_CLASS_STATUS.update(GENERAL_STATUS)
 
 # Relevant Patient Information Query Service Class specific status code values
 # PS3.4 Annex Q
-RELEVANT_PATIENT_SERVICE_CLASS_STATUS = {
+RELEVANT_PATIENT_SERVICE_CLASS_STATUS: StatusDictType = {
     0xA700: (STATUS_FAILURE, "Out of resources"),
     0xA900: (STATUS_FAILURE, "Identifier doesn't match SOP Class"),
     0xC000: (STATUS_FAILURE, "Unable to process"),
@@ -215,7 +215,7 @@ RELEVANT_PATIENT_SERVICE_CLASS_STATUS.update(GENERAL_STATUS)
 
 # Substance Administration Query Service Class specific status code values
 #   PS3.4 Annex V
-SUBSTANCE_ADMINISTRATION_SERVICE_CLASS_STATUS = {
+SUBSTANCE_ADMINISTRATION_SERVICE_CLASS_STATUS: StatusDictType = {
     0xA700: (STATUS_FAILURE, "Out of resources"),
     0xA900: (STATUS_FAILURE, "Data set doesn't match SOP Class"),
     0xFF00: (STATUS_PENDING,
@@ -238,7 +238,7 @@ SUBSTANCE_ADMINISTRATION_SERVICE_CLASS_STATUS.update(GENERAL_STATUS)
 
 # Non-Patient Object Storage Service Class specific status code values
 #   PS3.4 Annex GG
-NON_PATIENT_SERVICE_CLASS_STATUS = {
+NON_PATIENT_SERVICE_CLASS_STATUS: StatusDictType = {
     0xA700: (STATUS_FAILURE, "Out of resources"),
     0xA900: (STATUS_FAILURE, "Data set doesn't match SOP Class"),
     0xC000: (STATUS_FAILURE, "Cannot understand"),
@@ -247,7 +247,7 @@ NON_PATIENT_SERVICE_CLASS_STATUS.update(GENERAL_STATUS)
 
 
 # Procedure Step SOP Class specific status code values
-PROCEDURE_STEP_STATUS = {
+PROCEDURE_STEP_STATUS: StatusDictType = {
     0x0001: (STATUS_WARNING,
               "Requested optional attributes are not supported"),
     0x0110: (STATUS_FAILURE,
@@ -257,7 +257,7 @@ PROCEDURE_STEP_STATUS.update(GENERAL_STATUS)
 
 
 # Print Job Management Service Class specific status code values
-PRINT_JOB_MANAGEMENT_SERVICE_CLASS_STATUS = {
+PRINT_JOB_MANAGEMENT_SERVICE_CLASS_STATUS: StatusDictType = {
     0xB600: (STATUS_WARNING, "Memory allocation not supported"),
     0xB601: (STATUS_WARNING,
               "Film session printing (collation) is not supported"),
@@ -307,7 +307,7 @@ STORAGE_COMMITMENT_SERVICE_CLASS_STATUS = GENERAL_STATUS
 
 
 # Application Event Logging Service Class specific status code values
-APPLICATION_EVENT_LOGGING_SERVICE_CLASS_STATUS = {
+APPLICATION_EVENT_LOGGING_SERVICE_CLASS_STATUS: StatusDictType = {
     0xB101: (STATUS_WARNING,
               "Specified Synchronisation Frame of Reference UID doesn't "
               "match SCP Synchronization Frame of Reference"),
@@ -337,7 +337,7 @@ APPLICATION_EVENT_LOGGING_SERVICE_CLASS_STATUS.update(GENERAL_STATUS)
 
 
 # Media Creation Management Service Class specific status code values
-MEDIA_CREATION_MANAGEMENT_SERVICE_CLASS_STATUS = {
+MEDIA_CREATION_MANAGEMENT_SERVICE_CLASS_STATUS: StatusDictType = {
     0x0001: (STATUS_WARNING,
               "Requested optional Attributes are not supported"),
     0xA510: (STATUS_FAILURE,
@@ -353,7 +353,7 @@ MEDIA_CREATION_MANAGEMENT_SERVICE_CLASS_STATUS.update(GENERAL_STATUS)
 
 
 # Unified Procedure Step Service specific status code values
-UNIFIED_PROCEDURE_STEP_SERVICE_CLASS_STATUS = {}
+UNIFIED_PROCEDURE_STEP_SERVICE_CLASS_STATUS: StatusDictType = {}
 # Ranged values
 for _code in range(0xC000, 0xCFFF + 1):
     UNIFIED_PROCEDURE_STEP_SERVICE_CLASS_STATUS[_code] = (
@@ -407,7 +407,7 @@ UNIFIED_PROCEDURE_STEP_SERVICE_CLASS_STATUS.update(GENERAL_STATUS)
 
 
 # RT Machine Verification Service Class specific status code values
-RT_MACHINE_VERIFICATION_SERVICE_CLASS_STATUS = {
+RT_MACHINE_VERIFICATION_SERVICE_CLASS_STATUS: StatusDictType = {
     0xC112: (STATUS_FAILURE,
               "No such object instance - applicable Machine Verification "
               "instance not found"),

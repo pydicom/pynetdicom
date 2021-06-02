@@ -94,7 +94,7 @@ _PDUItemType = List[Union[
     "PresentationContextItemAC",
     "UserInformationItem",
 ]]
-_UserInformationType = List[Union[
+_AllItemType = Union[
     "MaximumLengthSubItem",
     "ImplementationClassUIDSubItem",
     "ImplementationVersionNameSubItem",
@@ -104,7 +104,23 @@ _UserInformationType = List[Union[
     "SOPClassCommonExtendedNegotiationSubItem",
     "UserIdentitySubItemAC",
     "UserIdentitySubItemRQ",
-]]
+    "TransferSyntaxSubItem",
+    "AbstractSyntaxSubItem",
+    "PresentationContextItemRQ",
+    "PresentationContextItemAC",
+    "ApplicationContextItem",
+]
+_UIType = Union[
+    "MaximumLengthSubItem",
+    "ImplementationClassUIDSubItem",
+    "ImplementationVersionNameSubItem",
+    "AsynchronousOperationsWindowSubItem",
+    "SCP_SCU_RoleSelectionSubItem",
+    "SOPClassExtendedNegotiationSubItem",
+    "SOPClassCommonExtendedNegotiationSubItem",
+    "UserIdentitySubItemAC",
+    "UserIdentitySubItemRQ",
+]
 
 
 class PDUItem:
@@ -134,7 +150,7 @@ class PDUItem:
             setattr(self, attr_name, func(bytestream[sl], *args))
 
     @property
-    def _decoders(self):
+    def _decoders(self) -> Any:
         """Return an iterable of tuples that contain field decoders."""
         raise NotImplementedError
 
@@ -157,7 +173,7 @@ class PDUItem:
         return bytestream
 
     @property
-    def _encoders(self):
+    def _encoders(self) -> Any:
         """Return an iterable of tuples that contain field encoders."""
         raise NotImplementedError
 
@@ -179,7 +195,7 @@ class PDUItem:
         return NotImplemented
 
     @staticmethod
-    def _generate_items(bytestream: bytes):
+    def _generate_items(bytestream: bytes) -> Iterator[Tuple[int, bytes]]:
         """Yield PDU item data from `bytestream`.
 
         Parameters
@@ -279,7 +295,7 @@ class PDUItem:
         return bytestream
 
     @staticmethod
-    def _wrap_encode_items(items) -> bytes:
+    def _wrap_encode_items(items: List[_AllItemType]) -> bytes:
         """Return `items` encoded as bytes.
 
         Parameters
@@ -332,18 +348,18 @@ class PDUItem:
         """
         return codecs.encode(uid, 'ascii')
 
-    def _wrap_generate_items(self, bytestream: bytes):
+    def _wrap_generate_items(self, b: bytes) -> List[_AllItemType]:
         """Return a list of encoded PDU items generated from `bytestream`."""
         item_list = []
-        for item_type, item_bytes in self._generate_items(bytestream):
-            item = PDU_ITEM_TYPES[item_type]()
+        for item_type, item_bytes in self._generate_items(b):
+            item = cast(_AllItemType, PDU_ITEM_TYPES[item_type]())
             item.decode(item_bytes)
             item_list.append(item)
 
         return item_list
 
     @staticmethod
-    def _wrap_pack(value, packer: Callable[[Any], bytes]) -> bytes:
+    def _wrap_pack(value: Any, packer: Callable[[Any], bytes]) -> bytes:
         """Return `value` encoded as bytes using `packer`.
 
         Parameters
@@ -362,7 +378,9 @@ class PDUItem:
         return packer(value)
 
     @staticmethod
-    def _wrap_unpack(bytestream: bytes, unpacker):
+    def _wrap_unpack(
+        bytestream: bytes, unpacker: Callable[[bytes], Tuple[Any]]
+    ) -> Any:
         """Return the first value when `unpacker` is run on `bytestream`.
 
         Parameters
@@ -480,7 +498,7 @@ class ApplicationContextItem(PDUItem):
         self._application_context_name = value
 
     @property
-    def _decoders(self):
+    def _decoders(self) -> Any:
         """Return an iterable of tuples that contain field decoders.
 
         Returns
@@ -500,7 +518,7 @@ class ApplicationContextItem(PDUItem):
         ]
 
     @property
-    def _encoders(self):
+    def _encoders(self) -> Any:
         """Return an iterable of tuples that contain field decoders.
 
         Returns
@@ -668,7 +686,7 @@ class PresentationContextItemRQ(PDUItem):
         return self.presentation_context_id
 
     @property
-    def _decoders(self):
+    def _decoders(self) -> Any:
         """Return an iterable of tuples that contain field decoders.
 
         Returns
@@ -699,7 +717,7 @@ class PresentationContextItemRQ(PDUItem):
         ]
 
     @property
-    def _encoders(self):
+    def _encoders(self) -> Any:
         """Return an iterable of tuples that contain field decoders.
 
         Returns
@@ -864,7 +882,7 @@ class PresentationContextItemAC(PDUItem):
         return self.presentation_context_id
 
     @property
-    def _decoders(self):
+    def _decoders(self) -> Any:
         """Return an iterable of tuples that contain field decoders.
 
         Returns
@@ -901,7 +919,7 @@ class PresentationContextItemAC(PDUItem):
         ]
 
     @property
-    def _encoders(self):
+    def _encoders(self) -> Any:
         """Return an iterable of tuples that contain field decoders.
 
         Returns
@@ -979,7 +997,7 @@ class PresentationContextItemAC(PDUItem):
 
         return None
 
-    def _wrap_generate_items(
+    def _wrap_generate_items(  # type: ignore[override]
         self, bytestream: bytes
     ) -> List["TransferSyntaxSubItem"]:
         """Return a list of decoded PDU items generated from `bytestream`."""
@@ -1044,7 +1062,7 @@ class UserInformationItem(PDUItem):
 
     def __init__(self) -> None:
         """Initialise a new User Information Item."""
-        self.user_data: _UserInformationType = []
+        self.user_data: List[_UIType] = []
 
     def from_primitive(
         self, primitive: "_UserInformationPrimitiveType"
@@ -1123,7 +1141,7 @@ class UserInformationItem(PDUItem):
         return items
 
     @property
-    def _decoders(self):
+    def _decoders(self) -> Any:
         """Return an iterable of tuples that contain field decoders.
 
         Returns
@@ -1143,7 +1161,7 @@ class UserInformationItem(PDUItem):
         ]
 
     @property
-    def _encoders(self):
+    def _encoders(self) -> Any:
         """Return an iterable of tuples that contain field decoders.
 
         Returns
@@ -1362,7 +1380,7 @@ class AbstractSyntaxSubItem(PDUItem):
         self._abstract_syntax_name = value
 
     @property
-    def _decoders(self):
+    def _decoders(self) -> Any:
         """Return an iterable of tuples that contain field decoders.
 
         Returns
@@ -1382,7 +1400,7 @@ class AbstractSyntaxSubItem(PDUItem):
         ]
 
     @property
-    def _encoders(self):
+    def _encoders(self) -> Any:
         """Return an iterable of tuples that contain field decoders.
 
         Returns
@@ -1490,7 +1508,7 @@ class TransferSyntaxSubItem(PDUItem):
         self._transfer_syntax_name: Optional[UID] = None
 
     @property
-    def _decoders(self):
+    def _decoders(self) -> Any:
         """Return an iterable of tuples that contain field decoders.
 
         Returns
@@ -1510,7 +1528,7 @@ class TransferSyntaxSubItem(PDUItem):
         ]
 
     @property
-    def _encoders(self):
+    def _encoders(self) -> Any:
         """Return an iterable of tuples that contain field decoders.
 
         Returns
@@ -1667,7 +1685,7 @@ class MaximumLengthSubItem(PDUItem):
         return primitive
 
     @property
-    def _decoders(self):
+    def _decoders(self) -> Any:
         """Return an iterable of tuples that contain field decoders.
 
         Returns
@@ -1692,7 +1710,7 @@ class MaximumLengthSubItem(PDUItem):
         ]
 
     @property
-    def _encoders(self):
+    def _encoders(self) -> Any:
         """Return an iterable of tuples that contain field decoders.
 
         Returns
@@ -1803,7 +1821,7 @@ class ImplementationClassUIDSubItem(PDUItem):
         return primitive
 
     @property
-    def _decoders(self):
+    def _decoders(self) -> Any:
         """Return an iterable of tuples that contain field decoders.
 
         Returns
@@ -1823,7 +1841,7 @@ class ImplementationClassUIDSubItem(PDUItem):
         ]
 
     @property
-    def _encoders(self):
+    def _encoders(self) -> Any:
         """Return an iterable of tuples that contain field decoders.
 
         Returns
@@ -1978,7 +1996,7 @@ class ImplementationVersionNameSubItem(PDUItem):
         return prim
 
     @property
-    def _decoders(self):
+    def _decoders(self) -> Any:
         """Return an iterable of tuples that contain field decoders.
 
         Returns
@@ -1998,7 +2016,7 @@ class ImplementationVersionNameSubItem(PDUItem):
         ]
 
     @property
-    def _encoders(self):
+    def _encoders(self) -> Any:
         """Return an iterable of tuples that contain field decoders.
 
         Returns
@@ -2145,7 +2163,7 @@ class AsynchronousOperationsWindowSubItem(PDUItem):
         return primitive
 
     @property
-    def _decoders(self):
+    def _decoders(self) -> Any:
         """Return an iterable of tuples that contain field decoders.
 
         Returns
@@ -2176,7 +2194,7 @@ class AsynchronousOperationsWindowSubItem(PDUItem):
         ]
 
     @property
-    def _encoders(self):
+    def _encoders(self) -> Any:
         """Return an iterable of tuples that contain field decoders.
 
         Returns
@@ -2328,7 +2346,7 @@ class SCP_SCU_RoleSelectionSubItem(PDUItem):
         return primitive
 
     @property
-    def _decoders(self):
+    def _decoders(self) -> Any:
         """Yield tuples that contain field decoders.
 
         We use a generator because some of the offset values aren't known until
@@ -2361,21 +2379,21 @@ class SCP_SCU_RoleSelectionSubItem(PDUItem):
         )
 
         yield (
-            (6 + self._uid_length, 1),
+            (6 + cast(int, self._uid_length), 1),
             'scu_role',
             self._wrap_unpack,
             [UNPACK_UCHAR]
         )
 
         yield (
-            (7 + self._uid_length, 1),
+            (7 + cast(int, self._uid_length), 1),
             'scp_role',
             self._wrap_unpack,
             [UNPACK_UCHAR]
         )
 
     @property
-    def _encoders(self):
+    def _encoders(self) -> Any:
         """Return an iterable of tuples that contain field decoders.
 
         Returns
@@ -2446,7 +2464,7 @@ class SCP_SCU_RoleSelectionSubItem(PDUItem):
         return self._sop_class_uid
 
     @sop_class_uid.setter
-    def sop_class_uid(self, value) -> None:
+    def sop_class_uid(self, value: OptionalUIDType) -> None:
         """Set the SOP class uid."""
         # pylint: disable=attribute-defined-outside-init
         if isinstance(value, bytes):
@@ -2593,7 +2611,7 @@ class SOPClassExtendedNegotiationSubItem(PDUItem):
         return self.service_class_application_information
 
     @property
-    def _decoders(self):
+    def _decoders(self) -> Any:
         """Yield tuples that contain field decoders.
 
         We use a generator because some of the offset values aren't known until
@@ -2626,14 +2644,14 @@ class SOPClassExtendedNegotiationSubItem(PDUItem):
         )
 
         yield (
-            (6 + self._sop_class_uid_length, None),
+            (6 + cast(int, self._sop_class_uid_length), None),
             'service_class_application_information',
             self._wrap_bytes,
             []
         )
 
     @property
-    def _encoders(self):
+    def _encoders(self) -> Any:
         """Return an iterable of tuples that contain field decoders.
 
         Returns
@@ -2797,7 +2815,7 @@ class SOPClassCommonExtendedNegotiationSubItem(PDUItem):
       :dcm:`Section 9.3.1<part08/sect_9.3.html#sect_9.3.1>`
     """
 
-    def __init__(self):
+    def __init__(self) -> None:
         """Initialise a new Implementation Version Name Item."""
         self.sub_item_version: int = 0x00
         self._sop_length: Optional[int] = None
@@ -2844,7 +2862,7 @@ class SOPClassCommonExtendedNegotiationSubItem(PDUItem):
         return primitive
 
     @property
-    def _decoders(self):
+    def _decoders(self) -> Any:
         """Yield tuples that contain field decoders.
 
         We use a generator because some of the offset values aren't known until
@@ -2869,36 +2887,37 @@ class SOPClassCommonExtendedNegotiationSubItem(PDUItem):
             [UNPACK_UINT2]
         )
 
+        sop_length = cast(int, self._sop_length)
         yield (
-            (6, self._sop_length),
+            (6, sop_length),
             'sop_class_uid',
             self._wrap_uid_bytes,
             []
         )
 
         yield (
-            (6 + self._sop_length, 2),
+            (6 + sop_length, 2),
             '_service_length',
             self._wrap_unpack,
             [UNPACK_UINT2]
         )
 
         yield (
-            (8 + self._sop_length, self._service_length),
+            (8 + sop_length, self._service_length),
             'service_class_uid',
             self._wrap_uid_bytes,
             []
         )
 
         yield (
-            (10 + self._sop_length + self._service_length, None),
+            (10 + sop_length + cast(int, self._service_length), None),
             'related_general_sop_class_identification',
             self._generate_items,
             []
         )
 
     @property
-    def _encoders(self):
+    def _encoders(self) -> Any:
         """Return an iterable of tuples that contain field decoders.
 
         Returns
@@ -2927,7 +2946,7 @@ class SOPClassCommonExtendedNegotiationSubItem(PDUItem):
         ]
 
     @staticmethod
-    def _generate_items(bytestream) -> Iterator[UID]:
+    def _generate_items(bytestream: bytes) -> Iterator[UID]:  # type: ignore
         """Yield Related General SOP Class UIDs from `bytestream`.
 
         Parameters
@@ -3126,10 +3145,10 @@ class SOPClassCommonExtendedNegotiationSubItem(PDUItem):
 
         return '\n'.join(s)
 
-    def _wrap_generate_items(self, bytestream: bytes) -> List[UID]:
+    def _wrap_generate_items(self, b: bytes) -> List[UID]:  # type: ignore
         """Return a list of UID items generated from `bytestream`."""
         item_list = []
-        for uid in self._generate_items(bytestream):
+        for uid in self._generate_items(b):
             item_list.append(uid)
 
         return item_list
@@ -3263,7 +3282,7 @@ class UserIdentitySubItemRQ(PDUItem):
         return primitive
 
     @property
-    def _decoders(self):
+    def _decoders(self) -> Any:
         """Yield tuples that contain field decoders.
 
         We use a generator because some of the offset values aren't known until
@@ -3310,14 +3329,14 @@ class UserIdentitySubItemRQ(PDUItem):
         )
 
         yield (
-            (10 + self._primary_length, None),
+            (10 + cast(int, self._primary_length), None),
             'secondary_field',
             self._wrap_bytes,
             []
         )
 
     @property
-    def _encoders(self):
+    def _encoders(self) -> Any:
         """Return an iterable of tuples that contain field decoders.
 
         Returns
@@ -3499,7 +3518,7 @@ class UserIdentitySubItemAC(PDUItem):
         return primitive
 
     @property
-    def _decoders(self):
+    def _decoders(self) -> Any:
         """Return an iterable of tuples that contain field decoders.
 
         Returns
@@ -3519,7 +3538,7 @@ class UserIdentitySubItemAC(PDUItem):
         ]
 
     @property
-    def _encoders(self):
+    def _encoders(self) -> Any:
         """Return an iterable of tuples that contain field decoders.
 
         Returns
@@ -3629,7 +3648,7 @@ class PresentationDataValueItem(PDUItem):
         return self.presentation_data_value
 
     @property
-    def _decoders(self):
+    def _decoders(self) -> Any:
         """Return an iterable of tuples that contain field decoders.
 
         Returns

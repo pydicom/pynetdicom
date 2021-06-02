@@ -18,7 +18,7 @@ except ImportError:
 from struct import pack
 import threading
 from typing import (
-    TYPE_CHECKING, Optional, Any, Tuple, cast, List, Dict, Callable
+    TYPE_CHECKING, Optional, Any, Tuple, cast, List, Dict, Callable, Union
 )
 
 from pynetdicom import evt, _config
@@ -499,10 +499,14 @@ class RequestHandler(BaseRequestHandler):
         for event in self.server._handlers:
             # Intervention events
             if event.is_intervention and self.server._handlers[event]:
+
                 assoc.bind(event, *self.server._handlers[event])
-            elif event.is_notification:
+            elif isinstance(event, evt.NotificationEvent):
+                # List[Tuple[Callable, Optional[List[Any]]]]
                 for handler in self.server._handlers[event]:
-                    assoc.bind(event, *handler)
+                    handler = cast(evt._HandlerBase, handler)
+                    assoc.bind(event, handler[0], handler[1])
+
         return assoc
 
 
@@ -584,7 +588,12 @@ class AssociationServer(TCPServer):
 
         # Stores all currently bound event handlers so future
         #   Associations can be bound
-        self._handlers: Dict[evt.EventType, Any] = {}
+        self._handlers: Dict[
+            evt.EventType, Union[
+                List[Tuple[Callable, Optional[List[Any]]]],
+                Tuple[Callable, Optional[List[Any]]]
+            ]
+        ] = {}
         self._bind_defaults()
 
         # Bind the functions to their events
@@ -615,17 +624,7 @@ class AssociationServer(TCPServer):
             Optional extra arguments to be passed to the handler (default:
             no extra arguments passed to the handler).
         """
-        # Notification events - multiple handlers allowed
-        if event.is_notification:
-            if event not in self._handlers:
-                self._handlers[event] = []
-
-            if (handler, args) not in self._handlers[event]:
-                self._handlers[event].append((handler, args))
-
-        # Intervention events - only one handler allowed
-        if event.is_intervention:
-            self._handlers[event] = (handler, args)
+        evt._add_handler(event, self._handlers, (handler, args))
 
         # Bind our child Association events
         for assoc in self.active_associations:
@@ -667,7 +666,7 @@ class AssociationServer(TCPServer):
         """
         return sorted(self._handlers.keys(), key=lambda x: x.name)
 
-    def get_handlers(self, event: evt.EventType):
+    def get_handlers(self, event: evt.EventType) -> evt.HandlerArgType:
         """Return handlers bound to a specific `event`.
 
         .. versionadded:: 1.3
@@ -720,7 +719,7 @@ class AssociationServer(TCPServer):
         return client_socket, address
 
     def process_request(
-        self, request, client_address: Tuple[str, int]
+        self, request: socket.socket, client_address: Tuple[str, int]
     ) -> None:
         """Process a connection request."""
         self.finish_request(request, client_address)
@@ -799,7 +798,7 @@ class AssociationServer(TCPServer):
 
         self._ssl_context = context
 
-    def unbind(self, event, handler) -> None:
+    def unbind(self, event: evt.EventType, handler: Callable) -> None:
         """Unbind a callable `handler` from an `event`.
 
         .. versionadded:: 1.3
@@ -811,24 +810,7 @@ class AssociationServer(TCPServer):
         handler : callable
             The function that will no longer be called if the event occurs.
         """
-        if event not in self._handlers:
-            return
-
-        # Notification events
-        if event.is_notification:
-            handlers = [hh[0] for hh in self._handlers[event]]
-            try:
-                ii = handlers.index(handler)
-                del self._handlers[event][ii]
-            except ValueError:
-                pass
-
-            if not self._handlers[event]:
-                del self._handlers[event]
-
-        # Intervention events - unbind and replace with default
-        if event.is_intervention and handler in self._handlers[event]:
-            self._handlers[event] = (evt.get_default_handler(event), None)
+        evt._remove_handler(event, self._handlers, handler)
 
         # Unbind from our child Association events
         for assoc in self.active_associations:
@@ -841,7 +823,7 @@ class ThreadedAssociationServer(ThreadingMixIn, AssociationServer):
     .. versionadded:: 1.2
     """
     def process_request_thread(
-        self, request, client_address: Tuple[str, int]
+        self, request: socket.socket, client_address: Tuple[str, int]
     ) -> None:
         """Process a connection request."""
         # pylint: disable=broad-except

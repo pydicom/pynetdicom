@@ -131,7 +131,7 @@ class Association(threading.Thread):
         self._rejected_cx: List[PresentationContext] = []
 
         # Service providers
-        self.acse = ACSE(self)
+        self.acse: ACSE = ACSE(self)
         self.dul: DULServiceProvider = DULServiceProvider(self)
         self.dimse: DIMSEServiceProvider = DIMSEServiceProvider(self)
 
@@ -1798,7 +1798,7 @@ class Association(threading.Thread):
             sop_instance = cast(UID, dataset.SOPInstanceUID)
 
             try:
-                tsyntax = cast(UID, dataset.file_meta.TransferSyntaxUID)
+                tsyntax = dataset.file_meta.TransferSyntaxUID
             except (AssertionError, AttributeError):
                 raise AttributeError(
                     "Unable to determine the presentation context to use with "

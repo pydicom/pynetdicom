@@ -103,7 +103,7 @@ class PDU:
             )
 
     @property
-    def _decoders(self):
+    def _decoders(self) -> Any:
         """Return an iterable of tuples that contain field decoders."""
         raise NotImplementedError
 
@@ -126,7 +126,7 @@ class PDU:
         return bytestream
 
     @property
-    def _encoders(self):
+    def _encoders(self) -> Any:
         """Return an iterable of tuples that contain field encoders."""
         raise NotImplementedError
 
@@ -571,7 +571,7 @@ class A_ASSOCIATE_RQ(PDU):
         self._calling_aet = validate_ae_title(ae_title)
 
     @property
-    def _decoders(self):
+    def _decoders(self) -> Any:
         """Return an iterable of tuples that contain field decoders.
 
         Returns
@@ -597,7 +597,7 @@ class A_ASSOCIATE_RQ(PDU):
         ]
 
     @property
-    def _encoders(self):
+    def _encoders(self) -> Any:
         """Return an iterable of tuples that contain field decoders.
 
         Returns
@@ -926,7 +926,7 @@ class A_ASSOCIATE_AC(PDU):
         return self._reserved_aec
 
     @property
-    def _decoders(self):
+    def _decoders(self) -> Any:
         """Return an iterable of tuples that contain field decoders.
 
         Returns
@@ -949,7 +949,7 @@ class A_ASSOCIATE_AC(PDU):
         ]
 
     @property
-    def _encoders(self):
+    def _encoders(self) -> Any:
         """Return an iterable of tuples that contain field decoders.
 
         Returns
@@ -1143,7 +1143,7 @@ class A_ASSOCIATE_RJ(PDU):
         return primitive
 
     @property
-    def _decoders(self):
+    def _decoders(self) -> Any:
         """Return an iterable of tuples that contain field decoders.
 
         Returns
@@ -1165,7 +1165,7 @@ class A_ASSOCIATE_RJ(PDU):
         ]
 
     @property
-    def _encoders(self):
+    def _encoders(self) -> Any:
         """Return an iterable of tuples that contain field decoders.
 
         Returns
@@ -1373,7 +1373,7 @@ class P_DATA_TF(PDU):
         return primitive
 
     @property
-    def _decoders(self):
+    def _decoders(self) -> Any:
         """Return an iterable of tuples that contain field decoders.
 
         Returns
@@ -1396,7 +1396,7 @@ class P_DATA_TF(PDU):
         ]
 
     @property
-    def _encoders(self):
+    def _encoders(self) -> Any:
         """Return an iterable of tuples that contain field decoders.
 
         Returns
@@ -1592,7 +1592,7 @@ class A_RELEASE_RQ(PDU):
         return A_RELEASE()
 
     @property
-    def _decoders(self):
+    def _decoders(self) -> Any:
         """Return an iterable of tuples that contain field decoders.
 
         Returns
@@ -1610,7 +1610,7 @@ class A_RELEASE_RQ(PDU):
         return []
 
     @property
-    def _encoders(self):
+    def _encoders(self) -> Any:
         """Return an iterable of tuples that contain field decoders.
 
         Returns
@@ -1720,7 +1720,7 @@ class A_RELEASE_RP(PDU):
         return primitive
 
     @property
-    def _decoders(self):
+    def _decoders(self) -> Any:
         """Return an iterable of tuples that contain field decoders.
 
         Returns
@@ -1738,7 +1738,7 @@ class A_RELEASE_RP(PDU):
         return []
 
     @property
-    def _encoders(self):
+    def _encoders(self) -> Any:
         """Return an iterable of tuples that contain field decoders.
 
         Returns
@@ -1877,7 +1877,7 @@ class A_ABORT_RQ(PDU):
         return primitive
 
     @property
-    def _decoders(self):
+    def _decoders(self) -> Any:
         """Return an iterable of tuples that contain field decoders.
 
         Returns
@@ -1898,7 +1898,7 @@ class A_ABORT_RQ(PDU):
         ]
 
     @property
-    def _encoders(self):
+    def _encoders(self) -> Any:
         """Return an iterable of tuples that contain field decoders.
 
         Returns

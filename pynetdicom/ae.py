@@ -7,7 +7,7 @@ import logging
 from ssl import SSLContext
 import threading
 from typing import (
-    Union, Optional, List, Tuple, Dict, cast, TypeVar, Type
+    Union, Optional, List, Tuple, Dict, cast, TypeVar, Type, Any
 )
 
 from pydicom.uid import UID
@@ -700,7 +700,7 @@ class ApplicationEntity:
         ssl_context: Optional[SSLContext] = None,
         evt_handlers: Optional[List[EventHandlerType]] = None,
         server_class: Optional[Type[_T]] = None,
-        **kwargs
+        **kwargs: Any
     ) -> Union[_T, ThreadedAssociationServer]:
         """Return an association server.
 
