@@ -1016,7 +1016,7 @@ class TestPrimitive_A_ASSOCIATE:
         """Test an invalid result value gets logged and doesn't raise."""
         pdu = A_ASSOCIATE()
         pdu.result = None
-        with caplog.at_level(logging.ERROR, logger='pynetdicom'):
+        with caplog.at_level(logging.WARNING, logger='pynetdicom'):
             assert pdu.result_str == '(no value available)'
             assert "Invalid A-ASSOCIATE 'Result' None" in caplog.text
 
@@ -1024,7 +1024,7 @@ class TestPrimitive_A_ASSOCIATE:
         """Test an invalid source value gets logged and doesn't raise."""
         pdu = A_ASSOCIATE()
         pdu.result_source = None
-        with caplog.at_level(logging.ERROR, logger='pynetdicom'):
+        with caplog.at_level(logging.WARNING, logger='pynetdicom'):
             assert pdu.source_str == '(no value available)'
             assert "Invalid A-ASSOCIATE 'Result Source' None" in caplog.text
 
@@ -1034,7 +1034,7 @@ class TestPrimitive_A_ASSOCIATE:
         pdu.result = 1
         pdu.result_source = 2
         pdu.diagnostic = 7
-        with caplog.at_level(logging.ERROR, logger='pynetdicom'):
+        with caplog.at_level(logging.WARNING, logger='pynetdicom'):
             assert pdu.reason_str == '(no value available)'
             assert (
                 "Invalid A-ASSOCIATE 'Result Source' 2 and/or "

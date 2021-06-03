@@ -1217,11 +1217,6 @@ class TestABORT:
         assert pdu.source is None
         assert pdu.reason_diagnostic is None
 
-        with pytest.raises(KeyError):
-            pdu.source_str
-
-        pdu.reason_str == 'No reason given'
-
     def test_string_output(self):
         """Test the string output"""
         pdu = A_ABORT_RQ()
@@ -1309,7 +1304,7 @@ class TestABORT:
 
         assert new_pdu == orig_pdu
 
-    def test_source_str(self):
+    def test_source_str(self, caplog):
         """ Check the source str returns correct values """
         pdu = A_ABORT_RQ()
         pdu.decode(a_abort)
@@ -1320,7 +1315,12 @@ class TestABORT:
         pdu.source = 2
         assert pdu.source_str == 'DUL service-provider'
 
-    def test_reason_str(self):
+        pdu.source  = None
+        with caplog.at_level(logging.WARNING, logger='pynetdicom'):
+            assert pdu.source_str == '(no value available)'
+            assert "Invalid A-ABORT-RQ 'Source' None" in caplog.text
+
+    def test_reason_str(self, caplog):
         """ Check the reaspm str returns correct values """
         pdu = A_ABORT_RQ()
         pdu.decode(a_abort)
@@ -1341,6 +1341,13 @@ class TestABORT:
         pdu.reason_diagnostic = 6
         assert pdu.reason_str == "Invalid PDU parameter value"
 
+        pdu.reason_diagnostic  = None
+        with caplog.at_level(logging.WARNING, logger='pynetdicom'):
+            assert pdu.reason_str == '(no value available)'
+            assert "Invalid A-ABORT-RQ 'Reason/Diagnostic' None" in caplog.text
+
+        pdu.source = None
+        assert pdu.reason_str == '(no value available)'
 
 class TestEventHandlingAcceptor:
     """Test the transport events and handling as acceptor."""
