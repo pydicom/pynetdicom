@@ -345,7 +345,16 @@ class A_ASSOCIATE:
     @property
     def result_str(self) -> str:
         """Return the result as str."""
-        results = {1: "Rejected Permanent", 2: "Rejected Transient"}
+        results = {
+            0: "Accepted", 1: "Rejected Permanent", 2: "Rejected Transient"
+        }
+
+        if self.result not in results:
+            LOGGER.error(
+                f"Invalid A-ASSOCIATE 'Result' {self.result}"
+            )
+            return "(no value available)"
+
         return results[cast(int, self.result)]
 
     @property
@@ -387,6 +396,12 @@ class A_ASSOCIATE:
             2: 'Service Provider (ACSE)',
             3: 'Service Provider (Presentation)'
         }
+        if self.result_source not in sources:
+            LOGGER.error(
+                f"Invalid A-ASSOCIATE 'Result Source' {self.result_source}"
+            )
+            return "(no value available)"
+
         return sources[cast(int, self.result_source)]
 
     @property
@@ -463,7 +478,14 @@ class A_ASSOCIATE:
         }
         result = cast(int, self.result_source)
         diagnostic = cast(int, self.diagnostic)
-        return reasons[result][diagnostic]
+        try:
+            return reasons[result][diagnostic]
+        except KeyError:
+            LOGGER.error(
+                f"Invalid A-ASSOCIATE 'Result Source' {result} and/or "
+                f"'Diagnostic' {diagnostic} values"
+            )
+            return "(no value available)"
 
     @property
     def calling_presentation_address(self) -> Optional[Tuple[str, int]]:

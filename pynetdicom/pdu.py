@@ -1225,16 +1225,14 @@ class A_ASSOCIATE_RJ(PDU):
         }
 
         if self.source not in _reasons:
-            LOGGER.error('Invalid value in Source field in '
-                         'A-ASSOCIATE-RJ PDU')
-            raise ValueError('Invalid value in Source field in '
-                             'A-ASSOCIATE-RJ PDU')
+            msg = 'Invalid value in Source field in A-ASSOCIATE-RJ PDU'
+            LOGGER.error(msg)
+            raise ValueError(msg)
 
         if self.reason_diagnostic not in _reasons[self.source]:
-            LOGGER.error('Invalid value in Reason field in '
-                         'A-ASSOCIATE-RJ PDU')
-            raise ValueError('Invalid value in Reason field in '
-                             'A-ASSOCIATE-RJ PDU')
+            msg = 'Invalid value in Reason field in A-ASSOCIATE-RJ PDU'
+            LOGGER.error(msg)
+            raise ValueError(msg)
 
         return _reasons[self.source][self.reason_diagnostic]
 
@@ -1247,10 +1245,9 @@ class A_ASSOCIATE_RJ(PDU):
         }
 
         if self.result not in _results:
-            LOGGER.error('Invalid value in Result field in '
-                         'A-ASSOCIATE-RJ PDU')
-            raise ValueError('Invalid value in Result field in '
-                             'A-ASSOCIATE-RJ PDU')
+            msg = 'Invalid value in Result field in A-ASSOCIATE-RJ PDU'
+            LOGGER.error(msg)
+            raise ValueError(msg)
 
         return _results[self.result]
 
@@ -1264,10 +1261,9 @@ class A_ASSOCIATE_RJ(PDU):
         }
 
         if self.source not in _sources:
-            LOGGER.error('Invalid value in Source field in '
-                         'A-ASSOCIATE-RJ PDU')
-            raise ValueError('Invalid value in Source field in '
-                             'A-ASSOCIATE-RJ PDU')
+            msg = 'Invalid value in Source field in A-ASSOCIATE-RJ PDU'
+            LOGGER.error(msg)
+            raise ValueError(msg)
 
         return _sources[self.source]
 
