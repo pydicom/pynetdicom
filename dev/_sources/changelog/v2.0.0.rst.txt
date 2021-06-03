@@ -48,6 +48,8 @@ Enhancements
   option (:issue:`620`)
 * Updated to meet the 2021b version of the DICOM Standard
 * Added type hints
+* Handle non-conformant A-ASSOCIATE (RJ) 'Result', 'Source' and 'Diagnostic'
+  values during ACSE negotiation (:issue:`633`)
 
 Changes
 .......
