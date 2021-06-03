@@ -965,7 +965,14 @@ class PresentationContextItemAC(PDUItem):
             3: 'Rejected - Abstract Syntax Not Supported',
             4: 'Rejected - Transfer Syntax Not Supported'
         }
-        return _result[self.result_reason]  # type: ignore
+        if self.result_reason not in _result:
+            LOGGER.error(
+                "Invalid Presentation Context Item 'Result' "
+                f"{self.result_reason}"
+            )
+            return "(no value available)"
+
+        return _result[self.result_reason]
 
     def __str__(self) -> str:
         """Return a string representation of the Item."""
@@ -3375,8 +3382,13 @@ class UserIdentitySubItemRQ(PDUItem):
             4: 'SAML',
             5: 'JSON Web Token',
         }
+        if self.user_identity_type not in _types:
+            LOGGER.error(
+                f"Invalid 'User Identity Type' {self.user_identity_type}"
+            )
+            return "(no value available)"
 
-        return _types[self.user_identity_type]  # type: ignore
+        return _types[self.user_identity_type]
 
     @property
     def item_length(self) -> int:

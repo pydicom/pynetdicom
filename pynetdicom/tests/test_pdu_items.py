@@ -522,9 +522,6 @@ class TestPresentationContextAC:
         assert item.transfer_syntax is None
         assert item.result is None
 
-        with pytest.raises(KeyError):
-            item.result_str
-
     def test_string_output(self):
         """Test the string output"""
         pdu = A_ASSOCIATE_AC()
@@ -598,7 +595,7 @@ class TestPresentationContextAC:
 
         assert orig_item == new_item
 
-    def test_result_str(self):
+    def test_result_str(self, caplog):
         item = PresentationContextItemAC()
         _result = {
             0 : 'Accepted',
@@ -611,6 +608,13 @@ class TestPresentationContextAC:
         for result in [0, 1, 2, 3, 4]:
             item.result_reason = result
             assert item.result_str == _result[result]
+
+        item.result_reason  = None
+        with caplog.at_level(logging.WARNING, logger='pynetdicom'):
+            assert item.result_str == '(no value available)'
+            assert (
+                "Invalid Presentation Context Item 'Result' None"
+            ) in caplog.text
 
     def test_decode_empty(self):
         """Regression test for #342 (decoding an empty Transfer Syntax Item."""
@@ -1876,8 +1880,6 @@ class TestUserIdentityRQ_UserNoPass:
         assert item.secondary_field == b''
 
         assert item.id_type is None
-        with pytest.raises(KeyError):
-            item.id_type_str
         assert item.primary is None
         assert item.response_requested is None
         assert item.secondary == b''
@@ -1942,7 +1944,7 @@ class TestUserIdentityRQ_UserNoPass:
 
         assert orig == new
 
-    def test_properies(self):
+    def test_properies(self, caplog):
         """Check property setters and getters """
         pdu = A_ASSOCIATE_RQ()
         pdu.decode(a_associate_rq_user_async)
@@ -1966,6 +1968,11 @@ class TestUserIdentityRQ_UserNoPass:
         item.user_identity_type = 4
         assert item.id_type == 4
         assert item.id_type_str == 'SAML'
+
+        item.user_identity_type  = None
+        with caplog.at_level(logging.WARNING, logger='pynetdicom'):
+            assert item.id_type_str == '(no value available)'
+            assert "Invalid 'User Identity Type' None" in caplog.text
 
 
 class TestUserIdentityRQ_UserPass:

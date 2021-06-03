@@ -350,7 +350,7 @@ class A_ASSOCIATE:
         }
 
         if self.result not in results:
-            LOGGER.error(
+            LOGGER.warning(
                 f"Invalid A-ASSOCIATE 'Result' {self.result}"
             )
             return "(no value available)"
@@ -397,7 +397,7 @@ class A_ASSOCIATE:
             3: 'Service Provider (Presentation)'
         }
         if self.result_source not in sources:
-            LOGGER.error(
+            LOGGER.warning(
                 f"Invalid A-ASSOCIATE 'Result Source' {self.result_source}"
             )
             return "(no value available)"
@@ -481,7 +481,7 @@ class A_ASSOCIATE:
         try:
             return reasons[result][diagnostic]
         except KeyError:
-            LOGGER.error(
+            LOGGER.warning(
                 f"Invalid A-ASSOCIATE 'Result Source' {result} and/or "
                 f"'Diagnostic' {diagnostic} values"
             )

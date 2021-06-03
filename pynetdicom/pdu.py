@@ -1940,8 +1940,11 @@ class A_ABORT_RQ(PDU):
             1: 'Reserved',
             2: 'DUL service-provider'
         }
+        if self.source not in _sources:
+            LOGGER.warning(f"Invalid A-ABORT-RQ 'Source' {self.source}")
+            return "(no value available)"
 
-        return _sources[self.source]  # type: ignore
+        return _sources[self.source]
 
     @property
     def reason_str(self) -> str:
@@ -1956,9 +1959,16 @@ class A_ABORT_RQ(PDU):
                 5: "Unexpected PDU parameter",
                 6: "Invalid PDU parameter value"
             }
-            return _reason_str[self.reason_diagnostic]  # type: ignore
+            if self.reason_diagnostic not in _reason_str:
+                LOGGER.warning(
+                    "Invalid A-ABORT-RQ 'Reason/Diagnostic' "
+                    f"{self.reason_diagnostic}"
+                )
+                return "(no value available)"
 
-        return 'No reason given'
+            return _reason_str[self.reason_diagnostic]
+
+        return '(no value available)'
 
 
 # PDUs indexed by their class
