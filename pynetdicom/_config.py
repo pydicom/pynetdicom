@@ -1,6 +1,8 @@
 """pynetdicom configuration options"""
 
-from typing import Optional
+from typing import Optional, Callable, Dict, TypeVar, Tuple
+
+from pynetdicom._validators import validate_uid, validate_ae_title
 
 
 LOG_HANDLER_LEVEL: str = 'standard'
@@ -197,4 +199,86 @@ Examples
 
 >>> from pynetdicom import _config
 >>> _config.WINDOWS_TIMER_RESOLUTION = 5
+"""
+
+
+T = TypeVar('T')
+
+DIMSE_VALIDATORS: Dict[str, Callable[[T], T]] = {
+    # Callable[[Union[str, bytes]], str]
+    'AE': validate_ae_title,
+    # Callable[[Union[str, bytes]], UID]
+    'UI': validate_uid,
+}
+"""Customise the functions used for validating DIMSE command set elements.
+
+Validation is currently supported for the following VRs:
+
+* **AE**: Used for validating *Move Destination* and
+  *Move Originator Application Entity Title*. Function definition is
+  ``def validator(value: str) -> str: ...``
+* **UI**: Used for validating *Affected SOP Class UID*, *Affected SOP Instance
+  UID*, *Requested SOP Class UID* and *Requested SOP Instance UID*. Function
+  definition is
+  ``def validator(value: pydicom.uid.UID) -> pydicom.uid.UID: ...``
+
+Examples
+--------
+
+Perform no validation of **UI** elements:
+
+>>> from pydicom.uid import UID
+>>> from pynetdicom import _config
+>>> def my_uid_validator(value): return value
+>>> _config.DIMSE_VALIDATORS['UI'] = my_uid_validator
+"""
+
+
+PDU_ENCODINGS: Tuple[str, ...] = ('ascii', )
+"""Customise the encodings used to decode text values in PDUs.
+
+The encodings will be used when decoding the following parameters:
+
+* A-ASSOCIATE-RQ: *Called AE Title*, *Calling AE Title*
+
+  * Application Context Item: *Application Context Name*
+  * Presentation Context Items
+
+    * Abstract Syntax Sub-item: *Abstract Syntax Name*
+    * Transfer Syntax Sub-item: *Transfer Syntax Name*
+
+  * User Information Items
+
+    * Implementation Class UID Sub-item: *Implementation Class UID*
+    * Implementation Version Name Sub-item: *Implementation Version Name*
+    * SCP/SCU Role Selection Sub-item: *SOP Class UID*
+    * SOP Class Extended Negotiation Sub-item: *SOP Class UID*
+    * SOP Class Common Extended Negotiation Sub-item: *SOP Class UID*, *Service
+      Class UID*, *Related General SOP Class UID*
+
+* A-ASSOCIATE-AC
+
+  * Application Context Item: *Application Context Name*
+  * Presentation Context Item:
+
+    * Transfer Syntax Sub-item: *Transfer Syntax Name*
+  * User Information Items
+
+    * Implementation Class UID Sub-item: *Implementation Class UID*
+    * Implementation Version Name Sub-item: *Implementation Version Name*
+    * SCP/SCU Role Selection Sub-item: *SOP Class UID*
+    * SOP Class Extended Negotiation Sub-item: *SOP Class UID*
+
+Possible encodings are given in the Python documentation `here
+<https://docs.python.org/3/library/codecs.html#standard-encodings>`_. Decoding
+will be attempted in the order that the encodings appear in ``PDU_ENCODINGS``.
+
+
+Examples
+--------
+
+Add UTF-8 as a fallback encoding:
+
+>>> from pynetdicom import _config
+>>> _config.PDU_ENCODINGS = ('ascii', 'utf-8')
 """
