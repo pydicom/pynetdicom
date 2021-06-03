@@ -1012,6 +1012,35 @@ class TestPrimitive_A_ASSOCIATE:
             b"\x43\x4f\x4d\x5f\x30\x39\x30"
         )
 
+    def test_invalid_result_str(self, caplog):
+        """Test an invalid result value gets logged and doesn't raise."""
+        pdu = A_ASSOCIATE()
+        pdu.result = None
+        with caplog.at_level(logging.ERROR, logger='pynetdicom'):
+            assert pdu.result_str == '(no value available)'
+            assert "Invalid A-ASSOCIATE 'Result' None" in caplog.text
+
+    def test_invalid_source_str(self, caplog):
+        """Test an invalid source value gets logged and doesn't raise."""
+        pdu = A_ASSOCIATE()
+        pdu.result_source = None
+        with caplog.at_level(logging.ERROR, logger='pynetdicom'):
+            assert pdu.source_str == '(no value available)'
+            assert "Invalid A-ASSOCIATE 'Result Source' None" in caplog.text
+
+    def test_invalid_reason_str(self, caplog):
+        """Test an invalid diagnostic value gets logged and doesn't raise."""
+        pdu = A_ASSOCIATE()
+        pdu.result = 1
+        pdu.result_source = 2
+        pdu.diagnostic = 7
+        with caplog.at_level(logging.ERROR, logger='pynetdicom'):
+            assert pdu.reason_str == '(no value available)'
+            assert (
+                "Invalid A-ASSOCIATE 'Result Source' 2 and/or "
+                "'Diagnostic' 7 values"
+            ) in caplog.text
+
 
 class TestPrimitive_A_RELEASE:
     def test_assignment(self):
