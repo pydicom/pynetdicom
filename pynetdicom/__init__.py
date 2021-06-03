@@ -4,7 +4,10 @@ import logging
 
 from pydicom.uid import UID
 
-from ._version import __version__, __version_info__
+from ._version import __version__
+
+
+_release = ''.join(__version__.split('.')[:3])
 
 # UID prefix provided by https://www.medicalconnections.co.uk/Free_UID
 # Encoded as UI, 64 bytes maximum
@@ -15,17 +18,11 @@ The UID root used by *pynetdicom*.
 """
 
 # Encoded as SH, 16 bytes maximum
-PYNETDICOM_IMPLEMENTATION_VERSION: str = (
-    'PYNETDICOM_' + ''.join([str(ii) for ii in __version_info__['release']])
-)
+PYNETDICOM_IMPLEMENTATION_VERSION: str = f"PYNETDICOM_{_release}"
 """The (0002,0013) *Implementation Version Name* used by *pynetdicom*"""
 assert 1 <= len(PYNETDICOM_IMPLEMENTATION_VERSION) <= 16
 
-PYNETDICOM_IMPLEMENTATION_UID: UID = UID(
-    PYNETDICOM_UID_PREFIX + '.'.join(
-        [str(ii) for ii in __version_info__['release']]
-    )
-)
+PYNETDICOM_IMPLEMENTATION_UID: UID = UID(f"{PYNETDICOM_UID_PREFIX}{_release}")
 """The (0002,0012) *Implementation Class UID* used by *pynetdicom*"""
 assert PYNETDICOM_IMPLEMENTATION_UID.is_valid
 

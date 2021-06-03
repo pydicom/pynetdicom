@@ -1,18 +1,14 @@
-"""Version information for pynetdicom based on PEP396 and 440.
-
-Parts of `extract_components` are taken from the pypa packaging project
-(https://github.com/pypa/packaging) which is dual licensed:
-> This file is dual licensed under the terms of the Apache License, Version
-> 2.0, and the BSD License. See the LICENSE file in the root of (the pypa)
-> repository for complete details.
-"""
+"""Version information for pynetdicom based on PEP396 and 440"""
 
 import re
 from typing import Dict, Any, cast, Match
 
 
+# pynetdicom version
 __version__ = '2.0.0.dev0'
 
+# DICOM Standard version used for SOP classes and instances
+__dicom_version__: str = '2021b'
 
 VERSION_PATTERN = r"""
     v?
@@ -58,43 +54,4 @@ def is_canonical(version: str) -> bool:
     return match is not None
 
 
-def extract_components(version: str) -> Dict[str, Any]:
-    """Return the components from `version` as a dict"""
-    if not is_canonical(version):
-        raise ValueError(
-            "The supplied `version` is not conformant with PEP440"
-        )
-
-    _regex = re.compile(
-        r"^\s*" + VERSION_PATTERN + r"\s*$",
-        re.VERBOSE | re.IGNORECASE,
-    )
-    match = cast(Match[str], _regex.search(version))
-
-    _pre = None
-    if match.group("pre_l"):
-        _pre = (match.group("pre_l"), int(match.group("pre_n")))
-
-    _post = None
-    if match.group("post_l"):
-        _post = (match.group("post_l"),
-                 int(match.group("post_n1") or match.group("post_n2")))
-
-    _dev = None
-    if match.group("dev_l"):
-        _dev = (match.group("dev_l"), int(match.group("dev_n")))
-
-    components = {
-        'epoch': int(match.group("epoch")) if match.group("epoch") else 0,
-        'release': tuple(int(ii) for ii in match.group("release").split(".")),
-        'pre': _pre,
-        'post': _post,
-        'dev': _dev,
-        'local': match.group("local"),
-    }
-
-    return components
-
-
 assert is_canonical(__version__)
-__version_info__ = extract_components(__version__)

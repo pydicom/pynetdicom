@@ -8,6 +8,11 @@ import tempfile
 import time
 
 import pytest
+try:
+    import sqlalchemy
+    HAVE_SQLALCHEMY = True
+except ImportError:
+    HAVE_SQLALCHEMY = False
 
 from pydicom import dcmread
 from pydicom.uid import (
@@ -200,6 +205,7 @@ class EchoSCPBase:
         assert p.returncode != 0
 
 
+@pytest.mark.skipif(not HAVE_SQLALCHEMY, reason="Requires sqlalchemy")
 class TestEchoSCP(EchoSCPBase):
     """Tests for echoscp.py"""
     def setup(self):
@@ -209,6 +215,7 @@ class TestEchoSCP(EchoSCPBase):
         self.func = start_qrscp
 
 
+@pytest.mark.skipif(not HAVE_SQLALCHEMY, reason="Requires sqlalchemy")
 class TestEchoSCPCLI(EchoSCPBase):
     """Tests for echoscp using CLI"""
     def setup(self):

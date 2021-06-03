@@ -1,13 +1,18 @@
 """Unit tests for the QRSCP app's database functions."""
 
 import os
+import sys
 import tempfile
 
 import pytest
-from sqlalchemy import create_engine
-from sqlalchemy.schema import MetaData
-from sqlalchemy.exc import IntegrityError
-from sqlalchemy.orm import sessionmaker
+try:
+    from sqlalchemy import create_engine
+    from sqlalchemy.schema import MetaData
+    from sqlalchemy.exc import IntegrityError
+    from sqlalchemy.orm import sessionmaker
+    HAVE_SQLALCHEMY = True
+except ImportError:
+    HAVE_SQLALCHEMY = False
 
 from pydicom import dcmread
 import pydicom.config
@@ -19,7 +24,8 @@ from pynetdicom.sop_class import (
     StudyRootQueryRetrieveInformationModelFind
 )
 
-from pynetdicom.apps.qrscp import db
+if HAVE_SQLALCHEMY:
+    from pynetdicom.apps.qrscp import db
 
 
 TEST_DIR = os.path.dirname(__file__)
@@ -109,6 +115,7 @@ DATASETS = {
 }
 
 
+@pytest.mark.skipif(not HAVE_SQLALCHEMY, reason="Requires sqlalchemy")
 class TestConnect:
     """Tests for db.connect()."""
     def test_create_new(self):
@@ -143,6 +150,7 @@ class TestConnect:
         assert 'instance' in meta.tables
 
 
+@pytest.mark.skipif(not HAVE_SQLALCHEMY, reason="Requires sqlalchemy")
 class TestAddInstance:
     """Tests for db.add_instance()."""
     def setup(self):
@@ -275,6 +283,7 @@ class TestAddInstance:
         assert 'CT' == result[0].modality
 
 
+@pytest.mark.skipif(not HAVE_SQLALCHEMY, reason="Requires sqlalchemy")
 class TestRemoveInstance:
     """Tests for db.remove_instance()."""
     def setup(self):
@@ -320,6 +329,7 @@ class TestRemoveInstance:
         assert self.session.query(db.Instance).all()
 
 
+@pytest.mark.skipif(not HAVE_SQLALCHEMY, reason="Requires sqlalchemy")
 class TestClear:
     """Tests for db.clear()."""
     def setup(self):
@@ -342,6 +352,7 @@ class TestClear:
         assert not self.session.query(db.Instance).all()
 
 
+@pytest.mark.skipif(not HAVE_SQLALCHEMY, reason="Requires sqlalchemy")
 class TestSearch:
     """Tests for db.search()."""
     def setup(self):
@@ -633,6 +644,7 @@ IDENTIFIERS = [
 ]
 
 
+@pytest.mark.skipif(not HAVE_SQLALCHEMY, reason="Requires sqlalchemy")
 class TestSearchFind:
     """Tests for running C-FIND queries against the database."""
     def setup(self):

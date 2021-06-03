@@ -8,6 +8,11 @@ import tempfile
 import time
 
 import pytest
+try:
+    import sqlalchemy
+    HAVE_SQLALCHEMY = True
+except ImportError:
+    HAVE_SQLALCHEMY = False
 
 from pydicom import dcmread, Dataset
 from pydicom.uid import (
@@ -128,6 +133,7 @@ class MoveSCPBase:
         assert "CompressedSamples^CT1" == datasets[0].PatientName
 
 
+@pytest.mark.skipif(not HAVE_SQLALCHEMY, reason="Requires sqlalchemy")
 class TestMoveSCP(MoveSCPBase):
     """Tests for qrscp.py"""
     def setup(self):
@@ -138,6 +144,7 @@ class TestMoveSCP(MoveSCPBase):
         self.func = start_qrscp
 
 
+@pytest.mark.skipif(not HAVE_SQLALCHEMY, reason="Requires sqlalchemy")
 class TestMoveSCPCLI(MoveSCPBase):
     """Tests for qrscp using CLI"""
     def setup(self):

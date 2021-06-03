@@ -8,6 +8,11 @@ import tempfile
 import time
 
 import pytest
+try:
+    import sqlalchemy
+    HAVE_SQLALCHEMY = True
+except ImportError:
+    HAVE_SQLALCHEMY = False
 
 from pydicom import dcmread
 from pydicom.uid import (
@@ -82,6 +87,7 @@ class StoreSCPBase:
         assert 5 == len(os.listdir(self.instance_location.name))
 
 
+@pytest.mark.skipif(not HAVE_SQLALCHEMY, reason="Requires sqlalchemy")
 class TestStoreSCP(StoreSCPBase):
     """Tests for qrscp.py"""
     def setup(self):
@@ -92,6 +98,7 @@ class TestStoreSCP(StoreSCPBase):
         self.func = start_qrscp
 
 
+@pytest.mark.skipif(not HAVE_SQLALCHEMY, reason="Requires sqlalchemy")
 class TestStoreSCPCLI(StoreSCPBase):
     """Tests for qrscp using CLI"""
     def setup(self):

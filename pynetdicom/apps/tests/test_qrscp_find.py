@@ -8,6 +8,11 @@ import tempfile
 import time
 
 import pytest
+try:
+    import sqlalchemy
+    HAVE_SQLALCHEMY = True
+except ImportError:
+    HAVE_SQLALCHEMY = False
 
 from pydicom import dcmread, Dataset
 from pydicom.uid import (
@@ -503,6 +508,7 @@ class FindSCPBase:
         p.wait()
 
 
+@pytest.mark.skipif(not HAVE_SQLALCHEMY, reason="Requires sqlalchemy")
 class TestFindSCP(FindSCPBase):
     """Tests for qrscp.py"""
     def setup(self):
@@ -513,6 +519,7 @@ class TestFindSCP(FindSCPBase):
         self.func = start_qrscp
 
 
+@pytest.mark.skipif(not HAVE_SQLALCHEMY, reason="Requires sqlalchemy")
 class TestFindSCPCLI(FindSCPBase):
     """Tests for qrscp using CLI"""
     def setup(self):

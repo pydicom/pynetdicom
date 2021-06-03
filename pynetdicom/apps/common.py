@@ -407,7 +407,6 @@ class ElementPath:
         _int = ['SL', 'SS', 'SV', 'UL', 'US', 'UV']
         _float = ['FD', 'FL']
         _byte = ['OB', 'OD', 'OF', 'OL', 'OW', 'OV', 'UN']
-
         # Try to convert value to appropriate type
         if self.VR == 'AT' and '\\' in value:
             value = value.split('\\')
@@ -588,7 +587,7 @@ def handle_store(event, args, app_logger):
         mode_prefix = 'UN'
 
     filename = f'{mode_prefix}.{sop_instance}'
-    app_logger.info(f'Storing DICOM file: {filename}')    
+    app_logger.info(f'Storing DICOM file: {filename}')
 
     status_ds = Dataset()
     status_ds.Status = 0x0000
@@ -607,8 +606,8 @@ def handle_store(event, args, app_logger):
             return status_ds
 
     if os.path.exists(filename):
-        app_logger.warning('DICOM file already exists, overwriting')        
-        
+        app_logger.warning('DICOM file already exists, overwriting')
+
     try:
         if event.context.transfer_syntax == DeflatedExplicitVRLittleEndian:
             # Workaround for pydicom issue #1086

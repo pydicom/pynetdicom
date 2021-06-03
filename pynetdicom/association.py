@@ -845,23 +845,27 @@ class Association(threading.Thread):
                     if hasattr(rsp, elem.keyword):
                         setattr(rsp, elem.keyword, elem.value)
                     else:
-                        LOGGER.warning("Status dataset returned by "
-                                       "callback contained an "
-                                       "unsupported element '%s'.",
-                                       elem.keyword)
+                        LOGGER.warning(
+                            "Status dataset returned from the EVT_C_STORE "
+                            "handler contained an unsupported element "
+                            f"'{elem.keyword}'"
+                        )
             else:
-                LOGGER.error("User callback returned a `Dataset` "
-                             "without a Status element.")
+                LOGGER.error(
+                    "The EVT_C_STORE handler returned a Dataset without a "
+                    "'Status' element"
+                )
                 rsp.Status = 0xC001
         elif isinstance(status, int):
             rsp.Status = status
         else:
-            LOGGER.error("Invalid status returned by user callback.")
+            LOGGER.error("Invalid status returned by the EVT_C_STORE handler")
             rsp.Status = 0xC002
 
         if rsp.Status not in STORAGE_SERVICE_CLASS_STATUS:
             LOGGER.warning(
-                f"Unknown status value returned by callback 0x{rsp.Status:04X}"
+                "Unknown status value returned by the EVT_C_STORE handler: "
+                f"0x{rsp.Status:04X}"
             )
 
         # Send C-STORE confirmation back to peer
@@ -882,15 +886,15 @@ class Association(threading.Thread):
         # Can't send a C-CANCEL without an Association
         if not self.is_established:
             raise RuntimeError(
-                "The association with a peer SCP must be "
-                "established before sending a C-CANCEL request."
+                "The association with a peer SCP must be established before "
+                "sending a C-CANCEL request."
             )
 
         # Build C-CANCEL primitive
         primitive = C_CANCEL()
         primitive.MessageIDBeingRespondedTo = msg_id
 
-        LOGGER.info('Sending C-CANCEL')
+        LOGGER.info('Sending C-CANCEL request')
 
         # Send C-CANCEL request
         self.dimse.send_msg(primitive, context_id)
@@ -958,8 +962,10 @@ class Association(threading.Thread):
         """
         # Can't send a C-ECHO without an Association
         if not self.is_established:
-            raise RuntimeError("The association with a peer SCP must be "
-                               "established before sending a C-ECHO request")
+            raise RuntimeError(
+                "The association with a peer SCP must be established before "
+                "sending a C-ECHO request"
+            )
 
         # Get a Presentation Context to use for sending the message
         context = self._get_valid_context(Verification, '', 'scu')
@@ -1147,8 +1153,10 @@ class Association(threading.Thread):
         """
         # Can't send a C-FIND without an Association
         if not self.is_established:
-            raise RuntimeError("The association with a peer SCP must be "
-                               "established before sending a C-FIND request")
+            raise RuntimeError(
+                "The association with a peer SCP must be established before "
+                "sending a C-FIND request"
+            )
 
         # Determine the Presentation Context we are operating under
         #   and hence the transfer syntax to use for encoding `dataset`
@@ -1356,8 +1364,10 @@ class Association(threading.Thread):
         """
         # Can't send a C-GET without an Association
         if not self.is_established:
-            raise RuntimeError("The association with a peer SCP must be "
-                               "established before sending a C-GET request")
+            raise RuntimeError(
+                "The association with a peer SCP must be established before "
+                "sending a C-GET request"
+            )
 
         # Determine the Presentation Context we are operating under
         #   and hence the transfer syntax to use for encoding `dataset`
@@ -1387,8 +1397,9 @@ class Association(threading.Thread):
             req.Identifier = BytesIO(bytestream)
         else:
             LOGGER.error("Failed to encode the supplied Identifier dataset")
-            raise ValueError('Failed to encode the supplied Identifer '
-                             'dataset')
+            raise ValueError(
+                'Failed to encode the supplied Identifer dataset'
+            )
 
         LOGGER.info(f'Sending Get Request: MsgID {msg_id}')
         LOGGER.info('')
@@ -1556,8 +1567,10 @@ class Association(threading.Thread):
         """
         # Can't send a C-MOVE without an Association
         if not self.is_established:
-            raise RuntimeError("The association with a peer SCP must be "
-                               "established before sending a C-MOVE request")
+            raise RuntimeError(
+                "The association with a peer SCP must be established before "
+                "sending a C-MOVE request"
+            )
 
         # Determine the Presentation Context we are operating under
         #   and hence the transfer syntax to use for encoding `dataset`
@@ -1589,8 +1602,9 @@ class Association(threading.Thread):
             req.Identifier = BytesIO(bytestream)
         else:
             LOGGER.error('Failed to encode the supplied Identifier dataset')
-            raise ValueError('Failed to encode the supplied Identifier '
-                             'dataset')
+            raise ValueError(
+                'Failed to encode the supplied Identifier dataset'
+            )
 
         LOGGER.info(f'Sending Move Request: MsgID {msg_id}')
         LOGGER.info('')
@@ -1774,9 +1788,9 @@ class Association(threading.Thread):
                 missing = [kw for kw in missing if kw not in file_meta]
                 if missing:
                     raise AttributeError(
-                        f"Unable to send the dataset from the file at "
+                        "Unable to send the dataset from the file at "
                         f"{os.fspath(fpath)} as one or more required file "
-                        f"meta information elements are missing: "
+                        "meta information elements are missing: "
                         f"{','.join(missing)}"
                     )
 
@@ -1790,7 +1804,7 @@ class Association(threading.Thread):
             missing = [kw for kw in missing if kw not in dataset]
             if missing:
                 raise AttributeError(
-                    f"Unable to send the dataset as one or more required "
+                    "Unable to send the dataset as one or more required "
                     f"element are missing: {','.join(missing)}"
                 )
 
@@ -3452,7 +3466,7 @@ class Association(threading.Thread):
         except NotImplementedError:
             # SCP isn't implemented
             LOGGER.error(
-                f"No supported service class available for the SOP "
+                "No supported service class available for the SOP "
                 f"Class UID '{class_uid}'"
             )
             self.abort()
