@@ -355,7 +355,7 @@ class A_ASSOCIATE:
             )
             return "(no value available)"
 
-        return results[cast(int, self.result)]
+        return results[self.result]
 
     @property
     def result_source(self) -> Optional[int]:
@@ -402,7 +402,7 @@ class A_ASSOCIATE:
             )
             return "(no value available)"
 
-        return sources[cast(int, self.result_source)]
+        return sources[self.result_source]
 
     @property
     def diagnostic(self) -> Optional[int]:
