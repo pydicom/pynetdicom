@@ -19,8 +19,8 @@ Fixes
   failed when acting as an Query/Retrieve SCP (:issue:`577`)
 * Fixed :meth:`ServiceUser.requested_contexts
   <pynetdicom.association.ServiceUser.requested_contexts>` and
-  :meth:`ServiceUser.requested_contexts
-  <pynetdicom.association.ServiceUser.requested_contexts>` not returning the
+  :meth:`ServiceUser.supported_contexts
+  <pynetdicom.association.ServiceUser.supported_contexts>` not returning the
   expected contexts (:issue:`636`)
 
 Enhancements
