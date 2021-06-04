@@ -2,8 +2,6 @@
 
 from typing import Optional
 
-from pynetdicom._validators import validate_uid, validate_ae_title
-
 
 LOG_HANDLER_LEVEL: str = 'standard'
 """Default (non-user) event logging
