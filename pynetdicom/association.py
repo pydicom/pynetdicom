@@ -3734,7 +3734,7 @@ class ServiceUser:
                 )
             })
 
-        possible = {
+        possible: Dict[bool, Dict[bool, Dict[bool, List[str]]]] = {
             True: {  # self.assoc.is_requestor
                 True: {  # self.writeable
                     True: ['requested'],  # self.is_requestor
