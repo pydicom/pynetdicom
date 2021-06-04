@@ -32,7 +32,7 @@ from pynetdicom.sop_class import (
     _UNIFIED_PROCEDURE_STEP_CLASSES,
     _VERIFICATION_CLASSES,
 )
-from pynetdicom.utils import validate_uid
+from pynetdicom.utils import validate_uid, as_uid
 
 if TYPE_CHECKING:  # pragma: no cover
     from pynetdicom.pdu_primitives import SCP_SCU_RoleSelectionNegotiation
@@ -229,31 +229,16 @@ class PresentationContext:
 
         Parameters
         ----------
-        uid : str or bytes or pydicom.uid.UID
+        value : str or bytes or pydicom.uid.UID
             The abstract syntax UID.
         """
         return self._abstract_syntax
 
     @abstract_syntax.setter
-    def abstract_syntax(self, uid: Union[str, bytes, UID]) -> None:
+    def abstract_syntax(self, value: Union[str, bytes, UID]) -> None:
         """Set the context's *Abstract Syntax*."""
-        if isinstance(uid, bytes):
-            uid = UID(uid.decode('ascii'))
-        elif isinstance(uid, str):
-            uid = UID(uid)
-        else:
-            raise TypeError("'abstract_syntax' must be str or bytes or UID")
-
-        if not validate_uid(uid):
-            LOGGER.error("'abstract_syntax' is an invalid UID")
-            raise ValueError("'abstract_syntax' is an invalid UID")
-
-        if uid and not uid.is_valid:
-            LOGGER.warning(
-                f"The Abstract Syntax Name '{uid}' is non-conformant"
-            )
-
-        self._abstract_syntax = uid
+        with as_uid(value, 'abstract_syntax', allow_none=False) as uid:
+            self._abstract_syntax = uid
 
     def add_transfer_syntax(
         self, syntax: Union[None, str, bytes, UID]
@@ -268,14 +253,12 @@ class PresentationContext:
         if syntax is None:
             return
 
-        if isinstance(syntax, str):
+        if isinstance(syntax, str):  # includes UID
             syntax = UID(syntax)
         elif isinstance(syntax, bytes):
             syntax = UID(syntax.decode('ascii'))
         else:
-            if syntax is not None:
-                LOGGER.error("Attempted to add an invalid transfer syntax")
-
+            LOGGER.error("Attempted to add an invalid transfer syntax")
             return
 
         if syntax is not None and not validate_uid(syntax):
@@ -290,11 +273,15 @@ class PresentationContext:
         # If the transfer syntax is rejected we may add an empty str
         if syntax not in self._transfer_syntax and syntax != '':
             if not syntax.is_valid:
-                LOGGER.warning("A non-conformant UID has been added "
-                               "to 'transfer_syntax'")
+                LOGGER.warning(
+                    "A non-conformant UID has been added to 'transfer_syntax'"
+                )
+
             if not syntax.is_private and not syntax.is_transfer_syntax:
-                LOGGER.warning("A UID has been added to 'transfer_syntax' "
-                               "that is not a transfer syntax")
+                LOGGER.warning(
+                    "A UID has been added to 'transfer_syntax' that is not a "
+                    "transfer syntax"
+                )
 
             self._transfer_syntax.append(syntax)
 
@@ -352,8 +339,10 @@ class PresentationContext:
             An odd integer between 1 and 255 (inclusive).
         """
         if value is not None and (not 1 <= value <= 255 or value % 2 == 0):
-            raise ValueError("'context_id' must be an odd integer between 1 "
-                             "and 255, inclusive")
+            raise ValueError(
+                "'context_id' must be an odd integer between 1 and 255, "
+                "inclusive"
+            )
 
         self._context_id = value
 

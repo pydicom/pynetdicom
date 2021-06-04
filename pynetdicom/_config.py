@@ -1,6 +1,6 @@
 """pynetdicom configuration options"""
 
-from typing import Optional
+from typing import Optional, Tuple
 
 
 LOG_HANDLER_LEVEL: str = 'standard'
@@ -197,4 +197,57 @@ Examples
 
 >>> from pynetdicom import _config
 >>> _config.WINDOWS_TIMER_RESOLUTION = 5
+"""
+
+
+PDU_ENCODINGS: Tuple[str, ...] = ('ascii', 'utf-8')
+"""Customise the encodings used to decode text values in PDUs.
+
+The specified encodings will be used when decoding the following parameters:
+
+* A-ASSOCIATE-RQ: *Called AE Title*, *Calling AE Title*
+
+  * Application Context Item: *Application Context Name*
+  * Presentation Context Items
+
+    * Abstract Syntax Sub-item: *Abstract Syntax Name*
+    * Transfer Syntax Sub-item: *Transfer Syntax Name*
+  * User Information Items
+
+    * Implementation Class UID Sub-item: *Implementation Class UID*
+    * Implementation Version Name Sub-item: *Implementation Version Name*
+    * SCP/SCU Role Selection Sub-item: *SOP Class UID*
+    * SOP Class Extended Negotiation Sub-item: *SOP Class UID*
+    * SOP Class Common Extended Negotiation Sub-item: *SOP Class UID*, *Service
+      Class UID*, *Related General SOP Class UID*
+* A-ASSOCIATE-AC
+
+  * Application Context Item: *Application Context Name*
+  * Presentation Context Item:
+
+    * Transfer Syntax Sub-item: *Transfer Syntax Name*
+  * User Information Items
+
+    * Implementation Class UID Sub-item: *Implementation Class UID*
+    * Implementation Version Name Sub-item: *Implementation Version Name*
+    * SCP/SCU Role Selection Sub-item: *SOP Class UID*
+    * SOP Class Extended Negotiation Sub-item: *SOP Class UID*
+
+Possible encodings are given in the Python documentation `here
+<https://docs.python.org/3/library/codecs.html#standard-encodings>`_. Decoding
+will be attempted in the order that the encodings appear in ``PDU_ENCODINGS``.
+
+The default value is ``ascii`` with ``utf-8`` as a fallback. The DICOM Standard
+specifies ASCII as the only valid encoding method, however non-conformant
+implementations have been known to also use UTF-8.
+
+When values are encoded by *pynetdicom* only ASCII is used.
+
+Examples
+--------
+
+Remove UTF-8 as a fallback encoding:
+
+>>> from pynetdicom import _config
+>>> _config.PDU_ENCODINGS = ('ascii', )
 """

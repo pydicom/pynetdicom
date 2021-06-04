@@ -12,7 +12,7 @@ from pynetdicom.pdu import (
     A_RELEASE_RP, A_ABORT_RQ, P_DATA_TF
 )
 from pynetdicom.sop_class import uid_to_service_class
-from pynetdicom.utils import pretty_bytes
+from pynetdicom.utils import pretty_bytes, decode_bytes
 
 if TYPE_CHECKING:  # pragma: no cover
     from pynetdicom.events import Event
@@ -123,14 +123,14 @@ def debug_data(
             # Abstract and Transfer Syntax Sub-items
             if data_type in [0x30, 0x40] and length:
                 start = idx + 2 + len_bytes
-                uid = UID(data[start:start + length].decode('ascii'))
+                uid = UID(decode_bytes(data[start:start + length]))
                 s += f" - {uid.name}"
 
             # SCP/SCU Role Selection Sub-item
             if data_type == 0x054:
                 start = idx + 2 + len_bytes
                 len_uid = unpack('>H', data[start:start + 2])[0]
-                uid = UID(data[start + 2:start + 2 + len_uid].decode('ascii'))
+                uid = UID(decode_bytes(data[start + 2:start + 2 + len_uid]))
                 scu_role = data[start + 2 + len_uid]
                 scp_role = data[start + 2 + len_uid + 1]
                 s += (
@@ -374,14 +374,15 @@ def _receive_associate_ac(event: "Event") -> List[str]:
     if user_info.implementation_version_name:
         their_version = user_info.implementation_version_name
 
-    calling_aet = cast(bytes, assoc_ac.calling_ae_title).decode('ascii')
-    called_aet = cast(bytes, assoc_ac.called_ae_title).decode('ascii')
+    calling_aet = decode_bytes(cast(bytes, assoc_ac.calling_ae_title))
+    called_aet = decode_bytes(cast(bytes, assoc_ac.called_ae_title))
+    version_name = decode_bytes(their_version)
 
     s = [
         "Accept Parameters:",
         f"{' INCOMING A-ASSOCIATE-AC PDU ':=^76}",
         f"Their Implementation Class UID:    {their_class_uid}",
-        f"Their Implementation Version Name: {their_version.decode('ascii')}",
+        f"Their Implementation Version Name: {version_name}",
         f"Application Context Name:    {app_context}",
         f"Calling Application Name:    {calling_aet}",
         f"Called Application Name:     {called_aet}",
@@ -657,7 +658,7 @@ def _send_associate_ac(event: "Event") -> List[str]:
         f"Our Implementation Class UID:      {class_uid}",
     ]
     if user_info.implementation_version_name:
-        version_name = user_info.implementation_version_name.decode('ascii')
+        version_name = decode_bytes(user_info.implementation_version_name)
         s.append(f"Our Implementation Version Name:   {version_name}")
     s.append(f"Application Context Name:    {app_context}")
     s.append(f"Responding Application Name: {responding_ae}")
@@ -755,7 +756,7 @@ def _send_associate_rq(event: "Event") -> List[str]:
     ]
 
     if user_info.implementation_version_name:
-        version_name = user_info.implementation_version_name.decode('ascii')
+        version_name = decode_bytes(user_info.implementation_version_name)
         s.append(f"Our Implementation Version Name:   {version_name}")
 
     calling_aet = pdu.calling_ae_title.decode("ascii")

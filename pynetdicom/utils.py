@@ -4,7 +4,8 @@ from contextlib import contextmanager
 from io import BytesIO
 import logging
 import sys
-from typing import List, Optional, Iterator, Union, cast, Callable
+from types import TracebackType
+from typing import List, Optional, Iterator, Union, cast, Callable, Tuple, Type
 import unicodedata
 
 try:
@@ -14,10 +15,136 @@ except ImportError:
     HAVE_CTYPES = False
 
 from pydicom.uid import UID
+
 from pynetdicom import _config
 
 
 LOGGER = logging.getLogger('pynetdicom.utils')
+
+
+class as_uid:
+    """Context manager for converting values to UID.
+
+    Examples
+    --------
+
+    >>> with as_uid(value, "Transfer Syntax Name") as uid:
+    ...    self._transfer_syntax_name = uid
+    """
+    def __init__(
+        self,
+        value: Union[None, str, bytes, UID],
+        name: str,
+        allow_none: bool = True,
+        validate: bool = True
+    ) -> None:
+        """Convert `value` to a UID.
+
+        Parameters
+        ----------
+        value : str, bytes, UID (an optionally None)
+            The value to be converted.
+        name : str
+            The name of the parameter being converted.
+        allow_none : bool, optional
+            Allow the returned value to be ``None`` if `value` is ``None``
+            (default ``True``).
+        validate : bool, optional
+            If ``True`` (default) perform validation of the UID using
+            :func:`~pynetdicom.utils.validate_uid` and raise a
+            :class:`ValueError` exception if the validation fails. If ``False``
+            return the UID without performing and validation.
+
+        Returns
+        -------
+        pydicom.uid.UID or None
+            If ``allow_none`` is ``True`` then may return ``None``, otherwise
+            only a UID will be returned.
+        """
+        self.value = value
+        self.name = name
+        self.allow_none = allow_none
+        self.validate = validate
+
+    def __enter__(self) -> Optional[UID]:
+        """Return the value converted to a UID, or None if allowed."""
+        if self.allow_none and self.value is None:
+            return None
+
+        if isinstance(self.value, bytes):
+            self.value = decode_bytes(self.value)
+
+        if isinstance(self.value, str):
+            self.value = UID(self.value)
+
+        if isinstance(self.value, UID):
+            if not self.validate:
+                return self.value
+
+            msg = (
+                f"Non-conformant UID '{self.value}' used with the "
+                f"'{self.name}' parameter"
+            )
+            if self.value and not validate_uid(self.value):
+                LOGGER.error(msg)
+                raise ValueError(msg)
+
+            if self.value and not self.value.is_valid:
+                LOGGER.warning(msg)
+
+            return self.value
+
+        raise TypeError(
+            f"'{self.name}' must be 'str', 'bytes' or 'UID', not "
+            f"{type(self.value)}"
+        )
+
+    def __exit__(
+        self,
+        exc_type: Optional[Type[BaseException]],
+        exc_val: Optional[BaseException],
+        exc_tb: Optional[TracebackType]
+    ) -> Optional[bool]:
+        # Raise any exceptions
+        return None
+
+
+def decode_bytes(
+    encoded_value: bytes, encodings: Tuple[str, ...] = _config.PDU_ENCODINGS
+) -> str:
+    """Return the decoded string from `encoded_value`.
+
+    Parameters
+    ----------
+    encoded_value : bytes
+        The encoded value to be decoded.
+    encodings : Tuple[str, ...], optional
+        A tuple of codec names to use when attempting to decode, defaults
+        to :attr:`~pynetdicom._config.PDU_ENCODINGS`. See the `Python
+        documentation
+        <https://docs.python.org/3/library/codecs.html#standard-encodings>`_
+        for possible encodings.
+
+    Returns
+    -------
+    str
+        The decoded value
+
+    Raises
+    ------
+    UnicodeDecodeError
+        If unable to decode the encoded value.
+    """
+    for enc in encodings or ('ascii', ):
+        try:
+            return encoded_value.decode(enc, errors='strict')
+        except UnicodeDecodeError as exc:
+            LOGGER.exception(exc)
+
+    as_hex = ' '.join([f"{b:02X}" for b in encoded_value])
+    raise ValueError(
+        f"Unable to decode '{as_hex}' with {', '.join(encodings)}"
+    )
 
 
 def make_target(target_fn: Callable) -> Callable:
@@ -271,7 +398,4 @@ def validate_uid(uid: UID) -> bool:
     if _config.ENFORCE_UID_CONFORMANCE:
         return uid.is_valid
 
-    if 0 < len(uid) < 65:
-        return True
-
-    return False
+    return 0 < len(uid) < 65

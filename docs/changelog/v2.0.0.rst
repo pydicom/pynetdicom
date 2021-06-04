@@ -55,6 +55,9 @@ Enhancements
 * Added type hints
 * Handle non-conformant A-ASSOCIATE (RJ) 'Result', 'Source' and 'Diagnostic'
   values during ACSE negotiation (:issue:`633`)
+* Added :attr:`~pynetdicom._config.PDU_ENCODINGS` to allow customising the
+  encodings used when decoding text-like PDU parameters (:issue:`611`)
+* UTF-8 added as a fallback encoding when decoding PDUs
 
 Changes
 .......

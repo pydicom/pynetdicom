@@ -271,7 +271,10 @@ class TestPresentationContext:
         pc = PresentationContext()
         pc.context_id = 1
 
-        msg = r"'abstract_syntax' is an invalid UID"
+        msg = (
+            f"Non-conformant UID '1.4.1.' used with the 'abstract_syntax' "
+            "parameter"
+        )
         with pytest.raises(ValueError, match=msg):
             pc.abstract_syntax = UID('1.4.1.')
         assert pc.abstract_syntax is None
@@ -281,7 +284,7 @@ class TestPresentationContext:
         assert pc.abstract_syntax == UID('1.4.1.')
         assert isinstance(pc.abstract_syntax, UID)
 
-        assert ("'abstract_syntax' is an invalid UID" in caplog.text)
+        assert msg in caplog.text
 
     def test_transfer_syntax(self):
         """Test transfer syntax setter"""

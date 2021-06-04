@@ -20,3 +20,4 @@ Configuration Options (:mod:`pynetdicom._config`)
    STORE_SEND_CHUNKED_DATASET
    USE_SHORT_DIMSE_AET
    WINDOWS_TIMER_RESOLUTION
+   PDU_ENCODINGS

@@ -20,7 +20,7 @@ from pynetdicom.pdu_items import (
     UserIdentitySubItemAC
 )
 from pynetdicom.presentation import PresentationContext
-from pynetdicom.utils import validate_ae_title, validate_uid
+from pynetdicom.utils import validate_ae_title, validate_uid, decode_bytes, as_uid
 from pynetdicom._globals import DEFAULT_MAX_LENGTH
 
 LOGGER = logging.getLogger('pynetdicom.pdu_primitives')
@@ -183,29 +183,8 @@ class A_ASSOCIATE:
     @application_context_name.setter
     def application_context_name(self, value: OptionalUIDType) -> None:
         """Set the Application Context Name parameter."""
-        # pylint: disable=attribute-defined-outside-init
-        if isinstance(value, UID):
-            pass
-        elif isinstance(value, str):
-            value = UID(value)
-        elif isinstance(value, bytes):
-            value = UID(value.decode('ascii'))
-        elif value is None:
-            pass
-        else:
-            raise TypeError("application_context_name must be a "
-                            "pydicom.uid.UID, str or bytes")
-
-        if value is not None and not validate_uid(value):
-            LOGGER.error("application_context_name is an invalid UID")
-            raise ValueError("application_context_name is an invalid UID")
-
-        if value and not value.is_valid:
-            LOGGER.warning(
-                f"The Application Context Name '{value}' is non-conformant"
-            )
-
-        self._application_context_name = value
+        with as_uid(value, 'Application Context Name') as uid:
+            self._application_context_name = uid
 
     @property
     def calling_ae_title(self) -> Optional[bytes]:
@@ -1157,7 +1136,7 @@ class ImplementationClassUIDNotification(ServiceParameter):
     * DICOM Standard, Part 7, :dcm:`Annex D.3.3.2<part07/sect_D.3.3.2.html>`
     """
     def __init__(self) -> None:
-        self.implementation_class_uid: Optional[UID] = None
+        self._implementation_class_uid: Optional[UID] = None
 
     def from_primitive(self) -> ImplementationClassUIDSubItem:
         """Convert the primitive to a PDU item ready to be encoded.
@@ -1196,33 +1175,8 @@ class ImplementationClassUIDNotification(ServiceParameter):
     @implementation_class_uid.setter
     def implementation_class_uid(self, value: OptionalUIDType) -> None:
         """Sets the Implementation Class UID parameter."""
-        # pylint: disable=attribute-defined-outside-init
-        if isinstance(value, UID):
-            pass
-        elif isinstance(value, str):
-            value = UID(value)
-        elif isinstance(value, bytes):
-            value = UID(value.decode('ascii'))
-        elif value is None:
-            pass
-        else:
-            raise TypeError("Implementation Class UID must be a "
-                            "pydicom.uid.UID, str or bytes")
-
-        if value is not None and not validate_uid(value):
-            msg = (
-                f"The Implementation Class UID Notification's 'Implementation "
-                f"Class UID' parameter value '{value}' is not a valid UID"
-            )
-            LOGGER.error(msg)
-            raise ValueError(msg)
-
-        if value and not value.is_valid:
-            LOGGER.warning(
-                f"The Implementation Class UID '{value}' is non-conformant"
-            )
-
-        self._implementation_class_uid = value
+        with as_uid(value, 'Implementation Class UID') as uid:
+            self._implementation_class_uid = uid
 
     def __str__(self) -> str:
         """String representation of the class."""
@@ -1606,26 +1560,8 @@ class SCP_SCU_RoleSelectionNegotiation(ServiceParameter):
     @sop_class_uid.setter
     def sop_class_uid(self, value: OptionalUIDType) -> None:
         """Sets the SOP Class UID parameter."""
-        # pylint: disable=attribute-defined-outside-init
-        if isinstance(value, UID) or value is None:
-            pass
-        elif isinstance(value, str):
-            value = UID(value)
-        elif isinstance(value, bytes):
-            value = UID(value.decode('ascii'))
-        else:
-            msg = "SOP Class UID must be a pydicom.uid.UID, str or bytes"
-            LOGGER.error(msg)
-            raise TypeError(msg)
-
-        if value is not None and not validate_uid(value):
-            LOGGER.error("SOP Class UID is an invalid UID")
-            raise ValueError("SOP Class UID is an invalid UID")
-
-        if value and not value.is_valid:
-            LOGGER.warning(f"The SOP Class UID '{value}' is non-conformant")
-
-        self._sop_class_uid = value
+        with as_uid(value, 'SOP Class UID') as uid:
+            self._sop_class_uid = uid
 
 
 class SOPClassExtendedNegotiation(ServiceParameter):
@@ -1743,26 +1679,8 @@ class SOPClassExtendedNegotiation(ServiceParameter):
     @sop_class_uid.setter
     def sop_class_uid(self, value: OptionalUIDType) -> None:
         """Sets the SOP Class UID parameter."""
-        # pylint: disable=attribute-defined-outside-init
-        if isinstance(value, UID) or value is None:
-            pass
-        elif isinstance(value, str):
-            value = UID(value)
-        elif isinstance(value, bytes):
-            value = UID(value.decode('ascii'))
-        else:
-            msg = "SOP Class UID must be a pydicom.uid.UID, str or bytes"
-            LOGGER.error(msg)
-            raise TypeError(msg)
-
-        if value is not None and not validate_uid(value):
-            LOGGER.error("SOP Class UID is an invalid UID")
-            raise ValueError("SOP Class UID is an invalid UID")
-
-        if value and not value.is_valid:
-            LOGGER.warning(f"The SOP Class UID '{value}' is non-conformant")
-
-        self._sop_class_uid = value
+        with as_uid(value, 'SOP Class UID') as uid:
+            self._sop_class_uid = uid
 
 
 class SOPClassCommonExtendedNegotiation(ServiceParameter):
@@ -1857,7 +1775,7 @@ class SOPClassCommonExtendedNegotiation(ServiceParameter):
                 elif isinstance(uid, str):
                     uid = UID(uid)
                 elif isinstance(uid, bytes):
-                    uid = UID(uid.decode('ascii'))
+                    uid = UID(decode_bytes(uid))
                 else:
                     msg = (
                         "Related General SOP Class Identification "
@@ -1910,28 +1828,8 @@ class SOPClassCommonExtendedNegotiation(ServiceParameter):
     @service_class_uid.setter
     def service_class_uid(self, value: OptionalUIDType) -> None:
         """Sets the Service Class UID parameter."""
-        # pylint: disable=attribute-defined-outside-init
-        if isinstance(value, UID) or value is None:
-            pass
-        elif isinstance(value, str):
-            value = UID(value)
-        elif isinstance(value, bytes):
-            value = UID(value.decode('ascii'))
-        else:
-            msg = "Service Class UID must be a pydicom.uid.UID, str or bytes"
-            LOGGER.error(msg)
-            raise TypeError(msg)
-
-        if value is not None and not validate_uid(value):
-            LOGGER.error("Service Class UID is an invalid UID")
-            raise ValueError("Service Class UID is an invalid UID")
-
-        if value and not value.is_valid:
-            LOGGER.warning(
-                f"The Service Class UID '{value}' is non-conformant"
-            )
-
-        self._service_class_uid = value
+        with as_uid(value, 'Service Class UID') as uid:
+            self._service_class_uid = uid
 
     @property
     def sop_class_uid(self) -> Optional[UID]:
@@ -1952,26 +1850,8 @@ class SOPClassCommonExtendedNegotiation(ServiceParameter):
     @sop_class_uid.setter
     def sop_class_uid(self, value: OptionalUIDType) -> None:
         """Sets the SOP Class UID parameter."""
-        # pylint: disable=attribute-defined-outside-init
-        if isinstance(value, UID) or value is None:
-            pass
-        elif isinstance(value, str):
-            value = UID(value)
-        elif isinstance(value, bytes):
-            value = UID(value.decode('ascii'))
-        else:
-            msg = "SOP Class UID must be a pydicom.uid.UID, str or bytes"
-            LOGGER.error(msg)
-            raise TypeError(msg)
-
-        if value is not None and not validate_uid(value):
-            LOGGER.error("SOP Class UID is an invalid UID")
-            raise ValueError("SOP Class UID is an invalid UID")
-
-        if value and not value.is_valid:
-            LOGGER.warning("The SOP Class UID '{value}' is non-conformant")
-
-        self._sop_class_uid = value
+        with as_uid(value, 'SOP Class UID') as uid:
+            self._sop_class_uid = uid
 
 
 class UserIdentityNegotiation(ServiceParameter):
