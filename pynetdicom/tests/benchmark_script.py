@@ -288,8 +288,6 @@ def receive_store_dcmtk(nr_assoc, ds_per_assoc, use_yappi=False):
     time.sleep(0.5)
 
     start_time = time.time()
-    run_times = []
-
     is_successful = True
 
     for ii in range(nr_assoc):
