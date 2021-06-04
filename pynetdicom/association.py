@@ -3735,23 +3735,35 @@ class ServiceUser:
             })
 
         possible = {
-            True: {
-                True: ['requested'],
-                False: ['supported'],
+            True: {  # self.assoc.is_requestor
+                True: {  # self.writeable
+                    True: ['requested'],  # self.is_requestor
+                    False: []  # self.is_acceptor
+                },
+                False: {  # not self.writeable
+                    True: ['requested', 'pcdl'],  # self.is_requestor
+                    False: ['pcdrl']  # self.is_acceptor
+                },
             },
-            False: {
-                True: ['requested', 'pcdl'],
-                False: ['supported', 'pcdrl'],
+            False: {  # self.assoc.is_acceptor
+                True: {  # self.writeable
+                    True: [],  # self.is_requestor
+                    False: ['supported']  # self.is_acceptor
+                },
+                False: {  # not self.writeable
+                    True: ['pcdl'],  # self.is_requestor
+                    False: ['supported', 'pcdrl']  # self.is_acceptor
+                }
             }
         }
 
-        available = possible[self.writeable][self.is_requestor]
-        if cx_type in available:
+        available = possible[self.assoc.is_requestor][self.writeable]
+        if cx_type in available[self.is_requestor]:
             return contexts[cx_type]
 
-        available = [f"'{vv}'" for vv in available]
         raise ValueError(
-            f"Invalid 'cx_type', must be {' or '.join(available)}"
+            f"No '{cx_type}' presentation contexts are available for the "
+            f"{('requestor', 'acceptor')[self.is_acceptor]} service user"
         )
 
     @property
@@ -3940,6 +3952,9 @@ class ServiceUser:
         """A :class:`list` of the requestor's requested presentation
         contexts.
         """
+        if not self.writeable and self.assoc.is_acceptor:
+            return self.get_contexts('pcdl')
+
         return self.get_contexts('requested')
 
     @requested_contexts.setter
@@ -4136,6 +4151,9 @@ class ServiceUser:
         list of presentation.PresentationContext
             The supported presentation contexts when acting as an acceptor.
         """
+        if not self.writeable and self.assoc.is_requestor:
+            return self.get_contexts('pcdrl')
+
         return self.get_contexts('supported')
 
     @supported_contexts.setter
