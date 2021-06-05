@@ -18,7 +18,7 @@ from pydicom.uid import UID
 
 from pynetdicom import _config
 from pynetdicom._globals import OptionalUIDType
-from pynetdicom.utils import validate_ae_title, validate_uid
+from pynetdicom.utils import validate_ae_title, validate_uid, as_uid
 
 
 if TYPE_CHECKING:  # pragma: no cover
@@ -82,6 +82,21 @@ class DIMSEPrimitive:
     _status: Optional[int] = None
 
     _context_id: Optional[int] = None
+
+    # If we are sending a C-STORE service primitive:
+    #   If None then the dataset is encoded as BytesIO
+    #   If not None then the dataset is stored at (path, offset)
+    # If we are receiving a C-STORE service primitive:
+    #   If None then the dataset is encoded as BytesIO
+    #   If not None then the dataset is stored at _dataset_path
+    # self._dataset_path = None
+    # If we are sending a C-STORE service primitive:
+    #   Always None
+    # If we are receiving a C-STORE service primitive:
+    #   If None then the dataset is encoded as BytesIO
+    #   If not None then _dataset_file backs the dataset stored
+    #   at _dataset_path
+    # self._dataset_file = None
     _dataset_path: Optional[Union[Path, Tuple[Path, int]]] = None
     _dataset_file: Optional["NTF"] = None
 
@@ -100,31 +115,8 @@ class DIMSEPrimitive:
     @AffectedSOPClassUID.setter
     def AffectedSOPClassUID(self, value: OptionalUIDType) -> None:
         """Set the *Affected SOP Class UID*."""
-        if isinstance(value, UID):
-            pass
-        elif isinstance(value, str):
-            value = UID(value)
-        elif isinstance(value, bytes):
-            value = UID(value.decode('ascii'))
-        elif value is None:
-            pass
-        else:
-            raise TypeError("Affected SOP Class UID must be a "
-                            "pydicom.uid.UID, str or bytes")
-
-        if value and not validate_uid(value):
-            LOGGER.error("Affected SOP Class UID is an invalid UID")
-            raise ValueError("Affected SOP Class UID is an invalid UID")
-
-        if value and not value.is_valid:
-            LOGGER.warning(
-                f"The Affected SOP Class UID '{value}' is non-conformant"
-            )
-
-        if value:
-            self._affected_sop_class_uid = value
-        else:
-            self._affected_sop_class_uid = None
+        with as_uid(value, 'Affected SOP Class UID') as uid:
+            self._affected_sop_class_uid = uid or None
 
     @property
     def _AffectedSOPInstanceUID(self) -> Optional[UID]:
@@ -141,31 +133,8 @@ class DIMSEPrimitive:
         value : pydicom.uid.UID, bytes or str
             The value for the Affected SOP Class UID
         """
-        if isinstance(value, UID):
-            pass
-        elif isinstance(value, str):
-            value = UID(value)
-        elif isinstance(value, bytes):
-            value = UID(value.decode('ascii'))
-        elif value is None:
-            pass
-        else:
-            raise TypeError("Affected SOP Instance UID must be a "
-                            "pydicom.uid.UID, str or bytes")
-
-        if value and not validate_uid(value):
-            LOGGER.error("Affected SOP Instance UID is an invalid UID")
-            raise ValueError("Affected SOP Instance UID is an invalid UID")
-
-        if value and not value.is_valid:
-            LOGGER.warning(
-                f"The Affected SOP Instance UID '{value}' is non-conformant"
-            )
-
-        if value:
-            self._affected_sop_instance_uid = value
-        else:
-            self._affected_sop_instance_uid = None
+        with as_uid(value, 'Affected SOP Instance UID') as uid:
+            self._affected_sop_instance_uid = uid or None
 
     @property
     def _dataset_variant(self) -> Optional[BytesIO]:
@@ -387,31 +356,8 @@ class DIMSEPrimitive:
         value : pydicom.uid.UID, bytes or str
             The value for the Requested SOP Class UID
         """
-        if isinstance(value, UID):
-            pass
-        elif isinstance(value, str):
-            value = UID(value)
-        elif isinstance(value, bytes):
-            value = UID(value.decode('ascii'))
-        elif value is None:
-            pass
-        else:
-            raise TypeError("Requested SOP Class UID must be a "
-                            "pydicom.uid.UID, str or bytes")
-
-        if value and not validate_uid(value):
-            LOGGER.error("Requested SOP Class UID is an invalid UID")
-            raise ValueError("Requested SOP Class UID is an invalid UID")
-
-        if value and not value.is_valid:
-            LOGGER.warning(
-                f"The Requested SOP Class UID '{value}' is non-conformant"
-            )
-
-        if value:
-            self._requested_sop_class_uid = value
-        else:
-            self._requested_sop_class_uid = None
+        with as_uid(value, 'Requested SOP Class UID') as uid:
+            self._requested_sop_class_uid = uid or None
 
     @property
     def _RequestedSOPInstanceUID(self) -> Optional[UID]:
@@ -427,31 +373,8 @@ class DIMSEPrimitive:
         value : pydicom.uid.UID, bytes or str
             The value for the Requested SOP Instance UID
         """
-        if isinstance(value, UID):
-            pass
-        elif isinstance(value, str):
-            value = UID(value)
-        elif isinstance(value, bytes):
-            value = UID(value.decode('ascii'))
-        elif value is None:
-            pass
-        else:
-            raise TypeError("Requested SOP Instance UID must be a "
-                            "pydicom.uid.UID, str or bytes")
-
-        if value and not validate_uid(value):
-            LOGGER.error("Requested SOP Instance UID is an invalid UID")
-            raise ValueError("Requested SOP Instance UID is an invalid UID")
-
-        if value and not value.is_valid:
-            LOGGER.warning(
-                f"The Requested SOP Instance UID '{value}' is non-conformant"
-            )
-
-        if value:
-            self._requested_sop_instance_uid = value
-        else:
-            self._requested_sop_instance_uid = None
+        with as_uid(value, 'Requested SOP Instance UID') as uid:
+            self._requested_sop_instance_uid = uid or None
 
     @property
     def Status(self) -> Optional[int]:
@@ -570,21 +493,6 @@ class C_STORE(DIMSEPrimitive):
         self.ErrorComment = None
         # For Failure statuses 0x0117
         # self.AffectedSOPInstanceUID
-
-        # If we are sending a C-STORE service primitive:
-        #   If None then the dataset is encoded as BytesIO
-        #   If not None then the dataset is stored at (path, offset)
-        # If we are receiving a C-STORE service primitive:
-        #   If None then the dataset is encoded as BytesIO
-        #   If not None then the dataset is stored at _dataset_path
-        # self._dataset_path = None
-        # If we are sending a C-STORE service primitive:
-        #   Always None
-        # If we are receiving a C-STORE service primitive:
-        #   If None then the dataset is encoded as BytesIO
-        #   If not None then _dataset_file backs the dataset stored
-        #   at _dataset_path
-        # self._dataset_file = None
 
     @property
     def AffectedSOPInstanceUID(self) -> Optional[UID]:

@@ -45,6 +45,7 @@ from .parrot import ThreadedParrot, ParrotRequest
 
 #debug_logger()
 
+
 class DummyAssociationSocket:
     def __init__(self):
         self._ready = threading.Event()

@@ -8,7 +8,7 @@ import pytest
 
 from pydicom.uid import UID
 
-from pynetdicom import _config
+from pynetdicom import _config, debug_logger
 from pynetdicom.pdu import (
     A_ASSOCIATE_RQ, A_ASSOCIATE_AC, P_DATA_TF
 )
@@ -48,8 +48,8 @@ from .encoded_pdu_items import (
     p_data_tf, a_associate_ac_zero_ts
 )
 
-LOGGER = logging.getLogger('pynetdicom')
-LOGGER.setLevel(logging.CRITICAL)
+
+#debug_logger()
 
 
 def print_nice_bytes(bytestream):
@@ -283,13 +283,27 @@ class TestApplicationContext:
         item.application_context_name = 'abc'
         assert item.application_context_name == 'abc'
 
-        msg = r"Invalid 'Application Context Name'"
+        bad = 'abc' * 22
+        msg = (
+            f"Invalid UID '{bad}' used with the 'Application Context Name' "
+            "parameter"
+        )
         with pytest.raises(ValueError, match=msg):
             item.application_context_name = 'abc' * 22
 
         _config.ENFORCE_UID_CONFORMANCE = True
+        msg = (
+            f"Invalid UID 'abc' used with the 'Application Context Name' "
+            "parameter"
+        )
         with pytest.raises(ValueError, match=msg):
             item.application_context_name = 'abc'
+
+    def test_none_raises(self):
+        """Test an empty value raises exception"""
+        item = ApplicationContextItem()
+        with pytest.raises(TypeError):
+            item.application_context_name = None
 
     def test_string_output(self):
         """Test the string output"""
@@ -671,11 +685,19 @@ class TestAbstractSyntax:
         item.abstract_syntax_name = 'abc'
         assert item.abstract_syntax_name == 'abc'
 
-        msg = r"Abstract Syntax Name is an invalid UID"
+        bad = 'abc' * 22
+        msg = (
+            f"Invalid UID '{bad}' used with the 'Abstract Syntax Name' "
+            "parameter"
+        )
         with pytest.raises(ValueError, match=msg):
-            item.abstract_syntax_name = 'abc' * 22
+            item.abstract_syntax_name = bad
 
         _config.ENFORCE_UID_CONFORMANCE = True
+        msg = (
+            r"Invalid UID 'abc' used with the 'Abstract Syntax Name' "
+            r"parameter"
+        )
         with pytest.raises(ValueError, match=msg):
             item.abstract_syntax_name = 'abc'
 
@@ -808,11 +830,19 @@ class TestTransferSyntax:
         item.transfer_syntax_name = 'abc'
         assert item.transfer_syntax_name == 'abc'
 
-        msg = r"Transfer Syntax Name is an invalid UID"
+        bad = 'abc' * 22
+        msg = (
+            f"Invalid UID '{bad}' used with the 'Transfer Syntax Name' "
+            "parameter"
+        )
         with pytest.raises(ValueError, match=msg):
-            item.transfer_syntax_name = 'abc' * 22
+            item.transfer_syntax_name = bad
 
         _config.ENFORCE_UID_CONFORMANCE = True
+        msg = (
+            r"Invalid UID 'abc' used with the 'Transfer Syntax Name' "
+            r"parameter"
+        )
         with pytest.raises(ValueError, match=msg):
             item.transfer_syntax_name = 'abc'
 
@@ -1246,11 +1276,19 @@ class TestUserInformation_ImplementationUID:
         item.implementation_class_uid = 'abc'
         assert item.implementation_class_uid == 'abc'
 
-        msg = r"Implementation Class UID is an invalid UID"
+        bad = 'abc' * 22
+        msg = (
+            f"Invalid UID '{bad}' used with the 'Implementation Class UID' "
+            "parameter"
+        )
         with pytest.raises(ValueError, match=msg):
-            item.implementation_class_uid = 'abc' * 22
+            item.implementation_class_uid = bad
 
         _config.ENFORCE_UID_CONFORMANCE = True
+        msg = (
+            f"Invalid UID 'abc' used with the 'Implementation Class UID' "
+            "parameter"
+        )
         with pytest.raises(ValueError, match=msg):
             item.implementation_class_uid = 'abc'
 
@@ -1419,7 +1457,10 @@ class TestUserInformation_ImplementationUID:
         assert caplog.text == ''
 
         # Invalid UID (with no padding)
-        msg = r"Implementation Class UID is an invalid UID"
+        msg = (
+            f"Invalid UID '00.1.2.3' used with the 'Implementation Class UID' "
+            "parameter"
+        )
         with pytest.raises(ValueError, match=msg):
             item.decode(
                 b'\x52\x00\x00\x08'
@@ -1433,15 +1474,12 @@ class TestUserInformation_ImplementationUID:
                 b'\x30\x30\x2e\x31\x2e\x32\x2e\x33\x00'
             )
 
-        item._implementation_class_uid = '00.1.2.3'
-        msg = (
-            r"The Implementation Class UID Notification's 'Implementation "
-            r"Class UID' parameter value '00.1.2.3' is not a valid UID"
-        )
-        with pytest.raises(ValueError, match=msg):
-            primitive = item.to_primitive()
+        with caplog.at_level(logging.ERROR, logger='pynetdicom'):
+            item._implementation_class_uid = '00.1.2.3'
+            with pytest.raises(ValueError, match=msg):
+                primitive = item.to_primitive()
 
-        assert msg in caplog.text
+            assert msg in caplog.text
 
 
 class TestUserInformation_ImplementationVersion:
@@ -1622,11 +1660,13 @@ class TestUserInformation_RoleSelection:
         item.sop_class_uid = 'abc'
         assert item.sop_class_uid == 'abc'
 
-        msg = r"SOP Class UID is an invalid UID"
+        bad = 'abc' * 22
+        msg = f"Invalid UID '{bad}' used with the 'SOP Class UID' parameter"
         with pytest.raises(ValueError, match=msg):
-            item.sop_class_uid = 'abc' * 22
+            item.sop_class_uid = bad
 
         _config.ENFORCE_UID_CONFORMANCE = True
+        msg = f"Invalid UID 'abc' used with the 'SOP Class UID' parameter"
         with pytest.raises(ValueError, match=msg):
             item.sop_class_uid = 'abc'
 
@@ -2143,11 +2183,13 @@ class TestUserInformation_ExtendedNegotiation:
         item.sop_class_uid = 'abc'
         assert item.sop_class_uid == 'abc'
 
-        msg = r"SOP Class UID is an invalid UID"
+        bad = 'abc' * 22
+        msg = f"Invalid UID '{bad}' used with the 'SOP Class UID' parameter"
         with pytest.raises(ValueError, match=msg):
             item.sop_class_uid = 'abc' * 22
 
         _config.ENFORCE_UID_CONFORMANCE = True
+        msg = f"Invalid UID 'abc' used with the 'SOP Class UID' parameter"
         with pytest.raises(ValueError, match=msg):
             item.sop_class_uid = 'abc'
 
@@ -2368,27 +2410,33 @@ class TestUserInformation_CommonExtendedNegotiation:
         item.related_general_sop_class_identification = ['abc']
         assert item.related_general_sop_class_identification == ['abc']
 
-        msg = r"SOP Class UID is an invalid UID"
+        invalid = 'abc' * 22
+        msg = (
+            f"Invalid UID '{invalid}' used with the 'SOP Class UID' parameter"
+        )
         with pytest.raises(ValueError, match=msg):
-            item.sop_class_uid = 'abc' * 22
+            item.sop_class_uid = invalid
 
-        msg = r"Service Class UID is an invalid UID"
+        msg = (
+            f"Invalid UID '{invalid}' used with the 'Service Class UID' "
+            "parameter"
+        )
         with pytest.raises(ValueError, match=msg):
-            item.service_class_uid = 'abc' * 22
+            item.service_class_uid = invalid
 
         msg = (
             r"Related General SOP Class Identification contains "
             r"an invalid UID"
         )
         with pytest.raises(ValueError, match=msg):
-            item.related_general_sop_class_identification = ['abc' * 22]
+            item.related_general_sop_class_identification = [invalid]
 
         _config.ENFORCE_UID_CONFORMANCE = True
-        msg = r"SOP Class UID is an invalid UID"
+        msg = r"Invalid UID 'abc' used with the 'SOP Class UID' parameter"
         with pytest.raises(ValueError, match=msg):
             item.sop_class_uid = 'abc'
 
-        msg = r"Service Class UID is an invalid UID"
+        msg = r"Invalid UID 'abc' used with the 'Service Class UID' parameter"
         with pytest.raises(ValueError, match=msg):
             item.service_class_uid = 'abc'
 
