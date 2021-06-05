@@ -481,7 +481,7 @@ class ApplicationContextItem(PDUItem):
         """
         # Disallow None as a value
         with as_uid(value, "Application Context Name", False) as uid:
-            self._application_context_name = uid
+            self._application_context_name = cast(UID, uid)
 
     @property
     def _decoders(self) -> Any:
