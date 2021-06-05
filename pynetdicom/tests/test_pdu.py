@@ -65,7 +65,7 @@ class TestPDU:
         bb.decode(a_associate_rq)
         assert aa == bb
 
-        aa.calling_ae_title = b'TEST_AE_TITLE_00'
+        aa.calling_ae_title = 'TEST_AE_TITLE_00'
         assert not aa == bb
 
         assert aa == aa
@@ -159,11 +159,11 @@ class TestPDU:
         out = pdu._wrap_encode_items([release_a, release_a])
         assert out == b'\x05\x00\x00\x00\x00\x04\x00\x00\x00\x00' * 2
 
-    def test_wrap_encode_uid(self):
-        """Test PDU._wrap_encode_uid()."""
+    def test_wrap_encode_str(self):
+        """Test PDU.__wrap_encode_str()."""
         pdu = PDU()
         uid = UID('1.2.840.10008.1.1')
-        out = pdu._wrap_encode_uid(uid)
+        out = pdu._wrap_encode_str(uid)
         assert out == b'1.2.840.10008.1.1'
 
     def test_wrap_generate_items(self):
@@ -199,8 +199,8 @@ class TestASSOC_RQ:
     def test_init(self):
         pdu = A_ASSOCIATE_RQ()
         assert pdu.protocol_version == 0x01
-        assert pdu.calling_ae_title == b'Default         '
-        assert pdu.called_ae_title == b'Default         '
+        assert pdu.calling_ae_title == 'Default'
+        assert pdu.called_ae_title == 'Default'
         assert pdu.variable_items == []
         assert pdu.pdu_type == 0x01
         assert pdu.pdu_length == 68
@@ -215,14 +215,18 @@ class TestASSOC_RQ:
         pdu = A_ASSOCIATE_RQ()
 
         # pdu.called_ae_title
-        assert pdu.called_ae_title == b'Default         '
+        assert pdu.called_ae_title == 'Default'
         pdu.called_ae_title = 'TEST_SCP'
-        assert pdu.called_ae_title == b'TEST_SCP        '
+        assert pdu.called_ae_title == 'TEST_SCP'
+        pdu.called_ae_title = '  TEST SCP   '
+        assert pdu.called_ae_title == '  TEST SCP   '
 
         # pdu.calling_ae_title
-        assert pdu.calling_ae_title == b'Default         '
+        assert pdu.calling_ae_title == 'Default'
         pdu.calling_ae_title = 'TEST_SCP2'
-        assert pdu.calling_ae_title == b'TEST_SCP2       '
+        assert pdu.calling_ae_title == 'TEST_SCP2'
+        pdu.calling_ae_title = '  TEST SCP2   '
+        assert pdu.calling_ae_title == '  TEST SCP2   '
 
     def test_string_output(self):
         """Check the string output works"""
@@ -238,8 +242,8 @@ class TestASSOC_RQ:
         pdu.decode(a_associate_rq)
 
         assert pdu.protocol_version == 0x01
-        assert pdu.calling_ae_title == b'ECHOSCU         '
-        assert pdu.called_ae_title == b'ANY-SCP         '
+        assert pdu.calling_ae_title == 'ECHOSCU'
+        assert pdu.called_ae_title == 'ANY-SCP'
         assert pdu.pdu_type == 0x01
         assert pdu.pdu_length == 209
         assert len(pdu) == 215
@@ -290,8 +294,8 @@ class TestASSOC_RQ:
         pr = pdu.to_primitive()
 
         assert pr.application_context_name == UID('1.2.840.10008.3.1.1.1')
-        assert pr.calling_ae_title == b'ECHOSCU         '
-        assert pr.called_ae_title == b'ANY-SCP         '
+        assert pr.calling_ae_title == 'ECHOSCU'
+        assert pr.called_ae_title == 'ANY-SCP'
 
         # Test User Information
         for item in pr.user_information:
@@ -309,8 +313,8 @@ class TestASSOC_RQ:
 
             # Implementation Version Name (optional)
             elif isinstance(item, ImplementationVersionNameNotification):
-                assert item.implementation_version_name == b'PYNETDICOM_090'
-                assert isinstance(item.implementation_version_name, bytes)
+                assert item.implementation_version_name == 'PYNETDICOM_090'
+                assert isinstance(item.implementation_version_name, str)
 
         # Test Presentation Contexts
         for context in pr.presentation_context_definition_list:
@@ -320,8 +324,8 @@ class TestASSOC_RQ:
                 assert syntax == UID('1.2.840.10008.1.2')
 
         assert isinstance(pr.application_context_name, UID)
-        assert isinstance(pr.calling_ae_title, bytes)
-        assert isinstance(pr.called_ae_title, bytes)
+        assert isinstance(pr.calling_ae_title, str)
+        assert isinstance(pr.called_ae_title, str)
         assert isinstance(pr.user_information, list)
         assert isinstance(pr.presentation_context_definition_list, list)
 
@@ -482,10 +486,10 @@ class TestASSOC_RQ_UserInformation:
             elif isinstance(item, ImplementationVersionNameSubItem):
                 assert item.item_type == 0x55
                 assert item.item_length == 14
-                assert item.implementation_version_name == b'PYNETDICOM_090'
+                assert item.implementation_version_name == 'PYNETDICOM_090'
                 assert isinstance(item.item_type, int)
                 assert isinstance(item.item_length, int)
-                assert isinstance(item.implementation_version_name, bytes)
+                assert isinstance(item.implementation_version_name, str)
 
     def test_decode_properties(self):
         """Check decoding produces the correct property values."""
@@ -499,7 +503,7 @@ class TestASSOC_RQ_UserInformation:
         assert user_info.implementation_class_uid == (
             '1.2.826.0.1.3680043.9.3811.0.9.0'
         )
-        assert user_info.implementation_version_name == b'PYNETDICOM_090'
+        assert user_info.implementation_version_name == 'PYNETDICOM_090'
         assert user_info.maximum_length == 16382
         assert user_info.role_selection == {}
         assert user_info.user_identity is None
@@ -510,16 +514,16 @@ class TestASSOC_AC:
         """Test a new A_ASSOCIATE_AC PDU."""
         pdu = A_ASSOCIATE_AC()
         assert pdu.protocol_version == 0x01
-        assert pdu._reserved_aet is None
-        assert pdu._reserved_aec is None
+        assert pdu.reserved_aet == ""
+        assert pdu.reserved_aec == ""
         assert pdu.variable_items == []
         assert pdu.pdu_type == 0x02
         assert pdu.pdu_length == 68
         assert len(pdu) ==  74
 
         assert pdu.application_context_name is None
-        assert pdu.called_ae_title is None
-        assert pdu.calling_ae_title is None
+        assert pdu.called_ae_title == ""
+        assert pdu.calling_ae_title == ""
         assert pdu.presentation_context == []
         assert pdu.user_information is None
 
@@ -554,10 +558,10 @@ class TestASSOC_AC:
         pdu.decode(a_associate_ac)
 
         # Check AE titles
-        assert pdu._reserved_aec == b'ECHOSCU         '
-        assert pdu._reserved_aet == b'ANY-SCP         '
-        assert pdu.calling_ae_title == b'ECHOSCU         '
-        assert pdu.called_ae_title == b'ANY-SCP         '
+        assert pdu.reserved_aec == 'ECHOSCU'
+        assert pdu.reserved_aet == 'ANY-SCP'
+        assert pdu.calling_ae_title == 'ECHOSCU'
+        assert pdu.called_ae_title == 'ANY-SCP'
 
         # Check application_context_name property
         assert isinstance(pdu.application_context_name, UID)
@@ -591,8 +595,8 @@ class TestASSOC_AC:
         assert primitive.application_context_name == UID(
             '1.2.840.10008.3.1.1.1'
         )
-        assert primitive.calling_ae_title == b'ECHOSCU         '
-        assert primitive.called_ae_title == b'ANY-SCP         '
+        assert primitive.calling_ae_title == 'ECHOSCU'
+        assert primitive.called_ae_title == 'ANY-SCP'
 
         # Test User Information
         for item in primitive.user_information:
@@ -610,8 +614,8 @@ class TestASSOC_AC:
 
             # Implementation Version Name (optional)
             elif isinstance(item, ImplementationVersionNameNotification):
-                assert item.implementation_version_name == b'OFFIS_DCMTK_360'
-                assert isinstance(item.implementation_version_name, bytes)
+                assert item.implementation_version_name == 'OFFIS_DCMTK_360'
+                assert isinstance(item.implementation_version_name, str)
 
         # Test Presentation Contexts
         for context in primitive.presentation_context_definition_list:
@@ -619,8 +623,8 @@ class TestASSOC_AC:
             assert context.transfer_syntax[0] == UID('1.2.840.10008.1.2')
 
         assert isinstance(primitive.application_context_name, UID)
-        assert isinstance(primitive.calling_ae_title, bytes)
-        assert isinstance(primitive.called_ae_title, bytes)
+        assert isinstance(primitive.calling_ae_title, str)
+        assert isinstance(primitive.called_ae_title, str)
         assert isinstance(primitive.user_information, list)
 
         assert primitive.result == 0
@@ -773,10 +777,10 @@ class TestASSOC_AC_UserInformation:
             elif isinstance(item, ImplementationVersionNameSubItem):
                 assert item.item_type == 0x55
                 assert item.item_length == 15
-                assert item.implementation_version_name == b'OFFIS_DCMTK_360'
+                assert item.implementation_version_name == 'OFFIS_DCMTK_360'
                 assert isinstance(item.item_type, int)
                 assert isinstance(item.item_length, int)
-                assert isinstance(item.implementation_version_name, bytes)
+                assert isinstance(item.implementation_version_name, str)
 
     def test_decode_properties(self):
         """Check decoding produces the correct property values."""
@@ -790,7 +794,7 @@ class TestASSOC_AC_UserInformation:
         assert user_info.implementation_class_uid == (
             '1.2.276.0.7230010.3.0.3.6.0'
         )
-        assert user_info.implementation_version_name == b'OFFIS_DCMTK_360'
+        assert user_info.implementation_version_name == 'OFFIS_DCMTK_360'
         assert user_info.maximum_length == 16384
         assert user_info.role_selection == {}
         assert user_info.user_identity is None
@@ -1348,6 +1352,7 @@ class TestABORT:
 
         pdu.source = None
         assert pdu.reason_str == '(no value available)'
+
 
 class TestEventHandlingAcceptor:
     """Test the transport events and handling as acceptor."""

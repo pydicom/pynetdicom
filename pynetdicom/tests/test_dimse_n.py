@@ -25,7 +25,6 @@ from pynetdicom.dimse_primitives import (
 )
 from pynetdicom.utils import pretty_bytes
 from pynetdicom.dsutils import decode, encode
-from pynetdicom.utils import validate_ae_title
 from .encoded_dimse_n_msg import (
     n_er_rq_cmd, n_er_rq_ds, n_er_rsp_cmd, n_er_rsp_ds,
     n_get_rq_cmd, n_get_rsp_cmd, n_get_rsp_ds,

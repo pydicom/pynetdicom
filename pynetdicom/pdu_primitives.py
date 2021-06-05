@@ -20,7 +20,9 @@ from pynetdicom.pdu_items import (
     UserIdentitySubItemAC
 )
 from pynetdicom.presentation import PresentationContext
-from pynetdicom.utils import validate_ae_title, validate_uid, decode_bytes, as_uid
+from pynetdicom.utils import (
+    validate_uid, decode_bytes, as_uid, set_ae
+)
 from pynetdicom._globals import DEFAULT_MAX_LENGTH
 
 LOGGER = logging.getLogger('pynetdicom.pdu_primitives')
@@ -143,8 +145,8 @@ class A_ASSOCIATE:
 
     def __init__(self) -> None:
         self._application_context_name: Optional[UID] = None
-        self._calling_ae_title: Optional[bytes] = None
-        self._called_ae_title: Optional[bytes] = None
+        self._calling_ae_title: Optional[str] = None
+        self._called_ae_title: Optional[str] = None
         self._user_information: _UserInformationPrimitiveType = []
         self._result: Optional[int] = None
         self._result_source: Optional[int] = None
@@ -153,11 +155,6 @@ class A_ASSOCIATE:
         self._called_presentation_address: Optional[Tuple[str, int]] = None
         self._presentation_context_definition_list: List[PresentationContext] = []
         self._presentation_context_definition_results_list: List[PresentationContext] = []
-
-    @property
-    def mode(self) -> str:
-        """Return the *Mode* parameter as :class:`str`."""
-        return "normal"
 
     @property
     def application_context_name(self) -> Optional[UID]:
@@ -187,35 +184,7 @@ class A_ASSOCIATE:
             self._application_context_name = uid
 
     @property
-    def calling_ae_title(self) -> Optional[bytes]:
-        """Get or set the *Calling AE Title* parameter.
-
-        Parameters
-        ----------
-        value : str or bytes
-            The Calling AE Title as a string or bytes object. Cannot be an
-            empty string and will be truncated to 16 characters long.
-
-        Returns
-        -------
-        bytes
-        """
-        return self._calling_ae_title
-
-    @calling_ae_title.setter
-    def calling_ae_title(self, value: Optional[Union[str, bytes]]) -> None:
-        """Set the Calling AE Title parameter."""
-        # pylint: disable=attribute-defined-outside-init
-        if isinstance(value, str):
-            value = codecs.encode(value, 'ascii')
-
-        if value is not None:
-            self._calling_ae_title = validate_ae_title(value)
-        else:
-            self._calling_ae_title = None
-
-    @property
-    def called_ae_title(self) -> Optional[bytes]:
+    def called_ae_title(self) -> Optional[str]:
         """Get or set the *Called AE Title* parameter.
 
         Parameters
@@ -233,278 +202,12 @@ class A_ASSOCIATE:
     @called_ae_title.setter
     def called_ae_title(self, value: Optional[Union[str, bytes]]) -> None:
         """Set the Called AE Title parameter."""
-        # pylint: disable=attribute-defined-outside-init
-        if isinstance(value, str):
-            value = codecs.encode(value, 'ascii')
+        if isinstance(value, bytes):
+            value = decode_bytes(value).strip()
 
-        if value is not None:
-            self._called_ae_title = validate_ae_title(value)
-        else:
-            self._called_ae_title = None
-
-    @property
-    def responding_ae_title(self) -> Optional[bytes]:
-        """Return the *Responding AE Title* parameter."""
-        return self.called_ae_title
-
-    @property
-    def user_information(self) -> _UserInformationPrimitiveType:
-        """Get or set the *User Information* parameter.
-
-        Parameters
-        ----------
-        value_list : list of user information class objects
-            A list of user information objects, must contain at least
-            MaximumLengthNotification and ImplementationClassUIDNotification
-        """
-        return self._user_information
-
-    @user_information.setter
-    def user_information(
-        self, value_list: _UserInformationPrimitiveType
-    ) -> None:
-        """Set the A-ASSOCIATE primitive's User Information parameter."""
-        # pylint: disable=attribute-defined-outside-init
-        valid_usr_info_items = []
-
-        if isinstance(value_list, list):
-            # Iterate through the items and check they're an acceptable class
-            for item in value_list:
-                if item.__class__.__name__ in \
-                        ["MaximumLengthNotification",
-                         "ImplementationClassUIDNotification",
-                         "ImplementationVersionNameNotification",
-                         "AsynchronousOperationsWindowNegotiation",
-                         "SCP_SCU_RoleSelectionNegotiation",
-                         "SOPClassExtendedNegotiation",
-                         "SOPClassCommonExtendedNegotiation",
-                         "UserIdentityNegotiation"]:
-                    valid_usr_info_items.append(item)
-                else:
-                    LOGGER.info("Attempted to set "
-                                "A_ASSOCIATE.user_information to a list "
-                                "which includes an unsupported item")
-        else:
-            LOGGER.error("A_ASSOCIATE.user_information must be a list")
-            raise TypeError("A_ASSOCIATE.user_information must be a list")
-
-        self._user_information = valid_usr_info_items
-
-    @property
-    def result(self) -> Optional[int]:
-        """Get or set the *Result* parameter.
-
-        Parameters
-        ----------
-        value : int
-            One of the following:
-
-            * 0: accepted
-            * 1: rejected (permanent)
-            * 2: rejected (transient)
-
-        Returns
-        -------
-        int
-        """
-        return self._result
-
-    @result.setter
-    def result(self, value: Optional[int]) -> None:
-        """Set the A-ASSOCIATE Service primitive's Result parameter."""
-        # pylint: disable=attribute-defined-outside-init
-        if value is None:
-            pass
-        elif value not in [0, 1, 2]:
-            LOGGER.error("A_ASSOCIATE.result set to an unknown value")
-            raise ValueError("Unknown A_ASSOCIATE.result value")
-
-        self._result = value
-
-    @property
-    def result_str(self) -> str:
-        """Return the result as str."""
-        results = {
-            0: "Accepted", 1: "Rejected Permanent", 2: "Rejected Transient"
-        }
-
-        if self.result not in results:
-            LOGGER.warning(
-                f"Invalid A-ASSOCIATE 'Result' {self.result}"
-            )
-            return "(no value available)"
-
-        return results[self.result]
-
-    @property
-    def result_source(self) -> Optional[int]:
-        """Get or set the *Result Source* parameter.
-
-        Parameters
-        ----------
-        value : int
-            One of the following:
-
-            * 1: UL service-user
-            * 2: UL service-provider (ACSE related function)
-            * 3: UL service-provider (presentation related function)
-
-        Returns
-        -------
-        int
-        """
-        return self._result_source
-
-    @result_source.setter
-    def result_source(self, value: Optional[int]) -> None:
-        """Set the A-ASSOCIATE Service primitive's Result Source parameter."""
-        # pylint: disable=attribute-defined-outside-init
-        if value is None:
-            pass
-        elif value not in [1, 2, 3]:
-            LOGGER.error("A_ASSOCIATE.result_source set to an unknown value")
-            raise ValueError("Unknown A_ASSOCIATE.result_source value")
-
-        self._result_source = value
-
-    @property
-    def source_str(self) -> str:
-        """Return the reject source as str."""
-        sources = {
-            1: 'Service User',
-            2: 'Service Provider (ACSE)',
-            3: 'Service Provider (Presentation)'
-        }
-        if self.result_source not in sources:
-            LOGGER.warning(
-                f"Invalid A-ASSOCIATE 'Result Source' {self.result_source}"
-            )
-            return "(no value available)"
-
-        return sources[self.result_source]
-
-    @property
-    def diagnostic(self) -> Optional[int]:
-        """Get or set the *Diagnostic* parameter.
-
-        Parameters
-        ----------
-        value : int
-            If `result_source` is "UL service-user" then allowed values are:
-
-            * 1: no reason given
-            * 2: application context name not supported
-            * 3: calling AE title not recognised
-            * 7: called AE title not recognised
-
-            If `result_source` is "UL service-provider (ACSE related function)"
-            then allowed values are:
-
-            * 1: no reason given
-            * 2: protocol version not supported"
-
-            If `result_source` is "UL service-provider (Presentation related
-            function)" then allowed values are:
-
-            * 1: temporary congestion
-            * 2: local limit exceeded
-        """
-        return self._diagnostic
-
-    @diagnostic.setter
-    def diagnostic(self, value: Optional[int]) -> None:
-        """
-        Set the A-ASSOCIATE Service primitive's Diagnostic parameter."""
-        # pylint: disable=attribute-defined-outside-init
-        if value is None:
-            pass
-        elif value not in [1, 2, 3, 7]:
-            LOGGER.error("A_ASSOCIATE.diagnostic set to an unknown value")
-            raise ValueError("Unknown A_ASSOCIATE.diagnostic value")
-
-        self._diagnostic = value
-
-    @property
-    def reason_str(self) -> str:
-        """Return the rejection reason as str."""
-        reasons = {
-            1: {
-                1: 'No reason given',
-                2: 'Application context name not supported',
-                3: 'Calling AE title not recognised',
-                4: 'Reserved',
-                5: 'Reserved',
-                6: 'Reserved',
-                7: 'Called AE title not recognised',
-                8: 'Reserved',
-                9: 'Reserved',
-                10: 'Reserved',
-            },
-            2: {
-                1: 'No reason given',
-                2: 'Protocol version not supported'
-            },
-            3: {
-                0: "Reserved",
-                1: "Temporary congestion",
-                2: "Local limit exceeded",
-                3: 'Reserved',
-                4: 'Reserved',
-                5: 'Reserved',
-                6: 'Reserved',
-                7: 'Reserved',
-            }
-        }
-        result = cast(int, self.result_source)
-        diagnostic = cast(int, self.diagnostic)
-        try:
-            return reasons[result][diagnostic]
-        except KeyError:
-            LOGGER.warning(
-                f"Invalid A-ASSOCIATE 'Result Source' {result} and/or "
-                f"'Diagnostic' {diagnostic} values"
-            )
-            return "(no value available)"
-
-    @property
-    def calling_presentation_address(self) -> Optional[Tuple[str, int]]:
-        """Get or set the *Calling Presentation Address* parameter.
-
-        Parameters
-        ----------
-        value : (str, int) tuple
-            A tuple containing a valid TCP/IP address string and the port
-            number as an int
-        """
-        return self._calling_presentation_address
-
-    @calling_presentation_address.setter
-    def calling_presentation_address(
-        self, value: Optional[Tuple[str, int]]
-    ) -> None:
-        """Set the A-ASSOCIATE Service primitive's Calling Presentation
-        Address parameter.
-        """
-        # pylint: disable=attribute-defined-outside-init
-        if isinstance(value, tuple):
-            if (
-                len(value) == 2
-                and isinstance(value[0], str)
-                and isinstance(value[1], int)
-            ):
-                self._calling_presentation_address = value
-            else:
-                LOGGER.error("A_ASSOCIATE.calling_presentation_address must "
-                             "be (str, int) tuple")
-                raise TypeError("A_ASSOCIATE.calling_presentation_address "
-                                "must be (str, int) tuple")
-        elif value is None:
-            self._calling_presentation_address = value
-        else:
-            LOGGER.error("A_ASSOCIATE.calling_presentation_address must be "
-                         "(str, int) tuple")
-            raise TypeError("A_ASSOCIATE.calling_presentation_address must "
-                            "be (str, int) tuple")
+        self._called_ae_title = set_ae(
+            value, 'Called AE Title', allow_empty=False
+        )
 
     @property
     def called_presentation_address(self) -> Optional[Tuple[str, int]]:
@@ -553,9 +256,203 @@ class A_ASSOCIATE:
             )
 
     @property
-    def responding_presentation_address(self) -> Optional[Tuple[str, int]]:
-        """Get the Responding Presentation Address parameter."""
-        return self.called_presentation_address
+    def calling_ae_title(self) -> Optional[str]:
+        """Get or set the *Calling AE Title* parameter.
+
+        Parameters
+        ----------
+        value : str or bytes
+            The Calling AE Title as a string or bytes object. Cannot be an
+            empty string and will be truncated to 16 characters long.
+
+        Returns
+        -------
+        bytes
+        """
+        return self._calling_ae_title
+
+    @calling_ae_title.setter
+    def calling_ae_title(self, value: Optional[Union[str, bytes]]) -> None:
+        """Set the Calling AE Title parameter."""
+        if isinstance(value, bytes):
+            value = decode_bytes(value).strip()
+
+        self._calling_ae_title = set_ae(
+            value, 'Calling AE Title', allow_empty=False
+        )
+
+    @property
+    def calling_presentation_address(self) -> Optional[Tuple[str, int]]:
+        """Get or set the *Calling Presentation Address* parameter.
+
+        Parameters
+        ----------
+        value : (str, int) tuple
+            A tuple containing a valid TCP/IP address string and the port
+            number as an int
+        """
+        return self._calling_presentation_address
+
+    @calling_presentation_address.setter
+    def calling_presentation_address(
+        self, value: Optional[Tuple[str, int]]
+    ) -> None:
+        """Set the A-ASSOCIATE Service primitive's Calling Presentation
+        Address parameter.
+        """
+        # pylint: disable=attribute-defined-outside-init
+        if isinstance(value, tuple):
+            if (
+                len(value) == 2
+                and isinstance(value[0], str)
+                and isinstance(value[1], int)
+            ):
+                self._calling_presentation_address = value
+            else:
+                LOGGER.error("A_ASSOCIATE.calling_presentation_address must "
+                             "be (str, int) tuple")
+                raise TypeError("A_ASSOCIATE.calling_presentation_address "
+                                "must be (str, int) tuple")
+        elif value is None:
+            self._calling_presentation_address = value
+        else:
+            LOGGER.error("A_ASSOCIATE.calling_presentation_address must be "
+                         "(str, int) tuple")
+            raise TypeError("A_ASSOCIATE.calling_presentation_address must "
+                            "be (str, int) tuple")
+
+    @property
+    def diagnostic(self) -> Optional[int]:
+        """Get or set the *Diagnostic* parameter.
+
+        Parameters
+        ----------
+        value : int
+            If `result_source` is "UL service-user" then allowed values are:
+
+            * 1: no reason given
+            * 2: application context name not supported
+            * 3: calling AE title not recognised
+            * 7: called AE title not recognised
+
+            If `result_source` is "UL service-provider (ACSE related function)"
+            then allowed values are:
+
+            * 1: no reason given
+            * 2: protocol version not supported"
+
+            If `result_source` is "UL service-provider (Presentation related
+            function)" then allowed values are:
+
+            * 1: temporary congestion
+            * 2: local limit exceeded
+        """
+        return self._diagnostic
+
+    @diagnostic.setter
+    def diagnostic(self, value: Optional[int]) -> None:
+        """
+        Set the A-ASSOCIATE Service primitive's Diagnostic parameter."""
+        # pylint: disable=attribute-defined-outside-init
+        if value is None:
+            pass
+        elif value not in [1, 2, 3, 7]:
+            LOGGER.error("A_ASSOCIATE.diagnostic set to an unknown value")
+            raise ValueError("Unknown A_ASSOCIATE.diagnostic value")
+
+        self._diagnostic = value
+
+    @property
+    def implementation_class_uid(self) -> Optional[UID]:
+        """Get or set the *Implementation Class UID* as
+        :class:`~pydicom.uid.UID`.
+
+        If the A_ASSOCIATE.user_information list contains an
+        ImplementationClassUIDNotification item then set its
+        implementation_class_uid value. If not then add a
+        ImplementationClassUIDNotification item and set its
+        implementation_class_uid value.
+
+        Parameters
+        ----------
+        value : pydicom.uid.UID, bytes or str
+            The value for the Implementation Class UID
+        """
+        for item in self.user_information:
+            if isinstance(item, ImplementationClassUIDNotification):
+                if item.implementation_class_uid is None:
+                    LOGGER.error("Implementation Class UID has not been set")
+                    raise ValueError("Implementation Class UID has not "
+                                     "been set")
+
+                return item.implementation_class_uid
+
+        LOGGER.error("Implementation Class UID has not been set")
+        raise ValueError("Implementation Class UID has not been set")
+
+    @implementation_class_uid.setter
+    def implementation_class_uid(self, value: OptionalUIDType) -> None:
+        """Set the Implementation Class UID."""
+        # Type and value checking for the implementation_class_uid parameter is
+        #   done by the ImplementationClassUIDNotification class
+
+        # Check for a ImplementationClassUIDNotification item
+        found_item = False
+        for item in self.user_information:
+            if isinstance(item, ImplementationClassUIDNotification):
+                found_item = True
+                item.implementation_class_uid = value  # type: ignore
+
+        # No ImplementationClassUIDNotification item found
+        if not found_item:
+            imp_uid = ImplementationClassUIDNotification()
+            imp_uid.implementation_class_uid = value  # type: ignore
+            self.user_information.append(imp_uid)
+
+    @property
+    def maximum_length_received(self) -> Optional[int]:
+        """Get or set the *Maximum Length Received* as :class:`int`.
+
+        If the A_ASSOCIATE.user_information list contains a
+        MaximumLengthNotification item then set its maximum_length_received
+        value. If not then add a MaximumLengthNotification item and set its
+        maximum_length_received value.
+
+        Parameters
+        ----------
+        value : int
+            The maximum length of each P-DATA in bytes
+        """
+        for item in self.user_information:
+            if isinstance(item, MaximumLengthNotification):
+                return item.maximum_length_received
+
+        return None
+
+    @maximum_length_received.setter
+    def maximum_length_received(self, value: int) -> None:
+        """Set the Maximum Length Received."""
+        # Type and value checking for the maximum_length_received parameter is
+        #   done by the MaximumLengthNotification class
+
+        # Check for a MaximumLengthNotification item
+        found_item = False
+
+        for item in self.user_information:
+            if isinstance(item, MaximumLengthNotification):
+                found_item = True
+                item.maximum_length_received = value
+
+        # No MaximumLengthNotification item found
+        if not found_item:
+            max_length = MaximumLengthNotification()
+            max_length.maximum_length_received = value
+            self.user_information.append(max_length)
+
+    @property
+    def mode(self) -> str:
+        """Return the *Mode* parameter as :class:`str`."""
+        return "normal"
 
     @property
     def presentation_context_definition_list(
@@ -645,98 +542,197 @@ class A_ASSOCIATE:
         return "Presentation Kernel"
 
     @property
-    def session_requirements(self) -> str:
-        """Return the *Session Requirements* as :class:`str`."""
-        return ""
+    def reason_str(self) -> str:
+        """Return the rejection reason as str."""
+        reasons = {
+            1: {
+                1: 'No reason given',
+                2: 'Application context name not supported',
+                3: 'Calling AE title not recognised',
+                4: 'Reserved',
+                5: 'Reserved',
+                6: 'Reserved',
+                7: 'Called AE title not recognised',
+                8: 'Reserved',
+                9: 'Reserved',
+                10: 'Reserved',
+            },
+            2: {
+                1: 'No reason given',
+                2: 'Protocol version not supported'
+            },
+            3: {
+                0: "Reserved",
+                1: "Temporary congestion",
+                2: "Local limit exceeded",
+                3: 'Reserved',
+                4: 'Reserved',
+                5: 'Reserved',
+                6: 'Reserved',
+                7: 'Reserved',
+            }
+        }
+        result = cast(int, self.result_source)
+        diagnostic = cast(int, self.diagnostic)
+        try:
+            return reasons[result][diagnostic]
+        except KeyError:
+            LOGGER.warning(
+                f"Invalid A-ASSOCIATE 'Result Source' {result} and/or "
+                f"'Diagnostic' {diagnostic} values"
+            )
+            return "(no value available)"
 
-    # Shortcut attributes for User Information items
-    # Mandatory UI Items
     @property
-    def maximum_length_received(self) -> Optional[int]:
-        """Get or set the *Maximum Length Received* as :class:`int`.
+    def responding_ae_title(self) -> Optional[str]:
+        """Return the *Responding AE Title* parameter."""
+        return self.called_ae_title
 
-        If the A_ASSOCIATE.user_information list contains a
-        MaximumLengthNotification item then set its maximum_length_received
-        value. If not then add a MaximumLengthNotification item and set its
-        maximum_length_received value.
+    @property
+    def responding_presentation_address(self) -> Optional[Tuple[str, int]]:
+        """Get the Responding Presentation Address parameter."""
+        return self.called_presentation_address
+
+    @property
+    def result(self) -> Optional[int]:
+        """Get or set the *Result* parameter.
 
         Parameters
         ----------
         value : int
-            The maximum length of each P-DATA in bytes
+            One of the following:
+
+            * 0: accepted
+            * 1: rejected (permanent)
+            * 2: rejected (transient)
+
+        Returns
+        -------
+        int
         """
-        for item in self.user_information:
-            if isinstance(item, MaximumLengthNotification):
-                return item.maximum_length_received
+        return self._result
 
-        return None
+    @result.setter
+    def result(self, value: Optional[int]) -> None:
+        """Set the A-ASSOCIATE Service primitive's Result parameter."""
+        # pylint: disable=attribute-defined-outside-init
+        if value is None:
+            pass
+        elif value not in [0, 1, 2]:
+            LOGGER.error("A_ASSOCIATE.result set to an unknown value")
+            raise ValueError("Unknown A_ASSOCIATE.result value")
 
-    @maximum_length_received.setter
-    def maximum_length_received(self, value: int) -> None:
-        """Set the Maximum Length Received."""
-        # Type and value checking for the maximum_length_received parameter is
-        #   done by the MaximumLengthNotification class
-
-        # Check for a MaximumLengthNotification item
-        found_item = False
-
-        for item in self.user_information:
-            if isinstance(item, MaximumLengthNotification):
-                found_item = True
-                item.maximum_length_received = value
-
-        # No MaximumLengthNotification item found
-        if not found_item:
-            max_length = MaximumLengthNotification()
-            max_length.maximum_length_received = value
-            self.user_information.append(max_length)
+        self._result = value
 
     @property
-    def implementation_class_uid(self) -> Optional[UID]:
-        """Get or set the *Implementation Class UID* as
-        :class:`~pydicom.uid.UID`.
-
-        If the A_ASSOCIATE.user_information list contains an
-        ImplementationClassUIDNotification item then set its
-        implementation_class_uid value. If not then add a
-        ImplementationClassUIDNotification item and set its
-        implementation_class_uid value.
+    def result_source(self) -> Optional[int]:
+        """Get or set the *Result Source* parameter.
 
         Parameters
         ----------
-        value : pydicom.uid.UID, bytes or str
-            The value for the Implementation Class UID
+        value : int
+            One of the following:
+
+            * 1: UL service-user
+            * 2: UL service-provider (ACSE related function)
+            * 3: UL service-provider (presentation related function)
+
+        Returns
+        -------
+        int
         """
-        for item in self.user_information:
-            if isinstance(item, ImplementationClassUIDNotification):
-                if item.implementation_class_uid is None:
-                    LOGGER.error("Implementation Class UID has not been set")
-                    raise ValueError("Implementation Class UID has not "
-                                     "been set")
+        return self._result_source
 
-                return item.implementation_class_uid
+    @result_source.setter
+    def result_source(self, value: Optional[int]) -> None:
+        """Set the A-ASSOCIATE Service primitive's Result Source parameter."""
+        # pylint: disable=attribute-defined-outside-init
+        if value is None:
+            pass
+        elif value not in [1, 2, 3]:
+            LOGGER.error("A_ASSOCIATE.result_source set to an unknown value")
+            raise ValueError("Unknown A_ASSOCIATE.result_source value")
 
-        LOGGER.error("Implementation Class UID has not been set")
-        raise ValueError("Implementation Class UID has not been set")
+        self._result_source = value
 
-    @implementation_class_uid.setter
-    def implementation_class_uid(self, value: OptionalUIDType) -> None:
-        """Set the Implementation Class UID."""
-        # Type and value checking for the implementation_class_uid parameter is
-        #   done by the ImplementationClassUIDNotification class
+    @property
+    def result_str(self) -> str:
+        """Return the result as str."""
+        results = {
+            0: "Accepted", 1: "Rejected Permanent", 2: "Rejected Transient"
+        }
 
-        # Check for a ImplementationClassUIDNotification item
-        found_item = False
-        for item in self.user_information:
-            if isinstance(item, ImplementationClassUIDNotification):
-                found_item = True
-                item.implementation_class_uid = value  # type: ignore
+        if self.result not in results:
+            LOGGER.warning(
+                f"Invalid A-ASSOCIATE 'Result' {self.result}"
+            )
+            return "(no value available)"
 
-        # No ImplementationClassUIDNotification item found
-        if not found_item:
-            imp_uid = ImplementationClassUIDNotification()
-            imp_uid.implementation_class_uid = value  # type: ignore
-            self.user_information.append(imp_uid)
+        return results[self.result]
+
+    @property
+    def session_requirements(self) -> str:
+        """Return the *Session Requirements* as :class:`str`."""
+        return ""
+
+    @property
+    def source_str(self) -> str:
+        """Return the reject source as str."""
+        sources = {
+            1: 'Service User',
+            2: 'Service Provider (ACSE)',
+            3: 'Service Provider (Presentation)'
+        }
+        if self.result_source not in sources:
+            LOGGER.warning(
+                f"Invalid A-ASSOCIATE 'Result Source' {self.result_source}"
+            )
+            return "(no value available)"
+
+        return sources[self.result_source]
+
+    @property
+    def user_information(self) -> _UserInformationPrimitiveType:
+        """Get or set the *User Information* parameter.
+
+        Parameters
+        ----------
+        value_list : list of user information class objects
+            A list of user information objects, must contain at least
+            MaximumLengthNotification and ImplementationClassUIDNotification
+        """
+        return self._user_information
+
+    @user_information.setter
+    def user_information(
+        self, value_list: _UserInformationPrimitiveType
+    ) -> None:
+        """Set the A-ASSOCIATE primitive's User Information parameter."""
+        # pylint: disable=attribute-defined-outside-init
+        valid_usr_info_items = []
+
+        if isinstance(value_list, list):
+            # Iterate through the items and check they're an acceptable class
+            for item in value_list:
+                if item.__class__.__name__ in \
+                        ["MaximumLengthNotification",
+                         "ImplementationClassUIDNotification",
+                         "ImplementationVersionNameNotification",
+                         "AsynchronousOperationsWindowNegotiation",
+                         "SCP_SCU_RoleSelectionNegotiation",
+                         "SOPClassExtendedNegotiation",
+                         "SOPClassCommonExtendedNegotiation",
+                         "UserIdentityNegotiation"]:
+                    valid_usr_info_items.append(item)
+                else:
+                    LOGGER.info("Attempted to set "
+                                "A_ASSOCIATE.user_information to a list "
+                                "which includes an unsupported item")
+        else:
+            LOGGER.error("A_ASSOCIATE.user_information must be a list")
+            raise TypeError("A_ASSOCIATE.user_information must be a list")
+
+        self._user_information = valid_usr_info_items
 
 
 class A_RELEASE:
@@ -1101,8 +1097,6 @@ class MaximumLengthNotification(ServiceParameter):
         return '\n'.join(s)
 
 
-# TODO: Combine ImplementationClass and ImplementationVersion
-#   into ImplementationIdentificationNotification
 class ImplementationClassUIDNotification(ServiceParameter):
     """A representation of a Implementation Class UID Notification primitive.
 
@@ -1218,7 +1212,7 @@ class ImplementationVersionNameNotification(ServiceParameter):
     * DICOM Standard, Part 7, :dcm:`Annex D.3.3.2<part07/sect_D.3.3.2.html>`
     """
     def __init__(self) -> None:
-        self.implementation_version_name: Optional[bytes] = None
+        self._implementation_version_name: Optional[str] = None
 
     def from_primitive(self) -> ImplementationVersionNameSubItem:
         """Convert the primitive to a PDU item ready to be encoded.
@@ -1233,8 +1227,9 @@ class ImplementationVersionNameNotification(ServiceParameter):
             If no name is set
         """
         if self.implementation_version_name is None:
-            raise ValueError("Implementation Version Name must be set prior "
-                             "to Association")
+            raise ValueError(
+                "Implementation Version Name must be set prior to Association"
+            )
 
         item = ImplementationVersionNameSubItem()
         item.from_primitive(self)
@@ -1242,7 +1237,7 @@ class ImplementationVersionNameNotification(ServiceParameter):
         return item
 
     @property
-    def implementation_version_name(self) -> Optional[bytes]:
+    def implementation_version_name(self) -> Optional[str]:
         """Get or set the *Implementation Version Name*.
 
         Parameters
@@ -1264,21 +1259,22 @@ class ImplementationVersionNameNotification(ServiceParameter):
         self, value: Union[str, bytes, None]
     ) -> None:
         """Sets the Implementation Version Name parameter."""
-        # pylint: disable=attribute-defined-outside-init
-        if isinstance(value, str):
-            value = codecs.encode(value, 'ascii')
-        elif isinstance(value, bytes):
-            pass
-        elif value is None:
+        if isinstance(value, bytes):
+            value = decode_bytes(value)
+
+        if isinstance(value, str) or value is None:
             pass
         else:
             LOGGER.error("Implementation Version Name must be a str or bytes")
-            raise TypeError("Implementation Version Name must be a str "
-                            "or bytes")
+            raise TypeError(
+                "Implementation Version Name must be a str or bytes"
+            )
 
         if value is not None and not 0 < len(value) < 17:
-            raise ValueError("Implementation Version Name must be "
-                             "between 1 and 16 characters long")
+            raise ValueError(
+                "Implementation Version Name must be between 1 and 16 "
+                "characters long"
+            )
 
         self._implementation_version_name = value
 
@@ -1286,7 +1282,7 @@ class ImplementationVersionNameNotification(ServiceParameter):
         """String representation of the class."""
         version = self.implementation_version_name
         s = "Implementation Version Name\n"
-        s += f"  Implementation version name: {version!r}\n"
+        s += f"  Implementation version name: {version}\n"
 
         return s
 

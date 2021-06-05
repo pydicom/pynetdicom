@@ -22,6 +22,7 @@ from pynetdicom import _config
 LOGGER = logging.getLogger('pynetdicom.utils')
 
 
+# TODO: convert to function
 class as_uid:
     """Context manager for converting values to UID.
 
@@ -153,6 +154,50 @@ def decode_bytes(
     as_hex = ' '.join([f"{b:02X}" for b in encoded_value])
     raise ValueError(
         f"Unable to decode '{as_hex}' with {', '.join(codecs)}"
+    )
+
+
+def set_ae(
+    value: Optional[str],
+    name: str,
+    allow_empty: bool = True,
+    allow_none: bool = True
+) -> Optional[str]:
+    """Conform `value` to a text like parameter and apply validation.
+
+    Parameters
+    ----------
+    value : str or None
+        The value to be converted.
+    name : str
+        The name of the parameter being converted.
+    allow_empty : bool, optional
+        If ``True`` (default) skip validation when an empty string or ``None``
+        is used.
+
+    Returns
+    -------
+    str or None
+        If ``allow_empty`` is ``True`` then may return ``None``, otherwise
+        the string will be returned.
+    """
+    if allow_none and value is None:
+        return None
+
+    if isinstance(value, str):
+        if not allow_empty and not value.strip():
+            # E.g. Called and Calling AE Title may not be 16 spaces
+            LOGGER.error(f"Invalid '{name}' value '{value}'")
+            raise ValueError(f"Invalid '{name}' value '{value}'")
+
+        if value and not _config.VALIDATORS['AE'](value):
+            LOGGER.error(f"Invalid '{name}' value '{value}'")
+            raise ValueError(f"Invalid '{name}' value '{value}'")
+
+        return value
+
+    raise TypeError(
+        f"'{name}' must be str, not '{value.__class__.__name__}'"
     )
 
 
@@ -290,91 +335,6 @@ def set_timer_resolution(resolution: Optional[float]) -> Iterator[None]:
         dll.NtSetTimerResolution(resolution, 0, ctypes.byref(current))
     else:
         yield None
-
-
-def validate_ae_title(
-    ae_title: Union[str, bytes], use_short: bool = False
-) -> bytes:
-    """Return a valid AE title from `ae_title`, if possible.
-
-    An AE title:
-
-    * Must be no more than 16 characters
-    * Leading and trailing spaces are not significant
-    * The characters should belong to the Default Character Repertoire
-      excluding ``0x5C`` (backslash) and all control characters
-
-    If the supplied `ae_title` is greater than 16 characters once
-    non-significant spaces have been removed then the returned AE title
-    will be truncated to remove the excess characters.
-
-    If the supplied `ae_title` is less than 16 characters once non-significant
-    spaces have been removed, the spare trailing characters will be set to
-    space (``0x20``) provided `use_short` is ``False``.
-
-    .. versionchanged:: 1.1
-
-        Changed to only return ``bytes`` for Python 3.
-
-    .. versionchanged:: 1.5
-
-        Added `use_short` keyword parameter.
-
-    Parameters
-    ----------
-    ae_title : bytes
-        The AE title to check.
-    use_short : bool, optional
-        If ``False`` (default) then pad AE titles with trailing spaces up to
-        the maximum allowable length (16 bytes), otherwise no padding will
-        be added.
-
-    Returns
-    -------
-    bytes
-        A valid AE title, truncated to 16 characters if necessary.
-
-    Raises
-    ------
-    ValueError
-        If `ae_title` is an empty string, contains only spaces or contains
-        control characters or backslash.
-    """
-    if not isinstance(ae_title, (str, bytes)):
-        raise TypeError("AE titles must be str or bytes")
-
-    # If bytes decode to ascii string
-    if isinstance(ae_title, bytes):
-        ae_title = ae_title.decode('ascii', errors='strict')
-
-    # Strip out any leading or trailing spaces
-    ae_title = ae_title.strip()
-    # Strip out any leading or trailing nulls - non-conformant
-    ae_title = ae_title.strip('\0')
-    if not ae_title:
-        raise ValueError(
-            "AE titles are not allowed to consist entirely of only spaces"
-        )
-
-    if not _config.ALLOW_LONG_DIMSE_AET:
-        # Truncate if longer than 16 characters
-        ae_title = ae_title[:16]
-
-    if not use_short:
-        # Pad out to 16 characters using spaces
-        ae_title = ae_title.ljust(16)
-
-    # Unicode category: 'Cc' is control characters
-    invalid = [
-        char for char in ae_title
-        if unicodedata.category(char)[0] == 'C' or char == '\\'
-    ]
-    if invalid:
-        raise ValueError(
-            "AE titles must not contain any control characters or backslashes"
-        )
-
-    return ae_title.encode('ascii', errors='strict')
 
 
 def validate_uid(uid: UID) -> bool:

@@ -244,19 +244,19 @@ class TestPDU:
         out = item._wrap_unpack(b'\x01', UNPACK_UCHAR)
         assert out == 1
 
-    def test_wrap_encode_uid(self):
-        """Test PDU._wrap_encode_uid()."""
+    def test_wrap_encode_str(self):
+        """Test PDU._wrap_encode_str()."""
         item = PDUItem()
         # Odd length
         uid = UID('1.2.840.10008.1.1')
         assert len(uid) % 2 > 0
-        out = item._wrap_encode_uid(uid)
+        out = item._wrap_encode_str(uid)
         assert out == b'1.2.840.10008.1.1'
 
         # Even length
         uid = UID('1.2.840.10008.1.10')
         assert len(uid) % 2 == 0
-        out = item._wrap_encode_uid(uid)
+        out = item._wrap_encode_str(uid)
         assert out == b'1.2.840.10008.1.10'
 
 
@@ -1196,7 +1196,7 @@ class TestUserInformation:
         assert ui.implementation_class_uid == UID(
             '1.2.826.0.1.3680043.9.3811.0.9.0'
         )
-        assert ui.implementation_version_name == b'PYNETDICOM_090'
+        assert ui.implementation_version_name == 'PYNETDICOM_090'
 
         for item in ui.user_data:
             if isinstance(item, ImplementationVersionNameSubItem):
@@ -1507,7 +1507,7 @@ class TestUserInformation_ImplementationVersion:
 
         assert version.item_length == 14
         assert len(version) == 18
-        assert version.implementation_version_name == b'PYNETDICOM_090'
+        assert version.implementation_version_name == 'PYNETDICOM_090'
 
     def test_encode(self):
         """Check encoding produces the correct output """
@@ -1550,10 +1550,10 @@ class TestUserInformation_ImplementationVersion:
         version = ImplementationVersionNameSubItem()
 
         version.implementation_version_name = 'PYNETDICOM'
-        assert version.implementation_version_name == b'PYNETDICOM'
+        assert version.implementation_version_name == 'PYNETDICOM'
 
-        version.implementation_version_name = b'PYNETDICOM_090'
-        assert version.implementation_version_name == b'PYNETDICOM_090'
+        version.implementation_version_name = 'PYNETDICOM_090'
+        assert version.implementation_version_name == 'PYNETDICOM_090'
 
 
 class TestUserInformation_Asynchronous:

@@ -52,7 +52,7 @@ from pydicom.uid import UID
 
 from pynetdicom._globals import OptionalUIDType
 from pynetdicom.presentation import PresentationContext
-from pynetdicom.utils import validate_uid, decode_bytes, as_uid
+from pynetdicom.utils import validate_uid, decode_bytes, as_uid, set_ae
 
 if TYPE_CHECKING:  # pragma: no cover
     from pynetdicom.pdu_primitives import (
@@ -315,20 +315,16 @@ class PDUItem:
         return bytestream
 
     @staticmethod
-    def _wrap_encode_uid(uid: UID) -> bytes:
-        """Return `uid` as bytes encoded using ASCII.
+    def _wrap_encode_str(value: str) -> bytes:
+        """Return `value` as ASCII encoded :class:`bytes`.
 
         Each component of Application Context, Abstract Syntax and Transfer
         Syntax UIDs should be encoded as a ISO 646:1990-Basic G0 Set Numeric
-        String (characters 0-9), with each component separated by ``.``
-        (``0x2e``).
+        String (characters 0-9), with each component separated by '.' (0x2e)
+       .
 
-        'ascii' is chosen because this is the codec Python uses for ISO 646.
-
-        Odd-length UIDs should NOT have a trailing padding 0x00 byte to make
-        them even length (as per Part 5, Section 9.1: "If ending on an odd
-        byte boundary, except when used for network negotiation, one trailing
-        padding character...")
+        'ascii' is chosen because this is the codec Python uses for ISO 646
+        [3]_.
 
         Parameters
         ----------
@@ -338,15 +334,15 @@ class PDUItem:
         Returns
         -------
         bytes
-            The encoded `uid`.
+            The encoded `value`.
 
         References
         ----------
-        * DICOM Standard, part 8, :dcm:`Annex F <part08/chapter_F.html>`
+        * DICOM Standard, Part 8, :dcm:`Annex F <part08/chapter_F.html>`
         * `Python 3 codecs module
           <https://docs.python.org/2/library/codecs.html#standard-encodings>`_
         """
-        return codecs.encode(uid, 'ascii')
+        return value.encode('ascii')
 
     def _wrap_generate_items(self, b: bytes) -> List[_AllItemType]:
         """Return a list of encoded PDU items generated from `bytestream`."""
@@ -520,7 +516,7 @@ class ApplicationContextItem(PDUItem):
             ('item_type', PACK_UCHAR, []),
             (None, self._wrap_pack, [0x00, PACK_UCHAR]),
             ('item_length', PACK_UINT2, []),
-            ('application_context_name', self._wrap_encode_uid, [])
+            ('application_context_name', self._wrap_encode_str, [])
         ]
 
     @property
@@ -1195,7 +1191,7 @@ class UserInformationItem(PDUItem):
         return None
 
     @property
-    def implementation_version_name(self) -> Optional[bytes]:
+    def implementation_version_name(self) -> Optional[str]:
         """Return the item's *Implementation Version Name* field value, if
         available.
         """
@@ -1392,7 +1388,7 @@ class AbstractSyntaxSubItem(PDUItem):
             ('item_type', PACK_UCHAR, []),
             (None, self._wrap_pack, [0x00, PACK_UCHAR]),
             ('item_length', PACK_UINT2, []),
-            ('abstract_syntax_name', self._wrap_encode_uid, [])
+            ('abstract_syntax_name', self._wrap_encode_str, [])
         ]
 
     @property
@@ -1520,7 +1516,7 @@ class TransferSyntaxSubItem(PDUItem):
             ('item_type', PACK_UCHAR, []),
             (None, self._wrap_pack, [0x00, PACK_UCHAR]),
             ('item_length', PACK_UINT2, []),
-            ('transfer_syntax_name', self._wrap_encode_uid, [])
+            ('transfer_syntax_name', self._wrap_encode_str, [])
         ]
 
     @property
@@ -1815,7 +1811,7 @@ class ImplementationClassUIDSubItem(PDUItem):
             ('item_type', PACK_UCHAR, []),
             (None, self._wrap_pack, [0x00, PACK_UCHAR]),
             ('item_length', PACK_UINT2, []),
-            ('implementation_class_uid', self._wrap_encode_uid, [])
+            ('implementation_class_uid', self._wrap_encode_str, [])
         ]
 
     @property
@@ -1902,7 +1898,7 @@ class ImplementationVersionNameSubItem(PDUItem):
 
     def __init__(self) -> None:
         """Initialise a new Implementation Version Name Item."""
-        self._implementation_version_name: Optional[bytes] = None
+        self._implementation_version_name: Optional[str] = None
 
     def from_primitive(
         self, primitive: "ImplementationVersionNameNotification"
@@ -1974,11 +1970,11 @@ class ImplementationVersionNameSubItem(PDUItem):
             ('item_type', PACK_UCHAR, []),
             (None, self._wrap_pack, [0x00, PACK_UCHAR]),
             ('item_length', PACK_UINT2, []),
-            ('implementation_version_name', self._wrap_bytes, [])
+            ('implementation_version_name', self._wrap_encode_str, [])
         ]
 
     @property
-    def implementation_version_name(self) -> Optional[bytes]:
+    def implementation_version_name(self) -> Optional[str]:
         """Return the item's *Implementation Version Name* field value."""
         return self._implementation_version_name
 
@@ -1987,11 +1983,12 @@ class ImplementationVersionNameSubItem(PDUItem):
         self, value: Optional[Union[str, bytes]]
     ) -> None:
         """Set the *Implementation Version Name* field value."""
-        # pylint: disable=attribute-defined-outside-init
-        if isinstance(value, str):
-            value = codecs.encode(value, 'ascii')
+        if isinstance(value, bytes):
+            value = decode_bytes(value)
 
-        self._implementation_version_name = value
+        self._implementation_version_name = (
+            set_ae(value, 'Implementation Version Name')
+        )
 
     @property
     def item_length(self) -> int:
@@ -2007,7 +2004,7 @@ class ImplementationVersionNameSubItem(PDUItem):
         s = "Implementation Version Name Sub-item\n"
         s += f"  Item type: 0x{self.item_type:02X}\n"
         s += f"  Item length: {self.item_length} bytes\n"
-        s += f"  Implementation version name: {version_name!r}\n"
+        s += f"  Implementation version name: {version_name}\n"
 
         return s
 
@@ -2352,7 +2349,7 @@ class SCP_SCU_RoleSelectionSubItem(PDUItem):
             (None, self._wrap_pack, [0x00, PACK_UCHAR]),
             ('item_length', PACK_UINT2, []),
             ('uid_length', PACK_UINT2, []),
-            ('sop_class_uid', self._wrap_encode_uid, []),
+            ('sop_class_uid', self._wrap_encode_str, []),
             ('scu_role', PACK_UCHAR, []),
             ('scp_role', PACK_UCHAR, [])
         ]
@@ -2595,7 +2592,7 @@ class SOPClassExtendedNegotiationSubItem(PDUItem):
             (None, self._wrap_pack, [0x00, PACK_UCHAR]),
             ('item_length', PACK_UINT2, []),
             ('sop_class_uid_length', PACK_UINT2, []),
-            ('sop_class_uid', self._wrap_encode_uid, []),
+            ('sop_class_uid', self._wrap_encode_str, []),
             ('service_class_application_information', self._wrap_bytes, [])
         ]
 
@@ -2847,9 +2844,9 @@ class SOPClassCommonExtendedNegotiationSubItem(PDUItem):
             ('sub_item_version', PACK_UCHAR, []),
             ('item_length', PACK_UINT2, []),
             ('sop_class_uid_length', PACK_UINT2, []),
-            ('sop_class_uid', self._wrap_encode_uid, []),
+            ('sop_class_uid', self._wrap_encode_str, []),
             ('service_class_uid_length', PACK_UINT2, []),
-            ('service_class_uid', self._wrap_encode_uid, []),
+            ('service_class_uid', self._wrap_encode_str, []),
             (
                 'related_general_sop_class_identification_length',
                 PACK_UINT2, []
@@ -3061,7 +3058,7 @@ class SOPClassCommonExtendedNegotiationSubItem(PDUItem):
             # Related general SOP class UID length
             bytestream += PACK_UINT2(len(uid))
             # Related general SOP class UID
-            bytestream += self._wrap_encode_uid(uid)
+            bytestream += self._wrap_encode_str(uid)
 
         return bytestream
 

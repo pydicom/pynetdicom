@@ -58,6 +58,8 @@ Enhancements
 * Added :attr:`~pynetdicom._config.PDU_CODECS` to allow customising the
   codecs used when decoding text-like PDU parameters (:issue:`611`)
 * UTF-8 codec added as a fallback when decoding PDUs
+* Added :attr:`~pynetdicom._config.VALIDATORS` to allow customising the
+  validation performed on UIDs and AE titles
 
 Changes
 .......
@@ -70,3 +72,5 @@ Changes
 * SOP Class and Instance variable names changed to match the new UID keywords
   from the DICOM Standard. In particular ``VerificationSOPClass`` is now simply
   :attr:`~pynetdicom.sop_class.Verification`
+* AE titles may now only be set using an ASCII :class:`str` rather than
+  :class:`bytes`

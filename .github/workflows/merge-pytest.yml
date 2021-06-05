@@ -1,4 +1,4 @@
-name: master-merge-pytest
+name: unit-tests
 
 on:
   push:

@@ -1,6 +1,8 @@
 """pynetdicom configuration options"""
 
-from typing import Optional, Tuple
+from typing import Optional, Tuple, Dict, Callable, Any
+
+from pynetdicom._validators import validate_ae, validate_ui
 
 
 LOG_HANDLER_LEVEL: str = 'standard'
@@ -51,23 +53,6 @@ Examples
 
 >>> from pynetdicom import _config
 >>> _config.USE_SHORT_DIMSE_AET = False
-"""
-
-
-ALLOW_LONG_DIMSE_AET: bool = False
-"""Allow the use of non-conformant AE titles.
-
-.. versionadded:: 2.0
-
-If ``False`` then elements with a VR of AE in DIMSE messages will have their
-length checked to ensure conformance, otherwise no length check will be
-performed.
-
-Examples
---------
-
->>> from pynetdicom import _config
->>> _config.ALL_LONG_AET = True
 """
 
 
@@ -252,4 +237,13 @@ Remove UTF-8 as a fallback codec:
 
 >>> from pynetdicom import _config
 >>> _config.PDU_CODECS = ('ascii', )
+"""
+
+
+VALIDATORS: Dict[str, Callable[[Any], bool]] = {
+    'AE': validate_ae,
+    'UI': validate_ui,
+}
+"""
+
 """

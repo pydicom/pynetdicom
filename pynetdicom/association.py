@@ -3502,7 +3502,7 @@ class ServiceUser:
     ----------
     address : str
         The TCP/IP address of the AE.
-    ae_title : bytes
+    ae_title : str
         The AE's AE title.
     port : int
         The port number of the AE.
@@ -3533,7 +3533,7 @@ class ServiceUser:
         self.assoc: Association = assoc
         self._mode: str = mode
         self.primitive: Optional[A_ASSOCIATE] = None
-        self.ae_title: bytes = b''
+        self.ae_title: str = ''
         self.port: Optional[int] = None
         self.address: Optional[str] = ''
 

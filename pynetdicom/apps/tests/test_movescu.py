@@ -115,9 +115,9 @@ class MoveSCUBase:
         assert events[0].identifier.PatientName == ""
         assert events[1].event == evt.EVT_RELEASED
         requestor = events[1].assoc.requestor
-        assert b'MOVESCU         ' == requestor.ae_title
+        assert 'MOVESCU' == requestor.ae_title
         assert 16382 == requestor.maximum_length
-        assert b'ANY-SCP         ' == requestor.primitive.called_ae_title
+        assert 'ANY-SCP' == requestor.primitive.called_ae_title
         assert 0 == len(requestor.extended_negotiation)
         assert (1, 1) == requestor.asynchronous_operations
         assert {} == requestor.sop_class_common_extended
@@ -299,7 +299,7 @@ class MoveSCUBase:
 
         assert events[0].event == evt.EVT_C_MOVE
         requestor = events[0].assoc.requestor
-        assert b'MYSCU           ' == requestor.ae_title
+        assert 'MYSCU' == requestor.ae_title
 
     def test_flag_aec(self):
         """Test --called-aet flag."""
@@ -330,7 +330,7 @@ class MoveSCUBase:
 
         assert events[0].event == evt.EVT_C_MOVE
         requestor = events[0].assoc.requestor
-        assert b'YOURSCP         ' == requestor.primitive.called_ae_title
+        assert 'YOURSCP' == requestor.primitive.called_ae_title
 
     def test_flag_aem(self):
         """Test --called-aem flag."""

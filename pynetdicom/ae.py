@@ -19,7 +19,7 @@ from pynetdicom.pdu_primitives import _UI
 from pynetdicom.transport import (
     AssociationSocket, AssociationServer, ThreadedAssociationServer
 )
-from pynetdicom.utils import make_target, validate_ae_title
+from pynetdicom.utils import make_target, set_ae
 from pynetdicom._globals import (
     MODE_REQUESTOR,
     DEFAULT_MAX_LENGTH,
@@ -40,15 +40,19 @@ class ApplicationEntity:
     or both.
     """
     # pylint: disable=too-many-instance-attributes,too-many-public-methods
-    def __init__(self, ae_title: bytes = b'PYNETDICOM') -> None:
+    def __init__(self, ae_title: str = 'PYNETDICOM') -> None:
         """Create a new Application Entity.
+
+        .. versionchanged:: 2.0
+
+            `ae_title` should now be :class:`str`
 
         Parameters
         ----------
-        ae_title : bytes, optional
-            The AE title of the Application Entity (default: ``b'PYNETDICOM'``)
+        ae_title : str, optional
+            The AE title of the Application Entity (default: ``'PYNETDICOM'``)
         """
-        self._ae_title: bytes
+        self._ae_title: str
         self.ae_title = ae_title
 
         from pynetdicom import (
@@ -78,7 +82,7 @@ class ApplicationEntity:
         self._network_timeout: Optional[float] = 60
 
         # Require Calling/Called AE titles to match if value is non-empty str
-        self._require_calling_aet: List[bytes] = []
+        self._require_calling_aet: List[str] = []
         self._require_called_aet = False
 
         self._servers: List[ThreadedAssociationServer] = []
@@ -86,7 +90,7 @@ class ApplicationEntity:
 
     @property
     def acse_timeout(self) -> Optional[float]:
-        """The ACSE timeout value (in seconds).
+        """Get or set the ACSE timeout value (in seconds).
 
         Parameters
         ----------
@@ -409,28 +413,38 @@ class ApplicationEntity:
             self._supported_contexts[abstract_syntax] = context
 
     @property
-    def ae_title(self) -> bytes:
-        """The AE title as length 16 :class:`bytes`.
+    def ae_title(self) -> str:
+        """Get or set the AE title as :class:`str`.
+
+        .. versionchanged:: 2.0
+
+            `ae_title` should now be :class:`str`
 
         Parameters
         ----------
-        value : bytes
+        value : str
             The AE title to use for the local Application Entity. Leading and
-            trailing spaces are non-significant.
+            trailing spaces are non-significant and will be removed.
+
+        Returns
+        -------
+        str
+            The local Application Entity's AE title, with non-significant
+            leading and trailing space removed.
         """
         return self._ae_title
 
     @ae_title.setter
-    def ae_title(self, value: bytes) -> None:
-        """Set the AE title using :class:`bytes`."""
-        self._ae_title = validate_ae_title(value)
+    def ae_title(self, value: str) -> None:
+        """Set the AE title using :class:`str`."""
+        self._ae_title = set_ae(value, 'ae_title', allow_empty=False)
 
     def associate(
         self,
         addr: str,
         port: int,
         contexts: Optional[List[PresentationContext]] = None,
-        ae_title: bytes = b'ANY-SCP',
+        ae_title: str = 'ANY-SCP',
         max_pdu: int = DEFAULT_MAX_LENGTH,
         ext_neg: Optional[List[_UI]] = None,
         bind_address: Tuple[str, int] = ('', 0),
@@ -458,6 +472,10 @@ class ApplicationEntity:
 
             `evt_handlers` now takes a list of 2- or 3-tuples
 
+        .. versionchanged:: 2.0
+
+            `ae_title` should now be :class:`str`
+
         Parameters
         ----------
         addr : str
@@ -468,9 +486,9 @@ class ApplicationEntity:
             The presentation contexts that will be requested by the AE for
             support by the peer. If not used then the presentation contexts in
             the :attr:`requested_contexts` property will be requested instead.
-        ae_title : bytes, optional
+        ae_title : str, optional
             The peer's AE title, will be used as the *Called AE Title*
-            parameter value (default ``b'ANY-SCP'``).
+            parameter value (default ``'ANY-SCP'``).
         max_pdu : int, optional
             The maximum PDV receive size in bytes to use when negotiating the
             association (default ``16832``). A value of ``0`` means the PDU
@@ -528,7 +546,9 @@ class ApplicationEntity:
         assoc.set_socket(sock)
 
         # Association Acceptor object -> remote AE
-        assoc.acceptor.ae_title = validate_ae_title(ae_title)
+        assoc.acceptor.ae_title = set_ae(
+            ae_title, 'Called AE Title', allow_empty=False
+        )
         assoc.acceptor.address = addr
         assoc.acceptor.port = port
 
@@ -599,7 +619,7 @@ class ApplicationEntity:
 
     @property
     def connection_timeout(self) -> Optional[float]:
-        """The connection timeout (in seconds).
+        """Get or set the connection timeout (in seconds).
 
         .. versionadded:: 2.0
 
@@ -633,7 +653,7 @@ class ApplicationEntity:
 
     @property
     def dimse_timeout(self) -> Optional[float]:
-        """The DIMSE timeout (in seconds).
+        """Get or set the DIMSE timeout (in seconds).
 
         Parameters
         ----------
@@ -659,7 +679,8 @@ class ApplicationEntity:
 
     @property
     def implementation_class_uid(self) -> UID:
-        """The *Implementation Class UID* as :class:`~pydicom.uid.UID`.
+        """Get or set the *Implementation Class UID* as
+        :class:`~pydicom.uid.UID`.
 
         Parameters
         ----------
@@ -695,7 +716,7 @@ class ApplicationEntity:
     def make_server(
         self,
         address: Tuple[str, int],
-        ae_title: Optional[bytes] = None,
+        ae_title: Optional[str] = None,
         contexts: Optional[List[PresentationContext]] = None,
         ssl_context: Optional[SSLContext] = None,
         evt_handlers: Optional[List[EventHandlerType]] = None,
@@ -704,12 +725,16 @@ class ApplicationEntity:
     ) -> Union[_T, ThreadedAssociationServer]:
         """Return an association server.
 
+        .. versionadded:: 1.5
+
         Allows the use of a custom association server class.
 
         Accepts the same parameters as :meth:`start_server`. Additional keyword
         parameters are passed to the constructor of `server_class`.
 
-        .. versionadded:: 1.5
+        .. versionchanged:: 2.0
+
+            `ae_title` should now be :class:`str`
 
         Parameters
         ----------
@@ -731,7 +756,7 @@ class ApplicationEntity:
             raise ValueError(msg)
 
         if ae_title:
-            ae_title = validate_ae_title(ae_title)
+            ae_title = set_ae(ae_title, 'ae_title', allow_empty=False)
         else:
             ae_title = self.ae_title
 
@@ -766,7 +791,8 @@ class ApplicationEntity:
 
     @property
     def maximum_associations(self) -> int:
-        """The number of maximum simultaneous associations as :class:`int`.
+        """Get or set the number of maximum simultaneous associations as
+        :class:`int`.
 
         Parameters
         ----------
@@ -788,7 +814,7 @@ class ApplicationEntity:
 
     @property
     def maximum_pdu_size(self) -> int:
-        """The maximum PDU size accepted by the AE as :class:`int`.
+        """Get or set the maximum PDU size accepted by the AE as :class:`int`.
 
         Parameters
         ----------
@@ -815,7 +841,7 @@ class ApplicationEntity:
 
     @property
     def network_timeout(self) -> Optional[float]:
-        """The network timeout (in seconds).
+        """Get or set the network timeout (in seconds).
 
         Parameters
         ----------
@@ -1096,7 +1122,7 @@ class ApplicationEntity:
 
     @property
     def requested_contexts(self) -> List[PresentationContext]:
-        """Set or get a list of the requested
+        """Get or set a list of the requested
         :class:`~pynetdicom.presentation.PresentationContext` items.
 
         Examples
@@ -1159,7 +1185,7 @@ class ApplicationEntity:
 
     @property
     def require_called_aet(self) -> bool:
-        """Whether the *Called AE Title* must match the AE title.
+        """Get or set whether the *Called AE Title* must match the AE title.
 
         When an association request is received the value of the 'Called AE
         Title' supplied by the peer will be compared with the set values and
@@ -1187,7 +1213,7 @@ class ApplicationEntity:
 
     @property
     def require_calling_aet(self) -> List[bytes]:
-        """The required calling AE title as a list of :class:`bytes`.
+        """Get or set the required calling AE title as a list of :class:`str`.
 
         When an association request is received the value of the *Calling AE
         Title* supplied by the peer will be compared with the set value and
@@ -1198,9 +1224,13 @@ class ApplicationEntity:
 
             `ae_titles` changed to ``list`` of ``bytes``
 
+        .. versionchanged:: 2.0
+
+            `ae_titles` should now be :class:`str`
+
         Parameters
         ----------
-        ae_titles : list of bytes
+        ae_titles : list of str
             If not empty then any association requests that supply a
             *Calling AE Title* value that does not match one of the values in
             *ae_titles* will be rejected. If an empty list (default) then all
@@ -1210,10 +1240,11 @@ class ApplicationEntity:
         return self._require_calling_aet
 
     @require_calling_aet.setter
-    def require_calling_aet(self, ae_titles: List[bytes]) -> None:
+    def require_calling_aet(self, ae_titles: List[str]) -> None:
         """Set the required calling AE title."""
         self._require_calling_aet = [
-            validate_ae_title(aet) for aet in ae_titles
+            set_ae(aet, 'require_calling_aet', allow_empty=False)
+            for aet in ae_titles
         ]
 
     def shutdown(self) -> None:
@@ -1238,7 +1269,7 @@ class ApplicationEntity:
         block: bool = True,
         ssl_context: Optional[SSLContext] = None,
         evt_handlers: Optional[List[EventHandlerType]] = None,
-        ae_title: Optional[bytes] = None,
+        ae_title: Optional[str] = None,
         contexts: Optional[List[PresentationContext]] = None
     ) -> Optional[ThreadedAssociationServer]:
         """Start the AE as an association *acceptor*.
@@ -1262,6 +1293,10 @@ class ApplicationEntity:
 
             `evt_handlers` now takes a list of 2- or 3-tuples
 
+        .. versionchanged:: 2.0
+
+            `ae_title` should now be :class:`str`
+
         Parameters
         ----------
         address : 2-tuple
@@ -1283,7 +1318,7 @@ class ApplicationEntity:
             :class:`~pynetdicom.events.Event` parameter and may return or yield
             objects depending on the exact event that the handler is bound to.
             For more information see the :ref:`documentation<user_events>`.
-        ae_title : bytes, optional
+        ae_title : str, optional
             The AE title to use for the local SCP. Leading and trailing spaces
             are non-significant. If this keyword parameter is not used then
             the AE title from the :attr:`ae_title` property will be used
@@ -1343,7 +1378,7 @@ class ApplicationEntity:
     def __str__(self) -> str:
         """ Prints out the attribute values and status for the AE """
         s = [""]
-        s.append(f"Application Entity {self.ae_title!r}")
+        s.append(f"Application Entity {self.ae_title}")
 
         s.append("")
         s.append("  Requested Presentation Contexts:")
@@ -1371,9 +1406,7 @@ class ApplicationEntity:
 
         s.append("")
         if self.require_calling_aet != []:
-            ae_titles = [
-                aet.decode('ascii') for aet in self.require_calling_aet
-            ]
+            ae_titles = self.require_calling_aet
             s.append((
                 f"  Required calling AE title(s): {', '.join(ae_titles)}")
             )

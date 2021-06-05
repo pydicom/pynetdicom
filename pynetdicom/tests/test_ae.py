@@ -102,8 +102,8 @@ class TestStartServer:
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
         ae.network_timeout = 5
-        ae.ae_title = b'TESTAET'
-        assert ae.ae_title == b'TESTAET         '
+        ae.ae_title = 'TESTAET'
+        assert ae.ae_title == 'TESTAET'
 
         ae.add_supported_context(Verification)
         server = ae.start_server(('', 11112), block=False)
@@ -111,12 +111,12 @@ class TestStartServer:
 
         server.shutdown()
 
-        server = ae.start_server(('', 11112), block=False, ae_title=b'MYAE')
-        assert server.ae_title == b'MYAE            '
+        server = ae.start_server(('', 11112), block=False, ae_title='MYAE')
+        assert server.ae_title == 'MYAE'
         ae.require_called_aet = True
 
         ae.add_requested_context(Verification)
-        assoc = ae.associate('localhost', 11112, ae_title=b'MYAE')
+        assoc = ae.associate('localhost', 11112, ae_title='MYAE')
         assert assoc.is_established
         assoc.release()
         assert assoc.is_released
@@ -129,14 +129,14 @@ class TestStartServer:
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
         ae.network_timeout = 5
-        ae.ae_title = b'TESTAET'
-        assert ae.ae_title == b'TESTAET         '
+        ae.ae_title = 'TESTAET'
+        assert ae.ae_title == 'TESTAET'
 
         cx = build_context(Verification)
         server = ae.start_server(('', 11112), block=False, contexts=[cx])
 
         ae.add_requested_context(Verification)
-        assoc = ae.associate('localhost', 11112, ae_title=b'MYAE')
+        assoc = ae.associate('localhost', 11112, ae_title='MYAE')
         assert assoc.is_established
         assert (
             assoc.accepted_contexts[0].abstract_syntax == Verification
@@ -620,15 +620,13 @@ class TestAEGoodMiscSetters:
         """ Check AE title change produces good value """
         ae = AE()
         ae.ae_title = '     TEST     '
-        assert ae.ae_title == b'TEST            '
+        assert ae.ae_title == '     TEST     '
         ae.ae_title = '            TEST'
-        assert ae.ae_title == b'TEST            '
-        ae.ae_title = '                 TEST'
-        assert ae.ae_title == b'TEST            '
-        ae.ae_title = 'a            TEST'
-        assert ae.ae_title == b'a            TES'
+        assert ae.ae_title == '            TEST'
+        ae.ae_title = 'a            TES'
+        assert ae.ae_title == 'a            TES'
         ae.ae_title = 'a        TEST'
-        assert ae.ae_title == b'a        TEST   '
+        assert ae.ae_title == 'a        TEST'
 
     def test_implementation(self):
         """Check the implementation version name and class UID setters"""
@@ -678,20 +676,21 @@ class TestAEGoodMiscSetters:
         assert assoc.is_released
         assert not assoc.is_established
 
-        ae.require_calling_aet = [b'MYAE']
-        assert ae.require_calling_aet == [b'MYAE            ']
+        ae.require_calling_aet = ['MYAE']
+        assert ae.require_calling_aet == ['MYAE']
         assoc = ae.associate('localhost', 11112)
         assert assoc.is_rejected
 
-        ae.require_calling_aet = [b'PYNETDICOM      ']
-        assert ae.require_calling_aet == [b'PYNETDICOM      ']
+        ae.require_calling_aet = ['PYNETDICOM']
+        assert ae.require_calling_aet == ['PYNETDICOM']
         assoc = ae.associate('localhost', 11112)
         assert assoc.is_established
         assoc.release()
 
-        with pytest.raises(ValueError, match=r"entirely of only spaces"):
-            ae.require_calling_aet = [b'']
-        assert ae.require_calling_aet == [b'PYNETDICOM      ']
+        msg = r"Invalid 'require_calling_aet' value ''"
+        with pytest.raises(ValueError, match=msg):
+            ae.require_calling_aet = ['']
+        assert ae.require_calling_aet == ['PYNETDICOM']
         assoc = ae.associate('localhost', 11112)
         assert assoc.is_established
         assoc.release()
@@ -719,7 +718,7 @@ class TestAEGoodMiscSetters:
         assoc = ae.associate('localhost', 11112)
         assert assoc.is_rejected
 
-        assoc = ae.associate('localhost', 11112, ae_title=b'PYNETDICOM')
+        assoc = ae.associate('localhost', 11112, ae_title='PYNETDICOM')
         assert assoc.is_established
         assoc.release()
 
@@ -728,11 +727,8 @@ class TestAEGoodMiscSetters:
     def test_req_calling_aet(self):
         """ Check AE require calling aet change produces good value """
         ae = AE()
-        ae.require_calling_aet = [b'10', b'asdf']
-        assert ae.require_calling_aet == [
-            b'10              ',
-            b'asdf            '
-        ]
+        ae.require_calling_aet = ['10', 'asdf']
+        assert ae.require_calling_aet == ['10', 'asdf']
 
     def test_req_called_aet(self):
         """ Check AE require called aet change produces good value """
@@ -747,7 +743,7 @@ class TestAEGoodMiscSetters:
         """Test string output"""
         ae = AE()
         ae.add_requested_context(Verification)
-        ae.require_calling_aet = [b'something']
+        ae.require_calling_aet = ['something']
         ae.require_called_aet = True
         assert 'Explicit VR' in ae.__str__()
         assert 'Verification' in ae.__str__()
@@ -797,17 +793,17 @@ class TestAEBadInitialisation:
     def test_ae_title_all_spaces(self):
         """AE should fail if ae_title is all spaces"""
         with pytest.raises(ValueError):
-            AE(ae_title=b'                ')
+            AE(ae_title='                ')
 
     def test_ae_title_empty_str(self):
         """AE should fail if ae_title is an empty str"""
         with pytest.raises(ValueError):
-            AE(ae_title=b'')
+            AE(ae_title='')
 
     def test_ae_title_invalid_chars(self):
         """ AE should fail if ae_title is not a str """
         with pytest.raises(ValueError):
-            AE(ae_title=br'TEST\ME')
+            AE(ae_title='TEST\\ME')
 
 
 class TestAE_GoodExit:

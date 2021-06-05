@@ -188,7 +188,7 @@ class TestAssociation:
     def test_peer_rejects_assoc(self):
         """Test peer rejects assoc"""
         self.ae = ae = AE()
-        ae.require_calling_aet = [b'HAHA NOPE']
+        ae.require_calling_aet = ['HAHA NOPE']
         ae.add_supported_context(Verification)
         scp = ae.start_server(('', 11112), block=False)
 
@@ -387,7 +387,7 @@ class TestAssociation:
         ae.dimse_timeout = 5
         ae.network_timeout = 5
         ae.add_supported_context(Verification)
-        ae.require_calling_aet = [b'TESTSCP']
+        ae.require_calling_aet = ['TESTSCP']
         scp = ae.start_server(('', 11112), block=False)
 
         ae.add_requested_context(Verification)
@@ -450,20 +450,20 @@ class TestAssociation:
         ae = AE()
         assoc = Association(ae, 'requestor')
         assoc.requestor.ae_title = ae.ae_title
-        assert assoc.local['ae_title'] == b'PYNETDICOM      '
+        assert assoc.local['ae_title'] == 'PYNETDICOM'
 
         assoc = Association(ae, 'acceptor')
         assoc.acceptor.ae_title = ae.ae_title
-        assert assoc.local['ae_title'] == b'PYNETDICOM      '
+        assert assoc.local['ae_title'] == 'PYNETDICOM'
 
     def test_remote(self):
         """Test Association.local."""
         ae = AE()
         assoc = Association(ae, 'requestor')
-        assert assoc.remote['ae_title'] == b''
+        assert assoc.remote['ae_title'] == ''
 
         assoc = Association(ae, 'acceptor')
-        assert assoc.remote['ae_title'] == b''
+        assert assoc.remote['ae_title'] == ''
 
     def test_mode_raises(self):
         """Test exception is raised if invalid mode."""

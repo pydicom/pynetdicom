@@ -52,11 +52,11 @@ class DummyAssociation:
         self.dul = DummyDUL()
         self.requestor = ServiceUser(self, 'requestor')
         self.requestor.port = 11112
-        self.requestor.ae_title = b'TEST_LOCAL      '
+        self.requestor.ae_title = 'TEST_LOCAL      '
         self.requestor.address = '127.0.0.1'
         self.requestor.maximum_length = 31682
         self.acceptor = ServiceUser(self, 'acceptor')
-        self.acceptor.ae_title = b'TEST_REMOTE     '
+        self.acceptor.ae_title = 'TEST_REMOTE     '
         self.acceptor.port = 11113
         self.acceptor.address = '127.0.0.2'
         self.acse_timeout = 11

@@ -38,7 +38,7 @@ from pynetdicom.pdu_items import (
     _PDUItemType,
     PDUItem
 )
-from pynetdicom.utils import validate_ae_title
+from pynetdicom.utils import decode_bytes, set_ae
 
 if TYPE_CHECKING:  # pragma: no cover
     from pynetdicom.pdu_primitives import (
@@ -260,8 +260,8 @@ class PDU:
         return bytestream
 
     @staticmethod
-    def _wrap_encode_uid(uid: UID) -> bytes:
-        """Return `uid` as bytes encoded using ASCII.
+    def _wrap_encode_str(value: str, pad=0) -> bytes:
+        """Return `value` as ASCII encoded :class:`bytes`.
 
         Each component of Application Context, Abstract Syntax and Transfer
         Syntax UIDs should be encoded as a ISO 646:1990-Basic G0 Set Numeric
@@ -279,7 +279,7 @@ class PDU:
         Returns
         -------
         bytes
-            The encoded `uid`.
+            The encoded `value`.
 
         References
         ----------
@@ -287,7 +287,7 @@ class PDU:
         * `Python 3 codecs module
           <https://docs.python.org/2/library/codecs.html#standard-encodings>`_
         """
-        return codecs.encode(uid, 'ascii')
+        return value.ljust(pad).encode('ascii')
 
     def _wrap_generate_items(self, bytestream: bytes) -> List[PDUItem]:
         """Return a list of decoded PDU items generated from `bytestream`."""
@@ -435,11 +435,12 @@ class A_ASSOCIATE_RQ(PDU):
         """Initialise a new A-ASSOCIATE-RQ PDU."""
         # We allow the user to modify the protocol version if so desired
         self.protocol_version = 0x01
+        self._called_aet = ""
+        self._calling_aet = ""
+
         # Set some default values
-        self._called_aet = b""
-        self.called_ae_title = b"Default"
-        self._calling_aet = b""
-        self.calling_ae_title = b"Default"
+        self.called_ae_title = "Default"
+        self.calling_ae_title = "Default"
 
         # `variable_items` is a list containing the following:
         #   1 ApplicationContextItem
@@ -456,8 +457,8 @@ class A_ASSOCIATE_RQ(PDU):
         primitive : pdu_primitives.A_ASSOCIATE
             The primitive to use to set the current PDU field values.
         """
-        self.calling_ae_title = cast(bytes, primitive.calling_ae_title)
-        self.called_ae_title = cast(bytes, primitive.called_ae_title)
+        self.calling_ae_title = cast(str, primitive.calling_ae_title)
+        self.called_ae_title = cast(str, primitive.called_ae_title)
 
         # Add Application Context
         application_context = ApplicationContextItem()
@@ -521,13 +522,8 @@ class A_ASSOCIATE_RQ(PDU):
         return None
 
     @property
-    def called_ae_title(self) -> bytes:
-        """Return the *Called AE Title* field value as :class:`bytes`."""
-        return self._called_aet
-
-    @called_ae_title.setter
-    def called_ae_title(self, ae_title: Union[str, bytes]) -> None:
-        """Set the *Called AE Title* field value.
+    def called_ae_title(self) -> str:
+        """Get or set the *Called AE Title* field value as :class:`str`.
 
         Will be converted to a fixed length 16-byte value (padded with trailing
         spaces ``0x20``). Leading and trailing spaces are non-significant and a
@@ -535,23 +531,31 @@ class A_ASSOCIATE_RQ(PDU):
 
         Parameters
         ----------
-        ae_title : str or bytes
+        value : str or bytes
             The value you wish to set. A value consisting of spaces is not
             allowed and values longer than 16 characters will be truncated.
         """
-        # pylint: disable=attribute-defined-outside-init
-        if isinstance(ae_title, str):
-            ae_title = codecs.encode(ae_title, 'ascii')
+        return self._called_aet
 
-        self._called_aet = validate_ae_title(ae_title)
+    @called_ae_title.setter
+    def called_ae_title(self, value: Union[str, bytes]) -> None:
+        """Set the *Called AE Title* field value"""
+        if isinstance(value, bytes):
+            # PS3.8 Table 9-11: Leading and trailing spaces are non-significant
+            value = decode_bytes(value).strip()
+
+        # Fixed length of 16 characters so add trailing spaces as padding
+        self._called_aet = cast(
+            str, set_ae(value, 'Called AE Title', allow_empty=False)
+        )
 
     @property
-    def calling_ae_title(self) -> bytes:
-        """Return the *Calling AE Title* field value as :class:`bytes`."""
+    def calling_ae_title(self) -> str:
+        """Return the *Calling AE Title* field value as :class:`str`."""
         return self._calling_aet
 
     @calling_ae_title.setter
-    def calling_ae_title(self, ae_title: Union[str, bytes]) -> None:
+    def calling_ae_title(self, value: Union[str, bytes]) -> None:
         """Set the *Calling AE Title* field value.
 
         Will be converted to a fixed length 16-byte value (padded with trailing
@@ -560,15 +564,17 @@ class A_ASSOCIATE_RQ(PDU):
 
         Parameters
         ----------
-        ae_title : str or bytes
+        value : str or bytes
             The value you wish to set. A value consisting of spaces is not
             allowed and values longer than 16 characters will be truncated.
         """
-        # pylint: disable=attribute-defined-outside-init
-        if isinstance(ae_title, str):
-            ae_title = codecs.encode(ae_title, 'ascii')
+        if isinstance(value, bytes):
+            # PS3.8 Table 9-11: Leading and trailing spaces are non-significant
+            value = decode_bytes(value).strip()
 
-        self._calling_aet = validate_ae_title(ae_title)
+        self._calling_aet = cast(
+            str, set_ae(value, 'Calling AE Title', allow_empty=False)
+        )
 
     @property
     def _decoders(self) -> Any:
@@ -616,8 +622,8 @@ class A_ASSOCIATE_RQ(PDU):
             ('pdu_length', PACK_UINT4, []),
             ('protocol_version', PACK_UINT2, []),
             (None, self._wrap_pack, [0x0000, PACK_UINT2]),
-            ('called_ae_title', self._wrap_bytes, []),
-            ('calling_ae_title', self._wrap_bytes, []),
+            ('called_ae_title', self._wrap_encode_str, [16]),
+            ('calling_ae_title', self._wrap_encode_str, [16]),
             (None, self._wrap_pack, [0x00, PACK_UINT4]),
             (None, self._wrap_pack, [0x00, PACK_UINT4]),
             (None, self._wrap_pack, [0x00, PACK_UINT4]),
@@ -648,8 +654,8 @@ class A_ASSOCIATE_RQ(PDU):
             The Presentation Context items.
         """
         return [
-            item for item in self.variable_items if
-            isinstance(item, PresentationContextItemRQ)
+            item for item in self.variable_items
+            if isinstance(item, PresentationContextItemRQ)
         ]
 
     def __str__(self) -> str:
@@ -659,8 +665,8 @@ class A_ASSOCIATE_RQ(PDU):
         s.append(f'  PDU type: 0x{self.pdu_type:02X}')
         s.append(f'  PDU length: {self.pdu_length} bytes')
         s.append(f'  Protocol version: {self.protocol_version}')
-        s.append(f'  Called AET:  {self.called_ae_title!r}')
-        s.append(f'  Calling AET: {self.calling_ae_title!r}')
+        s.append(f'  Called AET:  {self.called_ae_title}')
+        s.append(f'  Calling AET: {self.calling_ae_title}')
         s.append('')
 
         s.append('  Variable Items')
@@ -798,9 +804,9 @@ class A_ASSOCIATE_AC(PDU):
         # We allow the user to modify the protocol version if so desired
         self.protocol_version = 0x01
         # Called AE Title, should be present, but no guarantees
-        self._reserved_aet: Optional[bytes] = None
+        self._reserved_aet: str = ''
         # Calling AE Title, should be present, but no guarantees
-        self._reserved_aec: Optional[bytes] = None
+        self._reserved_aec: str = ''
 
         # `variable_items` is a list containing the following:
         #   1 ApplicationContextItem
@@ -817,8 +823,8 @@ class A_ASSOCIATE_AC(PDU):
         primitive : pdu_primitives.A_ASSOCIATE
             The primitive to use to set the current PDU field values.
         """
-        self._reserved_aet = primitive.called_ae_title
-        self._reserved_aec = primitive.calling_ae_title
+        self.reserved_aet = primitive.called_ae_title
+        self.reserved_aec = primitive.calling_ae_title
 
         # Make application context
         application_context = ApplicationContextItem()
@@ -853,8 +859,8 @@ class A_ASSOCIATE_AC(PDU):
         # The two reserved parameters at byte offsets 11 and 27 shall be set
         #    to called and calling AET byte the value shall not be
         #   tested when received (PS3.8 Table 9-17)
-        primitive.called_ae_title = self._reserved_aet
-        primitive.calling_ae_title = self._reserved_aec
+        primitive.called_ae_title = self.reserved_aet
+        primitive.calling_ae_title = self.reserved_aec
 
         for item in self.variable_items:
             # Add application context
@@ -894,23 +900,19 @@ class A_ASSOCIATE_AC(PDU):
         return None
 
     @property
-    def called_ae_title(self) -> Optional[bytes]:
+    def called_ae_title(self) -> str:
         """Return the value sent in the *Called AE Title* reserved space.
-
-        While the standard says this value should match the A-ASSOCIATE-RQ
-        value there is no guarantee and this should not be used as a check
-        value.
 
         Returns
         -------
-        bytes
+        str
             The value the A-ASSOCIATE-AC sent in the *Called AE Title* reserved
             space.
         """
-        return self._reserved_aet
+        return self.reserved_aet
 
     @property
-    def calling_ae_title(self) -> Optional[bytes]:
+    def calling_ae_title(self) -> str:
         """Return the value sent in the *Calling AE Title* reserved space.
 
         While the standard says this value should match the A-ASSOCIATE-RQ
@@ -923,8 +925,9 @@ class A_ASSOCIATE_AC(PDU):
             The value the A-ASSOCIATE-AC sent in the *Calling AE Title*
             reserved space.
         """
-        return self._reserved_aec
+        return self.reserved_aec
 
+    # FIXME
     @property
     def _decoders(self) -> Any:
         """Return an iterable of tuples that contain field decoders.
@@ -943,8 +946,8 @@ class A_ASSOCIATE_AC(PDU):
         """
         return [
             ((6, 2), 'protocol_version', self._wrap_unpack, [UNPACK_UINT2]),
-            ((10, 16), '_reserved_aet', self._wrap_bytes, []),
-            ((26, 16), '_reserved_aec', self._wrap_bytes, []),
+            ((10, 16), 'reserved_aet', self._wrap_bytes, []),  # Called AET
+            ((26, 16), 'reserved_aec', self._wrap_bytes, []),  # Calling AET
             ((74, None), 'variable_items', self._wrap_generate_items, [])
         ]
 
@@ -967,8 +970,8 @@ class A_ASSOCIATE_AC(PDU):
             ('pdu_length', PACK_UINT4, []),
             ('protocol_version', PACK_UINT2, []),
             (None, self._wrap_pack, [0x0000, PACK_UINT2]),
-            ('_reserved_aet', self._wrap_bytes, []),
-            ('_reserved_aec', self._wrap_bytes, []),
+            ('reserved_aet', self._wrap_encode_str, [16]),  # Called AET
+            ('reserved_aec', self._wrap_encode_str, [16]),  # Calling AET
             (None, self._wrap_pack, [0x00, PACK_UINT4]),
             (None, self._wrap_pack, [0x00, PACK_UINT4]),
             (None, self._wrap_pack, [0x00, PACK_UINT4]),
@@ -998,8 +1001,34 @@ class A_ASSOCIATE_AC(PDU):
         list of pdu_items.PresentationContextItemAC
             The Presentation Context Items.
         """
-        return [item for item in self.variable_items if
-                isinstance(item, PresentationContextItemAC)]
+        return [
+            item for item in self.variable_items
+            if isinstance(item, PresentationContextItemAC)
+        ]
+
+    @property
+    def reserved_aec(self) -> str:
+        return self._reserved_aec
+
+    @reserved_aec.setter
+    def reserved_aec(self, value: Union[str, bytes]) -> None:
+        if isinstance(value, bytes):
+            # PS3.8 Table 9-11: Leading and trailing spaces are non-significant
+            value = decode_bytes(value).strip()
+
+        self._reserved_aec = value
+
+    @property
+    def reserved_aet(self) -> str:
+        return self._reserved_aet
+
+    @reserved_aet.setter
+    def reserved_aet(self, value: Union[str, bytes]) -> None:
+        if isinstance(value, bytes):
+            # PS3.8 Table 9-11: Leading and trailing spaces are non-significant
+            value = decode_bytes(value).strip()
+
+        self._reserved_aet = value
 
     def __str__(self) -> str:
         """Return a string representation of the PDU."""
@@ -1008,8 +1037,8 @@ class A_ASSOCIATE_AC(PDU):
         s.append(f'  PDU type: 0x{self.pdu_type:02X}')
         s.append(f'  PDU length: {self.pdu_length} bytes')
         s.append(f'  Protocol version: {self.protocol_version}')
-        s.append(f'  Reserved (Called AET):  {self._reserved_aet!r}')
-        s.append(f'  Reserved (Calling AET): {self._reserved_aec!r}')
+        s.append(f'  Reserved (Called AET):  {self._reserved_aet}')
+        s.append(f'  Reserved (Calling AET): {self._reserved_aec}')
         s.append('')
 
         s.append('  Variable Items:')

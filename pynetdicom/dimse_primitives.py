@@ -18,7 +18,9 @@ from pydicom.uid import UID
 
 from pynetdicom import _config
 from pynetdicom._globals import OptionalUIDType
-from pynetdicom.utils import validate_ae_title, validate_uid, as_uid
+from pynetdicom.utils import (
+    validate_uid, as_uid, set_ae, decode_bytes
+)
 
 
 if TYPE_CHECKING:  # pragma: no cover
@@ -479,7 +481,7 @@ class C_STORE(DIMSEPrimitive):
         # self.AffectedSOPClassUID: Optional[UID] = None
         # self.AffectedSOPInstanceUID: Optional[UID] = None
         # self.Priority = 0x02
-        self.MoveOriginatorApplicationEntityTitle = None
+        self.MoveOriginatorApplicationEntityTitle: Optional[str] = None
         self.MoveOriginatorMessageID: Optional[int] = None
         self.DataSet: Optional[BytesIO] = None
         # self.Status: Optional[int] = None
@@ -522,9 +524,15 @@ class C_STORE(DIMSEPrimitive):
         self._dataset_variant = (value, 'DataSet')  # type: ignore
 
     @property
-    def MoveOriginatorApplicationEntityTitle(self) -> Optional[bytes]:
+    def MoveOriginatorApplicationEntityTitle(self) -> Optional[str]:
         """Get or set the *Move Originator Application Entity Title* as
         :class:`bytes`.
+
+        Parameters
+        ----------
+        bytes or str
+            The value to use for the *Move Originator AE Title* parameter.
+            Invalid values will be logged and ignored.
         """
         return self._move_originator_application_entity_title
 
@@ -532,31 +540,19 @@ class C_STORE(DIMSEPrimitive):
     def MoveOriginatorApplicationEntityTitle(
         self, value: Optional[Union[str, bytes]]
     ) -> None:
-        """Set the *Move Originator Application Entity Title*.
+        """Set the *Move Originator Application Entity Title*."""
+        if isinstance(value, bytes):
+            value = decode_bytes(value).strip()
 
-        Parameters
-        ----------
-        bytes or str
-            The value to use for the *Move Originator AE Title* parameter.
-            The parameter value will be truncated to 16 bytes and invalid
-            values ignored.
-        """
-        if isinstance(value, str):
-            value = codecs.encode(value, 'ascii')
+        try:
+            value = set_ae(value, 'Move Originator AE Title')
+        except ValueError:
+            LOGGER.error(
+                "Invalid 'Move Originator AE Title' in C-STORE request"
+            )
+            value = None
 
-        if value:
-            try:
-                self._move_originator_application_entity_title = (
-                    validate_ae_title(value, _config.USE_SHORT_DIMSE_AET)
-                )
-            except ValueError:
-                LOGGER.error(
-                    "C-STORE request primitive contains an invalid "
-                    "'Move Originator AE Title'"
-                )
-                self._move_originator_application_entity_title = None
-        else:
-            self._move_originator_application_entity_title = None
+        self._move_originator_application_entity_title = value
 
     @property
     def MoveOriginatorMessageID(self) -> Optional[int]:
@@ -1022,8 +1018,8 @@ class C_MOVE(DIMSEPrimitive):
         self._dataset_variant = (value, 'Identifier')  # type: ignore
 
     @property
-    def MoveDestination(self) -> Optional[bytes]:
-        """Get or set the *Move Destination* as :class:`bytes`.
+    def MoveDestination(self) -> Optional[str]:
+        """Get or set the *Move Destination* as :class:`str`.
 
         Parameters
         ----------
@@ -1036,15 +1032,12 @@ class C_MOVE(DIMSEPrimitive):
     @MoveDestination.setter
     def MoveDestination(self, value: Optional[Union[str, bytes]]) -> None:
         """Set the *Move Destination*."""
-        if isinstance(value, str):
-            value = codecs.encode(value, 'ascii')
+        if isinstance(value, bytes):
+            value = decode_bytes(value).strip()
 
-        if value is not None:
-            self._move_destination = validate_ae_title(
-                value, _config.USE_SHORT_DIMSE_AET
-            )
-        else:
-            self._move_destination = None
+        self._move_destination = set_ae(
+            value, 'Move Destination', allow_empty=False
+        )
 
     @property
     def NumberOfCompletedSuboperations(self) -> Optional[int]:

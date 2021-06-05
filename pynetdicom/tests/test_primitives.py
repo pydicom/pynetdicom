@@ -172,14 +172,14 @@ class TestPrimitive_ImplementationVersionNameNotification:
         primitive = ImplementationVersionNameNotification()
 
         ## Check assignment
-        reference_name = b'PYNETDICOM_090'
+        reference_name = 'PYNETDICOM_090'
 
         ## Check maximum length allowable
-        primitive.implementation_version_name = b'1234567890ABCDEF'
-        assert primitive.implementation_version_name == b'1234567890ABCDEF'
+        primitive.implementation_version_name = '1234567890ABCDEF'
+        assert primitive.implementation_version_name == '1234567890ABCDEF'
 
         # bytes
-        primitive.implementation_version_name = b'PYNETDICOM_090'
+        primitive.implementation_version_name = 'PYNETDICOM_090'
         assert primitive.implementation_version_name == reference_name
 
         # str
@@ -187,7 +187,7 @@ class TestPrimitive_ImplementationVersionNameNotification:
         assert primitive.implementation_version_name == reference_name
 
         primitive.implementation_version_name = 'P'
-        assert primitive.implementation_version_name == b'P'
+        assert primitive.implementation_version_name == 'P'
 
         ## Check exceptions
         primitive = ImplementationVersionNameNotification()
@@ -216,7 +216,7 @@ class TestPrimitive_ImplementationVersionNameNotification:
     def test_conversion(self):
         """ Check converting to PDU item works correctly """
         primitive = ImplementationVersionNameNotification()
-        primitive.implementation_version_name = b'PYNETDICOM_090'
+        primitive.implementation_version_name = 'PYNETDICOM_090'
         item = primitive.from_primitive()
 
         assert item.encode() == (
@@ -227,7 +227,7 @@ class TestPrimitive_ImplementationVersionNameNotification:
     def test_string(self):
         """Check the string output."""
         primitive = ImplementationVersionNameNotification()
-        primitive.implementation_version_name = b'PYNETDICOM3_090'
+        primitive.implementation_version_name = 'PYNETDICOM3_090'
         assert 'PYNETDICOM3_090' in primitive.__str__()
 
 
@@ -778,14 +778,15 @@ class TestPrimitive_A_ASSOCIATE:
 
         assoc.calling_ae_title = None
         assert assoc.calling_ae_title is None
-        assoc.calling_ae_title = 'ABCD1234ABCD12345'
-        assert assoc.calling_ae_title == b'ABCD1234ABCD1234'
+        assoc.calling_ae_title = 'ABCDEF1234567890'
+        assert assoc.calling_ae_title == 'ABCDEF1234567890'
 
         assoc.called_ae_title = None
         assert assoc.called_ae_title is None
-        assoc.called_ae_title = 'ABCD1234ABCD12345'
-        assert assoc.called_ae_title == b'ABCD1234ABCD1234'
-        assert assoc.responding_ae_title == b'ABCD1234ABCD1234'
+        assert assoc.responding_ae_title == assoc.called_ae_title
+        assoc.called_ae_title = '1234567890ABCDEF'
+        assert assoc.called_ae_title == '1234567890ABCDEF'
+        assert assoc.responding_ae_title == assoc.called_ae_title
 
         max_length = MaximumLengthNotification()
         max_length.maximum_length_received = 31222

@@ -11,8 +11,7 @@ from pydicom.uid import UID
 
 from pynetdicom import _config, debug_logger
 from pynetdicom.utils import (
-    validate_ae_title, pretty_bytes, validate_uid, make_target, as_uid,
-    decode_bytes
+    pretty_bytes, validate_uid, make_target, as_uid, decode_bytes
 )
 from .encoded_pdu_items import a_associate_rq
 
@@ -74,42 +73,6 @@ REFERENCE_BAD_AE_BYTES = [
     1234,
     45.1,
 ]
-
-
-class TestValidateAETitle:
-    """Tests for utils.validate_ae_title()."""
-    @pytest.mark.parametrize("aet, output", REFERENCE_GOOD_AE_STR)
-    def test_good_ae_str(self, aet, output):
-        """Test validate_ae_title using str input."""
-        assert validate_ae_title(aet) == output
-        assert isinstance(validate_ae_title(aet), bytes)
-
-    @pytest.mark.parametrize("aet, output", REFERENCE_GOOD_AE_BYTES)
-    def test_good_ae_bytes(self, aet, output):
-        """Test validate_ae_title using bytes input."""
-        assert validate_ae_title(aet) == output
-        assert isinstance(validate_ae_title(aet), bytes)
-
-    @pytest.mark.parametrize("aet", REFERENCE_BAD_AE_STR)
-    def test_bad_ae_str(self, aet):
-        """Test validate_ae_title using bad str input."""
-        with pytest.raises((TypeError, ValueError)):
-            validate_ae_title(aet)
-
-    @pytest.mark.parametrize("aet", REFERENCE_BAD_AE_BYTES)
-    def test_bad_ae_bytes(self, aet):
-        """Test validate_ae_title using bad bytes input."""
-        with pytest.raises((TypeError, ValueError)):
-            validate_ae_title(aet)
-
-    def test_length_check(self):
-        """Test validate_ae_title with no length check."""
-        assert _config.ALLOW_LONG_DIMSE_AET is False
-        aet = b"12345678901234567890"
-        assert 16 == len(validate_ae_title(aet))
-        _config.ALLOW_LONG_DIMSE_AET = True
-        assert 20 == len(validate_ae_title(aet))
-        _config.ALLOW_LONG_DIMSE_AET = False
 
 
 REFERENCE_UID = [

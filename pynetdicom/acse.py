@@ -329,23 +329,26 @@ class ACSE:
         # For convenience
         assoc_rq = cast(A_ASSOCIATE, self.requestor.primitive)
         # Set the Requestor's AE Title
-        self.requestor.ae_title = cast(bytes, assoc_rq.calling_ae_title)
+        self.requestor.ae_title = cast(str, assoc_rq.calling_ae_title)
 
         # If we reject association -> [result, source, diagnostic]
         reject_assoc_rsd = []
 
         # Calling AE Title not recognised
+        aet = assoc_rq.calling_ae_title.strip()
         if (
             self.assoc.ae.require_calling_aet
-            and assoc_rq.calling_ae_title
-            not in self.assoc.ae.require_calling_aet
+            and aet not in [
+                s.strip() for s in self.assoc.ae.require_calling_aet
+            ]
         ):
             reject_assoc_rsd = [0x01, 0x01, 0x03]
 
         # Called AE Title not recognised
+        aet = assoc_rq.called_ae_title.strip()
         if (
             self.assoc.ae.require_called_aet
-            and assoc_rq.called_ae_title != self.acceptor.ae_title
+            and aet != self.acceptor.ae_title.strip()
         ):
             reject_assoc_rsd = [0x01, 0x01, 0x07]
 
