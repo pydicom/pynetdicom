@@ -13,7 +13,7 @@ LOGGER = logging.getLogger('pynetdicom._validators')
 
 
 def validate_ae(value: str) -> bool:
-    """Return ``True`` if `ae_title` is a valid AE title.
+    """Return ``True`` if `value` is a conformant **AE** value.
 
     An **AE** value:
 

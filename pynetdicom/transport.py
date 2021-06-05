@@ -487,7 +487,7 @@ class RequestHandler(BaseRequestHandler):
             self.ae.implementation_class_uid
         )
         assoc.acceptor.implementation_version_name = (
-            self.ae.implementation_version_name  # type: ignore
+            self.ae.implementation_version_name
         )
         assoc.acceptor.supported_contexts = deepcopy(self.server.contexts)
 

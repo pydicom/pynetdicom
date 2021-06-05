@@ -260,7 +260,7 @@ class PDU:
         return bytestream
 
     @staticmethod
-    def _wrap_encode_str(value: str, pad=0) -> bytes:
+    def _wrap_encode_str(value: str, pad: int = 0) -> bytes:
         """Return `value` as ASCII encoded :class:`bytes`.
 
         Each component of Application Context, Abstract Syntax and Transfer
@@ -823,8 +823,8 @@ class A_ASSOCIATE_AC(PDU):
         primitive : pdu_primitives.A_ASSOCIATE
             The primitive to use to set the current PDU field values.
         """
-        self.reserved_aet = primitive.called_ae_title
-        self.reserved_aec = primitive.calling_ae_title
+        self.reserved_aet = cast(str, primitive.called_ae_title)
+        self.reserved_aec = cast(str, primitive.calling_ae_title)
 
         # Make application context
         application_context = ApplicationContextItem()

@@ -477,18 +477,14 @@ def _receive_associate_rq(event: "Event") -> List[str]:
     if user_info.implementation_version_name:
         their_version = user_info.implementation_version_name
 
-    their_version = cast(str, their_version)
-    calling_aet = pdu.calling_ae_title
-    called_aet = pdu.called_ae_title
-
     s = [
         "Request Parameters:",
         f"{' INCOMING A-ASSOCIATE-RQ PDU ':=^76}",
         f"Their Implementation Class UID:      {their_class_uid}",
         f"Their Implementation Version Name:   {their_version}",
         f"Application Context Name:    {app_context}",
-        f"Calling Application Name:    {calling_aet}",
-        f"Called Application Name:     {called_aet}",
+        f"Calling Application Name:    {pdu.calling_ae_title}",
+        f"Called Application Name:     {pdu.called_ae_title}",
         f"Their Max PDU Receive Size:  {user_info.maximum_length}"
     ]
 

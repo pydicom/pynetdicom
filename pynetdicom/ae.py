@@ -7,7 +7,7 @@ import logging
 from ssl import SSLContext
 import threading
 from typing import (
-    Union, Optional, List, Tuple, Dict, cast, TypeVar, Type, Any
+    Union, Optional, List, Tuple, Dict, cast, TypeVar, Type, Any, Sequence
 )
 
 from pydicom.uid import UID
@@ -19,7 +19,7 @@ from pynetdicom.pdu_primitives import _UI
 from pynetdicom.transport import (
     AssociationSocket, AssociationServer, ThreadedAssociationServer
 )
-from pynetdicom.utils import make_target, set_ae
+from pynetdicom.utils import make_target, set_ae, decode_bytes
 from pynetdicom._globals import (
     MODE_REQUESTOR,
     DEFAULT_MAX_LENGTH,
@@ -31,6 +31,8 @@ LOGGER = logging.getLogger('pynetdicom.ae')
 
 
 _T = TypeVar("_T")
+ListCXType = List[PresentationContext]
+TSyntaxType =  Optional[Union[str, UID, Sequence[Union[str, UID]]]]
 
 
 class ApplicationEntity:
@@ -45,7 +47,7 @@ class ApplicationEntity:
 
         .. versionchanged:: 2.0
 
-            `ae_title` should now be :class:`str`
+            `ae_title` should be :class:`str`
 
         Parameters
         ----------
@@ -65,7 +67,7 @@ class ApplicationEntity:
         self._implementation_version: str = PYNETDICOM_IMPLEMENTATION_VERSION
 
         # List of PresentationContext
-        self._requested_contexts: List[PresentationContext] = []
+        self._requested_contexts: ListCXType = []
         # {abstract_syntax : PresentationContext}
         self._supported_contexts: Dict[UID, PresentationContext] = {}
 
@@ -134,9 +136,7 @@ class ApplicationEntity:
     def add_requested_context(
         self,
         abstract_syntax: Union[str, UID],
-        transfer_syntax: Optional[
-            Union[str, UID, List[str], List[UID]]
-        ] = None,
+        transfer_syntax: TSyntaxType = None,
     ) -> None:
         """Add a :ref:`presentation context<user_presentation>` to be
         proposed when requesting an association.
@@ -261,9 +261,7 @@ class ApplicationEntity:
     def add_supported_context(
         self,
         abstract_syntax: Union[str, UID],
-        transfer_syntax: Optional[
-            Union[str, UID, List[str], List[UID]]
-        ] = None,
+        transfer_syntax: TSyntaxType = None,
         scu_role: Optional[bool] = None,
         scp_role: Optional[bool] = None
     ) -> None:
@@ -406,7 +404,7 @@ class ApplicationEntity:
         else:
             context = PresentationContext()
             context.abstract_syntax = abstract_syntax
-            context.transfer_syntax = transfer_syntax
+            context.transfer_syntax = transfer_syntax  # type: ignore
             context.scu_role = None or scu_role
             context.scp_role = None or scp_role
 
@@ -418,32 +416,36 @@ class ApplicationEntity:
 
         .. versionchanged:: 2.0
 
-            `ae_title` should now be :class:`str`
+            `ae_title` should be set using :class:`str` and returns
+            :class:`str` rather than :class:`bytes`
 
         Parameters
         ----------
         value : str
-            The AE title to use for the local Application Entity. Leading and
-            trailing spaces are non-significant and will be removed.
+            The AE title to use for the local Application Entity.
 
         Returns
         -------
         str
-            The local Application Entity's AE title, with non-significant
-            leading and trailing space removed.
+            The local Application Entity's AE title.
         """
         return self._ae_title
 
     @ae_title.setter
     def ae_title(self, value: str) -> None:
         """Set the AE title using :class:`str`."""
-        self._ae_title = set_ae(value, 'ae_title', allow_empty=False)
+        if isinstance(value, bytes):
+            value = decode_bytes(value)
+
+        self._ae_title = cast(
+            str, set_ae(value, 'ae_title', allow_empty=False)
+        )
 
     def associate(
         self,
         addr: str,
         port: int,
-        contexts: Optional[List[PresentationContext]] = None,
+        contexts: Optional[ListCXType] = None,
         ae_title: str = 'ANY-SCP',
         max_pdu: int = DEFAULT_MAX_LENGTH,
         ext_neg: Optional[List[_UI]] = None,
@@ -546,7 +548,10 @@ class ApplicationEntity:
         assoc.set_socket(sock)
 
         # Association Acceptor object -> remote AE
-        assoc.acceptor.ae_title = set_ae(
+        if isinstance(ae_title, bytes):
+            ae_title = decode_bytes(ae_title)
+
+        assoc.acceptor.ae_title = set_ae(  # type: ignore
             ae_title, 'Called AE Title', allow_empty=False
         )
         assoc.acceptor.address = addr
@@ -561,7 +566,7 @@ class ApplicationEntity:
             self.implementation_class_uid
         )
         assoc.requestor.implementation_version_name = (
-            self.implementation_version_name  # type: ignore
+            self.implementation_version_name
         )
         for item in (ext_neg or []):
             assoc.requestor.add_negotiation_item(item)
@@ -689,6 +694,7 @@ class ApplicationEntity:
         """
         return self._implementation_uid
 
+    # FIXME: pass through set_uid
     @implementation_class_uid.setter
     def implementation_class_uid(self, uid: str) -> None:
         """Set the *Implementation Class UID* used in association requests."""
@@ -707,6 +713,7 @@ class ApplicationEntity:
         """
         return self._implementation_version
 
+    # FIXME: pass through set_ae
     @implementation_version_name.setter
     def implementation_version_name(self, value: str) -> None:
         """Set the *Implementation Version Name* used in association requests.
@@ -717,7 +724,7 @@ class ApplicationEntity:
         self,
         address: Tuple[str, int],
         ae_title: Optional[str] = None,
-        contexts: Optional[List[PresentationContext]] = None,
+        contexts: Optional[ListCXType] = None,
         ssl_context: Optional[SSLContext] = None,
         evt_handlers: Optional[List[EventHandlerType]] = None,
         server_class: Optional[Type[_T]] = None,
@@ -868,9 +875,7 @@ class ApplicationEntity:
     def remove_requested_context(
         self,
         abstract_syntax: Union[str, UID],
-        transfer_syntax: Optional[
-            Union[str, UID, List[Union[str, UID]]]
-        ] = None
+        transfer_syntax: TSyntaxType = None
     ) -> None:
         """Remove a requested presentation context.
 
@@ -997,9 +1002,7 @@ class ApplicationEntity:
     def remove_supported_context(
         self,
         abstract_syntax: Union[str, UID],
-        transfer_syntax: Optional[
-            Union[str, UID, List[Union[str, UID]]]
-        ] = None
+        transfer_syntax: TSyntaxType = None
     ) -> None:
         """Remove a supported presentation context.
 
@@ -1121,7 +1124,7 @@ class ApplicationEntity:
                     del self._supported_contexts[abstract_syntax]
 
     @property
-    def requested_contexts(self) -> List[PresentationContext]:
+    def requested_contexts(self) -> ListCXType:
         """Get or set a list of the requested
         :class:`~pynetdicom.presentation.PresentationContext` items.
 
@@ -1170,7 +1173,7 @@ class ApplicationEntity:
         return self._requested_contexts
 
     @requested_contexts.setter
-    def requested_contexts(self, contexts: List[PresentationContext]) -> None:
+    def requested_contexts(self, contexts: ListCXType) -> None:
         """Set the requested presentation contexts."""
         if not contexts:
             self._requested_contexts = []
@@ -1180,7 +1183,8 @@ class ApplicationEntity:
 
         for context in contexts:
             self.add_requested_context(
-                cast(UID, context.abstract_syntax), context.transfer_syntax
+                cast(UID, context.abstract_syntax),
+                context.transfer_syntax
             )
 
     @property
@@ -1212,7 +1216,7 @@ class ApplicationEntity:
         self._require_called_aet = require_match
 
     @property
-    def require_calling_aet(self) -> List[bytes]:
+    def require_calling_aet(self) -> List[str]:
         """Get or set the required calling AE title as a list of :class:`str`.
 
         When an association request is received the value of the *Calling AE
@@ -1222,11 +1226,11 @@ class ApplicationEntity:
 
         .. versionchanged:: 1.1
 
-            `ae_titles` changed to ``list`` of ``bytes``
+            `ae_titles` changed to :class:`list` of :class:`bytes`
 
         .. versionchanged:: 2.0
 
-            `ae_titles` should now be :class:`str`
+            `ae_titles` should now be a :class:`list` of :class:`str`
 
         Parameters
         ----------
@@ -1243,7 +1247,7 @@ class ApplicationEntity:
     def require_calling_aet(self, ae_titles: List[str]) -> None:
         """Set the required calling AE title."""
         self._require_calling_aet = [
-            set_ae(aet, 'require_calling_aet', allow_empty=False)
+            cast(str, set_ae(aet, 'require_calling_aet', allow_empty=False))
             for aet in ae_titles
         ]
 
@@ -1270,7 +1274,7 @@ class ApplicationEntity:
         ssl_context: Optional[SSLContext] = None,
         evt_handlers: Optional[List[EventHandlerType]] = None,
         ae_title: Optional[str] = None,
-        contexts: Optional[List[PresentationContext]] = None
+        contexts: Optional[ListCXType] = None
     ) -> Optional[ThreadedAssociationServer]:
         """Start the AE as an association *acceptor*.
 
@@ -1319,10 +1323,9 @@ class ApplicationEntity:
             objects depending on the exact event that the handler is bound to.
             For more information see the :ref:`documentation<user_events>`.
         ae_title : str, optional
-            The AE title to use for the local SCP. Leading and trailing spaces
-            are non-significant. If this keyword parameter is not used then
-            the AE title from the :attr:`ae_title` property will be used
-            instead (default).
+            The AE title to use for the local SCP. If this keyword parameter
+            is not used then the AE title from the :attr:`ae_title` property
+            will be used instead (default).
         contexts : list of presentation.PresentationContext, optional
             The presentation contexts that will be supported by the SCP. If
             not used then the presentation contexts in the
@@ -1428,7 +1431,7 @@ class ApplicationEntity:
         return "\n".join(s)
 
     @property
-    def supported_contexts(self) -> List[PresentationContext]:
+    def supported_contexts(self) -> ListCXType:
         """Get or set a list of the supported
         :class:`~pynetdicom.presentation.PresentationContext` items.
 
@@ -1472,7 +1475,7 @@ class ApplicationEntity:
         )
 
     @supported_contexts.setter
-    def supported_contexts(self, contexts: List[PresentationContext]) -> None:
+    def supported_contexts(self, contexts: ListCXType) -> None:
         """Set the supported presentation contexts using a list."""
         if not contexts:
             self._supported_contexts = {}
@@ -1488,9 +1491,7 @@ class ApplicationEntity:
             )
 
     @staticmethod
-    def _validate_requested_contexts(
-        contexts: List[PresentationContext]
-    ) -> None:
+    def _validate_requested_contexts(contexts: ListCXType) -> None:
         """Validate the supplied `contexts`.
 
         Parameters

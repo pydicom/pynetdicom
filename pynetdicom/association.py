@@ -1414,7 +1414,7 @@ class Association(threading.Thread):
     def send_c_move(
         self,
         dataset: Dataset,
-        move_aet: bytes,
+        move_aet: str,
         query_model: Union[str, UID],
         msg_id: int = 1,
         priority: int = 2
@@ -1433,13 +1433,17 @@ class Association(threading.Thread):
 
             `query_model` now only accepts a UID string
 
+        .. versionchanged:: 2.0
+
+            `move_aet` should be :class:`str`
+
         Parameters
         ----------
         dataset : pydicom.dataset.Dataset
             The C-MOVE request's *Identifier* dataset. The exact
             requirements for the *Identifier* are Service Class specific (see
             the DICOM Standard, :dcm:`Part 4<part04/PS3.4.html>`).
-        move_aet : bytes
+        move_aet : str
             The value of the *Move Destination* parameter for the C-MOVE
             request, should be the AE title of the Storage SCP for the
             C-STORE sub-operations performed by the peer.
@@ -1618,15 +1622,16 @@ class Association(threading.Thread):
         dataset: Union[str, Path, Dataset],
         msg_id: int = 1,
         priority: int = 2,
-        originator_aet: Optional[bytes] = None,
+        originator_aet: Optional[str] = None,
         originator_id: Optional[int] = None
     ) -> Dataset:
         """Send a C-STORE request to the peer AE.
 
         .. versionchanged:: 2.0
 
-            Changed `dataset` parameter to either be a dataset or the path to
-            a dataset.
+            * Changed `dataset` parameter to either be a dataset or the path to
+              a dataset.
+            * `originator_aet` should now be :class:`str`
 
         Parameters
         ----------
@@ -3815,7 +3820,7 @@ class ServiceUser:
             self._user_info.append(item)
 
     @property
-    def implementation_version_name(self) -> Optional[bytes]:
+    def implementation_version_name(self) -> Optional[str]:
         """The Implementation Version Name as :class:`str` (if available).
 
         Returns

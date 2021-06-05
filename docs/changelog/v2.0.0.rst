@@ -59,12 +59,12 @@ Enhancements
   codecs used when decoding text-like PDU parameters (:issue:`611`)
 * UTF-8 codec added as a fallback when decoding PDUs
 * Added :attr:`~pynetdicom._config.VALIDATORS` to allow customising the
-  validation performed on UIDs and AE titles
+  validation performed on UIDs and AE titles (issue:`515`, issue:`549`)
 
 Changes
 .......
 
-* Removed support for Python 2.7 and 3.5, added it for Python 3.9
+* Removed support for Python 2.7, 3.5 and 3.6, added it for Python 3.9
 * Minimum *pydicom* version is 2.2
 * The *Failed SOP Instance UID List* sent with the final C-GET/C-MOVE SCP
   failure or warning responses no longer includes the SOP Instances for

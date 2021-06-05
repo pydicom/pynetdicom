@@ -71,8 +71,8 @@ class DIMSEPrimitive:
     _event_type_id: Optional[int] = None
     _message_id: Optional[int] = None
     _message_id_being_responded_to: Optional[int] = None
-    _move_destination: Optional[bytes] = None
-    _move_originator_application_entity_title: Optional[bytes] = None
+    _move_destination: Optional[str] = None
+    _move_originator_application_entity_title: Optional[str] = None
     _move_originator_message_id: Optional[int] = None
     _number_of_completed_suboperations: Optional[int] = None
     _number_of_failed_suboperations: Optional[int] = None

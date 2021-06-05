@@ -335,7 +335,7 @@ class ACSE:
         reject_assoc_rsd = []
 
         # Calling AE Title not recognised
-        aet = assoc_rq.calling_ae_title.strip()
+        aet = cast(str, assoc_rq.calling_ae_title).strip()
         if (
             self.assoc.ae.require_calling_aet
             and aet not in [
@@ -345,7 +345,7 @@ class ACSE:
             reject_assoc_rsd = [0x01, 0x01, 0x03]
 
         # Called AE Title not recognised
-        aet = assoc_rq.called_ae_title.strip()
+        aet = cast(str, assoc_rq.called_ae_title).strip()
         if (
             self.assoc.ae.require_called_aet
             and aet != self.acceptor.ae_title.strip()
