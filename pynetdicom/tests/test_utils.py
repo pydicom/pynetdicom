@@ -325,6 +325,17 @@ class TestAsUID:
             with as_uid(None, 'foo', allow_none=False) as uid:
                 pass
 
+    def test_empty_passthrough(self):
+        """Test an empty value passes through validation"""
+        with as_uid('', 'foo') as uid:
+            assert uid == UID('')
+
+        with as_uid(b'', 'foo') as uid:
+            assert uid == UID('')
+
+        with as_uid(UID(''), 'foo') as uid:
+            assert uid == UID('')
+
 
 class TestDecodeBytes:
     """Tests for utils.decode_bytes"""
