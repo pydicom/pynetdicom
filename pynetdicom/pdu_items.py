@@ -479,23 +479,9 @@ class ApplicationContextItem(PDUItem):
         value : pydicom.uid.UID, str or bytes
             The value of the Application Context Name's UID
         """
-        # pylint: disable=attribute-defined-outside-init
-        if isinstance(value, UID):
-            pass
-        elif isinstance(value, str):
-            value = UID(value)
-        elif isinstance(value, bytes):
-            value = UID(decode_bytes(value))
-        else:
-            raise TypeError(
-                'Application Context Name must be a UID, str or bytes'
-            )
-
-        if value is not None and not validate_uid(value):
-            LOGGER.error("Invalid 'Application Context Name'")
-            raise ValueError("Invalid 'Application Context Name'")
-
-        self._application_context_name = value
+        # Disallow None as a value
+        with as_uid(value, "Application Context Name", False) as uid:
+            self._application_context_name = uid
 
     @property
     def _decoders(self) -> Any:

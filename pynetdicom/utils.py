@@ -25,6 +25,8 @@ LOGGER = logging.getLogger('pynetdicom.utils')
 class as_uid:
     """Context manager for converting values to UID.
 
+    .. versionadded:: 2.0
+
     Examples
     --------
 
@@ -42,7 +44,7 @@ class as_uid:
 
         Parameters
         ----------
-        value : str, bytes, UID (an optionally None)
+        value : str, bytes, UID (and optionally None)
             The value to be converted.
         name : str
             The name of the parameter being converted.
@@ -74,29 +76,34 @@ class as_uid:
         if isinstance(self.value, bytes):
             self.value = decode_bytes(self.value)
 
-        if isinstance(self.value, str):
+        if isinstance(self.value, str):  # Includes UID
             self.value = UID(self.value)
 
         if isinstance(self.value, UID):
             if not self.validate:
                 return self.value
 
-            msg = (
-                f"Non-conformant UID '{self.value}' used with the "
-                f"'{self.name}' parameter"
-            )
+            # Note: conformance may be different from validity
             if self.value and not validate_uid(self.value):
+                msg = (
+                    f"Invalid UID '{self.value}' used with the "
+                    f"'{self.name}' parameter"
+                )
                 LOGGER.error(msg)
                 raise ValueError(msg)
 
             if self.value and not self.value.is_valid:
-                LOGGER.warning(msg)
+                LOGGER.warning(
+                    f"Non-conformant UID '{self.value}' used with the "
+                    f"'{self.name}' parameter"
+                )
 
+            # Note: an empty UID will skip validation
             return self.value
 
         raise TypeError(
-            f"'{self.name}' must be 'str', 'bytes' or 'UID', not "
-            f"{type(self.value)}"
+            f"'{self.name}' must be str, bytes or UID, not "
+            f"'{self.value.__class__.__name__}'"
         )
 
     def __exit__(
@@ -110,20 +117,22 @@ class as_uid:
 
 
 def decode_bytes(
-    encoded_value: bytes, encodings: Tuple[str, ...] = _config.PDU_ENCODINGS
+    encoded_value: bytes, codecs: Tuple[str, ...] = _config.PDU_CODECS
 ) -> str:
     """Return the decoded string from `encoded_value`.
+
+    .. versionadded:: 2.0
 
     Parameters
     ----------
     encoded_value : bytes
         The encoded value to be decoded.
-    encodings : Tuple[str, ...], optional
+    codecs : Tuple[str, ...], optional
         A tuple of codec names to use when attempting to decode, defaults
-        to :attr:`~pynetdicom._config.PDU_ENCODINGS`. See the `Python
+        to :attr:`~pynetdicom._config.PDU_CODECS`. See the `Python
         documentation
         <https://docs.python.org/3/library/codecs.html#standard-encodings>`_
-        for possible encodings.
+        for possible codecs.
 
     Returns
     -------
@@ -135,15 +144,15 @@ def decode_bytes(
     UnicodeDecodeError
         If unable to decode the encoded value.
     """
-    for enc in encodings or ('ascii', ):
+    for codec in codecs or ('ascii', ):
         try:
-            return encoded_value.decode(enc, errors='strict')
+            return encoded_value.decode(codec, errors='strict')
         except UnicodeDecodeError as exc:
             LOGGER.exception(exc)
 
     as_hex = ' '.join([f"{b:02X}" for b in encoded_value])
     raise ValueError(
-        f"Unable to decode '{as_hex}' with {', '.join(encodings)}"
+        f"Unable to decode '{as_hex}' with {', '.join(codecs)}"
     )
 
 

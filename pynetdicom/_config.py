@@ -200,10 +200,12 @@ Examples
 """
 
 
-PDU_ENCODINGS: Tuple[str, ...] = ('ascii', 'utf-8')
-"""Customise the encodings used to decode text values in PDUs.
+PDU_CODECS: Tuple[str, ...] = ('ascii', 'utf-8')
+"""Customise the codecs used to decode text values in PDUs.
 
-The specified encodings will be used when decoding the following parameters:
+.. versionadded:: 2.0
+
+The specified codecs will be used when decoding the following parameters:
 
 * A-ASSOCIATE-RQ: *Called AE Title*, *Calling AE Title*
 
@@ -233,9 +235,9 @@ The specified encodings will be used when decoding the following parameters:
     * SCP/SCU Role Selection Sub-item: *SOP Class UID*
     * SOP Class Extended Negotiation Sub-item: *SOP Class UID*
 
-Possible encodings are given in the Python documentation `here
+Possible codecs are given in the Python documentation `here
 <https://docs.python.org/3/library/codecs.html#standard-encodings>`_. Decoding
-will be attempted in the order that the encodings appear in ``PDU_ENCODINGS``.
+will be attempted in the order that the codecs appear in ``PDU_CODECS``.
 
 The default value is ``ascii`` with ``utf-8`` as a fallback. The DICOM Standard
 specifies ASCII as the only valid encoding method, however non-conformant
@@ -246,8 +248,8 @@ When values are encoded by *pynetdicom* only ASCII is used.
 Examples
 --------
 
-Remove UTF-8 as a fallback encoding:
+Remove UTF-8 as a fallback codec:
 
 >>> from pynetdicom import _config
->>> _config.PDU_ENCODINGS = ('ascii', )
+>>> _config.PDU_CODECS = ('ascii', )
 """
