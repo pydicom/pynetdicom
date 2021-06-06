@@ -64,4 +64,10 @@ def validate_ui(value: UID) -> Tuple[bool, str]:
 
         return False, "UID is non-conformant"
 
-    return 0 < len(value) < 65, "must not exceed 64 characters"
+    if not 0 < len(value):
+        return False, "must not be an empty str"
+
+    if not len(value) < 65:
+        return False, "must not exceed 64 characters"
+
+    return True, ""

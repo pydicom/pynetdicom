@@ -3652,7 +3652,7 @@ class ServiceUser:
         return self._ae_title
 
     @ae_title.setter
-    def ae_title(self, value: Union[str, bytes]) -> None:
+    def ae_title(self, value: str) -> None:
         """Set the service user's AE title."""
         if isinstance(value, bytes):
             warnings.warn(
@@ -3851,14 +3851,15 @@ class ServiceUser:
 
     @property
     def implementation_version_name(self) -> Optional[str]:
-        """Get or set the Implementation Version Name.
+        """Get or set the *Implementation Version Name*.
 
         Parameters
         ----------
         value : str or None
             The value to use for the *Implementation Version Name*, or ``None``
             if no Implementation Version Name Notification item is to be
-            included in the association negotiation.
+            included in the association negotiation. Can only be set prior
+            to association negotiation.
 
         Returns
         -------
@@ -3883,13 +3884,7 @@ class ServiceUser:
 
     @implementation_version_name.setter
     def implementation_version_name(self, value: Optional[str]) -> None:
-        """Set the Implementation Version Name (only prior to association).
-
-        Parameters
-        ----------
-        str
-            The Implementation Version Name value to use.
-        """
+        """Set the Implementation Version Name (only prior to association)."""
         if not self.writeable:
             raise RuntimeError(
                 "Can't set the Implementation Version Name after negotiation "
@@ -3901,6 +3896,8 @@ class ServiceUser:
                 if isinstance(item, ImplementationVersionNameNotification):
                     self._user_info.remove(item)
                     break
+
+            return
 
         # Validate - diallow an empty str
         value = cast(

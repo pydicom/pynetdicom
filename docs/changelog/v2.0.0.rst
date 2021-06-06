@@ -71,5 +71,5 @@ Changes
 * SOP Class and Instance variable names changed to match the new UID keywords
   from the DICOM Standard. In particular ``VerificationSOPClass`` is now simply
   :attr:`~pynetdicom.sop_class.Verification`
-* AE titles may now only be set using an ASCII :class:`str` rather than
+* AE titles should be set using an ASCII :class:`str` rather than
   :class:`bytes`

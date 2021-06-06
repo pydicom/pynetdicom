@@ -891,14 +891,19 @@ class TestAEGoodMiscSetters:
         ae = AE()
         ae.implementation_version_name = None
         assert ae.implementation_version_name is None
-        ae.implementation_version_name = ""
-        assert ae.implementation_version_name == ""
         ae.implementation_version_name = "  "
         assert ae.implementation_version_name == "  "
 
         msg = "'implementation_version_name' must be str or None, not 'int'"
         with pytest.raises(TypeError, match=msg):
             ae.implementation_version_name = 1234
+
+        msg = (
+            "Invalid 'implementation_version_name' value - must not be an "
+            "empty str"
+        )
+        with pytest.raises(ValueError, match=msg):
+            ae.implementation_version_name = ""
 
         assert ae.implementation_version_name == "  "
 

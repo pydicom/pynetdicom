@@ -249,14 +249,12 @@ class ApplicationEntity:
                 "are already the maximum allowed number of requested contexts"
             )
 
-        abstract_syntax = UID(abstract_syntax)
-
         # Allow single transfer syntax values for convenience
         if isinstance(transfer_syntax, str):
             transfer_syntax = [transfer_syntax]
 
         context = PresentationContext()
-        context.abstract_syntax = abstract_syntax
+        context.abstract_syntax = UID(abstract_syntax)
         context.transfer_syntax = [UID(syntax) for syntax in transfer_syntax]
 
         self._requested_contexts.append(context)
@@ -731,9 +729,15 @@ class ApplicationEntity:
     @implementation_version_name.setter
     def implementation_version_name(self, value: Optional[str]) -> None:
         """Set the *Implementation Version Name*"""
-        # We allow empty or None, but that will be conformed by the ServiceUser
+        # We allow None, but not an empty str
+        if isinstance(value, str) and not value:
+            raise ValueError(
+                "Invalid 'implementation_version_name' value - must not be "
+                "an empty str"
+            )
+
         self._implementation_version = set_ae(
-            value, 'implementation_version_name', True, True
+            value, 'implementation_version_name'
         )
 
     def make_server(

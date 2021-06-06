@@ -643,6 +643,24 @@ class TestServiceUserAcceptor:
 
         assert len(class_items) == 1
 
+        user.implementation_version_name = None
+        assert user.implementation_version_name is None
+
+        class_items = []
+        for item in user.user_information:
+            if isinstance(item, ImplementationVersionNameNotification):
+                class_items.append(item)
+                assert user.implementation_version_name == ref
+
+        assert len(class_items) == 0
+
+        msg = (
+            "Invalid 'implementation_version_name' value - must not be an "
+            "empty str"
+        )
+        with pytest.raises(ValueError, match=msg):
+            user.implementation_version_name = ""
+
     def test_impl_version_post(self):
         """Test implementation_version_name after association."""
         user = ServiceUser(self.assoc, mode='acceptor')
@@ -1344,6 +1362,31 @@ class TestServiceUserAcceptor:
         assert user.writeable is True
         user.primitive = self.primitive_ac
         assert user.writeable is False
+
+    def test_ae_title(self):
+        """Test setting the ae_title"""
+        user = ServiceUser(self.assoc, mode='acceptor')
+        user.ae_title = '  TEST A   '
+        assert user.ae_title == '  TEST A   '
+
+        msg = "Invalid 'ae_title' value - must not be an empty str"
+        with pytest.raises(ValueError, match=msg):
+            user.ae_title = ''
+
+        msg = "'ae_title' must be str, not 'int'"
+        with pytest.raises(TypeError, match=msg):
+            user.ae_title = 12345
+
+    def test_aet_bytes_deprecation(self):
+        """Test deprecation warning for bytes"""
+        user = ServiceUser(self.assoc, mode='acceptor')
+        msg = (
+            r"The use of bytes with 'ae_title' is deprecated, use an ASCII "
+            r"str instead"
+        )
+        with pytest.warns(DeprecationWarning, match=msg):
+            user.ae_title = b'BADAE2'
+            assert user.ae_title == 'BADAE2'
 
 
 class TestServiceUserRequestor:
