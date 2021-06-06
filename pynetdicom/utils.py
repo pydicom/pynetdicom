@@ -5,7 +5,9 @@ from io import BytesIO
 import logging
 import sys
 from types import TracebackType
-from typing import List, Optional, Iterator, Union, cast, Callable, Tuple, Type
+from typing import (
+    List, Optional, Iterator, Union, cast, Callable, Tuple, Type, Sequence
+)
 import unicodedata
 
 try:
@@ -117,9 +119,7 @@ class as_uid:
         return None
 
 
-def decode_bytes(
-    encoded_value: bytes, codecs: Tuple[str, ...] = _config.PDU_CODECS
-) -> str:
+def decode_bytes(encoded_value: bytes) -> str:
     """Return the decoded string from `encoded_value`.
 
     .. versionadded:: 2.0
@@ -128,76 +128,39 @@ def decode_bytes(
     ----------
     encoded_value : bytes
         The encoded value to be decoded.
-    codecs : Tuple[str, ...], optional
-        A tuple of codec names to use when attempting to decode, defaults
-        to :attr:`~pynetdicom._config.PDU_CODECS`. See the `Python
-        documentation
-        <https://docs.python.org/3/library/codecs.html#standard-encodings>`_
-        for possible codecs.
 
     Returns
     -------
     str
-        The decoded value
+        The decoded ISO 646 (ASCII) string.
 
     Raises
     ------
     UnicodeDecodeError
         If unable to decode the encoded value.
     """
-    for codec in codecs or ('ascii', ):
+    # Always try ASCII first
+    try:
+        return encoded_value.decode('ascii', errors='strict')
+    except UnicodeDecodeError as exc:
+        LOGGER.exception(exc)
+
+    codecs: Sequence[str] = _config.CODECS
+    codecs = [c for c in codecs if c not in ('ascii', '646', 'us-ascii')]
+
+    # If that fails then try the fallbacks and re-encode into ASCII
+    for codec in codecs:
         try:
-            return encoded_value.decode(codec, errors='strict')
-        except UnicodeDecodeError as exc:
+            value = encoded_value.decode(codec, errors='strict')
+            encoded_value = value.encode('ascii', errors='ignore')
+            return decode_bytes(encoded_value)
+        except UnicodeError as exc:
             LOGGER.exception(exc)
 
+    codecs.insert(0, 'ascii')
     as_hex = ' '.join([f"{b:02X}" for b in encoded_value])
     raise ValueError(
-        f"Unable to decode '{as_hex}' with {', '.join(codecs)}"
-    )
-
-
-def set_ae(
-    value: Optional[str],
-    name: str,
-    allow_empty: bool = True,
-    allow_none: bool = True
-) -> Optional[str]:
-    """Conform `value` to a text like parameter and apply validation.
-
-    Parameters
-    ----------
-    value : str or None
-        The value to be converted.
-    name : str
-        The name of the parameter being converted.
-    allow_empty : bool, optional
-        If ``True`` (default) skip validation when an empty string or ``None``
-        is used.
-
-    Returns
-    -------
-    str or None
-        If ``allow_empty`` is ``True`` then may return ``None``, otherwise
-        the string will be returned.
-    """
-    if allow_none and value is None:
-        return None
-
-    if isinstance(value, str):
-        if not allow_empty and not value.strip():
-            # E.g. Called and Calling AE Title may not be 16 spaces
-            LOGGER.error(f"Invalid '{name}' value '{value}'")
-            raise ValueError(f"Invalid '{name}' value '{value}'")
-
-        if value and not _config.VALIDATORS['AE'](value):
-            LOGGER.error(f"Invalid '{name}' value '{value}'")
-            raise ValueError(f"Invalid '{name}' value '{value}'")
-
-        return value
-
-    raise TypeError(
-        f"'{name}' must be str, not '{value.__class__.__name__}'"
+        f"Unable to decode '{as_hex}' using the {', '.join(codecs)} codec(s)"
     )
 
 
@@ -291,6 +254,60 @@ def pretty_bytes(
         lines.insert(0, prefix + f"Only dumping {max_size} bytes.")
 
     return lines
+
+
+def set_ae(
+    value: Optional[str],
+    name: str,
+    allow_empty: bool = True,
+    allow_none: bool = True
+) -> Optional[str]:
+    """Conform `value` to a text like parameter and apply validation.
+
+    Parameters
+    ----------
+    value : str or None
+        The value to be converted.
+    name : str
+        The name of the parameter being converted.
+    allow_empty : bool, optional
+        If ``True`` (default) skip validation when an empty string or ``None``
+        is used.
+
+    Returns
+    -------
+    str or None
+        If ``allow_empty`` is ``True`` then may return ``None``, otherwise
+        the string will be returned.
+    """
+    if allow_none and value is None:
+        return None
+
+    if isinstance(value, str):
+        if not allow_empty and not value.strip():
+            # E.g. Called and Calling AE Title may not be 16 spaces
+            msg = f"Invalid '{name}' value - "
+            if len(value):
+                msg += "must not consist entirely of spaces"
+            else:
+                msg += "must not be an empty str"
+
+            LOGGER.error(msg)
+            raise ValueError(msg)
+
+
+        if value:
+            result, reason = _config.VALIDATORS['AE'](value)
+            if not result:
+                msg = f"Invalid '{name}' value '{value}' - {reason}"
+                LOGGER.error(msg)
+                raise ValueError(msg)
+
+        return value
+
+    raise TypeError(
+        f"'{name}' must be str, not '{value.__class__.__name__}'"
+    )
 
 
 @contextmanager

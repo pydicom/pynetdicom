@@ -45,7 +45,7 @@ from .encoded_pdu_items import (
     maximum_length_received, implementation_class_uid,
     implementation_version_name, role_selection, role_selection_odd,
     user_information, extended_negotiation, common_extended_negotiation,
-    p_data_tf, a_associate_ac_zero_ts
+    p_data_tf, a_associate_ac_zero_ts, presentation_context_rq_utf8
 )
 
 
@@ -59,6 +59,7 @@ def print_nice_bytes(bytestream):
     for string in str_list:
         print(string)
 
+
 def bytes_to_bytesio(bytestream):
     """Convert a bytestring to a BytesIO ready to be decoded."""
     from io import BytesIO
@@ -66,6 +67,7 @@ def bytes_to_bytesio(bytestream):
     fp.write(bytestream)
     fp.seek(0)
     return fp
+
 
 def create_encoded_pdu():
     """Function to create a PDU for testing"""
@@ -80,6 +82,14 @@ def create_encoded_pdu():
     usr_id.get_length()
     data.append(usr_id)
     print_nice_bytes(pdu.encode())
+
+
+@pytest.fixture
+def utf8():
+    """Add UTF-8 as a fallback codec"""
+    _config.CODECS = ('ascii', 'utf8')
+    yield
+    _config.CODECS = ('ascii', )
 
 
 class TestPDU:
@@ -474,6 +484,19 @@ class TestPresentationContextRQ:
         assert item.abstract_syntax == UID('1.2.840.10008.1.1')
         assert len(item.transfer_syntax) == 1
         assert item.transfer_syntax[0] == UID('1.2.840.10008.1.2')
+
+    def test_decode_utf8(self, utf8, caplog):
+        """Regression test for #560"""
+        assert 'utf8' in _config.CODECS
+        pdu = PresentationContextItemRQ()
+        with caplog.at_level(logging.WARNING, logger='pynetdicom'):
+            pdu.decode(presentation_context_rq_utf8)
+            assert pdu.abstract_syntax == "1.2.840.10008.5.1.4.1.1.104.3"
+            assert pdu.transfer_syntax == ["1.2.840.10008.1.2.1"]
+
+            assert (
+                r"'ascii' codec can't decode byte 0xe2 in position 14"
+            ) in caplog.text
 
     def test_encode(self):
         """Check encoding produces the correct output """

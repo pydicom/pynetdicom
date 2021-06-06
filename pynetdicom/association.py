@@ -10,6 +10,7 @@ from typing import (
     Union, Optional, List, Callable, Any, Dict, Iterator, Tuple, TYPE_CHECKING,
     cast
 )
+import warnings
 
 from pydicom import dcmread
 from pydicom.dataset import Dataset
@@ -56,7 +57,9 @@ from pynetdicom.sop_class import (  # type: ignore
     UnifiedProcedureStepQuery
 )
 from pynetdicom.status import code_to_category, STORAGE_SERVICE_CLASS_STATUS
-from pynetdicom.utils import make_target, set_timer_resolution
+from pynetdicom.utils import (
+    make_target, set_timer_resolution, set_ae, decode_bytes
+)
 
 if TYPE_CHECKING:  # pragma: no cover
     from pynetdicom.ae import ApplicationEntity
@@ -3507,8 +3510,6 @@ class ServiceUser:
     ----------
     address : str
         The TCP/IP address of the AE.
-    ae_title : str
-        The AE's AE title.
     port : int
         The port number of the AE.
     primitive : None or pdu_primitives.A_ASSOCIATE
@@ -3537,8 +3538,8 @@ class ServiceUser:
 
         self.assoc: Association = assoc
         self._mode: str = mode
+        self._ae_title: str = ''
         self.primitive: Optional[A_ASSOCIATE] = None
-        self.ae_title: str = ''
         self.port: Optional[int] = None
         self.address: Optional[str] = ''
 
@@ -3633,6 +3634,35 @@ class ServiceUser:
             raise TypeError(
                 "'item' is not a valid extended negotiation item"
             )
+
+    @property
+    def ae_title(self) -> str:
+        """Get or set the AE title.
+
+        Parameters
+        ----------
+        value : str
+            The AE title as an ASCII string.
+
+        Returns
+        -------
+        str
+            The AE title as an ASCII string.
+        """
+        return self._ae_title
+
+    @ae_title.setter
+    def ae_title(self, value: Union[str, bytes]) -> None:
+        """Set the service user's AE title."""
+        if isinstance(value, bytes):
+            warnings.warn(
+                "The use of bytes with 'ae_title' is deprecated, use an ASCII "
+                "str instead",
+                DeprecationWarning
+            )
+            value = decode_bytes(value)
+
+        self._ae_title = cast(str, set_ae(value, 'ae_title', False, False))
 
     @property
     def asynchronous_operations(self) -> Tuple[int, int]:

@@ -259,6 +259,7 @@ class PDU:
 
         return bytestream
 
+    # FIXME: docstring
     @staticmethod
     def _wrap_encode_str(value: str, pad: int = 0) -> bytes:
         """Return `value` as ASCII encoded :class:`bytes`.
@@ -457,8 +458,8 @@ class A_ASSOCIATE_RQ(PDU):
         primitive : pdu_primitives.A_ASSOCIATE
             The primitive to use to set the current PDU field values.
         """
-        self.calling_ae_title = cast(str, primitive.calling_ae_title)
-        self.called_ae_title = cast(str, primitive.called_ae_title)
+        self.calling_ae_title = primitive.calling_ae_title
+        self.called_ae_title = primitive.called_ae_title
 
         # Add Application Context
         application_context = ApplicationContextItem()
@@ -544,7 +545,6 @@ class A_ASSOCIATE_RQ(PDU):
             # PS3.8 Table 9-11: Leading and trailing spaces are non-significant
             value = decode_bytes(value).strip()
 
-        # Fixed length of 16 characters so add trailing spaces as padding
         self._called_aet = cast(
             str, set_ae(value, 'Called AE Title', allow_empty=False)
         )
@@ -823,8 +823,8 @@ class A_ASSOCIATE_AC(PDU):
         primitive : pdu_primitives.A_ASSOCIATE
             The primitive to use to set the current PDU field values.
         """
-        self.reserved_aet = cast(str, primitive.called_ae_title)
-        self.reserved_aec = cast(str, primitive.calling_ae_title)
+        self.reserved_aet = primitive.called_ae_title
+        self.reserved_aec = primitive.calling_ae_title
 
         # Make application context
         application_context = ApplicationContextItem()

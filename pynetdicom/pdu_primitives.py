@@ -145,8 +145,8 @@ class A_ASSOCIATE:
 
     def __init__(self) -> None:
         self._application_context_name: Optional[UID] = None
-        self._calling_ae_title: Optional[str] = None
-        self._called_ae_title: Optional[str] = None
+        self._calling_ae_title: str = 'DEFAULT'
+        self._called_ae_title: str = 'DEFAULT'
         self._user_information: _UserInformationPrimitiveType = []
         self._result: Optional[int] = None
         self._result_source: Optional[int] = None
@@ -184,7 +184,7 @@ class A_ASSOCIATE:
             self._application_context_name = uid
 
     @property
-    def called_ae_title(self) -> Optional[str]:
+    def called_ae_title(self) -> str:
         """Get or set the *Called AE Title* parameter.
 
         Parameters
@@ -200,13 +200,16 @@ class A_ASSOCIATE:
         return self._called_ae_title
 
     @called_ae_title.setter
-    def called_ae_title(self, value: Optional[Union[str, bytes]]) -> None:
+    def called_ae_title(self, value: Union[str, bytes]) -> None:
         """Set the Called AE Title parameter."""
         if isinstance(value, bytes):
             value = decode_bytes(value).strip()
 
-        self._called_ae_title = set_ae(
-            value, 'Called AE Title', allow_empty=False
+        self._called_ae_title = cast(
+            str,
+            set_ae(
+                value, 'Called AE Title', allow_empty=False, allow_none=False
+            )
         )
 
     @property
@@ -256,7 +259,7 @@ class A_ASSOCIATE:
             )
 
     @property
-    def calling_ae_title(self) -> Optional[str]:
+    def calling_ae_title(self) -> str:
         """Get or set the *Calling AE Title* parameter.
 
         Parameters
@@ -272,13 +275,16 @@ class A_ASSOCIATE:
         return self._calling_ae_title
 
     @calling_ae_title.setter
-    def calling_ae_title(self, value: Optional[Union[str, bytes]]) -> None:
+    def calling_ae_title(self, value: Union[str, bytes]) -> None:
         """Set the Calling AE Title parameter."""
         if isinstance(value, bytes):
             value = decode_bytes(value).strip()
 
-        self._calling_ae_title = set_ae(
-            value, 'Calling AE Title', allow_empty=False
+        self._calling_ae_title = cast(
+            str,
+            set_ae(
+                value, 'Calling AE Title', allow_empty=False, allow_none=False
+            )
         )
 
     @property

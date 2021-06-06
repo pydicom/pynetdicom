@@ -25,7 +25,7 @@ from pynetdicom.sop_class import RTImageStorage, Verification
 from pynetdicom.transport import AssociationServer, RequestHandler
 
 
-#debug_logger()
+# debug_logger()
 
 
 TEST_DS_DIR = os.path.join(os.path.dirname(__file__), 'dicom_files')
@@ -83,6 +83,20 @@ class TestMakeServer:
 
         server = ae.make_server(('', 11112), request_handler=MyRequestHandler)
         assert server.RequestHandlerClass is MyRequestHandler
+
+    def test_aet_bytes_deprecation(self):
+        """Test warning if using bytes to set an AE title."""
+        self.ae = ae = AE()
+        ae.add_supported_context(Verification)
+
+        msg = (
+            r"The use of bytes with 'ae_title' is deprecated, use an ASCII "
+            r"str instead"
+        )
+        with pytest.warns(DeprecationWarning, match=msg):
+            server = ae.start_server(('', 11112), block=False, ae_title=b'BADAE2')
+            assert server.ae_title == 'BADAE2'
+            server.shutdown()
 
 
 class TestStartServer:
@@ -183,7 +197,7 @@ class TestAEVerificationSCP:
         with pytest.raises(ValueError, match=r"No supported Presentation"):
             ae.start_server(('', 11112))
 
-    def test_new_scu_scp_warning(self, caplog):
+    def test_new_scu_scp_warning(self):
         """Test that a warning is given if scu_role and scp_role bad."""
         ae = AE()
         ae.add_supported_context('1.2.3.4', scp_role=False)
@@ -570,6 +584,8 @@ class TestAEGoodAssociation:
             assoc = scu_ae.associate('example.com', 11112)
             assert not assoc.is_established
             assert assoc.is_aborted
+            # Note: requires internet connection
+            # "TCP Initialisation Error: [Errno -2] Nmme or service not known"
             assert "TCP Initialisation Error: timed out" in caplog.text
             assert "ACSE timeout reached" not in caplog.text
 
@@ -595,6 +611,27 @@ class TestAEGoodAssociation:
 
             scp.shutdown()
 
+    def test_aet_bytes_deprecation(self):
+        """Test warning if using bytes to set an AE title."""
+        self.ae = ae = AE()
+        ae.acse_timeout = 5
+        ae.dimse_timeout = 5
+        ae.network_timeout = 5
+        ae.add_supported_context(Verification)
+        server = ae.start_server(('', 11112), block=False)
+
+        ae.add_requested_context(Verification)
+        msg = (
+            r"The use of bytes with 'ae_title' is deprecated, use an ASCII "
+            r"str instead"
+        )
+        with pytest.warns(DeprecationWarning, match=msg):
+            assoc = ae.associate('', 11112, ae_title=b'BADAE2')
+            assert assoc.acceptor.ae_title == 'BADAE2'
+            assert assoc.requestor.ae_title == 'PYNETDICOM'
+
+        server.shutdown()
+
 
 class TestAEBadAssociation:
     def test_raise(self):
@@ -607,6 +644,44 @@ class TestAEBadAssociation:
         with pytest.raises(TypeError):
             ae.associate('localhost', '1.2.3.4')
 
+    def test_invalid_ae_title(self):
+        """Test invalid AE.ae_title"""
+        ae = AE()
+        ae.add_requested_context(Verification
+        )
+        msg = r"Invalid 'ae_title' value - must not consist entirely of spaces"
+        with pytest.raises(ValueError, match=msg):
+            ae.associate('localhost', 11112, ae_title='                ')
+
+        msg = (
+            r"Invalid 'ae_title' value '\u200b5' "
+            r"- must only contain ASCII characters"
+        )
+        with pytest.raises(ValueError, match=msg):
+            aet = b"\xe2\x80\x8b\x35".decode('utf8')
+            ae.associate('localhost', 11112, ae_title=aet)
+
+        msg = (
+            r"Invalid 'ae_title' value '1234567890ABCDEFG' "
+            r"- must not exceed 16 characters"
+        )
+        with pytest.raises(ValueError, match=msg):
+            ae.associate('localhost', 11112, ae_title='1234567890ABCDEFG')
+
+        msg = r"Invalid 'ae_title' value - must not be an empty str"
+        with pytest.raises(ValueError, match=msg):
+            ae.associate('localhost', 11112, ae_title='')
+
+        msg = (
+            r"Invalid 'ae_title' value 'TEST\\ME' - must not contain control "
+            r"characters or backslashes"
+        )
+        with pytest.raises(ValueError, match=msg):
+            ae.associate('localhost', 11112, ae_title='TEST\\ME')
+
+        msg = r"'ae_title' must be str, not 'int'"
+        with pytest.raises(TypeError, match=msg):
+            ae.associate('localhost', 11112, ae_title=12345)
 
 class TestAEGoodMiscSetters:
     def setup(self):
@@ -627,6 +702,16 @@ class TestAEGoodMiscSetters:
         assert ae.ae_title == 'a            TES'
         ae.ae_title = 'a        TEST'
         assert ae.ae_title == 'a        TEST'
+
+    def test_aet_bytes_deprecation(self):
+        """Test warning if using bytes to set an AE title."""
+        msg = (
+            r"The use of bytes with 'ae_title' is deprecated, use an ASCII "
+            r"str instead"
+        )
+        with pytest.warns(DeprecationWarning, match=msg):
+            ae = AE(b'BADAE')
+            assert ae.ae_title == 'BADAE'
 
     def test_implementation(self):
         """Check the implementation version name and class UID setters"""
@@ -687,7 +772,7 @@ class TestAEGoodMiscSetters:
         assert assoc.is_established
         assoc.release()
 
-        msg = r"Invalid 'require_calling_aet' value ''"
+        msg = r"Invalid 'require_calling_aet' value - must not be an empty str"
         with pytest.raises(ValueError, match=msg):
             ae.require_calling_aet = ['']
         assert ae.require_calling_aet == ['PYNETDICOM']
@@ -696,6 +781,18 @@ class TestAEGoodMiscSetters:
         assoc.release()
 
         scp.shutdown()
+
+    def test_aec_bytes_deprecation(self):
+        """Test warning if using bytes to set an AE title."""
+        ae = AE()
+        msg = (
+            r"The use of a list of bytes with 'require_calling_aet' is "
+            r"deprecated, use a list of ASCII str instead"
+        )
+        with pytest.warns(DeprecationWarning, match=msg):
+            ae.require_calling_aet = [b'BADAE', 'GOODAE']
+
+        assert ae.require_calling_aet == ['BADAE', 'GOODAE']
 
     def test_require_called_aet(self):
         """Test AE.require_called_aet"""
@@ -790,20 +887,40 @@ class TestAEGoodMiscSetters:
 
 
 class TestAEBadInitialisation:
-    def test_ae_title_all_spaces(self):
-        """AE should fail if ae_title is all spaces"""
-        with pytest.raises(ValueError):
+    def test_invalid_ae_title(self):
+        """Test invalid AE.ae_title"""
+        msg = r"Invalid 'ae_title' value - must not consist entirely of spaces"
+        with pytest.raises(ValueError, match=msg):
             AE(ae_title='                ')
 
-    def test_ae_title_empty_str(self):
-        """AE should fail if ae_title is an empty str"""
-        with pytest.raises(ValueError):
+        msg = (
+            r"Invalid 'ae_title' value '\u200b5' "
+            r"- must only contain ASCII characters"
+        )
+        with pytest.raises(ValueError, match=msg):
+            AE(ae_title=b"\xe2\x80\x8b\x35".decode('utf8'))
+
+        msg = (
+            r"Invalid 'ae_title' value '1234567890ABCDEFG' "
+            r"- must not exceed 16 characters"
+        )
+        with pytest.raises(ValueError, match=msg):
+            AE(ae_title='1234567890ABCDEFG')
+
+        msg = r"Invalid 'ae_title' value - must not be an empty str"
+        with pytest.raises(ValueError, match=msg):
             AE(ae_title='')
 
-    def test_ae_title_invalid_chars(self):
-        """ AE should fail if ae_title is not a str """
-        with pytest.raises(ValueError):
+        msg = (
+            r"Invalid 'ae_title' value 'TEST\\ME' - must not contain control "
+            r"characters or backslashes"
+        )
+        with pytest.raises(ValueError, match=msg):
             AE(ae_title='TEST\\ME')
+
+        msg = r"'ae_title' must be str, not 'NoneType'"
+        with pytest.raises(TypeError, match=msg):
+            AE(ae_title=None)
 
 
 class TestAE_GoodExit:

@@ -9,6 +9,7 @@ import threading
 from typing import (
     Union, Optional, List, Tuple, Dict, cast, TypeVar, Type, Any, Sequence
 )
+import warnings
 
 from pydicom.uid import UID
 
@@ -422,7 +423,8 @@ class ApplicationEntity:
         Parameters
         ----------
         value : str
-            The AE title to use for the local Application Entity.
+            The AE title to use for the local Application Entity as an ASCII
+            string.
 
         Returns
         -------
@@ -435,11 +437,14 @@ class ApplicationEntity:
     def ae_title(self, value: str) -> None:
         """Set the AE title using :class:`str`."""
         if isinstance(value, bytes):
+            warnings.warn(
+                "The use of bytes with 'ae_title' is deprecated, use an ASCII "
+                "str instead",
+                DeprecationWarning
+            )
             value = decode_bytes(value)
 
-        self._ae_title = cast(
-            str, set_ae(value, 'ae_title', allow_empty=False)
-        )
+        self._ae_title = cast(str, set_ae(value, 'ae_title', False, False))
 
     def associate(
         self,
@@ -548,12 +553,8 @@ class ApplicationEntity:
         assoc.set_socket(sock)
 
         # Association Acceptor object -> remote AE
-        if isinstance(ae_title, bytes):
-            ae_title = decode_bytes(ae_title)
-
-        assoc.acceptor.ae_title = set_ae(  # type: ignore
-            ae_title, 'Called AE Title', allow_empty=False
-        )
+        # `ae_title` validation is performed by the ServiceUser
+        assoc.acceptor.ae_title = ae_title
         assoc.acceptor.address = addr
         assoc.acceptor.port = port
 
@@ -706,19 +707,38 @@ class ApplicationEntity:
     def implementation_version_name(self) -> str:
         """Get or set the *Implementation Version Name* as :class:`str`.
 
+        .. versionchanged:: 2.0
+
+            Should now be set using :class:`str` rather than bytes.
+
         Parameters
         ----------
         value : str
-            The A-ASSOCIATE-RQ's *Implementation Version Name* value.
+            The A-ASSOCIATE-RQ's *Implementation Version Name* value as an
+            ASCII string.
+
+        Returns
+        -------
+        str
+            The *Implementation Version Name*.
         """
         return self._implementation_version
 
-    # FIXME: pass through set_ae
+    # FIXME
     @implementation_version_name.setter
     def implementation_version_name(self, value: str) -> None:
-        """Set the *Implementation Version Name* used in association requests.
-        """
-        self._implementation_version = value
+        """Set the *Implementation Version Name*"""
+        if isinstance(value, bytes):
+            warnings.warn(
+                "The use of bytes with 'implementation_version_name' is "
+                "deprecated, use an ASCII str instead",
+                DeprecationWarning
+            )
+            value = encode_bytes(value)
+
+        self._implementation_version = set_ae(
+            value, 'implementation_version_name',
+        )
 
     def make_server(
         self,
@@ -762,11 +782,16 @@ class ApplicationEntity:
             LOGGER.error(msg)
             raise ValueError(msg)
 
-        if ae_title:
-            ae_title = set_ae(ae_title, 'ae_title', allow_empty=False)
-        else:
-            ae_title = self.ae_title
+        ae_title = ae_title if ae_title else self.ae_title
+        if isinstance(ae_title, bytes):
+            warnings.warn(
+                "The use of bytes with 'ae_title' is deprecated, use an "
+                "ASCII str instead",
+                DeprecationWarning
+            )
+            ae_title = decode_bytes(ae_title)
 
+        ae_title = cast(str, set_ae(ae_title, 'ae_title', False, False))
         contexts = contexts or self.supported_contexts
 
         bad_contexts = []
@@ -783,16 +808,15 @@ class ApplicationEntity:
             msg += '\n  '.join([str(cx) for cx in bad_contexts])
             raise ValueError(msg)
 
-        evt_handlers = evt_handlers or []
-
         server_class = server_class or AssociationServer
+
         return server_class(  # type: ignore
             self,
             address,
             ae_title,
             contexts,
             ssl_context,
-            evt_handlers=evt_handlers,
+            evt_handlers=evt_handlers or [],
             **kwargs
         )
 
@@ -1246,10 +1270,23 @@ class ApplicationEntity:
     @require_calling_aet.setter
     def require_calling_aet(self, ae_titles: List[str]) -> None:
         """Set the required calling AE title."""
-        self._require_calling_aet = [
-            cast(str, set_ae(aet, 'require_calling_aet', allow_empty=False))
-            for aet in ae_titles
-        ]
+        if any([isinstance(v, bytes) for v in ae_titles]):
+            warnings.warn(
+                "The use of a list of bytes with 'require_calling_aet' is "
+                "deprecated, use a list of ASCII str instead",
+                DeprecationWarning
+            )
+
+        values = []
+        for v in ae_titles:
+            if isinstance(v, bytes):
+                v = decode_bytes(v)
+
+            values.append(
+                cast(str, set_ae(v, 'require_calling_aet', allow_empty=False))
+            )
+
+        self._require_calling_aet = values
 
     def shutdown(self) -> None:
         """Stop any active association servers and threads.

@@ -329,28 +329,25 @@ class ACSE:
         # For convenience
         assoc_rq = cast(A_ASSOCIATE, self.requestor.primitive)
         # Set the Requestor's AE Title
-        self.requestor.ae_title = cast(str, assoc_rq.calling_ae_title)
+        self.requestor.ae_title = assoc_rq.calling_ae_title
 
         # If we reject association -> [result, source, diagnostic]
-        reject_assoc_rsd = []
+        reject_assoc_rsd: Tuple[int, ...] = tuple()
 
         # Calling AE Title not recognised
-        aet = cast(str, assoc_rq.calling_ae_title).strip()
+        authorised_aet = [s.strip() for s in self.assoc.ae.require_calling_aet]
         if (
             self.assoc.ae.require_calling_aet
-            and aet not in [
-                s.strip() for s in self.assoc.ae.require_calling_aet
-            ]
+            and assoc_rq.calling_ae_title not in authorised_aet
         ):
-            reject_assoc_rsd = [0x01, 0x01, 0x03]
+            reject_assoc_rsd = (0x01, 0x01, 0x03)
 
         # Called AE Title not recognised
-        aet = cast(str, assoc_rq.called_ae_title).strip()
         if (
             self.assoc.ae.require_called_aet
-            and aet != self.acceptor.ae_title.strip()
+            and assoc_rq.called_ae_title != self.acceptor.ae_title.strip()
         ):
-            reject_assoc_rsd = [0x01, 0x01, 0x07]
+            reject_assoc_rsd = (0x01, 0x01, 0x07)
 
         # Extended Negotiation items
         # User Identity Negotiation items
@@ -360,7 +357,7 @@ class ACSE:
             if not is_valid:
                 # Transient, ACSE related, no reason given
                 LOGGER.info("User identity failed verification")
-                reject_assoc_rsd = [0x02, 0x02, 0x01]
+                reject_assoc_rsd = (0x02, 0x02, 0x01)
 
             if id_response:
                 # Add the User Identity Negotiation (response) item
@@ -390,7 +387,7 @@ class ACSE:
             tt for tt in self.assoc.ae.active_associations if tt.is_acceptor
         ]
         if len(active_acceptors) > self.assoc.ae.maximum_associations:
-            reject_assoc_rsd = [0x02, 0x03, 0x02]
+            reject_assoc_rsd = (0x02, 0x03, 0x02)
 
         if reject_assoc_rsd:
             # pylint: disable=no-value-for-parameter
