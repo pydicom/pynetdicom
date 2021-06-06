@@ -12,6 +12,7 @@ from io import BytesIO
 import logging
 from pathlib import Path
 from typing import Optional, List, Tuple, Union, TYPE_CHECKING
+import warnings
 
 from pydicom.tag import Tag, BaseTag
 from pydicom.uid import UID
@@ -540,10 +541,15 @@ class C_STORE(DIMSEPrimitive):
 
     @MoveOriginatorApplicationEntityTitle.setter
     def MoveOriginatorApplicationEntityTitle(
-        self, value: Optional[Union[str, bytes]]
+        self, value: Optional[str]
     ) -> None:
         """Set the *Move Originator Application Entity Title*."""
         if isinstance(value, bytes):
+            warnings.warn(
+                "The use of bytes with 'Move Originator AE "
+                "Title' is deprecated, use an ASCII str instead",
+                DeprecationWarning
+            )
             value = decode_bytes(value).strip()
 
         try:
@@ -1035,6 +1041,11 @@ class C_MOVE(DIMSEPrimitive):
     def MoveDestination(self, value: Optional[Union[str, bytes]]) -> None:
         """Set the *Move Destination*."""
         if isinstance(value, bytes):
+            warnings.warn(
+                "The use of bytes with 'Move Destination' is deprecated, "
+                "use an ASCII str instead",
+                DeprecationWarning
+            )
             value = decode_bytes(value).strip()
 
         self._move_destination = set_ae(

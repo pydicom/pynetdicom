@@ -320,16 +320,21 @@ class PDUItem:
 
         Each component of Application Context, Abstract Syntax and Transfer
         Syntax UIDs should be encoded as a ISO 646:1990-Basic G0 Set Numeric
-        String (characters 0-9), with each component separated by '.' (0x2e)
-       .
+        String (characters 0-9), with each component separated by ``'.'``
+        (0x2E in hex).
+
+        Odd-length UIDs should NOT have a trailing padding 0x00 byte to make
+        them even length (as per Part 5, Section 9.1: "If ending on an odd
+        byte boundary, except when used for network negotiation, one trailing
+        padding character...")
 
         'ascii' is chosen because this is the codec Python uses for ISO 646
         [3]_.
 
         Parameters
         ----------
-        uid : pydicom.uid.UID
-            The UID to encode using ASCII.
+        value : str
+            The ASCII string to be encoded.
 
         Returns
         -------
@@ -342,7 +347,7 @@ class PDUItem:
         * `Python 3 codecs module
           <https://docs.python.org/2/library/codecs.html#standard-encodings>`_
         """
-        return value.encode('ascii')
+        return value.encode('ascii', errors='strict')
 
     def _wrap_generate_items(self, b: bytes) -> List[_AllItemType]:
         """Return a list of encoded PDU items generated from `bytestream`."""

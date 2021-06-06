@@ -53,7 +53,8 @@ class ApplicationEntity:
         Parameters
         ----------
         ae_title : str, optional
-            The AE title of the Application Entity (default: ``'PYNETDICOM'``)
+            The AE title of the Application Entity as an ASCII string
+            (default: ``'PYNETDICOM'``).
         """
         self._ae_title: str
         self.ae_title = ae_title
@@ -1283,7 +1284,7 @@ class ApplicationEntity:
                 v = decode_bytes(v)
 
             values.append(
-                cast(str, set_ae(v, 'require_calling_aet', allow_empty=False))
+                cast(str, set_ae(v, 'require_calling_aet', False, False))
             )
 
         self._require_calling_aet = values

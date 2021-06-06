@@ -207,10 +207,7 @@ class A_ASSOCIATE:
             value = decode_bytes(value).strip()
 
         self._called_ae_title = cast(
-            str,
-            set_ae(
-                value, 'Called AE Title', allow_empty=False, allow_none=False
-            )
+            str, set_ae(value, 'Called AE Title', False, False)
         )
 
     @property
@@ -282,10 +279,7 @@ class A_ASSOCIATE:
             value = decode_bytes(value).strip()
 
         self._calling_ae_title = cast(
-            str,
-            set_ae(
-                value, 'Calling AE Title', allow_empty=False, allow_none=False
-            )
+            str, set_ae(value, 'Calling AE Title', False, False)
         )
 
     @property

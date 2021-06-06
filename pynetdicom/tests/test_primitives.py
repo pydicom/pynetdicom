@@ -776,13 +776,18 @@ class TestPrimitive_A_ASSOCIATE:
         assoc.application_context_name = UID("1.2.840.10008.3.1.1.1")
         assert assoc.application_context_name == UID('1.2.840.10008.3.1.1.1')
 
-        assoc.calling_ae_title = None
-        assert assoc.calling_ae_title is None
+
+        msg = "'Calling AE Title' must be str, not 'NoneType'"
+        with pytest.raises(TypeError, match=msg):
+            assoc.calling_ae_title = None
+
         assoc.calling_ae_title = 'ABCDEF1234567890'
         assert assoc.calling_ae_title == 'ABCDEF1234567890'
 
-        assoc.called_ae_title = None
-        assert assoc.called_ae_title is None
+        msg = "'Called AE Title' must be str, not 'NoneType'"
+        with pytest.raises(TypeError, match=msg):
+            assoc.called_ae_title = None
+
         assert assoc.responding_ae_title == assoc.called_ae_title
         assoc.called_ae_title = '1234567890ABCDEF'
         assert assoc.called_ae_title == '1234567890ABCDEF'

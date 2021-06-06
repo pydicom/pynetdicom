@@ -295,16 +295,16 @@ class TestApplicationContext:
 
         bad = 'abc' * 22
         msg = (
-            f"Invalid UID '{bad}' used with the 'Application Context Name' "
-            "parameter"
+            f"Invalid 'Application Context Name' value '{bad}' - must not "
+            "exceed 64 characters"
         )
         with pytest.raises(ValueError, match=msg):
             item.application_context_name = 'abc' * 22
 
         _config.ENFORCE_UID_CONFORMANCE = True
         msg = (
-            f"Invalid UID 'abc' used with the 'Application Context Name' "
-            "parameter"
+            f"Invalid 'Application Context Name' value 'abc' - UID is "
+            "non-conformant"
         )
         with pytest.raises(ValueError, match=msg):
             item.application_context_name = 'abc'
@@ -710,16 +710,16 @@ class TestAbstractSyntax:
 
         bad = 'abc' * 22
         msg = (
-            f"Invalid UID '{bad}' used with the 'Abstract Syntax Name' "
-            "parameter"
+            f"Invalid 'Abstract Syntax Name' value '{bad}' - must not exceed "
+            "64 characters"
         )
         with pytest.raises(ValueError, match=msg):
             item.abstract_syntax_name = bad
 
         _config.ENFORCE_UID_CONFORMANCE = True
         msg = (
-            r"Invalid UID 'abc' used with the 'Abstract Syntax Name' "
-            r"parameter"
+            "Invalid 'Abstract Syntax Name' value 'abc' - UID is "
+            "non-conformant"
         )
         with pytest.raises(ValueError, match=msg):
             item.abstract_syntax_name = 'abc'
@@ -855,16 +855,16 @@ class TestTransferSyntax:
 
         bad = 'abc' * 22
         msg = (
-            f"Invalid UID '{bad}' used with the 'Transfer Syntax Name' "
-            "parameter"
+            f"Invalid 'Transfer Syntax Name' value '{bad}' - must not exceed "
+            "64 characters"
         )
         with pytest.raises(ValueError, match=msg):
             item.transfer_syntax_name = bad
 
         _config.ENFORCE_UID_CONFORMANCE = True
         msg = (
-            r"Invalid UID 'abc' used with the 'Transfer Syntax Name' "
-            r"parameter"
+            "Invalid 'Transfer Syntax Name' value 'abc' - UID is "
+            "non-conformant"
         )
         with pytest.raises(ValueError, match=msg):
             item.transfer_syntax_name = 'abc'
@@ -1301,16 +1301,16 @@ class TestUserInformation_ImplementationUID:
 
         bad = 'abc' * 22
         msg = (
-            f"Invalid UID '{bad}' used with the 'Implementation Class UID' "
-            "parameter"
+            f"Invalid 'Implementation Class UID' value '{bad}' - must not "
+            "exceed 64 characters"
         )
         with pytest.raises(ValueError, match=msg):
             item.implementation_class_uid = bad
 
         _config.ENFORCE_UID_CONFORMANCE = True
         msg = (
-            f"Invalid UID 'abc' used with the 'Implementation Class UID' "
-            "parameter"
+            "Invalid 'Implementation Class UID' value 'abc' - UID is "
+            "non-conformant"
         )
         with pytest.raises(ValueError, match=msg):
             item.implementation_class_uid = 'abc'
@@ -1481,8 +1481,8 @@ class TestUserInformation_ImplementationUID:
 
         # Invalid UID (with no padding)
         msg = (
-            f"Invalid UID '00.1.2.3' used with the 'Implementation Class UID' "
-            "parameter"
+            "Invalid 'Implementation Class UID' value '00.1.2.3' - UID is "
+            "non-conformant"
         )
         with pytest.raises(ValueError, match=msg):
             item.decode(
@@ -1684,12 +1684,15 @@ class TestUserInformation_RoleSelection:
         assert item.sop_class_uid == 'abc'
 
         bad = 'abc' * 22
-        msg = f"Invalid UID '{bad}' used with the 'SOP Class UID' parameter"
+        msg = (
+            f"Invalid 'SOP Class UID' value '{bad}' - must not exceed 64 "
+            "characters"
+        )
         with pytest.raises(ValueError, match=msg):
             item.sop_class_uid = bad
 
         _config.ENFORCE_UID_CONFORMANCE = True
-        msg = f"Invalid UID 'abc' used with the 'SOP Class UID' parameter"
+        msg = "Invalid 'SOP Class UID' value 'abc' - UID is non-conformant"
         with pytest.raises(ValueError, match=msg):
             item.sop_class_uid = 'abc'
 
@@ -2207,12 +2210,15 @@ class TestUserInformation_ExtendedNegotiation:
         assert item.sop_class_uid == 'abc'
 
         bad = 'abc' * 22
-        msg = f"Invalid UID '{bad}' used with the 'SOP Class UID' parameter"
+        msg = (
+            f"Invalid 'SOP Class UID' value '{bad}' - must not exceed 64 "
+            "characters"
+        )
         with pytest.raises(ValueError, match=msg):
             item.sop_class_uid = 'abc' * 22
 
         _config.ENFORCE_UID_CONFORMANCE = True
-        msg = f"Invalid UID 'abc' used with the 'SOP Class UID' parameter"
+        msg = "Invalid 'SOP Class UID' value 'abc' - UID is non-conformant"
         with pytest.raises(ValueError, match=msg):
             item.sop_class_uid = 'abc'
 
@@ -2435,14 +2441,15 @@ class TestUserInformation_CommonExtendedNegotiation:
 
         invalid = 'abc' * 22
         msg = (
-            f"Invalid UID '{invalid}' used with the 'SOP Class UID' parameter"
+            f"Invalid 'SOP Class UID' value '{invalid}' - must not "
+            "exceed 64 characters"
         )
         with pytest.raises(ValueError, match=msg):
             item.sop_class_uid = invalid
 
         msg = (
-            f"Invalid UID '{invalid}' used with the 'Service Class UID' "
-            "parameter"
+            f"Invalid 'Service Class UID' value '{invalid}' - must not "
+            "exceed 64 characters"
         )
         with pytest.raises(ValueError, match=msg):
             item.service_class_uid = invalid
@@ -2455,11 +2462,11 @@ class TestUserInformation_CommonExtendedNegotiation:
             item.related_general_sop_class_identification = [invalid]
 
         _config.ENFORCE_UID_CONFORMANCE = True
-        msg = r"Invalid UID 'abc' used with the 'SOP Class UID' parameter"
+        msg = "Invalid 'SOP Class UID' value 'abc' - UID is non-conformant"
         with pytest.raises(ValueError, match=msg):
             item.sop_class_uid = 'abc'
 
-        msg = r"Invalid UID 'abc' used with the 'Service Class UID' parameter"
+        msg = "Invalid 'Service Class UID' value 'abc' - UID is non-conformant"
         with pytest.raises(ValueError, match=msg):
             item.service_class_uid = 'abc'
 

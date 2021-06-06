@@ -873,9 +873,9 @@ class TestASSOC_RJ:
         # Not used by A-ASSOCIATE-RJ or fixed value
         assert primitive.mode == "normal"
         assert primitive.application_context_name is None
-        assert primitive.calling_ae_title is None
-        assert primitive.called_ae_title is None
-        assert primitive.responding_ae_title is None
+        assert primitive.calling_ae_title == 'DEFAULT'
+        assert primitive.called_ae_title == 'DEFAULT'
+        assert primitive.responding_ae_title == "DEFAULT"
         assert primitive.user_information == []
         assert primitive.calling_presentation_address is None
         assert primitive.called_presentation_address is None

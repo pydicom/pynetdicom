@@ -259,7 +259,6 @@ class PDU:
 
         return bytestream
 
-    # FIXME: docstring
     @staticmethod
     def _wrap_encode_str(value: str, pad: int = 0) -> bytes:
         """Return `value` as ASCII encoded :class:`bytes`.
@@ -274,8 +273,10 @@ class PDU:
 
         Parameters
         ----------
-        uid : pydicom.uid.UID
-            The UID to encode using ASCII.
+        value : str
+            The ASCII string to be encoded.
+        pad : int, optional
+            The amount of trailing padding to be used (default ``0``).
 
         Returns
         -------
@@ -288,7 +289,7 @@ class PDU:
         * `Python 3 codecs module
           <https://docs.python.org/2/library/codecs.html#standard-encodings>`_
         """
-        return value.ljust(pad).encode('ascii')
+        return value.ljust(pad).encode('ascii', errors='strict')
 
     def _wrap_generate_items(self, bytestream: bytes) -> List[PDUItem]:
         """Return a list of decoded PDU items generated from `bytestream`."""
@@ -546,7 +547,7 @@ class A_ASSOCIATE_RQ(PDU):
             value = decode_bytes(value).strip()
 
         self._called_aet = cast(
-            str, set_ae(value, 'Called AE Title', allow_empty=False)
+            str, set_ae(value, 'Called AE Title', False, False)
         )
 
     @property
@@ -573,7 +574,7 @@ class A_ASSOCIATE_RQ(PDU):
             value = decode_bytes(value).strip()
 
         self._calling_aet = cast(
-            str, set_ae(value, 'Calling AE Title', allow_empty=False)
+            str, set_ae(value, 'Calling AE Title', False, False)
         )
 
     @property
@@ -903,6 +904,10 @@ class A_ASSOCIATE_AC(PDU):
     def called_ae_title(self) -> str:
         """Return the value sent in the *Called AE Title* reserved space.
 
+        While the standard says this value should match the A-ASSOCIATE-RQ
+        value there is no guarantee and this should not be used as a check
+        value.
+
         Returns
         -------
         str
@@ -927,7 +932,6 @@ class A_ASSOCIATE_AC(PDU):
         """
         return self.reserved_aec
 
-    # FIXME
     @property
     def _decoders(self) -> Any:
         """Return an iterable of tuples that contain field decoders.

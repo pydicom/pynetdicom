@@ -167,7 +167,7 @@ def set_ae(
     allow_empty: bool = True,
     allow_none: bool = True
 ) -> Optional[str]:
-    """Conform `value` to a text like parameter and apply validation.
+    """Convert `value` to an **AE** like parameter and apply validation.
 
     Parameters
     ----------
@@ -222,7 +222,7 @@ def set_uid(
     allow_none: bool = True,
     validate: bool = True
 ) -> Optional[UID]:
-    """Convert `value` to a UID.
+    """Convert `value` to a :class:`UID` and apply validation.
 
     Parameters
     ----------
@@ -276,7 +276,6 @@ def set_uid(
         if value and not value.is_valid:
             LOGGER.warning(f"Non-conformant '{name}' value '{value}'")
 
-        # Note: an empty UID will skip validation
         return value
 
     s = 'str, bytes, UID or None' if allow_none else 'str, bytes or UID'
