@@ -21,7 +21,7 @@ from pynetdicom.pdu_items import (
 )
 from pynetdicom.presentation import PresentationContext
 from pynetdicom.utils import (
-    validate_uid, decode_bytes, as_uid, set_ae
+    validate_uid, decode_bytes, set_ae, set_uid
 )
 from pynetdicom._globals import DEFAULT_MAX_LENGTH
 
@@ -180,8 +180,9 @@ class A_ASSOCIATE:
     @application_context_name.setter
     def application_context_name(self, value: OptionalUIDType) -> None:
         """Set the Application Context Name parameter."""
-        with as_uid(value, 'Application Context Name') as uid:
-            self._application_context_name = uid
+        self._application_context_name = (
+            set_uid(value, 'Application Context Name')
+        )
 
     @property
     def called_ae_title(self) -> str:
@@ -1175,8 +1176,9 @@ class ImplementationClassUIDNotification(ServiceParameter):
     @implementation_class_uid.setter
     def implementation_class_uid(self, value: OptionalUIDType) -> None:
         """Sets the Implementation Class UID parameter."""
-        with as_uid(value, 'Implementation Class UID') as uid:
-            self._implementation_class_uid = uid
+        self._implementation_class_uid = (
+            set_uid(value, 'Implementation Class UID')
+        )
 
     def __str__(self) -> str:
         """String representation of the class."""
@@ -1562,8 +1564,7 @@ class SCP_SCU_RoleSelectionNegotiation(ServiceParameter):
     @sop_class_uid.setter
     def sop_class_uid(self, value: OptionalUIDType) -> None:
         """Sets the SOP Class UID parameter."""
-        with as_uid(value, 'SOP Class UID') as uid:
-            self._sop_class_uid = uid
+        self._sop_class_uid = set_uid(value, 'SOP Class UID')
 
 
 class SOPClassExtendedNegotiation(ServiceParameter):
@@ -1681,8 +1682,7 @@ class SOPClassExtendedNegotiation(ServiceParameter):
     @sop_class_uid.setter
     def sop_class_uid(self, value: OptionalUIDType) -> None:
         """Sets the SOP Class UID parameter."""
-        with as_uid(value, 'SOP Class UID') as uid:
-            self._sop_class_uid = uid
+        self._sop_class_uid = set_uid(value, 'SOP Class UID')
 
 
 class SOPClassCommonExtendedNegotiation(ServiceParameter):
@@ -1830,8 +1830,7 @@ class SOPClassCommonExtendedNegotiation(ServiceParameter):
     @service_class_uid.setter
     def service_class_uid(self, value: OptionalUIDType) -> None:
         """Sets the Service Class UID parameter."""
-        with as_uid(value, 'Service Class UID') as uid:
-            self._service_class_uid = uid
+        self._service_class_uid = set_uid(value, 'Service Class UID')
 
     @property
     def sop_class_uid(self) -> Optional[UID]:
@@ -1852,8 +1851,7 @@ class SOPClassCommonExtendedNegotiation(ServiceParameter):
     @sop_class_uid.setter
     def sop_class_uid(self, value: OptionalUIDType) -> None:
         """Sets the SOP Class UID parameter."""
-        with as_uid(value, 'SOP Class UID') as uid:
-            self._sop_class_uid = uid
+        self._sop_class_uid = set_uid(value, 'SOP Class UID')
 
 
 class UserIdentityNegotiation(ServiceParameter):

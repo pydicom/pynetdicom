@@ -18,9 +18,7 @@ from pydicom.uid import UID
 
 from pynetdicom import _config
 from pynetdicom._globals import OptionalUIDType
-from pynetdicom.utils import (
-    validate_uid, as_uid, set_ae, decode_bytes
-)
+from pynetdicom.utils import set_ae, decode_bytes, set_uid
 
 
 if TYPE_CHECKING:  # pragma: no cover
@@ -117,8 +115,9 @@ class DIMSEPrimitive:
     @AffectedSOPClassUID.setter
     def AffectedSOPClassUID(self, value: OptionalUIDType) -> None:
         """Set the *Affected SOP Class UID*."""
-        with as_uid(value, 'Affected SOP Class UID') as uid:
-            self._affected_sop_class_uid = uid or None
+        self._affected_sop_class_uid = (
+            set_uid(value, 'Affected SOP Class UID') or None
+        )
 
     @property
     def _AffectedSOPInstanceUID(self) -> Optional[UID]:
@@ -135,8 +134,9 @@ class DIMSEPrimitive:
         value : pydicom.uid.UID, bytes or str
             The value for the Affected SOP Class UID
         """
-        with as_uid(value, 'Affected SOP Instance UID') as uid:
-            self._affected_sop_instance_uid = uid or None
+        self._affected_sop_instance_uid = (
+            set_uid(value, 'Affected SOP Instance UID') or None
+        )
 
     @property
     def _dataset_variant(self) -> Optional[BytesIO]:
@@ -358,8 +358,9 @@ class DIMSEPrimitive:
         value : pydicom.uid.UID, bytes or str
             The value for the Requested SOP Class UID
         """
-        with as_uid(value, 'Requested SOP Class UID') as uid:
-            self._requested_sop_class_uid = uid or None
+        self._requested_sop_class_uid = (
+            set_uid(value, 'Requested SOP Instance UID') or None
+        )
 
     @property
     def _RequestedSOPInstanceUID(self) -> Optional[UID]:
@@ -375,8 +376,9 @@ class DIMSEPrimitive:
         value : pydicom.uid.UID, bytes or str
             The value for the Requested SOP Instance UID
         """
-        with as_uid(value, 'Requested SOP Instance UID') as uid:
-            self._requested_sop_instance_uid = uid or None
+        self._requested_sop_instance_uid = (
+            set_uid(value, 'Requested SOP Instance UID') or None
+        )
 
     @property
     def Status(self) -> Optional[int]:

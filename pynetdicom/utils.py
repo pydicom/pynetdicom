@@ -24,101 +24,6 @@ from pynetdicom import _config
 LOGGER = logging.getLogger('pynetdicom.utils')
 
 
-# TODO: convert to function
-class as_uid:
-    """Context manager for converting values to UID.
-
-    .. versionadded:: 2.0
-
-    Examples
-    --------
-
-    >>> with as_uid(value, "Transfer Syntax Name") as uid:
-    ...    self._transfer_syntax_name = uid
-    """
-    def __init__(
-        self,
-        value: Union[None, str, bytes, UID],
-        name: str,
-        allow_none: bool = True,
-        validate: bool = True
-    ) -> None:
-        """Convert `value` to a UID.
-
-        Parameters
-        ----------
-        value : str, bytes, UID (and optionally None)
-            The value to be converted.
-        name : str
-            The name of the parameter being converted.
-        allow_none : bool, optional
-            Allow the returned value to be ``None`` if `value` is ``None``
-            (default ``True``).
-        validate : bool, optional
-            If ``True`` (default) perform validation of the UID using
-            :func:`~pynetdicom.utils.validate_uid` and raise a
-            :class:`ValueError` exception if the validation fails. If ``False``
-            return the UID without performing and validation.
-
-        Returns
-        -------
-        pydicom.uid.UID or None
-            If ``allow_none`` is ``True`` then may return ``None``, otherwise
-            only a UID will be returned.
-        """
-        self.value = value
-        self.name = name
-        self.allow_none = allow_none
-        self.validate = validate
-
-    def __enter__(self) -> Optional[UID]:
-        """Return the value converted to a UID, or None if allowed."""
-        if self.allow_none and self.value is None:
-            return None
-
-        if isinstance(self.value, bytes):
-            self.value = decode_bytes(self.value)
-
-        if isinstance(self.value, str):  # Includes UID
-            self.value = UID(self.value)
-
-        if isinstance(self.value, UID):
-            if not self.validate:
-                return self.value
-
-            # Note: conformance may be different from validity
-            if self.value and not validate_uid(self.value):
-                msg = (
-                    f"Invalid UID '{self.value}' used with the "
-                    f"'{self.name}' parameter"
-                )
-                LOGGER.error(msg)
-                raise ValueError(msg)
-
-            if self.value and not self.value.is_valid:
-                LOGGER.warning(
-                    f"Non-conformant UID '{self.value}' used with the "
-                    f"'{self.name}' parameter"
-                )
-
-            # Note: an empty UID will skip validation
-            return self.value
-
-        raise TypeError(
-            f"'{self.name}' must be str, bytes or UID, not "
-            f"'{self.value.__class__.__name__}'"
-        )
-
-    def __exit__(
-        self,
-        exc_type: Optional[Type[BaseException]],
-        exc_val: Optional[BaseException],
-        exc_tb: Optional[TracebackType]
-    ) -> Optional[bool]:
-        # Raise any exceptions
-        return None
-
-
 def decode_bytes(encoded_value: bytes) -> str:
     """Return the decoded string from `encoded_value`.
 
@@ -295,7 +200,6 @@ def set_ae(
             LOGGER.error(msg)
             raise ValueError(msg)
 
-
         if value:
             result, reason = _config.VALIDATORS['AE'](value)
             if not result:
@@ -305,9 +209,78 @@ def set_ae(
 
         return value
 
+    s = 'str or None' if allow_none else 'str'
     raise TypeError(
-        f"'{name}' must be str, not '{value.__class__.__name__}'"
+        f"'{name}' must be {s}, not '{value.__class__.__name__}'"
     )
+
+
+def set_uid(
+    value: Union[None, str, bytes, UID],
+    name: str,
+    allow_empty: bool = True,
+    allow_none: bool = True,
+    validate: bool = True
+) -> Optional[UID]:
+    """Convert `value` to a UID.
+
+    Parameters
+    ----------
+    value : str, bytes, UID (and optionally None)
+        The value to be converted.
+    name : str
+        The name of the parameter being converted.
+    allow_empty : bool, optional
+        If ``True`` then allow an empty UID (default).
+    allow_none : bool, optional
+        Allow the returned value to be ``None`` if `value` is ``None``
+        (default ``True``).
+    validate : bool, optional
+        If ``True`` (default) perform validation of the UID using
+        :func:`~pynetdicom.utils.validate_uid` and raise a
+        :class:`ValueError` exception if the validation fails. If ``False``
+        return the UID without performing and validation.
+
+    Returns
+    -------
+    pydicom.uid.UID or None
+        If ``allow_none`` is ``True`` then may return ``None``, otherwise
+        only a UID will be returned.
+    """
+    if allow_none and value is None:
+        return None
+
+    if isinstance(value, bytes):
+        value = decode_bytes(value)
+
+    if isinstance(value, str):  # Includes UID
+        value = UID(value)
+
+    if isinstance(value, UID):
+        if not value and not allow_empty:
+            raise ValueError(
+                f"Invalid '{name}' value - must not be an empty str"
+            )
+
+        if not validate:
+            return value
+
+        # Note: conformance may be different from validity
+        if value:
+            result, reason = _config.VALIDATORS['UI'](value)
+            if not result:
+                msg = f"Invalid '{name}' value '{value}' - {reason}"
+                LOGGER.error(msg)
+                raise ValueError(msg)
+
+        if value and not value.is_valid:
+            LOGGER.warning(f"Non-conformant '{name}' value '{value}'")
+
+        # Note: an empty UID will skip validation
+        return value
+
+    s = 'str, bytes, UID or None' if allow_none else 'str, bytes or UID'
+    raise TypeError(f"'{name}' must be {s}, not '{value.__class__.__name__}'")
 
 
 @contextmanager

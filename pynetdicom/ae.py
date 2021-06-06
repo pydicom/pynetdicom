@@ -20,7 +20,7 @@ from pynetdicom.pdu_primitives import _UI
 from pynetdicom.transport import (
     AssociationSocket, AssociationServer, ThreadedAssociationServer
 )
-from pynetdicom.utils import make_target, set_ae, decode_bytes
+from pynetdicom.utils import make_target, set_ae, decode_bytes, set_uid
 from pynetdicom._globals import (
     MODE_REQUESTOR,
     DEFAULT_MAX_LENGTH,
@@ -65,7 +65,9 @@ class ApplicationEntity:
 
         # Default Implementation Class UID and Version Name
         self._implementation_uid: UID = PYNETDICOM_IMPLEMENTATION_UID
-        self._implementation_version: str = PYNETDICOM_IMPLEMENTATION_VERSION
+        self._implementation_version: Optional[str] = (
+            PYNETDICOM_IMPLEMENTATION_VERSION
+        )
 
         # List of PresentationContext
         self._requested_contexts: ListCXType = []
@@ -690,54 +692,48 @@ class ApplicationEntity:
 
         Parameters
         ----------
-        uid : str or pydicom.uid.UID
+        value : str or pydicom.uid.UID
             The A-ASSOCIATE-RQ's *Implementation Class UID* value.
         """
         return self._implementation_uid
 
-    # FIXME: pass through set_uid
     @implementation_class_uid.setter
-    def implementation_class_uid(self, uid: str) -> None:
+    def implementation_class_uid(self, value: str) -> None:
         """Set the *Implementation Class UID* used in association requests."""
-        uid = UID(uid)
-        if uid.is_valid:
-            self._implementation_uid = uid
+        uid = cast(
+            UID, set_uid(value, 'implementation_class_uid', False, False, True)
+        )
+        # Enforce conformance on users
+        if not uid.is_valid:
+            raise ValueError(
+                f"Invalid 'implementation_class_uid' value '{uid}'"
+            )
+
+        self._implementation_uid =uid
 
     @property
-    def implementation_version_name(self) -> str:
+    def implementation_version_name(self) -> Optional[str]:
         """Get or set the *Implementation Version Name* as :class:`str`.
-
-        .. versionchanged:: 2.0
-
-            Should now be set using :class:`str` rather than bytes.
 
         Parameters
         ----------
-        value : str
+        value : str or None
             The A-ASSOCIATE-RQ's *Implementation Version Name* value as an
-            ASCII string.
+            ASCII string. The *Implementation Version Name* is optional.
 
         Returns
         -------
-        str
+        str or None
             The *Implementation Version Name*.
         """
         return self._implementation_version
 
-    # FIXME
     @implementation_version_name.setter
-    def implementation_version_name(self, value: str) -> None:
+    def implementation_version_name(self, value: Optional[str]) -> None:
         """Set the *Implementation Version Name*"""
-        if isinstance(value, bytes):
-            warnings.warn(
-                "The use of bytes with 'implementation_version_name' is "
-                "deprecated, use an ASCII str instead",
-                DeprecationWarning
-            )
-            value = encode_bytes(value)
-
+        # We allow empty or None, but that will be conformed by the ServiceUser
         self._implementation_version = set_ae(
-            value, 'implementation_version_name',
+            value, 'implementation_version_name', True, True
         )
 
     def make_server(

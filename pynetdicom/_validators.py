@@ -53,12 +53,15 @@ def validate_ae(value: str) -> Tuple[bool, str]:
     return True, ''
 
 
-def validate_ui(value: UID) -> bool:
+def validate_ui(value: UID) -> Tuple[bool, str]:
     from pynetdicom import _config
 
     value = UID(value)
 
     if _config.ENFORCE_UID_CONFORMANCE:
-        return value.is_valid
+        if value.is_valid:
+            return True, ""
 
-    return 0 < len(value) < 65
+        return False, "UID is non-conformant"
+
+    return 0 < len(value) < 65, "must not exceed 64 characters"

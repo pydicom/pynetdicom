@@ -3851,7 +3851,14 @@ class ServiceUser:
 
     @property
     def implementation_version_name(self) -> Optional[str]:
-        """The Implementation Version Name as :class:`str` (if available).
+        """Get or set the Implementation Version Name.
+
+        Parameters
+        ----------
+        value : str or None
+            The value to use for the *Implementation Version Name*, or ``None``
+            if no Implementation Version Name Notification item is to be
+            included in the association negotiation.
 
         Returns
         -------
@@ -3875,7 +3882,7 @@ class ServiceUser:
         return None
 
     @implementation_version_name.setter
-    def implementation_version_name(self, value: Union[str, bytes]) -> None:
+    def implementation_version_name(self, value: Optional[str]) -> None:
         """Set the Implementation Version Name (only prior to association).
 
         Parameters
@@ -3889,13 +3896,24 @@ class ServiceUser:
                 "has started"
             )
 
+        if value is None:
+            for item in self._user_info:
+                if isinstance(item, ImplementationVersionNameNotification):
+                    self._user_info.remove(item)
+                    break
+
+        # Validate - diallow an empty str
+        value = cast(
+            str, set_ae(value, 'implementation_version_name', False, False)
+        )
+
         for item in self._user_info:
             if isinstance(item, ImplementationVersionNameNotification):
-                item.implementation_version_name = value  # type: ignore
+                item.implementation_version_name = value
                 break
         else:
             item = ImplementationVersionNameNotification()
-            item.implementation_version_name = value  # type: ignore
+            item.implementation_version_name = value
             self._user_info.append(item)
 
     @property

@@ -683,6 +683,7 @@ class TestAEBadAssociation:
         with pytest.raises(TypeError, match=msg):
             ae.associate('localhost', 11112, ae_title=12345)
 
+
 class TestAEGoodMiscSetters:
     def setup(self):
         self.ae = None
@@ -884,6 +885,51 @@ class TestAEGoodMiscSetters:
         """Test the default implementation version name"""
         ae = AE()
         assert ae.implementation_version_name == PYNETDICOM_IMPLEMENTATION_VERSION
+
+    def test_implementation_version(self):
+        """Test implementation_version_name"""
+        ae = AE()
+        ae.implementation_version_name = None
+        assert ae.implementation_version_name is None
+        ae.implementation_version_name = ""
+        assert ae.implementation_version_name == ""
+        ae.implementation_version_name = "  "
+        assert ae.implementation_version_name == "  "
+
+        msg = "'implementation_version_name' must be str or None, not 'int'"
+        with pytest.raises(TypeError, match=msg):
+            ae.implementation_version_name = 1234
+
+        assert ae.implementation_version_name == "  "
+
+    def test_implementation_class(self):
+        """Test implementation_class_uid"""
+        ae = AE()
+        ae.implementation_class_uid  = '12.3.4'
+        assert isinstance(ae.implementation_class_uid, UID)
+        assert ae.implementation_class_uid == UID('12.3.4')
+
+        msg = (
+            r"'implementation_class_uid' must be str, bytes or UID, not "
+            r"'NoneType'"
+        )
+        with pytest.raises(TypeError, match=msg):
+            ae.implementation_class_uid = None
+
+        assert ae.implementation_class_uid == UID('12.3.4')
+
+        msg = (
+            r"Invalid 'implementation_class_uid' value - must not be an "
+            r"empty str"
+        )
+        with pytest.raises(ValueError, match=msg):
+            ae.implementation_class_uid = ''
+
+        msg = r"Invalid 'implementation_class_uid' value '1.2.04'"
+        with pytest.raises(ValueError, match=msg):
+            ae.implementation_class_uid = '1.2.04'
+
+        assert ae.implementation_class_uid == UID('12.3.4')
 
 
 class TestAEBadInitialisation:

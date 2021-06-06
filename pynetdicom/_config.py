@@ -248,7 +248,7 @@ Add UTF-8 as a fallback codec:
 """
 
 
-VALIDATORS: Dict[str, Callable[[Any], bool]] = {
+VALIDATORS: Dict[str, Callable[[Any], Tuple[bool, str]]] = {
     'AE': validate_ae,
     'UI': validate_ui,
 }

@@ -52,7 +52,7 @@ from pydicom.uid import UID
 
 from pynetdicom._globals import OptionalUIDType
 from pynetdicom.presentation import PresentationContext
-from pynetdicom.utils import validate_uid, decode_bytes, as_uid, set_ae
+from pynetdicom.utils import validate_uid, decode_bytes, set_ae, set_uid
 
 if TYPE_CHECKING:  # pragma: no cover
     from pynetdicom.pdu_primitives import (
@@ -476,8 +476,9 @@ class ApplicationContextItem(PDUItem):
             The value of the Application Context Name's UID
         """
         # Disallow None as a value
-        with as_uid(value, "Application Context Name", False) as uid:
-            self._application_context_name = cast(UID, uid)
+        self._application_context_name = cast(
+            UID, set_uid(value, 'Application Context Name', True, False)
+        )
 
     @property
     def _decoders(self) -> Any:
@@ -1348,8 +1349,7 @@ class AbstractSyntaxSubItem(PDUItem):
         value : pydicom.uid.UID, bytes or str
             The value for the Abstract Syntax Name.
         """
-        with as_uid(value, 'Abstract Syntax Name') as uid:
-            self._abstract_syntax_name = uid
+        self._abstract_syntax_name = set_uid(value, 'Abstract Syntax Name')
 
     @property
     def _decoders(self) -> Any:
@@ -1559,9 +1559,10 @@ class TransferSyntaxSubItem(PDUItem):
             The value for the Transfer Syntax Name
         """
         validate = not self._skip_validation
-        with as_uid(value, 'Transfer Syntax Name', validate=validate) as uid:
-            # Issue 342: handle empty transfer syntax name value
-            self._transfer_syntax_name = uid or None
+        # Issue 342: handle empty transfer syntax name value
+        self._transfer_syntax_name = (
+            set_uid(value, 'Transfer Syntax Name', validate=validate) or None
+        )
 
 
 # User Information Item sub-items
@@ -1828,8 +1829,9 @@ class ImplementationClassUIDSubItem(PDUItem):
         value : pydicom.uid.UID, bytes or str
             The value to set.
         """
-        with as_uid(value, 'Implementation Class UID') as uid:
-            self._implementation_class_uid = uid
+        self._implementation_class_uid = (
+            set_uid(value, 'Implementation Class UID')
+        )
 
     @property
     def item_length(self) -> int:
@@ -2405,8 +2407,7 @@ class SCP_SCU_RoleSelectionSubItem(PDUItem):
     @sop_class_uid.setter
     def sop_class_uid(self, value: OptionalUIDType) -> None:
         """Set the SOP class uid."""
-        with as_uid(value, 'SOP Class UID') as uid:
-            self._sop_class_uid = uid
+        self._sop_class_uid = set_uid(value, 'SOP Class UID')
 
     def __str__(self) -> str:
         """Return a string representation of the Item."""
@@ -2613,8 +2614,7 @@ class SOPClassExtendedNegotiationSubItem(PDUItem):
     @sop_class_uid.setter
     def sop_class_uid(self, value: OptionalUIDType) -> None:
         """Set the *SOP Class UID* field value."""
-        with as_uid(value, 'SOP Class UID') as uid:
-            self._sop_class_uid = uid
+        self._sop_class_uid = set_uid(value, 'SOP Class UID')
 
     @property
     def sop_class_uid_length(self) -> int:
@@ -2974,8 +2974,7 @@ class SOPClassCommonExtendedNegotiationSubItem(PDUItem):
     @sop_class_uid.setter
     def sop_class_uid(self, value: OptionalUIDType) -> None:
         """Set the *SOP Class UID* field value."""
-        with as_uid(value, 'SOP Class UID') as uid:
-            self._sop_class_uid = uid
+        self._sop_class_uid = set_uid(value, 'SOP Class UID')
 
     @property
     def sop_class_uid_length(self) -> int:
@@ -2993,8 +2992,7 @@ class SOPClassCommonExtendedNegotiationSubItem(PDUItem):
     @service_class_uid.setter
     def service_class_uid(self, value: OptionalUIDType) -> None:
         """Set the *Service Class UID* field value."""
-        with as_uid(value, 'Service Class UID') as uid:
-            self._service_class_uid = uid
+        self._service_class_uid = set_uid(value, 'Service Class UID')
 
     @property
     def service_class_uid_length(self) -> int:
