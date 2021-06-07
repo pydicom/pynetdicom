@@ -46,7 +46,8 @@ from .encoded_pdu_items import (
     implementation_version_name, role_selection, role_selection_odd,
     user_information, extended_negotiation, common_extended_negotiation,
     p_data_tf, a_associate_ac_zero_ts, presentation_context_rq_utf8,
-    application_context_empty
+    application_context_empty, implementation_class_uid_empty,
+    implementation_version_name_empty
 )
 
 
@@ -418,6 +419,17 @@ class TestApplicationContext:
         assert len(item) == 10
         enc = item.encode()
         assert enc == b'\x10\x00\x00\x06\x31\x2e\x32\x2e\x33\x31'
+
+    def test_encode_none_raises(self):
+        """Test encoding None raises an exception"""
+        item = ApplicationContextItem()
+
+        msg = (
+            "'Application Context Name' must be str, bytes or UID, not "
+            "'NoneType'"
+        )
+        with pytest.raises(TypeError, match=msg):
+            item.application_context_name = None
 
     def test_decode_odd(self):
         """Test decoding odd-length context name"""
@@ -1373,15 +1385,15 @@ class TestUserInformation_ImplementationUID:
     def teardown(self):
         _config.ENFORCE_UID_CONFORMANCE = self.default_conformance
 
-    def test_uid_conformance(self):
+    def test_uid(self):
         """Test the UID conformance with ENFORCE_UID_CONFORMANCE."""
-        _config.ENFORCE_UID_CONFORMANCE = False
-
         item = ImplementationClassUIDSubItem()
+        item.implementation_class_uid = ''
+        assert item.implementation_class_uid == ''
         item.implementation_class_uid = 'abc'
         assert item.implementation_class_uid == 'abc'
 
-        bad = 'abc' * 22
+        bad = '1' * 65
         msg = (
             f"Invalid 'Implementation Class UID' value '{bad}' - must not "
             "exceed 64 characters"
@@ -1389,13 +1401,32 @@ class TestUserInformation_ImplementationUID:
         with pytest.raises(ValueError, match=msg):
             item.implementation_class_uid = bad
 
-        _config.ENFORCE_UID_CONFORMANCE = True
+        assert item.implementation_class_uid == 'abc'
+
+    def test_uid_conf(self, enforce_uid_conformance):
+        """Test the UID conformance with ENFORCE_UID_CONFORMANCE."""
+        item = ImplementationClassUIDSubItem()
+        item.implementation_class_uid = ''
+        assert item.implementation_class_uid == ''
+        item.implementation_class_uid = '1.2'
+        assert item.implementation_class_uid == '1.2'
+
         msg = (
             "Invalid 'Implementation Class UID' value 'abc' - UID is "
             "non-conformant"
         )
         with pytest.raises(ValueError, match=msg):
             item.implementation_class_uid = 'abc'
+
+        bad = '1' * 65
+        msg = (
+            f"Invalid 'Implementation Class UID' value '{bad}' - UID is "
+            "non-conformant"
+        )
+        with pytest.raises(ValueError, match=msg):
+            item.implementation_class_uid = bad
+
+        assert item.implementation_class_uid == '1.2'
 
     def test_init(self):
         """Test a new ImplementationClassUIDSubItem."""
@@ -1406,7 +1437,8 @@ class TestUserInformation_ImplementationUID:
         assert item.implementation_class_uid is None
 
         item.decode(
-            b'\x52\x00\x00\x14\x31\x2e\x32\x2e\x31\x32\x34\x2e\x31\x31\x33\x35\x33\x32\x2e\x33\x33\x32\x30\x00'
+            b'\x52\x00\x00\x14\x31\x2e\x32\x2e\x31\x32\x34\x2e\x31'
+            b'\x31\x33\x35\x33\x32\x2e\x33\x33\x32\x30\x00'
         )
         primitive = item.to_primitive()
 
@@ -1512,6 +1544,16 @@ class TestUserInformation_ImplementationUID:
         enc = item.encode()
         assert enc == b'\x52\x00\x00\x06\x31\x2e\x32\x2e\x33\x31'
 
+    def test_encode_none_raises(self):
+        """Test encoding None raises an exception"""
+        item = ImplementationClassUIDSubItem()
+        item.implementation_class_uid = None
+        assert item.implementation_class_uid is None
+
+        msg = "'NoneType' object has no attribute 'encode'"
+        with pytest.raises(AttributeError, match=msg):
+            item.encode()
+
     def test_decode_odd(self):
         """Test decoding odd-length UID"""
         bytestream = b'\x52\x00\x00\x05\x31\x2e\x32\x2e\x33'
@@ -1545,6 +1587,29 @@ class TestUserInformation_ImplementationUID:
         assert len(item.implementation_class_uid) % 2 > 0
         assert len(item) == 9
         assert item.encode() == b'\x52\x00\x00\x05\x31\x2e\x32\x2e\x33'
+
+    def test_decode_empty(self):
+        """Test decoding an item with an empty value"""
+        item = ImplementationClassUIDSubItem()
+        item.decode(implementation_class_uid_empty)
+        assert item.item_length == 0
+        assert item.implementation_class_uid == ''
+
+        assert item.encode() == implementation_class_uid_empty
+
+        primitive = item.to_primitive()
+        assert primitive.implementation_class_uid == ''
+        item.from_primitive(primitive)
+        assert item.implementation_class_uid == ''
+
+    def test_decode_empty_conf(self, enforce_uid_conformance):
+        """Test decoding an item with an empty value"""
+        item = ImplementationClassUIDSubItem()
+        item.decode(implementation_class_uid_empty)
+        assert item.item_length == 0
+        assert item.implementation_class_uid == ''
+
+        assert item.encode() == implementation_class_uid_empty
 
     def test_no_log_padded(self, caplog):
         """Regression test for #240."""
@@ -1614,6 +1679,20 @@ class TestUserInformation_ImplementationVersion:
         assert len(version) == 18
         assert version.implementation_version_name == 'PYNETDICOM_090'
 
+    def test_decode_empty(self):
+        """Test decoding an item with an empty value"""
+        item = ImplementationVersionNameSubItem()
+        item.decode(implementation_version_name_empty)
+        assert item.item_length == 0
+        assert item.implementation_version_name == ''
+
+        assert item.encode() == implementation_version_name_empty
+
+        primitive = item.to_primitive()
+        assert primitive.implementation_version_name == ''
+        item.from_primitive(primitive)
+        assert item.implementation_version_name == ''
+
     def test_encode(self):
         """Check encoding produces the correct output """
         pdu = A_ASSOCIATE_RQ()
@@ -1652,13 +1731,33 @@ class TestUserInformation_ImplementationVersion:
 
     def test_properies(self):
         """Check property setters and getters """
-        version = ImplementationVersionNameSubItem()
+        item = ImplementationVersionNameSubItem()
 
-        version.implementation_version_name = 'PYNETDICOM'
-        assert version.implementation_version_name == 'PYNETDICOM'
+        item.implementation_version_name = None
+        assert item.implementation_version_name is None
 
-        version.implementation_version_name = 'PYNETDICOM_090'
-        assert version.implementation_version_name == 'PYNETDICOM_090'
+        item.implementation_version_name = ''
+        assert item.implementation_version_name == ''
+
+        item.implementation_version_name = b'PYNETDICOM'
+        assert item.implementation_version_name == 'PYNETDICOM'
+
+        item.implementation_version_name = 'PYNETDICOM_090'
+        assert item.implementation_version_name == 'PYNETDICOM_090'
+
+        bad = 'A' * 17
+        msg = (
+            f"Invalid 'Implementation Version Name' value '{bad}' - must not "
+            "exceed 16 characters"
+        )
+        with pytest.raises(ValueError, match=msg):
+            item.implementation_version_name = bad
+
+        msg = "'Implementation Version Name' must be str or None, not 'int'"
+        with pytest.raises(TypeError, match=msg):
+            item.implementation_version_name = 1234
+
+        assert item.implementation_version_name == 'PYNETDICOM_090'
 
 
 class TestUserInformation_Asynchronous:

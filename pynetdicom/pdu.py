@@ -545,6 +545,11 @@ class A_ASSOCIATE_RQ(PDU):
         if isinstance(value, bytes):
             # PS3.8 Table 9-11: Leading and trailing spaces are non-significant
             value = decode_bytes(value).strip()
+            if not value:
+                raise ValueError(
+                    "Invalid 'Called AE Title' value - must not consist "
+                    "entirely of spaces"
+                )
 
         self._called_aet = cast(
             str, set_ae(value, 'Called AE Title', False, False)
@@ -572,6 +577,11 @@ class A_ASSOCIATE_RQ(PDU):
         if isinstance(value, bytes):
             # PS3.8 Table 9-11: Leading and trailing spaces are non-significant
             value = decode_bytes(value).strip()
+            if not value:
+                raise ValueError(
+                    "Invalid 'Calling AE Title' value - must not consist "
+                    "entirely of spaces"
+                )
 
         self._calling_aet = cast(
             str, set_ae(value, 'Calling AE Title', False, False)
@@ -912,7 +922,7 @@ class A_ASSOCIATE_AC(PDU):
         -------
         str
             The value the A-ASSOCIATE-AC sent in the *Called AE Title* reserved
-            space.
+            space. May be an empty string if unable to decode the value.
         """
         return self.reserved_aet
 
@@ -928,7 +938,8 @@ class A_ASSOCIATE_AC(PDU):
         -------
         bytes
             The value the A-ASSOCIATE-AC sent in the *Calling AE Title*
-            reserved space.
+            reserved space. May be an empty string if unable to decode the
+            value.
         """
         return self.reserved_aec
 
@@ -1012,25 +1023,63 @@ class A_ASSOCIATE_AC(PDU):
 
     @property
     def reserved_aec(self) -> str:
+        """Get or set the A-ASSOCIATE-AC's reserved *Calling AE Title* value.
+
+        Parameters
+        ----------
+        value : str or bytes
+            The value at offset 27-42 in the A-ASSOCIATE-AC PDU, usually the
+            same value as the *Calling AE Title*.
+
+        Returns
+        -------
+        str
+            The decoded value at offset 27-42 in the A-ASSOCIATE-AC PDU,
+            usually the same value as the *Calling AE Title*, or ``''`` if
+            unable to decode the value.
+        """
         return self._reserved_aec
 
     @reserved_aec.setter
     def reserved_aec(self, value: Union[str, bytes]) -> None:
+        """Set the A-ASSOCIATE-AC's *Calling AE Title* value."""
         if isinstance(value, bytes):
-            # PS3.8 Table 9-11: Leading and trailing spaces are non-significant
-            value = decode_bytes(value).strip()
+            # The value should not be tested - included that it's decodable
+            try:
+                value = decode_bytes(value).strip()
+            except ValueError:
+                value = ''
 
         self._reserved_aec = value
 
     @property
     def reserved_aet(self) -> str:
+        """Get or set the A-ASSOCIATE-AC's reserved *Called AE Title* value.
+
+        Parameters
+        ----------
+        value : str or bytes
+            The value at offset 11-26 in the A-ASSOCIATE-AC PDU, usually the
+            same value as the *Called AE Title*.
+
+        Returns
+        -------
+        str
+            The decoded value at offset 11-26 in the A-ASSOCIATE-AC PDU,
+            usually the same value as the *Called AE Title*, or ``''`` if
+            unable to decode the value.
+        """
         return self._reserved_aet
 
     @reserved_aet.setter
     def reserved_aet(self, value: Union[str, bytes]) -> None:
+        """Set the A-ASSOCIATE-AC's *Called AE Title* value."""
         if isinstance(value, bytes):
-            # PS3.8 Table 9-11: Leading and trailing spaces are non-significant
-            value = decode_bytes(value).strip()
+            # The value should not be tested - included that it's decodable
+            try:
+                value = decode_bytes(value).strip()
+            except ValueError:
+                value = ''
 
         self._reserved_aet = value
 

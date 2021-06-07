@@ -29,7 +29,8 @@ from pynetdicom.pdu_primitives import (
 from .encoded_pdu_items import (
     a_associate_rq, a_associate_ac, a_associate_rj, a_release_rq, a_release_rq,
     a_release_rp, a_abort, a_p_abort, p_data_tf,
-    a_associate_rq_user_id_ext_neg, a_associate_ac_no_ts
+    a_associate_rq_user_id_ext_neg, a_associate_ac_no_ts,
+    a_associate_rq_called, a_associate_rq_calling
 )
 from pynetdicom.sop_class import Verification
 from pynetdicom.utils import pretty_bytes
@@ -220,6 +221,38 @@ class TestASSOC_RQ:
         assert pdu.called_ae_title == 'TEST_SCP'
         pdu.called_ae_title = '  TEST SCP   '
         assert pdu.called_ae_title == '  TEST SCP   '
+        pdu.called_ae_title = b'  TEST SCP   '
+        assert pdu.called_ae_title == 'TEST SCP'
+
+        msg = (
+            r"Unable to decode '2E E2 80 8B 31 2E' using the ascii codec\(s\)"
+        )
+        with pytest.raises(ValueError, match=msg):
+            pdu.called_ae_title = b'\x2e\xe2\x80\x8b\x31\x2e'
+
+        msg = "'Called AE Title' must be str, not 'NoneType'"
+        with pytest.raises(TypeError, match=msg):
+            pdu.called_ae_title = None
+
+        msg = "Invalid 'Called AE Title' value - must not be an empty str"
+        with pytest.raises(ValueError, match=msg):
+            pdu.called_ae_title = ""
+
+        msg = (
+            "Invalid 'Called AE Title' value - must not consist entirely "
+            "of spaces"
+        )
+        with pytest.raises(ValueError, match=msg):
+            pdu.called_ae_title = "  "
+
+        msg = (
+            "Invalid 'Called AE Title' value '\u200b5ABCD' - must only "
+            "contain ASCII characters"
+        )
+        with pytest.raises(ValueError, match=msg):
+            pdu.called_ae_title = "\u200b5ABCD"
+
+        assert pdu.called_ae_title == 'TEST SCP'
 
         # pdu.calling_ae_title
         assert pdu.calling_ae_title == 'Default'
@@ -227,6 +260,38 @@ class TestASSOC_RQ:
         assert pdu.calling_ae_title == 'TEST_SCP2'
         pdu.calling_ae_title = '  TEST SCP2   '
         assert pdu.calling_ae_title == '  TEST SCP2   '
+        pdu.calling_ae_title = b'  TEST SCP   '
+        assert pdu.calling_ae_title == 'TEST SCP'
+
+        msg = (
+            r"Unable to decode '2E E2 80 8B 31 2E' using the ascii codec\(s\)"
+        )
+        with pytest.raises(ValueError, match=msg):
+            pdu.calling_ae_title = b'\x2e\xe2\x80\x8b\x31\x2e'
+
+        msg = "'Calling AE Title' must be str, not 'NoneType'"
+        with pytest.raises(TypeError, match=msg):
+            pdu.calling_ae_title = None
+
+        msg = "Invalid 'Calling AE Title' value - must not be an empty str"
+        with pytest.raises(ValueError, match=msg):
+            pdu.calling_ae_title = ""
+
+        msg = (
+            "Invalid 'Calling AE Title' value - must not consist entirely "
+            "of spaces"
+        )
+        with pytest.raises(ValueError, match=msg):
+            pdu.calling_ae_title = "  "
+
+        msg = (
+            "Invalid 'Calling AE Title' value '\u200b5ABCD' - must only "
+            "contain ASCII characters"
+        )
+        with pytest.raises(ValueError, match=msg):
+            pdu.calling_ae_title = "\u200b5ABCD"
+
+        assert pdu.calling_ae_title == 'TEST SCP'
 
     def test_string_output(self):
         """Check the string output works"""
@@ -277,6 +342,26 @@ class TestASSOC_RQ:
         # Check user_information property
         user_info = pdu.user_information
         assert isinstance(user_info, UserInformationItem)
+
+    def test_decode_called_empty(self):
+        """Check decoding empty called AE title."""
+        pdu = A_ASSOCIATE_RQ()
+        msg = (
+            "Invalid 'Called AE Title' value - must not consist entirely "
+            "of spaces"
+        )
+        with pytest.raises(ValueError, match=msg):
+            pdu.decode(a_associate_rq_called)
+
+    def test_decode_calling_empty(self):
+        """Check decoding empty called AE title."""
+        pdu = A_ASSOCIATE_RQ()
+        msg = (
+            "Invalid 'Calling AE Title' value - must not consist entirely "
+            "of spaces"
+        )
+        with pytest.raises(ValueError, match=msg):
+            pdu.decode(a_associate_rq_calling)
 
     def test_encode(self):
         """Check encoding produces the correct output."""
@@ -673,6 +758,53 @@ class TestASSOC_AC:
         assert cx.transfer_syntax == []
         assert cx.result == 3
         assert cx.context_id == 1
+
+    def test_calling_called_reserved(self):
+        """Check the reserved_aec and reserved_aet properties."""
+        pdu = A_ASSOCIATE_AC()
+
+        # pdu.reserved_aet
+        assert pdu.reserved_aet == ''
+        pdu.reserved_aet = 'TEST_SCP'
+        assert pdu.reserved_aet == 'TEST_SCP'
+        pdu.reserved_aet = '  TEST SCP   '
+        assert pdu.reserved_aet == '  TEST SCP   '
+        pdu.reserved_aet = b'  TEST SCP   '
+        assert pdu.reserved_aet == 'TEST SCP'
+        pdu.reserved_aet = b'\x2e\xe2\x80\x8b\x31\x2e'
+        assert pdu.reserved_aet == ''
+        pdu.reserved_aet = ""
+        assert pdu.reserved_aet == ''
+        pdu.reserved_aet = "  "
+        assert pdu.reserved_aet == '  '
+        pdu.reserved_aet = "\u200b5ABCD"
+        assert pdu.reserved_aet == "\u200b5ABCD"
+
+        # pdu.reserved_aec
+        assert pdu.reserved_aec == ''
+        pdu.reserved_aec = 'TEST_SCP2'
+        assert pdu.reserved_aec == 'TEST_SCP2'
+        pdu.reserved_aec = '  TEST SCP2   '
+        assert pdu.reserved_aec == '  TEST SCP2   '
+        pdu.reserved_aec = b'  TEST SCP   '
+        assert pdu.reserved_aec == 'TEST SCP'
+        pdu.reserved_aec = b'\x2e\xe2\x80\x8b\x31\x2e'
+        assert pdu.reserved_aec == ''
+        pdu.reserved_aec = ""
+        assert pdu.reserved_aec == ''
+        pdu.reserved_aec = "  "
+        assert pdu.reserved_aec == '  '
+        pdu.reserved_aec = "\u200b5ABCD"
+        assert pdu.reserved_aec == "\u200b5ABCD"
+
+    def test_encode_calling_called(self):
+        """Test encoding reserved_aec and reserved_aet"""
+        pdu = A_ASSOCIATE_AC()
+        pdu.decode(a_associate_ac)
+        pdu.reserved_aec = ""
+        pdu.reserved_aet = ""
+        enc = pdu.encode()
+        assert enc[10:42] == b"\x20" * 32
 
 
 class TestASSOC_AC_ApplicationContext:

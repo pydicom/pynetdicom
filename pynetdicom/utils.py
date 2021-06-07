@@ -39,11 +39,6 @@ def decode_bytes(encoded_value: bytes) -> str:
     -------
     str
         The decoded ISO 646 (ASCII) string.
-
-    Raises
-    ------
-    UnicodeDecodeError
-        If unable to decode the encoded value.
     """
     # Always try ASCII first
     try:
