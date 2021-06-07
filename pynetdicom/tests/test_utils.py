@@ -158,7 +158,6 @@ class TestPrettyBytes:
 
 class TestMakeTarget:
     """Tests for utils.make_target()."""
-    @pytest.mark.skipif(sys.version_info[:2] < (3, 7), reason="Branch uncovered in this Python version.")
     def test_make_target(self):
         """Context Setup"""
         from contextvars import ContextVar
@@ -190,19 +189,6 @@ class TestMakeTarget:
 
         """Context Teardown"""
         foo.reset(token)
-
-    @pytest.mark.skipif(sys.version_info[:2] >= (3, 7), reason="Branch uncovered in this Python version.")
-    def test_invalid_python_version(self):
-        """Test for ``_config.PASS_CONTEXTVARS = True`` and Python < 3.7"""
-        def noop():
-            pass
-
-        _config.PASS_CONTEXTVARS = True
-
-        with pytest.raises(RuntimeError, match="PASS_CONTEXTVARS requires Python >=3.7"):
-            make_target(noop)
-
-        _config.PASS_CONTEXTVARS = False
 
 
 @pytest.fixture
@@ -327,4 +313,23 @@ class TestDecodeBytes:
 
             assert (
                 "'ascii' codec can't decode byte 0xff in position 0"
+            ) in caplog.text
+
+    def test_decoding_error_fallback(self, caplog, utf8):
+        """Test decoding error raises and logs"""
+        b = '1.2.3'.encode('utf_32')
+        with caplog.at_level(logging.ERROR, logger='pynetdicom'):
+            msg = (
+                r"Unable to decode 'FF FE 00 00 31 00 00 00 2E 00 00 00 32 "
+                r"00 00 00 2E 00 00 00 33 00 00 00' using the ascii, "
+                r"utf8 codec\(s\)"
+            )
+            with pytest.raises(ValueError, match=msg):
+                decode_bytes(b)
+
+            assert (
+                "'ascii' codec can't decode byte 0xff in position 0"
+            ) in caplog.text
+            assert (
+                "'utf-8' codec can't decode byte 0xff in position 0"
             ) in caplog.text

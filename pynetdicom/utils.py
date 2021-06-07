@@ -1,6 +1,7 @@
 """Various utility functions."""
 
 from contextlib import contextmanager
+from contextvars import copy_context
 from io import BytesIO
 import logging
 import sys
@@ -75,7 +76,7 @@ def make_target(target_fn: Callable) -> Callable:
     ``threading.Thread``.
 
     Requires:
-    * Python >=3.7
+
     * :attr:`~pynetdicom._config.PASS_CONTEXTVARS` set ``True``
 
     If the requirements are not met, the original `target_fn` is returned.
@@ -92,12 +93,9 @@ def make_target(target_fn: Callable) -> Callable:
         `target_fn`.
     """
     if _config.PASS_CONTEXTVARS:
-        try:
-            from contextvars import copy_context
-        except ImportError as e:
-            raise RuntimeError("PASS_CONTEXTVARS requires Python >=3.7") from e
         ctx = copy_context()
         return lambda: ctx.run(target_fn)
+
     return target_fn
 
 

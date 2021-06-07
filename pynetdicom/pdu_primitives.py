@@ -201,11 +201,8 @@ class A_ASSOCIATE:
         return self._called_ae_title
 
     @called_ae_title.setter
-    def called_ae_title(self, value: Union[str, bytes]) -> None:
+    def called_ae_title(self, value: str) -> None:
         """Set the Called AE Title parameter."""
-        if isinstance(value, bytes):
-            value = decode_bytes(value).strip()
-
         self._called_ae_title = cast(
             str, set_ae(value, 'Called AE Title', False, False)
         )
@@ -273,11 +270,8 @@ class A_ASSOCIATE:
         return self._calling_ae_title
 
     @calling_ae_title.setter
-    def calling_ae_title(self, value: Union[str, bytes]) -> None:
+    def calling_ae_title(self, value: str) -> None:
         """Set the Calling AE Title parameter."""
-        if isinstance(value, bytes):
-            value = decode_bytes(value).strip()
-
         self._calling_ae_title = cast(
             str, set_ae(value, 'Calling AE Title', False, False)
         )
@@ -1257,28 +1251,11 @@ class ImplementationVersionNameNotification(ServiceParameter):
         return self._implementation_version_name
 
     @implementation_version_name.setter
-    def implementation_version_name(
-        self, value: Union[str, bytes, None]
-    ) -> None:
+    def implementation_version_name(self, value: Optional[str]) -> None:
         """Sets the Implementation Version Name parameter."""
-        if isinstance(value, bytes):
-            value = decode_bytes(value)
-
-        if isinstance(value, str) or value is None:
-            pass
-        else:
-            LOGGER.error("Implementation Version Name must be a str or bytes")
-            raise TypeError(
-                "Implementation Version Name must be a str or bytes"
-            )
-
-        if value is not None and not 0 < len(value) < 17:
-            raise ValueError(
-                "Implementation Version Name must be between 1 and 16 "
-                "characters long"
-            )
-
-        self._implementation_version_name = value
+        self._implementation_version_name = set_ae(
+            value, 'Implementation Version Name', True, True
+        )
 
     def __str__(self) -> str:
         """String representation of the class."""

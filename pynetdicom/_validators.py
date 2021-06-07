@@ -54,7 +54,11 @@ def validate_ae(value: str) -> Tuple[bool, str]:
 
 
 def validate_ui(value: UID) -> Tuple[bool, str]:
+
     from pynetdicom import _config
+
+    if not isinstance(value, str):
+        return False, "must be pydicom.uid.UID"
 
     value = UID(value)
 

@@ -203,15 +203,18 @@ class TestPrimitive_ImplementationVersionNameNotification:
         with pytest.raises(TypeError):
             primitive.implementation_version_name = 100
 
+        bad = 'ABCD1234ABCD12345'
         msg = (
-            r"Implementation Version Name must be between 1 and 16"
-            r" characters long"
+            f"Invalid 'Implementation Version Name' value '{bad}' - must not "
+            "exceed 16 characters"
         )
         with pytest.raises(ValueError, match=msg):
-            primitive.implementation_version_name = 'ABCD1234ABCD12345'
+            primitive.implementation_version_name = bad
 
-        with pytest.raises(ValueError, match=msg):
-            primitive.implementation_version_name = ''
+        primitive.implementation_version_name = ''
+        assert primitive.implementation_version_name == ''
+        primitive.implementation_version_name = None
+        assert primitive.implementation_version_name is None
 
     def test_conversion(self):
         """ Check converting to PDU item works correctly """

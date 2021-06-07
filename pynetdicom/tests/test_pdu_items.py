@@ -1132,7 +1132,7 @@ class TestUserInformation:
         )
         check.append(class_uid)
         v_name = ImplementationVersionNameNotification()
-        v_name.implementation_version_name = b'PYNETDICOM_090'
+        v_name.implementation_version_name = 'PYNETDICOM_090'
         check.append(v_name)
 
         assert result == check
@@ -1538,7 +1538,7 @@ class TestUserInformation_ImplementationVersion:
         pdu.decode(a_associate_rq)
 
         version = pdu.user_information.user_data[2]
-        version.implementation_version_name = b'PYNETDICOM_090'
+        version.implementation_version_name = 'PYNETDICOM_090'
 
         assert version.encode() == implementation_version_name
 
@@ -1552,7 +1552,7 @@ class TestUserInformation_ImplementationVersion:
         result = version.to_primitive()
 
         check = ImplementationVersionNameNotification()
-        check.implementation_version_name = b'PYNETDICOM_090'
+        check.implementation_version_name = 'PYNETDICOM_090'
         assert result == check
 
     def test_from_primitive(self):
