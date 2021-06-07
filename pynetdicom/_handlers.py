@@ -2,8 +2,11 @@
 
 import logging
 from struct import unpack, calcsize
-from typing import TYPE_CHECKING, List, Optional, cast, Union
+from typing import (
+    TYPE_CHECKING, List, Optional, cast, Union, Dict, Any, Sequence, Iterator
+)
 
+from pydicom.dataset import Dataset
 from pydicom.uid import UID
 
 from pynetdicom.dimse_messages import *
@@ -19,6 +22,7 @@ if TYPE_CHECKING:  # pragma: no cover
     from pynetdicom.pdu_items import (
         UserInformationItem, UserIdentitySubItemRQ
     )
+    from pynetdicom.pdu_items import SOPClassCommonExtendedNegotiation
 
 
 LOGGER = logging.getLogger('pynetdicom.events')
@@ -2103,9 +2107,18 @@ def _recv_n_delete_rsp(event: "Event") -> List[str]:
     return []
 
 
+StatusType = Union[int, Dataset]
+DatasetType = Optional[Dataset]
+UserReturnType = Tuple[StatusType, DatasetType]
+DestinationType = Union[Tuple[str, int], Tuple[str, int, Dict[str, Any]]]
+CFindType = Iterator[UserReturnType]
+CGetType = Iterator[Union[int, StatusType, DatasetType]]
+CMoveType = Iterator[Union[DestinationType, int, StatusType, DatasetType]]
+
+
 # Example handlers used for the documentation
 # Intervention event handler documentation
-def doc_handle_echo(event, *args):  # type: ignore
+def doc_handle_echo(event: "Event", *args: Sequence[Any]) -> StatusType:
     """Documentation for handlers bound to ``evt.EVT_C_ECHO``.
 
     User implementation of this event handler is optional. If a handler is
@@ -2191,7 +2204,7 @@ def doc_handle_echo(event, *args):  # type: ignore
     """
     pass
 
-def doc_handle_find(event, *args):  # type: ignore
+def doc_handle_find(event: "Event", *args: Sequence[Any]) -> CFindType:
     """Documentation for handlers bound to ``evt.EVT_C_FIND``.
 
     User implementation of this event handler is required if one or more
@@ -2342,7 +2355,7 @@ def doc_handle_find(event, *args):  # type: ignore
     """
     pass
 
-def doc_handle_c_get(event, *args):  # type: ignore
+def doc_handle_c_get(event: "Event", *args: Sequence[Any]) -> CGetType:
     """Documentation for handlers bound to ``evt.EVT_C_GET``.
 
     User implementation of this event handler is required if one or more
@@ -2499,7 +2512,7 @@ def doc_handle_c_get(event, *args):  # type: ignore
     """
     pass
 
-def doc_handle_move(event, *args):  # type: ignore
+def doc_handle_move(event: "Event", *args: Sequence[Any]) -> CMoveType:
     """Documentation for handlers bound to ``evt.EVT_C_MOVE``.
 
     User implementation of this event handler is required if one or more
@@ -2608,7 +2621,7 @@ def doc_handle_move(event, *args):  # type: ignore
         * :attr:`~pynetdicom.events.Event.message_id`: the C-MOVE request's
           *Message ID* as :class:`int`.
         * :attr:`~pynetdicom.events.Event.move_destination`: the C-MOVE
-          request's *Move Destination* value as :class:`bytes`.
+          request's *Move Destination* value as :class:`str`.
     args
         If the handler was bound to the event using
         ``bind(event, handler, args)`` or by passing
@@ -2684,7 +2697,7 @@ def doc_handle_move(event, *args):  # type: ignore
     """
     pass
 
-def doc_handle_store(event, *args):  # type: ignore
+def doc_handle_store(event: "Event", *args: Sequence[Any]) -> StatusType:
     """Documentation for handlers bound to ``evt.EVT_C_STORE``.
 
     User implementation of this event handler is required if one or more
@@ -2809,7 +2822,7 @@ def doc_handle_store(event, *args):  # type: ignore
     """
     pass
 
-def doc_handle_action(event, *args):  # type: ignore
+def doc_handle_action(event: "Event", *args: Sequence[Any]) -> UserReturnType:
     """Documentation for handlers bound to ``evt.EVT_N_ACTION``.
 
     User implementation of this event handler is required if one or more
@@ -2999,7 +3012,7 @@ def doc_handle_action(event, *args):  # type: ignore
     """
     pass
 
-def doc_handle_create(event, *args):  # type: ignore
+def doc_handle_create(event: "Event", *args: Sequence[Any]) -> UserReturnType:
     """Documentation for handlers bound to ``evt.EVT_N_CREATE``.
 
     User implementation of this event handler is required if one or more
@@ -3155,7 +3168,7 @@ def doc_handle_create(event, *args):  # type: ignore
     """
     pass
 
-def doc_handle_delete(event, *args):  # type: ignore
+def doc_handle_delete(event: "Event", *args: Sequence[Any]) -> StatusType:
     """Documentation for handlers bound to ``evt.EVT_N_DELETE``.
 
     User implementation of this event handler is required if one or more
@@ -3258,7 +3271,9 @@ def doc_handle_delete(event, *args):  # type: ignore
     """
     pass
 
-def doc_handle_event_report(event, *args):  # type: ignore
+def doc_handle_event_report(
+    event: "Event", *args: Sequence[Any]
+) -> UserReturnType:
     """Documentation for handlers bound to ``evt.EVT_N_EVENT_REPORT``.
 
     User implementation of this event handler is required if one or more
@@ -3390,7 +3405,7 @@ def doc_handle_event_report(event, *args):  # type: ignore
     """
     pass
 
-def doc_handle_n_get(event, *args):  # type: ignore
+def doc_handle_n_get(event: "Event", *args: Sequence[Any]) -> UserReturnType:
     """Documentation for handlers bound to ``evt.EVT_N_GET``.
 
     User implementation of this event handler is required if one or more
@@ -3517,7 +3532,7 @@ def doc_handle_n_get(event, *args):  # type: ignore
     """
     pass
 
-def doc_handle_set(event, *args):  # type: ignore
+def doc_handle_set(event: "Event", *args: Sequence[Any]) -> UserReturnType:
     """Documentation for handlers bound to ``evt.EVT_N_SET``.
 
     User implementation of this event handler is required if one or more
@@ -3677,7 +3692,7 @@ def doc_handle_set(event, *args):  # type: ignore
     """
     pass
 
-def doc_handle_async(event, *args):  # type: ignore
+def doc_handle_async(event: "Event", *args: Sequence[Any]) -> Tuple[int, int]:
     """Documentation for handlers bound to ``evt.EVT_ASYNC_OPS``.
 
     User implementation of this event handler is optional. If a handler is
@@ -3741,7 +3756,9 @@ def doc_handle_async(event, *args):  # type: ignore
     """
     pass
 
-def doc_handle_sop_common(event, *args):  # type: ignore
+def doc_handle_sop_common(
+    event: "Event", *args: Sequence[Any]
+) -> Dict[UID, "SOPClassCommonExtendedNegotiation"]:
     """Documentation for handlers bound to ``evt.EVT_SOP_COMMON``.
 
     User implementation of this event handler is required only if
@@ -3795,7 +3812,9 @@ def doc_handle_sop_common(event, *args):  # type: ignore
     """
     pass
 
-def doc_handle_sop_extended(event, *args):  # type: ignore
+def doc_handle_sop_extended(
+    event: "Event", *args: Sequence[Any]
+) -> Dict[UID, bytes]:
     """Documentation for handlers bound to ``evt.EVT_SOP_EXTENDED``.
 
     User implementation of this event handler is required only if
@@ -3851,7 +3870,9 @@ def doc_handle_sop_extended(event, *args):  # type: ignore
     """
     pass
 
-def doc_handle_userid(event, *args):  # type: ignore
+def doc_handle_userid(
+    event: "Event", *args: Sequence[Any]
+) -> Tuple[bool, Optional[bytes]]:
     """Documentation for handlers bound to ``evt.EVT_USER_ID``.
 
     User implementation of this handler is required if
@@ -3925,7 +3946,7 @@ def doc_handle_userid(event, *args):  # type: ignore
     pass
 
 # Notification event handler documentation
-def doc_handle_acse(event, *args):  # type: ignore
+def doc_handle_acse(event: "Event", *args: Sequence[Any]) -> None:
     """Documentation for handlers bound to ``evt.EVT_ACSE_RECV`` or
     ``evt.EVT_ACSE_SENT``.
 
@@ -3959,7 +3980,7 @@ def doc_handle_acse(event, *args):  # type: ignore
     """
     pass
 
-def doc_handle_assoc(event, *args):  # type: ignore
+def doc_handle_assoc(event: "Event", *args: Sequence[Any]) -> None:
     """Documentation for handlers bound to ``evt.EVT_ACCEPTED``,
     ``evt.EVT_ESTABLISHED``, ``evt.EVT_REJECTED``, ``evt.EVT_REQUESTED``,
     ``evt.EVT_RELEASED`` or ``evt.EVT_ABORTED``.
@@ -3986,7 +4007,7 @@ def doc_handle_assoc(event, *args):  # type: ignore
     """
     pass
 
-def doc_handle_dimse(event, *args):  # type: ignore
+def doc_handle_dimse(event: "Event", *args: Sequence[Any]) -> None:
     """Documentation for handlers bound to ``evt.EVT_DIMSE_RECV`` or
     ``evt.EVT_DIMSE_SENT``.
 
@@ -4038,7 +4059,7 @@ def doc_handle_dimse(event, *args):  # type: ignore
     """
     pass
 
-def doc_handle_data(event, *args):  # type: ignore
+def doc_handle_data(event: "Event", *args: Sequence[Any]) -> None:
     """Documentation for handlers bound to ``evt.EVT_DATA_RECV`` or
     ``evt.EVT_DATA_SENT``.
 
@@ -4066,7 +4087,7 @@ def doc_handle_data(event, *args):  # type: ignore
     """
     pass
 
-def doc_handle_fsm(event, *args):  # type: ignore
+def doc_handle_fsm(event: "Event", *args: Sequence[Any]) -> None:
     """Documentation for handlers bound to ``evt.EVT_FSM_TRANSITION``.
 
     Parameters
@@ -4100,7 +4121,7 @@ def doc_handle_fsm(event, *args):  # type: ignore
     """
     pass
 
-def doc_handle_pdu(event, *args):  # type: ignore
+def doc_handle_pdu(event: "Event", *args: Sequence[Any]) -> None:
     """Documentation for handlers bound to ``evt.EVT_PDU_RECV`` or
     ``evt.EVT_PDU_SENT``.
 
@@ -4134,7 +4155,7 @@ def doc_handle_pdu(event, *args):  # type: ignore
     """
     pass
 
-def doc_handle_transport(event, *args):  # type: ignore
+def doc_handle_transport(event: "Event", *args: Sequence[Any]) -> None:
     """Documentation for handlers bound to ``evt.EVT_CONN_OPEN`` or
     ``evt.EVT_CONN_CLOSE``.
 

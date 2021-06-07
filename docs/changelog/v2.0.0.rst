@@ -58,7 +58,7 @@ Enhancements
 * Added :attr:`~pynetdicom._config.CODECS` to allow customising the
   codecs used when decoding text-like PDU parameters (:issue:`611`)
 * Added :attr:`~pynetdicom._config.VALIDATORS` to allow customising the
-  validation performed on UIDs and AE titles (issue:`515`, issue:`549`)
+  validation performed on UIDs and AE titles (:issue:`515`, :issue:`549`)
 
 Changes
 .......

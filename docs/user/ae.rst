@@ -20,7 +20,7 @@ keyword parameter during initialisation:
 .. doctest::
 
     >>> from pynetdicom import AE
-    >>> ae = AE(ae_title=b'MY_AE_TITLE')
+    >>> ae = AE(ae_title='MY_AE_TITLE')
 
 Or afterwards with the :attr:`~ApplicationEntity.ae_title` property:
 
@@ -28,42 +28,21 @@ Or afterwards with the :attr:`~ApplicationEntity.ae_title` property:
 
     >>> from pynetdicom import AE
     >>> ae = AE()
-    >>> ae.ae_title = b'MY_AE_TITLE'
+    >>> ae.ae_title = 'MY_AE_TITLE'
 
 AE titles must meet the conditions of a DICOM data element with a
 :dcm:`Value Representation <part05/sect_6.2.html>` of **AE**:
 
-* Leading and trailing spaces (``0x20``) are non-significant.
+* Leading and trailing spaces (hex ``0x20``) are non-significant.
 * Maximum 16 characters (once non-significant characters are removed).
 * Valid characters belong to the DICOM :dcm:`Default Character Repertoire
   <part05/chapter_E.html>`, which is the basic G0 Set of the
   `ISO/IEC 646:1991 <https://www.iso.org/standard/4777.html>`_
   (ASCII) standard excluding backslash (``\`` - hex ``0x5C``) and all control
-  characters.
+  characters (such as ``'\n'``).
 * An AE title made entirely of spaces is not allowed.
 
-AE titles in *pynetdicom* are checked for validity (using
-:func:`~pynetdicom.utils.validate_ae_title`) and then stored as length 16
-:class:`bytes`, with trailing spaces added as padding if required. This can
-be important to remember when dealing with AE titles as the value you set may
-not be the value that gets stored.
-
-.. testsetup::
-
-    from pynetdicom import AE
-    ae = AE()
-
-.. doctest::
-
-    >>> ae.ae_title = b'MY_AE_TITLE'
-    >>> ae.ae_title == b'MY_AE_TITLE'
-    False
-    >>> ae.ae_title
-    b'MY_AE_TITLE     '
-    >>> len(ae.ae_title)
-    16
-
-When creating SCPs  also possible to give each SCP  own AE title by
+When creating SCPs it's also possible to give each SCP its own AE title by
 specifying the *ae_title* keyword parameter in
 :meth:`AE.start_server()<pynetdicom.ae.ApplicationEntity.start_server>`.
 
@@ -202,7 +181,7 @@ property and they are returned in the order they were added:
         =Explicit VR Little Endian
         =Explicit VR Big Endian
 
-Its also possible to have multiple requested presentation contexts for the
+It's also possible to have multiple requested presentation contexts for the
 same abstract syntax.
 
 .. doctest::

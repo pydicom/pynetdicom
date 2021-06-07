@@ -366,7 +366,7 @@ class TestNonPatientObjectStorageServiceClass:
         assoc = ae.associate('localhost', 11112)
         assert assoc.is_established
         status = assoc.send_c_store(
-            DATASET, originator_aet=b'ORIGIN', originator_id=888
+            DATASET, originator_aet='ORIGIN', originator_id=888
         )
         assert status.Status == 0x0000
         assoc.release()

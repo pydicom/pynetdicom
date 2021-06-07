@@ -33,7 +33,7 @@ method, which returns an :class:`Association` thread:
 This sends an association request to the IP address ``127.0.0.1`` on port
 ``11112`` with the request containing the presentation contexts from
 :attr:`AE.requested_contexts<pynetdicom.ae.ApplicationEntity.requested_contexts>`
-and the default *Called AE Title* parameter of ``b'ANY-SCP         '``.
+and the default *Called AE Title* parameter of ``'ANY-SCP'``.
 
 Established associations should always be released or aborted (using
 :func:`Association.release` or :func:`Association.abort`), otherwise the
@@ -50,7 +50,7 @@ keyword parameter:
 
 ::
 
-    assoc = ae.associate('127.0.0.1', 11112, ae_title=b'STORE_SCP')
+    assoc = ae.associate('127.0.0.1', 11112, ae_title='STORE_SCP')
 
 Specifying Presentation Contexts for each Association
 .....................................................
@@ -385,7 +385,7 @@ If no value is set then the AE title of the parent AE will be used instead:
 
 ::
 
-    ae.start_server(('', 11112), ae_title=b'STORE_SCP')
+    ae.start_server(('', 11112), ae_title='STORE_SCP')
 
 
 Specifying Presentation Contexts for each SCP
