@@ -14,7 +14,7 @@ The first step in DICOM networking with *pynetdicom* is the creation of an
     >>> ae = AE()
 
 This will create an :class:`AE<ApplicationEntity>` with an AE title of
-``b'PYNETDICOM      '``. The AE title can set by supplying the *ae_title*
+``'PYNETDICOM'``. The AE title can set by supplying the *ae_title*
 keyword parameter during initialisation:
 
 .. doctest::
@@ -125,13 +125,15 @@ a :class:`ValueError` exception.
 When you add presentation contexts as shown above, the following transfer
 syntaxes are used by default for each context:
 
-+---------------------+------------------------------+
-| 1.2.840.10008.1.2   | Implicit VR Little Endian    |
-+---------------------+------------------------------+
-| 1.2.840.10008.1.2.1 | Explicit VR Little Endian    |
-+---------------------+------------------------------+
-| 1.2.840.10008.1.2.2 | Explicit VR Big Endian       |
-+---------------------+------------------------------+
++------------------------+------------------------------------+
+| 1.2.840.10008.1.2      | Implicit VR Little Endian          |
++------------------------+------------------------------------+
+| 1.2.840.10008.1.2.1    | Explicit VR Little Endian          |
++------------------------+------------------------------------+
+| 1.2.840.10008.1.2.1.99 | Deflated Explicit VR Little Endian |
++------------------------+------------------------------------+
+| 1.2.840.10008.1.2.2    | Explicit VR Big Endian             |
++------------------------+------------------------------------+
 
 Specifying your own transfer syntax(es) can be done with the
 *transfer_syntax* keyword parameter as either a single str/UID or a list of
@@ -162,7 +164,7 @@ str/UIDs:
 
 The requested presentation contexts can be accessed with the
 :attr:`AE.requested_contexts<ApplicationEntity.requested_contexts>`
-property and they are returned in the order they were added:
+property and are returned in the order they were added.
 
 .. doctest::
 
@@ -209,7 +211,7 @@ All the above examples set the requested presentation contexts on the
 Application Entity level, i.e. the same contexts will be used for all
 association requests. To set the requested presentation contexts on a
 per-association basis (i.e. each association request can have different
-requested contexts) you can use the *context* keyword parameter when calling
+requested contexts) you can use the *contexts* keyword parameter when calling
 :meth:`AE.associate()<ApplicationEntity.associate>` (see
 the :ref:`Association <association>` page for more information).
 
@@ -309,13 +311,15 @@ contexts that you can support.
 When you add presentation contexts as shown above, the following transfer
 syntaxes are used by default for each context:
 
-+---------------------+------------------------------+
-| 1.2.840.10008.1.2   | Implicit VR Little Endian    |
-+---------------------+------------------------------+
-| 1.2.840.10008.1.2.1 | Explicit VR Little Endian    |
-+---------------------+------------------------------+
-| 1.2.840.10008.1.2.2 | Explicit VR Big Endian       |
-+---------------------+------------------------------+
++------------------------+------------------------------------+
+| 1.2.840.10008.1.2      | Implicit VR Little Endian          |
++------------------------+------------------------------------+
+| 1.2.840.10008.1.2.1    | Explicit VR Little Endian          |
++------------------------+------------------------------------+
+| 1.2.840.10008.1.2.1.99 | Deflated Explicit VR Little Endian |
++------------------------+------------------------------------+
+| 1.2.840.10008.1.2.2    | Explicit VR Big Endian             |
++------------------------+------------------------------------+
 
 Specifying your own transfer syntax(es) can be done with the
 *transfer_syntax* keyword parameter parameter as either a single str/UID or a
@@ -346,7 +350,7 @@ list of str/UIDs:
 
 The supported presentation contexts can be accessed with the
 :attr:`AE.supported_contexts<ApplicationEntity.supported_contexts>`
-property and they are returned in order of their abstract syntax UID value:
+property and are returned in order of their abstract syntax UID value:
 
 .. doctest::
 

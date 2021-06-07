@@ -10,7 +10,6 @@ Configuration Options (:mod:`pynetdicom._config`)
 .. autosummary::
    :toctree: generated/
 
-   ALLOW_LONG_DIMSE_AET
    ENFORCE_UID_CONFORMANCE
    LOG_HANDLER_LEVEL
    LOG_REQUEST_IDENTIFIERS

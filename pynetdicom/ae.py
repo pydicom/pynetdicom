@@ -498,13 +498,21 @@ class ApplicationEntity:
             The peer's AE title, will be used as the *Called AE Title*
             parameter value (default ``'ANY-SCP'``).
         max_pdu : int, optional
-            The maximum PDV receive size in bytes to use when negotiating the
-            association (default ``16832``). A value of ``0`` means the PDU
-            size is unlimited.
+            The :dcm:`maximum PDV receive size<part08/chapter_D.html#sect_D.1>`
+            in bytes to use when negotiating the association (default
+            ``16832``). A value of ``0`` means the PDV size is unlimited.
         ext_neg : list of UserInformation objects, optional
-            Used if extended association negotiation is required.
+            A list containing optional extended negotiation items:
+
+            .. currentmodule:: pynetdicom.pdu_primitives
+
+            * :class:`AsynchronousOperationsWindowNegotiation` (0 or 1 item)
+            * :class:`~SCP_SCU_RoleSelectionNegotiation` (0 to N items)
+            * :class:`~SOPClassCommonExtendedNegotiation` (0 to N items)
+            * :class:`~SOPClassExtendedNegotiation` (0 to N items)
+            * :class:`~UserIdentityNegotiation` (0 or 1 item)
         bind_address : 2-tuple, optional
-            The (host, port) to bind the Association's communication socket
+            The (host, port) to bind the association's communication socket
             to, default ``('', 0)``.
         tls_args : 2-tuple, optional
             If TLS is required then this should be a 2-tuple containing a
@@ -534,7 +542,9 @@ class ApplicationEntity:
         ------
         RuntimeError
             If called with no requested presentation contexts (i.e. `contexts`
-            has not been supplied and :attr:`requested_contexts` is empty).
+            has not been supplied and
+            :attr:`~pynetdicom.ae.ApplicationEntity.requested_contexts` is
+            empty).
         """
         if not isinstance(addr, str):
             raise TypeError("'addr' must be a valid IPv4 string")
@@ -692,7 +702,7 @@ class ApplicationEntity:
         Parameters
         ----------
         value : str or pydicom.uid.UID
-            The A-ASSOCIATE-RQ's *Implementation Class UID* value.
+            The association request's *Implementation Class UID* value.
         """
         return self._implementation_uid
 
@@ -717,13 +727,14 @@ class ApplicationEntity:
         Parameters
         ----------
         value : str or None
-            The A-ASSOCIATE-RQ's *Implementation Version Name* value as an
-            ASCII string. The *Implementation Version Name* is optional.
+            If set then an *Implementation Version Name* item with the
+            corresponding value will be added to the association request,
+            otherwise no item will be sent.
 
         Returns
         -------
         str or None
-            The *Implementation Version Name*.
+            The set *Implementation Version Name*.
         """
         return self._implementation_version
 
