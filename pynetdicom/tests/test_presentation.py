@@ -272,8 +272,7 @@ class TestPresentationContext:
         pc.context_id = 1
 
         msg = (
-            f"Invalid UID '1.4.1.' used with the 'abstract_syntax' "
-            "parameter"
+            "Invalid 'abstract_syntax' value '1.4.1.' - UID is non-conformant"
         )
         with pytest.raises(ValueError, match=msg):
             pc.abstract_syntax = UID('1.4.1.')

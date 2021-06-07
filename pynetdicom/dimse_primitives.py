@@ -12,13 +12,14 @@ from io import BytesIO
 import logging
 from pathlib import Path
 from typing import Optional, List, Tuple, Union, TYPE_CHECKING
+import warnings
 
 from pydicom.tag import Tag, BaseTag
 from pydicom.uid import UID
 
 from pynetdicom import _config
 from pynetdicom._globals import OptionalUIDType
-from pynetdicom.utils import validate_ae_title, validate_uid, as_uid
+from pynetdicom.utils import set_ae, decode_bytes, set_uid
 
 
 if TYPE_CHECKING:  # pragma: no cover
@@ -69,8 +70,8 @@ class DIMSEPrimitive:
     _event_type_id: Optional[int] = None
     _message_id: Optional[int] = None
     _message_id_being_responded_to: Optional[int] = None
-    _move_destination: Optional[bytes] = None
-    _move_originator_application_entity_title: Optional[bytes] = None
+    _move_destination: Optional[str] = None
+    _move_originator_application_entity_title: Optional[str] = None
     _move_originator_message_id: Optional[int] = None
     _number_of_completed_suboperations: Optional[int] = None
     _number_of_failed_suboperations: Optional[int] = None
@@ -115,8 +116,9 @@ class DIMSEPrimitive:
     @AffectedSOPClassUID.setter
     def AffectedSOPClassUID(self, value: OptionalUIDType) -> None:
         """Set the *Affected SOP Class UID*."""
-        with as_uid(value, 'Affected SOP Class UID') as uid:
-            self._affected_sop_class_uid = uid or None
+        self._affected_sop_class_uid = (
+            set_uid(value, 'Affected SOP Class UID') or None
+        )
 
     @property
     def _AffectedSOPInstanceUID(self) -> Optional[UID]:
@@ -133,8 +135,9 @@ class DIMSEPrimitive:
         value : pydicom.uid.UID, bytes or str
             The value for the Affected SOP Class UID
         """
-        with as_uid(value, 'Affected SOP Instance UID') as uid:
-            self._affected_sop_instance_uid = uid or None
+        self._affected_sop_instance_uid = (
+            set_uid(value, 'Affected SOP Instance UID') or None
+        )
 
     @property
     def _dataset_variant(self) -> Optional[BytesIO]:
@@ -356,8 +359,9 @@ class DIMSEPrimitive:
         value : pydicom.uid.UID, bytes or str
             The value for the Requested SOP Class UID
         """
-        with as_uid(value, 'Requested SOP Class UID') as uid:
-            self._requested_sop_class_uid = uid or None
+        self._requested_sop_class_uid = (
+            set_uid(value, 'Requested SOP Instance UID') or None
+        )
 
     @property
     def _RequestedSOPInstanceUID(self) -> Optional[UID]:
@@ -373,8 +377,9 @@ class DIMSEPrimitive:
         value : pydicom.uid.UID, bytes or str
             The value for the Requested SOP Instance UID
         """
-        with as_uid(value, 'Requested SOP Instance UID') as uid:
-            self._requested_sop_instance_uid = uid or None
+        self._requested_sop_instance_uid = (
+            set_uid(value, 'Requested SOP Instance UID') or None
+        )
 
     @property
     def Status(self) -> Optional[int]:
@@ -479,7 +484,7 @@ class C_STORE(DIMSEPrimitive):
         # self.AffectedSOPClassUID: Optional[UID] = None
         # self.AffectedSOPInstanceUID: Optional[UID] = None
         # self.Priority = 0x02
-        self.MoveOriginatorApplicationEntityTitle = None
+        self.MoveOriginatorApplicationEntityTitle: Optional[str] = None
         self.MoveOriginatorMessageID: Optional[int] = None
         self.DataSet: Optional[BytesIO] = None
         # self.Status: Optional[int] = None
@@ -522,41 +527,40 @@ class C_STORE(DIMSEPrimitive):
         self._dataset_variant = (value, 'DataSet')  # type: ignore
 
     @property
-    def MoveOriginatorApplicationEntityTitle(self) -> Optional[bytes]:
+    def MoveOriginatorApplicationEntityTitle(self) -> Optional[str]:
         """Get or set the *Move Originator Application Entity Title* as
         :class:`bytes`.
-        """
-        return self._move_originator_application_entity_title
-
-    @MoveOriginatorApplicationEntityTitle.setter
-    def MoveOriginatorApplicationEntityTitle(
-        self, value: Optional[Union[str, bytes]]
-    ) -> None:
-        """Set the *Move Originator Application Entity Title*.
 
         Parameters
         ----------
         bytes or str
             The value to use for the *Move Originator AE Title* parameter.
-            The parameter value will be truncated to 16 bytes and invalid
-            values ignored.
+            Invalid values will be logged and ignored.
         """
-        if isinstance(value, str):
-            value = codecs.encode(value, 'ascii')
+        return self._move_originator_application_entity_title
 
-        if value:
-            try:
-                self._move_originator_application_entity_title = (
-                    validate_ae_title(value, _config.USE_SHORT_DIMSE_AET)
-                )
-            except ValueError:
-                LOGGER.error(
-                    "C-STORE request primitive contains an invalid "
-                    "'Move Originator AE Title'"
-                )
-                self._move_originator_application_entity_title = None
-        else:
-            self._move_originator_application_entity_title = None
+    @MoveOriginatorApplicationEntityTitle.setter
+    def MoveOriginatorApplicationEntityTitle(
+        self, value: Optional[str]
+    ) -> None:
+        """Set the *Move Originator Application Entity Title*."""
+        if isinstance(value, bytes):
+            warnings.warn(
+                "The use of bytes with 'Move Originator AE "
+                "Title' is deprecated, use an ASCII str instead",
+                DeprecationWarning
+            )
+            value = decode_bytes(value).strip()
+
+        try:
+            value = set_ae(value, 'Move Originator AE Title')
+        except ValueError:
+            LOGGER.error(
+                "Invalid 'Move Originator AE Title' in C-STORE request"
+            )
+            value = None
+
+        self._move_originator_application_entity_title = value
 
     @property
     def MoveOriginatorMessageID(self) -> Optional[int]:
@@ -1022,8 +1026,8 @@ class C_MOVE(DIMSEPrimitive):
         self._dataset_variant = (value, 'Identifier')  # type: ignore
 
     @property
-    def MoveDestination(self) -> Optional[bytes]:
-        """Get or set the *Move Destination* as :class:`bytes`.
+    def MoveDestination(self) -> Optional[str]:
+        """Get or set the *Move Destination* as :class:`str`.
 
         Parameters
         ----------
@@ -1036,15 +1040,17 @@ class C_MOVE(DIMSEPrimitive):
     @MoveDestination.setter
     def MoveDestination(self, value: Optional[Union[str, bytes]]) -> None:
         """Set the *Move Destination*."""
-        if isinstance(value, str):
-            value = codecs.encode(value, 'ascii')
-
-        if value is not None:
-            self._move_destination = validate_ae_title(
-                value, _config.USE_SHORT_DIMSE_AET
+        if isinstance(value, bytes):
+            warnings.warn(
+                "The use of bytes with 'Move Destination' is deprecated, "
+                "use an ASCII str instead",
+                DeprecationWarning
             )
-        else:
-            self._move_destination = None
+            value = decode_bytes(value).strip()
+
+        self._move_destination = set_ae(
+            value, 'Move Destination', allow_empty=False
+        )
 
     @property
     def NumberOfCompletedSuboperations(self) -> Optional[int]:

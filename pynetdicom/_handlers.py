@@ -367,25 +367,21 @@ def _receive_associate_ac(event: "Event") -> List[str]:
     }
 
     their_class_uid = "unknown"
-    their_version = b"unknown"
+    their_version = "unknown"
 
     if user_info.implementation_class_uid:
         their_class_uid = user_info.implementation_class_uid
     if user_info.implementation_version_name:
         their_version = user_info.implementation_version_name
 
-    calling_aet = decode_bytes(cast(bytes, assoc_ac.calling_ae_title))
-    called_aet = decode_bytes(cast(bytes, assoc_ac.called_ae_title))
-    version_name = decode_bytes(their_version)
-
     s = [
         "Accept Parameters:",
         f"{' INCOMING A-ASSOCIATE-AC PDU ':=^76}",
         f"Their Implementation Class UID:    {their_class_uid}",
-        f"Their Implementation Version Name: {version_name}",
+        f"Their Implementation Version Name: {their_version}",
         f"Application Context Name:    {app_context}",
-        f"Calling Application Name:    {calling_aet}",
-        f"Called Application Name:     {called_aet}",
+        f"Calling Application Name:    {assoc_ac.calling_ae_title}",
+        f"Called Application Name:     {assoc_ac.called_ae_title}",
         f"Their Max PDU Receive Size:  {user_info.maximum_length}",
         "Presentation Contexts:"
     ]
@@ -474,16 +470,12 @@ def _receive_associate_rq(event: "Event") -> List[str]:
     user_info = cast("UserInformationItem", pdu.user_information)
 
     their_class_uid: Union[str, UID] = "unknown"
-    their_version: Union[str, bytes] = b"unknown"
+    their_version = "unknown"
 
     if user_info.implementation_class_uid:
         their_class_uid = user_info.implementation_class_uid
     if user_info.implementation_version_name:
         their_version = user_info.implementation_version_name
-
-    their_version = cast(bytes, their_version).decode("ascii")
-    calling_aet = pdu.calling_ae_title.decode("ascii")
-    called_aet = pdu.called_ae_title.decode("ascii")
 
     s = [
         "Request Parameters:",
@@ -491,8 +483,8 @@ def _receive_associate_rq(event: "Event") -> List[str]:
         f"Their Implementation Class UID:      {their_class_uid}",
         f"Their Implementation Version Name:   {their_version}",
         f"Application Context Name:    {app_context}",
-        f"Calling Application Name:    {calling_aet}",
-        f"Called Application Name:     {called_aet}",
+        f"Calling Application Name:    {pdu.calling_ae_title}",
+        f"Called Application Name:     {pdu.called_ae_title}",
         f"Their Max PDU Receive Size:  {user_info.maximum_length}"
     ]
 
@@ -658,7 +650,7 @@ def _send_associate_ac(event: "Event") -> List[str]:
         f"Our Implementation Class UID:      {class_uid}",
     ]
     if user_info.implementation_version_name:
-        version_name = decode_bytes(user_info.implementation_version_name)
+        version_name = user_info.implementation_version_name
         s.append(f"Our Implementation Version Name:   {version_name}")
     s.append(f"Application Context Name:    {app_context}")
     s.append(f"Responding Application Name: {responding_ae}")
@@ -756,14 +748,12 @@ def _send_associate_rq(event: "Event") -> List[str]:
     ]
 
     if user_info.implementation_version_name:
-        version_name = decode_bytes(user_info.implementation_version_name)
+        version_name = user_info.implementation_version_name
         s.append(f"Our Implementation Version Name:   {version_name}")
 
-    calling_aet = pdu.calling_ae_title.decode("ascii")
-    called_aet = pdu.called_ae_title.decode("ascii")
     s.append(f"Application Context Name:    {app_context}")
-    s.append(f"Calling Application Name:    {calling_aet}")
-    s.append(f"Called Application Name:     {called_aet}")
+    s.append(f"Calling Application Name:    {pdu.calling_ae_title}")
+    s.append(f"Called Application Name:     {pdu.called_ae_title}")
     s.append(f"Our Max PDU Receive Size:    {user_info.maximum_length}")
 
     # Presentation Contexts

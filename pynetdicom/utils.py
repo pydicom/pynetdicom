@@ -1,11 +1,14 @@
 """Various utility functions."""
 
 from contextlib import contextmanager
+from contextvars import copy_context
 from io import BytesIO
 import logging
 import sys
 from types import TracebackType
-from typing import List, Optional, Iterator, Union, cast, Callable, Tuple, Type
+from typing import (
+    List, Optional, Iterator, Union, cast, Callable, Tuple, Type, Sequence
+)
 import unicodedata
 
 try:
@@ -22,103 +25,7 @@ from pynetdicom import _config
 LOGGER = logging.getLogger('pynetdicom.utils')
 
 
-class as_uid:
-    """Context manager for converting values to UID.
-
-    .. versionadded:: 2.0
-
-    Examples
-    --------
-
-    >>> with as_uid(value, "Transfer Syntax Name") as uid:
-    ...    self._transfer_syntax_name = uid
-    """
-    def __init__(
-        self,
-        value: Union[None, str, bytes, UID],
-        name: str,
-        allow_none: bool = True,
-        validate: bool = True
-    ) -> None:
-        """Convert `value` to a UID.
-
-        Parameters
-        ----------
-        value : str, bytes, UID (and optionally None)
-            The value to be converted.
-        name : str
-            The name of the parameter being converted.
-        allow_none : bool, optional
-            Allow the returned value to be ``None`` if `value` is ``None``
-            (default ``True``).
-        validate : bool, optional
-            If ``True`` (default) perform validation of the UID using
-            :func:`~pynetdicom.utils.validate_uid` and raise a
-            :class:`ValueError` exception if the validation fails. If ``False``
-            return the UID without performing and validation.
-
-        Returns
-        -------
-        pydicom.uid.UID or None
-            If ``allow_none`` is ``True`` then may return ``None``, otherwise
-            only a UID will be returned.
-        """
-        self.value = value
-        self.name = name
-        self.allow_none = allow_none
-        self.validate = validate
-
-    def __enter__(self) -> Optional[UID]:
-        """Return the value converted to a UID, or None if allowed."""
-        if self.allow_none and self.value is None:
-            return None
-
-        if isinstance(self.value, bytes):
-            self.value = decode_bytes(self.value)
-
-        if isinstance(self.value, str):  # Includes UID
-            self.value = UID(self.value)
-
-        if isinstance(self.value, UID):
-            if not self.validate:
-                return self.value
-
-            # Note: conformance may be different from validity
-            if self.value and not validate_uid(self.value):
-                msg = (
-                    f"Invalid UID '{self.value}' used with the "
-                    f"'{self.name}' parameter"
-                )
-                LOGGER.error(msg)
-                raise ValueError(msg)
-
-            if self.value and not self.value.is_valid:
-                LOGGER.warning(
-                    f"Non-conformant UID '{self.value}' used with the "
-                    f"'{self.name}' parameter"
-                )
-
-            # Note: an empty UID will skip validation
-            return self.value
-
-        raise TypeError(
-            f"'{self.name}' must be str, bytes or UID, not "
-            f"'{self.value.__class__.__name__}'"
-        )
-
-    def __exit__(
-        self,
-        exc_type: Optional[Type[BaseException]],
-        exc_val: Optional[BaseException],
-        exc_tb: Optional[TracebackType]
-    ) -> Optional[bool]:
-        # Raise any exceptions
-        return None
-
-
-def decode_bytes(
-    encoded_value: bytes, codecs: Tuple[str, ...] = _config.PDU_CODECS
-) -> str:
+def decode_bytes(encoded_value: bytes) -> str:
     """Return the decoded string from `encoded_value`.
 
     .. versionadded:: 2.0
@@ -127,32 +34,34 @@ def decode_bytes(
     ----------
     encoded_value : bytes
         The encoded value to be decoded.
-    codecs : Tuple[str, ...], optional
-        A tuple of codec names to use when attempting to decode, defaults
-        to :attr:`~pynetdicom._config.PDU_CODECS`. See the `Python
-        documentation
-        <https://docs.python.org/3/library/codecs.html#standard-encodings>`_
-        for possible codecs.
 
     Returns
     -------
     str
-        The decoded value
-
-    Raises
-    ------
-    UnicodeDecodeError
-        If unable to decode the encoded value.
+        The decoded ISO 646 (ASCII) string.
     """
-    for codec in codecs or ('ascii', ):
+    # Always try ASCII first
+    try:
+        return encoded_value.decode('ascii', errors='strict')
+    except UnicodeDecodeError as exc:
+        LOGGER.exception(exc)
+
+    codecs: Sequence[str] = _config.CODECS
+    codecs = [c for c in codecs if c not in ('ascii', '646', 'us-ascii')]
+
+    # If that fails then try the fallbacks and re-encode into ASCII
+    for codec in codecs:
         try:
-            return encoded_value.decode(codec, errors='strict')
-        except UnicodeDecodeError as exc:
+            value = encoded_value.decode(codec, errors='strict')
+            encoded_value = value.encode('ascii', errors='ignore')
+            return decode_bytes(encoded_value)
+        except UnicodeError as exc:
             LOGGER.exception(exc)
 
+    codecs.insert(0, 'ascii')
     as_hex = ' '.join([f"{b:02X}" for b in encoded_value])
     raise ValueError(
-        f"Unable to decode '{as_hex}' with {', '.join(codecs)}"
+        f"Unable to decode '{as_hex}' using the {', '.join(codecs)} codec(s)"
     )
 
 
@@ -162,7 +71,7 @@ def make_target(target_fn: Callable) -> Callable:
     ``threading.Thread``.
 
     Requires:
-    * Python >=3.7
+
     * :attr:`~pynetdicom._config.PASS_CONTEXTVARS` set ``True``
 
     If the requirements are not met, the original `target_fn` is returned.
@@ -179,12 +88,9 @@ def make_target(target_fn: Callable) -> Callable:
         `target_fn`.
     """
     if _config.PASS_CONTEXTVARS:
-        try:
-            from contextvars import copy_context
-        except ImportError as e:
-            raise RuntimeError("PASS_CONTEXTVARS requires Python >=3.7") from e
         ctx = copy_context()
         return lambda: ctx.run(target_fn)
+
     return target_fn
 
 
@@ -248,6 +154,127 @@ def pretty_bytes(
     return lines
 
 
+def set_ae(
+    value: Optional[str],
+    name: str,
+    allow_empty: bool = True,
+    allow_none: bool = True
+) -> Optional[str]:
+    """Convert `value` to an **AE** like parameter and apply validation.
+
+    Parameters
+    ----------
+    value : str or None
+        The value to be converted.
+    name : str
+        The name of the parameter being converted.
+    allow_empty : bool, optional
+        If ``True`` (default) skip validation when an empty string or ``None``
+        is used.
+
+    Returns
+    -------
+    str or None
+        If ``allow_empty`` is ``True`` then may return ``None``, otherwise
+        the string will be returned.
+    """
+    if allow_none and value is None:
+        return None
+
+    if isinstance(value, str):
+        if not allow_empty and not value.strip():
+            # E.g. Called and Calling AE Title may not be 16 spaces
+            msg = f"Invalid '{name}' value - "
+            if len(value):
+                msg += "must not consist entirely of spaces"
+            else:
+                msg += "must not be an empty str"
+
+            LOGGER.error(msg)
+            raise ValueError(msg)
+
+        if value:
+            result, reason = _config.VALIDATORS['AE'](value)
+            if not result:
+                msg = f"Invalid '{name}' value '{value}' - {reason}"
+                LOGGER.error(msg)
+                raise ValueError(msg)
+
+        return value
+
+    s = 'str or None' if allow_none else 'str'
+    raise TypeError(
+        f"'{name}' must be {s}, not '{value.__class__.__name__}'"
+    )
+
+
+def set_uid(
+    value: Union[None, str, bytes, UID],
+    name: str,
+    allow_empty: bool = True,
+    allow_none: bool = True,
+    validate: bool = True
+) -> Optional[UID]:
+    """Convert `value` to a :class:`UID` and apply validation.
+
+    Parameters
+    ----------
+    value : str, bytes, UID (and optionally None)
+        The value to be converted.
+    name : str
+        The name of the parameter being converted.
+    allow_empty : bool, optional
+        If ``True`` then allow an empty UID (default).
+    allow_none : bool, optional
+        Allow the returned value to be ``None`` if `value` is ``None``
+        (default ``True``).
+    validate : bool, optional
+        If ``True`` (default) perform validation of the UID using
+        :func:`~pynetdicom.utils.validate_uid` and raise a
+        :class:`ValueError` exception if the validation fails. If ``False``
+        return the UID without performing and validation.
+
+    Returns
+    -------
+    pydicom.uid.UID or None
+        If ``allow_none`` is ``True`` then may return ``None``, otherwise
+        only a UID will be returned.
+    """
+    if allow_none and value is None:
+        return None
+
+    if isinstance(value, bytes):
+        value = decode_bytes(value)
+
+    if isinstance(value, str):  # Includes UID
+        value = UID(value)
+
+    if isinstance(value, UID):
+        if not value and not allow_empty:
+            raise ValueError(
+                f"Invalid '{name}' value - must not be an empty str"
+            )
+
+        if not validate:
+            return value
+
+        # Note: conformance may be different from validity
+        if value:
+            result, reason = _config.VALIDATORS['UI'](value)
+            if not result:
+                msg = f"Invalid '{name}' value '{value}' - {reason}"
+                LOGGER.error(msg)
+                raise ValueError(msg)
+
+        if value and not value.is_valid:
+            LOGGER.warning(f"Non-conformant '{name}' value '{value}'")
+
+        return value
+
+    s = 'str, bytes, UID or None' if allow_none else 'str, bytes or UID'
+    raise TypeError(f"'{name}' must be {s}, not '{value.__class__.__name__}'")
+
+
 @contextmanager
 def set_timer_resolution(resolution: Optional[float]) -> Iterator[None]:
     """Set the Windows timer resolution.
@@ -290,91 +317,6 @@ def set_timer_resolution(resolution: Optional[float]) -> Iterator[None]:
         dll.NtSetTimerResolution(resolution, 0, ctypes.byref(current))
     else:
         yield None
-
-
-def validate_ae_title(
-    ae_title: Union[str, bytes], use_short: bool = False
-) -> bytes:
-    """Return a valid AE title from `ae_title`, if possible.
-
-    An AE title:
-
-    * Must be no more than 16 characters
-    * Leading and trailing spaces are not significant
-    * The characters should belong to the Default Character Repertoire
-      excluding ``0x5C`` (backslash) and all control characters
-
-    If the supplied `ae_title` is greater than 16 characters once
-    non-significant spaces have been removed then the returned AE title
-    will be truncated to remove the excess characters.
-
-    If the supplied `ae_title` is less than 16 characters once non-significant
-    spaces have been removed, the spare trailing characters will be set to
-    space (``0x20``) provided `use_short` is ``False``.
-
-    .. versionchanged:: 1.1
-
-        Changed to only return ``bytes`` for Python 3.
-
-    .. versionchanged:: 1.5
-
-        Added `use_short` keyword parameter.
-
-    Parameters
-    ----------
-    ae_title : bytes
-        The AE title to check.
-    use_short : bool, optional
-        If ``False`` (default) then pad AE titles with trailing spaces up to
-        the maximum allowable length (16 bytes), otherwise no padding will
-        be added.
-
-    Returns
-    -------
-    bytes
-        A valid AE title, truncated to 16 characters if necessary.
-
-    Raises
-    ------
-    ValueError
-        If `ae_title` is an empty string, contains only spaces or contains
-        control characters or backslash.
-    """
-    if not isinstance(ae_title, (str, bytes)):
-        raise TypeError("AE titles must be str or bytes")
-
-    # If bytes decode to ascii string
-    if isinstance(ae_title, bytes):
-        ae_title = ae_title.decode('ascii', errors='strict')
-
-    # Strip out any leading or trailing spaces
-    ae_title = ae_title.strip()
-    # Strip out any leading or trailing nulls - non-conformant
-    ae_title = ae_title.strip('\0')
-    if not ae_title:
-        raise ValueError(
-            "AE titles are not allowed to consist entirely of only spaces"
-        )
-
-    if not _config.ALLOW_LONG_DIMSE_AET:
-        # Truncate if longer than 16 characters
-        ae_title = ae_title[:16]
-
-    if not use_short:
-        # Pad out to 16 characters using spaces
-        ae_title = ae_title.ljust(16)
-
-    # Unicode category: 'Cc' is control characters
-    invalid = [
-        char for char in ae_title
-        if unicodedata.category(char)[0] == 'C' or char == '\\'
-    ]
-    if invalid:
-        raise ValueError(
-            "AE titles must not contain any control characters or backslashes"
-        )
-
-    return ae_title.encode('ascii', errors='strict')
 
 
 def validate_uid(uid: UID) -> bool:

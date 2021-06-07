@@ -373,7 +373,7 @@ class TestNonPatientObjectStorageServiceClass:
         assert assoc.is_released
 
         req = attrs['request']
-        assert req.MoveOriginatorApplicationEntityTitle == b'ORIGIN'
+        assert req.MoveOriginatorApplicationEntityTitle == 'ORIGIN'
         assert req.MoveOriginatorMessageID == 888
 
         scp.shutdown()

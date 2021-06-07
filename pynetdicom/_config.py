@@ -1,6 +1,8 @@
 """pynetdicom configuration options"""
 
-from typing import Optional, Tuple
+from typing import Optional, Tuple, Dict, Callable, Any
+
+from pynetdicom._validators import validate_ae, validate_ui
 
 
 LOG_HANDLER_LEVEL: str = 'standard'
@@ -51,23 +53,6 @@ Examples
 
 >>> from pynetdicom import _config
 >>> _config.USE_SHORT_DIMSE_AET = False
-"""
-
-
-ALLOW_LONG_DIMSE_AET: bool = False
-"""Allow the use of non-conformant AE titles.
-
-.. versionadded:: 2.0
-
-If ``False`` then elements with a VR of AE in DIMSE messages will have their
-length checked to ensure conformance, otherwise no length check will be
-performed.
-
-Examples
---------
-
->>> from pynetdicom import _config
->>> _config.ALL_LONG_AET = True
 """
 
 
@@ -200,10 +185,19 @@ Examples
 """
 
 
-PDU_CODECS: Tuple[str, ...] = ('ascii', 'utf-8')
-"""Customise the codecs used to decode text values in PDUs.
+CODECS: Tuple[str, ...] = ('ascii', )
+"""Customise the codecs used to decode text values.
 
 .. versionadded:: 2.0
+
+.. warning::
+
+    The DICOM Standard specifies ISO 646 (ASCII) as the only valid codec for
+    encoded strings. The use of additional fallback codecs may result in
+    unexpected behaviour in *pynetdicom*.
+
+    When string values are encoded by *pynetdicom* only ASCII is used.
+
 
 The specified codecs will be used when decoding the following parameters:
 
@@ -237,19 +231,27 @@ The specified codecs will be used when decoding the following parameters:
 
 Possible codecs are given in the Python documentation `here
 <https://docs.python.org/3/library/codecs.html#standard-encodings>`_. Decoding
-will be attempted in the order that the codecs appear in ``PDU_CODECS``.
+will be attempted in the order that the codecs appear in ``CODECS`` and any
+fallback codecs should be added after 'ascii'.
 
-The default value is ``ascii`` with ``utf-8`` as a fallback. The DICOM Standard
-specifies ASCII as the only valid encoding method, however non-conformant
-implementations have been known to also use UTF-8.
-
-When values are encoded by *pynetdicom* only ASCII is used.
+If a fallback successfully decodes an encoded value the string will be
+converted to ASCII  using :func:`str.decode` with the `errors` parameter set
+to ``'ignore'``.
 
 Examples
 --------
 
-Remove UTF-8 as a fallback codec:
+Add UTF-8 as a fallback codec:
 
 >>> from pynetdicom import _config
->>> _config.PDU_CODECS = ('ascii', )
+>>> _config.CODECS = ('ascii', 'utf-8')
+"""
+
+
+VALIDATORS: Dict[str, Callable[[Any], Tuple[bool, str]]] = {
+    'AE': validate_ae,
+    'UI': validate_ui,
+}
+"""
+
 """

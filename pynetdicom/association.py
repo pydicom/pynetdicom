@@ -10,6 +10,7 @@ from typing import (
     Union, Optional, List, Callable, Any, Dict, Iterator, Tuple, TYPE_CHECKING,
     cast
 )
+import warnings
 
 from pydicom import dcmread
 from pydicom.dataset import Dataset
@@ -56,7 +57,9 @@ from pynetdicom.sop_class import (  # type: ignore
     UnifiedProcedureStepQuery
 )
 from pynetdicom.status import code_to_category, STORAGE_SERVICE_CLASS_STATUS
-from pynetdicom.utils import make_target, set_timer_resolution
+from pynetdicom.utils import (
+    make_target, set_timer_resolution, set_ae, decode_bytes
+)
 
 if TYPE_CHECKING:  # pragma: no cover
     from pynetdicom.ae import ApplicationEntity
@@ -1414,7 +1417,7 @@ class Association(threading.Thread):
     def send_c_move(
         self,
         dataset: Dataset,
-        move_aet: bytes,
+        move_aet: str,
         query_model: Union[str, UID],
         msg_id: int = 1,
         priority: int = 2
@@ -1433,13 +1436,17 @@ class Association(threading.Thread):
 
             `query_model` now only accepts a UID string
 
+        .. versionchanged:: 2.0
+
+            `move_aet` should be :class:`str`
+
         Parameters
         ----------
         dataset : pydicom.dataset.Dataset
             The C-MOVE request's *Identifier* dataset. The exact
             requirements for the *Identifier* are Service Class specific (see
             the DICOM Standard, :dcm:`Part 4<part04/PS3.4.html>`).
-        move_aet : bytes
+        move_aet : str
             The value of the *Move Destination* parameter for the C-MOVE
             request, should be the AE title of the Storage SCP for the
             C-STORE sub-operations performed by the peer.
@@ -1618,15 +1625,16 @@ class Association(threading.Thread):
         dataset: Union[str, Path, Dataset],
         msg_id: int = 1,
         priority: int = 2,
-        originator_aet: Optional[bytes] = None,
+        originator_aet: Optional[str] = None,
         originator_id: Optional[int] = None
     ) -> Dataset:
         """Send a C-STORE request to the peer AE.
 
         .. versionchanged:: 2.0
 
-            Changed `dataset` parameter to either be a dataset or the path to
-            a dataset.
+            * Changed `dataset` parameter to either be a dataset or the path to
+              a dataset.
+            * `originator_aet` should now be :class:`str`
 
         Parameters
         ----------
@@ -3502,8 +3510,6 @@ class ServiceUser:
     ----------
     address : str
         The TCP/IP address of the AE.
-    ae_title : bytes
-        The AE's AE title.
     port : int
         The port number of the AE.
     primitive : None or pdu_primitives.A_ASSOCIATE
@@ -3532,8 +3538,8 @@ class ServiceUser:
 
         self.assoc: Association = assoc
         self._mode: str = mode
+        self._ae_title: str = ''
         self.primitive: Optional[A_ASSOCIATE] = None
-        self.ae_title: bytes = b''
         self.port: Optional[int] = None
         self.address: Optional[str] = ''
 
@@ -3628,6 +3634,35 @@ class ServiceUser:
             raise TypeError(
                 "'item' is not a valid extended negotiation item"
             )
+
+    @property
+    def ae_title(self) -> str:
+        """Get or set the AE title.
+
+        Parameters
+        ----------
+        value : str
+            The AE title as an ASCII string.
+
+        Returns
+        -------
+        str
+            The AE title as an ASCII string.
+        """
+        return self._ae_title
+
+    @ae_title.setter
+    def ae_title(self, value: str) -> None:
+        """Set the service user's AE title."""
+        if isinstance(value, bytes):
+            warnings.warn(
+                "The use of bytes with 'ae_title' is deprecated, use an ASCII "
+                "str instead",
+                DeprecationWarning
+            )
+            value = decode_bytes(value)
+
+        self._ae_title = cast(str, set_ae(value, 'ae_title', False, False))
 
     @property
     def asynchronous_operations(self) -> Tuple[int, int]:
@@ -3815,8 +3850,16 @@ class ServiceUser:
             self._user_info.append(item)
 
     @property
-    def implementation_version_name(self) -> Optional[bytes]:
-        """The Implementation Version Name as :class:`str` (if available).
+    def implementation_version_name(self) -> Optional[str]:
+        """Get or set the *Implementation Version Name*.
+
+        Parameters
+        ----------
+        value : str or None
+            The value to use for the *Implementation Version Name*, or ``None``
+            if no Implementation Version Name Notification item is to be
+            included in the association negotiation. Can only be set prior
+            to association negotiation.
 
         Returns
         -------
@@ -3840,27 +3883,34 @@ class ServiceUser:
         return None
 
     @implementation_version_name.setter
-    def implementation_version_name(self, value: Union[str, bytes]) -> None:
-        """Set the Implementation Version Name (only prior to association).
-
-        Parameters
-        ----------
-        str
-            The Implementation Version Name value to use.
-        """
+    def implementation_version_name(self, value: Optional[str]) -> None:
+        """Set the Implementation Version Name (only prior to association)."""
         if not self.writeable:
             raise RuntimeError(
                 "Can't set the Implementation Version Name after negotiation "
                 "has started"
             )
 
+        if value is None:
+            for item in self._user_info:
+                if isinstance(item, ImplementationVersionNameNotification):
+                    self._user_info.remove(item)
+                    break
+
+            return
+
+        # Validate - diallow an empty str
+        value = cast(
+            str, set_ae(value, 'implementation_version_name', False, False)
+        )
+
         for item in self._user_info:
             if isinstance(item, ImplementationVersionNameNotification):
-                item.implementation_version_name = value  # type: ignore
+                item.implementation_version_name = value
                 break
         else:
             item = ImplementationVersionNameNotification()
-            item.implementation_version_name = value  # type: ignore
+            item.implementation_version_name = value
             self._user_info.append(item)
 
     @property

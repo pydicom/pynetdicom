@@ -11,8 +11,7 @@ from pydicom.uid import UID
 
 from pynetdicom import _config, debug_logger
 from pynetdicom.utils import (
-    validate_ae_title, pretty_bytes, validate_uid, make_target, as_uid,
-    decode_bytes
+    pretty_bytes, validate_uid, make_target, set_uid, decode_bytes
 )
 from .encoded_pdu_items import a_associate_rq
 
@@ -74,42 +73,6 @@ REFERENCE_BAD_AE_BYTES = [
     1234,
     45.1,
 ]
-
-
-class TestValidateAETitle:
-    """Tests for utils.validate_ae_title()."""
-    @pytest.mark.parametrize("aet, output", REFERENCE_GOOD_AE_STR)
-    def test_good_ae_str(self, aet, output):
-        """Test validate_ae_title using str input."""
-        assert validate_ae_title(aet) == output
-        assert isinstance(validate_ae_title(aet), bytes)
-
-    @pytest.mark.parametrize("aet, output", REFERENCE_GOOD_AE_BYTES)
-    def test_good_ae_bytes(self, aet, output):
-        """Test validate_ae_title using bytes input."""
-        assert validate_ae_title(aet) == output
-        assert isinstance(validate_ae_title(aet), bytes)
-
-    @pytest.mark.parametrize("aet", REFERENCE_BAD_AE_STR)
-    def test_bad_ae_str(self, aet):
-        """Test validate_ae_title using bad str input."""
-        with pytest.raises((TypeError, ValueError)):
-            validate_ae_title(aet)
-
-    @pytest.mark.parametrize("aet", REFERENCE_BAD_AE_BYTES)
-    def test_bad_ae_bytes(self, aet):
-        """Test validate_ae_title using bad bytes input."""
-        with pytest.raises((TypeError, ValueError)):
-            validate_ae_title(aet)
-
-    def test_length_check(self):
-        """Test validate_ae_title with no length check."""
-        assert _config.ALLOW_LONG_DIMSE_AET is False
-        aet = b"12345678901234567890"
-        assert 16 == len(validate_ae_title(aet))
-        _config.ALLOW_LONG_DIMSE_AET = True
-        assert 20 == len(validate_ae_title(aet))
-        _config.ALLOW_LONG_DIMSE_AET = False
 
 
 REFERENCE_UID = [
@@ -195,7 +158,6 @@ class TestPrettyBytes:
 
 class TestMakeTarget:
     """Tests for utils.make_target()."""
-    @pytest.mark.skipif(sys.version_info[:2] < (3, 7), reason="Branch uncovered in this Python version.")
     def test_make_target(self):
         """Context Setup"""
         from contextvars import ContextVar
@@ -228,35 +190,30 @@ class TestMakeTarget:
         """Context Teardown"""
         foo.reset(token)
 
-    @pytest.mark.skipif(sys.version_info[:2] >= (3, 7), reason="Branch uncovered in this Python version.")
-    def test_invalid_python_version(self):
-        """Test for ``_config.PASS_CONTEXTVARS = True`` and Python < 3.7"""
-        def noop():
-            pass
 
-        _config.PASS_CONTEXTVARS = True
-
-        with pytest.raises(RuntimeError, match="PASS_CONTEXTVARS requires Python >=3.7"):
-            make_target(noop)
-
-        _config.PASS_CONTEXTVARS = False
+@pytest.fixture
+def utf8():
+    """Add UTF-8 as a fallback codec"""
+    _config.CODECS = ('ascii', 'utf8')
+    yield
+    _config.CODECS = ('ascii', )
 
 
-class TestAsUID:
-    """Tests for the utils.as_uid context"""
+class TestSetUID:
+    """Tests for utils.set_uid()"""
     def test_str(self):
         """Test str -> UID"""
-        with as_uid('1.2.3', 'foo') as uid:
-            assert isinstance(uid, UID)
-            assert uid == '1.2.3'
+        uid = set_uid('1.2.3', 'foo')
+        assert isinstance(uid, UID)
+        assert uid == '1.2.3'
 
     def test_bytes(self):
         """Test bytes -> UID"""
         b = '1.2.3'.encode('ascii')
         assert isinstance(b, bytes)
-        with as_uid(b, 'foo') as uid:
-            assert isinstance(uid, UID)
-            assert uid == '1.2.3'
+        uid = set_uid(b, 'foo')
+        assert isinstance(uid, UID)
+        assert uid == '1.2.3'
 
     def test_bytes_decoding_error(self, caplog):
         """Test invalid bytes raises exception"""
@@ -264,12 +221,11 @@ class TestAsUID:
         assert isinstance(b, bytes)
         msg = (
             r"Unable to decode 'FF FE 00 00 31 00 00 00 2E 00 00 00 32 00 00 "
-            r"00 2E 00 00 00 33 00 00 00' with ascii, utf-8"
+            r"00 2E 00 00 00 33 00 00 00' using the ascii codec\(s\)"
         )
         with caplog.at_level(logging.ERROR, logger='pynetdicom'):
             with pytest.raises(ValueError, match=msg):
-                with as_uid(b, 'foo') as uid:
-                    pass
+                set_uid(b, 'foo')
 
             assert (
                 "'ascii' codec can't decode byte 0xff in position 0"
@@ -277,64 +233,69 @@ class TestAsUID:
 
     def test_uid(self):
         """Test UID -> UID"""
-        with as_uid(UID('1.2.3'), 'foo') as uid:
-            assert isinstance(uid, UID)
-            assert uid == '1.2.3'
+        uid = set_uid(UID('1.2.3'), 'foo')
+        assert isinstance(uid, UID)
+        assert uid == '1.2.3'
 
     def test_invalid_raises(self, caplog):
         """Test invalid UID raises exception"""
         with caplog.at_level(logging.ERROR, logger='pynetdicom'):
             bad = 'abc' * 22
-            msg = f"Invalid UID '{bad}' used with the 'foo' parameter"
+            msg = (
+                f"Invalid 'foo' value '{bad}' - must not exceed 64 characters"
+            )
             with pytest.raises(ValueError, match=msg):
-                with as_uid(bad, 'foo') as uid:
-                    assert isinstance(uid, UID)
-                    assert uid == bad
+                uid = set_uid(bad, 'foo')
+                assert isinstance(uid, UID)
+                assert uid == bad
 
             assert msg in caplog.text
 
     def test_no_validation(self, caplog):
         """Test skipping validation"""
         with caplog.at_level(logging.WARNING, logger='pynetdicom'):
-            with as_uid('abc' * 22, 'foo', validate=False) as uid:
-                assert isinstance(uid, UID)
-                assert uid == 'abc' * 22
+            uid = set_uid('abc' * 22, 'foo', validate=False)
+            assert isinstance(uid, UID)
+            assert uid == 'abc' * 22
 
             assert not caplog.text
 
     def test_valid_non_conformant_warns(self, caplog):
         """Test a valid but non-conformant UID warns"""
         with caplog.at_level(logging.WARNING, logger='pynetdicom'):
-            with as_uid('1.2.03', 'foo') as uid:
-                assert isinstance(uid, UID)
-                assert uid == '1.2.03'
+            uid = set_uid('1.2.03', 'foo')
+            assert isinstance(uid, UID)
+            assert uid == '1.2.03'
 
-            assert (
-                "Non-conformant UID '1.2.03' used with the 'foo' parameter"
-            ) in caplog.text
+            assert "Non-conformant 'foo' value '1.2.03'" in caplog.text
 
     def test_none_allowed(self):
         """Test None -> None"""
-        with as_uid(None, 'foo', allow_none=True) as uid:
-            assert uid is None
+        uid = set_uid(None, 'foo', allow_none=True)
+        assert uid is None
 
     def test_none_disallowed(self):
         """Test None raises exception"""
         msg = "'foo' must be str, bytes or UID, not 'NoneType'"
         with pytest.raises(TypeError, match=msg):
-            with as_uid(None, 'foo', allow_none=False) as uid:
-                pass
+            set_uid(None, 'foo', allow_none=False)
 
     def test_empty_passthrough(self):
         """Test an empty value passes through validation"""
-        with as_uid('', 'foo') as uid:
-            assert uid == UID('')
+        uid = set_uid('', 'foo')
+        assert uid == UID('')
 
-        with as_uid(b'', 'foo') as uid:
-            assert uid == UID('')
+        uid = set_uid(b'', 'foo')
+        assert uid == UID('')
 
-        with as_uid(UID(''), 'foo') as uid:
-            assert uid == UID('')
+        uid = set_uid(UID(''), 'foo')
+        assert uid == UID('')
+
+    def test_empty_raises(self):
+        """Test empty raises exception"""
+        msg = r"Invalid 'foo' value - must not be an empty str"
+        with pytest.raises(ValueError, match=msg):
+            set_uid('', 'foo', allow_empty=False)
 
 
 class TestDecodeBytes:
@@ -344,8 +305,8 @@ class TestDecodeBytes:
         b = '1.2.3'.encode('utf_32')
         with caplog.at_level(logging.ERROR, logger='pynetdicom'):
             msg = (
-                r"Unable to decode 'FF FE 00 00 31 00 00 00 2E 00 00 00 32 00 00 "
-                r"00 2E 00 00 00 33 00 00 00' with ascii, utf-8"
+                r"Unable to decode 'FF FE 00 00 31 00 00 00 2E 00 00 00 32 "
+                r"00 00 00 2E 00 00 00 33 00 00 00' using the ascii codec\(s\)"
             )
             with pytest.raises(ValueError, match=msg):
                 decode_bytes(b)
@@ -354,11 +315,21 @@ class TestDecodeBytes:
                 "'ascii' codec can't decode byte 0xff in position 0"
             ) in caplog.text
 
-    def test_custom_codec(self, caplog):
+    def test_decoding_error_fallback(self, caplog, utf8):
         """Test decoding error raises and logs"""
         b = '1.2.3'.encode('utf_32')
         with caplog.at_level(logging.ERROR, logger='pynetdicom'):
-            assert decode_bytes(b, ('ascii', 'utf_32')) == '1.2.3'
+            msg = (
+                r"Unable to decode 'FF FE 00 00 31 00 00 00 2E 00 00 00 32 "
+                r"00 00 00 2E 00 00 00 33 00 00 00' using the ascii, "
+                r"utf8 codec\(s\)"
+            )
+            with pytest.raises(ValueError, match=msg):
+                decode_bytes(b)
+
             assert (
                 "'ascii' codec can't decode byte 0xff in position 0"
+            ) in caplog.text
+            assert (
+                "'utf-8' codec can't decode byte 0xff in position 0"
             ) in caplog.text

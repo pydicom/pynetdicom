@@ -32,7 +32,7 @@ from pynetdicom.sop_class import (
     _UNIFIED_PROCEDURE_STEP_CLASSES,
     _VERIFICATION_CLASSES,
 )
-from pynetdicom.utils import validate_uid, as_uid
+from pynetdicom.utils import validate_uid, set_uid
 
 if TYPE_CHECKING:  # pragma: no cover
     from pynetdicom.pdu_primitives import SCP_SCU_RoleSelectionNegotiation
@@ -237,8 +237,9 @@ class PresentationContext:
     @abstract_syntax.setter
     def abstract_syntax(self, value: Union[str, bytes, UID]) -> None:
         """Set the context's *Abstract Syntax*."""
-        with as_uid(value, 'abstract_syntax', allow_none=False) as uid:
-            self._abstract_syntax = uid
+        self._abstract_syntax = (
+            set_uid(value, 'abstract_syntax', True, False, True)
+        )
 
     def add_transfer_syntax(
         self, syntax: Union[None, str, bytes, UID]

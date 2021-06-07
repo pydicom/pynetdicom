@@ -29,7 +29,8 @@ from pynetdicom.pdu_primitives import (
 from .encoded_pdu_items import (
     a_associate_rq, a_associate_ac, a_associate_rj, a_release_rq, a_release_rq,
     a_release_rp, a_abort, a_p_abort, p_data_tf,
-    a_associate_rq_user_id_ext_neg, a_associate_ac_no_ts
+    a_associate_rq_user_id_ext_neg, a_associate_ac_no_ts,
+    a_associate_rq_called, a_associate_rq_calling
 )
 from pynetdicom.sop_class import Verification
 from pynetdicom.utils import pretty_bytes
@@ -65,7 +66,7 @@ class TestPDU:
         bb.decode(a_associate_rq)
         assert aa == bb
 
-        aa.calling_ae_title = b'TEST_AE_TITLE_00'
+        aa.calling_ae_title = 'TEST_AE_TITLE_00'
         assert not aa == bb
 
         assert aa == aa
@@ -159,11 +160,11 @@ class TestPDU:
         out = pdu._wrap_encode_items([release_a, release_a])
         assert out == b'\x05\x00\x00\x00\x00\x04\x00\x00\x00\x00' * 2
 
-    def test_wrap_encode_uid(self):
-        """Test PDU._wrap_encode_uid()."""
+    def test_wrap_encode_str(self):
+        """Test PDU.__wrap_encode_str()."""
         pdu = PDU()
         uid = UID('1.2.840.10008.1.1')
-        out = pdu._wrap_encode_uid(uid)
+        out = pdu._wrap_encode_str(uid)
         assert out == b'1.2.840.10008.1.1'
 
     def test_wrap_generate_items(self):
@@ -199,8 +200,8 @@ class TestASSOC_RQ:
     def test_init(self):
         pdu = A_ASSOCIATE_RQ()
         assert pdu.protocol_version == 0x01
-        assert pdu.calling_ae_title == b'Default         '
-        assert pdu.called_ae_title == b'Default         '
+        assert pdu.calling_ae_title == 'Default'
+        assert pdu.called_ae_title == 'Default'
         assert pdu.variable_items == []
         assert pdu.pdu_type == 0x01
         assert pdu.pdu_length == 68
@@ -215,14 +216,82 @@ class TestASSOC_RQ:
         pdu = A_ASSOCIATE_RQ()
 
         # pdu.called_ae_title
-        assert pdu.called_ae_title == b'Default         '
+        assert pdu.called_ae_title == 'Default'
         pdu.called_ae_title = 'TEST_SCP'
-        assert pdu.called_ae_title == b'TEST_SCP        '
+        assert pdu.called_ae_title == 'TEST_SCP'
+        pdu.called_ae_title = '  TEST SCP   '
+        assert pdu.called_ae_title == '  TEST SCP   '
+        pdu.called_ae_title = b'  TEST SCP   '
+        assert pdu.called_ae_title == 'TEST SCP'
+
+        msg = (
+            r"Unable to decode '2E E2 80 8B 31 2E' using the ascii codec\(s\)"
+        )
+        with pytest.raises(ValueError, match=msg):
+            pdu.called_ae_title = b'\x2e\xe2\x80\x8b\x31\x2e'
+
+        msg = "'Called AE Title' must be str, not 'NoneType'"
+        with pytest.raises(TypeError, match=msg):
+            pdu.called_ae_title = None
+
+        msg = "Invalid 'Called AE Title' value - must not be an empty str"
+        with pytest.raises(ValueError, match=msg):
+            pdu.called_ae_title = ""
+
+        msg = (
+            "Invalid 'Called AE Title' value - must not consist entirely "
+            "of spaces"
+        )
+        with pytest.raises(ValueError, match=msg):
+            pdu.called_ae_title = "  "
+
+        msg = (
+            "Invalid 'Called AE Title' value '\u200b5ABCD' - must only "
+            "contain ASCII characters"
+        )
+        with pytest.raises(ValueError, match=msg):
+            pdu.called_ae_title = "\u200b5ABCD"
+
+        assert pdu.called_ae_title == 'TEST SCP'
 
         # pdu.calling_ae_title
-        assert pdu.calling_ae_title == b'Default         '
+        assert pdu.calling_ae_title == 'Default'
         pdu.calling_ae_title = 'TEST_SCP2'
-        assert pdu.calling_ae_title == b'TEST_SCP2       '
+        assert pdu.calling_ae_title == 'TEST_SCP2'
+        pdu.calling_ae_title = '  TEST SCP2   '
+        assert pdu.calling_ae_title == '  TEST SCP2   '
+        pdu.calling_ae_title = b'  TEST SCP   '
+        assert pdu.calling_ae_title == 'TEST SCP'
+
+        msg = (
+            r"Unable to decode '2E E2 80 8B 31 2E' using the ascii codec\(s\)"
+        )
+        with pytest.raises(ValueError, match=msg):
+            pdu.calling_ae_title = b'\x2e\xe2\x80\x8b\x31\x2e'
+
+        msg = "'Calling AE Title' must be str, not 'NoneType'"
+        with pytest.raises(TypeError, match=msg):
+            pdu.calling_ae_title = None
+
+        msg = "Invalid 'Calling AE Title' value - must not be an empty str"
+        with pytest.raises(ValueError, match=msg):
+            pdu.calling_ae_title = ""
+
+        msg = (
+            "Invalid 'Calling AE Title' value - must not consist entirely "
+            "of spaces"
+        )
+        with pytest.raises(ValueError, match=msg):
+            pdu.calling_ae_title = "  "
+
+        msg = (
+            "Invalid 'Calling AE Title' value '\u200b5ABCD' - must only "
+            "contain ASCII characters"
+        )
+        with pytest.raises(ValueError, match=msg):
+            pdu.calling_ae_title = "\u200b5ABCD"
+
+        assert pdu.calling_ae_title == 'TEST SCP'
 
     def test_string_output(self):
         """Check the string output works"""
@@ -238,8 +307,8 @@ class TestASSOC_RQ:
         pdu.decode(a_associate_rq)
 
         assert pdu.protocol_version == 0x01
-        assert pdu.calling_ae_title == b'ECHOSCU         '
-        assert pdu.called_ae_title == b'ANY-SCP         '
+        assert pdu.calling_ae_title == 'ECHOSCU'
+        assert pdu.called_ae_title == 'ANY-SCP'
         assert pdu.pdu_type == 0x01
         assert pdu.pdu_length == 209
         assert len(pdu) == 215
@@ -274,6 +343,26 @@ class TestASSOC_RQ:
         user_info = pdu.user_information
         assert isinstance(user_info, UserInformationItem)
 
+    def test_decode_called_empty(self):
+        """Check decoding empty called AE title."""
+        pdu = A_ASSOCIATE_RQ()
+        msg = (
+            "Invalid 'Called AE Title' value - must not consist entirely "
+            "of spaces"
+        )
+        with pytest.raises(ValueError, match=msg):
+            pdu.decode(a_associate_rq_called)
+
+    def test_decode_calling_empty(self):
+        """Check decoding empty called AE title."""
+        pdu = A_ASSOCIATE_RQ()
+        msg = (
+            "Invalid 'Calling AE Title' value - must not consist entirely "
+            "of spaces"
+        )
+        with pytest.raises(ValueError, match=msg):
+            pdu.decode(a_associate_rq_calling)
+
     def test_encode(self):
         """Check encoding produces the correct output."""
         pdu = A_ASSOCIATE_RQ()
@@ -290,8 +379,8 @@ class TestASSOC_RQ:
         pr = pdu.to_primitive()
 
         assert pr.application_context_name == UID('1.2.840.10008.3.1.1.1')
-        assert pr.calling_ae_title == b'ECHOSCU         '
-        assert pr.called_ae_title == b'ANY-SCP         '
+        assert pr.calling_ae_title == 'ECHOSCU'
+        assert pr.called_ae_title == 'ANY-SCP'
 
         # Test User Information
         for item in pr.user_information:
@@ -309,8 +398,8 @@ class TestASSOC_RQ:
 
             # Implementation Version Name (optional)
             elif isinstance(item, ImplementationVersionNameNotification):
-                assert item.implementation_version_name == b'PYNETDICOM_090'
-                assert isinstance(item.implementation_version_name, bytes)
+                assert item.implementation_version_name == 'PYNETDICOM_090'
+                assert isinstance(item.implementation_version_name, str)
 
         # Test Presentation Contexts
         for context in pr.presentation_context_definition_list:
@@ -320,8 +409,8 @@ class TestASSOC_RQ:
                 assert syntax == UID('1.2.840.10008.1.2')
 
         assert isinstance(pr.application_context_name, UID)
-        assert isinstance(pr.calling_ae_title, bytes)
-        assert isinstance(pr.called_ae_title, bytes)
+        assert isinstance(pr.calling_ae_title, str)
+        assert isinstance(pr.called_ae_title, str)
         assert isinstance(pr.user_information, list)
         assert isinstance(pr.presentation_context_definition_list, list)
 
@@ -482,10 +571,10 @@ class TestASSOC_RQ_UserInformation:
             elif isinstance(item, ImplementationVersionNameSubItem):
                 assert item.item_type == 0x55
                 assert item.item_length == 14
-                assert item.implementation_version_name == b'PYNETDICOM_090'
+                assert item.implementation_version_name == 'PYNETDICOM_090'
                 assert isinstance(item.item_type, int)
                 assert isinstance(item.item_length, int)
-                assert isinstance(item.implementation_version_name, bytes)
+                assert isinstance(item.implementation_version_name, str)
 
     def test_decode_properties(self):
         """Check decoding produces the correct property values."""
@@ -499,7 +588,7 @@ class TestASSOC_RQ_UserInformation:
         assert user_info.implementation_class_uid == (
             '1.2.826.0.1.3680043.9.3811.0.9.0'
         )
-        assert user_info.implementation_version_name == b'PYNETDICOM_090'
+        assert user_info.implementation_version_name == 'PYNETDICOM_090'
         assert user_info.maximum_length == 16382
         assert user_info.role_selection == {}
         assert user_info.user_identity is None
@@ -510,16 +599,16 @@ class TestASSOC_AC:
         """Test a new A_ASSOCIATE_AC PDU."""
         pdu = A_ASSOCIATE_AC()
         assert pdu.protocol_version == 0x01
-        assert pdu._reserved_aet is None
-        assert pdu._reserved_aec is None
+        assert pdu.reserved_aet == ""
+        assert pdu.reserved_aec == ""
         assert pdu.variable_items == []
         assert pdu.pdu_type == 0x02
         assert pdu.pdu_length == 68
         assert len(pdu) ==  74
 
         assert pdu.application_context_name is None
-        assert pdu.called_ae_title is None
-        assert pdu.calling_ae_title is None
+        assert pdu.called_ae_title == ""
+        assert pdu.calling_ae_title == ""
         assert pdu.presentation_context == []
         assert pdu.user_information is None
 
@@ -554,10 +643,10 @@ class TestASSOC_AC:
         pdu.decode(a_associate_ac)
 
         # Check AE titles
-        assert pdu._reserved_aec == b'ECHOSCU         '
-        assert pdu._reserved_aet == b'ANY-SCP         '
-        assert pdu.calling_ae_title == b'ECHOSCU         '
-        assert pdu.called_ae_title == b'ANY-SCP         '
+        assert pdu.reserved_aec == 'ECHOSCU'
+        assert pdu.reserved_aet == 'ANY-SCP'
+        assert pdu.calling_ae_title == 'ECHOSCU'
+        assert pdu.called_ae_title == 'ANY-SCP'
 
         # Check application_context_name property
         assert isinstance(pdu.application_context_name, UID)
@@ -591,8 +680,8 @@ class TestASSOC_AC:
         assert primitive.application_context_name == UID(
             '1.2.840.10008.3.1.1.1'
         )
-        assert primitive.calling_ae_title == b'ECHOSCU         '
-        assert primitive.called_ae_title == b'ANY-SCP         '
+        assert primitive.calling_ae_title == 'ECHOSCU'
+        assert primitive.called_ae_title == 'ANY-SCP'
 
         # Test User Information
         for item in primitive.user_information:
@@ -610,8 +699,8 @@ class TestASSOC_AC:
 
             # Implementation Version Name (optional)
             elif isinstance(item, ImplementationVersionNameNotification):
-                assert item.implementation_version_name == b'OFFIS_DCMTK_360'
-                assert isinstance(item.implementation_version_name, bytes)
+                assert item.implementation_version_name == 'OFFIS_DCMTK_360'
+                assert isinstance(item.implementation_version_name, str)
 
         # Test Presentation Contexts
         for context in primitive.presentation_context_definition_list:
@@ -619,8 +708,8 @@ class TestASSOC_AC:
             assert context.transfer_syntax[0] == UID('1.2.840.10008.1.2')
 
         assert isinstance(primitive.application_context_name, UID)
-        assert isinstance(primitive.calling_ae_title, bytes)
-        assert isinstance(primitive.called_ae_title, bytes)
+        assert isinstance(primitive.calling_ae_title, str)
+        assert isinstance(primitive.called_ae_title, str)
         assert isinstance(primitive.user_information, list)
 
         assert primitive.result == 0
@@ -669,6 +758,53 @@ class TestASSOC_AC:
         assert cx.transfer_syntax == []
         assert cx.result == 3
         assert cx.context_id == 1
+
+    def test_calling_called_reserved(self):
+        """Check the reserved_aec and reserved_aet properties."""
+        pdu = A_ASSOCIATE_AC()
+
+        # pdu.reserved_aet
+        assert pdu.reserved_aet == ''
+        pdu.reserved_aet = 'TEST_SCP'
+        assert pdu.reserved_aet == 'TEST_SCP'
+        pdu.reserved_aet = '  TEST SCP   '
+        assert pdu.reserved_aet == '  TEST SCP   '
+        pdu.reserved_aet = b'  TEST SCP   '
+        assert pdu.reserved_aet == 'TEST SCP'
+        pdu.reserved_aet = b'\x2e\xe2\x80\x8b\x31\x2e'
+        assert pdu.reserved_aet == ''
+        pdu.reserved_aet = ""
+        assert pdu.reserved_aet == ''
+        pdu.reserved_aet = "  "
+        assert pdu.reserved_aet == '  '
+        pdu.reserved_aet = "\u200b5ABCD"
+        assert pdu.reserved_aet == "\u200b5ABCD"
+
+        # pdu.reserved_aec
+        assert pdu.reserved_aec == ''
+        pdu.reserved_aec = 'TEST_SCP2'
+        assert pdu.reserved_aec == 'TEST_SCP2'
+        pdu.reserved_aec = '  TEST SCP2   '
+        assert pdu.reserved_aec == '  TEST SCP2   '
+        pdu.reserved_aec = b'  TEST SCP   '
+        assert pdu.reserved_aec == 'TEST SCP'
+        pdu.reserved_aec = b'\x2e\xe2\x80\x8b\x31\x2e'
+        assert pdu.reserved_aec == ''
+        pdu.reserved_aec = ""
+        assert pdu.reserved_aec == ''
+        pdu.reserved_aec = "  "
+        assert pdu.reserved_aec == '  '
+        pdu.reserved_aec = "\u200b5ABCD"
+        assert pdu.reserved_aec == "\u200b5ABCD"
+
+    def test_encode_calling_called(self):
+        """Test encoding reserved_aec and reserved_aet"""
+        pdu = A_ASSOCIATE_AC()
+        pdu.decode(a_associate_ac)
+        pdu.reserved_aec = ""
+        pdu.reserved_aet = ""
+        enc = pdu.encode()
+        assert enc[10:42] == b"\x20" * 32
 
 
 class TestASSOC_AC_ApplicationContext:
@@ -773,10 +909,10 @@ class TestASSOC_AC_UserInformation:
             elif isinstance(item, ImplementationVersionNameSubItem):
                 assert item.item_type == 0x55
                 assert item.item_length == 15
-                assert item.implementation_version_name == b'OFFIS_DCMTK_360'
+                assert item.implementation_version_name == 'OFFIS_DCMTK_360'
                 assert isinstance(item.item_type, int)
                 assert isinstance(item.item_length, int)
-                assert isinstance(item.implementation_version_name, bytes)
+                assert isinstance(item.implementation_version_name, str)
 
     def test_decode_properties(self):
         """Check decoding produces the correct property values."""
@@ -790,7 +926,7 @@ class TestASSOC_AC_UserInformation:
         assert user_info.implementation_class_uid == (
             '1.2.276.0.7230010.3.0.3.6.0'
         )
-        assert user_info.implementation_version_name == b'OFFIS_DCMTK_360'
+        assert user_info.implementation_version_name == 'OFFIS_DCMTK_360'
         assert user_info.maximum_length == 16384
         assert user_info.role_selection == {}
         assert user_info.user_identity is None
@@ -869,9 +1005,9 @@ class TestASSOC_RJ:
         # Not used by A-ASSOCIATE-RJ or fixed value
         assert primitive.mode == "normal"
         assert primitive.application_context_name is None
-        assert primitive.calling_ae_title is None
-        assert primitive.called_ae_title is None
-        assert primitive.responding_ae_title is None
+        assert primitive.calling_ae_title == 'DEFAULT'
+        assert primitive.called_ae_title == 'DEFAULT'
+        assert primitive.responding_ae_title == "DEFAULT"
         assert primitive.user_information == []
         assert primitive.calling_presentation_address is None
         assert primitive.called_presentation_address is None
@@ -1348,6 +1484,7 @@ class TestABORT:
 
         pdu.source = None
         assert pdu.reason_str == '(no value available)'
+
 
 class TestEventHandlingAcceptor:
     """Test the transport events and handling as acceptor."""
