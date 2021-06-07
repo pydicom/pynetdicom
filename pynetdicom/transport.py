@@ -1,4 +1,5 @@
 """Implementation of the Transport Service."""
+import asyncio
 
 from copy import deepcopy
 from datetime import datetime
@@ -34,7 +35,7 @@ class AssociationSocket:
 
     .. versionadded:: 1.2
 
-    Provides an interface for ``socket`` that is integrated
+    Provides an interface for transport that is integrated
     nicely with an :class:`~pynetdicom.association.Association` instance
     and the state machine.
 
@@ -45,10 +46,10 @@ class AssociationSocket:
         :meth:`ready` will block for (default ``0.5``). A value of ``0``
         specifies a poll and never blocks. A value of ``None`` blocks until a
         connection is ready.
-    socket : socket.socket or None
-        The wrapped socket, will be ``None`` if :meth:`close` is called.
+    transport : asyncio.transport or None
+        The wrapped transport, will be ``None`` if :meth:`close` is called.
     """
-    def __init__(self, assoc, client_socket=None, address=('', 0)):
+    def __init__(self, assoc, transport):
         """Create a new :class:`AssociationSocket`.
 
         Parameters
@@ -56,33 +57,18 @@ class AssociationSocket:
         assoc : association.Association
             The :class:`~pynetdicom.association.Association` instance that will
             be using the socket to communicate.
-        client_socket : socket.socket, optional
-            The ``socket.socket`` to wrap,
-            if not supplied then a new socket will be created instead.
-        address : 2-tuple, optional
-            If *client_socket* is ``None`` then this is the ``(host, port)`` to
-            bind the newly created socket to, which by default will be
-            ``('', 0)``.
+        transport : asyncio.transport, optional
+            The ``asyncio.transport`` to wrap
         """
         self._assoc = assoc
+        self._ready = asyncio.Event()
+        
+        self.transport = transport
+        self._is_connected = True
+        self._ready.set()
 
-        if client_socket is not None and address != ('', 0):
-            LOGGER.warning(
-                "AssociationSocket instantiated with both a 'client_socket' "
-                "and bind 'address'. The original socket will not be rebound"
-            )
-
-        self._ready = threading.Event()
-
-        if client_socket is None:
-            self.socket = self._create_socket(address)
-            self._is_connected = False
-        else:
-            self.socket = client_socket
-            self._is_connected = True
-            self._ready.set()
-            # Evt5: Transport connection indication
-            self.event_queue.put('Evt5')
+        # Evt5: Transport connection indication
+        self.event_queue.put('Evt5')
 
         self._tls_args = None
         self.select_timeout = 0.5
@@ -103,16 +89,17 @@ class AssociationSocket:
 
         - Evt17: Transport connection closed
         """
-        if self.socket is None or self._is_connected is False:
+        if self.transport is None or self._is_connected is False:
             return
 
-        try:
-            self.socket.shutdown(socket.SHUT_RDWR)
-        except socket.error:
-            pass
+        # TODO: not sure if transport needs this
+        # try:
+        #     self.socket.shutdown(socket.SHUT_RDWR)
+        # except socket.error:
+        #     pass
 
-        self.socket.close()
-        self.socket = None
+        self.transport.close()
+        self.transport = None
         self._is_connected = False
         # Evt17: Transport connection closed
         self.event_queue.put('Evt17')
@@ -130,51 +117,9 @@ class AssociationSocket:
         address : 2-tuple
             The ``(host, port)`` IPv4 address to connect to.
         """
-        if self.socket is None:
-            self.socket = self._create_socket()
+        # we'll use loop.create_connection instead in Association
+        raise NotImplementedError
 
-        try:
-            if self.tls_args:
-                context, server_hostname = self.tls_args
-                self.socket = context.wrap_socket(
-                    self.socket,
-                    server_side=False,
-                    server_hostname=server_hostname,
-                )
-            # Set ae connection timeout
-            self.socket.settimeout(self.assoc.connection_timeout)
-            # Try and connect to remote at (address, port)
-            #   raises socket.error if connection refused
-            self.socket.connect(address)
-            # Clear ae connection timeout
-            self.socket.settimeout(None)
-            # Trigger event - connection open
-            evt.trigger(self.assoc, evt.EVT_CONN_OPEN, {'address' : address})
-            self._is_connected = True
-            # Evt2: Transport connection confirmation
-            self.event_queue.put('Evt2')
-        except OSError as exc:
-            # Log connection failure
-            LOGGER.error(
-                "Association request failed: unable to connect to remote"
-            )
-            LOGGER.error(f"TCP Initialisation Error: {exc}")
-            # Log exception if TLS issue to help with troubleshooting
-            if isinstance(exc, ssl.SSLError):
-                LOGGER.exception(exc)
-
-            # Don't be tempted to replace this with a self.close() call -
-            #   it doesn't work because `_is_connected` is False
-            if self.socket:
-                try:
-                    self.socket.shutdown(socket.SHUT_RDWR)
-                except:
-                    pass
-                self.socket.close()
-                self.socket = None
-            self.event_queue.put('Evt17')
-        finally:
-            self._ready.set()
 
     def _create_socket(self, address=('', 0)):
         """Create a new IPv4 TCP socket and set it up for use.
@@ -196,31 +141,9 @@ class AssociationSocket:
         socket.socket
             A bound and unconnected socket instance.
         """
-        # AF_INET: IPv4, SOCK_STREAM: TCP socket
-        sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        # SO_REUSEADDR: reuse the socket in TIME_WAIT state without
-        #   waiting for its natural timeout to expire
-        #   Allows local address reuse
-        sock.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
-        # If no timeout is set then recv() will block forever if
-        #   the connection is kept alive with no data sent
-        # SO_RCVTIMEO: the timeout on receive calls in seconds
-        #   set using a packed binary string containing two uint32s as
-        #   (seconds, microseconds)
-        if self.assoc.network_timeout is not None:
-            timeout_seconds = int(self.assoc.network_timeout)
-            timeout_microsec = int(self.assoc.network_timeout % 1 * 1000)
-            sock.setsockopt(
-                socket.SOL_SOCKET,
-                socket.SO_RCVTIMEO,
-                pack('ll', timeout_seconds, timeout_microsec)
-            )
-
-        sock.bind(address)
-
-        self._is_connected = False
-
-        return sock
+        # Every connection will get a transport. Manual creation of transport is
+        # discouraged
+        raise NotImplementedError
 
     @property
     def event_queue(self):
@@ -266,23 +189,10 @@ class AssociationSocket:
             ``True`` if the socket has data ready to be read, ``False``
             otherwise.
         """
-        if self.socket is None or self._is_connected is False:
+        if self.transport is None or self._is_connected is False:
             return False
 
-        try:
-            # Use a timeout of 0 so we get an "instant" result
-            ready, _, _ = select.select([self.socket], [], [], 0)
-        except (socket.error, socket.timeout, ValueError):
-            # Evt17: Transport connection closed
-            self.event_queue.put('Evt17')
-            return False
-
-        # An SSLSocket may have buffered data available that `select`
-        # is unaware of - see #528
-        if _HAS_SSL and isinstance(self.socket, ssl.SSLSocket):
-            return bool(ready) or bool(self.socket.pending())
-
-        return bool(ready)
+        return self.transport.is_reading()
 
     def recv(self, nr_bytes):
         """Read `nr_bytes` from the socket.
@@ -301,6 +211,7 @@ class AssociationSocket:
         bytearray
             The data read from the socket.
         """
+        # TODO: get inspired by StreamReader and StreamReaderProtocol
         bytestream = bytearray()
         nr_read = 0
         # socket.recv() returns when the network buffer has been emptied
@@ -340,18 +251,9 @@ class AssociationSocket:
         bytestream : bytes
             The data to send to the remote.
         """
-        total_sent = 0
-        length_data = len(bytestream)
-        try:
-            while total_sent < length_data:
-                # Returns the number of bytes sent
-                nr_sent = self.socket.send(bytestream[total_sent:])
-                total_sent += nr_sent
+        self.transport.write(bytestream)
+        evt.trigger(self.assoc, evt.EVT_DATA_SENT, {'data' : bytestream})
 
-            evt.trigger(self.assoc, evt.EVT_DATA_SENT, {'data' : bytestream})
-        except (socket.error, socket.timeout):
-            # Evt17: Transport connection closed
-            self.event_queue.put('Evt17')
 
     def __str__(self):
         """Return the string output for ``socket``."""
