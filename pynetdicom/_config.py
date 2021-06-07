@@ -259,8 +259,8 @@ VALIDATORS: Dict[str, Callable[[Any], Tuple[bool, str]]] = {
 
     Where `value` is the AE title to be validated as a :class:`str`.
 
-    The function should return a :class:`tuple` of (:class`bool`,
-    :class:`str`) as the (validation result, msg). If the result is ``True``
+    The function should return a :class:`tuple` of (:class:`bool`,
+    :class:`str`) as the ``(result, msg)``. If the `result` is ``True``
     then `msg` is ignored, otherwise `msg` will be used to provide feedback
     about why validation has failed.
 
@@ -269,8 +269,8 @@ VALIDATORS: Dict[str, Callable[[Any], Tuple[bool, str]]] = {
 
   Where `value` is the :class:`~pydicom.uid.UID` to be validated.
 
-  The function should return a :class:`tuple` of (:class`bool`,
-  :class:`str`) as the (validation result, msg). If the result is ``True``
+  The function should return a :class:`tuple` of (:class:`bool`,
+  :class:`str`) as the ``(result, msg)``. If the `result` is ``True``
   then `msg` is ignored, otherwise `msg` will be used to provide feedback
   about why validation has failed.
 
@@ -281,7 +281,7 @@ The default validation functions can be found `here
 Examples
 --------
 
-Perform no validation of **AE** DIMSE elements and PDU parameters:
+Perform no validation of **AE** DIMSE elements and AE title PDU parameters:
 
 >>> from pynetdicom import _config
 >>> _config.VALIDATORS['AE'] = def my_validator(value): return (True, "")
