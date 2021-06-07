@@ -3418,7 +3418,7 @@ class TestQRMoveServiceClass:
 
         req = C_MOVE()
         req.MessageID = 1
-        req.MoveDestination = b'Test'
+        req.MoveDestination = 'Test'
         req.AffectedSOPClassUID = PatientRootQueryRetrieveInformationModelMove
         req.Priority = 2
         # Encoded as Implicit VR Little

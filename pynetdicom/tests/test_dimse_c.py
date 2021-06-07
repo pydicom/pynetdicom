@@ -1082,7 +1082,7 @@ class TestPrimitive_C_MOVE:
         assert not primitive.is_valid_request
         primitive.Priority = 2
         assert not primitive.is_valid_request
-        primitive.MoveDestination = b'1234567890123456'
+        primitive.MoveDestination = '1234567890123456'
         assert not primitive.is_valid_request
         primitive.Identifier = BytesIO()
         assert primitive.is_valid_request
@@ -1111,17 +1111,17 @@ class TestPrimitive_C_MOVE:
 
         _config.USE_SHORT_DIMSE_AET = True
 
-        primitive.MoveDestination = b'A'
+        primitive.MoveDestination = 'A'
         aet = primitive.MoveDestination
         assert 'A' == primitive.MoveDestination
 
         primitive.MoveDestination = '  ABCD FG  '
         assert primitive.MoveDestination == '  ABCD FG  '
-        primitive.MoveDestination = b'  ABCD FG  '
+        primitive.MoveDestination = '  ABCD FG  '
         assert primitive.MoveDestination == 'ABCD FG'
-        primitive.MoveDestination = b'ABCDEFGHIJKLMNO'
+        primitive.MoveDestination = 'ABCDEFGHIJKLMNO'
         assert 'ABCDEFGHIJKLMNO' == primitive.MoveDestination
-        primitive.MoveDestination = b'ABCDEFGHIJKLMNOP'
+        primitive.MoveDestination = 'ABCDEFGHIJKLMNOP'
         assert 'ABCDEFGHIJKLMNOP' == primitive.MoveDestination
 
         msg = "Invalid 'Move Destination' value 'ABCDEFGHIJKLMNOPQ'"

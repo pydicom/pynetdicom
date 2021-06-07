@@ -45,7 +45,8 @@ from .encoded_pdu_items import (
     maximum_length_received, implementation_class_uid,
     implementation_version_name, role_selection, role_selection_odd,
     user_information, extended_negotiation, common_extended_negotiation,
-    p_data_tf, a_associate_ac_zero_ts, presentation_context_rq_utf8
+    p_data_tf, a_associate_ac_zero_ts, presentation_context_rq_utf8,
+    application_context_empty
 )
 
 
@@ -90,6 +91,13 @@ def utf8():
     _config.CODECS = ('ascii', 'utf8')
     yield
     _config.CODECS = ('ascii', )
+
+
+@pytest.fixture()
+def enforce_uid_conformance():
+    _config.ENFORCE_UID_CONFORMANCE = True
+    yield
+    _config.ENFORCE_UID_CONFORMANCE = False
 
 
 class TestPDU:
@@ -433,6 +441,21 @@ class TestApplicationContext:
         assert len(item) == 10
         assert item.encode() == bytestream
 
+    def test_decode_empty(self):
+        """Test decoding an item with an empty value"""
+        item = ApplicationContextItem()
+        item.decode(application_context_empty)
+        assert item.item_length == 0
+        assert item.application_context_name == ''
+
+    def test_encode_empty(self):
+        """Test decoding an item with an empty value"""
+        item = ApplicationContextItem()
+        item.decode(application_context_empty)
+        assert item.item_length == 0
+        assert item.application_context_name == ''
+        assert item.encode() == application_context_empty
+
     def test_decode_padded_odd(self):
         """Test decoding a padded odd-length context name"""
         # Non-conformant but handle anyway
@@ -444,6 +467,65 @@ class TestApplicationContext:
         assert len(item.application_context_name) % 2 > 0
         assert len(item) == 9
         assert item.encode() == b'\x10\x00\x00\x05\x31\x2e\x32\x2e\x33'
+
+    def test_application_context_name(self):
+        """Tests for application_context_name."""
+        item = ApplicationContextItem()
+        item.application_context_name = ''
+        assert item.application_context_name == ''
+        item.application_context_name = '1.2.08'
+        assert item.application_context_name == '1.2.08'
+        item.application_context_name = b'1.2.840'
+        assert item.application_context_name == '1.2.840'
+
+        msg = (
+            "'Application Context Name' must be str, bytes or UID, not "
+            "'NoneType'"
+        )
+        with pytest.raises(TypeError, match=msg):
+            item.application_context_name = None
+
+        bad = '1' * 65
+        msg = (
+            f"Invalid 'Application Context Name' value '{bad}' - must not "
+            "exceed 64 characters"
+        )
+        with pytest.raises(ValueError, match=msg):
+            item.application_context_name = bad
+
+        assert item.application_context_name == '1.2.840'
+
+    def test_application_context_name_conf(self, enforce_uid_conformance):
+        """Tests for application_context_name with enforced conformance"""
+        item = ApplicationContextItem()
+        item.application_context_name = ''
+        assert item.application_context_name == ''
+        item.application_context_name = b'1.2.840'
+        assert item.application_context_name == '1.2.840'
+
+        msg = (
+            "'Application Context Name' must be str, bytes or UID, not "
+            "'NoneType'"
+        )
+        with pytest.raises(TypeError, match=msg):
+            item.application_context_name = None
+
+        msg = (
+            "Invalid 'Application Context Name' value '1.2.08' - UID is "
+            "non-conformant"
+        )
+        with pytest.raises(ValueError, match=msg):
+            item.application_context_name = '1.2.08'
+
+        bad = '1' * 65
+        msg = (
+            f"Invalid 'Application Context Name' value '{bad}' - UID is "
+            "non-conformant"
+        )
+        with pytest.raises(ValueError, match=msg):
+            item.application_context_name = bad
+
+        assert item.application_context_name == '1.2.840'
 
 
 class TestPresentationContextRQ:

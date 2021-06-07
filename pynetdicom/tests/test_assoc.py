@@ -3282,7 +3282,7 @@ class TestAssociationSendCMove:
         assert not assoc.is_established
         with pytest.raises(RuntimeError):
             next(assoc.send_c_move(
-                self.ds, b'TESTMOVE',
+                self.ds, 'TESTMOVE',
                 PatientRootQueryRetrieveInformationModelMove)
             )
         scp.shutdown()
@@ -3302,7 +3302,7 @@ class TestAssociationSendCMove:
 
         with pytest.raises(ValueError):
             next(assoc.send_c_move(
-                self.ds, b'TESTMOVE',
+                self.ds, 'TESTMOVE',
                 PatientRootQueryRetrieveInformationModelMove)
             )
 
@@ -3324,7 +3324,7 @@ class TestAssociationSendCMove:
         assoc = ae.associate('localhost', 11112)
         assert assoc.is_established
         with pytest.raises(ValueError):
-            next(assoc.send_c_move(self.ds, b'TESTMOVE', query_model='X'))
+            next(assoc.send_c_move(self.ds, 'TESTMOVE', query_model='X'))
         assoc.release()
         assert assoc.is_released
 
@@ -3349,7 +3349,7 @@ class TestAssociationSendCMove:
 
         with pytest.raises(ValueError):
             next(assoc.send_c_move(
-                DATASET, b'SOMEPLACE',
+                DATASET, 'SOMEPLACE',
                 PatientRootQueryRetrieveInformationModelMove)
             )
 
@@ -3380,7 +3380,7 @@ class TestAssociationSendCMove:
         assoc = ae.associate('localhost', 11112)
         assert assoc.is_established
         for (status, ds) in assoc.send_c_move(
-                    self.ds, b'TESTMOVE',
+                    self.ds, 'TESTMOVE',
                     PatientRootQueryRetrieveInformationModelMove):
             assert status.Status == 0xa801
         assoc.release()
@@ -3409,7 +3409,7 @@ class TestAssociationSendCMove:
         assert assoc.is_established
 
         for (status, ds) in assoc.send_c_move(
-                    self.ds, b'UNKNOWN',
+                    self.ds, 'UNKNOWN',
                     PatientRootQueryRetrieveInformationModelMove):
             assert status.Status == 0xa801
         assoc.release()
@@ -3447,7 +3447,7 @@ class TestAssociationSendCMove:
         assert assoc.is_established
 
         result = assoc.send_c_move(
-            self.ds, b'TESTMOVE', PatientRootQueryRetrieveInformationModelMove
+            self.ds, 'TESTMOVE', PatientRootQueryRetrieveInformationModelMove
         )
         (status, ds) = next(result)
         assert status.Status == 0xFF00
@@ -3499,7 +3499,7 @@ class TestAssociationSendCMove:
         assert assoc.is_established
 
         result = assoc.send_c_move(
-            self.ds, b'TESTMOVE', PatientRootQueryRetrieveInformationModelMove
+            self.ds, 'TESTMOVE', PatientRootQueryRetrieveInformationModelMove
         )
         (status, ds) = next(result)
         assert status.Status == 0xFF00
@@ -3544,7 +3544,7 @@ class TestAssociationSendCMove:
         assert assoc.is_established
 
         result = assoc.send_c_move(
-            self.ds, b'TESTMOVE', PatientRootQueryRetrieveInformationModelMove
+            self.ds, 'TESTMOVE', PatientRootQueryRetrieveInformationModelMove
         )
         (status, ds) = next(result)
         assert status.Status == 0xC000
@@ -3589,7 +3589,7 @@ class TestAssociationSendCMove:
         assert assoc.is_established
 
         result = assoc.send_c_move(
-            self.ds, b'TESTMOVE', PatientRootQueryRetrieveInformationModelMove
+            self.ds, 'TESTMOVE', PatientRootQueryRetrieveInformationModelMove
         )
         (status, ds) = next(result)
         assert status.Status == 0xFF00
@@ -3639,7 +3639,7 @@ class TestAssociationSendCMove:
         assert assoc.is_established
 
         result = assoc.send_c_move(
-            self.ds, b'TESTMOVE', PatientRootQueryRetrieveInformationModelMove
+            self.ds, 'TESTMOVE', PatientRootQueryRetrieveInformationModelMove
         )
         (status, ds) = next(result)
         assert status.Status == 0xFE00
@@ -3690,7 +3690,7 @@ class TestAssociationSendCMove:
         assert assoc.is_established
 
         result = assoc.send_c_move(
-            self.ds, b'TESTMOVE', PatientRootQueryRetrieveInformationModelMove
+            self.ds, 'TESTMOVE', PatientRootQueryRetrieveInformationModelMove
         )
         (status, ds) = next(result)
         assert status.Status == 0xFF00
@@ -3737,7 +3737,7 @@ class TestAssociationSendCMove:
         assert assoc.is_established
 
         for (status, ds) in assoc.send_c_move(
-                    self.ds, b'TESTMOVE',
+                    self.ds, 'TESTMOVE',
                     PatientRootQueryRetrieveInformationModelMove):
             assert status.Status == 0xFFF0
         assoc.release()
@@ -3788,7 +3788,7 @@ class TestAssociationSendCMove:
             assert not assoc.is_released
             result = assoc.send_c_move(
                 self.ds,
-                b'TESTMOVE',
+                'TESTMOVE',
                 PatientRootQueryRetrieveInformationModelMove
             )
             (status, ds) = next(result)
@@ -3847,7 +3847,7 @@ class TestAssociationSendCMove:
         assert assoc.is_established
 
         results = assoc.send_c_move(
-            self.ds, b'TEST', PatientRootQueryRetrieveInformationModelMove
+            self.ds, 'TEST', PatientRootQueryRetrieveInformationModelMove
         )
         assert next(results) == (Dataset(), None)
         with pytest.raises(StopIteration):
@@ -3909,7 +3909,7 @@ class TestAssociationSendCMove:
         assert assoc.is_established
 
         results = assoc.send_c_move(
-            self.ds, b'TEST', PatientRootQueryRetrieveInformationModelMove
+            self.ds, 'TEST', PatientRootQueryRetrieveInformationModelMove
         )
         status, ds = next(results)
 
@@ -3935,7 +3935,7 @@ class TestAssociationSendCMove:
             identifier.PatientID = '*'
             assoc.is_established = True
             results = assoc.send_c_move(
-                identifier, b'A', PatientRootQueryRetrieveInformationModelMove
+                identifier, 'A', PatientRootQueryRetrieveInformationModelMove
             )
             status, ds = next(results)
             assert status == Dataset()
@@ -3964,7 +3964,7 @@ class TestAssociationSendCMove:
             identifier.PatientID = '*'
             assoc.is_established = True
             results = assoc.send_c_move(
-                identifier, b'A', PatientRootQueryRetrieveInformationModelMove
+                identifier, 'A', PatientRootQueryRetrieveInformationModelMove
             )
             status, ds = next(results)
             assert status == Dataset()
@@ -4016,7 +4016,7 @@ class TestAssociationSendCMove:
         assert assoc.is_established
 
         result = assoc.send_c_move(
-            self.ds, b'TESTMOVE', PatientRootQueryRetrieveInformationModelMove
+            self.ds, 'TESTMOVE', PatientRootQueryRetrieveInformationModelMove
         )
         (status, ds) = next(result)
         assert status.Status == 0xFF00
@@ -4067,7 +4067,7 @@ class TestAssociationSendCMove:
             assoc = ae.associate('localhost', 11113)
             assert assoc.is_established
 
-            result = assoc.send_c_move(self.ds, b'TESTMOVE', '1.2.3.4')
+            result = assoc.send_c_move(self.ds, 'TESTMOVE', '1.2.3.4')
 
             store_scp.shutdown()
             move_scp.shutdown()

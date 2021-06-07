@@ -586,9 +586,10 @@ class TestAEGoodAssociation:
             assert assoc.is_aborted
             msgs = [
                 "TCP Initialisation Error: timed out",
-                "TCP Initialisation Error: [Error -2] Nmme or service not"
+                "TCP Initialisation Error: [Errno -2] Name or service "
+                "not known"
             ]
-            assert len([m for m in msgs if m in caplog.text]) != 1
+            assert len([m for m in msgs if m in caplog.text]) == 1
 
     def test_select_timeout_okay(self):
         """Test that using start works OK with timeout."""

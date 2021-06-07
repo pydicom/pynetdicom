@@ -475,6 +475,8 @@ application_context = (
     b"\x10\x00\x00\x15\x31\x2e\x32\x2e\x38\x34\x30\x2e\x31"
     b"\x30\x30\x30\x38\x2e\x33\x2e\x31\x2e\x31\x2e\x31"
 )
+# Application Context Name without a value
+application_context_empty = b"\x10\x00\x00\x00"
 
 ########################## Presentation Context  Items #######################
 # -RQ
