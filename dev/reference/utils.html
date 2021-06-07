@@ -126,6 +126,8 @@
 <li class="toctree-l3"><a class="reference internal" href="generated/pynetdicom.utils.decode_bytes.html">pynetdicom.utils.decode_bytes</a></li>
 <li class="toctree-l3"><a class="reference internal" href="generated/pynetdicom.utils.make_target.html">pynetdicom.utils.make_target</a></li>
 <li class="toctree-l3"><a class="reference internal" href="generated/pynetdicom.utils.pretty_bytes.html">pynetdicom.utils.pretty_bytes</a></li>
+<li class="toctree-l3"><a class="reference internal" href="generated/pynetdicom.utils.set_ae.html">pynetdicom.utils.set_ae</a></li>
+<li class="toctree-l3"><a class="reference internal" href="generated/pynetdicom.utils.set_uid.html">pynetdicom.utils.set_uid</a></li>
 <li class="toctree-l3"><a class="reference internal" href="generated/pynetdicom.utils.validate_uid.html">pynetdicom.utils.validate_uid</a></li>
 </ul>
 </li>
@@ -224,6 +226,12 @@
 </tr>
 <tr class="row-odd"><td><p><a class="reference internal" href="generated/pynetdicom.utils.pretty_bytes.html#pynetdicom.utils.pretty_bytes" title="pynetdicom.utils.pretty_bytes"><code class="xref py py-obj docutils literal notranslate"><span class="pre">pretty_bytes</span></code></a>(bytestream[, prefix, …])</p></td>
 <td><p>Turn the bytestring <cite>bytestream</cite> into a <a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.9)"><code class="xref py py-class docutils literal notranslate"><span class="pre">list</span></code></a> of nicely formatted <a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></a>.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/pynetdicom.utils.set_ae.html#pynetdicom.utils.set_ae" title="pynetdicom.utils.set_ae"><code class="xref py py-obj docutils literal notranslate"><span class="pre">set_ae</span></code></a>(value, name[, allow_empty, allow_none])</p></td>
+<td><p>Convert <cite>value</cite> to an <strong>AE</strong> like parameter and apply validation.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/pynetdicom.utils.set_uid.html#pynetdicom.utils.set_uid" title="pynetdicom.utils.set_uid"><code class="xref py py-obj docutils literal notranslate"><span class="pre">set_uid</span></code></a>(value, name[, allow_empty, …])</p></td>
+<td><p>Convert <cite>value</cite> to a <code class="xref py py-class docutils literal notranslate"><span class="pre">UID</span></code> and apply validation.</p></td>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="generated/pynetdicom.utils.validate_uid.html#pynetdicom.utils.validate_uid" title="pynetdicom.utils.validate_uid"><code class="xref py py-obj docutils literal notranslate"><span class="pre">validate_uid</span></code></a>(uid)</p></td>
 <td><p>Return True if <cite>uid</cite> is considered valid.</p></td>

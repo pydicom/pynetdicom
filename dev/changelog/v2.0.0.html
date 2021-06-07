@@ -229,9 +229,6 @@ expected contexts (<a class="reference external" href="https://github.com/pydico
 <div class="section" id="enhancements">
 <h2>Enhancements<a class="headerlink" href="#enhancements" title="Permalink to this headline">¶</a></h2>
 <ul class="simple">
-<li><p>Added configuration option <code class="xref py py-attr docutils literal notranslate"><span class="pre">ALLOW_LONG_DIMSE_AET</span></code>
-to allow bypassing the length check for elements with a VR of <strong>AE</strong>
-(<a class="reference external" href="https://github.com/pydicom/pynetdicom/issues/515">#515</a>)</p></li>
 <li><p>Added the ability to pass a file path to a dataset to
 <a class="reference internal" href="../reference/generated/pynetdicom.association.Association.html#pynetdicom.association.Association.send_c_store" title="pynetdicom.association.Association.send_c_store"><code class="xref py py-meth docutils literal notranslate"><span class="pre">send_c_store()</span></code></a> (<a class="reference external" href="https://github.com/pydicom/pynetdicom/issues/517">#517</a>)</p></li>
 <li><p>Added <a class="reference internal" href="../reference/generated/pynetdicom._config.STORE_SEND_CHUNKED_DATASET.html#pynetdicom._config.STORE_SEND_CHUNKED_DATASET" title="pynetdicom._config.STORE_SEND_CHUNKED_DATASET"><code class="xref py py-attr docutils literal notranslate"><span class="pre">STORE_SEND_CHUNKED_DATASET</span></code></a> config option
@@ -260,7 +257,7 @@ values during ACSE negotiation (<a class="reference external" href="https://gith
 <li><p>Added <a class="reference internal" href="../reference/generated/pynetdicom._config.CODECS.html#pynetdicom._config.CODECS" title="pynetdicom._config.CODECS"><code class="xref py py-attr docutils literal notranslate"><span class="pre">CODECS</span></code></a> to allow customising the
 codecs used when decoding text-like PDU parameters (<a class="reference external" href="https://github.com/pydicom/pynetdicom/issues/611">#611</a>)</p></li>
 <li><p>Added <a class="reference internal" href="../reference/generated/pynetdicom._config.VALIDATORS.html#pynetdicom._config.VALIDATORS" title="pynetdicom._config.VALIDATORS"><code class="xref py py-attr docutils literal notranslate"><span class="pre">VALIDATORS</span></code></a> to allow customising the
-validation performed on UIDs and AE titles (issue:<cite>515</cite>, issue:<cite>549</cite>)</p></li>
+validation performed on UIDs and AE titles (<a class="reference external" href="https://github.com/pydicom/pynetdicom/issues/515">#515</a>, <a class="reference external" href="https://github.com/pydicom/pynetdicom/issues/549">#549</a>)</p></li>
 </ul>
 </div>
 <div class="section" id="changes">
@@ -274,8 +271,8 @@ sub-operations that return a warning status</p></li>
 <li><p>SOP Class and Instance variable names changed to match the new UID keywords
 from the DICOM Standard. In particular <code class="docutils literal notranslate"><span class="pre">VerificationSOPClass</span></code> is now simply
 <a class="reference internal" href="../reference/generated/pynetdicom.sop_class.Verification.html#pynetdicom.sop_class.Verification" title="pynetdicom.sop_class.Verification"><code class="xref py py-attr docutils literal notranslate"><span class="pre">Verification</span></code></a></p></li>
-<li><p>AE titles should be set using an ASCII <a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></a> rather than
-<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#bytes" title="(in Python v3.9)"><code class="xref py py-class docutils literal notranslate"><span class="pre">bytes</span></code></a></p></li>
+<li><p>All AE titles and DIMSE elements with a VR of <strong>AE</strong> should be set using an
+ASCII <a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></a> rather than <a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#bytes" title="(in Python v3.9)"><code class="xref py py-class docutils literal notranslate"><span class="pre">bytes</span></code></a></p></li>
 </ul>
 </div>
 </div>

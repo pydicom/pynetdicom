@@ -15,5 +15,6 @@ This module provides utilities.
    decode_bytes
    make_target
    pretty_bytes
-   validate_ae_title
+   set_ae
+   set_uid
    validate_uid

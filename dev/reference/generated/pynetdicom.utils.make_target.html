@@ -126,6 +126,8 @@
 <li class="toctree-l3"><a class="reference internal" href="pynetdicom.utils.decode_bytes.html">pynetdicom.utils.decode_bytes</a></li>
 <li class="toctree-l3 current"><a class="current reference internal" href="#">pynetdicom.utils.make_target</a></li>
 <li class="toctree-l3"><a class="reference internal" href="pynetdicom.utils.pretty_bytes.html">pynetdicom.utils.pretty_bytes</a></li>
+<li class="toctree-l3"><a class="reference internal" href="pynetdicom.utils.set_ae.html">pynetdicom.utils.set_ae</a></li>
+<li class="toctree-l3"><a class="reference internal" href="pynetdicom.utils.set_uid.html">pynetdicom.utils.set_uid</a></li>
 <li class="toctree-l3"><a class="reference internal" href="pynetdicom.utils.validate_uid.html">pynetdicom.utils.validate_uid</a></li>
 </ul>
 </li>
@@ -213,7 +215,7 @@
 <h1>pynetdicom.utils.make_target<a class="headerlink" href="#pynetdicom-utils-make-target" title="Permalink to this headline">¶</a></h1>
 <dl class="py function">
 <dt class="sig sig-object py" id="pynetdicom.utils.make_target">
-<span class="sig-prename descclassname"><span class="pre">pynetdicom.utils.</span></span><span class="sig-name descname"><span class="pre">make_target</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">target_fn</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">Callable</span></span></em><span class="sig-paren">)</span> &#x2192; <span class="pre">Callable</span><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/fdf7e88cb/pynetdicom/utils.py#L68"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pynetdicom.utils.make_target" title="Permalink to this definition">¶</a></dt>
+<span class="sig-prename descclassname"><span class="pre">pynetdicom.utils.</span></span><span class="sig-name descname"><span class="pre">make_target</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">target_fn</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">Callable</span></span></em><span class="sig-paren">)</span> &#x2192; <span class="pre">Callable</span><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/a47bb3b48/pynetdicom/utils.py#L68"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pynetdicom.utils.make_target" title="Permalink to this definition">¶</a></dt>
 <dd><p>Wraps <cite>target_fn</cite> in a thunk that passes all contextvars from the
 current context. It is assumed that <cite>target_fn</cite> is the target of a new
 <code class="docutils literal notranslate"><span class="pre">threading.Thread</span></code>.</p>

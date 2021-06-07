@@ -217,44 +217,30 @@
 </pre></div>
 </div>
 <p>This will create an <a class="reference internal" href="../reference/generated/pynetdicom.ae.ApplicationEntity.html#pynetdicom.ae.ApplicationEntity" title="pynetdicom.ae.ApplicationEntity"><code class="xref py py-class docutils literal notranslate"><span class="pre">AE</span></code></a> with an AE title of
-<code class="docutils literal notranslate"><span class="pre">b'PYNETDICOM</span>&#160;&#160;&#160;&#160;&#160; <span class="pre">'</span></code>. The AE title can set by supplying the <em>ae_title</em>
+<code class="docutils literal notranslate"><span class="pre">'PYNETDICOM'</span></code>. The AE title can set by supplying the <em>ae_title</em>
 keyword parameter during initialisation:</p>
 <div class="highlight-pycon3 notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">pynetdicom</span> <span class="kn">import</span> <span class="n">AE</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">ae</span> <span class="o">=</span> <span class="n">AE</span><span class="p">(</span><span class="n">ae_title</span><span class="o">=</span><span class="sa">b</span><span class="s1">&#39;MY_AE_TITLE&#39;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">ae</span> <span class="o">=</span> <span class="n">AE</span><span class="p">(</span><span class="n">ae_title</span><span class="o">=</span><span class="s1">&#39;MY_AE_TITLE&#39;</span><span class="p">)</span>
 </pre></div>
 </div>
 <p>Or afterwards with the <a class="reference internal" href="../reference/generated/pynetdicom.ae.ApplicationEntity.html#pynetdicom.ae.ApplicationEntity.ae_title" title="pynetdicom.ae.ApplicationEntity.ae_title"><code class="xref py py-attr docutils literal notranslate"><span class="pre">ae_title</span></code></a> property:</p>
 <div class="highlight-pycon3 notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">pynetdicom</span> <span class="kn">import</span> <span class="n">AE</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">ae</span> <span class="o">=</span> <span class="n">AE</span><span class="p">()</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">ae</span><span class="o">.</span><span class="n">ae_title</span> <span class="o">=</span> <span class="sa">b</span><span class="s1">&#39;MY_AE_TITLE&#39;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">ae</span><span class="o">.</span><span class="n">ae_title</span> <span class="o">=</span> <span class="s1">&#39;MY_AE_TITLE&#39;</span>
 </pre></div>
 </div>
 <p>AE titles must meet the conditions of a DICOM data element with a
 <a class="reference external" href="http://dicom.nema.org/medical/dicom/current/output/chtml/part05/sect_6.2.html">Value Representation</a> of <strong>AE</strong>:</p>
 <ul class="simple">
-<li><p>Leading and trailing spaces (<code class="docutils literal notranslate"><span class="pre">0x20</span></code>) are non-significant.</p></li>
+<li><p>Leading and trailing spaces (hex <code class="docutils literal notranslate"><span class="pre">0x20</span></code>) are non-significant.</p></li>
 <li><p>Maximum 16 characters (once non-significant characters are removed).</p></li>
 <li><p>Valid characters belong to the DICOM <a class="reference external" href="http://dicom.nema.org/medical/dicom/current/output/chtml/part05/chapter_E.html">Default Character Repertoire</a>, which is the basic G0 Set of the
 <a class="reference external" href="https://www.iso.org/standard/4777.html">ISO/IEC 646:1991</a>
 (ASCII) standard excluding backslash (<code class="docutils literal notranslate"><span class="pre">\</span></code> - hex <code class="docutils literal notranslate"><span class="pre">0x5C</span></code>) and all control
-characters.</p></li>
+characters (such as <code class="docutils literal notranslate"><span class="pre">'\n'</span></code>).</p></li>
 <li><p>An AE title made entirely of spaces is not allowed.</p></li>
 </ul>
-<p>AE titles in <em>pynetdicom</em> are checked for validity (using
-<code class="xref py py-func docutils literal notranslate"><span class="pre">validate_ae_title()</span></code>) and then stored as length 16
-<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#bytes" title="(in Python v3.9)"><code class="xref py py-class docutils literal notranslate"><span class="pre">bytes</span></code></a>, with trailing spaces added as padding if required. This can
-be important to remember when dealing with AE titles as the value you set may
-not be the value that gets stored.</p>
-<div class="highlight-pycon3 notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">ae</span><span class="o">.</span><span class="n">ae_title</span> <span class="o">=</span> <span class="sa">b</span><span class="s1">&#39;MY_AE_TITLE&#39;</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">ae</span><span class="o">.</span><span class="n">ae_title</span> <span class="o">==</span> <span class="sa">b</span><span class="s1">&#39;MY_AE_TITLE&#39;</span>
-<span class="go">False</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">ae</span><span class="o">.</span><span class="n">ae_title</span>
-<span class="go">b&#39;MY_AE_TITLE     &#39;</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="nb">len</span><span class="p">(</span><span class="n">ae</span><span class="o">.</span><span class="n">ae_title</span><span class="p">)</span>
-<span class="go">16</span>
-</pre></div>
-</div>
-<p>When creating SCPs  also possible to give each SCP  own AE title by
+<p>When creating SCPs it’s also possible to give each SCP its own AE title by
 specifying the <em>ae_title</em> keyword parameter in
 <a class="reference internal" href="../reference/generated/pynetdicom.ae.ApplicationEntity.html#pynetdicom.ae.ApplicationEntity.start_server" title="pynetdicom.ae.ApplicationEntity.start_server"><code class="xref py py-meth docutils literal notranslate"><span class="pre">AE.start_server()</span></code></a>.</p>
 <div class="section" id="creating-an-scu">
@@ -324,8 +310,8 @@ a <a class="reference external" href="https://docs.python.org/3/library/exceptio
 syntaxes are used by default for each context:</p>
 <table class="docutils align-default">
 <colgroup>
-<col style="width: 41%" />
-<col style="width: 59%" />
+<col style="width: 40%" />
+<col style="width: 60%" />
 </colgroup>
 <tbody>
 <tr class="row-odd"><td><p>1.2.840.10008.1.2</p></td>
@@ -334,7 +320,10 @@ syntaxes are used by default for each context:</p>
 <tr class="row-even"><td><p>1.2.840.10008.1.2.1</p></td>
 <td><p>Explicit VR Little Endian</p></td>
 </tr>
-<tr class="row-odd"><td><p>1.2.840.10008.1.2.2</p></td>
+<tr class="row-odd"><td><p>1.2.840.10008.1.2.1.99</p></td>
+<td><p>Deflated Explicit VR Little Endian</p></td>
+</tr>
+<tr class="row-even"><td><p>1.2.840.10008.1.2.2</p></td>
 <td><p>Explicit VR Big Endian</p></td>
 </tr>
 </tbody>
@@ -365,7 +354,7 @@ str/UIDs:</p>
 </div>
 <p>The requested presentation contexts can be accessed with the
 <a class="reference internal" href="../reference/generated/pynetdicom.ae.ApplicationEntity.html#pynetdicom.ae.ApplicationEntity.requested_contexts" title="pynetdicom.ae.ApplicationEntity.requested_contexts"><code class="xref py py-attr docutils literal notranslate"><span class="pre">AE.requested_contexts</span></code></a>
-property and they are returned in the order they were added:</p>
+property and are returned in the order they were added.</p>
 <div class="highlight-pycon3 notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">pynetdicom</span> <span class="kn">import</span> <span class="n">AE</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">pynetdicom.sop_class</span> <span class="kn">import</span> <span class="n">Verification</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">ae</span> <span class="o">=</span> <span class="n">AE</span><span class="p">()</span>
@@ -382,7 +371,7 @@ property and they are returned in the order they were added:</p>
 <span class="go">    =Explicit VR Big Endian</span>
 </pre></div>
 </div>
-<p>Its also possible to have multiple requested presentation contexts for the
+<p>It’s also possible to have multiple requested presentation contexts for the
 same abstract syntax.</p>
 <div class="highlight-pycon3 notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">pydicom.uid</span> <span class="kn">import</span> <span class="n">ImplicitVRLittleEndian</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">pynetdicom</span> <span class="kn">import</span> <span class="n">AE</span>
@@ -408,7 +397,7 @@ same abstract syntax.</p>
 Application Entity level, i.e. the same contexts will be used for all
 association requests. To set the requested presentation contexts on a
 per-association basis (i.e. each association request can have different
-requested contexts) you can use the <em>context</em> keyword parameter when calling
+requested contexts) you can use the <em>contexts</em> keyword parameter when calling
 <a class="reference internal" href="../reference/generated/pynetdicom.ae.ApplicationEntity.html#pynetdicom.ae.ApplicationEntity.associate" title="pynetdicom.ae.ApplicationEntity.associate"><code class="xref py py-meth docutils literal notranslate"><span class="pre">AE.associate()</span></code></a> (see
 the <a class="reference internal" href="association.html#association"><span class="std std-ref">Association</span></a> page for more information).</p>
 </div>
@@ -496,8 +485,8 @@ contexts that you can support.</p>
 syntaxes are used by default for each context:</p>
 <table class="docutils align-default">
 <colgroup>
-<col style="width: 41%" />
-<col style="width: 59%" />
+<col style="width: 40%" />
+<col style="width: 60%" />
 </colgroup>
 <tbody>
 <tr class="row-odd"><td><p>1.2.840.10008.1.2</p></td>
@@ -506,7 +495,10 @@ syntaxes are used by default for each context:</p>
 <tr class="row-even"><td><p>1.2.840.10008.1.2.1</p></td>
 <td><p>Explicit VR Little Endian</p></td>
 </tr>
-<tr class="row-odd"><td><p>1.2.840.10008.1.2.2</p></td>
+<tr class="row-odd"><td><p>1.2.840.10008.1.2.1.99</p></td>
+<td><p>Deflated Explicit VR Little Endian</p></td>
+</tr>
+<tr class="row-even"><td><p>1.2.840.10008.1.2.2</p></td>
 <td><p>Explicit VR Big Endian</p></td>
 </tr>
 </tbody>
@@ -537,7 +529,7 @@ list of str/UIDs:</p>
 </div>
 <p>The supported presentation contexts can be accessed with the
 <a class="reference internal" href="../reference/generated/pynetdicom.ae.ApplicationEntity.html#pynetdicom.ae.ApplicationEntity.supported_contexts" title="pynetdicom.ae.ApplicationEntity.supported_contexts"><code class="xref py py-attr docutils literal notranslate"><span class="pre">AE.supported_contexts</span></code></a>
-property and they are returned in order of their abstract syntax UID value:</p>
+property and are returned in order of their abstract syntax UID value:</p>
 <div class="highlight-pycon3 notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">pynetdicom</span> <span class="kn">import</span> <span class="n">AE</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">pynetdicom.sop_class</span> <span class="kn">import</span> <span class="n">Verification</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">ae</span> <span class="o">=</span> <span class="n">AE</span><span class="p">()</span>

@@ -14,13 +14,13 @@ The first step in DICOM networking with *pynetdicom* is the creation of an
     >>> ae = AE()
 
 This will create an :class:`AE<ApplicationEntity>` with an AE title of
-``b'PYNETDICOM      '``. The AE title can set by supplying the *ae_title*
+``'PYNETDICOM'``. The AE title can set by supplying the *ae_title*
 keyword parameter during initialisation:
 
 .. doctest::
 
     >>> from pynetdicom import AE
-    >>> ae = AE(ae_title=b'MY_AE_TITLE')
+    >>> ae = AE(ae_title='MY_AE_TITLE')
 
 Or afterwards with the :attr:`~ApplicationEntity.ae_title` property:
 
@@ -28,42 +28,21 @@ Or afterwards with the :attr:`~ApplicationEntity.ae_title` property:
 
     >>> from pynetdicom import AE
     >>> ae = AE()
-    >>> ae.ae_title = b'MY_AE_TITLE'
+    >>> ae.ae_title = 'MY_AE_TITLE'
 
 AE titles must meet the conditions of a DICOM data element with a
 :dcm:`Value Representation <part05/sect_6.2.html>` of **AE**:
 
-* Leading and trailing spaces (``0x20``) are non-significant.
+* Leading and trailing spaces (hex ``0x20``) are non-significant.
 * Maximum 16 characters (once non-significant characters are removed).
 * Valid characters belong to the DICOM :dcm:`Default Character Repertoire
   <part05/chapter_E.html>`, which is the basic G0 Set of the
   `ISO/IEC 646:1991 <https://www.iso.org/standard/4777.html>`_
   (ASCII) standard excluding backslash (``\`` - hex ``0x5C``) and all control
-  characters.
+  characters (such as ``'\n'``).
 * An AE title made entirely of spaces is not allowed.
 
-AE titles in *pynetdicom* are checked for validity (using
-:func:`~pynetdicom.utils.validate_ae_title`) and then stored as length 16
-:class:`bytes`, with trailing spaces added as padding if required. This can
-be important to remember when dealing with AE titles as the value you set may
-not be the value that gets stored.
-
-.. testsetup::
-
-    from pynetdicom import AE
-    ae = AE()
-
-.. doctest::
-
-    >>> ae.ae_title = b'MY_AE_TITLE'
-    >>> ae.ae_title == b'MY_AE_TITLE'
-    False
-    >>> ae.ae_title
-    b'MY_AE_TITLE     '
-    >>> len(ae.ae_title)
-    16
-
-When creating SCPs  also possible to give each SCP  own AE title by
+When creating SCPs it's also possible to give each SCP its own AE title by
 specifying the *ae_title* keyword parameter in
 :meth:`AE.start_server()<pynetdicom.ae.ApplicationEntity.start_server>`.
 
@@ -146,13 +125,15 @@ a :class:`ValueError` exception.
 When you add presentation contexts as shown above, the following transfer
 syntaxes are used by default for each context:
 
-+---------------------+------------------------------+
-| 1.2.840.10008.1.2   | Implicit VR Little Endian    |
-+---------------------+------------------------------+
-| 1.2.840.10008.1.2.1 | Explicit VR Little Endian    |
-+---------------------+------------------------------+
-| 1.2.840.10008.1.2.2 | Explicit VR Big Endian       |
-+---------------------+------------------------------+
++------------------------+------------------------------------+
+| 1.2.840.10008.1.2      | Implicit VR Little Endian          |
++------------------------+------------------------------------+
+| 1.2.840.10008.1.2.1    | Explicit VR Little Endian          |
++------------------------+------------------------------------+
+| 1.2.840.10008.1.2.1.99 | Deflated Explicit VR Little Endian |
++------------------------+------------------------------------+
+| 1.2.840.10008.1.2.2    | Explicit VR Big Endian             |
++------------------------+------------------------------------+
 
 Specifying your own transfer syntax(es) can be done with the
 *transfer_syntax* keyword parameter as either a single str/UID or a list of
@@ -183,7 +164,7 @@ str/UIDs:
 
 The requested presentation contexts can be accessed with the
 :attr:`AE.requested_contexts<ApplicationEntity.requested_contexts>`
-property and they are returned in the order they were added:
+property and are returned in the order they were added.
 
 .. doctest::
 
@@ -202,7 +183,7 @@ property and they are returned in the order they were added:
         =Explicit VR Little Endian
         =Explicit VR Big Endian
 
-Its also possible to have multiple requested presentation contexts for the
+It's also possible to have multiple requested presentation contexts for the
 same abstract syntax.
 
 .. doctest::
@@ -230,7 +211,7 @@ All the above examples set the requested presentation contexts on the
 Application Entity level, i.e. the same contexts will be used for all
 association requests. To set the requested presentation contexts on a
 per-association basis (i.e. each association request can have different
-requested contexts) you can use the *context* keyword parameter when calling
+requested contexts) you can use the *contexts* keyword parameter when calling
 :meth:`AE.associate()<ApplicationEntity.associate>` (see
 the :ref:`Association <association>` page for more information).
 
@@ -330,13 +311,15 @@ contexts that you can support.
 When you add presentation contexts as shown above, the following transfer
 syntaxes are used by default for each context:
 
-+---------------------+------------------------------+
-| 1.2.840.10008.1.2   | Implicit VR Little Endian    |
-+---------------------+------------------------------+
-| 1.2.840.10008.1.2.1 | Explicit VR Little Endian    |
-+---------------------+------------------------------+
-| 1.2.840.10008.1.2.2 | Explicit VR Big Endian       |
-+---------------------+------------------------------+
++------------------------+------------------------------------+
+| 1.2.840.10008.1.2      | Implicit VR Little Endian          |
++------------------------+------------------------------------+
+| 1.2.840.10008.1.2.1    | Explicit VR Little Endian          |
++------------------------+------------------------------------+
+| 1.2.840.10008.1.2.1.99 | Deflated Explicit VR Little Endian |
++------------------------+------------------------------------+
+| 1.2.840.10008.1.2.2    | Explicit VR Big Endian             |
++------------------------+------------------------------------+
 
 Specifying your own transfer syntax(es) can be done with the
 *transfer_syntax* keyword parameter parameter as either a single str/UID or a
@@ -367,7 +350,7 @@ list of str/UIDs:
 
 The supported presentation contexts can be accessed with the
 :attr:`AE.supported_contexts<ApplicationEntity.supported_contexts>`
-property and they are returned in order of their abstract syntax UID value:
+property and are returned in order of their abstract syntax UID value:
 
 .. doctest::
 
