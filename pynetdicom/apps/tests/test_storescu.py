@@ -95,9 +95,9 @@ class StoreSCUBase:
         assert events[0].dataset.PatientName == "CompressedSamples^CT1"
         assert events[1].event == evt.EVT_RELEASED
         requestor = events[1].assoc.requestor
-        assert 'STORESCU' == requestor.ae_title
+        assert b'STORESCU        ' == requestor.ae_title
         assert 16382 == requestor.maximum_length
-        assert 'ANY-SCP' == requestor.primitive.called_ae_title
+        assert b'ANY-SCP         ' == requestor.primitive.called_ae_title
         assert [] == requestor.extended_negotiation
         assert (1, 1) == requestor.asynchronous_operations
         assert {} == requestor.sop_class_common_extended
@@ -245,7 +245,7 @@ class StoreSCUBase:
 
         assert events[0].event == evt.EVT_C_STORE
         requestor = events[0].assoc.requestor
-        assert 'MYSCU' == requestor.ae_title
+        assert b'MYSCU           ' == requestor.ae_title
 
     def test_flag_aec(self):
         """Test --called-aet flag."""
@@ -273,7 +273,7 @@ class StoreSCUBase:
 
         assert events[0].event == evt.EVT_C_STORE
         requestor = events[0].assoc.requestor
-        assert 'YOURSCP' == requestor.primitive.called_ae_title
+        assert b'YOURSCP         ' == requestor.primitive.called_ae_title
 
     def test_flag_ta(self, capfd):
         """Test --acse-timeout flag."""

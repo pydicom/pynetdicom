@@ -14,13 +14,13 @@ The first step in DICOM networking with *pynetdicom* is the creation of an
     >>> ae = AE()
 
 This will create an :class:`AE<ApplicationEntity>` with an AE title of
-``'PYNETDICOM      '``. The AE title can set by supplying the *ae_title*
+``b'PYNETDICOM      '``. The AE title can set by supplying the *ae_title*
 keyword parameter during initialisation:
 
 .. doctest::
 
     >>> from pynetdicom import AE
-    >>> ae = AE(ae_title='MY_AE_TITLE')
+    >>> ae = AE(ae_title=b'MY_AE_TITLE')
 
 Or afterwards with the :attr:`~ApplicationEntity.ae_title` property:
 
@@ -28,7 +28,7 @@ Or afterwards with the :attr:`~ApplicationEntity.ae_title` property:
 
     >>> from pynetdicom import AE
     >>> ae = AE()
-    >>> ae.ae_title = 'MY_AE_TITLE'
+    >>> ae.ae_title = b'MY_AE_TITLE'
 
 AE titles must meet the conditions of a DICOM data element with a
 :dcm:`Value Representation <part05/sect_6.2.html>` of **AE**:
@@ -42,10 +42,9 @@ AE titles must meet the conditions of a DICOM data element with a
   characters.
 * An AE title made entirely of spaces is not allowed.
 
-FIXME
 AE titles in *pynetdicom* are checked for validity (using
 :func:`~pynetdicom.utils.validate_ae_title`) and then stored as length 16
-:class:`str`, with trailing spaces added as padding if required. This can
+:class:`bytes`, with trailing spaces added as padding if required. This can
 be important to remember when dealing with AE titles as the value you set may
 not be the value that gets stored.
 
@@ -56,8 +55,8 @@ not be the value that gets stored.
 
 .. doctest::
 
-    >>> ae.ae_title = 'MY_AE_TITLE'
-    >>> ae.ae_title == 'MY_AE_TITLE'
+    >>> ae.ae_title = b'MY_AE_TITLE'
+    >>> ae.ae_title == b'MY_AE_TITLE'
     False
     >>> ae.ae_title
     b'MY_AE_TITLE     '

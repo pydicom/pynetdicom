@@ -21,3 +21,4 @@ Configuration Options (:mod:`pynetdicom._config`)
    USE_SHORT_DIMSE_AET
    WINDOWS_TIMER_RESOLUTION
    CODECS
+   VALIDATORS

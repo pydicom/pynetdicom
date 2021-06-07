@@ -23,6 +23,7 @@ from pynetdicom.sop_class import (
     StudyRootQueryRetrieveInformationModelMove,
     StudyRootQueryRetrieveInformationModelGet
 )
+from pynetdicom.utils import validate_ae_title
 
 from pynetdicom.apps.qrscp.handlers import (
     handle_echo, handle_find, handle_get, handle_move, handle_store
@@ -302,6 +303,8 @@ def main(args=None):
     dests = {}
     for ae_title in config.sections():
         dest = config[ae_title]
+        # Convert to bytes and validate the AE title
+        ae_title = validate_ae_title(ae_title.encode("ascii"), use_short=True)
         dests[ae_title] = (dest["address"], dest.getint("port"))
 
     # Use default or specified configuration file
