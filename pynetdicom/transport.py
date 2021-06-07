@@ -29,9 +29,8 @@ from pynetdicom._handlers import (
 LOGGER = logging.getLogger('pynetdicom.transport')
 
 
-class AssociationSocket:
-    """A wrapper for a `socket
-    <https://docs.python.org/3/library/socket.html#socket-objects>`_ object.
+class AssociationStream:
+    """A wrapper for a asyncio.Transport object.
 
     .. versionadded:: 1.2
 
@@ -50,7 +49,7 @@ class AssociationSocket:
         The wrapped transport, will be ``None`` if :meth:`close` is called.
     """
     def __init__(self, assoc, transport):
-        """Create a new :class:`AssociationSocket`.
+        """Create a new :class:`AssociationStream`.
 
         Parameters
         ----------
@@ -61,11 +60,13 @@ class AssociationSocket:
             The ``asyncio.transport`` to wrap
         """
         self._assoc = assoc
-        self._ready = asyncio.Event()
-        
+
         self.transport = transport
         self._is_connected = True
-        self._ready.set()
+
+        # place to read data
+        self._reader = asyncio.streams.StreamReader()
+        self._reader.set_transport(self.transport)
 
         # Evt5: Transport connection indication
         self.event_queue.put('Evt5')
@@ -83,7 +84,7 @@ class AssociationSocket:
     def close(self):
         """Close the connection to the peer and shutdown the socket.
 
-        Sets :attr:`AssociationSocket.socket` to ``None`` once complete.
+        Sets :attr:`AssociationStream.socket` to ``None`` once complete.
 
         **Events Emitted**
 
@@ -103,47 +104,6 @@ class AssociationSocket:
         self._is_connected = False
         # Evt17: Transport connection closed
         self.event_queue.put('Evt17')
-
-    def connect(self, address):
-        """Try and connect to a remote at `address`.
-
-        **Events Emitted**
-
-        - Evt2: Transport connection confirmed
-        - Evt17: Transport connection closed
-
-        Parameters
-        ----------
-        address : 2-tuple
-            The ``(host, port)`` IPv4 address to connect to.
-        """
-        # we'll use loop.create_connection instead in Association
-        raise NotImplementedError
-
-
-    def _create_socket(self, address=('', 0)):
-        """Create a new IPv4 TCP socket and set it up for use.
-
-        *Socket Options*
-
-        - ``SO_REUSEADDR`` is 1
-        - ``SO_RCVTIMEO`` is set to the Association's ``network_timeout``
-          value.
-
-        Parameters
-        ----------
-        address : 2-tuple, optional
-            The ``(host, port)`` to bind the socket to. By default the socket
-            is bound to ``('', 0)``, i.e. the first available port.
-
-        Returns
-        -------
-        socket.socket
-            A bound and unconnected socket instance.
-        """
-        # Every connection will get a transport. Manual creation of transport is
-        # discouraged
-        raise NotImplementedError
 
     @property
     def event_queue(self):
@@ -194,7 +154,7 @@ class AssociationSocket:
 
         return self.transport.is_reading()
 
-    def recv(self, nr_bytes):
+    async def recv(self, nr_bytes):
         """Read `nr_bytes` from the socket.
 
         *Events Emitted*
@@ -211,32 +171,7 @@ class AssociationSocket:
         bytearray
             The data read from the socket.
         """
-        # TODO: get inspired by StreamReader and StreamReaderProtocol
-        bytestream = bytearray()
-        nr_read = 0
-        # socket.recv() returns when the network buffer has been emptied
-        #   not necessarily when the number of bytes requested have been
-        #   read. Its up to us to keep calling recv() until we have all the
-        #   data we want
-        # **BLOCKING** until either all the data is read or an error occurs
-        while nr_read < nr_bytes:
-            # Python docs recommend reading a relatively small power of 2
-            #   such as 4096
-            bufsize = 4096
-            if (nr_bytes - nr_read) < bufsize:
-                bufsize = nr_bytes - nr_read
-
-            bytes_read = self.socket.recv(bufsize)
-
-            # If socket.recv() reads 0 bytes then the connection has been
-            #   broken, so return what we have so far
-            if not bytes_read:
-                return bytestream
-
-            bytestream.extend(bytes_read)
-            nr_read += len(bytes_read)
-
-        return bytestream
+        await self._reader.read(nr_bytes)
 
     def send(self, bytestream):
         """Try and send the data in `bytestream` to the remote.
@@ -254,11 +189,7 @@ class AssociationSocket:
         self.transport.write(bytestream)
         evt.trigger(self.assoc, evt.EVT_DATA_SENT, {'data' : bytestream})
 
-
-    def __str__(self):
-        """Return the string output for ``socket``."""
-        return self.socket.__str__()
-
+    # TODO: make tls work
     @property
     def tls_args(self):
         """Return the TLS context and hostname (if set) or ``None``.
@@ -286,52 +217,32 @@ class AssociationSocket:
         self._tls_args = tls_args
 
 
-class RequestHandler(BaseRequestHandler):
-    """Connection request handler for the ``AssociationServer``.
+class AssociationProtocol(asyncio.Protocol):
+    def __init__(self, active_connections=[]):
+        self._assoc = None
+        self._stream = None
+        self._active_connections = active_connections
 
-    .. versionadded:: 1.2
-
-    Attributes
-    ----------
-    client_address : 2-tuple
-        The ``(host, port)`` of the remote.
-    request : socket.socket
-        The (unaccepted) client socket.
-    server : transport.AssociationServer or transport.ThreadedAssociationServer
-        The server that received the connection request.
-    """
-    @property
-    def ae(self):
-        """Return the server's parent AE."""
-        return self.server.ae
-
-    def handle(self):
+    def connection_made(self, transport):
         """Handle an association request.
 
         * Creates a new Association acceptor instance and configures it.
         * Sets the Association's socket to the request's socket.
         * Starts the Association reactor.
         """
-        assoc = self._create_association()
+        self._assoc, self._stream = self._create_association(transport)
 
         # Trigger must be after binding the events
         evt.trigger(
-            assoc, evt.EVT_CONN_OPEN, {'address' : self.client_address}
+            self._assoc, evt.EVT_CONN_OPEN, {'address' : self.client_address}
         )
 
-        assoc.start()
+        self._active_connections.append(self)
 
-    @property
-    def local(self):
-        """Return a 2-tuple of the local server's ``(host, port)`` address."""
-        return self.server.server_address
+        asyncio.create_task(self._assoc.start())
 
-    @property
-    def remote(self):
-        """Return a 2-tuple of the remote client's ``(host, port)`` address."""
-        return self.client_address
 
-    def _create_association(self):
+    def _create_association(self, transport):
         """Create an :class:`Association` object for the current request.
 
         .. versionadded:: 1.5
@@ -345,8 +256,8 @@ class RequestHandler(BaseRequestHandler):
         timestamp = datetime.strftime(datetime.now(), "%Y%m%d%H%M%S")
         assoc.name = f"AcceptorThread@{timestamp}"
 
-        sock = AssociationSocket(assoc, client_socket=self.request)
-        assoc.set_socket(sock)
+        stream = AssociationStream(assoc, transport)
+        assoc.set_stream(stream)
 
         # Association Acceptor object -> local AE
         assoc.acceptor.maximum_length = self.ae.maximum_pdu_size
@@ -373,10 +284,24 @@ class RequestHandler(BaseRequestHandler):
             elif event.is_notification:
                 for handler in self.server._handlers[event]:
                     assoc.bind(event, *handler)
-        return assoc
+        return assoc, sock
+
+    def data_received(self, data):
+        # feed data to the association stream
+        self._stream._reader.feed_data(data)
+
+    def eof_received(self):
+        # feed eof to the association stream
+        self._stream._reader.feed_eof()
+        # TODO: for tls, this is false
+        return True
+
+    def connection_lost(self, exec):
+        # close the socket and transport
+        self._active_connections.remove(self)
 
 
-class AssociationServer(TCPServer):
+class AssociationFactory:
     """An Association server implementation.
 
     .. versionadded:: 1.2
@@ -452,6 +377,12 @@ class AssociationServer(TCPServer):
         for evt_hh_args in (evt_handlers or {}):
             self.bind(*evt_hh_args)
 
+        # active connections (aka protocols) are stored here
+        self._active_connections = []
+
+    def __call__(self):
+        return AssociationProtocol(_active_connections=self._active_connections)
+
     def bind(self, event, handler, args=None):
         """Bind a callable `handler` to an `event`.
 
@@ -506,11 +437,7 @@ class AssociationServer(TCPServer):
         """Return the server's running
         :class:`~pynetdicom.association.Association` acceptor instances
         """
-        # Find all AcceptorThreads with `_server` as self
-        threads = [
-            tt for tt in threading.enumerate() if 'AcceptorThread' in tt.name
-        ]
-        return [tt for tt in threads if tt._server is self]
+        return [x._assoc for x in self._active_protocols if x._assoc is not None]
 
     def get_events(self):
         """Return a list of currently bound events.
@@ -547,81 +474,6 @@ class AssociationServer(TCPServer):
             return []
 
         return self._handlers[event]
-
-    def get_request(self):
-        """Handle a connection request.
-
-        If :attr:`~AssociationServer.ssl_context` is set then the client socket
-        will be wrapped using
-        :meth:`SSLContext.wrap_socket()<ssl.SSLContext.wrap_socket>`.
-
-        Returns
-        -------
-        client_socket : socket.socket
-            The connection request.
-        address : 2-tuple
-            The client's address as ``(host, port)``.
-        """
-        client_socket, address = self.socket.accept()
-        if self.ssl_context:
-            client_socket = self.ssl_context.wrap_socket(
-                client_socket, server_side=True
-            )
-
-        return client_socket, address
-
-    def process_request(self, request, client_address):
-        """Process a connection request."""
-        self.finish_request(request, client_address)
-
-    def server_bind(self):
-        """Bind the socket and set the socket options.
-
-        - ``socket.SO_REUSEADDR`` is set to ``1``
-        - ``socket.SO_RCVTIMEO`` is set to
-          :attr:`AE.network_timeout
-          <pynetdicom.ae.ApplicationEntity.network_timeout>` unless the
-          value is ``None`` in which case it will be left unset.
-        """
-        # SO_REUSEADDR: reuse the socket in TIME_WAIT state without
-        #   waiting for its natural timeout to expire
-        #   Allows local address reuse
-        self.socket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
-        # If no timeout is set then recv() will block forever if
-        #   the connection is kept alive with no data sent
-        # SO_RCVTIMEO: the timeout on receive calls in seconds
-        #   set using a packed binary string containing two uint32s as
-        #   (seconds, microseconds)
-        if self.ae.network_timeout is not None:
-            timeout_seconds = int(self.ae.network_timeout)
-            timeout_microsec = int(self.ae.network_timeout % 1 * 1000)
-            self.socket.setsockopt(
-                socket.SOL_SOCKET,
-                socket.SO_RCVTIMEO,
-                pack('ll', timeout_seconds, timeout_microsec)
-            )
-
-        # Bind the socket to an (address, port)
-        #   If address is '' then the socket is reachable by any
-        #   address the machine may have, otherwise is visible only on that
-        #   address
-        self.socket.bind(self.server_address)
-        self.server_address = self.socket.getsockname()
-
-    def server_close(self):
-        """Close the server."""
-        try:
-            self.socket.shutdown(socket.SHUT_RDWR)
-        except socket.error:
-            pass
-
-        self.socket.close()
-
-    def shutdown(self):
-        """Completely shutdown the server and close it's socket."""
-        super().shutdown()
-        self.server_close()
-        self.ae._servers.remove(self)
 
     @property
     def ssl_context(self):
@@ -680,18 +532,3 @@ class AssociationServer(TCPServer):
         # Unbind from our child Association events
         for assoc in self.active_associations:
             assoc.unbind(event, handler)
-
-
-class ThreadedAssociationServer(ThreadingMixIn, AssociationServer):
-    """An :class:`AssociationServer` suitable for threading.
-
-    .. versionadded:: 1.2
-    """
-    def process_request_thread(self, request, client_address):
-        """Process a connection request."""
-        # pylint: disable=broad-except
-        try:
-            self.finish_request(request, client_address)
-        except Exception:
-            self.handle_error(request, client_address)
-            self.shutdown_request(request)
