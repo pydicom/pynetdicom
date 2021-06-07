@@ -47,6 +47,7 @@
       ~ThreadedAssociationServer.active_associations
       ~ThreadedAssociationServer.address_family
       ~ThreadedAssociationServer.allow_reuse_address
+      ~ThreadedAssociationServer.block_on_close
       ~ThreadedAssociationServer.daemon_threads
       ~ThreadedAssociationServer.request_queue_size
       ~ThreadedAssociationServer.socket_type

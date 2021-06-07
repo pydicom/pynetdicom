@@ -241,7 +241,7 @@ characters.</p></li>
 <li><p>An AE title made entirely of spaces is not allowed.</p></li>
 </ul>
 <p>AE titles in <em>pynetdicom</em> are checked for validity (using
-<a class="reference internal" href="../reference/generated/pynetdicom.utils.validate_ae_title.html#pynetdicom.utils.validate_ae_title" title="pynetdicom.utils.validate_ae_title"><code class="xref py py-func docutils literal notranslate"><span class="pre">validate_ae_title()</span></code></a>) and then stored as length 16
+<code class="xref py py-func docutils literal notranslate"><span class="pre">validate_ae_title()</span></code>) and then stored as length 16
 <a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#bytes" title="(in Python v3.9)"><code class="xref py py-class docutils literal notranslate"><span class="pre">bytes</span></code></a>, with trailing spaces added as padding if required. This can
 be important to remember when dealing with AE titles as the value you set may
 not be the value that gets stored.</p>

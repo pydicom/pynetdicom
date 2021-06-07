@@ -226,7 +226,7 @@
 <h1>pynetdicom.pdu.A_ASSOCIATE_AC<a class="headerlink" href="#pynetdicom-pdu-a-associate-ac" title="Permalink to this headline">¶</a></h1>
 <dl class="py class">
 <dt class="sig sig-object py" id="pynetdicom.pdu.A_ASSOCIATE_AC">
-<em class="property"><span class="pre">class</span> </em><span class="sig-prename descclassname"><span class="pre">pynetdicom.pdu.</span></span><span class="sig-name descname"><span class="pre">A_ASSOCIATE_AC</span></span><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/a0187ea0b/pynetdicom/pdu.py#L704"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pynetdicom.pdu.A_ASSOCIATE_AC" title="Permalink to this definition">¶</a></dt>
+<em class="property"><span class="pre">class</span> </em><span class="sig-prename descclassname"><span class="pre">pynetdicom.pdu.</span></span><span class="sig-name descname"><span class="pre">A_ASSOCIATE_AC</span></span><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/fdf7e88cb/pynetdicom/pdu.py#L721"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pynetdicom.pdu.A_ASSOCIATE_AC" title="Permalink to this definition">¶</a></dt>
 <dd><p>An A-ASSOCIATE-AC PDU.</p>
 <p>An A-ASSOCIATE-AC PDU is sent by an association acceptor to indicate that
 association negotiation has been successful.</p>
@@ -380,7 +380,7 @@ received in the A-ASSOCIATE-RQ but their values shall not be tested.</p>
 </ul>
 <dl class="py method">
 <dt class="sig sig-object py" id="pynetdicom.pdu.A_ASSOCIATE_AC.__init__">
-<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> &#x2192; <a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.9)"><span class="pre">None</span></a><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/a0187ea0b/pynetdicom/pdu.py#L796"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pynetdicom.pdu.A_ASSOCIATE_AC.__init__" title="Permalink to this definition">¶</a></dt>
+<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> &#x2192; <a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.9)"><span class="pre">None</span></a><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/fdf7e88cb/pynetdicom/pdu.py#L813"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pynetdicom.pdu.A_ASSOCIATE_AC.__init__" title="Permalink to this definition">¶</a></dt>
 <dd><p>Initialise a new A-ASSOCIATE-AC PDU.</p>
 </dd></dl>
 
@@ -433,6 +433,12 @@ received in the A-ASSOCIATE-RQ but their values shall not be tested.</p>
 <tr class="row-even"><td><p><a class="reference internal" href="#pynetdicom.pdu.A_ASSOCIATE_AC.presentation_context" title="pynetdicom.pdu.A_ASSOCIATE_AC.presentation_context"><code class="xref py py-obj docutils literal notranslate"><span class="pre">presentation_context</span></code></a></p></td>
 <td><p>Return a list of the Presentation Context Items.</p></td>
 </tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pynetdicom.pdu.A_ASSOCIATE_AC.reserved_aec" title="pynetdicom.pdu.A_ASSOCIATE_AC.reserved_aec"><code class="xref py py-obj docutils literal notranslate"><span class="pre">reserved_aec</span></code></a></p></td>
+<td><p>Get or set the A-ASSOCIATE-AC’s reserved <em>Calling AE Title</em> value.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#pynetdicom.pdu.A_ASSOCIATE_AC.reserved_aet" title="pynetdicom.pdu.A_ASSOCIATE_AC.reserved_aet"><code class="xref py py-obj docutils literal notranslate"><span class="pre">reserved_aet</span></code></a></p></td>
+<td><p>Get or set the A-ASSOCIATE-AC’s reserved <em>Called AE Title</em> value.</p></td>
+</tr>
 <tr class="row-odd"><td><p><a class="reference internal" href="#pynetdicom.pdu.A_ASSOCIATE_AC.user_information" title="pynetdicom.pdu.A_ASSOCIATE_AC.user_information"><code class="xref py py-obj docutils literal notranslate"><span class="pre">user_information</span></code></a></p></td>
 <td><p>Return the User Information Item, if available.</p></td>
 </tr>
@@ -454,7 +460,7 @@ received in the A-ASSOCIATE-RQ but their values shall not be tested.</p>
 
 <dl class="py property">
 <dt class="sig sig-object py" id="pynetdicom.pdu.A_ASSOCIATE_AC.called_ae_title">
-<em class="property"><span class="pre">property</span> </em><span class="sig-name descname"><span class="pre">called_ae_title</span></span><em class="property"><span class="pre">:</span> <span class="pre">Optional[bytes]</span></em><a class="headerlink" href="#pynetdicom.pdu.A_ASSOCIATE_AC.called_ae_title" title="Permalink to this definition">¶</a></dt>
+<em class="property"><span class="pre">property</span> </em><span class="sig-name descname"><span class="pre">called_ae_title</span></span><em class="property"><span class="pre">:</span> <span class="pre">str</span></em><a class="headerlink" href="#pynetdicom.pdu.A_ASSOCIATE_AC.called_ae_title" title="Permalink to this definition">¶</a></dt>
 <dd><p>Return the value sent in the <em>Called AE Title</em> reserved space.</p>
 <p>While the standard says this value should match the A-ASSOCIATE-RQ
 value there is no guarantee and this should not be used as a check
@@ -462,17 +468,17 @@ value.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Returns</dt>
 <dd class="field-odd"><p>The value the A-ASSOCIATE-AC sent in the <em>Called AE Title</em> reserved
-space.</p>
+space. May be an empty string if unable to decode the value.</p>
 </dd>
 <dt class="field-even">Return type</dt>
-<dd class="field-even"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#bytes" title="(in Python v3.9)">bytes</a></p>
+<dd class="field-even"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)">str</a></p>
 </dd>
 </dl>
 </dd></dl>
 
 <dl class="py property">
 <dt class="sig sig-object py" id="pynetdicom.pdu.A_ASSOCIATE_AC.calling_ae_title">
-<em class="property"><span class="pre">property</span> </em><span class="sig-name descname"><span class="pre">calling_ae_title</span></span><em class="property"><span class="pre">:</span> <span class="pre">Optional[bytes]</span></em><a class="headerlink" href="#pynetdicom.pdu.A_ASSOCIATE_AC.calling_ae_title" title="Permalink to this definition">¶</a></dt>
+<em class="property"><span class="pre">property</span> </em><span class="sig-name descname"><span class="pre">calling_ae_title</span></span><em class="property"><span class="pre">:</span> <span class="pre">str</span></em><a class="headerlink" href="#pynetdicom.pdu.A_ASSOCIATE_AC.calling_ae_title" title="Permalink to this definition">¶</a></dt>
 <dd><p>Return the value sent in the <em>Calling AE Title</em> reserved space.</p>
 <p>While the standard says this value should match the A-ASSOCIATE-RQ
 value there is no guarantee and this should not be used as a check
@@ -480,7 +486,8 @@ value.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Returns</dt>
 <dd class="field-odd"><p>The value the A-ASSOCIATE-AC sent in the <em>Calling AE Title</em>
-reserved space.</p>
+reserved space. May be an empty string if unable to decode the
+value.</p>
 </dd>
 <dt class="field-even">Return type</dt>
 <dd class="field-even"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#bytes" title="(in Python v3.9)">bytes</a></p>
@@ -490,7 +497,7 @@ reserved space.</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="pynetdicom.pdu.A_ASSOCIATE_AC.from_primitive">
-<span class="sig-name descname"><span class="pre">from_primitive</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">primitive</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">A_ASSOCIATE</span></span></em><span class="sig-paren">)</span> &#x2192; <a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.9)"><span class="pre">None</span></a><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/a0187ea0b/pynetdicom/pdu.py#L812"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pynetdicom.pdu.A_ASSOCIATE_AC.from_primitive" title="Permalink to this definition">¶</a></dt>
+<span class="sig-name descname"><span class="pre">from_primitive</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">primitive</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">A_ASSOCIATE</span></span></em><span class="sig-paren">)</span> &#x2192; <a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.9)"><span class="pre">None</span></a><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/fdf7e88cb/pynetdicom/pdu.py#L829"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pynetdicom.pdu.A_ASSOCIATE_AC.from_primitive" title="Permalink to this definition">¶</a></dt>
 <dd><p>Setup the current PDU using an A-ASSOCIATE (accept) primitive.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -519,9 +526,49 @@ reserved space.</p>
 </dl>
 </dd></dl>
 
+<dl class="py property">
+<dt class="sig sig-object py" id="pynetdicom.pdu.A_ASSOCIATE_AC.reserved_aec">
+<em class="property"><span class="pre">property</span> </em><span class="sig-name descname"><span class="pre">reserved_aec</span></span><em class="property"><span class="pre">:</span> <span class="pre">str</span></em><a class="headerlink" href="#pynetdicom.pdu.A_ASSOCIATE_AC.reserved_aec" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get or set the A-ASSOCIATE-AC’s reserved <em>Calling AE Title</em> value.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>value</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)"><em>str</em></a><em> or </em><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#bytes" title="(in Python v3.9)"><em>bytes</em></a>) – The value at offset 27-42 in the A-ASSOCIATE-AC PDU, usually the
+same value as the <em>Calling AE Title</em>.</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>The decoded value at offset 27-42 in the A-ASSOCIATE-AC PDU,
+usually the same value as the <em>Calling AE Title</em>, or <code class="docutils literal notranslate"><span class="pre">''</span></code> if
+unable to decode the value.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)">str</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="pynetdicom.pdu.A_ASSOCIATE_AC.reserved_aet">
+<em class="property"><span class="pre">property</span> </em><span class="sig-name descname"><span class="pre">reserved_aet</span></span><em class="property"><span class="pre">:</span> <span class="pre">str</span></em><a class="headerlink" href="#pynetdicom.pdu.A_ASSOCIATE_AC.reserved_aet" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get or set the A-ASSOCIATE-AC’s reserved <em>Called AE Title</em> value.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>value</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)"><em>str</em></a><em> or </em><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#bytes" title="(in Python v3.9)"><em>bytes</em></a>) – The value at offset 11-26 in the A-ASSOCIATE-AC PDU, usually the
+same value as the <em>Called AE Title</em>.</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>The decoded value at offset 11-26 in the A-ASSOCIATE-AC PDU,
+usually the same value as the <em>Called AE Title</em>, or <code class="docutils literal notranslate"><span class="pre">''</span></code> if
+unable to decode the value.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)">str</a></p>
+</dd>
+</dl>
+</dd></dl>
+
 <dl class="py method">
 <dt class="sig sig-object py" id="pynetdicom.pdu.A_ASSOCIATE_AC.to_primitive">
-<span class="sig-name descname"><span class="pre">to_primitive</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> &#x2192; <span class="pre">A_ASSOCIATE</span><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/a0187ea0b/pynetdicom/pdu.py#L841"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pynetdicom.pdu.A_ASSOCIATE_AC.to_primitive" title="Permalink to this definition">¶</a></dt>
+<span class="sig-name descname"><span class="pre">to_primitive</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> &#x2192; <span class="pre">A_ASSOCIATE</span><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/fdf7e88cb/pynetdicom/pdu.py#L858"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pynetdicom.pdu.A_ASSOCIATE_AC.to_primitive" title="Permalink to this definition">¶</a></dt>
 <dd><p>Return an A-ASSOCIATE (accept) primitive from the current PDU.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Returns</dt>

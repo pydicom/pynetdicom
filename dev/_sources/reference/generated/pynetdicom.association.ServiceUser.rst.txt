@@ -28,6 +28,7 @@
    .. autosummary::
    
       ~ServiceUser.accepted_common_extended
+      ~ServiceUser.ae_title
       ~ServiceUser.asynchronous_operations
       ~ServiceUser.extended_negotiation
       ~ServiceUser.implementation_class_uid

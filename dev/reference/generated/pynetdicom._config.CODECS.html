@@ -7,7 +7,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   
-  <title>pynetdicom._config.PDU_CODECS &mdash; pynetdicom 2.0.0.dev0 documentation</title>
+  <title>pynetdicom._config.CODECS &mdash; pynetdicom 2.0.0.dev0 documentation</title>
   
 
   
@@ -47,7 +47,7 @@
     
     <link rel="index" title="Index" href="../../genindex.html" />
     <link rel="search" title="Search" href="../../search.html" />
-    <link rel="next" title="DIMSE Service" href="../dimse.html" />
+    <link rel="next" title="pynetdicom._config.VALIDATORS" href="pynetdicom._config.VALIDATORS.html" />
     <link rel="prev" title="pynetdicom._config.WINDOWS_TIMER_RESOLUTION" href="pynetdicom._config.WINDOWS_TIMER_RESOLUTION.html" /> 
 </head>
 
@@ -111,7 +111,6 @@
 <li class="toctree-l2"><a class="reference internal" href="../ae.html">Application Entity (<code class="xref py py-mod docutils literal notranslate"><span class="pre">pynetdicom.ae</span></code>)</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../association.html">Association (<code class="xref py py-mod docutils literal notranslate"><span class="pre">pynetdicom.association</span></code>)</a></li>
 <li class="toctree-l2 current"><a class="reference internal" href="../config.html">Configuration Options (<code class="xref py py-mod docutils literal notranslate"><span class="pre">pynetdicom._config</span></code>)</a><ul class="current">
-<li class="toctree-l3"><a class="reference internal" href="pynetdicom._config.ALLOW_LONG_DIMSE_AET.html">pynetdicom._config.ALLOW_LONG_DIMSE_AET</a></li>
 <li class="toctree-l3"><a class="reference internal" href="pynetdicom._config.ENFORCE_UID_CONFORMANCE.html">pynetdicom._config.ENFORCE_UID_CONFORMANCE</a></li>
 <li class="toctree-l3"><a class="reference internal" href="pynetdicom._config.LOG_HANDLER_LEVEL.html">pynetdicom._config.LOG_HANDLER_LEVEL</a></li>
 <li class="toctree-l3"><a class="reference internal" href="pynetdicom._config.LOG_REQUEST_IDENTIFIERS.html">pynetdicom._config.LOG_REQUEST_IDENTIFIERS</a></li>
@@ -121,7 +120,8 @@
 <li class="toctree-l3"><a class="reference internal" href="pynetdicom._config.STORE_SEND_CHUNKED_DATASET.html">pynetdicom._config.STORE_SEND_CHUNKED_DATASET</a></li>
 <li class="toctree-l3"><a class="reference internal" href="pynetdicom._config.USE_SHORT_DIMSE_AET.html">pynetdicom._config.USE_SHORT_DIMSE_AET</a></li>
 <li class="toctree-l3"><a class="reference internal" href="pynetdicom._config.WINDOWS_TIMER_RESOLUTION.html">pynetdicom._config.WINDOWS_TIMER_RESOLUTION</a></li>
-<li class="toctree-l3 current"><a class="current reference internal" href="#">pynetdicom._config.PDU_CODECS</a></li>
+<li class="toctree-l3 current"><a class="current reference internal" href="#">pynetdicom._config.CODECS</a></li>
+<li class="toctree-l3"><a class="reference internal" href="pynetdicom._config.VALIDATORS.html">pynetdicom._config.VALIDATORS</a></li>
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="../dimse.html">DIMSE Service</a></li>
@@ -199,7 +199,7 @@
         
           <li><a href="../config.html">Configuration Options (<code class="xref py py-mod docutils literal notranslate"><span class="pre">pynetdicom._config</span></code>)</a> &raquo;</li>
         
-      <li>pynetdicom._config.PDU_CODECS</li>
+      <li>pynetdicom._config.CODECS</li>
     
     
       <li class="wy-breadcrumbs-aside">
@@ -216,14 +216,21 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
             
-  <div class="section" id="pynetdicom-config-pdu-codecs">
-<h1>pynetdicom._config.PDU_CODECS<a class="headerlink" href="#pynetdicom-config-pdu-codecs" title="Permalink to this headline">¶</a></h1>
+  <div class="section" id="pynetdicom-config-codecs">
+<h1>pynetdicom._config.CODECS<a class="headerlink" href="#pynetdicom-config-codecs" title="Permalink to this headline">¶</a></h1>
 <dl class="py data">
-<dt class="sig sig-object py" id="pynetdicom._config.PDU_CODECS">
-<span class="sig-prename descclassname"><span class="pre">pynetdicom._config.</span></span><span class="sig-name descname"><span class="pre">PDU_CODECS</span></span><em class="property"><span class="pre">:</span> <span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)"><span class="pre">str</span></a><span class="p"><span class="pre">,</span> </span><span class="p"><span class="pre">...</span></span><span class="p"><span class="pre">]</span></span></em><em class="property"> <span class="pre">=</span> <span class="pre">('ascii',</span> <span class="pre">'utf-8')</span></em><a class="headerlink" href="#pynetdicom._config.PDU_CODECS" title="Permalink to this definition">¶</a></dt>
-<dd><p>Customise the codecs used to decode text values in PDUs.</p>
+<dt class="sig sig-object py" id="pynetdicom._config.CODECS">
+<span class="sig-prename descclassname"><span class="pre">pynetdicom._config.</span></span><span class="sig-name descname"><span class="pre">CODECS</span></span><em class="property"><span class="pre">:</span> <span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)"><span class="pre">str</span></a><span class="p"><span class="pre">,</span> </span><span class="p"><span class="pre">...</span></span><span class="p"><span class="pre">]</span></span></em><em class="property"> <span class="pre">=</span> <span class="pre">('ascii',)</span></em><a class="headerlink" href="#pynetdicom._config.CODECS" title="Permalink to this definition">¶</a></dt>
+<dd><p>Customise the codecs used to decode text values.</p>
 <div class="versionadded">
 <p><span class="versionmodified added">New in version 2.0.</span></p>
+</div>
+<div class="admonition warning">
+<p class="admonition-title">Warning</p>
+<p>The DICOM Standard specifies ISO 646 (ASCII) as the only valid codec for
+encoded strings. The use of additional fallback codecs may result in
+unexpected behaviour in <em>pynetdicom</em>.</p>
+<p>When string values are encoded by <em>pynetdicom</em> only ASCII is used.</p>
 </div>
 <p>The specified codecs will be used when decoding the following parameters:</p>
 <ul class="simple">
@@ -268,15 +275,15 @@ Class UID</em>, <em>Related General SOP Class UID</em></p></li>
 </li>
 </ul>
 <p>Possible codecs are given in the Python documentation <a class="reference external" href="https://docs.python.org/3/library/codecs.html#standard-encodings">here</a>. Decoding
-will be attempted in the order that the codecs appear in <code class="docutils literal notranslate"><span class="pre">PDU_CODECS</span></code>.</p>
-<p>The default value is <code class="docutils literal notranslate"><span class="pre">ascii</span></code> with <code class="docutils literal notranslate"><span class="pre">utf-8</span></code> as a fallback. The DICOM Standard
-specifies ASCII as the only valid encoding method, however non-conformant
-implementations have been known to also use UTF-8.</p>
-<p>When values are encoded by <em>pynetdicom</em> only ASCII is used.</p>
+will be attempted in the order that the codecs appear in <code class="docutils literal notranslate"><span class="pre">CODECS</span></code> and any
+fallback codecs should be added after ‘ascii’.</p>
+<p>If a fallback successfully decodes an encoded value the string will be
+converted to ASCII  using <code class="xref py py-func docutils literal notranslate"><span class="pre">str.decode()</span></code> with the <cite>errors</cite> parameter set
+to <code class="docutils literal notranslate"><span class="pre">'ignore'</span></code>.</p>
 <p class="rubric">Examples</p>
-<p>Remove UTF-8 as a fallback codec:</p>
+<p>Add UTF-8 as a fallback codec:</p>
 <div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">pynetdicom</span> <span class="kn">import</span> <span class="n">_config</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">_config</span><span class="o">.</span><span class="n">PDU_CODECS</span> <span class="o">=</span> <span class="p">(</span><span class="s1">&#39;ascii&#39;</span><span class="p">,</span> <span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">_config</span><span class="o">.</span><span class="n">CODECS</span> <span class="o">=</span> <span class="p">(</span><span class="s1">&#39;ascii&#39;</span><span class="p">,</span> <span class="s1">&#39;utf-8&#39;</span><span class="p">)</span>
 </pre></div>
 </div>
 </dd></dl>
@@ -289,7 +296,7 @@ implementations have been known to also use UTF-8.</p>
           </div>
           <footer>
     <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
-        <a href="../dimse.html" class="btn btn-neutral float-right" title="DIMSE Service" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+        <a href="pynetdicom._config.VALIDATORS.html" class="btn btn-neutral float-right" title="pynetdicom._config.VALIDATORS" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
         <a href="pynetdicom._config.WINDOWS_TIMER_RESOLUTION.html" class="btn btn-neutral float-left" title="pynetdicom._config.WINDOWS_TIMER_RESOLUTION" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
     </div>
 

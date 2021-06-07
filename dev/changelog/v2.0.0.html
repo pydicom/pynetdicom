@@ -229,7 +229,7 @@ expected contexts (<a class="reference external" href="https://github.com/pydico
 <div class="section" id="enhancements">
 <h2>Enhancements<a class="headerlink" href="#enhancements" title="Permalink to this headline">¶</a></h2>
 <ul class="simple">
-<li><p>Added configuration option <a class="reference internal" href="../reference/generated/pynetdicom._config.ALLOW_LONG_DIMSE_AET.html#pynetdicom._config.ALLOW_LONG_DIMSE_AET" title="pynetdicom._config.ALLOW_LONG_DIMSE_AET"><code class="xref py py-attr docutils literal notranslate"><span class="pre">ALLOW_LONG_DIMSE_AET</span></code></a>
+<li><p>Added configuration option <code class="xref py py-attr docutils literal notranslate"><span class="pre">ALLOW_LONG_DIMSE_AET</span></code>
 to allow bypassing the length check for elements with a VR of <strong>AE</strong>
 (<a class="reference external" href="https://github.com/pydicom/pynetdicom/issues/515">#515</a>)</p></li>
 <li><p>Added the ability to pass a file path to a dataset to
@@ -257,15 +257,16 @@ option (<a class="reference external" href="https://github.com/pydicom/pynetdico
 <li><p>Added type hints</p></li>
 <li><p>Handle non-conformant A-ASSOCIATE (RJ) ‘Result’, ‘Source’ and ‘Diagnostic’
 values during ACSE negotiation (<a class="reference external" href="https://github.com/pydicom/pynetdicom/issues/633">#633</a>)</p></li>
-<li><p>Added <a class="reference internal" href="../reference/generated/pynetdicom._config.PDU_CODECS.html#pynetdicom._config.PDU_CODECS" title="pynetdicom._config.PDU_CODECS"><code class="xref py py-attr docutils literal notranslate"><span class="pre">PDU_CODECS</span></code></a> to allow customising the
+<li><p>Added <a class="reference internal" href="../reference/generated/pynetdicom._config.CODECS.html#pynetdicom._config.CODECS" title="pynetdicom._config.CODECS"><code class="xref py py-attr docutils literal notranslate"><span class="pre">CODECS</span></code></a> to allow customising the
 codecs used when decoding text-like PDU parameters (<a class="reference external" href="https://github.com/pydicom/pynetdicom/issues/611">#611</a>)</p></li>
-<li><p>UTF-8 codec added as a fallback when decoding PDUs</p></li>
+<li><p>Added <a class="reference internal" href="../reference/generated/pynetdicom._config.VALIDATORS.html#pynetdicom._config.VALIDATORS" title="pynetdicom._config.VALIDATORS"><code class="xref py py-attr docutils literal notranslate"><span class="pre">VALIDATORS</span></code></a> to allow customising the
+validation performed on UIDs and AE titles (issue:<cite>515</cite>, issue:<cite>549</cite>)</p></li>
 </ul>
 </div>
 <div class="section" id="changes">
 <h2>Changes<a class="headerlink" href="#changes" title="Permalink to this headline">¶</a></h2>
 <ul class="simple">
-<li><p>Removed support for Python 2.7 and 3.5, added it for Python 3.9</p></li>
+<li><p>Removed support for Python 2.7, 3.5 and 3.6, added it for Python 3.9</p></li>
 <li><p>Minimum <em>pydicom</em> version is 2.2</p></li>
 <li><p>The <em>Failed SOP Instance UID List</em> sent with the final C-GET/C-MOVE SCP
 failure or warning responses no longer includes the SOP Instances for
@@ -273,6 +274,8 @@ sub-operations that return a warning status</p></li>
 <li><p>SOP Class and Instance variable names changed to match the new UID keywords
 from the DICOM Standard. In particular <code class="docutils literal notranslate"><span class="pre">VerificationSOPClass</span></code> is now simply
 <a class="reference internal" href="../reference/generated/pynetdicom.sop_class.Verification.html#pynetdicom.sop_class.Verification" title="pynetdicom.sop_class.Verification"><code class="xref py py-attr docutils literal notranslate"><span class="pre">Verification</span></code></a></p></li>
+<li><p>AE titles should be set using an ASCII <a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></a> rather than
+<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#bytes" title="(in Python v3.9)"><code class="xref py py-class docutils literal notranslate"><span class="pre">bytes</span></code></a></p></li>
 </ul>
 </div>
 </div>

@@ -33,6 +33,8 @@
       ~A_ASSOCIATE_AC.pdu_length
       ~A_ASSOCIATE_AC.pdu_type
       ~A_ASSOCIATE_AC.presentation_context
+      ~A_ASSOCIATE_AC.reserved_aec
+      ~A_ASSOCIATE_AC.reserved_aet
       ~A_ASSOCIATE_AC.user_information
    
    

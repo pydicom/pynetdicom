@@ -19,7 +19,6 @@
       ~Association.getName
       ~Association.get_events
       ~Association.get_handlers
-      ~Association.isAlive
       ~Association.isDaemon
       ~Association.is_alive
       ~Association.join
@@ -66,6 +65,7 @@
       ~Association.lock
       ~Association.mode
       ~Association.name
+      ~Association.native_id
       ~Association.network_timeout
       ~Association.rejected_contexts
       ~Association.remote

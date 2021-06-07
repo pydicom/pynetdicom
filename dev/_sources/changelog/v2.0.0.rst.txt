@@ -55,14 +55,15 @@ Enhancements
 * Added type hints
 * Handle non-conformant A-ASSOCIATE (RJ) 'Result', 'Source' and 'Diagnostic'
   values during ACSE negotiation (:issue:`633`)
-* Added :attr:`~pynetdicom._config.PDU_CODECS` to allow customising the
+* Added :attr:`~pynetdicom._config.CODECS` to allow customising the
   codecs used when decoding text-like PDU parameters (:issue:`611`)
-* UTF-8 codec added as a fallback when decoding PDUs
+* Added :attr:`~pynetdicom._config.VALIDATORS` to allow customising the
+  validation performed on UIDs and AE titles (issue:`515`, issue:`549`)
 
 Changes
 .......
 
-* Removed support for Python 2.7 and 3.5, added it for Python 3.9
+* Removed support for Python 2.7, 3.5 and 3.6, added it for Python 3.9
 * Minimum *pydicom* version is 2.2
 * The *Failed SOP Instance UID List* sent with the final C-GET/C-MOVE SCP
   failure or warning responses no longer includes the SOP Instances for
@@ -70,3 +71,5 @@ Changes
 * SOP Class and Instance variable names changed to match the new UID keywords
   from the DICOM Standard. In particular ``VerificationSOPClass`` is now simply
   :attr:`~pynetdicom.sop_class.Verification`
+* AE titles should be set using an ASCII :class:`str` rather than
+  :class:`bytes`

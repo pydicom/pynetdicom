@@ -1,6 +1,0 @@
-﻿pynetdicom.\_config.PDU\_CODECS
-===============================
-
-.. currentmodule:: pynetdicom._config
-
-.. autodata:: PDU_CODECS

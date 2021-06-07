@@ -16,7 +16,6 @@
       ~DULServiceProvider.__init__
       ~DULServiceProvider.getName
       ~DULServiceProvider.idle_timer_expired
-      ~DULServiceProvider.isAlive
       ~DULServiceProvider.isDaemon
       ~DULServiceProvider.is_alive
       ~DULServiceProvider.join
@@ -43,6 +42,7 @@
       ~DULServiceProvider.daemon
       ~DULServiceProvider.ident
       ~DULServiceProvider.name
+      ~DULServiceProvider.native_id
       ~DULServiceProvider.network_timeout
    
    

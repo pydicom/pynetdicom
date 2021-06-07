@@ -27,6 +27,7 @@
       ~SOPClass.index
       ~SOPClass.isalnum
       ~SOPClass.isalpha
+      ~SOPClass.isascii
       ~SOPClass.isdecimal
       ~SOPClass.isdigit
       ~SOPClass.isidentifier
@@ -42,6 +43,8 @@
       ~SOPClass.lstrip
       ~SOPClass.maketrans
       ~SOPClass.partition
+      ~SOPClass.removeprefix
+      ~SOPClass.removesuffix
       ~SOPClass.replace
       ~SOPClass.rfind
       ~SOPClass.rindex
