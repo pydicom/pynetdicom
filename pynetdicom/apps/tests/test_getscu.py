@@ -10,7 +10,7 @@ import time
 import pytest
 
 from pydicom import dcmread
-from pydicom.dataset import Dataset
+from pydicom.dataset import Dataset, FileMetaDataset
 from pydicom.uid import (
     ExplicitVRLittleEndian, ImplicitVRLittleEndian,
     DeflatedExplicitVRLittleEndian, ExplicitVRBigEndian
@@ -59,7 +59,7 @@ class GetSCUBase:
         self.func = None
 
         self.response = ds = Dataset()
-        ds.file_meta = Dataset()
+        ds.file_meta = FileMetaDataset()
         ds.file_meta.TransferSyntaxUID = ImplicitVRLittleEndian
         ds.SOPClassUID = CTImageStorage
         ds.SOPInstanceUID = '1.2.3.4'
@@ -104,9 +104,9 @@ class GetSCUBase:
         assert events[0].identifier.PatientName == ""
         assert events[1].event == evt.EVT_RELEASED
         requestor = events[1].assoc.requestor
-        assert b'GETSCU          ' == requestor.ae_title
+        assert 'GETSCU' == requestor.ae_title
         assert 16382 == requestor.maximum_length
-        assert b'ANY-SCP         ' == requestor.primitive.called_ae_title
+        assert 'ANY-SCP' == requestor.primitive.called_ae_title
         assert 125 == len(requestor.extended_negotiation)
         assert (1, 1) == requestor.asynchronous_operations
         assert {} == requestor.sop_class_common_extended
@@ -129,7 +129,6 @@ class GetSCUBase:
         out, err = capfd.readouterr()
         assert "Association request failed: unable to connect to remote" in err
         assert "TCP Initialisation Error" in err
-        assert "Association Aborted" in err
 
     def test_bad_input(self, capfd):
         """Test being unable to read the input file."""
@@ -263,7 +262,7 @@ class GetSCUBase:
 
         assert events[0].event == evt.EVT_C_GET
         requestor = events[0].assoc.requestor
-        assert b'MYSCU           ' == requestor.ae_title
+        assert 'MYSCU' == requestor.ae_title
 
     def test_flag_aec(self):
         """Test --called-aet flag."""
@@ -293,7 +292,7 @@ class GetSCUBase:
 
         assert events[0].event == evt.EVT_C_GET
         requestor = events[0].assoc.requestor
-        assert b'YOURSCP         ' == requestor.primitive.called_ae_title
+        assert 'YOURSCP' == requestor.primitive.called_ae_title
 
     def test_flag_ta(self, capfd):
         """Test --acse-timeout flag."""
@@ -572,7 +571,7 @@ class TestGetSCU(GetSCUBase):
         self.func = start_getscu
 
         self.response = ds = Dataset()
-        ds.file_meta = Dataset()
+        ds.file_meta = FileMetaDataset()
         ds.file_meta.TransferSyntaxUID = ImplicitVRLittleEndian
         ds.SOPClassUID = CTImageStorage
         ds.SOPInstanceUID = '1.2.3.4'
@@ -587,7 +586,7 @@ class TestGetSCUCLI(GetSCUBase):
         self.func = start_getscu_cli
 
         self.response = ds = Dataset()
-        ds.file_meta = Dataset()
+        ds.file_meta = FileMetaDataset()
         ds.file_meta.TransferSyntaxUID = ImplicitVRLittleEndian
         ds.SOPClassUID = CTImageStorage
         ds.SOPInstanceUID = '1.2.3.4'

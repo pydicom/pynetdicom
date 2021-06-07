@@ -4955,7 +4955,10 @@ class TestQRMoveServiceClass:
         identifier = Dataset()
         identifier.PatientID = '*'
         results = assoc.send_c_move(
-            identifier, b'A', PatientRootQueryRetrieveInformationModelMove, msg_id=11142
+            identifier,
+            'A',
+            PatientRootQueryRetrieveInformationModelMove,
+            msg_id=11142
         )
         assoc.send_c_cancel(1, 3)
         assoc.send_c_cancel(11142, 1)

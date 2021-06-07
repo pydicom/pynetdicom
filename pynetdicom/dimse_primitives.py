@@ -529,13 +529,18 @@ class C_STORE(DIMSEPrimitive):
     @property
     def MoveOriginatorApplicationEntityTitle(self) -> Optional[str]:
         """Get or set the *Move Originator Application Entity Title* as
-        :class:`bytes`.
+        :class:`str`.
 
         Parameters
         ----------
-        bytes or str
+        value : str
             The value to use for the *Move Originator AE Title* parameter.
-            Invalid values will be logged and ignored.
+
+        Returns
+        -------
+        str or None
+            Th *Move Originator AE Title* value. May be ``None`` if the
+            value was invalid.
         """
         return self._move_originator_application_entity_title
 
@@ -1031,9 +1036,14 @@ class C_MOVE(DIMSEPrimitive):
 
         Parameters
         ----------
-        bytes or str
+        value : str
             The value to use for the *Move Destination* parameter. Cannot
-            be an empty string and will be truncated to 16 characters long.
+            be an empty string.
+
+        Returns
+        -------
+        str
+            The *Move Destination* value.
         """
         return self._move_destination
 

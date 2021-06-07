@@ -252,6 +252,37 @@ VALIDATORS: Dict[str, Callable[[Any], Tuple[bool, str]]] = {
     'AE': validate_ae,
     'UI': validate_ui,
 }
-"""
+"""Customise the validation performed on DIMSE elements and PDU parameters.
 
+**AE**
+    Function signature: ``def func(value: str) -> Tuple[bool, str]``
+
+    Where `value` is the AE title to be validated as a :class:`str`.
+
+    The function should return a :class:`tuple` of (:class:`bool`,
+    :class:`str`) as the ``(result, msg)``. If the `result` is ``True``
+    then `msg` is ignored, otherwise `msg` will be used to provide feedback
+    about why validation has failed.
+
+**UI**
+  Function signature: ``def func(value: pydicom.uid.UID) -> Tuple[bool, str]``
+
+  Where `value` is the :class:`~pydicom.uid.UID` to be validated.
+
+  The function should return a :class:`tuple` of (:class:`bool`,
+  :class:`str`) as the ``(result, msg)``. If the `result` is ``True``
+  then `msg` is ignored, otherwise `msg` will be used to provide feedback
+  about why validation has failed.
+
+The default validation functions can be found `here
+<https://github.com/pydicom/pynetdicom/blob/master/pynetdicom/_validators.py>`_
+.
+
+Examples
+--------
+
+Perform no validation of **AE** DIMSE elements and AE title PDU parameters:
+
+>>> from pynetdicom import _config
+>>> _config.VALIDATORS['AE'] = def my_validator(value): return (True, "")
 """
