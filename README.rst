@@ -35,14 +35,14 @@ images and related information. It defines the formats and communication
 protocols for media exchange in radiology, cardiology, radiotherapy and other
 medical domains.
 
-*pynetdicom* is a pure Python 3.6+ package that implements the DICOM
+*pynetdicom* is a pure Python 3.7+ package that implements the DICOM
 networking protocol. Working with
 `pydicom <https://github.com/pydicom/pydicom>`_, it allows the easy creation
 of DICOM *Service Class Users* (SCUs) and *Service Class Providers* (SCPs).
 
 *pynetdicom's* main user class is
-`AE <https://pydicom.github.io/pynetdicom/stable/reference/generated/pynetdicom.ae.ApplicationEntity.html>`_,
-which is used to represent a DICOM Application Entity, and with it you can:
+`AE <https://pydicom.github.io/pynetdicom/stable/reference/generated/pynetdicom.ae.ApplicationEntity.html>`_
+and is used to represent a DICOM Application Entity. With it you can:
 
 - Start the application as an SCP by specifying the supported presentation
   contexts then calling

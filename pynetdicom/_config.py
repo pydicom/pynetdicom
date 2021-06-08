@@ -232,10 +232,10 @@ The specified codecs will be used when decoding the following parameters:
 Possible codecs are given in the Python documentation `here
 <https://docs.python.org/3/library/codecs.html#standard-encodings>`_. Decoding
 will be attempted in the order that the codecs appear in ``CODECS`` and any
-fallback codecs should be added after 'ascii'.
+fallback codecs should be added after ``'ascii'``.
 
 If a fallback successfully decodes an encoded value the string will be
-converted to ASCII  using :func:`str.decode` with the `errors` parameter set
+converted to ASCII  using :func:`str.encode` with the `errors` parameter set
 to ``'ignore'``.
 
 Examples
@@ -253,6 +253,8 @@ VALIDATORS: Dict[str, Callable[[Any], Tuple[bool, str]]] = {
     'UI': validate_ui,
 }
 """Customise the validation performed on DIMSE elements and PDU parameters.
+
+.. versionadded:: 2.0
 
 **AE**
     Function signature: ``def func(value: str) -> Tuple[bool, str]``
