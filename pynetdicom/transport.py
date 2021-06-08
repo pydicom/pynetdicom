@@ -4,19 +4,15 @@ import asyncio
 from copy import deepcopy
 from datetime import datetime
 import logging
-import select
 import socket
-try:
-    from SocketServer import TCPServer, ThreadingMixIn, BaseRequestHandler
-except ImportError:
-    from socketserver import TCPServer, ThreadingMixIn, BaseRequestHandler
+
+import pynetdicom
+
 try:
     import ssl
     _HAS_SSL = True
 except ImportError:
     _HAS_SSL = False
-from struct import pack
-import threading
 
 from pynetdicom import evt, _config
 from pynetdicom._globals import MODE_ACCEPTOR
@@ -30,7 +26,7 @@ LOGGER = logging.getLogger('pynetdicom.transport')
 
 
 class AssociationStream:
-    """A wrapper for a asyncio.Transport object.
+    """A wrapper for a StreamReader and StreamWriter objects.
 
     .. versionadded:: 1.2
 
@@ -48,7 +44,7 @@ class AssociationStream:
     transport : asyncio.transport or None
         The wrapped transport, will be ``None`` if :meth:`close` is called.
     """
-    def __init__(self, assoc, transport):
+    def __init__(self, assoc, reader, writer):
         """Create a new :class:`AssociationStream`.
 
         Parameters
@@ -61,12 +57,10 @@ class AssociationStream:
         """
         self._assoc = assoc
 
-        self.transport = transport
         self._is_connected = True
 
-        # place to read data
-        self._reader = asyncio.streams.StreamReader()
-        self._reader.set_transport(self.transport)
+        self._reader = reader
+        self._writer = writer
 
         # Evt5: Transport connection indication
         self.event_queue.put('Evt5')
@@ -90,17 +84,12 @@ class AssociationStream:
 
         - Evt17: Transport connection closed
         """
-        if self.transport is None or self._is_connected is False:
+        if self._writer is None or self._is_connected is False:
             return
 
-        # TODO: not sure if transport needs this
-        # try:
-        #     self.socket.shutdown(socket.SHUT_RDWR)
-        # except socket.error:
-        #     pass
-
-        self.transport.close()
-        self.transport = None
+        self._writer.close()
+        self._writer = None
+        self._reader = None
         self._is_connected = False
         # Evt17: Transport connection closed
         self.event_queue.put('Evt17')
@@ -149,10 +138,11 @@ class AssociationStream:
             ``True`` if the socket has data ready to be read, ``False``
             otherwise.
         """
-        if self.transport is None or self._is_connected is False:
+        if self._writer is None or self._is_connected is False:
             return False
 
-        return self.transport.is_reading()
+        # TODO: not sure if this is a good idea
+        return self._writer._transport.is_reading()
 
     async def recv(self, nr_bytes):
         """Read `nr_bytes` from the socket.
@@ -186,7 +176,7 @@ class AssociationStream:
         bytestream : bytes
             The data to send to the remote.
         """
-        self.transport.write(bytestream)
+        self._writer.write(bytestream)
         evt.trigger(self.assoc, evt.EVT_DATA_SENT, {'data' : bytestream})
 
     # TODO: make tls work
@@ -217,51 +207,68 @@ class AssociationStream:
         self._tls_args = tls_args
 
 
-class AssociationProtocol(asyncio.Protocol):
-    def __init__(self, active_connections=[]):
+class AssociationProtocol(asyncio.streams.StreamReaderProtocol):
+    def __init__(self, server):
         self._assoc = None
         self._stream = None
-        self._active_connections = active_connections
+        self._server = server
 
-    def connection_made(self, transport):
+        super().__init__(
+            stream_reader=asyncio.StreamReader(),
+            client_connected_cb=self._handle_connection
+        )
+
+    async def _handle_connection(self, reader, writer):
         """Handle an association request.
 
         * Creates a new Association acceptor instance and configures it.
         * Sets the Association's socket to the request's socket.
         * Starts the Association reactor.
         """
-        self._assoc, self._stream = self._create_association(transport)
-
+        self._create_association(reader=reader, writer=writer)
         # Trigger must be after binding the events
         evt.trigger(
-            self._assoc, evt.EVT_CONN_OPEN, {'address' : self.client_address}
+            self._assoc, evt.EVT_CONN_OPEN, {'address' : self.remote}
         )
+        self._server._active_connections.append(self)
+        await self._assoc.start()
 
-        self._active_connections.append(self)
+    @property
+    def ae(self):
+        """Return the server's parent AE."""
+        return self._server.ae
 
-        asyncio.create_task(self._assoc.start())
+    @property
+    def local(self):
+        """Return a 2-tuple of the local server's ``(host, port)`` address."""
+        return self._server.address
 
+    @property
+    def remote(self):
+        """Return a 2-tuple of the remote client's ``(host, port)`` address."""
+        return self._stream._writer.get_extra_info('peername')
 
-    def _create_association(self, transport):
+    def _create_association(self, reader, writer):
         """Create an :class:`Association` object for the current request.
 
         .. versionadded:: 1.5
         """
         from pynetdicom.association import Association
 
-        assoc = Association(self.ae, MODE_ACCEPTOR)
-        assoc._server = self.server
+        self._assoc = assoc = Association(self.ae, MODE_ACCEPTOR)
+        assoc._server = self._server
 
         # Set the thread name
         timestamp = datetime.strftime(datetime.now(), "%Y%m%d%H%M%S")
         assoc.name = f"AcceptorThread@{timestamp}"
 
-        stream = AssociationStream(assoc, transport)
-        assoc.set_stream(stream)
+        self._stream = stream = AssociationStream(assoc, reader, writer)
+        # TODO: create stream
+        # assoc.set_stream(stream)
 
         # Association Acceptor object -> local AE
         assoc.acceptor.maximum_length = self.ae.maximum_pdu_size
-        assoc.acceptor.ae_title = self.server.ae_title
+        assoc.acceptor.ae_title = self._server.ae_title
         assoc.acceptor.address = self.local[0]
         assoc.acceptor.port = self.local[1]
         assoc.acceptor.implementation_class_uid = (
@@ -270,38 +277,30 @@ class AssociationProtocol(asyncio.Protocol):
         assoc.acceptor.implementation_version_name = (
             self.ae.implementation_version_name
         )
-        assoc.acceptor.supported_contexts = deepcopy(self.server.contexts)
+        assoc.acceptor.supported_contexts = deepcopy(self._server.contexts)
 
         # Association Requestor object -> remote AE
         assoc.requestor.address = self.remote[0]
         assoc.requestor.port = self.remote[1]
 
         # Bind events to handlers
-        for event in self.server._handlers:
+        for event in self._server._handlers:
             # Intervention events
-            if event.is_intervention and self.server._handlers[event]:
-                assoc.bind(event, *self.server._handlers[event])
+            if event.is_intervention and self._server._handlers[event]:
+                assoc.bind(event, *self._server._handlers[event])
             elif event.is_notification:
-                for handler in self.server._handlers[event]:
+                for handler in self._server._handlers[event]:
                     assoc.bind(event, *handler)
-        return assoc, sock
-
-    def data_received(self, data):
-        # feed data to the association stream
-        self._stream._reader.feed_data(data)
-
-    def eof_received(self):
-        # feed eof to the association stream
-        self._stream._reader.feed_eof()
-        # TODO: for tls, this is false
-        return True
-
-    def connection_lost(self, exec):
-        # close the socket and transport
-        self._active_connections.remove(self)
+        return assoc, stream
 
 
-class AssociationFactory:
+    def connection_lost(self, exc):
+        super().connection_lost(exc)
+        self._stream.close()
+        self._server._active_connections.remove(self)
+
+
+class AssociationServer:
     """An Association server implementation.
 
     .. versionadded:: 1.2
@@ -360,11 +359,10 @@ class AssociationFactory:
         self.ae_title = ae_title
         self.contexts = contexts
         self.ssl_context = ssl_context
-        self.allow_reuse_address = True
-        self.socket = None
+        self.address = address
 
-        request_handler = request_handler or RequestHandler
-        super().__init__(address, request_handler, bind_and_activate=True)
+        # active connections (aka protocols) are stored here
+        self._active_connections = []
 
         self.timeout = 60
 
@@ -377,11 +375,9 @@ class AssociationFactory:
         for evt_hh_args in (evt_handlers or {}):
             self.bind(*evt_hh_args)
 
-        # active connections (aka protocols) are stored here
-        self._active_connections = []
 
     def __call__(self):
-        return AssociationProtocol(_active_connections=self._active_connections)
+        return AssociationProtocol(server=self)
 
     def bind(self, event, handler, args=None):
         """Bind a callable `handler` to an `event`.
@@ -437,7 +433,7 @@ class AssociationFactory:
         """Return the server's running
         :class:`~pynetdicom.association.Association` acceptor instances
         """
-        return [x._assoc for x in self._active_protocols if x._assoc is not None]
+        return [x._assoc for x in self._active_connections if x._is_connected]
 
     def get_events(self):
         """Return a list of currently bound events.
@@ -532,3 +528,11 @@ class AssociationFactory:
         # Unbind from our child Association events
         for assoc in self.active_associations:
             assoc.unbind(event, handler)
+
+    async def serve_forever(self):
+        loop = asyncio.get_event_loop()
+        server = await loop.create_server(
+            self, '127.0.0.1', 4242
+        )
+        async with server:
+            await server.serve_forever()
