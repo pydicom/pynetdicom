@@ -10,6 +10,7 @@ Configuration Options (:mod:`pynetdicom._config`)
 .. autosummary::
    :toctree: generated/
 
+   CODECS
    ENFORCE_UID_CONFORMANCE
    LOG_HANDLER_LEVEL
    LOG_REQUEST_IDENTIFIERS
@@ -18,6 +19,5 @@ Configuration Options (:mod:`pynetdicom._config`)
    STORE_RECV_CHUNKED_DATASET
    STORE_SEND_CHUNKED_DATASET
    USE_SHORT_DIMSE_AET
-   WINDOWS_TIMER_RESOLUTION
-   CODECS
    VALIDATORS
+   WINDOWS_TIMER_RESOLUTION
