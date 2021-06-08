@@ -47,8 +47,8 @@
     
     <link rel="index" title="Index" href="../../genindex.html" />
     <link rel="search" title="Search" href="../../search.html" />
-    <link rel="next" title="pynetdicom._config.VALIDATORS" href="pynetdicom._config.VALIDATORS.html" />
-    <link rel="prev" title="pynetdicom._config.WINDOWS_TIMER_RESOLUTION" href="pynetdicom._config.WINDOWS_TIMER_RESOLUTION.html" /> 
+    <link rel="next" title="pynetdicom._config.ENFORCE_UID_CONFORMANCE" href="pynetdicom._config.ENFORCE_UID_CONFORMANCE.html" />
+    <link rel="prev" title="Configuration Options (pynetdicom._config)" href="../config.html" /> 
 </head>
 
 <body class="wy-body-for-nav">
@@ -111,6 +111,7 @@
 <li class="toctree-l2"><a class="reference internal" href="../ae.html">Application Entity (<code class="xref py py-mod docutils literal notranslate"><span class="pre">pynetdicom.ae</span></code>)</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../association.html">Association (<code class="xref py py-mod docutils literal notranslate"><span class="pre">pynetdicom.association</span></code>)</a></li>
 <li class="toctree-l2 current"><a class="reference internal" href="../config.html">Configuration Options (<code class="xref py py-mod docutils literal notranslate"><span class="pre">pynetdicom._config</span></code>)</a><ul class="current">
+<li class="toctree-l3 current"><a class="current reference internal" href="#">pynetdicom._config.CODECS</a></li>
 <li class="toctree-l3"><a class="reference internal" href="pynetdicom._config.ENFORCE_UID_CONFORMANCE.html">pynetdicom._config.ENFORCE_UID_CONFORMANCE</a></li>
 <li class="toctree-l3"><a class="reference internal" href="pynetdicom._config.LOG_HANDLER_LEVEL.html">pynetdicom._config.LOG_HANDLER_LEVEL</a></li>
 <li class="toctree-l3"><a class="reference internal" href="pynetdicom._config.LOG_REQUEST_IDENTIFIERS.html">pynetdicom._config.LOG_REQUEST_IDENTIFIERS</a></li>
@@ -119,9 +120,8 @@
 <li class="toctree-l3"><a class="reference internal" href="pynetdicom._config.STORE_RECV_CHUNKED_DATASET.html">pynetdicom._config.STORE_RECV_CHUNKED_DATASET</a></li>
 <li class="toctree-l3"><a class="reference internal" href="pynetdicom._config.STORE_SEND_CHUNKED_DATASET.html">pynetdicom._config.STORE_SEND_CHUNKED_DATASET</a></li>
 <li class="toctree-l3"><a class="reference internal" href="pynetdicom._config.USE_SHORT_DIMSE_AET.html">pynetdicom._config.USE_SHORT_DIMSE_AET</a></li>
-<li class="toctree-l3"><a class="reference internal" href="pynetdicom._config.WINDOWS_TIMER_RESOLUTION.html">pynetdicom._config.WINDOWS_TIMER_RESOLUTION</a></li>
-<li class="toctree-l3 current"><a class="current reference internal" href="#">pynetdicom._config.CODECS</a></li>
 <li class="toctree-l3"><a class="reference internal" href="pynetdicom._config.VALIDATORS.html">pynetdicom._config.VALIDATORS</a></li>
+<li class="toctree-l3"><a class="reference internal" href="pynetdicom._config.WINDOWS_TIMER_RESOLUTION.html">pynetdicom._config.WINDOWS_TIMER_RESOLUTION</a></li>
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="../dimse.html">DIMSE Service</a></li>
@@ -276,9 +276,9 @@ Class UID</em>, <em>Related General SOP Class UID</em></p></li>
 </ul>
 <p>Possible codecs are given in the Python documentation <a class="reference external" href="https://docs.python.org/3/library/codecs.html#standard-encodings">here</a>. Decoding
 will be attempted in the order that the codecs appear in <code class="docutils literal notranslate"><span class="pre">CODECS</span></code> and any
-fallback codecs should be added after ‘ascii’.</p>
+fallback codecs should be added after <code class="docutils literal notranslate"><span class="pre">'ascii'</span></code>.</p>
 <p>If a fallback successfully decodes an encoded value the string will be
-converted to ASCII  using <code class="xref py py-func docutils literal notranslate"><span class="pre">str.decode()</span></code> with the <cite>errors</cite> parameter set
+converted to ASCII  using <code class="xref py py-func docutils literal notranslate"><span class="pre">str.encode()</span></code> with the <cite>errors</cite> parameter set
 to <code class="docutils literal notranslate"><span class="pre">'ignore'</span></code>.</p>
 <p class="rubric">Examples</p>
 <p>Add UTF-8 as a fallback codec:</p>
@@ -296,8 +296,8 @@ to <code class="docutils literal notranslate"><span class="pre">'ignore'</span><
           </div>
           <footer>
     <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
-        <a href="pynetdicom._config.VALIDATORS.html" class="btn btn-neutral float-right" title="pynetdicom._config.VALIDATORS" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
-        <a href="pynetdicom._config.WINDOWS_TIMER_RESOLUTION.html" class="btn btn-neutral float-left" title="pynetdicom._config.WINDOWS_TIMER_RESOLUTION" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="pynetdicom._config.ENFORCE_UID_CONFORMANCE.html" class="btn btn-neutral float-right" title="pynetdicom._config.ENFORCE_UID_CONFORMANCE" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+        <a href="../config.html" class="btn btn-neutral float-left" title="Configuration Options (pynetdicom._config)" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
     </div>
 
   <hr/>
