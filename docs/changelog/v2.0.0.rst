@@ -56,6 +56,9 @@ Enhancements
   codecs used when decoding text-like PDU parameters (:issue:`611`)
 * Added :attr:`~pynetdicom._config.VALIDATORS` to allow customising the
   validation performed on UIDs and AE titles (:issue:`515`, :issue:`549`)
+* Added `query_model` keyword parameter to
+  :meth:`~pynetdicom.association.Association.send_c_cancel` to make sending a
+  C-CANCEL request easier (:issue:`535`)
 
 Changes
 .......
