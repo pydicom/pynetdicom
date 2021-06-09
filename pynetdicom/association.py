@@ -870,23 +870,46 @@ class Association(threading.Thread):
         # Send C-STORE confirmation back to peer
         self.dimse.send_msg(rsp, cast(int, context.context_id))
 
-    def send_c_cancel(self, msg_id: int, context_id: int) -> None:
+    def send_c_cancel(
+        self,
+        msg_id: int,
+        context_id: Optional[int] = None,
+        query_model: Optional[Union[str, UID]] = None
+    ) -> None:
         """Send a C-CANCEL request to the peer AE.
+
+        .. versionchanged:: 2.0
+
+            Added `query_model` and made `context_id` optional
 
         Parameters
         ----------
         msg_id : int
             The *Message ID* of the C-GET/C-MOVE/C-FIND operation to be
             cancelled. Must be between 0 and 65535, inclusive.
-        context_id : int
+        context_id : int, optional
             The presentation context ID of the original C-GET/C-MOVE/C-FIND
-            service request.
+            service request. Required if `query_model` is not used.
+        query_model : str or pydicom.uid.UID, optional
+            The query model used with the original C-GET/C-MOVE/C-FIND service
+            request. Required if `context_id` is not used.
         """
         # Can't send a C-CANCEL without an Association
         if not self.is_established:
             raise RuntimeError(
                 "The association with a peer SCP must be "
                 "established before sending a C-CANCEL request."
+            )
+
+        if isinstance(query_model, (str, UID)):
+            cx = self._get_valid_context(query_model, "", "scu")
+            context_id = cx.context_id
+        elif isinstance(context_id, int):
+            pass
+        else:
+            raise ValueError(
+                "'send_c_cancel' requires either the 'query_model' used for "
+                "the service request or the corresponding 'context_id'"
             )
 
         # Build C-CANCEL primitive
@@ -896,7 +919,7 @@ class Association(threading.Thread):
         LOGGER.info('Sending C-CANCEL')
 
         # Send C-CANCEL request
-        self.dimse.send_msg(primitive, context_id)
+        self.dimse.send_msg(primitive, cast(int, context_id))
 
     def send_c_echo(self, msg_id: int = 1) -> Dataset:
         """Send a C-ECHO request to the peer AE.
@@ -1150,8 +1173,10 @@ class Association(threading.Thread):
         """
         # Can't send a C-FIND without an Association
         if not self.is_established:
-            raise RuntimeError("The association with a peer SCP must be "
-                               "established before sending a C-FIND request")
+            raise RuntimeError(
+                "The association with a peer SCP must be established before "
+                "sending a C-FIND request"
+            )
 
         # Determine the Presentation Context we are operating under
         #   and hence the transfer syntax to use for encoding `dataset`
@@ -1568,7 +1593,7 @@ class Association(threading.Thread):
 
         # Determine the Presentation Context we are operating under
         #   and hence the transfer syntax to use for encoding `dataset`
-        context = self._get_valid_context(query_model, '', 'scu')
+        context = self._get_valid_context(query_model, "", "scu")
 
         # Build C-MOVE request primitive
         #   (M) Message ID

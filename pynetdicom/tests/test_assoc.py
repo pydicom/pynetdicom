@@ -2437,8 +2437,8 @@ class TestAssociationSendCCancel:
 
         scp.shutdown()
 
-    def test_good_send(self):
-        """Test send_c_cancel_move"""
+    def test_context_id(self):
+        """Test using `context_id`"""
         self.ae = ae = AE()
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
@@ -2450,6 +2450,61 @@ class TestAssociationSendCCancel:
         assoc = ae.associate('localhost', 11112)
         assert assoc.is_established
         assoc.send_c_cancel(1, 1)
+        scp.shutdown()
+
+    def test_query_model(self):
+        """Test using `query_model`"""
+        self.ae = ae = AE()
+        ae.acse_timeout = 5
+        ae.dimse_timeout = 5
+        ae.network_timeout = 5
+        model = PatientRootQueryRetrieveInformationModelFind
+        ae.add_supported_context(model)
+        scp = ae.start_server(('', 11112), block=False)
+
+        ae.add_requested_context(model)
+        assoc = ae.associate('localhost', 11112)
+        assert assoc.is_established
+        assoc.send_c_cancel(1, query_model=model)
+        scp.shutdown()
+
+    def test_context_id_and_query_model(self):
+        """Test using `query_model` and `context_id`"""
+        self.ae = ae = AE()
+        ae.acse_timeout = 5
+        ae.dimse_timeout = 5
+        ae.network_timeout = 5
+        model = PatientRootQueryRetrieveInformationModelFind
+        ae.add_supported_context(model)
+        scp = ae.start_server(('', 11112), block=False)
+
+        ae.add_requested_context(model)
+        assoc = ae.associate('localhost', 11112)
+        assert assoc.is_established
+        assoc.send_c_cancel(1, context_id=1, query_model=model)
+        scp.shutdown()
+
+    def test_no_context_id_and_query_model_raises(self):
+        """Test exception if unable to determine context ID"""
+        self.ae = ae = AE()
+        ae.acse_timeout = 5
+        ae.dimse_timeout = 5
+        ae.network_timeout = 5
+        model = PatientRootQueryRetrieveInformationModelFind
+        ae.add_supported_context(model)
+        scp = ae.start_server(('', 11112), block=False)
+
+        ae.add_requested_context(model)
+        assoc = ae.associate('localhost', 11112)
+        assert assoc.is_established
+
+        msg = (
+            "'send_c_cancel' requires either the 'query_model' used for "
+            "the service request or the corresponding 'context_id'"
+        )
+        with pytest.raises(ValueError, match=msg):
+            assoc.send_c_cancel(1)
+
         scp.shutdown()
 
 
