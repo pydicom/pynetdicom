@@ -561,7 +561,7 @@ def negotiate_unrestricted(
 
     # Split out private/unknown/storage cx's from everything else
     for cx in rq_contexts:
-        ab_syntax = cx.abstract_syntax
+        ab_syntax = cast(UID, cx.abstract_syntax)
         if (
             ab_syntax.is_private
             or ab_syntax in storage_uids
@@ -591,7 +591,7 @@ def negotiate_unrestricted(
             role = SCP_SCU_RoleSelectionNegotiation()
             role.sop_class_uid = rqx.abstract_syntax
 
-            rq_roles = roles[rqx.ab_syntax]
+            rq_roles = roles[rqx.abstract_syntax]
             outcome = SCP_SCU_ROLES[rq_roles][(True, True)]
             acx._as_scu = outcome[2]
             acx._as_scp = outcome[3]
@@ -607,7 +607,7 @@ def negotiate_unrestricted(
             else:
                 role.scp_role = acx.scp_role
 
-            reply_roles[acx.abstract_syntax] = role
+            reply_roles[cast(UID, acx.abstract_syntax)] = role
 
         result_cx.append(acx)
 

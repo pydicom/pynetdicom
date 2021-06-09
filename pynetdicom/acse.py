@@ -5,7 +5,7 @@ from typing import TYPE_CHECKING, Optional, Dict, List, cast, Tuple
 
 from pydicom.uid import UID
 
-from pynetdicom import evt
+from pynetdicom import evt, _config
 from pynetdicom._globals import APPLICATION_CONTEXT_NAME
 from pynetdicom.pdu_primitives import (
     A_ASSOCIATE,
