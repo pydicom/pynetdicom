@@ -5,19 +5,21 @@ from typing import Optional, Tuple, Dict, Callable, Any
 from pynetdicom._validators import validate_ae, validate_ui
 
 
-LOG_HANDLER_LEVEL: str = 'standard'
+LOG_HANDLER_LEVEL: str = "standard"
 """Default (non-user) event logging
 
-* If ``'none'`` then events will not be logged at all, however there will still
+* If ``"none"`` then events will not be logged at all, however there will still
   be some logging (warnings, errors, etc)
-* If ``'standard'`` then certain events will be logged (association
+* If ``"standard"`` then certain events will be logged (association
   negotiation, DIMSE messaging, etc)
+
+Default: ``"standard"``
 
 Examples
 --------
 
 >>> from pynetdicom import _config
->>> _config.LOG_HANDLER_LEVEL = 'none'
+>>> _config.LOG_HANDLER_LEVEL = "none"
 """
 
 
@@ -30,6 +32,8 @@ If ``True`` then UIDs will be checked to ensure they're conformant to the
 DICOM Standard and if not then an appropriate response sent, otherwise
 UIDs will only be checked to ensure they're no longer then 64 characters and
 if not then an appropriate response sent.
+
+Default: ``True``
 
 Examples
 --------
@@ -48,6 +52,8 @@ If ``False`` then elements with a VR of AE in DIMSE messages will be padded
 with trailing spaces up to the maximum allowable length (16 bytes), otherwise
 no padding will be added.
 
+Default: ``True``
+
 Examples
 --------
 
@@ -61,8 +67,10 @@ LOG_RESPONSE_IDENTIFIERS: bool = True
 
 .. versionadded:: 1.5
 
-If ``True`` (default) then the *Identifier* datasets received in Pending
+If ``True`` then the *Identifier* datasets received in Pending
 responses to C-FIND, C-GET and C-MOVE requests will be logged.
+
+Default: ``True``
 
 Examples
 --------
@@ -77,8 +85,10 @@ LOG_REQUEST_IDENTIFIERS: bool = True
 
 .. versionadded:: 1.5
 
-If ``True`` (default) then the *Identifier* datasets received in
+If ``True`` then the *Identifier* datasets received in
 C-FIND, C-GET and C-MOVE requests will be logged.
+
+Default: ``True``
 
 Examples
 --------
@@ -106,7 +116,7 @@ memory required when:
 As it's not possible to change the dataset encoding without loading it into
 memory, an exact matching accepted presentation context will be required.
 
-Default: ``False``.
+Default: ``False``
 
 Examples
 --------
@@ -130,7 +140,7 @@ amount of memory required when:
 * Receiving large datasets
 * Receiving many datasets concurrently
 
-Default: ``False``.
+Default: ``False``
 
 Examples
 --------
@@ -150,7 +160,7 @@ This allows the caller to define contextual behavior without modifying
 pynetdicom. For example, one could add a logging filter to the pynetdicom
 logger that references an externally defined ``contextvars.ContextVar``.
 
-Default: ``False``.
+Default: ``False``
 
 Examples
 --------
@@ -185,7 +195,7 @@ Examples
 """
 
 
-CODECS: Tuple[str, ...] = ('ascii', )
+CODECS: Tuple[str, ...] = ("ascii", )
 """Customise the codecs used to decode text values.
 
 .. versionadded:: 2.0
@@ -238,19 +248,21 @@ If a fallback successfully decodes an encoded value the string will be
 converted to ASCII  using :func:`str.encode` with the `errors` parameter set
 to ``'ignore'``.
 
+Default: ``("ascii",)``
+
 Examples
 --------
 
 Add UTF-8 as a fallback codec:
 
 >>> from pynetdicom import _config
->>> _config.CODECS = ('ascii', 'utf-8')
+>>> _config.CODECS = ("ascii", "utf-8")
 """
 
 
 VALIDATORS: Dict[str, Callable[[Any], Tuple[bool, str]]] = {
-    'AE': validate_ae,
-    'UI': validate_ui,
+    "AE": validate_ae,
+    "UI": validate_ui,
 }
 """Customise the validation performed on DIMSE elements and PDU parameters.
 
@@ -287,4 +299,32 @@ Perform no validation of **AE** DIMSE elements and AE title PDU parameters:
 
 >>> from pynetdicom import _config
 >>> _config.VALIDATORS['AE'] = def my_validator(value): return (True, "")
+"""
+
+
+UNRESTRICTED_STORAGE_SERVICE: bool = False
+"""When acting as an SCP assume all presentation contexts with private or
+unknown public abstract syntaxes belong to the storage service and accept all
+storage service requests.
+
+.. versionadded:: 2.0
+
+When ``True`` it's no longer necessary to define any supported
+presentation contexts from the storage service, however the supported contexts
+for other services will still need to be specified.
+
+This also applies to the Storage SCP used when making C-GET requests, however
+the usual requested presentation contexts and :ref:`SCP/SCU Role Selection
+items <user_presentation_role>` are still required.
+
+Default: ``False``
+
+Examples
+--------
+
+Always accept storage requests and treat unknown presentation contexts as
+part of the storage service.
+
+>>> from pynetdicom import _config
+>>> _config.UNRESTRICTED_STORAGE_SERVICE = True
 """

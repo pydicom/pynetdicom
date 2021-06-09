@@ -752,7 +752,7 @@ class Association(threading.Thread):
             If the :class:`Association` already has a socket set.
         """
         if self.dul.socket is not None:
-            raise RuntimeError("The Association already has a socket set.")
+            raise RuntimeError("The Association already has a socket set")
 
         self.dul.socket = socket
 
@@ -848,18 +848,20 @@ class Association(threading.Thread):
                     if hasattr(rsp, elem.keyword):
                         setattr(rsp, elem.keyword, elem.value)
                     else:
-                        LOGGER.warning("Status dataset returned by "
-                                       "callback contained an "
-                                       "unsupported element '%s'.",
-                                       elem.keyword)
+                        LOGGER.warning(
+                            "Status dataset returned by callback contained an "
+                            f"unsupported element '{elem.keyword}'"
+                        )
             else:
-                LOGGER.error("User callback returned a `Dataset` "
-                             "without a Status element.")
+                LOGGER.error(
+                    "User callback returned a `Dataset` without a Status "
+                    "element"
+                )
                 rsp.Status = 0xC001
         elif isinstance(status, int):
             rsp.Status = status
         else:
-            LOGGER.error("Invalid status returned by user callback.")
+            LOGGER.error("Invalid status returned by user callback")
             rsp.Status = 0xC002
 
         if rsp.Status not in STORAGE_SERVICE_CLASS_STATUS:
@@ -898,7 +900,7 @@ class Association(threading.Thread):
         if not self.is_established:
             raise RuntimeError(
                 "The association with a peer SCP must be "
-                "established before sending a C-CANCEL request."
+                "established before sending a C-CANCEL request"
             )
 
         if isinstance(query_model, (str, UID)):
@@ -2262,7 +2264,7 @@ class Association(threading.Thread):
         if not self.is_established:
             raise RuntimeError(
                 "The association with a peer SCP must be established prior "
-                "to sending an N-ACTION request."
+                "to sending an N-ACTION request"
             )
 
         # Determine the Presentation Context we are operating under
@@ -2517,7 +2519,7 @@ class Association(threading.Thread):
         if not self.is_established:
             raise RuntimeError(
                 "The association with a peer SCP must be established prior "
-                "to sending an N-CREATE request."
+                "to sending an N-CREATE request"
             )
 
         # Determine the Presentation Context we are operating under
@@ -2693,7 +2695,7 @@ class Association(threading.Thread):
         if not self.is_established:
             raise RuntimeError(
                 "The association with a peer SCP must be established prior "
-                "to sending an N-DELETE request."
+                "to sending an N-DELETE request"
             )
 
         # Determine the Presentation Context we are operating under
@@ -2844,7 +2846,7 @@ class Association(threading.Thread):
         if not self.is_established:
             raise RuntimeError(
                 "The association with a peer SCP must be established prior "
-                "to sending an N-EVENT-REPORT request."
+                "to sending an N-EVENT-REPORT request"
             )
 
         # Determine the Presentation Context we are operating under
@@ -3084,7 +3086,7 @@ class Association(threading.Thread):
         if not self.is_established:
             raise RuntimeError(
                 "The association with a peer SCP must be established prior "
-                "to sending an N-GET request."
+                "to sending an N-GET request"
             )
 
         # Determine the Presentation Context we are operating under
@@ -3326,7 +3328,7 @@ class Association(threading.Thread):
         if not self.is_established:
             raise RuntimeError(
                 "The association with a peer SCP must be established prior "
-                "to sending an N-SET request."
+                "to sending an N-SET request"
             )
 
         # Determine the Presentation Context we are operating under
@@ -3458,6 +3460,9 @@ class Association(threading.Thread):
         except KeyError:
             pass
 
+        if _config.UNRESTRICTED_STORAGE_SERVICE and isinstance(msg, C_STORE):
+            class_uid = "1.2.840.10008.5.1.4.1.1.1"
+
         # Convert the SOP/Service UID to the corresponding service
         service_class = uid_to_service_class(class_uid)(self)
 
@@ -3466,9 +3471,9 @@ class Association(threading.Thread):
         except KeyError:
             LOGGER.info(
                 "Received DIMSE message with invalid or rejected "
-                "context ID: %d", context_id
+                f"context ID: {context_id}"
             )
-            LOGGER.debug("%s", msg)
+            LOGGER.debug(str(msg))
             self.abort()
             return
 
@@ -3485,7 +3490,7 @@ class Association(threading.Thread):
         except NotImplementedError:
             # SCP isn't implemented
             LOGGER.error(
-                f"No supported service class available for the SOP "
+                "No supported service class available for the SOP "
                 f"Class UID '{class_uid}'"
             )
             self.abort()

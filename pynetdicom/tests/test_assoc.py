@@ -84,6 +84,13 @@ DEFL_DATASET = dcmread(
 )
 
 
+@pytest.fixture()
+def enable_unrestricted():
+    _config.UNRESTRICTED_STORAGE_SERVICE = True
+    yield
+    _config.UNRESTRICTED_STORAGE_SERVICE = False
+
+
 class DummyDIMSE:
     def __init__(self):
         self.status = None

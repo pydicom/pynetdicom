@@ -7,7 +7,9 @@ from typing import (
 
 from pydicom.uid import UID
 
+from pynetdicom import _config
 from pynetdicom._globals import DEFAULT_TRANSFER_SYNTAXES
+import pynetdicom.sop_class
 from pynetdicom.sop_class import (
     _APPLICATION_EVENT_CLASSES,
     _BASIC_WORKLIST_CLASSES,
@@ -38,7 +40,7 @@ if TYPE_CHECKING:  # pragma: no cover
     from pynetdicom.pdu_primitives import SCP_SCU_RoleSelectionNegotiation
 
 
-LOGGER = logging.getLogger('pynetdicom.presentation')
+LOGGER = logging.getLogger("pynetdicom.presentation")
 
 
 # Used with the event handlers to give the users access to the context
@@ -238,7 +240,7 @@ class PresentationContext:
     def abstract_syntax(self, value: Union[str, bytes, UID]) -> None:
         """Set the context's *Abstract Syntax*."""
         self._abstract_syntax = (
-            set_uid(value, 'abstract_syntax', True, False, True)
+            set_uid(value, "abstract_syntax", True, False, True)
         )
 
     def add_transfer_syntax(
@@ -257,7 +259,7 @@ class PresentationContext:
         if isinstance(syntax, str):  # includes UID
             syntax = UID(syntax)
         elif isinstance(syntax, bytes):
-            syntax = UID(syntax.decode('ascii'))
+            syntax = UID(syntax.decode("ascii"))
         else:
             LOGGER.error("Attempted to add an invalid transfer syntax")
             return
@@ -394,7 +396,7 @@ class PresentationContext:
     def scp_role(self, val: Optional[bool]) -> None:
         """Set whether to accept the proposed SCP role (as *Acceptor*)."""
         if not isinstance(val, (bool, type(None))):
-            raise TypeError("`scp_role` must be a bool or None")
+            raise TypeError("'scp_role' must be a bool or None")
 
         self._scp_role = val
 
@@ -417,7 +419,7 @@ class PresentationContext:
     def scu_role(self, val: Optional[bool]) -> None:
         """Set whether to accept the proposed SCU role (as *Acceptor*)."""
         if not isinstance(val, (bool, type(None))):
-            raise TypeError("`scu_role` must be a bool or None")
+            raise TypeError("'scu_role' must be a bool or None")
 
         self._scu_role = val
 
@@ -431,19 +433,19 @@ class PresentationContext:
             The string representation of the negotiated result.
         """
         if self.result is None:
-            status = 'Pending'
+            status = "Pending"
         elif self.result == 0x00:
-            status = 'Accepted'
+            status = "Accepted"
         elif self.result == 0x01:
-            status = 'User Rejected'
+            status = "User Rejected"
         elif self.result == 0x02:
-            status = 'Provider Rejected'
+            status = "Provider Rejected"
         elif self.result == 0x03:
-            status = 'Abstract Syntax Not Supported'
+            status = "Abstract Syntax Not Supported"
         elif self.result == 0x04:
-            status = 'Transfer Syntax(es) Not Supported'
+            status = "Transfer Syntax(es) Not Supported"
         else:
-            status = 'Unknown'
+            status = "Unknown"
 
         return status
 
@@ -451,32 +453,32 @@ class PresentationContext:
         """String representation of the Presentation Context."""
         s = ''
         if self.context_id is not None:
-            s += f'ID: {self.context_id}\n'
+            s += f"ID: {self.context_id}\n"
 
         if self.abstract_syntax is not None:
-            s += f'Abstract Syntax: {self.abstract_syntax.name}\n'
+            s += f"Abstract Syntax: {self.abstract_syntax.name}\n"
 
-        s += 'Transfer Syntax(es):\n'
+        s += "Transfer Syntax(es):\n"
         for syntax in self.transfer_syntax[:-1]:
-            s += f'    ={syntax.name}\n'
+            s += f"    ={syntax.name}\n"
 
         if self.transfer_syntax:
-            s += f'    ={self.transfer_syntax[-1].name}'
+            s += f"    ={self.transfer_syntax[-1].name}"
         else:
-            s += '    (none)'
+            s += "    (none)"
 
         if self.result is not None:
-            s += f'\nResult: {self.status}'
+            s += f"\nResult: {self.status}"
 
         if None not in (self.as_scu, self.as_scp):
             if self.as_scu and not self.as_scp:
-                s += '\nRole: SCU only'
+                s += "\nRole: SCU only"
             elif self.as_scu and self.as_scp:
-                s += '\nRole: SCU and SCP'
+                s += "\nRole: SCU and SCP"
             elif not self.as_scu and self.as_scp:
-                s += '\nRole: SCP only'
+                s += "\nRole: SCP only"
             else:
-                s += '\nRole: (none)'
+                s += "\nRole: (none)"
 
         return s
 
@@ -509,13 +511,120 @@ class PresentationContext:
             self.add_transfer_syntax(syntax)
 
 
-def negotiate_as_acceptor(
-    rq_contexts: List[PresentationContext],
-    ac_contexts: List[PresentationContext],
-    roles: Optional[Dict[UID, Tuple[Optional[bool], Optional[bool]]]] = None
-) -> Tuple[
+RoleType = Optional[Dict[UID, Tuple[Optional[bool], Optional[bool]]]]
+ListCXType = List[PresentationContext]
+CXNegotiationReturn = Tuple[
     List[PresentationContext], List["SCP_SCU_RoleSelectionNegotiation"]
-]:
+]
+
+
+def negotiate_unrestricted(
+    rq_contexts: ListCXType, ac_contexts: ListCXType, roles: RoleType = None
+) -> CXNegotiationReturn:
+    """Process the Presentation Contexts as an Association *Acceptor*,
+    with an unrestricted storage service.
+
+    ..versionadded:: 2.0
+
+    Parameters
+    ----------
+    rq_contexts : list of PresentationContext
+        The Presentation Contexts proposed by the peer. Each item has
+        values for Context ID, Abstract Syntax and Transfer Syntax.
+    ac_contexts : list of PresentationContext
+        The Presentation Contexts supported by the local AE when acting
+        as an Association *Acceptor*. Each item has values for Context ID,
+        Abstract Syntax and Transfer Syntax.
+    roles : dict or None
+        If the *Requestor* has included one or more SCP/SCU Role Selection
+        Negotiation items then this will be a :class:`dict` of
+        ``{'SOP Class UID' : (SCU role, SCP role)}``, otherwise ``None``
+        (default)
+
+    Returns
+    -------
+    list of PresentationContext
+        The accepted presentation context items, each with a Result value
+        a Context ID, an Abstract Syntax and one Transfer Syntax item.
+        Items are sorted in increasing Context ID value.
+    list of SCP_SCU_RoleSelectionNegotiation
+        If `roles` is not ``None`` then this is a :class:`list` of SCP/SCU Role
+        Selection Negotiation items that can be sent back to the *Requestor*.
+    """
+    from pynetdicom.pdu_primitives import SCP_SCU_RoleSelectionNegotiation
+
+    roles = roles or {}
+    storage_contexts: List[PresentationContext] = []
+    non_storage_contexts: List[PresentationContext] = []
+    reply_roles: Dict[UID, SCP_SCU_RoleSelectionNegotiation] = {}
+    storage_uids = _STORAGE_CLASSES.values()
+
+    # Split out private/unknown/storage cx's from everything else
+    for cx in rq_contexts:
+        ab_syntax = cx.abstract_syntax
+        if (
+            ab_syntax.is_private
+            or ab_syntax in storage_uids
+            or not hasattr(pynetdicom.sop_class, ab_syntax.keyword)
+        ):
+            storage_contexts.append(cx)
+        else:
+            non_storage_contexts.append(cx)
+
+    # Negotiate non-storage contexts as normal
+    result_cx, result_roles = negotiate_as_acceptor(
+        non_storage_contexts, ac_contexts, roles
+    )
+
+    # Accept all storage-like contexts
+    for rqx in storage_contexts:
+        acx = PresentationContext()
+        acx.context_id = rqx.context_id
+        acx.abstract_syntax = rqx.abstract_syntax
+        acx.transfer_syntax = [rqx.transfer_syntax[0]]
+        acx.result = 0x00
+        acx._as_scu = False
+        acx._as_scp = True
+
+        # Role selection
+        if rqx.abstract_syntax in roles:
+            role = SCP_SCU_RoleSelectionNegotiation()
+            role.sop_class_uid = rqx.abstract_syntax
+
+            rq_roles = roles[rqx.ab_syntax]
+            outcome = SCP_SCU_ROLES[rq_roles][(True, True)]
+            acx._as_scu = outcome[2]
+            acx._as_scp = outcome[3]
+
+            # Can't return 0x01 if proposed 0x00
+            if rq_roles[0] is False:
+                role.scu_role = False
+            else:
+                role.scu_role = acx.scu_role
+
+            if rq_roles[1] is False:
+                role.scp_role = False
+            else:
+                role.scp_role = acx.scp_role
+
+            reply_roles[acx.abstract_syntax] = role
+
+        result_cx.append(acx)
+
+    # Not required but a nice thing to do
+    result_cx = sorted(
+        result_cx, key=lambda x: cast(int, x.context_id)
+    )
+    result_roles = sorted(
+        reply_roles.values(), key=lambda x: cast(UID, x.sop_class_uid)
+    )
+
+    return result_cx, result_roles
+
+
+def negotiate_as_acceptor(
+    rq_contexts: ListCXType, ac_contexts: ListCXType, roles: RoleType = None
+) -> CXNegotiationReturn:
     """Process the Presentation Contexts as an Association *Acceptor*.
 
     Parameters
@@ -579,10 +688,7 @@ def negotiate_as_acceptor(
     #   the key
     acceptor_contexts = {cx.abstract_syntax: cx for cx in ac_contexts}
 
-    for (cntx_id, ab_syntax) in requestor_contexts:
-        # Convenience variable
-        rq_context = requestor_contexts[(cntx_id, ab_syntax)]
-
+    for (cntx_id, ab_syntax), rq_context in requestor_contexts.items():
         # Create a new PresentationContext item that will store the
         #   results of the negotiation
         context = PresentationContext()
@@ -680,10 +786,8 @@ def negotiate_as_acceptor(
 
 
 def negotiate_as_requestor(
-    rq_contexts: List[PresentationContext],
-    ac_contexts: List[PresentationContext],
-    roles: Optional[Dict[UID, Tuple[Optional[bool], Optional[bool]]]] = None
-) -> List[PresentationContext]:
+    rq_contexts: ListCXType, ac_contexts: ListCXType, roles: RoleType = None
+) -> ListCXType:
     """Process the Presentation Contexts as an Association *Requestor*.
 
     The *Acceptor* has processed the *Requestor's* presentation context
@@ -868,9 +972,7 @@ def build_context(
 
 
 def build_role(
-    uid: Union[str, UID],
-    scu_role: bool = False,
-    scp_role: bool = False
+    uid: Union[str, UID], scu_role: bool = False, scp_role: bool = False
 ) -> "SCP_SCU_RoleSelectionNegotiation":
     """Return a SCP/SCU Role Selection Negotiation item.
 

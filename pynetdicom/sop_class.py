@@ -54,7 +54,13 @@ def uid_to_service_class(uid: str) -> Type[ServiceClass]:
         The Service Class corresponding to the SOP Class UID or the base class
         if support for the SOP Class isn't implemented.
     """
-    if uid in _SERVICE_CLASSES:
+    if uid in _VERIFICATION_CLASSES.values():
+        return VerificationServiceClass
+    elif uid in _QR_CLASSES.values():
+        return QueryRetrieveServiceClass
+    elif uid in _STORAGE_CLASSES.values():
+        return StorageServiceClass
+    elif uid in _SERVICE_CLASSES:
         return _SERVICE_CLASSES[uid]
     elif uid in _APPLICATION_EVENT_CLASSES.values():
         return ApplicationEventLoggingServiceClass
@@ -84,22 +90,16 @@ def uid_to_service_class(uid: str) -> Type[ServiceClass]:
         return ProcedureStepServiceClass
     elif uid in _PROTOCOL_APPROVAL_CLASSES.values():
         return ProtocolApprovalQueryRetrieveServiceClass
-    elif uid in _QR_CLASSES.values():
-        return QueryRetrieveServiceClass
     elif uid in _RELEVANT_PATIENT_QUERY_CLASSES.values():
         return RelevantPatientInformationQueryServiceClass
     elif uid in _RT_MACHINE_VERIFICATION_CLASSES.values():
         return RTMachineVerificationServiceClass
-    elif uid in _STORAGE_CLASSES.values():
-        return StorageServiceClass
     elif uid in _STORAGE_COMMITMENT_CLASSES.values():
         return StorageCommitmentServiceClass
     elif uid in _SUBSTANCE_ADMINISTRATION_CLASSES.values():
         return SubstanceAdministrationQueryServiceClass
     elif uid in _UNIFIED_PROCEDURE_STEP_CLASSES.values():
         return UnifiedProcedureStepServiceClass
-    elif uid in _VERIFICATION_CLASSES.values():
-        return VerificationServiceClass
 
     # No SCP implemented
     return ServiceClass
