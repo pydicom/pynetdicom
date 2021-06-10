@@ -13,6 +13,7 @@ import warnings
 
 from pydicom.uid import UID
 
+from pynetdicom import _config
 from pynetdicom.association import Association
 from pynetdicom.events import EventHandlerType
 from pynetdicom.presentation import PresentationContext
@@ -789,7 +790,8 @@ class ApplicationEntity:
         """
         # If the SCP has no supported SOP Classes then there's no point
         #   running as a server
-        if not contexts and not self.supported_contexts:
+        unrestricted = _config.UNRESTRICTED_STORAGE_SERVICE
+        if not unrestricted and not contexts and not self.supported_contexts:
             msg = "No supported Presentation Contexts have been defined"
             LOGGER.error(msg)
             raise ValueError(msg)

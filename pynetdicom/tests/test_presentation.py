@@ -10,6 +10,7 @@ from pydicom._uid_dict import UID_dictionary
 from pydicom.uid import UID
 
 from pynetdicom import AE, _config
+from pynetdicom._globals import DEFAULT_TRANSFER_SYNTAXES
 from pynetdicom.pdu_primitives import SCP_SCU_RoleSelectionNegotiation
 from pynetdicom.presentation import (
     build_context,
@@ -17,7 +18,7 @@ from pynetdicom.presentation import (
     PresentationContext,
     negotiate_as_acceptor,
     negotiate_as_requestor,
-    DEFAULT_TRANSFER_SYNTAXES,
+    negotiate_unrestricted,
     ApplicationEventLoggingPresentationContexts,
     BasicWorklistManagementPresentationContexts,
     ColorPalettePresentationContexts,
@@ -383,7 +384,7 @@ class TestPresentationContext:
         assert not context.scu_role
         context.scu_role = None
         assert context.scu_role is None
-        with pytest.raises(TypeError, match=r"`scu_role` must be a bool"):
+        with pytest.raises(TypeError, match=r"'scu_role' must be a bool"):
             context.scu_role = 1
 
     def test_scp_role(self):
@@ -397,7 +398,7 @@ class TestPresentationContext:
         context.scp_role = None
         assert context.scp_role is None
 
-        with pytest.raises(TypeError, match=r"`scp_role` must be a bool"):
+        with pytest.raises(TypeError, match=r"'scp_role' must be a bool"):
             context.scp_role = 1
 
     def test_repr(self):
@@ -1642,6 +1643,213 @@ class TestNegotiateAsRequestor:
         assert context.context_id == 3
         assert context.abstract_syntax == '1.2.840.10008.5.1.4.1.1.2.1'
         assert context.result == 0x01
+
+
+class TestNegotiateUnrestricted:
+    """Tests for presentation.negotiate_unrestricted()"""
+    def setup(self):
+        self.test_func = negotiate_unrestricted
+
+    def test_no_contexts(self):
+        """Test negotiation with no contexts."""
+        assert self.test_func([], [], []) == ([], [])
+
+    def test_non_storage_no_acc(self):
+        """Test negotiation with one requestor, no acceptor contexts."""
+        context = PresentationContext()
+        context.context_id = 1
+        context.abstract_syntax = '1.2.840.10008.1.1'
+        context.transfer_syntax = ['1.2.840.10008.1.2']
+        result, roles = self.test_func([context], [])
+
+        assert len(result) == 1
+        assert roles == []
+        context = result[0]
+        assert context.context_id == 1
+        assert context.abstract_syntax == '1.2.840.10008.1.1'
+        assert context.transfer_syntax == ['1.2.840.10008.1.2']
+        assert context.result == 0x03
+
+    def test_non_storage_match(self):
+        """Test negotiation one req/acc, matching accepted."""
+        context = PresentationContext()
+        context.context_id = 1
+        context.abstract_syntax = '1.2.840.10008.1.1'
+        context.transfer_syntax = ['1.2.840.10008.1.2']
+        result, roles = self.test_func([context], [context])
+        assert len(result) == 1
+        assert roles == []
+        context = result[0]
+        assert context.context_id == 1
+        assert context.abstract_syntax == '1.2.840.10008.1.1'
+        assert context.result == 0x00
+        assert context.transfer_syntax == ['1.2.840.10008.1.2']
+        assert context.as_scu == False
+        assert context.as_scp == True
+
+    def test_storage(self):
+        """Test storage likes"""
+        uids = [
+            '1.2.3.4',   # private
+            '1.2.840.10008.1.1.1.1.1.1.1.1.1.1.1',  # unknown public
+            '1.2.840.10008.5.1.4.1.1.1',  # known storage
+        ]
+        for uid in uids:
+            context = PresentationContext()
+            context.context_id = 1
+            context.abstract_syntax = uid
+            context.transfer_syntax = ['1.2.840.10008.1.2']
+            result, roles = self.test_func([context], [])
+            assert len(result) == 1
+            assert roles == []
+            context = result[0]
+            assert context.context_id == 1
+            assert context.abstract_syntax == uid
+            assert context.result == 0x00
+            assert context.transfer_syntax == ['1.2.840.10008.1.2']
+            assert context.as_scu
+            assert context.as_scp
+
+    def test_duplicates(self):
+        """Test negotiation with duplicate requests"""
+        context_a = PresentationContext()
+        context_a.context_id = 1
+        context_a.abstract_syntax = '1.2.840.10008.5.1.4.1.1.1'
+        context_a.transfer_syntax = ['1.2.840.10008.1.2']
+
+        context_b = PresentationContext()
+        context_b.context_id = 3
+        context_b.abstract_syntax = '1.2.840.10008.5.1.4.1.1.1'
+        context_b.transfer_syntax = ['1.2.840.10008.1.2.1']
+
+        context_c = PresentationContext()
+        context_c.context_id = 5
+        context_c.abstract_syntax = '1.2.840.10008.5.1.4.1.1.1'
+        context_c.transfer_syntax = ['1.2.840.10008.1.2.2']
+
+        t_syntax = [
+            '1.2.840.10008.1.2', '1.2.840.10008.1.2.1', '1.2.840.10008.1.2.2'
+        ]
+
+        context_list = [context_a, context_b, context_c]
+        result, roles = self.test_func(context_list, [])
+        assert len(result) == 3
+        assert roles == []
+        for ii, context in enumerate(result):
+            assert context.context_id in [1, 3, 5]
+            assert context.abstract_syntax == '1.2.840.10008.5.1.4.1.1.1'
+            assert context.result == 0x00
+            assert context.transfer_syntax == [t_syntax[ii]]
+            assert context.as_scu
+            assert context.as_scp
+
+    def test_roles_false_false(self):
+        """Test role selection negotiation."""
+        context = PresentationContext()
+        context.context_id = 1
+        context.abstract_syntax = '1.2.3'
+        context.transfer_syntax = ['1.2.840.10008.1.2']
+
+        result, roles = self.test_func(
+            [context], [context], {'1.2.3': (False, False)}
+        )
+
+        assert len(result) == 1
+        context = result[0]
+        assert context.context_id == 1
+        assert context.abstract_syntax == '1.2.3'
+        assert context.result == 0x00
+        assert context.transfer_syntax == ['1.2.840.10008.1.2']
+        assert context.as_scu == False
+        assert context.as_scp == False
+
+        assert len(roles) == 1
+        item = roles[0]
+        assert isinstance(item, SCP_SCU_RoleSelectionNegotiation)
+        assert item.sop_class_uid == "1.2.3"
+        assert not item.scu_role
+        assert not item.scp_role
+
+    def test_roles_false_true(self):
+        """Test role selection negotiation."""
+        context = PresentationContext()
+        context.context_id = 1
+        context.abstract_syntax = '1.2.3'
+        context.transfer_syntax = ['1.2.840.10008.1.2']
+
+        result, roles = self.test_func(
+            [context], [context], {'1.2.3': (False, True)}
+        )
+
+        assert len(result) == 1
+        context = result[0]
+        assert context.context_id == 1
+        assert context.abstract_syntax == '1.2.3'
+        assert context.result == 0x00
+        assert context.transfer_syntax == ['1.2.840.10008.1.2']
+        assert context.as_scu == True
+        assert context.as_scp == False
+
+        assert len(roles) == 1
+        item = roles[0]
+        assert isinstance(item, SCP_SCU_RoleSelectionNegotiation)
+        assert item.sop_class_uid == "1.2.3"
+        assert not item.scu_role
+        assert item.scp_role
+
+    def test_roles_true_true(self):
+        """Test role selection negotiation."""
+        context = PresentationContext()
+        context.context_id = 1
+        context.abstract_syntax = '1.2.3'
+        context.transfer_syntax = ['1.2.840.10008.1.2']
+
+        result, roles = self.test_func(
+            [context], [context], {'1.2.3': (True, True)}
+        )
+
+        assert len(result) == 1
+        context = result[0]
+        assert context.context_id == 1
+        assert context.abstract_syntax == '1.2.3'
+        assert context.result == 0x00
+        assert context.transfer_syntax == ['1.2.840.10008.1.2']
+        assert context.as_scu == True
+        assert context.as_scp == True
+
+        assert len(roles) == 1
+        item = roles[0]
+        assert isinstance(item, SCP_SCU_RoleSelectionNegotiation)
+        assert item.sop_class_uid == "1.2.3"
+        assert item.scu_role
+        assert item.scp_role
+
+    def test_roles_true_false(self):
+        """Test role selection negotiation."""
+        context = PresentationContext()
+        context.context_id = 1
+        context.abstract_syntax = '1.2.3'
+        context.transfer_syntax = ['1.2.840.10008.1.2']
+
+        result, roles = self.test_func(
+            [context], [context], {'1.2.3': (True, False)}
+        )
+
+        assert len(result) == 1
+        context = result[0]
+        assert context.context_id == 1
+        assert context.abstract_syntax == '1.2.3'
+        assert context.result == 0x00
+        assert context.transfer_syntax == ['1.2.840.10008.1.2']
+        assert context.as_scu == False
+        assert context.as_scp == True
+
+        assert len(roles) == 1
+        item = roles[0]
+        assert isinstance(item, SCP_SCU_RoleSelectionNegotiation)
+        assert item.sop_class_uid == "1.2.3"
+        assert item.scu_role
+        assert not item.scp_role
 
 
 def test_default_transfer_syntaxes():

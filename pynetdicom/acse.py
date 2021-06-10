@@ -5,17 +5,22 @@ from typing import TYPE_CHECKING, Optional, Dict, List, cast, Tuple
 
 from pydicom.uid import UID
 
-from pynetdicom import evt
+from pynetdicom import evt, _config
 from pynetdicom._globals import APPLICATION_CONTEXT_NAME
 from pynetdicom.pdu_primitives import (
-    A_ASSOCIATE, A_RELEASE, A_ABORT, A_P_ABORT,
+    A_ASSOCIATE,
+    A_RELEASE,
+    A_ABORT,
+    A_P_ABORT,
     AsynchronousOperationsWindowNegotiation,
     SOPClassCommonExtendedNegotiation,
     SOPClassExtendedNegotiation,
     UserIdentityNegotiation,
 )
 from pynetdicom.presentation import (
-    negotiate_as_requestor, negotiate_as_acceptor
+    negotiate_as_requestor,
+    negotiate_as_acceptor,
+    negotiate_unrestricted,
 )
 
 if TYPE_CHECKING:  # pragma: no cover
@@ -24,7 +29,7 @@ if TYPE_CHECKING:  # pragma: no cover
     from pynetdicom.transport import AssociationSocket
 
 
-LOGGER = logging.getLogger('pynetdicom.acse')
+LOGGER = logging.getLogger("pynetdicom.acse")
 
 
 class ACSE:
@@ -85,7 +90,7 @@ class ACSE:
             _ = evt.trigger(
                 self.assoc,
                 evt.EVT_ASYNC_OPS,
-                {'nr_invoked': inv, 'nr_performed': perf}
+                {"nr_invoked": inv, "nr_performed": perf}
             )
         except NotImplementedError:
             return None
@@ -117,7 +122,7 @@ class ACSE:
             rsp = evt.trigger(
                 self.assoc,
                 evt.EVT_SOP_COMMON,
-                {'items': self.requestor.sop_class_common_extended}
+                {"items": self.requestor.sop_class_common_extended}
             )
         except Exception as exc:
             LOGGER.error(
@@ -156,7 +161,7 @@ class ACSE:
             user_response = evt.trigger(
                 self.assoc,
                 evt.EVT_SOP_EXTENDED,
-                {'app_info': self.requestor.sop_class_extended}
+                {"app_info": self.requestor.sop_class_extended}
             )
         except Exception as exc:
             user_response = {}
@@ -215,9 +220,9 @@ class ACSE:
                 self.assoc,
                 evt.EVT_USER_ID,
                 {
-                    'user_id_type': req.user_identity_type,
-                    'primary_field': req.primary_field,
-                    'secondary_field': req.secondary_field,
+                    "user_id_type": req.user_identity_type,
+                    "primary_field": req.primary_field,
+                    "secondary_field": req.secondary_field,
                 }
             )
         except NotImplementedError:
@@ -266,7 +271,7 @@ class ACSE:
         """Return the :class:`~pynetdicom.transport.AssociationSocket`."""
         return self.assoc.dul.socket
 
-    def is_aborted(self, abort_type: str = 'both') -> bool:
+    def is_aborted(self, abort_type: str = "both") -> bool:
         """Return ``True`` if an A-ABORT and/or A-P-ABORT request has been
         received.
 
@@ -291,9 +296,9 @@ class ACSE:
         # A-P-ABORT:
         #   Connection closed, FSM received invalid event or DUL sent A-ABORT
         abort_classes = {
-            'both': (A_ABORT, A_P_ABORT),
-            'a-abort': (A_ABORT, ),
-            'a-p-abort': (A_P_ABORT, ),
+            "both": (A_ABORT, A_P_ABORT),
+            "a-abort": (A_ABORT,),
+            "a-p-abort": (A_P_ABORT,),
         }
 
         primitive = self.dul.peek_next_pdu()
@@ -405,11 +410,18 @@ class ACSE:
             for uid, item in self.requestor.role_selection.items()
         }
 
-        result, ac_roles = negotiate_as_acceptor(
-            assoc_rq.presentation_context_definition_list,
-            self.acceptor.supported_contexts,
-            rq_roles
-        )
+        if _config.UNRESTRICTED_STORAGE_SERVICE:
+            result, ac_roles = negotiate_unrestricted(
+                assoc_rq.presentation_context_definition_list,
+                self.acceptor.supported_contexts,
+                rq_roles
+            )
+        else:
+            result, ac_roles = negotiate_as_acceptor(
+                assoc_rq.presentation_context_definition_list,
+                self.acceptor.supported_contexts,
+                rq_roles
+            )
 
         # pylint: disable=protected-access
         # Accepted contexts are stored as {context ID : context}
@@ -522,14 +534,14 @@ class ACSE:
                     evt.trigger(self.assoc, evt.EVT_ABORTED, {})
                     self.assoc.kill()
                 else:
-                    LOGGER.info('Association Accepted')
+                    LOGGER.info("Association Accepted")
                     self.assoc.is_established = True
                     evt.trigger(self.assoc, evt.EVT_ESTABLISHED, {})
 
-            elif hasattr(rsp, 'result') and rsp.result in [0x01, 0x02]:
+            elif hasattr(rsp, "result") and rsp.result in [0x01, 0x02]:
                 # 0x01 is rejected (permanent)
                 # 0x02 is rejected (transient)
-                LOGGER.error('Association Rejected')
+                LOGGER.error("Association Rejected")
                 LOGGER.error(
                     f"Result: {rsp.result_str}, Source: {rsp.source_str}"
                 )
