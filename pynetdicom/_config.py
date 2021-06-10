@@ -242,11 +242,11 @@ The specified codecs will be used when decoding the following parameters:
 Possible codecs are given in the Python documentation `here
 <https://docs.python.org/3/library/codecs.html#standard-encodings>`_. Decoding
 will be attempted in the order that the codecs appear in ``CODECS`` and any
-fallback codecs should be added after ``'ascii'``.
+fallback codecs should be added after ``"ascii"``.
 
 If a fallback successfully decodes an encoded value the string will be
-converted to ASCII  using :func:`str.encode` with the `errors` parameter set
-to ``'ignore'``.
+converted to ASCII  using :meth:`str.encode` with the `errors` parameter set
+to ``"ignore"``.
 
 Default: ``("ascii",)``
 
@@ -310,8 +310,9 @@ storage service requests.
 .. versionadded:: 2.0
 
 When ``True`` it's no longer necessary to define any supported
-presentation contexts from the storage service, however the supported contexts
-for other services will still need to be specified.
+presentation contexts from the storage service and any that have been added
+will be ignored, however the supported contexts for other services will still
+need to be specified.
 
 This also applies to the Storage SCP used when making C-GET requests, however
 the usual requested presentation contexts and :ref:`SCP/SCU Role Selection

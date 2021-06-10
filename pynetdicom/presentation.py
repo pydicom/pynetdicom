@@ -432,55 +432,48 @@ class PresentationContext:
         str
             The string representation of the negotiated result.
         """
-        if self.result is None:
-            status = "Pending"
-        elif self.result == 0x00:
-            status = "Accepted"
-        elif self.result == 0x01:
-            status = "User Rejected"
-        elif self.result == 0x02:
-            status = "Provider Rejected"
-        elif self.result == 0x03:
-            status = "Abstract Syntax Not Supported"
-        elif self.result == 0x04:
-            status = "Transfer Syntax(es) Not Supported"
-        else:
-            status = "Unknown"
-
-        return status
+        s = {
+            None: "Pending",
+            0x00: "Accepted",
+            0x01: "User Rejected",
+            0x02: "Provider Rejected",
+            0x03: "Abstract Syntax Not Supported",
+            0x04: "Transfer Syntax(es) Not Supported",
+        }
+        try:
+            return s[self.result]
+        except KeyError:
+            return "Unknown"
 
     def __str__(self) -> str:
         """String representation of the Presentation Context."""
-        s = ''
+        s = []
         if self.context_id is not None:
-            s += f"ID: {self.context_id}\n"
+            s.append(f"ID: {self.context_id}")
 
         if self.abstract_syntax is not None:
-            s += f"Abstract Syntax: {self.abstract_syntax.name}\n"
+            s.append(f"Abstract Syntax: {self.abstract_syntax.name}")
 
-        s += "Transfer Syntax(es):\n"
-        for syntax in self.transfer_syntax[:-1]:
-            s += f"    ={syntax.name}\n"
-
-        if self.transfer_syntax:
-            s += f"    ={self.transfer_syntax[-1].name}"
+        s.append("Transfer Syntax(es):")
+        for syntax in self.transfer_syntax:
+            s.append(f"    ={syntax.name}")
         else:
-            s += "    (none)"
+            s.append("    (none)")
 
         if self.result is not None:
-            s += f"\nResult: {self.status}"
+            s.append(f"Result: {self.status}")
 
         if None not in (self.as_scu, self.as_scp):
             if self.as_scu and not self.as_scp:
-                s += "\nRole: SCU only"
+                s.append("Role: SCU only")
             elif self.as_scu and self.as_scp:
-                s += "\nRole: SCU and SCP"
+                s.append("Role: SCU and SCP")
             elif not self.as_scu and self.as_scp:
-                s += "\nRole: SCP only"
+                s.append("Role: SCP only")
             else:
-                s += "\nRole: (none)"
+                s.append("Role: (none)")
 
-        return s
+        return "\n".join(s)
 
     @property
     def transfer_syntax(self) -> List[UID]:
@@ -521,7 +514,7 @@ CXNegotiationReturn = Tuple[
 def negotiate_unrestricted(
     rq_contexts: ListCXType, ac_contexts: ListCXType, roles: RoleType = None
 ) -> CXNegotiationReturn:
-    """Process the Presentation Contexts as an Association *Acceptor*,
+    """Process the Presentation Contexts as an Association *Acceptor*
     with an unrestricted storage service.
 
     ..versionadded:: 2.0
@@ -577,39 +570,32 @@ def negotiate_unrestricted(
     )
 
     # Accept all storage-like contexts
-    for rqx in storage_contexts:
-        acx = PresentationContext()
-        acx.context_id = rqx.context_id
-        acx.abstract_syntax = rqx.abstract_syntax
-        acx.transfer_syntax = [rqx.transfer_syntax[0]]
-        acx.result = 0x00
-        acx._as_scu = False
-        acx._as_scp = True
+    for rcx in storage_contexts:
+        cx = PresentationContext()
+        cx.context_id = rcx.context_id
+        cx.abstract_syntax = rcx.abstract_syntax
+        cx.transfer_syntax = [rcx.transfer_syntax[0]]
+        cx.result = 0x00
+        cx._as_scu = True
+        cx._as_scp = True
 
         # Role selection
-        if rqx.abstract_syntax in roles:
+        if rcx.abstract_syntax in roles:
             role = SCP_SCU_RoleSelectionNegotiation()
-            role.sop_class_uid = rqx.abstract_syntax
+            role.sop_class_uid = rcx.abstract_syntax
 
-            rq_roles = roles[rqx.abstract_syntax]
+            rq_roles = roles[rcx.abstract_syntax]
             outcome = SCP_SCU_ROLES[rq_roles][(True, True)]
-            acx._as_scu = outcome[2]
-            acx._as_scp = outcome[3]
+            cx._as_scu = outcome[2]
+            cx._as_scp = outcome[3]
 
             # Can't return 0x01 if proposed 0x00
-            if rq_roles[0] is False:
-                role.scu_role = False
-            else:
-                role.scu_role = acx.scu_role
+            role.scu_role = False if not rq_roles[0] else True
+            role.scp_role = False if not rq_roles[1] else True
 
-            if rq_roles[1] is False:
-                role.scp_role = False
-            else:
-                role.scp_role = acx.scp_role
+            reply_roles[cast(UID, cx.abstract_syntax)] = role
 
-            reply_roles[cast(UID, acx.abstract_syntax)] = role
-
-        result_cx.append(acx)
+        result_cx.append(cx)
 
     # Not required but a nice thing to do
     result_cx = sorted(

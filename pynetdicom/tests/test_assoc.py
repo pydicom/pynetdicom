@@ -64,7 +64,7 @@ from pynetdicom.sop_class import (
 from .hide_modules import hide_modules
 
 
-#debug_logger()
+debug_logger()
 
 
 ON_WINDOWS = sys.platform == "win32"
@@ -486,7 +486,7 @@ class TestAssociation:
         ae = AE()
         assoc = Association(ae, MODE_REQUESTOR)
         assoc.dul.socket = 'abc'
-        msg = r"The Association already has a socket set."
+        msg = r"The Association already has a socket set"
         with pytest.raises(RuntimeError, match=msg):
             assoc.set_socket('cba')
 
@@ -3301,6 +3301,154 @@ class TestAssociationSendCGet:
                 "UID '1.2.3.4'"
             )
             assert msg in caplog.text
+
+    def test_unrestricted_success(self, enable_unrestricted):
+        """Test unrestricted storage"""
+        store_pname = []
+
+        def handle_get(event):
+            yield 3
+            self.good.file_meta.TransferSyntaxUID = ImplicitVRLittleEndian
+            self.good.PatientName = "Known^Public"
+            yield 0xFF00, self.good
+            self.good.SOPClassUID = "1.2.3.4"
+            self.good.PatientName = "Private"
+            yield 0xFF00, self.good
+            self.good.SOPClassUID = "1.2.840.10008.1.1.1.1.1.1.1"
+            self.good.PatientName = "Unknown^Public"
+            yield 0xFF00, self.good
+
+
+        def handle_store(event):
+            store_pname.append(event.dataset.PatientName)
+            return 0x0000
+
+        scu_handler = [(evt.EVT_C_STORE, handle_store)]
+        scp_handler = [(evt.EVT_C_GET, handle_get)]
+
+        self.ae = ae = AE()
+        ae.acse_timeout = 5
+        ae.dimse_timeout = 5
+        ae.network_timeout = 5
+        ae.add_supported_context(PatientRootQueryRetrieveInformationModelGet)
+
+        scp = ae.start_server(('', 11112), block=False, evt_handlers=scp_handler)
+
+        ae.add_requested_context(PatientRootQueryRetrieveInformationModelGet)
+        ae.add_requested_context(CTImageStorage)
+        ae.add_requested_context('1.2.3.4')
+        ae.add_requested_context('1.2.840.10008.1.1.1.1.1.1.1')
+
+        role_a = build_role(CTImageStorage, scp_role=True, scu_role=True)
+        role_b = build_role('1.2.3.4', scp_role=True, scu_role=True)
+        role_c = build_role(
+            '1.2.840.10008.1.1.1.1.1.1.1', scp_role=True, scu_role=True
+        )
+
+        assoc = ae.associate(
+            'localhost',
+            11112,
+            evt_handlers=scu_handler,
+            ext_neg=[role_a, role_b, role_c],
+        )
+
+        assert assoc.is_established
+
+        result = assoc.send_c_get(
+            self.ds, PatientRootQueryRetrieveInformationModelGet
+        )
+        (status, ds) = next(result)
+        assert status.Status == 0xff00
+        assert ds is None
+        (status, ds) = next(result)
+        assert status.Status == 0xff00
+        assert ds is None
+        (status, ds) = next(result)
+        assert status.Status == 0xff00
+        assert ds is None
+        (status, ds) = next(result)
+        assert status.Status == 0x0000
+        assert ds is None
+
+        assoc.release()
+        assert assoc.is_released
+
+        assert store_pname == ["Known^Public", "Private", "Unknown^Public"]
+
+        scp.shutdown()
+
+    def test_unrestricted_failure(self, enable_unrestricted):
+        """Test unrestricted storage with failures"""
+        store_pname = []
+
+        def handle_get(event):
+            yield 3
+            self.good.file_meta.TransferSyntaxUID = ImplicitVRLittleEndian
+            self.good.PatientName = "Known^Public"
+            yield 0xFF00, self.good
+            self.good.SOPClassUID = "1.2.3.4"
+            self.good.PatientName = "Private"
+            yield 0xFF00, self.good
+            self.good.SOPClassUID = "1.2.840.10008.1.1.1.1.1.1.1"
+            self.good.PatientName = "Unknown^Public"
+            yield 0xFF00, self.good
+
+
+        def handle_store(event):
+            store_pname.append(event.dataset.PatientName)
+            return 0x0000
+
+        scu_handler = [(evt.EVT_C_STORE, handle_store)]
+        scp_handler = [(evt.EVT_C_GET, handle_get)]
+
+        self.ae = ae = AE()
+        ae.acse_timeout = 5
+        ae.dimse_timeout = 5
+        ae.network_timeout = 5
+        ae.add_supported_context(PatientRootQueryRetrieveInformationModelGet)
+
+        scp = ae.start_server(('', 11112), block=False, evt_handlers=scp_handler)
+
+        ae.add_requested_context(PatientRootQueryRetrieveInformationModelGet)
+        ae.add_requested_context(CTImageStorage)
+        ae.add_requested_context('1.2.3.4')
+        ae.add_requested_context('1.2.840.10008.1.1.1.1.1.1.1')
+
+        role_c = build_role(
+            '1.2.840.10008.1.1.1.1.1.1.1', scp_role=True, scu_role=True
+        )
+
+        assoc = ae.associate(
+            'localhost',
+            11112,
+            evt_handlers=scu_handler,
+            ext_neg=[role_c],
+        )
+
+        assert assoc.is_established
+
+        result = assoc.send_c_get(
+            self.ds, PatientRootQueryRetrieveInformationModelGet
+        )
+        (status, ds) = next(result)
+        assert status.Status == 0xff00
+        assert ds is None
+        (status, ds) = next(result)
+        assert status.Status == 0xff00
+        assert ds is None
+        (status, ds) = next(result)
+        assert status.Status == 0xff00
+        assert ds is None
+        (status, ds) = next(result)
+        assert status.Status == 0xB000
+        assert ds.FailedSOPInstanceUIDList == ['1.1.1', '1.1.1']
+
+        assoc.release()
+        assert assoc.is_released
+
+        assert store_pname == ["Unknown^Public"]
+
+        scp.shutdown()
 
 
 class TestAssociationSendCMove:
