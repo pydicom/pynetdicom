@@ -64,7 +64,7 @@ from pynetdicom.sop_class import (
 from .hide_modules import hide_modules
 
 
-debug_logger()
+#debug_logger()
 
 
 ON_WINDOWS = sys.platform == "win32"

@@ -1707,7 +1707,7 @@ class TestNegotiateUnrestricted:
             assert context.abstract_syntax == uid
             assert context.result == 0x00
             assert context.transfer_syntax == ['1.2.840.10008.1.2']
-            assert not context.as_scu
+            assert context.as_scu
             assert context.as_scp
 
     def test_duplicates(self):
@@ -1740,7 +1740,7 @@ class TestNegotiateUnrestricted:
             assert context.abstract_syntax == '1.2.840.10008.5.1.4.1.1.1'
             assert context.result == 0x00
             assert context.transfer_syntax == [t_syntax[ii]]
-            assert not context.as_scu
+            assert context.as_scu
             assert context.as_scp
 
     def test_roles_false_false(self):
