@@ -231,36 +231,39 @@ expected contexts (<a class="reference external" href="https://github.com/pydico
 <ul class="simple">
 <li><p>Added the ability to pass a file path to a dataset to
 <a class="reference internal" href="../reference/generated/pynetdicom.association.Association.html#pynetdicom.association.Association.send_c_store" title="pynetdicom.association.Association.send_c_store"><code class="xref py py-meth docutils literal notranslate"><span class="pre">send_c_store()</span></code></a> (<a class="reference external" href="https://github.com/pydicom/pynetdicom/issues/517">#517</a>)</p></li>
-<li><p>Added <a class="reference internal" href="../reference/generated/pynetdicom._config.STORE_SEND_CHUNKED_DATASET.html#pynetdicom._config.STORE_SEND_CHUNKED_DATASET" title="pynetdicom._config.STORE_SEND_CHUNKED_DATASET"><code class="xref py py-attr docutils literal notranslate"><span class="pre">STORE_SEND_CHUNKED_DATASET</span></code></a> config option
-to allow the use of a chunked read when a file path is passed to
-<a class="reference internal" href="../reference/generated/pynetdicom.association.Association.html#pynetdicom.association.Association.send_c_store" title="pynetdicom.association.Association.send_c_store"><code class="xref py py-meth docutils literal notranslate"><span class="pre">send_c_store()</span></code></a> in order to
-reduce the memory needed for sending datasets (<a class="reference external" href="https://github.com/pydicom/pynetdicom/issues/517">#517</a>)</p></li>
-<li><p>Added <a class="reference internal" href="../reference/generated/pynetdicom._config.STORE_RECV_CHUNKED_DATASET.html#pynetdicom._config.STORE_RECV_CHUNKED_DATASET" title="pynetdicom._config.STORE_RECV_CHUNKED_DATASET"><code class="xref py py-attr docutils literal notranslate"><span class="pre">STORE_RECV_CHUNKED_DATASET</span></code></a> config option
-to allow storing received C-STORE datasets directly to file,
-reducing the memory needed when receiving datasets (<a class="reference external" href="https://github.com/pydicom/pynetdicom/issues/517">#517</a>)</p></li>
 <li><p>Allow parsing of dimse command sets that contain elements with non-conformant
 VMs (<a class="reference external" href="https://github.com/pydicom/pynetdicom/issues/554">#554</a>)</p></li>
 <li><p>Added a check when acting as a QR SCP that returns from the event handler
 if the association is aborted or released (<a class="reference external" href="https://github.com/pydicom/pynetdicom/issues/592">#592</a>)</p></li>
-<li><p>Added configuration option <a class="reference internal" href="../reference/generated/pynetdicom._config.PASS_CONTEXTVARS.html#pynetdicom._config.PASS_CONTEXTVARS" title="pynetdicom._config.PASS_CONTEXTVARS"><code class="xref py py-attr docutils literal notranslate"><span class="pre">PASS_CONTEXTVARS</span></code></a> to
-allow user code to define contextual behavior.</p></li>
 <li><p>Added <a class="reference internal" href="../reference/generated/pynetdicom.ae.ApplicationEntity.html#pynetdicom.ae.ApplicationEntity.connection_timeout" title="pynetdicom.ae.ApplicationEntity.connection_timeout"><code class="xref py py-attr docutils literal notranslate"><span class="pre">AE.connection_timeout</span></code></a> (<a class="reference external" href="https://github.com/pydicom/pynetdicom/issues/616">#616</a>)</p></li>
-<li><p>When running on Windows the minimum timer resolution now defaults to 1
-millisecond when an <a class="reference internal" href="../reference/generated/pynetdicom.association.Association.html#pynetdicom.association.Association" title="pynetdicom.association.Association"><code class="xref py py-class docutils literal notranslate"><span class="pre">Association</span></code></a> is started
-and cleared when the <code class="docutils literal notranslate"><span class="pre">Association</span></code> ends. The timer resolution value can be
-customised with the <a class="reference internal" href="../reference/generated/pynetdicom._config.WINDOWS_TIMER_RESOLUTION.html#pynetdicom._config.WINDOWS_TIMER_RESOLUTION" title="pynetdicom._config.WINDOWS_TIMER_RESOLUTION"><code class="xref py py-attr docutils literal notranslate"><span class="pre">WINDOWS_TIMER_RESOLUTION</span></code></a>
-option (<a class="reference external" href="https://github.com/pydicom/pynetdicom/issues/620">#620</a>)</p></li>
 <li><p>Updated to meet the 2021b version of the DICOM Standard</p></li>
 <li><p>Added type hints</p></li>
 <li><p>Handle non-conformant A-ASSOCIATE (RJ) ‘Result’, ‘Source’ and ‘Diagnostic’
 values during ACSE negotiation (<a class="reference external" href="https://github.com/pydicom/pynetdicom/issues/633">#633</a>)</p></li>
-<li><p>Added <a class="reference internal" href="../reference/generated/pynetdicom._config.CODECS.html#pynetdicom._config.CODECS" title="pynetdicom._config.CODECS"><code class="xref py py-attr docutils literal notranslate"><span class="pre">CODECS</span></code></a> to allow customising the
-codecs used when decoding text-like PDU parameters (<a class="reference external" href="https://github.com/pydicom/pynetdicom/issues/611">#611</a>)</p></li>
-<li><p>Added <a class="reference internal" href="../reference/generated/pynetdicom._config.VALIDATORS.html#pynetdicom._config.VALIDATORS" title="pynetdicom._config.VALIDATORS"><code class="xref py py-attr docutils literal notranslate"><span class="pre">VALIDATORS</span></code></a> to allow customising the
-validation performed on UIDs and AE titles (<a class="reference external" href="https://github.com/pydicom/pynetdicom/issues/515">#515</a>, <a class="reference external" href="https://github.com/pydicom/pynetdicom/issues/549">#549</a>)</p></li>
 <li><p>Added <cite>query_model</cite> keyword parameter to
 <a class="reference internal" href="../reference/generated/pynetdicom.association.Association.html#pynetdicom.association.Association.send_c_cancel" title="pynetdicom.association.Association.send_c_cancel"><code class="xref py py-meth docutils literal notranslate"><span class="pre">send_c_cancel()</span></code></a> to make sending a
 C-CANCEL request easier (<a class="reference external" href="https://github.com/pydicom/pynetdicom/issues/535">#535</a>)</p></li>
+<li><p>Added the following configuration options:</p>
+<ul>
+<li><p><a class="reference internal" href="../reference/generated/pynetdicom._config.CODECS.html#pynetdicom._config.CODECS" title="pynetdicom._config.CODECS"><code class="xref py py-attr docutils literal notranslate"><span class="pre">CODECS</span></code></a> to allow customising the
+codecs used when decoding text-like PDU parameters (<a class="reference external" href="https://github.com/pydicom/pynetdicom/issues/611">#611</a>)</p></li>
+<li><p><a class="reference internal" href="../reference/generated/pynetdicom._config.VALIDATORS.html#pynetdicom._config.VALIDATORS" title="pynetdicom._config.VALIDATORS"><code class="xref py py-attr docutils literal notranslate"><span class="pre">VALIDATORS</span></code></a> to allow customising the
+validation performed on UIDs and AE titles (<a class="reference external" href="https://github.com/pydicom/pynetdicom/issues/515">#515</a>, <a class="reference external" href="https://github.com/pydicom/pynetdicom/issues/549">#549</a>)</p></li>
+<li><p><a class="reference internal" href="../reference/generated/pynetdicom._config.WINDOWS_TIMER_RESOLUTION.html#pynetdicom._config.WINDOWS_TIMER_RESOLUTION" title="pynetdicom._config.WINDOWS_TIMER_RESOLUTION"><code class="xref py py-attr docutils literal notranslate"><span class="pre">WINDOWS_TIMER_RESOLUTION</span></code></a> to allow customisation
+of the timer resolution used when running on Windows (<a class="reference external" href="https://github.com/pydicom/pynetdicom/issues/620">#620</a>)</p></li>
+<li><p><a class="reference internal" href="../reference/generated/pynetdicom._config.PASS_CONTEXTVARS.html#pynetdicom._config.PASS_CONTEXTVARS" title="pynetdicom._config.PASS_CONTEXTVARS"><code class="xref py py-attr docutils literal notranslate"><span class="pre">PASS_CONTEXTVARS</span></code></a> to allow user code to define
+contextual behavior</p></li>
+<li><p><a class="reference internal" href="../reference/generated/pynetdicom._config.STORE_SEND_CHUNKED_DATASET.html#pynetdicom._config.STORE_SEND_CHUNKED_DATASET" title="pynetdicom._config.STORE_SEND_CHUNKED_DATASET"><code class="xref py py-attr docutils literal notranslate"><span class="pre">STORE_SEND_CHUNKED_DATASET</span></code></a>
+to allow the use of a chunked read when a file path is passed to
+<a class="reference internal" href="../reference/generated/pynetdicom.association.Association.html#pynetdicom.association.Association.send_c_store" title="pynetdicom.association.Association.send_c_store"><code class="xref py py-meth docutils literal notranslate"><span class="pre">send_c_store()</span></code></a> in order to
+reduce the memory needed for sending datasets (<a class="reference external" href="https://github.com/pydicom/pynetdicom/issues/517">#517</a>)</p></li>
+<li><p><a class="reference internal" href="../reference/generated/pynetdicom._config.STORE_RECV_CHUNKED_DATASET.html#pynetdicom._config.STORE_RECV_CHUNKED_DATASET" title="pynetdicom._config.STORE_RECV_CHUNKED_DATASET"><code class="xref py py-attr docutils literal notranslate"><span class="pre">STORE_RECV_CHUNKED_DATASET</span></code></a>
+to allow storing received C-STORE datasets directly to file,
+reducing the memory needed when receiving datasets (<a class="reference external" href="https://github.com/pydicom/pynetdicom/issues/517">#517</a>)</p></li>
+<li><p><a class="reference internal" href="../reference/generated/pynetdicom._config.UNRESTRICTED_STORAGE_SERVICE.html#pynetdicom._config.UNRESTRICTED_STORAGE_SERVICE" title="pynetdicom._config.UNRESTRICTED_STORAGE_SERVICE"><code class="xref py py-attr docutils literal notranslate"><span class="pre">UNRESTRICTED_STORAGE_SERVICE</span></code></a> to allow the
+use of the AE as an unrestricted Storage SCP (<a class="reference external" href="https://github.com/pydicom/pynetdicom/issues/505">#505</a>)</p></li>
+</ul>
+</li>
 </ul>
 </div>
 <div class="section" id="changes">
