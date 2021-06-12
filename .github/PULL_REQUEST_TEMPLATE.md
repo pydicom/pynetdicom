@@ -10,4 +10,5 @@ The issue describing the bug or feature that this PR addresses.
 - [ ] Fix or feature added
 - [ ] Documentation and examples updated (if relevant)
 - [ ] Unit tests passing and coverage at 100% after adding fix/feature
+- [ ] Type annotations updated and passing with mypy
 - [ ] Apps updated and tested (if relevant)

@@ -25,9 +25,9 @@ from pynetdicom.sop_class import (
     PatientRootQueryRetrieveInformationModelGet,
     StudyRootQueryRetrieveInformationModelGet,
     PatientStudyOnlyQueryRetrieveInformationModelGet,
-    PlannedImagingAgentAdministrationSRStorage,
-    PerformedImagingAgentAdministrationSRStorage,
     EncapsulatedSTLStorage,
+    EncapsulatedOBJStorage,
+    EncapsulatedMTLStorage,
 )
 
 
@@ -239,9 +239,9 @@ def main(args=None):
 
     # Exclude these SOP Classes
     _exclusion = [
-        PlannedImagingAgentAdministrationSRStorage,
-        PerformedImagingAgentAdministrationSRStorage,
         EncapsulatedSTLStorage,
+        EncapsulatedOBJStorage,
+        EncapsulatedMTLStorage,
     ]
     store_contexts = [
         cx for cx in StoragePresentationContexts

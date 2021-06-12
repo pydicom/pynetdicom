@@ -27,9 +27,7 @@ setup(
     keywords = (
         "dicom python medicalimaging radiotherapy oncology pydicom imaging"
     ),
-    project_urls={
-        'Documentation' : 'https://pydicom.github.io/pynetdicom/'
-    },
+    project_urls = {'Documentation' : 'https://pydicom.github.io/pynetdicom/'},
     classifiers = [
         "License :: OSI Approved :: MIT License",
         "Intended Audience :: Developers",
@@ -38,7 +36,6 @@ setup(
         #"Development Status :: 4 - Beta",
         "Development Status :: 5 - Production/Stable",
         "Natural Language :: English",
-        "Programming Language :: Python :: 3.6",
         "Programming Language :: Python :: 3.7",
         "Programming Language :: Python :: 3.8",
         "Programming Language :: Python :: 3.9",
@@ -55,4 +52,5 @@ setup(
         ],
         'tests': ["pytest", "pyfakefs", "sqlalchemy"]
     },
+    python_requires = '>=3.7'
 )

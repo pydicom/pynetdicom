@@ -271,9 +271,9 @@ class TestStandardLogging:
         primitive = A_ASSOCIATE()
         primitive.application_context_name = APPLICATION_CONTEXT_NAME
         # Calling AE Title is the source DICOM AE title
-        primitive.calling_ae_title = b'ABCDEFGHIJKLMNOP'
+        primitive.calling_ae_title = 'ABCDEFGHIJKLMNOP'
         # Called AE Title is the destination DICOM AE title
-        primitive.called_ae_title = b'1234567890123456'
+        primitive.called_ae_title = '1234567890123456'
         # The TCP/IP address of the source, pynetdicom includes port too
         primitive.calling_presentation_address = ('127.127.127.127', 111112)
         # The TCP/IP address of the destination, pynetdicom includes port too
@@ -302,9 +302,9 @@ class TestStandardLogging:
         primitive = A_ASSOCIATE()
         primitive.application_context_name = APPLICATION_CONTEXT_NAME
         # Calling AE Title is the source DICOM AE title
-        primitive.calling_ae_title = b'ABCDEFGHIJKLMNOP'
+        primitive.calling_ae_title = 'ABCDEFGHIJKLMNOP'
         # Called AE Title is the destination DICOM AE title
-        primitive.called_ae_title = b'1234567890123456'
+        primitive.called_ae_title = '1234567890123456'
         # The TCP/IP address of the source, pynetdicom includes port too
         primitive.calling_presentation_address = ('127.127.127.127', 111112)
         # The TCP/IP address of the destination, pynetdicom includes port too

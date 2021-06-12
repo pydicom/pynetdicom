@@ -35,7 +35,6 @@ from pynetdicom.pdu_primitives import (
 from pynetdicom.pdu import P_DATA_TF
 from pynetdicom.sop_class import Verification, CTImageStorage
 from pynetdicom.transport import AssociationSocket
-from pynetdicom.utils import validate_ae_title
 from .encoded_pdu_items import (
     a_associate_rq, a_associate_ac, a_release_rq, a_release_rp, p_data_tf,
     a_abort, a_p_abort,
@@ -44,6 +43,7 @@ from .parrot import ThreadedParrot, ParrotRequest
 
 
 #debug_logger()
+
 
 class DummyAssociationSocket:
     def __init__(self):
@@ -85,11 +85,11 @@ class DummyAssociation:
         self.dul = DummyDUL()
         self.requestor = ServiceUser(self, 'requestor')
         self.requestor.port = 11112
-        self.requestor.ae_title = b'TEST_LOCAL      '
+        self.requestor.ae_title = 'TEST_LOCAL'
         self.requestor.address = '127.0.0.1'
         self.requestor.maximum_length = 31682
         self.acceptor = ServiceUser(self, 'acceptor')
-        self.acceptor.ae_title = b'TEST_REMOTE     '
+        self.acceptor.ae_title = 'TEST_REMOTE'
         self.acceptor.port = 11113
         self.acceptor.address = '127.0.0.2'
         self.acse_timeout = 11
@@ -394,8 +394,8 @@ class TestPrimitiveConstruction:
 
         assert isinstance(primitive, A_ASSOCIATE)
         assert primitive.application_context_name == '1.2.840.10008.3.1.1.1'
-        assert primitive.calling_ae_title == b'TEST_LOCAL      '
-        assert primitive.called_ae_title == b'TEST_REMOTE     '
+        assert primitive.calling_ae_title == 'TEST_LOCAL'
+        assert primitive.called_ae_title == 'TEST_REMOTE'
         assert primitive.calling_presentation_address == ('127.0.0.1', 11112)
         assert primitive.called_presentation_address == ('127.0.0.2', 11113)
 
@@ -530,8 +530,8 @@ class TestPrimitiveConstruction:
 
         assert isinstance(primitive, A_ASSOCIATE)
         assert primitive.application_context_name == '1.2.840.10008.3.1.1.1'
-        assert primitive.calling_ae_title == b'TEST_LOCAL      '
-        assert primitive.called_ae_title == b'TEST_REMOTE     '
+        assert primitive.calling_ae_title == 'TEST_LOCAL'
+        assert primitive.called_ae_title == 'TEST_REMOTE'
         assert primitive.result == 0x00
         assert primitive.result_source == 0x01
 
@@ -928,7 +928,7 @@ class TestUserIdentityNegotiation:
         handlers = [(evt.EVT_USER_ID, handle)]
 
         self.ae = ae = AE()
-        ae.require_calling_aet = [b'HAHA NOPE']
+        ae.require_calling_aet = ['HAHA NOPE']
         ae.add_supported_context(Verification)
         ae.add_requested_context(Verification)
         scp = ae.start_server(('', 11112), block=False, evt_handlers=handlers)
@@ -1351,7 +1351,7 @@ class TestSOPClassExtendedNegotiation:
         handlers = [(evt.EVT_SOP_EXTENDED, handle)]
 
         self.ae = ae = AE()
-        ae.require_calling_aet = [b'HAHA NOPE']
+        ae.require_calling_aet = ['HAHA NOPE']
         ae.add_supported_context(Verification)
         ae.add_requested_context(Verification)
         scp = ae.start_server(('', 11112), block=False, evt_handlers=handlers)
@@ -1815,7 +1815,7 @@ class TestAsyncOpsNegotiation:
         handlers = [(evt.EVT_ASYNC_OPS, handle)]
 
         self.ae = ae = AE()
-        ae.require_calling_aet = [b'HAHA NOPE']
+        ae.require_calling_aet = ['HAHA NOPE']
         ae.add_supported_context(Verification)
         ae.add_requested_context(Verification)
         scp = ae.start_server(('', 11112), block=False, evt_handlers=handlers)
@@ -1915,7 +1915,7 @@ class TestNegotiateRelease:
         assoc.set_socket(AssociationSocket(assoc))
 
         # Association Acceptor object -> remote AE
-        assoc.acceptor.ae_title = validate_ae_title(b'ANY_SCU')
+        assoc.acceptor.ae_title = 'ANY_SCU'
         assoc.acceptor.address = 'localhost'
         assoc.acceptor.port = 11112
 
@@ -1958,7 +1958,7 @@ class TestNegotiateRelease:
         assoc.set_socket(AssociationSocket(assoc, client_socket=sock))
 
         # Association Acceptor object -> remote AE
-        assoc.acceptor.ae_title = validate_ae_title(b'ANY_SCU')
+        assoc.acceptor.ae_title = 'ANY_SCU'
         assoc.acceptor.address = 'localhost'
         assoc.acceptor.port = 11112
 

@@ -569,6 +569,8 @@ class Event:
         """Return the path to the dataset when
         :attr:`~pynetdicom._config.STORE_RECV_CHUNKED_DATASET` is ``True``.
 
+        .. versionadded:: 2.0
+
         Returns
         -------
         pathlib.Path

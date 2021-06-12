@@ -84,6 +84,13 @@ DEFL_DATASET = dcmread(
 )
 
 
+@pytest.fixture()
+def enable_unrestricted():
+    _config.UNRESTRICTED_STORAGE_SERVICE = True
+    yield
+    _config.UNRESTRICTED_STORAGE_SERVICE = False
+
+
 class DummyDIMSE:
     def __init__(self):
         self.status = None
@@ -188,7 +195,7 @@ class TestAssociation:
     def test_peer_rejects_assoc(self):
         """Test peer rejects assoc"""
         self.ae = ae = AE()
-        ae.require_calling_aet = [b'HAHA NOPE']
+        ae.require_calling_aet = ['HAHA NOPE']
         ae.add_supported_context(Verification)
         scp = ae.start_server(('', 11112), block=False)
 
@@ -387,7 +394,7 @@ class TestAssociation:
         ae.dimse_timeout = 5
         ae.network_timeout = 5
         ae.add_supported_context(Verification)
-        ae.require_calling_aet = [b'TESTSCP']
+        ae.require_calling_aet = ['TESTSCP']
         scp = ae.start_server(('', 11112), block=False)
 
         ae.add_requested_context(Verification)
@@ -450,20 +457,20 @@ class TestAssociation:
         ae = AE()
         assoc = Association(ae, 'requestor')
         assoc.requestor.ae_title = ae.ae_title
-        assert assoc.local['ae_title'] == b'PYNETDICOM      '
+        assert assoc.local['ae_title'] == 'PYNETDICOM'
 
         assoc = Association(ae, 'acceptor')
         assoc.acceptor.ae_title = ae.ae_title
-        assert assoc.local['ae_title'] == b'PYNETDICOM      '
+        assert assoc.local['ae_title'] == 'PYNETDICOM'
 
     def test_remote(self):
         """Test Association.local."""
         ae = AE()
         assoc = Association(ae, 'requestor')
-        assert assoc.remote['ae_title'] == b''
+        assert assoc.remote['ae_title'] == ''
 
         assoc = Association(ae, 'acceptor')
-        assert assoc.remote['ae_title'] == b''
+        assert assoc.remote['ae_title'] == ''
 
     def test_mode_raises(self):
         """Test exception is raised if invalid mode."""
@@ -479,7 +486,7 @@ class TestAssociation:
         ae = AE()
         assoc = Association(ae, MODE_REQUESTOR)
         assoc.dul.socket = 'abc'
-        msg = r"The Association already has a socket set."
+        msg = r"The Association already has a socket set"
         with pytest.raises(RuntimeError, match=msg):
             assoc.set_socket('cba')
 
@@ -2437,8 +2444,8 @@ class TestAssociationSendCCancel:
 
         scp.shutdown()
 
-    def test_good_send(self):
-        """Test send_c_cancel_move"""
+    def test_context_id(self):
+        """Test using `context_id`"""
         self.ae = ae = AE()
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
@@ -2450,6 +2457,61 @@ class TestAssociationSendCCancel:
         assoc = ae.associate('localhost', 11112)
         assert assoc.is_established
         assoc.send_c_cancel(1, 1)
+        scp.shutdown()
+
+    def test_query_model(self):
+        """Test using `query_model`"""
+        self.ae = ae = AE()
+        ae.acse_timeout = 5
+        ae.dimse_timeout = 5
+        ae.network_timeout = 5
+        model = PatientRootQueryRetrieveInformationModelFind
+        ae.add_supported_context(model)
+        scp = ae.start_server(('', 11112), block=False)
+
+        ae.add_requested_context(model)
+        assoc = ae.associate('localhost', 11112)
+        assert assoc.is_established
+        assoc.send_c_cancel(1, query_model=model)
+        scp.shutdown()
+
+    def test_context_id_and_query_model(self):
+        """Test using `query_model` and `context_id`"""
+        self.ae = ae = AE()
+        ae.acse_timeout = 5
+        ae.dimse_timeout = 5
+        ae.network_timeout = 5
+        model = PatientRootQueryRetrieveInformationModelFind
+        ae.add_supported_context(model)
+        scp = ae.start_server(('', 11112), block=False)
+
+        ae.add_requested_context(model)
+        assoc = ae.associate('localhost', 11112)
+        assert assoc.is_established
+        assoc.send_c_cancel(1, context_id=1, query_model=model)
+        scp.shutdown()
+
+    def test_no_context_id_and_query_model_raises(self):
+        """Test exception if unable to determine context ID"""
+        self.ae = ae = AE()
+        ae.acse_timeout = 5
+        ae.dimse_timeout = 5
+        ae.network_timeout = 5
+        model = PatientRootQueryRetrieveInformationModelFind
+        ae.add_supported_context(model)
+        scp = ae.start_server(('', 11112), block=False)
+
+        ae.add_requested_context(model)
+        assoc = ae.associate('localhost', 11112)
+        assert assoc.is_established
+
+        msg = (
+            "'send_c_cancel' requires either the 'query_model' used for "
+            "the service request or the corresponding 'context_id'"
+        )
+        with pytest.raises(ValueError, match=msg):
+            assoc.send_c_cancel(1)
+
         scp.shutdown()
 
 
@@ -3240,6 +3302,154 @@ class TestAssociationSendCGet:
             )
             assert msg in caplog.text
 
+    def test_unrestricted_success(self, enable_unrestricted):
+        """Test unrestricted storage"""
+        store_pname = []
+
+        def handle_get(event):
+            yield 3
+            self.good.file_meta.TransferSyntaxUID = ImplicitVRLittleEndian
+            self.good.PatientName = "Known^Public"
+            yield 0xFF00, self.good
+            self.good.SOPClassUID = "1.2.3.4"
+            self.good.PatientName = "Private"
+            yield 0xFF00, self.good
+            self.good.SOPClassUID = "1.2.840.10008.1.1.1.1.1.1.1"
+            self.good.PatientName = "Unknown^Public"
+            yield 0xFF00, self.good
+
+
+        def handle_store(event):
+            store_pname.append(event.dataset.PatientName)
+            return 0x0000
+
+        scu_handler = [(evt.EVT_C_STORE, handle_store)]
+        scp_handler = [(evt.EVT_C_GET, handle_get)]
+
+        self.ae = ae = AE()
+        ae.acse_timeout = 5
+        ae.dimse_timeout = 5
+        ae.network_timeout = 5
+        ae.add_supported_context(PatientRootQueryRetrieveInformationModelGet)
+
+        scp = ae.start_server(('', 11112), block=False, evt_handlers=scp_handler)
+
+        ae.add_requested_context(PatientRootQueryRetrieveInformationModelGet)
+        ae.add_requested_context(CTImageStorage)
+        ae.add_requested_context('1.2.3.4')
+        ae.add_requested_context('1.2.840.10008.1.1.1.1.1.1.1')
+
+        role_a = build_role(CTImageStorage, scp_role=True, scu_role=True)
+        role_b = build_role('1.2.3.4', scp_role=True, scu_role=True)
+        role_c = build_role(
+            '1.2.840.10008.1.1.1.1.1.1.1', scp_role=True, scu_role=True
+        )
+
+        assoc = ae.associate(
+            'localhost',
+            11112,
+            evt_handlers=scu_handler,
+            ext_neg=[role_a, role_b, role_c],
+        )
+
+        assert assoc.is_established
+
+        result = assoc.send_c_get(
+            self.ds, PatientRootQueryRetrieveInformationModelGet
+        )
+        (status, ds) = next(result)
+        assert status.Status == 0xff00
+        assert ds is None
+        (status, ds) = next(result)
+        assert status.Status == 0xff00
+        assert ds is None
+        (status, ds) = next(result)
+        assert status.Status == 0xff00
+        assert ds is None
+        (status, ds) = next(result)
+        assert status.Status == 0x0000
+        assert ds is None
+
+        assoc.release()
+        assert assoc.is_released
+
+        assert store_pname == ["Known^Public", "Private", "Unknown^Public"]
+
+        scp.shutdown()
+
+    def test_unrestricted_failure(self, enable_unrestricted):
+        """Test unrestricted storage with failures"""
+        store_pname = []
+
+        def handle_get(event):
+            yield 3
+            self.good.file_meta.TransferSyntaxUID = ImplicitVRLittleEndian
+            self.good.PatientName = "Known^Public"
+            yield 0xFF00, self.good
+            self.good.SOPClassUID = "1.2.3.4"
+            self.good.PatientName = "Private"
+            yield 0xFF00, self.good
+            self.good.SOPClassUID = "1.2.840.10008.1.1.1.1.1.1.1"
+            self.good.PatientName = "Unknown^Public"
+            yield 0xFF00, self.good
+
+
+        def handle_store(event):
+            store_pname.append(event.dataset.PatientName)
+            return 0x0000
+
+        scu_handler = [(evt.EVT_C_STORE, handle_store)]
+        scp_handler = [(evt.EVT_C_GET, handle_get)]
+
+        self.ae = ae = AE()
+        ae.acse_timeout = 5
+        ae.dimse_timeout = 5
+        ae.network_timeout = 5
+        ae.add_supported_context(PatientRootQueryRetrieveInformationModelGet)
+
+        scp = ae.start_server(('', 11112), block=False, evt_handlers=scp_handler)
+
+        ae.add_requested_context(PatientRootQueryRetrieveInformationModelGet)
+        ae.add_requested_context(CTImageStorage)
+        ae.add_requested_context('1.2.3.4')
+        ae.add_requested_context('1.2.840.10008.1.1.1.1.1.1.1')
+
+        role_c = build_role(
+            '1.2.840.10008.1.1.1.1.1.1.1', scp_role=True, scu_role=True
+        )
+
+        assoc = ae.associate(
+            'localhost',
+            11112,
+            evt_handlers=scu_handler,
+            ext_neg=[role_c],
+        )
+
+        assert assoc.is_established
+
+        result = assoc.send_c_get(
+            self.ds, PatientRootQueryRetrieveInformationModelGet
+        )
+        (status, ds) = next(result)
+        assert status.Status == 0xff00
+        assert ds is None
+        (status, ds) = next(result)
+        assert status.Status == 0xff00
+        assert ds is None
+        (status, ds) = next(result)
+        assert status.Status == 0xff00
+        assert ds is None
+        (status, ds) = next(result)
+        assert status.Status == 0xB000
+        assert ds.FailedSOPInstanceUIDList == ['1.1.1', '1.1.1']
+
+        assoc.release()
+        assert assoc.is_released
+
+        assert store_pname == ["Unknown^Public"]
+
+        scp.shutdown()
+
 
 class TestAssociationSendCMove:
     """Run tests on Assocation send_c_move."""
@@ -3282,7 +3492,7 @@ class TestAssociationSendCMove:
         assert not assoc.is_established
         with pytest.raises(RuntimeError):
             next(assoc.send_c_move(
-                self.ds, b'TESTMOVE',
+                self.ds, 'TESTMOVE',
                 PatientRootQueryRetrieveInformationModelMove)
             )
         scp.shutdown()
@@ -3302,7 +3512,7 @@ class TestAssociationSendCMove:
 
         with pytest.raises(ValueError):
             next(assoc.send_c_move(
-                self.ds, b'TESTMOVE',
+                self.ds, 'TESTMOVE',
                 PatientRootQueryRetrieveInformationModelMove)
             )
 
@@ -3324,7 +3534,7 @@ class TestAssociationSendCMove:
         assoc = ae.associate('localhost', 11112)
         assert assoc.is_established
         with pytest.raises(ValueError):
-            next(assoc.send_c_move(self.ds, b'TESTMOVE', query_model='X'))
+            next(assoc.send_c_move(self.ds, 'TESTMOVE', query_model='X'))
         assoc.release()
         assert assoc.is_released
 
@@ -3349,7 +3559,7 @@ class TestAssociationSendCMove:
 
         with pytest.raises(ValueError):
             next(assoc.send_c_move(
-                DATASET, b'SOMEPLACE',
+                DATASET, 'SOMEPLACE',
                 PatientRootQueryRetrieveInformationModelMove)
             )
 
@@ -3380,7 +3590,7 @@ class TestAssociationSendCMove:
         assoc = ae.associate('localhost', 11112)
         assert assoc.is_established
         for (status, ds) in assoc.send_c_move(
-                    self.ds, b'TESTMOVE',
+                    self.ds, 'TESTMOVE',
                     PatientRootQueryRetrieveInformationModelMove):
             assert status.Status == 0xa801
         assoc.release()
@@ -3409,7 +3619,7 @@ class TestAssociationSendCMove:
         assert assoc.is_established
 
         for (status, ds) in assoc.send_c_move(
-                    self.ds, b'UNKNOWN',
+                    self.ds, 'UNKNOWN',
                     PatientRootQueryRetrieveInformationModelMove):
             assert status.Status == 0xa801
         assoc.release()
@@ -3447,7 +3657,7 @@ class TestAssociationSendCMove:
         assert assoc.is_established
 
         result = assoc.send_c_move(
-            self.ds, b'TESTMOVE', PatientRootQueryRetrieveInformationModelMove
+            self.ds, 'TESTMOVE', PatientRootQueryRetrieveInformationModelMove
         )
         (status, ds) = next(result)
         assert status.Status == 0xFF00
@@ -3499,7 +3709,7 @@ class TestAssociationSendCMove:
         assert assoc.is_established
 
         result = assoc.send_c_move(
-            self.ds, b'TESTMOVE', PatientRootQueryRetrieveInformationModelMove
+            self.ds, 'TESTMOVE', PatientRootQueryRetrieveInformationModelMove
         )
         (status, ds) = next(result)
         assert status.Status == 0xFF00
@@ -3544,7 +3754,7 @@ class TestAssociationSendCMove:
         assert assoc.is_established
 
         result = assoc.send_c_move(
-            self.ds, b'TESTMOVE', PatientRootQueryRetrieveInformationModelMove
+            self.ds, 'TESTMOVE', PatientRootQueryRetrieveInformationModelMove
         )
         (status, ds) = next(result)
         assert status.Status == 0xC000
@@ -3589,7 +3799,7 @@ class TestAssociationSendCMove:
         assert assoc.is_established
 
         result = assoc.send_c_move(
-            self.ds, b'TESTMOVE', PatientRootQueryRetrieveInformationModelMove
+            self.ds, 'TESTMOVE', PatientRootQueryRetrieveInformationModelMove
         )
         (status, ds) = next(result)
         assert status.Status == 0xFF00
@@ -3639,7 +3849,7 @@ class TestAssociationSendCMove:
         assert assoc.is_established
 
         result = assoc.send_c_move(
-            self.ds, b'TESTMOVE', PatientRootQueryRetrieveInformationModelMove
+            self.ds, 'TESTMOVE', PatientRootQueryRetrieveInformationModelMove
         )
         (status, ds) = next(result)
         assert status.Status == 0xFE00
@@ -3690,7 +3900,7 @@ class TestAssociationSendCMove:
         assert assoc.is_established
 
         result = assoc.send_c_move(
-            self.ds, b'TESTMOVE', PatientRootQueryRetrieveInformationModelMove
+            self.ds, 'TESTMOVE', PatientRootQueryRetrieveInformationModelMove
         )
         (status, ds) = next(result)
         assert status.Status == 0xFF00
@@ -3737,7 +3947,7 @@ class TestAssociationSendCMove:
         assert assoc.is_established
 
         for (status, ds) in assoc.send_c_move(
-                    self.ds, b'TESTMOVE',
+                    self.ds, 'TESTMOVE',
                     PatientRootQueryRetrieveInformationModelMove):
             assert status.Status == 0xFFF0
         assoc.release()
@@ -3788,7 +3998,7 @@ class TestAssociationSendCMove:
             assert not assoc.is_released
             result = assoc.send_c_move(
                 self.ds,
-                b'TESTMOVE',
+                'TESTMOVE',
                 PatientRootQueryRetrieveInformationModelMove
             )
             (status, ds) = next(result)
@@ -3847,7 +4057,7 @@ class TestAssociationSendCMove:
         assert assoc.is_established
 
         results = assoc.send_c_move(
-            self.ds, b'TEST', PatientRootQueryRetrieveInformationModelMove
+            self.ds, 'TEST', PatientRootQueryRetrieveInformationModelMove
         )
         assert next(results) == (Dataset(), None)
         with pytest.raises(StopIteration):
@@ -3909,7 +4119,7 @@ class TestAssociationSendCMove:
         assert assoc.is_established
 
         results = assoc.send_c_move(
-            self.ds, b'TEST', PatientRootQueryRetrieveInformationModelMove
+            self.ds, 'TEST', PatientRootQueryRetrieveInformationModelMove
         )
         status, ds = next(results)
 
@@ -3935,7 +4145,7 @@ class TestAssociationSendCMove:
             identifier.PatientID = '*'
             assoc.is_established = True
             results = assoc.send_c_move(
-                identifier, b'A', PatientRootQueryRetrieveInformationModelMove
+                identifier, 'A', PatientRootQueryRetrieveInformationModelMove
             )
             status, ds = next(results)
             assert status == Dataset()
@@ -3964,7 +4174,7 @@ class TestAssociationSendCMove:
             identifier.PatientID = '*'
             assoc.is_established = True
             results = assoc.send_c_move(
-                identifier, b'A', PatientRootQueryRetrieveInformationModelMove
+                identifier, 'A', PatientRootQueryRetrieveInformationModelMove
             )
             status, ds = next(results)
             assert status == Dataset()
@@ -4016,7 +4226,7 @@ class TestAssociationSendCMove:
         assert assoc.is_established
 
         result = assoc.send_c_move(
-            self.ds, b'TESTMOVE', PatientRootQueryRetrieveInformationModelMove
+            self.ds, 'TESTMOVE', PatientRootQueryRetrieveInformationModelMove
         )
         (status, ds) = next(result)
         assert status.Status == 0xFF00
@@ -4067,7 +4277,7 @@ class TestAssociationSendCMove:
             assoc = ae.associate('localhost', 11113)
             assert assoc.is_established
 
-            result = assoc.send_c_move(self.ds, b'TESTMOVE', '1.2.3.4')
+            result = assoc.send_c_move(self.ds, 'TESTMOVE', '1.2.3.4')
 
             store_scp.shutdown()
             move_scp.shutdown()

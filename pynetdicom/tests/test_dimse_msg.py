@@ -176,7 +176,7 @@ class TestDIMSEMessage:
         primitive.AffectedSOPClassUID = '1.1.1'
         primitive.AffectedSOPInstanceUID = '1.2.1'
         primitive.Priority = 0x02
-        primitive.MoveOriginatorApplicationEntityTitle = b'UNITTEST'
+        primitive.MoveOriginatorApplicationEntityTitle = 'UNITTEST'
         primitive.MoveOriginatorMessageID = 3
         ds = Dataset()
         ds.PatientID = 'Test1101'
@@ -250,7 +250,7 @@ class TestDIMSEMessage:
         assert primitive.AffectedSOPClassUID == UID('1.1.1')
         assert primitive.AffectedSOPInstanceUID == UID('1.2.1')
         assert primitive.Priority == 2
-        assert primitive.MoveOriginatorApplicationEntityTitle == b'UNITTEST'
+        assert primitive.MoveOriginatorApplicationEntityTitle == 'UNITTEST'
         assert primitive.MoveOriginatorMessageID == 3
 
         ds = decode(primitive.DataSet, True, True)
@@ -340,7 +340,7 @@ class TestDIMSEMessage:
         assert isinstance(primitive.Identifier, BytesIO)
         assert primitive.AffectedSOPClassUID == UID('1.2.840.10008.5.1.4.1.1.2')
         assert primitive.Priority == 2
-        assert primitive.MoveDestination == b'MOVE_SCP'
+        assert primitive.MoveDestination == 'MOVE_SCP'
         assert primitive.MessageID == 7
 
         ds = decode(primitive.Identifier, True, True)

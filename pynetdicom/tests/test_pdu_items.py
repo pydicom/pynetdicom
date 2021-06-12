@@ -8,7 +8,7 @@ import pytest
 
 from pydicom.uid import UID
 
-from pynetdicom import _config
+from pynetdicom import _config, debug_logger
 from pynetdicom.pdu import (
     A_ASSOCIATE_RQ, A_ASSOCIATE_AC, P_DATA_TF
 )
@@ -45,11 +45,13 @@ from .encoded_pdu_items import (
     maximum_length_received, implementation_class_uid,
     implementation_version_name, role_selection, role_selection_odd,
     user_information, extended_negotiation, common_extended_negotiation,
-    p_data_tf, a_associate_ac_zero_ts
+    p_data_tf, a_associate_ac_zero_ts, presentation_context_rq_utf8,
+    application_context_empty, implementation_class_uid_empty,
+    implementation_version_name_empty
 )
 
-LOGGER = logging.getLogger('pynetdicom')
-LOGGER.setLevel(logging.CRITICAL)
+
+#debug_logger()
 
 
 def print_nice_bytes(bytestream):
@@ -59,6 +61,7 @@ def print_nice_bytes(bytestream):
     for string in str_list:
         print(string)
 
+
 def bytes_to_bytesio(bytestream):
     """Convert a bytestring to a BytesIO ready to be decoded."""
     from io import BytesIO
@@ -66,6 +69,7 @@ def bytes_to_bytesio(bytestream):
     fp.write(bytestream)
     fp.seek(0)
     return fp
+
 
 def create_encoded_pdu():
     """Function to create a PDU for testing"""
@@ -80,6 +84,21 @@ def create_encoded_pdu():
     usr_id.get_length()
     data.append(usr_id)
     print_nice_bytes(pdu.encode())
+
+
+@pytest.fixture
+def utf8():
+    """Add UTF-8 as a fallback codec"""
+    _config.CODECS = ('ascii', 'utf8')
+    yield
+    _config.CODECS = ('ascii', )
+
+
+@pytest.fixture()
+def enforce_uid_conformance():
+    _config.ENFORCE_UID_CONFORMANCE = True
+    yield
+    _config.ENFORCE_UID_CONFORMANCE = False
 
 
 class TestPDU:
@@ -244,19 +263,19 @@ class TestPDU:
         out = item._wrap_unpack(b'\x01', UNPACK_UCHAR)
         assert out == 1
 
-    def test_wrap_encode_uid(self):
-        """Test PDU._wrap_encode_uid()."""
+    def test_wrap_encode_str(self):
+        """Test PDU._wrap_encode_str()."""
         item = PDUItem()
         # Odd length
         uid = UID('1.2.840.10008.1.1')
         assert len(uid) % 2 > 0
-        out = item._wrap_encode_uid(uid)
+        out = item._wrap_encode_str(uid)
         assert out == b'1.2.840.10008.1.1'
 
         # Even length
         uid = UID('1.2.840.10008.1.10')
         assert len(uid) % 2 == 0
-        out = item._wrap_encode_uid(uid)
+        out = item._wrap_encode_str(uid)
         assert out == b'1.2.840.10008.1.10'
 
 
@@ -283,13 +302,27 @@ class TestApplicationContext:
         item.application_context_name = 'abc'
         assert item.application_context_name == 'abc'
 
-        msg = r"Invalid 'Application Context Name'"
+        bad = 'abc' * 22
+        msg = (
+            f"Invalid 'Application Context Name' value '{bad}' - must not "
+            "exceed 64 characters"
+        )
         with pytest.raises(ValueError, match=msg):
             item.application_context_name = 'abc' * 22
 
         _config.ENFORCE_UID_CONFORMANCE = True
+        msg = (
+            f"Invalid 'Application Context Name' value 'abc' - UID is "
+            "non-conformant"
+        )
         with pytest.raises(ValueError, match=msg):
             item.application_context_name = 'abc'
+
+    def test_none_raises(self):
+        """Test an empty value raises exception"""
+        item = ApplicationContextItem()
+        with pytest.raises(TypeError):
+            item.application_context_name = None
 
     def test_string_output(self):
         """Test the string output"""
@@ -387,6 +420,17 @@ class TestApplicationContext:
         enc = item.encode()
         assert enc == b'\x10\x00\x00\x06\x31\x2e\x32\x2e\x33\x31'
 
+    def test_encode_none_raises(self):
+        """Test encoding None raises an exception"""
+        item = ApplicationContextItem()
+
+        msg = (
+            "'Application Context Name' must be str, bytes or UID, not "
+            "'NoneType'"
+        )
+        with pytest.raises(TypeError, match=msg):
+            item.application_context_name = None
+
     def test_decode_odd(self):
         """Test decoding odd-length context name"""
         bytestream = b'\x10\x00\x00\x05\x31\x2e\x32\x2e\x33'
@@ -409,6 +453,21 @@ class TestApplicationContext:
         assert len(item) == 10
         assert item.encode() == bytestream
 
+    def test_decode_empty(self):
+        """Test decoding an item with an empty value"""
+        item = ApplicationContextItem()
+        item.decode(application_context_empty)
+        assert item.item_length == 0
+        assert item.application_context_name == ''
+
+    def test_encode_empty(self):
+        """Test decoding an item with an empty value"""
+        item = ApplicationContextItem()
+        item.decode(application_context_empty)
+        assert item.item_length == 0
+        assert item.application_context_name == ''
+        assert item.encode() == application_context_empty
+
     def test_decode_padded_odd(self):
         """Test decoding a padded odd-length context name"""
         # Non-conformant but handle anyway
@@ -420,6 +479,65 @@ class TestApplicationContext:
         assert len(item.application_context_name) % 2 > 0
         assert len(item) == 9
         assert item.encode() == b'\x10\x00\x00\x05\x31\x2e\x32\x2e\x33'
+
+    def test_application_context_name(self):
+        """Tests for application_context_name."""
+        item = ApplicationContextItem()
+        item.application_context_name = ''
+        assert item.application_context_name == ''
+        item.application_context_name = '1.2.08'
+        assert item.application_context_name == '1.2.08'
+        item.application_context_name = b'1.2.840'
+        assert item.application_context_name == '1.2.840'
+
+        msg = (
+            "'Application Context Name' must be str, bytes or UID, not "
+            "'NoneType'"
+        )
+        with pytest.raises(TypeError, match=msg):
+            item.application_context_name = None
+
+        bad = '1' * 65
+        msg = (
+            f"Invalid 'Application Context Name' value '{bad}' - must not "
+            "exceed 64 characters"
+        )
+        with pytest.raises(ValueError, match=msg):
+            item.application_context_name = bad
+
+        assert item.application_context_name == '1.2.840'
+
+    def test_application_context_name_conf(self, enforce_uid_conformance):
+        """Tests for application_context_name with enforced conformance"""
+        item = ApplicationContextItem()
+        item.application_context_name = ''
+        assert item.application_context_name == ''
+        item.application_context_name = b'1.2.840'
+        assert item.application_context_name == '1.2.840'
+
+        msg = (
+            "'Application Context Name' must be str, bytes or UID, not "
+            "'NoneType'"
+        )
+        with pytest.raises(TypeError, match=msg):
+            item.application_context_name = None
+
+        msg = (
+            "Invalid 'Application Context Name' value '1.2.08' - UID is "
+            "non-conformant"
+        )
+        with pytest.raises(ValueError, match=msg):
+            item.application_context_name = '1.2.08'
+
+        bad = '1' * 65
+        msg = (
+            f"Invalid 'Application Context Name' value '{bad}' - UID is "
+            "non-conformant"
+        )
+        with pytest.raises(ValueError, match=msg):
+            item.application_context_name = bad
+
+        assert item.application_context_name == '1.2.840'
 
 
 class TestPresentationContextRQ:
@@ -460,6 +578,19 @@ class TestPresentationContextRQ:
         assert item.abstract_syntax == UID('1.2.840.10008.1.1')
         assert len(item.transfer_syntax) == 1
         assert item.transfer_syntax[0] == UID('1.2.840.10008.1.2')
+
+    def test_decode_utf8(self, utf8, caplog):
+        """Regression test for #560"""
+        assert 'utf8' in _config.CODECS
+        pdu = PresentationContextItemRQ()
+        with caplog.at_level(logging.WARNING, logger='pynetdicom'):
+            pdu.decode(presentation_context_rq_utf8)
+            assert pdu.abstract_syntax == "1.2.840.10008.5.1.4.1.1.104.3"
+            assert pdu.transfer_syntax == ["1.2.840.10008.1.2.1"]
+
+            assert (
+                r"'ascii' codec can't decode byte 0xe2 in position 14"
+            ) in caplog.text
 
     def test_encode(self):
         """Check encoding produces the correct output """
@@ -521,9 +652,6 @@ class TestPresentationContextAC:
         assert item.context_id is None
         assert item.transfer_syntax is None
         assert item.result is None
-
-        with pytest.raises(KeyError):
-            item.result_str
 
     def test_string_output(self):
         """Test the string output"""
@@ -598,7 +726,7 @@ class TestPresentationContextAC:
 
         assert orig_item == new_item
 
-    def test_result_str(self):
+    def test_result_str(self, caplog):
         item = PresentationContextItemAC()
         _result = {
             0 : 'Accepted',
@@ -611,6 +739,13 @@ class TestPresentationContextAC:
         for result in [0, 1, 2, 3, 4]:
             item.result_reason = result
             assert item.result_str == _result[result]
+
+        item.result_reason  = None
+        with caplog.at_level(logging.WARNING, logger='pynetdicom'):
+            assert item.result_str == '(no value available)'
+            assert (
+                "Invalid Presentation Context Item 'Result' None"
+            ) in caplog.text
 
     def test_decode_empty(self):
         """Regression test for #342 (decoding an empty Transfer Syntax Item."""
@@ -667,11 +802,19 @@ class TestAbstractSyntax:
         item.abstract_syntax_name = 'abc'
         assert item.abstract_syntax_name == 'abc'
 
-        msg = r"Abstract Syntax Name is an invalid UID"
+        bad = 'abc' * 22
+        msg = (
+            f"Invalid 'Abstract Syntax Name' value '{bad}' - must not exceed "
+            "64 characters"
+        )
         with pytest.raises(ValueError, match=msg):
-            item.abstract_syntax_name = 'abc' * 22
+            item.abstract_syntax_name = bad
 
         _config.ENFORCE_UID_CONFORMANCE = True
+        msg = (
+            "Invalid 'Abstract Syntax Name' value 'abc' - UID is "
+            "non-conformant"
+        )
         with pytest.raises(ValueError, match=msg):
             item.abstract_syntax_name = 'abc'
 
@@ -804,11 +947,19 @@ class TestTransferSyntax:
         item.transfer_syntax_name = 'abc'
         assert item.transfer_syntax_name == 'abc'
 
-        msg = r"Transfer Syntax Name is an invalid UID"
+        bad = 'abc' * 22
+        msg = (
+            f"Invalid 'Transfer Syntax Name' value '{bad}' - must not exceed "
+            "64 characters"
+        )
         with pytest.raises(ValueError, match=msg):
-            item.transfer_syntax_name = 'abc' * 22
+            item.transfer_syntax_name = bad
 
         _config.ENFORCE_UID_CONFORMANCE = True
+        msg = (
+            "Invalid 'Transfer Syntax Name' value 'abc' - UID is "
+            "non-conformant"
+        )
         with pytest.raises(ValueError, match=msg):
             item.transfer_syntax_name = 'abc'
 
@@ -1075,7 +1226,7 @@ class TestUserInformation:
         )
         check.append(class_uid)
         v_name = ImplementationVersionNameNotification()
-        v_name.implementation_version_name = b'PYNETDICOM_090'
+        v_name.implementation_version_name = 'PYNETDICOM_090'
         check.append(v_name)
 
         assert result == check
@@ -1162,7 +1313,7 @@ class TestUserInformation:
         assert ui.implementation_class_uid == UID(
             '1.2.826.0.1.3680043.9.3811.0.9.0'
         )
-        assert ui.implementation_version_name == b'PYNETDICOM_090'
+        assert ui.implementation_version_name == 'PYNETDICOM_090'
 
         for item in ui.user_data:
             if isinstance(item, ImplementationVersionNameSubItem):
@@ -1234,21 +1385,48 @@ class TestUserInformation_ImplementationUID:
     def teardown(self):
         _config.ENFORCE_UID_CONFORMANCE = self.default_conformance
 
-    def test_uid_conformance(self):
+    def test_uid(self):
         """Test the UID conformance with ENFORCE_UID_CONFORMANCE."""
-        _config.ENFORCE_UID_CONFORMANCE = False
-
         item = ImplementationClassUIDSubItem()
+        item.implementation_class_uid = ''
+        assert item.implementation_class_uid == ''
         item.implementation_class_uid = 'abc'
         assert item.implementation_class_uid == 'abc'
 
-        msg = r"Implementation Class UID is an invalid UID"
+        bad = '1' * 65
+        msg = (
+            f"Invalid 'Implementation Class UID' value '{bad}' - must not "
+            "exceed 64 characters"
+        )
         with pytest.raises(ValueError, match=msg):
-            item.implementation_class_uid = 'abc' * 22
+            item.implementation_class_uid = bad
 
-        _config.ENFORCE_UID_CONFORMANCE = True
+        assert item.implementation_class_uid == 'abc'
+
+    def test_uid_conf(self, enforce_uid_conformance):
+        """Test the UID conformance with ENFORCE_UID_CONFORMANCE."""
+        item = ImplementationClassUIDSubItem()
+        item.implementation_class_uid = ''
+        assert item.implementation_class_uid == ''
+        item.implementation_class_uid = '1.2'
+        assert item.implementation_class_uid == '1.2'
+
+        msg = (
+            "Invalid 'Implementation Class UID' value 'abc' - UID is "
+            "non-conformant"
+        )
         with pytest.raises(ValueError, match=msg):
             item.implementation_class_uid = 'abc'
+
+        bad = '1' * 65
+        msg = (
+            f"Invalid 'Implementation Class UID' value '{bad}' - UID is "
+            "non-conformant"
+        )
+        with pytest.raises(ValueError, match=msg):
+            item.implementation_class_uid = bad
+
+        assert item.implementation_class_uid == '1.2'
 
     def test_init(self):
         """Test a new ImplementationClassUIDSubItem."""
@@ -1259,7 +1437,8 @@ class TestUserInformation_ImplementationUID:
         assert item.implementation_class_uid is None
 
         item.decode(
-            b'\x52\x00\x00\x14\x31\x2e\x32\x2e\x31\x32\x34\x2e\x31\x31\x33\x35\x33\x32\x2e\x33\x33\x32\x30\x00'
+            b'\x52\x00\x00\x14\x31\x2e\x32\x2e\x31\x32\x34\x2e\x31'
+            b'\x31\x33\x35\x33\x32\x2e\x33\x33\x32\x30\x00'
         )
         primitive = item.to_primitive()
 
@@ -1365,6 +1544,16 @@ class TestUserInformation_ImplementationUID:
         enc = item.encode()
         assert enc == b'\x52\x00\x00\x06\x31\x2e\x32\x2e\x33\x31'
 
+    def test_encode_none_raises(self):
+        """Test encoding None raises an exception"""
+        item = ImplementationClassUIDSubItem()
+        item.implementation_class_uid = None
+        assert item.implementation_class_uid is None
+
+        msg = "'NoneType' object has no attribute 'encode'"
+        with pytest.raises(AttributeError, match=msg):
+            item.encode()
+
     def test_decode_odd(self):
         """Test decoding odd-length UID"""
         bytestream = b'\x52\x00\x00\x05\x31\x2e\x32\x2e\x33'
@@ -1399,6 +1588,29 @@ class TestUserInformation_ImplementationUID:
         assert len(item) == 9
         assert item.encode() == b'\x52\x00\x00\x05\x31\x2e\x32\x2e\x33'
 
+    def test_decode_empty(self):
+        """Test decoding an item with an empty value"""
+        item = ImplementationClassUIDSubItem()
+        item.decode(implementation_class_uid_empty)
+        assert item.item_length == 0
+        assert item.implementation_class_uid == ''
+
+        assert item.encode() == implementation_class_uid_empty
+
+        primitive = item.to_primitive()
+        assert primitive.implementation_class_uid == ''
+        item.from_primitive(primitive)
+        assert item.implementation_class_uid == ''
+
+    def test_decode_empty_conf(self, enforce_uid_conformance):
+        """Test decoding an item with an empty value"""
+        item = ImplementationClassUIDSubItem()
+        item.decode(implementation_class_uid_empty)
+        assert item.item_length == 0
+        assert item.implementation_class_uid == ''
+
+        assert item.encode() == implementation_class_uid_empty
+
     def test_no_log_padded(self, caplog):
         """Regression test for #240."""
         _config.ENFORCE_UID_CONFORMANCE = True
@@ -1415,7 +1627,10 @@ class TestUserInformation_ImplementationUID:
         assert caplog.text == ''
 
         # Invalid UID (with no padding)
-        msg = r"Implementation Class UID is an invalid UID"
+        msg = (
+            "Invalid 'Implementation Class UID' value '00.1.2.3' - UID is "
+            "non-conformant"
+        )
         with pytest.raises(ValueError, match=msg):
             item.decode(
                 b'\x52\x00\x00\x08'
@@ -1429,15 +1644,12 @@ class TestUserInformation_ImplementationUID:
                 b'\x30\x30\x2e\x31\x2e\x32\x2e\x33\x00'
             )
 
-        item._implementation_class_uid = '00.1.2.3'
-        msg = (
-            r"The Implementation Class UID Notification's 'Implementation "
-            r"Class UID' parameter value '00.1.2.3' is not a valid UID"
-        )
-        with pytest.raises(ValueError, match=msg):
-            primitive = item.to_primitive()
+        with caplog.at_level(logging.ERROR, logger='pynetdicom'):
+            item._implementation_class_uid = '00.1.2.3'
+            with pytest.raises(ValueError, match=msg):
+                primitive = item.to_primitive()
 
-        assert msg in caplog.text
+            assert msg in caplog.text
 
 
 class TestUserInformation_ImplementationVersion:
@@ -1465,7 +1677,21 @@ class TestUserInformation_ImplementationVersion:
 
         assert version.item_length == 14
         assert len(version) == 18
-        assert version.implementation_version_name == b'PYNETDICOM_090'
+        assert version.implementation_version_name == 'PYNETDICOM_090'
+
+    def test_decode_empty(self):
+        """Test decoding an item with an empty value"""
+        item = ImplementationVersionNameSubItem()
+        item.decode(implementation_version_name_empty)
+        assert item.item_length == 0
+        assert item.implementation_version_name == ''
+
+        assert item.encode() == implementation_version_name_empty
+
+        primitive = item.to_primitive()
+        assert primitive.implementation_version_name == ''
+        item.from_primitive(primitive)
+        assert item.implementation_version_name == ''
 
     def test_encode(self):
         """Check encoding produces the correct output """
@@ -1473,7 +1699,7 @@ class TestUserInformation_ImplementationVersion:
         pdu.decode(a_associate_rq)
 
         version = pdu.user_information.user_data[2]
-        version.implementation_version_name = b'PYNETDICOM_090'
+        version.implementation_version_name = 'PYNETDICOM_090'
 
         assert version.encode() == implementation_version_name
 
@@ -1487,7 +1713,7 @@ class TestUserInformation_ImplementationVersion:
         result = version.to_primitive()
 
         check = ImplementationVersionNameNotification()
-        check.implementation_version_name = b'PYNETDICOM_090'
+        check.implementation_version_name = 'PYNETDICOM_090'
         assert result == check
 
     def test_from_primitive(self):
@@ -1505,13 +1731,33 @@ class TestUserInformation_ImplementationVersion:
 
     def test_properies(self):
         """Check property setters and getters """
-        version = ImplementationVersionNameSubItem()
+        item = ImplementationVersionNameSubItem()
 
-        version.implementation_version_name = 'PYNETDICOM'
-        assert version.implementation_version_name == b'PYNETDICOM'
+        item.implementation_version_name = None
+        assert item.implementation_version_name is None
 
-        version.implementation_version_name = b'PYNETDICOM_090'
-        assert version.implementation_version_name == b'PYNETDICOM_090'
+        item.implementation_version_name = ''
+        assert item.implementation_version_name == ''
+
+        item.implementation_version_name = b'PYNETDICOM'
+        assert item.implementation_version_name == 'PYNETDICOM'
+
+        item.implementation_version_name = 'PYNETDICOM_090'
+        assert item.implementation_version_name == 'PYNETDICOM_090'
+
+        bad = 'A' * 17
+        msg = (
+            f"Invalid 'Implementation Version Name' value '{bad}' - must not "
+            "exceed 16 characters"
+        )
+        with pytest.raises(ValueError, match=msg):
+            item.implementation_version_name = bad
+
+        msg = "'Implementation Version Name' must be str or None, not 'int'"
+        with pytest.raises(TypeError, match=msg):
+            item.implementation_version_name = 1234
+
+        assert item.implementation_version_name == 'PYNETDICOM_090'
 
 
 class TestUserInformation_Asynchronous:
@@ -1618,11 +1864,16 @@ class TestUserInformation_RoleSelection:
         item.sop_class_uid = 'abc'
         assert item.sop_class_uid == 'abc'
 
-        msg = r"SOP Class UID is an invalid UID"
+        bad = 'abc' * 22
+        msg = (
+            f"Invalid 'SOP Class UID' value '{bad}' - must not exceed 64 "
+            "characters"
+        )
         with pytest.raises(ValueError, match=msg):
-            item.sop_class_uid = 'abc' * 22
+            item.sop_class_uid = bad
 
         _config.ENFORCE_UID_CONFORMANCE = True
+        msg = "Invalid 'SOP Class UID' value 'abc' - UID is non-conformant"
         with pytest.raises(ValueError, match=msg):
             item.sop_class_uid = 'abc'
 
@@ -1876,8 +2127,6 @@ class TestUserIdentityRQ_UserNoPass:
         assert item.secondary_field == b''
 
         assert item.id_type is None
-        with pytest.raises(KeyError):
-            item.id_type_str
         assert item.primary is None
         assert item.response_requested is None
         assert item.secondary == b''
@@ -1942,7 +2191,7 @@ class TestUserIdentityRQ_UserNoPass:
 
         assert orig == new
 
-    def test_properies(self):
+    def test_properies(self, caplog):
         """Check property setters and getters """
         pdu = A_ASSOCIATE_RQ()
         pdu.decode(a_associate_rq_user_async)
@@ -1966,6 +2215,11 @@ class TestUserIdentityRQ_UserNoPass:
         item.user_identity_type = 4
         assert item.id_type == 4
         assert item.id_type_str == 'SAML'
+
+        item.user_identity_type  = None
+        with caplog.at_level(logging.WARNING, logger='pynetdicom'):
+            assert item.id_type_str == '(no value available)'
+            assert "Invalid 'User Identity Type' None" in caplog.text
 
 
 class TestUserIdentityRQ_UserPass:
@@ -2136,11 +2390,16 @@ class TestUserInformation_ExtendedNegotiation:
         item.sop_class_uid = 'abc'
         assert item.sop_class_uid == 'abc'
 
-        msg = r"SOP Class UID is an invalid UID"
+        bad = 'abc' * 22
+        msg = (
+            f"Invalid 'SOP Class UID' value '{bad}' - must not exceed 64 "
+            "characters"
+        )
         with pytest.raises(ValueError, match=msg):
             item.sop_class_uid = 'abc' * 22
 
         _config.ENFORCE_UID_CONFORMANCE = True
+        msg = "Invalid 'SOP Class UID' value 'abc' - UID is non-conformant"
         with pytest.raises(ValueError, match=msg):
             item.sop_class_uid = 'abc'
 
@@ -2361,27 +2620,34 @@ class TestUserInformation_CommonExtendedNegotiation:
         item.related_general_sop_class_identification = ['abc']
         assert item.related_general_sop_class_identification == ['abc']
 
-        msg = r"SOP Class UID is an invalid UID"
+        invalid = 'abc' * 22
+        msg = (
+            f"Invalid 'SOP Class UID' value '{invalid}' - must not "
+            "exceed 64 characters"
+        )
         with pytest.raises(ValueError, match=msg):
-            item.sop_class_uid = 'abc' * 22
+            item.sop_class_uid = invalid
 
-        msg = r"Service Class UID is an invalid UID"
+        msg = (
+            f"Invalid 'Service Class UID' value '{invalid}' - must not "
+            "exceed 64 characters"
+        )
         with pytest.raises(ValueError, match=msg):
-            item.service_class_uid = 'abc' * 22
+            item.service_class_uid = invalid
 
         msg = (
             r"Related General SOP Class Identification contains "
             r"an invalid UID"
         )
         with pytest.raises(ValueError, match=msg):
-            item.related_general_sop_class_identification = ['abc' * 22]
+            item.related_general_sop_class_identification = [invalid]
 
         _config.ENFORCE_UID_CONFORMANCE = True
-        msg = r"SOP Class UID is an invalid UID"
+        msg = "Invalid 'SOP Class UID' value 'abc' - UID is non-conformant"
         with pytest.raises(ValueError, match=msg):
             item.sop_class_uid = 'abc'
 
-        msg = r"Service Class UID is an invalid UID"
+        msg = "Invalid 'Service Class UID' value 'abc' - UID is non-conformant"
         with pytest.raises(ValueError, match=msg):
             item.service_class_uid = 'abc'
 

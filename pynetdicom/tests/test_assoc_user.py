@@ -30,8 +30,8 @@ class TestServiceUserAcceptor:
 
         primitive = A_ASSOCIATE()
         primitive.application_context_name = '1.2.840.10008.3.1.1.1'
-        primitive.calling_ae_title = b'LOCAL_AE_TITLE  '
-        primitive.called_ae_title = b'REMOTE_AE_TITLE '
+        primitive.calling_ae_title = 'LOCAL_AE_TITLE  '
+        primitive.called_ae_title = 'REMOTE_AE_TITLE '
         primitive.result = 0x00
         primitive.result_source = 0x01
 
@@ -57,12 +57,35 @@ class TestServiceUserAcceptor:
         primitive.diagnostic = 0x01
         self.primitive_rj = primitive
 
+        primitive = A_ASSOCIATE()
+        primitive.application_context_name = '1.2.840.10008.3.1.1.1'
+        primitive.calling_ae_title = 'LOCAL_AE_TITLE  '
+        primitive.called_ae_title = 'REMOTE_AE_TITLE '
+        primitive.calling_presentation_address = ('127.0.0.1', 11112)
+        primitive.called_presentation_address = ('127.0.0.2', 11113)
+
+        # Presentation Contexts
+        cx = build_context('1.2.840.10008.1.1')
+        cx.context_id = 1
+        primitive.presentation_context_definition_list = [cx]
+
+        # User Information items
+        item = MaximumLengthNotification()
+        item.maximum_length_received = 16382
+        primitive.user_information = [item]
+
+        item = ImplementationClassUIDNotification()
+        item.implementation_class_uid = '1.2.3'
+        primitive.user_information.append(item)
+
+        self.primitive_rq = primitive
+
     def test_init(self):
         """Test new ServiceUser as acceptor."""
         user = ServiceUser(self.assoc, mode='acceptor')
 
         assert user.primitive is None
-        assert user.ae_title == b''
+        assert user.ae_title == ''
         assert user.port is None
         assert user.address == ''
         assert user._contexts == []
@@ -112,7 +135,7 @@ class TestServiceUserAcceptor:
         user = ServiceUser(self.assoc, mode='acceptor')
 
         assert user.primitive is None
-        assert user.ae_title == b''
+        assert user.ae_title == ''
         assert user.port is None
         assert user.address == ''
         assert user._contexts == []
@@ -121,13 +144,13 @@ class TestServiceUserAcceptor:
         assert user.extended_negotiation == []
         assert user.implementation_class_uid == PYNETDICOM_IMPLEMENTATION_UID
 
-        user.ae_title = b'TEST_AE_TITLE'
+        user.ae_title = 'TEST_AE_TITLE'
         user.port = 11112
         user.address = '127.9.9.1'
         user._contexts = [1]
         user.maximum_length = 16383
 
-        assert user.ae_title == b'TEST_AE_TITLE'
+        assert user.ae_title == 'TEST_AE_TITLE'
         assert user.port == 11112
         assert user.address == '127.9.9.1'
         assert user._contexts == [1]
@@ -211,7 +234,7 @@ class TestServiceUserAcceptor:
 
         assert user.maximum_length == 16383
         assert user.implementation_class_uid == '1.2.3'
-        assert user.implementation_version_name == b'VERSION_1'
+        assert user.implementation_version_name == 'VERSION_1'
         assert user.asynchronous_operations == (2, 3)
 
         roles = user.role_selection
@@ -238,7 +261,7 @@ class TestServiceUserAcceptor:
         assert info['port'] is None
         assert info['mode'] == 'acceptor'
         assert info['address'] == ''
-        assert info['ae_title'] == b''
+        assert info['ae_title'] == ''
         with pytest.raises(KeyError):
             info['pdv_size']
 
@@ -450,53 +473,103 @@ class TestServiceUserAcceptor:
         assert len(user.extended_negotiation) == 1
         assert len(user.user_information) == 3
 
-    def test_get_contexts_pre(self):
-        """Test get_contexts prior to association."""
-        user = ServiceUser(self.assoc, mode='acceptor')
-        assert user.writeable is True
-
-        cxs = user.get_contexts('supported')
-        assert len(cxs) == 0
-
-        user.supported_contexts = [build_context('1.2.840.10008.1.1')]
-        cxs = user.get_contexts('supported')
-        assert len(cxs) == 1
-        assert cxs[0].abstract_syntax == '1.2.840.10008.1.1'
-
-    def test_get_contexts_pre_raises(self):
+    def test_req_get_contexts_pre(self):
         """Test get_contexts prior to association raises if bad type."""
         user = ServiceUser(self.assoc, mode='acceptor')
+        assert user.is_acceptor
+        assert user.assoc.is_requestor
         assert user.writeable is True
 
-        msg = r"Invalid 'cx_type', must be 'supported'"
-        with pytest.raises(ValueError, match=msg):
-            user.get_contexts('requested')
+        for cx_type in ('requested', 'supported', 'pcdl', 'pcdrl'):
+            msg = (
+                f"No '{cx_type}' presentation contexts are available for the "
+                r"acceptor service user"
+            )
+            with pytest.raises(ValueError, match=msg):
+                user.get_contexts(cx_type)
 
-    def test_get_contexts_post(self):
+    def test_req_get_contexts_post(self):
         """Test get_contexts after association."""
+        # requested, pcdl, supported unavailable
         user = ServiceUser(self.assoc, mode='acceptor')
+        assert user.is_acceptor
+        assert user.assoc.is_requestor
+
         user.primitive = self.primitive_ac
         assert user.writeable is False
 
-        cxs = user.get_contexts('supported')
-        assert len(cxs) == 0
+        for cx_type in ('requested', 'supported', 'pcdl'):
+            msg = (
+                f"No '{cx_type}' presentation contexts are available for the "
+                r"acceptor service user"
+            )
+            with pytest.raises(ValueError, match=msg):
+                user.get_contexts(cx_type)
 
         cxs = user.get_contexts('pcdrl')
         assert len(cxs) == 1
         assert cxs[0].abstract_syntax == '1.2.840.10008.1.1'
 
-    def test_get_contexts_post_raises(self):
-        """Test get_contexts after association raises if bad type."""
+    def test_acc_get_contexts_pre(self):
+        """Test get_contexts prior to association."""
+        # requested, pcdl, pcdrl unavailable
+        self.assoc.mode = "acceptor"
+        user = ServiceUser(self.assoc, mode='acceptor')
+        assert user.is_acceptor
+        assert user.assoc.is_acceptor
+        assert user.writeable is True
+
+        user.get_contexts('supported') == []
+
+    def test_acc_get_contexts_pre_raises(self):
+        """Test get_contexts prior to association raises if bad type."""
+        # requested, pcdl, pcdrl unavailable
+        self.assoc.mode = "acceptor"
+        user = ServiceUser(self.assoc, mode='acceptor')
+        assert user.is_acceptor
+        assert user.assoc.is_acceptor
+        assert user.writeable is True
+
+        for cx_type in ('requested', 'pcdl', 'pcdrl'):
+            msg = (
+                f"No '{cx_type}' presentation contexts are available for the "
+                r"acceptor service user"
+            )
+            with pytest.raises(ValueError, match=msg):
+                user.get_contexts(cx_type)
+
+    def test_acc_get_contexts_post(self):
+        """Test get_contexts after association."""
+        self.assoc.mode = "acceptor"
         user = ServiceUser(self.assoc, mode='acceptor')
         user.primitive = self.primitive_ac
         assert user.writeable is False
+        assert user.is_acceptor
+        assert user.assoc.is_acceptor
 
-        msg = r"Invalid 'cx_type', must be 'supported' or 'pcdrl'"
-        with pytest.raises(ValueError, match=msg):
-            user.get_contexts('requested')
+        assert user.get_contexts('supported') == []
+        cxs = user.get_contexts('pcdrl')
+        assert len(cxs) == 1
+        assert cxs[0].abstract_syntax == '1.2.840.10008.1.1'
 
-        with pytest.raises(ValueError, match=msg):
-            user.get_contexts('pcdl')
+    def test_acc_get_contexts_post_raises(self):
+        """Test get_contexts after association raises if bad type."""
+        # requested, pcdl unavailable
+        self.assoc.mode = "acceptor"
+        user = ServiceUser(self.assoc, mode='acceptor')
+        assert user.is_acceptor
+        assert user.assoc.is_acceptor
+
+        user.primitive = self.primitive_ac
+        assert user.writeable is False
+
+        for cx_type in ('requested', 'pcdl'):
+            msg = (
+                f"No '{cx_type}' presentation contexts are available for the "
+                r"acceptor service user"
+            )
+            with pytest.raises(ValueError, match=msg):
+                user.get_contexts(cx_type)
 
     def test_impl_class_pre(self):
         """Test implementation_class_uid prior to association."""
@@ -557,7 +630,7 @@ class TestServiceUserAcceptor:
 
         assert len(class_items) == 0
 
-        ref = b'12345ABCDE123456'
+        ref = '12345ABCDE123456'
         user.implementation_version_name = ref
         assert user.implementation_version_name == ref
 
@@ -570,6 +643,24 @@ class TestServiceUserAcceptor:
 
         assert len(class_items) == 1
 
+        user.implementation_version_name = None
+        assert user.implementation_version_name is None
+
+        class_items = []
+        for item in user.user_information:
+            if isinstance(item, ImplementationVersionNameNotification):
+                class_items.append(item)
+                assert user.implementation_version_name == ref
+
+        assert len(class_items) == 0
+
+        msg = (
+            "Invalid 'implementation_version_name' value - must not be an "
+            "empty str"
+        )
+        with pytest.raises(ValueError, match=msg):
+            user.implementation_version_name = ""
+
     def test_impl_version_post(self):
         """Test implementation_version_name after association."""
         user = ServiceUser(self.assoc, mode='acceptor')
@@ -577,7 +668,7 @@ class TestServiceUserAcceptor:
         assert user.writeable is False
         assert user.implementation_version_name is None
 
-        ref = b'12345ABCDE123456'
+        ref = '12345ABCDE123456'
         msg = r"Can't set the Implementation Version Name after negotiation"
         with pytest.raises(RuntimeError, match=msg):
             user.implementation_version_name = ref
@@ -647,12 +738,17 @@ class TestServiceUserAcceptor:
 
         assert len(class_items) == 1
 
-    def test_requested_cx_pre(self):
-        """Test requested_contexts prior to association."""
+    def test_req_requested_cx_pre(self):
+        """Test requested_contexts prior to association for requestor."""
         user = ServiceUser(self.assoc, mode='acceptor')
+        assert user.is_acceptor
+        assert user.assoc.is_requestor
         assert user.writeable is True
 
-        msg = r"Invalid 'cx_type', must be 'supported'"
+        msg = (
+            r"No 'requested' presentation contexts are available for the "
+            r"acceptor service user"
+        )
         with pytest.raises(ValueError, match=msg):
             user.requested_contexts
 
@@ -663,13 +759,60 @@ class TestServiceUserAcceptor:
         with pytest.raises(AttributeError, match=msg):
             user.requested_contexts = [build_context('1.2.3')]
 
-    def test_requested_cx_post(self):
-        """Test requested_contexts after association."""
+    def test_req_requested_cx_post(self):
+        """Test requested_contexts after association for requestor."""
         user = ServiceUser(self.assoc, mode='acceptor')
-        user.primitive = self.primitive_ac
-        assert user.writeable is False
+        assert user.is_acceptor
+        assert user.assoc.is_requestor
+        user.primitive = self.primitive_rq
+        assert not user.writeable
 
-        msg = r"Invalid 'cx_type', must be 'supported' or 'pcdrl'"
+        msg = (
+            r"No 'requested' presentation contexts are available for the "
+            r"acceptor service user"
+        )
+        with pytest.raises(ValueError, match=msg):
+            user.requested_contexts
+
+        msg = r"Can't set the requested presentation contexts after"
+        with pytest.raises(RuntimeError, match=msg):
+            user.requested_contexts = [build_context('1.2.3')]
+
+    def test_acc_requested_cx_pre(self):
+        """Test requested_contexts prior to association."""
+        self.assoc.mode = "acceptor"
+        user = ServiceUser(self.assoc, mode='acceptor')
+        assert user.is_acceptor
+        assert user.assoc.is_acceptor
+        assert user.writeable is True
+
+        msg = (
+            r"No 'requested' presentation contexts are available for the "
+            r"acceptor service user"
+        )
+        with pytest.raises(ValueError, match=msg):
+            user.requested_contexts
+
+        msg = (
+            r"'requested_contexts' can only be set for the association "
+            r"requestor"
+        )
+        with pytest.raises(AttributeError, match=msg):
+            user.requested_contexts = [build_context('1.2.3')]
+
+    def test_acc_requested_cx_post(self):
+        """Test requested_contexts after association."""
+        self.assoc.mode = "acceptor"
+        user = ServiceUser(self.assoc, mode='acceptor')
+        assert user.is_acceptor
+        assert user.assoc.is_acceptor
+        user.primitive = self.primitive_ac
+        assert not user.writeable
+
+        msg = (
+            r"No 'pcdl' presentation contexts are available for the "
+            r"acceptor service user"
+        )
         with pytest.raises(ValueError, match=msg):
             user.requested_contexts
 
@@ -990,33 +1133,78 @@ class TestServiceUserAcceptor:
         with pytest.raises(RuntimeError, match=msg):
             user.add_negotiation_item(item)
 
-    def test_supported_cx_pre(self):
+    def test_req_supported_cx_pre(self):
         """Test supported_contexts prior to association."""
         user = ServiceUser(self.assoc, mode='acceptor')
+        assert user.is_acceptor
+        assert not user.assoc.is_acceptor
+
         assert user.writeable is True
-        assert user.supported_contexts == []
+
+        msg = (
+            r"No 'supported' presentation contexts are available for the "
+            r"acceptor service user"
+        )
+        with pytest.raises(ValueError, match=msg):
+            user.supported_contexts
+
+    def test_req_supported_cx_post(self):
+        """Test supported_contexts after association."""
+        user = ServiceUser(self.assoc, mode='acceptor')
+        assert user.is_acceptor
+        assert not user.assoc.is_acceptor
 
         cx_a = build_context('1.2.3')
         cx_b = build_context('1.2.3.4')
         user.supported_contexts = [cx_a, cx_b]
 
-        assert len(user.supported_contexts) == 2
-        assert cx_a in user.supported_contexts
-        assert cx_b in user.supported_contexts
-
-    def test_supported_cx_post(self):
-        """Test supported_contexts after association."""
-        user = ServiceUser(self.assoc, mode='acceptor')
         user.primitive = self.primitive_ac
         assert user.writeable is False
-        assert user.supported_contexts == []
+        assert user.supported_contexts[0].abstract_syntax == Verification
 
         cx_a = build_context('1.2.3')
         msg = r"Can't set the supported presentation contexts after"
         with pytest.raises(RuntimeError, match=msg):
             user.supported_contexts = [build_context('1.2.3')]
 
+        assert user.supported_contexts[0].abstract_syntax == Verification
+
+    def test_acc_supported_cx_pre(self):
+        """Test supported_contexts prior to association."""
+        self.assoc.mode = "acceptor"
+        user = ServiceUser(self.assoc, mode='acceptor')
+        assert user.is_acceptor
+        assert user.assoc.is_acceptor
+
+        assert user.writeable
         assert user.supported_contexts == []
+
+        cx_a = build_context('1.2.3')
+        cx_b = build_context('1.2.3.4')
+        user.supported_contexts = [cx_a, cx_b]
+
+        assert user.supported_contexts == [cx_a, cx_b]
+
+    def test_acc_supported_cx_post(self):
+        """Test supported_contexts after association."""
+        self.assoc.mode = "acceptor"
+        user = ServiceUser(self.assoc, mode='acceptor')
+        assert user.is_acceptor
+        assert user.assoc.is_acceptor
+
+        cx_a = build_context('1.2.3')
+        cx_b = build_context('1.2.3.4')
+        user.supported_contexts = [cx_a, cx_b]
+
+        user.primitive = self.primitive_ac
+        assert user.writeable is False
+        assert user.supported_contexts == [cx_a, cx_b]
+
+        msg = r"Can't set the supported presentation contexts after"
+        with pytest.raises(RuntimeError, match=msg):
+            user.supported_contexts = [build_context('1.2.3.4.5')]
+
+        assert user.supported_contexts == [cx_a, cx_b]
 
     def test_user_id_pre(self):
         """Test user_identity prior to association."""
@@ -1069,7 +1257,7 @@ class TestServiceUserAcceptor:
         user.implementation_version_name = 'VERSION_1'
         item = user.user_information[2]
         assert isinstance(item, ImplementationVersionNameNotification)
-        assert item.implementation_version_name == b'VERSION_1'
+        assert item.implementation_version_name == 'VERSION_1'
         assert len(user.user_information) == 3
 
         for uid in ['1.2', '3.4']:
@@ -1175,6 +1363,31 @@ class TestServiceUserAcceptor:
         user.primitive = self.primitive_ac
         assert user.writeable is False
 
+    def test_ae_title(self):
+        """Test setting the ae_title"""
+        user = ServiceUser(self.assoc, mode='acceptor')
+        user.ae_title = '  TEST A   '
+        assert user.ae_title == '  TEST A   '
+
+        msg = "Invalid 'ae_title' value - must not be an empty str"
+        with pytest.raises(ValueError, match=msg):
+            user.ae_title = ''
+
+        msg = "'ae_title' must be str, not 'int'"
+        with pytest.raises(TypeError, match=msg):
+            user.ae_title = 12345
+
+    def test_aet_bytes_deprecation(self):
+        """Test deprecation warning for bytes"""
+        user = ServiceUser(self.assoc, mode='acceptor')
+        msg = (
+            r"The use of bytes with 'ae_title' is deprecated, use an ASCII "
+            r"str instead"
+        )
+        with pytest.warns(DeprecationWarning, match=msg):
+            user.ae_title = b'BADAE2'
+            assert user.ae_title == 'BADAE2'
+
 
 class TestServiceUserRequestor:
     """Tests for ServiceUser as requestor."""
@@ -1183,8 +1396,8 @@ class TestServiceUserRequestor:
 
         primitive = A_ASSOCIATE()
         primitive.application_context_name = '1.2.840.10008.3.1.1.1'
-        primitive.calling_ae_title = b'LOCAL_AE_TITLE  '
-        primitive.called_ae_title = b'REMOTE_AE_TITLE '
+        primitive.calling_ae_title = 'LOCAL_AE_TITLE  '
+        primitive.called_ae_title = 'REMOTE_AE_TITLE '
         primitive.calling_presentation_address = ('127.0.0.1', 11112)
         primitive.called_presentation_address = ('127.0.0.2', 11113)
 
@@ -1204,12 +1417,35 @@ class TestServiceUserRequestor:
 
         self.primitive = primitive
 
+        primitive = A_ASSOCIATE()
+        primitive.application_context_name = '1.2.840.10008.3.1.1.1'
+        primitive.calling_ae_title = 'LOCAL_AE_TITLE  '
+        primitive.called_ae_title = 'REMOTE_AE_TITLE '
+        primitive.result = 0x00
+        primitive.result_source = 0x01
+
+        # Presentation Contexts
+        cx = build_context('1.2.840.10008.1.1')
+        cx.context_id = 1
+        primitive.presentation_context_definition_results_list = [cx]
+
+        # User Information items
+        item = MaximumLengthNotification()
+        item.maximum_length_received = 16383
+        primitive.user_information = [item]
+
+        item = ImplementationClassUIDNotification()
+        item.implementation_class_uid = '1.2.3'
+        primitive.user_information.append(item)
+
+        self.primitive_ac = primitive
+
     def test_init(self):
         """Test new ServiceUser as requestor."""
         user = ServiceUser(self.assoc, mode='requestor')
 
         assert user.primitive is None
-        assert user.ae_title == b''
+        assert user.ae_title == ''
         assert user.port is None
         assert user.address == ''
         assert user._contexts == []
@@ -1225,7 +1461,7 @@ class TestServiceUserRequestor:
         user = ServiceUser(self.assoc, mode='requestor')
 
         assert user.primitive is None
-        assert user.ae_title == b''
+        assert user.ae_title == ''
         assert user.port is None
         assert user.address == ''
         assert user._contexts == []
@@ -1234,13 +1470,13 @@ class TestServiceUserRequestor:
         assert user.extended_negotiation == []
         assert user.implementation_class_uid == PYNETDICOM_IMPLEMENTATION_UID
 
-        user.ae_title = b'TEST_AE_TITLE'
+        user.ae_title = 'TEST_AE_TITLE'
         user.port = 11112
         user.address = '127.9.9.1'
         user._contexts = [1]
         user.maximum_length = 16383
 
-        assert user.ae_title == b'TEST_AE_TITLE'
+        assert user.ae_title == 'TEST_AE_TITLE'
         assert user.port == 11112
         assert user.address == '127.9.9.1'
         assert user._contexts == [1]
@@ -1312,7 +1548,7 @@ class TestServiceUserRequestor:
 
         assert user.maximum_length == 16382
         assert user.implementation_class_uid == '1.2.3'
-        assert user.implementation_version_name == b'VERSION_1'
+        assert user.implementation_version_name == 'VERSION_1'
         assert user.asynchronous_operations == (2, 3)
 
         roles = user.role_selection
@@ -1344,7 +1580,7 @@ class TestServiceUserRequestor:
         assert info['port'] is None
         assert info['mode'] == 'requestor'
         assert info['address'] == ''
-        assert info['ae_title'] == b''
+        assert info['ae_title'] == ''
         with pytest.raises(KeyError):
             info['pdv_size']
 
@@ -1577,9 +1813,12 @@ class TestServiceUserRequestor:
         assert len(user.extended_negotiation) == 1
         assert len(user.user_information) == 3
 
-    def test_get_contexts_pre(self):
+    def test_req_get_contexts_pre(self):
         """Test get_contexts prior to association."""
         user = ServiceUser(self.assoc, mode='requestor')
+        assert user.assoc.is_requestor
+        assert user.is_requestor
+
         assert user.writeable is True
 
         cxs = user.get_contexts('requested')
@@ -1590,18 +1829,28 @@ class TestServiceUserRequestor:
         assert len(cxs) == 1
         assert cxs[0].abstract_syntax == '1.2.840.10008.1.1'
 
-    def test_get_contexts_pre_raises(self):
+    def test_req_get_contexts_pre_raises(self):
         """Test get_contexts prior to association raises if bad type."""
+        # pcdl, supported, pcdrl unavailable
         user = ServiceUser(self.assoc, mode='requestor')
+        assert user.assoc.is_requestor
+        assert user.is_requestor
         assert user.writeable is True
 
-        msg = r"Invalid 'cx_type', must be 'requested'"
-        with pytest.raises(ValueError, match=msg):
-            user.get_contexts('supported')
+        for cx_type in ('supported', 'pcdl', 'pcdrl'):
+            msg = (
+                f"No '{cx_type}' presentation contexts are available for the "
+                r"requestor service user"
+            )
+            with pytest.raises(ValueError, match=msg):
+                user.get_contexts(cx_type)
 
-    def test_get_contexts_post(self):
+    def test_req_get_contexts_post(self):
         """Test get_contexts after association."""
         user = ServiceUser(self.assoc, mode='requestor')
+        assert user.assoc.is_requestor
+        assert user.is_requestor
+
         user.primitive = self.primitive
         assert user.writeable is False
 
@@ -1612,18 +1861,72 @@ class TestServiceUserRequestor:
         assert len(cxs) == 1
         assert cxs[0].abstract_syntax == '1.2.840.10008.1.1'
 
-    def test_get_contexts_post_raises(self):
+    def test_req_get_contexts_post_raises(self):
         """Test get_contexts after association raises if bad type."""
+        # supported, pcdrl unavailable
         user = ServiceUser(self.assoc, mode='requestor')
+        assert user.assoc.is_requestor
+        assert user.is_requestor
+
         user.primitive = self.primitive
         assert user.writeable is False
 
-        msg = r"Invalid 'cx_type', must be 'requested' or 'pcdl'"
-        with pytest.raises(ValueError, match=msg):
-            user.get_contexts('supported')
+        for cx_type in ('supported', 'pcdrl'):
+            msg = (
+                f"No '{cx_type}' presentation contexts are available for the "
+                r"requestor service user"
+            )
+            with pytest.raises(ValueError, match=msg):
+                user.get_contexts(cx_type)
 
-        with pytest.raises(ValueError, match=msg):
-            user.get_contexts('pcdrl')
+    def test_acc_get_contexts_pre(self):
+        """Test get_contexts prior to association."""
+        # requested, pcdl, supported, pcdrl unavailable
+        self.assoc.mode = "acceptor"
+        user = ServiceUser(self.assoc, mode='requestor')
+        assert user.assoc.is_acceptor
+        assert user.is_requestor
+
+        assert user.writeable is True
+
+        for cx_type in ('requested', 'supported', 'pcdl', 'pcdrl'):
+            msg = (
+                f"No '{cx_type}' presentation contexts are available for the "
+                r"requestor service user"
+            )
+            with pytest.raises(ValueError, match=msg):
+                user.get_contexts(cx_type)
+
+    def test_acc_get_contexts_post(self):
+        """Test get_contexts prior to association."""
+        self.assoc.mode = "acceptor"
+        user = ServiceUser(self.assoc, mode='requestor')
+        assert user.assoc.is_acceptor
+        assert user.is_requestor
+
+        user.primitive = self.primitive
+        assert user.writeable is False
+
+        assert user.get_contexts('pcdl')[0].abstract_syntax == Verification
+
+    def test_acc_get_contexts_post_raises(self):
+        """Test get_contexts prior to association."""
+        # requested, pcdrl, supported unavailable
+        self.assoc.mode = "acceptor"
+        user = ServiceUser(self.assoc, mode='requestor')
+        assert user.assoc.is_acceptor
+        assert user.is_requestor
+
+        user.primitive = self.primitive
+        assert user.writeable is False
+
+        for cx_type in ('requested', 'supported', 'pcdrl'):
+            msg = (
+                f"No '{cx_type}' presentation contexts are available for the "
+                r"requestor service user"
+            )
+            with pytest.raises(ValueError, match=msg):
+                user.get_contexts(cx_type)
 
     def test_impl_class_pre(self):
         """Test implementation_class_uid prior to association."""
@@ -1684,7 +1987,7 @@ class TestServiceUserRequestor:
 
         assert len(class_items) == 0
 
-        ref = b'12345ABCDE123456'
+        ref = '12345ABCDE123456'
         user.implementation_version_name = ref
         assert user.implementation_version_name == ref
 
@@ -1704,7 +2007,7 @@ class TestServiceUserRequestor:
         assert user.writeable is False
         assert user.implementation_version_name is None
 
-        ref = b'12345ABCDE123456'
+        ref = '12345ABCDE123456'
         msg = r"Can't set the Implementation Version Name after negotiation"
         with pytest.raises(RuntimeError, match=msg):
             user.implementation_version_name = ref
@@ -1774,9 +2077,12 @@ class TestServiceUserRequestor:
 
         assert len(class_items) == 1
 
-    def test_requested_cx_pre(self):
+    def test_req_requested_cx_pre(self):
         """Test requested_contexts prior to association."""
         user = ServiceUser(self.assoc, mode='requestor')
+        assert user.assoc.is_requestor
+        assert user.is_requestor
+
         assert user.writeable is True
         assert user.requested_contexts == []
 
@@ -1788,19 +2094,56 @@ class TestServiceUserRequestor:
         assert cx_a in user.requested_contexts
         assert cx_b in user.requested_contexts
 
-    def test_requested_cx_post(self):
+    def test_req_requested_cx_post(self):
         """Test requested_contexts after association."""
         user = ServiceUser(self.assoc, mode='requestor')
-        user.primitive = self.primitive
-        assert user.writeable is False
-        assert user.requested_contexts == []
+        assert user.assoc.is_requestor
+        assert user.is_requestor
 
         cx_a = build_context('1.2.3')
+        cx_b = build_context('1.2.3.4')
+        user.requested_contexts = [cx_a, cx_b]
+
+        user.primitive = self.primitive
+        assert user.writeable is False
+        assert user.requested_contexts == [cx_a, cx_b]
+
         msg = r"Can't set the requested presentation contexts after"
         with pytest.raises(RuntimeError, match=msg):
-            user.requested_contexts = [build_context('1.2.3')]
+            user.requested_contexts = [build_context('1.2.3.4.5')]
 
-        assert user.requested_contexts == []
+        assert user.requested_contexts == [cx_a, cx_b]
+
+    def test_acc_requested_cx_pre(self):
+        """Test requested_contexts prior to association."""
+        self.assoc.mode = "acceptor"
+        user = ServiceUser(self.assoc, mode='requestor')
+        assert user.assoc.is_acceptor
+        assert user.is_requestor
+
+        assert user.writeable is True
+
+        msg = (
+            r"No 'requested' presentation contexts are available for the "
+            r"requestor service user"
+        )
+        with pytest.raises(ValueError, match=msg):
+            user.requested_contexts
+
+    def test_acc_requested_cx_post(self):
+        """Test requested_contexts after association."""
+        self.assoc.mode = "acceptor"
+        user = ServiceUser(self.assoc, mode='requestor')
+        assert user.assoc.is_acceptor
+        assert user.is_requestor
+
+        user.primitive = self.primitive
+        assert user.writeable is False
+        assert user.requested_contexts[0].abstract_syntax == Verification
+
+        msg = r"Can't set the requested presentation contexts after"
+        with pytest.raises(RuntimeError, match=msg):
+            user.requested_contexts = [build_context('1.2.3.4.5')]
 
     def test_rm_neg_pre(self):
         """Test removing negotiation items."""
@@ -2134,14 +2477,19 @@ class TestServiceUserRequestor:
         with pytest.raises(RuntimeError, match=msg):
             user.add_negotiation_item(item)
 
-    def test_supported_cx_pre(self):
+    def test_req_supported_cx_pre(self):
         """Test supported_contexts prior to association."""
         user = ServiceUser(self.assoc, mode='requestor')
+        assert user.assoc.is_requestor
+        assert user.is_requestor
         assert user.writeable is True
 
-        msg = r"Invalid 'cx_type', must be 'requested'"
+        msg = (
+            r"No 'supported' presentation contexts are available for the "
+            r"requestor service user"
+        )
         with pytest.raises(ValueError, match=msg):
-            assert user.supported_contexts == []
+            user.supported_contexts
 
         msg = (
             r"'supported_contexts' can only be set for the association "
@@ -2150,15 +2498,60 @@ class TestServiceUserRequestor:
         with pytest.raises(AttributeError, match=msg):
             user.supported_contexts = 'bluh'
 
-    def test_supported_cx_post(self):
+    def test_req_supported_cx_post(self):
         """Test supported_contexts after association."""
         user = ServiceUser(self.assoc, mode='requestor')
+        assert user.assoc.is_requestor
+        assert user.is_requestor
+
         user.primitive = self.primitive
         assert user.writeable is False
 
-        msg = r"Invalid 'cx_type', must be 'requested' or 'pcdl'"
+        msg = (
+            r"No 'pcdrl' presentation contexts are available for the "
+            r"requestor service user"
+        )
         with pytest.raises(ValueError, match=msg):
-            assert user.supported_contexts == []
+            user.supported_contexts
+
+    def test_acc_supported_cx_pre(self):
+        """Test supported_contexts prior to association."""
+        self.assoc.mode = "acceptor"
+        user = ServiceUser(self.assoc, mode='requestor')
+        assert user.assoc.is_acceptor
+        assert user.is_requestor
+        assert user.writeable is True
+
+        msg = (
+            r"No 'supported' presentation contexts are available for the "
+            r"requestor service user"
+        )
+        with pytest.raises(ValueError, match=msg):
+            user.supported_contexts
+
+        msg = (
+            r"'supported_contexts' can only be set for the association "
+            r"acceptor"
+        )
+        with pytest.raises(AttributeError, match=msg):
+            user.supported_contexts = 'bluh'
+
+    def test_acc_supported_cx_post(self):
+        """Test supported_contexts after association."""
+        self.assoc.mode = "acceptor"
+        user = ServiceUser(self.assoc, mode='requestor')
+        assert user.assoc.is_acceptor
+        assert user.is_requestor
+
+        user.primitive = self.primitive
+        assert user.writeable is False
+
+        msg = (
+            r"No 'supported' presentation contexts are available for the "
+            r"requestor service user"
+        )
+        with pytest.raises(ValueError, match=msg):
+            user.supported_contexts
 
     def test_user_id_pre(self):
         """Test user_identity prior to association."""
@@ -2211,7 +2604,7 @@ class TestServiceUserRequestor:
         user.implementation_version_name = 'VERSION_1'
         item = user.user_information[2]
         assert isinstance(item, ImplementationVersionNameNotification)
-        assert item.implementation_version_name == b'VERSION_1'
+        assert item.implementation_version_name == 'VERSION_1'
         assert len(user.user_information) == 3
 
         for uid in ['1.2', '3.4']:

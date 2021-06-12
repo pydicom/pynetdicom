@@ -1,21 +1,25 @@
 """pynetdicom configuration options"""
 
-from typing import Optional
+from typing import Optional, Tuple, Dict, Callable, Any
+
+from pynetdicom._validators import validate_ae, validate_ui
 
 
-LOG_HANDLER_LEVEL: str = 'standard'
+LOG_HANDLER_LEVEL: str = "standard"
 """Default (non-user) event logging
 
-* If ``'none'`` then events will not be logged at all, however there will still
+* If ``"none"`` then events will not be logged at all, however there will still
   be some logging (warnings, errors, etc)
-* If ``'standard'`` then certain events will be logged (association
+* If ``"standard"`` then certain events will be logged (association
   negotiation, DIMSE messaging, etc)
+
+Default: ``"standard"``
 
 Examples
 --------
 
 >>> from pynetdicom import _config
->>> _config.LOG_HANDLER_LEVEL = 'none'
+>>> _config.LOG_HANDLER_LEVEL = "none"
 """
 
 
@@ -28,6 +32,8 @@ If ``True`` then UIDs will be checked to ensure they're conformant to the
 DICOM Standard and if not then an appropriate response sent, otherwise
 UIDs will only be checked to ensure they're no longer then 64 characters and
 if not then an appropriate response sent.
+
+Default: ``True``
 
 Examples
 --------
@@ -46,6 +52,8 @@ If ``False`` then elements with a VR of AE in DIMSE messages will be padded
 with trailing spaces up to the maximum allowable length (16 bytes), otherwise
 no padding will be added.
 
+Default: ``True``
+
 Examples
 --------
 
@@ -54,30 +62,15 @@ Examples
 """
 
 
-ALLOW_LONG_DIMSE_AET: bool = False
-"""Allow the use of non-conformant AE titles.
-
-.. versionadded:: 2.0
-
-If ``False`` then elements with a VR of AE in DIMSE messages will have their
-length checked to ensure conformance, otherwise no length check will be
-performed.
-
-Examples
---------
-
->>> from pynetdicom import _config
->>> _config.ALL_LONG_AET = True
-"""
-
-
 LOG_RESPONSE_IDENTIFIERS: bool = True
 """Log incoming C-FIND, C-GET and C-MOVE response *Identifier* datasets.
 
 .. versionadded:: 1.5
 
-If ``True`` (default) then the *Identifier* datasets received in Pending
+If ``True`` then the *Identifier* datasets received in Pending
 responses to C-FIND, C-GET and C-MOVE requests will be logged.
+
+Default: ``True``
 
 Examples
 --------
@@ -92,8 +85,10 @@ LOG_REQUEST_IDENTIFIERS: bool = True
 
 .. versionadded:: 1.5
 
-If ``True`` (default) then the *Identifier* datasets received in
+If ``True`` then the *Identifier* datasets received in
 C-FIND, C-GET and C-MOVE requests will be logged.
+
+Default: ``True``
 
 Examples
 --------
@@ -121,7 +116,7 @@ memory required when:
 As it's not possible to change the dataset encoding without loading it into
 memory, an exact matching accepted presentation context will be required.
 
-Default: ``False``.
+Default: ``False``
 
 Examples
 --------
@@ -145,7 +140,7 @@ amount of memory required when:
 * Receiving large datasets
 * Receiving many datasets concurrently
 
-Default: ``False``.
+Default: ``False``
 
 Examples
 --------
@@ -165,7 +160,7 @@ This allows the caller to define contextual behavior without modifying
 pynetdicom. For example, one could add a logging filter to the pynetdicom
 logger that references an externally defined ``contextvars.ContextVar``.
 
-Default: ``False``.
+Default: ``False``
 
 Examples
 --------
@@ -197,4 +192,140 @@ Examples
 
 >>> from pynetdicom import _config
 >>> _config.WINDOWS_TIMER_RESOLUTION = 5
+"""
+
+
+CODECS: Tuple[str, ...] = ("ascii", )
+"""Customise the codecs used to decode text values.
+
+.. versionadded:: 2.0
+
+.. warning::
+
+    The DICOM Standard specifies ISO 646 (ASCII) as the only valid codec for
+    encoded strings. The use of additional fallback codecs may result in
+    unexpected behaviour in *pynetdicom*.
+
+    When string values are encoded by *pynetdicom* only ASCII is used.
+
+
+The specified codecs will be used when decoding the following parameters:
+
+* A-ASSOCIATE-RQ: *Called AE Title*, *Calling AE Title*
+
+  * Application Context Item: *Application Context Name*
+  * Presentation Context Items
+
+    * Abstract Syntax Sub-item: *Abstract Syntax Name*
+    * Transfer Syntax Sub-item: *Transfer Syntax Name*
+  * User Information Items
+
+    * Implementation Class UID Sub-item: *Implementation Class UID*
+    * Implementation Version Name Sub-item: *Implementation Version Name*
+    * SCP/SCU Role Selection Sub-item: *SOP Class UID*
+    * SOP Class Extended Negotiation Sub-item: *SOP Class UID*
+    * SOP Class Common Extended Negotiation Sub-item: *SOP Class UID*, *Service
+      Class UID*, *Related General SOP Class UID*
+* A-ASSOCIATE-AC
+
+  * Application Context Item: *Application Context Name*
+  * Presentation Context Item:
+
+    * Transfer Syntax Sub-item: *Transfer Syntax Name*
+  * User Information Items
+
+    * Implementation Class UID Sub-item: *Implementation Class UID*
+    * Implementation Version Name Sub-item: *Implementation Version Name*
+    * SCP/SCU Role Selection Sub-item: *SOP Class UID*
+    * SOP Class Extended Negotiation Sub-item: *SOP Class UID*
+
+Possible codecs are given in the Python documentation `here
+<https://docs.python.org/3/library/codecs.html#standard-encodings>`_. Decoding
+will be attempted in the order that the codecs appear in ``CODECS`` and any
+fallback codecs should be added after ``"ascii"``.
+
+If a fallback successfully decodes an encoded value the string will be
+converted to ASCII  using :meth:`str.encode` with the `errors` parameter set
+to ``"ignore"``.
+
+Default: ``("ascii",)``
+
+Examples
+--------
+
+Add UTF-8 as a fallback codec:
+
+>>> from pynetdicom import _config
+>>> _config.CODECS = ("ascii", "utf-8")
+"""
+
+
+VALIDATORS: Dict[str, Callable[[Any], Tuple[bool, str]]] = {
+    "AE": validate_ae,
+    "UI": validate_ui,
+}
+"""Customise the validation performed on DIMSE elements and PDU parameters.
+
+.. versionadded:: 2.0
+
+**AE**
+    Function signature: ``def func(value: str) -> Tuple[bool, str]``
+
+    Where `value` is the AE title to be validated as a :class:`str`.
+
+    The function should return a :class:`tuple` of (:class:`bool`,
+    :class:`str`) as the ``(result, msg)``. If the `result` is ``True``
+    then `msg` is ignored, otherwise `msg` will be used to provide feedback
+    about why validation has failed.
+
+**UI**
+  Function signature: ``def func(value: pydicom.uid.UID) -> Tuple[bool, str]``
+
+  Where `value` is the :class:`~pydicom.uid.UID` to be validated.
+
+  The function should return a :class:`tuple` of (:class:`bool`,
+  :class:`str`) as the ``(result, msg)``. If the `result` is ``True``
+  then `msg` is ignored, otherwise `msg` will be used to provide feedback
+  about why validation has failed.
+
+The default validation functions can be found `here
+<https://github.com/pydicom/pynetdicom/blob/master/pynetdicom/_validators.py>`_
+.
+
+Examples
+--------
+
+Perform no validation of **AE** DIMSE elements and AE title PDU parameters:
+
+>>> from pynetdicom import _config
+>>> _config.VALIDATORS['AE'] = def my_validator(value): return (True, "")
+"""
+
+
+UNRESTRICTED_STORAGE_SERVICE: bool = False
+"""When acting as an SCP assume all presentation contexts with private or
+unknown public abstract syntaxes belong to the storage service and accept all
+storage service requests.
+
+.. versionadded:: 2.0
+
+When ``True`` it's no longer necessary to define any supported
+presentation contexts from the storage service and any that have been added
+will be ignored, however the supported contexts for other services will still
+need to be specified.
+
+This also applies to the Storage SCP used when making C-GET requests, however
+the usual requested presentation contexts and :ref:`SCP/SCU Role Selection
+items <user_presentation_role>` are still required.
+
+Default: ``False``
+
+Examples
+--------
+
+Always accept storage requests and treat unknown presentation contexts as
+part of the storage service.
+
+>>> from pynetdicom import _config
+>>> _config.UNRESTRICTED_STORAGE_SERVICE = True
 """

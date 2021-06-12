@@ -487,7 +487,7 @@ class RequestHandler(BaseRequestHandler):
             self.ae.implementation_class_uid
         )
         assoc.acceptor.implementation_version_name = (
-            self.ae.implementation_version_name  # type: ignore
+            self.ae.implementation_version_name
         )
         assoc.acceptor.supported_contexts = deepcopy(self.server.contexts)
 
@@ -541,7 +541,7 @@ class AssociationServer(TCPServer):
         self,
         ae: "ApplicationEntity",
         address: Tuple[str, int],
-        ae_title: bytes,
+        ae_title: str,
         contexts: List[PresentationContext],
         ssl_context: Optional["ssl.SSLContext"] = None,
         evt_handlers: List[evt.EventHandlerType] = None,
@@ -556,7 +556,7 @@ class AssociationServer(TCPServer):
             The parent AE that's running the server.
         address : 2-tuple
             The ``(host, port)`` that the server should run on.
-        ae_title : bytes
+        ae_title : str
             The AE title of the SCP.
         contexts : list of presentation.PresentationContext
             The SCPs supported presentation contexts.

@@ -17,8 +17,6 @@ from pynetdicom.dimse_primitives import (
     C_ECHO, C_MOVE, C_STORE, C_GET, C_FIND, C_CANCEL
 )
 from pynetdicom.dsutils import encode
-from pynetdicom.utils import validate_ae_title
-#from pynetdicom.utils import pretty_bytes
 from .encoded_dimse_msg import (
     c_echo_rq_cmd, c_echo_rsp_cmd, c_store_rq_cmd_b, c_store_rq_ds_b,
     c_store_rsp_cmd, c_find_rq_cmd, c_find_rq_ds, c_find_rsp_cmd,
@@ -29,6 +27,13 @@ from .encoded_dimse_msg import (
 
 LOGGER = logging.getLogger('pynetdicom')
 LOGGER.setLevel(logging.CRITICAL)
+
+
+@pytest.fixture()
+def use_long_aet():
+    _config.USE_SHORT_DIMSE_AET = False
+    yield
+    _config.USE_SHORT_DIMSE_AET = True
 
 
 class TestPrimitive_C_CANCEL:
@@ -87,9 +92,6 @@ class TestPrimitive_C_STORE:
         # AffectedSOPInstanceUID
         primitive.AffectedSOPInstanceUID = None
         assert primitive.AffectedSOPInstanceUID is None
-        primitive.AffectedSOPInstanceUID = b'1.2.1'
-        assert primitive.AffectedSOPInstanceUID == UID('1.2.1')
-        assert isinstance(primitive.AffectedSOPClassUID, UID)
         primitive.AffectedSOPInstanceUID = UID('1.2.2')
         assert primitive.AffectedSOPInstanceUID == UID('1.2.2')
         assert isinstance(primitive.AffectedSOPClassUID, UID)
@@ -101,16 +103,12 @@ class TestPrimitive_C_STORE:
         assert primitive.Priority == 0x02
 
         primitive.MoveOriginatorApplicationEntityTitle = 'UNITTEST_SCP'
-        assert primitive.MoveOriginatorApplicationEntityTitle == b'UNITTEST_SCP'
-        primitive.MoveOriginatorApplicationEntityTitle = b'UNITTEST_SCP'
-        assert primitive.MoveOriginatorApplicationEntityTitle == b'UNITTEST_SCP'
+        assert primitive.MoveOriginatorApplicationEntityTitle == 'UNITTEST_SCP'
         primitive.MoveOriginatorApplicationEntityTitle = ''
-        assert primitive.MoveOriginatorApplicationEntityTitle is None
-        primitive.MoveOriginatorApplicationEntityTitle = b''
-        assert primitive.MoveOriginatorApplicationEntityTitle is None
+        assert primitive.MoveOriginatorApplicationEntityTitle == ''
         primitive.MoveOriginatorApplicationEntityTitle = '         '
-        assert primitive.MoveOriginatorApplicationEntityTitle is None
-        primitive.MoveOriginatorApplicationEntityTitle = b'         '
+        assert primitive.MoveOriginatorApplicationEntityTitle == '         '
+        primitive.MoveOriginatorApplicationEntityTitle = None
         assert primitive.MoveOriginatorApplicationEntityTitle is None
 
         primitive.MoveOriginatorMessageID = 15
@@ -225,9 +223,6 @@ class TestPrimitive_C_STORE:
         with pytest.raises(TypeError):
             primitive.MoveOriginatorApplicationEntityTitle = 100
 
-        primitive.MoveOriginatorApplicationEntityTitle = ''
-        assert primitive.MoveOriginatorApplicationEntityTitle is None
-
         #with pytest.raises(ValueError):
         #    primitive.MoveOriginatorApplicationEntityTitle = '    '
 
@@ -335,33 +330,48 @@ class TestPrimitive_C_STORE:
         """Test using long AE titles."""
         primitive = C_STORE()
 
-        _config.USE_SHORT_DIMSE_AET = False
-
-        primitive.MoveOriginatorApplicationEntityTitle = b'A'
+        primitive.MoveOriginatorApplicationEntityTitle = 'A'
         aet = primitive.MoveOriginatorApplicationEntityTitle
-        assert b'A               ' == aet
+        assert 'A' == aet
 
-    def test_aet_short_true(self):
+    def test_aet_short_true(self, caplog, use_long_aet):
         """Test using short AE titles."""
         primitive = C_STORE()
 
-        _config.USE_SHORT_DIMSE_AET = True
-
-        primitive.MoveOriginatorApplicationEntityTitle = b'A'
+        primitive.MoveOriginatorApplicationEntityTitle = 'A'
         aet = primitive.MoveOriginatorApplicationEntityTitle
-        assert b'A' == aet
+        assert 'A' == aet
 
-        primitive.MoveOriginatorApplicationEntityTitle = b'ABCDEFGHIJKLMNO'
+        primitive.MoveOriginatorApplicationEntityTitle = 'ABCDEFGHIJKLMNO'
         aet = primitive.MoveOriginatorApplicationEntityTitle
-        assert b'ABCDEFGHIJKLMNO' == aet
+        assert 'ABCDEFGHIJKLMNO' == aet
 
-        primitive.MoveOriginatorApplicationEntityTitle = b'ABCDEFGHIJKLMNOP'
+        primitive.MoveOriginatorApplicationEntityTitle = 'ABCDEFGHIJKLMNOP'
         aet = primitive.MoveOriginatorApplicationEntityTitle
-        assert b'ABCDEFGHIJKLMNOP' == aet
+        assert 'ABCDEFGHIJKLMNOP' == aet
 
-        primitive.MoveOriginatorApplicationEntityTitle = b'ABCDEFGHIJKLMNOPQ'
-        aet = primitive.MoveOriginatorApplicationEntityTitle
-        assert b'ABCDEFGHIJKLMNOP' == aet
+        with caplog.at_level(logging.ERROR, logger='pynetdicom'):
+            primitive.MoveOriginatorApplicationEntityTitle = (
+                'ABCDEFGHIJKLMNOPQ'
+            )
+            assert primitive.MoveOriginatorApplicationEntityTitle is None
+
+            assert (
+                "Invalid 'Move Originator AE Title' in C-STORE request"
+            ) in caplog.text
+
+    def test_aet_deprecation(self):
+        """Test deprecation warning for Move Original AET from bytes."""
+        primitive = C_STORE()
+
+        msg = (
+            "The use of bytes with 'Move Originator AE Title' is deprecated, "
+            "use an ASCII str instead"
+        )
+        with pytest.warns(DeprecationWarning, match=msg):
+            primitive.MoveOriginatorApplicationEntityTitle = b'TEST'
+
+        assert primitive.MoveOriginatorApplicationEntityTitle == 'TEST'
 
 
 class TestPrimitive_C_FIND:
@@ -534,7 +544,7 @@ class TestPrimitive_C_FIND:
 
         ref_identifier = Dataset()
         ref_identifier.QueryRetrieveLevel = "PATIENT"
-        ref_identifier.RetrieveAETitle = validate_ae_title("FINDSCP")
+        ref_identifier.RetrieveAETitle = "FINDSCP"
         ref_identifier.PatientName = "ANON^A^B^C^D"
 
         primitive.Identifier = BytesIO(encode(ref_identifier, True, True))
@@ -548,6 +558,9 @@ class TestPrimitive_C_FIND:
         cs_pdv = pdvs[0].presentation_data_value_list[0][1]
         ds_pdv = pdvs[1].presentation_data_value_list[0][1]
         assert cs_pdv == c_find_rsp_cmd
+        #print(len(ds_pdv), len(c_find_rsp_ds))
+        #print(' '.join([f"{b:02X}" for b in ds_pdv]))
+        #print(' '.join([f"{b:02X}" for b in c_find_rsp_ds]))
         assert ds_pdv == c_find_rsp_ds
 
     def test_is_valid_request(self):
@@ -863,7 +876,7 @@ class TestPrimitive_C_MOVE:
         assert primitive.Priority == 0x02
 
         primitive.MoveDestination = 'UNITTEST_SCP'
-        assert primitive.MoveDestination == b'UNITTEST_SCP'
+        assert primitive.MoveDestination == 'UNITTEST_SCP'
 
         ref_ds = Dataset()
         ref_ds.PatientID = 1234567
@@ -1020,7 +1033,7 @@ class TestPrimitive_C_MOVE:
         primitive.MessageID = 7
         primitive.AffectedSOPClassUID = '1.2.840.10008.5.1.4.1.1.2'
         primitive.Priority = 0x02
-        primitive.MoveDestination = validate_ae_title("MOVE_SCP")
+        primitive.MoveDestination = "MOVE_SCP"
 
         ref_identifier = Dataset()
         ref_identifier.PatientID = '*'
@@ -1078,7 +1091,7 @@ class TestPrimitive_C_MOVE:
         assert not primitive.is_valid_request
         primitive.Priority = 2
         assert not primitive.is_valid_request
-        primitive.MoveDestination = b'1234567890123456'
+        primitive.MoveDestination = '1234567890123456'
         assert not primitive.is_valid_request
         primitive.Identifier = BytesIO()
         assert primitive.is_valid_request
@@ -1098,8 +1111,8 @@ class TestPrimitive_C_MOVE:
 
         _config.USE_SHORT_DIMSE_AET = False
 
-        primitive.MoveDestination = b'A'
-        assert b'A               ' == primitive.MoveDestination
+        primitive.MoveDestination = 'A'
+        assert 'A' == primitive.MoveDestination
 
     def test_aet_short_true(self):
         """Test using short AE titles."""
@@ -1107,18 +1120,37 @@ class TestPrimitive_C_MOVE:
 
         _config.USE_SHORT_DIMSE_AET = True
 
-        primitive.MoveDestination = b'A'
+        primitive.MoveDestination = 'A'
         aet = primitive.MoveDestination
-        assert b'A' == primitive.MoveDestination
+        assert 'A' == primitive.MoveDestination
 
-        primitive.MoveDestination = b'ABCDEFGHIJKLMNO'
-        assert b'ABCDEFGHIJKLMNO' == primitive.MoveDestination
+        primitive.MoveDestination = '  ABCD FG  '
+        assert primitive.MoveDestination == '  ABCD FG  '
+        primitive.MoveDestination = '  ABCD FG  '
+        assert primitive.MoveDestination == '  ABCD FG  '
+        primitive.MoveDestination = 'ABCDEFGHIJKLMNO'
+        assert 'ABCDEFGHIJKLMNO' == primitive.MoveDestination
+        primitive.MoveDestination = 'ABCDEFGHIJKLMNOP'
+        assert 'ABCDEFGHIJKLMNOP' == primitive.MoveDestination
 
-        primitive.MoveDestination = b'ABCDEFGHIJKLMNOP'
-        assert b'ABCDEFGHIJKLMNOP' == primitive.MoveDestination
+        msg = "Invalid 'Move Destination' value 'ABCDEFGHIJKLMNOPQ'"
+        with pytest.raises(ValueError, match=msg):
+            primitive.MoveDestination = 'ABCDEFGHIJKLMNOPQ'
 
-        primitive.MoveDestination = b'ABCDEFGHIJKLMNOPQ'
-        assert b'ABCDEFGHIJKLMNOP' == primitive.MoveDestination
+        assert 'ABCDEFGHIJKLMNOP' == primitive.MoveDestination
+
+    def test_aet_deprecation(self):
+        """Test deprecation warning for Move Destination from bytes."""
+        primitive = C_MOVE()
+
+        msg = (
+            "The use of bytes with 'Move Destination' is deprecated, "
+            "use an ASCII str instead"
+        )
+        with pytest.warns(DeprecationWarning, match=msg):
+            primitive.MoveDestination = b'TEST'
+
+        assert primitive.MoveDestination == 'TEST'
 
 
 class TestPrimitive_C_ECHO:

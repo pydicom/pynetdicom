@@ -17,42 +17,54 @@ Fixes
   (:pr:`608`)
 * Fixed not sending a failure response if all C-GET or C-MOVE sub-operations
   failed when acting as an Query/Retrieve SCP (:issue:`577`)
+* Fixed :meth:`ServiceUser.requested_contexts
+  <pynetdicom.association.ServiceUser.requested_contexts>` and
+  :meth:`ServiceUser.supported_contexts
+  <pynetdicom.association.ServiceUser.supported_contexts>` not returning the
+  expected contexts (:issue:`636`)
 
 Enhancements
 ............
 
-* Added configuration option :attr:`~pynetdicom._config.ALLOW_LONG_DIMSE_AET`
-  to allow bypassing the length check for elements with a VR of **AE**
-  (:issue:`515`)
 * Added the ability to pass a file path to a dataset to
   :meth:`~pynetdicom.association.Association.send_c_store` (:issue:`517`)
-* Added :attr:`~pynetdicom._config.STORE_SEND_CHUNKED_DATASET` config option
-  to allow the use of a chunked read when a file path is passed to
-  :meth:`~pynetdicom.association.Association.send_c_store` in order to
-  reduce the memory needed for sending datasets (:issue:`517`)
-* Added :attr:`~pynetdicom._config.STORE_RECV_CHUNKED_DATASET` config option
-  to allow storing received C-STORE datasets directly to file,
-  reducing the memory needed when receiving datasets (:issue:`517`)
 * Allow parsing of dimse command sets that contain elements with non-conformant
   VMs (:issue:`554`)
 * Added a check when acting as a QR SCP that returns from the event handler
   if the association is aborted or released (:issue:`592`)
-* Added configuration option :attr:`~pynetdicom._config.PASS_CONTEXTVARS` to
-  allow user code to define contextual behavior.
 * Added :attr:`AE.connection_timeout
   <pynetdicom.ae.ApplicationEntity.connection_timeout>` (:issue:`616`)
-* When running on Windows the minimum timer resolution now defaults to 1
-  millisecond when an :class:`~pynetdicom.association.Association` is started
-  and cleared when the ``Association`` ends. The timer resolution value can be
-  customised with the :attr:`~pynetdicom._config.WINDOWS_TIMER_RESOLUTION`
-  option (:issue:`620`)
 * Updated to meet the 2021b version of the DICOM Standard
 * Added type hints
+* Handle non-conformant A-ASSOCIATE (RJ) 'Result', 'Source' and 'Diagnostic'
+  values during ACSE negotiation (:issue:`633`)
+* Added `query_model` keyword parameter to
+  :meth:`~pynetdicom.association.Association.send_c_cancel` to make sending a
+  C-CANCEL request easier (:issue:`535`)
+* Added the following configuration options:
+
+  * :attr:`~pynetdicom._config.CODECS` to allow customising the
+    codecs used when decoding text-like PDU parameters (:issue:`611`)
+  * :attr:`~pynetdicom._config.VALIDATORS` to allow customising the
+    validation performed on UIDs and AE titles (:issue:`515`, :issue:`549`)
+  * :attr:`~pynetdicom._config.WINDOWS_TIMER_RESOLUTION` to allow customisation
+    of the timer resolution used when running on Windows (:issue:`620`)
+  * :attr:`~pynetdicom._config.PASS_CONTEXTVARS` to allow user code to define
+    contextual behavior
+  * :attr:`~pynetdicom._config.STORE_SEND_CHUNKED_DATASET`
+    to allow the use of a chunked read when a file path is passed to
+    :meth:`~pynetdicom.association.Association.send_c_store` in order to
+    reduce the memory needed for sending datasets (:issue:`517`)
+  * :attr:`~pynetdicom._config.STORE_RECV_CHUNKED_DATASET`
+    to allow storing received C-STORE datasets directly to file,
+    reducing the memory needed when receiving datasets (:issue:`517`)
+  * :attr:`~pynetdicom._config.UNRESTRICTED_STORAGE_SERVICE` to allow the
+    use of the AE as an unrestricted Storage SCP (:issue:`505`)
 
 Changes
 .......
 
-* Removed support for Python 2.7 and 3.5, added it for Python 3.9
+* Removed support for Python 2.7, 3.5 and 3.6, added it for Python 3.9
 * Minimum *pydicom* version is 2.2
 * The *Failed SOP Instance UID List* sent with the final C-GET/C-MOVE SCP
   failure or warning responses no longer includes the SOP Instances for
@@ -60,3 +72,5 @@ Changes
 * SOP Class and Instance variable names changed to match the new UID keywords
   from the DICOM Standard. In particular ``VerificationSOPClass`` is now simply
   :attr:`~pynetdicom.sop_class.Verification`
+* All AE titles and DIMSE elements with a VR of **AE** should be set using an
+  ASCII :class:`str` rather than :class:`bytes`

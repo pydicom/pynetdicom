@@ -12,7 +12,9 @@ This module provides utilities.
 .. autosummary::
    :toctree: generated/
 
+   decode_bytes
    make_target
    pretty_bytes
-   validate_ae_title
+   set_ae
+   set_uid
    validate_uid

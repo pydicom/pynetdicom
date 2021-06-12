@@ -1,8 +1,10 @@
 .. class:: center
 .. image:: https://codecov.io/gh/pydicom/pynetdicom/branch/master/graph/badge.svg
     :target: https://codecov.io/gh/pydicom/pynetdicom
-.. image:: https://github.com/pydicom/pynetdicom/workflows/build/badge.svg
-    :target: https://github.com/pydicom/pynetdicom/actions?query=workflow%3Abuild
+.. image:: https://github.com/pydicom/pynetdicom/workflows/unit-tests/badge.svg
+    :target: https://github.com/pydicom/pynetdicom/actions?query=workflow%3Aunit-tests
+.. image:: https://github.com/pydicom/pynetdicom/workflows/type-hints/badge.svg
+    :target: https://github.com/pydicom/pynetdicom/actions?query=workflow%3Atype-hints
 .. image:: https://circleci.com/gh/pydicom/pynetdicom/tree/master.svg?style=shield
     :target: https://circleci.com/gh/pydicom/pynetdicom/tree/master
 .. image:: https://badge.fury.io/py/pynetdicom.svg
@@ -33,15 +35,14 @@ images and related information. It defines the formats and communication
 protocols for media exchange in radiology, cardiology, radiotherapy and other
 medical domains.
 
-*pynetdicom* is a pure Python 3.6+ package that implements the DICOM
+*pynetdicom* is a pure Python 3.7+ package that implements the DICOM
 networking protocol. Working with
 `pydicom <https://github.com/pydicom/pydicom>`_, it allows the easy creation
 of DICOM *Service Class Users* (SCUs) and *Service Class Providers* (SCPs).
 
 *pynetdicom's* main user class is
-`AE <https://pydicom.github.io/pynetdicom/stable/reference/generated/pynetdicom.ae.ApplicationEntity.html>`_,
-which is used to represent a DICOM Application Entity. Once an ``AE`` has been
-created you can:
+`AE <https://pydicom.github.io/pynetdicom/stable/reference/generated/pynetdicom.ae.ApplicationEntity.html>`_
+and is used to represent a DICOM Application Entity. With it you can:
 
 - Start the application as an SCP by specifying the supported presentation
   contexts then calling

@@ -3418,7 +3418,7 @@ class TestQRMoveServiceClass:
 
         req = C_MOVE()
         req.MessageID = 1
-        req.MoveDestination = b'Test'
+        req.MoveDestination = 'Test'
         req.AffectedSOPClassUID = PatientRootQueryRetrieveInformationModelMove
         req.Priority = 2
         # Encoded as Implicit VR Little
@@ -3456,7 +3456,7 @@ class TestQRMoveServiceClass:
         assoc = ae.associate('localhost', 11112)
         assert assoc.is_established
 
-        result = assoc.send_c_move(self.query, b'TESTMOVE', PatientRootQueryRetrieveInformationModelMove)
+        result = assoc.send_c_move(self.query, 'TESTMOVE', PatientRootQueryRetrieveInformationModelMove)
         status, identifier = next(result)
         assert status.Status == 0xC514
         pytest.raises(StopIteration, next, result)
@@ -3485,7 +3485,7 @@ class TestQRMoveServiceClass:
         assoc = ae.associate('localhost', 11112)
         assert assoc.is_established
 
-        result = assoc.send_c_move(self.query, b'TESTMOVE', PatientRootQueryRetrieveInformationModelMove)
+        result = assoc.send_c_move(self.query, 'TESTMOVE', PatientRootQueryRetrieveInformationModelMove)
         status, identifier = next(result)
         assert status.Status == 0xC513
         pytest.raises(StopIteration, next, result)
@@ -3518,7 +3518,7 @@ class TestQRMoveServiceClass:
         assoc = ae.associate('localhost', 11112)
         assert assoc.is_established
 
-        result = assoc.send_c_move(self.query, b'TESTMOVE', PatientRootQueryRetrieveInformationModelMove)
+        result = assoc.send_c_move(self.query, 'TESTMOVE', PatientRootQueryRetrieveInformationModelMove)
         status, identifier = next(result)
         assert status.Status == 0xA801
         pytest.raises(StopIteration, next, result)
@@ -3547,7 +3547,7 @@ class TestQRMoveServiceClass:
         ae.dimse_timeout = 5
         assoc = ae.associate('localhost', 11112)
         assert assoc.is_established
-        result = assoc.send_c_move(self.query, b'TESTMOVE', PatientRootQueryRetrieveInformationModelMove)
+        result = assoc.send_c_move(self.query, 'TESTMOVE', PatientRootQueryRetrieveInformationModelMove)
         status, identifier = next(result)
         assert status.Status == 0xC513
         pytest.raises(StopIteration, next, result)
@@ -3575,7 +3575,7 @@ class TestQRMoveServiceClass:
         ae.dimse_timeout = 5
         assoc = ae.associate('localhost', 11112)
         assert assoc.is_established
-        result = assoc.send_c_move(self.query, b'TESTMOVE', PatientRootQueryRetrieveInformationModelMove)
+        result = assoc.send_c_move(self.query, 'TESTMOVE', PatientRootQueryRetrieveInformationModelMove)
         status, identifier = next(result)
         assert status.Status == 0xC515
         pytest.raises(StopIteration, next, result)
@@ -3609,7 +3609,7 @@ class TestQRMoveServiceClass:
         ae.dimse_timeout = 5
         assoc = ae.associate('localhost', 11112)
         assert assoc.is_established
-        result = assoc.send_c_move(self.query, b'TESTMOVE', PatientRootQueryRetrieveInformationModelMove)
+        result = assoc.send_c_move(self.query, 'TESTMOVE', PatientRootQueryRetrieveInformationModelMove)
         status, identifier = next(result)
         assert status.Status == 0xFF00
         assert identifier is None
@@ -3649,7 +3649,7 @@ class TestQRMoveServiceClass:
         ae.dimse_timeout = 5
         assoc = ae.associate('localhost', 11112)
         assert assoc.is_established
-        result = assoc.send_c_move(self.query, b'TESTMOVE', PatientRootQueryRetrieveInformationModelMove)
+        result = assoc.send_c_move(self.query, 'TESTMOVE', PatientRootQueryRetrieveInformationModelMove)
         status, identifier = next(result)
         assert status.Status == 0xFF00
         assert status.ErrorComment == 'Test'
@@ -3687,7 +3687,7 @@ class TestQRMoveServiceClass:
         ae.dimse_timeout = 5
         assoc = ae.associate('localhost', 11112)
         assert assoc.is_established
-        result = assoc.send_c_move(self.query, b'TESTMOVE', PatientRootQueryRetrieveInformationModelMove)
+        result = assoc.send_c_move(self.query, 'TESTMOVE', PatientRootQueryRetrieveInformationModelMove)
         status, identifier = next(result)
         assert status.Status == 0xFF00
         assert identifier is None
@@ -3722,7 +3722,7 @@ class TestQRMoveServiceClass:
         ae.dimse_timeout = 5
         assoc = ae.associate('localhost', 11112)
         assert assoc.is_established
-        result = assoc.send_c_move(self.query, b'TESTMOVE', PatientRootQueryRetrieveInformationModelMove)
+        result = assoc.send_c_move(self.query, 'TESTMOVE', PatientRootQueryRetrieveInformationModelMove)
         status, identifier = next(result)
         assert status.Status == 0xFFF0
         assert identifier is None
@@ -3753,7 +3753,7 @@ class TestQRMoveServiceClass:
         ae.dimse_timeout = 5
         assoc = ae.associate('localhost', 11112)
         assert assoc.is_established
-        result = assoc.send_c_move(self.query, b'TESTMOVE', PatientRootQueryRetrieveInformationModelMove)
+        result = assoc.send_c_move(self.query, 'TESTMOVE', PatientRootQueryRetrieveInformationModelMove)
         status, identifier = next(result)
         assert status.Status == 0xC002
         assert identifier.FailedSOPInstanceUIDList == ''
@@ -3784,7 +3784,7 @@ class TestQRMoveServiceClass:
         ae.dimse_timeout = 5
         assoc = ae.associate('localhost', 11112)
         assert assoc.is_established
-        result = assoc.send_c_move(self.query, b'TESTMOVE', PatientRootQueryRetrieveInformationModelMove)
+        result = assoc.send_c_move(self.query, 'TESTMOVE', PatientRootQueryRetrieveInformationModelMove)
         status, identifier = next(result)
         assert status.Status == 0xC002
         assert identifier.FailedSOPInstanceUIDList == ''
@@ -3810,7 +3810,7 @@ class TestQRMoveServiceClass:
         ae.dimse_timeout = 5
         assoc = ae.associate('localhost', 11112)
         assert assoc.is_established
-        result = assoc.send_c_move(self.query, b'TESTMOVE', PatientRootQueryRetrieveInformationModelMove)
+        result = assoc.send_c_move(self.query, 'TESTMOVE', PatientRootQueryRetrieveInformationModelMove)
         status, identifier = next(result)
         assert status.Status == 0xC511
         assert identifier == Dataset()
@@ -3843,7 +3843,7 @@ class TestQRMoveServiceClass:
         ae.dimse_timeout = 5
         assoc = ae.associate('localhost', 11112)
         assert assoc.is_established
-        result = assoc.send_c_move(self.query, b'TESTMOVE', PatientRootQueryRetrieveInformationModelMove)
+        result = assoc.send_c_move(self.query, 'TESTMOVE', PatientRootQueryRetrieveInformationModelMove)
         status, identifier = next(result)
         assert status.Status == 0xC511
         assert identifier == Dataset()
@@ -3875,7 +3875,7 @@ class TestQRMoveServiceClass:
         ae.dimse_timeout = 5
         assoc = ae.associate('localhost', 11112)
         assert assoc.is_established
-        result = assoc.send_c_move(self.query, b'TESTMOVE', PatientRootQueryRetrieveInformationModelMove)
+        result = assoc.send_c_move(self.query, 'TESTMOVE', PatientRootQueryRetrieveInformationModelMove)
         status, identifier = next(result)
         assert status.Status == 0xC514
         assert identifier == Dataset()
@@ -3909,7 +3909,7 @@ class TestQRMoveServiceClass:
         assert assoc.is_established
         result = assoc.send_c_move(
             self.query,
-            b'TESTMOVE',
+            'TESTMOVE',
             PatientRootQueryRetrieveInformationModelMove
         )
         status, identifier = next(result)
@@ -3943,7 +3943,7 @@ class TestQRMoveServiceClass:
         ae.dimse_timeout = 5
         assoc = ae.associate('localhost', 11112)
         assert assoc.is_established
-        result = assoc.send_c_move(self.query, b'TESTMOVE', PatientRootQueryRetrieveInformationModelMove)
+        result = assoc.send_c_move(self.query, 'TESTMOVE', PatientRootQueryRetrieveInformationModelMove)
         status, identifier = next(result)
         assert status.Status == 0xC511
         assert identifier.FailedSOPInstanceUIDList == ''
@@ -3975,7 +3975,7 @@ class TestQRMoveServiceClass:
         ae.dimse_timeout = 5
         assoc = ae.associate('localhost', 11112)
         assert assoc.is_established
-        result = assoc.send_c_move(self.query, b'TESTMOVE', PatientRootQueryRetrieveInformationModelMove)
+        result = assoc.send_c_move(self.query, 'TESTMOVE', PatientRootQueryRetrieveInformationModelMove)
         status, identifier = next(result)
         assert status.Status == 0xFF00
         assert identifier is None
@@ -4009,7 +4009,7 @@ class TestQRMoveServiceClass:
         ae.dimse_timeout = 5
         assoc = ae.associate('localhost', 11112)
         assert assoc.is_established
-        result = assoc.send_c_move(self.query, b'TESTMOVE', PatientRootQueryRetrieveInformationModelMove)
+        result = assoc.send_c_move(self.query, 'TESTMOVE', PatientRootQueryRetrieveInformationModelMove)
         status, identifier = next(result)
         assert status.Status == 0xFF00
         assert identifier is None
@@ -4046,7 +4046,7 @@ class TestQRMoveServiceClass:
         ae.dimse_timeout = 5
         assoc = ae.associate('localhost', 11112)
         assert assoc.is_established
-        result = assoc.send_c_move(self.query, b'TESTMOVE', PatientRootQueryRetrieveInformationModelMove)
+        result = assoc.send_c_move(self.query, 'TESTMOVE', PatientRootQueryRetrieveInformationModelMove)
         status, identifier = next(result)
         assert status.Status == 0xFF00
         assert identifier is None
@@ -4090,7 +4090,7 @@ class TestQRMoveServiceClass:
         ae.dimse_timeout = 5
         assoc = ae.associate('localhost', 11112)
         assert assoc.is_established
-        result = assoc.send_c_move(self.query, b'TESTMOVE', PatientRootQueryRetrieveInformationModelMove)
+        result = assoc.send_c_move(self.query, 'TESTMOVE', PatientRootQueryRetrieveInformationModelMove)
         status, identifier = next(result)
         assert status.Status == 0xFF00
         assert identifier is None
@@ -4130,7 +4130,7 @@ class TestQRMoveServiceClass:
         ae.dimse_timeout = 5
         assoc = ae.associate('localhost', 11112)
         assert assoc.is_established
-        result = assoc.send_c_move(self.query, b'TESTMOVE', PatientRootQueryRetrieveInformationModelMove)
+        result = assoc.send_c_move(self.query, 'TESTMOVE', PatientRootQueryRetrieveInformationModelMove)
         status, identifier = next(result)
         assert status.Status == 0xFF00
         assert identifier is None
@@ -4173,7 +4173,7 @@ class TestQRMoveServiceClass:
         ae.dimse_timeout = 5
         assoc = ae.associate('localhost', 11112)
         assert assoc.is_established
-        result = assoc.send_c_move(self.query, b'TESTMOVE', PatientRootQueryRetrieveInformationModelMove)
+        result = assoc.send_c_move(self.query, 'TESTMOVE', PatientRootQueryRetrieveInformationModelMove)
         status, identifier = next(result)
         assert status.Status == 0xB000
         assert status.NumberOfFailedSuboperations == 2
@@ -4210,7 +4210,7 @@ class TestQRMoveServiceClass:
         ae.dimse_timeout = 5
         assoc = ae.associate('localhost', 11112)
         assert assoc.is_established
-        result = assoc.send_c_move(self.query, b'TESTMOVE', PatientRootQueryRetrieveInformationModelMove)
+        result = assoc.send_c_move(self.query, 'TESTMOVE', PatientRootQueryRetrieveInformationModelMove)
         status, identifier = next(result)
         assert status.Status == 0xFF00
         assert identifier is None
@@ -4252,7 +4252,7 @@ class TestQRMoveServiceClass:
         ae.dimse_timeout = 5
         assoc = ae.associate('localhost', 11112)
         assert assoc.is_established
-        result = assoc.send_c_move(self.query, b'TESTMOVE', PatientRootQueryRetrieveInformationModelMove)
+        result = assoc.send_c_move(self.query, 'TESTMOVE', PatientRootQueryRetrieveInformationModelMove)
         status, identifier = next(result)
         assert status.Status == 0xFF00
         assert identifier is None
@@ -4291,7 +4291,7 @@ class TestQRMoveServiceClass:
         ae.dimse_timeout = 5
         assoc = ae.associate('localhost', 11112)
         assert assoc.is_established
-        result = assoc.send_c_move(self.query, b'TESTMOVE', PatientRootQueryRetrieveInformationModelMove)
+        result = assoc.send_c_move(self.query, 'TESTMOVE', PatientRootQueryRetrieveInformationModelMove)
         status, identifier = next(result)
         assert status.Status == 0xFF00
         assert identifier is None
@@ -4330,7 +4330,7 @@ class TestQRMoveServiceClass:
         ae.dimse_timeout = 5
         assoc = ae.associate('localhost', 11112)
         assert assoc.is_established
-        result = assoc.send_c_move(self.query, b'TESTMOVE', PatientRootQueryRetrieveInformationModelMove)
+        result = assoc.send_c_move(self.query, 'TESTMOVE', PatientRootQueryRetrieveInformationModelMove)
         status, identifier = next(result)
         assert status.Status == 0xFF00
         assert identifier is None
@@ -4371,7 +4371,7 @@ class TestQRMoveServiceClass:
         ae.dimse_timeout = 5
         assoc = ae.associate('localhost', 11112)
         assert assoc.is_established
-        result = assoc.send_c_move(self.query, b'TESTMOVE', PatientRootQueryRetrieveInformationModelMove)
+        result = assoc.send_c_move(self.query, 'TESTMOVE', PatientRootQueryRetrieveInformationModelMove)
         status, identifier = next(result)
         assert status.Status == 0xFF00
         assert identifier is None
@@ -4418,7 +4418,7 @@ class TestQRMoveServiceClass:
         ae.dimse_timeout = 5
         assoc = ae.associate('localhost', 11112)
         assert assoc.is_established
-        result = assoc.send_c_move(self.query, b'TESTMOVE', PatientRootQueryRetrieveInformationModelMove)
+        result = assoc.send_c_move(self.query, 'TESTMOVE', PatientRootQueryRetrieveInformationModelMove)
         status, identifier = next(result)
         assert status.Status == 0xFF00
         assert identifier is None
@@ -4465,7 +4465,7 @@ class TestQRMoveServiceClass:
         ae.dimse_timeout = 5
         assoc = ae.associate('localhost', 11112)
         assert assoc.is_established
-        result = assoc.send_c_move(self.query, b'TESTMOVE', PatientRootQueryRetrieveInformationModelMove)
+        result = assoc.send_c_move(self.query, 'TESTMOVE', PatientRootQueryRetrieveInformationModelMove)
         status, identifier = next(result)
         assert status.Status == 0xFF00
         assert identifier is None
@@ -4512,7 +4512,7 @@ class TestQRMoveServiceClass:
         ae.dimse_timeout = 5
         assoc = ae.associate('localhost', 11112)
         assert assoc.is_established
-        result = assoc.send_c_move(self.query, b'TESTMOVE', PatientRootQueryRetrieveInformationModelMove)
+        result = assoc.send_c_move(self.query, 'TESTMOVE', PatientRootQueryRetrieveInformationModelMove)
         status, identifier = next(result)
         assert status.Status == 0xFF00
         assert identifier is None
@@ -4551,7 +4551,7 @@ class TestQRMoveServiceClass:
         assoc = ae.associate('localhost', 11112)
         assert assoc.is_established
         result = assoc.send_c_move(
-            self.query, b'TESTMOVE',
+            self.query, 'TESTMOVE',
             PatientRootQueryRetrieveInformationModelMove
         )
         status, identifier = next(result)
@@ -4593,7 +4593,7 @@ class TestQRMoveServiceClass:
         ae.dimse_timeout = 5
         assoc = ae.associate('localhost', 11112)
         assert assoc.is_established
-        result = assoc.send_c_move(self.query, b'TESTMOVE', PatientRootQueryRetrieveInformationModelMove)
+        result = assoc.send_c_move(self.query, 'TESTMOVE', PatientRootQueryRetrieveInformationModelMove)
         status, identifier = next(result)
         assert status.Status == 0xFF00
         assert identifier is None
@@ -4631,7 +4631,7 @@ class TestQRMoveServiceClass:
         ae.dimse_timeout = 5
         assoc = ae.associate('localhost', 11112)
         assert assoc.is_established
-        result = assoc.send_c_move(self.query, b'TESTMOVE', PatientRootQueryRetrieveInformationModelMove)
+        result = assoc.send_c_move(self.query, 'TESTMOVE', PatientRootQueryRetrieveInformationModelMove)
         status, identifier = next(result)
         assert status.Status == 0xFF00
         assert identifier is None
@@ -4669,7 +4669,7 @@ class TestQRMoveServiceClass:
         ae.dimse_timeout = 5
         assoc = ae.associate('localhost', 11112)
         assert assoc.is_established
-        result = assoc.send_c_move(self.query, b'TESTMOVE', PatientRootQueryRetrieveInformationModelMove)
+        result = assoc.send_c_move(self.query, 'TESTMOVE', PatientRootQueryRetrieveInformationModelMove)
         status, identifier = next(result)
         assert status.Status == 0xA801
         assert identifier == Dataset()
@@ -4707,7 +4707,7 @@ class TestQRMoveServiceClass:
         ae.dimse_timeout = 5
         assoc = ae.associate('localhost', 11112)
         assert assoc.is_established
-        result = assoc.send_c_move(self.query, b'TESTMOVE', PatientRootQueryRetrieveInformationModelMove)
+        result = assoc.send_c_move(self.query, 'TESTMOVE', PatientRootQueryRetrieveInformationModelMove)
         status, identifier = next(result)
         assert status.Status == 0xFF00
         assert identifier is None
@@ -4753,7 +4753,7 @@ class TestQRMoveServiceClass:
         ae.dimse_timeout = 5
         assoc = ae.associate('localhost', 11112)
         assert assoc.is_established
-        result = assoc.send_c_move(self.query, b'TESTMOVE', PatientRootQueryRetrieveInformationModelMove)
+        result = assoc.send_c_move(self.query, 'TESTMOVE', PatientRootQueryRetrieveInformationModelMove)
         status, identifier = next(result)
         assert status.Status == 0xFF00
         assert identifier is None
@@ -4804,7 +4804,7 @@ class TestQRMoveServiceClass:
         assoc = ae.associate('localhost', 11112)
         assert assoc.is_established
         result = assoc.send_c_move(
-            self.query, b'TESTMOVE',
+            self.query, 'TESTMOVE',
             PatientRootQueryRetrieveInformationModelMove,
             msg_id=1234
         )
@@ -4820,10 +4820,10 @@ class TestQRMoveServiceClass:
 
         req = attrs['request']
         assert isinstance(req, C_MOVE)
-        assert req.MoveDestination == b'TESTMOVE'
+        assert req.MoveDestination == 'TESTMOVE'
 
         assert attrs['originator_msg_id'] == 1234
-        assert attrs['originator_aet'] == b'PYNETDICOM'
+        assert attrs['originator_aet'] == 'PYNETDICOM'
 
         scp.shutdown()
 
@@ -4856,7 +4856,7 @@ class TestQRMoveServiceClass:
         ae.dimse_timeout = 5
         assoc = ae.associate('localhost', 11112)
         assert assoc.is_established
-        result = assoc.send_c_move(self.query, b'TESTMOVE', PatientRootQueryRetrieveInformationModelMove)
+        result = assoc.send_c_move(self.query, 'TESTMOVE', PatientRootQueryRetrieveInformationModelMove)
         status, identifier = next(result)
         assert status.Status == 0xFF00
         assert identifier is None
@@ -4903,7 +4903,7 @@ class TestQRMoveServiceClass:
         assoc = ae.associate('localhost', 11112)
         assert assoc.is_established
         result = assoc.send_c_move(
-            self.query, b'TESTMOVE',
+            self.query, 'TESTMOVE',
             PatientRootQueryRetrieveInformationModelMove
         )
         status, identifier = next(result)
@@ -4916,7 +4916,7 @@ class TestQRMoveServiceClass:
         assoc.release()
         assert assoc.is_released
 
-        assert attrs['destination'] == b'TESTMOVE'
+        assert attrs['destination'] == 'TESTMOVE'
 
         scp.shutdown()
 
@@ -4955,7 +4955,10 @@ class TestQRMoveServiceClass:
         identifier = Dataset()
         identifier.PatientID = '*'
         results = assoc.send_c_move(
-            identifier, b'A', PatientRootQueryRetrieveInformationModelMove, msg_id=11142
+            identifier,
+            'A',
+            PatientRootQueryRetrieveInformationModelMove,
+            msg_id=11142
         )
         assoc.send_c_cancel(1, 3)
         assoc.send_c_cancel(11142, 1)
@@ -5009,7 +5012,7 @@ class TestQRMoveServiceClass:
         ae.dimse_timeout = 5
         assoc = ae.associate('localhost', 11112)
         assert assoc.is_established
-        result = assoc.send_c_move(self.query, b'TESTMOVE', PatientRootQueryRetrieveInformationModelMove)
+        result = assoc.send_c_move(self.query, 'TESTMOVE', PatientRootQueryRetrieveInformationModelMove)
         status, identifier = next(result)
         assert status.Status == 0xFF00
         assert identifier is None
@@ -5061,7 +5064,7 @@ class TestQRMoveServiceClass:
         assoc = ae.associate('localhost', 11112)
         assert assoc.is_established
         result = assoc.send_c_move(
-            self.query, b'TESTMOVE', PatientRootQueryRetrieveInformationModelMove, msg_id=65534
+            self.query, 'TESTMOVE', PatientRootQueryRetrieveInformationModelMove, msg_id=65534
         )
         status, identifier = next(result)
         assert status.Status == 0xFF00
@@ -5109,7 +5112,7 @@ class TestQRMoveServiceClass:
         ae.dimse_timeout = 5
         assoc = ae.associate('localhost', 11112)
         assert assoc.is_established
-        result = assoc.send_c_move(self.query, b'TESTMOVE', PatientRootQueryRetrieveInformationModelMove)
+        result = assoc.send_c_move(self.query, 'TESTMOVE', PatientRootQueryRetrieveInformationModelMove)
         status, identifier = next(result)
         assert status.Status == 0xFF00
         assert identifier is None
@@ -5148,7 +5151,7 @@ class TestQRMoveServiceClass:
         ae.dimse_timeout = 5
         assoc = ae.associate('localhost', 11112)
         assert assoc.is_established
-        result = assoc.send_c_move(self.query, b'TESTMOVE', PatientRootQueryRetrieveInformationModelMove)
+        result = assoc.send_c_move(self.query, 'TESTMOVE', PatientRootQueryRetrieveInformationModelMove)
         status, identifier = next(result)
         assert status.Status == 0xFF00
         assert identifier is None
@@ -5187,7 +5190,7 @@ class TestQRMoveServiceClass:
         ae.dimse_timeout = 5
         assoc = ae.associate('localhost', 11112)
         assert assoc.is_established
-        result = assoc.send_c_move(self.query, b'TESTMOVE', PatientRootQueryRetrieveInformationModelMove)
+        result = assoc.send_c_move(self.query, 'TESTMOVE', PatientRootQueryRetrieveInformationModelMove)
         status, identifier = next(result)
         assert status.Status == 0xFF00
         assert identifier is None
@@ -5227,7 +5230,7 @@ class TestQRMoveServiceClass:
         assoc = ae.associate('localhost', 11112)
         assert assoc.is_established
         result = assoc.send_c_move(
-            self.query, b'TESTMOVE',
+            self.query, 'TESTMOVE',
             PatientRootQueryRetrieveInformationModelMove
         )
         status, identifier = next(result)
@@ -5261,7 +5264,7 @@ class TestQRMoveServiceClass:
         assoc = ae.associate('localhost', 11112)
         assert assoc.is_established
         result = assoc.send_c_move(
-            self.query, b'TESTMOVE',
+            self.query, 'TESTMOVE',
             PatientRootQueryRetrieveInformationModelMove
         )
         status, identifier = next(result)
@@ -5298,7 +5301,7 @@ class TestQRMoveServiceClass:
         assoc = ae.associate('localhost', 11112)
         assert assoc.is_established
         result = assoc.send_c_move(
-            self.query, b'TESTMOVE',
+            self.query, 'TESTMOVE',
             PatientRootQueryRetrieveInformationModelMove
         )
         status, identifier = next(result)
@@ -5335,7 +5338,7 @@ class TestQRMoveServiceClass:
         assoc = ae.associate('localhost', 11112)
         assert assoc.is_established
         result = assoc.send_c_move(
-            self.query, b'TESTMOVE',
+            self.query, 'TESTMOVE',
             PatientRootQueryRetrieveInformationModelMove
         )
         status, identifier = next(result)
@@ -5373,7 +5376,7 @@ class TestQRMoveServiceClass:
         assoc = ae.associate('localhost', 11112)
         assert assoc.is_established
         result = assoc.send_c_move(
-            self.query, b'TESTMOVE',
+            self.query, 'TESTMOVE',
             PatientRootQueryRetrieveInformationModelMove
         )
         status, identifier = next(result)
@@ -5414,7 +5417,7 @@ class TestQRMoveServiceClass:
         assoc = ae.associate('localhost', 11112)
         assert assoc.is_established
         result = assoc.send_c_move(
-            self.query, b'TESTMOVE',
+            self.query, 'TESTMOVE',
             PatientRootQueryRetrieveInformationModelMove
         )
         status, identifier = next(result)
@@ -5468,7 +5471,7 @@ class TestQRMoveServiceClass:
         assoc = ae.associate('localhost', 11112)
         assert assoc.is_established
         result = assoc.send_c_move(
-            self.query, b'TESTMOVE',
+            self.query, 'TESTMOVE',
             PatientRootQueryRetrieveInformationModelMove
         )
         status, identifier = next(result)
@@ -5506,7 +5509,7 @@ class TestQRMoveServiceClass:
         assert assoc.is_established
         result = assoc.send_c_move(
             self.query,
-            b'TESTMOVE',
+            'TESTMOVE',
             PatientRootQueryRetrieveInformationModelMove
         )
         status, identifier = next(result)
@@ -5523,7 +5526,7 @@ class TestQRMoveServiceClass:
         def handle(event):
             kwargs = {
                 'contexts': [build_context(CTImageStorage)],
-                'ae_title': b'SOME_AE'
+                'ae_title': 'SOME_AE'
             }
             yield self.destination[0], self.destination[1], kwargs
             yield 1
@@ -5547,7 +5550,7 @@ class TestQRMoveServiceClass:
         assert assoc.is_established
         result = assoc.send_c_move(
             self.query,
-            b'TESTMOVE',
+            'TESTMOVE',
             PatientRootQueryRetrieveInformationModelMove
         )
         status, identifier = next(result)
@@ -5570,7 +5573,7 @@ class TestQRMoveServiceClass:
         def handle(event):
             kwargs = {
                 'contexts': [build_context(CTImageStorage)],
-                'ae_title': b'SOME_AE',
+                'ae_title': 'SOME_AE',
                 'badness': None
             }
             yield self.destination[0], self.destination[1], kwargs
@@ -5592,7 +5595,7 @@ class TestQRMoveServiceClass:
         assert assoc.is_established
         result = assoc.send_c_move(
             self.query,
-            b'TESTMOVE',
+            'TESTMOVE',
             PatientRootQueryRetrieveInformationModelMove
         )
         status, identifier = next(result)
@@ -5636,7 +5639,7 @@ class TestQRMoveServiceClass:
         assert assoc.is_established
         result = assoc.send_c_move(
             self.query,
-            b'TESTMOVE',
+            'TESTMOVE',
             PatientRootQueryRetrieveInformationModelMove
         )
         status, identifier = next(result)
@@ -5685,7 +5688,7 @@ class TestQRMoveServiceClass:
         assoc = ae.associate('localhost', 11112)
         assert assoc.is_established
         result = assoc.send_c_move(
-            self.query, b'TESTMOVE', PatientRootQueryRetrieveInformationModelMove
+            self.query, 'TESTMOVE', PatientRootQueryRetrieveInformationModelMove
         )
         status, identifier = next(result)
         assert status.Status == 0xFF00

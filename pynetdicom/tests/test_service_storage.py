@@ -9,7 +9,7 @@ import pytest
 
 from pydicom import dcmread
 from pydicom.dataset import Dataset, FileMetaDataset
-from pydicom.uid import ExplicitVRLittleEndian
+from pydicom.uid import ExplicitVRLittleEndian, ImplicitVRLittleEndian
 
 from pynetdicom import AE, _config, evt, build_role, debug_logger
 from pynetdicom.dimse_primitives import C_STORE
@@ -32,11 +32,26 @@ TEST_DS_DIR = os.path.join(os.path.dirname(__file__), 'dicom_files')
 DATASET = dcmread(os.path.join(TEST_DS_DIR, 'CTImageStorage.dcm'))
 
 
+@pytest.fixture()
+def enable_unrestricted():
+    _config.UNRESTRICTED_STORAGE_SERVICE = True
+    yield
+    _config.UNRESTRICTED_STORAGE_SERVICE = False
+
+
+
 class TestStorageServiceClass:
     """Test the StorageServiceClass"""
     def setup(self):
         """Run prior to each test"""
         self.ae = None
+
+        self.ds = Dataset()
+        self.ds.file_meta = FileMetaDataset()
+        self.ds.file_meta.TransferSyntaxUID = ImplicitVRLittleEndian
+        self.ds.SOPClassUID = CTImageStorage
+        self.ds.SOPInstanceUID = '1.1.1'
+        self.ds.PatientName = 'Test'
 
     def teardown(self):
         """Clear any active threads"""
@@ -515,14 +530,14 @@ class TestStorageServiceClass:
         assoc = ae.associate('localhost', 11112)
         assert assoc.is_established
         status = assoc.send_c_store(
-            DATASET, originator_aet=b'ORIGIN', originator_id=888
+            DATASET, originator_aet='ORIGIN', originator_id=888
         )
         assert status.Status == 0x0000
         assoc.release()
         assert assoc.is_released
 
         req = attrs['request']
-        assert req.MoveOriginatorApplicationEntityTitle == b'ORIGIN'
+        assert req.MoveOriginatorApplicationEntityTitle == 'ORIGIN'
         assert req.MoveOriginatorMessageID == 888
 
         scp.shutdown()
@@ -721,4 +736,44 @@ class TestStorageServiceClass:
 
         time.sleep(0.1)
         assert assoc.is_aborted
+        scp.shutdown()
+
+    def test_unrestricted(self, enable_unrestricted):
+        """Test an unrestricted storage service."""
+        recv = []
+
+        def handle(event):
+            recv.append(event.dataset.PatientName)
+            return 0x0000
+
+        handlers = [(evt.EVT_C_STORE, handle)]
+
+        self.ae = ae = AE()
+        scp = ae.start_server(('', 11112), block=False, evt_handlers=handlers)
+
+        ae.add_requested_context(CTImageStorage)
+        ae.add_requested_context('1.2.3')
+        ae.add_requested_context('1.2.840.10008.1.1.1.1.1.1.1.1')
+        assoc = ae.associate('localhost', 11112)
+        assert assoc.is_established
+        rsp = assoc.send_c_store(DATASET)
+        assert rsp.Status == 0x0000
+
+        self.ds.SOPClassUID = '1.2.3'
+        self.ds.PatientName = 'Private'
+
+        rsp = assoc.send_c_store(self.ds)
+        assert rsp.Status == 0x0000
+
+        self.ds.SOPClassUID = '1.2.840.10008.1.1.1.1.1.1.1.1'
+        self.ds.PatientName = 'Unknown^Public'
+
+        rsp = assoc.send_c_store(self.ds)
+        assert rsp.Status == 0x0000
+
+        assoc.release()
+        assert assoc.is_released
+
+        assert recv == ['CompressedSamples^CT1', 'Private', 'Unknown^Public']
+
         scp.shutdown()

@@ -172,14 +172,14 @@ class TestPrimitive_ImplementationVersionNameNotification:
         primitive = ImplementationVersionNameNotification()
 
         ## Check assignment
-        reference_name = b'PYNETDICOM_090'
+        reference_name = 'PYNETDICOM_090'
 
         ## Check maximum length allowable
-        primitive.implementation_version_name = b'1234567890ABCDEF'
-        assert primitive.implementation_version_name == b'1234567890ABCDEF'
+        primitive.implementation_version_name = '1234567890ABCDEF'
+        assert primitive.implementation_version_name == '1234567890ABCDEF'
 
         # bytes
-        primitive.implementation_version_name = b'PYNETDICOM_090'
+        primitive.implementation_version_name = 'PYNETDICOM_090'
         assert primitive.implementation_version_name == reference_name
 
         # str
@@ -187,7 +187,7 @@ class TestPrimitive_ImplementationVersionNameNotification:
         assert primitive.implementation_version_name == reference_name
 
         primitive.implementation_version_name = 'P'
-        assert primitive.implementation_version_name == b'P'
+        assert primitive.implementation_version_name == 'P'
 
         ## Check exceptions
         primitive = ImplementationVersionNameNotification()
@@ -203,20 +203,23 @@ class TestPrimitive_ImplementationVersionNameNotification:
         with pytest.raises(TypeError):
             primitive.implementation_version_name = 100
 
+        bad = 'ABCD1234ABCD12345'
         msg = (
-            r"Implementation Version Name must be between 1 and 16"
-            r" characters long"
+            f"Invalid 'Implementation Version Name' value '{bad}' - must not "
+            "exceed 16 characters"
         )
         with pytest.raises(ValueError, match=msg):
-            primitive.implementation_version_name = 'ABCD1234ABCD12345'
+            primitive.implementation_version_name = bad
 
-        with pytest.raises(ValueError, match=msg):
-            primitive.implementation_version_name = ''
+        primitive.implementation_version_name = ''
+        assert primitive.implementation_version_name == ''
+        primitive.implementation_version_name = None
+        assert primitive.implementation_version_name is None
 
     def test_conversion(self):
         """ Check converting to PDU item works correctly """
         primitive = ImplementationVersionNameNotification()
-        primitive.implementation_version_name = b'PYNETDICOM_090'
+        primitive.implementation_version_name = 'PYNETDICOM_090'
         item = primitive.from_primitive()
 
         assert item.encode() == (
@@ -227,7 +230,7 @@ class TestPrimitive_ImplementationVersionNameNotification:
     def test_string(self):
         """Check the string output."""
         primitive = ImplementationVersionNameNotification()
-        primitive.implementation_version_name = b'PYNETDICOM3_090'
+        primitive.implementation_version_name = 'PYNETDICOM3_090'
         assert 'PYNETDICOM3_090' in primitive.__str__()
 
 
@@ -776,16 +779,22 @@ class TestPrimitive_A_ASSOCIATE:
         assoc.application_context_name = UID("1.2.840.10008.3.1.1.1")
         assert assoc.application_context_name == UID('1.2.840.10008.3.1.1.1')
 
-        assoc.calling_ae_title = None
-        assert assoc.calling_ae_title is None
-        assoc.calling_ae_title = 'ABCD1234ABCD12345'
-        assert assoc.calling_ae_title == b'ABCD1234ABCD1234'
 
-        assoc.called_ae_title = None
-        assert assoc.called_ae_title is None
-        assoc.called_ae_title = 'ABCD1234ABCD12345'
-        assert assoc.called_ae_title == b'ABCD1234ABCD1234'
-        assert assoc.responding_ae_title == b'ABCD1234ABCD1234'
+        msg = "'Calling AE Title' must be str, not 'NoneType'"
+        with pytest.raises(TypeError, match=msg):
+            assoc.calling_ae_title = None
+
+        assoc.calling_ae_title = 'ABCDEF1234567890'
+        assert assoc.calling_ae_title == 'ABCDEF1234567890'
+
+        msg = "'Called AE Title' must be str, not 'NoneType'"
+        with pytest.raises(TypeError, match=msg):
+            assoc.called_ae_title = None
+
+        assert assoc.responding_ae_title == assoc.called_ae_title
+        assoc.called_ae_title = '1234567890ABCDEF'
+        assert assoc.called_ae_title == '1234567890ABCDEF'
+        assert assoc.responding_ae_title == assoc.called_ae_title
 
         max_length = MaximumLengthNotification()
         max_length.maximum_length_received = 31222
@@ -1011,6 +1020,35 @@ class TestPrimitive_A_ASSOCIATE:
             b"\x30\x2e\x39\x2e\x30\x55\x00\x00\x0e\x50\x59\x4e\x45\x54\x44\x49"
             b"\x43\x4f\x4d\x5f\x30\x39\x30"
         )
+
+    def test_invalid_result_str(self, caplog):
+        """Test an invalid result value gets logged and doesn't raise."""
+        pdu = A_ASSOCIATE()
+        pdu.result = None
+        with caplog.at_level(logging.WARNING, logger='pynetdicom'):
+            assert pdu.result_str == '(no value available)'
+            assert "Invalid A-ASSOCIATE 'Result' None" in caplog.text
+
+    def test_invalid_source_str(self, caplog):
+        """Test an invalid source value gets logged and doesn't raise."""
+        pdu = A_ASSOCIATE()
+        pdu.result_source = None
+        with caplog.at_level(logging.WARNING, logger='pynetdicom'):
+            assert pdu.source_str == '(no value available)'
+            assert "Invalid A-ASSOCIATE 'Result Source' None" in caplog.text
+
+    def test_invalid_reason_str(self, caplog):
+        """Test an invalid diagnostic value gets logged and doesn't raise."""
+        pdu = A_ASSOCIATE()
+        pdu.result = 1
+        pdu.result_source = 2
+        pdu.diagnostic = 7
+        with caplog.at_level(logging.WARNING, logger='pynetdicom'):
+            assert pdu.reason_str == '(no value available)'
+            assert (
+                "Invalid A-ASSOCIATE 'Result Source' 2 and/or "
+                "'Diagnostic' 7 values"
+            ) in caplog.text
 
 
 class TestPrimitive_A_RELEASE:

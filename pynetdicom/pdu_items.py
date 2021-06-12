@@ -52,7 +52,7 @@ from pydicom.uid import UID
 
 from pynetdicom._globals import OptionalUIDType
 from pynetdicom.presentation import PresentationContext
-from pynetdicom.utils import validate_uid
+from pynetdicom.utils import validate_uid, decode_bytes, set_ae, set_uid
 
 if TYPE_CHECKING:  # pragma: no cover
     from pynetdicom.pdu_primitives import (
@@ -315,38 +315,39 @@ class PDUItem:
         return bytestream
 
     @staticmethod
-    def _wrap_encode_uid(uid: UID) -> bytes:
-        """Return `uid` as bytes encoded using ASCII.
+    def _wrap_encode_str(value: str) -> bytes:
+        """Return `value` as ASCII encoded :class:`bytes`.
 
         Each component of Application Context, Abstract Syntax and Transfer
         Syntax UIDs should be encoded as a ISO 646:1990-Basic G0 Set Numeric
-        String (characters 0-9), with each component separated by ``.``
-        (``0x2e``).
-
-        'ascii' is chosen because this is the codec Python uses for ISO 646.
+        String (characters 0-9), with each component separated by ``'.'``
+        (0x2E in hex).
 
         Odd-length UIDs should NOT have a trailing padding 0x00 byte to make
         them even length (as per Part 5, Section 9.1: "If ending on an odd
         byte boundary, except when used for network negotiation, one trailing
         padding character...")
 
+        'ascii' is chosen because this is the codec Python uses for ISO 646
+        [3]_.
+
         Parameters
         ----------
-        uid : pydicom.uid.UID
-            The UID to encode using ASCII.
+        value : str
+            The ASCII string to be encoded.
 
         Returns
         -------
         bytes
-            The encoded `uid`.
+            The encoded `value`.
 
         References
         ----------
-        * DICOM Standard, part 8, :dcm:`Annex F <part08/chapter_F.html>`
+        * DICOM Standard, Part 8, :dcm:`Annex F <part08/chapter_F.html>`
         * `Python 3 codecs module
           <https://docs.python.org/2/library/codecs.html#standard-encodings>`_
         """
-        return codecs.encode(uid, 'ascii')
+        return value.encode('ascii', errors='strict')
 
     def _wrap_generate_items(self, b: bytes) -> List[_AllItemType]:
         """Return a list of encoded PDU items generated from `bytestream`."""
@@ -479,23 +480,10 @@ class ApplicationContextItem(PDUItem):
         value : pydicom.uid.UID, str or bytes
             The value of the Application Context Name's UID
         """
-        # pylint: disable=attribute-defined-outside-init
-        if isinstance(value, UID):
-            pass
-        elif isinstance(value, str):
-            value = UID(value)
-        elif isinstance(value, bytes):
-            value = UID(value.decode('ascii'))
-        else:
-            raise TypeError(
-                'Application Context Name must be a UID, str or bytes'
-            )
-
-        if value is not None and not validate_uid(value):
-            LOGGER.error("Invalid 'Application Context Name'")
-            raise ValueError("Invalid 'Application Context Name'")
-
-        self._application_context_name = value
+        # Disallow None as a value
+        self._application_context_name = cast(
+            UID, set_uid(value, 'Application Context Name', True, False)
+        )
 
     @property
     def _decoders(self) -> Any:
@@ -534,7 +522,7 @@ class ApplicationContextItem(PDUItem):
             ('item_type', PACK_UCHAR, []),
             (None, self._wrap_pack, [0x00, PACK_UCHAR]),
             ('item_length', PACK_UINT2, []),
-            ('application_context_name', self._wrap_encode_uid, [])
+            ('application_context_name', self._wrap_encode_str, [])
         ]
 
     @property
@@ -965,7 +953,14 @@ class PresentationContextItemAC(PDUItem):
             3: 'Rejected - Abstract Syntax Not Supported',
             4: 'Rejected - Transfer Syntax Not Supported'
         }
-        return _result[self.result_reason]  # type: ignore
+        if self.result_reason not in _result:
+            LOGGER.error(
+                "Invalid Presentation Context Item 'Result' "
+                f"{self.result_reason}"
+            )
+            return "(no value available)"
+
+        return _result[self.result_reason]
 
     def __str__(self) -> str:
         """Return a string representation of the Item."""
@@ -1202,7 +1197,7 @@ class UserInformationItem(PDUItem):
         return None
 
     @property
-    def implementation_version_name(self) -> Optional[bytes]:
+    def implementation_version_name(self) -> Optional[str]:
         """Return the item's *Implementation Version Name* field value, if
         available.
         """
@@ -1359,25 +1354,7 @@ class AbstractSyntaxSubItem(PDUItem):
         value : pydicom.uid.UID, bytes or str
             The value for the Abstract Syntax Name.
         """
-        # pylint: disable=attribute-defined-outside-init
-        if isinstance(value, UID):
-            pass
-        elif isinstance(value, str):
-            value = UID(value)
-        elif isinstance(value, bytes):
-            value = UID(value.decode('ascii'))
-        elif value is None:
-            pass
-        else:
-            raise TypeError(
-                'Abstract Syntax Name ust be a pydicom.uid.UID, str or bytes'
-            )
-
-        if value is not None and not validate_uid(value):
-            LOGGER.error("Abstract Syntax Name is an invalid UID")
-            raise ValueError("Abstract Syntax Name is an invalid UID")
-
-        self._abstract_syntax_name = value
+        self._abstract_syntax_name = set_uid(value, 'Abstract Syntax Name')
 
     @property
     def _decoders(self) -> Any:
@@ -1416,7 +1393,7 @@ class AbstractSyntaxSubItem(PDUItem):
             ('item_type', PACK_UCHAR, []),
             (None, self._wrap_pack, [0x00, PACK_UCHAR]),
             ('item_length', PACK_UINT2, []),
-            ('abstract_syntax_name', self._wrap_encode_uid, [])
+            ('abstract_syntax_name', self._wrap_encode_str, [])
         ]
 
     @property
@@ -1544,7 +1521,7 @@ class TransferSyntaxSubItem(PDUItem):
             ('item_type', PACK_UCHAR, []),
             (None, self._wrap_pack, [0x00, PACK_UCHAR]),
             ('item_length', PACK_UINT2, []),
-            ('transfer_syntax_name', self._wrap_encode_uid, [])
+            ('transfer_syntax_name', self._wrap_encode_str, [])
         ]
 
     @property
@@ -1586,28 +1563,11 @@ class TransferSyntaxSubItem(PDUItem):
         value : pydicom.uid.UID, bytes or str
             The value for the Transfer Syntax Name
         """
-        # pylint: disable=attribute-defined-outside-init
-        if isinstance(value, UID):
-            pass
-        elif isinstance(value, str):
-            value = UID(value)
-        elif isinstance(value, bytes):
-            value = UID(value.decode('ascii'))
-        elif value is None:
-            pass
-        else:
-            raise TypeError('Transfer syntax must be a pydicom.uid.UID, '
-                            'bytes or str')
-
-        if self._skip_validation:
-            self._transfer_syntax_name = value or None
-            return
-
-        if value is not None and not validate_uid(value):
-            LOGGER.error("Transfer Syntax Name is an invalid UID")
-            raise ValueError("Transfer Syntax Name is an invalid UID")
-
-        self._transfer_syntax_name = value or None
+        validate = not self._skip_validation
+        # Issue 342: handle empty transfer syntax name value
+        self._transfer_syntax_name = (
+            set_uid(value, 'Transfer Syntax Name', validate=validate) or None
+        )
 
 
 # User Information Item sub-items
@@ -1857,7 +1817,7 @@ class ImplementationClassUIDSubItem(PDUItem):
             ('item_type', PACK_UCHAR, []),
             (None, self._wrap_pack, [0x00, PACK_UCHAR]),
             ('item_length', PACK_UINT2, []),
-            ('implementation_class_uid', self._wrap_encode_uid, [])
+            ('implementation_class_uid', self._wrap_encode_str, [])
         ]
 
     @property
@@ -1874,24 +1834,9 @@ class ImplementationClassUIDSubItem(PDUItem):
         value : pydicom.uid.UID, bytes or str
             The value to set.
         """
-        # pylint: disable=attribute-defined-outside-init
-        if isinstance(value, UID):
-            pass
-        elif isinstance(value, str):
-            value = UID(value)
-        elif isinstance(value, bytes):
-            value = UID(value.decode('ascii'))
-        elif value is None:
-            pass
-        else:
-            raise TypeError('implementation_class_uid must be str, bytes '
-                            'or UID')
-
-        if value is not None and not validate_uid(value):
-            LOGGER.error("Implementation Class UID is an invalid UID")
-            raise ValueError("Implementation Class UID is an invalid UID")
-
-        self._implementation_class_uid = value
+        self._implementation_class_uid = (
+            set_uid(value, 'Implementation Class UID')
+        )
 
     @property
     def item_length(self) -> int:
@@ -1960,7 +1905,7 @@ class ImplementationVersionNameSubItem(PDUItem):
 
     def __init__(self) -> None:
         """Initialise a new Implementation Version Name Item."""
-        self._implementation_version_name: Optional[bytes] = None
+        self._implementation_version_name: Optional[str] = None
 
     def from_primitive(
         self, primitive: "ImplementationVersionNameNotification"
@@ -2032,11 +1977,11 @@ class ImplementationVersionNameSubItem(PDUItem):
             ('item_type', PACK_UCHAR, []),
             (None, self._wrap_pack, [0x00, PACK_UCHAR]),
             ('item_length', PACK_UINT2, []),
-            ('implementation_version_name', self._wrap_bytes, [])
+            ('implementation_version_name', self._wrap_encode_str, [])
         ]
 
     @property
-    def implementation_version_name(self) -> Optional[bytes]:
+    def implementation_version_name(self) -> Optional[str]:
         """Return the item's *Implementation Version Name* field value."""
         return self._implementation_version_name
 
@@ -2045,11 +1990,12 @@ class ImplementationVersionNameSubItem(PDUItem):
         self, value: Optional[Union[str, bytes]]
     ) -> None:
         """Set the *Implementation Version Name* field value."""
-        # pylint: disable=attribute-defined-outside-init
-        if isinstance(value, str):
-            value = codecs.encode(value, 'ascii')
+        if isinstance(value, bytes):
+            value = decode_bytes(value)
 
-        self._implementation_version_name = value
+        self._implementation_version_name = (
+            set_ae(value, 'Implementation Version Name')
+        )
 
     @property
     def item_length(self) -> int:
@@ -2065,7 +2011,7 @@ class ImplementationVersionNameSubItem(PDUItem):
         s = "Implementation Version Name Sub-item\n"
         s += f"  Item type: 0x{self.item_type:02X}\n"
         s += f"  Item length: {self.item_length} bytes\n"
-        s += f"  Implementation version name: {version_name!r}\n"
+        s += f"  Implementation version name: {version_name}\n"
 
         return s
 
@@ -2410,7 +2356,7 @@ class SCP_SCU_RoleSelectionSubItem(PDUItem):
             (None, self._wrap_pack, [0x00, PACK_UCHAR]),
             ('item_length', PACK_UINT2, []),
             ('uid_length', PACK_UINT2, []),
-            ('sop_class_uid', self._wrap_encode_uid, []),
+            ('sop_class_uid', self._wrap_encode_str, []),
             ('scu_role', PACK_UCHAR, []),
             ('scp_role', PACK_UCHAR, [])
         ]
@@ -2466,23 +2412,7 @@ class SCP_SCU_RoleSelectionSubItem(PDUItem):
     @sop_class_uid.setter
     def sop_class_uid(self, value: OptionalUIDType) -> None:
         """Set the SOP class uid."""
-        # pylint: disable=attribute-defined-outside-init
-        if isinstance(value, bytes):
-            value = UID(value.decode('ascii'))
-        elif isinstance(value, str):
-            value = UID(value)
-        elif value is None:
-            pass
-        else:
-            raise TypeError(
-                'sop_class_uid must be str, bytes or pydicom.uid.UID'
-            )
-
-        if value is not None and not validate_uid(value):
-            LOGGER.error("SOP Class UID is an invalid UID")
-            raise ValueError("SOP Class UID is an invalid UID")
-
-        self._sop_class_uid = value
+        self._sop_class_uid = set_uid(value, 'SOP Class UID')
 
     def __str__(self) -> str:
         """Return a string representation of the Item."""
@@ -2668,7 +2598,7 @@ class SOPClassExtendedNegotiationSubItem(PDUItem):
             (None, self._wrap_pack, [0x00, PACK_UCHAR]),
             ('item_length', PACK_UINT2, []),
             ('sop_class_uid_length', PACK_UINT2, []),
-            ('sop_class_uid', self._wrap_encode_uid, []),
+            ('sop_class_uid', self._wrap_encode_str, []),
             ('service_class_application_information', self._wrap_bytes, [])
         ]
 
@@ -2689,22 +2619,7 @@ class SOPClassExtendedNegotiationSubItem(PDUItem):
     @sop_class_uid.setter
     def sop_class_uid(self, value: OptionalUIDType) -> None:
         """Set the *SOP Class UID* field value."""
-        # pylint: disable=attribute-defined-outside-init
-        if isinstance(value, bytes):
-            value = UID(value.decode('ascii'))
-        elif isinstance(value, str):
-            value = UID(value)
-        elif value is None:
-            pass
-        else:
-            raise TypeError('sop_class_uid must be str, bytes or '
-                            'pydicom.uid.UID')
-
-        if value is not None and not validate_uid(value):
-            LOGGER.error("SOP Class UID is an invalid UID")
-            raise ValueError("SOP Class UID is an invalid UID")
-
-        self._sop_class_uid = value
+        self._sop_class_uid = set_uid(value, 'SOP Class UID')
 
     @property
     def sop_class_uid_length(self) -> int:
@@ -2934,9 +2849,9 @@ class SOPClassCommonExtendedNegotiationSubItem(PDUItem):
             ('sub_item_version', PACK_UCHAR, []),
             ('item_length', PACK_UINT2, []),
             ('sop_class_uid_length', PACK_UINT2, []),
-            ('sop_class_uid', self._wrap_encode_uid, []),
+            ('sop_class_uid', self._wrap_encode_str, []),
             ('service_class_uid_length', PACK_UINT2, []),
-            ('service_class_uid', self._wrap_encode_uid, []),
+            ('service_class_uid', self._wrap_encode_str, []),
             (
                 'related_general_sop_class_identification_length',
                 PACK_UINT2, []
@@ -2991,7 +2906,7 @@ class SOPClassCommonExtendedNegotiationSubItem(PDUItem):
                 raw_uid = raw_uid[:-1]
                 stripped_uid_length = uid_length - 1
 
-            uid = UID(raw_uid.decode('ascii'))
+            uid = UID(decode_bytes(raw_uid))
             assert len(uid) == stripped_uid_length
             yield uid
             offset += 2 + uid_length
@@ -3028,7 +2943,7 @@ class SOPClassCommonExtendedNegotiationSubItem(PDUItem):
 
         for value in value_list:
             if isinstance(value, bytes):
-                value = UID(value.decode('ascii'))
+                value = UID(decode_bytes(value))
             elif isinstance(value, str):
                 value = UID(value)
             else:
@@ -3064,22 +2979,7 @@ class SOPClassCommonExtendedNegotiationSubItem(PDUItem):
     @sop_class_uid.setter
     def sop_class_uid(self, value: OptionalUIDType) -> None:
         """Set the *SOP Class UID* field value."""
-        # pylint: disable=attribute-defined-outside-init
-        if isinstance(value, bytes):
-            value = UID(value.decode('ascii'))
-        elif isinstance(value, str):
-            value = UID(value)
-        elif value is None:
-            pass
-        else:
-            raise TypeError('sop_class_uid must be str, bytes or '
-                            'pydicom.uid.UID')
-
-        if value is not None and not validate_uid(value):
-            LOGGER.error("SOP Class UID is an invalid UID")
-            raise ValueError("SOP Class UID is an invalid UID")
-
-        self._sop_class_uid = value
+        self._sop_class_uid = set_uid(value, 'SOP Class UID')
 
     @property
     def sop_class_uid_length(self) -> int:
@@ -3097,22 +2997,7 @@ class SOPClassCommonExtendedNegotiationSubItem(PDUItem):
     @service_class_uid.setter
     def service_class_uid(self, value: OptionalUIDType) -> None:
         """Set the *Service Class UID* field value."""
-        # pylint: disable=attribute-defined-outside-init
-        if isinstance(value, bytes):
-            value = UID(value.decode('ascii'))
-        elif isinstance(value, str):
-            value = UID(value)
-        elif value is None:
-            pass
-        else:
-            raise TypeError('service_class_uid must be str, bytes or '
-                            'pydicom.uid.UID')
-
-        if value is not None and not validate_uid(value):
-            LOGGER.error("Service Class UID is an invalid UID")
-            raise ValueError("Service Class UID is an invalid UID")
-
-        self._service_class_uid = value
+        self._service_class_uid = set_uid(value, 'Service Class UID')
 
     @property
     def service_class_uid_length(self) -> int:
@@ -3176,7 +3061,7 @@ class SOPClassCommonExtendedNegotiationSubItem(PDUItem):
             # Related general SOP class UID length
             bytestream += PACK_UINT2(len(uid))
             # Related general SOP class UID
-            bytestream += self._wrap_encode_uid(uid)
+            bytestream += self._wrap_encode_str(uid)
 
         return bytestream
 
@@ -3375,8 +3260,13 @@ class UserIdentitySubItemRQ(PDUItem):
             4: 'SAML',
             5: 'JSON Web Token',
         }
+        if self.user_identity_type not in _types:
+            LOGGER.error(
+                f"Invalid 'User Identity Type' {self.user_identity_type}"
+            )
+            return "(no value available)"
 
-        return _types[self.user_identity_type]  # type: ignore
+        return _types[self.user_identity_type]
 
     @property
     def item_length(self) -> int:

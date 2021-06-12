@@ -268,6 +268,49 @@ def receive_store_internal(nr_assoc, ds_per_assoc, write_ds=0, use_yappi=False):
     server.shutdown()
 
 
+def receive_store_dcmtk(nr_assoc, ds_per_assoc, use_yappi=False):
+    """Run a Storage SCP and transfer datasets with sequential storescu's.
+
+    Parameters
+    ----------
+    nr_assoc : int
+        The total number of (sequential) associations that will be made.
+    ds_per_assoc : int
+        The number of C-STORE requests sent per successful association.
+    use_yappi : bool, optional
+        True to use the yappi profiler, False otherwise (default).
+    """
+    if use_yappi:
+        init_yappi()
+
+    # Start SCP
+    server = start_storescp()
+    time.sleep(0.5)
+
+    start_time = time.time()
+    is_successful = True
+
+    for ii in range(nr_assoc):
+        p = start_storescu(ds_per_assoc)
+        # Block until transfer is complete
+        p.wait()
+        if p.returncode != 0:
+            is_successful = False
+            break
+
+    if is_successful:
+        print(
+            "C-STORE SCP transferred {} total datasets over {} "
+            "association(s) in {:.2f} s"
+            .format(nr_assoc * ds_per_assoc, nr_assoc, time.time() - start_time)
+        )
+    else:
+        print("C-STORE SCP benchmark failed")
+
+    server.terminate()
+
+
+
 def receive_store_simultaneous(nr_assoc, ds_per_assoc, use_yappi=False):
     """Run a Storage SCP and transfer datasets with simultaneous storescu's.
 
@@ -412,6 +455,7 @@ if __name__ == "__main__":
     print("  7. Storage SCP, 1 dataset per association over 1000 associations")
     print("  8. Storage SCP, 1000 datasets per association over 10 simultaneous associations")
     print("  9. Storage SCU/SCP, 1000 datasets over 1 association")
+    print("  10. Storage DCMTK SCU/SCP, 1000 datasets over 1 association")
     bench_index = input()
 
     if bench_index == "1":
@@ -432,3 +476,6 @@ if __name__ == "__main__":
         receive_store_simultaneous(10, 1000, use_yappi)
     elif bench_index == "9":
         receive_store_internal(1, 1000, 0, use_yappi)
+    elif bench_index == "10":
+        receive_store_dcmtk(1, 1000, use_yappi)
+

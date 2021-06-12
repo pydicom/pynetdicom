@@ -2072,7 +2072,7 @@ class QueryRetrieveServiceClass(ServiceClass):
             ctx.error_status = 0xC515
             if None in destination[:2]:
                 LOGGER.error(
-                    f'Unknown Move Destination: {req.MoveDestination!r}'
+                    f'Unknown Move Destination: {req.MoveDestination}'
                 )
                 # Failure - Move destination unknown
                 rsp.Status = 0xA801

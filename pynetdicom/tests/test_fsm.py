@@ -23,7 +23,6 @@ from pynetdicom.pdu_primitives import (
 from pynetdicom.pdu import A_RELEASE_RQ
 from pynetdicom.sop_class import Verification
 from pynetdicom.transport import AssociationSocket
-from pynetdicom.utils import validate_ae_title
 from .encoded_pdu_items import (
     a_associate_ac, a_associate_rq, a_associate_rj, p_data_tf, a_abort,
     a_release_rq, a_release_rp,
@@ -196,7 +195,7 @@ class TestStateBase:
         assoc.set_socket(AssociationSocket(assoc))
 
         # Association Acceptor object -> remote AE
-        assoc.acceptor.ae_title = validate_ae_title(b'ANY_SCU')
+        assoc.acceptor.ae_title = 'ANY_SCU'
         assoc.acceptor.address = 'localhost'
         assoc.acceptor.port = 11112
 
@@ -233,9 +232,9 @@ class TestStateBase:
         if assoc_type == 'request':
             primitive.application_context_name = '1.2.3.4.5.6'
             # Calling AE Title is the source DICOM AE title
-            primitive.calling_ae_title = b'LOCAL_AE_TITLE  '
+            primitive.calling_ae_title = 'LOCAL_AE_TITLE  '
             # Called AE Title is the destination DICOM AE title
-            primitive.called_ae_title = b'REMOTE_AE_TITLE '
+            primitive.called_ae_title = 'REMOTE_AE_TITLE '
             # The TCP/IP address of the source, pynetdicom includes port too
             primitive.calling_presentation_address = ('', 0)
             # The TCP/IP address of the destination, pynetdicom includes port too
@@ -258,9 +257,9 @@ class TestStateBase:
         elif assoc_type == 'accept':
             primitive.application_context_name = '1.2.3.4.5.6'
             # Calling AE Title is the source DICOM AE title
-            primitive.calling_ae_title = b'LOCAL_AE_TITLE  '
+            primitive.calling_ae_title = 'LOCAL_AE_TITLE  '
             # Called AE Title is the destination DICOM AE title
-            primitive.called_ae_title = b'REMOTE_AE_TITLE '
+            primitive.called_ae_title = 'REMOTE_AE_TITLE '
             # The TCP/IP address of the source, pynetdicom includes port too
             primitive.result = 0x00
             primitive.result_source = 0x01
@@ -382,7 +381,7 @@ class TestStateBase:
         assoc.set_socket(AssociationSocket(assoc, client_socket=sock))
 
         # Association Acceptor object -> remote AE
-        assoc.acceptor.ae_title = validate_ae_title(b'ANY_SCU')
+        assoc.acceptor.ae_title = 'ANY_SCU'
         assoc.acceptor.address = 'localhost'
         assoc.acceptor.port = 11112
 
@@ -7694,7 +7693,7 @@ class TestStateMachineFunctionalRequestor:
         assoc.set_socket(AssociationSocket(assoc))
 
         # Association Acceptor object -> remote AE
-        assoc.acceptor.ae_title = validate_ae_title(b'ANY_SCU')
+        assoc.acceptor.ae_title = 'ANY_SCU'
         assoc.acceptor.address = 'localhost'
         assoc.acceptor.port = 11112
 
@@ -8218,7 +8217,7 @@ class TestStateMachineFunctionalAcceptor:
         assoc.set_socket(AssociationSocket(assoc))
 
         # Association Acceptor object -> remote AE
-        assoc.acceptor.ae_title = validate_ae_title(b'ANY_SCU')
+        assoc.acceptor.ae_title = 'ANY_SCU'
         assoc.acceptor.address = 'localhost'
         assoc.acceptor.port = 11112
 

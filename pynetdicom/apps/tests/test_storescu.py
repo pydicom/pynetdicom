@@ -95,9 +95,9 @@ class StoreSCUBase:
         assert events[0].dataset.PatientName == "CompressedSamples^CT1"
         assert events[1].event == evt.EVT_RELEASED
         requestor = events[1].assoc.requestor
-        assert b'STORESCU        ' == requestor.ae_title
+        assert 'STORESCU' == requestor.ae_title
         assert 16382 == requestor.maximum_length
-        assert b'ANY-SCP         ' == requestor.primitive.called_ae_title
+        assert 'ANY-SCP' == requestor.primitive.called_ae_title
         assert [] == requestor.extended_negotiation
         assert (1, 1) == requestor.asynchronous_operations
         assert {} == requestor.sop_class_common_extended
@@ -123,7 +123,6 @@ class StoreSCUBase:
         out, err = capfd.readouterr()
         assert "Association request failed: unable to connect to remote" in err
         assert "TCP Initialisation Error" in err
-        assert "Association Aborted" in err
 
     def test_flag_version(self, capfd):
         """Test --version flag."""
@@ -245,7 +244,7 @@ class StoreSCUBase:
 
         assert events[0].event == evt.EVT_C_STORE
         requestor = events[0].assoc.requestor
-        assert b'MYSCU           ' == requestor.ae_title
+        assert 'MYSCU' == requestor.ae_title
 
     def test_flag_aec(self):
         """Test --called-aet flag."""
@@ -273,7 +272,7 @@ class StoreSCUBase:
 
         assert events[0].event == evt.EVT_C_STORE
         requestor = events[0].assoc.requestor
-        assert b'YOURSCP         ' == requestor.primitive.called_ae_title
+        assert 'YOURSCP' == requestor.primitive.called_ae_title
 
     def test_flag_ta(self, capfd):
         """Test --acse-timeout flag."""
@@ -583,7 +582,7 @@ class StoreSCUBase:
 
         scp.shutdown()
 
-        assert len(events) == 5
+        assert len(events) == 6
 
 
 class TestStoreSCU(StoreSCUBase):

@@ -111,7 +111,7 @@ class MoveSCPBase:
         ae.add_requested_context(model)
         assoc = ae.associate('localhost', 11112)
         assert assoc.is_established
-        responses = assoc.send_c_move(query, b'STORESCP', model)
+        responses = assoc.send_c_move(query, 'STORESCP', model)
 
         status, ds = next(responses)
         assert status.Status == 0xFF00

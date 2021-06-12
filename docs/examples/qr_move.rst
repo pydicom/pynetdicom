@@ -19,7 +19,7 @@ Query/Retrieve (Move) SCU
 Associate with a peer DICOM Application Entity and request it send
 all SOP Instances for the patient with *Patient ID* ``1234567`` belonging to the
 series with *Study Instance UID* ``1.2.3`` and *Series Instance UID*
-``1.2.3.4`` to a Storage SCP with AE title ``b'STORE_SCP'``.
+``1.2.3.4`` to a Storage SCP with AE title ``'STORE_SCP'``.
 
 .. code-block:: python
 
@@ -51,7 +51,7 @@ series with *Study Instance UID* ``1.2.3`` and *Series Instance UID*
 
     if assoc.is_established:
         # Use the C-MOVE service to send the identifier
-        responses = assoc.send_c_move(ds, b'STORE_SCP', PatientRootQueryRetrieveInformationModelMove)
+        responses = assoc.send_c_move(ds, 'STORE_SCP', PatientRootQueryRetrieveInformationModelMove)
         for (status, identifier) in responses:
             if status:
                 print('C-MOVE query status: 0x{0:04x}'.format(status.Status))
@@ -99,7 +99,7 @@ to see the requirements for the ``evt.EVT_C_STORE`` handler.
     ae.supported_contexts = StoragePresentationContexts
 
     # Start our Storage SCP in non-blocking mode, listening on port 11120
-    ae.ae_title = b'OUR_STORE_SCP'
+    ae.ae_title = 'OUR_STORE_SCP'
     scp = ae.start_server(('', 11120), block=False, evt_handlers=handlers)
 
     # Create out identifier (query) dataset
@@ -117,7 +117,7 @@ to see the requirements for the ``evt.EVT_C_STORE`` handler.
 
     if assoc.is_established:
         # Use the C-MOVE service to send the identifier
-        responses = assoc.send_c_move(ds, b'OUR_STORE_SCP', PatientRootQueryRetrieveInformationModelMove)
+        responses = assoc.send_c_move(ds, 'OUR_STORE_SCP', PatientRootQueryRetrieveInformationModelMove)
 
         for (status, identifier) in responses:
             if status:
