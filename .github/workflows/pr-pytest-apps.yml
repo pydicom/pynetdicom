@@ -34,7 +34,6 @@ jobs:
         pytest --ignore=pynetdicom/tests
 
   pydicom-release:
-    # Matrix builds with released pydicom
     runs-on: ubuntu-latest
     timeout-minutes: 30
     strategy:
