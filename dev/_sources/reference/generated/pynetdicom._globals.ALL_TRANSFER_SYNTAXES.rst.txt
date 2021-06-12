@@ -1,0 +1,6 @@
+﻿pynetdicom.\_globals.ALL\_TRANSFER\_SYNTAXES
+============================================
+
+.. currentmodule:: pynetdicom._globals
+
+.. autodata:: ALL_TRANSFER_SYNTAXES

@@ -16,7 +16,7 @@ main parts; a *Context ID*, an *Abstract Syntax* and one or more
 
 * The :dcm:`Context ID <part08/sect_9.3.2.2.html>`
   is an odd-integer between 1 and 255 (inclusive) and
-  identifies the context. With *pynetdicom* this is not something you typically
+  identifies the context. With *pynetdicom* this is not something you usually
   have to worry about.
 * The :dcm:`Abstract Syntax <part08/chapter_B.html>`
   defines what the data represents, usually identified by
@@ -38,7 +38,7 @@ Representation in pynetdicom
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 In *pynetdicom* presentation contexts are represented using the
-:class:`presentation.PresentationContext<PresentationContext>` class.
+:class:`~presentation.PresentationContext` class.
 
 .. doctest::
 
@@ -55,14 +55,19 @@ In *pynetdicom* presentation contexts are represented using the
         =JPEG Baseline (Process 1)
 
 However it's easier to use the :func:`build_context` convenience function which
+takes the abstract syntax and optionally one or more transfer syntaxes and
 returns a :class:`PresentationContext` instance:
 
 .. doctest::
 
     >>> from pynetdicom import build_context
+    >>> from pynetdicom.sop_class import Verification
+    >>> Verification
+    '1.2.840.10008.1.1'
     >>> cx = build_context(
-    ...     '1.2.840.10008.1.1', ['1.2.840.10008.1.2', '1.2.840.10008.1.2.4.50']
+    ...     Verification, ['1.2.840.10008.1.2', '1.2.840.10008.1.2.4.50']
     ... )
+    ...
     >>> print(cx)
     Abstract Syntax: Verification SOP Class
     Transfer Syntax(es):
@@ -74,6 +79,9 @@ returns a :class:`PresentationContext` instance:
         =Implicit VR Little Endian
         =Explicit VR Little Endian
         =Explicit VR Big Endian
+
+If no transfer syntaxes are supplied then the default transfer syntaxes will be
+used instead.
 
 
 Presentation Contexts and the Association Requestor
@@ -334,7 +342,7 @@ SCP/SCU Role Selection
 
 The final wrinkle in presentation context negotiation is :dcm:`SCP/SCU Role
 Selection <part07/sect_D.3.3.4.html>`,
-which allows an association *requestor* to propose its role (SCU, SCP, or
+which allows an association *requestor* to propose it's role (SCU, SCP, or
 SCU and SCP) for each proposed abstract syntax. Role selection is used for
 services such as the Query/Retrieve Service's C-GET requests, where the
 association *acceptor* sends data back to the *requestor*.

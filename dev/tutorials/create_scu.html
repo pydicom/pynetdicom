@@ -215,8 +215,8 @@ that comes with <em>pynetdicom</em></p></li>
 <li><p>Learn how to perform some basic troubleshooting of associations</p></li>
 <li><p>Modify your AE to be an Echo SCU</p></li>
 </ul>
-<p>The tutorial is written for <em>pynetdicom</em> 2.0, which supports Python 3.6
-and later. You can tell which version of <em>pynetdicom</em> you have by running
+<p>The tutorial is written for <em>pynetdicom</em> 2.0 and higher, which supports Python
+3.7+. You can tell which version of <em>pynetdicom</em> you have by running
 the following command:</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span>$ python -m pynetdicom --version
 </pre></div>
@@ -232,7 +232,7 @@ application that comes with <em>pynetdicom</em>.</p>
 TCP/IP</a>, which is used to facilitate communication
 between DICOM <em>Application Entities</em> (AEs) over a <a class="reference external" href="https://en.wikipedia.org/wiki/Transmission_Control_Protocol">TCP connection</a>. Communication
 between two AEs starts by establishing a TCP connection, then progresses to
-negotiating an <em>association</em>, which is just a term to describe the
+negotiating an <em>association</em>, which is the term used to describe the
 communications channel between the AEs and the set of rules that govern their
 expected behaviour.</p>
 <p>The AE that initiated the connection, the <em>requestor</em>, sends an
@@ -416,8 +416,8 @@ information:</p>
 I: Requesting Association
 D: Request Parameters:
 D: ======================= OUTGOING A-ASSOCIATE-RQ PDU ========================
-D: Our Implementation Class UID:      1.2.826.0.1.3680043.9.3811.1.5.0
-D: Our Implementation Version Name:   PYNETDICOM_150
+D: Our Implementation Class UID:      1.2.826.0.1.3680043.9.3811.2.0.0
+D: Our Implementation Version Name:   PYNETDICOM_200
 D: Application Context Name:    1.2.840.10008.3.1.1.1
 D: Calling Application Name:    PYNETDICOM
 D: Called Application Name:     ANY-SCP
@@ -560,7 +560,7 @@ similar to:</p>
 <div class="section" id="turning-our-ae-into-an-echo-scu">
 <h3>Turning our AE into an Echo SCU<a class="headerlink" href="#turning-our-ae-into-an-echo-scu" title="Permalink to this headline">¶</a></h3>
 <p>Since we’re able to associate with the Echo SCP, our next step is to request
-the use of its verification service. We do this by sending a DIMSE C-ECHO
+the use of it’s verification service. We do this by sending a DIMSE C-ECHO
 request:</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="linenos"> 1</span> <span class="kn">from</span> <span class="nn">pynetdicom</span> <span class="kn">import</span> <span class="n">AE</span><span class="p">,</span> <span class="n">debug_logger</span>
 <span class="linenos"> 2</span>
@@ -584,7 +584,7 @@ response was received (due to a connection failure, a timeout, or because the
 association was aborted) then <cite>status</cite> will be an empty
 <a class="reference external" href="https://pydicom.github.io/pydicom/stable/reference/generated/pydicom.dataset.Dataset.html#pydicom.dataset.Dataset" title="(in pydicom v2.1.2)"><code class="xref py py-class docutils literal notranslate"><span class="pre">Dataset</span></code></a>.</p>
 <p>The <em>Status</em> element value is a code that indicates the result of the C-ECHO
-request. Each service class has a bunch of defined status codes which are
+request. Each service class has a number of defined status codes which are
 usually a mix of generic codes for each DIMSE message type and code values
 specific to the service class. For example, if you look at the API reference
 for <a class="reference internal" href="../reference/generated/pynetdicom.association.Association.html#pynetdicom.association.Association.send_c_store" title="pynetdicom.association.Association.send_c_store"><code class="xref py py-meth docutils literal notranslate"><span class="pre">send_c_store()</span></code></a> you’ll see there are general
@@ -605,13 +605,13 @@ of Part 7.</p>
 <div class="highlight-text notranslate"><div class="highlight"><pre><span></span>I: Association Accepted
 I: Sending Echo Request: MsgID 1
 D: pydicom.read_dataset() TransferSyntax=&quot;Little Endian Implicit&quot;
-I: Received Echo Response (Status: Success)
+I: Received Echo Response (Status: 0x0000 - Success)
 I: Releasing Association
 </pre></div>
 </div>
-<p>The SCP has responded with a <code class="docutils literal notranslate"><span class="pre">Status:</span> <span class="pre">Success</span></code>, which indicates that the
-verification service request was successful. Congratulations, you’ve written
-your first DICOM SCU using <em>pynetdicom</em>.</p>
+<p>The SCP has responded with a <code class="docutils literal notranslate"><span class="pre">Status:</span> <span class="pre">0x0000</span> <span class="pre">-</span> <span class="pre">Success</span></code>, which indicates that
+the verification service request was successful. Congratulations, you’ve
+written your first DICOM application using <em>pynetdicom</em>.</p>
 </div>
 </div>
 <div class="section" id="next-steps">

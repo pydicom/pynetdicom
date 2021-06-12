@@ -240,8 +240,8 @@ keyword parameter during initialisation:</p>
 characters (such as <code class="docutils literal notranslate"><span class="pre">'\n'</span></code>).</p></li>
 <li><p>An AE title made entirely of spaces is not allowed.</p></li>
 </ul>
-<p>When creating SCPs it’s also possible to give each SCP its own AE title by
-specifying the <em>ae_title</em> keyword parameter in
+<p>When creating SCPs it’s also possible to give each SCP its own AE title through
+the <em>ae_title</em> keyword parameter in
 <a class="reference internal" href="../reference/generated/pynetdicom.ae.ApplicationEntity.html#pynetdicom.ae.ApplicationEntity.start_server" title="pynetdicom.ae.ApplicationEntity.start_server"><code class="xref py py-meth docutils literal notranslate"><span class="pre">AE.start_server()</span></code></a>.</p>
 <div class="section" id="creating-an-scu">
 <span id="ae-create-scu"></span><h2>Creating an SCU<a class="headerlink" href="#creating-an-scu" title="Permalink to this headline">¶</a></h2>
@@ -406,7 +406,8 @@ the <a class="reference internal" href="association.html#association"><span clas
 <p>In general it shouldn’t be necessary to specify the port when acting as an SCU,
 as by default <em>pynetdicom</em> will use the first port available. To specify the
 port number manually you can use the <em>bind_address</em> keyword parameter when
-requesting an association, which takes a 2-tuple of (str <em>host</em>, int <em>port</em>):</p>
+requesting an association, which takes a 2-tuple of (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></a> <em>host</em>,
+<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.9)"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></a> <em>port</em>):</p>
 <div class="highlight-pycon3 notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">pynetdicom</span> <span class="kn">import</span> <span class="n">AE</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">ae</span> <span class="o">=</span> <span class="n">AE</span><span class="p">()</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">ae</span><span class="o">.</span><span class="n">add_requested_context</span><span class="p">(</span><span class="s1">&#39;1.2.840.10008.1.1&#39;</span><span class="p">)</span>
