@@ -44,8 +44,12 @@ setup(
         "Topic :: Software Development :: Libraries",
     ],
     install_requires = ["pydicom>=2.0.0"],
-    extras_require = {
+    extras_require = {  # will also install from `install_requires`
         'apps': ["sqlalchemy"],
+        'docs' : [
+            "sphinx", "sphinx_rtd_theme", "sphinx-copybutton",
+            "sphinx-issues", "sphinxcontrib-napoleon", "numpydoc"
+        ],
         'tests': ["pytest", "pyfakefs", "sqlalchemy"]
     },
     python_requires = '>=3.7'

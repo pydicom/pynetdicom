@@ -5,7 +5,11 @@ import logging
 import os
 
 import pytest
-import pyfakefs
+try:
+    import pyfakefs
+    HAVE_PYFAKEFS = True
+except ImportError:
+    HAVE_PYFAKEFS = False
 
 from pydicom.dataset import Dataset
 from pydicom.tag import Tag
@@ -596,7 +600,7 @@ class TestElementPath:
             'UT' : 'StrainAdditionalInformation',
         }
         for vr, kw in keywords.items():
-            ds = ElementPath('{}='.format(kw)).update(Dataset())
+            ds = ElementPath(f'{kw}=').update(Dataset())
             assert getattr(ds, kw) == ''
 
     def test_str_types(self):
@@ -832,7 +836,7 @@ REFERENCE_OUTPUT = [
     ]),
 ]
 
-
+@pytest.mark.skipif(not HAVE_PYFAKEFS, reason="Requires pyfakefs")
 @pytest.mark.parametrize('fpaths, recurse, out', REFERENCE_OUTPUT)
 def test_get_files(fpaths, recurse, out, fs):
     """Test finding files in a given path."""

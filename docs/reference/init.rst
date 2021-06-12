@@ -3,6 +3,19 @@
 :mod:`pynetdicom`
 =================
 
+.. currentmodule:: pynetdicom._globals
+
+
+Lists of Transfer Syntaxes
+--------------------------
+
+.. autosummary::
+   :toctree: generated/
+
+   ALL_TRANSFER_SYNTAXES
+   DEFAULT_TRANSFER_SYNTAXES
+
+
 .. currentmodule:: pynetdicom
 
 Variables
@@ -11,11 +24,10 @@ Variables
 .. autosummary::
    :toctree: generated/
 
-   ALL_TRANSFER_SYNTAXES
-   DEFAULT_TRANSFER_SYNTAXES
    PYNETDICOM_IMPLEMENTATION_UID
    PYNETDICOM_IMPLEMENTATION_VERSION
    PYNETDICOM_UID_PREFIX
+
 
 Utilities
 ---------

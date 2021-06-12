@@ -42,8 +42,8 @@ AE titles must meet the conditions of a DICOM data element with a
   characters (such as ``'\n'``).
 * An AE title made entirely of spaces is not allowed.
 
-When creating SCPs it's also possible to give each SCP its own AE title by
-specifying the *ae_title* keyword parameter in
+When creating SCPs it's also possible to give each SCP its own AE title through
+the *ae_title* keyword parameter in
 :meth:`AE.start_server()<pynetdicom.ae.ApplicationEntity.start_server>`.
 
 .. _ae_create_scu:
@@ -220,7 +220,8 @@ Specifying the network port
 In general it shouldn't be necessary to specify the port when acting as an SCU,
 as by default *pynetdicom* will use the first port available. To specify the
 port number manually you can use the *bind_address* keyword parameter when
-requesting an association, which takes a 2-tuple of (str *host*, int *port*):
+requesting an association, which takes a 2-tuple of (:class:`str` *host*,
+:class:`int` *port*):
 
 .. doctest::
 

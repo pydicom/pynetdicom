@@ -8,6 +8,11 @@ import tempfile
 import time
 
 import pytest
+try:
+    import sqlalchemy
+    HAVE_SQLALCHEMY = True
+except ImportError:
+    HAVE_SQLALCHEMY = False
 
 from pydicom import dcmread, Dataset
 from pydicom.uid import (
@@ -140,7 +145,11 @@ class FindSCPBase:
         model = PatientRootQueryRetrieveInformationModelFind
         ae.add_requested_context(model)
 
-        self.p = p = self.func(['-d'])
+        self.p = p = self.func([
+            '--database-location', self.db_location,
+            '--instance-location', self.instance_location.name,
+            '-d'
+        ])
         time.sleep(0.5)
         _send_datasets()
         time.sleep(1)
@@ -168,7 +177,11 @@ class FindSCPBase:
         model = PatientRootQueryRetrieveInformationModelFind
         ae.add_requested_context(model)
 
-        self.p = p = self.func(['-d'])
+        self.p = p = self.func([
+            '--database-location', self.db_location,
+            '--instance-location', self.instance_location.name,
+            '-d'
+        ])
         time.sleep(0.5)
         _send_datasets()
         time.sleep(1)
@@ -205,7 +218,11 @@ class FindSCPBase:
         model = PatientRootQueryRetrieveInformationModelFind
         ae.add_requested_context(model)
 
-        self.p = p = self.func(['-d'])
+        self.p = p = self.func([
+            '--database-location', self.db_location,
+            '--instance-location', self.instance_location.name,
+            '-d'
+        ])
         time.sleep(0.5)
         _send_datasets()
         time.sleep(1)
@@ -241,7 +258,11 @@ class FindSCPBase:
         model = PatientRootQueryRetrieveInformationModelFind
         ae.add_requested_context(model)
 
-        self.p = p = self.func(['-d'])
+        self.p = p = self.func([
+            '--database-location', self.db_location,
+            '--instance-location', self.instance_location.name,
+            '-d'
+        ])
         time.sleep(0.5)
         _send_datasets()
         time.sleep(1)
@@ -279,7 +300,11 @@ class FindSCPBase:
         model = PatientRootQueryRetrieveInformationModelFind
         ae.add_requested_context(model)
 
-        self.p = p = self.func(['-d'])
+        self.p = p = self.func([
+            '--database-location', self.db_location,
+            '--instance-location', self.instance_location.name,
+            '-d'
+        ])
         time.sleep(0.5)
         _send_datasets()
         time.sleep(1)
@@ -316,7 +341,11 @@ class FindSCPBase:
         model = PatientRootQueryRetrieveInformationModelFind
         ae.add_requested_context(model)
 
-        self.p = p = self.func(['-d'])
+        self.p = p = self.func([
+            '--database-location', self.db_location,
+            '--instance-location', self.instance_location.name,
+            '-d'
+        ])
         time.sleep(0.5)
         _send_datasets()
         time.sleep(1)
@@ -355,7 +384,11 @@ class FindSCPBase:
         model = PatientRootQueryRetrieveInformationModelFind
         ae.add_requested_context(model)
 
-        self.p = p = self.func(['-d'])
+        self.p = p = self.func([
+            '--database-location', self.db_location,
+            '--instance-location', self.instance_location.name,
+            '-d'
+        ])
         time.sleep(0.5)
         _send_datasets()
         time.sleep(1)
@@ -393,7 +426,11 @@ class FindSCPBase:
         model = PatientRootQueryRetrieveInformationModelFind
         ae.add_requested_context(model)
 
-        self.p = p = self.func(['-d'])
+        self.p = p = self.func([
+            '--database-location', self.db_location,
+            '--instance-location', self.instance_location.name,
+            '-d'
+        ])
         time.sleep(0.5)
         _send_datasets()
         time.sleep(1)
@@ -433,7 +470,11 @@ class FindSCPBase:
         model = PatientRootQueryRetrieveInformationModelFind
         ae.add_requested_context(model)
 
-        self.p = p = self.func(['-d'])
+        self.p = p = self.func([
+            '--database-location', self.db_location,
+            '--instance-location', self.instance_location.name,
+            '-d'
+        ])
         time.sleep(0.5)
         _send_datasets()
         time.sleep(1)
@@ -472,7 +513,11 @@ class FindSCPBase:
         model = StudyRootQueryRetrieveInformationModelFind
         ae.add_requested_context(model)
 
-        self.p = p = self.func(['-d'])
+        self.p = p = self.func([
+            '--database-location', self.db_location,
+            '--instance-location', self.instance_location.name,
+            '-d'
+        ])
         time.sleep(0.5)
         _send_datasets()
         time.sleep(1)
@@ -503,6 +548,7 @@ class FindSCPBase:
         p.wait()
 
 
+@pytest.mark.skipif(not HAVE_SQLALCHEMY, reason="Requires sqlalchemy")
 class TestFindSCP(FindSCPBase):
     """Tests for qrscp.py"""
     def setup(self):
@@ -513,6 +559,7 @@ class TestFindSCP(FindSCPBase):
         self.func = start_qrscp
 
 
+@pytest.mark.skipif(not HAVE_SQLALCHEMY, reason="Requires sqlalchemy")
 class TestFindSCPCLI(FindSCPBase):
     """Tests for qrscp using CLI"""
     def setup(self):

@@ -13,8 +13,8 @@ This tutorial is intended for people who are new to *pynetdicom*. In it you'll:
 * Learn how to perform some basic troubleshooting of associations
 * Modify your AE to be an Echo SCU
 
-The tutorial is written for *pynetdicom* 2.0, which supports Python 3.6
-and later. You can tell which version of *pynetdicom* you have by running
+The tutorial is written for *pynetdicom* 2.0 and higher, which supports Python
+3.7+. You can tell which version of *pynetdicom* you have by running
 the following command::
 
     $ python -m pynetdicom --version
@@ -34,7 +34,7 @@ TCP/IP<part08/chapter_9.html>`, which is used to facilitate communication
 between DICOM *Application Entities* (AEs) over a `TCP connection
 <https://en.wikipedia.org/wiki/Transmission_Control_Protocol>`_. Communication
 between two AEs starts by establishing a TCP connection, then progresses to
-negotiating an *association*, which is just a term to describe the
+negotiating an *association*, which is the term used to describe the
 communications channel between the AEs and the set of rules that govern their
 expected behaviour.
 
@@ -272,8 +272,8 @@ information:
     I: Requesting Association
     D: Request Parameters:
     D: ======================= OUTGOING A-ASSOCIATE-RQ PDU ========================
-    D: Our Implementation Class UID:      1.2.826.0.1.3680043.9.3811.1.5.0
-    D: Our Implementation Version Name:   PYNETDICOM_150
+    D: Our Implementation Class UID:      1.2.826.0.1.3680043.9.3811.2.0.0
+    D: Our Implementation Version Name:   PYNETDICOM_200
     D: Application Context Name:    1.2.840.10008.3.1.1.1
     D: Calling Application Name:    PYNETDICOM
     D: Called Application Name:     ANY-SCP
@@ -423,7 +423,7 @@ Turning our AE into an Echo SCU
 -------------------------------
 
 Since we're able to associate with the Echo SCP, our next step is to request
-the use of its verification service. We do this by sending a DIMSE C-ECHO
+the use of it's verification service. We do this by sending a DIMSE C-ECHO
 request:
 
 .. code-block:: python
@@ -452,7 +452,7 @@ association was aborted) then `status` will be an empty
 :class:`~pydicom.dataset.Dataset`.
 
 The *Status* element value is a code that indicates the result of the C-ECHO
-request. Each service class has a bunch of defined status codes which are
+request. Each service class has a number of defined status codes which are
 usually a mix of generic codes for each DIMSE message type and code values
 specific to the service class. For example, if you look at the API reference
 for :meth:`~association.Association.send_c_store` you'll see there are general
@@ -477,12 +477,12 @@ If you run your modified code then at the end of the output you should see:
     I: Association Accepted
     I: Sending Echo Request: MsgID 1
     D: pydicom.read_dataset() TransferSyntax="Little Endian Implicit"
-    I: Received Echo Response (Status: Success)
+    I: Received Echo Response (Status: 0x0000 - Success)
     I: Releasing Association
 
-The SCP has responded with a ``Status: Success``, which indicates that the
-verification service request was successful. Congratulations, you've written
-your first DICOM SCU using *pynetdicom*.
+The SCP has responded with a ``Status: 0x0000 - Success``, which indicates that
+the verification service request was successful. Congratulations, you've
+written your first DICOM application using *pynetdicom*.
 
 Next steps
 ==========

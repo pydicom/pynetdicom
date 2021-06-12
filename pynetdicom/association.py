@@ -67,7 +67,7 @@ if TYPE_CHECKING:  # pragma: no cover
 
 
 # pylint: enable=no-name-in-module
-LOGGER = logging.getLogger('pynetdicom.assoc')
+LOGGER = logging.getLogger("pynetdicom.assoc")
 
 
 class Association(threading.Thread):
@@ -259,7 +259,7 @@ class Association(threading.Thread):
             self.bind(event, handler)
 
         # Notification event handlers
-        if _config.LOG_HANDLER_LEVEL == 'standard':
+        if _config.LOG_HANDLER_LEVEL == "standard":
             self.bind(evt.EVT_DIMSE_RECV, standard_dimse_recv_handler)
             self.bind(evt.EVT_DIMSE_SENT, standard_dimse_sent_handler)
             self.bind(evt.EVT_PDU_RECV, standard_pdu_recv_handler)
@@ -355,7 +355,7 @@ class Association(threading.Thread):
         tr_syntax: Union[str, UID],
         role: Optional[str] = None,
         context_id: Optional[int] = None,
-        allow_conversion: bool = True
+        allow_conversion: bool = True,
     ) -> PresentationContext:
         """Return a valid presentation context matching the parameters.
 
@@ -482,10 +482,10 @@ class Association(threading.Thread):
     def _handle_no_response(self) -> None:
         """Common reaction when DIMSE timeout hit or no response message."""
         # Avoids writing the same unit test for each send_ method
-        if self.acse.is_aborted('a-abort'):
+        if self.acse.is_aborted("a-abort"):
             # Let the main reactor loop handle A-ABORT logging
             pass
-        elif self.acse.is_aborted('a-p-abort'):
+        elif self.acse.is_aborted("a-p-abort"):
             # Evt17 occurred while in Sta6
             LOGGER.error(
                 "Connection closed while waiting for DIMSE message"
@@ -585,7 +585,7 @@ class Association(threading.Thread):
             self._reactor_checkpoint.clear()
             while not self._is_paused:
                 time.sleep(0.0001)
-            LOGGER.info('Releasing Association')
+            LOGGER.info("Releasing Association")
             self.acse.negotiate_release()
             # Restart reactor
             self._reactor_checkpoint.set()
@@ -813,8 +813,8 @@ class Association(threading.Thread):
         try:
             context = self._get_valid_context(
                 cast(UID, req.AffectedSOPClassUID),
-                '',
-                'scp',
+                "",
+                "scp",
                 context_id=req._context_id
             )
         except ValueError:
@@ -828,7 +828,7 @@ class Association(threading.Thread):
             status = evt.trigger(
                 self,
                 evt.EVT_C_STORE,
-                {'request': req, 'context': context.as_tuple}
+                {"request": req, "context": context.as_tuple}
             )
         except Exception as ex:
             LOGGER.error(
@@ -841,7 +841,7 @@ class Association(threading.Thread):
 
         # Check the callback's returned status
         if isinstance(status, Dataset):
-            if 'Status' in status:
+            if "Status" in status:
                 # For the elements in the status dataset, try and set
                 #   the corresponding response primitive attribute
                 for elem in status:
@@ -849,24 +849,26 @@ class Association(threading.Thread):
                         setattr(rsp, elem.keyword, elem.value)
                     else:
                         LOGGER.warning(
-                            "Status dataset returned by callback contained an "
-                            f"unsupported element '{elem.keyword}'"
+                            "Status dataset returned from the EVT_C_STORE "
+                            "handler contained an unsupported element "
+                            f"'{elem.keyword}'"
                         )
             else:
                 LOGGER.error(
-                    "User callback returned a `Dataset` without a Status "
-                    "element"
+                    "The EVT_C_STORE handler returned a Dataset without a "
+                    "'Status' element"
                 )
                 rsp.Status = 0xC001
         elif isinstance(status, int):
             rsp.Status = status
         else:
-            LOGGER.error("Invalid status returned by user callback")
+            LOGGER.error("Invalid status returned by the EVT_C_STORE handler")
             rsp.Status = 0xC002
 
         if rsp.Status not in STORAGE_SERVICE_CLASS_STATUS:
             LOGGER.warning(
-                f"Unknown status value returned by callback 0x{rsp.Status:04X}"
+                "Unknown status value returned by the EVT_C_STORE handler: "
+                f"0x{rsp.Status:04X}"
             )
 
         # Send C-STORE confirmation back to peer
@@ -876,7 +878,7 @@ class Association(threading.Thread):
         self,
         msg_id: int,
         context_id: Optional[int] = None,
-        query_model: Optional[Union[str, UID]] = None
+        query_model: Optional[Union[str, UID]] = None,
     ) -> None:
         """Send a C-CANCEL request to the peer AE.
 
@@ -918,7 +920,7 @@ class Association(threading.Thread):
         primitive = C_CANCEL()
         primitive.MessageIDBeingRespondedTo = msg_id
 
-        LOGGER.info('Sending C-CANCEL')
+        LOGGER.info("Sending C-CANCEL request")
 
         # Send C-CANCEL request
         self.dimse.send_msg(primitive, cast(int, context_id))
@@ -986,8 +988,10 @@ class Association(threading.Thread):
         """
         # Can't send a C-ECHO without an Association
         if not self.is_established:
-            raise RuntimeError("The association with a peer SCP must be "
-                               "established before sending a C-ECHO request")
+            raise RuntimeError(
+                "The association with a peer SCP must be established before "
+                "sending a C-ECHO request"
+            )
 
         # Get a Presentation Context to use for sending the message
         context = self._get_valid_context(Verification, '', 'scu')
@@ -1028,7 +1032,7 @@ class Association(threading.Thread):
         dataset: Dataset,
         query_model: Union[str, UID],
         msg_id: int = 1,
-        priority: int = 2
+        priority: int = 2,
     ) -> Iterator[Tuple[Dataset, Optional[Dataset]]]:
         """Send a C-FIND request to the peer AE.
 
@@ -1182,7 +1186,7 @@ class Association(threading.Thread):
 
         # Determine the Presentation Context we are operating under
         #   and hence the transfer syntax to use for encoding `dataset`
-        context = self._get_valid_context(query_model, '', 'scu')
+        context = self._get_valid_context(query_model, "", "scu")
         if context.abstract_syntax != query_model:
             LOGGER.info("Using Presentation Context:")
             LOGGER.info(f"  Context ID:        {context.context_id}")
@@ -1243,7 +1247,7 @@ class Association(threading.Thread):
         dataset: Dataset,
         query_model: Union[str, UID],
         msg_id: int = 1,
-        priority: int = 2
+        priority: int = 2,
     ) -> Iterator[Tuple[Dataset, Optional[Dataset]]]:
         """Send a C-GET request to the peer AE.
 
@@ -1386,12 +1390,14 @@ class Association(threading.Thread):
         """
         # Can't send a C-GET without an Association
         if not self.is_established:
-            raise RuntimeError("The association with a peer SCP must be "
-                               "established before sending a C-GET request")
+            raise RuntimeError(
+                "The association with a peer SCP must be established before "
+                "sending a C-GET request"
+            )
 
         # Determine the Presentation Context we are operating under
         #   and hence the transfer syntax to use for encoding `dataset`
-        context = self._get_valid_context(query_model, '', 'scu')
+        context = self._get_valid_context(query_model, "", "scu")
 
         # Build C-GET request primitive
         #   (M) Message ID
@@ -1417,15 +1423,16 @@ class Association(threading.Thread):
             req.Identifier = BytesIO(bytestream)
         else:
             LOGGER.error("Failed to encode the supplied Identifier dataset")
-            raise ValueError('Failed to encode the supplied Identifer '
-                             'dataset')
+            raise ValueError(
+                "Failed to encode the supplied Identifer dataset"
+            )
 
-        LOGGER.info(f'Sending Get Request: MsgID {msg_id}')
-        LOGGER.info('')
-        LOGGER.info('# Request Identifier')
+        LOGGER.info(f"Sending Get Request: MsgID {msg_id}")
+        LOGGER.info("")
+        LOGGER.info("# Request Identifier")
         for line in pretty_dataset(dataset):
             LOGGER.info(line)
-        LOGGER.info('')
+        LOGGER.info("")
 
         # Pause the reactor to prevent a race condition
         self._reactor_checkpoint.clear()
@@ -1447,7 +1454,7 @@ class Association(threading.Thread):
         move_aet: str,
         query_model: Union[str, UID],
         msg_id: int = 1,
-        priority: int = 2
+        priority: int = 2,
     ) -> Iterator[Tuple[Dataset, Optional[Dataset]]]:
         """Send a C-MOVE request to the peer AE.
 
@@ -1590,8 +1597,10 @@ class Association(threading.Thread):
         """
         # Can't send a C-MOVE without an Association
         if not self.is_established:
-            raise RuntimeError("The association with a peer SCP must be "
-                               "established before sending a C-MOVE request")
+            raise RuntimeError(
+                "The association with a peer SCP must be established before "
+                "sending a C-MOVE request"
+            )
 
         # Determine the Presentation Context we are operating under
         #   and hence the transfer syntax to use for encoding `dataset`
@@ -1622,16 +1631,17 @@ class Association(threading.Thread):
         if bytestream is not None:
             req.Identifier = BytesIO(bytestream)
         else:
-            LOGGER.error('Failed to encode the supplied Identifier dataset')
-            raise ValueError('Failed to encode the supplied Identifier '
-                             'dataset')
+            LOGGER.error("Failed to encode the supplied Identifier dataset")
+            raise ValueError(
+                "Failed to encode the supplied Identifier dataset"
+            )
 
-        LOGGER.info(f'Sending Move Request: MsgID {msg_id}')
-        LOGGER.info('')
-        LOGGER.info('# Request Identifier')
+        LOGGER.info(f"Sending Move Request: MsgID {msg_id}")
+        LOGGER.info("")
+        LOGGER.info("# Request Identifier")
         for line in pretty_dataset(dataset):
             LOGGER.info(line)
-        LOGGER.info('')
+        LOGGER.info("")
 
         # Pause the reactor to prevent a race condition
         self._reactor_checkpoint.clear()
@@ -1653,7 +1663,7 @@ class Association(threading.Thread):
         msg_id: int = 1,
         priority: int = 2,
         originator_aet: Optional[str] = None,
-        originator_id: Optional[int] = None
+        originator_id: Optional[int] = None,
     ) -> Dataset:
         """Send a C-STORE request to the peer AE.
 
@@ -1679,7 +1689,7 @@ class Association(threading.Thread):
             - ``0`` - Medium
             - ``1`` - High
             - ``2`` - Low (default)
-        originator_aet : bytes, optional
+        originator_aet : str, optional
             The value of the *Move Originator Application Entity Title*
             parameter for the C-STORE request. This is the AE title of the
             peer that invoked the C-MOVE operation for which this C-STORE
@@ -1802,17 +1812,17 @@ class Association(threading.Thread):
                 req._dataset_path = (fpath, offset)
 
                 missing = [
-                    'MediaStorageSOPClassUID',
-                    'MediaStorageSOPInstanceUID',
-                    'TransferSyntaxUID'
+                    "MediaStorageSOPClassUID",
+                    "MediaStorageSOPInstanceUID",
+                    "TransferSyntaxUID"
                 ]
                 missing = [kw for kw in missing if kw not in file_meta]
                 if missing:
                     raise AttributeError(
-                        f"Unable to send the dataset from the file at "
+                        "Unable to send the dataset from the file at "
                         f"{os.fspath(fpath)} as one or more required file "
-                        f"meta information elements are missing: "
-                        f"{','.join(missing)}"
+                        "meta information elements are missing: "
+                        f"{', '.join(missing)}"
                     )
 
                 sop_class = cast(UID, file_meta.MediaStorageSOPClassUID)
@@ -1821,12 +1831,12 @@ class Association(threading.Thread):
 
         if dataset:
             dataset = cast(Dataset, dataset)
-            missing = ['SOPClassUID', 'SOPInstanceUID']
+            missing = ["SOPClassUID", "SOPInstanceUID"]
             missing = [kw for kw in missing if kw not in dataset]
             if missing:
                 raise AttributeError(
-                    f"Unable to send the dataset as one or more required "
-                    f"element are missing: {','.join(missing)}"
+                    "Unable to send the dataset as one or more required "
+                    f"element are missing: {', '.join(missing)}"
                 )
 
             sop_class = cast(UID, dataset.SOPClassUID)
@@ -1843,7 +1853,7 @@ class Association(threading.Thread):
 
         # Get a Presentation Context to use for sending the message
         context = self._get_valid_context(
-            sop_class, tsyntax, 'scu', allow_conversion=allow_conversion
+            sop_class, tsyntax, "scu", allow_conversion=allow_conversion
         )
         transfer_syntax = context.transfer_syntax[0]
 
@@ -1889,8 +1899,7 @@ class Association(threading.Thread):
         return status
 
     def _wrap_find_responses(
-        self,
-        transfer_syntax: UID
+        self, transfer_syntax: UID
     ) -> Iterator[Tuple[Dataset, Optional[Dataset]]]:
         """Wrapper for the C-FIND response generator.
 
@@ -1923,9 +1932,9 @@ class Association(threading.Thread):
                 return
 
             if not isinstance(rsp, C_FIND):
-                msg_type = rsp.__class__.__name__.replace('_', '-')
+                msg_type = rsp.__class__.__name__.replace("_", "-")
                 LOGGER.error(
-                    f'Received an unexpected {msg_type} message from the peer'
+                    f"Received an unexpected {msg_type} message from the peer"
                 )
                 self.abort()
                 self._reactor_checkpoint.set()
@@ -1934,7 +1943,7 @@ class Association(threading.Thread):
 
             if not rsp.is_valid_response:
                 LOGGER.error(
-                    'Received an invalid C-FIND response from the peer'
+                    "Received an invalid C-FIND response from the peer"
                 )
                 self.abort()
                 self._reactor_checkpoint.set()
@@ -1964,7 +1973,7 @@ class Association(threading.Thread):
                 )
             else:
                 LOGGER.info(
-                    f'Find SCP Result: 0x{status.Status:04X} ({category})'
+                    f"Find SCP Result: 0x{status.Status:04X} ({category})"
                 )
 
             # 'Success', 'Warning', 'Failure', 'Cancel' are final yields,
@@ -1982,11 +1991,11 @@ class Association(threading.Thread):
                             transfer_syntax.is_deflated
                         )
                         if identifier and _config.LOG_RESPONSE_IDENTIFIERS:
-                            LOGGER.info('')
-                            LOGGER.info('# Response Identifier')
+                            LOGGER.info("")
+                            LOGGER.info("# Response Identifier")
                             for line in pretty_dataset(identifier):
                                 LOGGER.info(line)
-                            LOGGER.info('')
+                            LOGGER.info("")
                     except Exception as exc:
                         LOGGER.error(
                             "Failed to decode the received Identifier dataset"
@@ -2007,8 +2016,7 @@ class Association(threading.Thread):
         self._reactor_checkpoint.set()
 
     def _wrap_get_move_responses(
-        self,
-        transfer_syntax: UID
+        self, transfer_syntax: UID
     ) -> Iterator[Tuple[Dataset, Optional[Dataset]]]:
         """Wrapper for the C-GET/C-MOVE response generators.
 
@@ -2033,11 +2041,11 @@ class Association(threading.Thread):
             #   C-MOVE response or a C-STORE request
             cx_id, rsp = self.dimse.get_msg(block=True)
             # Used to describe the response in the log output
-            rsp_type = rsp.__class__.__name__.replace('_', '-')
-            rsp_name = {'C-GET': 'Get', 'C-MOVE': 'Move'}
+            rsp_type = rsp.__class__.__name__.replace("_", "-")
+            rsp_name = {"C-GET": "Get", "C-MOVE": "Move"}
 
             # If `rsp` is None then the DIMSE timeout expired
-            #   so abort if the association hasn't already been aborted
+            #   so abort if the association hasn"t already been aborted
             if rsp is None:
                 self._handle_no_response()
                 self._reactor_checkpoint.set()
@@ -2046,7 +2054,7 @@ class Association(threading.Thread):
 
             if not isinstance(rsp, (C_STORE, C_GET, C_MOVE)):
                 LOGGER.error(
-                    f'Received an unexpected {rsp_type} message from the peer'
+                    f"Received an unexpected {rsp_type} message from the peer"
                 )
                 self.abort()
                 self._reactor_checkpoint.set()
@@ -2061,7 +2069,7 @@ class Association(threading.Thread):
 
             if not rsp.is_valid_response:
                 LOGGER.error(
-                    f'Received an invalid {rsp_type} response from the peer'
+                    f"Received an invalid {rsp_type} response from the peer"
                 )
                 self.abort()
                 self._reactor_checkpoint.set()
@@ -2099,10 +2107,10 @@ class Association(threading.Thread):
             LOGGER.info(
                 "Sub-Operations Remaining: %s, Completed: %s, "
                 "Failed: %s, Warning: %s",
-                rsp.NumberOfRemainingSuboperations or '0',
-                rsp.NumberOfCompletedSuboperations or '0',
-                rsp.NumberOfFailedSuboperations or '0',
-                rsp.NumberOfWarningSuboperations or '0'
+                rsp.NumberOfRemainingSuboperations or "0",
+                rsp.NumberOfCompletedSuboperations or "0",
+                rsp.NumberOfFailedSuboperations or "0",
+                rsp.NumberOfWarningSuboperations or "0"
             )
 
             # 'Success', 'Warning', 'Failure', 'Cancel' are final yields,
@@ -2129,11 +2137,11 @@ class Association(threading.Thread):
                             transfer_syntax.is_deflated
                         )
                         if identifier and _config.LOG_RESPONSE_IDENTIFIERS:
-                            LOGGER.info('')
-                            LOGGER.info('# Response Identifier')
+                            LOGGER.info("")
+                            LOGGER.info("# Response Identifier")
                             for elem in identifier:
                                 LOGGER.info(elem)
-                            LOGGER.info('')
+                            LOGGER.info("")
                     except Exception as exc:
                         LOGGER.error(
                             "Failed to decode the received Identifier dataset"
@@ -2158,7 +2166,7 @@ class Association(threading.Thread):
         class_uid: Union[str, UID],
         instance_uid: Union[str, UID],
         msg_id: int = 1,
-        meta_uid: Optional[Union[str, UID]] = None
+        meta_uid: Optional[Union[str, UID]] = None,
     ) -> Tuple[Dataset, Optional[Dataset]]:
         """Send an N-ACTION request to the peer AE.
 
@@ -2269,7 +2277,7 @@ class Association(threading.Thread):
 
         # Determine the Presentation Context we are operating under
         #   and hence the transfer syntax to use for encoding `dataset`
-        context = self._get_valid_context(meta_uid or class_uid, '', 'scu')
+        context = self._get_valid_context(meta_uid or class_uid, "", "scu")
         if class_uid and context.abstract_syntax != class_uid:
             LOGGER.info("Using Presentation Context:")
             LOGGER.info(f"  Context ID:        {context.context_id}")
@@ -2313,7 +2321,7 @@ class Association(threading.Thread):
                 raise ValueError(msg)
 
         # Send N-ACTION request to the peer via DIMSE and wait for the response
-        LOGGER.info(f'Sending Action Request: MsgID {msg_id}')
+        LOGGER.info(f"Sending Action Request: MsgID {msg_id}")
 
         # Pause the reactor to prevent a race condition
         self._reactor_checkpoint.clear()
@@ -2337,13 +2345,13 @@ class Association(threading.Thread):
         # Warning and Success statuses will return a dataset
         #   we check against None as 0x0000 is a possible status
         action_reply = None
-        if getattr(status, 'Status', None) is not None:
+        if getattr(status, "Status", None) is not None:
             category = code_to_category(cast(int, status.Status))
             if category not in [STATUS_WARNING, STATUS_SUCCESS]:
                 return status, action_reply
 
             b: BytesIO = rsp.ActionReply  # type: ignore
-            if b and b.getvalue() != b'':
+            if b and b.getvalue() != b"":
                 # Attempt to decode the response's dataset
                 # pylint: disable=broad-except
                 try:
@@ -2371,7 +2379,7 @@ class Association(threading.Thread):
         class_uid: Union[str, UID],
         instance_uid: Optional[Union[str, UID]] = None,
         msg_id: int = 1,
-        meta_uid: Optional[Union[str, UID]] = None
+        meta_uid: Optional[Union[str, UID]] = None,
     ) -> Tuple[Dataset, Optional[Dataset]]:
         """Send an N-CREATE request to the peer AE.
 
@@ -2524,7 +2532,7 @@ class Association(threading.Thread):
 
         # Determine the Presentation Context we are operating under
         #   and hence the transfer syntax to use for encoding `dataset`
-        context = self._get_valid_context(meta_uid or class_uid, '', 'scu')
+        context = self._get_valid_context(meta_uid or class_uid, "", "scu")
         transfer_syntax = context.transfer_syntax[0]
 
         # Build N-CREATE request primitive
@@ -2557,7 +2565,7 @@ class Association(threading.Thread):
                 raise ValueError(msg)
 
         # Send N-CREATE request to the peer via DIMSE and wait for the response
-        LOGGER.info(f'Sending Create Request: MsgID {msg_id}')
+        LOGGER.info(f"Sending Create Request: MsgID {msg_id}")
 
         # Pause the reactor to prevent a race condition
         self._reactor_checkpoint.clear()
@@ -2581,13 +2589,13 @@ class Association(threading.Thread):
         # Warning and Success statuses will return a dataset
         #   we check against None as 0x0000 is a possible status
         attribute_list = None
-        if getattr(status, 'Status', None) is not None:
+        if getattr(status, "Status", None) is not None:
             category = code_to_category(cast(int, status.Status))
             if category not in [STATUS_WARNING, STATUS_SUCCESS]:
                 return status, attribute_list
 
             b: BytesIO = rsp.AttributeList  # type: ignore
-            if b and b.getvalue() != b'':
+            if b and b.getvalue() != b"":
                 # Attempt to decode the response's dataset
                 # pylint: disable=broad-except
                 try:
@@ -2616,7 +2624,7 @@ class Association(threading.Thread):
         class_uid: Union[str, UID],
         instance_uid: Union[str, UID],
         msg_id: int = 1,
-        meta_uid: Optional[Union[str, UID]] = None
+        meta_uid: Optional[Union[str, UID]] = None,
     ) -> Dataset:
         """Send an N-DELETE request to the peer AE.
 
@@ -2700,7 +2708,7 @@ class Association(threading.Thread):
 
         # Determine the Presentation Context we are operating under
         #   and hence the transfer syntax to use for encoding `dataset`
-        context = self._get_valid_context(meta_uid or class_uid, '', 'scu')
+        context = self._get_valid_context(meta_uid or class_uid, "", "scu")
 
         # Build N-DELETE request primitive
         #   (M) Message ID
@@ -2712,7 +2720,7 @@ class Association(threading.Thread):
         req.RequestedSOPInstanceUID = UID(instance_uid)
 
         # Send N-DELETE request to the peer via DIMSE and wait for the response
-        LOGGER.info(f'Sending Delete Request: MsgID {msg_id}')
+        LOGGER.info(f"Sending Delete Request: MsgID {msg_id}")
 
         # Pause the reactor to prevent a race condition
         self._reactor_checkpoint.clear()
@@ -2742,7 +2750,7 @@ class Association(threading.Thread):
         class_uid: Union[str, UID],
         instance_uid: Union[str, UID],
         msg_id: int = 1,
-        meta_uid: Optional[Union[str, UID]] = None
+        meta_uid: Optional[Union[str, UID]] = None,
     ) -> Tuple[Dataset, Optional[Dataset]]:
         """Send an N-EVENT-REPORT request to the peer AE.
 
@@ -2854,7 +2862,7 @@ class Association(threading.Thread):
         # As far as I can tell, N-EVENT-REPORT doesn't use SCP/SCU Role
         #   selection negotiation, so we need to ignore the negotiate role
         #   since the SCP will be sending requests to the SCU
-        context = self._get_valid_context(meta_uid or class_uid, '', None)
+        context = self._get_valid_context(meta_uid or class_uid, "", None)
         if class_uid and context.abstract_syntax != class_uid:
             LOGGER.info("Using Presentation Context:")
             LOGGER.info(f"  Context ID:        {context.context_id}")
@@ -2898,7 +2906,7 @@ class Association(threading.Thread):
 
         # Send N-EVENT-REPORT request to the peer via DIMSE and wait for
         # the response primitive
-        LOGGER.info(f'Sending Event Report Request: MsgID {msg_id}')
+        LOGGER.info(f"Sending Event Report Request: MsgID {msg_id}")
 
         # Pause the reactor to prevent a race condition
         self._reactor_checkpoint.clear()
@@ -2922,14 +2930,14 @@ class Association(threading.Thread):
         # Warning and Success statuses will return a dataset
         #   we check against None as 0x0000 is a possible status
         event_reply = None
-        if getattr(status, 'Status', None) is not None:
+        if getattr(status, "Status", None) is not None:
             category = code_to_category(cast(int, status.Status))
             if category not in [STATUS_WARNING, STATUS_SUCCESS]:
                 return status, event_reply
 
             b: BytesIO = rsp.EventReply  # type: ignore
-            if b and b.getvalue() != b'':
-                # Attempt to decode the response's dataset
+            if b and b.getvalue() != b"":
+                # Attempt to decode the response"s dataset
                 # pylint: disable=broad-except
                 try:
                     event_reply = decode(
@@ -2957,7 +2965,7 @@ class Association(threading.Thread):
         class_uid: Union[str, UID],
         instance_uid: Union[str, UID],
         msg_id: int = 1,
-        meta_uid: Optional[Union[str, UID]] = None
+        meta_uid: Optional[Union[str, UID]] = None,
     ) -> Tuple[Dataset, Optional[Dataset]]:
         """Send an N-GET request to the peer AE.
 
@@ -3091,7 +3099,7 @@ class Association(threading.Thread):
 
         # Determine the Presentation Context we are operating under
         #   and hence the transfer syntax to use for encoding `dataset`
-        context = self._get_valid_context(meta_uid or class_uid, '', 'scu')
+        context = self._get_valid_context(meta_uid or class_uid, "", "scu")
         if class_uid and context.abstract_syntax != class_uid:
             LOGGER.info("Using Presentation Context:")
             LOGGER.info(f"  Context ID:        {context.context_id}")
@@ -3113,7 +3121,7 @@ class Association(threading.Thread):
         req.AttributeIdentifierList = identifier_list
 
         # Send N-GET request to the peer via DIMSE and wait for the response
-        LOGGER.info(f'Sending Get Request: MsgID {msg_id}')
+        LOGGER.info(f"Sending Get Request: MsgID {msg_id}")
 
         # Pause the reactor to prevent a race condition
         self._reactor_checkpoint.clear()
@@ -3137,14 +3145,14 @@ class Association(threading.Thread):
         # Warning and Success statuses will return a dataset
         #   we check against None as 0x0000 is a possible status
         attribute_list = None
-        if getattr(status, 'Status', None) is not None:
+        if getattr(status, "Status", None) is not None:
             category = code_to_category(cast(int, status.Status))
             if category not in [STATUS_WARNING, STATUS_SUCCESS]:
                 return status, attribute_list
 
             b: BytesIO = rsp.AttributeList  # type: ignore
-            if b and b.getvalue() != b'':
-                # Attempt to decode the response's dataset
+            if b and b.getvalue() != b"":
+                # Attempt to decode the response"s dataset
                 # pylint: disable=broad-except
                 try:
                     attribute_list = decode(
@@ -3173,7 +3181,7 @@ class Association(threading.Thread):
         class_uid: Union[str, UID],
         instance_uid: Union[str, UID],
         msg_id: int = 1,
-        meta_uid: Optional[Union[str, UID]] = None
+        meta_uid: Optional[Union[str, UID]] = None,
     ) -> Tuple[Dataset, Optional[Dataset]]:
         """Send an N-SET request to the peer AE.
 
@@ -3333,7 +3341,7 @@ class Association(threading.Thread):
 
         # Determine the Presentation Context we are operating under
         #   and hence the transfer syntax to use for encoding `dataset`
-        context = self._get_valid_context(meta_uid or class_uid, '', 'scu')
+        context = self._get_valid_context(meta_uid or class_uid, "", "scu")
         if class_uid and context.abstract_syntax != class_uid:
             LOGGER.info("Using Presentation Context:")
             LOGGER.info(f"  Context ID:        {context.context_id}")
@@ -3370,7 +3378,7 @@ class Association(threading.Thread):
             raise ValueError(msg)
 
         # Send N-SET request to the peer via DIMSE and wait for the response
-        LOGGER.info(f'Sending Set Request: MsgID {msg_id}')
+        LOGGER.info(f"Sending Set Request: MsgID {msg_id}")
 
         # Pause the reactor to prevent a race condition
         self._reactor_checkpoint.clear()
@@ -3394,13 +3402,13 @@ class Association(threading.Thread):
         # Warning and Success statuses will return a dataset
         #   we check against None as 0x0000 is a possible status
         attribute_list = None
-        if getattr(status, 'Status', None) is not None:
+        if getattr(status, "Status", None) is not None:
             category = code_to_category(cast(int, status.Status))
             if category not in [STATUS_WARNING, STATUS_SUCCESS]:
                 return status, attribute_list
 
             b: BytesIO = rsp.AttributeList  # type: ignore
-            if b and b.getvalue() != b'':
+            if b and b.getvalue() != b"":
                 # Attempt to decode the response's dataset
                 # pylint: disable=broad-except
                 try:
@@ -3444,11 +3452,11 @@ class Association(threading.Thread):
 
         # Use the Message's Affected SOP Class UID or Requested SOP
         #   Class UID to determine which service to use
-        class_uid: Union[str, UID] = ''
-        if getattr(msg, 'AffectedSOPClassUID', None) is not None:
+        class_uid: Union[str, UID] = ""
+        if getattr(msg, "AffectedSOPClassUID", None) is not None:
             # DIMSE-C, N-EVENT-REPORT, N-CREATE use AffectedSOPClassUID
             class_uid = cast(UID, msg.AffectedSOPClassUID)
-        elif getattr(msg, 'RequestedSOPClassUID', None) is not None:
+        elif getattr(msg, "RequestedSOPClassUID", None) is not None:
             # N-GET, N-SET, N-ACTION, N-DELETE use RequestedSOPClassUID
             class_uid = msg.RequestedSOPClassUID  # type: ignore
 
@@ -3692,7 +3700,7 @@ class ServiceUser:
             )
             value = decode_bytes(value)
 
-        self._ae_title = cast(str, set_ae(value, 'ae_title', False, False))
+        self._ae_title = cast(str, set_ae(value, "ae_title", False, False))
 
     @property
     def asynchronous_operations(self) -> Tuple[int, int]:
@@ -3789,12 +3797,12 @@ class ServiceUser:
             presentation contexts from the A-ASSOCIATE (accept) primitive's
             Presentation Context Definition Results List parameter.
         """
-        contexts = {'requested': self._contexts, 'supported': self._contexts}
+        contexts = {"requested": self._contexts, "supported": self._contexts}
         self.primitive = cast(A_ASSOCIATE, self.primitive)
         if not self.writeable:
             contexts.update({
-                'pcdl': self.primitive.presentation_context_definition_list,
-                'pcdrl': (
+                "pcdl": self.primitive.presentation_context_definition_list,
+                "pcdrl": (
                     self.primitive.presentation_context_definition_results_list
                 )
             })
@@ -3802,22 +3810,22 @@ class ServiceUser:
         possible: Dict[bool, Dict[bool, Dict[bool, List[str]]]] = {
             True: {  # self.assoc.is_requestor
                 True: {  # self.writeable
-                    True: ['requested'],  # self.is_requestor
+                    True: ["requested"],  # self.is_requestor
                     False: []  # self.is_acceptor
                 },
                 False: {  # not self.writeable
-                    True: ['requested', 'pcdl'],  # self.is_requestor
-                    False: ['pcdrl']  # self.is_acceptor
+                    True: ["requested", "pcdl"],  # self.is_requestor
+                    False: ["pcdrl"]  # self.is_acceptor
                 },
             },
             False: {  # self.assoc.is_acceptor
                 True: {  # self.writeable
                     True: [],  # self.is_requestor
-                    False: ['supported']  # self.is_acceptor
+                    False: ["supported"]  # self.is_acceptor
                 },
                 False: {  # not self.writeable
-                    True: ['pcdl'],  # self.is_requestor
-                    False: ['supported', 'pcdrl']  # self.is_acceptor
+                    True: ["pcdl"],  # self.is_requestor
+                    False: ["supported", "pcdrl"]  # self.is_acceptor
                 }
             }
         }
@@ -3931,7 +3939,7 @@ class ServiceUser:
 
         # Validate - diallow an empty str
         value = cast(
-            str, set_ae(value, 'implementation_version_name', False, False)
+            str, set_ae(value, "implementation_version_name", False, False)
         )
 
         for item in self._user_info:
@@ -3949,13 +3957,13 @@ class ServiceUser:
         :class:`ServiceUser`.
         """
         info = {
-            'ae_title': self.ae_title,
-            'address': self.address,
-            'port': self.port,
-            'mode': self.mode,
+            "ae_title": self.ae_title,
+            "address": self.address,
+            "port": self.port,
+            "mode": self.mode,
         }
         if not self.writeable:
-            info['pdv_size'] = self.maximum_length
+            info["pdv_size"] = self.maximum_length
 
         return info
 
@@ -4033,9 +4041,9 @@ class ServiceUser:
         contexts.
         """
         if not self.writeable and self.assoc.is_acceptor:
-            return self.get_contexts('pcdl')
+            return self.get_contexts("pcdl")
 
-        return self.get_contexts('requested')
+        return self.get_contexts("requested")
 
     @requested_contexts.setter
     def requested_contexts(self, value: List[PresentationContext]) -> None:
@@ -4164,7 +4172,7 @@ class ServiceUser:
 
     @property
     def sop_class_common_extended(
-        self
+        self,
     ) -> Dict[UID, SOPClassCommonExtendedNegotiation]:
         """Return the SOP Class Common Extended items.
 
@@ -4232,9 +4240,9 @@ class ServiceUser:
             The supported presentation contexts when acting as an acceptor.
         """
         if not self.writeable and self.assoc.is_requestor:
-            return self.get_contexts('pcdrl')
+            return self.get_contexts("pcdrl")
 
-        return self.get_contexts('supported')
+        return self.get_contexts("supported")
 
     @supported_contexts.setter
     def supported_contexts(self, value: List[PresentationContext]) -> None:
