@@ -27,34 +27,35 @@ jobs:
         python -m pip install --upgrade pip
         pip install pytest sqlalchemy pyfakefs
         pip install git+https://github.com/pydicom/pydicom
+        pip install -e .
     - name: Test with pytest
       env:
         PYTHON_VERSION: ${{ matrix.python-version }}
       run: |
         pytest --ignore=pynetdicom/tests
 
-  pydicom-release:
-    runs-on: ubuntu-latest
-    timeout-minutes: 30
-    strategy:
-      fail-fast: false
-      matrix:
-        python-version: [3.9]
-
-    steps:
-    - uses: actions/checkout@v2
-      with:
-        fetch-depth: 2
-    - name: Set up Python ${{ matrix.python-version }}
-      uses: actions/setup-python@v2
-      with:
-        python-version: ${{ matrix.python-version }}
-    - name: Install dependencies
-      run: |
-        python -m pip install --upgrade pip
-        pip install pytest pydicom sqlalchemy pyfakefs
-    - name: Test with pytest
-      env:
-        PYTHON_VERSION: ${{ matrix.python-version }}
-      run: |
-        pytest --ignore=pynetdicom/tests
+  # pydicom-release:
+  #   runs-on: ubuntu-latest
+  #   timeout-minutes: 30
+  #   strategy:
+  #     fail-fast: false
+  #     matrix:
+  #       python-version: [3.9]
+  #
+  #   steps:
+  #   - uses: actions/checkout@v2
+  #     with:
+  #       fetch-depth: 2
+  #   - name: Set up Python ${{ matrix.python-version }}
+  #     uses: actions/setup-python@v2
+  #     with:
+  #       python-version: ${{ matrix.python-version }}
+  #   - name: Install dependencies
+  #     run: |
+  #       python -m pip install --upgrade pip
+  #       pip install pytest pydicom sqlalchemy pyfakefs
+  #   - name: Test with pytest
+  #     env:
+  #       PYTHON_VERSION: ${{ matrix.python-version }}
+  #     run: |
+  #       pytest --ignore=pynetdicom/tests

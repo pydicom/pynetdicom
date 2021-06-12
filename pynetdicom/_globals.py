@@ -13,14 +13,13 @@ DEFAULT_MAX_LENGTH: int = 16382
 # DICOM Application Context Name - see Part 7, Annex A.2.1
 APPLICATION_CONTEXT_NAME: str = '1.2.840.10008.3.1.1.1'
 
-# The default transfer syntaxes used when creating presentation contexts
 DEFAULT_TRANSFER_SYNTAXES: List[str] = [
     '1.2.840.10008.1.2',  # Implicit VR Little Endian,
     '1.2.840.10008.1.2.1',  # Explicit VR Little Endian,
     '1.2.840.10008.1.2.1.99',  # Deflated Explicit VR Little Endian
     '1.2.840.10008.1.2.2',  # Explicit VR Big Endian,
 ]
-"""Default transfer syntaxes used in presentation contexts.
+"""Default transfer syntaxes used when creating presentation contexts.
 
 * Implicit VR Little Endian
 * Explicit VR Little Endian
