@@ -29,7 +29,6 @@ if HAVE_SQLALCHEMY:
 
 
 TEST_DIR = os.path.dirname(__file__)
-TEST_DB = os.path.join(TEST_DIR, 'instances.sqlite')
 DATA_DIR = os.path.join(TEST_DIR, '../', '../', 'tests', 'dicom_files')
 DATASETS = {
     'CTImageStorage.dcm' : {
@@ -121,7 +120,7 @@ class TestConnect:
     def test_create_new(self):
         """Test connecting to the instance database if it doesn't exist."""
         db_file = tempfile.NamedTemporaryFile()
-        db_location = 'sqlite:///{}'.format(db_file.name)
+        db_location = f'sqlite:///{db_file.name}'
         engine = db.create(db_location)
 
         # Check exists with tables

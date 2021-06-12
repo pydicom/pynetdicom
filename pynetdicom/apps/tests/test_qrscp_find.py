@@ -145,7 +145,11 @@ class FindSCPBase:
         model = PatientRootQueryRetrieveInformationModelFind
         ae.add_requested_context(model)
 
-        self.p = p = self.func(['-d'])
+        self.p = p = self.func([
+            '--database-location', self.db_location,
+            '--instance-location', self.instance_location.name,
+            '-d'
+        ])
         time.sleep(0.5)
         _send_datasets()
         time.sleep(1)
@@ -173,7 +177,11 @@ class FindSCPBase:
         model = PatientRootQueryRetrieveInformationModelFind
         ae.add_requested_context(model)
 
-        self.p = p = self.func(['-d'])
+        self.p = p = self.func([
+            '--database-location', self.db_location,
+            '--instance-location', self.instance_location.name,
+            '-d'
+        ])
         time.sleep(0.5)
         _send_datasets()
         time.sleep(1)
@@ -210,7 +218,11 @@ class FindSCPBase:
         model = PatientRootQueryRetrieveInformationModelFind
         ae.add_requested_context(model)
 
-        self.p = p = self.func(['-d'])
+        self.p = p = self.func([
+            '--database-location', self.db_location,
+            '--instance-location', self.instance_location.name,
+            '-d'
+        ])
         time.sleep(0.5)
         _send_datasets()
         time.sleep(1)
@@ -246,7 +258,11 @@ class FindSCPBase:
         model = PatientRootQueryRetrieveInformationModelFind
         ae.add_requested_context(model)
 
-        self.p = p = self.func(['-d'])
+        self.p = p = self.func([
+            '--database-location', self.db_location,
+            '--instance-location', self.instance_location.name,
+            '-d'
+        ])
         time.sleep(0.5)
         _send_datasets()
         time.sleep(1)
@@ -284,7 +300,11 @@ class FindSCPBase:
         model = PatientRootQueryRetrieveInformationModelFind
         ae.add_requested_context(model)
 
-        self.p = p = self.func(['-d'])
+        self.p = p = self.func([
+            '--database-location', self.db_location,
+            '--instance-location', self.instance_location.name,
+            '-d'
+        ])
         time.sleep(0.5)
         _send_datasets()
         time.sleep(1)
@@ -321,7 +341,11 @@ class FindSCPBase:
         model = PatientRootQueryRetrieveInformationModelFind
         ae.add_requested_context(model)
 
-        self.p = p = self.func(['-d'])
+        self.p = p = self.func([
+            '--database-location', self.db_location,
+            '--instance-location', self.instance_location.name,
+            '-d'
+        ])
         time.sleep(0.5)
         _send_datasets()
         time.sleep(1)
@@ -360,7 +384,11 @@ class FindSCPBase:
         model = PatientRootQueryRetrieveInformationModelFind
         ae.add_requested_context(model)
 
-        self.p = p = self.func(['-d'])
+        self.p = p = self.func([
+            '--database-location', self.db_location,
+            '--instance-location', self.instance_location.name,
+            '-d'
+        ])
         time.sleep(0.5)
         _send_datasets()
         time.sleep(1)
@@ -398,7 +426,11 @@ class FindSCPBase:
         model = PatientRootQueryRetrieveInformationModelFind
         ae.add_requested_context(model)
 
-        self.p = p = self.func(['-d'])
+        self.p = p = self.func([
+            '--database-location', self.db_location,
+            '--instance-location', self.instance_location.name,
+            '-d'
+        ])
         time.sleep(0.5)
         _send_datasets()
         time.sleep(1)
@@ -438,7 +470,11 @@ class FindSCPBase:
         model = PatientRootQueryRetrieveInformationModelFind
         ae.add_requested_context(model)
 
-        self.p = p = self.func(['-d'])
+        self.p = p = self.func([
+            '--database-location', self.db_location,
+            '--instance-location', self.instance_location.name,
+            '-d'
+        ])
         time.sleep(0.5)
         _send_datasets()
         time.sleep(1)
@@ -477,7 +513,11 @@ class FindSCPBase:
         model = StudyRootQueryRetrieveInformationModelFind
         ae.add_requested_context(model)
 
-        self.p = p = self.func(['-d'])
+        self.p = p = self.func([
+            '--database-location', self.db_location,
+            '--instance-location', self.instance_location.name,
+            '-d'
+        ])
         time.sleep(0.5)
         _send_datasets()
         time.sleep(1)

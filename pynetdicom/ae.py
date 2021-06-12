@@ -164,8 +164,8 @@ class ApplicationEntity:
         abstract_syntax : str or pydicom.uid.UID
             The abstract syntax of the presentation context to request.
         transfer_syntax :  str/pydicom.uid.UID or list of str/pydicom.uid.UID
-            The transfer syntax(es) to request (default: *Implicit VR Little
-            Endian*, *Explicit VR Little Endian*, *Explicit VR Big Endian*).
+            The transfer syntax(es) to request (default:
+            :attr:`~pynetdicom._globals.DEFAULT_TRANSFER_SYNTAXES`).
 
         Raises
         ------
@@ -266,7 +266,7 @@ class ApplicationEntity:
         abstract_syntax: Union[str, UID],
         transfer_syntax: TSyntaxType = None,
         scu_role: Optional[bool] = None,
-        scp_role: Optional[bool] = None
+        scp_role: Optional[bool] = None,
     ) -> None:
         """Add a :ref:`presentation context<user_presentation>` to be
         supported when accepting association requests.
@@ -286,8 +286,8 @@ class ApplicationEntity:
         abstract_syntax : str, pydicom.uid.UID
             The abstract syntax of the presentation context to be supported.
         transfer_syntax :  str/pydicom.uid.UID or list of str/pydicom.uid.UID
-            The transfer syntax(es) to support (default: *Implicit VR Little
-            Endian*, *Explicit VR Little Endian*, *Explicit VR Big Endian*).
+            The transfer syntax(es) to support (default:
+            :attr:`~pynetdicom._globals.DEFAULT_TRANSFER_SYNTAXES`).
         scu_role : bool or None, optional
             If the association requestor includes an
             :ref:`SCP/SCU Role Selection Negotiation<user_presentation_role>`
@@ -446,7 +446,7 @@ class ApplicationEntity:
             )
             value = decode_bytes(value)
 
-        self._ae_title = cast(str, set_ae(value, 'ae_title', False, False))
+        self._ae_title = cast(str, set_ae(value, "ae_title", False, False))
 
     def associate(
         self,
@@ -458,7 +458,7 @@ class ApplicationEntity:
         ext_neg: Optional[List[_UI]] = None,
         bind_address: Tuple[str, int] = ('', 0),
         tls_args: Optional[Tuple[SSLContext, str]] = None,
-        evt_handlers: Optional[List[EventHandlerType]] = None
+        evt_handlers: Optional[List[EventHandlerType]] = None,
     ) -> Association:
         """Request an association with a remote AE.
 
@@ -624,7 +624,7 @@ class ApplicationEntity:
         self,
         assoc: Association,
         address: Tuple[str, int],
-        tls_args: Optional[Tuple[SSLContext, str]]
+        tls_args: Optional[Tuple[SSLContext, str]],
     ) -> AssociationSocket:
         """Create an :class:`~pynetdicom.transport.AssociationSocket` for the
         current association.
@@ -711,7 +711,7 @@ class ApplicationEntity:
     def implementation_class_uid(self, value: str) -> None:
         """Set the *Implementation Class UID* used in association requests."""
         uid = cast(
-            UID, set_uid(value, 'implementation_class_uid', False, False, True)
+            UID, set_uid(value, "implementation_class_uid", False, False, True)
         )
         # Enforce conformance on users
         if not uid.is_valid:
@@ -750,7 +750,7 @@ class ApplicationEntity:
             )
 
         self._implementation_version = set_ae(
-            value, 'implementation_version_name'
+            value, "implementation_version_name"
         )
 
     def make_server(
@@ -761,7 +761,7 @@ class ApplicationEntity:
         ssl_context: Optional[SSLContext] = None,
         evt_handlers: Optional[List[EventHandlerType]] = None,
         server_class: Optional[Type[_T]] = None,
-        **kwargs: Any
+        **kwargs: Any,
     ) -> Union[_T, ThreadedAssociationServer]:
         """Return an association server.
 
@@ -805,7 +805,7 @@ class ApplicationEntity:
             )
             ae_title = decode_bytes(ae_title)
 
-        ae_title = cast(str, set_ae(ae_title, 'ae_title', False, False))
+        ae_title = cast(str, set_ae(ae_title, "ae_title", False, False))
         contexts = contexts or self.supported_contexts
 
         bad_contexts = []
@@ -819,7 +819,7 @@ class ApplicationEntity:
                 "The following presentation contexts have inconsistent "
                 "scu_role/scp_role values (if one is None, both must be):\n  "
             )
-            msg += '\n  '.join([str(cx) for cx in bad_contexts])
+            msg += "\n  ".join([str(cx) for cx in bad_contexts])
             raise ValueError(msg)
 
         server_class = server_class or AssociationServer
@@ -831,7 +831,7 @@ class ApplicationEntity:
             contexts,
             ssl_context,
             evt_handlers=evt_handlers or [],
-            **kwargs
+            **kwargs,
         )
 
     @property
@@ -913,7 +913,7 @@ class ApplicationEntity:
     def remove_requested_context(
         self,
         abstract_syntax: Union[str, UID],
-        transfer_syntax: TSyntaxType = None
+        transfer_syntax: TSyntaxType = None,
     ) -> None:
         """Remove a requested presentation context.
 
@@ -1040,7 +1040,7 @@ class ApplicationEntity:
     def remove_supported_context(
         self,
         abstract_syntax: Union[str, UID],
-        transfer_syntax: TSyntaxType = None
+        transfer_syntax: TSyntaxType = None,
     ) -> None:
         """Remove a supported presentation context.
 
@@ -1297,7 +1297,7 @@ class ApplicationEntity:
                 v = decode_bytes(v)
 
             values.append(
-                cast(str, set_ae(v, 'require_calling_aet', False, False))
+                cast(str, set_ae(v, "require_calling_aet", False, False))
             )
 
         self._require_calling_aet = values
@@ -1325,7 +1325,7 @@ class ApplicationEntity:
         ssl_context: Optional[SSLContext] = None,
         evt_handlers: Optional[List[EventHandlerType]] = None,
         ae_title: Optional[str] = None,
-        contexts: Optional[ListCXType] = None
+        contexts: Optional[ListCXType] = None,
     ) -> Optional[ThreadedAssociationServer]:
         """Start the AE as an association *acceptor*.
 

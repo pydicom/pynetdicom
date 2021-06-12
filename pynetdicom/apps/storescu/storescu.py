@@ -5,6 +5,8 @@ Used for transferring DICOM SOP Instances to a Storage SCP.
 """
 
 import argparse
+import os
+from pathlib import Path
 import sys
 
 from pydicom import dcmread
@@ -184,27 +186,28 @@ def get_contexts(fpaths, app_logger):
     good, bad = [], []
     contexts = {}
     for fpath in fpaths:
+        path = os.fspath(Path(fpath).resolve())
         try:
-            ds = dcmread(fpath)
+            ds = dcmread(path)
         except Exception as exc:
-            bad.append(('Bad DICOM file', fpath))
+            bad.append(('Bad DICOM file', path))
             continue
 
         try:
             sop_class = ds.SOPClassUID
             tsyntax = ds.file_meta.TransferSyntaxUID
         except Exception as exc:
-            bad.append(('Unknown SOP Class or Transfer Syntax UID', fpath))
+            bad.append(('Unknown SOP Class or Transfer Syntax UID', path))
             continue
 
         tsyntaxes = contexts.setdefault(sop_class, [])
         if tsyntax not in tsyntaxes:
             tsyntaxes.append(tsyntax)
 
-        good.append(fpath)
+        good.append(path)
 
-    for (reason, fpath) in bad:
-        app_logger.error(f"{reason}: {fpath}")
+    for (reason, path) in bad:
+        app_logger.error(f"{reason}: {path}")
 
     return good, contexts
 

@@ -196,8 +196,7 @@ There are two areas where user intervention is required:
    association negotiation. You most likely will only have to worry about this
    if you're using :dcm:`User Identity negotiation<part07/sect_D.3.3.7.html>`.
 2. Responding to a service request when acting as an
-   SCP, such as when an SCU sends a store request to a Storage SCP. Hey,
-   that sounds familiar...
+   SCP, such as when an SCU sends a store request to a Storage SCP...
 
 So we need to :func:`bind a handler<_handlers.doc_handle_store>` to
 ``evt.EVT_C_STORE`` to respond to incoming store requests.
@@ -231,7 +230,7 @@ If you look at the :func:`documentation for EVT_C_STORE handlers
 must return *status* as either an :class:`int` or *pydicom*
 :class:`~pydicom.dataset.Dataset`. This is the same (0000,0900) *Status*
 value you saw in the previous tutorial, only this will be the value sent by the
-SCP to the SCU, rather than the other way around. In our ``handle_store``
+SCP to the SCU. In our ``handle_store``
 function we're returning an ``0x0000`` status, which indicates that the
 storage operation was a success, but at this stage we're not actually storing
 anything.
