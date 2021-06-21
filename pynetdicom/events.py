@@ -84,6 +84,10 @@ class NotificationEvent(NamedTuple):
     is_intervention: bool = False
     is_notification: bool = True
 
+    def __str__(self) -> str:
+        """String representation of the class."""
+        return self.name
+
 
 # pylint: disable=line-too-long
 EVT_ABORTED = NotificationEvent("EVT_ABORTED", "Association aborted")
@@ -134,6 +138,10 @@ class InterventionEvent(NamedTuple):
     description: str
     is_intervention: bool = True
     is_notification: bool = False
+
+    def __str__(self) -> str:
+        """String representation of the class."""
+        return self.name
 
 
 EVT_ASYNC_OPS = InterventionEvent("EVT_ASYNC_OPS", "Asynchronous operations negotiation requested")  # noqa
@@ -420,6 +428,11 @@ class Event:
                     f"'Event' object already has an attribute '{kk}'"
                 )
             setattr(self, kk, vv)
+
+    def __str__(self) -> str:
+        """String representation of the class."""
+        return 'Event(event={}, message_id={}, timestamp={}, is_cancelled={})'\
+            .format(self.event, self.message_id, self.timestamp, self.is_cancelled)
 
     @property
     def action_information(self) -> Dataset:
