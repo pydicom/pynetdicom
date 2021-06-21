@@ -183,9 +183,10 @@ def receive_store(nr_assoc, ds_per_assoc, write_ds=0, use_yappi=False):
 
     if is_successful:
         print(
-            "C-STORE SCP transferred {} total datasets over {} "
+            "C-STORE SCP transferred {} total {} datasets over {} "
             "association(s) in {:.2f} s"
-            .format(nr_assoc * ds_per_assoc, nr_assoc, time.time() - start_time)
+            .format(nr_assoc * ds_per_assoc, os.path.basename(DATASET.filename),
+                    nr_assoc, time.time() - start_time)
         )
     else:
         print("C-STORE SCP benchmark failed")
@@ -258,9 +259,10 @@ def receive_store_internal(nr_assoc, ds_per_assoc, write_ds=0, use_yappi=False):
 
     if is_successful:
         print(
-            "C-STORE SCU/SCP transferred {} total datasets over {} "
+            "C-STORE SCU/SCP transferred {} total {} datasets over {} "
             "association(s) in {:.2f} s"
-            .format(nr_assoc * ds_per_assoc, nr_assoc, time.time() - start_time)
+            .format(nr_assoc * ds_per_assoc, os.path.basename(DATASET.filename),
+                    nr_assoc, time.time() - start_time)
         )
     else:
         print("C-STORE SCU/SCP benchmark failed")
@@ -300,9 +302,10 @@ def receive_store_dcmtk(nr_assoc, ds_per_assoc, use_yappi=False):
 
     if is_successful:
         print(
-            "C-STORE DCMTK SCU/SCP transferred {} total datasets over {} "
+            "C-STORE DCMTK SCU/SCP transferred {} total {} datasets over {} "
             "association(s) in {:.2f} s"
-            .format(nr_assoc * ds_per_assoc, nr_assoc, time.time() - start_time)
+            .format(nr_assoc * ds_per_assoc, os.path.basename(DATASET.filename),
+                    nr_assoc, time.time() - start_time)
         )
     else:
         print("C-STORE DCMTK SCU/SCP benchmark failed")
@@ -360,9 +363,10 @@ def receive_store_simultaneous(nr_assoc, ds_per_assoc, use_yappi=False):
 
     if is_successful:
         print(
-            "C-STORE SCP transferred {} total datasets over {} "
+            "C-STORE SCP transferred {} total {} datasets over {} "
             "association(s) in {:.2f} s"
-            .format(nr_assoc * ds_per_assoc, nr_assoc, time.time() - start_time)
+            .format(nr_assoc * ds_per_assoc, os.path.basename(DATASET.filename),
+                    nr_assoc, time.time() - start_time)
         )
     else:
         print("C-STORE SCP benchmark failed")
@@ -427,9 +431,10 @@ def send_store(nr_assoc, ds_per_assoc, use_yappi=False):
 
     if is_successful:
         print(
-            "C-STORE SCU transferred {} total datasets over {} "
+            "C-STORE SCU transferred {} total {} datasets over {} "
             "association(s) in {:.2f} s"
-            .format(nr_assoc * ds_per_assoc, nr_assoc, time.time() - start_time)
+            .format(nr_assoc * ds_per_assoc, os.path.basename(DATASET.filename),
+                    nr_assoc, time.time() - start_time)
         )
     else:
         print("C-STORE SCU benchmark failed")
@@ -445,37 +450,40 @@ if __name__ == "__main__":
     else:
         use_yappi = False
 
+    nr_ds = 1000
+    ds_name = os.path.basename(DATASET.filename)
+
     print("Which benchmark do you wish to run?")
-    print("  1. Storage SCU, 1000 datasets over 1 association")
-    print("  2. Storage SCU, 1 dataset per association over 1000 associations")
-    print("  3. Storage SCP, 1000 datasets over 1 association")
-    print("  4. Storage SCP, 1000 datasets over 1 association (write)")
-    print("  5. Storage SCP, 1000 datasets over 1 association (write fast)")
-    print("  6. Storage SCP, 1000 datasets over 1 association (write fastest)")
-    print("  7. Storage SCP, 1 dataset per association over 1000 associations")
-    print("  8. Storage SCP, 1000 datasets per association over 10 simultaneous associations")
-    print("  9. Storage SCU/SCP, 1000 datasets over 1 association")
-    print("  10. Storage DCMTK SCU/SCP, 1000 datasets over 1 association")
+    print("  1. Storage SCU, {} {} datasets over 1 association".format(nr_ds, ds_name))
+    print("  2. Storage SCU, 1 {} dataset per association over {} associations".format(nr_ds, ds_name))
+    print("  3. Storage SCP, {} {} datasets over 1 association".format(nr_ds, ds_name))
+    print("  4. Storage SCP, {} {} datasets over 1 association (write)".format(nr_ds, ds_name))
+    print("  5. Storage SCP, {} {} datasets over 1 association (write fast)".format(nr_ds, ds_name))
+    print("  6. Storage SCP, {} {} datasets over 1 association (write fastest)".format(nr_ds, ds_name))
+    print("  7. Storage SCP, 1 {} dataset per association over {} associations".format(nr_ds, ds_name))
+    print("  8. Storage SCP, {} {} datasets per association over 10 simultaneous associations".format(nr_ds, ds_name))
+    print("  9. Storage SCU/SCP, {} {} datasets over 1 association".format(nr_ds, ds_name))
+    print("  10. Storage DCMTK SCU/SCP, {} {} datasets over 1 association".format(nr_ds, ds_name))
     bench_index = input()
 
     if bench_index == "1":
-        send_store(1, 1000, use_yappi)
+        send_store(1, nr_ds, use_yappi)
     elif bench_index == "2":
-        send_store(1000, 1, use_yappi)
+        send_store(nr_ds, 1, use_yappi)
     elif bench_index == "3":
-        receive_store(1, 1000, 0, use_yappi)
+        receive_store(1, nr_ds, 0, use_yappi)
     elif bench_index == "4":
-        receive_store(1, 1000, 1, use_yappi)
+        receive_store(1, nr_ds, 1, use_yappi)
     elif bench_index == "5":
-        receive_store(1, 1000, 2, use_yappi)
+        receive_store(1, nr_ds, 2, use_yappi)
     elif bench_index == "6":
-        receive_store(1, 1000, 3, use_yappi)
+        receive_store(1, nr_ds, 3, use_yappi)
     elif bench_index == "7":
-        receive_store(1000, 1, 0, use_yappi)
+        receive_store(nr_ds, 1, 0, use_yappi)
     elif bench_index == "8":
-        receive_store_simultaneous(10, 1000, use_yappi)
+        receive_store_simultaneous(10, nr_ds, use_yappi)
     elif bench_index == "9":
-        receive_store_internal(1, 1000, 0, use_yappi)
+        receive_store_internal(1, nr_ds, 0, use_yappi)
     elif bench_index == "10":
-        receive_store_dcmtk(1, 1000, use_yappi)
+        receive_store_dcmtk(1, nr_ds, use_yappi)
 
