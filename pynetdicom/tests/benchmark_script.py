@@ -300,12 +300,12 @@ def receive_store_dcmtk(nr_assoc, ds_per_assoc, use_yappi=False):
 
     if is_successful:
         print(
-            "C-STORE SCP transferred {} total datasets over {} "
+            "C-STORE DCMTK SCU/SCP transferred {} total datasets over {} "
             "association(s) in {:.2f} s"
             .format(nr_assoc * ds_per_assoc, nr_assoc, time.time() - start_time)
         )
     else:
-        print("C-STORE SCP benchmark failed")
+        print("C-STORE DCMTK SCU/SCP benchmark failed")
 
     server.terminate()
 
