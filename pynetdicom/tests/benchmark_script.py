@@ -16,6 +16,7 @@ Overall transfer speed (no datasets written to file unless noted)
 from datetime import datetime
 import multiprocessing
 import os
+import re
 import subprocess
 import tempfile
 import time
@@ -32,8 +33,6 @@ from pynetdicom.dsutils import encode
 
 
 TEST_DS_DIR = os.path.join(os.path.dirname(__file__), 'dicom_files')
-#DATASET = dcmread(os.path.join(TEST_DS_DIR, 'RTImageStorage.dcm')) # 2.1 MB
-DATASET = dcmread(os.path.join(TEST_DS_DIR, 'CTImageStorage.dcm')) # 39 kB
 
 
 def init_yappi():
@@ -119,11 +118,13 @@ def start_storescu(ds_per_assoc):
     return subprocess.Popen(args)
 
 
-def receive_store(nr_assoc, ds_per_assoc, write_ds=0, use_yappi=False):
+def receive_store(test_ds, nr_assoc, ds_per_assoc, write_ds=0, use_yappi=False):
     """Run a Storage SCP and transfer datasets with sequential storescu's.
 
     Parameters
     ----------
+    test_ds : pydicom.dataset.Dataset
+        The test dataset to use
     nr_assoc : int
         The total number of (sequential) associations that will be made.
     ds_per_assoc : int
@@ -160,7 +161,7 @@ def receive_store(nr_assoc, ds_per_assoc, write_ds=0, use_yappi=False):
     ae.network_timeout = 5
     if write_ds == 3:
         ae.maximum_pdu_size = 0
-    ae.add_supported_context(DATASET.SOPClassUID, ImplicitVRLittleEndian)
+    ae.add_supported_context(test_ds.SOPClassUID, ImplicitVRLittleEndian)
 
     server = ae.start_server(
         ('', 11112), block=False, evt_handlers=[(evt.EVT_C_STORE, handle)]
@@ -185,7 +186,7 @@ def receive_store(nr_assoc, ds_per_assoc, write_ds=0, use_yappi=False):
         print(
             "C-STORE SCP transferred {} total {} datasets over {} "
             "association(s) in {:.2f} s"
-            .format(nr_assoc * ds_per_assoc, os.path.basename(DATASET.filename),
+            .format(nr_assoc * ds_per_assoc, os.path.basename(test_ds.filename),
                     nr_assoc, time.time() - start_time)
         )
     else:
@@ -194,11 +195,13 @@ def receive_store(nr_assoc, ds_per_assoc, write_ds=0, use_yappi=False):
     server.shutdown()
 
 
-def receive_store_internal(nr_assoc, ds_per_assoc, write_ds=0, use_yappi=False):
+def receive_store_internal(test_ds, nr_assoc, ds_per_assoc, write_ds=0, use_yappi=False):
     """Run a Storage SCP and transfer datasets with pynetdicom alone.
 
     Parameters
     ----------
+    test_ds : pydicom.dataset.Dataset
+        The test dataset to use
     nr_assoc : int
         The total number of (sequential) associations that will be made.
     ds_per_assoc : int
@@ -235,8 +238,8 @@ def receive_store_internal(nr_assoc, ds_per_assoc, write_ds=0, use_yappi=False):
     ae.network_timeout = 5
     if write_ds == 3:
         ae.maximum_pdu_size = 0
-    ae.add_supported_context(DATASET.SOPClassUID, ImplicitVRLittleEndian)
-    ae.add_requested_context(DATASET.SOPClassUID, ImplicitVRLittleEndian)
+    ae.add_supported_context(test_ds.SOPClassUID, ImplicitVRLittleEndian)
+    ae.add_requested_context(test_ds.SOPClassUID, ImplicitVRLittleEndian)
 
     server = ae.start_server(
         ('', 11112), block=False, evt_handlers=[(evt.EVT_C_STORE, handle)]
@@ -253,7 +256,7 @@ def receive_store_internal(nr_assoc, ds_per_assoc, write_ds=0, use_yappi=False):
         assoc = ae.associate('127.0.0.1', 11112)
         if assoc.is_established:
             for jj in range(ds_per_assoc):
-                assoc.send_c_store(DATASET)
+                assoc.send_c_store(test_ds)
 
             assoc.release()
 
@@ -261,7 +264,7 @@ def receive_store_internal(nr_assoc, ds_per_assoc, write_ds=0, use_yappi=False):
         print(
             "C-STORE SCU/SCP transferred {} total {} datasets over {} "
             "association(s) in {:.2f} s"
-            .format(nr_assoc * ds_per_assoc, os.path.basename(DATASET.filename),
+            .format(nr_assoc * ds_per_assoc, os.path.basename(test_ds.filename),
                     nr_assoc, time.time() - start_time)
         )
     else:
@@ -270,11 +273,13 @@ def receive_store_internal(nr_assoc, ds_per_assoc, write_ds=0, use_yappi=False):
     server.shutdown()
 
 
-def receive_store_dcmtk(nr_assoc, ds_per_assoc, use_yappi=False):
+def receive_store_dcmtk(test_ds, nr_assoc, ds_per_assoc, use_yappi=False):
     """Run a Storage SCP and transfer datasets with sequential storescu's.
 
     Parameters
     ----------
+    test_ds : pydicom.dataset.Dataset
+        The test dataset to use
     nr_assoc : int
         The total number of (sequential) associations that will be made.
     ds_per_assoc : int
@@ -304,21 +309,24 @@ def receive_store_dcmtk(nr_assoc, ds_per_assoc, use_yappi=False):
         print(
             "C-STORE DCMTK SCU/SCP transferred {} total {} datasets over {} "
             "association(s) in {:.2f} s"
-            .format(nr_assoc * ds_per_assoc, os.path.basename(DATASET.filename),
+            .format(nr_assoc * ds_per_assoc, os.path.basename(test_ds.filename),
                     nr_assoc, time.time() - start_time)
         )
     else:
         print("C-STORE DCMTK SCU/SCP benchmark failed")
 
     server.terminate()
+    time.sleep(0.5)
 
 
 
-def receive_store_simultaneous(nr_assoc, ds_per_assoc, use_yappi=False):
+def receive_store_simultaneous(test_ds, nr_assoc, ds_per_assoc, use_yappi=False):
     """Run a Storage SCP and transfer datasets with simultaneous storescu's.
 
     Parameters
     ----------
+    test_ds : pydicom.dataset.Dataset
+        The test dataset to use
     nr_assoc : int
         The number of simultaneous associations that will be made.
     ds_per_assoc : int
@@ -337,7 +345,7 @@ def receive_store_simultaneous(nr_assoc, ds_per_assoc, use_yappi=False):
     ae.dimse_timeout = 5
     ae.network_timeout = 5
     ae.maximum_associations = 15
-    ae.add_supported_context(DATASET.SOPClassUID, ImplicitVRLittleEndian)
+    ae.add_supported_context(test_ds.SOPClassUID, ImplicitVRLittleEndian)
 
     server = ae.start_server(
         ('', 11112), block=False, evt_handlers=[(evt.EVT_C_STORE, handle)]
@@ -365,7 +373,7 @@ def receive_store_simultaneous(nr_assoc, ds_per_assoc, use_yappi=False):
         print(
             "C-STORE SCP transferred {} total {} datasets over {} "
             "association(s) in {:.2f} s"
-            .format(nr_assoc * ds_per_assoc, os.path.basename(DATASET.filename),
+            .format(nr_assoc * ds_per_assoc, os.path.basename(test_ds.filename),
                     nr_assoc, time.time() - start_time)
         )
     else:
@@ -374,11 +382,13 @@ def receive_store_simultaneous(nr_assoc, ds_per_assoc, use_yappi=False):
     server.shutdown()
 
 
-def send_store(nr_assoc, ds_per_assoc, use_yappi=False):
+def send_store(test_ds, nr_assoc, ds_per_assoc, use_yappi=False):
     """Send a number of sequential C-STORE requests.
 
     Parameters
     ----------
+    test_ds : pydicom.dataset.Dataset
+        The test dataset to use
     nr_assoc : int
         The total number of (sequential) associations that will be made.
     ds_per_assoc : int
@@ -397,7 +407,7 @@ def send_store(nr_assoc, ds_per_assoc, use_yappi=False):
     ae.acse_timeout = 5
     ae.dimse_timeout = 5
     ae.network_timeout = 5
-    ae.add_requested_context(DATASET.SOPClassUID, ImplicitVRLittleEndian)
+    ae.add_requested_context(test_ds.SOPClassUID, ImplicitVRLittleEndian)
 
     # Start timer
     start_time = time.time()
@@ -414,7 +424,7 @@ def send_store(nr_assoc, ds_per_assoc, use_yappi=False):
         if assoc.is_established:
             for jj in range(ds_per_assoc):
                 try:
-                    status = assoc.send_c_store(DATASET)
+                    status = assoc.send_c_store(test_ds)
                     if status and status.Status != 0x0000:
                         is_successful = False
                         break
@@ -433,57 +443,77 @@ def send_store(nr_assoc, ds_per_assoc, use_yappi=False):
         print(
             "C-STORE SCU transferred {} total {} datasets over {} "
             "association(s) in {:.2f} s"
-            .format(nr_assoc * ds_per_assoc, os.path.basename(DATASET.filename),
+            .format(nr_assoc * ds_per_assoc, os.path.basename(test_ds.filename),
                     nr_assoc, time.time() - start_time)
         )
     else:
         print("C-STORE SCU benchmark failed")
 
     server.terminate()
+    time.sleep(0.5)
 
 
 if __name__ == "__main__":
-    print("Use yappi (y/n:)")
+    print("Use yappi? (y/n:)")
     use_yappi = input()
     if use_yappi in ['y', 'Y']:
         use_yappi = True
     else:
         use_yappi = False
 
-    nr_ds = 1000
-    ds_name = os.path.basename(DATASET.filename)
+    print("Use large dataset? (y/n:)")
+    use_large_dcm = input()
+    if use_large_dcm in ['y', 'Y']:
+        use_large_dcm = True
+    else:
+        use_large_dcm = False
 
-    print("Which benchmark do you wish to run?")
+    if use_large_dcm:
+        ds_name = 'RTImageStorage.dcm'  # 2.1 MB
+        default_nr_ds = 100
+    else:
+        ds_name = 'CTImageStorage.dcm'  # 39 kB
+        default_nr_ds = 1000
+
+    print("number of datasets? (default = {})".format(default_nr_ds))
+    try:
+        nr_ds = int(input())
+    except ValueError:
+        nr_ds = default_nr_ds
+
+    test_ds = dcmread(os.path.join(TEST_DS_DIR, ds_name))
+
+    print("Which benchmark(s) do you wish to run?")
     print("  1. Storage SCU, {} {} datasets over 1 association".format(nr_ds, ds_name))
-    print("  2. Storage SCU, 1 {} dataset per association over {} associations".format(nr_ds, ds_name))
+    print("  2. Storage SCU, 1 {} dataset per association over {} associations".format(ds_name, nr_ds))
     print("  3. Storage SCP, {} {} datasets over 1 association".format(nr_ds, ds_name))
     print("  4. Storage SCP, {} {} datasets over 1 association (write)".format(nr_ds, ds_name))
     print("  5. Storage SCP, {} {} datasets over 1 association (write fast)".format(nr_ds, ds_name))
     print("  6. Storage SCP, {} {} datasets over 1 association (write fastest)".format(nr_ds, ds_name))
-    print("  7. Storage SCP, 1 {} dataset per association over {} associations".format(nr_ds, ds_name))
+    print("  7. Storage SCP, 1 {} dataset per association over {} associations".format(ds_name, nr_ds))
     print("  8. Storage SCP, {} {} datasets per association over 10 simultaneous associations".format(nr_ds, ds_name))
     print("  9. Storage SCU/SCP, {} {} datasets over 1 association".format(nr_ds, ds_name))
     print("  10. Storage DCMTK SCU/SCP, {} {} datasets over 1 association".format(nr_ds, ds_name))
-    bench_index = input()
+    bench_list = re.findall(r'\d+', input())
 
-    if bench_index == "1":
-        send_store(1, nr_ds, use_yappi)
-    elif bench_index == "2":
-        send_store(nr_ds, 1, use_yappi)
-    elif bench_index == "3":
-        receive_store(1, nr_ds, 0, use_yappi)
-    elif bench_index == "4":
-        receive_store(1, nr_ds, 1, use_yappi)
-    elif bench_index == "5":
-        receive_store(1, nr_ds, 2, use_yappi)
-    elif bench_index == "6":
-        receive_store(1, nr_ds, 3, use_yappi)
-    elif bench_index == "7":
-        receive_store(nr_ds, 1, 0, use_yappi)
-    elif bench_index == "8":
-        receive_store_simultaneous(10, nr_ds, use_yappi)
-    elif bench_index == "9":
-        receive_store_internal(1, nr_ds, 0, use_yappi)
-    elif bench_index == "10":
-        receive_store_dcmtk(1, nr_ds, use_yappi)
+    if "1" in bench_list:
+        send_store(test_ds, 1, nr_ds, use_yappi)
+    if "2" in bench_list:
+        send_store(test_ds, nr_ds, 1, use_yappi)
+    if "3" in bench_list:
+        receive_store(test_ds, 1, nr_ds, 0, use_yappi)
+    if "4" in bench_list:
+        receive_store(test_ds, 1, nr_ds, 1, use_yappi)
+    if "5" in bench_list:
+        receive_store(test_ds, 1, nr_ds, 2, use_yappi)
+    if "6" in bench_list:
+        receive_store(test_ds, 1, nr_ds, 3, use_yappi)
+    if "7" in bench_list:
+        receive_store(test_ds, nr_ds, 1, 0, use_yappi)
+    if "8" in bench_list:
+        receive_store_simultaneous(test_ds, 10, nr_ds, use_yappi)
+    if "9" in bench_list:
+        receive_store_internal(test_ds, 1, nr_ds, 0, use_yappi)
+    if "10" in bench_list:
+        receive_store_dcmtk(test_ds, 1, nr_ds, use_yappi)
 
