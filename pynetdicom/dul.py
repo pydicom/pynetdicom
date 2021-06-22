@@ -378,18 +378,21 @@ class DULServiceProvider(Thread):
         # Main DUL loop
         self._idle_timer.start()
         self.socket = cast("AssociationSocket", self.socket)
-        processed_event = True
+        sleep = False
 
         while True:
             # Let the assoc reactor off the leash
             if not self.assoc._dul_ready.is_set():
                 self.assoc._dul_ready.set()
+                # When single-stepping the reactor, sleep between events so that
+                # test code has time to run.
+                sleep = True
 
-            if not processed_event:
+            if sleep:
                 # If there were no events to process on the previous loop,
                 # sleep before checking again.  Otherwise check immediately.
 
-                # Setting this higher will use less CPU when idle, but will also
+                # Setting _run_loop_delay higher will use less CPU when idle, but will also
                 # increases the latency to respond to new requests.
                 time.sleep(self._run_loop_delay)
 
@@ -432,11 +435,11 @@ class DULServiceProvider(Thread):
                 event = self.event_queue.get(block=False)
             # If the queue is empty, return to the start of the loop
             except queue.Empty:
-                processed_event = False
+                sleep = True
                 continue
 
             self.state_machine.do_action(event)
-            processed_event = True
+            sleep = False
 
     def send_pdu(self, primitive: _PDUPrimitiveType) -> None:
         """Place a primitive in the provider queue to be sent to the peer.
