@@ -105,15 +105,17 @@ def start_storescp():
     return subprocess.Popen(args)
 
 
-def start_storescu(ds_per_assoc):
+def start_storescu(test_ds, ds_per_assoc):
     """Run DCMTK's storescu in a background process.
 
     Parameters
     ----------
+    test_ds : pydicom.dataset.Dataset
+        The test dataset to use
     ds_per_assoc : int
         The number of datasets to send using `storescu`.
     """
-    fpath = os.path.join(TEST_DS_DIR, 'CTImageStorage.dcm')
+    fpath = test_ds.filename
     args = [which('storescu'), 'localhost', '11112'] + [fpath] * ds_per_assoc
     return subprocess.Popen(args)
 
@@ -175,7 +177,7 @@ def receive_store(test_ds, nr_assoc, ds_per_assoc, write_ds=0, use_yappi=False):
     is_successful = True
 
     for ii in range(nr_assoc):
-        p = start_storescu(ds_per_assoc)
+        p = start_storescu(test_ds, ds_per_assoc)
         # Block until transfer is complete
         p.wait()
         if p.returncode != 0:
@@ -183,11 +185,12 @@ def receive_store(test_ds, nr_assoc, ds_per_assoc, write_ds=0, use_yappi=False):
             break
 
     if is_successful:
+        write_msg = ["", " (write)", " (write fast)", " (write fastest)"][write_ds]
         print(
             "C-STORE SCP transferred {} total {} datasets over {} "
-            "association(s) in {:.2f} s"
+            "association{}{} in {:.2f} s"
             .format(nr_assoc * ds_per_assoc, os.path.basename(test_ds.filename),
-                    nr_assoc, time.time() - start_time)
+                    nr_assoc, '' if nr_assoc == 1 else 's', write_msg, time.time() - start_time)
         )
     else:
         print("C-STORE SCP benchmark failed")
@@ -261,11 +264,12 @@ def receive_store_internal(test_ds, nr_assoc, ds_per_assoc, write_ds=0, use_yapp
             assoc.release()
 
     if is_successful:
+        write_msg = ["", " (write)", " (write fast)", " (write fastest)"][write_ds]
         print(
             "C-STORE SCU/SCP transferred {} total {} datasets over {} "
-            "association(s) in {:.2f} s"
+            "association{}{} in {:.2f} s"
             .format(nr_assoc * ds_per_assoc, os.path.basename(test_ds.filename),
-                    nr_assoc, time.time() - start_time)
+                    nr_assoc, '' if nr_assoc == 1 else 's', write_msg, time.time() - start_time)
         )
     else:
         print("C-STORE SCU/SCP benchmark failed")
@@ -298,7 +302,7 @@ def receive_store_dcmtk(test_ds, nr_assoc, ds_per_assoc, use_yappi=False):
     is_successful = True
 
     for ii in range(nr_assoc):
-        p = start_storescu(ds_per_assoc)
+        p = start_storescu(test_ds, ds_per_assoc)
         # Block until transfer is complete
         p.wait()
         if p.returncode != 0:
@@ -308,9 +312,9 @@ def receive_store_dcmtk(test_ds, nr_assoc, ds_per_assoc, use_yappi=False):
     if is_successful:
         print(
             "C-STORE DCMTK SCU/SCP transferred {} total {} datasets over {} "
-            "association(s) in {:.2f} s"
+            "association{} in {:.2f} s"
             .format(nr_assoc * ds_per_assoc, os.path.basename(test_ds.filename),
-                    nr_assoc, time.time() - start_time)
+                    nr_assoc, '' if nr_assoc == 1 else 's', time.time() - start_time)
         )
     else:
         print("C-STORE DCMTK SCU/SCP benchmark failed")
@@ -360,7 +364,7 @@ def receive_store_simultaneous(test_ds, nr_assoc, ds_per_assoc, use_yappi=False)
 
     processes = []
     for ii in range(nr_assoc):
-        processes.append(start_storescu(ds_per_assoc))
+        processes.append(start_storescu(test_ds, ds_per_assoc))
 
     while None in [pp.poll() for pp in processes]:
         pass
@@ -372,9 +376,9 @@ def receive_store_simultaneous(test_ds, nr_assoc, ds_per_assoc, use_yappi=False)
     if is_successful:
         print(
             "C-STORE SCP transferred {} total {} datasets over {} "
-            "association(s) in {:.2f} s"
+            "association{} in {:.2f} s"
             .format(nr_assoc * ds_per_assoc, os.path.basename(test_ds.filename),
-                    nr_assoc, time.time() - start_time)
+                    nr_assoc, '' if nr_assoc == 1 else 's', time.time() - start_time)
         )
     else:
         print("C-STORE SCP benchmark failed")
@@ -442,9 +446,9 @@ def send_store(test_ds, nr_assoc, ds_per_assoc, use_yappi=False):
     if is_successful:
         print(
             "C-STORE SCU transferred {} total {} datasets over {} "
-            "association(s) in {:.2f} s"
+            "association{} in {:.2f} s"
             .format(nr_assoc * ds_per_assoc, os.path.basename(test_ds.filename),
-                    nr_assoc, time.time() - start_time)
+                    nr_assoc, '' if nr_assoc == 1 else 's', time.time() - start_time)
         )
     else:
         print("C-STORE SCU benchmark failed")
@@ -483,7 +487,7 @@ if __name__ == "__main__":
 
     test_ds = dcmread(os.path.join(TEST_DS_DIR, ds_name))
 
-    print("Which benchmark(s) do you wish to run?")
+    print("Which benchmarks do you wish to run? (list, range, or all)")
     print("  1. Storage SCU, {} {} datasets over 1 association".format(nr_ds, ds_name))
     print("  2. Storage SCU, 1 {} dataset per association over {} associations".format(ds_name, nr_ds))
     print("  3. Storage SCP, {} {} datasets over 1 association".format(nr_ds, ds_name))
@@ -494,7 +498,18 @@ if __name__ == "__main__":
     print("  8. Storage SCP, {} {} datasets per association over 10 simultaneous associations".format(nr_ds, ds_name))
     print("  9. Storage SCU/SCP, {} {} datasets over 1 association".format(nr_ds, ds_name))
     print("  10. Storage DCMTK SCU/SCP, {} {} datasets over 1 association".format(nr_ds, ds_name))
-    bench_list = re.findall(r'\d+', input())
+
+    bench_input = input()
+    if re.fullmatch(r'\s*(a|all)\s*', bench_input):
+        # All: "a" or "all"
+        bench_list = [str(i) for i in range(1, 11)]
+    elif re.fullmatch(r'\s*(\d+)\s*-\s*(\d+)\s*', bench_input):
+        # Range: "x - y"
+        match = re.fullmatch(r'\s*(\d+)\s*-\s*(\d+)\s*', bench_input)
+        bench_list = [str(i) for i in range(int(match.group(1)), int(match.group(2)) + 1)]
+    else:
+        # List: "a, b, c"
+        bench_list = re.findall(r'\d+', bench_input)
 
     if "1" in bench_list:
         send_store(test_ds, 1, nr_ds, use_yappi)
