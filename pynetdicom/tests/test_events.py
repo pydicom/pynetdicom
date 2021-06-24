@@ -42,6 +42,7 @@ def test_intervention_namedtuple():
     assert event.description == 'some description'
     assert event.is_intervention is True
     assert event.is_notification is False
+    assert str(event) == event.name
 
 def test_notification_namedtuple():
     """Test the NotificationEvent namedtuple."""
@@ -50,6 +51,7 @@ def test_notification_namedtuple():
     assert event.description == 'some description'
     assert event.is_intervention is False
     assert event.is_notification is True
+    assert str(event) == event.name
 
 def test_intervention_global():
     """Test the _INTERVENTION_EVENTS global."""

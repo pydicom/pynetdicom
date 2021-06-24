@@ -429,11 +429,6 @@ class Event:
                 )
             setattr(self, kk, vv)
 
-    def __str__(self) -> str:
-        """String representation of the class."""
-        return 'Event(event={}, message_id={}, timestamp={}, is_cancelled={})'\
-            .format(self.event, self.message_id, self.timestamp, self.is_cancelled)
-
     @property
     def action_information(self) -> Dataset:
         """Return an N-ACTION request's `Action Information` as a *pydicom*

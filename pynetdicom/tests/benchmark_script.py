@@ -187,10 +187,10 @@ def receive_store(test_ds, nr_assoc, ds_per_assoc, write_ds=0, use_yappi=False):
     if is_successful:
         write_msg = ["", " (write)", " (write fast)", " (write fastest)"][write_ds]
         print(
-            "C-STORE SCP transferred {} total {} datasets over {} "
-            "association{}{} in {:.2f} s"
-            .format(nr_assoc * ds_per_assoc, os.path.basename(test_ds.filename),
-                    nr_assoc, '' if nr_assoc == 1 else 's', write_msg, time.time() - start_time)
+            f"C-STORE SCP transferred {nr_assoc * ds_per_assoc} total "
+            f"{os.path.basename(test_ds.filename)} datasets over "
+            f"{nr_assoc} association{'' if nr_assoc == 1 else 's'}{write_msg} "
+            f"in {time.time() - start_time:.2f} s"
         )
     else:
         print("C-STORE SCP benchmark failed")
@@ -266,10 +266,10 @@ def receive_store_internal(test_ds, nr_assoc, ds_per_assoc, write_ds=0, use_yapp
     if is_successful:
         write_msg = ["", " (write)", " (write fast)", " (write fastest)"][write_ds]
         print(
-            "C-STORE SCU/SCP transferred {} total {} datasets over {} "
-            "association{}{} in {:.2f} s"
-            .format(nr_assoc * ds_per_assoc, os.path.basename(test_ds.filename),
-                    nr_assoc, '' if nr_assoc == 1 else 's', write_msg, time.time() - start_time)
+            f"C-STORE SCU/SCP transferred {nr_assoc * ds_per_assoc} total "
+            f"{os.path.basename(test_ds.filename)} datasets over "
+            f"{nr_assoc} association{'' if nr_assoc == 1 else 's'}{write_msg} "
+            f"in {time.time() - start_time:.2f} s"
         )
     else:
         print("C-STORE SCU/SCP benchmark failed")
@@ -311,10 +311,10 @@ def receive_store_dcmtk(test_ds, nr_assoc, ds_per_assoc, use_yappi=False):
 
     if is_successful:
         print(
-            "C-STORE DCMTK SCU/SCP transferred {} total {} datasets over {} "
-            "association{} in {:.2f} s"
-            .format(nr_assoc * ds_per_assoc, os.path.basename(test_ds.filename),
-                    nr_assoc, '' if nr_assoc == 1 else 's', time.time() - start_time)
+            f"C-STORE DCMTK SCU/SCP transferred {nr_assoc * ds_per_assoc} total "
+            f"{os.path.basename(test_ds.filename)} datasets over "
+            f"{nr_assoc} association{'' if nr_assoc == 1 else 's'} "
+            f"in {time.time() - start_time:.2f} s"
         )
     else:
         print("C-STORE DCMTK SCU/SCP benchmark failed")
@@ -375,10 +375,10 @@ def receive_store_simultaneous(test_ds, nr_assoc, ds_per_assoc, use_yappi=False)
 
     if is_successful:
         print(
-            "C-STORE SCP transferred {} total {} datasets over {} "
-            "association{} in {:.2f} s"
-            .format(nr_assoc * ds_per_assoc, os.path.basename(test_ds.filename),
-                    nr_assoc, '' if nr_assoc == 1 else 's', time.time() - start_time)
+            f"C-STORE SCP transferred {nr_assoc * ds_per_assoc} total "
+            f"{os.path.basename(test_ds.filename)} datasets over "
+            f"{nr_assoc} association{'' if nr_assoc == 1 else 's'} "
+            f"in {time.time() - start_time:.2f} s"
         )
     else:
         print("C-STORE SCP benchmark failed")
@@ -445,10 +445,10 @@ def send_store(test_ds, nr_assoc, ds_per_assoc, use_yappi=False):
 
     if is_successful:
         print(
-            "C-STORE SCU transferred {} total {} datasets over {} "
-            "association{} in {:.2f} s"
-            .format(nr_assoc * ds_per_assoc, os.path.basename(test_ds.filename),
-                    nr_assoc, '' if nr_assoc == 1 else 's', time.time() - start_time)
+            f"C-STORE SCU transferred {nr_assoc * ds_per_assoc} total "
+            f"{os.path.basename(test_ds.filename)} datasets over "
+            f"{nr_assoc} association{'' if nr_assoc == 1 else 's'} "
+            f"in {time.time() - start_time:.2f} s"
         )
     else:
         print("C-STORE SCU benchmark failed")
@@ -479,7 +479,7 @@ if __name__ == "__main__":
         ds_name = 'CTImageStorage.dcm'  # 39 kB
         default_nr_ds = 1000
 
-    print("number of datasets? (default = {})".format(default_nr_ds))
+    print(f"number of datasets? (default = {default_nr_ds})")
     try:
         nr_ds = int(input())
     except ValueError:
@@ -487,17 +487,17 @@ if __name__ == "__main__":
 
     test_ds = dcmread(os.path.join(TEST_DS_DIR, ds_name))
 
-    print("Which benchmarks do you wish to run? (list, range, or all)")
-    print("  1. Storage SCU, {} {} datasets over 1 association".format(nr_ds, ds_name))
-    print("  2. Storage SCU, 1 {} dataset per association over {} associations".format(ds_name, nr_ds))
-    print("  3. Storage SCP, {} {} datasets over 1 association".format(nr_ds, ds_name))
-    print("  4. Storage SCP, {} {} datasets over 1 association (write)".format(nr_ds, ds_name))
-    print("  5. Storage SCP, {} {} datasets over 1 association (write fast)".format(nr_ds, ds_name))
-    print("  6. Storage SCP, {} {} datasets over 1 association (write fastest)".format(nr_ds, ds_name))
-    print("  7. Storage SCP, 1 {} dataset per association over {} associations".format(ds_name, nr_ds))
-    print("  8. Storage SCP, {} {} datasets per association over 10 simultaneous associations".format(nr_ds, ds_name))
-    print("  9. Storage SCU/SCP, {} {} datasets over 1 association".format(nr_ds, ds_name))
-    print("  10. Storage DCMTK SCU/SCP, {} {} datasets over 1 association".format(nr_ds, ds_name))
+    print(f"Which benchmarks do you wish to run? (list, range, or all)")
+    print(f"  1. Storage SCU, {nr_ds} {ds_name} datasets over 1 association")
+    print(f"  2. Storage SCU, 1 {ds_name} dataset per association over {nr_ds} associations")
+    print(f"  3. Storage SCP, {nr_ds} {ds_name} datasets over 1 association")
+    print(f"  4. Storage SCP, {nr_ds} {ds_name} datasets over 1 association (write)")
+    print(f"  5. Storage SCP, {nr_ds} {ds_name} datasets over 1 association (write fast)")
+    print(f"  6. Storage SCP, {nr_ds} {ds_name} datasets over 1 association (write fastest)")
+    print(f"  7. Storage SCP, 1 {ds_name} dataset per association over {nr_ds} associations")
+    print(f"  8. Storage SCP, {nr_ds} {ds_name} datasets per association over 10 simultaneous associations")
+    print(f"  9. Storage SCU/SCP, {nr_ds} {ds_name} datasets over 1 association")
+    print(f"  10. Storage DCMTK SCU/SCP, {nr_ds} {ds_name} datasets over 1 association")
 
     bench_input = input()
     if re.fullmatch(r'\s*(a|all)\s*', bench_input):
