@@ -269,3 +269,9 @@ class TestDUL:
 
         scp.step()
         scp.shutdown()
+
+    def test_stop_dul_sta1(self):
+        """Test that stop_dul() returns True when in Sta1"""
+        dul = DULServiceProvider(DummyAssociation())
+        assert(dul.state_machine.current_state == 'Sta1')
+        assert(dul.stop_dul())
