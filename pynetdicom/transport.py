@@ -202,7 +202,7 @@ class AssociationSocket:
         *Socket Options*
 
         - ``SO_REUSEADDR`` is 1
-        - ``SO_RCVTIMEO`` is set to the Association's ``network_timeout``
+        - socket.settimeout sets the Association's ``network_timeout``
           value.
 
         Parameters
@@ -224,17 +224,8 @@ class AssociationSocket:
         sock.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
         # If no timeout is set then recv() will block forever if
         #   the connection is kept alive with no data sent
-        # SO_RCVTIMEO: the timeout on receive calls in seconds
-        #   set using a packed binary string containing two uint32s as
-        #   (seconds, microseconds)
         if self.assoc.network_timeout is not None:
-            timeout_seconds = int(self.assoc.network_timeout)
-            timeout_microsec = int(self.assoc.network_timeout % 1 * 1000)
-            sock.setsockopt(
-                socket.SOL_SOCKET,
-                socket.SO_RCVTIMEO,
-                pack('ll', timeout_seconds, timeout_microsec)
-            )
+            sock.settimeout(self.ae.network_timeout)
 
         sock.bind(address)
 
@@ -728,7 +719,7 @@ class AssociationServer(TCPServer):
         """Bind the socket and set the socket options.
 
         - ``socket.SO_REUSEADDR`` is set to ``1``
-        - ``socket.SO_RCVTIMEO`` is set to
+        - socket.settimeout is used to set to
           :attr:`AE.network_timeout
           <pynetdicom.ae.ApplicationEntity.network_timeout>` unless the
           value is ``None`` in which case it will be left unset.
@@ -744,13 +735,7 @@ class AssociationServer(TCPServer):
         #   set using a packed binary string containing two uint32s as
         #   (seconds, microseconds)
         if self.ae.network_timeout is not None:
-            timeout_seconds = int(self.ae.network_timeout)
-            timeout_microsec = int(self.ae.network_timeout % 1 * 1000)
-            self.socket.setsockopt(
-                socket.SOL_SOCKET,
-                socket.SO_RCVTIMEO,
-                pack('ll', timeout_seconds, timeout_microsec)
-            )
+            self.socket.settimeout(self.ae.network_timeout)
 
         # Bind the socket to an (address, port)
         #   If address is '' then the socket is reachable by any
