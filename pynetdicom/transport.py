@@ -225,7 +225,7 @@ class AssociationSocket:
         # If no timeout is set then recv() will block forever if
         #   the connection is kept alive with no data sent
         if self.assoc.network_timeout is not None:
-            sock.settimeout(self.ae.network_timeout)
+            sock.settimeout(self.assoc.network_timeout)
 
         sock.bind(address)
 
