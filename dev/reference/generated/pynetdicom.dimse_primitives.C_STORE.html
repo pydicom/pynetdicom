@@ -100,7 +100,7 @@
               
             
             
-              <p class="caption"><span class="caption-text">Documentation</span></p>
+              <p class="caption" role="heading"><span class="caption-text">Documentation</span></p>
 <ul class="current">
 <li class="toctree-l1"><a class="reference internal" href="../../user/index.html">User Guide</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../tutorials/index.html">Tutorials</a></li>
@@ -135,11 +135,11 @@
 </ul>
 </li>
 </ul>
-<p class="caption"><span class="caption-text">Examples</span></p>
+<p class="caption" role="heading"><span class="caption-text">Examples</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="../../examples/index.html">Code Examples</a></li>
 </ul>
-<p class="caption"><span class="caption-text">Additional Information</span></p>
+<p class="caption" role="heading"><span class="caption-text">Additional Information</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="../../apps/index.html">Applications</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../changelog/index.html">Release Notes</a></li>
@@ -218,7 +218,7 @@
 <h1>pynetdicom.dimse_primitives.C_STORE<a class="headerlink" href="#pynetdicom-dimse-primitives-c-store" title="Permalink to this headline">¶</a></h1>
 <dl class="py class">
 <dt class="sig sig-object py" id="pynetdicom.dimse_primitives.C_STORE">
-<em class="property"><span class="pre">class</span> </em><span class="sig-prename descclassname"><span class="pre">pynetdicom.dimse_primitives.</span></span><span class="sig-name descname"><span class="pre">C_STORE</span></span><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/9e8a86d70/pynetdicom/dimse_primitives.py#L410"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pynetdicom.dimse_primitives.C_STORE" title="Permalink to this definition">¶</a></dt>
+<em class="property"><span class="pre">class</span> </em><span class="sig-prename descclassname"><span class="pre">pynetdicom.dimse_primitives.</span></span><span class="sig-name descname"><span class="pre">C_STORE</span></span><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/a65725175/pynetdicom/dimse_primitives.py#L410"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pynetdicom.dimse_primitives.C_STORE" title="Permalink to this definition">¶</a></dt>
 <dd><p>Represents a C-STORE primitive.</p>
 <table class="docutils align-default">
 <colgroup>
@@ -322,7 +322,7 @@ storage. If included in the response/confirmation, it shall be equal
 to the value in the request/indication</p>
 <dl class="field-list simple">
 <dt class="field-odd">Type</dt>
-<dd class="field-odd"><p><a class="reference external" href="https://pydicom.github.io/pydicom/stable/reference/generated/pydicom.uid.UID.html#pydicom.uid.UID" title="(in pydicom v2.1.2)">pydicom.uid.UID</a>, <a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#bytes" title="(in Python v3.9)">bytes</a> or <a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)">str</a></p>
+<dd class="field-odd"><p><a class="reference external" href="https://pydicom.github.io/pydicom/stable/reference/generated/pydicom.uid.UID.html#pydicom.uid.UID" title="(in pydicom v2.2.0)">pydicom.uid.UID</a>, <a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#bytes" title="(in Python v3.9)">bytes</a> or <a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)">str</a></p>
 </dd>
 </dl>
 </dd></dl>
@@ -364,9 +364,8 @@ of the error detected. 64 characters maximum.</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="pynetdicom.dimse_primitives.C_STORE.__init__">
-<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> &#x2192; <a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.9)"><span class="pre">None</span></a><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/9e8a86d70/pynetdicom/dimse_primitives.py#L476"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pynetdicom.dimse_primitives.C_STORE.__init__" title="Permalink to this definition">¶</a></dt>
-<dd><p>Initialize self.  See help(type(self)) for accurate signature.</p>
-</dd></dl>
+<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.9)"><span class="pre">None</span></a></span></span><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/a65725175/pynetdicom/dimse_primitives.py#L476"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pynetdicom.dimse_primitives.C_STORE.__init__" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
 
 <p class="rubric">Methods</p>
 <table class="longtable docutils align-default">
@@ -376,7 +375,7 @@ of the error detected. 64 characters maximum.</p>
 </colgroup>
 <tbody>
 <tr class="row-odd"><td><p><a class="reference internal" href="#pynetdicom.dimse_primitives.C_STORE.__init__" title="pynetdicom.dimse_primitives.C_STORE.__init__"><code class="xref py py-obj docutils literal notranslate"><span class="pre">__init__</span></code></a>()</p></td>
-<td><p>Initialize self.</p></td>
+<td><p></p></td>
 </tr>
 </tbody>
 </table>
@@ -388,10 +387,10 @@ of the error detected. 64 characters maximum.</p>
 </colgroup>
 <tbody>
 <tr class="row-odd"><td><p><a class="reference internal" href="#pynetdicom.dimse_primitives.C_STORE.AffectedSOPClassUID" title="pynetdicom.dimse_primitives.C_STORE.AffectedSOPClassUID"><code class="xref py py-obj docutils literal notranslate"><span class="pre">AffectedSOPClassUID</span></code></a></p></td>
-<td><p>Get or set the <em>Affected SOP Class UID</em> as <a class="reference external" href="https://pydicom.github.io/pydicom/stable/reference/generated/pydicom.uid.UID.html#pydicom.uid.UID" title="(in pydicom v2.1.2)"><code class="xref py py-class docutils literal notranslate"><span class="pre">UID</span></code></a>.</p></td>
+<td><p>Get or set the <em>Affected SOP Class UID</em> as <a class="reference external" href="https://pydicom.github.io/pydicom/stable/reference/generated/pydicom.uid.UID.html#pydicom.uid.UID" title="(in pydicom v2.2.0)"><code class="xref py py-class docutils literal notranslate"><span class="pre">UID</span></code></a>.</p></td>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="#pynetdicom.dimse_primitives.C_STORE.AffectedSOPInstanceUID" title="pynetdicom.dimse_primitives.C_STORE.AffectedSOPInstanceUID"><code class="xref py py-obj docutils literal notranslate"><span class="pre">AffectedSOPInstanceUID</span></code></a></p></td>
-<td><p>Get or set the <em>Affected SOP Instance UID</em> as <a class="reference external" href="https://pydicom.github.io/pydicom/stable/reference/generated/pydicom.uid.UID.html#pydicom.uid.UID" title="(in pydicom v2.1.2)"><code class="xref py py-class docutils literal notranslate"><span class="pre">UID</span></code></a>.</p></td>
+<td><p>Get or set the <em>Affected SOP Instance UID</em> as <a class="reference external" href="https://pydicom.github.io/pydicom/stable/reference/generated/pydicom.uid.UID.html#pydicom.uid.UID" title="(in pydicom v2.2.0)"><code class="xref py py-class docutils literal notranslate"><span class="pre">UID</span></code></a>.</p></td>
 </tr>
 <tr class="row-odd"><td><p><a class="reference internal" href="#pynetdicom.dimse_primitives.C_STORE.DataSet" title="pynetdicom.dimse_primitives.C_STORE.DataSet"><code class="xref py py-obj docutils literal notranslate"><span class="pre">DataSet</span></code></a></p></td>
 <td><p>Get or set the <em>Data Set</em> as <a class="reference external" href="https://docs.python.org/3/library/io.html#io.BytesIO" title="(in Python v3.9)"><code class="xref py py-class docutils literal notranslate"><span class="pre">io.BytesIO</span></code></a>.</p></td>
@@ -438,10 +437,10 @@ of the error detected. 64 characters maximum.</p>
 <dt class="sig sig-object py" id="pynetdicom.dimse_primitives.C_STORE.AffectedSOPInstanceUID">
 <em class="property"><span class="pre">property</span> </em><span class="sig-name descname"><span class="pre">AffectedSOPInstanceUID</span></span><em class="property"><span class="pre">:</span> <span class="pre">Optional[pydicom.uid.UID]</span></em><a class="headerlink" href="#pynetdicom.dimse_primitives.C_STORE.AffectedSOPInstanceUID" title="Permalink to this definition">¶</a></dt>
 <dd><p>Get or set the <em>Affected SOP Instance UID</em> as
-<a class="reference external" href="https://pydicom.github.io/pydicom/stable/reference/generated/pydicom.uid.UID.html#pydicom.uid.UID" title="(in pydicom v2.1.2)"><code class="xref py py-class docutils literal notranslate"><span class="pre">UID</span></code></a>.</p>
+<a class="reference external" href="https://pydicom.github.io/pydicom/stable/reference/generated/pydicom.uid.UID.html#pydicom.uid.UID" title="(in pydicom v2.2.0)"><code class="xref py py-class docutils literal notranslate"><span class="pre">UID</span></code></a>.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>value</strong> (<a class="reference external" href="https://pydicom.github.io/pydicom/stable/reference/generated/pydicom.uid.UID.html#pydicom.uid.UID" title="(in pydicom v2.1.2)"><em>pydicom.uid.UID</em></a><em>, </em><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#bytes" title="(in Python v3.9)"><em>bytes</em></a><em> or </em><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)"><em>str</em></a>) – The value to use for the <em>Affected SOP Class UID</em> parameter.</p>
+<dd class="field-odd"><p><strong>value</strong> (<a class="reference external" href="https://pydicom.github.io/pydicom/stable/reference/generated/pydicom.uid.UID.html#pydicom.uid.UID" title="(in pydicom v2.2.0)"><em>pydicom.uid.UID</em></a><em>, </em><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#bytes" title="(in Python v3.9)"><em>bytes</em></a><em> or </em><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)"><em>str</em></a>) – The value to use for the <em>Affected SOP Class UID</em> parameter.</p>
 </dd>
 </dl>
 </dd></dl>

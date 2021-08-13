@@ -100,7 +100,7 @@
               
             
             
-              <p class="caption"><span class="caption-text">Documentation</span></p>
+              <p class="caption" role="heading"><span class="caption-text">Documentation</span></p>
 <ul class="current">
 <li class="toctree-l1"><a class="reference internal" href="../../user/index.html">User Guide</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../tutorials/index.html">Tutorials</a></li>
@@ -139,11 +139,11 @@
 </ul>
 </li>
 </ul>
-<p class="caption"><span class="caption-text">Examples</span></p>
+<p class="caption" role="heading"><span class="caption-text">Examples</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="../../examples/index.html">Code Examples</a></li>
 </ul>
-<p class="caption"><span class="caption-text">Additional Information</span></p>
+<p class="caption" role="heading"><span class="caption-text">Additional Information</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="../../apps/index.html">Applications</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../changelog/index.html">Release Notes</a></li>
@@ -224,7 +224,7 @@
 <h1>pynetdicom.pdu_primitives.SOPClassExtendedNegotiation<a class="headerlink" href="#pynetdicom-pdu-primitives-sopclassextendednegotiation" title="Permalink to this headline">¶</a></h1>
 <dl class="py class">
 <dt class="sig sig-object py" id="pynetdicom.pdu_primitives.SOPClassExtendedNegotiation">
-<em class="property"><span class="pre">class</span> </em><span class="sig-prename descclassname"><span class="pre">pynetdicom.pdu_primitives.</span></span><span class="sig-name descname"><span class="pre">SOPClassExtendedNegotiation</span></span><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/9e8a86d70/pynetdicom/pdu_primitives.py#L1541"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pynetdicom.pdu_primitives.SOPClassExtendedNegotiation" title="Permalink to this definition">¶</a></dt>
+<em class="property"><span class="pre">class</span> </em><span class="sig-prename descclassname"><span class="pre">pynetdicom.pdu_primitives.</span></span><span class="sig-name descname"><span class="pre">SOPClassExtendedNegotiation</span></span><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/a65725175/pynetdicom/pdu_primitives.py#L1541"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pynetdicom.pdu_primitives.SOPClassExtendedNegotiation" title="Permalink to this definition">¶</a></dt>
 <dd><p>A representation of the SOP Class Extended Negotiation primitive.</p>
 <p>Allows peer AEs to exchange application information defined by specific
 Service Class specifications. Each Service Class is required to document
@@ -247,9 +247,8 @@ Class UID.</p>
 </ul>
 <dl class="py method">
 <dt class="sig sig-object py" id="pynetdicom.pdu_primitives.SOPClassExtendedNegotiation.__init__">
-<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> &#x2192; <a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.9)"><span class="pre">None</span></a><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/9e8a86d70/pynetdicom/pdu_primitives.py#L1571"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pynetdicom.pdu_primitives.SOPClassExtendedNegotiation.__init__" title="Permalink to this definition">¶</a></dt>
-<dd><p>Initialize self.  See help(type(self)) for accurate signature.</p>
-</dd></dl>
+<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.9)"><span class="pre">None</span></a></span></span><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/a65725175/pynetdicom/pdu_primitives.py#L1571"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pynetdicom.pdu_primitives.SOPClassExtendedNegotiation.__init__" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
 
 <p class="rubric">Methods</p>
 <table class="longtable docutils align-default">
@@ -259,7 +258,7 @@ Class UID.</p>
 </colgroup>
 <tbody>
 <tr class="row-odd"><td><p><a class="reference internal" href="#pynetdicom.pdu_primitives.SOPClassExtendedNegotiation.__init__" title="pynetdicom.pdu_primitives.SOPClassExtendedNegotiation.__init__"><code class="xref py py-obj docutils literal notranslate"><span class="pre">__init__</span></code></a>()</p></td>
-<td><p>Initialize self.</p></td>
+<td><p></p></td>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="#pynetdicom.pdu_primitives.SOPClassExtendedNegotiation.from_primitive" title="pynetdicom.pdu_primitives.SOPClassExtendedNegotiation.from_primitive"><code class="xref py py-obj docutils literal notranslate"><span class="pre">from_primitive</span></code></a>()</p></td>
 <td><p>Convert the primitive to a PDU item ready to be encoded.</p></td>
@@ -283,7 +282,7 @@ Class UID.</p>
 </table>
 <dl class="py method">
 <dt class="sig sig-object py" id="pynetdicom.pdu_primitives.SOPClassExtendedNegotiation.from_primitive">
-<span class="sig-name descname"><span class="pre">from_primitive</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> &#x2192; <a class="reference internal" href="pynetdicom.pdu_items.SOPClassExtendedNegotiationSubItem.html#pynetdicom.pdu_items.SOPClassExtendedNegotiationSubItem" title="pynetdicom.pdu_items.SOPClassExtendedNegotiationSubItem"><span class="pre">pynetdicom.pdu_items.SOPClassExtendedNegotiationSubItem</span></a><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/9e8a86d70/pynetdicom/pdu_primitives.py#L1575"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pynetdicom.pdu_primitives.SOPClassExtendedNegotiation.from_primitive" title="Permalink to this definition">¶</a></dt>
+<span class="sig-name descname"><span class="pre">from_primitive</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="pynetdicom.pdu_items.SOPClassExtendedNegotiationSubItem.html#pynetdicom.pdu_items.SOPClassExtendedNegotiationSubItem" title="pynetdicom.pdu_items.SOPClassExtendedNegotiationSubItem"><span class="pre">pynetdicom.pdu_items.SOPClassExtendedNegotiationSubItem</span></a></span></span><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/a65725175/pynetdicom/pdu_primitives.py#L1575"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pynetdicom.pdu_primitives.SOPClassExtendedNegotiation.from_primitive" title="Permalink to this definition">¶</a></dt>
 <dd><p>Convert the primitive to a PDU item ready to be encoded.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Returns</dt>
@@ -320,7 +319,7 @@ Specifications (see PS3.4)</p>
 <dd><p>Get or set the <em>SOP Class UID</em>.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>value</strong> (<a class="reference external" href="https://pydicom.github.io/pydicom/stable/reference/generated/pydicom.uid.UID.html#pydicom.uid.UID" title="(in pydicom v2.1.2)"><em>pydicom.uid.UID</em></a><em>, </em><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#bytes" title="(in Python v3.9)"><em>bytes</em></a><em> or </em><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)"><em>str</em></a>) – The corresponding Abstract Syntax UID</p>
+<dd class="field-odd"><p><strong>value</strong> (<a class="reference external" href="https://pydicom.github.io/pydicom/stable/reference/generated/pydicom.uid.UID.html#pydicom.uid.UID" title="(in pydicom v2.2.0)"><em>pydicom.uid.UID</em></a><em>, </em><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#bytes" title="(in Python v3.9)"><em>bytes</em></a><em> or </em><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)"><em>str</em></a>) – The corresponding Abstract Syntax UID</p>
 </dd>
 <dt class="field-even">Raises</dt>
 <dd class="field-even"><p><a class="reference external" href="https://docs.python.org/3/library/exceptions.html#TypeError" title="(in Python v3.9)"><strong>TypeError</strong></a> – If <cite>value</cite> is not a pydicom.uid.UID, bytes or str</p>

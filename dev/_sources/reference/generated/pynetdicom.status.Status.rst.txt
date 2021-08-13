@@ -9,6 +9,12 @@
    .. automethod:: __init__
 
    
+   .. rubric:: Methods
+
+   .. autosummary::
+   
+      ~Status.add
+   
    
 
    
@@ -17,9 +23,9 @@
 
    .. autosummary::
    
-      ~Status.CANCEL
-      ~Status.MOVE_DESTINATION_UNKNOWN
-      ~Status.PENDING
       ~Status.SUCCESS
+      ~Status.CANCEL
+      ~Status.PENDING
+      ~Status.MOVE_DESTINATION_UNKNOWN
    
    

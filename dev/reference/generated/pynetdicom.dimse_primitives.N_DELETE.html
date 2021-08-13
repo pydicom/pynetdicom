@@ -100,7 +100,7 @@
               
             
             
-              <p class="caption"><span class="caption-text">Documentation</span></p>
+              <p class="caption" role="heading"><span class="caption-text">Documentation</span></p>
 <ul class="current">
 <li class="toctree-l1"><a class="reference internal" href="../../user/index.html">User Guide</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../tutorials/index.html">Tutorials</a></li>
@@ -135,11 +135,11 @@
 </ul>
 </li>
 </ul>
-<p class="caption"><span class="caption-text">Examples</span></p>
+<p class="caption" role="heading"><span class="caption-text">Examples</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="../../examples/index.html">Code Examples</a></li>
 </ul>
-<p class="caption"><span class="caption-text">Additional Information</span></p>
+<p class="caption" role="heading"><span class="caption-text">Additional Information</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="../../apps/index.html">Applications</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../changelog/index.html">Release Notes</a></li>
@@ -218,7 +218,7 @@
 <h1>pynetdicom.dimse_primitives.N_DELETE<a class="headerlink" href="#pynetdicom-dimse-primitives-n-delete" title="Permalink to this headline">¶</a></h1>
 <dl class="py class">
 <dt class="sig sig-object py" id="pynetdicom.dimse_primitives.N_DELETE">
-<em class="property"><span class="pre">class</span> </em><span class="sig-prename descclassname"><span class="pre">pynetdicom.dimse_primitives.</span></span><span class="sig-name descname"><span class="pre">N_DELETE</span></span><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/9e8a86d70/pynetdicom/dimse_primitives.py#L2001"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pynetdicom.dimse_primitives.N_DELETE" title="Permalink to this definition">¶</a></dt>
+<em class="property"><span class="pre">class</span> </em><span class="sig-prename descclassname"><span class="pre">pynetdicom.dimse_primitives.</span></span><span class="sig-name descname"><span class="pre">N_DELETE</span></span><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/a65725175/pynetdicom/dimse_primitives.py#L2001"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pynetdicom.dimse_primitives.N_DELETE" title="Permalink to this definition">¶</a></dt>
 <dd><p>Represents a N-DELETE primitive.</p>
 <table class="docutils align-default">
 <colgroup>
@@ -306,7 +306,7 @@ storage. If included in the response/confirmation, it shall be equal
 to the value in the request/indication</p>
 <dl class="field-list simple">
 <dt class="field-odd">Type</dt>
-<dd class="field-odd"><p><a class="reference external" href="https://pydicom.github.io/pydicom/stable/reference/generated/pydicom.uid.UID.html#pydicom.uid.UID" title="(in pydicom v2.1.2)">pydicom.uid.UID</a>, <a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#bytes" title="(in Python v3.9)">bytes</a> or <a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)">str</a></p>
+<dd class="field-odd"><p><a class="reference external" href="https://pydicom.github.io/pydicom/stable/reference/generated/pydicom.uid.UID.html#pydicom.uid.UID" title="(in pydicom v2.2.0)">pydicom.uid.UID</a>, <a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#bytes" title="(in Python v3.9)">bytes</a> or <a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)">str</a></p>
 </dd>
 </dl>
 </dd></dl>
@@ -324,9 +324,8 @@ to the value in the request/indication</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="pynetdicom.dimse_primitives.N_DELETE.__init__">
-<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> &#x2192; <a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.9)"><span class="pre">None</span></a><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/9e8a86d70/pynetdicom/dimse_primitives.py#L2052"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pynetdicom.dimse_primitives.N_DELETE.__init__" title="Permalink to this definition">¶</a></dt>
-<dd><p>Initialize self.  See help(type(self)) for accurate signature.</p>
-</dd></dl>
+<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.9)"><span class="pre">None</span></a></span></span><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/a65725175/pynetdicom/dimse_primitives.py#L2052"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pynetdicom.dimse_primitives.N_DELETE.__init__" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
 
 <p class="rubric">Methods</p>
 <table class="longtable docutils align-default">
@@ -336,7 +335,7 @@ to the value in the request/indication</p>
 </colgroup>
 <tbody>
 <tr class="row-odd"><td><p><a class="reference internal" href="#pynetdicom.dimse_primitives.N_DELETE.__init__" title="pynetdicom.dimse_primitives.N_DELETE.__init__"><code class="xref py py-obj docutils literal notranslate"><span class="pre">__init__</span></code></a>()</p></td>
-<td><p>Initialize self.</p></td>
+<td><p></p></td>
 </tr>
 </tbody>
 </table>
@@ -348,10 +347,10 @@ to the value in the request/indication</p>
 </colgroup>
 <tbody>
 <tr class="row-odd"><td><p><a class="reference internal" href="#pynetdicom.dimse_primitives.N_DELETE.AffectedSOPClassUID" title="pynetdicom.dimse_primitives.N_DELETE.AffectedSOPClassUID"><code class="xref py py-obj docutils literal notranslate"><span class="pre">AffectedSOPClassUID</span></code></a></p></td>
-<td><p>Get or set the <em>Affected SOP Class UID</em> as <a class="reference external" href="https://pydicom.github.io/pydicom/stable/reference/generated/pydicom.uid.UID.html#pydicom.uid.UID" title="(in pydicom v2.1.2)"><code class="xref py py-class docutils literal notranslate"><span class="pre">UID</span></code></a>.</p></td>
+<td><p>Get or set the <em>Affected SOP Class UID</em> as <a class="reference external" href="https://pydicom.github.io/pydicom/stable/reference/generated/pydicom.uid.UID.html#pydicom.uid.UID" title="(in pydicom v2.2.0)"><code class="xref py py-class docutils literal notranslate"><span class="pre">UID</span></code></a>.</p></td>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="#pynetdicom.dimse_primitives.N_DELETE.AffectedSOPInstanceUID" title="pynetdicom.dimse_primitives.N_DELETE.AffectedSOPInstanceUID"><code class="xref py py-obj docutils literal notranslate"><span class="pre">AffectedSOPInstanceUID</span></code></a></p></td>
-<td><p>Return the <em>Affected SOP Instance UID</em> as <a class="reference external" href="https://pydicom.github.io/pydicom/stable/reference/generated/pydicom.uid.UID.html#pydicom.uid.UID" title="(in pydicom v2.1.2)"><code class="xref py py-class docutils literal notranslate"><span class="pre">UID</span></code></a>.</p></td>
+<td><p>Return the <em>Affected SOP Instance UID</em> as <a class="reference external" href="https://pydicom.github.io/pydicom/stable/reference/generated/pydicom.uid.UID.html#pydicom.uid.UID" title="(in pydicom v2.2.0)"><code class="xref py py-class docutils literal notranslate"><span class="pre">UID</span></code></a>.</p></td>
 </tr>
 <tr class="row-odd"><td><p><a class="reference internal" href="#pynetdicom.dimse_primitives.N_DELETE.MessageID" title="pynetdicom.dimse_primitives.N_DELETE.MessageID"><code class="xref py py-obj docutils literal notranslate"><span class="pre">MessageID</span></code></a></p></td>
 <td><p>Get or set the <em>Message ID</em> value as <a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.9)"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></a>.</p></td>
@@ -366,10 +365,10 @@ to the value in the request/indication</p>
 <td><p></p></td>
 </tr>
 <tr class="row-odd"><td><p><a class="reference internal" href="#pynetdicom.dimse_primitives.N_DELETE.RequestedSOPClassUID" title="pynetdicom.dimse_primitives.N_DELETE.RequestedSOPClassUID"><code class="xref py py-obj docutils literal notranslate"><span class="pre">RequestedSOPClassUID</span></code></a></p></td>
-<td><p>Return the <em>Requested SOP Class UID</em> as <a class="reference external" href="https://pydicom.github.io/pydicom/stable/reference/generated/pydicom.uid.UID.html#pydicom.uid.UID" title="(in pydicom v2.1.2)"><code class="xref py py-class docutils literal notranslate"><span class="pre">UID</span></code></a>.</p></td>
+<td><p>Return the <em>Requested SOP Class UID</em> as <a class="reference external" href="https://pydicom.github.io/pydicom/stable/reference/generated/pydicom.uid.UID.html#pydicom.uid.UID" title="(in pydicom v2.2.0)"><code class="xref py py-class docutils literal notranslate"><span class="pre">UID</span></code></a>.</p></td>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="#pynetdicom.dimse_primitives.N_DELETE.RequestedSOPInstanceUID" title="pynetdicom.dimse_primitives.N_DELETE.RequestedSOPInstanceUID"><code class="xref py py-obj docutils literal notranslate"><span class="pre">RequestedSOPInstanceUID</span></code></a></p></td>
-<td><p>Return the <em>Requested SOP Instance UID</em> as <a class="reference external" href="https://pydicom.github.io/pydicom/stable/reference/generated/pydicom.uid.UID.html#pydicom.uid.UID" title="(in pydicom v2.1.2)"><code class="xref py py-class docutils literal notranslate"><span class="pre">UID</span></code></a>.</p></td>
+<td><p>Return the <em>Requested SOP Instance UID</em> as <a class="reference external" href="https://pydicom.github.io/pydicom/stable/reference/generated/pydicom.uid.UID.html#pydicom.uid.UID" title="(in pydicom v2.2.0)"><code class="xref py py-class docutils literal notranslate"><span class="pre">UID</span></code></a>.</p></td>
 </tr>
 <tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">STATUS_OPTIONAL_KEYWORDS</span></code></p></td>
 <td><p></p></td>
@@ -391,10 +390,10 @@ to the value in the request/indication</p>
 <dl class="py property">
 <dt class="sig sig-object py" id="pynetdicom.dimse_primitives.N_DELETE.AffectedSOPInstanceUID">
 <em class="property"><span class="pre">property</span> </em><span class="sig-name descname"><span class="pre">AffectedSOPInstanceUID</span></span><em class="property"><span class="pre">:</span> <span class="pre">Optional[pydicom.uid.UID]</span></em><a class="headerlink" href="#pynetdicom.dimse_primitives.N_DELETE.AffectedSOPInstanceUID" title="Permalink to this definition">¶</a></dt>
-<dd><p>Return the <em>Affected SOP Instance UID</em> as <a class="reference external" href="https://pydicom.github.io/pydicom/stable/reference/generated/pydicom.uid.UID.html#pydicom.uid.UID" title="(in pydicom v2.1.2)"><code class="xref py py-class docutils literal notranslate"><span class="pre">UID</span></code></a>.</p>
+<dd><p>Return the <em>Affected SOP Instance UID</em> as <a class="reference external" href="https://pydicom.github.io/pydicom/stable/reference/generated/pydicom.uid.UID.html#pydicom.uid.UID" title="(in pydicom v2.2.0)"><code class="xref py py-class docutils literal notranslate"><span class="pre">UID</span></code></a>.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>value</strong> (<a class="reference external" href="https://pydicom.github.io/pydicom/stable/reference/generated/pydicom.uid.UID.html#pydicom.uid.UID" title="(in pydicom v2.1.2)"><em>pydicom.uid.UID</em></a><em>, </em><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#bytes" title="(in Python v3.9)"><em>bytes</em></a><em> or </em><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)"><em>str</em></a>) – The value to use for the <em>Affected SOP Class UID</em> parameter.</p>
+<dd class="field-odd"><p><strong>value</strong> (<a class="reference external" href="https://pydicom.github.io/pydicom/stable/reference/generated/pydicom.uid.UID.html#pydicom.uid.UID" title="(in pydicom v2.2.0)"><em>pydicom.uid.UID</em></a><em>, </em><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#bytes" title="(in Python v3.9)"><em>bytes</em></a><em> or </em><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)"><em>str</em></a>) – The value to use for the <em>Affected SOP Class UID</em> parameter.</p>
 </dd>
 </dl>
 </dd></dl>
@@ -402,12 +401,12 @@ to the value in the request/indication</p>
 <dl class="py property">
 <dt class="sig sig-object py" id="pynetdicom.dimse_primitives.N_DELETE.RequestedSOPClassUID">
 <em class="property"><span class="pre">property</span> </em><span class="sig-name descname"><span class="pre">RequestedSOPClassUID</span></span><em class="property"><span class="pre">:</span> <span class="pre">Optional[pydicom.uid.UID]</span></em><a class="headerlink" href="#pynetdicom.dimse_primitives.N_DELETE.RequestedSOPClassUID" title="Permalink to this definition">¶</a></dt>
-<dd><p>Return the <em>Requested SOP Class UID</em> as <a class="reference external" href="https://pydicom.github.io/pydicom/stable/reference/generated/pydicom.uid.UID.html#pydicom.uid.UID" title="(in pydicom v2.1.2)"><code class="xref py py-class docutils literal notranslate"><span class="pre">UID</span></code></a>.</p>
+<dd><p>Return the <em>Requested SOP Class UID</em> as <a class="reference external" href="https://pydicom.github.io/pydicom/stable/reference/generated/pydicom.uid.UID.html#pydicom.uid.UID" title="(in pydicom v2.2.0)"><code class="xref py py-class docutils literal notranslate"><span class="pre">UID</span></code></a>.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>pydicom.uid.UID</strong> – The value to use for the <em>Requested SOP Class UID</em> parameter.</p></li>
-<li><p><strong>or str</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#bytes" title="(in Python v3.9)"><em>bytes</em></a>) – The value to use for the <em>Requested SOP Class UID</em> parameter.</p></li>
+<li><p><strong>str</strong> (<em>bytes or</em>) – The value to use for the <em>Requested SOP Class UID</em> parameter.</p></li>
 </ul>
 </dd>
 </dl>
@@ -417,12 +416,12 @@ to the value in the request/indication</p>
 <dt class="sig sig-object py" id="pynetdicom.dimse_primitives.N_DELETE.RequestedSOPInstanceUID">
 <em class="property"><span class="pre">property</span> </em><span class="sig-name descname"><span class="pre">RequestedSOPInstanceUID</span></span><em class="property"><span class="pre">:</span> <span class="pre">Optional[pydicom.uid.UID]</span></em><a class="headerlink" href="#pynetdicom.dimse_primitives.N_DELETE.RequestedSOPInstanceUID" title="Permalink to this definition">¶</a></dt>
 <dd><p>Return the <em>Requested SOP Instance UID</em> as
-<a class="reference external" href="https://pydicom.github.io/pydicom/stable/reference/generated/pydicom.uid.UID.html#pydicom.uid.UID" title="(in pydicom v2.1.2)"><code class="xref py py-class docutils literal notranslate"><span class="pre">UID</span></code></a>.</p>
+<a class="reference external" href="https://pydicom.github.io/pydicom/stable/reference/generated/pydicom.uid.UID.html#pydicom.uid.UID" title="(in pydicom v2.2.0)"><code class="xref py py-class docutils literal notranslate"><span class="pre">UID</span></code></a>.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>pydicom.uid.UID</strong> – The value to use for the <em>Requested SOP Instance UID</em> parameter.</p></li>
-<li><p><strong>or str</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#bytes" title="(in Python v3.9)"><em>bytes</em></a>) – The value to use for the <em>Requested SOP Instance UID</em> parameter.</p></li>
+<li><p><strong>str</strong> (<em>bytes or</em>) – The value to use for the <em>Requested SOP Instance UID</em> parameter.</p></li>
 </ul>
 </dd>
 </dl>

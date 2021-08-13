@@ -100,7 +100,7 @@
               
             
             
-              <p class="caption"><span class="caption-text">Documentation</span></p>
+              <p class="caption" role="heading"><span class="caption-text">Documentation</span></p>
 <ul class="current">
 <li class="toctree-l1"><a class="reference internal" href="../../user/index.html">User Guide</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../tutorials/index.html">Tutorials</a></li>
@@ -139,11 +139,11 @@
 </ul>
 </li>
 </ul>
-<p class="caption"><span class="caption-text">Examples</span></p>
+<p class="caption" role="heading"><span class="caption-text">Examples</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="../../examples/index.html">Code Examples</a></li>
 </ul>
-<p class="caption"><span class="caption-text">Additional Information</span></p>
+<p class="caption" role="heading"><span class="caption-text">Additional Information</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="../../apps/index.html">Applications</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../changelog/index.html">Release Notes</a></li>
@@ -224,7 +224,7 @@
 <h1>pynetdicom.pdu_primitives.A_ASSOCIATE<a class="headerlink" href="#pynetdicom-pdu-primitives-a-associate" title="Permalink to this headline">¶</a></h1>
 <dl class="py class">
 <dt class="sig sig-object py" id="pynetdicom.pdu_primitives.A_ASSOCIATE">
-<em class="property"><span class="pre">class</span> </em><span class="sig-prename descclassname"><span class="pre">pynetdicom.pdu_primitives.</span></span><span class="sig-name descname"><span class="pre">A_ASSOCIATE</span></span><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/9e8a86d70/pynetdicom/pdu_primitives.py#L81"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pynetdicom.pdu_primitives.A_ASSOCIATE" title="Permalink to this definition">¶</a></dt>
+<em class="property"><span class="pre">class</span> </em><span class="sig-prename descclassname"><span class="pre">pynetdicom.pdu_primitives.</span></span><span class="sig-name descname"><span class="pre">A_ASSOCIATE</span></span><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/a65725175/pynetdicom/pdu_primitives.py#L81"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pynetdicom.pdu_primitives.A_ASSOCIATE" title="Permalink to this definition">¶</a></dt>
 <dd><p>An A-ASSOCIATE primitive.</p>
 <p>The establishment of an association between two AEs shall be performed
 through ACSE A-ASSOCIATE request, indication, response and confirmation
@@ -358,9 +358,8 @@ gets deconverted from -RQ, -AC, -RJ PDUs received from the peer.</p>
 </ul>
 <dl class="py method">
 <dt class="sig sig-object py" id="pynetdicom.pdu_primitives.A_ASSOCIATE.__init__">
-<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> &#x2192; <a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.9)"><span class="pre">None</span></a><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/9e8a86d70/pynetdicom/pdu_primitives.py#L146"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pynetdicom.pdu_primitives.A_ASSOCIATE.__init__" title="Permalink to this definition">¶</a></dt>
-<dd><p>Initialize self.  See help(type(self)) for accurate signature.</p>
-</dd></dl>
+<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.9)"><span class="pre">None</span></a></span></span><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/a65725175/pynetdicom/pdu_primitives.py#L146"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pynetdicom.pdu_primitives.A_ASSOCIATE.__init__" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
 
 <p class="rubric">Methods</p>
 <table class="longtable docutils align-default">
@@ -370,7 +369,7 @@ gets deconverted from -RQ, -AC, -RJ PDUs received from the peer.</p>
 </colgroup>
 <tbody>
 <tr class="row-odd"><td><p><a class="reference internal" href="#pynetdicom.pdu_primitives.A_ASSOCIATE.__init__" title="pynetdicom.pdu_primitives.A_ASSOCIATE.__init__"><code class="xref py py-obj docutils literal notranslate"><span class="pre">__init__</span></code></a>()</p></td>
-<td><p>Initialize self.</p></td>
+<td><p></p></td>
 </tr>
 </tbody>
 </table>
@@ -400,7 +399,7 @@ gets deconverted from -RQ, -AC, -RJ PDUs received from the peer.</p>
 <td><p>Get or set the <em>Diagnostic</em> parameter.</p></td>
 </tr>
 <tr class="row-odd"><td><p><a class="reference internal" href="#pynetdicom.pdu_primitives.A_ASSOCIATE.implementation_class_uid" title="pynetdicom.pdu_primitives.A_ASSOCIATE.implementation_class_uid"><code class="xref py py-obj docutils literal notranslate"><span class="pre">implementation_class_uid</span></code></a></p></td>
-<td><p>Get or set the <em>Implementation Class UID</em> as <a class="reference external" href="https://pydicom.github.io/pydicom/stable/reference/generated/pydicom.uid.UID.html#pydicom.uid.UID" title="(in pydicom v2.1.2)"><code class="xref py py-class docutils literal notranslate"><span class="pre">UID</span></code></a>.</p></td>
+<td><p>Get or set the <em>Implementation Class UID</em> as <a class="reference external" href="https://pydicom.github.io/pydicom/stable/reference/generated/pydicom.uid.UID.html#pydicom.uid.UID" title="(in pydicom v2.2.0)"><code class="xref py py-class docutils literal notranslate"><span class="pre">UID</span></code></a>.</p></td>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="#pynetdicom.pdu_primitives.A_ASSOCIATE.maximum_length_received" title="pynetdicom.pdu_primitives.A_ASSOCIATE.maximum_length_received"><code class="xref py py-obj docutils literal notranslate"><span class="pre">maximum_length_received</span></code></a></p></td>
 <td><p>Get or set the <em>Maximum Length Received</em> as <a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.9)"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></a>.</p></td>
@@ -452,7 +451,7 @@ gets deconverted from -RQ, -AC, -RJ PDUs received from the peer.</p>
 <dd><p>Get or set the <em>Application Context Name</em> parameter.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>value</strong> (<a class="reference external" href="https://pydicom.github.io/pydicom/stable/reference/generated/pydicom.uid.UID.html#pydicom.uid.UID" title="(in pydicom v2.1.2)"><em>pydicom.uid.UID</em></a><em>, </em><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#bytes" title="(in Python v3.9)"><em>bytes</em></a><em> or </em><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)"><em>str</em></a>) – The application context name proposed by the <em>Requestor</em>.
+<dd class="field-odd"><p><strong>value</strong> (<a class="reference external" href="https://pydicom.github.io/pydicom/stable/reference/generated/pydicom.uid.UID.html#pydicom.uid.UID" title="(in pydicom v2.2.0)"><em>pydicom.uid.UID</em></a><em>, </em><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#bytes" title="(in Python v3.9)"><em>bytes</em></a><em> or </em><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)"><em>str</em></a>) – The application context name proposed by the <em>Requestor</em>.
 <em>Acceptor</em> returns either the same or a different name. Returned
 name specifies the application context used for the association.
 See the DICOM Standard, Part 8, <a class="reference external" href="http://dicom.nema.org/medical/dicom/current/output/chtml/part08/chapter_A.html">Annex A</a>. The application context name shall
@@ -463,7 +462,7 @@ Standard should be <code class="docutils literal notranslate"><span class="pre">
 <dd class="field-even"><p></p>
 </dd>
 <dt class="field-odd">Return type</dt>
-<dd class="field-odd"><p><a class="reference external" href="https://pydicom.github.io/pydicom/stable/reference/generated/pydicom.uid.UID.html#pydicom.uid.UID" title="(in pydicom v2.1.2)">pydicom.uid.UID</a></p>
+<dd class="field-odd"><p><a class="reference external" href="https://pydicom.github.io/pydicom/stable/reference/generated/pydicom.uid.UID.html#pydicom.uid.UID" title="(in pydicom v2.2.0)">pydicom.uid.UID</a></p>
 </dd>
 </dl>
 </dd></dl>
@@ -562,7 +561,7 @@ function)” then allowed values are:</p>
 <dt class="sig sig-object py" id="pynetdicom.pdu_primitives.A_ASSOCIATE.implementation_class_uid">
 <em class="property"><span class="pre">property</span> </em><span class="sig-name descname"><span class="pre">implementation_class_uid</span></span><em class="property"><span class="pre">:</span> <span class="pre">Optional[pydicom.uid.UID]</span></em><a class="headerlink" href="#pynetdicom.pdu_primitives.A_ASSOCIATE.implementation_class_uid" title="Permalink to this definition">¶</a></dt>
 <dd><p>Get or set the <em>Implementation Class UID</em> as
-<a class="reference external" href="https://pydicom.github.io/pydicom/stable/reference/generated/pydicom.uid.UID.html#pydicom.uid.UID" title="(in pydicom v2.1.2)"><code class="xref py py-class docutils literal notranslate"><span class="pre">UID</span></code></a>.</p>
+<a class="reference external" href="https://pydicom.github.io/pydicom/stable/reference/generated/pydicom.uid.UID.html#pydicom.uid.UID" title="(in pydicom v2.2.0)"><code class="xref py py-class docutils literal notranslate"><span class="pre">UID</span></code></a>.</p>
 <p>If the A_ASSOCIATE.user_information list contains an
 ImplementationClassUIDNotification item then set its
 implementation_class_uid value. If not then add a
@@ -570,7 +569,7 @@ ImplementationClassUIDNotification item and set its
 implementation_class_uid value.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>value</strong> (<a class="reference external" href="https://pydicom.github.io/pydicom/stable/reference/generated/pydicom.uid.UID.html#pydicom.uid.UID" title="(in pydicom v2.1.2)"><em>pydicom.uid.UID</em></a><em>, </em><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#bytes" title="(in Python v3.9)"><em>bytes</em></a><em> or </em><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)"><em>str</em></a>) – The value for the Implementation Class UID</p>
+<dd class="field-odd"><p><strong>value</strong> (<a class="reference external" href="https://pydicom.github.io/pydicom/stable/reference/generated/pydicom.uid.UID.html#pydicom.uid.UID" title="(in pydicom v2.2.0)"><em>pydicom.uid.UID</em></a><em>, </em><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#bytes" title="(in Python v3.9)"><em>bytes</em></a><em> or </em><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)"><em>str</em></a>) – The value for the Implementation Class UID</p>
 </dd>
 </dl>
 </dd></dl>
