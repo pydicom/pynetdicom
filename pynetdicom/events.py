@@ -21,7 +21,7 @@ from pynetdicom.dsutils import decode, create_file_meta
 
 if TYPE_CHECKING:  # pragma: no cover
     from pynetdicom.association import Association
-    from pnetdicom.dimse_messages import (
+    from pynetdicom.dimse_messages import (
         C_ECHO_RQ, C_FIND_RQ, C_GET_RQ, C_MOVE_RQ, C_STORE_RQ,
         N_ACTION_RQ, N_CREATE_RQ, N_DELETE_RQ, N_EVENT_REPORT_RQ, N_GET_RQ,
         N_SET_RQ, DIMSEMessage
