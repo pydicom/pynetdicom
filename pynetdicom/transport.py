@@ -268,15 +268,13 @@ class AssociationSocket:
             address.
         """
         # Solution from https://stackoverflow.com/a/28950776
-        temp = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-        try:
-            # We use `host` to allow unit testing
-            temp.connect(host)
-            addr: str = temp.getsockname()[0]
-        except:
-            addr = "127.0.0.1"
-        finally:
-            temp.close()
+        with socket.socket(socket.AF_INET, socket.SOCK_DGRAM) as temp:
+            try:
+                # We use `host` to allow unit testing
+                temp.connect(host)
+                addr: str = temp.getsockname()[0]
+            except:
+                addr = "127.0.0.1"
 
         return addr
 
