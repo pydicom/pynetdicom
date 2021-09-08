@@ -1008,6 +1008,7 @@ def AA_8(dul: "DULServiceProvider") -> str:
 # Machine State Definitions, PS3.8 Tables 9-1, 9-2, 9-3, 9-4, 9-5
 # pylint: disable=line-too-long
 STATES = {
+    # No association
     "Sta1": "Idle",
     # Association establishment
     "Sta2": "Transport connection open (Awaiting A-ASSOCIATE-RQ PDU)",
@@ -1023,11 +1024,13 @@ STATES = {
     "Sta10": "Release collision acceptor side; awaiting A-RELEASE-RP PDU",
     "Sta11": "Release collision requestor side; awaiting A-RELEASE-RP PDU",
     "Sta12": "Release collision acceptor side; awaiting A-RELEASE response primitive (from local user)",
+    # Waiting for transport connection close
     "Sta13": "Awaiting Transport Connection Close Indication (Association no longer exists)",
 }
 
 # State Machine Action Definitions, PS3.8 Tables 9-6, 9-7, 9-8, 9-9
 ACTIONS = {
+    # Association establishment related actions
     "AE-1": (
         "Issue TRANSPORT CONNECT request primitive to local transport service",
         AE_1,
