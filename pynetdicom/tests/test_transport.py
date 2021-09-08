@@ -700,7 +700,7 @@ class TestAssociationServer:
         scp.shutdown()
 
     def test_shutdown(self):
-        """test tring to shutdown a socket that's already closed."""
+        """test trying to shutdown a socket that's already closed."""
         self.ae = ae = AE()
         ae.add_supported_context(Verification)
         server = ae.start_server(("", 11112), block=False)

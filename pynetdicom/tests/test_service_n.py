@@ -19,7 +19,7 @@ from pynetdicom.dimse_primitives import (
     C_FIND,
 )
 from pynetdicom.sop_class import (
-    DisplaySystem,  # Display Sysyem Management - N-GET
+    DisplaySystem,  # Display System Management - N-GET
     # Modality Performed Procedure - N-CREATE, N-SET
     ModalityPerformedProcedureStep,
     ModalityPerformedProcedureStepRetrieve,  # N-GET

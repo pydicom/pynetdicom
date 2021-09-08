@@ -162,7 +162,7 @@ class ACSE:
 
         if not isinstance(user_response, (type(None), dict)):
             LOGGER.error(
-                "Invalid type returned by handler bount to " "'evt.EVT_SOP_EXTENDED'"
+                "Invalid type returned by handler bound to " "'evt.EVT_SOP_EXTENDED'"
             )
             user_response = {}
 
@@ -428,7 +428,7 @@ class ACSE:
         # Callbacks/Logging
         evt.trigger(self.assoc, evt.EVT_ACCEPTED, {})
 
-        # Assocation established OK
+        # Association established OK
         self.assoc.is_established = True
         evt.trigger(self.assoc, evt.EVT_ESTABLISHED, {})
 

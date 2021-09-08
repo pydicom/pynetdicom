@@ -72,7 +72,7 @@ class TestNonPatientObjectStorageServiceClass:
         req.MessageID = 1
         req.AffectedSOPClassUID = DATASET.SOPClassUID
         req.AffectedSOPInstanceUID = DATASET.SOPInstanceUID
-        req.Priorty = 0x0002
+        req.Priority = 0x0002
         # Bad VR? AA
         req.DataSet = BytesIO(
             b"\x08\x00\x01\x00\x40\x40\x00\x00\x00\x00\x00\x08\x00\x49"

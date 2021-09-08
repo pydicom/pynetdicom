@@ -871,7 +871,7 @@ class TestCStoreSCP:
 
 
 class TestAssociationSendCEcho:
-    """Run tests on Assocation evt.EVT_C_ECHO handler."""
+    """Run tests on Association evt.EVT_C_ECHO handler."""
 
     def setup(self):
         """Run prior to each test"""
@@ -1235,7 +1235,7 @@ class TestAssociationSendCEcho:
 
 
 class TestAssociationSendCStore:
-    """Run tests on Assocation send_c_store."""
+    """Run tests on Association send_c_store."""
 
     def setup(self):
         """Run prior to each test"""
@@ -1903,7 +1903,7 @@ class TestAssociationSendCStore:
 
 
 class TestAssociationSendCFind:
-    """Run tests on Assocation send_c_find."""
+    """Run tests on Association send_c_find."""
 
     def setup(self):
         """Run prior to each test"""
@@ -2477,7 +2477,7 @@ class TestAssociationSendCFind:
 
 
 class TestAssociationSendCCancel:
-    """Run tests on Assocation send_c_cancel."""
+    """Run tests on Association send_c_cancel."""
 
     def setup(self):
         """Run prior to each test"""
@@ -2580,7 +2580,7 @@ class TestAssociationSendCCancel:
 
 
 class TestAssociationSendCGet:
-    """Run tests on Assocation send_c_get."""
+    """Run tests on Association send_c_get."""
 
     def setup(self):
         """Run prior to each test"""
@@ -3517,7 +3517,7 @@ class TestAssociationSendCGet:
 
 
 class TestAssociationSendCMove:
-    """Run tests on Assocation send_c_move."""
+    """Run tests on Association send_c_move."""
 
     def setup(self):
         """Run prior to each test"""
@@ -6472,7 +6472,7 @@ class TestEventHandlingRequestor:
         scp.shutdown()
 
     def test_unbind_notification_none(self):
-        """Test unbinding a handler thats not bound."""
+        """Test unbinding a handler that's not bound."""
 
         def dummy(event):
             pass

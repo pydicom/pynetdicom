@@ -1,5 +1,5 @@
 """
-Implementaion of the service parameter primitives.
+Implementation of the service parameter primitives.
 """
 import codecs
 import logging

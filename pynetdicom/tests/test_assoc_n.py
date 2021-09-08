@@ -52,7 +52,7 @@ class DummyDIMSE:
 
 
 class TestAssociationSendNEventReport:
-    """Run tests on Assocation send_n_event_report."""
+    """Run tests on Association send_n_event_report."""
 
     def setup(self):
         self.ae = None
@@ -653,7 +653,7 @@ class TestAssociationSendNEventReport:
 
 
 class TestAssociationSendNGet:
-    """Run tests on Assocation send_n_get."""
+    """Run tests on Association send_n_get."""
 
     def setup(self):
         """Run prior to each test"""
@@ -1208,7 +1208,7 @@ class TestAssociationSendNGet:
 
 
 class TestAssociationSendNSet:
-    """Run tests on Assocation send_n_set."""
+    """Run tests on Association send_n_set."""
 
     def setup(self):
         self.ae = None
@@ -1781,7 +1781,7 @@ class TestAssociationSendNSet:
 
 
 class TestAssociationSendNAction:
-    """Run tests on Assocation send_n_action."""
+    """Run tests on Association send_n_action."""
 
     def setup(self):
         self.ae = None
@@ -2315,7 +2315,7 @@ class TestAssociationSendNAction:
 
 
 class TestAssociationSendNCreate:
-    """Run tests on Assocation send_n_create."""
+    """Run tests on Association send_n_create."""
 
     def setup(self):
         self.ae = None
@@ -2875,7 +2875,7 @@ class TestAssociationSendNCreate:
 
 
 class TestAssociationSendNDelete:
-    """Run tests on Assocation send_n_delete."""
+    """Run tests on Association send_n_delete."""
 
     def setup(self):
         self.ae = None

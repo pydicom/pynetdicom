@@ -772,7 +772,7 @@ class DIMSEMessage:
                 else:
                     del self.command_set[elem.tag]
 
-        # Theres a one-to-one relationship in the _MESSAGE_TYPES dict, so
+        # There's a one-to-one relationship in the _MESSAGE_TYPES dict, so
         #   invert it for convenience
         rev_type = {vv[0]: kk for kk, vv in _MESSAGE_TYPES.items()}
         self.command_set.CommandField = rev_type[cls_type_name]

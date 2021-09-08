@@ -4912,7 +4912,7 @@ class TestQRMoveServiceClass:
         scp.shutdown()
 
     def test_scp_handler_context(self):
-        """Test hander event's context attribute"""
+        """Test handler event's context attribute"""
         attrs = {}
 
         def handle(event):
@@ -4961,7 +4961,7 @@ class TestQRMoveServiceClass:
         scp.shutdown()
 
     def test_scp_handler_assoc(self):
-        """Test hander event's context attribute"""
+        """Test handler event's context attribute"""
         attrs = {}
 
         def handle(event):
@@ -5010,7 +5010,7 @@ class TestQRMoveServiceClass:
         scp.shutdown()
 
     def test_scp_handler_request(self):
-        """Test hander event's context attribute"""
+        """Test handler event's context attribute"""
         attrs = {}
 
         def handle(event):
@@ -5067,7 +5067,7 @@ class TestQRMoveServiceClass:
         scp.shutdown()
 
     def test_scp_handler_identifier(self):
-        """Test hander event's context attribute"""
+        """Test handler event's context attribute"""
         attrs = {}
 
         def handle(event):
@@ -5115,7 +5115,7 @@ class TestQRMoveServiceClass:
         scp.shutdown()
 
     def test_scp_handler_move_dest(self):
-        """Test hander event's context attribute"""
+        """Test handler event's context attribute"""
         attrs = {}
 
         def handle(event):

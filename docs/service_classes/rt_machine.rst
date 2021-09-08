@@ -6,7 +6,7 @@ The :dcm:`RT Machine Verification Service Class<part04/chapter_DD.html>`
 defines a service that uses the DIMSE N-CREATE, N-SET, N-DELETE, N-ACTION,
 N-EVENT-REPORT and N-GET services to
 facilitate the independent verification of geometric and dosimetric settings
-on a radiation delivery system priot to delivery of treatment.
+on a radiation delivery system prior to delivery of treatment.
 
 .. _rt_machine_sops:
 

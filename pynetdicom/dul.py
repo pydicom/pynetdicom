@@ -184,7 +184,7 @@ class DULServiceProvider(Thread):
             return True
 
         # By this point the connection should be established
-        #   If theres incoming data on the connection then check the PDU
+        #   If there's incoming data on the connection then check the PDU
         #   type
         # Fix for #28 - caused by peer disconnecting before run loop is
         #   stopped by assoc.release()

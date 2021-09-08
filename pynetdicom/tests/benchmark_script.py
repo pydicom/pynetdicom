@@ -6,7 +6,7 @@ Overall transfer speed (no datasets written to file unless noted)
   * 1000 datasets over 1 association
   * 1000 datasets over 1 association (datasets written to temp file)
   * 1 dataset per association over 1000 sequential associations
-  * 1000 datasets per association over 10 simulataneous associations
+  * 1000 datasets per association over 10 simultaneous associations
 * pynetdicom as SCU, DCMTK's storescp as SCP
   * 1000 datasets over 1 association
   * 1 dataset per association for 1000 sequential associations

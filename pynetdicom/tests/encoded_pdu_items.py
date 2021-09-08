@@ -585,7 +585,7 @@ presentation_data_value = b"\x00\x00\x00\x50\x01" + presentation_data
 # Max Length Received: 16382
 maximum_length_received = b"\x51\x00\x00\x04\x00\x00\x3f\xfe"
 
-######################## Implementaion Class UID Sub Item ####################
+######################## Implementation Class UID Sub Item ###################
 # Implementation Class UID: 1.2.826.0.1.3680043.9.3811.0.9.0
 implementation_class_uid = (
     b"\x52\x00\x00\x20\x31\x2e\x32\x2e\x38\x32\x36\x2e\x30\x2e\x31\x2e"
