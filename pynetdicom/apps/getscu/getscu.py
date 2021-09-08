@@ -5,10 +5,8 @@ For sending Query/Retrieve (QR) C-GET requests to a QR Get SCP.
 """
 
 import argparse
-import os
 import sys
 
-from pydicom.dataset import Dataset
 from pydicom.uid import (
     ExplicitVRLittleEndian,
     ImplicitVRLittleEndian,

@@ -5,10 +5,8 @@ Used for receiving DICOM SOP Instances transferred from an SCU.
 """
 
 import argparse
-import os
 import sys
 
-from pydicom.dataset import Dataset
 from pydicom.uid import (
     ExplicitVRLittleEndian,
     ImplicitVRLittleEndian,

@@ -13,11 +13,8 @@ from typing import (
     Union,
     cast,
     Callable,
-    Tuple,
-    Type,
     Sequence,
 )
-import unicodedata
 
 try:
     import ctypes

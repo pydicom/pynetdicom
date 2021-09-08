@@ -6,7 +6,6 @@ Notes:
     in order for the DIMSE messages/primitives to be created correctly.
 """
 
-import codecs
 from collections.abc import MutableSequence
 from io import BytesIO
 import logging
@@ -17,7 +16,6 @@ import warnings
 from pydicom.tag import Tag, BaseTag
 from pydicom.uid import UID
 
-from pynetdicom import _config
 from pynetdicom._globals import OptionalUIDType
 from pynetdicom.utils import set_ae, decode_bytes, set_uid
 
