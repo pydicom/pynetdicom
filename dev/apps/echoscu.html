@@ -1,86 +1,43 @@
-
-
 <!DOCTYPE html>
 <html class="writer-html5" lang="en" >
 <head>
-  <meta charset="utf-8" />
-  
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  
   <title>echoscu &mdash; pynetdicom 2.0.0.dev0 documentation</title>
-  
-
-  
-  <link rel="stylesheet" href="../_static/css/pynetdicom.css" type="text/css" />
-  <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
-  <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
-  <link rel="stylesheet" href="../_static/css/pynetdicom.css" type="text/css" />
-  <link rel="stylesheet" href="../_static/copybutton.css" type="text/css" />
-  <link rel="stylesheet" href="../_static/css/pynetdicom.css" type="text/css" />
-
-  
-  
+      <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="../_static/css/pynetdicom.css" type="text/css" />
+      <link rel="stylesheet" href="../_static/copybutton.css" type="text/css" />
+      <link rel="stylesheet" href="../_static/css/pynetdicom.css" type="text/css" />
     <link rel="shortcut icon" href="../_static/favicon.ico"/>
-  
-
-  
-  
-
-  
-
-  
   <!--[if lt IE 9]>
     <script src="../_static/js/html5shiv.min.js"></script>
   <![endif]-->
   
-    
-      <script type="text/javascript" id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
         <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
         <script src="../_static/jquery.js"></script>
         <script src="../_static/underscore.js"></script>
         <script src="../_static/doctools.js"></script>
         <script src="../_static/clipboard.min.js"></script>
         <script src="../_static/copybutton.js"></script>
-    
-    <script type="text/javascript" src="../_static/js/theme.js"></script>
-
-    
+    <script src="../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
     <link rel="next" title="findscu" href="findscu.html" />
     <link rel="prev" title="echoscp" href="echoscp.html" /> 
 </head>
 
-<body class="wy-body-for-nav">
-
-   
+<body class="wy-body-for-nav"> 
   <div class="wy-grid-for-nav">
-    
     <nav data-toggle="wy-nav-shift" class="wy-nav-side">
       <div class="wy-side-scroll">
         <div class="wy-side-nav-search" >
-          
-
-          
             <a href="../index.html" class="icon icon-home"> pynetdicom
-          
-
-          
-            
             <img src="../_static/pydicom_flat_black.svg" class="logo" alt="Logo"/>
-          
           </a>
-
-          
-            
-            
               <div class="version">
                 2.0.0.dev0
               </div>
-            
-          
-
-          
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
     <input type="text" name="q" placeholder="Search docs" />
@@ -88,18 +45,7 @@
     <input type="hidden" name="area" value="default" />
   </form>
 </div>
-
-          
-        </div>
-
-        
-        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
-          
-            
-            
-              
-            
-            
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
               <p class="caption" role="heading"><span class="caption-text">Documentation</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="../user/index.html">User Guide</a></li>
@@ -143,77 +89,36 @@
 <li class="toctree-l1"><a class="reference internal" href="../changelog/index.html">Release Notes</a></li>
 </ul>
 
-            
-          
         </div>
-        
       </div>
     </nav>
 
-    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
-
-      
-      <nav class="wy-nav-top" aria-label="top navigation">
-        
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
           <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
           <a href="../index.html">pynetdicom</a>
-        
       </nav>
 
-
       <div class="wy-nav-content">
-        
         <div class="rst-content">
-        
-          
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-<div role="navigation" aria-label="breadcrumbs navigation">
-
+          <div role="navigation" aria-label="Page navigation">
   <ul class="wy-breadcrumbs">
-    
       <li><a href="../index.html" class="icon icon-home"></a> &raquo;</li>
-        
           <li><a href="index.html">Applications</a> &raquo;</li>
-        
       <li>echoscu</li>
-    
-    
       <li class="wy-breadcrumbs-aside">
-        
-          
-        
       </li>
-    
   </ul>
-
-  
   <hr/>
 </div>
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
-            
-  <div class="section" id="echoscu">
+             
+  <section id="echoscu">
 <h1>echoscu<a class="headerlink" href="#echoscu" title="Permalink to this headline">¶</a></h1>
 <div class="highlight-text notranslate"><div class="highlight"><pre><span></span>$ python -m pynetdicom echoscu [options] addr port
 </pre></div>
 </div>
-<div class="section" id="description">
+<section id="description">
 <h2>Description<a class="headerlink" href="#description" title="Permalink to this headline">¶</a></h2>
 <p>The <code class="docutils literal notranslate"><span class="pre">echoscu</span></code> application implements a Service Class User (SCU) for the
 <a class="reference external" href="http://dicom.nema.org/medical/dicom/current/output/chtml/part04/chapter_A.html">Verification</a> service class. It establishes an
@@ -221,8 +126,8 @@ association with a peer Application Entity (AE), sends a
 <a class="reference external" href="http://dicom.nema.org/medical/dicom/current/output/chtml/part07/sect_9.3.5.html#sect_9.3.5.1">C-ECHO</a> request and waits for a
 response. The application can be used to verify basic DICOM connectivity.</p>
 <p>The source code for the application can be found <a class="reference external" href="https://github.com/pydicom/pynetdicom/tree/master/pynetdicom/apps/echoscu">here</a></p>
-</div>
-<div class="section" id="usage">
+</section>
+<section id="usage">
 <h2>Usage<a class="headerlink" href="#usage" title="Permalink to this headline">¶</a></h2>
 <p>The following example shows what happens when it’s succesfully run on
 an SCP at IP <code class="docutils literal notranslate"><span class="pre">127.0.0.1</span></code> and listen port <code class="docutils literal notranslate"><span class="pre">11112</span></code> that supports the
@@ -266,8 +171,8 @@ I: Received Echo Response (Status: Success)
 I: Releasing Association
 </pre></div>
 </div>
-</div>
-<div class="section" id="parameters">
+</section>
+<section id="parameters">
 <h2>Parameters<a class="headerlink" href="#parameters" title="Permalink to this headline">¶</a></h2>
 <dl class="simple">
 <dt><code class="docutils literal notranslate"><span class="pre">addr</span></code></dt><dd><p>TCP/IP address or hostname of DICOM peer</p>
@@ -275,10 +180,10 @@ I: Releasing Association
 <dt><code class="docutils literal notranslate"><span class="pre">port</span></code></dt><dd><p>TCP/IP port number of peer</p>
 </dd>
 </dl>
-</div>
-<div class="section" id="options">
+</section>
+<section id="options">
 <h2>Options<a class="headerlink" href="#options" title="Permalink to this headline">¶</a></h2>
-<div class="section" id="general-options">
+<section id="general-options">
 <h3>General Options<a class="headerlink" href="#general-options" title="Permalink to this headline">¶</a></h3>
 <dl class="simple">
 <dt><code class="docutils literal notranslate"><span class="pre">-q</span>&#160;&#160;&#160; <span class="pre">--quiet</span></code></dt><dd><p>quiet mode, prints no warnings or errors</p>
@@ -292,8 +197,8 @@ I: Releasing Association
 or lower</p>
 </dd>
 </dl>
-</div>
-<div class="section" id="network-options">
+</section>
+<section id="network-options">
 <h3>Network Options<a class="headerlink" href="#network-options" title="Permalink to this headline">¶</a></h3>
 <dl class="simple">
 <dt><code class="docutils literal notranslate"><span class="pre">-aet</span>&#160; <span class="pre">--calling-aet</span> <span class="pre">[a]etitle</span> <span class="pre">(str)</span></code></dt><dd><p>set the local AE title (default: <code class="docutils literal notranslate"><span class="pre">ECHOSCU</span></code>)</p>
@@ -309,8 +214,8 @@ or lower</p>
 <dt><code class="docutils literal notranslate"><span class="pre">-pdu</span>&#160; <span class="pre">--max-pdu</span> <span class="pre">[n]umber</span> <span class="pre">of</span> <span class="pre">bytes</span> <span class="pre">(int)</span></code></dt><dd><p>set maximum receive PDU bytes to n bytes (default: <code class="docutils literal notranslate"><span class="pre">16382</span></code>)</p>
 </dd>
 </dl>
-</div>
-<div class="section" id="transfer-syntax-options">
+</section>
+<section id="transfer-syntax-options">
 <h3>Transfer Syntax Options<a class="headerlink" href="#transfer-syntax-options" title="Permalink to this headline">¶</a></h3>
 <dl class="simple">
 <dt><code class="docutils literal notranslate"><span class="pre">-xe</span>&#160;&#160; <span class="pre">--request-little</span></code></dt><dd><p>request explicit VR little endian TS only</p>
@@ -320,8 +225,8 @@ or lower</p>
 <dt><code class="docutils literal notranslate"><span class="pre">-xi</span>&#160;&#160; <span class="pre">--request-implicit</span></code></dt><dd><p>request implicit VR little endian TS only</p>
 </dd>
 </dl>
-</div>
-<div class="section" id="miscellaneous-options">
+</section>
+<section id="miscellaneous-options">
 <h3>Miscellaneous Options<a class="headerlink" href="#miscellaneous-options" title="Permalink to this headline">¶</a></h3>
 <dl class="simple">
 <dt><code class="docutils literal notranslate"><span class="pre">--repeat</span> <span class="pre">[n]umber</span> <span class="pre">(int)</span></code></dt><dd><p>repeat echo request <code class="docutils literal notranslate"><span class="pre">n</span></code> times</p>
@@ -329,15 +234,15 @@ or lower</p>
 <dt><code class="docutils literal notranslate"><span class="pre">--abort</span></code></dt><dd><p>abort association instead of releasing it</p>
 </dd>
 </dl>
-</div>
-</div>
-<div class="section" id="dicom-conformance">
+</section>
+</section>
+<section id="dicom-conformance">
 <h2>DICOM Conformance<a class="headerlink" href="#dicom-conformance" title="Permalink to this headline">¶</a></h2>
 <p>The <code class="docutils literal notranslate"><span class="pre">echoscu</span></code> application supports the Verification service as an SCU. The
 following SOP classes are supported:</p>
-<div class="section" id="verification-service">
+<section id="verification-service">
 <h3>Verification Service<a class="headerlink" href="#verification-service" title="Permalink to this headline">¶</a></h3>
-<div class="section" id="sop-classes">
+<section id="sop-classes">
 <h4>SOP Classes<a class="headerlink" href="#sop-classes" title="Permalink to this headline">¶</a></h4>
 <table class="docutils align-default">
 <colgroup>
@@ -355,8 +260,8 @@ following SOP classes are supported:</p>
 </tr>
 </tbody>
 </table>
-</div>
-<div class="section" id="transfer-syntaxes">
+</section>
+<section id="transfer-syntaxes">
 <h4>Transfer Syntaxes<a class="headerlink" href="#transfer-syntaxes" title="Permalink to this headline">¶</a></h4>
 <table class="docutils align-default">
 <colgroup>
@@ -383,57 +288,40 @@ following SOP classes are supported:</p>
 </tr>
 </tbody>
 </table>
-</div>
-</div>
-</div>
-</div>
+</section>
+</section>
+</section>
+</section>
 
 
            </div>
-           
           </div>
-          <footer>
-    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
-        <a href="findscu.html" class="btn btn-neutral float-right" title="findscu" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
         <a href="echoscp.html" class="btn btn-neutral float-left" title="echoscp" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="findscu.html" class="btn btn-neutral float-right" title="findscu" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
     </div>
 
   <hr/>
 
   <div role="contentinfo">
-    <p>
-        &#169; Copyright 2018-2021, pynetdicom contributors.
-
-    </p>
+    <p>&#169; Copyright 2018-2021, pynetdicom contributors.</p>
   </div>
-    
-    
-    
-    Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
-    
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
     <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
-    
-    provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
 
 </footer>
         </div>
       </div>
-
     </section>
-
   </div>
-  
-
-  <script type="text/javascript">
+  <script>
       jQuery(function () {
           SphinxRtdTheme.Navigation.enable(true);
       });
-  </script>
-
-  
-  
-    
-   
+  </script> 
 
 </body>
 </html>

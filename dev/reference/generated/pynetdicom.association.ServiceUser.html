@@ -1,86 +1,43 @@
-
-
 <!DOCTYPE html>
 <html class="writer-html5" lang="en" >
 <head>
-  <meta charset="utf-8" />
-  
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  
   <title>pynetdicom.association.ServiceUser &mdash; pynetdicom 2.0.0.dev0 documentation</title>
-  
-
-  
-  <link rel="stylesheet" href="../../_static/css/pynetdicom.css" type="text/css" />
-  <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
-  <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
-  <link rel="stylesheet" href="../../_static/css/pynetdicom.css" type="text/css" />
-  <link rel="stylesheet" href="../../_static/copybutton.css" type="text/css" />
-  <link rel="stylesheet" href="../../_static/css/pynetdicom.css" type="text/css" />
-
-  
-  
+      <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="../../_static/css/pynetdicom.css" type="text/css" />
+      <link rel="stylesheet" href="../../_static/copybutton.css" type="text/css" />
+      <link rel="stylesheet" href="../../_static/css/pynetdicom.css" type="text/css" />
     <link rel="shortcut icon" href="../../_static/favicon.ico"/>
-  
-
-  
-  
-
-  
-
-  
   <!--[if lt IE 9]>
     <script src="../../_static/js/html5shiv.min.js"></script>
   <![endif]-->
   
-    
-      <script type="text/javascript" id="documentation_options" data-url_root="../../" src="../../_static/documentation_options.js"></script>
         <script data-url_root="../../" id="documentation_options" src="../../_static/documentation_options.js"></script>
         <script src="../../_static/jquery.js"></script>
         <script src="../../_static/underscore.js"></script>
         <script src="../../_static/doctools.js"></script>
         <script src="../../_static/clipboard.min.js"></script>
         <script src="../../_static/copybutton.js"></script>
-    
-    <script type="text/javascript" src="../../_static/js/theme.js"></script>
-
-    
+    <script src="../../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../../genindex.html" />
     <link rel="search" title="Search" href="../../search.html" />
     <link rel="next" title="Configuration Options (pynetdicom._config)" href="../config.html" />
     <link rel="prev" title="pynetdicom.association.Association" href="pynetdicom.association.Association.html" /> 
 </head>
 
-<body class="wy-body-for-nav">
-
-   
+<body class="wy-body-for-nav"> 
   <div class="wy-grid-for-nav">
-    
     <nav data-toggle="wy-nav-shift" class="wy-nav-side">
       <div class="wy-side-scroll">
         <div class="wy-side-nav-search" >
-          
-
-          
             <a href="../../index.html" class="icon icon-home"> pynetdicom
-          
-
-          
-            
             <img src="../../_static/pydicom_flat_black.svg" class="logo" alt="Logo"/>
-          
           </a>
-
-          
-            
-            
               <div class="version">
                 2.0.0.dev0
               </div>
-            
-          
-
-          
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
     <input type="text" name="q" placeholder="Search docs" />
@@ -88,18 +45,7 @@
     <input type="hidden" name="area" value="default" />
   </form>
 </div>
-
-          
-        </div>
-
-        
-        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
-          
-            
-            
-              
-            
-            
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
               <p class="caption" role="heading"><span class="caption-text">Documentation</span></p>
 <ul class="current">
 <li class="toctree-l1"><a class="reference internal" href="../../user/index.html">User Guide</a></li>
@@ -140,78 +86,36 @@
 <li class="toctree-l1"><a class="reference internal" href="../../changelog/index.html">Release Notes</a></li>
 </ul>
 
-            
-          
         </div>
-        
       </div>
     </nav>
 
-    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
-
-      
-      <nav class="wy-nav-top" aria-label="top navigation">
-        
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
           <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
           <a href="../../index.html">pynetdicom</a>
-        
       </nav>
 
-
       <div class="wy-nav-content">
-        
         <div class="rst-content">
-        
-          
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-<div role="navigation" aria-label="breadcrumbs navigation">
-
+          <div role="navigation" aria-label="Page navigation">
   <ul class="wy-breadcrumbs">
-    
       <li><a href="../../index.html" class="icon icon-home"></a> &raquo;</li>
-        
           <li><a href="../index.html">API Reference</a> &raquo;</li>
-        
           <li><a href="../association.html">Association (<code class="xref py py-mod docutils literal notranslate"><span class="pre">pynetdicom.association</span></code>)</a> &raquo;</li>
-        
       <li>pynetdicom.association.ServiceUser</li>
-    
-    
       <li class="wy-breadcrumbs-aside">
-        
-          
-        
       </li>
-    
   </ul>
-
-  
   <hr/>
 </div>
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
-            
-  <div class="section" id="pynetdicom-association-serviceuser">
+             
+  <section id="pynetdicom-association-serviceuser">
 <h1>pynetdicom.association.ServiceUser<a class="headerlink" href="#pynetdicom-association-serviceuser" title="Permalink to this headline">¶</a></h1>
 <dl class="py class">
 <dt class="sig sig-object py" id="pynetdicom.association.ServiceUser">
-<em class="property"><span class="pre">class</span> </em><span class="sig-prename descclassname"><span class="pre">pynetdicom.association.</span></span><span class="sig-name descname"><span class="pre">ServiceUser</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">assoc</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><a class="reference internal" href="pynetdicom.association.Association.html#pynetdicom.association.Association" title="pynetdicom.association.Association"><span class="pre">pynetdicom.association.Association</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">mode</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)"><span class="pre">str</span></a></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/a65725175/pynetdicom/association.py#L3512"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pynetdicom.association.ServiceUser" title="Permalink to this definition">¶</a></dt>
+<em class="property"><span class="pre">class</span> </em><span class="sig-prename descclassname"><span class="pre">pynetdicom.association.</span></span><span class="sig-name descname"><span class="pre">ServiceUser</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">assoc</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><a class="reference internal" href="pynetdicom.association.Association.html#pynetdicom.association.Association" title="pynetdicom.association.Association"><span class="pre">pynetdicom.association.Association</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">mode</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)"><span class="pre">str</span></a></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/68a12acdb/pynetdicom/association.py#L3512"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pynetdicom.association.ServiceUser" title="Permalink to this definition">¶</a></dt>
 <dd><p>Convenience class for the <a class="reference internal" href="pynetdicom.association.Association.html#pynetdicom.association.Association" title="pynetdicom.association.Association"><code class="xref py py-class docutils literal notranslate"><span class="pre">Association</span></code></a> service user.</p>
 <p>An <a class="reference internal" href="pynetdicom.association.Association.html#pynetdicom.association.Association" title="pynetdicom.association.Association"><code class="xref py py-class docutils literal notranslate"><span class="pre">Association</span></code></a> object has two <a class="reference internal" href="#pynetdicom.association.ServiceUser" title="pynetdicom.association.ServiceUser"><code class="xref py py-class docutils literal notranslate"><span class="pre">ServiceUser</span></code></a> attributes, one
 representing the association <em>requestor</em> and the other the association
@@ -298,7 +202,7 @@ during association negotiation.</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="pynetdicom.association.ServiceUser.__init__">
-<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">assoc</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><a class="reference internal" href="pynetdicom.association.Association.html#pynetdicom.association.Association" title="pynetdicom.association.Association"><span class="pre">pynetdicom.association.Association</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">mode</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)"><span class="pre">str</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.9)"><span class="pre">None</span></a></span></span><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/a65725175/pynetdicom/association.py#L3558"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pynetdicom.association.ServiceUser.__init__" title="Permalink to this definition">¶</a></dt>
+<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">assoc</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><a class="reference internal" href="pynetdicom.association.Association.html#pynetdicom.association.Association" title="pynetdicom.association.Association"><span class="pre">pynetdicom.association.Association</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">mode</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)"><span class="pre">str</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.9)"><span class="pre">None</span></a></span></span><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/68a12acdb/pynetdicom/association.py#L3558"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pynetdicom.association.ServiceUser.__init__" title="Permalink to this definition">¶</a></dt>
 <dd><p>Create a new <a class="reference internal" href="#pynetdicom.association.ServiceUser" title="pynetdicom.association.ServiceUser"><code class="xref py py-class docutils literal notranslate"><span class="pre">ServiceUser</span></code></a>.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -357,7 +261,7 @@ This is not necessarily the same as the association’s
 <td><p>Return a <a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.9)"><code class="xref py py-class docutils literal notranslate"><span class="pre">list</span></code></a> of Extended Negotiation items.</p></td>
 </tr>
 <tr class="row-odd"><td><p><a class="reference internal" href="#pynetdicom.association.ServiceUser.implementation_class_uid" title="pynetdicom.association.ServiceUser.implementation_class_uid"><code class="xref py py-obj docutils literal notranslate"><span class="pre">implementation_class_uid</span></code></a></p></td>
-<td><p>The Implementation Class UID as a <a class="reference external" href="https://pydicom.github.io/pydicom/stable/reference/generated/pydicom.uid.UID.html#pydicom.uid.UID" title="(in pydicom v2.2.0)"><code class="xref py py-class docutils literal notranslate"><span class="pre">UID</span></code></a>.</p></td>
+<td><p>The Implementation Class UID as a <a class="reference external" href="https://pydicom.github.io/pydicom/stable/reference/generated/pydicom.uid.UID.html#pydicom.uid.UID" title="(in pydicom v2.2.2)"><code class="xref py py-class docutils literal notranslate"><span class="pre">UID</span></code></a>.</p></td>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="#pynetdicom.association.ServiceUser.implementation_version_name" title="pynetdicom.association.ServiceUser.implementation_version_name"><code class="xref py py-obj docutils literal notranslate"><span class="pre">implementation_version_name</span></code></a></p></td>
 <td><p>Get or set the <em>Implementation Version Name</em>.</p></td>
@@ -378,7 +282,7 @@ This is not necessarily the same as the association’s
 <td><p>Return the mode as <a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></a>, either <code class="docutils literal notranslate"><span class="pre">'requestor'</span></code> or <code class="docutils literal notranslate"><span class="pre">'acceptor'</span></code>.</p></td>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="#pynetdicom.association.ServiceUser.requested_contexts" title="pynetdicom.association.ServiceUser.requested_contexts"><code class="xref py py-obj docutils literal notranslate"><span class="pre">requested_contexts</span></code></a></p></td>
-<td><p>A <a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.9)"><code class="xref py py-class docutils literal notranslate"><span class="pre">list</span></code></a> of the requestor’s requested presentation contexts.</p></td>
+<td><p>A <a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.9)"><code class="xref py py-class docutils literal notranslate"><span class="pre">list</span></code></a> of the requestor's requested presentation contexts.</p></td>
 </tr>
 <tr class="row-odd"><td><p><a class="reference internal" href="#pynetdicom.association.ServiceUser.role_selection" title="pynetdicom.association.ServiceUser.role_selection"><code class="xref py py-obj docutils literal notranslate"><span class="pre">role_selection</span></code></a></p></td>
 <td><p>Return any SCP/SCU Role Selection items.</p></td>
@@ -405,7 +309,7 @@ This is not necessarily the same as the association’s
 </table>
 <dl class="py property">
 <dt class="sig sig-object py" id="pynetdicom.association.ServiceUser.accepted_common_extended">
-<em class="property"><span class="pre">property</span> </em><span class="sig-name descname"><span class="pre">accepted_common_extended</span></span><em class="property"><span class="pre">:</span> <span class="pre">Dict[pydicom.uid.UID,</span> <span class="pre">Tuple[pydicom.uid.UID,</span> <span class="pre">List[pydicom.uid.UID]]]</span></em><a class="headerlink" href="#pynetdicom.association.ServiceUser.accepted_common_extended" title="Permalink to this definition">¶</a></dt>
+<em class="property"><span class="pre">property</span> </em><span class="sig-name descname"><span class="pre">accepted_common_extended</span></span><em class="property"><span class="pre">:</span> <span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://pydicom.github.io/pydicom/stable/reference/generated/pydicom.uid.UID.html#pydicom.uid.UID" title="(in pydicom v2.2.2)"><span class="pre">pydicom.uid.UID</span></a><span class="p"><span class="pre">,</span> </span><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://pydicom.github.io/pydicom/stable/reference/generated/pydicom.uid.UID.html#pydicom.uid.UID" title="(in pydicom v2.2.2)"><span class="pre">pydicom.uid.UID</span></a><span class="p"><span class="pre">,</span> </span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://pydicom.github.io/pydicom/stable/reference/generated/pydicom.uid.UID.html#pydicom.uid.UID" title="(in pydicom v2.2.2)"><span class="pre">pydicom.uid.UID</span></a><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#pynetdicom.association.ServiceUser.accepted_common_extended" title="Permalink to this definition">¶</a></dt>
 <dd><p>Return a <a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.9)"><code class="xref py py-class docutils literal notranslate"><span class="pre">dict</span></code></a> of the accepted SOP Class Common Extended
 Negotiation.</p>
 <dl class="field-list simple">
@@ -425,7 +329,7 @@ negotiation items.</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="pynetdicom.association.ServiceUser.add_negotiation_item">
-<span class="sig-name descname"><span class="pre">add_negotiation_item</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">item</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">Union</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="pynetdicom.pdu_primitives.MaximumLengthNotification.html#pynetdicom.pdu_primitives.MaximumLengthNotification" title="pynetdicom.pdu_primitives.MaximumLengthNotification"><span class="pre">pynetdicom.pdu_primitives.MaximumLengthNotification</span></a><span class="p"><span class="pre">,</span> </span><a class="reference internal" href="pynetdicom.pdu_primitives.ImplementationClassUIDNotification.html#pynetdicom.pdu_primitives.ImplementationClassUIDNotification" title="pynetdicom.pdu_primitives.ImplementationClassUIDNotification"><span class="pre">pynetdicom.pdu_primitives.ImplementationClassUIDNotification</span></a><span class="p"><span class="pre">,</span> </span><a class="reference internal" href="pynetdicom.pdu_primitives.ImplementationVersionNameNotification.html#pynetdicom.pdu_primitives.ImplementationVersionNameNotification" title="pynetdicom.pdu_primitives.ImplementationVersionNameNotification"><span class="pre">pynetdicom.pdu_primitives.ImplementationVersionNameNotification</span></a><span class="p"><span class="pre">,</span> </span><a class="reference internal" href="pynetdicom.pdu_primitives.AsynchronousOperationsWindowNegotiation.html#pynetdicom.pdu_primitives.AsynchronousOperationsWindowNegotiation" title="pynetdicom.pdu_primitives.AsynchronousOperationsWindowNegotiation"><span class="pre">pynetdicom.pdu_primitives.AsynchronousOperationsWindowNegotiation</span></a><span class="p"><span class="pre">,</span> </span><a class="reference internal" href="pynetdicom.pdu_primitives.SCP_SCU_RoleSelectionNegotiation.html#pynetdicom.pdu_primitives.SCP_SCU_RoleSelectionNegotiation" title="pynetdicom.pdu_primitives.SCP_SCU_RoleSelectionNegotiation"><span class="pre">pynetdicom.pdu_primitives.SCP_SCU_RoleSelectionNegotiation</span></a><span class="p"><span class="pre">,</span> </span><a class="reference internal" href="pynetdicom.pdu_primitives.SOPClassExtendedNegotiation.html#pynetdicom.pdu_primitives.SOPClassExtendedNegotiation" title="pynetdicom.pdu_primitives.SOPClassExtendedNegotiation"><span class="pre">pynetdicom.pdu_primitives.SOPClassExtendedNegotiation</span></a><span class="p"><span class="pre">,</span> </span><a class="reference internal" href="pynetdicom.pdu_primitives.SOPClassCommonExtendedNegotiation.html#pynetdicom.pdu_primitives.SOPClassCommonExtendedNegotiation" title="pynetdicom.pdu_primitives.SOPClassCommonExtendedNegotiation"><span class="pre">pynetdicom.pdu_primitives.SOPClassCommonExtendedNegotiation</span></a><span class="p"><span class="pre">,</span> </span><a class="reference internal" href="pynetdicom.pdu_primitives.UserIdentityNegotiation.html#pynetdicom.pdu_primitives.UserIdentityNegotiation" title="pynetdicom.pdu_primitives.UserIdentityNegotiation"><span class="pre">pynetdicom.pdu_primitives.UserIdentityNegotiation</span></a><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.9)"><span class="pre">None</span></a></span></span><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/a65725175/pynetdicom/association.py#L3636"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pynetdicom.association.ServiceUser.add_negotiation_item" title="Permalink to this definition">¶</a></dt>
+<span class="sig-name descname"><span class="pre">add_negotiation_item</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">item</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">Union</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="pynetdicom.pdu_primitives.MaximumLengthNotification.html#pynetdicom.pdu_primitives.MaximumLengthNotification" title="pynetdicom.pdu_primitives.MaximumLengthNotification"><span class="pre">pynetdicom.pdu_primitives.MaximumLengthNotification</span></a><span class="p"><span class="pre">,</span> </span><a class="reference internal" href="pynetdicom.pdu_primitives.ImplementationClassUIDNotification.html#pynetdicom.pdu_primitives.ImplementationClassUIDNotification" title="pynetdicom.pdu_primitives.ImplementationClassUIDNotification"><span class="pre">pynetdicom.pdu_primitives.ImplementationClassUIDNotification</span></a><span class="p"><span class="pre">,</span> </span><a class="reference internal" href="pynetdicom.pdu_primitives.ImplementationVersionNameNotification.html#pynetdicom.pdu_primitives.ImplementationVersionNameNotification" title="pynetdicom.pdu_primitives.ImplementationVersionNameNotification"><span class="pre">pynetdicom.pdu_primitives.ImplementationVersionNameNotification</span></a><span class="p"><span class="pre">,</span> </span><a class="reference internal" href="pynetdicom.pdu_primitives.AsynchronousOperationsWindowNegotiation.html#pynetdicom.pdu_primitives.AsynchronousOperationsWindowNegotiation" title="pynetdicom.pdu_primitives.AsynchronousOperationsWindowNegotiation"><span class="pre">pynetdicom.pdu_primitives.AsynchronousOperationsWindowNegotiation</span></a><span class="p"><span class="pre">,</span> </span><a class="reference internal" href="pynetdicom.pdu_primitives.SCP_SCU_RoleSelectionNegotiation.html#pynetdicom.pdu_primitives.SCP_SCU_RoleSelectionNegotiation" title="pynetdicom.pdu_primitives.SCP_SCU_RoleSelectionNegotiation"><span class="pre">pynetdicom.pdu_primitives.SCP_SCU_RoleSelectionNegotiation</span></a><span class="p"><span class="pre">,</span> </span><a class="reference internal" href="pynetdicom.pdu_primitives.SOPClassExtendedNegotiation.html#pynetdicom.pdu_primitives.SOPClassExtendedNegotiation" title="pynetdicom.pdu_primitives.SOPClassExtendedNegotiation"><span class="pre">pynetdicom.pdu_primitives.SOPClassExtendedNegotiation</span></a><span class="p"><span class="pre">,</span> </span><a class="reference internal" href="pynetdicom.pdu_primitives.SOPClassCommonExtendedNegotiation.html#pynetdicom.pdu_primitives.SOPClassCommonExtendedNegotiation" title="pynetdicom.pdu_primitives.SOPClassCommonExtendedNegotiation"><span class="pre">pynetdicom.pdu_primitives.SOPClassCommonExtendedNegotiation</span></a><span class="p"><span class="pre">,</span> </span><a class="reference internal" href="pynetdicom.pdu_primitives.UserIdentityNegotiation.html#pynetdicom.pdu_primitives.UserIdentityNegotiation" title="pynetdicom.pdu_primitives.UserIdentityNegotiation"><span class="pre">pynetdicom.pdu_primitives.UserIdentityNegotiation</span></a><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.9)"><span class="pre">None</span></a></span></span><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/68a12acdb/pynetdicom/association.py#L3636"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pynetdicom.association.ServiceUser.add_negotiation_item" title="Permalink to this definition">¶</a></dt>
 <dd><p>Add an extended negotiation item to the user information.</p>
 <p>Items can only be added prior to starting the association negotiation.</p>
 <dl class="field-list simple">
@@ -452,7 +356,7 @@ negotiation items.</p>
 
 <dl class="py property">
 <dt class="sig sig-object py" id="pynetdicom.association.ServiceUser.ae_title">
-<em class="property"><span class="pre">property</span> </em><span class="sig-name descname"><span class="pre">ae_title</span></span><em class="property"><span class="pre">:</span> <span class="pre">str</span></em><a class="headerlink" href="#pynetdicom.association.ServiceUser.ae_title" title="Permalink to this definition">¶</a></dt>
+<em class="property"><span class="pre">property</span> </em><span class="sig-name descname"><span class="pre">ae_title</span></span><em class="property"><span class="pre">:</span> <a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)"><span class="pre">str</span></a></em><a class="headerlink" href="#pynetdicom.association.ServiceUser.ae_title" title="Permalink to this definition">¶</a></dt>
 <dd><p>Get or set the AE title.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -469,7 +373,7 @@ negotiation items.</p>
 
 <dl class="py property">
 <dt class="sig sig-object py" id="pynetdicom.association.ServiceUser.asynchronous_operations">
-<em class="property"><span class="pre">property</span> </em><span class="sig-name descname"><span class="pre">asynchronous_operations</span></span><em class="property"><span class="pre">:</span> <span class="pre">Tuple[int,</span> <span class="pre">int]</span></em><a class="headerlink" href="#pynetdicom.association.ServiceUser.asynchronous_operations" title="Permalink to this definition">¶</a></dt>
+<em class="property"><span class="pre">property</span> </em><span class="sig-name descname"><span class="pre">asynchronous_operations</span></span><em class="property"><span class="pre">:</span> <span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.9)"><span class="pre">int</span></a><span class="p"><span class="pre">,</span> </span><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.9)"><span class="pre">int</span></a><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#pynetdicom.association.ServiceUser.asynchronous_operations" title="Permalink to this definition">¶</a></dt>
 <dd><p>Return the Asynchronous Operations Window operations numbers.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Returns</dt>
@@ -485,7 +389,7 @@ Window Negotiation item is in the extended negotiation items.</p>
 
 <dl class="py property">
 <dt class="sig sig-object py" id="pynetdicom.association.ServiceUser.extended_negotiation">
-<em class="property"><span class="pre">property</span> </em><span class="sig-name descname"><span class="pre">extended_negotiation</span></span><em class="property"><span class="pre">:</span> <span class="pre">List[Union[pynetdicom.pdu_primitives.MaximumLengthNotification,</span> <span class="pre">pynetdicom.pdu_primitives.ImplementationClassUIDNotification,</span> <span class="pre">pynetdicom.pdu_primitives.ImplementationVersionNameNotification,</span> <span class="pre">pynetdicom.pdu_primitives.AsynchronousOperationsWindowNegotiation,</span> <span class="pre">pynetdicom.pdu_primitives.SCP_SCU_RoleSelectionNegotiation,</span> <span class="pre">pynetdicom.pdu_primitives.SOPClassExtendedNegotiation,</span> <span class="pre">pynetdicom.pdu_primitives.UserIdentityNegotiation,</span> <span class="pre">pynetdicom.pdu_primitives.SOPClassCommonExtendedNegotiation]]</span></em><a class="headerlink" href="#pynetdicom.association.ServiceUser.extended_negotiation" title="Permalink to this definition">¶</a></dt>
+<em class="property"><span class="pre">property</span> </em><span class="sig-name descname"><span class="pre">extended_negotiation</span></span><em class="property"><span class="pre">:</span> <span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">Union</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="pynetdicom.pdu_primitives.MaximumLengthNotification.html#pynetdicom.pdu_primitives.MaximumLengthNotification" title="pynetdicom.pdu_primitives.MaximumLengthNotification"><span class="pre">pynetdicom.pdu_primitives.MaximumLengthNotification</span></a><span class="p"><span class="pre">,</span> </span><a class="reference internal" href="pynetdicom.pdu_primitives.ImplementationClassUIDNotification.html#pynetdicom.pdu_primitives.ImplementationClassUIDNotification" title="pynetdicom.pdu_primitives.ImplementationClassUIDNotification"><span class="pre">pynetdicom.pdu_primitives.ImplementationClassUIDNotification</span></a><span class="p"><span class="pre">,</span> </span><a class="reference internal" href="pynetdicom.pdu_primitives.ImplementationVersionNameNotification.html#pynetdicom.pdu_primitives.ImplementationVersionNameNotification" title="pynetdicom.pdu_primitives.ImplementationVersionNameNotification"><span class="pre">pynetdicom.pdu_primitives.ImplementationVersionNameNotification</span></a><span class="p"><span class="pre">,</span> </span><a class="reference internal" href="pynetdicom.pdu_primitives.AsynchronousOperationsWindowNegotiation.html#pynetdicom.pdu_primitives.AsynchronousOperationsWindowNegotiation" title="pynetdicom.pdu_primitives.AsynchronousOperationsWindowNegotiation"><span class="pre">pynetdicom.pdu_primitives.AsynchronousOperationsWindowNegotiation</span></a><span class="p"><span class="pre">,</span> </span><a class="reference internal" href="pynetdicom.pdu_primitives.SCP_SCU_RoleSelectionNegotiation.html#pynetdicom.pdu_primitives.SCP_SCU_RoleSelectionNegotiation" title="pynetdicom.pdu_primitives.SCP_SCU_RoleSelectionNegotiation"><span class="pre">pynetdicom.pdu_primitives.SCP_SCU_RoleSelectionNegotiation</span></a><span class="p"><span class="pre">,</span> </span><a class="reference internal" href="pynetdicom.pdu_primitives.SOPClassExtendedNegotiation.html#pynetdicom.pdu_primitives.SOPClassExtendedNegotiation" title="pynetdicom.pdu_primitives.SOPClassExtendedNegotiation"><span class="pre">pynetdicom.pdu_primitives.SOPClassExtendedNegotiation</span></a><span class="p"><span class="pre">,</span> </span><a class="reference internal" href="pynetdicom.pdu_primitives.UserIdentityNegotiation.html#pynetdicom.pdu_primitives.UserIdentityNegotiation" title="pynetdicom.pdu_primitives.UserIdentityNegotiation"><span class="pre">pynetdicom.pdu_primitives.UserIdentityNegotiation</span></a><span class="p"><span class="pre">,</span> </span><a class="reference internal" href="pynetdicom.pdu_primitives.SOPClassCommonExtendedNegotiation.html#pynetdicom.pdu_primitives.SOPClassCommonExtendedNegotiation" title="pynetdicom.pdu_primitives.SOPClassCommonExtendedNegotiation"><span class="pre">pynetdicom.pdu_primitives.SOPClassCommonExtendedNegotiation</span></a><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#pynetdicom.association.ServiceUser.extended_negotiation" title="Permalink to this definition">¶</a></dt>
 <dd><p>Return a <a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.9)"><code class="xref py py-class docutils literal notranslate"><span class="pre">list</span></code></a> of Extended Negotiation items.</p>
 <p>Extended Negotiation items are:</p>
 <ul class="simple">
@@ -510,7 +414,7 @@ responses.</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="pynetdicom.association.ServiceUser.get_contexts">
-<span class="sig-name descname"><span class="pre">get_contexts</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">cx_type</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)"><span class="pre">str</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="pynetdicom.presentation.PresentationContext.html#pynetdicom.presentation.PresentationContext" title="pynetdicom.presentation.PresentationContext"><span class="pre">pynetdicom.presentation.PresentationContext</span></a><span class="p"><span class="pre">]</span></span></span></span><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/a65725175/pynetdicom/association.py#L3767"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pynetdicom.association.ServiceUser.get_contexts" title="Permalink to this definition">¶</a></dt>
+<span class="sig-name descname"><span class="pre">get_contexts</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">cx_type</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)"><span class="pre">str</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="pynetdicom.presentation.PresentationContext.html#pynetdicom.presentation.PresentationContext" title="pynetdicom.presentation.PresentationContext"><span class="pre">pynetdicom.presentation.PresentationContext</span></a><span class="p"><span class="pre">]</span></span></span></span><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/68a12acdb/pynetdicom/association.py#L3767"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pynetdicom.association.ServiceUser.get_contexts" title="Permalink to this definition">¶</a></dt>
 <dd><p>Return a <a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.9)"><code class="xref py py-class docutils literal notranslate"><span class="pre">list</span></code></a> of
 <a class="reference internal" href="pynetdicom.presentation.PresentationContext.html#pynetdicom.presentation.PresentationContext" title="pynetdicom.presentation.PresentationContext"><code class="xref py py-class docutils literal notranslate"><span class="pre">PresentationContext</span></code></a> items
 corresponding to <cite>cx_type</cite>.</p>
@@ -549,8 +453,8 @@ Presentation Context Definition Results List parameter.</p>
 
 <dl class="py property">
 <dt class="sig sig-object py" id="pynetdicom.association.ServiceUser.implementation_class_uid">
-<em class="property"><span class="pre">property</span> </em><span class="sig-name descname"><span class="pre">implementation_class_uid</span></span><em class="property"><span class="pre">:</span> <span class="pre">Optional[pydicom.uid.UID]</span></em><a class="headerlink" href="#pynetdicom.association.ServiceUser.implementation_class_uid" title="Permalink to this definition">¶</a></dt>
-<dd><p>The Implementation Class UID as a <a class="reference external" href="https://pydicom.github.io/pydicom/stable/reference/generated/pydicom.uid.UID.html#pydicom.uid.UID" title="(in pydicom v2.2.0)"><code class="xref py py-class docutils literal notranslate"><span class="pre">UID</span></code></a>.</p>
+<em class="property"><span class="pre">property</span> </em><span class="sig-name descname"><span class="pre">implementation_class_uid</span></span><em class="property"><span class="pre">:</span> <span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://pydicom.github.io/pydicom/stable/reference/generated/pydicom.uid.UID.html#pydicom.uid.UID" title="(in pydicom v2.2.2)"><span class="pre">pydicom.uid.UID</span></a><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#pynetdicom.association.ServiceUser.implementation_class_uid" title="Permalink to this definition">¶</a></dt>
+<dd><p>The Implementation Class UID as a <a class="reference external" href="https://pydicom.github.io/pydicom/stable/reference/generated/pydicom.uid.UID.html#pydicom.uid.UID" title="(in pydicom v2.2.2)"><code class="xref py py-class docutils literal notranslate"><span class="pre">UID</span></code></a>.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Returns</dt>
 <dd class="field-odd"><p>Returns the Implementation Class UID if the requestor or if
@@ -558,14 +462,14 @@ the acceptor and they have accepted the negotiation. Returns
 <code class="docutils literal notranslate"><span class="pre">None</span></code> if the acceptor and they have rejected the negotiation.</p>
 </dd>
 <dt class="field-even">Return type</dt>
-<dd class="field-even"><p><a class="reference external" href="https://pydicom.github.io/pydicom/stable/reference/generated/pydicom.uid.UID.html#pydicom.uid.UID" title="(in pydicom v2.2.0)">pydicom.uid.UID</a> or <a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.9)">None</a></p>
+<dd class="field-even"><p><a class="reference external" href="https://pydicom.github.io/pydicom/stable/reference/generated/pydicom.uid.UID.html#pydicom.uid.UID" title="(in pydicom v2.2.2)">pydicom.uid.UID</a> or <a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.9)">None</a></p>
 </dd>
 </dl>
 </dd></dl>
 
 <dl class="py property">
 <dt class="sig sig-object py" id="pynetdicom.association.ServiceUser.implementation_version_name">
-<em class="property"><span class="pre">property</span> </em><span class="sig-name descname"><span class="pre">implementation_version_name</span></span><em class="property"><span class="pre">:</span> <span class="pre">Optional[str]</span></em><a class="headerlink" href="#pynetdicom.association.ServiceUser.implementation_version_name" title="Permalink to this definition">¶</a></dt>
+<em class="property"><span class="pre">property</span> </em><span class="sig-name descname"><span class="pre">implementation_version_name</span></span><em class="property"><span class="pre">:</span> <span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)"><span class="pre">str</span></a><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#pynetdicom.association.ServiceUser.implementation_version_name" title="Permalink to this definition">¶</a></dt>
 <dd><p>Get or set the <em>Implementation Version Name</em>.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -588,28 +492,28 @@ the Implementation Version Name.</p>
 
 <dl class="py property">
 <dt class="sig sig-object py" id="pynetdicom.association.ServiceUser.info">
-<em class="property"><span class="pre">property</span> </em><span class="sig-name descname"><span class="pre">info</span></span><em class="property"><span class="pre">:</span> <span class="pre">Dict[str,</span> <span class="pre">Any]</span></em><a class="headerlink" href="#pynetdicom.association.ServiceUser.info" title="Permalink to this definition">¶</a></dt>
+<em class="property"><span class="pre">property</span> </em><span class="sig-name descname"><span class="pre">info</span></span><em class="property"><span class="pre">:</span> <span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)"><span class="pre">str</span></a><span class="p"><span class="pre">,</span> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#pynetdicom.association.ServiceUser.info" title="Permalink to this definition">¶</a></dt>
 <dd><p>Return a <a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.9)"><code class="xref py py-class docutils literal notranslate"><span class="pre">dict</span></code></a> with information about the
 <a class="reference internal" href="#pynetdicom.association.ServiceUser" title="pynetdicom.association.ServiceUser"><code class="xref py py-class docutils literal notranslate"><span class="pre">ServiceUser</span></code></a>.</p>
 </dd></dl>
 
 <dl class="py property">
 <dt class="sig sig-object py" id="pynetdicom.association.ServiceUser.is_acceptor">
-<em class="property"><span class="pre">property</span> </em><span class="sig-name descname"><span class="pre">is_acceptor</span></span><em class="property"><span class="pre">:</span> <span class="pre">bool</span></em><a class="headerlink" href="#pynetdicom.association.ServiceUser.is_acceptor" title="Permalink to this definition">¶</a></dt>
+<em class="property"><span class="pre">property</span> </em><span class="sig-name descname"><span class="pre">is_acceptor</span></span><em class="property"><span class="pre">:</span> <a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.9)"><span class="pre">bool</span></a></em><a class="headerlink" href="#pynetdicom.association.ServiceUser.is_acceptor" title="Permalink to this definition">¶</a></dt>
 <dd><p>Return <code class="docutils literal notranslate"><span class="pre">True</span></code> if the <a class="reference internal" href="#pynetdicom.association.ServiceUser" title="pynetdicom.association.ServiceUser"><code class="xref py py-class docutils literal notranslate"><span class="pre">ServiceUser</span></code></a> is the association
 acceptor.</p>
 </dd></dl>
 
 <dl class="py property">
 <dt class="sig sig-object py" id="pynetdicom.association.ServiceUser.is_requestor">
-<em class="property"><span class="pre">property</span> </em><span class="sig-name descname"><span class="pre">is_requestor</span></span><em class="property"><span class="pre">:</span> <span class="pre">bool</span></em><a class="headerlink" href="#pynetdicom.association.ServiceUser.is_requestor" title="Permalink to this definition">¶</a></dt>
+<em class="property"><span class="pre">property</span> </em><span class="sig-name descname"><span class="pre">is_requestor</span></span><em class="property"><span class="pre">:</span> <a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.9)"><span class="pre">bool</span></a></em><a class="headerlink" href="#pynetdicom.association.ServiceUser.is_requestor" title="Permalink to this definition">¶</a></dt>
 <dd><p>Return <code class="docutils literal notranslate"><span class="pre">True</span></code> if the <a class="reference internal" href="#pynetdicom.association.ServiceUser" title="pynetdicom.association.ServiceUser"><code class="xref py py-class docutils literal notranslate"><span class="pre">ServiceUser</span></code></a> is the association
 requestor.</p>
 </dd></dl>
 
 <dl class="py property">
 <dt class="sig sig-object py" id="pynetdicom.association.ServiceUser.maximum_length">
-<em class="property"><span class="pre">property</span> </em><span class="sig-name descname"><span class="pre">maximum_length</span></span><em class="property"><span class="pre">:</span> <span class="pre">Optional[int]</span></em><a class="headerlink" href="#pynetdicom.association.ServiceUser.maximum_length" title="Permalink to this definition">¶</a></dt>
+<em class="property"><span class="pre">property</span> </em><span class="sig-name descname"><span class="pre">maximum_length</span></span><em class="property"><span class="pre">:</span> <span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.9)"><span class="pre">int</span></a><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#pynetdicom.association.ServiceUser.maximum_length" title="Permalink to this definition">¶</a></dt>
 <dd><p>The maximum PDV size as <a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.9)"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></a>.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Returns</dt>
@@ -625,14 +529,14 @@ the acceptor and they have accepted the negotiation. Returns
 
 <dl class="py property">
 <dt class="sig sig-object py" id="pynetdicom.association.ServiceUser.mode">
-<em class="property"><span class="pre">property</span> </em><span class="sig-name descname"><span class="pre">mode</span></span><em class="property"><span class="pre">:</span> <span class="pre">str</span></em><a class="headerlink" href="#pynetdicom.association.ServiceUser.mode" title="Permalink to this definition">¶</a></dt>
+<em class="property"><span class="pre">property</span> </em><span class="sig-name descname"><span class="pre">mode</span></span><em class="property"><span class="pre">:</span> <a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)"><span class="pre">str</span></a></em><a class="headerlink" href="#pynetdicom.association.ServiceUser.mode" title="Permalink to this definition">¶</a></dt>
 <dd><p>Return the mode as <a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></a>, either <code class="docutils literal notranslate"><span class="pre">'requestor'</span></code> or
 <code class="docutils literal notranslate"><span class="pre">'acceptor'</span></code>.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="pynetdicom.association.ServiceUser.remove_negotiation_item">
-<span class="sig-name descname"><span class="pre">remove_negotiation_item</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">item</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">Union</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="pynetdicom.pdu_primitives.MaximumLengthNotification.html#pynetdicom.pdu_primitives.MaximumLengthNotification" title="pynetdicom.pdu_primitives.MaximumLengthNotification"><span class="pre">pynetdicom.pdu_primitives.MaximumLengthNotification</span></a><span class="p"><span class="pre">,</span> </span><a class="reference internal" href="pynetdicom.pdu_primitives.ImplementationClassUIDNotification.html#pynetdicom.pdu_primitives.ImplementationClassUIDNotification" title="pynetdicom.pdu_primitives.ImplementationClassUIDNotification"><span class="pre">pynetdicom.pdu_primitives.ImplementationClassUIDNotification</span></a><span class="p"><span class="pre">,</span> </span><a class="reference internal" href="pynetdicom.pdu_primitives.ImplementationVersionNameNotification.html#pynetdicom.pdu_primitives.ImplementationVersionNameNotification" title="pynetdicom.pdu_primitives.ImplementationVersionNameNotification"><span class="pre">pynetdicom.pdu_primitives.ImplementationVersionNameNotification</span></a><span class="p"><span class="pre">,</span> </span><a class="reference internal" href="pynetdicom.pdu_primitives.AsynchronousOperationsWindowNegotiation.html#pynetdicom.pdu_primitives.AsynchronousOperationsWindowNegotiation" title="pynetdicom.pdu_primitives.AsynchronousOperationsWindowNegotiation"><span class="pre">pynetdicom.pdu_primitives.AsynchronousOperationsWindowNegotiation</span></a><span class="p"><span class="pre">,</span> </span><a class="reference internal" href="pynetdicom.pdu_primitives.SCP_SCU_RoleSelectionNegotiation.html#pynetdicom.pdu_primitives.SCP_SCU_RoleSelectionNegotiation" title="pynetdicom.pdu_primitives.SCP_SCU_RoleSelectionNegotiation"><span class="pre">pynetdicom.pdu_primitives.SCP_SCU_RoleSelectionNegotiation</span></a><span class="p"><span class="pre">,</span> </span><a class="reference internal" href="pynetdicom.pdu_primitives.SOPClassExtendedNegotiation.html#pynetdicom.pdu_primitives.SOPClassExtendedNegotiation" title="pynetdicom.pdu_primitives.SOPClassExtendedNegotiation"><span class="pre">pynetdicom.pdu_primitives.SOPClassExtendedNegotiation</span></a><span class="p"><span class="pre">,</span> </span><a class="reference internal" href="pynetdicom.pdu_primitives.SOPClassCommonExtendedNegotiation.html#pynetdicom.pdu_primitives.SOPClassCommonExtendedNegotiation" title="pynetdicom.pdu_primitives.SOPClassCommonExtendedNegotiation"><span class="pre">pynetdicom.pdu_primitives.SOPClassCommonExtendedNegotiation</span></a><span class="p"><span class="pre">,</span> </span><a class="reference internal" href="pynetdicom.pdu_primitives.UserIdentityNegotiation.html#pynetdicom.pdu_primitives.UserIdentityNegotiation" title="pynetdicom.pdu_primitives.UserIdentityNegotiation"><span class="pre">pynetdicom.pdu_primitives.UserIdentityNegotiation</span></a><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.9)"><span class="pre">None</span></a></span></span><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/a65725175/pynetdicom/association.py#L4079"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pynetdicom.association.ServiceUser.remove_negotiation_item" title="Permalink to this definition">¶</a></dt>
+<span class="sig-name descname"><span class="pre">remove_negotiation_item</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">item</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">Union</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="pynetdicom.pdu_primitives.MaximumLengthNotification.html#pynetdicom.pdu_primitives.MaximumLengthNotification" title="pynetdicom.pdu_primitives.MaximumLengthNotification"><span class="pre">pynetdicom.pdu_primitives.MaximumLengthNotification</span></a><span class="p"><span class="pre">,</span> </span><a class="reference internal" href="pynetdicom.pdu_primitives.ImplementationClassUIDNotification.html#pynetdicom.pdu_primitives.ImplementationClassUIDNotification" title="pynetdicom.pdu_primitives.ImplementationClassUIDNotification"><span class="pre">pynetdicom.pdu_primitives.ImplementationClassUIDNotification</span></a><span class="p"><span class="pre">,</span> </span><a class="reference internal" href="pynetdicom.pdu_primitives.ImplementationVersionNameNotification.html#pynetdicom.pdu_primitives.ImplementationVersionNameNotification" title="pynetdicom.pdu_primitives.ImplementationVersionNameNotification"><span class="pre">pynetdicom.pdu_primitives.ImplementationVersionNameNotification</span></a><span class="p"><span class="pre">,</span> </span><a class="reference internal" href="pynetdicom.pdu_primitives.AsynchronousOperationsWindowNegotiation.html#pynetdicom.pdu_primitives.AsynchronousOperationsWindowNegotiation" title="pynetdicom.pdu_primitives.AsynchronousOperationsWindowNegotiation"><span class="pre">pynetdicom.pdu_primitives.AsynchronousOperationsWindowNegotiation</span></a><span class="p"><span class="pre">,</span> </span><a class="reference internal" href="pynetdicom.pdu_primitives.SCP_SCU_RoleSelectionNegotiation.html#pynetdicom.pdu_primitives.SCP_SCU_RoleSelectionNegotiation" title="pynetdicom.pdu_primitives.SCP_SCU_RoleSelectionNegotiation"><span class="pre">pynetdicom.pdu_primitives.SCP_SCU_RoleSelectionNegotiation</span></a><span class="p"><span class="pre">,</span> </span><a class="reference internal" href="pynetdicom.pdu_primitives.SOPClassExtendedNegotiation.html#pynetdicom.pdu_primitives.SOPClassExtendedNegotiation" title="pynetdicom.pdu_primitives.SOPClassExtendedNegotiation"><span class="pre">pynetdicom.pdu_primitives.SOPClassExtendedNegotiation</span></a><span class="p"><span class="pre">,</span> </span><a class="reference internal" href="pynetdicom.pdu_primitives.SOPClassCommonExtendedNegotiation.html#pynetdicom.pdu_primitives.SOPClassCommonExtendedNegotiation" title="pynetdicom.pdu_primitives.SOPClassCommonExtendedNegotiation"><span class="pre">pynetdicom.pdu_primitives.SOPClassCommonExtendedNegotiation</span></a><span class="p"><span class="pre">,</span> </span><a class="reference internal" href="pynetdicom.pdu_primitives.UserIdentityNegotiation.html#pynetdicom.pdu_primitives.UserIdentityNegotiation" title="pynetdicom.pdu_primitives.UserIdentityNegotiation"><span class="pre">pynetdicom.pdu_primitives.UserIdentityNegotiation</span></a><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.9)"><span class="pre">None</span></a></span></span><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/68a12acdb/pynetdicom/association.py#L4079"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pynetdicom.association.ServiceUser.remove_negotiation_item" title="Permalink to this definition">¶</a></dt>
 <dd><p>Remove an extended negotiation item from the user information.</p>
 <p>Items can only be removed prior to starting the association
 negotiation.</p>
@@ -660,14 +564,14 @@ negotiation.</p>
 
 <dl class="py property">
 <dt class="sig sig-object py" id="pynetdicom.association.ServiceUser.requested_contexts">
-<em class="property"><span class="pre">property</span> </em><span class="sig-name descname"><span class="pre">requested_contexts</span></span><em class="property"><span class="pre">:</span> <span class="pre">List[pynetdicom.presentation.PresentationContext]</span></em><a class="headerlink" href="#pynetdicom.association.ServiceUser.requested_contexts" title="Permalink to this definition">¶</a></dt>
+<em class="property"><span class="pre">property</span> </em><span class="sig-name descname"><span class="pre">requested_contexts</span></span><em class="property"><span class="pre">:</span> <span class="pre">List</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="pynetdicom.presentation.PresentationContext.html#pynetdicom.presentation.PresentationContext" title="pynetdicom.presentation.PresentationContext"><span class="pre">pynetdicom.presentation.PresentationContext</span></a><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#pynetdicom.association.ServiceUser.requested_contexts" title="Permalink to this definition">¶</a></dt>
 <dd><p>A <a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.9)"><code class="xref py py-class docutils literal notranslate"><span class="pre">list</span></code></a> of the requestor’s requested presentation
 contexts.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="pynetdicom.association.ServiceUser.reset_negotiation_items">
-<span class="sig-name descname"><span class="pre">reset_negotiation_items</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.9)"><span class="pre">None</span></a></span></span><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/a65725175/pynetdicom/association.py#L4122"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pynetdicom.association.ServiceUser.reset_negotiation_items" title="Permalink to this definition">¶</a></dt>
+<span class="sig-name descname"><span class="pre">reset_negotiation_items</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.9)"><span class="pre">None</span></a></span></span><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/68a12acdb/pynetdicom/association.py#L4122"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pynetdicom.association.ServiceUser.reset_negotiation_items" title="Permalink to this definition">¶</a></dt>
 <dd><p>Remove all extended negotiation items.</p>
 <p>Items can only be removed prior to starting the association
 negotiation.</p>
@@ -681,7 +585,7 @@ negotiation.</p>
 
 <dl class="py property">
 <dt class="sig sig-object py" id="pynetdicom.association.ServiceUser.role_selection">
-<em class="property"><span class="pre">property</span> </em><span class="sig-name descname"><span class="pre">role_selection</span></span><em class="property"><span class="pre">:</span> <span class="pre">Dict[pydicom.uid.UID,</span> <span class="pre">pynetdicom.pdu_primitives.SCP_SCU_RoleSelectionNegotiation]</span></em><a class="headerlink" href="#pynetdicom.association.ServiceUser.role_selection" title="Permalink to this definition">¶</a></dt>
+<em class="property"><span class="pre">property</span> </em><span class="sig-name descname"><span class="pre">role_selection</span></span><em class="property"><span class="pre">:</span> <span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://pydicom.github.io/pydicom/stable/reference/generated/pydicom.uid.UID.html#pydicom.uid.UID" title="(in pydicom v2.2.2)"><span class="pre">pydicom.uid.UID</span></a><span class="p"><span class="pre">,</span> </span><a class="reference internal" href="pynetdicom.pdu_primitives.SCP_SCU_RoleSelectionNegotiation.html#pynetdicom.pdu_primitives.SCP_SCU_RoleSelectionNegotiation" title="pynetdicom.pdu_primitives.SCP_SCU_RoleSelectionNegotiation"><span class="pre">pynetdicom.pdu_primitives.SCP_SCU_RoleSelectionNegotiation</span></a><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#pynetdicom.association.ServiceUser.role_selection" title="Permalink to this definition">¶</a></dt>
 <dd><p>Return any SCP/SCU Role Selection items.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Returns</dt>
@@ -696,7 +600,7 @@ negotiation.</p>
 
 <dl class="py property">
 <dt class="sig sig-object py" id="pynetdicom.association.ServiceUser.sop_class_common_extended">
-<em class="property"><span class="pre">property</span> </em><span class="sig-name descname"><span class="pre">sop_class_common_extended</span></span><em class="property"><span class="pre">:</span> <span class="pre">Dict[pydicom.uid.UID,</span> <span class="pre">pynetdicom.pdu_primitives.SOPClassCommonExtendedNegotiation]</span></em><a class="headerlink" href="#pynetdicom.association.ServiceUser.sop_class_common_extended" title="Permalink to this definition">¶</a></dt>
+<em class="property"><span class="pre">property</span> </em><span class="sig-name descname"><span class="pre">sop_class_common_extended</span></span><em class="property"><span class="pre">:</span> <span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://pydicom.github.io/pydicom/stable/reference/generated/pydicom.uid.UID.html#pydicom.uid.UID" title="(in pydicom v2.2.2)"><span class="pre">pydicom.uid.UID</span></a><span class="p"><span class="pre">,</span> </span><a class="reference internal" href="pynetdicom.pdu_primitives.SOPClassCommonExtendedNegotiation.html#pynetdicom.pdu_primitives.SOPClassCommonExtendedNegotiation" title="pynetdicom.pdu_primitives.SOPClassCommonExtendedNegotiation"><span class="pre">pynetdicom.pdu_primitives.SOPClassCommonExtendedNegotiation</span></a><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#pynetdicom.association.ServiceUser.sop_class_common_extended" title="Permalink to this definition">¶</a></dt>
 <dd><p>Return the SOP Class Common Extended items.</p>
 <p>If the <a class="reference internal" href="#pynetdicom.association.ServiceUser" title="pynetdicom.association.ServiceUser"><code class="xref py py-class docutils literal notranslate"><span class="pre">ServiceUser</span></code></a> is the association acceptor then no SOP
 Class Common Extended items will be present in the User Information.</p>
@@ -713,7 +617,7 @@ Class Common Extended items will be present in the User Information.</p>
 
 <dl class="py property">
 <dt class="sig sig-object py" id="pynetdicom.association.ServiceUser.sop_class_extended">
-<em class="property"><span class="pre">property</span> </em><span class="sig-name descname"><span class="pre">sop_class_extended</span></span><em class="property"><span class="pre">:</span> <span class="pre">Dict[pydicom.uid.UID,</span> <span class="pre">bytes]</span></em><a class="headerlink" href="#pynetdicom.association.ServiceUser.sop_class_extended" title="Permalink to this definition">¶</a></dt>
+<em class="property"><span class="pre">property</span> </em><span class="sig-name descname"><span class="pre">sop_class_extended</span></span><em class="property"><span class="pre">:</span> <span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://pydicom.github.io/pydicom/stable/reference/generated/pydicom.uid.UID.html#pydicom.uid.UID" title="(in pydicom v2.2.2)"><span class="pre">pydicom.uid.UID</span></a><span class="p"><span class="pre">,</span> </span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#bytes" title="(in Python v3.9)"><span class="pre">bytes</span></a><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#pynetdicom.association.ServiceUser.sop_class_extended" title="Permalink to this definition">¶</a></dt>
 <dd><p>Return any SOP Class Extended items.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Returns</dt>
@@ -728,7 +632,7 @@ Class Common Extended items will be present in the User Information.</p>
 
 <dl class="py property">
 <dt class="sig sig-object py" id="pynetdicom.association.ServiceUser.supported_contexts">
-<em class="property"><span class="pre">property</span> </em><span class="sig-name descname"><span class="pre">supported_contexts</span></span><em class="property"><span class="pre">:</span> <span class="pre">List[pynetdicom.presentation.PresentationContext]</span></em><a class="headerlink" href="#pynetdicom.association.ServiceUser.supported_contexts" title="Permalink to this definition">¶</a></dt>
+<em class="property"><span class="pre">property</span> </em><span class="sig-name descname"><span class="pre">supported_contexts</span></span><em class="property"><span class="pre">:</span> <span class="pre">List</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="pynetdicom.presentation.PresentationContext.html#pynetdicom.presentation.PresentationContext" title="pynetdicom.presentation.PresentationContext"><span class="pre">pynetdicom.presentation.PresentationContext</span></a><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#pynetdicom.association.ServiceUser.supported_contexts" title="Permalink to this definition">¶</a></dt>
 <dd><p>The supported presentation contexts.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Returns</dt>
@@ -742,7 +646,7 @@ Class Common Extended items will be present in the User Information.</p>
 
 <dl class="py property">
 <dt class="sig sig-object py" id="pynetdicom.association.ServiceUser.user_identity">
-<em class="property"><span class="pre">property</span> </em><span class="sig-name descname"><span class="pre">user_identity</span></span><em class="property"><span class="pre">:</span> <span class="pre">Optional[pynetdicom.pdu_primitives.UserIdentityNegotiation]</span></em><a class="headerlink" href="#pynetdicom.association.ServiceUser.user_identity" title="Permalink to this definition">¶</a></dt>
+<em class="property"><span class="pre">property</span> </em><span class="sig-name descname"><span class="pre">user_identity</span></span><em class="property"><span class="pre">:</span> <span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="pynetdicom.pdu_primitives.UserIdentityNegotiation.html#pynetdicom.pdu_primitives.UserIdentityNegotiation" title="pynetdicom.pdu_primitives.UserIdentityNegotiation"><span class="pre">pynetdicom.pdu_primitives.UserIdentityNegotiation</span></a><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#pynetdicom.association.ServiceUser.user_identity" title="Permalink to this definition">¶</a></dt>
 <dd><p>Return the User Identity Negotiation Item (if available).</p>
 <dl class="field-list simple">
 <dt class="field-odd">Returns</dt>
@@ -757,66 +661,49 @@ Class Common Extended items will be present in the User Information.</p>
 
 <dl class="py property">
 <dt class="sig sig-object py" id="pynetdicom.association.ServiceUser.user_information">
-<em class="property"><span class="pre">property</span> </em><span class="sig-name descname"><span class="pre">user_information</span></span><em class="property"><span class="pre">:</span> <span class="pre">List[Union[pynetdicom.pdu_primitives.MaximumLengthNotification,</span> <span class="pre">pynetdicom.pdu_primitives.ImplementationClassUIDNotification,</span> <span class="pre">pynetdicom.pdu_primitives.ImplementationVersionNameNotification,</span> <span class="pre">pynetdicom.pdu_primitives.AsynchronousOperationsWindowNegotiation,</span> <span class="pre">pynetdicom.pdu_primitives.SCP_SCU_RoleSelectionNegotiation,</span> <span class="pre">pynetdicom.pdu_primitives.SOPClassExtendedNegotiation,</span> <span class="pre">pynetdicom.pdu_primitives.UserIdentityNegotiation,</span> <span class="pre">pynetdicom.pdu_primitives.SOPClassCommonExtendedNegotiation]]</span></em><a class="headerlink" href="#pynetdicom.association.ServiceUser.user_information" title="Permalink to this definition">¶</a></dt>
+<em class="property"><span class="pre">property</span> </em><span class="sig-name descname"><span class="pre">user_information</span></span><em class="property"><span class="pre">:</span> <span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">Union</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="pynetdicom.pdu_primitives.MaximumLengthNotification.html#pynetdicom.pdu_primitives.MaximumLengthNotification" title="pynetdicom.pdu_primitives.MaximumLengthNotification"><span class="pre">pynetdicom.pdu_primitives.MaximumLengthNotification</span></a><span class="p"><span class="pre">,</span> </span><a class="reference internal" href="pynetdicom.pdu_primitives.ImplementationClassUIDNotification.html#pynetdicom.pdu_primitives.ImplementationClassUIDNotification" title="pynetdicom.pdu_primitives.ImplementationClassUIDNotification"><span class="pre">pynetdicom.pdu_primitives.ImplementationClassUIDNotification</span></a><span class="p"><span class="pre">,</span> </span><a class="reference internal" href="pynetdicom.pdu_primitives.ImplementationVersionNameNotification.html#pynetdicom.pdu_primitives.ImplementationVersionNameNotification" title="pynetdicom.pdu_primitives.ImplementationVersionNameNotification"><span class="pre">pynetdicom.pdu_primitives.ImplementationVersionNameNotification</span></a><span class="p"><span class="pre">,</span> </span><a class="reference internal" href="pynetdicom.pdu_primitives.AsynchronousOperationsWindowNegotiation.html#pynetdicom.pdu_primitives.AsynchronousOperationsWindowNegotiation" title="pynetdicom.pdu_primitives.AsynchronousOperationsWindowNegotiation"><span class="pre">pynetdicom.pdu_primitives.AsynchronousOperationsWindowNegotiation</span></a><span class="p"><span class="pre">,</span> </span><a class="reference internal" href="pynetdicom.pdu_primitives.SCP_SCU_RoleSelectionNegotiation.html#pynetdicom.pdu_primitives.SCP_SCU_RoleSelectionNegotiation" title="pynetdicom.pdu_primitives.SCP_SCU_RoleSelectionNegotiation"><span class="pre">pynetdicom.pdu_primitives.SCP_SCU_RoleSelectionNegotiation</span></a><span class="p"><span class="pre">,</span> </span><a class="reference internal" href="pynetdicom.pdu_primitives.SOPClassExtendedNegotiation.html#pynetdicom.pdu_primitives.SOPClassExtendedNegotiation" title="pynetdicom.pdu_primitives.SOPClassExtendedNegotiation"><span class="pre">pynetdicom.pdu_primitives.SOPClassExtendedNegotiation</span></a><span class="p"><span class="pre">,</span> </span><a class="reference internal" href="pynetdicom.pdu_primitives.UserIdentityNegotiation.html#pynetdicom.pdu_primitives.UserIdentityNegotiation" title="pynetdicom.pdu_primitives.UserIdentityNegotiation"><span class="pre">pynetdicom.pdu_primitives.UserIdentityNegotiation</span></a><span class="p"><span class="pre">,</span> </span><a class="reference internal" href="pynetdicom.pdu_primitives.SOPClassCommonExtendedNegotiation.html#pynetdicom.pdu_primitives.SOPClassCommonExtendedNegotiation" title="pynetdicom.pdu_primitives.SOPClassCommonExtendedNegotiation"><span class="pre">pynetdicom.pdu_primitives.SOPClassCommonExtendedNegotiation</span></a><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#pynetdicom.association.ServiceUser.user_information" title="Permalink to this definition">¶</a></dt>
 <dd><p>Returns a <a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.9)"><code class="xref py py-class docutils literal notranslate"><span class="pre">list</span></code></a> of the User Information items.</p>
 </dd></dl>
 
 <dl class="py property">
 <dt class="sig sig-object py" id="pynetdicom.association.ServiceUser.writeable">
-<em class="property"><span class="pre">property</span> </em><span class="sig-name descname"><span class="pre">writeable</span></span><em class="property"><span class="pre">:</span> <span class="pre">bool</span></em><a class="headerlink" href="#pynetdicom.association.ServiceUser.writeable" title="Permalink to this definition">¶</a></dt>
+<em class="property"><span class="pre">property</span> </em><span class="sig-name descname"><span class="pre">writeable</span></span><em class="property"><span class="pre">:</span> <a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.9)"><span class="pre">bool</span></a></em><a class="headerlink" href="#pynetdicom.association.ServiceUser.writeable" title="Permalink to this definition">¶</a></dt>
 <dd><p>Return <code class="docutils literal notranslate"><span class="pre">True</span></code> if the current object can be changed.</p>
 </dd></dl>
 
 </dd></dl>
 
-</div>
+</section>
 
 
            </div>
-           
           </div>
-          <footer>
-    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
-        <a href="../config.html" class="btn btn-neutral float-right" title="Configuration Options (pynetdicom._config)" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
         <a href="pynetdicom.association.Association.html" class="btn btn-neutral float-left" title="pynetdicom.association.Association" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="../config.html" class="btn btn-neutral float-right" title="Configuration Options (pynetdicom._config)" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
     </div>
 
   <hr/>
 
   <div role="contentinfo">
-    <p>
-        &#169; Copyright 2018-2021, pynetdicom contributors.
-
-    </p>
+    <p>&#169; Copyright 2018-2021, pynetdicom contributors.</p>
   </div>
-    
-    
-    
-    Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
-    
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
     <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
-    
-    provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
 
 </footer>
         </div>
       </div>
-
     </section>
-
   </div>
-  
-
-  <script type="text/javascript">
+  <script>
       jQuery(function () {
           SphinxRtdTheme.Navigation.enable(true);
       });
-  </script>
-
-  
-  
-    
-   
+  </script> 
 
 </body>
 </html>

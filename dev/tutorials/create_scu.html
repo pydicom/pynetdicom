@@ -1,86 +1,43 @@
-
-
 <!DOCTYPE html>
 <html class="writer-html5" lang="en" >
 <head>
-  <meta charset="utf-8" />
-  
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  
   <title>Writing your first SCU &mdash; pynetdicom 2.0.0.dev0 documentation</title>
-  
-
-  
-  <link rel="stylesheet" href="../_static/css/pynetdicom.css" type="text/css" />
-  <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
-  <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
-  <link rel="stylesheet" href="../_static/css/pynetdicom.css" type="text/css" />
-  <link rel="stylesheet" href="../_static/copybutton.css" type="text/css" />
-  <link rel="stylesheet" href="../_static/css/pynetdicom.css" type="text/css" />
-
-  
-  
+      <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="../_static/css/pynetdicom.css" type="text/css" />
+      <link rel="stylesheet" href="../_static/copybutton.css" type="text/css" />
+      <link rel="stylesheet" href="../_static/css/pynetdicom.css" type="text/css" />
     <link rel="shortcut icon" href="../_static/favicon.ico"/>
-  
-
-  
-  
-
-  
-
-  
   <!--[if lt IE 9]>
     <script src="../_static/js/html5shiv.min.js"></script>
   <![endif]-->
   
-    
-      <script type="text/javascript" id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
         <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
         <script src="../_static/jquery.js"></script>
         <script src="../_static/underscore.js"></script>
         <script src="../_static/doctools.js"></script>
         <script src="../_static/clipboard.min.js"></script>
         <script src="../_static/copybutton.js"></script>
-    
-    <script type="text/javascript" src="../_static/js/theme.js"></script>
-
-    
+    <script src="../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
     <link rel="next" title="Writing your first SCP" href="create_scp.html" />
     <link rel="prev" title="How to install pynetdicom" href="installation.html" /> 
 </head>
 
-<body class="wy-body-for-nav">
-
-   
+<body class="wy-body-for-nav"> 
   <div class="wy-grid-for-nav">
-    
     <nav data-toggle="wy-nav-shift" class="wy-nav-side">
       <div class="wy-side-scroll">
         <div class="wy-side-nav-search" >
-          
-
-          
             <a href="../index.html" class="icon icon-home"> pynetdicom
-          
-
-          
-            
             <img src="../_static/pydicom_flat_black.svg" class="logo" alt="Logo"/>
-          
           </a>
-
-          
-            
-            
               <div class="version">
                 2.0.0.dev0
               </div>
-            
-          
-
-          
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
     <input type="text" name="q" placeholder="Search docs" />
@@ -88,18 +45,7 @@
     <input type="hidden" name="area" value="default" />
   </form>
 </div>
-
-          
-        </div>
-
-        
-        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
-          
-            
-            
-              
-            
-            
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
               <p class="caption" role="heading"><span class="caption-text">Documentation</span></p>
 <ul class="current">
 <li class="toctree-l1"><a class="reference internal" href="../user/index.html">User Guide</a></li>
@@ -139,72 +85,31 @@
 <li class="toctree-l1"><a class="reference internal" href="../changelog/index.html">Release Notes</a></li>
 </ul>
 
-            
-          
         </div>
-        
       </div>
     </nav>
 
-    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
-
-      
-      <nav class="wy-nav-top" aria-label="top navigation">
-        
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
           <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
           <a href="../index.html">pynetdicom</a>
-        
       </nav>
 
-
       <div class="wy-nav-content">
-        
         <div class="rst-content">
-        
-          
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-<div role="navigation" aria-label="breadcrumbs navigation">
-
+          <div role="navigation" aria-label="Page navigation">
   <ul class="wy-breadcrumbs">
-    
       <li><a href="../index.html" class="icon icon-home"></a> &raquo;</li>
-        
           <li><a href="index.html">Tutorials</a> &raquo;</li>
-        
       <li>Writing your first SCU</li>
-    
-    
       <li class="wy-breadcrumbs-aside">
-        
-          
-        
       </li>
-    
   </ul>
-
-  
   <hr/>
 </div>
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
-            
-  <div class="section" id="writing-your-first-scu">
+             
+  <section id="writing-your-first-scu">
 <h1>Writing your first SCU<a class="headerlink" href="#writing-your-first-scu" title="Permalink to this headline">¶</a></h1>
 <p>This tutorial is intended for people who are new to <em>pynetdicom</em>. In it you’ll:</p>
 <ul class="simple">
@@ -226,7 +131,7 @@ upgrade <em>pynetdicom</em> by following the instructions in the
 <a class="reference internal" href="installation.html"><span class="doc">installation guide</span></a>. For
 this tutorial we’ll also be using the <a class="reference internal" href="../apps/echoscp.html"><span class="doc">echoscp</span></a>
 application that comes with <em>pynetdicom</em>.</p>
-<div class="section" id="dicom-networking">
+<section id="dicom-networking">
 <h2>DICOM networking<a class="headerlink" href="#dicom-networking" title="Permalink to this headline">¶</a></h2>
 <p><em>pynetdicom</em> is an implementation of the <a class="reference external" href="http://dicom.nema.org/medical/dicom/current/output/chtml/part08/chapter_9.html">DICOM Upper Layer Protocol for
 TCP/IP</a>, which is used to facilitate communication
@@ -255,7 +160,7 @@ use the services that were agreed upon during negotiation by exchanging
 also be aborted at any time when either AE sends an A-ABORT message. Once
 the association has been aborted or released, the TCP connection is closed
 (if still open) and communication between the two AEs ends.</p>
-<div class="section" id="what-is-an-scu">
+<section id="what-is-an-scu">
 <h3>What <em>is</em> an SCU?<a class="headerlink" href="#what-is-an-scu" title="Permalink to this headline">¶</a></h3>
 <p>If you’re new to DICOM, you might be wondering what an Echo SCU or SCP actually
 <em>are</em>. The answer lies in the DICOM services that are available to an
@@ -275,9 +180,9 @@ whether a DICOM application is active and reachable by your SCU, that your
 configuration is correct and that the connection isn’t being blocked by a
 firewall or anything else.</p>
 <p>OK, enough about DICOM networking, let’s get started.</p>
-</div>
-</div>
-<div class="section" id="start-the-echo-scp">
+</section>
+</section>
+<section id="start-the-echo-scp">
 <h2>Start the Echo SCP<a class="headerlink" href="#start-the-echo-scp" title="Permalink to this headline">¶</a></h2>
 <p>For this tutorial we need an Echo SCP. To make things simpler we’ll use the
 <a class="reference internal" href="../apps/echoscp.html"><span class="doc">echoscp</span></a> application that comes with
@@ -303,8 +208,8 @@ terminal or by pressing <code class="docutils literal notranslate"><span class="
 background for the rest of the tutorial, but you may wish to look at its
 output every now and then to get a feel for what’s happening at the other
 end of the association.</p>
-</div>
-<div class="section" id="create-an-application-entity-and-associate">
+</section>
+<section id="create-an-application-entity-and-associate">
 <h2>Create an Application Entity and associate<a class="headerlink" href="#create-an-application-entity-and-associate" title="Permalink to this headline">¶</a></h2>
 <p>Next we’re going to make a new application entity and request an association
 with the Echo SCP. Create a new file <code class="docutils literal notranslate"><span class="pre">my_scu.py</span></code>, open it in a text
@@ -394,7 +299,7 @@ I: Association Released
 <p>If instead you saw <code class="docutils literal notranslate"><span class="pre">Failed</span> <span class="pre">to</span> <span class="pre">associate</span></code> then not to worry; make sure the
 Echo SCP is running and your code is correct. If you still can’t
 associate, move on to the next section on troubleshooting associations.</p>
-<div class="section" id="troubleshooting-associations">
+<section id="troubleshooting-associations">
 <h3>Troubleshooting associations<a class="headerlink" href="#troubleshooting-associations" title="Permalink to this headline">¶</a></h3>
 <p>By itself our output isn’t very helpful in understanding what’s going on.
 Fortunately, by default <em>pynetdicom</em> has lots of logging output, which can be
@@ -497,11 +402,11 @@ the SCP using TLS or other methods to secure the connection</p></li>
 </ul>
 <p>Hopefully by this point you’ve managed to get your AE associating with the SCP,
 so let’s turn it into an Echo SCU.</p>
-</div>
-</div>
-<div class="section" id="creating-the-echo-scu">
+</section>
+</section>
+<section id="creating-the-echo-scu">
 <h2>Creating the Echo SCU<a class="headerlink" href="#creating-the-echo-scu" title="Permalink to this headline">¶</a></h2>
-<div class="section" id="presentation-contexts">
+<section id="presentation-contexts">
 <h3>Presentation Contexts<a class="headerlink" href="#presentation-contexts" title="Permalink to this headline">¶</a></h3>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
@@ -556,8 +461,8 @@ similar to:</p>
 <div class="highlight-text notranslate"><div class="highlight"><pre><span></span>No presentation context for &#39;CT Image Storage&#39; has been accepted by the peer with &#39;Implicit VR Little Endian&#39; transfer syntax for the SCU role
 </pre></div>
 </div>
-</div>
-<div class="section" id="turning-our-ae-into-an-echo-scu">
+</section>
+<section id="turning-our-ae-into-an-echo-scu">
 <h3>Turning our AE into an Echo SCU<a class="headerlink" href="#turning-our-ae-into-an-echo-scu" title="Permalink to this headline">¶</a></h3>
 <p>Since we’re able to associate with the Echo SCP, our next step is to request
 the use of it’s verification service. We do this by sending a DIMSE C-ECHO
@@ -577,12 +482,12 @@ request:</p>
 <p>The only thing we need to change is to include a call to
 <a class="reference internal" href="../reference/generated/pynetdicom.association.Association.html#pynetdicom.association.Association.send_c_echo" title="pynetdicom.association.Association.send_c_echo"><code class="xref py py-meth docutils literal notranslate"><span class="pre">send_c_echo()</span></code></a>, which sends
 the C-ECHO request and returns a <em>pydicom</em>
-<a class="reference external" href="https://pydicom.github.io/pydicom/stable/reference/generated/pydicom.dataset.Dataset.html#pydicom.dataset.Dataset" title="(in pydicom v2.2.0)"><code class="xref py py-class docutils literal notranslate"><span class="pre">Dataset</span></code></a> instance <em>status</em>. If we received a
+<a class="reference external" href="https://pydicom.github.io/pydicom/stable/reference/generated/pydicom.dataset.Dataset.html#pydicom.dataset.Dataset" title="(in pydicom v2.2.2)"><code class="xref py py-class docutils literal notranslate"><span class="pre">Dataset</span></code></a> instance <em>status</em>. If we received a
 response to our C-ECHO request, then <cite>status</cite> will contain at least an
 (0000,0900) <em>Status</em> element containing the outcome of our request. If no
 response was received (due to a connection failure, a timeout, or because the
 association was aborted) then <cite>status</cite> will be an empty
-<a class="reference external" href="https://pydicom.github.io/pydicom/stable/reference/generated/pydicom.dataset.Dataset.html#pydicom.dataset.Dataset" title="(in pydicom v2.2.0)"><code class="xref py py-class docutils literal notranslate"><span class="pre">Dataset</span></code></a>.</p>
+<a class="reference external" href="https://pydicom.github.io/pydicom/stable/reference/generated/pydicom.dataset.Dataset.html#pydicom.dataset.Dataset" title="(in pydicom v2.2.2)"><code class="xref py py-class docutils literal notranslate"><span class="pre">Dataset</span></code></a>.</p>
 <p>The <em>Status</em> element value is a code that indicates the result of the C-ECHO
 request. Each service class has a number of defined status codes which are
 usually a mix of generic codes for each DIMSE message type and code values
@@ -612,63 +517,46 @@ I: Releasing Association
 <p>The SCP has responded with a <code class="docutils literal notranslate"><span class="pre">Status:</span> <span class="pre">0x0000</span> <span class="pre">-</span> <span class="pre">Success</span></code>, which indicates that
 the verification service request was successful. Congratulations, you’ve
 written your first DICOM application using <em>pynetdicom</em>.</p>
-</div>
-</div>
-<div class="section" id="next-steps">
+</section>
+</section>
+<section id="next-steps">
 <h2>Next steps<a class="headerlink" href="#next-steps" title="Permalink to this headline">¶</a></h2>
 <p>We recommend that you move on to <a class="reference internal" href="create_scp.html"><span class="doc">writing your first SCP</span></a>
 next. However, you might also be interested in the
 <a class="reference internal" href="../examples/index.html"><span class="doc">SCU examples</span></a> available in the documentation, or the
 <a class="reference internal" href="../apps/index.html"><span class="doc">applications</span></a> that come with <em>pynetdicom</em>.</p>
-</div>
-</div>
+</section>
+</section>
 
 
            </div>
-           
           </div>
-          <footer>
-    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
-        <a href="create_scp.html" class="btn btn-neutral float-right" title="Writing your first SCP" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
         <a href="installation.html" class="btn btn-neutral float-left" title="How to install pynetdicom" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="create_scp.html" class="btn btn-neutral float-right" title="Writing your first SCP" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
     </div>
 
   <hr/>
 
   <div role="contentinfo">
-    <p>
-        &#169; Copyright 2018-2021, pynetdicom contributors.
-
-    </p>
+    <p>&#169; Copyright 2018-2021, pynetdicom contributors.</p>
   </div>
-    
-    
-    
-    Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
-    
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
     <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
-    
-    provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
 
 </footer>
         </div>
       </div>
-
     </section>
-
   </div>
-  
-
-  <script type="text/javascript">
+  <script>
       jQuery(function () {
           SphinxRtdTheme.Navigation.enable(true);
       });
-  </script>
-
-  
-  
-    
-   
+  </script> 
 
 </body>
 </html>

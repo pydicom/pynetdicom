@@ -1,85 +1,42 @@
-
-
 <!DOCTYPE html>
 <html class="writer-html5" lang="en" >
 <head>
-  <meta charset="utf-8" />
-  
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  
   <title>pynetdicom &mdash; pynetdicom 2.0.0.dev0 documentation</title>
-  
-
-  
-  <link rel="stylesheet" href="_static/css/pynetdicom.css" type="text/css" />
-  <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
-  <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
-  <link rel="stylesheet" href="_static/css/pynetdicom.css" type="text/css" />
-  <link rel="stylesheet" href="_static/copybutton.css" type="text/css" />
-  <link rel="stylesheet" href="_static/css/pynetdicom.css" type="text/css" />
-
-  
-  
+      <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="_static/css/pynetdicom.css" type="text/css" />
+      <link rel="stylesheet" href="_static/copybutton.css" type="text/css" />
+      <link rel="stylesheet" href="_static/css/pynetdicom.css" type="text/css" />
     <link rel="shortcut icon" href="_static/favicon.ico"/>
-  
-
-  
-  
-
-  
-
-  
   <!--[if lt IE 9]>
     <script src="_static/js/html5shiv.min.js"></script>
   <![endif]-->
   
-    
-      <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
         <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
         <script src="_static/jquery.js"></script>
         <script src="_static/underscore.js"></script>
         <script src="_static/doctools.js"></script>
         <script src="_static/clipboard.min.js"></script>
         <script src="_static/copybutton.js"></script>
-    
-    <script type="text/javascript" src="_static/js/theme.js"></script>
-
-    
+    <script src="_static/js/theme.js"></script>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
     <link rel="next" title="User Guide" href="user/index.html" /> 
 </head>
 
-<body class="wy-body-for-nav">
-
-   
+<body class="wy-body-for-nav"> 
   <div class="wy-grid-for-nav">
-    
     <nav data-toggle="wy-nav-shift" class="wy-nav-side">
       <div class="wy-side-scroll">
         <div class="wy-side-nav-search" >
-          
-
-          
             <a href="#" class="icon icon-home"> pynetdicom
-          
-
-          
-            
             <img src="_static/pydicom_flat_black.svg" class="logo" alt="Logo"/>
-          
           </a>
-
-          
-            
-            
               <div class="version">
                 2.0.0.dev0
               </div>
-            
-          
-
-          
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
     <input type="text" name="q" placeholder="Search docs" />
@@ -87,18 +44,7 @@
     <input type="hidden" name="area" value="default" />
   </form>
 </div>
-
-          
-        </div>
-
-        
-        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
-          
-            
-            
-              
-            
-            
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
               <p class="caption" role="heading"><span class="caption-text">Documentation</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="user/index.html">User Guide</a></li>
@@ -116,70 +62,30 @@
 <li class="toctree-l1"><a class="reference internal" href="changelog/index.html">Release Notes</a></li>
 </ul>
 
-            
-          
         </div>
-        
       </div>
     </nav>
 
-    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
-
-      
-      <nav class="wy-nav-top" aria-label="top navigation">
-        
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
           <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
           <a href="#">pynetdicom</a>
-        
       </nav>
 
-
       <div class="wy-nav-content">
-        
         <div class="rst-content">
-        
-          
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-<div role="navigation" aria-label="breadcrumbs navigation">
-
+          <div role="navigation" aria-label="Page navigation">
   <ul class="wy-breadcrumbs">
-    
       <li><a href="#" class="icon icon-home"></a> &raquo;</li>
-        
       <li><em>pynetdicom</em></li>
-    
-    
       <li class="wy-breadcrumbs-aside">
-        
-          
-        
       </li>
-    
   </ul>
-
-  
   <hr/>
 </div>
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
-            
-  <div class="section" id="pynetdicom">
+             
+  <section id="pynetdicom">
 <h1><em>pynetdicom</em><a class="headerlink" href="#pynetdicom" title="Permalink to this headline">¶</a></h1>
 <p><a class="reference external" href="https://github.com/pydicom/pynetdicom">pynetdicom</a> is a pure Python package
 that implements the <a class="reference external" href="http://dicom.nema.org/">DICOM</a> networking protocol.
@@ -188,7 +94,7 @@ Working with
 of DICOM Application Entities (AEs), which can then act as <em>Service Class
 Users</em> (SCUs) and <em>Service Class Providers</em> (SCPs) by associating with other
 AEs and using or providing the services available to the association.</p>
-<div class="section" id="getting-started">
+<section id="getting-started">
 <h2>Getting started<a class="headerlink" href="#getting-started" title="Permalink to this headline">¶</a></h2>
 <p>If you’re new to <em>pynetdicom</em> then start here:</p>
 <ul class="simple">
@@ -196,16 +102,16 @@ AEs and using or providing the services available to the association.</p>
 <a class="reference internal" href="tutorials/create_scu.html"><span class="doc">Writing your first SCU</span></a> |
 <a class="reference internal" href="tutorials/create_scp.html"><span class="doc">Writing your first SCP</span></a></p></li>
 </ul>
-</div>
-<div class="section" id="user-guide">
+</section>
+<section id="user-guide">
 <span id="index-guide"></span><h2>User Guide<a class="headerlink" href="#user-guide" title="Permalink to this headline">¶</a></h2>
 <p>The <a class="reference internal" href="user/index.html#user-guide"><span class="std std-ref">User Guide</span></a> is intended as an overview for using <em>pynetdcom</em> and
 the concepts relevant to DICOM networking. It covers UIDs, presentation
 contexts, event handling, AEs and associating.</p>
 <p>For detailed documentation of the functions and classes see the
 <a class="reference internal" href="reference/index.html"><span class="doc">API reference</span></a>.</p>
-</div>
-<div class="section" id="code-examples">
+</section>
+<section id="code-examples">
 <span id="index-examples"></span><h2>Code Examples<a class="headerlink" href="#code-examples" title="Permalink to this headline">¶</a></h2>
 <ul class="simple">
 <li><p><a class="reference internal" href="examples/basic_worklist.html"><span class="doc">Basic Worklist Management (C-FIND)</span></a></p></li>
@@ -231,13 +137,13 @@ contexts, event handling, AEs and associating.</p>
 <li><p><a class="reference internal" href="examples/storage.html"><span class="doc">Storage (C-STORE)</span></a></p></li>
 <li><p><a class="reference internal" href="examples/verification.html"><span class="doc">Verification (C-ECHO)</span></a></p></li>
 </ul>
-</div>
-<div class="section" id="api-reference">
+</section>
+<section id="api-reference">
 <span id="index-api"></span><h2>API Reference<a class="headerlink" href="#api-reference" title="Permalink to this headline">¶</a></h2>
 <p>The <a class="reference internal" href="reference/index.html"><span class="doc">API Reference</span></a> provides documentation of the
 functions, classes and other objects.</p>
-</div>
-<div class="section" id="supported-service-classes">
+</section>
+<section id="supported-service-classes">
 <h2>Supported Service Classes<a class="headerlink" href="#supported-service-classes" title="Permalink to this headline">¶</a></h2>
 <p><em>pynetdicom</em> currently supports the following <a class="reference external" href="http://dicom.nema.org/medical/dicom/current/output/chtml/part04/PS3.4.html">DICOM service classes</a>:</p>
 <ul class="simple">
@@ -275,8 +181,8 @@ functions, classes and other objects.</p>
 <li><p><a class="reference internal" href="service_classes/ups.html"><span class="doc">Unified Procedure Step</span></a></p></li>
 <li><p><a class="reference internal" href="service_classes/verification_service_class.html"><span class="doc">Verification</span></a></p></li>
 </ul>
-</div>
-<div class="section" id="applications">
+</section>
+<section id="applications">
 <span id="index-apps"></span><h2>Applications<a class="headerlink" href="#applications" title="Permalink to this headline">¶</a></h2>
 <p><em>pynetdicom</em> also includes some bundled applications</p>
 <ul class="simple">
@@ -289,8 +195,8 @@ functions, classes and other objects.</p>
 <li><p><a class="reference internal" href="apps/storescp.html"><span class="doc">storescp</span></a></p></li>
 <li><p><a class="reference internal" href="apps/storescu.html"><span class="doc">storescu</span></a></p></li>
 </ul>
-</div>
-<div class="section" id="release-notes">
+</section>
+<section id="release-notes">
 <span id="index-releases"></span><h2>Release Notes<a class="headerlink" href="#release-notes" title="Permalink to this headline">¶</a></h2>
 <ul class="simple">
 <li><p><a class="reference internal" href="changelog/v2.0.0.html"><span class="doc">v2.0.0</span></a></p></li>
@@ -316,54 +222,37 @@ functions, classes and other objects.</p>
 </div>
 <div class="toctree-wrapper compound">
 </div>
-</div>
-</div>
+</section>
+</section>
 
 
            </div>
-           
           </div>
-          <footer>
-    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
         <a href="user/index.html" class="btn btn-neutral float-right" title="User Guide" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
     </div>
 
   <hr/>
 
   <div role="contentinfo">
-    <p>
-        &#169; Copyright 2018-2021, pynetdicom contributors.
-
-    </p>
+    <p>&#169; Copyright 2018-2021, pynetdicom contributors.</p>
   </div>
-    
-    
-    
-    Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
-    
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
     <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
-    
-    provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
 
 </footer>
         </div>
       </div>
-
     </section>
-
   </div>
-  
-
-  <script type="text/javascript">
+  <script>
       jQuery(function () {
           SphinxRtdTheme.Navigation.enable(true);
       });
-  </script>
-
-  
-  
-    
-   
+  </script> 
 
 </body>
 </html>

@@ -1,86 +1,43 @@
-
-
 <!DOCTYPE html>
 <html class="writer-html5" lang="en" >
 <head>
-  <meta charset="utf-8" />
-  
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  
   <title>Writing your first SCP &mdash; pynetdicom 2.0.0.dev0 documentation</title>
-  
-
-  
-  <link rel="stylesheet" href="../_static/css/pynetdicom.css" type="text/css" />
-  <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
-  <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
-  <link rel="stylesheet" href="../_static/css/pynetdicom.css" type="text/css" />
-  <link rel="stylesheet" href="../_static/copybutton.css" type="text/css" />
-  <link rel="stylesheet" href="../_static/css/pynetdicom.css" type="text/css" />
-
-  
-  
+      <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="../_static/css/pynetdicom.css" type="text/css" />
+      <link rel="stylesheet" href="../_static/copybutton.css" type="text/css" />
+      <link rel="stylesheet" href="../_static/css/pynetdicom.css" type="text/css" />
     <link rel="shortcut icon" href="../_static/favicon.ico"/>
-  
-
-  
-  
-
-  
-
-  
   <!--[if lt IE 9]>
     <script src="../_static/js/html5shiv.min.js"></script>
   <![endif]-->
   
-    
-      <script type="text/javascript" id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
         <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
         <script src="../_static/jquery.js"></script>
         <script src="../_static/underscore.js"></script>
         <script src="../_static/doctools.js"></script>
         <script src="../_static/clipboard.min.js"></script>
         <script src="../_static/copybutton.js"></script>
-    
-    <script type="text/javascript" src="../_static/js/theme.js"></script>
-
-    
+    <script src="../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
     <link rel="next" title="Supported Service Classes" href="../service_classes/index.html" />
     <link rel="prev" title="Writing your first SCU" href="create_scu.html" /> 
 </head>
 
-<body class="wy-body-for-nav">
-
-   
+<body class="wy-body-for-nav"> 
   <div class="wy-grid-for-nav">
-    
     <nav data-toggle="wy-nav-shift" class="wy-nav-side">
       <div class="wy-side-scroll">
         <div class="wy-side-nav-search" >
-          
-
-          
             <a href="../index.html" class="icon icon-home"> pynetdicom
-          
-
-          
-            
             <img src="../_static/pydicom_flat_black.svg" class="logo" alt="Logo"/>
-          
           </a>
-
-          
-            
-            
               <div class="version">
                 2.0.0.dev0
               </div>
-            
-          
-
-          
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
     <input type="text" name="q" placeholder="Search docs" />
@@ -88,18 +45,7 @@
     <input type="hidden" name="area" value="default" />
   </form>
 </div>
-
-          
-        </div>
-
-        
-        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
-          
-            
-            
-              
-            
-            
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
               <p class="caption" role="heading"><span class="caption-text">Documentation</span></p>
 <ul class="current">
 <li class="toctree-l1"><a class="reference internal" href="../user/index.html">User Guide</a></li>
@@ -134,72 +80,31 @@
 <li class="toctree-l1"><a class="reference internal" href="../changelog/index.html">Release Notes</a></li>
 </ul>
 
-            
-          
         </div>
-        
       </div>
     </nav>
 
-    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
-
-      
-      <nav class="wy-nav-top" aria-label="top navigation">
-        
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
           <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
           <a href="../index.html">pynetdicom</a>
-        
       </nav>
 
-
       <div class="wy-nav-content">
-        
         <div class="rst-content">
-        
-          
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-<div role="navigation" aria-label="breadcrumbs navigation">
-
+          <div role="navigation" aria-label="Page navigation">
   <ul class="wy-breadcrumbs">
-    
       <li><a href="../index.html" class="icon icon-home"></a> &raquo;</li>
-        
           <li><a href="index.html">Tutorials</a> &raquo;</li>
-        
       <li>Writing your first SCP</li>
-    
-    
       <li class="wy-breadcrumbs-aside">
-        
-          
-        
       </li>
-    
   </ul>
-
-  
   <hr/>
 </div>
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
-            
-  <div class="section" id="writing-your-first-scp">
+             
+  <section id="writing-your-first-scp">
 <h1>Writing your first SCP<a class="headerlink" href="#writing-your-first-scp" title="Permalink to this headline">¶</a></h1>
 <p>This is the second tutorial for people who are new to <em>pynetdicom</em>. If you
 missed the <a class="reference internal" href="create_scu.html"><span class="doc">first one</span></a> you should check it out before
@@ -216,7 +121,7 @@ continuing.</p>
 <a class="reference internal" href="installation.html"><span class="doc">installation guide</span></a>. For this tutorial we’ll
 also be using the <a class="reference internal" href="../apps/storescu.html"><span class="doc">storescu</span></a> application that comes with
 <em>pynetdicom</em>.</p>
-<div class="section" id="the-data-set">
+<section id="the-data-set">
 <h2>The Data Set<a class="headerlink" href="#the-data-set" title="Permalink to this headline">¶</a></h2>
 <p>This tutorial is about creating an SCP for the DICOM <a class="reference external" href="http://dicom.nema.org/medical/dicom/current/output/chtml/part04/chapter_B.html">storage service</a>, which is used to transfer DICOM
 <a class="reference external" href="http://dicom.nema.org/medical/dicom/current/output/chtml/part05/chapter_7.html">Data Sets</a> from one AE to another. A Data Set,
@@ -236,8 +141,8 @@ read, write or modify existing ones. If you’re new to <em>pydicom</em> then yo
 should start with the <a class="reference external" href="https://pydicom.github.io/pydicom/stable/tutorials/dataset_basics.html">Dataset Basics</a>
 tutorial.</p>
 </div>
-</div>
-<div class="section" id="creating-a-storage-scp">
+</section>
+<section id="creating-a-storage-scp">
 <h2>Creating a Storage SCP<a class="headerlink" href="#creating-a-storage-scp" title="Permalink to this headline">¶</a></h2>
 <p>Let’s create a simple Storage SCP for receiving <em>CT Image</em> datasets encoded
 using the <em>Explicit VR Little Endian</em> transfer syntax. Create a new file
@@ -261,7 +166,7 @@ using the <em>Explicit VR Little Endian</em> transfer syntax. Create a new file
 <span class="linenos">4</span> <span class="kn">from</span> <span class="nn">pynetdicom.sop_class</span> <span class="kn">import</span> <span class="n">CTImageStorage</span>
 </pre></div>
 </div>
-<p>We import the <a class="reference internal" href="../user/concepts.html#concepts-uids"><span class="std std-ref">UID</span></a> for <a class="reference external" href="https://pydicom.github.io/pydicom/stable/reference/generated/pydicom.uid.ExplicitVRLittleEndian.html#pydicom.uid.ExplicitVRLittleEndian" title="(in pydicom v2.2.0)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Explicit</span> <span class="pre">VR</span> <span class="pre">Little</span> <span class="pre">Endian</span></code></a> from <em>pydicom</em>, and
+<p>We import the <a class="reference internal" href="../user/concepts.html#concepts-uids"><span class="std std-ref">UID</span></a> for <a class="reference external" href="https://pydicom.github.io/pydicom/stable/reference/generated/pydicom.uid.ExplicitVRLittleEndian.html#pydicom.uid.ExplicitVRLittleEndian" title="(in pydicom v2.2.2)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Explicit</span> <span class="pre">VR</span> <span class="pre">Little</span> <span class="pre">Endian</span></code></a> from <em>pydicom</em>, and
 the <a class="reference internal" href="../reference/generated/pynetdicom.ae.ApplicationEntity.html#pynetdicom.ae.ApplicationEntity" title="pynetdicom.ae.ApplicationEntity"><code class="xref py py-class docutils literal notranslate"><span class="pre">AE</span></code></a> class, <a class="reference internal" href="../reference/generated/pynetdicom.debug_logger.html#pynetdicom.debug_logger" title="pynetdicom.debug_logger"><code class="xref py py-func docutils literal notranslate"><span class="pre">debug_logger()</span></code></a> function and
 the UID for <a class="reference internal" href="../reference/generated/pynetdicom.sop_class.CTImageStorage.html#pynetdicom.sop_class.CTImageStorage" title="pynetdicom.sop_class.CTImageStorage"><code class="xref py py-attr docutils literal notranslate"><span class="pre">CT</span> <span class="pre">Image</span> <span class="pre">Storage</span></code></a> from <em>pynetdicom</em>.</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="linenos">6</span> <span class="n">debug_logger</span><span class="p">()</span>
@@ -337,8 +242,8 @@ NotImplementedError: No handler has been bound to &#39;evt.EVT_C_STORE&#39;
 </div>
 <p>As the log confirms, the failure was caused by not having a handler bound to
 the <code class="docutils literal notranslate"><span class="pre">evt.EVT_C_STORE</span></code> event, so we’d better fix that.</p>
-</div>
-<div class="section" id="events-and-handlers">
+</section>
+<section id="events-and-handlers">
 <h2>Events and handlers<a class="headerlink" href="#events-and-handlers" title="Permalink to this headline">¶</a></h2>
 <p><em>pynetdicom</em> uses an <a class="reference internal" href="../user/events.html"><span class="doc">event-handler system</span></a> to give
 access to data exchanged between AEs and as a way to customise the responses to
@@ -381,7 +286,7 @@ SCP, such as when an SCU sends a store request to a Storage SCP…</p></li>
 take a single parameter <cite>event</cite>, which is an <a class="reference internal" href="../reference/generated/pynetdicom.events.Event.html#pynetdicom.events.Event" title="pynetdicom.events.Event"><code class="xref py py-class docutils literal notranslate"><span class="pre">Event</span></code></a> instance.
 If you look at the <a class="reference internal" href="../reference/generated/pynetdicom._handlers.doc_handle_store.html#pynetdicom._handlers.doc_handle_store" title="pynetdicom._handlers.doc_handle_store"><code class="xref py py-func docutils literal notranslate"><span class="pre">documentation</span> <span class="pre">for</span> <span class="pre">EVT_C_STORE</span> <span class="pre">handlers</span></code></a>, you’ll see that they
 must return <em>status</em> as either an <a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.9)"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></a> or <em>pydicom</em>
-<a class="reference external" href="https://pydicom.github.io/pydicom/stable/reference/generated/pydicom.dataset.Dataset.html#pydicom.dataset.Dataset" title="(in pydicom v2.2.0)"><code class="xref py py-class docutils literal notranslate"><span class="pre">Dataset</span></code></a>. This is the same (0000,0900) <em>Status</em>
+<a class="reference external" href="https://pydicom.github.io/pydicom/stable/reference/generated/pydicom.dataset.Dataset.html#pydicom.dataset.Dataset" title="(in pydicom v2.2.2)"><code class="xref py py-class docutils literal notranslate"><span class="pre">Dataset</span></code></a>. This is the same (0000,0900) <em>Status</em>
 value you saw in the previous tutorial, only this will be the value sent by the
 SCP to the SCU. In our <code class="docutils literal notranslate"><span class="pre">handle_store</span></code>
 function we’re returning an <code class="docutils literal notranslate"><span class="pre">0x0000</span></code> status, which indicates that the
@@ -402,14 +307,14 @@ I: Received Store Response (Status: 0x0000 - Success)
 I: Releasing Association
 </pre></div>
 </div>
-</div>
-<div class="section" id="customising-the-handler">
+</section>
+<section id="customising-the-handler">
 <h2>Customising the handler<a class="headerlink" href="#customising-the-handler" title="Permalink to this headline">¶</a></h2>
 <p>Our Storage SCP is returning success statuses for all incoming requests even
 though we’re not actually storing anything, so our next step is to modify the
 handler to write the dataset to file. Before we do that we need to know a bit
 about the DICOM File Format.</p>
-<div class="section" id="the-dicom-file-format">
+<section id="the-dicom-file-format">
 <h3>The DICOM File Format<a class="headerlink" href="#the-dicom-file-format" title="Permalink to this headline">¶</a></h3>
 <p>To be conformant to the DICOM Standard, when a dataset is written to file it
 should be written in the <a class="reference external" href="http://dicom.nema.org/medical/dicom/current/output/chtml/part10/chapter_7.html">DICOM File Format</a>,
@@ -477,20 +382,20 @@ code to:</p>
 </pre></div>
 </div>
 <p>Where <a class="reference internal" href="../reference/generated/pynetdicom.events.Event.html#pynetdicom.events.Event.dataset" title="pynetdicom.events.Event.dataset"><code class="xref py py-attr docutils literal notranslate"><span class="pre">event.dataset</span></code></a> is the decoded dataset
-received from the SCU as a <em>pydicom</em> <a class="reference external" href="https://pydicom.github.io/pydicom/stable/reference/generated/pydicom.dataset.Dataset.html#pydicom.dataset.Dataset" title="(in pydicom v2.2.0)"><code class="xref py py-class docutils literal notranslate"><span class="pre">Dataset</span></code></a> and
+received from the SCU as a <em>pydicom</em> <a class="reference external" href="https://pydicom.github.io/pydicom/stable/reference/generated/pydicom.dataset.Dataset.html#pydicom.dataset.Dataset" title="(in pydicom v2.2.2)"><code class="xref py py-class docutils literal notranslate"><span class="pre">Dataset</span></code></a> and
 <a class="reference internal" href="../reference/generated/pynetdicom.events.Event.html#pynetdicom.events.Event.file_meta" title="pynetdicom.events.Event.file_meta"><code class="xref py py-attr docutils literal notranslate"><span class="pre">event.file_meta</span></code></a> is a
-<a class="reference external" href="https://pydicom.github.io/pydicom/stable/reference/generated/pydicom.dataset.Dataset.html#pydicom.dataset.Dataset" title="(in pydicom v2.2.0)"><code class="xref py py-class docutils literal notranslate"><span class="pre">Dataset</span></code></a> containing conformant File Meta Information
-elements. We set the dataset’s <a class="reference external" href="https://pydicom.github.io/pydicom/stable/reference/generated/pydicom.dataset.FileDataset.html#pydicom.dataset.FileDataset.file_meta" title="(in pydicom v2.2.0)"><code class="xref py py-attr docutils literal notranslate"><span class="pre">file_meta</span></code></a>
+<a class="reference external" href="https://pydicom.github.io/pydicom/stable/reference/generated/pydicom.dataset.Dataset.html#pydicom.dataset.Dataset" title="(in pydicom v2.2.2)"><code class="xref py py-class docutils literal notranslate"><span class="pre">Dataset</span></code></a> containing conformant File Meta Information
+elements. We set the dataset’s <a class="reference external" href="https://pydicom.github.io/pydicom/stable/reference/generated/pydicom.dataset.FileDataset.html#pydicom.dataset.FileDataset.file_meta" title="(in pydicom v2.2.2)"><code class="xref py py-attr docutils literal notranslate"><span class="pre">file_meta</span></code></a>
 attribute and then save it to a file
 named after its (0008,0018) <em>SOP Instance UID</em>,  which is an identifier unique
 to each dataset that <em>should</em> be present. We pass
-<code class="docutils literal notranslate"><span class="pre">write_like_original</span> <span class="pre">=</span> <span class="pre">False</span></code> to <a class="reference external" href="https://pydicom.github.io/pydicom/stable/reference/generated/pydicom.dataset.Dataset.html#pydicom.dataset.Dataset.save_as" title="(in pydicom v2.2.0)"><code class="xref py py-meth docutils literal notranslate"><span class="pre">Dataset.save_as()</span></code></a> to
+<code class="docutils literal notranslate"><span class="pre">write_like_original</span> <span class="pre">=</span> <span class="pre">False</span></code> to <a class="reference external" href="https://pydicom.github.io/pydicom/stable/reference/generated/pydicom.dataset.Dataset.html#pydicom.dataset.Dataset.save_as" title="(in pydicom v2.2.2)"><code class="xref py py-meth docutils literal notranslate"><span class="pre">Dataset.save_as()</span></code></a> to
 ensure that the file is written in the DICOM File Format.</p>
 <p>There are a couple of things to be aware of when dealing with
-<a class="reference external" href="https://pydicom.github.io/pydicom/stable/reference/generated/pydicom.dataset.Dataset.html#pydicom.dataset.Dataset" title="(in pydicom v2.2.0)"><code class="xref py py-class docutils literal notranslate"><span class="pre">Datasets</span></code></a>:</p>
+<a class="reference external" href="https://pydicom.github.io/pydicom/stable/reference/generated/pydicom.dataset.Dataset.html#pydicom.dataset.Dataset" title="(in pydicom v2.2.2)"><code class="xref py py-class docutils literal notranslate"><span class="pre">Datasets</span></code></a>:</p>
 <ul class="simple">
 <li><p>Because <em>pydicom</em> uses a deferred-read system, the
-<a class="reference external" href="https://pydicom.github.io/pydicom/stable/reference/generated/pydicom.dataset.Dataset.html#pydicom.dataset.Dataset" title="(in pydicom v2.2.0)"><code class="xref py py-class docutils literal notranslate"><span class="pre">Dataset</span></code></a> returned by
+<a class="reference external" href="https://pydicom.github.io/pydicom/stable/reference/generated/pydicom.dataset.Dataset.html#pydicom.dataset.Dataset" title="(in pydicom v2.2.2)"><code class="xref py py-class docutils literal notranslate"><span class="pre">Dataset</span></code></a> returned by
 <a class="reference internal" href="../reference/generated/pynetdicom.events.Event.html#pynetdicom.events.Event.dataset" title="pynetdicom.events.Event.dataset"><code class="xref py py-attr docutils literal notranslate"><span class="pre">event.dataset</span></code></a> may raise an exception when any
 element is first accessed.</p></li>
 <li><p>The dataset may not contain a particular element, even if it’s supposed to.
@@ -498,7 +403,7 @@ Always assume a dataset is non-conformant, check to see if what you need
 is present and handle missing elements appropriately. The
 easiest way to check if an element is in a dataset is with the
 <a class="reference external" href="https://docs.python.org/3/library/operator.html#operator.__contains__" title="(in Python v3.9)"><code class="xref py py-func docutils literal notranslate"><span class="pre">in</span></code></a> operator: <code class="docutils literal notranslate"><span class="pre">'PatientName'</span> <span class="pre">in</span> <span class="pre">ds</span></code>, but
-<a class="reference external" href="https://pydicom.github.io/pydicom/stable/reference/generated/pydicom.dataset.Dataset.html#pydicom.dataset.Dataset.get" title="(in pydicom v2.2.0)"><code class="xref py py-meth docutils literal notranslate"><span class="pre">Dataset.get()</span></code></a> or <a class="reference external" href="https://docs.python.org/3/library/functions.html#getattr" title="(in Python v3.9)"><code class="xref py py-func docutils literal notranslate"><span class="pre">getattr()</span></code></a> are
+<a class="reference external" href="https://pydicom.github.io/pydicom/stable/reference/generated/pydicom.dataset.Dataset.html#pydicom.dataset.Dataset.get" title="(in pydicom v2.2.2)"><code class="xref py py-meth docutils literal notranslate"><span class="pre">Dataset.get()</span></code></a> or <a class="reference external" href="https://docs.python.org/3/library/functions.html#getattr" title="(in Python v3.9)"><code class="xref py py-func docutils literal notranslate"><span class="pre">getattr()</span></code></a> are
 also handy.</p></li>
 </ul>
 <p>If you restart <code class="docutils literal notranslate"><span class="pre">my_scp.py</span></code> and re-send the dataset using
@@ -506,8 +411,8 @@ also handy.</p></li>
 transferred dataset named
 <code class="docutils literal notranslate"><span class="pre">1.3.6.1.4.1.5962.1.1.1.1.1.20040119072730.12322</span></code> has been written to the
 directory containing <code class="docutils literal notranslate"><span class="pre">my_scp.py</span></code>.</p>
-</div>
-<div class="section" id="expanding-the-supported-data">
+</section>
+<section id="expanding-the-supported-data">
 <h3>Expanding the supported data<a class="headerlink" href="#expanding-the-supported-data" title="Permalink to this headline">¶</a></h3>
 <p>Our Storage SCP is pretty limited at the moment, only handling one type of
 dataset (technically, one <em>SOP Class</em>) encoded in a particular way. We can
@@ -546,10 +451,10 @@ by default these contexts only support the uncompressed transfer syntaxes. To
 support both compressed and uncompressed transfer syntaxes we separate out the
 abstract syntaxes then use <a class="reference internal" href="../reference/generated/pynetdicom.ae.ApplicationEntity.html#pynetdicom.ae.ApplicationEntity.add_supported_context" title="pynetdicom.ae.ApplicationEntity.add_supported_context"><code class="xref py py-meth docutils literal notranslate"><span class="pre">add_supported_context()</span></code></a>
 with <code class="xref py py-attr docutils literal notranslate"><span class="pre">ALL_TRANSFER_SYNTAXES</span></code> instead.</p>
-</div>
-<div class="section" id="optimising-and-passing-extra-arguments">
+</section>
+<section id="optimising-and-passing-extra-arguments">
 <h3>Optimising and passing extra arguments<a class="headerlink" href="#optimising-and-passing-extra-arguments" title="Permalink to this headline">¶</a></h3>
-<p>If you don’t actually need a decoded <a class="reference external" href="https://pydicom.github.io/pydicom/stable/reference/generated/pydicom.dataset.Dataset.html#pydicom.dataset.Dataset" title="(in pydicom v2.2.0)"><code class="xref py py-class docutils literal notranslate"><span class="pre">Dataset</span></code></a> object
+<p>If you don’t actually need a decoded <a class="reference external" href="https://pydicom.github.io/pydicom/stable/reference/generated/pydicom.dataset.Dataset.html#pydicom.dataset.Dataset" title="(in pydicom v2.2.2)"><code class="xref py py-class docutils literal notranslate"><span class="pre">Dataset</span></code></a> object
 then it’s faster to write the encoded dataset directly to file; this skips
 having to decode and then re-encode the dataset at the cost of slightly more
 complex code:</p>
@@ -598,7 +503,7 @@ complex code:</p>
 </div>
 <p>We’ve modified the handler to write the preamble and prefix to file,
 encode and write the file meta information elements using <em>pydicom’s</em>
-<a class="reference external" href="https://pydicom.github.io/pydicom/stable/reference/generated/pydicom.filewriter.write_file_meta_info.html#pydicom.filewriter.write_file_meta_info" title="(in pydicom v2.2.0)"><code class="xref py py-func docutils literal notranslate"><span class="pre">write_file_meta_info()</span></code></a> function, then finally write
+<a class="reference external" href="https://pydicom.github.io/pydicom/stable/reference/generated/pydicom.filewriter.write_file_meta_info.html#pydicom.filewriter.write_file_meta_info" title="(in pydicom v2.2.2)"><code class="xref py py-func docutils literal notranslate"><span class="pre">write_file_meta_info()</span></code></a> function, then finally write
 the encoded dataset using the <a class="reference internal" href="../reference/generated/pynetdicom.dimse_primitives.C_STORE.html#pynetdicom.dimse_primitives.C_STORE.DataSet" title="pynetdicom.dimse_primitives.C_STORE.DataSet"><code class="xref py py-attr docutils literal notranslate"><span class="pre">raw</span> <span class="pre">dataset</span></code></a> received directly from the C-STORE
 request via the <code class="docutils literal notranslate"><span class="pre">event.request</span></code> attribute.</p>
 <p>The second change we’ve made is to demonstrate how extra parameters can be
@@ -616,63 +521,46 @@ need to deal with the exceptions important to you.</p>
 <p>If you restart <code class="docutils literal notranslate"><span class="pre">my_scp.py</span></code>, you should now be able to use
 <a class="reference internal" href="../apps/storescu.html"><span class="doc">storescu</span></a> to send it any DICOM dataset supported by
 the storage service.</p>
-</div>
-</div>
-<div class="section" id="next-steps">
+</section>
+</section>
+<section id="next-steps">
 <h2>Next steps<a class="headerlink" href="#next-steps" title="Permalink to this headline">¶</a></h2>
 <p>That’s it for the basics of <em>pynetdicom</em>. You might want to read through the
 <a class="reference internal" href="../user/index.html"><span class="doc">User Guide</span></a>, or check
 out the <a class="reference internal" href="../examples/index.html"><span class="doc">SCP examples</span></a> available in the documentation
 or the <a class="reference internal" href="../apps/index.html"><span class="doc">applications</span></a> that come with <em>pynetdicom</em>.</p>
-</div>
-</div>
+</section>
+</section>
 
 
            </div>
-           
           </div>
-          <footer>
-    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
-        <a href="../service_classes/index.html" class="btn btn-neutral float-right" title="Supported Service Classes" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
         <a href="create_scu.html" class="btn btn-neutral float-left" title="Writing your first SCU" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="../service_classes/index.html" class="btn btn-neutral float-right" title="Supported Service Classes" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
     </div>
 
   <hr/>
 
   <div role="contentinfo">
-    <p>
-        &#169; Copyright 2018-2021, pynetdicom contributors.
-
-    </p>
+    <p>&#169; Copyright 2018-2021, pynetdicom contributors.</p>
   </div>
-    
-    
-    
-    Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
-    
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
     <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
-    
-    provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
 
 </footer>
         </div>
       </div>
-
     </section>
-
   </div>
-  
-
-  <script type="text/javascript">
+  <script>
       jQuery(function () {
           SphinxRtdTheme.Navigation.enable(true);
       });
-  </script>
-
-  
-  
-    
-   
+  </script> 
 
 </body>
 </html>

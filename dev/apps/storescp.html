@@ -1,86 +1,43 @@
-
-
 <!DOCTYPE html>
 <html class="writer-html5" lang="en" >
 <head>
-  <meta charset="utf-8" />
-  
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  
   <title>storescp &mdash; pynetdicom 2.0.0.dev0 documentation</title>
-  
-
-  
-  <link rel="stylesheet" href="../_static/css/pynetdicom.css" type="text/css" />
-  <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
-  <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
-  <link rel="stylesheet" href="../_static/css/pynetdicom.css" type="text/css" />
-  <link rel="stylesheet" href="../_static/copybutton.css" type="text/css" />
-  <link rel="stylesheet" href="../_static/css/pynetdicom.css" type="text/css" />
-
-  
-  
+      <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="../_static/css/pynetdicom.css" type="text/css" />
+      <link rel="stylesheet" href="../_static/copybutton.css" type="text/css" />
+      <link rel="stylesheet" href="../_static/css/pynetdicom.css" type="text/css" />
     <link rel="shortcut icon" href="../_static/favicon.ico"/>
-  
-
-  
-  
-
-  
-
-  
   <!--[if lt IE 9]>
     <script src="../_static/js/html5shiv.min.js"></script>
   <![endif]-->
   
-    
-      <script type="text/javascript" id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
         <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
         <script src="../_static/jquery.js"></script>
         <script src="../_static/underscore.js"></script>
         <script src="../_static/doctools.js"></script>
         <script src="../_static/clipboard.min.js"></script>
         <script src="../_static/copybutton.js"></script>
-    
-    <script type="text/javascript" src="../_static/js/theme.js"></script>
-
-    
+    <script src="../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
     <link rel="next" title="storescu" href="storescu.html" />
     <link rel="prev" title="qrscp" href="qrscp.html" /> 
 </head>
 
-<body class="wy-body-for-nav">
-
-   
+<body class="wy-body-for-nav"> 
   <div class="wy-grid-for-nav">
-    
     <nav data-toggle="wy-nav-shift" class="wy-nav-side">
       <div class="wy-side-scroll">
         <div class="wy-side-nav-search" >
-          
-
-          
             <a href="../index.html" class="icon icon-home"> pynetdicom
-          
-
-          
-            
             <img src="../_static/pydicom_flat_black.svg" class="logo" alt="Logo"/>
-          
           </a>
-
-          
-            
-            
               <div class="version">
                 2.0.0.dev0
               </div>
-            
-          
-
-          
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
     <input type="text" name="q" placeholder="Search docs" />
@@ -88,18 +45,7 @@
     <input type="hidden" name="area" value="default" />
   </form>
 </div>
-
-          
-        </div>
-
-        
-        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
-          
-            
-            
-              
-            
-            
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
               <p class="caption" role="heading"><span class="caption-text">Documentation</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="../user/index.html">User Guide</a></li>
@@ -144,85 +90,44 @@
 <li class="toctree-l1"><a class="reference internal" href="../changelog/index.html">Release Notes</a></li>
 </ul>
 
-            
-          
         </div>
-        
       </div>
     </nav>
 
-    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
-
-      
-      <nav class="wy-nav-top" aria-label="top navigation">
-        
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
           <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
           <a href="../index.html">pynetdicom</a>
-        
       </nav>
 
-
       <div class="wy-nav-content">
-        
         <div class="rst-content">
-        
-          
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-<div role="navigation" aria-label="breadcrumbs navigation">
-
+          <div role="navigation" aria-label="Page navigation">
   <ul class="wy-breadcrumbs">
-    
       <li><a href="../index.html" class="icon icon-home"></a> &raquo;</li>
-        
           <li><a href="index.html">Applications</a> &raquo;</li>
-        
       <li>storescp</li>
-    
-    
       <li class="wy-breadcrumbs-aside">
-        
-          
-        
       </li>
-    
   </ul>
-
-  
   <hr/>
 </div>
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
-            
-  <div class="section" id="storescp">
+             
+  <section id="storescp">
 <h1>storescp<a class="headerlink" href="#storescp" title="Permalink to this headline">¶</a></h1>
 <div class="highlight-text notranslate"><div class="highlight"><pre><span></span>$ python -m pynetdicom storescp [options] port
 </pre></div>
 </div>
-<div class="section" id="description">
+<section id="description">
 <h2>Description<a class="headerlink" href="#description" title="Permalink to this headline">¶</a></h2>
 <p>The <code class="docutils literal notranslate"><span class="pre">storescp</span></code> application implements a Service Class Provider (SCP) for
 the <a class="reference external" href="http://dicom.nema.org/medical/dicom/current/output/chtml/part04/chapter_B.html">Storage</a> service class. It listens for
 incoming association requests on the specified <em>port</em>, and once an association
 is established, allows Storage SCUs to transfer SOP Instances.</p>
 <p>The source code for the application can be found <a class="reference external" href="https://github.com/pydicom/pynetdicom/tree/master/pynetdicom/apps/storescp">here</a></p>
-</div>
-<div class="section" id="usage">
+</section>
+<section id="usage">
 <h2>Usage<a class="headerlink" href="#usage" title="Permalink to this headline">¶</a></h2>
 <p>The following example shows what happens when it is started and receives
 a C-STORE request from a peer:</p>
@@ -263,10 +168,10 @@ I: Storing DICOM file: CT.1.3.6.1.4.1.5962.1.1.1.1.1.20040119072730.12322
 I: Association Released
 </pre></div>
 </div>
-</div>
-<div class="section" id="options">
+</section>
+<section id="options">
 <h2>Options<a class="headerlink" href="#options" title="Permalink to this headline">¶</a></h2>
-<div class="section" id="general-options">
+<section id="general-options">
 <h3>General Options<a class="headerlink" href="#general-options" title="Permalink to this headline">¶</a></h3>
 <dl class="simple">
 <dt><code class="docutils literal notranslate"><span class="pre">-q</span>&#160;&#160;&#160; <span class="pre">--quiet</span></code></dt><dd><p>quiet mode, prints no warnings or errors</p>
@@ -280,8 +185,8 @@ I: Association Released
 or lower</p>
 </dd>
 </dl>
-</div>
-<div class="section" id="network-options">
+</section>
+<section id="network-options">
 <h3>Network Options<a class="headerlink" href="#network-options" title="Permalink to this headline">¶</a></h3>
 <dl class="simple">
 <dt><code class="docutils literal notranslate"><span class="pre">-aet</span>&#160; <span class="pre">--ae-title</span> <span class="pre">[a]etitle</span> <span class="pre">(str)</span></code></dt><dd><p>set the local AE title (default: <code class="docutils literal notranslate"><span class="pre">STORESCP</span></code>)</p>
@@ -295,8 +200,8 @@ or lower</p>
 <dt><code class="docutils literal notranslate"><span class="pre">-pdu</span>&#160; <span class="pre">--max-pdu</span> <span class="pre">[n]umber</span> <span class="pre">of</span> <span class="pre">bytes</span> <span class="pre">(int)</span></code></dt><dd><p>set maximum receive PDU bytes to n bytes (default: <code class="docutils literal notranslate"><span class="pre">16382</span></code>)</p>
 </dd>
 </dl>
-</div>
-<div class="section" id="preferred-transfer-syntaxes">
+</section>
+<section id="preferred-transfer-syntaxes">
 <h3>Preferred Transfer Syntaxes<a class="headerlink" href="#preferred-transfer-syntaxes" title="Permalink to this headline">¶</a></h3>
 <dl class="simple">
 <dt><code class="docutils literal notranslate"><span class="pre">-x=</span>&#160;&#160; <span class="pre">--prefer-uncompr</span></code></dt><dd><p>prefer explicit VR local byte order</p>
@@ -308,8 +213,8 @@ or lower</p>
 <dt><code class="docutils literal notranslate"><span class="pre">-xi</span>&#160;&#160; <span class="pre">--implicit</span></code></dt><dd><p>accept implicit VR little endian transfer syntax only</p>
 </dd>
 </dl>
-</div>
-<div class="section" id="output">
+</section>
+<section id="output">
 <h3>Output<a class="headerlink" href="#output" title="Permalink to this headline">¶</a></h3>
 <dl class="simple">
 <dt><code class="docutils literal notranslate"><span class="pre">-od</span> <span class="pre">[d]irectory,</span> <span class="pre">--output-directory</span> <span class="pre">[d]irectory</span> <span class="pre">(str)</span></code></dt><dd><p>write received objects to directory <code class="docutils literal notranslate"><span class="pre">d</span></code></p>
@@ -317,23 +222,23 @@ or lower</p>
 <dt><code class="docutils literal notranslate"><span class="pre">--ignore</span></code></dt><dd><p>receive data but don’t store it</p>
 </dd>
 </dl>
-</div>
-<div class="section" id="miscellaneous">
+</section>
+<section id="miscellaneous">
 <h3>Miscellaneous<a class="headerlink" href="#miscellaneous" title="Permalink to this headline">¶</a></h3>
 <dl class="simple">
 <dt><code class="docutils literal notranslate"><span class="pre">--no-echo</span></code></dt><dd><p>don’t act as a verification SCP</p>
 </dd>
 </dl>
-</div>
-</div>
-<div class="section" id="dicom-conformance">
+</section>
+</section>
+<section id="dicom-conformance">
 <h2>DICOM Conformance<a class="headerlink" href="#dicom-conformance" title="Permalink to this headline">¶</a></h2>
 <p>The <code class="docutils literal notranslate"><span class="pre">storescp</span></code> application supports the Verification (unless <code class="docutils literal notranslate"><span class="pre">--no-echo</span></code>
 is used) and Storage service classes as an SCP. The following SOP
 classes are supported:</p>
-<div class="section" id="verification-service">
+<section id="verification-service">
 <h3>Verification Service<a class="headerlink" href="#verification-service" title="Permalink to this headline">¶</a></h3>
-<div class="section" id="sop-classes">
+<section id="sop-classes">
 <h4>SOP Classes<a class="headerlink" href="#sop-classes" title="Permalink to this headline">¶</a></h4>
 <table class="docutils align-default">
 <colgroup>
@@ -351,8 +256,8 @@ classes are supported:</p>
 </tr>
 </tbody>
 </table>
-</div>
-<div class="section" id="transfer-syntaxes">
+</section>
+<section id="transfer-syntaxes">
 <h4>Transfer Syntaxes<a class="headerlink" href="#transfer-syntaxes" title="Permalink to this headline">¶</a></h4>
 <table class="docutils align-default">
 <colgroup>
@@ -379,11 +284,11 @@ classes are supported:</p>
 </tr>
 </tbody>
 </table>
-</div>
-</div>
-<div class="section" id="storage-service">
+</section>
+</section>
+<section id="storage-service">
 <h3>Storage Service<a class="headerlink" href="#storage-service" title="Permalink to this headline">¶</a></h3>
-<div class="section" id="id1">
+<section id="id1">
 <h4>SOP Classes<a class="headerlink" href="#id1" title="Permalink to this headline">¶</a></h4>
 <table class="docutils align-default">
 <colgroup>
@@ -852,8 +757,8 @@ Instructions Storage</p></td>
 </tr>
 </tbody>
 </table>
-</div>
-<div class="section" id="id2">
+</section>
+<section id="id2">
 <h4>Transfer Syntaxes<a class="headerlink" href="#id2" title="Permalink to this headline">¶</a></h4>
 <table class="docutils align-default">
 <colgroup>
@@ -915,57 +820,40 @@ Prediction (Process 14 [Selection Value 1])</p></td>
 </tr>
 </tbody>
 </table>
-</div>
-</div>
-</div>
-</div>
+</section>
+</section>
+</section>
+</section>
 
 
            </div>
-           
           </div>
-          <footer>
-    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
-        <a href="storescu.html" class="btn btn-neutral float-right" title="storescu" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
         <a href="qrscp.html" class="btn btn-neutral float-left" title="qrscp" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="storescu.html" class="btn btn-neutral float-right" title="storescu" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
     </div>
 
   <hr/>
 
   <div role="contentinfo">
-    <p>
-        &#169; Copyright 2018-2021, pynetdicom contributors.
-
-    </p>
+    <p>&#169; Copyright 2018-2021, pynetdicom contributors.</p>
   </div>
-    
-    
-    
-    Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
-    
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
     <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
-    
-    provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
 
 </footer>
         </div>
       </div>
-
     </section>
-
   </div>
-  
-
-  <script type="text/javascript">
+  <script>
       jQuery(function () {
           SphinxRtdTheme.Navigation.enable(true);
       });
-  </script>
-
-  
-  
-    
-   
+  </script> 
 
 </body>
 </html>
