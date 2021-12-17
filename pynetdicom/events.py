@@ -9,7 +9,7 @@ from pathlib import Path
 import sys
 from typing import (
     Union, Callable, Any, Tuple, List, NamedTuple, Optional, TYPE_CHECKING,
-    Dict, cast, Iterator
+    Dict, cast, Iterator, Type
 )
 
 from pydicom.dataset import Dataset, FileMetaDataset
@@ -21,10 +21,10 @@ from pynetdicom.dsutils import decode, create_file_meta
 
 if TYPE_CHECKING:  # pragma: no cover
     from pynetdicom.association import Association
-    from pynetdicom.dimse_messages import (
-        C_ECHO_RQ, C_FIND_RQ, C_GET_RQ, C_MOVE_RQ, C_STORE_RQ,
-        N_ACTION_RQ, N_CREATE_RQ, N_DELETE_RQ, N_EVENT_REPORT_RQ, N_GET_RQ,
-        N_SET_RQ, DIMSEMessage
+    from pynetdicom.dimse_messages import DIMSEMessage
+    from pynetdicom.dimse_primitives import (
+        C_ECHO, C_FIND, C_GET, C_MOVE, C_STORE, N_ACTION, N_CREATE, N_DELETE,
+        N_EVENT_REPORT, N_GET, N_SET
     )
     from pynetdicom.pdu import _PDUType
     from pynetdicom.pdu_primitives import (
@@ -33,9 +33,8 @@ if TYPE_CHECKING:  # pragma: no cover
     from pynetdicom.presentation import PresentationContextTuple
 
     _RequestType = Union[
-        C_ECHO_RQ, C_FIND_RQ, C_GET_RQ, C_MOVE_RQ, C_STORE_RQ,
-        N_ACTION_RQ, N_CREATE_RQ, N_DELETE_RQ, N_EVENT_REPORT_RQ, N_GET_RQ,
-        N_SET_RQ
+        C_ECHO, C_FIND, C_GET, C_MOVE, C_STORE, N_ACTION, N_CREATE, N_DELETE,
+        N_EVENT_REPORT, N_GET, N_SET
     ]
 
 
@@ -449,15 +448,16 @@ class Event:
         return self._get_dataset("ActionInformation", msg)
 
     @property
-    def action_type(self) -> int:
+    def action_type(self) -> Optional[int]:
         """Return an N-ACTION request's `Action Type ID` as an :class:`int`.
 
         .. versionadded:: 1.4
 
         Returns
         -------
-        int
-            The request's (0000,1008) *Action Type ID* value.
+        int or None
+            The request's (0000,1008) *Action Type ID* value, may be ``None``
+            if the peer's N-ACTION request is non-conformant.
 
         Raises
         ------
@@ -465,8 +465,7 @@ class Event:
             If the corresponding event is not an N-ACTION request.
         """
         try:
-            req = cast("N_ACTION_RQ", self.request)
-            return cast(int, req.ActionTypeID)
+            return cast("N_ACTION", self.request).ActionTypeID
         except AttributeError:
             raise AttributeError(
                 "The corresponding event is not an N-ACTION request and has "
@@ -491,12 +490,11 @@ class Event:
             If the corresponding event is not an N-GET request.
         """
         try:
-            req = cast("N_GET_RQ", self.request)
-            attr_list = req.AttributeIdentifierList
+            attr_list = cast("N_GET", self.request).AttributeIdentifierList
             if attr_list is None:
                 return []
 
-            return cast(List[BaseTag], attr_list)
+            return attr_list
         except AttributeError:
             pass
 
@@ -577,8 +575,8 @@ class Event:
             The path to the dataset.
         """
         try:
-            req = cast("C_STORE_RQ", self.request)
-            dataset_path = req._dataset_path
+            req = cast("C_STORE", self.request)
+            path = req._dataset_path
         except AttributeError:
             msg = (
                 "The corresponding event is either not a C-STORE request or "
@@ -586,7 +584,7 @@ class Event:
             )
             raise AttributeError(msg)
 
-        return cast(Path, dataset_path)
+        return cast(Path, path)
 
     @property
     def event(self) -> EventType:
@@ -630,7 +628,7 @@ class Event:
         return self._get_dataset("EventInformation", msg)
 
     @property
-    def event_type(self) -> int:
+    def event_type(self) -> Optional[int]:
         """Return an N-EVENT-REPORT request's `Event Type ID` as an
         :class:`int`.
 
@@ -638,8 +636,9 @@ class Event:
 
         Returns
         -------
-        int
-            The request's (0000,1002) *Event Type ID* value.
+        int or None
+            The request's (0000,1002) *Event Type ID* value, may be ``None``
+            if the peer's N-EVENT-REPORT request is non-conformant.
 
         Raises
         ------
@@ -647,8 +646,7 @@ class Event:
             If the corresponding event is not an N-EVENT-REPORT request.
         """
         try:
-            req = cast("N_EVENT_REPORT_RQ", self.request)
-            return cast(int, req.EventTypeID)
+            return  cast("N_EVENT_REPORT", self.request).EventTypeID
         except AttributeError:
             raise AttributeError(
                 "The corresponding event is not an N-EVENT-REPORT request "
@@ -720,9 +718,12 @@ class Event:
 
         # A C-STORE request must have AffectedSOPClassUID and
         #   AffectedSOPInstanceUID
+        self.request = cast("C_STORE", self.request)
+        sop_class = cast(UID, self.request.AffectedSOPClassUID)
+        sop_instance = cast(UID, self.request.AffectedSOPInstanceUID)
         return create_file_meta(
-            sop_class_uid=self.request.AffectedSOPClassUID,
-            sop_instance_uid=self.request.AffectedSOPInstanceUID,
+            sop_class_uid=sop_class,
+            sop_instance_uid=sop_instance,
             transfer_syntax=self.context.transfer_syntax,
         )
 
@@ -829,7 +830,7 @@ class Event:
             ``False``.
         """
         try:
-            return self._is_cancelled(self.request.MessageID)
+            return self._is_cancelled(cast(int, self.request.MessageID))
         except AttributeError:
             pass
 
@@ -888,16 +889,21 @@ class Event:
         return self._get_dataset("ModificationList", msg)
 
     @property
-    def move_destination(self) -> bytes:
-        """Return a C-MOVE request's `Move Destination` as :class:`bytes`.
+    def move_destination(self) -> Optional[str]:
+        """Return a C-MOVE request's `Move Destination` as :class:`str`.
 
         .. versionadded:: 1.4
 
+        .. versionchanged:: 2.0
+
+            Changed to return :class:`str` and trailing spaces removed.
+
         Returns
         -------
-        bytes
-            The request's (0000,0600) *Move Destination* value as length 16
-            bytes (including trailing spaces as padding if required).
+        str or None
+            The request's (0000,0600) *Move Destination* value, without any
+            trailing padding spaces. May be ``None`` if the peer's C-MOVE
+            request is non-conformant.
 
         Raises
         ------
@@ -905,7 +911,7 @@ class Event:
             If the corresponding event is not a C-MOVE request.
         """
         try:
-            return cast(bytes, self.request.MoveDestination)
+            return cast("C_MOVE", self.request).MoveDestination
         except AttributeError:
             raise AttributeError(
                 "The corresponding event is not a C-MOVE request and has no "

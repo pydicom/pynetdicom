@@ -6,6 +6,7 @@ import logging
 import pytest
 
 from pydicom.dataset import Dataset
+from pydicom.tag import Tag
 from pydicom.uid import UID
 
 from pynetdicom.dimse_messages import (
@@ -13,7 +14,7 @@ from pynetdicom.dimse_messages import (
     C_FIND_RSP, C_MOVE_RQ, C_MOVE_RSP, C_GET_RQ, C_GET_RSP, N_EVENT_REPORT_RQ,
     N_EVENT_REPORT_RSP, N_SET_RQ, N_SET_RSP, N_GET_RQ, N_GET_RSP, N_ACTION_RQ,
     N_ACTION_RSP, N_CREATE_RQ, N_CREATE_RSP, N_DELETE_RQ, N_DELETE_RSP,
-    C_CANCEL_RQ
+    C_CANCEL_RQ, _COMMAND_SET_KEYWORDS,
 )
 from pynetdicom.dimse_primitives import (
     C_STORE, C_ECHO, C_GET, C_MOVE, C_FIND, N_EVENT_REPORT, N_GET, N_SET,
@@ -48,6 +49,14 @@ def print_nice_bytes(bytestream):
                             items_per_line=10, suffix="' \\")
     for string in str_list:
         print(string)
+
+
+def test_command_set_keywords():
+    """Check the keywords are valid and unique"""
+    for kw_list in _COMMAND_SET_KEYWORDS.values():
+        assert len(kw_list) == len(list(set(kw_list)))
+        for kw in kw_list:
+            Tag(kw)
 
 
 class TestDIMSEMessage:

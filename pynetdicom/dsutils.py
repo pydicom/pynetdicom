@@ -210,8 +210,7 @@ def pretty_dataset(
     list of str
     """
     out = []
-    for element in iter(ds):
-        elem = cast(DataElement, element)
+    for elem in iter(ds):
         if elem.VR == 'SQ':
             out.append(pretty_element(elem))
             for ii, item in enumerate(elem.value):
