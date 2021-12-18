@@ -202,6 +202,7 @@ _NON_PATIENT_OBJECT_CLASSES = {
     'ImplantTemplateGroupStorage': '1.2.840.10008.5.1.4.45.1',
     'CTDefinedProcedureProtocolStorage': '1.2.840.10008.5.1.4.1.1.200.1',
     'ProtocolApprovalStorage': '1.2.840.10008.5.1.4.1.1.200.3',
+    'XADefinedProcedureProtocolStorage': '1.2.840.10008.5.1.4.1.1.200.7',
 }
 _PRINT_MANAGEMENT_CLASSES = {
     'BasicFilmSession': '1.2.840.10008.5.1.1.1',
@@ -374,17 +375,19 @@ _STORAGE_CLASSES = {
     'PerformedImagingAgentAdministrationSRStorage': '1.2.840.10008.5.1.4.1.1.88.75',  # A.35.20
     'EnhancedXRayRadiationDoseSRStorage': '1.2.840.10008.5.1.4.1.1.88.76',  # A.35.
     'ContentAssessmentResultsStorage': '1.2.840.10008.5.1.4.1.1.90.1',  # A.81
+    'MicroscopyBulkSimpleAnnotationsStorage': '1.2.840.10008.5.1.4.1.1.91.1',
     'EncapsulatedPDFStorage': '1.2.840.10008.5.1.4.1.1.104.1',  # A.45.1
     'EncapsulatedCDAStorage': '1.2.840.10008.5.1.4.1.1.104.2',  # A.45.2
     'EncapsulatedSTLStorage': '1.2.840.10008.5.1.4.1.1.104.3',  # A.85.1
     'EncapsulatedOBJStorage': '1.2.840.10008.5.1.4.1.1.104.4',  # A.85.2
     'EncapsulatedMTLStorage': '1.2.840.10008.5.1.4.1.1.104.5',  # A.85.3
     'PositronEmissionTomographyImageStorage': '1.2.840.10008.5.1.4.1.1.128',  # A.21
-    'LegacyConvertedEnhancedPETImageStorage': '1.2.840.10008.5.1.4.1.1.128.1',  # A.72
     # 128 presentation context limit here
+    'LegacyConvertedEnhancedPETImageStorage': '1.2.840.10008.5.1.4.1.1.128.1',  # A.72
     'EnhancedPETImageStorage': '1.2.840.10008.5.1.4.1.1.130',  # A.56
     'BasicStructuredDisplayStorage': '1.2.840.10008.5.1.4.1.1.131',  # A.33.5
     'CTPerformedProcedureProtocolStorage': '1.2.840.10008.5.1.4.1.1.200.2',  # A.82.1
+    'XAPerformedProcedureProtocolStorage': '1.2.840.10008.5.1.4.1.1.200.8',
     'RTImageStorage': '1.2.840.10008.5.1.4.1.1.481.1',  # A.17
     'RTDoseStorage': '1.2.840.10008.5.1.4.1.1.481.2',  # A.18
     'RTStructureSetStorage': '1.2.840.10008.5.1.4.1.1.481.3',  # A.19
@@ -405,6 +408,8 @@ _STORAGE_CLASSES = {
     'TomotherapeuticRadiationRecordStorage': '1.2.840.10008.5.1.4.1.1.481.18',  # A.86.1.10
     'CArmPhotonElectronRadiationRecordStorage': '1.2.840.10008.5.1.4.1.1.481.19',  # A.86.1.11
     'RoboticArmRadiationRecordStorage': '1.2.840.10008.5.1.4.1.1.481.20',  # A.86.1.12
+    'RTRadiationSetDeliveryInstructionStorage': '1.2.840.10008.5.1.4.1.1.481.21',
+    'RTTreatmentPreparationStorage': '1.2.840.10008.5.1.4.1.1.481.22',
     'RTBeamsDeliveryInstructionStorage': '1.2.840.10008.5.1.4.34.7',  # A.64
     'RTBrachyApplicationSetupDeliveryInstructionsStorage': '1.2.840.10008.5.1.4.34.10',  # A.79
 }
