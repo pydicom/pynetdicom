@@ -9,7 +9,7 @@ from pathlib import Path
 import sys
 from typing import (
     Union, Callable, Any, Tuple, List, NamedTuple, Optional, TYPE_CHECKING,
-    Dict, cast, Iterator, Type
+    Dict, cast, Iterator
 )
 
 from pydicom.dataset import Dataset, FileMetaDataset
@@ -646,7 +646,7 @@ class Event:
             If the corresponding event is not an N-EVENT-REPORT request.
         """
         try:
-            return  cast("N_EVENT_REPORT", self.request).EventTypeID
+            return cast("N_EVENT_REPORT", self.request).EventTypeID
         except AttributeError:
             raise AttributeError(
                 "The corresponding event is not an N-EVENT-REPORT request "
