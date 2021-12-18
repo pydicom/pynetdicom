@@ -935,7 +935,7 @@ def _send_c_store_rq(event: "Event") -> List[str]:
     event : events.Event
         The evt.EVT_DIMSE_SENT event that occurred.
     """
-    msg = cast("DIMSEMessage", event.message)
+    msg = event.message
     cs = msg.command_set
 
     priority_str = {2: "Low", 0: "Medium", 1: "High"}
@@ -1004,7 +1004,7 @@ def _send_c_find_rq(event: "Event") -> List[str]:
     event : events.Event
         The evt.EVT_DIMSE_SENT event that occurred.
     """
-    msg = cast("DIMSEMessage", event.message)
+    msg = event.message
     cs = msg.command_set
 
     priority_str = {2: "Low", 0: "Medium", 1: "High"}

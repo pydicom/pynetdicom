@@ -5,11 +5,13 @@ import logging
 from math import ceil
 from pathlib import Path
 from tempfile import NamedTemporaryFile
-from typing import Iterator, Optional, TYPE_CHECKING, cast, Union, Tuple, Type
+from typing import (
+    Iterator, Optional, TYPE_CHECKING, cast, Union, Tuple, Type, List
+)
 
 from pydicom.dataset import Dataset
 from pydicom.filewriter import write_file_meta_info
-from pydicom.tag import Tag
+from pydicom.tag import Tag, BaseTag
 from pydicom.uid import UID
 
 from pynetdicom import _config
@@ -95,7 +97,7 @@ _COMMAND_SET_KEYWORDS = {
     'N-EVENT-REPORT-RSP': (
         'CommandGroupLength', 'AffectedSOPClassUID', 'CommandField',
         'MessageIDBeingRespondedTo', 'CommandDataSetType', 'Status',
-        'AffectedSOPInstanceUID', 'EventTypeID', 'EventTypeID',
+        'AffectedSOPInstanceUID', 'EventTypeID',
         'ErrorID', 'ErrorComment'
     ),
     'N-GET-RQ': (
@@ -137,8 +139,7 @@ _COMMAND_SET_KEYWORDS = {
     'N-CREATE-RSP': (
         'CommandGroupLength', 'AffectedSOPClassUID', 'CommandField',
         'MessageIDBeingRespondedTo', 'CommandDataSetType', 'Status',
-        'AffectedSOPInstanceUID',
-        'ErrorID', 'ErrorComment'
+        'AffectedSOPInstanceUID', 'ErrorID', 'ErrorComment'
     ),
     'N-DELETE-RQ': (
         'CommandGroupLength', 'RequestedSOPClassUID', 'CommandField',
@@ -147,8 +148,7 @@ _COMMAND_SET_KEYWORDS = {
     'N-DELETE-RSP': (
         'CommandGroupLength', 'AffectedSOPClassUID', 'CommandField',
         'MessageIDBeingRespondedTo', 'CommandDataSetType', 'Status',
-        'AffectedSOPInstanceUID',
-        'ErrorComment', 'ErrorID',
+        'AffectedSOPInstanceUID', 'ErrorComment', 'ErrorID',
     )
 }
 
@@ -718,34 +718,31 @@ class DIMSEMessage:
         )
 
 
-# Create DIMSEMessage subclasses and add them to the module
-C_STORE_RQ: Type[DIMSEMessage]
-C_STORE_RSP: Type[DIMSEMessage]
-C_FIND_RQ: Type[DIMSEMessage]
-C_FIND_RSP: Type[DIMSEMessage]
-C_GET_RQ: Type[DIMSEMessage]
-C_GET_RSP: Type[DIMSEMessage]
-C_MOVE_RQ: Type[DIMSEMessage]
-C_MOVE_RSP: Type[DIMSEMessage]
-C_ECHO_RQ: Type[DIMSEMessage]
-C_ECHO_RSP: Type[DIMSEMessage]
-C_CANCEL_RQ: Type[DIMSEMessage]
-N_EVENT_REPORT_RQ: Type[DIMSEMessage]
-N_EVENT_REPORT_RSP: Type[DIMSEMessage]
-N_GET_RQ: Type[DIMSEMessage]
-N_GET_RSP: Type[DIMSEMessage]
-N_SET_RQ: Type[DIMSEMessage]
-N_SET_RSP: Type[DIMSEMessage]
-N_ACTION_RQ: Type[DIMSEMessage]
-N_ACTION_RSP: Type[DIMSEMessage]
-N_CREATE_RQ: Type[DIMSEMessage]
-N_CREATE_RSP: Type[DIMSEMessage]
-N_DELETE_RQ: Type[DIMSEMessage]
-N_DELETE_RSP: Type[DIMSEMessage]
+# Create DIMSEMessage subclasses
+class C_STORE_RQ(DIMSEMessage): pass
+class C_STORE_RSP(DIMSEMessage): pass
+class C_FIND_RQ(DIMSEMessage): pass
+class C_FIND_RSP(DIMSEMessage): pass
+class C_GET_RQ(DIMSEMessage): pass
+class C_GET_RSP(DIMSEMessage): pass
+class C_MOVE_RQ(DIMSEMessage): pass
+class C_MOVE_RSP(DIMSEMessage): pass
+class C_ECHO_RQ(DIMSEMessage): pass
+class C_ECHO_RSP(DIMSEMessage): pass
+class C_CANCEL_RQ(DIMSEMessage): pass
+class N_EVENT_REPORT_RQ(DIMSEMessage): pass
+class N_EVENT_REPORT_RSP(DIMSEMessage): pass
+class N_GET_RQ(DIMSEMessage): pass
+class N_GET_RSP(DIMSEMessage): pass
+class N_SET_RQ(DIMSEMessage): pass
+class N_SET_RSP(DIMSEMessage): pass
+class N_ACTION_RQ(DIMSEMessage): pass
+class N_ACTION_RSP(DIMSEMessage): pass
+class N_CREATE_RQ(DIMSEMessage): pass
+class N_CREATE_RSP(DIMSEMessage): pass
+class N_DELETE_RQ(DIMSEMessage): pass
+class N_DELETE_RSP(DIMSEMessage): pass
 
-for _msg_name in _COMMAND_SET_KEYWORDS:
-    cls = type(_msg_name.replace('-', '_'), (DIMSEMessage, ), {})
-    globals()[cls.__name__] = cls
 
 # Values from PS3.5
 _MESSAGE_TYPES = {

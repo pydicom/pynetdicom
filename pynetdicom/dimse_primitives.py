@@ -26,6 +26,7 @@ if TYPE_CHECKING:  # pragma: no cover
     from typing import Protocol  # Python 3.8+
 
     class NTF(Protocol):
+        # Protocol for a NamedTemporaryFile
         name: str
         def write(self, data: bytes) -> bytes: ...
         def close(self) -> None: ...
