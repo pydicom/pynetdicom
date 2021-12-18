@@ -125,7 +125,7 @@
 <h1>pynetdicom._config.WINDOWS_TIMER_RESOLUTION<a class="headerlink" href="#pynetdicom-config-windows-timer-resolution" title="Permalink to this headline">¶</a></h1>
 <dl class="py data">
 <dt class="sig sig-object py" id="pynetdicom._config.WINDOWS_TIMER_RESOLUTION">
-<span class="sig-prename descclassname"><span class="pre">pynetdicom._config.</span></span><span class="sig-name descname"><span class="pre">WINDOWS_TIMER_RESOLUTION</span></span><em class="property"><span class="pre">:</span> <span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.9)"><span class="pre">float</span></a><span class="p"><span class="pre">]</span></span></em><em class="property"> <span class="pre">=</span> <span class="pre">1</span></em><a class="headerlink" href="#pynetdicom._config.WINDOWS_TIMER_RESOLUTION" title="Permalink to this definition">¶</a></dt>
+<span class="sig-prename descclassname"><span class="pre">pynetdicom._config.</span></span><span class="sig-name descname"><span class="pre">WINDOWS_TIMER_RESOLUTION</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.10)"><span class="pre">float</span></a><span class="p"><span class="pre">]</span></span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">1</span></em><a class="headerlink" href="#pynetdicom._config.WINDOWS_TIMER_RESOLUTION" title="Permalink to this definition">¶</a></dt>
 <dd><p>Set the minimum timer resolution for Microsoft Windows.</p>
 <div class="versionadded">
 <p><span class="versionmodified added">New in version 2.0.</span></p>
@@ -133,7 +133,7 @@
 <p>When running on Windows, the default minimum timer resolution is around 15
 milliseconds, however by default <em>pynetdicom</em> runs with a resolution of 1
 millisecond. This means that <em>pynetdicom</em> running on Windows may be much slower
-than expected. To counteract this, <em>pynetdicom</em> uses the <a class="reference external" href="https://docs.python.org/3/library/ctypes.html#module-ctypes" title="(in Python v3.9)"><code class="xref py py-mod docutils literal notranslate"><span class="pre">ctypes</span></code></a> module
+than expected. To counteract this, <em>pynetdicom</em> uses the <a class="reference external" href="https://docs.python.org/3/library/ctypes.html#module-ctypes" title="(in Python v3.10)"><code class="xref py py-mod docutils literal notranslate"><span class="pre">ctypes</span></code></a> module
 to set the timer resolution to <code class="docutils literal notranslate"><span class="pre">WINDOWS_TIMER_RESOLUTION</span></code> while the
 <a class="reference internal" href="pynetdicom.association.Association.html#pynetdicom.association.Association" title="pynetdicom.association.Association"><code class="xref py py-class docutils literal notranslate"><span class="pre">Association</span></code></a> is active.</p>
 <p>If <code class="docutils literal notranslate"><span class="pre">WINDOWS_TIMER_RESOLUTION</span></code> is set to <code class="docutils literal notranslate"><span class="pre">None</span></code> then no changes to the

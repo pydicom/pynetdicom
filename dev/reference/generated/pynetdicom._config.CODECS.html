@@ -125,7 +125,7 @@
 <h1>pynetdicom._config.CODECS<a class="headerlink" href="#pynetdicom-config-codecs" title="Permalink to this headline">¶</a></h1>
 <dl class="py data">
 <dt class="sig sig-object py" id="pynetdicom._config.CODECS">
-<span class="sig-prename descclassname"><span class="pre">pynetdicom._config.</span></span><span class="sig-name descname"><span class="pre">CODECS</span></span><em class="property"><span class="pre">:</span> <span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)"><span class="pre">str</span></a><span class="p"><span class="pre">,</span> </span><span class="p"><span class="pre">...</span></span><span class="p"><span class="pre">]</span></span></em><em class="property"> <span class="pre">=</span> <span class="pre">('ascii',)</span></em><a class="headerlink" href="#pynetdicom._config.CODECS" title="Permalink to this definition">¶</a></dt>
+<span class="sig-prename descclassname"><span class="pre">pynetdicom._config.</span></span><span class="sig-name descname"><span class="pre">CODECS</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.10)"><span class="pre">str</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="p"><span class="pre">...</span></span><span class="p"><span class="pre">]</span></span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">('ascii',)</span></em><a class="headerlink" href="#pynetdicom._config.CODECS" title="Permalink to this definition">¶</a></dt>
 <dd><p>Customise the codecs used to decode text values.</p>
 <div class="versionadded">
 <p><span class="versionmodified added">New in version 2.0.</span></p>
@@ -183,7 +183,7 @@ Class UID</em>, <em>Related General SOP Class UID</em></p></li>
 will be attempted in the order that the codecs appear in <code class="docutils literal notranslate"><span class="pre">CODECS</span></code> and any
 fallback codecs should be added after <code class="docutils literal notranslate"><span class="pre">&quot;ascii&quot;</span></code>.</p>
 <p>If a fallback successfully decodes an encoded value the string will be
-converted to ASCII  using <a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str.encode" title="(in Python v3.9)"><code class="xref py py-meth docutils literal notranslate"><span class="pre">str.encode()</span></code></a> with the <cite>errors</cite> parameter set
+converted to ASCII  using <a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str.encode" title="(in Python v3.10)"><code class="xref py py-meth docutils literal notranslate"><span class="pre">str.encode()</span></code></a> with the <cite>errors</cite> parameter set
 to <code class="docutils literal notranslate"><span class="pre">&quot;ignore&quot;</span></code>.</p>
 <p>Default: <code class="docutils literal notranslate"><span class="pre">(&quot;ascii&quot;,)</span></code></p>
 <p class="rubric">Examples</p>
