@@ -1,15 +1,16 @@
 from setuptools import setup, find_packages
-import os
+from pathlib import Path
 import sys
 
-# Version
-BASE_DIR = os.path.dirname(os.path.realpath(__file__))
-VERSION_FILE = os.path.join(BASE_DIR, "pynetdicom", "_version.py")
-with open(VERSION_FILE) as fp:
-    exec(fp.read())
 
-with open("README.rst", "r") as fp:
-    long_description = fp.read()
+BASE_DIR = Path(__file__).parent
+
+VERSION_FILE = BASE_DIR / "pynetdicom" / "_version.py"
+with open(VERSION_FILE) as f:
+    exec(f.read())
+
+with open(BASE_DIR / "README.rst", "r") as f:
+    long_description = f.read()
 
 setup(
     name="pynetdicom",
@@ -24,24 +25,26 @@ setup(
     author_email="scaramallion@users.noreply.github.com",
     url="https://github.com/pydicom/pynetdicom",
     license="MIT",
-    keywords=("dicom python medicalimaging radiotherapy oncology pydicom imaging"),
+    keywords=(
+        "dicom network python medicalimaging radiotherapy oncology pydicom imaging"
+    ),
     project_urls={"Documentation": "https://pydicom.github.io/pynetdicom/"},
     classifiers=[
         "License :: OSI Approved :: MIT License",
         "Intended Audience :: Developers",
         "Intended Audience :: Healthcare Industry",
         "Intended Audience :: Science/Research",
-        # "Development Status :: 4 - Beta",
         "Development Status :: 5 - Production/Stable",
         "Natural Language :: English",
         "Programming Language :: Python :: 3.7",
         "Programming Language :: Python :: 3.8",
         "Programming Language :: Python :: 3.9",
+        "Programming Language :: Python :: 3.10",
         "Operating System :: OS Independent",
         "Topic :: Scientific/Engineering :: Medical Science Apps.",
         "Topic :: Software Development :: Libraries",
     ],
-    install_requires=["pydicom>=2.0.0"],
+    install_requires=["pydicom>=2.2.0"],
     extras_require={  # will also install from `install_requires`
         "apps": ["sqlalchemy"],
         "docs": [
