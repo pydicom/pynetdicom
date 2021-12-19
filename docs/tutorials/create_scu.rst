@@ -213,7 +213,7 @@ connection is closed automatically (if required), and we don't need to do
 anything further.
 
 If you don't release the association yourself then it'll remain established
-until the connection is closed, usually when a timeouts expires on
+until the connection is closed, usually when a timeout expires on
 either the *requestor* or *acceptor* AE.
 
 So, let's see what happens when we run our code. Open a new terminal and
@@ -293,12 +293,12 @@ information:
     D: ========================== END A-ASSOCIATE-RQ PDU ==========================
     D: Accept Parameters:
     D: ======================= INCOMING A-ASSOCIATE-AC PDU ========================
-    D: Their Implementation Class UID:    1.2.276.0.7230010.3.0.3.6.2
-    D: Their Implementation Version Name: OFFIS_DCMTK_362
+    D: Their Implementation Class UID:    1.2.826.0.1.3680043.9.3811.2.0.0
+    D: Their Implementation Version Name: PYNETDICOM_200
     D: Application Context Name:    1.2.840.10008.3.1.1.1
     D: Calling Application Name:    PYNETDICOM
     D: Called Application Name:     ANY-SCP
-    D: Their Max PDU Receive Size:  16384
+    D: Their Max PDU Receive Size:  16382
     D: Presentation Contexts:
     D:   Context ID:        1 (Accepted)
     D:     Abstract Syntax: =Verification SOP Class

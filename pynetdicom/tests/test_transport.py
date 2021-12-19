@@ -270,25 +270,26 @@ class TestAssociationSocket:
 @pytest.fixture
 def server_context(request):
     """Return a good server SSLContext."""
-    context = ssl.create_default_context(ssl.Purpose.CLIENT_AUTH)
-    context.verify_mode = ssl.CERT_REQUIRED
-    context.load_cert_chain(certfile=SERVER_CERT, keyfile=SERVER_KEY)
-    context.load_verify_locations(cafile=CLIENT_CERT)
-
     # TLS v1.3 is not currently supported :(
     # The actual available attributes/protocols depend on OS, OpenSSL version
     #   and Python version, ugh
     if hasattr(ssl, 'TLSVersion'):
         # This is the current and future, but heavily depends on OpenSSL
         # Python 3.7+, w/ OpenSSL 1.1.0g+
-        context.maximum_version = ssl.TLSVersion.TLSv1_2
-    else:
-        # Should work with older Python and OpenSSL versions
-        # Python 3.6
-        context = ssl.SSLContext(protocol=ssl.PROTOCOL_TLSv1_2)
+        context = ssl.create_default_context(ssl.Purpose.CLIENT_AUTH)
         context.verify_mode = ssl.CERT_REQUIRED
         context.load_cert_chain(certfile=SERVER_CERT, keyfile=SERVER_KEY)
         context.load_verify_locations(cafile=CLIENT_CERT)
+        context.maximum_version = ssl.TLSVersion.TLSv1_2
+
+        return context
+
+    # Should work with older Python and OpenSSL versions
+    # Python 3.6
+    context = ssl.SSLContext(protocol=ssl.PROTOCOL_TLSv1_2)
+    context.verify_mode = ssl.CERT_REQUIRED
+    context.load_cert_chain(certfile=SERVER_CERT, keyfile=SERVER_KEY)
+    context.load_verify_locations(cafile=CLIENT_CERT)
 
     return context
 
@@ -297,9 +298,13 @@ def server_context(request):
 def client_context(request):
     """Return a good client SSLContext."""
     context = ssl.create_default_context(
-        ssl.Purpose.CLIENT_AUTH, cafile=SERVER_CERT)
+        ssl.Purpose.SERVER_AUTH,
+        cafile=SERVER_CERT
+    )
     context.verify_mode = ssl.CERT_REQUIRED
     context.load_cert_chain(certfile=CLIENT_CERT, keyfile=CLIENT_KEY)
+    context.check_hostname = False
+
     return context
 
 

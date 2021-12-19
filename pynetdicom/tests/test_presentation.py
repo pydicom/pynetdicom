@@ -2011,7 +2011,7 @@ class TestServiceContexts:
     def test_non_patient(self):
         """Tests with non patient object presentation contexts"""
         contexts = NonPatientObjectPresentationContexts
-        assert len(contexts) == 7
+        assert len(contexts) == 8
 
         for context in contexts:
             assert context.transfer_syntax == DEFAULT_TRANSFER_SYNTAXES
@@ -2019,11 +2019,12 @@ class TestServiceContexts:
 
         assert contexts[0].abstract_syntax == '1.2.840.10008.5.1.4.1.1.200.1'
         assert contexts[1].abstract_syntax == '1.2.840.10008.5.1.4.1.1.200.3'
-        assert contexts[2].abstract_syntax == '1.2.840.10008.5.1.4.38.1'
-        assert contexts[3].abstract_syntax == '1.2.840.10008.5.1.4.39.1'
-        assert contexts[4].abstract_syntax == '1.2.840.10008.5.1.4.43.1'
-        assert contexts[5].abstract_syntax == '1.2.840.10008.5.1.4.44.1'
-        assert contexts[6].abstract_syntax == '1.2.840.10008.5.1.4.45.1'
+        assert contexts[2].abstract_syntax == '1.2.840.10008.5.1.4.1.1.200.7'
+        assert contexts[3].abstract_syntax == '1.2.840.10008.5.1.4.38.1'
+        assert contexts[4].abstract_syntax == '1.2.840.10008.5.1.4.39.1'
+        assert contexts[5].abstract_syntax == '1.2.840.10008.5.1.4.43.1'
+        assert contexts[6].abstract_syntax == '1.2.840.10008.5.1.4.44.1'
+        assert contexts[7].abstract_syntax == '1.2.840.10008.5.1.4.45.1'
 
     def test_print_management(self):
         """Tests with print management presentation contexts"""
@@ -2120,8 +2121,8 @@ class TestServiceContexts:
             assert context.context_id is None
 
         assert contexts[0].abstract_syntax == '1.2.840.10008.5.1.4.1.1.1'
-        assert contexts[80].abstract_syntax == '1.2.840.10008.5.1.4.1.1.68.1'
-        assert contexts[-1].abstract_syntax == '1.2.840.10008.5.1.4.1.1.88.69'
+        assert contexts[80].abstract_syntax == '1.2.840.10008.5.1.4.1.1.66.5'
+        assert contexts[-1].abstract_syntax == '1.2.840.10008.5.1.4.1.1.88.65'
 
     def test_storage_commitement(self):
         """Tests with storage commitment presentation contexts"""
