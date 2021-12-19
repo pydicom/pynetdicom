@@ -10,12 +10,17 @@ import pytest
 
 from pydicom import dcmread
 from pydicom.uid import (
-    ExplicitVRLittleEndian, ImplicitVRLittleEndian,
-    DeflatedExplicitVRLittleEndian, ExplicitVRBigEndian
+    ExplicitVRLittleEndian,
+    ImplicitVRLittleEndian,
+    DeflatedExplicitVRLittleEndian,
+    ExplicitVRBigEndian,
 )
 
 from pynetdicom import (
-    AE, evt, debug_logger, DEFAULT_TRANSFER_SYNTAXES,
+    AE,
+    evt,
+    debug_logger,
+    DEFAULT_TRANSFER_SYNTAXES,
     QueryRetrievePresentationContexts,
     BasicWorklistManagementPresentationContexts,
 )
@@ -24,35 +29,36 @@ from pynetdicom.sop_class import (
     PatientRootQueryRetrieveInformationModelFind,
     StudyRootQueryRetrieveInformationModelFind,
     PatientStudyOnlyQueryRetrieveInformationModelFind,
-    ModalityWorklistInformationFind
+    ModalityWorklistInformationFind,
 )
 
 
-#debug_logger()
+# debug_logger()
 
 
-APP_DIR = os.path.join(os.path.dirname(__file__), '../')
-APP_FILE = os.path.join(APP_DIR, 'findscu', 'findscu.py')
-DATA_DIR = os.path.join(APP_DIR, '../', 'tests', 'dicom_files')
-DATASET_FILE = os.path.join(DATA_DIR, 'CTImageStorage.dcm')
+APP_DIR = os.path.join(os.path.dirname(__file__), "../")
+APP_FILE = os.path.join(APP_DIR, "findscu", "findscu.py")
+DATA_DIR = os.path.join(APP_DIR, "../", "tests", "dicom_files")
+DATASET_FILE = os.path.join(DATA_DIR, "CTImageStorage.dcm")
 
 
 def start_findscu(args):
     """Start the findscu.py app and return the process."""
-    pargs = [sys.executable, APP_FILE, 'localhost', '11112'] + [*args]
+    pargs = [sys.executable, APP_FILE, "localhost", "11112"] + [*args]
     return subprocess.Popen(pargs)
 
 
 def start_findscu_scli(args):
     """Start the findscu app using CLI and return the process."""
-    pargs = [
-        sys.executable, '-m', 'pynetdicom', 'findscu', 'localhost', '11112'
-    ] + [*args]
+    pargs = [sys.executable, "-m", "pynetdicom", "findscu", "localhost", "11112"] + [
+        *args
+    ]
     return subprocess.Popen(pargs)
 
 
 class FindSCUBase:
     """Tests for findscu.py"""
+
     def setup(self):
         """Run prior to each test"""
         self.ae = None
@@ -74,10 +80,7 @@ class FindSCUBase:
         def handle_release(event):
             events.append(event)
 
-        handlers = [
-            (evt.EVT_C_FIND, handle_find),
-            (evt.EVT_RELEASED, handle_release)
-        ]
+        handlers = [(evt.EVT_C_FIND, handle_find), (evt.EVT_RELEASED, handle_release)]
 
         self.ae = ae = AE()
         ae.acse_timeout = 5
@@ -87,9 +90,9 @@ class FindSCUBase:
             QueryRetrievePresentationContexts
             + BasicWorklistManagementPresentationContexts
         )
-        scp = ae.start_server(('', 11112), block=False, evt_handlers=handlers)
+        scp = ae.start_server(("", 11112), block=False, evt_handlers=handlers)
 
-        p = self.func(['-k', "PatientName="])
+        p = self.func(["-k", "PatientName="])
         p.wait()
         assert p.returncode == 0
 
@@ -99,9 +102,9 @@ class FindSCUBase:
         assert events[0].identifier.PatientName == ""
         assert events[1].event == evt.EVT_RELEASED
         requestor = events[1].assoc.requestor
-        assert 'FINDSCU' == requestor.ae_title
+        assert "FINDSCU" == requestor.ae_title
         assert 16382 == requestor.maximum_length
-        assert 'ANY-SCP' == requestor.primitive.called_ae_title
+        assert "ANY-SCP" == requestor.primitive.called_ae_title
         assert [] == requestor.extended_negotiation
         assert (1, 1) == requestor.asynchronous_operations
         assert {} == requestor.sop_class_common_extended
@@ -116,7 +119,7 @@ class FindSCUBase:
 
     def test_no_peer(self, capfd):
         """Test trying to connect to non-existent host."""
-        p = self.func(['-k', "PatientName="])
+        p = self.func(["-k", "PatientName="])
         p.wait()
         assert p.returncode == 1
 
@@ -126,21 +129,21 @@ class FindSCUBase:
 
     def test_bad_input(self, capfd):
         """Test being unable to read the input file."""
-        p = self.func(['-f', 'no-such-file.dcm'])
+        p = self.func(["-f", "no-such-file.dcm"])
         p.wait()
         assert p.returncode == 1
 
         out, err = capfd.readouterr()
-        assert 'Cannot read input file no-such-file.dcm' in err
+        assert "Cannot read input file no-such-file.dcm" in err
 
     def test_flag_version(self, capfd):
         """Test --version flag."""
-        p = self.func(['--version'])
+        p = self.func(["--version"])
         p.wait()
         assert p.returncode == 0
 
         out, err = capfd.readouterr()
-        assert 'findscu.py v' in out
+        assert "findscu.py v" in out
 
     def test_flag_quiet(self, capfd):
         """Test --quiet flag."""
@@ -149,19 +152,20 @@ class FindSCUBase:
         ae.dimse_timeout = 5
         ae.network_timeout = 5
         ae.add_supported_context(Verification)
-        scp = ae.start_server(('', 11112), block=False)
+        scp = ae.start_server(("", 11112), block=False)
 
-        p = self.func(['-q', '-k', 'PatientName='])
+        p = self.func(["-q", "-k", "PatientName="])
         p.wait()
         assert p.returncode == 1
 
         out, err = capfd.readouterr()
-        assert out == err == ''
+        assert out == err == ""
 
         scp.shutdown()
 
     def test_flag_verbose(self, capfd):
         """Test --verbose flag."""
+
         def handle_find(event):
             yield 0x0000, None
 
@@ -177,9 +181,9 @@ class FindSCUBase:
             QueryRetrievePresentationContexts
             + BasicWorklistManagementPresentationContexts
         )
-        scp = ae.start_server(('', 11112), block=False, evt_handlers=handlers)
+        scp = ae.start_server(("", 11112), block=False, evt_handlers=handlers)
 
-        p = self.func(['-v', '-k', 'PatientName='])
+        p = self.func(["-v", "-k", "PatientName="])
         p.wait()
         assert p.returncode == 0
 
@@ -195,6 +199,7 @@ class FindSCUBase:
 
     def test_flag_debug(self, capfd):
         """Test --debug flag."""
+
         def handle_find(event):
             yield 0x0000, None
 
@@ -210,9 +215,9 @@ class FindSCUBase:
             QueryRetrievePresentationContexts
             + BasicWorklistManagementPresentationContexts
         )
-        scp = ae.start_server(('', 11112), block=False, evt_handlers=handlers)
+        scp = ae.start_server(("", 11112), block=False, evt_handlers=handlers)
 
-        p = self.func(['-d', '-k', 'PatientName='])
+        p = self.func(["-d", "-k", "PatientName="])
         p.wait()
         assert p.returncode == 0
 
@@ -224,7 +229,7 @@ class FindSCUBase:
 
     def test_flag_log_collision(self):
         """Test error with -q -v and -d flag."""
-        p = self.func(['-v', '-d'])
+        p = self.func(["-v", "-d"])
         p.wait()
         assert p.returncode != 0
 
@@ -236,6 +241,7 @@ class FindSCUBase:
     def test_flag_aet(self):
         """Test --calling-aet flag."""
         events = []
+
         def handle_find(event):
             events.append(event)
             yield 0x0000, None
@@ -252,9 +258,9 @@ class FindSCUBase:
             QueryRetrievePresentationContexts
             + BasicWorklistManagementPresentationContexts
         )
-        scp = ae.start_server(('', 11112), block=False, evt_handlers=handlers)
+        scp = ae.start_server(("", 11112), block=False, evt_handlers=handlers)
 
-        p = self.func(['-aet', 'MYSCU', '-k', 'PatientName='])
+        p = self.func(["-aet", "MYSCU", "-k", "PatientName="])
         p.wait()
         assert p.returncode == 0
 
@@ -262,11 +268,12 @@ class FindSCUBase:
 
         assert events[0].event == evt.EVT_C_FIND
         requestor = events[0].assoc.requestor
-        assert 'MYSCU' == requestor.ae_title
+        assert "MYSCU" == requestor.ae_title
 
     def test_flag_aec(self):
         """Test --called-aet flag."""
         events = []
+
         def handle_find(event):
             events.append(event)
             yield 0x0000, None
@@ -283,10 +290,9 @@ class FindSCUBase:
             QueryRetrievePresentationContexts
             + BasicWorklistManagementPresentationContexts
         )
-        scp = ae.start_server(('', 11112), block=False, evt_handlers=handlers)
+        scp = ae.start_server(("", 11112), block=False, evt_handlers=handlers)
 
-
-        p = self.func(['-aec', 'YOURSCP', '-k', 'PatientName='])
+        p = self.func(["-aec", "YOURSCP", "-k", "PatientName="])
         p.wait()
         assert p.returncode == 0
 
@@ -294,7 +300,7 @@ class FindSCUBase:
 
         assert events[0].event == evt.EVT_C_FIND
         requestor = events[0].assoc.requestor
-        assert 'YOURSCP' == requestor.primitive.called_ae_title
+        assert "YOURSCP" == requestor.primitive.called_ae_title
 
     def test_flag_ta(self, capfd):
         """Test --acse-timeout flag."""
@@ -325,9 +331,9 @@ class FindSCUBase:
             QueryRetrievePresentationContexts
             + BasicWorklistManagementPresentationContexts
         )
-        scp = ae.start_server(('', 11112), block=False, evt_handlers=handlers)
+        scp = ae.start_server(("", 11112), block=False, evt_handlers=handlers)
 
-        p = self.func(['-ta', '0.05', '-d', '-k', 'PatientName='])
+        p = self.func(["-ta", "0.05", "-d", "-k", "PatientName="])
         p.wait()
         assert p.returncode == 1
 
@@ -365,10 +371,9 @@ class FindSCUBase:
             QueryRetrievePresentationContexts
             + BasicWorklistManagementPresentationContexts
         )
-        scp = ae.start_server(('', 11112), block=False, evt_handlers=handlers)
+        scp = ae.start_server(("", 11112), block=False, evt_handlers=handlers)
 
-
-        p = self.func(['-td', '0.05', '-d', '-k', 'PatientName='])
+        p = self.func(["-td", "0.05", "-d", "-k", "PatientName="])
         p.wait()
         assert p.returncode == 0
 
@@ -397,10 +402,7 @@ class FindSCUBase:
         def handle_release(event):
             events.append(event)
 
-        handlers = [
-            (evt.EVT_C_FIND, handle_find),
-            (evt.EVT_RELEASED, handle_release)
-        ]
+        handlers = [(evt.EVT_C_FIND, handle_find), (evt.EVT_RELEASED, handle_release)]
 
         self.ae = ae = AE()
         ae.acse_timeout = 5
@@ -410,10 +412,9 @@ class FindSCUBase:
             QueryRetrievePresentationContexts
             + BasicWorklistManagementPresentationContexts
         )
-        scp = ae.start_server(('', 11112), block=False, evt_handlers=handlers)
+        scp = ae.start_server(("", 11112), block=False, evt_handlers=handlers)
 
-
-        p = self.func(['--max-pdu', '123456', '-k', 'PatientName='])
+        p = self.func(["--max-pdu", "123456", "-k", "PatientName="])
         p.wait()
         assert p.returncode == 0
 
@@ -427,6 +428,7 @@ class FindSCUBase:
     def test_flag_patient(self):
         """Test the -P flag."""
         events = []
+
         def handle_find(event):
             events.append(event)
             yield 0x0000, None
@@ -443,9 +445,9 @@ class FindSCUBase:
             QueryRetrievePresentationContexts
             + BasicWorklistManagementPresentationContexts
         )
-        scp = ae.start_server(('', 11112), block=False, evt_handlers=handlers)
+        scp = ae.start_server(("", 11112), block=False, evt_handlers=handlers)
 
-        p = self.func(['-P', '-k', 'PatientName='])
+        p = self.func(["-P", "-k", "PatientName="])
         p.wait()
         assert p.returncode == 0
 
@@ -453,13 +455,12 @@ class FindSCUBase:
 
         assert events[0].event == evt.EVT_C_FIND
         cx = events[0].context
-        assert cx.abstract_syntax == (
-            PatientRootQueryRetrieveInformationModelFind
-        )
+        assert cx.abstract_syntax == (PatientRootQueryRetrieveInformationModelFind)
 
     def test_flag_study(self):
         """Test the -S flag."""
         events = []
+
         def handle_find(event):
             events.append(event)
             yield 0x0000, None
@@ -476,9 +477,9 @@ class FindSCUBase:
             QueryRetrievePresentationContexts
             + BasicWorklistManagementPresentationContexts
         )
-        scp = ae.start_server(('', 11112), block=False, evt_handlers=handlers)
+        scp = ae.start_server(("", 11112), block=False, evt_handlers=handlers)
 
-        p = self.func(['-S', '-k', 'PatientName='])
+        p = self.func(["-S", "-k", "PatientName="])
         p.wait()
         assert p.returncode == 0
 
@@ -491,6 +492,7 @@ class FindSCUBase:
     def test_flag_patient_study(self):
         """Test the -O flag."""
         events = []
+
         def handle_find(event):
             events.append(event)
             yield 0x0000, None
@@ -507,9 +509,9 @@ class FindSCUBase:
             QueryRetrievePresentationContexts
             + BasicWorklistManagementPresentationContexts
         )
-        scp = ae.start_server(('', 11112), block=False, evt_handlers=handlers)
+        scp = ae.start_server(("", 11112), block=False, evt_handlers=handlers)
 
-        p = self.func(['-O', '-k', 'PatientName='])
+        p = self.func(["-O", "-k", "PatientName="])
         p.wait()
         assert p.returncode == 0
 
@@ -517,13 +519,12 @@ class FindSCUBase:
 
         assert events[0].event == evt.EVT_C_FIND
         cx = events[0].context
-        assert cx.abstract_syntax == (
-            PatientStudyOnlyQueryRetrieveInformationModelFind
-        )
+        assert cx.abstract_syntax == (PatientStudyOnlyQueryRetrieveInformationModelFind)
 
     def test_flag_worklist(self):
         """Test the -W flag."""
         events = []
+
         def handle_find(event):
             events.append(event)
             yield 0x0000, None
@@ -540,9 +541,9 @@ class FindSCUBase:
             QueryRetrievePresentationContexts
             + BasicWorklistManagementPresentationContexts
         )
-        scp = ae.start_server(('', 11112), block=False, evt_handlers=handlers)
+        scp = ae.start_server(("", 11112), block=False, evt_handlers=handlers)
 
-        p = self.func(['-W', '-k', 'PatientName='])
+        p = self.func(["-W", "-k", "PatientName="])
         p.wait()
         assert p.returncode == 0
 
@@ -554,6 +555,7 @@ class FindSCUBase:
 
     def test_flag_write(self):
         """Test the -w flag."""
+
         def handle_find(event):
             yield 0xFF00, event.identifier
 
@@ -569,22 +571,23 @@ class FindSCUBase:
             QueryRetrievePresentationContexts
             + BasicWorklistManagementPresentationContexts
         )
-        scp = ae.start_server(('', 11112), block=False, evt_handlers=handlers)
+        scp = ae.start_server(("", 11112), block=False, evt_handlers=handlers)
 
-        p = self.func(['-w', '-k', 'PatientName='])
+        p = self.func(["-w", "-k", "PatientName="])
         p.wait()
         assert p.returncode == 0
 
         scp.shutdown()
 
-        assert 'rsp000001.dcm' in os.listdir()
-        ds = dcmread('rsp000001.dcm')
-        assert ds.PatientName == ''
-        os.remove('rsp000001.dcm')
+        assert "rsp000001.dcm" in os.listdir()
+        ds = dcmread("rsp000001.dcm")
+        assert ds.PatientName == ""
+        os.remove("rsp000001.dcm")
 
 
 class TestFindSCU(FindSCUBase):
     """Tests for findscu.py"""
+
     def setup(self):
         """Run prior to each test"""
         self.ae = None
@@ -593,6 +596,7 @@ class TestFindSCU(FindSCUBase):
 
 class TestFindSCUCLI(FindSCUBase):
     """Tests for findscu.py"""
+
     def setup(self):
         """Run prior to each test"""
         self.ae = None

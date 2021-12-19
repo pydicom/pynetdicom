@@ -28,54 +28,54 @@ from pynetdicom import AE, evt, build_context, debug_logger
 from pynetdicom.dsutils import encode
 
 
-#debug_logger()
+# debug_logger()
 
 
-TEST_DS_DIR = os.path.join(os.path.dirname(__file__), 'dicom_files')
-#DATASET = dcmread(os.path.join(TEST_DS_DIR, 'RTImageStorage.dcm')) # 2.1 MB
-DATASET = dcmread(os.path.join(TEST_DS_DIR, 'CTImageStorage.dcm')) # 39 kB
+TEST_DS_DIR = os.path.join(os.path.dirname(__file__), "dicom_files")
+# DATASET = dcmread(os.path.join(TEST_DS_DIR, 'RTImageStorage.dcm')) # 2.1 MB
+DATASET = dcmread(os.path.join(TEST_DS_DIR, "CTImageStorage.dcm"))  # 39 kB
 
 
 def init_yappi():
     """Initialise the profiler."""
     timestamp = datetime.now()
     timestamp = timestamp.strftime("%Y%m%d%H%M%S")
-    OUT_FILE = '{}.profile'.format(timestamp)
+    OUT_FILE = "{}.profile".format(timestamp)
 
     import atexit
     import yappi
 
-    print('[YAPPI START]')
-    yappi.set_clock_type('wall')
+    print("[YAPPI START]")
+    yappi.set_clock_type("wall")
     yappi.start()
 
     @atexit.register
     def finish_yappi():
         yappi.stop()
 
-        print('[YAPPI WRITE]')
+        print("[YAPPI WRITE]")
 
         stats = yappi.get_func_stats()
 
         # 'ystat' is Yappi internal format
-        for stat_type in ['pstat', 'callgrind']:
-            print('writing {}.{}'.format(OUT_FILE, stat_type))
-            stats.save('{}.{}'.format(OUT_FILE, stat_type), type=stat_type)
+        for stat_type in ["pstat", "callgrind"]:
+            print("writing {}.{}".format(OUT_FILE, stat_type))
+            stats.save("{}.{}".format(OUT_FILE, stat_type), type=stat_type)
 
-        print('\n[YAPPI FUNC_STATS]')
+        print("\n[YAPPI FUNC_STATS]")
 
-        print('writing {}.func_stats'.format(OUT_FILE))
-        with open('{}.func_stats'.format(OUT_FILE), 'w') as fh:
+        print("writing {}.func_stats".format(OUT_FILE))
+        with open("{}.func_stats".format(OUT_FILE), "w") as fh:
             stats.print_all(out=fh)
 
-        print('\n[YAPPI THREAD_STATS]')
+        print("\n[YAPPI THREAD_STATS]")
 
-        print('writing {}.thread_stats'.format(OUT_FILE))
+        print("writing {}.thread_stats".format(OUT_FILE))
         tstats = yappi.get_thread_stats()
-        with open('{}.thread_stats'.format(OUT_FILE), 'w') as fh:
+        with open("{}.thread_stats".format(OUT_FILE), "w") as fh:
             tstats.print_all(out=fh)
 
-        print('[YAPPI DONE]')
+        print("[YAPPI DONE]")
 
 
 def which(program):
@@ -102,7 +102,7 @@ def start_storescp():
     subprocess.Popen
         The running process.
     """
-    args = [which('storescp'), '--ignore', '11112']
+    args = [which("storescp"), "--ignore", "11112"]
     return subprocess.Popen(args)
 
 
@@ -114,8 +114,8 @@ def start_storescu(ds_per_assoc):
     ds_per_assoc : int
         The number of datasets to send using `storescu`.
     """
-    fpath = os.path.join(TEST_DS_DIR, 'CTImageStorage.dcm')
-    args = [which('storescu'), 'localhost', '11112'] + [fpath] * ds_per_assoc
+    fpath = os.path.join(TEST_DS_DIR, "CTImageStorage.dcm")
+    args = [which("storescu"), "localhost", "11112"] + [fpath] * ds_per_assoc
     return subprocess.Popen(args)
 
 
@@ -141,14 +141,14 @@ def receive_store(nr_assoc, ds_per_assoc, write_ds=0, use_yappi=False):
 
     def handle(event):
         if write_ds == 1:
-            with tempfile.TemporaryFile('w+b') as tfile:
+            with tempfile.TemporaryFile("w+b") as tfile:
                 ds = event.dataset
                 ds.file_meta = event.file_meta
                 ds.save_as(tfile)
         elif write_ds in (2, 3):
-            with tempfile.TemporaryFile('w+b') as tfile:
-                tfile.write(b'\x00' * 128)
-                tfile.write(b'DICM')
+            with tempfile.TemporaryFile("w+b") as tfile:
+                tfile.write(b"\x00" * 128)
+                tfile.write(b"DICM")
                 write_file_meta_info(tfile, event.file_meta)
                 tfile.write(event.request.DataSet.getvalue())
 
@@ -163,7 +163,7 @@ def receive_store(nr_assoc, ds_per_assoc, write_ds=0, use_yappi=False):
     ae.add_supported_context(DATASET.SOPClassUID, ImplicitVRLittleEndian)
 
     server = ae.start_server(
-        ('', 11112), block=False, evt_handlers=[(evt.EVT_C_STORE, handle)]
+        ("", 11112), block=False, evt_handlers=[(evt.EVT_C_STORE, handle)]
     )
 
     time.sleep(0.5)
@@ -184,8 +184,9 @@ def receive_store(nr_assoc, ds_per_assoc, write_ds=0, use_yappi=False):
     if is_successful:
         print(
             "C-STORE SCP transferred {} total datasets over {} "
-            "association(s) in {:.2f} s"
-            .format(nr_assoc * ds_per_assoc, nr_assoc, time.time() - start_time)
+            "association(s) in {:.2f} s".format(
+                nr_assoc * ds_per_assoc, nr_assoc, time.time() - start_time
+            )
         )
     else:
         print("C-STORE SCP benchmark failed")
@@ -215,14 +216,14 @@ def receive_store_internal(nr_assoc, ds_per_assoc, write_ds=0, use_yappi=False):
 
     def handle(event):
         if write_ds == 1:
-            with tempfile.TemporaryFile('w+b') as tfile:
+            with tempfile.TemporaryFile("w+b") as tfile:
                 ds = event.dataset
                 ds.file_meta = event.file_meta
                 ds.save_as(tfile)
         elif write_ds in (2, 3):
-            with tempfile.TemporaryFile('w+b') as tfile:
-                tfile.write(b'\x00' * 128)
-                tfile.write(b'DICM')
+            with tempfile.TemporaryFile("w+b") as tfile:
+                tfile.write(b"\x00" * 128)
+                tfile.write(b"DICM")
                 write_file_meta_info(tfile, event.file_meta)
                 tfile.write(event.request.DataSet.getvalue())
 
@@ -238,7 +239,7 @@ def receive_store_internal(nr_assoc, ds_per_assoc, write_ds=0, use_yappi=False):
     ae.add_requested_context(DATASET.SOPClassUID, ImplicitVRLittleEndian)
 
     server = ae.start_server(
-        ('', 11112), block=False, evt_handlers=[(evt.EVT_C_STORE, handle)]
+        ("", 11112), block=False, evt_handlers=[(evt.EVT_C_STORE, handle)]
     )
 
     time.sleep(0.5)
@@ -249,7 +250,7 @@ def receive_store_internal(nr_assoc, ds_per_assoc, write_ds=0, use_yappi=False):
     is_successful = True
 
     for ii in range(nr_assoc):
-        assoc = ae.associate('127.0.0.1', 11112)
+        assoc = ae.associate("127.0.0.1", 11112)
         if assoc.is_established:
             for jj in range(ds_per_assoc):
                 assoc.send_c_store(DATASET)
@@ -259,8 +260,9 @@ def receive_store_internal(nr_assoc, ds_per_assoc, write_ds=0, use_yappi=False):
     if is_successful:
         print(
             "C-STORE SCU/SCP transferred {} total datasets over {} "
-            "association(s) in {:.2f} s"
-            .format(nr_assoc * ds_per_assoc, nr_assoc, time.time() - start_time)
+            "association(s) in {:.2f} s".format(
+                nr_assoc * ds_per_assoc, nr_assoc, time.time() - start_time
+            )
         )
     else:
         print("C-STORE SCU/SCP benchmark failed")
@@ -301,14 +303,14 @@ def receive_store_dcmtk(nr_assoc, ds_per_assoc, use_yappi=False):
     if is_successful:
         print(
             "C-STORE SCP transferred {} total datasets over {} "
-            "association(s) in {:.2f} s"
-            .format(nr_assoc * ds_per_assoc, nr_assoc, time.time() - start_time)
+            "association(s) in {:.2f} s".format(
+                nr_assoc * ds_per_assoc, nr_assoc, time.time() - start_time
+            )
         )
     else:
         print("C-STORE SCP benchmark failed")
 
     server.terminate()
-
 
 
 def receive_store_simultaneous(nr_assoc, ds_per_assoc, use_yappi=False):
@@ -337,7 +339,7 @@ def receive_store_simultaneous(nr_assoc, ds_per_assoc, use_yappi=False):
     ae.add_supported_context(DATASET.SOPClassUID, ImplicitVRLittleEndian)
 
     server = ae.start_server(
-        ('', 11112), block=False, evt_handlers=[(evt.EVT_C_STORE, handle)]
+        ("", 11112), block=False, evt_handlers=[(evt.EVT_C_STORE, handle)]
     )
 
     time.sleep(0.5)
@@ -361,8 +363,9 @@ def receive_store_simultaneous(nr_assoc, ds_per_assoc, use_yappi=False):
     if is_successful:
         print(
             "C-STORE SCP transferred {} total datasets over {} "
-            "association(s) in {:.2f} s"
-            .format(nr_assoc * ds_per_assoc, nr_assoc, time.time() - start_time)
+            "association(s) in {:.2f} s".format(
+                nr_assoc * ds_per_assoc, nr_assoc, time.time() - start_time
+            )
         )
     else:
         print("C-STORE SCP benchmark failed")
@@ -405,7 +408,7 @@ def send_store(nr_assoc, ds_per_assoc, use_yappi=False):
         if not is_successful:
             break
 
-        assoc = ae.associate('localhost', 11112)
+        assoc = ae.associate("localhost", 11112)
 
         if assoc.is_established:
             for jj in range(ds_per_assoc):
@@ -428,8 +431,9 @@ def send_store(nr_assoc, ds_per_assoc, use_yappi=False):
     if is_successful:
         print(
             "C-STORE SCU transferred {} total datasets over {} "
-            "association(s) in {:.2f} s"
-            .format(nr_assoc * ds_per_assoc, nr_assoc, time.time() - start_time)
+            "association(s) in {:.2f} s".format(
+                nr_assoc * ds_per_assoc, nr_assoc, time.time() - start_time
+            )
         )
     else:
         print("C-STORE SCU benchmark failed")
@@ -440,7 +444,7 @@ def send_store(nr_assoc, ds_per_assoc, use_yappi=False):
 if __name__ == "__main__":
     print("Use yappi (y/n:)")
     use_yappi = input()
-    if use_yappi in ['y', 'Y']:
+    if use_yappi in ["y", "Y"]:
         use_yappi = True
     else:
         use_yappi = False
@@ -453,7 +457,9 @@ if __name__ == "__main__":
     print("  5. Storage SCP, 1000 datasets over 1 association (write fast)")
     print("  6. Storage SCP, 1000 datasets over 1 association (write fastest)")
     print("  7. Storage SCP, 1 dataset per association over 1000 associations")
-    print("  8. Storage SCP, 1000 datasets per association over 10 simultaneous associations")
+    print(
+        "  8. Storage SCP, 1000 datasets per association over 10 simultaneous associations"
+    )
     print("  9. Storage SCU/SCP, 1000 datasets over 1 association")
     print("  10. Storage DCMTK SCU/SCP, 1000 datasets over 1 association")
     bench_index = input()
@@ -478,4 +484,3 @@ if __name__ == "__main__":
         receive_store_internal(1, 1000, 0, use_yappi)
     elif bench_index == "10":
         receive_store_dcmtk(1, 1000, use_yappi)
-

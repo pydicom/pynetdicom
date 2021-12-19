@@ -16,20 +16,24 @@ from pynetdicom.dimse_primitives import C_STORE
 from pynetdicom.pdu_primitives import SOPClassExtendedNegotiation
 from pynetdicom.service_class import StorageServiceClass
 from pynetdicom.sop_class import (
-    Verification, CTImageStorage, RTImageStorage,
+    Verification,
+    CTImageStorage,
+    RTImageStorage,
 )
+
 try:
     from pynetdicom.status import Status
+
     HAS_STATUS = True
 except ImportError:
     HAS_STATUS = False
 
 
-#debug_logger()
+# debug_logger()
 
 
-TEST_DS_DIR = os.path.join(os.path.dirname(__file__), 'dicom_files')
-DATASET = dcmread(os.path.join(TEST_DS_DIR, 'CTImageStorage.dcm'))
+TEST_DS_DIR = os.path.join(os.path.dirname(__file__), "dicom_files")
+DATASET = dcmread(os.path.join(TEST_DS_DIR, "CTImageStorage.dcm"))
 
 
 @pytest.fixture()
@@ -39,9 +43,9 @@ def enable_unrestricted():
     _config.UNRESTRICTED_STORAGE_SERVICE = False
 
 
-
 class TestStorageServiceClass:
     """Test the StorageServiceClass"""
+
     def setup(self):
         """Run prior to each test"""
         self.ae = None
@@ -50,8 +54,8 @@ class TestStorageServiceClass:
         self.ds.file_meta = FileMetaDataset()
         self.ds.file_meta.TransferSyntaxUID = ImplicitVRLittleEndian
         self.ds.SOPClassUID = CTImageStorage
-        self.ds.SOPInstanceUID = '1.1.1'
-        self.ds.PatientName = 'Test'
+        self.ds.SOPInstanceUID = "1.1.1"
+        self.ds.PatientName = "Test"
 
     def teardown(self):
         """Clear any active threads"""
@@ -65,7 +69,7 @@ class TestStorageServiceClass:
         """Test failure to decode the dataset"""
         # Hard to test directly as decode errors won't show up until the
         #   dataset is actually used
-        Status.add('UNABLE_TO_DECODE', 0xC210)
+        Status.add("UNABLE_TO_DECODE", 0xC210)
 
         def handle(event):
             try:
@@ -84,9 +88,9 @@ class TestStorageServiceClass:
         self.ae = ae = AE()
         ae.add_supported_context(CTImageStorage)
         ae.add_requested_context(CTImageStorage, ExplicitVRLittleEndian)
-        scp = ae.start_server(('', 11112), block=False, evt_handlers=handlers)
+        scp = ae.start_server(("", 11112), block=False, evt_handlers=handlers)
 
-        assoc = ae.associate('localhost', 11112)
+        assoc = ae.associate("localhost", 11112)
         assert assoc.is_established
 
         req = C_STORE()
@@ -94,7 +98,9 @@ class TestStorageServiceClass:
         req.AffectedSOPClassUID = DATASET.SOPClassUID
         req.AffectedSOPInstanceUID = DATASET.SOPInstanceUID
         req.Priorty = 0x0002
-        req.DataSet = BytesIO(b'\x08\x00\x01\x00\x40\x40\x00\x00\x00\x00\x00\x08\x00\x49')
+        req.DataSet = BytesIO(
+            b"\x08\x00\x01\x00\x40\x40\x00\x00\x00\x00\x00\x08\x00\x49"
+        )
 
         # Send C-STORE request to DIMSE and get response
         assoc._reactor_checkpoint.clear()
@@ -104,7 +110,7 @@ class TestStorageServiceClass:
         assoc._reactor_checkpoint.set()
 
         assert rsp.Status == 0xC210
-        assert rsp.ErrorComment == 'Unable to decode the dataset'
+        assert rsp.ErrorComment == "Unable to decode the dataset"
         assoc.release()
         assert assoc.is_released
 
@@ -132,9 +138,9 @@ class TestStorageServiceClass:
         self.ae = ae = AE()
         ae.add_supported_context(CTImageStorage)
         ae.add_requested_context(CTImageStorage, ExplicitVRLittleEndian)
-        scp = ae.start_server(('', 11112), block=False, evt_handlers=handlers)
+        scp = ae.start_server(("", 11112), block=False, evt_handlers=handlers)
 
-        assoc = ae.associate('localhost', 11112)
+        assoc = ae.associate("localhost", 11112)
         assert assoc.is_established
 
         req = C_STORE()
@@ -142,7 +148,9 @@ class TestStorageServiceClass:
         req.AffectedSOPClassUID = DATASET.SOPClassUID
         req.AffectedSOPInstanceUID = DATASET.SOPInstanceUID
         req.Priorty = 0x0002
-        req.DataSet = BytesIO(b'\x08\x00\x01\x00\x40\x40\x00\x00\x00\x00\x00\x08\x00\x49')
+        req.DataSet = BytesIO(
+            b"\x08\x00\x01\x00\x40\x40\x00\x00\x00\x00\x00\x08\x00\x49"
+        )
 
         # Send C-STORE request to DIMSE and get response
         assoc._reactor_checkpoint.clear()
@@ -152,7 +160,7 @@ class TestStorageServiceClass:
         assoc._reactor_checkpoint.set()
 
         assert rsp.Status == 0xC210
-        assert rsp.ErrorComment == 'Unable to decode the dataset'
+        assert rsp.ErrorComment == "Unable to decode the dataset"
         assoc.release()
         assert assoc.is_released
 
@@ -160,6 +168,7 @@ class TestStorageServiceClass:
 
     def test_scp_handler_return_dataset(self):
         """Test handler returning a Dataset status"""
+
         def handle(event):
             status = Dataset()
             status.Status = 0x0001
@@ -170,9 +179,9 @@ class TestStorageServiceClass:
         self.ae = ae = AE()
         ae.add_supported_context(CTImageStorage)
         ae.add_requested_context(CTImageStorage)
-        scp = ae.start_server(('', 11112), block=False, evt_handlers=handlers)
+        scp = ae.start_server(("", 11112), block=False, evt_handlers=handlers)
 
-        assoc = ae.associate('localhost', 11112)
+        assoc = ae.associate("localhost", 11112)
         assert assoc.is_established
         rsp = assoc.send_c_store(DATASET)
         assert rsp.Status == 0x0001
@@ -183,10 +192,11 @@ class TestStorageServiceClass:
 
     def test_scp_handler_return_dataset_multi(self):
         """Test handler returning a Dataset status with other elements"""
+
         def handle(event):
             status = Dataset()
             status.Status = 0x0001
-            status.ErrorComment = 'Test'
+            status.ErrorComment = "Test"
             status.OffendingElement = 0x00080010
             return status
 
@@ -195,13 +205,13 @@ class TestStorageServiceClass:
         self.ae = ae = AE()
         ae.add_supported_context(CTImageStorage)
         ae.add_requested_context(CTImageStorage)
-        scp = ae.start_server(('', 11112), block=False, evt_handlers=handlers)
+        scp = ae.start_server(("", 11112), block=False, evt_handlers=handlers)
 
-        assoc = ae.associate('localhost', 11112)
+        assoc = ae.associate("localhost", 11112)
         assert assoc.is_established
         rsp = assoc.send_c_store(DATASET)
         assert rsp.Status == 0x0001
-        assert rsp.ErrorComment == 'Test'
+        assert rsp.ErrorComment == "Test"
         assert rsp.OffendingElement == 0x00080010
         assoc.release()
         assert assoc.is_released
@@ -210,6 +220,7 @@ class TestStorageServiceClass:
 
     def test_scp_handler_return_int(self):
         """Test handler returning an int status"""
+
         def handle(event):
             return 0x0000
 
@@ -218,13 +229,13 @@ class TestStorageServiceClass:
         self.ae = ae = AE()
         ae.add_supported_context(CTImageStorage)
         ae.add_requested_context(CTImageStorage)
-        scp = ae.start_server(('', 11112), block=False, evt_handlers=handlers)
+        scp = ae.start_server(("", 11112), block=False, evt_handlers=handlers)
 
-        assoc = ae.associate('localhost', 11112)
+        assoc = ae.associate("localhost", 11112)
         assert assoc.is_established
         rsp = assoc.send_c_store(DATASET)
         assert rsp.Status == 0x0000
-        assert not 'ErrorComment' in rsp
+        assert not "ErrorComment" in rsp
         assoc.release()
         assert assoc.is_released
 
@@ -232,6 +243,7 @@ class TestStorageServiceClass:
 
     def test_scp_handler_return_invalid(self):
         """Test handler returning an invalid status"""
+
         def handle(event):
             return 0xFFF0
 
@@ -240,9 +252,9 @@ class TestStorageServiceClass:
         self.ae = ae = AE()
         ae.add_supported_context(CTImageStorage)
         ae.add_requested_context(CTImageStorage)
-        scp = ae.start_server(('', 11112), block=False, evt_handlers=handlers)
+        scp = ae.start_server(("", 11112), block=False, evt_handlers=handlers)
 
-        assoc = ae.associate('localhost', 11112)
+        assoc = ae.associate("localhost", 11112)
         assert assoc.is_established
         rsp = assoc.send_c_store(DATASET)
         assert rsp.Status == 0xFFF0
@@ -253,6 +265,7 @@ class TestStorageServiceClass:
 
     def test_scp_handler_no_status(self):
         """Test handler not returning a status"""
+
         def handle(event):
             return None
 
@@ -261,9 +274,9 @@ class TestStorageServiceClass:
         self.ae = ae = AE()
         ae.add_supported_context(CTImageStorage)
         ae.add_requested_context(CTImageStorage)
-        scp = ae.start_server(('', 11112), block=False, evt_handlers=handlers)
+        scp = ae.start_server(("", 11112), block=False, evt_handlers=handlers)
 
-        assoc = ae.associate('localhost', 11112)
+        assoc = ae.associate("localhost", 11112)
         assert assoc.is_established
         rsp = assoc.send_c_store(DATASET)
         assert rsp.Status == 0xC002
@@ -277,9 +290,9 @@ class TestStorageServiceClass:
         self.ae = ae = AE()
         ae.add_supported_context(CTImageStorage)
         ae.add_requested_context(CTImageStorage)
-        scp = ae.start_server(('', 11112), block=False)
+        scp = ae.start_server(("", 11112), block=False)
 
-        assoc = ae.associate('localhost', 11112)
+        assoc = ae.associate("localhost", 11112)
         assert assoc.is_established
         rsp = assoc.send_c_store(DATASET)
         assert rsp.Status == 0xC211
@@ -290,6 +303,7 @@ class TestStorageServiceClass:
 
     def test_scp_handler_exception(self):
         """Test handler raising an exception"""
+
         def handle(event):
             raise ValueError
 
@@ -298,9 +312,9 @@ class TestStorageServiceClass:
         self.ae = ae = AE()
         ae.add_supported_context(CTImageStorage)
         ae.add_requested_context(CTImageStorage)
-        scp = ae.start_server(('', 11112), block=False, evt_handlers=handlers)
+        scp = ae.start_server(("", 11112), block=False, evt_handlers=handlers)
 
-        assoc = ae.associate('localhost', 11112)
+        assoc = ae.associate("localhost", 11112)
         assert assoc.is_established
         rsp = assoc.send_c_store(DATASET)
         assert rsp.Status == 0xC211
@@ -312,11 +326,12 @@ class TestStorageServiceClass:
     def test_scp_handler_context(self):
         """Test handler event's context attribute"""
         attrs = {}
+
         def handle(event):
-            attrs['context'] = event.context
-            attrs['assoc'] = event.assoc
-            attrs['request'] = event.request
-            attrs['dataset'] = event.dataset
+            attrs["context"] = event.context
+            attrs["assoc"] = event.assoc
+            attrs["request"] = event.request
+            attrs["dataset"] = event.dataset
             return 0x0000
 
         handlers = [(evt.EVT_C_STORE, handle)]
@@ -324,30 +339,31 @@ class TestStorageServiceClass:
         self.ae = ae = AE()
         ae.add_supported_context(CTImageStorage)
         ae.add_requested_context(CTImageStorage)
-        scp = ae.start_server(('', 11112), block=False, evt_handlers=handlers)
+        scp = ae.start_server(("", 11112), block=False, evt_handlers=handlers)
 
-        assoc = ae.associate('localhost', 11112)
+        assoc = ae.associate("localhost", 11112)
         assert assoc.is_established
         status = assoc.send_c_store(DATASET)
         assert status.Status == 0x0000
         assoc.release()
         assert assoc.is_released
 
-        cx = attrs['context']
+        cx = attrs["context"]
         assert cx.context_id == 1
         assert cx.abstract_syntax == CTImageStorage
-        assert cx.transfer_syntax == '1.2.840.10008.1.2'
+        assert cx.transfer_syntax == "1.2.840.10008.1.2"
 
         scp.shutdown()
 
     def test_scp_handler_assoc(self):
         """Test handler event's assoc attribute"""
         attrs = {}
+
         def handle(event):
-            attrs['context'] = event.context
-            attrs['assoc'] = event.assoc
-            attrs['request'] = event.request
-            attrs['dataset'] = event.dataset
+            attrs["context"] = event.context
+            attrs["assoc"] = event.assoc
+            attrs["request"] = event.request
+            attrs["dataset"] = event.dataset
             return 0x0000
 
         handlers = [(evt.EVT_C_STORE, handle)]
@@ -355,14 +371,14 @@ class TestStorageServiceClass:
         self.ae = ae = AE()
         ae.add_supported_context(CTImageStorage)
         ae.add_requested_context(CTImageStorage)
-        scp = ae.start_server(('', 11112), block=False, evt_handlers=handlers)
+        scp = ae.start_server(("", 11112), block=False, evt_handlers=handlers)
 
-        assoc = ae.associate('localhost', 11112)
+        assoc = ae.associate("localhost", 11112)
         assert assoc.is_established
         status = assoc.send_c_store(DATASET)
         assert status.Status == 0x0000
 
-        scp_assoc = attrs['assoc']
+        scp_assoc = attrs["assoc"]
         assert scp_assoc == scp.active_associations[0]
 
         assoc.release()
@@ -373,11 +389,12 @@ class TestStorageServiceClass:
     def test_scp_handler_request(self):
         """Test handler event's request attribute"""
         attrs = {}
+
         def handle(event):
-            attrs['context'] = event.context
-            attrs['assoc'] = event.assoc
-            attrs['request'] = event.request
-            attrs['dataset'] = event.dataset
+            attrs["context"] = event.context
+            attrs["assoc"] = event.assoc
+            attrs["request"] = event.request
+            attrs["dataset"] = event.dataset
             return 0x0000
 
         handlers = [(evt.EVT_C_STORE, handle)]
@@ -385,16 +402,16 @@ class TestStorageServiceClass:
         self.ae = ae = AE()
         ae.add_supported_context(CTImageStorage)
         ae.add_requested_context(CTImageStorage)
-        scp = ae.start_server(('', 11112), block=False, evt_handlers=handlers)
+        scp = ae.start_server(("", 11112), block=False, evt_handlers=handlers)
 
-        assoc = ae.associate('localhost', 11112)
+        assoc = ae.associate("localhost", 11112)
         assert assoc.is_established
         status = assoc.send_c_store(DATASET)
         assert status.Status == 0x0000
         assoc.release()
         assert assoc.is_released
 
-        req = attrs['request']
+        req = attrs["request"]
         assert req.MessageID == 1
         assert isinstance(req, C_STORE)
 
@@ -403,11 +420,12 @@ class TestStorageServiceClass:
     def test_scp_handler_dataset(self):
         """Test handler event's dataset property"""
         attrs = {}
+
         def handle(event):
-            attrs['context'] = event.context
-            attrs['assoc'] = event.assoc
-            attrs['request'] = event.request
-            attrs['dataset'] = event.dataset
+            attrs["context"] = event.context
+            attrs["assoc"] = event.assoc
+            attrs["request"] = event.request
+            attrs["dataset"] = event.dataset
             return 0x0000
 
         handlers = [(evt.EVT_C_STORE, handle)]
@@ -415,16 +433,16 @@ class TestStorageServiceClass:
         self.ae = ae = AE()
         ae.add_supported_context(CTImageStorage)
         ae.add_requested_context(CTImageStorage)
-        scp = ae.start_server(('', 11112), block=False, evt_handlers=handlers)
+        scp = ae.start_server(("", 11112), block=False, evt_handlers=handlers)
 
-        assoc = ae.associate('localhost', 11112)
+        assoc = ae.associate("localhost", 11112)
         assert assoc.is_established
         status = assoc.send_c_store(DATASET)
         assert status.Status == 0x0000
         assoc.release()
         assert assoc.is_released
 
-        ds = attrs['dataset']
+        ds = attrs["dataset"]
         assert isinstance(ds, Dataset)
         assert ds.PatientName == DATASET.PatientName
 
@@ -447,8 +465,8 @@ class TestStorageServiceClass:
                 == DATASET.file_meta.MediaStorageSOPInstanceUID
             )
 
-            attrs['dataset'] = event.dataset
-            attrs['dataset_path'] = dataset_path
+            attrs["dataset"] = event.dataset
+            attrs["dataset_path"] = dataset_path
             return 0x0000
 
         _config.STORE_RECV_CHUNKED_DATASET = True
@@ -458,36 +476,37 @@ class TestStorageServiceClass:
         self.ae = ae = AE()
         ae.add_supported_context(CTImageStorage)
         ae.add_requested_context(CTImageStorage)
-        scp = ae.start_server(('', 11112), block=False, evt_handlers=handlers)
+        scp = ae.start_server(("", 11112), block=False, evt_handlers=handlers)
 
-        assoc = ae.associate('localhost', 11112)
+        assoc = ae.associate("localhost", 11112)
         assert assoc.is_established
         status = assoc.send_c_store(DATASET)
         assert status.Status == 0x0000
         assoc.release()
         assert assoc.is_released
 
-        dataset_path = attrs['dataset_path']
+        dataset_path = attrs["dataset_path"]
         assert isinstance(dataset_path, Path)
 
         # `dataset_path` not available outside of event handler
         with pytest.raises(FileNotFoundError):
             dataset_path.open("rb")
 
-        ds = attrs['dataset']
+        ds = attrs["dataset"]
         assert "CompressedSamples^CT1" == ds.PatientName
 
         scp.shutdown()
 
     def test_scp_handler_dataset_path_windows_unlink(self, monkeypatch):
         """Test handler event's dataset_path property:
-            user has file open on Windows"""
+        user has file open on Windows"""
 
         def unlink(*args, **kwargs):
             raise OSError()
 
         import os
-        monkeypatch.setattr(os, 'unlink', unlink)
+
+        monkeypatch.setattr(os, "unlink", unlink)
 
         def handle(event):
             return 0x0000
@@ -499,9 +518,9 @@ class TestStorageServiceClass:
         self.ae = ae = AE()
         ae.add_supported_context(CTImageStorage)
         ae.add_requested_context(CTImageStorage)
-        scp = ae.start_server(('', 11112), block=False, evt_handlers=handlers)
+        scp = ae.start_server(("", 11112), block=False, evt_handlers=handlers)
 
-        assoc = ae.associate('localhost', 11112)
+        assoc = ae.associate("localhost", 11112)
         assert assoc.is_established
         status = assoc.send_c_store(DATASET)
         assert status.Status == 0x0000
@@ -513,11 +532,12 @@ class TestStorageServiceClass:
     def test_scp_handler_move_origin(self):
         """Test handler event's request property with MoveOriginator"""
         attrs = {}
+
         def handle(event):
-            attrs['context'] = event.context
-            attrs['assoc'] = event.assoc
-            attrs['request'] = event.request
-            attrs['dataset'] = event.dataset
+            attrs["context"] = event.context
+            attrs["assoc"] = event.assoc
+            attrs["request"] = event.request
+            attrs["dataset"] = event.dataset
             return 0x0000
 
         handlers = [(evt.EVT_C_STORE, handle)]
@@ -525,19 +545,17 @@ class TestStorageServiceClass:
         self.ae = ae = AE()
         ae.add_supported_context(CTImageStorage)
         ae.add_requested_context(CTImageStorage)
-        scp = ae.start_server(('', 11112), block=False, evt_handlers=handlers)
+        scp = ae.start_server(("", 11112), block=False, evt_handlers=handlers)
 
-        assoc = ae.associate('localhost', 11112)
+        assoc = ae.associate("localhost", 11112)
         assert assoc.is_established
-        status = assoc.send_c_store(
-            DATASET, originator_aet='ORIGIN', originator_id=888
-        )
+        status = assoc.send_c_store(DATASET, originator_aet="ORIGIN", originator_id=888)
         assert status.Status == 0x0000
         assoc.release()
         assert assoc.is_released
 
-        req = attrs['request']
-        assert req.MoveOriginatorApplicationEntityTitle == 'ORIGIN'
+        req = attrs["request"]
+        assert req.MoveOriginatorApplicationEntityTitle == "ORIGIN"
         assert req.MoveOriginatorMessageID == 888
 
         scp.shutdown()
@@ -545,52 +563,52 @@ class TestStorageServiceClass:
     def test_scp_handler_sop_extended(self):
         """Test handler event's assoc attribute with SOP Class Extended"""
         attrs = {}
+
         def handle_sop(event):
             return event.app_info
 
         def handle(event):
-            attrs['context'] = event.context
-            attrs['assoc'] = event.assoc
-            attrs['request'] = event.request
-            attrs['dataset'] = event.dataset
+            attrs["context"] = event.context
+            attrs["assoc"] = event.assoc
+            attrs["request"] = event.request
+            attrs["dataset"] = event.dataset
             return 0x0000
 
-        handlers = [(evt.EVT_C_STORE, handle),
-                    (evt.EVT_SOP_EXTENDED, handle_sop)]
+        handlers = [(evt.EVT_C_STORE, handle), (evt.EVT_SOP_EXTENDED, handle_sop)]
 
         self.ae = ae = AE()
         ae.add_supported_context(CTImageStorage)
         ae.add_requested_context(CTImageStorage)
-        scp = ae.start_server(('', 11112), block=False, evt_handlers=handlers)
-
+        scp = ae.start_server(("", 11112), block=False, evt_handlers=handlers)
 
         ext_neg = []
         item = SOPClassExtendedNegotiation()
-        item.sop_class_uid = '1.2.3'
-        item.service_class_application_information = b'\x00\x01'
+        item.sop_class_uid = "1.2.3"
+        item.service_class_application_information = b"\x00\x01"
         ext_neg.append(item)
 
         item = SOPClassExtendedNegotiation()
-        item.sop_class_uid = '1.2.4'
-        item.service_class_application_information = b'\x00\x02'
+        item.sop_class_uid = "1.2.4"
+        item.service_class_application_information = b"\x00\x02"
         ext_neg.append(item)
 
-        assoc = ae.associate('localhost', 11112, ext_neg=ext_neg)
+        assoc = ae.associate("localhost", 11112, ext_neg=ext_neg)
         assert assoc.is_established
         status = assoc.send_c_store(DATASET)
         assert status.Status == 0x0000
         assoc.release()
         assert assoc.is_released
 
-        ext = attrs['assoc'].acceptor.sop_class_extended
-        assert ext['1.2.3'] == b'\x00\x01'
-        assert ext['1.2.4'] == b'\x00\x02'
+        ext = attrs["assoc"].acceptor.sop_class_extended
+        assert ext["1.2.3"] == b"\x00\x01"
+        assert ext["1.2.4"] == b"\x00\x02"
 
         scp.shutdown()
 
     def test_event_ds_modify(self):
         """Test modifying event.dataset in-place."""
         event_out = []
+
         def handle(event):
             meta = FileMetaDataset()
             meta.TransferSyntaxUID = event.context.transfer_syntax
@@ -605,19 +623,19 @@ class TestStorageServiceClass:
         self.ae = ae = AE()
         ae.add_supported_context(CTImageStorage)
         ae.add_requested_context(CTImageStorage)
-        scp = ae.start_server(('', 11112), block=False, evt_handlers=handlers)
+        scp = ae.start_server(("", 11112), block=False, evt_handlers=handlers)
 
-        assoc = ae.associate('localhost', 11112)
+        assoc = ae.associate("localhost", 11112)
         assert assoc.is_established
         rsp = assoc.send_c_store(DATASET)
         assert rsp.Status == 0x0000
-        assert not 'ErrorComment' in rsp
+        assert not "ErrorComment" in rsp
         assoc.release()
         assert assoc.is_released
 
         scp.shutdown()
 
-        assert 'TransferSyntaxUID' in event_out[0].file_meta
+        assert "TransferSyntaxUID" in event_out[0].file_meta
 
     def test_event_ds_change(self):
         """Test that event.dataset is redecoded if request.DataSet changes."""
@@ -640,13 +658,13 @@ class TestStorageServiceClass:
         self.ae = ae = AE()
         ae.add_supported_context(CTImageStorage)
         ae.add_requested_context(CTImageStorage)
-        scp = ae.start_server(('', 11112), block=False, evt_handlers=handlers)
+        scp = ae.start_server(("", 11112), block=False, evt_handlers=handlers)
 
-        assoc = ae.associate('localhost', 11112)
+        assoc = ae.associate("localhost", 11112)
         assert assoc.is_established
         rsp = assoc.send_c_store(DATASET)
         assert rsp.Status == 0x0000
-        assert not 'ErrorComment' in rsp
+        assert not "ErrorComment" in rsp
         assoc.release()
         assert assoc.is_released
 
@@ -655,6 +673,7 @@ class TestStorageServiceClass:
     def test_event_file_meta(self):
         """Test basic functioning of event.file_meta"""
         event_out = []
+
         def handle(event):
             ds = event.dataset
             ds.file_meta = event.file_meta
@@ -669,13 +688,13 @@ class TestStorageServiceClass:
         ae.add_supported_context(CTImageStorage)
         ts = ae.supported_contexts[0].transfer_syntax[0]
         ae.add_requested_context(CTImageStorage)
-        scp = ae.start_server(('', 11112), block=False, evt_handlers=handlers)
+        scp = ae.start_server(("", 11112), block=False, evt_handlers=handlers)
 
-        assoc = ae.associate('localhost', 11112)
+        assoc = ae.associate("localhost", 11112)
         assert assoc.is_established
         rsp = assoc.send_c_store(DATASET)
         assert rsp.Status == 0x0000
-        assert not 'ErrorComment' in rsp
+        assert not "ErrorComment" in rsp
         assoc.release()
         assert assoc.is_released
 
@@ -690,6 +709,7 @@ class TestStorageServiceClass:
     def test_event_file_meta_bad(self):
         """Test event.file_meta when not a C-STORE request."""
         event_exc = []
+
         def handle(event):
             try:
                 event.file_meta
@@ -703,9 +723,9 @@ class TestStorageServiceClass:
         self.ae = ae = AE()
         ae.add_supported_context(Verification)
         ae.add_requested_context(Verification)
-        scp = ae.start_server(('', 11112), block=False, evt_handlers=handlers)
+        scp = ae.start_server(("", 11112), block=False, evt_handlers=handlers)
 
-        assoc = ae.associate('localhost', 11112)
+        assoc = ae.associate("localhost", 11112)
         assert assoc.is_established
         rsp = assoc.send_c_echo()
         assert rsp.Status == 0x0000
@@ -719,6 +739,7 @@ class TestStorageServiceClass:
 
     def test_scp_handler_aborts(self):
         """Test handler aborting the association"""
+
         def handle(event):
             event.assoc.abort()
 
@@ -727,9 +748,9 @@ class TestStorageServiceClass:
         self.ae = ae = AE()
         ae.add_supported_context(CTImageStorage)
         ae.add_requested_context(CTImageStorage)
-        scp = ae.start_server(('', 11112), block=False, evt_handlers=handlers)
+        scp = ae.start_server(("", 11112), block=False, evt_handlers=handlers)
 
-        assoc = ae.associate('localhost', 11112)
+        assoc = ae.associate("localhost", 11112)
         assert assoc.is_established
         rsp = assoc.send_c_store(DATASET)
         assert rsp == Dataset()
@@ -749,24 +770,24 @@ class TestStorageServiceClass:
         handlers = [(evt.EVT_C_STORE, handle)]
 
         self.ae = ae = AE()
-        scp = ae.start_server(('', 11112), block=False, evt_handlers=handlers)
+        scp = ae.start_server(("", 11112), block=False, evt_handlers=handlers)
 
         ae.add_requested_context(CTImageStorage)
-        ae.add_requested_context('1.2.3')
-        ae.add_requested_context('1.2.840.10008.1.1.1.1.1.1.1.1')
-        assoc = ae.associate('localhost', 11112)
+        ae.add_requested_context("1.2.3")
+        ae.add_requested_context("1.2.840.10008.1.1.1.1.1.1.1.1")
+        assoc = ae.associate("localhost", 11112)
         assert assoc.is_established
         rsp = assoc.send_c_store(DATASET)
         assert rsp.Status == 0x0000
 
-        self.ds.SOPClassUID = '1.2.3'
-        self.ds.PatientName = 'Private'
+        self.ds.SOPClassUID = "1.2.3"
+        self.ds.PatientName = "Private"
 
         rsp = assoc.send_c_store(self.ds)
         assert rsp.Status == 0x0000
 
-        self.ds.SOPClassUID = '1.2.840.10008.1.1.1.1.1.1.1.1'
-        self.ds.PatientName = 'Unknown^Public'
+        self.ds.SOPClassUID = "1.2.840.10008.1.1.1.1.1.1.1.1"
+        self.ds.PatientName = "Unknown^Public"
 
         rsp = assoc.send_c_store(self.ds)
         assert rsp.Status == 0x0000
@@ -774,6 +795,6 @@ class TestStorageServiceClass:
         assoc.release()
         assert assoc.is_released
 
-        assert recv == ['CompressedSamples^CT1', 'Private', 'Unknown^Public']
+        assert recv == ["CompressedSamples^CT1", "Private", "Unknown^Public"]
 
         scp.shutdown()

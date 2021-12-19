@@ -24,27 +24,26 @@ try:
 except ImportError:
     sys.exit("qrscp requires the sqlalchemy package")
 
-from sqlalchemy import (
-    create_engine, Column, ForeignKey, Integer, String
-)
+from sqlalchemy import create_engine, Column, ForeignKey, Integer, String
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import relationship, sessionmaker
 
 from pydicom.dataset import Dataset
 
 from pynetdicom import build_context
-from pynetdicom.sop_class import(
+from pynetdicom.sop_class import (
     PatientRootQueryRetrieveInformationModelFind,
     PatientRootQueryRetrieveInformationModelMove,
     PatientRootQueryRetrieveInformationModelGet,
     StudyRootQueryRetrieveInformationModelFind,
     StudyRootQueryRetrieveInformationModelMove,
-    StudyRootQueryRetrieveInformationModelGet
+    StudyRootQueryRetrieveInformationModelGet,
 )
 
 
 class InvalidIdentifier(Exception):
     pass
+
 
 # C.2.2.2: The total length of the attribute may be larger than given in Part 5
 # C.2.2.2: The VM may be larger than the VM from Part 6, depending
@@ -63,77 +62,89 @@ class InvalidIdentifier(Exception):
 
 # Translate from the element keyword to the db attribute
 _TRANSLATION = {
-    'PatientID' : 'patient_id',  # PATIENT | Unique | VM 1 | LO
-    'PatientName' : 'patient_name',  # PATIENT | Required | VM 1 | PN
-    'StudyInstanceUID' : 'study_instance_uid',  # STUDY | Unique | VM 1 | UI
-    'StudyDate' : 'study_date',  # STUDY | Required | VM 1 | DA
-    'StudyTime' : 'study_time',  # STUDY | Required | VM 1 | TM
-    'AccessionNumber' : 'accession_number',  # STUDY | Required | VM 1 | SH
-    'StudyID' : 'study_id',  # STUDY | Required | VM 1 | SH
-    'SeriesInstanceUID' : 'series_instance_uid',  # SERIES | Unique | VM 1 | UI
-    'Modality' : 'modality',  # SERIES | Required | VM 1 | CS
-    'SeriesNumber' : 'series_number',  # SERIES | Required | VM 1 | IS
-    'SOPInstanceUID' : 'sop_instance_uid',  # IMAGE | Unique | VM 1 | UI
-    'InstanceNumber' : 'instance_number',  # IMAGE | Required | VM 1 | IS
+    "PatientID": "patient_id",  # PATIENT | Unique | VM 1 | LO
+    "PatientName": "patient_name",  # PATIENT | Required | VM 1 | PN
+    "StudyInstanceUID": "study_instance_uid",  # STUDY | Unique | VM 1 | UI
+    "StudyDate": "study_date",  # STUDY | Required | VM 1 | DA
+    "StudyTime": "study_time",  # STUDY | Required | VM 1 | TM
+    "AccessionNumber": "accession_number",  # STUDY | Required | VM 1 | SH
+    "StudyID": "study_id",  # STUDY | Required | VM 1 | SH
+    "SeriesInstanceUID": "series_instance_uid",  # SERIES | Unique | VM 1 | UI
+    "Modality": "modality",  # SERIES | Required | VM 1 | CS
+    "SeriesNumber": "series_number",  # SERIES | Required | VM 1 | IS
+    "SOPInstanceUID": "sop_instance_uid",  # IMAGE | Unique | VM 1 | UI
+    "InstanceNumber": "instance_number",  # IMAGE | Required | VM 1 | IS
 }
 
 # Unique and required keys and their level, VR and VM for Patient Root
 # Study Root is the same but includes the PATIENT attributes
 _ATTRIBUTES = {
-    'PatientID' : ('PATIENT', 'U', 'LO', 1),
-    'PatientName' : ('PATIENT', 'R', 'PN', 1),
-    'StudyInstanceUID' : ('STUDY', 'U', 'UI', 1),
-    'StudyDate' : ('STUDY', 'R', 'DA', 1),
-    'StudyTime' : ('STUDY', 'R', 'TM', 1),
-    'AccessionNumber' : ('STUDY', 'R', 'SH', 1),
-    'StudyID' : ('STUDY', 'R', 'SH', 1),
-    'SeriesInstanceUID' : ('SERIES', 'U', 'UI', 1),
-    'Modality' : ('SERIES', 'R', 'VS', 1),
-    'SeriesNumber' : ('SERIES', 'R', 'IS', 1),
-    'SOPInstanceUID' : ('IMAGE', 'U', 'UI', 1),
-    'InstanceNumber' : ('IMAGE', 'R', 'UI', 1),
+    "PatientID": ("PATIENT", "U", "LO", 1),
+    "PatientName": ("PATIENT", "R", "PN", 1),
+    "StudyInstanceUID": ("STUDY", "U", "UI", 1),
+    "StudyDate": ("STUDY", "R", "DA", 1),
+    "StudyTime": ("STUDY", "R", "TM", 1),
+    "AccessionNumber": ("STUDY", "R", "SH", 1),
+    "StudyID": ("STUDY", "R", "SH", 1),
+    "SeriesInstanceUID": ("SERIES", "U", "UI", 1),
+    "Modality": ("SERIES", "R", "VS", 1),
+    "SeriesNumber": ("SERIES", "R", "IS", 1),
+    "SOPInstanceUID": ("IMAGE", "U", "UI", 1),
+    "InstanceNumber": ("IMAGE", "R", "UI", 1),
 }
-_PATIENT_ROOT_ATTRIBUTES = OrderedDict({
-    'PATIENT' : ['PatientID', 'PatientName'],
-    'STUDY' : [
-        'StudyInstanceUID', 'StudyDate', 'StudyTime', 'AccessionNumber',
-        'StudyID'
-    ],
-    'SERIES' : ['SeriesInstanceUID', 'Modality', 'SeriesNumber'],
-    'IMAGE' : ['SOPInstanceUID', 'InstanceNumber'],
-})
-_STUDY_ROOT_ATTRIBUTES = OrderedDict({
-    'STUDY' : [
-        'StudyInstanceUID', 'StudyDate', 'StudyTime', 'AccessionNumber',
-        'StudyID', 'PatientID', 'PatientName'
-    ],
-    'SERIES' : ['SeriesInstanceUID', 'Modality', 'SeriesNumber'],
-    'IMAGE' : ['SOPInstanceUID', 'InstanceNumber'],
-})
+_PATIENT_ROOT_ATTRIBUTES = OrderedDict(
+    {
+        "PATIENT": ["PatientID", "PatientName"],
+        "STUDY": [
+            "StudyInstanceUID",
+            "StudyDate",
+            "StudyTime",
+            "AccessionNumber",
+            "StudyID",
+        ],
+        "SERIES": ["SeriesInstanceUID", "Modality", "SeriesNumber"],
+        "IMAGE": ["SOPInstanceUID", "InstanceNumber"],
+    }
+)
+_STUDY_ROOT_ATTRIBUTES = OrderedDict(
+    {
+        "STUDY": [
+            "StudyInstanceUID",
+            "StudyDate",
+            "StudyTime",
+            "AccessionNumber",
+            "StudyID",
+            "PatientID",
+            "PatientName",
+        ],
+        "SERIES": ["SeriesInstanceUID", "Modality", "SeriesNumber"],
+        "IMAGE": ["SOPInstanceUID", "InstanceNumber"],
+    }
+)
 
 # Supported Information Models
 _C_FIND = [
     PatientRootQueryRetrieveInformationModelFind,
-    StudyRootQueryRetrieveInformationModelFind
+    StudyRootQueryRetrieveInformationModelFind,
 ]
 _C_GET = [
     PatientRootQueryRetrieveInformationModelGet,
-    StudyRootQueryRetrieveInformationModelGet
+    StudyRootQueryRetrieveInformationModelGet,
 ]
 _C_MOVE = [
     PatientRootQueryRetrieveInformationModelMove,
-    StudyRootQueryRetrieveInformationModelMove
+    StudyRootQueryRetrieveInformationModelMove,
 ]
 
 _PATIENT_ROOT = {
-    PatientRootQueryRetrieveInformationModelFind : _PATIENT_ROOT_ATTRIBUTES,
-    PatientRootQueryRetrieveInformationModelGet : _PATIENT_ROOT_ATTRIBUTES,
-    PatientRootQueryRetrieveInformationModelMove : _PATIENT_ROOT_ATTRIBUTES,
+    PatientRootQueryRetrieveInformationModelFind: _PATIENT_ROOT_ATTRIBUTES,
+    PatientRootQueryRetrieveInformationModelGet: _PATIENT_ROOT_ATTRIBUTES,
+    PatientRootQueryRetrieveInformationModelMove: _PATIENT_ROOT_ATTRIBUTES,
 }
 _STUDY_ROOT = {
-    StudyRootQueryRetrieveInformationModelFind : _STUDY_ROOT_ATTRIBUTES,
-    StudyRootQueryRetrieveInformationModelGet : _STUDY_ROOT_ATTRIBUTES,
-    StudyRootQueryRetrieveInformationModelMove : _STUDY_ROOT_ATTRIBUTES,
+    StudyRootQueryRetrieveInformationModelFind: _STUDY_ROOT_ATTRIBUTES,
+    StudyRootQueryRetrieveInformationModelGet: _STUDY_ROOT_ATTRIBUTES,
+    StudyRootQueryRetrieveInformationModelMove: _STUDY_ROOT_ATTRIBUTES,
 }
 
 
@@ -151,9 +162,11 @@ def add_instance(ds, session, fpath=None):
         to the database file.
     """
     # Check if instance is already in the database
-    result = session.query(Instance).filter(
-        Instance.sop_instance_uid == ds.SOPInstanceUID
-    ).all()
+    result = (
+        session.query(Instance)
+        .filter(Instance.sop_instance_uid == ds.SOPInstanceUID)
+        .all()
+    )
     if result:
         instance = result[0]
         instance_exists = True
@@ -164,18 +177,18 @@ def add_instance(ds, session, fpath=None):
     # Unique or Required attributes
     required = [
         # (Instance attribute, DICOM keyword, max length, req'd)
-        ('patient_id', 'PatientID', 16, True),
-        ('patient_name', 'PatientName', 64, False),
-        ('study_instance_uid', 'StudyInstanceUID', 64, True),
-        ('study_date', 'StudyDate', 8, False),
-        ('study_time', 'StudyTime', 14, False),
-        ('accession_number', 'AccessionNumber', 16, False),
-        ('study_id', 'StudyID', 16, False),
-        ('series_instance_uid', 'SeriesInstanceUID', 64, True),
-        ('modality', 'Modality', 16, False),
-        ('series_number', 'SeriesNumber', None, False),
-        ('sop_instance_uid', 'SOPInstanceUID', 64, True),
-        ('instance_number', 'InstanceNumber', None, False),
+        ("patient_id", "PatientID", 16, True),
+        ("patient_name", "PatientName", 64, False),
+        ("study_instance_uid", "StudyInstanceUID", 64, True),
+        ("study_date", "StudyDate", 8, False),
+        ("study_time", "StudyTime", 14, False),
+        ("accession_number", "AccessionNumber", 16, False),
+        ("study_id", "StudyID", 16, False),
+        ("series_instance_uid", "SeriesInstanceUID", 64, True),
+        ("modality", "Modality", 16, False),
+        ("series_number", "SeriesNumber", None, False),
+        ("sop_instance_uid", "SOPInstanceUID", 64, True),
+        ("instance_number", "InstanceNumber", None, False),
     ]
 
     # Unique and Required attributes
@@ -188,14 +201,14 @@ def add_instance(ds, session, fpath=None):
 
         if value is not None:
             # All supported attributes have VM 1
-            #assert elem.VM == 1
+            # assert elem.VM == 1
             if max_len:
-                if elem.VR == 'PN':
+                if elem.VR == "PN":
                     value = str(value)
 
                 assert len(value) <= max_len
             else:
-                assert -2**31 <= value <= 2**31 - 1
+                assert -(2 ** 31) <= value <= 2 ** 31 - 1
 
         setattr(instance, attr, value)
 
@@ -242,46 +255,45 @@ def build_query(identifier, session, query=None):
         The resulting query.
     """
     # VRs for Single Value Matching and Wild Card Matching
-    _text_vr = [
-        'AE', 'CS', 'LO', 'LT', 'PN', 'SH', 'ST', 'UC', 'UR', 'UT'
-    ]
+    _text_vr = ["AE", "CS", "LO", "LT", "PN", "SH", "ST", "UC", "UR", "UT"]
     for elem in [e for e in identifier if e.keyword in _ATTRIBUTES]:
         vr = elem.VR
         val = elem.value
         # Convert PersonName3 to str
-        if vr == 'PN' and val: val = str(val)
+        if vr == "PN" and val:
+            val = str(val)
 
         # Part 4, C.2.2.2.1 Single Value Matching
-        if vr != 'SQ' and val is not None:
-            if vr in _text_vr and ('*' in val or '?' in val):
+        if vr != "SQ" and val is not None:
+            if vr in _text_vr and ("*" in val or "?" in val):
                 pass
-            elif vr in ['DA', 'TM', 'DT'] and '-' in val:
+            elif vr in ["DA", "TM", "DT"] and "-" in val:
                 pass
             else:
-                #print('Performing single value matching...')
+                # print('Performing single value matching...')
                 query = _search_single_value(elem, session, query)
                 continue
 
         # Part 4, C.2.2.2.3 Universal Matching
         if val is None:
-            #print('Performing universal matching...')
+            # print('Performing universal matching...')
             query = _search_universal(elem, session, query)
             continue
 
         # Part 4, C.2.2.2.2 List of UID Matching
-        if vr == 'UI':
-            #print('Performing list of UID matching...')
+        if vr == "UI":
+            # print('Performing list of UID matching...')
             query = _search_uid_list(elem, session, query)
             continue
 
         # Part 4, C.2.2.2.4 Wild Card Matching
-        if vr in _text_vr and ('*' in val or '?' in val):
-            #print('Performing wildcard matching...')
+        if vr in _text_vr and ("*" in val or "?" in val):
+            # print('Performing wildcard matching...')
             query = _search_wildcard(elem, session, query)
             continue
 
         # Part 4, C.2.2.2.5 Range Matching
-        if vr in ['DT', 'TM', 'DA'] and '-' in val:
+        if vr in ["DT", "TM", "DA"] and "-" in val:
             query = _search_range(elem, session, query)
             continue
 
@@ -308,7 +320,7 @@ def _check_identifier(identifier, model):
     """
     # Part 4, C.4.1.1.3.1, C.4.2.1.4 and C.4.3.1.3.1:
     #   (0008,0052) Query Retrieve Level is required in the Identifier
-    if 'QueryRetrieveLevel' not in identifier:
+    if "QueryRetrieveLevel" not in identifier:
         raise InvalidIdentifier(
             "The Identifier contains no Query Retrieve Level element"
         )
@@ -330,7 +342,7 @@ def _check_identifier(identifier, model):
     for ii, level in enumerate(levels):
         if level == identifier.QueryRetrieveLevel:
             # Check if identifier has elements below current level
-            for sublevel in levels[ii + 1:]:
+            for sublevel in levels[ii + 1 :]:
                 if any([kw in identifier for kw in attr[sublevel]]):
                     raise InvalidIdentifier(
                         "The Identifier contains keys below the level "
@@ -344,8 +356,7 @@ def _check_identifier(identifier, model):
         #   keyword is present
         if attr[level][0] not in identifier:
             raise InvalidIdentifier(
-                f"The Identifier is missing a unique key for "
-                f"the '{level}' level"
+                f"The Identifier is missing a unique key for " f"the '{level}' level"
             )
 
 
@@ -392,9 +403,9 @@ def remove_instance(instance_uid, session):
     session : sqlalchemy.orm.session.Session
         The session to use when querying the database for the instance.
     """
-    matches = session.query(Instance).filter(
-        Instance.sop_instance_uid == instance_uid
-    ).all()
+    matches = (
+        session.query(Instance).filter(Instance.sop_instance_uid == instance_uid).all()
+    )
     if matches:
         session.delete(matches[0])
         session.commit()
@@ -435,13 +446,13 @@ def search(model, identifier, session):
     # Remove all optional keys, after this only unique/required will remain
     for elem in identifier:
         kw = elem.keyword
-        if kw != 'QueryRetrieveLevel' and kw not in _ATTRIBUTES:
+        if kw != "QueryRetrieveLevel" and kw not in _ATTRIBUTES:
             delattr(identifier, kw)
 
     if model in _C_GET or model in _C_MOVE:
         # Part 4, C.2.2.1.2: remove required keys from C-GET/C-MOVE
         for kw, value in _ATTRIBUTES.items():
-            if value[1] == 'R' and kw in identifier:
+            if value[1] == "R" and kw in identifier:
                 delattr(identifier, kw)
 
     return _search_qr(model, identifier, session)
@@ -515,7 +526,7 @@ def _search_range(elem, session, query=None):
     #   <time>: if Timezone Offset From UTC included, values are in specified
     #   date: 20060705-20060707 + time: 1000-1800 matches July 5, 10 am to
     #       July 7, 6 pm.
-    start, end = elem.value.split('-')
+    start, end = elem.value.split("-")
     attr = getattr(Instance, _TRANSLATION[elem.keyword])
     if not query:
         query = session.query(Instance)
@@ -558,7 +569,7 @@ def _search_single_value(elem, session, query=None):
         The resulting query.
     """
     attr = getattr(Instance, _TRANSLATION[elem.keyword])
-    if elem.VR == 'PN':
+    if elem.VR == "PN":
         value = str(elem.value)
     else:
         value = elem.value
@@ -649,16 +660,16 @@ def _search_wildcard(elem, session, query=None):
     #   '*' shall match any sequence of characters (incl. zero length)
     #   '?' shall match any single character
     attr = getattr(Instance, _TRANSLATION[elem.keyword])
-    if elem.VR == 'PN':
+    if elem.VR == "PN":
         value = str(elem.value)
     else:
         value = elem.value
 
-    if value is None or value == '':
-        value = '*'
+    if value is None or value == "":
+        value = "*"
 
-    value = value.replace('*', '%')
-    value = value.replace('?', '_')
+    value = value.replace("*", "%")
+    value = value.replace("?", "_")
 
     if not query:
         query = session.query(Instance)
@@ -671,7 +682,7 @@ Base = declarative_base()
 
 
 class Image(Base):
-    __tablename__ = 'image'
+    __tablename__ = "image"
     # (0008,0018) SOP Instance UID | VR UI, VM 1, U
     sop_instance_uid = Column(String(64), primary_key=True)
     # (0020,0013) Instance Number | VR IS, VM 1, R
@@ -679,7 +690,7 @@ class Image(Base):
 
 
 class Instance(Base):
-    __tablename__ = 'instance'
+    __tablename__ = "instance"
 
     # Absolute path to the stored SOP Instance
     filename = Column(String)
@@ -687,25 +698,25 @@ class Instance(Base):
     transfer_syntax_uid = Column(String(64))
     sop_class_uid = Column(String(64))
 
-    patient_id = Column(String, ForeignKey('patient.patient_id'))
-    patient_name = Column(String, ForeignKey('patient.patient_id'))
+    patient_id = Column(String, ForeignKey("patient.patient_id"))
+    patient_name = Column(String, ForeignKey("patient.patient_id"))
 
-    study_instance_uid = Column(String, ForeignKey('study.study_instance_uid'))
-    study_date = Column(String, ForeignKey('study.study_date'))
-    study_time = Column(String, ForeignKey('study.study_time'))
-    accession_number = Column(String, ForeignKey('study.accession_number'))
-    study_id = Column(String, ForeignKey('study.study_id'))
+    study_instance_uid = Column(String, ForeignKey("study.study_instance_uid"))
+    study_date = Column(String, ForeignKey("study.study_date"))
+    study_time = Column(String, ForeignKey("study.study_time"))
+    accession_number = Column(String, ForeignKey("study.accession_number"))
+    study_id = Column(String, ForeignKey("study.study_id"))
 
-    series_instance_uid = Column(
-        String, ForeignKey('series.series_instance_uid')
-    )
-    modality = Column(String, ForeignKey('series.modality'))
-    series_number = Column(String, ForeignKey('series.series_number'))
+    series_instance_uid = Column(String, ForeignKey("series.series_instance_uid"))
+    modality = Column(String, ForeignKey("series.modality"))
+    series_number = Column(String, ForeignKey("series.series_number"))
 
     sop_instance_uid = Column(
-        String, ForeignKey('image.sop_instance_uid'), primary_key=True,
+        String,
+        ForeignKey("image.sop_instance_uid"),
+        primary_key=True,
     )
-    instance_number = Column(String, ForeignKey('image.instance_number'))
+    instance_number = Column(String, ForeignKey("image.instance_number"))
 
     def as_identifier(self, identifier, model):
         """Return an Identifier dataset matching the elements from a query.
@@ -770,7 +781,7 @@ class Instance(Base):
 
 
 class Patient(Base):
-    __tablename__ = 'patient'
+    __tablename__ = "patient"
     # (0010,0020) Patient ID | VR LO, VM 1, U
     patient_id = Column(String(16), primary_key=True)
     # (0010,0010) Patient's Name | VR PN, VM 1, R
@@ -778,7 +789,7 @@ class Patient(Base):
 
 
 class Series(Base):
-    __tablename__ = 'series'
+    __tablename__ = "series"
     # (0020,000E) Series Instance UID | VR UI, VM 1, U
     series_instance_uid = Column(String(64), primary_key=True)
     # (0008,0060) Modality | VR CS, VM 1, R
@@ -788,7 +799,7 @@ class Series(Base):
 
 
 class Study(Base):
-    __tablename__ = 'study'
+    __tablename__ = "study"
     # (0020,000D) Study Instance UID | VR UI, VM 1, U
     study_instance_uid = Column(String(64), primary_key=True)
     # (0008,0020) Study Date | VR DA, VM 1, R

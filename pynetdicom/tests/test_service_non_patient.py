@@ -20,10 +20,10 @@ from pynetdicom.sop_class import (
 )
 
 
-#debug_logger()
+# debug_logger()
 
-TEST_DS_DIR = os.path.join(os.path.dirname(__file__), 'dicom_files')
-DATASET = dcmread(os.path.join(TEST_DS_DIR, 'CTImageStorage.dcm'))
+TEST_DS_DIR = os.path.join(os.path.dirname(__file__), "dicom_files")
+DATASET = dcmread(os.path.join(TEST_DS_DIR, "CTImageStorage.dcm"))
 DATASET.SOPClassUID = HangingProtocolStorage
 
 
@@ -32,6 +32,7 @@ class TestNonPatientObjectStorageServiceClass:
 
     Subclass of StorageServiceClass with its own set of statuses.
     """
+
     def setup(self):
         """Run prior to each test"""
         self.ae = None
@@ -62,9 +63,9 @@ class TestNonPatientObjectStorageServiceClass:
         self.ae = ae = AE()
         ae.add_supported_context(HangingProtocolStorage)
         ae.add_requested_context(HangingProtocolStorage, ExplicitVRLittleEndian)
-        scp = ae.start_server(('', 11112), block=False, evt_handlers=handlers)
+        scp = ae.start_server(("", 11112), block=False, evt_handlers=handlers)
 
-        assoc = ae.associate('localhost', 11112)
+        assoc = ae.associate("localhost", 11112)
         assert assoc.is_established
 
         req = C_STORE()
@@ -73,7 +74,9 @@ class TestNonPatientObjectStorageServiceClass:
         req.AffectedSOPInstanceUID = DATASET.SOPInstanceUID
         req.Priorty = 0x0002
         # Bad VR? AA
-        req.DataSet = BytesIO(b'\x08\x00\x01\x00\x40\x40\x00\x00\x00\x00\x00\x08\x00\x49')
+        req.DataSet = BytesIO(
+            b"\x08\x00\x01\x00\x40\x40\x00\x00\x00\x00\x00\x08\x00\x49"
+        )
 
         # Send C-STORE request to DIMSE and get response
         # Need to manually hit the checkpoint
@@ -84,7 +87,7 @@ class TestNonPatientObjectStorageServiceClass:
         assoc._reactor_checkpoint.set()
 
         assert rsp.Status == 0xC210
-        assert rsp.ErrorComment == 'Unable to decode the dataset'
+        assert rsp.ErrorComment == "Unable to decode the dataset"
         assoc.release()
         assert assoc.is_released
 
@@ -92,6 +95,7 @@ class TestNonPatientObjectStorageServiceClass:
 
     def test_scp_handler_return_dataset(self):
         """Test handler returning a Dataset status"""
+
         def handle(event):
             status = Dataset()
             status.Status = 0x0001
@@ -102,9 +106,9 @@ class TestNonPatientObjectStorageServiceClass:
         self.ae = ae = AE()
         ae.add_supported_context(HangingProtocolStorage)
         ae.add_requested_context(HangingProtocolStorage)
-        scp = ae.start_server(('', 11112), block=False, evt_handlers=handlers)
+        scp = ae.start_server(("", 11112), block=False, evt_handlers=handlers)
 
-        assoc = ae.associate('localhost', 11112)
+        assoc = ae.associate("localhost", 11112)
         assert assoc.is_established
         rsp = assoc.send_c_store(DATASET)
         assert rsp.Status == 0x0001
@@ -115,10 +119,11 @@ class TestNonPatientObjectStorageServiceClass:
 
     def test_scp_handler_return_dataset_multi(self):
         """Test handler returning a Dataset status with other elements"""
+
         def handle(event):
             status = Dataset()
             status.Status = 0x0001
-            status.ErrorComment = 'Test'
+            status.ErrorComment = "Test"
             status.OffendingElement = 0x00080010
             return status
 
@@ -127,13 +132,13 @@ class TestNonPatientObjectStorageServiceClass:
         self.ae = ae = AE()
         ae.add_supported_context(HangingProtocolStorage)
         ae.add_requested_context(HangingProtocolStorage)
-        scp = ae.start_server(('', 11112), block=False, evt_handlers=handlers)
+        scp = ae.start_server(("", 11112), block=False, evt_handlers=handlers)
 
-        assoc = ae.associate('localhost', 11112)
+        assoc = ae.associate("localhost", 11112)
         assert assoc.is_established
         rsp = assoc.send_c_store(DATASET)
         assert rsp.Status == 0x0001
-        assert rsp.ErrorComment == 'Test'
+        assert rsp.ErrorComment == "Test"
         assert rsp.OffendingElement == 0x00080010
         assoc.release()
         assert assoc.is_released
@@ -142,6 +147,7 @@ class TestNonPatientObjectStorageServiceClass:
 
     def test_scp_handler_return_int(self):
         """Test handler returning an int status"""
+
         def handle(event):
             return 0x0000
 
@@ -150,13 +156,13 @@ class TestNonPatientObjectStorageServiceClass:
         self.ae = ae = AE()
         ae.add_supported_context(HangingProtocolStorage)
         ae.add_requested_context(HangingProtocolStorage)
-        scp = ae.start_server(('', 11112), block=False, evt_handlers=handlers)
+        scp = ae.start_server(("", 11112), block=False, evt_handlers=handlers)
 
-        assoc = ae.associate('localhost', 11112)
+        assoc = ae.associate("localhost", 11112)
         assert assoc.is_established
         rsp = assoc.send_c_store(DATASET)
         assert rsp.Status == 0x0000
-        assert not 'ErrorComment' in rsp
+        assert not "ErrorComment" in rsp
         assoc.release()
         assert assoc.is_released
 
@@ -164,6 +170,7 @@ class TestNonPatientObjectStorageServiceClass:
 
     def test_scp_handler_return_invalid(self):
         """Test handler returning an invalid status"""
+
         def handle(event):
             return 0xFFF0
 
@@ -172,9 +179,9 @@ class TestNonPatientObjectStorageServiceClass:
         self.ae = ae = AE()
         ae.add_supported_context(HangingProtocolStorage)
         ae.add_requested_context(HangingProtocolStorage)
-        scp = ae.start_server(('', 11112), block=False, evt_handlers=handlers)
+        scp = ae.start_server(("", 11112), block=False, evt_handlers=handlers)
 
-        assoc = ae.associate('localhost', 11112)
+        assoc = ae.associate("localhost", 11112)
         assert assoc.is_established
         rsp = assoc.send_c_store(DATASET)
         assert rsp.Status == 0xFFF0
@@ -185,6 +192,7 @@ class TestNonPatientObjectStorageServiceClass:
 
     def test_scp_handler_no_status(self):
         """Test handler not returning a status"""
+
         def handle(event):
             return None
 
@@ -193,9 +201,9 @@ class TestNonPatientObjectStorageServiceClass:
         self.ae = ae = AE()
         ae.add_supported_context(HangingProtocolStorage)
         ae.add_requested_context(HangingProtocolStorage)
-        scp = ae.start_server(('', 11112), block=False, evt_handlers=handlers)
+        scp = ae.start_server(("", 11112), block=False, evt_handlers=handlers)
 
-        assoc = ae.associate('localhost', 11112)
+        assoc = ae.associate("localhost", 11112)
         assert assoc.is_established
         rsp = assoc.send_c_store(DATASET)
         assert rsp.Status == 0xC002
@@ -206,6 +214,7 @@ class TestNonPatientObjectStorageServiceClass:
 
     def test_scp_handler_exception(self):
         """Test handler raising an exception"""
+
         def handle(event):
             raise ValueError
 
@@ -214,9 +223,9 @@ class TestNonPatientObjectStorageServiceClass:
         self.ae = ae = AE()
         ae.add_supported_context(HangingProtocolStorage)
         ae.add_requested_context(HangingProtocolStorage)
-        scp = ae.start_server(('', 11112), block=False, evt_handlers=handlers)
+        scp = ae.start_server(("", 11112), block=False, evt_handlers=handlers)
 
-        assoc = ae.associate('localhost', 11112)
+        assoc = ae.associate("localhost", 11112)
         assert assoc.is_established
         rsp = assoc.send_c_store(DATASET)
         assert rsp.Status == 0xC211
@@ -228,11 +237,12 @@ class TestNonPatientObjectStorageServiceClass:
     def test_scp_handler_context(self):
         """Test handler event's context attribute"""
         attrs = {}
+
         def handle(event):
-            attrs['context'] = event.context
-            attrs['assoc'] = event.assoc
-            attrs['request'] = event.request
-            attrs['dataset'] = event.dataset
+            attrs["context"] = event.context
+            attrs["assoc"] = event.assoc
+            attrs["request"] = event.request
+            attrs["dataset"] = event.dataset
             return 0x0000
 
         handlers = [(evt.EVT_C_STORE, handle)]
@@ -240,30 +250,31 @@ class TestNonPatientObjectStorageServiceClass:
         self.ae = ae = AE()
         ae.add_supported_context(HangingProtocolStorage)
         ae.add_requested_context(HangingProtocolStorage)
-        scp = ae.start_server(('', 11112), block=False, evt_handlers=handlers)
+        scp = ae.start_server(("", 11112), block=False, evt_handlers=handlers)
 
-        assoc = ae.associate('localhost', 11112)
+        assoc = ae.associate("localhost", 11112)
         assert assoc.is_established
         status = assoc.send_c_store(DATASET)
         assert status.Status == 0x0000
         assoc.release()
         assert assoc.is_released
 
-        cx = attrs['context']
+        cx = attrs["context"]
         assert cx.context_id == 1
         assert cx.abstract_syntax == HangingProtocolStorage
-        assert cx.transfer_syntax == '1.2.840.10008.1.2'
+        assert cx.transfer_syntax == "1.2.840.10008.1.2"
 
         scp.shutdown()
 
     def test_scp_handler_assoc(self):
         """Test handler event's assoc attribute"""
         attrs = {}
+
         def handle(event):
-            attrs['context'] = event.context
-            attrs['assoc'] = event.assoc
-            attrs['request'] = event.request
-            attrs['dataset'] = event.dataset
+            attrs["context"] = event.context
+            attrs["assoc"] = event.assoc
+            attrs["request"] = event.request
+            attrs["dataset"] = event.dataset
             return 0x0000
 
         handlers = [(evt.EVT_C_STORE, handle)]
@@ -271,14 +282,14 @@ class TestNonPatientObjectStorageServiceClass:
         self.ae = ae = AE()
         ae.add_supported_context(HangingProtocolStorage)
         ae.add_requested_context(HangingProtocolStorage)
-        scp = ae.start_server(('', 11112), block=False, evt_handlers=handlers)
+        scp = ae.start_server(("", 11112), block=False, evt_handlers=handlers)
 
-        assoc = ae.associate('localhost', 11112)
+        assoc = ae.associate("localhost", 11112)
         assert assoc.is_established
         status = assoc.send_c_store(DATASET)
         assert status.Status == 0x0000
 
-        scp_assoc = attrs['assoc']
+        scp_assoc = attrs["assoc"]
         assert scp_assoc == scp.active_associations[0]
 
         assoc.release()
@@ -289,11 +300,12 @@ class TestNonPatientObjectStorageServiceClass:
     def test_scp_handler_request(self):
         """Test handler event's request attribute"""
         attrs = {}
+
         def handle(event):
-            attrs['context'] = event.context
-            attrs['assoc'] = event.assoc
-            attrs['request'] = event.request
-            attrs['dataset'] = event.dataset
+            attrs["context"] = event.context
+            attrs["assoc"] = event.assoc
+            attrs["request"] = event.request
+            attrs["dataset"] = event.dataset
             return 0x0000
 
         handlers = [(evt.EVT_C_STORE, handle)]
@@ -301,16 +313,16 @@ class TestNonPatientObjectStorageServiceClass:
         self.ae = ae = AE()
         ae.add_supported_context(HangingProtocolStorage)
         ae.add_requested_context(HangingProtocolStorage)
-        scp = ae.start_server(('', 11112), block=False, evt_handlers=handlers)
+        scp = ae.start_server(("", 11112), block=False, evt_handlers=handlers)
 
-        assoc = ae.associate('localhost', 11112)
+        assoc = ae.associate("localhost", 11112)
         assert assoc.is_established
         status = assoc.send_c_store(DATASET)
         assert status.Status == 0x0000
         assoc.release()
         assert assoc.is_released
 
-        req = attrs['request']
+        req = attrs["request"]
         assert req.MessageID == 1
         assert isinstance(req, C_STORE)
 
@@ -319,11 +331,12 @@ class TestNonPatientObjectStorageServiceClass:
     def test_scp_handler_dataset(self):
         """Test handler event's dataset property"""
         attrs = {}
+
         def handle(event):
-            attrs['context'] = event.context
-            attrs['assoc'] = event.assoc
-            attrs['request'] = event.request
-            attrs['dataset'] = event.dataset
+            attrs["context"] = event.context
+            attrs["assoc"] = event.assoc
+            attrs["request"] = event.request
+            attrs["dataset"] = event.dataset
             return 0x0000
 
         handlers = [(evt.EVT_C_STORE, handle)]
@@ -331,16 +344,16 @@ class TestNonPatientObjectStorageServiceClass:
         self.ae = ae = AE()
         ae.add_supported_context(HangingProtocolStorage)
         ae.add_requested_context(HangingProtocolStorage)
-        scp = ae.start_server(('', 11112), block=False, evt_handlers=handlers)
+        scp = ae.start_server(("", 11112), block=False, evt_handlers=handlers)
 
-        assoc = ae.associate('localhost', 11112)
+        assoc = ae.associate("localhost", 11112)
         assert assoc.is_established
         status = assoc.send_c_store(DATASET)
         assert status.Status == 0x0000
         assoc.release()
         assert assoc.is_released
 
-        ds = attrs['dataset']
+        ds = attrs["dataset"]
         assert isinstance(ds, Dataset)
         assert ds.PatientName == DATASET.PatientName
 
@@ -349,11 +362,12 @@ class TestNonPatientObjectStorageServiceClass:
     def test_scp_handler_move_origin(self):
         """Test handler event's request property with MoveOriginator"""
         attrs = {}
+
         def handle(event):
-            attrs['context'] = event.context
-            attrs['assoc'] = event.assoc
-            attrs['request'] = event.request
-            attrs['dataset'] = event.dataset
+            attrs["context"] = event.context
+            attrs["assoc"] = event.assoc
+            attrs["request"] = event.request
+            attrs["dataset"] = event.dataset
             return 0x0000
 
         handlers = [(evt.EVT_C_STORE, handle)]
@@ -361,19 +375,17 @@ class TestNonPatientObjectStorageServiceClass:
         self.ae = ae = AE()
         ae.add_supported_context(HangingProtocolStorage)
         ae.add_requested_context(HangingProtocolStorage)
-        scp = ae.start_server(('', 11112), block=False, evt_handlers=handlers)
+        scp = ae.start_server(("", 11112), block=False, evt_handlers=handlers)
 
-        assoc = ae.associate('localhost', 11112)
+        assoc = ae.associate("localhost", 11112)
         assert assoc.is_established
-        status = assoc.send_c_store(
-            DATASET, originator_aet='ORIGIN', originator_id=888
-        )
+        status = assoc.send_c_store(DATASET, originator_aet="ORIGIN", originator_id=888)
         assert status.Status == 0x0000
         assoc.release()
         assert assoc.is_released
 
-        req = attrs['request']
-        assert req.MoveOriginatorApplicationEntityTitle == 'ORIGIN'
+        req = attrs["request"]
+        assert req.MoveOriginatorApplicationEntityTitle == "ORIGIN"
         assert req.MoveOriginatorMessageID == 888
 
         scp.shutdown()

@@ -4,6 +4,7 @@ import queue
 import select
 import socket
 import struct
+
 try:
     from SocketServer import TCPServer, ThreadingMixIn, BaseRequestHandler
 except ImportError:
@@ -34,16 +35,16 @@ class ParrotRequest(BaseRequestHandler):
         self.received = []
         self.sent = []
         for (cmd, data) in self.commands:
-            if cmd == 'recv':
+            if cmd == "recv":
                 self.kill_read = False
                 while not self.kill_read:
                     if self.ready:
                         self.received.append(bytes(self.read_data))
                         self.kill_read = True
-            elif cmd == 'send':
+            elif cmd == "send":
                 self.send(data)
                 self.sent.append(data)
-            elif cmd == 'wait':
+            elif cmd == "wait":
                 time.sleep(data)
 
         # Disconnects automatically when this method ends!
@@ -78,7 +79,7 @@ class ParrotRequest(BaseRequestHandler):
             # Byte 1 is always the PDU type
             # Byte 2 is always reserved
             # Bytes 3-6 are always the PDU length
-            pdu_type, _, pdu_length = unpack('>BBL', bytestream)
+            pdu_type, _, pdu_length = unpack(">BBL", bytestream)
         except struct.error:
             pass
 
@@ -174,24 +175,24 @@ class SteppingParrotRequest(ParrotRequest):
         self.received = []
         self.sent = []
         while True:
-            #print('Parrot: waiting on threading.Event')
+            # print('Parrot: waiting on threading.Event')
             self.event.wait()
-            #print('Parrot: wait ended')
+            # print('Parrot: wait ended')
             cmd, data = self.commands.pop(0)
-            #print('Parrot: running command', cmd)
-            if cmd == 'exit':
-                #print('Parrot: exiting...')
+            # print('Parrot: running command', cmd)
+            if cmd == "exit":
+                # print('Parrot: exiting...')
                 return
 
-            if cmd == 'recv':
-                #print('Parrot: receiving data')
+            if cmd == "recv":
+                # print('Parrot: receiving data')
                 self.kill_read = False
                 while not self.kill_read:
                     if self.ready:
                         self.received.append(bytes(self.read_data))
                         self.kill_read = True
-            elif cmd == 'send':
-                #print('Parrot: sending data')
+            elif cmd == "send":
+                # print('Parrot: sending data')
                 self.send(data)
                 self.sent.append(data)
 
@@ -199,7 +200,7 @@ class SteppingParrotRequest(ParrotRequest):
 
 
 def start_server(commands, handler=SteppingParrotRequest):
-    server = ThreadedParrot(('localhost', 11112), commands, handler)
+    server = ThreadedParrot(("localhost", 11112), commands, handler)
     thread = threading.Thread(target=server.serve_forever)
     thread.daemon = True
     thread.start()
@@ -228,9 +229,7 @@ class Parrot(AssociationServer):
         self.ssl_context = None
         self.allow_reuse_address = True
 
-        TCPServer.__init__(
-            self, address, handler, bind_and_activate=True
-        )
+        TCPServer.__init__(self, address, handler, bind_and_activate=True)
 
         self.timeout = 60
         self.handlers = []
@@ -247,9 +246,7 @@ class Parrot(AssociationServer):
           None in which case it will be left unset.
         """
         self.socket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
-        self.socket.setsockopt(socket.SOL_SOCKET,
-                               socket.SO_RCVTIMEO,
-                               pack('ll', 2, 0))
+        self.socket.setsockopt(socket.SOL_SOCKET, socket.SO_RCVTIMEO, pack("ll", 2, 0))
 
         self.socket.bind(self.server_address)
         self.server_address = self.socket.getsockname()

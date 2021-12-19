@@ -7,9 +7,7 @@ from pydicom import dcmread
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 
-from pynetdicom.apps.qrscp.db import (
-    add_instance, search, InvalidIdentifier, Instance
-)
+from pynetdicom.apps.qrscp.db import add_instance, search, InvalidIdentifier, Instance
 
 
 def handle_echo(event, cli_config, logger):
@@ -32,9 +30,7 @@ def handle_echo(event, cli_config, logger):
     requestor = event.assoc.requestor
     timestamp = event.timestamp.strftime("%Y-%m-%d %H:%M:%S")
     addr, port = requestor.address, requestor.port
-    logger.info(
-        f"Received C-ECHO request from {addr}:{port} at {timestamp}"
-    )
+    logger.info(f"Received C-ECHO request from {addr}:{port} at {timestamp}")
 
     return 0x0000
 
@@ -62,9 +58,7 @@ def handle_find(event, db_path, cli_config, logger):
     requestor = event.assoc.requestor
     timestamp = event.timestamp.strftime("%Y-%m-%d %H:%M:%S")
     addr, port = requestor.address, requestor.port
-    logger.info(
-        f"Received C-FIND request from {addr}:{port} at {timestamp}"
-    )
+    logger.info(f"Received C-FIND request from {addr}:{port} at {timestamp}")
 
     model = event.request.AffectedSOPClassUID
 
@@ -77,13 +71,13 @@ def handle_find(event, db_path, cli_config, logger):
             matches = search(model, event.identifier, session)
         except InvalidIdentifier as exc:
             session.rollback()
-            logger.error('Invalid C-FIND Identifier received')
+            logger.error("Invalid C-FIND Identifier received")
             logger.error(str(exc))
             yield 0xA900, None
             return
         except Exception as exc:
             session.rollback()
-            logger.error('Exception occurred while querying database')
+            logger.error("Exception occurred while querying database")
             logger.exception(exc)
             yield 0xC320, None
             return
@@ -132,9 +126,7 @@ def handle_get(event, db_path, cli_config, logger):
     requestor = event.assoc.requestor
     timestamp = event.timestamp.strftime("%Y-%m-%d %H:%M:%S")
     addr, port = requestor.address, requestor.port
-    logger.info(
-        f"Received C-GET request from {addr}:{port} at {timestamp}"
-    )
+    logger.info(f"Received C-GET request from {addr}:{port} at {timestamp}")
 
     model = event.request.AffectedSOPClassUID
 
@@ -147,13 +139,13 @@ def handle_get(event, db_path, cli_config, logger):
             matches = search(model, event.identifier, session)
         except InvalidIdentifier as exc:
             session.rollback()
-            logger.error('Invalid C-GET Identifier received')
+            logger.error("Invalid C-GET Identifier received")
             logger.error(str(exc))
             yield 0xA900, None
             return
         except Exception as exc:
             session.rollback()
-            logger.error('Exception occurred while querying database')
+            logger.error("Exception occurred while querying database")
             logger.exception(exc)
             yield 0xC420, None
             return
@@ -218,7 +210,7 @@ def handle_move(event, destinations, db_path, cli_config, logger):
     try:
         addr, port = destinations[event.move_destination]
     except KeyError:
-        logger.info('No matching move destination in the configuration')
+        logger.info("No matching move destination in the configuration")
         yield None, None
         return
 
@@ -232,13 +224,13 @@ def handle_move(event, destinations, db_path, cli_config, logger):
             matches = search(model, event.identifier, session)
         except InvalidIdentifier as exc:
             session.rollback()
-            logger.error('Invalid C-MOVE Identifier received')
+            logger.error("Invalid C-MOVE Identifier received")
             logger.error(str(exc))
             yield 0xA900, None
             return
         except Exception as exc:
             session.rollback()
-            logger.error('Exception occurred while querying database')
+            logger.error("Exception occurred while querying database")
             logger.exception(exc)
             yield 0xC520, None
             return
@@ -250,7 +242,7 @@ def handle_move(event, destinations, db_path, cli_config, logger):
     # implicit context conversion between:
     #   implicit VR <-> explicit VR <-> deflated transfer syntaxes
     contexts = list(set([ii.context for ii in matches]))
-    yield addr, port, {'contexts' : contexts[:128]}
+    yield addr, port, {"contexts": contexts[:128]}
 
     # Yield number of sub-operations
     yield len(matches)
@@ -297,9 +289,7 @@ def handle_store(event, storage_dir, db_path, cli_config, logger):
     requestor = event.assoc.requestor
     timestamp = event.timestamp.strftime("%Y-%m-%d %H:%M:%S")
     addr, port = requestor.address, requestor.port
-    logger.info(
-        f"Received C-STORE request from {addr}:{port} at {timestamp}"
-    )
+    logger.info(f"Received C-STORE request from {addr}:{port} at {timestamp}")
 
     try:
         ds = event.dataset
@@ -323,14 +313,12 @@ def handle_store(event, storage_dir, db_path, cli_config, logger):
     db_dir = os.path.dirname(db_path)
 
     if os.path.exists(fpath):
-        logger.warning(
-            'Instance already exists in storage directory, overwriting'
-        )
+        logger.warning("Instance already exists in storage directory, overwriting")
 
     try:
         ds.save_as(fpath, write_like_original=False)
     except Exception as exc:
-        logger.error('Failed writing instance to storage directory')
+        logger.error("Failed writing instance to storage directory")
         logger.exception(exc)
         # Failed - Out of Resources
         return 0xA700
@@ -345,9 +333,11 @@ def handle_store(event, storage_dir, db_path, cli_config, logger):
 
         try:
             # Path is relative to the database file
-            matches = session.query(Instance).filter(
-                Instance.sop_instance_uid == ds.SOPInstanceUID
-            ).all()
+            matches = (
+                session.query(Instance)
+                .filter(Instance.sop_instance_uid == ds.SOPInstanceUID)
+                .all()
+            )
             add_instance(ds, session, os.path.abspath(fpath))
             if not matches:
                 logger.info("Instance added to database")
@@ -355,7 +345,7 @@ def handle_store(event, storage_dir, db_path, cli_config, logger):
                 logger.info("Database entry for instance updated")
         except Exception as exc:
             session.rollback()
-            logger.error('Unable to add instance to the database')
+            logger.error("Unable to add instance to the database")
             logger.exception(exc)
         finally:
             session.close()

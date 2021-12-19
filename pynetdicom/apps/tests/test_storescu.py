@@ -10,48 +10,51 @@ import pytest
 
 from pydicom import dcmread
 from pydicom.uid import (
-    ExplicitVRLittleEndian, ImplicitVRLittleEndian,
-    DeflatedExplicitVRLittleEndian, ExplicitVRBigEndian
+    ExplicitVRLittleEndian,
+    ImplicitVRLittleEndian,
+    DeflatedExplicitVRLittleEndian,
+    ExplicitVRBigEndian,
 )
 
 from pynetdicom import (
-    AE, evt, debug_logger, DEFAULT_TRANSFER_SYNTAXES,
-    AllStoragePresentationContexts, ALL_TRANSFER_SYNTAXES
+    AE,
+    evt,
+    debug_logger,
+    DEFAULT_TRANSFER_SYNTAXES,
+    AllStoragePresentationContexts,
+    ALL_TRANSFER_SYNTAXES,
 )
-from pynetdicom.sop_class import (
-    Verification, CTImageStorage, MRImageStorage
-)
+from pynetdicom.sop_class import Verification, CTImageStorage, MRImageStorage
 
 
-#debug_logger()
+# debug_logger()
 
 
-APP_DIR = os.path.join(os.path.dirname(__file__), '../')
-APP_FILE = os.path.join(APP_DIR, 'storescu', 'storescu.py')
-DATA_DIR = os.path.join(APP_DIR, '../', 'tests', 'dicom_files')
-DATASET_FILE = os.path.join(DATA_DIR, 'CTImageStorage.dcm')
-BE_DATASET_FILE = os.path.join(
-    DATA_DIR, 'MRImageStorage_ExplicitVRBigEndian.dcm'
-)
-LIB_DIR = os.path.join(APP_DIR, '../')
+APP_DIR = os.path.join(os.path.dirname(__file__), "../")
+APP_FILE = os.path.join(APP_DIR, "storescu", "storescu.py")
+DATA_DIR = os.path.join(APP_DIR, "../", "tests", "dicom_files")
+DATASET_FILE = os.path.join(DATA_DIR, "CTImageStorage.dcm")
+BE_DATASET_FILE = os.path.join(DATA_DIR, "MRImageStorage_ExplicitVRBigEndian.dcm")
+LIB_DIR = os.path.join(APP_DIR, "../")
 
 
 def start_storescu(args):
     """Start the storescu.py app and return the process."""
-    pargs = [sys.executable, APP_FILE, 'localhost', '11112'] + [*args]
+    pargs = [sys.executable, APP_FILE, "localhost", "11112"] + [*args]
     return subprocess.Popen(pargs)
 
 
 def start_storescu_cli(args):
     """Start the storescu app using CLI and return the process."""
-    pargs = [
-        sys.executable, '-m', 'pynetdicom', 'storescu', 'localhost', '11112'
-    ] + [*args]
+    pargs = [sys.executable, "-m", "pynetdicom", "storescu", "localhost", "11112"] + [
+        *args
+    ]
     return subprocess.Popen(pargs)
 
 
 class StoreSCUBase:
     """Tests for storescu.py"""
+
     def setup(self):
         """Run prior to each test"""
         self.ae = None
@@ -73,17 +76,14 @@ class StoreSCUBase:
         def handle_release(event):
             events.append(event)
 
-        handlers = [
-            (evt.EVT_C_STORE, handle_store),
-            (evt.EVT_RELEASED, handle_release)
-        ]
+        handlers = [(evt.EVT_C_STORE, handle_store), (evt.EVT_RELEASED, handle_release)]
 
         self.ae = ae = AE()
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
         ae.network_timeout = 5
         ae.add_supported_context(CTImageStorage)
-        scp = ae.start_server(('', 11112), block=False, evt_handlers=handlers)
+        scp = ae.start_server(("", 11112), block=False, evt_handlers=handlers)
 
         p = self.func([DATASET_FILE])
         p.wait()
@@ -95,9 +95,9 @@ class StoreSCUBase:
         assert events[0].dataset.PatientName == "CompressedSamples^CT1"
         assert events[1].event == evt.EVT_RELEASED
         requestor = events[1].assoc.requestor
-        assert 'STORESCU' == requestor.ae_title
+        assert "STORESCU" == requestor.ae_title
         assert 16382 == requestor.maximum_length
-        assert 'ANY-SCP' == requestor.primitive.called_ae_title
+        assert "ANY-SCP" == requestor.primitive.called_ae_title
         assert [] == requestor.extended_negotiation
         assert (1, 1) == requestor.asynchronous_operations
         assert {} == requestor.sop_class_common_extended
@@ -111,7 +111,7 @@ class StoreSCUBase:
             ExplicitVRLittleEndian,
             ImplicitVRLittleEndian,
             DeflatedExplicitVRLittleEndian,
-            ExplicitVRBigEndian
+            ExplicitVRBigEndian,
         ]
 
     def test_no_peer(self, capfd):
@@ -126,12 +126,12 @@ class StoreSCUBase:
 
     def test_flag_version(self, capfd):
         """Test --version flag."""
-        p = self.func([DATASET_FILE, '--version'])
+        p = self.func([DATASET_FILE, "--version"])
         p.wait()
         assert p.returncode == 0
 
         out, err = capfd.readouterr()
-        assert 'storescu.py v' in out
+        assert "storescu.py v" in out
 
     def test_flag_quiet(self, capfd):
         """Test --quiet flag."""
@@ -140,19 +140,20 @@ class StoreSCUBase:
         ae.dimse_timeout = 5
         ae.network_timeout = 5
         ae.add_supported_context(Verification)
-        scp = ae.start_server(('', 11112), block=False)
+        scp = ae.start_server(("", 11112), block=False)
 
-        p = self.func([DATASET_FILE, '-q'])
+        p = self.func([DATASET_FILE, "-q"])
         p.wait()
         assert p.returncode == 1
 
         out, err = capfd.readouterr()
-        assert out == err == ''
+        assert out == err == ""
 
         scp.shutdown()
 
     def test_flag_verbose(self, capfd):
         """Test --verbose flag."""
+
         def handle_store(event):
             return 0x0000
 
@@ -165,9 +166,9 @@ class StoreSCUBase:
         ae.dimse_timeout = 5
         ae.network_timeout = 5
         ae.add_supported_context(CTImageStorage)
-        scp = ae.start_server(('', 11112), block=False, evt_handlers=handlers)
+        scp = ae.start_server(("", 11112), block=False, evt_handlers=handlers)
 
-        p = self.func([DATASET_FILE, '-v'])
+        p = self.func([DATASET_FILE, "-v"])
         p.wait()
         assert p.returncode == 0
 
@@ -183,6 +184,7 @@ class StoreSCUBase:
 
     def test_flag_debug(self, capfd):
         """Test --debug flag."""
+
         def handle_store(event):
             return 0x0000
 
@@ -195,9 +197,9 @@ class StoreSCUBase:
         ae.dimse_timeout = 5
         ae.network_timeout = 5
         ae.add_supported_context(CTImageStorage)
-        scp = ae.start_server(('', 11112), block=False, evt_handlers=handlers)
+        scp = ae.start_server(("", 11112), block=False, evt_handlers=handlers)
 
-        p = self.func([DATASET_FILE, '-d'])
+        p = self.func([DATASET_FILE, "-d"])
         p.wait()
         assert p.returncode == 0
 
@@ -209,7 +211,7 @@ class StoreSCUBase:
 
     def test_flag_log_collision(self):
         """Test error with -q -v and -d flag."""
-        p = self.func([DATASET_FILE, '-v', '-d'])
+        p = self.func([DATASET_FILE, "-v", "-d"])
         p.wait()
         assert p.returncode != 0
 
@@ -221,6 +223,7 @@ class StoreSCUBase:
     def test_flag_aet(self):
         """Test --calling-aet flag."""
         events = []
+
         def handle_store(event):
             events.append(event)
             return 0x0000
@@ -234,9 +237,9 @@ class StoreSCUBase:
         ae.dimse_timeout = 5
         ae.network_timeout = 5
         ae.add_supported_context(CTImageStorage)
-        scp = ae.start_server(('', 11112), block=False, evt_handlers=handlers)
+        scp = ae.start_server(("", 11112), block=False, evt_handlers=handlers)
 
-        p = self.func([DATASET_FILE, '-aet', 'MYSCU'])
+        p = self.func([DATASET_FILE, "-aet", "MYSCU"])
         p.wait()
         assert p.returncode == 0
 
@@ -244,11 +247,12 @@ class StoreSCUBase:
 
         assert events[0].event == evt.EVT_C_STORE
         requestor = events[0].assoc.requestor
-        assert 'MYSCU' == requestor.ae_title
+        assert "MYSCU" == requestor.ae_title
 
     def test_flag_aec(self):
         """Test --called-aet flag."""
         events = []
+
         def handle_store(event):
             events.append(event)
             return 0x0000
@@ -262,9 +266,9 @@ class StoreSCUBase:
         ae.dimse_timeout = 5
         ae.network_timeout = 5
         ae.add_supported_context(CTImageStorage)
-        scp = ae.start_server(('', 11112), block=False, evt_handlers=handlers)
+        scp = ae.start_server(("", 11112), block=False, evt_handlers=handlers)
 
-        p = self.func([DATASET_FILE, '-aec', 'YOURSCP'])
+        p = self.func([DATASET_FILE, "-aec", "YOURSCP"])
         p.wait()
         assert p.returncode == 0
 
@@ -272,7 +276,7 @@ class StoreSCUBase:
 
         assert events[0].event == evt.EVT_C_STORE
         requestor = events[0].assoc.requestor
-        assert 'YOURSCP' == requestor.primitive.called_ae_title
+        assert "YOURSCP" == requestor.primitive.called_ae_title
 
     def test_flag_ta(self, capfd):
         """Test --acse-timeout flag."""
@@ -300,9 +304,9 @@ class StoreSCUBase:
         ae.dimse_timeout = 5
         ae.network_timeout = 5
         ae.add_supported_context(CTImageStorage)
-        scp = ae.start_server(('', 11112), block=False, evt_handlers=handlers)
+        scp = ae.start_server(("", 11112), block=False, evt_handlers=handlers)
 
-        p = self.func([DATASET_FILE, '-ta', '0.05', '-d'])
+        p = self.func([DATASET_FILE, "-ta", "0.05", "-d"])
         p.wait()
         assert p.returncode == 1
 
@@ -337,9 +341,9 @@ class StoreSCUBase:
         ae.dimse_timeout = 5
         ae.network_timeout = 5
         ae.add_supported_context(CTImageStorage)
-        scp = ae.start_server(('', 11112), block=False, evt_handlers=handlers)
+        scp = ae.start_server(("", 11112), block=False, evt_handlers=handlers)
 
-        p = self.func([DATASET_FILE, '-td', '0.05', '-d'])
+        p = self.func([DATASET_FILE, "-td", "0.05", "-d"])
         p.wait()
         assert p.returncode == 0
 
@@ -368,19 +372,16 @@ class StoreSCUBase:
         def handle_release(event):
             events.append(event)
 
-        handlers = [
-            (evt.EVT_C_STORE, handle_store),
-            (evt.EVT_RELEASED, handle_release)
-        ]
+        handlers = [(evt.EVT_C_STORE, handle_store), (evt.EVT_RELEASED, handle_release)]
 
         self.ae = ae = AE()
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
         ae.network_timeout = 5
         ae.add_supported_context(CTImageStorage)
-        scp = ae.start_server(('', 11112), block=False, evt_handlers=handlers)
+        scp = ae.start_server(("", 11112), block=False, evt_handlers=handlers)
 
-        p = self.func([DATASET_FILE, '--max-pdu', '123456'])
+        p = self.func([DATASET_FILE, "--max-pdu", "123456"])
         p.wait()
         assert p.returncode == 0
 
@@ -402,26 +403,23 @@ class StoreSCUBase:
         def handle_release(event):
             events.append(event)
 
-        handlers = [
-            (evt.EVT_C_STORE, handle_store),
-            (evt.EVT_RELEASED, handle_release)
-        ]
+        handlers = [(evt.EVT_C_STORE, handle_store), (evt.EVT_RELEASED, handle_release)]
 
         self.ae = ae = AE()
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
         ae.network_timeout = 5
         ae.add_supported_context(CTImageStorage)
-        scp = ae.start_server(('', 11112), block=False, evt_handlers=handlers)
+        scp = ae.start_server(("", 11112), block=False, evt_handlers=handlers)
 
-        p = self.func([DATASET_FILE, '-xe'])
+        p = self.func([DATASET_FILE, "-xe"])
         p.wait()
         assert p.returncode == 0
 
         scp.shutdown()
 
         assert events[0].event == evt.EVT_C_STORE
-        assert events[0].dataset.PatientName == 'CompressedSamples^CT1'
+        assert events[0].dataset.PatientName == "CompressedSamples^CT1"
         assert events[1].event == evt.EVT_RELEASED
         requestor = events[1].assoc.requestor
         cxs = requestor.primitive.presentation_context_definition_list
@@ -441,26 +439,23 @@ class StoreSCUBase:
         def handle_release(event):
             events.append(event)
 
-        handlers = [
-            (evt.EVT_C_STORE, handle_store),
-            (evt.EVT_RELEASED, handle_release)
-        ]
+        handlers = [(evt.EVT_C_STORE, handle_store), (evt.EVT_RELEASED, handle_release)]
 
         self.ae = ae = AE()
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
         ae.network_timeout = 5
         ae.add_supported_context(MRImageStorage)
-        scp = ae.start_server(('', 11112), block=False, evt_handlers=handlers)
+        scp = ae.start_server(("", 11112), block=False, evt_handlers=handlers)
 
-        p = self.func([BE_DATASET_FILE, '-xb'])
+        p = self.func([BE_DATASET_FILE, "-xb"])
         p.wait()
         assert p.returncode == 0
 
         scp.shutdown()
 
         assert events[0].event == evt.EVT_C_STORE
-        assert events[0].dataset.PatientName == 'CompressedSamples^MR1'
+        assert events[0].dataset.PatientName == "CompressedSamples^MR1"
         assert events[1].event == evt.EVT_RELEASED
         requestor = events[1].assoc.requestor
         cxs = requestor.primitive.presentation_context_definition_list
@@ -481,26 +476,23 @@ class StoreSCUBase:
         def handle_release(event):
             events.append(event)
 
-        handlers = [
-            (evt.EVT_C_STORE, handle_store),
-            (evt.EVT_RELEASED, handle_release)
-        ]
+        handlers = [(evt.EVT_C_STORE, handle_store), (evt.EVT_RELEASED, handle_release)]
 
         self.ae = ae = AE()
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
         ae.network_timeout = 5
         ae.add_supported_context(CTImageStorage)
-        scp = ae.start_server(('', 11112), block=False, evt_handlers=handlers)
+        scp = ae.start_server(("", 11112), block=False, evt_handlers=handlers)
 
-        p = self.func([DATASET_FILE, '-xi'])
+        p = self.func([DATASET_FILE, "-xi"])
         p.wait()
         assert p.returncode == 0
 
         scp.shutdown()
 
         assert events[0].event == evt.EVT_C_STORE
-        assert events[0].dataset.PatientName == 'CompressedSamples^CT1'
+        assert events[0].dataset.PatientName == "CompressedSamples^CT1"
         assert events[1].event == evt.EVT_RELEASED
         requestor = events[1].assoc.requestor
         cxs = requestor.primitive.presentation_context_definition_list
@@ -521,19 +513,16 @@ class StoreSCUBase:
         def handle_release(event):
             events.append(event)
 
-        handlers = [
-            (evt.EVT_C_STORE, handle_store),
-            (evt.EVT_RELEASED, handle_release)
-        ]
+        handlers = [(evt.EVT_C_STORE, handle_store), (evt.EVT_RELEASED, handle_release)]
 
         self.ae = ae = AE()
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
         ae.network_timeout = 5
         ae.add_supported_context(CTImageStorage)
-        scp = ae.start_server(('', 11112), block=False, evt_handlers=handlers)
+        scp = ae.start_server(("", 11112), block=False, evt_handlers=handlers)
 
-        p = self.func([DATASET_FILE, '-cx'])
+        p = self.func([DATASET_FILE, "-cx"])
         p.wait()
         assert p.returncode == 0
 
@@ -549,17 +538,18 @@ class StoreSCUBase:
 
     def test_bad_input(self, capfd):
         """Test being unable to read the input file."""
-        p = self.func(['no-such-file.dcm', '-d'])
+        p = self.func(["no-such-file.dcm", "-d"])
         p.wait()
         assert p.returncode == 0
 
         out, err = capfd.readouterr()
-        assert 'No suitable DICOM files found' in err
-        assert 'Cannot access path: no-such-file.dcm' in err
+        assert "No suitable DICOM files found" in err
+        assert "Cannot access path: no-such-file.dcm" in err
 
     def test_recurse(self, capfd):
         """Test the --recurse flag."""
         events = []
+
         def handle_store(event):
             events.append(event)
             return 0x0000
@@ -574,9 +564,9 @@ class StoreSCUBase:
         ae.network_timeout = 5
         for cx in AllStoragePresentationContexts:
             ae.add_supported_context(cx.abstract_syntax, ALL_TRANSFER_SYNTAXES)
-        scp = ae.start_server(('', 11112), block=False, evt_handlers=handlers)
+        scp = ae.start_server(("", 11112), block=False, evt_handlers=handlers)
 
-        p = self.func([LIB_DIR, '--recurse', '-cx'])
+        p = self.func([LIB_DIR, "--recurse", "-cx"])
         p.wait()
         assert p.returncode == 0
 
@@ -587,6 +577,7 @@ class StoreSCUBase:
 
 class TestStoreSCU(StoreSCUBase):
     """Tests for storescu.py"""
+
     def setup(self):
         """Run prior to each test"""
         self.ae = None
@@ -595,6 +586,7 @@ class TestStoreSCU(StoreSCUBase):
 
 class TestStoreSCUCLI(StoreSCUBase):
     """Tests for storescu using CLI"""
+
     def setup(self):
         """Run prior to each test"""
         self.ae = None

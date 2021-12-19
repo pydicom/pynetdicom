@@ -8,10 +8,7 @@ from pydicom.dataset import Dataset
 
 from pynetdicom import build_context
 from pynetdicom.dimse_primitives import C_STORE, C_GET, C_MOVE, C_CANCEL
-from pynetdicom.service_class import (
-    StorageServiceClass,
-    ServiceClass
-)
+from pynetdicom.service_class import StorageServiceClass, ServiceClass
 
 
 class DummyAssoc:
@@ -60,17 +57,17 @@ class TestServiceClass:
         rsp = C_STORE()
         status = Dataset()
         status.Status = 0x0002
-        status.ErrorComment = 'test'
+        status.ErrorComment = "test"
         rsp = sop.validate_status(status, rsp)
         assert rsp.Status == 0x0002
-        assert rsp.ErrorComment == 'test'
+        assert rsp.ErrorComment == "test"
 
     def test_validate_status_ds_none(self):
         """Test correct status returned if ds has no Status element."""
         sop = StorageServiceClass(None)
         rsp = C_STORE()
         status = Dataset()
-        status.ErrorComment = 'Test comment'
+        status.ErrorComment = "Test comment"
         rsp = sop.validate_status(status, rsp)
         assert rsp.Status == 0xC001
 
@@ -80,7 +77,7 @@ class TestServiceClass:
         rsp = C_STORE()
         status = Dataset()
         status.Status = 0x0000
-        status.PatientName = 'Test comment'
+        status.PatientName = "Test comment"
         rsp = sop.validate_status(status, rsp)
 
     def test_validate_status_int(self):
@@ -94,7 +91,7 @@ class TestServiceClass:
         """Test exception raised if invalid status value"""
         sop = StorageServiceClass(None)
         rsp = C_STORE()
-        rsp = sop.validate_status('test', rsp)
+        rsp = sop.validate_status("test", rsp)
         assert rsp.Status == 0xC002
 
     def test_validate_status_unknown(self):
@@ -107,12 +104,9 @@ class TestServiceClass:
     def test_scp_raises(self):
         """Test that ServiceClass.SCP raises exception"""
         service = ServiceClass(None)
-        msg = (
-            r"No service class has been implemented for the "
-            r"SOP Class UID '1.2.3'"
-        )
+        msg = r"No service class has been implemented for the " r"SOP Class UID '1.2.3'"
         with pytest.raises(NotImplementedError, match=msg):
-            service.SCP(None, build_context('1.2.3'))
+            service.SCP(None, build_context("1.2.3"))
 
     def test_is_cancelled_no_msg(self):
         """Test is_cancelled with no DIMSE messages in the queue."""

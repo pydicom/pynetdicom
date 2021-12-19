@@ -39,11 +39,11 @@ def create_dataset(args, logger=None):
 
     if args.file:
         try:
-            with open(args.file, 'rb') as fp:
+            with open(args.file, "rb") as fp:
                 ds = dcmread(fp, force=True)
         except Exception as exc:
             if logger:
-                logger.error(f'Cannot read input file {args.file}')
+                logger.error(f"Cannot read input file {args.file}")
             raise exc
 
         try:
@@ -52,8 +52,8 @@ def create_dataset(args, logger=None):
         except Exception as exc:
             if logger:
                 logger.error(
-                    'Exception raised decoding the file, the file may be '
-                    'corrupt, non-conformant or may not be DICOM'
+                    "Exception raised decoding the file, the file may be "
+                    "corrupt, non-conformant or may not be DICOM"
                 )
             raise exc
 
@@ -64,9 +64,7 @@ def create_dataset(args, logger=None):
                 ds = elem.update(ds)
         except Exception as exc:
             if logger:
-                logger.error(
-                    'Exception raised trying to parse the supplied keywords'
-                )
+                logger.error("Exception raised trying to parse the supplied keywords")
             raise exc
 
     return ds
@@ -127,6 +125,7 @@ class ElementPath:
 
     >>> ElementPath('BeamSequence[3]=')
     """
+
     def __init__(self, path, parent=None):
         """Initialise a new ElementPath.
 
@@ -139,7 +138,7 @@ class ElementPath:
             ``None``.
         """
         # Default pydicom empty value
-        self._value = ''
+        self._value = ""
 
         self.components = path
         self._parent = parent
@@ -158,7 +157,7 @@ class ElementPath:
         if len(self.components) == 1:
             return None
 
-        return ElementPath('.'.join(self.components[1:]), self)
+        return ElementPath(".".join(self.components[1:]), self)
 
     @property
     def components(self):
@@ -180,11 +179,11 @@ class ElementPath:
         str
             The path to use for the current object.
         """
-        value = ''
-        if '=' in path:
-            path, value = path.split('=', 1)
+        value = ""
+        if "=" in path:
+            path, value = path.split("=", 1)
 
-        self._components = path.split('.')
+        self._components = path.split(".")
 
         # Parse current component and set attributes accordingly
         tag = self.tag
@@ -193,7 +192,7 @@ class ElementPath:
             self._entry = get_entry(tag)
         except Exception as exc:
             # Private element
-            self._entry = ('UN', '1', 'Unknown', False, 'Unknown')
+            self._entry = ("UN", "1", "Unknown", False, "Unknown")
 
         # Try to convert value to appropriate type
         self.value = value
@@ -201,8 +200,8 @@ class ElementPath:
     @property
     def is_sequence(self):
         """Return True if the current component is a sequence."""
-        start = self.components[0].find('[')
-        end = self.components[0].find(']')
+        start = self.components[0].find("[")
+        end = self.components[0].find("]")
         if start >= 0 or end >= 0:
             is_valid = True
             if not (start >= 0 and end >= 0):
@@ -214,7 +213,7 @@ class ElementPath:
 
             if is_valid:
                 try:
-                    item_nr = int(self.components[0][start + 1:end])
+                    item_nr = int(self.components[0][start + 1 : end])
                     if item_nr < 0:
                         is_valid = False
                 except:
@@ -276,15 +275,15 @@ class ElementPath:
         """Return the element's tag as a pydicom.tag.Tag."""
         tag = self.components[0]
         if self.is_sequence:
-            tag = tag.split('[')[0]
+            tag = tag.split("[")[0]
 
         # (gggg,eeee) based tag
-        if ',' in tag:
-            group, element = tag.split(',')
-            if '(' in group:
-                group = group.replace('(', '')
-            if ')' in element:
-                element = element.replace(')', '')
+        if "," in tag:
+            group, element = tag.split(",")
+            if "(" in group:
+                group = group.replace("(", "")
+            if ")" in element:
+                element = element.replace(")", "")
 
             if len(group) != 4 or len(element) != 4:
                 raise ValueError(
@@ -401,36 +400,50 @@ class ElementPath:
               '0aff00f0ec').
         """
         _str = [
-            'AE', 'AS', 'AT', 'CS', 'DA', 'DS', 'DT', 'IS', 'LO',
-            'LT', 'PN', 'SH', 'ST', 'TM', 'UC', 'UI', 'UR', 'UT'
+            "AE",
+            "AS",
+            "AT",
+            "CS",
+            "DA",
+            "DS",
+            "DT",
+            "IS",
+            "LO",
+            "LT",
+            "PN",
+            "SH",
+            "ST",
+            "TM",
+            "UC",
+            "UI",
+            "UR",
+            "UT",
         ]
-        _int = ['SL', 'SS', 'SV', 'UL', 'US', 'UV']
-        _float = ['FD', 'FL']
-        _byte = ['OB', 'OD', 'OF', 'OL', 'OW', 'OV', 'UN']
+        _int = ["SL", "SS", "SV", "UL", "US", "UV"]
+        _float = ["FD", "FL"]
+        _byte = ["OB", "OD", "OF", "OL", "OW", "OV", "UN"]
         # Try to convert value to appropriate type
-        if self.VR == 'AT' and '\\' in value:
-            value = value.split('\\')
-        elif self.VR in _str or self.VR == 'SQ':
+        if self.VR == "AT" and "\\" in value:
+            value = value.split("\\")
+        elif self.VR in _str or self.VR == "SQ":
             pass
         elif self.VR in _int and value:
-            if '\\' in value:
-                value = [int(vv) for vv in value.split('\\')]
+            if "\\" in value:
+                value = [int(vv) for vv in value.split("\\")]
             else:
                 value = int(value)
         elif self.VR in _float and value:
-            if '\\' in value:
-                value = [float(vv) for vv in value.split('\\')]
+            if "\\" in value:
+                value = [float(vv) for vv in value.split("\\")]
             else:
                 value = float(value)
         elif not value:
-            value = ''
+            value = ""
         else:
             # Convert to byte, assuming str is in hex
-            value = [
-                value[ii] + value[ii + 1] for ii in range(0, len(value), 2)
-            ]
+            value = [value[ii] + value[ii + 1] for ii in range(0, len(value), 2)]
             value = [int(ii, 16) for ii in value]
-            value = pack(f'{len(value)}B', *value)
+            value = pack(f"{len(value)}B", *value)
 
         self._value = value
 
@@ -489,10 +502,10 @@ def setup_logging(args, app_name):
     logger : logging.Logger, optional
         The logger to use for logging.
     """
-    formatter = logging.Formatter('%(levelname).1s: %(message)s')
+    formatter = logging.Formatter("%(levelname).1s: %(message)s")
 
     # Setup pynetdicom library's logging
-    pynd_logger = logging.getLogger('pynetdicom')
+    pynd_logger = logging.getLogger("pynetdicom")
     handler = logging.StreamHandler()
     handler.setFormatter(formatter)
     pynd_logger.addHandler(handler)
@@ -505,25 +518,25 @@ def setup_logging(args, app_name):
     app_logger.addHandler(handler)
     app_logger.setLevel(logging.ERROR)
 
-    if args.log_type == 'q':
+    if args.log_type == "q":
         app_logger.handlers = []
         app_logger.addHandler(logging.NullHandler())
         pynd_logger.handlers = []
         pynd_logger.addHandler(logging.NullHandler())
-    elif args.log_type == 'v':
+    elif args.log_type == "v":
         app_logger.setLevel(logging.INFO)
         pynd_logger.setLevel(logging.INFO)
-    elif args.log_type == 'd':
+    elif args.log_type == "d":
         app_logger.setLevel(logging.DEBUG)
         pynd_logger.setLevel(logging.DEBUG)
 
     if args.log_level:
         levels = {
-            'critical' : logging.CRITICAL,
-            'error' : logging.ERROR,
-            'warn' : logging.WARNING,
-            'info' : logging.INFO,
-            'debug' : logging.DEBUG
+            "critical": logging.CRITICAL,
+            "error": logging.ERROR,
+            "warn": logging.WARNING,
+            "info": logging.INFO,
+            "debug": logging.DEBUG,
         }
         app_logger.setLevel(levels[args.log_level])
         pynd_logger.setLevel(levels[args.log_level])
@@ -584,10 +597,10 @@ def handle_store(event, args, app_logger):
         # Get the elements we need
         mode_prefix = SOP_CLASS_PREFIXES[sop_class][0]
     except KeyError:
-        mode_prefix = 'UN'
+        mode_prefix = "UN"
 
-    filename = f'{mode_prefix}.{sop_instance}'
-    app_logger.info(f'Storing DICOM file: {filename}')
+    filename = f"{mode_prefix}.{sop_instance}"
+    app_logger.info(f"Storing DICOM file: {filename}")
 
     status_ds = Dataset()
     status_ds.Status = 0x0000
@@ -598,7 +611,7 @@ def handle_store(event, args, app_logger):
         try:
             os.makedirs(args.output_directory, exist_ok=True)
         except Exception as exc:
-            app_logger.error('Unable to create the output directory:')
+            app_logger.error("Unable to create the output directory:")
             app_logger.error(f"    {args.output_directory}")
             app_logger.exception(exc)
             # Failed - Out of Resources - IOError
@@ -606,14 +619,14 @@ def handle_store(event, args, app_logger):
             return status_ds
 
     if os.path.exists(filename):
-        app_logger.warning('DICOM file already exists, overwriting')
+        app_logger.warning("DICOM file already exists, overwriting")
 
     try:
         if event.context.transfer_syntax == DeflatedExplicitVRLittleEndian:
             # Workaround for pydicom issue #1086
-            with open(filename, 'wb') as f:
-                f.write(b'\x00' * 128)
-                f.write(b'DICM')
+            with open(filename, "wb") as f:
+                f.write(b"\x00" * 128)
+                f.write(b"DICM")
                 f.write(write_file_meta_info(f, event.file_meta))
                 f.write(encode(ds, False, True, True))
         else:
@@ -623,13 +636,13 @@ def handle_store(event, args, app_logger):
 
         status_ds.Status = 0x0000  # Success
     except IOError as exc:
-        app_logger.error('Could not write file to specified directory:')
+        app_logger.error("Could not write file to specified directory:")
         app_logger.error(f"    {os.path.dirname(filename)}")
         app_logger.exception(exc)
         # Failed - Out of Resources - IOError
         status_ds.Status = 0xA700
     except Exception as exc:
-        app_logger.error('Could not write file to specified directory:')
+        app_logger.error("Could not write file to specified directory:")
         app_logger.error(f"    {os.path.dirname(filename)}")
         app_logger.exception(exc)
         # Failed - Out of Resources - Miscellaneous error
@@ -639,25 +652,21 @@ def handle_store(event, args, app_logger):
 
 
 SOP_CLASS_PREFIXES = {
-    '1.2.840.10008.5.1.4.1.1.2' : ('CT', 'CT Image Storage'),
-    '1.2.840.10008.5.1.4.1.1.2.1' : ('CTE', 'Enhanced CT Image Storage'),
-    '1.2.840.10008.5.1.4.1.1.4' : ('MR', 'MR Image Storage'),
-    '1.2.840.10008.5.1.4.1.1.4.1' : ('MRE', 'Enhanced MR Image Storage'),
-    '1.2.840.10008.5.1.4.1.1.128' : (
-        'PT', 'Positron Emission Tomography Image Storage'
-    ),
-    '1.2.840.10008.5.1.4.1.1.130' : ('PTE', 'Enhanced PET Image Storage'),
-    '1.2.840.10008.5.1.4.1.1.481.1' : ('RI', 'RT Image Storage'),
-    '1.2.840.10008.5.1.4.1.1.481.2' : ('RD', 'RT Dose Storage'),
-    '1.2.840.10008.5.1.4.1.1.481.5' : ('RP', 'RT Plan Storage'),
-    '1.2.840.10008.5.1.4.1.1.481.3' : ('RS', 'RT Structure Set Storage'),
-    '1.2.840.10008.5.1.4.1.1.1' : ('CR', 'Computed Radiography Image Storage'),
-    '1.2.840.10008.5.1.4.1.1.6.1' : ('US', 'Ultrasound Image Storage'),
-    '1.2.840.10008.5.1.4.1.1.6.2' : ('USE', 'Enhanced US Volume Storage'),
-    '1.2.840.10008.5.1.4.1.1.12.1' : (
-        'XA', 'X-Ray Angiographic Image Storage'
-    ),
-    '1.2.840.10008.5.1.4.1.1.12.1.1' : ('XAE', 'Enhanced XA Image Storage'),
-    '1.2.840.10008.5.1.4.1.1.20' : ('NM', 'Nuclear Medicine Image Storage'),
-    '1.2.840.10008.5.1.4.1.1.7' : ('SC', 'Secondary Capture Image Storage'),
+    "1.2.840.10008.5.1.4.1.1.2": ("CT", "CT Image Storage"),
+    "1.2.840.10008.5.1.4.1.1.2.1": ("CTE", "Enhanced CT Image Storage"),
+    "1.2.840.10008.5.1.4.1.1.4": ("MR", "MR Image Storage"),
+    "1.2.840.10008.5.1.4.1.1.4.1": ("MRE", "Enhanced MR Image Storage"),
+    "1.2.840.10008.5.1.4.1.1.128": ("PT", "Positron Emission Tomography Image Storage"),
+    "1.2.840.10008.5.1.4.1.1.130": ("PTE", "Enhanced PET Image Storage"),
+    "1.2.840.10008.5.1.4.1.1.481.1": ("RI", "RT Image Storage"),
+    "1.2.840.10008.5.1.4.1.1.481.2": ("RD", "RT Dose Storage"),
+    "1.2.840.10008.5.1.4.1.1.481.5": ("RP", "RT Plan Storage"),
+    "1.2.840.10008.5.1.4.1.1.481.3": ("RS", "RT Structure Set Storage"),
+    "1.2.840.10008.5.1.4.1.1.1": ("CR", "Computed Radiography Image Storage"),
+    "1.2.840.10008.5.1.4.1.1.6.1": ("US", "Ultrasound Image Storage"),
+    "1.2.840.10008.5.1.4.1.1.6.2": ("USE", "Enhanced US Volume Storage"),
+    "1.2.840.10008.5.1.4.1.1.12.1": ("XA", "X-Ray Angiographic Image Storage"),
+    "1.2.840.10008.5.1.4.1.1.12.1.1": ("XAE", "Enhanced XA Image Storage"),
+    "1.2.840.10008.5.1.4.1.1.20": ("NM", "Nuclear Medicine Image Storage"),
+    "1.2.840.10008.5.1.4.1.1.7": ("SC", "Secondary Capture Image Storage"),
 }

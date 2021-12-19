@@ -10,11 +10,15 @@ import sys
 
 from pydicom.dataset import Dataset
 from pydicom.uid import (
-    ExplicitVRLittleEndian, ImplicitVRLittleEndian, ExplicitVRBigEndian
+    ExplicitVRLittleEndian,
+    ImplicitVRLittleEndian,
+    ExplicitVRBigEndian,
 )
 
 from pynetdicom import (
-    AE, build_role, evt,
+    AE,
+    build_role,
+    evt,
     StoragePresentationContexts,
     QueryRetrievePresentationContexts,
 )
@@ -31,7 +35,7 @@ from pynetdicom.sop_class import (
 )
 
 
-__version__ = '0.4.0'
+__version__ = "0.4.0"
 
 
 def _setup_argparser():
@@ -45,128 +49,146 @@ def _setup_argparser():
             "query keys to an SCP and waits for a response. The application "
             "can be used to test SCPs of the QR Service Class."
         ),
-        usage="getscu [options] addr port"
+        usage="getscu [options] addr port",
     )
 
     # Parameters
-    req_opts = parser.add_argument_group('Parameters')
+    req_opts = parser.add_argument_group("Parameters")
     req_opts.add_argument(
         "addr", help="TCP/IP address or hostname of DICOM peer", type=str
     )
     req_opts.add_argument("port", help="TCP/IP port number of peer", type=int)
 
     # General Options
-    gen_opts = parser.add_argument_group('General Options')
+    gen_opts = parser.add_argument_group("General Options")
     gen_opts.add_argument(
-        "--version",
-        help="print version information and exit",
-        action="store_true"
+        "--version", help="print version information and exit", action="store_true"
     )
     output = gen_opts.add_mutually_exclusive_group()
     output.add_argument(
-        "-q", "--quiet",
+        "-q",
+        "--quiet",
         help="quiet mode, print no warnings and errors",
         action="store_const",
-        dest='log_type', const='q'
+        dest="log_type",
+        const="q",
     )
     output.add_argument(
-        "-v", "--verbose",
+        "-v",
+        "--verbose",
         help="verbose mode, print processing details",
         action="store_const",
-        dest='log_type', const='v'
+        dest="log_type",
+        const="v",
     )
     output.add_argument(
-        "-d", "--debug",
+        "-d",
+        "--debug",
         help="debug mode, print debug information",
         action="store_const",
-        dest='log_type', const='d'
+        dest="log_type",
+        const="d",
     )
     gen_opts.add_argument(
-        "-ll", "--log-level", metavar='[l]',
-        help=(
-            "use level l for the logger (critical, error, warn, info, debug)"
-        ),
+        "-ll",
+        "--log-level",
+        metavar="[l]",
+        help=("use level l for the logger (critical, error, warn, info, debug)"),
         type=str,
-        choices=['critical', 'error', 'warn', 'info', 'debug']
+        choices=["critical", "error", "warn", "info", "debug"],
     )
-    parser.set_defaults(log_type='v')
+    parser.set_defaults(log_type="v")
 
     # Network Options
-    net_opts = parser.add_argument_group('Network Options')
+    net_opts = parser.add_argument_group("Network Options")
     net_opts.add_argument(
-        "-aet", "--calling-aet", metavar='[a]etitle',
+        "-aet",
+        "--calling-aet",
+        metavar="[a]etitle",
         help="set my calling AE title (default: GETSCU)",
         type=str,
-        default='GETSCU'
+        default="GETSCU",
     )
     net_opts.add_argument(
-        "-aec", "--called-aet", metavar='[a]etitle',
+        "-aec",
+        "--called-aet",
+        metavar="[a]etitle",
         help="set called AE title of peer (default: ANY-SCP)",
         type=str,
-        default='ANY-SCP'
+        default="ANY-SCP",
     )
     net_opts.add_argument(
-        "-ta", "--acse-timeout", metavar='[s]econds',
+        "-ta",
+        "--acse-timeout",
+        metavar="[s]econds",
         help="timeout for ACSE messages (default: 30 s)",
         type=float,
-        default=30
+        default=30,
     )
     net_opts.add_argument(
-        "-td", "--dimse-timeout", metavar='[s]econds',
+        "-td",
+        "--dimse-timeout",
+        metavar="[s]econds",
         help="timeout for DIMSE messages (default: 30 s)",
         type=float,
-        default=30
+        default=30,
     )
     net_opts.add_argument(
-        "-tn", "--network-timeout", metavar='[s]econds',
+        "-tn",
+        "--network-timeout",
+        metavar="[s]econds",
         help="timeout for the network (default: 30 s)",
         type=float,
-        default=30
+        default=30,
     )
     net_opts.add_argument(
-        "-pdu", "--max-pdu", metavar='[n]umber of bytes',
+        "-pdu",
+        "--max-pdu",
+        metavar="[n]umber of bytes",
         help=(
             f"set max receive pdu to n bytes (0 for unlimited, "
             f"default: {DEFAULT_MAX_LENGTH})"
         ),
         type=int,
-        default=DEFAULT_MAX_LENGTH
+        default=DEFAULT_MAX_LENGTH,
     )
 
     # Query information model choices
-    qr_group = parser.add_argument_group('Query Information Model Options')
+    qr_group = parser.add_argument_group("Query Information Model Options")
     qr_model = qr_group.add_mutually_exclusive_group()
     qr_model.add_argument(
-        "-P", "--patient",
+        "-P",
+        "--patient",
         help="use patient root information model (default)",
-        action="store_true"
+        action="store_true",
     )
     qr_model.add_argument(
-        "-S", "--study",
-        help="use study root information model",
-        action="store_true"
+        "-S", "--study", help="use study root information model", action="store_true"
     )
     qr_model.add_argument(
-        "-O", "--psonly",
+        "-O",
+        "--psonly",
         help="use patient/study only information model",
-        action="store_true"
+        action="store_true",
     )
 
     # Query Options
-    qr_query = parser.add_argument_group('Query Options')
+    qr_query = parser.add_argument_group("Query Options")
     qr_query.add_argument(
-        '-k', '--keyword',
-        metavar='[k]eyword: (gggg,eeee)=str, keyword=str',
+        "-k",
+        "--keyword",
+        metavar="[k]eyword: (gggg,eeee)=str, keyword=str",
         help=(
             "add or override a query element using either an element tag as "
             "(group,element) or the element's keyword (such as PatientName)"
         ),
         type=str,
-        action='append',
+        action="append",
     )
     qr_query.add_argument(
-        '-f', '--file',
-        metavar='path to [f]ile',
+        "-f",
+        "--file",
+        metavar="path to [f]ile",
         help=(
             "use a DICOM file as the query dataset, if "
             "used with -k then the elements will be added to or overwrite "
@@ -176,36 +198,36 @@ def _setup_argparser():
     )
 
     # Extended Negotiation Options
-    ext_neg = parser.add_argument_group('Extended Negotiation Options')
+    ext_neg = parser.add_argument_group("Extended Negotiation Options")
     ext_neg.add_argument(
-        '--relational-retrieval',
+        "--relational-retrieval",
         help="request the use of relational retrieval",
         action="store_true",
     )
     ext_neg.add_argument(
-        '--enhanced-conversion',
+        "--enhanced-conversion",
         help="request the use of enhanced multi-frame image conversion",
         action="store_true",
     )
 
     # Output Options
-    out_opts = parser.add_argument_group('Output Options')
+    out_opts = parser.add_argument_group("Output Options")
     out_opts.add_argument(
-        '-od', "--output-directory", metavar="[d]irectory",
+        "-od",
+        "--output-directory",
+        metavar="[d]irectory",
         help="write received objects to directory d",
-        type=str
+        type=str,
     )
     out_opts.add_argument(
-        '--ignore',
-        help="receive data but don't store it",
-        action="store_true"
+        "--ignore", help="receive data but don't store it", action="store_true"
     )
 
     ns = parser.parse_args()
     if ns.version:
         pass
     elif not bool(ns.file) and not bool(ns.keyword):
-        parser.error('-f and/or -k must be specified')
+        parser.error("-f and/or -k must be specified")
 
     return ns
 
@@ -218,12 +240,12 @@ def main(args=None):
     args = _setup_argparser()
 
     if args.version:
-        print(f'getscu.py v{__version__}')
+        print(f"getscu.py v{__version__}")
         sys.exit()
 
-    APP_LOGGER = setup_logging(args, 'getscu')
-    APP_LOGGER.debug(f'getscu.py v{__version__}')
-    APP_LOGGER.debug('')
+    APP_LOGGER = setup_logging(args, "getscu")
+    APP_LOGGER.debug(f"getscu.py v{__version__}")
+    APP_LOGGER.debug("")
 
     # Create query (identifier) dataset
     try:
@@ -244,8 +266,7 @@ def main(args=None):
         EncapsulatedMTLStorage,
     ]
     store_contexts = [
-        cx for cx in StoragePresentationContexts
-        if cx.abstract_syntax not in _exclusion
+        cx for cx in StoragePresentationContexts if cx.abstract_syntax not in _exclusion
     ]
 
     # Create application entity
@@ -276,9 +297,9 @@ def main(args=None):
     # Extended Negotiation - SOP Class Extended
     ext_opts = [args.relational_retrieval, args.enhanced_conversion]
     if any(ext_opts):
-        app_info = b''
+        app_info = b""
         for option in ext_opts:
-            app_info += b'\x01' if option else b'\x00'
+            app_info += b"\x01" if option else b"\x00"
 
         item = SOPClassExtendedNegotiation()
         item.sop_class_uid = query_model
@@ -292,7 +313,7 @@ def main(args=None):
         ae_title=args.called_aet,
         ext_neg=ext_neg,
         evt_handlers=[(evt.EVT_C_STORE, handle_store, [args, APP_LOGGER])],
-        max_pdu=args.max_pdu
+        max_pdu=args.max_pdu,
     )
 
     if assoc.is_established:

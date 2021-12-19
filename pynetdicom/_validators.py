@@ -9,7 +9,7 @@ from pydicom.dataset import Dataset
 from pydicom.uid import UID
 
 
-LOGGER = logging.getLogger('pynetdicom._validators')
+LOGGER = logging.getLogger("pynetdicom._validators")
 
 
 def validate_ae(value: str) -> Tuple[bool, str]:
@@ -46,11 +46,11 @@ def validate_ae(value: str) -> Tuple[bool, str]:
         return False, "must only contain ASCII characters"
 
     # Unicode category: 'Cc' is control characters
-    invalid = [c for c in value if unicodedata.category(c)[0] == 'C']
-    if invalid or '\\' in value:
+    invalid = [c for c in value if unicodedata.category(c)[0] == "C"]
+    if invalid or "\\" in value:
         return False, "must not contain control characters or backslashes"
 
-    return True, ''
+    return True, ""
 
 
 def validate_ui(value: UID) -> Tuple[bool, str]:

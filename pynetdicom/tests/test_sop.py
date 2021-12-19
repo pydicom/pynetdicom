@@ -63,7 +63,7 @@ from pynetdicom.sop_class import (
     StorageCommitmentPushModelInstance,
     SubstanceAdministrationLoggingInstance,
     UPSFilteredGlobalSubscriptionInstance,
-    UPSGlobalSubscriptionInstance
+    UPSGlobalSubscriptionInstance,
 )
 from pynetdicom.service_class import (
     ServiceClass,
@@ -93,7 +93,7 @@ from pynetdicom.service_class_n import (
 )
 
 
-PYDICOM_VERSION = __version__.split('.')[:2]
+PYDICOM_VERSION = __version__.split(".")[:2]
 
 
 def test_all_sop_classes():
@@ -132,7 +132,7 @@ def test_all_sop_classes():
         assert uid in UID_dictionary
     for uid in _RT_MACHINE_VERIFICATION_CLASSES.values():
         assert uid in UID_dictionary
-    if PYDICOM_VERSION >= ['2', '2']:
+    if PYDICOM_VERSION >= ["2", "2"]:
         for uid in _STORAGE_CLASSES.values():
             assert uid in UID_dictionary
     for uid in _STORAGE_COMMITMENT_CLASSES.values():
@@ -165,27 +165,29 @@ def test_all_sop_instances():
 
 class TestUIDtoSOPlass:
     """Tests for uid_to_sop_class"""
+
     def test_missing_sop(self):
         """Test SOP Class if UID not found."""
-        sop_class = uid_to_sop_class('1.2.3.4')
-        assert sop_class == '1.2.3.4'
+        sop_class = uid_to_sop_class("1.2.3.4")
+        assert sop_class == "1.2.3.4"
         assert sop_class.service_class == ServiceClass
 
     def test_verification_uid(self):
         """Test normal function"""
-        assert uid_to_sop_class('1.2.840.10008.1.1') == Verification
+        assert uid_to_sop_class("1.2.840.10008.1.1") == Verification
 
     def test_existing(self):
         """Test that the existing class is returned."""
         original = Verification
-        sop_class = uid_to_sop_class('1.2.840.10008.1.1')
+        sop_class = uid_to_sop_class("1.2.840.10008.1.1")
         assert id(sop_class) == id(original)
 
 
 class TestUIDToServiceClass:
     """Tests for sop_class.uid_to_service_class."""
+
     def test_service_class_uid(self):
-        uid = '1.2.840.10008.4.2'
+        uid = "1.2.840.10008.4.2"
         assert uid_to_service_class(uid) == StorageServiceClass
 
     def test_app_logging_uids(self):
@@ -206,7 +208,10 @@ class TestUIDToServiceClass:
     def test_defined_procedure_uids(self):
         """Test that the Defined Procedure SOP Class UIDs work correctly."""
         for uid in _DEFINED_PROCEDURE_CLASSES.values():
-            assert uid_to_service_class(uid) == DefinedProcedureProtocolQueryRetrieveServiceClass
+            assert (
+                uid_to_service_class(uid)
+                == DefinedProcedureProtocolQueryRetrieveServiceClass
+            )
 
     def test_display_system_uids(self):
         """Test that Display System SOP Class UIDs work correctly."""
@@ -226,7 +231,10 @@ class TestUIDToServiceClass:
     def test_instance_uids(self):
         """Test that the Instance Availability SOP Class UIDs work correctly."""
         for uid in _INSTANCE_AVAILABILITY_CLASSES.values():
-            assert uid_to_service_class(uid) == InstanceAvailabilityNotificationServiceClass
+            assert (
+                uid_to_service_class(uid)
+                == InstanceAvailabilityNotificationServiceClass
+            )
 
     def test_media_creation_uids(self):
         """Test that the Media Creation SOP Class UIDs work correctly."""
@@ -256,7 +264,9 @@ class TestUIDToServiceClass:
     def test_protocol_approval_uids(self):
         """Test that Protocol Approval SOP Class UIDs work correctly."""
         for uid in _PROTOCOL_APPROVAL_CLASSES.values():
-            assert uid_to_service_class(uid) == ProtocolApprovalQueryRetrieveServiceClass
+            assert (
+                uid_to_service_class(uid) == ProtocolApprovalQueryRetrieveServiceClass
+            )
 
     def test_qr_uids(self):
         """Test that the QR SOP Class UIDs work correctly."""
@@ -266,7 +276,9 @@ class TestUIDToServiceClass:
     def test_relevant_patient_uids(self):
         """Test that the Relevant Patient SOP Class UIDs work correctly."""
         for uid in _RELEVANT_PATIENT_QUERY_CLASSES.values():
-            assert uid_to_service_class(uid) == RelevantPatientInformationQueryServiceClass
+            assert (
+                uid_to_service_class(uid) == RelevantPatientInformationQueryServiceClass
+            )
 
     def test_rt_machine_uids(self):
         """Test that the RT Verification SOP Class UIDs work correctly."""
@@ -300,120 +312,166 @@ class TestUIDToServiceClass:
 
     def test_unknown_uid(self):
         """Test that an unknown UID returns default service class."""
-        assert uid_to_service_class('1.2.3') == ServiceClass
+        assert uid_to_service_class("1.2.3") == ServiceClass
 
 
 class TestSOPClass:
     """Tests for sop_class.SOPClass."""
+
     def test_app_logging_sop(self):
-        assert ProceduralEventLogging == '1.2.840.10008.1.40'
-        assert ProceduralEventLogging.service_class == ApplicationEventLoggingServiceClass
+        assert ProceduralEventLogging == "1.2.840.10008.1.40"
+        assert (
+            ProceduralEventLogging.service_class == ApplicationEventLoggingServiceClass
+        )
 
     def test_basic_worklist_sop(self):
         """Test a Basic Worklist Service SOP Class."""
-        assert ModalityWorklistInformationFind == '1.2.840.10008.5.1.4.31'
-        assert ModalityWorklistInformationFind.service_class == BasicWorklistManagementServiceClass
+        assert ModalityWorklistInformationFind == "1.2.840.10008.5.1.4.31"
+        assert (
+            ModalityWorklistInformationFind.service_class
+            == BasicWorklistManagementServiceClass
+        )
 
     def test_color_palette_sop(self):
         """Test a Color Palette Service SOP Class."""
-        assert ColorPaletteInformationModelMove == '1.2.840.10008.5.1.4.39.3'
-        assert ColorPaletteInformationModelMove.service_class == ColorPaletteQueryRetrieveServiceClass
+        assert ColorPaletteInformationModelMove == "1.2.840.10008.5.1.4.39.3"
+        assert (
+            ColorPaletteInformationModelMove.service_class
+            == ColorPaletteQueryRetrieveServiceClass
+        )
 
     def test_defined_procedure_sop(self):
         """Test a Defined Procedure Protocol Service SOP Class."""
-        assert DefinedProcedureProtocolInformationModelFind == '1.2.840.10008.5.1.4.20.1'
-        assert DefinedProcedureProtocolInformationModelFind.service_class == DefinedProcedureProtocolQueryRetrieveServiceClass
+        assert (
+            DefinedProcedureProtocolInformationModelFind == "1.2.840.10008.5.1.4.20.1"
+        )
+        assert (
+            DefinedProcedureProtocolInformationModelFind.service_class
+            == DefinedProcedureProtocolQueryRetrieveServiceClass
+        )
 
     def test_display_sop(self):
-        assert DisplaySystem == '1.2.840.10008.5.1.1.40'
+        assert DisplaySystem == "1.2.840.10008.5.1.1.40"
         assert DisplaySystem.service_class == DisplaySystemManagementServiceClass
 
     def test_hanging_protocol_sop(self):
         """Test a Hanging Protocol Service SOP Class."""
-        assert HangingProtocolInformationModelGet == '1.2.840.10008.5.1.4.38.4'
-        assert HangingProtocolInformationModelGet.service_class == HangingProtocolQueryRetrieveServiceClass
+        assert HangingProtocolInformationModelGet == "1.2.840.10008.5.1.4.38.4"
+        assert (
+            HangingProtocolInformationModelGet.service_class
+            == HangingProtocolQueryRetrieveServiceClass
+        )
 
     def test_implant_template_sop(self):
         """Test an Implant Template Service SOP Class."""
-        assert ImplantTemplateGroupInformationModelFind == '1.2.840.10008.5.1.4.45.2'
-        assert ImplantTemplateGroupInformationModelFind.service_class == ImplantTemplateQueryRetrieveServiceClass
+        assert ImplantTemplateGroupInformationModelFind == "1.2.840.10008.5.1.4.45.2"
+        assert (
+            ImplantTemplateGroupInformationModelFind.service_class
+            == ImplantTemplateQueryRetrieveServiceClass
+        )
 
     def test_instance_sop(self):
-        assert InstanceAvailabilityNotification == '1.2.840.10008.5.1.4.33'
-        assert InstanceAvailabilityNotification.service_class == InstanceAvailabilityNotificationServiceClass
+        assert InstanceAvailabilityNotification == "1.2.840.10008.5.1.4.33"
+        assert (
+            InstanceAvailabilityNotification.service_class
+            == InstanceAvailabilityNotificationServiceClass
+        )
 
     def test_media_creation_sop(self):
-        assert MediaCreationManagement == '1.2.840.10008.5.1.1.33'
-        assert MediaCreationManagement.service_class == MediaCreationManagementServiceClass
+        assert MediaCreationManagement == "1.2.840.10008.5.1.1.33"
+        assert (
+            MediaCreationManagement.service_class == MediaCreationManagementServiceClass
+        )
 
     def test_media_storage_sop(self):
-        assert MediaStorageDirectoryStorage == '1.2.840.10008.1.3.10'
+        assert MediaStorageDirectoryStorage == "1.2.840.10008.1.3.10"
         assert MediaStorageDirectoryStorage.service_class == ServiceClass
 
     def test_non_patient_sop(self):
         """Test a Non-Patient Object Service SOP Class."""
-        assert HangingProtocolStorage == '1.2.840.10008.5.1.4.38.1'
-        assert HangingProtocolStorage.service_class == NonPatientObjectStorageServiceClass
+        assert HangingProtocolStorage == "1.2.840.10008.5.1.4.38.1"
+        assert (
+            HangingProtocolStorage.service_class == NonPatientObjectStorageServiceClass
+        )
 
     def test_print_sop(self):
-        assert PrintJob == '1.2.840.10008.5.1.1.14'
+        assert PrintJob == "1.2.840.10008.5.1.1.14"
         assert PrintJob.service_class == PrintManagementServiceClass
 
     def test_procedure_step_sop(self):
-        assert ModalityPerformedProcedureStep == '1.2.840.10008.3.1.2.3.3'
+        assert ModalityPerformedProcedureStep == "1.2.840.10008.3.1.2.3.3"
         assert ModalityPerformedProcedureStep.service_class == ProcedureStepServiceClass
 
     def test_protocol_approval_sop(self):
         """Test an Protocol Approval Service SOP Class."""
-        assert ProtocolApprovalInformationModelFind == '1.2.840.10008.5.1.4.1.1.200.4'
-        assert ProtocolApprovalInformationModelFind.service_class == ProtocolApprovalQueryRetrieveServiceClass
+        assert ProtocolApprovalInformationModelFind == "1.2.840.10008.5.1.4.1.1.200.4"
+        assert (
+            ProtocolApprovalInformationModelFind.service_class
+            == ProtocolApprovalQueryRetrieveServiceClass
+        )
 
     def test_qr_sop(self):
         """Test a Query/Retrieve Service SOP Class."""
-        assert StudyRootQueryRetrieveInformationModelFind == '1.2.840.10008.5.1.4.1.2.2.1'
-        assert StudyRootQueryRetrieveInformationModelFind.service_class == QueryRetrieveServiceClass
+        assert (
+            StudyRootQueryRetrieveInformationModelFind == "1.2.840.10008.5.1.4.1.2.2.1"
+        )
+        assert (
+            StudyRootQueryRetrieveInformationModelFind.service_class
+            == QueryRetrieveServiceClass
+        )
 
     def test_relevant_patient_info_sop(self):
         """Test a Relevant Patient Information Query Service SOP Class."""
-        assert GeneralRelevantPatientInformationQuery == '1.2.840.10008.5.1.4.37.1'
-        assert GeneralRelevantPatientInformationQuery.service_class == RelevantPatientInformationQueryServiceClass
+        assert GeneralRelevantPatientInformationQuery == "1.2.840.10008.5.1.4.37.1"
+        assert (
+            GeneralRelevantPatientInformationQuery.service_class
+            == RelevantPatientInformationQueryServiceClass
+        )
 
     def test_rt_sop(self):
-        assert RTConventionalMachineVerification == '1.2.840.10008.5.1.4.34.8'
-        assert RTConventionalMachineVerification.service_class == RTMachineVerificationServiceClass
+        assert RTConventionalMachineVerification == "1.2.840.10008.5.1.4.34.8"
+        assert (
+            RTConventionalMachineVerification.service_class
+            == RTMachineVerificationServiceClass
+        )
 
     def test_storage_sop(self):
         """Test a Storage Service SOP Class."""
-        assert CTImageStorage == '1.2.840.10008.5.1.4.1.1.2'
+        assert CTImageStorage == "1.2.840.10008.5.1.4.1.1.2"
         assert CTImageStorage.service_class == StorageServiceClass
 
     def test_storage_commitment_sop(self):
-        assert StorageCommitmentPushModel == '1.2.840.10008.1.20.1'
+        assert StorageCommitmentPushModel == "1.2.840.10008.1.20.1"
         assert StorageCommitmentPushModel.service_class == StorageCommitmentServiceClass
 
     def test_substance_admin_sop(self):
         """Test s Substance Administration Query Service SOP Class."""
-        assert ProductCharacteristicsQuery == '1.2.840.10008.5.1.4.41'
-        assert ProductCharacteristicsQuery.service_class == SubstanceAdministrationQueryServiceClass
+        assert ProductCharacteristicsQuery == "1.2.840.10008.5.1.4.41"
+        assert (
+            ProductCharacteristicsQuery.service_class
+            == SubstanceAdministrationQueryServiceClass
+        )
 
     def test_ups_sop(self):
-        assert UnifiedProcedureStepPull == '1.2.840.10008.5.1.4.34.6.3'
-        assert UnifiedProcedureStepPull.service_class == UnifiedProcedureStepServiceClass
+        assert UnifiedProcedureStepPull == "1.2.840.10008.5.1.4.34.6.3"
+        assert (
+            UnifiedProcedureStepPull.service_class == UnifiedProcedureStepServiceClass
+        )
 
     def test_verification_sop(self):
         """Test a Verification Service SOP Class."""
-        assert Verification == '1.2.840.10008.1.1'
+        assert Verification == "1.2.840.10008.1.1"
         assert Verification.service_class == VerificationServiceClass
 
     def test_uid_creation(self):
         """Test creating a new UIDSOPClass."""
-        sop_class = SOPClass('1.2.3')
+        sop_class = SOPClass("1.2.3")
         sop_class._service_class = ServiceClass
 
-        assert sop_class == '1.2.3'
+        assert sop_class == "1.2.3"
         assert sop_class.service_class == ServiceClass
 
         sop_class_b = SOPClass(sop_class)
         assert sop_class == sop_class_b
-        assert sop_class_b == '1.2.3'
+        assert sop_class_b == "1.2.3"
         assert sop_class_b.service_class == ServiceClass

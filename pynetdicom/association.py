@@ -7,8 +7,16 @@ from pathlib import Path
 import threading
 import time
 from typing import (
-    Union, Optional, List, Callable, Any, Dict, Iterator, Tuple, TYPE_CHECKING,
-    cast
+    Union,
+    Optional,
+    List,
+    Callable,
+    Any,
+    Dict,
+    Iterator,
+    Tuple,
+    TYPE_CHECKING,
+    cast,
 )
 import warnings
 
@@ -22,19 +30,37 @@ from pynetdicom.acse import ACSE
 from pynetdicom import _config, evt
 from pynetdicom.dimse import DIMSEServiceProvider
 from pynetdicom.dimse_primitives import (
-    C_ECHO, C_MOVE, C_STORE, C_GET, C_FIND, C_CANCEL,
-    N_EVENT_REPORT, N_GET, N_SET, N_CREATE, N_ACTION, N_DELETE,
-    DimseServiceType
+    C_ECHO,
+    C_MOVE,
+    C_STORE,
+    C_GET,
+    C_FIND,
+    C_CANCEL,
+    N_EVENT_REPORT,
+    N_GET,
+    N_SET,
+    N_CREATE,
+    N_ACTION,
+    N_DELETE,
+    DimseServiceType,
 )
 from pynetdicom.dsutils import decode, encode, pretty_dataset, split_dataset
 from pynetdicom.dul import DULServiceProvider
 from pynetdicom._globals import (
-    MODE_REQUESTOR, MODE_ACCEPTOR, DEFAULT_MAX_LENGTH, STATUS_WARNING,
-    STATUS_SUCCESS, STATUS_CANCEL, STATUS_PENDING, STATUS_FAILURE
+    MODE_REQUESTOR,
+    MODE_ACCEPTOR,
+    DEFAULT_MAX_LENGTH,
+    STATUS_WARNING,
+    STATUS_SUCCESS,
+    STATUS_CANCEL,
+    STATUS_PENDING,
+    STATUS_FAILURE,
 )
 from pynetdicom._handlers import (
-    standard_dimse_recv_handler, standard_dimse_sent_handler,
-    standard_pdu_recv_handler, standard_pdu_sent_handler,
+    standard_dimse_recv_handler,
+    standard_dimse_sent_handler,
+    standard_pdu_recv_handler,
+    standard_pdu_sent_handler,
 )
 from pynetdicom.pdu_primitives import (
     UserIdentityNegotiation,
@@ -47,19 +73,20 @@ from pynetdicom.pdu_primitives import (
     SCP_SCU_RoleSelectionNegotiation,
     A_ASSOCIATE,
     _UI,
-    _UITypes
+    _UITypes,
 )
 from pynetdicom.presentation import PresentationContext
 from pynetdicom.sop_class import (  # type: ignore
-    uid_to_service_class, Verification,
-    UnifiedProcedureStepPull, UnifiedProcedureStepPush,
-    UnifiedProcedureStepWatch, UnifiedProcedureStepEvent,
-    UnifiedProcedureStepQuery
+    uid_to_service_class,
+    Verification,
+    UnifiedProcedureStepPull,
+    UnifiedProcedureStepPush,
+    UnifiedProcedureStepWatch,
+    UnifiedProcedureStepEvent,
+    UnifiedProcedureStepQuery,
 )
 from pynetdicom.status import code_to_category, STORAGE_SERVICE_CLASS_STATUS
-from pynetdicom.utils import (
-    make_target, set_timer_resolution, set_ae, decode_bytes
-)
+from pynetdicom.utils import make_target, set_timer_resolution, set_ae, decode_bytes
 
 if TYPE_CHECKING:  # pragma: no cover
     from pynetdicom.ae import ApplicationEntity
@@ -94,6 +121,7 @@ class Association(threading.Thread):
     requestor : association.ServiceUser
         Representation of the association's *requestor* AE.
     """
+
     def __init__(self, ae: "ApplicationEntity", mode: str) -> None:
         """Create a new :class:`Association` instance.
 
@@ -146,10 +174,11 @@ class Association(threading.Thread):
 
         # Event handlers
         self._handlers: Dict[
-            evt.EventType, Union[
+            evt.EventType,
+            Union[
                 List[Tuple[Callable, Optional[List[Any]]]],
-                Tuple[Callable, Optional[List[Any]]]
-            ]
+                Tuple[Callable, Optional[List[Any]]],
+            ],
         ] = {}
         self._bind_defaults()
 
@@ -166,9 +195,7 @@ class Association(threading.Thread):
         self._is_paused: bool = False
 
         # Windows timer resolution
-        self._timer_resolution: Optional[float] = (
-            _config.WINDOWS_TIMER_RESOLUTION
-        )
+        self._timer_resolution: Optional[float] = _config.WINDOWS_TIMER_RESOLUTION
 
         # Thread setup
         threading.Thread.__init__(self, target=make_target(self.run_reactor))
@@ -187,7 +214,7 @@ class Association(threading.Thread):
             self._sent_abort = True
             # Ensure the reactor is running so it can be exited
             self._reactor_checkpoint.set()
-            LOGGER.info('Aborting Association')
+            LOGGER.info("Aborting Association")
             self.acse.send_abort(0x00)
 
             # Event handler - association aborted
@@ -202,9 +229,7 @@ class Association(threading.Thread):
         """Return a :class:`list` of accepted
         :class:`~pynetdicom.presentation.PresentationContext` items."""
         # Accepted contexts are stored internally as {context ID : context}
-        return sorted(
-            self._accepted_cx.values(), key=lambda x: cast(int, x.context_id)
-        )
+        return sorted(self._accepted_cx.values(), key=lambda x: cast(int, x.context_id))
 
     @property
     def acse_timeout(self) -> Optional[float]:
@@ -224,10 +249,7 @@ class Association(threading.Thread):
         return self._ae
 
     def bind(
-        self,
-        event: evt.EventType,
-        handler: Callable,
-        args: Optional[List[Any]] = None
+        self, event: evt.EventType, handler: Callable, args: Optional[List[Any]] = None
     ) -> None:
         """Bind a callable `handler` to an `event`.
 
@@ -286,7 +308,7 @@ class Association(threading.Thread):
             related elements.
         """
         msg_type = rsp.__class__.__name__
-        msg_type = msg_type.replace('_', '-')
+        msg_type = msg_type.replace("_", "-")
 
         status = Dataset()
         if rsp.is_valid_response:
@@ -295,9 +317,7 @@ class Association(threading.Thread):
                 if getattr(rsp, keyword, None) is not None:
                     setattr(status, keyword, getattr(rsp, keyword))
         else:
-            LOGGER.error(
-                f"Received an invalid {msg_type} response from the peer"
-            )
+            LOGGER.error(f"Received an invalid {msg_type} response from the peer")
             self.abort()
 
         return status
@@ -409,10 +429,7 @@ class Association(threading.Thread):
         ]
 
         # For UPS we can also match UPS Push to Pull/Watch/Event/Query
-        if (
-            ab_syntax == UnifiedProcedureStepPush
-            and not possible_contexts
-        ):
+        if ab_syntax == UnifiedProcedureStepPush and not possible_contexts:
             LOGGER.info(
                 "No exact matching context found for 'Unified Procedure Step "
                 "- Push SOP Class', checking accepted contexts for other UPS "
@@ -422,24 +439,17 @@ class Association(threading.Thread):
                 UnifiedProcedureStepPull,
                 UnifiedProcedureStepWatch,
                 UnifiedProcedureStepEvent,
-                UnifiedProcedureStepQuery
+                UnifiedProcedureStepQuery,
             ]
             possible_contexts.extend(
-                [
-                    cx for cx in self._accepted_cx.values()
-                    if cx.abstract_syntax in ups
-                ]
+                [cx for cx in self._accepted_cx.values() if cx.abstract_syntax in ups]
             )
 
         # Filter by role
-        if role == 'scu':
-            possible_contexts = [
-                cx for cx in possible_contexts if cx.as_scu is True
-            ]
-        if role == 'scp':
-            possible_contexts = [
-                cx for cx in possible_contexts if cx.as_scp is True
-            ]
+        if role == "scu":
+            possible_contexts = [cx for cx in possible_contexts if cx.as_scu is True]
+        if role == "scp":
+            possible_contexts = [cx for cx in possible_contexts if cx.as_scp is True]
 
         matches = []
         for cx in possible_contexts:
@@ -467,7 +477,7 @@ class Association(threading.Thread):
         if allow_conversion and matches:
             return matches[0]
 
-        role = role or 'scu'
+        role = role or "scu"
         msg = (
             f"No presentation context for '{ab_syntax.name}' has been "
             f"accepted by the peer"
@@ -487,13 +497,9 @@ class Association(threading.Thread):
             pass
         elif self.acse.is_aborted("a-p-abort"):
             # Evt17 occurred while in Sta6
-            LOGGER.error(
-                "Connection closed while waiting for DIMSE message"
-            )
+            LOGGER.error("Connection closed while waiting for DIMSE message")
         elif self.is_established:
-            LOGGER.error(
-                "DIMSE timeout reached while waiting for message response"
-            )
+            LOGGER.error("DIMSE timeout reached while waiting for message response")
             self.abort()
 
     @property
@@ -624,9 +630,7 @@ class Association(threading.Thread):
             self._dul_ready.wait()
 
         if self.is_acceptor:
-            primitive = self.dul.receive_pdu(
-                wait=True, timeout=self.acse_timeout
-            )
+            primitive = self.dul.receive_pdu(wait=True, timeout=self.acse_timeout)
 
             # Timed out waiting for A-ASSOCIATE request
             if primitive is None:
@@ -704,7 +708,7 @@ class Association(threading.Thread):
             if self.acse.is_release_requested():
                 # Send A-RELEASE response
                 self.acse.send_release(is_response=True)
-                LOGGER.info('Association Released')
+                LOGGER.info("Association Released")
                 self.is_released = True
                 self.is_established = False
                 evt.trigger(self, evt.EVT_RELEASED, {})
@@ -714,7 +718,7 @@ class Association(threading.Thread):
             # Check for abort
             if self.acse.is_aborted():
                 log_msg = "Association Aborted"
-                if self.acse.is_aborted('a-p-abort'):
+                if self.acse.is_aborted("a-p-abort"):
                     log_msg += " (A-P-ABORT)"
                 LOGGER.info(log_msg)
                 # Ensure that EVT_ASCE_RECV fires for subscribers
@@ -815,7 +819,7 @@ class Association(threading.Thread):
                 cast(UID, req.AffectedSOPClassUID),
                 "",
                 "scp",
-                context_id=req._context_id
+                context_id=req._context_id,
             )
         except ValueError:
             # SOP Class not supported, no context ID?
@@ -826,14 +830,10 @@ class Association(threading.Thread):
         # Attempt to handle the service request
         try:
             status = evt.trigger(
-                self,
-                evt.EVT_C_STORE,
-                {"request": req, "context": context.as_tuple}
+                self, evt.EVT_C_STORE, {"request": req, "context": context.as_tuple}
             )
         except Exception as ex:
-            LOGGER.error(
-                "Exception in the handler bound to 'evt.EVT_C_STORE'"
-            )
+            LOGGER.error("Exception in the handler bound to 'evt.EVT_C_STORE'")
             LOGGER.exception(ex)
             rsp.Status = 0xC211
             self.dimse.send_msg(rsp, cast(int, context.context_id))
@@ -994,7 +994,7 @@ class Association(threading.Thread):
             )
 
         # Get a Presentation Context to use for sending the message
-        context = self._get_valid_context(Verification, '', 'scu')
+        context = self._get_valid_context(Verification, "", "scu")
 
         # Build C-STORE request primitive
         #   (M) Message ID
@@ -1191,8 +1191,7 @@ class Association(threading.Thread):
             LOGGER.info("Using Presentation Context:")
             LOGGER.info(f"  Context ID:        {context.context_id}")
             LOGGER.info(
-                "  Abstract Syntax:   ="
-                f"{cast(UID, context.abstract_syntax).name}"
+                "  Abstract Syntax:   =" f"{cast(UID, context.abstract_syntax).name}"
             )
 
         # Build C-FIND request primitive
@@ -1212,21 +1211,21 @@ class Association(threading.Thread):
             dataset,
             transfer_syntax.is_implicit_VR,
             transfer_syntax.is_little_endian,
-            transfer_syntax.is_deflated
+            transfer_syntax.is_deflated,
         )
 
         if bytestream is not None:
             req.Identifier = BytesIO(bytestream)
         else:
             LOGGER.error("Failed to encode the supplied Dataset")
-            raise ValueError('Failed to encode the supplied Dataset')
+            raise ValueError("Failed to encode the supplied Dataset")
 
-        LOGGER.info(f'Sending Find Request: MsgID {msg_id}')
-        LOGGER.info('')
-        LOGGER.info('# Request Identifier')
+        LOGGER.info(f"Sending Find Request: MsgID {msg_id}")
+        LOGGER.info("")
+        LOGGER.info("# Request Identifier")
         for line in pretty_dataset(dataset):
             LOGGER.info(line)
-        LOGGER.info('')
+        LOGGER.info("")
 
         # Pause the reactor to prevent a race condition
         self._reactor_checkpoint.clear()
@@ -1416,16 +1415,14 @@ class Association(threading.Thread):
             dataset,
             transfer_syntax.is_implicit_VR,
             transfer_syntax.is_little_endian,
-            transfer_syntax.is_deflated
+            transfer_syntax.is_deflated,
         )
 
         if bytestream is not None:
             req.Identifier = BytesIO(bytestream)
         else:
             LOGGER.error("Failed to encode the supplied Identifier dataset")
-            raise ValueError(
-                "Failed to encode the supplied Identifer dataset"
-            )
+            raise ValueError("Failed to encode the supplied Identifer dataset")
 
         LOGGER.info(f"Sending Get Request: MsgID {msg_id}")
         LOGGER.info("")
@@ -1625,16 +1622,14 @@ class Association(threading.Thread):
             dataset,
             transfer_syntax.is_implicit_VR,
             transfer_syntax.is_little_endian,
-            transfer_syntax.is_deflated
+            transfer_syntax.is_deflated,
         )
 
         if bytestream is not None:
             req.Identifier = BytesIO(bytestream)
         else:
             LOGGER.error("Failed to encode the supplied Identifier dataset")
-            raise ValueError(
-                "Failed to encode the supplied Identifier dataset"
-            )
+            raise ValueError("Failed to encode the supplied Identifier dataset")
 
         LOGGER.info(f"Sending Move Request: MsgID {msg_id}")
         LOGGER.info("")
@@ -1814,7 +1809,7 @@ class Association(threading.Thread):
                 missing = [
                     "MediaStorageSOPClassUID",
                     "MediaStorageSOPInstanceUID",
-                    "TransferSyntaxUID"
+                    "TransferSyntaxUID",
                 ]
                 missing = [kw for kw in missing if kw not in file_meta]
                 if missing:
@@ -1867,14 +1862,14 @@ class Association(threading.Thread):
                 cast(Dataset, dataset),
                 transfer_syntax.is_implicit_VR,
                 transfer_syntax.is_little_endian,
-                transfer_syntax.is_deflated
+                transfer_syntax.is_deflated,
             )
 
             if bytestream is not None:
                 req.DataSet = BytesIO(bytestream)
             else:
                 LOGGER.error("Failed to encode the supplied dataset")
-                raise ValueError('Failed to encode the supplied dataset')
+                raise ValueError("Failed to encode the supplied dataset")
 
         # Pause the reactor to prevent a race condition
         self._reactor_checkpoint.clear()
@@ -1933,18 +1928,14 @@ class Association(threading.Thread):
 
             if not isinstance(rsp, C_FIND):
                 msg_type = rsp.__class__.__name__.replace("_", "-")
-                LOGGER.error(
-                    f"Received an unexpected {msg_type} message from the peer"
-                )
+                LOGGER.error(f"Received an unexpected {msg_type} message from the peer")
                 self.abort()
                 self._reactor_checkpoint.set()
                 yield Dataset(), None
                 return
 
             if not rsp.is_valid_response:
-                LOGGER.error(
-                    "Received an invalid C-FIND response from the peer"
-                )
+                LOGGER.error("Received an invalid C-FIND response from the peer")
                 self.abort()
                 self._reactor_checkpoint.set()
                 yield Dataset(), None
@@ -1965,16 +1956,14 @@ class Association(threading.Thread):
             #   then we are finished
             category = code_to_category(cast(int, status.Status))
 
-            LOGGER.debug('')
+            LOGGER.debug("")
             if category == STATUS_PENDING:
                 LOGGER.info(
                     f"Find SCP Response: {operation_no} - "
                     f"0x{status.Status:04X} (Pending)"
                 )
             else:
-                LOGGER.info(
-                    f"Find SCP Result: 0x{status.Status:04X} ({category})"
-                )
+                LOGGER.info(f"Find SCP Result: 0x{status.Status:04X} ({category})")
 
             # 'Success', 'Warning', 'Failure', 'Cancel' are final yields,
             #   'Pending' means more to come
@@ -1988,7 +1977,7 @@ class Association(threading.Thread):
                             cast(BytesIO, rsp.Identifier),
                             transfer_syntax.is_implicit_VR,
                             transfer_syntax.is_little_endian,
-                            transfer_syntax.is_deflated
+                            transfer_syntax.is_deflated,
                         )
                         if identifier and _config.LOG_RESPONSE_IDENTIFIERS:
                             LOGGER.info("")
@@ -1997,9 +1986,7 @@ class Association(threading.Thread):
                                 LOGGER.info(line)
                             LOGGER.info("")
                     except Exception as exc:
-                        LOGGER.error(
-                            "Failed to decode the received Identifier dataset"
-                        )
+                        LOGGER.error("Failed to decode the received Identifier dataset")
                         LOGGER.exception(exc)
                         yield status, None
 
@@ -2053,9 +2040,7 @@ class Association(threading.Thread):
                 return
 
             if not isinstance(rsp, (C_STORE, C_GET, C_MOVE)):
-                LOGGER.error(
-                    f"Received an unexpected {rsp_type} message from the peer"
-                )
+                LOGGER.error(f"Received an unexpected {rsp_type} message from the peer")
                 self.abort()
                 self._reactor_checkpoint.set()
                 yield Dataset(), None
@@ -2068,9 +2053,7 @@ class Association(threading.Thread):
                 continue
 
             if not rsp.is_valid_response:
-                LOGGER.error(
-                    f"Received an invalid {rsp_type} response from the peer"
-                )
+                LOGGER.error(f"Received an invalid {rsp_type} response from the peer")
                 self.abort()
                 self._reactor_checkpoint.set()
                 yield Dataset(), None
@@ -2091,7 +2074,7 @@ class Association(threading.Thread):
             #   then we are finished
             category = code_to_category(cast(int, status.Status))
 
-            LOGGER.debug('')
+            LOGGER.debug("")
             if category == STATUS_PENDING:
                 LOGGER.info(
                     f"{rsp_name[rsp_type]} SCP Response: {operation_no} - "
@@ -2110,7 +2093,7 @@ class Association(threading.Thread):
                 rsp.NumberOfRemainingSuboperations or "0",
                 rsp.NumberOfCompletedSuboperations or "0",
                 rsp.NumberOfFailedSuboperations or "0",
-                rsp.NumberOfWarningSuboperations or "0"
+                rsp.NumberOfWarningSuboperations or "0",
             )
 
             # 'Success', 'Warning', 'Failure', 'Cancel' are final yields,
@@ -2121,8 +2104,11 @@ class Association(threading.Thread):
                 yield status, identifier
                 continue
 
-            if (rsp.Identifier and category in
-                    [STATUS_CANCEL, STATUS_WARNING, STATUS_FAILURE]):
+            if rsp.Identifier and category in [
+                STATUS_CANCEL,
+                STATUS_WARNING,
+                STATUS_FAILURE,
+            ]:
                 # From Part 4, Annex C.4.3, responses with these
                 #   statuses should contain an Identifier dataset
                 #   with a (0008,0058) Failed SOP Instance UID List
@@ -2134,7 +2120,7 @@ class Association(threading.Thread):
                             rsp.Identifier,
                             transfer_syntax.is_implicit_VR,
                             transfer_syntax.is_little_endian,
-                            transfer_syntax.is_deflated
+                            transfer_syntax.is_deflated,
                         )
                         if identifier and _config.LOG_RESPONSE_IDENTIFIERS:
                             LOGGER.info("")
@@ -2143,9 +2129,7 @@ class Association(threading.Thread):
                                 LOGGER.info(elem)
                             LOGGER.info("")
                     except Exception as exc:
-                        LOGGER.error(
-                            "Failed to decode the received Identifier dataset"
-                        )
+                        LOGGER.error("Failed to decode the received Identifier dataset")
                         LOGGER.exception(exc)
                         identifier = None
 
@@ -2282,8 +2266,7 @@ class Association(threading.Thread):
             LOGGER.info("Using Presentation Context:")
             LOGGER.info(f"  Context ID:        {context.context_id}")
             LOGGER.info(
-                "  Abstract Syntax:   ="
-                f"{cast(UID, context.abstract_syntax).name}"
+                "  Abstract Syntax:   =" f"{cast(UID, context.abstract_syntax).name}"
             )
         transfer_syntax = context.transfer_syntax[0]
 
@@ -2307,16 +2290,13 @@ class Association(threading.Thread):
                 dataset,
                 transfer_syntax.is_implicit_VR,
                 transfer_syntax.is_little_endian,
-                transfer_syntax.is_deflated
+                transfer_syntax.is_deflated,
             )
 
             if bytestream is not None:
                 req.ActionInformation = BytesIO(bytestream)
             else:
-                msg = (
-                    "Failed to encode the supplied 'Action Information' "
-                    "dataset"
-                )
+                msg = "Failed to encode the supplied 'Action Information' " "dataset"
                 LOGGER.error(msg)
                 raise ValueError(msg)
 
@@ -2359,12 +2339,10 @@ class Association(threading.Thread):
                         b,
                         transfer_syntax.is_implicit_VR,
                         transfer_syntax.is_little_endian,
-                        transfer_syntax.is_deflated
+                        transfer_syntax.is_deflated,
                     )
                 except Exception as ex:
-                    LOGGER.error(
-                        "Unable to decode the received 'Action Reply' dataset"
-                    )
+                    LOGGER.error("Unable to decode the received 'Action Reply' dataset")
                     LOGGER.exception(ex)
                     # Failure: Processing failure
                     status.Status = 0x0110
@@ -2554,7 +2532,7 @@ class Association(threading.Thread):
                 dataset,
                 transfer_syntax.is_implicit_VR,
                 transfer_syntax.is_little_endian,
-                transfer_syntax.is_deflated
+                transfer_syntax.is_deflated,
             )
 
             if bytestream is not None:
@@ -2603,12 +2581,11 @@ class Association(threading.Thread):
                         b,
                         transfer_syntax.is_implicit_VR,
                         transfer_syntax.is_little_endian,
-                        transfer_syntax.is_deflated
+                        transfer_syntax.is_deflated,
                     )
                 except Exception as ex:
                     LOGGER.error(
-                        "Unable to decode the received 'Attribute List' "
-                        "dataset"
+                        "Unable to decode the received 'Attribute List' " "dataset"
                     )
                     LOGGER.exception(ex)
                     # Failure: Processing failure
@@ -2867,8 +2844,7 @@ class Association(threading.Thread):
             LOGGER.info("Using Presentation Context:")
             LOGGER.info(f"  Context ID:        {context.context_id}")
             LOGGER.info(
-                "  Abstract Syntax:   ="
-                f"{cast(UID, context.abstract_syntax).name}"
+                "  Abstract Syntax:   =" f"{cast(UID, context.abstract_syntax).name}"
             )
         transfer_syntax = context.transfer_syntax[0]
 
@@ -2892,15 +2868,13 @@ class Association(threading.Thread):
                 dataset,
                 transfer_syntax.is_implicit_VR,
                 transfer_syntax.is_little_endian,
-                transfer_syntax.is_deflated
+                transfer_syntax.is_deflated,
             )
 
             if bytestream is not None:
                 req.EventInformation = BytesIO(bytestream)
             else:
-                msg = (
-                    "Unable to encode the supplied 'Event Information' dataset"
-                )
+                msg = "Unable to encode the supplied 'Event Information' dataset"
                 LOGGER.error(msg)
                 raise ValueError(msg)
 
@@ -2944,12 +2918,10 @@ class Association(threading.Thread):
                         b,
                         transfer_syntax.is_implicit_VR,
                         transfer_syntax.is_little_endian,
-                        transfer_syntax.is_deflated
+                        transfer_syntax.is_deflated,
                     )
                 except Exception as ex:
-                    LOGGER.error(
-                        "Unable to decode the received 'Event Reply' dataset"
-                    )
+                    LOGGER.error("Unable to decode the received 'Event Reply' dataset")
                     LOGGER.exception(ex)
                     # Failure: Processing failure
                     status.Status = 0x0110
@@ -3104,8 +3076,7 @@ class Association(threading.Thread):
             LOGGER.info("Using Presentation Context:")
             LOGGER.info(f"  Context ID:        {context.context_id}")
             LOGGER.info(
-                "  Abstract Syntax:   ="
-                f"{cast(UID, context.abstract_syntax).name}"
+                "  Abstract Syntax:   =" f"{cast(UID, context.abstract_syntax).name}"
             )
         transfer_syntax = context.transfer_syntax[0]
 
@@ -3159,12 +3130,11 @@ class Association(threading.Thread):
                         b,
                         transfer_syntax.is_implicit_VR,
                         transfer_syntax.is_little_endian,
-                        transfer_syntax.is_deflated
+                        transfer_syntax.is_deflated,
                     )
                 except Exception as ex:
                     LOGGER.error(
-                        "Unable to decode the received 'Attribute List' "
-                        "dataset"
+                        "Unable to decode the received 'Attribute List' " "dataset"
                     )
                     LOGGER.exception(ex)
                     # Failure: Processing failure
@@ -3346,8 +3316,7 @@ class Association(threading.Thread):
             LOGGER.info("Using Presentation Context:")
             LOGGER.info(f"  Context ID:        {context.context_id}")
             LOGGER.info(
-                "  Abstract Syntax:   ="
-                f"{cast(UID, context.abstract_syntax).name}"
+                "  Abstract Syntax:   =" f"{cast(UID, context.abstract_syntax).name}"
             )
         transfer_syntax = context.transfer_syntax[0]
 
@@ -3367,7 +3336,7 @@ class Association(threading.Thread):
             dataset,
             transfer_syntax.is_implicit_VR,
             transfer_syntax.is_little_endian,
-            transfer_syntax.is_deflated
+            transfer_syntax.is_deflated,
         )
 
         if bytestream is not None:
@@ -3416,12 +3385,11 @@ class Association(threading.Thread):
                         b,
                         transfer_syntax.is_implicit_VR,
                         transfer_syntax.is_little_endian,
-                        transfer_syntax.is_deflated
+                        transfer_syntax.is_deflated,
                     )
                 except Exception as ex:
                     LOGGER.error(
-                        "Unable to decode the received 'Attribute List' "
-                        "dataset"
+                        "Unable to decode the received 'Attribute List' " "dataset"
                     )
                     LOGGER.exception(ex)
                     # Failure: Processing failure
@@ -3445,9 +3413,7 @@ class Association(threading.Thread):
         """
         # No message or not a service request
         if not msg.is_valid_request:
-            LOGGER.warning(
-                f"Received unexpected {msg.msg_type} service message"
-            )
+            LOGGER.warning(f"Received unexpected {msg.msg_type} service message")
             return
 
         # Use the Message's Affected SOP Class UID or Requested SOP
@@ -3555,6 +3521,7 @@ class ServiceUser:
         accept/reject if mode is ``'acceptor'``) sent or received by the AE
         during association negotiation.
     """
+
     def __init__(self, assoc: Association, mode: str) -> None:
         """Create a new :class:`ServiceUser`.
 
@@ -3570,16 +3537,14 @@ class ServiceUser:
         """
         mode = mode.lower()
         if mode not in [MODE_REQUESTOR, MODE_ACCEPTOR]:
-            raise ValueError(
-                "The 'mode' must be either 'requestor' or 'acceptor'"
-            )
+            raise ValueError("The 'mode' must be either 'requestor' or 'acceptor'")
 
         self.assoc: Association = assoc
         self._mode: str = mode
-        self._ae_title: str = ''
+        self._ae_title: str = ""
         self.primitive: Optional[A_ASSOCIATE] = None
         self.port: Optional[int] = None
-        self.address: Optional[str] = ''
+        self.address: Optional[str] = ""
 
         # If Requestor this is the requested contexts, otherwise this is
         #   the supported contexts
@@ -3597,9 +3562,7 @@ class ServiceUser:
 
         # If Acceptor then this the accepted SOP Class Common Extended
         #   negotiation items
-        self._common_ext: Dict[
-            UID, SOPClassCommonExtendedNegotiation
-        ] = {}
+        self._common_ext: Dict[UID, SOPClassCommonExtendedNegotiation] = {}
 
     @property
     def accepted_common_extended(self) -> Dict[UID, Tuple[UID, List[UID]]]:
@@ -3620,15 +3583,14 @@ class ServiceUser:
         """
         if not self.is_acceptor:
             raise RuntimeError(
-                "'accepted_common_extended' is only available for the "
-                "'acceptor'"
+                "'accepted_common_extended' is only available for the " "'acceptor'"
             )
 
         out = {}
         for item in self._common_ext.values():
             out[cast(UID, item.sop_class_uid)] = (
                 cast(UID, item.service_class_uid),
-                item.related_general_sop_class_identification
+                item.related_general_sop_class_identification,
             )
 
         return out
@@ -3661,17 +3623,14 @@ class ServiceUser:
         """
         if not self.writeable:
             raise RuntimeError(
-                "Can't add extended negotiation items after negotiation "
-                "has started"
+                "Can't add extended negotiation items after negotiation " "has started"
             )
 
         #
         try:
             self._ext_neg[type(item)].append(item)
         except KeyError:
-            raise TypeError(
-                "'item' is not a valid extended negotiation item"
-            )
+            raise TypeError("'item' is not a valid extended negotiation item")
 
     @property
     def ae_title(self) -> str:
@@ -3696,7 +3655,7 @@ class ServiceUser:
             warnings.warn(
                 "The use of bytes with 'ae_title' is deprecated, use an ASCII "
                 "str instead",
-                DeprecationWarning
+                DeprecationWarning,
             )
             value = decode_bytes(value)
 
@@ -3718,14 +3677,14 @@ class ServiceUser:
                 item = cast(AsynchronousOperationsWindowNegotiation, item)
                 return (
                     item.maximum_number_operations_invoked,
-                    item.maximum_number_operations_performed
+                    item.maximum_number_operations_performed,
                 )
 
         for item in self.user_information:
             if isinstance(item, AsynchronousOperationsWindowNegotiation):
                 return (
                     item.maximum_number_operations_invoked,
-                    item.maximum_number_operations_performed
+                    item.maximum_number_operations_performed,
                 )
 
         return (1, 1)
@@ -3800,34 +3759,36 @@ class ServiceUser:
         contexts = {"requested": self._contexts, "supported": self._contexts}
         self.primitive = cast(A_ASSOCIATE, self.primitive)
         if not self.writeable:
-            contexts.update({
-                "pcdl": self.primitive.presentation_context_definition_list,
-                "pcdrl": (
-                    self.primitive.presentation_context_definition_results_list
-                )
-            })
+            contexts.update(
+                {
+                    "pcdl": self.primitive.presentation_context_definition_list,
+                    "pcdrl": (
+                        self.primitive.presentation_context_definition_results_list
+                    ),
+                }
+            )
 
         possible: Dict[bool, Dict[bool, Dict[bool, List[str]]]] = {
             True: {  # self.assoc.is_requestor
                 True: {  # self.writeable
                     True: ["requested"],  # self.is_requestor
-                    False: []  # self.is_acceptor
+                    False: [],  # self.is_acceptor
                 },
                 False: {  # not self.writeable
                     True: ["requested", "pcdl"],  # self.is_requestor
-                    False: ["pcdrl"]  # self.is_acceptor
+                    False: ["pcdrl"],  # self.is_acceptor
                 },
             },
             False: {  # self.assoc.is_acceptor
                 True: {  # self.writeable
                     True: [],  # self.is_requestor
-                    False: ["supported"]  # self.is_acceptor
+                    False: ["supported"],  # self.is_acceptor
                 },
                 False: {  # not self.writeable
                     True: ["pcdl"],  # self.is_requestor
-                    False: ["supported", "pcdrl"]  # self.is_acceptor
-                }
-            }
+                    False: ["supported", "pcdrl"],  # self.is_acceptor
+                },
+            },
         }
 
         available = possible[self.assoc.is_requestor][self.writeable]
@@ -3938,9 +3899,7 @@ class ServiceUser:
             return
 
         # Validate - diallow an empty str
-        value = cast(
-            str, set_ae(value, "implementation_version_name", False, False)
-        )
+        value = cast(str, set_ae(value, "implementation_version_name", False, False))
 
         for item in self._user_info:
             if isinstance(item, ImplementationVersionNameNotification):
@@ -4070,8 +4029,7 @@ class ServiceUser:
 
         if not self.is_requestor:
             raise AttributeError(
-                "'requested_contexts' can only be set for the association "
-                "requestor"
+                "'requested_contexts' can only be set for the association " "requestor"
             )
 
         self._contexts = value
@@ -4115,9 +4073,7 @@ class ServiceUser:
             if item in self._ext_neg[type(item)]:
                 self._ext_neg[type(item)].remove(item)
         else:
-            raise TypeError(
-                "'item' is not a valid extended negotiation item"
-            )
+            raise TypeError("'item' is not a valid extended negotiation item")
 
     def reset_negotiation_items(self) -> None:
         """Remove all extended negotiation items.
@@ -4216,16 +4172,16 @@ class ServiceUser:
         if self.writeable:
             for item in self._ext_neg[SOPClassExtendedNegotiation]:
                 item = cast(SOPClassExtendedNegotiation, item)
-                sop_classes[cast(UID, item.sop_class_uid)] = (
-                    cast(bytes, item.service_class_application_information)
+                sop_classes[cast(UID, item.sop_class_uid)] = cast(
+                    bytes, item.service_class_application_information
                 )
 
             return sop_classes
 
         for item in self.user_information:
             if isinstance(item, SOPClassExtendedNegotiation):
-                sop_classes[cast(UID, item.sop_class_uid)] = (
-                    cast(bytes, item.service_class_application_information)
+                sop_classes[cast(UID, item.sop_class_uid)] = cast(
+                    bytes, item.service_class_application_information
                 )
 
         return sop_classes
@@ -4269,8 +4225,7 @@ class ServiceUser:
 
         if not self.is_acceptor:
             raise AttributeError(
-                "'supported_contexts' can only be set for the association "
-                "acceptor"
+                "'supported_contexts' can only be set for the association " "acceptor"
             )
 
         self._contexts = value
