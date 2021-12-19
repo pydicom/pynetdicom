@@ -3,7 +3,7 @@
 2.0.0
 =====
 
-The major breaking changes with the version 2 release are:
+The major breaking changes with the version 2.0 release are:
 
   * Python 2 is no longer supported
   * SOP class variable names now use their `new DICOM UID keywords
