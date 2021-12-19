@@ -7,7 +7,16 @@ import logging
 from ssl import SSLContext
 import threading
 from typing import (
-    Union, Optional, List, Tuple, Dict, cast, TypeVar, Type, Any, Sequence
+    Union,
+    Optional,
+    List,
+    Tuple,
+    Dict,
+    cast,
+    TypeVar,
+    Type,
+    Any,
+    Sequence,
 )
 import warnings
 
@@ -19,22 +28,24 @@ from pynetdicom.events import EventHandlerType
 from pynetdicom.presentation import PresentationContext
 from pynetdicom.pdu_primitives import _UI
 from pynetdicom.transport import (
-    AssociationSocket, AssociationServer, ThreadedAssociationServer
+    AssociationSocket,
+    AssociationServer,
+    ThreadedAssociationServer,
 )
 from pynetdicom.utils import make_target, set_ae, decode_bytes, set_uid
 from pynetdicom._globals import (
     MODE_REQUESTOR,
     DEFAULT_MAX_LENGTH,
-    DEFAULT_TRANSFER_SYNTAXES
+    DEFAULT_TRANSFER_SYNTAXES,
 )
 
 
-LOGGER = logging.getLogger('pynetdicom.ae')
+LOGGER = logging.getLogger("pynetdicom.ae")
 
 
 _T = TypeVar("_T")
 ListCXType = List[PresentationContext]
-TSyntaxType =  Optional[Union[str, UID, Sequence[Union[str, UID]]]]
+TSyntaxType = Optional[Union[str, UID, Sequence[Union[str, UID]]]]
 
 
 class ApplicationEntity:
@@ -43,8 +54,9 @@ class ApplicationEntity:
     An AE may be a *Service Class Provider* (SCP), a *Service Class User* (SCU)
     or both.
     """
+
     # pylint: disable=too-many-instance-attributes,too-many-public-methods
-    def __init__(self, ae_title: str = 'PYNETDICOM') -> None:
+    def __init__(self, ae_title: str = "PYNETDICOM") -> None:
         """Create a new Application Entity.
 
         .. versionchanged:: 2.0
@@ -62,14 +74,12 @@ class ApplicationEntity:
 
         from pynetdicom import (
             PYNETDICOM_IMPLEMENTATION_UID,
-            PYNETDICOM_IMPLEMENTATION_VERSION
+            PYNETDICOM_IMPLEMENTATION_VERSION,
         )
 
         # Default Implementation Class UID and Version Name
         self._implementation_uid: UID = PYNETDICOM_IMPLEMENTATION_UID
-        self._implementation_version: Optional[str] = (
-            PYNETDICOM_IMPLEMENTATION_VERSION
-        )
+        self._implementation_version: Optional[str] = PYNETDICOM_IMPLEMENTATION_VERSION
 
         # List of PresentationContext
         self._requested_contexts: ListCXType = []
@@ -442,7 +452,7 @@ class ApplicationEntity:
             warnings.warn(
                 "The use of bytes with 'ae_title' is deprecated, use an ASCII "
                 "str instead",
-                DeprecationWarning
+                DeprecationWarning,
             )
             value = decode_bytes(value)
 
@@ -453,10 +463,10 @@ class ApplicationEntity:
         addr: str,
         port: int,
         contexts: Optional[ListCXType] = None,
-        ae_title: str = 'ANY-SCP',
+        ae_title: str = "ANY-SCP",
         max_pdu: int = DEFAULT_MAX_LENGTH,
         ext_neg: Optional[List[_UI]] = None,
-        bind_address: Tuple[str, int] = ('', 0),
+        bind_address: Tuple[str, int] = ("", 0),
         tls_args: Optional[Tuple[SSLContext, str]] = None,
         evt_handlers: Optional[List[EventHandlerType]] = None,
     ) -> Association:
@@ -575,13 +585,9 @@ class ApplicationEntity:
         assoc.requestor.port = bind_address[1]
         assoc.requestor.ae_title = self.ae_title
         assoc.requestor.maximum_length = max_pdu
-        assoc.requestor.implementation_class_uid = (
-            self.implementation_class_uid
-        )
-        assoc.requestor.implementation_version_name = (
-            self.implementation_version_name
-        )
-        for item in (ext_neg or []):
+        assoc.requestor.implementation_class_uid = self.implementation_class_uid
+        assoc.requestor.implementation_version_name = self.implementation_version_name
+        for item in ext_neg or []:
             assoc.requestor.add_negotiation_item(item)
 
         # Requestor's presentation contexts
@@ -710,16 +716,12 @@ class ApplicationEntity:
     @implementation_class_uid.setter
     def implementation_class_uid(self, value: str) -> None:
         """Set the *Implementation Class UID* used in association requests."""
-        uid = cast(
-            UID, set_uid(value, "implementation_class_uid", False, False, True)
-        )
+        uid = cast(UID, set_uid(value, "implementation_class_uid", False, False, True))
         # Enforce conformance on users
         if not uid.is_valid:
-            raise ValueError(
-                f"Invalid 'implementation_class_uid' value '{uid}'"
-            )
+            raise ValueError(f"Invalid 'implementation_class_uid' value '{uid}'")
 
-        self._implementation_uid =uid
+        self._implementation_uid = uid
 
     @property
     def implementation_version_name(self) -> Optional[str]:
@@ -749,9 +751,7 @@ class ApplicationEntity:
                 "an empty str"
             )
 
-        self._implementation_version = set_ae(
-            value, "implementation_version_name"
-        )
+        self._implementation_version = set_ae(value, "implementation_version_name")
 
     def make_server(
         self,
@@ -801,7 +801,7 @@ class ApplicationEntity:
             warnings.warn(
                 "The use of bytes with 'ae_title' is deprecated, use an "
                 "ASCII str instead",
-                DeprecationWarning
+                DeprecationWarning,
             )
             ae_title = decode_bytes(ae_title)
 
@@ -1015,7 +1015,8 @@ class ApplicationEntity:
 
         # Get all the current requested contexts with the same abstract syntax
         matching_contexts = [
-            cntx for cntx in self.requested_contexts
+            cntx
+            for cntx in self.requested_contexts
             if cntx.abstract_syntax == abstract_syntax
         ]
 
@@ -1221,8 +1222,7 @@ class ApplicationEntity:
 
         for context in contexts:
             self.add_requested_context(
-                cast(UID, context.abstract_syntax),
-                context.transfer_syntax
+                cast(UID, context.abstract_syntax), context.transfer_syntax
             )
 
     @property
@@ -1288,7 +1288,7 @@ class ApplicationEntity:
             warnings.warn(
                 "The use of a list of bytes with 'require_calling_aet' is "
                 "deprecated, use a list of ASCII str instead",
-                DeprecationWarning
+                DeprecationWarning,
             )
 
         values = []
@@ -1296,9 +1296,7 @@ class ApplicationEntity:
             if isinstance(v, bytes):
                 v = decode_bytes(v)
 
-            values.append(
-                cast(str, set_ae(v, "require_calling_aet", False, False))
-            )
+            values.append(cast(str, set_ae(v, "require_calling_aet", False, False)))
 
         self._require_calling_aet = values
 
@@ -1419,8 +1417,7 @@ class ApplicationEntity:
         )
 
         thread = threading.Thread(
-            target=make_target(server.serve_forever),
-            name=f"AcceptorServer@{timestamp}"
+            target=make_target(server.serve_forever), name=f"AcceptorServer@{timestamp}"
         )
         thread.daemon = True
         thread.start()
@@ -1430,7 +1427,7 @@ class ApplicationEntity:
         return server
 
     def __str__(self) -> str:
-        """ Prints out the attribute values and status for the AE """
+        """Prints out the attribute values and status for the AE"""
         s = [""]
         s.append(f"Application Entity {self.ae_title}")
 
@@ -1461,9 +1458,7 @@ class ApplicationEntity:
         s.append("")
         if self.require_calling_aet != []:
             ae_titles = self.require_calling_aet
-            s.append((
-                f"  Required calling AE title(s): {', '.join(ae_titles)}")
-            )
+            s.append((f"  Required calling AE title(s): {', '.join(ae_titles)}"))
         s.append(f"  Require called AE title: {self.require_called_aet}")
         s.append("")
 
@@ -1522,7 +1517,7 @@ class ApplicationEntity:
         # The supported presentation contexts are stored internally as a dict
         return sorted(
             list(self._supported_contexts.values()),
-            key=lambda cx: cast(UID, cx.abstract_syntax)
+            key=lambda cx: cast(UID, cx.abstract_syntax),
         )
 
     @supported_contexts.setter
@@ -1556,10 +1551,6 @@ class ApplicationEntity:
                 "contexts is 128"
             )
 
-        invalid = [
-            ii for ii in contexts if not isinstance(ii, PresentationContext)
-        ]
+        invalid = [ii for ii in contexts if not isinstance(ii, PresentationContext)]
         if invalid:
-            raise ValueError(
-                "'contexts' must be a list of PresentationContext items"
-            )
+            raise ValueError("'contexts' must be a list of PresentationContext items")

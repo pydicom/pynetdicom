@@ -7,11 +7,11 @@ from pydicom.uid import UID
 from ._version import __version__
 
 
-_version = __version__.split('.')[:3]
+_version = __version__.split(".")[:3]
 
 # UID prefix provided by https://www.medicalconnections.co.uk/Free_UID
 # Encoded as UI, maximum 64 characters
-PYNETDICOM_UID_PREFIX = '1.2.826.0.1.3680043.9.3811.'
+PYNETDICOM_UID_PREFIX = "1.2.826.0.1.3680043.9.3811."
 """``1.2.826.0.1.3680043.9.3811.``
 
 The UID root used by *pynetdicom*.
@@ -22,9 +22,7 @@ PYNETDICOM_IMPLEMENTATION_VERSION: str = f"PYNETDICOM_{''.join(_version)}"
 """The (0002,0013) *Implementation Version Name* used by *pynetdicom*"""
 assert 1 <= len(PYNETDICOM_IMPLEMENTATION_VERSION) <= 16
 
-PYNETDICOM_IMPLEMENTATION_UID: UID = UID(
-    f"{PYNETDICOM_UID_PREFIX}{'.'.join(_version)}"
-)
+PYNETDICOM_IMPLEMENTATION_UID: UID = UID(f"{PYNETDICOM_UID_PREFIX}{'.'.join(_version)}")
 """The (0002,0012) *Implementation Class UID* used by *pynetdicom*"""
 assert PYNETDICOM_IMPLEMENTATION_UID.is_valid
 
@@ -68,16 +66,16 @@ from pynetdicom.presentation import (
 
 
 # Setup default logging
-logging.getLogger('pynetdicom').addHandler(logging.NullHandler())
+logging.getLogger("pynetdicom").addHandler(logging.NullHandler())
 
 
 def debug_logger() -> None:
     """Setup the logging for debugging."""
-    logger = logging.getLogger('pynetdicom')
+    logger = logging.getLogger("pynetdicom")
     # Ensure only have one StreamHandler
     logger.handlers = []
     handler = logging.StreamHandler()
     logger.setLevel(logging.DEBUG)
-    formatter = logging.Formatter('%(levelname).1s: %(message)s')
+    formatter = logging.Formatter("%(levelname).1s: %(message)s")
     handler.setFormatter(formatter)
     logger.addHandler(handler)

@@ -5,9 +5,7 @@ import logging
 from math import ceil
 from pathlib import Path
 from tempfile import NamedTemporaryFile
-from typing import (
-    Iterator, Optional, TYPE_CHECKING, cast, Union, Tuple, Type, List
-)
+from typing import Iterator, Optional, TYPE_CHECKING, cast, Union, Tuple, Type, List
 
 from pydicom.dataset import Dataset
 from pydicom.filewriter import write_file_meta_info
@@ -16,9 +14,19 @@ from pydicom.uid import UID
 
 from pynetdicom import _config
 from pynetdicom.dimse_primitives import (
-    C_STORE, C_FIND, C_GET, C_MOVE, C_ECHO, C_CANCEL,
-    N_EVENT_REPORT, N_GET, N_SET, N_ACTION, N_CREATE, N_DELETE,
-    DimsePrimitiveType
+    C_STORE,
+    C_FIND,
+    C_GET,
+    C_MOVE,
+    C_ECHO,
+    C_CANCEL,
+    N_EVENT_REPORT,
+    N_GET,
+    N_SET,
+    N_ACTION,
+    N_CREATE,
+    N_DELETE,
+    DimsePrimitiveType,
 )
 from pynetdicom.dsutils import encode, decode, create_file_meta
 from pynetdicom.pdu_primitives import P_DATA
@@ -28,150 +36,258 @@ if TYPE_CHECKING:  # pragma: no cover
     from pynetdicom.dimse_primitives import NTF
 
 
-LOGGER = logging.getLogger('pynetdicom.dimse')
+LOGGER = logging.getLogger("pynetdicom.dimse")
 
 
 # PS3.7 Section 9.3
 _COMMAND_SET_KEYWORDS = {
-    'C-ECHO-RQ': (
-        'CommandGroupLength', 'AffectedSOPClassUID', 'CommandField',
-        'MessageID', 'CommandDataSetType',
+    "C-ECHO-RQ": (
+        "CommandGroupLength",
+        "AffectedSOPClassUID",
+        "CommandField",
+        "MessageID",
+        "CommandDataSetType",
     ),
-    'C-ECHO-RSP': (
-        'CommandGroupLength', 'AffectedSOPClassUID', 'CommandField',
-        'MessageIDBeingRespondedTo', 'CommandDataSetType', 'Status',
-        'ErrorComment',
+    "C-ECHO-RSP": (
+        "CommandGroupLength",
+        "AffectedSOPClassUID",
+        "CommandField",
+        "MessageIDBeingRespondedTo",
+        "CommandDataSetType",
+        "Status",
+        "ErrorComment",
     ),
-    'C-STORE-RQ': (
-        'CommandGroupLength', 'AffectedSOPClassUID', 'CommandField',
-        'MessageID', 'Priority', 'CommandDataSetType',
-        'AffectedSOPInstanceUID', 'MoveOriginatorApplicationEntityTitle',
-        'MoveOriginatorMessageID',
+    "C-STORE-RQ": (
+        "CommandGroupLength",
+        "AffectedSOPClassUID",
+        "CommandField",
+        "MessageID",
+        "Priority",
+        "CommandDataSetType",
+        "AffectedSOPInstanceUID",
+        "MoveOriginatorApplicationEntityTitle",
+        "MoveOriginatorMessageID",
     ),
-    'C-STORE-RSP': (
-        'CommandGroupLength', 'AffectedSOPClassUID', 'CommandField',
-        'MessageIDBeingRespondedTo', 'CommandDataSetType', 'Status',
-        'AffectedSOPInstanceUID',
-        'OffendingElement', 'ErrorComment',
+    "C-STORE-RSP": (
+        "CommandGroupLength",
+        "AffectedSOPClassUID",
+        "CommandField",
+        "MessageIDBeingRespondedTo",
+        "CommandDataSetType",
+        "Status",
+        "AffectedSOPInstanceUID",
+        "OffendingElement",
+        "ErrorComment",
     ),
-    'C-FIND-RQ': (
-        'CommandGroupLength', 'AffectedSOPClassUID', 'CommandField',
-        'MessageID', 'Priority', 'CommandDataSetType'
+    "C-FIND-RQ": (
+        "CommandGroupLength",
+        "AffectedSOPClassUID",
+        "CommandField",
+        "MessageID",
+        "Priority",
+        "CommandDataSetType",
     ),
-    'C-FIND-RSP': (
-        'CommandGroupLength', 'AffectedSOPClassUID', 'CommandField',
-        'MessageIDBeingRespondedTo', 'CommandDataSetType', 'Status',
-        'OffendingElement', 'ErrorComment'
+    "C-FIND-RSP": (
+        "CommandGroupLength",
+        "AffectedSOPClassUID",
+        "CommandField",
+        "MessageIDBeingRespondedTo",
+        "CommandDataSetType",
+        "Status",
+        "OffendingElement",
+        "ErrorComment",
     ),
-    'C-CANCEL-RQ': (
-        'CommandGroupLength', 'CommandField', 'MessageIDBeingRespondedTo',
-        'CommandDataSetType'
+    "C-CANCEL-RQ": (
+        "CommandGroupLength",
+        "CommandField",
+        "MessageIDBeingRespondedTo",
+        "CommandDataSetType",
     ),
-    'C-GET-RQ': (
-        'CommandGroupLength', 'AffectedSOPClassUID', 'CommandField',
-        'MessageID', 'Priority', 'CommandDataSetType'
+    "C-GET-RQ": (
+        "CommandGroupLength",
+        "AffectedSOPClassUID",
+        "CommandField",
+        "MessageID",
+        "Priority",
+        "CommandDataSetType",
     ),
-    'C-GET-RSP': (
-        'CommandGroupLength', 'AffectedSOPClassUID', 'CommandField',
-        'MessageIDBeingRespondedTo', 'CommandDataSetType', 'Status',
-        'NumberOfRemainingSuboperations', 'NumberOfCompletedSuboperations',
-        'NumberOfFailedSuboperations', 'NumberOfWarningSuboperations',
-        'OffendingElement', 'ErrorComment',
+    "C-GET-RSP": (
+        "CommandGroupLength",
+        "AffectedSOPClassUID",
+        "CommandField",
+        "MessageIDBeingRespondedTo",
+        "CommandDataSetType",
+        "Status",
+        "NumberOfRemainingSuboperations",
+        "NumberOfCompletedSuboperations",
+        "NumberOfFailedSuboperations",
+        "NumberOfWarningSuboperations",
+        "OffendingElement",
+        "ErrorComment",
     ),
-    'C-MOVE-RQ': (
-        'CommandGroupLength', 'AffectedSOPClassUID', 'CommandField',
-        'MessageID', 'Priority', 'CommandDataSetType', 'MoveDestination',
+    "C-MOVE-RQ": (
+        "CommandGroupLength",
+        "AffectedSOPClassUID",
+        "CommandField",
+        "MessageID",
+        "Priority",
+        "CommandDataSetType",
+        "MoveDestination",
     ),
-    'C-MOVE-RSP': (
-        'CommandGroupLength', 'AffectedSOPClassUID', 'CommandField',
-        'MessageIDBeingRespondedTo', 'CommandDataSetType', 'Status',
-        'NumberOfRemainingSuboperations', 'NumberOfCompletedSuboperations',
-        'NumberOfFailedSuboperations', 'NumberOfWarningSuboperations',
-        'OffendingElement', 'ErrorComment'
+    "C-MOVE-RSP": (
+        "CommandGroupLength",
+        "AffectedSOPClassUID",
+        "CommandField",
+        "MessageIDBeingRespondedTo",
+        "CommandDataSetType",
+        "Status",
+        "NumberOfRemainingSuboperations",
+        "NumberOfCompletedSuboperations",
+        "NumberOfFailedSuboperations",
+        "NumberOfWarningSuboperations",
+        "OffendingElement",
+        "ErrorComment",
     ),
-    'N-EVENT-REPORT-RQ': (
-        'CommandGroupLength', 'AffectedSOPClassUID', 'CommandField',
-        'MessageID', 'CommandDataSetType', 'AffectedSOPInstanceUID',
-        'EventTypeID',
+    "N-EVENT-REPORT-RQ": (
+        "CommandGroupLength",
+        "AffectedSOPClassUID",
+        "CommandField",
+        "MessageID",
+        "CommandDataSetType",
+        "AffectedSOPInstanceUID",
+        "EventTypeID",
     ),
-    'N-EVENT-REPORT-RSP': (
-        'CommandGroupLength', 'AffectedSOPClassUID', 'CommandField',
-        'MessageIDBeingRespondedTo', 'CommandDataSetType', 'Status',
-        'AffectedSOPInstanceUID', 'EventTypeID',
-        'ErrorID', 'ErrorComment'
+    "N-EVENT-REPORT-RSP": (
+        "CommandGroupLength",
+        "AffectedSOPClassUID",
+        "CommandField",
+        "MessageIDBeingRespondedTo",
+        "CommandDataSetType",
+        "Status",
+        "AffectedSOPInstanceUID",
+        "EventTypeID",
+        "ErrorID",
+        "ErrorComment",
     ),
-    'N-GET-RQ': (
-        'CommandGroupLength', 'RequestedSOPClassUID', 'CommandField',
-        'MessageID', 'CommandDataSetType', 'RequestedSOPInstanceUID',
-        'AttributeIdentifierList',
+    "N-GET-RQ": (
+        "CommandGroupLength",
+        "RequestedSOPClassUID",
+        "CommandField",
+        "MessageID",
+        "CommandDataSetType",
+        "RequestedSOPInstanceUID",
+        "AttributeIdentifierList",
     ),
-    'N-GET-RSP': (
-        'CommandGroupLength', 'AffectedSOPClassUID', 'CommandField',
-        'MessageIDBeingRespondedTo', 'CommandDataSetType', 'Status',
-        'AffectedSOPInstanceUID',
-        'AttributeIdentifierList', 'ErrorComment', 'ErrorID',
+    "N-GET-RSP": (
+        "CommandGroupLength",
+        "AffectedSOPClassUID",
+        "CommandField",
+        "MessageIDBeingRespondedTo",
+        "CommandDataSetType",
+        "Status",
+        "AffectedSOPInstanceUID",
+        "AttributeIdentifierList",
+        "ErrorComment",
+        "ErrorID",
     ),
-    'N-SET-RQ': (
-        'CommandGroupLength', 'RequestedSOPClassUID', 'CommandField',
-        'MessageID', 'CommandDataSetType', 'RequestedSOPInstanceUID'
+    "N-SET-RQ": (
+        "CommandGroupLength",
+        "RequestedSOPClassUID",
+        "CommandField",
+        "MessageID",
+        "CommandDataSetType",
+        "RequestedSOPInstanceUID",
     ),
-    'N-SET-RSP': (
-        'CommandGroupLength', 'AffectedSOPClassUID', 'CommandField',
-        'MessageIDBeingRespondedTo', 'CommandDataSetType', 'Status',
-        'AffectedSOPInstanceUID',
-        'AttributeIdentifierList', 'ErrorComment', 'ErrorID'
+    "N-SET-RSP": (
+        "CommandGroupLength",
+        "AffectedSOPClassUID",
+        "CommandField",
+        "MessageIDBeingRespondedTo",
+        "CommandDataSetType",
+        "Status",
+        "AffectedSOPInstanceUID",
+        "AttributeIdentifierList",
+        "ErrorComment",
+        "ErrorID",
     ),
-    'N-ACTION-RQ': (
-        'CommandGroupLength', 'RequestedSOPClassUID', 'CommandField',
-        'MessageID', 'CommandDataSetType', 'RequestedSOPInstanceUID',
-        'ActionTypeID',
+    "N-ACTION-RQ": (
+        "CommandGroupLength",
+        "RequestedSOPClassUID",
+        "CommandField",
+        "MessageID",
+        "CommandDataSetType",
+        "RequestedSOPInstanceUID",
+        "ActionTypeID",
     ),
-    'N-ACTION-RSP': (
-        'CommandGroupLength', 'AffectedSOPClassUID', 'CommandField',
-        'MessageIDBeingRespondedTo', 'CommandDataSetType', 'Status',
-        'AffectedSOPInstanceUID', 'ActionTypeID',
-        'ErrorID', 'ErrorComment'
+    "N-ACTION-RSP": (
+        "CommandGroupLength",
+        "AffectedSOPClassUID",
+        "CommandField",
+        "MessageIDBeingRespondedTo",
+        "CommandDataSetType",
+        "Status",
+        "AffectedSOPInstanceUID",
+        "ActionTypeID",
+        "ErrorID",
+        "ErrorComment",
     ),
-    'N-CREATE-RQ': (
-        'CommandGroupLength', 'AffectedSOPClassUID', 'CommandField',
-        'MessageID', 'CommandDataSetType', 'AffectedSOPInstanceUID'
+    "N-CREATE-RQ": (
+        "CommandGroupLength",
+        "AffectedSOPClassUID",
+        "CommandField",
+        "MessageID",
+        "CommandDataSetType",
+        "AffectedSOPInstanceUID",
     ),
-    'N-CREATE-RSP': (
-        'CommandGroupLength', 'AffectedSOPClassUID', 'CommandField',
-        'MessageIDBeingRespondedTo', 'CommandDataSetType', 'Status',
-        'AffectedSOPInstanceUID', 'ErrorID', 'ErrorComment'
+    "N-CREATE-RSP": (
+        "CommandGroupLength",
+        "AffectedSOPClassUID",
+        "CommandField",
+        "MessageIDBeingRespondedTo",
+        "CommandDataSetType",
+        "Status",
+        "AffectedSOPInstanceUID",
+        "ErrorID",
+        "ErrorComment",
     ),
-    'N-DELETE-RQ': (
-        'CommandGroupLength', 'RequestedSOPClassUID', 'CommandField',
-        'MessageID', 'CommandDataSetType', 'RequestedSOPInstanceUID'
+    "N-DELETE-RQ": (
+        "CommandGroupLength",
+        "RequestedSOPClassUID",
+        "CommandField",
+        "MessageID",
+        "CommandDataSetType",
+        "RequestedSOPInstanceUID",
     ),
-    'N-DELETE-RSP': (
-        'CommandGroupLength', 'AffectedSOPClassUID', 'CommandField',
-        'MessageIDBeingRespondedTo', 'CommandDataSetType', 'Status',
-        'AffectedSOPInstanceUID', 'ErrorComment', 'ErrorID',
-    )
+    "N-DELETE-RSP": (
+        "CommandGroupLength",
+        "AffectedSOPClassUID",
+        "CommandField",
+        "MessageIDBeingRespondedTo",
+        "CommandDataSetType",
+        "Status",
+        "AffectedSOPInstanceUID",
+        "ErrorComment",
+        "ErrorID",
+    ),
 }
 
 # Used with DIMSEMessage.message_to_primitive
 _MSG_TO_PRIMITVE = {
-    'C_ECHO': C_ECHO,
-    'C_STORE': C_STORE,
-    'C_FIND': C_FIND,
-    'C_GET': C_GET,
-    'C_MOVE': C_MOVE,
-    'C_CANCEL': C_CANCEL,
-    'N_EVENT_REPORT': N_EVENT_REPORT,
-    'N_GET': N_GET,
-    'N_SET': N_SET,
-    'N_ACTION': N_ACTION,
-    'N_CREATE': N_CREATE,
-    'N_DELETE': N_DELETE,
+    "C_ECHO": C_ECHO,
+    "C_STORE": C_STORE,
+    "C_FIND": C_FIND,
+    "C_GET": C_GET,
+    "C_MOVE": C_MOVE,
+    "C_CANCEL": C_CANCEL,
+    "N_EVENT_REPORT": N_EVENT_REPORT,
+    "N_GET": N_GET,
+    "N_SET": N_SET,
+    "N_ACTION": N_ACTION,
+    "N_CREATE": N_CREATE,
+    "N_DELETE": N_DELETE,
 }
 
-_MULTIVALUE_TAGS = [
-    Tag('OffendingElement'),
-    Tag('AttributeIdentifierList')
-]
+_MULTIVALUE_TAGS = [Tag("OffendingElement"), Tag("AttributeIdentifierList")]
 
 
 class DIMSEMessage:
@@ -221,6 +337,7 @@ class DIMSEMessage:
         During decoding of an incoming P-DATA primitive this stores the
         encoded Command Set data from the fragments.
     """
+
     def __init__(self) -> None:
         """Create a new DIMSE Message."""
         self.context_id: Optional[int] = None
@@ -240,11 +357,11 @@ class DIMSEMessage:
         self._data_set_file: Optional["NTF"] = None
 
         cls_name = self.__class__.__name__
-        if cls_name == 'DIMSEMessage':
+        if cls_name == "DIMSEMessage":
             return
 
         # Set the command set attributes for the subclasses
-        for keyword in _COMMAND_SET_KEYWORDS[cls_name.replace('_', '-')]:
+        for keyword in _COMMAND_SET_KEYWORDS[cls_name.replace("_", "-")]:
             setattr(self.command_set, keyword, None)
 
     def decode_msg(
@@ -326,16 +443,12 @@ class DIMSEMessage:
                     # Command Set is always encoded Implicit VR Little Endian
                     #   decode(dataset, is_implicit_VR, is_little_endian)
                     # pylint: disable=attribute-defined-outside-init
-                    self.command_set = decode(
-                        self.encoded_command_set, True, True
-                    )
+                    self.command_set = decode(self.encoded_command_set, True, True)
 
                     # Determine which DIMSE Message class to use
-                    self.__class__ = (
-                        _MESSAGE_TYPES[
-                            cast(int, self.command_set.CommandField)
-                        ][1]
-                    )
+                    self.__class__ = _MESSAGE_TYPES[
+                        cast(int, self.command_set.CommandField)
+                    ][1]
 
                     # Determine if a Data Set is present by checking for
                     #   (0000, 0800) CommandDataSetType US 1. If the value is
@@ -346,9 +459,8 @@ class DIMSEMessage:
                         return True
 
                     # Data Set is present
-                    if (
-                        _config.STORE_RECV_CHUNKED_DATASET
-                        and isinstance(self, C_STORE_RQ)
+                    if _config.STORE_RECV_CHUNKED_DATASET and isinstance(
+                        self, C_STORE_RQ
                     ):
                         # delete=False is a workaround for Windows
                         # Setting delete=True prevents us from re-opening
@@ -356,21 +468,15 @@ class DIMSEMessage:
                         # below.
                         self._data_set_file = cast(
                             "NTF",
-                            NamedTemporaryFile(
-                                delete=False,
-                                mode="wb",
-                                suffix=".dcm"
-                            )
+                            NamedTemporaryFile(delete=False, mode="wb", suffix=".dcm"),
                         )
                         self._data_set_path = Path(self._data_set_file.name)
                         # Write the File Meta
-                        self._data_set_file.write(b'\x00' * 128)
-                        self._data_set_file.write(b'DICM')
+                        self._data_set_file.write(b"\x00" * 128)
+                        self._data_set_file.write(b"DICM")
 
                         cs = self.command_set
-                        cx = cast(
-                            "Association", assoc
-                        )._accepted_cx[context_id]
+                        cx = cast("Association", assoc)._accepted_cx[context_id]
                         sop_class = cast(UID, cs.AffectedSOPClassUID)
                         sop_instance = cast(UID, cs.AffectedSOPInstanceUID)
                         write_file_meta_info(
@@ -378,8 +484,8 @@ class DIMSEMessage:
                             create_file_meta(
                                 sop_class_uid=sop_class,
                                 sop_instance_uid=sop_instance,
-                                transfer_syntax=cx.transfer_syntax[0]
-                            )
+                                transfer_syntax=cx.transfer_syntax[0],
+                            ),
                         )
 
             # DATA SET
@@ -403,9 +509,7 @@ class DIMSEMessage:
         # We return False to indicate that the message isn't yet fully decoded
         return False
 
-    def encode_msg(
-        self, context_id: int, max_pdu_length: int
-    ) -> Iterator[P_DATA]:
+    def encode_msg(self, context_id: int, max_pdu_length: int) -> Iterator[P_DATA]:
         """Yield P-DATA primitives for the current DIMSE Message.
 
         **Encoding**
@@ -455,9 +559,7 @@ class DIMSEMessage:
         if max_pdu_length == 0:
             nr_fragments = 1
         else:
-            nr_fragments = ceil(
-                len(encoded_command_set) / (max_pdu_length - 6)
-            )
+            nr_fragments = ceil(len(encoded_command_set) / (max_pdu_length - 6))
 
         cmd_fragments = self._generate_pdv_fragments(
             encoded_command_set, max_pdu_length
@@ -467,14 +569,14 @@ class DIMSEMessage:
         for ii in range(int(nr_fragments - 1)):
             pdata = P_DATA()
             pdata.presentation_data_value_list.append(
-                (context_id, b'\x01' + next(cmd_fragments))
+                (context_id, b"\x01" + next(cmd_fragments))
             )
             yield pdata
 
         # Last command data fragment - bits xxxxxx11
         pdata = P_DATA()
         pdata.presentation_data_value_list.append(
-            (context_id, b'\x03' + next(cmd_fragments))
+            (context_id, b"\x03" + next(cmd_fragments))
         )
         yield pdata
 
@@ -488,9 +590,7 @@ class DIMSEMessage:
                 if max_pdu_length == 0:
                     nr_fragments = 1
                 else:
-                    nr_fragments = ceil(
-                        len(encoded_data_set) / (max_pdu_length - 6)
-                    )
+                    nr_fragments = ceil(len(encoded_data_set) / (max_pdu_length - 6))
 
                 ds_fragments = self._generate_pdv_fragments(
                     encoded_data_set, max_pdu_length
@@ -500,21 +600,21 @@ class DIMSEMessage:
                 for ii in range(int(nr_fragments - 1)):
                     pdata = P_DATA()
                     pdata.presentation_data_value_list.append(
-                        (context_id, b'\x00' + next(ds_fragments))
+                        (context_id, b"\x00" + next(ds_fragments))
                     )
                     yield pdata
 
                 # Last dataset fragment - bits xxxxxx10
                 pdata = P_DATA()
                 pdata.presentation_data_value_list.append(
-                    (context_id, b'\x02' + next(ds_fragments))
+                    (context_id, b"\x02" + next(ds_fragments))
                 )
                 yield pdata
         elif self._data_set_path is not None:
             # Read and send encoded dataset from file
             # Buffer size determined by io.DEFAULT_BUFFER_SIZE
             self._data_set_path = cast(Tuple[Path, int], self._data_set_path)
-            with open(self._data_set_path[0], 'rb') as f:
+            with open(self._data_set_path[0], "rb") as f:
                 end = f.seek(0, 2)
                 length = end - f.seek(self._data_set_path[1])
 
@@ -528,14 +628,14 @@ class DIMSEMessage:
                 for ii in range(int(nr_fragments - 1)):
                     pdata = P_DATA()
                     pdata.presentation_data_value_list.append(
-                        (context_id, b'\x00' + f.read(max_pdu_length - 6))
+                        (context_id, b"\x00" + f.read(max_pdu_length - 6))
                     )
                     yield pdata
 
                 # Last dataset fragment - bits xxxxxx10
                 pdata = P_DATA()
                 pdata.presentation_data_value_list.append(
-                    (context_id, b'\x02' + f.read(max_pdu_length - 6))
+                    (context_id, b"\x02" + f.read(max_pdu_length - 6))
                 )
                 yield pdata
 
@@ -591,7 +691,7 @@ class DIMSEMessage:
         offset = 0
         no_pdv = ceil(len(bytestream) / fragment_length)
         for ii in range(int(no_pdv)):
-            yield bytestream[offset:offset + fragment_length]
+            yield bytestream[offset : offset + fragment_length]
             offset += fragment_length
 
     def message_to_primitive(self) -> DimsePrimitiveType:
@@ -605,10 +705,9 @@ class DIMSEMessage:
             from the current ``DIMSEMessage`` sub-class object.
         """
         cls_type_name = self.__class__.__name__
-        final_underscore = cls_type_name.rfind('_R')
+        final_underscore = cls_type_name.rfind("_R")
         primitive = cast(
-            DimsePrimitiveType,
-            _MSG_TO_PRIMITVE[cls_type_name[:final_underscore]]()
+            DimsePrimitiveType, _MSG_TO_PRIMITVE[cls_type_name[:final_underscore]]()
         )
 
         # Command Set
@@ -652,7 +751,7 @@ class DIMSEMessage:
             to convert to the current ``DIMSEMessage`` object.
         """
         # pylint: disable=too-many-branches,too-many-statements
-        cls_type_name = self.__class__.__name__.replace('_', '-')
+        cls_type_name = self.__class__.__name__.replace("_", "-")
         if cls_type_name not in _COMMAND_SET_KEYWORDS:
             raise ValueError(
                 f"Can't convert primitive to message for unknown "
@@ -719,73 +818,140 @@ class DIMSEMessage:
 
 
 # Create DIMSEMessage subclasses
-class C_STORE_RQ(DIMSEMessage): pass
-class C_STORE_RSP(DIMSEMessage): pass
-class C_FIND_RQ(DIMSEMessage): pass
-class C_FIND_RSP(DIMSEMessage): pass
-class C_GET_RQ(DIMSEMessage): pass
-class C_GET_RSP(DIMSEMessage): pass
-class C_MOVE_RQ(DIMSEMessage): pass
-class C_MOVE_RSP(DIMSEMessage): pass
-class C_ECHO_RQ(DIMSEMessage): pass
-class C_ECHO_RSP(DIMSEMessage): pass
-class C_CANCEL_RQ(DIMSEMessage): pass
-class N_EVENT_REPORT_RQ(DIMSEMessage): pass
-class N_EVENT_REPORT_RSP(DIMSEMessage): pass
-class N_GET_RQ(DIMSEMessage): pass
-class N_GET_RSP(DIMSEMessage): pass
-class N_SET_RQ(DIMSEMessage): pass
-class N_SET_RSP(DIMSEMessage): pass
-class N_ACTION_RQ(DIMSEMessage): pass
-class N_ACTION_RSP(DIMSEMessage): pass
-class N_CREATE_RQ(DIMSEMessage): pass
-class N_CREATE_RSP(DIMSEMessage): pass
-class N_DELETE_RQ(DIMSEMessage): pass
-class N_DELETE_RSP(DIMSEMessage): pass
+class C_STORE_RQ(DIMSEMessage):
+    pass
+
+
+class C_STORE_RSP(DIMSEMessage):
+    pass
+
+
+class C_FIND_RQ(DIMSEMessage):
+    pass
+
+
+class C_FIND_RSP(DIMSEMessage):
+    pass
+
+
+class C_GET_RQ(DIMSEMessage):
+    pass
+
+
+class C_GET_RSP(DIMSEMessage):
+    pass
+
+
+class C_MOVE_RQ(DIMSEMessage):
+    pass
+
+
+class C_MOVE_RSP(DIMSEMessage):
+    pass
+
+
+class C_ECHO_RQ(DIMSEMessage):
+    pass
+
+
+class C_ECHO_RSP(DIMSEMessage):
+    pass
+
+
+class C_CANCEL_RQ(DIMSEMessage):
+    pass
+
+
+class N_EVENT_REPORT_RQ(DIMSEMessage):
+    pass
+
+
+class N_EVENT_REPORT_RSP(DIMSEMessage):
+    pass
+
+
+class N_GET_RQ(DIMSEMessage):
+    pass
+
+
+class N_GET_RSP(DIMSEMessage):
+    pass
+
+
+class N_SET_RQ(DIMSEMessage):
+    pass
+
+
+class N_SET_RSP(DIMSEMessage):
+    pass
+
+
+class N_ACTION_RQ(DIMSEMessage):
+    pass
+
+
+class N_ACTION_RSP(DIMSEMessage):
+    pass
+
+
+class N_CREATE_RQ(DIMSEMessage):
+    pass
+
+
+class N_CREATE_RSP(DIMSEMessage):
+    pass
+
+
+class N_DELETE_RQ(DIMSEMessage):
+    pass
+
+
+class N_DELETE_RSP(DIMSEMessage):
+    pass
 
 
 # Values from PS3.5
 _MESSAGE_TYPES = {
-    0x0001: ('C-STORE-RQ', C_STORE_RQ),
-    0x8001: ('C-STORE-RSP', C_STORE_RSP),
-    0x0020: ('C-FIND-RQ', C_FIND_RQ),
-    0x8020: ('C-FIND-RSP', C_FIND_RSP),
-    0x0010: ('C-GET-RQ', C_GET_RQ),
-    0x8010: ('C-GET-RSP', C_GET_RSP),
-    0x0021: ('C-MOVE-RQ', C_MOVE_RQ),
-    0x8021: ('C-MOVE-RSP', C_MOVE_RSP),
-    0x0030: ('C-ECHO-RQ', C_ECHO_RQ),
-    0x8030: ('C-ECHO-RSP', C_ECHO_RSP),
-    0x0FFF: ('C-CANCEL-RQ', C_CANCEL_RQ),
-    0x0100: ('N-EVENT-REPORT-RQ', N_EVENT_REPORT_RQ),
-    0x8100: ('N-EVENT-REPORT-RSP', N_EVENT_REPORT_RSP),
-    0x0110: ('N-GET-RQ', N_GET_RQ),
-    0x8110: ('N-GET-RSP', N_GET_RSP),
-    0x0120: ('N-SET-RQ', N_SET_RQ),
-    0x8120: ('N-SET-RSP', N_SET_RSP),
-    0x0130: ('N-ACTION-RQ', N_ACTION_RQ),
-    0x8130: ('N-ACTION-RSP', N_ACTION_RSP),
-    0x0140: ('N-CREATE-RQ', N_CREATE_RQ),
-    0x8140: ('N-CREATE-RSP', N_CREATE_RSP),
-    0x0150: ('N-DELETE-RQ', N_DELETE_RQ),
-    0x8150: ('N-DELETE-RSP', N_DELETE_RSP),
+    0x0001: ("C-STORE-RQ", C_STORE_RQ),
+    0x8001: ("C-STORE-RSP", C_STORE_RSP),
+    0x0020: ("C-FIND-RQ", C_FIND_RQ),
+    0x8020: ("C-FIND-RSP", C_FIND_RSP),
+    0x0010: ("C-GET-RQ", C_GET_RQ),
+    0x8010: ("C-GET-RSP", C_GET_RSP),
+    0x0021: ("C-MOVE-RQ", C_MOVE_RQ),
+    0x8021: ("C-MOVE-RSP", C_MOVE_RSP),
+    0x0030: ("C-ECHO-RQ", C_ECHO_RQ),
+    0x8030: ("C-ECHO-RSP", C_ECHO_RSP),
+    0x0FFF: ("C-CANCEL-RQ", C_CANCEL_RQ),
+    0x0100: ("N-EVENT-REPORT-RQ", N_EVENT_REPORT_RQ),
+    0x8100: ("N-EVENT-REPORT-RSP", N_EVENT_REPORT_RSP),
+    0x0110: ("N-GET-RQ", N_GET_RQ),
+    0x8110: ("N-GET-RSP", N_GET_RSP),
+    0x0120: ("N-SET-RQ", N_SET_RQ),
+    0x8120: ("N-SET-RSP", N_SET_RSP),
+    0x0130: ("N-ACTION-RQ", N_ACTION_RQ),
+    0x8130: ("N-ACTION-RSP", N_ACTION_RSP),
+    0x0140: ("N-CREATE-RQ", N_CREATE_RQ),
+    0x8140: ("N-CREATE-RSP", N_CREATE_RSP),
+    0x0150: ("N-DELETE-RQ", N_DELETE_RQ),
+    0x8150: ("N-DELETE-RSP", N_DELETE_RSP),
 }
 
 _DATASET_KEYWORDS = {
-    'C_STORE_RQ': 'DataSet',
-    'C_FIND_RQ': 'Identifier',
-    'C_GET_RQ': 'Identifier',
-    'C_MOVE_RQ': 'Identifier',
-    'C_FIND_RSP': 'Identifier',
-    'C_GET_RSP': 'Identifier',
-    'C_MOVE_RSP': 'Identifier',
-    'N_EVENT_REPORT_RQ': 'EventInformation',
-    'N_EVENT_REPORT_RSP': 'EventReply',
-    'N_GET_RSP': 'AttributeList',
-    'N_SET_RSP': 'AttributeList',
-    'N_CREATE_RQ': 'AttributeList',
-    'N_CREATE_RSP': 'AttributeList',
-    'N_SET_RQ': 'ModificationList',
-    'N_ACTION_RQ': 'ActionInformation',
-    'N_ACTION_RSP': 'ActionReply',
+    "C_STORE_RQ": "DataSet",
+    "C_FIND_RQ": "Identifier",
+    "C_GET_RQ": "Identifier",
+    "C_MOVE_RQ": "Identifier",
+    "C_FIND_RSP": "Identifier",
+    "C_GET_RSP": "Identifier",
+    "C_MOVE_RSP": "Identifier",
+    "N_EVENT_REPORT_RQ": "EventInformation",
+    "N_EVENT_REPORT_RSP": "EventReply",
+    "N_GET_RSP": "AttributeList",
+    "N_SET_RSP": "AttributeList",
+    "N_CREATE_RQ": "AttributeList",
+    "N_CREATE_RSP": "AttributeList",
+    "N_SET_RQ": "ModificationList",
+    "N_ACTION_RQ": "ActionInformation",
+    "N_ACTION_RSP": "ActionReply",
 }

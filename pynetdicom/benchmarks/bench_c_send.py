@@ -9,13 +9,17 @@ from pydicom import dcmread
 from pynetdicom import AE
 from pynetdicom.sop_class import CTImageStorage, Verification
 from pynetdicom.tests.dummy_c_scp import (
-    DummyVerificationSCP, DummyStorageSCP, DummyFindSCP, DummyBaseSCP,
-    DummyGetSCP, DummyMoveSCP
+    DummyVerificationSCP,
+    DummyStorageSCP,
+    DummyFindSCP,
+    DummyBaseSCP,
+    DummyGetSCP,
+    DummyMoveSCP,
 )
 
 
-DS_DIR = os.path.join(os.path.dirname(__file__), '../tests', 'dicom_files')
-DATASET = dcmread(os.path.join(DS_DIR, 'CTImageStorage.dcm'))
+DS_DIR = os.path.join(os.path.dirname(__file__), "../tests", "dicom_files")
+DATASET = dcmread(os.path.join(DS_DIR, "CTImageStorage.dcm"))
 
 
 class TestSendCEcho:
@@ -26,7 +30,7 @@ class TestSendCEcho:
 
         ae = AE()
         ae.add_requested_context(Verification)
-        self.assoc = ae.associate('localhost', 11112)
+        self.assoc = ae.associate("localhost", 11112)
 
     def teardown(self):
         """Clear any active threads"""
@@ -49,7 +53,7 @@ class TestSendCEcho:
 
             self.assoc.release()
         else:
-            raise RuntimeError('Unable to associate with the echo SCP')
+            raise RuntimeError("Unable to associate with the echo SCP")
 
 
 class TestSendCStore:
@@ -61,7 +65,7 @@ class TestSendCStore:
 
         ae = AE()
         ae.add_requested_context(CTImageStorage)
-        self.assoc = ae.associate('localhost', 11112)
+        self.assoc = ae.associate("localhost", 11112)
 
     def teardown(self):
         """Clear any active threads"""
@@ -84,4 +88,4 @@ class TestSendCStore:
 
             self.assoc.release()
         else:
-            raise RuntimeError('Unable to associate with the echo SCP')
+            raise RuntimeError("Unable to associate with the echo SCP")

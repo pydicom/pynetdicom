@@ -12,47 +12,54 @@ import pytest
 from pydicom import dcmread
 from pydicom.dataset import Dataset, FileMetaDataset
 from pydicom.uid import (
-    ExplicitVRLittleEndian, ImplicitVRLittleEndian,
-    DeflatedExplicitVRLittleEndian, ExplicitVRBigEndian
+    ExplicitVRLittleEndian,
+    ImplicitVRLittleEndian,
+    DeflatedExplicitVRLittleEndian,
+    ExplicitVRBigEndian,
 )
 
 from pynetdicom import (
-    AE, evt, debug_logger, DEFAULT_TRANSFER_SYNTAXES,
+    AE,
+    evt,
+    debug_logger,
+    DEFAULT_TRANSFER_SYNTAXES,
     QueryRetrievePresentationContexts,
 )
 from pynetdicom.sop_class import (
-    Verification, CTImageStorage,
+    Verification,
+    CTImageStorage,
     PatientRootQueryRetrieveInformationModelGet,
     StudyRootQueryRetrieveInformationModelGet,
     PatientStudyOnlyQueryRetrieveInformationModelGet,
 )
 
 
-#debug_logger()
+# debug_logger()
 
 
-APP_DIR = os.path.join(os.path.dirname(__file__), '../')
-APP_FILE = os.path.join(APP_DIR, 'getscu', 'getscu.py')
-DATA_DIR = os.path.join(APP_DIR, '../', 'tests', 'dicom_files')
-DATASET_FILE = os.path.join(DATA_DIR, 'CTImageStorage.dcm')
+APP_DIR = os.path.join(os.path.dirname(__file__), "../")
+APP_FILE = os.path.join(APP_DIR, "getscu", "getscu.py")
+DATA_DIR = os.path.join(APP_DIR, "../", "tests", "dicom_files")
+DATASET_FILE = os.path.join(DATA_DIR, "CTImageStorage.dcm")
 
 
 def start_getscu(args):
     """Start the getscu.py app and return the process."""
-    pargs = [sys.executable, APP_FILE, 'localhost', '11112'] + [*args]
+    pargs = [sys.executable, APP_FILE, "localhost", "11112"] + [*args]
     return subprocess.Popen(pargs)
 
 
 def start_getscu_cli(args):
     """Start the getscu app using CLI and return the process."""
-    pargs = [
-        sys.executable, '-m', 'pynetdicom', 'getscu', 'localhost', '11112'
-    ] + [*args]
+    pargs = [sys.executable, "-m", "pynetdicom", "getscu", "localhost", "11112"] + [
+        *args
+    ]
     return subprocess.Popen(pargs)
 
 
 class GetSCUBase:
     """Tests for getscu.py"""
+
     def setup(self):
         """Run prior to each test"""
         self.ae = None
@@ -62,8 +69,8 @@ class GetSCUBase:
         ds.file_meta = FileMetaDataset()
         ds.file_meta.TransferSyntaxUID = ImplicitVRLittleEndian
         ds.SOPClassUID = CTImageStorage
-        ds.SOPInstanceUID = '1.2.3.4'
-        ds.PatientName = 'Citizen^Jan'
+        ds.SOPInstanceUID = "1.2.3.4"
+        ds.PatientName = "Citizen^Jan"
 
     def teardown(self):
         """Clear any active threads"""
@@ -82,19 +89,16 @@ class GetSCUBase:
         def handle_release(event):
             events.append(event)
 
-        handlers = [
-            (evt.EVT_C_GET, handle_get),
-            (evt.EVT_RELEASED, handle_release)
-        ]
+        handlers = [(evt.EVT_C_GET, handle_get), (evt.EVT_RELEASED, handle_release)]
 
         self.ae = ae = AE()
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
         ae.network_timeout = 5
         ae.supported_contexts = QueryRetrievePresentationContexts
-        scp = ae.start_server(('', 11112), block=False, evt_handlers=handlers)
+        scp = ae.start_server(("", 11112), block=False, evt_handlers=handlers)
 
-        p = self.func(['-k', "PatientName="])
+        p = self.func(["-k", "PatientName="])
         p.wait()
         assert p.returncode == 0
 
@@ -104,9 +108,9 @@ class GetSCUBase:
         assert events[0].identifier.PatientName == ""
         assert events[1].event == evt.EVT_RELEASED
         requestor = events[1].assoc.requestor
-        assert 'GETSCU' == requestor.ae_title
+        assert "GETSCU" == requestor.ae_title
         assert 16382 == requestor.maximum_length
-        assert 'ANY-SCP' == requestor.primitive.called_ae_title
+        assert "ANY-SCP" == requestor.primitive.called_ae_title
         assert 125 == len(requestor.extended_negotiation)
         assert (1, 1) == requestor.asynchronous_operations
         assert {} == requestor.sop_class_common_extended
@@ -122,7 +126,7 @@ class GetSCUBase:
 
     def test_no_peer(self, capfd):
         """Test trying to connect to non-existent host."""
-        p = self.func(['-k', "PatientName="])
+        p = self.func(["-k", "PatientName="])
         p.wait()
         assert p.returncode == 1
 
@@ -132,21 +136,21 @@ class GetSCUBase:
 
     def test_bad_input(self, capfd):
         """Test being unable to read the input file."""
-        p = self.func(['-f', 'no-such-file.dcm'])
+        p = self.func(["-f", "no-such-file.dcm"])
         p.wait()
         assert p.returncode == 1
 
         out, err = capfd.readouterr()
-        assert 'Cannot read input file no-such-file.dcm' in err
+        assert "Cannot read input file no-such-file.dcm" in err
 
     def test_flag_version(self, capfd):
         """Test --version flag."""
-        p = self.func(['--version'])
+        p = self.func(["--version"])
         p.wait()
         assert p.returncode == 0
 
         out, err = capfd.readouterr()
-        assert 'getscu.py v' in out
+        assert "getscu.py v" in out
 
     def test_flag_quiet(self, capfd):
         """Test --quiet flag."""
@@ -155,19 +159,20 @@ class GetSCUBase:
         ae.dimse_timeout = 5
         ae.network_timeout = 5
         ae.add_supported_context(Verification)
-        scp = ae.start_server(('', 11112), block=False)
+        scp = ae.start_server(("", 11112), block=False)
 
-        p = self.func(['-q', '-k', 'PatientName='])
+        p = self.func(["-q", "-k", "PatientName="])
         p.wait()
         assert p.returncode == 1
 
         out, err = capfd.readouterr()
-        assert out == err == ''
+        assert out == err == ""
 
         scp.shutdown()
 
     def test_flag_verbose(self, capfd):
         """Test --verbose flag."""
+
         def handle_get(event):
             yield 0
             yield 0x0000, None
@@ -181,9 +186,9 @@ class GetSCUBase:
         ae.dimse_timeout = 5
         ae.network_timeout = 5
         ae.supported_contexts = QueryRetrievePresentationContexts
-        scp = ae.start_server(('', 11112), block=False, evt_handlers=handlers)
+        scp = ae.start_server(("", 11112), block=False, evt_handlers=handlers)
 
-        p = self.func(['-v', '-k', 'PatientName='])
+        p = self.func(["-v", "-k", "PatientName="])
         p.wait()
         assert p.returncode == 0
 
@@ -199,6 +204,7 @@ class GetSCUBase:
 
     def test_flag_debug(self, capfd):
         """Test --debug flag."""
+
         def handle_get(event):
             yield 0
             yield 0x0000, None
@@ -212,9 +218,9 @@ class GetSCUBase:
         ae.dimse_timeout = 5
         ae.network_timeout = 5
         ae.supported_contexts = QueryRetrievePresentationContexts
-        scp = ae.start_server(('', 11112), block=False, evt_handlers=handlers)
+        scp = ae.start_server(("", 11112), block=False, evt_handlers=handlers)
 
-        p = self.func(['-d', '-k', 'PatientName='])
+        p = self.func(["-d", "-k", "PatientName="])
         p.wait()
         assert p.returncode == 0
 
@@ -226,7 +232,7 @@ class GetSCUBase:
 
     def test_flag_log_collision(self):
         """Test error with -q -v and -d flag."""
-        p = self.func(['-v', '-d'])
+        p = self.func(["-v", "-d"])
         p.wait()
         assert p.returncode != 0
 
@@ -238,6 +244,7 @@ class GetSCUBase:
     def test_flag_aet(self):
         """Test --calling-aet flag."""
         events = []
+
         def handle_get(event):
             events.append(event)
             yield 0
@@ -252,9 +259,9 @@ class GetSCUBase:
         ae.dimse_timeout = 5
         ae.network_timeout = 5
         ae.supported_contexts = QueryRetrievePresentationContexts
-        scp = ae.start_server(('', 11112), block=False, evt_handlers=handlers)
+        scp = ae.start_server(("", 11112), block=False, evt_handlers=handlers)
 
-        p = self.func(['-aet', 'MYSCU', '-k', 'PatientName='])
+        p = self.func(["-aet", "MYSCU", "-k", "PatientName="])
         p.wait()
         assert p.returncode == 0
 
@@ -262,11 +269,12 @@ class GetSCUBase:
 
         assert events[0].event == evt.EVT_C_GET
         requestor = events[0].assoc.requestor
-        assert 'MYSCU' == requestor.ae_title
+        assert "MYSCU" == requestor.ae_title
 
     def test_flag_aec(self):
         """Test --called-aet flag."""
         events = []
+
         def handle_get(event):
             events.append(event)
             yield 0
@@ -281,10 +289,9 @@ class GetSCUBase:
         ae.dimse_timeout = 5
         ae.network_timeout = 5
         ae.supported_contexts = QueryRetrievePresentationContexts
-        scp = ae.start_server(('', 11112), block=False, evt_handlers=handlers)
+        scp = ae.start_server(("", 11112), block=False, evt_handlers=handlers)
 
-
-        p = self.func(['-aec', 'YOURSCP', '-k', 'PatientName='])
+        p = self.func(["-aec", "YOURSCP", "-k", "PatientName="])
         p.wait()
         assert p.returncode == 0
 
@@ -292,7 +299,7 @@ class GetSCUBase:
 
         assert events[0].event == evt.EVT_C_GET
         requestor = events[0].assoc.requestor
-        assert 'YOURSCP' == requestor.primitive.called_ae_title
+        assert "YOURSCP" == requestor.primitive.called_ae_title
 
     def test_flag_ta(self, capfd):
         """Test --acse-timeout flag."""
@@ -321,9 +328,9 @@ class GetSCUBase:
         ae.dimse_timeout = 5
         ae.network_timeout = 5
         ae.supported_contexts = QueryRetrievePresentationContexts
-        scp = ae.start_server(('', 11112), block=False, evt_handlers=handlers)
+        scp = ae.start_server(("", 11112), block=False, evt_handlers=handlers)
 
-        p = self.func(['-ta', '0.05', '-d', '-k', 'PatientName='])
+        p = self.func(["-ta", "0.05", "-d", "-k", "PatientName="])
         p.wait()
         assert p.returncode == 1
 
@@ -359,10 +366,9 @@ class GetSCUBase:
         ae.dimse_timeout = 5
         ae.network_timeout = 5
         ae.supported_contexts = QueryRetrievePresentationContexts
-        scp = ae.start_server(('', 11112), block=False, evt_handlers=handlers)
+        scp = ae.start_server(("", 11112), block=False, evt_handlers=handlers)
 
-
-        p = self.func(['-td', '0.05', '-d', '-k', 'PatientName='])
+        p = self.func(["-td", "0.05", "-d", "-k", "PatientName="])
         p.wait()
         assert p.returncode == 0
 
@@ -392,20 +398,16 @@ class GetSCUBase:
         def handle_release(event):
             events.append(event)
 
-        handlers = [
-            (evt.EVT_C_GET, handle_get),
-            (evt.EVT_RELEASED, handle_release)
-        ]
+        handlers = [(evt.EVT_C_GET, handle_get), (evt.EVT_RELEASED, handle_release)]
 
         self.ae = ae = AE()
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
         ae.network_timeout = 5
         ae.supported_contexts = QueryRetrievePresentationContexts
-        scp = ae.start_server(('', 11112), block=False, evt_handlers=handlers)
+        scp = ae.start_server(("", 11112), block=False, evt_handlers=handlers)
 
-
-        p = self.func(['--max-pdu', '123456', '-k', 'PatientName='])
+        p = self.func(["--max-pdu", "123456", "-k", "PatientName="])
         p.wait()
         assert p.returncode == 0
 
@@ -419,6 +421,7 @@ class GetSCUBase:
     def test_flag_patient(self):
         """Test the -P flag."""
         events = []
+
         def handle_get(event):
             events.append(event)
             yield 0
@@ -433,9 +436,9 @@ class GetSCUBase:
         ae.dimse_timeout = 5
         ae.network_timeout = 5
         ae.supported_contexts = QueryRetrievePresentationContexts
-        scp = ae.start_server(('', 11112), block=False, evt_handlers=handlers)
+        scp = ae.start_server(("", 11112), block=False, evt_handlers=handlers)
 
-        p = self.func(['-P', '-k', 'PatientName='])
+        p = self.func(["-P", "-k", "PatientName="])
         p.wait()
         assert p.returncode == 0
 
@@ -443,13 +446,12 @@ class GetSCUBase:
 
         assert events[0].event == evt.EVT_C_GET
         cx = events[0].context
-        assert cx.abstract_syntax == (
-            PatientRootQueryRetrieveInformationModelGet
-        )
+        assert cx.abstract_syntax == (PatientRootQueryRetrieveInformationModelGet)
 
     def test_flag_study(self):
         """Test the -S flag."""
         events = []
+
         def handle_get(event):
             events.append(event)
             yield 0
@@ -464,9 +466,9 @@ class GetSCUBase:
         ae.dimse_timeout = 5
         ae.network_timeout = 5
         ae.supported_contexts = QueryRetrievePresentationContexts
-        scp = ae.start_server(('', 11112), block=False, evt_handlers=handlers)
+        scp = ae.start_server(("", 11112), block=False, evt_handlers=handlers)
 
-        p = self.func(['-S', '-k', 'PatientName='])
+        p = self.func(["-S", "-k", "PatientName="])
         p.wait()
         assert p.returncode == 0
 
@@ -479,6 +481,7 @@ class GetSCUBase:
     def test_flag_patient_study(self):
         """Test the -O flag."""
         events = []
+
         def handle_get(event):
             events.append(event)
             yield 0
@@ -493,9 +496,9 @@ class GetSCUBase:
         ae.dimse_timeout = 5
         ae.network_timeout = 5
         ae.supported_contexts = QueryRetrievePresentationContexts
-        scp = ae.start_server(('', 11112), block=False, evt_handlers=handlers)
+        scp = ae.start_server(("", 11112), block=False, evt_handlers=handlers)
 
-        p = self.func(['-O', '-k', 'PatientName='])
+        p = self.func(["-O", "-k", "PatientName="])
         p.wait()
         assert p.returncode == 0
 
@@ -503,12 +506,11 @@ class GetSCUBase:
 
         assert events[0].event == evt.EVT_C_GET
         cx = events[0].context
-        assert cx.abstract_syntax == (
-            PatientStudyOnlyQueryRetrieveInformationModelGet
-        )
+        assert cx.abstract_syntax == (PatientStudyOnlyQueryRetrieveInformationModelGet)
 
     def test_flag_output(self):
         """Test the -od --output-directory flag."""
+
         def handle_get(event):
             yield 1
             yield 0xFF00, self.response
@@ -523,22 +525,23 @@ class GetSCUBase:
         ae.network_timeout = 5
         ae.supported_contexts = QueryRetrievePresentationContexts
         ae.add_supported_context(CTImageStorage, scu_role=True, scp_role=True)
-        scp = ae.start_server(('', 11112), block=False, evt_handlers=handlers)
+        scp = ae.start_server(("", 11112), block=False, evt_handlers=handlers)
 
-        assert 'test_dir' not in os.listdir()
+        assert "test_dir" not in os.listdir()
 
-        p = self.func(['-od', 'test_dir', '-k', 'PatientName='])
+        p = self.func(["-od", "test_dir", "-k", "PatientName="])
         p.wait()
         assert p.returncode == 0
 
         scp.shutdown()
 
-        assert 'CT.1.2.3.4' in os.listdir('test_dir')
-        shutil.rmtree('test_dir')
-        assert 'test_dir' not in os.listdir()
+        assert "CT.1.2.3.4" in os.listdir("test_dir")
+        shutil.rmtree("test_dir")
+        assert "test_dir" not in os.listdir()
 
     def test_flag_ignore(self):
         """Test the --ignore flag."""
+
         def handle_get(event):
             yield 1
             yield 0xFF00, self.response
@@ -552,19 +555,20 @@ class GetSCUBase:
         ae.dimse_timeout = 5
         ae.network_timeout = 5
         ae.supported_contexts = QueryRetrievePresentationContexts
-        scp = ae.start_server(('', 11112), block=False, evt_handlers=handlers)
+        scp = ae.start_server(("", 11112), block=False, evt_handlers=handlers)
 
-        p = self.func(['--ignore', '-k', 'PatientName='])
+        p = self.func(["--ignore", "-k", "PatientName="])
         p.wait()
         assert p.returncode == 0
 
         scp.shutdown()
 
-        assert 'CT.1.2.3.4' not in os.listdir()
+        assert "CT.1.2.3.4" not in os.listdir()
 
 
 class TestGetSCU(GetSCUBase):
     """Tests for getscu.py"""
+
     def setup(self):
         """Run prior to each test"""
         self.ae = None
@@ -574,12 +578,13 @@ class TestGetSCU(GetSCUBase):
         ds.file_meta = FileMetaDataset()
         ds.file_meta.TransferSyntaxUID = ImplicitVRLittleEndian
         ds.SOPClassUID = CTImageStorage
-        ds.SOPInstanceUID = '1.2.3.4'
-        ds.PatientName = 'Citizen^Jan'
+        ds.SOPInstanceUID = "1.2.3.4"
+        ds.PatientName = "Citizen^Jan"
 
 
 class TestGetSCUCLI(GetSCUBase):
     """Tests for getscu using CLI"""
+
     def setup(self):
         """Run prior to each test"""
         self.ae = None
@@ -589,5 +594,5 @@ class TestGetSCUCLI(GetSCUBase):
         ds.file_meta = FileMetaDataset()
         ds.file_meta.TransferSyntaxUID = ImplicitVRLittleEndian
         ds.SOPClassUID = CTImageStorage
-        ds.SOPInstanceUID = '1.2.3.4'
-        ds.PatientName = 'Citizen^Jan'
+        ds.SOPInstanceUID = "1.2.3.4"
+        ds.PatientName = "Citizen^Jan"

@@ -3,7 +3,15 @@
 import logging
 from struct import unpack, calcsize
 from typing import (
-    TYPE_CHECKING, List, Optional, cast, Union, Dict, Any, Sequence, Iterator
+    TYPE_CHECKING,
+    List,
+    Optional,
+    cast,
+    Union,
+    Dict,
+    Any,
+    Sequence,
+    Iterator,
 )
 
 from pydicom.dataset import Dataset
@@ -11,42 +19,45 @@ from pydicom.uid import UID
 
 from pynetdicom.dimse_messages import *
 from pynetdicom.pdu import (
-    A_ASSOCIATE_RQ, A_ASSOCIATE_AC, A_ASSOCIATE_RJ, A_RELEASE_RQ,
-    A_RELEASE_RP, A_ABORT_RQ, P_DATA_TF
+    A_ASSOCIATE_RQ,
+    A_ASSOCIATE_AC,
+    A_ASSOCIATE_RJ,
+    A_RELEASE_RQ,
+    A_RELEASE_RP,
+    A_ABORT_RQ,
+    P_DATA_TF,
 )
 from pynetdicom.sop_class import uid_to_service_class
 from pynetdicom.utils import pretty_bytes, decode_bytes
 
 if TYPE_CHECKING:  # pragma: no cover
     from pynetdicom.events import Event
-    from pynetdicom.pdu_items import (
-        UserInformationItem, UserIdentitySubItemRQ
-    )
+    from pynetdicom.pdu_items import UserInformationItem, UserIdentitySubItemRQ
     from pynetdicom.pdu_items import SOPClassCommonExtendedNegotiation
 
 
-LOGGER = logging.getLogger('pynetdicom.events')
+LOGGER = logging.getLogger("pynetdicom.events")
 
 
 # Debugging handlers
 def debug_fsm(event: "Event") -> None:
     """Debugging handler for the FSM."""
     LOGGER.debug(
-        "{}: {} + {} -> {} -> {}"
-        .format(
+        "{}: {} + {} -> {} -> {}".format(
             event.assoc.mode[0].upper(),
             event.current_state,
             event.fsm_event,
             event.action,
-            event.next_state
+            event.next_state,
         )
     )
+
 
 def debug_data(
     event: "Event",
     pdu_type: Optional[int] = None,
     print_raw: bool = True,
-    print_summary: bool = False
+    print_summary: bool = False,
 ) -> None:
     """Debugging handler for parsing raw encoded PDUs
 
@@ -72,7 +83,7 @@ def debug_data(
     if print_raw:
         LOGGER.debug(f"{' DEBUG - ENCODED PDU ':=^76}")
         slist = pretty_bytes(
-            data, prefix=' ', delimiter=' ', max_size=None, items_per_line=25
+            data, prefix=" ", delimiter=" ", max_size=None, items_per_line=25
         )
         for s in slist:
             LOGGER.debug(s)
@@ -80,28 +91,28 @@ def debug_data(
         LOGGER.debug(f"{' END ENCODED PDU ':=^76}")
 
     PDU_ITEM_TYPES = {
-        0x01: ("A-ASSOCIATE-RQ", '>I', 74),
-        0x02: ("A-ASSOCIATE-AC", '>I', 74),
-        0x03: ("A-ASSOCIATE-RJ", '>I', None),
-        0x04: ("P-DATA-TF", '>I', None),
-        0x05: ("A-RELEASE-RQ", '>I', None),
-        0x06: ("A-RELEASE-RP", '>I', None),
-        0x07: ("A-ABORT", '>I', None),
-        0x10: ("Application Context", '>H', None),
-        0x20: ("Presentation Context RQ", '>H', 8),
-        0x21: ("Presentation Context AC", '>H', 8),
-        0x30: ("Abstract Syntax", '>H', None),
-        0x40: ("Transfer Syntax", '>H', None),
-        0x50: ("User Information", '>H', 4),
-        0x51: ("Maximum Length", '>H', None),
-        0x52: ("Implementation Class UID", '>H', None),
-        0x53: ("Asynchronous Operations", '>H', None),
-        0x54: ("SCP/SCU Role Selection", '>H', None),
-        0x55: ("Implementation Version Name", '>H', None),
-        0x56: ("SOP Class Extended Negotiation", '>H', None),
-        0x57: ("SOP Class Common Extended Negotiation", '>H', None),
-        0x58: ("User Identity RQ", '>H', None),
-        0x59: ("User Identity AC", '>H', None),
+        0x01: ("A-ASSOCIATE-RQ", ">I", 74),
+        0x02: ("A-ASSOCIATE-AC", ">I", 74),
+        0x03: ("A-ASSOCIATE-RJ", ">I", None),
+        0x04: ("P-DATA-TF", ">I", None),
+        0x05: ("A-RELEASE-RQ", ">I", None),
+        0x06: ("A-RELEASE-RP", ">I", None),
+        0x07: ("A-ABORT", ">I", None),
+        0x10: ("Application Context", ">H", None),
+        0x20: ("Presentation Context RQ", ">H", 8),
+        0x21: ("Presentation Context AC", ">H", 8),
+        0x30: ("Abstract Syntax", ">H", None),
+        0x40: ("Transfer Syntax", ">H", None),
+        0x50: ("User Information", ">H", 4),
+        0x51: ("Maximum Length", ">H", None),
+        0x52: ("Implementation Class UID", ">H", None),
+        0x53: ("Asynchronous Operations", ">H", None),
+        0x54: ("SCP/SCU Role Selection", ">H", None),
+        0x55: ("Implementation Version Name", ">H", None),
+        0x56: ("SOP Class Extended Negotiation", ">H", None),
+        0x57: ("SOP Class Common Extended Negotiation", ">H", None),
+        0x58: ("User Identity RQ", ">H", None),
+        0x59: ("User Identity AC", ">H", None),
     }
 
     if print_summary:
@@ -112,12 +123,9 @@ def debug_data(
             data_type = data[idx]
             name, fmt, len_fixed = PDU_ITEM_TYPES[data_type]
             len_bytes = calcsize(fmt)
-            length = unpack(fmt, data[idx + 2:idx + 2 + len_bytes])[0]
+            length = unpack(fmt, data[idx + 2 : idx + 2 + len_bytes])[0]
 
-            s = (
-                f" {idx:>{digits}}: 0x{data_type:02X} - {name} "
-                f"({length} bytes)"
-            )
+            s = f" {idx:>{digits}}: 0x{data_type:02X} - {name} " f"({length} bytes)"
 
             # Presentation Content Item
             if data_type == 0x20:
@@ -127,19 +135,17 @@ def debug_data(
             # Abstract and Transfer Syntax Sub-items
             if data_type in [0x30, 0x40] and length:
                 start = idx + 2 + len_bytes
-                uid = UID(decode_bytes(data[start:start + length]))
+                uid = UID(decode_bytes(data[start : start + length]))
                 s += f" - {uid.name}"
 
             # SCP/SCU Role Selection Sub-item
             if data_type == 0x054:
                 start = idx + 2 + len_bytes
-                len_uid = unpack('>H', data[start:start + 2])[0]
-                uid = UID(decode_bytes(data[start + 2:start + 2 + len_uid]))
+                len_uid = unpack(">H", data[start : start + 2])[0]
+                uid = UID(decode_bytes(data[start + 2 : start + 2 + len_uid]))
                 scu_role = data[start + 2 + len_uid]
                 scp_role = data[start + 2 + len_uid + 1]
-                s += (
-                    f" - {uid.name}, SCU {scu_role}, SCP {scp_role}"
-                )
+                s += f" - {uid.name}, SCU {scu_role}, SCP {scp_role}"
 
             # A-ASSOCIATE-RJ
             if data_type == 0x03:
@@ -158,7 +164,7 @@ def debug_data(
             if data_type == 0x04:
                 offset = idx + 2 + len_bytes
                 while offset < idx + 2 + len_bytes + length:
-                    item_length = unpack('>I', data[offset:offset + 4])[0]
+                    item_length = unpack(">I", data[offset : offset + 4])[0]
                     cx_id = data[offset + 4]
                     LOGGER.debug(
                         f" {offset:>{digits}}:        PDV - context ID "
@@ -213,6 +219,7 @@ def standard_pdu_recv_handler(event: "Event") -> List[str]:
     with event.assoc.lock:
         return handlers[type(pdu)](event)
 
+
 def standard_pdu_sent_handler(event: "Event") -> List[str]:
     """Standard handler when a PDU is encoded and sent.
 
@@ -245,6 +252,7 @@ def standard_pdu_sent_handler(event: "Event") -> List[str]:
     }
     with event.assoc.lock:
         return handlers[type(pdu)](event)
+
 
 def standard_dimse_recv_handler(event: "Event") -> List[str]:
     """Standard handler for the ACSE receiving a primitive from the DUL.
@@ -286,11 +294,12 @@ def standard_dimse_recv_handler(event: "Event") -> List[str]:
         N_CREATE_RQ: _recv_n_create_rq,
         N_CREATE_RSP: _recv_n_create_rsp,
         N_DELETE_RQ: _recv_n_delete_rq,
-        N_DELETE_RSP: _recv_n_delete_rsp
+        N_DELETE_RSP: _recv_n_delete_rsp,
     }
 
     with event.assoc.lock:
         return handlers[type(event.message)](event)
+
 
 def standard_dimse_sent_handler(event: "Event") -> List[str]:
     """Standard handler for the ACSE receiving a primitive from the DUL.
@@ -332,7 +341,7 @@ def standard_dimse_sent_handler(event: "Event") -> List[str]:
         N_CREATE_RQ: _send_n_create_rq,
         N_CREATE_RSP: _send_n_create_rsp,
         N_DELETE_RQ: _send_n_delete_rq,
-        N_DELETE_RSP: _send_n_delete_rsp
+        N_DELETE_RSP: _send_n_delete_rsp,
     }
 
     with event.assoc.lock:
@@ -348,11 +357,12 @@ def _receive_abort_pdu(event: "Event") -> List[str]:
         f"{' INCOMING A-ABORT PDU ':=^76}",
         f"Abort Source: {pdu.source_str}",
         f"Abort Reason: {pdu.reason_str}",
-        f"{' END A-ABORT PDU ':=^76}"
+        f"{' END A-ABORT PDU ':=^76}",
     ]
     for line in s:
         LOGGER.debug(line)
     return s
+
 
 def _receive_associate_ac(event: "Event") -> List[str]:
     """Standard logging handler for receiving an A-ASSOCIATE-AC PDU."""
@@ -387,7 +397,7 @@ def _receive_associate_ac(event: "Event") -> List[str]:
         f"Calling Application Name:    {assoc_ac.calling_ae_title}",
         f"Called Application Name:     {assoc_ac.called_ae_title}",
         f"Their Max PDU Receive Size:  {user_info.maximum_length}",
-        "Presentation Contexts:"
+        "Presentation Contexts:",
     ]
 
     for cx in pres_contexts:
@@ -421,9 +431,7 @@ def _receive_associate_ac(event: "Event") -> List[str]:
         s.append("Accepted Extended Negotiation:")
         for item in user_info.ext_neg:
             s.append(f"  SOP Class: ={item.uid}")
-            s.extend(
-                [f"  {s}" for s in pretty_bytes(cast(bytes, item.app_info))]
-            )
+            s.extend([f"  {s}" for s in pretty_bytes(cast(bytes, item.app_info))])
     else:
         s.append("Accepted Extended Negotiation: None")
 
@@ -447,6 +455,7 @@ def _receive_associate_ac(event: "Event") -> List[str]:
 
     return s
 
+
 def _receive_associate_rj(event: "Event") -> List[str]:
     """Standard logging handler for receiving an A-ASSOCIATE-RJ PDU."""
     assoc_rj = cast("A_ASSOCIATE_RJ", event.pdu)
@@ -457,11 +466,12 @@ def _receive_associate_rj(event: "Event") -> List[str]:
         f"Result:    {assoc_rj.result_str}",
         f"Source:    {assoc_rj.source_str}",
         f"Reason:    {assoc_rj.reason_str}",
-        f"{' END A-ASSOCIATE-RJ PDU ':=^76}"
+        f"{' END A-ASSOCIATE-RJ PDU ':=^76}",
     ]
     for line in s:
         LOGGER.debug(line)
     return s
+
 
 def _receive_associate_rq(event: "Event") -> List[str]:
     """Standard logging handler for receiving an A-ASSOCIATE-RQ PDU."""
@@ -489,7 +499,7 @@ def _receive_associate_rq(event: "Event") -> List[str]:
         f"Application Context Name:    {app_context}",
         f"Calling Application Name:    {pdu.calling_ae_title}",
         f"Called Application Name:     {pdu.called_ae_title}",
-        f"Their Max PDU Receive Size:  {user_info.maximum_length}"
+        f"Their Max PDU Receive Size:  {user_info.maximum_length}",
     ]
 
     # Presentation Contexts
@@ -534,9 +544,7 @@ def _receive_associate_rq(event: "Event") -> List[str]:
         s.append("Requested Extended Negotiation:")
         for item_a in user_info.ext_neg:
             s.append(f"  SOP Class: ={item_a.uid}")
-            s.extend(
-                [f"  {s}" for s in pretty_bytes(cast(bytes, item_a.app_info))]
-            )
+            s.extend([f"  {s}" for s in pretty_bytes(cast(bytes, item_a.app_info))])
     else:
         s.append("Requested Extended Negotiation: None")
 
@@ -546,9 +554,7 @@ def _receive_associate_rq(event: "Event") -> List[str]:
 
         for ib in user_info.common_ext_neg:
             s.append(f"  SOP Class: ={cast(UID, ib.sop_class_uid).name}")
-            s.append(
-                f"    Service Class: ={cast(UID, ib.service_class_uid).name}"
-            )
+            s.append(f"    Service Class: ={cast(UID, ib.service_class_uid).name}")
 
             related_uids = ib.related_general_sop_class_identification
             if related_uids:
@@ -604,17 +610,21 @@ def _receive_associate_rq(event: "Event") -> List[str]:
 
     return s
 
+
 def _receive_data_tf(event: "Event") -> List[str]:
     """Standard logging handler for receiving a P-DATA-TF PDU."""
     pass
+
 
 def _receive_release_rp(event: "Event") -> List[str]:
     """Standard logging handler for receiving an A-RELEASE-RP PDU."""
     pass
 
+
 def _receive_release_rq(event: "Event") -> List[str]:
     """Standard logging handler for receiving an A-RELEASE-RQ PDU."""
     pass
+
 
 def _send_abort(event: "Event") -> List[str]:
     """Standard logging handler for sending an A-ABORT PDU."""
@@ -624,18 +634,19 @@ def _send_abort(event: "Event") -> List[str]:
         f"{' OUTGOING A-ABORT PDU ':=^76}",
         f"Abort Source: {pdu.source_str}",
         f"Abort Reason: {pdu.reason_str}",
-        f"{' END A-ABORT PDU ':=^76}"
+        f"{' END A-ABORT PDU ':=^76}",
     ]
     for line in s:
         LOGGER.debug(line)
     return s
+
 
 def _send_associate_ac(event: "Event") -> List[str]:
     """Standard logging handler for sending an A-ASSOCIATE-AC PDU."""
     assoc_ac = cast("A_ASSOCIATE_AC", event.pdu)
 
     req_contexts = {
-        ii.context_id: ii for ii in event.assoc.requestor.get_contexts('pcdl')
+        ii.context_id: ii for ii in event.assoc.requestor.get_contexts("pcdl")
     }
 
     # Needs some cleanup
@@ -695,9 +706,7 @@ def _send_associate_ac(event: "Event") -> List[str]:
         s.append("Accepted Extended Negotiation:")
         for item in user_info.ext_neg:
             s.append(f"  SOP Class: ={item.uid}")
-            s.extend(
-                [f"  {s}" for s in pretty_bytes(cast(bytes, item.app_info))]
-            )
+            s.extend([f"  {s}" for s in pretty_bytes(cast(bytes, item.app_info))])
     else:
         s.append("Accepted Extended Negotiation: None")
 
@@ -721,6 +730,7 @@ def _send_associate_ac(event: "Event") -> List[str]:
 
     return s
 
+
 def _send_associate_rj(event: "Event") -> List[str]:
     """Standard logging handler for sending an A-ASSOCIATE-RJ PDU."""
     assoc_rj = cast("A_ASSOCIATE_RJ", event.pdu)
@@ -730,11 +740,12 @@ def _send_associate_rj(event: "Event") -> List[str]:
         f"Result:    {assoc_rj.result_str}",
         f"Source:    {assoc_rj.source_str}",
         f"Reason:    {assoc_rj.reason_str}",
-        f"{' END A-ASSOCIATE-RJ PDU ':=^76}"
+        f"{' END A-ASSOCIATE-RJ PDU ':=^76}",
     ]
     for line in s:
         LOGGER.debug(line)
     return s
+
 
 def _send_associate_rq(event: "Event") -> List[str]:
     """Standard logging handler for sending an A-ASSOCIATE-RQ PDU."""
@@ -802,9 +813,7 @@ def _send_associate_rq(event: "Event") -> List[str]:
         s.append("Requested Extended Negotiation:")
         for ia in user_info.ext_neg:
             s.append(f"  SOP Class: ={ia.uid}")
-            s.extend(
-                [f"  {s}" for s in pretty_bytes(cast(bytes, ia.app_info))]
-            )
+            s.extend([f"  {s}" for s in pretty_bytes(cast(bytes, ia.app_info))])
     else:
         s.append("Requested Extended Negotiation: None")
 
@@ -813,9 +822,7 @@ def _send_associate_rq(event: "Event") -> List[str]:
         s.append("Requested Common Extended Negotiation:")
         for item in user_info.common_ext_neg:
             s.append(f"  SOP Class: ={cast(UID, item.sop_class_uid).name}")
-            s.append(
-                f"    Service Class: ={cast(UID, item.service_class_uid).name}"
-            )
+            s.append(f"    Service Class: ={cast(UID, item.service_class_uid).name}")
 
             related_uids = item.related_general_sop_class_identification
             if related_uids:
@@ -871,13 +878,16 @@ def _send_associate_rq(event: "Event") -> List[str]:
 
     return s
 
+
 def _send_data_tf(event: "Event") -> List[str]:
     """Standard logging handler for sending a P-DATA-TF PDU."""
     pass
 
+
 def _send_release_rp(event: "Event") -> List[str]:
     """Standard logging handler for sending an A-RELEASE-RP PDU."""
     pass
+
 
 def _send_release_rq(event: "Event") -> List[str]:
     """Standard logging handler for sending an A-RELEASE-RQ PDU."""
@@ -900,6 +910,7 @@ def _send_c_echo_rq(event: "Event") -> List[str]:
     """
     pass
 
+
 def _send_c_echo_rsp(event: "Event") -> List[str]:
     """Logging handler for when a C-ECHO-RSP is sent.
 
@@ -916,6 +927,7 @@ def _send_c_echo_rsp(event: "Event") -> List[str]:
         The evt.EVT_DIMSE_SENT event that occurred.
     """
     pass
+
 
 def _send_c_store_rq(event: "Event") -> List[str]:
     """Logging handler when a C-STORE-RQ is sent.
@@ -965,11 +977,12 @@ def _send_c_store_rq(event: "Event") -> List[str]:
         f"Affected SOP Instance UID     : {cs.AffectedSOPInstanceUID}",
         f"Data Set                      : {dataset}",
         f"Priority                      : {priority}",
-        f"{' END DIMSE MESSAGE ':=^76}"
+        f"{' END DIMSE MESSAGE ':=^76}",
     ]
     for line in s:
         LOGGER.debug(line)
     return s
+
 
 def _send_c_store_rsp(event: "Event") -> List[str]:
     """Logging handler when a C-STORE-RSP is sent.
@@ -988,6 +1001,7 @@ def _send_c_store_rsp(event: "Event") -> List[str]:
         The evt.EVT_DIMSE_SENT event that occurred.
     """
     pass
+
 
 def _send_c_find_rq(event: "Event") -> List[str]:
     """Logging handler when a C-FIND-RQ is sent.
@@ -1024,11 +1038,12 @@ def _send_c_find_rq(event: "Event") -> List[str]:
         f"Affected SOP Class UID        : {sop_class.name}",
         f"Identifier                    : {dataset}",
         f"Priority                      : {priority}",
-        f"{' END DIMSE MESSAGE ':=^76}"
+        f"{' END DIMSE MESSAGE ':=^76}",
     ]
     for line in s:
         LOGGER.debug(line)
     return s
+
 
 def _send_c_find_rsp(event: "Event") -> List[str]:
     """Logging handler when a C-FIND-RSP is sent.
@@ -1056,7 +1071,7 @@ def _send_c_find_rsp(event: "Event") -> List[str]:
     s = [
         f"{' OUTGOING DIMSE MESSAGE ':=^76}",
         "Message Type                  : C-FIND RSP",
-        f"Message ID Being Responded To : {cs.MessageIDBeingRespondedTo}"
+        f"Message ID Being Responded To : {cs.MessageIDBeingRespondedTo}",
     ]
     if "AffectedSOPClassUID" in cs:
         affected_sop = cs.AffectedSOPClassUID.name
@@ -1067,6 +1082,7 @@ def _send_c_find_rsp(event: "Event") -> List[str]:
     for line in s:
         LOGGER.debug(line)
     return s
+
 
 def _send_c_get_rq(event: "Event") -> List[str]:
     """Logging handler when a C-GET-RQ is sent.
@@ -1100,11 +1116,12 @@ def _send_c_get_rq(event: "Event") -> List[str]:
         f"Affected SOP Class UID        : {cs.AffectedSOPClassUID.name}",
         f"Identifier                    : {dataset}",
         f"Priority                      : {priority}",
-        f"{' END DIMSE MESSAGE ':=^76}"
+        f"{' END DIMSE MESSAGE ':=^76}",
     ]
     for line in s:
         LOGGER.debug(line)
     return s
+
 
 def _send_c_get_rsp(event: "Event") -> List[str]:
     """Logging handler when a C-GET-RSP is sent.
@@ -1136,7 +1153,7 @@ def _send_c_get_rsp(event: "Event") -> List[str]:
     s = [
         f"{' OUTGOING DIMSE MESSAGE ':=^76}",
         "Message Type                  : C-GET RSP",
-        f"Message ID Being Responded To : {cs.MessageIDBeingRespondedTo}"
+        f"Message ID Being Responded To : {cs.MessageIDBeingRespondedTo}",
     ]
     if "AffectedSOPClassUID" in cs:
         affected_sop = cs.AffectedSOPClassUID.name
@@ -1147,6 +1164,7 @@ def _send_c_get_rsp(event: "Event") -> List[str]:
     for line in s:
         LOGGER.debug(line)
     return s
+
 
 def _send_c_move_rq(event: "Event") -> List[str]:
     """Logging handler when a C-MOVE-RQ is sent.
@@ -1182,11 +1200,12 @@ def _send_c_move_rq(event: "Event") -> List[str]:
         f"Move Destination              : {cs.MoveDestination}",
         f"Identifier                    : {identifier}",
         f"Priority                      : {priority}",
-        f"{' END DIMSE MESSAGE ':=^76}"
+        f"{' END DIMSE MESSAGE ':=^76}",
     ]
     for line in s:
         LOGGER.debug(line)
     return s
+
 
 def _send_c_move_rsp(event: "Event") -> List[str]:
     """Logging handler when a C-MOVE-RSP is sent.
@@ -1230,6 +1249,7 @@ def _send_c_move_rsp(event: "Event") -> List[str]:
         LOGGER.debug(line)
     return s
 
+
 def _send_c_cancel_rq(event: "Event") -> List[str]:
     """Logging handler when a C-CANCEL-RQ is sent.
 
@@ -1241,6 +1261,7 @@ def _send_c_cancel_rq(event: "Event") -> List[str]:
         The evt.EVT_DIMSE_SENT event that occurred.
     """
     pass
+
 
 def _recv_c_echo_rq(event: "Event") -> List[str]:
     """Logging handler when a C-ECHO-RQ is received.
@@ -1266,11 +1287,12 @@ def _recv_c_echo_rq(event: "Event") -> List[str]:
         f"Presentation Context ID       : {msg.context_id}",
         f"Message ID                    : {cs.MessageID}",
         "Data Set                      : None",
-        f"{' END DIMSE MESSAGE ':=^76}"
+        f"{' END DIMSE MESSAGE ':=^76}",
     ]
     for line in s:
         LOGGER.debug(line)
     return s
+
 
 def _recv_c_echo_rsp(event: "Event") -> List[str]:
     """Logging handler when a C-ECHO-RSP is received.
@@ -1299,14 +1321,13 @@ def _recv_c_echo_rsp(event: "Event") -> List[str]:
     else:
         status_str = f"0x{cs.Status:04X} - Unknown"
 
-    s = [
-        f"Received Echo Response (Status: {status_str})"
-    ]
+    s = [f"Received Echo Response (Status: {status_str})"]
 
     for line in s:
         LOGGER.info(line)
 
     return s
+
 
 def _recv_c_store_rq(event: "Event") -> List[str]:
     """Logging handler when a C-STORE-RQ is received.
@@ -1356,6 +1377,7 @@ def _recv_c_store_rq(event: "Event") -> List[str]:
         LOGGER.debug(line)
     return s
 
+
 def _recv_c_store_rsp(event: "Event") -> List[str]:
     """Logging handler when a C-STORE-RSP is received.
 
@@ -1390,7 +1412,7 @@ def _recv_c_store_rsp(event: "Event") -> List[str]:
         f"{' INCOMING DIMSE MESSAGE ':=^76}",
         "Message Type                  : C-STORE RSP",
         f"Presentation Context ID       : {msg.context_id}",
-        f"Message ID Being Responded To : {cs.MessageIDBeingRespondedTo}"
+        f"Message ID Being Responded To : {cs.MessageIDBeingRespondedTo}",
     ]
     if "AffectedSOPClassUID" in cs:
         affected_sop = cs.AffectedSOPClassUID.name
@@ -1403,6 +1425,7 @@ def _recv_c_store_rsp(event: "Event") -> List[str]:
     for line in s:
         LOGGER.debug(line)
     return s
+
 
 def _recv_c_find_rq(event: "Event") -> List[str]:
     """Logging handler when a C-FIND-RQ is received.
@@ -1436,11 +1459,12 @@ def _recv_c_find_rq(event: "Event") -> List[str]:
         f"Affected SOP Class UID        : {cs.AffectedSOPClassUID.name}",
         f"Identifier                    : {dataset}",
         f"Priority                      : {priority}",
-        f"{' END DIMSE MESSAGE ':=^76}"
+        f"{' END DIMSE MESSAGE ':=^76}",
     ]
     for line in s:
         LOGGER.debug(line)
     return s
+
 
 def _recv_c_find_rsp(event: "Event") -> List[str]:
     """Logging handler when a C-FIND-RSP is received.
@@ -1461,7 +1485,7 @@ def _recv_c_find_rsp(event: "Event") -> List[str]:
     msg = event.message
     cs = msg.command_set
     if cs.Status != 0x0000:
-        return ['']
+        return [""]
 
     dataset = "None"
     if msg.data_set and msg.data_set.getvalue() != b"":
@@ -1482,6 +1506,7 @@ def _recv_c_find_rsp(event: "Event") -> List[str]:
         LOGGER.debug(line)
     return s
 
+
 def _recv_c_cancel_rq(event: "Event") -> List[str]:
     """Logging handler when a C-CANCEL-RQ is received.
 
@@ -1498,11 +1523,12 @@ def _recv_c_cancel_rq(event: "Event") -> List[str]:
         f"{' INCOMING DIMSE MESSAGE ':=^76}",
         "Message Type                  : C-CANCEL RQ",
         f"Message ID Being Responded To : {cs.MessageIDBeingRespondedTo}",
-        f"{' END DIMSE MESSAGE ':=^76}"
+        f"{' END DIMSE MESSAGE ':=^76}",
     ]
     for line in s:
         LOGGER.debug(line)
     return s
+
 
 def _recv_c_get_rq(event: "Event") -> List[str]:
     """Logging handler when a C-GET-RQ is received.
@@ -1536,11 +1562,12 @@ def _recv_c_get_rq(event: "Event") -> List[str]:
         f"Affected SOP Class UID        : {cs.AffectedSOPClassUID.name}",
         f"Identifier                    : {dataset}",
         f"Priority                      : {priority}",
-        f"{' END DIMSE MESSAGE ':=^76}"
+        f"{' END DIMSE MESSAGE ':=^76}",
     ]
     for line in s:
         LOGGER.debug(line)
     return s
+
 
 def _recv_c_get_rsp(event: "Event") -> List[str]:
     """Logging handler when a C-GET-RSP is received.
@@ -1601,6 +1628,7 @@ def _recv_c_get_rsp(event: "Event") -> List[str]:
 
     return s
 
+
 def _recv_c_move_rq(event: "Event") -> List[str]:
     """Logging handler when a C-MOVE-RQ is received.
 
@@ -1618,6 +1646,7 @@ def _recv_c_move_rq(event: "Event") -> List[str]:
         The evt.EVT_DIMSE_RECV event that occurred.
     """
     return []
+
 
 def _recv_c_move_rsp(event: "Event") -> List[str]:
     """Logging handler when a C-MOVE-RSP is received.
@@ -1678,6 +1707,7 @@ def _recv_c_move_rsp(event: "Event") -> List[str]:
 
     return s
 
+
 def _send_n_event_report_rq(event: "Event") -> List[str]:
     """Logging handler when an N-EVENT-REPORT-RQ is sent.
 
@@ -1701,11 +1731,12 @@ def _send_n_event_report_rq(event: "Event") -> List[str]:
         f"Affected SOP Instance UID     : {cs.AffectedSOPInstanceUID}",
         f"Event Type ID                 : {cs.EventTypeID}",
         f"Event Information             : {evt_info}",
-        f"{' END DIMSE MESSAGE ':=^76}"
+        f"{' END DIMSE MESSAGE ':=^76}",
     ]
     for line in s:
         LOGGER.debug(line)
     return s
+
 
 def _send_n_event_report_rsp(event: "Event") -> List[str]:
     """Logging handler when an N-EVENT-REPORT-RSP is sent.
@@ -1743,6 +1774,7 @@ def _send_n_event_report_rsp(event: "Event") -> List[str]:
         LOGGER.debug(line)
     return s
 
+
 def _send_n_get_rq(event: "Event") -> List[str]:
     """Logging handler when an N-GET-RQ is sent.
 
@@ -1765,11 +1797,12 @@ def _send_n_get_rq(event: "Event") -> List[str]:
         f"Requested SOP Class UID       : {cs.RequestedSOPClassUID}",
         f"Requested SOP Instance UID    : {cs.RequestedSOPInstanceUID}",
         f"Attribute Identifier List     : {nr_attr}",
-        f"{' END DIMSE MESSAGE ':=^76}"
+        f"{' END DIMSE MESSAGE ':=^76}",
     ]
     for line in s:
         LOGGER.debug(line)
     return s
+
 
 def _send_n_get_rsp(event: "Event") -> List[str]:
     """Logging handler when an N-GET-RSP is sent.
@@ -1789,7 +1822,7 @@ def _send_n_get_rsp(event: "Event") -> List[str]:
     s = [
         f"{' OUTGOING DIMSE MESSAGE ':=^76}",
         "Message Type                  : N-GET RSP",
-        f"Message ID Being Responded To : {cs.MessageIDBeingRespondedTo}"
+        f"Message ID Being Responded To : {cs.MessageIDBeingRespondedTo}",
     ]
     if "AffectedSOPClassUID" in cs:
         sop_class = cs.AffectedSOPClassUID.name
@@ -1804,6 +1837,7 @@ def _send_n_get_rsp(event: "Event") -> List[str]:
     for line in s:
         LOGGER.debug(line)
     return s
+
 
 def _send_n_set_rq(event: "Event") -> List[str]:
     """Logging handler when an N-SET-RQ is sent.
@@ -1827,11 +1861,12 @@ def _send_n_set_rq(event: "Event") -> List[str]:
         f"Requested SOP Class UID       : {cs.RequestedSOPClassUID}",
         f"Requested SOP Instance UID    : {cs.RequestedSOPInstanceUID}",
         f"Modification List             : {mod_list}",
-        f"{' END DIMSE MESSAGE ':=^76}"
+        f"{' END DIMSE MESSAGE ':=^76}",
     ]
     for line in s:
         LOGGER.debug(line)
     return s
+
 
 def _send_n_set_rsp(event: "Event") -> List[str]:
     """Logging handler when an N-SET-RSP is sent.
@@ -1851,7 +1886,7 @@ def _send_n_set_rsp(event: "Event") -> List[str]:
     s = [
         f"{' OUTGOING DIMSE MESSAGE ':=^76}",
         "Message Type                  : N-SET RSP",
-        f"Message ID Being Responded To : {cs.MessageIDBeingRespondedTo}"
+        f"Message ID Being Responded To : {cs.MessageIDBeingRespondedTo}",
     ]
     if "AffectedSOPClassUID" in cs:
         sop_class = cs.AffectedSOPClassUID.name
@@ -1867,6 +1902,7 @@ def _send_n_set_rsp(event: "Event") -> List[str]:
         LOGGER.debug(line)
     return s
 
+
 def _send_n_action_rq(event: "Event") -> List[str]:
     """Logging handler when an N-ACTION-RQ is sent.
 
@@ -1876,6 +1912,7 @@ def _send_n_action_rq(event: "Event") -> List[str]:
         The evt.EVT_DIMSE_SENT event that occurred.
     """
     return []
+
 
 def _send_n_action_rsp(event: "Event") -> List[str]:
     """Logging handler when an N-ACTION-RSP is sent.
@@ -1887,6 +1924,7 @@ def _send_n_action_rsp(event: "Event") -> List[str]:
     """
     return []
 
+
 def _send_n_create_rq(event: "Event") -> List[str]:
     """Logging handler when an N-CREATE-RQ is sent.
 
@@ -1897,6 +1935,7 @@ def _send_n_create_rq(event: "Event") -> List[str]:
     """
     return []
 
+
 def _send_n_create_rsp(event: "Event") -> List[str]:
     """Logging handler when an N-CREATE-RSP is sent.
 
@@ -1906,6 +1945,7 @@ def _send_n_create_rsp(event: "Event") -> List[str]:
         The evt.EVT_DIMSE_SENT event that occurred.
     """
     return []
+
 
 def _send_n_delete_rq(event: "Event") -> List[str]:
     """Logging handler when an N-DELETE-RQ is sent.
@@ -1924,11 +1964,12 @@ def _send_n_delete_rq(event: "Event") -> List[str]:
         f"Message ID                    : {cs.MessageID}",
         f"Requested SOP Class UID       : {cs.RequestedSOPClassUID}",
         f"Requested SOP Instance UID    : {cs.RequestedSOPInstanceUID}",
-        f"{' END DIMSE MESSAGE ':=^76}"
+        f"{' END DIMSE MESSAGE ':=^76}",
     ]
     for line in s:
         LOGGER.debug(line)
     return s
+
 
 def _send_n_delete_rsp(event: "Event") -> List[str]:
     """Logging handler when an N-DELETE-RSP is sent.
@@ -1945,7 +1986,6 @@ def _send_n_delete_rsp(event: "Event") -> List[str]:
         f"{' OUTGOING DIMSE MESSAGE ':=^76}",
         "Message Type                  : N-DELETE RSP",
         f"Message ID Being Responded To : {cs.MessageIDBeingRespondedTo}",
-
     ]
     if "AffectedSOPClassUID" in cs:
         sop_class = cs.AffectedSOPClassUID.name
@@ -1960,6 +2000,7 @@ def _send_n_delete_rsp(event: "Event") -> List[str]:
         LOGGER.debug(line)
     return s
 
+
 def _recv_n_event_report_rq(event: "Event") -> List[str]:
     """Logging handler when an N-EVENT-REPORT-RQ is received.
 
@@ -1969,6 +2010,7 @@ def _recv_n_event_report_rq(event: "Event") -> List[str]:
         The evt.EVT_DIMSE_RECV event that occurred.
     """
     return []
+
 
 def _recv_n_event_report_rsp(event: "Event") -> List[str]:
     """Logging handler when an N-EVENT-REPORT-RSP is received.
@@ -1980,6 +2022,7 @@ def _recv_n_event_report_rsp(event: "Event") -> List[str]:
     """
     return []
 
+
 def _recv_n_get_rq(event: "Event") -> List[str]:
     """Logging handler when an N-GET-RQ is received.
 
@@ -1989,6 +2032,7 @@ def _recv_n_get_rq(event: "Event") -> List[str]:
         The evt.EVT_DIMSE_RECV event that occurred.
     """
     return []
+
 
 def _recv_n_get_rsp(event: "Event") -> List[str]:
     """Logging handler when an N-GET-RSP is received.
@@ -2010,7 +2054,7 @@ def _recv_n_get_rsp(event: "Event") -> List[str]:
         f"{' INCOMING DIMSE MESSAGE ':=^76}",
         "Message Type                  : N-GET RSP",
         f"Presentation Context ID       : {msg.context_id}",
-        f"Message ID Being Responded To : {cs.MessageIDBeingRespondedTo}"
+        f"Message ID Being Responded To : {cs.MessageIDBeingRespondedTo}",
     ]
     if "AffectedSOPClassUID" in cs:
         sop_class = cs.AffectedSOPClassUID.name
@@ -2026,6 +2070,7 @@ def _recv_n_get_rsp(event: "Event") -> List[str]:
         LOGGER.debug(line)
     return s
 
+
 def _recv_n_set_rq(event: "Event") -> List[str]:
     """Logging handler when an N-SET-RQ is received.
 
@@ -2035,6 +2080,7 @@ def _recv_n_set_rq(event: "Event") -> List[str]:
         The evt.EVT_DIMSE_RECV event that occurred.
     """
     return []
+
 
 def _recv_n_set_rsp(event: "Event") -> List[str]:
     """Logging handler when an N-SET-RSP is received.
@@ -2046,6 +2092,7 @@ def _recv_n_set_rsp(event: "Event") -> List[str]:
     """
     return []
 
+
 def _recv_n_action_rq(event: "Event") -> List[str]:
     """Logging handler when an N-ACTION-RQ is received.
 
@@ -2055,6 +2102,7 @@ def _recv_n_action_rq(event: "Event") -> List[str]:
         The evt.EVT_DIMSE_RECV event that occurred.
     """
     return []
+
 
 def _recv_n_action_rsp(event: "Event") -> List[str]:
     """Logging handler when an N-ACTION-RSP is received.
@@ -2066,6 +2114,7 @@ def _recv_n_action_rsp(event: "Event") -> List[str]:
     """
     return []
 
+
 def _recv_n_create_rq(event: "Event") -> List[str]:
     """Logging handler when an N-CREATE-RQ is received.
 
@@ -2075,6 +2124,7 @@ def _recv_n_create_rq(event: "Event") -> List[str]:
         The evt.EVT_DIMSE_RECV event that occurred.
     """
     return []
+
 
 def _recv_n_create_rsp(event: "Event") -> List[str]:
     """Logging handler when an N-CREATE-RSP is received.
@@ -2086,6 +2136,7 @@ def _recv_n_create_rsp(event: "Event") -> List[str]:
     """
     return []
 
+
 def _recv_n_delete_rq(event: "Event") -> List[str]:
     """Logging handler when an N-DELETE-RQ is received.
 
@@ -2095,6 +2146,7 @@ def _recv_n_delete_rq(event: "Event") -> List[str]:
         The evt.EVT_DIMSE_RECV event that occurred.
     """
     return []
+
 
 def _recv_n_delete_rsp(event: "Event") -> List[str]:
     """Logging handler when an N-DELETE-RSP is received.
@@ -2203,6 +2255,7 @@ def doc_handle_echo(event: "Event", *args: Sequence[Any]) -> StatusType:
       :dcm:`Annex C<part07/chapter_C.html>`
     """
     pass
+
 
 def doc_handle_find(event: "Event", *args: Sequence[Any]) -> CFindType:
     """Documentation for handlers bound to ``evt.EVT_C_FIND``.
@@ -2354,6 +2407,7 @@ def doc_handle_find(event: "Event", *args: Sequence[Any]) -> CFindType:
       :dcm:`Annex C<part07/chapter_C.html>`
     """
     pass
+
 
 def doc_handle_c_get(event: "Event", *args: Sequence[Any]) -> CGetType:
     """Documentation for handlers bound to ``evt.EVT_C_GET``.
@@ -2511,6 +2565,7 @@ def doc_handle_c_get(event: "Event", *args: Sequence[Any]) -> CGetType:
       :dcm:`Annex C<part07/chapter_C.html>`
     """
     pass
+
 
 def doc_handle_move(event: "Event", *args: Sequence[Any]) -> CMoveType:
     """Documentation for handlers bound to ``evt.EVT_C_MOVE``.
@@ -2697,6 +2752,7 @@ def doc_handle_move(event: "Event", *args: Sequence[Any]) -> CMoveType:
     """
     pass
 
+
 def doc_handle_store(event: "Event", *args: Sequence[Any]) -> StatusType:
     """Documentation for handlers bound to ``evt.EVT_C_STORE``.
 
@@ -2821,6 +2877,7 @@ def doc_handle_store(event: "Event", *args: Sequence[Any]) -> StatusType:
       :dcm:`Annex C<part07/chapter_C.html>`
     """
     pass
+
 
 def doc_handle_action(event: "Event", *args: Sequence[Any]) -> UserReturnType:
     """Documentation for handlers bound to ``evt.EVT_N_ACTION``.
@@ -3012,6 +3069,7 @@ def doc_handle_action(event: "Event", *args: Sequence[Any]) -> UserReturnType:
     """
     pass
 
+
 def doc_handle_create(event: "Event", *args: Sequence[Any]) -> UserReturnType:
     """Documentation for handlers bound to ``evt.EVT_N_CREATE``.
 
@@ -3168,6 +3226,7 @@ def doc_handle_create(event: "Event", *args: Sequence[Any]) -> UserReturnType:
     """
     pass
 
+
 def doc_handle_delete(event: "Event", *args: Sequence[Any]) -> StatusType:
     """Documentation for handlers bound to ``evt.EVT_N_DELETE``.
 
@@ -3271,9 +3330,8 @@ def doc_handle_delete(event: "Event", *args: Sequence[Any]) -> StatusType:
     """
     pass
 
-def doc_handle_event_report(
-    event: "Event", *args: Sequence[Any]
-) -> UserReturnType:
+
+def doc_handle_event_report(event: "Event", *args: Sequence[Any]) -> UserReturnType:
     """Documentation for handlers bound to ``evt.EVT_N_EVENT_REPORT``.
 
     User implementation of this event handler is required if one or more
@@ -3405,6 +3463,7 @@ def doc_handle_event_report(
     """
     pass
 
+
 def doc_handle_n_get(event: "Event", *args: Sequence[Any]) -> UserReturnType:
     """Documentation for handlers bound to ``evt.EVT_N_GET``.
 
@@ -3531,6 +3590,7 @@ def doc_handle_n_get(event: "Event", *args: Sequence[Any]) -> UserReturnType:
       and :dcm:`Annex C <part07/chapter_C.html>`
     """
     pass
+
 
 def doc_handle_set(event: "Event", *args: Sequence[Any]) -> UserReturnType:
     """Documentation for handlers bound to ``evt.EVT_N_SET``.
@@ -3692,6 +3752,7 @@ def doc_handle_set(event: "Event", *args: Sequence[Any]) -> UserReturnType:
     """
     pass
 
+
 def doc_handle_async(event: "Event", *args: Sequence[Any]) -> Tuple[int, int]:
     """Documentation for handlers bound to ``evt.EVT_ASYNC_OPS``.
 
@@ -3756,6 +3817,7 @@ def doc_handle_async(event: "Event", *args: Sequence[Any]) -> Tuple[int, int]:
     """
     pass
 
+
 def doc_handle_sop_common(
     event: "Event", *args: Sequence[Any]
 ) -> Dict[UID, "SOPClassCommonExtendedNegotiation"]:
@@ -3812,9 +3874,8 @@ def doc_handle_sop_common(
     """
     pass
 
-def doc_handle_sop_extended(
-    event: "Event", *args: Sequence[Any]
-) -> Dict[UID, bytes]:
+
+def doc_handle_sop_extended(event: "Event", *args: Sequence[Any]) -> Dict[UID, bytes]:
     """Documentation for handlers bound to ``evt.EVT_SOP_EXTENDED``.
 
     User implementation of this event handler is required only if
@@ -3869,6 +3930,7 @@ def doc_handle_sop_extended(
     * DICOM Standard, Part 7, :dcm:`Annex D.3.3.5 <part07/sect_D.3.3.5.html>`
     """
     pass
+
 
 def doc_handle_userid(
     event: "Event", *args: Sequence[Any]
@@ -3945,6 +4007,7 @@ def doc_handle_userid(
     """
     pass
 
+
 # Notification event handler documentation
 def doc_handle_acse(event: "Event", *args: Sequence[Any]) -> None:
     """Documentation for handlers bound to ``evt.EVT_ACSE_RECV`` or
@@ -3980,6 +4043,7 @@ def doc_handle_acse(event: "Event", *args: Sequence[Any]) -> None:
     """
     pass
 
+
 def doc_handle_assoc(event: "Event", *args: Sequence[Any]) -> None:
     """Documentation for handlers bound to ``evt.EVT_ACCEPTED``,
     ``evt.EVT_ESTABLISHED``, ``evt.EVT_REJECTED``, ``evt.EVT_REQUESTED``,
@@ -4006,6 +4070,7 @@ def doc_handle_assoc(event: "Event", *args: Sequence[Any]) -> None:
         matching the contents of `args`.
     """
     pass
+
 
 def doc_handle_dimse(event: "Event", *args: Sequence[Any]) -> None:
     """Documentation for handlers bound to ``evt.EVT_DIMSE_RECV`` or
@@ -4059,6 +4124,7 @@ def doc_handle_dimse(event: "Event", *args: Sequence[Any]) -> None:
     """
     pass
 
+
 def doc_handle_data(event: "Event", *args: Sequence[Any]) -> None:
     """Documentation for handlers bound to ``evt.EVT_DATA_RECV`` or
     ``evt.EVT_DATA_SENT``.
@@ -4086,6 +4152,7 @@ def doc_handle_data(event: "Event", *args: Sequence[Any]) -> None:
         matching the contents of `args`.
     """
     pass
+
 
 def doc_handle_fsm(event: "Event", *args: Sequence[Any]) -> None:
     """Documentation for handlers bound to ``evt.EVT_FSM_TRANSITION``.
@@ -4121,6 +4188,7 @@ def doc_handle_fsm(event: "Event", *args: Sequence[Any]) -> None:
     """
     pass
 
+
 def doc_handle_pdu(event: "Event", *args: Sequence[Any]) -> None:
     """Documentation for handlers bound to ``evt.EVT_PDU_RECV`` or
     ``evt.EVT_PDU_SENT``.
@@ -4154,6 +4222,7 @@ def doc_handle_pdu(event: "Event", *args: Sequence[Any]) -> None:
         matching the contents of `args`.
     """
     pass
+
 
 def doc_handle_transport(event: "Event", *args: Sequence[Any]) -> None:
     """Documentation for handlers bound to ``evt.EVT_CONN_OPEN`` or

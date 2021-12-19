@@ -28,9 +28,9 @@ https://github.com/roryyorke/py-hide-modules
 
 try:
     import importlib.abc
+
     # py>=3.3 has MetaPathFinder
-    _ModuleHiderBase = getattr(importlib.abc, 'MetaPathFinder',
-                               importlib.abc.Finder)
+    _ModuleHiderBase = getattr(importlib.abc, "MetaPathFinder", importlib.abc.Finder)
 except ImportError:
     # py2
     _ModuleHiderBase = object
@@ -53,11 +53,12 @@ class ModuleHider(_ModuleHiderBase):
     # python >=3.4
     def find_spec(self, fullname, path, target=None):
         if fullname in self.hidden:
-            raise ImportError('No module named {}'.format(fullname))
+            raise ImportError("No module named {}".format(fullname))
 
     def hide(self):
         "Starting hiding modules"
         import sys
+
         if self in sys.meta_path:
             raise RuntimeError("Already hiding modules")
         # must be first to override standard finders
@@ -71,6 +72,7 @@ class ModuleHider(_ModuleHiderBase):
     def unhide(self):
         "Unhide modules"
         import sys
+
         sys.meta_path.remove(self)
         sys.modules.update(self.hidden_modules)
         self.hidden_modules.clear()
@@ -95,13 +97,16 @@ def hide_modules(hidden):
     will be hidden; once the function exits, the modules will be
     unhidden.
     """
+
     def applydec(f):
         def decf(*args, **kwargs):
             with ModuleHider(hidden):
                 f(*args, **kwargs)
+
         # carry across name so that nose still finds the test
         decf.__name__ = f.__name__
         # and carry across doc for test descriptions (etc.)
         decf.__doc__ = f.__doc__
         return decf
+
     return applydec

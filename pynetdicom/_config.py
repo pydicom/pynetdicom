@@ -195,7 +195,7 @@ Examples
 """
 
 
-CODECS: Tuple[str, ...] = ("ascii", )
+CODECS: Tuple[str, ...] = ("ascii",)
 """Customise the codecs used to decode text values.
 
 .. versionadded:: 2.0

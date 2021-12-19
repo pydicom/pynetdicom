@@ -8,19 +8,51 @@ import threading
 from typing import TYPE_CHECKING, Tuple, Optional, Dict, Union, cast
 
 from pynetdicom import evt
+
 # pylint: disable=no-name-in-module
 from pynetdicom.dimse_messages import (
-    C_STORE_RQ, C_STORE_RSP, C_FIND_RQ, C_FIND_RSP, C_GET_RQ, C_GET_RSP,
-    C_MOVE_RQ, C_MOVE_RSP, C_ECHO_RQ, C_ECHO_RSP, C_CANCEL_RQ,
-    N_EVENT_REPORT_RQ, N_GET_RQ, N_SET_RQ, N_ACTION_RQ, N_CREATE_RQ,
-    N_DELETE_RQ, N_EVENT_REPORT_RSP, N_GET_RSP, N_SET_RSP, N_ACTION_RSP,
-    N_CREATE_RSP, N_DELETE_RSP, DIMSEMessage
+    C_STORE_RQ,
+    C_STORE_RSP,
+    C_FIND_RQ,
+    C_FIND_RSP,
+    C_GET_RQ,
+    C_GET_RSP,
+    C_MOVE_RQ,
+    C_MOVE_RSP,
+    C_ECHO_RQ,
+    C_ECHO_RSP,
+    C_CANCEL_RQ,
+    N_EVENT_REPORT_RQ,
+    N_GET_RQ,
+    N_SET_RQ,
+    N_ACTION_RQ,
+    N_CREATE_RQ,
+    N_DELETE_RQ,
+    N_EVENT_REPORT_RSP,
+    N_GET_RSP,
+    N_SET_RSP,
+    N_ACTION_RSP,
+    N_CREATE_RSP,
+    N_DELETE_RSP,
+    DIMSEMessage,
 )
+
 # pylint: enable=no-name-in-module
 from pynetdicom.dimse_primitives import (
-    C_STORE, C_FIND, C_GET, C_MOVE, C_ECHO, C_CANCEL,
-    N_EVENT_REPORT, N_GET, N_SET, N_ACTION, N_CREATE, N_DELETE,
-    DimsePrimitiveType, DimseServiceType
+    C_STORE,
+    C_FIND,
+    C_GET,
+    C_MOVE,
+    C_ECHO,
+    C_CANCEL,
+    N_EVENT_REPORT,
+    N_GET,
+    N_SET,
+    N_ACTION,
+    N_CREATE,
+    N_DELETE,
+    DimsePrimitiveType,
+    DimseServiceType,
 )
 from pynetdicom.utils import make_target
 
@@ -30,7 +62,7 @@ if TYPE_CHECKING:  # pragma: no cover
     from pynetdicom.pdu_primitives import P_DATA
 
 
-LOGGER = logging.getLogger('pynetdicom.dimse')
+LOGGER = logging.getLogger("pynetdicom.dimse")
 
 _RQ_TO_MESSAGE = {
     C_ECHO: C_ECHO_RQ,
@@ -43,7 +75,7 @@ _RQ_TO_MESSAGE = {
     N_SET: N_SET_RQ,
     N_ACTION: N_ACTION_RQ,
     N_CREATE: N_CREATE_RQ,
-    N_DELETE: N_DELETE_RQ
+    N_DELETE: N_DELETE_RQ,
 }
 _RSP_TO_MESSAGE = {
     C_ECHO: C_ECHO_RSP,
@@ -57,7 +89,7 @@ _RSP_TO_MESSAGE = {
     N_SET: N_SET_RSP,
     N_ACTION: N_ACTION_RSP,
     N_CREATE: N_CREATE_RSP,
-    N_DELETE: N_DELETE_RSP
+    N_DELETE: N_DELETE_RSP,
 }
 
 _QueueItem = Union[Tuple[None, None], Tuple[int, DimseServiceType]]
@@ -139,6 +171,7 @@ class DIMSEServiceProvider:
 
     * DICOM Standard, :dcm:`Part 7<part07/PS3.7.html>`
     """
+
     def __init__(self, assoc: "Association") -> None:
         """Initialise the DIMSE service provider.
 
@@ -256,9 +289,7 @@ class DIMSEServiceProvider:
 
         if self.message.decode_msg(primitive, self.assoc):
             # Trigger event
-            evt.trigger(
-                self.assoc, evt.EVT_DIMSE_RECV, {'message': self.message}
-            )
+            evt.trigger(self.assoc, evt.EVT_DIMSE_RECV, {"message": self.message})
 
             context_id = cast(int, self.message.context_id)
             try:
@@ -266,7 +297,7 @@ class DIMSEServiceProvider:
             except Exception as exc:
                 LOGGER.error("Received an invalid DIMSE message")
                 LOGGER.exception(exc)
-                self.dul.event_queue.put('Evt19')
+                self.dul.event_queue.put("Evt19")
                 return
 
             # Keep C-CANCEL requests separate from other messages
@@ -274,19 +305,18 @@ class DIMSEServiceProvider:
             if isinstance(d_primitive, C_CANCEL) and len(self.cancel_req) < 10:
                 msg_id = cast(int, d_primitive.MessageIDBeingRespondedTo)
                 self.cancel_req[msg_id] = d_primitive
-            elif (isinstance(d_primitive, N_EVENT_REPORT) and
-                  d_primitive.is_valid_request):
+            elif (
+                isinstance(d_primitive, N_EVENT_REPORT) and d_primitive.is_valid_request
+            ):
                 # N-EVENT-REPORT service requests are handled immediately
                 # Ugly hack, but would block the DUL otherwise
                 t = threading.Thread(
                     target=make_target(self.assoc._serve_request),
-                    args=(d_primitive, context_id)
+                    args=(d_primitive, context_id),
                 )
                 t.start()
             else:
-                self.msg_queue.put(
-                    (context_id, cast(DimseServiceType, d_primitive))
-                )
+                self.msg_queue.put((context_id, cast(DimseServiceType, d_primitive)))
 
             # Fix for memory leak, Issue #41
             #   Reset the DIMSE message, ready for the next one
@@ -315,7 +345,7 @@ class DIMSEServiceProvider:
         dimse_msg.context_id = context_id
 
         # Trigger event
-        evt.trigger(self.assoc, evt.EVT_DIMSE_SENT, {'message': dimse_msg})
+        evt.trigger(self.assoc, evt.EVT_DIMSE_SENT, {"message": dimse_msg})
 
         # Split the full messages into P-DATA chunks,
         #   each below the max_pdu size

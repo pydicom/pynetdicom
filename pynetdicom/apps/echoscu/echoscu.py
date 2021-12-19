@@ -9,8 +9,10 @@ import argparse
 import sys
 
 from pydicom.uid import (
-    ExplicitVRLittleEndian, ImplicitVRLittleEndian,
-    ExplicitVRBigEndian, DeflatedExplicitVRLittleEndian
+    ExplicitVRLittleEndian,
+    ImplicitVRLittleEndian,
+    ExplicitVRBigEndian,
+    DeflatedExplicitVRLittleEndian,
 )
 
 from pynetdicom import AE
@@ -19,7 +21,7 @@ from pynetdicom._globals import DEFAULT_MAX_LENGTH
 from pynetdicom.sop_class import Verification
 
 
-__version__ = '0.7.0'
+__version__ = "0.7.0"
 
 
 def _setup_argparser():
@@ -33,124 +35,140 @@ def _setup_argparser():
             "waits for a response. The application can be used to "
             "verify basic DICOM connectivity."
         ),
-        usage="echoscu [options] addr port"
+        usage="echoscu [options] addr port",
     )
 
     # Parameters
-    req_opts = parser.add_argument_group('Parameters')
-    req_opts.add_argument(
-        "addr", help="TCP/IP address of DICOM peer", type=str
-    )
+    req_opts = parser.add_argument_group("Parameters")
+    req_opts.add_argument("addr", help="TCP/IP address of DICOM peer", type=str)
     req_opts.add_argument("port", help="TCP/IP port number of peer", type=int)
 
     # General Options
-    gen_opts = parser.add_argument_group('General Options')
+    gen_opts = parser.add_argument_group("General Options")
     gen_opts.add_argument(
-        "--version",
-        help="print version information and exit",
-        action="store_true"
+        "--version", help="print version information and exit", action="store_true"
     )
     output = gen_opts.add_mutually_exclusive_group()
     output.add_argument(
-        "-q", "--quiet",
+        "-q",
+        "--quiet",
         help="quiet mode, print no warnings and errors",
         action="store_const",
-        dest='log_type', const='q'
+        dest="log_type",
+        const="q",
     )
     output.add_argument(
-        "-v", "--verbose",
+        "-v",
+        "--verbose",
         help="verbose mode, print processing details",
         action="store_const",
-        dest='log_type', const='v'
+        dest="log_type",
+        const="v",
     )
     output.add_argument(
-        "-d", "--debug",
+        "-d",
+        "--debug",
         help="debug mode, print debug information",
         action="store_const",
-        dest='log_type', const='d'
+        dest="log_type",
+        const="d",
     )
     gen_opts.add_argument(
-        "-ll", "--log-level", metavar='[l]',
-        help=(
-            "use level l for the logger (critical, error, warn, info, debug)"
-        ),
+        "-ll",
+        "--log-level",
+        metavar="[l]",
+        help=("use level l for the logger (critical, error, warn, info, debug)"),
         type=str,
-        choices=['critical', 'error', 'warn', 'info', 'debug']
+        choices=["critical", "error", "warn", "info", "debug"],
     )
 
     # Network Options
-    net_opts = parser.add_argument_group('Network Options')
+    net_opts = parser.add_argument_group("Network Options")
     net_opts.add_argument(
-        "-aet", "--calling-aet", metavar='[a]etitle',
+        "-aet",
+        "--calling-aet",
+        metavar="[a]etitle",
         help="set my calling AE title (default: ECHOSCU)",
         type=str,
-        default='ECHOSCU'
+        default="ECHOSCU",
     )
     net_opts.add_argument(
-        "-aec", "--called-aet", metavar='[a]etitle',
+        "-aec",
+        "--called-aet",
+        metavar="[a]etitle",
         help="set called AE title of peer (default: ANY-SCP)",
         type=str,
-        default='ANY-SCP'
+        default="ANY-SCP",
     )
     net_opts.add_argument(
-        "-ta", "--acse-timeout", metavar='[s]econds',
+        "-ta",
+        "--acse-timeout",
+        metavar="[s]econds",
         help="timeout for ACSE messages (default: 30 s)",
         type=float,
-        default=30
+        default=30,
     )
     net_opts.add_argument(
-        "-td", "--dimse-timeout", metavar='[s]econds',
+        "-td",
+        "--dimse-timeout",
+        metavar="[s]econds",
         help="timeout for DIMSE messages (default: 30 s)",
         type=float,
-        default=30
+        default=30,
     )
     net_opts.add_argument(
-        "-tn", "--network-timeout", metavar='[s]econds',
+        "-tn",
+        "--network-timeout",
+        metavar="[s]econds",
         help="timeout for the network (default: 30 s)",
         type=float,
-        default=30
+        default=30,
     )
     net_opts.add_argument(
-        "-pdu", "--max-pdu", metavar='[n]umber of bytes',
+        "-pdu",
+        "--max-pdu",
+        metavar="[n]umber of bytes",
         help=(
             f"set max receive pdu to n bytes (0 for unlimited, "
             f"default: {DEFAULT_MAX_LENGTH})"
         ),
         type=int,
-        default=DEFAULT_MAX_LENGTH
+        default=DEFAULT_MAX_LENGTH,
     )
 
     # Transfer Syntaxes
     ts_opts = parser.add_argument_group("Transfer Syntax Options")
     syntax = ts_opts.add_mutually_exclusive_group()
     syntax.add_argument(
-        "-xe", "--request-little",
+        "-xe",
+        "--request-little",
         help="request explicit VR little endian TS only",
-        action="store_true"
+        action="store_true",
     )
     syntax.add_argument(
-        "-xb", "--request-big",
+        "-xb",
+        "--request-big",
         help="request explicit VR big endian TS only",
-        action="store_true"
+        action="store_true",
     )
     syntax.add_argument(
-        "-xi", "--request-implicit",
+        "-xi",
+        "--request-implicit",
         help="request implicit VR little endian TS only",
-        action="store_true"
+        action="store_true",
     )
 
     # Miscellaneous Options
-    misc_opts = parser.add_argument_group('Miscellaneous Options')
+    misc_opts = parser.add_argument_group("Miscellaneous Options")
     misc_opts.add_argument(
-        "--repeat", metavar='[n]umber',
+        "--repeat",
+        metavar="[n]umber",
         help="repeat echo request n times",
         type=int,
-        default=1
+        default=1,
     )
     misc_opts.add_argument(
-        "--abort",
-        help="abort association instead of releasing it",
-        action="store_true"
+        "--abort", help="abort association instead of releasing it", action="store_true"
     )
 
     return parser.parse_args()
@@ -164,19 +182,19 @@ def main(args=None):
     args = _setup_argparser()
 
     if args.version:
-        print(f'echoscu.py v{__version__}')
+        print(f"echoscu.py v{__version__}")
         sys.exit()
 
-    APP_LOGGER = setup_logging(args, 'echoscu')
-    APP_LOGGER.debug('echoscu.py v%s', __version__)
-    APP_LOGGER.debug('')
+    APP_LOGGER = setup_logging(args, "echoscu")
+    APP_LOGGER.debug("echoscu.py v%s", __version__)
+    APP_LOGGER.debug("")
 
     # Set Transfer Syntax options
     transfer_syntax = [
         ExplicitVRLittleEndian,
         ImplicitVRLittleEndian,
         DeflatedExplicitVRLittleEndian,
-        ExplicitVRBigEndian
+        ExplicitVRBigEndian,
     ]
 
     if args.request_little:

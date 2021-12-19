@@ -14,11 +14,22 @@ from typing import TYPE_CHECKING, Optional, Tuple, cast, Dict, Type
 from pynetdicom import evt
 from pynetdicom.fsm import StateMachine
 from pynetdicom.pdu import (
-    A_ASSOCIATE_RQ, A_ASSOCIATE_AC, A_ASSOCIATE_RJ,
-    P_DATA_TF, A_RELEASE_RQ, A_RELEASE_RP, A_ABORT_RQ, _PDUType
+    A_ASSOCIATE_RQ,
+    A_ASSOCIATE_AC,
+    A_ASSOCIATE_RJ,
+    P_DATA_TF,
+    A_RELEASE_RQ,
+    A_RELEASE_RP,
+    A_ABORT_RQ,
+    _PDUType,
 )
 from pynetdicom.pdu_primitives import (
-    A_ASSOCIATE, A_RELEASE, A_ABORT, A_P_ABORT, P_DATA, _PDUPrimitiveType
+    A_ASSOCIATE,
+    A_RELEASE,
+    A_ABORT,
+    A_P_ABORT,
+    P_DATA,
+    _PDUPrimitiveType,
 )
 from pynetdicom.timer import Timer
 from pynetdicom.utils import make_target
@@ -28,7 +39,7 @@ if TYPE_CHECKING:  # pragma: no cover
     from pynetdicom.transport import AssociationSocket
 
 
-LOGGER = logging.getLogger('pynetdicom.dul')
+LOGGER = logging.getLogger("pynetdicom.dul")
 
 
 class DULServiceProvider(Thread):
@@ -53,6 +64,7 @@ class DULServiceProvider(Thread):
     state_machine : fsm.StateMachine
         The DICOM Upper Layer's State Machine.
     """
+
     def __init__(self, assoc: "Association") -> None:
         """Create a new DUL service provider for `assoc`.
 
@@ -77,9 +89,7 @@ class DULServiceProvider(Thread):
         #   user and the DUL service provider.
         # An event occurs when the DUL service user adds to
         #   the to_provider_queue
-        self.to_provider_queue: "queue.Queue[_PDUPrimitiveType]" = (
-            queue.Queue()
-        )
+        self.to_provider_queue: "queue.Queue[_PDUPrimitiveType]" = queue.Queue()
         # A primitive is sent to the service user when the DUL service provider
         # adds to the to_user_queue.
         self.to_user_queue: "queue.Queue[_PDUPrimitiveType]" = queue.Queue()
@@ -132,13 +142,13 @@ class DULServiceProvider(Thread):
         """
         # Trigger before data is decoded in case of exception in decoding
         b = bytes(bytestream)
-        evt.trigger(self.assoc, evt.EVT_DATA_RECV, {'data': b})
+        evt.trigger(self.assoc, evt.EVT_DATA_RECV, {"data": b})
 
         pdu_cls, event = _PDU_TYPES[b[0:1]]
         pdu = pdu_cls()
         pdu.decode(b)
 
-        evt.trigger(self.assoc, evt.EVT_PDU_RECV, {'pdu': pdu})
+        evt.trigger(self.assoc, evt.EVT_PDU_RECV, {"pdu": pdu})
 
         return pdu, event
 
@@ -159,7 +169,7 @@ class DULServiceProvider(Thread):
         # Sta13: waiting for the transport connection to close
         # however it may still receive data that needs to be acted on
         self.socket = cast("AssociationSocket", self.socket)
-        if self.state_machine.current_state == 'Sta13':
+        if self.state_machine.current_state == "Sta13":
             # Check to see if there's more data to be read
             #   Might be any incoming PDU or valid/invalid data
             if self.socket and self.socket.ready:
@@ -217,29 +227,29 @@ class DULServiceProvider(Thread):
         if isinstance(primitive, A_ASSOCIATE):
             if primitive.result is None:
                 # A-ASSOCIATE Request
-                return 'Evt1'
+                return "Evt1"
 
             if primitive.result == 0x00:
                 # A-ASSOCIATE Response (accept)
-                return 'Evt7'
+                return "Evt7"
 
             # A-ASSOCIATE Response (reject)
-            return 'Evt8'
+            return "Evt8"
 
         if isinstance(primitive, A_RELEASE):
             if primitive.result is None:
                 # A-Release Request
-                return 'Evt11'
+                return "Evt11"
 
             # A-Release Response
             # result is 'affirmative'
-            return 'Evt14'
+            return "Evt14"
 
         if isinstance(primitive, (A_ABORT, A_P_ABORT)):
-            return 'Evt15'
+            return "Evt15"
 
         if isinstance(primitive, P_DATA):
-            return 'Evt9'
+            return "Evt9"
 
         raise ValueError("_primitive_to_event(): invalid primitive")
 
@@ -272,24 +282,24 @@ class DULServiceProvider(Thread):
             bytestream.extend(self.socket.recv(6))
         except (socket.error, socket.timeout):
             # Evt17: Transport connection closed
-            self.event_queue.put('Evt17')
+            self.event_queue.put("Evt17")
             return
 
         try:
             # Byte 1 is always the PDU type
             # Byte 2 is always reserved
             # Bytes 3-6 are always the PDU length
-            pdu_type, _, pdu_length = unpack('>BBL', bytestream)
+            pdu_type, _, pdu_length = unpack(">BBL", bytestream)
         except struct.error:
             # Raised if there's not enough data
             # Evt17: Transport connection closed
-            self.event_queue.put('Evt17')
+            self.event_queue.put("Evt17")
             return
 
         # If the `pdu_type` is unrecognised
         if pdu_type not in (0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07):
             # Evt19: Unrecognised or invalid PDU received
-            self.event_queue.put('Evt19')
+            self.event_queue.put("Evt19")
             return
 
         # Try and read the rest of the PDU
@@ -297,13 +307,13 @@ class DULServiceProvider(Thread):
             bytestream += self.socket.recv(pdu_length)
         except (socket.error, socket.timeout):
             # Evt17: Transport connection closed
-            self.event_queue.put('Evt17')
+            self.event_queue.put("Evt17")
             return
 
         # Check that the PDU data was completely read
         if len(bytestream) != 6 + pdu_length:
             # Evt17: Transport connection closed
-            self.event_queue.put('Evt17')
+            self.event_queue.put("Evt17")
             return
 
         try:
@@ -311,10 +321,10 @@ class DULServiceProvider(Thread):
             pdu, event = self._decode_pdu(bytestream)
             self.event_queue.put(event)
         except Exception as exc:
-            LOGGER.error('Unable to decode the received PDU data')
+            LOGGER.error("Unable to decode the received PDU data")
             LOGGER.exception(exc)
             # Evt19: Unrecognised or invalid PDU received
-            self.event_queue.put('Evt19')
+            self.event_queue.put("Evt19")
             self.pdu = None
             self.primitive = None
             return
@@ -359,9 +369,7 @@ class DULServiceProvider(Thread):
             # Event handler - ACSE received primitive from DUL service
             acse_primitives = (A_ASSOCIATE, A_RELEASE, A_ABORT, A_P_ABORT)
             if isinstance(queue_item, acse_primitives):
-                evt.trigger(
-                    self.assoc, evt.EVT_ACSE_RECV, {'primitive': queue_item}
-                )
+                evt.trigger(self.assoc, evt.EVT_ACSE_RECV, {"primitive": queue_item})
 
             return queue_item
         except queue.Empty:
@@ -393,7 +401,7 @@ class DULServiceProvider(Thread):
             # Check the ARTIM timer first so its event is placed on the queue
             #   ahead of any other events this loop
             if self.artim_timer.expired:
-                self.event_queue.put('Evt18')
+                self.event_queue.put("Evt18")
 
             # Check the connection for incoming data
             try:
@@ -452,9 +460,7 @@ class DULServiceProvider(Thread):
         # Event handler - ACSE sent primitive to the DUL service
         acse_primitives = (A_ASSOCIATE, A_RELEASE, A_ABORT, A_P_ABORT)
         if isinstance(primitive, acse_primitives):
-            evt.trigger(
-                self.assoc, evt.EVT_ACSE_SENT, {'primitive': primitive}
-            )
+            evt.trigger(self.assoc, evt.EVT_ACSE_SENT, {"primitive": primitive})
 
         self.to_provider_queue.put(primitive)
 
@@ -467,7 +473,7 @@ class DULServiceProvider(Thread):
             ``True`` if ``'Sta1'`` and the reactor has stopped, ``False``
             otherwise
         """
-        if self.state_machine.current_state == 'Sta1':
+        if self.state_machine.current_state == "Sta1":
             self._kill_thread = True
             # Fix for Issue 39
             # Give the DUL thread time to exit
@@ -480,11 +486,11 @@ class DULServiceProvider(Thread):
 
 
 _PDU_TYPES: Dict[bytes, Tuple[Type[_PDUType], str]] = {
-    b'\x01': (A_ASSOCIATE_RQ, 'Evt6'),
-    b'\x02': (A_ASSOCIATE_AC, 'Evt3'),
-    b'\x03': (A_ASSOCIATE_RJ, 'Evt4'),
-    b'\x04': (P_DATA_TF, 'Evt10'),
-    b'\x05': (A_RELEASE_RQ, 'Evt12'),
-    b'\x06': (A_RELEASE_RP, 'Evt13'),
-    b'\x07': (A_ABORT_RQ, 'Evt16')
+    b"\x01": (A_ASSOCIATE_RQ, "Evt6"),
+    b"\x02": (A_ASSOCIATE_AC, "Evt3"),
+    b"\x03": (A_ASSOCIATE_RJ, "Evt4"),
+    b"\x04": (P_DATA_TF, "Evt10"),
+    b"\x05": (A_RELEASE_RQ, "Evt12"),
+    b"\x06": (A_RELEASE_RP, "Evt13"),
+    b"\x07": (A_ABORT_RQ, "Evt16"),
 }

@@ -7,12 +7,21 @@ import logging
 import sys
 from types import TracebackType
 from typing import (
-    List, Optional, Iterator, Union, cast, Callable, Tuple, Type, Sequence
+    List,
+    Optional,
+    Iterator,
+    Union,
+    cast,
+    Callable,
+    Tuple,
+    Type,
+    Sequence,
 )
 import unicodedata
 
 try:
     import ctypes
+
     HAVE_CTYPES = True
 except ImportError:
     HAVE_CTYPES = False
@@ -22,7 +31,7 @@ from pydicom.uid import UID
 from pynetdicom import _config
 
 
-LOGGER = logging.getLogger('pynetdicom.utils')
+LOGGER = logging.getLogger("pynetdicom.utils")
 
 
 def decode_bytes(encoded_value: bytes) -> str:
@@ -42,24 +51,24 @@ def decode_bytes(encoded_value: bytes) -> str:
     """
     # Always try ASCII first
     try:
-        return encoded_value.decode('ascii', errors='strict')
+        return encoded_value.decode("ascii", errors="strict")
     except UnicodeDecodeError as exc:
         LOGGER.exception(exc)
 
     codecs: Sequence[str] = _config.CODECS
-    codecs = [c for c in codecs if c not in ('ascii', '646', 'us-ascii')]
+    codecs = [c for c in codecs if c not in ("ascii", "646", "us-ascii")]
 
     # If that fails then try the fallbacks and re-encode into ASCII
     for codec in codecs:
         try:
-            value = encoded_value.decode(codec, errors='strict')
-            encoded_value = value.encode('ascii', errors='ignore')
+            value = encoded_value.decode(codec, errors="strict")
+            encoded_value = value.encode("ascii", errors="ignore")
             return decode_bytes(encoded_value)
         except UnicodeError as exc:
             LOGGER.exception(exc)
 
-    codecs.insert(0, 'ascii')
-    as_hex = ' '.join([f"{b:02X}" for b in encoded_value])
+    codecs.insert(0, "ascii")
+    as_hex = " ".join([f"{b:02X}" for b in encoded_value])
     raise ValueError(
         f"Unable to decode '{as_hex}' using the {', '.join(codecs)} codec(s)"
     )
@@ -96,11 +105,11 @@ def make_target(target_fn: Callable) -> Callable:
 
 def pretty_bytes(
     bytestream: Union[bytes, BytesIO],
-    prefix: str = '  ',
-    delimiter: str = '  ',
+    prefix: str = "  ",
+    delimiter: str = "  ",
     items_per_line: int = 16,
     max_size: Optional[int] = 512,
-    suffix: str = ''
+    suffix: str = "",
 ) -> List[str]:
     """Turn the bytestring `bytestream` into a :class:`list` of nicely
     formatted :class:`str`.
@@ -134,9 +143,9 @@ def pretty_bytes(
     byte_count = 0
     for ii in range(0, len(bytestream), items_per_line):
         # chunk is a bytes in python3 and a str in python2
-        chunk = bytestream[ii:ii + items_per_line]
+        chunk = bytestream[ii : ii + items_per_line]
         byte_count += len(chunk)
-        gen = (format(x, '02x') for x in chunk)
+        gen = (format(x, "02x") for x in chunk)
 
         if max_size is not None and byte_count <= max_size:
             line = prefix + delimiter.join(gen)
@@ -155,10 +164,7 @@ def pretty_bytes(
 
 
 def set_ae(
-    value: Optional[str],
-    name: str,
-    allow_empty: bool = True,
-    allow_none: bool = True
+    value: Optional[str], name: str, allow_empty: bool = True, allow_none: bool = True
 ) -> Optional[str]:
     """Convert `value` to an **AE** like parameter and apply validation.
 
@@ -194,7 +200,7 @@ def set_ae(
             raise ValueError(msg)
 
         if value:
-            result, reason = _config.VALIDATORS['AE'](value)
+            result, reason = _config.VALIDATORS["AE"](value)
             if not result:
                 msg = f"Invalid '{name}' value '{value}' - {reason}"
                 LOGGER.error(msg)
@@ -202,10 +208,8 @@ def set_ae(
 
         return value
 
-    s = 'str or None' if allow_none else 'str'
-    raise TypeError(
-        f"'{name}' must be {s}, not '{value.__class__.__name__}'"
-    )
+    s = "str or None" if allow_none else "str"
+    raise TypeError(f"'{name}' must be {s}, not '{value.__class__.__name__}'")
 
 
 def set_uid(
@@ -213,7 +217,7 @@ def set_uid(
     name: str,
     allow_empty: bool = True,
     allow_none: bool = True,
-    validate: bool = True
+    validate: bool = True,
 ) -> Optional[UID]:
     """Convert `value` to a :class:`UID` and apply validation.
 
@@ -251,16 +255,14 @@ def set_uid(
 
     if isinstance(value, UID):
         if not value and not allow_empty:
-            raise ValueError(
-                f"Invalid '{name}' value - must not be an empty str"
-            )
+            raise ValueError(f"Invalid '{name}' value - must not be an empty str")
 
         if not validate:
             return value
 
         # Note: conformance may be different from validity
         if value:
-            result, reason = _config.VALIDATORS['UI'](value)
+            result, reason = _config.VALIDATORS["UI"](value)
             if not result:
                 msg = f"Invalid '{name}' value '{value}' - {reason}"
                 LOGGER.error(msg)
@@ -271,7 +273,7 @@ def set_uid(
 
         return value
 
-    s = 'str, bytes, UID or None' if allow_none else 'str, bytes or UID'
+    s = "str, bytes, UID or None" if allow_none else "str, bytes or UID"
     raise TypeError(f"'{name}' must be {s}, not '{value.__class__.__name__}'")
 
 
