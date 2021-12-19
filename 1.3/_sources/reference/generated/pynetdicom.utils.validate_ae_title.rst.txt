@@ -1,4 +1,4 @@
-pynetdicom.utils.validate\_ae\_title
+﻿pynetdicom.utils.validate\_ae\_title
 ====================================
 
 .. currentmodule:: pynetdicom.utils

@@ -1,4 +1,4 @@
-pynetdicom.pdu\_primitives.A\_P\_ABORT
+﻿pynetdicom.pdu\_primitives.A\_P\_ABORT
 ======================================
 
 .. currentmodule:: pynetdicom.pdu_primitives

@@ -1,4 +1,4 @@
-pynetdicom.dimse\_primitives.C\_ECHO
+﻿pynetdicom.dimse\_primitives.C\_ECHO
 ====================================
 
 .. currentmodule:: pynetdicom.dimse_primitives

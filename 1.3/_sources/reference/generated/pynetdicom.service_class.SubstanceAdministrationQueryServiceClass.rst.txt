@@ -1,4 +1,4 @@
-pynetdicom.service\_class.SubstanceAdministrationQueryServiceClass
+﻿pynetdicom.service\_class.SubstanceAdministrationQueryServiceClass
 ==================================================================
 
 .. currentmodule:: pynetdicom.service_class

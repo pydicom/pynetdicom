@@ -1,4 +1,4 @@
-pynetdicom.sop\_class.SOPClass
+﻿pynetdicom.sop\_class.SOPClass
 ==============================
 
 .. currentmodule:: pynetdicom.sop_class
@@ -13,6 +13,7 @@ pynetdicom.sop\_class.SOPClass
 
    .. autosummary::
    
+      ~SOPClass.__init__
       ~SOPClass.capitalize
       ~SOPClass.casefold
       ~SOPClass.center
@@ -76,6 +77,7 @@ pynetdicom.sop\_class.SOPClass
       ~SOPClass.is_retired
       ~SOPClass.is_transfer_syntax
       ~SOPClass.is_valid
+      ~SOPClass.keyword
       ~SOPClass.name
       ~SOPClass.service_class
       ~SOPClass.type

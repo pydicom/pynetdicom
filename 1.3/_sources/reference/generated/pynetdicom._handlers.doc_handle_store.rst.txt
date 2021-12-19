@@ -1,4 +1,4 @@
-pynetdicom.\_handlers.doc\_handle\_store
+﻿pynetdicom.\_handlers.doc\_handle\_store
 ========================================
 
 .. currentmodule:: pynetdicom._handlers

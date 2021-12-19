@@ -1,4 +1,4 @@
-pynetdicom.timer.Timer
+﻿pynetdicom.timer.Timer
 ======================
 
 .. currentmodule:: pynetdicom.timer

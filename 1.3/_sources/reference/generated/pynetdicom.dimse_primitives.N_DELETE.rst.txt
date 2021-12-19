@@ -1,4 +1,4 @@
-pynetdicom.dimse\_primitives.N\_DELETE
+﻿pynetdicom.dimse\_primitives.N\_DELETE
 ======================================
 
 .. currentmodule:: pynetdicom.dimse_primitives

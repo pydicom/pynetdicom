@@ -1,4 +1,4 @@
-pynetdicom.association.Association
+﻿pynetdicom.association.Association
 ==================================
 
 .. currentmodule:: pynetdicom.association

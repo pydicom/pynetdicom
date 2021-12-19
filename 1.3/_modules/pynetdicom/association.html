@@ -1,75 +1,37 @@
-
-
 <!DOCTYPE html>
-<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
-<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<html class="writer-html5" lang="en" >
 <head>
-  <meta charset="utf-8">
-  
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>pynetdicom.association &mdash; pynetdicom 1.3.1 documentation</title>
-  
-
-  
-  
+      <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="../../_static/css/pynetdicom.css" type="text/css" />
+      <link rel="stylesheet" href="../../_static/css/pynetdicom.css" type="text/css" />
     <link rel="shortcut icon" href="../../_static/favicon.ico"/>
+  <!--[if lt IE 9]>
+    <script src="../../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
   
-  
-  
-
-  
-  <script type="text/javascript" src="../../_static/js/modernizr.min.js"></script>
-  
-    
-      <script type="text/javascript" id="documentation_options" data-url_root="../../" src="../../_static/documentation_options.js"></script>
-        <script type="text/javascript" src="../../_static/jquery.js"></script>
-        <script type="text/javascript" src="../../_static/underscore.js"></script>
-        <script type="text/javascript" src="../../_static/doctools.js"></script>
-        <script type="text/javascript" src="../../_static/language_data.js"></script>
-    
-    <script type="text/javascript" src="../../_static/js/theme.js"></script>
-
-    
-
-  
-  <link rel="stylesheet" href="../../_static/css/pynetdicom.css" type="text/css" />
-  <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
-  <link rel="stylesheet" href="../../_static/css/pynetdicom.css" type="text/css" />
+        <script data-url_root="../../" id="documentation_options" src="../../_static/documentation_options.js"></script>
+        <script src="../../_static/jquery.js"></script>
+        <script src="../../_static/underscore.js"></script>
+        <script src="../../_static/doctools.js"></script>
+    <script src="../../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../../genindex.html" />
     <link rel="search" title="Search" href="../../search.html" /> 
 </head>
 
-<body class="wy-body-for-nav">
-
-   
+<body class="wy-body-for-nav"> 
   <div class="wy-grid-for-nav">
-    
     <nav data-toggle="wy-nav-shift" class="wy-nav-side">
       <div class="wy-side-scroll">
         <div class="wy-side-nav-search" >
-          
-
-          
             <a href="../../index.html" class="icon icon-home"> pynetdicom
-          
-
-          
-            
             <img src="../../_static/pydicom_flat_black.svg" class="logo" alt="Logo"/>
-          
           </a>
-
-          
-            
-            
               <div class="version">
                 1.3.1
               </div>
-            
-          
-
-          
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
     <input type="text" name="q" placeholder="Search docs" />
@@ -77,17 +39,7 @@
     <input type="hidden" name="area" value="default" />
   </form>
 </div>
-
-          
-        </div>
-
-        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
-          
-            
-            
-              
-            
-            
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
               <ul>
 <li class="toctree-l1"><a class="reference internal" href="../../verification_service_class.html">Verification Service Class</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../storage_service_class.html">Storage Service Class</a></li>
@@ -114,98 +66,62 @@
 <li class="toctree-l1"><a class="reference internal" href="../../release_notes.html#v1-0-0">1.0.0</a></li>
 </ul>
 
-            
-          
         </div>
       </div>
     </nav>
 
-    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
-
-      
-      <nav class="wy-nav-top" aria-label="top navigation">
-        
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
           <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
           <a href="../../index.html">pynetdicom</a>
-        
       </nav>
 
-
       <div class="wy-nav-content">
-        
         <div class="rst-content">
-        
-          
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-<div role="navigation" aria-label="breadcrumbs navigation">
-
+          <div role="navigation" aria-label="Page navigation">
   <ul class="wy-breadcrumbs">
-    
-      <li><a href="../../index.html">Docs</a> &raquo;</li>
-        
+      <li><a href="../../index.html" class="icon icon-home"></a> &raquo;</li>
           <li><a href="../index.html">Module code</a> &raquo;</li>
-        
       <li>pynetdicom.association</li>
-    
-    
       <li class="wy-breadcrumbs-aside">
-        
       </li>
-    
   </ul>
-
-  
   <hr/>
 </div>
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
-            
+             
   <h1>Source code for pynetdicom.association</h1><div class="highlight"><pre>
 <span></span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">Defines the Association class which handles associating with peers.</span>
 <span class="sd">&quot;&quot;&quot;</span>
 <span class="kn">import</span> <span class="nn">gc</span>
-<span class="kn">from</span> <span class="nn">io</span> <span class="k">import</span> <span class="n">BytesIO</span>
+<span class="kn">from</span> <span class="nn">io</span> <span class="kn">import</span> <span class="n">BytesIO</span>
 <span class="kn">import</span> <span class="nn">logging</span>
 <span class="kn">import</span> <span class="nn">threading</span>
 <span class="kn">import</span> <span class="nn">time</span>
 
-<span class="kn">from</span> <span class="nn">pydicom.dataset</span> <span class="k">import</span> <span class="n">Dataset</span>
-<span class="kn">from</span> <span class="nn">pydicom.uid</span> <span class="k">import</span> <span class="n">UID</span>
+<span class="kn">from</span> <span class="nn">pydicom.dataset</span> <span class="kn">import</span> <span class="n">Dataset</span>
+<span class="kn">from</span> <span class="nn">pydicom.uid</span> <span class="kn">import</span> <span class="n">UID</span>
 
 <span class="c1"># pylint: disable=no-name-in-module</span>
-<span class="kn">from</span> <span class="nn">pynetdicom.acse</span> <span class="k">import</span> <span class="n">ACSE</span>
-<span class="kn">from</span> <span class="nn">pynetdicom</span> <span class="k">import</span> <span class="n">_config</span><span class="p">,</span> <span class="n">evt</span>
-<span class="kn">from</span> <span class="nn">pynetdicom.dimse</span> <span class="k">import</span> <span class="n">DIMSEServiceProvider</span>
-<span class="kn">from</span> <span class="nn">pynetdicom.dimse_primitives</span> <span class="k">import</span> <span class="p">(</span>
+<span class="kn">from</span> <span class="nn">pynetdicom.acse</span> <span class="kn">import</span> <span class="n">ACSE</span>
+<span class="kn">from</span> <span class="nn">pynetdicom</span> <span class="kn">import</span> <span class="n">_config</span><span class="p">,</span> <span class="n">evt</span>
+<span class="kn">from</span> <span class="nn">pynetdicom.dimse</span> <span class="kn">import</span> <span class="n">DIMSEServiceProvider</span>
+<span class="kn">from</span> <span class="nn">pynetdicom.dimse_primitives</span> <span class="kn">import</span> <span class="p">(</span>
     <span class="n">C_ECHO</span><span class="p">,</span> <span class="n">C_MOVE</span><span class="p">,</span> <span class="n">C_STORE</span><span class="p">,</span> <span class="n">C_GET</span><span class="p">,</span> <span class="n">C_FIND</span><span class="p">,</span> <span class="n">C_CANCEL</span><span class="p">,</span>
     <span class="n">N_EVENT_REPORT</span><span class="p">,</span> <span class="n">N_GET</span><span class="p">,</span> <span class="n">N_SET</span><span class="p">,</span> <span class="n">N_CREATE</span><span class="p">,</span> <span class="n">N_ACTION</span><span class="p">,</span> <span class="n">N_DELETE</span>
 <span class="p">)</span>
-<span class="kn">from</span> <span class="nn">pynetdicom.dsutils</span> <span class="k">import</span> <span class="n">decode</span><span class="p">,</span> <span class="n">encode</span>
-<span class="kn">from</span> <span class="nn">pynetdicom.dul</span> <span class="k">import</span> <span class="n">DULServiceProvider</span>
-<span class="kn">from</span> <span class="nn">pynetdicom._globals</span> <span class="k">import</span> <span class="p">(</span>
+<span class="kn">from</span> <span class="nn">pynetdicom.dsutils</span> <span class="kn">import</span> <span class="n">decode</span><span class="p">,</span> <span class="n">encode</span>
+<span class="kn">from</span> <span class="nn">pynetdicom.dul</span> <span class="kn">import</span> <span class="n">DULServiceProvider</span>
+<span class="kn">from</span> <span class="nn">pynetdicom._globals</span> <span class="kn">import</span> <span class="p">(</span>
     <span class="n">MODE_REQUESTOR</span><span class="p">,</span> <span class="n">MODE_ACCEPTOR</span><span class="p">,</span> <span class="n">DEFAULT_MAX_LENGTH</span><span class="p">,</span> <span class="n">STATUS_WARNING</span><span class="p">,</span>
     <span class="n">STATUS_SUCCESS</span><span class="p">,</span> <span class="n">STATUS_CANCEL</span><span class="p">,</span> <span class="n">STATUS_PENDING</span><span class="p">,</span> <span class="n">STATUS_FAILURE</span>
 <span class="p">)</span>
-<span class="kn">from</span> <span class="nn">pynetdicom._handlers</span> <span class="k">import</span> <span class="p">(</span>
+<span class="kn">from</span> <span class="nn">pynetdicom._handlers</span> <span class="kn">import</span> <span class="p">(</span>
     <span class="n">standard_dimse_recv_handler</span><span class="p">,</span> <span class="n">standard_dimse_sent_handler</span><span class="p">,</span>
     <span class="n">standard_pdu_recv_handler</span><span class="p">,</span> <span class="n">standard_pdu_sent_handler</span><span class="p">,</span>
 <span class="p">)</span>
-<span class="kn">from</span> <span class="nn">pynetdicom.sop_class</span> <span class="k">import</span> <span class="p">(</span>
+<span class="kn">from</span> <span class="nn">pynetdicom.sop_class</span> <span class="kn">import</span> <span class="p">(</span>
     <span class="n">uid_to_service_class</span><span class="p">,</span>
     <span class="n">VerificationSOPClass</span><span class="p">,</span>
     <span class="n">ModalityWorklistInformationFind</span><span class="p">,</span>
@@ -245,7 +161,7 @@
     <span class="n">ImplantTemplateGroupInformationModelGet</span><span class="p">,</span>
     <span class="n">ImplantTemplateGroupInformationModelMove</span><span class="p">,</span>
 <span class="p">)</span>
-<span class="kn">from</span> <span class="nn">pynetdicom.pdu_primitives</span> <span class="k">import</span> <span class="p">(</span>
+<span class="kn">from</span> <span class="nn">pynetdicom.pdu_primitives</span> <span class="kn">import</span> <span class="p">(</span>
     <span class="n">UserIdentityNegotiation</span><span class="p">,</span>
     <span class="n">MaximumLengthNotification</span><span class="p">,</span>
     <span class="n">ImplementationClassUIDNotification</span><span class="p">,</span>
@@ -255,7 +171,7 @@
     <span class="n">SOPClassCommonExtendedNegotiation</span><span class="p">,</span>
     <span class="n">SCP_SCU_RoleSelectionNegotiation</span><span class="p">,</span>
 <span class="p">)</span>
-<span class="kn">from</span> <span class="nn">pynetdicom.status</span> <span class="k">import</span> <span class="n">code_to_category</span><span class="p">,</span> <span class="n">STORAGE_SERVICE_CLASS_STATUS</span>
+<span class="kn">from</span> <span class="nn">pynetdicom.status</span> <span class="kn">import</span> <span class="n">code_to_category</span><span class="p">,</span> <span class="n">STORAGE_SERVICE_CLASS_STATUS</span>
 
 
 <span class="c1"># pylint: enable=no-name-in-module</span>
@@ -291,7 +207,7 @@
 <span class="sd">    requestor : association.ServiceUser</span>
 <span class="sd">        Representation of the association&#39;s requestor AE.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-<div class="viewcode-block" id="Association.__init__"><a class="viewcode-back" href="../../reference/generated/pynetdicom.association.Association.html#pynetdicom.association.Association.__init__">[docs]</a>    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ae</span><span class="p">,</span> <span class="n">mode</span><span class="p">):</span>
+<div class="viewcode-block" id="Association.__init__"><a class="viewcode-back" href="../../reference/generated/pynetdicom.association.Association.html#pynetdicom.association.Association.__init__">[docs]</a>    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ae</span><span class="p">,</span> <span class="n">mode</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Create a new ``Association`` instance.</span>
 
 <span class="sd">        The association starts in State 1 (idle). Association negotiation</span>
@@ -351,7 +267,7 @@
         <span class="n">threading</span><span class="o">.</span><span class="n">Thread</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">daemon</span> <span class="o">=</span> <span class="kc">True</span></div>
 
-<div class="viewcode-block" id="Association.abort"><a class="viewcode-back" href="../../reference/generated/pynetdicom.association.Association.html#pynetdicom.association.Association.abort">[docs]</a>    <span class="k">def</span> <span class="nf">abort</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">abort</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Send an A-ABORT to the remote AE and kill the ``Association``.&quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">is_released</span><span class="p">:</span>
             <span class="n">LOGGER</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s1">&#39;Aborting Association&#39;</span><span class="p">)</span>
@@ -361,7 +277,7 @@
             <span class="bp">self</span><span class="o">.</span><span class="n">kill</span><span class="p">()</span>
 
         <span class="c1"># Add short delay to ensure everything shuts down</span>
-        <span class="n">time</span><span class="o">.</span><span class="n">sleep</span><span class="p">(</span><span class="mf">0.1</span><span class="p">)</span></div>
+        <span class="n">time</span><span class="o">.</span><span class="n">sleep</span><span class="p">(</span><span class="mf">0.1</span><span class="p">)</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">accepted_contexts</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
@@ -386,7 +302,7 @@
         <span class="sd">&quot;&quot;&quot;Return the Association&#39;s parent ``ApplicationEntity``.&quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_ae</span>
 
-<div class="viewcode-block" id="Association.bind"><a class="viewcode-back" href="../../reference/generated/pynetdicom.association.Association.html#pynetdicom.association.Association.bind">[docs]</a>    <span class="k">def</span> <span class="nf">bind</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">event</span><span class="p">,</span> <span class="n">handler</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">bind</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">event</span><span class="p">,</span> <span class="n">handler</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Bind a callable `handler` to an `event`.</span>
 
 <span class="sd">        Parameters</span>
@@ -411,7 +327,7 @@
                     <span class="bp">self</span><span class="o">.</span><span class="n">_handlers</span><span class="p">[</span><span class="n">event</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
 
                 <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_handlers</span><span class="p">[</span><span class="n">event</span><span class="p">]</span> <span class="o">!=</span> <span class="n">handler</span><span class="p">:</span>
-                    <span class="bp">self</span><span class="o">.</span><span class="n">_handlers</span><span class="p">[</span><span class="n">event</span><span class="p">]</span> <span class="o">=</span> <span class="n">handler</span></div>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">_handlers</span><span class="p">[</span><span class="n">event</span><span class="p">]</span> <span class="o">=</span> <span class="n">handler</span>
 
     <span class="k">def</span> <span class="nf">_bind_defaults</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Bind the default event handlers.&quot;&quot;&quot;</span>
@@ -474,11 +390,11 @@
         <span class="k">with</span> <span class="n">threading</span><span class="o">.</span><span class="n">Lock</span><span class="p">():</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_dimse_timeout</span> <span class="o">=</span> <span class="n">value</span>
 
-<div class="viewcode-block" id="Association.get_events"><a class="viewcode-back" href="../../reference/generated/pynetdicom.association.Association.html#pynetdicom.association.Association.get_events">[docs]</a>    <span class="k">def</span> <span class="nf">get_events</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">get_events</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Return a list of currently bound events.&quot;&quot;&quot;</span>
-        <span class="k">return</span> <span class="nb">sorted</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_handlers</span><span class="o">.</span><span class="n">keys</span><span class="p">(),</span> <span class="n">key</span><span class="o">=</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">x</span><span class="o">.</span><span class="n">name</span><span class="p">)</span></div>
+        <span class="k">return</span> <span class="nb">sorted</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_handlers</span><span class="o">.</span><span class="n">keys</span><span class="p">(),</span> <span class="n">key</span><span class="o">=</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">x</span><span class="o">.</span><span class="n">name</span><span class="p">)</span>
 
-<div class="viewcode-block" id="Association.get_handlers"><a class="viewcode-back" href="../../reference/generated/pynetdicom.association.Association.html#pynetdicom.association.Association.get_handlers">[docs]</a>    <span class="k">def</span> <span class="nf">get_handlers</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">event</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">get_handlers</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">event</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Return handlers bound to a specific `event`.</span>
 
 <span class="sd">        Parameters</span>
@@ -497,7 +413,7 @@
         <span class="k">if</span> <span class="n">event</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_handlers</span><span class="p">:</span>
             <span class="k">return</span> <span class="p">[]</span>
 
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_handlers</span><span class="p">[</span><span class="n">event</span><span class="p">]</span></div>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_handlers</span><span class="p">[</span><span class="n">event</span><span class="p">]</span>
 
     <span class="k">def</span> <span class="nf">_get_valid_context</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ab_syntax</span><span class="p">,</span> <span class="n">tr_syntax</span><span class="p">,</span> <span class="n">role</span><span class="p">,</span> <span class="n">context_id</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Return a valid presentation context matching the parameters.</span>
@@ -576,12 +492,12 @@
         <span class="sd">&quot;&quot;&quot;Return ``True`` if the local AE is the association *Requestor*.&quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">mode</span> <span class="o">==</span> <span class="n">MODE_REQUESTOR</span>
 
-<div class="viewcode-block" id="Association.kill"><a class="viewcode-back" href="../../reference/generated/pynetdicom.association.Association.html#pynetdicom.association.Association.kill">[docs]</a>    <span class="k">def</span> <span class="nf">kill</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">kill</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Kill the ``Association`` thread.&quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_kill</span> <span class="o">=</span> <span class="kc">True</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">is_established</span> <span class="o">=</span> <span class="kc">False</span>
         <span class="k">while</span> <span class="bp">self</span><span class="o">.</span><span class="n">dul</span><span class="o">.</span><span class="n">is_alive</span><span class="p">()</span> <span class="ow">and</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">dul</span><span class="o">.</span><span class="n">stop_dul</span><span class="p">():</span>
-            <span class="n">time</span><span class="o">.</span><span class="n">sleep</span><span class="p">(</span><span class="mf">0.01</span><span class="p">)</span></div>
+            <span class="n">time</span><span class="o">.</span><span class="n">sleep</span><span class="p">(</span><span class="mf">0.01</span><span class="p">)</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">local</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
@@ -636,11 +552,11 @@
         <span class="sd">&quot;&quot;&quot;Return a list of rejected ``PresentationContext``.&quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_rejected_cx</span>
 
-<div class="viewcode-block" id="Association.release"><a class="viewcode-back" href="../../reference/generated/pynetdicom.association.Association.html#pynetdicom.association.Association.release">[docs]</a>    <span class="k">def</span> <span class="nf">release</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">release</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Send an A-RELEASE request and initiate association release.&quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">is_established</span><span class="p">:</span>
             <span class="n">LOGGER</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s1">&#39;Releasing Association&#39;</span><span class="p">)</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">acse</span><span class="o">.</span><span class="n">negotiate_release</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span></div>
+            <span class="bp">self</span><span class="o">.</span><span class="n">acse</span><span class="o">.</span><span class="n">negotiate_release</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">remote</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
@@ -650,7 +566,7 @@
 
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">acceptor</span><span class="o">.</span><span class="n">info</span>
 
-<div class="viewcode-block" id="Association.request"><a class="viewcode-back" href="../../reference/generated/pynetdicom.association.Association.html#pynetdicom.association.Association.request">[docs]</a>    <span class="k">def</span> <span class="nf">request</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">request</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Request an association with a peer.</span>
 
 <span class="sd">        A request can only be made once the ``Association`` instance has been</span>
@@ -664,9 +580,9 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">_dul_ready</span><span class="o">.</span><span class="n">wait</span><span class="p">()</span>
         <span class="c1"># Start association negotiation</span>
         <span class="n">LOGGER</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Requesting Association&quot;</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">acse</span><span class="o">.</span><span class="n">negotiate_association</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span></div>
+        <span class="bp">self</span><span class="o">.</span><span class="n">acse</span><span class="o">.</span><span class="n">negotiate_association</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
 
-<div class="viewcode-block" id="Association.run"><a class="viewcode-back" href="../../reference/generated/pynetdicom.association.Association.html#pynetdicom.association.Association.run">[docs]</a>    <span class="k">def</span> <span class="nf">run</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">run</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;The main ``Association`` reactor.&quot;&quot;&quot;</span>
         <span class="c1"># Start the DUL thread if not already started</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">_started_dul</span><span class="p">:</span>
@@ -699,7 +615,7 @@
                 <span class="bp">self</span><span class="o">.</span><span class="n">acse</span><span class="o">.</span><span class="n">negotiate_association</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
 
             <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">is_established</span><span class="p">:</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">_run_as_requestor</span><span class="p">()</span></div>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_run_as_requestor</span><span class="p">()</span>
 
     <span class="k">def</span> <span class="nf">_run_as_acceptor</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Run the ``Association`` acceptor reactor loop.</span>
@@ -869,7 +785,7 @@
                 <span class="bp">self</span><span class="o">.</span><span class="n">kill</span><span class="p">()</span>
                 <span class="k">return</span>
 
-<div class="viewcode-block" id="Association.set_socket"><a class="viewcode-back" href="../../reference/generated/pynetdicom.association.Association.html#pynetdicom.association.Association.set_socket">[docs]</a>    <span class="k">def</span> <span class="nf">set_socket</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">socket</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">set_socket</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">socket</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Set the socket to use for communicating with the peer.</span>
 
 <span class="sd">        Parameters</span>
@@ -885,9 +801,9 @@
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">dul</span><span class="o">.</span><span class="n">socket</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
             <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="s2">&quot;The Association already has a socket set.&quot;</span><span class="p">)</span>
 
-        <span class="bp">self</span><span class="o">.</span><span class="n">dul</span><span class="o">.</span><span class="n">socket</span> <span class="o">=</span> <span class="n">socket</span></div>
+        <span class="bp">self</span><span class="o">.</span><span class="n">dul</span><span class="o">.</span><span class="n">socket</span> <span class="o">=</span> <span class="n">socket</span>
 
-<div class="viewcode-block" id="Association.unbind"><a class="viewcode-back" href="../../reference/generated/pynetdicom.association.Association.html#pynetdicom.association.Association.unbind">[docs]</a>    <span class="k">def</span> <span class="nf">unbind</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">event</span><span class="p">,</span> <span class="n">handler</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">unbind</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">event</span><span class="p">,</span> <span class="n">handler</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Unbind a callable `func` from an `event`.</span>
 
 <span class="sd">        Parameters</span>
@@ -911,7 +827,7 @@
 
             <span class="c1"># Intervention events - unbind and replace with default</span>
             <span class="k">if</span> <span class="n">event</span><span class="o">.</span><span class="n">is_intervention</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">_handlers</span><span class="p">[</span><span class="n">event</span><span class="p">]</span> <span class="o">==</span> <span class="n">handler</span><span class="p">:</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">_handlers</span><span class="p">[</span><span class="n">event</span><span class="p">]</span> <span class="o">=</span> <span class="n">evt</span><span class="o">.</span><span class="n">get_default_handler</span><span class="p">(</span><span class="n">event</span><span class="p">)</span></div>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_handlers</span><span class="p">[</span><span class="n">event</span><span class="p">]</span> <span class="o">=</span> <span class="n">evt</span><span class="o">.</span><span class="n">get_default_handler</span><span class="p">(</span><span class="n">event</span><span class="p">)</span>
 
     <span class="c1"># DIMSE-C services provided by the Association</span>
     <span class="k">def</span> <span class="nf">_c_store_scp</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">req</span><span class="p">):</span>
@@ -1053,7 +969,7 @@
         <span class="c1"># Send C-STORE confirmation back to peer</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">dimse</span><span class="o">.</span><span class="n">send_msg</span><span class="p">(</span><span class="n">rsp</span><span class="p">,</span> <span class="n">context</span><span class="o">.</span><span class="n">context_id</span><span class="p">)</span>
 
-<div class="viewcode-block" id="Association.send_c_cancel"><a class="viewcode-back" href="../../reference/generated/pynetdicom.association.Association.html#pynetdicom.association.Association.send_c_cancel">[docs]</a>    <span class="k">def</span> <span class="nf">send_c_cancel</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">msg_id</span><span class="p">,</span> <span class="n">context_id</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">send_c_cancel</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">msg_id</span><span class="p">,</span> <span class="n">context_id</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Send a C-CANCEL request to the peer AE.</span>
 
 <span class="sd">        Parameters</span>
@@ -1079,9 +995,9 @@
         <span class="n">LOGGER</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s1">&#39;Sending C-CANCEL&#39;</span><span class="p">)</span>
 
         <span class="c1"># Send C-CANCEL request</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">dimse</span><span class="o">.</span><span class="n">send_msg</span><span class="p">(</span><span class="n">primitive</span><span class="p">,</span> <span class="n">context_id</span><span class="p">)</span></div>
+        <span class="bp">self</span><span class="o">.</span><span class="n">dimse</span><span class="o">.</span><span class="n">send_msg</span><span class="p">(</span><span class="n">primitive</span><span class="p">,</span> <span class="n">context_id</span><span class="p">)</span>
 
-<div class="viewcode-block" id="Association.send_c_echo"><a class="viewcode-back" href="../../reference/generated/pynetdicom.association.Association.html#pynetdicom.association.Association.send_c_echo">[docs]</a>    <span class="k">def</span> <span class="nf">send_c_echo</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">msg_id</span><span class="o">=</span><span class="mi">1</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">send_c_echo</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">msg_id</span><span class="o">=</span><span class="mi">1</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Send a C-ECHO request to the peer AE.</span>
 
 <span class="sd">        Parameters</span>
@@ -1170,9 +1086,9 @@
         <span class="c1"># Determine validity of the response and get the status</span>
         <span class="n">status</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_check_received_status</span><span class="p">(</span><span class="n">rsp</span><span class="p">)</span>
 
-        <span class="k">return</span> <span class="n">status</span></div>
+        <span class="k">return</span> <span class="n">status</span>
 
-<div class="viewcode-block" id="Association.send_c_find"><a class="viewcode-back" href="../../reference/generated/pynetdicom.association.Association.html#pynetdicom.association.Association.send_c_find">[docs]</a>    <span class="k">def</span> <span class="nf">send_c_find</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dataset</span><span class="p">,</span> <span class="n">msg_id</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">priority</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">query_model</span><span class="o">=</span><span class="s1">&#39;P&#39;</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">send_c_find</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dataset</span><span class="p">,</span> <span class="n">msg_id</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">priority</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">query_model</span><span class="o">=</span><span class="s1">&#39;P&#39;</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Send a C-FIND request to the peer AE.</span>
 
 <span class="sd">        Yields ``(status, identifier)`` pairs.</span>
@@ -1404,9 +1320,9 @@
         <span class="c1"># Wrap the generator so the C-FIND-RQ is sent immediately on</span>
         <span class="c1">#   executing this function, otherwise sending C-CANCEL requests</span>
         <span class="c1">#   may end up being sent first unless next() is called</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_wrap_find_responses</span><span class="p">(</span><span class="n">transfer_syntax</span><span class="p">)</span></div>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_wrap_find_responses</span><span class="p">(</span><span class="n">transfer_syntax</span><span class="p">)</span>
 
-<div class="viewcode-block" id="Association.send_c_get"><a class="viewcode-back" href="../../reference/generated/pynetdicom.association.Association.html#pynetdicom.association.Association.send_c_get">[docs]</a>    <span class="k">def</span> <span class="nf">send_c_get</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dataset</span><span class="p">,</span> <span class="n">msg_id</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">priority</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">query_model</span><span class="o">=</span><span class="s1">&#39;P&#39;</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">send_c_get</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dataset</span><span class="p">,</span> <span class="n">msg_id</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">priority</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">query_model</span><span class="o">=</span><span class="s1">&#39;P&#39;</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Send a C-GET request to the peer AE.</span>
 
 <span class="sd">        Yields ``(status, identifier)`` pairs.</span>
@@ -1626,9 +1542,9 @@
         <span class="c1"># Wrap the generator so the C-GET-RQ is sent immediately on</span>
         <span class="c1">#   executing this function, otherwise sending C-CANCEL requests</span>
         <span class="c1">#   may end up being sent first unless next() is called</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_wrap_get_move_responses</span><span class="p">(</span><span class="n">transfer_syntax</span><span class="p">)</span></div>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_wrap_get_move_responses</span><span class="p">(</span><span class="n">transfer_syntax</span><span class="p">)</span>
 
-<div class="viewcode-block" id="Association.send_c_move"><a class="viewcode-back" href="../../reference/generated/pynetdicom.association.Association.html#pynetdicom.association.Association.send_c_move">[docs]</a>    <span class="k">def</span> <span class="nf">send_c_move</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dataset</span><span class="p">,</span> <span class="n">move_aet</span><span class="p">,</span> <span class="n">msg_id</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">priority</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span>
+    <span class="k">def</span> <span class="nf">send_c_move</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dataset</span><span class="p">,</span> <span class="n">move_aet</span><span class="p">,</span> <span class="n">msg_id</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">priority</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span>
                     <span class="n">query_model</span><span class="o">=</span><span class="s1">&#39;P&#39;</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Send a C-MOVE request to the peer AE.</span>
 
@@ -1836,9 +1752,9 @@
         <span class="c1"># Wrap the generator so the C-MOVE-RQ is sent immediately on</span>
         <span class="c1">#   executing this function, otherwise sending C-CANCEL requests</span>
         <span class="c1">#   may end up being sent first unless next() is called</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_wrap_get_move_responses</span><span class="p">(</span><span class="n">transfer_syntax</span><span class="p">)</span></div>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_wrap_get_move_responses</span><span class="p">(</span><span class="n">transfer_syntax</span><span class="p">)</span>
 
-<div class="viewcode-block" id="Association.send_c_store"><a class="viewcode-back" href="../../reference/generated/pynetdicom.association.Association.html#pynetdicom.association.Association.send_c_store">[docs]</a>    <span class="k">def</span> <span class="nf">send_c_store</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dataset</span><span class="p">,</span> <span class="n">msg_id</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">priority</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">originator_aet</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+    <span class="k">def</span> <span class="nf">send_c_store</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dataset</span><span class="p">,</span> <span class="n">msg_id</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">priority</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">originator_aet</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
                      <span class="n">originator_id</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Send a C-STORE request to the peer AE.</span>
 
@@ -2017,7 +1933,7 @@
         <span class="c1"># Determine validity of the response and get the status</span>
         <span class="n">status</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_check_received_status</span><span class="p">(</span><span class="n">rsp</span><span class="p">)</span>
 
-        <span class="k">return</span> <span class="n">status</span></div>
+        <span class="k">return</span> <span class="n">status</span>
 
     <span class="k">def</span> <span class="nf">_wrap_find_responses</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">transfer_syntax</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Wrapper for the C-FIND response generator.</span>
@@ -2259,7 +2175,7 @@
             <span class="k">break</span>
 
     <span class="c1"># DIMSE-N services provided by the Association</span>
-<div class="viewcode-block" id="Association.send_n_action"><a class="viewcode-back" href="../../reference/generated/pynetdicom.association.Association.html#pynetdicom.association.Association.send_n_action">[docs]</a>    <span class="k">def</span> <span class="nf">send_n_action</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dataset</span><span class="p">,</span> <span class="n">action_type</span><span class="p">,</span> <span class="n">class_uid</span><span class="p">,</span> <span class="n">instance_uid</span><span class="p">,</span>
+    <span class="k">def</span> <span class="nf">send_n_action</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dataset</span><span class="p">,</span> <span class="n">action_type</span><span class="p">,</span> <span class="n">class_uid</span><span class="p">,</span> <span class="n">instance_uid</span><span class="p">,</span>
                       <span class="n">msg_id</span><span class="o">=</span><span class="mi">1</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Send an N-ACTION request message to the peer AE.</span>
 
@@ -2409,9 +2325,9 @@
                     <span class="c1"># Failure: Processing failure</span>
                     <span class="n">status</span><span class="o">.</span><span class="n">Status</span> <span class="o">=</span> <span class="mh">0x0110</span>
 
-        <span class="k">return</span> <span class="n">status</span><span class="p">,</span> <span class="n">action_reply</span></div>
+        <span class="k">return</span> <span class="n">status</span><span class="p">,</span> <span class="n">action_reply</span>
 
-<div class="viewcode-block" id="Association.send_n_create"><a class="viewcode-back" href="../../reference/generated/pynetdicom.association.Association.html#pynetdicom.association.Association.send_n_create">[docs]</a>    <span class="k">def</span> <span class="nf">send_n_create</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dataset</span><span class="p">,</span> <span class="n">class_uid</span><span class="p">,</span> <span class="n">instance_uid</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">msg_id</span><span class="o">=</span><span class="mi">1</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">send_n_create</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dataset</span><span class="p">,</span> <span class="n">class_uid</span><span class="p">,</span> <span class="n">instance_uid</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">msg_id</span><span class="o">=</span><span class="mi">1</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Send an N-CREATE request message to the peer AE.</span>
 
 <span class="sd">        Parameters</span>
@@ -2599,9 +2515,9 @@
                     <span class="c1"># Failure: Processing failure</span>
                     <span class="n">status</span><span class="o">.</span><span class="n">Status</span> <span class="o">=</span> <span class="mh">0x0110</span>
 
-        <span class="k">return</span> <span class="n">status</span><span class="p">,</span> <span class="n">attribute_list</span></div>
+        <span class="k">return</span> <span class="n">status</span><span class="p">,</span> <span class="n">attribute_list</span>
 
-<div class="viewcode-block" id="Association.send_n_delete"><a class="viewcode-back" href="../../reference/generated/pynetdicom.association.Association.html#pynetdicom.association.Association.send_n_delete">[docs]</a>    <span class="k">def</span> <span class="nf">send_n_delete</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">class_uid</span><span class="p">,</span> <span class="n">instance_uid</span><span class="p">,</span> <span class="n">msg_id</span><span class="o">=</span><span class="mi">1</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">send_n_delete</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">class_uid</span><span class="p">,</span> <span class="n">instance_uid</span><span class="p">,</span> <span class="n">msg_id</span><span class="o">=</span><span class="mi">1</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Send an N-DELETE request message to the peer AE.</span>
 
 <span class="sd">        Parameters</span>
@@ -2694,9 +2610,9 @@
         <span class="c1"># Determine validity of the response and get the status</span>
         <span class="n">status</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_check_received_status</span><span class="p">(</span><span class="n">rsp</span><span class="p">)</span>
 
-        <span class="k">return</span> <span class="n">status</span></div>
+        <span class="k">return</span> <span class="n">status</span>
 
-<div class="viewcode-block" id="Association.send_n_event_report"><a class="viewcode-back" href="../../reference/generated/pynetdicom.association.Association.html#pynetdicom.association.Association.send_n_event_report">[docs]</a>    <span class="k">def</span> <span class="nf">send_n_event_report</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dataset</span><span class="p">,</span> <span class="n">event_type</span><span class="p">,</span> <span class="n">class_uid</span><span class="p">,</span>
+    <span class="k">def</span> <span class="nf">send_n_event_report</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dataset</span><span class="p">,</span> <span class="n">event_type</span><span class="p">,</span> <span class="n">class_uid</span><span class="p">,</span>
                             <span class="n">instance_uid</span><span class="p">,</span> <span class="n">msg_id</span><span class="o">=</span><span class="mi">1</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Send an N-EVENT-REPORT request message to the peer AE.</span>
 
@@ -2851,9 +2767,9 @@
                     <span class="c1"># Failure: Processing failure</span>
                     <span class="n">status</span><span class="o">.</span><span class="n">Status</span> <span class="o">=</span> <span class="mh">0x0110</span>
 
-        <span class="k">return</span> <span class="n">status</span><span class="p">,</span> <span class="n">event_reply</span></div>
+        <span class="k">return</span> <span class="n">status</span><span class="p">,</span> <span class="n">event_reply</span>
 
-<div class="viewcode-block" id="Association.send_n_get"><a class="viewcode-back" href="../../reference/generated/pynetdicom.association.Association.html#pynetdicom.association.Association.send_n_get">[docs]</a>    <span class="k">def</span> <span class="nf">send_n_get</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">identifier_list</span><span class="p">,</span> <span class="n">class_uid</span><span class="p">,</span> <span class="n">instance_uid</span><span class="p">,</span> <span class="n">msg_id</span><span class="o">=</span><span class="mi">1</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">send_n_get</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">identifier_list</span><span class="p">,</span> <span class="n">class_uid</span><span class="p">,</span> <span class="n">instance_uid</span><span class="p">,</span> <span class="n">msg_id</span><span class="o">=</span><span class="mi">1</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Send an N-GET request message to the peer AE.</span>
 
 <span class="sd">        Parameters</span>
@@ -3015,9 +2931,9 @@
                     <span class="c1"># Failure: Processing failure</span>
                     <span class="n">status</span><span class="o">.</span><span class="n">Status</span> <span class="o">=</span> <span class="mh">0x0110</span>
 
-        <span class="k">return</span> <span class="n">status</span><span class="p">,</span> <span class="n">attribute_list</span></div>
+        <span class="k">return</span> <span class="n">status</span><span class="p">,</span> <span class="n">attribute_list</span>
 
-<div class="viewcode-block" id="Association.send_n_set"><a class="viewcode-back" href="../../reference/generated/pynetdicom.association.Association.html#pynetdicom.association.Association.send_n_set">[docs]</a>    <span class="k">def</span> <span class="nf">send_n_set</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dataset</span><span class="p">,</span> <span class="n">class_uid</span><span class="p">,</span> <span class="n">instance_uid</span><span class="p">,</span> <span class="n">msg_id</span><span class="o">=</span><span class="mi">1</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">send_n_set</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dataset</span><span class="p">,</span> <span class="n">class_uid</span><span class="p">,</span> <span class="n">instance_uid</span><span class="p">,</span> <span class="n">msg_id</span><span class="o">=</span><span class="mi">1</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Send an N-SET request message to the peer AE.</span>
 
 <span class="sd">        Parameters</span>
@@ -3218,7 +3134,7 @@
                     <span class="c1"># Failure: Processing failure</span>
                     <span class="n">status</span><span class="o">.</span><span class="n">Status</span> <span class="o">=</span> <span class="mh">0x0110</span>
 
-        <span class="k">return</span> <span class="n">status</span><span class="p">,</span> <span class="n">attribute_list</span></div></div>
+        <span class="k">return</span> <span class="n">status</span><span class="p">,</span> <span class="n">attribute_list</span></div>
 
 
 <div class="viewcode-block" id="ServiceUser"><a class="viewcode-back" href="../../reference/generated/pynetdicom.association.ServiceUser.html#pynetdicom.association.ServiceUser">[docs]</a><span class="k">class</span> <span class="nc">ServiceUser</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
@@ -3268,7 +3184,7 @@
 <span class="sd">        accept/reject if mode is &#39;acceptor&#39;) sent or received by the AE</span>
 <span class="sd">        during association negotiation.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-<div class="viewcode-block" id="ServiceUser.__init__"><a class="viewcode-back" href="../../reference/generated/pynetdicom.association.ServiceUser.html#pynetdicom.association.ServiceUser.__init__">[docs]</a>    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">assoc</span><span class="p">,</span> <span class="n">mode</span><span class="p">):</span>
+<div class="viewcode-block" id="ServiceUser.__init__"><a class="viewcode-back" href="../../reference/generated/pynetdicom.association.ServiceUser.html#pynetdicom.association.ServiceUser.__init__">[docs]</a>    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">assoc</span><span class="p">,</span> <span class="n">mode</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Create a new ServiceUser.</span>
 
 <span class="sd">        Parameters</span>
@@ -3342,7 +3258,7 @@
 
         <span class="k">return</span> <span class="n">out</span>
 
-<div class="viewcode-block" id="ServiceUser.add_negotiation_item"><a class="viewcode-back" href="../../reference/generated/pynetdicom.association.ServiceUser.html#pynetdicom.association.ServiceUser.add_negotiation_item">[docs]</a>    <span class="k">def</span> <span class="nf">add_negotiation_item</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">item</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">add_negotiation_item</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">item</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Add an extended negotiation item to the user information.</span>
 
 <span class="sd">        Items can only be added prior to starting the association negotiation.</span>
@@ -3374,7 +3290,7 @@
         <span class="k">except</span> <span class="ne">KeyError</span><span class="p">:</span>
             <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span>
                 <span class="s2">&quot;&#39;item&#39; is not a valid extended negotiation item&quot;</span>
-            <span class="p">)</span></div>
+            <span class="p">)</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">asynchronous_operations</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
@@ -3436,7 +3352,7 @@
 
         <span class="k">return</span> <span class="n">items</span>
 
-<div class="viewcode-block" id="ServiceUser.get_contexts"><a class="viewcode-back" href="../../reference/generated/pynetdicom.association.ServiceUser.html#pynetdicom.association.ServiceUser.get_contexts">[docs]</a>    <span class="k">def</span> <span class="nf">get_contexts</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">cx_type</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">get_contexts</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">cx_type</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Return a list of PresentationContext corresponding to `cx_type`.</span>
 
 <span class="sd">        Parameters</span>
@@ -3492,7 +3408,7 @@
         <span class="n">available</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;&#39;</span><span class="si">{}</span><span class="s2">&#39;&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">vv</span><span class="p">)</span> <span class="k">for</span> <span class="n">vv</span> <span class="ow">in</span> <span class="n">available</span><span class="p">]</span>
         <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
             <span class="s2">&quot;Invalid &#39;cx_type&#39;, must be </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="s1">&#39; or &#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">available</span><span class="p">))</span>
-        <span class="p">)</span></div>
+        <span class="p">)</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">implementation_class_uid</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
@@ -3703,7 +3619,7 @@
 
         <span class="bp">self</span><span class="o">.</span><span class="n">_contexts</span> <span class="o">=</span> <span class="n">value</span>
 
-<div class="viewcode-block" id="ServiceUser.remove_negotiation_item"><a class="viewcode-back" href="../../reference/generated/pynetdicom.association.ServiceUser.html#pynetdicom.association.ServiceUser.remove_negotiation_item">[docs]</a>    <span class="k">def</span> <span class="nf">remove_negotiation_item</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">item</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">remove_negotiation_item</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">item</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Remove an extended negotiation item from the user information.</span>
 
 <span class="sd">        Items can only be removed prior to starting the association</span>
@@ -3739,9 +3655,9 @@
         <span class="k">else</span><span class="p">:</span>
             <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span>
                 <span class="s2">&quot;&#39;item&#39; is not a valid extended negotiation item&quot;</span>
-            <span class="p">)</span></div>
+            <span class="p">)</span>
 
-<div class="viewcode-block" id="ServiceUser.reset_negotiation_items"><a class="viewcode-back" href="../../reference/generated/pynetdicom.association.ServiceUser.html#pynetdicom.association.ServiceUser.reset_negotiation_items">[docs]</a>    <span class="k">def</span> <span class="nf">reset_negotiation_items</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">reset_negotiation_items</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Remove all extended negotiation items.</span>
 
 <span class="sd">        Items can only be removed prior to starting the association</span>
@@ -3766,7 +3682,7 @@
             <span class="n">SOPClassExtendedNegotiation</span> <span class="p">:</span> <span class="p">[],</span>
         <span class="p">}</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">is_requestor</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">_ext_neg</span><span class="p">[</span><span class="n">SOPClassCommonExtendedNegotiation</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span></div>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_ext_neg</span><span class="p">[</span><span class="n">SOPClassCommonExtendedNegotiation</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">role_selection</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
@@ -3926,42 +3842,30 @@
 </pre></div>
 
            </div>
-           
           </div>
           <footer>
-  
 
   <hr/>
 
   <div role="contentinfo">
-    <p>
-        &copy; Copyright 2018-19, pynetdicom contributors
-
-    </p>
+    <p>&#169; Copyright 2018-19, pynetdicom contributors.</p>
   </div>
-  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
 
 </footer>
-
         </div>
       </div>
-
     </section>
-
   </div>
-  
-
-
-  <script type="text/javascript">
+  <script>
       jQuery(function () {
           SphinxRtdTheme.Navigation.enable(true);
       });
-  </script>
-
-  
-  
-    
-   
+  </script> 
 
 </body>
 </html>

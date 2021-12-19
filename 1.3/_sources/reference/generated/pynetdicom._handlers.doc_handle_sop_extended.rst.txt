@@ -1,4 +1,4 @@
-pynetdicom.\_handlers.doc\_handle\_sop\_extended
+﻿pynetdicom.\_handlers.doc\_handle\_sop\_extended
 ================================================
 
 .. currentmodule:: pynetdicom._handlers

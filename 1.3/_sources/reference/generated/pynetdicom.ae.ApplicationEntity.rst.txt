@@ -1,4 +1,4 @@
-pynetdicom.ae.ApplicationEntity
+﻿pynetdicom.ae.ApplicationEntity
 ===============================
 
 .. currentmodule:: pynetdicom.ae

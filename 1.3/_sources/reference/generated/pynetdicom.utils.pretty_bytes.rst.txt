@@ -1,4 +1,4 @@
-pynetdicom.utils.pretty\_bytes
+﻿pynetdicom.utils.pretty\_bytes
 ==============================
 
 .. currentmodule:: pynetdicom.utils

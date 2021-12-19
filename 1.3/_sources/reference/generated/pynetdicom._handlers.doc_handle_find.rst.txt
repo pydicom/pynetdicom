@@ -1,4 +1,4 @@
-pynetdicom.\_handlers.doc\_handle\_find
+﻿pynetdicom.\_handlers.doc\_handle\_find
 =======================================
 
 .. currentmodule:: pynetdicom._handlers

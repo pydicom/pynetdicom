@@ -1,4 +1,4 @@
-pynetdicom.fsm.StateMachine
+﻿pynetdicom.fsm.StateMachine
 ===========================
 
 .. currentmodule:: pynetdicom.fsm

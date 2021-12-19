@@ -1,4 +1,4 @@
-pynetdicom.acse.ACSE
+﻿pynetdicom.acse.ACSE
 ====================
 
 .. currentmodule:: pynetdicom.acse

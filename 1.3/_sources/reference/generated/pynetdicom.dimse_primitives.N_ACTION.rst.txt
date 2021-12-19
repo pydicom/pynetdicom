@@ -1,4 +1,4 @@
-pynetdicom.dimse\_primitives.N\_ACTION
+﻿pynetdicom.dimse\_primitives.N\_ACTION
 ======================================
 
 .. currentmodule:: pynetdicom.dimse_primitives

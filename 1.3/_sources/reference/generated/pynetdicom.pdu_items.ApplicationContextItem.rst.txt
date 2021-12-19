@@ -1,4 +1,4 @@
-pynetdicom.pdu\_items.ApplicationContextItem
+﻿pynetdicom.pdu\_items.ApplicationContextItem
 ============================================
 
 .. currentmodule:: pynetdicom.pdu_items

@@ -1,4 +1,4 @@
-pynetdicom.pdu.PresentationDataValueItem
+﻿pynetdicom.pdu.PresentationDataValueItem
 ========================================
 
 .. currentmodule:: pynetdicom.pdu

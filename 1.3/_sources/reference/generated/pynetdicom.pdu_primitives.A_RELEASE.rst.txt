@@ -1,4 +1,4 @@
-pynetdicom.pdu\_primitives.A\_RELEASE
+﻿pynetdicom.pdu\_primitives.A\_RELEASE
 =====================================
 
 .. currentmodule:: pynetdicom.pdu_primitives

@@ -1,4 +1,4 @@
-pynetdicom.pdu\_primitives.P\_DATA
+﻿pynetdicom.pdu\_primitives.P\_DATA
 ==================================
 
 .. currentmodule:: pynetdicom.pdu_primitives

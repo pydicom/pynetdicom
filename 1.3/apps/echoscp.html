@@ -1,75 +1,38 @@
-
-
 <!DOCTYPE html>
-<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
-<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<html class="writer-html5" lang="en" >
 <head>
-  <meta charset="utf-8">
-  
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>echoscp &mdash; pynetdicom 1.3.1 documentation</title>
-  
-
-  
-  
+      <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="../_static/css/pynetdicom.css" type="text/css" />
+      <link rel="stylesheet" href="../_static/css/pynetdicom.css" type="text/css" />
     <link rel="shortcut icon" href="../_static/favicon.ico"/>
+  <!--[if lt IE 9]>
+    <script src="../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
   
-  
-  
-
-  
-  <script type="text/javascript" src="../_static/js/modernizr.min.js"></script>
-  
-    
-      <script type="text/javascript" id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
-        <script type="text/javascript" src="../_static/jquery.js"></script>
-        <script type="text/javascript" src="../_static/underscore.js"></script>
-        <script type="text/javascript" src="../_static/doctools.js"></script>
-        <script type="text/javascript" src="../_static/language_data.js"></script>
-    
-    <script type="text/javascript" src="../_static/js/theme.js"></script>
-
-    
-
-  
-  <link rel="stylesheet" href="../_static/css/pynetdicom.css" type="text/css" />
-  <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
-  <link rel="stylesheet" href="../_static/css/pynetdicom.css" type="text/css" />
+        <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
+        <script src="../_static/jquery.js"></script>
+        <script src="../_static/underscore.js"></script>
+        <script src="../_static/doctools.js"></script>
+    <script src="../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" /> 
 </head>
 
-<body class="wy-body-for-nav">
-
-   
+<body class="wy-body-for-nav"> 
   <div class="wy-grid-for-nav">
-    
     <nav data-toggle="wy-nav-shift" class="wy-nav-side">
       <div class="wy-side-scroll">
         <div class="wy-side-nav-search" >
-          
-
-          
             <a href="../index.html" class="icon icon-home"> pynetdicom
-          
-
-          
-            
             <img src="../_static/pydicom_flat_black.svg" class="logo" alt="Logo"/>
-          
           </a>
-
-          
-            
-            
               <div class="version">
                 1.3.1
               </div>
-            
-          
-
-          
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
     <input type="text" name="q" placeholder="Search docs" />
@@ -77,17 +40,7 @@
     <input type="hidden" name="area" value="default" />
   </form>
 </div>
-
-          
-        </div>
-
-        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
-          
-            
-            
-              
-            
-            
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
               <ul>
 <li class="toctree-l1"><a class="reference internal" href="../verification_service_class.html">Verification Service Class</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../storage_service_class.html">Storage Service Class</a></li>
@@ -114,74 +67,36 @@
 <li class="toctree-l1"><a class="reference internal" href="../release_notes.html#v1-0-0">1.0.0</a></li>
 </ul>
 
-            
-          
         </div>
       </div>
     </nav>
 
-    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
-
-      
-      <nav class="wy-nav-top" aria-label="top navigation">
-        
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
           <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
           <a href="../index.html">pynetdicom</a>
-        
       </nav>
 
-
       <div class="wy-nav-content">
-        
         <div class="rst-content">
-        
-          
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-<div role="navigation" aria-label="breadcrumbs navigation">
-
+          <div role="navigation" aria-label="Page navigation">
   <ul class="wy-breadcrumbs">
-    
-      <li><a href="../index.html">Docs</a> &raquo;</li>
-        
+      <li><a href="../index.html" class="icon icon-home"></a> &raquo;</li>
       <li>echoscp</li>
-    
-    
       <li class="wy-breadcrumbs-aside">
-        
-            
             <a href="../_sources/apps/echoscp.rst.txt" rel="nofollow"> View page source</a>
-          
-        
       </li>
-    
   </ul>
-
-  
   <hr/>
 </div>
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
-            
-  <div class="section" id="echoscp">
+             
+  <section id="echoscp">
 <h1>echoscp<a class="headerlink" href="#echoscp" title="Permalink to this headline">¶</a></h1>
 <blockquote>
 <div><p><code class="docutils literal notranslate"><span class="pre">echoscp</span> <span class="pre">[options]</span> <span class="pre">port</span></code></p>
 </div></blockquote>
-<div class="section" id="description">
+<section id="description">
 <h2>Description<a class="headerlink" href="#description" title="Permalink to this headline">¶</a></h2>
 <p>The <code class="docutils literal notranslate"><span class="pre">echoscp</span></code> application implements a Service Class Provider (SCP) for the
 <em>Verification SOP Class</em> (UID 1.2.840.10008.1.1) <a class="footnote-reference brackets" href="#id5" id="id1">1</a>. It establishes an
@@ -203,7 +118,7 @@ the <code class="docutils literal notranslate"><span class="pre">-v</span></code
 </pre></div>
 </div>
 <p>When a peer AE attempts to send non C-ECHO message:</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">user</span><span class="nd">@host</span><span class="p">:</span> <span class="n">echoscu</span> <span class="mf">192.168</span><span class="o">.</span><span class="mf">2.1</span> <span class="mi">11112</span> <span class="o">-</span><span class="n">v</span>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">user</span><span class="nd">@host</span><span class="p">:</span> <span class="n">echoscu</span> <span class="mf">192.168.2.1</span> <span class="mi">11112</span> <span class="o">-</span><span class="n">v</span>
 <span class="n">I</span><span class="p">:</span> <span class="n">Association</span> <span class="n">Received</span>
 <span class="n">I</span><span class="p">:</span> <span class="n">Association</span> <span class="n">Accepted</span>
 <span class="n">I</span><span class="p">:</span> <span class="n">Aborting</span> <span class="n">Association</span>
@@ -224,10 +139,10 @@ I: Received Echo Request (MsgID 1)
 I: Association Released
 </pre></div>
 </div>
-</div>
-<div class="section" id="options">
+</section>
+<section id="options">
 <h2>Options<a class="headerlink" href="#options" title="Permalink to this headline">¶</a></h2>
-<div class="section" id="logging">
+<section id="logging">
 <h3>Logging<a class="headerlink" href="#logging" title="Permalink to this headline">¶</a></h3>
 <blockquote>
 <div><dl class="simple">
@@ -244,8 +159,8 @@ logging messages with corresponding level l or higher</p>
 </dd>
 </dl>
 </div></blockquote>
-</div>
-<div class="section" id="application-entity-titles">
+</section>
+<section id="application-entity-titles">
 <h3>Application Entity Titles<a class="headerlink" href="#application-entity-titles" title="Permalink to this headline">¶</a></h3>
 <blockquote>
 <div><dl class="simple">
@@ -253,8 +168,8 @@ logging messages with corresponding level l or higher</p>
 </dd>
 </dl>
 </div></blockquote>
-</div>
-<div class="section" id="miscellaneous-dicom">
+</section>
+<section id="miscellaneous-dicom">
 <h3>Miscellaneous DICOM<a class="headerlink" href="#miscellaneous-dicom" title="Permalink to this headline">¶</a></h3>
 <blockquote>
 <div><dl class="simple">
@@ -268,8 +183,8 @@ logging messages with corresponding level l or higher</p>
 </dd>
 </dl>
 </div></blockquote>
-</div>
-<div class="section" id="preferred-transfer-syntaxes">
+</section>
+<section id="preferred-transfer-syntaxes">
 <h3>Preferred Transfer Syntaxes<a class="headerlink" href="#preferred-transfer-syntaxes" title="Permalink to this headline">¶</a></h3>
 <blockquote>
 <div><dl class="simple">
@@ -283,12 +198,12 @@ logging messages with corresponding level l or higher</p>
 </dd>
 </dl>
 </div></blockquote>
-</div>
-</div>
-<div class="section" id="dicom-conformance">
+</section>
+</section>
+<section id="dicom-conformance">
 <h2>DICOM Conformance<a class="headerlink" href="#dicom-conformance" title="Permalink to this headline">¶</a></h2>
 <p>The <code class="docutils literal notranslate"><span class="pre">echoscp</span></code> application supports the following SOP Class as an SCP:</p>
-<table class="docutils align-center">
+<table class="docutils align-default">
 <colgroup>
 <col style="width: 43%" />
 <col style="width: 57%" />
@@ -305,7 +220,7 @@ logging messages with corresponding level l or higher</p>
 </tbody>
 </table>
 <p>The supported Transfer Syntaxes <a class="footnote-reference brackets" href="#id8" id="id4">4</a> are:</p>
-<table class="docutils align-center">
+<table class="docutils align-default">
 <colgroup>
 <col style="width: 43%" />
 <col style="width: 57%" />
@@ -342,47 +257,35 @@ logging messages with corresponding level l or higher</p>
 <dd><p>DICOM Standard, Part 5, Section 10 and Annex A</p>
 </dd>
 </dl>
-</div>
-</div>
+</section>
+</section>
 
 
            </div>
-           
           </div>
           <footer>
-  
 
   <hr/>
 
   <div role="contentinfo">
-    <p>
-        &copy; Copyright 2018-19, pynetdicom contributors
-
-    </p>
+    <p>&#169; Copyright 2018-19, pynetdicom contributors.</p>
   </div>
-  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
 
 </footer>
-
         </div>
       </div>
-
     </section>
-
   </div>
-  
-
-
-  <script type="text/javascript">
+  <script>
       jQuery(function () {
           SphinxRtdTheme.Navigation.enable(true);
       });
-  </script>
-
-  
-  
-    
-   
+  </script> 
 
 </body>
 </html>

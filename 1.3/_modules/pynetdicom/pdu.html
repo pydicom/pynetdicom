@@ -1,75 +1,37 @@
-
-
 <!DOCTYPE html>
-<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
-<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<html class="writer-html5" lang="en" >
 <head>
-  <meta charset="utf-8">
-  
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>pynetdicom.pdu &mdash; pynetdicom 1.3.1 documentation</title>
-  
-
-  
-  
+      <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="../../_static/css/pynetdicom.css" type="text/css" />
+      <link rel="stylesheet" href="../../_static/css/pynetdicom.css" type="text/css" />
     <link rel="shortcut icon" href="../../_static/favicon.ico"/>
+  <!--[if lt IE 9]>
+    <script src="../../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
   
-  
-  
-
-  
-  <script type="text/javascript" src="../../_static/js/modernizr.min.js"></script>
-  
-    
-      <script type="text/javascript" id="documentation_options" data-url_root="../../" src="../../_static/documentation_options.js"></script>
-        <script type="text/javascript" src="../../_static/jquery.js"></script>
-        <script type="text/javascript" src="../../_static/underscore.js"></script>
-        <script type="text/javascript" src="../../_static/doctools.js"></script>
-        <script type="text/javascript" src="../../_static/language_data.js"></script>
-    
-    <script type="text/javascript" src="../../_static/js/theme.js"></script>
-
-    
-
-  
-  <link rel="stylesheet" href="../../_static/css/pynetdicom.css" type="text/css" />
-  <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
-  <link rel="stylesheet" href="../../_static/css/pynetdicom.css" type="text/css" />
+        <script data-url_root="../../" id="documentation_options" src="../../_static/documentation_options.js"></script>
+        <script src="../../_static/jquery.js"></script>
+        <script src="../../_static/underscore.js"></script>
+        <script src="../../_static/doctools.js"></script>
+    <script src="../../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../../genindex.html" />
     <link rel="search" title="Search" href="../../search.html" /> 
 </head>
 
-<body class="wy-body-for-nav">
-
-   
+<body class="wy-body-for-nav"> 
   <div class="wy-grid-for-nav">
-    
     <nav data-toggle="wy-nav-shift" class="wy-nav-side">
       <div class="wy-side-scroll">
         <div class="wy-side-nav-search" >
-          
-
-          
             <a href="../../index.html" class="icon icon-home"> pynetdicom
-          
-
-          
-            
             <img src="../../_static/pydicom_flat_black.svg" class="logo" alt="Logo"/>
-          
           </a>
-
-          
-            
-            
               <div class="version">
                 1.3.1
               </div>
-            
-          
-
-          
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
     <input type="text" name="q" placeholder="Search docs" />
@@ -77,17 +39,7 @@
     <input type="hidden" name="area" value="default" />
   </form>
 </div>
-
-          
-        </div>
-
-        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
-          
-            
-            
-              
-            
-            
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
               <ul>
 <li class="toctree-l1"><a class="reference internal" href="../../verification_service_class.html">Verification Service Class</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../storage_service_class.html">Storage Service Class</a></li>
@@ -114,66 +66,30 @@
 <li class="toctree-l1"><a class="reference internal" href="../../release_notes.html#v1-0-0">1.0.0</a></li>
 </ul>
 
-            
-          
         </div>
       </div>
     </nav>
 
-    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
-
-      
-      <nav class="wy-nav-top" aria-label="top navigation">
-        
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
           <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
           <a href="../../index.html">pynetdicom</a>
-        
       </nav>
 
-
       <div class="wy-nav-content">
-        
         <div class="rst-content">
-        
-          
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-<div role="navigation" aria-label="breadcrumbs navigation">
-
+          <div role="navigation" aria-label="Page navigation">
   <ul class="wy-breadcrumbs">
-    
-      <li><a href="../../index.html">Docs</a> &raquo;</li>
-        
+      <li><a href="../../index.html" class="icon icon-home"></a> &raquo;</li>
           <li><a href="../index.html">Module code</a> &raquo;</li>
-        
       <li>pynetdicom.pdu</li>
-    
-    
       <li class="wy-breadcrumbs-aside">
-        
       </li>
-    
   </ul>
-
-  
   <hr/>
 </div>
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
-            
+             
   <h1>Source code for pynetdicom.pdu</h1><div class="highlight"><pre>
 <span></span><span class="sd">&quot;&quot;&quot;DICOM Upper Layer Protocol Data Units (PDUs).</span>
 
@@ -198,9 +114,9 @@
 
 <span class="kn">import</span> <span class="nn">codecs</span>
 <span class="kn">import</span> <span class="nn">logging</span>
-<span class="kn">from</span> <span class="nn">struct</span> <span class="k">import</span> <span class="n">Struct</span>
+<span class="kn">from</span> <span class="nn">struct</span> <span class="kn">import</span> <span class="n">Struct</span>
 
-<span class="kn">from</span> <span class="nn">pynetdicom.pdu_items</span> <span class="k">import</span> <span class="p">(</span>
+<span class="kn">from</span> <span class="nn">pynetdicom.pdu_items</span> <span class="kn">import</span> <span class="p">(</span>
     <span class="n">ApplicationContextItem</span><span class="p">,</span>
     <span class="n">PresentationContextItemRQ</span><span class="p">,</span>
     <span class="n">PresentationContextItemAC</span><span class="p">,</span>
@@ -208,7 +124,7 @@
     <span class="n">PresentationDataValueItem</span><span class="p">,</span>
     <span class="n">PDU_ITEM_TYPES</span>
 <span class="p">)</span>
-<span class="kn">from</span> <span class="nn">pynetdicom.utils</span> <span class="k">import</span> <span class="n">validate_ae_title</span>
+<span class="kn">from</span> <span class="nn">pynetdicom.utils</span> <span class="kn">import</span> <span class="n">validate_ae_title</span>
 
 
 <span class="n">LOGGER</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="s1">&#39;pynetdicom.pdu&#39;</span><span class="p">)</span>
@@ -288,7 +204,7 @@
         <span class="sd">&quot;&quot;&quot;Return an iterable of tuples that contain field encoders.&quot;&quot;&quot;</span>
         <span class="k">raise</span> <span class="ne">NotImplementedError</span>
 
-    <span class="k">def</span> <span class="nf">__eq__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">):</span>
+    <span class="k">def</span> <span class="fm">__eq__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Return True if `self` equals `other`.&quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="n">other</span> <span class="ow">is</span> <span class="bp">self</span><span class="p">:</span>
             <span class="k">return</span> <span class="kc">True</span>
@@ -378,11 +294,11 @@
     <span class="c1"># Python 2: Classes defining __eq__ should flag themselves as unhashable</span>
     <span class="fm">__hash__</span> <span class="o">=</span> <span class="kc">None</span>
 
-    <span class="k">def</span> <span class="nf">__len__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span> <span class="fm">__len__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Return the total length of the encoded PDU as an int.&quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="mi">6</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">pdu_length</span>
 
-    <span class="k">def</span> <span class="nf">__ne__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">):</span>
+    <span class="k">def</span> <span class="fm">__ne__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Return True if `self` does not equal `other`.&quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="ow">not</span> <span class="bp">self</span> <span class="o">==</span> <span class="n">other</span>
 
@@ -618,7 +534,7 @@
 <span class="sd">       `9.3.1 &lt;http://dicom.nema.org/medical/dicom/current/output/html/part08.html#sect_9.3.1&gt;`_</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
-<div class="viewcode-block" id="A_ASSOCIATE_RQ.__init__"><a class="viewcode-back" href="../../reference/generated/pynetdicom.pdu.A_ASSOCIATE_RQ.html#pynetdicom.pdu.A_ASSOCIATE_RQ.__init__">[docs]</a>    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<div class="viewcode-block" id="A_ASSOCIATE_RQ.__init__"><a class="viewcode-back" href="../../reference/generated/pynetdicom.pdu.A_ASSOCIATE_RQ.html#pynetdicom.pdu.A_ASSOCIATE_RQ.__init__">[docs]</a>    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Initialise a new A-ASSOCIATE-RQ PDU.&quot;&quot;&quot;</span>
         <span class="c1"># We allow the user to modify the protocol version if so desired</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">protocol_version</span> <span class="o">=</span> <span class="mh">0x01</span>
@@ -633,7 +549,7 @@
         <span class="c1"># The order of the items in the list may not be as given above</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">variable_items</span> <span class="o">=</span> <span class="p">[]</span></div>
 
-<div class="viewcode-block" id="A_ASSOCIATE_RQ.from_primitive"><a class="viewcode-back" href="../../reference/generated/pynetdicom.pdu.A_ASSOCIATE_RQ.html#pynetdicom.pdu.A_ASSOCIATE_RQ.from_primitive">[docs]</a>    <span class="k">def</span> <span class="nf">from_primitive</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">primitive</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">from_primitive</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">primitive</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Setup the current PDU using an A-ASSOCIATE (request) primitive.</span>
 
 <span class="sd">        Parameters</span>
@@ -660,9 +576,9 @@
         <span class="c1"># Add User Information</span>
         <span class="n">user_information</span> <span class="o">=</span> <span class="n">UserInformationItem</span><span class="p">()</span>
         <span class="n">user_information</span><span class="o">.</span><span class="n">from_primitive</span><span class="p">(</span><span class="n">primitive</span><span class="o">.</span><span class="n">user_information</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">variable_items</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">user_information</span><span class="p">)</span></div>
+        <span class="bp">self</span><span class="o">.</span><span class="n">variable_items</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">user_information</span><span class="p">)</span>
 
-<div class="viewcode-block" id="A_ASSOCIATE_RQ.to_primitive"><a class="viewcode-back" href="../../reference/generated/pynetdicom.pdu.A_ASSOCIATE_RQ.html#pynetdicom.pdu.A_ASSOCIATE_RQ.to_primitive">[docs]</a>    <span class="k">def</span> <span class="nf">to_primitive</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">to_primitive</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Return an A-ASSOCIATE (request) primitive from the current PDU.</span>
 
 <span class="sd">        Returns</span>
@@ -670,7 +586,7 @@
 <span class="sd">        pdu_primitives.A_ASSOCIATE</span>
 <span class="sd">            The primitive representation of the current PDU.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="kn">from</span> <span class="nn">pynetdicom.pdu_primitives</span> <span class="k">import</span> <span class="n">A_ASSOCIATE</span>
+        <span class="kn">from</span> <span class="nn">pynetdicom.pdu_primitives</span> <span class="kn">import</span> <span class="n">A_ASSOCIATE</span>
 
         <span class="n">primitive</span> <span class="o">=</span> <span class="n">A_ASSOCIATE</span><span class="p">()</span>
         <span class="n">primitive</span><span class="o">.</span><span class="n">calling_ae_title</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">calling_ae_title</span>
@@ -687,7 +603,7 @@
             <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">item</span><span class="p">,</span> <span class="n">UserInformationItem</span><span class="p">):</span>
                 <span class="n">primitive</span><span class="o">.</span><span class="n">user_information</span> <span class="o">=</span> <span class="n">item</span><span class="o">.</span><span class="n">to_primitive</span><span class="p">()</span>
 
-        <span class="k">return</span> <span class="n">primitive</span></div>
+        <span class="k">return</span> <span class="n">primitive</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">application_context_name</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
@@ -831,7 +747,7 @@
         <span class="k">return</span> <span class="p">[</span><span class="n">item</span> <span class="k">for</span> <span class="n">item</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">variable_items</span> <span class="k">if</span>
                 <span class="nb">isinstance</span><span class="p">(</span><span class="n">item</span><span class="p">,</span> <span class="n">PresentationContextItemRQ</span><span class="p">)]</span>
 
-    <span class="k">def</span> <span class="nf">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span> <span class="fm">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Return a string representation of the PDU.&quot;&quot;&quot;</span>
         <span class="n">s</span> <span class="o">=</span> <span class="s1">&#39;A-ASSOCIATE-RQ PDU</span><span class="se">\n</span><span class="s1">&#39;</span>
         <span class="n">s</span> <span class="o">+=</span> <span class="s1">&#39;==================</span><span class="se">\n</span><span class="s1">&#39;</span>
@@ -993,7 +909,7 @@
 <span class="sd">       `9.3.1 &lt;http://dicom.nema.org/medical/dicom/current/output/html/part08.html#sect_9.3.1&gt;`_</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
-<div class="viewcode-block" id="A_ASSOCIATE_AC.__init__"><a class="viewcode-back" href="../../reference/generated/pynetdicom.pdu.A_ASSOCIATE_AC.html#pynetdicom.pdu.A_ASSOCIATE_AC.__init__">[docs]</a>    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<div class="viewcode-block" id="A_ASSOCIATE_AC.__init__"><a class="viewcode-back" href="../../reference/generated/pynetdicom.pdu.A_ASSOCIATE_AC.html#pynetdicom.pdu.A_ASSOCIATE_AC.__init__">[docs]</a>    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Initialise a new A-ASSOCIATE-AC PDU.&quot;&quot;&quot;</span>
         <span class="c1"># We allow the user to modify the protocol version if so desired</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">protocol_version</span> <span class="o">=</span> <span class="mh">0x01</span>
@@ -1009,7 +925,7 @@
         <span class="c1"># The order of the items in the list may not be as given above</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">variable_items</span> <span class="o">=</span> <span class="p">[]</span></div>
 
-<div class="viewcode-block" id="A_ASSOCIATE_AC.from_primitive"><a class="viewcode-back" href="../../reference/generated/pynetdicom.pdu.A_ASSOCIATE_AC.html#pynetdicom.pdu.A_ASSOCIATE_AC.from_primitive">[docs]</a>    <span class="k">def</span> <span class="nf">from_primitive</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">primitive</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">from_primitive</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">primitive</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Setup the current PDU using an A-ASSOCIATE (accept) primitive.</span>
 
 <span class="sd">        Parameters</span>
@@ -1036,9 +952,9 @@
         <span class="c1"># Make user information</span>
         <span class="n">user_information</span> <span class="o">=</span> <span class="n">UserInformationItem</span><span class="p">()</span>
         <span class="n">user_information</span><span class="o">.</span><span class="n">from_primitive</span><span class="p">(</span><span class="n">primitive</span><span class="o">.</span><span class="n">user_information</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">variable_items</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">user_information</span><span class="p">)</span></div>
+        <span class="bp">self</span><span class="o">.</span><span class="n">variable_items</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">user_information</span><span class="p">)</span>
 
-<div class="viewcode-block" id="A_ASSOCIATE_AC.to_primitive"><a class="viewcode-back" href="../../reference/generated/pynetdicom.pdu.A_ASSOCIATE_AC.html#pynetdicom.pdu.A_ASSOCIATE_AC.to_primitive">[docs]</a>    <span class="k">def</span> <span class="nf">to_primitive</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">to_primitive</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Return an A-ASSOCIATE (accept) primitive from the current PDU.</span>
 
 <span class="sd">        Returns</span>
@@ -1046,7 +962,7 @@
 <span class="sd">        pdu_primitives.A_ASSOCIATE</span>
 <span class="sd">            The primitive representation of the current PDU.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="kn">from</span> <span class="nn">pynetdicom.pdu_primitives</span> <span class="k">import</span> <span class="n">A_ASSOCIATE</span>
+        <span class="kn">from</span> <span class="nn">pynetdicom.pdu_primitives</span> <span class="kn">import</span> <span class="n">A_ASSOCIATE</span>
 
         <span class="n">primitive</span> <span class="o">=</span> <span class="n">A_ASSOCIATE</span><span class="p">()</span>
 
@@ -1076,7 +992,7 @@
         <span class="c1"># 0x00 = Accepted</span>
         <span class="n">primitive</span><span class="o">.</span><span class="n">result</span> <span class="o">=</span> <span class="mh">0x00</span>
 
-        <span class="k">return</span> <span class="n">primitive</span></div>
+        <span class="k">return</span> <span class="n">primitive</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">application_context_name</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
@@ -1207,7 +1123,7 @@
         <span class="k">return</span> <span class="p">[</span><span class="n">item</span> <span class="k">for</span> <span class="n">item</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">variable_items</span> <span class="k">if</span>
                 <span class="nb">isinstance</span><span class="p">(</span><span class="n">item</span><span class="p">,</span> <span class="n">PresentationContextItemAC</span><span class="p">)]</span>
 
-    <span class="k">def</span> <span class="nf">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span> <span class="fm">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Return a string representation of the PDU.&quot;&quot;&quot;</span>
         <span class="n">s</span> <span class="o">=</span> <span class="s1">&#39;A-ASSOCIATE-AC PDU</span><span class="se">\n</span><span class="s1">&#39;</span>
         <span class="n">s</span> <span class="o">+=</span> <span class="s1">&#39;==================</span><span class="se">\n</span><span class="s1">&#39;</span>
@@ -1320,13 +1236,13 @@
 <span class="sd">    .. [2] DICOM Standard, Part 8, Section</span>
 <span class="sd">       `9.3.1 &lt;http://dicom.nema.org/medical/dicom/current/output/html/part08.html#sect_9.3.1&gt;`_</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-<div class="viewcode-block" id="A_ASSOCIATE_RJ.__init__"><a class="viewcode-back" href="../../reference/generated/pynetdicom.pdu.A_ASSOCIATE_RJ.html#pynetdicom.pdu.A_ASSOCIATE_RJ.__init__">[docs]</a>    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<div class="viewcode-block" id="A_ASSOCIATE_RJ.__init__"><a class="viewcode-back" href="../../reference/generated/pynetdicom.pdu.A_ASSOCIATE_RJ.html#pynetdicom.pdu.A_ASSOCIATE_RJ.__init__">[docs]</a>    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Initialise a new A-ASSOCIATE-RJ PDU.&quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">result</span> <span class="o">=</span> <span class="kc">None</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">source</span> <span class="o">=</span> <span class="kc">None</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">reason_diagnostic</span> <span class="o">=</span> <span class="kc">None</span></div>
 
-<div class="viewcode-block" id="A_ASSOCIATE_RJ.from_primitive"><a class="viewcode-back" href="../../reference/generated/pynetdicom.pdu.A_ASSOCIATE_RJ.html#pynetdicom.pdu.A_ASSOCIATE_RJ.from_primitive">[docs]</a>    <span class="k">def</span> <span class="nf">from_primitive</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">primitive</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">from_primitive</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">primitive</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Setup the current PDU using an A-ASSOCIATE (reject) primitive.</span>
 
 <span class="sd">        Parameters</span>
@@ -1336,9 +1252,9 @@
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">result</span> <span class="o">=</span> <span class="n">primitive</span><span class="o">.</span><span class="n">result</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">source</span> <span class="o">=</span> <span class="n">primitive</span><span class="o">.</span><span class="n">result_source</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">reason_diagnostic</span> <span class="o">=</span> <span class="n">primitive</span><span class="o">.</span><span class="n">diagnostic</span></div>
+        <span class="bp">self</span><span class="o">.</span><span class="n">reason_diagnostic</span> <span class="o">=</span> <span class="n">primitive</span><span class="o">.</span><span class="n">diagnostic</span>
 
-<div class="viewcode-block" id="A_ASSOCIATE_RJ.to_primitive"><a class="viewcode-back" href="../../reference/generated/pynetdicom.pdu.A_ASSOCIATE_RJ.html#pynetdicom.pdu.A_ASSOCIATE_RJ.to_primitive">[docs]</a>    <span class="k">def</span> <span class="nf">to_primitive</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">to_primitive</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Return an A-ASSOCIATE (reject) primitive from the current PDU.</span>
 
 <span class="sd">        Returns</span>
@@ -1346,14 +1262,14 @@
 <span class="sd">        pdu_primitives.A_ASSOCIATE</span>
 <span class="sd">            The primitive representation of the current PDU.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="kn">from</span> <span class="nn">pynetdicom.pdu_primitives</span> <span class="k">import</span> <span class="n">A_ASSOCIATE</span>
+        <span class="kn">from</span> <span class="nn">pynetdicom.pdu_primitives</span> <span class="kn">import</span> <span class="n">A_ASSOCIATE</span>
 
         <span class="n">primitive</span> <span class="o">=</span> <span class="n">A_ASSOCIATE</span><span class="p">()</span>
         <span class="n">primitive</span><span class="o">.</span><span class="n">result</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">result</span>
         <span class="n">primitive</span><span class="o">.</span><span class="n">result_source</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">source</span>
         <span class="n">primitive</span><span class="o">.</span><span class="n">diagnostic</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">reason_diagnostic</span>
 
-        <span class="k">return</span> <span class="n">primitive</span></div>
+        <span class="k">return</span> <span class="n">primitive</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">_decoders</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
@@ -1484,7 +1400,7 @@
 
         <span class="k">return</span> <span class="n">_sources</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">source</span><span class="p">]</span>
 
-    <span class="k">def</span> <span class="nf">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span> <span class="fm">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Return a string representation of the PDU.&quot;&quot;&quot;</span>
         <span class="n">s</span> <span class="o">=</span> <span class="s1">&#39;A-ASSOCIATE-RJ PDU</span><span class="se">\n</span><span class="s1">&#39;</span>
         <span class="n">s</span> <span class="o">+=</span> <span class="s1">&#39;==================</span><span class="se">\n</span><span class="s1">&#39;</span>
@@ -1548,11 +1464,11 @@
 <span class="sd">       `9.3.1 &lt;http://dicom.nema.org/medical/dicom/current/output/html/part08.html#sect_9.3.1&gt;`_</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
-<div class="viewcode-block" id="P_DATA_TF.__init__"><a class="viewcode-back" href="../../reference/generated/pynetdicom.pdu.P_DATA_TF.html#pynetdicom.pdu.P_DATA_TF.__init__">[docs]</a>    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<div class="viewcode-block" id="P_DATA_TF.__init__"><a class="viewcode-back" href="../../reference/generated/pynetdicom.pdu.P_DATA_TF.html#pynetdicom.pdu.P_DATA_TF.__init__">[docs]</a>    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Initialise a new P-DATA-TF PDU.&quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">presentation_data_value_items</span> <span class="o">=</span> <span class="p">[]</span></div>
 
-<div class="viewcode-block" id="P_DATA_TF.from_primitive"><a class="viewcode-back" href="../../reference/generated/pynetdicom.pdu.P_DATA_TF.html#pynetdicom.pdu.P_DATA_TF.from_primitive">[docs]</a>    <span class="k">def</span> <span class="nf">from_primitive</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">primitive</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">from_primitive</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">primitive</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Setup the current PDU using a P-DATA primitive.</span>
 
 <span class="sd">        Parameters</span>
@@ -1564,9 +1480,9 @@
             <span class="n">presentation_data_value</span> <span class="o">=</span> <span class="n">PresentationDataValueItem</span><span class="p">()</span>
             <span class="n">presentation_data_value</span><span class="o">.</span><span class="n">presentation_context_id</span> <span class="o">=</span> <span class="n">item</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
             <span class="n">presentation_data_value</span><span class="o">.</span><span class="n">presentation_data_value</span> <span class="o">=</span> <span class="n">item</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">presentation_data_value_items</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">presentation_data_value</span><span class="p">)</span></div>
+            <span class="bp">self</span><span class="o">.</span><span class="n">presentation_data_value_items</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">presentation_data_value</span><span class="p">)</span>
 
-<div class="viewcode-block" id="P_DATA_TF.to_primitive"><a class="viewcode-back" href="../../reference/generated/pynetdicom.pdu.P_DATA_TF.html#pynetdicom.pdu.P_DATA_TF.to_primitive">[docs]</a>    <span class="k">def</span> <span class="nf">to_primitive</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">to_primitive</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Return a P-DATA primitive from the current PDU.</span>
 
 <span class="sd">        Returns</span>
@@ -1574,7 +1490,7 @@
 <span class="sd">        pdu_primitives.P_DATA</span>
 <span class="sd">            The primitive representation of the current PDU.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="kn">from</span> <span class="nn">pynetdicom.pdu_primitives</span> <span class="k">import</span> <span class="n">P_DATA</span>
+        <span class="kn">from</span> <span class="nn">pynetdicom.pdu_primitives</span> <span class="kn">import</span> <span class="n">P_DATA</span>
 
         <span class="n">primitive</span> <span class="o">=</span> <span class="n">P_DATA</span><span class="p">()</span>
 
@@ -1583,7 +1499,7 @@
             <span class="n">primitive</span><span class="o">.</span><span class="n">presentation_data_value_list</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
                 <span class="p">[</span><span class="n">item</span><span class="o">.</span><span class="n">presentation_context_id</span><span class="p">,</span> <span class="n">item</span><span class="o">.</span><span class="n">presentation_data_value</span><span class="p">]</span>
             <span class="p">)</span>
-        <span class="k">return</span> <span class="n">primitive</span></div>
+        <span class="k">return</span> <span class="n">primitive</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">_decoders</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
@@ -1688,7 +1604,7 @@
 
         <span class="k">return</span> <span class="n">length</span>
 
-    <span class="k">def</span> <span class="nf">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span> <span class="fm">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Return a string representation of the PDU.&quot;&quot;&quot;</span>
         <span class="n">s</span> <span class="o">=</span> <span class="s1">&#39;P-DATA-TF PDU</span><span class="se">\n</span><span class="s1">&#39;</span>
         <span class="n">s</span> <span class="o">+=</span> <span class="s1">&#39;=============</span><span class="se">\n</span><span class="s1">&#39;</span>
@@ -1777,11 +1693,11 @@
 <span class="sd">       `9.3.1 &lt;http://dicom.nema.org/medical/dicom/current/output/html/part08.html#sect_9.3.1&gt;`_</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
-<div class="viewcode-block" id="A_RELEASE_RQ.__init__"><a class="viewcode-back" href="../../reference/generated/pynetdicom.pdu.A_RELEASE_RQ.html#pynetdicom.pdu.A_RELEASE_RQ.__init__">[docs]</a>    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<div class="viewcode-block" id="A_RELEASE_RQ.__init__"><a class="viewcode-back" href="../../reference/generated/pynetdicom.pdu.A_RELEASE_RQ.html#pynetdicom.pdu.A_RELEASE_RQ.__init__">[docs]</a>    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Initialise a new A-RELEASE-RQ PDU.&quot;&quot;&quot;</span>
         <span class="k">pass</span></div>
 
-<div class="viewcode-block" id="A_RELEASE_RQ.from_primitive"><a class="viewcode-back" href="../../reference/generated/pynetdicom.pdu.A_RELEASE_RQ.html#pynetdicom.pdu.A_RELEASE_RQ.from_primitive">[docs]</a>    <span class="nd">@staticmethod</span>
+    <span class="nd">@staticmethod</span>
     <span class="k">def</span> <span class="nf">from_primitive</span><span class="p">(</span><span class="n">primitive</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Setup the current PDU using an A-RELEASE (request) primitive.</span>
 
@@ -1790,9 +1706,9 @@
 <span class="sd">        primitive : pdu_primitives.A_RELEASE</span>
 <span class="sd">            The primitive to use to set the current PDU field values.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">pass</span></div>
+        <span class="k">pass</span>
 
-<div class="viewcode-block" id="A_RELEASE_RQ.to_primitive"><a class="viewcode-back" href="../../reference/generated/pynetdicom.pdu.A_RELEASE_RQ.html#pynetdicom.pdu.A_RELEASE_RQ.to_primitive">[docs]</a>    <span class="nd">@staticmethod</span>
+    <span class="nd">@staticmethod</span>
     <span class="k">def</span> <span class="nf">to_primitive</span><span class="p">():</span>
         <span class="sd">&quot;&quot;&quot;Return an A-RELEASE (request) primitive from the current PDU.</span>
 
@@ -1801,9 +1717,9 @@
 <span class="sd">        pdu_primitives.A_RELEASE</span>
 <span class="sd">            The primitive representation of the current PDU.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="kn">from</span> <span class="nn">pynetdicom.pdu_primitives</span> <span class="k">import</span> <span class="n">A_RELEASE</span>
+        <span class="kn">from</span> <span class="nn">pynetdicom.pdu_primitives</span> <span class="kn">import</span> <span class="n">A_RELEASE</span>
 
-        <span class="k">return</span> <span class="n">A_RELEASE</span><span class="p">()</span></div>
+        <span class="k">return</span> <span class="n">A_RELEASE</span><span class="p">()</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">_decoders</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
@@ -1848,7 +1764,7 @@
         <span class="sd">&quot;&quot;&quot;Return the *PDU Length* field value as an int.&quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="mi">4</span>
 
-    <span class="k">def</span> <span class="nf">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span> <span class="fm">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Return a string representation of the PDU.&quot;&quot;&quot;</span>
         <span class="n">s</span> <span class="o">=</span> <span class="s1">&#39;A-RELEASE-RQ PDU</span><span class="se">\n</span><span class="s1">&#39;</span>
         <span class="n">s</span> <span class="o">+=</span> <span class="s1">&#39;================</span><span class="se">\n</span><span class="s1">&#39;</span>
@@ -1905,11 +1821,11 @@
 <span class="sd">       `9.3.1 &lt;http://dicom.nema.org/medical/dicom/current/output/html/part08.html#sect_9.3.1&gt;`_</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
-<div class="viewcode-block" id="A_RELEASE_RP.__init__"><a class="viewcode-back" href="../../reference/generated/pynetdicom.pdu.A_RELEASE_RP.html#pynetdicom.pdu.A_RELEASE_RP.__init__">[docs]</a>    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<div class="viewcode-block" id="A_RELEASE_RP.__init__"><a class="viewcode-back" href="../../reference/generated/pynetdicom.pdu.A_RELEASE_RP.html#pynetdicom.pdu.A_RELEASE_RP.__init__">[docs]</a>    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Initialise a new A-RELEASE-RP PDU.&quot;&quot;&quot;</span>
         <span class="k">pass</span></div>
 
-<div class="viewcode-block" id="A_RELEASE_RP.from_primitive"><a class="viewcode-back" href="../../reference/generated/pynetdicom.pdu.A_RELEASE_RP.html#pynetdicom.pdu.A_RELEASE_RP.from_primitive">[docs]</a>    <span class="nd">@staticmethod</span>
+    <span class="nd">@staticmethod</span>
     <span class="k">def</span> <span class="nf">from_primitive</span><span class="p">(</span><span class="n">primitive</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Setup the current PDU using an A-release (response) primitive.</span>
 
@@ -1918,9 +1834,9 @@
 <span class="sd">        primitive : pdu_primitives.A_RELEASE</span>
 <span class="sd">            The primitive to use to set the current PDU field values.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">pass</span></div>
+        <span class="k">pass</span>
 
-<div class="viewcode-block" id="A_RELEASE_RP.to_primitive"><a class="viewcode-back" href="../../reference/generated/pynetdicom.pdu.A_RELEASE_RP.html#pynetdicom.pdu.A_RELEASE_RP.to_primitive">[docs]</a>    <span class="nd">@staticmethod</span>
+    <span class="nd">@staticmethod</span>
     <span class="k">def</span> <span class="nf">to_primitive</span><span class="p">():</span>
         <span class="sd">&quot;&quot;&quot;Return an A-RELEASE (response) primitive from the current PDU.</span>
 
@@ -1929,12 +1845,12 @@
 <span class="sd">        pdu_primitives.A_RELEASE</span>
 <span class="sd">            The primitive representation of the current PDU.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="kn">from</span> <span class="nn">pynetdicom.pdu_primitives</span> <span class="k">import</span> <span class="n">A_RELEASE</span>
+        <span class="kn">from</span> <span class="nn">pynetdicom.pdu_primitives</span> <span class="kn">import</span> <span class="n">A_RELEASE</span>
 
         <span class="n">primitive</span> <span class="o">=</span> <span class="n">A_RELEASE</span><span class="p">()</span>
         <span class="n">primitive</span><span class="o">.</span><span class="n">result</span> <span class="o">=</span> <span class="s1">&#39;affirmative&#39;</span>
 
-        <span class="k">return</span> <span class="n">primitive</span></div>
+        <span class="k">return</span> <span class="n">primitive</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">_decoders</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
@@ -1979,7 +1895,7 @@
         <span class="sd">&quot;&quot;&quot;Return the *PDU Length* field value as an int.&quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="mi">4</span>
 
-    <span class="k">def</span> <span class="nf">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span> <span class="fm">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Return a string representation of the PDU.&quot;&quot;&quot;</span>
         <span class="n">s</span> <span class="o">=</span> <span class="s1">&#39;A-RELEASE-RP PDU</span><span class="se">\n</span><span class="s1">&#39;</span>
         <span class="n">s</span> <span class="o">+=</span> <span class="s1">&#39;================</span><span class="se">\n</span><span class="s1">&#39;</span>
@@ -2047,12 +1963,12 @@
 <span class="sd">       `9.3.1 &lt;http://dicom.nema.org/medical/dicom/current/output/html/part08.html#sect_9.3.1&gt;`_</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
-<div class="viewcode-block" id="A_ABORT_RQ.__init__"><a class="viewcode-back" href="../../reference/generated/pynetdicom.pdu.A_ABORT_RQ.html#pynetdicom.pdu.A_ABORT_RQ.__init__">[docs]</a>    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<div class="viewcode-block" id="A_ABORT_RQ.__init__"><a class="viewcode-back" href="../../reference/generated/pynetdicom.pdu.A_ABORT_RQ.html#pynetdicom.pdu.A_ABORT_RQ.__init__">[docs]</a>    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Initialise a new A-ABORT-RQ PDU.&quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">source</span> <span class="o">=</span> <span class="kc">None</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">reason_diagnostic</span> <span class="o">=</span> <span class="kc">None</span></div>
 
-<div class="viewcode-block" id="A_ABORT_RQ.from_primitive"><a class="viewcode-back" href="../../reference/generated/pynetdicom.pdu.A_ABORT_RQ.html#pynetdicom.pdu.A_ABORT_RQ.from_primitive">[docs]</a>    <span class="k">def</span> <span class="nf">from_primitive</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">primitive</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">from_primitive</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">primitive</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Setup the current PDU using an A-ABORT or A-P-ABORT primitive.</span>
 
 <span class="sd">        Parameters</span>
@@ -2060,7 +1976,7 @@
 <span class="sd">        primitive : pdu_primitives.A_ABORT or pdu_primitives.A_P_ABORT</span>
 <span class="sd">            The primitive to use to set the current PDU field values.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="kn">from</span> <span class="nn">pynetdicom.pdu_primitives</span> <span class="k">import</span> <span class="n">A_ABORT</span><span class="p">,</span> <span class="n">A_P_ABORT</span>
+        <span class="kn">from</span> <span class="nn">pynetdicom.pdu_primitives</span> <span class="kn">import</span> <span class="n">A_ABORT</span><span class="p">,</span> <span class="n">A_P_ABORT</span>
 
         <span class="c1"># User initiated abort</span>
         <span class="k">if</span> <span class="n">primitive</span><span class="o">.</span><span class="vm">__class__</span> <span class="o">==</span> <span class="n">A_ABORT</span><span class="p">:</span>
@@ -2072,9 +1988,9 @@
         <span class="c1"># User provider primitive abort</span>
         <span class="k">elif</span> <span class="n">primitive</span><span class="o">.</span><span class="vm">__class__</span> <span class="o">==</span> <span class="n">A_P_ABORT</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">reason_diagnostic</span> <span class="o">=</span> <span class="n">primitive</span><span class="o">.</span><span class="n">provider_reason</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">source</span> <span class="o">=</span> <span class="mi">2</span></div>
+            <span class="bp">self</span><span class="o">.</span><span class="n">source</span> <span class="o">=</span> <span class="mi">2</span>
 
-<div class="viewcode-block" id="A_ABORT_RQ.to_primitive"><a class="viewcode-back" href="../../reference/generated/pynetdicom.pdu.A_ABORT_RQ.html#pynetdicom.pdu.A_ABORT_RQ.to_primitive">[docs]</a>    <span class="k">def</span> <span class="nf">to_primitive</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">to_primitive</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Return an A-ABORT or A-P-ABORT primitive from the current PDU.</span>
 
 <span class="sd">        Returns</span>
@@ -2082,7 +1998,7 @@
 <span class="sd">        pdu_primitives.A_ABORT or pdu_primitives.A_P_ABORT</span>
 <span class="sd">            The primitive representation of the current PDU.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="kn">from</span> <span class="nn">pynetdicom.pdu_primitives</span> <span class="k">import</span> <span class="n">A_ABORT</span><span class="p">,</span> <span class="n">A_P_ABORT</span>
+        <span class="kn">from</span> <span class="nn">pynetdicom.pdu_primitives</span> <span class="kn">import</span> <span class="n">A_ABORT</span><span class="p">,</span> <span class="n">A_P_ABORT</span>
 
         <span class="c1"># User initiated abort</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">source</span> <span class="o">==</span> <span class="mh">0x00</span><span class="p">:</span>
@@ -2094,7 +2010,7 @@
             <span class="n">primitive</span> <span class="o">=</span> <span class="n">A_P_ABORT</span><span class="p">()</span>
             <span class="n">primitive</span><span class="o">.</span><span class="n">provider_reason</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">reason_diagnostic</span>
 
-        <span class="k">return</span> <span class="n">primitive</span></div>
+        <span class="k">return</span> <span class="n">primitive</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">_decoders</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
@@ -2145,7 +2061,7 @@
         <span class="sd">&quot;&quot;&quot;Return the *PDU Length* field value as an int.&quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="mi">4</span>
 
-    <span class="k">def</span> <span class="nf">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span> <span class="fm">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Return a string representation of the PDU.&quot;&quot;&quot;</span>
         <span class="n">s</span> <span class="o">=</span> <span class="s2">&quot;A-ABORT PDU</span><span class="se">\n</span><span class="s2">&quot;</span>
         <span class="n">s</span> <span class="o">+=</span> <span class="s2">&quot;===========</span><span class="se">\n</span><span class="s2">&quot;</span>
@@ -2198,42 +2114,30 @@
 </pre></div>
 
            </div>
-           
           </div>
           <footer>
-  
 
   <hr/>
 
   <div role="contentinfo">
-    <p>
-        &copy; Copyright 2018-19, pynetdicom contributors
-
-    </p>
+    <p>&#169; Copyright 2018-19, pynetdicom contributors.</p>
   </div>
-  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
 
 </footer>
-
         </div>
       </div>
-
     </section>
-
   </div>
-  
-
-
-  <script type="text/javascript">
+  <script>
       jQuery(function () {
           SphinxRtdTheme.Navigation.enable(true);
       });
-  </script>
-
-  
-  
-    
-   
+  </script> 
 
 </body>
 </html>

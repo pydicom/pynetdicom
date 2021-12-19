@@ -1,75 +1,37 @@
-
-
 <!DOCTYPE html>
-<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
-<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<html class="writer-html5" lang="en" >
 <head>
-  <meta charset="utf-8">
-  
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>pynetdicom.ae &mdash; pynetdicom 1.3.1 documentation</title>
-  
-
-  
-  
+      <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="../../_static/css/pynetdicom.css" type="text/css" />
+      <link rel="stylesheet" href="../../_static/css/pynetdicom.css" type="text/css" />
     <link rel="shortcut icon" href="../../_static/favicon.ico"/>
+  <!--[if lt IE 9]>
+    <script src="../../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
   
-  
-  
-
-  
-  <script type="text/javascript" src="../../_static/js/modernizr.min.js"></script>
-  
-    
-      <script type="text/javascript" id="documentation_options" data-url_root="../../" src="../../_static/documentation_options.js"></script>
-        <script type="text/javascript" src="../../_static/jquery.js"></script>
-        <script type="text/javascript" src="../../_static/underscore.js"></script>
-        <script type="text/javascript" src="../../_static/doctools.js"></script>
-        <script type="text/javascript" src="../../_static/language_data.js"></script>
-    
-    <script type="text/javascript" src="../../_static/js/theme.js"></script>
-
-    
-
-  
-  <link rel="stylesheet" href="../../_static/css/pynetdicom.css" type="text/css" />
-  <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
-  <link rel="stylesheet" href="../../_static/css/pynetdicom.css" type="text/css" />
+        <script data-url_root="../../" id="documentation_options" src="../../_static/documentation_options.js"></script>
+        <script src="../../_static/jquery.js"></script>
+        <script src="../../_static/underscore.js"></script>
+        <script src="../../_static/doctools.js"></script>
+    <script src="../../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../../genindex.html" />
     <link rel="search" title="Search" href="../../search.html" /> 
 </head>
 
-<body class="wy-body-for-nav">
-
-   
+<body class="wy-body-for-nav"> 
   <div class="wy-grid-for-nav">
-    
     <nav data-toggle="wy-nav-shift" class="wy-nav-side">
       <div class="wy-side-scroll">
         <div class="wy-side-nav-search" >
-          
-
-          
             <a href="../../index.html" class="icon icon-home"> pynetdicom
-          
-
-          
-            
             <img src="../../_static/pydicom_flat_black.svg" class="logo" alt="Logo"/>
-          
           </a>
-
-          
-            
-            
               <div class="version">
                 1.3.1
               </div>
-            
-          
-
-          
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
     <input type="text" name="q" placeholder="Search docs" />
@@ -77,17 +39,7 @@
     <input type="hidden" name="area" value="default" />
   </form>
 </div>
-
-          
-        </div>
-
-        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
-          
-            
-            
-              
-            
-            
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
               <ul>
 <li class="toctree-l1"><a class="reference internal" href="../../verification_service_class.html">Verification Service Class</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../storage_service_class.html">Storage Service Class</a></li>
@@ -114,85 +66,49 @@
 <li class="toctree-l1"><a class="reference internal" href="../../release_notes.html#v1-0-0">1.0.0</a></li>
 </ul>
 
-            
-          
         </div>
       </div>
     </nav>
 
-    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
-
-      
-      <nav class="wy-nav-top" aria-label="top navigation">
-        
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
           <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
           <a href="../../index.html">pynetdicom</a>
-        
       </nav>
 
-
       <div class="wy-nav-content">
-        
         <div class="rst-content">
-        
-          
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-<div role="navigation" aria-label="breadcrumbs navigation">
-
+          <div role="navigation" aria-label="Page navigation">
   <ul class="wy-breadcrumbs">
-    
-      <li><a href="../../index.html">Docs</a> &raquo;</li>
-        
+      <li><a href="../../index.html" class="icon icon-home"></a> &raquo;</li>
           <li><a href="../index.html">Module code</a> &raquo;</li>
-        
       <li>pynetdicom.ae</li>
-    
-    
       <li class="wy-breadcrumbs-aside">
-        
       </li>
-    
   </ul>
-
-  
   <hr/>
 </div>
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
-            
+             
   <h1>Source code for pynetdicom.ae</h1><div class="highlight"><pre>
 <span></span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">The main user class, represents a DICOM Application Entity</span>
 <span class="sd">&quot;&quot;&quot;</span>
-<span class="kn">from</span> <span class="nn">copy</span> <span class="k">import</span> <span class="n">deepcopy</span>
-<span class="kn">from</span> <span class="nn">datetime</span> <span class="k">import</span> <span class="n">datetime</span>
+<span class="kn">from</span> <span class="nn">copy</span> <span class="kn">import</span> <span class="n">deepcopy</span>
+<span class="kn">from</span> <span class="nn">datetime</span> <span class="kn">import</span> <span class="n">datetime</span>
 <span class="kn">import</span> <span class="nn">logging</span>
 <span class="kn">import</span> <span class="nn">socket</span>
 <span class="kn">import</span> <span class="nn">threading</span>
 
-<span class="kn">from</span> <span class="nn">pydicom.uid</span> <span class="k">import</span> <span class="n">UID</span>
+<span class="kn">from</span> <span class="nn">pydicom.uid</span> <span class="kn">import</span> <span class="n">UID</span>
 
-<span class="kn">from</span> <span class="nn">pynetdicom.association</span> <span class="k">import</span> <span class="n">Association</span>
-<span class="kn">from</span> <span class="nn">pynetdicom.presentation</span> <span class="k">import</span> <span class="n">PresentationContext</span>
-<span class="kn">from</span> <span class="nn">pynetdicom.transport</span> <span class="k">import</span> <span class="p">(</span>
+<span class="kn">from</span> <span class="nn">pynetdicom.association</span> <span class="kn">import</span> <span class="n">Association</span>
+<span class="kn">from</span> <span class="nn">pynetdicom.presentation</span> <span class="kn">import</span> <span class="n">PresentationContext</span>
+<span class="kn">from</span> <span class="nn">pynetdicom.transport</span> <span class="kn">import</span> <span class="p">(</span>
     <span class="n">AssociationSocket</span><span class="p">,</span> <span class="n">AssociationServer</span><span class="p">,</span> <span class="n">ThreadedAssociationServer</span>
 <span class="p">)</span>
-<span class="kn">from</span> <span class="nn">pynetdicom.utils</span> <span class="k">import</span> <span class="n">validate_ae_title</span>
-<span class="kn">from</span> <span class="nn">pynetdicom._globals</span> <span class="k">import</span> <span class="p">(</span>
+<span class="kn">from</span> <span class="nn">pynetdicom.utils</span> <span class="kn">import</span> <span class="n">validate_ae_title</span>
+<span class="kn">from</span> <span class="nn">pynetdicom._globals</span> <span class="kn">import</span> <span class="p">(</span>
     <span class="n">MODE_REQUESTOR</span><span class="p">,</span>
     <span class="n">DEFAULT_MAX_LENGTH</span><span class="p">,</span>
     <span class="n">DEFAULT_TRANSFER_SYNTAXES</span>
@@ -238,7 +154,7 @@
 <span class="sd">        must match AE.ae_title (default False). (Association acceptor only).</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="c1"># pylint: disable=too-many-instance-attributes,too-many-public-methods</span>
-<div class="viewcode-block" id="ApplicationEntity.__init__"><a class="viewcode-back" href="../../reference/generated/pynetdicom.ae.ApplicationEntity.html#pynetdicom.ae.ApplicationEntity.__init__">[docs]</a>    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ae_title</span><span class="o">=</span><span class="sa">b</span><span class="s1">&#39;PYNETDICOM&#39;</span><span class="p">):</span>
+<div class="viewcode-block" id="ApplicationEntity.__init__"><a class="viewcode-back" href="../../reference/generated/pynetdicom.ae.ApplicationEntity.html#pynetdicom.ae.ApplicationEntity.__init__">[docs]</a>    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ae_title</span><span class="o">=</span><span class="sa">b</span><span class="s1">&#39;PYNETDICOM&#39;</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Create a new Application Entity.</span>
 
 <span class="sd">        Parameters</span>
@@ -248,7 +164,7 @@
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">ae_title</span> <span class="o">=</span> <span class="n">ae_title</span>
 
-        <span class="kn">from</span> <span class="nn">pynetdicom</span> <span class="k">import</span> <span class="p">(</span>
+        <span class="kn">from</span> <span class="nn">pynetdicom</span> <span class="kn">import</span> <span class="p">(</span>
             <span class="n">PYNETDICOM_IMPLEMENTATION_UID</span><span class="p">,</span>
             <span class="n">PYNETDICOM_IMPLEMENTATION_VERSION</span>
         <span class="p">)</span>
@@ -314,7 +230,7 @@
 
         <span class="k">return</span> <span class="p">[</span><span class="n">tt</span> <span class="k">for</span> <span class="n">tt</span> <span class="ow">in</span> <span class="n">t_assocs</span> <span class="k">if</span> <span class="n">tt</span><span class="o">.</span><span class="n">ae</span> <span class="o">==</span> <span class="bp">self</span><span class="p">]</span>
 
-<div class="viewcode-block" id="ApplicationEntity.add_requested_context"><a class="viewcode-back" href="../../reference/generated/pynetdicom.ae.ApplicationEntity.html#pynetdicom.ae.ApplicationEntity.add_requested_context">[docs]</a>    <span class="k">def</span> <span class="nf">add_requested_context</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">abstract_syntax</span><span class="p">,</span> <span class="n">transfer_syntax</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">add_requested_context</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">abstract_syntax</span><span class="p">,</span> <span class="n">transfer_syntax</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Add a presentation context to be proposed when requesting an</span>
 <span class="sd">        association.</span>
 
@@ -434,9 +350,9 @@
         <span class="n">context</span><span class="o">.</span><span class="n">abstract_syntax</span> <span class="o">=</span> <span class="n">abstract_syntax</span>
         <span class="n">context</span><span class="o">.</span><span class="n">transfer_syntax</span> <span class="o">=</span> <span class="p">[</span><span class="n">UID</span><span class="p">(</span><span class="n">syntax</span><span class="p">)</span> <span class="k">for</span> <span class="n">syntax</span> <span class="ow">in</span> <span class="n">transfer_syntax</span><span class="p">]</span>
 
-        <span class="bp">self</span><span class="o">.</span><span class="n">_requested_contexts</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">context</span><span class="p">)</span></div>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_requested_contexts</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">context</span><span class="p">)</span>
 
-<div class="viewcode-block" id="ApplicationEntity.add_supported_context"><a class="viewcode-back" href="../../reference/generated/pynetdicom.ae.ApplicationEntity.html#pynetdicom.ae.ApplicationEntity.add_supported_context">[docs]</a>    <span class="k">def</span> <span class="nf">add_supported_context</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">abstract_syntax</span><span class="p">,</span> <span class="n">transfer_syntax</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+    <span class="k">def</span> <span class="nf">add_supported_context</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">abstract_syntax</span><span class="p">,</span> <span class="n">transfer_syntax</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
                               <span class="n">scu_role</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">scp_role</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Add a presentation context to be supported when accepting</span>
 <span class="sd">        association requests.</span>
@@ -583,7 +499,7 @@
             <span class="n">context</span><span class="o">.</span><span class="n">scu_role</span> <span class="o">=</span> <span class="kc">None</span> <span class="ow">or</span> <span class="n">scu_role</span>
             <span class="n">context</span><span class="o">.</span><span class="n">scp_role</span> <span class="o">=</span> <span class="kc">None</span> <span class="ow">or</span> <span class="n">scp_role</span>
 
-            <span class="bp">self</span><span class="o">.</span><span class="n">_supported_contexts</span><span class="p">[</span><span class="n">abstract_syntax</span><span class="p">]</span> <span class="o">=</span> <span class="n">context</span></div>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_supported_contexts</span><span class="p">[</span><span class="n">abstract_syntax</span><span class="p">]</span> <span class="o">=</span> <span class="n">context</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">ae_title</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
@@ -603,7 +519,7 @@
         <span class="c1"># pylint: disable=attribute-defined-outside-init</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_ae_title</span> <span class="o">=</span> <span class="n">validate_ae_title</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
 
-<div class="viewcode-block" id="ApplicationEntity.associate"><a class="viewcode-back" href="../../reference/generated/pynetdicom.ae.ApplicationEntity.html#pynetdicom.ae.ApplicationEntity.associate">[docs]</a>    <span class="k">def</span> <span class="nf">associate</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">addr</span><span class="p">,</span> <span class="n">port</span><span class="p">,</span> <span class="n">contexts</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">ae_title</span><span class="o">=</span><span class="sa">b</span><span class="s1">&#39;ANY-SCP&#39;</span><span class="p">,</span>
+    <span class="k">def</span> <span class="nf">associate</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">addr</span><span class="p">,</span> <span class="n">port</span><span class="p">,</span> <span class="n">contexts</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">ae_title</span><span class="o">=</span><span class="sa">b</span><span class="s1">&#39;ANY-SCP&#39;</span><span class="p">,</span>
                   <span class="n">max_pdu</span><span class="o">=</span><span class="n">DEFAULT_MAX_LENGTH</span><span class="p">,</span> <span class="n">ext_neg</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
                   <span class="n">bind_address</span><span class="o">=</span><span class="p">(</span><span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="mi">0</span><span class="p">),</span> <span class="n">tls_args</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">evt_handlers</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Request an association with a remote AE.</span>
@@ -735,7 +651,7 @@
         <span class="k">if</span> <span class="n">assoc</span><span class="o">.</span><span class="n">is_established</span><span class="p">:</span>
             <span class="n">assoc</span><span class="o">.</span><span class="n">start</span><span class="p">()</span>
 
-        <span class="k">return</span> <span class="n">assoc</span></div>
+        <span class="k">return</span> <span class="n">assoc</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">dimse_timeout</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
@@ -848,7 +764,7 @@
         <span class="k">for</span> <span class="n">assoc</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">active_associations</span><span class="p">:</span>
             <span class="n">assoc</span><span class="o">.</span><span class="n">network_timeout</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">network_timeout</span>
 
-<div class="viewcode-block" id="ApplicationEntity.remove_requested_context"><a class="viewcode-back" href="../../reference/generated/pynetdicom.ae.ApplicationEntity.html#pynetdicom.ae.ApplicationEntity.remove_requested_context">[docs]</a>    <span class="k">def</span> <span class="nf">remove_requested_context</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">abstract_syntax</span><span class="p">,</span> <span class="n">transfer_syntax</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">remove_requested_context</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">abstract_syntax</span><span class="p">,</span> <span class="n">transfer_syntax</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Remove a requested presentation context.</span>
 
 <span class="sd">        Depending on the supplied parameters one of the following will occur:</span>
@@ -973,9 +889,9 @@
                 <span class="c1"># Only if all transfer syntaxes have been removed then</span>
                 <span class="c1">#   remove the context</span>
                 <span class="k">if</span> <span class="ow">not</span> <span class="n">context</span><span class="o">.</span><span class="n">transfer_syntax</span><span class="p">:</span>
-                    <span class="bp">self</span><span class="o">.</span><span class="n">_requested_contexts</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="n">context</span><span class="p">)</span></div>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">_requested_contexts</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="n">context</span><span class="p">)</span>
 
-<div class="viewcode-block" id="ApplicationEntity.remove_supported_context"><a class="viewcode-back" href="../../reference/generated/pynetdicom.ae.ApplicationEntity.html#pynetdicom.ae.ApplicationEntity.remove_supported_context">[docs]</a>    <span class="k">def</span> <span class="nf">remove_supported_context</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">abstract_syntax</span><span class="p">,</span> <span class="n">transfer_syntax</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">remove_supported_context</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">abstract_syntax</span><span class="p">,</span> <span class="n">transfer_syntax</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Remove a supported presentation context.</span>
 
 <span class="sd">        Depending on the supplied parameters one of the following will occur:</span>
@@ -1097,7 +1013,7 @@
                 <span class="c1"># Only if all transfer syntaxes have been removed then remove</span>
                 <span class="c1">#   the context</span>
                 <span class="k">if</span> <span class="ow">not</span> <span class="n">context</span><span class="o">.</span><span class="n">transfer_syntax</span><span class="p">:</span>
-                    <span class="k">del</span> <span class="bp">self</span><span class="o">.</span><span class="n">_supported_contexts</span><span class="p">[</span><span class="n">abstract_syntax</span><span class="p">]</span></div>
+                    <span class="k">del</span> <span class="bp">self</span><span class="o">.</span><span class="n">_supported_contexts</span><span class="p">[</span><span class="n">abstract_syntax</span><span class="p">]</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">requested_contexts</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
@@ -1218,7 +1134,7 @@
             <span class="n">validate_ae_title</span><span class="p">(</span><span class="n">aet</span><span class="p">)</span> <span class="k">for</span> <span class="n">aet</span> <span class="ow">in</span> <span class="n">ae_titles</span>
         <span class="p">]</span>
 
-<div class="viewcode-block" id="ApplicationEntity.start_server"><a class="viewcode-back" href="../../reference/generated/pynetdicom.ae.ApplicationEntity.html#pynetdicom.ae.ApplicationEntity.start_server">[docs]</a>    <span class="k">def</span> <span class="nf">start_server</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">address</span><span class="p">,</span> <span class="n">block</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">ssl_context</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+    <span class="k">def</span> <span class="nf">start_server</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">address</span><span class="p">,</span> <span class="n">block</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">ssl_context</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
                      <span class="n">evt_handlers</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Start the AE as an association acceptor.</span>
 
@@ -1302,9 +1218,9 @@
 
             <span class="bp">self</span><span class="o">.</span><span class="n">_servers</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">server</span><span class="p">)</span>
 
-            <span class="k">return</span> <span class="n">server</span></div>
+            <span class="k">return</span> <span class="n">server</span>
 
-<div class="viewcode-block" id="ApplicationEntity.shutdown"><a class="viewcode-back" href="../../reference/generated/pynetdicom.ae.ApplicationEntity.html#pynetdicom.ae.ApplicationEntity.shutdown">[docs]</a>    <span class="k">def</span> <span class="nf">shutdown</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">shutdown</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Stop any active association servers and threads.&quot;&quot;&quot;</span>
         <span class="k">for</span> <span class="n">assoc</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">active_associations</span><span class="p">:</span>
             <span class="n">assoc</span><span class="o">.</span><span class="n">abort</span><span class="p">()</span>
@@ -1315,9 +1231,9 @@
         <span class="k">for</span> <span class="n">server</span> <span class="ow">in</span> <span class="n">original</span><span class="p">:</span>
             <span class="n">server</span><span class="o">.</span><span class="n">shutdown</span><span class="p">()</span>
 
-        <span class="bp">self</span><span class="o">.</span><span class="n">_servers</span> <span class="o">=</span> <span class="p">[]</span></div>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_servers</span> <span class="o">=</span> <span class="p">[]</span>
 
-    <span class="k">def</span> <span class="nf">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span> <span class="fm">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot; Prints out the attribute values and status for the AE &quot;&quot;&quot;</span>
         <span class="n">str_out</span> <span class="o">=</span> <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span>
         <span class="n">str_out</span> <span class="o">+=</span> <span class="s2">&quot;Application Entity &#39;</span><span class="si">{0!s}</span><span class="s2">&#39;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">ae_title</span><span class="p">)</span>
@@ -1457,7 +1373,7 @@
 
     <span class="c1"># Association extended negotiation callbacks</span>
     <span class="c1"># pylint: disable=unused-argument,no-self-use</span>
-<div class="viewcode-block" id="ApplicationEntity.on_async_ops_window"><a class="viewcode-back" href="../../reference/generated/pynetdicom.ae.ApplicationEntity.html#pynetdicom.ae.ApplicationEntity.on_async_ops_window">[docs]</a>    <span class="k">def</span> <span class="nf">on_async_ops_window</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">nr_invoked</span><span class="p">,</span> <span class="n">nr_performed</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">on_async_ops_window</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">nr_invoked</span><span class="p">,</span> <span class="n">nr_performed</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Callback for when an Asynchronous Operations Window Negotiation</span>
 <span class="sd">        item is include in the association request.</span>
 
@@ -1493,9 +1409,9 @@
         <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">(</span>
             <span class="s2">&quot;No Asynchronous Operations Window Negotiation response will be &quot;</span>
             <span class="s2">&quot;sent&quot;</span>
-        <span class="p">)</span></div>
+        <span class="p">)</span>
 
-<div class="viewcode-block" id="ApplicationEntity.on_sop_class_common_extended"><a class="viewcode-back" href="../../reference/generated/pynetdicom.ae.ApplicationEntity.html#pynetdicom.ae.ApplicationEntity.on_sop_class_common_extended">[docs]</a>    <span class="k">def</span> <span class="nf">on_sop_class_common_extended</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">items</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">on_sop_class_common_extended</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">items</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Callback for when one or more SOP Class Common Extended Negotiation</span>
 <span class="sd">        items are included in the association request.</span>
 
@@ -1518,9 +1434,9 @@
 
 <span class="sd">        * DICOM Standard Part 7, `Annex D.3.3.6 &lt;http://dicom.nema.org/medical/dicom/current/output/chtml/part07/sect_D.3.3.6.html&gt;`_</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">return</span> <span class="p">{}</span></div>
+        <span class="k">return</span> <span class="p">{}</span>
 
-<div class="viewcode-block" id="ApplicationEntity.on_sop_class_extended"><a class="viewcode-back" href="../../reference/generated/pynetdicom.ae.ApplicationEntity.html#pynetdicom.ae.ApplicationEntity.on_sop_class_extended">[docs]</a>    <span class="k">def</span> <span class="nf">on_sop_class_extended</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">app_info</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">on_sop_class_extended</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">app_info</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Callback for when one or more SOP Class Extended Negotiation items</span>
 <span class="sd">        are included in the association request.</span>
 
@@ -1546,9 +1462,9 @@
 
 <span class="sd">        * DICOM Standard Part 7, `Annex D.3.3.5 &lt;http://dicom.nema.org/medical/dicom/current/output/chtml/part07/sect_D.3.3.5.html&gt;`_</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">return</span> <span class="kc">None</span></div>
+        <span class="k">return</span> <span class="kc">None</span>
 
-<div class="viewcode-block" id="ApplicationEntity.on_user_identity"><a class="viewcode-back" href="../../reference/generated/pynetdicom.ae.ApplicationEntity.html#pynetdicom.ae.ApplicationEntity.on_user_identity">[docs]</a>    <span class="k">def</span> <span class="nf">on_user_identity</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">user_id_type</span><span class="p">,</span> <span class="n">primary_field</span><span class="p">,</span>
+    <span class="k">def</span> <span class="nf">on_user_identity</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">user_id_type</span><span class="p">,</span> <span class="n">primary_field</span><span class="p">,</span>
                          <span class="n">secondary_field</span><span class="p">,</span> <span class="n">info</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Callback for when a user identity negotiation item is included with</span>
 <span class="sd">        the association request.</span>
@@ -1604,11 +1520,11 @@
 
 <span class="sd">        * DICOM Standard Part 7, `Annex D.3.3.7 &lt;http://dicom.nema.org/medical/dicom/current/output/chtml/part07/sect_D.3.3.7.html&gt;`_</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">(</span><span class="s2">&quot;User Identity Negotiation not implemented&quot;</span><span class="p">)</span></div>
+        <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">(</span><span class="s2">&quot;User Identity Negotiation not implemented&quot;</span><span class="p">)</span>
 
 
     <span class="c1"># High-level DIMSE-C callbacks - user should implement these as required</span>
-<div class="viewcode-block" id="ApplicationEntity.on_c_echo"><a class="viewcode-back" href="../../reference/generated/pynetdicom.ae.ApplicationEntity.html#pynetdicom.ae.ApplicationEntity.on_c_echo">[docs]</a>    <span class="k">def</span> <span class="nf">on_c_echo</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">context</span><span class="p">,</span> <span class="n">info</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">on_c_echo</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">context</span><span class="p">,</span> <span class="n">info</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Callback for when a C-ECHO request is received.</span>
 
 <span class="sd">        User implementation is not required for the C-ECHO service, but if you</span>
@@ -1694,9 +1610,9 @@
 
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="c1"># User implementation of on_c_echo is optional</span>
-        <span class="k">return</span> <span class="mh">0x0000</span></div>
+        <span class="k">return</span> <span class="mh">0x0000</span>
 
-<div class="viewcode-block" id="ApplicationEntity.on_c_find"><a class="viewcode-back" href="../../reference/generated/pynetdicom.ae.ApplicationEntity.html#pynetdicom.ae.ApplicationEntity.on_c_find">[docs]</a>    <span class="k">def</span> <span class="nf">on_c_find</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dataset</span><span class="p">,</span> <span class="n">context</span><span class="p">,</span> <span class="n">info</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">on_c_find</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dataset</span><span class="p">,</span> <span class="n">context</span><span class="p">,</span> <span class="n">info</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Callback for when a C-FIND request is received.</span>
 
 <span class="sd">        Must be defined by the user prior to calling ``AE.start_server()`` and</span>
@@ -1832,9 +1748,9 @@
         <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">(</span>
             <span class="s2">&quot;User must implement the AE.on_c_find function prior to &quot;</span>
             <span class="s2">&quot;calling AE.start_server()&quot;</span>
-        <span class="p">)</span></div>
+        <span class="p">)</span>
 
-<div class="viewcode-block" id="ApplicationEntity.on_c_get"><a class="viewcode-back" href="../../reference/generated/pynetdicom.ae.ApplicationEntity.html#pynetdicom.ae.ApplicationEntity.on_c_get">[docs]</a>    <span class="k">def</span> <span class="nf">on_c_get</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dataset</span><span class="p">,</span> <span class="n">context</span><span class="p">,</span> <span class="n">info</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">on_c_get</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dataset</span><span class="p">,</span> <span class="n">context</span><span class="p">,</span> <span class="n">info</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Callback for when a C-GET request is received.</span>
 
 <span class="sd">        Must be defined by the user prior to calling</span>
@@ -1977,9 +1893,9 @@
         <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">(</span>
             <span class="s2">&quot;User must implement the AE.on_c_get function prior to &quot;</span>
             <span class="s2">&quot;calling AE.start_server()&quot;</span>
-        <span class="p">)</span></div>
+        <span class="p">)</span>
 
-<div class="viewcode-block" id="ApplicationEntity.on_c_move"><a class="viewcode-back" href="../../reference/generated/pynetdicom.ae.ApplicationEntity.html#pynetdicom.ae.ApplicationEntity.on_c_move">[docs]</a>    <span class="k">def</span> <span class="nf">on_c_move</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dataset</span><span class="p">,</span> <span class="n">move_aet</span><span class="p">,</span> <span class="n">context</span><span class="p">,</span> <span class="n">info</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">on_c_move</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dataset</span><span class="p">,</span> <span class="n">move_aet</span><span class="p">,</span> <span class="n">context</span><span class="p">,</span> <span class="n">info</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Callback for when a C-MOVE request is received.</span>
 
 <span class="sd">        Must be defined by the user prior to calling</span>
@@ -2138,9 +2054,9 @@
         <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">(</span>
             <span class="s2">&quot;User must implement the AE.on_c_move function prior to &quot;</span>
             <span class="s2">&quot;calling AE.start_server()&quot;</span>
-        <span class="p">)</span></div>
+        <span class="p">)</span>
 
-<div class="viewcode-block" id="ApplicationEntity.on_c_store"><a class="viewcode-back" href="../../reference/generated/pynetdicom.ae.ApplicationEntity.html#pynetdicom.ae.ApplicationEntity.on_c_store">[docs]</a>    <span class="k">def</span> <span class="nf">on_c_store</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dataset</span><span class="p">,</span> <span class="n">context</span><span class="p">,</span> <span class="n">info</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">on_c_store</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dataset</span><span class="p">,</span> <span class="n">context</span><span class="p">,</span> <span class="n">info</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Callback for when a C-STORE request is received.</span>
 
 <span class="sd">        Must be defined by the user prior to calling</span>
@@ -2258,11 +2174,11 @@
         <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">(</span>
             <span class="s2">&quot;User must implement the AE.on_c_store function prior to &quot;</span>
             <span class="s2">&quot;calling AE.start_server()&quot;</span>
-        <span class="p">)</span></div>
+        <span class="p">)</span>
 
 
     <span class="c1"># High-level DIMSE-N callbacks - user should implement these as required</span>
-<div class="viewcode-block" id="ApplicationEntity.on_n_get"><a class="viewcode-back" href="../../reference/generated/pynetdicom.ae.ApplicationEntity.html#pynetdicom.ae.ApplicationEntity.on_n_get">[docs]</a>    <span class="k">def</span> <span class="nf">on_n_get</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">attr</span><span class="p">,</span> <span class="n">context</span><span class="p">,</span> <span class="n">info</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">on_n_get</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">attr</span><span class="p">,</span> <span class="n">context</span><span class="p">,</span> <span class="n">info</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Callback for when an N-GET request is received.</span>
 
 <span class="sd">        Parameters</span>
@@ -2338,11 +2254,11 @@
         <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">(</span>
             <span class="s2">&quot;User must implement the AE.on_n_get function prior to &quot;</span>
             <span class="s2">&quot;calling AE.start_server()&quot;</span>
-        <span class="p">)</span></div>
+        <span class="p">)</span>
 
 
     <span class="c1"># High-level Association related callbacks</span>
-<div class="viewcode-block" id="ApplicationEntity.on_association_accepted"><a class="viewcode-back" href="../../reference/generated/pynetdicom.ae.ApplicationEntity.html#pynetdicom.ae.ApplicationEntity.on_association_accepted">[docs]</a>    <span class="k">def</span> <span class="nf">on_association_accepted</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">primitive</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">on_association_accepted</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">primitive</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Callback for when an association is accepted.</span>
 
 <span class="sd">        Deprecated and will be removed in v1.4. Bind a handler to</span>
@@ -2356,9 +2272,9 @@
 <span class="sd">        pdu_primitives.A_ASSOCIATE</span>
 <span class="sd">            The A-ASSOCIATE (accept) primitive.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">pass</span></div>
+        <span class="k">pass</span>
 
-<div class="viewcode-block" id="ApplicationEntity.on_association_rejected"><a class="viewcode-back" href="../../reference/generated/pynetdicom.ae.ApplicationEntity.html#pynetdicom.ae.ApplicationEntity.on_association_rejected">[docs]</a>    <span class="k">def</span> <span class="nf">on_association_rejected</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">primitive</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">on_association_rejected</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">primitive</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Callback for when an association is rejected.</span>
 
 <span class="sd">        Deprecated and will be removed in v1.4. Bind a handler to</span>
@@ -2372,62 +2288,50 @@
 <span class="sd">        associate_rq_pdu : pynetdicom.pdu.A_ASSOCIATE_RJ</span>
 <span class="sd">            The A-ASSOCIATE-RJ PDU instance received from the peer AE</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">pass</span></div>
+        <span class="k">pass</span>
 
-<div class="viewcode-block" id="ApplicationEntity.on_association_released"><a class="viewcode-back" href="../../reference/generated/pynetdicom.ae.ApplicationEntity.html#pynetdicom.ae.ApplicationEntity.on_association_released">[docs]</a>    <span class="k">def</span> <span class="nf">on_association_released</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">primitive</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">on_association_released</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">primitive</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Callback for when an association is released.</span>
 
 <span class="sd">        Deprecated and will be removed in v1.4. Bind a handler to</span>
 <span class="sd">        ``evt.EVT_RELEASED`` instead.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">pass</span></div>
+        <span class="k">pass</span>
 
-<div class="viewcode-block" id="ApplicationEntity.on_association_aborted"><a class="viewcode-back" href="../../reference/generated/pynetdicom.ae.ApplicationEntity.html#pynetdicom.ae.ApplicationEntity.on_association_aborted">[docs]</a>    <span class="k">def</span> <span class="nf">on_association_aborted</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">primitive</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">on_association_aborted</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">primitive</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Callback for when an association is aborted.</span>
 
 <span class="sd">        Deprecated and will be removed in v1.4. Bind a handler to</span>
 <span class="sd">        ``evt.EVT_ABORTED`` instead.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">pass</span></div></div>
+        <span class="k">pass</span></div>
 </pre></div>
 
            </div>
-           
           </div>
           <footer>
-  
 
   <hr/>
 
   <div role="contentinfo">
-    <p>
-        &copy; Copyright 2018-19, pynetdicom contributors
-
-    </p>
+    <p>&#169; Copyright 2018-19, pynetdicom contributors.</p>
   </div>
-  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
 
 </footer>
-
         </div>
       </div>
-
     </section>
-
   </div>
-  
-
-
-  <script type="text/javascript">
+  <script>
       jQuery(function () {
           SphinxRtdTheme.Navigation.enable(true);
       });
-  </script>
-
-  
-  
-    
-   
+  </script> 
 
 </body>
 </html>

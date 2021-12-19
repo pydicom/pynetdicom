@@ -1,4 +1,4 @@
-pynetdicom.service\_class.DefinedProcedureProtocolQueryRetrieveServiceClass
+﻿pynetdicom.service\_class.DefinedProcedureProtocolQueryRetrieveServiceClass
 ===========================================================================
 
 .. currentmodule:: pynetdicom.service_class

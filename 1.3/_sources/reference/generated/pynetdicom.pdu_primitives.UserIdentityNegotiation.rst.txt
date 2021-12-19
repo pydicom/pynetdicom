@@ -1,4 +1,4 @@
-pynetdicom.pdu\_primitives.UserIdentityNegotiation
+﻿pynetdicom.pdu\_primitives.UserIdentityNegotiation
 ==================================================
 
 .. currentmodule:: pynetdicom.pdu_primitives

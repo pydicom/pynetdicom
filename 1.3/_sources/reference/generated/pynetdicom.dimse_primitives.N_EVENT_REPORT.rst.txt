@@ -1,4 +1,4 @@
-pynetdicom.dimse\_primitives.N\_EVENT\_REPORT
+﻿pynetdicom.dimse\_primitives.N\_EVENT\_REPORT
 =============================================
 
 .. currentmodule:: pynetdicom.dimse_primitives
