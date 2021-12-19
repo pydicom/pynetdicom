@@ -1,73 +1,37 @@
-
-
 <!DOCTYPE html>
-<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
-<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<html class="writer-html5" lang="en" >
 <head>
-  <meta charset="utf-8">
-  
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>pynetdicom.dul &mdash; pynetdicom 1.1.0 documentation</title>
-  
-
-  
-  
+      <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="../../_static/css/pynetdicom.css" type="text/css" />
+      <link rel="stylesheet" href="../../_static/css/pynetdicom.css" type="text/css" />
     <link rel="shortcut icon" href="../../_static/favicon.ico"/>
+  <!--[if lt IE 9]>
+    <script src="../../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
   
-  
-  
-
-  
-
-  
-  
-    
-
-  
-
-  <link rel="stylesheet" href="../../_static/css/pynetdicom.css" type="text/css" />
-  <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
-  <link rel="stylesheet" href="../../_static/css/pynetdicom.css" type="text/css" />
+        <script data-url_root="../../" id="documentation_options" src="../../_static/documentation_options.js"></script>
+        <script src="../../_static/jquery.js"></script>
+        <script src="../../_static/underscore.js"></script>
+        <script src="../../_static/doctools.js"></script>
+    <script src="../../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../../genindex.html" />
     <link rel="search" title="Search" href="../../search.html" /> 
-
-  
-  <script src="../../_static/js/modernizr.min.js"></script>
-
 </head>
 
-<body class="wy-body-for-nav">
-
-   
+<body class="wy-body-for-nav"> 
   <div class="wy-grid-for-nav">
-
-    
     <nav data-toggle="wy-nav-shift" class="wy-nav-side">
       <div class="wy-side-scroll">
-        <div class="wy-side-nav-search">
-          
-
-          
+        <div class="wy-side-nav-search" >
             <a href="../../index.html" class="icon icon-home"> pynetdicom
-          
-
-          
-            
             <img src="../../_static/pydicom_flat_black.svg" class="logo" alt="Logo"/>
-          
           </a>
-
-          
-            
-            
               <div class="version">
                 1.1.0
               </div>
-            
-          
-
-          
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
     <input type="text" name="q" placeholder="Search docs" />
@@ -75,17 +39,7 @@
     <input type="hidden" name="area" value="default" />
   </form>
 </div>
-
-          
-        </div>
-
-        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
-          
-            
-            
-              
-            
-            
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
               <ul>
 <li class="toctree-l1"><a class="reference internal" href="../../verification_service_class.html">Verification Service Class</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../storage_service_class.html">Storage Service Class</a></li>
@@ -108,66 +62,30 @@
 <li class="toctree-l1"><a class="reference internal" href="../../release_notes.html#id2">1.0.0</a></li>
 </ul>
 
-            
-          
         </div>
       </div>
     </nav>
 
-    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
-
-      
-      <nav class="wy-nav-top" aria-label="top navigation">
-        
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
           <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
           <a href="../../index.html">pynetdicom</a>
-        
       </nav>
 
-
       <div class="wy-nav-content">
-        
         <div class="rst-content">
-        
-          
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-<div role="navigation" aria-label="breadcrumbs navigation">
-
+          <div role="navigation" aria-label="Page navigation">
   <ul class="wy-breadcrumbs">
-    
-      <li><a href="../../index.html">Docs</a> &raquo;</li>
-        
+      <li><a href="../../index.html" class="icon icon-home"></a> &raquo;</li>
           <li><a href="../index.html">Module code</a> &raquo;</li>
-        
       <li>pynetdicom.dul</li>
-    
-    
       <li class="wy-breadcrumbs-aside">
-        
       </li>
-    
   </ul>
-
-  
   <hr/>
 </div>
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
-            
+             
   <h1>Source code for pynetdicom.dul</h1><div class="highlight"><pre>
 <span></span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">Implements the DICOM Upper Layer service provider.</span>
@@ -181,19 +99,19 @@
     <span class="kn">import</span> <span class="nn">Queue</span> <span class="k">as</span> <span class="nn">queue</span>  <span class="c1"># Python 2 compatibility</span>
 <span class="kn">import</span> <span class="nn">select</span>
 <span class="kn">import</span> <span class="nn">socket</span>
-<span class="kn">from</span> <span class="nn">struct</span> <span class="k">import</span> <span class="n">unpack</span>
-<span class="kn">from</span> <span class="nn">threading</span> <span class="k">import</span> <span class="n">Thread</span>
+<span class="kn">from</span> <span class="nn">struct</span> <span class="kn">import</span> <span class="n">unpack</span>
+<span class="kn">from</span> <span class="nn">threading</span> <span class="kn">import</span> <span class="n">Thread</span>
 <span class="kn">import</span> <span class="nn">time</span>
 
-<span class="kn">from</span> <span class="nn">pynetdicom.fsm</span> <span class="k">import</span> <span class="n">StateMachine</span><span class="p">,</span> <span class="n">InvalidEventError</span>
-<span class="kn">from</span> <span class="nn">pynetdicom.pdu</span> <span class="k">import</span> <span class="p">(</span>
+<span class="kn">from</span> <span class="nn">pynetdicom.fsm</span> <span class="kn">import</span> <span class="n">StateMachine</span><span class="p">,</span> <span class="n">InvalidEventError</span>
+<span class="kn">from</span> <span class="nn">pynetdicom.pdu</span> <span class="kn">import</span> <span class="p">(</span>
     <span class="n">A_ASSOCIATE_RQ</span><span class="p">,</span> <span class="n">A_ASSOCIATE_AC</span><span class="p">,</span> <span class="n">A_ASSOCIATE_RJ</span><span class="p">,</span>
     <span class="n">P_DATA_TF</span><span class="p">,</span> <span class="n">A_RELEASE_RQ</span><span class="p">,</span> <span class="n">A_RELEASE_RP</span><span class="p">,</span> <span class="n">A_ABORT_RQ</span>
 <span class="p">)</span>
-<span class="kn">from</span> <span class="nn">pynetdicom.pdu_primitives</span> <span class="k">import</span> <span class="p">(</span>
+<span class="kn">from</span> <span class="nn">pynetdicom.pdu_primitives</span> <span class="kn">import</span> <span class="p">(</span>
     <span class="n">A_ASSOCIATE</span><span class="p">,</span> <span class="n">A_RELEASE</span><span class="p">,</span> <span class="n">A_ABORT</span><span class="p">,</span> <span class="n">A_P_ABORT</span><span class="p">,</span> <span class="n">P_DATA</span>
 <span class="p">)</span>
-<span class="kn">from</span> <span class="nn">pynetdicom.timer</span> <span class="k">import</span> <span class="n">Timer</span>
+<span class="kn">from</span> <span class="nn">pynetdicom.timer</span> <span class="kn">import</span> <span class="n">Timer</span>
 
 <span class="n">LOGGER</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="s1">&#39;pynetdicom.dul&#39;</span><span class="p">)</span>
 
@@ -231,7 +149,7 @@
 <span class="sd">    state_machine : fsm.StateMachine</span>
 <span class="sd">        The DICOM Upper Layer&#39;s State Machine</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-<div class="viewcode-block" id="DULServiceProvider.__init__"><a class="viewcode-back" href="../../reference/generated/pynetdicom.dul.DULServiceProvider.html#pynetdicom.dul.DULServiceProvider.__init__">[docs]</a>    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">socket</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">port</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">dul_timeout</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">assoc</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<div class="viewcode-block" id="DULServiceProvider.__init__"><a class="viewcode-back" href="../../reference/generated/pynetdicom.dul.DULServiceProvider.html#pynetdicom.dul.DULServiceProvider.__init__">[docs]</a>    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">socket</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">port</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">dul_timeout</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">assoc</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
@@ -327,7 +245,7 @@
         <span class="c1"># Controls the minimum delay between loops in run()</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_run_loop_delay</span> <span class="o">=</span> <span class="mf">0.001</span></div>
 
-<div class="viewcode-block" id="DULServiceProvider.idle_timer_expired"><a class="viewcode-back" href="../../reference/generated/pynetdicom.dul.DULServiceProvider.html#pynetdicom.dul.DULServiceProvider.idle_timer_expired">[docs]</a>    <span class="k">def</span> <span class="nf">idle_timer_expired</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">idle_timer_expired</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Checks if the idle timer has expired</span>
 
@@ -342,20 +260,20 @@
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_idle_timer</span><span class="o">.</span><span class="n">is_expired</span><span class="p">:</span>
             <span class="k">return</span> <span class="kc">True</span>
 
-        <span class="k">return</span> <span class="kc">False</span></div>
+        <span class="k">return</span> <span class="kc">False</span>
 
-<div class="viewcode-block" id="DULServiceProvider.kill_dul"><a class="viewcode-back" href="../../reference/generated/pynetdicom.dul.DULServiceProvider.html#pynetdicom.dul.DULServiceProvider.kill_dul">[docs]</a>    <span class="k">def</span> <span class="nf">kill_dul</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">kill_dul</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Immediately interrupts the thread&quot;&quot;&quot;</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_kill_thread</span> <span class="o">=</span> <span class="kc">True</span></div>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_kill_thread</span> <span class="o">=</span> <span class="kc">True</span>
 
-<div class="viewcode-block" id="DULServiceProvider.peek_next_pdu"><a class="viewcode-back" href="../../reference/generated/pynetdicom.dul.DULServiceProvider.html#pynetdicom.dul.DULServiceProvider.peek_next_pdu">[docs]</a>    <span class="k">def</span> <span class="nf">peek_next_pdu</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">peek_next_pdu</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Check the next PDU to be processed.&quot;&quot;&quot;</span>
         <span class="k">try</span><span class="p">:</span>
             <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">to_user_queue</span><span class="o">.</span><span class="n">queue</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
         <span class="k">except</span> <span class="p">(</span><span class="n">queue</span><span class="o">.</span><span class="n">Empty</span><span class="p">,</span> <span class="ne">IndexError</span><span class="p">):</span>
-            <span class="k">return</span> <span class="kc">None</span></div>
+            <span class="k">return</span> <span class="kc">None</span>
 
-<div class="viewcode-block" id="DULServiceProvider.receive_pdu"><a class="viewcode-back" href="../../reference/generated/pynetdicom.dul.DULServiceProvider.html#pynetdicom.dul.DULServiceProvider.receive_pdu">[docs]</a>    <span class="k">def</span> <span class="nf">receive_pdu</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">wait</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">timeout</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">receive_pdu</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">wait</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">timeout</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Get the next item to be processed out of the queue of items sent</span>
 <span class="sd">        from the DUL service provider to the service user</span>
@@ -388,9 +306,9 @@
             <span class="n">queue_item</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">to_user_queue</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">block</span><span class="o">=</span><span class="n">wait</span><span class="p">,</span> <span class="n">timeout</span><span class="o">=</span><span class="n">timeout</span><span class="p">)</span>
             <span class="k">return</span> <span class="n">queue_item</span>
         <span class="k">except</span> <span class="n">queue</span><span class="o">.</span><span class="n">Empty</span><span class="p">:</span>
-            <span class="k">return</span> <span class="kc">None</span></div>
+            <span class="k">return</span> <span class="kc">None</span>
 
-<div class="viewcode-block" id="DULServiceProvider.run"><a class="viewcode-back" href="../../reference/generated/pynetdicom.dul.DULServiceProvider.html#pynetdicom.dul.DULServiceProvider.run">[docs]</a>    <span class="k">def</span> <span class="nf">run</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">run</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        The main threading.Thread run loop. Runs constantly, checking the</span>
 <span class="sd">        connection for incoming data. When incoming data is received it</span>
@@ -433,9 +351,9 @@
             <span class="k">except</span> <span class="n">queue</span><span class="o">.</span><span class="n">Empty</span><span class="p">:</span>
                 <span class="k">continue</span>
 
-            <span class="bp">self</span><span class="o">.</span><span class="n">state_machine</span><span class="o">.</span><span class="n">do_action</span><span class="p">(</span><span class="n">event</span><span class="p">)</span></div>
+            <span class="bp">self</span><span class="o">.</span><span class="n">state_machine</span><span class="o">.</span><span class="n">do_action</span><span class="p">(</span><span class="n">event</span><span class="p">)</span>
 
-<div class="viewcode-block" id="DULServiceProvider.send_pdu"><a class="viewcode-back" href="../../reference/generated/pynetdicom.dul.DULServiceProvider.html#pynetdicom.dul.DULServiceProvider.send_pdu">[docs]</a>    <span class="k">def</span> <span class="nf">send_pdu</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">params</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">send_pdu</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">params</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 
 <span class="sd">        Parameters</span>
@@ -443,9 +361,9 @@
 <span class="sd">        params -</span>
 <span class="sd">            The parameters to put on FromServiceUser [FIXME]</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">to_provider_queue</span><span class="o">.</span><span class="n">put</span><span class="p">(</span><span class="n">params</span><span class="p">)</span></div>
+        <span class="bp">self</span><span class="o">.</span><span class="n">to_provider_queue</span><span class="o">.</span><span class="n">put</span><span class="p">(</span><span class="n">params</span><span class="p">)</span>
 
-<div class="viewcode-block" id="DULServiceProvider.stop_dul"><a class="viewcode-back" href="../../reference/generated/pynetdicom.dul.DULServiceProvider.html#pynetdicom.dul.DULServiceProvider.stop_dul">[docs]</a>    <span class="k">def</span> <span class="nf">stop_dul</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">stop_dul</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Interrupts the thread if state is &quot;Sta1&quot;</span>
 
@@ -463,7 +381,7 @@
 
             <span class="k">return</span> <span class="kc">True</span>
 
-        <span class="k">return</span> <span class="kc">False</span></div>
+        <span class="k">return</span> <span class="kc">False</span>
 
     <span class="k">def</span> <span class="nf">_check_incoming_pdu</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
@@ -786,48 +704,26 @@
 </pre></div>
 
            </div>
-           
           </div>
           <footer>
-  
 
   <hr/>
 
   <div role="contentinfo">
-    <p>
-        &copy; Copyright 2018-19, pynetdicom contributors
-
-    </p>
+    <p>&#169; Copyright 2018-19, pynetdicom contributors.</p>
   </div>
-  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
 
 </footer>
-
         </div>
       </div>
-
     </section>
-
   </div>
-  
-
-
-  
-
-    
-    
-      <script type="text/javascript" id="documentation_options" data-url_root="../../" src="../../_static/documentation_options.js"></script>
-        <script type="text/javascript" src="../../_static/jquery.js"></script>
-        <script type="text/javascript" src="../../_static/underscore.js"></script>
-        <script type="text/javascript" src="../../_static/doctools.js"></script>
-        <script type="text/javascript" src="../../_static/language_data.js"></script>
-    
-
-  
-
-  <script type="text/javascript" src="../../_static/js/theme.js"></script>
-
-  <script type="text/javascript">
+  <script>
       jQuery(function () {
           SphinxRtdTheme.Navigation.enable(true);
       });

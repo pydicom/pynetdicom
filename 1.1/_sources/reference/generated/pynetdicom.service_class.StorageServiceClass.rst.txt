@@ -1,4 +1,4 @@
-pynetdicom.service\_class.StorageServiceClass
+﻿pynetdicom.service\_class.StorageServiceClass
 =============================================
 
 .. currentmodule:: pynetdicom.service_class

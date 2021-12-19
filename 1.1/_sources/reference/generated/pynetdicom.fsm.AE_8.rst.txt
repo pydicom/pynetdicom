@@ -1,4 +1,4 @@
-pynetdicom.fsm.AE\_8
+﻿pynetdicom.fsm.AE\_8
 ====================
 
 .. currentmodule:: pynetdicom.fsm

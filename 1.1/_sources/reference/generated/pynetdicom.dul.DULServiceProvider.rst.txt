@@ -1,4 +1,4 @@
-pynetdicom.dul.DULServiceProvider
+﻿pynetdicom.dul.DULServiceProvider
 =================================
 
 .. currentmodule:: pynetdicom.dul

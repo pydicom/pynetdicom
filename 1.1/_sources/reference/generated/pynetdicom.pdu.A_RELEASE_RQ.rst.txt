@@ -1,4 +1,4 @@
-pynetdicom.pdu.A\_RELEASE\_RQ
+﻿pynetdicom.pdu.A\_RELEASE\_RQ
 =============================
 
 .. currentmodule:: pynetdicom.pdu

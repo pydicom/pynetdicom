@@ -1,73 +1,38 @@
-
-
 <!DOCTYPE html>
-<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
-<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<html class="writer-html5" lang="en" >
 <head>
-  <meta charset="utf-8">
-  
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>A-ASSOCIATE &mdash; pynetdicom 1.1.0 documentation</title>
-  
-
-  
-  
+      <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="../_static/css/pynetdicom.css" type="text/css" />
+      <link rel="stylesheet" href="../_static/css/pynetdicom.css" type="text/css" />
     <link rel="shortcut icon" href="../_static/favicon.ico"/>
+  <!--[if lt IE 9]>
+    <script src="../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
   
-  
-  
-
-  
-
-  
-  
-    
-
-  
-
-  <link rel="stylesheet" href="../_static/css/pynetdicom.css" type="text/css" />
-  <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
-  <link rel="stylesheet" href="../_static/css/pynetdicom.css" type="text/css" />
+        <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
+        <script src="../_static/jquery.js"></script>
+        <script src="../_static/underscore.js"></script>
+        <script src="../_static/doctools.js"></script>
+    <script src="../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" /> 
-
-  
-  <script src="../_static/js/modernizr.min.js"></script>
-
 </head>
 
-<body class="wy-body-for-nav">
-
-   
+<body class="wy-body-for-nav"> 
   <div class="wy-grid-for-nav">
-
-    
     <nav data-toggle="wy-nav-shift" class="wy-nav-side">
       <div class="wy-side-scroll">
-        <div class="wy-side-nav-search">
-          
-
-          
+        <div class="wy-side-nav-search" >
             <a href="../index.html" class="icon icon-home"> pynetdicom
-          
-
-          
-            
             <img src="../_static/pydicom_flat_black.svg" class="logo" alt="Logo"/>
-          
           </a>
-
-          
-            
-            
               <div class="version">
                 1.1.0
               </div>
-            
-          
-
-          
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
     <input type="text" name="q" placeholder="Search docs" />
@@ -75,17 +40,7 @@
     <input type="hidden" name="area" value="default" />
   </form>
 </div>
-
-          
-        </div>
-
-        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
-          
-            
-            
-              
-            
-            
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
               <ul>
 <li class="toctree-l1"><a class="reference internal" href="../verification_service_class.html">Verification Service Class</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../storage_service_class.html">Storage Service Class</a></li>
@@ -108,171 +63,111 @@
 <li class="toctree-l1"><a class="reference internal" href="../release_notes.html#id2">1.0.0</a></li>
 </ul>
 
-            
-          
         </div>
       </div>
     </nav>
 
-    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
-
-      
-      <nav class="wy-nav-top" aria-label="top navigation">
-        
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
           <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
           <a href="../index.html">pynetdicom</a>
-        
       </nav>
 
-
       <div class="wy-nav-content">
-        
         <div class="rst-content">
-        
-          
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-<div role="navigation" aria-label="breadcrumbs navigation">
-
+          <div role="navigation" aria-label="Page navigation">
   <ul class="wy-breadcrumbs">
-    
-      <li><a href="../index.html">Docs</a> &raquo;</li>
-        
+      <li><a href="../index.html" class="icon icon-home"></a> &raquo;</li>
       <li>A-ASSOCIATE</li>
-    
-    
       <li class="wy-breadcrumbs-aside">
-        
-            
             <a href="../_sources/reference/dul.pdu_primitives.a_associate.rst.txt" rel="nofollow"> View page source</a>
-          
-        
       </li>
-    
   </ul>
-
-  
   <hr/>
 </div>
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
-            
-  <div class="section" id="a-associate">
+             
+  <section id="a-associate">
 <h1>A-ASSOCIATE<a class="headerlink" href="#a-associate" title="Permalink to this headline">¶</a></h1>
 <p>The establishment of an association between two Application Entities shall be
 performed through ACSE A-ASSOCIATE request, indication, response and
 confirmation primitives.</p>
-<table border="1" class="longtable docutils">
+<table class="longtable docutils align-default">
 <colgroup>
-<col width="10%" />
-<col width="90%" />
+<col style="width: 10%" />
+<col style="width: 90%" />
 </colgroup>
-<tbody valign="top">
-<tr class="row-odd"><td><a class="reference internal" href="generated/pynetdicom.pdu_primitives.A_ASSOCIATE.html#pynetdicom.pdu_primitives.A_ASSOCIATE" title="pynetdicom.pdu_primitives.A_ASSOCIATE"><code class="xref py py-obj docutils literal notranslate"><span class="pre">A_ASSOCIATE</span></code></a>()</td>
-<td>An A-ASSOCIATE primitive.</td>
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/pynetdicom.pdu_primitives.A_ASSOCIATE.html#pynetdicom.pdu_primitives.A_ASSOCIATE" title="pynetdicom.pdu_primitives.A_ASSOCIATE"><code class="xref py py-obj docutils literal notranslate"><span class="pre">A_ASSOCIATE</span></code></a>()</p></td>
+<td><p>An A-ASSOCIATE primitive.</p></td>
 </tr>
 </tbody>
 </table>
 <p>The A-ASSOCIATE service makes use of one or more of the following User
 Information primitives:</p>
-<table border="1" class="longtable docutils">
+<table class="longtable docutils align-default">
 <colgroup>
-<col width="10%" />
-<col width="90%" />
+<col style="width: 10%" />
+<col style="width: 90%" />
 </colgroup>
-<tbody valign="top">
-<tr class="row-odd"><td><a class="reference internal" href="generated/pynetdicom.pdu_primitives.MaximumLengthNotification.html#pynetdicom.pdu_primitives.MaximumLengthNotification" title="pynetdicom.pdu_primitives.MaximumLengthNotification"><code class="xref py py-obj docutils literal notranslate"><span class="pre">MaximumLengthNotification</span></code></a>()</td>
-<td>A representation of a Maximum Length Negotiation primitive.</td>
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/pynetdicom.pdu_primitives.MaximumLengthNotification.html#pynetdicom.pdu_primitives.MaximumLengthNotification" title="pynetdicom.pdu_primitives.MaximumLengthNotification"><code class="xref py py-obj docutils literal notranslate"><span class="pre">MaximumLengthNotification</span></code></a>()</p></td>
+<td><p>A representation of a Maximum Length Negotiation primitive.</p></td>
 </tr>
-<tr class="row-even"><td><a class="reference internal" href="generated/pynetdicom.pdu_primitives.ImplementationClassUIDNotification.html#pynetdicom.pdu_primitives.ImplementationClassUIDNotification" title="pynetdicom.pdu_primitives.ImplementationClassUIDNotification"><code class="xref py py-obj docutils literal notranslate"><span class="pre">ImplementationClassUIDNotification</span></code></a>()</td>
-<td>A representation of a Implementation Class UID Notification primitive.</td>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/pynetdicom.pdu_primitives.ImplementationClassUIDNotification.html#pynetdicom.pdu_primitives.ImplementationClassUIDNotification" title="pynetdicom.pdu_primitives.ImplementationClassUIDNotification"><code class="xref py py-obj docutils literal notranslate"><span class="pre">ImplementationClassUIDNotification</span></code></a>()</p></td>
+<td><p>A representation of a Implementation Class UID Notification primitive.</p></td>
 </tr>
-<tr class="row-odd"><td><a class="reference internal" href="generated/pynetdicom.pdu_primitives.ImplementationVersionNameNotification.html#pynetdicom.pdu_primitives.ImplementationVersionNameNotification" title="pynetdicom.pdu_primitives.ImplementationVersionNameNotification"><code class="xref py py-obj docutils literal notranslate"><span class="pre">ImplementationVersionNameNotification</span></code></a>()</td>
-<td>A representation of a Implementation Version Name Notification primitive.</td>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/pynetdicom.pdu_primitives.ImplementationVersionNameNotification.html#pynetdicom.pdu_primitives.ImplementationVersionNameNotification" title="pynetdicom.pdu_primitives.ImplementationVersionNameNotification"><code class="xref py py-obj docutils literal notranslate"><span class="pre">ImplementationVersionNameNotification</span></code></a>()</p></td>
+<td><p>A representation of a Implementation Version Name Notification primitive.</p></td>
 </tr>
-<tr class="row-even"><td><a class="reference internal" href="generated/pynetdicom.pdu_primitives.AsynchronousOperationsWindowNegotiation.html#pynetdicom.pdu_primitives.AsynchronousOperationsWindowNegotiation" title="pynetdicom.pdu_primitives.AsynchronousOperationsWindowNegotiation"><code class="xref py py-obj docutils literal notranslate"><span class="pre">AsynchronousOperationsWindowNegotiation</span></code></a>()</td>
-<td>Representation of the Asynchronous Operations Window Negotiation primitive.</td>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/pynetdicom.pdu_primitives.AsynchronousOperationsWindowNegotiation.html#pynetdicom.pdu_primitives.AsynchronousOperationsWindowNegotiation" title="pynetdicom.pdu_primitives.AsynchronousOperationsWindowNegotiation"><code class="xref py py-obj docutils literal notranslate"><span class="pre">AsynchronousOperationsWindowNegotiation</span></code></a>()</p></td>
+<td><p>Representation of the Asynchronous Operations Window Negotiation primitive.</p></td>
 </tr>
-<tr class="row-odd"><td><a class="reference internal" href="generated/pynetdicom.pdu_primitives.SCP_SCU_RoleSelectionNegotiation.html#pynetdicom.pdu_primitives.SCP_SCU_RoleSelectionNegotiation" title="pynetdicom.pdu_primitives.SCP_SCU_RoleSelectionNegotiation"><code class="xref py py-obj docutils literal notranslate"><span class="pre">SCP_SCU_RoleSelectionNegotiation</span></code></a>()</td>
-<td>A representation of the SCP/SCU Role Selection Negotiation primitive.</td>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/pynetdicom.pdu_primitives.SCP_SCU_RoleSelectionNegotiation.html#pynetdicom.pdu_primitives.SCP_SCU_RoleSelectionNegotiation" title="pynetdicom.pdu_primitives.SCP_SCU_RoleSelectionNegotiation"><code class="xref py py-obj docutils literal notranslate"><span class="pre">SCP_SCU_RoleSelectionNegotiation</span></code></a>()</p></td>
+<td><p>A representation of the SCP/SCU Role Selection Negotiation primitive.</p></td>
 </tr>
-<tr class="row-even"><td><a class="reference internal" href="generated/pynetdicom.pdu_primitives.SOPClassExtendedNegotiation.html#pynetdicom.pdu_primitives.SOPClassExtendedNegotiation" title="pynetdicom.pdu_primitives.SOPClassExtendedNegotiation"><code class="xref py py-obj docutils literal notranslate"><span class="pre">SOPClassExtendedNegotiation</span></code></a>()</td>
-<td>A representation of the SOP Class Extended Negotiation primitive.</td>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/pynetdicom.pdu_primitives.SOPClassExtendedNegotiation.html#pynetdicom.pdu_primitives.SOPClassExtendedNegotiation" title="pynetdicom.pdu_primitives.SOPClassExtendedNegotiation"><code class="xref py py-obj docutils literal notranslate"><span class="pre">SOPClassExtendedNegotiation</span></code></a>()</p></td>
+<td><p>A representation of the SOP Class Extended Negotiation primitive.</p></td>
 </tr>
-<tr class="row-odd"><td><a class="reference internal" href="generated/pynetdicom.pdu_primitives.SOPClassCommonExtendedNegotiation.html#pynetdicom.pdu_primitives.SOPClassCommonExtendedNegotiation" title="pynetdicom.pdu_primitives.SOPClassCommonExtendedNegotiation"><code class="xref py py-obj docutils literal notranslate"><span class="pre">SOPClassCommonExtendedNegotiation</span></code></a>()</td>
-<td>A representation of the SOP Class Common Extended Negotiation primitive.</td>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/pynetdicom.pdu_primitives.SOPClassCommonExtendedNegotiation.html#pynetdicom.pdu_primitives.SOPClassCommonExtendedNegotiation" title="pynetdicom.pdu_primitives.SOPClassCommonExtendedNegotiation"><code class="xref py py-obj docutils literal notranslate"><span class="pre">SOPClassCommonExtendedNegotiation</span></code></a>()</p></td>
+<td><p>A representation of the SOP Class Common Extended Negotiation primitive.</p></td>
 </tr>
-<tr class="row-even"><td><a class="reference internal" href="generated/pynetdicom.pdu_primitives.UserIdentityNegotiation.html#pynetdicom.pdu_primitives.UserIdentityNegotiation" title="pynetdicom.pdu_primitives.UserIdentityNegotiation"><code class="xref py py-obj docutils literal notranslate"><span class="pre">UserIdentityNegotiation</span></code></a>()</td>
-<td>Representation of the User Identity Negotiation primitive.</td>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/pynetdicom.pdu_primitives.UserIdentityNegotiation.html#pynetdicom.pdu_primitives.UserIdentityNegotiation" title="pynetdicom.pdu_primitives.UserIdentityNegotiation"><code class="xref py py-obj docutils literal notranslate"><span class="pre">UserIdentityNegotiation</span></code></a>()</p></td>
+<td><p>Representation of the User Identity Negotiation primitive.</p></td>
 </tr>
 </tbody>
 </table>
-<div class="section" id="references">
+<section id="references">
 <h2>References<a class="headerlink" href="#references" title="Permalink to this headline">¶</a></h2>
 <ol class="arabic simple">
-<li>DICOM Standard, Part 8, Section
-<a class="reference external" href="http://dicom.nema.org/medical/dicom/current/output/html/part08.html#sect_7.1">7.1</a></li>
+<li><p>DICOM Standard, Part 8, Section
+<a class="reference external" href="http://dicom.nema.org/medical/dicom/current/output/html/part08.html#sect_7.1">7.1</a></p></li>
 </ol>
-</div>
-</div>
+</section>
+</section>
 
 
            </div>
-           
           </div>
           <footer>
-  
 
   <hr/>
 
   <div role="contentinfo">
-    <p>
-        &copy; Copyright 2018-19, pynetdicom contributors
-
-    </p>
+    <p>&#169; Copyright 2018-19, pynetdicom contributors.</p>
   </div>
-  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
 
 </footer>
-
         </div>
       </div>
-
     </section>
-
   </div>
-  
-
-
-  
-
-    
-    
-      <script type="text/javascript" id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
-        <script type="text/javascript" src="../_static/jquery.js"></script>
-        <script type="text/javascript" src="../_static/underscore.js"></script>
-        <script type="text/javascript" src="../_static/doctools.js"></script>
-        <script type="text/javascript" src="../_static/language_data.js"></script>
-    
-
-  
-
-  <script type="text/javascript" src="../_static/js/theme.js"></script>
-
-  <script type="text/javascript">
+  <script>
       jQuery(function () {
           SphinxRtdTheme.Navigation.enable(true);
       });

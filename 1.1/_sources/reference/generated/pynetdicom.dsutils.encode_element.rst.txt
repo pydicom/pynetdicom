@@ -1,4 +1,4 @@
-pynetdicom.dsutils.encode\_element
+﻿pynetdicom.dsutils.encode\_element
 ==================================
 
 .. currentmodule:: pynetdicom.dsutils

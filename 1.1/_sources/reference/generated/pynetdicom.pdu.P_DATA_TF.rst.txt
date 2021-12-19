@@ -1,4 +1,4 @@
-pynetdicom.pdu.P\_DATA\_TF
+﻿pynetdicom.pdu.P\_DATA\_TF
 ==========================
 
 .. currentmodule:: pynetdicom.pdu

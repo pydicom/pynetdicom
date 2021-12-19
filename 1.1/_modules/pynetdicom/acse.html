@@ -1,73 +1,37 @@
-
-
 <!DOCTYPE html>
-<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
-<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<html class="writer-html5" lang="en" >
 <head>
-  <meta charset="utf-8">
-  
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>pynetdicom.acse &mdash; pynetdicom 1.1.0 documentation</title>
-  
-
-  
-  
+      <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="../../_static/css/pynetdicom.css" type="text/css" />
+      <link rel="stylesheet" href="../../_static/css/pynetdicom.css" type="text/css" />
     <link rel="shortcut icon" href="../../_static/favicon.ico"/>
+  <!--[if lt IE 9]>
+    <script src="../../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
   
-  
-  
-
-  
-
-  
-  
-    
-
-  
-
-  <link rel="stylesheet" href="../../_static/css/pynetdicom.css" type="text/css" />
-  <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
-  <link rel="stylesheet" href="../../_static/css/pynetdicom.css" type="text/css" />
+        <script data-url_root="../../" id="documentation_options" src="../../_static/documentation_options.js"></script>
+        <script src="../../_static/jquery.js"></script>
+        <script src="../../_static/underscore.js"></script>
+        <script src="../../_static/doctools.js"></script>
+    <script src="../../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../../genindex.html" />
     <link rel="search" title="Search" href="../../search.html" /> 
-
-  
-  <script src="../../_static/js/modernizr.min.js"></script>
-
 </head>
 
-<body class="wy-body-for-nav">
-
-   
+<body class="wy-body-for-nav"> 
   <div class="wy-grid-for-nav">
-
-    
     <nav data-toggle="wy-nav-shift" class="wy-nav-side">
       <div class="wy-side-scroll">
-        <div class="wy-side-nav-search">
-          
-
-          
+        <div class="wy-side-nav-search" >
             <a href="../../index.html" class="icon icon-home"> pynetdicom
-          
-
-          
-            
             <img src="../../_static/pydicom_flat_black.svg" class="logo" alt="Logo"/>
-          
           </a>
-
-          
-            
-            
               <div class="version">
                 1.1.0
               </div>
-            
-          
-
-          
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
     <input type="text" name="q" placeholder="Search docs" />
@@ -75,17 +39,7 @@
     <input type="hidden" name="area" value="default" />
   </form>
 </div>
-
-          
-        </div>
-
-        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
-          
-            
-            
-              
-            
-            
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
               <ul>
 <li class="toctree-l1"><a class="reference internal" href="../../verification_service_class.html">Verification Service Class</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../storage_service_class.html">Storage Service Class</a></li>
@@ -108,66 +62,30 @@
 <li class="toctree-l1"><a class="reference internal" href="../../release_notes.html#id2">1.0.0</a></li>
 </ul>
 
-            
-          
         </div>
       </div>
     </nav>
 
-    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
-
-      
-      <nav class="wy-nav-top" aria-label="top navigation">
-        
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
           <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
           <a href="../../index.html">pynetdicom</a>
-        
       </nav>
 
-
       <div class="wy-nav-content">
-        
         <div class="rst-content">
-        
-          
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-<div role="navigation" aria-label="breadcrumbs navigation">
-
+          <div role="navigation" aria-label="Page navigation">
   <ul class="wy-breadcrumbs">
-    
-      <li><a href="../../index.html">Docs</a> &raquo;</li>
-        
+      <li><a href="../../index.html" class="icon icon-home"></a> &raquo;</li>
           <li><a href="../index.html">Module code</a> &raquo;</li>
-        
       <li>pynetdicom.acse</li>
-    
-    
       <li class="wy-breadcrumbs-aside">
-        
       </li>
-    
   </ul>
-
-  
   <hr/>
 </div>
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
-            
+             
   <h1>Source code for pynetdicom.acse</h1><div class="highlight"><pre>
 <span></span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">ACSE service provider</span>
@@ -175,18 +93,18 @@
 <span class="kn">import</span> <span class="nn">logging</span>
 <span class="kn">import</span> <span class="nn">warnings</span>
 
-<span class="kn">from</span> <span class="nn">pynetdicom.pdu_primitives</span> <span class="k">import</span> <span class="p">(</span>
+<span class="kn">from</span> <span class="nn">pynetdicom.pdu_primitives</span> <span class="kn">import</span> <span class="p">(</span>
     <span class="n">A_ASSOCIATE</span><span class="p">,</span> <span class="n">A_RELEASE</span><span class="p">,</span> <span class="n">A_ABORT</span><span class="p">,</span> <span class="n">A_P_ABORT</span><span class="p">,</span>
     <span class="n">AsynchronousOperationsWindowNegotiation</span><span class="p">,</span>
     <span class="n">SOPClassCommonExtendedNegotiation</span><span class="p">,</span>
     <span class="n">SOPClassExtendedNegotiation</span><span class="p">,</span>
     <span class="n">UserIdentityNegotiation</span><span class="p">,</span>
 <span class="p">)</span>
-<span class="kn">from</span> <span class="nn">pynetdicom.presentation</span> <span class="k">import</span> <span class="p">(</span>
+<span class="kn">from</span> <span class="nn">pynetdicom.presentation</span> <span class="kn">import</span> <span class="p">(</span>
     <span class="n">negotiate_as_requestor</span><span class="p">,</span> <span class="n">negotiate_as_acceptor</span>
 <span class="p">)</span>
-<span class="kn">from</span> <span class="nn">pynetdicom.utils</span> <span class="k">import</span> <span class="n">pretty_bytes</span>
-<span class="kn">from</span> <span class="nn">pynetdicom._globals</span> <span class="k">import</span> <span class="n">APPLICATION_CONTEXT_NAME</span>
+<span class="kn">from</span> <span class="nn">pynetdicom.utils</span> <span class="kn">import</span> <span class="n">pretty_bytes</span>
+<span class="kn">from</span> <span class="nn">pynetdicom._globals</span> <span class="kn">import</span> <span class="n">APPLICATION_CONTEXT_NAME</span>
 
 
 <span class="n">LOGGER</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="s1">&#39;pynetdicom.acse&#39;</span><span class="p">)</span>
@@ -204,7 +122,7 @@
 <span class="sd">        The maximum time (in seconds) to wait for association related PDUs</span>
 <span class="sd">        from the peer.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-<div class="viewcode-block" id="ACSE.__init__"><a class="viewcode-back" href="../../reference/generated/pynetdicom.acse.ACSE.html#pynetdicom.acse.ACSE.__init__">[docs]</a>    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">acse_timeout</span><span class="o">=</span><span class="mi">30</span><span class="p">):</span>
+<div class="viewcode-block" id="ACSE.__init__"><a class="viewcode-back" href="../../reference/generated/pynetdicom.acse.ACSE.html#pynetdicom.acse.ACSE.__init__">[docs]</a>    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">acse_timeout</span><span class="o">=</span><span class="mi">30</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Create the ACSE service provider.</span>
 
 <span class="sd">        Parameters</span>
@@ -410,16 +328,16 @@
 
         <span class="k">return</span> <span class="kc">True</span><span class="p">,</span> <span class="kc">None</span>
 
-<div class="viewcode-block" id="ACSE.is_aborted"><a class="viewcode-back" href="../../reference/generated/pynetdicom.acse.ACSE.html#pynetdicom.acse.ACSE.is_aborted">[docs]</a>    <span class="nd">@staticmethod</span>
+    <span class="nd">@staticmethod</span>
     <span class="k">def</span> <span class="nf">is_aborted</span><span class="p">(</span><span class="n">assoc</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Return True if an A-ABORT or A-P-ABORT request has been received.&quot;&quot;&quot;</span>
         <span class="n">primitive</span> <span class="o">=</span> <span class="n">assoc</span><span class="o">.</span><span class="n">dul</span><span class="o">.</span><span class="n">peek_next_pdu</span><span class="p">()</span>
         <span class="k">if</span> <span class="n">primitive</span><span class="o">.</span><span class="vm">__class__</span> <span class="ow">in</span> <span class="p">(</span><span class="n">A_ABORT</span><span class="p">,</span> <span class="n">A_P_ABORT</span><span class="p">):</span>
             <span class="k">return</span> <span class="kc">True</span>
 
-        <span class="k">return</span> <span class="kc">False</span></div>
+        <span class="k">return</span> <span class="kc">False</span>
 
-<div class="viewcode-block" id="ACSE.is_release_requested"><a class="viewcode-back" href="../../reference/generated/pynetdicom.acse.ACSE.html#pynetdicom.acse.ACSE.is_release_requested">[docs]</a>    <span class="nd">@staticmethod</span>
+    <span class="nd">@staticmethod</span>
     <span class="k">def</span> <span class="nf">is_release_requested</span><span class="p">(</span><span class="n">assoc</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Return True if an A-RELEASE request has been received.</span>
 
@@ -434,19 +352,19 @@
             <span class="n">_</span> <span class="o">=</span> <span class="n">assoc</span><span class="o">.</span><span class="n">dul</span><span class="o">.</span><span class="n">receive_pdu</span><span class="p">(</span><span class="n">wait</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
             <span class="k">return</span> <span class="kc">True</span>
 
-        <span class="k">return</span> <span class="kc">False</span></div>
+        <span class="k">return</span> <span class="kc">False</span>
 
     <span class="c1"># Deprecated, to be removed in v1.2</span>
-<div class="viewcode-block" id="ACSE.is_released"><a class="viewcode-back" href="../../reference/generated/pynetdicom.acse.ACSE.html#pynetdicom.acse.ACSE.is_released">[docs]</a>    <span class="k">def</span> <span class="nf">is_released</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">assoc</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">is_released</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">assoc</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Return True if an A-RELEASE response has been received.&quot;&quot;&quot;</span>
         <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span>
             <span class="s2">&quot;ACSE.is_released is deprecated and will be remove in v1.2, &quot;</span>
             <span class="s2">&quot;use ACSE.is_release_requested instead&quot;</span><span class="p">,</span>
             <span class="ne">DeprecationWarning</span>
         <span class="p">)</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">is_release_requested</span><span class="p">(</span><span class="n">assoc</span><span class="p">)</span></div>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">is_release_requested</span><span class="p">(</span><span class="n">assoc</span><span class="p">)</span>
 
-<div class="viewcode-block" id="ACSE.negotiate_association"><a class="viewcode-back" href="../../reference/generated/pynetdicom.acse.ACSE.html#pynetdicom.acse.ACSE.negotiate_association">[docs]</a>    <span class="k">def</span> <span class="nf">negotiate_association</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">assoc</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">negotiate_association</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">assoc</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Perform an association negotiation as either the requestor or</span>
 <span class="sd">        acceptor.</span>
 
@@ -458,7 +376,7 @@
         <span class="k">if</span> <span class="n">assoc</span><span class="o">.</span><span class="n">is_requestor</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_negotiate_as_requestor</span><span class="p">(</span><span class="n">assoc</span><span class="p">)</span>
         <span class="k">elif</span> <span class="n">assoc</span><span class="o">.</span><span class="n">is_acceptor</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">_negotiate_as_acceptor</span><span class="p">(</span><span class="n">assoc</span><span class="p">)</span></div>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_negotiate_as_acceptor</span><span class="p">(</span><span class="n">assoc</span><span class="p">)</span>
 
     <span class="k">def</span> <span class="nf">_negotiate_as_acceptor</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">assoc</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Perform an association negotiation as the association acceptor.</span>
@@ -673,7 +591,7 @@
             <span class="n">assoc</span><span class="o">.</span><span class="n">is_established</span> <span class="o">=</span> <span class="kc">False</span>
             <span class="n">assoc</span><span class="o">.</span><span class="n">dul</span><span class="o">.</span><span class="n">kill_dul</span><span class="p">()</span>
 
-<div class="viewcode-block" id="ACSE.negotiate_release"><a class="viewcode-back" href="../../reference/generated/pynetdicom.acse.ACSE.html#pynetdicom.acse.ACSE.negotiate_release">[docs]</a>    <span class="k">def</span> <span class="nf">negotiate_release</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">assoc</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">negotiate_release</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">assoc</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Negotiate association release.</span>
 
 <span class="sd">        Once an A-RELEASE request has been sent any received P-DATA PDUs will</span>
@@ -745,9 +663,9 @@
                 <span class="n">assoc</span><span class="o">.</span><span class="n">is_released</span> <span class="o">=</span> <span class="kc">True</span>
                 <span class="n">assoc</span><span class="o">.</span><span class="n">is_established</span> <span class="o">=</span> <span class="kc">False</span>
                 <span class="n">assoc</span><span class="o">.</span><span class="n">kill</span><span class="p">()</span>
-                <span class="k">return</span></div>
+                <span class="k">return</span>
 
-<div class="viewcode-block" id="ACSE.release_association"><a class="viewcode-back" href="../../reference/generated/pynetdicom.acse.ACSE.html#pynetdicom.acse.ACSE.release_association">[docs]</a>    <span class="k">def</span> <span class="nf">release_association</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">assoc</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">release_association</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">assoc</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Negotiate association release.</span>
 
 <span class="sd">        Parameters</span>
@@ -761,9 +679,9 @@
             <span class="s2">&quot;in v1.2, use ACSE.negotiate_release instead&quot;</span><span class="p">,</span>
             <span class="ne">DeprecationWarning</span>
         <span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">negotiate_release</span><span class="p">(</span><span class="n">assoc</span><span class="p">)</span></div>
+        <span class="bp">self</span><span class="o">.</span><span class="n">negotiate_release</span><span class="p">(</span><span class="n">assoc</span><span class="p">)</span>
 
-<div class="viewcode-block" id="ACSE.send_abort"><a class="viewcode-back" href="../../reference/generated/pynetdicom.acse.ACSE.html#pynetdicom.acse.ACSE.send_abort">[docs]</a>    <span class="nd">@staticmethod</span>
+    <span class="nd">@staticmethod</span>
     <span class="k">def</span> <span class="nf">send_abort</span><span class="p">(</span><span class="n">assoc</span><span class="p">,</span> <span class="n">source</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Send an A-ABORT request to the peer.</span>
 
@@ -794,9 +712,9 @@
 
         <span class="n">assoc</span><span class="o">.</span><span class="n">dul</span><span class="o">.</span><span class="n">send_pdu</span><span class="p">(</span><span class="n">primitive</span><span class="p">)</span>
         <span class="n">assoc</span><span class="o">.</span><span class="n">is_aborted</span> <span class="o">=</span> <span class="kc">True</span>
-        <span class="n">assoc</span><span class="o">.</span><span class="n">is_established</span> <span class="o">=</span> <span class="kc">False</span></div>
+        <span class="n">assoc</span><span class="o">.</span><span class="n">is_established</span> <span class="o">=</span> <span class="kc">False</span>
 
-<div class="viewcode-block" id="ACSE.send_accept"><a class="viewcode-back" href="../../reference/generated/pynetdicom.acse.ACSE.html#pynetdicom.acse.ACSE.send_accept">[docs]</a>    <span class="nd">@staticmethod</span>
+    <span class="nd">@staticmethod</span>
     <span class="k">def</span> <span class="nf">send_accept</span><span class="p">(</span><span class="n">assoc</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Send an A-ASSOCIATE (accept) to the peer.</span>
 
@@ -831,9 +749,9 @@
         <span class="n">primitive</span><span class="o">.</span><span class="n">user_information</span> <span class="o">=</span> <span class="n">assoc</span><span class="o">.</span><span class="n">acceptor</span><span class="o">.</span><span class="n">user_information</span>
 
         <span class="n">assoc</span><span class="o">.</span><span class="n">acceptor</span><span class="o">.</span><span class="n">primitive</span> <span class="o">=</span> <span class="n">primitive</span>
-        <span class="n">assoc</span><span class="o">.</span><span class="n">dul</span><span class="o">.</span><span class="n">send_pdu</span><span class="p">(</span><span class="n">primitive</span><span class="p">)</span></div>
+        <span class="n">assoc</span><span class="o">.</span><span class="n">dul</span><span class="o">.</span><span class="n">send_pdu</span><span class="p">(</span><span class="n">primitive</span><span class="p">)</span>
 
-<div class="viewcode-block" id="ACSE.send_ap_abort"><a class="viewcode-back" href="../../reference/generated/pynetdicom.acse.ACSE.html#pynetdicom.acse.ACSE.send_ap_abort">[docs]</a>    <span class="nd">@staticmethod</span>
+    <span class="nd">@staticmethod</span>
     <span class="k">def</span> <span class="nf">send_ap_abort</span><span class="p">(</span><span class="n">assoc</span><span class="p">,</span> <span class="n">reason</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Send an A-P-ABORT to the peer.</span>
 
@@ -868,9 +786,9 @@
 
         <span class="n">assoc</span><span class="o">.</span><span class="n">dul</span><span class="o">.</span><span class="n">send_pdu</span><span class="p">(</span><span class="n">primitive</span><span class="p">)</span>
         <span class="n">assoc</span><span class="o">.</span><span class="n">is_aborted</span> <span class="o">=</span> <span class="kc">True</span>
-        <span class="n">assoc</span><span class="o">.</span><span class="n">is_established</span> <span class="o">=</span> <span class="kc">False</span></div>
+        <span class="n">assoc</span><span class="o">.</span><span class="n">is_established</span> <span class="o">=</span> <span class="kc">False</span>
 
-<div class="viewcode-block" id="ACSE.send_reject"><a class="viewcode-back" href="../../reference/generated/pynetdicom.acse.ACSE.html#pynetdicom.acse.ACSE.send_reject">[docs]</a>    <span class="nd">@staticmethod</span>
+    <span class="nd">@staticmethod</span>
     <span class="k">def</span> <span class="nf">send_reject</span><span class="p">(</span><span class="n">assoc</span><span class="p">,</span> <span class="n">result</span><span class="p">,</span> <span class="n">source</span><span class="p">,</span> <span class="n">diagnostic</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Send an A-ASSOCIATE (reject) to the peer.</span>
 
@@ -937,9 +855,9 @@
         <span class="n">assoc</span><span class="o">.</span><span class="n">acceptor</span><span class="o">.</span><span class="n">primitive</span> <span class="o">=</span> <span class="n">primitive</span>
         <span class="n">assoc</span><span class="o">.</span><span class="n">dul</span><span class="o">.</span><span class="n">send_pdu</span><span class="p">(</span><span class="n">primitive</span><span class="p">)</span>
         <span class="n">assoc</span><span class="o">.</span><span class="n">is_rejected</span> <span class="o">=</span> <span class="kc">True</span>
-        <span class="n">assoc</span><span class="o">.</span><span class="n">is_established</span> <span class="o">=</span> <span class="kc">False</span></div>
+        <span class="n">assoc</span><span class="o">.</span><span class="n">is_established</span> <span class="o">=</span> <span class="kc">False</span>
 
-<div class="viewcode-block" id="ACSE.send_release"><a class="viewcode-back" href="../../reference/generated/pynetdicom.acse.ACSE.html#pynetdicom.acse.ACSE.send_release">[docs]</a>    <span class="nd">@staticmethod</span>
+    <span class="nd">@staticmethod</span>
     <span class="k">def</span> <span class="nf">send_release</span><span class="p">(</span><span class="n">assoc</span><span class="p">,</span> <span class="n">is_response</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Send an A-RELEASE (request or response) to the peer.</span>
 
@@ -956,9 +874,9 @@
         <span class="k">if</span> <span class="n">is_response</span><span class="p">:</span>
             <span class="n">primitive</span><span class="o">.</span><span class="n">result</span> <span class="o">=</span> <span class="s2">&quot;affirmative&quot;</span>
 
-        <span class="n">assoc</span><span class="o">.</span><span class="n">dul</span><span class="o">.</span><span class="n">send_pdu</span><span class="p">(</span><span class="n">primitive</span><span class="p">)</span></div>
+        <span class="n">assoc</span><span class="o">.</span><span class="n">dul</span><span class="o">.</span><span class="n">send_pdu</span><span class="p">(</span><span class="n">primitive</span><span class="p">)</span>
 
-<div class="viewcode-block" id="ACSE.send_request"><a class="viewcode-back" href="../../reference/generated/pynetdicom.acse.ACSE.html#pynetdicom.acse.ACSE.send_request">[docs]</a>    <span class="nd">@staticmethod</span>
+    <span class="nd">@staticmethod</span>
     <span class="k">def</span> <span class="nf">send_request</span><span class="p">(</span><span class="n">assoc</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Send an A-ASSOCIATE (request) to the peer.</span>
 
@@ -1017,13 +935,13 @@
 
         <span class="c1"># Send the A-ASSOCIATE request primitive to the peer</span>
         <span class="n">LOGGER</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Requesting Association&quot;</span><span class="p">)</span>
-        <span class="n">assoc</span><span class="o">.</span><span class="n">dul</span><span class="o">.</span><span class="n">send_pdu</span><span class="p">(</span><span class="n">primitive</span><span class="p">)</span></div>
+        <span class="n">assoc</span><span class="o">.</span><span class="n">dul</span><span class="o">.</span><span class="n">send_pdu</span><span class="p">(</span><span class="n">primitive</span><span class="p">)</span>
 
 
     <span class="c1"># ACSE logging/debugging functions</span>
     <span class="c1"># pylint: disable=too-many-branches,unused-argument</span>
     <span class="c1"># pylint: disable=too-many-locals,too-many-statements</span>
-<div class="viewcode-block" id="ACSE.debug_send_abort"><a class="viewcode-back" href="../../reference/generated/pynetdicom.acse.ACSE.html#pynetdicom.acse.ACSE.debug_send_abort">[docs]</a>    <span class="nd">@staticmethod</span>
+    <span class="nd">@staticmethod</span>
     <span class="k">def</span> <span class="nf">debug_send_abort</span><span class="p">(</span><span class="n">a_abort_rq</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Placeholder for a function callback. Function will be called</span>
@@ -1034,9 +952,9 @@
 <span class="sd">        a_abort : pdu.A_ABORT_RQ</span>
 <span class="sd">            The A-ABORT PDU instance</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="n">LOGGER</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s1">&#39;Aborting Association&#39;</span><span class="p">)</span></div>
+        <span class="n">LOGGER</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s1">&#39;Aborting Association&#39;</span><span class="p">)</span>
 
-<div class="viewcode-block" id="ACSE.debug_send_associate_ac"><a class="viewcode-back" href="../../reference/generated/pynetdicom.acse.ACSE.html#pynetdicom.acse.ACSE.debug_send_associate_ac">[docs]</a>    <span class="nd">@staticmethod</span>
+    <span class="nd">@staticmethod</span>
     <span class="k">def</span> <span class="nf">debug_send_associate_ac</span><span class="p">(</span><span class="n">a_associate_ac</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Placeholder for a function callback. Function will be called</span>
@@ -1157,9 +1075,9 @@
         <span class="p">)</span>
 
         <span class="k">for</span> <span class="n">line</span> <span class="ow">in</span> <span class="n">s</span><span class="p">:</span>
-            <span class="n">LOGGER</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="n">line</span><span class="p">)</span></div>
+            <span class="n">LOGGER</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="n">line</span><span class="p">)</span>
 
-<div class="viewcode-block" id="ACSE.debug_send_associate_rj"><a class="viewcode-back" href="../../reference/generated/pynetdicom.acse.ACSE.html#pynetdicom.acse.ACSE.debug_send_associate_rj">[docs]</a>    <span class="nd">@staticmethod</span>
+    <span class="nd">@staticmethod</span>
     <span class="k">def</span> <span class="nf">debug_send_associate_rj</span><span class="p">(</span><span class="n">a_associate_rj</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Placeholder for a function callback. Function will be called</span>
@@ -1171,9 +1089,9 @@
 <span class="sd">        a_associate_rj : pdu.A_ASSOCIATE_RJ</span>
 <span class="sd">            The A-ASSOCIATE-RJ PDU instance</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="n">LOGGER</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Association Rejected&quot;</span><span class="p">)</span></div>
+        <span class="n">LOGGER</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Association Rejected&quot;</span><span class="p">)</span>
 
-<div class="viewcode-block" id="ACSE.debug_send_associate_rq"><a class="viewcode-back" href="../../reference/generated/pynetdicom.acse.ACSE.html#pynetdicom.acse.ACSE.debug_send_associate_rq">[docs]</a>    <span class="nd">@staticmethod</span>
+    <span class="nd">@staticmethod</span>
     <span class="k">def</span> <span class="nf">debug_send_associate_rq</span><span class="p">(</span><span class="n">a_associate_rq</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Placeholder for a function callback. Function will be called</span>
@@ -1348,9 +1266,9 @@
         <span class="p">)</span>
 
         <span class="k">for</span> <span class="n">line</span> <span class="ow">in</span> <span class="n">s</span><span class="p">:</span>
-            <span class="n">LOGGER</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="n">line</span><span class="p">)</span></div>
+            <span class="n">LOGGER</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="n">line</span><span class="p">)</span>
 
-<div class="viewcode-block" id="ACSE.debug_send_data_tf"><a class="viewcode-back" href="../../reference/generated/pynetdicom.acse.ACSE.html#pynetdicom.acse.ACSE.debug_send_data_tf">[docs]</a>    <span class="nd">@staticmethod</span>
+    <span class="nd">@staticmethod</span>
     <span class="k">def</span> <span class="nf">debug_send_data_tf</span><span class="p">(</span><span class="n">p_data_tf</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Placeholder for a function callback. Function will be called</span>
@@ -1361,9 +1279,9 @@
 <span class="sd">        a_release_rq : pdu.P_DATA_TF</span>
 <span class="sd">            The P-DATA-TF PDU instance</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">pass</span></div>
+        <span class="k">pass</span>
 
-<div class="viewcode-block" id="ACSE.debug_send_release_rp"><a class="viewcode-back" href="../../reference/generated/pynetdicom.acse.ACSE.html#pynetdicom.acse.ACSE.debug_send_release_rp">[docs]</a>    <span class="nd">@staticmethod</span>
+    <span class="nd">@staticmethod</span>
     <span class="k">def</span> <span class="nf">debug_send_release_rp</span><span class="p">(</span><span class="n">a_release_rp</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Placeholder for a function callback. Function will be called</span>
@@ -1374,9 +1292,9 @@
 <span class="sd">        a_release_rp : pdu.A_RELEASE_RP</span>
 <span class="sd">            The A-RELEASE-RP PDU instance</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">pass</span></div>
+        <span class="k">pass</span>
 
-<div class="viewcode-block" id="ACSE.debug_send_release_rq"><a class="viewcode-back" href="../../reference/generated/pynetdicom.acse.ACSE.html#pynetdicom.acse.ACSE.debug_send_release_rq">[docs]</a>    <span class="nd">@staticmethod</span>
+    <span class="nd">@staticmethod</span>
     <span class="k">def</span> <span class="nf">debug_send_release_rq</span><span class="p">(</span><span class="n">a_release_rq</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Placeholder for a function callback. Function will be called</span>
@@ -1387,9 +1305,9 @@
 <span class="sd">        a_release_rq : pdu.A_RELEASE_RQ</span>
 <span class="sd">            The A-RELEASE-RQ PDU instance</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">pass</span></div>
+        <span class="k">pass</span>
 
-<div class="viewcode-block" id="ACSE.debug_receive_abort"><a class="viewcode-back" href="../../reference/generated/pynetdicom.acse.ACSE.html#pynetdicom.acse.ACSE.debug_receive_abort">[docs]</a>    <span class="nd">@staticmethod</span>
+    <span class="nd">@staticmethod</span>
     <span class="k">def</span> <span class="nf">debug_receive_abort</span><span class="p">(</span><span class="n">a_abort</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Placeholder for a function callback. Function will be called</span>
@@ -1410,9 +1328,9 @@
             <span class="s1">&#39;=========================== END A-ABORT =========================&#39;</span>
         <span class="p">)</span>
         <span class="k">for</span> <span class="n">line</span> <span class="ow">in</span> <span class="n">s</span><span class="p">:</span>
-            <span class="n">LOGGER</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="n">line</span><span class="p">)</span></div>
+            <span class="n">LOGGER</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="n">line</span><span class="p">)</span>
 
-<div class="viewcode-block" id="ACSE.debug_receive_associate_ac"><a class="viewcode-back" href="../../reference/generated/pynetdicom.acse.ACSE.html#pynetdicom.acse.ACSE.debug_receive_associate_ac">[docs]</a>    <span class="nd">@staticmethod</span>
+    <span class="nd">@staticmethod</span>
     <span class="k">def</span> <span class="nf">debug_receive_associate_ac</span><span class="p">(</span><span class="n">a_associate_ac</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Placeholder for a function callback. Function will be called</span>
@@ -1527,9 +1445,9 @@
         <span class="k">for</span> <span class="n">line</span> <span class="ow">in</span> <span class="n">s</span><span class="p">:</span>
             <span class="n">LOGGER</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="n">line</span><span class="p">)</span>
 
-        <span class="n">LOGGER</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s1">&#39;Association Accepted&#39;</span><span class="p">)</span></div>
+        <span class="n">LOGGER</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s1">&#39;Association Accepted&#39;</span><span class="p">)</span>
 
-<div class="viewcode-block" id="ACSE.debug_receive_associate_rj"><a class="viewcode-back" href="../../reference/generated/pynetdicom.acse.ACSE.html#pynetdicom.acse.ACSE.debug_receive_associate_rj">[docs]</a>    <span class="nd">@staticmethod</span>
+    <span class="nd">@staticmethod</span>
     <span class="k">def</span> <span class="nf">debug_receive_associate_rj</span><span class="p">(</span><span class="n">a_associate_rj</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Placeholder for a function callback. Function will be called</span>
@@ -1554,9 +1472,9 @@
             <span class="s1">&#39;======================= END A-ASSOCIATE-RJ ======================&#39;</span>
         <span class="p">)</span>
         <span class="k">for</span> <span class="n">line</span> <span class="ow">in</span> <span class="n">s</span><span class="p">:</span>
-            <span class="n">LOGGER</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="n">line</span><span class="p">)</span></div>
+            <span class="n">LOGGER</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="n">line</span><span class="p">)</span>
 
-<div class="viewcode-block" id="ACSE.debug_receive_associate_rq"><a class="viewcode-back" href="../../reference/generated/pynetdicom.acse.ACSE.html#pynetdicom.acse.ACSE.debug_receive_associate_rq">[docs]</a>    <span class="nd">@staticmethod</span>
+    <span class="nd">@staticmethod</span>
     <span class="k">def</span> <span class="nf">debug_receive_associate_rq</span><span class="p">(</span><span class="n">a_associate_rq</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Placeholder for a function callback. Function will be called</span>
@@ -1735,9 +1653,9 @@
         <span class="p">)</span>
 
         <span class="k">for</span> <span class="n">line</span> <span class="ow">in</span> <span class="n">s</span><span class="p">:</span>
-            <span class="n">LOGGER</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="n">line</span><span class="p">)</span></div>
+            <span class="n">LOGGER</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="n">line</span><span class="p">)</span>
 
-<div class="viewcode-block" id="ACSE.debug_receive_data_tf"><a class="viewcode-back" href="../../reference/generated/pynetdicom.acse.ACSE.html#pynetdicom.acse.ACSE.debug_receive_data_tf">[docs]</a>    <span class="nd">@staticmethod</span>
+    <span class="nd">@staticmethod</span>
     <span class="k">def</span> <span class="nf">debug_receive_data_tf</span><span class="p">(</span><span class="n">p_data_tf</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Placeholder for a function callback. Function will be called</span>
@@ -1748,9 +1666,9 @@
 <span class="sd">        p_data_tf : pdu.P_DATA_TF</span>
 <span class="sd">            The P-DATA-TF PDU instance</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">pass</span></div>
+        <span class="k">pass</span>
 
-<div class="viewcode-block" id="ACSE.debug_receive_release_rp"><a class="viewcode-back" href="../../reference/generated/pynetdicom.acse.ACSE.html#pynetdicom.acse.ACSE.debug_receive_release_rp">[docs]</a>    <span class="nd">@staticmethod</span>
+    <span class="nd">@staticmethod</span>
     <span class="k">def</span> <span class="nf">debug_receive_release_rp</span><span class="p">(</span><span class="n">a_release_rp</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Placeholder for a function callback. Function will be called</span>
@@ -1761,9 +1679,9 @@
 <span class="sd">        a_release_rp : pdu.A_RELEASE_RP</span>
 <span class="sd">            The A-RELEASE-RP PDU instance</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">pass</span></div>
+        <span class="k">pass</span>
 
-<div class="viewcode-block" id="ACSE.debug_receive_release_rq"><a class="viewcode-back" href="../../reference/generated/pynetdicom.acse.ACSE.html#pynetdicom.acse.ACSE.debug_receive_release_rq">[docs]</a>    <span class="nd">@staticmethod</span>
+    <span class="nd">@staticmethod</span>
     <span class="k">def</span> <span class="nf">debug_receive_release_rq</span><span class="p">(</span><span class="n">a_release_rq</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Placeholder for a function callback. Function will be called</span>
@@ -1774,52 +1692,30 @@
 <span class="sd">        a_release_rq : pdu.A_RELEASE_RQ</span>
 <span class="sd">            The A-RELEASE-RQ PDU instance</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">pass</span></div></div>
+        <span class="k">pass</span></div>
 </pre></div>
 
            </div>
-           
           </div>
           <footer>
-  
 
   <hr/>
 
   <div role="contentinfo">
-    <p>
-        &copy; Copyright 2018-19, pynetdicom contributors
-
-    </p>
+    <p>&#169; Copyright 2018-19, pynetdicom contributors.</p>
   </div>
-  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
 
 </footer>
-
         </div>
       </div>
-
     </section>
-
   </div>
-  
-
-
-  
-
-    
-    
-      <script type="text/javascript" id="documentation_options" data-url_root="../../" src="../../_static/documentation_options.js"></script>
-        <script type="text/javascript" src="../../_static/jquery.js"></script>
-        <script type="text/javascript" src="../../_static/underscore.js"></script>
-        <script type="text/javascript" src="../../_static/doctools.js"></script>
-        <script type="text/javascript" src="../../_static/language_data.js"></script>
-    
-
-  
-
-  <script type="text/javascript" src="../../_static/js/theme.js"></script>
-
-  <script type="text/javascript">
+  <script>
       jQuery(function () {
           SphinxRtdTheme.Navigation.enable(true);
       });

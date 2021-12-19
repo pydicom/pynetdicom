@@ -1,4 +1,4 @@
-pynetdicom.pdu\_items.AsynchronousOperationsWindowSubItem
+﻿pynetdicom.pdu\_items.AsynchronousOperationsWindowSubItem
 =========================================================
 
 .. currentmodule:: pynetdicom.pdu_items

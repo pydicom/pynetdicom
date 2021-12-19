@@ -1,73 +1,38 @@
-
-
 <!DOCTYPE html>
-<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
-<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<html class="writer-html5" lang="en" >
 <head>
-  <meta charset="utf-8">
-  
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>pynetdicom.sop_class.SOPClass &mdash; pynetdicom 1.1.0 documentation</title>
-  
-
-  
-  
+      <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="../../_static/css/pynetdicom.css" type="text/css" />
+      <link rel="stylesheet" href="../../_static/css/pynetdicom.css" type="text/css" />
     <link rel="shortcut icon" href="../../_static/favicon.ico"/>
+  <!--[if lt IE 9]>
+    <script src="../../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
   
-  
-  
-
-  
-
-  
-  
-    
-
-  
-
-  <link rel="stylesheet" href="../../_static/css/pynetdicom.css" type="text/css" />
-  <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
-  <link rel="stylesheet" href="../../_static/css/pynetdicom.css" type="text/css" />
+        <script data-url_root="../../" id="documentation_options" src="../../_static/documentation_options.js"></script>
+        <script src="../../_static/jquery.js"></script>
+        <script src="../../_static/underscore.js"></script>
+        <script src="../../_static/doctools.js"></script>
+    <script src="../../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../../genindex.html" />
     <link rel="search" title="Search" href="../../search.html" /> 
-
-  
-  <script src="../../_static/js/modernizr.min.js"></script>
-
 </head>
 
-<body class="wy-body-for-nav">
-
-   
+<body class="wy-body-for-nav"> 
   <div class="wy-grid-for-nav">
-
-    
     <nav data-toggle="wy-nav-shift" class="wy-nav-side">
       <div class="wy-side-scroll">
-        <div class="wy-side-nav-search">
-          
-
-          
+        <div class="wy-side-nav-search" >
             <a href="../../index.html" class="icon icon-home"> pynetdicom
-          
-
-          
-            
             <img src="../../_static/pydicom_flat_black.svg" class="logo" alt="Logo"/>
-          
           </a>
-
-          
-            
-            
               <div class="version">
                 1.1.0
               </div>
-            
-          
-
-          
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
     <input type="text" name="q" placeholder="Search docs" />
@@ -75,17 +40,7 @@
     <input type="hidden" name="area" value="default" />
   </form>
 </div>
-
-          
-        </div>
-
-        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
-          
-            
-            
-              
-            
-            
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
               <ul>
 <li class="toctree-l1"><a class="reference internal" href="../../verification_service_class.html">Verification Service Class</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../storage_service_class.html">Storage Service Class</a></li>
@@ -108,742 +63,262 @@
 <li class="toctree-l1"><a class="reference internal" href="../../release_notes.html#id2">1.0.0</a></li>
 </ul>
 
-            
-          
         </div>
       </div>
     </nav>
 
-    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
-
-      
-      <nav class="wy-nav-top" aria-label="top navigation">
-        
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
           <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
           <a href="../../index.html">pynetdicom</a>
-        
       </nav>
 
-
       <div class="wy-nav-content">
-        
         <div class="rst-content">
-        
-          
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-<div role="navigation" aria-label="breadcrumbs navigation">
-
+          <div role="navigation" aria-label="Page navigation">
   <ul class="wy-breadcrumbs">
-    
-      <li><a href="../../index.html">Docs</a> &raquo;</li>
-        
+      <li><a href="../../index.html" class="icon icon-home"></a> &raquo;</li>
       <li>pynetdicom.sop_class.SOPClass</li>
-    
-    
       <li class="wy-breadcrumbs-aside">
-        
-            
             <a href="../../_sources/reference/generated/pynetdicom.sop_class.SOPClass.rst.txt" rel="nofollow"> View page source</a>
-          
-        
       </li>
-    
   </ul>
-
-  
   <hr/>
 </div>
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
-            
-  <div class="section" id="pynetdicom-sop-class-sopclass">
+             
+  <section id="pynetdicom-sop-class-sopclass">
 <h1>pynetdicom.sop_class.SOPClass<a class="headerlink" href="#pynetdicom-sop-class-sopclass" title="Permalink to this headline">¶</a></h1>
-<dl class="class">
-<dt id="pynetdicom.sop_class.SOPClass">
-<em class="property">class </em><code class="descclassname">pynetdicom.sop_class.</code><code class="descname">SOPClass</code><a class="reference internal" href="../../_modules/pynetdicom/sop_class.html#SOPClass"><span class="viewcode-link">[source]</span></a><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/efac18f/pynetdicom/sop_class.py#L92"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom.sop_class.SOPClass" title="Permalink to this definition">¶</a></dt>
+<dl class="py class">
+<dt class="sig sig-object py" id="pynetdicom.sop_class.SOPClass">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">pynetdicom.sop_class.</span></span><span class="sig-name descname"><span class="pre">SOPClass</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">val</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/pynetdicom/sop_class.html#SOPClass"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/efac18fab/pynetdicom/sop_class.py#L92"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pynetdicom.sop_class.SOPClass" title="Permalink to this definition">¶</a></dt>
 <dd><p>Extend pydicom’s UID to include the corresponding Service Class.</p>
-<dl class="method">
-<dt id="pynetdicom.sop_class.SOPClass.__init__">
-<code class="descname">__init__</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pynetdicom.sop_class.SOPClass.__init__" title="Permalink to this definition">¶</a></dt>
-<dd><p>Initialize self.  See help(type(self)) for accurate signature.</p>
-</dd></dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="pynetdicom.sop_class.SOPClass.__init__">
+<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pynetdicom.sop_class.SOPClass.__init__" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
 
 <p class="rubric">Methods</p>
-<table border="1" class="longtable docutils">
+<table class="longtable docutils align-default">
 <colgroup>
-<col width="10%" />
-<col width="90%" />
+<col style="width: 10%" />
+<col style="width: 90%" />
 </colgroup>
-<tbody valign="top">
-<tr class="row-odd"><td><a class="reference internal" href="#pynetdicom.sop_class.SOPClass.capitalize" title="pynetdicom.sop_class.SOPClass.capitalize"><code class="xref py py-obj docutils literal notranslate"><span class="pre">capitalize</span></code></a>()</td>
-<td>Return a capitalized version of S, i.e.</td>
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pynetdicom.sop_class.SOPClass.__init__" title="pynetdicom.sop_class.SOPClass.__init__"><code class="xref py py-obj docutils literal notranslate"><span class="pre">__init__</span></code></a>()</p></td>
+<td><p></p></td>
 </tr>
-<tr class="row-even"><td><a class="reference internal" href="#pynetdicom.sop_class.SOPClass.casefold" title="pynetdicom.sop_class.SOPClass.casefold"><code class="xref py py-obj docutils literal notranslate"><span class="pre">casefold</span></code></a>()</td>
-<td>Return a version of S suitable for caseless comparisons.</td>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">capitalize</span></code>()</p></td>
+<td><p>Return a capitalized version of S, i.e. make the first character have upper case and the rest lower case.</p></td>
 </tr>
-<tr class="row-odd"><td><a class="reference internal" href="#pynetdicom.sop_class.SOPClass.center" title="pynetdicom.sop_class.SOPClass.center"><code class="xref py py-obj docutils literal notranslate"><span class="pre">center</span></code></a>(width[,&nbsp;fillchar])</td>
-<td>Return S centered in a string of length width.</td>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">casefold</span></code>()</p></td>
+<td><p>Return a version of S suitable for caseless comparisons.</p></td>
 </tr>
-<tr class="row-even"><td><a class="reference internal" href="#pynetdicom.sop_class.SOPClass.count" title="pynetdicom.sop_class.SOPClass.count"><code class="xref py py-obj docutils literal notranslate"><span class="pre">count</span></code></a>(sub[,&nbsp;start[,&nbsp;end]])</td>
-<td>Return the number of non-overlapping occurrences of substring sub in string S[start:end].</td>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">center</span></code>(width[, fillchar])</p></td>
+<td><p>Return S centered in a string of length width.</p></td>
 </tr>
-<tr class="row-odd"><td><a class="reference internal" href="#pynetdicom.sop_class.SOPClass.encode" title="pynetdicom.sop_class.SOPClass.encode"><code class="xref py py-obj docutils literal notranslate"><span class="pre">encode</span></code></a>([encoding,&nbsp;errors])</td>
-<td>Encode S using the codec registered for encoding.</td>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">count</span></code>(sub[, start[, end]])</p></td>
+<td><p>Return the number of non-overlapping occurrences of substring sub in string S[start:end].</p></td>
 </tr>
-<tr class="row-even"><td><a class="reference internal" href="#pynetdicom.sop_class.SOPClass.endswith" title="pynetdicom.sop_class.SOPClass.endswith"><code class="xref py py-obj docutils literal notranslate"><span class="pre">endswith</span></code></a>(suffix[,&nbsp;start[,&nbsp;end]])</td>
-<td>Return True if S ends with the specified suffix, False otherwise.</td>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">encode</span></code>([encoding, errors])</p></td>
+<td><p>Encode S using the codec registered for encoding.</p></td>
 </tr>
-<tr class="row-odd"><td><a class="reference internal" href="#pynetdicom.sop_class.SOPClass.expandtabs" title="pynetdicom.sop_class.SOPClass.expandtabs"><code class="xref py py-obj docutils literal notranslate"><span class="pre">expandtabs</span></code></a>([tabsize])</td>
-<td>Return a copy of S where all tab characters are expanded using spaces.</td>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">endswith</span></code>(suffix[, start[, end]])</p></td>
+<td><p>Return True if S ends with the specified suffix, False otherwise.</p></td>
 </tr>
-<tr class="row-even"><td><a class="reference internal" href="#pynetdicom.sop_class.SOPClass.find" title="pynetdicom.sop_class.SOPClass.find"><code class="xref py py-obj docutils literal notranslate"><span class="pre">find</span></code></a>(sub[,&nbsp;start[,&nbsp;end]])</td>
-<td>Return the lowest index in S where substring sub is found, such that sub is contained within S[start:end].</td>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">expandtabs</span></code>([tabsize])</p></td>
+<td><p>Return a copy of S where all tab characters are expanded using spaces.</p></td>
 </tr>
-<tr class="row-odd"><td><a class="reference internal" href="#pynetdicom.sop_class.SOPClass.format" title="pynetdicom.sop_class.SOPClass.format"><code class="xref py py-obj docutils literal notranslate"><span class="pre">format</span></code></a>(*args,&nbsp;**kwargs)</td>
-<td>Return a formatted version of S, using substitutions from args and kwargs.</td>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">find</span></code>(sub[, start[, end]])</p></td>
+<td><p>Return the lowest index in S where substring sub is found, such that sub is contained within S[start:end].</p></td>
 </tr>
-<tr class="row-even"><td><a class="reference internal" href="#pynetdicom.sop_class.SOPClass.format_map" title="pynetdicom.sop_class.SOPClass.format_map"><code class="xref py py-obj docutils literal notranslate"><span class="pre">format_map</span></code></a>(mapping)</td>
-<td>Return a formatted version of S, using substitutions from mapping.</td>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">format</span></code>(*args, **kwargs)</p></td>
+<td><p>Return a formatted version of S, using substitutions from args and kwargs.</p></td>
 </tr>
-<tr class="row-odd"><td><a class="reference internal" href="#pynetdicom.sop_class.SOPClass.index" title="pynetdicom.sop_class.SOPClass.index"><code class="xref py py-obj docutils literal notranslate"><span class="pre">index</span></code></a>(sub[,&nbsp;start[,&nbsp;end]])</td>
-<td>Return the lowest index in S where substring sub is found, such that sub is contained within S[start:end].</td>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">format_map</span></code>(mapping)</p></td>
+<td><p>Return a formatted version of S, using substitutions from mapping.</p></td>
 </tr>
-<tr class="row-even"><td><a class="reference internal" href="#pynetdicom.sop_class.SOPClass.isalnum" title="pynetdicom.sop_class.SOPClass.isalnum"><code class="xref py py-obj docutils literal notranslate"><span class="pre">isalnum</span></code></a>()</td>
-<td>Return True if all characters in S are alphanumeric and there is at least one character in S, False otherwise.</td>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">index</span></code>(sub[, start[, end]])</p></td>
+<td><p>Return the lowest index in S where substring sub is found, such that sub is contained within S[start:end].</p></td>
 </tr>
-<tr class="row-odd"><td><a class="reference internal" href="#pynetdicom.sop_class.SOPClass.isalpha" title="pynetdicom.sop_class.SOPClass.isalpha"><code class="xref py py-obj docutils literal notranslate"><span class="pre">isalpha</span></code></a>()</td>
-<td>Return True if all characters in S are alphabetic and there is at least one character in S, False otherwise.</td>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">isalnum</span></code>()</p></td>
+<td><p>Return True if all characters in S are alphanumeric and there is at least one character in S, False otherwise.</p></td>
 </tr>
-<tr class="row-even"><td><a class="reference internal" href="#pynetdicom.sop_class.SOPClass.isdecimal" title="pynetdicom.sop_class.SOPClass.isdecimal"><code class="xref py py-obj docutils literal notranslate"><span class="pre">isdecimal</span></code></a>()</td>
-<td>Return True if there are only decimal characters in S, False otherwise.</td>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">isalpha</span></code>()</p></td>
+<td><p>Return True if all characters in S are alphabetic and there is at least one character in S, False otherwise.</p></td>
 </tr>
-<tr class="row-odd"><td><a class="reference internal" href="#pynetdicom.sop_class.SOPClass.isdigit" title="pynetdicom.sop_class.SOPClass.isdigit"><code class="xref py py-obj docutils literal notranslate"><span class="pre">isdigit</span></code></a>()</td>
-<td>Return True if all characters in S are digits and there is at least one character in S, False otherwise.</td>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">isdecimal</span></code>()</p></td>
+<td><p>Return True if there are only decimal characters in S, False otherwise.</p></td>
 </tr>
-<tr class="row-even"><td><a class="reference internal" href="#pynetdicom.sop_class.SOPClass.isidentifier" title="pynetdicom.sop_class.SOPClass.isidentifier"><code class="xref py py-obj docutils literal notranslate"><span class="pre">isidentifier</span></code></a>()</td>
-<td>Return True if S is a valid identifier according to the language definition.</td>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">isdigit</span></code>()</p></td>
+<td><p>Return True if all characters in S are digits and there is at least one character in S, False otherwise.</p></td>
 </tr>
-<tr class="row-odd"><td><a class="reference internal" href="#pynetdicom.sop_class.SOPClass.islower" title="pynetdicom.sop_class.SOPClass.islower"><code class="xref py py-obj docutils literal notranslate"><span class="pre">islower</span></code></a>()</td>
-<td>Return True if all cased characters in S are lowercase and there is at least one cased character in S, False otherwise.</td>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">isidentifier</span></code>()</p></td>
+<td><p>Return True if S is a valid identifier according to the language definition.</p></td>
 </tr>
-<tr class="row-even"><td><a class="reference internal" href="#pynetdicom.sop_class.SOPClass.isnumeric" title="pynetdicom.sop_class.SOPClass.isnumeric"><code class="xref py py-obj docutils literal notranslate"><span class="pre">isnumeric</span></code></a>()</td>
-<td>Return True if there are only numeric characters in S, False otherwise.</td>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">islower</span></code>()</p></td>
+<td><p>Return True if all cased characters in S are lowercase and there is at least one cased character in S, False otherwise.</p></td>
 </tr>
-<tr class="row-odd"><td><a class="reference internal" href="#pynetdicom.sop_class.SOPClass.isprintable" title="pynetdicom.sop_class.SOPClass.isprintable"><code class="xref py py-obj docutils literal notranslate"><span class="pre">isprintable</span></code></a>()</td>
-<td>Return True if all characters in S are considered printable in repr() or S is empty, False otherwise.</td>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">isnumeric</span></code>()</p></td>
+<td><p>Return True if there are only numeric characters in S, False otherwise.</p></td>
 </tr>
-<tr class="row-even"><td><a class="reference internal" href="#pynetdicom.sop_class.SOPClass.isspace" title="pynetdicom.sop_class.SOPClass.isspace"><code class="xref py py-obj docutils literal notranslate"><span class="pre">isspace</span></code></a>()</td>
-<td>Return True if all characters in S are whitespace and there is at least one character in S, False otherwise.</td>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">isprintable</span></code>()</p></td>
+<td><p>Return True if all characters in S are considered printable in repr() or S is empty, False otherwise.</p></td>
 </tr>
-<tr class="row-odd"><td><a class="reference internal" href="#pynetdicom.sop_class.SOPClass.istitle" title="pynetdicom.sop_class.SOPClass.istitle"><code class="xref py py-obj docutils literal notranslate"><span class="pre">istitle</span></code></a>()</td>
-<td>Return True if S is a titlecased string and there is at least one character in S, i.e.</td>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">isspace</span></code>()</p></td>
+<td><p>Return True if all characters in S are whitespace and there is at least one character in S, False otherwise.</p></td>
 </tr>
-<tr class="row-even"><td><a class="reference internal" href="#pynetdicom.sop_class.SOPClass.isupper" title="pynetdicom.sop_class.SOPClass.isupper"><code class="xref py py-obj docutils literal notranslate"><span class="pre">isupper</span></code></a>()</td>
-<td>Return True if all cased characters in S are uppercase and there is at least one cased character in S, False otherwise.</td>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">istitle</span></code>()</p></td>
+<td><p>Return True if S is a titlecased string and there is at least one character in S, i.e. upper- and titlecase characters may only follow uncased characters and lowercase characters only cased ones.</p></td>
 </tr>
-<tr class="row-odd"><td><a class="reference internal" href="#pynetdicom.sop_class.SOPClass.join" title="pynetdicom.sop_class.SOPClass.join"><code class="xref py py-obj docutils literal notranslate"><span class="pre">join</span></code></a>(iterable)</td>
-<td>Return a string which is the concatenation of the strings in the iterable.</td>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">isupper</span></code>()</p></td>
+<td><p>Return True if all cased characters in S are uppercase and there is at least one cased character in S, False otherwise.</p></td>
 </tr>
-<tr class="row-even"><td><a class="reference internal" href="#pynetdicom.sop_class.SOPClass.ljust" title="pynetdicom.sop_class.SOPClass.ljust"><code class="xref py py-obj docutils literal notranslate"><span class="pre">ljust</span></code></a>(width[,&nbsp;fillchar])</td>
-<td>Return S left-justified in a Unicode string of length width.</td>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">join</span></code>(iterable)</p></td>
+<td><p>Return a string which is the concatenation of the strings in the iterable.</p></td>
 </tr>
-<tr class="row-odd"><td><a class="reference internal" href="#pynetdicom.sop_class.SOPClass.lower" title="pynetdicom.sop_class.SOPClass.lower"><code class="xref py py-obj docutils literal notranslate"><span class="pre">lower</span></code></a>()</td>
-<td>Return a copy of the string S converted to lowercase.</td>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">ljust</span></code>(width[, fillchar])</p></td>
+<td><p>Return S left-justified in a Unicode string of length width.</p></td>
 </tr>
-<tr class="row-even"><td><a class="reference internal" href="#pynetdicom.sop_class.SOPClass.lstrip" title="pynetdicom.sop_class.SOPClass.lstrip"><code class="xref py py-obj docutils literal notranslate"><span class="pre">lstrip</span></code></a>([chars])</td>
-<td>Return a copy of the string S with leading whitespace removed.</td>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">lower</span></code>()</p></td>
+<td><p>Return a copy of the string S converted to lowercase.</p></td>
 </tr>
-<tr class="row-odd"><td><a class="reference internal" href="#pynetdicom.sop_class.SOPClass.maketrans" title="pynetdicom.sop_class.SOPClass.maketrans"><code class="xref py py-obj docutils literal notranslate"><span class="pre">maketrans</span></code></a></td>
-<td>Return a translation table usable for str.translate().</td>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">lstrip</span></code>([chars])</p></td>
+<td><p>Return a copy of the string S with leading whitespace removed.</p></td>
 </tr>
-<tr class="row-even"><td><a class="reference internal" href="#pynetdicom.sop_class.SOPClass.partition" title="pynetdicom.sop_class.SOPClass.partition"><code class="xref py py-obj docutils literal notranslate"><span class="pre">partition</span></code></a>(sep)</td>
-<td>Search for the separator sep in S, and return the part before it, the separator itself, and the part after it.</td>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">maketrans</span></code>(x[, y, z])</p></td>
+<td><p>Return a translation table usable for str.translate().</p></td>
 </tr>
-<tr class="row-odd"><td><a class="reference internal" href="#pynetdicom.sop_class.SOPClass.replace" title="pynetdicom.sop_class.SOPClass.replace"><code class="xref py py-obj docutils literal notranslate"><span class="pre">replace</span></code></a>(old,&nbsp;new[,&nbsp;count])</td>
-<td>Return a copy of S with all occurrences of substring old replaced by new.</td>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">partition</span></code>(sep)</p></td>
+<td><p>Search for the separator sep in S, and return the part before it, the separator itself, and the part after it.</p></td>
 </tr>
-<tr class="row-even"><td><a class="reference internal" href="#pynetdicom.sop_class.SOPClass.rfind" title="pynetdicom.sop_class.SOPClass.rfind"><code class="xref py py-obj docutils literal notranslate"><span class="pre">rfind</span></code></a>(sub[,&nbsp;start[,&nbsp;end]])</td>
-<td>Return the highest index in S where substring sub is found, such that sub is contained within S[start:end].</td>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">replace</span></code>(old, new[, count])</p></td>
+<td><p>Return a copy of S with all occurrences of substring old replaced by new.</p></td>
 </tr>
-<tr class="row-odd"><td><a class="reference internal" href="#pynetdicom.sop_class.SOPClass.rindex" title="pynetdicom.sop_class.SOPClass.rindex"><code class="xref py py-obj docutils literal notranslate"><span class="pre">rindex</span></code></a>(sub[,&nbsp;start[,&nbsp;end]])</td>
-<td>Return the highest index in S where substring sub is found, such that sub is contained within S[start:end].</td>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">rfind</span></code>(sub[, start[, end]])</p></td>
+<td><p>Return the highest index in S where substring sub is found, such that sub is contained within S[start:end].</p></td>
 </tr>
-<tr class="row-even"><td><a class="reference internal" href="#pynetdicom.sop_class.SOPClass.rjust" title="pynetdicom.sop_class.SOPClass.rjust"><code class="xref py py-obj docutils literal notranslate"><span class="pre">rjust</span></code></a>(width[,&nbsp;fillchar])</td>
-<td>Return S right-justified in a string of length width.</td>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">rindex</span></code>(sub[, start[, end]])</p></td>
+<td><p>Return the highest index in S where substring sub is found, such that sub is contained within S[start:end].</p></td>
 </tr>
-<tr class="row-odd"><td><a class="reference internal" href="#pynetdicom.sop_class.SOPClass.rpartition" title="pynetdicom.sop_class.SOPClass.rpartition"><code class="xref py py-obj docutils literal notranslate"><span class="pre">rpartition</span></code></a>(sep)</td>
-<td>Search for the separator sep in S, starting at the end of S, and return the part before it, the separator itself, and the part after it.</td>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">rjust</span></code>(width[, fillchar])</p></td>
+<td><p>Return S right-justified in a string of length width.</p></td>
 </tr>
-<tr class="row-even"><td><a class="reference internal" href="#pynetdicom.sop_class.SOPClass.rsplit" title="pynetdicom.sop_class.SOPClass.rsplit"><code class="xref py py-obj docutils literal notranslate"><span class="pre">rsplit</span></code></a>([sep,&nbsp;maxsplit])</td>
-<td>Return a list of the words in S, using sep as the delimiter string, starting at the end of the string and working to the front.</td>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">rpartition</span></code>(sep)</p></td>
+<td><p>Search for the separator sep in S, starting at the end of S, and return the part before it, the separator itself, and the part after it.</p></td>
 </tr>
-<tr class="row-odd"><td><a class="reference internal" href="#pynetdicom.sop_class.SOPClass.rstrip" title="pynetdicom.sop_class.SOPClass.rstrip"><code class="xref py py-obj docutils literal notranslate"><span class="pre">rstrip</span></code></a>([chars])</td>
-<td>Return a copy of the string S with trailing whitespace removed.</td>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">rsplit</span></code>([sep, maxsplit])</p></td>
+<td><p>Return a list of the words in S, using sep as the delimiter string, starting at the end of the string and working to the front.</p></td>
 </tr>
-<tr class="row-even"><td><a class="reference internal" href="#pynetdicom.sop_class.SOPClass.split" title="pynetdicom.sop_class.SOPClass.split"><code class="xref py py-obj docutils literal notranslate"><span class="pre">split</span></code></a>([sep,&nbsp;maxsplit])</td>
-<td>Return a list of the words in S, using sep as the delimiter string.</td>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">rstrip</span></code>([chars])</p></td>
+<td><p>Return a copy of the string S with trailing whitespace removed.</p></td>
 </tr>
-<tr class="row-odd"><td><a class="reference internal" href="#pynetdicom.sop_class.SOPClass.splitlines" title="pynetdicom.sop_class.SOPClass.splitlines"><code class="xref py py-obj docutils literal notranslate"><span class="pre">splitlines</span></code></a>([keepends])</td>
-<td>Return a list of the lines in S, breaking at line boundaries.</td>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">split</span></code>([sep, maxsplit])</p></td>
+<td><p>Return a list of the words in S, using sep as the delimiter string.</p></td>
 </tr>
-<tr class="row-even"><td><a class="reference internal" href="#pynetdicom.sop_class.SOPClass.startswith" title="pynetdicom.sop_class.SOPClass.startswith"><code class="xref py py-obj docutils literal notranslate"><span class="pre">startswith</span></code></a>(prefix[,&nbsp;start[,&nbsp;end]])</td>
-<td>Return True if S starts with the specified prefix, False otherwise.</td>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">splitlines</span></code>([keepends])</p></td>
+<td><p>Return a list of the lines in S, breaking at line boundaries.</p></td>
 </tr>
-<tr class="row-odd"><td><a class="reference internal" href="#pynetdicom.sop_class.SOPClass.strip" title="pynetdicom.sop_class.SOPClass.strip"><code class="xref py py-obj docutils literal notranslate"><span class="pre">strip</span></code></a>([chars])</td>
-<td>Return a copy of the string S with leading and trailing whitespace removed.</td>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">startswith</span></code>(prefix[, start[, end]])</p></td>
+<td><p>Return True if S starts with the specified prefix, False otherwise.</p></td>
 </tr>
-<tr class="row-even"><td><a class="reference internal" href="#pynetdicom.sop_class.SOPClass.swapcase" title="pynetdicom.sop_class.SOPClass.swapcase"><code class="xref py py-obj docutils literal notranslate"><span class="pre">swapcase</span></code></a>()</td>
-<td>Return a copy of S with uppercase characters converted to lowercase and vice versa.</td>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">strip</span></code>([chars])</p></td>
+<td><p>Return a copy of the string S with leading and trailing whitespace removed.</p></td>
 </tr>
-<tr class="row-odd"><td><a class="reference internal" href="#pynetdicom.sop_class.SOPClass.title" title="pynetdicom.sop_class.SOPClass.title"><code class="xref py py-obj docutils literal notranslate"><span class="pre">title</span></code></a>()</td>
-<td>Return a titlecased version of S, i.e.</td>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">swapcase</span></code>()</p></td>
+<td><p>Return a copy of S with uppercase characters converted to lowercase and vice versa.</p></td>
 </tr>
-<tr class="row-even"><td><a class="reference internal" href="#pynetdicom.sop_class.SOPClass.translate" title="pynetdicom.sop_class.SOPClass.translate"><code class="xref py py-obj docutils literal notranslate"><span class="pre">translate</span></code></a>(table)</td>
-<td>Return a copy of the string S in which each character has been mapped through the given translation table.</td>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">title</span></code>()</p></td>
+<td><p>Return a titlecased version of S, i.e. words start with title case characters, all remaining cased characters have lower case.</p></td>
 </tr>
-<tr class="row-odd"><td><a class="reference internal" href="#pynetdicom.sop_class.SOPClass.upper" title="pynetdicom.sop_class.SOPClass.upper"><code class="xref py py-obj docutils literal notranslate"><span class="pre">upper</span></code></a>()</td>
-<td>Return a copy of S converted to uppercase.</td>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">translate</span></code>(table)</p></td>
+<td><p>Return a copy of the string S in which each character has been mapped through the given translation table.</p></td>
 </tr>
-<tr class="row-even"><td><a class="reference internal" href="#pynetdicom.sop_class.SOPClass.zfill" title="pynetdicom.sop_class.SOPClass.zfill"><code class="xref py py-obj docutils literal notranslate"><span class="pre">zfill</span></code></a>(width)</td>
-<td>Pad a numeric string S with zeros on the left, to fill a field of the specified width.</td>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">upper</span></code>()</p></td>
+<td><p>Return a copy of S converted to uppercase.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">zfill</span></code>(width)</p></td>
+<td><p>Pad a numeric string S with zeros on the left, to fill a field of the specified width.</p></td>
 </tr>
 </tbody>
 </table>
 <p class="rubric">Attributes</p>
-<table border="1" class="longtable docutils">
+<table class="longtable docutils align-default">
 <colgroup>
-<col width="10%" />
-<col width="90%" />
+<col style="width: 10%" />
+<col style="width: 90%" />
 </colgroup>
-<tbody valign="top">
-<tr class="row-odd"><td><a class="reference internal" href="#pynetdicom.sop_class.SOPClass.info" title="pynetdicom.sop_class.SOPClass.info"><code class="xref py py-obj docutils literal notranslate"><span class="pre">info</span></code></a></td>
-<td>Return the UID info from the UID dictionary.</td>
+<tbody>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">info</span></code></p></td>
+<td><p>Return the UID info from the UID dictionary.</p></td>
 </tr>
-<tr class="row-even"><td><a class="reference internal" href="#pynetdicom.sop_class.SOPClass.is_compressed" title="pynetdicom.sop_class.SOPClass.is_compressed"><code class="xref py py-obj docutils literal notranslate"><span class="pre">is_compressed</span></code></a></td>
-<td>Return True if a compressed transfer syntax UID.</td>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">is_compressed</span></code></p></td>
+<td><p>Return <code class="docutils literal notranslate"><span class="pre">True</span></code> if a compressed transfer syntax UID.</p></td>
 </tr>
-<tr class="row-odd"><td><a class="reference internal" href="#pynetdicom.sop_class.SOPClass.is_deflated" title="pynetdicom.sop_class.SOPClass.is_deflated"><code class="xref py py-obj docutils literal notranslate"><span class="pre">is_deflated</span></code></a></td>
-<td>Return True if a deflated transfer syntax UID.</td>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">is_deflated</span></code></p></td>
+<td><p>Return <code class="docutils literal notranslate"><span class="pre">True</span></code> if a deflated transfer syntax UID.</p></td>
 </tr>
-<tr class="row-even"><td><a class="reference internal" href="#pynetdicom.sop_class.SOPClass.is_encapsulated" title="pynetdicom.sop_class.SOPClass.is_encapsulated"><code class="xref py py-obj docutils literal notranslate"><span class="pre">is_encapsulated</span></code></a></td>
-<td>Return True if an encasulated transfer syntax UID.</td>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">is_encapsulated</span></code></p></td>
+<td><p>Return <code class="docutils literal notranslate"><span class="pre">True</span></code> if an encasulated transfer syntax UID.</p></td>
 </tr>
-<tr class="row-odd"><td><a class="reference internal" href="#pynetdicom.sop_class.SOPClass.is_implicit_VR" title="pynetdicom.sop_class.SOPClass.is_implicit_VR"><code class="xref py py-obj docutils literal notranslate"><span class="pre">is_implicit_VR</span></code></a></td>
-<td>Return True if an implicit VR transfer syntax UID.</td>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">is_implicit_VR</span></code></p></td>
+<td><p>Return <code class="docutils literal notranslate"><span class="pre">True</span></code> if an implicit VR transfer syntax UID.</p></td>
 </tr>
-<tr class="row-even"><td><a class="reference internal" href="#pynetdicom.sop_class.SOPClass.is_little_endian" title="pynetdicom.sop_class.SOPClass.is_little_endian"><code class="xref py py-obj docutils literal notranslate"><span class="pre">is_little_endian</span></code></a></td>
-<td>Return True if a little endian transfer syntax UID.</td>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">is_little_endian</span></code></p></td>
+<td><p>Return <code class="docutils literal notranslate"><span class="pre">True</span></code> if a little endian transfer syntax UID.</p></td>
 </tr>
-<tr class="row-odd"><td><a class="reference internal" href="#pynetdicom.sop_class.SOPClass.is_private" title="pynetdicom.sop_class.SOPClass.is_private"><code class="xref py py-obj docutils literal notranslate"><span class="pre">is_private</span></code></a></td>
-<td>Return True if the UID isn’t an officially registered DICOM UID.</td>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">is_private</span></code></p></td>
+<td><p>Return <code class="docutils literal notranslate"><span class="pre">True</span></code> if the UID isn't an officially registered DICOM UID.</p></td>
 </tr>
-<tr class="row-even"><td><a class="reference internal" href="#pynetdicom.sop_class.SOPClass.is_retired" title="pynetdicom.sop_class.SOPClass.is_retired"><code class="xref py py-obj docutils literal notranslate"><span class="pre">is_retired</span></code></a></td>
-<td>Return True if the UID is retired, False otherwise or if private.</td>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">is_retired</span></code></p></td>
+<td><p>Return <code class="docutils literal notranslate"><span class="pre">True</span></code> if the UID is retired, <code class="docutils literal notranslate"><span class="pre">False</span></code> otherwise or if private.</p></td>
 </tr>
-<tr class="row-odd"><td><a class="reference internal" href="#pynetdicom.sop_class.SOPClass.is_transfer_syntax" title="pynetdicom.sop_class.SOPClass.is_transfer_syntax"><code class="xref py py-obj docutils literal notranslate"><span class="pre">is_transfer_syntax</span></code></a></td>
-<td>Return True if a transfer syntax UID.</td>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">is_transfer_syntax</span></code></p></td>
+<td><p>Return <code class="docutils literal notranslate"><span class="pre">True</span></code> if a transfer syntax UID.</p></td>
 </tr>
-<tr class="row-even"><td><a class="reference internal" href="#pynetdicom.sop_class.SOPClass.is_valid" title="pynetdicom.sop_class.SOPClass.is_valid"><code class="xref py py-obj docutils literal notranslate"><span class="pre">is_valid</span></code></a></td>
-<td>Return True if <cite>self</cite> is a valid UID, False otherwise.</td>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">is_valid</span></code></p></td>
+<td><p>Return <code class="docutils literal notranslate"><span class="pre">True</span></code> if <cite>self</cite> is a valid UID, <code class="docutils literal notranslate"><span class="pre">False</span></code> otherwise.</p></td>
 </tr>
-<tr class="row-odd"><td><a class="reference internal" href="#pynetdicom.sop_class.SOPClass.name" title="pynetdicom.sop_class.SOPClass.name"><code class="xref py py-obj docutils literal notranslate"><span class="pre">name</span></code></a></td>
-<td>Return the UID name from the UID dictionary.</td>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">keyword</span></code></p></td>
+<td><p>Return the UID keyword from the UID dictionary.</p></td>
 </tr>
-<tr class="row-even"><td><a class="reference internal" href="#pynetdicom.sop_class.SOPClass.service_class" title="pynetdicom.sop_class.SOPClass.service_class"><code class="xref py py-obj docutils literal notranslate"><span class="pre">service_class</span></code></a></td>
-<td>Return the corresponding Service Class implementation.</td>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">name</span></code></p></td>
+<td><p>Return the UID name from the UID dictionary.</p></td>
 </tr>
-<tr class="row-odd"><td><a class="reference internal" href="#pynetdicom.sop_class.SOPClass.type" title="pynetdicom.sop_class.SOPClass.type"><code class="xref py py-obj docutils literal notranslate"><span class="pre">type</span></code></a></td>
-<td>Return the UID type from the UID dictionary.</td>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">service_class</span></code></p></td>
+<td><p>Return the corresponding Service Class implementation.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">type</span></code></p></td>
+<td><p>Return the UID type from the UID dictionary.</p></td>
 </tr>
 </tbody>
 </table>
-<dl class="method">
-<dt id="pynetdicom.sop_class.SOPClass.capitalize">
-<code class="descname">capitalize</code><span class="sig-paren">(</span><span class="sig-paren">)</span> &#x2192; str<a class="headerlink" href="#pynetdicom.sop_class.SOPClass.capitalize" title="Permalink to this definition">¶</a></dt>
-<dd><p>Return a capitalized version of S, i.e. make the first character
-have upper case and the rest lower case.</p>
 </dd></dl>
 
-<dl class="method">
-<dt id="pynetdicom.sop_class.SOPClass.casefold">
-<code class="descname">casefold</code><span class="sig-paren">(</span><span class="sig-paren">)</span> &#x2192; str<a class="headerlink" href="#pynetdicom.sop_class.SOPClass.casefold" title="Permalink to this definition">¶</a></dt>
-<dd><p>Return a version of S suitable for caseless comparisons.</p>
-</dd></dl>
-
-<dl class="method">
-<dt id="pynetdicom.sop_class.SOPClass.center">
-<code class="descname">center</code><span class="sig-paren">(</span><em>width</em><span class="optional">[</span>, <em>fillchar</em><span class="optional">]</span><span class="sig-paren">)</span> &#x2192; str<a class="headerlink" href="#pynetdicom.sop_class.SOPClass.center" title="Permalink to this definition">¶</a></dt>
-<dd><p>Return S centered in a string of length width. Padding is
-done using the specified fill character (default is a space)</p>
-</dd></dl>
-
-<dl class="method">
-<dt id="pynetdicom.sop_class.SOPClass.count">
-<code class="descname">count</code><span class="sig-paren">(</span><em>sub</em><span class="optional">[</span>, <em>start</em><span class="optional">[</span>, <em>end</em><span class="optional">]</span><span class="optional">]</span><span class="sig-paren">)</span> &#x2192; int<a class="headerlink" href="#pynetdicom.sop_class.SOPClass.count" title="Permalink to this definition">¶</a></dt>
-<dd><p>Return the number of non-overlapping occurrences of substring sub in
-string S[start:end].  Optional arguments start and end are
-interpreted as in slice notation.</p>
-</dd></dl>
-
-<dl class="method">
-<dt id="pynetdicom.sop_class.SOPClass.encode">
-<code class="descname">encode</code><span class="sig-paren">(</span><em>encoding='utf-8'</em>, <em>errors='strict'</em><span class="sig-paren">)</span> &#x2192; bytes<a class="headerlink" href="#pynetdicom.sop_class.SOPClass.encode" title="Permalink to this definition">¶</a></dt>
-<dd><p>Encode S using the codec registered for encoding. Default encoding
-is ‘utf-8’. errors may be given to set a different error
-handling scheme. Default is ‘strict’ meaning that encoding errors raise
-a UnicodeEncodeError. Other possible values are ‘ignore’, ‘replace’ and
-‘xmlcharrefreplace’ as well as any other name registered with
-codecs.register_error that can handle UnicodeEncodeErrors.</p>
-</dd></dl>
-
-<dl class="method">
-<dt id="pynetdicom.sop_class.SOPClass.endswith">
-<code class="descname">endswith</code><span class="sig-paren">(</span><em>suffix</em><span class="optional">[</span>, <em>start</em><span class="optional">[</span>, <em>end</em><span class="optional">]</span><span class="optional">]</span><span class="sig-paren">)</span> &#x2192; bool<a class="headerlink" href="#pynetdicom.sop_class.SOPClass.endswith" title="Permalink to this definition">¶</a></dt>
-<dd><p>Return True if S ends with the specified suffix, False otherwise.
-With optional start, test S beginning at that position.
-With optional end, stop comparing S at that position.
-suffix can also be a tuple of strings to try.</p>
-</dd></dl>
-
-<dl class="method">
-<dt id="pynetdicom.sop_class.SOPClass.expandtabs">
-<code class="descname">expandtabs</code><span class="sig-paren">(</span><em>tabsize=8</em><span class="sig-paren">)</span> &#x2192; str<a class="headerlink" href="#pynetdicom.sop_class.SOPClass.expandtabs" title="Permalink to this definition">¶</a></dt>
-<dd><p>Return a copy of S where all tab characters are expanded using spaces.
-If tabsize is not given, a tab size of 8 characters is assumed.</p>
-</dd></dl>
-
-<dl class="method">
-<dt id="pynetdicom.sop_class.SOPClass.find">
-<code class="descname">find</code><span class="sig-paren">(</span><em>sub</em><span class="optional">[</span>, <em>start</em><span class="optional">[</span>, <em>end</em><span class="optional">]</span><span class="optional">]</span><span class="sig-paren">)</span> &#x2192; int<a class="headerlink" href="#pynetdicom.sop_class.SOPClass.find" title="Permalink to this definition">¶</a></dt>
-<dd><p>Return the lowest index in S where substring sub is found,
-such that sub is contained within S[start:end].  Optional
-arguments start and end are interpreted as in slice notation.</p>
-<p>Return -1 on failure.</p>
-</dd></dl>
-
-<dl class="method">
-<dt id="pynetdicom.sop_class.SOPClass.format">
-<code class="descname">format</code><span class="sig-paren">(</span><em>*args</em>, <em>**kwargs</em><span class="sig-paren">)</span> &#x2192; str<a class="headerlink" href="#pynetdicom.sop_class.SOPClass.format" title="Permalink to this definition">¶</a></dt>
-<dd><p>Return a formatted version of S, using substitutions from args and kwargs.
-The substitutions are identified by braces (‘{‘ and ‘}’).</p>
-</dd></dl>
-
-<dl class="method">
-<dt id="pynetdicom.sop_class.SOPClass.format_map">
-<code class="descname">format_map</code><span class="sig-paren">(</span><em>mapping</em><span class="sig-paren">)</span> &#x2192; str<a class="headerlink" href="#pynetdicom.sop_class.SOPClass.format_map" title="Permalink to this definition">¶</a></dt>
-<dd><p>Return a formatted version of S, using substitutions from mapping.
-The substitutions are identified by braces (‘{‘ and ‘}’).</p>
-</dd></dl>
-
-<dl class="method">
-<dt id="pynetdicom.sop_class.SOPClass.index">
-<code class="descname">index</code><span class="sig-paren">(</span><em>sub</em><span class="optional">[</span>, <em>start</em><span class="optional">[</span>, <em>end</em><span class="optional">]</span><span class="optional">]</span><span class="sig-paren">)</span> &#x2192; int<a class="headerlink" href="#pynetdicom.sop_class.SOPClass.index" title="Permalink to this definition">¶</a></dt>
-<dd><p>Return the lowest index in S where substring sub is found,
-such that sub is contained within S[start:end].  Optional
-arguments start and end are interpreted as in slice notation.</p>
-<p>Raises ValueError when the substring is not found.</p>
-</dd></dl>
-
-<dl class="attribute">
-<dt id="pynetdicom.sop_class.SOPClass.info">
-<code class="descname">info</code><a class="headerlink" href="#pynetdicom.sop_class.SOPClass.info" title="Permalink to this definition">¶</a></dt>
-<dd><p>Return the UID info from the UID dictionary.</p>
-</dd></dl>
-
-<dl class="attribute">
-<dt id="pynetdicom.sop_class.SOPClass.is_compressed">
-<code class="descname">is_compressed</code><a class="headerlink" href="#pynetdicom.sop_class.SOPClass.is_compressed" title="Permalink to this definition">¶</a></dt>
-<dd><p>Return True if a compressed transfer syntax UID.</p>
-</dd></dl>
-
-<dl class="attribute">
-<dt id="pynetdicom.sop_class.SOPClass.is_deflated">
-<code class="descname">is_deflated</code><a class="headerlink" href="#pynetdicom.sop_class.SOPClass.is_deflated" title="Permalink to this definition">¶</a></dt>
-<dd><p>Return True if a deflated transfer syntax UID.</p>
-</dd></dl>
-
-<dl class="attribute">
-<dt id="pynetdicom.sop_class.SOPClass.is_encapsulated">
-<code class="descname">is_encapsulated</code><a class="headerlink" href="#pynetdicom.sop_class.SOPClass.is_encapsulated" title="Permalink to this definition">¶</a></dt>
-<dd><p>Return True if an encasulated transfer syntax UID.</p>
-</dd></dl>
-
-<dl class="attribute">
-<dt id="pynetdicom.sop_class.SOPClass.is_implicit_VR">
-<code class="descname">is_implicit_VR</code><a class="headerlink" href="#pynetdicom.sop_class.SOPClass.is_implicit_VR" title="Permalink to this definition">¶</a></dt>
-<dd><p>Return True if an implicit VR transfer syntax UID.</p>
-</dd></dl>
-
-<dl class="attribute">
-<dt id="pynetdicom.sop_class.SOPClass.is_little_endian">
-<code class="descname">is_little_endian</code><a class="headerlink" href="#pynetdicom.sop_class.SOPClass.is_little_endian" title="Permalink to this definition">¶</a></dt>
-<dd><p>Return True if a little endian transfer syntax UID.</p>
-</dd></dl>
-
-<dl class="attribute">
-<dt id="pynetdicom.sop_class.SOPClass.is_private">
-<code class="descname">is_private</code><a class="headerlink" href="#pynetdicom.sop_class.SOPClass.is_private" title="Permalink to this definition">¶</a></dt>
-<dd><p>Return True if the UID isn’t an officially registered DICOM UID.</p>
-</dd></dl>
-
-<dl class="attribute">
-<dt id="pynetdicom.sop_class.SOPClass.is_retired">
-<code class="descname">is_retired</code><a class="headerlink" href="#pynetdicom.sop_class.SOPClass.is_retired" title="Permalink to this definition">¶</a></dt>
-<dd><p>Return True if the UID is retired, False otherwise or if private.</p>
-</dd></dl>
-
-<dl class="attribute">
-<dt id="pynetdicom.sop_class.SOPClass.is_transfer_syntax">
-<code class="descname">is_transfer_syntax</code><a class="headerlink" href="#pynetdicom.sop_class.SOPClass.is_transfer_syntax" title="Permalink to this definition">¶</a></dt>
-<dd><p>Return True if a transfer syntax UID.</p>
-</dd></dl>
-
-<dl class="attribute">
-<dt id="pynetdicom.sop_class.SOPClass.is_valid">
-<code class="descname">is_valid</code><a class="headerlink" href="#pynetdicom.sop_class.SOPClass.is_valid" title="Permalink to this definition">¶</a></dt>
-<dd><p>Return True if <cite>self</cite> is a valid UID, False otherwise.</p>
-</dd></dl>
-
-<dl class="method">
-<dt id="pynetdicom.sop_class.SOPClass.isalnum">
-<code class="descname">isalnum</code><span class="sig-paren">(</span><span class="sig-paren">)</span> &#x2192; bool<a class="headerlink" href="#pynetdicom.sop_class.SOPClass.isalnum" title="Permalink to this definition">¶</a></dt>
-<dd><p>Return True if all characters in S are alphanumeric
-and there is at least one character in S, False otherwise.</p>
-</dd></dl>
-
-<dl class="method">
-<dt id="pynetdicom.sop_class.SOPClass.isalpha">
-<code class="descname">isalpha</code><span class="sig-paren">(</span><span class="sig-paren">)</span> &#x2192; bool<a class="headerlink" href="#pynetdicom.sop_class.SOPClass.isalpha" title="Permalink to this definition">¶</a></dt>
-<dd><p>Return True if all characters in S are alphabetic
-and there is at least one character in S, False otherwise.</p>
-</dd></dl>
-
-<dl class="method">
-<dt id="pynetdicom.sop_class.SOPClass.isdecimal">
-<code class="descname">isdecimal</code><span class="sig-paren">(</span><span class="sig-paren">)</span> &#x2192; bool<a class="headerlink" href="#pynetdicom.sop_class.SOPClass.isdecimal" title="Permalink to this definition">¶</a></dt>
-<dd><p>Return True if there are only decimal characters in S,
-False otherwise.</p>
-</dd></dl>
-
-<dl class="method">
-<dt id="pynetdicom.sop_class.SOPClass.isdigit">
-<code class="descname">isdigit</code><span class="sig-paren">(</span><span class="sig-paren">)</span> &#x2192; bool<a class="headerlink" href="#pynetdicom.sop_class.SOPClass.isdigit" title="Permalink to this definition">¶</a></dt>
-<dd><p>Return True if all characters in S are digits
-and there is at least one character in S, False otherwise.</p>
-</dd></dl>
-
-<dl class="method">
-<dt id="pynetdicom.sop_class.SOPClass.isidentifier">
-<code class="descname">isidentifier</code><span class="sig-paren">(</span><span class="sig-paren">)</span> &#x2192; bool<a class="headerlink" href="#pynetdicom.sop_class.SOPClass.isidentifier" title="Permalink to this definition">¶</a></dt>
-<dd><p>Return True if S is a valid identifier according
-to the language definition.</p>
-<p>Use keyword.iskeyword() to test for reserved identifiers
-such as “def” and “class”.</p>
-</dd></dl>
-
-<dl class="method">
-<dt id="pynetdicom.sop_class.SOPClass.islower">
-<code class="descname">islower</code><span class="sig-paren">(</span><span class="sig-paren">)</span> &#x2192; bool<a class="headerlink" href="#pynetdicom.sop_class.SOPClass.islower" title="Permalink to this definition">¶</a></dt>
-<dd><p>Return True if all cased characters in S are lowercase and there is
-at least one cased character in S, False otherwise.</p>
-</dd></dl>
-
-<dl class="method">
-<dt id="pynetdicom.sop_class.SOPClass.isnumeric">
-<code class="descname">isnumeric</code><span class="sig-paren">(</span><span class="sig-paren">)</span> &#x2192; bool<a class="headerlink" href="#pynetdicom.sop_class.SOPClass.isnumeric" title="Permalink to this definition">¶</a></dt>
-<dd><p>Return True if there are only numeric characters in S,
-False otherwise.</p>
-</dd></dl>
-
-<dl class="method">
-<dt id="pynetdicom.sop_class.SOPClass.isprintable">
-<code class="descname">isprintable</code><span class="sig-paren">(</span><span class="sig-paren">)</span> &#x2192; bool<a class="headerlink" href="#pynetdicom.sop_class.SOPClass.isprintable" title="Permalink to this definition">¶</a></dt>
-<dd><p>Return True if all characters in S are considered
-printable in repr() or S is empty, False otherwise.</p>
-</dd></dl>
-
-<dl class="method">
-<dt id="pynetdicom.sop_class.SOPClass.isspace">
-<code class="descname">isspace</code><span class="sig-paren">(</span><span class="sig-paren">)</span> &#x2192; bool<a class="headerlink" href="#pynetdicom.sop_class.SOPClass.isspace" title="Permalink to this definition">¶</a></dt>
-<dd><p>Return True if all characters in S are whitespace
-and there is at least one character in S, False otherwise.</p>
-</dd></dl>
-
-<dl class="method">
-<dt id="pynetdicom.sop_class.SOPClass.istitle">
-<code class="descname">istitle</code><span class="sig-paren">(</span><span class="sig-paren">)</span> &#x2192; bool<a class="headerlink" href="#pynetdicom.sop_class.SOPClass.istitle" title="Permalink to this definition">¶</a></dt>
-<dd><p>Return True if S is a titlecased string and there is at least one
-character in S, i.e. upper- and titlecase characters may only
-follow uncased characters and lowercase characters only cased ones.
-Return False otherwise.</p>
-</dd></dl>
-
-<dl class="method">
-<dt id="pynetdicom.sop_class.SOPClass.isupper">
-<code class="descname">isupper</code><span class="sig-paren">(</span><span class="sig-paren">)</span> &#x2192; bool<a class="headerlink" href="#pynetdicom.sop_class.SOPClass.isupper" title="Permalink to this definition">¶</a></dt>
-<dd><p>Return True if all cased characters in S are uppercase and there is
-at least one cased character in S, False otherwise.</p>
-</dd></dl>
-
-<dl class="method">
-<dt id="pynetdicom.sop_class.SOPClass.join">
-<code class="descname">join</code><span class="sig-paren">(</span><em>iterable</em><span class="sig-paren">)</span> &#x2192; str<a class="headerlink" href="#pynetdicom.sop_class.SOPClass.join" title="Permalink to this definition">¶</a></dt>
-<dd><p>Return a string which is the concatenation of the strings in the
-iterable.  The separator between elements is S.</p>
-</dd></dl>
-
-<dl class="method">
-<dt id="pynetdicom.sop_class.SOPClass.ljust">
-<code class="descname">ljust</code><span class="sig-paren">(</span><em>width</em><span class="optional">[</span>, <em>fillchar</em><span class="optional">]</span><span class="sig-paren">)</span> &#x2192; str<a class="headerlink" href="#pynetdicom.sop_class.SOPClass.ljust" title="Permalink to this definition">¶</a></dt>
-<dd><p>Return S left-justified in a Unicode string of length width. Padding is
-done using the specified fill character (default is a space).</p>
-</dd></dl>
-
-<dl class="method">
-<dt id="pynetdicom.sop_class.SOPClass.lower">
-<code class="descname">lower</code><span class="sig-paren">(</span><span class="sig-paren">)</span> &#x2192; str<a class="headerlink" href="#pynetdicom.sop_class.SOPClass.lower" title="Permalink to this definition">¶</a></dt>
-<dd><p>Return a copy of the string S converted to lowercase.</p>
-</dd></dl>
-
-<dl class="method">
-<dt id="pynetdicom.sop_class.SOPClass.lstrip">
-<code class="descname">lstrip</code><span class="sig-paren">(</span><span class="optional">[</span><em>chars</em><span class="optional">]</span><span class="sig-paren">)</span> &#x2192; str<a class="headerlink" href="#pynetdicom.sop_class.SOPClass.lstrip" title="Permalink to this definition">¶</a></dt>
-<dd><p>Return a copy of the string S with leading whitespace removed.
-If chars is given and not None, remove characters in chars instead.</p>
-</dd></dl>
-
-<dl class="staticmethod">
-<dt id="pynetdicom.sop_class.SOPClass.maketrans">
-<em class="property">static </em><code class="descname">maketrans</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pynetdicom.sop_class.SOPClass.maketrans" title="Permalink to this definition">¶</a></dt>
-<dd><p>Return a translation table usable for str.translate().</p>
-<p>If there is only one argument, it must be a dictionary mapping Unicode
-ordinals (integers) or characters to Unicode ordinals, strings or None.
-Character keys will be then converted to ordinals.
-If there are two arguments, they must be strings of equal length, and
-in the resulting dictionary, each character in x will be mapped to the
-character at the same position in y. If there is a third argument, it
-must be a string, whose characters will be mapped to None in the result.</p>
-</dd></dl>
-
-<dl class="attribute">
-<dt id="pynetdicom.sop_class.SOPClass.name">
-<code class="descname">name</code><a class="headerlink" href="#pynetdicom.sop_class.SOPClass.name" title="Permalink to this definition">¶</a></dt>
-<dd><p>Return the UID name from the UID dictionary.</p>
-</dd></dl>
-
-<dl class="method">
-<dt id="pynetdicom.sop_class.SOPClass.partition">
-<code class="descname">partition</code><span class="sig-paren">(</span><em>sep) -&gt; (head</em>, <em>sep</em>, <em>tail</em><span class="sig-paren">)</span><a class="headerlink" href="#pynetdicom.sop_class.SOPClass.partition" title="Permalink to this definition">¶</a></dt>
-<dd><p>Search for the separator sep in S, and return the part before it,
-the separator itself, and the part after it.  If the separator is not
-found, return S and two empty strings.</p>
-</dd></dl>
-
-<dl class="method">
-<dt id="pynetdicom.sop_class.SOPClass.replace">
-<code class="descname">replace</code><span class="sig-paren">(</span><em>old</em>, <em>new</em><span class="optional">[</span>, <em>count</em><span class="optional">]</span><span class="sig-paren">)</span> &#x2192; str<a class="headerlink" href="#pynetdicom.sop_class.SOPClass.replace" title="Permalink to this definition">¶</a></dt>
-<dd><p>Return a copy of S with all occurrences of substring
-old replaced by new.  If the optional argument count is
-given, only the first count occurrences are replaced.</p>
-</dd></dl>
-
-<dl class="method">
-<dt id="pynetdicom.sop_class.SOPClass.rfind">
-<code class="descname">rfind</code><span class="sig-paren">(</span><em>sub</em><span class="optional">[</span>, <em>start</em><span class="optional">[</span>, <em>end</em><span class="optional">]</span><span class="optional">]</span><span class="sig-paren">)</span> &#x2192; int<a class="headerlink" href="#pynetdicom.sop_class.SOPClass.rfind" title="Permalink to this definition">¶</a></dt>
-<dd><p>Return the highest index in S where substring sub is found,
-such that sub is contained within S[start:end].  Optional
-arguments start and end are interpreted as in slice notation.</p>
-<p>Return -1 on failure.</p>
-</dd></dl>
-
-<dl class="method">
-<dt id="pynetdicom.sop_class.SOPClass.rindex">
-<code class="descname">rindex</code><span class="sig-paren">(</span><em>sub</em><span class="optional">[</span>, <em>start</em><span class="optional">[</span>, <em>end</em><span class="optional">]</span><span class="optional">]</span><span class="sig-paren">)</span> &#x2192; int<a class="headerlink" href="#pynetdicom.sop_class.SOPClass.rindex" title="Permalink to this definition">¶</a></dt>
-<dd><p>Return the highest index in S where substring sub is found,
-such that sub is contained within S[start:end].  Optional
-arguments start and end are interpreted as in slice notation.</p>
-<p>Raises ValueError when the substring is not found.</p>
-</dd></dl>
-
-<dl class="method">
-<dt id="pynetdicom.sop_class.SOPClass.rjust">
-<code class="descname">rjust</code><span class="sig-paren">(</span><em>width</em><span class="optional">[</span>, <em>fillchar</em><span class="optional">]</span><span class="sig-paren">)</span> &#x2192; str<a class="headerlink" href="#pynetdicom.sop_class.SOPClass.rjust" title="Permalink to this definition">¶</a></dt>
-<dd><p>Return S right-justified in a string of length width. Padding is
-done using the specified fill character (default is a space).</p>
-</dd></dl>
-
-<dl class="method">
-<dt id="pynetdicom.sop_class.SOPClass.rpartition">
-<code class="descname">rpartition</code><span class="sig-paren">(</span><em>sep) -&gt; (head</em>, <em>sep</em>, <em>tail</em><span class="sig-paren">)</span><a class="headerlink" href="#pynetdicom.sop_class.SOPClass.rpartition" title="Permalink to this definition">¶</a></dt>
-<dd><p>Search for the separator sep in S, starting at the end of S, and return
-the part before it, the separator itself, and the part after it.  If the
-separator is not found, return two empty strings and S.</p>
-</dd></dl>
-
-<dl class="method">
-<dt id="pynetdicom.sop_class.SOPClass.rsplit">
-<code class="descname">rsplit</code><span class="sig-paren">(</span><em>sep=None</em>, <em>maxsplit=-1</em><span class="sig-paren">)</span> &#x2192; list of strings<a class="headerlink" href="#pynetdicom.sop_class.SOPClass.rsplit" title="Permalink to this definition">¶</a></dt>
-<dd><p>Return a list of the words in S, using sep as the
-delimiter string, starting at the end of the string and
-working to the front.  If maxsplit is given, at most maxsplit
-splits are done. If sep is not specified, any whitespace string
-is a separator.</p>
-</dd></dl>
-
-<dl class="method">
-<dt id="pynetdicom.sop_class.SOPClass.rstrip">
-<code class="descname">rstrip</code><span class="sig-paren">(</span><span class="optional">[</span><em>chars</em><span class="optional">]</span><span class="sig-paren">)</span> &#x2192; str<a class="headerlink" href="#pynetdicom.sop_class.SOPClass.rstrip" title="Permalink to this definition">¶</a></dt>
-<dd><p>Return a copy of the string S with trailing whitespace removed.
-If chars is given and not None, remove characters in chars instead.</p>
-</dd></dl>
-
-<dl class="attribute">
-<dt id="pynetdicom.sop_class.SOPClass.service_class">
-<code class="descname">service_class</code><a class="headerlink" href="#pynetdicom.sop_class.SOPClass.service_class" title="Permalink to this definition">¶</a></dt>
-<dd><p>Return the corresponding Service Class implementation.</p>
-</dd></dl>
-
-<dl class="method">
-<dt id="pynetdicom.sop_class.SOPClass.split">
-<code class="descname">split</code><span class="sig-paren">(</span><em>sep=None</em>, <em>maxsplit=-1</em><span class="sig-paren">)</span> &#x2192; list of strings<a class="headerlink" href="#pynetdicom.sop_class.SOPClass.split" title="Permalink to this definition">¶</a></dt>
-<dd><p>Return a list of the words in S, using sep as the
-delimiter string.  If maxsplit is given, at most maxsplit
-splits are done. If sep is not specified or is None, any
-whitespace string is a separator and empty strings are
-removed from the result.</p>
-</dd></dl>
-
-<dl class="method">
-<dt id="pynetdicom.sop_class.SOPClass.splitlines">
-<code class="descname">splitlines</code><span class="sig-paren">(</span><span class="optional">[</span><em>keepends</em><span class="optional">]</span><span class="sig-paren">)</span> &#x2192; list of strings<a class="headerlink" href="#pynetdicom.sop_class.SOPClass.splitlines" title="Permalink to this definition">¶</a></dt>
-<dd><p>Return a list of the lines in S, breaking at line boundaries.
-Line breaks are not included in the resulting list unless keepends
-is given and true.</p>
-</dd></dl>
-
-<dl class="method">
-<dt id="pynetdicom.sop_class.SOPClass.startswith">
-<code class="descname">startswith</code><span class="sig-paren">(</span><em>prefix</em><span class="optional">[</span>, <em>start</em><span class="optional">[</span>, <em>end</em><span class="optional">]</span><span class="optional">]</span><span class="sig-paren">)</span> &#x2192; bool<a class="headerlink" href="#pynetdicom.sop_class.SOPClass.startswith" title="Permalink to this definition">¶</a></dt>
-<dd><p>Return True if S starts with the specified prefix, False otherwise.
-With optional start, test S beginning at that position.
-With optional end, stop comparing S at that position.
-prefix can also be a tuple of strings to try.</p>
-</dd></dl>
-
-<dl class="method">
-<dt id="pynetdicom.sop_class.SOPClass.strip">
-<code class="descname">strip</code><span class="sig-paren">(</span><span class="optional">[</span><em>chars</em><span class="optional">]</span><span class="sig-paren">)</span> &#x2192; str<a class="headerlink" href="#pynetdicom.sop_class.SOPClass.strip" title="Permalink to this definition">¶</a></dt>
-<dd><p>Return a copy of the string S with leading and trailing
-whitespace removed.
-If chars is given and not None, remove characters in chars instead.</p>
-</dd></dl>
-
-<dl class="method">
-<dt id="pynetdicom.sop_class.SOPClass.swapcase">
-<code class="descname">swapcase</code><span class="sig-paren">(</span><span class="sig-paren">)</span> &#x2192; str<a class="headerlink" href="#pynetdicom.sop_class.SOPClass.swapcase" title="Permalink to this definition">¶</a></dt>
-<dd><p>Return a copy of S with uppercase characters converted to lowercase
-and vice versa.</p>
-</dd></dl>
-
-<dl class="method">
-<dt id="pynetdicom.sop_class.SOPClass.title">
-<code class="descname">title</code><span class="sig-paren">(</span><span class="sig-paren">)</span> &#x2192; str<a class="headerlink" href="#pynetdicom.sop_class.SOPClass.title" title="Permalink to this definition">¶</a></dt>
-<dd><p>Return a titlecased version of S, i.e. words start with title case
-characters, all remaining cased characters have lower case.</p>
-</dd></dl>
-
-<dl class="method">
-<dt id="pynetdicom.sop_class.SOPClass.translate">
-<code class="descname">translate</code><span class="sig-paren">(</span><em>table</em><span class="sig-paren">)</span> &#x2192; str<a class="headerlink" href="#pynetdicom.sop_class.SOPClass.translate" title="Permalink to this definition">¶</a></dt>
-<dd><p>Return a copy of the string S in which each character has been mapped
-through the given translation table. The table must implement
-lookup/indexing via __getitem__, for instance a dictionary or list,
-mapping Unicode ordinals to Unicode ordinals, strings, or None. If
-this operation raises LookupError, the character is left untouched.
-Characters mapped to None are deleted.</p>
-</dd></dl>
-
-<dl class="attribute">
-<dt id="pynetdicom.sop_class.SOPClass.type">
-<code class="descname">type</code><a class="headerlink" href="#pynetdicom.sop_class.SOPClass.type" title="Permalink to this definition">¶</a></dt>
-<dd><p>Return the UID type from the UID dictionary.</p>
-</dd></dl>
-
-<dl class="method">
-<dt id="pynetdicom.sop_class.SOPClass.upper">
-<code class="descname">upper</code><span class="sig-paren">(</span><span class="sig-paren">)</span> &#x2192; str<a class="headerlink" href="#pynetdicom.sop_class.SOPClass.upper" title="Permalink to this definition">¶</a></dt>
-<dd><p>Return a copy of S converted to uppercase.</p>
-</dd></dl>
-
-<dl class="method">
-<dt id="pynetdicom.sop_class.SOPClass.zfill">
-<code class="descname">zfill</code><span class="sig-paren">(</span><em>width</em><span class="sig-paren">)</span> &#x2192; str<a class="headerlink" href="#pynetdicom.sop_class.SOPClass.zfill" title="Permalink to this definition">¶</a></dt>
-<dd><p>Pad a numeric string S with zeros on the left, to fill a field
-of the specified width. The string S is never truncated.</p>
-</dd></dl>
-
-</dd></dl>
-
-</div>
+</section>
 
 
            </div>
-           
           </div>
           <footer>
-  
 
   <hr/>
 
   <div role="contentinfo">
-    <p>
-        &copy; Copyright 2018-19, pynetdicom contributors
-
-    </p>
+    <p>&#169; Copyright 2018-19, pynetdicom contributors.</p>
   </div>
-  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
 
 </footer>
-
         </div>
       </div>
-
     </section>
-
   </div>
-  
-
-
-  
-
-    
-    
-      <script type="text/javascript" id="documentation_options" data-url_root="../../" src="../../_static/documentation_options.js"></script>
-        <script type="text/javascript" src="../../_static/jquery.js"></script>
-        <script type="text/javascript" src="../../_static/underscore.js"></script>
-        <script type="text/javascript" src="../../_static/doctools.js"></script>
-        <script type="text/javascript" src="../../_static/language_data.js"></script>
-    
-
-  
-
-  <script type="text/javascript" src="../../_static/js/theme.js"></script>
-
-  <script type="text/javascript">
+  <script>
       jQuery(function () {
           SphinxRtdTheme.Navigation.enable(true);
       });

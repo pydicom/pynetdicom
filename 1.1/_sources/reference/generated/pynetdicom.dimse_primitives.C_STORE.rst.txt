@@ -1,4 +1,4 @@
-pynetdicom.dimse\_primitives.C\_STORE
+﻿pynetdicom.dimse\_primitives.C\_STORE
 =====================================
 
 .. currentmodule:: pynetdicom.dimse_primitives

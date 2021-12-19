@@ -1,73 +1,37 @@
-
-
 <!DOCTYPE html>
-<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
-<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<html class="writer-html5" lang="en" >
 <head>
-  <meta charset="utf-8">
-  
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>pynetdicom.pdu_items &mdash; pynetdicom 1.1.0 documentation</title>
-  
-
-  
-  
+      <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="../../_static/css/pynetdicom.css" type="text/css" />
+      <link rel="stylesheet" href="../../_static/css/pynetdicom.css" type="text/css" />
     <link rel="shortcut icon" href="../../_static/favicon.ico"/>
+  <!--[if lt IE 9]>
+    <script src="../../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
   
-  
-  
-
-  
-
-  
-  
-    
-
-  
-
-  <link rel="stylesheet" href="../../_static/css/pynetdicom.css" type="text/css" />
-  <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
-  <link rel="stylesheet" href="../../_static/css/pynetdicom.css" type="text/css" />
+        <script data-url_root="../../" id="documentation_options" src="../../_static/documentation_options.js"></script>
+        <script src="../../_static/jquery.js"></script>
+        <script src="../../_static/underscore.js"></script>
+        <script src="../../_static/doctools.js"></script>
+    <script src="../../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../../genindex.html" />
     <link rel="search" title="Search" href="../../search.html" /> 
-
-  
-  <script src="../../_static/js/modernizr.min.js"></script>
-
 </head>
 
-<body class="wy-body-for-nav">
-
-   
+<body class="wy-body-for-nav"> 
   <div class="wy-grid-for-nav">
-
-    
     <nav data-toggle="wy-nav-shift" class="wy-nav-side">
       <div class="wy-side-scroll">
-        <div class="wy-side-nav-search">
-          
-
-          
+        <div class="wy-side-nav-search" >
             <a href="../../index.html" class="icon icon-home"> pynetdicom
-          
-
-          
-            
             <img src="../../_static/pydicom_flat_black.svg" class="logo" alt="Logo"/>
-          
           </a>
-
-          
-            
-            
               <div class="version">
                 1.1.0
               </div>
-            
-          
-
-          
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
     <input type="text" name="q" placeholder="Search docs" />
@@ -75,17 +39,7 @@
     <input type="hidden" name="area" value="default" />
   </form>
 </div>
-
-          
-        </div>
-
-        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
-          
-            
-            
-              
-            
-            
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
               <ul>
 <li class="toctree-l1"><a class="reference internal" href="../../verification_service_class.html">Verification Service Class</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../storage_service_class.html">Storage Service Class</a></li>
@@ -108,66 +62,30 @@
 <li class="toctree-l1"><a class="reference internal" href="../../release_notes.html#id2">1.0.0</a></li>
 </ul>
 
-            
-          
         </div>
       </div>
     </nav>
 
-    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
-
-      
-      <nav class="wy-nav-top" aria-label="top navigation">
-        
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
           <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
           <a href="../../index.html">pynetdicom</a>
-        
       </nav>
 
-
       <div class="wy-nav-content">
-        
         <div class="rst-content">
-        
-          
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-<div role="navigation" aria-label="breadcrumbs navigation">
-
+          <div role="navigation" aria-label="Page navigation">
   <ul class="wy-breadcrumbs">
-    
-      <li><a href="../../index.html">Docs</a> &raquo;</li>
-        
+      <li><a href="../../index.html" class="icon icon-home"></a> &raquo;</li>
           <li><a href="../index.html">Module code</a> &raquo;</li>
-        
       <li>pynetdicom.pdu_items</li>
-    
-    
       <li class="wy-breadcrumbs-aside">
-        
       </li>
-    
   </ul>
-
-  
   <hr/>
 </div>
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
-            
+             
   <h1>Source code for pynetdicom.pdu_items</h1><div class="highlight"><pre>
 <span></span><span class="sd">&quot;&quot;&quot;DICOM Upper Layer PDU Items and Sub-items.</span>
 
@@ -213,11 +131,11 @@
 
 <span class="kn">import</span> <span class="nn">codecs</span>
 <span class="kn">import</span> <span class="nn">logging</span>
-<span class="kn">from</span> <span class="nn">struct</span> <span class="k">import</span> <span class="n">Struct</span>
+<span class="kn">from</span> <span class="nn">struct</span> <span class="kn">import</span> <span class="n">Struct</span>
 
-<span class="kn">from</span> <span class="nn">pydicom.uid</span> <span class="k">import</span> <span class="n">UID</span>
+<span class="kn">from</span> <span class="nn">pydicom.uid</span> <span class="kn">import</span> <span class="n">UID</span>
 
-<span class="kn">from</span> <span class="nn">pynetdicom.presentation</span> <span class="k">import</span> <span class="n">PresentationContext</span>
+<span class="kn">from</span> <span class="nn">pynetdicom.presentation</span> <span class="kn">import</span> <span class="n">PresentationContext</span>
 
 
 <span class="n">LOGGER</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="s1">&#39;pynetdicom.pdu_items&#39;</span><span class="p">)</span>
@@ -290,7 +208,7 @@
         <span class="sd">&quot;&quot;&quot;Return an iterable of tuples that contain field encoders.&quot;&quot;&quot;</span>
         <span class="k">raise</span> <span class="ne">NotImplementedError</span>
 
-    <span class="k">def</span> <span class="nf">__eq__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">):</span>
+    <span class="k">def</span> <span class="fm">__eq__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Return True if `self` equals `other`.&quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="n">other</span> <span class="ow">is</span> <span class="bp">self</span><span class="p">:</span>
             <span class="k">return</span> <span class="kc">True</span>
@@ -392,11 +310,11 @@
 
         <span class="k">return</span> <span class="n">keys</span><span class="p">[</span><span class="n">vals</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="p">)]</span>
 
-    <span class="k">def</span> <span class="nf">__len__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span> <span class="fm">__len__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Return the total length of the encoded item as an int.&quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="mi">4</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">item_length</span>
 
-    <span class="k">def</span> <span class="nf">__ne__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">):</span>
+    <span class="k">def</span> <span class="fm">__ne__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Return True if `self` does not equal `other`.&quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="ow">not</span> <span class="bp">self</span> <span class="o">==</span> <span class="n">other</span>
 
@@ -590,7 +508,7 @@
 <span class="sd">       `Section 9.3.1 &lt;http://dicom.nema.org/medical/dicom/current/output/html/part08.html#sect_9.3.1&gt;`_</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
-<div class="viewcode-block" id="ApplicationContextItem.__init__"><a class="viewcode-back" href="../../reference/generated/pynetdicom.pdu_items.ApplicationContextItem.html#pynetdicom.pdu.ApplicationContextItem.__init__">[docs]</a>    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<div class="viewcode-block" id="ApplicationContextItem.__init__"><a class="viewcode-back" href="../../reference/generated/pynetdicom.pdu_items.ApplicationContextItem.html#pynetdicom.pdu.ApplicationContextItem.__init__">[docs]</a>    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Initialise a new Application Context Item.&quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">application_context_name</span> <span class="o">=</span> <span class="sa">b</span><span class="s1">&#39;1.2.840.10008.3.1.1.1&#39;</span></div>
 
@@ -666,7 +584,7 @@
         <span class="sd">&quot;&quot;&quot;Return the item&#39;s *Item Length* field value as an int.&quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">application_context_name</span><span class="p">)</span>
 
-    <span class="k">def</span> <span class="nf">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span> <span class="fm">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Return a string representation of the Item.&quot;&quot;&quot;</span>
         <span class="n">s</span> <span class="o">=</span> <span class="s1">&#39;</span><span class="si">{0!s}</span><span class="s1"> (</span><span class="si">{1!s}</span><span class="s1">)</span><span class="se">\n</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">application_context_name</span><span class="p">,</span>
                                      <span class="bp">self</span><span class="o">.</span><span class="n">application_context_name</span><span class="o">.</span><span class="n">name</span><span class="p">)</span>
@@ -754,12 +672,12 @@
 <span class="sd">       `9.3.1 &lt;http://dicom.nema.org/medical/dicom/current/output/html/part08.html#sect_9.3.1&gt;`_</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
-<div class="viewcode-block" id="PresentationContextItemRQ.__init__"><a class="viewcode-back" href="../../reference/generated/pynetdicom.pdu_items.PresentationContextItemRQ.html#pynetdicom.pdu.PresentationContextItemRQ.__init__">[docs]</a>    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<div class="viewcode-block" id="PresentationContextItemRQ.__init__"><a class="viewcode-back" href="../../reference/generated/pynetdicom.pdu_items.PresentationContextItemRQ.html#pynetdicom.pdu.PresentationContextItemRQ.__init__">[docs]</a>    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Initialise a new Presentation Context (RQ) Item.&quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">presentation_context_id</span> <span class="o">=</span> <span class="kc">None</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">abstract_transfer_syntax_sub_items</span> <span class="o">=</span> <span class="p">[]</span></div>
 
-<div class="viewcode-block" id="PresentationContextItemRQ.from_primitive"><a class="viewcode-back" href="../../reference/generated/pynetdicom.pdu_items.PresentationContextItemRQ.html#pynetdicom.pdu.PresentationContextItemRQ.from_primitive">[docs]</a>    <span class="k">def</span> <span class="nf">from_primitive</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">primitive</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">from_primitive</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">primitive</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Set the item&#39;s values using a Presentation Context primitive.</span>
 
 <span class="sd">        Parameters</span>
@@ -779,9 +697,9 @@
         <span class="k">for</span> <span class="n">syntax</span> <span class="ow">in</span> <span class="n">primitive</span><span class="o">.</span><span class="n">transfer_syntax</span><span class="p">:</span>
             <span class="n">transfer_syntax</span> <span class="o">=</span> <span class="n">TransferSyntaxSubItem</span><span class="p">()</span>
             <span class="n">transfer_syntax</span><span class="o">.</span><span class="n">transfer_syntax_name</span> <span class="o">=</span> <span class="n">syntax</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">abstract_transfer_syntax_sub_items</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">transfer_syntax</span><span class="p">)</span></div>
+            <span class="bp">self</span><span class="o">.</span><span class="n">abstract_transfer_syntax_sub_items</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">transfer_syntax</span><span class="p">)</span>
 
-<div class="viewcode-block" id="PresentationContextItemRQ.to_primitive"><a class="viewcode-back" href="../../reference/generated/pynetdicom.pdu_items.PresentationContextItemRQ.html#pynetdicom.pdu.PresentationContextItemRQ.to_primitive">[docs]</a>    <span class="k">def</span> <span class="nf">to_primitive</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">to_primitive</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Return a PresentationContext primitive from the current Item.</span>
 
 <span class="sd">        Returns</span>
@@ -799,7 +717,7 @@
             <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">syntax</span><span class="p">,</span> <span class="n">AbstractSyntaxSubItem</span><span class="p">):</span>
                 <span class="n">context</span><span class="o">.</span><span class="n">abstract_syntax</span> <span class="o">=</span> <span class="n">syntax</span><span class="o">.</span><span class="n">abstract_syntax_name</span>
 
-        <span class="k">return</span> <span class="n">context</span></div>
+        <span class="k">return</span> <span class="n">context</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">abstract_syntax</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
@@ -884,7 +802,7 @@
 
         <span class="k">return</span> <span class="n">length</span>
 
-    <span class="k">def</span> <span class="nf">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span> <span class="fm">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Return a string representation of the Item.&quot;&quot;&quot;</span>
         <span class="n">s</span> <span class="o">=</span> <span class="s2">&quot;Presentation Context (RQ) Item</span><span class="se">\n</span><span class="s2">&quot;</span>
         <span class="n">s</span> <span class="o">+=</span> <span class="s2">&quot;  Item type: 0x</span><span class="si">{0:02x}</span><span class="se">\n</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">item_type</span><span class="p">)</span>
@@ -988,13 +906,13 @@
 <span class="sd">       `9.3.1 &lt;http://dicom.nema.org/medical/dicom/current/output/html/part08.html#sect_9.3.1&gt;`_</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
-<div class="viewcode-block" id="PresentationContextItemAC.__init__"><a class="viewcode-back" href="../../reference/generated/pynetdicom.pdu_items.PresentationContextItemAC.html#pynetdicom.pdu.PresentationContextItemAC.__init__">[docs]</a>    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<div class="viewcode-block" id="PresentationContextItemAC.__init__"><a class="viewcode-back" href="../../reference/generated/pynetdicom.pdu_items.PresentationContextItemAC.html#pynetdicom.pdu.PresentationContextItemAC.__init__">[docs]</a>    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Initialise a new Presentation Context (AC) Item.&quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">presentation_context_id</span> <span class="o">=</span> <span class="kc">None</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">result_reason</span> <span class="o">=</span> <span class="kc">None</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">transfer_syntax_sub_item</span> <span class="o">=</span> <span class="p">[]</span></div>
 
-<div class="viewcode-block" id="PresentationContextItemAC.from_primitive"><a class="viewcode-back" href="../../reference/generated/pynetdicom.pdu_items.PresentationContextItemAC.html#pynetdicom.pdu.PresentationContextItemAC.from_primitive">[docs]</a>    <span class="k">def</span> <span class="nf">from_primitive</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">primitive</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">from_primitive</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">primitive</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Set the item&#39;s values using a Presentation Context primitive.</span>
 
 <span class="sd">        Parameters</span>
@@ -1011,9 +929,9 @@
         <span class="c1"># Add transfer syntax</span>
         <span class="n">transfer_syntax</span> <span class="o">=</span> <span class="n">TransferSyntaxSubItem</span><span class="p">()</span>
         <span class="n">transfer_syntax</span><span class="o">.</span><span class="n">transfer_syntax_name</span> <span class="o">=</span> <span class="n">primitive</span><span class="o">.</span><span class="n">transfer_syntax</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">transfer_syntax_sub_item</span> <span class="o">=</span> <span class="p">[</span><span class="n">transfer_syntax</span><span class="p">]</span></div>
+        <span class="bp">self</span><span class="o">.</span><span class="n">transfer_syntax_sub_item</span> <span class="o">=</span> <span class="p">[</span><span class="n">transfer_syntax</span><span class="p">]</span>
 
-<div class="viewcode-block" id="PresentationContextItemAC.to_primitive"><a class="viewcode-back" href="../../reference/generated/pynetdicom.pdu_items.PresentationContextItemAC.html#pynetdicom.pdu.PresentationContextItemAC.to_primitive">[docs]</a>    <span class="k">def</span> <span class="nf">to_primitive</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">to_primitive</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Return a PresentationContext primitive from the current Item.</span>
 
 <span class="sd">        Returns</span>
@@ -1028,7 +946,7 @@
             <span class="bp">self</span><span class="o">.</span><span class="n">transfer_syntax_sub_item</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">transfer_syntax_name</span>
         <span class="p">)</span>
 
-        <span class="k">return</span> <span class="n">primitive</span></div>
+        <span class="k">return</span> <span class="n">primitive</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">context_id</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
@@ -1121,7 +1039,7 @@
         <span class="p">}</span>
         <span class="k">return</span> <span class="n">_result</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">result_reason</span><span class="p">]</span>
 
-    <span class="k">def</span> <span class="nf">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span> <span class="fm">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Return a string representation of the Item.&quot;&quot;&quot;</span>
         <span class="n">s</span> <span class="o">=</span> <span class="s2">&quot;Presentation Context (AC) Item</span><span class="se">\n</span><span class="s2">&quot;</span>
         <span class="n">s</span> <span class="o">+=</span> <span class="s2">&quot;  Item type:   0x</span><span class="si">{0:02x}</span><span class="se">\n</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">item_type</span><span class="p">)</span>
@@ -1221,11 +1139,11 @@
 
 <span class="sd">    &quot;&quot;&quot;</span>
 
-<div class="viewcode-block" id="UserInformationItem.__init__"><a class="viewcode-back" href="../../reference/generated/pynetdicom.pdu_items.UserInformationItem.html#pynetdicom.pdu.UserInformationItem.__init__">[docs]</a>    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<div class="viewcode-block" id="UserInformationItem.__init__"><a class="viewcode-back" href="../../reference/generated/pynetdicom.pdu_items.UserInformationItem.html#pynetdicom.pdu.UserInformationItem.__init__">[docs]</a>    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Initialise a new User Information Item.&quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">user_data</span> <span class="o">=</span> <span class="p">[]</span></div>
 
-<div class="viewcode-block" id="UserInformationItem.from_primitive"><a class="viewcode-back" href="../../reference/generated/pynetdicom.pdu_items.UserInformationItem.html#pynetdicom.pdu.UserInformationItem.from_primitive">[docs]</a>    <span class="k">def</span> <span class="nf">from_primitive</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">primitive</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">from_primitive</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">primitive</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Set up the current Item using User Information primitives.</span>
 
 <span class="sd">        Parameters</span>
@@ -1246,9 +1164,9 @@
 <span class="sd">            - UserIdentityNegotiation</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">for</span> <span class="n">item</span> <span class="ow">in</span> <span class="n">primitive</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">user_data</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">item</span><span class="o">.</span><span class="n">from_primitive</span><span class="p">())</span></div>
+            <span class="bp">self</span><span class="o">.</span><span class="n">user_data</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">item</span><span class="o">.</span><span class="n">from_primitive</span><span class="p">())</span>
 
-<div class="viewcode-block" id="UserInformationItem.to_primitive"><a class="viewcode-back" href="../../reference/generated/pynetdicom.pdu_items.UserInformationItem.html#pynetdicom.pdu.UserInformationItem.to_primitive">[docs]</a>    <span class="k">def</span> <span class="nf">to_primitive</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">to_primitive</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Return a list of User Information primitives from the current Item.</span>
 
 <span class="sd">        Returns</span>
@@ -1272,7 +1190,7 @@
         <span class="k">for</span> <span class="n">item</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">user_data</span><span class="p">:</span>
             <span class="n">primitive</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">item</span><span class="o">.</span><span class="n">to_primitive</span><span class="p">())</span>
 
-        <span class="k">return</span> <span class="n">primitive</span></div>
+        <span class="k">return</span> <span class="n">primitive</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">async_ops_window</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
@@ -1395,7 +1313,7 @@
 
         <span class="k">return</span> <span class="n">roles</span>
 
-    <span class="k">def</span> <span class="nf">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span> <span class="fm">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Return a string representation of the Item.&quot;&quot;&quot;</span>
         <span class="c1"># FIXME: Indent not applying correctly to user_data</span>
         <span class="n">s</span> <span class="o">=</span> <span class="s2">&quot; User information item</span><span class="se">\n</span><span class="s2">&quot;</span>
@@ -1488,7 +1406,7 @@
 <span class="sd">       `Section 9.3.1 &lt;http://dicom.nema.org/medical/dicom/current/output/html/part08.html#sect_9.3.1&gt;`_</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
-<div class="viewcode-block" id="AbstractSyntaxSubItem.__init__"><a class="viewcode-back" href="../../reference/generated/pynetdicom.pdu_items.AbstractSyntaxSubItem.html#pynetdicom.pdu.AbstractSyntaxSubItem.__init__">[docs]</a>    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<div class="viewcode-block" id="AbstractSyntaxSubItem.__init__"><a class="viewcode-back" href="../../reference/generated/pynetdicom.pdu_items.AbstractSyntaxSubItem.html#pynetdicom.pdu.AbstractSyntaxSubItem.__init__">[docs]</a>    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Initialise a new Abstract Syntax Item.&quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">abstract_syntax_name</span> <span class="o">=</span> <span class="kc">None</span></div>
 
@@ -1574,7 +1492,7 @@
 
         <span class="k">return</span> <span class="mi">0</span>
 
-    <span class="k">def</span> <span class="nf">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span> <span class="fm">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Return a string representation of the Item.&quot;&quot;&quot;</span>
         <span class="n">s</span> <span class="o">=</span> <span class="s2">&quot;Abstract Syntax Sub-item</span><span class="se">\n</span><span class="s2">&quot;</span>
         <span class="n">s</span> <span class="o">+=</span> <span class="s2">&quot;  Item type: 0x</span><span class="si">{0:02x}</span><span class="se">\n</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">item_type</span><span class="p">)</span>
@@ -1653,7 +1571,7 @@
 <span class="sd">       `Section 9.3.1 &lt;http://dicom.nema.org/medical/dicom/current/output/html/part08.html#sect_9.3.1&gt;`_</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
-<div class="viewcode-block" id="TransferSyntaxSubItem.__init__"><a class="viewcode-back" href="../../reference/generated/pynetdicom.pdu_items.TransferSyntaxSubItem.html#pynetdicom.pdu.TransferSyntaxSubItem.__init__">[docs]</a>    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<div class="viewcode-block" id="TransferSyntaxSubItem.__init__"><a class="viewcode-back" href="../../reference/generated/pynetdicom.pdu_items.TransferSyntaxSubItem.html#pynetdicom.pdu.TransferSyntaxSubItem.__init__">[docs]</a>    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Initialise a new Abstract Syntax Item.&quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">transfer_syntax_name</span> <span class="o">=</span> <span class="kc">None</span></div>
 
@@ -1705,7 +1623,7 @@
 
         <span class="k">return</span> <span class="mi">0</span>
 
-    <span class="k">def</span> <span class="nf">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span> <span class="fm">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Return a string representation of the Item.&quot;&quot;&quot;</span>
         <span class="n">s</span> <span class="o">=</span> <span class="s2">&quot;Transfer syntax sub item</span><span class="se">\n</span><span class="s2">&quot;</span>
         <span class="n">s</span> <span class="o">+=</span> <span class="s2">&quot;  Item type: 0x</span><span class="si">{0:02x}</span><span class="se">\n</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">item_type</span><span class="p">)</span>
@@ -1801,11 +1719,11 @@
 <span class="sd">       `Section 9.3.1 &lt;http://dicom.nema.org/medical/dicom/current/output/html/part08.html#sect_9.3.1&gt;`_</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
-<div class="viewcode-block" id="MaximumLengthSubItem.__init__"><a class="viewcode-back" href="../../reference/generated/pynetdicom.pdu_items.MaximumLengthSubItem.html#pynetdicom.pdu.MaximumLengthSubItem.__init__">[docs]</a>    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<div class="viewcode-block" id="MaximumLengthSubItem.__init__"><a class="viewcode-back" href="../../reference/generated/pynetdicom.pdu_items.MaximumLengthSubItem.html#pynetdicom.pdu.MaximumLengthSubItem.__init__">[docs]</a>    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Initialise a new Maximum Length Item.&quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">maximum_length_received</span> <span class="o">=</span> <span class="kc">None</span></div>
 
-<div class="viewcode-block" id="MaximumLengthSubItem.from_primitive"><a class="viewcode-back" href="../../reference/generated/pynetdicom.pdu_items.MaximumLengthSubItem.html#pynetdicom.pdu.MaximumLengthSubItem.from_primitive">[docs]</a>    <span class="k">def</span> <span class="nf">from_primitive</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">primitive</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">from_primitive</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">primitive</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Set the item&#39;s values using a Maximum Length `primitive`.</span>
 
 <span class="sd">        Parameters</span>
@@ -1813,9 +1731,9 @@
 <span class="sd">        primitive : pdu_primitives.MaximumLengthNotification</span>
 <span class="sd">            The primitive to use to set the Item&#39;s field values.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">maximum_length_received</span> <span class="o">=</span> <span class="n">primitive</span><span class="o">.</span><span class="n">maximum_length_received</span></div>
+        <span class="bp">self</span><span class="o">.</span><span class="n">maximum_length_received</span> <span class="o">=</span> <span class="n">primitive</span><span class="o">.</span><span class="n">maximum_length_received</span>
 
-<div class="viewcode-block" id="MaximumLengthSubItem.to_primitive"><a class="viewcode-back" href="../../reference/generated/pynetdicom.pdu_items.MaximumLengthSubItem.html#pynetdicom.pdu.MaximumLengthSubItem.to_primitive">[docs]</a>    <span class="k">def</span> <span class="nf">to_primitive</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">to_primitive</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Return a Maximum Length primitive from the current Item.</span>
 
 <span class="sd">        Returns</span>
@@ -1823,12 +1741,12 @@
 <span class="sd">        pdu_primitives.MaximumLengthNotification</span>
 <span class="sd">            The primitive representation of the current Item.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="kn">from</span> <span class="nn">pynetdicom.pdu_primitives</span> <span class="k">import</span> <span class="n">MaximumLengthNotification</span>
+        <span class="kn">from</span> <span class="nn">pynetdicom.pdu_primitives</span> <span class="kn">import</span> <span class="n">MaximumLengthNotification</span>
 
         <span class="n">primitive</span> <span class="o">=</span> <span class="n">MaximumLengthNotification</span><span class="p">()</span>
         <span class="n">primitive</span><span class="o">.</span><span class="n">maximum_length_received</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">maximum_length_received</span>
 
-        <span class="k">return</span> <span class="n">primitive</span></div>
+        <span class="k">return</span> <span class="n">primitive</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">_decoders</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
@@ -1880,7 +1798,7 @@
         <span class="sd">&quot;&quot;&quot;Return the item&#39;s *Item Length* field value as an int.&quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="mi">4</span>
 
-    <span class="k">def</span> <span class="nf">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span> <span class="fm">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Return a string representation of the Item.&quot;&quot;&quot;</span>
         <span class="n">s</span> <span class="o">=</span> <span class="s2">&quot;Maximum length Sub-item</span><span class="se">\n</span><span class="s2">&quot;</span>
         <span class="n">s</span> <span class="o">+=</span> <span class="s2">&quot;  Item type: 0x</span><span class="si">{0:02x}</span><span class="se">\n</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">item_type</span><span class="p">)</span>
@@ -1940,11 +1858,11 @@
 <span class="sd">       `Section 9.3.1 &lt;http://dicom.nema.org/medical/dicom/current/output/html/part08.html#sect_9.3.1&gt;`_</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
-<div class="viewcode-block" id="ImplementationClassUIDSubItem.__init__"><a class="viewcode-back" href="../../reference/generated/pynetdicom.pdu_items.ImplementationClassUIDSubItem.html#pynetdicom.pdu.ImplementationClassUIDSubItem.__init__">[docs]</a>    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<div class="viewcode-block" id="ImplementationClassUIDSubItem.__init__"><a class="viewcode-back" href="../../reference/generated/pynetdicom.pdu_items.ImplementationClassUIDSubItem.html#pynetdicom.pdu.ImplementationClassUIDSubItem.__init__">[docs]</a>    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Initialise a new Implementation Class UID Item.&quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">implementation_class_uid</span> <span class="o">=</span> <span class="kc">None</span></div>
 
-<div class="viewcode-block" id="ImplementationClassUIDSubItem.from_primitive"><a class="viewcode-back" href="../../reference/generated/pynetdicom.pdu_items.ImplementationClassUIDSubItem.html#pynetdicom.pdu.ImplementationClassUIDSubItem.from_primitive">[docs]</a>    <span class="k">def</span> <span class="nf">from_primitive</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">primitive</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">from_primitive</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">primitive</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Set the item&#39;s values using an Implementation Identification</span>
 <span class="sd">        primitive.</span>
 
@@ -1953,9 +1871,9 @@
 <span class="sd">        primitive : pdu_primitives.ImplementationClassUIDNotification</span>
 <span class="sd">            The primitive to use to set the Item&#39;s field values.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">implementation_class_uid</span> <span class="o">=</span> <span class="n">primitive</span><span class="o">.</span><span class="n">implementation_class_uid</span></div>
+        <span class="bp">self</span><span class="o">.</span><span class="n">implementation_class_uid</span> <span class="o">=</span> <span class="n">primitive</span><span class="o">.</span><span class="n">implementation_class_uid</span>
 
-<div class="viewcode-block" id="ImplementationClassUIDSubItem.to_primitive"><a class="viewcode-back" href="../../reference/generated/pynetdicom.pdu_items.ImplementationClassUIDSubItem.html#pynetdicom.pdu.ImplementationClassUIDSubItem.to_primitive">[docs]</a>    <span class="k">def</span> <span class="nf">to_primitive</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">to_primitive</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Return an Implementation Identification primitive from the current</span>
 <span class="sd">        Item.</span>
 
@@ -1964,14 +1882,14 @@
 <span class="sd">        pdu_primitives.ImplementationClassUIDNotification</span>
 <span class="sd">            The primitive representation of the current Item.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="kn">from</span> <span class="nn">pynetdicom.pdu_primitives</span> <span class="k">import</span> <span class="p">(</span>
+        <span class="kn">from</span> <span class="nn">pynetdicom.pdu_primitives</span> <span class="kn">import</span> <span class="p">(</span>
             <span class="n">ImplementationClassUIDNotification</span>
         <span class="p">)</span>
 
         <span class="n">primitive</span> <span class="o">=</span> <span class="n">ImplementationClassUIDNotification</span><span class="p">()</span>
         <span class="n">primitive</span><span class="o">.</span><span class="n">implementation_class_uid</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">implementation_class_uid</span>
 
-        <span class="k">return</span> <span class="n">primitive</span></div>
+        <span class="k">return</span> <span class="n">primitive</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">_decoders</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
@@ -2052,7 +1970,7 @@
 
         <span class="k">return</span> <span class="mi">0</span>
 
-    <span class="k">def</span> <span class="nf">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span> <span class="fm">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Return a string representation of the Item.&quot;&quot;&quot;</span>
         <span class="n">s</span> <span class="o">=</span> <span class="s2">&quot;Implementation Class UID Sub-item</span><span class="se">\n</span><span class="s2">&quot;</span>
         <span class="n">s</span> <span class="o">+=</span> <span class="s2">&quot;  Item type: 0x</span><span class="si">{0:02x}</span><span class="se">\n</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">item_type</span><span class="p">)</span>
@@ -2118,11 +2036,11 @@
 <span class="sd">       `Section 9.3.1 &lt;http://dicom.nema.org/medical/dicom/current/output/html/part08.html#sect_9.3.1&gt;`_</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
-<div class="viewcode-block" id="ImplementationVersionNameSubItem.__init__"><a class="viewcode-back" href="../../reference/generated/pynetdicom.pdu_items.ImplementationVersionNameSubItem.html#pynetdicom.pdu.ImplementationVersionNameSubItem.__init__">[docs]</a>    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<div class="viewcode-block" id="ImplementationVersionNameSubItem.__init__"><a class="viewcode-back" href="../../reference/generated/pynetdicom.pdu_items.ImplementationVersionNameSubItem.html#pynetdicom.pdu.ImplementationVersionNameSubItem.__init__">[docs]</a>    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Initialise a new Implementation Version Name Item.&quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">implementation_version_name</span> <span class="o">=</span> <span class="kc">None</span></div>
 
-<div class="viewcode-block" id="ImplementationVersionNameSubItem.from_primitive"><a class="viewcode-back" href="../../reference/generated/pynetdicom.pdu_items.ImplementationVersionNameSubItem.html#pynetdicom.pdu.ImplementationVersionNameSubItem.from_primitive">[docs]</a>    <span class="k">def</span> <span class="nf">from_primitive</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">primitive</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">from_primitive</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">primitive</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Set the item&#39;s values using an Implementation Identification</span>
 <span class="sd">        primitive.</span>
 
@@ -2131,9 +2049,9 @@
 <span class="sd">        primitive : pdu_primitives.ImplementationVersionNameNotification</span>
 <span class="sd">            The primitive to use to set the Item&#39;s field values.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">implementation_version_name</span> <span class="o">=</span> <span class="n">primitive</span><span class="o">.</span><span class="n">implementation_version_name</span></div>
+        <span class="bp">self</span><span class="o">.</span><span class="n">implementation_version_name</span> <span class="o">=</span> <span class="n">primitive</span><span class="o">.</span><span class="n">implementation_version_name</span>
 
-<div class="viewcode-block" id="ImplementationVersionNameSubItem.to_primitive"><a class="viewcode-back" href="../../reference/generated/pynetdicom.pdu_items.ImplementationVersionNameSubItem.html#pynetdicom.pdu.ImplementationVersionNameSubItem.to_primitive">[docs]</a>    <span class="k">def</span> <span class="nf">to_primitive</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">to_primitive</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Return an Implementation Identification primitive from the current</span>
 <span class="sd">        Item.</span>
 
@@ -2142,13 +2060,13 @@
 <span class="sd">        pdu_primitives.ImplementationVersionNameNotification</span>
 <span class="sd">            The primitive representation of the current Item.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="kn">from</span> <span class="nn">pynetdicom.pdu_primitives</span> <span class="k">import</span> \
+        <span class="kn">from</span> <span class="nn">pynetdicom.pdu_primitives</span> <span class="kn">import</span> \
             <span class="n">ImplementationVersionNameNotification</span>
 
         <span class="n">prim</span> <span class="o">=</span> <span class="n">ImplementationVersionNameNotification</span><span class="p">()</span>
         <span class="n">prim</span><span class="o">.</span><span class="n">implementation_version_name</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">implementation_version_name</span>
 
-        <span class="k">return</span> <span class="n">prim</span></div>
+        <span class="k">return</span> <span class="n">prim</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">_decoders</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
@@ -2212,7 +2130,7 @@
 
         <span class="k">return</span> <span class="mi">0</span>
 
-    <span class="k">def</span> <span class="nf">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span> <span class="fm">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Return a string representation of the Item.&quot;&quot;&quot;</span>
         <span class="n">s</span> <span class="o">=</span> <span class="s2">&quot;Implementation Version Name Sub-item</span><span class="se">\n</span><span class="s2">&quot;</span>
         <span class="n">s</span> <span class="o">+=</span> <span class="s2">&quot;  Item type: 0x</span><span class="si">{0:02x}</span><span class="se">\n</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">item_type</span><span class="p">)</span>
@@ -2279,12 +2197,12 @@
 <span class="sd">       `Section 9.3.1 &lt;http://dicom.nema.org/medical/dicom/current/output/html/part08.html#sect_9.3.1&gt;`_</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
-<div class="viewcode-block" id="AsynchronousOperationsWindowSubItem.__init__"><a class="viewcode-back" href="../../reference/generated/pynetdicom.pdu_items.AsynchronousOperationsWindowSubItem.html#pynetdicom.pdu.AsynchronousOperationsWindowSubItem.__init__">[docs]</a>    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<div class="viewcode-block" id="AsynchronousOperationsWindowSubItem.__init__"><a class="viewcode-back" href="../../reference/generated/pynetdicom.pdu_items.AsynchronousOperationsWindowSubItem.html#pynetdicom.pdu.AsynchronousOperationsWindowSubItem.__init__">[docs]</a>    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Initialise a new Asynchronous Operations Window Item.&quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">maximum_number_operations_invoked</span> <span class="o">=</span> <span class="kc">None</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">maximum_number_operations_performed</span> <span class="o">=</span> <span class="kc">None</span></div>
 
-<div class="viewcode-block" id="AsynchronousOperationsWindowSubItem.from_primitive"><a class="viewcode-back" href="../../reference/generated/pynetdicom.pdu_items.AsynchronousOperationsWindowSubItem.html#pynetdicom.pdu.AsynchronousOperationsWindowSubItem.from_primitive">[docs]</a>    <span class="k">def</span> <span class="nf">from_primitive</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">primitive</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">from_primitive</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">primitive</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Set the item&#39;s values using an Asynchronous Operations Window</span>
 <span class="sd">        primitive.</span>
 
@@ -2298,9 +2216,9 @@
         <span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">maximum_number_operations_performed</span> <span class="o">=</span> <span class="p">(</span>
             <span class="n">primitive</span><span class="o">.</span><span class="n">maximum_number_operations_performed</span>
-        <span class="p">)</span></div>
+        <span class="p">)</span>
 
-<div class="viewcode-block" id="AsynchronousOperationsWindowSubItem.to_primitive"><a class="viewcode-back" href="../../reference/generated/pynetdicom.pdu_items.AsynchronousOperationsWindowSubItem.html#pynetdicom.pdu.AsynchronousOperationsWindowSubItem.to_primitive">[docs]</a>    <span class="k">def</span> <span class="nf">to_primitive</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">to_primitive</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Return an Asynchronous Operations Window primitive from the current</span>
 <span class="sd">        Item.</span>
 
@@ -2309,7 +2227,7 @@
 <span class="sd">        pdu_primitives.AsynchronousOperationsWindowNegotiation</span>
 <span class="sd">            The primitive representation of the current Item.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="kn">from</span> <span class="nn">pynetdicom.pdu_primitives</span> <span class="k">import</span> <span class="p">(</span>
+        <span class="kn">from</span> <span class="nn">pynetdicom.pdu_primitives</span> <span class="kn">import</span> <span class="p">(</span>
             <span class="n">AsynchronousOperationsWindowNegotiation</span>
         <span class="p">)</span>
 
@@ -2321,7 +2239,7 @@
             <span class="bp">self</span><span class="o">.</span><span class="n">maximum_number_operations_performed</span>
         <span class="p">)</span>
 
-        <span class="k">return</span> <span class="n">primitive</span></div>
+        <span class="k">return</span> <span class="n">primitive</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">_decoders</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
@@ -2390,7 +2308,7 @@
         <span class="sd">&quot;&quot;&quot;Return the item&#39;s *Maximum Number Operations Performed* field value.&quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">maximum_number_operations_performed</span>
 
-    <span class="k">def</span> <span class="nf">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span> <span class="fm">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Return a string representation of the Item.&quot;&quot;&quot;</span>
         <span class="n">s</span> <span class="o">=</span> <span class="s2">&quot;Asynchronous Operation Window Sub-item</span><span class="se">\n</span><span class="s2">&quot;</span>
         <span class="n">s</span> <span class="o">+=</span> <span class="s2">&quot;  Item type: 0x</span><span class="si">{0:02x}</span><span class="se">\n</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">item_type</span><span class="p">)</span>
@@ -2471,14 +2389,14 @@
 <span class="sd">       `Section 9.3.1 &lt;http://dicom.nema.org/medical/dicom/current/output/html/part08.html#sect_9.3.1&gt;`_</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
-<div class="viewcode-block" id="SCP_SCU_RoleSelectionSubItem.__init__"><a class="viewcode-back" href="../../reference/generated/pynetdicom.pdu_items.SCP_SCU_RoleSelectionSubItem.html#pynetdicom.pdu.SCP_SCU_RoleSelectionSubItem.__init__">[docs]</a>    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<div class="viewcode-block" id="SCP_SCU_RoleSelectionSubItem.__init__"><a class="viewcode-back" href="../../reference/generated/pynetdicom.pdu_items.SCP_SCU_RoleSelectionSubItem.html#pynetdicom.pdu.SCP_SCU_RoleSelectionSubItem.__init__">[docs]</a>    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Initialise a new SCP/SCU Role Selection Item.&quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_uid_length</span> <span class="o">=</span> <span class="kc">None</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">sop_class_uid</span> <span class="o">=</span> <span class="kc">None</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">scu_role</span> <span class="o">=</span> <span class="kc">None</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">scp_role</span> <span class="o">=</span> <span class="kc">None</span></div>
 
-<div class="viewcode-block" id="SCP_SCU_RoleSelectionSubItem.from_primitive"><a class="viewcode-back" href="../../reference/generated/pynetdicom.pdu_items.SCP_SCU_RoleSelectionSubItem.html#pynetdicom.pdu.SCP_SCU_RoleSelectionSubItem.from_primitive">[docs]</a>    <span class="k">def</span> <span class="nf">from_primitive</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">primitive</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">from_primitive</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">primitive</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Set the item&#39;s values using an SCP/SCU Role Selection primitive.</span>
 
 <span class="sd">        Parameters</span>
@@ -2494,9 +2412,9 @@
         <span class="k">if</span> <span class="n">primitive</span><span class="o">.</span><span class="n">scp_role</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">scp_role</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">primitive</span><span class="o">.</span><span class="n">scp_role</span><span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">scp_role</span> <span class="o">=</span> <span class="kc">False</span></div>
+            <span class="bp">self</span><span class="o">.</span><span class="n">scp_role</span> <span class="o">=</span> <span class="kc">False</span>
 
-<div class="viewcode-block" id="SCP_SCU_RoleSelectionSubItem.to_primitive"><a class="viewcode-back" href="../../reference/generated/pynetdicom.pdu_items.SCP_SCU_RoleSelectionSubItem.html#pynetdicom.pdu.SCP_SCU_RoleSelectionSubItem.to_primitive">[docs]</a>    <span class="k">def</span> <span class="nf">to_primitive</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">to_primitive</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Return an SCP/SCU Role Selection primitive from the current Item.</span>
 
 <span class="sd">        Returns</span>
@@ -2504,14 +2422,14 @@
 <span class="sd">        pdu_primitives.SCP_SCU_RoleSelectionNegotiation</span>
 <span class="sd">            The primitive representation of the current Item.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="kn">from</span> <span class="nn">pynetdicom.pdu_primitives</span> <span class="k">import</span> <span class="n">SCP_SCU_RoleSelectionNegotiation</span>
+        <span class="kn">from</span> <span class="nn">pynetdicom.pdu_primitives</span> <span class="kn">import</span> <span class="n">SCP_SCU_RoleSelectionNegotiation</span>
 
         <span class="n">primitive</span> <span class="o">=</span> <span class="n">SCP_SCU_RoleSelectionNegotiation</span><span class="p">()</span>
         <span class="n">primitive</span><span class="o">.</span><span class="n">sop_class_uid</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">sop_class_uid</span>
         <span class="n">primitive</span><span class="o">.</span><span class="n">scu_role</span> <span class="o">=</span> <span class="nb">bool</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">scu_role</span><span class="p">)</span>
         <span class="n">primitive</span><span class="o">.</span><span class="n">scp_role</span> <span class="o">=</span> <span class="nb">bool</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">scp_role</span><span class="p">)</span>
 
-        <span class="k">return</span> <span class="n">primitive</span></div>
+        <span class="k">return</span> <span class="n">primitive</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">_decoders</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
@@ -2647,7 +2565,7 @@
 
         <span class="bp">self</span><span class="o">.</span><span class="n">_sop_class_uid</span> <span class="o">=</span> <span class="n">value</span>
 
-    <span class="k">def</span> <span class="nf">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span> <span class="fm">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Return a string representation of the Item.&quot;&quot;&quot;</span>
         <span class="n">s</span> <span class="o">=</span> <span class="s2">&quot;SCP/SCU Role Selection Sub-item</span><span class="se">\n</span><span class="s2">&quot;</span>
         <span class="n">s</span> <span class="o">+=</span> <span class="s2">&quot;  Item type: 0x</span><span class="si">{0:02x}</span><span class="se">\n</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">item_type</span><span class="p">)</span>
@@ -2737,13 +2655,13 @@
 <span class="sd">       `Section 9.3.1 &lt;http://dicom.nema.org/medical/dicom/current/output/html/part08.html#sect_9.3.1&gt;`_</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
-<div class="viewcode-block" id="SOPClassExtendedNegotiationSubItem.__init__"><a class="viewcode-back" href="../../reference/generated/pynetdicom.pdu_items.SOPClassExtendedNegotiationSubItem.html#pynetdicom.pdu.SOPClassExtendedNegotiationSubItem.__init__">[docs]</a>    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<div class="viewcode-block" id="SOPClassExtendedNegotiationSubItem.__init__"><a class="viewcode-back" href="../../reference/generated/pynetdicom.pdu_items.SOPClassExtendedNegotiationSubItem.html#pynetdicom.pdu.SOPClassExtendedNegotiationSubItem.__init__">[docs]</a>    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Initialise a new SOP Class Extended Negotiation Item.&quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_sop_class_uid_length</span> <span class="o">=</span> <span class="kc">None</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">sop_class_uid</span> <span class="o">=</span> <span class="kc">None</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">service_class_application_information</span> <span class="o">=</span> <span class="kc">None</span></div>
 
-<div class="viewcode-block" id="SOPClassExtendedNegotiationSubItem.from_primitive"><a class="viewcode-back" href="../../reference/generated/pynetdicom.pdu_items.SOPClassExtendedNegotiationSubItem.html#pynetdicom.pdu.SOPClassExtendedNegotiationSubItem.from_primitive">[docs]</a>    <span class="k">def</span> <span class="nf">from_primitive</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">primitive</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">from_primitive</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">primitive</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Set the item&#39;s values using a SOP Class Extended Negotiation</span>
 <span class="sd">        primitive.</span>
 
@@ -2755,9 +2673,9 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">sop_class_uid</span> <span class="o">=</span> <span class="n">primitive</span><span class="o">.</span><span class="n">sop_class_uid</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">service_class_application_information</span> <span class="o">=</span> <span class="p">(</span>
             <span class="n">primitive</span><span class="o">.</span><span class="n">service_class_application_information</span>
-        <span class="p">)</span></div>
+        <span class="p">)</span>
 
-<div class="viewcode-block" id="SOPClassExtendedNegotiationSubItem.to_primitive"><a class="viewcode-back" href="../../reference/generated/pynetdicom.pdu_items.SOPClassExtendedNegotiationSubItem.html#pynetdicom.pdu.SOPClassExtendedNegotiationSubItem.to_primitive">[docs]</a>    <span class="k">def</span> <span class="nf">to_primitive</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">to_primitive</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Return a SOP Class Extended Negotiation primitive from the current</span>
 <span class="sd">        Item.</span>
 
@@ -2766,7 +2684,7 @@
 <span class="sd">        pdu_primitives.SOPClassExtendedNegotiation</span>
 <span class="sd">            The primitive representation of the current Item.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="kn">from</span> <span class="nn">pynetdicom.pdu_primitives</span> <span class="k">import</span> <span class="n">SOPClassExtendedNegotiation</span>
+        <span class="kn">from</span> <span class="nn">pynetdicom.pdu_primitives</span> <span class="kn">import</span> <span class="n">SOPClassExtendedNegotiation</span>
 
         <span class="n">primitive</span> <span class="o">=</span> <span class="n">SOPClassExtendedNegotiation</span><span class="p">()</span>
         <span class="n">primitive</span><span class="o">.</span><span class="n">sop_class_uid</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">sop_class_uid</span>
@@ -2774,7 +2692,7 @@
             <span class="bp">self</span><span class="o">.</span><span class="n">service_class_application_information</span>
         <span class="p">)</span>
 
-        <span class="k">return</span> <span class="n">primitive</span></div>
+        <span class="k">return</span> <span class="n">primitive</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">app_info</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
@@ -2881,7 +2799,7 @@
 
         <span class="k">return</span> <span class="mi">0</span>
 
-    <span class="k">def</span> <span class="nf">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span> <span class="fm">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Return a string representation of the Item.&quot;&quot;&quot;</span>
         <span class="n">s</span> <span class="o">=</span> <span class="s2">&quot;SOP Class Extended Negotiation Sub-item</span><span class="se">\n</span><span class="s2">&quot;</span>
         <span class="n">s</span> <span class="o">+=</span> <span class="s2">&quot;  Item type: 0x</span><span class="si">{0:02x}</span><span class="se">\n</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">item_type</span><span class="p">)</span>
@@ -3008,7 +2926,7 @@
 <span class="sd">       `Section 9.3.1 &lt;http://dicom.nema.org/medical/dicom/current/output/html/part08.html#sect_9.3.1&gt;`_</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
-<div class="viewcode-block" id="SOPClassCommonExtendedNegotiationSubItem.__init__"><a class="viewcode-back" href="../../reference/generated/pynetdicom.pdu_items.SOPClassCommonExtendedNegotiationSubItem.html#pynetdicom.pdu.SOPClassCommonExtendedNegotiationSubItem.__init__">[docs]</a>    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<div class="viewcode-block" id="SOPClassCommonExtendedNegotiationSubItem.__init__"><a class="viewcode-back" href="../../reference/generated/pynetdicom.pdu_items.SOPClassCommonExtendedNegotiationSubItem.html#pynetdicom.pdu.SOPClassCommonExtendedNegotiationSubItem.__init__">[docs]</a>    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Initialise a new Implementation Version Name Item.&quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">sub_item_version</span> <span class="o">=</span> <span class="mh">0x00</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_sop_length</span> <span class="o">=</span> <span class="kc">None</span>
@@ -3017,7 +2935,7 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">service_class_uid</span> <span class="o">=</span> <span class="kc">None</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">related_general_sop_class_identification</span> <span class="o">=</span> <span class="p">[]</span></div>
 
-<div class="viewcode-block" id="SOPClassCommonExtendedNegotiationSubItem.from_primitive"><a class="viewcode-back" href="../../reference/generated/pynetdicom.pdu_items.SOPClassCommonExtendedNegotiationSubItem.html#pynetdicom.pdu.SOPClassCommonExtendedNegotiationSubItem.from_primitive">[docs]</a>    <span class="k">def</span> <span class="nf">from_primitive</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">primitive</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">from_primitive</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">primitive</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Set the item&#39;s values using a SOP Class Common Extended Negotiation</span>
 <span class="sd">        primitive.</span>
 
@@ -3030,9 +2948,9 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">service_class_uid</span> <span class="o">=</span> <span class="n">primitive</span><span class="o">.</span><span class="n">service_class_uid</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">related_general_sop_class_identification</span> <span class="o">=</span> <span class="p">(</span>
             <span class="n">primitive</span><span class="o">.</span><span class="n">related_general_sop_class_identification</span>
-        <span class="p">)</span></div>
+        <span class="p">)</span>
 
-<div class="viewcode-block" id="SOPClassCommonExtendedNegotiationSubItem.to_primitive"><a class="viewcode-back" href="../../reference/generated/pynetdicom.pdu_items.SOPClassCommonExtendedNegotiationSubItem.html#pynetdicom.pdu.SOPClassCommonExtendedNegotiationSubItem.to_primitive">[docs]</a>    <span class="k">def</span> <span class="nf">to_primitive</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">to_primitive</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Return an SOP Class Common Extended Negotiation primitive from the</span>
 <span class="sd">        current Item.</span>
 
@@ -3041,7 +2959,7 @@
 <span class="sd">        pdu_primitives.SOPClassCommonExtendedNegotiation</span>
 <span class="sd">            The primitive representation of the current Item.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="kn">from</span> <span class="nn">pynetdicom.pdu_primitives</span> <span class="k">import</span> <span class="n">SOPClassCommonExtendedNegotiation</span>
+        <span class="kn">from</span> <span class="nn">pynetdicom.pdu_primitives</span> <span class="kn">import</span> <span class="n">SOPClassCommonExtendedNegotiation</span>
 
         <span class="n">primitive</span> <span class="o">=</span> <span class="n">SOPClassCommonExtendedNegotiation</span><span class="p">()</span>
         <span class="n">primitive</span><span class="o">.</span><span class="n">sop_class_uid</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">sop_class_uid</span>
@@ -3050,7 +2968,7 @@
             <span class="bp">self</span><span class="o">.</span><span class="n">related_general_sop_class_identification</span>
         <span class="p">)</span>
 
-        <span class="k">return</span> <span class="n">primitive</span></div>
+        <span class="k">return</span> <span class="n">primitive</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">_decoders</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
@@ -3287,7 +3205,7 @@
 
         <span class="k">return</span> <span class="mi">0</span>
 
-    <span class="k">def</span> <span class="nf">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span> <span class="fm">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Return a string representation of the Item.&quot;&quot;&quot;</span>
         <span class="n">s</span> <span class="o">=</span> <span class="s2">&quot;SOP Class Common Extended Negotiation Sub-item</span><span class="se">\n</span><span class="s2">&quot;</span>
         <span class="n">s</span> <span class="o">+=</span> <span class="s2">&quot;  Item type: 0x</span><span class="si">{0:02x}</span><span class="se">\n</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">item_type</span><span class="p">)</span>
@@ -3418,7 +3336,7 @@
 <span class="sd">       `Section 9.3.1 &lt;http://dicom.nema.org/medical/dicom/current/output/html/part08.html#sect_9.3.1&gt;`_</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
-<div class="viewcode-block" id="UserIdentitySubItemRQ.__init__"><a class="viewcode-back" href="../../reference/generated/pynetdicom.pdu_items.UserIdentitySubItemRQ.html#pynetdicom.pdu.UserIdentitySubItemRQ.__init__">[docs]</a>    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<div class="viewcode-block" id="UserIdentitySubItemRQ.__init__"><a class="viewcode-back" href="../../reference/generated/pynetdicom.pdu_items.UserIdentitySubItemRQ.html#pynetdicom.pdu.UserIdentitySubItemRQ.__init__">[docs]</a>    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Initialise a new User Identity (RQ) Item.&quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">user_identity_type</span> <span class="o">=</span> <span class="kc">None</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">positive_response_requested</span> <span class="o">=</span> <span class="kc">None</span>
@@ -3427,7 +3345,7 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">_secondary_length</span> <span class="o">=</span> <span class="kc">None</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">secondary_field</span> <span class="o">=</span> <span class="sa">b</span><span class="s1">&#39;&#39;</span></div>
 
-<div class="viewcode-block" id="UserIdentitySubItemRQ.from_primitive"><a class="viewcode-back" href="../../reference/generated/pynetdicom.pdu_items.UserIdentitySubItemRQ.html#pynetdicom.pdu.UserIdentitySubItemRQ.from_primitive">[docs]</a>    <span class="k">def</span> <span class="nf">from_primitive</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">primitive</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">from_primitive</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">primitive</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Set the item&#39;s values using an User Identity primitive.</span>
 
 <span class="sd">        Parameters</span>
@@ -3440,9 +3358,9 @@
             <span class="nb">int</span><span class="p">(</span><span class="n">primitive</span><span class="o">.</span><span class="n">positive_response_requested</span><span class="p">)</span>
         <span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">primary_field</span> <span class="o">=</span> <span class="n">primitive</span><span class="o">.</span><span class="n">primary_field</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">secondary_field</span> <span class="o">=</span> <span class="n">primitive</span><span class="o">.</span><span class="n">secondary_field</span></div>
+        <span class="bp">self</span><span class="o">.</span><span class="n">secondary_field</span> <span class="o">=</span> <span class="n">primitive</span><span class="o">.</span><span class="n">secondary_field</span>
 
-<div class="viewcode-block" id="UserIdentitySubItemRQ.to_primitive"><a class="viewcode-back" href="../../reference/generated/pynetdicom.pdu_items.UserIdentitySubItemRQ.html#pynetdicom.pdu.UserIdentitySubItemRQ.to_primitive">[docs]</a>    <span class="k">def</span> <span class="nf">to_primitive</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">to_primitive</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Return an  User Identity primitive from the current Item.</span>
 
 <span class="sd">        Returns</span>
@@ -3450,7 +3368,7 @@
 <span class="sd">        pdu_primitives.UserIdentityNegotiation</span>
 <span class="sd">            The primitive representation of the current Item.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="kn">from</span> <span class="nn">pynetdicom.pdu_primitives</span> <span class="k">import</span> <span class="n">UserIdentityNegotiation</span>
+        <span class="kn">from</span> <span class="nn">pynetdicom.pdu_primitives</span> <span class="kn">import</span> <span class="n">UserIdentityNegotiation</span>
 
         <span class="n">primitive</span> <span class="o">=</span> <span class="n">UserIdentityNegotiation</span><span class="p">()</span>
         <span class="n">primitive</span><span class="o">.</span><span class="n">user_identity_type</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">user_identity_type</span>
@@ -3460,7 +3378,7 @@
         <span class="n">primitive</span><span class="o">.</span><span class="n">primary_field</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">primary_field</span>
         <span class="n">primitive</span><span class="o">.</span><span class="n">secondary_field</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">secondary_field</span>
 
-        <span class="k">return</span> <span class="n">primitive</span></div>
+        <span class="k">return</span> <span class="n">primitive</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">_decoders</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
@@ -3598,7 +3516,7 @@
 
         <span class="k">return</span> <span class="mi">0</span>
 
-    <span class="k">def</span> <span class="nf">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span> <span class="fm">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Return a string representation of the Item.&quot;&quot;&quot;</span>
         <span class="n">s</span> <span class="o">=</span> <span class="s2">&quot;User Identity (RQ) Sub-item</span><span class="se">\n</span><span class="s2">&quot;</span>
         <span class="n">s</span> <span class="o">+=</span> <span class="s2">&quot;  Item type: 0x</span><span class="si">{0:02x}</span><span class="se">\n</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">item_type</span><span class="p">)</span>
@@ -3676,11 +3594,11 @@
 <span class="sd">       `Section 9.3.1 &lt;http://dicom.nema.org/medical/dicom/current/output/html/part08.html#sect_9.3.1&gt;`_</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
-<div class="viewcode-block" id="UserIdentitySubItemAC.__init__"><a class="viewcode-back" href="../../reference/generated/pynetdicom.pdu_items.UserIdentitySubItemAC.html#pynetdicom.pdu.UserIdentitySubItemAC.__init__">[docs]</a>    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<div class="viewcode-block" id="UserIdentitySubItemAC.__init__"><a class="viewcode-back" href="../../reference/generated/pynetdicom.pdu_items.UserIdentitySubItemAC.html#pynetdicom.pdu.UserIdentitySubItemAC.__init__">[docs]</a>    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Initialise a new User Identity (AC) Item.&quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">server_response</span> <span class="o">=</span> <span class="kc">None</span></div>
 
-<div class="viewcode-block" id="UserIdentitySubItemAC.from_primitive"><a class="viewcode-back" href="../../reference/generated/pynetdicom.pdu_items.UserIdentitySubItemAC.html#pynetdicom.pdu.UserIdentitySubItemAC.from_primitive">[docs]</a>    <span class="k">def</span> <span class="nf">from_primitive</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">primitive</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">from_primitive</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">primitive</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Set the item&#39;s values using an User Identity primitive.</span>
 
 <span class="sd">        Parameters</span>
@@ -3688,9 +3606,9 @@
 <span class="sd">        primitive : pdu_primitives.UserIdentityNegotiation</span>
 <span class="sd">            The primitive to use to set the Item&#39;s field values.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">server_response</span> <span class="o">=</span> <span class="n">primitive</span><span class="o">.</span><span class="n">server_response</span></div>
+        <span class="bp">self</span><span class="o">.</span><span class="n">server_response</span> <span class="o">=</span> <span class="n">primitive</span><span class="o">.</span><span class="n">server_response</span>
 
-<div class="viewcode-block" id="UserIdentitySubItemAC.to_primitive"><a class="viewcode-back" href="../../reference/generated/pynetdicom.pdu_items.UserIdentitySubItemAC.html#pynetdicom.pdu.UserIdentitySubItemAC.to_primitive">[docs]</a>    <span class="k">def</span> <span class="nf">to_primitive</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">to_primitive</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Return an  User Identity primitive from the current Item.</span>
 
 <span class="sd">        Returns</span>
@@ -3698,12 +3616,12 @@
 <span class="sd">        pdu_primitives.UserIdentityNegotiation</span>
 <span class="sd">            The primitive representation of the current Item.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="kn">from</span> <span class="nn">pynetdicom.pdu_primitives</span> <span class="k">import</span> <span class="n">UserIdentityNegotiation</span>
+        <span class="kn">from</span> <span class="nn">pynetdicom.pdu_primitives</span> <span class="kn">import</span> <span class="n">UserIdentityNegotiation</span>
 
         <span class="n">primitive</span> <span class="o">=</span> <span class="n">UserIdentityNegotiation</span><span class="p">()</span>
         <span class="n">primitive</span><span class="o">.</span><span class="n">server_response</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">server_response</span>
 
-        <span class="k">return</span> <span class="n">primitive</span></div>
+        <span class="k">return</span> <span class="n">primitive</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">_decoders</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
@@ -3764,7 +3682,7 @@
 
         <span class="k">return</span> <span class="mi">0</span>
 
-    <span class="k">def</span> <span class="nf">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span> <span class="fm">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Return a string representation of the Item.&quot;&quot;&quot;</span>
         <span class="n">s</span> <span class="o">=</span> <span class="s2">&quot;User Identity (AC) Sub-item</span><span class="se">\n</span><span class="s2">&quot;</span>
         <span class="n">s</span> <span class="o">+=</span> <span class="s2">&quot;  Item type: 0x</span><span class="si">{0:02x}</span><span class="se">\n</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">item_type</span><span class="p">)</span>
@@ -3828,7 +3746,7 @@
 <span class="sd">       `Section 9.3.1 &lt;http://dicom.nema.org/medical/dicom/current/output/html/part08.html#sect_9.3.1&gt;`_</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
-<div class="viewcode-block" id="PresentationDataValueItem.__init__"><a class="viewcode-back" href="../../reference/generated/pynetdicom.pdu_items.PresentationDataValueItem.html#pynetdicom.pdu.PresentationDataValueItem.__init__">[docs]</a>    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<div class="viewcode-block" id="PresentationDataValueItem.__init__"><a class="viewcode-back" href="../../reference/generated/pynetdicom.pdu_items.PresentationDataValueItem.html#pynetdicom.pdu.PresentationDataValueItem.__init__">[docs]</a>    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Initialise a new Presentation Data Value Item.&quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">presentation_context_id</span> <span class="o">=</span> <span class="kc">None</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">presentation_data_value</span> <span class="o">=</span> <span class="kc">None</span></div>
@@ -3916,7 +3834,7 @@
 
         <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;No *Presentation Data Value* field value&quot;</span><span class="p">)</span>
 
-    <span class="k">def</span> <span class="nf">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span> <span class="fm">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Return a string representation of the Item.&quot;&quot;&quot;</span>
         <span class="n">s</span> <span class="o">=</span> <span class="s2">&quot;Presentation Value Data Item</span><span class="se">\n</span><span class="s2">&quot;</span>
         <span class="n">s</span> <span class="o">+=</span> <span class="s2">&quot;  Item length: </span><span class="si">{0:d}</span><span class="s2"> bytes</span><span class="se">\n</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">item_length</span><span class="p">)</span>
@@ -3954,48 +3872,26 @@
 </pre></div>
 
            </div>
-           
           </div>
           <footer>
-  
 
   <hr/>
 
   <div role="contentinfo">
-    <p>
-        &copy; Copyright 2018-19, pynetdicom contributors
-
-    </p>
+    <p>&#169; Copyright 2018-19, pynetdicom contributors.</p>
   </div>
-  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
 
 </footer>
-
         </div>
       </div>
-
     </section>
-
   </div>
-  
-
-
-  
-
-    
-    
-      <script type="text/javascript" id="documentation_options" data-url_root="../../" src="../../_static/documentation_options.js"></script>
-        <script type="text/javascript" src="../../_static/jquery.js"></script>
-        <script type="text/javascript" src="../../_static/underscore.js"></script>
-        <script type="text/javascript" src="../../_static/doctools.js"></script>
-        <script type="text/javascript" src="../../_static/language_data.js"></script>
-    
-
-  
-
-  <script type="text/javascript" src="../../_static/js/theme.js"></script>
-
-  <script type="text/javascript">
+  <script>
       jQuery(function () {
           SphinxRtdTheme.Navigation.enable(true);
       });

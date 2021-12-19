@@ -1,4 +1,4 @@
-pynetdicom.pdu\_primitives.SOPClassExtendedNegotiation
+﻿pynetdicom.pdu\_primitives.SOPClassExtendedNegotiation
 ======================================================
 
 .. currentmodule:: pynetdicom.pdu_primitives

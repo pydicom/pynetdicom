@@ -1,4 +1,4 @@
-pynetdicom.pdu\_primitives.AsynchronousOperationsWindowNegotiation
+﻿pynetdicom.pdu\_primitives.AsynchronousOperationsWindowNegotiation
 ==================================================================
 
 .. currentmodule:: pynetdicom.pdu_primitives
