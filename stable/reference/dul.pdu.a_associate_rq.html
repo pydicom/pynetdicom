@@ -1,0 +1,359 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" />
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  
+  <title>A-ASSOCIATE-RQ PDU &mdash; pynetdicom 1.5.7 documentation</title>
+  
+
+  
+  <link rel="stylesheet" href="../_static/css/pynetdicom.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/css/pynetdicom.css" type="text/css" />
+
+  
+  
+    <link rel="shortcut icon" href="../_static/favicon.ico"/>
+  
+
+  
+  
+
+  
+
+  
+  <!--[if lt IE 9]>
+    <script src="../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+        <script src="../_static/jquery.js"></script>
+        <script src="../_static/underscore.js"></script>
+        <script src="../_static/doctools.js"></script>
+    
+    <script type="text/javascript" src="../_static/js/theme.js"></script>
+
+    
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="pynetdicom.pdu.A_ASSOCIATE_RQ" href="generated/pynetdicom.pdu.A_ASSOCIATE_RQ.html" />
+    <link rel="prev" title="PDUs (pynetdicom.pdu)" href="dul.pdu.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="../index.html" class="icon icon-home"> pynetdicom
+          
+
+          
+            
+            <img src="../_static/pydicom_flat_black.svg" class="logo" alt="Logo"/>
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                1.5.7
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <p class="caption"><span class="caption-text">Documentation</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../user/index.html">User Guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../tutorials/index.html">Tutorials</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../service_classes/index.html">Supported Service Classes</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="index.html">API Reference</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="init.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">pynetdicom</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="acse.html">ACSE Service (<code class="xref py py-mod docutils literal notranslate"><span class="pre">pynetdicom.acse</span></code>)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="ae.html">Application Entity (<code class="xref py py-mod docutils literal notranslate"><span class="pre">pynetdicom.ae</span></code>)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="association.html">Association (<code class="xref py py-mod docutils literal notranslate"><span class="pre">pynetdicom.association</span></code>)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="config.html">Configuration Options (<code class="xref py py-mod docutils literal notranslate"><span class="pre">pynetdicom._config</span></code>)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="dimse.html">DIMSE Service</a></li>
+<li class="toctree-l2"><a class="reference internal" href="dsutils.html">Dataset Utilities (<code class="xref py py-mod docutils literal notranslate"><span class="pre">pynetdicom.dsutils</span></code>)</a></li>
+<li class="toctree-l2 current"><a class="reference internal" href="dul.html">DICOM Upper Layer</a><ul class="current">
+<li class="toctree-l3"><a class="reference internal" href="dul.provider.html">DUL Service Provider (<code class="xref py py-mod docutils literal notranslate"><span class="pre">pynetdicom.dul</span></code>)</a></li>
+<li class="toctree-l3"><a class="reference internal" href="dul.pdu_primitives.html">Service Primitives (<code class="xref py py-mod docutils literal notranslate"><span class="pre">pynetdicom.pdu_primitives</span></code>)</a></li>
+<li class="toctree-l3 current"><a class="reference internal" href="dul.pdu.html">PDUs (<code class="xref py py-mod docutils literal notranslate"><span class="pre">pynetdicom.pdu</span></code>)</a><ul class="current">
+<li class="toctree-l4 current"><a class="current reference internal" href="#">A-ASSOCIATE-RQ PDU</a></li>
+<li class="toctree-l4"><a class="reference internal" href="dul.pdu.a_associate_ac.html">A-ASSOCIATE-AC PDU</a></li>
+<li class="toctree-l4"><a class="reference internal" href="dul.pdu.a_associate_rj.html">A-ASSOCIATE-RJ PDU</a></li>
+<li class="toctree-l4"><a class="reference internal" href="dul.pdu.p_data_tf.html">P-DATA-TF PDU</a></li>
+<li class="toctree-l4"><a class="reference internal" href="dul.pdu.a_release_rq.html">A-RELEASE-RQ PDU</a></li>
+<li class="toctree-l4"><a class="reference internal" href="dul.pdu.a_release_rp.html">A-RELEASE-RP PDU</a></li>
+<li class="toctree-l4"><a class="reference internal" href="dul.pdu.a_abort_rq.html">A-ABORT-RQ PDU</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="dul.pdu_items.html">PDU Items and Sub-items (<code class="xref py py-mod docutils literal notranslate"><span class="pre">pynetdicom.pdu_items</span></code>)</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="events.html">Events and Handlers (<code class="xref py py-mod docutils literal notranslate"><span class="pre">pynetdicom.events</span></code>)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="fsm.html">State Machine (<code class="xref py py-mod docutils literal notranslate"><span class="pre">pynetdicom.fsm</span></code>)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="presentation.html">Presentation Service (<code class="xref py py-mod docutils literal notranslate"><span class="pre">pynetdicom.presentation</span></code>)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="service_classes.html">Service Classes (<code class="xref py py-mod docutils literal notranslate"><span class="pre">pynetdicom.service_class</span></code>)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="sop_classes.html">SOP Classes (<code class="xref py py-mod docutils literal notranslate"><span class="pre">pynetdicom.sop_class</span></code>)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="status.html">Statuses (<code class="xref py py-mod docutils literal notranslate"><span class="pre">pynetdicom.status</span></code>)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="timer.html">Timer (<code class="xref py py-mod docutils literal notranslate"><span class="pre">pynetdicom.timer</span></code>)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="transport.html">Transport Service (<code class="xref py py-mod docutils literal notranslate"><span class="pre">pynetdicom.transport</span></code>)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="utils.html">Utilities (<code class="xref py py-mod docutils literal notranslate"><span class="pre">pynetdicom.utils</span></code>)</a></li>
+</ul>
+</li>
+</ul>
+<p class="caption"><span class="caption-text">Examples</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../examples/index.html">Code Examples</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Additional Information</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../apps/index.html">Applications</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../changelog/index.html">Release Notes</a></li>
+</ul>
+
+            
+          
+        </div>
+        
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">pynetdicom</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../index.html" class="icon icon-home"></a> &raquo;</li>
+        
+          <li><a href="index.html">API Reference</a> &raquo;</li>
+        
+          <li><a href="dul.html">DICOM Upper Layer</a> &raquo;</li>
+        
+          <li><a href="dul.pdu.html">PDUs (<code class="xref py py-mod docutils literal notranslate"><span class="pre">pynetdicom.pdu</span></code>)</a> &raquo;</li>
+        
+      <li>A-ASSOCIATE-RQ PDU</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="a-associate-rq-pdu">
+<span id="api-dul-pdu-aassociaterq"></span><h1>A-ASSOCIATE-RQ PDU<a class="headerlink" href="#a-associate-rq-pdu" title="Permalink to this headline">¶</a></h1>
+<p>An A-ASSOCIATE-RQ PDU is made of a sequence of mandatory fields followed by a
+variable length field that must contain one Application Context item, one or
+more Presentation Context items and one User Information item. Sub-items shall
+exist for the Presentation Context and User Information items.</p>
+<div class="section" id="pdu">
+<h2>PDU<a class="headerlink" href="#pdu" title="Permalink to this headline">¶</a></h2>
+<table class="longtable docutils align-default">
+<colgroup>
+<col style="width: 10%" />
+<col style="width: 90%" />
+</colgroup>
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/pynetdicom.pdu.A_ASSOCIATE_RQ.html#pynetdicom.pdu.A_ASSOCIATE_RQ" title="pynetdicom.pdu.A_ASSOCIATE_RQ"><code class="xref py py-obj docutils literal notranslate"><span class="pre">A_ASSOCIATE_RQ</span></code></a>()</p></td>
+<td><p>An A-ASSOCIATE-RQ PDU.</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="section" id="variable-items">
+<h2>Variable Items<a class="headerlink" href="#variable-items" title="Permalink to this headline">¶</a></h2>
+<table class="longtable docutils align-default">
+<colgroup>
+<col style="width: 10%" />
+<col style="width: 90%" />
+</colgroup>
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/pynetdicom.pdu_items.ApplicationContextItem.html#pynetdicom.pdu_items.ApplicationContextItem" title="pynetdicom.pdu_items.ApplicationContextItem"><code class="xref py py-obj docutils literal notranslate"><span class="pre">ApplicationContextItem</span></code></a>()</p></td>
+<td><p>An Application Context Item.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/pynetdicom.pdu_items.PresentationContextItemRQ.html#pynetdicom.pdu_items.PresentationContextItemRQ" title="pynetdicom.pdu_items.PresentationContextItemRQ"><code class="xref py py-obj docutils literal notranslate"><span class="pre">PresentationContextItemRQ</span></code></a>()</p></td>
+<td><p>A Presentation Context (RQ) Item.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/pynetdicom.pdu_items.UserInformationItem.html#pynetdicom.pdu_items.UserInformationItem" title="pynetdicom.pdu_items.UserInformationItem"><code class="xref py py-obj docutils literal notranslate"><span class="pre">UserInformationItem</span></code></a>()</p></td>
+<td><p>A User Information Item.</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="section" id="presentation-context-sub-items">
+<h2>Presentation Context Sub-items<a class="headerlink" href="#presentation-context-sub-items" title="Permalink to this headline">¶</a></h2>
+<table class="longtable docutils align-default">
+<colgroup>
+<col style="width: 10%" />
+<col style="width: 90%" />
+</colgroup>
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/pynetdicom.pdu_items.AbstractSyntaxSubItem.html#pynetdicom.pdu_items.AbstractSyntaxSubItem" title="pynetdicom.pdu_items.AbstractSyntaxSubItem"><code class="xref py py-obj docutils literal notranslate"><span class="pre">AbstractSyntaxSubItem</span></code></a>()</p></td>
+<td><p>An Abstract Syntax Sub-item.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/pynetdicom.pdu_items.TransferSyntaxSubItem.html#pynetdicom.pdu_items.TransferSyntaxSubItem" title="pynetdicom.pdu_items.TransferSyntaxSubItem"><code class="xref py py-obj docutils literal notranslate"><span class="pre">TransferSyntaxSubItem</span></code></a>()</p></td>
+<td><p>A Transfer Syntax Sub-item.</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="section" id="user-information-sub-items">
+<h2>User Information Sub-items<a class="headerlink" href="#user-information-sub-items" title="Permalink to this headline">¶</a></h2>
+<table class="longtable docutils align-default">
+<colgroup>
+<col style="width: 10%" />
+<col style="width: 90%" />
+</colgroup>
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/pynetdicom.pdu_items.MaximumLengthSubItem.html#pynetdicom.pdu_items.MaximumLengthSubItem" title="pynetdicom.pdu_items.MaximumLengthSubItem"><code class="xref py py-obj docutils literal notranslate"><span class="pre">MaximumLengthSubItem</span></code></a>()</p></td>
+<td><p>A Maximum Length Sub-item.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/pynetdicom.pdu_items.ImplementationClassUIDSubItem.html#pynetdicom.pdu_items.ImplementationClassUIDSubItem" title="pynetdicom.pdu_items.ImplementationClassUIDSubItem"><code class="xref py py-obj docutils literal notranslate"><span class="pre">ImplementationClassUIDSubItem</span></code></a>()</p></td>
+<td><p>An Implementation Class UID Sub-item.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/pynetdicom.pdu_items.ImplementationVersionNameSubItem.html#pynetdicom.pdu_items.ImplementationVersionNameSubItem" title="pynetdicom.pdu_items.ImplementationVersionNameSubItem"><code class="xref py py-obj docutils literal notranslate"><span class="pre">ImplementationVersionNameSubItem</span></code></a>()</p></td>
+<td><p>An Implementation Version Name Sub-item.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/pynetdicom.pdu_items.SCP_SCU_RoleSelectionSubItem.html#pynetdicom.pdu_items.SCP_SCU_RoleSelectionSubItem" title="pynetdicom.pdu_items.SCP_SCU_RoleSelectionSubItem"><code class="xref py py-obj docutils literal notranslate"><span class="pre">SCP_SCU_RoleSelectionSubItem</span></code></a>()</p></td>
+<td><p>An SCP/SCU Role Selection Sub-item.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/pynetdicom.pdu_items.AsynchronousOperationsWindowSubItem.html#pynetdicom.pdu_items.AsynchronousOperationsWindowSubItem" title="pynetdicom.pdu_items.AsynchronousOperationsWindowSubItem"><code class="xref py py-obj docutils literal notranslate"><span class="pre">AsynchronousOperationsWindowSubItem</span></code></a>()</p></td>
+<td><p>An Asynchronous Operations Window Sub-item.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/pynetdicom.pdu_items.UserIdentitySubItemRQ.html#pynetdicom.pdu_items.UserIdentitySubItemRQ" title="pynetdicom.pdu_items.UserIdentitySubItemRQ"><code class="xref py py-obj docutils literal notranslate"><span class="pre">UserIdentitySubItemRQ</span></code></a>()</p></td>
+<td><p>A User Identity (RQ) Sub-item.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/pynetdicom.pdu_items.SOPClassExtendedNegotiationSubItem.html#pynetdicom.pdu_items.SOPClassExtendedNegotiationSubItem" title="pynetdicom.pdu_items.SOPClassExtendedNegotiationSubItem"><code class="xref py py-obj docutils literal notranslate"><span class="pre">SOPClassExtendedNegotiationSubItem</span></code></a>()</p></td>
+<td><p>A SOP Class Extended Negotiation Sub-item.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/pynetdicom.pdu_items.SOPClassCommonExtendedNegotiationSubItem.html#pynetdicom.pdu_items.SOPClassCommonExtendedNegotiationSubItem" title="pynetdicom.pdu_items.SOPClassCommonExtendedNegotiationSubItem"><code class="xref py py-obj docutils literal notranslate"><span class="pre">SOPClassCommonExtendedNegotiationSubItem</span></code></a>()</p></td>
+<td><p>A SOP Class Common Extended Negotiation Sub-item.</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+        <a href="generated/pynetdicom.pdu.A_ASSOCIATE_RQ.html" class="btn btn-neutral float-right" title="pynetdicom.pdu.A_ASSOCIATE_RQ" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+        <a href="dul.pdu.html" class="btn btn-neutral float-left" title="PDUs (pynetdicom.pdu)" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &#169; Copyright 2018-20, pynetdicom contributors.
+
+    </p>
+  </div>
+    
+    
+    
+    Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    
+    provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>

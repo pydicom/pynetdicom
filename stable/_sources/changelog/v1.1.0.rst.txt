@@ -1,0 +1,59 @@
+.. _v1.1.0:
+
+1.1.0
+=====
+
+Fixes
+.....
+
+* No longer using a list as the default value for the ``transfer_syntax``
+  keyword argument in ``AE.add_requested_context()``,
+  ``AE.add_supported_context()`` and ``presentation.build_context()``
+* Completely fixed handling a maximum PDU length of 0. (:issue:`193`)
+* ``DIMSEMessage`` subclass creation and ``DIMSEMessage.primitive_to_message``
+  should now be thread-safe (:issue:`137`)
+* Fixed A-RELEASE collision not being implemented correctly. (:issue:`269`)
+* Fixed bugs in ``fsm.AR_8`` and ``fsm.AA_7``.
+* Fixed DUL not handling the service user sending A-P-ABORT primitives.
+  (:issue:`270`)
+* Fixed the DUL endlessly waiting in State 13 if the remote didn't
+  close the connection and there was data still available to be read.
+  (:issue:`272`)
+
+
+Enhancements
+............
+
+* Added ``select_timeout`` parameter to ``Association.start()`` to allow the
+  user to specify how long the select.select() call blocks for.
+  (:pr:`260`)
+* Improved the CPU usage of the AE when running idle as an SCP (:issue:`60`).
+
+
+Changes
+.......
+
+* ``AE.quit()`` is deprecated and will be removed in v1.2. Use ``AE.stop()``
+  instead.
+* ``DIMSEMessage.ID`` is deprecated and will be removed in v1.2. Use
+  ``DIMSEMessage.context_id`` instead.
+* Added ``_globals.py`` for frequently used global constants.
+* ``utils.validate_ae_title`` changed to only return bytes for Python 3
+* ``AE.require_calling_aet`` now takes a list of AE titles (as bytes) rather
+  than a single AE title. If set to a non-empty list then association requests
+  will be rejected unless the value of the *Calling AE Title* parameter matches
+  one of those in the list. If set to an empty list (default) then all
+  associations will be accepted (unless rejected for other reasons).
+  (:issue:`192`)
+* ``AE.require_called_aet`` should now be set using a bool. If True then any
+  association requests will be rejected unless the value of the *Called AE
+  Title* parameter matches ``AE.ae_title``. If False (default) then no matching
+  will be performed and all associations accepted (unless rejected for other
+  reasons). (:issue:`184`)
+* ``ACSE.is_released`` is deprecated and will be removed in v1.2. Use
+  ``ACSE.is_release_requested`` instead.
+* ``ACSE.release_association`` is deprecated and will be removed in v1.2. Use
+  ``ACSE.negotiate_release`` instead.
+* The association acceptor no longer aborts an accepted association if there
+  are no accepted presentation contexts. The association requestor still does.
+* Default ACSE timeout changed to 30 s and default network timeout to 60 s.

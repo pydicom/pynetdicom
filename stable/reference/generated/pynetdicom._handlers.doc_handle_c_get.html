@@ -1,0 +1,427 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" />
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  
+  <title>pynetdicom._handlers.doc_handle_c_get &mdash; pynetdicom 1.5.7 documentation</title>
+  
+
+  
+  <link rel="stylesheet" href="../../_static/css/pynetdicom.css" type="text/css" />
+  <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="../../_static/css/pynetdicom.css" type="text/css" />
+
+  
+  
+    <link rel="shortcut icon" href="../../_static/favicon.ico"/>
+  
+
+  
+  
+
+  
+
+  
+  <!--[if lt IE 9]>
+    <script src="../../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../../" src="../../_static/documentation_options.js"></script>
+        <script src="../../_static/jquery.js"></script>
+        <script src="../../_static/underscore.js"></script>
+        <script src="../../_static/doctools.js"></script>
+    
+    <script type="text/javascript" src="../../_static/js/theme.js"></script>
+
+    
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" />
+    <link rel="next" title="pynetdicom._handlers.doc_handle_move" href="pynetdicom._handlers.doc_handle_move.html" />
+    <link rel="prev" title="pynetdicom._handlers.doc_handle_find" href="pynetdicom._handlers.doc_handle_find.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="../../index.html" class="icon icon-home"> pynetdicom
+          
+
+          
+            
+            <img src="../../_static/pydicom_flat_black.svg" class="logo" alt="Logo"/>
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                1.5.7
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <p class="caption"><span class="caption-text">Documentation</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../../user/index.html">User Guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../tutorials/index.html">Tutorials</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../service_classes/index.html">Supported Service Classes</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="../index.html">API Reference</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="../init.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">pynetdicom</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="../acse.html">ACSE Service (<code class="xref py py-mod docutils literal notranslate"><span class="pre">pynetdicom.acse</span></code>)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../ae.html">Application Entity (<code class="xref py py-mod docutils literal notranslate"><span class="pre">pynetdicom.ae</span></code>)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../association.html">Association (<code class="xref py py-mod docutils literal notranslate"><span class="pre">pynetdicom.association</span></code>)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../config.html">Configuration Options (<code class="xref py py-mod docutils literal notranslate"><span class="pre">pynetdicom._config</span></code>)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../dimse.html">DIMSE Service</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../dsutils.html">Dataset Utilities (<code class="xref py py-mod docutils literal notranslate"><span class="pre">pynetdicom.dsutils</span></code>)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../dul.html">DICOM Upper Layer</a></li>
+<li class="toctree-l2 current"><a class="reference internal" href="../events.html">Events and Handlers (<code class="xref py py-mod docutils literal notranslate"><span class="pre">pynetdicom.events</span></code>)</a><ul class="current">
+<li class="toctree-l3"><a class="reference internal" href="pynetdicom.events.Event.html">pynetdicom.events.Event</a></li>
+<li class="toctree-l3"><a class="reference internal" href="pynetdicom.events.InterventionEvent.html">pynetdicom.events.InterventionEvent</a></li>
+<li class="toctree-l3"><a class="reference internal" href="pynetdicom.events.NotificationEvent.html">pynetdicom.events.NotificationEvent</a></li>
+<li class="toctree-l3"><a class="reference internal" href="pynetdicom.events.trigger.html">pynetdicom.events.trigger</a></li>
+<li class="toctree-l3 current"><a class="reference internal" href="../events.html#documentation-for-intervention-event-handlers">Documentation for Intervention Event Handlers</a><ul class="current">
+<li class="toctree-l4"><a class="reference internal" href="pynetdicom._handlers.doc_handle_echo.html">pynetdicom._handlers.doc_handle_echo</a></li>
+<li class="toctree-l4"><a class="reference internal" href="pynetdicom._handlers.doc_handle_find.html">pynetdicom._handlers.doc_handle_find</a></li>
+<li class="toctree-l4 current"><a class="current reference internal" href="#">pynetdicom._handlers.doc_handle_c_get</a></li>
+<li class="toctree-l4"><a class="reference internal" href="pynetdicom._handlers.doc_handle_move.html">pynetdicom._handlers.doc_handle_move</a></li>
+<li class="toctree-l4"><a class="reference internal" href="pynetdicom._handlers.doc_handle_store.html">pynetdicom._handlers.doc_handle_store</a></li>
+<li class="toctree-l4"><a class="reference internal" href="pynetdicom._handlers.doc_handle_action.html">pynetdicom._handlers.doc_handle_action</a></li>
+<li class="toctree-l4"><a class="reference internal" href="pynetdicom._handlers.doc_handle_create.html">pynetdicom._handlers.doc_handle_create</a></li>
+<li class="toctree-l4"><a class="reference internal" href="pynetdicom._handlers.doc_handle_delete.html">pynetdicom._handlers.doc_handle_delete</a></li>
+<li class="toctree-l4"><a class="reference internal" href="pynetdicom._handlers.doc_handle_event_report.html">pynetdicom._handlers.doc_handle_event_report</a></li>
+<li class="toctree-l4"><a class="reference internal" href="pynetdicom._handlers.doc_handle_n_get.html">pynetdicom._handlers.doc_handle_n_get</a></li>
+<li class="toctree-l4"><a class="reference internal" href="pynetdicom._handlers.doc_handle_set.html">pynetdicom._handlers.doc_handle_set</a></li>
+<li class="toctree-l4"><a class="reference internal" href="pynetdicom._handlers.doc_handle_async.html">pynetdicom._handlers.doc_handle_async</a></li>
+<li class="toctree-l4"><a class="reference internal" href="pynetdicom._handlers.doc_handle_sop_common.html">pynetdicom._handlers.doc_handle_sop_common</a></li>
+<li class="toctree-l4"><a class="reference internal" href="pynetdicom._handlers.doc_handle_sop_extended.html">pynetdicom._handlers.doc_handle_sop_extended</a></li>
+<li class="toctree-l4"><a class="reference internal" href="pynetdicom._handlers.doc_handle_userid.html">pynetdicom._handlers.doc_handle_userid</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../events.html#documentation-for-notification-event-handlers">Documentation for Notification Event Handlers</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../fsm.html">State Machine (<code class="xref py py-mod docutils literal notranslate"><span class="pre">pynetdicom.fsm</span></code>)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../presentation.html">Presentation Service (<code class="xref py py-mod docutils literal notranslate"><span class="pre">pynetdicom.presentation</span></code>)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../service_classes.html">Service Classes (<code class="xref py py-mod docutils literal notranslate"><span class="pre">pynetdicom.service_class</span></code>)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../sop_classes.html">SOP Classes (<code class="xref py py-mod docutils literal notranslate"><span class="pre">pynetdicom.sop_class</span></code>)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../status.html">Statuses (<code class="xref py py-mod docutils literal notranslate"><span class="pre">pynetdicom.status</span></code>)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../timer.html">Timer (<code class="xref py py-mod docutils literal notranslate"><span class="pre">pynetdicom.timer</span></code>)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../transport.html">Transport Service (<code class="xref py py-mod docutils literal notranslate"><span class="pre">pynetdicom.transport</span></code>)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../utils.html">Utilities (<code class="xref py py-mod docutils literal notranslate"><span class="pre">pynetdicom.utils</span></code>)</a></li>
+</ul>
+</li>
+</ul>
+<p class="caption"><span class="caption-text">Examples</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../examples/index.html">Code Examples</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Additional Information</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../apps/index.html">Applications</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../changelog/index.html">Release Notes</a></li>
+</ul>
+
+            
+          
+        </div>
+        
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../index.html">pynetdicom</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../../index.html" class="icon icon-home"></a> &raquo;</li>
+        
+          <li><a href="../index.html">API Reference</a> &raquo;</li>
+        
+          <li><a href="../events.html">Events and Handlers (<code class="xref py py-mod docutils literal notranslate"><span class="pre">pynetdicom.events</span></code>)</a> &raquo;</li>
+        
+      <li>pynetdicom._handlers.doc_handle_c_get</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="pynetdicom-handlers-doc-handle-c-get">
+<h1>pynetdicom._handlers.doc_handle_c_get<a class="headerlink" href="#pynetdicom-handlers-doc-handle-c-get" title="Permalink to this headline">¶</a></h1>
+<dl class="py function">
+<dt id="pynetdicom._handlers.doc_handle_c_get">
+<code class="sig-prename descclassname"><span class="pre">pynetdicom._handlers.</span></code><code class="sig-name descname"><span class="pre">doc_handle_c_get</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">event</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/be9090430/pynetdicom/_handlers.py#L2257"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pynetdicom._handlers.doc_handle_c_get" title="Permalink to this definition">¶</a></dt>
+<dd><p>Documentation for handlers bound to <code class="docutils literal notranslate"><span class="pre">evt.EVT_C_GET</span></code>.</p>
+<p>User implementation of this event handler is required if one or more
+services that use C-GET are to be supported. If a handler is
+not implemented and bound to <code class="docutils literal notranslate"><span class="pre">evt.EVT_C_GET</span></code> then the C-GET request
+will be responded to using a  <em>Status</em> value of <code class="docutils literal notranslate"><span class="pre">0xC411</span></code> - Failure.</p>
+<p>Yields an <a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.9)"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></a> containing the total number of C-STORE
+sub-operations, then yields <code class="docutils literal notranslate"><span class="pre">(status,</span> <span class="pre">dataset)</span></code> pairs.</p>
+<p><strong>Event</strong></p>
+<p><code class="docutils literal notranslate"><span class="pre">evt.EVT_C_GET</span></code></p>
+<p><strong>Supported Service Classes</strong></p>
+<ul class="simple">
+<li><p><a class="reference external" href="http://dicom.nema.org/medical/dicom/current/output/chtml/part04/chapter_C.html">Query/Retrieve Service Class</a></p></li>
+<li><p><a class="reference external" href="http://dicom.nema.org/medical/dicom/current/output/chtml/part04/chapter_U.html">Hanging Protocol Query/Retrieve Service</a></p></li>
+<li><p><a class="reference external" href="http://dicom.nema.org/medical/dicom/current/output/chtml/part04/chapter_X.html">Color Palette Query/Retrieve Service</a></p></li>
+<li><p><a class="reference external" href="http://dicom.nema.org/medical/dicom/current/output/chtml/part04/chapter_BB.html">Implant Template Query/Retrieve Service</a></p></li>
+<li><p><a class="reference external" href="http://dicom.nema.org/medical/dicom/current/output/chtml/part04/chapter_HH.html">Defined Procedure Protocol Query/Retrieve Service</a></p></li>
+<li><p><a class="reference external" href="http://dicom.nema.org/medical/dicom/current/output/chtml/part04/chapter_II.html">Protocol Approval Query/Retrieve Service</a></p></li>
+</ul>
+<p><strong>Status</strong></p>
+<dl>
+<dt>Success</dt><dd><div class="line-block">
+<div class="line"><code class="docutils literal notranslate"><span class="pre">0x0000</span></code> - Sub-operations complete, no failures or warnings</div>
+</div>
+</dd>
+<dt>Failure</dt><dd><div class="line-block">
+<div class="line"><code class="docutils literal notranslate"><span class="pre">0xA701</span></code> - Out of resources: unable to calculate the number of
+matches</div>
+<div class="line"><code class="docutils literal notranslate"><span class="pre">0xA702</span></code> - Out of resources: unable to perform sub-operations</div>
+<div class="line"><code class="docutils literal notranslate"><span class="pre">0xA900</span></code> - Identifier does not match SOP class</div>
+<div class="line"><code class="docutils literal notranslate"><span class="pre">0xAA00</span></code> - None of the frames requested were found in the SOP
+instance</div>
+<div class="line"><code class="docutils literal notranslate"><span class="pre">0xAA01</span></code> - Unable to create new object for this SOP class</div>
+<div class="line"><code class="docutils literal notranslate"><span class="pre">0xAA02</span></code> - Unable to extract frames</div>
+<div class="line"><code class="docutils literal notranslate"><span class="pre">0xAA03</span></code> - Time-based request received for a non-time-based
+original SOP Instance</div>
+<div class="line"><code class="docutils literal notranslate"><span class="pre">0xAA04</span></code> - Invalid request</div>
+<div class="line"><code class="docutils literal notranslate"><span class="pre">0xC000</span></code> to <code class="docutils literal notranslate"><span class="pre">0xCFFF</span></code> - Unable to process</div>
+</div>
+</dd>
+<dt>Cancel</dt><dd><div class="line-block">
+<div class="line"><code class="docutils literal notranslate"><span class="pre">0xFE00</span></code> - Sub-operations terminated due to Cancel request</div>
+</div>
+</dd>
+<dt>Warning</dt><dd><div class="line-block">
+<div class="line"><code class="docutils literal notranslate"><span class="pre">0xB000</span></code> - Sub-operations complete, one or more failures or
+warnings</div>
+</div>
+</dd>
+<dt>Pending</dt><dd><div class="line-block">
+<div class="line"><code class="docutils literal notranslate"><span class="pre">0xFF00</span></code> - Matches are continuing - Current Match is supplied and
+any Optional Keys were supported in the same manner as Required
+Keys</div>
+</div>
+</dd>
+</dl>
+<dl class="field-list">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>event</strong> (<a class="reference internal" href="pynetdicom.events.Event.html#pynetdicom.events.Event" title="pynetdicom.events.Event"><em>events.Event</em></a>) – <p>The event representing a service class receiving a C-GET
+request message. <a class="reference internal" href="pynetdicom.events.Event.html#pynetdicom.events.Event" title="pynetdicom.events.Event"><code class="xref py py-class docutils literal notranslate"><span class="pre">Event</span></code></a> attributes are:</p>
+<ul>
+<li><p><a class="reference internal" href="pynetdicom.events.Event.html#pynetdicom.events.Event.assoc" title="pynetdicom.events.Event.assoc"><code class="xref py py-attr docutils literal notranslate"><span class="pre">assoc</span></code></a>: the
+<a class="reference internal" href="pynetdicom.association.Association.html#pynetdicom.association.Association" title="pynetdicom.association.Association"><code class="xref py py-class docutils literal notranslate"><span class="pre">Association</span></code></a>
+that is running the service that received the C-GET request.</p></li>
+<li><p><code class="xref py py-attr docutils literal notranslate"><span class="pre">context</span></code>: the presentation context
+the request was sent under
+as a <a class="reference internal" href="pynetdicom.presentation.PresentationContextTuple.html#pynetdicom.presentation.PresentationContextTuple" title="pynetdicom.presentation.PresentationContextTuple"><code class="xref py py-class docutils literal notranslate"><span class="pre">PresentationContextTuple</span></code></a>.</p></li>
+<li><p><a class="reference internal" href="pynetdicom.events.Event.html#id0" title="pynetdicom.events.Event.event"><code class="xref py py-attr docutils literal notranslate"><span class="pre">event</span></code></a>: the event that occurred as
+<a class="reference internal" href="pynetdicom.events.InterventionEvent.html#pynetdicom.events.InterventionEvent" title="pynetdicom.events.InterventionEvent"><code class="xref py py-class docutils literal notranslate"><span class="pre">InterventionEvent</span></code></a>.</p></li>
+<li><p><code class="xref py py-attr docutils literal notranslate"><span class="pre">request</span></code>: the received
+<a class="reference internal" href="pynetdicom.dimse_primitives.C_GET.html#pynetdicom.dimse_primitives.C_GET" title="pynetdicom.dimse_primitives.C_GET"><code class="xref py py-class docutils literal notranslate"><span class="pre">C-GET</span> <span class="pre">request</span></code></a></p></li>
+<li><p><a class="reference internal" href="pynetdicom.events.Event.html#pynetdicom.events.Event.timestamp" title="pynetdicom.events.Event.timestamp"><code class="xref py py-attr docutils literal notranslate"><span class="pre">timestamp</span></code></a>: the date and time
+that the C-GET request was processed by the service as
+<a class="reference external" href="https://docs.python.org/3/library/datetime.html#datetime.datetime" title="(in Python v3.9)"><code class="xref py py-class docutils literal notranslate"><span class="pre">datetime.datetime</span></code></a>.</p></li>
+</ul>
+<p><a class="reference internal" href="pynetdicom.events.Event.html#pynetdicom.events.Event" title="pynetdicom.events.Event"><code class="xref py py-class docutils literal notranslate"><span class="pre">Event</span></code></a> properties are:</p>
+<ul>
+<li><p><a class="reference internal" href="pynetdicom.events.Event.html#pynetdicom.events.Event.identifier" title="pynetdicom.events.Event.identifier"><code class="xref py py-attr docutils literal notranslate"><span class="pre">identifier</span></code></a>: the decoded
+<a class="reference external" href="https://pydicom.github.io/pydicom/stable/reference/generated/pydicom.dataset.Dataset.html#pydicom.dataset.Dataset" title="(in pydicom v2.1.2)"><code class="xref py py-class docutils literal notranslate"><span class="pre">Dataset</span></code></a> contained within the
+C-GET request’s <em>Identifier</em> parameter. Because <em>pydicom</em> uses
+a deferred read when decoding data, if the decode fails the returned
+<a class="reference external" href="https://pydicom.github.io/pydicom/stable/reference/generated/pydicom.dataset.Dataset.html#pydicom.dataset.Dataset" title="(in pydicom v2.1.2)"><code class="xref py py-class docutils literal notranslate"><span class="pre">Dataset</span></code></a> will only raise an exception at the
+time of use.</p></li>
+<li><p><a class="reference internal" href="pynetdicom.events.Event.html#pynetdicom.events.Event.is_cancelled" title="pynetdicom.events.Event.is_cancelled"><code class="xref py py-attr docutils literal notranslate"><span class="pre">is_cancelled</span></code></a>: returns <code class="docutils literal notranslate"><span class="pre">True</span></code> if a
+C-CANCEL request has been received, <code class="docutils literal notranslate"><span class="pre">False</span></code> otherwise. If a
+C-CANCEL is received then the handler should <code class="docutils literal notranslate"><span class="pre">yield</span> <span class="pre">(0xFE00,</span> <span class="pre">None)</span></code>
+and <code class="docutils literal notranslate"><span class="pre">return</span></code>.</p></li>
+<li><p><a class="reference internal" href="pynetdicom.events.Event.html#pynetdicom.events.Event.message_id" title="pynetdicom.events.Event.message_id"><code class="xref py py-attr docutils literal notranslate"><span class="pre">message_id</span></code></a>: the C-GET request’s
+<em>Message ID</em> as <a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.9)"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></a>.</p></li>
+</ul>
+</p></li>
+<li><p><strong>args</strong> – If the handler was bound to the event using
+<code class="docutils literal notranslate"><span class="pre">bind(event,</span> <span class="pre">handler,</span> <span class="pre">args)</span></code> or by passing
+<code class="docutils literal notranslate"><span class="pre">evt_handlers=[(event,</span> <span class="pre">handler,</span> <span class="pre">args),</span> <span class="pre">...]</span></code>, where <cite>args</cite> is a
+<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.9)"><code class="xref py py-class docutils literal notranslate"><span class="pre">list</span></code></a> then there will be one or more optional extra parameters
+matching the contents of <cite>args</cite>.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Yields</dt>
+<dd class="field-even"><ul>
+<li><p><em>int</em> – The first yielded value should be the total number of C-STORE
+sub-operations necessary to complete the C-GET operation. In other
+words, this is the number of matching SOP Instances to be sent to
+the peer.</p></li>
+<li><p><strong>status</strong> (<em>pydicom.dataset.Dataset or int</em>) – The status returned to the peer AE in the C-GET response. Must be a
+valid C-GET status value for the applicable Service Class as either
+an <a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.9)"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></a> or a <a class="reference external" href="https://pydicom.github.io/pydicom/stable/reference/generated/pydicom.dataset.Dataset.html#pydicom.dataset.Dataset" title="(in pydicom v2.1.2)"><code class="xref py py-class docutils literal notranslate"><span class="pre">Dataset</span></code></a> object
+containing (at a minimum) a (0000,0900) <em>Status</em> element. If returning
+a <a class="reference external" href="https://pydicom.github.io/pydicom/stable/reference/generated/pydicom.dataset.Dataset.html#pydicom.dataset.Dataset" title="(in pydicom v2.1.2)"><code class="xref py py-class docutils literal notranslate"><span class="pre">Dataset</span></code></a> object then
+it may also contain optional elements related to the <em>Status</em> (as in
+DICOM Standard, Part 7, <a class="reference external" href="http://dicom.nema.org/medical/dicom/current/output/chtml/part07/chapter_C.html">Annex C</a>).</p></li>
+<li><p><strong>dataset</strong> (<em>pydicom.dataset.Dataset or None</em>) – If the status category is ‘Pending’ then yield the
+<a class="reference external" href="https://pydicom.github.io/pydicom/stable/reference/generated/pydicom.dataset.Dataset.html#pydicom.dataset.Dataset" title="(in pydicom v2.1.2)"><code class="xref py py-class docutils literal notranslate"><span class="pre">Dataset</span></code></a> to send to the peer via a C-STORE
+sub-operation over the current association.</p>
+<p>If the status category is ‘Failed’, ‘Warning’ or ‘Cancel’ then yield a
+<a class="reference external" href="https://pydicom.github.io/pydicom/stable/reference/generated/pydicom.dataset.Dataset.html#pydicom.dataset.Dataset" title="(in pydicom v2.1.2)"><code class="xref py py-class docutils literal notranslate"><span class="pre">Dataset</span></code></a> with a (0008,0058) <em>Failed SOP
+Instance UID List</em> element containing a list of the C-STORE
+sub-operation SOP Instance UIDs for which the C-GET operation has
+failed.</p>
+<p>If the status category is ‘Success’ then yield <code class="docutils literal notranslate"><span class="pre">None</span></code>, although
+yielding a final ‘Success’ status is not required and will be ignored
+if necessary.</p>
+</li>
+</ul>
+</dd>
+</dl>
+<div class="admonition seealso">
+<p class="admonition-title">See also</p>
+<p><a class="reference internal" href="pynetdicom.association.Association.html#pynetdicom.association.Association.send_c_get" title="pynetdicom.association.Association.send_c_get"><code class="xref py py-meth docutils literal notranslate"><span class="pre">send_c_get()</span></code></a>, <a class="reference internal" href="pynetdicom.dimse_primitives.C_GET.html#pynetdicom.dimse_primitives.C_GET" title="pynetdicom.dimse_primitives.C_GET"><code class="xref py py-class docutils literal notranslate"><span class="pre">C_GET</span></code></a>, <a class="reference internal" href="pynetdicom.service_class.QueryRetrieveServiceClass.html#pynetdicom.service_class.QueryRetrieveServiceClass" title="pynetdicom.service_class.QueryRetrieveServiceClass"><code class="xref py py-class docutils literal notranslate"><span class="pre">QueryRetrieveServiceClass</span></code></a>, <a class="reference internal" href="pynetdicom.service_class.HangingProtocolQueryRetrieveServiceClass.html#pynetdicom.service_class.HangingProtocolQueryRetrieveServiceClass" title="pynetdicom.service_class.HangingProtocolQueryRetrieveServiceClass"><code class="xref py py-class docutils literal notranslate"><span class="pre">HangingProtocolQueryRetrieveServiceClass</span></code></a>, <a class="reference internal" href="pynetdicom.service_class.DefinedProcedureProtocolQueryRetrieveServiceClass.html#pynetdicom.service_class.DefinedProcedureProtocolQueryRetrieveServiceClass" title="pynetdicom.service_class.DefinedProcedureProtocolQueryRetrieveServiceClass"><code class="xref py py-class docutils literal notranslate"><span class="pre">DefinedProcedureProtocolQueryRetrieveServiceClass</span></code></a>, <a class="reference internal" href="pynetdicom.service_class.ColorPaletteQueryRetrieveServiceClass.html#pynetdicom.service_class.ColorPaletteQueryRetrieveServiceClass" title="pynetdicom.service_class.ColorPaletteQueryRetrieveServiceClass"><code class="xref py py-class docutils literal notranslate"><span class="pre">ColorPaletteQueryRetrieveServiceClass</span></code></a>, <a class="reference internal" href="pynetdicom.service_class.ImplantTemplateQueryRetrieveServiceClass.html#pynetdicom.service_class.ImplantTemplateQueryRetrieveServiceClass" title="pynetdicom.service_class.ImplantTemplateQueryRetrieveServiceClass"><code class="xref py py-class docutils literal notranslate"><span class="pre">ImplantTemplateQueryRetrieveServiceClass</span></code></a>, <a class="reference internal" href="pynetdicom.service_class.ProtocolApprovalQueryRetrieveServiceClass.html#pynetdicom.service_class.ProtocolApprovalQueryRetrieveServiceClass" title="pynetdicom.service_class.ProtocolApprovalQueryRetrieveServiceClass"><code class="xref py py-class docutils literal notranslate"><span class="pre">ProtocolApprovalQueryRetrieveServiceClass</span></code></a></p>
+</div>
+<p class="rubric">References</p>
+<ul class="simple">
+<li><p>DICOM Standard, Part 4, <a class="reference external" href="http://dicom.nema.org/medical/dicom/current/output/chtml/part04/chapter_C.html">Annex C</a></p></li>
+<li><p>DICOM Standard, Part 4, <a class="reference external" href="http://dicom.nema.org/medical/dicom/current/output/chtml/part04/chapter_U.html">Annex U</a></p></li>
+<li><p>DICOM Standard, Part 4, <a class="reference external" href="http://dicom.nema.org/medical/dicom/current/output/chtml/part04/chapter_X.html">Annex X</a></p></li>
+<li><p>DICOM Standard, Part 4, <a class="reference external" href="http://dicom.nema.org/medical/dicom/current/output/chtml/part04/chapter_Y.html">Annex Y</a></p></li>
+<li><p>DICOM Standard, Part 4, <a class="reference external" href="http://dicom.nema.org/medical/dicom/current/output/chtml/part04/chapter_Z.html">Annex Z</a></p></li>
+<li><p>DICOM Standard, Part 4, <a class="reference external" href="http://dicom.nema.org/medical/dicom/current/output/chtml/part04/chapter_BB.html">Annex BB</a></p></li>
+<li><p>DICOM Standard, Part 4, <a class="reference external" href="http://dicom.nema.org/medical/dicom/current/output/chtml/part04/chapter_HH.html">Annex HH</a></p></li>
+<li><p>DICOM Standard, Part 4, <a class="reference external" href="http://dicom.nema.org/medical/dicom/current/output/chtml/part04/chapter_II.html">Annex II</a></p></li>
+<li><p>DICOM Standard, Part 7, Sections
+<a class="reference external" href="http://dicom.nema.org/medical/dicom/current/output/chtml/part07/chapter_9.html#sect_9.1.3">9.1.3</a>,
+<a class="reference external" href="http://dicom.nema.org/medical/dicom/current/output/chtml/part07/sect_9.3.3.html">9.3.3</a> and
+<a class="reference external" href="http://dicom.nema.org/medical/dicom/current/output/chtml/part07/chapter_C.html">Annex C</a></p></li>
+</ul>
+</dd></dl>
+
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+        <a href="pynetdicom._handlers.doc_handle_move.html" class="btn btn-neutral float-right" title="pynetdicom._handlers.doc_handle_move" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+        <a href="pynetdicom._handlers.doc_handle_find.html" class="btn btn-neutral float-left" title="pynetdicom._handlers.doc_handle_find" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &#169; Copyright 2018-20, pynetdicom contributors.
+
+    </p>
+  </div>
+    
+    
+    
+    Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    
+    provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>
