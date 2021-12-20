@@ -1,0 +1,6 @@
+﻿pynetdicom.fsm.AA\_2
+====================
+
+.. currentmodule:: pynetdicom.fsm
+
+.. autofunction:: AA_2

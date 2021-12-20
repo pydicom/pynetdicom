@@ -1,0 +1,26 @@
+﻿pynetdicom.dimse\_messages.N\_EVENT\_REPORT\_RQ
+===============================================
+
+.. currentmodule:: pynetdicom.dimse_messages
+
+.. autoclass:: N_EVENT_REPORT_RQ
+
+   
+   .. automethod:: __init__
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+   
+      ~N_EVENT_REPORT_RQ.__init__
+      ~N_EVENT_REPORT_RQ.decode_msg
+      ~N_EVENT_REPORT_RQ.encode_msg
+      ~N_EVENT_REPORT_RQ.message_to_primitive
+      ~N_EVENT_REPORT_RQ.primitive_to_message
+   
+   
+
+   
+   
+   

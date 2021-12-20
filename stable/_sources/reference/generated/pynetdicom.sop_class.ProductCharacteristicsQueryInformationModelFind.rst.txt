@@ -1,0 +1,6 @@
+﻿pynetdicom.sop\_class.ProductCharacteristicsQueryInformationModelFind
+=====================================================================
+
+.. currentmodule:: pynetdicom.sop_class
+
+.. autodata:: ProductCharacteristicsQueryInformationModelFind

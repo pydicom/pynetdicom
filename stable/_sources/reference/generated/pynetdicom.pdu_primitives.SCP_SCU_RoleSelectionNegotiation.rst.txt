@@ -1,0 +1,31 @@
+﻿pynetdicom.pdu\_primitives.SCP\_SCU\_RoleSelectionNegotiation
+=============================================================
+
+.. currentmodule:: pynetdicom.pdu_primitives
+
+.. autoclass:: SCP_SCU_RoleSelectionNegotiation
+
+   
+   .. automethod:: __init__
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+   
+      ~SCP_SCU_RoleSelectionNegotiation.__init__
+      ~SCP_SCU_RoleSelectionNegotiation.from_primitive
+   
+   
+
+   
+   
+   .. rubric:: Attributes
+
+   .. autosummary::
+   
+      ~SCP_SCU_RoleSelectionNegotiation.scp_role
+      ~SCP_SCU_RoleSelectionNegotiation.scu_role
+      ~SCP_SCU_RoleSelectionNegotiation.sop_class_uid
+   
+   

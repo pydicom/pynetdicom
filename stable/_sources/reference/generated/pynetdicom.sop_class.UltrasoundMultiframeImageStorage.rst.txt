@@ -1,0 +1,6 @@
+﻿pynetdicom.sop\_class.UltrasoundMultiframeImageStorage
+======================================================
+
+.. currentmodule:: pynetdicom.sop_class
+
+.. autodata:: UltrasoundMultiframeImageStorage

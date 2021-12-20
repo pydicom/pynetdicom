@@ -1,0 +1,6 @@
+﻿pynetdicom.sop\_class.XAXRFGrayscaleSoftcopyPresentationStateStorage
+====================================================================
+
+.. currentmodule:: pynetdicom.sop_class
+
+.. autodata:: XAXRFGrayscaleSoftcopyPresentationStateStorage

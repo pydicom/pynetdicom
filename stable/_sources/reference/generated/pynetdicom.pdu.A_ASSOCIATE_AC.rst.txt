@@ -1,0 +1,38 @@
+﻿pynetdicom.pdu.A\_ASSOCIATE\_AC
+===============================
+
+.. currentmodule:: pynetdicom.pdu
+
+.. autoclass:: A_ASSOCIATE_AC
+
+   
+   .. automethod:: __init__
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+   
+      ~A_ASSOCIATE_AC.__init__
+      ~A_ASSOCIATE_AC.decode
+      ~A_ASSOCIATE_AC.encode
+      ~A_ASSOCIATE_AC.from_primitive
+      ~A_ASSOCIATE_AC.to_primitive
+   
+   
+
+   
+   
+   .. rubric:: Attributes
+
+   .. autosummary::
+   
+      ~A_ASSOCIATE_AC.application_context_name
+      ~A_ASSOCIATE_AC.called_ae_title
+      ~A_ASSOCIATE_AC.calling_ae_title
+      ~A_ASSOCIATE_AC.pdu_length
+      ~A_ASSOCIATE_AC.pdu_type
+      ~A_ASSOCIATE_AC.presentation_context
+      ~A_ASSOCIATE_AC.user_information
+   
+   

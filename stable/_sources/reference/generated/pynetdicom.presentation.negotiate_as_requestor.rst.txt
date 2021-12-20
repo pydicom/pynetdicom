@@ -1,0 +1,6 @@
+﻿pynetdicom.presentation.negotiate\_as\_requestor
+================================================
+
+.. currentmodule:: pynetdicom.presentation
+
+.. autofunction:: negotiate_as_requestor

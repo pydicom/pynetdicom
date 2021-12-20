@@ -1,0 +1,6 @@
+﻿pynetdicom.presentation.SubstanceAdministrationPresentationContexts
+===================================================================
+
+.. currentmodule:: pynetdicom.presentation
+
+.. autodata:: SubstanceAdministrationPresentationContexts

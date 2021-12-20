@@ -1,0 +1,9 @@
+.. _v1.5.1:
+
+1.5.1
+=====
+
+Changes
+.......
+
+* Switch *pydicom* dependency to >= 1.4.2 (:issue:`493`)
