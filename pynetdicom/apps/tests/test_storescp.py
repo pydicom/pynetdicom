@@ -34,6 +34,7 @@ APP_FILE = APP_DIR / "storescp" / "storescp.py"
 DATA_DIR = APP_DIR.parent / "tests" / "dicom_files"
 DATASET_FILE = DATA_DIR / "CTImageStorage.dcm"
 DEFLATED_FILE = DATA_DIR / "SCImageStorage_Deflated.dcm"
+TEST_DIR = Path(__file__).parent / "test_dir"
 
 
 def start_storescp(args):
@@ -59,9 +60,8 @@ class StoreSCPBase:
 
     def teardown(self):
         """Clear any active threads"""
-        d = Path(__file__).parent / "test_dir"
-        if d.exists():
-            shutil.rmtree(os.fspath(d))
+        if TEST_DIR.exists():
+            shutil.rmtree(os.fspath(TEST_DIR))
 
         if self.ae:
             self.ae.shutdown()
@@ -320,7 +320,7 @@ class StoreSCPBase:
         ae.add_requested_context(Verification)
         ae.add_requested_context(CTImageStorage)
 
-        assert "test_dir" not in os.listdir()
+        assert not TEST_DIR.exists()
 
         self.p = p = self.func(["-od", "test_dir"])
         time.sleep(0.5)
@@ -333,9 +333,9 @@ class StoreSCPBase:
         assert status.Status == 0x0000
         assoc.release()
 
-        assert "CT.{}".format(ds.SOPInstanceUID) in os.listdir("test_dir")
-        shutil.rmtree("test_dir")
-        assert "test_dir" not in os.listdir()
+        assert (TEST_DIR / f"CT.{ds.SOPInstanceUID}").exists()
+        shutil.rmtree(os.fspath(TEST_DIR))
+        assert not TEST_DIR.exists()
 
     def test_flag_ignore(self):
         """Test the --ignore flag."""
@@ -357,7 +357,7 @@ class StoreSCPBase:
         assert status.Status == 0x0000
         assoc.release()
 
-        assert "CT.{}".format(ds.SOPInstanceUID) not in os.listdir()
+        assert not (TEST_DIR / f"CT.{ds.SOPInstanceUID}").exists()
 
     def test_store_deflated(self):
         """Test storing deflated dataset"""
@@ -370,7 +370,7 @@ class StoreSCPBase:
             DeflatedExplicitVRLittleEndian,
         )
 
-        assert "test_dir" not in os.listdir()
+        assert not TEST_DIR.exists()
 
         self.p = p = self.func(["-od", "test_dir"])
         time.sleep(0.5)
@@ -383,12 +383,12 @@ class StoreSCPBase:
         assert status.Status == 0x0000
         assoc.release()
 
-        p = Path(__file__).parent / "test_dir" / f"SC.{ds.SOPInstanceUID}"
-        assert p.exists()
-        ds = dcmread(p)
+        time.sleep(1)
+
+        ds = dcmread(TEST_DIR / f"SC.{ds.SOPInstanceUID}")
         assert ds.file_meta.TransferSyntaxUID == DeflatedExplicitVRLittleEndian
-        shutil.rmtree("test_dir")
-        assert "test_dir" not in os.listdir()
+        shutil.rmtree(os.fspath(TEST_DIR))
+        assert not TEST_DIR.exists()
 
 
 class TestStoreSCP(StoreSCPBase):
