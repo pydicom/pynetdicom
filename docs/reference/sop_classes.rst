@@ -128,6 +128,7 @@ Non-patient Object
    ImplantAssemblyTemplateStorage
    ImplantTemplateGroupStorage
    ProtocolApprovalStorage
+   XADefinedProcedureProtocolStorage
 
 Print Management
 ................
@@ -280,6 +281,7 @@ Storage
    LensometryMeasurementsStorage
    MacularGridThicknessAndVolumeReportStorage
    MammographyCADSRStorage
+   MicroscopyBulkSimpleAnnotationsStorage
    MRImageStorage
    MRSpectroscopyStorage
    MultichannelRespiratoryWaveformStorage
@@ -323,9 +325,11 @@ Storage
    RTPlanStorage
    RTRadiationRecordSetStorage
    RTRadiationSalvageRecordStorage
+   RTRadiationSetDeliveryInstructionStorage
    RTRadiationSetStorage
    RTSegmentAnnotationStorage
    RTStructureSetStorage
+   RTTreatmentPreparationStorage
    RTTreatmentSummaryRecordStorage
    SecondaryCaptureImageStorage
    SegmentationStorage
@@ -358,6 +362,7 @@ Storage
    VolumeRenderingVolumetricPresentationStateStorage
    WideFieldOphthalmicPhotography3DCoordinatesImageStorage
    WideFieldOphthalmicPhotographyStereographicProjectionImageStorage
+   XAPerformedProcedureProtocolStorage
    XAXRFGrayscaleSoftcopyPresentationStateStorage
    XRay3DAngiographicImageStorage
    XRay3DCraniofacialImageStorage

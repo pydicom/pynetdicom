@@ -217,23 +217,36 @@ class TestPresentationContext:
         pc._scp_role = True
         pc._scu_role = False
         pc.result = 0x02
-        assert "1.1.1" in pc.__str__()
-        assert "Implicit" in pc.__str__()
-        assert "Provider Rejected" in pc.__str__()
+        out = [
+            "ID: 1",
+            "Abstract Syntax: 1.1.1",
+            "Transfer Syntax(es):",
+            "    =Implicit VR Little Endian",
+            "    =1.2.3",
+            "Result: Provider Rejected",
+        ]
+        assert "\n".join(out) == str(pc)
 
         pc._as_scu = True
         pc._as_scp = False
-        assert "Role: SCU only" in pc.__str__()
+        assert "Role: SCU only" in str(pc)
         pc._as_scp = True
-        assert "Role: SCU and SCP" in pc.__str__()
+        assert "Role: SCU and SCP" in str(pc)
         pc._as_scu = False
-        assert "Role: SCP only" in pc.__str__()
+        assert "Role: SCP only" in str(pc)
         pc._as_scp = False
-        assert "Role: (none)" in pc.__str__()
+        assert "Role: (none)" in str(pc)
 
         pc._transfer_syntax = []
-        print(pc)
-        assert "    (none)" in pc.__str__()
+        out = [
+            "ID: 1",
+            "Abstract Syntax: 1.1.1",
+            "Transfer Syntax(es):",
+            "    (none)",
+            "Result: Provider Rejected",
+            "Role: (none)",
+        ]
+        assert "\n".join(out) == str(pc)
 
     def test_context_id(self):
         """Test setting context_id."""

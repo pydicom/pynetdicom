@@ -462,8 +462,7 @@ class PresentationContext:
         if not self.transfer_syntax:
             s.append("    (none)")
         else:
-            s.extend([f"    ={ts.name}" for ts in self.transfer_syntax])
-        
+            s.extend(f"    ={ts.name}" for ts in self.transfer_syntax)
 
         if self.result is not None:
             s.append(f"Result: {self.status}")
