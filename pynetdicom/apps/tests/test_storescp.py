@@ -389,6 +389,8 @@ class StoreSCPBase:
 
         p = TEST_DIR / f"SC.{ds.SOPInstanceUID}"
         assert p.exists()
+        print(list(p.parent.glob('*')))
+        print(list(p.glob('*')))
         ds = dcmread(p)
         assert ds.file_meta.TransferSyntaxUID == DeflatedExplicitVRLittleEndian
         shutil.rmtree(os.fspath(TEST_DIR))
