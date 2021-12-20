@@ -333,6 +333,8 @@ class StoreSCPBase:
         assert status.Status == 0x0000
         assoc.release()
 
+        time.sleep(1)
+
         assert (TEST_DIR / f"CT.{ds.SOPInstanceUID}").exists()
         shutil.rmtree(os.fspath(TEST_DIR))
         assert not TEST_DIR.exists()
@@ -385,7 +387,9 @@ class StoreSCPBase:
 
         time.sleep(1)
 
-        ds = dcmread(TEST_DIR / f"SC.{ds.SOPInstanceUID}")
+        p = TEST_DIR / f"SC.{ds.SOPInstanceUID}"
+        assert p.exists()
+        ds = dcmread(p)
         assert ds.file_meta.TransferSyntaxUID == DeflatedExplicitVRLittleEndian
         shutil.rmtree(os.fspath(TEST_DIR))
         assert not TEST_DIR.exists()
