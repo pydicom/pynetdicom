@@ -588,7 +588,11 @@ class TestAEGoodAssociation:
         scu_ae.connection_timeout = 2
         scu_ae.add_requested_context(Verification)
         with caplog.at_level(logging.ERROR, logger="pynetdicom"):
-            assoc = scu_ae.associate("example.com", 11112)
+            assoc = scu_ae.associate(
+                "example.com",
+                11112,
+                bind_address=("", 0),
+            )
             assert not assoc.is_established
             assert assoc.is_aborted
             msgs = [

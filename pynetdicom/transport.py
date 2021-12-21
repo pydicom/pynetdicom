@@ -32,7 +32,7 @@ from typing import (
 )
 
 from pynetdicom import evt, _config
-from pynetdicom._globals import MODE_ACCEPTOR
+from pynetdicom._globals import MODE_ACCEPTOR, BIND_ADDRESS
 from pynetdicom._handlers import (
     standard_dimse_recv_handler,
     standard_dimse_sent_handler,
@@ -74,9 +74,13 @@ class AssociationSocket:
         self,
         assoc: "Association",
         client_socket: Optional[socket.socket] = None,
-        address: Tuple[str, int] = ("", 0),
+        address: Tuple[str, int] = BIND_ADDRESS,
     ) -> None:
         """Create a new :class:`AssociationSocket`.
+
+        .. versionchanged:: 2.0
+
+            The default for *address* was changed to ``("localhost", 0)``
 
         Parameters
         ----------
@@ -89,11 +93,11 @@ class AssociationSocket:
         address : 2-tuple, optional
             If *client_socket* is ``None`` then this is the ``(host, port)`` to
             bind the newly created socket to, which by default will be
-            ``('', 0)``.
+            ``('localhost', 0)``.
         """
         self._assoc = assoc
 
-        if client_socket is not None and address != ("", 0):
+        if client_socket is not None and address != BIND_ADDRESS:
             LOGGER.warning(
                 "AssociationSocket instantiated with both a 'client_socket' "
                 "and bind 'address'. The original socket will not be rebound"
@@ -156,7 +160,7 @@ class AssociationSocket:
         Parameters
         ----------
         address : 2-tuple
-            The ``(host, port)`` IPv4 address to connect to.
+            The ``(host: str, port: int)`` IPv4 address to connect to.
         """
         if self.socket is None:
             self.socket = self._create_socket()
@@ -205,7 +209,7 @@ class AssociationSocket:
         finally:
             self._ready.set()
 
-    def _create_socket(self, address: Tuple[str, int] = ("", 0)) -> socket.socket:
+    def _create_socket(self, address: Tuple[str, int] = BIND_ADDRESS) -> socket.socket:
         """Create a new IPv4 TCP socket and set it up for use.
 
         *Socket Options*
@@ -217,8 +221,8 @@ class AssociationSocket:
         Parameters
         ----------
         address : 2-tuple, optional
-            The ``(host, port)`` to bind the socket to. By default the socket
-            is bound to ``('', 0)``, i.e. the first available port.
+            The ``(host: str, port: int)`` to bind the socket to. By default the socket
+            is bound to ``("localhost", 0)``, i.e. the first available port.
 
         Returns
         -------
@@ -263,16 +267,16 @@ class AssociationSocket:
 
         Parameters
         ----------
-        host : str
-            The host's (*addr*, *port*) when trying to determine the local
+        host : Tuple[str, int]
+            The host's ``(addr: str, port: int)`` when trying to determine the local
             address.
         """
         # Solution from https://stackoverflow.com/a/28950776
-        with socket.socket(socket.AF_INET, socket.SOCK_DGRAM) as temp:
+        with socket.socket(socket.AF_INET, socket.SOCK_DGRAM) as sock:
             try:
                 # We use `host` to allow unit testing
-                temp.connect(host)
-                addr: str = temp.getsockname()[0]
+                sock.connect(host)
+                addr: str = sock.getsockname()[0]
             except:
                 addr = "127.0.0.1"
 
@@ -530,8 +534,8 @@ class AssociationServer(TCPServer):
         The parent AE that is running the server.
     request_queue_size : int
         Default ``5``.
-    server_address : 2-tuple
-        The ``(host, port)`` that the server is running on.
+    server_address : Tuple[str, int]
+        The ``(host: str, port: int)`` that the server is running on.
     """
 
     def __init__(
@@ -551,8 +555,8 @@ class AssociationServer(TCPServer):
         ----------
         ae : ae.ApplicationEntity
             The parent AE that's running the server.
-        address : 2-tuple
-            The ``(host, port)`` that the server should run on.
+        address : Tuple[str, int]
+            The ``(host: str, port: int)`` that the server should run on.
         ae_title : str
             The AE title of the SCP.
         contexts : list of presentation.PresentationContext

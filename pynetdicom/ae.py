@@ -37,6 +37,7 @@ from pynetdicom._globals import (
     MODE_REQUESTOR,
     DEFAULT_MAX_LENGTH,
     DEFAULT_TRANSFER_SYNTAXES,
+    BIND_ADDRESS,
 )
 
 
@@ -466,7 +467,7 @@ class ApplicationEntity:
         ae_title: str = "ANY-SCP",
         max_pdu: int = DEFAULT_MAX_LENGTH,
         ext_neg: Optional[List[_UI]] = None,
-        bind_address: Tuple[str, int] = ("", 0),
+        bind_address: Tuple[str, int] = BIND_ADDRESS,
         tls_args: Optional[Tuple[SSLContext, str]] = None,
         evt_handlers: Optional[List[EventHandlerType]] = None,
     ) -> Association:
@@ -493,7 +494,8 @@ class ApplicationEntity:
 
         .. versionchanged:: 2.0
 
-            `ae_title` should now be :class:`str`
+            * `ae_title` should now be :class:`str`
+            * The default `bind_address` was changed to ``("localhost", 0)``
 
         Parameters
         ----------
@@ -524,7 +526,7 @@ class ApplicationEntity:
             * :class:`~UserIdentityNegotiation` (0 or 1 item)
         bind_address : 2-tuple, optional
             The (host, port) to bind the association's communication socket
-            to, default ``('', 0)``.
+            to, default ``("localhost", 0)``.
         tls_args : 2-tuple, optional
             If TLS is required then this should be a 2-tuple containing a
             (`ssl_context`, `server_hostname`), where `ssl_context` is the
@@ -1352,9 +1354,9 @@ class ApplicationEntity:
 
         Parameters
         ----------
-        address : 2-tuple
-            The (`host`, `port`) to use when listening for incoming association
-            requests.
+        address : Tuple[str, int]
+            The ``(host: str, port: int)`` to use when listening for incoming
+            association requests.
         block : bool, optional
             If ``True`` (default) then the server will be blocking, otherwise
             it will start the server in a new thread and be non-blocking.
