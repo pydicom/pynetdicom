@@ -2,10 +2,8 @@
 
 import datetime
 import logging
-import select
 import socket
 from struct import pack
-import sys
 import threading
 import time
 
@@ -25,7 +23,6 @@ from pynetdicom.pdu_primitives import (
     MaximumLengthNotification,
     ImplementationClassUIDNotification,
 )
-from pynetdicom.pdu import A_RELEASE_RQ
 from pynetdicom.sop_class import Verification
 from pynetdicom.transport import AssociationSocket
 from .encoded_pdu_items import (
@@ -1325,7 +1322,7 @@ class TestState03(TestStateBase):
 
         assoc, fsm = self.get_acceptor_assoc()
 
-        orig = assoc.acse._negotiate_as_acceptor
+        assoc.acse._negotiate_as_acceptor
 
         def _neg_as_acc():
             """Override ACSE._negotiate_as_acceptor so no A-ASSOCIATE (rsp)."""
@@ -1354,7 +1351,7 @@ class TestState03(TestStateBase):
 
         assoc, fsm = self.get_acceptor_assoc()
 
-        orig = assoc.acse._negotiate_as_acceptor
+        assoc.acse._negotiate_as_acceptor
 
         def _neg_as_acc():
             """Override ACSE._negotiate_as_acceptor so no A-ASSOCIATE (rsp)."""
@@ -1415,7 +1412,7 @@ class TestState03(TestStateBase):
 
         assoc, fsm = self.get_acceptor_assoc()
 
-        orig = assoc.acse._negotiate_as_acceptor
+        assoc.acse._negotiate_as_acceptor
 
         def _neg_as_acc():
             """Override ACSE._negotiate_as_acceptor so no A-ASSOCIATE (rsp)."""
@@ -1509,7 +1506,7 @@ class TestState03(TestStateBase):
 
         assoc, fsm = self.get_acceptor_assoc()
 
-        orig = assoc.acse._negotiate_as_acceptor
+        assoc.acse._negotiate_as_acceptor
 
         def _neg_as_acc():
             """Override ACSE._negotiate_as_acceptor so no A-ASSOCIATE (rsp)."""
@@ -1538,7 +1535,7 @@ class TestState03(TestStateBase):
 
         assoc, fsm = self.get_acceptor_assoc()
 
-        orig = assoc.acse._negotiate_as_acceptor
+        assoc.acse._negotiate_as_acceptor
 
         def _neg_as_acc():
             """Override ACSE._negotiate_as_acceptor so no A-ASSOCIATE (rsp)."""

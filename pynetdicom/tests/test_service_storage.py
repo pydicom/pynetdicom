@@ -11,14 +11,12 @@ from pydicom import dcmread
 from pydicom.dataset import Dataset, FileMetaDataset
 from pydicom.uid import ExplicitVRLittleEndian, ImplicitVRLittleEndian
 
-from pynetdicom import AE, _config, evt, build_role, debug_logger
+from pynetdicom import AE, _config, evt, debug_logger
 from pynetdicom.dimse_primitives import C_STORE
 from pynetdicom.pdu_primitives import SOPClassExtendedNegotiation
-from pynetdicom.service_class import StorageServiceClass
 from pynetdicom.sop_class import (
     Verification,
     CTImageStorage,
-    RTImageStorage,
 )
 
 try:
@@ -235,7 +233,7 @@ class TestStorageServiceClass:
         assert assoc.is_established
         rsp = assoc.send_c_store(DATASET)
         assert rsp.Status == 0x0000
-        assert not "ErrorComment" in rsp
+        assert "ErrorComment" not in rsp
         assoc.release()
         assert assoc.is_released
 

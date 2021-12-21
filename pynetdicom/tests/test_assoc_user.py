@@ -1,16 +1,10 @@
 """Tests for association.AcceptorRequestor."""
 
-import logging
-import time
-import threading
-
 import pytest
 
 from pynetdicom import (
     AE,
-    VerificationPresentationContexts,
     PYNETDICOM_IMPLEMENTATION_UID,
-    PYNETDICOM_IMPLEMENTATION_VERSION,
     build_context,
     debug_logger,
 )
