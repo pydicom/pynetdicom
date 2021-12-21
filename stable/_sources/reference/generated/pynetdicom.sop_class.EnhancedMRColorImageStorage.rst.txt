@@ -1,6 +1,0 @@
-﻿pynetdicom.sop\_class.EnhancedMRColorImageStorage
-=================================================
-
-.. currentmodule:: pynetdicom.sop_class
-
-.. autodata:: EnhancedMRColorImageStorage

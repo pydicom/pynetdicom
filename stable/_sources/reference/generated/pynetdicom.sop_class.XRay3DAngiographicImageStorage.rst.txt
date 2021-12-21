@@ -1,6 +1,0 @@
-﻿pynetdicom.sop\_class.XRay3DAngiographicImageStorage
-====================================================
-
-.. currentmodule:: pynetdicom.sop_class
-
-.. autodata:: XRay3DAngiographicImageStorage

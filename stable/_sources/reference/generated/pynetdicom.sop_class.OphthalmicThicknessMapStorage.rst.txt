@@ -1,6 +1,0 @@
-﻿pynetdicom.sop\_class.OphthalmicThicknessMapStorage
-===================================================
-
-.. currentmodule:: pynetdicom.sop_class
-
-.. autodata:: OphthalmicThicknessMapStorage

@@ -1,6 +1,0 @@
-﻿pynetdicom.PYNETDICOM\_IMPLEMENTATION\_VERSION
-==============================================
-
-.. currentmodule:: pynetdicom
-
-.. autodata:: PYNETDICOM_IMPLEMENTATION_VERSION

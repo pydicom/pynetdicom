@@ -1,6 +1,0 @@
-﻿pynetdicom.sop\_class.MammographyCADSRStorage
-=============================================
-
-.. currentmodule:: pynetdicom.sop_class
-
-.. autodata:: MammographyCADSRStorage

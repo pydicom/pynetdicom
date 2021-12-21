@@ -1,6 +1,0 @@
-﻿pynetdicom.utils.pretty\_bytes
-==============================
-
-.. currentmodule:: pynetdicom.utils
-
-.. autofunction:: pretty_bytes

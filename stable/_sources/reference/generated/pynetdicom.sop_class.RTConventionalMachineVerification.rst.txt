@@ -1,6 +1,0 @@
-﻿pynetdicom.sop\_class.RTConventionalMachineVerification
-=======================================================
-
-.. currentmodule:: pynetdicom.sop_class
-
-.. autodata:: RTConventionalMachineVerification

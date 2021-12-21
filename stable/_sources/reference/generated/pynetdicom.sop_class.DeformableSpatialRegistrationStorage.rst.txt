@@ -1,6 +1,0 @@
-﻿pynetdicom.sop\_class.DeformableSpatialRegistrationStorage
-==========================================================
-
-.. currentmodule:: pynetdicom.sop_class
-
-.. autodata:: DeformableSpatialRegistrationStorage

@@ -1,6 +1,0 @@
-﻿pynetdicom.debug\_logger
-========================
-
-.. currentmodule:: pynetdicom
-
-.. autofunction:: debug_logger

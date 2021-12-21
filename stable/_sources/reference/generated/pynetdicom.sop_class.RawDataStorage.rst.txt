@@ -1,6 +1,0 @@
-﻿pynetdicom.sop\_class.RawDataStorage
-====================================
-
-.. currentmodule:: pynetdicom.sop_class
-
-.. autodata:: RawDataStorage

@@ -1,6 +1,0 @@
-﻿pynetdicom.presentation.InstanceAvailabilityPresentationContexts
-================================================================
-
-.. currentmodule:: pynetdicom.presentation
-
-.. autodata:: InstanceAvailabilityPresentationContexts

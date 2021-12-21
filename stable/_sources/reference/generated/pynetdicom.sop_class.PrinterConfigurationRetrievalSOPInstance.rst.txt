@@ -1,6 +1,0 @@
-﻿pynetdicom.sop\_class.PrinterConfigurationRetrievalSOPInstance
-==============================================================
-
-.. currentmodule:: pynetdicom.sop_class
-
-.. autodata:: PrinterConfigurationRetrievalSOPInstance

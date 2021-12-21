@@ -1,6 +1,0 @@
-﻿pynetdicom.sop\_class.EncapsulatedCDAStorage
-============================================
-
-.. currentmodule:: pynetdicom.sop_class
-
-.. autodata:: EncapsulatedCDAStorage

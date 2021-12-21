@@ -1,6 +1,0 @@
-﻿pynetdicom.sop\_class.PrinterSOPInstance
-========================================
-
-.. currentmodule:: pynetdicom.sop_class
-
-.. autodata:: PrinterSOPInstance

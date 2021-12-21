@@ -1,6 +1,0 @@
-﻿pynetdicom.sop\_class.EncapsulatedPDFStorage
-============================================
-
-.. currentmodule:: pynetdicom.sop_class
-
-.. autodata:: EncapsulatedPDFStorage
