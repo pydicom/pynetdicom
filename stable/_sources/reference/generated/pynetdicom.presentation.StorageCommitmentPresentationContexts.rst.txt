@@ -1,6 +1,0 @@
-﻿pynetdicom.presentation.StorageCommitmentPresentationContexts
-=============================================================
-
-.. currentmodule:: pynetdicom.presentation
-
-.. autodata:: StorageCommitmentPresentationContexts

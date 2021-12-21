@@ -1,6 +1,0 @@
-﻿pynetdicom.fsm.AE\_6
-====================
-
-.. currentmodule:: pynetdicom.fsm
-
-.. autofunction:: AE_6

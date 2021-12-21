@@ -1,6 +1,0 @@
-﻿pynetdicom.dsutils.pretty\_element
-==================================
-
-.. currentmodule:: pynetdicom.dsutils
-
-.. autofunction:: pretty_element

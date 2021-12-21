@@ -1,6 +1,0 @@
-﻿pynetdicom.sop\_class.InstanceAvailabilityNotificationSOPClass
-==============================================================
-
-.. currentmodule:: pynetdicom.sop_class
-
-.. autodata:: InstanceAvailabilityNotificationSOPClass

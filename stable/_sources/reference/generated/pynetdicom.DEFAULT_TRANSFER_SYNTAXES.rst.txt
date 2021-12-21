@@ -1,6 +1,0 @@
-﻿pynetdicom.DEFAULT\_TRANSFER\_SYNTAXES
-======================================
-
-.. currentmodule:: pynetdicom
-
-.. autodata:: DEFAULT_TRANSFER_SYNTAXES

@@ -1,6 +1,0 @@
-﻿pynetdicom.sop\_class.LegacyConvertedEnhancedMRImageStorage
-===========================================================
-
-.. currentmodule:: pynetdicom.sop_class
-
-.. autodata:: LegacyConvertedEnhancedMRImageStorage

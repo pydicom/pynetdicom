@@ -1,6 +1,0 @@
-﻿pynetdicom.fsm.AR\_4
-====================
-
-.. currentmodule:: pynetdicom.fsm
-
-.. autofunction:: AR_4

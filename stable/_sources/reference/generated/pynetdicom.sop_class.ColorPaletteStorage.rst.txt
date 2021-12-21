@@ -1,6 +1,0 @@
-﻿pynetdicom.sop\_class.ColorPaletteStorage
-=========================================
-
-.. currentmodule:: pynetdicom.sop_class
-
-.. autodata:: ColorPaletteStorage

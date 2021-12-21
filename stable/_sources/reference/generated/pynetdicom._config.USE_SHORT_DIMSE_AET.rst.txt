@@ -1,6 +1,0 @@
-﻿pynetdicom.\_config.USE\_SHORT\_DIMSE\_AET
-==========================================
-
-.. currentmodule:: pynetdicom._config
-
-.. autodata:: USE_SHORT_DIMSE_AET

@@ -1,6 +1,0 @@
-﻿pynetdicom.sop\_class.ColonCADSRStorage
-=======================================
-
-.. currentmodule:: pynetdicom.sop_class
-
-.. autodata:: ColonCADSRStorage

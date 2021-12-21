@@ -1,6 +1,0 @@
-﻿pynetdicom.status.code\_to\_status
-==================================
-
-.. currentmodule:: pynetdicom.status
-
-.. autofunction:: code_to_status

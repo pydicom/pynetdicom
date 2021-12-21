@@ -1,6 +1,0 @@
-﻿pynetdicom.presentation.UnifiedProcedurePresentationContexts
-============================================================
-
-.. currentmodule:: pynetdicom.presentation
-
-.. autodata:: UnifiedProcedurePresentationContexts

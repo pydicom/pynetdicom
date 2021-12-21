@@ -1,6 +1,0 @@
-﻿pynetdicom.PYNETDICOM\_IMPLEMENTATION\_UID
-==========================================
-
-.. currentmodule:: pynetdicom
-
-.. autodata:: PYNETDICOM_IMPLEMENTATION_UID

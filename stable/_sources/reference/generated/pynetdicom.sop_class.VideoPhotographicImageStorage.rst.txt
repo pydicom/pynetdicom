@@ -1,6 +1,0 @@
-﻿pynetdicom.sop\_class.VideoPhotographicImageStorage
-===================================================
-
-.. currentmodule:: pynetdicom.sop_class
-
-.. autodata:: VideoPhotographicImageStorage

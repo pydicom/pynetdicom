@@ -1,6 +1,0 @@
-﻿pynetdicom.presentation.RTMachineVerificationPresentationContexts
-=================================================================
-
-.. currentmodule:: pynetdicom.presentation
-
-.. autodata:: RTMachineVerificationPresentationContexts

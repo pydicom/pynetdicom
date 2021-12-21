@@ -1,6 +1,0 @@
-﻿pynetdicom.presentation.PrintManagementPresentationContexts
-===========================================================
-
-.. currentmodule:: pynetdicom.presentation
-
-.. autodata:: PrintManagementPresentationContexts

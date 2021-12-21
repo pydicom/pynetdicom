@@ -1,6 +1,0 @@
-﻿pynetdicom.presentation.build\_context
-======================================
-
-.. currentmodule:: pynetdicom.presentation
-
-.. autofunction:: build_context

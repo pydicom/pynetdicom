@@ -1,6 +1,0 @@
-﻿pynetdicom.sop\_class.GeneralRelevantPatientInformationQuery
-============================================================
-
-.. currentmodule:: pynetdicom.sop_class
-
-.. autodata:: GeneralRelevantPatientInformationQuery
