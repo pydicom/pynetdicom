@@ -39,7 +39,7 @@ the SERIES level.
 
 One extra step needed with the Query/Retrieve (Get) Service is
 that during association we need to include a :class:`SCP/SCU Role Selection
-Negotation <pynetdicom.pdu_items.SCP_SCU_RoleSelectionSubItem>`
+Negotiation <pynetdicom.pdu_items.SCP_SCU_RoleSelectionSubItem>`
 item for each of the supported presentation contexts that may be used with
 the C-STORE requests.
 
