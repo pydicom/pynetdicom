@@ -115,9 +115,7 @@ class TestAssociationSocket:
             r"and bind 'address'. The original socket will not be rebound"
         )
         with caplog.at_level(logging.WARNING, logger="pynetdicom"):
-            AssociationSocket(
-                self.assoc, client_socket="abc", address=("", 11112)
-            )
+            AssociationSocket(self.assoc, client_socket="abc", address=("", 11112))
 
             assert msg in caplog.text
 
