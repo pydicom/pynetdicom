@@ -322,7 +322,7 @@ class StoreSCPBase:
 
         assert not TEST_DIR.exists()
 
-        self.p = p = self.func(["-od", "test_dir"])
+        self.p = p = self.func(["-od", os.fspath(TEST_DIR)])
         time.sleep(0.5)
 
         ds = dcmread(DATASET_FILE)
@@ -332,8 +332,6 @@ class StoreSCPBase:
         status = assoc.send_c_store(ds)
         assert status.Status == 0x0000
         assoc.release()
-
-        time.sleep(1)
 
         assert (TEST_DIR / f"CT.{ds.SOPInstanceUID}").exists()
         shutil.rmtree(os.fspath(TEST_DIR))
@@ -374,7 +372,7 @@ class StoreSCPBase:
 
         assert not TEST_DIR.exists()
 
-        self.p = p = self.func(["-od", "test_dir"])
+        self.p = p = self.func(["-od", os.fspath(TEST_DIR)])
         time.sleep(0.5)
 
         ds = dcmread(DEFLATED_FILE)
@@ -385,10 +383,7 @@ class StoreSCPBase:
         assert status.Status == 0x0000
         assoc.release()
 
-        time.sleep(1)
-
         p = TEST_DIR / f"SC.{ds.SOPInstanceUID}"
-        print(list(p.parent.parent.glob("*")))
         assert p.exists()
         ds = dcmread(p)
         assert ds.file_meta.TransferSyntaxUID == DeflatedExplicitVRLittleEndian
