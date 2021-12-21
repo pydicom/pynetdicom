@@ -1,10 +1,7 @@
 """Tests for the NonPatientObjectStorageServiceClass."""
 
 from io import BytesIO
-import logging
 import os
-import threading
-import time
 
 import pytest
 
@@ -15,7 +12,6 @@ from pydicom.uid import ExplicitVRLittleEndian
 from pynetdicom import AE, evt, debug_logger
 from pynetdicom.dimse_primitives import C_STORE
 from pynetdicom.sop_class import (
-    NonPatientObjectStorageServiceClass,
     HangingProtocolStorage,
 )
 
@@ -72,7 +68,7 @@ class TestNonPatientObjectStorageServiceClass:
         req.MessageID = 1
         req.AffectedSOPClassUID = DATASET.SOPClassUID
         req.AffectedSOPInstanceUID = DATASET.SOPInstanceUID
-        req.Priorty = 0x0002
+        req.Priority = 0x0002
         # Bad VR? AA
         req.DataSet = BytesIO(
             b"\x08\x00\x01\x00\x40\x40\x00\x00\x00\x00\x00\x08\x00\x49"
@@ -162,7 +158,7 @@ class TestNonPatientObjectStorageServiceClass:
         assert assoc.is_established
         rsp = assoc.send_c_store(DATASET)
         assert rsp.Status == 0x0000
-        assert not "ErrorComment" in rsp
+        assert "ErrorComment" not in rsp
         assoc.release()
         assert assoc.is_released
 

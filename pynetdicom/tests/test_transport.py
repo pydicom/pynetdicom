@@ -5,7 +5,6 @@ import logging
 import queue
 import os
 import platform
-import select
 import socket
 import ssl
 from struct import pack
@@ -21,11 +20,10 @@ import pynetdicom
 from pynetdicom import AE, evt, _config, debug_logger
 from pynetdicom.association import Association
 from pynetdicom.events import Event
-from pynetdicom._globals import MODE_REQUESTOR, MODE_ACCEPTOR
+from pynetdicom._globals import MODE_REQUESTOR
 from pynetdicom import transport
 from pynetdicom.transport import (
     AssociationSocket,
-    AssociationServer,
     ThreadedAssociationServer,
 )
 from pynetdicom.sop_class import Verification, RTImageStorage
@@ -117,9 +115,7 @@ class TestAssociationSocket:
             r"and bind 'address'. The original socket will not be rebound"
         )
         with caplog.at_level(logging.WARNING, logger="pynetdicom"):
-            sock = AssociationSocket(
-                self.assoc, client_socket="abc", address=("", 11112)
-            )
+            AssociationSocket(self.assoc, client_socket="abc", address=("", 11112))
 
             assert msg in caplog.text
 
@@ -700,7 +696,7 @@ class TestAssociationServer:
         scp.shutdown()
 
     def test_shutdown(self):
-        """test tring to shutdown a socket that's already closed."""
+        """test trying to shutdown a socket that's already closed."""
         self.ae = ae = AE()
         ae.add_supported_context(Verification)
         server = ae.start_server(("", 11112), block=False)
@@ -723,7 +719,7 @@ class TestAssociationServer:
 
         ae = AE()
         ae.add_requested_context("1.2.840.10008.1.1")
-        assoc = ae.associate("localhost", 11112)
+        ae.associate("localhost", 11112)
 
         assert server.socket.fileno() != -1
 
@@ -1249,7 +1245,6 @@ class TestEventHandlingAcceptor:
         self.ae = ae = AE()
         ae.add_supported_context(Verification)
         ae.add_requested_context(Verification)
-        handlers = [(evt.EVT_DATA_SENT, handle)]
         scp = ae.start_server(("", 11112), block=False)
         assert scp.get_handlers(evt.EVT_DATA_SENT) == []
 
@@ -1779,7 +1774,6 @@ class TestEventHandlingRequestor:
         self.ae = ae = AE()
         ae.add_supported_context(Verification)
         ae.add_requested_context(Verification)
-        handlers = [(evt.EVT_DATA_SENT, handle)]
         scp = ae.start_server(("", 11112), block=False)
         assert scp.get_handlers(evt.EVT_DATA_SENT) == []
 

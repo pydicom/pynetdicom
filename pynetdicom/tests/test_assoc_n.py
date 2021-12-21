@@ -1,6 +1,5 @@
 """Association testing for DIMSE-N services"""
 
-from io import BytesIO
 import queue
 import time
 
@@ -8,18 +7,9 @@ import pytest
 
 from pydicom.dataset import Dataset
 from pydicom.tag import Tag
-from pydicom.uid import UID, ImplicitVRLittleEndian, ExplicitVRLittleEndian
+from pydicom.uid import ExplicitVRLittleEndian
 
 from pynetdicom import AE, debug_logger, evt
-from pynetdicom.dimse_primitives import (
-    N_EVENT_REPORT,
-    N_GET,
-    N_SET,
-    N_ACTION,
-    N_CREATE,
-    N_DELETE,
-)
-from pynetdicom.dsutils import encode, decode
 from pynetdicom.sop_class import (
     DisplaySystem,
     Verification,
@@ -33,7 +23,6 @@ from pynetdicom.sop_class import (
     BasicColorPrintManagementMeta,
     Printer,
 )
-from pynetdicom.service_class import ServiceClass
 
 
 # debug_logger()
@@ -52,7 +41,7 @@ class DummyDIMSE:
 
 
 class TestAssociationSendNEventReport:
-    """Run tests on Assocation send_n_event_report."""
+    """Run tests on Association send_n_event_report."""
 
     def setup(self):
         self.ae = None
@@ -653,7 +642,7 @@ class TestAssociationSendNEventReport:
 
 
 class TestAssociationSendNGet:
-    """Run tests on Assocation send_n_get."""
+    """Run tests on Association send_n_get."""
 
     def setup(self):
         """Run prior to each test"""
@@ -1208,7 +1197,7 @@ class TestAssociationSendNGet:
 
 
 class TestAssociationSendNSet:
-    """Run tests on Assocation send_n_set."""
+    """Run tests on Association send_n_set."""
 
     def setup(self):
         self.ae = None
@@ -1458,6 +1447,8 @@ class TestAssociationSendNSet:
         assoc.release()
         assert assoc.is_released
 
+        scp.shutdown()
+
     def test_rsp_success(self):
         """Test receiving a success response from the peer"""
 
@@ -1487,6 +1478,8 @@ class TestAssociationSendNSet:
         assoc.release()
         assert assoc.is_released
 
+        scp.shutdown()
+
     def test_rsp_unknown_status(self):
         """Test unknown status value returned by peer"""
 
@@ -1515,6 +1508,8 @@ class TestAssociationSendNSet:
         assert ds is None
         assoc.release()
         assert assoc.is_released
+
+        scp.shutdown()
 
     def test_rsp_bad_dataset(self):
         """Test handler returns bad dataset"""
@@ -1781,7 +1776,7 @@ class TestAssociationSendNSet:
 
 
 class TestAssociationSendNAction:
-    """Run tests on Assocation send_n_action."""
+    """Run tests on Association send_n_action."""
 
     def setup(self):
         self.ae = None
@@ -2315,7 +2310,7 @@ class TestAssociationSendNAction:
 
 
 class TestAssociationSendNCreate:
-    """Run tests on Assocation send_n_create."""
+    """Run tests on Association send_n_create."""
 
     def setup(self):
         self.ae = None
@@ -2875,7 +2870,7 @@ class TestAssociationSendNCreate:
 
 
 class TestAssociationSendNDelete:
-    """Run tests on Assocation send_n_delete."""
+    """Run tests on Association send_n_delete."""
 
     def setup(self):
         self.ae = None
@@ -3143,7 +3138,7 @@ class TestAssociationSendNDelete:
         ds = Dataset()
         ds.PatientName = "Test^test"
         # Receives None, None from DummyDIMSE, aborts
-        status = assoc.send_n_delete(
+        assoc.send_n_delete(
             Printer,
             "1.2.840.10008.5.1.1.40.1",
             meta_uid=BasicGrayscalePrintManagementMeta,

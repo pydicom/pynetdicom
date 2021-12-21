@@ -296,7 +296,7 @@ class ServiceClass:
             else:
                 (rsp_status, dataset) = cast(UserReturnType, result)
 
-            # Event hander has aborted or released
+            # Event handler has aborted or released
             if not self.assoc.is_established:
                 return
 
@@ -362,7 +362,7 @@ class ServiceClass:
 
                 self.dimse.send_msg(rsp, cx_id)
 
-        # Event hander has aborted or released
+        # Event handler has aborted or released
         if not self.assoc.is_established:
             return
 
@@ -1422,7 +1422,7 @@ class VerificationServiceClass(ServiceClass):
                 evt.EVT_C_ECHO,
                 {"request": req, "context": context.as_tuple},
             )
-            # Event hander has aborted or released
+            # Event handler has aborted or released
             if not self.assoc.is_established:
                 return
 
@@ -1714,7 +1714,7 @@ class QueryRetrieveServiceClass(ServiceClass):
             else:
                 (rsp_status, dataset) = cast(UserReturnType, result)
 
-            # Event hander has aborted or released - after any yields
+            # Event handler has aborted or released - after any yields
             if not self.assoc.is_established:
                 return
 
@@ -1927,7 +1927,7 @@ class QueryRetrieveServiceClass(ServiceClass):
                 rsp.NumberOfCompletedSuboperations = store_results[3]
                 self.dimse.send_msg(rsp, cx_id)
 
-        # Event hander has aborted or released - prevent final message
+        # Event handler has aborted or released - prevent final message
         if not self.assoc.is_established:
             return
 
@@ -2138,7 +2138,7 @@ class QueryRetrieveServiceClass(ServiceClass):
             else:
                 (rsp_status, dataset) = cast(UserReturnType, result)
 
-            # Event hander has aborted or released - during any status yields
+            # Event handler has aborted or released - during any status yields
             if not self.assoc.is_established:
                 store_assoc.release()
                 return
@@ -2335,7 +2335,7 @@ class QueryRetrieveServiceClass(ServiceClass):
 
         store_assoc.release()
 
-        # Event hander has aborted or released - after any yields
+        # Event handler has aborted or released - after any yields
         if not self.assoc.is_established:
             return
 
@@ -2495,7 +2495,7 @@ class RelevantPatientInformationQueryServiceClass(ServiceClass):
             responses = cast(Iterator[UserReturnType], responses)
             (rsp_status, rsp_identifier) = next(responses)
         except (StopIteration, TypeError):
-            # Event hander has aborted or released - before any yields
+            # Event handler has aborted or released - before any yields
             if not self.assoc.is_established:
                 return
 
@@ -2512,7 +2512,7 @@ class RelevantPatientInformationQueryServiceClass(ServiceClass):
             self.dimse.send_msg(rsp, cx_id)
             return
 
-        # Event hander has aborted or released
+        # Event handler has aborted or released
         if not self.assoc.is_established:
             return
 

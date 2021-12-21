@@ -125,7 +125,7 @@ MPPS - Set SCU
 Once the MPPS SOP Instance has successfully been created, the modality can send
 one or more N-SET requests to the MPPS SCP in order to update the attributes
 of the SOP Instance. When the procedure has been completed a final N-SET
-request is sent containing a *Modification List* with an (0040,0252) *Peformed
+request is sent containing a *Modification List* with an (0040,0252) *Performed
 Procedure Step Status* of ``"COMPLETED"``.
 
 .. code-block:: python

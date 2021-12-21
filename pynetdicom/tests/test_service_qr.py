@@ -29,7 +29,6 @@ from pynetdicom import (
 )
 from pynetdicom.dimse_primitives import C_FIND, C_GET, C_MOVE, C_STORE
 from pynetdicom.presentation import PresentationContext
-from pynetdicom.pdu_primitives import SCP_SCU_RoleSelectionNegotiation
 from pynetdicom.service_class import (
     QueryRetrieveServiceClass,
     BasicWorklistManagementServiceClass,
@@ -828,7 +827,6 @@ class TestQRFindServiceClass:
             attrs["request"] = event.request
             attrs["identifier"] = event.identifier
 
-            ds = event.identifier
             yield 0xFF00, self.query
 
         handlers = [(evt.EVT_C_FIND, handle)]
@@ -935,7 +933,7 @@ class TestQRFindServiceClass:
         )
         status, identifier = next(result)
         assert status == Dataset()
-        assert identifier == None
+        assert identifier is None
         with pytest.raises(StopIteration):
             next(result)
 
@@ -967,7 +965,7 @@ class TestQRFindServiceClass:
         )
         status, identifier = next(result)
         assert status == Dataset()
-        assert identifier == None
+        assert identifier is None
         with pytest.raises(StopIteration):
             next(result)
 
@@ -1072,7 +1070,7 @@ class TestQRFindServiceClass:
         )
         status, identifier = next(result)
         assert status.Status == 0xC311
-        assert identifier == None
+        assert identifier is None
         pytest.raises(StopIteration, next, result)
 
         assoc.release()
@@ -2905,7 +2903,6 @@ class TestQRGetServiceClass:
 
     def test_store_handler_bad(self):
         """Test C-STORE handler event's assoc attribute"""
-        attrs = {}
 
         def handle(event):
             yield 1
@@ -3656,8 +3653,6 @@ class TestQRMoveServiceClass:
         ae.add_requested_context(PatientRootQueryRetrieveInformationModelMove)
         ae.add_requested_context(CTImageStorage)
         scp = ae.start_server(("", 11112), block=False, evt_handlers=handlers)
-
-        role = build_role(CTImageStorage, scp_role=True)
 
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
@@ -4912,7 +4907,7 @@ class TestQRMoveServiceClass:
         scp.shutdown()
 
     def test_scp_handler_context(self):
-        """Test hander event's context attribute"""
+        """Test handler event's context attribute"""
         attrs = {}
 
         def handle(event):
@@ -4961,7 +4956,7 @@ class TestQRMoveServiceClass:
         scp.shutdown()
 
     def test_scp_handler_assoc(self):
-        """Test hander event's context attribute"""
+        """Test handler event's context attribute"""
         attrs = {}
 
         def handle(event):
@@ -5010,7 +5005,7 @@ class TestQRMoveServiceClass:
         scp.shutdown()
 
     def test_scp_handler_request(self):
-        """Test hander event's context attribute"""
+        """Test handler event's context attribute"""
         attrs = {}
 
         def handle(event):
@@ -5067,7 +5062,7 @@ class TestQRMoveServiceClass:
         scp.shutdown()
 
     def test_scp_handler_identifier(self):
-        """Test hander event's context attribute"""
+        """Test handler event's context attribute"""
         attrs = {}
 
         def handle(event):
@@ -5115,7 +5110,7 @@ class TestQRMoveServiceClass:
         scp.shutdown()
 
     def test_scp_handler_move_dest(self):
-        """Test hander event's context attribute"""
+        """Test handler event's context attribute"""
         attrs = {}
 
         def handle(event):
@@ -5165,8 +5160,6 @@ class TestQRMoveServiceClass:
     def test_scp_cancelled(self):
         """Test is_cancelled works as expected."""
         cancel_results = []
-
-        attrs = {}
 
         def handle(event):
             ds = Dataset()
@@ -5740,6 +5733,7 @@ class TestQRMoveServiceClass:
 
         assoc.release()
         scp.shutdown()
+        store_scp.shutdown()
 
         assert len(events) == 0
 

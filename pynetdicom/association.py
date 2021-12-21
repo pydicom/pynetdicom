@@ -780,8 +780,8 @@ class Association(threading.Thread):
     def _c_store_scp(self, req: C_STORE) -> None:
         """A C-STORE SCP implementation.
 
-        Handles C-STORE requests from the peer over the same assocation as the
-        local AE sent a C-MOVE or C-GET request.
+        Handles C-STORE requests from the peer over the same association as
+        the local AE sent a C-MOVE or C-GET request.
 
         Must always send a C-STORE response back to the peer.
 
@@ -1422,7 +1422,7 @@ class Association(threading.Thread):
             req.Identifier = BytesIO(bytestream)
         else:
             LOGGER.error("Failed to encode the supplied Identifier dataset")
-            raise ValueError("Failed to encode the supplied Identifer dataset")
+            raise ValueError("Failed to encode the supplied Identifier dataset")
 
         LOGGER.info(f"Sending Get Request: MsgID {msg_id}")
         LOGGER.info("")
@@ -1526,7 +1526,7 @@ class Association(threading.Thread):
 
             *Query/Retrieve Service, Hanging Protocol Query/Retrieve Service,
             Defined Procedure Protocol Query/Retrieve Service, Color Palette
-            Query/Retrieve Service* , *Implant Template Query/Retreive
+            Query/Retrieve Service* , *Implant Template Query/Retrieve
             Service* and *Protocol Approval Query/Retrieve Service*
             specific (DICOM Standard, Part 4, Annexes C, U, Y, X, BB and HH):
 
@@ -1993,7 +1993,7 @@ class Association(threading.Thread):
                 yield status, identifier
                 continue
 
-            # Only reach this point if status is Sucess, Warning, Failure
+            # Only reach this point if status is Success, Warning, Failure
             #   or Cancel
             self._reactor_checkpoint.set()
             yield status, identifier
@@ -2133,7 +2133,7 @@ class Association(threading.Thread):
                         LOGGER.exception(exc)
                         identifier = None
 
-            # Only reach this point if status is Sucess, Warning, Failure
+            # Only reach this point if status is Success, Warning, Failure
             #   or Cancel
             self._reactor_checkpoint.set()
             yield status, identifier

@@ -23,7 +23,7 @@ The source code for the application can be found `here
 Usage
 =====
 
-The following example shows what happens when it is succesfully run on
+The following example shows what happens when it is successfully run on
 an SCP at IP ``127.0.0.1`` and listen port ``11112`` that supports the
 Query/Retrieve (Find) service:
 

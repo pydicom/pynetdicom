@@ -1005,9 +1005,10 @@ def AA_8(dul: "DULServiceProvider") -> str:
 
 
 # Finite State Machine
-# Machine State Defintions, PS3.8 Tables 9-1, 9-2, 9-3, 9-4, 9-5
+# Machine State Definitions, PS3.8 Tables 9-1, 9-2, 9-3, 9-4, 9-5
 # pylint: disable=line-too-long
 STATES = {
+    # No association
     "Sta1": "Idle",
     # Association establishment
     "Sta2": "Transport connection open (Awaiting A-ASSOCIATE-RQ PDU)",
@@ -1023,11 +1024,13 @@ STATES = {
     "Sta10": "Release collision acceptor side; awaiting A-RELEASE-RP PDU",
     "Sta11": "Release collision requestor side; awaiting A-RELEASE-RP PDU",
     "Sta12": "Release collision acceptor side; awaiting A-RELEASE response primitive (from local user)",
+    # Waiting for transport connection close
     "Sta13": "Awaiting Transport Connection Close Indication (Association no longer exists)",
 }
 
 # State Machine Action Definitions, PS3.8 Tables 9-6, 9-7, 9-8, 9-9
 ACTIONS = {
+    # Association establishment related actions
     "AE-1": (
         "Issue TRANSPORT CONNECT request primitive to local transport service",
         AE_1,
@@ -1058,7 +1061,7 @@ ACTIONS = {
     # Data transfer related actions
     "DT-1": ("Send P-DATA-TF PDU", DT_1, "Sta6"),
     "DT-2": ("Send P-DATA indication primitive", DT_2, "Sta6"),
-    # Assocation Release related actions
+    # Association Release related actions
     "AR-1": ("Send A-RELEASE-RQ PDU", AR_1, "Sta7"),
     "AR-2": ("Issue A-RELEASE indication primitive", AR_2, "Sta8"),
     "AR-3": (
@@ -1114,7 +1117,7 @@ EVENTS = {
     "Evt3": "A-ASSOCIATE-AC PDU (received on transport connection)",
     "Evt4": "A-ASSOCIATE-RJ PDU (received on transport connection)",
     "Evt5": "Transport connection indication (local transport service)",
-    "Evt6": "A-ASSOCIATE-RQ PDU (on tranport connection)",
+    "Evt6": "A-ASSOCIATE-RQ PDU (on transport connection)",
     "Evt7": "A-ASSOCIATE response primitive (accept)",
     "Evt8": "A-ASSOCIATE response primitive (reject)",
     "Evt9": "P-DATA request primitive",

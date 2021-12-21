@@ -13,17 +13,14 @@ import logging
 import os
 from pathlib import Path
 import queue
-import socket
 import sys
 import time
-import threading
 
 import pytest
 
 from pydicom import dcmread
 from pydicom.dataset import Dataset, FileMetaDataset
 from pydicom.uid import (
-    UID,
     ImplicitVRLittleEndian,
     ExplicitVRLittleEndian,
     JPEGBaseline8Bit,
@@ -36,7 +33,6 @@ from pydicom.uid import (
 import pynetdicom
 from pynetdicom import (
     AE,
-    VerificationPresentationContexts,
     build_context,
     evt,
     _config,
@@ -47,13 +43,12 @@ from pynetdicom.association import Association
 from pynetdicom.dimse_primitives import C_STORE, C_FIND, C_GET, C_MOVE
 from pynetdicom.dsutils import encode, decode
 from pynetdicom.events import Event
-from pynetdicom._globals import MODE_REQUESTOR, MODE_ACCEPTOR
+from pynetdicom._globals import MODE_REQUESTOR
 from pynetdicom.pdu_primitives import (
     UserIdentityNegotiation,
     SOPClassExtendedNegotiation,
     SOPClassCommonExtendedNegotiation,
     SCP_SCU_RoleSelectionNegotiation,
-    AsynchronousOperationsWindowNegotiation,
     A_ASSOCIATE,
 )
 from pynetdicom.sop_class import (
@@ -69,7 +64,6 @@ from pynetdicom.sop_class import (
     SecondaryCaptureImageStorage,
     UnifiedProcedureStepPull,
     UnifiedProcedureStepPush,
-    UnifiedProcedureStepWatch,
 )
 
 from .hide_modules import hide_modules
@@ -488,7 +482,7 @@ class TestAssociation:
             "'acceptor'"
         )
         with pytest.raises(ValueError, match=msg):
-            assoc = Association(None, "nope")
+            Association(None, "nope")
 
     def test_setting_socket_override_raises(self):
         """Test that set_socket raises exception if socket set."""
@@ -522,7 +516,7 @@ class TestAssociation:
             ds.SOPInstanceUID = "1.2.3.4"
             ds.file_meta = FileMetaDataset()
             ds.file_meta.TransferSyntaxUID = ImplicitVRLittleEndian
-            result = assoc.send_c_store(ds)
+            assoc.send_c_store(ds)
             time.sleep(0.1)
             assert assoc.is_aborted
             assert (
@@ -871,7 +865,7 @@ class TestCStoreSCP:
 
 
 class TestAssociationSendCEcho:
-    """Run tests on Assocation evt.EVT_C_ECHO handler."""
+    """Run tests on Association evt.EVT_C_ECHO handler."""
 
     def setup(self):
         """Run prior to each test"""
@@ -1235,7 +1229,7 @@ class TestAssociationSendCEcho:
 
 
 class TestAssociationSendCStore:
-    """Run tests on Assocation send_c_store."""
+    """Run tests on Association send_c_store."""
 
     def setup(self):
         """Run prior to each test"""
@@ -1590,8 +1584,8 @@ class TestAssociationSendCStore:
         assert assoc.is_established
         assert "SOPClassUID" not in ds
         msg = (
-            f"Unable to send the dataset as one or more required "
-            f"element are missing: SOPClassUID"
+            "Unable to send the dataset as one or more required "
+            "element are missing: SOPClassUID"
         )
         with pytest.raises(AttributeError, match=msg):
             assoc.send_c_store(ds)
@@ -1892,7 +1886,7 @@ class TestAssociationSendCStore:
 
         assert assoc.is_established
 
-        status = assoc.send_c_store(DEFL_DATASET)
+        assoc.send_c_store(DEFL_DATASET)
 
         assoc.release()
         assert assoc.is_released
@@ -1903,7 +1897,7 @@ class TestAssociationSendCStore:
 
 
 class TestAssociationSendCFind:
-    """Run tests on Assocation send_c_find."""
+    """Run tests on Association send_c_find."""
 
     def setup(self):
         """Run prior to each test"""
@@ -2465,7 +2459,7 @@ class TestAssociationSendCFind:
             assoc = ae.associate("localhost", 11112)
             assert assoc.is_established
 
-            responses = assoc.send_c_find(self.ds, "1.2.3.4")
+            assoc.send_c_find(self.ds, "1.2.3.4")
 
             scp.shutdown()
 
@@ -2477,7 +2471,7 @@ class TestAssociationSendCFind:
 
 
 class TestAssociationSendCCancel:
-    """Run tests on Assocation send_c_cancel."""
+    """Run tests on Association send_c_cancel."""
 
     def setup(self):
         """Run prior to each test"""
@@ -2580,7 +2574,7 @@ class TestAssociationSendCCancel:
 
 
 class TestAssociationSendCGet:
-    """Run tests on Assocation send_c_get."""
+    """Run tests on Association send_c_get."""
 
     def setup(self):
         """Run prior to each test"""
@@ -3367,7 +3361,7 @@ class TestAssociationSendCGet:
             assoc = ae.associate("localhost", 11112)
             assert assoc.is_established
 
-            responses = assoc.send_c_get(self.ds, "1.2.3.4")
+            assoc.send_c_get(self.ds, "1.2.3.4")
 
             scp.shutdown()
 
@@ -3517,7 +3511,7 @@ class TestAssociationSendCGet:
 
 
 class TestAssociationSendCMove:
-    """Run tests on Assocation send_c_move."""
+    """Run tests on Association send_c_move."""
 
     def setup(self):
         """Run prior to each test"""
@@ -4348,7 +4342,7 @@ class TestAssociationSendCMove:
             assoc = ae.associate("localhost", 11113)
             assert assoc.is_established
 
-            result = assoc.send_c_move(self.ds, "TESTMOVE", "1.2.3.4")
+            assoc.send_c_move(self.ds, "TESTMOVE", "1.2.3.4")
 
             store_scp.shutdown()
             move_scp.shutdown()
@@ -5047,7 +5041,7 @@ class TestGetValidContext:
         ds = Dataset()
         ds.TransactionUID = "1.2.3.4"
         with caplog.at_level(logging.DEBUG, logger="pynetdicom"):
-            responses = assoc.send_c_find(ds, UnifiedProcedureStepPush)
+            assoc.send_c_find(ds, UnifiedProcedureStepPush)
             assert msg in caplog.text
 
         assoc.release()
@@ -5287,7 +5281,6 @@ class TestEventHandlingAcceptor:
         self.ae = ae = AE()
         ae.add_supported_context(Verification)
         ae.add_requested_context(Verification)
-        handlers = [(evt.EVT_ABORTED, handle)]
         scp = ae.start_server(("", 11112), block=False)
         assert scp.get_handlers(evt.EVT_ABORTED) == []
         assert scp.get_handlers(evt.EVT_ACCEPTED) == []
@@ -5566,7 +5559,6 @@ class TestEventHandlingAcceptor:
         self.ae = ae = AE()
         ae.add_supported_context(Verification)
         ae.add_requested_context(Verification)
-        handlers = [(evt.EVT_ACCEPTED, handle)]
         scp = ae.start_server(("", 11112), block=False)
         assert scp.get_handlers(evt.EVT_ACCEPTED) == []
 
@@ -5939,7 +5931,6 @@ class TestEventHandlingAcceptor:
         self.ae = ae = AE()
         ae.add_supported_context(Verification)
         ae.add_requested_context(Verification)
-        handlers = [(evt.EVT_ESTABLISHED, handle)]
         scp = ae.start_server(("", 11112), block=False)
         assert scp.get_handlers(evt.EVT_ESTABLISHED) == []
 
@@ -6099,7 +6090,6 @@ class TestEventHandlingAcceptor:
         self.ae = ae = AE()
         ae.add_supported_context(Verification)
         ae.add_requested_context(Verification)
-        handlers = [(evt.EVT_REQUESTED, handle)]
         scp = ae.start_server(("", 11112), block=False)
         assert scp.get_handlers(evt.EVT_REQUESTED) == []
 
@@ -6247,7 +6237,6 @@ class TestEventHandlingAcceptor:
         ae.require_called_aet = True
         ae.add_supported_context(Verification)
         ae.add_requested_context(Verification)
-        handlers = [(evt.EVT_REJECTED, handle)]
         scp = ae.start_server(("", 11112), block=False)
         assert scp.get_handlers(evt.EVT_REJECTED) == []
 
@@ -6472,7 +6461,7 @@ class TestEventHandlingRequestor:
         scp.shutdown()
 
     def test_unbind_notification_none(self):
-        """Test unbinding a handler thats not bound."""
+        """Test unbinding a handler that's not bound."""
 
         def dummy(event):
             pass
@@ -6573,7 +6562,6 @@ class TestEventHandlingRequestor:
         self.ae = ae = AE()
         ae.add_supported_context(Verification)
         ae.add_requested_context(Verification)
-        handlers = [(evt.EVT_ABORTED, handle)]
         scp = ae.start_server(("", 11112), block=False)
 
         assoc = ae.associate("localhost", 11112)
@@ -6826,7 +6814,6 @@ class TestEventHandlingRequestor:
         self.ae = ae = AE()
         ae.add_supported_context(Verification)
         ae.add_requested_context(Verification)
-        handlers = [(evt.EVT_RELEASED, handle)]
         scp = ae.start_server(("", 11112), block=False)
 
         assoc = ae.associate("localhost", 11112)

@@ -997,7 +997,7 @@ def _sop_extended_handler(event: Event) -> Dict[UID, bytes]:
 
 
 def _user_identity_handler(event: Event) -> Tuple[bool, Optional[bytes]]:
-    """Default hander for when a user identity negotiation item is included
+    """Default handler for when a user identity negotiation item is included
     with the association request.
 
     See _handlers.doc_handler_userid for detailed documentation.

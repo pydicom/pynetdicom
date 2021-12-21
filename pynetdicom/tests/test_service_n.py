@@ -19,7 +19,7 @@ from pynetdicom.dimse_primitives import (
     C_FIND,
 )
 from pynetdicom.sop_class import (
-    DisplaySystem,  # Display Sysyem Management - N-GET
+    DisplaySystem,  # Display System Management - N-GET
     # Modality Performed Procedure - N-CREATE, N-SET
     ModalityPerformedProcedureStep,
     ModalityPerformedProcedureStepRetrieve,  # N-GET
@@ -1144,7 +1144,7 @@ class TestNServiceClass:
         if msg_type != "N-DELETE":
             status, ds = rsp
             assert status == Dataset()
-            assert ds == None
+            assert ds is None
         else:
             assert rsp == Dataset()
 
@@ -1196,7 +1196,7 @@ class TestNServiceClass:
         if msg_type != "N-DELETE":
             status, ds = rsp
             assert status == Dataset()
-            assert ds == None
+            assert ds is None
         else:
             assert rsp == Dataset()
 
@@ -2028,7 +2028,7 @@ class TestUPSFindServiceClass:
         result = assoc.send_c_find(self.query, UnifiedProcedureStepPull)
         status, identifier = next(result)
         assert status == Dataset()
-        assert identifier == None
+        assert identifier is None
         with pytest.raises(StopIteration):
             next(result)
 
@@ -2056,7 +2056,7 @@ class TestUPSFindServiceClass:
         result = assoc.send_c_find(self.query, UnifiedProcedureStepPull)
         status, identifier = next(result)
         assert status == Dataset()
-        assert identifier == None
+        assert identifier is None
         with pytest.raises(StopIteration):
             next(result)
 
@@ -2233,3 +2233,5 @@ class TestNEventReport:
         assert e.event == evt.EVT_N_EVENT_REPORT
         assert e.event_type == 1
         assert e.event_information.PatientName == "Test2"
+
+        ner_scp.shutdown()

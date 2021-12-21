@@ -2364,7 +2364,7 @@ class SCP_SCU_RoleSelectionSubItem(PDUItem):
 class SOPClassExtendedNegotiationSubItem(PDUItem):
     """A SOP Class Extended Negotiation Sub-item.
 
-    A SOP Class Extended Negotation Sub-item allows peer Application Entities
+    A SOP Class Extended Negotiation Sub-item allows peer Application Entities
     to exchange application information defined by specific Service Class
     specifications.
 
@@ -2565,7 +2565,7 @@ class SOPClassExtendedNegotiationSubItem(PDUItem):
         return self.sop_class_uid
 
 
-# Overriden _generate_items, _wrap_generate_items
+# Overridden _generate_items, _wrap_generate_items
 class SOPClassCommonExtendedNegotiationSubItem(PDUItem):
     """A SOP Class Common Extended Negotiation Sub-item.
 
@@ -3356,7 +3356,7 @@ class UserIdentitySubItemAC(PDUItem):
 
 
 # P-DATA-TF Item
-# Overriden item_type
+# Overridden item_type
 class PresentationDataValueItem(PDUItem):
     """A Presentation Data Value Item.
 

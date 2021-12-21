@@ -6,7 +6,7 @@ Overall transfer speed (no datasets written to file unless noted)
   * 1000 datasets over 1 association
   * 1000 datasets over 1 association (datasets written to temp file)
   * 1 dataset per association over 1000 sequential associations
-  * 1000 datasets per association over 10 simulataneous associations
+  * 1000 datasets per association over 10 simultaneous associations
 * pynetdicom as SCU, DCMTK's storescp as SCP
   * 1000 datasets over 1 association
   * 1 dataset per association for 1000 sequential associations
@@ -14,7 +14,6 @@ Overall transfer speed (no datasets written to file unless noted)
 """
 
 from datetime import datetime
-import multiprocessing
 import os
 import subprocess
 import tempfile
@@ -24,8 +23,7 @@ from pydicom import dcmread
 from pydicom.filewriter import write_file_meta_info
 from pydicom.uid import ImplicitVRLittleEndian
 
-from pynetdicom import AE, evt, build_context, debug_logger
-from pynetdicom.dsutils import encode
+from pynetdicom import AE, evt, debug_logger
 
 
 # debug_logger()
@@ -167,10 +165,7 @@ def receive_store(nr_assoc, ds_per_assoc, write_ds=0, use_yappi=False):
     )
 
     time.sleep(0.5)
-
     start_time = time.time()
-    run_times = []
-
     is_successful = True
 
     for ii in range(nr_assoc):
@@ -243,10 +238,7 @@ def receive_store_internal(nr_assoc, ds_per_assoc, write_ds=0, use_yappi=False):
     )
 
     time.sleep(0.5)
-
     start_time = time.time()
-    run_times = []
-
     is_successful = True
 
     for ii in range(nr_assoc):
@@ -343,10 +335,7 @@ def receive_store_simultaneous(nr_assoc, ds_per_assoc, use_yappi=False):
     )
 
     time.sleep(0.5)
-
     start_time = time.time()
-    run_times = []
-
     is_successful = True
 
     processes = []

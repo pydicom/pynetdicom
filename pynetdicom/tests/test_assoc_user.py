@@ -1,16 +1,10 @@
 """Tests for association.AcceptorRequestor."""
 
-import logging
-import time
-import threading
-
 import pytest
 
 from pynetdicom import (
     AE,
-    VerificationPresentationContexts,
     PYNETDICOM_IMPLEMENTATION_UID,
-    PYNETDICOM_IMPLEMENTATION_VERSION,
     build_context,
     debug_logger,
 )
@@ -118,7 +112,7 @@ class TestServiceUserAcceptor:
         assert user.implementation_class_uid is None
 
     def test_no_maximum_len(self):
-        """Test correct reutrn if no maximum length."""
+        """Test correct return if no maximum length."""
         user = ServiceUser(self.assoc, mode="acceptor")
         user._user_info = []
         assert user.maximum_length is None
@@ -176,7 +170,7 @@ class TestServiceUserAcceptor:
         assert user.mode == "acceptor"
 
     def test_minimal_ac(self):
-        """Test access with a miminal allowed A-ASSOCIATE (ac) primitive."""
+        """Test access with a minimal allowed A-ASSOCIATE (ac) primitive."""
         user = ServiceUser(self.assoc, mode="acceptor")
         user.primitive = self.primitive_ac
 
@@ -193,7 +187,7 @@ class TestServiceUserAcceptor:
         assert user.user_identity is None
 
     def test_minimal_rj(self):
-        """Test access with a miminal allowed A-ASSOCIATE (rj) primitive."""
+        """Test access with a minimal allowed A-ASSOCIATE (rj) primitive."""
         user = ServiceUser(self.assoc, mode="acceptor")
         user.primitive = self.primitive_rj
 
@@ -1491,7 +1485,7 @@ class TestServiceUserRequestor:
         assert user.mode == "requestor"
 
     def test_minimal(self):
-        """Test access with a miminal allowed A-ASSOCIATE primitive."""
+        """Test access with a minimal allowed A-ASSOCIATE primitive."""
         user = ServiceUser(self.assoc, mode="requestor")
         user.primitive = self.primitive
 
