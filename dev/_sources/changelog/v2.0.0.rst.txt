@@ -32,6 +32,7 @@ Fixes
   :meth:`ServiceUser.supported_contexts
   <pynetdicom.association.ServiceUser.supported_contexts>` not returning the
   expected contexts (:issue:`636`)
+* Fixed `qrscp --clean` (:issue:`681`, :issue:`682`)
 
 Enhancements
 ............
