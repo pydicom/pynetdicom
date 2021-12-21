@@ -146,7 +146,12 @@ class TestPrettyBytes:
             bytestream, prefix="", delimiter="", items_per_line=10, max_size=100
         )
         assert len(result) == 11  # 10 plus the cutoff line
+        assert "Only dumping 100 bytes." == result[0]
+        assert "382e332e312e312e3120" == result[-1]
+
         result = pretty_bytes(bytestream, max_size=None)
+        assert "Only dumping 100 bytes." != result[0]
+        assert "  43  4f  4d  5f  30  39  30" == result[-1]
 
         # suffix
         result = pretty_bytes(bytestream, suffix="xxx")
