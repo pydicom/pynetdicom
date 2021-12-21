@@ -1,0 +1,6 @@
+﻿pynetdicom.sop\_class.XAPerformedProcedureProtocolStorage
+=========================================================
+
+.. currentmodule:: pynetdicom.sop_class
+
+.. autodata:: XAPerformedProcedureProtocolStorage

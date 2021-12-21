@@ -9,8 +9,8 @@ The major breaking changes with the version 2.0 release are:
   * SOP class variable names now use their `new DICOM UID keywords
     <https://dicom.nema.org/medical/dicom/current/output/chtml/part06/chapter_A.html#table_A-1>`_
     (for example, *VerificationSOPClass* becomes simply *Verification*)
-  * AE titles values should be :class:`str` rather than :class:`bytes` and no
-    longer contain any trailing padding bytes
+  * AE titles values should be :class:`str` rather than :class:`bytes` and will no
+    longer contain any trailing padding spaces
 
 
 Fixes
