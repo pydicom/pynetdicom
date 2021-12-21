@@ -6,10 +6,8 @@ requests to a QR/BWM - Find SCP.
 """
 
 import argparse
-import os
 import sys
 
-from pydicom import dcmread
 from pydicom.dataset import Dataset
 from pydicom.uid import (
     ExplicitVRLittleEndian,
@@ -297,7 +295,6 @@ def main(args=None):
         identifier = create_dataset(args, APP_LOGGER)
     except Exception as exc:
         APP_LOGGER.exception(exc)
-        raise exc
         sys.exit(1)
 
     # Create application entity

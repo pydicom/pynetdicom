@@ -5,11 +5,11 @@ import logging
 from math import ceil
 from pathlib import Path
 from tempfile import NamedTemporaryFile
-from typing import Iterator, Optional, TYPE_CHECKING, cast, Union, Tuple, Type, List
+from typing import Iterator, Optional, TYPE_CHECKING, cast, Union, Tuple
 
 from pydicom.dataset import Dataset
 from pydicom.filewriter import write_file_meta_info
-from pydicom.tag import Tag, BaseTag
+from pydicom.tag import Tag
 from pydicom.uid import UID
 
 from pynetdicom import _config

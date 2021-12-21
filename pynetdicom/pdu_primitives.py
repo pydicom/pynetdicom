@@ -1,7 +1,6 @@
 """
 Implementation of the service parameter primitives.
 """
-import codecs
 import logging
 from typing import Optional, List, Any, Union, Tuple, cast, Type
 

@@ -7,7 +7,6 @@ import os
 import sys
 
 import pydicom.config
-from pydicom.dataset import Dataset
 
 from pynetdicom import AE, evt, AllStoragePresentationContexts, ALL_TRANSFER_SYNTAXES
 from pynetdicom import _config, _handlers

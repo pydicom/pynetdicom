@@ -13,11 +13,8 @@ from typing import (
     Union,
     cast,
     Callable,
-    Tuple,
-    Type,
     Sequence,
 )
-import unicodedata
 
 try:
     import ctypes
@@ -147,15 +144,12 @@ def pretty_bytes(
         byte_count += len(chunk)
         gen = (format(x, "02x") for x in chunk)
 
-        if max_size is not None and byte_count <= max_size:
+        if max_size is None or byte_count <= max_size:
             line = prefix + delimiter.join(gen)
             lines.append(line + suffix)
-        elif max_size is not None and byte_count > max_size:
+        else:
             cutoff_output = True
             break
-        else:
-            line = prefix + delimiter.join(gen)
-            lines.append(line + suffix)
 
     if cutoff_output:
         lines.insert(0, prefix + f"Only dumping {max_size} bytes.")

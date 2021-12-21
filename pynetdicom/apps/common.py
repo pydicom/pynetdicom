@@ -421,7 +421,6 @@ class ElementPath:
         ]
         _int = ["SL", "SS", "SV", "UL", "US", "UV"]
         _float = ["FD", "FL"]
-        _byte = ["OB", "OD", "OF", "OL", "OW", "OV", "UN"]
         # Try to convert value to appropriate type
         if self.VR == "AT" and "\\" in value:
             value = value.split("\\")
@@ -627,7 +626,7 @@ def handle_store(event, args, app_logger):
             with open(filename, "wb") as f:
                 f.write(b"\x00" * 128)
                 f.write(b"DICM")
-                f.write(write_file_meta_info(f, event.file_meta))
+                write_file_meta_info(f, event.file_meta)
                 f.write(encode(ds, False, True, True))
         else:
             # We use `write_like_original=False` to ensure that a compliant
