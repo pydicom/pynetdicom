@@ -2,7 +2,15 @@
 
 import logging
 from typing import (
-    Union, Optional, List, Any, TYPE_CHECKING, NamedTuple, cast, Dict, Tuple
+    Union,
+    Optional,
+    List,
+    Any,
+    TYPE_CHECKING,
+    NamedTuple,
+    cast,
+    Dict,
+    Tuple,
 )
 
 from pydicom.uid import UID
@@ -48,6 +56,7 @@ class PresentationContextTuple(NamedTuple):
     """:func:`namedtuple<collections.namedtuple>` representation of an accepted
     :class:`PresentationContext`.
     """
+
     context_id: int
     abstract_syntax: UID
     transfer_syntax: UID
@@ -58,9 +67,8 @@ BOTH_SCU_SCP_ROLE = (True, True, True, True)
 CONTEXT_REJECTED = (False, False, False, False)
 INVERTED_ROLE = (False, True, True, False)
 _RoleType = Dict[
-    Tuple[Optional[bool], Optional[bool]], Dict[
-        Tuple[Optional[bool], Optional[bool]], Tuple[bool, bool, bool, bool]
-    ]
+    Tuple[Optional[bool], Optional[bool]],
+    Dict[Tuple[Optional[bool], Optional[bool]], Tuple[bool, bool, bool, bool]],
 ]
 SCP_SCU_ROLES: _RoleType = {
     # (Requestor role, Acceptor role) : Outcome
@@ -209,6 +217,7 @@ class PresentationContext:
       <part08.html#sect_9.3.2.2>`, :dcm:`9.3.3.2 <part08.html#sect_9.3.3.2>`
       and :dcm:`Annex B <part08.html#chapter_B>`
     """
+
     def __init__(self) -> None:
         """Create a new object."""
         self._context_id: Optional[int] = None
@@ -239,13 +248,9 @@ class PresentationContext:
     @abstract_syntax.setter
     def abstract_syntax(self, value: Union[str, bytes, UID]) -> None:
         """Set the context's *Abstract Syntax*."""
-        self._abstract_syntax = (
-            set_uid(value, "abstract_syntax", True, False, True)
-        )
+        self._abstract_syntax = set_uid(value, "abstract_syntax", True, False, True)
 
-    def add_transfer_syntax(
-        self, syntax: Union[None, str, bytes, UID]
-    ) -> None:
+    def add_transfer_syntax(self, syntax: Union[None, str, bytes, UID]) -> None:
         """Append a transfer syntax to the presentation context.
 
         Parameters
@@ -269,12 +274,10 @@ class PresentationContext:
             raise ValueError("'transfer_syntax' contains an invalid UID")
 
         if syntax and not syntax.is_valid:
-            LOGGER.warning(
-                f"The Transfer Syntax Name '{syntax}' is non-conformant"
-            )
+            LOGGER.warning(f"The Transfer Syntax Name '{syntax}' is non-conformant")
 
         # If the transfer syntax is rejected we may add an empty str
-        if syntax not in self._transfer_syntax and syntax != '':
+        if syntax not in self._transfer_syntax and syntax != "":
             if not syntax.is_valid:
                 LOGGER.warning(
                     "A non-conformant UID has been added to 'transfer_syntax'"
@@ -324,7 +327,7 @@ class PresentationContext:
         return PresentationContextTuple(
             cast(int, self.context_id),
             cast(UID, self.abstract_syntax),
-            self.transfer_syntax[0]
+            self.transfer_syntax[0],
         )
 
     @property
@@ -343,8 +346,7 @@ class PresentationContext:
         """
         if value is not None and (not 1 <= value <= 255 or value % 2 == 0):
             raise ValueError(
-                "'context_id' must be an odd integer between 1 and 255, "
-                "inclusive"
+                "'context_id' must be an odd integer between 1 and 255, " "inclusive"
             )
 
         self._context_id = value
@@ -361,13 +363,15 @@ class PresentationContext:
 
     def __hash__(self) -> int:
         """Return a hash of the context."""
-        return hash((
-            self.abstract_syntax,
-            self.context_id,
-            tuple(self.transfer_syntax),
-            self.as_scp,
-            self.as_scu
-        ))
+        return hash(
+            (
+                self.abstract_syntax,
+                self.context_id,
+                tuple(self.transfer_syntax),
+                self.as_scp,
+                self.as_scu,
+            )
+        )
 
     def __ne__(self, other: Any) -> bool:
         """Return ``True`` if `self` does not equal `other`."""
@@ -455,10 +459,10 @@ class PresentationContext:
             s.append(f"Abstract Syntax: {self.abstract_syntax.name}")
 
         s.append("Transfer Syntax(es):")
-        for syntax in self.transfer_syntax:
-            s.append(f"    ={syntax.name}")
-        else:
+        if not self.transfer_syntax:
             s.append("    (none)")
+        else:
+            s.extend(f"    ={ts.name}" for ts in self.transfer_syntax)
 
         if self.result is not None:
             s.append(f"Result: {self.status}")
@@ -598,9 +602,7 @@ def negotiate_unrestricted(
         result_cx.append(cx)
 
     # Not required but a nice thing to do
-    result_cx = sorted(
-        result_cx, key=lambda x: cast(int, x.context_id)
-    )
+    result_cx = sorted(result_cx, key=lambda x: cast(int, x.context_id))
     result_roles = sorted(
         reply_roles.values(), key=lambda x: cast(UID, x.sop_class_uid)
     )
@@ -667,9 +669,7 @@ def negotiate_as_acceptor(
 
     # Requestor may use the same Abstract Syntax in multiple Presentation
     #   Contexts so we need a more specific key than UID
-    requestor_contexts = {
-        (cx.context_id, cx.abstract_syntax): cx for cx in rq_contexts
-    }
+    requestor_contexts = {(cx.context_id, cx.abstract_syntax): cx for cx in rq_contexts}
     # Acceptor supported SOP Classes must be unique so we can use UID as
     #   the key
     acceptor_contexts = {cx.abstract_syntax: cx for cx in ac_contexts}
@@ -759,9 +759,7 @@ def negotiate_as_acceptor(
 
     # Sort by presentation context ID
     #   This isn't required by the DICOM Standard but its a nice thing to do
-    result_contexts = sorted(
-        result_contexts, key=lambda x: cast(int, x.context_id)
-    )
+    result_contexts = sorted(result_contexts, key=lambda x: cast(int, x.context_id))
 
     # Sort role selection by abstract syntax, also not required but nice
     result_roles = sorted(
@@ -820,16 +818,12 @@ def negotiate_as_requestor(
     roles = roles or {}
 
     if not rq_contexts:
-        raise ValueError('Requestor contexts are required')
+        raise ValueError("Requestor contexts are required")
     output = []
 
     # Create dicts, indexed by the presentation context ID
-    requestor_contexts = {
-        context.context_id: context for context in rq_contexts
-    }
-    acceptor_contexts = {
-        context.context_id: context for context in ac_contexts
-    }
+    requestor_contexts = {context.context_id: context for context in rq_contexts}
+    acceptor_contexts = {context.context_id: context for context in ac_contexts}
 
     for context_id in requestor_contexts:
         # Convenience variable
@@ -882,7 +876,7 @@ def negotiate_as_requestor(
 
 def build_context(
     abstract_syntax: Union[str, UID],
-    transfer_syntax: Optional[Union[str, UID, List[Union[str, UID]]]] = None
+    transfer_syntax: Optional[Union[str, UID, List[Union[str, UID]]]] = None,
 ) -> PresentationContext:
     """Return a :class:`PresentationContext` built from the `abstract_syntax`.
 

@@ -4,7 +4,13 @@ import logging
 from typing import TYPE_CHECKING, Union
 
 from pynetdicom.dimse_primitives import (
-    N_ACTION, N_CREATE, N_DELETE, N_EVENT_REPORT, N_GET, N_SET, C_FIND
+    N_ACTION,
+    N_CREATE,
+    N_DELETE,
+    N_EVENT_REPORT,
+    N_GET,
+    N_SET,
+    C_FIND,
 )
 from pynetdicom.service_class import ServiceClass
 from pynetdicom.status import (
@@ -28,7 +34,7 @@ if TYPE_CHECKING:  # pragma: no cover
     _UPS = Union[N_CREATE, N_EVENT_REPORT, N_GET, N_SET, N_ACTION, C_FIND]
 
 
-LOGGER = logging.getLogger('pynetdicom.service-n')
+LOGGER = logging.getLogger("pynetdicom.service-n")
 
 
 class ApplicationEventLoggingServiceClass(ServiceClass):
@@ -36,6 +42,7 @@ class ApplicationEventLoggingServiceClass(ServiceClass):
 
     .. versionadded:: 1.4
     """
+
     statuses = APPLICATION_EVENT_LOGGING_SERVICE_CLASS_STATUS
 
     def SCP(self, req: N_ACTION, context: "PresentationContext") -> None:
@@ -59,6 +66,7 @@ class ApplicationEventLoggingServiceClass(ServiceClass):
 
 class DisplaySystemManagementServiceClass(ServiceClass):
     """Implementation of the Display System Management Service Class."""
+
     statuses = GENERAL_STATUS
 
     def SCP(self, req: N_GET, context: "PresentationContext") -> None:
@@ -85,6 +93,7 @@ class InstanceAvailabilityNotificationServiceClass(ServiceClass):
 
     .. versionadded:: 1.4
     """
+
     statuses = GENERAL_STATUS
 
     def SCP(self, req: N_CREATE, context: "PresentationContext") -> None:
@@ -111,6 +120,7 @@ class MediaCreationManagementServiceClass(ServiceClass):
 
     .. versionadded:: 1.4
     """
+
     statuses = MEDIA_CREATION_MANAGEMENT_SERVICE_CLASS_STATUS
 
     def SCP(self, req: "_MCM", context: "PresentationContext") -> None:
@@ -141,6 +151,7 @@ class PrintManagementServiceClass(ServiceClass):
 
     .. versionadded:: 1.4
     """
+
     statuses = PRINT_JOB_MANAGEMENT_SERVICE_CLASS_STATUS
 
     def SCP(self, req: "_PJ", context: "PresentationContext") -> None:
@@ -178,6 +189,7 @@ class ProcedureStepServiceClass(ServiceClass):
 
     .. versionadded:: 1.3
     """
+
     statuses = PROCEDURE_STEP_STATUS
 
     def SCP(self, req: "_PS", context: "PresentationContext") -> None:
@@ -215,6 +227,7 @@ class RTMachineVerificationServiceClass(ServiceClass):
 
     .. versionadded:: 1.4
     """
+
     statuses = RT_MACHINE_VERIFICATION_SERVICE_CLASS_STATUS
 
     def SCP(self, req: "_PJ", context: "PresentationContext") -> None:
@@ -252,6 +265,7 @@ class StorageCommitmentServiceClass(ServiceClass):
 
     .. versionadded:: 1.4
     """
+
     statuses = STORAGE_COMMITMENT_SERVICE_CLASS_STATUS
 
     def SCP(self, req: "_SCS", context: "PresentationContext") -> None:
@@ -280,6 +294,7 @@ class UnifiedProcedureStepServiceClass(ServiceClass):
 
     .. versionadded:: 1.4
     """
+
     statuses = UNIFIED_PROCEDURE_STEP_SERVICE_CLASS_STATUS
 
     def SCP(self, req: "_UPS", context: "PresentationContext") -> None:

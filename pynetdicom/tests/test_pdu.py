@@ -11,36 +11,60 @@ from pydicom.uid import UID
 from pynetdicom import AE, evt, Association, _config
 from pynetdicom.events import Event
 from pynetdicom.pdu import (
-    A_ASSOCIATE_RQ, A_ASSOCIATE_AC, A_ASSOCIATE_RJ, P_DATA_TF, A_RELEASE_RQ,
-    A_RELEASE_RP, A_ABORT_RQ, PDU, ApplicationContextItem,
-    PresentationContextItemAC, PresentationContextItemRQ, UserInformationItem,
-    PACK_UCHAR, UNPACK_UCHAR
+    A_ASSOCIATE_RQ,
+    A_ASSOCIATE_AC,
+    A_ASSOCIATE_RJ,
+    P_DATA_TF,
+    A_RELEASE_RQ,
+    A_RELEASE_RP,
+    A_ABORT_RQ,
+    PDU,
+    ApplicationContextItem,
+    PresentationContextItemAC,
+    PresentationContextItemRQ,
+    UserInformationItem,
+    PACK_UCHAR,
+    UNPACK_UCHAR,
 )
 from pynetdicom.pdu_items import (
     PresentationDataValueItem,
     TransferSyntaxSubItem,
     MaximumLengthSubItem,
-    ImplementationClassUIDSubItem, ImplementationVersionNameSubItem
+    ImplementationClassUIDSubItem,
+    ImplementationVersionNameSubItem,
 )
 from pynetdicom.pdu_primitives import (
-    MaximumLengthNotification, ImplementationClassUIDNotification,
-    ImplementationVersionNameNotification, A_P_ABORT, A_ABORT,
+    MaximumLengthNotification,
+    ImplementationClassUIDNotification,
+    ImplementationVersionNameNotification,
+    A_P_ABORT,
+    A_ABORT,
 )
 from .encoded_pdu_items import (
-    a_associate_rq, a_associate_ac, a_associate_rj, a_release_rq, a_release_rq,
-    a_release_rp, a_abort, a_p_abort, p_data_tf,
-    a_associate_rq_user_id_ext_neg, a_associate_ac_no_ts,
-    a_associate_rq_called, a_associate_rq_calling
+    a_associate_rq,
+    a_associate_ac,
+    a_associate_rj,
+    a_release_rq,
+    a_release_rq,
+    a_release_rp,
+    a_abort,
+    a_p_abort,
+    p_data_tf,
+    a_associate_rq_user_id_ext_neg,
+    a_associate_ac_no_ts,
+    a_associate_rq_called,
+    a_associate_rq_calling,
 )
 from pynetdicom.sop_class import Verification
 from pynetdicom.utils import pretty_bytes
 
-LOGGER = logging.getLogger('pynetdicom')
+LOGGER = logging.getLogger("pynetdicom")
 LOGGER.setLevel(logging.CRITICAL)
 
 
 class TestPDU:
     """Test the PDU equality/inequality operators."""
+
     def test_decode_raises(self):
         """Test the PDU.decode method raises NotImplementedError."""
         pdu = PDU()
@@ -58,7 +82,7 @@ class TestPDU:
         aa = A_ASSOCIATE_RQ()
         bb = A_ASSOCIATE_RQ()
         assert aa == bb
-        assert not aa == 'TEST'
+        assert not aa == "TEST"
 
         aa.decode(a_associate_rq)
         assert not aa == bb
@@ -66,7 +90,7 @@ class TestPDU:
         bb.decode(a_associate_rq)
         assert aa == bb
 
-        aa.calling_ae_title = 'TEST_AE_TITLE_00'
+        aa.calling_ae_title = "TEST_AE_TITLE_00"
         assert not aa == bb
 
         assert aa == aa
@@ -86,20 +110,20 @@ class TestPDU:
     def test_generate_items(self):
         """Test the PDU._generate_items method."""
         pdu = PDU()
-        gen = pdu._generate_items(b'')
+        gen = pdu._generate_items(b"")
         with pytest.raises(StopIteration):
             next(gen)
 
-        data = b'\x10\x00\x00\x02\x01\x02'
+        data = b"\x10\x00\x00\x02\x01\x02"
         gen = pdu._generate_items(data)
         assert next(gen) == (0x10, data)
         with pytest.raises(StopIteration):
             next(gen)
 
-        data += b'\x20\x00\x00\x03\x01\x02\x03'
+        data += b"\x20\x00\x00\x03\x01\x02\x03"
         gen = pdu._generate_items(data)
-        assert next(gen) == (0x10, b'\x10\x00\x00\x02\x01\x02')
-        assert next(gen) == (0x20, b'\x20\x00\x00\x03\x01\x02\x03')
+        assert next(gen) == (0x10, b"\x10\x00\x00\x02\x01\x02")
+        assert next(gen) == (0x20, b"\x20\x00\x00\x03\x01\x02\x03")
         with pytest.raises(StopIteration):
             next(gen)
 
@@ -108,7 +132,7 @@ class TestPDU:
         pdu = PDU()
 
         # Short data
-        data = b'\x10\x00\x00\x02\x01'
+        data = b"\x10\x00\x00\x02\x01"
         gen = pdu._generate_items(data)
         with pytest.raises(AssertionError):
             next(gen)
@@ -124,7 +148,7 @@ class TestPDU:
         aa = A_ASSOCIATE_RQ()
         bb = A_ASSOCIATE_RQ()
         assert not aa != bb
-        assert aa != 'TEST'
+        assert aa != "TEST"
 
         aa.decode(a_associate_rq)
         assert aa != bb
@@ -146,8 +170,8 @@ class TestPDU:
     def test_wrap_bytes(self):
         """Test PDU._wrap_bytes()."""
         pdu = PDU()
-        assert pdu._wrap_bytes(b'') == b''
-        assert pdu._wrap_bytes(b'\x00\x01') == b'\x00\x01'
+        assert pdu._wrap_bytes(b"") == b""
+        assert pdu._wrap_bytes(b"\x00\x01") == b"\x00\x01"
 
     def test_wrap_encode_items(self):
         """Test PDU._wrap_encode_items()."""
@@ -155,53 +179,54 @@ class TestPDU:
         release_b = A_RELEASE_RQ()
         pdu = PDU()
         out = pdu._wrap_encode_items([release_a])
-        assert out == b'\x05\x00\x00\x00\x00\x04\x00\x00\x00\x00'
+        assert out == b"\x05\x00\x00\x00\x00\x04\x00\x00\x00\x00"
 
         out = pdu._wrap_encode_items([release_a, release_a])
-        assert out == b'\x05\x00\x00\x00\x00\x04\x00\x00\x00\x00' * 2
+        assert out == b"\x05\x00\x00\x00\x00\x04\x00\x00\x00\x00" * 2
 
     def test_wrap_encode_str(self):
         """Test PDU.__wrap_encode_str()."""
         pdu = PDU()
-        uid = UID('1.2.840.10008.1.1')
+        uid = UID("1.2.840.10008.1.1")
         out = pdu._wrap_encode_str(uid)
-        assert out == b'1.2.840.10008.1.1'
+        assert out == b"1.2.840.10008.1.1"
 
     def test_wrap_generate_items(self):
         """Test PDU._wrap_generate_items()."""
         pdu = PDU()
-        out = pdu._wrap_generate_items(b'')
+        out = pdu._wrap_generate_items(b"")
         assert out == []
 
-        data = b'\x10\x00\x00\x03\x31\x2e\x32'
+        data = b"\x10\x00\x00\x03\x31\x2e\x32"
         out = pdu._wrap_generate_items(data)
-        assert out[0].application_context_name == '1.2'
+        assert out[0].application_context_name == "1.2"
 
-        data += b'\x10\x00\x00\x04\x31\x2e\x32\x33'
+        data += b"\x10\x00\x00\x04\x31\x2e\x32\x33"
         out = pdu._wrap_generate_items(data)
-        assert out[0].application_context_name == '1.2'
-        assert out[1].application_context_name == '1.23'
+        assert out[0].application_context_name == "1.2"
+        assert out[1].application_context_name == "1.23"
 
     def test_wrap_pack(self):
         """Test PDU._wrap_pack()."""
         pdu = PDU()
         out = pdu._wrap_pack(1, PACK_UCHAR)
-        assert out == b'\x01'
+        assert out == b"\x01"
 
     def test_wrap_unpack(self):
         """Test PDU._wrap_unpack()."""
         pdu = PDU()
-        out = pdu._wrap_unpack(b'\x01', UNPACK_UCHAR)
+        out = pdu._wrap_unpack(b"\x01", UNPACK_UCHAR)
         assert out == 1
 
 
 class TestASSOC_RQ:
     """Test the A_ASSOCIATE_RQ class."""
+
     def test_init(self):
         pdu = A_ASSOCIATE_RQ()
         assert pdu.protocol_version == 0x01
-        assert pdu.calling_ae_title == 'Default'
-        assert pdu.called_ae_title == 'Default'
+        assert pdu.calling_ae_title == "Default"
+        assert pdu.called_ae_title == "Default"
         assert pdu.variable_items == []
         assert pdu.pdu_type == 0x01
         assert pdu.pdu_length == 68
@@ -216,19 +241,17 @@ class TestASSOC_RQ:
         pdu = A_ASSOCIATE_RQ()
 
         # pdu.called_ae_title
-        assert pdu.called_ae_title == 'Default'
-        pdu.called_ae_title = 'TEST_SCP'
-        assert pdu.called_ae_title == 'TEST_SCP'
-        pdu.called_ae_title = '  TEST SCP   '
-        assert pdu.called_ae_title == '  TEST SCP   '
-        pdu.called_ae_title = b'  TEST SCP   '
-        assert pdu.called_ae_title == 'TEST SCP'
+        assert pdu.called_ae_title == "Default"
+        pdu.called_ae_title = "TEST_SCP"
+        assert pdu.called_ae_title == "TEST_SCP"
+        pdu.called_ae_title = "  TEST SCP   "
+        assert pdu.called_ae_title == "  TEST SCP   "
+        pdu.called_ae_title = b"  TEST SCP   "
+        assert pdu.called_ae_title == "TEST SCP"
 
-        msg = (
-            r"Unable to decode '2E E2 80 8B 31 2E' using the ascii codec\(s\)"
-        )
+        msg = r"Unable to decode '2E E2 80 8B 31 2E' using the ascii codec\(s\)"
         with pytest.raises(ValueError, match=msg):
-            pdu.called_ae_title = b'\x2e\xe2\x80\x8b\x31\x2e'
+            pdu.called_ae_title = b"\x2e\xe2\x80\x8b\x31\x2e"
 
         msg = "'Called AE Title' must be str, not 'NoneType'"
         with pytest.raises(TypeError, match=msg):
@@ -238,10 +261,7 @@ class TestASSOC_RQ:
         with pytest.raises(ValueError, match=msg):
             pdu.called_ae_title = ""
 
-        msg = (
-            "Invalid 'Called AE Title' value - must not consist entirely "
-            "of spaces"
-        )
+        msg = "Invalid 'Called AE Title' value - must not consist entirely " "of spaces"
         with pytest.raises(ValueError, match=msg):
             pdu.called_ae_title = "  "
 
@@ -252,22 +272,20 @@ class TestASSOC_RQ:
         with pytest.raises(ValueError, match=msg):
             pdu.called_ae_title = "\u200b5ABCD"
 
-        assert pdu.called_ae_title == 'TEST SCP'
+        assert pdu.called_ae_title == "TEST SCP"
 
         # pdu.calling_ae_title
-        assert pdu.calling_ae_title == 'Default'
-        pdu.calling_ae_title = 'TEST_SCP2'
-        assert pdu.calling_ae_title == 'TEST_SCP2'
-        pdu.calling_ae_title = '  TEST SCP2   '
-        assert pdu.calling_ae_title == '  TEST SCP2   '
-        pdu.calling_ae_title = b'  TEST SCP   '
-        assert pdu.calling_ae_title == 'TEST SCP'
+        assert pdu.calling_ae_title == "Default"
+        pdu.calling_ae_title = "TEST_SCP2"
+        assert pdu.calling_ae_title == "TEST_SCP2"
+        pdu.calling_ae_title = "  TEST SCP2   "
+        assert pdu.calling_ae_title == "  TEST SCP2   "
+        pdu.calling_ae_title = b"  TEST SCP   "
+        assert pdu.calling_ae_title == "TEST SCP"
 
-        msg = (
-            r"Unable to decode '2E E2 80 8B 31 2E' using the ascii codec\(s\)"
-        )
+        msg = r"Unable to decode '2E E2 80 8B 31 2E' using the ascii codec\(s\)"
         with pytest.raises(ValueError, match=msg):
-            pdu.calling_ae_title = b'\x2e\xe2\x80\x8b\x31\x2e'
+            pdu.calling_ae_title = b"\x2e\xe2\x80\x8b\x31\x2e"
 
         msg = "'Calling AE Title' must be str, not 'NoneType'"
         with pytest.raises(TypeError, match=msg):
@@ -278,8 +296,7 @@ class TestASSOC_RQ:
             pdu.calling_ae_title = ""
 
         msg = (
-            "Invalid 'Calling AE Title' value - must not consist entirely "
-            "of spaces"
+            "Invalid 'Calling AE Title' value - must not consist entirely " "of spaces"
         )
         with pytest.raises(ValueError, match=msg):
             pdu.calling_ae_title = "  "
@@ -291,7 +308,7 @@ class TestASSOC_RQ:
         with pytest.raises(ValueError, match=msg):
             pdu.calling_ae_title = "\u200b5ABCD"
 
-        assert pdu.calling_ae_title == 'TEST SCP'
+        assert pdu.calling_ae_title == "TEST SCP"
 
     def test_string_output(self):
         """Check the string output works"""
@@ -307,8 +324,8 @@ class TestASSOC_RQ:
         pdu.decode(a_associate_rq)
 
         assert pdu.protocol_version == 0x01
-        assert pdu.calling_ae_title == 'ECHOSCU'
-        assert pdu.called_ae_title == 'ANY-SCP'
+        assert pdu.calling_ae_title == "ECHOSCU"
+        assert pdu.called_ae_title == "ANY-SCP"
         assert pdu.pdu_type == 0x01
         assert pdu.pdu_length == 209
         assert len(pdu) == 215
@@ -331,7 +348,7 @@ class TestASSOC_RQ:
         # Check application_context_name property
         app_name = pdu.application_context_name
         assert isinstance(app_name, UID)
-        assert app_name == '1.2.840.10008.3.1.1.1'
+        assert app_name == "1.2.840.10008.3.1.1.1"
 
         # Check presentation_context property
         contexts = pdu.presentation_context
@@ -346,10 +363,7 @@ class TestASSOC_RQ:
     def test_decode_called_empty(self):
         """Check decoding empty called AE title."""
         pdu = A_ASSOCIATE_RQ()
-        msg = (
-            "Invalid 'Called AE Title' value - must not consist entirely "
-            "of spaces"
-        )
+        msg = "Invalid 'Called AE Title' value - must not consist entirely " "of spaces"
         with pytest.raises(ValueError, match=msg):
             pdu.decode(a_associate_rq_called)
 
@@ -357,8 +371,7 @@ class TestASSOC_RQ:
         """Check decoding empty called AE title."""
         pdu = A_ASSOCIATE_RQ()
         msg = (
-            "Invalid 'Calling AE Title' value - must not consist entirely "
-            "of spaces"
+            "Invalid 'Calling AE Title' value - must not consist entirely " "of spaces"
         )
         with pytest.raises(ValueError, match=msg):
             pdu.decode(a_associate_rq_calling)
@@ -378,9 +391,9 @@ class TestASSOC_RQ:
 
         pr = pdu.to_primitive()
 
-        assert pr.application_context_name == UID('1.2.840.10008.3.1.1.1')
-        assert pr.calling_ae_title == 'ECHOSCU'
-        assert pr.called_ae_title == 'ANY-SCP'
+        assert pr.application_context_name == UID("1.2.840.10008.3.1.1.1")
+        assert pr.calling_ae_title == "ECHOSCU"
+        assert pr.called_ae_title == "ANY-SCP"
 
         # Test User Information
         for item in pr.user_information:
@@ -392,21 +405,21 @@ class TestASSOC_RQ:
             # Implementation Class UID (required)
             elif isinstance(item, ImplementationClassUIDNotification):
                 assert item.implementation_class_uid == UID(
-                    '1.2.826.0.1.3680043.9.3811.0.9.0'
+                    "1.2.826.0.1.3680043.9.3811.0.9.0"
                 )
                 assert isinstance(item.implementation_class_uid, UID)
 
             # Implementation Version Name (optional)
             elif isinstance(item, ImplementationVersionNameNotification):
-                assert item.implementation_version_name == 'PYNETDICOM_090'
+                assert item.implementation_version_name == "PYNETDICOM_090"
                 assert isinstance(item.implementation_version_name, str)
 
         # Test Presentation Contexts
         for context in pr.presentation_context_definition_list:
             assert context.context_id == 1
-            assert context.abstract_syntax == UID('1.2.840.10008.1.1')
+            assert context.abstract_syntax == UID("1.2.840.10008.1.1")
             for syntax in context.transfer_syntax:
-                assert syntax == UID('1.2.840.10008.1.2')
+                assert syntax == UID("1.2.840.10008.1.2")
 
         assert isinstance(pr.application_context_name, UID)
         assert isinstance(pr.calling_ae_title, str)
@@ -422,9 +435,7 @@ class TestASSOC_RQ:
         assert pr.diagnostic is None
         assert pr.calling_presentation_address is None
         assert pr.called_presentation_address is None
-        assert pr.responding_presentation_address == (
-            pr.called_presentation_address
-        )
+        assert pr.responding_presentation_address == (pr.called_presentation_address)
         assert pr.presentation_context_definition_results_list == []
         assert pr.presentation_requirements == "Presentation Kernel"
         assert pr.session_requirements == ""
@@ -453,7 +464,7 @@ class TestASSOC_RQ_ApplicationContext:
         assert app_context.item_type == 0x10
         assert app_context.item_length == 21
         assert len(app_context) == 25
-        assert app_context.application_context_name == '1.2.840.10008.3.1.1.1'
+        assert app_context.application_context_name == "1.2.840.10008.3.1.1.1"
         assert isinstance(app_context.application_context_name, UID)
 
 
@@ -484,7 +495,7 @@ class TestASSOC_RQ_PresentationContext:
 
         # Check abstract_syntax property
         assert isinstance(context.abstract_syntax, UID)
-        assert context.abstract_syntax == UID('1.2.840.10008.1.1')
+        assert context.abstract_syntax == UID("1.2.840.10008.1.1")
 
         # Check transfer_syntax property
         assert isinstance(context.transfer_syntax, list)
@@ -495,7 +506,7 @@ class TestASSOC_RQ_PresentationContext:
 
         # Check first transfer syntax is little endian implicit
         syntax = pdu.presentation_context[0].transfer_syntax[0]
-        assert syntax == UID('1.2.840.10008.1.2')
+        assert syntax == UID("1.2.840.10008.1.2")
 
 
 class TestASSOC_RQ_PresentationContext_AbstractSyntax:
@@ -511,13 +522,13 @@ class TestASSOC_RQ_PresentationContext_AbstractSyntax:
         assert abstract_syntax.item_type == 0x30
         assert abstract_syntax.item_length == 17
         assert len(abstract_syntax) == 21
-        assert abstract_syntax.abstract_syntax_name == UID('1.2.840.10008.1.1')
+        assert abstract_syntax.abstract_syntax_name == UID("1.2.840.10008.1.1")
         assert isinstance(abstract_syntax.abstract_syntax_name, UID)
 
 
 class TestASSOC_RQ_PresentationContext_TransferSyntax:
     def test_decode(self):
-        """ Check decoding an assoc_rq produces the correct transfer syntax """
+        """Check decoding an assoc_rq produces the correct transfer syntax"""
         pdu = A_ASSOCIATE_RQ()
         pdu.decode(a_associate_rq)
 
@@ -533,7 +544,7 @@ class TestASSOC_RQ_PresentationContext_TransferSyntax:
 
         # Check first transfer syntax is little endian implicit
         syntax = transfer_syntaxes[0]
-        assert syntax, UID('1.2.840.10008.1.2')
+        assert syntax, UID("1.2.840.10008.1.2")
 
 
 class TestASSOC_RQ_UserInformation:
@@ -561,7 +572,7 @@ class TestASSOC_RQ_UserInformation:
                 assert item.item_type == 0x52
                 assert item.item_length == 32
                 assert item.implementation_class_uid == UID(
-                    '1.2.826.0.1.3680043.9.3811.0.9.0'
+                    "1.2.826.0.1.3680043.9.3811.0.9.0"
                 )
                 assert isinstance(item.item_type, int)
                 assert isinstance(item.item_length, int)
@@ -571,7 +582,7 @@ class TestASSOC_RQ_UserInformation:
             elif isinstance(item, ImplementationVersionNameSubItem):
                 assert item.item_type == 0x55
                 assert item.item_length == 14
-                assert item.implementation_version_name == 'PYNETDICOM_090'
+                assert item.implementation_version_name == "PYNETDICOM_090"
                 assert isinstance(item.item_type, int)
                 assert isinstance(item.item_length, int)
                 assert isinstance(item.implementation_version_name, str)
@@ -586,9 +597,9 @@ class TestASSOC_RQ_UserInformation:
         assert user_info.common_ext_neg == []
         assert user_info.ext_neg == []
         assert user_info.implementation_class_uid == (
-            '1.2.826.0.1.3680043.9.3811.0.9.0'
+            "1.2.826.0.1.3680043.9.3811.0.9.0"
         )
-        assert user_info.implementation_version_name == 'PYNETDICOM_090'
+        assert user_info.implementation_version_name == "PYNETDICOM_090"
         assert user_info.maximum_length == 16382
         assert user_info.role_selection == {}
         assert user_info.user_identity is None
@@ -604,7 +615,7 @@ class TestASSOC_AC:
         assert pdu.variable_items == []
         assert pdu.pdu_type == 0x02
         assert pdu.pdu_length == 68
-        assert len(pdu) ==  74
+        assert len(pdu) == 74
 
         assert pdu.application_context_name is None
         assert pdu.called_ae_title == ""
@@ -620,7 +631,7 @@ class TestASSOC_AC:
         assert "1.2.276.0.7230010" in pdu.__str__()
 
     def test_decode(self):
-        """ Check decoding the assoc_ac stream produces the correct objects """
+        """Check decoding the assoc_ac stream produces the correct objects"""
         pdu = A_ASSOCIATE_AC()
         pdu.decode(a_associate_ac)
 
@@ -643,14 +654,14 @@ class TestASSOC_AC:
         pdu.decode(a_associate_ac)
 
         # Check AE titles
-        assert pdu.reserved_aec == 'ECHOSCU'
-        assert pdu.reserved_aet == 'ANY-SCP'
-        assert pdu.calling_ae_title == 'ECHOSCU'
-        assert pdu.called_ae_title == 'ANY-SCP'
+        assert pdu.reserved_aec == "ECHOSCU"
+        assert pdu.reserved_aet == "ANY-SCP"
+        assert pdu.calling_ae_title == "ECHOSCU"
+        assert pdu.called_ae_title == "ANY-SCP"
 
         # Check application_context_name property
         assert isinstance(pdu.application_context_name, UID)
-        assert pdu.application_context_name == '1.2.840.10008.3.1.1.1'
+        assert pdu.application_context_name == "1.2.840.10008.3.1.1.1"
 
         # Check presentation_context property
         contexts = pdu.presentation_context
@@ -664,24 +675,22 @@ class TestASSOC_AC:
         assert isinstance(user_info, UserInformationItem)
 
     def test_stream_encode(self):
-        """ Check encoding an assoc_ac produces the correct output """
+        """Check encoding an assoc_ac produces the correct output"""
         pdu = A_ASSOCIATE_AC()
         pdu.decode(a_associate_ac)
 
         assert pdu.encode() == a_associate_ac
 
     def test_to_primitive(self):
-        """ Check converting PDU to primitive """
+        """Check converting PDU to primitive"""
         pdu = A_ASSOCIATE_AC()
         pdu.decode(a_associate_ac)
 
         primitive = pdu.to_primitive()
 
-        assert primitive.application_context_name == UID(
-            '1.2.840.10008.3.1.1.1'
-        )
-        assert primitive.calling_ae_title == 'ECHOSCU'
-        assert primitive.called_ae_title == 'ANY-SCP'
+        assert primitive.application_context_name == UID("1.2.840.10008.3.1.1.1")
+        assert primitive.calling_ae_title == "ECHOSCU"
+        assert primitive.called_ae_title == "ANY-SCP"
 
         # Test User Information
         for item in primitive.user_information:
@@ -693,19 +702,19 @@ class TestASSOC_AC:
             # Implementation Class UID (required)
             elif isinstance(item, ImplementationClassUIDNotification):
                 assert item.implementation_class_uid == UID(
-                    '1.2.276.0.7230010.3.0.3.6.0'
+                    "1.2.276.0.7230010.3.0.3.6.0"
                 )
                 assert isinstance(item.implementation_class_uid, UID)
 
             # Implementation Version Name (optional)
             elif isinstance(item, ImplementationVersionNameNotification):
-                assert item.implementation_version_name == 'OFFIS_DCMTK_360'
+                assert item.implementation_version_name == "OFFIS_DCMTK_360"
                 assert isinstance(item.implementation_version_name, str)
 
         # Test Presentation Contexts
         for context in primitive.presentation_context_definition_list:
             assert context.context_id == 1
-            assert context.transfer_syntax[0] == UID('1.2.840.10008.1.2')
+            assert context.transfer_syntax[0] == UID("1.2.840.10008.1.2")
 
         assert isinstance(primitive.application_context_name, UID)
         assert isinstance(primitive.calling_ae_title, str)
@@ -730,7 +739,7 @@ class TestASSOC_AC:
         assert primitive.session_requirements == ""
 
     def test_from_primitive(self):
-        """ Check converting PDU to primitive """
+        """Check converting PDU to primitive"""
         orig = A_ASSOCIATE_AC()
         orig.decode(a_associate_ac)
 
@@ -764,36 +773,36 @@ class TestASSOC_AC:
         pdu = A_ASSOCIATE_AC()
 
         # pdu.reserved_aet
-        assert pdu.reserved_aet == ''
-        pdu.reserved_aet = 'TEST_SCP'
-        assert pdu.reserved_aet == 'TEST_SCP'
-        pdu.reserved_aet = '  TEST SCP   '
-        assert pdu.reserved_aet == '  TEST SCP   '
-        pdu.reserved_aet = b'  TEST SCP   '
-        assert pdu.reserved_aet == 'TEST SCP'
-        pdu.reserved_aet = b'\x2e\xe2\x80\x8b\x31\x2e'
-        assert pdu.reserved_aet == ''
+        assert pdu.reserved_aet == ""
+        pdu.reserved_aet = "TEST_SCP"
+        assert pdu.reserved_aet == "TEST_SCP"
+        pdu.reserved_aet = "  TEST SCP   "
+        assert pdu.reserved_aet == "  TEST SCP   "
+        pdu.reserved_aet = b"  TEST SCP   "
+        assert pdu.reserved_aet == "TEST SCP"
+        pdu.reserved_aet = b"\x2e\xe2\x80\x8b\x31\x2e"
+        assert pdu.reserved_aet == ""
         pdu.reserved_aet = ""
-        assert pdu.reserved_aet == ''
+        assert pdu.reserved_aet == ""
         pdu.reserved_aet = "  "
-        assert pdu.reserved_aet == '  '
+        assert pdu.reserved_aet == "  "
         pdu.reserved_aet = "\u200b5ABCD"
         assert pdu.reserved_aet == "\u200b5ABCD"
 
         # pdu.reserved_aec
-        assert pdu.reserved_aec == ''
-        pdu.reserved_aec = 'TEST_SCP2'
-        assert pdu.reserved_aec == 'TEST_SCP2'
-        pdu.reserved_aec = '  TEST SCP2   '
-        assert pdu.reserved_aec == '  TEST SCP2   '
-        pdu.reserved_aec = b'  TEST SCP   '
-        assert pdu.reserved_aec == 'TEST SCP'
-        pdu.reserved_aec = b'\x2e\xe2\x80\x8b\x31\x2e'
-        assert pdu.reserved_aec == ''
+        assert pdu.reserved_aec == ""
+        pdu.reserved_aec = "TEST_SCP2"
+        assert pdu.reserved_aec == "TEST_SCP2"
+        pdu.reserved_aec = "  TEST SCP2   "
+        assert pdu.reserved_aec == "  TEST SCP2   "
+        pdu.reserved_aec = b"  TEST SCP   "
+        assert pdu.reserved_aec == "TEST SCP"
+        pdu.reserved_aec = b"\x2e\xe2\x80\x8b\x31\x2e"
+        assert pdu.reserved_aec == ""
         pdu.reserved_aec = ""
-        assert pdu.reserved_aec == ''
+        assert pdu.reserved_aec == ""
         pdu.reserved_aec = "  "
-        assert pdu.reserved_aec == '  '
+        assert pdu.reserved_aec == "  "
         pdu.reserved_aec = "\u200b5ABCD"
         assert pdu.reserved_aec == "\u200b5ABCD"
 
@@ -817,7 +826,7 @@ class TestASSOC_AC_ApplicationContext:
 
         assert app_context.item_type == 0x10
         assert app_context.item_length == 21
-        assert app_context.application_context_name == '1.2.840.10008.3.1.1.1'
+        assert app_context.application_context_name == "1.2.840.10008.3.1.1.1"
         assert isinstance(app_context.application_context_name, UID)
 
 
@@ -838,10 +847,10 @@ class TestASSOC_AC_PresentationContext:
         syntax = context.transfer_syntax_sub_item[0]
         assert isinstance(syntax, TransferSyntaxSubItem)
         assert isinstance(syntax.transfer_syntax_name, UID)
-        assert syntax.transfer_syntax_name == UID('1.2.840.10008.1.2')
+        assert syntax.transfer_syntax_name == UID("1.2.840.10008.1.2")
 
     def test_decode_properties(self):
-        """ Check decoding the produces the correct properties """
+        """Check decoding the produces the correct properties"""
         pdu = A_ASSOCIATE_AC()
         pdu.decode(a_associate_ac)
 
@@ -856,27 +865,27 @@ class TestASSOC_AC_PresentationContext:
 
         # Check transfer syntax
         assert isinstance(context.transfer_syntax, UID)
-        assert context.transfer_syntax == UID('1.2.840.10008.1.2')
+        assert context.transfer_syntax == UID("1.2.840.10008.1.2")
 
         # result_str
-        assert context.result_str == 'Accepted'
+        assert context.result_str == "Accepted"
 
 
 class TestASSOC_AC_PresentationContext_TransferSyntax:
     def test_decode(self):
-        """ Check decoding an assoc_ac produces the correct transfer syntax """
+        """Check decoding an assoc_ac produces the correct transfer syntax"""
         pdu = A_ASSOCIATE_AC()
         pdu.decode(a_associate_ac)
 
         syntax = pdu.presentation_context[0].transfer_syntax
 
         assert isinstance(syntax, UID)
-        assert syntax == UID('1.2.840.10008.1.2')
+        assert syntax == UID("1.2.840.10008.1.2")
 
 
 class TestASSOC_AC_UserInformation:
     def test_decode(self):
-        """ Check decoding an assoc_rq produces the correct user information """
+        """Check decoding an assoc_rq produces the correct user information"""
         pdu = A_ASSOCIATE_AC()
         pdu.decode(a_associate_ac)
 
@@ -899,7 +908,7 @@ class TestASSOC_AC_UserInformation:
                 assert item.item_type == 0x52
                 assert item.item_length == 27
                 assert item.implementation_class_uid == UID(
-                    '1.2.276.0.7230010.3.0.3.6.0'
+                    "1.2.276.0.7230010.3.0.3.6.0"
                 )
                 assert isinstance(item.item_type, int)
                 assert isinstance(item.item_length, int)
@@ -909,7 +918,7 @@ class TestASSOC_AC_UserInformation:
             elif isinstance(item, ImplementationVersionNameSubItem):
                 assert item.item_type == 0x55
                 assert item.item_length == 15
-                assert item.implementation_version_name == 'OFFIS_DCMTK_360'
+                assert item.implementation_version_name == "OFFIS_DCMTK_360"
                 assert isinstance(item.item_type, int)
                 assert isinstance(item.item_length, int)
                 assert isinstance(item.implementation_version_name, str)
@@ -923,10 +932,8 @@ class TestASSOC_AC_UserInformation:
         assert user_info.async_ops_window is None
         assert user_info.common_ext_neg == []
         assert user_info.ext_neg == []
-        assert user_info.implementation_class_uid == (
-            '1.2.276.0.7230010.3.0.3.6.0'
-        )
-        assert user_info.implementation_version_name == 'OFFIS_DCMTK_360'
+        assert user_info.implementation_class_uid == ("1.2.276.0.7230010.3.0.3.6.0")
+        assert user_info.implementation_version_name == "OFFIS_DCMTK_360"
         assert user_info.maximum_length == 16384
         assert user_info.role_selection == {}
         assert user_info.user_identity is None
@@ -960,7 +967,7 @@ class TestASSOC_RJ:
         assert "DUL service-user" in pdu.__str__()
 
     def test_decod(self):
-        """ Check decoding produces the correct objects """
+        """Check decoding produces the correct objects"""
         pdu = A_ASSOCIATE_RJ()
         pdu.decode(a_associate_rj)
 
@@ -972,24 +979,24 @@ class TestASSOC_RJ:
         assert pdu.reason_diagnostic == 1
 
     def test_decode_properties(self):
-        """ Check decoding produces the correct properties """
+        """Check decoding produces the correct properties"""
         pdu = A_ASSOCIATE_RJ()
         pdu.decode(a_associate_rj)
 
         # Check reason/source/result
-        assert pdu.result_str == 'Rejected (Permanent)'
-        assert pdu.reason_str == 'No reason given'
-        assert pdu.source_str == 'DUL service-user'
+        assert pdu.result_str == "Rejected (Permanent)"
+        assert pdu.reason_str == "No reason given"
+        assert pdu.source_str == "DUL service-user"
 
     def test_encode(self):
-        """ Check encoding an assoc_rj produces the correct output """
+        """Check encoding an assoc_rj produces the correct output"""
         pdu = A_ASSOCIATE_RJ()
         pdu.decode(a_associate_rj)
 
         assert pdu.encode() == a_associate_rj
 
     def test_to_primitive(self):
-        """ Check converting PDU to primitive """
+        """Check converting PDU to primitive"""
         pdu = A_ASSOCIATE_RJ()
         pdu.decode(a_associate_rj)
 
@@ -1005,8 +1012,8 @@ class TestASSOC_RJ:
         # Not used by A-ASSOCIATE-RJ or fixed value
         assert primitive.mode == "normal"
         assert primitive.application_context_name is None
-        assert primitive.calling_ae_title == 'DEFAULT'
-        assert primitive.called_ae_title == 'DEFAULT'
+        assert primitive.calling_ae_title == "DEFAULT"
+        assert primitive.called_ae_title == "DEFAULT"
         assert primitive.responding_ae_title == "DEFAULT"
         assert primitive.user_information == []
         assert primitive.calling_presentation_address is None
@@ -1020,7 +1027,7 @@ class TestASSOC_RJ:
         assert primitive.session_requirements == ""
 
     def test_from_primitive(self):
-        """ Check converting PDU to primitive """
+        """Check converting PDU to primitive"""
         orig_pdu = A_ASSOCIATE_RJ()
         orig_pdu.decode(a_associate_rj)
 
@@ -1032,7 +1039,7 @@ class TestASSOC_RJ:
         assert new_pdu == orig_pdu
 
     def test_result_str(self):
-        """ Check the result str returns correct values """
+        """Check the result str returns correct values"""
         pdu = A_ASSOCIATE_RJ()
         pdu.decode(a_associate_rj)
 
@@ -1041,17 +1048,17 @@ class TestASSOC_RJ:
             pdu.result_str
 
         pdu.result = 1
-        assert pdu.result_str == 'Rejected (Permanent)'
+        assert pdu.result_str == "Rejected (Permanent)"
 
         pdu.result = 2
-        assert pdu.result_str == 'Rejected (Transient)'
+        assert pdu.result_str == "Rejected (Transient)"
 
         pdu.result = 3
         with pytest.raises(ValueError):
             pdu.result_str
 
     def test_source_str(self):
-        """ Check the source str returns correct values """
+        """Check the source str returns correct values"""
         pdu = A_ASSOCIATE_RJ()
         pdu.decode(a_associate_rj)
 
@@ -1060,20 +1067,20 @@ class TestASSOC_RJ:
             pdu.source_str
 
         pdu.source = 1
-        assert pdu.source_str == 'DUL service-user'
+        assert pdu.source_str == "DUL service-user"
 
         pdu.source = 2
-        assert pdu.source_str == 'DUL service-provider (ACSE related)'
+        assert pdu.source_str == "DUL service-provider (ACSE related)"
 
         pdu.source = 3
-        assert pdu.source_str == 'DUL service-provider (presentation related)'
+        assert pdu.source_str == "DUL service-provider (presentation related)"
 
         pdu.source = 4
         with pytest.raises(ValueError):
             pdu.source_str
 
     def test_reason_str(self):
-        """ Check the reason str returns correct values """
+        """Check the reason str returns correct values"""
         pdu = A_ASSOCIATE_RJ()
         pdu.decode(a_associate_rj)
 
@@ -1131,7 +1138,7 @@ class TestP_DATA_TF:
         assert "0x00 0x42" in pdu.__str__()
 
     def test_decode(self):
-        """ Check decoding the p_data stream produces the correct objects """
+        """Check decoding the p_data stream produces the correct objects"""
         pdu = P_DATA_TF()
         pdu.decode(p_data_tf)
 
@@ -1140,27 +1147,28 @@ class TestP_DATA_TF:
         assert len(pdu) == 90
 
         assert len(pdu.presentation_data_value_items) == 1
-        assert isinstance(pdu.presentation_data_value_items[0],
-                          PresentationDataValueItem)
+        assert isinstance(
+            pdu.presentation_data_value_items[0], PresentationDataValueItem
+        )
         pdv = pdu.presentation_data_value_items[0]
         assert pdv.presentation_context_id == 1
         assert pdv.presentation_data_value == (
-            b'\x03\x00\x00\x00\x00\x04\x00\x00\x00\x42\x00\x00\x00\x00\x00\x02\x00'
-            b'\x12\x00\x00\x00\x31\x2e\x32\x2e\x38\x34\x30\x2e\x31\x30\x30\x30\x38'
-            b'\x2e\x31\x2e\x31\x00\x00\x00\x00\x01\x02\x00\x00\x00\x30\x80\x00\x00'
-            b'\x20\x01\x02\x00\x00\x00\x01\x00\x00\x00\x00\x08\x02\x00\x00\x00\x01'
-            b'\x01\x00\x00\x00\x09\x02\x00\x00\x00\x00\x00'
+            b"\x03\x00\x00\x00\x00\x04\x00\x00\x00\x42\x00\x00\x00\x00\x00\x02\x00"
+            b"\x12\x00\x00\x00\x31\x2e\x32\x2e\x38\x34\x30\x2e\x31\x30\x30\x30\x38"
+            b"\x2e\x31\x2e\x31\x00\x00\x00\x00\x01\x02\x00\x00\x00\x30\x80\x00\x00"
+            b"\x20\x01\x02\x00\x00\x00\x01\x00\x00\x00\x00\x08\x02\x00\x00\x00\x01"
+            b"\x01\x00\x00\x00\x09\x02\x00\x00\x00\x00\x00"
         )
 
     def test_encode(self):
-        """ Check encoding an p_data produces the correct output """
+        """Check encoding an p_data produces the correct output"""
         pdu = P_DATA_TF()
         pdu.decode(p_data_tf)
 
         assert pdu.encode() == p_data_tf
 
     def test_to_primitive(self):
-        """ Check converting PDU to primitive """
+        """Check converting PDU to primitive"""
         pdu = P_DATA_TF()
         pdu.decode(p_data_tf)
 
@@ -1170,7 +1178,7 @@ class TestP_DATA_TF:
         assert isinstance(primitive.presentation_data_value_list, list)
 
     def test_from_primitive(self):
-        """ Check converting PDU to primitive """
+        """Check converting PDU to primitive"""
         orig_pdu = P_DATA_TF()
         orig_pdu.decode(p_data_tf)
         primitive = orig_pdu.to_primitive()
@@ -1184,20 +1192,20 @@ class TestP_DATA_TF:
     def test_generate_items(self):
         """Test ._generate_items"""
         pdu = P_DATA_TF()
-        gen = pdu._generate_items(b'')
+        gen = pdu._generate_items(b"")
         with pytest.raises(StopIteration):
             next(gen)
 
-        data = b'\x00\x00\x00\x04\x01\x01\x02\x03'
+        data = b"\x00\x00\x00\x04\x01\x01\x02\x03"
         gen = pdu._generate_items(data)
-        assert next(gen) == (1, b'\x01\x02\x03')
+        assert next(gen) == (1, b"\x01\x02\x03")
         with pytest.raises(StopIteration):
             next(gen)
 
-        data += b'\x00\x00\x00\x05\x02\x03\x01\x02\x03'
+        data += b"\x00\x00\x00\x05\x02\x03\x01\x02\x03"
         gen = pdu._generate_items(data)
-        assert next(gen) == (1, b'\x01\x02\x03')
-        assert next(gen) == (2, b'\x03\x01\x02\x03')
+        assert next(gen) == (1, b"\x01\x02\x03")
+        assert next(gen) == (2, b"\x03\x01\x02\x03")
         with pytest.raises(StopIteration):
             next(gen)
 
@@ -1206,7 +1214,7 @@ class TestP_DATA_TF:
         pdu = P_DATA_TF()
 
         # Short data
-        data = b'\x00\x00\x00\x04\x01\x01\x02'
+        data = b"\x00\x00\x00\x04\x01\x01\x02"
         gen = pdu._generate_items(data)
         with pytest.raises(AssertionError):
             next(gen)
@@ -1214,25 +1222,25 @@ class TestP_DATA_TF:
     def test_wrap_generate_items(self):
         """Test ._wrap_generate_items"""
         pdu = P_DATA_TF()
-        out = pdu._wrap_generate_items(b'')
+        out = pdu._wrap_generate_items(b"")
         assert out == []
 
-        data = b'\x00\x00\x00\x04\x01\x01\x02\x03'
+        data = b"\x00\x00\x00\x04\x01\x01\x02\x03"
         out = pdu._wrap_generate_items(data)
         assert len(out) == 1
         assert isinstance(out[0], PresentationDataValueItem)
         assert out[0].context_id == 1
-        assert out[0].presentation_data_value == b'\x01\x02\x03'
+        assert out[0].presentation_data_value == b"\x01\x02\x03"
 
-        data += b'\x00\x00\x00\x05\x02\x03\x01\x02\x03'
+        data += b"\x00\x00\x00\x05\x02\x03\x01\x02\x03"
         out = pdu._wrap_generate_items(data)
         assert len(out) == 2
         assert isinstance(out[0], PresentationDataValueItem)
         assert isinstance(out[1], PresentationDataValueItem)
         assert out[0].context_id == 1
         assert out[1].context_id == 2
-        assert out[0].presentation_data_value == b'\x01\x02\x03'
-        assert out[1].presentation_data_value == b'\x03\x01\x02\x03'
+        assert out[0].presentation_data_value == b"\x01\x02\x03"
+        assert out[1].presentation_data_value == b"\x03\x01\x02\x03"
 
 
 class TestRELEASE_RQ:
@@ -1251,7 +1259,7 @@ class TestRELEASE_RQ:
         assert "4 bytes" in pdu.__str__()
 
     def test_decode(self):
-        """ Check decoding the release_rq stream produces the correct objects """
+        """Check decoding the release_rq stream produces the correct objects"""
         pdu = A_RELEASE_RQ()
         pdu.decode(a_release_rq)
 
@@ -1260,14 +1268,14 @@ class TestRELEASE_RQ:
         assert len(pdu) == 10
 
     def test_encode(self):
-        """ Check encoding an release_rq produces the correct output """
+        """Check encoding an release_rq produces the correct output"""
         pdu = A_RELEASE_RQ()
         pdu.decode(a_release_rq)
 
         assert pdu.encode() == a_release_rq
 
     def test_to_primitive(self):
-        """ Check converting PDU to primitive """
+        """Check converting PDU to primitive"""
         pdu = A_RELEASE_RQ()
         pdu.decode(a_release_rq)
 
@@ -1277,7 +1285,7 @@ class TestRELEASE_RQ:
         assert primitive.result is None
 
     def test_from_primitive(self):
-        """ Check converting PDU to primitive """
+        """Check converting PDU to primitive"""
         orig_pdu = A_RELEASE_RQ()
         orig_pdu.decode(a_release_rq)
 
@@ -1305,7 +1313,7 @@ class TestRELEASE_RP:
         assert "4 bytes" in pdu.__str__()
 
     def test_decode(self):
-        """ Check decoding the release_rp stream produces the correct objects """
+        """Check decoding the release_rp stream produces the correct objects"""
         pdu = A_RELEASE_RP()
         pdu.decode(a_release_rp)
 
@@ -1314,14 +1322,14 @@ class TestRELEASE_RP:
         assert len(pdu) == 10
 
     def test_encode(self):
-        """ Check encoding an release_rp produces the correct output """
+        """Check encoding an release_rp produces the correct output"""
         pdu = A_RELEASE_RP()
         pdu.decode(a_release_rp)
 
         assert pdu.encode() == a_release_rp
 
     def test_to_primitive(self):
-        """ Check converting PDU to primitive """
+        """Check converting PDU to primitive"""
         pdu = A_RELEASE_RP()
         pdu.decode(a_release_rp)
 
@@ -1331,7 +1339,7 @@ class TestRELEASE_RP:
         assert primitive.result == "affirmative"
 
     def test_from_primitive(self):
-        """ Check converting PDU to primitive """
+        """Check converting PDU to primitive"""
         orig_pdu = A_RELEASE_RP()
         orig_pdu.decode(a_release_rp)
 
@@ -1362,7 +1370,7 @@ class TestABORT:
         assert "DUL service-user" in pdu.__str__()
 
     def test_a_abort_decode(self):
-        """ Check decoding the a_abort stream produces the correct objects """
+        """Check decoding the a_abort stream produces the correct objects"""
         pdu = A_ABORT_RQ()
         pdu.decode(a_abort)
 
@@ -1373,7 +1381,7 @@ class TestABORT:
         assert len(pdu) == 10
 
     def test_a_p_abort_decode(self):
-        """ Check decoding the a_abort stream produces the correct objects """
+        """Check decoding the a_abort stream produces the correct objects"""
         pdu = A_ABORT_RQ()
         pdu.decode(a_p_abort)
 
@@ -1383,21 +1391,21 @@ class TestABORT:
         assert pdu.reason_diagnostic == 4
 
     def test_a_abort_encode(self):
-        """ Check encoding an a_abort produces the correct output """
+        """Check encoding an a_abort produces the correct output"""
         pdu = A_ABORT_RQ()
         pdu.decode(a_abort)
 
         assert pdu.encode() == a_abort
 
     def test_a_p_abort_encode(self):
-        """ Check encoding an a_abort produces the correct output """
+        """Check encoding an a_abort produces the correct output"""
         pdu = A_ABORT_RQ()
         pdu.decode(a_p_abort)
 
         assert pdu.encode() == a_p_abort
 
     def test_to_a_abort_primitive(self):
-        """ Check converting PDU to a_abort primitive """
+        """Check converting PDU to a_abort primitive"""
         pdu = A_ABORT_RQ()
         pdu.decode(a_abort)
 
@@ -1407,7 +1415,7 @@ class TestABORT:
         assert primitive.abort_source == 0
 
     def test_to_a_p_abort_primitive(self):
-        """ Check converting PDU to a_p_abort primitive """
+        """Check converting PDU to a_p_abort primitive"""
         pdu = A_ABORT_RQ()
         pdu.decode(a_p_abort)
 
@@ -1417,7 +1425,7 @@ class TestABORT:
         assert primitive.provider_reason == 4
 
     def test_a_abort_from_primitive(self):
-        """ Check converting PDU to primitive """
+        """Check converting PDU to primitive"""
         orig_pdu = A_ABORT_RQ()
         orig_pdu.decode(a_abort)
 
@@ -1429,7 +1437,7 @@ class TestABORT:
         assert new_pdu == orig_pdu
 
     def test_a_p_abort_from_primitive(self):
-        """ Check converting PDU to primitive """
+        """Check converting PDU to primitive"""
         orig_pdu = A_ABORT_RQ()
         orig_pdu.decode(a_p_abort)
 
@@ -1441,23 +1449,23 @@ class TestABORT:
         assert new_pdu == orig_pdu
 
     def test_source_str(self, caplog):
-        """ Check the source str returns correct values """
+        """Check the source str returns correct values"""
         pdu = A_ABORT_RQ()
         pdu.decode(a_abort)
 
         pdu.source = 0
-        assert pdu.source_str == 'DUL service-user'
+        assert pdu.source_str == "DUL service-user"
 
         pdu.source = 2
-        assert pdu.source_str == 'DUL service-provider'
+        assert pdu.source_str == "DUL service-provider"
 
-        pdu.source  = None
-        with caplog.at_level(logging.WARNING, logger='pynetdicom'):
-            assert pdu.source_str == '(no value available)'
+        pdu.source = None
+        with caplog.at_level(logging.WARNING, logger="pynetdicom"):
+            assert pdu.source_str == "(no value available)"
             assert "Invalid A-ABORT-RQ 'Source' None" in caplog.text
 
     def test_reason_str(self, caplog):
-        """ Check the reaspm str returns correct values """
+        """Check the reaspm str returns correct values"""
         pdu = A_ABORT_RQ()
         pdu.decode(a_abort)
 
@@ -1477,36 +1485,37 @@ class TestABORT:
         pdu.reason_diagnostic = 6
         assert pdu.reason_str == "Invalid PDU parameter value"
 
-        pdu.reason_diagnostic  = None
-        with caplog.at_level(logging.WARNING, logger='pynetdicom'):
-            assert pdu.reason_str == '(no value available)'
+        pdu.reason_diagnostic = None
+        with caplog.at_level(logging.WARNING, logger="pynetdicom"):
+            assert pdu.reason_str == "(no value available)"
             assert "Invalid A-ABORT-RQ 'Reason/Diagnostic' None" in caplog.text
 
         pdu.source = None
-        assert pdu.reason_str == '(no value available)'
+        assert pdu.reason_str == "(no value available)"
 
 
 class TestEventHandlingAcceptor:
     """Test the transport events and handling as acceptor."""
+
     def setup(self):
         self.ae = None
-        _config.LOG_HANDLER_LEVEL = 'none'
+        _config.LOG_HANDLER_LEVEL = "none"
 
     def teardown(self):
         if self.ae:
             self.ae.shutdown()
 
-        _config.LOG_HANDLER_LEVEL = 'standard'
+        _config.LOG_HANDLER_LEVEL = "standard"
 
     def test_no_handlers(self):
         """Test with no transport event handlers bound."""
         self.ae = ae = AE()
         ae.add_supported_context(Verification)
         ae.add_requested_context(Verification)
-        scp = ae.start_server(('', 11112), block=False)
+        scp = ae.start_server(("", 11112), block=False)
         assert scp.get_handlers(evt.EVT_PDU_RECV) == []
         assert scp.get_handlers(evt.EVT_PDU_SENT) == []
-        assoc = ae.associate('localhost', 11112)
+        assoc = ae.associate("localhost", 11112)
 
         assert assoc.is_established
         assert len(scp.active_associations) == 1
@@ -1525,6 +1534,7 @@ class TestEventHandlingAcceptor:
     def test_pdu_sent(self):
         """Test binding to EVT_PDU_SENT."""
         triggered = []
+
         def handle(event):
             triggered.append(event)
 
@@ -1532,10 +1542,10 @@ class TestEventHandlingAcceptor:
         ae.add_supported_context(Verification)
         ae.add_requested_context(Verification)
         handlers = [(evt.EVT_PDU_SENT, handle)]
-        scp = ae.start_server(('', 11112), block=False, evt_handlers=handlers)
+        scp = ae.start_server(("", 11112), block=False, evt_handlers=handlers)
         assert scp.get_handlers(evt.EVT_PDU_SENT) == [(handle, None)]
 
-        assoc = ae.associate('localhost', 11112)
+        assoc = ae.associate("localhost", 11112)
         assert assoc.is_established
         assert len(scp.active_associations) == 1
         assert scp.get_handlers(evt.EVT_PDU_SENT) == [(handle, None)]
@@ -1554,7 +1564,7 @@ class TestEventHandlingAcceptor:
         assert isinstance(event, Event)
         assert isinstance(event.assoc, Association)
         assert isinstance(event.timestamp, datetime)
-        assert event.event.name == 'EVT_PDU_SENT'
+        assert event.event.name == "EVT_PDU_SENT"
 
         assert isinstance(triggered[0].pdu, A_ASSOCIATE_AC)
         assert isinstance(triggered[1].pdu, A_RELEASE_RP)
@@ -1564,6 +1574,7 @@ class TestEventHandlingAcceptor:
     def test_pdu_sent_bind(self):
         """Test binding to EVT_PDU_SENT."""
         triggered = []
+
         def handle(event):
             triggered.append(event)
 
@@ -1571,10 +1582,10 @@ class TestEventHandlingAcceptor:
         ae.add_supported_context(Verification)
         ae.add_requested_context(Verification)
         handlers = [(evt.EVT_PDU_SENT, handle)]
-        scp = ae.start_server(('', 11112), block=False)
+        scp = ae.start_server(("", 11112), block=False)
         assert scp.get_handlers(evt.EVT_PDU_SENT) == []
 
-        assoc = ae.associate('localhost', 11112)
+        assoc = ae.associate("localhost", 11112)
         assert assoc.is_established
 
         assert len(triggered) == 0
@@ -1596,7 +1607,7 @@ class TestEventHandlingAcceptor:
         assert isinstance(event, Event)
         assert isinstance(event.assoc, Association)
         assert isinstance(event.timestamp, datetime)
-        assert event.event.name == 'EVT_PDU_SENT'
+        assert event.event.name == "EVT_PDU_SENT"
         assert isinstance(triggered[0].pdu, A_RELEASE_RP)
 
         scp.shutdown()
@@ -1604,6 +1615,7 @@ class TestEventHandlingAcceptor:
     def test_pdu_sent_unbind(self):
         """Test unbinding EVT_PDU_SENT."""
         triggered = []
+
         def handle(event):
             triggered.append(event)
 
@@ -1611,10 +1623,10 @@ class TestEventHandlingAcceptor:
         ae.add_supported_context(Verification)
         ae.add_requested_context(Verification)
         handlers = [(evt.EVT_PDU_SENT, handle)]
-        scp = ae.start_server(('', 11112), block=False, evt_handlers=handlers)
+        scp = ae.start_server(("", 11112), block=False, evt_handlers=handlers)
         assert scp.get_handlers(evt.EVT_PDU_SENT) == [(handle, None)]
 
-        assoc = ae.associate('localhost', 11112)
+        assoc = ae.associate("localhost", 11112)
         assert assoc.is_established
         assert len(scp.active_associations) == 1
         assert scp.get_handlers(evt.EVT_PDU_SENT) == [(handle, None)]
@@ -1637,6 +1649,7 @@ class TestEventHandlingAcceptor:
 
     def test_pdu_sent_raises(self, caplog):
         """Test the handler for EVT_PDU_SENT raising exception."""
+
         def handle(event):
             raise NotImplementedError("Exception description")
 
@@ -1644,10 +1657,10 @@ class TestEventHandlingAcceptor:
         ae.add_supported_context(Verification)
         ae.add_requested_context(Verification)
         handlers = [(evt.EVT_PDU_SENT, handle)]
-        scp = ae.start_server(('', 11112), block=False, evt_handlers=handlers)
+        scp = ae.start_server(("", 11112), block=False, evt_handlers=handlers)
 
-        with caplog.at_level(logging.ERROR, logger='pynetdicom'):
-            assoc = ae.associate('localhost', 11112)
+        with caplog.at_level(logging.ERROR, logger="pynetdicom"):
+            assoc = ae.associate("localhost", 11112)
             assert assoc.is_established
             assoc.release()
 
@@ -1666,6 +1679,7 @@ class TestEventHandlingAcceptor:
     def test_pdu_recv(self):
         """Test starting bound to EVT_PDU_RECV."""
         triggered = []
+
         def handle(event):
             triggered.append(event)
 
@@ -1673,10 +1687,10 @@ class TestEventHandlingAcceptor:
         ae.add_supported_context(Verification)
         ae.add_requested_context(Verification)
         handlers = [(evt.EVT_PDU_RECV, handle)]
-        scp = ae.start_server(('', 11112), block=False, evt_handlers=handlers)
+        scp = ae.start_server(("", 11112), block=False, evt_handlers=handlers)
         assert scp.get_handlers(evt.EVT_PDU_RECV) == [(handle, None)]
 
-        assoc = ae.associate('localhost', 11112)
+        assoc = ae.associate("localhost", 11112)
         assert assoc.is_established
         assert len(scp.active_associations) == 1
         assert scp.get_handlers(evt.EVT_PDU_RECV) == [(handle, None)]
@@ -1697,23 +1711,24 @@ class TestEventHandlingAcceptor:
         assert isinstance(event.timestamp, datetime)
         assert isinstance(triggered[0].pdu, A_ASSOCIATE_RQ)
         assert isinstance(triggered[1].pdu, A_RELEASE_RQ)
-        assert event.event.name == 'EVT_PDU_RECV'
+        assert event.event.name == "EVT_PDU_RECV"
 
         scp.shutdown()
 
     def test_pdu_recv_bind(self):
         """Test binding to EVT_PDU_RECV."""
         triggered = []
+
         def handle(event):
             triggered.append(event)
 
         self.ae = ae = AE()
         ae.add_supported_context(Verification)
         ae.add_requested_context(Verification)
-        scp = ae.start_server(('', 11112), block=False)
+        scp = ae.start_server(("", 11112), block=False)
         assert scp.get_handlers(evt.EVT_PDU_RECV) == []
 
-        assoc = ae.associate('localhost', 11112)
+        assoc = ae.associate("localhost", 11112)
         assert assoc.is_established
         assert len(scp.active_associations) == 1
 
@@ -1736,13 +1751,14 @@ class TestEventHandlingAcceptor:
         assert isinstance(event.assoc, Association)
         assert isinstance(event.timestamp, datetime)
         assert isinstance(triggered[0].pdu, A_RELEASE_RQ)
-        assert event.event.name == 'EVT_PDU_RECV'
+        assert event.event.name == "EVT_PDU_RECV"
 
         scp.shutdown()
 
     def test_pdu_recv_unbind(self):
         """Test unbinding to EVT_PDU_RECV."""
         triggered = []
+
         def handle(event):
             triggered.append(event)
 
@@ -1750,10 +1766,10 @@ class TestEventHandlingAcceptor:
         ae.add_supported_context(Verification)
         ae.add_requested_context(Verification)
         handlers = [(evt.EVT_PDU_RECV, handle)]
-        scp = ae.start_server(('', 11112), block=False, evt_handlers=handlers)
+        scp = ae.start_server(("", 11112), block=False, evt_handlers=handlers)
         assert scp.get_handlers(evt.EVT_PDU_RECV) == [(handle, None)]
 
-        assoc = ae.associate('localhost', 11112)
+        assoc = ae.associate("localhost", 11112)
         assert assoc.is_established
 
         scp.unbind(evt.EVT_PDU_RECV, handle)
@@ -1776,12 +1792,13 @@ class TestEventHandlingAcceptor:
         assert isinstance(event.assoc, Association)
         assert isinstance(event.timestamp, datetime)
         assert isinstance(triggered[0].pdu, A_ASSOCIATE_RQ)
-        assert event.event.name == 'EVT_PDU_RECV'
+        assert event.event.name == "EVT_PDU_RECV"
 
         scp.shutdown()
 
     def test_pdu_recv_raises(self, caplog):
         """Test the handler for EVT_PDU_RECV raising exception."""
+
         def handle(event):
             raise NotImplementedError("Exception description")
 
@@ -1789,10 +1806,10 @@ class TestEventHandlingAcceptor:
         ae.add_supported_context(Verification)
         ae.add_requested_context(Verification)
         handlers = [(evt.EVT_PDU_RECV, handle)]
-        scp = ae.start_server(('', 11112), block=False, evt_handlers=handlers)
+        scp = ae.start_server(("", 11112), block=False, evt_handlers=handlers)
 
-        with caplog.at_level(logging.ERROR, logger='pynetdicom'):
-            assoc = ae.associate('localhost', 11112)
+        with caplog.at_level(logging.ERROR, logger="pynetdicom"):
+            assoc = ae.associate("localhost", 11112)
             assert assoc.is_established
             assoc.release()
 
@@ -1811,25 +1828,26 @@ class TestEventHandlingAcceptor:
 
 class TestEventHandlingRequestor:
     """Test the transport events and handling as requestor."""
+
     def setup(self):
         self.ae = None
-        _config.LOG_HANDLER_LEVEL = 'none'
+        _config.LOG_HANDLER_LEVEL = "none"
 
     def teardown(self):
         if self.ae:
             self.ae.shutdown()
 
-        _config.LOG_HANDLER_LEVEL = 'standard'
+        _config.LOG_HANDLER_LEVEL = "standard"
 
     def test_no_handlers(self):
         """Test with no transport event handlers bound."""
         self.ae = ae = AE()
         ae.add_supported_context(Verification)
         ae.add_requested_context(Verification)
-        scp = ae.start_server(('', 11112), block=False)
+        scp = ae.start_server(("", 11112), block=False)
         assert scp.get_handlers(evt.EVT_PDU_RECV) == []
         assert scp.get_handlers(evt.EVT_PDU_SENT) == []
-        assoc = ae.associate('localhost', 11112)
+        assoc = ae.associate("localhost", 11112)
 
         assert assoc.is_established
         assert len(scp.active_associations) == 1
@@ -1848,6 +1866,7 @@ class TestEventHandlingRequestor:
     def test_pdu_sent(self):
         """Test binding to EVT_PDU_SENT."""
         triggered = []
+
         def handle(event):
             triggered.append(event)
 
@@ -1855,10 +1874,10 @@ class TestEventHandlingRequestor:
         ae.add_supported_context(Verification)
         ae.add_requested_context(Verification)
         handlers = [(evt.EVT_PDU_SENT, handle)]
-        scp = ae.start_server(('', 11112), block=False)
+        scp = ae.start_server(("", 11112), block=False)
         assert scp.get_handlers(evt.EVT_PDU_SENT) == []
 
-        assoc = ae.associate('localhost', 11112, evt_handlers=handlers)
+        assoc = ae.associate("localhost", 11112, evt_handlers=handlers)
         assert assoc.is_established
         assert len(scp.active_associations) == 1
         assert scp.get_handlers(evt.EVT_PDU_SENT) == []
@@ -1877,7 +1896,7 @@ class TestEventHandlingRequestor:
         assert isinstance(event, Event)
         assert isinstance(event.assoc, Association)
         assert isinstance(event.timestamp, datetime)
-        assert event.event.name == 'EVT_PDU_SENT'
+        assert event.event.name == "EVT_PDU_SENT"
 
         assert isinstance(triggered[0].pdu, A_ASSOCIATE_RQ)
         assert isinstance(triggered[1].pdu, A_RELEASE_RQ)
@@ -1887,6 +1906,7 @@ class TestEventHandlingRequestor:
     def test_pdu_sent_abort_pdata(self):
         """Test A-ABORT and P-DATA PDUs with EVT_PDU_SENT."""
         triggered = []
+
         def handle(event):
             triggered.append(event)
 
@@ -1894,9 +1914,9 @@ class TestEventHandlingRequestor:
         ae.add_supported_context(Verification)
         ae.add_requested_context(Verification)
         handlers = [(evt.EVT_PDU_SENT, handle)]
-        scp = ae.start_server(('', 11112), block=False)
+        scp = ae.start_server(("", 11112), block=False)
 
-        assoc = ae.associate('localhost', 11112, evt_handlers=handlers)
+        assoc = ae.associate("localhost", 11112, evt_handlers=handlers)
         assert assoc.is_established
 
         assoc.send_c_echo()
@@ -1917,6 +1937,7 @@ class TestEventHandlingRequestor:
     def test_pdu_sent_bind(self):
         """Test binding to EVT_PDU_SENT."""
         triggered = []
+
         def handle(event):
             triggered.append(event)
 
@@ -1924,10 +1945,10 @@ class TestEventHandlingRequestor:
         ae.add_supported_context(Verification)
         ae.add_requested_context(Verification)
         handlers = [(evt.EVT_PDU_SENT, handle)]
-        scp = ae.start_server(('', 11112), block=False)
+        scp = ae.start_server(("", 11112), block=False)
         assert scp.get_handlers(evt.EVT_PDU_SENT) == []
 
-        assoc = ae.associate('localhost', 11112)
+        assoc = ae.associate("localhost", 11112)
         assert assoc.get_handlers(evt.EVT_PDU_SENT) == []
         assert assoc.is_established
 
@@ -1949,7 +1970,7 @@ class TestEventHandlingRequestor:
         assert isinstance(event, Event)
         assert isinstance(event.assoc, Association)
         assert isinstance(event.timestamp, datetime)
-        assert event.event.name == 'EVT_PDU_SENT'
+        assert event.event.name == "EVT_PDU_SENT"
 
         assert isinstance(triggered[0].pdu, A_RELEASE_RQ)
 
@@ -1958,6 +1979,7 @@ class TestEventHandlingRequestor:
     def test_pdu_sent_unbind(self):
         """Test unbinding EVT_PDU_SENT."""
         triggered = []
+
         def handle(event):
             triggered.append(event)
 
@@ -1965,10 +1987,10 @@ class TestEventHandlingRequestor:
         ae.add_supported_context(Verification)
         ae.add_requested_context(Verification)
         handlers = [(evt.EVT_PDU_SENT, handle)]
-        scp = ae.start_server(('', 11112), block=False)
+        scp = ae.start_server(("", 11112), block=False)
         assert scp.get_handlers(evt.EVT_PDU_SENT) == []
 
-        assoc = ae.associate('localhost', 11112, evt_handlers=handlers)
+        assoc = ae.associate("localhost", 11112, evt_handlers=handlers)
         assert assoc.is_established
         assert len(scp.active_associations) == 1
         assert scp.get_handlers(evt.EVT_PDU_SENT) == []
@@ -1991,6 +2013,7 @@ class TestEventHandlingRequestor:
 
     def test_pdu_sent_raises(self, caplog):
         """Test the handler for EVT_PDU_SENT raising exception."""
+
         def handle(event):
             raise NotImplementedError("Exception description")
 
@@ -1998,10 +2021,10 @@ class TestEventHandlingRequestor:
         ae.add_supported_context(Verification)
         ae.add_requested_context(Verification)
         handlers = [(evt.EVT_PDU_SENT, handle)]
-        scp = ae.start_server(('', 11112), block=False)
+        scp = ae.start_server(("", 11112), block=False)
 
-        with caplog.at_level(logging.ERROR, logger='pynetdicom'):
-            assoc = ae.associate('localhost', 11112, evt_handlers=handlers)
+        with caplog.at_level(logging.ERROR, logger="pynetdicom"):
+            assoc = ae.associate("localhost", 11112, evt_handlers=handlers)
             assert assoc.is_established
             assoc.release()
 
@@ -2020,6 +2043,7 @@ class TestEventHandlingRequestor:
     def test_pdu_recv(self):
         """Test starting bound to EVT_PDU_RECV."""
         triggered = []
+
         def handle(event):
             triggered.append(event)
 
@@ -2027,10 +2051,10 @@ class TestEventHandlingRequestor:
         ae.add_supported_context(Verification)
         ae.add_requested_context(Verification)
         handlers = [(evt.EVT_PDU_RECV, handle)]
-        scp = ae.start_server(('', 11112), block=False)
+        scp = ae.start_server(("", 11112), block=False)
         assert scp.get_handlers(evt.EVT_PDU_RECV) == []
 
-        assoc = ae.associate('localhost', 11112, evt_handlers=handlers)
+        assoc = ae.associate("localhost", 11112, evt_handlers=handlers)
         assert assoc.is_established
         assert len(scp.active_associations) == 1
         assert scp.get_handlers(evt.EVT_PDU_RECV) == []
@@ -2051,13 +2075,14 @@ class TestEventHandlingRequestor:
         assert isinstance(event.timestamp, datetime)
         assert isinstance(triggered[0].pdu, A_ASSOCIATE_AC)
         assert isinstance(triggered[1].pdu, A_RELEASE_RP)
-        assert event.event.name == 'EVT_PDU_RECV'
+        assert event.event.name == "EVT_PDU_RECV"
 
         scp.shutdown()
 
     def test_pdu_recv_abort_pdata(self):
         """Test A-ABORT and P-DATA PDUs with EVT_PDU_RECV."""
         triggered = []
+
         def handle(event):
             triggered.append(event)
 
@@ -2065,9 +2090,9 @@ class TestEventHandlingRequestor:
         ae.add_supported_context(Verification)
         ae.add_requested_context(Verification)
         handlers = [(evt.EVT_PDU_RECV, handle)]
-        scp = ae.start_server(('', 11112), block=False)
+        scp = ae.start_server(("", 11112), block=False)
 
-        assoc = ae.associate('localhost', 11112, evt_handlers=handlers)
+        assoc = ae.associate("localhost", 11112, evt_handlers=handlers)
         assert assoc.is_established
 
         assoc.send_c_echo()
@@ -2087,16 +2112,17 @@ class TestEventHandlingRequestor:
     def test_pdu_recv_bind(self):
         """Test binding to EVT_PDU_RECV."""
         triggered = []
+
         def handle(event):
             triggered.append(event)
 
         self.ae = ae = AE()
         ae.add_supported_context(Verification)
         ae.add_requested_context(Verification)
-        scp = ae.start_server(('', 11112), block=False)
+        scp = ae.start_server(("", 11112), block=False)
         assert scp.get_handlers(evt.EVT_PDU_RECV) == []
 
-        assoc = ae.associate('localhost', 11112)
+        assoc = ae.associate("localhost", 11112)
         assert assoc.is_established
         assert len(scp.active_associations) == 1
         assert assoc.get_handlers(evt.EVT_PDU_RECV) == []
@@ -2120,13 +2146,14 @@ class TestEventHandlingRequestor:
         assert isinstance(event.assoc, Association)
         assert isinstance(event.timestamp, datetime)
         assert isinstance(triggered[0].pdu, A_RELEASE_RP)
-        assert event.event.name == 'EVT_PDU_RECV'
+        assert event.event.name == "EVT_PDU_RECV"
 
         scp.shutdown()
 
     def test_pdu_recv_unbind(self):
         """Test unbinding to EVT_PDU_RECV."""
         triggered = []
+
         def handle(event):
             triggered.append(event)
 
@@ -2134,10 +2161,10 @@ class TestEventHandlingRequestor:
         ae.add_supported_context(Verification)
         ae.add_requested_context(Verification)
         handlers = [(evt.EVT_PDU_RECV, handle)]
-        scp = ae.start_server(('', 11112), block=False)
+        scp = ae.start_server(("", 11112), block=False)
         assert scp.get_handlers(evt.EVT_PDU_RECV) == []
 
-        assoc = ae.associate('localhost', 11112, evt_handlers=handlers)
+        assoc = ae.associate("localhost", 11112, evt_handlers=handlers)
         assert assoc.is_established
         assert assoc.get_handlers(evt.EVT_PDU_RECV) == [(handle, None)]
 
@@ -2161,12 +2188,13 @@ class TestEventHandlingRequestor:
         assert isinstance(event.assoc, Association)
         assert isinstance(event.timestamp, datetime)
         assert isinstance(triggered[0].pdu, A_ASSOCIATE_AC)
-        assert event.event.name == 'EVT_PDU_RECV'
+        assert event.event.name == "EVT_PDU_RECV"
 
         scp.shutdown()
 
     def test_pdu_recv_raises(self, caplog):
         """Test the handler for EVT_PDU_RECV raising exception."""
+
         def handle(event):
             raise NotImplementedError("Exception description")
 
@@ -2174,10 +2202,10 @@ class TestEventHandlingRequestor:
         ae.add_supported_context(Verification)
         ae.add_requested_context(Verification)
         handlers = [(evt.EVT_PDU_RECV, handle)]
-        scp = ae.start_server(('', 11112), block=False, evt_handlers=handlers)
+        scp = ae.start_server(("", 11112), block=False, evt_handlers=handlers)
 
-        with caplog.at_level(logging.ERROR, logger='pynetdicom'):
-            assoc = ae.associate('localhost', 11112)
+        with caplog.at_level(logging.ERROR, logger="pynetdicom"):
+            assoc = ae.associate("localhost", 11112)
             assert assoc.is_established
             assoc.release()
 

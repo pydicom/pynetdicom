@@ -2,6 +2,7 @@
 
 import logging
 import os
+from pathlib import Path
 import shutil
 import subprocess
 import sys
@@ -11,39 +12,46 @@ import pytest
 
 from pydicom import dcmread
 from pydicom.uid import (
-    ExplicitVRLittleEndian, ImplicitVRLittleEndian,
-    DeflatedExplicitVRLittleEndian, ExplicitVRBigEndian
+    ExplicitVRLittleEndian,
+    ImplicitVRLittleEndian,
+    DeflatedExplicitVRLittleEndian,
+    ExplicitVRBigEndian,
 )
 
 from pynetdicom import AE, evt, debug_logger, DEFAULT_TRANSFER_SYNTAXES
-from pynetdicom.sop_class import Verification, CTImageStorage
+from pynetdicom.sop_class import (
+    Verification,
+    CTImageStorage,
+    SecondaryCaptureImageStorage,
+)
 
 
-#debug_logger()
+# debug_logger()
 
 
-APP_DIR = os.path.join(os.path.dirname(__file__), '../')
-APP_FILE = os.path.join(APP_DIR, 'storescp', 'storescp.py')
-DATA_DIR = os.path.join(APP_DIR, '../', 'tests', 'dicom_files')
-DATASET_FILE = os.path.join(DATA_DIR, 'CTImageStorage.dcm')
+APP_DIR = Path(__file__).parent.parent
+APP_FILE = APP_DIR / "storescp" / "storescp.py"
+DATA_DIR = APP_DIR.parent / "tests" / "dicom_files"
+DATASET_FILE = DATA_DIR / "CTImageStorage.dcm"
+DEFLATED_FILE = DATA_DIR / "SCImageStorage_Deflated.dcm"
+TEST_DIR = Path(__file__).parent / "test_dir"
 
 
 def start_storescp(args):
     """Start the storescp.py app and return the process."""
-    pargs = [sys.executable, APP_FILE, '11112'] + [*args]
+    pargs = [sys.executable, APP_FILE, "11112"] + [*args]
     return subprocess.Popen(pargs)
 
 
 def start_storescp_cli(args):
     """Start the storescp app using CLI and return the process."""
-    pargs = [
-        sys.executable, '-m', 'pynetdicom', 'storescp', '11112'
-    ] + [*args]
+    pargs = [sys.executable, "-m", "pynetdicom", "storescp", "11112"] + [*args]
     return subprocess.Popen(pargs)
 
 
 class StoreSCPBase:
     """Tests for storescp.py"""
+
     def setup(self):
         """Run prior to each test"""
         self.ae = None
@@ -52,6 +60,9 @@ class StoreSCPBase:
 
     def teardown(self):
         """Clear any active threads"""
+        if TEST_DIR.exists():
+            shutil.rmtree(os.fspath(TEST_DIR))
+
         if self.ae:
             self.ae.shutdown()
 
@@ -71,7 +82,7 @@ class StoreSCPBase:
         self.p = p = self.func([])
         time.sleep(0.5)
 
-        assoc = ae.associate('localhost', 11112)
+        assoc = ae.associate("localhost", 11112)
         assert assoc.is_established
         assoc.release()
 
@@ -88,12 +99,12 @@ class StoreSCPBase:
 
     def test_flag_version(self, capfd):
         """Test --version flag."""
-        self.p = p = self.func(['--version'])
+        self.p = p = self.func(["--version"])
         p.wait()
         assert p.returncode == 0
 
         out, err = capfd.readouterr()
-        assert 'storescp.py v' in out
+        assert "storescp.py v" in out
 
     def test_flag_quiet(self, capfd):
         """Test --quiet flag."""
@@ -104,10 +115,10 @@ class StoreSCPBase:
         ae.add_requested_context(Verification)
         ae.add_requested_context(CTImageStorage)
 
-        self.p = p = self.func(['-q'])
+        self.p = p = self.func(["-q"])
         time.sleep(0.5)
 
-        assoc = ae.associate('localhost', 11112)
+        assoc = ae.associate("localhost", 11112)
         assert assoc.is_established
         status = assoc.send_c_echo()
         assert status.Status == 0x0000
@@ -117,7 +128,7 @@ class StoreSCPBase:
         p.wait()
 
         out, err = capfd.readouterr()
-        assert out == err == ''
+        assert out == err == ""
 
     def test_flag_verbose(self, capfd):
         """Test --verbose flag."""
@@ -128,10 +139,10 @@ class StoreSCPBase:
         ae.add_requested_context(Verification)
         ae.add_requested_context(CTImageStorage)
 
-        self.p = p = self.func(['-v'])
+        self.p = p = self.func(["-v"])
         time.sleep(0.5)
 
-        assoc = ae.associate('localhost', 11112)
+        assoc = ae.associate("localhost", 11112)
         assert assoc.is_established
         status = assoc.send_c_echo()
         assert status.Status == 0x0000
@@ -154,10 +165,10 @@ class StoreSCPBase:
         ae.add_requested_context(Verification)
         ae.add_requested_context(CTImageStorage)
 
-        self.p = p = self.func(['-d'])
+        self.p = p = self.func(["-d"])
         time.sleep(0.5)
 
-        assoc = ae.associate('localhost', 11112)
+        assoc = ae.associate("localhost", 11112)
         assert assoc.is_established
         status = assoc.send_c_echo()
         assert status.Status == 0x0000
@@ -172,7 +183,7 @@ class StoreSCPBase:
 
     def test_flag_log_collision(self):
         """Test error with -q -v and -d flag."""
-        self.p = p = self.func(['-v', '-d'])
+        self.p = p = self.func(["-v", "-d"])
         p.wait()
         assert p.returncode != 0
 
@@ -204,10 +215,10 @@ class StoreSCPBase:
         ae.network_timeout = 5
         ae.add_requested_context(Verification)
 
-        self.p = p = self.func(['--max-pdu', '123456'])
+        self.p = p = self.func(["--max-pdu", "123456"])
         time.sleep(0.5)
 
-        assoc = ae.associate('localhost', 11112)
+        assoc = ae.associate("localhost", 11112)
         assert assoc.is_established
         assoc.release()
 
@@ -224,10 +235,10 @@ class StoreSCPBase:
         ae.network_timeout = 5
         ae.add_requested_context(Verification)
 
-        self.p = p = self.func(['-x='])
+        self.p = p = self.func(["-x="])
         time.sleep(0.5)
 
-        assoc = ae.associate('localhost', 11112)
+        assoc = ae.associate("localhost", 11112)
         assert assoc.is_established
         assoc.release()
 
@@ -245,10 +256,10 @@ class StoreSCPBase:
         ae.network_timeout = 5
         ae.add_requested_context(Verification)
 
-        self.p = p = self.func(['-xe'])
+        self.p = p = self.func(["-xe"])
         time.sleep(0.5)
 
-        assoc = ae.associate('localhost', 11112)
+        assoc = ae.associate("localhost", 11112)
         assert assoc.is_established
         assoc.release()
 
@@ -266,10 +277,10 @@ class StoreSCPBase:
         ae.network_timeout = 5
         ae.add_requested_context(Verification)
 
-        self.p = p = self.func(['-xb'])
+        self.p = p = self.func(["-xb"])
         time.sleep(0.5)
 
-        assoc = ae.associate('localhost', 11112)
+        assoc = ae.associate("localhost", 11112)
         assert assoc.is_established
         assoc.release()
 
@@ -287,10 +298,10 @@ class StoreSCPBase:
         ae.network_timeout = 5
         ae.add_requested_context(Verification)
 
-        self.p = p = self.func(['-xi'])
+        self.p = p = self.func(["-xi"])
         time.sleep(0.5)
 
-        assoc = ae.associate('localhost', 11112)
+        assoc = ae.associate("localhost", 11112)
         assert assoc.is_established
         assoc.release()
 
@@ -309,22 +320,22 @@ class StoreSCPBase:
         ae.add_requested_context(Verification)
         ae.add_requested_context(CTImageStorage)
 
-        assert 'test_dir' not in os.listdir()
+        assert not TEST_DIR.exists()
 
-        self.p = p = self.func(['-od', 'test_dir'])
+        self.p = p = self.func(["-od", os.fspath(TEST_DIR)])
         time.sleep(0.5)
 
         ds = dcmread(DATASET_FILE)
 
-        assoc = ae.associate('localhost', 11112)
+        assoc = ae.associate("localhost", 11112)
         assert assoc.is_established
         status = assoc.send_c_store(ds)
         assert status.Status == 0x0000
         assoc.release()
 
-        assert 'CT.{}'.format(ds.SOPInstanceUID) in os.listdir('test_dir')
-        shutil.rmtree('test_dir')
-        assert 'test_dir' not in os.listdir()
+        assert (TEST_DIR / f"CT.{ds.SOPInstanceUID}").exists()
+        shutil.rmtree(os.fspath(TEST_DIR))
+        assert not TEST_DIR.exists()
 
     def test_flag_ignore(self):
         """Test the --ignore flag."""
@@ -335,22 +346,54 @@ class StoreSCPBase:
         ae.add_requested_context(Verification)
         ae.add_requested_context(CTImageStorage)
 
-        self.p = p = self.func(['--ignore'])
+        self.p = p = self.func(["--ignore"])
         time.sleep(0.5)
 
         ds = dcmread(DATASET_FILE)
 
-        assoc = ae.associate('localhost', 11112)
+        assoc = ae.associate("localhost", 11112)
         assert assoc.is_established
         status = assoc.send_c_store(ds)
         assert status.Status == 0x0000
         assoc.release()
 
-        assert 'CT.{}'.format(ds.SOPInstanceUID) not in os.listdir()
+        assert not (TEST_DIR / f"CT.{ds.SOPInstanceUID}").exists()
+
+    def test_store_deflated(self):
+        """Test storing deflated dataset"""
+        self.ae = ae = AE()
+        ae.acse_timeout = 5
+        ae.dimse_timeout = 5
+        ae.network_timeout = 5
+        ae.add_requested_context(
+            SecondaryCaptureImageStorage,
+            DeflatedExplicitVRLittleEndian,
+        )
+
+        assert not TEST_DIR.exists()
+
+        self.p = p = self.func(["-od", os.fspath(TEST_DIR)])
+        time.sleep(0.5)
+
+        ds = dcmread(DEFLATED_FILE)
+
+        assoc = ae.associate("localhost", 11112)
+        assert assoc.is_established
+        status = assoc.send_c_store(ds)
+        assert status.Status == 0x0000
+        assoc.release()
+
+        p = TEST_DIR / f"SC.{ds.SOPInstanceUID}"
+        assert p.exists()
+        ds = dcmread(p)
+        assert ds.file_meta.TransferSyntaxUID == DeflatedExplicitVRLittleEndian
+        shutil.rmtree(os.fspath(TEST_DIR))
+        assert not TEST_DIR.exists()
 
 
 class TestStoreSCP(StoreSCPBase):
     """Tests for storescp.py"""
+
     def setup(self):
         """Run prior to each test"""
         self.ae = None
@@ -360,6 +403,7 @@ class TestStoreSCP(StoreSCPBase):
 
 class TestStoreSCPCLI(StoreSCPBase):
     """Tests for storescp using CLI"""
+
     def setup(self):
         """Run prior to each test"""
         self.ae = None

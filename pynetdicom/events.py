@@ -8,8 +8,17 @@ import logging
 from pathlib import Path
 import sys
 from typing import (
-    Union, Callable, Any, Tuple, List, NamedTuple, Optional, TYPE_CHECKING,
-    Dict, cast, Iterator
+    Union,
+    Callable,
+    Any,
+    Tuple,
+    List,
+    NamedTuple,
+    Optional,
+    TYPE_CHECKING,
+    Dict,
+    cast,
+    Iterator,
 )
 
 from pydicom.dataset import Dataset, FileMetaDataset
@@ -21,31 +30,45 @@ from pynetdicom.dsutils import decode, create_file_meta
 
 if TYPE_CHECKING:  # pragma: no cover
     from pynetdicom.association import Association
-    from pnetdicom.dimse_messages import (
-        C_ECHO_RQ, C_FIND_RQ, C_GET_RQ, C_MOVE_RQ, C_STORE_RQ,
-        N_ACTION_RQ, N_CREATE_RQ, N_DELETE_RQ, N_EVENT_REPORT_RQ, N_GET_RQ,
-        N_SET_RQ, DIMSEMessage
+    from pynetdicom.dimse_messages import DIMSEMessage
+    from pynetdicom.dimse_primitives import (
+        C_ECHO,
+        C_FIND,
+        C_GET,
+        C_MOVE,
+        C_STORE,
+        N_ACTION,
+        N_CREATE,
+        N_DELETE,
+        N_EVENT_REPORT,
+        N_GET,
+        N_SET,
     )
     from pynetdicom.pdu import _PDUType
-    from pynetdicom.pdu_primitives import (
-        SOPClassCommonExtendedNegotiation
-    )
+    from pynetdicom.pdu_primitives import SOPClassCommonExtendedNegotiation
     from pynetdicom.presentation import PresentationContextTuple
 
     _RequestType = Union[
-        C_ECHO_RQ, C_FIND_RQ, C_GET_RQ, C_MOVE_RQ, C_STORE_RQ,
-        N_ACTION_RQ, N_CREATE_RQ, N_DELETE_RQ, N_EVENT_REPORT_RQ, N_GET_RQ,
-        N_SET_RQ
+        C_ECHO,
+        C_FIND,
+        C_GET,
+        C_MOVE,
+        C_STORE,
+        N_ACTION,
+        N_CREATE,
+        N_DELETE,
+        N_EVENT_REPORT,
+        N_GET,
+        N_SET,
     ]
 
 
-LOGGER = logging.getLogger('pynetdicom.events')
+LOGGER = logging.getLogger("pynetdicom.events")
 
 
 EventType = Union["NotificationEvent", "InterventionEvent"]
 EventHandlerType = Union[
-    Tuple[EventType, Callable],
-    Tuple[EventType, Callable, List[Any]]
+    Tuple[EventType, Callable], Tuple[EventType, Callable, List[Any]]
 ]
 _BasicReturnType = Union[Dataset, int]
 _DatasetReturnType = Tuple[_BasicReturnType, Optional[Dataset]]
@@ -79,6 +102,7 @@ class NotificationEvent(NamedTuple):
     * :class:`EVT_RELEASED`
     * :class:`EVT_REQUESTED`
     """
+
     name: str
     description: str
     is_intervention: bool = False
@@ -92,16 +116,28 @@ class NotificationEvent(NamedTuple):
 # pylint: disable=line-too-long
 EVT_ABORTED = NotificationEvent("EVT_ABORTED", "Association aborted")
 EVT_ACCEPTED = NotificationEvent("EVT_ACCEPTED", "Association request accepted")  # noqa
-EVT_ACSE_RECV = NotificationEvent("EVT_ACSE_RECV", "ACSE primitive received from DUL")  # noqa
+EVT_ACSE_RECV = NotificationEvent(
+    "EVT_ACSE_RECV", "ACSE primitive received from DUL"
+)  # noqa
 EVT_ACSE_SENT = NotificationEvent("EVT_ACSE_SENT", "ACSE primitive sent to DUL")  # noqa
 EVT_CONN_CLOSE = NotificationEvent("EVT_CONN_CLOSE", "Connection closed")
 EVT_CONN_OPEN = NotificationEvent("EVT_CONN_OPEN", "Connection opened")
-EVT_DATA_RECV = NotificationEvent("EVT_DATA_RECV", "PDU data received from remote")  # noqa
+EVT_DATA_RECV = NotificationEvent(
+    "EVT_DATA_RECV", "PDU data received from remote"
+)  # noqa
 EVT_DATA_SENT = NotificationEvent("EVT_DATA_SENT", "PDU data sent to remote")
-EVT_DIMSE_RECV = NotificationEvent("EVT_DIMSE_RECV", "Complete DIMSE message received and decoded")  # noqa
-EVT_DIMSE_SENT = NotificationEvent("EVT_DIMSE_SENT", "DIMSE message encoded and P-DATA primitives sent to DUL")  # noqa
-EVT_ESTABLISHED = NotificationEvent("EVT_ESTABLISHED", "Association established")  # noqa
-EVT_FSM_TRANSITION = NotificationEvent("EVT_FSM_TRANSITION", "State machine about to transition")  # noqa
+EVT_DIMSE_RECV = NotificationEvent(
+    "EVT_DIMSE_RECV", "Complete DIMSE message received and decoded"
+)  # noqa
+EVT_DIMSE_SENT = NotificationEvent(
+    "EVT_DIMSE_SENT", "DIMSE message encoded and P-DATA primitives sent to DUL"
+)  # noqa
+EVT_ESTABLISHED = NotificationEvent(
+    "EVT_ESTABLISHED", "Association established"
+)  # noqa
+EVT_FSM_TRANSITION = NotificationEvent(
+    "EVT_FSM_TRANSITION", "State machine about to transition"
+)  # noqa
 EVT_PDU_RECV = NotificationEvent("EVT_PDU_RECV", "PDU received and decoded")
 EVT_PDU_SENT = NotificationEvent("EVT_PDU_SENT", "PDU encoded and sent")
 EVT_REJECTED = NotificationEvent("EVT_REJECTED", "Association request rejected")  # noqa
@@ -134,6 +170,7 @@ class InterventionEvent(NamedTuple):
     * :class:`EVT_N_GET`
     * :class:`EVT_N_SET`
     """
+
     name: str
     description: str
     is_intervention: bool = True
@@ -144,10 +181,18 @@ class InterventionEvent(NamedTuple):
         return self.name
 
 
-EVT_ASYNC_OPS = InterventionEvent("EVT_ASYNC_OPS", "Asynchronous operations negotiation requested")  # noqa
-EVT_SOP_COMMON = InterventionEvent("EVT_SOP_COMMON", "SOP class common extended negotiation requested")  # noqa
-EVT_SOP_EXTENDED = InterventionEvent("EVT_SOP_EXTENDED", "SOP class extended negotiation requested")  # noqa
-EVT_USER_ID = InterventionEvent("EVT_USER_ID", "User identity negotiation requested")  # noqa
+EVT_ASYNC_OPS = InterventionEvent(
+    "EVT_ASYNC_OPS", "Asynchronous operations negotiation requested"
+)  # noqa
+EVT_SOP_COMMON = InterventionEvent(
+    "EVT_SOP_COMMON", "SOP class common extended negotiation requested"
+)  # noqa
+EVT_SOP_EXTENDED = InterventionEvent(
+    "EVT_SOP_EXTENDED", "SOP class extended negotiation requested"
+)  # noqa
+EVT_USER_ID = InterventionEvent(
+    "EVT_USER_ID", "User identity negotiation requested"
+)  # noqa
 EVT_C_ECHO = InterventionEvent("EVT_C_ECHO", "C-ECHO request received")
 EVT_C_FIND = InterventionEvent("EVT_C_FIND", "C-FIND request received")
 EVT_C_GET = InterventionEvent("EVT_C_GET", "C-GET request received")
@@ -156,18 +201,22 @@ EVT_C_STORE = InterventionEvent("EVT_C_STORE", "C-STORE request received")
 EVT_N_ACTION = InterventionEvent("EVT_N_ACTION", "N-ACTION request received")
 EVT_N_CREATE = InterventionEvent("EVT_N_CREATE", "N-CREATE request received")
 EVT_N_DELETE = InterventionEvent("EVT_N_DELETE", "N-DELETE request received")
-EVT_N_EVENT_REPORT = InterventionEvent("EVT_N_EVENT_REPORT", "N-EVENT-REPORT request received")  # noqa
+EVT_N_EVENT_REPORT = InterventionEvent(
+    "EVT_N_EVENT_REPORT", "N-EVENT-REPORT request received"
+)  # noqa
 EVT_N_GET = InterventionEvent("EVT_N_GET", "N-GET request received")
 EVT_N_SET = InterventionEvent("EVT_N_SET", "N-SET request received")
 # pylint: enable=line-too-long
 
 _INTERVENTION_EVENTS = [
-    ii[1] for ii in inspect.getmembers(
+    ii[1]
+    for ii in inspect.getmembers(
         sys.modules[__name__], lambda x: isinstance(x, InterventionEvent)
     )
 ]
 _NOTIFICATION_EVENTS = [
-    ii[1] for ii in inspect.getmembers(
+    ii[1]
+    for ii in inspect.getmembers(
         sys.modules[__name__], lambda x: isinstance(x, NotificationEvent)
     )
 ]
@@ -271,9 +320,7 @@ def get_default_handler(event: InterventionEvent) -> Callable[["Event"], Any]:
 
 
 def trigger(
-    assoc: "Association",
-    event: EventType,
-    attrs: Optional[Dict[str, Any]] = None
+    assoc: "Association", event: EventType, attrs: Optional[Dict[str, Any]] = None
 ) -> Optional[Any]:
     """Trigger an `event` and call any bound handler(s).
 
@@ -383,11 +430,12 @@ class Event:
         The date/time the event was created. Will be slightly before or after
         the actual event that this object represents.
     """
+
     def __init__(
         self,
         assoc: "Association",
         event: EventType,
-        attrs: Optional[Dict[str, Any]] = None
+        attrs: Optional[Dict[str, Any]] = None,
     ) -> None:
         """Create a new Event.
 
@@ -424,9 +472,7 @@ class Event:
         attrs = attrs or {}
         for kk, vv in attrs.items():
             if hasattr(self, kk):
-                raise AttributeError(
-                    f"'Event' object already has an attribute '{kk}'"
-                )
+                raise AttributeError(f"'Event' object already has an attribute '{kk}'")
             setattr(self, kk, vv)
 
     @property
@@ -457,15 +503,16 @@ class Event:
         return self._get_dataset("ActionInformation", msg)
 
     @property
-    def action_type(self) -> int:
+    def action_type(self) -> Optional[int]:
         """Return an N-ACTION request's `Action Type ID` as an :class:`int`.
 
         .. versionadded:: 1.4
 
         Returns
         -------
-        int
-            The request's (0000,1008) *Action Type ID* value.
+        int or None
+            The request's (0000,1008) *Action Type ID* value, may be ``None``
+            if the peer's N-ACTION request is non-conformant.
 
         Raises
         ------
@@ -473,8 +520,7 @@ class Event:
             If the corresponding event is not an N-ACTION request.
         """
         try:
-            req = cast("N_ACTION_RQ", self.request)
-            return cast(int, req.ActionTypeID)
+            return cast("N_ACTION", self.request).ActionTypeID
         except AttributeError:
             raise AttributeError(
                 "The corresponding event is not an N-ACTION request and has "
@@ -499,12 +545,11 @@ class Event:
             If the corresponding event is not an N-GET request.
         """
         try:
-            req = cast("N_GET_RQ", self.request)
-            attr_list = req.AttributeIdentifierList
+            attr_list = cast("N_GET", self.request).AttributeIdentifierList
             if attr_list is None:
                 return []
 
-            return cast(List[BaseTag], attr_list)
+            return attr_list
         except AttributeError:
             pass
 
@@ -585,8 +630,8 @@ class Event:
             The path to the dataset.
         """
         try:
-            req = cast("C_STORE_RQ", self.request)
-            dataset_path = req._dataset_path
+            req = cast("C_STORE", self.request)
+            path = req._dataset_path
         except AttributeError:
             msg = (
                 "The corresponding event is either not a C-STORE request or "
@@ -594,7 +639,7 @@ class Event:
             )
             raise AttributeError(msg)
 
-        return cast(Path, dataset_path)
+        return cast(Path, path)
 
     @property
     def event(self) -> EventType:
@@ -638,7 +683,7 @@ class Event:
         return self._get_dataset("EventInformation", msg)
 
     @property
-    def event_type(self) -> int:
+    def event_type(self) -> Optional[int]:
         """Return an N-EVENT-REPORT request's `Event Type ID` as an
         :class:`int`.
 
@@ -646,8 +691,9 @@ class Event:
 
         Returns
         -------
-        int
-            The request's (0000,1002) *Event Type ID* value.
+        int or None
+            The request's (0000,1002) *Event Type ID* value, may be ``None``
+            if the peer's N-EVENT-REPORT request is non-conformant.
 
         Raises
         ------
@@ -655,8 +701,7 @@ class Event:
             If the corresponding event is not an N-EVENT-REPORT request.
         """
         try:
-            req = cast("N_EVENT_REPORT_RQ", self.request)
-            return cast(int, req.EventTypeID)
+            return cast("N_EVENT_REPORT", self.request).EventTypeID
         except AttributeError:
             raise AttributeError(
                 "The corresponding event is not an N-EVENT-REPORT request "
@@ -721,16 +766,17 @@ class Event:
         AttributeError
             If the corresponding event is not a C-STORE request.
         """
-        if not hasattr(self.request, 'DataSet'):
-            raise AttributeError(
-                "The corresponding event is not a C-STORE request"
-            )
+        if not hasattr(self.request, "DataSet"):
+            raise AttributeError("The corresponding event is not a C-STORE request")
 
         # A C-STORE request must have AffectedSOPClassUID and
         #   AffectedSOPInstanceUID
+        self.request = cast("C_STORE", self.request)
+        sop_class = cast(UID, self.request.AffectedSOPClassUID)
+        sop_instance = cast(UID, self.request.AffectedSOPInstanceUID)
         return create_file_meta(
-            sop_class_uid=self.request.AffectedSOPClassUID,
-            sop_instance_uid=self.request.AffectedSOPInstanceUID,
+            sop_class_uid=sop_class,
+            sop_instance_uid=sop_instance,
             transfer_syntax=self.context.transfer_syntax,
         )
 
@@ -766,14 +812,14 @@ class Event:
                 return cast(Dataset, self._decoded)
 
             # Some dataset-like parameters are optional
-            if bytestream and bytestream.getvalue() != b'':
+            if bytestream and bytestream.getvalue() != b"":
                 # Dataset-like parameter has been used
                 t_syntax = self.context.transfer_syntax
                 ds = decode(
                     bytestream,
                     t_syntax.is_implicit_VR,
                     t_syntax.is_little_endian,
-                    t_syntax.is_deflated
+                    t_syntax.is_deflated,
                 )
 
                 ds.is_little_endian = t_syntax.is_little_endian
@@ -837,7 +883,7 @@ class Event:
             ``False``.
         """
         try:
-            return self._is_cancelled(self.request.MessageID)
+            return self._is_cancelled(cast(int, self.request.MessageID))
         except AttributeError:
             pass
 
@@ -896,16 +942,21 @@ class Event:
         return self._get_dataset("ModificationList", msg)
 
     @property
-    def move_destination(self) -> bytes:
-        """Return a C-MOVE request's `Move Destination` as :class:`bytes`.
+    def move_destination(self) -> Optional[str]:
+        """Return a C-MOVE request's `Move Destination` as :class:`str`.
 
         .. versionadded:: 1.4
 
+        .. versionchanged:: 2.0
+
+            Changed to return :class:`str` and trailing spaces removed.
+
         Returns
         -------
-        bytes
-            The request's (0000,0600) *Move Destination* value as length 16
-            bytes (including trailing spaces as padding if required).
+        str or None
+            The request's (0000,0600) *Move Destination* value, without any
+            trailing padding spaces. May be ``None`` if the peer's C-MOVE
+            request is non-conformant.
 
         Raises
         ------
@@ -913,7 +964,7 @@ class Event:
             If the corresponding event is not a C-MOVE request.
         """
         try:
-            return cast(bytes, self.request.MoveDestination)
+            return cast("C_MOVE", self.request).MoveDestination
         except AttributeError:
             raise AttributeError(
                 "The corresponding event is not a C-MOVE request and has no "
@@ -934,15 +985,15 @@ def _async_ops_handler(event: Event) -> Tuple[int, int]:
         "sent"
     )
 
-def _sop_common_handler(
-    event: Event
-) -> Dict[UID, "SOPClassCommonExtendedNegotiation"]:
+
+def _sop_common_handler(event: Event) -> Dict[UID, "SOPClassCommonExtendedNegotiation"]:
     """Default handler for when one or more SOP Class Common Extended
     Negotiation items are included in the association request.
 
     See _handlers.doc_handle_sop_common for detailed documentation.
     """
     return {}
+
 
 def _sop_extended_handler(event: Event) -> Dict[UID, bytes]:
     """Default handler for when one or more SOP Class Extended Negotiation
@@ -952,8 +1003,9 @@ def _sop_extended_handler(event: Event) -> Dict[UID, bytes]:
     """
     return {}
 
+
 def _user_identity_handler(event: Event) -> Tuple[bool, Optional[bytes]]:
-    """Default hander for when a user identity negotiation item is included
+    """Default handler for when a user identity negotiation item is included
     with the association request.
 
     See _handlers.doc_handler_userid for detailed documentation.
@@ -964,6 +1016,7 @@ def _user_identity_handler(event: Event) -> Tuple[bool, Optional[bytes]]:
         "rejected for another reason)"
     )
 
+
 # Default service class request handlers
 def _c_echo_handler(event: Event) -> _BasicReturnType:
     """Default handler for when a C-ECHO request is received.
@@ -972,12 +1025,14 @@ def _c_echo_handler(event: Event) -> _BasicReturnType:
     """
     return 0x0000
 
+
 def _c_find_handler(event: Event) -> _IteratorType:
     """Default handler for when a C-FIND request is received.
 
     See _handlers.doc_handle_find for detailed documentation.
     """
     raise NotImplementedError("No handler has been bound to 'evt.EVT_C_FIND'")
+
 
 def _c_get_handler(event: Event) -> _IteratorType:
     """Default handler for when a C-GET request is received.
@@ -986,12 +1041,14 @@ def _c_get_handler(event: Event) -> _IteratorType:
     """
     raise NotImplementedError("No handler has been bound to 'evt.EVT_C_GET'")
 
+
 def _c_move_handler(event: Event) -> _IteratorType:
     """Default handler for when a C-MOVE request is received.
 
     See _handlers.doc_handle_move for detailed documentation.
     """
     raise NotImplementedError("No handler has been bound to 'evt.EVT_C_MOVE'")
+
 
 def _c_store_handler(event: Event) -> _BasicReturnType:
     """Default handler for when a C-STORE request is received.
@@ -1000,41 +1057,38 @@ def _c_store_handler(event: Event) -> _BasicReturnType:
     """
     raise NotImplementedError("No handler has been bound to 'evt.EVT_C_STORE'")
 
+
 def _n_action_handler(event: Event) -> _DatasetReturnType:
     """Default handler for when an N-ACTION request is received.
 
     See _handlers.doc_handle_action for detailed documentation.
     """
-    raise NotImplementedError(
-        "No handler has been bound to 'evt.EVT_N_ACTION'"
-    )
+    raise NotImplementedError("No handler has been bound to 'evt.EVT_N_ACTION'")
+
 
 def _n_create_handler(event: Event) -> _DatasetReturnType:
     """Default handler for when an N-CREATE request is received.
 
     See _handlers.doc_handle_create for detailed documentation.
     """
-    raise NotImplementedError(
-        "No handler has been bound to 'evt.EVT_N_CREATE'"
-    )
+    raise NotImplementedError("No handler has been bound to 'evt.EVT_N_CREATE'")
+
 
 def _n_delete_handler(event: Event) -> _BasicReturnType:
     """Default handler for when an N-DELETE request is received.
 
     See _handlers.doc_handle_delete for detailed documentation.
     """
-    raise NotImplementedError(
-        "No handler has been bound to 'evt.EVT_N_DELETE'"
-    )
+    raise NotImplementedError("No handler has been bound to 'evt.EVT_N_DELETE'")
+
 
 def _n_event_report_handler(event: Event) -> _DatasetReturnType:
     """Default handler for when an N-EVENT-REPORT request is received.
 
     See _handlers.doc_handle_event_report for detailed documentation.
     """
-    raise NotImplementedError(
-        "No handler has been bound to 'evt.EVT_N_EVENT_REPORT'"
-    )
+    raise NotImplementedError("No handler has been bound to 'evt.EVT_N_EVENT_REPORT'")
+
 
 def _n_get_handler(event: Event) -> _DatasetReturnType:
     """Default handler for when an N-GET request is received.
@@ -1042,6 +1096,7 @@ def _n_get_handler(event: Event) -> _DatasetReturnType:
     See _handlers.doc_handle_n_get for detailed documentation.
     """
     raise NotImplementedError("No handler has been bound to 'evt.EVT_N_GET'")
+
 
 def _n_set_handler(event: Event) -> _DatasetReturnType:
     """Default handler for when an N-SET request is received.

@@ -6,7 +6,7 @@ import time
 from typing import Optional
 
 
-LOGGER = logging.getLogger('pynetdicom.artim')
+LOGGER = logging.getLogger("pynetdicom.artim")
 
 
 class Timer:
@@ -39,6 +39,7 @@ class Timer:
     * DICOM Standard, Part 8,
       :dcm:`Section 9.1.5<part08/chapter_9.html#sect_9.1.5>`.
     """
+
     def __init__(self, timeout: Optional[float]) -> None:
         """Create a new :class:`Timer`.
 

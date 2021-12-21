@@ -49,17 +49,19 @@ from pynetdicom.sop_class import (
 )
 
 
-PYDICOM_VERSION = __version__.split('.')[:2]
+PYDICOM_VERSION = __version__.split(".")[:2]
 
 
-@pytest.fixture(params=[
-    (1, '1.1.1', ['1.2.840.10008.1.2']),
-    (1, '1.1.1', ['1.2.840.10008.1.2', '1.2.840.10008.1.2.1']),
-    (1, '1.1.1', ['1.2.840.10008.1.2', '1.2.840.10008.1.2.1', '1.2.3']),
-    (1, '1.1.1', []),
-    (1, '1.2.840.10008.1.2.1.1.3', ['1.2.3']),
-    (1, '1.2.840.10008.1.2.1.1.3', ['1.2.3', '1.2.840.10008.1.2'])
-])
+@pytest.fixture(
+    params=[
+        (1, "1.1.1", ["1.2.840.10008.1.2"]),
+        (1, "1.1.1", ["1.2.840.10008.1.2", "1.2.840.10008.1.2.1"]),
+        (1, "1.1.1", ["1.2.840.10008.1.2", "1.2.840.10008.1.2.1", "1.2.3"]),
+        (1, "1.1.1", []),
+        (1, "1.2.840.10008.1.2.1.1.3", ["1.2.3"]),
+        (1, "1.2.840.10008.1.2.1.1.3", ["1.2.3", "1.2.840.10008.1.2"]),
+    ]
+)
 def good_init(request):
     """Good init values."""
     return request.param
@@ -67,6 +69,7 @@ def good_init(request):
 
 class TestPresentationContext:
     """Test the PresentationContext class"""
+
     def setup(self):
         self.default_conformance = _config.ENFORCE_UID_CONFORMANCE
 
@@ -93,9 +96,9 @@ class TestPresentationContext:
         """Test adding transfer syntaxes"""
         pc = PresentationContext()
         pc.context_id = 1
-        pc.add_transfer_syntax('1.2.840.10008.1.2')
-        pc.add_transfer_syntax(b'1.2.840.10008.1.2.1')
-        pc.add_transfer_syntax(UID('1.2.840.10008.1.2.2'))
+        pc.add_transfer_syntax("1.2.840.10008.1.2")
+        pc.add_transfer_syntax(b"1.2.840.10008.1.2.1")
+        pc.add_transfer_syntax(UID("1.2.840.10008.1.2.2"))
 
         # Test adding an invalid value
         pc.add_transfer_syntax(1234)
@@ -109,62 +112,64 @@ class TestPresentationContext:
         """Test adding non-conformant transfer syntaxes"""
         _config.ENFORCE_UID_CONFORMANCE = True
 
-        caplog.set_level(logging.DEBUG, logger='pynetdicom.presentation')
+        caplog.set_level(logging.DEBUG, logger="pynetdicom.presentation")
         pc = PresentationContext()
         pc.context_id = 1
 
         msg = r"'transfer_syntax' contains an invalid UID"
         with pytest.raises(ValueError, match=msg):
-            pc.add_transfer_syntax('1.2.3.')
+            pc.add_transfer_syntax("1.2.3.")
 
         assert msg in caplog.text
 
-        pc.add_transfer_syntax('1.2.840.10008.1.1')
-        assert ("A UID has been added to 'transfer_syntax' that is not a "
-               "transfer syntax" in caplog.text)
+        pc.add_transfer_syntax("1.2.840.10008.1.1")
+        assert (
+            "A UID has been added to 'transfer_syntax' that is not a "
+            "transfer syntax" in caplog.text
+        )
 
         _config.ENFORCE_UID_CONFORMANCE = False
-        pc.add_transfer_syntax('1.2.3.')
-        assert '1.2.3.' in pc.transfer_syntax
+        pc.add_transfer_syntax("1.2.3.")
+        assert "1.2.3." in pc.transfer_syntax
 
     def test_add_private_transfer_syntax(self):
         """Test adding private transfer syntaxes"""
         _config.ENFORCE_UID_CONFORMANCE = False
         pc = PresentationContext()
         pc.context_id = 1
-        pc.add_transfer_syntax('2.16.840.1.113709.1.2.2')
-        assert '2.16.840.1.113709.1.2.2' in pc._transfer_syntax
+        pc.add_transfer_syntax("2.16.840.1.113709.1.2.2")
+        assert "2.16.840.1.113709.1.2.2" in pc._transfer_syntax
 
-        pc.transfer_syntax = ['2.16.840.1.113709.1.2.1']
-        assert '2.16.840.1.113709.1.2.1' in pc._transfer_syntax
+        pc.transfer_syntax = ["2.16.840.1.113709.1.2.1"]
+        assert "2.16.840.1.113709.1.2.1" in pc._transfer_syntax
 
         _config.ENFORCE_UID_CONFORMANCE = True
         pc = PresentationContext()
         pc.context_id = 1
-        pc.add_transfer_syntax('2.16.840.1.113709.1.2.2')
-        assert '2.16.840.1.113709.1.2.2' in pc._transfer_syntax
+        pc.add_transfer_syntax("2.16.840.1.113709.1.2.2")
+        assert "2.16.840.1.113709.1.2.2" in pc._transfer_syntax
 
-        pc.transfer_syntax = ['2.16.840.1.113709.1.2.1']
-        assert '2.16.840.1.113709.1.2.1' in pc._transfer_syntax
+        pc.transfer_syntax = ["2.16.840.1.113709.1.2.1"]
+        assert "2.16.840.1.113709.1.2.1" in pc._transfer_syntax
 
     def test_add_transfer_syntax_duplicate(self):
         """Test add_transfer_syntax with a duplicate UID"""
         pc = PresentationContext()
-        pc.add_transfer_syntax('1.3')
-        pc.add_transfer_syntax('1.3')
+        pc.add_transfer_syntax("1.3")
+        pc.add_transfer_syntax("1.3")
 
-        assert pc.transfer_syntax == ['1.3']
+        assert pc.transfer_syntax == ["1.3"]
 
     def test_equality(self):
         """Test presentation context equality"""
         pc_a = PresentationContext()
         pc_a.context_id = 1
-        pc_a.abstract_syntax = '1.1.1'
-        pc_a.transfer_syntax = ['1.2.840.10008.1.2']
+        pc_a.abstract_syntax = "1.1.1"
+        pc_a.transfer_syntax = ["1.2.840.10008.1.2"]
         pc_b = PresentationContext()
         pc_b.context_id = 1
-        pc_b.abstract_syntax = '1.1.1'
-        pc_b.transfer_syntax = ['1.2.840.10008.1.2']
+        pc_b.abstract_syntax = "1.1.1"
+        pc_b.transfer_syntax = ["1.2.840.10008.1.2"]
         assert pc_a == pc_a
         assert pc_a == pc_b
         assert not pc_a != pc_b
@@ -180,55 +185,68 @@ class TestPresentationContext:
         pc_a._scu_role = True
         pc_b._scp_role = True
         assert pc_a == pc_b
-        assert not 'a' == pc_b
+        assert not "a" == pc_b
 
     def test_hash(self):
         """Test hashing the context"""
-        cx_a = build_context('1.2.3', '1.2.3.4')
-        cx_b = build_context('1.2.3', '1.2.3.4')
+        cx_a = build_context("1.2.3", "1.2.3.4")
+        cx_b = build_context("1.2.3", "1.2.3.4")
         assert hash(cx_a) == hash(cx_b)
-        cx_a.transfer_syntax = ['1.2.3.4']
+        cx_a.transfer_syntax = ["1.2.3.4"]
         assert hash(cx_a) == hash(cx_b)
-        cx_a.transfer_syntax[0] = '1.2.3.4'
+        cx_a.transfer_syntax[0] = "1.2.3.4"
         assert hash(cx_a) == hash(cx_b)
-        cx_a.transfer_syntax[0] = '1.2.3.5'
+        cx_a.transfer_syntax[0] = "1.2.3.5"
         assert hash(cx_a) != hash(cx_b)
-        cx_a.transfer_syntax = ['1.2.3.5']
+        cx_a.transfer_syntax = ["1.2.3.5"]
         assert hash(cx_a) != hash(cx_b)
-        cx_c = build_context('1.2.3', ['1.1', '1.2'])
+        cx_c = build_context("1.2.3", ["1.1", "1.2"])
         assert hash(cx_c) != hash(cx_b)
-        cx_d = build_context('1.2.3', ['1.1', '1.2'])
+        cx_d = build_context("1.2.3", ["1.1", "1.2"])
         assert hash(cx_c) == hash(cx_d)
-        cx_c.transfer_syntax[1] = '1.2.3.5'
-        cx_d.transfer_syntax[1] = '1.2.3.5'
+        cx_c.transfer_syntax[1] = "1.2.3.5"
+        cx_d.transfer_syntax[1] = "1.2.3.5"
         assert hash(cx_c) == hash(cx_d)
 
     def test_string_output(self):
         """Test string output"""
         pc = PresentationContext()
         pc.context_id = 1
-        pc.abstract_syntax = '1.1.1'
-        pc.transfer_syntax = ['1.2.840.10008.1.2', '1.2.3']
+        pc.abstract_syntax = "1.1.1"
+        pc.transfer_syntax = ["1.2.840.10008.1.2", "1.2.3"]
         pc._scp_role = True
         pc._scu_role = False
         pc.result = 0x02
-        assert '1.1.1' in pc.__str__()
-        assert 'Implicit' in pc.__str__()
-        assert 'Provider Rejected' in pc.__str__()
+        out = [
+            "ID: 1",
+            "Abstract Syntax: 1.1.1",
+            "Transfer Syntax(es):",
+            "    =Implicit VR Little Endian",
+            "    =1.2.3",
+            "Result: Provider Rejected",
+        ]
+        assert "\n".join(out) == str(pc)
 
         pc._as_scu = True
         pc._as_scp = False
-        assert 'Role: SCU only' in pc.__str__()
+        assert "Role: SCU only" in str(pc)
         pc._as_scp = True
-        assert 'Role: SCU and SCP' in pc.__str__()
+        assert "Role: SCU and SCP" in str(pc)
         pc._as_scu = False
-        assert 'Role: SCP only' in pc.__str__()
+        assert "Role: SCP only" in str(pc)
         pc._as_scp = False
-        assert 'Role: (none)' in pc.__str__()
+        assert "Role: (none)" in str(pc)
 
         pc._transfer_syntax = []
-        print(pc)
-        assert '    (none)' in pc.__str__()
+        out = [
+            "ID: 1",
+            "Abstract Syntax: 1.1.1",
+            "Transfer Syntax(es):",
+            "    (none)",
+            "Result: Provider Rejected",
+            "Role: (none)",
+        ]
+        assert "\n".join(out) == str(pc)
 
     def test_context_id(self):
         """Test setting context_id."""
@@ -249,14 +267,14 @@ class TestPresentationContext:
         """Test abstract syntax setter"""
         pc = PresentationContext()
         pc.context_id = 1
-        pc.abstract_syntax = '1.1.1'
-        assert pc.abstract_syntax == UID('1.1.1')
+        pc.abstract_syntax = "1.1.1"
+        assert pc.abstract_syntax == UID("1.1.1")
         assert isinstance(pc.abstract_syntax, UID)
-        pc.abstract_syntax = b'1.2.1'
-        assert pc.abstract_syntax == UID('1.2.1')
+        pc.abstract_syntax = b"1.2.1"
+        assert pc.abstract_syntax == UID("1.2.1")
         assert isinstance(pc.abstract_syntax, UID)
-        pc.abstract_syntax = UID('1.3.1')
-        assert pc.abstract_syntax == UID('1.3.1')
+        pc.abstract_syntax = UID("1.3.1")
+        assert pc.abstract_syntax == UID("1.3.1")
         assert isinstance(pc.abstract_syntax, UID)
 
     def test_abstract_syntax_raises(self):
@@ -268,20 +286,18 @@ class TestPresentationContext:
     def test_abstract_syntax_nonconformant(self, caplog):
         """Test adding non-conformant abstract syntaxes"""
         _config.ENFORCE_UID_CONFORMANCE = True
-        caplog.set_level(logging.DEBUG, logger='pynetdicom.presentation')
+        caplog.set_level(logging.DEBUG, logger="pynetdicom.presentation")
         pc = PresentationContext()
         pc.context_id = 1
 
-        msg = (
-            "Invalid 'abstract_syntax' value '1.4.1.' - UID is non-conformant"
-        )
+        msg = "Invalid 'abstract_syntax' value '1.4.1.' - UID is non-conformant"
         with pytest.raises(ValueError, match=msg):
-            pc.abstract_syntax = UID('1.4.1.')
+            pc.abstract_syntax = UID("1.4.1.")
         assert pc.abstract_syntax is None
 
         _config.ENFORCE_UID_CONFORMANCE = False
-        pc.abstract_syntax = UID('1.4.1.')
-        assert pc.abstract_syntax == UID('1.4.1.')
+        pc.abstract_syntax = UID("1.4.1.")
+        assert pc.abstract_syntax == UID("1.4.1.")
         assert isinstance(pc.abstract_syntax, UID)
 
         assert msg in caplog.text
@@ -290,47 +306,52 @@ class TestPresentationContext:
         """Test transfer syntax setter"""
         pc = PresentationContext()
         pc.context_id = 1
-        pc.transfer_syntax = ['1.2.840.10008.1.2']
+        pc.transfer_syntax = ["1.2.840.10008.1.2"]
 
-        assert pc.transfer_syntax[0] == UID('1.2.840.10008.1.2')
+        assert pc.transfer_syntax[0] == UID("1.2.840.10008.1.2")
         assert isinstance(pc.transfer_syntax[0], UID)
-        pc.transfer_syntax = [b'1.2.840.10008.1.2.1']
-        assert pc.transfer_syntax[0] == UID('1.2.840.10008.1.2.1')
+        pc.transfer_syntax = [b"1.2.840.10008.1.2.1"]
+        assert pc.transfer_syntax[0] == UID("1.2.840.10008.1.2.1")
         assert isinstance(pc.transfer_syntax[0], UID)
-        pc.transfer_syntax = [UID('1.2.840.10008.1.2.2')]
-        assert pc.transfer_syntax[0] == UID('1.2.840.10008.1.2.2')
+        pc.transfer_syntax = [UID("1.2.840.10008.1.2.2")]
+        assert pc.transfer_syntax[0] == UID("1.2.840.10008.1.2.2")
         assert isinstance(pc.transfer_syntax[0], UID)
 
         with pytest.raises(TypeError):
-            pc.transfer_syntax = UID('1.4.1')
+            pc.transfer_syntax = UID("1.4.1")
 
-        pc.transfer_syntax = [1234, UID('1.4.1')]
-        assert pc.transfer_syntax == [UID('1.4.1')]
+        pc.transfer_syntax = [1234, UID("1.4.1")]
+        assert pc.transfer_syntax == [UID("1.4.1")]
 
     def test_transfer_syntax_duplicate(self):
         """Test the transfer_syntax setter with duplicate UIDs."""
         pc = PresentationContext()
-        pc.transfer_syntax = ['1.3', '1.3']
-        assert pc.transfer_syntax == ['1.3']
+        pc.transfer_syntax = ["1.3", "1.3"]
+        assert pc.transfer_syntax == ["1.3"]
 
     def test_transfer_syntax_nonconformant(self, caplog):
         """Test setting non-conformant transfer syntaxes"""
-        caplog.set_level(logging.DEBUG, logger='pynetdicom.presentation')
+        caplog.set_level(logging.DEBUG, logger="pynetdicom.presentation")
         pc = PresentationContext()
         pc.context_id = 1
-        pc.transfer_syntax = ['1.4.1.', '1.2.840.10008.1.2']
-        assert pc.transfer_syntax == ['1.4.1.', '1.2.840.10008.1.2']
-        assert ("A non-conformant UID has been added to 'transfer_syntax'" in
-            caplog.text)
+        pc.transfer_syntax = ["1.4.1.", "1.2.840.10008.1.2"]
+        assert pc.transfer_syntax == ["1.4.1.", "1.2.840.10008.1.2"]
+        assert "A non-conformant UID has been added to 'transfer_syntax'" in caplog.text
 
     def test_status(self):
         """Test presentation context status"""
         pc = PresentationContext()
         pc.context_id = 1
         statuses = [None, 0x00, 0x01, 0x02, 0x03, 0x04, 0x05]
-        results = ['Pending', 'Accepted', 'User Rejected', 'Provider Rejected',
-                   'Abstract Syntax Not Supported',
-                   'Transfer Syntax(es) Not Supported', 'Unknown']
+        results = [
+            "Pending",
+            "Accepted",
+            "User Rejected",
+            "Provider Rejected",
+            "Abstract Syntax Not Supported",
+            "Transfer Syntax(es) Not Supported",
+            "Unknown",
+        ]
 
         for status, result in zip(statuses, results):
             pc.result = status
@@ -340,17 +361,17 @@ class TestPresentationContext:
         """Test the .as_tuple"""
         context = PresentationContext()
         context.context_id = 3
-        context.abstract_syntax = '1.2.840.10008.1.1'
-        context.transfer_syntax = ['1.2.840.10008.1.2']
+        context.abstract_syntax = "1.2.840.10008.1.1"
+        context.transfer_syntax = ["1.2.840.10008.1.2"]
         out = context.as_tuple
 
         assert out.context_id == 3
-        assert out.abstract_syntax == '1.2.840.10008.1.1'
-        assert out.transfer_syntax == '1.2.840.10008.1.2'
+        assert out.abstract_syntax == "1.2.840.10008.1.1"
+        assert out.transfer_syntax == "1.2.840.10008.1.2"
 
     def test_as_scp(self):
         """Test the Presentation.as_scp property."""
-        context = build_context('1.2.3')
+        context = build_context("1.2.3")
         assert context.as_scp is None
 
         with pytest.raises(AttributeError, match=r"can't set attribute"):
@@ -363,7 +384,7 @@ class TestPresentationContext:
 
     def test_as_scu(self):
         """Test the Presentation.as_scu property."""
-        context = build_context('1.2.3')
+        context = build_context("1.2.3")
         assert context.as_scu is None
 
         with pytest.raises(AttributeError, match=r"can't set attribute"):
@@ -376,7 +397,7 @@ class TestPresentationContext:
 
     def test_scu_role(self):
         """Test Presentation.scu_role setter/getter."""
-        context = build_context('1.2.3')
+        context = build_context("1.2.3")
         assert context.scu_role is None
         context.scu_role = True
         assert context.scu_role
@@ -389,7 +410,7 @@ class TestPresentationContext:
 
     def test_scp_role(self):
         """Test Presentation.scp_role setter/getter."""
-        context = build_context('1.2.3')
+        context = build_context("1.2.3")
         assert context.scp_role is None
         context.scp_role = True
         assert context.scp_role
@@ -403,14 +424,15 @@ class TestPresentationContext:
 
     def test_repr(self):
         """Test PresentationContext.__repr__"""
-        cx = build_context('1.2.3')
-        assert '1.2.3' == repr(cx)
-        cx = build_context('1.2.840.10008.1.1')
-        assert 'Verification SOP Class' == repr(cx)
+        cx = build_context("1.2.3")
+        assert "1.2.3" == repr(cx)
+        cx = build_context("1.2.840.10008.1.1")
+        assert "Verification SOP Class" == repr(cx)
 
 
 class TestNegotiateAsAcceptor:
     """Tests negotiation_as_acceptor."""
+
     def setup(self):
         self.test_func = negotiate_as_acceptor
 
@@ -423,24 +445,24 @@ class TestNegotiateAsAcceptor:
         """Test negotiation with one requestor, no acceptor contexts."""
         context = PresentationContext()
         context.context_id = 1
-        context.abstract_syntax = '1.2.840.10008.5.1.4.1.1.2'
-        context.transfer_syntax = ['1.2.840.10008.1.2']
+        context.abstract_syntax = "1.2.840.10008.5.1.4.1.1.2"
+        context.transfer_syntax = ["1.2.840.10008.1.2"]
         result, roles = self.test_func([context], [])
 
         assert len(result) == 1
         assert roles == []
         context = result[0]
         assert context.context_id == 1
-        assert context.abstract_syntax == '1.2.840.10008.5.1.4.1.1.2'
-        assert context.transfer_syntax == ['1.2.840.10008.1.2']
+        assert context.abstract_syntax == "1.2.840.10008.5.1.4.1.1.2"
+        assert context.transfer_syntax == ["1.2.840.10008.1.2"]
         assert context.result == 0x03
 
     def test_no_req_one_acc(self):
         """Test negotiation with no requestor, one acceptor contexts."""
         context = PresentationContext()
         context.context_id = 1
-        context.abstract_syntax = '1.2.840.10008.5.1.4.1.1.2'
-        context.transfer_syntax = ['1.2.840.10008.1.2']
+        context.abstract_syntax = "1.2.840.10008.5.1.4.1.1.2"
+        context.transfer_syntax = ["1.2.840.10008.1.2"]
         result, roles = self.test_func([], [context])
         assert result == []
         assert roles == []
@@ -449,18 +471,18 @@ class TestNegotiateAsAcceptor:
         """Test negotiation with duplicate requestor, no acceptor contexts."""
         context_a = PresentationContext()
         context_a.context_id = 1
-        context_a.abstract_syntax = '1.2.840.10008.5.1.4.1.1.2'
-        context_a.transfer_syntax = ['1.2.840.10008.1.2']
+        context_a.abstract_syntax = "1.2.840.10008.5.1.4.1.1.2"
+        context_a.transfer_syntax = ["1.2.840.10008.1.2"]
 
         context_b = PresentationContext()
         context_b.context_id = 3
-        context_b.abstract_syntax = '1.2.840.10008.5.1.4.1.1.2'
-        context_b.transfer_syntax = ['1.2.840.10008.1.2.1']
+        context_b.abstract_syntax = "1.2.840.10008.5.1.4.1.1.2"
+        context_b.transfer_syntax = ["1.2.840.10008.1.2.1"]
 
         context_c = PresentationContext()
         context_c.context_id = 5
-        context_c.abstract_syntax = '1.2.840.10008.5.1.4.1.1.2'
-        context_c.transfer_syntax = ['1.2.840.10008.1.2.2']
+        context_c.abstract_syntax = "1.2.840.10008.5.1.4.1.1.2"
+        context_c.transfer_syntax = ["1.2.840.10008.1.2.2"]
 
         context_list = [context_a, context_b, context_c]
         result, roles = self.test_func(context_list, [])
@@ -468,31 +490,29 @@ class TestNegotiateAsAcceptor:
         assert roles == []
         for context in result:
             assert context.context_id in [1, 3, 5]
-            assert context.abstract_syntax == '1.2.840.10008.5.1.4.1.1.2'
+            assert context.abstract_syntax == "1.2.840.10008.5.1.4.1.1.2"
             assert context.result == 0x03
 
     def test_dupe_abs_req(self):
         """Test negotiation with duplicate requestor, no acceptor contexts."""
         context_a = PresentationContext()
         context_a.context_id = 1
-        context_a.abstract_syntax = '1.2.840.10008.5.1.4.1.1.2'
-        context_a.transfer_syntax = ['1.2.840.10008.1.2']
+        context_a.abstract_syntax = "1.2.840.10008.5.1.4.1.1.2"
+        context_a.transfer_syntax = ["1.2.840.10008.1.2"]
 
         context_b = PresentationContext()
         context_b.context_id = 3
-        context_b.abstract_syntax = '1.2.840.10008.5.1.4.1.1.2'
-        context_b.transfer_syntax = ['1.2.840.10008.1.2.1']
+        context_b.abstract_syntax = "1.2.840.10008.5.1.4.1.1.2"
+        context_b.transfer_syntax = ["1.2.840.10008.1.2.1"]
 
         context_c = PresentationContext()
         context_c.context_id = 5
-        context_c.abstract_syntax = '1.2.840.10008.5.1.4.1.1.2'
-        context_c.transfer_syntax = ['1.2.840.10008.1.2.2']
+        context_c.abstract_syntax = "1.2.840.10008.5.1.4.1.1.2"
+        context_c.transfer_syntax = ["1.2.840.10008.1.2.2"]
 
-        t_syntax = ['1.2.840.10008.1.2',
-                    '1.2.840.10008.1.2.1',
-                    '1.2.840.10008.1.2.2']
+        t_syntax = ["1.2.840.10008.1.2", "1.2.840.10008.1.2.1", "1.2.840.10008.1.2.2"]
         context_d = PresentationContext()
-        context_d.abstract_syntax = '1.2.840.10008.5.1.4.1.1.2'
+        context_d.abstract_syntax = "1.2.840.10008.5.1.4.1.1.2"
         context_d.transfer_syntax = t_syntax
         context_list = [context_a, context_b, context_c]
         result, roles = self.test_func(context_list, [context_d])
@@ -500,7 +520,7 @@ class TestNegotiateAsAcceptor:
         assert roles == []
         for ii, context in enumerate(result):
             assert context.context_id in [1, 3, 5]
-            assert context.abstract_syntax == '1.2.840.10008.5.1.4.1.1.2'
+            assert context.abstract_syntax == "1.2.840.10008.5.1.4.1.1.2"
             assert context.result == 0x00
             assert context.transfer_syntax == [t_syntax[ii]]
 
@@ -508,130 +528,131 @@ class TestNegotiateAsAcceptor:
         """Test negotiation one req/acc, matching accepted."""
         context = PresentationContext()
         context.context_id = 1
-        context.abstract_syntax = '1.2.840.10008.5.1.4.1.1.2'
-        context.transfer_syntax = ['1.2.840.10008.1.2']
+        context.abstract_syntax = "1.2.840.10008.5.1.4.1.1.2"
+        context.transfer_syntax = ["1.2.840.10008.1.2"]
         result, roles = self.test_func([context], [context])
         assert len(result) == 1
         assert roles == []
         context = result[0]
         assert context.context_id == 1
-        assert context.abstract_syntax == '1.2.840.10008.5.1.4.1.1.2'
+        assert context.abstract_syntax == "1.2.840.10008.5.1.4.1.1.2"
         assert context.result == 0x00
-        assert context.transfer_syntax == ['1.2.840.10008.1.2']
+        assert context.transfer_syntax == ["1.2.840.10008.1.2"]
 
     def test_one_req_one_acc_accept_trans(self):
         """Test negotiation one req/acc, matching accepted, multi trans."""
         context = PresentationContext()
         context.context_id = 1
-        context.abstract_syntax = '1.2.840.10008.5.1.4.1.1.2'
-        context.transfer_syntax = ['1.2.840.10008.1.2',
-                                   '1.2.840.10008.1.2.1',
-                                   '1.2.840.10008.1.2.2']
+        context.abstract_syntax = "1.2.840.10008.5.1.4.1.1.2"
+        context.transfer_syntax = [
+            "1.2.840.10008.1.2",
+            "1.2.840.10008.1.2.1",
+            "1.2.840.10008.1.2.2",
+        ]
         result, roles = self.test_func([context], [context])
         assert len(result) == 1
         assert roles == []
         context = result[0]
         assert context.context_id == 1
-        assert context.abstract_syntax == '1.2.840.10008.5.1.4.1.1.2'
+        assert context.abstract_syntax == "1.2.840.10008.5.1.4.1.1.2"
         assert context.result == 0x00
-        assert context.transfer_syntax == ['1.2.840.10008.1.2']
+        assert context.transfer_syntax == ["1.2.840.10008.1.2"]
 
     def test_one_req_one_acc_accept_trans_diff(self):
         """Test negotiation one req/acc, matching accepted, multi trans."""
         context_a = PresentationContext()
         context_a.context_id = 1
-        context_a.abstract_syntax = '1.2.840.10008.5.1.4.1.1.2'
-        context_a.transfer_syntax = ['1.2.840.10008.1.2',
-                                   '1.2.840.10008.1.2.1',
-                                   '1.2.840.10008.1.2.2']
+        context_a.abstract_syntax = "1.2.840.10008.5.1.4.1.1.2"
+        context_a.transfer_syntax = [
+            "1.2.840.10008.1.2",
+            "1.2.840.10008.1.2.1",
+            "1.2.840.10008.1.2.2",
+        ]
         context_b = PresentationContext()
-        context_b.abstract_syntax = '1.2.840.10008.5.1.4.1.1.2'
-        context_b.transfer_syntax = ['1.2.840.10008.1.2.2']
+        context_b.abstract_syntax = "1.2.840.10008.5.1.4.1.1.2"
+        context_b.transfer_syntax = ["1.2.840.10008.1.2.2"]
 
         result, roles = self.test_func([context_a], [context_b])
         assert len(result) == 1
         assert roles == []
         context = result[0]
         assert context.context_id == 1
-        assert context.abstract_syntax == '1.2.840.10008.5.1.4.1.1.2'
+        assert context.abstract_syntax == "1.2.840.10008.5.1.4.1.1.2"
         assert context.result == 0x00
-        assert context.transfer_syntax == ['1.2.840.10008.1.2.2']
+        assert context.transfer_syntax == ["1.2.840.10008.1.2.2"]
 
     def test_one_req_one_acc_reject_trans(self):
         """Test negotiation one req/acc, matching rejected trans"""
         context_a = PresentationContext()
         context_a.context_id = 1
-        context_a.abstract_syntax = '1.2.840.10008.5.1.4.1.1.2'
-        context_a.transfer_syntax = ['1.2.840.10008.1.2',
-                                   '1.2.840.10008.1.2.1']
+        context_a.abstract_syntax = "1.2.840.10008.5.1.4.1.1.2"
+        context_a.transfer_syntax = ["1.2.840.10008.1.2", "1.2.840.10008.1.2.1"]
         context_b = PresentationContext()
-        context_b.abstract_syntax = '1.2.840.10008.5.1.4.1.1.2'
-        context_b.transfer_syntax = ['1.2.840.10008.1.2.2']
+        context_b.abstract_syntax = "1.2.840.10008.5.1.4.1.1.2"
+        context_b.transfer_syntax = ["1.2.840.10008.1.2.2"]
         result, roles = self.test_func([context_a], [context_b])
         assert len(result) == 1
         assert roles == []
         context = result[0]
         assert context.context_id == 1
-        assert context.abstract_syntax == '1.2.840.10008.5.1.4.1.1.2'
+        assert context.abstract_syntax == "1.2.840.10008.5.1.4.1.1.2"
         assert context.result == 0x04
 
     def test_one_req_one_acc_mismatch(self):
         """Test negotiation one req/acc, mismatched rejected"""
         context_a = PresentationContext()
         context_a.context_id = 1
-        context_a.abstract_syntax = '1.2.840.10008.5.1.4.1.1.2'
-        context_a.transfer_syntax = ['1.2.840.10008.1.2',
-                                   '1.2.840.10008.1.2.1']
+        context_a.abstract_syntax = "1.2.840.10008.5.1.4.1.1.2"
+        context_a.transfer_syntax = ["1.2.840.10008.1.2", "1.2.840.10008.1.2.1"]
         context_b = PresentationContext()
-        context_b.abstract_syntax = '1.2.840.10008.5.1.4.1.1.4'
-        context_b.transfer_syntax = ['1.2.840.10008.1.2.2']
+        context_b.abstract_syntax = "1.2.840.10008.5.1.4.1.1.4"
+        context_b.transfer_syntax = ["1.2.840.10008.1.2.2"]
         result, roles = self.test_func([context_a], [context_b])
         assert len(result) == 1
         assert roles == []
         context = result[0]
         assert context.context_id == 1
-        assert context.abstract_syntax == '1.2.840.10008.5.1.4.1.1.2'
+        assert context.abstract_syntax == "1.2.840.10008.5.1.4.1.1.2"
         assert context.result == 0x03
 
     def test_private_transfer_syntax(self):
         """Test negotiation with private transfer syntax"""
         context_a = PresentationContext()
         context_a.context_id = 1
-        context_a.abstract_syntax = '1.2.840.10008.5.1.4.1.1.2'
-        context_a.transfer_syntax = ['1.2.3.4']
+        context_a.abstract_syntax = "1.2.840.10008.5.1.4.1.1.2"
+        context_a.transfer_syntax = ["1.2.3.4"]
         context_b = PresentationContext()
-        context_b.abstract_syntax = '1.2.840.10008.5.1.4.1.1.2'
-        context_b.transfer_syntax = ['1.2.840.10008.1.2.1',
-                                     '1.2.3.4']
+        context_b.abstract_syntax = "1.2.840.10008.5.1.4.1.1.2"
+        context_b.transfer_syntax = ["1.2.840.10008.1.2.1", "1.2.3.4"]
         result, roles = self.test_func([context_a], [context_b])
         assert len(result) == 1
         assert roles == []
         context = result[0]
         assert context.context_id == 1
-        assert context.abstract_syntax == '1.2.840.10008.5.1.4.1.1.2'
+        assert context.abstract_syntax == "1.2.840.10008.5.1.4.1.1.2"
         assert context.result == 0x00
-        assert context.transfer_syntax == ['1.2.3.4']
+        assert context.transfer_syntax == ["1.2.3.4"]
 
     def test_private_abstract_syntax(self):
         """Test negotiation with private abstract syntax"""
         context_a = PresentationContext()
         context_a.context_id = 1
-        context_a.abstract_syntax = '1.2.3.4'
-        context_a.transfer_syntax = ['1.2.840.10008.1.2.1']
+        context_a.abstract_syntax = "1.2.3.4"
+        context_a.transfer_syntax = ["1.2.840.10008.1.2.1"]
         context_b = PresentationContext()
-        context_b.abstract_syntax = '1.2.3.4'
-        context_b.transfer_syntax = ['1.2.840.10008.1.2.1']
+        context_b.abstract_syntax = "1.2.3.4"
+        context_b.transfer_syntax = ["1.2.840.10008.1.2.1"]
 
         result, roles = self.test_func([context_a], [context_b])
         assert len(result) == 1
         assert roles == []
         context = result[0]
         assert context.context_id == 1
-        assert context.abstract_syntax == '1.2.3.4'
+        assert context.abstract_syntax == "1.2.3.4"
         assert context.result == 0x00
-        assert context.transfer_syntax == ['1.2.840.10008.1.2.1']
+        assert context.transfer_syntax == ["1.2.840.10008.1.2.1"]
 
-    @pytest.mark.skipif(PYDICOM_VERSION < ['2', '2'], reason="Old data dict")
+    @pytest.mark.skipif(PYDICOM_VERSION < ["2", "2"], reason="Old data dict")
     def test_typical(self):
         """Test a typical set of presentation context negotiations."""
         req_contexts = []
@@ -639,18 +660,22 @@ class TestNegotiateAsAcceptor:
             pc = PresentationContext()
             pc.context_id = ii * 2 + 1
             pc.abstract_syntax = context.abstract_syntax
-            pc.transfer_syntax = ['1.2.840.10008.1.2',
-                                 '1.2.840.10008.1.2.1',
-                                 '1.2.840.10008.1.2.2']
+            pc.transfer_syntax = [
+                "1.2.840.10008.1.2",
+                "1.2.840.10008.1.2.1",
+                "1.2.840.10008.1.2.2",
+            ]
             req_contexts.append(pc)
 
         acc_contexts = []
         for uid in UID_dictionary:
             pc = PresentationContext()
             pc.abstract_syntax = uid
-            pc.transfer_syntax = ['1.2.840.10008.1.2',
-                                  '1.2.840.10008.1.2.1',
-                                  '1.2.840.10008.1.2.2']
+            pc.transfer_syntax = [
+                "1.2.840.10008.1.2",
+                "1.2.840.10008.1.2.1",
+                "1.2.840.10008.1.2.2",
+            ]
             acc_contexts.append(pc)
 
         results, roles = self.test_func(req_contexts, acc_contexts)
@@ -659,13 +684,13 @@ class TestNegotiateAsAcceptor:
         for ii, context in enumerate(req_contexts):
             assert results[ii].context_id == context.context_id
             assert results[ii].abstract_syntax == context.abstract_syntax
-            if results[ii].abstract_syntax == '1.2.840.10008.5.1.4.1.1.1.1.1.1':
+            if results[ii].abstract_syntax == "1.2.840.10008.5.1.4.1.1.1.1.1.1":
                 assert results[ii].result == 0x03
-            elif results[ii].abstract_syntax == '1.2.840.10008.5.1.1.4.1.1.3.1':
+            elif results[ii].abstract_syntax == "1.2.840.10008.5.1.1.4.1.1.3.1":
                 assert results[ii].result == 0x03
             else:
                 assert results[ii].result == 0x00
-                assert results[ii].transfer_syntax == ['1.2.840.10008.1.2']
+                assert results[ii].transfer_syntax == ["1.2.840.10008.1.2"]
 
     def test_first_supported_match(self):
         """Test that the acceptor uses the first matching supported tsyntax."""
@@ -674,7 +699,9 @@ class TestNegotiateAsAcceptor:
         pc.context_id = 1
         pc.abstract_syntax = CTImageStorage
         pc.transfer_syntax = [
-            '1.2.840.10008.1.2', '1.2.840.10008.1.2.1', '1.2.840.10008.1.2.2'
+            "1.2.840.10008.1.2",
+            "1.2.840.10008.1.2.1",
+            "1.2.840.10008.1.2.2",
         ]
         req_contexts.append(pc)
 
@@ -682,12 +709,14 @@ class TestNegotiateAsAcceptor:
         pc = PresentationContext()
         pc.abstract_syntax = CTImageStorage
         pc.transfer_syntax = [
-            '1.2.840.10008.1.2.1', '1.2.840.10008.1.2.2', '1.2.840.10008.1.2'
+            "1.2.840.10008.1.2.1",
+            "1.2.840.10008.1.2.2",
+            "1.2.840.10008.1.2",
         ]
         acc_contexts.append(pc)
 
         results, roles = self.test_func(req_contexts, acc_contexts)
-        assert results[0].transfer_syntax[0] == '1.2.840.10008.1.2.1'
+        assert results[0].transfer_syntax[0] == "1.2.840.10008.1.2.1"
 
 
 # (req.as_scu, req.as_scp, ac.as_scu, ac.as_scp)
@@ -753,20 +782,21 @@ REFERENCE_ROLES = [
 
 class TestNegotiateAsAcceptorWithRoleSelection:
     """Tests negotiate_as_acceptor with role selection."""
+
     @pytest.mark.parametrize("req, acc, out", REFERENCE_ROLES)
     def test_scp_scu_role_negotiation(self, req, acc, out):
         """Test presentation service negotiation with role selection."""
-        rq = build_context('1.2.3.4')
-        rq_roles = {'1.2.3.4' : (req[0], req[1])}
+        rq = build_context("1.2.3.4")
+        rq_roles = {"1.2.3.4": (req[0], req[1])}
 
-        ac = build_context('1.2.3.4')
+        ac = build_context("1.2.3.4")
         ac.scu_role = acc[0]
         ac.scp_role = acc[1]
 
         result, roles = negotiate_as_acceptor([rq], [ac], rq_roles)
 
-        assert result[0].abstract_syntax == '1.2.3.4'
-        assert result[0].transfer_syntax[0] == '1.2.840.10008.1.2'
+        assert result[0].abstract_syntax == "1.2.3.4"
+        assert result[0].transfer_syntax[0] == "1.2.840.10008.1.2"
         assert result[0].as_scu == out[2]
         assert result[0].as_scp == out[3]
         if out == CONTEXT_REJECTED:
@@ -775,7 +805,7 @@ class TestNegotiateAsAcceptorWithRoleSelection:
             assert result[0].result == 0x00
 
         if None not in acc and out != CONTEXT_REJECTED:
-            assert roles[0].sop_class_uid == '1.2.3.4'
+            assert roles[0].sop_class_uid == "1.2.3.4"
             if req[0] is False:
                 assert roles[0].scu_role is False
             else:
@@ -788,70 +818,70 @@ class TestNegotiateAsAcceptorWithRoleSelection:
 
     def test_multiple_contexts_same_abstract(self):
         """Test that SCP/SCU role neg works with multiple contexts."""
-        rq_contexts = [build_context('1.2.3.4'), build_context('1.2.3.4')]
+        rq_contexts = [build_context("1.2.3.4"), build_context("1.2.3.4")]
         rq_roles = {}
         for ii, context in enumerate(rq_contexts):
             context.context_id = ii * 2 + 1
             rq_roles[context.abstract_syntax] = (False, True)
-        rq_contexts.append(build_context('1.2.3.4.5'))
+        rq_contexts.append(build_context("1.2.3.4.5"))
         rq_contexts[2].context_id = 5
 
-        ac = build_context('1.2.3.4')
+        ac = build_context("1.2.3.4")
         ac.scu_role = False
         ac.scp_role = True
 
-        ac2 = build_context('1.2.3.4.5')
+        ac2 = build_context("1.2.3.4.5")
 
         result, roles = negotiate_as_acceptor(rq_contexts, [ac, ac2], rq_roles)
         assert len(result) == 3
         for context in result[:2]:
-            assert context.abstract_syntax == '1.2.3.4'
-            assert context.transfer_syntax[0] == '1.2.840.10008.1.2'
+            assert context.abstract_syntax == "1.2.3.4"
+            assert context.transfer_syntax[0] == "1.2.840.10008.1.2"
             assert context.as_scu == True
             assert context.as_scp == False
             assert context.result == 0x0000
 
-        assert result[2].abstract_syntax == '1.2.3.4.5'
-        assert result[2].transfer_syntax[0] == '1.2.840.10008.1.2'
+        assert result[2].abstract_syntax == "1.2.3.4.5"
+        assert result[2].transfer_syntax[0] == "1.2.840.10008.1.2"
         assert result[2].as_scu == False
         assert result[2].as_scp == True
         assert result[2].result == 0x0000
 
         assert len(roles) == 1
         for role in roles:
-            assert role.sop_class_uid == '1.2.3.4'
+            assert role.sop_class_uid == "1.2.3.4"
             assert role.scu_role == False
             assert role.scp_role == True
 
     def test_no_invalid_return_scp(self):
         """Test that invalid role selection values aren't returned."""
         # If the SCU proposes 0x00 we can't return 0x01
-        rq = build_context('1.2.3.4')
-        rq_roles = {'1.2.3.4' : (True, False)}
+        rq = build_context("1.2.3.4")
+        rq_roles = {"1.2.3.4": (True, False)}
 
-        ac = build_context('1.2.3.4')
+        ac = build_context("1.2.3.4")
         ac.scu_role = True
         ac.scp_role = True
 
         result, roles = negotiate_as_acceptor([rq], [ac], rq_roles)
 
-        assert roles[0].sop_class_uid == '1.2.3.4'
+        assert roles[0].sop_class_uid == "1.2.3.4"
         assert roles[0].scu_role == True
         assert roles[0].scp_role == False
 
     def test_no_invalid_return_scu(self):
         """Test that invalid role selection values aren't returned."""
         # If the SCU proposes 0x00 we can't return 0x01
-        rq = build_context('1.2.3.4')
-        rq_roles = {'1.2.3.4' : (False, True)}
+        rq = build_context("1.2.3.4")
+        rq_roles = {"1.2.3.4": (False, True)}
 
-        ac = build_context('1.2.3.4')
+        ac = build_context("1.2.3.4")
         ac.scu_role = True
         ac.scp_role = True
 
         result, roles = negotiate_as_acceptor([rq], [ac], rq_roles)
 
-        assert roles[0].sop_class_uid == '1.2.3.4'
+        assert roles[0].sop_class_uid == "1.2.3.4"
         assert roles[0].scu_role == False
         assert roles[0].scp_role == True
 
@@ -863,37 +893,37 @@ class TestNegotiateAsAcceptorWithRoleSelection:
         ac_contexts = []
 
         # 0x00 - accepted
-        rq_contexts.append(build_context('1.1.1'))
-        rq_contexts.append(build_context('1.1.2'))
-        rq_contexts.append(build_context('1.1.2'))
-        rq_contexts.append(build_context('1.1.3'))
-        ac_contexts.append(build_context('1.1.1'))
-        ac_contexts.append(build_context('1.1.2'))
-        ac_contexts.append(build_context('1.1.3'))
+        rq_contexts.append(build_context("1.1.1"))
+        rq_contexts.append(build_context("1.1.2"))
+        rq_contexts.append(build_context("1.1.2"))
+        rq_contexts.append(build_context("1.1.3"))
+        ac_contexts.append(build_context("1.1.1"))
+        ac_contexts.append(build_context("1.1.2"))
+        ac_contexts.append(build_context("1.1.3"))
 
         # 0x01 - user rejected - only achievable with role selection
 
         # 0x02 - provider rejected - not achievable as acceptor
 
         # 0x03 - abstract syyntax not supported
-        rq_contexts.append(build_context('1.4.1'))
-        rq_contexts.append(build_context('1.4.2'))
-        rq_contexts.append(build_context('1.4.2'))
-        rq_contexts.append(build_context('1.4.3'))
+        rq_contexts.append(build_context("1.4.1"))
+        rq_contexts.append(build_context("1.4.2"))
+        rq_contexts.append(build_context("1.4.2"))
+        rq_contexts.append(build_context("1.4.3"))
 
         # 0x04 - transfer syntax not supported
-        rq_contexts.append(build_context('1.5.1', '1.2'))
-        rq_contexts.append(build_context('1.5.2', '1.2'))
-        rq_contexts.append(build_context('1.5.2', '1.2'))
-        rq_contexts.append(build_context('1.5.3', '1.2'))
-        ac_contexts.append(build_context('1.5.1'))
-        ac_contexts.append(build_context('1.5.2'))
-        ac_contexts.append(build_context('1.5.3'))
+        rq_contexts.append(build_context("1.5.1", "1.2"))
+        rq_contexts.append(build_context("1.5.2", "1.2"))
+        rq_contexts.append(build_context("1.5.2", "1.2"))
+        rq_contexts.append(build_context("1.5.3", "1.2"))
+        ac_contexts.append(build_context("1.5.1"))
+        ac_contexts.append(build_context("1.5.2"))
+        ac_contexts.append(build_context("1.5.3"))
 
         # Role selection
         rq_roles = {}
         # 0x00 - accepted and 0x01 - user rejected
-        for uid in ['2.1.1', '2.1.2', '2.1.2', '2.1.3']:
+        for uid in ["2.1.1", "2.1.2", "2.1.2", "2.1.3"]:
             rq_contexts.append(build_context(uid))
             rq_roles[uid] = (req[0], req[1])
             cx = build_context(uid)
@@ -902,13 +932,13 @@ class TestNegotiateAsAcceptorWithRoleSelection:
             ac_contexts.append(cx)
 
         # 0x03 - abstract syntax not supported
-        for uid in ['2.4.1', '2.4.2', '2.4.2', '2.4.3']:
+        for uid in ["2.4.1", "2.4.2", "2.4.2", "2.4.3"]:
             rq_contexts.append(build_context(uid))
             rq_roles[uid] = (req[0], req[1])
 
         # 0x04 - transfer syntax not supported
-        for uid in ['2.5.1', '2.5.2', '2.5.2', '2.5.3']:
-            rq_contexts.append(build_context(uid, '1.2'))
+        for uid in ["2.5.1", "2.5.2", "2.5.2", "2.5.3"]:
+            rq_contexts.append(build_context(uid, "1.2"))
             rq_roles[uid] = (req[0], req[1])
             cx = build_context(uid)
             cx.scu_role = acc[0]
@@ -927,7 +957,7 @@ class TestNegotiateAsAcceptorWithRoleSelection:
         out_04 = [cx for cx in results if cx.result == 0x04]
         out_na = [cx for cx in results if cx.result is None]
 
-        out_00_role = [cx for cx in out_00 if cx.abstract_syntax[0] == '2']
+        out_00_role = [cx for cx in out_00 if cx.abstract_syntax[0] == "2"]
         # Unique UIDs with role selection
         out_00_uids = set([cx.abstract_syntax for cx in out_00_role])
 
@@ -950,13 +980,13 @@ class TestNegotiateAsAcceptorWithRoleSelection:
         assert len(out_na) == 0
 
         # Test individual results
-        assert out_00[0].abstract_syntax == '1.1.1'
-        assert out_00[1].abstract_syntax == '1.1.2'
-        assert out_00[2].abstract_syntax == '1.1.2'
-        assert out_00[3].abstract_syntax == '1.1.3'
+        assert out_00[0].abstract_syntax == "1.1.1"
+        assert out_00[1].abstract_syntax == "1.1.2"
+        assert out_00[2].abstract_syntax == "1.1.2"
+        assert out_00[3].abstract_syntax == "1.1.3"
 
         for cx in out_00:
-            if cx.abstract_syntax[0] == '2':
+            if cx.abstract_syntax[0] == "2":
                 assert cx.as_scu == out[2]
                 assert cx.as_scp == out[3]
             else:
@@ -964,10 +994,10 @@ class TestNegotiateAsAcceptorWithRoleSelection:
                 assert cx.as_scp is True
 
         if out == CONTEXT_REJECTED:
-            assert out_01[0].abstract_syntax == '2.1.1'
-            assert out_01[1].abstract_syntax == '2.1.2'
-            assert out_01[2].abstract_syntax == '2.1.2'
-            assert out_01[3].abstract_syntax == '2.1.3'
+            assert out_01[0].abstract_syntax == "2.1.1"
+            assert out_01[1].abstract_syntax == "2.1.2"
+            assert out_01[2].abstract_syntax == "2.1.2"
+            assert out_01[3].abstract_syntax == "2.1.3"
 
             for cx in out_01:
                 assert cx.as_scu is False
@@ -988,61 +1018,62 @@ class TestNegotiateAsAcceptorWithRoleSelection:
 
 class TestNegotiateAsRequestorWithRoleSelection:
     """Tests negotiate_as_requestor with role selection."""
+
     @pytest.mark.parametrize("req, acc, out", REFERENCE_ROLES)
     def test_scp_scu_role_negotiation(self, req, acc, out):
         """Test presentation service negotiation with role selection."""
-        rq = build_context('1.2.3.4')
+        rq = build_context("1.2.3.4")
         rq.context_id = 1
         rq.scu_role = req[0]
         rq.scp_role = req[1]
 
-        ac = build_context('1.2.3.4')
+        ac = build_context("1.2.3.4")
         ac.context_id = 1
         ac.result = 0x0000
-        ac_roles = {'1.2.3.4' : (acc[0], acc[1])}
+        ac_roles = {"1.2.3.4": (acc[0], acc[1])}
 
         result = negotiate_as_requestor([rq], [ac], ac_roles)
 
-        assert result[0].abstract_syntax == '1.2.3.4'
-        assert result[0].transfer_syntax[0] == '1.2.840.10008.1.2'
+        assert result[0].abstract_syntax == "1.2.3.4"
+        assert result[0].transfer_syntax[0] == "1.2.840.10008.1.2"
         assert result[0].as_scu == out[0]
         assert result[0].as_scp == out[1]
 
     def test_multiple_contexts_same_abstract(self):
         """Test that SCP/SCU role neg works with multiple contexts."""
-        rq_contexts = [build_context('1.2.3.4'), build_context('1.2.3.4')]
+        rq_contexts = [build_context("1.2.3.4"), build_context("1.2.3.4")]
         for ii, context in enumerate(rq_contexts):
             context.context_id = ii * 2 + 1
             context.scu_role = False
             context.scp_role = True
-        rq_contexts.append(build_context('1.2.3.4.5'))
+        rq_contexts.append(build_context("1.2.3.4.5"))
         rq_contexts[2].context_id = 5
 
         ac_roles = {}
-        ac = build_context('1.2.3.4')
+        ac = build_context("1.2.3.4")
         ac.context_id = 1
         ac.result = 0x0000
-        ac_roles['1.2.3.4'] = (False, True)
+        ac_roles["1.2.3.4"] = (False, True)
 
-        ac2 = build_context('1.2.3.4.1')
+        ac2 = build_context("1.2.3.4.1")
         ac2.context_id = 3
         ac2.result = 0x0000
-        ac_roles['1.2.3.4.1'] = (False, True)
+        ac_roles["1.2.3.4.1"] = (False, True)
 
-        ac3 = build_context('1.2.3.4.5')
+        ac3 = build_context("1.2.3.4.5")
         ac3.context_id = 5
         ac3.result = 0x0000
 
         result = negotiate_as_requestor(rq_contexts, [ac, ac2, ac3], ac_roles)
         assert len(result) == 3
         for context in result[:2]:
-            assert context.abstract_syntax == '1.2.3.4'
-            assert context.transfer_syntax[0] == '1.2.840.10008.1.2'
+            assert context.abstract_syntax == "1.2.3.4"
+            assert context.transfer_syntax[0] == "1.2.840.10008.1.2"
             assert context.as_scu == False
             assert context.as_scp == True
 
-        assert result[2].abstract_syntax == '1.2.3.4.5'
-        assert result[2].transfer_syntax[0] == '1.2.840.10008.1.2'
+        assert result[2].abstract_syntax == "1.2.3.4.5"
+        assert result[2].transfer_syntax[0] == "1.2.840.10008.1.2"
         assert result[2].as_scu == True
         assert result[2].as_scp == False
 
@@ -1053,7 +1084,7 @@ class TestNegotiateAsRequestorWithRoleSelection:
         context_a.context_id = 1
         context_b = build_context(CTImageStorage)
         context_b.context_id = 3
-        rq_roles = {CTImageStorage : (False, True)}
+        rq_roles = {CTImageStorage: (False, True)}
         rq_contexts = [context_a, context_b]
 
         # Acceptor
@@ -1088,7 +1119,7 @@ class TestNegotiateAsRequestorWithRoleSelection:
         # Requestor
         context_a = build_context(CTImageStorage)
         context_a.context_id = 3
-        rq_roles = {CTImageStorage : (True, False)}
+        rq_roles = {CTImageStorage: (True, False)}
         rq_contexts = [context_a]
 
         # Acceptor
@@ -1120,7 +1151,7 @@ class TestNegotiateAsRequestorWithRoleSelection:
         # Requestor
         context_a = build_context(CTImageStorage)
         context_a.context_id = 3
-        rq_roles = {CTImageStorage : (False, True)}
+        rq_roles = {CTImageStorage: (False, True)}
         rq_contexts = [context_a]
 
         # Acceptor
@@ -1156,37 +1187,37 @@ class TestNegotiateAsRequestorWithRoleSelection:
         ac_contexts = []
 
         # 0x00 - accepted
-        rq_contexts.append(build_context('1.1.1'))
-        rq_contexts.append(build_context('1.1.2'))
-        rq_contexts.append(build_context('1.1.2'))
-        rq_contexts.append(build_context('1.1.3'))
-        ac_contexts.append(build_context('1.1.1'))
-        ac_contexts.append(build_context('1.1.2'))
-        ac_contexts.append(build_context('1.1.3'))
+        rq_contexts.append(build_context("1.1.1"))
+        rq_contexts.append(build_context("1.1.2"))
+        rq_contexts.append(build_context("1.1.2"))
+        rq_contexts.append(build_context("1.1.3"))
+        ac_contexts.append(build_context("1.1.1"))
+        ac_contexts.append(build_context("1.1.2"))
+        ac_contexts.append(build_context("1.1.3"))
 
         # 0x01 - user rejected - only achievable with role selection
 
         # 0x02 - provider rejected - not achievable as acceptor
 
         # 0x03 - abstract syyntax not supported
-        rq_contexts.append(build_context('1.4.1'))
-        rq_contexts.append(build_context('1.4.2'))
-        rq_contexts.append(build_context('1.4.2'))
-        rq_contexts.append(build_context('1.4.3'))
+        rq_contexts.append(build_context("1.4.1"))
+        rq_contexts.append(build_context("1.4.2"))
+        rq_contexts.append(build_context("1.4.2"))
+        rq_contexts.append(build_context("1.4.3"))
 
         # 0x04 - transfer syntax not supported
-        rq_contexts.append(build_context('1.5.1', '1.2'))
-        rq_contexts.append(build_context('1.5.2', '1.2'))
-        rq_contexts.append(build_context('1.5.2', '1.2'))
-        rq_contexts.append(build_context('1.5.3', '1.2'))
-        ac_contexts.append(build_context('1.5.1'))
-        ac_contexts.append(build_context('1.5.2'))
-        ac_contexts.append(build_context('1.5.3'))
+        rq_contexts.append(build_context("1.5.1", "1.2"))
+        rq_contexts.append(build_context("1.5.2", "1.2"))
+        rq_contexts.append(build_context("1.5.2", "1.2"))
+        rq_contexts.append(build_context("1.5.3", "1.2"))
+        ac_contexts.append(build_context("1.5.1"))
+        ac_contexts.append(build_context("1.5.2"))
+        ac_contexts.append(build_context("1.5.3"))
 
         # Role selection
         rq_roles = {}
         # 0x00 - accepted and 0x01 - user rejected
-        for uid in ['2.1.1', '2.1.2', '2.1.2', '2.1.3']:
+        for uid in ["2.1.1", "2.1.2", "2.1.2", "2.1.3"]:
             rq_contexts.append(build_context(uid))
             rq_roles[uid] = (req[0], req[1])
             cx = build_context(uid)
@@ -1195,13 +1226,13 @@ class TestNegotiateAsRequestorWithRoleSelection:
             ac_contexts.append(cx)
 
         # 0x03 - abstract syntax not supported
-        for uid in ['2.4.1', '2.4.2', '2.4.2', '2.4.3']:
+        for uid in ["2.4.1", "2.4.2", "2.4.2", "2.4.3"]:
             rq_contexts.append(build_context(uid))
             rq_roles[uid] = (req[0], req[1])
 
         # 0x04 - transfer syntax not supported
-        for uid in ['2.5.1', '2.5.2', '2.5.2', '2.5.3']:
-            rq_contexts.append(build_context(uid, '1.2'))
+        for uid in ["2.5.1", "2.5.2", "2.5.2", "2.5.3"]:
+            rq_contexts.append(build_context(uid, "1.2"))
             rq_roles[uid] = (req[0], req[1])
             cx = build_context(uid)
             cx.scu_role = acc[0]
@@ -1215,11 +1246,11 @@ class TestNegotiateAsRequestorWithRoleSelection:
 
         ## TEST REQUESTOR NEGOTIATION
         for cx in rq_contexts:
-            if '2' == cx.abstract_syntax[0]:
+            if "2" == cx.abstract_syntax[0]:
                 cx.scu_role = req[0]
                 cx.scp_role = req[1]
 
-        roles = {rr.sop_class_uid : (rr.scu_role, rr.scp_role) for rr in roles}
+        roles = {rr.sop_class_uid: (rr.scu_role, rr.scp_role) for rr in roles}
         results = negotiate_as_requestor(rq_contexts, results, roles)
 
         out_00 = [cx for cx in results if cx.result == 0x00]
@@ -1234,7 +1265,7 @@ class TestNegotiateAsRequestorWithRoleSelection:
             assert len(out_01) == 0
 
             for cx in out_00:
-                if cx.abstract_syntax[0] == '2':
+                if cx.abstract_syntax[0] == "2":
                     assert cx.as_scu == out[0]
                     assert cx.as_scp == out[1]
                 else:
@@ -1253,15 +1284,15 @@ class TestNegotiateAsRequestorWithRoleSelection:
     def test_one_role_only_scu(self):
         """Test only specifying scu_role in the role selection."""
         ae = AE()
-        ae.add_supported_context('1.2.840.10008.1.1', scu_role=True, scp_role=True)
-        ae.add_requested_context('1.2.840.10008.1.1')
-        scp = ae.start_server(('', 11112), block=False)
+        ae.add_supported_context("1.2.840.10008.1.1", scu_role=True, scp_role=True)
+        ae.add_requested_context("1.2.840.10008.1.1")
+        scp = ae.start_server(("", 11112), block=False)
 
         role = SCP_SCU_RoleSelectionNegotiation()
-        role.sop_class_uid = '1.2.840.10008.1.1'
+        role.sop_class_uid = "1.2.840.10008.1.1"
         role.scu_role = True
 
-        assoc = ae.associate('localhost', 11112, ext_neg=[role])
+        assoc = ae.associate("localhost", 11112, ext_neg=[role])
         assert assoc.is_established
         cx = assoc.accepted_contexts[0]
         assert cx.as_scu is True
@@ -1273,15 +1304,15 @@ class TestNegotiateAsRequestorWithRoleSelection:
     def test_one_role_only_scp(self):
         """Test only specifying scp_role in the role selection."""
         ae = AE()
-        ae.add_supported_context('1.2.840.10008.1.1', scu_role=True, scp_role=True)
-        ae.add_requested_context('1.2.840.10008.1.1')
-        scp = ae.start_server(('', 11112), block=False)
+        ae.add_supported_context("1.2.840.10008.1.1", scu_role=True, scp_role=True)
+        ae.add_requested_context("1.2.840.10008.1.1")
+        scp = ae.start_server(("", 11112), block=False)
 
         role = SCP_SCU_RoleSelectionNegotiation()
-        role.sop_class_uid = '1.2.840.10008.1.1'
+        role.sop_class_uid = "1.2.840.10008.1.1"
         role.scp_role = True
 
-        assoc = ae.associate('localhost', 11112, ext_neg=[role])
+        assoc = ae.associate("localhost", 11112, ext_neg=[role])
         assert assoc.is_established
         cx = assoc.accepted_contexts[0]
         assert cx.as_scu is False
@@ -1293,6 +1324,7 @@ class TestNegotiateAsRequestorWithRoleSelection:
 
 class TestNegotiateAsRequestor:
     """Tests negotiate_as_requestor."""
+
     def setup(self):
         self.test_acc = negotiate_as_acceptor
         self.test_func = negotiate_as_requestor
@@ -1306,15 +1338,15 @@ class TestNegotiateAsRequestor:
         """Test negotiation with one requestor, no acceptor contexts."""
         context = PresentationContext()
         context.context_id = 1
-        context.abstract_syntax = '1.2.840.10008.5.1.4.1.1.2'
-        context.transfer_syntax = ['1.2.840.10008.1.2']
+        context.abstract_syntax = "1.2.840.10008.5.1.4.1.1.2"
+        context.transfer_syntax = ["1.2.840.10008.1.2"]
         result = self.test_func([context], [])
 
         assert len(result) == 1
         context = result[0]
         assert context.context_id == 1
-        assert context.abstract_syntax == '1.2.840.10008.5.1.4.1.1.2'
-        assert context.transfer_syntax[0] == '1.2.840.10008.1.2'
+        assert context.abstract_syntax == "1.2.840.10008.5.1.4.1.1.2"
+        assert context.transfer_syntax[0] == "1.2.840.10008.1.2"
         assert len(context.transfer_syntax) == 1
         assert context.result == 0x02
 
@@ -1322,8 +1354,8 @@ class TestNegotiateAsRequestor:
         """Test negotiation with no requestor, one acceptor contexts."""
         context = PresentationContext()
         context.context_id = 1
-        context.abstract_syntax = '1.2.840.10008.5.1.4.1.1.2'
-        context.transfer_syntax = ['1.2.840.10008.1.2']
+        context.abstract_syntax = "1.2.840.10008.5.1.4.1.1.2"
+        context.transfer_syntax = ["1.2.840.10008.1.2"]
         with pytest.raises(ValueError):
             result = self.test_func([], [context])
 
@@ -1331,18 +1363,18 @@ class TestNegotiateAsRequestor:
         """Test negotiation with duplicate requestor, no acceptor contexts."""
         context_a = PresentationContext()
         context_a.context_id = 1
-        context_a.abstract_syntax = '1.2.840.10008.5.1.4.1.1.2'
-        context_a.transfer_syntax = ['1.2.840.10008.1.2']
+        context_a.abstract_syntax = "1.2.840.10008.5.1.4.1.1.2"
+        context_a.transfer_syntax = ["1.2.840.10008.1.2"]
 
         context_b = PresentationContext()
         context_b.context_id = 3
-        context_b.abstract_syntax = '1.2.840.10008.5.1.4.1.1.2'
-        context_b.transfer_syntax = ['1.2.840.10008.1.2.1']
+        context_b.abstract_syntax = "1.2.840.10008.5.1.4.1.1.2"
+        context_b.transfer_syntax = ["1.2.840.10008.1.2.1"]
 
         context_c = PresentationContext()
         context_c.context_id = 5
-        context_c.abstract_syntax = '1.2.840.10008.5.1.4.1.1.2'
-        context_c.transfer_syntax = ['1.2.840.10008.1.2.2']
+        context_c.abstract_syntax = "1.2.840.10008.5.1.4.1.1.2"
+        context_c.transfer_syntax = ["1.2.840.10008.1.2.2"]
 
         rq_contexts = [context_a, context_b, context_c]
         acc_contexts, roles = self.test_acc(rq_contexts, [])
@@ -1355,30 +1387,28 @@ class TestNegotiateAsRequestor:
         assert len(result) == 3
         for context in result:
             assert context.context_id in [1, 3, 5]
-            assert context.abstract_syntax == '1.2.840.10008.5.1.4.1.1.2'
+            assert context.abstract_syntax == "1.2.840.10008.5.1.4.1.1.2"
             assert context.result == 0x03
 
     def test_dupe_abs_req(self):
         """Test negotiation with duplicate requestor, no acceptor contexts."""
         context_a = PresentationContext()
         context_a.context_id = 1
-        context_a.abstract_syntax = '1.2.840.10008.5.1.4.1.1.2'
-        context_a.transfer_syntax = ['1.2.840.10008.1.2']
+        context_a.abstract_syntax = "1.2.840.10008.5.1.4.1.1.2"
+        context_a.transfer_syntax = ["1.2.840.10008.1.2"]
 
         context_b = PresentationContext()
         context_b.context_id = 3
-        context_b.abstract_syntax = '1.2.840.10008.5.1.4.1.1.2'
-        context_b.transfer_syntax = ['1.2.840.10008.1.2.1']
+        context_b.abstract_syntax = "1.2.840.10008.5.1.4.1.1.2"
+        context_b.transfer_syntax = ["1.2.840.10008.1.2.1"]
 
         context_c = PresentationContext()
         context_c.context_id = 5
-        context_c.abstract_syntax = '1.2.840.10008.5.1.4.1.1.2'
-        context_c.transfer_syntax = ['1.2.840.10008.1.2.2']
-        t_syntax = ['1.2.840.10008.1.2',
-                    '1.2.840.10008.1.2.1',
-                    '1.2.840.10008.1.2.2']
+        context_c.abstract_syntax = "1.2.840.10008.5.1.4.1.1.2"
+        context_c.transfer_syntax = ["1.2.840.10008.1.2.2"]
+        t_syntax = ["1.2.840.10008.1.2", "1.2.840.10008.1.2.1", "1.2.840.10008.1.2.2"]
         context_d = PresentationContext()
-        context_d.abstract_syntax = '1.2.840.10008.5.1.4.1.1.2'
+        context_d.abstract_syntax = "1.2.840.10008.5.1.4.1.1.2"
         context_d.transfer_syntax = t_syntax
 
         rq_contexts = [context_a, context_b, context_c]
@@ -1392,7 +1422,7 @@ class TestNegotiateAsRequestor:
         assert len(result) == 3
         for ii, context in enumerate(result):
             assert context.context_id in [1, 3, 5]
-            assert context.abstract_syntax == '1.2.840.10008.5.1.4.1.1.2'
+            assert context.abstract_syntax == "1.2.840.10008.5.1.4.1.1.2"
             assert context.result == 0x00
             assert context.transfer_syntax == [t_syntax[ii]]
 
@@ -1400,8 +1430,8 @@ class TestNegotiateAsRequestor:
         """Test negotiation one req/acc, matching accepted."""
         context = PresentationContext()
         context.context_id = 1
-        context.abstract_syntax = '1.2.840.10008.5.1.4.1.1.2'
-        context.transfer_syntax = ['1.2.840.10008.1.2']
+        context.abstract_syntax = "1.2.840.10008.5.1.4.1.1.2"
+        context.transfer_syntax = ["1.2.840.10008.1.2"]
 
         rq_contexts = [context]
         acc_contexts, roles = self.test_acc([context], [context])
@@ -1414,18 +1444,20 @@ class TestNegotiateAsRequestor:
         assert len(result) == 1
         context = result[0]
         assert context.context_id == 1
-        assert context.abstract_syntax == '1.2.840.10008.5.1.4.1.1.2'
+        assert context.abstract_syntax == "1.2.840.10008.5.1.4.1.1.2"
         assert context.result == 0x00
-        assert context.transfer_syntax == ['1.2.840.10008.1.2']
+        assert context.transfer_syntax == ["1.2.840.10008.1.2"]
 
     def test_one_req_one_acc_accept_trans(self):
         """Test negotiation one req/acc, matching accepted, multi trans."""
         context = PresentationContext()
         context.context_id = 1
-        context.abstract_syntax = '1.2.840.10008.5.1.4.1.1.2'
-        context.transfer_syntax = ['1.2.840.10008.1.2',
-                                   '1.2.840.10008.1.2.1',
-                                   '1.2.840.10008.1.2.2']
+        context.abstract_syntax = "1.2.840.10008.5.1.4.1.1.2"
+        context.transfer_syntax = [
+            "1.2.840.10008.1.2",
+            "1.2.840.10008.1.2.1",
+            "1.2.840.10008.1.2.2",
+        ]
         rq_contexts = [context]
         acc_contexts, roles = self.test_acc([context], [context])
 
@@ -1436,21 +1468,23 @@ class TestNegotiateAsRequestor:
         assert len(result) == 1
         context = result[0]
         assert context.context_id == 1
-        assert context.abstract_syntax == '1.2.840.10008.5.1.4.1.1.2'
+        assert context.abstract_syntax == "1.2.840.10008.5.1.4.1.1.2"
         assert context.result == 0x00
-        assert context.transfer_syntax == ['1.2.840.10008.1.2']
+        assert context.transfer_syntax == ["1.2.840.10008.1.2"]
 
     def test_one_req_one_acc_accept_trans_diff(self):
         """Test negotiation one req/acc, matching accepted, multi trans."""
         context_a = PresentationContext()
         context_a.context_id = 1
-        context_a.abstract_syntax = '1.2.840.10008.5.1.4.1.1.2'
-        context_a.transfer_syntax = ['1.2.840.10008.1.2',
-                                   '1.2.840.10008.1.2.1',
-                                   '1.2.840.10008.1.2.2']
+        context_a.abstract_syntax = "1.2.840.10008.5.1.4.1.1.2"
+        context_a.transfer_syntax = [
+            "1.2.840.10008.1.2",
+            "1.2.840.10008.1.2.1",
+            "1.2.840.10008.1.2.2",
+        ]
         context_b = PresentationContext()
-        context_b.abstract_syntax = '1.2.840.10008.5.1.4.1.1.2'
-        context_b.transfer_syntax = ['1.2.840.10008.1.2.2']
+        context_b.abstract_syntax = "1.2.840.10008.5.1.4.1.1.2"
+        context_b.transfer_syntax = ["1.2.840.10008.1.2.2"]
         rq_contexts = [context_a]
         acc_contexts, roles = self.test_acc(rq_contexts, [context_b])
 
@@ -1462,20 +1496,19 @@ class TestNegotiateAsRequestor:
         assert len(result) == 1
         context = result[0]
         assert context.context_id == 1
-        assert context.abstract_syntax == '1.2.840.10008.5.1.4.1.1.2'
+        assert context.abstract_syntax == "1.2.840.10008.5.1.4.1.1.2"
         assert context.result == 0x00
-        assert context.transfer_syntax == ['1.2.840.10008.1.2.2']
+        assert context.transfer_syntax == ["1.2.840.10008.1.2.2"]
 
     def test_one_req_one_acc_reject_trans(self):
         """Test negotiation one req/acc, matching rejected trans"""
         context_a = PresentationContext()
         context_a.context_id = 1
-        context_a.abstract_syntax = '1.2.840.10008.5.1.4.1.1.2'
-        context_a.transfer_syntax = ['1.2.840.10008.1.2',
-                                     '1.2.840.10008.1.2.1']
+        context_a.abstract_syntax = "1.2.840.10008.5.1.4.1.1.2"
+        context_a.transfer_syntax = ["1.2.840.10008.1.2", "1.2.840.10008.1.2.1"]
         context_b = PresentationContext()
-        context_b.abstract_syntax = '1.2.840.10008.5.1.4.1.1.2'
-        context_b.transfer_syntax = ['1.2.840.10008.1.2.2']
+        context_b.abstract_syntax = "1.2.840.10008.5.1.4.1.1.2"
+        context_b.transfer_syntax = ["1.2.840.10008.1.2.2"]
         rq_contexts = [context_a]
         acc_contexts, roles = self.test_acc(rq_contexts, [context_b])
 
@@ -1487,19 +1520,18 @@ class TestNegotiateAsRequestor:
         assert len(result) == 1
         context = result[0]
         assert context.context_id == 1
-        assert context.abstract_syntax == '1.2.840.10008.5.1.4.1.1.2'
+        assert context.abstract_syntax == "1.2.840.10008.5.1.4.1.1.2"
         assert context.result == 0x04
 
     def test_one_req_one_acc_mismatch(self):
         """Test negotiation one req/acc, mismatched rejected"""
         context_a = PresentationContext()
         context_a.context_id = 1
-        context_a.abstract_syntax = '1.2.840.10008.5.1.4.1.1.2'
-        context_a.transfer_syntax = ['1.2.840.10008.1.2',
-                                     '1.2.840.10008.1.2.1']
+        context_a.abstract_syntax = "1.2.840.10008.5.1.4.1.1.2"
+        context_a.transfer_syntax = ["1.2.840.10008.1.2", "1.2.840.10008.1.2.1"]
         context_b = PresentationContext()
-        context_b.abstract_syntax = '1.2.840.10008.5.1.4.1.1.4'
-        context_b.transfer_syntax = ['1.2.840.10008.1.2.1']
+        context_b.abstract_syntax = "1.2.840.10008.5.1.4.1.1.4"
+        context_b.transfer_syntax = ["1.2.840.10008.1.2.1"]
         rq_contexts = [context_a]
         acc_contexts, roles = self.test_acc(rq_contexts, [context_b])
 
@@ -1511,19 +1543,18 @@ class TestNegotiateAsRequestor:
         assert len(result) == 1
         context = result[0]
         assert context.context_id == 1
-        assert context.abstract_syntax == '1.2.840.10008.5.1.4.1.1.2'
+        assert context.abstract_syntax == "1.2.840.10008.5.1.4.1.1.2"
         assert context.result == 0x03
 
     def test_private_transfer_syntax(self):
         """Test negotiation with private transfer syntax"""
         context_a = PresentationContext()
         context_a.context_id = 1
-        context_a.abstract_syntax = '1.2.840.10008.5.1.4.1.1.2'
-        context_a.transfer_syntax = ['1.2.3.4']
+        context_a.abstract_syntax = "1.2.840.10008.5.1.4.1.1.2"
+        context_a.transfer_syntax = ["1.2.3.4"]
         context_b = PresentationContext()
-        context_b.abstract_syntax = '1.2.840.10008.5.1.4.1.1.2'
-        context_b.transfer_syntax = ['1.2.840.10008.1.2.1',
-                                     '1.2.3.4']
+        context_b.abstract_syntax = "1.2.840.10008.5.1.4.1.1.2"
+        context_b.transfer_syntax = ["1.2.840.10008.1.2.1", "1.2.3.4"]
 
         acc_contexts, roles = self.test_acc([context_a], [context_b])
 
@@ -1535,19 +1566,19 @@ class TestNegotiateAsRequestor:
         assert len(result) == 1
         context = result[0]
         assert context.context_id == 1
-        assert context.abstract_syntax == '1.2.840.10008.5.1.4.1.1.2'
+        assert context.abstract_syntax == "1.2.840.10008.5.1.4.1.1.2"
         assert context.result == 0x00
-        assert context.transfer_syntax == ['1.2.3.4']
+        assert context.transfer_syntax == ["1.2.3.4"]
 
     def test_private_abstract_syntax(self):
         """Test negotiation with private abstract syntax"""
         context_a = PresentationContext()
         context_a.context_id = 1
-        context_a.abstract_syntax = '1.2.3.4'
-        context_a.transfer_syntax = ['1.2.840.10008.1.2.1']
+        context_a.abstract_syntax = "1.2.3.4"
+        context_a.transfer_syntax = ["1.2.840.10008.1.2.1"]
         context_b = PresentationContext()
-        context_b.abstract_syntax = '1.2.3.4'
-        context_b.transfer_syntax = ['1.2.840.10008.1.2.1']
+        context_b.abstract_syntax = "1.2.3.4"
+        context_b.transfer_syntax = ["1.2.840.10008.1.2.1"]
         rq_contexts = [context_a]
         acc_contexts, roles = self.test_acc(rq_contexts, [context_b])
 
@@ -1559,11 +1590,11 @@ class TestNegotiateAsRequestor:
         assert len(result) == 1
         context = result[0]
         assert context.context_id == 1
-        assert context.abstract_syntax == '1.2.3.4'
+        assert context.abstract_syntax == "1.2.3.4"
         assert context.result == 0x00
-        assert context.transfer_syntax == ['1.2.840.10008.1.2.1']
+        assert context.transfer_syntax == ["1.2.840.10008.1.2.1"]
 
-    @pytest.mark.skipif(PYDICOM_VERSION < ['2', '2'], reason="Old data dict")
+    @pytest.mark.skipif(PYDICOM_VERSION < ["2", "2"], reason="Old data dict")
     def test_typical(self):
         """Test a typical set of presentation context negotiations."""
         req_contexts = []
@@ -1571,18 +1602,22 @@ class TestNegotiateAsRequestor:
             pc = PresentationContext()
             pc.context_id = ii * 2 + 1
             pc.abstract_syntax = context.abstract_syntax
-            pc.transfer_syntax = ['1.2.840.10008.1.2',
-                                  '1.2.840.10008.1.2.1',
-                                  '1.2.840.10008.1.2.2']
+            pc.transfer_syntax = [
+                "1.2.840.10008.1.2",
+                "1.2.840.10008.1.2.1",
+                "1.2.840.10008.1.2.2",
+            ]
             req_contexts.append(pc)
 
         acc_contexts = []
         for uid in UID_dictionary:
             pc = PresentationContext()
             pc.abstract_syntax = uid
-            pc.transfer_syntax = ['1.2.840.10008.1.2',
-                                  '1.2.840.10008.1.2.1',
-                                  '1.2.840.10008.1.2.2']
+            pc.transfer_syntax = [
+                "1.2.840.10008.1.2",
+                "1.2.840.10008.1.2.1",
+                "1.2.840.10008.1.2.2",
+            ]
             acc_contexts.append(pc)
 
         acc_contexts, roles = self.test_acc(req_contexts, acc_contexts)
@@ -1596,33 +1631,31 @@ class TestNegotiateAsRequestor:
         for ii, context in enumerate(req_contexts):
             assert results[ii].context_id == context.context_id
             assert results[ii].abstract_syntax == context.abstract_syntax
-            if results[ii].abstract_syntax == '1.2.840.10008.5.1.4.1.1.1.1.1.1':
+            if results[ii].abstract_syntax == "1.2.840.10008.5.1.4.1.1.1.1.1.1":
                 assert results[ii].result == 0x03
-            elif results[ii].abstract_syntax == '1.2.840.10008.5.1.1.4.1.1.3.1':
+            elif results[ii].abstract_syntax == "1.2.840.10008.5.1.1.4.1.1.3.1":
                 assert results[ii].result == 0x03
             else:
                 assert results[ii].result == 0x00
-                assert results[ii].transfer_syntax == ['1.2.840.10008.1.2']
+                assert results[ii].transfer_syntax == ["1.2.840.10008.1.2"]
 
     def test_acceptor_empty_context(self):
         """Test negotiation when the acceptor cx has no transfer syntax."""
         # Requestor contexts
         context_a = PresentationContext()
         context_a.context_id = 1
-        context_a.abstract_syntax = '1.2.840.10008.5.1.4.1.1.2'
-        context_a.transfer_syntax = ['1.2.840.10008.1.2',
-                                     '1.2.840.10008.1.2.1']
+        context_a.abstract_syntax = "1.2.840.10008.5.1.4.1.1.2"
+        context_a.transfer_syntax = ["1.2.840.10008.1.2", "1.2.840.10008.1.2.1"]
         context_b = PresentationContext()
         context_b.context_id = 3
-        context_b.abstract_syntax = '1.2.840.10008.5.1.4.1.1.2.1'
-        context_b.transfer_syntax = ['1.2.840.10008.1.2',
-                                     '1.2.840.10008.1.2.1']
+        context_b.abstract_syntax = "1.2.840.10008.5.1.4.1.1.2.1"
+        context_b.transfer_syntax = ["1.2.840.10008.1.2", "1.2.840.10008.1.2.1"]
         rq_contexts = [context_a, context_b]
 
         # Acceptor contexts
         context_c = PresentationContext()
         context_c.context_id = 1
-        context_c.transfer_syntax = ['1.2.840.10008.1.2']
+        context_c.transfer_syntax = ["1.2.840.10008.1.2"]
         context_c.result = 0x00
 
         context_d = PresentationContext()
@@ -1637,16 +1670,17 @@ class TestNegotiateAsRequestor:
         assert len(result) == 2
         context = result[0]
         assert context.context_id == 1
-        assert context.abstract_syntax == '1.2.840.10008.5.1.4.1.1.2'
+        assert context.abstract_syntax == "1.2.840.10008.5.1.4.1.1.2"
         assert context.result == 0x00
         context = result[1]
         assert context.context_id == 3
-        assert context.abstract_syntax == '1.2.840.10008.5.1.4.1.1.2.1'
+        assert context.abstract_syntax == "1.2.840.10008.5.1.4.1.1.2.1"
         assert context.result == 0x01
 
 
 class TestNegotiateUnrestricted:
     """Tests for presentation.negotiate_unrestricted()"""
+
     def setup(self):
         self.test_func = negotiate_unrestricted
 
@@ -1658,47 +1692,47 @@ class TestNegotiateUnrestricted:
         """Test negotiation with one requestor, no acceptor contexts."""
         context = PresentationContext()
         context.context_id = 1
-        context.abstract_syntax = '1.2.840.10008.1.1'
-        context.transfer_syntax = ['1.2.840.10008.1.2']
+        context.abstract_syntax = "1.2.840.10008.1.1"
+        context.transfer_syntax = ["1.2.840.10008.1.2"]
         result, roles = self.test_func([context], [])
 
         assert len(result) == 1
         assert roles == []
         context = result[0]
         assert context.context_id == 1
-        assert context.abstract_syntax == '1.2.840.10008.1.1'
-        assert context.transfer_syntax == ['1.2.840.10008.1.2']
+        assert context.abstract_syntax == "1.2.840.10008.1.1"
+        assert context.transfer_syntax == ["1.2.840.10008.1.2"]
         assert context.result == 0x03
 
     def test_non_storage_match(self):
         """Test negotiation one req/acc, matching accepted."""
         context = PresentationContext()
         context.context_id = 1
-        context.abstract_syntax = '1.2.840.10008.1.1'
-        context.transfer_syntax = ['1.2.840.10008.1.2']
+        context.abstract_syntax = "1.2.840.10008.1.1"
+        context.transfer_syntax = ["1.2.840.10008.1.2"]
         result, roles = self.test_func([context], [context])
         assert len(result) == 1
         assert roles == []
         context = result[0]
         assert context.context_id == 1
-        assert context.abstract_syntax == '1.2.840.10008.1.1'
+        assert context.abstract_syntax == "1.2.840.10008.1.1"
         assert context.result == 0x00
-        assert context.transfer_syntax == ['1.2.840.10008.1.2']
+        assert context.transfer_syntax == ["1.2.840.10008.1.2"]
         assert context.as_scu == False
         assert context.as_scp == True
 
     def test_storage(self):
         """Test storage likes"""
         uids = [
-            '1.2.3.4',   # private
-            '1.2.840.10008.1.1.1.1.1.1.1.1.1.1.1',  # unknown public
-            '1.2.840.10008.5.1.4.1.1.1',  # known storage
+            "1.2.3.4",  # private
+            "1.2.840.10008.1.1.1.1.1.1.1.1.1.1.1",  # unknown public
+            "1.2.840.10008.5.1.4.1.1.1",  # known storage
         ]
         for uid in uids:
             context = PresentationContext()
             context.context_id = 1
             context.abstract_syntax = uid
-            context.transfer_syntax = ['1.2.840.10008.1.2']
+            context.transfer_syntax = ["1.2.840.10008.1.2"]
             result, roles = self.test_func([context], [])
             assert len(result) == 1
             assert roles == []
@@ -1706,7 +1740,7 @@ class TestNegotiateUnrestricted:
             assert context.context_id == 1
             assert context.abstract_syntax == uid
             assert context.result == 0x00
-            assert context.transfer_syntax == ['1.2.840.10008.1.2']
+            assert context.transfer_syntax == ["1.2.840.10008.1.2"]
             assert context.as_scu
             assert context.as_scp
 
@@ -1714,22 +1748,20 @@ class TestNegotiateUnrestricted:
         """Test negotiation with duplicate requests"""
         context_a = PresentationContext()
         context_a.context_id = 1
-        context_a.abstract_syntax = '1.2.840.10008.5.1.4.1.1.1'
-        context_a.transfer_syntax = ['1.2.840.10008.1.2']
+        context_a.abstract_syntax = "1.2.840.10008.5.1.4.1.1.1"
+        context_a.transfer_syntax = ["1.2.840.10008.1.2"]
 
         context_b = PresentationContext()
         context_b.context_id = 3
-        context_b.abstract_syntax = '1.2.840.10008.5.1.4.1.1.1'
-        context_b.transfer_syntax = ['1.2.840.10008.1.2.1']
+        context_b.abstract_syntax = "1.2.840.10008.5.1.4.1.1.1"
+        context_b.transfer_syntax = ["1.2.840.10008.1.2.1"]
 
         context_c = PresentationContext()
         context_c.context_id = 5
-        context_c.abstract_syntax = '1.2.840.10008.5.1.4.1.1.1'
-        context_c.transfer_syntax = ['1.2.840.10008.1.2.2']
+        context_c.abstract_syntax = "1.2.840.10008.5.1.4.1.1.1"
+        context_c.transfer_syntax = ["1.2.840.10008.1.2.2"]
 
-        t_syntax = [
-            '1.2.840.10008.1.2', '1.2.840.10008.1.2.1', '1.2.840.10008.1.2.2'
-        ]
+        t_syntax = ["1.2.840.10008.1.2", "1.2.840.10008.1.2.1", "1.2.840.10008.1.2.2"]
 
         context_list = [context_a, context_b, context_c]
         result, roles = self.test_func(context_list, [])
@@ -1737,7 +1769,7 @@ class TestNegotiateUnrestricted:
         assert roles == []
         for ii, context in enumerate(result):
             assert context.context_id in [1, 3, 5]
-            assert context.abstract_syntax == '1.2.840.10008.5.1.4.1.1.1'
+            assert context.abstract_syntax == "1.2.840.10008.5.1.4.1.1.1"
             assert context.result == 0x00
             assert context.transfer_syntax == [t_syntax[ii]]
             assert context.as_scu
@@ -1747,19 +1779,17 @@ class TestNegotiateUnrestricted:
         """Test role selection negotiation."""
         context = PresentationContext()
         context.context_id = 1
-        context.abstract_syntax = '1.2.3'
-        context.transfer_syntax = ['1.2.840.10008.1.2']
+        context.abstract_syntax = "1.2.3"
+        context.transfer_syntax = ["1.2.840.10008.1.2"]
 
-        result, roles = self.test_func(
-            [context], [context], {'1.2.3': (False, False)}
-        )
+        result, roles = self.test_func([context], [context], {"1.2.3": (False, False)})
 
         assert len(result) == 1
         context = result[0]
         assert context.context_id == 1
-        assert context.abstract_syntax == '1.2.3'
+        assert context.abstract_syntax == "1.2.3"
         assert context.result == 0x00
-        assert context.transfer_syntax == ['1.2.840.10008.1.2']
+        assert context.transfer_syntax == ["1.2.840.10008.1.2"]
         assert context.as_scu == False
         assert context.as_scp == False
 
@@ -1774,19 +1804,17 @@ class TestNegotiateUnrestricted:
         """Test role selection negotiation."""
         context = PresentationContext()
         context.context_id = 1
-        context.abstract_syntax = '1.2.3'
-        context.transfer_syntax = ['1.2.840.10008.1.2']
+        context.abstract_syntax = "1.2.3"
+        context.transfer_syntax = ["1.2.840.10008.1.2"]
 
-        result, roles = self.test_func(
-            [context], [context], {'1.2.3': (False, True)}
-        )
+        result, roles = self.test_func([context], [context], {"1.2.3": (False, True)})
 
         assert len(result) == 1
         context = result[0]
         assert context.context_id == 1
-        assert context.abstract_syntax == '1.2.3'
+        assert context.abstract_syntax == "1.2.3"
         assert context.result == 0x00
-        assert context.transfer_syntax == ['1.2.840.10008.1.2']
+        assert context.transfer_syntax == ["1.2.840.10008.1.2"]
         assert context.as_scu == True
         assert context.as_scp == False
 
@@ -1801,19 +1829,17 @@ class TestNegotiateUnrestricted:
         """Test role selection negotiation."""
         context = PresentationContext()
         context.context_id = 1
-        context.abstract_syntax = '1.2.3'
-        context.transfer_syntax = ['1.2.840.10008.1.2']
+        context.abstract_syntax = "1.2.3"
+        context.transfer_syntax = ["1.2.840.10008.1.2"]
 
-        result, roles = self.test_func(
-            [context], [context], {'1.2.3': (True, True)}
-        )
+        result, roles = self.test_func([context], [context], {"1.2.3": (True, True)})
 
         assert len(result) == 1
         context = result[0]
         assert context.context_id == 1
-        assert context.abstract_syntax == '1.2.3'
+        assert context.abstract_syntax == "1.2.3"
         assert context.result == 0x00
-        assert context.transfer_syntax == ['1.2.840.10008.1.2']
+        assert context.transfer_syntax == ["1.2.840.10008.1.2"]
         assert context.as_scu == True
         assert context.as_scp == True
 
@@ -1828,19 +1854,17 @@ class TestNegotiateUnrestricted:
         """Test role selection negotiation."""
         context = PresentationContext()
         context.context_id = 1
-        context.abstract_syntax = '1.2.3'
-        context.transfer_syntax = ['1.2.840.10008.1.2']
+        context.abstract_syntax = "1.2.3"
+        context.transfer_syntax = ["1.2.840.10008.1.2"]
 
-        result, roles = self.test_func(
-            [context], [context], {'1.2.3': (True, False)}
-        )
+        result, roles = self.test_func([context], [context], {"1.2.3": (True, False)})
 
         assert len(result) == 1
         context = result[0]
         assert context.context_id == 1
-        assert context.abstract_syntax == '1.2.3'
+        assert context.abstract_syntax == "1.2.3"
         assert context.result == 0x00
-        assert context.transfer_syntax == ['1.2.840.10008.1.2']
+        assert context.transfer_syntax == ["1.2.840.10008.1.2"]
         assert context.as_scu == False
         assert context.as_scp == True
 
@@ -1855,31 +1879,31 @@ class TestNegotiateUnrestricted:
 def test_default_transfer_syntaxes():
     """Test that the default transfer syntaxes are correct."""
     assert len(DEFAULT_TRANSFER_SYNTAXES) == 4
-    assert '1.2.840.10008.1.2' in DEFAULT_TRANSFER_SYNTAXES
-    assert '1.2.840.10008.1.2.1' in DEFAULT_TRANSFER_SYNTAXES
-    assert '1.2.840.10008.1.2.1.99' in DEFAULT_TRANSFER_SYNTAXES
-    assert '1.2.840.10008.1.2.2' in DEFAULT_TRANSFER_SYNTAXES
+    assert "1.2.840.10008.1.2" in DEFAULT_TRANSFER_SYNTAXES
+    assert "1.2.840.10008.1.2.1" in DEFAULT_TRANSFER_SYNTAXES
+    assert "1.2.840.10008.1.2.1.99" in DEFAULT_TRANSFER_SYNTAXES
+    assert "1.2.840.10008.1.2.2" in DEFAULT_TRANSFER_SYNTAXES
 
 
 def test_build_context():
     """Test build_context()"""
-    context = build_context('1.2.840.10008.1.1')
-    assert context.abstract_syntax == '1.2.840.10008.1.1'
+    context = build_context("1.2.840.10008.1.1")
+    assert context.abstract_syntax == "1.2.840.10008.1.1"
     assert context.transfer_syntax == DEFAULT_TRANSFER_SYNTAXES
     assert context.context_id is None
 
-    context = build_context('1.2.840.10008.1.1', ['1.2.3', '4.5.6'])
-    assert context.abstract_syntax == '1.2.840.10008.1.1'
-    assert context.transfer_syntax == ['1.2.3', '4.5.6']
+    context = build_context("1.2.840.10008.1.1", ["1.2.3", "4.5.6"])
+    assert context.abstract_syntax == "1.2.840.10008.1.1"
+    assert context.transfer_syntax == ["1.2.3", "4.5.6"]
     assert context.context_id is None
 
-    context = build_context('1.2.840.10008.1.1', '12.3')
-    assert context.abstract_syntax == '1.2.840.10008.1.1'
-    assert context.transfer_syntax == ['12.3']
+    context = build_context("1.2.840.10008.1.1", "12.3")
+    assert context.abstract_syntax == "1.2.840.10008.1.1"
+    assert context.transfer_syntax == ["12.3"]
     assert context.context_id is None
 
     context = build_context(Verification)
-    assert context.abstract_syntax == '1.2.840.10008.1.1'
+    assert context.abstract_syntax == "1.2.840.10008.1.1"
     assert context.transfer_syntax == DEFAULT_TRANSFER_SYNTAXES
     assert context.context_id is None
 
@@ -1894,8 +1918,8 @@ class TestServiceContexts:
             assert context.transfer_syntax == DEFAULT_TRANSFER_SYNTAXES
             assert context.context_id is None
 
-        assert contexts[0].abstract_syntax == '1.2.840.10008.1.40'
-        assert contexts[1].abstract_syntax == '1.2.840.10008.1.42'
+        assert contexts[0].abstract_syntax == "1.2.840.10008.1.40"
+        assert contexts[1].abstract_syntax == "1.2.840.10008.1.42"
 
     def test_basic_worklist(self):
         """Test the basic worklist service presentation contexts."""
@@ -1904,7 +1928,7 @@ class TestServiceContexts:
 
         assert contexts[0].transfer_syntax == DEFAULT_TRANSFER_SYNTAXES
         assert contexts[0].context_id is None
-        assert contexts[0].abstract_syntax == '1.2.840.10008.5.1.4.31'
+        assert contexts[0].abstract_syntax == "1.2.840.10008.5.1.4.31"
 
     def test_color_palette(self):
         """Tests with color palette presentation contexts"""
@@ -1915,9 +1939,9 @@ class TestServiceContexts:
             assert context.transfer_syntax == DEFAULT_TRANSFER_SYNTAXES
             assert context.context_id is None
 
-        assert contexts[0].abstract_syntax == '1.2.840.10008.5.1.4.39.2'
-        assert contexts[1].abstract_syntax == '1.2.840.10008.5.1.4.39.3'
-        assert contexts[2].abstract_syntax == '1.2.840.10008.5.1.4.39.4'
+        assert contexts[0].abstract_syntax == "1.2.840.10008.5.1.4.39.2"
+        assert contexts[1].abstract_syntax == "1.2.840.10008.5.1.4.39.3"
+        assert contexts[2].abstract_syntax == "1.2.840.10008.5.1.4.39.4"
 
     def test_defined_procedure(self):
         """Tests with defined procedure protocol presentation contexts"""
@@ -1928,9 +1952,9 @@ class TestServiceContexts:
             assert context.transfer_syntax == DEFAULT_TRANSFER_SYNTAXES
             assert context.context_id is None
 
-        assert contexts[0].abstract_syntax == '1.2.840.10008.5.1.4.20.1'
-        assert contexts[1].abstract_syntax == '1.2.840.10008.5.1.4.20.2'
-        assert contexts[2].abstract_syntax == '1.2.840.10008.5.1.4.20.3'
+        assert contexts[0].abstract_syntax == "1.2.840.10008.5.1.4.20.1"
+        assert contexts[1].abstract_syntax == "1.2.840.10008.5.1.4.20.2"
+        assert contexts[2].abstract_syntax == "1.2.840.10008.5.1.4.20.3"
 
     def test_display_system(self):
         """Tests with display system presentation contexts"""
@@ -1941,7 +1965,7 @@ class TestServiceContexts:
             assert context.transfer_syntax == DEFAULT_TRANSFER_SYNTAXES
             assert context.context_id is None
 
-        assert contexts[0].abstract_syntax == '1.2.840.10008.5.1.1.40'
+        assert contexts[0].abstract_syntax == "1.2.840.10008.5.1.1.40"
 
     def test_hanging_protocol(self):
         """Tests with hanging protocol presentation contexts"""
@@ -1952,9 +1976,9 @@ class TestServiceContexts:
             assert context.transfer_syntax == DEFAULT_TRANSFER_SYNTAXES
             assert context.context_id is None
 
-        assert contexts[0].abstract_syntax == '1.2.840.10008.5.1.4.38.2'
-        assert contexts[1].abstract_syntax == '1.2.840.10008.5.1.4.38.3'
-        assert contexts[2].abstract_syntax == '1.2.840.10008.5.1.4.38.4'
+        assert contexts[0].abstract_syntax == "1.2.840.10008.5.1.4.38.2"
+        assert contexts[1].abstract_syntax == "1.2.840.10008.5.1.4.38.3"
+        assert contexts[2].abstract_syntax == "1.2.840.10008.5.1.4.38.4"
 
     def test_implant_template(self):
         """Tests with implant template presentation contexts"""
@@ -1965,15 +1989,15 @@ class TestServiceContexts:
             assert context.transfer_syntax == DEFAULT_TRANSFER_SYNTAXES
             assert context.context_id is None
 
-        assert contexts[0].abstract_syntax == '1.2.840.10008.5.1.4.43.2'
-        assert contexts[1].abstract_syntax == '1.2.840.10008.5.1.4.43.3'
-        assert contexts[2].abstract_syntax == '1.2.840.10008.5.1.4.43.4'
-        assert contexts[3].abstract_syntax == '1.2.840.10008.5.1.4.44.2'
-        assert contexts[4].abstract_syntax == '1.2.840.10008.5.1.4.44.3'
-        assert contexts[5].abstract_syntax == '1.2.840.10008.5.1.4.44.4'
-        assert contexts[6].abstract_syntax == '1.2.840.10008.5.1.4.45.2'
-        assert contexts[7].abstract_syntax == '1.2.840.10008.5.1.4.45.3'
-        assert contexts[8].abstract_syntax == '1.2.840.10008.5.1.4.45.4'
+        assert contexts[0].abstract_syntax == "1.2.840.10008.5.1.4.43.2"
+        assert contexts[1].abstract_syntax == "1.2.840.10008.5.1.4.43.3"
+        assert contexts[2].abstract_syntax == "1.2.840.10008.5.1.4.43.4"
+        assert contexts[3].abstract_syntax == "1.2.840.10008.5.1.4.44.2"
+        assert contexts[4].abstract_syntax == "1.2.840.10008.5.1.4.44.3"
+        assert contexts[5].abstract_syntax == "1.2.840.10008.5.1.4.44.4"
+        assert contexts[6].abstract_syntax == "1.2.840.10008.5.1.4.45.2"
+        assert contexts[7].abstract_syntax == "1.2.840.10008.5.1.4.45.3"
+        assert contexts[8].abstract_syntax == "1.2.840.10008.5.1.4.45.4"
 
     def test_instance_availability(self):
         """Tests with instance availability presentation contexts"""
@@ -1984,7 +2008,7 @@ class TestServiceContexts:
             assert context.transfer_syntax == DEFAULT_TRANSFER_SYNTAXES
             assert context.context_id is None
 
-        assert contexts[0].abstract_syntax == '1.2.840.10008.5.1.4.33'
+        assert contexts[0].abstract_syntax == "1.2.840.10008.5.1.4.33"
 
     def test_media_creation(self):
         """Tests with media creation presentation contexts"""
@@ -1995,7 +2019,7 @@ class TestServiceContexts:
             assert context.transfer_syntax == DEFAULT_TRANSFER_SYNTAXES
             assert context.context_id is None
 
-        assert contexts[0].abstract_syntax == '1.2.840.10008.5.1.1.33'
+        assert contexts[0].abstract_syntax == "1.2.840.10008.5.1.1.33"
 
     def test_media_storage(self):
         """Tests with media storage presentation contexts"""
@@ -2006,24 +2030,25 @@ class TestServiceContexts:
             assert context.transfer_syntax == DEFAULT_TRANSFER_SYNTAXES
             assert context.context_id is None
 
-        assert contexts[0].abstract_syntax == '1.2.840.10008.1.3.10'
+        assert contexts[0].abstract_syntax == "1.2.840.10008.1.3.10"
 
     def test_non_patient(self):
         """Tests with non patient object presentation contexts"""
         contexts = NonPatientObjectPresentationContexts
-        assert len(contexts) == 7
+        assert len(contexts) == 8
 
         for context in contexts:
             assert context.transfer_syntax == DEFAULT_TRANSFER_SYNTAXES
             assert context.context_id is None
 
-        assert contexts[0].abstract_syntax == '1.2.840.10008.5.1.4.1.1.200.1'
-        assert contexts[1].abstract_syntax == '1.2.840.10008.5.1.4.1.1.200.3'
-        assert contexts[2].abstract_syntax == '1.2.840.10008.5.1.4.38.1'
-        assert contexts[3].abstract_syntax == '1.2.840.10008.5.1.4.39.1'
-        assert contexts[4].abstract_syntax == '1.2.840.10008.5.1.4.43.1'
-        assert contexts[5].abstract_syntax == '1.2.840.10008.5.1.4.44.1'
-        assert contexts[6].abstract_syntax == '1.2.840.10008.5.1.4.45.1'
+        assert contexts[0].abstract_syntax == "1.2.840.10008.5.1.4.1.1.200.1"
+        assert contexts[1].abstract_syntax == "1.2.840.10008.5.1.4.1.1.200.3"
+        assert contexts[2].abstract_syntax == "1.2.840.10008.5.1.4.1.1.200.7"
+        assert contexts[3].abstract_syntax == "1.2.840.10008.5.1.4.38.1"
+        assert contexts[4].abstract_syntax == "1.2.840.10008.5.1.4.39.1"
+        assert contexts[5].abstract_syntax == "1.2.840.10008.5.1.4.43.1"
+        assert contexts[6].abstract_syntax == "1.2.840.10008.5.1.4.44.1"
+        assert contexts[7].abstract_syntax == "1.2.840.10008.5.1.4.45.1"
 
     def test_print_management(self):
         """Tests with print management presentation contexts"""
@@ -2034,17 +2059,17 @@ class TestServiceContexts:
             assert context.transfer_syntax == DEFAULT_TRANSFER_SYNTAXES
             assert context.context_id is None
 
-        assert contexts[0].abstract_syntax == '1.2.840.10008.5.1.1.1'
-        assert contexts[1].abstract_syntax == '1.2.840.10008.5.1.1.14'
-        assert contexts[2].abstract_syntax == '1.2.840.10008.5.1.1.15'
-        assert contexts[3].abstract_syntax == '1.2.840.10008.5.1.1.16'
-        assert contexts[4].abstract_syntax == '1.2.840.10008.5.1.1.16.376'
-        assert contexts[5].abstract_syntax == '1.2.840.10008.5.1.1.18'
-        assert contexts[6].abstract_syntax == '1.2.840.10008.5.1.1.2'
-        assert contexts[7].abstract_syntax == '1.2.840.10008.5.1.1.23'
-        assert contexts[8].abstract_syntax == '1.2.840.10008.5.1.1.4'
-        assert contexts[9].abstract_syntax == '1.2.840.10008.5.1.1.4.1'
-        assert contexts[10].abstract_syntax == '1.2.840.10008.5.1.1.9'
+        assert contexts[0].abstract_syntax == "1.2.840.10008.5.1.1.1"
+        assert contexts[1].abstract_syntax == "1.2.840.10008.5.1.1.14"
+        assert contexts[2].abstract_syntax == "1.2.840.10008.5.1.1.15"
+        assert contexts[3].abstract_syntax == "1.2.840.10008.5.1.1.16"
+        assert contexts[4].abstract_syntax == "1.2.840.10008.5.1.1.16.376"
+        assert contexts[5].abstract_syntax == "1.2.840.10008.5.1.1.18"
+        assert contexts[6].abstract_syntax == "1.2.840.10008.5.1.1.2"
+        assert contexts[7].abstract_syntax == "1.2.840.10008.5.1.1.23"
+        assert contexts[8].abstract_syntax == "1.2.840.10008.5.1.1.4"
+        assert contexts[9].abstract_syntax == "1.2.840.10008.5.1.1.4.1"
+        assert contexts[10].abstract_syntax == "1.2.840.10008.5.1.1.9"
 
     def test_procedure_step(self):
         """Tests with procedure step presentation contexts"""
@@ -2055,9 +2080,9 @@ class TestServiceContexts:
             assert context.transfer_syntax == DEFAULT_TRANSFER_SYNTAXES
             assert context.context_id is None
 
-        assert contexts[0].abstract_syntax == '1.2.840.10008.3.1.2.3.3'
-        assert contexts[1].abstract_syntax == '1.2.840.10008.3.1.2.3.4'
-        assert contexts[2].abstract_syntax == '1.2.840.10008.3.1.2.3.5'
+        assert contexts[0].abstract_syntax == "1.2.840.10008.3.1.2.3.3"
+        assert contexts[1].abstract_syntax == "1.2.840.10008.3.1.2.3.4"
+        assert contexts[2].abstract_syntax == "1.2.840.10008.3.1.2.3.5"
 
     def test_protocol_approval(self):
         """Tests with protocol approval presentation contexts"""
@@ -2068,9 +2093,9 @@ class TestServiceContexts:
             assert context.transfer_syntax == DEFAULT_TRANSFER_SYNTAXES
             assert context.context_id is None
 
-        assert contexts[0].abstract_syntax == '1.2.840.10008.5.1.4.1.1.200.4'
-        assert contexts[1].abstract_syntax == '1.2.840.10008.5.1.4.1.1.200.5'
-        assert contexts[2].abstract_syntax == '1.2.840.10008.5.1.4.1.1.200.6'
+        assert contexts[0].abstract_syntax == "1.2.840.10008.5.1.4.1.1.200.4"
+        assert contexts[1].abstract_syntax == "1.2.840.10008.5.1.4.1.1.200.5"
+        assert contexts[2].abstract_syntax == "1.2.840.10008.5.1.4.1.1.200.6"
 
     def test_qr(self):
         """Test the query/retrieve service presentation contexts."""
@@ -2081,9 +2106,9 @@ class TestServiceContexts:
             assert context.transfer_syntax == DEFAULT_TRANSFER_SYNTAXES
             assert context.context_id is None
 
-        assert contexts[0].abstract_syntax == '1.2.840.10008.5.1.4.1.2.1.1'
-        assert contexts[4].abstract_syntax == '1.2.840.10008.5.1.4.1.2.2.2'
-        assert contexts[-1].abstract_syntax == '1.2.840.10008.5.1.4.1.2.5.3'
+        assert contexts[0].abstract_syntax == "1.2.840.10008.5.1.4.1.2.1.1"
+        assert contexts[4].abstract_syntax == "1.2.840.10008.5.1.4.1.2.2.2"
+        assert contexts[-1].abstract_syntax == "1.2.840.10008.5.1.4.1.2.5.3"
 
     def test_relevant_patient(self):
         """Tests with relevant patient info presentation contexts"""
@@ -2094,9 +2119,9 @@ class TestServiceContexts:
             assert context.transfer_syntax == DEFAULT_TRANSFER_SYNTAXES
             assert context.context_id is None
 
-        assert contexts[0].abstract_syntax == '1.2.840.10008.5.1.4.37.1'
-        assert contexts[1].abstract_syntax == '1.2.840.10008.5.1.4.37.2'
-        assert contexts[2].abstract_syntax == '1.2.840.10008.5.1.4.37.3'
+        assert contexts[0].abstract_syntax == "1.2.840.10008.5.1.4.37.1"
+        assert contexts[1].abstract_syntax == "1.2.840.10008.5.1.4.37.2"
+        assert contexts[2].abstract_syntax == "1.2.840.10008.5.1.4.37.3"
 
     def test_rt_machine(self):
         """Tests with RT machine verification presentation contexts"""
@@ -2107,8 +2132,8 @@ class TestServiceContexts:
             assert context.transfer_syntax == DEFAULT_TRANSFER_SYNTAXES
             assert context.context_id is None
 
-        assert contexts[0].abstract_syntax == '1.2.840.10008.5.1.4.34.8'
-        assert contexts[1].abstract_syntax == '1.2.840.10008.5.1.4.34.9'
+        assert contexts[0].abstract_syntax == "1.2.840.10008.5.1.4.34.8"
+        assert contexts[1].abstract_syntax == "1.2.840.10008.5.1.4.34.9"
 
     def test_storage(self):
         """Test the storage service presentation contexts"""
@@ -2119,9 +2144,9 @@ class TestServiceContexts:
             assert context.transfer_syntax == DEFAULT_TRANSFER_SYNTAXES
             assert context.context_id is None
 
-        assert contexts[0].abstract_syntax == '1.2.840.10008.5.1.4.1.1.1'
-        assert contexts[80].abstract_syntax == '1.2.840.10008.5.1.4.1.1.68.1'
-        assert contexts[-1].abstract_syntax == '1.2.840.10008.5.1.4.1.1.88.69'
+        assert contexts[0].abstract_syntax == "1.2.840.10008.5.1.4.1.1.1"
+        assert contexts[80].abstract_syntax == "1.2.840.10008.5.1.4.1.1.66.5"
+        assert contexts[-1].abstract_syntax == "1.2.840.10008.5.1.4.1.1.88.65"
 
     def test_storage_commitement(self):
         """Tests with storage commitment presentation contexts"""
@@ -2132,7 +2157,7 @@ class TestServiceContexts:
             assert context.transfer_syntax == DEFAULT_TRANSFER_SYNTAXES
             assert context.context_id is None
 
-        assert contexts[0].abstract_syntax == '1.2.840.10008.1.20.1'
+        assert contexts[0].abstract_syntax == "1.2.840.10008.1.20.1"
 
     def test_substance_admin(self):
         """Tests with substance administration presentation contexts"""
@@ -2143,8 +2168,8 @@ class TestServiceContexts:
             assert context.transfer_syntax == DEFAULT_TRANSFER_SYNTAXES
             assert context.context_id is None
 
-        assert contexts[0].abstract_syntax == '1.2.840.10008.5.1.4.41'
-        assert contexts[1].abstract_syntax == '1.2.840.10008.5.1.4.42'
+        assert contexts[0].abstract_syntax == "1.2.840.10008.5.1.4.41"
+        assert contexts[1].abstract_syntax == "1.2.840.10008.5.1.4.42"
 
     def test_unified_procedure(self):
         """Tests with unified procedure presentation contexts"""
@@ -2155,44 +2180,45 @@ class TestServiceContexts:
             assert context.transfer_syntax == DEFAULT_TRANSFER_SYNTAXES
             assert context.context_id is None
 
-        assert contexts[0].abstract_syntax == '1.2.840.10008.5.1.4.34.6.1'
-        assert contexts[1].abstract_syntax == '1.2.840.10008.5.1.4.34.6.2'
-        assert contexts[2].abstract_syntax == '1.2.840.10008.5.1.4.34.6.3'
-        assert contexts[3].abstract_syntax == '1.2.840.10008.5.1.4.34.6.4'
-        assert contexts[4].abstract_syntax == '1.2.840.10008.5.1.4.34.6.5'
+        assert contexts[0].abstract_syntax == "1.2.840.10008.5.1.4.34.6.1"
+        assert contexts[1].abstract_syntax == "1.2.840.10008.5.1.4.34.6.2"
+        assert contexts[2].abstract_syntax == "1.2.840.10008.5.1.4.34.6.3"
+        assert contexts[3].abstract_syntax == "1.2.840.10008.5.1.4.34.6.4"
+        assert contexts[4].abstract_syntax == "1.2.840.10008.5.1.4.34.6.5"
 
     def test_verification(self):
         """Test the verification service presentation contexts."""
         contexts = VerificationPresentationContexts
         assert len(contexts) == 1
-        assert contexts[0].abstract_syntax == '1.2.840.10008.1.1'
+        assert contexts[0].abstract_syntax == "1.2.840.10008.1.1"
         assert contexts[0].transfer_syntax == DEFAULT_TRANSFER_SYNTAXES
         assert contexts[0].context_id is None
 
 
 class TestBuildRole:
     """Tests for presentation.build_role."""
+
     def test_default(self):
         """Test the default role."""
-        role = build_role('1.2.3')
+        role = build_role("1.2.3")
 
-        assert role.sop_class_uid == '1.2.3'
+        assert role.sop_class_uid == "1.2.3"
         assert role.scu_role is False
         assert role.scp_role is False
 
     def test_various(self):
         """Test various combinations of role."""
-        role = build_role('1.2.3', scu_role=True)
-        assert role.sop_class_uid == '1.2.3'
+        role = build_role("1.2.3", scu_role=True)
+        assert role.sop_class_uid == "1.2.3"
         assert role.scu_role is True
         assert role.scp_role is False
 
-        role = build_role('1.2.3', scp_role=True)
-        assert role.sop_class_uid == '1.2.3'
+        role = build_role("1.2.3", scp_role=True)
+        assert role.sop_class_uid == "1.2.3"
         assert role.scu_role is False
         assert role.scp_role is True
 
-        role = build_role('1.2.3', scu_role=True, scp_role=True)
-        assert role.sop_class_uid == '1.2.3'
+        role = build_role("1.2.3", scu_role=True, scp_role=True)
+        assert role.sop_class_uid == "1.2.3"
         assert role.scu_role is True
         assert role.scp_role is True

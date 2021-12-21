@@ -6,7 +6,6 @@ Notes:
     in order for the DIMSE messages/primitives to be created correctly.
 """
 
-import codecs
 from collections.abc import MutableSequence
 from io import BytesIO
 import logging
@@ -17,7 +16,6 @@ import warnings
 from pydicom.tag import Tag, BaseTag
 from pydicom.uid import UID
 
-from pynetdicom import _config
 from pynetdicom._globals import OptionalUIDType
 from pynetdicom.utils import set_ae, decode_bytes, set_uid
 
@@ -26,12 +24,17 @@ if TYPE_CHECKING:  # pragma: no cover
     from typing import Protocol  # Python 3.8+
 
     class NTF(Protocol):
+        # Protocol for a NamedTemporaryFile
         name: str
-        def write(self, data: bytes) -> bytes: ...
-        def close(self) -> None: ...
+
+        def write(self, data: bytes) -> bytes:
+            ...
+
+        def close(self) -> None:
+            ...
 
 
-LOGGER = logging.getLogger('pynetdicom.dimse_primitives')
+LOGGER = logging.getLogger("pynetdicom.dimse_primitives")
 
 
 DimseServiceType = Union[
@@ -45,7 +48,7 @@ DimseServiceType = Union[
     "N_DELETE",
     "N_EVENT_REPORT",
     "N_GET",
-    "N_SET"
+    "N_SET",
 ]
 DimsePrimitiveType = Union["C_CANCEL", DimseServiceType]
 
@@ -56,11 +59,10 @@ DimsePrimitiveType = Union["C_CANCEL", DimseServiceType]
 # pylint: disable=anomalous-backslash-in-string
 class DIMSEPrimitive:
     """Base class for the DIMSE primitives."""
+
     STATUS_OPTIONAL_KEYWORDS: Tuple[str, ...] = ()
     REQUEST_KEYWORDS: Tuple[str, ...] = ()
-    RESPONSE_KEYWORDS: Tuple[str, ...] = (
-        'MessageIDBeingRespondedTo', 'Status'
-    )
+    RESPONSE_KEYWORDS: Tuple[str, ...] = ("MessageIDBeingRespondedTo", "Status")
 
     _action_type_id: Optional[int] = None
     _affected_sop_class_uid: Optional[UID] = None
@@ -116,14 +118,11 @@ class DIMSEPrimitive:
     @AffectedSOPClassUID.setter
     def AffectedSOPClassUID(self, value: OptionalUIDType) -> None:
         """Set the *Affected SOP Class UID*."""
-        self._affected_sop_class_uid = (
-            set_uid(value, 'Affected SOP Class UID') or None
-        )
+        self._affected_sop_class_uid = set_uid(value, "Affected SOP Class UID") or None
 
     @property
     def _AffectedSOPInstanceUID(self) -> Optional[UID]:
-        """Return the *Affected SOP Instance UID* as :class:`~pydicom.uid.UID`.
-        """
+        """Return the *Affected SOP Instance UID* as :class:`~pydicom.uid.UID`."""
         return self._affected_sop_instance_uid
 
     @_AffectedSOPInstanceUID.setter
@@ -136,7 +135,7 @@ class DIMSEPrimitive:
             The value for the Affected SOP Class UID
         """
         self._affected_sop_instance_uid = (
-            set_uid(value, 'Affected SOP Instance UID') or None
+            set_uid(value, "Affected SOP Instance UID") or None
         )
 
     @property
@@ -207,12 +206,10 @@ class DIMSEPrimitive:
     def MessageID(self, value: Optional[int]) -> None:
         """Set the *Message ID*."""
         if isinstance(value, int):
-            if 0 <= value < 2**16:
+            if 0 <= value < 2 ** 16:
                 self._message_id = value
             else:
-                raise ValueError(
-                    "Message ID must be between 0 and 65535, inclusive"
-                )
+                raise ValueError("Message ID must be between 0 and 65535, inclusive")
         elif value is None:
             self._message_id = value
         else:
@@ -233,11 +230,13 @@ class DIMSEPrimitive:
     def MessageIDBeingRespondedTo(self, value: Optional[int]) -> None:
         """Set the *Message ID Being Responded To*."""
         if isinstance(value, int):
-            if 0 <= value < 2**16:
+            if 0 <= value < 2 ** 16:
                 self._message_id_being_responded_to = value
             else:
-                raise ValueError("Message ID Being Responded To must be "
-                                 "between 0 and 65535, inclusive")
+                raise ValueError(
+                    "Message ID Being Responded To must be "
+                    "between 0 and 65535, inclusive"
+                )
         elif value is None:
             self._message_id_being_responded_to = value
         else:
@@ -255,8 +254,10 @@ class DIMSEPrimitive:
             if value >= 0:
                 self._number_of_completed_suboperations = value
             else:
-                raise ValueError("Number of Completed Suboperations must be "
-                                 "greater than or equal to 0")
+                raise ValueError(
+                    "Number of Completed Suboperations must be "
+                    "greater than or equal to 0"
+                )
         elif value is None:
             self._number_of_completed_suboperations = value
         else:
@@ -274,8 +275,10 @@ class DIMSEPrimitive:
             if value >= 0:
                 self._number_of_failed_suboperations = value
             else:
-                raise ValueError("Number of Failed Suboperations must be "
-                                 "greater than or equal to 0")
+                raise ValueError(
+                    "Number of Failed Suboperations must be "
+                    "greater than or equal to 0"
+                )
         elif value is None:
             self._number_of_failed_suboperations = value
         else:
@@ -293,8 +296,10 @@ class DIMSEPrimitive:
             if value >= 0:
                 self._number_of_remaining_suboperations = value
             else:
-                raise ValueError("Number of Remaining Suboperations must be "
-                                 "greater than or equal to 0")
+                raise ValueError(
+                    "Number of Remaining Suboperations must be "
+                    "greater than or equal to 0"
+                )
         elif value is None:
             self._number_of_remaining_suboperations = value
         else:
@@ -312,8 +317,10 @@ class DIMSEPrimitive:
             if value >= 0:
                 self._number_of_warning_suboperations = value
             else:
-                raise ValueError("Number of Warning Suboperations must be "
-                                 "greater than or equal to 0")
+                raise ValueError(
+                    "Number of Warning Suboperations must be "
+                    "greater than or equal to 0"
+                )
         elif value is None:
             self._number_of_warning_suboperations = value
         else:
@@ -341,8 +348,7 @@ class DIMSEPrimitive:
         if value in [0, 1, 2]:
             self._priority = value
         else:
-            LOGGER.warning("Attempted to set Priority parameter to "
-                           "an invalid value")
+            LOGGER.warning("Attempted to set Priority parameter to " "an invalid value")
             raise ValueError("Priority must be 0, 1, or 2")
 
     @property
@@ -360,7 +366,7 @@ class DIMSEPrimitive:
             The value for the Requested SOP Class UID
         """
         self._requested_sop_class_uid = (
-            set_uid(value, 'Requested SOP Instance UID') or None
+            set_uid(value, "Requested SOP Instance UID") or None
         )
 
     @property
@@ -378,7 +384,7 @@ class DIMSEPrimitive:
             The value for the Requested SOP Instance UID
         """
         self._requested_sop_instance_uid = (
-            set_uid(value, 'Requested SOP Instance UID') or None
+            set_uid(value, "Requested SOP Instance UID") or None
         )
 
     @property
@@ -403,7 +409,7 @@ class DIMSEPrimitive:
     @property
     def msg_type(self) -> str:
         """Return the DIMSE message type as :class:`str`."""
-        return self.__class__.__name__.replace('_', '-')
+        return self.__class__.__name__.replace("_", "-")
 
 
 # DIMSE-C Service Primitives
@@ -467,10 +473,16 @@ class C_STORE(DIMSEPrimitive):
         An optional status related field containing a text description
         of the error detected. 64 characters maximum.
     """
-    STATUS_OPTIONAL_KEYWORDS = ('OffendingElement', 'ErrorComment', )
+    STATUS_OPTIONAL_KEYWORDS = (
+        "OffendingElement",
+        "ErrorComment",
+    )
     REQUEST_KEYWORDS = (
-        'MessageID', 'AffectedSOPClassUID', 'AffectedSOPInstanceUID',
-        'Priority', 'DataSet'
+        "MessageID",
+        "AffectedSOPClassUID",
+        "AffectedSOPInstanceUID",
+        "Priority",
+        "DataSet",
     )
 
     def __init__(self) -> None:
@@ -524,7 +536,7 @@ class C_STORE(DIMSEPrimitive):
     @DataSet.setter
     def DataSet(self, value: Optional[BytesIO]) -> None:
         """Set the *Data Set*."""
-        self._dataset_variant = (value, 'DataSet')  # type: ignore
+        self._dataset_variant = (value, "DataSet")  # type: ignore
 
     @property
     def MoveOriginatorApplicationEntityTitle(self) -> Optional[str]:
@@ -545,24 +557,20 @@ class C_STORE(DIMSEPrimitive):
         return self._move_originator_application_entity_title
 
     @MoveOriginatorApplicationEntityTitle.setter
-    def MoveOriginatorApplicationEntityTitle(
-        self, value: Optional[str]
-    ) -> None:
+    def MoveOriginatorApplicationEntityTitle(self, value: Optional[str]) -> None:
         """Set the *Move Originator Application Entity Title*."""
         if isinstance(value, bytes):
             warnings.warn(
                 "The use of bytes with 'Move Originator AE "
                 "Title' is deprecated, use an ASCII str instead",
-                DeprecationWarning
+                DeprecationWarning,
             )
             value = decode_bytes(value).strip()
 
         try:
-            value = set_ae(value, 'Move Originator AE Title')
+            value = set_ae(value, "Move Originator AE Title")
         except ValueError:
-            LOGGER.error(
-                "Invalid 'Move Originator AE Title' in C-STORE request"
-            )
+            LOGGER.error("Invalid 'Move Originator AE Title' in C-STORE request")
             value = None
 
         self._move_originator_application_entity_title = value
@@ -583,11 +591,13 @@ class C_STORE(DIMSEPrimitive):
         """
         # Fix for peers sending a value consisting of nulls
         if isinstance(value, int):
-            if 0 <= value < 2**16:
+            if 0 <= value < 2 ** 16:
                 self._move_originator_message_id = value
             else:
-                raise ValueError("Move Originator Message ID To must be "
-                                 "between 0 and 65535, inclusive")
+                raise ValueError(
+                    "Move Originator Message ID To must be "
+                    "between 0 and 65535, inclusive"
+                )
         elif value is None:
             self._move_originator_message_id = value
         else:
@@ -669,10 +679,11 @@ class C_FIND(DIMSEPrimitive):
         An optional status related field containing a text
         description of the error detected. 64 characters maximum.
     """
-    STATUS_OPTIONAL_KEYWORDS = ('OffendingElement', 'ErrorComment', )
-    REQUEST_KEYWORDS = (
-        'MessageID', 'AffectedSOPClassUID', 'Priority', 'Identifier'
+    STATUS_OPTIONAL_KEYWORDS = (
+        "OffendingElement",
+        "ErrorComment",
     )
+    REQUEST_KEYWORDS = ("MessageID", "AffectedSOPClassUID", "Priority", "Identifier")
 
     def __init__(self) -> None:
         # Variable names need to match the corresponding DICOM Element keywords
@@ -707,7 +718,7 @@ class C_FIND(DIMSEPrimitive):
     @Identifier.setter
     def Identifier(self, value: Optional[BytesIO]) -> None:
         """Set the *Identifier*."""
-        self._dataset_variant = (value, 'Identifier')  # type: ignore
+        self._dataset_variant = (value, "Identifier")  # type: ignore
 
     @property
     def Priority(self) -> int:
@@ -794,13 +805,14 @@ class C_GET(DIMSEPrimitive):
         description of the error detected. 64 characters maximum.
     """
     STATUS_OPTIONAL_KEYWORDS = (
-        'ErrorComment', 'OffendingElement', 'NumberOfRemainingSuboperations',
-        'NumberOfCompletedSuboperations', 'NumberOfFailedSuboperations',
-        'NumberOfWarningSuboperations'
+        "ErrorComment",
+        "OffendingElement",
+        "NumberOfRemainingSuboperations",
+        "NumberOfCompletedSuboperations",
+        "NumberOfFailedSuboperations",
+        "NumberOfWarningSuboperations",
     )
-    REQUEST_KEYWORDS = (
-        'MessageID', 'AffectedSOPClassUID', 'Priority', 'Identifier'
-    )
+    REQUEST_KEYWORDS = ("MessageID", "AffectedSOPClassUID", "Priority", "Identifier")
 
     def __init__(self) -> None:
         # Variable names need to match the corresponding DICOM Element keywords
@@ -842,12 +854,11 @@ class C_GET(DIMSEPrimitive):
     @Identifier.setter
     def Identifier(self, value: Optional[BytesIO]) -> None:
         """Set the *Identifier*."""
-        self._dataset_variant = (value, 'Identifier')  # type: ignore
+        self._dataset_variant = (value, "Identifier")  # type: ignore
 
     @property
     def NumberOfCompletedSuboperations(self) -> Optional[int]:
-        """Get or set the *Number of Completed Suboperations* as :class:`int`.
-        """
+        """Get or set the *Number of Completed Suboperations* as :class:`int`."""
         return self._NumberOfCompletedSuboperations
 
     @NumberOfCompletedSuboperations.setter
@@ -867,8 +878,7 @@ class C_GET(DIMSEPrimitive):
 
     @property
     def NumberOfRemainingSuboperations(self) -> Optional[int]:
-        """Get or set the *Number of Remaining Suboperations* as :class:`int`.
-        """
+        """Get or set the *Number of Remaining Suboperations* as :class:`int`."""
         return self._NumberOfRemainingSuboperations
 
     @NumberOfRemainingSuboperations.setter
@@ -980,13 +990,19 @@ class C_MOVE(DIMSEPrimitive):
         description of the error detected. 64 characters maximum.
     """
     STATUS_OPTIONAL_KEYWORDS = (
-        'ErrorComment', 'OffendingElement', 'NumberOfRemainingSuboperations',
-        'NumberOfCompletedSuboperations', 'NumberOfFailedSuboperations',
-        'NumberOfWarningSuboperations'
+        "ErrorComment",
+        "OffendingElement",
+        "NumberOfRemainingSuboperations",
+        "NumberOfCompletedSuboperations",
+        "NumberOfFailedSuboperations",
+        "NumberOfWarningSuboperations",
     )
     REQUEST_KEYWORDS = (
-        'MessageID', 'AffectedSOPClassUID', 'Priority', 'Identifier',
-        'MoveDestination'
+        "MessageID",
+        "AffectedSOPClassUID",
+        "Priority",
+        "Identifier",
+        "MoveDestination",
     )
 
     def __init__(self) -> None:
@@ -1028,7 +1044,7 @@ class C_MOVE(DIMSEPrimitive):
     @Identifier.setter
     def Identifier(self, value: Optional[BytesIO]) -> None:
         """Set the *Identifier*."""
-        self._dataset_variant = (value, 'Identifier')  # type: ignore
+        self._dataset_variant = (value, "Identifier")  # type: ignore
 
     @property
     def MoveDestination(self) -> Optional[str]:
@@ -1054,18 +1070,15 @@ class C_MOVE(DIMSEPrimitive):
             warnings.warn(
                 "The use of bytes with 'Move Destination' is deprecated, "
                 "use an ASCII str instead",
-                DeprecationWarning
+                DeprecationWarning,
             )
             value = decode_bytes(value).strip()
 
-        self._move_destination = set_ae(
-            value, 'Move Destination', allow_empty=False
-        )
+        self._move_destination = set_ae(value, "Move Destination", allow_empty=False)
 
     @property
     def NumberOfCompletedSuboperations(self) -> Optional[int]:
-        """Get or set the *Number of Completed Suboperations* as :class:`int`.
-        """
+        """Get or set the *Number of Completed Suboperations* as :class:`int`."""
         return self._NumberOfCompletedSuboperations
 
     @NumberOfCompletedSuboperations.setter
@@ -1085,8 +1098,7 @@ class C_MOVE(DIMSEPrimitive):
 
     @property
     def NumberOfRemainingSuboperations(self) -> Optional[int]:
-        """Get or set the *Number of Remaining Suboperations* as :class:`int`.
-        """
+        """Get or set the *Number of Remaining Suboperations* as :class:`int`."""
         return self._NumberOfRemainingSuboperations
 
     @NumberOfRemainingSuboperations.setter
@@ -1096,8 +1108,7 @@ class C_MOVE(DIMSEPrimitive):
 
     @property
     def NumberOfWarningSuboperations(self) -> Optional[int]:
-        """Get or set the *Number of Warning Suboperations* as :class:`int`.
-        """
+        """Get or set the *Number of Warning Suboperations* as :class:`int`."""
         return self._NumberOfWarningSuboperations
 
     @NumberOfWarningSuboperations.setter
@@ -1172,8 +1183,8 @@ class C_ECHO(DIMSEPrimitive):
         An optional status related field containing a text description
         of the error detected. 64 characters maximum.
     """
-    STATUS_OPTIONAL_KEYWORDS = ('ErrorComment', )
-    REQUEST_KEYWORDS = ('MessageID', 'AffectedSOPClassUID')
+    STATUS_OPTIONAL_KEYWORDS = ("ErrorComment",)
+    REQUEST_KEYWORDS = ("MessageID", "AffectedSOPClassUID")
 
     def __init__(self) -> None:
         # Variable names need to match the corresponding DICOM Element keywords
@@ -1212,6 +1223,7 @@ class C_CANCEL:
 
     * DICOM Standard, Part 7, :dcm:`Section 9.3.2.3<part07/sect_9.3.2.3.html>`
     """
+
     def __init__(self) -> None:
         """Initialise the C_CANCEL"""
         # Variable names need to match the corresponding DICOM Element keywords
@@ -1239,11 +1251,13 @@ class C_CANCEL:
     def MessageIDBeingRespondedTo(self, value: Optional[int]) -> None:
         """Set the *Message ID Being Responded To*."""
         if isinstance(value, int):
-            if 0 <= value < 2**16:
+            if 0 <= value < 2 ** 16:
                 self._message_id_being_responded_to = value
             else:
-                raise ValueError("Message ID Being Responded To must be "
-                                 "between 0 and 65535, inclusive")
+                raise ValueError(
+                    "Message ID Being Responded To must be "
+                    "between 0 and 65535, inclusive"
+                )
         elif value is None:
             self._message_id_being_responded_to = value
         else:
@@ -1301,12 +1315,17 @@ class N_EVENT_REPORT(DIMSEPrimitive):
     """
     # Optional status element keywords other than 'Status'
     STATUS_OPTIONAL_KEYWORDS = (
-        'AffectedSOPClassUID', 'AffectedSOPInstanceUID', 'EventTypeID',
-        'ErrorComment', 'ErrorID'  # EventInformation
+        "AffectedSOPClassUID",
+        "AffectedSOPInstanceUID",
+        "EventTypeID",
+        "ErrorComment",
+        "ErrorID",  # EventInformation
     )
     REQUEST_KEYWORDS = (
-        'MessageID', 'AffectedSOPClassUID', 'EventTypeID',
-        'AffectedSOPInstanceUID'
+        "MessageID",
+        "AffectedSOPClassUID",
+        "EventTypeID",
+        "AffectedSOPInstanceUID",
     )
 
     def __init__(self) -> None:
@@ -1355,7 +1374,7 @@ class N_EVENT_REPORT(DIMSEPrimitive):
         io.BytesIO
             The value to use for the *Event Information* parameter.
         """
-        self._dataset_variant = (value, 'EventInformation')  # type: ignore
+        self._dataset_variant = (value, "EventInformation")  # type: ignore
 
     @property
     def EventReply(self) -> Optional[BytesIO]:
@@ -1371,7 +1390,7 @@ class N_EVENT_REPORT(DIMSEPrimitive):
         io.BytesIO
             The value to use for the *Event Reply* parameter.
         """
-        self._dataset_variant = (value, 'EventReply')  # type: ignore
+        self._dataset_variant = (value, "EventReply")  # type: ignore
 
     @property
     def EventTypeID(self) -> Optional[int]:
@@ -1443,11 +1462,11 @@ class N_GET(DIMSEPrimitive):
         The error or success notification of the operation.
     """
     STATUS_OPTIONAL_KEYWORDS = (
-        'AttributeIdentifierList', 'ErrorComment', 'ErrorID',
+        "AttributeIdentifierList",
+        "ErrorComment",
+        "ErrorID",
     )
-    REQUEST_KEYWORDS = (
-        'MessageID', 'RequestedSOPClassUID', 'RequestedSOPInstanceUID'
-    )
+    REQUEST_KEYWORDS = ("MessageID", "RequestedSOPClassUID", "RequestedSOPInstanceUID")
 
     def __init__(self) -> None:
         # self.MessageID = None
@@ -1518,9 +1537,7 @@ class N_GET(DIMSEPrimitive):
             # Convert each item in list to pydicom Tag
             self._attribute_identifier_list = [Tag(tag) for tag in value]
         except (TypeError, ValueError):
-            raise ValueError(
-                "Attribute Identifier List must be a list of pydicom Tags"
-            )
+            raise ValueError("Attribute Identifier List must be a list of pydicom Tags")
 
     @property
     def AttributeList(self) -> Optional[BytesIO]:
@@ -1536,7 +1553,7 @@ class N_GET(DIMSEPrimitive):
     @AttributeList.setter
     def AttributeList(self, value: Optional[BytesIO]) -> None:
         """Set the *Attribute List*."""
-        self._dataset_variant = (value, 'AttributeList')  # type: ignore
+        self._dataset_variant = (value, "AttributeList")  # type: ignore
 
     @property
     def RequestedSOPClassUID(self) -> Optional[UID]:
@@ -1621,12 +1638,12 @@ class N_SET(DIMSEPrimitive):
     Status : int
         The error or success notification of the operation.
     """
-    STATUS_OPTIONAL_KEYWORDS = (
-        'ErrorComment', 'ErrorID', 'AttributeIdentifierList'
-    )
+    STATUS_OPTIONAL_KEYWORDS = ("ErrorComment", "ErrorID", "AttributeIdentifierList")
     REQUEST_KEYWORDS = (
-        'MessageID', 'RequestedSOPClassUID', 'RequestedSOPInstanceUID',
-        'ModificationList'
+        "MessageID",
+        "RequestedSOPClassUID",
+        "RequestedSOPInstanceUID",
+        "ModificationList",
     )
 
     def __init__(self) -> None:
@@ -1676,7 +1693,7 @@ class N_SET(DIMSEPrimitive):
     @AttributeList.setter
     def AttributeList(self, value: Optional[BytesIO]) -> None:
         """Set the *Attribute List*."""
-        self._dataset_variant = (value, 'AttributeList')  # type: ignore
+        self._dataset_variant = (value, "AttributeList")  # type: ignore
 
     @property
     def ModificationList(self) -> Optional[BytesIO]:
@@ -1692,7 +1709,7 @@ class N_SET(DIMSEPrimitive):
     @ModificationList.setter
     def ModificationList(self, value: Optional[BytesIO]) -> None:
         """Set the *Modification List*."""
-        self._dataset_variant = (value, 'ModificationList')  # type: ignore
+        self._dataset_variant = (value, "ModificationList")  # type: ignore
 
     @property
     def RequestedSOPClassUID(self) -> Optional[UID]:
@@ -1780,12 +1797,12 @@ class N_ACTION(DIMSEPrimitive):
     Status : int
         The error or success notification of the operation.
     """
-    STATUS_OPTIONAL_KEYWORDS = (
-        'ErrorComment', 'ErrorID', 'AttributeIdentifierList'
-    )
+    STATUS_OPTIONAL_KEYWORDS = ("ErrorComment", "ErrorID", "AttributeIdentifierList")
     REQUEST_KEYWORDS = (
-        'MessageID', 'RequestedSOPClassUID', 'RequestedSOPInstanceUID',
-        'ActionTypeID'
+        "MessageID",
+        "RequestedSOPClassUID",
+        "RequestedSOPInstanceUID",
+        "ActionTypeID",
     )
 
     def __init__(self) -> None:
@@ -1818,7 +1835,7 @@ class N_ACTION(DIMSEPrimitive):
     @ActionInformation.setter
     def ActionInformation(self, value: Optional[BytesIO]) -> None:
         """Set the *Action Information*."""
-        self._dataset_variant = (value, 'ActionInformation')  # type: ignore
+        self._dataset_variant = (value, "ActionInformation")  # type: ignore
 
     @property
     def ActionReply(self) -> Optional[BytesIO]:
@@ -1834,7 +1851,7 @@ class N_ACTION(DIMSEPrimitive):
     @ActionReply.setter
     def ActionReply(self, value: Optional[BytesIO]) -> None:
         """Set the *Action Reply*."""
-        self._dataset_variant = (value, 'ActionReply')  # type: ignore
+        self._dataset_variant = (value, "ActionReply")  # type: ignore
 
     @property
     def ActionTypeID(self) -> Optional[int]:
@@ -1950,8 +1967,11 @@ class N_CREATE(DIMSEPrimitive):
         The error or success notification of the operation. It shall be
         one of the following values:
     """
-    STATUS_OPTIONAL_KEYWORDS = ('ErrorComment', 'ErrorID', )
-    REQUEST_KEYWORDS = ('MessageID', 'AffectedSOPClassUID')
+    STATUS_OPTIONAL_KEYWORDS = (
+        "ErrorComment",
+        "ErrorID",
+    )
+    REQUEST_KEYWORDS = ("MessageID", "AffectedSOPClassUID")
 
     def __init__(self) -> None:
         # self.MessageID = None
@@ -1995,7 +2015,7 @@ class N_CREATE(DIMSEPrimitive):
     @AttributeList.setter
     def AttributeList(self, value: Optional[BytesIO]) -> None:
         """Set the *Attribute List*."""
-        self._dataset_variant = (value, 'AttributeList')  # type: ignore
+        self._dataset_variant = (value, "AttributeList")  # type: ignore
 
 
 class N_DELETE(DIMSEPrimitive):
@@ -2044,10 +2064,11 @@ class N_DELETE(DIMSEPrimitive):
     Status : int
         The error or success notification of the operation.
     """
-    STATUS_OPTIONAL_KEYWORDS = ('ErrorComment', 'ErrorID', )
-    REQUEST_KEYWORDS = (
-        'MessageID', 'RequestedSOPClassUID', 'RequestedSOPInstanceUID'
+    STATUS_OPTIONAL_KEYWORDS = (
+        "ErrorComment",
+        "ErrorID",
     )
+    REQUEST_KEYWORDS = ("MessageID", "RequestedSOPClassUID", "RequestedSOPInstanceUID")
 
     def __init__(self) -> None:
         # self.MessageID = None

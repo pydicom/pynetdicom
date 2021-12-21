@@ -6,26 +6,38 @@ import logging
 import queue
 import select
 import socket
+
 try:
     from SocketServer import TCPServer, ThreadingMixIn, BaseRequestHandler
 except ImportError:
     from socketserver import TCPServer, ThreadingMixIn, BaseRequestHandler
 try:
     import ssl
+
     _HAS_SSL = True
 except ImportError:
     _HAS_SSL = False
 from struct import pack
 import threading
 from typing import (
-    TYPE_CHECKING, Optional, Any, Tuple, cast, List, Dict, Callable, Union
+    TYPE_CHECKING,
+    Optional,
+    Any,
+    Tuple,
+    cast,
+    List,
+    Dict,
+    Callable,
+    Union,
 )
 
 from pynetdicom import evt, _config
-from pynetdicom._globals import MODE_ACCEPTOR
+from pynetdicom._globals import MODE_ACCEPTOR, BIND_ADDRESS
 from pynetdicom._handlers import (
-    standard_dimse_recv_handler, standard_dimse_sent_handler,
-    standard_pdu_recv_handler, standard_pdu_sent_handler,
+    standard_dimse_recv_handler,
+    standard_dimse_sent_handler,
+    standard_pdu_recv_handler,
+    standard_pdu_sent_handler,
 )
 from pynetdicom.presentation import PresentationContext
 
@@ -34,7 +46,7 @@ if TYPE_CHECKING:  # pragma: no cover
     from pynetdicom.association import Association
 
 
-LOGGER = logging.getLogger('pynetdicom.transport')
+LOGGER = logging.getLogger("pynetdicom.transport")
 
 
 class AssociationSocket:
@@ -57,13 +69,18 @@ class AssociationSocket:
     socket : socket.socket or None
         The wrapped socket, will be ``None`` if :meth:`close` is called.
     """
+
     def __init__(
         self,
         assoc: "Association",
         client_socket: Optional[socket.socket] = None,
-        address: Tuple[str, int] = ('', 0)
+        address: Tuple[str, int] = BIND_ADDRESS,
     ) -> None:
         """Create a new :class:`AssociationSocket`.
+
+        .. versionchanged:: 2.0
+
+            The default for *address* was changed to ``("localhost", 0)``
 
         Parameters
         ----------
@@ -76,11 +93,11 @@ class AssociationSocket:
         address : 2-tuple, optional
             If *client_socket* is ``None`` then this is the ``(host, port)`` to
             bind the newly created socket to, which by default will be
-            ``('', 0)``.
+            ``('localhost', 0)``.
         """
         self._assoc = assoc
 
-        if client_socket is not None and address != ('', 0):
+        if client_socket is not None and address != BIND_ADDRESS:
             LOGGER.warning(
                 "AssociationSocket instantiated with both a 'client_socket' "
                 "and bind 'address'. The original socket will not be rebound"
@@ -97,7 +114,7 @@ class AssociationSocket:
             self._is_connected = True
             self._ready.set()
             # Evt5: Transport connection indication
-            self.event_queue.put('Evt5')
+            self.event_queue.put("Evt5")
 
         self._tls_args: Optional[Tuple["ssl.SSLContext", str]] = None
         self.select_timeout = 0.5
@@ -130,7 +147,7 @@ class AssociationSocket:
         self.socket = None
         self._is_connected = False
         # Evt17: Transport connection closed
-        self.event_queue.put('Evt17')
+        self.event_queue.put("Evt17")
 
     def connect(self, address: Tuple[str, int]) -> None:
         """Try and connect to a remote at `address`.
@@ -143,7 +160,7 @@ class AssociationSocket:
         Parameters
         ----------
         address : 2-tuple
-            The ``(host, port)`` IPv4 address to connect to.
+            The ``(host: str, port: int)`` IPv4 address to connect to.
         """
         if self.socket is None:
             self.socket = self._create_socket()
@@ -157,7 +174,7 @@ class AssociationSocket:
                         self.socket,
                         server_side=False,
                         server_hostname=server_hostname,
-                    )
+                    ),
                 )
             # Set ae connection timeout
             self.socket.settimeout(self.assoc.connection_timeout)
@@ -167,15 +184,13 @@ class AssociationSocket:
             # Clear ae connection timeout
             self.socket.settimeout(None)
             # Trigger event - connection open
-            evt.trigger(self.assoc, evt.EVT_CONN_OPEN, {'address': address})
+            evt.trigger(self.assoc, evt.EVT_CONN_OPEN, {"address": address})
             self._is_connected = True
             # Evt2: Transport connection confirmation
-            self.event_queue.put('Evt2')
+            self.event_queue.put("Evt2")
         except OSError as exc:
             # Log connection failure
-            LOGGER.error(
-                "Association request failed: unable to connect to remote"
-            )
+            LOGGER.error("Association request failed: unable to connect to remote")
             LOGGER.error(f"TCP Initialisation Error: {exc}")
             # Log exception if TLS issue to help with troubleshooting
             if isinstance(exc, ssl.SSLError):
@@ -190,13 +205,11 @@ class AssociationSocket:
                     pass
                 self.socket.close()
                 self.socket = None
-            self.event_queue.put('Evt17')
+            self.event_queue.put("Evt17")
         finally:
             self._ready.set()
 
-    def _create_socket(
-        self, address: Tuple[str, int] = ('', 0)
-    ) -> socket.socket:
+    def _create_socket(self, address: Tuple[str, int] = BIND_ADDRESS) -> socket.socket:
         """Create a new IPv4 TCP socket and set it up for use.
 
         *Socket Options*
@@ -208,8 +221,8 @@ class AssociationSocket:
         Parameters
         ----------
         address : 2-tuple, optional
-            The ``(host, port)`` to bind the socket to. By default the socket
-            is bound to ``('', 0)``, i.e. the first available port.
+            The ``(host: str, port: int)`` to bind the socket to. By default the socket
+            is bound to ``("localhost", 0)``, i.e. the first available port.
 
         Returns
         -------
@@ -233,7 +246,7 @@ class AssociationSocket:
             sock.setsockopt(
                 socket.SOL_SOCKET,
                 socket.SO_RCVTIMEO,
-                pack('ll', timeout_seconds, timeout_microsec)
+                pack("ll", timeout_seconds, timeout_microsec),
             )
 
         sock.bind(address)
@@ -249,27 +262,23 @@ class AssociationSocket:
         """
         return self.assoc.dul.event_queue
 
-    def get_local_addr(
-        self, host: Tuple[str, int] = ('10.255.255.255', 1)
-    ) -> str:
+    def get_local_addr(self, host: Tuple[str, int] = ("10.255.255.255", 1)) -> str:
         """Return an address for the local computer as :class:`str`.
 
         Parameters
         ----------
-        host : str
-            The host's (*addr*, *port*) when trying to determine the local
+        host : Tuple[str, int]
+            The host's ``(addr: str, port: int)`` when trying to determine the local
             address.
         """
         # Solution from https://stackoverflow.com/a/28950776
-        temp = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-        try:
-            # We use `host` to allow unit testing
-            temp.connect(host)
-            addr: str = temp.getsockname()[0]
-        except:
-            addr = '127.0.0.1'
-        finally:
-            temp.close()
+        with socket.socket(socket.AF_INET, socket.SOCK_DGRAM) as sock:
+            try:
+                # We use `host` to allow unit testing
+                sock.connect(host)
+                addr: str = sock.getsockname()[0]
+            except:
+                addr = "127.0.0.1"
 
         return addr
 
@@ -296,7 +305,7 @@ class AssociationSocket:
             ready, _, _ = select.select([self.socket], [], [], 0)
         except (socket.error, socket.timeout, ValueError):
             # Evt17: Transport connection closed
-            self.event_queue.put('Evt17')
+            self.event_queue.put("Evt17")
             return False
 
         # An SSLSocket may have buffered data available that `select`
@@ -372,10 +381,10 @@ class AssociationSocket:
                 nr_sent = self.socket.send(bytestream[total_sent:])
                 total_sent += nr_sent
 
-            evt.trigger(self.assoc, evt.EVT_DATA_SENT, {'data': bytestream})
+            evt.trigger(self.assoc, evt.EVT_DATA_SENT, {"data": bytestream})
         except (socket.error, socket.timeout):
             # Evt17: Transport connection closed
-            self.event_queue.put('Evt17')
+            self.event_queue.put("Evt17")
 
     def __str__(self) -> str:
         """Return the string output for ``socket``."""
@@ -402,14 +411,10 @@ class AssociationSocket:
         return self._tls_args
 
     @tls_args.setter
-    def tls_args(
-        self, tls_args: Optional[Tuple["ssl.SSLContext", str]]
-    ) -> None:
+    def tls_args(self, tls_args: Optional[Tuple["ssl.SSLContext", str]]) -> None:
         """Set the TLS arguments for the socket."""
         if not _HAS_SSL:
-            raise RuntimeError(
-                "Your Python installation lacks support for SSL"
-            )
+            raise RuntimeError("Your Python installation lacks support for SSL")
 
         self._tls_args = tls_args
 
@@ -428,6 +433,7 @@ class RequestHandler(BaseRequestHandler):
     server : transport.AssociationServer or transport.ThreadedAssociationServer
         The server that received the connection request.
     """
+
     server: "AssociationServer"
 
     @property
@@ -445,9 +451,7 @@ class RequestHandler(BaseRequestHandler):
         assoc = self._create_association()
 
         # Trigger must be after binding the events
-        evt.trigger(
-            assoc, evt.EVT_CONN_OPEN, {'address': self.client_address}
-        )
+        evt.trigger(assoc, evt.EVT_CONN_OPEN, {"address": self.client_address})
 
         assoc.start()
 
@@ -483,12 +487,8 @@ class RequestHandler(BaseRequestHandler):
         assoc.acceptor.ae_title = self.server.ae_title
         assoc.acceptor.address = self.local[0]
         assoc.acceptor.port = self.local[1]
-        assoc.acceptor.implementation_class_uid = (
-            self.ae.implementation_class_uid
-        )
-        assoc.acceptor.implementation_version_name = (
-            self.ae.implementation_version_name
-        )
+        assoc.acceptor.implementation_class_uid = self.ae.implementation_class_uid
+        assoc.acceptor.implementation_version_name = self.ae.implementation_version_name
         assoc.acceptor.supported_contexts = deepcopy(self.server.contexts)
 
         # Association Requestor object -> remote AE
@@ -534,9 +534,10 @@ class AssociationServer(TCPServer):
         The parent AE that is running the server.
     request_queue_size : int
         Default ``5``.
-    server_address : 2-tuple
-        The ``(host, port)`` that the server is running on.
+    server_address : Tuple[str, int]
+        The ``(host: str, port: int)`` that the server is running on.
     """
+
     def __init__(
         self,
         ae: "ApplicationEntity",
@@ -545,7 +546,7 @@ class AssociationServer(TCPServer):
         contexts: List[PresentationContext],
         ssl_context: Optional["ssl.SSLContext"] = None,
         evt_handlers: List[evt.EventHandlerType] = None,
-        request_handler: Optional[BaseRequestHandler] = None
+        request_handler: Optional[BaseRequestHandler] = None,
     ) -> None:
         """Create a new :class:`AssociationServer`, bind a socket and start
         listening.
@@ -554,8 +555,8 @@ class AssociationServer(TCPServer):
         ----------
         ae : ae.ApplicationEntity
             The parent AE that's running the server.
-        address : 2-tuple
-            The ``(host, port)`` that the server should run on.
+        address : Tuple[str, int]
+            The ``(host: str, port: int)`` that the server should run on.
         ae_title : str
             The AE title of the SCP.
         contexts : list of presentation.PresentationContext
@@ -589,22 +590,20 @@ class AssociationServer(TCPServer):
         # Stores all currently bound event handlers so future
         #   Associations can be bound
         self._handlers: Dict[
-            evt.EventType, Union[
+            evt.EventType,
+            Union[
                 List[Tuple[Callable, Optional[List[Any]]]],
-                Tuple[Callable, Optional[List[Any]]]
-            ]
+                Tuple[Callable, Optional[List[Any]]],
+            ],
         ] = {}
         self._bind_defaults()
 
         # Bind the functions to their events
-        for evt_hh_args in (evt_handlers or ()):
+        for evt_hh_args in evt_handlers or ():
             self.bind(*evt_hh_args)
 
     def bind(
-        self,
-        event: evt.EventType,
-        handler: Callable,
-        args: Optional[List[Any]] = None
+        self, event: evt.EventType, handler: Callable, args: Optional[List[Any]] = None
     ) -> None:
         """Bind a callable `handler` to an `event`.
 
@@ -638,7 +637,7 @@ class AssociationServer(TCPServer):
             self.bind(event, handler)
 
         # Notification event handlers
-        if _config.LOG_HANDLER_LEVEL == 'standard':
+        if _config.LOG_HANDLER_LEVEL == "standard":
             self.bind(evt.EVT_DIMSE_RECV, standard_dimse_recv_handler)
             self.bind(evt.EVT_DIMSE_SENT, standard_dimse_sent_handler)
             self.bind(evt.EVT_PDU_RECV, standard_pdu_recv_handler)
@@ -652,10 +651,7 @@ class AssociationServer(TCPServer):
         # Find all AcceptorThreads with `_server` as self
         threads = cast(
             List["Association"],
-            [
-                tt for tt in threading.enumerate()
-                if 'AcceptorThread' in tt.name
-            ]
+            [tt for tt in threading.enumerate() if "AcceptorThread" in tt.name],
         )
         return [tt for tt in threads if tt._server is self]
 
@@ -749,7 +745,7 @@ class AssociationServer(TCPServer):
             self.socket.setsockopt(
                 socket.SOL_SOCKET,
                 socket.SO_RCVTIMEO,
-                pack('ll', timeout_seconds, timeout_microsec)
+                pack("ll", timeout_seconds, timeout_microsec),
             )
 
         # Bind the socket to an (address, port)
@@ -792,9 +788,7 @@ class AssociationServer(TCPServer):
     def ssl_context(self, context: Optional["ssl.SSLContext"]) -> None:
         """Set the SSL context for the socket."""
         if not _HAS_SSL:
-            raise RuntimeError(
-                "Your Python installation lacks support for SSL"
-            )
+            raise RuntimeError("Your Python installation lacks support for SSL")
 
         self._ssl_context = context
 
@@ -822,6 +816,7 @@ class ThreadedAssociationServer(ThreadingMixIn, AssociationServer):
 
     .. versionadded:: 1.2
     """
+
     def process_request_thread(
         self, request: socket.socket, client_address: Tuple[str, int]
     ) -> None:

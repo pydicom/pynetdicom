@@ -40,7 +40,7 @@ except ImportError:
 # directory, add these directories to sys.path here. If the directory
 # is relative to the documentation root, use os.path.abspath to make it
 # absolute, like shown here.
-sys.path.insert(0, os.path.abspath('../build_tools/sphinx'))
+sys.path.insert(0, os.path.abspath("../build_tools/sphinx"))
 BASE_DIR = Path(__file__).resolve().parent.parent
 sys.path.append(os.fspath(BASE_DIR))
 
@@ -48,9 +48,9 @@ from github_link import make_linkcode_resolve
 import pynetdicom
 
 # Get the pydicom version
-#BASE_DIR = Path(__file__).resolve().parent.parent
-#VERSION_FILE = BASE_DIR / 'pynetdicom' / '_version.py'
-#with open(VERSION_FILE) as fp:
+# BASE_DIR = Path(__file__).resolve().parent.parent
+# VERSION_FILE = BASE_DIR / 'pynetdicom' / '_version.py'
+# with open(VERSION_FILE) as fp:
 #    exec(fp.read())
 
 # If your documentation needs a minimal Sphinx version, state it here.
@@ -67,71 +67,65 @@ import pynetdicom
 # They can be extensions coming with Sphinx
 # (named 'sphinx.ext.*') or your custom ones.
 extensions = [
-    'sphinx.ext.autodoc',
-    'sphinx.ext.doctest',
-    'sphinx.ext.intersphinx',
-    'sphinx.ext.todo',
-    'sphinx.ext.imgmath',
-    'sphinx.ext.ifconfig',
-    'sphinx.ext.autosummary',
-    'sphinx.ext.napoleon',
-    'sphinx.ext.linkcode',
-    'sphinx.ext.extlinks',
-    'sphinx_copybutton',
+    "sphinx.ext.autodoc",
+    "sphinx.ext.doctest",
+    "sphinx.ext.intersphinx",
+    "sphinx.ext.todo",
+    "sphinx.ext.imgmath",
+    "sphinx.ext.ifconfig",
+    "sphinx.ext.autosummary",
+    "sphinx.ext.napoleon",
+    "sphinx.ext.linkcode",
+    "sphinx.ext.extlinks",
+    "sphinx_copybutton",
     # Custom
-    'sphinx_issues',
+    "sphinx_issues",
 ]
 
 autosummary_generate = True
 
 autodoc_default_options = {
-    'members': None,
-    'no-inherited-members': None,
+    "members": None,
+    "no-inherited-members": None,
 }
 
 # copybutton conf
-copybutton_prompt_text = r'>>> |\.\.\. '
+copybutton_prompt_text = r">>> |\.\.\. "
 copybutton_prompt_is_regexp = True
 
 # Shortcuts for sphinx.ext.extlinks
 extlinks = {
     # 'alias' : (url_prefix, caption)
     # Usage :dcm:`link text <part05/sect_6.2.html>`
-    'dcm': (
-        'http://dicom.nema.org/medical/dicom/current/output/chtml/%s',
-        None
-    ),
-    'gh': ('https://github.com/pydicom/%s', None),
+    "dcm": ("http://dicom.nema.org/medical/dicom/current/output/chtml/%s", None),
+    "gh": ("https://github.com/pydicom/%s", None),
 }
 
 # intersphinx configuration
 intersphinx_mapping = {
-    'python': (
-        'https://docs.python.org/{.major}'.format(sys.version_info),
-        None
-    ),
-    'pydicom': ('https://pydicom.github.io/pydicom/stable', None),
+    "python": ("https://docs.python.org/{.major}".format(sys.version_info), None),
+    "pydicom": ("https://pydicom.github.io/pydicom/stable", None),
 }
 
 napoleon_google_docstring = False
 napoleon_numpy_docstring = True
 
 # Add any paths that contain templates here, relative to this directory.
-templates_path = ['_templates']
+templates_path = ["_templates"]
 
 # The suffix of source filenames.
-source_suffix = '.rst'
+source_suffix = ".rst"
 
 # The encoding of source files.
 # source_encoding = 'utf-8'
 
 # The master toctree document.
-master_doc = 'index'
+master_doc = "index"
 
 # General information about the project.
-project = u'pynetdicom'
-year = datetime.now().strftime('%Y')
-copyright = u'2018-{}, pynetdicom contributors'.format(year)
+project = u"pynetdicom"
+year = datetime.now().strftime("%Y")
+copyright = u"2018-{}, pynetdicom contributors".format(year)
 
 # The version info for the project you're documenting, acts as replacement for
 # |version| and |release|, also used in various other places throughout the
@@ -157,7 +151,7 @@ release = pynetdicom.__version__
 
 # List of directories, relative to source directory, that shouldn't be searched
 # for source files.
-exclude_trees = ['_build']
+exclude_trees = ["_build"]
 
 # The reST default role (used for this markup: `text`)
 # to use for all documents.
@@ -175,10 +169,10 @@ exclude_trees = ['_build']
 # show_authors = False
 
 # The name of the Pygments (syntax highlighting) style to use.
-pygments_style = 'sphinx'
+pygments_style = "sphinx"
 
 # Custom style
-html_style = 'css/pynetdicom.css'
+html_style = "css/pynetdicom.css"
 
 # A list of ignored prefixes for module index sorting.
 # modindex_common_prefix = []
@@ -187,7 +181,7 @@ html_style = 'css/pynetdicom.css'
 
 # The theme to use for HTML and HTML Help pages.  Major themes that come with
 # Sphinx are currently 'default' and 'sphinxdoc'.
-html_theme = 'sphinx_rtd_theme'
+html_theme = "sphinx_rtd_theme"
 
 # Theme options are theme-specific and customize the look and feel of a theme
 # further.  For a list of options available for each theme, see the
@@ -216,7 +210,7 @@ html_favicon = "assets/img/favicon.ico"
 # Add any paths that contain custom static files (such as style sheets) here,
 # relative to this directory. They are copied after the builtin static files,
 # so a file named "default.css" will overwrite the builtin "default.css".
-html_static_path = ['_static']
+html_static_path = ["_static"]
 
 # If not '', a 'Last updated on:' timestamp is inserted at every page bottom,
 # using the given strftime format.
@@ -254,7 +248,7 @@ html_show_sourcelink = False
 # html_file_suffix = ''
 
 # Output file base name for HTML help builder.
-htmlhelp_basename = 'pynetdicomdoc'
+htmlhelp_basename = "pynetdicomdoc"
 
 
 # -- Options for LaTeX output --------------------------------------
@@ -270,8 +264,11 @@ htmlhelp_basename = 'pynetdicomdoc'
 # documentclass [howto/manual]).
 latex_documents = [
     (
-        'index', 'pynetdicom.tex', u'pynetdicom Documentation',
-        u'pynetdicom contributors', 'manual'
+        "index",
+        "pynetdicom.tex",
+        u"pynetdicom Documentation",
+        u"pynetdicom contributors",
+        "manual",
     ),
 ]
 
@@ -296,21 +293,20 @@ latex_documents = [
 def generate_example_rst(app, what, name, obj, options, lines):
     # generate empty examples files, so that we don't get
     # inclusion errors if there are no examples for a class / module
-    examples_path = os.path.join(
-        app.srcdir, "generated", "%s.examples" % name
-    )
+    examples_path = os.path.join(app.srcdir, "generated", "%s.examples" % name)
     if not os.path.exists(examples_path):
         # touch file
-        open(examples_path, 'w').close()
+        open(examples_path, "w").close()
 
 
 # Config for sphinx_issues
-issues_github_path = 'pydicom/pynetdicom'
+issues_github_path = "pydicom/pynetdicom"
 
 
 def setup(app):
-    #app.connect('autodoc-process-docstring', generate_example_rst)
-    app.add_css_file('css/pynetdicom.css')
+    # app.connect('autodoc-process-docstring', generate_example_rst)
+    app.add_css_file("css/pynetdicom.css")
+
 
 # Example configuration for intersphinx: refer to
 # the Python standard library.
@@ -319,6 +315,6 @@ def setup(app):
 
 # The following is used by sphinx.ext.linkcode to provide links to github
 linkcode_resolve = make_linkcode_resolve(
-    'pynetdicom',
-    u'https://github.com/pydicom/pynetdicom/blob/{revision}/{package}/{path}#L{lineno}'
+    "pynetdicom",
+    u"https://github.com/pydicom/pynetdicom/blob/{revision}/{package}/{path}#L{lineno}",
 )

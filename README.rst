@@ -7,6 +7,8 @@
     :target: https://github.com/pydicom/pynetdicom/actions?query=workflow%3Atype-hints
 .. image:: https://circleci.com/gh/pydicom/pynetdicom/tree/master.svg?style=shield
     :target: https://circleci.com/gh/pydicom/pynetdicom/tree/master
+.. image:: https://img.shields.io/badge/code%20style-black-000000.svg
+    :target: https://github.com/psf/black
 .. image:: https://badge.fury.io/py/pynetdicom.svg
     :target: https://badge.fury.io/py/pynetdicom
 .. image:: https://img.shields.io/pypi/pyversions/pynetdicom.svg

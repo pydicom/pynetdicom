@@ -7,8 +7,17 @@ import sys
 import traceback
 from types import TracebackType
 from typing import (
-    TYPE_CHECKING, Optional, Type, cast, Union, Tuple, Any, TypeVar, Iterator,
-    Sequence, Dict
+    TYPE_CHECKING,
+    Optional,
+    Type,
+    cast,
+    Union,
+    Tuple,
+    Any,
+    TypeVar,
+    Iterator,
+    Sequence,
+    Dict,
 )
 
 from pydicom.dataset import Dataset
@@ -17,12 +26,25 @@ from pydicom.tag import Tag
 from pynetdicom import evt, _config
 from pynetdicom.dsutils import decode, encode, pretty_dataset
 from pynetdicom.dimse_primitives import (
-    C_STORE, C_ECHO, C_MOVE, C_GET, C_FIND,
-    N_ACTION, N_CREATE, N_DELETE, N_EVENT_REPORT, N_GET, N_SET,
-    DimseServiceType, DIMSEPrimitive
+    C_STORE,
+    C_ECHO,
+    C_MOVE,
+    C_GET,
+    C_FIND,
+    N_ACTION,
+    N_CREATE,
+    N_DELETE,
+    N_EVENT_REPORT,
+    N_GET,
+    N_SET,
+    DimseServiceType,
+    DIMSEPrimitive,
 )
 from pynetdicom._globals import (
-    STATUS_FAILURE, STATUS_SUCCESS, STATUS_WARNING, STATUS_PENDING,
+    STATUS_FAILURE,
+    STATUS_SUCCESS,
+    STATUS_WARNING,
+    STATUS_PENDING,
     STATUS_CANCEL,
 )
 from pynetdicom.status import (
@@ -53,27 +75,24 @@ DatasetType = Optional[Dataset]
 UserReturnType = Tuple[StatusType, DatasetType]
 _T = TypeVar("_T", bound=DIMSEPrimitive)
 _ExcInfoType = Union[
-    Tuple[None, None, None],
-    Tuple[Type[BaseException], BaseException, TracebackType]
+    Tuple[None, None, None], Tuple[Type[BaseException], BaseException, TracebackType]
 ]
 DestinationType = Union[Tuple[str, int], Tuple[str, int, Dict[str, Any]]]
 
 
-LOGGER = logging.getLogger('pynetdicom.service-c')
+LOGGER = logging.getLogger("pynetdicom.service-c")
 
 
-class attempt():
+class attempt:
     """Context manager for sending replies when an exception is raised.
 
     The code within the context is executed, and if an exception is raised
     then it's logged and a DIMSE message is sent to the peer using the
     set error message and status code.
     """
+
     def __init__(
-        self,
-        rsp: "DimseServiceType",
-        dimse: "DIMSEServiceProvider",
-        cx_id: int
+        self, rsp: "DimseServiceType", dimse: "DIMSEServiceProvider", cx_id: int
     ) -> None:
         self._success = True
         # Should be customised within the context
@@ -91,7 +110,7 @@ class attempt():
         self,
         exc_type: Optional[Type[BaseException]],
         exc_val: Optional[BaseException],
-        exc_tb: Optional[TracebackType]
+        exc_tb: Optional[TracebackType],
     ) -> Optional[bool]:
         if exc_type is None:
             # No exceptions raised
@@ -123,6 +142,7 @@ class ServiceClass:
     assoc : association.Association
         The association instance offering the service.
     """
+
     statuses = GENERAL_STATUS
 
     def __init__(self, assoc: "Association") -> None:
@@ -221,14 +241,14 @@ class ServiceClass:
                     cast(BytesIO, req.Identifier),
                     transfer_syntax.is_implicit_VR,
                     transfer_syntax.is_little_endian,
-                    transfer_syntax.is_deflated
+                    transfer_syntax.is_deflated,
                 )
-                LOGGER.info('Find SCP Request Identifier:')
-                LOGGER.info('')
-                LOGGER.info('# DICOM Dataset')
+                LOGGER.info("Find SCP Request Identifier:")
+                LOGGER.info("")
+                LOGGER.info("# DICOM Dataset")
                 for line in pretty_dataset(identifier):
                     LOGGER.info(line)
-                LOGGER.info('')
+                LOGGER.info("")
             except Exception:
                 # The user should deal with decoding failures
                 pass
@@ -241,10 +261,10 @@ class ServiceClass:
                 self.assoc,
                 evt.EVT_C_FIND,
                 {
-                    'request': req,
-                    'context': context.as_tuple,
-                    '_is_cancelled': self.is_cancelled
-                }
+                    "request": req,
+                    "context": context.as_tuple,
+                    "_is_cancelled": self.is_cancelled,
+                },
             )
 
         # Exception in context or handler aborted/released
@@ -267,16 +287,16 @@ class ServiceClass:
             if exc:
                 LOGGER.error("Exception in handler bound to 'evt.EVT_C_FIND'")
                 LOGGER.error(
-                    "\nTraceback (most recent call last):\n" +
-                    "".join(traceback.format_tb(exc[2])) +
-                    f"{exc[0].__name__}: {str(exc[1])}"  # type: ignore
+                    "\nTraceback (most recent call last):\n"
+                    + "".join(traceback.format_tb(exc[2]))
+                    + f"{exc[0].__name__}: {str(exc[1])}"  # type: ignore
                 )
                 rsp_status = 0xC311
                 dataset = None
             else:
                 (rsp_status, dataset) = cast(UserReturnType, result)
 
-            # Event hander has aborted or released
+            # Event handler has aborted or released
             if not self.assoc.is_established:
                 return
 
@@ -292,10 +312,8 @@ class ServiceClass:
 
             if status[0] == STATUS_CANCEL:
                 # If cancel, then dataset is None
-                LOGGER.info('Received C-CANCEL-FIND RQ from peer')
-                LOGGER.info(
-                    f'Find SCP Response {ii + 1}: 0x{rsp.Status:04X} (Cancel)'
-                )
+                LOGGER.info("Received C-CANCEL-FIND RQ from peer")
+                LOGGER.info(f"Find SCP Response {ii + 1}: 0x{rsp.Status:04X} (Cancel)")
                 self.dimse.send_msg(rsp, cx_id)
                 return
             elif status[0] == STATUS_FAILURE:
@@ -309,9 +327,7 @@ class ServiceClass:
             elif status[0] == STATUS_SUCCESS:
                 # User isn't supposed to send these, but handle anyway
                 # If success, then dataset is None
-                LOGGER.info(
-                    f'Find SCP Response {ii + 1}: 0x0000 (Success)'
-                )
+                LOGGER.info(f"Find SCP Response {ii + 1}: 0x0000 (Success)")
                 self.dimse.send_msg(rsp, cx_id)
                 return
             elif status[0] == STATUS_PENDING:
@@ -321,14 +337,12 @@ class ServiceClass:
                     dataset,
                     transfer_syntax.is_implicit_VR,
                     transfer_syntax.is_little_endian,
-                    transfer_syntax.is_deflated
+                    transfer_syntax.is_deflated,
                 )
                 bytestream = BytesIO(cast(bytes, enc))
 
-                if bytestream.getvalue() == b'':
-                    LOGGER.error(
-                        "Failed encoding the response 'Identifier' dataset"
-                    )
+                if bytestream.getvalue() == b"":
+                    LOGGER.error("Failed encoding the response 'Identifier' dataset")
                     # Failure: Unable to Process - Can't decode dataset
                     #   returned by handler
                     rsp.Status = 0xC312
@@ -337,27 +351,25 @@ class ServiceClass:
 
                 rsp.Identifier = bytestream
 
-                LOGGER.info(
-                    f'Find SCP Response {ii + 1}: 0x{rsp.Status:04X} (Pending)'
-                )
+                LOGGER.info(f"Find SCP Response {ii + 1}: 0x{rsp.Status:04X} (Pending)")
                 if _config.LOG_RESPONSE_IDENTIFIERS:
-                    LOGGER.debug('Find SCP Response Identifier:')
-                    LOGGER.debug('')
-                    LOGGER.debug('# DICOM Dataset')
+                    LOGGER.debug("Find SCP Response Identifier:")
+                    LOGGER.debug("")
+                    LOGGER.debug("# DICOM Dataset")
                     for line in pretty_dataset(dataset):
                         LOGGER.debug(line)
-                    LOGGER.debug('')
+                    LOGGER.debug("")
 
                 self.dimse.send_msg(rsp, cx_id)
 
-        # Event hander has aborted or released
+        # Event handler has aborted or released
         if not self.assoc.is_established:
             return
 
         # Send final success response - make sure the identifier isn't present
         rsp.Identifier = None
         rsp.Status = 0x0000
-        LOGGER.info(f'Find SCP Response {ii + 2}: 0x0000 (Success)')
+        LOGGER.info(f"Find SCP Response {ii + 2}: 0x0000 (Success)")
         self.dimse.send_msg(rsp, cx_id)
 
     @property
@@ -406,9 +418,7 @@ class ServiceClass:
 
         return False
 
-    def _n_action_scp(
-        self, req: N_ACTION, context: "PresentationContext"
-    ) -> None:
+    def _n_action_scp(self, req: N_ACTION, context: "PresentationContext") -> None:
         """Implementation of the DIMSE N-ACTION service.
 
         Parameters
@@ -555,14 +565,12 @@ class ServiceClass:
         rsp.ActionTypeID = req.ActionTypeID
 
         with attempt(rsp, self.dimse, cx_id) as ctx:
-            ctx.error_msg = (
-                "Exception in the handler bound to 'evt.EVT_N_ACTION"
-            )
+            ctx.error_msg = "Exception in the handler bound to 'evt.EVT_N_ACTION"
             ctx.error_status = 0x0110
             user_response = evt.trigger(
                 self.assoc,
                 evt.EVT_N_ACTION,
-                {'request': req, 'context': context.as_tuple}
+                {"request": req, "context": context.as_tuple},
             )
 
         # Exception in context or handler aborted/released
@@ -590,13 +598,11 @@ class ServiceClass:
                 ds,
                 transfer_syntax.is_implicit_VR,
                 transfer_syntax.is_little_endian,
-                transfer_syntax.is_deflated
+                transfer_syntax.is_deflated,
             )
 
             if bytestream is None:
-                LOGGER.error(
-                    "Failed encoding the response 'Action Reply' dataset"
-                )
+                LOGGER.error("Failed encoding the response 'Action Reply' dataset")
                 # Processing failure
                 rsp.Status = 0x0110
             else:
@@ -605,9 +611,7 @@ class ServiceClass:
         # Send response primitive
         self.dimse.send_msg(rsp, cx_id)
 
-    def _n_create_scp(
-        self, req: N_CREATE, context: "PresentationContext"
-    ) -> None:
+    def _n_create_scp(self, req: N_CREATE, context: "PresentationContext") -> None:
         """Implementation of the DIMSE N-CREATE service.
 
         Parameters
@@ -713,14 +717,12 @@ class ServiceClass:
         rsp.AffectedSOPInstanceUID = req.AffectedSOPInstanceUID
 
         with attempt(rsp, self.dimse, cx_id) as ctx:
-            ctx.error_msg = (
-                "Exception in the handler bound to 'evt.EVT_N_CREATE"
-            )
+            ctx.error_msg = "Exception in the handler bound to 'evt.EVT_N_CREATE"
             ctx.error_status = 0x0110
             user_response = evt.trigger(
                 self.assoc,
                 evt.EVT_N_CREATE,
-                {'request': req, 'context': context.as_tuple}
+                {"request": req, "context": context.as_tuple},
             )
 
         # Exception in context or handler aborted/released
@@ -748,13 +750,11 @@ class ServiceClass:
                 ds,
                 transfer_syntax.is_implicit_VR,
                 transfer_syntax.is_little_endian,
-                transfer_syntax.is_deflated
+                transfer_syntax.is_deflated,
             )
 
             if bytestream is None:
-                LOGGER.error(
-                    "Failed encoding the response 'Attribute List' dataset"
-                )
+                LOGGER.error("Failed encoding the response 'Attribute List' dataset")
                 # Processing failure
                 rsp.Status = 0x0110
             else:
@@ -763,9 +763,7 @@ class ServiceClass:
         # Send response primitive
         self.dimse.send_msg(rsp, cx_id)
 
-    def _n_delete_scp(
-        self, req: N_DELETE, context: "PresentationContext"
-    ) -> None:
+    def _n_delete_scp(self, req: N_DELETE, context: "PresentationContext") -> None:
         """Implementation of the DIMSE N-DELETE service.
 
         Parameters
@@ -836,14 +834,12 @@ class ServiceClass:
         rsp.AffectedSOPInstanceUID = req.RequestedSOPInstanceUID
 
         with attempt(rsp, self.dimse, cx_id) as ctx:
-            ctx.error_msg = (
-                "Exception in the handler bound to 'evt.EVT_N_DELETE"
-            )
+            ctx.error_msg = "Exception in the handler bound to 'evt.EVT_N_DELETE"
             ctx.error_status = 0x0110
             status = evt.trigger(
                 self.assoc,
                 evt.EVT_N_DELETE,
-                {'request': req, 'context': context.as_tuple}
+                {"request": req, "context": context.as_tuple},
             )
 
         # Exception in context or handler aborted/released
@@ -943,14 +939,12 @@ class ServiceClass:
         rsp.EventTypeID = req.EventTypeID
 
         with attempt(rsp, self.dimse, cx_id) as ctx:
-            ctx.error_msg = (
-                "Exception in the handler bound to 'evt.EVT_N_EVENT_REPORT"
-            )
+            ctx.error_msg = "Exception in the handler bound to 'evt.EVT_N_EVENT_REPORT"
             ctx.error_status = 0x0110
             user_response = evt.trigger(
                 self.assoc,
                 evt.EVT_N_EVENT_REPORT,
-                {'request': req, 'context': context.as_tuple}
+                {"request": req, "context": context.as_tuple},
             )
 
         # Exception in context or handler aborted/released
@@ -978,13 +972,11 @@ class ServiceClass:
                 ds,
                 transfer_syntax.is_implicit_VR,
                 transfer_syntax.is_little_endian,
-                transfer_syntax.is_deflated
+                transfer_syntax.is_deflated,
             )
 
             if bytestream is None:
-                LOGGER.error(
-                    "Failed encoding the response 'Event Reply' dataset"
-                )
+                LOGGER.error("Failed encoding the response 'Event Reply' dataset")
                 # Processing failure
                 rsp.Status = 0x0110
             else:
@@ -1098,9 +1090,7 @@ class ServiceClass:
             ctx.error_msg = "Exception in the handler bound to 'evt.EVT_N_GET'"
             ctx.error_status = 0x0110
             user_response = evt.trigger(
-                self.assoc,
-                evt.EVT_N_GET,
-                {'request': req, 'context': context.as_tuple}
+                self.assoc, evt.EVT_N_GET, {"request": req, "context": context.as_tuple}
             )
 
         # Exception in context or handler aborted/released
@@ -1127,13 +1117,11 @@ class ServiceClass:
                 ds,
                 transfer_syntax.is_implicit_VR,
                 transfer_syntax.is_little_endian,
-                transfer_syntax.is_deflated
+                transfer_syntax.is_deflated,
             )
 
             if bytestream is None:
-                LOGGER.error(
-                    "Failed encoding the response 'Attribute List' dataset"
-                )
+                LOGGER.error("Failed encoding the response 'Attribute List' dataset")
                 # Processing failure - Failed to encode dataset
                 rsp.Status = 0x0110
             else:
@@ -1259,9 +1247,7 @@ class ServiceClass:
             ctx.error_msg = "Exception in the handler bound to 'evt.EVT_N_SET'"
             ctx.error_status = 0x0110
             user_response = evt.trigger(
-                self.assoc,
-                evt.EVT_N_SET,
-                {'request': req, 'context': context.as_tuple}
+                self.assoc, evt.EVT_N_SET, {"request": req, "context": context.as_tuple}
             )
 
         # Exception in context or handler aborted/released
@@ -1288,13 +1274,11 @@ class ServiceClass:
                 ds,
                 transfer_syntax.is_implicit_VR,
                 transfer_syntax.is_little_endian,
-                transfer_syntax.is_deflated
+                transfer_syntax.is_deflated,
             )
 
             if bytestream is None:
-                LOGGER.error(
-                    "Failed encoding the response 'Attribute List' dataset"
-                )
+                LOGGER.error("Failed encoding the response 'Attribute List' dataset")
                 # Processing failure
                 rsp.Status = 0x0110
             else:
@@ -1338,7 +1322,7 @@ class ServiceClass:
         # Check the callback's returned Status dataset
         if isinstance(status, Dataset):
             # Check that the returned status dataset contains a Status element
-            if 'Status' in status:
+            if "Status" in status:
                 # For the elements in the status dataset, try and set the
                 #   corresponding response primitive attribute
                 for elem in status:
@@ -1351,8 +1335,7 @@ class ServiceClass:
                         )
             else:
                 LOGGER.error(
-                    "User callback returned a `Dataset` without a Status "
-                    "element"
+                    "User callback returned a `Dataset` without a Status " "element"
                 )
                 # Failure: Cannot Understand - callback returned
                 #   a pydicom.dataset.Dataset without a Status element
@@ -1369,8 +1352,7 @@ class ServiceClass:
             # Failure: Cannot Understand - Unknown status returned by the
             #   callback
             LOGGER.warning(
-                f"Unknown status value returned by callback - "
-                f"0x{rsp.Status:04X}"
+                f"Unknown status value returned by callback - " f"0x{rsp.Status:04X}"
             )
 
         return rsp
@@ -1400,8 +1382,7 @@ class ServiceClass:
                     or self.assoc.acse.is_release_requested()
                 ):
                     LOGGER.debug(
-                        "A-ABORT or A-RELEASE-RQ received during "
-                        "Q/R sub-operations"
+                        "A-ABORT or A-RELEASE-RQ received during " "Q/R sub-operations"
                     )
                     return
 
@@ -1413,6 +1394,7 @@ class ServiceClass:
 # Service Class implementations
 class VerificationServiceClass(ServiceClass):
     """Implementation of the Verification Service Class."""
+
     statuses = VERIFICATION_SERVICE_CLASS_STATUS
 
     def SCP(self, req: C_ECHO, context: "PresentationContext") -> None:
@@ -1438,14 +1420,14 @@ class VerificationServiceClass(ServiceClass):
             status = evt.trigger(
                 self.assoc,
                 evt.EVT_C_ECHO,
-                {'request': req, 'context': context.as_tuple}
+                {"request": req, "context": context.as_tuple},
             )
-            # Event hander has aborted or released
+            # Event handler has aborted or released
             if not self.assoc.is_established:
                 return
 
             if isinstance(status, Dataset):
-                if 'Status' not in status:
+                if "Status" not in status:
                     raise AttributeError(
                         "The 'status' dataset returned by the handler "
                         "bound to 'evt.EVT_C_ECHO' must contain"
@@ -1490,7 +1472,8 @@ class VerificationServiceClass(ServiceClass):
 
 class StorageServiceClass(ServiceClass):
     """Implementation of the Storage Service Class."""
-    uid = '1.2.840.10008.4.2'
+
+    uid = "1.2.840.10008.4.2"
     statuses = STORAGE_SERVICE_CLASS_STATUS
 
     def SCP(self, req: C_STORE, context: "PresentationContext") -> None:
@@ -1519,7 +1502,7 @@ class StorageServiceClass(ServiceClass):
             rsp_status = evt.trigger(
                 self.assoc,
                 evt.EVT_C_STORE,
-                {'request': req, 'context': context.as_tuple}
+                {"request": req, "context": context.as_tuple},
             )
             if req._dataset_file:
                 req._dataset_file.close()
@@ -1543,12 +1526,17 @@ class StorageServiceClass(ServiceClass):
 
 class QueryRetrieveServiceClass(ServiceClass):
     """Implementation of the Query/Retrieve Service Class."""
+
     statuses: StatusDictType
     # Used with Composite Instance Retrieve Without Bulk Data
     # CurveData, AudioSampleData and OverlayData are repeating group elements
     _BULK_DATA_KEYWORDS = [
-        'PixelData', 'FloatPixelData', 'DoubleFloatPixelData',
-        'PixelDataProviderURL', 'SpectroscopyData', 'EncapsulatedDocument'
+        "PixelData",
+        "FloatPixelData",
+        "DoubleFloatPixelData",
+        "PixelDataProviderURL",
+        "SpectroscopyData",
+        "EncapsulatedDocument",
     ]
 
     def SCP(self, req: "_QR", context: "PresentationContext") -> None:
@@ -1562,43 +1550,43 @@ class QueryRetrieveServiceClass(ServiceClass):
             The presentation context that the SCP is operating under.
         """
         _find_uids = [
-            '1.2.840.10008.5.1.4.1.2.1.1',
-            '1.2.840.10008.5.1.4.1.2.2.1',
-            '1.2.840.10008.5.1.4.1.2.3.1',
-            '1.2.840.10008.5.1.4.20.1',
-            '1.2.840.10008.5.1.4.38.2',
-            '1.2.840.10008.5.1.4.39.2',
-            '1.2.840.10008.5.1.4.43.2',
-            '1.2.840.10008.5.1.4.44.2',
-            '1.2.840.10008.5.1.4.45.2',
-            '1.2.840.10008.5.1.4.1.1.200.4'
+            "1.2.840.10008.5.1.4.1.2.1.1",
+            "1.2.840.10008.5.1.4.1.2.2.1",
+            "1.2.840.10008.5.1.4.1.2.3.1",
+            "1.2.840.10008.5.1.4.20.1",
+            "1.2.840.10008.5.1.4.38.2",
+            "1.2.840.10008.5.1.4.39.2",
+            "1.2.840.10008.5.1.4.43.2",
+            "1.2.840.10008.5.1.4.44.2",
+            "1.2.840.10008.5.1.4.45.2",
+            "1.2.840.10008.5.1.4.1.1.200.4",
         ]
         _get_uids = [
-            '1.2.840.10008.5.1.4.1.2.1.3',
-            '1.2.840.10008.5.1.4.1.2.2.3',
-            '1.2.840.10008.5.1.4.1.2.3.3',
-            '1.2.840.10008.5.1.4.1.2.4.3',
-            '1.2.840.10008.5.1.4.1.2.5.3',
-            '1.2.840.10008.5.1.4.20.3',
-            '1.2.840.10008.5.1.4.38.4',
-            '1.2.840.10008.5.1.4.39.4',
-            '1.2.840.10008.5.1.4.43.4',
-            '1.2.840.10008.5.1.4.44.4',
-            '1.2.840.10008.5.1.4.45.4',
-            '1.2.840.10008.5.1.4.1.1.200.6'
+            "1.2.840.10008.5.1.4.1.2.1.3",
+            "1.2.840.10008.5.1.4.1.2.2.3",
+            "1.2.840.10008.5.1.4.1.2.3.3",
+            "1.2.840.10008.5.1.4.1.2.4.3",
+            "1.2.840.10008.5.1.4.1.2.5.3",
+            "1.2.840.10008.5.1.4.20.3",
+            "1.2.840.10008.5.1.4.38.4",
+            "1.2.840.10008.5.1.4.39.4",
+            "1.2.840.10008.5.1.4.43.4",
+            "1.2.840.10008.5.1.4.44.4",
+            "1.2.840.10008.5.1.4.45.4",
+            "1.2.840.10008.5.1.4.1.1.200.6",
         ]
         _move_uids = [
-            '1.2.840.10008.5.1.4.1.2.1.2',
-            '1.2.840.10008.5.1.4.1.2.2.2',
-            '1.2.840.10008.5.1.4.1.2.3.2',
-            '1.2.840.10008.5.1.4.1.2.4.2',
-            '1.2.840.10008.5.1.4.20.2',
-            '1.2.840.10008.5.1.4.38.3',
-            '1.2.840.10008.5.1.4.39.3',
-            '1.2.840.10008.5.1.4.43.3',
-            '1.2.840.10008.5.1.4.44.3',
-            '1.2.840.10008.5.1.4.45.3',
-            '1.2.840.10008.5.1.4.1.1.200.5'
+            "1.2.840.10008.5.1.4.1.2.1.2",
+            "1.2.840.10008.5.1.4.1.2.2.2",
+            "1.2.840.10008.5.1.4.1.2.3.2",
+            "1.2.840.10008.5.1.4.1.2.4.2",
+            "1.2.840.10008.5.1.4.20.2",
+            "1.2.840.10008.5.1.4.38.3",
+            "1.2.840.10008.5.1.4.39.3",
+            "1.2.840.10008.5.1.4.43.3",
+            "1.2.840.10008.5.1.4.44.3",
+            "1.2.840.10008.5.1.4.45.3",
+            "1.2.840.10008.5.1.4.1.1.200.5",
         ]
 
         if isinstance(req, C_FIND) and context.abstract_syntax in _find_uids:
@@ -1612,8 +1600,8 @@ class QueryRetrieveServiceClass(ServiceClass):
             self._move_scp(req, context)
         else:
             raise ValueError(
-                'The supplied abstract syntax is not valid for use with the '
-                'Query/Retrieve Service Class'
+                "The supplied abstract syntax is not valid for use with the "
+                "Query/Retrieve Service Class"
             )
 
     def _get_scp(self, req: C_GET, context: "PresentationContext") -> None:
@@ -1641,14 +1629,14 @@ class QueryRetrieveServiceClass(ServiceClass):
                     cast(BytesIO, req.Identifier),
                     transfer_syntax.is_implicit_VR,
                     transfer_syntax.is_little_endian,
-                    transfer_syntax.is_deflated
+                    transfer_syntax.is_deflated,
                 )
-                LOGGER.info('Get SCP Request Identifier:')
-                LOGGER.info('')
-                LOGGER.info('# DICOM Dataset')
+                LOGGER.info("Get SCP Request Identifier:")
+                LOGGER.info("")
+                LOGGER.info("# DICOM Dataset")
                 for line in pretty_dataset(identifier):
                     LOGGER.info(line)
-                LOGGER.info('')
+                LOGGER.info("")
             except Exception:
                 # The user should deal with decoding failures
                 pass
@@ -1661,10 +1649,10 @@ class QueryRetrieveServiceClass(ServiceClass):
                 self.assoc,
                 evt.EVT_C_GET,
                 {
-                    'request': req,
-                    'context': context.as_tuple,
-                    '_is_cancelled': self.is_cancelled
-                }
+                    "request": req,
+                    "context": context.as_tuple,
+                    "_is_cancelled": self.is_cancelled,
+                },
             )
 
         # Exception in context or handler aborted/released - before any yields
@@ -1702,7 +1690,7 @@ class QueryRetrieveServiceClass(ServiceClass):
         failed_instances = []
 
         def _add_failed_instance(ds: Dataset) -> None:
-            if hasattr(ds, 'SOPInstanceUID'):
+            if hasattr(ds, "SOPInstanceUID"):
                 failed_instances.append(ds.SOPInstanceUID)
 
         ii = -1  # So if there are no results, log below doesn't break
@@ -1717,16 +1705,16 @@ class QueryRetrieveServiceClass(ServiceClass):
             if exc:
                 LOGGER.error("Exception in handler bound to 'evt.EVT_C_GET'")
                 LOGGER.error(
-                    "\nTraceback (most recent call last):\n" +
-                    "".join(traceback.format_tb(exc[2])) +
-                    f"{exc[0].__name__}: {str(exc[1])}"  # type: ignore
+                    "\nTraceback (most recent call last):\n"
+                    + "".join(traceback.format_tb(exc[2]))
+                    + f"{exc[0].__name__}: {str(exc[1])}"  # type: ignore
                 )
                 rsp_status = 0xC411
                 dataset = None
             else:
                 (rsp_status, dataset) = cast(UserReturnType, result)
 
-            # Event hander has aborted or released - after any yields
+            # Event handler has aborted or released - after any yields
             if not self.assoc.is_established:
                 return
 
@@ -1752,18 +1740,18 @@ class QueryRetrieveServiceClass(ServiceClass):
             if status[0] == STATUS_CANCEL:
                 # If cancel, dataset is a Dataset with a
                 # 'FailedSOPInstanceUIDList' element
-                LOGGER.info('Received C-CANCEL-GET RQ from peer')
-                LOGGER.info(
-                    f'Get SCP Response {ii + 1}: 0x{rsp.Status:04X} (Cancel)'
-                )
+                LOGGER.info("Received C-CANCEL-GET RQ from peer")
+                LOGGER.info(f"Get SCP Response {ii + 1}: 0x{rsp.Status:04X} (Cancel)")
                 rsp.NumberOfRemainingSuboperations = store_results[0]
                 rsp.NumberOfFailedSuboperations = store_results[1]
                 rsp.NumberOfWarningSuboperations = store_results[2]
                 rsp.NumberOfCompletedSuboperations = store_results[3]
 
                 # In case user didn't include it
-                if (not isinstance(dataset, Dataset) or
-                        'FailedSOPInstanceUIDList' not in dataset):
+                if (
+                    not isinstance(dataset, Dataset)
+                    or "FailedSOPInstanceUIDList" not in dataset
+                ):
                     dataset = Dataset()
                     dataset.FailedSOPInstanceUIDList = failed_instances
 
@@ -1771,7 +1759,7 @@ class QueryRetrieveServiceClass(ServiceClass):
                     dataset,
                     transfer_syntax.is_implicit_VR,
                     transfer_syntax.is_little_endian,
-                    transfer_syntax.is_deflated
+                    transfer_syntax.is_deflated,
                 )
                 rsp.Identifier = BytesIO(cast(bytes, bytestream))
                 self.dimse.send_msg(rsp, cx_id)
@@ -1784,16 +1772,14 @@ class QueryRetrieveServiceClass(ServiceClass):
                     f"({status[0]} - {status[1]})"
                 )
                 rsp.NumberOfRemainingSuboperations = None
-                rsp.NumberOfFailedSuboperations = (
-                    store_results[1] + store_results[0]
-                )
+                rsp.NumberOfFailedSuboperations = store_results[1] + store_results[0]
                 rsp.NumberOfWarningSuboperations = store_results[2]
                 rsp.NumberOfCompletedSuboperations = store_results[3]
 
                 # In case user didn't include it
                 if (
                     not isinstance(dataset, Dataset)
-                    or 'FailedSOPInstanceUIDList' not in dataset
+                    or "FailedSOPInstanceUIDList" not in dataset
                 ):
                     dataset = Dataset()
                     dataset.FailedSOPInstanceUIDList = failed_instances
@@ -1802,7 +1788,7 @@ class QueryRetrieveServiceClass(ServiceClass):
                     dataset,
                     transfer_syntax.is_implicit_VR,
                     transfer_syntax.is_little_endian,
-                    transfer_syntax.is_deflated
+                    transfer_syntax.is_deflated,
                 )
                 rsp.Identifier = BytesIO(cast(bytes, bytestream))
                 self.dimse.send_msg(rsp, cx_id)
@@ -1811,9 +1797,7 @@ class QueryRetrieveServiceClass(ServiceClass):
                 # If user yields Success, check it
                 # dataset is None
                 if store_results[1] or store_results[2]:
-                    LOGGER.info(
-                        f'Get SCP Response {ii + 1}: 0xB000 (Warning)'
-                    )
+                    LOGGER.info(f"Get SCP Response {ii + 1}: 0xB000 (Warning)")
                     rsp.Status = 0xB000
                     ds = Dataset()
                     ds.FailedSOPInstanceUIDList = failed_instances
@@ -1821,13 +1805,11 @@ class QueryRetrieveServiceClass(ServiceClass):
                         ds,
                         transfer_syntax.is_implicit_VR,
                         transfer_syntax.is_little_endian,
-                        transfer_syntax.is_deflated
+                        transfer_syntax.is_deflated,
                     )
                     rsp.Identifier = BytesIO(cast(bytes, bytestream))
                 else:
-                    LOGGER.info(
-                        f'Get SCP Response {ii + 1}: 0x0000 (Success)'
-                    )
+                    LOGGER.info(f"Get SCP Response {ii + 1}: 0x0000 (Success)")
                     rsp.Identifier = None
 
                 rsp.NumberOfRemainingSuboperations = None
@@ -1840,10 +1822,10 @@ class QueryRetrieveServiceClass(ServiceClass):
             elif status[0] == STATUS_PENDING and dataset:
                 # If pending, dataset is the Dataset to send
                 if not isinstance(dataset, Dataset):
-                    LOGGER.error('Received invalid dataset from callback')
+                    LOGGER.error("Received invalid dataset from callback")
                     # Count as a sub-operation failure
                     store_results[1] += 1
-                    failed_instances.append('')
+                    failed_instances.append("")
                     rsp.Identifier = None
                     rsp.NumberOfRemainingSuboperations = store_results[0]
                     rsp.NumberOfFailedSuboperations = store_results[1]
@@ -1852,14 +1834,12 @@ class QueryRetrieveServiceClass(ServiceClass):
                     self.dimse.send_msg(rsp, cx_id)
                     continue
 
-                LOGGER.info(
-                    f'Get SCP Response {ii + 1}: 0x{rsp.Status:04X} (Pending)'
-                )
+                LOGGER.info(f"Get SCP Response {ii + 1}: 0x{rsp.Status:04X} (Pending)")
 
                 # If the Composite Instance Retrieve Without Bulk Data Service
                 #   is being used then we must remove the bulk data elements
                 #   (if present)
-                if context.abstract_syntax == '1.2.840.10008.5.1.4.1.2.5.3':
+                if context.abstract_syntax == "1.2.840.10008.5.1.4.1.2.5.3":
                     # Doesn't include WaveformData, OverlayData
                     #   or AudioSampleData
                     _bulk_data = [
@@ -1869,13 +1849,13 @@ class QueryRetrieveServiceClass(ServiceClass):
                         delattr(dataset, keyword)
 
                     # Needs to be handled separately
-                    if 'WaveformSequence' in dataset:
+                    if "WaveformSequence" in dataset:
                         seq = cast(Sequence[Dataset], dataset.WaveformSequence)
                         for item in seq:
-                            if 'WaveformData' in item:
+                            if "WaveformData" in item:
                                 del item.WaveformData
-                                if 'WaveformData' not in _bulk_data:
-                                    _bulk_data.append('WaveformData')
+                                if "WaveformData" not in _bulk_data:
+                                    _bulk_data.append("WaveformData")
 
                     # Handle repeating group bulk data elements
                     repeaters = [
@@ -1907,19 +1887,15 @@ class QueryRetrieveServiceClass(ServiceClass):
                     if msg_id > 65535:
                         msg_id -= 65535
 
-                    status_ds = self.assoc.send_c_store(
-                        dataset, msg_id=msg_id
-                    )
+                    status_ds = self.assoc.send_c_store(dataset, msg_id=msg_id)
                     store_status_int = status_ds.Status
-                    store_status = (
-                        STORAGE_SERVICE_CLASS_STATUS[store_status_int]
-                    )
+                    store_status = STORAGE_SERVICE_CLASS_STATUS[store_status_int]
                 except Exception as exc:
                     # An exception implies a C-STORE failure
                     LOGGER.warning("C-STORE sub-operation failed.")
                     LOGGER.error(str(exc))
                     store_status_int = None
-                    store_status = (STATUS_FAILURE, 'Unknown')
+                    store_status = (STATUS_FAILURE, "Unknown")
 
                 if store_status_int is not None:
                     msg = (
@@ -1928,8 +1904,7 @@ class QueryRetrieveServiceClass(ServiceClass):
                     )
                 else:
                     msg = (
-                        f"Get SCP: Received Store SCP response "
-                        f"({store_status[0]})"
+                        f"Get SCP: Received Store SCP response " f"({store_status[0]})"
                     )
                 LOGGER.info(msg)
 
@@ -1952,24 +1927,24 @@ class QueryRetrieveServiceClass(ServiceClass):
                 rsp.NumberOfCompletedSuboperations = store_results[3]
                 self.dimse.send_msg(rsp, cx_id)
 
-        # Event hander has aborted or released - prevent final message
+        # Event handler has aborted or released - prevent final message
         if not self.assoc.is_established:
             return
 
         # If not already done, send the final 'Success' or 'Warning' response
         if not store_results[1] and not store_results[2]:
             # Success response - no failures or warnings
-            LOGGER.info(f'Get SCP Response {ii + 2}: 0x0000 (Success)')
+            LOGGER.info(f"Get SCP Response {ii + 2}: 0x0000 (Success)")
             rsp.Status = 0x0000
             rsp.Identifier = None
         else:
             if no_suboperations == store_results[1]:
                 # Failure response - all sub-operations failed
-                LOGGER.info(f'Get SCP Response {ii + 2}: 0xA702 (Failure)')
+                LOGGER.info(f"Get SCP Response {ii + 2}: 0xA702 (Failure)")
                 rsp.Status = 0xA702  # Unable to perform sub-ops
             else:
                 # Warning response - one or more failures or warnings
-                LOGGER.info(f'Get SCP Response {ii + 2}: 0xB000 (Warning)')
+                LOGGER.info(f"Get SCP Response {ii + 2}: 0xB000 (Warning)")
                 rsp.Status = 0xB000
 
             # If Failure or Warning response, need to return an Identifier with
@@ -1980,7 +1955,7 @@ class QueryRetrieveServiceClass(ServiceClass):
                 ds,
                 transfer_syntax.is_implicit_VR,
                 transfer_syntax.is_little_endian,
-                transfer_syntax.is_deflated
+                transfer_syntax.is_deflated,
             )
             rsp.Identifier = BytesIO(cast(bytes, bytestream))
 
@@ -2016,14 +1991,14 @@ class QueryRetrieveServiceClass(ServiceClass):
                     cast(BytesIO, req.Identifier),
                     transfer_syntax.is_implicit_VR,
                     transfer_syntax.is_little_endian,
-                    transfer_syntax.is_deflated
+                    transfer_syntax.is_deflated,
                 )
-                LOGGER.info('Move SCP Request Identifier:')
-                LOGGER.info('')
-                LOGGER.info('# DICOM Dataset')
+                LOGGER.info("Move SCP Request Identifier:")
+                LOGGER.info("")
+                LOGGER.info("# DICOM Dataset")
                 for line in pretty_dataset(identifier):
                     LOGGER.info(line)
-                LOGGER.info('')
+                LOGGER.info("")
             except Exception:
                 # The user should deal with decoding failures
                 pass
@@ -2036,10 +2011,10 @@ class QueryRetrieveServiceClass(ServiceClass):
                 self.assoc,
                 evt.EVT_C_MOVE,
                 {
-                    'request': req,
-                    'context': context.as_tuple,
-                    '_is_cancelled': self.is_cancelled
-                }
+                    "request": req,
+                    "context": context.as_tuple,
+                    "_is_cancelled": self.is_cancelled,
+                },
             )
 
         # Exception in context or handler aborted/released - before any yields
@@ -2071,9 +2046,7 @@ class QueryRetrieveServiceClass(ServiceClass):
             )
             ctx.error_status = 0xC515
             if None in destination[:2]:
-                LOGGER.error(
-                    f'Unknown Move Destination: {req.MoveDestination}'
-                )
+                LOGGER.error(f"Unknown Move Destination: {req.MoveDestination}")
                 # Failure - Move destination unknown
                 rsp.Status = 0xA801
                 self.dimse.send_msg(rsp, cx_id)
@@ -2111,7 +2084,7 @@ class QueryRetrieveServiceClass(ServiceClass):
                 "destination AE (addr, port) or (addr, port, kwargs) value"
             )
             ctx.error_status = 0xC515
-            kwargs = {'ae_title': req.MoveDestination}
+            kwargs = {"ae_title": req.MoveDestination}
             if len(destination) >= 3 and destination[2]:  # type: ignore
                 kwargs.update(destination[2])  # type: ignore
 
@@ -2124,7 +2097,7 @@ class QueryRetrieveServiceClass(ServiceClass):
 
         if not store_assoc.is_established:
             # Failed to associate with Move Destination AE
-            LOGGER.error('Move SCP: Unable to associate with destination AE')
+            LOGGER.error("Move SCP: Unable to associate with destination AE")
             rsp.Status = 0xA801
             self.dimse.send_msg(rsp, cx_id)
 
@@ -2139,8 +2112,9 @@ class QueryRetrieveServiceClass(ServiceClass):
 
         # Store the SOP Instance UIDs from any failed C-STORE sub-operations
         failed_instances = []
+
         def _add_failed_instance(ds: Dataset) -> None:
-            if hasattr(ds, 'SOPInstanceUID'):
+            if hasattr(ds, "SOPInstanceUID"):
                 failed_instances.append(ds.SOPInstanceUID)
 
         ii = -1  # So if there are no results, log below doesn't break
@@ -2155,16 +2129,16 @@ class QueryRetrieveServiceClass(ServiceClass):
             if exc:
                 LOGGER.error("Exception in handler bound to 'evt.EVT_C_MOVE'")
                 LOGGER.error(
-                    "\nTraceback (most recent call last):\n" +
-                    "".join(traceback.format_tb(exc[2])) +
-                    f"{exc[0].__name__}: {str(exc[1])}"  # type: ignore
+                    "\nTraceback (most recent call last):\n"
+                    + "".join(traceback.format_tb(exc[2]))
+                    + f"{exc[0].__name__}: {str(exc[1])}"  # type: ignore
                 )
                 rsp_status = 0xC511
                 dataset = None
             else:
                 (rsp_status, dataset) = cast(UserReturnType, result)
 
-            # Event hander has aborted or released - during any status yields
+            # Event handler has aborted or released - during any status yields
             if not self.assoc.is_established:
                 store_assoc.release()
                 return
@@ -2194,15 +2168,15 @@ class QueryRetrieveServiceClass(ServiceClass):
             if status[0] == STATUS_CANCEL:
                 # If cancel, then dataset is a Dataset with a
                 #   'FailedSOPInstanceUIDList' element
-                LOGGER.info('Received C-CANCEL-MOVE RQ from peer')
-                LOGGER.info(
-                    f'Move SCP Response {ii + 1}: 0x{rsp.Status:04X} (Cancel)'
-                )
+                LOGGER.info("Received C-CANCEL-MOVE RQ from peer")
+                LOGGER.info(f"Move SCP Response {ii + 1}: 0x{rsp.Status:04X} (Cancel)")
                 store_assoc.release()
 
                 # In case user didn't include it
-                if (not isinstance(dataset, Dataset) or
-                        'FailedSOPInstanceUIDList' not in dataset):
+                if (
+                    not isinstance(dataset, Dataset)
+                    or "FailedSOPInstanceUIDList" not in dataset
+                ):
                     dataset = Dataset()
                     dataset.FailedSOPInstanceUIDList = failed_instances
 
@@ -2210,7 +2184,7 @@ class QueryRetrieveServiceClass(ServiceClass):
                     dataset,
                     transfer_syntax.is_implicit_VR,
                     transfer_syntax.is_little_endian,
-                    transfer_syntax.is_deflated
+                    transfer_syntax.is_deflated,
                 )
 
                 rsp.Identifier = BytesIO(cast(bytes, bytestream))
@@ -2233,7 +2207,7 @@ class QueryRetrieveServiceClass(ServiceClass):
                 # In case user didn't include it
                 if (
                     not isinstance(dataset, Dataset)
-                    or 'FailedSOPInstanceUIDList' not in dataset
+                    or "FailedSOPInstanceUIDList" not in dataset
                 ):
                     dataset = Dataset()
                     dataset.FailedSOPInstanceUIDList = failed_instances
@@ -2242,14 +2216,12 @@ class QueryRetrieveServiceClass(ServiceClass):
                     dataset,
                     transfer_syntax.is_implicit_VR,
                     transfer_syntax.is_little_endian,
-                    transfer_syntax.is_deflated
+                    transfer_syntax.is_deflated,
                 )
 
                 rsp.Identifier = BytesIO(cast(bytes, bytestream))
                 rsp.NumberOfRemainingSuboperations = None
-                rsp.NumberOfFailedSuboperations = (
-                    store_results[1] + store_results[0]
-                )
+                rsp.NumberOfFailedSuboperations = store_results[1] + store_results[0]
                 rsp.NumberOfWarningSuboperations = store_results[2]
                 rsp.NumberOfCompletedSuboperations = store_results[3]
 
@@ -2262,9 +2234,7 @@ class QueryRetrieveServiceClass(ServiceClass):
                 # If the user yields Success, check it
                 if store_results[1] or store_results[2]:
                     # Sub-operations contained failures/warnings
-                    LOGGER.info(
-                        f'Move SCP Response {ii + 1}: 0xB000 (Warning)'
-                    )
+                    LOGGER.info(f"Move SCP Response {ii + 1}: 0xB000 (Warning)")
 
                     ds = Dataset()
                     ds.FailedSOPInstanceUIDList = failed_instances
@@ -2272,16 +2242,14 @@ class QueryRetrieveServiceClass(ServiceClass):
                         ds,
                         transfer_syntax.is_implicit_VR,
                         transfer_syntax.is_little_endian,
-                        transfer_syntax.is_deflated
+                        transfer_syntax.is_deflated,
                     )
 
                     rsp.Identifier = BytesIO(cast(bytes, bytestream))
                     rsp.Status = 0xB000
                 else:
                     # No failures or warnings
-                    LOGGER.info(
-                        f'Move SCP Response {ii + 1}: 0x0000 (Success)'
-                    )
+                    LOGGER.info(f"Move SCP Response {ii + 1}: 0x0000 (Success)")
                     rsp.Identifier = None
 
                 rsp.NumberOfRemainingSuboperations = None
@@ -2294,10 +2262,10 @@ class QueryRetrieveServiceClass(ServiceClass):
             elif status[0] == STATUS_PENDING and dataset:
                 # If pending, then dataset is the Dataset to send
                 if not isinstance(dataset, Dataset):
-                    LOGGER.error('Received invalid dataset from callback')
+                    LOGGER.error("Received invalid dataset from callback")
                     # Count as a sub-operation failure
                     store_results[1] += 1
-                    failed_instances.append('')
+                    failed_instances.append("")
                     rsp.Identifier = None
                     rsp.NumberOfRemainingSuboperations = store_results[0]
                     rsp.NumberOfFailedSuboperations = store_results[1]
@@ -2306,9 +2274,7 @@ class QueryRetrieveServiceClass(ServiceClass):
                     self.dimse.send_msg(rsp, cx_id)
                     continue
 
-                LOGGER.info(
-                    f'Move SCP Response {ii + 1}: 0x{rsp.Status:04X} (Pending)'
-                )
+                LOGGER.info(f"Move SCP Response {ii + 1}: 0x{rsp.Status:04X} (Pending)")
 
                 # Send `dataset` via C-STORE sub-operations over the
                 #   association and check that the response's Status exists
@@ -2323,19 +2289,17 @@ class QueryRetrieveServiceClass(ServiceClass):
                         dataset,
                         msg_id=msg_id,
                         originator_aet=self.ae.ae_title,
-                        originator_id=req.MessageID
+                        originator_id=req.MessageID,
                     )
 
                     store_status_int = status_ds.Status
-                    store_status = STORAGE_SERVICE_CLASS_STATUS[
-                        store_status_int
-                    ]
+                    store_status = STORAGE_SERVICE_CLASS_STATUS[store_status_int]
                 except Exception as exc:
                     # An exception implies a C-STORE failure
                     LOGGER.warning("C-STORE sub-operation failed.")
                     LOGGER.error(str(exc))
                     store_status_int = None
-                    store_status = (STATUS_FAILURE, 'Unknown')
+                    store_status = (STATUS_FAILURE, "Unknown")
 
                 if store_status_int is not None:
                     msg = (
@@ -2344,8 +2308,7 @@ class QueryRetrieveServiceClass(ServiceClass):
                     )
                 else:
                     msg = (
-                        f"Move SCP: Received Store SCP response "
-                        f"({store_status[0]})"
+                        f"Move SCP: Received Store SCP response " f"({store_status[0]})"
                     )
 
                 LOGGER.info(msg)
@@ -2372,26 +2335,24 @@ class QueryRetrieveServiceClass(ServiceClass):
 
         store_assoc.release()
 
-        # Event hander has aborted or released - after any yields
+        # Event handler has aborted or released - after any yields
         if not self.assoc.is_established:
             return
 
         # If not already done, send the final 'Success' or 'Warning' response
         if not store_results[1] and not store_results[2]:
             # Success response - no failures or warnings
-            LOGGER.info(
-                f'Move SCP Response {ii + 2}: 0x0000 (Success)'
-            )
+            LOGGER.info(f"Move SCP Response {ii + 2}: 0x0000 (Success)")
             rsp.Status = 0x0000
             rsp.Identifier = None
         else:
             if no_suboperations == store_results[1]:
                 # Failure response - all sub-operations failed
-                LOGGER.info(f'Move SCP Response {ii + 2}: 0xA702 (Failure)')
+                LOGGER.info(f"Move SCP Response {ii + 2}: 0xA702 (Failure)")
                 rsp.Status = 0xA702  # Unable to perform sub-ops
             else:
                 # Warning response - one or more failures or warnings
-                LOGGER.info(f'Move SCP Response {ii + 2}: 0xB000 (Warning)')
+                LOGGER.info(f"Move SCP Response {ii + 2}: 0xB000 (Warning)")
                 rsp.Status = 0xB000
 
             # If Failure or Warning response, need to return an Identifier with
@@ -2402,7 +2363,7 @@ class QueryRetrieveServiceClass(ServiceClass):
                 ds,
                 transfer_syntax.is_implicit_VR,
                 transfer_syntax.is_little_endian,
-                transfer_syntax.is_deflated
+                transfer_syntax.is_deflated,
             )
             rsp.Identifier = BytesIO(cast(bytes, bytestream))
 
@@ -2416,6 +2377,7 @@ class QueryRetrieveServiceClass(ServiceClass):
 
 class BasicWorklistManagementServiceClass(QueryRetrieveServiceClass):
     """Implementation of the Basic Worklist Management Service Class."""
+
     statuses = QR_FIND_SERVICE_CLASS_STATUS
 
     def SCP(self, req: "_QR", context: "PresentationContext") -> None:
@@ -2430,48 +2392,55 @@ class BasicWorklistManagementServiceClass(QueryRetrieveServiceClass):
         """
         if (
             isinstance(req, C_FIND)
-            and context.abstract_syntax == '1.2.840.10008.5.1.4.31'
+            and context.abstract_syntax == "1.2.840.10008.5.1.4.31"
         ):
             self._c_find_scp(req, context)
         else:
             raise ValueError(
-                'The supplied abstract syntax is not valid for use with the '
-                'Basic Worklist Management Service Class'
+                "The supplied abstract syntax is not valid for use with the "
+                "Basic Worklist Management Service Class"
             )
 
 
 class ColorPaletteQueryRetrieveServiceClass(QueryRetrieveServiceClass):
     """Implementation of the Color Palette QR Service."""
+
     pass
 
 
 class DefinedProcedureProtocolQueryRetrieveServiceClass(QueryRetrieveServiceClass):
     """Implementation of the Defined Procedure Protocol QR Service."""
+
     pass
 
 
 class HangingProtocolQueryRetrieveServiceClass(QueryRetrieveServiceClass):
     """Implementation of the Hanging Protocol QR Service."""
+
     pass
 
 
 class ImplantTemplateQueryRetrieveServiceClass(QueryRetrieveServiceClass):
     """Implementation of the Implant Template QR Service."""
+
     pass
 
 
 class NonPatientObjectStorageServiceClass(StorageServiceClass):
     """Implementation of the Non-Patient Object Storage Service"""
+
     statuses = NON_PATIENT_SERVICE_CLASS_STATUS
 
 
 class ProtocolApprovalQueryRetrieveServiceClass(QueryRetrieveServiceClass):
     """Implementation of the Protocol Approval QR Service."""
+
     pass
 
 
 class RelevantPatientInformationQueryServiceClass(ServiceClass):
     """Implementation of the Relevant Patient Information Query"""
+
     statuses = RELEVANT_PATIENT_SERVICE_CLASS_STATUS
 
     def SCP(self, req: C_FIND, context: "PresentationContext") -> None:
@@ -2501,14 +2470,14 @@ class RelevantPatientInformationQueryServiceClass(ServiceClass):
                     cast(BytesIO, req.Identifier),
                     transfer_syntax.is_implicit_VR,
                     transfer_syntax.is_little_endian,
-                    transfer_syntax.is_deflated
+                    transfer_syntax.is_deflated,
                 )
-                LOGGER.info('Find SCP Request Identifier:')
-                LOGGER.info('')
-                LOGGER.debug('# DICOM Dataset')
+                LOGGER.info("Find SCP Request Identifier:")
+                LOGGER.info("")
+                LOGGER.debug("# DICOM Dataset")
                 for line in pretty_dataset(identifier):
                     LOGGER.info(line)
-                LOGGER.info('')
+                LOGGER.info("")
             except Exception:
                 # The user should deal with decoding failures
                 pass
@@ -2518,22 +2487,22 @@ class RelevantPatientInformationQueryServiceClass(ServiceClass):
                 self.assoc,
                 evt.EVT_C_FIND,
                 {
-                    'request': req,
-                    'context': context.as_tuple,
-                    '_is_cancelled': self.is_cancelled
-                }
+                    "request": req,
+                    "context": context.as_tuple,
+                    "_is_cancelled": self.is_cancelled,
+                },
             )
             responses = cast(Iterator[UserReturnType], responses)
             (rsp_status, rsp_identifier) = next(responses)
         except (StopIteration, TypeError):
-            # Event hander has aborted or released - before any yields
+            # Event handler has aborted or released - before any yields
             if not self.assoc.is_established:
                 return
 
             # There were no matches, so return Success
             # If success, then rsp_identifier is None
             rsp.Status = 0x0000
-            LOGGER.info('Find SCP Response: 0x0000 (Success)')
+            LOGGER.info("Find SCP Response: 0x0000 (Success)")
             self.dimse.send_msg(rsp, cx_id)
             return
         except Exception as ex:
@@ -2543,7 +2512,7 @@ class RelevantPatientInformationQueryServiceClass(ServiceClass):
             self.dimse.send_msg(rsp, cx_id)
             return
 
-        # Event hander has aborted or released
+        # Event handler has aborted or released
         if not self.assoc.is_established:
             return
 
@@ -2558,19 +2527,19 @@ class RelevantPatientInformationQueryServiceClass(ServiceClass):
 
         if status[0] == STATUS_CANCEL:
             # If cancel, then rsp_identifier is None
-            LOGGER.info('Received C-CANCEL-FIND RQ from peer')
-            LOGGER.info(f'Find SCP Response: 0x{rsp.Status:04X} (Cancel)')
+            LOGGER.info("Received C-CANCEL-FIND RQ from peer")
+            LOGGER.info(f"Find SCP Response: 0x{rsp.Status:04X} (Cancel)")
             self.dimse.send_msg(rsp, cx_id)
             return
         elif status[0] == STATUS_FAILURE:
             # If failed, then rsp_identifier is None
-            LOGGER.info(f'Find SCP Response: 0x{rsp.Status:04X} (Failure)')
+            LOGGER.info(f"Find SCP Response: 0x{rsp.Status:04X} (Failure)")
             self.dimse.send_msg(rsp, cx_id)
             return
         elif status[0] == STATUS_SUCCESS:
             # User isn't supposed to send these, but handle anyway
             # If success, then rsp_identifier is None
-            LOGGER.info('Find SCP Response: 0x0000 (Success)')
+            LOGGER.info("Find SCP Response: 0x0000 (Success)")
             self.dimse.send_msg(rsp, cx_id)
             return
         elif status[0] == STATUS_PENDING:
@@ -2580,14 +2549,12 @@ class RelevantPatientInformationQueryServiceClass(ServiceClass):
                 rsp_identifier,
                 transfer_syntax.is_implicit_VR,
                 transfer_syntax.is_little_endian,
-                transfer_syntax.is_deflated
+                transfer_syntax.is_deflated,
             )
             bytestream = BytesIO(cast(bytes, enc))
 
-            if bytestream.getvalue() == b'':
-                LOGGER.error(
-                    "Failed encoding the response 'Identifier' dataset"
-                )
+            if bytestream.getvalue() == b"":
+                LOGGER.error("Failed encoding the response 'Identifier' dataset")
                 # Failure: Unable to Process - Can't encode dataset
                 #   returned by handler
                 rsp.Status = 0xC312
@@ -2596,26 +2563,27 @@ class RelevantPatientInformationQueryServiceClass(ServiceClass):
 
             rsp.Identifier = bytestream
 
-            LOGGER.info(f'Find SCP Response:  0x{rsp.Status:04X} (Pending)')
+            LOGGER.info(f"Find SCP Response:  0x{rsp.Status:04X} (Pending)")
             if _config.LOG_RESPONSE_IDENTIFIERS:
-                LOGGER.debug('Find SCP Response Identifier:')
-                LOGGER.debug('')
-                LOGGER.debug('# DICOM Dataset')
+                LOGGER.debug("Find SCP Response Identifier:")
+                LOGGER.debug("")
+                LOGGER.debug("# DICOM Dataset")
                 for line in pretty_dataset(rsp_identifier):
                     LOGGER.debug(line)
-                LOGGER.debug('')
+                LOGGER.debug("")
 
             # Send pending response
             self.dimse.send_msg(rsp, cx_id)
 
             # Send final success response
             rsp.Status = 0x0000
-            LOGGER.info('Find SCP Response: 0x0000 (Success)')
+            LOGGER.info("Find SCP Response: 0x0000 (Success)")
             self.dimse.send_msg(rsp, cx_id)
 
 
 class SubstanceAdministrationQueryServiceClass(QueryRetrieveServiceClass):
     """Implementation of the Substance Administration Query Service"""
+
     statuses = SUBSTANCE_ADMINISTRATION_SERVICE_CLASS_STATUS
 
     def SCP(self, req: "_QR", context: "PresentationContext") -> None:
@@ -2629,11 +2597,11 @@ class SubstanceAdministrationQueryServiceClass(QueryRetrieveServiceClass):
         context : presentation.PresentationContext
             The presentation context that the SCP is operating under.
         """
-        uids = ['1.2.840.10008.5.1.4.41', '1.2.840.10008.5.1.4.42']
+        uids = ["1.2.840.10008.5.1.4.41", "1.2.840.10008.5.1.4.42"]
         if isinstance(req, C_FIND) and context.abstract_syntax in uids:
             self._c_find_scp(req, context)
         else:
             raise ValueError(
-                'The supplied abstract syntax is not valid for use with the '
-                'Substance Administration Query Service Class'
+                "The supplied abstract syntax is not valid for use with the "
+                "Substance Administration Query Service Class"
             )

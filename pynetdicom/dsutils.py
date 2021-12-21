@@ -15,13 +15,11 @@ from pydicom.filewriter import write_dataset
 from pydicom.tag import BaseTag
 from pydicom.uid import UID
 
-from pynetdicom import (
-    PYNETDICOM_IMPLEMENTATION_UID, PYNETDICOM_IMPLEMENTATION_VERSION
-)
+from pynetdicom import PYNETDICOM_IMPLEMENTATION_UID, PYNETDICOM_IMPLEMENTATION_VERSION
 from pynetdicom.utils import pretty_bytes
 
 
-LOGGER = logging.getLogger('pynetdicom.dsutils')
+LOGGER = logging.getLogger("pynetdicom.dsutils")
 
 
 def create_file_meta(
@@ -57,7 +55,7 @@ def create_file_meta(
     file_meta = FileMetaDataset()
 
     file_meta.FileMetaInformationGroupLength = 0
-    file_meta.FileMetaInformationVersion = b'\x00\x01'
+    file_meta.FileMetaInformationVersion = b"\x00\x01"
     file_meta.MediaStorageSOPClassUID = sop_class_uid
     file_meta.MediaStorageSOPInstanceUID = sop_instance_uid
     file_meta.TransferSyntaxUID = transfer_syntax
@@ -75,7 +73,7 @@ def decode(
     bytestring: BytesIO,
     is_implicit_vr: bool,
     is_little_endian: bool,
-    deflated: bool = False
+    deflated: bool = False,
 ) -> Dataset:
     """Decode `bytestring` to a *pydicom* :class:`~pydicom.dataset.Dataset`.
 
@@ -102,7 +100,7 @@ def decode(
     pydicom.dataset.Dataset
         The decoded dataset.
     """
-    transfer_syntax = ''
+    transfer_syntax = ""
     if deflated:
         transfer_syntax = "Deflated "
         is_implicit_vr = False
@@ -121,9 +119,7 @@ def decode(
 
     if deflated:
         # Decompress the dataset
-        bytestring = BytesIO(
-            zlib.decompress(bytestring.getvalue(), -zlib.MAX_WBITS)
-        )
+        bytestring = BytesIO(zlib.decompress(bytestring.getvalue(), -zlib.MAX_WBITS))
         bytestring.seek(0)
 
     # Decode the dataset
@@ -131,10 +127,7 @@ def decode(
 
 
 def encode(
-    ds: Dataset,
-    is_implicit_vr: bool,
-    is_little_endian: bool,
-    deflated: bool = False
+    ds: Dataset, is_implicit_vr: bool, is_little_endian: bool, deflated: bool = False
 ) -> Optional[bytes]:
     """Encode a *pydicom* :class:`~pydicom.dataset.Dataset` `ds`.
 
@@ -184,14 +177,12 @@ def encode(
         )
         bytestring = compressor.compress(bytestring)
         bytestring += compressor.flush()
-        bytestring += b'\x00' if len(bytestring) % 2 else b''
+        bytestring += b"\x00" if len(bytestring) % 2 else b""
 
     return bytestring
 
 
-def pretty_dataset(
-    ds: Dataset, indent: int = 0, indent_char: str = '  '
-) -> List[str]:
+def pretty_dataset(ds: Dataset, indent: int = 0, indent_char: str = "  ") -> List[str]:
     """Return a list of pretty dataset strings.
 
     .. versionadded:: 1.5
@@ -211,7 +202,7 @@ def pretty_dataset(
     """
     out = []
     for elem in iter(ds):
-        if elem.VR == 'SQ':
+        if elem.VR == "SQ":
             out.append(pretty_element(elem))
             for ii, item in enumerate(elem.value):
                 msg = f"(Sequence item #{ii + 1})"
@@ -239,46 +230,42 @@ def pretty_element(elem: DataElement) -> str:
     """
     try:
         value = elem.value
-        if elem.VM == 0 and elem.VR != 'SQ':
+        if elem.VM == 0 and elem.VR != "SQ":
             # Empty value
-            value = '(no value available)'
-        elif elem.VR in ['OB', 'OD', 'OF', 'OL', 'OW', 'OV']:
+            value = "(no value available)"
+        elif elem.VR in ["OB", "OD", "OF", "OL", "OW", "OV"]:
             # Byte VRs
             if elem.VM == 1:
                 # Single value
                 length = len(elem.value)
                 if length <= 13:
-                    value = pretty_bytes(elem.value, prefix='', delimiter=' ')
-                    value = f'[{value[0]}]'
+                    value = pretty_bytes(elem.value, prefix="", delimiter=" ")
+                    value = f"[{value[0]}]"
                 else:
-                    value = f'({len(elem.value)} bytes of binary data)'
+                    value = f"({len(elem.value)} bytes of binary data)"
             else:
                 # Multiple values - probably non-conformant
                 total_length = sum([len(ii) for ii in elem.value])
-                value = f'({total_length} bytes of binary data)'
-        elif elem.VR != 'SQ':
+                value = f"({total_length} bytes of binary data)"
+        elif elem.VR != "SQ":
             # Non-sequence elements
             if elem.VM == 1:
-                value = f'[{elem.value}]'
+                value = f"[{elem.value}]"
             else:
-                value = '\\'.join([str(ii) for ii in elem.value])
+                value = "\\".join([str(ii) for ii in elem.value])
                 value = f"[{value}]"
-        elif elem.VR == 'SQ':
+        elif elem.VR == "SQ":
             # Sequence elements
             if elem.VM == 1:
-                value = f'(Sequence with {len(elem.value)} item)'
+                value = f"(Sequence with {len(elem.value)} item)"
             else:
-                value = f'(Sequence with {len(elem.value)} items)'
+                value = f"(Sequence with {len(elem.value)} items)"
 
     except Exception as exc:
-        value = '(pynetdicom failed to beautify value)'
+        value = "(pynetdicom failed to beautify value)"
 
-    return '({:04X},{:04X}) {} {: <40} # {} {}'.format(
-        elem.tag.group, elem.tag.element,
-        elem.VR,
-        value,
-        elem.VM,
-        elem.keyword
+    return "({:04X},{:04X}) {} {: <40} # {} {}".format(
+        elem.tag.group, elem.tag.element, elem.VR, value, elem.VM, elem.keyword
     )
 
 
@@ -299,16 +286,14 @@ def split_dataset(path: Path) -> Tuple[Dataset, int]:
         the start of the dataset itself. The File Meta dataset may be empty if
         no File Meta is present.
     """
+
     def _not_group_0002(tag: BaseTag, VR: Optional[str], length: int) -> bool:
         """Return True if the tag is not in group 0x0002, False otherwise."""
         return tag.group != 2
 
-    with open(path, 'rb') as fp:
+    with open(path, "rb") as fp:
         read_preamble(fp, False)
         file_meta = read_dataset(
-            fp,
-            is_implicit_VR=False,
-            is_little_endian=True,
-            stop_when=_not_group_0002
+            fp, is_implicit_VR=False, is_little_endian=True, stop_when=_not_group_0002
         )
         return file_meta, fp.tell()

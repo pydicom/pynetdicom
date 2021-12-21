@@ -8,12 +8,13 @@ import pytest
 from pynetdicom.timer import Timer
 from .utils import sleep
 
-LOGGER = logging.getLogger('pynetdicom')
+LOGGER = logging.getLogger("pynetdicom")
 LOGGER.setLevel(logging.CRITICAL)
 
 
 class TestTimer:
     """Test the Timer class."""
+
     def test_init(self):
         """Test Timer initialisation"""
         timer = Timer(10)

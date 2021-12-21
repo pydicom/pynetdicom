@@ -19,11 +19,18 @@ There are seven different PDUs:
                     to_primitive               decode
 """
 
-import codecs
 import logging
 from struct import Struct
 from typing import (
-    Iterator, Optional, Any, Callable, List, Tuple, TYPE_CHECKING, Union, cast
+    Iterator,
+    Optional,
+    Any,
+    Callable,
+    List,
+    Tuple,
+    TYPE_CHECKING,
+    Union,
+    cast,
 )
 
 from pydicom.uid import UID
@@ -36,29 +43,38 @@ from pynetdicom.pdu_items import (
     PresentationDataValueItem,
     PDU_ITEM_TYPES,
     _PDUItemType,
-    PDUItem
+    PDUItem,
 )
 from pynetdicom.utils import decode_bytes, set_ae
 
 if TYPE_CHECKING:  # pragma: no cover
     from pynetdicom.pdu_primitives import (
-        A_ASSOCIATE, P_DATA, A_RELEASE, A_ABORT, A_P_ABORT
+        A_ASSOCIATE,
+        P_DATA,
+        A_RELEASE,
+        A_ABORT,
+        A_P_ABORT,
     )
 
 
-LOGGER = logging.getLogger('pynetdicom.pdu')
+LOGGER = logging.getLogger("pynetdicom.pdu")
 
 _PDVItem = List[PresentationDataValueItem]
 _AbortType = Union["A_ABORT", "A_P_ABORT"]
 _PDUType = Union[
-    "A_ASSOCIATE_RQ", "A_ASSOCIATE_AC", "A_ASSOCIATE_RJ", "P_DATA_TF",
-    "A_RELEASE_RQ", "A_RELEASE_RP", "A_ABORT_RQ"
+    "A_ASSOCIATE_RQ",
+    "A_ASSOCIATE_AC",
+    "A_ASSOCIATE_RJ",
+    "P_DATA_TF",
+    "A_RELEASE_RQ",
+    "A_RELEASE_RP",
+    "A_ABORT_RQ",
 ]
 
 # Predefine some structs to make decoding and encoding faster
-UCHAR = Struct('B')
-UINT2 = Struct('>H')
-UINT4 = Struct('>I')
+UCHAR = Struct("B")
+UINT2 = Struct(">H")
+UINT4 = Struct(">I")
 
 UNPACK_UCHAR = UCHAR.unpack
 UNPACK_UINT2 = UINT2.unpack
@@ -98,9 +114,7 @@ class PDU:
             else:
                 sl = slice(offset, None)
 
-            setattr(
-                self, attr_name, func(bytestream[sl], *args)
-            )
+            setattr(self, attr_name, func(bytestream[sl], *args))
 
     @property
     def _decoders(self) -> Any:
@@ -138,12 +152,10 @@ class PDU:
         # pylint: disable=protected-access
         if isinstance(other, self.__class__):
             self_dict = {
-                enc[0]: getattr(self, enc[0])
-                for enc in self._encoders if enc[0]
+                enc[0]: getattr(self, enc[0]) for enc in self._encoders if enc[0]
             }
             other_dict = {
-                enc[0]: getattr(other, enc[0])
-                for enc in other._encoders if enc[0]
+                enc[0]: getattr(other, enc[0]) for enc in other._encoders if enc[0]
             }
             return self_dict == other_dict
 
@@ -207,10 +219,10 @@ class PDU:
            :dcm:`Section 9.3.1<part08/sect_9.3.html#sect_9.3.1>`
         """
         offset = 0
-        while bytestream[offset:offset + 1]:
-            item_type = UNPACK_UCHAR(bytestream[offset:offset + 1])[0]
-            item_length = UNPACK_UINT2(bytestream[offset + 2:offset + 4])[0]
-            item_data = bytestream[offset:offset + 4 + item_length]
+        while bytestream[offset : offset + 1]:
+            item_type = UNPACK_UCHAR(bytestream[offset : offset + 1])[0]
+            item_length = UNPACK_UINT2(bytestream[offset + 2 : offset + 4])[0]
+            item_data = bytestream[offset : offset + 4 + item_length]
             assert len(item_data) == 4 + item_length
             yield item_type, item_data
             # Move `offset` to the start of the next item
@@ -263,33 +275,33 @@ class PDU:
     def _wrap_encode_str(value: str, pad: int = 0) -> bytes:
         """Return `value` as ASCII encoded :class:`bytes`.
 
-        Each component of Application Context, Abstract Syntax and Transfer
-        Syntax UIDs should be encoded as a ISO 646:1990-Basic G0 Set Numeric
-        String (characters 0-9), with each component separated by '.' (0x2e)
-       .
+         Each component of Application Context, Abstract Syntax and Transfer
+         Syntax UIDs should be encoded as a ISO 646:1990-Basic G0 Set Numeric
+         String (characters 0-9), with each component separated by '.' (0x2e)
+        .
 
-        'ascii' is chosen because this is the codec Python uses for ISO 646
-        [3]_.
+         'ascii' is chosen because this is the codec Python uses for ISO 646
+         [3]_.
 
-        Parameters
-        ----------
-        value : str
-            The ASCII string to be encoded.
-        pad : int, optional
-            The amount of trailing padding to be used (default ``0``).
+         Parameters
+         ----------
+         value : str
+             The ASCII string to be encoded.
+         pad : int, optional
+             The amount of trailing padding to be used (default ``0``).
 
-        Returns
-        -------
-        bytes
-            The encoded `value`.
+         Returns
+         -------
+         bytes
+             The encoded `value`.
 
-        References
-        ----------
-        * DICOM Standard, Part 8, :dcm:`Annex F <part08/chapter_F.html>`
-        * `Python 3 codecs module
-          <https://docs.python.org/2/library/codecs.html#standard-encodings>`_
+         References
+         ----------
+         * DICOM Standard, Part 8, :dcm:`Annex F <part08/chapter_F.html>`
+         * `Python 3 codecs module
+           <https://docs.python.org/2/library/codecs.html#standard-encodings>`_
         """
-        return value.ljust(pad).encode('ascii', errors='strict')
+        return value.ljust(pad).encode("ascii", errors="strict")
 
     def _wrap_generate_items(self, bytestream: bytes) -> List[PDUItem]:
         """Return a list of decoded PDU items generated from `bytestream`."""
@@ -321,9 +333,7 @@ class PDU:
         return packer(value)
 
     @staticmethod
-    def _wrap_unpack(
-        bytestream: bytes, unpacker: Callable[[bytes], Tuple[Any]]
-    ) -> Any:
+    def _wrap_unpack(bytestream: bytes, unpacker: Callable[[bytes], Tuple[Any]]) -> Any:
         """Return the first value when `unpacker` is run on `bytestream`.
 
         Parameters
@@ -499,7 +509,8 @@ class A_ASSOCIATE_RQ(PDU):
             # Add presentation contexts
             if isinstance(item, PresentationContextItemRQ):
                 primitive.presentation_context_definition_list.append(
-                    item.to_primitive())
+                    item.to_primitive()
+                )
 
             # Add user information
             elif isinstance(item, UserInformationItem):
@@ -551,9 +562,7 @@ class A_ASSOCIATE_RQ(PDU):
                     "entirely of spaces"
                 )
 
-        self._called_aet = cast(
-            str, set_ae(value, 'Called AE Title', False, False)
-        )
+        self._called_aet = cast(str, set_ae(value, "Called AE Title", False, False))
 
     @property
     def calling_ae_title(self) -> str:
@@ -583,9 +592,7 @@ class A_ASSOCIATE_RQ(PDU):
                     "entirely of spaces"
                 )
 
-        self._calling_aet = cast(
-            str, set_ae(value, 'Calling AE Title', False, False)
-        )
+        self._calling_aet = cast(str, set_ae(value, "Calling AE Title", False, False))
 
     @property
     def _decoders(self) -> Any:
@@ -607,10 +614,10 @@ class A_ASSOCIATE_RQ(PDU):
             - ``args`` is a list of arguments to pass ``callable``
         """
         return [
-            ((6, 2), 'protocol_version', self._wrap_unpack, [UNPACK_UINT2]),
-            ((10, 16), 'called_ae_title', self._wrap_bytes, []),
-            ((26, 16), 'calling_ae_title', self._wrap_bytes, []),
-            ((74, None), 'variable_items', self._wrap_generate_items, [])
+            ((6, 2), "protocol_version", self._wrap_unpack, [UNPACK_UINT2]),
+            ((10, 16), "called_ae_title", self._wrap_bytes, []),
+            ((26, 16), "calling_ae_title", self._wrap_bytes, []),
+            ((74, None), "variable_items", self._wrap_generate_items, []),
         ]
 
     @property
@@ -628,13 +635,13 @@ class A_ASSOCIATE_RQ(PDU):
             - ``args`` is a :class:`list` of arguments to pass ``callable``.
         """
         return [
-            ('pdu_type', PACK_UCHAR, []),
+            ("pdu_type", PACK_UCHAR, []),
             (None, self._wrap_pack, [0x00, PACK_UCHAR]),
-            ('pdu_length', PACK_UINT4, []),
-            ('protocol_version', PACK_UINT2, []),
+            ("pdu_length", PACK_UINT4, []),
+            ("protocol_version", PACK_UINT2, []),
             (None, self._wrap_pack, [0x0000, PACK_UINT2]),
-            ('called_ae_title', self._wrap_encode_str, [16]),
-            ('calling_ae_title', self._wrap_encode_str, [16]),
+            ("called_ae_title", self._wrap_encode_str, [16]),
+            ("calling_ae_title", self._wrap_encode_str, [16]),
             (None, self._wrap_pack, [0x00, PACK_UINT4]),
             (None, self._wrap_pack, [0x00, PACK_UINT4]),
             (None, self._wrap_pack, [0x00, PACK_UINT4]),
@@ -643,7 +650,7 @@ class A_ASSOCIATE_RQ(PDU):
             (None, self._wrap_pack, [0x00, PACK_UINT4]),
             (None, self._wrap_pack, [0x00, PACK_UINT4]),
             (None, self._wrap_pack, [0x00, PACK_UINT4]),
-            ('variable_items', self._wrap_encode_items, [])
+            ("variable_items", self._wrap_encode_items, []),
         ]
 
     @property
@@ -665,39 +672,40 @@ class A_ASSOCIATE_RQ(PDU):
             The Presentation Context items.
         """
         return [
-            item for item in self.variable_items
+            item
+            for item in self.variable_items
             if isinstance(item, PresentationContextItemRQ)
         ]
 
     def __str__(self) -> str:
         """Return a string representation of the PDU."""
-        s = ['A-ASSOCIATE-RQ PDU']
-        s.append('==================')
-        s.append(f'  PDU type: 0x{self.pdu_type:02X}')
-        s.append(f'  PDU length: {self.pdu_length} bytes')
-        s.append(f'  Protocol version: {self.protocol_version}')
-        s.append(f'  Called AET:  {self.called_ae_title}')
-        s.append(f'  Calling AET: {self.calling_ae_title}')
-        s.append('')
+        s = ["A-ASSOCIATE-RQ PDU"]
+        s.append("==================")
+        s.append(f"  PDU type: 0x{self.pdu_type:02X}")
+        s.append(f"  PDU length: {self.pdu_length} bytes")
+        s.append(f"  Protocol version: {self.protocol_version}")
+        s.append(f"  Called AET:  {self.called_ae_title}")
+        s.append(f"  Calling AET: {self.calling_ae_title}")
+        s.append("")
 
-        s.append('  Variable Items')
-        s.append('  ---------------')
-        s.append('  * Application Context Item')
-        s.append(f'    - Context name: ={self.application_context_name}')
-        s.append('  * Presentation Context Item(s):')
+        s.append("  Variable Items")
+        s.append("  ---------------")
+        s.append("  * Application Context Item")
+        s.append(f"    - Context name: ={self.application_context_name}")
+        s.append("  * Presentation Context Item(s):")
 
         for cx in self.presentation_context:
-            item_str_list = str(cx).split('\n')
-            s.append(f'    - {item_str_list[0]}')
+            item_str_list = str(cx).split("\n")
+            s.append(f"    - {item_str_list[0]}")
             for jj in item_str_list[1:-1]:
-                s.append(f'      {jj}')
+                s.append(f"      {jj}")
 
-        s.append('  * User Information Item(s):')
+        s.append("  * User Information Item(s):")
         for item in cast(UserInformationItem, self.user_information).user_data:
-            item_str_list = str(item).split('\n')
-            s.append(f'    - {item_str_list[0]}')
+            item_str_list = str(item).split("\n")
+            s.append(f"    - {item_str_list[0]}")
             for jj in item_str_list[1:-1]:
-                s.append(f'      {jj}')
+                s.append(f"      {jj}")
 
         return "\n".join(s)
 
@@ -815,9 +823,9 @@ class A_ASSOCIATE_AC(PDU):
         # We allow the user to modify the protocol version if so desired
         self.protocol_version = 0x01
         # Called AE Title, should be present, but no guarantees
-        self._reserved_aet: str = ''
+        self._reserved_aet: str = ""
         # Calling AE Title, should be present, but no guarantees
-        self._reserved_aec: str = ''
+        self._reserved_aec: str = ""
 
         # `variable_items` is a list containing the following:
         #   1 ApplicationContextItem
@@ -876,9 +884,7 @@ class A_ASSOCIATE_AC(PDU):
         for item in self.variable_items:
             # Add application context
             if isinstance(item, ApplicationContextItem):
-                primitive.application_context_name = (
-                    item.application_context_name
-                )
+                primitive.application_context_name = item.application_context_name
 
             # Add presentation contexts
             elif isinstance(item, PresentationContextItemAC):
@@ -960,10 +966,10 @@ class A_ASSOCIATE_AC(PDU):
             - args is a list of arguments to pass callable.
         """
         return [
-            ((6, 2), 'protocol_version', self._wrap_unpack, [UNPACK_UINT2]),
-            ((10, 16), 'reserved_aet', self._wrap_bytes, []),  # Called AET
-            ((26, 16), 'reserved_aec', self._wrap_bytes, []),  # Calling AET
-            ((74, None), 'variable_items', self._wrap_generate_items, [])
+            ((6, 2), "protocol_version", self._wrap_unpack, [UNPACK_UINT2]),
+            ((10, 16), "reserved_aet", self._wrap_bytes, []),  # Called AET
+            ((26, 16), "reserved_aec", self._wrap_bytes, []),  # Calling AET
+            ((74, None), "variable_items", self._wrap_generate_items, []),
         ]
 
     @property
@@ -980,13 +986,13 @@ class A_ASSOCIATE_AC(PDU):
             - args is a list of arguments to pass callable.
         """
         return [
-            ('pdu_type', PACK_UCHAR, []),
+            ("pdu_type", PACK_UCHAR, []),
             (None, self._wrap_pack, [0x00, PACK_UCHAR]),
-            ('pdu_length', PACK_UINT4, []),
-            ('protocol_version', PACK_UINT2, []),
+            ("pdu_length", PACK_UINT4, []),
+            ("protocol_version", PACK_UINT2, []),
             (None, self._wrap_pack, [0x0000, PACK_UINT2]),
-            ('reserved_aet', self._wrap_encode_str, [16]),  # Called AET
-            ('reserved_aec', self._wrap_encode_str, [16]),  # Calling AET
+            ("reserved_aet", self._wrap_encode_str, [16]),  # Called AET
+            ("reserved_aec", self._wrap_encode_str, [16]),  # Calling AET
             (None, self._wrap_pack, [0x00, PACK_UINT4]),
             (None, self._wrap_pack, [0x00, PACK_UINT4]),
             (None, self._wrap_pack, [0x00, PACK_UINT4]),
@@ -995,7 +1001,7 @@ class A_ASSOCIATE_AC(PDU):
             (None, self._wrap_pack, [0x00, PACK_UINT4]),
             (None, self._wrap_pack, [0x00, PACK_UINT4]),
             (None, self._wrap_pack, [0x00, PACK_UINT4]),
-            ('variable_items', self._wrap_encode_items, [])
+            ("variable_items", self._wrap_encode_items, []),
         ]
 
     @property
@@ -1017,7 +1023,8 @@ class A_ASSOCIATE_AC(PDU):
             The Presentation Context Items.
         """
         return [
-            item for item in self.variable_items
+            item
+            for item in self.variable_items
             if isinstance(item, PresentationContextItemAC)
         ]
 
@@ -1048,7 +1055,7 @@ class A_ASSOCIATE_AC(PDU):
             try:
                 value = decode_bytes(value).strip()
             except ValueError:
-                value = ''
+                value = ""
 
         self._reserved_aec = value
 
@@ -1079,39 +1086,39 @@ class A_ASSOCIATE_AC(PDU):
             try:
                 value = decode_bytes(value).strip()
             except ValueError:
-                value = ''
+                value = ""
 
         self._reserved_aet = value
 
     def __str__(self) -> str:
         """Return a string representation of the PDU."""
-        s = ['A-ASSOCIATE-AC PDU']
-        s.append('==================')
-        s.append(f'  PDU type: 0x{self.pdu_type:02X}')
-        s.append(f'  PDU length: {self.pdu_length} bytes')
-        s.append(f'  Protocol version: {self.protocol_version}')
-        s.append(f'  Reserved (Called AET):  {self._reserved_aet}')
-        s.append(f'  Reserved (Calling AET): {self._reserved_aec}')
-        s.append('')
+        s = ["A-ASSOCIATE-AC PDU"]
+        s.append("==================")
+        s.append(f"  PDU type: 0x{self.pdu_type:02X}")
+        s.append(f"  PDU length: {self.pdu_length} bytes")
+        s.append(f"  Protocol version: {self.protocol_version}")
+        s.append(f"  Reserved (Called AET):  {self._reserved_aet}")
+        s.append(f"  Reserved (Calling AET): {self._reserved_aec}")
+        s.append("")
 
-        s.append('  Variable Items:')
-        s.append('  ---------------')
-        s.append('  * Application Context Item')
-        s.append(f'    -  Context name: ={self.application_context_name}')
-        s.append('  * Presentation Context Item(s):')
+        s.append("  Variable Items:")
+        s.append("  ---------------")
+        s.append("  * Application Context Item")
+        s.append(f"    -  Context name: ={self.application_context_name}")
+        s.append("  * Presentation Context Item(s):")
 
         for cx in self.presentation_context:
-            item_str_list = str(cx).split('\n')
-            s.append(f'    -  {item_str_list[0]}')
+            item_str_list = str(cx).split("\n")
+            s.append(f"    -  {item_str_list[0]}")
             for jj in item_str_list[1:-1]:
-                s.append(f'       {jj}')
+                s.append(f"       {jj}")
 
-        s.append('  * User Information Item(s):')
+        s.append("  * User Information Item(s):")
         for item in cast(UserInformationItem, self.user_information).user_data:
-            item_str_list = str(item).split('\n')
-            s.append(f'    -  {item_str_list[0]}')
+            item_str_list = str(item).split("\n")
+            s.append(f"    -  {item_str_list[0]}")
             for jj in item_str_list[1:-1]:
-                s.append(f'       {jj}')
+                s.append(f"       {jj}")
 
         return "\n".join(s)
 
@@ -1189,6 +1196,7 @@ class A_ASSOCIATE_RJ(PDU):
     * DICOM Standard, Part 8,
       :dcm:`Section 9.3.1<part08/sect_9.3.html#sect_9.3.1>`
     """
+
     def __init__(self) -> None:
         """Initialise a new A-ASSOCIATE-RJ PDU."""
         self.result: Optional[int] = None
@@ -1241,9 +1249,9 @@ class A_ASSOCIATE_RJ(PDU):
             - args is a list of arguments to pass callable.
         """
         return [
-            ((7, 1), 'result', self._wrap_unpack, [UNPACK_UCHAR]),
-            ((8, 1), 'source', self._wrap_unpack, [UNPACK_UCHAR]),
-            ((9, 1), 'reason_diagnostic', self._wrap_unpack, [UNPACK_UCHAR])
+            ((7, 1), "result", self._wrap_unpack, [UNPACK_UCHAR]),
+            ((8, 1), "source", self._wrap_unpack, [UNPACK_UCHAR]),
+            ((9, 1), "reason_diagnostic", self._wrap_unpack, [UNPACK_UCHAR]),
         ]
 
     @property
@@ -1260,13 +1268,13 @@ class A_ASSOCIATE_RJ(PDU):
             - args is a list of arguments to pass callable.
         """
         return [
-            ('pdu_type', PACK_UCHAR, []),
+            ("pdu_type", PACK_UCHAR, []),
             (None, self._wrap_pack, [0x00, PACK_UCHAR]),
-            ('pdu_length', PACK_UINT4, []),
+            ("pdu_length", PACK_UINT4, []),
             (None, self._wrap_pack, [0x00, PACK_UCHAR]),
-            ('result', PACK_UCHAR, []),
-            ('source', PACK_UCHAR, []),
-            ('reason_diagnostic', PACK_UCHAR, []),
+            ("result", PACK_UCHAR, []),
+            ("source", PACK_UCHAR, []),
+            ("reason_diagnostic", PACK_UCHAR, []),
         ]
 
     @property
@@ -1288,12 +1296,9 @@ class A_ASSOCIATE_RJ(PDU):
                 7: "Called AE title not recognised",
                 8: "Reserved",
                 9: "Reserved",
-                10: "Reserved"
+                10: "Reserved",
             },
-            2: {
-                1: "No reason given",
-                2: "Protocol version not supported"
-            },
+            2: {1: "No reason given", 2: "Protocol version not supported"},
             3: {
                 0: "Reserved",
                 1: "Temporary congestion",
@@ -1302,17 +1307,17 @@ class A_ASSOCIATE_RJ(PDU):
                 4: "Reserved",
                 5: "Reserved",
                 6: "Reserved",
-                7: "Reserved"
-            }
+                7: "Reserved",
+            },
         }
 
         if self.source not in _reasons:
-            msg = 'Invalid value in Source field in A-ASSOCIATE-RJ PDU'
+            msg = "Invalid value in Source field in A-ASSOCIATE-RJ PDU"
             LOGGER.error(msg)
             raise ValueError(msg)
 
         if self.reason_diagnostic not in _reasons[self.source]:
-            msg = 'Invalid value in Reason field in A-ASSOCIATE-RJ PDU'
+            msg = "Invalid value in Reason field in A-ASSOCIATE-RJ PDU"
             LOGGER.error(msg)
             raise ValueError(msg)
 
@@ -1321,13 +1326,10 @@ class A_ASSOCIATE_RJ(PDU):
     @property
     def result_str(self) -> str:
         """Return a str describing the *Result* field value."""
-        _results = {
-            1: 'Rejected (Permanent)',
-            2: 'Rejected (Transient)'
-        }
+        _results = {1: "Rejected (Permanent)", 2: "Rejected (Transient)"}
 
         if self.result not in _results:
-            msg = 'Invalid value in Result field in A-ASSOCIATE-RJ PDU'
+            msg = "Invalid value in Result field in A-ASSOCIATE-RJ PDU"
             LOGGER.error(msg)
             raise ValueError(msg)
 
@@ -1337,13 +1339,13 @@ class A_ASSOCIATE_RJ(PDU):
     def source_str(self) -> str:
         """Return a str describing the *Source* field value."""
         _sources = {
-            1: 'DUL service-user',
-            2: 'DUL service-provider (ACSE related)',
-            3: 'DUL service-provider (presentation related)'
+            1: "DUL service-user",
+            2: "DUL service-provider (ACSE related)",
+            3: "DUL service-provider (presentation related)",
         }
 
         if self.source not in _sources:
-            msg = 'Invalid value in Source field in A-ASSOCIATE-RJ PDU'
+            msg = "Invalid value in Source field in A-ASSOCIATE-RJ PDU"
             LOGGER.error(msg)
             raise ValueError(msg)
 
@@ -1351,13 +1353,13 @@ class A_ASSOCIATE_RJ(PDU):
 
     def __str__(self) -> str:
         """Return a string representation of the PDU."""
-        s = 'A-ASSOCIATE-RJ PDU\n'
-        s += '==================\n'
-        s += f'  PDU type: 0x{self.pdu_type:02X}\n'
-        s += f'  PDU length: {self.pdu_length} bytes\n'
-        s += f'  Result: {self.result_str}\n'
-        s += f'  Source: {self.source_str}\n'
-        s += f'  Reason/Diagnostic: {self.reason_str}\n'
+        s = "A-ASSOCIATE-RJ PDU\n"
+        s += "==================\n"
+        s += f"  PDU type: 0x{self.pdu_type:02X}\n"
+        s += f"  PDU length: {self.pdu_length} bytes\n"
+        s += f"  Result: {self.result_str}\n"
+        s += f"  Source: {self.source_str}\n"
+        s += f"  Reason/Diagnostic: {self.reason_str}\n"
 
         return s
 
@@ -1445,7 +1447,7 @@ class P_DATA_TF(PDU):
             primitive.presentation_data_value_list.append(
                 (
                     cast(int, item.presentation_context_id),
-                    cast(bytes, item.presentation_data_value)
+                    cast(bytes, item.presentation_data_value),
                 )
             )
         return primitive
@@ -1467,10 +1469,7 @@ class P_DATA_TF(PDU):
             - args is a list of arguments to pass callable.
         """
         return [
-            ((6, None),
-             'presentation_data_value_items',
-             self._wrap_generate_items,
-             [])
+            ((6, None), "presentation_data_value_items", self._wrap_generate_items, [])
         ]
 
     @property
@@ -1487,10 +1486,10 @@ class P_DATA_TF(PDU):
             - args is a list of arguments to pass callable.
         """
         return [
-            ('pdu_type', PACK_UCHAR, []),
+            ("pdu_type", PACK_UCHAR, []),
             (None, self._wrap_pack, [0x00, PACK_UCHAR]),
-            ('pdu_length', PACK_UINT4, []),
-            ('presentation_data_value_items', self._wrap_encode_items, [])
+            ("pdu_length", PACK_UINT4, []),
+            ("presentation_data_value_items", self._wrap_encode_items, []),
         ]
 
     @staticmethod
@@ -1535,10 +1534,10 @@ class P_DATA_TF(PDU):
           :dcm:`Section 9.3.1<part08/sect_9.3.html#sect_9.3.1>`
         """
         offset = 0
-        while bytestream[offset:offset + 1]:
-            item_length = UNPACK_UINT4(bytestream[offset:offset + 4])[0]
-            context_id = UNPACK_UCHAR(bytestream[offset + 4:offset + 5])[0]
-            data = bytestream[offset + 5:offset + 4 + item_length]
+        while bytestream[offset : offset + 1]:
+            item_length = UNPACK_UINT4(bytestream[offset : offset + 4])[0]
+            context_id = UNPACK_UCHAR(bytestream[offset + 4 : offset + 5])[0]
+            data = bytestream[offset + 5 : offset + 4 + item_length]
             assert len(data) == item_length - 1
             yield context_id, data
             # Change `offset` to the start of the next PDV item
@@ -1555,26 +1554,24 @@ class P_DATA_TF(PDU):
 
     def __str__(self) -> str:
         """Return a string representation of the PDU."""
-        s = 'P-DATA-TF PDU\n'
-        s += '=============\n'
-        s += f'  PDU type: 0x{self.pdu_type:02X}\n'
-        s += f'  PDU length: {self.pdu_length} bytes\n'
-        s += '\n'
-        s += '  Presentation Data Value Item(s):\n'
-        s += '  --------------------------------\n'
+        s = "P-DATA-TF PDU\n"
+        s += "=============\n"
+        s += f"  PDU type: 0x{self.pdu_type:02X}\n"
+        s += f"  PDU length: {self.pdu_length} bytes\n"
+        s += "\n"
+        s += "  Presentation Data Value Item(s):\n"
+        s += "  --------------------------------\n"
 
         for ii in self.presentation_data_value_items:
-            item_str = f'{ii}'
-            item_str_list = item_str.split('\n')
-            s += f'  *  {item_str_list[0]}\n'
+            item_str = f"{ii}"
+            item_str_list = item_str.split("\n")
+            s += f"  *  {item_str_list[0]}\n"
             for jj in item_str_list[1:]:
-                s += f'     {jj}\n'
+                s += f"     {jj}\n"
 
         return s
 
-    def _wrap_generate_items(  # type: ignore
-        self, bytestream: bytes
-    ) -> _PDVItem:
+    def _wrap_generate_items(self, bytestream: bytes) -> _PDVItem:  # type: ignore
         """Return a list of PDV Items generated from `bytestream`.
 
         Parameters
@@ -1701,10 +1698,10 @@ class A_RELEASE_RQ(PDU):
             - args is a list of arguments to pass callable.
         """
         return [
-            ('pdu_type', PACK_UCHAR, []),
+            ("pdu_type", PACK_UCHAR, []),
             (None, self._wrap_pack, [0x00, PACK_UCHAR]),
-            ('pdu_length', PACK_UINT4, []),
-            (None, self._wrap_pack, [0x00, PACK_UINT4])
+            ("pdu_length", PACK_UINT4, []),
+            (None, self._wrap_pack, [0x00, PACK_UINT4]),
         ]
 
     @property
@@ -1714,10 +1711,10 @@ class A_RELEASE_RQ(PDU):
 
     def __str__(self) -> str:
         """Return a string representation of the PDU."""
-        s = 'A-RELEASE-RQ PDU\n'
-        s += '================\n'
-        s += f'  PDU type: 0x{self.pdu_type:02X}\n'
-        s += f'  PDU length: {self.pdu_length} bytes\n'
+        s = "A-RELEASE-RQ PDU\n"
+        s += "================\n"
+        s += f"  PDU type: 0x{self.pdu_type:02X}\n"
+        s += f"  PDU length: {self.pdu_length} bytes\n"
 
         return s
 
@@ -1793,7 +1790,7 @@ class A_RELEASE_RP(PDU):
         from pynetdicom.pdu_primitives import A_RELEASE
 
         primitive = A_RELEASE()
-        primitive.result = 'affirmative'
+        primitive.result = "affirmative"
 
         return primitive
 
@@ -1829,10 +1826,10 @@ class A_RELEASE_RP(PDU):
             - args is a list of arguments to pass callable.
         """
         return [
-            ('pdu_type', PACK_UCHAR, []),
+            ("pdu_type", PACK_UCHAR, []),
             (None, self._wrap_pack, [0x00, PACK_UCHAR]),
-            ('pdu_length', PACK_UINT4, []),
-            (None, self._wrap_pack, [0x00, PACK_UINT4])
+            ("pdu_length", PACK_UINT4, []),
+            (None, self._wrap_pack, [0x00, PACK_UINT4]),
         ]
 
     @property
@@ -1842,10 +1839,10 @@ class A_RELEASE_RP(PDU):
 
     def __str__(self) -> str:
         """Return a string representation of the PDU."""
-        s = 'A-RELEASE-RP PDU\n'
-        s += '================\n'
-        s += f'  PDU type: 0x{self.pdu_type:02X}\n'
-        s += f'  PDU length: {self.pdu_length} bytes\n'
+        s = "A-RELEASE-RP PDU\n"
+        s += "================\n"
+        s += f"  PDU type: 0x{self.pdu_type:02X}\n"
+        s += f"  PDU length: {self.pdu_length} bytes\n"
 
         return s
 
@@ -1971,8 +1968,8 @@ class A_ABORT_RQ(PDU):
             - args is a list of arguments to pass callable.
         """
         return [
-            ((8, 1), 'source', self._wrap_unpack, [UNPACK_UCHAR]),
-            ((9, 1), 'reason_diagnostic', self._wrap_unpack, [UNPACK_UCHAR])
+            ((8, 1), "source", self._wrap_unpack, [UNPACK_UCHAR]),
+            ((9, 1), "reason_diagnostic", self._wrap_unpack, [UNPACK_UCHAR]),
         ]
 
     @property
@@ -1989,13 +1986,13 @@ class A_ABORT_RQ(PDU):
             - args is a list of arguments to pass callable.
         """
         return [
-            ('pdu_type', PACK_UCHAR, []),
+            ("pdu_type", PACK_UCHAR, []),
             (None, self._wrap_pack, [0x00, PACK_UCHAR]),
-            ('pdu_length', PACK_UINT4, []),
+            ("pdu_length", PACK_UINT4, []),
             (None, self._wrap_pack, [0x00, PACK_UCHAR]),
             (None, self._wrap_pack, [0x00, PACK_UCHAR]),
-            ('source', PACK_UCHAR, []),
-            ('reason_diagnostic', PACK_UCHAR, []),
+            ("source", PACK_UCHAR, []),
+            ("reason_diagnostic", PACK_UCHAR, []),
         ]
 
     @property
@@ -2017,11 +2014,7 @@ class A_ABORT_RQ(PDU):
     @property
     def source_str(self) -> str:
         """Return a str description of the *Source* field value."""
-        _sources = {
-            0: 'DUL service-user',
-            1: 'Reserved',
-            2: 'DUL service-provider'
-        }
+        _sources = {0: "DUL service-user", 1: "Reserved", 2: "DUL service-provider"}
         if self.source not in _sources:
             LOGGER.warning(f"Invalid A-ABORT-RQ 'Source' {self.source}")
             return "(no value available)"
@@ -2039,7 +2032,7 @@ class A_ABORT_RQ(PDU):
                 3: "Reserved",
                 4: "Unrecognised PDU parameter",
                 5: "Unexpected PDU parameter",
-                6: "Invalid PDU parameter value"
+                6: "Invalid PDU parameter value",
             }
             if self.reason_diagnostic not in _reason_str:
                 LOGGER.warning(
@@ -2050,7 +2043,7 @@ class A_ABORT_RQ(PDU):
 
             return _reason_str[self.reason_diagnostic]
 
-        return '(no value available)'
+        return "(no value available)"
 
 
 # PDUs indexed by their class

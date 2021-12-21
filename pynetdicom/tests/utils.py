@@ -1,4 +1,3 @@
-
 import time
 
 
@@ -24,7 +23,7 @@ def wait_for_server_socket(server, timeout=5):
     timeout = 0
     while timeout < 1:
         try:
-            assert server.socket.getsockname() != ('0.0.0.0', 0)
+            assert server.socket.getsockname() != ("0.0.0.0", 0)
             return
         except AssertionError:
             time.sleep(0.05)

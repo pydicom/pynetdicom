@@ -1,14 +1,13 @@
 """Version information for pynetdicom based on PEP396 and 440"""
 
 import re
-from typing import Dict, Any, cast, Match
 
 
 # pynetdicom version
-__version__ = '2.0.0.dev0'
+__version__ = "2.0.0.dev0"
 
 # DICOM Standard version used for SOP classes and instances
-__dicom_version__: str = '2021b'
+__dicom_version__: str = "2021e"
 
 VERSION_PATTERN = r"""
     v?
@@ -45,11 +44,15 @@ VERSION_PATTERN = r"""
 def is_canonical(version: str) -> bool:
     """Return True if `version` is a PEP440 conformant version."""
     match = re.match(
-        r'^([1-9]\d*!)?(0|[1-9]\d*)'
-        r'(\.(0|[1-9]\d*))'
-        r'*((a|b|rc)(0|[1-9]\d*))'
-        r'?(\.post(0|[1-9]\d*))'
-        r'?(\.dev(0|[1-9]\d*))?$', version)
+        (
+            r"^([1-9]\d*!)?(0|[1-9]\d*)"
+            r"(\.(0|[1-9]\d*))"
+            r"*((a|b|rc)(0|[1-9]\d*))"
+            r"?(\.post(0|[1-9]\d*))"
+            r"?(\.dev(0|[1-9]\d*))?$"
+        ),
+        version,
+    )
 
     return match is not None
 

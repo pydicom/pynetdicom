@@ -38,7 +38,7 @@ Which utilise the following SOP Classes:
   of the printer.
 
 There are also the following SOP Classes that are not included under
-the Meta Print Mangement SOP Classes and which may optionally be supported:
+the Meta Print Management SOP Classes and which may optionally be supported:
 
 * *Basic Annotation Box SOP Class* used with N-SET to describe the presentation
   of an annotation on a film.

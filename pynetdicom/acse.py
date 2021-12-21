@@ -38,6 +38,7 @@ class ACSE:
     The ACSE protocol handles association negotiation and establishment, and
     normal and abnormal release of an association.
     """
+
     def __init__(self, assoc: "Association") -> None:
         """Create the ACSE service provider.
 
@@ -50,8 +51,7 @@ class ACSE:
 
     @property
     def acceptor(self) -> "ServiceUser":
-        """Return the *acceptor* :class:`~pynetdicom.association.ServiceUser`.
-        """
+        """Return the *acceptor* :class:`~pynetdicom.association.ServiceUser`."""
         return self.assoc.acceptor
 
     @property
@@ -67,9 +67,7 @@ class ACSE:
         """
         return self._assoc
 
-    def _check_async_ops(
-        self
-    ) -> Optional[AsynchronousOperationsWindowNegotiation]:
+    def _check_async_ops(self) -> Optional[AsynchronousOperationsWindowNegotiation]:
         """Check the user's response to an Asynchronous Operations request.
 
         .. currentmodule:: pynetdicom.pdu_primitives
@@ -88,16 +86,12 @@ class ACSE:
             # Response is always ignored as async ops is not supported
             inv, perf = self.requestor.asynchronous_operations
             _ = evt.trigger(
-                self.assoc,
-                evt.EVT_ASYNC_OPS,
-                {"nr_invoked": inv, "nr_performed": perf}
+                self.assoc, evt.EVT_ASYNC_OPS, {"nr_invoked": inv, "nr_performed": perf}
             )
         except NotImplementedError:
             return None
         except Exception as exc:
-            LOGGER.error(
-                "Exception raised in handler bound to 'evt.EVT_ASYNC_OPS'"
-            )
+            LOGGER.error("Exception raised in handler bound to 'evt.EVT_ASYNC_OPS'")
             LOGGER.exception(exc)
 
         item = AsynchronousOperationsWindowNegotiation()
@@ -107,7 +101,7 @@ class ACSE:
         return item
 
     def _check_sop_class_common_extended(
-        self
+        self,
     ) -> Dict[UID, SOPClassCommonExtendedNegotiation]:
         """Check the user's response to a SOP Class Common Extended request.
 
@@ -122,12 +116,10 @@ class ACSE:
             rsp = evt.trigger(
                 self.assoc,
                 evt.EVT_SOP_COMMON,
-                {"items": self.requestor.sop_class_common_extended}
+                {"items": self.requestor.sop_class_common_extended},
             )
         except Exception as exc:
-            LOGGER.error(
-                "Exception raised in handler bound to 'evt.EVT_SOP_COMMON'"
-            )
+            LOGGER.error("Exception raised in handler bound to 'evt.EVT_SOP_COMMON'")
             LOGGER.exception(exc)
             return {}
 
@@ -135,13 +127,13 @@ class ACSE:
 
         try:
             rsp = {
-                uid: ii for uid, ii in rsp.items()
+                uid: ii
+                for uid, ii in rsp.items()
                 if isinstance(ii, SOPClassCommonExtendedNegotiation)
             }
         except Exception as exc:
             LOGGER.error(
-                "Invalid type returned by handler bound to "
-                "'evt.EVT_SOP_COMMON'"
+                "Invalid type returned by handler bound to " "'evt.EVT_SOP_COMMON'"
             )
             LOGGER.exception(exc)
             return {}
@@ -161,19 +153,16 @@ class ACSE:
             user_response = evt.trigger(
                 self.assoc,
                 evt.EVT_SOP_EXTENDED,
-                {"app_info": self.requestor.sop_class_extended}
+                {"app_info": self.requestor.sop_class_extended},
             )
         except Exception as exc:
             user_response = {}
-            LOGGER.error(
-                "Exception raised in handler bound to 'evt.EVT_SOP_EXTENDED'"
-            )
+            LOGGER.error("Exception raised in handler bound to 'evt.EVT_SOP_EXTENDED'")
             LOGGER.exception(exc)
 
         if not isinstance(user_response, (type(None), dict)):
             LOGGER.error(
-                "Invalid type returned by handler bount to "
-                "'evt.EVT_SOP_EXTENDED'"
+                "Invalid type returned by handler bound to " "'evt.EVT_SOP_EXTENDED'"
             )
             user_response = {}
 
@@ -196,9 +185,7 @@ class ACSE:
 
         return items
 
-    def _check_user_identity(
-        self
-    ) -> Tuple[bool, Optional[UserIdentityNegotiation]]:
+    def _check_user_identity(self) -> Tuple[bool, Optional[UserIdentityNegotiation]]:
         """Check the user's response to a User Identity request.
 
         Returns
@@ -223,7 +210,7 @@ class ACSE:
                     "user_id_type": req.user_identity_type,
                     "primary_field": req.primary_field,
                     "secondary_field": req.secondary_field,
-                }
+                },
             )
         except NotImplementedError:
             # If the user hasn't implemented identity negotiation then
@@ -329,8 +316,7 @@ class ACSE:
             self._negotiate_as_acceptor()
 
     def _negotiate_as_acceptor(self) -> None:
-        """Perform an association negotiation as the association *acceptor*.
-        """
+        """Perform an association negotiation as the association *acceptor*."""
         # For convenience
         assoc_rq = cast(A_ASSOCIATE, self.requestor.primitive)
         # Set the Requestor's AE Title
@@ -414,13 +400,13 @@ class ACSE:
             result, ac_roles = negotiate_unrestricted(
                 assoc_rq.presentation_context_definition_list,
                 self.acceptor.supported_contexts,
-                rq_roles
+                rq_roles,
             )
         else:
             result, ac_roles = negotiate_as_acceptor(
                 assoc_rq.presentation_context_definition_list,
                 self.acceptor.supported_contexts,
-                rq_roles
+                rq_roles,
             )
 
         # pylint: disable=protected-access
@@ -442,13 +428,12 @@ class ACSE:
         # Callbacks/Logging
         evt.trigger(self.assoc, evt.EVT_ACCEPTED, {})
 
-        # Assocation established OK
+        # Association established OK
         self.assoc.is_established = True
         evt.trigger(self.assoc, evt.EVT_ESTABLISHED, {})
 
     def _negotiate_as_requestor(self) -> None:
-        """Perform an association negotiation as the association *requestor*.
-        """
+        """Perform an association negotiation as the association *requestor*."""
         if not self.requestor.requested_contexts:
             LOGGER.error(
                 "One or more requested presentation contexts must be set "
@@ -509,14 +494,15 @@ class ACSE:
                 negotiated_contexts = negotiate_as_requestor(
                     self.requestor.requested_contexts,
                     rsp.presentation_context_definition_results_list,
-                    ac_roles
+                    ac_roles,
                 )
 
                 # pylint: disable=protected-access
                 # Accepted contexts are stored as {context ID : context}
                 self.assoc._accepted_cx = {
                     cast(int, cx.context_id): cx
-                    for cx in negotiated_contexts if cx.result == 0x00
+                    for cx in negotiated_contexts
+                    if cx.result == 0x00
                 }
                 self.assoc._rejected_cx = [
                     cx for cx in negotiated_contexts if cx.result != 0x00
@@ -542,18 +528,14 @@ class ACSE:
                 # 0x01 is rejected (permanent)
                 # 0x02 is rejected (transient)
                 LOGGER.error("Association Rejected")
-                LOGGER.error(
-                    f"Result: {rsp.result_str}, Source: {rsp.source_str}"
-                )
+                LOGGER.error(f"Result: {rsp.result_str}, Source: {rsp.source_str}")
                 LOGGER.error(f"Reason: {rsp.reason_str}")
                 self.assoc.is_rejected = True
                 self.assoc.is_established = False
                 evt.trigger(self.assoc, evt.EVT_REJECTED, {})
                 self.dul.kill_dul()
             else:
-                LOGGER.error(
-                    "Received an invalid A-ASSOCIATE response from the peer"
-                )
+                LOGGER.error("Received an invalid A-ASSOCIATE response from the peer")
                 LOGGER.error("Aborting Association")
                 self.send_abort(0x02)
                 self.assoc.is_aborted = True
@@ -600,9 +582,7 @@ class ACSE:
         #   A-RELEASE collisions
         is_collision = False
         while True:
-            primitive = self.dul.receive_pdu(
-                wait=True, timeout=self.acse_timeout
-            )
+            primitive = self.dul.receive_pdu(wait=True, timeout=self.acse_timeout)
             if primitive is None:
                 # No response received within timeout window
                 LOGGER.info("Aborting Association")
@@ -626,8 +606,7 @@ class ACSE:
             elif not isinstance(primitive, A_RELEASE):
                 # Should only be P-DATA
                 LOGGER.warning(
-                    "P-DATA received after Association release, data has "
-                    "been lost"
+                    "P-DATA received after Association release, data has " "been lost"
                 )
                 continue
 
@@ -659,8 +638,7 @@ class ACSE:
 
     @property
     def requestor(self) -> "ServiceUser":
-        """Return the *requestor* :class:`~pynetdicom.association.ServiceUser`.
-        """
+        """Return the *requestor* :class:`~pynetdicom.association.ServiceUser`."""
         return self.assoc.requestor
 
     def send_abort(self, source: int) -> None:
@@ -803,9 +781,7 @@ class ACSE:
 
         try:
             if diagnostic not in _valid_reason_diagnostic[source]:
-                raise ValueError(
-                    "Invalid 'diagnostic' parameter value"
-                )
+                raise ValueError("Invalid 'diagnostic' parameter value")
         except KeyError:
             raise ValueError("Invalid 'source' parameter value")
 
@@ -862,11 +838,13 @@ class ACSE:
         primitive.called_ae_title = self.acceptor.ae_title
         # The TCP/IP address of the source, pynetdicom includes port too
         primitive.calling_presentation_address = (
-            cast(str, self.requestor.address), cast(int, self.requestor.port)
+            cast(str, self.requestor.address),
+            cast(int, self.requestor.port),
         )
         # The TCP/IP address of the destination, pynetdicom includes port too
         primitive.called_presentation_address = (
-            cast(str, self.acceptor.address), cast(int, self.acceptor.port)
+            cast(str, self.acceptor.address),
+            cast(int, self.acceptor.port),
         )
         # Proposed presentation contexts
         primitive.presentation_context_definition_list = (

@@ -4,14 +4,14 @@
 import argparse
 from configparser import ConfigParser
 import os
+from pathlib import Path
 import sys
 
 import pydicom.config
-from pydicom.dataset import Dataset
+from sqlalchemy import create_engine
+from sqlalchemy.orm import sessionmaker
 
-from pynetdicom import (
-    AE, evt, AllStoragePresentationContexts, ALL_TRANSFER_SYNTAXES
-)
+from pynetdicom import AE, evt, AllStoragePresentationContexts, ALL_TRANSFER_SYNTAXES
 from pynetdicom import _config, _handlers
 from pynetdicom.apps.common import setup_logging
 from pynetdicom.sop_class import (
@@ -21,12 +21,16 @@ from pynetdicom.sop_class import (
     PatientRootQueryRetrieveInformationModelGet,
     StudyRootQueryRetrieveInformationModelFind,
     StudyRootQueryRetrieveInformationModelMove,
-    StudyRootQueryRetrieveInformationModelGet
+    StudyRootQueryRetrieveInformationModelGet,
 )
 from pynetdicom.utils import set_ae
 
 from pynetdicom.apps.qrscp.handlers import (
-    handle_echo, handle_find, handle_get, handle_move, handle_store
+    handle_echo,
+    handle_find,
+    handle_get,
+    handle_move,
+    handle_store,
 )
 from pynetdicom.apps.qrscp import db
 
@@ -39,6 +43,7 @@ _config.LOG_RESPONSE_IDENTIFIERS = False
 def _dont_log(event):
     pass
 
+
 _handlers._send_c_find_rsp = _dont_log
 _handlers._send_c_get_rsp = _dont_log
 _handlers._send_c_move_rsp = _dont_log
@@ -46,7 +51,7 @@ _handlers._send_c_store_rq = _dont_log
 _handlers._recv_c_store_rsp = _dont_log
 
 
-__version__ = "1.0.0"
+__version__ = "1.0.1"
 
 
 def _log_config(config, logger):
@@ -60,9 +65,7 @@ def _log_config(config, logger):
     logger.debug("Configuration settings")
     app = config["DEFAULT"]
     aet, port, pdu = app["ae_title"], app["port"], app["max_pdu"]
-    logger.debug(
-        f"  AE title: {aet}, Port: {port}, Max. PDU: {pdu}"
-    )
+    logger.debug(f"  AE title: {aet}, Port: {port}, Max. PDU: {pdu}")
     logger.debug("  Timeouts:")
     acse, dimse = app["acse_timeout"], app["dimse_timeout"]
     network = app["network_timeout"]
@@ -78,7 +81,7 @@ def _log_config(config, logger):
     for ae_title in config.sections():
         addr = config[ae_title]["address"]
         port = config[ae_title]["port"]
-        logger.debug(f'    {ae_title}: ({addr}, {port})')
+        logger.debug(f"    {ae_title}: ({addr}, {port})")
 
     logger.debug("")
 
@@ -92,47 +95,53 @@ def _setup_argparser():
             "for the Verification, Storage and Query/Retrieve (QR) Service "
             "Classes."
         ),
-        usage="qrscp [options]"
+        usage="qrscp [options]",
     )
 
     # General Options
     gen_opts = parser.add_argument_group("General Options")
     gen_opts.add_argument(
-        "--version",
-        help="print version information and exit",
-        action="store_true"
+        "--version", help="print version information and exit", action="store_true"
     )
     output = gen_opts.add_mutually_exclusive_group()
     output.add_argument(
-        "-q", "--quiet",
+        "-q",
+        "--quiet",
         help="quiet mode, print no warnings and errors",
         action="store_const",
-        dest="log_type", const="q"
+        dest="log_type",
+        const="q",
     )
     output.add_argument(
-        "-v", "--verbose",
+        "-v",
+        "--verbose",
         help="verbose mode, print processing details",
         action="store_const",
-        dest="log_type", const="v"
+        dest="log_type",
+        const="v",
     )
     output.add_argument(
-        "-d", "--debug",
+        "-d",
+        "--debug",
         help="debug mode, print debug information",
         action="store_const",
-        dest="log_type", const="d"
+        dest="log_type",
+        const="d",
     )
     gen_opts.add_argument(
-        "-ll", "--log-level", metavar="[l]",
-        help=(
-            "use level l for the logger (critical, error, warn, info, debug)"
-        ),
+        "-ll",
+        "--log-level",
+        metavar="[l]",
+        help=("use level l for the logger (critical, error, warn, info, debug)"),
         type=str,
-        choices=["critical", "error", "warn", "info", "debug"]
+        choices=["critical", "error", "warn", "info", "debug"],
     )
     fdir = os.path.abspath(os.path.dirname(__file__))
     fpath = os.path.join(fdir, "default.ini")
     gen_opts.add_argument(
-        "-c", "--config", metavar="[f]ilename",
+        "-c",
+        "--config",
+        metavar="[f]ilename",
         help="use configuration file f",
         default=fpath,
     )
@@ -143,45 +152,56 @@ def _setup_argparser():
         help="override the configured TCP/IP listen port number",
     )
     net_opts.add_argument(
-        "-aet", "--ae-title", metavar="[a]etitle",
+        "-aet",
+        "--ae-title",
+        metavar="[a]etitle",
         help="override the configured AE title",
     )
     net_opts.add_argument(
-        "-ta", "--acse-timeout", metavar="[s]econds",
+        "-ta",
+        "--acse-timeout",
+        metavar="[s]econds",
         help="override the configured timeout for ACSE messages",
     )
     net_opts.add_argument(
-        "-td", "--dimse-timeout", metavar="[s]econds",
+        "-td",
+        "--dimse-timeout",
+        metavar="[s]econds",
         help="override the configured timeout for DIMSE messages",
     )
     net_opts.add_argument(
-        "-tn", "--network-timeout", metavar="[s]econds",
+        "-tn",
+        "--network-timeout",
+        metavar="[s]econds",
         help="override the configured timeout for the network",
     )
     net_opts.add_argument(
-        "-pdu", "--max-pdu", metavar="[n]umber of bytes",
+        "-pdu",
+        "--max-pdu",
+        metavar="[n]umber of bytes",
         help="override the configured max receive pdu to n bytes",
     )
     net_opts.add_argument(
-        "-ba", "--bind-address", metavar="[a]ddress",
+        "-ba",
+        "--bind-address",
+        metavar="[a]ddress",
         help=(
-            "override the configured address of the network interface to "
-            "listen on"
+            "override the configured address of the network interface to " "listen on"
         ),
     )
 
     db_opts = parser.add_argument_group("Database Options")
     db_opts.add_argument(
-        "--database-location", metavar="[f]ile",
+        "--database-location",
+        metavar="[f]ile",
         help="override the location of the database using file f",
         type=str,
     )
     db_opts.add_argument(
-        "--instance-location", metavar="[d]irectory",
-        help=(
-            "override the configured instance storage location to directory d"
-        ),
-        type=str
+        "--instance-location",
+        metavar="[d]irectory",
+        help=("override the configured instance storage location to directory d"),
+        type=str,
     )
     db_opts.add_argument(
         "--clean",
@@ -195,7 +215,7 @@ def _setup_argparser():
     return parser.parse_args()
 
 
-def clean(db_path, logger):
+def clean(db_path, instance_path, logger):
     """Remove all entries from the database and delete the corresponding
     stored instances.
 
@@ -203,6 +223,8 @@ def clean(db_path, logger):
     ----------
     db_path : str
         The database path to use with create_engine().
+    instance_path : str
+        The instance storage path.
     logger : logging.Logger
         The application logger.
 
@@ -216,21 +238,24 @@ def clean(db_path, logger):
     with engine.connect() as conn:
         Session = sessionmaker(bind=engine)
         session = Session()
-
+        query_success = True
         try:
-            fpaths = [ii.filename for ii in session.query(Instance).all()]
+            fpaths = [ii.filename for ii in session.query(db.Instance).all()]
         except Exception as exc:
             logger.error("Exception raised while querying the database")
             logger.exception(exc)
             session.rollback()
+            query_success = False
         finally:
             session.close()
+
+        if not query_success:
             return False
 
         storage_cleaned = True
         for fpath in fpaths:
             try:
-                os.remove(os.path.join(config.INSTANCE_LOCATION, fpath))
+                os.remove(os.path.join(instance_path, fpath))
             except Exception as exc:
                 logger.error(f"Unable to delete the instance at '{fpath}'")
                 logger.exception(exc)
@@ -243,7 +268,7 @@ def clean(db_path, logger):
 
         database_cleaned = False
         try:
-            clear(session)
+            db.clear(session)
             database_cleaned = True
             logger.info("Database cleaned successfully")
         except Exception as exc:
@@ -304,7 +329,7 @@ def main(args=None):
     for ae_title in config.sections():
         dest = config[ae_title]
         # Convert to bytes and validate the AE title
-        ae_title = set_ae(ae_title, 'ae_title', False, False)
+        ae_title = set_ae(ae_title, "ae_title", False, False)
         dests[ae_title] = (dest["address"], dest.getint("port"))
 
     # Use default or specified configuration file
@@ -325,7 +350,7 @@ def main(args=None):
         if response != "yes":
             sys.exit()
 
-        if clean(db_path, APP_LOGGER):
+        if clean(db_path, instance_dir, APP_LOGGER):
             sys.exit()
         else:
             sys.exit(1)
@@ -346,8 +371,7 @@ def main(args=None):
     # Storage SCP - support all transfer syntaxes
     for cx in AllStoragePresentationContexts:
         ae.add_supported_context(
-            cx.abstract_syntax, ALL_TRANSFER_SYNTAXES,
-            scp_role=True, scu_role=False
+            cx.abstract_syntax, ALL_TRANSFER_SYNTAXES, scp_role=True, scu_role=False
         )
 
     # Query/Retrieve SCP
@@ -364,17 +388,12 @@ def main(args=None):
         (evt.EVT_C_FIND, handle_find, [db_path, args, APP_LOGGER]),
         (evt.EVT_C_GET, handle_get, [db_path, args, APP_LOGGER]),
         (evt.EVT_C_MOVE, handle_move, [dests, db_path, args, APP_LOGGER]),
-        (
-            evt.EVT_C_STORE,
-            handle_store,
-            [instance_dir, db_path, args, APP_LOGGER]
-        ),
+        (evt.EVT_C_STORE, handle_store, [instance_dir, db_path, args, APP_LOGGER]),
     ]
 
     # Listen for incoming association requests
     ae.start_server(
-        (app_config["bind_address"], app_config.getint("port")),
-        evt_handlers=handlers
+        (app_config["bind_address"], app_config.getint("port")), evt_handlers=handlers
     )
 
 

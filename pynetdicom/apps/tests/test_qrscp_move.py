@@ -8,32 +8,35 @@ import tempfile
 import time
 
 import pytest
+
 try:
     import sqlalchemy
+
     HAVE_SQLALCHEMY = True
 except ImportError:
     HAVE_SQLALCHEMY = False
 
 from pydicom import dcmread, Dataset
 from pydicom.uid import (
-    ExplicitVRLittleEndian, ImplicitVRLittleEndian,
-    DeflatedExplicitVRLittleEndian, ExplicitVRBigEndian
+    ExplicitVRLittleEndian,
+    ImplicitVRLittleEndian,
+    DeflatedExplicitVRLittleEndian,
+    ExplicitVRBigEndian,
 )
 
-from pynetdicom import (
-    AE, evt, debug_logger, DEFAULT_TRANSFER_SYNTAXES, build_role
-)
+from pynetdicom import AE, evt, debug_logger, DEFAULT_TRANSFER_SYNTAXES, build_role
 from pynetdicom.sop_class import (
-    CTImageStorage, PatientRootQueryRetrieveInformationModelMove
+    CTImageStorage,
+    PatientRootQueryRetrieveInformationModelMove,
 )
 
 
-#debug_logger()
+# debug_logger()
 
 
-APP_DIR = os.path.join(os.path.dirname(__file__), '../')
-APP_FILE = os.path.join(APP_DIR, 'qrscp', 'qrscp.py')
-DATA_DIR = os.path.join(APP_DIR, '../', 'tests', 'dicom_files')
+APP_DIR = os.path.join(os.path.dirname(__file__), "../")
+APP_FILE = os.path.join(APP_DIR, "qrscp", "qrscp.py")
+DATA_DIR = os.path.join(APP_DIR, "../", "tests", "dicom_files")
 
 
 def start_qrscp(args):
@@ -44,20 +47,27 @@ def start_qrscp(args):
 
 def start_qrscp_cli(args):
     """Start the qrscp app using CLI and return the process."""
-    pargs = [sys.executable, '-m', 'pynetdicom', 'qrscp'] + [*args]
+    pargs = [sys.executable, "-m", "pynetdicom", "qrscp"] + [*args]
     return subprocess.Popen(pargs)
 
 
 def _send_datasets():
     pargs = [
-        sys.executable, '-m', 'pynetdicom', 'storescu', 'localhost', '11112',
-        DATA_DIR, '-cx'
+        sys.executable,
+        "-m",
+        "pynetdicom",
+        "storescu",
+        "localhost",
+        "11112",
+        DATA_DIR,
+        "-cx",
     ]
     subprocess.Popen(pargs)
 
 
 class MoveSCPBase:
     """Tests for qrscp.py"""
+
     def setup(self):
         """Run prior to each test"""
         self.ae = None
@@ -79,20 +89,25 @@ class MoveSCPBase:
 
     def test_basic(self):
         """Test basic operation of the QR get service."""
-        self.p = p = self.func([
-            '--database-location', self.db_location,
-            '--instance-location', self.instance_location.name,
-            '-d'
-        ])
+        self.p = p = self.func(
+            [
+                "--database-location",
+                self.db_location,
+                "--instance-location",
+                self.instance_location.name,
+                "-d",
+            ]
+        )
         time.sleep(1)
         _send_datasets()
         time.sleep(1)
 
         query = Dataset()
-        query.QueryRetrieveLevel = 'PATIENT'
-        query.PatientID = '1CT1'
+        query.QueryRetrieveLevel = "PATIENT"
+        query.PatientID = "1CT1"
 
         datasets = []
+
         def handle_store(event):
             datasets.append(event.dataset)
             return 0x0000
@@ -103,15 +118,14 @@ class MoveSCPBase:
         ae.network_timeout = 5
         ae.add_supported_context(CTImageStorage)
         scp = ae.start_server(
-            ('', 11113), block=False,
-            evt_handlers=[(evt.EVT_C_STORE, handle_store)]
+            ("", 11113), block=False, evt_handlers=[(evt.EVT_C_STORE, handle_store)]
         )
 
         model = PatientRootQueryRetrieveInformationModelMove
         ae.add_requested_context(model)
-        assoc = ae.associate('localhost', 11112)
+        assoc = ae.associate("localhost", 11112)
         assert assoc.is_established
-        responses = assoc.send_c_move(query, 'STORESCP', model)
+        responses = assoc.send_c_move(query, "STORESCP", model)
 
         status, ds = next(responses)
         assert status.Status == 0xFF00
@@ -136,6 +150,7 @@ class MoveSCPBase:
 @pytest.mark.skipif(not HAVE_SQLALCHEMY, reason="Requires sqlalchemy")
 class TestMoveSCP(MoveSCPBase):
     """Tests for qrscp.py"""
+
     def setup(self):
         """Run prior to each test"""
         super().setup()
@@ -147,6 +162,7 @@ class TestMoveSCP(MoveSCPBase):
 @pytest.mark.skipif(not HAVE_SQLALCHEMY, reason="Requires sqlalchemy")
 class TestMoveSCPCLI(MoveSCPBase):
     """Tests for qrscp using CLI"""
+
     def setup(self):
         """Run prior to each test"""
         super().setup()
