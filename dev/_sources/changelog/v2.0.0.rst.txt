@@ -9,8 +9,8 @@ The major breaking changes with the version 2.0 release are:
   * SOP class variable names now use their `new DICOM UID keywords
     <https://dicom.nema.org/medical/dicom/current/output/chtml/part06/chapter_A.html#table_A-1>`_
     (for example, *VerificationSOPClass* becomes simply *Verification*)
-  * AE titles values should be :class:`str` rather than :class:`bytes` and will no
-    longer contain any trailing padding spaces
+  * AE titles values should be :class:`str` rather than :class:`bytes` and trailing
+    padding spaces are stripped from the raw value during decoding.
 
 
 Fixes
@@ -86,3 +86,5 @@ Changes
   :attr:`~pynetdicom.sop_class.Verification`
 * All AE titles and DIMSE elements with a VR of **AE** should be set using an
   ASCII :class:`str` rather than :class:`bytes`
+* The default bind address used when making association requests changed to
+  ``("localhost", 0)`` (:issue:`680`)
