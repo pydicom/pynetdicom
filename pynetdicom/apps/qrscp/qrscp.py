@@ -4,9 +4,12 @@
 import argparse
 from configparser import ConfigParser
 import os
+from pathlib import Path
 import sys
 
 import pydicom.config
+from sqlalchemy import create_engine
+from sqlalchemy.orm import sessionmaker
 
 from pynetdicom import AE, evt, AllStoragePresentationContexts, ALL_TRANSFER_SYNTAXES
 from pynetdicom import _config, _handlers
@@ -48,7 +51,7 @@ _handlers._send_c_store_rq = _dont_log
 _handlers._recv_c_store_rsp = _dont_log
 
 
-__version__ = "1.0.0"
+__version__ = "1.0.1"
 
 
 def _log_config(config, logger):
@@ -212,7 +215,7 @@ def _setup_argparser():
     return parser.parse_args()
 
 
-def clean(db_path, logger):
+def clean(db_path, instance_path, logger):
     """Remove all entries from the database and delete the corresponding
     stored instances.
 
@@ -220,6 +223,8 @@ def clean(db_path, logger):
     ----------
     db_path : str
         The database path to use with create_engine().
+    instance_path : str
+        The instance storage path.
     logger : logging.Logger
         The application logger.
 
@@ -233,21 +238,24 @@ def clean(db_path, logger):
     with engine.connect() as conn:
         Session = sessionmaker(bind=engine)
         session = Session()
-
+        query_success = True
         try:
-            fpaths = [ii.filename for ii in session.query(Instance).all()]
+            fpaths = [ii.filename for ii in session.query(db.Instance).all()]
         except Exception as exc:
             logger.error("Exception raised while querying the database")
             logger.exception(exc)
             session.rollback()
+            query_success = False
         finally:
             session.close()
+
+        if not query_success:
             return False
 
         storage_cleaned = True
         for fpath in fpaths:
             try:
-                os.remove(os.path.join(config.INSTANCE_LOCATION, fpath))
+                os.remove(os.path.join(instance_path, fpath))
             except Exception as exc:
                 logger.error(f"Unable to delete the instance at '{fpath}'")
                 logger.exception(exc)
@@ -260,7 +268,7 @@ def clean(db_path, logger):
 
         database_cleaned = False
         try:
-            clear(session)
+            db.clear(session)
             database_cleaned = True
             logger.info("Database cleaned successfully")
         except Exception as exc:
@@ -342,7 +350,7 @@ def main(args=None):
         if response != "yes":
             sys.exit()
 
-        if clean(db_path, APP_LOGGER):
+        if clean(db_path, instance_dir, APP_LOGGER):
             sys.exit()
         else:
             sys.exit(1)
