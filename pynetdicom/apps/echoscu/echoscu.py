@@ -221,8 +221,7 @@ def main(args=None):
     # If we successfully associated then send C-ECHO
     if assoc.is_established:
         for ii in range(args.repeat):
-            # `status` is a pydicom Dataset
-            status = assoc.send_c_echo()
+            assoc.send_c_echo()
 
         # Abort or release association
         if args.abort:

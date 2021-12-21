@@ -1,11 +1,9 @@
 """Validation functions used by pynetdicom"""
 
-from collections import OrderedDict
 import logging
-from typing import Union, Dict, Optional, cast, Tuple
+from typing import Tuple
 import unicodedata
 
-from pydicom.dataset import Dataset
 from pydicom.uid import UID
 
 

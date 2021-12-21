@@ -6,10 +6,8 @@ requests to a QR/BWM - Find SCP.
 """
 
 import argparse
-import os
 import sys
 
-from pydicom import dcmread
 from pydicom.dataset import Dataset
 from pydicom.uid import (
     ExplicitVRLittleEndian,

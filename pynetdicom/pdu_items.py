@@ -40,7 +40,6 @@
 - PresentationDataValueItem
 """
 
-import codecs
 import logging
 from struct import Struct
 from typing import (

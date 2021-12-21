@@ -19,7 +19,6 @@ There are seven different PDUs:
                     to_primitive               decode
 """
 
-import codecs
 import logging
 from struct import Struct
 from typing import (

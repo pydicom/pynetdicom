@@ -5,10 +5,7 @@ For sending Query/Retrieve (QR) C-MOVE requests to a QR Move SCP.
 """
 
 import argparse
-import os
 import sys
-
-from pydicom.dataset import Dataset
 
 from pynetdicom import (
     AE,

@@ -310,7 +310,6 @@ def handle_store(event, storage_dir, db_path, cli_config, logger):
     # Try and add the instance to the database
     #   If we fail then don't even try to store
     fpath = os.path.join(storage_dir, sop_instance)
-    db_dir = os.path.dirname(db_path)
 
     if os.path.exists(fpath):
         logger.warning("Instance already exists in storage directory, overwriting")

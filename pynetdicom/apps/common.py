@@ -421,7 +421,6 @@ class ElementPath:
         ]
         _int = ["SL", "SS", "SV", "UL", "US", "UV"]
         _float = ["FD", "FL"]
-        _byte = ["OB", "OD", "OF", "OL", "OW", "OV", "UN"]
         # Try to convert value to appropriate type
         if self.VR == "AT" and "\\" in value:
             value = value.split("\\")
