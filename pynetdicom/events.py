@@ -108,6 +108,10 @@ class NotificationEvent(NamedTuple):
     is_intervention: bool = False
     is_notification: bool = True
 
+    def __str__(self) -> str:
+        """String representation of the class."""
+        return self.name
+
 
 # pylint: disable=line-too-long
 EVT_ABORTED = NotificationEvent("EVT_ABORTED", "Association aborted")
@@ -171,6 +175,10 @@ class InterventionEvent(NamedTuple):
     description: str
     is_intervention: bool = True
     is_notification: bool = False
+
+    def __str__(self) -> str:
+        """String representation of the class."""
+        return self.name
 
 
 EVT_ASYNC_OPS = InterventionEvent(
