@@ -856,5 +856,4 @@ class ThreadedAssociationServer(ThreadingMixIn, AssociationServer):
             self.finish_request(request, client_address)
         except:
             self.handle_error(request, client_address)
-        finally:
             self.shutdown_request(request)
