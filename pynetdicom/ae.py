@@ -824,7 +824,7 @@ class ApplicationEntity:
             msg += "\n  ".join([str(cx) for cx in bad_contexts])
             raise ValueError(msg)
 
-        server_class = server_class or AssociationServer
+        server_class = server_class or AssociationServer  # type: ignore[assignment]
 
         return server_class(  # type: ignore
             self,

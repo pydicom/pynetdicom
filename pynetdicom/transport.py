@@ -8,7 +8,12 @@ import queue
 import select
 import selectors
 import socket
-from socketserver import TCPServer, ThreadingMixIn, BaseRequestHandler, _ServerSelector
+from socketserver import (  # type: ignore[attr-defined]
+    TCPServer,
+    ThreadingMixIn,
+    BaseRequestHandler,
+    _ServerSelector,
+)
 
 try:
     import ssl
@@ -545,7 +550,7 @@ class AssociationServer(TCPServer):
         contexts: List[PresentationContext],
         ssl_context: Optional["ssl.SSLContext"] = None,
         evt_handlers: List[evt.EventHandlerType] = None,
-        request_handler: Optional[BaseRequestHandler] = None,
+        request_handler: Optional[Callable[..., BaseRequestHandler]] = None,
     ) -> None:
         """Create a new :class:`AssociationServer`, bind a socket and start
         listening.
@@ -579,7 +584,7 @@ class AssociationServer(TCPServer):
         self.ssl_context = ssl_context
         self.allow_reuse_address = True
         self.server_address: Tuple[str, int] = address
-        self.socket: Optional[socket.socket] = None
+        self.socket: Optional[socket.socket] = None  # type: ignore[assignment]
 
         request_handler = request_handler or RequestHandler
 
@@ -717,13 +722,39 @@ class AssociationServer(TCPServer):
 
         return client_socket, address
 
+    def _handle_request_noblock(self) -> None:
+        try:
+            request, client_address = self.get_request()
+        except OSError:
+            return
+        if self.verify_request(request, client_address):
+            try:
+                self.process_request(request, client_address)
+            except Exception:
+                self.handle_error(request, client_address)
+                self.shutdown_request(request)
+            except:
+                self.shutdown_request(request)
+                raise
+        else:
+            self.shutdown_request(request)
+
     def process_request(
-        self, request: socket.socket, client_address: Tuple[str, int]
+        self,
+        request: Union[socket.socket, Tuple[bytes, socket.socket]],
+        client_address: Union[Tuple[str, int], str],
     ) -> None:
         """Process a connection request."""
         self.finish_request(request, client_address)
 
-    def serve_forever(self, poll_interval: Optional[str] = 0.5) -> None:
+    def serve_forever(self, poll_interval: float = 0.5) -> None:
+        """Start the server.
+
+        Parameters
+        ----------
+        poll_interval : float
+            The polling interval in seconds (default: ``0.5``).
+        """
         self.__is_shut_down.clear()
         try:
             with _ServerSelector() as selector:
@@ -799,7 +830,7 @@ class AssociationServer(TCPServer):
             self.__is_shut_down.wait()
 
         self.server_close()
-        self.ae._servers.remove(self)
+        self.ae._servers.remove(cast("ThreadedAssociationServer", self))
 
     @property
     def ssl_context(self) -> Optional["ssl.SSLContext"]:
@@ -848,7 +879,9 @@ class ThreadedAssociationServer(ThreadingMixIn, AssociationServer):
     """
 
     def process_request_thread(
-        self, request: socket.socket, client_address: Tuple[str, int]
+        self,
+        request: Union[socket.socket, Tuple[bytes, socket.socket]],
+        client_address: Union[Tuple[str, int], str],
     ) -> None:
         """Process a connection request."""
         # pylint: disable=broad-except
