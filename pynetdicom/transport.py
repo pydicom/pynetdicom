@@ -723,21 +723,7 @@ class AssociationServer(TCPServer):
         return client_socket, address
 
     def _handle_request_noblock(self) -> None:
-        try:
-            request, client_address = self.get_request()
-        except OSError:
-            return
-        if self.verify_request(request, client_address):
-            try:
-                self.process_request(request, client_address)
-            except Exception:
-                self.handle_error(request, client_address)
-                self.shutdown_request(request)
-            except:
-                self.shutdown_request(request)
-                raise
-        else:
-            self.shutdown_request(request)
+        super()._handle_request_noblock()
 
     def process_request(
         self,
