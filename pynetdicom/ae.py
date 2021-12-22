@@ -1312,8 +1312,7 @@ class ApplicationEntity:
 
         # This is a bit hackish: server.shutdown() deletes the server
         #   from `_servers` so we need to workaround this
-        original = self._servers[:]
-        for server in original:
+        for server in self._servers[:]:
             server.shutdown()
 
         self._servers = []

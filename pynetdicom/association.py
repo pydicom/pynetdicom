@@ -635,6 +635,12 @@ class Association(threading.Thread):
             # Timed out waiting for A-ASSOCIATE request
             if primitive is None:
                 self.kill()
+
+                # Ensure the connection is shutdown properly
+                sock = cast("AssociationSocket", self.dul.socket)
+                if self._server and sock.socket:
+                    self._server.shutdown_request(sock.socket)
+
                 return
 
             self.requestor.primitive = cast(A_ASSOCIATE, primitive)

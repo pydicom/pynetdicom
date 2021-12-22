@@ -2,15 +2,13 @@
 
 from copy import deepcopy
 from datetime import datetime
+import gc
 import logging
 import queue
 import select
+import selectors
 import socket
-
-try:
-    from SocketServer import TCPServer, ThreadingMixIn, BaseRequestHandler
-except ImportError:
-    from socketserver import TCPServer, ThreadingMixIn, BaseRequestHandler
+from socketserver import TCPServer, ThreadingMixIn, BaseRequestHandler, _ServerSelector
 try:
     import ssl
 
@@ -583,6 +581,7 @@ class AssociationServer(TCPServer):
         self.socket: Optional[socket.socket] = None
 
         request_handler = request_handler or RequestHandler
+
         super().__init__(address, request_handler, bind_and_activate=True)
 
         self.timeout = 60
@@ -601,6 +600,9 @@ class AssociationServer(TCPServer):
         # Bind the functions to their events
         for evt_hh_args in evt_handlers or ():
             self.bind(*evt_hh_args)
+
+        self.__is_shut_down = threading.Event()
+        self.__shutdown_request = False
 
     def bind(
         self, event: evt.EventType, handler: Callable, args: Optional[List[Any]] = None
@@ -720,6 +722,28 @@ class AssociationServer(TCPServer):
         """Process a connection request."""
         self.finish_request(request, client_address)
 
+    def serve_forever(self, poll_interval: Optional[str] = 0.5) -> None:
+        self.__is_shut_down.clear()
+        try:
+            with _ServerSelector() as selector:
+                selector.register(self, selectors.EVENT_READ)
+
+                while not self.__shutdown_request:
+                    # For whatever reason the dead Association threads aren't being
+                    #   garbage collected, so force it to run
+                    gc.collect()
+                    ready = selector.select(poll_interval)
+                    if self.__shutdown_request:
+                        break
+
+                    if ready:
+                        self._handle_request_noblock()
+
+                    self.service_actions()
+        finally:
+            self.__shutdown_request = False
+            self.__is_shut_down.set()
+
     def server_bind(self) -> None:
         """Bind the socket and set the socket options.
 
@@ -757,7 +781,9 @@ class AssociationServer(TCPServer):
 
     def server_close(self) -> None:
         """Close the server."""
-        self.socket = cast(socket.socket, self.socket)
+        if self.socket is None:
+            return
+
         try:
             self.socket.shutdown(socket.SHUT_RDWR)
         except socket.error:
@@ -767,7 +793,10 @@ class AssociationServer(TCPServer):
 
     def shutdown(self) -> None:
         """Completely shutdown the server and close it's socket."""
-        super().shutdown()
+        if not self.__is_shut_down.is_set():
+            self.__shutdown_request = True
+            self.__is_shut_down.wait()
+
         self.server_close()
         self.ae._servers.remove(self)
 
@@ -824,6 +853,7 @@ class ThreadedAssociationServer(ThreadingMixIn, AssociationServer):
         # pylint: disable=broad-except
         try:
             self.finish_request(request, client_address)
-        except Exception:
+        except:
             self.handle_error(request, client_address)
+        finally:
             self.shutdown_request(request)

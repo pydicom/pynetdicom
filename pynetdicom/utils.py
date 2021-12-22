@@ -139,7 +139,6 @@ def pretty_bytes(
     cutoff_output = False
     byte_count = 0
     for ii in range(0, len(bytestream), items_per_line):
-        # chunk is a bytes in python3 and a str in python2
         chunk = bytestream[ii : ii + items_per_line]
         byte_count += len(chunk)
         gen = (format(x, "02x") for x in chunk)

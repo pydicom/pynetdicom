@@ -33,6 +33,9 @@ Fixes
   <pynetdicom.association.ServiceUser.supported_contexts>` not returning the
   expected contexts (:issue:`636`)
 * Fixed `qrscp --clean` (:issue:`681`, :issue:`682`)
+* Fixed a memory leak when running :class:`~pynetdicom.transport.AssociationServer`
+  due to old Association threads not being garbage collected (:issue:`669`)
+
 
 Enhancements
 ............
@@ -71,6 +74,10 @@ Enhancements
     reducing the memory needed when receiving datasets (:issue:`517`)
   * :attr:`~pynetdicom._config.UNRESTRICTED_STORAGE_SERVICE` to allow the
     use of the AE as an unrestricted Storage SCP (:issue:`505`)
+
+* The DUL reactor should be more performant when processing multiple successive events
+  (:pr:`651`)
+
 
 Changes
 .......
