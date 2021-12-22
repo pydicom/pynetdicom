@@ -5,7 +5,6 @@ from contextvars import copy_context
 from io import BytesIO
 import logging
 import sys
-from types import TracebackType
 from typing import (
     List,
     Optional,
