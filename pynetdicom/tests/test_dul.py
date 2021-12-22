@@ -19,6 +19,7 @@ from pynetdicom.pdu import (
     A_ABORT_RQ,
 )
 from pynetdicom.pdu_primitives import A_ASSOCIATE, A_RELEASE, A_ABORT, P_DATA
+from pynetdicom.sop_class import Verification
 from .encoded_pdu_items import a_associate_ac, a_release_rq
 from .parrot import start_server, ThreadedParrot, ParrotRequest
 from .utils import sleep
@@ -70,6 +71,7 @@ class TestDUL:
 
     def setup(self):
         self.scp = None
+        self.ae = None
 
     def teardown(self):
         if self.scp:
@@ -77,6 +79,9 @@ class TestDUL:
             self.scp.step
             self.scp.commands = []
             self.scp.shutdown()
+
+        if self.ae:
+            self.ae.shutdown()
 
         for thread in threading.enumerate():
             if isinstance(thread, ThreadedParrot):
@@ -296,3 +301,24 @@ class TestDUL:
         dul = DULServiceProvider(DummyAssociation())
         assert dul.state_machine.current_state == "Sta1"
         assert dul.stop_dul()
+
+    def test_stop_dul(self):
+        self.ae = ae = AE()
+        ae.network_timeout = 5
+        ae.dimse_timeout = 5
+        ae.acse_timeout = 5
+        ae.add_supported_context(Verification)
+
+        scp = ae.start_server(("", 11112), block=False)
+
+        ae.add_requested_context(Verification)
+        assoc = ae.associate("localhost", 11112)
+
+        dul = assoc.dul
+
+        dul.state_machine.current_state = "Sta1"
+        dul.stop_dul()
+
+        assoc.release()
+
+        scp.shutdown()

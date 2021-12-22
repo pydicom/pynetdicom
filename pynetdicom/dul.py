@@ -398,10 +398,9 @@ class DULServiceProvider(Thread):
 
             if sleep:
                 # If there were no events to process on the previous loop,
-                # sleep before checking again.  Otherwise check immediately.
-
-                # Setting _run_loop_delay higher will use less CPU when idle, but will also
-                # increases the latency to respond to new requests.
+                #   sleep before checking again, otherwise check immediately
+                # Setting `_run_loop_delay` higher will use less CPU when idle, but
+                #   will also increase the latency to respond to new requests
                 time.sleep(self._run_loop_delay)
 
             if self._kill_thread:
@@ -489,7 +488,7 @@ class DULServiceProvider(Thread):
             # Fix for Issue 39
             # Give the DUL thread time to exit
             while self.is_alive():
-                time.sleep(0.001)
+                time.sleep(self._run_loop_delay)
 
             return True
 
