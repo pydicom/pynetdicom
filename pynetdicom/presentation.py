@@ -16,6 +16,7 @@ from typing import (
 from pydicom.uid import UID
 
 from pynetdicom._globals import DEFAULT_TRANSFER_SYNTAXES
+from pynetdicom import sop_class as SOP_CLASS_MODULE
 from pynetdicom.sop_class import (
     _APPLICATION_EVENT_CLASSES,
     _BASIC_WORKLIST_CLASSES,
@@ -560,7 +561,7 @@ def negotiate_unrestricted(
         if (
             ab_syntax.is_private
             or ab_syntax in storage_uids
-            or not hasattr(pynetdicom.sop_class, ab_syntax.keyword)
+            or not hasattr(SOP_CLASS_MODULE, ab_syntax.keyword)
         ):
             storage_contexts.append(cx)
         else:
