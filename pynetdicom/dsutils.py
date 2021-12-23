@@ -3,7 +3,7 @@
 from io import BytesIO
 import logging
 from pathlib import Path
-from typing import Optional, List, Tuple, cast
+from typing import Optional, List, Tuple
 import zlib
 
 from pydicom import Dataset

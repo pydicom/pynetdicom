@@ -99,7 +99,7 @@ STATUS_UNKNOWN: str = "Unknown"
 
 
 # The default address that client sockets are bound to
-BIND_ADDRESS = ("localhost", 0)
+BIND_ADDRESS = ("127.0.0.1", 0)
 
 
 OptionalUIDType = Optional[Union[str, bytes, UID]]

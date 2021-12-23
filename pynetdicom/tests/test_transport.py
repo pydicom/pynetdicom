@@ -24,6 +24,7 @@ from pynetdicom._globals import MODE_REQUESTOR
 from pynetdicom import transport
 from pynetdicom.transport import (
     AssociationSocket,
+    AssociationServer,
     ThreadedAssociationServer,
 )
 from pynetdicom.sop_class import Verification, RTImageStorage
@@ -749,6 +750,21 @@ class TestAssociationServer:
         assert assoc.is_established
         assoc.release()
         ae.shutdown()
+
+    def test_gc(self):
+        """Test garbage collection."""
+        self.ae = ae = AE()
+        ae.add_supported_context(Verification)
+        server = ae.start_server(("", 11112), block=False)
+        server._gc[0] = 59
+
+        # Default poll interval is 0.5 s
+        while server._gc[0] == server._gc[1]:
+            time.sleep(0.1)
+
+        assert server._gc[0] < server._gc[1]
+
+        server.shutdown()
 
 
 class TestEventHandlingAcceptor:

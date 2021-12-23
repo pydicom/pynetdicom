@@ -9,12 +9,7 @@ import argparse
 import sys
 
 from pydicom.dataset import Dataset
-from pydicom.uid import (
-    ExplicitVRLittleEndian,
-    ImplicitVRLittleEndian,
-    ExplicitVRBigEndian,
-    generate_uid,
-)
+from pydicom.uid import generate_uid
 
 from pynetdicom import (
     AE,

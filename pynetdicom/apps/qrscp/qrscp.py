@@ -4,7 +4,6 @@
 import argparse
 from configparser import ConfigParser
 import os
-from pathlib import Path
 import sys
 
 import pydicom.config

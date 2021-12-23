@@ -2,15 +2,13 @@
 
 from copy import deepcopy
 from datetime import datetime
+import gc
 import logging
 import queue
 import select
 import socket
+from socketserver import TCPServer, ThreadingMixIn, BaseRequestHandler
 
-try:
-    from SocketServer import TCPServer, ThreadingMixIn, BaseRequestHandler
-except ImportError:
-    from socketserver import TCPServer, ThreadingMixIn, BaseRequestHandler
 try:
     import ssl
 
@@ -80,7 +78,7 @@ class AssociationSocket:
 
         .. versionchanged:: 2.0
 
-            The default for *address* was changed to ``("localhost", 0)``
+            The default for *address* was changed to ``("127.0.0.1", 0)``
 
         Parameters
         ----------
@@ -93,7 +91,7 @@ class AssociationSocket:
         address : 2-tuple, optional
             If *client_socket* is ``None`` then this is the ``(host, port)`` to
             bind the newly created socket to, which by default will be
-            ``('localhost', 0)``.
+            ``('127.0.0.1', 0)``.
         """
         self._assoc = assoc
 
@@ -201,7 +199,7 @@ class AssociationSocket:
             if self.socket:
                 try:
                     self.socket.shutdown(socket.SHUT_RDWR)
-                except:
+                except Exception:
                     pass
                 self.socket.close()
                 self.socket = None
@@ -222,7 +220,7 @@ class AssociationSocket:
         ----------
         address : 2-tuple, optional
             The ``(host: str, port: int)`` to bind the socket to. By default the socket
-            is bound to ``("localhost", 0)``, i.e. the first available port.
+            is bound to ``("127.0.0.1", 0)``, i.e. the first available port.
 
         Returns
         -------
@@ -277,7 +275,7 @@ class AssociationSocket:
                 # We use `host` to allow unit testing
                 sock.connect(host)
                 addr: str = sock.getsockname()[0]
-            except:
+            except Exception:
                 addr = "127.0.0.1"
 
         return addr
@@ -546,7 +544,7 @@ class AssociationServer(TCPServer):
         contexts: List[PresentationContext],
         ssl_context: Optional["ssl.SSLContext"] = None,
         evt_handlers: List[evt.EventHandlerType] = None,
-        request_handler: Optional[BaseRequestHandler] = None,
+        request_handler: Optional[Callable[..., BaseRequestHandler]] = None,
     ) -> None:
         """Create a new :class:`AssociationServer`, bind a socket and start
         listening.
@@ -580,9 +578,10 @@ class AssociationServer(TCPServer):
         self.ssl_context = ssl_context
         self.allow_reuse_address = True
         self.server_address: Tuple[str, int] = address
-        self.socket: Optional[socket.socket] = None
+        self.socket: Optional[socket.socket] = None  # type: ignore[assignment]
 
         request_handler = request_handler or RequestHandler
+
         super().__init__(address, request_handler, bind_and_activate=True)
 
         self.timeout = 60
@@ -601,6 +600,8 @@ class AssociationServer(TCPServer):
         # Bind the functions to their events
         for evt_hh_args in evt_handlers or ():
             self.bind(*evt_hh_args)
+
+        self._gc = [0, 59]
 
     def bind(
         self, event: evt.EventType, handler: Callable, args: Optional[List[Any]] = None
@@ -715,9 +716,12 @@ class AssociationServer(TCPServer):
         return client_socket, address
 
     def process_request(
-        self, request: socket.socket, client_address: Tuple[str, int]
+        self,
+        request: Union[socket.socket, Tuple[bytes, socket.socket]],
+        client_address: Union[Tuple[str, int], str],
     ) -> None:
-        """Process a connection request."""
+        """Process a connection request"""
+        # Calls request_handler(request, client_address, self)
         self.finish_request(request, client_address)
 
     def server_bind(self) -> None:
@@ -765,11 +769,22 @@ class AssociationServer(TCPServer):
 
         self.socket.close()
 
+    def service_actions(self) -> None:
+        """Called by the serve_forever() loop"""
+        # For whatever reason dead Association threads aren't being garbage
+        #   collected so do it manually when a request is received
+        if self._gc[0] == self._gc[1]:
+            gc.collect()
+            self._gc[0] = 0
+            return
+
+        self._gc[0] += 1
+
     def shutdown(self) -> None:
         """Completely shutdown the server and close it's socket."""
         super().shutdown()
         self.server_close()
-        self.ae._servers.remove(self)
+        self.ae._servers.remove(cast("ThreadedAssociationServer", self))
 
     @property
     def ssl_context(self) -> Optional["ssl.SSLContext"]:
@@ -818,7 +833,9 @@ class ThreadedAssociationServer(ThreadingMixIn, AssociationServer):
     """
 
     def process_request_thread(
-        self, request: socket.socket, client_address: Tuple[str, int]
+        self,
+        request: Union[socket.socket, Tuple[bytes, socket.socket]],
+        client_address: Union[Tuple[str, int], str],
     ) -> None:
         """Process a connection request."""
         # pylint: disable=broad-except
