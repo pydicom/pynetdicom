@@ -725,17 +725,17 @@ class AssociationServer(TCPServer):
         # Calls request_handler(request, client_address, self)
         self.finish_request(request, client_address)
 
-    def service_actions(self) -> None:
-        """Function to be run once every loop of the server reactor after any requests
-        are handled.
-        """
-        # For whatever reason dead Association threads aren't being garbage
-        #   collected so do it manually every 30 s or so
-        if self._gc_index == self._gc_trigger:
-            gc.collect()
-            self._gc_index = 0
-
-        self._gc_index += 1
+    # def service_actions(self) -> None:
+    #     """Function to be run once every loop of the server reactor after any requests
+    #     are handled.
+    #     """
+    #     # For whatever reason dead Association threads aren't being garbage
+    #     #   collected so do it manually every 30 s or so
+    #     if self._gc_index == self._gc_trigger:
+    #         gc.collect()
+    #         self._gc_index = 0
+    #
+    #     self._gc_index += 1
 
     def server_bind(self) -> None:
         """Bind the socket and set the socket options.

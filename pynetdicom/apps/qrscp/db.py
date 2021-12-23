@@ -18,6 +18,7 @@ Required Keys
 """
 
 from collections import OrderedDict
+import sys
 
 try:
     from sqlalchemy import create_engine, Column, ForeignKey, Integer, String
