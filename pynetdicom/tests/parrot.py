@@ -3,12 +3,8 @@
 import queue
 import select
 import socket
+from socketserver import TCPServer, ThreadingMixIn, BaseRequestHandler
 import struct
-
-try:
-    from SocketServer import TCPServer, ThreadingMixIn, BaseRequestHandler
-except ImportError:
-    from socketserver import TCPServer, ThreadingMixIn, BaseRequestHandler
 from struct import pack, unpack
 import threading
 import time
@@ -208,7 +204,7 @@ def start_server(commands, handler=SteppingParrotRequest):
     return server
 
 
-class Parrot(AssociationServer):
+class Parrot(TCPServer):
     def __init__(self, address, commands, handler=SteppingParrotRequest):
         """Create a new AssociationServer, bind a socket and start listening.
 
@@ -229,7 +225,7 @@ class Parrot(AssociationServer):
         self.ssl_context = None
         self.allow_reuse_address = True
 
-        TCPServer.__init__(self, address, handler, bind_and_activate=True)
+        super().__init__(address, handler, True)
 
         self.timeout = 60
         self.handlers = []
@@ -264,7 +260,7 @@ class Parrot(AssociationServer):
 
     def shutdown(self):
         """Completely shutdown the server and close it's socket."""
-        TCPServer.shutdown(self)
+        super().shutdown()
         self.server_close()
 
     process_request = TCPServer.process_request
