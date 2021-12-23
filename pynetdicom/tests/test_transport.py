@@ -756,6 +756,7 @@ class TestAssociationServer:
     )
     def test_process_exception(self):
         """Test exception is raised during request processing."""
+
         class DummyAE:
             network_timeout = 5
             _servers = []
