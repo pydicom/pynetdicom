@@ -759,7 +759,9 @@ class TestAssociationServer:
         server._gc[0] = 59
 
         # Default poll interval is 0.5 s
-        time.sleep(0.7)
+        while server._gc[0] == server._gc[1]:
+            time.sleep(0.1)
+
         assert server._gc[0] < server._gc[1]
 
         server.shutdown()
