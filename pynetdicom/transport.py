@@ -769,7 +769,7 @@ class AssociationServer(TCPServer):
 
         self.socket.close()
 
-    def service_actions(self):
+    def service_actions(self) -> None:
         """Called by the serve_forever() loop"""
         # For whatever reason dead Association threads aren't being garbage
         #   collected so do it manually when a request is received
