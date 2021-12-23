@@ -2033,7 +2033,7 @@ class TestNegotiateRelease:
         with caplog.at_level(logging.DEBUG, logger="pynetdicom"):
             assoc = self.create_assoc()
             assoc.start()
-            while not assoc.is_established and not assoc.is_aborted:
+            while not assoc.is_established:
                 time.sleep(0.05)
 
             assoc.release()

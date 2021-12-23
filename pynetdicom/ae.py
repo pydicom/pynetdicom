@@ -1310,7 +1310,7 @@ class ApplicationEntity:
         for assoc in self.active_associations:
             assoc.abort()
 
-        # This is a bit hackish: server.shutdown() deletes the server
+        # This is a bit hackish: server.shutdown() removes the server
         #   from `_servers` so we need to workaround this
         for server in self._servers[:]:
             server.shutdown()

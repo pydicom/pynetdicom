@@ -601,6 +601,8 @@ class AssociationServer(TCPServer):
         for evt_hh_args in evt_handlers or ():
             self.bind(*evt_hh_args)
 
+        self._gc = [0, 59]
+
     def bind(
         self, event: evt.EventType, handler: Callable, args: Optional[List[Any]] = None
     ) -> None:
@@ -719,10 +721,6 @@ class AssociationServer(TCPServer):
         client_address: Union[Tuple[str, int], str],
     ) -> None:
         """Process a connection request"""
-        # For whatever reason dead Association threads aren't being garbage
-        #   collected so do it manually when a request is received
-        gc.collect()
-
         # Calls request_handler(request, client_address, self)
         self.finish_request(request, client_address)
 
@@ -763,16 +761,28 @@ class AssociationServer(TCPServer):
 
     def server_close(self) -> None:
         """Close the server."""
-        sock = cast(socket.socket, self.socket)
+        self.socket = cast(socket.socket, self.socket)
         try:
-            sock.shutdown(socket.SHUT_RDWR)
+            self.socket.shutdown(socket.SHUT_RDWR)
         except socket.error:
             pass
 
-        sock.close()
+        self.socket.close()
+
+    def service_actions(self):
+        """Called by the serve_forever() loop"""
+        # For whatever reason dead Association threads aren't being garbage
+        #   collected so do it manually when a request is received
+        if self._gc[0] == self._gc[1]:
+            gc.collect()
+            self._gc[0] = 0
+            return
+
+        self._gc[0] += 1
 
     def shutdown(self) -> None:
         """Completely shutdown the server and close it's socket."""
+        super().shutdown()
         self.server_close()
         self.ae._servers.remove(cast("ThreadedAssociationServer", self))
 
@@ -828,8 +838,6 @@ class ThreadedAssociationServer(ThreadingMixIn, AssociationServer):
         client_address: Union[Tuple[str, int], str],
     ) -> None:
         """Process a connection request."""
-        gc.collect()
-
         # pylint: disable=broad-except
         try:
             self.finish_request(request, client_address)
