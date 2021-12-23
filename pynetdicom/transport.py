@@ -609,7 +609,7 @@ class AssociationServer(TCPServer):
 
         self.__is_shut_down = threading.Event()
         self.__shutdown_request = False
-        self._gc_collection = 9
+        self._gc_collection = 59
 
     def bind(
         self, event: evt.EventType, handler: Callable, args: Optional[List[Any]] = None
@@ -758,13 +758,6 @@ class AssociationServer(TCPServer):
             with _ServerSelector() as selector:
                 selector.register(self, selectors.EVENT_READ)
                 while not self.__shutdown_request:
-                    # For whatever reason the dead Association threads aren't being
-                    #   garbage collected, so force it to run
-                    idx += 1
-                    if idx == self._gc_collection:
-                        gc.collect()
-                        idx = 0
-
                     ready = selector.select(poll_interval)
                     if self.__shutdown_request:
                         break
@@ -773,6 +766,13 @@ class AssociationServer(TCPServer):
                         self._handle_request_noblock()
 
                     self.service_actions()
+
+                    # For whatever reason the dead Association threads aren't being
+                    #   garbage collected, so force it to run
+                    idx += 1
+                    if idx == self._gc_collection:
+                        gc.collect()
+                        idx = 0
         finally:
             self.__shutdown_request = False
             self.__is_shut_down.set()
