@@ -287,12 +287,12 @@ _STORAGE_CLASSES = {
     "GeneralAudioWaveformStorage": "1.2.840.10008.5.1.4.1.1.9.4.2",  # A.34.10
     "ArterialPulseWaveformStorage": "1.2.840.10008.5.1.4.1.1.9.5.1",  # A.34.8
     "RespiratoryWaveformStorage": "1.2.840.10008.5.1.4.1.1.9.6.1",  # A.34.9
-    "MultichannelRespiratoryWaveformStorage": "1.2.840.10008.5.1.4.1.1.9.6.2",  #  A.34.16
-    "RoutineScalpElectroencephalogramWaveformStorage": "1.2.840.10008.5.1.4.1.1.9.7.1",  #  A.34.12
-    "ElectromyogramWaveformStorage": "1.2.840.10008.5.1.4.1.1.9.7.2",  #  A.34.13
-    "ElectrooculogramWaveformStorage": "1.2.840.10008.5.1.4.1.1.9.7.3",  #  A.34.14
-    "SleepElectroencephalogramWaveformStorage": "1.2.840.10008.5.1.4.1.1.9.7.4",  #  A.34.15
-    "BodyPositionWaveformStorage": "1.2.840.10008.5.1.4.1.1.9.8.1",  #  A.34.17
+    "MultichannelRespiratoryWaveformStorage": "1.2.840.10008.5.1.4.1.1.9.6.2",  # A.34.16
+    "RoutineScalpElectroencephalogramWaveformStorage": "1.2.840.10008.5.1.4.1.1.9.7.1",  # A.34.12
+    "ElectromyogramWaveformStorage": "1.2.840.10008.5.1.4.1.1.9.7.2",  # A.34.13
+    "ElectrooculogramWaveformStorage": "1.2.840.10008.5.1.4.1.1.9.7.3",  # A.34.14
+    "SleepElectroencephalogramWaveformStorage": "1.2.840.10008.5.1.4.1.1.9.7.4",  # A.34.15
+    "BodyPositionWaveformStorage": "1.2.840.10008.5.1.4.1.1.9.8.1",  # A.34.17
     "GrayscaleSoftcopyPresentationStateStorage": "1.2.840.10008.5.1.4.1.1.11.1",  # A.33.1
     "ColorSoftcopyPresentationStateStorage": "1.2.840.10008.5.1.4.1.1.11.2",  # A.33.2
     "PseudoColorSoftcopyPresentationStageStorage": "1.2.840.10008.5.1.4.1.1.11.3",  # A.33.3

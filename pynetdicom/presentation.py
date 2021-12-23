@@ -15,9 +15,7 @@ from typing import (
 
 from pydicom.uid import UID
 
-from pynetdicom import _config
 from pynetdicom._globals import DEFAULT_TRANSFER_SYNTAXES
-import pynetdicom.sop_class
 from pynetdicom.sop_class import (
     _APPLICATION_EVENT_CLASSES,
     _BASIC_WORKLIST_CLASSES,

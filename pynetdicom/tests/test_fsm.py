@@ -241,7 +241,7 @@ class TestStateBase:
             # Called AE Title is the destination DICOM AE title
             primitive.called_ae_title = "REMOTE_AE_TITLE "
             # The TCP/IP address of the source, pynetdicom includes port too
-            primitive.calling_presentation_address = ("localhost", 0)
+            primitive.calling_presentation_address = ("127.0.0.1", 0)
             # The TCP/IP address of the destination, pynetdicom includes port too
             primitive.called_presentation_address = ("localhost", 11112)
             # Proposed presentation contexts

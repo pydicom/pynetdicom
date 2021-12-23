@@ -7,18 +7,11 @@ For sending Query/Retrieve (QR) C-GET requests to a QR Get SCP.
 import argparse
 import sys
 
-from pydicom.uid import (
-    ExplicitVRLittleEndian,
-    ImplicitVRLittleEndian,
-    ExplicitVRBigEndian,
-)
-
 from pynetdicom import (
     AE,
     build_role,
     evt,
     StoragePresentationContexts,
-    QueryRetrievePresentationContexts,
 )
 from pynetdicom.apps.common import setup_logging, create_dataset, handle_store
 from pynetdicom._globals import DEFAULT_MAX_LENGTH

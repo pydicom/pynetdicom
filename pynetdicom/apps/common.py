@@ -216,7 +216,7 @@ class ElementPath:
                     item_nr = int(self.components[0][start + 1 : end])
                     if item_nr < 0:
                         is_valid = False
-                except:
+                except Exception:
                     is_valid = False
 
             if not is_valid:

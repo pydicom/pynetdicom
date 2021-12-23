@@ -5,7 +5,6 @@ Implements the DICOM Upper Layer service provider.
 import logging
 import queue
 import socket
-from struct import unpack
 import struct
 from threading import Thread
 import time
@@ -289,7 +288,7 @@ class DULServiceProvider(Thread):
             # Byte 1 is always the PDU type
             # Byte 2 is always reserved
             # Bytes 3-6 are always the PDU length
-            pdu_type, _, pdu_length = unpack(">BBL", bytestream)
+            pdu_type, _, pdu_length = struct.unpack(">BBL", bytestream)
         except struct.error:
             # Raised if there's not enough data
             # Evt17: Transport connection closed

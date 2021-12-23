@@ -21,7 +21,6 @@ from pydicom.uid import (
 from pynetdicom import AE, StoragePresentationContexts
 from pynetdicom.apps.common import setup_logging, get_files
 from pynetdicom._globals import DEFAULT_MAX_LENGTH
-from pynetdicom.status import STORAGE_SERVICE_CLASS_STATUS
 
 
 __version__ = "0.3.0"

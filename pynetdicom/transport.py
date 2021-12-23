@@ -6,14 +6,8 @@ import gc
 import logging
 import queue
 import select
-import selectors
 import socket
-from socketserver import (  # type: ignore[attr-defined]
-    TCPServer,
-    ThreadingMixIn,
-    BaseRequestHandler,
-    _ServerSelector,
-)
+from socketserver import TCPServer, ThreadingMixIn, BaseRequestHandler
 
 try:
     import ssl
@@ -84,7 +78,7 @@ class AssociationSocket:
 
         .. versionchanged:: 2.0
 
-            The default for *address* was changed to ``("localhost", 0)``
+            The default for *address* was changed to ``("127.0.0.1", 0)``
 
         Parameters
         ----------
@@ -97,7 +91,7 @@ class AssociationSocket:
         address : 2-tuple, optional
             If *client_socket* is ``None`` then this is the ``(host, port)`` to
             bind the newly created socket to, which by default will be
-            ``('localhost', 0)``.
+            ``('127.0.0.1', 0)``.
         """
         self._assoc = assoc
 
@@ -205,7 +199,7 @@ class AssociationSocket:
             if self.socket:
                 try:
                     self.socket.shutdown(socket.SHUT_RDWR)
-                except:
+                except Exception:
                     pass
                 self.socket.close()
                 self.socket = None
@@ -226,7 +220,7 @@ class AssociationSocket:
         ----------
         address : 2-tuple, optional
             The ``(host: str, port: int)`` to bind the socket to. By default the socket
-            is bound to ``("localhost", 0)``, i.e. the first available port.
+            is bound to ``("127.0.0.1", 0)``, i.e. the first available port.
 
         Returns
         -------
@@ -281,7 +275,7 @@ class AssociationSocket:
                 # We use `host` to allow unit testing
                 sock.connect(host)
                 addr: str = sock.getsockname()[0]
-            except:
+            except Exception:
                 addr = "127.0.0.1"
 
         return addr
@@ -731,7 +725,10 @@ class AssociationServer(TCPServer):
         # Calls request_handler(request, client_address, self)
         self.finish_request(request, client_address)
 
-    def service_actions(self):
+    def service_actions(self) -> None:
+        """Function to be run once every loop of the server reactor after any requests
+        are handled.
+        """
         # For whatever reason dead Association threads aren't being garbage
         #   collected so do it manually every 30 s or so
         if self._gc_index == self._gc_trigger:

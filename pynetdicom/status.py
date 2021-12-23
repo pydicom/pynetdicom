@@ -47,7 +47,7 @@ GENERAL_STATUS: StatusDictType = {
 }
 
 
-## SERVICE CLASS STATUSES
+# SERVICE CLASS STATUSES
 # Verification Service Class specific status code values
 VERIFICATION_SERVICE_CLASS_STATUS = GENERAL_STATUS
 

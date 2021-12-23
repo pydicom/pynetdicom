@@ -20,13 +20,11 @@ Required Keys
 from collections import OrderedDict
 
 try:
-    import sqlalchemy
+    from sqlalchemy import create_engine, Column, ForeignKey, Integer, String
 except ImportError:
     sys.exit("qrscp requires the sqlalchemy package")
 
-from sqlalchemy import create_engine, Column, ForeignKey, Integer, String
 from sqlalchemy.ext.declarative import declarative_base
-from sqlalchemy.orm import relationship, sessionmaker
 
 from pydicom.dataset import Dataset
 
@@ -169,10 +167,8 @@ def add_instance(ds, session, fpath=None):
     )
     if result:
         instance = result[0]
-        instance_exists = True
     else:
         instance = Instance()
-        instance_exists = False
 
     # Unique or Required attributes
     required = [
