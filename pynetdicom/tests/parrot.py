@@ -1,6 +1,6 @@
 """The Parrot testing server."""
 
-import queue
+import gc
 import select
 import socket
 from socketserver import TCPServer, ThreadingMixIn, BaseRequestHandler
@@ -229,6 +229,7 @@ class Parrot(AssociationServer):
 
         self.timeout = 60
         self.handlers = []
+        self._gc = [0, 59]
 
     @property
     def received(self):
@@ -252,6 +253,17 @@ class Parrot(AssociationServer):
             time.sleep(0.05)
 
         self.event.set()
+
+    def service_actions(self) -> None:
+        """Called by the serve_forever() loop"""
+        # For whatever reason dead Association threads aren't being garbage
+        #   collected so do it manually when a request is received
+        if self._gc[0] == self._gc[1]:
+            gc.collect()
+            self._gc[0] = 0
+            return
+
+        self._gc[0] += 1
 
     def finish_request(self, request, client_address):
         """Finish one request by instantiating RequestHandlerClass."""
