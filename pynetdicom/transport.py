@@ -609,6 +609,7 @@ class AssociationServer(TCPServer):
 
         self.__is_shut_down = threading.Event()
         self.__shutdown_request = False
+        self._gc_collection = 9
 
     def bind(
         self, event: evt.EventType, handler: Callable, args: Optional[List[Any]] = None
@@ -740,6 +741,7 @@ class AssociationServer(TCPServer):
         client_address: Union[Tuple[str, int], str],
     ) -> None:
         """Process a connection request."""
+        # Calls request_handler(request, client_address, self)
         self.finish_request(request, client_address)
 
     def serve_forever(self, poll_interval: float = 0.5) -> None:
@@ -750,15 +752,19 @@ class AssociationServer(TCPServer):
         poll_interval : float
             The polling interval in seconds (default: ``0.5``).
         """
+        idx = 0
         self.__is_shut_down.clear()
         try:
             with _ServerSelector() as selector:
                 selector.register(self, selectors.EVENT_READ)
-
                 while not self.__shutdown_request:
                     # For whatever reason the dead Association threads aren't being
                     #   garbage collected, so force it to run
-                    gc.collect()
+                    idx += 1
+                    if idx == self._gc_collection:
+                        gc.collect()
+                        idx = 0
+
                     ready = selector.select(poll_interval)
                     if self.__shutdown_request:
                         break
@@ -808,15 +814,13 @@ class AssociationServer(TCPServer):
 
     def server_close(self) -> None:
         """Close the server."""
-        if self.socket is None:
-            return
-
+        sock = cast(socket.socket, self.socket)
         try:
-            self.socket.shutdown(socket.SHUT_RDWR)
+            sock.shutdown(socket.SHUT_RDWR)
         except socket.error:
             pass
 
-        self.socket.close()
+        sock.close()
 
     def shutdown(self) -> None:
         """Completely shutdown the server and close it's socket."""
@@ -826,6 +830,8 @@ class AssociationServer(TCPServer):
 
         self.server_close()
         self.ae._servers.remove(cast("ThreadedAssociationServer", self))
+
+        gc.collect()
 
     @property
     def ssl_context(self) -> Optional["ssl.SSLContext"]:

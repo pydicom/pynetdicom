@@ -24,6 +24,7 @@ from pynetdicom._globals import MODE_REQUESTOR
 from pynetdicom import transport
 from pynetdicom.transport import (
     AssociationSocket,
+    AssociationServer,
     ThreadedAssociationServer,
 )
 from pynetdicom.sop_class import Verification, RTImageStorage
@@ -749,6 +750,38 @@ class TestAssociationServer:
         assert assoc.is_established
         assoc.release()
         ae.shutdown()
+
+    @pytest.mark.filterwarnings(
+        "ignore:.*:pytest.PytestUnhandledThreadExceptionWarning"
+    )
+    def test_process_exception(self):
+        """Test exception is raised during request processing."""
+        class DummyAE:
+            network_timeout = 5
+            _servers = []
+
+        class BadHandler:
+            def __init__(self, *args, **kwargs):
+                raise RuntimeError
+
+        dummy = DummyAE()
+        server = AssociationServer(
+            dummy,
+            ("", 11112),
+            b"a",
+            [],
+            request_handler=BadHandler,
+        )
+        dummy._servers.append(server)
+        thread = threading.Thread(target=server.serve_forever)
+        thread.daemon = True
+        thread.start()
+
+        ae = AE()
+        ae.add_requested_context("1.2.840.10008.1.1")
+        ae.associate("localhost", 11112)
+
+        server.shutdown()
 
 
 class TestEventHandlingAcceptor:
