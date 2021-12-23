@@ -842,6 +842,6 @@ class ThreadedAssociationServer(ThreadingMixIn, AssociationServer):
         # pylint: disable=broad-except
         try:
             self.finish_request(request, client_address)
-        except:
+        except Exception:
             self.handle_error(request, client_address)
             self.shutdown_request(request)

@@ -204,7 +204,7 @@ def start_server(commands, handler=SteppingParrotRequest):
     return server
 
 
-class Parrot(TCPServer):
+class Parrot(AssociationServer):
     def __init__(self, address, commands, handler=SteppingParrotRequest):
         """Create a new AssociationServer, bind a socket and start listening.
 
@@ -225,7 +225,7 @@ class Parrot(TCPServer):
         self.ssl_context = None
         self.allow_reuse_address = True
 
-        super().__init__(address, handler, True)
+        TCPServer.__init__(self, address, handler, bind_and_activate=True)
 
         self.timeout = 60
         self.handlers = []
@@ -260,7 +260,7 @@ class Parrot(TCPServer):
 
     def shutdown(self):
         """Completely shutdown the server and close it's socket."""
-        super().shutdown()
+        TCPServer.shutdown(self)
         self.server_close()
 
     process_request = TCPServer.process_request
