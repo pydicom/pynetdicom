@@ -118,7 +118,7 @@
 <li><p>Python 2 is no longer supported</p></li>
 <li><p>SOP class variable names now use their <a class="reference external" href="https://dicom.nema.org/medical/dicom/current/output/chtml/part06/chapter_A.html#table_A-1">new DICOM UID keywords</a>
 (for example, <em>VerificationSOPClass</em> becomes simply <em>Verification</em>)</p></li>
-<li><p>AE titles values should be <a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.10)"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></a> rather than <a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#bytes" title="(in Python v3.10)"><code class="xref py py-class docutils literal notranslate"><span class="pre">bytes</span></code></a> and trailing
+<li><p>AE title values should be <a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.10)"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></a> rather than <a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#bytes" title="(in Python v3.10)"><code class="xref py py-class docutils literal notranslate"><span class="pre">bytes</span></code></a> and trailing
 padding spaces are stripped from the raw value during decoding.</p></li>
 </ul>
 </div></blockquote>
@@ -140,6 +140,8 @@ failed when acting as an Query/Retrieve SCP (<a class="reference external" href=
 <a class="reference internal" href="../reference/generated/pynetdicom.association.ServiceUser.html#pynetdicom.association.ServiceUser.supported_contexts" title="pynetdicom.association.ServiceUser.supported_contexts"><code class="xref py py-meth docutils literal notranslate"><span class="pre">ServiceUser.supported_contexts</span></code></a> not returning the
 expected contexts (<a class="reference external" href="https://github.com/pydicom/pynetdicom/issues/636">#636</a>)</p></li>
 <li><p>Fixed <cite>qrscp –clean</cite> (<a class="reference external" href="https://github.com/pydicom/pynetdicom/issues/681">#681</a>, <a class="reference external" href="https://github.com/pydicom/pynetdicom/issues/682">#682</a>)</p></li>
+<li><p>Fixed a memory leak when running <a class="reference internal" href="../reference/generated/pynetdicom.transport.AssociationServer.html#pynetdicom.transport.AssociationServer" title="pynetdicom.transport.AssociationServer"><code class="xref py py-class docutils literal notranslate"><span class="pre">AssociationServer</span></code></a>
+due to old Association threads not being garbage collected (<a class="reference external" href="https://github.com/pydicom/pynetdicom/issues/669">#669</a>)</p></li>
 </ul>
 </section>
 <section id="enhancements">
@@ -180,6 +182,8 @@ reducing the memory needed when receiving datasets (<a class="reference external
 use of the AE as an unrestricted Storage SCP (<a class="reference external" href="https://github.com/pydicom/pynetdicom/issues/505">#505</a>)</p></li>
 </ul>
 </li>
+<li><p>The DUL reactor should be more performant when processing multiple successive events
+(<a class="reference external" href="https://github.com/pydicom/pynetdicom/pull/651">#651</a>)</p></li>
 </ul>
 </section>
 <section id="changes">
@@ -196,7 +200,7 @@ from the DICOM Standard. In particular <code class="docutils literal notranslate
 <li><p>All AE titles and DIMSE elements with a VR of <strong>AE</strong> should be set using an
 ASCII <a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.10)"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></a> rather than <a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#bytes" title="(in Python v3.10)"><code class="xref py py-class docutils literal notranslate"><span class="pre">bytes</span></code></a></p></li>
 <li><p>The default bind address used when making association requests changed to
-<code class="docutils literal notranslate"><span class="pre">(&quot;localhost&quot;,</span> <span class="pre">0)</span></code> (<a class="reference external" href="https://github.com/pydicom/pynetdicom/issues/680">#680</a>)</p></li>
+<code class="docutils literal notranslate"><span class="pre">(&quot;127.0.0.1&quot;,</span> <span class="pre">0)</span></code> (<a class="reference external" href="https://github.com/pydicom/pynetdicom/issues/680">#680</a>)</p></li>
 </ul>
 </section>
 </section>
