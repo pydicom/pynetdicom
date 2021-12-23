@@ -607,9 +607,8 @@ class AssociationServer(TCPServer):
         for evt_hh_args in evt_handlers or ():
             self.bind(*evt_hh_args)
 
-        self.__is_shut_down = threading.Event()
-        self.__shutdown_request = False
-        self._gc_collection = 59
+        self._gc_index = 0
+        self._gc_trigger = 59
 
     def bind(
         self, event: evt.EventType, handler: Callable, args: Optional[List[Any]] = None
@@ -723,18 +722,6 @@ class AssociationServer(TCPServer):
 
         return client_socket, address
 
-    def _handle_request_noblock(self) -> None:
-        try:
-            request, client_address = self.get_request()
-        except OSError:
-            return
-
-        try:
-            self.process_request(request, client_address)
-        except:
-            self.shutdown_request(request)
-            raise
-
     def process_request(
         self,
         request: Union[socket.socket, Tuple[bytes, socket.socket]],
@@ -744,38 +731,14 @@ class AssociationServer(TCPServer):
         # Calls request_handler(request, client_address, self)
         self.finish_request(request, client_address)
 
-    def serve_forever(self, poll_interval: float = 0.5) -> None:
-        """Start the server.
+    def service_actions(self):
+        # For whatever reason dead Association threads aren't being garbage
+        #   collected so do it manually every 30 s or so
+        if self._gc_index == self._gc_trigger:
+            gc.collect()
+            self._gc_index = 0
 
-        Parameters
-        ----------
-        poll_interval : float
-            The polling interval in seconds (default: ``0.5``).
-        """
-        idx = 0
-        self.__is_shut_down.clear()
-        try:
-            with _ServerSelector() as selector:
-                selector.register(self, selectors.EVENT_READ)
-                while not self.__shutdown_request:
-                    ready = selector.select(poll_interval)
-                    if self.__shutdown_request:
-                        break
-
-                    if ready:
-                        self._handle_request_noblock()
-
-                    self.service_actions()
-
-                    # For whatever reason the dead Association threads aren't being
-                    #   garbage collected, so force it to run
-                    idx += 1
-                    if idx == self._gc_collection:
-                        gc.collect()
-                        idx = 0
-        finally:
-            self.__shutdown_request = False
-            self.__is_shut_down.set()
+        self._gc_index += 1
 
     def server_bind(self) -> None:
         """Bind the socket and set the socket options.
@@ -824,14 +787,8 @@ class AssociationServer(TCPServer):
 
     def shutdown(self) -> None:
         """Completely shutdown the server and close it's socket."""
-        if not self.__is_shut_down.is_set():
-            self.__shutdown_request = True
-            self.__is_shut_down.wait()
-
         self.server_close()
         self.ae._servers.remove(cast("ThreadedAssociationServer", self))
-
-        gc.collect()
 
     @property
     def ssl_context(self) -> Optional["ssl.SSLContext"]:

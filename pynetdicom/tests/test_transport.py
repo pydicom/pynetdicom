@@ -751,36 +751,16 @@ class TestAssociationServer:
         assoc.release()
         ae.shutdown()
 
-    @pytest.mark.filterwarnings(
-        "ignore:.*:pytest.PytestUnhandledThreadExceptionWarning"
-    )
-    def test_process_exception(self):
-        """Test exception is raised during request processing."""
+    def test_gc(self):
+        """Test garbage collection."""
+        self.ae = ae = AE()
+        ae.add_supported_context(Verification)
+        server = ae.start_server(("", 11112), block=False)
+        server._gc_index = server._gc_trigger
 
-        class DummyAE:
-            network_timeout = 5
-            _servers = []
-
-        class BadHandler:
-            def __init__(self, *args, **kwargs):
-                raise RuntimeError
-
-        dummy = DummyAE()
-        server = AssociationServer(
-            dummy,
-            ("", 11112),
-            b"a",
-            [],
-            request_handler=BadHandler,
-        )
-        dummy._servers.append(server)
-        thread = threading.Thread(target=server.serve_forever)
-        thread.daemon = True
-        thread.start()
-
-        ae = AE()
-        ae.add_requested_context("1.2.840.10008.1.1")
-        ae.associate("localhost", 11112)
+        # Default poll interval is 0.5 s
+        time.sleep(1.0)
+        assert server._gc_index > 0
 
         server.shutdown()
 
