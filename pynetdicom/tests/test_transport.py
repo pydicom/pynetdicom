@@ -756,11 +756,11 @@ class TestAssociationServer:
         self.ae = ae = AE()
         ae.add_supported_context(Verification)
         server = ae.start_server(("", 11112), block=False)
-        server._gc_index = server._gc_trigger
+        server._gc[0] = 59
 
         # Default poll interval is 0.5 s
-        time.sleep(1.0)
-        assert server._gc_index > 0
+        time.sleep(0.7)
+        assert server._gc[0] == 0
 
         server.shutdown()
 
