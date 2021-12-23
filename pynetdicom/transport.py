@@ -601,9 +601,6 @@ class AssociationServer(TCPServer):
         for evt_hh_args in evt_handlers or ():
             self.bind(*evt_hh_args)
 
-        self._gc_index = 0
-        self._gc_trigger = 59
-
     def bind(
         self, event: evt.EventType, handler: Callable, args: Optional[List[Any]] = None
     ) -> None:
