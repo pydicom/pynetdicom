@@ -100,10 +100,13 @@ class StateMachine:
                 },
             )
             print(
-               "{}: {} + {} -> {} -> {}".format(
-                   self.dul.assoc.mode[0].upper(), self.current_state,
-                   event, action_name, next_state
-               )
+                "{}: {} + {} -> {} -> {}".format(
+                    self.dul.assoc.mode[0].upper(),
+                    self.current_state,
+                    event,
+                    action_name,
+                    next_state,
+                )
             )
 
             # Move the state machine to the next state
@@ -203,7 +206,7 @@ def AE_2(dul: "DULServiceProvider") -> str:
     # TRANSPORT CONNECTION confirmation received from transport service
 
     # A-ASSOCIATE (RQ) primitive received from local user
-    #primitive = cast("A_ASSOCIATE", dul.to_provider_queue.get(False))
+    # primitive = cast("A_ASSOCIATE", dul.to_provider_queue.get(False))
     primitive = dul._tmp
 
     # Send A-ASSOCIATE-RQ PDU to the peer

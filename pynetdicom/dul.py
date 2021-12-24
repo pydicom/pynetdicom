@@ -117,8 +117,8 @@ class DULServiceProvider(Thread):
         try:
             # Check the queue and see if there are any primitives
             # If so then put the corresponding event on the event queue
-            #self.primitive = self.to_provider_queue.get(False)
-            #self.event_queue.put(self._primitive_to_event(self.primitive))
+            # self.primitive = self.to_provider_queue.get(False)
+            # self.event_queue.put(self._primitive_to_event(self.primitive))
             primitive = self.to_provider_queue.queue[0]
             self.event_queue.put(self._primitive_to_event(primitive))
             return True
