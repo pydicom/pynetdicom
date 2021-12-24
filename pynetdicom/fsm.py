@@ -207,7 +207,7 @@ def AE_2(dul: "DULServiceProvider") -> str:
 
     # A-ASSOCIATE (RQ) primitive received from local user
     # primitive = cast("A_ASSOCIATE", dul.to_provider_queue.get(False))
-    primitive = dul._tmp
+    primitive = cast("A_ASSOCIATE", dul._tmp)
 
     # Send A-ASSOCIATE-RQ PDU to the peer
     pdu = A_ASSOCIATE_RQ()
@@ -336,15 +336,15 @@ def AE_6(dul: "DULServiceProvider") -> str:
     # Stop ARTIM timer
     dul.artim_timer.stop()
 
-    pdu = cast(A_ASSOCIATE_RQ, dul._recv_pdu.get(False))
-    primitive = cast("A_ASSOCIATE", pdu.to_primitive())
+    recv_pdu = cast(A_ASSOCIATE_RQ, dul._recv_pdu.get(False))
+    primitive = recv_pdu.to_primitive()
 
     # If A-ASSOCIATE-RQ not acceptable by service dul provider
     #   Then set reason and send -RJ PDU back to peer
-    if pdu.protocol_version != 0x0001:
+    if recv_pdu.protocol_version != 0x0001:
         LOGGER.error(
             "A-ASSOCIATE-RQ: Unsupported protocol version "
-            f"'0x{pdu.protocol_version:04X}'"
+            f"'0x{recv_pdu.protocol_version:04X}'"
         )
 
         # Send A-ASSOCIATE-RJ PDU and start ARTIM timer
@@ -573,7 +573,7 @@ def AR_3(dul: "DULServiceProvider") -> str:
     primitive = cast("A_RELEASE", pdu.to_primitive())
 
     # Issue A-RELEASE confirmation primitive and close transport connection
-    dul.to_user_queue.put(cast("A_RELEASE", primitive))
+    dul.to_user_queue.put(primitive)
     sock = cast("AssociationSocket", dul.socket)
     sock.close()
 
@@ -671,7 +671,7 @@ def AR_6(dul: "DULServiceProvider") -> str:
     """
     # P-DATA-TF PDU received from peer
     pdu = cast("P_DATA_TF", dul._recv_pdu.get(False))
-    primitive = cast("P_DATA", pdu.to_primitive())
+    primitive = pdu.to_primitive()
 
     # Issue P-DATA indication
     dul.to_user_queue.put(primitive)
@@ -731,7 +731,7 @@ def AR_8(dul: "DULServiceProvider") -> str:
     """
     # A-RELEASE-RQ PDU received from peer
     pdu = cast("A_RELEASE_RQ", dul._recv_pdu.get(False))
-    primitive = cast("A_RELEASE", pdu.to_primitive())
+    primitive = pdu.to_primitive()
 
     # Issue A-RELEASE indication (release collision)
     dul.to_user_queue.put(primitive)
@@ -791,7 +791,7 @@ def AR_10(dul: "DULServiceProvider") -> str:
     """
     # A-RELEASE-RP PDU received from peer
     pdu = cast("A_RELEASE_RP", dul._recv_pdu.get(False))
-    primitive = cast("A_RELEASE", pdu.to_primitive())
+    primitive = pdu.to_primitive()
 
     # Issue A-RELEASE confirmation primitive
     dul.to_user_queue.put(primitive)
@@ -821,7 +821,7 @@ def AA_1(dul: "DULServiceProvider") -> str:
     # Received invalid PDU from peer or an A-ABORT primitive from local user
     try:
         primitive = dul.to_provider_queue.queue[0]
-        if isinstance(primitive, A_ABORT):
+        if isinstance(primitive, (A_ABORT, A_P_ABORT)):
             primitive = dul.to_provider_queue.get(False)
     except (queue.Empty, IndexError):
         primitive = None

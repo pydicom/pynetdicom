@@ -89,7 +89,10 @@ class DULServiceProvider(Thread):
         self.to_user_queue: "queue.Queue[_PDUPrimitiveType]" = queue.Queue()
 
         # A queue storing PDUs received from the peer
-        self._recv_pdu = queue.Queue()
+        self._recv_pdu: "queue.Queue[_PDUType]" = queue.Queue()
+
+        # FIXME: more elegant method needed
+        self._tmp: Optional["A_ASSOCIATE"] = None
 
         # Set the (network) idle and ARTIM timers
         # Timeouts gets set after DUL init so these are temporary
@@ -210,7 +213,7 @@ class DULServiceProvider(Thread):
             return None
 
     @staticmethod
-    def _primitive_to_event(primitive: _PDUPrimitiveType) -> Optional[str]:
+    def _primitive_to_event(primitive: _PDUPrimitiveType) -> str:
         """Returns the state machine event associated with sending a primitive.
 
         Parameters
