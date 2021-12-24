@@ -53,11 +53,10 @@ class DULServiceProvider(Thread):
         <https://docs.python.org/3/library/socket.html#socket-objects>`_
         object used to communicate with the peer.
     to_provider_queue : queue.Queue
-        Queue of PDUs from the DUL service user to be processed by the DUL
-        provider.
+        Queue of primitives received from the peer to be processed by the service user.
     to_user_queue : queue.Queue
-        Queue of primitives from the DUL service to be processed by the DUL
-        user.
+        Queue of primitives received from the service user to be processed by the
+        DUL service.
     event_queue : queue.Queue
         List of queued events to be processed by the state machine.
     state_machine : fsm.StateMachine
@@ -114,19 +113,6 @@ class DULServiceProvider(Thread):
     def assoc(self) -> "Association":
         """Return the parent :class:`~pynetdicom.association.Association`."""
         return self._assoc
-
-    def _check_incoming_primitive(self) -> bool:
-        """Check to see if the local user has sent any primitives to the DUL"""
-        try:
-            # Check the queue and see if there are any primitives
-            # If so then put the corresponding event on the event queue
-            # self.primitive = self.to_provider_queue.get(False)
-            # self.event_queue.put(self._primitive_to_event(self.primitive))
-            primitive = self.to_provider_queue.queue[0]
-            self.event_queue.put(self._primitive_to_event(primitive))
-            return True
-        except (queue.Empty, IndexError):
-            return False
 
     def _decode_pdu(self, bytestream: bytearray) -> Tuple[_PDUType, str]:
         """Decode a received PDU.
@@ -212,48 +198,45 @@ class DULServiceProvider(Thread):
         except (queue.Empty, IndexError):
             return None
 
-    @staticmethod
-    def _primitive_to_event(primitive: _PDUPrimitiveType) -> str:
-        """Returns the state machine event associated with sending a primitive.
+    def _process_recv_primitive(self) -> bool:
+        """Check to see if the local user has sent any primitives to the DUL"""
+        # Check the queue and see if there are any primitives
+        # If so then put the corresponding event on the event queue
+        try:
+            primitive = self.to_provider_queue.queue[0]
+        except (queue.Empty, IndexError):
+            return False
 
-        Parameters
-        ----------
-        primitive : pdu_primitives.ServiceParameter
-            The Association primitive
-
-        Returns
-        -------
-        str
-            The event associated with the primitive
-        """
         if isinstance(primitive, A_ASSOCIATE):
             if primitive.result is None:
                 # A-ASSOCIATE Request
-                return "Evt1"
-
-            if primitive.result == 0x00:
+                event = "Evt1"
+            elif primitive.result == 0x00:
                 # A-ASSOCIATE Response (accept)
-                return "Evt7"
-
-            # A-ASSOCIATE Response (reject)
-            return "Evt8"
-
-        if isinstance(primitive, A_RELEASE):
+                event = "Evt7"
+            else:
+                # A-ASSOCIATE Response (reject)
+                event = "Evt8"
+        elif isinstance(primitive, A_RELEASE):
             if primitive.result is None:
                 # A-Release Request
-                return "Evt11"
+                event = "Evt11"
+            else:
+                # A-Release Response
+                # result is 'affirmative'
+                event = "Evt14"
+        elif isinstance(primitive, (A_ABORT, A_P_ABORT)):
+            event = "Evt15"
+        elif isinstance(primitive, P_DATA):
+            event = "Evt9"
+        else:
+            raise ValueError(
+                f"Unknown primitive type '{primitive.__class__.__name__}' received"
+            )
 
-            # A-Release Response
-            # result is 'affirmative'
-            return "Evt14"
+        self.event_queue.put(event)
 
-        if isinstance(primitive, (A_ABORT, A_P_ABORT)):
-            return "Evt15"
-
-        if isinstance(primitive, P_DATA):
-            return "Evt9"
-
-        raise ValueError("_primitive_to_event(): invalid primitive")
+        return True
 
     def _read_pdu_data(self) -> None:
         """Read PDU data sent by the peer from the socket.
@@ -336,7 +319,7 @@ class DULServiceProvider(Thread):
     ) -> Optional[_PDUPrimitiveType]:
         """Return an item from the queue if one is available.
 
-        Get the next item to be processed out of the queue of items sent
+        Get the next service primitive to be processed out of the queue of items sent
         from the DUL service provider to the service user
 
         Parameters
@@ -351,10 +334,8 @@ class DULServiceProvider(Thread):
 
         Returns
         -------
-        object
-            The next object in the :attr:`~DULServiceProvider.to_user_queue`.
-        None
-            If the queue is empty.
+        Optional[Union[A_ASSOCIATE, A_RELEASE, A_ABORT, A_P_ABORT]]
+            The next primitive in the :attr:`~DULServiceProvider.to_user_queue`.
         """
         try:
             # If block is True and timeout is None then block until an item
@@ -413,9 +394,9 @@ class DULServiceProvider(Thread):
             try:
                 # We can either encode and send a primitive **OR**
                 #   receive and decode a PDU per loop of the reactor
-                if self._check_incoming_primitive():
+                if self._process_recv_primitive():  # encode (sent by state machine)
                     pass
-                elif self._is_transport_event():
+                elif self._is_transport_event():  # receive and decode PDU
                     self._idle_timer.restart()
             except Exception as exc:
                 LOGGER.error("Exception in DUL.run(), aborting association")

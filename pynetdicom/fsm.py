@@ -20,7 +20,7 @@ from pynetdicom.pdu_primitives import A_P_ABORT, A_ABORT
 if TYPE_CHECKING:  # pragma: no cover
     from pynetdicom.dul import DULServiceProvider
     from pynetdicom.transport import AssociationSocket
-    from pynetdicom.pdu_primitives import A_ASSOCIATE, P_DATA, A_RELEASE, A_ABORT
+    from pynetdicom.pdu_primitives import A_ASSOCIATE, P_DATA, A_RELEASE
 
 
 LOGGER = logging.getLogger("pynetdicom.sm")
@@ -206,12 +206,10 @@ def AE_2(dul: "DULServiceProvider") -> str:
     # TRANSPORT CONNECTION confirmation received from transport service
 
     # A-ASSOCIATE (RQ) primitive received from local user
-    # primitive = cast("A_ASSOCIATE", dul.to_provider_queue.get(False))
     primitive = cast("A_ASSOCIATE", dul._tmp)
 
     # Send A-ASSOCIATE-RQ PDU to the peer
-    pdu = A_ASSOCIATE_RQ()
-    pdu.from_primitive(primitive)
+    pdu = A_ASSOCIATE_RQ(primitive)
 
     sock = cast("AssociationSocket", dul.socket)
     sock.send(pdu.encode())
@@ -354,8 +352,7 @@ def AE_6(dul: "DULServiceProvider") -> str:
         primitive.result_source = 0x02
         primitive.diagnostic = 0x02
 
-        pdu = A_ASSOCIATE_RJ()
-        pdu.from_primitive(primitive)
+        pdu = A_ASSOCIATE_RJ(primitive)
 
         sock = cast("AssociationSocket", dul.socket)
         sock.send(pdu.encode())
@@ -392,8 +389,7 @@ def AE_7(dul: "DULServiceProvider") -> str:
     primitive = cast("A_ASSOCIATE", dul.to_provider_queue.get(False))
 
     # Send A-ASSOCIATE-AC PDU
-    pdu = A_ASSOCIATE_AC()
-    pdu.from_primitive(primitive)
+    pdu = A_ASSOCIATE_AC(primitive)
 
     sock = cast("AssociationSocket", dul.socket)
     sock.send(pdu.encode())
@@ -423,8 +419,7 @@ def AE_8(dul: "DULServiceProvider") -> str:
     primitive = cast("A_ASSOCIATE", dul.to_provider_queue.get(False))
 
     # Send A-ASSOCIATE-RJ PDU and start ARTIM timer
-    pdu = A_ASSOCIATE_RJ()
-    pdu.from_primitive(primitive)
+    pdu = A_ASSOCIATE_RJ(primitive)
 
     sock = cast("AssociationSocket", dul.socket)
     sock.send(pdu.encode())
@@ -455,8 +450,7 @@ def DT_1(dul: "DULServiceProvider") -> str:
     primitive = cast("P_DATA", dul.to_provider_queue.get(False))
 
     # Send P-DATA-TF PDU
-    pdu = P_DATA_TF()
-    pdu.from_primitive(primitive)
+    pdu = P_DATA_TF(primitive)
 
     sock = cast("AssociationSocket", dul.socket)
     sock.send(pdu.encode())
@@ -513,8 +507,7 @@ def AR_1(dul: "DULServiceProvider") -> str:
     primitive = cast("A_RELEASE", dul.to_provider_queue.get(False))
 
     # Send A-RELEASE-RQ PDU
-    pdu = A_RELEASE_RQ()
-    pdu.from_primitive(primitive)
+    pdu = A_RELEASE_RQ(primitive)
 
     sock = cast("AssociationSocket", dul.socket)
     sock.send(pdu.encode())
@@ -609,8 +602,7 @@ def AR_4(dul: "DULServiceProvider") -> str:
     primitive = cast("A_RELEASE", dul.to_provider_queue.get(False))
 
     # Issue A-RELEASE-RP PDU and start ARTIM timer
-    pdu = A_RELEASE_RP()
-    pdu.from_primitive(primitive)
+    pdu = A_RELEASE_RP(primitive)
 
     sock = cast("AssociationSocket", dul.socket)
     sock.send(pdu.encode())
@@ -701,8 +693,7 @@ def AR_7(dul: "DULServiceProvider") -> str:
     primitive = cast("P_DATA", dul.to_provider_queue.get(False))
 
     # Issue P-DATA-TF PDU
-    pdu = P_DATA_TF()
-    pdu.from_primitive(primitive)
+    pdu = P_DATA_TF(primitive)
 
     sock = cast("AssociationSocket", dul.socket)
     sock.send(pdu.encode())
@@ -762,8 +753,7 @@ def AR_9(dul: "DULServiceProvider") -> str:
     primitive = cast("A_RELEASE", dul.to_provider_queue.get(False))
 
     # Send A-RELEASE-RP PDU
-    pdu = A_RELEASE_RP()
-    pdu.from_primitive(primitive)
+    pdu = A_RELEASE_RP(primitive)
 
     sock = cast("AssociationSocket", dul.socket)
     sock.send(pdu.encode())
@@ -1036,8 +1026,7 @@ def AA_7(dul: "DULServiceProvider") -> str:
     primitive.provider_reason = 0x02
 
     # Send A-ABORT PDU
-    pdu = A_ABORT_RQ()
-    pdu.from_primitive(primitive)
+    pdu = A_ABORT_RQ(primitive)
 
     sock = cast("AssociationSocket", dul.socket)
     sock.send(pdu.encode())

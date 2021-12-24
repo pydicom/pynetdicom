@@ -443,8 +443,14 @@ class A_ASSOCIATE_RQ(PDU):
       and :dcm:`9.3.1<part08/sect_9.3.html#sect_9.3.1>`
     """
 
-    def __init__(self) -> None:
-        """Initialise a new A-ASSOCIATE-RQ PDU."""
+    def __init__(self, primitive: Optional["A_ASSOCIATE"] = None) -> None:
+        """Initialise a new A-ASSOCIATE-RQ PDU.
+
+        Parameters
+        ----------
+        primitive : pynetdicom.pdu_primitive.A_ASSOCIATE
+            The primitive to use to initialise the PDU.
+        """
         # We allow the user to modify the protocol version if so desired
         self.protocol_version = 0x01
         self._called_aet = ""
@@ -460,6 +466,9 @@ class A_ASSOCIATE_RQ(PDU):
         #   1 UserInformationItem
         # The order of the items in the list may not be as given above
         self.variable_items: _PDUItemType = []
+
+        if primitive is not None:
+            self.from_primitive(primitive)
 
     def from_primitive(self, primitive: "A_ASSOCIATE") -> None:
         """Setup the current PDU using an A-ASSOCIATE (request) primitive.
@@ -818,8 +827,14 @@ class A_ASSOCIATE_AC(PDU):
       :dcm:`Section 9.3.1<part08/sect_9.3.html#sect_9.3.1>`
     """
 
-    def __init__(self) -> None:
-        """Initialise a new A-ASSOCIATE-AC PDU."""
+    def __init__(self, primitive: Optional["A_ASSOCIATE"] = None) -> None:
+        """Initialise a new A-ASSOCIATE-AC PDU.
+
+        Parameters
+        ----------
+        primitive : pynetdicom.pdu_primitive.A_ASSOCIATE
+            The primitive to use to initialise the PDU.
+        """
         # We allow the user to modify the protocol version if so desired
         self.protocol_version = 0x01
         # Called AE Title, should be present, but no guarantees
@@ -833,6 +848,9 @@ class A_ASSOCIATE_AC(PDU):
         #   1 UserInformationItem
         # The order of the items in the list may not be as given above
         self.variable_items: _PDUItemType = []
+
+        if primitive is not None:
+            self.from_primitive(primitive)
 
     def from_primitive(self, primitive: "A_ASSOCIATE") -> None:
         """Setup the current PDU using an A-ASSOCIATE (accept) primitive.
@@ -1197,11 +1215,20 @@ class A_ASSOCIATE_RJ(PDU):
       :dcm:`Section 9.3.1<part08/sect_9.3.html#sect_9.3.1>`
     """
 
-    def __init__(self) -> None:
-        """Initialise a new A-ASSOCIATE-RJ PDU."""
+    def __init__(self, primitive: Optional["A_ASSOCIATE"] = None) -> None:
+        """Initialise a new A-ASSOCIATE-RJ PDU.
+
+        Parameters
+        ----------
+        primitive : pynetdicom.pdu_primitive.A_ASSOCIATE
+            The primitive to use to initialise the PDU.
+        """
         self.result: Optional[int] = None
         self.source: Optional[int] = None
         self.reason_diagnostic: Optional[int] = None
+
+        if primitive is not None:
+            self.from_primitive(primitive)
 
     def from_primitive(self, primitive: "A_ASSOCIATE") -> None:
         """Setup the current PDU using an A-ASSOCIATE (reject) primitive.
@@ -1412,9 +1439,18 @@ class P_DATA_TF(PDU):
       :dcm:`Section 9.3.1<part08/sect_9.3.html#sect_9.3.1>`
     """
 
-    def __init__(self) -> None:
-        """Initialise a new P-DATA-TF PDU."""
+    def __init__(self, primitive: Optional["P_DATA"] = None) -> None:
+        """Initialise a new P-DATA-TF PDU.
+
+        Parameters
+        ----------
+        primitive : pynetdicom.pdu_primitive.P_DATA
+            The primitive to use to initialise the PDU.
+        """
         self.presentation_data_value_items: _PDVItem = []
+
+        if primitive is not None:
+            self.from_primitive(primitive)
 
     def from_primitive(self, primitive: "P_DATA") -> None:
         """Setup the current PDU using a P-DATA primitive.
@@ -1638,9 +1674,16 @@ class A_RELEASE_RQ(PDU):
       :dcm:`Section 9.3.1<part08/sect_9.3.html#sect_9.3.1>`
     """
 
-    def __init__(self) -> None:
-        """Initialise a new A-RELEASE-RQ PDU."""
-        pass
+    def __init__(self, primitive: Optional["A_RELEASE"] = None) -> None:
+        """Initialise a new A-RELEASE-RQ PDU.
+
+        Parameters
+        ----------
+        primitive : pynetdicom.pdu_primitive.A_RELEASE
+            The primitive to use to initialise the PDU.
+        """
+        if primitive is not None:
+            self.from_primitive(primitive)
 
     @staticmethod
     def from_primitive(primitive: "A_RELEASE") -> None:
@@ -1763,9 +1806,16 @@ class A_RELEASE_RP(PDU):
       :dcm:`Section 9.3.1<part08/sect_9.3.html#sect_9.3.1>`
     """
 
-    def __init__(self) -> None:
-        """Initialise a new A-RELEASE-RP PDU."""
-        pass
+    def __init__(self, primitive: Optional["A_RELEASE"] = None) -> None:
+        """Initialise a new A-RELEASE-RP PDU.
+
+        Parameters
+        ----------
+        primitive : pynetdicom.pdu_primitive.A_RELEASE
+            The primitive to use to initialise the PDU.
+        """
+        if primitive is not None:
+            self.from_primitive(primitive)
 
     @staticmethod
     def from_primitive(primitive: "A_RELEASE") -> None:
@@ -1902,10 +1952,19 @@ class A_ABORT_RQ(PDU):
       :dcm:`Section 9.3.1<part08/sect_9.3.html#sect_9.3.1>`
     """
 
-    def __init__(self) -> None:
-        """Initialise a new A-ABORT-RQ PDU."""
+    def __init__(self, primitive: Optional["A_ABORT"] = None) -> None:
+        """Initialise a new A-ABORT-RQ PDU.
+
+        Parameters
+        ----------
+        primitive : pynetdicom.pdu_primitive.A_ABORT
+            The primitive to use to initialise the PDU.
+        """
         self.source: Optional[int] = None
         self.reason_diagnostic: Optional[int] = None
+
+        if primitive is not None:
+            self.from_primitive(primitive)
 
     def from_primitive(self, primitive: _AbortType) -> None:
         """Setup the current PDU using an A-ABORT or A-P-ABORT primitive.
