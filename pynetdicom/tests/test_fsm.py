@@ -8156,10 +8156,11 @@ class TestStateMachineFunctionalRequestor:
             dul.socket.send(p_data_tf)
 
             # Normal release response
-            dul.pdu = A_RELEASE_RP()
-            dul.pdu.from_primitive(dul.primitive)
+            primitive = dul.to_provider_queue.get(False)
+            pdu = A_RELEASE_RP()
+            pdu.from_primitive(primitive)
             # Callback
-            dul.socket.send(dul.pdu.encode())
+            dul.socket.send(pdu.encode())
             dul.artim_timer.start()
             return "Sta13"
 
@@ -8226,8 +8227,11 @@ class TestStateMachineFunctionalRequestor:
             # Send C-ECHO request to the peer via DIMSE and wait for the response
             dul.assoc.dimse.send_msg(primitive, 1)
 
+            pdu = dul._recv_pdu.get(False)
+            primitive = pdu.to_primitive()
+
             # Normal AR2 response
-            dul.to_user_queue.put(dul.primitive)
+            dul.to_user_queue.put(primitive)
             return "Sta8"
 
         # In this case the association acceptor will hit AR_2
@@ -8361,10 +8365,11 @@ class TestStateMachineFunctionalAcceptor:
         assert self.fsm.current_state == "Sta1"
 
         def AE_2(dul):
-            dul.pdu = A_ASSOCIATE_RQ()
-            dul.pdu.from_primitive(dul.primitive)
-            dul.pdu.protocol_version = 0x0002
-            bytestream = dul.pdu.encode()
+            primitive = dul._tmp
+            pdu = A_ASSOCIATE_RQ()
+            pdu.from_primitive(primitive)
+            pdu.protocol_version = 0x0002
+            bytestream = pdu.encode()
             dul.socket.send(bytestream)
             return "Sta5"
 

@@ -35,6 +35,9 @@ Fixes
 * Fixed `qrscp --clean` (:issue:`681`, :issue:`682`)
 * Fixed a memory leak when running :class:`~pynetdicom.transport.AssociationServer`
   due to old Association threads not being garbage collected (:issue:`669`)
+* Fixed an exception in the state machine during association negotiation as the acceptor
+  when an A-ABORT-RQ PDU is received before the initial A-ASSOCIATE-RQ has been
+  processed (:issue:`721`)
 
 
 Enhancements
@@ -95,3 +98,4 @@ Changes
   ASCII :class:`str` rather than :class:`bytes`
 * The default bind address used when making association requests changed to
   ``("127.0.0.1", 0)`` (:issue:`680`)
+* ``DULServiceProvider.primitive`` and ``DULServiceProvider.pdu`` have been removed

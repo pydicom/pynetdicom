@@ -55,7 +55,7 @@ from .encoded_pdu_items import (
 from .parrot import ThreadedParrot, ParrotRequest
 
 
-# debug_logger()
+debug_logger()
 
 
 class DummyAssociationSocket:

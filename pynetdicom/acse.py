@@ -253,11 +253,6 @@ class ACSE:
         """Return the :class:`~pynetdicom.dul.DULServiceProvider`."""
         return self.assoc.dul
 
-    @property
-    def socket(self) -> Optional["AssociationSocket"]:
-        """Return the :class:`~pynetdicom.transport.AssociationSocket`."""
-        return self.assoc.dul.socket
-
     def is_aborted(self, abort_type: str = "both") -> bool:
         """Return ``True`` if an A-ABORT and/or A-P-ABORT request has been
         received.
@@ -870,3 +865,8 @@ class ACSE:
 
         # Send the A-ASSOCIATE request primitive to the peer
         self.dul.send_pdu(primitive)
+
+    @property
+    def socket(self) -> Optional["AssociationSocket"]:
+        """Return the :class:`~pynetdicom.transport.AssociationSocket`."""
+        return self.assoc.dul.socket

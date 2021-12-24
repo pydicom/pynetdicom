@@ -77,11 +77,6 @@ class DULServiceProvider(Thread):
         self._assoc = assoc
         self.socket: Optional["AssociationSocket"] = None
 
-        # Current primitive and PDU
-        # TODO: Don't do it this way
-        self.primitive: Optional[_PDUPrimitiveType] = None
-        self.pdu: Optional[_PDUType] = None
-
         # Tracks the events the state machine needs to process
         self.event_queue: "queue.Queue[str]" = queue.Queue()
         # These queues provide communication between the DUL service
@@ -92,6 +87,9 @@ class DULServiceProvider(Thread):
         # A primitive is sent to the service user when the DUL service provider
         # adds to the to_user_queue.
         self.to_user_queue: "queue.Queue[_PDUPrimitiveType]" = queue.Queue()
+
+        # A queue storing PDUs received from the peer
+        self._recv_pdu = queue.Queue()
 
         # Set the (network) idle and ARTIM timers
         # Timeouts gets set after DUL init so these are temporary
@@ -115,14 +113,16 @@ class DULServiceProvider(Thread):
         return self._assoc
 
     def _check_incoming_primitive(self) -> bool:
-        """Check the incoming primitive."""
+        """Check to see if the local user has sent any primitives to the DUL"""
         try:
             # Check the queue and see if there are any primitives
             # If so then put the corresponding event on the event queue
-            self.primitive = self.to_provider_queue.get(False)
-            self.event_queue.put(self._primitive_to_event(self.primitive))
+            #self.primitive = self.to_provider_queue.get(False)
+            #self.event_queue.put(self._primitive_to_event(self.primitive))
+            primitive = self.to_provider_queue.queue[0]
+            self.event_queue.put(self._primitive_to_event(primitive))
             return True
-        except queue.Empty:
+        except (queue.Empty, IndexError):
             return False
 
     def _decode_pdu(self, bytestream: bytearray) -> Tuple[_PDUType, str]:
@@ -210,7 +210,7 @@ class DULServiceProvider(Thread):
             return None
 
     @staticmethod
-    def _primitive_to_event(primitive: _PDUPrimitiveType) -> str:
+    def _primitive_to_event(primitive: _PDUPrimitiveType) -> Optional[str]:
         """Returns the state machine event associated with sending a primitive.
 
         Parameters
@@ -324,12 +324,9 @@ class DULServiceProvider(Thread):
             LOGGER.exception(exc)
             # Evt19: Unrecognised or invalid PDU received
             self.event_queue.put("Evt19")
-            self.pdu = None
-            self.primitive = None
             return
 
-        self.pdu = pdu
-        self.primitive = self.pdu.to_primitive()
+        self._recv_pdu.put(pdu)
 
     def receive_pdu(
         self, wait: bool = False, timeout: Optional[float] = None
@@ -363,14 +360,13 @@ class DULServiceProvider(Thread):
             #   raises queue.Empty if no item was available in that time.
             # If block is False, return an item if one is immediately
             #   available, otherwise raise queue.Empty
-            queue_item = self.to_user_queue.get(block=wait, timeout=timeout)
+            primitive = self.to_user_queue.get(block=wait, timeout=timeout)
 
             # Event handler - ACSE received primitive from DUL service
-            acse_primitives = (A_ASSOCIATE, A_RELEASE, A_ABORT, A_P_ABORT)
-            if isinstance(queue_item, acse_primitives):
-                evt.trigger(self.assoc, evt.EVT_ACSE_RECV, {"primitive": queue_item})
+            if isinstance(primitive, (A_ASSOCIATE, A_RELEASE, A_ABORT, A_P_ABORT)):
+                evt.trigger(self.assoc, evt.EVT_ACSE_RECV, {"primitive": primitive})
 
-            return queue_item
+            return primitive
         except queue.Empty:
             return None
 
@@ -467,8 +463,7 @@ class DULServiceProvider(Thread):
             * :class:`P_DATA`
         """
         # Event handler - ACSE sent primitive to the DUL service
-        acse_primitives = (A_ASSOCIATE, A_RELEASE, A_ABORT, A_P_ABORT)
-        if isinstance(primitive, acse_primitives):
+        if isinstance(primitive, (A_ASSOCIATE, A_RELEASE, A_ABORT, A_P_ABORT)):
             evt.trigger(self.assoc, evt.EVT_ACSE_SENT, {"primitive": primitive})
 
         self.to_provider_queue.put(primitive)
