@@ -38,8 +38,7 @@ if TYPE_CHECKING:  # pragma: no cover
     from pynetdicom.association import Association
     from pynetdicom.transport import AssociationSocket
 
-
-_QueueType = queue.Queue[Union[_PDUPrimitiveType, T_CONNECT]]
+    _QueueType = queue.Queue[Union[_PDUPrimitiveType, T_CONNECT]]
 
 
 LOGGER = logging.getLogger("pynetdicom.dul")
@@ -85,7 +84,7 @@ class DULServiceProvider(Thread):
         #   user and the DUL service provider.
         # An event occurs when the DUL service user adds to
         #   the to_provider_queue
-        self.to_provider_queue: _QueueType = queue.Queue()
+        self.to_provider_queue: "_QueueType" = queue.Queue()
         # A primitive is sent to the service user when the DUL service provider
         # adds to the to_user_queue.
         self.to_user_queue: "queue.Queue[_PDUPrimitiveType]" = queue.Queue()
