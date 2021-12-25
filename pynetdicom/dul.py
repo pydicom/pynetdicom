@@ -38,7 +38,8 @@ if TYPE_CHECKING:  # pragma: no cover
     from pynetdicom.association import Association
     from pynetdicom.transport import AssociationSocket
 
-    _QueueType = queue.Queue[Union[_PDUPrimitiveType, T_CONNECT]]
+
+_QueueType = queue.Queue[Union[_PDUPrimitiveType, T_CONNECT]]
 
 
 LOGGER = logging.getLogger("pynetdicom.dul")

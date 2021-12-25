@@ -301,13 +301,16 @@ class AssociationSocket:
 
     @property
     def event_queue(self) -> "queue.Queue[str]":
-        """Return the :class:`~pynetdicom.association.Association`'s event
+        """Return the :class:`~pynetdicom.association.Association`'s service event
         queue.
         """
         return self.assoc.dul.event_queue
 
     @property
-    def provider_queue(self) -> _QueueType:
+    def provider_queue(self) -> "_QueueType":
+        """Return the :class:`~pynetdicom.association.Association`'s service provider
+        queue.
+        """
         return self.assoc.dul.to_provider_queue
 
     def get_local_addr(self, host: Tuple[str, int] = ("10.255.255.255", 1)) -> str:
