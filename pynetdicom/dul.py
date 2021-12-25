@@ -8,7 +8,7 @@ import socket
 import struct
 from threading import Thread
 import time
-from typing import TYPE_CHECKING, Optional, Tuple, cast, Dict, Type
+from typing import TYPE_CHECKING, Optional, Tuple, cast, Dict, Type, Union
 
 from pynetdicom import evt
 from pynetdicom.fsm import StateMachine
@@ -31,11 +31,14 @@ from pynetdicom.pdu_primitives import (
     _PDUPrimitiveType,
 )
 from pynetdicom.timer import Timer
+from pynetdicom.transport import T_CONNECT
 from pynetdicom.utils import make_target
 
 if TYPE_CHECKING:  # pragma: no cover
     from pynetdicom.association import Association
     from pynetdicom.transport import AssociationSocket
+
+    _QueueType = queue.Queue[Union[_PDUPrimitiveType, T_CONNECT]]
 
 
 LOGGER = logging.getLogger("pynetdicom.dul")
@@ -81,16 +84,13 @@ class DULServiceProvider(Thread):
         #   user and the DUL service provider.
         # An event occurs when the DUL service user adds to
         #   the to_provider_queue
-        self.to_provider_queue: "queue.Queue[_PDUPrimitiveType]" = queue.Queue()
+        self.to_provider_queue: _QueueType = queue.Queue()
         # A primitive is sent to the service user when the DUL service provider
         # adds to the to_user_queue.
         self.to_user_queue: "queue.Queue[_PDUPrimitiveType]" = queue.Queue()
 
         # A queue storing PDUs received from the peer
         self._recv_pdu: "queue.Queue[_PDUType]" = queue.Queue()
-
-        # FIXME: more elegant method needed
-        self._tmp: Optional["A_ASSOCIATE"] = None
 
         # Set the (network) idle and ARTIM timers
         # Timeouts gets set after DUL init so these are temporary
@@ -206,7 +206,10 @@ class DULServiceProvider(Thread):
         except (queue.Empty, IndexError):
             return False
 
-        if isinstance(primitive, A_ASSOCIATE):
+        if isinstance(primitive, T_CONNECT):
+            # Evt2 or Evt17, depending on whether successful or not
+            event = primitive.result
+        elif isinstance(primitive, A_ASSOCIATE):
             if primitive.result is None:
                 # A-ASSOCIATE Request
                 event = "Evt1"
@@ -426,6 +429,18 @@ class DULServiceProvider(Thread):
 
             self.state_machine.do_action(event)
             sleep = False
+
+    def _send(self, pdu: _PDUType) -> None:
+        """Encode and send a PDU to the peer.
+
+        Parameters
+        ----------
+        pdu : pynetdicom.pdu.PDU
+            The PDU to be encoded and sent to the peer.
+        """
+        sock = cast("AssociationSocket", self.socket)
+        sock.send(pdu.encode())
+        evt.trigger(self.assoc, evt.EVT_PDU_SENT, {"pdu": pdu})
 
     def send_pdu(self, primitive: _PDUPrimitiveType) -> None:
         """Place a primitive in the provider queue to be sent to the peer.

@@ -16,6 +16,7 @@ from pynetdicom.pdu import (
     A_ABORT_RQ,
 )
 from pynetdicom.pdu_primitives import A_P_ABORT, A_ABORT
+from pynetdicom.transport import T_CONNECT
 
 if TYPE_CHECKING:  # pragma: no cover
     from pynetdicom.dul import DULServiceProvider
@@ -171,16 +172,11 @@ def AE_1(dul: "DULServiceProvider") -> str:
         ``'Sta4'``, the next state of the state machine.
     """
     # A-ASSOCIATE (request) primitive received from local user
-    primitive = cast("A_ASSOCIATE", dul.to_provider_queue.get(False))
+    request = cast("A_ASSOCIATE", dul.to_provider_queue.get(False))
 
     # Issue TRANSPORT CONNECT request primitive to local transport service
-    # This is our "TRANSPORT CONNECT" primitive - it attempts to connect
-    #   to the peer, emitting either Evt2 or Evt17
     sock = cast("AssociationSocket", dul.socket)
-    # Grab the connection address from the primitive
-    sock.connect(cast(Tuple[str, int], primitive.called_presentation_address))
-
-    dul._tmp = primitive
+    sock.connect(T_CONNECT(request))
 
     return "Sta4"
 
@@ -203,17 +199,11 @@ def AE_2(dul: "DULServiceProvider") -> str:
     str
         ``'Sta5'``, the next state of the state machine.
     """
-    # TRANSPORT CONNECTION confirmation received from transport service
-
-    # A-ASSOCIATE (RQ) primitive received from local user
-    primitive = cast("A_ASSOCIATE", dul._tmp)
+    # TRANSPORT CONNECTION primitive received from transport service
+    primitive = cast("T_CONNECT", dul.to_provider_queue.get(False))
 
     # Send A-ASSOCIATE-RQ PDU to the peer
-    pdu = A_ASSOCIATE_RQ(primitive)
-
-    sock = cast("AssociationSocket", dul.socket)
-    sock.send(pdu.encode())
-    evt.trigger(dul.assoc, evt.EVT_PDU_SENT, {"pdu": pdu})
+    dul._send(A_ASSOCIATE_RQ(primitive.request))
 
     return "Sta5"
 
@@ -350,11 +340,8 @@ def AE_6(dul: "DULServiceProvider") -> str:
         primitive.result_source = 0x02
         primitive.diagnostic = 0x02
 
-        pdu = A_ASSOCIATE_RJ(primitive)
+        dul._send(A_ASSOCIATE_RJ(primitive))
 
-        sock = cast("AssociationSocket", dul.socket)
-        sock.send(pdu.encode())
-        evt.trigger(dul.assoc, evt.EVT_PDU_SENT, {"pdu": pdu})
         dul.artim_timer.start()
 
         return "Sta13"
@@ -387,11 +374,7 @@ def AE_7(dul: "DULServiceProvider") -> str:
     primitive = cast("A_ASSOCIATE", dul.to_provider_queue.get(False))
 
     # Send A-ASSOCIATE-AC PDU
-    pdu = A_ASSOCIATE_AC(primitive)
-
-    sock = cast("AssociationSocket", dul.socket)
-    sock.send(pdu.encode())
-    evt.trigger(dul.assoc, evt.EVT_PDU_SENT, {"pdu": pdu})
+    dul._send(A_ASSOCIATE_AC(primitive))
 
     return "Sta6"
 
@@ -417,11 +400,7 @@ def AE_8(dul: "DULServiceProvider") -> str:
     primitive = cast("A_ASSOCIATE", dul.to_provider_queue.get(False))
 
     # Send A-ASSOCIATE-RJ PDU and start ARTIM timer
-    pdu = A_ASSOCIATE_RJ(primitive)
-
-    sock = cast("AssociationSocket", dul.socket)
-    sock.send(pdu.encode())
-    evt.trigger(dul.assoc, evt.EVT_PDU_SENT, {"pdu": pdu})
+    dul._send(A_ASSOCIATE_RJ(primitive))
     dul.artim_timer.start()
 
     return "Sta13"
@@ -448,11 +427,7 @@ def DT_1(dul: "DULServiceProvider") -> str:
     primitive = cast("P_DATA", dul.to_provider_queue.get(False))
 
     # Send P-DATA-TF PDU
-    pdu = P_DATA_TF(primitive)
-
-    sock = cast("AssociationSocket", dul.socket)
-    sock.send(pdu.encode())
-    evt.trigger(dul.assoc, evt.EVT_PDU_SENT, {"pdu": pdu})
+    dul._send(P_DATA_TF(primitive))
 
     return "Sta6"
 
@@ -504,11 +479,7 @@ def AR_1(dul: "DULServiceProvider") -> str:
     primitive = cast("A_RELEASE", dul.to_provider_queue.get(False))
 
     # Send A-RELEASE-RQ PDU
-    pdu = A_RELEASE_RQ(primitive)
-
-    sock = cast("AssociationSocket", dul.socket)
-    sock.send(pdu.encode())
-    evt.trigger(dul.assoc, evt.EVT_PDU_SENT, {"pdu": pdu})
+    dul._send(A_RELEASE_RQ(primitive))
 
     return "Sta7"
 
@@ -597,11 +568,7 @@ def AR_4(dul: "DULServiceProvider") -> str:
     primitive = cast("A_RELEASE", dul.to_provider_queue.get(False))
 
     # Issue A-RELEASE-RP PDU and start ARTIM timer
-    pdu = A_RELEASE_RP(primitive)
-
-    sock = cast("AssociationSocket", dul.socket)
-    sock.send(pdu.encode())
-    evt.trigger(dul.assoc, evt.EVT_PDU_SENT, {"pdu": pdu})
+    dul._send(A_RELEASE_RP(primitive))
     dul.artim_timer.start()
 
     return "Sta13"
@@ -687,11 +654,7 @@ def AR_7(dul: "DULServiceProvider") -> str:
     primitive = cast("P_DATA", dul.to_provider_queue.get(False))
 
     # Issue P-DATA-TF PDU
-    pdu = P_DATA_TF(primitive)
-
-    sock = cast("AssociationSocket", dul.socket)
-    sock.send(pdu.encode())
-    evt.trigger(dul.assoc, evt.EVT_PDU_SENT, {"pdu": pdu})
+    dul._send(P_DATA_TF(primitive))
 
     return "Sta8"
 
@@ -746,11 +709,7 @@ def AR_9(dul: "DULServiceProvider") -> str:
     primitive = cast("A_RELEASE", dul.to_provider_queue.get(False))
 
     # Send A-RELEASE-RP PDU
-    pdu = A_RELEASE_RP(primitive)
-
-    sock = cast("AssociationSocket", dul.socket)
-    sock.send(pdu.encode())
-    evt.trigger(dul.assoc, evt.EVT_PDU_SENT, {"pdu": pdu})
+    dul._send(A_RELEASE_RP(primitive))
 
     return "Sta11"
 
@@ -818,9 +777,7 @@ def AA_1(dul: "DULServiceProvider") -> str:
         pdu.source = 0x00
         pdu.reason_diagnostic = 0x00
 
-    sock = cast("AssociationSocket", dul.socket)
-    sock.send(pdu.encode())
-    evt.trigger(dul.assoc, evt.EVT_PDU_SENT, {"pdu": pdu})
+    dul._send(pdu)
     dul.artim_timer.restart()
 
     return "Sta13"
@@ -1017,11 +974,7 @@ def AA_7(dul: "DULServiceProvider") -> str:
     primitive.provider_reason = 0x02
 
     # Send A-ABORT PDU
-    pdu = A_ABORT_RQ(primitive)
-
-    sock = cast("AssociationSocket", dul.socket)
-    sock.send(pdu.encode())
-    evt.trigger(dul.assoc, evt.EVT_PDU_SENT, {"pdu": pdu})
+    dul._send(A_ABORT_RQ(primitive))
 
     return "Sta13"
 
@@ -1049,14 +1002,12 @@ def AA_8(dul: "DULServiceProvider") -> str:
     """
     # Send A-ABORT PDU (service-dul source), issue A-P-ABORT
     # indication, and start ARTIM timer.
-    # Send A-ABORT PDU
     pdu = A_ABORT_RQ()
     pdu.source = 0x02  # A-P-ABORT
     pdu.reason_diagnostic = 0x00
 
-    sock = cast("AssociationSocket", dul.socket)
-    sock.send(pdu.encode())
-    evt.trigger(dul.assoc, evt.EVT_PDU_SENT, {"pdu": pdu})
+    # Send A-ABORT PDU
+    dul._send(pdu)
 
     # Issue A-P-ABORT to user
     primitive = A_P_ABORT()

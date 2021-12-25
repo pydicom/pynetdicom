@@ -99,3 +99,5 @@ Changes
 * The default bind address used when making association requests changed to
   ``("127.0.0.1", 0)`` (:issue:`680`)
 * ``DULServiceProvider.primitive`` and ``DULServiceProvider.pdu`` have been removed
+* :meth:`~pynetdicom.transport.AssociationSocket.connect` now takes a
+  :class:`~pynetdicom.transport.T_CONNECT` primitive

@@ -24,7 +24,7 @@ from pynetdicom.pdu_primitives import (
     ImplementationClassUIDNotification,
 )
 from pynetdicom.sop_class import Verification
-from pynetdicom.transport import AssociationSocket
+from pynetdicom.transport import AssociationSocket, T_CONNECT
 from .encoded_pdu_items import (
     a_associate_ac,
     a_associate_rq,
@@ -1823,7 +1823,8 @@ class TestState04(TestStateBase):
     """Tests for State 04: Awaiting TRANSPORT_OPEN from <transport service>."""
 
     def move_to_state(self, assoc, scp):
-        def connect(address):
+        def connect(primitive):
+            address = primitive.address
             """Override the socket's connect so no event gets added."""
             if assoc.dul.socket.socket is None:
                 assoc.dul.socket.socket = assoc.dul.socket._create_socket()
@@ -8783,9 +8784,9 @@ class TestStateMachineFunctionalAcceptor:
         assert self.fsm.current_state == "Sta1"
 
         def AE_2(dul):
-            primitive = dul._tmp
+            conn = dul.to_provider_queue.get(False)
             pdu = A_ASSOCIATE_RQ()
-            pdu.from_primitive(primitive)
+            pdu.from_primitive(conn.request)
             pdu.protocol_version = 0x0002
             bytestream = pdu.encode()
             dul.socket.send(bytestream)
