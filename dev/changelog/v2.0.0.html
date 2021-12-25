@@ -142,6 +142,9 @@ expected contexts (<a class="reference external" href="https://github.com/pydico
 <li><p>Fixed <cite>qrscp –clean</cite> (<a class="reference external" href="https://github.com/pydicom/pynetdicom/issues/681">#681</a>, <a class="reference external" href="https://github.com/pydicom/pynetdicom/issues/682">#682</a>)</p></li>
 <li><p>Fixed a memory leak when running <a class="reference internal" href="../reference/generated/pynetdicom.transport.AssociationServer.html#pynetdicom.transport.AssociationServer" title="pynetdicom.transport.AssociationServer"><code class="xref py py-class docutils literal notranslate"><span class="pre">AssociationServer</span></code></a>
 due to old Association threads not being garbage collected (<a class="reference external" href="https://github.com/pydicom/pynetdicom/issues/669">#669</a>)</p></li>
+<li><p>Fixed an exception in the state machine during association negotiation as the acceptor
+when an A-ABORT-RQ PDU is received before the initial A-ASSOCIATE-RQ has been
+processed (<a class="reference external" href="https://github.com/pydicom/pynetdicom/issues/721">#721</a>)</p></li>
 </ul>
 </section>
 <section id="enhancements">
@@ -201,6 +204,9 @@ from the DICOM Standard. In particular <code class="docutils literal notranslate
 ASCII <a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.10)"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></a> rather than <a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#bytes" title="(in Python v3.10)"><code class="xref py py-class docutils literal notranslate"><span class="pre">bytes</span></code></a></p></li>
 <li><p>The default bind address used when making association requests changed to
 <code class="docutils literal notranslate"><span class="pre">(&quot;127.0.0.1&quot;,</span> <span class="pre">0)</span></code> (<a class="reference external" href="https://github.com/pydicom/pynetdicom/issues/680">#680</a>)</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">DULServiceProvider.primitive</span></code> and <code class="docutils literal notranslate"><span class="pre">DULServiceProvider.pdu</span></code> have been removed</p></li>
+<li><p><a class="reference internal" href="../reference/generated/pynetdicom.transport.AssociationSocket.html#pynetdicom.transport.AssociationSocket.connect" title="pynetdicom.transport.AssociationSocket.connect"><code class="xref py py-meth docutils literal notranslate"><span class="pre">AssociationSocket.connect</span></code></a>
+now takes a <a class="reference internal" href="../reference/generated/pynetdicom.transport.T_CONNECT.html#pynetdicom.transport.T_CONNECT" title="pynetdicom.transport.T_CONNECT"><code class="xref py py-class docutils literal notranslate"><span class="pre">T_CONNECT</span></code></a> primitive</p></li>
 </ul>
 </section>
 </section>

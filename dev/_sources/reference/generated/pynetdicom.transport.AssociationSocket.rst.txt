@@ -30,6 +30,7 @@
    
       ~AssociationSocket.assoc
       ~AssociationSocket.event_queue
+      ~AssociationSocket.provider_queue
       ~AssociationSocket.ready
       ~AssociationSocket.tls_args
    
