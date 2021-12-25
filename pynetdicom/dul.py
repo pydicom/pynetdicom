@@ -55,8 +55,7 @@ class DULServiceProvider(Thread):
     to_provider_queue : queue.Queue
         Queue of primitives received from the peer to be processed by the service user.
     to_user_queue : queue.Queue
-        Queue of primitives received from the service user to be processed by the
-        DUL service.
+        Queue of processed PDUs for the DUL service user.
     event_queue : queue.Queue
         List of queued events to be processed by the state machine.
     state_machine : fsm.StateMachine
@@ -335,7 +334,8 @@ class DULServiceProvider(Thread):
         Returns
         -------
         Optional[Union[A_ASSOCIATE, A_RELEASE, A_ABORT, A_P_ABORT]]
-            The next primitive in the :attr:`~DULServiceProvider.to_user_queue`.
+            The next primitive in the :attr:`~DULServiceProvider.to_user_queue`, or
+            ``None`` if the queue is empty.
         """
         try:
             # If block is True and timeout is None then block until an item

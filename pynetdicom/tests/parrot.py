@@ -197,7 +197,7 @@ class SteppingParrotRequest(ParrotRequest):
                 self.send(data)
                 self.sent.append(data)
 
-            LOGGER.debug("Parrent: step ending, event.clear()")
+            LOGGER.debug("Parrot: step ending, event.clear()")
             self.event.clear()
 
 

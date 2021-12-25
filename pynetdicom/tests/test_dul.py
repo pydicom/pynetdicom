@@ -270,11 +270,15 @@ class TestDUL:
         assert assoc.is_established
 
         scp.step()  # send bad PDU
-        scp.step()  # receive abort
-        assert assoc.is_aborted
 
+        while assoc.dul.is_alive():
+            time.sleep(0.001)
+
+        scp.step()  # receive abort
         scp.step()
         scp.shutdown()
+
+        assert assoc.is_aborted
 
     def test_exception_in_reactor(self):
         """Test that an exception being raised in the DUL reactor kills the
@@ -310,7 +314,12 @@ class TestDUL:
         assoc.dul._read_pdu_data = patch_read_pdu
 
         scp.step()
+
+        while assoc.dul.is_alive():
+            time.sleep(0.001)
+
         scp.step()
+
         assert assoc.is_aborted
 
         scp.step()
