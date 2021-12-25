@@ -37,7 +37,7 @@ from .encoded_pdu_items import (
 from .parrot import ThreadedParrot
 
 
-debug_logger()
+# debug_logger()
 
 
 REFERENCE_BAD_EVENTS = [
